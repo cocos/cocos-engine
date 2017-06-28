@@ -145,11 +145,11 @@ static bool jsb_cocos2dx_experimental_webView_setOnJSCallback(JSContext *cx, uin
     JS_ReportErrorUTF8(cx, "jsb_cocos2dx_experimental_webView_setOnJSCallback : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-extern JSObject* jsb_cocos2d_experimental_ui_WebView_prototype;
+extern JS::PersistentRootedObject* jsb_cocos2d_experimental_ui_WebView_prototype;
 
 void register_all_cocos2dx_experimental_webView_manual(JSContext* cx, JS::HandleObject global)
 {
-    JS::RootedObject proto(cx, jsb_cocos2d_experimental_ui_WebView_prototype);
+    JS::RootedObject proto(cx, jsb_cocos2d_experimental_ui_WebView_prototype->get());
     JS_DefineFunction(cx, proto, "setOnShouldStartLoading", jsb_cocos2dx_experimental_webView_setOnShouldStartLoading, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, proto, "setOnDidFinishLoading", jsb_cocos2dx_experimental_webView_setOnDidFinishLoading, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, proto, "setOnDidFailLoading", jsb_cocos2dx_experimental_webView_setOnDidFailLoading, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);

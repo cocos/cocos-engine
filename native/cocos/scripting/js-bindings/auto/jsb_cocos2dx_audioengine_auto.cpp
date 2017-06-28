@@ -4,7 +4,7 @@
 #include "audio/include/AudioEngine.h"
 
 JSClass  *jsb_cocos2d_experimental_AudioProfile_class;
-JSObject *jsb_cocos2d_experimental_AudioProfile_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_experimental_AudioProfile_prototype;
 
 bool js_cocos2dx_audioengine_AudioProfile_get_name(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -102,11 +102,10 @@ bool js_cocos2dx_audioengine_AudioProfile_constructor(JSContext *cx, uint32_t ar
     bool ok = true;
     cocos2d::experimental::AudioProfile* cobj = new (std::nothrow) cocos2d::experimental::AudioProfile();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::experimental::AudioProfile>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::experimental::AudioProfile");
+    JS::RootedObject proto(cx, jsb_cocos2d_experimental_AudioProfile_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_cocos2d_experimental_AudioProfile_class, proto, &jsobj, "cocos2d::experimental::AudioProfile");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -148,7 +147,7 @@ void js_register_cocos2dx_audioengine_AudioProfile(JSContext *cx, JS::HandleObje
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_experimental_AudioProfile_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_experimental_AudioProfile_class,
@@ -156,20 +155,20 @@ void js_register_cocos2dx_audioengine_AudioProfile(JSContext *cx, JS::HandleObje
         properties,
         nullptr,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_experimental_AudioProfile_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::experimental::AudioProfile>(cx, jsb_cocos2d_experimental_AudioProfile_class, proto);
+    jsb_cocos2d_experimental_AudioProfile_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "AudioProfile", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::experimental::AudioProfile>(cx, jsb_cocos2d_experimental_AudioProfile_class, proto);
 }
 
 JSClass  *jsb_cocos2d_experimental_AudioEngine_class;
-JSObject *jsb_cocos2d_experimental_AudioEngine_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_experimental_AudioEngine_prototype;
 
 bool js_cocos2dx_audioengine_AudioEngine_lazyInit(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -812,7 +811,7 @@ void js_register_cocos2dx_audioengine_AudioEngine(JSContext *cx, JS::HandleObjec
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_experimental_AudioEngine_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_experimental_AudioEngine_class,
@@ -820,16 +819,16 @@ void js_register_cocos2dx_audioengine_AudioEngine(JSContext *cx, JS::HandleObjec
         nullptr,
         nullptr,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_experimental_AudioEngine_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::experimental::AudioEngine>(cx, jsb_cocos2d_experimental_AudioEngine_class, proto);
+    jsb_cocos2d_experimental_AudioEngine_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "AudioEngine", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::experimental::AudioEngine>(cx, jsb_cocos2d_experimental_AudioEngine_class, proto);
 }
 
 void register_all_cocos2dx_audioengine(JSContext* cx, JS::HandleObject obj) {

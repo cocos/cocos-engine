@@ -4,7 +4,7 @@
 #include "scripting/js-bindings/manual/box2d/js_bindings_box2d_manual.h"
 
 JSClass  *jsb_b2Draw_class;
-JSObject *jsb_b2Draw_prototype;
+JS::PersistentRootedObject *jsb_b2Draw_prototype;
 
 bool js_box2dclasses_b2Draw_AppendFlags(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -283,7 +283,7 @@ void js_register_box2dclasses_b2Draw(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_b2Draw_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2Draw_class,
@@ -291,20 +291,20 @@ void js_register_box2dclasses_b2Draw(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2Draw_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2Draw>(cx, jsb_b2Draw_class, proto);
+    jsb_b2Draw_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2Draw", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2Draw>(cx, jsb_b2Draw_class, proto);
 }
 
 JSClass  *jsb_b2Shape_class;
-JSObject *jsb_b2Shape_prototype;
+JS::PersistentRootedObject *jsb_b2Shape_prototype;
 
 bool js_box2dclasses_b2Shape_ComputeMass(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -521,7 +521,7 @@ void js_register_box2dclasses_b2Shape(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_b2Shape_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2Shape_class,
@@ -529,20 +529,20 @@ void js_register_box2dclasses_b2Shape(JSContext *cx, JS::HandleObject global) {
         properties,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2Shape_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2Shape>(cx, jsb_b2Shape_class, proto);
+    jsb_b2Shape_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2Shape", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2Shape>(cx, jsb_b2Shape_class, proto);
 }
 
 JSClass  *jsb_b2CircleShape_class;
-JSObject *jsb_b2CircleShape_prototype;
+JS::PersistentRootedObject *jsb_b2CircleShape_prototype;
 
 bool js_box2dclasses_b2CircleShape_ComputeMass(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -803,11 +803,10 @@ bool js_box2dclasses_b2CircleShape_constructor(JSContext *cx, uint32_t argc, JS:
     bool ok = true;
     b2CircleShape* cobj = new (std::nothrow) b2CircleShape();
 
-    js_type_class_t *typeClass = js_get_type_from_native<b2CircleShape>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "b2CircleShape");
+    JS::RootedObject proto(cx, jsb_b2CircleShape_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_b2CircleShape_class, proto, &jsobj, "b2CircleShape");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -820,7 +819,7 @@ bool js_box2dclasses_b2CircleShape_constructor(JSContext *cx, uint32_t argc, JS:
 }
 
 
-extern JSObject *jsb_b2Shape_prototype;
+extern JS::PersistentRootedObject *jsb_b2Shape_prototype;
 
 void js_b2CircleShape_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (b2CircleShape)", obj);
@@ -861,8 +860,8 @@ void js_register_box2dclasses_b2CircleShape(JSContext *cx, JS::HandleObject glob
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_b2Shape_prototype);
-    jsb_b2CircleShape_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_b2Shape_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2CircleShape_class,
@@ -870,20 +869,20 @@ void js_register_box2dclasses_b2CircleShape(JSContext *cx, JS::HandleObject glob
         properties,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2CircleShape_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2CircleShape>(cx, jsb_b2CircleShape_class, proto);
+    jsb_b2CircleShape_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2CircleShape", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2CircleShape>(cx, jsb_b2CircleShape_class, proto);
 }
 
 JSClass  *jsb_b2EdgeShape_class;
-JSObject *jsb_b2EdgeShape_prototype;
+JS::PersistentRootedObject *jsb_b2EdgeShape_prototype;
 
 bool js_box2dclasses_b2EdgeShape_Set(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -1077,11 +1076,10 @@ bool js_box2dclasses_b2EdgeShape_constructor(JSContext *cx, uint32_t argc, JS::V
     bool ok = true;
     b2EdgeShape* cobj = new (std::nothrow) b2EdgeShape();
 
-    js_type_class_t *typeClass = js_get_type_from_native<b2EdgeShape>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "b2EdgeShape");
+    JS::RootedObject proto(cx, jsb_b2EdgeShape_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_b2EdgeShape_class, proto, &jsobj, "b2EdgeShape");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -1094,7 +1092,7 @@ bool js_box2dclasses_b2EdgeShape_constructor(JSContext *cx, uint32_t argc, JS::V
 }
 
 
-extern JSObject *jsb_b2Shape_prototype;
+extern JS::PersistentRootedObject *jsb_b2Shape_prototype;
 
 void js_b2EdgeShape_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (b2EdgeShape)", obj);
@@ -1132,8 +1130,8 @@ void js_register_box2dclasses_b2EdgeShape(JSContext *cx, JS::HandleObject global
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_b2Shape_prototype);
-    jsb_b2EdgeShape_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_b2Shape_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2EdgeShape_class,
@@ -1141,20 +1139,20 @@ void js_register_box2dclasses_b2EdgeShape(JSContext *cx, JS::HandleObject global
         properties,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2EdgeShape_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2EdgeShape>(cx, jsb_b2EdgeShape_class, proto);
+    jsb_b2EdgeShape_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2EdgeShape", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2EdgeShape>(cx, jsb_b2EdgeShape_class, proto);
 }
 
 JSClass  *jsb_b2ChainShape_class;
-JSObject *jsb_b2ChainShape_prototype;
+JS::PersistentRootedObject *jsb_b2ChainShape_prototype;
 
 bool js_box2dclasses_b2ChainShape_ComputeMass(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -1412,11 +1410,10 @@ bool js_box2dclasses_b2ChainShape_constructor(JSContext *cx, uint32_t argc, JS::
     bool ok = true;
     b2ChainShape* cobj = new (std::nothrow) b2ChainShape();
 
-    js_type_class_t *typeClass = js_get_type_from_native<b2ChainShape>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "b2ChainShape");
+    JS::RootedObject proto(cx, jsb_b2ChainShape_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_b2ChainShape_class, proto, &jsobj, "b2ChainShape");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -1429,7 +1426,7 @@ bool js_box2dclasses_b2ChainShape_constructor(JSContext *cx, uint32_t argc, JS::
 }
 
 
-extern JSObject *jsb_b2Shape_prototype;
+extern JS::PersistentRootedObject *jsb_b2Shape_prototype;
 
 void js_b2ChainShape_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (b2ChainShape)", obj);
@@ -1470,8 +1467,8 @@ void js_register_box2dclasses_b2ChainShape(JSContext *cx, JS::HandleObject globa
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_b2Shape_prototype);
-    jsb_b2ChainShape_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_b2Shape_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2ChainShape_class,
@@ -1479,20 +1476,20 @@ void js_register_box2dclasses_b2ChainShape(JSContext *cx, JS::HandleObject globa
         properties,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2ChainShape_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2ChainShape>(cx, jsb_b2ChainShape_class, proto);
+    jsb_b2ChainShape_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2ChainShape", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2ChainShape>(cx, jsb_b2ChainShape_class, proto);
 }
 
 JSClass  *jsb_b2PolygonShape_class;
-JSObject *jsb_b2PolygonShape_prototype;
+JS::PersistentRootedObject *jsb_b2PolygonShape_prototype;
 
 bool js_box2dclasses_b2PolygonShape_ComputeMass(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -1727,11 +1724,10 @@ bool js_box2dclasses_b2PolygonShape_constructor(JSContext *cx, uint32_t argc, JS
     bool ok = true;
     b2PolygonShape* cobj = new (std::nothrow) b2PolygonShape();
 
-    js_type_class_t *typeClass = js_get_type_from_native<b2PolygonShape>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "b2PolygonShape");
+    JS::RootedObject proto(cx, jsb_b2PolygonShape_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_b2PolygonShape_class, proto, &jsobj, "b2PolygonShape");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -1744,7 +1740,7 @@ bool js_box2dclasses_b2PolygonShape_constructor(JSContext *cx, uint32_t argc, JS
 }
 
 
-extern JSObject *jsb_b2Shape_prototype;
+extern JS::PersistentRootedObject *jsb_b2Shape_prototype;
 
 void js_b2PolygonShape_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (b2PolygonShape)", obj);
@@ -1784,8 +1780,8 @@ void js_register_box2dclasses_b2PolygonShape(JSContext *cx, JS::HandleObject glo
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_b2Shape_prototype);
-    jsb_b2PolygonShape_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_b2Shape_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2PolygonShape_class,
@@ -1793,20 +1789,20 @@ void js_register_box2dclasses_b2PolygonShape(JSContext *cx, JS::HandleObject glo
         properties,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2PolygonShape_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2PolygonShape>(cx, jsb_b2PolygonShape_class, proto);
+    jsb_b2PolygonShape_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2PolygonShape", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2PolygonShape>(cx, jsb_b2PolygonShape_class, proto);
 }
 
 JSClass  *jsb_b2Body_class;
-JSObject *jsb_b2Body_prototype;
+JS::PersistentRootedObject *jsb_b2Body_prototype;
 
 bool js_box2dclasses_b2Body_GetAngle(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -3022,7 +3018,7 @@ void js_register_box2dclasses_b2Body(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_b2Body_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2Body_class,
@@ -3030,20 +3026,20 @@ void js_register_box2dclasses_b2Body(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2Body_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2Body>(cx, jsb_b2Body_class, proto);
+    jsb_b2Body_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2Body", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2Body>(cx, jsb_b2Body_class, proto);
 }
 
 JSClass  *jsb_b2Fixture_class;
-JSObject *jsb_b2Fixture_prototype;
+JS::PersistentRootedObject *jsb_b2Fixture_prototype;
 
 bool js_box2dclasses_b2Fixture_GetRestitution(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -3588,7 +3584,7 @@ void js_register_box2dclasses_b2Fixture(JSContext *cx, JS::HandleObject global) 
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_b2Fixture_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2Fixture_class,
@@ -3596,20 +3592,20 @@ void js_register_box2dclasses_b2Fixture(JSContext *cx, JS::HandleObject global) 
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2Fixture_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2Fixture>(cx, jsb_b2Fixture_class, proto);
+    jsb_b2Fixture_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2Fixture", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2Fixture>(cx, jsb_b2Fixture_class, proto);
 }
 
 JSClass  *jsb_b2ContactListener_class;
-JSObject *jsb_b2ContactListener_prototype;
+JS::PersistentRootedObject *jsb_b2ContactListener_prototype;
 
 bool js_box2dclasses_b2ContactListener_EndContact(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -3753,7 +3749,7 @@ void js_register_box2dclasses_b2ContactListener(JSContext *cx, JS::HandleObject 
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_b2ContactListener_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2ContactListener_class,
@@ -3761,20 +3757,20 @@ void js_register_box2dclasses_b2ContactListener(JSContext *cx, JS::HandleObject 
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2ContactListener_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2ContactListener>(cx, jsb_b2ContactListener_class, proto);
+    jsb_b2ContactListener_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2ContactListener", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2ContactListener>(cx, jsb_b2ContactListener_class, proto);
 }
 
 JSClass  *jsb_b2QueryCallback_class;
-JSObject *jsb_b2QueryCallback_prototype;
+JS::PersistentRootedObject *jsb_b2QueryCallback_prototype;
 
 bool js_box2dclasses_b2QueryCallback_ReportFixture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -3828,7 +3824,7 @@ void js_register_box2dclasses_b2QueryCallback(JSContext *cx, JS::HandleObject gl
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_b2QueryCallback_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2QueryCallback_class,
@@ -3836,20 +3832,20 @@ void js_register_box2dclasses_b2QueryCallback(JSContext *cx, JS::HandleObject gl
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2QueryCallback_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2QueryCallback>(cx, jsb_b2QueryCallback_class, proto);
+    jsb_b2QueryCallback_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2QueryCallback", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2QueryCallback>(cx, jsb_b2QueryCallback_class, proto);
 }
 
 JSClass  *jsb_b2RayCastCallback_class;
-JSObject *jsb_b2RayCastCallback_prototype;
+JS::PersistentRootedObject *jsb_b2RayCastCallback_prototype;
 
 bool js_box2dclasses_b2RayCastCallback_ReportFixture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -3909,7 +3905,7 @@ void js_register_box2dclasses_b2RayCastCallback(JSContext *cx, JS::HandleObject 
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_b2RayCastCallback_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2RayCastCallback_class,
@@ -3917,20 +3913,20 @@ void js_register_box2dclasses_b2RayCastCallback(JSContext *cx, JS::HandleObject 
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2RayCastCallback_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2RayCastCallback>(cx, jsb_b2RayCastCallback_class, proto);
+    jsb_b2RayCastCallback_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2RayCastCallback", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2RayCastCallback>(cx, jsb_b2RayCastCallback_class, proto);
 }
 
 JSClass  *jsb_b2World_class;
-JSObject *jsb_b2World_prototype;
+JS::PersistentRootedObject *jsb_b2World_prototype;
 
 bool js_box2dclasses_b2World_ShiftOrigin(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -4833,11 +4829,10 @@ bool js_box2dclasses_b2World_constructor(JSContext *cx, uint32_t argc, JS::Value
     JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2World_constructor : Error processing arguments");
     b2World* cobj = new (std::nothrow) b2World(arg0);
 
-    js_type_class_t *typeClass = js_get_type_from_native<b2World>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "b2World");
+    JS::RootedObject proto(cx, jsb_b2World_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_b2World_class, proto, &jsobj, "b2World");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -4913,7 +4908,7 @@ void js_register_box2dclasses_b2World(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_b2World_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2World_class,
@@ -4921,20 +4916,20 @@ void js_register_box2dclasses_b2World(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2World_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2World>(cx, jsb_b2World_class, proto);
+    jsb_b2World_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2World", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2World>(cx, jsb_b2World_class, proto);
 }
 
 JSClass  *jsb_b2Contact_class;
-JSObject *jsb_b2Contact_prototype;
+JS::PersistentRootedObject *jsb_b2Contact_prototype;
 
 bool js_box2dclasses_b2Contact_GetNext(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -5463,7 +5458,7 @@ void js_register_box2dclasses_b2Contact(JSContext *cx, JS::HandleObject global) 
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_b2Contact_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2Contact_class,
@@ -5471,20 +5466,20 @@ void js_register_box2dclasses_b2Contact(JSContext *cx, JS::HandleObject global) 
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2Contact_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2Contact>(cx, jsb_b2Contact_class, proto);
+    jsb_b2Contact_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2Contact", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2Contact>(cx, jsb_b2Contact_class, proto);
 }
 
 JSClass  *jsb_b2Joint_class;
-JSObject *jsb_b2Joint_prototype;
+JS::PersistentRootedObject *jsb_b2Joint_prototype;
 
 bool js_box2dclasses_b2Joint_GetNext(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -5802,7 +5797,7 @@ void js_register_box2dclasses_b2Joint(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_b2Joint_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2Joint_class,
@@ -5810,20 +5805,20 @@ void js_register_box2dclasses_b2Joint(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2Joint_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2Joint>(cx, jsb_b2Joint_class, proto);
+    jsb_b2Joint_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2Joint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2Joint>(cx, jsb_b2Joint_class, proto);
 }
 
 JSClass  *jsb_b2DistanceJoint_class;
-JSObject *jsb_b2DistanceJoint_prototype;
+JS::PersistentRootedObject *jsb_b2DistanceJoint_prototype;
 
 bool js_box2dclasses_b2DistanceJoint_SetDampingRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -6088,7 +6083,7 @@ bool js_box2dclasses_b2DistanceJoint_SetLength(JSContext *cx, uint32_t argc, JS:
     return false;
 }
 
-extern JSObject *jsb_b2Joint_prototype;
+extern JS::PersistentRootedObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2DistanceJoint(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps b2DistanceJoint_classOps = {
@@ -6121,8 +6116,8 @@ void js_register_box2dclasses_b2DistanceJoint(JSContext *cx, JS::HandleObject gl
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype);
-    jsb_b2DistanceJoint_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2DistanceJoint_class,
@@ -6130,20 +6125,20 @@ void js_register_box2dclasses_b2DistanceJoint(JSContext *cx, JS::HandleObject gl
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2DistanceJoint_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2DistanceJoint>(cx, jsb_b2DistanceJoint_class, proto);
+    jsb_b2DistanceJoint_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2DistanceJoint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2DistanceJoint>(cx, jsb_b2DistanceJoint_class, proto);
 }
 
 JSClass  *jsb_b2FrictionJoint_class;
-JSObject *jsb_b2FrictionJoint_prototype;
+JS::PersistentRootedObject *jsb_b2FrictionJoint_prototype;
 
 bool js_box2dclasses_b2FrictionJoint_SetMaxTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -6368,7 +6363,7 @@ bool js_box2dclasses_b2FrictionJoint_GetMaxTorque(JSContext *cx, uint32_t argc, 
     return false;
 }
 
-extern JSObject *jsb_b2Joint_prototype;
+extern JS::PersistentRootedObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2FrictionJoint(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps b2FrictionJoint_classOps = {
@@ -6399,8 +6394,8 @@ void js_register_box2dclasses_b2FrictionJoint(JSContext *cx, JS::HandleObject gl
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype);
-    jsb_b2FrictionJoint_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2FrictionJoint_class,
@@ -6408,20 +6403,20 @@ void js_register_box2dclasses_b2FrictionJoint(JSContext *cx, JS::HandleObject gl
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2FrictionJoint_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2FrictionJoint>(cx, jsb_b2FrictionJoint_class, proto);
+    jsb_b2FrictionJoint_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2FrictionJoint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2FrictionJoint>(cx, jsb_b2FrictionJoint_class, proto);
 }
 
 JSClass  *jsb_b2GearJoint_class;
-JSObject *jsb_b2GearJoint_prototype;
+JS::PersistentRootedObject *jsb_b2GearJoint_prototype;
 
 bool js_box2dclasses_b2GearJoint_GetJoint1(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -6618,7 +6613,7 @@ bool js_box2dclasses_b2GearJoint_GetRatio(JSContext *cx, uint32_t argc, JS::Valu
     return false;
 }
 
-extern JSObject *jsb_b2Joint_prototype;
+extern JS::PersistentRootedObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2GearJoint(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps b2GearJoint_classOps = {
@@ -6647,8 +6642,8 @@ void js_register_box2dclasses_b2GearJoint(JSContext *cx, JS::HandleObject global
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype);
-    jsb_b2GearJoint_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2GearJoint_class,
@@ -6656,20 +6651,20 @@ void js_register_box2dclasses_b2GearJoint(JSContext *cx, JS::HandleObject global
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2GearJoint_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2GearJoint>(cx, jsb_b2GearJoint_class, proto);
+    jsb_b2GearJoint_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2GearJoint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2GearJoint>(cx, jsb_b2GearJoint_class, proto);
 }
 
 JSClass  *jsb_b2MotorJoint_class;
-JSObject *jsb_b2MotorJoint_prototype;
+JS::PersistentRootedObject *jsb_b2MotorJoint_prototype;
 
 bool js_box2dclasses_b2MotorJoint_SetMaxTorque(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -6974,7 +6969,7 @@ bool js_box2dclasses_b2MotorJoint_SetCorrectionFactor(JSContext *cx, uint32_t ar
     return false;
 }
 
-extern JSObject *jsb_b2Joint_prototype;
+extern JS::PersistentRootedObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2MotorJoint(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps b2MotorJoint_classOps = {
@@ -7009,8 +7004,8 @@ void js_register_box2dclasses_b2MotorJoint(JSContext *cx, JS::HandleObject globa
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype);
-    jsb_b2MotorJoint_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2MotorJoint_class,
@@ -7018,20 +7013,20 @@ void js_register_box2dclasses_b2MotorJoint(JSContext *cx, JS::HandleObject globa
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2MotorJoint_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2MotorJoint>(cx, jsb_b2MotorJoint_class, proto);
+    jsb_b2MotorJoint_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2MotorJoint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2MotorJoint>(cx, jsb_b2MotorJoint_class, proto);
 }
 
 JSClass  *jsb_b2MouseJoint_class;
-JSObject *jsb_b2MouseJoint_prototype;
+JS::PersistentRootedObject *jsb_b2MouseJoint_prototype;
 
 bool js_box2dclasses_b2MouseJoint_SetDampingRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -7316,7 +7311,7 @@ bool js_box2dclasses_b2MouseJoint_ShiftOrigin(JSContext *cx, uint32_t argc, JS::
     return false;
 }
 
-extern JSObject *jsb_b2Joint_prototype;
+extern JS::PersistentRootedObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2MouseJoint(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps b2MouseJoint_classOps = {
@@ -7350,8 +7345,8 @@ void js_register_box2dclasses_b2MouseJoint(JSContext *cx, JS::HandleObject globa
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype);
-    jsb_b2MouseJoint_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2MouseJoint_class,
@@ -7359,20 +7354,20 @@ void js_register_box2dclasses_b2MouseJoint(JSContext *cx, JS::HandleObject globa
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2MouseJoint_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2MouseJoint>(cx, jsb_b2MouseJoint_class, proto);
+    jsb_b2MouseJoint_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2MouseJoint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2MouseJoint>(cx, jsb_b2MouseJoint_class, proto);
 }
 
 JSClass  *jsb_b2PrismaticJoint_class;
-JSObject *jsb_b2PrismaticJoint_prototype;
+JS::PersistentRootedObject *jsb_b2PrismaticJoint_prototype;
 
 bool js_box2dclasses_b2PrismaticJoint_GetLocalAxisA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -7842,7 +7837,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetAnchorB(JSContext *cx, uint32_t argc, J
     return false;
 }
 
-extern JSObject *jsb_b2Joint_prototype;
+extern JS::PersistentRootedObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2PrismaticJoint(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps b2PrismaticJoint_classOps = {
@@ -7885,8 +7880,8 @@ void js_register_box2dclasses_b2PrismaticJoint(JSContext *cx, JS::HandleObject g
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype);
-    jsb_b2PrismaticJoint_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2PrismaticJoint_class,
@@ -7894,20 +7889,20 @@ void js_register_box2dclasses_b2PrismaticJoint(JSContext *cx, JS::HandleObject g
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2PrismaticJoint_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2PrismaticJoint>(cx, jsb_b2PrismaticJoint_class, proto);
+    jsb_b2PrismaticJoint_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2PrismaticJoint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2PrismaticJoint>(cx, jsb_b2PrismaticJoint_class, proto);
 }
 
 JSClass  *jsb_b2PulleyJoint_class;
-JSObject *jsb_b2PulleyJoint_prototype;
+JS::PersistentRootedObject *jsb_b2PulleyJoint_prototype;
 
 bool js_box2dclasses_b2PulleyJoint_GetCurrentLengthA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -8172,7 +8167,7 @@ bool js_box2dclasses_b2PulleyJoint_GetRatio(JSContext *cx, uint32_t argc, JS::Va
     return false;
 }
 
-extern JSObject *jsb_b2Joint_prototype;
+extern JS::PersistentRootedObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2PulleyJoint(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps b2PulleyJoint_classOps = {
@@ -8205,8 +8200,8 @@ void js_register_box2dclasses_b2PulleyJoint(JSContext *cx, JS::HandleObject glob
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype);
-    jsb_b2PulleyJoint_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2PulleyJoint_class,
@@ -8214,20 +8209,20 @@ void js_register_box2dclasses_b2PulleyJoint(JSContext *cx, JS::HandleObject glob
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2PulleyJoint_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2PulleyJoint>(cx, jsb_b2PulleyJoint_class, proto);
+    jsb_b2PulleyJoint_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2PulleyJoint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2PulleyJoint>(cx, jsb_b2PulleyJoint_class, proto);
 }
 
 JSClass  *jsb_b2RevoluteJoint_class;
-JSObject *jsb_b2RevoluteJoint_prototype;
+JS::PersistentRootedObject *jsb_b2RevoluteJoint_prototype;
 
 bool js_box2dclasses_b2RevoluteJoint_GetLowerLimit(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -8677,7 +8672,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS
     return false;
 }
 
-extern JSObject *jsb_b2Joint_prototype;
+extern JS::PersistentRootedObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2RevoluteJoint(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps b2RevoluteJoint_classOps = {
@@ -8719,8 +8714,8 @@ void js_register_box2dclasses_b2RevoluteJoint(JSContext *cx, JS::HandleObject gl
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype);
-    jsb_b2RevoluteJoint_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2RevoluteJoint_class,
@@ -8728,20 +8723,20 @@ void js_register_box2dclasses_b2RevoluteJoint(JSContext *cx, JS::HandleObject gl
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2RevoluteJoint_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2RevoluteJoint>(cx, jsb_b2RevoluteJoint_class, proto);
+    jsb_b2RevoluteJoint_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2RevoluteJoint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2RevoluteJoint>(cx, jsb_b2RevoluteJoint_class, proto);
 }
 
 JSClass  *jsb_b2RopeJoint_class;
-JSObject *jsb_b2RopeJoint_prototype;
+JS::PersistentRootedObject *jsb_b2RopeJoint_prototype;
 
 bool js_box2dclasses_b2RopeJoint_GetAnchorA(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -8946,7 +8941,7 @@ bool js_box2dclasses_b2RopeJoint_GetLimitState(JSContext *cx, uint32_t argc, JS:
     return false;
 }
 
-extern JSObject *jsb_b2Joint_prototype;
+extern JS::PersistentRootedObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2RopeJoint(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps b2RopeJoint_classOps = {
@@ -8976,8 +8971,8 @@ void js_register_box2dclasses_b2RopeJoint(JSContext *cx, JS::HandleObject global
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype);
-    jsb_b2RopeJoint_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2RopeJoint_class,
@@ -8985,20 +8980,20 @@ void js_register_box2dclasses_b2RopeJoint(JSContext *cx, JS::HandleObject global
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2RopeJoint_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2RopeJoint>(cx, jsb_b2RopeJoint_class, proto);
+    jsb_b2RopeJoint_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2RopeJoint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2RopeJoint>(cx, jsb_b2RopeJoint_class, proto);
 }
 
 JSClass  *jsb_b2WeldJoint_class;
-JSObject *jsb_b2WeldJoint_prototype;
+JS::PersistentRootedObject *jsb_b2WeldJoint_prototype;
 
 bool js_box2dclasses_b2WeldJoint_SetDampingRatio(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -9243,7 +9238,7 @@ bool js_box2dclasses_b2WeldJoint_GetReferenceAngle(JSContext *cx, uint32_t argc,
     return false;
 }
 
-extern JSObject *jsb_b2Joint_prototype;
+extern JS::PersistentRootedObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2WeldJoint(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps b2WeldJoint_classOps = {
@@ -9275,8 +9270,8 @@ void js_register_box2dclasses_b2WeldJoint(JSContext *cx, JS::HandleObject global
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype);
-    jsb_b2WeldJoint_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2WeldJoint_class,
@@ -9284,20 +9279,20 @@ void js_register_box2dclasses_b2WeldJoint(JSContext *cx, JS::HandleObject global
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2WeldJoint_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2WeldJoint>(cx, jsb_b2WeldJoint_class, proto);
+    jsb_b2WeldJoint_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2WeldJoint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2WeldJoint>(cx, jsb_b2WeldJoint_class, proto);
 }
 
 JSClass  *jsb_b2WheelJoint_class;
-JSObject *jsb_b2WheelJoint_prototype;
+JS::PersistentRootedObject *jsb_b2WheelJoint_prototype;
 
 bool js_box2dclasses_b2WheelJoint_IsMotorEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -9725,7 +9720,7 @@ bool js_box2dclasses_b2WheelJoint_EnableMotor(JSContext *cx, uint32_t argc, JS::
     return false;
 }
 
-extern JSObject *jsb_b2Joint_prototype;
+extern JS::PersistentRootedObject *jsb_b2Joint_prototype;
 
 void js_register_box2dclasses_b2WheelJoint(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps b2WheelJoint_classOps = {
@@ -9766,8 +9761,8 @@ void js_register_box2dclasses_b2WheelJoint(JSContext *cx, JS::HandleObject globa
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype);
-    jsb_b2WheelJoint_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_b2Joint_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_b2WheelJoint_class,
@@ -9775,16 +9770,16 @@ void js_register_box2dclasses_b2WheelJoint(JSContext *cx, JS::HandleObject globa
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_b2WheelJoint_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<b2WheelJoint>(cx, jsb_b2WheelJoint_class, proto);
+    jsb_b2WheelJoint_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "b2WheelJoint", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<b2WheelJoint>(cx, jsb_b2WheelJoint_class, proto);
 }
 
 void register_all_box2dclasses(JSContext* cx, JS::HandleObject obj) {

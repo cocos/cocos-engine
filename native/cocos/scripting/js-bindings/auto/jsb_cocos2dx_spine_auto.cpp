@@ -4,7 +4,7 @@
 #include "spine/jsb_cocos2dx_spine_manual.h"
 
 JSClass  *jsb_spine_SkeletonRenderer_class;
-JSObject *jsb_spine_SkeletonRenderer_prototype;
+JS::PersistentRootedObject *jsb_spine_SkeletonRenderer_prototype;
 
 bool js_cocos2dx_spine_SkeletonRenderer_setTimeScale(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -698,9 +698,8 @@ bool js_cocos2dx_spine_SkeletonRenderer_constructor(JSContext *cx, uint32_t argc
             if (!ok) { ok = true; break; }
             cobj = new (std::nothrow) spine::SkeletonRenderer(arg0);
 
-            js_type_class_t *typeClass = js_get_type_from_native<spine::SkeletonRenderer>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto->get());
-            obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
+            JS::RootedObject proto(cx, jsb_spine_SkeletonRenderer_prototype->get());
+            obj = JS_NewObjectWithGivenProto(cx, jsb_spine_SkeletonRenderer_class, proto);
             jsb_ref_init(cx, obj, cobj, "spine::SkeletonRenderer");
             jsb_new_proxy(cx, cobj, obj);
         }
@@ -717,9 +716,8 @@ bool js_cocos2dx_spine_SkeletonRenderer_constructor(JSContext *cx, uint32_t argc
             ok &= jsval_to_bool(cx, args.get(1), &arg1);
             cobj = new (std::nothrow) spine::SkeletonRenderer(arg0, arg1);
 
-            js_type_class_t *typeClass = js_get_type_from_native<spine::SkeletonRenderer>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto->get());
-            obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
+            JS::RootedObject proto(cx, jsb_spine_SkeletonRenderer_prototype->get());
+            obj = JS_NewObjectWithGivenProto(cx, jsb_spine_SkeletonRenderer_class, proto);
             jsb_ref_init(cx, obj, cobj, "spine::SkeletonRenderer");
             jsb_new_proxy(cx, cobj, obj);
         }
@@ -730,9 +728,8 @@ bool js_cocos2dx_spine_SkeletonRenderer_constructor(JSContext *cx, uint32_t argc
         if (argc == 0) {
             cobj = new (std::nothrow) spine::SkeletonRenderer();
 
-            js_type_class_t *typeClass = js_get_type_from_native<spine::SkeletonRenderer>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto->get());
-            obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
+            JS::RootedObject proto(cx, jsb_spine_SkeletonRenderer_prototype->get());
+            obj = JS_NewObjectWithGivenProto(cx, jsb_spine_SkeletonRenderer_class, proto);
             jsb_ref_init(cx, obj, cobj, "spine::SkeletonRenderer");
             jsb_new_proxy(cx, cobj, obj);
         }
@@ -750,9 +747,8 @@ bool js_cocos2dx_spine_SkeletonRenderer_constructor(JSContext *cx, uint32_t argc
             if (!ok) { ok = true; break; }
             cobj = new (std::nothrow) spine::SkeletonRenderer(arg0, arg1);
 
-            js_type_class_t *typeClass = js_get_type_from_native<spine::SkeletonRenderer>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto->get());
-            obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
+            JS::RootedObject proto(cx, jsb_spine_SkeletonRenderer_prototype->get());
+            obj = JS_NewObjectWithGivenProto(cx, jsb_spine_SkeletonRenderer_class, proto);
             jsb_ref_init(cx, obj, cobj, "spine::SkeletonRenderer");
             jsb_new_proxy(cx, cobj, obj);
         }
@@ -773,9 +769,8 @@ bool js_cocos2dx_spine_SkeletonRenderer_constructor(JSContext *cx, uint32_t argc
             if (!ok) { ok = true; break; }
             cobj = new (std::nothrow) spine::SkeletonRenderer(arg0, arg1, arg2);
 
-            js_type_class_t *typeClass = js_get_type_from_native<spine::SkeletonRenderer>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto->get());
-            obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
+            JS::RootedObject proto(cx, jsb_spine_SkeletonRenderer_prototype->get());
+            obj = JS_NewObjectWithGivenProto(cx, jsb_spine_SkeletonRenderer_class, proto);
             jsb_ref_init(cx, obj, cobj, "spine::SkeletonRenderer");
             jsb_new_proxy(cx, cobj, obj);
         }
@@ -792,9 +787,8 @@ bool js_cocos2dx_spine_SkeletonRenderer_constructor(JSContext *cx, uint32_t argc
             if (!ok) { ok = true; break; }
             cobj = new (std::nothrow) spine::SkeletonRenderer(arg0, arg1);
 
-            js_type_class_t *typeClass = js_get_type_from_native<spine::SkeletonRenderer>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto->get());
-            obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
+            JS::RootedObject proto(cx, jsb_spine_SkeletonRenderer_prototype->get());
+            obj = JS_NewObjectWithGivenProto(cx, jsb_spine_SkeletonRenderer_class, proto);
             jsb_ref_init(cx, obj, cobj, "spine::SkeletonRenderer");
             jsb_new_proxy(cx, cobj, obj);
         }
@@ -814,9 +808,8 @@ bool js_cocos2dx_spine_SkeletonRenderer_constructor(JSContext *cx, uint32_t argc
             if (!ok) { ok = true; break; }
             cobj = new (std::nothrow) spine::SkeletonRenderer(arg0, arg1, arg2);
 
-            js_type_class_t *typeClass = js_get_type_from_native<spine::SkeletonRenderer>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto->get());
-            obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
+            JS::RootedObject proto(cx, jsb_spine_SkeletonRenderer_prototype->get());
+            obj = JS_NewObjectWithGivenProto(cx, jsb_spine_SkeletonRenderer_class, proto);
             jsb_ref_init(cx, obj, cobj, "spine::SkeletonRenderer");
             jsb_new_proxy(cx, cobj, obj);
         }
@@ -838,7 +831,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_constructor(JSContext *cx, uint32_t argc
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
 void js_register_cocos2dx_spine_SkeletonRenderer(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps spine_SkeletonRenderer_classOps = {
@@ -882,8 +875,8 @@ void js_register_cocos2dx_spine_SkeletonRenderer(JSContext *cx, JS::HandleObject
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_spine_SkeletonRenderer_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_spine_SkeletonRenderer_class,
@@ -891,20 +884,20 @@ void js_register_cocos2dx_spine_SkeletonRenderer(JSContext *cx, JS::HandleObject
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_spine_SkeletonRenderer_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<spine::SkeletonRenderer>(cx, jsb_spine_SkeletonRenderer_class, proto);
+    jsb_spine_SkeletonRenderer_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "SkeletonRenderer", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<spine::SkeletonRenderer>(cx, jsb_spine_SkeletonRenderer_class, proto);
 }
 
 JSClass  *jsb_spine_SkeletonAnimation_class;
-JSObject *jsb_spine_SkeletonAnimation_prototype;
+JS::PersistentRootedObject *jsb_spine_SkeletonAnimation_prototype;
 
 bool js_cocos2dx_spine_SkeletonAnimation_findAnimation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -1437,9 +1430,9 @@ bool js_cocos2dx_spine_SkeletonAnimation_create(JSContext *cx, uint32_t argc, JS
     if (argc == 0) {
 
         auto ret = spine::SkeletonAnimation::create();
-        js_type_class_t *typeClass = js_get_type_from_native<spine::SkeletonAnimation>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "spine::SkeletonAnimation");
+        JS::RootedObject proto(cx, jsb_spine_SkeletonAnimation_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_spine_SkeletonAnimation_class, proto, &jsret, "spine::SkeletonAnimation");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -1571,9 +1564,8 @@ bool js_cocos2dx_spine_SkeletonAnimation_constructor(JSContext *cx, uint32_t arg
             if (!ok) { ok = true; break; }
             cobj = new (std::nothrow) spine::SkeletonAnimation(arg0);
 
-            js_type_class_t *typeClass = js_get_type_from_native<spine::SkeletonAnimation>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto->get());
-            obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
+            JS::RootedObject proto(cx, jsb_spine_SkeletonAnimation_prototype->get());
+            obj = JS_NewObjectWithGivenProto(cx, jsb_spine_SkeletonAnimation_class, proto);
             jsb_ref_init(cx, obj, cobj, "spine::SkeletonAnimation");
             jsb_new_proxy(cx, cobj, obj);
         }
@@ -1590,9 +1582,8 @@ bool js_cocos2dx_spine_SkeletonAnimation_constructor(JSContext *cx, uint32_t arg
             ok &= jsval_to_bool(cx, args.get(1), &arg1);
             cobj = new (std::nothrow) spine::SkeletonAnimation(arg0, arg1);
 
-            js_type_class_t *typeClass = js_get_type_from_native<spine::SkeletonAnimation>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto->get());
-            obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
+            JS::RootedObject proto(cx, jsb_spine_SkeletonAnimation_prototype->get());
+            obj = JS_NewObjectWithGivenProto(cx, jsb_spine_SkeletonAnimation_class, proto);
             jsb_ref_init(cx, obj, cobj, "spine::SkeletonAnimation");
             jsb_new_proxy(cx, cobj, obj);
         }
@@ -1603,9 +1594,8 @@ bool js_cocos2dx_spine_SkeletonAnimation_constructor(JSContext *cx, uint32_t arg
         if (argc == 0) {
             cobj = new (std::nothrow) spine::SkeletonAnimation();
 
-            js_type_class_t *typeClass = js_get_type_from_native<spine::SkeletonAnimation>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto->get());
-            obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
+            JS::RootedObject proto(cx, jsb_spine_SkeletonAnimation_prototype->get());
+            obj = JS_NewObjectWithGivenProto(cx, jsb_spine_SkeletonAnimation_class, proto);
             jsb_ref_init(cx, obj, cobj, "spine::SkeletonAnimation");
             jsb_new_proxy(cx, cobj, obj);
         }
@@ -1623,9 +1613,8 @@ bool js_cocos2dx_spine_SkeletonAnimation_constructor(JSContext *cx, uint32_t arg
             if (!ok) { ok = true; break; }
             cobj = new (std::nothrow) spine::SkeletonAnimation(arg0, arg1);
 
-            js_type_class_t *typeClass = js_get_type_from_native<spine::SkeletonAnimation>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto->get());
-            obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
+            JS::RootedObject proto(cx, jsb_spine_SkeletonAnimation_prototype->get());
+            obj = JS_NewObjectWithGivenProto(cx, jsb_spine_SkeletonAnimation_class, proto);
             jsb_ref_init(cx, obj, cobj, "spine::SkeletonAnimation");
             jsb_new_proxy(cx, cobj, obj);
         }
@@ -1646,9 +1635,8 @@ bool js_cocos2dx_spine_SkeletonAnimation_constructor(JSContext *cx, uint32_t arg
             if (!ok) { ok = true; break; }
             cobj = new (std::nothrow) spine::SkeletonAnimation(arg0, arg1, arg2);
 
-            js_type_class_t *typeClass = js_get_type_from_native<spine::SkeletonAnimation>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto->get());
-            obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
+            JS::RootedObject proto(cx, jsb_spine_SkeletonAnimation_prototype->get());
+            obj = JS_NewObjectWithGivenProto(cx, jsb_spine_SkeletonAnimation_class, proto);
             jsb_ref_init(cx, obj, cobj, "spine::SkeletonAnimation");
             jsb_new_proxy(cx, cobj, obj);
         }
@@ -1665,9 +1653,8 @@ bool js_cocos2dx_spine_SkeletonAnimation_constructor(JSContext *cx, uint32_t arg
             if (!ok) { ok = true; break; }
             cobj = new (std::nothrow) spine::SkeletonAnimation(arg0, arg1);
 
-            js_type_class_t *typeClass = js_get_type_from_native<spine::SkeletonAnimation>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto->get());
-            obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
+            JS::RootedObject proto(cx, jsb_spine_SkeletonAnimation_prototype->get());
+            obj = JS_NewObjectWithGivenProto(cx, jsb_spine_SkeletonAnimation_class, proto);
             jsb_ref_init(cx, obj, cobj, "spine::SkeletonAnimation");
             jsb_new_proxy(cx, cobj, obj);
         }
@@ -1687,9 +1674,8 @@ bool js_cocos2dx_spine_SkeletonAnimation_constructor(JSContext *cx, uint32_t arg
             if (!ok) { ok = true; break; }
             cobj = new (std::nothrow) spine::SkeletonAnimation(arg0, arg1, arg2);
 
-            js_type_class_t *typeClass = js_get_type_from_native<spine::SkeletonAnimation>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto->get());
-            obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
+            JS::RootedObject proto(cx, jsb_spine_SkeletonAnimation_prototype->get());
+            obj = JS_NewObjectWithGivenProto(cx, jsb_spine_SkeletonAnimation_class, proto);
             jsb_ref_init(cx, obj, cobj, "spine::SkeletonAnimation");
             jsb_new_proxy(cx, cobj, obj);
         }
@@ -1844,7 +1830,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_ctor(JSContext *cx, uint32_t argc, JS::
 }
 
 
-extern JSObject *jsb_spine_SkeletonRenderer_prototype;
+extern JS::PersistentRootedObject *jsb_spine_SkeletonRenderer_prototype;
 
     
 void js_register_cocos2dx_spine_SkeletonAnimation(JSContext *cx, JS::HandleObject global) {
@@ -1884,8 +1870,8 @@ void js_register_cocos2dx_spine_SkeletonAnimation(JSContext *cx, JS::HandleObjec
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_spine_SkeletonRenderer_prototype);
-    jsb_spine_SkeletonAnimation_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_spine_SkeletonRenderer_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_spine_SkeletonAnimation_class,
@@ -1893,16 +1879,16 @@ void js_register_cocos2dx_spine_SkeletonAnimation(JSContext *cx, JS::HandleObjec
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_spine_SkeletonAnimation_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<spine::SkeletonAnimation>(cx, jsb_spine_SkeletonAnimation_class, proto);
+    jsb_spine_SkeletonAnimation_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "SkeletonAnimation", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<spine::SkeletonAnimation>(cx, jsb_spine_SkeletonAnimation_class, proto);
     make_class_extend(cx, proto);
 }
 

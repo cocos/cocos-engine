@@ -39,6 +39,8 @@ extern JSClass  *jsb_ObjFinalizeHook_class;
 extern JSObject *jsb_ObjFinalizeHook_prototype;
 extern JSClass  *jsb_PrivateHook_class;
 extern JSObject *jsb_PrivateHook_prototype;
+extern JSClass *jsb_cocos2d_EventKeyboard_class;
+extern JS::PersistentRootedObject *jsb_cocos2d_EventKeyboard_prototype;
 
 class JSScheduleWrapper;
 
@@ -253,8 +255,22 @@ CC_JS_DLL js_type_class_t *js_get_type_from_node(cocos2d::Node* native_obj);
 template<class T>
 bool js_get_or_create_jsobject(JSContext *cx, typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,T>::type *native_obj, JS::MutableHandleObject ret)
 {
-    js_type_class_t* typeClass = js_get_type_from_native<T>(native_obj);
-    return jsb_get_or_create_weak_jsobject(cx, native_obj, typeClass, ret, typeid(*native_obj).name());
+    auto proxy = jsb_get_native_proxy(native_obj);
+    if (proxy)
+    {
+        ret.set(proxy->obj);
+        return true;
+    }
+    else
+    {
+        js_type_class_t* typeClass = js_get_type_from_native<T>(native_obj);
+        JS::RootedObject proto(cx, typeClass->proto->get());
+#if COCOS2D_DEBUG > 1
+        return jsb_get_or_create_weak_jsobject(cx, native_obj, typeClass->jsclass, proto, ret, typeid(*native_obj).name());
+#else
+        return jsb_get_or_create_weak_jsobject(cx, native_obj, typeClass->jsclass, proto, ret);
+#endif // COCOS2D_DEBUG
+    }
 }
 
 /**
@@ -265,8 +281,22 @@ bool js_get_or_create_jsobject(JSContext *cx, typename std::enable_if<!std::is_b
 template<class T>
 bool js_get_or_create_jsobject(JSContext *cx, typename std::enable_if<std::is_base_of<cocos2d::Ref,T>::value,T>::type *native_obj, JS::MutableHandleObject ret)
 {
-    js_type_class_t* typeClass = js_get_type_from_native<T>(native_obj);
-    return jsb_ref_get_or_create_jsobject(cx, native_obj, typeClass, ret, typeid(*native_obj).name());
+    auto proxy = jsb_get_native_proxy(native_obj);
+    if (proxy)
+    {
+        ret.set(proxy->obj);
+        return true;
+    }
+    else
+    {
+        js_type_class_t* typeClass = js_get_type_from_native<T>(native_obj);
+        JS::RootedObject proto(cx, typeClass->proto->get());
+#if COCOS2D_DEBUG > 1
+        return jsb_ref_get_or_create_jsobject(cx, native_obj, typeClass->jsclass, proto, ret, typeid(*native_obj).name());
+#else
+        return jsb_ref_get_or_create_jsobject(cx, native_obj, typeClass->jsclass, proto, ret);
+#endif // COCOS2D_DEBUG
+    }
 }
 
 /**

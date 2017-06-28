@@ -6,7 +6,7 @@
 #include "jsfriendapi.h"
 
 extern JSClass  *jsb_cocos2d_network_Downloader_class;
-extern JSObject *jsb_cocos2d_network_Downloader_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_network_Downloader_prototype;
 
 bool js_cocos2dx_network_Downloader_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_network_Downloader_finalize(JSContext *cx, JSObject *obj);

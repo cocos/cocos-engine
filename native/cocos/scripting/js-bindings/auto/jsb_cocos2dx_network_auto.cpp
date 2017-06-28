@@ -4,7 +4,7 @@
 #include "network/js_network_manual.h"
 
 JSClass  *jsb_cocos2d_network_Downloader_class;
-JSObject *jsb_cocos2d_network_Downloader_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_network_Downloader_prototype;
 
 bool js_cocos2dx_network_Downloader_setOnTaskError(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -226,9 +226,8 @@ bool js_cocos2dx_network_Downloader_constructor(JSContext *cx, uint32_t argc, JS
             if (!ok) { ok = true; break; }
             cobj = new (std::nothrow) cocos2d::network::Downloader(arg0);
 
-            js_type_class_t *typeClass = js_get_type_from_native<cocos2d::network::Downloader>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto->get());
-            obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
+            JS::RootedObject proto(cx, jsb_cocos2d_network_Downloader_prototype->get());
+            obj = JS_NewObjectWithGivenProto(cx, jsb_cocos2d_network_Downloader_class, proto);
             jsb_non_ref_init(cx, obj, cobj, "cocos2d::network::Downloader");
             JS_SetPrivate(obj.get(), cobj);
             jsb_new_proxy(cx, cobj, obj);
@@ -240,9 +239,8 @@ bool js_cocos2dx_network_Downloader_constructor(JSContext *cx, uint32_t argc, JS
         if (argc == 0) {
             cobj = new (std::nothrow) cocos2d::network::Downloader();
 
-            js_type_class_t *typeClass = js_get_type_from_native<cocos2d::network::Downloader>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto->get());
-            obj = JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto);
+            JS::RootedObject proto(cx, jsb_cocos2d_network_Downloader_prototype->get());
+            obj = JS_NewObjectWithGivenProto(cx, jsb_cocos2d_network_Downloader_class, proto);
             jsb_non_ref_init(cx, obj, cobj, "cocos2d::network::Downloader");
             JS_SetPrivate(obj.get(), cobj);
             jsb_new_proxy(cx, cobj, obj);
@@ -295,7 +293,7 @@ void js_register_cocos2dx_network_Downloader(JSContext *cx, JS::HandleObject glo
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_network_Downloader_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_network_Downloader_class,
@@ -303,16 +301,16 @@ void js_register_cocos2dx_network_Downloader(JSContext *cx, JS::HandleObject glo
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_network_Downloader_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::network::Downloader>(cx, jsb_cocos2d_network_Downloader_class, proto);
+    jsb_cocos2d_network_Downloader_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Downloader", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::network::Downloader>(cx, jsb_cocos2d_network_Downloader_class, proto);
 }
 
 void register_all_cocos2dx_network(JSContext* cx, JS::HandleObject obj) {

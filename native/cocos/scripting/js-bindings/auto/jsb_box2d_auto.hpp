@@ -6,7 +6,7 @@
 #include "jsfriendapi.h"
 
 extern JSClass  *jsb_b2Draw_class;
-extern JSObject *jsb_b2Draw_prototype;
+extern JS::PersistentRootedObject *jsb_b2Draw_prototype;
 
 bool js_box2dclasses_b2Draw_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2Draw_finalize(JSContext *cx, JSObject *obj);
@@ -25,7 +25,7 @@ bool js_box2dclasses_b2Draw_DrawSolidCircle(JSContext *cx, uint32_t argc, JS::Va
 bool js_box2dclasses_b2Draw_GetFlags(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2Shape_class;
-extern JSObject *jsb_b2Shape_prototype;
+extern JS::PersistentRootedObject *jsb_b2Shape_prototype;
 
 bool js_box2dclasses_b2Shape_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2Shape_finalize(JSContext *cx, JSObject *obj);
@@ -40,7 +40,7 @@ bool js_box2dclasses_b2Shape_GetChildCount(JSContext *cx, uint32_t argc, JS::Val
 bool js_box2dclasses_b2Shape_TestPoint(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2CircleShape_class;
-extern JSObject *jsb_b2CircleShape_prototype;
+extern JS::PersistentRootedObject *jsb_b2CircleShape_prototype;
 
 bool js_box2dclasses_b2CircleShape_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2CircleShape_finalize(JSContext *cx, JSObject *obj);
@@ -59,7 +59,7 @@ bool js_box2dclasses_b2CircleShape_GetSupport(JSContext *cx, uint32_t argc, JS::
 bool js_box2dclasses_b2CircleShape_b2CircleShape(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2EdgeShape_class;
-extern JSObject *jsb_b2EdgeShape_prototype;
+extern JS::PersistentRootedObject *jsb_b2EdgeShape_prototype;
 
 bool js_box2dclasses_b2EdgeShape_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2EdgeShape_finalize(JSContext *cx, JSObject *obj);
@@ -75,7 +75,7 @@ bool js_box2dclasses_b2EdgeShape_TestPoint(JSContext *cx, uint32_t argc, JS::Val
 bool js_box2dclasses_b2EdgeShape_b2EdgeShape(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2ChainShape_class;
-extern JSObject *jsb_b2ChainShape_prototype;
+extern JS::PersistentRootedObject *jsb_b2ChainShape_prototype;
 
 bool js_box2dclasses_b2ChainShape_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2ChainShape_finalize(JSContext *cx, JSObject *obj);
@@ -94,7 +94,7 @@ bool js_box2dclasses_b2ChainShape_Clone(JSContext *cx, uint32_t argc, JS::Value 
 bool js_box2dclasses_b2ChainShape_b2ChainShape(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2PolygonShape_class;
-extern JSObject *jsb_b2PolygonShape_prototype;
+extern JS::PersistentRootedObject *jsb_b2PolygonShape_prototype;
 
 bool js_box2dclasses_b2PolygonShape_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2PolygonShape_finalize(JSContext *cx, JSObject *obj);
@@ -112,7 +112,7 @@ bool js_box2dclasses_b2PolygonShape_Validate(JSContext *cx, uint32_t argc, JS::V
 bool js_box2dclasses_b2PolygonShape_b2PolygonShape(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2Body_class;
-extern JSObject *jsb_b2Body_prototype;
+extern JS::PersistentRootedObject *jsb_b2Body_prototype;
 
 bool js_box2dclasses_b2Body_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2Body_finalize(JSContext *cx, JSObject *obj);
@@ -170,7 +170,7 @@ bool js_box2dclasses_b2Body_ApplyAngularImpulse(JSContext *cx, uint32_t argc, JS
 bool js_box2dclasses_b2Body_GetPosition(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2Fixture_class;
-extern JSObject *jsb_b2Fixture_prototype;
+extern JS::PersistentRootedObject *jsb_b2Fixture_prototype;
 
 bool js_box2dclasses_b2Fixture_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2Fixture_finalize(JSContext *cx, JSObject *obj);
@@ -198,7 +198,7 @@ bool js_box2dclasses_b2Fixture_GetType(JSContext *cx, uint32_t argc, JS::Value *
 bool js_box2dclasses_b2Fixture_GetDensity(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2ContactListener_class;
-extern JSObject *jsb_b2ContactListener_prototype;
+extern JS::PersistentRootedObject *jsb_b2ContactListener_prototype;
 
 bool js_box2dclasses_b2ContactListener_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2ContactListener_finalize(JSContext *cx, JSObject *obj);
@@ -210,7 +210,7 @@ bool js_box2dclasses_b2ContactListener_BeginContact(JSContext *cx, uint32_t argc
 bool js_box2dclasses_b2ContactListener_PostSolve(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2QueryCallback_class;
-extern JSObject *jsb_b2QueryCallback_prototype;
+extern JS::PersistentRootedObject *jsb_b2QueryCallback_prototype;
 
 bool js_box2dclasses_b2QueryCallback_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2QueryCallback_finalize(JSContext *cx, JSObject *obj);
@@ -219,7 +219,7 @@ void register_all_box2dclasses(JSContext* cx, JS::HandleObject obj);
 bool js_box2dclasses_b2QueryCallback_ReportFixture(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2RayCastCallback_class;
-extern JSObject *jsb_b2RayCastCallback_prototype;
+extern JS::PersistentRootedObject *jsb_b2RayCastCallback_prototype;
 
 bool js_box2dclasses_b2RayCastCallback_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2RayCastCallback_finalize(JSContext *cx, JSObject *obj);
@@ -228,7 +228,7 @@ void register_all_box2dclasses(JSContext* cx, JS::HandleObject obj);
 bool js_box2dclasses_b2RayCastCallback_ReportFixture(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2World_class;
-extern JSObject *jsb_b2World_prototype;
+extern JS::PersistentRootedObject *jsb_b2World_prototype;
 
 bool js_box2dclasses_b2World_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2World_finalize(JSContext *cx, JSObject *obj);
@@ -274,7 +274,7 @@ bool js_box2dclasses_b2World_SetContactFilter(JSContext *cx, uint32_t argc, JS::
 bool js_box2dclasses_b2World_b2World(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2Contact_class;
-extern JSObject *jsb_b2Contact_prototype;
+extern JS::PersistentRootedObject *jsb_b2Contact_prototype;
 
 bool js_box2dclasses_b2Contact_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2Contact_finalize(JSContext *cx, JSObject *obj);
@@ -301,7 +301,7 @@ bool js_box2dclasses_b2Contact_Evaluate(JSContext *cx, uint32_t argc, JS::Value 
 bool js_box2dclasses_b2Contact_ResetRestitution(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2Joint_class;
-extern JSObject *jsb_b2Joint_prototype;
+extern JS::PersistentRootedObject *jsb_b2Joint_prototype;
 
 bool js_box2dclasses_b2Joint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2Joint_finalize(JSContext *cx, JSObject *obj);
@@ -321,7 +321,7 @@ bool js_box2dclasses_b2Joint_GetReactionForce(JSContext *cx, uint32_t argc, JS::
 bool js_box2dclasses_b2Joint_IsActive(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2DistanceJoint_class;
-extern JSObject *jsb_b2DistanceJoint_prototype;
+extern JS::PersistentRootedObject *jsb_b2DistanceJoint_prototype;
 
 bool js_box2dclasses_b2DistanceJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2DistanceJoint_finalize(JSContext *cx, JSObject *obj);
@@ -342,7 +342,7 @@ bool js_box2dclasses_b2DistanceJoint_GetReactionForce(JSContext *cx, uint32_t ar
 bool js_box2dclasses_b2DistanceJoint_SetLength(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2FrictionJoint_class;
-extern JSObject *jsb_b2FrictionJoint_prototype;
+extern JS::PersistentRootedObject *jsb_b2FrictionJoint_prototype;
 
 bool js_box2dclasses_b2FrictionJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2FrictionJoint_finalize(JSContext *cx, JSObject *obj);
@@ -361,7 +361,7 @@ bool js_box2dclasses_b2FrictionJoint_GetReactionForce(JSContext *cx, uint32_t ar
 bool js_box2dclasses_b2FrictionJoint_GetMaxTorque(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2GearJoint_class;
-extern JSObject *jsb_b2GearJoint_prototype;
+extern JS::PersistentRootedObject *jsb_b2GearJoint_prototype;
 
 bool js_box2dclasses_b2GearJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2GearJoint_finalize(JSContext *cx, JSObject *obj);
@@ -378,7 +378,7 @@ bool js_box2dclasses_b2GearJoint_GetReactionForce(JSContext *cx, uint32_t argc, 
 bool js_box2dclasses_b2GearJoint_GetRatio(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2MotorJoint_class;
-extern JSObject *jsb_b2MotorJoint_prototype;
+extern JS::PersistentRootedObject *jsb_b2MotorJoint_prototype;
 
 bool js_box2dclasses_b2MotorJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2MotorJoint_finalize(JSContext *cx, JSObject *obj);
@@ -401,7 +401,7 @@ bool js_box2dclasses_b2MotorJoint_GetMaxTorque(JSContext *cx, uint32_t argc, JS:
 bool js_box2dclasses_b2MotorJoint_SetCorrectionFactor(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2MouseJoint_class;
-extern JSObject *jsb_b2MouseJoint_prototype;
+extern JS::PersistentRootedObject *jsb_b2MouseJoint_prototype;
 
 bool js_box2dclasses_b2MouseJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2MouseJoint_finalize(JSContext *cx, JSObject *obj);
@@ -423,7 +423,7 @@ bool js_box2dclasses_b2MouseJoint_GetReactionForce(JSContext *cx, uint32_t argc,
 bool js_box2dclasses_b2MouseJoint_ShiftOrigin(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2PrismaticJoint_class;
-extern JSObject *jsb_b2PrismaticJoint_prototype;
+extern JS::PersistentRootedObject *jsb_b2PrismaticJoint_prototype;
 
 bool js_box2dclasses_b2PrismaticJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2PrismaticJoint_finalize(JSContext *cx, JSObject *obj);
@@ -454,7 +454,7 @@ bool js_box2dclasses_b2PrismaticJoint_GetUpperLimit(JSContext *cx, uint32_t argc
 bool js_box2dclasses_b2PrismaticJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2PulleyJoint_class;
-extern JSObject *jsb_b2PulleyJoint_prototype;
+extern JS::PersistentRootedObject *jsb_b2PulleyJoint_prototype;
 
 bool js_box2dclasses_b2PulleyJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2PulleyJoint_finalize(JSContext *cx, JSObject *obj);
@@ -475,7 +475,7 @@ bool js_box2dclasses_b2PulleyJoint_ShiftOrigin(JSContext *cx, uint32_t argc, JS:
 bool js_box2dclasses_b2PulleyJoint_GetRatio(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2RevoluteJoint_class;
-extern JSObject *jsb_b2RevoluteJoint_prototype;
+extern JS::PersistentRootedObject *jsb_b2RevoluteJoint_prototype;
 
 bool js_box2dclasses_b2RevoluteJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2RevoluteJoint_finalize(JSContext *cx, JSObject *obj);
@@ -505,7 +505,7 @@ bool js_box2dclasses_b2RevoluteJoint_GetUpperLimit(JSContext *cx, uint32_t argc,
 bool js_box2dclasses_b2RevoluteJoint_GetAnchorB(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2RopeJoint_class;
-extern JSObject *jsb_b2RopeJoint_prototype;
+extern JS::PersistentRootedObject *jsb_b2RopeJoint_prototype;
 
 bool js_box2dclasses_b2RopeJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2RopeJoint_finalize(JSContext *cx, JSObject *obj);
@@ -523,7 +523,7 @@ bool js_box2dclasses_b2RopeJoint_GetReactionForce(JSContext *cx, uint32_t argc, 
 bool js_box2dclasses_b2RopeJoint_GetLimitState(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2WeldJoint_class;
-extern JSObject *jsb_b2WeldJoint_prototype;
+extern JS::PersistentRootedObject *jsb_b2WeldJoint_prototype;
 
 bool js_box2dclasses_b2WeldJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2WeldJoint_finalize(JSContext *cx, JSObject *obj);
@@ -543,7 +543,7 @@ bool js_box2dclasses_b2WeldJoint_GetReactionForce(JSContext *cx, uint32_t argc, 
 bool js_box2dclasses_b2WeldJoint_GetReferenceAngle(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_b2WheelJoint_class;
-extern JSObject *jsb_b2WheelJoint_prototype;
+extern JS::PersistentRootedObject *jsb_b2WheelJoint_prototype;
 
 bool js_box2dclasses_b2WheelJoint_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_box2dclasses_b2WheelJoint_finalize(JSContext *cx, JSObject *obj);

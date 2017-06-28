@@ -3,7 +3,7 @@
 #include "editor-support/dragonbones/cocos2dx/CCDragonBonesHeaders.h"
 
 JSClass  *jsb_dragonBones_BaseObject_class;
-JSObject *jsb_dragonBones_BaseObject_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_BaseObject_prototype;
 
 bool js_cocos2dx_dragonbones_BaseObject_getClassTypeIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -103,7 +103,7 @@ void js_register_cocos2dx_dragonbones_BaseObject(JSContext *cx, JS::HandleObject
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_dragonBones_BaseObject_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_BaseObject_class,
@@ -111,20 +111,20 @@ void js_register_cocos2dx_dragonbones_BaseObject(JSContext *cx, JS::HandleObject
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_BaseObject_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::BaseObject>(cx, jsb_dragonBones_BaseObject_class, proto);
+    jsb_dragonBones_BaseObject_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "BaseObject", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::BaseObject>(cx, jsb_dragonBones_BaseObject_class, proto);
 }
 
 JSClass  *jsb_dragonBones_Matrix_class;
-JSObject *jsb_dragonBones_Matrix_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_Matrix_prototype;
 
 bool js_cocos2dx_dragonbones_Matrix_get_a(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -312,11 +312,10 @@ bool js_cocos2dx_dragonbones_Matrix_constructor(JSContext *cx, uint32_t argc, JS
     bool ok = true;
     dragonBones::Matrix* cobj = new (std::nothrow) dragonBones::Matrix();
 
-    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::Matrix>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::Matrix");
+    JS::RootedObject proto(cx, jsb_dragonBones_Matrix_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_dragonBones_Matrix_class, proto, &jsobj, "dragonBones::Matrix");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -361,7 +360,7 @@ void js_register_cocos2dx_dragonbones_Matrix(JSContext *cx, JS::HandleObject glo
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_dragonBones_Matrix_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_Matrix_class,
@@ -369,20 +368,20 @@ void js_register_cocos2dx_dragonbones_Matrix(JSContext *cx, JS::HandleObject glo
         properties,
         nullptr,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_Matrix_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::Matrix>(cx, jsb_dragonBones_Matrix_class, proto);
+    jsb_dragonBones_Matrix_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Matrix", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::Matrix>(cx, jsb_dragonBones_Matrix_class, proto);
 }
 
 JSClass  *jsb_dragonBones_Transform_class;
-JSObject *jsb_dragonBones_Transform_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_Transform_prototype;
 
 bool js_cocos2dx_dragonbones_Transform_getRotation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -630,11 +629,10 @@ bool js_cocos2dx_dragonbones_Transform_constructor(JSContext *cx, uint32_t argc,
     bool ok = true;
     dragonBones::Transform* cobj = new (std::nothrow) dragonBones::Transform();
 
-    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::Transform>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::Transform");
+    JS::RootedObject proto(cx, jsb_dragonBones_Transform_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_dragonBones_Transform_class, proto, &jsobj, "dragonBones::Transform");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -690,7 +688,7 @@ void js_register_cocos2dx_dragonbones_Transform(JSContext *cx, JS::HandleObject 
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_dragonBones_Transform_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_Transform_class,
@@ -698,20 +696,20 @@ void js_register_cocos2dx_dragonbones_Transform(JSContext *cx, JS::HandleObject 
         properties,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_Transform_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::Transform>(cx, jsb_dragonBones_Transform_class, proto);
+    jsb_dragonBones_Transform_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Transform", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::Transform>(cx, jsb_dragonBones_Transform_class, proto);
 }
 
 JSClass  *jsb_dragonBones_TextureData_class;
-JSObject *jsb_dragonBones_TextureData_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_TextureData_prototype;
 
 bool js_cocos2dx_dragonbones_TextureData_generateRectangle(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -737,7 +735,7 @@ bool js_cocos2dx_dragonbones_TextureData_generateRectangle(JSContext *cx, uint32
 }
 
 
-extern JSObject *jsb_dragonBones_BaseObject_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_register_cocos2dx_dragonbones_TextureData(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps dragonBones_TextureData_classOps = {
@@ -762,8 +760,8 @@ void js_register_cocos2dx_dragonbones_TextureData(JSContext *cx, JS::HandleObjec
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype);
-    jsb_dragonBones_TextureData_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_TextureData_class,
@@ -771,20 +769,20 @@ void js_register_cocos2dx_dragonbones_TextureData(JSContext *cx, JS::HandleObjec
         properties,
         nullptr,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_TextureData_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::TextureData>(cx, jsb_dragonBones_TextureData_class, proto);
+    jsb_dragonBones_TextureData_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TextureData", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::TextureData>(cx, jsb_dragonBones_TextureData_class, proto);
 }
 
 JSClass  *jsb_dragonBones_TextureAtlasData_class;
-JSObject *jsb_dragonBones_TextureAtlasData_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_TextureAtlasData_prototype;
 
 bool js_cocos2dx_dragonbones_TextureAtlasData_addTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -870,7 +868,7 @@ bool js_cocos2dx_dragonbones_TextureAtlasData_getTexture(JSContext *cx, uint32_t
     return false;
 }
 
-extern JSObject *jsb_dragonBones_BaseObject_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_register_cocos2dx_dragonbones_TextureAtlasData(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps dragonBones_TextureAtlasData_classOps = {
@@ -897,8 +895,8 @@ void js_register_cocos2dx_dragonbones_TextureAtlasData(JSContext *cx, JS::Handle
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype);
-    jsb_dragonBones_TextureAtlasData_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_TextureAtlasData_class,
@@ -906,20 +904,20 @@ void js_register_cocos2dx_dragonbones_TextureAtlasData(JSContext *cx, JS::Handle
         properties,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_TextureAtlasData_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::TextureAtlasData>(cx, jsb_dragonBones_TextureAtlasData_class, proto);
+    jsb_dragonBones_TextureAtlasData_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TextureAtlasData", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::TextureAtlasData>(cx, jsb_dragonBones_TextureAtlasData_class, proto);
 }
 
 JSClass  *jsb_dragonBones_AnimationData_class;
-JSObject *jsb_dragonBones_AnimationData_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_AnimationData_prototype;
 
 bool js_cocos2dx_dragonbones_AnimationData_getClassTypeIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -1173,11 +1171,10 @@ bool js_cocos2dx_dragonbones_AnimationData_constructor(JSContext *cx, uint32_t a
     bool ok = true;
     dragonBones::AnimationData* cobj = new (std::nothrow) dragonBones::AnimationData();
 
-    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::AnimationData>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::AnimationData");
+    JS::RootedObject proto(cx, jsb_dragonBones_AnimationData_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_dragonBones_AnimationData_class, proto, &jsobj, "dragonBones::AnimationData");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -1233,7 +1230,7 @@ void js_register_cocos2dx_dragonbones_AnimationData(JSContext *cx, JS::HandleObj
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_dragonBones_AnimationData_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_AnimationData_class,
@@ -1241,20 +1238,20 @@ void js_register_cocos2dx_dragonbones_AnimationData(JSContext *cx, JS::HandleObj
         properties,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_AnimationData_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::AnimationData>(cx, jsb_dragonBones_AnimationData_class, proto);
+    jsb_dragonBones_AnimationData_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "AnimationData", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::AnimationData>(cx, jsb_dragonBones_AnimationData_class, proto);
 }
 
 JSClass  *jsb_dragonBones_BoneData_class;
-JSObject *jsb_dragonBones_BoneData_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_BoneData_prototype;
 
 bool js_cocos2dx_dragonbones_BoneData_getTypeIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -1353,11 +1350,10 @@ bool js_cocos2dx_dragonbones_BoneData_constructor(JSContext *cx, uint32_t argc, 
     bool ok = true;
     dragonBones::BoneData* cobj = new (std::nothrow) dragonBones::BoneData();
 
-    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::BoneData>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::BoneData");
+    JS::RootedObject proto(cx, jsb_dragonBones_BoneData_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_dragonBones_BoneData_class, proto, &jsobj, "dragonBones::BoneData");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -1370,7 +1366,7 @@ bool js_cocos2dx_dragonbones_BoneData_constructor(JSContext *cx, uint32_t argc, 
 }
 
 
-extern JSObject *jsb_dragonBones_BaseObject_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_BoneData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (BoneData)", obj);
@@ -1404,8 +1400,8 @@ void js_register_cocos2dx_dragonbones_BoneData(JSContext *cx, JS::HandleObject g
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype);
-    jsb_dragonBones_BoneData_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_BoneData_class,
@@ -1413,20 +1409,20 @@ void js_register_cocos2dx_dragonbones_BoneData(JSContext *cx, JS::HandleObject g
         properties,
         nullptr,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_BoneData_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::BoneData>(cx, jsb_dragonBones_BoneData_class, proto);
+    jsb_dragonBones_BoneData_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "BoneData", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::BoneData>(cx, jsb_dragonBones_BoneData_class, proto);
 }
 
 JSClass  *jsb_dragonBones_SlotData_class;
-JSObject *jsb_dragonBones_SlotData_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_SlotData_prototype;
 
 bool js_cocos2dx_dragonbones_SlotData_getTypeIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -1548,11 +1544,10 @@ bool js_cocos2dx_dragonbones_SlotData_constructor(JSContext *cx, uint32_t argc, 
     bool ok = true;
     dragonBones::SlotData* cobj = new (std::nothrow) dragonBones::SlotData();
 
-    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::SlotData>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::SlotData");
+    JS::RootedObject proto(cx, jsb_dragonBones_SlotData_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_dragonBones_SlotData_class, proto, &jsobj, "dragonBones::SlotData");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -1565,7 +1560,7 @@ bool js_cocos2dx_dragonbones_SlotData_constructor(JSContext *cx, uint32_t argc, 
 }
 
 
-extern JSObject *jsb_dragonBones_BaseObject_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_SlotData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (SlotData)", obj);
@@ -1600,8 +1595,8 @@ void js_register_cocos2dx_dragonbones_SlotData(JSContext *cx, JS::HandleObject g
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype);
-    jsb_dragonBones_SlotData_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_SlotData_class,
@@ -1609,20 +1604,20 @@ void js_register_cocos2dx_dragonbones_SlotData(JSContext *cx, JS::HandleObject g
         properties,
         nullptr,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_SlotData_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::SlotData>(cx, jsb_dragonBones_SlotData_class, proto);
+    jsb_dragonBones_SlotData_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "SlotData", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::SlotData>(cx, jsb_dragonBones_SlotData_class, proto);
 }
 
 JSClass  *jsb_dragonBones_SkinData_class;
-JSObject *jsb_dragonBones_SkinData_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_SkinData_prototype;
 
 bool js_cocos2dx_dragonbones_SkinData_getTypeIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -1677,11 +1672,10 @@ bool js_cocos2dx_dragonbones_SkinData_constructor(JSContext *cx, uint32_t argc, 
     bool ok = true;
     dragonBones::SkinData* cobj = new (std::nothrow) dragonBones::SkinData();
 
-    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::SkinData>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::SkinData");
+    JS::RootedObject proto(cx, jsb_dragonBones_SkinData_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_dragonBones_SkinData_class, proto, &jsobj, "dragonBones::SkinData");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -1694,7 +1688,7 @@ bool js_cocos2dx_dragonbones_SkinData_constructor(JSContext *cx, uint32_t argc, 
 }
 
 
-extern JSObject *jsb_dragonBones_BaseObject_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_SkinData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (SkinData)", obj);
@@ -1727,8 +1721,8 @@ void js_register_cocos2dx_dragonbones_SkinData(JSContext *cx, JS::HandleObject g
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype);
-    jsb_dragonBones_SkinData_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_SkinData_class,
@@ -1736,20 +1730,20 @@ void js_register_cocos2dx_dragonbones_SkinData(JSContext *cx, JS::HandleObject g
         properties,
         nullptr,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_SkinData_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::SkinData>(cx, jsb_dragonBones_SkinData_class, proto);
+    jsb_dragonBones_SkinData_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "SkinData", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::SkinData>(cx, jsb_dragonBones_SkinData_class, proto);
 }
 
 JSClass  *jsb_dragonBones_ArmatureData_class;
-JSObject *jsb_dragonBones_ArmatureData_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_ArmatureData_prototype;
 
 bool js_cocos2dx_dragonbones_ArmatureData_getBone(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -2002,11 +1996,10 @@ bool js_cocos2dx_dragonbones_ArmatureData_constructor(JSContext *cx, uint32_t ar
     bool ok = true;
     dragonBones::ArmatureData* cobj = new (std::nothrow) dragonBones::ArmatureData();
 
-    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::ArmatureData>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::ArmatureData");
+    JS::RootedObject proto(cx, jsb_dragonBones_ArmatureData_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_dragonBones_ArmatureData_class, proto, &jsobj, "dragonBones::ArmatureData");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -2019,7 +2012,7 @@ bool js_cocos2dx_dragonbones_ArmatureData_constructor(JSContext *cx, uint32_t ar
 }
 
 
-extern JSObject *jsb_dragonBones_BaseObject_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_ArmatureData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ArmatureData)", obj);
@@ -2063,8 +2056,8 @@ void js_register_cocos2dx_dragonbones_ArmatureData(JSContext *cx, JS::HandleObje
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype);
-    jsb_dragonBones_ArmatureData_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_ArmatureData_class,
@@ -2072,20 +2065,20 @@ void js_register_cocos2dx_dragonbones_ArmatureData(JSContext *cx, JS::HandleObje
         properties,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_ArmatureData_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::ArmatureData>(cx, jsb_dragonBones_ArmatureData_class, proto);
+    jsb_dragonBones_ArmatureData_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ArmatureData", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::ArmatureData>(cx, jsb_dragonBones_ArmatureData_class, proto);
 }
 
 JSClass  *jsb_dragonBones_DragonBonesData_class;
-JSObject *jsb_dragonBones_DragonBonesData_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_DragonBonesData_prototype;
 
 bool js_cocos2dx_dragonbones_DragonBonesData_getArmatureNames(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -2217,11 +2210,10 @@ bool js_cocos2dx_dragonbones_DragonBonesData_constructor(JSContext *cx, uint32_t
     bool ok = true;
     dragonBones::DragonBonesData* cobj = new (std::nothrow) dragonBones::DragonBonesData();
 
-    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::DragonBonesData>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::DragonBonesData");
+    JS::RootedObject proto(cx, jsb_dragonBones_DragonBonesData_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_dragonBones_DragonBonesData_class, proto, &jsobj, "dragonBones::DragonBonesData");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -2234,7 +2226,7 @@ bool js_cocos2dx_dragonbones_DragonBonesData_constructor(JSContext *cx, uint32_t
 }
 
 
-extern JSObject *jsb_dragonBones_BaseObject_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_DragonBonesData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (DragonBonesData)", obj);
@@ -2274,8 +2266,8 @@ void js_register_cocos2dx_dragonbones_DragonBonesData(JSContext *cx, JS::HandleO
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype);
-    jsb_dragonBones_DragonBonesData_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_DragonBonesData_class,
@@ -2283,20 +2275,20 @@ void js_register_cocos2dx_dragonbones_DragonBonesData(JSContext *cx, JS::HandleO
         properties,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_DragonBonesData_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::DragonBonesData>(cx, jsb_dragonBones_DragonBonesData_class, proto);
+    jsb_dragonBones_DragonBonesData_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "DragonBonesData", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::DragonBonesData>(cx, jsb_dragonBones_DragonBonesData_class, proto);
 }
 
 JSClass  *jsb_dragonBones_EventObject_class;
-JSObject *jsb_dragonBones_EventObject_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_EventObject_prototype;
 
 bool js_cocos2dx_dragonbones_EventObject_getTypeIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -2557,11 +2549,10 @@ bool js_cocos2dx_dragonbones_EventObject_constructor(JSContext *cx, uint32_t arg
     bool ok = true;
     dragonBones::EventObject* cobj = new (std::nothrow) dragonBones::EventObject();
 
-    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::EventObject>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::EventObject");
+    JS::RootedObject proto(cx, jsb_dragonBones_EventObject_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_dragonBones_EventObject_class, proto, &jsobj, "dragonBones::EventObject");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -2574,7 +2565,7 @@ bool js_cocos2dx_dragonbones_EventObject_constructor(JSContext *cx, uint32_t arg
 }
 
 
-extern JSObject *jsb_dragonBones_BaseObject_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_EventObject_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EventObject)", obj);
@@ -2612,8 +2603,8 @@ void js_register_cocos2dx_dragonbones_EventObject(JSContext *cx, JS::HandleObjec
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype);
-    jsb_dragonBones_EventObject_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_EventObject_class,
@@ -2621,20 +2612,20 @@ void js_register_cocos2dx_dragonbones_EventObject(JSContext *cx, JS::HandleObjec
         properties,
         nullptr,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_EventObject_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::EventObject>(cx, jsb_dragonBones_EventObject_class, proto);
+    jsb_dragonBones_EventObject_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EventObject", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::EventObject>(cx, jsb_dragonBones_EventObject_class, proto);
 }
 
 JSClass  *jsb_dragonBones_Armature_class;
-JSObject *jsb_dragonBones_Armature_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_Armature_prototype;
 
 bool js_cocos2dx_dragonbones_Armature_getSlot(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -3115,11 +3106,10 @@ bool js_cocos2dx_dragonbones_Armature_constructor(JSContext *cx, uint32_t argc, 
     bool ok = true;
     dragonBones::Armature* cobj = new (std::nothrow) dragonBones::Armature();
 
-    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::Armature>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::Armature");
+    JS::RootedObject proto(cx, jsb_dragonBones_Armature_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_dragonBones_Armature_class, proto, &jsobj, "dragonBones::Armature");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -3132,7 +3122,7 @@ bool js_cocos2dx_dragonbones_Armature_constructor(JSContext *cx, uint32_t argc, 
 }
 
 
-extern JSObject *jsb_dragonBones_BaseObject_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_Armature_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Armature)", obj);
@@ -3185,8 +3175,8 @@ void js_register_cocos2dx_dragonbones_Armature(JSContext *cx, JS::HandleObject g
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype);
-    jsb_dragonBones_Armature_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_Armature_class,
@@ -3194,20 +3184,20 @@ void js_register_cocos2dx_dragonbones_Armature(JSContext *cx, JS::HandleObject g
         properties,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_Armature_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::Armature>(cx, jsb_dragonBones_Armature_class, proto);
+    jsb_dragonBones_Armature_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Armature", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::Armature>(cx, jsb_dragonBones_Armature_class, proto);
 }
 
 JSClass  *jsb_dragonBones_Animation_class;
-JSObject *jsb_dragonBones_Animation_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_Animation_prototype;
 
 bool js_cocos2dx_dragonbones_Animation_isPlaying(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -4141,11 +4131,10 @@ bool js_cocos2dx_dragonbones_Animation_constructor(JSContext *cx, uint32_t argc,
     bool ok = true;
     dragonBones::Animation* cobj = new (std::nothrow) dragonBones::Animation();
 
-    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::Animation>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::Animation");
+    JS::RootedObject proto(cx, jsb_dragonBones_Animation_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_dragonBones_Animation_class, proto, &jsobj, "dragonBones::Animation");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -4158,7 +4147,7 @@ bool js_cocos2dx_dragonbones_Animation_constructor(JSContext *cx, uint32_t argc,
 }
 
 
-extern JSObject *jsb_dragonBones_BaseObject_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_Animation_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Animation)", obj);
@@ -4212,8 +4201,8 @@ void js_register_cocos2dx_dragonbones_Animation(JSContext *cx, JS::HandleObject 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype);
-    jsb_dragonBones_Animation_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_Animation_class,
@@ -4221,20 +4210,20 @@ void js_register_cocos2dx_dragonbones_Animation(JSContext *cx, JS::HandleObject 
         properties,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_Animation_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::Animation>(cx, jsb_dragonBones_Animation_class, proto);
+    jsb_dragonBones_Animation_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Animation", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::Animation>(cx, jsb_dragonBones_Animation_class, proto);
 }
 
 JSClass  *jsb_dragonBones_TransformObject_class;
-JSObject *jsb_dragonBones_TransformObject_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_TransformObject_prototype;
 
 bool js_cocos2dx_dragonbones_TransformObject__setArmature(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -4419,7 +4408,7 @@ bool js_cocos2dx_dragonbones_TransformObject_set_globalTransformMatrix(JSContext
     return true;
 }
 
-extern JSObject *jsb_dragonBones_BaseObject_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_register_cocos2dx_dragonbones_TransformObject(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps dragonBones_TransformObject_classOps = {
@@ -4449,8 +4438,8 @@ void js_register_cocos2dx_dragonbones_TransformObject(JSContext *cx, JS::HandleO
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype);
-    jsb_dragonBones_TransformObject_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_TransformObject_class,
@@ -4458,20 +4447,20 @@ void js_register_cocos2dx_dragonbones_TransformObject(JSContext *cx, JS::HandleO
         properties,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_TransformObject_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::TransformObject>(cx, jsb_dragonBones_TransformObject_class, proto);
+    jsb_dragonBones_TransformObject_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TransformObject", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::TransformObject>(cx, jsb_dragonBones_TransformObject_class, proto);
 }
 
 JSClass  *jsb_dragonBones_Bone_class;
-JSObject *jsb_dragonBones_Bone_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_Bone_prototype;
 
 bool js_cocos2dx_dragonbones_Bone_getIK(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -4649,11 +4638,10 @@ bool js_cocos2dx_dragonbones_Bone_constructor(JSContext *cx, uint32_t argc, JS::
     bool ok = true;
     dragonBones::Bone* cobj = new (std::nothrow) dragonBones::Bone();
 
-    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::Bone>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::Bone");
+    JS::RootedObject proto(cx, jsb_dragonBones_Bone_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_dragonBones_Bone_class, proto, &jsobj, "dragonBones::Bone");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -4666,7 +4654,7 @@ bool js_cocos2dx_dragonbones_Bone_constructor(JSContext *cx, uint32_t argc, JS::
 }
 
 
-extern JSObject *jsb_dragonBones_TransformObject_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_TransformObject_prototype;
 
 void js_dragonBones_Bone_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Bone)", obj);
@@ -4709,8 +4697,8 @@ void js_register_cocos2dx_dragonbones_Bone(JSContext *cx, JS::HandleObject globa
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_dragonBones_TransformObject_prototype);
-    jsb_dragonBones_Bone_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_dragonBones_TransformObject_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_Bone_class,
@@ -4718,20 +4706,20 @@ void js_register_cocos2dx_dragonbones_Bone(JSContext *cx, JS::HandleObject globa
         properties,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_Bone_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::Bone>(cx, jsb_dragonBones_Bone_class, proto);
+    jsb_dragonBones_Bone_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Bone", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::Bone>(cx, jsb_dragonBones_Bone_class, proto);
 }
 
 JSClass  *jsb_dragonBones_Slot_class;
-JSObject *jsb_dragonBones_Slot_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_Slot_prototype;
 
 bool js_cocos2dx_dragonbones_Slot_getChildArmature(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -4934,7 +4922,7 @@ void js_register_cocos2dx_dragonbones_Slot(JSContext *cx, JS::HandleObject globa
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_dragonBones_Slot_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_Slot_class,
@@ -4942,20 +4930,20 @@ void js_register_cocos2dx_dragonbones_Slot(JSContext *cx, JS::HandleObject globa
         properties,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_Slot_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::Slot>(cx, jsb_dragonBones_Slot_class, proto);
+    jsb_dragonBones_Slot_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Slot", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::Slot>(cx, jsb_dragonBones_Slot_class, proto);
 }
 
 JSClass  *jsb_dragonBones_BaseFactory_class;
-JSObject *jsb_dragonBones_BaseFactory_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_BaseFactory_prototype;
 
 bool js_cocos2dx_dragonbones_BaseFactory_removeDragonBonesData(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -5333,7 +5321,7 @@ void js_register_cocos2dx_dragonbones_BaseFactory(JSContext *cx, JS::HandleObjec
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_dragonBones_BaseFactory_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_BaseFactory_class,
@@ -5341,20 +5329,20 @@ void js_register_cocos2dx_dragonbones_BaseFactory(JSContext *cx, JS::HandleObjec
         properties,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_BaseFactory_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::BaseFactory>(cx, jsb_dragonBones_BaseFactory_class, proto);
+    jsb_dragonBones_BaseFactory_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "BaseFactory", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::BaseFactory>(cx, jsb_dragonBones_BaseFactory_class, proto);
 }
 
 JSClass  *jsb_dragonBones_WorldClock_class;
-JSObject *jsb_dragonBones_WorldClock_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_WorldClock_prototype;
 
 bool js_cocos2dx_dragonbones_WorldClock_clear(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -5429,11 +5417,10 @@ bool js_cocos2dx_dragonbones_WorldClock_constructor(JSContext *cx, uint32_t argc
     bool ok = true;
     dragonBones::WorldClock* cobj = new (std::nothrow) dragonBones::WorldClock();
 
-    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::WorldClock>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::WorldClock");
+    JS::RootedObject proto(cx, jsb_dragonBones_WorldClock_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_dragonBones_WorldClock_class, proto, &jsobj, "dragonBones::WorldClock");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -5479,7 +5466,7 @@ void js_register_cocos2dx_dragonbones_WorldClock(JSContext *cx, JS::HandleObject
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_dragonBones_WorldClock_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_WorldClock_class,
@@ -5487,20 +5474,20 @@ void js_register_cocos2dx_dragonbones_WorldClock(JSContext *cx, JS::HandleObject
         properties,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_WorldClock_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::WorldClock>(cx, jsb_dragonBones_WorldClock_class, proto);
+    jsb_dragonBones_WorldClock_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "WorldClock", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::WorldClock>(cx, jsb_dragonBones_WorldClock_class, proto);
 }
 
 JSClass  *jsb_dragonBones_AnimationState_class;
-JSObject *jsb_dragonBones_AnimationState_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_AnimationState_prototype;
 
 bool js_cocos2dx_dragonbones_AnimationState_setCurrentTime(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -6076,11 +6063,10 @@ bool js_cocos2dx_dragonbones_AnimationState_constructor(JSContext *cx, uint32_t 
     bool ok = true;
     dragonBones::AnimationState* cobj = new (std::nothrow) dragonBones::AnimationState();
 
-    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::AnimationState>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::AnimationState");
+    JS::RootedObject proto(cx, jsb_dragonBones_AnimationState_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_dragonBones_AnimationState_class, proto, &jsobj, "dragonBones::AnimationState");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -6093,7 +6079,7 @@ bool js_cocos2dx_dragonbones_AnimationState_constructor(JSContext *cx, uint32_t 
 }
 
 
-extern JSObject *jsb_dragonBones_BaseObject_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_BaseObject_prototype;
 
 void js_dragonBones_AnimationState_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (AnimationState)", obj);
@@ -6152,8 +6138,8 @@ void js_register_cocos2dx_dragonbones_AnimationState(JSContext *cx, JS::HandleOb
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype);
-    jsb_dragonBones_AnimationState_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseObject_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_AnimationState_class,
@@ -6161,20 +6147,20 @@ void js_register_cocos2dx_dragonbones_AnimationState(JSContext *cx, JS::HandleOb
         properties,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_AnimationState_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::AnimationState>(cx, jsb_dragonBones_AnimationState_class, proto);
+    jsb_dragonBones_AnimationState_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "AnimationState", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::AnimationState>(cx, jsb_dragonBones_AnimationState_class, proto);
 }
 
 JSClass  *jsb_dragonBones_CCTextureData_class;
-JSObject *jsb_dragonBones_CCTextureData_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_CCTextureData_prototype;
 
 bool js_cocos2dx_dragonbones_CCTextureData_getTypeIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -6199,11 +6185,10 @@ bool js_cocos2dx_dragonbones_CCTextureData_constructor(JSContext *cx, uint32_t a
     bool ok = true;
     dragonBones::CCTextureData* cobj = new (std::nothrow) dragonBones::CCTextureData();
 
-    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::CCTextureData>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::CCTextureData");
+    JS::RootedObject proto(cx, jsb_dragonBones_CCTextureData_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_dragonBones_CCTextureData_class, proto, &jsobj, "dragonBones::CCTextureData");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -6216,7 +6201,7 @@ bool js_cocos2dx_dragonbones_CCTextureData_constructor(JSContext *cx, uint32_t a
 }
 
 
-extern JSObject *jsb_dragonBones_TextureData_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_TextureData_prototype;
 
 void js_dragonBones_CCTextureData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (CCTextureData)", obj);
@@ -6248,8 +6233,8 @@ void js_register_cocos2dx_dragonbones_CCTextureData(JSContext *cx, JS::HandleObj
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_dragonBones_TextureData_prototype);
-    jsb_dragonBones_CCTextureData_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_dragonBones_TextureData_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_CCTextureData_class,
@@ -6257,20 +6242,20 @@ void js_register_cocos2dx_dragonbones_CCTextureData(JSContext *cx, JS::HandleObj
         properties,
         nullptr,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_CCTextureData_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::CCTextureData>(cx, jsb_dragonBones_CCTextureData_class, proto);
+    jsb_dragonBones_CCTextureData_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "CCTextureData", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::CCTextureData>(cx, jsb_dragonBones_CCTextureData_class, proto);
 }
 
 JSClass  *jsb_dragonBones_CCTextureAtlasData_class;
-JSObject *jsb_dragonBones_CCTextureAtlasData_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_CCTextureAtlasData_prototype;
 
 bool js_cocos2dx_dragonbones_CCTextureAtlasData_getTypeIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -6295,11 +6280,10 @@ bool js_cocos2dx_dragonbones_CCTextureAtlasData_constructor(JSContext *cx, uint3
     bool ok = true;
     dragonBones::CCTextureAtlasData* cobj = new (std::nothrow) dragonBones::CCTextureAtlasData();
 
-    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::CCTextureAtlasData>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::CCTextureAtlasData");
+    JS::RootedObject proto(cx, jsb_dragonBones_CCTextureAtlasData_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_dragonBones_CCTextureAtlasData_class, proto, &jsobj, "dragonBones::CCTextureAtlasData");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -6312,7 +6296,7 @@ bool js_cocos2dx_dragonbones_CCTextureAtlasData_constructor(JSContext *cx, uint3
 }
 
 
-extern JSObject *jsb_dragonBones_TextureAtlasData_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_TextureAtlasData_prototype;
 
 void js_dragonBones_CCTextureAtlasData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (CCTextureAtlasData)", obj);
@@ -6344,8 +6328,8 @@ void js_register_cocos2dx_dragonbones_CCTextureAtlasData(JSContext *cx, JS::Hand
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_dragonBones_TextureAtlasData_prototype);
-    jsb_dragonBones_CCTextureAtlasData_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_dragonBones_TextureAtlasData_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_CCTextureAtlasData_class,
@@ -6353,20 +6337,20 @@ void js_register_cocos2dx_dragonbones_CCTextureAtlasData(JSContext *cx, JS::Hand
         properties,
         nullptr,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_CCTextureAtlasData_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::CCTextureAtlasData>(cx, jsb_dragonBones_CCTextureAtlasData_class, proto);
+    jsb_dragonBones_CCTextureAtlasData_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "CCTextureAtlasData", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::CCTextureAtlasData>(cx, jsb_dragonBones_CCTextureAtlasData_class, proto);
 }
 
 JSClass  *jsb_dragonBones_CCArmatureDisplay_class;
-JSObject *jsb_dragonBones_CCArmatureDisplay_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_CCArmatureDisplay_prototype;
 
 bool js_cocos2dx_dragonbones_CCArmatureDisplay_advanceTimeBySelf(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -6632,9 +6616,9 @@ bool js_cocos2dx_dragonbones_CCArmatureDisplay_create(JSContext *cx, uint32_t ar
     if (argc == 0) {
 
         auto ret = dragonBones::CCArmatureDisplay::create();
-        js_type_class_t *typeClass = js_get_type_from_native<dragonBones::CCArmatureDisplay>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "dragonBones::CCArmatureDisplay");
+        JS::RootedObject proto(cx, jsb_dragonBones_CCArmatureDisplay_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_dragonBones_CCArmatureDisplay_class, proto, &jsret, "dragonBones::CCArmatureDisplay");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -6643,7 +6627,7 @@ bool js_cocos2dx_dragonbones_CCArmatureDisplay_create(JSContext *cx, uint32_t ar
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
 void js_register_cocos2dx_dragonbones_CCArmatureDisplay(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps dragonBones_CCArmatureDisplay_classOps = {
@@ -6681,8 +6665,8 @@ void js_register_cocos2dx_dragonbones_CCArmatureDisplay(JSContext *cx, JS::Handl
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_dragonBones_CCArmatureDisplay_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_CCArmatureDisplay_class,
@@ -6690,20 +6674,20 @@ void js_register_cocos2dx_dragonbones_CCArmatureDisplay(JSContext *cx, JS::Handl
         properties,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_CCArmatureDisplay_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::CCArmatureDisplay>(cx, jsb_dragonBones_CCArmatureDisplay_class, proto);
+    jsb_dragonBones_CCArmatureDisplay_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "CCArmatureDisplay", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::CCArmatureDisplay>(cx, jsb_dragonBones_CCArmatureDisplay_class, proto);
 }
 
 JSClass  *jsb_dragonBones_DBCCSprite_class;
-JSObject *jsb_dragonBones_DBCCSprite_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_DBCCSprite_prototype;
 
 bool js_cocos2dx_dragonbones_DBCCSprite_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -6712,9 +6696,9 @@ bool js_cocos2dx_dragonbones_DBCCSprite_create(JSContext *cx, uint32_t argc, JS:
     if (argc == 0) {
 
         auto ret = dragonBones::DBCCSprite::create();
-        js_type_class_t *typeClass = js_get_type_from_native<dragonBones::DBCCSprite>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "dragonBones::DBCCSprite");
+        JS::RootedObject proto(cx, jsb_dragonBones_DBCCSprite_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_dragonBones_DBCCSprite_class, proto, &jsret, "dragonBones::DBCCSprite");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -6723,7 +6707,7 @@ bool js_cocos2dx_dragonbones_DBCCSprite_create(JSContext *cx, uint32_t argc, JS:
 }
 
 
-extern JSObject *jsb_cocos2d_Sprite_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Sprite_prototype;
 
 void js_register_cocos2dx_dragonbones_DBCCSprite(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps dragonBones_DBCCSprite_classOps = {
@@ -6744,8 +6728,8 @@ void js_register_cocos2dx_dragonbones_DBCCSprite(JSContext *cx, JS::HandleObject
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Sprite_prototype);
-    jsb_dragonBones_DBCCSprite_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Sprite_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_DBCCSprite_class,
@@ -6753,20 +6737,20 @@ void js_register_cocos2dx_dragonbones_DBCCSprite(JSContext *cx, JS::HandleObject
         nullptr,
         nullptr,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_DBCCSprite_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::DBCCSprite>(cx, jsb_dragonBones_DBCCSprite_class, proto);
+    jsb_dragonBones_DBCCSprite_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "DBCCSprite", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::DBCCSprite>(cx, jsb_dragonBones_DBCCSprite_class, proto);
 }
 
 JSClass  *jsb_dragonBones_CCSlot_class;
-JSObject *jsb_dragonBones_CCSlot_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_CCSlot_prototype;
 
 bool js_cocos2dx_dragonbones_CCSlot_getClassTypeIndex(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -6811,11 +6795,10 @@ bool js_cocos2dx_dragonbones_CCSlot_constructor(JSContext *cx, uint32_t argc, JS
     bool ok = true;
     dragonBones::CCSlot* cobj = new (std::nothrow) dragonBones::CCSlot();
 
-    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::CCSlot>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::CCSlot");
+    JS::RootedObject proto(cx, jsb_dragonBones_CCSlot_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_dragonBones_CCSlot_class, proto, &jsobj, "dragonBones::CCSlot");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -6828,7 +6811,7 @@ bool js_cocos2dx_dragonbones_CCSlot_constructor(JSContext *cx, uint32_t argc, JS
 }
 
 
-extern JSObject *jsb_dragonBones_Slot_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_Slot_prototype;
 
 void js_dragonBones_CCSlot_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (CCSlot)", obj);
@@ -6861,8 +6844,8 @@ void js_register_cocos2dx_dragonbones_CCSlot(JSContext *cx, JS::HandleObject glo
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_dragonBones_Slot_prototype);
-    jsb_dragonBones_CCSlot_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_dragonBones_Slot_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_CCSlot_class,
@@ -6870,20 +6853,20 @@ void js_register_cocos2dx_dragonbones_CCSlot(JSContext *cx, JS::HandleObject glo
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_CCSlot_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::CCSlot>(cx, jsb_dragonBones_CCSlot_class, proto);
+    jsb_dragonBones_CCSlot_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "CCSlot", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::CCSlot>(cx, jsb_dragonBones_CCSlot_class, proto);
 }
 
 JSClass  *jsb_dragonBones_CCFactory_class;
-JSObject *jsb_dragonBones_CCFactory_prototype;
+JS::PersistentRootedObject *jsb_dragonBones_CCFactory_prototype;
 
 bool js_cocos2dx_dragonbones_CCFactory_getTextureDisplay(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -7109,11 +7092,10 @@ bool js_cocos2dx_dragonbones_CCFactory_constructor(JSContext *cx, uint32_t argc,
     bool ok = true;
     dragonBones::CCFactory* cobj = new (std::nothrow) dragonBones::CCFactory();
 
-    js_type_class_t *typeClass = js_get_type_from_native<dragonBones::CCFactory>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "dragonBones::CCFactory");
+    JS::RootedObject proto(cx, jsb_dragonBones_CCFactory_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_dragonBones_CCFactory_class, proto, &jsobj, "dragonBones::CCFactory");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -7126,7 +7108,7 @@ bool js_cocos2dx_dragonbones_CCFactory_constructor(JSContext *cx, uint32_t argc,
 }
 
 
-extern JSObject *jsb_dragonBones_BaseFactory_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_BaseFactory_prototype;
 
 void js_dragonBones_CCFactory_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (CCFactory)", obj);
@@ -7157,8 +7139,8 @@ void js_register_cocos2dx_dragonbones_CCFactory(JSContext *cx, JS::HandleObject 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseFactory_prototype);
-    jsb_dragonBones_CCFactory_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_dragonBones_BaseFactory_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_dragonBones_CCFactory_class,
@@ -7166,16 +7148,16 @@ void js_register_cocos2dx_dragonbones_CCFactory(JSContext *cx, JS::HandleObject 
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_dragonBones_CCFactory_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<dragonBones::CCFactory>(cx, jsb_dragonBones_CCFactory_class, proto);
+    jsb_dragonBones_CCFactory_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "CCFactory", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<dragonBones::CCFactory>(cx, jsb_dragonBones_CCFactory_class, proto);
 }
 
 void register_all_cocos2dx_dragonbones(JSContext* cx, JS::HandleObject obj) {

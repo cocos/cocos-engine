@@ -741,7 +741,7 @@ bool b2AABB_to_jsval(JSContext* cx, const b2AABB& v, JS::MutableHandleValue ret)
 
 
 extern JSClass  *jsb_b2Shape_class;
-extern JSObject *jsb_b2Shape_prototype;
+extern JS::PersistentRootedObject *jsb_b2Shape_prototype;
 
 bool js_box2dclasses_b2Shape_GetRadius(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -781,7 +781,7 @@ bool js_box2dclasses_b2Shape_SetRadius(JSContext *cx, uint32_t argc, JS::Value *
 
 
 extern JSClass  *jsb_b2CircleShape_class;
-extern JSObject *jsb_b2CircleShape_prototype;
+extern JS::PersistentRootedObject *jsb_b2CircleShape_prototype;
 
 bool js_box2dclasses_b2CircleShape_GetPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -1277,29 +1277,29 @@ bool js_box2dclasses_b2ChainShape_CreateLoop(JSContext *cx, uint32_t argc, JS::V
 void register_all_box2dclasses_manual(JSContext* cx, JS::HandleObject obj) {
     JS::RootedObject tmpObj(cx);
     
-    tmpObj.set(jsb_b2Shape_prototype);
+    tmpObj.set(jsb_b2Shape_prototype->get());
     JS_DefineFunction(cx, tmpObj, "SetRadius", js_box2dclasses_b2Shape_SetRadius, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "GetRadius", js_box2dclasses_b2Shape_GetRadius, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     
-    tmpObj.set(jsb_b2CircleShape_prototype);
+    tmpObj.set(jsb_b2CircleShape_prototype->get());
     JS_DefineFunction(cx, tmpObj, "SetPosition", js_box2dclasses_b2CircleShape_SetPosition, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "GetPosition", js_box2dclasses_b2CircleShape_GetPosition, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     
-    tmpObj.set(jsb_b2World_prototype);
+    tmpObj.set(jsb_b2World_prototype->get());
     JS_DefineFunction(cx, tmpObj, "CreateBody", js_box2dclasses_b2World_CreateBody, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "CreateJoint", js_box2dclasses_b2World_CreateJoint, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     
-    tmpObj.set(jsb_b2Body_prototype);
+    tmpObj.set(jsb_b2Body_prototype->get());
     JS_DefineFunction(cx, tmpObj, "CreateFixture", js_box2dclasses_b2Body_CreateFixture, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "SetUserData", js_box2dclasses_b2Body_SetUserData, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "GetUserData", js_box2dclasses_b2Body_GetUserData, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "GetJointList", js_box2dclasses_b2Body_GetJointList, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     
-    tmpObj.set(jsb_b2PolygonShape_prototype);
+    tmpObj.set(jsb_b2PolygonShape_prototype->get());
     JS_DefineFunction(cx, tmpObj, "Set", js_box2dclasses_b2PolygonShape_Set, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "SetAsBox", js_box2dclasses_b2PolygonShape_SetAsBox, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     
-    tmpObj.set(jsb_b2ChainShape_prototype);
+    tmpObj.set(jsb_b2ChainShape_prototype->get());
     JS_DefineFunction(cx, tmpObj, "CreateLoop", js_box2dclasses_b2ChainShape_CreateLoop, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "CreateChain", js_box2dclasses_b2ChainShape_CreateChain, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 }

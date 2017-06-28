@@ -213,15 +213,15 @@ static bool js_cocos2dx_CCEditBox_setDelegate(JSContext *cx, uint32_t argc, JS::
     return false;
 }
 
-extern JSObject* jsb_cocos2d_ui_LayoutParameter_prototype;
-extern JSObject* jsb_cocos2d_ui_EditBox_prototype;
+extern JS::PersistentRootedObject* jsb_cocos2d_ui_LayoutParameter_prototype;
+extern JS::PersistentRootedObject* jsb_cocos2d_ui_EditBox_prototype;
 
 void register_all_cocos2dx_ui_manual(JSContext* cx, JS::HandleObject global)
 {
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_LayoutParameter_prototype);
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_LayoutParameter_prototype->get());
     JS_DefineFunction(cx, proto, "setMargin", js_cocos2dx_LayoutParameter_setMargin, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, proto, "getMargin", js_cocos2dx_LayoutParameter_getMargin, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
-    proto.set(jsb_cocos2d_ui_EditBox_prototype);
+    proto.set(jsb_cocos2d_ui_EditBox_prototype->get());
     JS_DefineFunction(cx, proto, "setDelegate", js_cocos2dx_CCEditBox_setDelegate, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 }

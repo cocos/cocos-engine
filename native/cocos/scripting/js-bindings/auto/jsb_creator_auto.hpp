@@ -6,7 +6,7 @@
 #include "jsfriendapi.h"
 
 extern JSClass  *jsb_creator_Scale9SpriteV2_class;
-extern JSObject *jsb_creator_Scale9SpriteV2_prototype;
+extern JS::PersistentRootedObject *jsb_creator_Scale9SpriteV2_prototype;
 
 bool js_creator_Scale9SpriteV2_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_creator_Scale9SpriteV2_finalize(JSContext *cx, JSObject *obj);
@@ -45,7 +45,7 @@ bool js_creator_Scale9SpriteV2_enableTrimmedContentSize(JSContext *cx, uint32_t 
 bool js_creator_Scale9SpriteV2_Scale9SpriteV2(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_creator_GraphicsNode_class;
-extern JSObject *jsb_creator_GraphicsNode_prototype;
+extern JS::PersistentRootedObject *jsb_creator_GraphicsNode_prototype;
 
 bool js_creator_GraphicsNode_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_creator_GraphicsNode_finalize(JSContext *cx, JSObject *obj);
@@ -87,7 +87,7 @@ bool js_creator_GraphicsNode_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 bool js_creator_GraphicsNode_GraphicsNode(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_creator_PhysicsDebugDraw_class;
-extern JSObject *jsb_creator_PhysicsDebugDraw_prototype;
+extern JS::PersistentRootedObject *jsb_creator_PhysicsDebugDraw_prototype;
 
 bool js_creator_PhysicsDebugDraw_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_creator_PhysicsDebugDraw_finalize(JSContext *cx, JSObject *obj);
@@ -99,7 +99,7 @@ bool js_creator_PhysicsDebugDraw_AddDrawerToNode(JSContext *cx, uint32_t argc, J
 bool js_creator_PhysicsDebugDraw_PhysicsDebugDraw(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_creator_PhysicsWorldManifoldWrapper_class;
-extern JSObject *jsb_creator_PhysicsWorldManifoldWrapper_prototype;
+extern JS::PersistentRootedObject *jsb_creator_PhysicsWorldManifoldWrapper_prototype;
 
 bool js_creator_PhysicsWorldManifoldWrapper_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_creator_PhysicsWorldManifoldWrapper_finalize(JSContext *cx, JSObject *obj);
@@ -114,7 +114,7 @@ bool js_creator_PhysicsWorldManifoldWrapper_getNormalX(JSContext *cx, uint32_t a
 bool js_creator_PhysicsWorldManifoldWrapper_PhysicsWorldManifoldWrapper(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_creator_PhysicsUtils_class;
-extern JSObject *jsb_creator_PhysicsUtils_prototype;
+extern JS::PersistentRootedObject *jsb_creator_PhysicsUtils_prototype;
 
 bool js_creator_PhysicsUtils_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_creator_PhysicsUtils_finalize(JSContext *cx, JSObject *obj);
@@ -128,7 +128,7 @@ bool js_creator_PhysicsUtils_getContactWorldManifoldWrapper(JSContext *cx, uint3
 bool js_creator_PhysicsUtils_PhysicsUtils(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_creator_PhysicsContactImpulse_class;
-extern JSObject *jsb_creator_PhysicsContactImpulse_prototype;
+extern JS::PersistentRootedObject *jsb_creator_PhysicsContactImpulse_prototype;
 
 bool js_creator_PhysicsContactImpulse_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_creator_PhysicsContactImpulse_finalize(JSContext *cx, JSObject *obj);
@@ -140,7 +140,7 @@ bool js_creator_PhysicsContactImpulse_getTangentImpulse(JSContext *cx, uint32_t 
 bool js_creator_PhysicsContactImpulse_PhysicsContactImpulse(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_creator_PhysicsContactListener_class;
-extern JSObject *jsb_creator_PhysicsContactListener_prototype;
+extern JS::PersistentRootedObject *jsb_creator_PhysicsContactListener_prototype;
 
 bool js_creator_PhysicsContactListener_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_creator_PhysicsContactListener_finalize(JSContext *cx, JSObject *obj);
@@ -151,7 +151,7 @@ bool js_creator_PhysicsContactListener_registerContactFixture(JSContext *cx, uin
 bool js_creator_PhysicsContactListener_PhysicsContactListener(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_creator_PhysicsAABBQueryCallback_class;
-extern JSObject *jsb_creator_PhysicsAABBQueryCallback_prototype;
+extern JS::PersistentRootedObject *jsb_creator_PhysicsAABBQueryCallback_prototype;
 
 bool js_creator_PhysicsAABBQueryCallback_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_creator_PhysicsAABBQueryCallback_finalize(JSContext *cx, JSObject *obj);
@@ -162,7 +162,7 @@ bool js_creator_PhysicsAABBQueryCallback_getFixture(JSContext *cx, uint32_t argc
 bool js_creator_PhysicsAABBQueryCallback_PhysicsAABBQueryCallback(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_creator_PhysicsRayCastCallback_class;
-extern JSObject *jsb_creator_PhysicsRayCastCallback_prototype;
+extern JS::PersistentRootedObject *jsb_creator_PhysicsRayCastCallback_prototype;
 
 bool js_creator_PhysicsRayCastCallback_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_creator_PhysicsRayCastCallback_finalize(JSContext *cx, JSObject *obj);
@@ -174,7 +174,7 @@ bool js_creator_PhysicsRayCastCallback_getFractions(JSContext *cx, uint32_t argc
 bool js_creator_PhysicsRayCastCallback_PhysicsRayCastCallback(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_creator_CameraNode_class;
-extern JSObject *jsb_creator_CameraNode_prototype;
+extern JS::PersistentRootedObject *jsb_creator_CameraNode_prototype;
 
 bool js_creator_CameraNode_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_creator_CameraNode_finalize(JSContext *cx, JSObject *obj);

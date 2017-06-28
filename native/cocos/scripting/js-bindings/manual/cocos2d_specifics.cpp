@@ -308,10 +308,10 @@ bool js_cocos2dx_CCMenu_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 
     if (ok)
     {
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Menu>(menu);
         // link the native object with the javascript object
         JS::RootedObject jsobj(cx);
-        jsb_ref_create_jsobject(cx, menu, typeClass, &jsobj, "cocos2d::Menu");
+        JS::RootedObject proto(cx, jsb_cocos2d_Menu_prototype->get());
+        jsb_ref_create_jsobject(cx, menu, jsb_cocos2d_Menu_class, proto, &jsobj, "cocos2d::Menu");
         args.rval().set(JS::ObjectOrNullValue(jsobj));
         return true;
     }
@@ -341,10 +341,10 @@ bool js_cocos2dx_CCMenuItemToggle_create(JSContext *cx, uint32_t argc, JS::Value
 
             ret->setSelectedIndex(0);
 
-            js_type_class_t *typeClass = js_get_type_from_native<cocos2d::MenuItemToggle>(ret);
             // link the native object with the javascript object
             JS::RootedObject jsobj(cx);
-            jsb_ref_create_jsobject(cx, ret, typeClass, &jsobj, "cocos2d::MenuItemToggle");
+            JS::RootedObject proto(cx, jsb_cocos2d_MenuItemToggle_prototype->get());
+            jsb_ref_create_jsobject(cx, ret, jsb_cocos2d_MenuItemToggle_class, proto, &jsobj, "cocos2d::MenuItemToggle");
             args.rval().set(JS::ObjectOrNullValue(jsobj));
             return true;
         }
@@ -526,10 +526,10 @@ static bool js_callFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
         JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 
         cocos2d::CallFuncN *ret = new (std::nothrow) cocos2d::CallFuncN;
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::CallFuncN>(ret);
         // link the native object with the javascript object
         JS::RootedObject jsobj(cx);
-        jsb_ref_create_jsobject(cx, ret, typeClass, &jsobj, "cocos2d::CallFuncN");
+        JS::RootedObject proto(cx, jsb_cocos2d_CallFuncN_prototype->get());
+        jsb_ref_create_jsobject(cx, ret, jsb_cocos2d_CallFuncN_class, proto, &jsobj, "cocos2d::CallFuncN");
 
         JS::RootedObject callback(cx, args.get(0).toObjectOrNull());
         JS::RootedObject thisObj(cx);
@@ -553,9 +553,9 @@ static bool js_callFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
             }
             if(sender)
             {
-                js_type_class_t *nodeClass = js_get_type_from_native<cocos2d::Node>(sender);
                 JS::RootedObject nodeObj(cx);
-                jsb_ref_get_or_create_jsobject(cx, sender, nodeClass, &nodeObj, "cocos2d::Node");
+                JS::RootedObject proto(cx, jsb_cocos2d_Node_prototype->get());
+                jsb_ref_get_or_create_jsobject(cx, sender, jsb_cocos2d_Node_class, proto, &nodeObj, "cocos2d::Node");
                 senderVal.set(JS::ObjectOrNullValue(nodeObj));
             }
             else
@@ -618,9 +618,9 @@ bool js_cocos2dx_CallFunc_initWithFunction(JSContext *cx, uint32_t argc, JS::Val
             JS::RootedValue senderVal(cx);
             if (sender)
             {
-                js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Node>(sender);
                 JS::RootedObject jsobj(cx);
-                jsb_ref_get_or_create_jsobject(cx, sender, typeClass, &jsobj, "cocos2d::Node");
+                JS::RootedObject proto(cx, jsb_cocos2d_Node_prototype->get());
+                jsb_ref_get_or_create_jsobject(cx, sender, jsb_cocos2d_Node_class, proto, &jsobj, "cocos2d::Node");
                 senderVal.set(JS::ObjectOrNullValue(jsobj));
             }
             else
@@ -2771,7 +2771,8 @@ bool js_BezierActions_create(JSContext *cx, uint32_t argc, JS::Value *vp) {
 
         js_type_class_t *typeProxy = js_get_type_from_native<T>(ret);
         JS::RootedObject jsobj(cx);
-        jsb_ref_create_jsobject(cx, ret, typeProxy, &jsobj, typeid(*ret).name());
+        JS::RootedObject proto(cx, typeProxy->proto->get());
+        jsb_ref_create_jsobject(cx, ret, typeProxy->jsclass, proto, &jsobj, typeid(*ret).name());
         JS::RootedValue jsval(cx, JS::ObjectOrNullValue(jsobj));
         args.rval().set(jsval);
         return true;
@@ -2843,7 +2844,8 @@ bool js_CardinalSplineActions_create(JSContext *cx, uint32_t argc, JS::Value *vp
 
         js_type_class_t *typeProxy = js_get_type_from_native<T>(ret);
         JS::RootedObject jsobj(cx);
-        jsb_ref_create_jsobject(cx, ret, typeProxy, &jsobj, typeid(*ret).name());
+        JS::RootedObject proto(cx, typeProxy->proto->get());
+        jsb_ref_create_jsobject(cx, ret, typeProxy->jsclass, proto, &jsobj, typeid(*ret).name());
         JS::RootedValue jsval(cx, JS::ObjectOrNullValue(jsobj));
         args.rval().set(jsval);
         return true;
@@ -2879,7 +2881,8 @@ bool js_CatmullRomActions_create(JSContext *cx, uint32_t argc, JS::Value *vp) {
 
         js_type_class_t *typeProxy = js_get_type_from_native<T>(ret);
         JS::RootedObject jsobj(cx);
-        jsb_ref_create_jsobject(cx, ret, typeProxy, &jsobj, typeid(*ret).name());
+        JS::RootedObject proto(cx, typeProxy->proto->get());
+        jsb_ref_create_jsobject(cx, ret, typeProxy->jsclass, proto, &jsobj, typeid(*ret).name());
         JS::RootedValue jsval(cx, JS::ObjectOrNullValue(jsobj));
         args.rval().set(jsval);
         return true;
@@ -3700,13 +3703,11 @@ bool js_cocos2dx_SpriteBatchNode_getDescendants(JSContext *cx, uint32_t argc, JS
         size_t vSize = ret.size();
         JS::RootedValue jsret(cx);
 
-        js_type_class_t *typeClass = nullptr;
-        if (ret.size() > 0)
-            typeClass = js_get_type_from_native<cocos2d::Sprite>(ret[0]);
         for (size_t i = 0; i < vSize; i++)
         {
             JS::RootedObject jsobj(cx);
-            jsb_ref_get_or_create_jsobject(cx, ret[i], typeClass, &jsobj, "cocos2d::Sprite");
+            JS::RootedObject proto(cx, jsb_cocos2d_Sprite_prototype->get());
+            jsb_ref_get_or_create_jsobject(cx, ret[i], jsb_cocos2d_Sprite_class, proto, &jsobj, "cocos2d::Sprite");
             jsret = JS::ObjectOrNullValue(jsobj);
             JS_SetElement(cx, jsretArr, static_cast<uint32_t>(i), jsret);
         }
@@ -3907,10 +3908,10 @@ bool js_cocos2dx_Label_createWithTTF(JSContext *cx, uint32_t argc, JS::Value *vp
 
     if (ok)
     {
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Label>(label);
         // link the native object with the javascript object
         JS::RootedObject jsobj(cx);
-        jsb_ref_create_jsobject(cx, label, typeClass, &jsobj, "cocos2d::Label");
+        JS::RootedObject proto(cx, jsb_cocos2d_Label_prototype->get());
+        jsb_ref_create_jsobject(cx, label, jsb_cocos2d_Label_class, proto, &jsobj, "cocos2d::Label");
         args.rval().set(JS::ObjectOrNullValue(jsobj));
         return true;
     }
@@ -4185,7 +4186,7 @@ bool js_cocos2dx_ClippingNode_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 // EventKeyboard class bindings, need manual bind for transform key codes
 
 JSClass  *jsb_cocos2d_EventKeyboard_class;
-JSObject *jsb_cocos2d_EventKeyboard_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EventKeyboard_prototype;
 
 bool js_cocos2dx_EventKeyboard_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -4205,16 +4206,16 @@ bool js_cocos2dx_EventKeyboard_constructor(JSContext *cx, uint32_t argc, JS::Val
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventKeyboard_constructor : Error processing arguments");
 
     cocos2d::EventKeyboard* cobj = new (std::nothrow) cocos2d::EventKeyboard(arg0, arg1);
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EventKeyboard>(cobj);
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EventKeyboard");
+    JS::RootedObject proto(cx, jsb_cocos2d_EventKeyboard_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EventKeyboard_class, proto, &jsobj, "cocos2d::EventKeyboard");
 
     args.rval().set(JS::ObjectOrNullValue(jsobj));
     return true;
 }
 
 
-extern JSObject *jsb_cocos2d_Event_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Event_prototype;
 
 void js_register_cocos2dx_EventKeyboard(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps EventKeyboard_classOps = {
@@ -4230,19 +4231,19 @@ void js_register_cocos2dx_EventKeyboard(JSContext *cx, JS::HandleObject global) 
     };
     jsb_cocos2d_EventKeyboard_class = &EventKeyboard_class;
 
-    JS::RootedObject parentProto(cx, jsb_cocos2d_Event_prototype);
-    jsb_cocos2d_EventKeyboard_prototype = JS_InitClass(cx, global,
-                                                       parentProto,
-                                                       jsb_cocos2d_EventKeyboard_class,
-                                                       js_cocos2dx_EventKeyboard_constructor, 0, // constructor
-                                                       nullptr,
-                                                       nullptr,
-                                                       nullptr, // no static properties
-                                                       nullptr);
+    JS::RootedObject parentProto(cx, jsb_cocos2d_Event_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(cx, global,
+                                            parentProto,
+                                            jsb_cocos2d_EventKeyboard_class,
+                                            js_cocos2dx_EventKeyboard_constructor, 0, // constructor
+                                            nullptr,
+                                            nullptr,
+                                            nullptr, // no static properties
+                                            nullptr));
     
     // add the proto and JSClass to the type->js info hash table
-    JS::RootedObject proto(cx, jsb_cocos2d_EventKeyboard_prototype);
-    jsb_register_class<cocos2d::EventKeyboard>(cx, jsb_cocos2d_EventKeyboard_class, proto);
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EventKeyboard>(cx, jsb_cocos2d_EventKeyboard_class, proto);
+    jsb_cocos2d_EventKeyboard_prototype = typeClass->proto;
     
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EventKeyboard", &className);
@@ -4316,7 +4317,7 @@ void get_or_create_js_obj(const std::string &name, JS::MutableHandleObject jsObj
 }
 
 JSClass  *jsb_cocos2d_PolygonInfo_class;
-JSObject *jsb_cocos2d_PolygonInfo_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_PolygonInfo_prototype;
 
 bool js_cocos2dx_PolygonInfo_getArea(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -4454,9 +4455,9 @@ bool js_cocos2dx_PolygonInfo_constructor(JSContext *cx, uint32_t argc, JS::Value
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     cocos2d::PolygonInfo* cobj = new (std::nothrow) cocos2d::PolygonInfo();
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::PolygonInfo>(cobj);
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::PolygonInfo");
+    JS::RootedObject proto(cx, jsb_cocos2d_PolygonInfo_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_cocos2d_PolygonInfo_class, proto, &jsobj, "cocos2d::PolygonInfo");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -4508,18 +4509,18 @@ void js_register_cocos2dx_PolygonInfo(JSContext *cx, JS::HandleObject global)
     };
     
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_PolygonInfo_prototype = JS_InitClass(cx, global,
-                                                     parent_proto,
-                                                     jsb_cocos2d_PolygonInfo_class,
-                                                     js_cocos2dx_PolygonInfo_constructor, 0, // constructor
-                                                     properties,
-                                                     funcs,
-                                                     nullptr, // no static properties
-                                                     nullptr);
+    JS::RootedObject proto(cx, JS_InitClass(cx, global,
+                                            parent_proto,
+                                            jsb_cocos2d_PolygonInfo_class,
+                                            js_cocos2dx_PolygonInfo_constructor, 0, // constructor
+                                            properties,
+                                            funcs,
+                                            nullptr, // no static properties
+                                            nullptr));
 
     // add the proto and JSClass to the type->js info hash table
-    JS::RootedObject proto(cx, jsb_cocos2d_PolygonInfo_prototype);
-    jsb_register_class<cocos2d::PolygonInfo>(cx, jsb_cocos2d_PolygonInfo_class, proto);
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::PolygonInfo>(cx, jsb_cocos2d_PolygonInfo_class, proto);
+    jsb_cocos2d_PolygonInfo_prototype = typeClass->proto;
     
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "PolygonInfo", &className);
@@ -4528,7 +4529,7 @@ void js_register_cocos2dx_PolygonInfo(JSContext *cx, JS::HandleObject global)
 }
 
 JSClass  *jsb_cocos2d_AutoPolygon_class;
-JSObject *jsb_cocos2d_AutoPolygon_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_AutoPolygon_prototype;
 
 bool js_cocos2dx_AutoPolygon_generatePolygon(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -4613,9 +4614,9 @@ bool js_cocos2dx_AutoPolygon_constructor(JSContext *cx, uint32_t argc, JS::Value
     ok &= jsval_to_std_string(cx, args.get(0), &arg0);
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_AutoPolygon_constructor : Error processing arguments");
     cocos2d::AutoPolygon* cobj = new (std::nothrow) cocos2d::AutoPolygon(arg0);
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::AutoPolygon>(cobj);
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::AutoPolygon");
+    JS::RootedObject proto(cx, jsb_cocos2d_AutoPolygon_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_cocos2d_AutoPolygon_class, proto, &jsobj, "cocos2d::AutoPolygon");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -4656,18 +4657,18 @@ void js_register_cocos2dx_AutoPolygon(JSContext *cx, JS::HandleObject global)
     };
     
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_AutoPolygon_prototype = JS_InitClass(cx, global,
-                                                     parent_proto,
-                                                     jsb_cocos2d_AutoPolygon_class,
-                                                     js_cocos2dx_AutoPolygon_constructor, 0, // constructor
-                                                     nullptr,
-                                                     nullptr,
-                                                     nullptr,
-                                                     st_funcs);
+    JS::RootedObject proto(cx, JS_InitClass(cx, global,
+                                            parent_proto,
+                                            jsb_cocos2d_AutoPolygon_class,
+                                            js_cocos2dx_AutoPolygon_constructor, 0, // constructor
+                                            nullptr,
+                                            nullptr,
+                                            nullptr,
+                                            st_funcs));
 
     // add the proto and JSClass to the type->js info hash table
-    JS::RootedObject proto(cx, jsb_cocos2d_AutoPolygon_prototype);
-    jsb_register_class<cocos2d::AutoPolygon>(cx, jsb_cocos2d_AutoPolygon_class, proto);
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::AutoPolygon>(cx, jsb_cocos2d_AutoPolygon_class, proto);
+    jsb_cocos2d_AutoPolygon_prototype = typeClass->proto;
 }
 
 JSClass  *jsb_RefFinalizeHook_class;
@@ -4828,17 +4829,17 @@ void register_cocos2dx_js_core(JSContext* cx, JS::HandleObject global)
     JS_GetProperty(cx, ccObj, "PlistParser", &tmpVal);
     tmpObj = tmpVal.toObjectOrNull();
     JS_DefineFunction(cx, tmpObj, "getInstance", js_PlistParser_getInstance, 0, JSPROP_READONLY | JSPROP_PERMANENT);
-    JS::RootedObject proto(cx, jsb_cocos2d_SAXParser_prototype);
+    JS::RootedObject proto(cx, jsb_cocos2d_SAXParser_prototype->get());
     JS_DefineFunction(cx, proto, "parse", js_PlistParser_parse, 1, JSPROP_READONLY | JSPROP_PERMANENT);
 
     JS_GetProperty(cx, ccObj, "Label", &tmpVal);
     tmpObj = tmpVal.toObjectOrNull();
     JS_DefineFunction(cx, tmpObj, "createWithTTF", js_cocos2dx_Label_createWithTTF, 4, JSPROP_READONLY | JSPROP_PERMANENT);
 
-    tmpObj.set(jsb_cocos2d_Label_prototype);
+    tmpObj.set(jsb_cocos2d_Label_prototype->get());
     JS_DefineFunction(cx, tmpObj, "setTTFConfig", js_cocos2dx_Label_setTTFConfig, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
-    tmpObj.set(jsb_cocos2d_Node_prototype);
+    tmpObj.set(jsb_cocos2d_Node_prototype->get());
     JS_DefineFunction(cx, tmpObj, "retain", js_cocos2dx_retain, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "release", js_cocos2dx_release, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "onEnter", js_cocos2dx_Node_onEnter, 0, JSPROP_ENUMERATE  | JSPROP_PERMANENT);
@@ -4863,30 +4864,30 @@ void register_cocos2dx_js_core(JSContext* cx, JS::HandleObject global)
     JS_DefineFunction(cx, tmpObj, "convertToWorldSpaceAR", js_cocos2dx_CCNode_convertToWorldSpaceAR, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "setAdditionalTransform", js_cocos2dx_Node_setAdditionalTransform, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
-    tmpObj.set(jsb_cocos2d_EventListener_prototype);
+    tmpObj.set(jsb_cocos2d_EventListener_prototype->get());
     JS_DefineFunction(cx, tmpObj, "retain", js_cocos2dx_retain, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "release", js_cocos2dx_release, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
-    tmpObj.set(jsb_cocos2d_Touch_prototype);
+    tmpObj.set(jsb_cocos2d_Touch_prototype->get());
     JS_DefineFunction(cx, tmpObj, "retain", js_cocos2dx_retain, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "release", js_cocos2dx_release, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
-    tmpObj.set(jsb_cocos2d_EventTouch_prototype);
+    tmpObj.set(jsb_cocos2d_EventTouch_prototype->get());
     JS_DefineFunction(cx, tmpObj, "getTouches", js_cocos2dx_EventTouch_getTouches, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "setTouches", js_cocos2dx_EventTouch_setTouches, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
-    tmpObj.set(jsb_cocos2d_GLProgram_prototype);
+    tmpObj.set(jsb_cocos2d_GLProgram_prototype->get());
     JS_DefineFunction(cx, tmpObj, "retain", js_cocos2dx_retain, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "release", js_cocos2dx_release, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "setUniformLocationF32", js_cocos2dx_CCGLProgram_setUniformLocationWith4f, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "getProgram", js_cocos2dx_CCGLProgram_getProgram, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "setUniformLocationWithMatrixfvUnion", js_cocos2dx_CCGLProgram_setUniformLocationWithMatrixfvUnion, 4, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
-    tmpObj.set(jsb_cocos2d_GLProgramState_prototype);
+    tmpObj.set(jsb_cocos2d_GLProgramState_prototype->get());
     JS_DefineFunction(cx, tmpObj, "setVertexAttribPointer", js_cocos2dx_GLProgramState_setVertexAttribPointer, 6, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "setUniformVec4", js_cocos2dx_GLProgramState_setUniformVec4, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
-    tmpObj.set(jsb_cocos2d_Scheduler_prototype);
+    tmpObj.set(jsb_cocos2d_Scheduler_prototype->get());
     JS_DefineFunction(cx, tmpObj, "retain", js_cocos2dx_retain, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "release", js_cocos2dx_release, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "resumeTarget", js_cocos2dx_CCScheduler_resumeTarget, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
@@ -4906,31 +4907,31 @@ void register_cocos2dx_js_core(JSContext* cx, JS::HandleObject global)
     JS_DefineFunction(cx, tmpObj, "pauseAllTargetsWithMinPriority", js_cocos2dx_CCScheduler_pauseAllTargetsWithMinPriority, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "resumeTargets", js_cocos2dx_CCScheduler_resumeTargets, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
-    tmpObj.set(jsb_cocos2d_ActionManager_prototype);
+    tmpObj.set(jsb_cocos2d_ActionManager_prototype->get());
     JS_DefineFunction(cx, tmpObj, "retain", js_cocos2dx_retain, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "release", js_cocos2dx_release, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
-    tmpObj.set(jsb_cocos2d_TMXLayer_prototype);
+    tmpObj.set(jsb_cocos2d_TMXLayer_prototype->get());
     JS_DefineFunction(cx, tmpObj, "getTileFlagsAt", js_cocos2dx_CCTMXLayer_getTileFlagsAt, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
-    tmpObj.set(jsb_cocos2d_Texture2D_prototype);
+    tmpObj.set(jsb_cocos2d_Texture2D_prototype->get());
     JS_DefineFunction(cx, tmpObj, "retain", js_cocos2dx_retain, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "release", js_cocos2dx_release, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "setTexParameters", js_cocos2dx_CCTexture2D_setTexParameters, 4, JSPROP_ENUMERATE  | JSPROP_PERMANENT);
 
-    tmpObj.set(jsb_cocos2d_Menu_prototype);
+    tmpObj.set(jsb_cocos2d_Menu_prototype->get());
     JS_DefineFunction(cx, tmpObj, "alignItemsInRows", js_cocos2dx_CCMenu_alignItemsInRows, 1, JSPROP_ENUMERATE  | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "alignItemsInColumns", js_cocos2dx_CCMenu_alignItemsInColumns, 1, JSPROP_ENUMERATE  | JSPROP_PERMANENT);
 
-    tmpObj.set(jsb_cocos2d_Layer_prototype);
+    tmpObj.set(jsb_cocos2d_Layer_prototype->get());
     JS_DefineFunction(cx, tmpObj, "init", js_cocos2dx_CCLayer_init, 0, JSPROP_ENUMERATE  | JSPROP_PERMANENT);
 
-    tmpObj.set(jsb_cocos2d_FileUtils_prototype);
+    tmpObj.set(jsb_cocos2d_FileUtils_prototype->get());
     JS_DefineFunction(cx, tmpObj, "createDictionaryWithContentsOfFile", js_cocos2dx_FileUtils_createDictionaryWithContentsOfFile, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "getDataFromFile", js_cocos2dx_CCFileUtils_getDataFromFile, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "writeDataToFile", js_cocos2dx_CCFileUtils_writeDataToFile, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
-    tmpObj.set(jsb_cocos2d_EventDispatcher_prototype);
+    tmpObj.set(jsb_cocos2d_EventDispatcher_prototype->get());
     JS_DefineFunction(cx, tmpObj, "addCustomListener", js_EventDispatcher_addCustomEventListener, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE);
     
     JS_GetProperty(cx, ccObj, "EventListenerTouchOneByOne", &tmpVal);
@@ -4964,13 +4965,13 @@ void register_cocos2dx_js_core(JSContext* cx, JS::HandleObject global)
     JS_GetProperty(cx, ccObj, "BezierBy", &tmpVal);
     tmpObj = tmpVal.toObjectOrNull();
     JS_DefineFunction(cx, tmpObj, "create", JSB_CCBezierBy_actionWithDuration, 2, JSPROP_READONLY | JSPROP_PERMANENT);
-    tmpObj.set(jsb_cocos2d_BezierBy_prototype);
+    tmpObj.set(jsb_cocos2d_BezierBy_prototype->get());
     JS_DefineFunction(cx, tmpObj, "initWithDuration", JSB_CCBezierBy_initWithDuration, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
     JS_GetProperty(cx, ccObj, "BezierTo", &tmpVal);
     tmpObj = tmpVal.toObjectOrNull();
     JS_DefineFunction(cx, tmpObj, "create", JSB_CCBezierTo_actionWithDuration, 2, JSPROP_READONLY | JSPROP_PERMANENT);
-    tmpObj.set(jsb_cocos2d_BezierTo_prototype);
+    tmpObj.set(jsb_cocos2d_BezierTo_prototype->get());
     JS_DefineFunction(cx, tmpObj, "initWithDuration", JSB_CCBezierTo_initWithDuration, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
     JS_GetProperty(cx, ccObj, "CardinalSplineBy", &tmpVal);
@@ -4980,46 +4981,46 @@ void register_cocos2dx_js_core(JSContext* cx, JS::HandleObject global)
     JS_GetProperty(cx, ccObj, "CardinalSplineTo", &tmpVal);
     tmpObj = tmpVal.toObjectOrNull();
     JS_DefineFunction(cx, tmpObj, "create", JSB_CCCardinalSplineTo_actionWithDuration, 2, JSPROP_READONLY | JSPROP_PERMANENT);
-    tmpObj.set(jsb_cocos2d_CardinalSplineTo_prototype);
+    tmpObj.set(jsb_cocos2d_CardinalSplineTo_prototype->get());
     JS_DefineFunction(cx, tmpObj, "initWithDuration", js_cocos2dx_CardinalSplineTo_initWithDuration, 3, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
     JS_GetProperty(cx, ccObj, "CatmullRomBy", &tmpVal);
     tmpObj = tmpVal.toObjectOrNull();
     JS_DefineFunction(cx, tmpObj, "create", JSB_CCCatmullRomBy_actionWithDuration, 2, JSPROP_READONLY | JSPROP_PERMANENT);
-    tmpObj.set(jsb_cocos2d_CatmullRomBy_prototype);
+    tmpObj.set(jsb_cocos2d_CatmullRomBy_prototype->get());
     JS_DefineFunction(cx, tmpObj, "initWithDuration", JSB_CatmullRomBy_initWithDuration, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
     JS_GetProperty(cx, ccObj, "CatmullRomTo", &tmpVal);
     tmpObj = tmpVal.toObjectOrNull();
     JS_DefineFunction(cx, tmpObj, "create", JSB_CCCatmullRomTo_actionWithDuration, 2, JSPROP_READONLY | JSPROP_PERMANENT);
-    tmpObj.set(jsb_cocos2d_CatmullRomTo_prototype);
+    tmpObj.set(jsb_cocos2d_CatmullRomTo_prototype->get());
     JS_DefineFunction(cx, tmpObj, "initWithDuration", JSB_CatmullRomBy_initWithDuration, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
-    tmpObj.set(jsb_cocos2d_Sprite_prototype);
+    tmpObj.set(jsb_cocos2d_Sprite_prototype->get());
     JS_DefineFunction(cx, tmpObj, "initWithPolygon", js_cocos2dx_Sprite_initWithPolygon, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "setPolygonInfo", js_cocos2dx_Sprite_setPolygonInfo, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "textureLoaded", js_cocos2dx_Sprite_textureLoaded, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-    tmpObj.set(jsb_cocos2d_SpriteBatchNode_prototype);
+    tmpObj.set(jsb_cocos2d_SpriteBatchNode_prototype->get());
     JS_DefineFunction(cx, tmpObj, "getDescendants", js_cocos2dx_SpriteBatchNode_getDescendants, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
-    tmpObj.set(jsb_cocos2d_Action_prototype);
+    tmpObj.set(jsb_cocos2d_Action_prototype->get());
     JS_DefineFunction(cx, tmpObj, "retain", js_cocos2dx_retain, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "release", js_cocos2dx_release, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-    tmpObj.set(jsb_cocos2d_SpriteFrame_prototype);
+    tmpObj.set(jsb_cocos2d_SpriteFrame_prototype->get());
     JS_DefineFunction(cx, tmpObj, "retain", js_cocos2dx_retain, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "release", js_cocos2dx_release, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-    tmpObj.set(jsb_cocos2d_MenuItem_prototype);
+    tmpObj.set(jsb_cocos2d_MenuItem_prototype->get());
     JS_DefineFunction(cx, tmpObj, "setCallback", js_cocos2dx_MenuItem_setCallback, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-    tmpObj.set(jsb_cocos2d_TMXLayer_prototype);
+    tmpObj.set(jsb_cocos2d_TMXLayer_prototype->get());
     JS_DefineFunction(cx, tmpObj, "getTiles", js_cocos2dx_CCTMXLayer_getTiles, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
-    tmpObj.set(jsb_cocos2d_ActionInterval_prototype);
+    tmpObj.set(jsb_cocos2d_ActionInterval_prototype->get());
     JS_DefineFunction(cx, tmpObj, "repeat", js_cocos2dx_ActionInterval_repeat, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "repeatForever", js_cocos2dx_ActionInterval_repeatForever, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "_speed", js_cocos2dx_ActionInterval_speed, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "easing", js_cocos2dx_ActionInterval_easing, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
-    tmpObj.set(jsb_cocos2d_RenderTexture_prototype);
+    tmpObj.set(jsb_cocos2d_RenderTexture_prototype->get());
     JS_DefineFunction(cx, tmpObj, "saveToFile", js_cocos2dx_RenderTexture_saveToFile, 4, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
     JS_GetProperty(cx, ccObj, "Menu", &tmpVal);
@@ -5028,16 +5029,16 @@ void register_cocos2dx_js_core(JSContext* cx, JS::HandleObject global)
     JS_GetProperty(cx, ccObj, "MenuItemToggle", &tmpVal);
     tmpObj = tmpVal.toObjectOrNull();
     JS_DefineFunction(cx, tmpObj, "_create", js_cocos2dx_CCMenuItemToggle_create, 1, JSPROP_READONLY | JSPROP_PERMANENT);
-    tmpObj.set(jsb_cocos2d_Scene_prototype);
+    tmpObj.set(jsb_cocos2d_Scene_prototype->get());
     JS_DefineFunction(cx, tmpObj, "init", js_cocos2dx_CCScene_init, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE);
 
     JS_GetProperty(cx, ccObj, "CallFunc", &tmpVal);
     tmpObj = tmpVal.toObjectOrNull();
     JS_DefineFunction(cx, tmpObj, "create", js_callFunc, 1, JSPROP_READONLY | JSPROP_PERMANENT);
-    tmpObj.set(jsb_cocos2d_CallFuncN_prototype);
+    tmpObj.set(jsb_cocos2d_CallFuncN_prototype->get());
     JS_DefineFunction(cx, tmpObj, "initWithFunction", js_cocos2dx_CallFunc_initWithFunction, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
-    tmpObj.set(jsb_cocos2d_ClippingNode_prototype);
+    tmpObj.set(jsb_cocos2d_ClippingNode_prototype->get());
     JS_DefineFunction(cx, tmpObj, "init", js_cocos2dx_ClippingNode_init, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
     JS_DefineFunction(cx, ccObj, "glEnableVertexAttribs", js_cocos2dx_ccGLEnableVertexAttribs, 1, JSPROP_READONLY | JSPROP_PERMANENT);

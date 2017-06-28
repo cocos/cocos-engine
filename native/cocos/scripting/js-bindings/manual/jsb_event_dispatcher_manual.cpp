@@ -32,6 +32,7 @@
 #include "base/CCEventCustom.h"
 #include "scripting/js-bindings/manual/ScriptingCore.h"
 #include "scripting/js-bindings/manual/cocos2d_specifics.hpp"
+#include "scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp"
 
 USING_NS_CC;
 
@@ -190,9 +191,9 @@ bool js_EventListenerAcceleration_create(JSContext *cx, uint32_t argc, JS::Value
                     ccacceleration_to_jsval(cx, *acc, &larg);
                     largv.append(larg);
                     if (event) {
-                        js_type_class_t *typeClassEvent = js_get_type_from_native<Event>(event);
                         JS::RootedObject eventObj(cx);
-                        jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent, &eventObj, "EventAcceleration");
+                        JS::RootedObject proto(cx, jsb_cocos2d_Event_prototype->get());
+                        jsb_get_or_create_weak_jsobject(cx, event, jsb_cocos2d_Event_class, proto, &eventObj, "EventAcceleration");
                         largv.append(JS::ObjectOrNullValue(eventObj));
                     } else {
                         largv.append(JS::NullValue());

@@ -7,7 +7,7 @@
 #include "jsfriendapi.h"
 
 extern JSClass  *jsb_cocos2d_experimental_ui_VideoPlayer_class;
-extern JSObject *jsb_cocos2d_experimental_ui_VideoPlayer_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_experimental_ui_VideoPlayer_prototype;
 
 bool js_cocos2dx_experimental_video_VideoPlayer_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_experimental_video_VideoPlayer_finalize(JSContext *cx, JSObject *obj);

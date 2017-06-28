@@ -36,6 +36,9 @@
 USING_NS_CC;
 USING_NS_CC_EXT;
 
+extern JSClass* jsb_cocos2d_extension_EventAssetsManagerEx_class;
+extern JS::PersistentRootedObject* jsb_cocos2d_extension_EventAssetsManagerEx_prototype;
+
 bool js_cocos2dx_extension_EventListenerAssetsManagerEx_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -66,9 +69,9 @@ bool js_cocos2dx_extension_EventListenerAssetsManagerEx_init(JSContext *cx, uint
                     JS::RootedValue largv(cx, JS::NullValue());
                     do {
                         if (larg0) {
-                            js_type_class_t* typeClass = js_get_type_from_native<cocos2d::extension::EventAssetsManagerEx>(larg0);
                             JS::RootedObject arg0Obj(cx);
-                            jsb_get_or_create_weak_jsobject(cx, larg0, typeClass, &arg0Obj, "cocos2d::extension::EventAssetsManagerEx");
+                            JS::RootedObject proto(cx, jsb_cocos2d_extension_EventAssetsManagerEx_prototype->get());
+                            jsb_get_or_create_weak_jsobject(cx, larg0, jsb_cocos2d_extension_EventAssetsManagerEx_class, proto, &arg0Obj, "cocos2d::extension::EventAssetsManagerEx");
                             largv = JS::ObjectOrNullValue(arg0Obj);
                         }
                     } while (0);
@@ -125,9 +128,9 @@ bool js_cocos2dx_extension_EventListenerAssetsManagerEx_create(JSContext *cx, ui
                     JS::RootedValue largv(cx, JS::NullValue());
                     do {
                         if (larg0) {
-                            js_type_class_t* typeClass = js_get_type_from_native<cocos2d::extension::EventAssetsManagerEx>(larg0);
                             JS::RootedObject arg0Obj(cx);
-                            jsb_get_or_create_weak_jsobject(cx, larg0, typeClass, &arg0Obj, "cocos2d::extension::EventAssetsManagerEx");
+                            JS::RootedObject proto(cx, jsb_cocos2d_extension_EventAssetsManagerEx_prototype->get());
+                            jsb_get_or_create_weak_jsobject(cx, larg0, jsb_cocos2d_extension_EventAssetsManagerEx_class, proto, &arg0Obj, "cocos2d::extension::EventAssetsManagerEx");
                             largv = JS::ObjectOrNullValue(arg0Obj);
                         }
                     } while (0);
@@ -351,9 +354,9 @@ bool js_performance_now(JSContext *cx, uint32_t argc, JS::Value *vp)
 	return true;
 }
 
-extern JSObject* jsb_cocos2d_extension_AssetsManagerEx_prototype;
-extern JSObject* jsb_cocos2d_extension_EventListenerAssetsManagerEx_prototype;
-extern JSObject* jsb_cocos2d_extension_Manifest_prototype;
+extern JS::PersistentRootedObject* jsb_cocos2d_extension_AssetsManagerEx_prototype;
+extern JS::PersistentRootedObject* jsb_cocos2d_extension_EventListenerAssetsManagerEx_prototype;
+extern JS::PersistentRootedObject* jsb_cocos2d_extension_Manifest_prototype;
 
 void register_all_cocos2dx_extension_manual(JSContext* cx, JS::HandleObject global)
 {
@@ -364,17 +367,17 @@ void register_all_cocos2dx_extension_manual(JSContext* cx, JS::HandleObject glob
     get_or_create_js_obj(cx, global, "cc", &ccObj);
     get_or_create_js_obj(cx, global, "jsb", &jsbObj);
 
-    tmpObj.set(jsb_cocos2d_extension_AssetsManagerEx_prototype);
+    tmpObj.set(jsb_cocos2d_extension_AssetsManagerEx_prototype->get());
     JS_DefineFunction(cx, tmpObj, "retain", js_cocos2dx_retain, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "release", js_cocos2dx_release, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-    tmpObj.set(jsb_cocos2d_extension_Manifest_prototype);
+    tmpObj.set(jsb_cocos2d_extension_Manifest_prototype->get());
     JS_DefineFunction(cx, tmpObj, "retain", js_cocos2dx_retain, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "release", js_cocos2dx_release, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
     JS_GetProperty(cx, ccObj, "EventListenerAssetsManager", &tmpVal);
     tmpObj.set(tmpVal.toObjectOrNull());
     JS_DefineFunction(cx, tmpObj, "create", js_cocos2dx_extension_EventListenerAssetsManagerEx_create, 2, JSPROP_READONLY | JSPROP_PERMANENT);
-    tmpObj.set(jsb_cocos2d_extension_EventListenerAssetsManagerEx_prototype);
+    tmpObj.set(jsb_cocos2d_extension_EventListenerAssetsManagerEx_prototype->get());
     JS_DefineFunction(cx, tmpObj, "init", js_cocos2dx_extension_EventListenerAssetsManagerEx_init, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
     JS_DefineFunction(cx, jsbObj, "loadRemoteImg", js_load_remote_image, 2, JSPROP_READONLY | JSPROP_PERMANENT);

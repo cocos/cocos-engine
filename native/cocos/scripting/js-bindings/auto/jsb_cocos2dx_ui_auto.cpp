@@ -5,7 +5,7 @@
 #include "editor-support/cocostudio/CocosStudioExtension.h"
 
 JSClass  *jsb_cocos2d_ui_LayoutParameter_class;
-JSObject *jsb_cocos2d_ui_LayoutParameter_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_LayoutParameter_prototype;
 
 bool js_cocos2dx_ui_LayoutParameter_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -60,9 +60,9 @@ bool js_cocos2dx_ui_LayoutParameter_create(JSContext *cx, uint32_t argc, JS::Val
     if (argc == 0) {
 
         auto ret = cocos2d::ui::LayoutParameter::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::LayoutParameter>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::LayoutParameter");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_LayoutParameter_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_LayoutParameter_class, proto, &jsret, "cocos2d::ui::LayoutParameter");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -76,11 +76,10 @@ bool js_cocos2dx_ui_LayoutParameter_constructor(JSContext *cx, uint32_t argc, JS
     bool ok = true;
     cocos2d::ui::LayoutParameter* cobj = new (std::nothrow) cocos2d::ui::LayoutParameter();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::LayoutParameter>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::LayoutParameter");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_LayoutParameter_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_LayoutParameter_class, proto, &jsobj, "cocos2d::ui::LayoutParameter");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -118,7 +117,7 @@ void js_register_cocos2dx_ui_LayoutParameter(JSContext *cx, JS::HandleObject glo
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_ui_LayoutParameter_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_LayoutParameter_class,
@@ -126,20 +125,20 @@ void js_register_cocos2dx_ui_LayoutParameter(JSContext *cx, JS::HandleObject glo
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_LayoutParameter_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::LayoutParameter>(cx, jsb_cocos2d_ui_LayoutParameter_class, proto);
+    jsb_cocos2d_ui_LayoutParameter_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "LayoutParameter", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::LayoutParameter>(cx, jsb_cocos2d_ui_LayoutParameter_class, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_LinearLayoutParameter_class;
-JSObject *jsb_cocos2d_ui_LinearLayoutParameter_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_LinearLayoutParameter_prototype;
 
 bool js_cocos2dx_ui_LinearLayoutParameter_setGravity(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -188,9 +187,9 @@ bool js_cocos2dx_ui_LinearLayoutParameter_create(JSContext *cx, uint32_t argc, J
     if (argc == 0) {
 
         auto ret = cocos2d::ui::LinearLayoutParameter::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::LinearLayoutParameter>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::LinearLayoutParameter");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_LinearLayoutParameter_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_LinearLayoutParameter_class, proto, &jsret, "cocos2d::ui::LinearLayoutParameter");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -204,11 +203,10 @@ bool js_cocos2dx_ui_LinearLayoutParameter_constructor(JSContext *cx, uint32_t ar
     bool ok = true;
     cocos2d::ui::LinearLayoutParameter* cobj = new (std::nothrow) cocos2d::ui::LinearLayoutParameter();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::LinearLayoutParameter>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::LinearLayoutParameter");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_LinearLayoutParameter_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_LinearLayoutParameter_class, proto, &jsobj, "cocos2d::ui::LinearLayoutParameter");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -220,7 +218,7 @@ bool js_cocos2dx_ui_LinearLayoutParameter_constructor(JSContext *cx, uint32_t ar
 }
 
 
-extern JSObject *jsb_cocos2d_ui_LayoutParameter_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_LayoutParameter_prototype;
 
 void js_register_cocos2dx_ui_LinearLayoutParameter(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ui_LinearLayoutParameter_classOps = {
@@ -247,8 +245,8 @@ void js_register_cocos2dx_ui_LinearLayoutParameter(JSContext *cx, JS::HandleObje
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_LayoutParameter_prototype);
-    jsb_cocos2d_ui_LinearLayoutParameter_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_LayoutParameter_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_LinearLayoutParameter_class,
@@ -256,20 +254,20 @@ void js_register_cocos2dx_ui_LinearLayoutParameter(JSContext *cx, JS::HandleObje
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_LinearLayoutParameter_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::LinearLayoutParameter>(cx, jsb_cocos2d_ui_LinearLayoutParameter_class, proto);
+    jsb_cocos2d_ui_LinearLayoutParameter_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "LinearLayoutParameter", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::LinearLayoutParameter>(cx, jsb_cocos2d_ui_LinearLayoutParameter_class, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_RelativeLayoutParameter_class;
-JSObject *jsb_cocos2d_ui_RelativeLayoutParameter_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_RelativeLayoutParameter_prototype;
 
 bool js_cocos2dx_ui_RelativeLayoutParameter_setAlign(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -398,9 +396,9 @@ bool js_cocos2dx_ui_RelativeLayoutParameter_create(JSContext *cx, uint32_t argc,
     if (argc == 0) {
 
         auto ret = cocos2d::ui::RelativeLayoutParameter::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RelativeLayoutParameter>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::RelativeLayoutParameter");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_RelativeLayoutParameter_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_RelativeLayoutParameter_class, proto, &jsret, "cocos2d::ui::RelativeLayoutParameter");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -414,11 +412,10 @@ bool js_cocos2dx_ui_RelativeLayoutParameter_constructor(JSContext *cx, uint32_t 
     bool ok = true;
     cocos2d::ui::RelativeLayoutParameter* cobj = new (std::nothrow) cocos2d::ui::RelativeLayoutParameter();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RelativeLayoutParameter>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::RelativeLayoutParameter");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_RelativeLayoutParameter_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_RelativeLayoutParameter_class, proto, &jsobj, "cocos2d::ui::RelativeLayoutParameter");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -430,7 +427,7 @@ bool js_cocos2dx_ui_RelativeLayoutParameter_constructor(JSContext *cx, uint32_t 
 }
 
 
-extern JSObject *jsb_cocos2d_ui_LayoutParameter_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_LayoutParameter_prototype;
 
 void js_register_cocos2dx_ui_RelativeLayoutParameter(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ui_RelativeLayoutParameter_classOps = {
@@ -461,8 +458,8 @@ void js_register_cocos2dx_ui_RelativeLayoutParameter(JSContext *cx, JS::HandleOb
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_LayoutParameter_prototype);
-    jsb_cocos2d_ui_RelativeLayoutParameter_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_LayoutParameter_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_RelativeLayoutParameter_class,
@@ -470,20 +467,20 @@ void js_register_cocos2dx_ui_RelativeLayoutParameter(JSContext *cx, JS::HandleOb
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_RelativeLayoutParameter_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::RelativeLayoutParameter>(cx, jsb_cocos2d_ui_RelativeLayoutParameter_class, proto);
+    jsb_cocos2d_ui_RelativeLayoutParameter_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "RelativeLayoutParameter", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::RelativeLayoutParameter>(cx, jsb_cocos2d_ui_RelativeLayoutParameter_class, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_Widget_class;
-JSObject *jsb_cocos2d_ui_Widget_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_Widget_prototype;
 
 bool js_cocos2dx_ui_Widget_setLayoutComponentEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -2164,9 +2161,9 @@ bool js_cocos2dx_ui_Widget_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
 
         auto ret = cocos2d::ui::Widget::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::Widget>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::Widget");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_Widget_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_Widget_class, proto, &jsret, "cocos2d::ui::Widget");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -2180,11 +2177,10 @@ bool js_cocos2dx_ui_Widget_constructor(JSContext *cx, uint32_t argc, JS::Value *
     bool ok = true;
     cocos2d::ui::Widget* cobj = new (std::nothrow) cocos2d::ui::Widget();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::Widget>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::Widget");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_Widget_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_Widget_class, proto, &jsobj, "cocos2d::ui::Widget");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -2213,7 +2209,7 @@ static bool js_cocos2dx_ui_Widget_ctor(JSContext *cx, uint32_t argc, JS::Value *
 }
 
 
-extern JSObject *jsb_cocos2d_ProtectedNode_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ProtectedNode_prototype;
 
     
 void js_register_cocos2dx_ui_Widget(JSContext *cx, JS::HandleObject global) {
@@ -2311,8 +2307,8 @@ void js_register_cocos2dx_ui_Widget(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ProtectedNode_prototype);
-    jsb_cocos2d_ui_Widget_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ProtectedNode_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_Widget_class,
@@ -2320,21 +2316,21 @@ void js_register_cocos2dx_ui_Widget(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_Widget_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::Widget>(cx, jsb_cocos2d_ui_Widget_class, proto);
+    jsb_cocos2d_ui_Widget_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Widget", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::Widget>(cx, jsb_cocos2d_ui_Widget_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_Layout_class;
-JSObject *jsb_cocos2d_ui_Layout_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_Layout_prototype;
 
 bool js_cocos2dx_ui_Layout_setBackGroundColorVector(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -3042,9 +3038,9 @@ bool js_cocos2dx_ui_Layout_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
 
         auto ret = cocos2d::ui::Layout::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::Layout>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::Layout");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_Layout_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_Layout_class, proto, &jsret, "cocos2d::ui::Layout");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -3058,11 +3054,10 @@ bool js_cocos2dx_ui_Layout_constructor(JSContext *cx, uint32_t argc, JS::Value *
     bool ok = true;
     cocos2d::ui::Layout* cobj = new (std::nothrow) cocos2d::ui::Layout();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::Layout>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::Layout");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_Layout_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_Layout_class, proto, &jsobj, "cocos2d::ui::Layout");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -3091,7 +3086,7 @@ static bool js_cocos2dx_ui_Layout_ctor(JSContext *cx, uint32_t argc, JS::Value *
 }
 
 
-extern JSObject *jsb_cocos2d_ui_Widget_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_Layout(JSContext *cx, JS::HandleObject global) {
@@ -3152,8 +3147,8 @@ void js_register_cocos2dx_ui_Layout(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype);
-    jsb_cocos2d_ui_Layout_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_Layout_class,
@@ -3161,21 +3156,21 @@ void js_register_cocos2dx_ui_Layout(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_Layout_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::Layout>(cx, jsb_cocos2d_ui_Layout_class, proto);
+    jsb_cocos2d_ui_Layout_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Layout", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::Layout>(cx, jsb_cocos2d_ui_Layout_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_Button_class;
-JSObject *jsb_cocos2d_ui_Button_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_Button_prototype;
 
 bool js_cocos2dx_ui_Button_getNormalTextureSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -4185,11 +4180,10 @@ bool js_cocos2dx_ui_Button_constructor(JSContext *cx, uint32_t argc, JS::Value *
     bool ok = true;
     cocos2d::ui::Button* cobj = new (std::nothrow) cocos2d::ui::Button();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::Button>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::Button");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_Button_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_Button_class, proto, &jsobj, "cocos2d::ui::Button");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -4218,7 +4212,7 @@ static bool js_cocos2dx_ui_Button_ctor(JSContext *cx, uint32_t argc, JS::Value *
 }
 
 
-extern JSObject *jsb_cocos2d_ui_Widget_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_Button(JSContext *cx, JS::HandleObject global) {
@@ -4282,8 +4276,8 @@ void js_register_cocos2dx_ui_Button(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype);
-    jsb_cocos2d_ui_Button_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_Button_class,
@@ -4291,21 +4285,21 @@ void js_register_cocos2dx_ui_Button(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_Button_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::Button>(cx, jsb_cocos2d_ui_Button_class, proto);
+    jsb_cocos2d_ui_Button_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Button", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::Button>(cx, jsb_cocos2d_ui_Button_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_AbstractCheckButton_class;
-JSObject *jsb_cocos2d_ui_AbstractCheckButton_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_AbstractCheckButton_prototype;
 
 bool js_cocos2dx_ui_AbstractCheckButton_getCrossDisabledFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -4866,7 +4860,7 @@ bool js_cocos2dx_ui_AbstractCheckButton_loadTextureFrontCrossDisabled(JSContext 
     return false;
 }
 
-extern JSObject *jsb_cocos2d_ui_Widget_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_Widget_prototype;
 
 void js_register_cocos2dx_ui_AbstractCheckButton(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ui_AbstractCheckButton_classOps = {
@@ -4907,8 +4901,8 @@ void js_register_cocos2dx_ui_AbstractCheckButton(JSContext *cx, JS::HandleObject
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype);
-    jsb_cocos2d_ui_AbstractCheckButton_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_AbstractCheckButton_class,
@@ -4916,20 +4910,20 @@ void js_register_cocos2dx_ui_AbstractCheckButton(JSContext *cx, JS::HandleObject
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_AbstractCheckButton_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::AbstractCheckButton>(cx, jsb_cocos2d_ui_AbstractCheckButton_class, proto);
+    jsb_cocos2d_ui_AbstractCheckButton_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "AbstractCheckButton", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::AbstractCheckButton>(cx, jsb_cocos2d_ui_AbstractCheckButton_class, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_CheckBox_class;
-JSObject *jsb_cocos2d_ui_CheckBox_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_CheckBox_prototype;
 
 bool js_cocos2dx_ui_CheckBox_addEventListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -5138,11 +5132,10 @@ bool js_cocos2dx_ui_CheckBox_constructor(JSContext *cx, uint32_t argc, JS::Value
     bool ok = true;
     cocos2d::ui::CheckBox* cobj = new (std::nothrow) cocos2d::ui::CheckBox();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::CheckBox>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::CheckBox");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_CheckBox_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_CheckBox_class, proto, &jsobj, "cocos2d::ui::CheckBox");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -5171,7 +5164,7 @@ static bool js_cocos2dx_ui_CheckBox_ctor(JSContext *cx, uint32_t argc, JS::Value
 }
 
 
-extern JSObject *jsb_cocos2d_ui_AbstractCheckButton_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_AbstractCheckButton_prototype;
 
     
 void js_register_cocos2dx_ui_CheckBox(JSContext *cx, JS::HandleObject global) {
@@ -5199,8 +5192,8 @@ void js_register_cocos2dx_ui_CheckBox(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_AbstractCheckButton_prototype);
-    jsb_cocos2d_ui_CheckBox_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_AbstractCheckButton_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_CheckBox_class,
@@ -5208,21 +5201,21 @@ void js_register_cocos2dx_ui_CheckBox(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_CheckBox_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::CheckBox>(cx, jsb_cocos2d_ui_CheckBox_class, proto);
+    jsb_cocos2d_ui_CheckBox_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "CheckBox", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::CheckBox>(cx, jsb_cocos2d_ui_CheckBox_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_RadioButton_class;
-JSObject *jsb_cocos2d_ui_RadioButton_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_RadioButton_prototype;
 
 bool js_cocos2dx_ui_RadioButton_addEventListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -5431,11 +5424,10 @@ bool js_cocos2dx_ui_RadioButton_constructor(JSContext *cx, uint32_t argc, JS::Va
     bool ok = true;
     cocos2d::ui::RadioButton* cobj = new (std::nothrow) cocos2d::ui::RadioButton();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RadioButton>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::RadioButton");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_RadioButton_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_RadioButton_class, proto, &jsobj, "cocos2d::ui::RadioButton");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -5464,7 +5456,7 @@ static bool js_cocos2dx_ui_RadioButton_ctor(JSContext *cx, uint32_t argc, JS::Va
 }
 
 
-extern JSObject *jsb_cocos2d_ui_AbstractCheckButton_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_AbstractCheckButton_prototype;
 
     
 void js_register_cocos2dx_ui_RadioButton(JSContext *cx, JS::HandleObject global) {
@@ -5492,8 +5484,8 @@ void js_register_cocos2dx_ui_RadioButton(JSContext *cx, JS::HandleObject global)
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_AbstractCheckButton_prototype);
-    jsb_cocos2d_ui_RadioButton_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_AbstractCheckButton_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_RadioButton_class,
@@ -5501,21 +5493,21 @@ void js_register_cocos2dx_ui_RadioButton(JSContext *cx, JS::HandleObject global)
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_RadioButton_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::RadioButton>(cx, jsb_cocos2d_ui_RadioButton_class, proto);
+    jsb_cocos2d_ui_RadioButton_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "RadioButton", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::RadioButton>(cx, jsb_cocos2d_ui_RadioButton_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_RadioButtonGroup_class;
-JSObject *jsb_cocos2d_ui_RadioButtonGroup_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_RadioButtonGroup_prototype;
 
 bool js_cocos2dx_ui_RadioButtonGroup_removeRadioButton(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -5858,9 +5850,9 @@ bool js_cocos2dx_ui_RadioButtonGroup_create(JSContext *cx, uint32_t argc, JS::Va
     if (argc == 0) {
 
         auto ret = cocos2d::ui::RadioButtonGroup::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RadioButtonGroup>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::RadioButtonGroup");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_RadioButtonGroup_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_RadioButtonGroup_class, proto, &jsret, "cocos2d::ui::RadioButtonGroup");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -5874,11 +5866,10 @@ bool js_cocos2dx_ui_RadioButtonGroup_constructor(JSContext *cx, uint32_t argc, J
     bool ok = true;
     cocos2d::ui::RadioButtonGroup* cobj = new (std::nothrow) cocos2d::ui::RadioButtonGroup();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RadioButtonGroup>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::RadioButtonGroup");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_RadioButtonGroup_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_RadioButtonGroup_class, proto, &jsobj, "cocos2d::ui::RadioButtonGroup");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -5907,7 +5898,7 @@ static bool js_cocos2dx_ui_RadioButtonGroup_ctor(JSContext *cx, uint32_t argc, J
 }
 
 
-extern JSObject *jsb_cocos2d_ui_Widget_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_RadioButtonGroup(JSContext *cx, JS::HandleObject global) {
@@ -5945,8 +5936,8 @@ void js_register_cocos2dx_ui_RadioButtonGroup(JSContext *cx, JS::HandleObject gl
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype);
-    jsb_cocos2d_ui_RadioButtonGroup_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_RadioButtonGroup_class,
@@ -5954,21 +5945,21 @@ void js_register_cocos2dx_ui_RadioButtonGroup(JSContext *cx, JS::HandleObject gl
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_RadioButtonGroup_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::RadioButtonGroup>(cx, jsb_cocos2d_ui_RadioButtonGroup_class, proto);
+    jsb_cocos2d_ui_RadioButtonGroup_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "RadioButtonGroup", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::RadioButtonGroup>(cx, jsb_cocos2d_ui_RadioButtonGroup_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_ImageView_class;
-JSObject *jsb_cocos2d_ui_ImageView_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_ImageView_prototype;
 
 bool js_cocos2dx_ui_ImageView_loadTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -6230,11 +6221,10 @@ bool js_cocos2dx_ui_ImageView_constructor(JSContext *cx, uint32_t argc, JS::Valu
     bool ok = true;
     cocos2d::ui::ImageView* cobj = new (std::nothrow) cocos2d::ui::ImageView();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::ImageView>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::ImageView");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_ImageView_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_ImageView_class, proto, &jsobj, "cocos2d::ui::ImageView");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -6263,7 +6253,7 @@ static bool js_cocos2dx_ui_ImageView_ctor(JSContext *cx, uint32_t argc, JS::Valu
 }
 
 
-extern JSObject *jsb_cocos2d_ui_Widget_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_ImageView(JSContext *cx, JS::HandleObject global) {
@@ -6298,8 +6288,8 @@ void js_register_cocos2dx_ui_ImageView(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype);
-    jsb_cocos2d_ui_ImageView_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_ImageView_class,
@@ -6307,21 +6297,21 @@ void js_register_cocos2dx_ui_ImageView(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_ImageView_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::ImageView>(cx, jsb_cocos2d_ui_ImageView_class, proto);
+    jsb_cocos2d_ui_ImageView_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ImageView", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::ImageView>(cx, jsb_cocos2d_ui_ImageView_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_Text_class;
-JSObject *jsb_cocos2d_ui_Text_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_Text_prototype;
 
 bool js_cocos2dx_ui_Text_enableShadow(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -7059,11 +7049,10 @@ bool js_cocos2dx_ui_Text_constructor(JSContext *cx, uint32_t argc, JS::Value *vp
     bool ok = true;
     cocos2d::ui::Text* cobj = new (std::nothrow) cocos2d::ui::Text();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::Text>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::Text");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_Text_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_Text_class, proto, &jsobj, "cocos2d::ui::Text");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -7092,7 +7081,7 @@ static bool js_cocos2dx_ui_Text_ctor(JSContext *cx, uint32_t argc, JS::Value *vp
 }
 
 
-extern JSObject *jsb_cocos2d_ui_Widget_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_Text(JSContext *cx, JS::HandleObject global) {
@@ -7150,8 +7139,8 @@ void js_register_cocos2dx_ui_Text(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype);
-    jsb_cocos2d_ui_Text_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_Text_class,
@@ -7159,21 +7148,21 @@ void js_register_cocos2dx_ui_Text(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_Text_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::Text>(cx, jsb_cocos2d_ui_Text_class, proto);
+    jsb_cocos2d_ui_Text_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Text", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::Text>(cx, jsb_cocos2d_ui_Text_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_TextAtlas_class;
-JSObject *jsb_cocos2d_ui_TextAtlas_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_TextAtlas_prototype;
 
 bool js_cocos2dx_ui_TextAtlas_getStringLength(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -7362,11 +7351,10 @@ bool js_cocos2dx_ui_TextAtlas_constructor(JSContext *cx, uint32_t argc, JS::Valu
     bool ok = true;
     cocos2d::ui::TextAtlas* cobj = new (std::nothrow) cocos2d::ui::TextAtlas();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::TextAtlas>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::TextAtlas");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_TextAtlas_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_TextAtlas_class, proto, &jsobj, "cocos2d::ui::TextAtlas");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -7395,7 +7383,7 @@ static bool js_cocos2dx_ui_TextAtlas_ctor(JSContext *cx, uint32_t argc, JS::Valu
 }
 
 
-extern JSObject *jsb_cocos2d_ui_Widget_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_TextAtlas(JSContext *cx, JS::HandleObject global) {
@@ -7428,8 +7416,8 @@ void js_register_cocos2dx_ui_TextAtlas(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype);
-    jsb_cocos2d_ui_TextAtlas_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_TextAtlas_class,
@@ -7437,21 +7425,21 @@ void js_register_cocos2dx_ui_TextAtlas(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_TextAtlas_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::TextAtlas>(cx, jsb_cocos2d_ui_TextAtlas_class, proto);
+    jsb_cocos2d_ui_TextAtlas_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TextAtlas", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::TextAtlas>(cx, jsb_cocos2d_ui_TextAtlas_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_LoadingBar_class;
-JSObject *jsb_cocos2d_ui_LoadingBar_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_LoadingBar_prototype;
 
 bool js_cocos2dx_ui_LoadingBar_setPercent(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -7787,11 +7775,10 @@ bool js_cocos2dx_ui_LoadingBar_constructor(JSContext *cx, uint32_t argc, JS::Val
     bool ok = true;
     cocos2d::ui::LoadingBar* cobj = new (std::nothrow) cocos2d::ui::LoadingBar();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::LoadingBar>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::LoadingBar");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_LoadingBar_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_LoadingBar_class, proto, &jsobj, "cocos2d::ui::LoadingBar");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -7820,7 +7807,7 @@ static bool js_cocos2dx_ui_LoadingBar_ctor(JSContext *cx, uint32_t argc, JS::Val
 }
 
 
-extern JSObject *jsb_cocos2d_ui_Widget_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_LoadingBar(JSContext *cx, JS::HandleObject global) {
@@ -7857,8 +7844,8 @@ void js_register_cocos2dx_ui_LoadingBar(JSContext *cx, JS::HandleObject global) 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype);
-    jsb_cocos2d_ui_LoadingBar_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_LoadingBar_class,
@@ -7866,21 +7853,21 @@ void js_register_cocos2dx_ui_LoadingBar(JSContext *cx, JS::HandleObject global) 
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_LoadingBar_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::LoadingBar>(cx, jsb_cocos2d_ui_LoadingBar_class, proto);
+    jsb_cocos2d_ui_LoadingBar_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "LoadingBar", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::LoadingBar>(cx, jsb_cocos2d_ui_LoadingBar_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_ScrollView_class;
-JSObject *jsb_cocos2d_ui_ScrollView_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_ScrollView_prototype;
 
 bool js_cocos2dx_ui_ScrollView_scrollToTop(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -9006,9 +8993,9 @@ bool js_cocos2dx_ui_ScrollView_create(JSContext *cx, uint32_t argc, JS::Value *v
     if (argc == 0) {
 
         auto ret = cocos2d::ui::ScrollView::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::ScrollView>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::ScrollView");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_ScrollView_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_ScrollView_class, proto, &jsret, "cocos2d::ui::ScrollView");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -9022,11 +9009,10 @@ bool js_cocos2dx_ui_ScrollView_constructor(JSContext *cx, uint32_t argc, JS::Val
     bool ok = true;
     cocos2d::ui::ScrollView* cobj = new (std::nothrow) cocos2d::ui::ScrollView();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::ScrollView>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::ScrollView");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_ScrollView_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_ScrollView_class, proto, &jsobj, "cocos2d::ui::ScrollView");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -9055,7 +9041,7 @@ static bool js_cocos2dx_ui_ScrollView_ctor(JSContext *cx, uint32_t argc, JS::Val
 }
 
 
-extern JSObject *jsb_cocos2d_ui_Layout_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_Layout_prototype;
 
     
 void js_register_cocos2dx_ui_ScrollView(JSContext *cx, JS::HandleObject global) {
@@ -9136,8 +9122,8 @@ void js_register_cocos2dx_ui_ScrollView(JSContext *cx, JS::HandleObject global) 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Layout_prototype);
-    jsb_cocos2d_ui_ScrollView_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Layout_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_ScrollView_class,
@@ -9145,21 +9131,21 @@ void js_register_cocos2dx_ui_ScrollView(JSContext *cx, JS::HandleObject global) 
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_ScrollView_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::ScrollView>(cx, jsb_cocos2d_ui_ScrollView_class, proto);
+    jsb_cocos2d_ui_ScrollView_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ScrollView", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::ScrollView>(cx, jsb_cocos2d_ui_ScrollView_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_ListView_class;
-JSObject *jsb_cocos2d_ui_ListView_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_ListView_prototype;
 
 bool js_cocos2dx_ui_ListView_setGravity(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -9986,9 +9972,9 @@ bool js_cocos2dx_ui_ListView_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
 
         auto ret = cocos2d::ui::ListView::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::ListView>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::ListView");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_ListView_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_ListView_class, proto, &jsret, "cocos2d::ui::ListView");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -10002,11 +9988,10 @@ bool js_cocos2dx_ui_ListView_constructor(JSContext *cx, uint32_t argc, JS::Value
     bool ok = true;
     cocos2d::ui::ListView* cobj = new (std::nothrow) cocos2d::ui::ListView();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::ListView>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::ListView");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_ListView_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_ListView_class, proto, &jsobj, "cocos2d::ui::ListView");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -10035,7 +10020,7 @@ static bool js_cocos2dx_ui_ListView_ctor(JSContext *cx, uint32_t argc, JS::Value
 }
 
 
-extern JSObject *jsb_cocos2d_ui_ScrollView_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_ScrollView_prototype;
 
     
 void js_register_cocos2dx_ui_ListView(JSContext *cx, JS::HandleObject global) {
@@ -10095,8 +10080,8 @@ void js_register_cocos2dx_ui_ListView(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_ScrollView_prototype);
-    jsb_cocos2d_ui_ListView_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_ScrollView_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_ListView_class,
@@ -10104,21 +10089,21 @@ void js_register_cocos2dx_ui_ListView(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_ListView_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::ListView>(cx, jsb_cocos2d_ui_ListView_class, proto);
+    jsb_cocos2d_ui_ListView_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ListView", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::ListView>(cx, jsb_cocos2d_ui_ListView_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_Slider_class;
-JSObject *jsb_cocos2d_ui_Slider_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_Slider_prototype;
 
 bool js_cocos2dx_ui_Slider_setPercent(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -10825,11 +10810,10 @@ bool js_cocos2dx_ui_Slider_constructor(JSContext *cx, uint32_t argc, JS::Value *
     bool ok = true;
     cocos2d::ui::Slider* cobj = new (std::nothrow) cocos2d::ui::Slider();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::Slider>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::Slider");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_Slider_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_Slider_class, proto, &jsobj, "cocos2d::ui::Slider");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -10858,7 +10842,7 @@ static bool js_cocos2dx_ui_Slider_ctor(JSContext *cx, uint32_t argc, JS::Value *
 }
 
 
-extern JSObject *jsb_cocos2d_ui_Widget_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_Slider(JSContext *cx, JS::HandleObject global) {
@@ -10910,8 +10894,8 @@ void js_register_cocos2dx_ui_Slider(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype);
-    jsb_cocos2d_ui_Slider_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_Slider_class,
@@ -10919,21 +10903,21 @@ void js_register_cocos2dx_ui_Slider(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_Slider_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::Slider>(cx, jsb_cocos2d_ui_Slider_class, proto);
+    jsb_cocos2d_ui_Slider_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Slider", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::Slider>(cx, jsb_cocos2d_ui_Slider_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_UICCTextField_class;
-JSObject *jsb_cocos2d_ui_UICCTextField_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_UICCTextField_prototype;
 
 bool js_cocos2dx_ui_UICCTextField_onTextFieldAttachWithIME(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -11491,9 +11475,9 @@ bool js_cocos2dx_ui_UICCTextField_create(JSContext *cx, uint32_t argc, JS::Value
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_UICCTextField_create : Error processing arguments");
 
         auto ret = cocos2d::ui::UICCTextField::create(arg0, arg1, arg2);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::UICCTextField>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::UICCTextField");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_UICCTextField_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_UICCTextField_class, proto, &jsret, "cocos2d::ui::UICCTextField");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -11507,11 +11491,10 @@ bool js_cocos2dx_ui_UICCTextField_constructor(JSContext *cx, uint32_t argc, JS::
     bool ok = true;
     cocos2d::ui::UICCTextField* cobj = new (std::nothrow) cocos2d::ui::UICCTextField();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::UICCTextField>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::UICCTextField");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_UICCTextField_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_UICCTextField_class, proto, &jsobj, "cocos2d::ui::UICCTextField");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -11523,7 +11506,7 @@ bool js_cocos2dx_ui_UICCTextField_constructor(JSContext *cx, uint32_t argc, JS::
 }
 
 
-extern JSObject *jsb_cocos2d_TextFieldTTF_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_TextFieldTTF_prototype;
 
 void js_register_cocos2dx_ui_UICCTextField(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ui_UICCTextField_classOps = {
@@ -11573,8 +11556,8 @@ void js_register_cocos2dx_ui_UICCTextField(JSContext *cx, JS::HandleObject globa
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_TextFieldTTF_prototype);
-    jsb_cocos2d_ui_UICCTextField_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_TextFieldTTF_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_UICCTextField_class,
@@ -11582,20 +11565,20 @@ void js_register_cocos2dx_ui_UICCTextField(JSContext *cx, JS::HandleObject globa
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_UICCTextField_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::UICCTextField>(cx, jsb_cocos2d_ui_UICCTextField_class, proto);
+    jsb_cocos2d_ui_UICCTextField_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "UICCTextField", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::UICCTextField>(cx, jsb_cocos2d_ui_UICCTextField_class, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_TextField_class;
-JSObject *jsb_cocos2d_ui_TextField_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_TextField_prototype;
 
 bool js_cocos2dx_ui_TextField_setAttachWithIME(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -12603,11 +12586,10 @@ bool js_cocos2dx_ui_TextField_constructor(JSContext *cx, uint32_t argc, JS::Valu
     bool ok = true;
     cocos2d::ui::TextField* cobj = new (std::nothrow) cocos2d::ui::TextField();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::TextField>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::TextField");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_TextField_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_TextField_class, proto, &jsobj, "cocos2d::ui::TextField");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -12636,7 +12618,7 @@ static bool js_cocos2dx_ui_TextField_ctor(JSContext *cx, uint32_t argc, JS::Valu
 }
 
 
-extern JSObject *jsb_cocos2d_ui_Widget_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_TextField(JSContext *cx, JS::HandleObject global) {
@@ -12708,8 +12690,8 @@ void js_register_cocos2dx_ui_TextField(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype);
-    jsb_cocos2d_ui_TextField_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_TextField_class,
@@ -12717,21 +12699,21 @@ void js_register_cocos2dx_ui_TextField(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_TextField_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::TextField>(cx, jsb_cocos2d_ui_TextField_class, proto);
+    jsb_cocos2d_ui_TextField_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TextField", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::TextField>(cx, jsb_cocos2d_ui_TextField_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_TextBMFont_class;
-JSObject *jsb_cocos2d_ui_TextBMFont_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_TextBMFont_prototype;
 
 bool js_cocos2dx_ui_TextBMFont_getStringLength(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -12903,11 +12885,10 @@ bool js_cocos2dx_ui_TextBMFont_constructor(JSContext *cx, uint32_t argc, JS::Val
     bool ok = true;
     cocos2d::ui::TextBMFont* cobj = new (std::nothrow) cocos2d::ui::TextBMFont();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::TextBMFont>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::TextBMFont");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_TextBMFont_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_TextBMFont_class, proto, &jsobj, "cocos2d::ui::TextBMFont");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -12936,7 +12917,7 @@ static bool js_cocos2dx_ui_TextBMFont_ctor(JSContext *cx, uint32_t argc, JS::Val
 }
 
 
-extern JSObject *jsb_cocos2d_ui_Widget_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_TextBMFont(JSContext *cx, JS::HandleObject global) {
@@ -12969,8 +12950,8 @@ void js_register_cocos2dx_ui_TextBMFont(JSContext *cx, JS::HandleObject global) 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype);
-    jsb_cocos2d_ui_TextBMFont_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_TextBMFont_class,
@@ -12978,21 +12959,21 @@ void js_register_cocos2dx_ui_TextBMFont(JSContext *cx, JS::HandleObject global) 
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_TextBMFont_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::TextBMFont>(cx, jsb_cocos2d_ui_TextBMFont_class, proto);
+    jsb_cocos2d_ui_TextBMFont_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TextBMFont", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::TextBMFont>(cx, jsb_cocos2d_ui_TextBMFont_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_PageView_class;
-JSObject *jsb_cocos2d_ui_PageView_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_PageView_prototype;
 
 bool js_cocos2dx_ui_PageView_setIndicatorSpaceBetweenIndexNodes(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -13592,9 +13573,9 @@ bool js_cocos2dx_ui_PageView_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
 
         auto ret = cocos2d::ui::PageView::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::PageView>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::PageView");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_PageView_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_PageView_class, proto, &jsret, "cocos2d::ui::PageView");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -13608,11 +13589,10 @@ bool js_cocos2dx_ui_PageView_constructor(JSContext *cx, uint32_t argc, JS::Value
     bool ok = true;
     cocos2d::ui::PageView* cobj = new (std::nothrow) cocos2d::ui::PageView();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::PageView>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::PageView");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_PageView_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_PageView_class, proto, &jsobj, "cocos2d::ui::PageView");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -13641,7 +13621,7 @@ static bool js_cocos2dx_ui_PageView_ctor(JSContext *cx, uint32_t argc, JS::Value
 }
 
 
-extern JSObject *jsb_cocos2d_ui_ListView_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_ListView_prototype;
 
     
 void js_register_cocos2dx_ui_PageView(JSContext *cx, JS::HandleObject global) {
@@ -13694,8 +13674,8 @@ void js_register_cocos2dx_ui_PageView(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_ListView_prototype);
-    jsb_cocos2d_ui_PageView_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_ListView_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_PageView_class,
@@ -13703,21 +13683,21 @@ void js_register_cocos2dx_ui_PageView(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_PageView_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::PageView>(cx, jsb_cocos2d_ui_PageView_class, proto);
+    jsb_cocos2d_ui_PageView_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "PageView", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::PageView>(cx, jsb_cocos2d_ui_PageView_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_Helper_class;
-JSObject *jsb_cocos2d_ui_Helper_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_Helper_prototype;
 
 bool js_cocos2dx_ui_Helper_getSubStringOfUTF8String(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -13969,7 +13949,7 @@ void js_register_cocos2dx_ui_Helper(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_ui_Helper_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_Helper_class,
@@ -13977,20 +13957,20 @@ void js_register_cocos2dx_ui_Helper(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_Helper_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::Helper>(cx, jsb_cocos2d_ui_Helper_class, proto);
+    jsb_cocos2d_ui_Helper_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Helper", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::Helper>(cx, jsb_cocos2d_ui_Helper_class, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_RichElement_class;
-JSObject *jsb_cocos2d_ui_RichElement_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_RichElement_prototype;
 
 bool js_cocos2dx_ui_RichElement_equalType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -14068,11 +14048,10 @@ bool js_cocos2dx_ui_RichElement_constructor(JSContext *cx, uint32_t argc, JS::Va
     bool ok = true;
     cocos2d::ui::RichElement* cobj = new (std::nothrow) cocos2d::ui::RichElement();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RichElement>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::RichElement");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElement_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_RichElement_class, proto, &jsobj, "cocos2d::ui::RichElement");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -14125,7 +14104,7 @@ void js_register_cocos2dx_ui_RichElement(JSContext *cx, JS::HandleObject global)
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_ui_RichElement_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_RichElement_class,
@@ -14133,21 +14112,21 @@ void js_register_cocos2dx_ui_RichElement(JSContext *cx, JS::HandleObject global)
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElement_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::RichElement>(cx, jsb_cocos2d_ui_RichElement_class, proto);
+    jsb_cocos2d_ui_RichElement_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "RichElement", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::RichElement>(cx, jsb_cocos2d_ui_RichElement_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_RichElementText_class;
-JSObject *jsb_cocos2d_ui_RichElementText_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_RichElementText_prototype;
 
 bool js_cocos2dx_ui_RichElementText_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -14398,9 +14377,9 @@ bool js_cocos2dx_ui_RichElementText_create(JSContext *cx, uint32_t argc, JS::Val
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
 
         auto ret = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RichElementText>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::RichElementText");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementText_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_RichElementText_class, proto, &jsret, "cocos2d::ui::RichElementText");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -14422,9 +14401,9 @@ bool js_cocos2dx_ui_RichElementText_create(JSContext *cx, uint32_t argc, JS::Val
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
 
         auto ret = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RichElementText>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::RichElementText");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementText_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_RichElementText_class, proto, &jsret, "cocos2d::ui::RichElementText");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -14448,9 +14427,9 @@ bool js_cocos2dx_ui_RichElementText_create(JSContext *cx, uint32_t argc, JS::Val
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
 
         auto ret = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RichElementText>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::RichElementText");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementText_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_RichElementText_class, proto, &jsret, "cocos2d::ui::RichElementText");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -14476,9 +14455,9 @@ bool js_cocos2dx_ui_RichElementText_create(JSContext *cx, uint32_t argc, JS::Val
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
 
         auto ret = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RichElementText>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::RichElementText");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementText_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_RichElementText_class, proto, &jsret, "cocos2d::ui::RichElementText");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -14506,9 +14485,9 @@ bool js_cocos2dx_ui_RichElementText_create(JSContext *cx, uint32_t argc, JS::Val
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
 
         auto ret = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RichElementText>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::RichElementText");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementText_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_RichElementText_class, proto, &jsret, "cocos2d::ui::RichElementText");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -14538,9 +14517,9 @@ bool js_cocos2dx_ui_RichElementText_create(JSContext *cx, uint32_t argc, JS::Val
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
 
         auto ret = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RichElementText>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::RichElementText");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementText_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_RichElementText_class, proto, &jsret, "cocos2d::ui::RichElementText");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -14572,9 +14551,9 @@ bool js_cocos2dx_ui_RichElementText_create(JSContext *cx, uint32_t argc, JS::Val
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
 
         auto ret = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RichElementText>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::RichElementText");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementText_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_RichElementText_class, proto, &jsret, "cocos2d::ui::RichElementText");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -14608,9 +14587,9 @@ bool js_cocos2dx_ui_RichElementText_create(JSContext *cx, uint32_t argc, JS::Val
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
 
         auto ret = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RichElementText>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::RichElementText");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementText_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_RichElementText_class, proto, &jsret, "cocos2d::ui::RichElementText");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -14646,9 +14625,9 @@ bool js_cocos2dx_ui_RichElementText_create(JSContext *cx, uint32_t argc, JS::Val
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
 
         auto ret = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RichElementText>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::RichElementText");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementText_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_RichElementText_class, proto, &jsret, "cocos2d::ui::RichElementText");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -14662,11 +14641,10 @@ bool js_cocos2dx_ui_RichElementText_constructor(JSContext *cx, uint32_t argc, JS
     bool ok = true;
     cocos2d::ui::RichElementText* cobj = new (std::nothrow) cocos2d::ui::RichElementText();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RichElementText>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::RichElementText");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementText_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_RichElementText_class, proto, &jsobj, "cocos2d::ui::RichElementText");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -14695,7 +14673,7 @@ static bool js_cocos2dx_ui_RichElementText_ctor(JSContext *cx, uint32_t argc, JS
 }
 
 
-extern JSObject *jsb_cocos2d_ui_RichElement_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_RichElement_prototype;
 
     
 void js_register_cocos2dx_ui_RichElementText(JSContext *cx, JS::HandleObject global) {
@@ -14723,8 +14701,8 @@ void js_register_cocos2dx_ui_RichElementText(JSContext *cx, JS::HandleObject glo
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_RichElement_prototype);
-    jsb_cocos2d_ui_RichElementText_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_RichElement_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_RichElementText_class,
@@ -14732,21 +14710,21 @@ void js_register_cocos2dx_ui_RichElementText(JSContext *cx, JS::HandleObject glo
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementText_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::RichElementText>(cx, jsb_cocos2d_ui_RichElementText_class, proto);
+    jsb_cocos2d_ui_RichElementText_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "RichElementText", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::RichElementText>(cx, jsb_cocos2d_ui_RichElementText_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_RichElementImage_class;
-JSObject *jsb_cocos2d_ui_RichElementImage_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_RichElementImage_prototype;
 
 bool js_cocos2dx_ui_RichElementImage_setHeight(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -14872,9 +14850,9 @@ bool js_cocos2dx_ui_RichElementImage_create(JSContext *cx, uint32_t argc, JS::Va
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_RichElementImage_create : Error processing arguments");
 
         auto ret = cocos2d::ui::RichElementImage::create(arg0, arg1, arg2, arg3);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RichElementImage>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::RichElementImage");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementImage_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_RichElementImage_class, proto, &jsret, "cocos2d::ui::RichElementImage");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -14892,9 +14870,9 @@ bool js_cocos2dx_ui_RichElementImage_create(JSContext *cx, uint32_t argc, JS::Va
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_RichElementImage_create : Error processing arguments");
 
         auto ret = cocos2d::ui::RichElementImage::create(arg0, arg1, arg2, arg3, arg4);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RichElementImage>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::RichElementImage");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementImage_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_RichElementImage_class, proto, &jsret, "cocos2d::ui::RichElementImage");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -14908,11 +14886,10 @@ bool js_cocos2dx_ui_RichElementImage_constructor(JSContext *cx, uint32_t argc, J
     bool ok = true;
     cocos2d::ui::RichElementImage* cobj = new (std::nothrow) cocos2d::ui::RichElementImage();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RichElementImage>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::RichElementImage");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementImage_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_RichElementImage_class, proto, &jsobj, "cocos2d::ui::RichElementImage");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -14941,7 +14918,7 @@ static bool js_cocos2dx_ui_RichElementImage_ctor(JSContext *cx, uint32_t argc, J
 }
 
 
-extern JSObject *jsb_cocos2d_ui_RichElement_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_RichElement_prototype;
 
     
 void js_register_cocos2dx_ui_RichElementImage(JSContext *cx, JS::HandleObject global) {
@@ -14972,8 +14949,8 @@ void js_register_cocos2dx_ui_RichElementImage(JSContext *cx, JS::HandleObject gl
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_RichElement_prototype);
-    jsb_cocos2d_ui_RichElementImage_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_RichElement_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_RichElementImage_class,
@@ -14981,21 +14958,21 @@ void js_register_cocos2dx_ui_RichElementImage(JSContext *cx, JS::HandleObject gl
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementImage_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::RichElementImage>(cx, jsb_cocos2d_ui_RichElementImage_class, proto);
+    jsb_cocos2d_ui_RichElementImage_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "RichElementImage", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::RichElementImage>(cx, jsb_cocos2d_ui_RichElementImage_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_RichElementCustomNode_class;
-JSObject *jsb_cocos2d_ui_RichElementCustomNode_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_RichElementCustomNode_prototype;
 
 bool js_cocos2dx_ui_RichElementCustomNode_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -15058,9 +15035,9 @@ bool js_cocos2dx_ui_RichElementCustomNode_create(JSContext *cx, uint32_t argc, J
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_RichElementCustomNode_create : Error processing arguments");
 
         auto ret = cocos2d::ui::RichElementCustomNode::create(arg0, arg1, arg2, arg3);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RichElementCustomNode>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::RichElementCustomNode");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementCustomNode_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_RichElementCustomNode_class, proto, &jsret, "cocos2d::ui::RichElementCustomNode");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -15074,11 +15051,10 @@ bool js_cocos2dx_ui_RichElementCustomNode_constructor(JSContext *cx, uint32_t ar
     bool ok = true;
     cocos2d::ui::RichElementCustomNode* cobj = new (std::nothrow) cocos2d::ui::RichElementCustomNode();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RichElementCustomNode>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::RichElementCustomNode");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementCustomNode_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_RichElementCustomNode_class, proto, &jsobj, "cocos2d::ui::RichElementCustomNode");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -15107,7 +15083,7 @@ static bool js_cocos2dx_ui_RichElementCustomNode_ctor(JSContext *cx, uint32_t ar
 }
 
 
-extern JSObject *jsb_cocos2d_ui_RichElement_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_RichElement_prototype;
 
     
 void js_register_cocos2dx_ui_RichElementCustomNode(JSContext *cx, JS::HandleObject global) {
@@ -15135,8 +15111,8 @@ void js_register_cocos2dx_ui_RichElementCustomNode(JSContext *cx, JS::HandleObje
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_RichElement_prototype);
-    jsb_cocos2d_ui_RichElementCustomNode_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_RichElement_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_RichElementCustomNode_class,
@@ -15144,21 +15120,21 @@ void js_register_cocos2dx_ui_RichElementCustomNode(JSContext *cx, JS::HandleObje
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementCustomNode_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::RichElementCustomNode>(cx, jsb_cocos2d_ui_RichElementCustomNode_class, proto);
+    jsb_cocos2d_ui_RichElementCustomNode_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "RichElementCustomNode", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::RichElementCustomNode>(cx, jsb_cocos2d_ui_RichElementCustomNode_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_RichElementNewLine_class;
-JSObject *jsb_cocos2d_ui_RichElementNewLine_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_RichElementNewLine_prototype;
 
 bool js_cocos2dx_ui_RichElementNewLine_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -15174,9 +15150,9 @@ bool js_cocos2dx_ui_RichElementNewLine_create(JSContext *cx, uint32_t argc, JS::
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_RichElementNewLine_create : Error processing arguments");
 
         auto ret = cocos2d::ui::RichElementNewLine::create(arg0, arg1, arg2);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RichElementNewLine>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::RichElementNewLine");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementNewLine_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_RichElementNewLine_class, proto, &jsret, "cocos2d::ui::RichElementNewLine");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -15190,11 +15166,10 @@ bool js_cocos2dx_ui_RichElementNewLine_constructor(JSContext *cx, uint32_t argc,
     bool ok = true;
     cocos2d::ui::RichElementNewLine* cobj = new (std::nothrow) cocos2d::ui::RichElementNewLine();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RichElementNewLine>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::RichElementNewLine");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementNewLine_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_RichElementNewLine_class, proto, &jsobj, "cocos2d::ui::RichElementNewLine");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -15223,7 +15198,7 @@ static bool js_cocos2dx_ui_RichElementNewLine_ctor(JSContext *cx, uint32_t argc,
 }
 
 
-extern JSObject *jsb_cocos2d_ui_RichElement_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_RichElement_prototype;
 
     
 void js_register_cocos2dx_ui_RichElementNewLine(JSContext *cx, JS::HandleObject global) {
@@ -15250,8 +15225,8 @@ void js_register_cocos2dx_ui_RichElementNewLine(JSContext *cx, JS::HandleObject 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_RichElement_prototype);
-    jsb_cocos2d_ui_RichElementNewLine_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_RichElement_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_RichElementNewLine_class,
@@ -15259,21 +15234,21 @@ void js_register_cocos2dx_ui_RichElementNewLine(JSContext *cx, JS::HandleObject 
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_RichElementNewLine_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::RichElementNewLine>(cx, jsb_cocos2d_ui_RichElementNewLine_class, proto);
+    jsb_cocos2d_ui_RichElementNewLine_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "RichElementNewLine", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::RichElementNewLine>(cx, jsb_cocos2d_ui_RichElementNewLine_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_RichText_class;
-JSObject *jsb_cocos2d_ui_RichText_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_RichText_prototype;
 
 bool js_cocos2dx_ui_RichText_insertElement(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -16330,9 +16305,9 @@ bool js_cocos2dx_ui_RichText_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
 
         auto ret = cocos2d::ui::RichText::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RichText>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::RichText");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_RichText_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_RichText_class, proto, &jsret, "cocos2d::ui::RichText");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -16352,9 +16327,9 @@ bool js_cocos2dx_ui_RichText_createWithXML(JSContext *cx, uint32_t argc, JS::Val
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_RichText_createWithXML : Error processing arguments");
 
         auto ret = cocos2d::ui::RichText::createWithXML(arg0, arg1);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RichText>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::RichText");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_RichText_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_RichText_class, proto, &jsret, "cocos2d::ui::RichText");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -16399,9 +16374,9 @@ bool js_cocos2dx_ui_RichText_createWithXML(JSContext *cx, uint32_t argc, JS::Val
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_RichText_createWithXML : Error processing arguments");
 
         auto ret = cocos2d::ui::RichText::createWithXML(arg0, arg1, arg2);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RichText>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::RichText");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_RichText_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_RichText_class, proto, &jsret, "cocos2d::ui::RichText");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -16415,11 +16390,10 @@ bool js_cocos2dx_ui_RichText_constructor(JSContext *cx, uint32_t argc, JS::Value
     bool ok = true;
     cocos2d::ui::RichText* cobj = new (std::nothrow) cocos2d::ui::RichText();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RichText>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::RichText");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_RichText_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_RichText_class, proto, &jsobj, "cocos2d::ui::RichText");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -16448,7 +16422,7 @@ static bool js_cocos2dx_ui_RichText_ctor(JSContext *cx, uint32_t argc, JS::Value
 }
 
 
-extern JSObject *jsb_cocos2d_ui_Widget_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_RichText(JSContext *cx, JS::HandleObject global) {
@@ -16520,8 +16494,8 @@ void js_register_cocos2dx_ui_RichText(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype);
-    jsb_cocos2d_ui_RichText_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_RichText_class,
@@ -16529,21 +16503,21 @@ void js_register_cocos2dx_ui_RichText(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_RichText_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::RichText>(cx, jsb_cocos2d_ui_RichText_class, proto);
+    jsb_cocos2d_ui_RichText_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "RichText", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::RichText>(cx, jsb_cocos2d_ui_RichText_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_HBox_class;
-JSObject *jsb_cocos2d_ui_HBox_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_HBox_prototype;
 
 bool js_cocos2dx_ui_HBox_initWithSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -16619,11 +16593,10 @@ bool js_cocos2dx_ui_HBox_constructor(JSContext *cx, uint32_t argc, JS::Value *vp
     bool ok = true;
     cocos2d::ui::HBox* cobj = new (std::nothrow) cocos2d::ui::HBox();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::HBox>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::HBox");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_HBox_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_HBox_class, proto, &jsobj, "cocos2d::ui::HBox");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -16652,7 +16625,7 @@ static bool js_cocos2dx_ui_HBox_ctor(JSContext *cx, uint32_t argc, JS::Value *vp
 }
 
 
-extern JSObject *jsb_cocos2d_ui_Layout_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_Layout_prototype;
 
     
 void js_register_cocos2dx_ui_HBox(JSContext *cx, JS::HandleObject global) {
@@ -16680,8 +16653,8 @@ void js_register_cocos2dx_ui_HBox(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Layout_prototype);
-    jsb_cocos2d_ui_HBox_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Layout_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_HBox_class,
@@ -16689,21 +16662,21 @@ void js_register_cocos2dx_ui_HBox(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_HBox_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::HBox>(cx, jsb_cocos2d_ui_HBox_class, proto);
+    jsb_cocos2d_ui_HBox_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "HBox", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::HBox>(cx, jsb_cocos2d_ui_HBox_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_VBox_class;
-JSObject *jsb_cocos2d_ui_VBox_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_VBox_prototype;
 
 bool js_cocos2dx_ui_VBox_initWithSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -16779,11 +16752,10 @@ bool js_cocos2dx_ui_VBox_constructor(JSContext *cx, uint32_t argc, JS::Value *vp
     bool ok = true;
     cocos2d::ui::VBox* cobj = new (std::nothrow) cocos2d::ui::VBox();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::VBox>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::VBox");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_VBox_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_VBox_class, proto, &jsobj, "cocos2d::ui::VBox");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -16812,7 +16784,7 @@ static bool js_cocos2dx_ui_VBox_ctor(JSContext *cx, uint32_t argc, JS::Value *vp
 }
 
 
-extern JSObject *jsb_cocos2d_ui_Layout_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_Layout_prototype;
 
     
 void js_register_cocos2dx_ui_VBox(JSContext *cx, JS::HandleObject global) {
@@ -16840,8 +16812,8 @@ void js_register_cocos2dx_ui_VBox(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Layout_prototype);
-    jsb_cocos2d_ui_VBox_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Layout_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_VBox_class,
@@ -16849,21 +16821,21 @@ void js_register_cocos2dx_ui_VBox(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_VBox_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::VBox>(cx, jsb_cocos2d_ui_VBox_class, proto);
+    jsb_cocos2d_ui_VBox_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "VBox", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::VBox>(cx, jsb_cocos2d_ui_VBox_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_RelativeBox_class;
-JSObject *jsb_cocos2d_ui_RelativeBox_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_RelativeBox_prototype;
 
 bool js_cocos2dx_ui_RelativeBox_initWithSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -16939,11 +16911,10 @@ bool js_cocos2dx_ui_RelativeBox_constructor(JSContext *cx, uint32_t argc, JS::Va
     bool ok = true;
     cocos2d::ui::RelativeBox* cobj = new (std::nothrow) cocos2d::ui::RelativeBox();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::RelativeBox>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::RelativeBox");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_RelativeBox_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_RelativeBox_class, proto, &jsobj, "cocos2d::ui::RelativeBox");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -16972,7 +16943,7 @@ static bool js_cocos2dx_ui_RelativeBox_ctor(JSContext *cx, uint32_t argc, JS::Va
 }
 
 
-extern JSObject *jsb_cocos2d_ui_Layout_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_Layout_prototype;
 
     
 void js_register_cocos2dx_ui_RelativeBox(JSContext *cx, JS::HandleObject global) {
@@ -17000,8 +16971,8 @@ void js_register_cocos2dx_ui_RelativeBox(JSContext *cx, JS::HandleObject global)
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Layout_prototype);
-    jsb_cocos2d_ui_RelativeBox_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Layout_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_RelativeBox_class,
@@ -17009,21 +16980,21 @@ void js_register_cocos2dx_ui_RelativeBox(JSContext *cx, JS::HandleObject global)
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_RelativeBox_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::RelativeBox>(cx, jsb_cocos2d_ui_RelativeBox_class, proto);
+    jsb_cocos2d_ui_RelativeBox_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "RelativeBox", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::RelativeBox>(cx, jsb_cocos2d_ui_RelativeBox_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_Scale9Sprite_class;
-JSObject *jsb_cocos2d_ui_Scale9Sprite_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_Scale9Sprite_prototype;
 
 bool js_cocos2dx_ui_Scale9Sprite_disableCascadeColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -18307,11 +18278,10 @@ bool js_cocos2dx_ui_Scale9Sprite_constructor(JSContext *cx, uint32_t argc, JS::V
     bool ok = true;
     cocos2d::ui::Scale9Sprite* cobj = new (std::nothrow) cocos2d::ui::Scale9Sprite();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::Scale9Sprite>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::Scale9Sprite");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_Scale9Sprite_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_Scale9Sprite_class, proto, &jsobj, "cocos2d::ui::Scale9Sprite");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -18340,7 +18310,7 @@ static bool js_cocos2dx_ui_Scale9Sprite_ctor(JSContext *cx, uint32_t argc, JS::V
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
     
 void js_register_cocos2dx_ui_Scale9Sprite(JSContext *cx, JS::HandleObject global) {
@@ -18405,8 +18375,8 @@ void js_register_cocos2dx_ui_Scale9Sprite(JSContext *cx, JS::HandleObject global
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_cocos2d_ui_Scale9Sprite_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_Scale9Sprite_class,
@@ -18414,21 +18384,21 @@ void js_register_cocos2dx_ui_Scale9Sprite(JSContext *cx, JS::HandleObject global
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_Scale9Sprite_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::Scale9Sprite>(cx, jsb_cocos2d_ui_Scale9Sprite_class, proto);
+    jsb_cocos2d_ui_Scale9Sprite_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Scale9Sprite", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::Scale9Sprite>(cx, jsb_cocos2d_ui_Scale9Sprite_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_EditBox_class;
-JSObject *jsb_cocos2d_ui_EditBox_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_EditBox_prototype;
 
 bool js_cocos2dx_ui_EditBox_getText(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -19104,11 +19074,10 @@ bool js_cocos2dx_ui_EditBox_constructor(JSContext *cx, uint32_t argc, JS::Value 
     bool ok = true;
     cocos2d::ui::EditBox* cobj = new (std::nothrow) cocos2d::ui::EditBox();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::EditBox>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::EditBox");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_EditBox_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_EditBox_class, proto, &jsobj, "cocos2d::ui::EditBox");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -19137,7 +19106,7 @@ static bool js_cocos2dx_ui_EditBox_ctor(JSContext *cx, uint32_t argc, JS::Value 
 }
 
 
-extern JSObject *jsb_cocos2d_ui_Widget_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_Widget_prototype;
 
     
 void js_register_cocos2dx_ui_EditBox(JSContext *cx, JS::HandleObject global) {
@@ -19183,8 +19152,8 @@ void js_register_cocos2dx_ui_EditBox(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype);
-    jsb_cocos2d_ui_EditBox_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_EditBox_class,
@@ -19192,21 +19161,21 @@ void js_register_cocos2dx_ui_EditBox(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_EditBox_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::EditBox>(cx, jsb_cocos2d_ui_EditBox_class, proto);
+    jsb_cocos2d_ui_EditBox_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EditBox", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::EditBox>(cx, jsb_cocos2d_ui_EditBox_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_LayoutComponent_class;
-JSObject *jsb_cocos2d_ui_LayoutComponent_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_LayoutComponent_prototype;
 
 bool js_cocos2dx_ui_LayoutComponent_setStretchWidthEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -20191,9 +20160,9 @@ bool js_cocos2dx_ui_LayoutComponent_create(JSContext *cx, uint32_t argc, JS::Val
     if (argc == 0) {
 
         auto ret = cocos2d::ui::LayoutComponent::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::LayoutComponent>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::LayoutComponent");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_LayoutComponent_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_LayoutComponent_class, proto, &jsret, "cocos2d::ui::LayoutComponent");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -20241,11 +20210,10 @@ bool js_cocos2dx_ui_LayoutComponent_constructor(JSContext *cx, uint32_t argc, JS
     bool ok = true;
     cocos2d::ui::LayoutComponent* cobj = new (std::nothrow) cocos2d::ui::LayoutComponent();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::LayoutComponent>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::LayoutComponent");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_LayoutComponent_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_LayoutComponent_class, proto, &jsobj, "cocos2d::ui::LayoutComponent");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -20274,7 +20242,7 @@ static bool js_cocos2dx_ui_LayoutComponent_ctor(JSContext *cx, uint32_t argc, JS
 }
 
 
-extern JSObject *jsb_cocos2d_Component_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Component_prototype;
 
     
 void js_register_cocos2dx_ui_LayoutComponent(JSContext *cx, JS::HandleObject global) {
@@ -20351,8 +20319,8 @@ void js_register_cocos2dx_ui_LayoutComponent(JSContext *cx, JS::HandleObject glo
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Component_prototype);
-    jsb_cocos2d_ui_LayoutComponent_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Component_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_LayoutComponent_class,
@@ -20360,21 +20328,21 @@ void js_register_cocos2dx_ui_LayoutComponent(JSContext *cx, JS::HandleObject glo
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_LayoutComponent_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::LayoutComponent>(cx, jsb_cocos2d_ui_LayoutComponent_class, proto);
+    jsb_cocos2d_ui_LayoutComponent_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "LayoutComponent", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::LayoutComponent>(cx, jsb_cocos2d_ui_LayoutComponent_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_TabHeader_class;
-JSObject *jsb_cocos2d_ui_TabHeader_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_TabHeader_prototype;
 
 bool js_cocos2dx_ui_TabHeader_getIndexInTabControl(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -20737,7 +20705,7 @@ bool js_cocos2dx_ui_TabHeader_create(JSContext *cx, uint32_t argc, JS::Value *vp
     return false;
 }
 
-extern JSObject *jsb_cocos2d_ui_AbstractCheckButton_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_AbstractCheckButton_prototype;
 
 void js_register_cocos2dx_ui_TabHeader(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ui_TabHeader_classOps = {
@@ -20772,8 +20740,8 @@ void js_register_cocos2dx_ui_TabHeader(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_AbstractCheckButton_prototype);
-    jsb_cocos2d_ui_TabHeader_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_AbstractCheckButton_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_TabHeader_class,
@@ -20781,21 +20749,21 @@ void js_register_cocos2dx_ui_TabHeader(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_TabHeader_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::TabHeader>(cx, jsb_cocos2d_ui_TabHeader_class, proto);
+    jsb_cocos2d_ui_TabHeader_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TabHeader", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::TabHeader>(cx, jsb_cocos2d_ui_TabHeader_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_TabControl_class;
-JSObject *jsb_cocos2d_ui_TabControl_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_TabControl_prototype;
 
 bool js_cocos2dx_ui_TabControl_setHeaderWidth(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -21292,9 +21260,9 @@ bool js_cocos2dx_ui_TabControl_create(JSContext *cx, uint32_t argc, JS::Value *v
     if (argc == 0) {
 
         auto ret = cocos2d::ui::TabControl::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::TabControl>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::TabControl");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_TabControl_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_TabControl_class, proto, &jsret, "cocos2d::ui::TabControl");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -21303,7 +21271,7 @@ bool js_cocos2dx_ui_TabControl_create(JSContext *cx, uint32_t argc, JS::Value *v
 }
 
 
-extern JSObject *jsb_cocos2d_ui_Widget_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_Widget_prototype;
 
 void js_register_cocos2dx_ui_TabControl(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ui_TabControl_classOps = {
@@ -21347,8 +21315,8 @@ void js_register_cocos2dx_ui_TabControl(JSContext *cx, JS::HandleObject global) 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype);
-    jsb_cocos2d_ui_TabControl_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_TabControl_class,
@@ -21356,21 +21324,21 @@ void js_register_cocos2dx_ui_TabControl(JSContext *cx, JS::HandleObject global) 
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_TabControl_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::TabControl>(cx, jsb_cocos2d_ui_TabControl_class, proto);
+    jsb_cocos2d_ui_TabControl_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TabControl", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::TabControl>(cx, jsb_cocos2d_ui_TabControl_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ui_ScrollViewBar_class;
-JSObject *jsb_cocos2d_ui_ScrollViewBar_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ui_ScrollViewBar_prototype;
 
 bool js_cocos2dx_ui_ScrollViewBar_setAutoHideEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -21572,9 +21540,9 @@ bool js_cocos2dx_ui_ScrollViewBar_create(JSContext *cx, uint32_t argc, JS::Value
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_ScrollViewBar_create : Error processing arguments");
 
         auto ret = cocos2d::ui::ScrollViewBar::create(arg0, arg1);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::ScrollViewBar>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ui::ScrollViewBar");
+        JS::RootedObject proto(cx, jsb_cocos2d_ui_ScrollViewBar_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ui_ScrollViewBar_class, proto, &jsret, "cocos2d::ui::ScrollViewBar");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -21601,11 +21569,10 @@ bool js_cocos2dx_ui_ScrollViewBar_constructor(JSContext *cx, uint32_t argc, JS::
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ui_ScrollViewBar_constructor : Error processing arguments");
     cocos2d::ui::ScrollViewBar* cobj = new (std::nothrow) cocos2d::ui::ScrollViewBar(arg0, arg1);
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ui::ScrollViewBar>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ui::ScrollViewBar");
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_ScrollViewBar_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ui_ScrollViewBar_class, proto, &jsobj, "cocos2d::ui::ScrollViewBar");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -21648,7 +21615,7 @@ static bool js_cocos2dx_ui_ScrollViewBar_ctor(JSContext *cx, uint32_t argc, JS::
 }
 
 
-extern JSObject *jsb_cocos2d_ProtectedNode_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ProtectedNode_prototype;
 
     
 void js_register_cocos2dx_ui_ScrollViewBar(JSContext *cx, JS::HandleObject global) {
@@ -21684,8 +21651,8 @@ void js_register_cocos2dx_ui_ScrollViewBar(JSContext *cx, JS::HandleObject globa
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ProtectedNode_prototype);
-    jsb_cocos2d_ui_ScrollViewBar_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ProtectedNode_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ui_ScrollViewBar_class,
@@ -21693,16 +21660,16 @@ void js_register_cocos2dx_ui_ScrollViewBar(JSContext *cx, JS::HandleObject globa
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_ScrollViewBar_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ui::ScrollViewBar>(cx, jsb_cocos2d_ui_ScrollViewBar_class, proto);
+    jsb_cocos2d_ui_ScrollViewBar_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ScrollViewBar", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ui::ScrollViewBar>(cx, jsb_cocos2d_ui_ScrollViewBar_class, proto);
     make_class_extend(cx, proto);
 }
 

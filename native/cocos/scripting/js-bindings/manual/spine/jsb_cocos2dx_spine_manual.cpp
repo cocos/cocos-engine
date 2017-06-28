@@ -809,21 +809,21 @@ bool jsb_cocos2dx_spine_addAnimation(JSContext *cx, uint32_t argc, JS::Value *vp
 }
 
 
-extern JSObject* jsb_spine_SkeletonRenderer_prototype;
-extern JSObject* jsb_spine_SkeletonAnimation_prototype;
+extern JS::PersistentRootedObject* jsb_spine_SkeletonRenderer_prototype;
+extern JS::PersistentRootedObject* jsb_spine_SkeletonAnimation_prototype;
 
 void register_all_cocos2dx_spine_manual(JSContext* cx, JS::HandleObject global)
 {
     js_register_spine_TrackEntry(cx, global);
     
-    JS::RootedObject skeletonRenderer(cx, jsb_spine_SkeletonRenderer_prototype);
+    JS::RootedObject skeletonRenderer(cx, jsb_spine_SkeletonRenderer_prototype->get());
     JS_DefineFunction(cx, skeletonRenderer, "findBone", jsb_cocos2dx_spine_findBone, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, skeletonRenderer, "findSlot", jsb_cocos2dx_spine_findSlot, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, skeletonRenderer, "setDebugBones", jsb_cocos2dx_spine_setDebugBones, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, skeletonRenderer, "setDebugSolots", jsb_cocos2dx_spine_setDebugSolots, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, skeletonRenderer, "getAttachment", jsb_cocos2dx_spine_getAttachment, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
-    JS::RootedObject skeletonAnimation(cx, jsb_spine_SkeletonAnimation_prototype);
+    JS::RootedObject skeletonAnimation(cx, jsb_spine_SkeletonAnimation_prototype->get());
     JS_DefineFunction(cx, skeletonAnimation, "getCurrent", jsb_cocos2dx_spine_getCurrent, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, skeletonAnimation, "setAnimation", jsb_cocos2dx_spine_setAnimation, 3, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, skeletonAnimation, "addAnimation", jsb_cocos2dx_spine_addAnimation, 4, JSPROP_ENUMERATE | JSPROP_PERMANENT);

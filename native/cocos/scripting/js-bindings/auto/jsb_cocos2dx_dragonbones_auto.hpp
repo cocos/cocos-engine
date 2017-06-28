@@ -6,7 +6,7 @@
 #include "jsfriendapi.h"
 
 extern JSClass  *jsb_dragonBones_BaseObject_class;
-extern JSObject *jsb_dragonBones_BaseObject_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_BaseObject_prototype;
 
 bool js_cocos2dx_dragonbones_BaseObject_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_BaseObject_finalize(JSContext *cx, JSObject *obj);
@@ -18,7 +18,7 @@ bool js_cocos2dx_dragonbones_BaseObject_clearPool(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_dragonbones_BaseObject_setMaxCount(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_Matrix_class;
-extern JSObject *jsb_dragonBones_Matrix_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_Matrix_prototype;
 
 bool js_cocos2dx_dragonbones_Matrix_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_Matrix_finalize(JSContext *cx, JSObject *obj);
@@ -27,7 +27,7 @@ void register_all_cocos2dx_dragonbones(JSContext* cx, JS::HandleObject obj);
 bool js_cocos2dx_dragonbones_Matrix_Matrix(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_Transform_class;
-extern JSObject *jsb_dragonBones_Transform_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_Transform_prototype;
 
 bool js_cocos2dx_dragonbones_Transform_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_Transform_finalize(JSContext *cx, JSObject *obj);
@@ -39,7 +39,7 @@ bool js_cocos2dx_dragonbones_Transform_normalizeRadian(JSContext *cx, uint32_t a
 bool js_cocos2dx_dragonbones_Transform_Transform(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_TextureData_class;
-extern JSObject *jsb_dragonBones_TextureData_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_TextureData_prototype;
 
 bool js_cocos2dx_dragonbones_TextureData_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_TextureData_finalize(JSContext *cx, JSObject *obj);
@@ -48,7 +48,7 @@ void register_all_cocos2dx_dragonbones(JSContext* cx, JS::HandleObject obj);
 bool js_cocos2dx_dragonbones_TextureData_generateRectangle(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_TextureAtlasData_class;
-extern JSObject *jsb_dragonBones_TextureAtlasData_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_TextureAtlasData_prototype;
 
 bool js_cocos2dx_dragonbones_TextureAtlasData_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_TextureAtlasData_finalize(JSContext *cx, JSObject *obj);
@@ -59,7 +59,7 @@ bool js_cocos2dx_dragonbones_TextureAtlasData_generateTexture(JSContext *cx, uin
 bool js_cocos2dx_dragonbones_TextureAtlasData_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_AnimationData_class;
-extern JSObject *jsb_dragonBones_AnimationData_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_AnimationData_prototype;
 
 bool js_cocos2dx_dragonbones_AnimationData_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_AnimationData_finalize(JSContext *cx, JSObject *obj);
@@ -71,7 +71,7 @@ bool js_cocos2dx_dragonbones_AnimationData_getTypeIndex(JSContext *cx, uint32_t 
 bool js_cocos2dx_dragonbones_AnimationData_AnimationData(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_BoneData_class;
-extern JSObject *jsb_dragonBones_BoneData_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_BoneData_prototype;
 
 bool js_cocos2dx_dragonbones_BoneData_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_BoneData_finalize(JSContext *cx, JSObject *obj);
@@ -81,7 +81,7 @@ bool js_cocos2dx_dragonbones_BoneData_getTypeIndex(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_dragonbones_BoneData_BoneData(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_SlotData_class;
-extern JSObject *jsb_dragonBones_SlotData_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_SlotData_prototype;
 
 bool js_cocos2dx_dragonbones_SlotData_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_SlotData_finalize(JSContext *cx, JSObject *obj);
@@ -92,7 +92,7 @@ bool js_cocos2dx_dragonbones_SlotData_generateColor(JSContext *cx, uint32_t argc
 bool js_cocos2dx_dragonbones_SlotData_SlotData(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_SkinData_class;
-extern JSObject *jsb_dragonBones_SkinData_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_SkinData_prototype;
 
 bool js_cocos2dx_dragonbones_SkinData_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_SkinData_finalize(JSContext *cx, JSObject *obj);
@@ -102,7 +102,7 @@ bool js_cocos2dx_dragonbones_SkinData_getTypeIndex(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_dragonbones_SkinData_SkinData(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_ArmatureData_class;
-extern JSObject *jsb_dragonBones_ArmatureData_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_ArmatureData_prototype;
 
 bool js_cocos2dx_dragonbones_ArmatureData_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_ArmatureData_finalize(JSContext *cx, JSObject *obj);
@@ -118,7 +118,7 @@ bool js_cocos2dx_dragonbones_ArmatureData_getTypeIndex(JSContext *cx, uint32_t a
 bool js_cocos2dx_dragonbones_ArmatureData_ArmatureData(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_DragonBonesData_class;
-extern JSObject *jsb_dragonBones_DragonBonesData_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_DragonBonesData_prototype;
 
 bool js_cocos2dx_dragonbones_DragonBonesData_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_DragonBonesData_finalize(JSContext *cx, JSObject *obj);
@@ -131,7 +131,7 @@ bool js_cocos2dx_dragonbones_DragonBonesData_getTypeIndex(JSContext *cx, uint32_
 bool js_cocos2dx_dragonbones_DragonBonesData_DragonBonesData(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_EventObject_class;
-extern JSObject *jsb_dragonBones_EventObject_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_EventObject_prototype;
 
 bool js_cocos2dx_dragonbones_EventObject_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_EventObject_finalize(JSContext *cx, JSObject *obj);
@@ -141,7 +141,7 @@ bool js_cocos2dx_dragonbones_EventObject_getTypeIndex(JSContext *cx, uint32_t ar
 bool js_cocos2dx_dragonbones_EventObject_EventObject(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_Armature_class;
-extern JSObject *jsb_dragonBones_Armature_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_Armature_prototype;
 
 bool js_cocos2dx_dragonbones_Armature_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_Armature_finalize(JSContext *cx, JSObject *obj);
@@ -168,7 +168,7 @@ bool js_cocos2dx_dragonbones_Armature_getTypeIndex(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_dragonbones_Armature_Armature(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_Animation_class;
-extern JSObject *jsb_dragonBones_Animation_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_Animation_prototype;
 
 bool js_cocos2dx_dragonbones_Animation_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_Animation_finalize(JSContext *cx, JSObject *obj);
@@ -195,7 +195,7 @@ bool js_cocos2dx_dragonbones_Animation_getTypeIndex(JSContext *cx, uint32_t argc
 bool js_cocos2dx_dragonbones_Animation_Animation(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_TransformObject_class;
-extern JSObject *jsb_dragonBones_TransformObject_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_TransformObject_prototype;
 
 bool js_cocos2dx_dragonbones_TransformObject_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_TransformObject_finalize(JSContext *cx, JSObject *obj);
@@ -207,7 +207,7 @@ bool js_cocos2dx_dragonbones_TransformObject_getParent(JSContext *cx, uint32_t a
 bool js_cocos2dx_dragonbones_TransformObject_getArmature(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_Bone_class;
-extern JSObject *jsb_dragonBones_Bone_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_Bone_prototype;
 
 bool js_cocos2dx_dragonbones_Bone_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_Bone_finalize(JSContext *cx, JSObject *obj);
@@ -224,7 +224,7 @@ bool js_cocos2dx_dragonbones_Bone_getTypeIndex(JSContext *cx, uint32_t argc, JS:
 bool js_cocos2dx_dragonbones_Bone_Bone(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_Slot_class;
-extern JSObject *jsb_dragonBones_Slot_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_Slot_prototype;
 
 bool js_cocos2dx_dragonbones_Slot_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_Slot_finalize(JSContext *cx, JSObject *obj);
@@ -237,7 +237,7 @@ bool js_cocos2dx_dragonbones_Slot_setChildArmature(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_dragonbones_Slot_getDisplayIndex(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_BaseFactory_class;
-extern JSObject *jsb_dragonBones_BaseFactory_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_BaseFactory_prototype;
 
 bool js_cocos2dx_dragonbones_BaseFactory_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_BaseFactory_finalize(JSContext *cx, JSObject *obj);
@@ -253,7 +253,7 @@ bool js_cocos2dx_dragonbones_BaseFactory_addTextureAtlasData(JSContext *cx, uint
 bool js_cocos2dx_dragonbones_BaseFactory_getDragonBonesData(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_WorldClock_class;
-extern JSObject *jsb_dragonBones_WorldClock_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_WorldClock_prototype;
 
 bool js_cocos2dx_dragonbones_WorldClock_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_WorldClock_finalize(JSContext *cx, JSObject *obj);
@@ -265,7 +265,7 @@ bool js_cocos2dx_dragonbones_WorldClock_advanceTime(JSContext *cx, uint32_t argc
 bool js_cocos2dx_dragonbones_WorldClock_WorldClock(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_AnimationState_class;
-extern JSObject *jsb_dragonBones_AnimationState_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_AnimationState_prototype;
 
 bool js_cocos2dx_dragonbones_AnimationState_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_AnimationState_finalize(JSContext *cx, JSObject *obj);
@@ -291,7 +291,7 @@ bool js_cocos2dx_dragonbones_AnimationState_getTypeIndex(JSContext *cx, uint32_t
 bool js_cocos2dx_dragonbones_AnimationState_AnimationState(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_CCTextureData_class;
-extern JSObject *jsb_dragonBones_CCTextureData_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_CCTextureData_prototype;
 
 bool js_cocos2dx_dragonbones_CCTextureData_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_CCTextureData_finalize(JSContext *cx, JSObject *obj);
@@ -301,7 +301,7 @@ bool js_cocos2dx_dragonbones_CCTextureData_getTypeIndex(JSContext *cx, uint32_t 
 bool js_cocos2dx_dragonbones_CCTextureData_CCTextureData(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_CCTextureAtlasData_class;
-extern JSObject *jsb_dragonBones_CCTextureAtlasData_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_CCTextureAtlasData_prototype;
 
 bool js_cocos2dx_dragonbones_CCTextureAtlasData_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_CCTextureAtlasData_finalize(JSContext *cx, JSObject *obj);
@@ -311,7 +311,7 @@ bool js_cocos2dx_dragonbones_CCTextureAtlasData_getTypeIndex(JSContext *cx, uint
 bool js_cocos2dx_dragonbones_CCTextureAtlasData_CCTextureAtlasData(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_CCArmatureDisplay_class;
-extern JSObject *jsb_dragonBones_CCArmatureDisplay_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_CCArmatureDisplay_prototype;
 
 bool js_cocos2dx_dragonbones_CCArmatureDisplay_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_CCArmatureDisplay_finalize(JSContext *cx, JSObject *obj);
@@ -329,7 +329,7 @@ bool js_cocos2dx_dragonbones_CCArmatureDisplay_getArmature(JSContext *cx, uint32
 bool js_cocos2dx_dragonbones_CCArmatureDisplay_create(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_DBCCSprite_class;
-extern JSObject *jsb_dragonBones_DBCCSprite_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_DBCCSprite_prototype;
 
 bool js_cocos2dx_dragonbones_DBCCSprite_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_DBCCSprite_finalize(JSContext *cx, JSObject *obj);
@@ -338,7 +338,7 @@ void register_all_cocos2dx_dragonbones(JSContext* cx, JS::HandleObject obj);
 bool js_cocos2dx_dragonbones_DBCCSprite_create(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_CCSlot_class;
-extern JSObject *jsb_dragonBones_CCSlot_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_CCSlot_prototype;
 
 bool js_cocos2dx_dragonbones_CCSlot_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_CCSlot_finalize(JSContext *cx, JSObject *obj);
@@ -349,7 +349,7 @@ bool js_cocos2dx_dragonbones_CCSlot_getTypeIndex(JSContext *cx, uint32_t argc, J
 bool js_cocos2dx_dragonbones_CCSlot_CCSlot(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_dragonBones_CCFactory_class;
-extern JSObject *jsb_dragonBones_CCFactory_prototype;
+extern JS::PersistentRootedObject *jsb_dragonBones_CCFactory_prototype;
 
 bool js_cocos2dx_dragonbones_CCFactory_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_dragonbones_CCFactory_finalize(JSContext *cx, JSObject *obj);

@@ -6,7 +6,7 @@
 #include "jsfriendapi.h"
 
 extern JSClass  *jsb_spine_SkeletonRenderer_class;
-extern JSObject *jsb_spine_SkeletonRenderer_prototype;
+extern JS::PersistentRootedObject *jsb_spine_SkeletonRenderer_prototype;
 
 bool js_cocos2dx_spine_SkeletonRenderer_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_spine_SkeletonRenderer_finalize(JSContext *cx, JSObject *obj);
@@ -35,7 +35,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_createWithFile(JSContext *cx, uint32_t a
 bool js_cocos2dx_spine_SkeletonRenderer_SkeletonRenderer(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 extern JSClass  *jsb_spine_SkeletonAnimation_class;
-extern JSObject *jsb_spine_SkeletonAnimation_prototype;
+extern JS::PersistentRootedObject *jsb_spine_SkeletonAnimation_prototype;
 
 bool js_cocos2dx_spine_SkeletonAnimation_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
 void js_cocos2dx_spine_SkeletonAnimation_finalize(JSContext *cx, JSObject *obj);

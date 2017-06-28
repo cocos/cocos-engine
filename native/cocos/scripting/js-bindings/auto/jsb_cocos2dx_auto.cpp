@@ -5,7 +5,7 @@
 #include "base/CCAsyncTaskPool.h"
 
 JSClass  *jsb_cocos2d_Acceleration_class;
-JSObject *jsb_cocos2d_Acceleration_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Acceleration_prototype;
 
 bool js_cocos2dx_Acceleration_get_x(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -133,11 +133,10 @@ bool js_cocos2dx_Acceleration_constructor(JSContext *cx, uint32_t argc, JS::Valu
     bool ok = true;
     cocos2d::Acceleration* cobj = new (std::nothrow) cocos2d::Acceleration();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Acceleration>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Acceleration");
+    JS::RootedObject proto(cx, jsb_cocos2d_Acceleration_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Acceleration_class, proto, &jsobj, "cocos2d::Acceleration");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -172,7 +171,7 @@ void js_register_cocos2dx_Acceleration(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_Acceleration_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Acceleration_class,
@@ -180,20 +179,20 @@ void js_register_cocos2dx_Acceleration(JSContext *cx, JS::HandleObject global) {
         properties,
         nullptr,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Acceleration_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Acceleration>(cx, jsb_cocos2d_Acceleration_class, proto);
+    jsb_cocos2d_Acceleration_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Acceleration", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Acceleration>(cx, jsb_cocos2d_Acceleration_class, proto);
 }
 
 JSClass  *jsb_cocos2d_Texture2D_class;
-JSObject *jsb_cocos2d_Texture2D_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Texture2D_prototype;
 
 bool js_cocos2dx_Texture2D_getGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -1045,11 +1044,10 @@ bool js_cocos2dx_Texture2D_constructor(JSContext *cx, uint32_t argc, JS::Value *
     bool ok = true;
     cocos2d::Texture2D* cobj = new (std::nothrow) cocos2d::Texture2D();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Texture2D>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Texture2D");
+    JS::RootedObject proto(cx, jsb_cocos2d_Texture2D_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Texture2D_class, proto, &jsobj, "cocos2d::Texture2D");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -1114,7 +1112,7 @@ void js_register_cocos2dx_Texture2D(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_Texture2D_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Texture2D_class,
@@ -1122,20 +1120,20 @@ void js_register_cocos2dx_Texture2D(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Texture2D_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Texture2D>(cx, jsb_cocos2d_Texture2D_class, proto);
+    jsb_cocos2d_Texture2D_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Texture2D", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Texture2D>(cx, jsb_cocos2d_Texture2D_class, proto);
 }
 
 JSClass  *jsb_cocos2d_Touch_class;
-JSObject *jsb_cocos2d_Touch_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Touch_prototype;
 
 bool js_cocos2dx_Touch_getPreviousLocationInView(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -1399,11 +1397,10 @@ bool js_cocos2dx_Touch_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::Touch* cobj = new (std::nothrow) cocos2d::Touch();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Touch>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Touch");
+    JS::RootedObject proto(cx, jsb_cocos2d_Touch_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Touch_class, proto, &jsobj, "cocos2d::Touch");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -1445,7 +1442,7 @@ void js_register_cocos2dx_Touch(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_Touch_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Touch_class,
@@ -1453,20 +1450,20 @@ void js_register_cocos2dx_Touch(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Touch_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Touch>(cx, jsb_cocos2d_Touch_class, proto);
+    jsb_cocos2d_Touch_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Touch", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Touch>(cx, jsb_cocos2d_Touch_class, proto);
 }
 
 JSClass  *jsb_cocos2d_Event_class;
-JSObject *jsb_cocos2d_Event_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Event_prototype;
 
 bool js_cocos2dx_Event_isStopped(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -1559,11 +1556,10 @@ bool js_cocos2dx_Event_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Event_constructor : Error processing arguments");
     cocos2d::Event* cobj = new (std::nothrow) cocos2d::Event(arg0);
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Event>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Event");
+    JS::RootedObject proto(cx, jsb_cocos2d_Event_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Event_class, proto, &jsobj, "cocos2d::Event");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -1598,7 +1594,7 @@ void js_register_cocos2dx_Event(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_Event_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Event_class,
@@ -1606,20 +1602,20 @@ void js_register_cocos2dx_Event(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Event_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Event>(cx, jsb_cocos2d_Event_class, proto);
+    jsb_cocos2d_Event_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Event", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Event>(cx, jsb_cocos2d_Event_class, proto);
 }
 
 JSClass  *jsb_cocos2d_EventTouch_class;
-JSObject *jsb_cocos2d_EventTouch_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EventTouch_prototype;
 
 bool js_cocos2dx_EventTouch_getEventCode(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -1667,11 +1663,10 @@ bool js_cocos2dx_EventTouch_constructor(JSContext *cx, uint32_t argc, JS::Value 
     bool ok = true;
     cocos2d::EventTouch* cobj = new (std::nothrow) cocos2d::EventTouch();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EventTouch>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EventTouch");
+    JS::RootedObject proto(cx, jsb_cocos2d_EventTouch_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EventTouch_class, proto, &jsobj, "cocos2d::EventTouch");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -1683,7 +1678,7 @@ bool js_cocos2dx_EventTouch_constructor(JSContext *cx, uint32_t argc, JS::Value 
 }
 
 
-extern JSObject *jsb_cocos2d_Event_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Event_prototype;
 
 void js_register_cocos2dx_EventTouch(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_EventTouch_classOps = {
@@ -1705,8 +1700,8 @@ void js_register_cocos2dx_EventTouch(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Event_prototype);
-    jsb_cocos2d_EventTouch_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Event_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EventTouch_class,
@@ -1714,20 +1709,20 @@ void js_register_cocos2dx_EventTouch(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EventTouch_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EventTouch>(cx, jsb_cocos2d_EventTouch_class, proto);
+    jsb_cocos2d_EventTouch_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EventTouch", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EventTouch>(cx, jsb_cocos2d_EventTouch_class, proto);
 }
 
 JSClass  *jsb_cocos2d_ComponentContainer_class;
-JSObject *jsb_cocos2d_ComponentContainer_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ComponentContainer_prototype;
 
 bool js_cocos2dx_ComponentContainer_visit(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -1923,7 +1918,7 @@ void js_register_cocos2dx_ComponentContainer(JSContext *cx, JS::HandleObject glo
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_ComponentContainer_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ComponentContainer_class,
@@ -1931,20 +1926,20 @@ void js_register_cocos2dx_ComponentContainer(JSContext *cx, JS::HandleObject glo
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ComponentContainer_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ComponentContainer>(cx, jsb_cocos2d_ComponentContainer_class, proto);
+    jsb_cocos2d_ComponentContainer_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ComponentContainer", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ComponentContainer>(cx, jsb_cocos2d_ComponentContainer_class, proto);
 }
 
 JSClass  *jsb_cocos2d_Component_class;
-JSObject *jsb_cocos2d_Component_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Component_prototype;
 
 bool js_cocos2dx_Component_setEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -2107,9 +2102,9 @@ bool js_cocos2dx_Component_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
 
         auto ret = cocos2d::Component::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Component>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Component");
+        JS::RootedObject proto(cx, jsb_cocos2d_Component_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Component_class, proto, &jsret, "cocos2d::Component");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -2123,11 +2118,10 @@ bool js_cocos2dx_Component_constructor(JSContext *cx, uint32_t argc, JS::Value *
     bool ok = true;
     cocos2d::Component* cobj = new (std::nothrow) cocos2d::Component();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Component>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Component");
+    JS::RootedObject proto(cx, jsb_cocos2d_Component_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Component_class, proto, &jsobj, "cocos2d::Component");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -2189,7 +2183,7 @@ void js_register_cocos2dx_Component(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_Component_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Component_class,
@@ -2197,21 +2191,21 @@ void js_register_cocos2dx_Component(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Component_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Component>(cx, jsb_cocos2d_Component_class, proto);
+    jsb_cocos2d_Component_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Component", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Component>(cx, jsb_cocos2d_Component_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_Node_class;
-JSObject *jsb_cocos2d_Node_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
 bool js_cocos2dx_Node_addChild(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -5665,9 +5659,9 @@ bool js_cocos2dx_Node_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
 
         auto ret = cocos2d::Node::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Node>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Node");
+        JS::RootedObject proto(cx, jsb_cocos2d_Node_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Node_class, proto, &jsret, "cocos2d::Node");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -5681,11 +5675,10 @@ bool js_cocos2dx_Node_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::Node* cobj = new (std::nothrow) cocos2d::Node();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Node>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Node");
+    JS::RootedObject proto(cx, jsb_cocos2d_Node_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Node_class, proto, &jsobj, "cocos2d::Node");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -5868,7 +5861,7 @@ void js_register_cocos2dx_Node(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_Node_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Node_class,
@@ -5876,21 +5869,21 @@ void js_register_cocos2dx_Node(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Node_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Node>(cx, jsb_cocos2d_Node_class, proto);
+    jsb_cocos2d_Node_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Node", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Node>(cx, jsb_cocos2d_Node_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_Scene_class;
-JSObject *jsb_cocos2d_Scene_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Scene_prototype;
 
 bool js_cocos2dx_Scene_initWithSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -5983,9 +5976,9 @@ bool js_cocos2dx_Scene_createWithSize(JSContext *cx, uint32_t argc, JS::Value *v
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Scene_createWithSize : Error processing arguments");
 
         auto ret = cocos2d::Scene::createWithSize(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Scene>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Scene");
+        JS::RootedObject proto(cx, jsb_cocos2d_Scene_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Scene_class, proto, &jsret, "cocos2d::Scene");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -6000,9 +5993,9 @@ bool js_cocos2dx_Scene_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
 
         auto ret = cocos2d::Scene::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Scene>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Scene");
+        JS::RootedObject proto(cx, jsb_cocos2d_Scene_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Scene_class, proto, &jsret, "cocos2d::Scene");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -6016,11 +6009,10 @@ bool js_cocos2dx_Scene_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::Scene* cobj = new (std::nothrow) cocos2d::Scene();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Scene>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Scene");
+    JS::RootedObject proto(cx, jsb_cocos2d_Scene_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Scene_class, proto, &jsobj, "cocos2d::Scene");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -6049,7 +6041,7 @@ static bool js_cocos2dx_Scene_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
     
 void js_register_cocos2dx_Scene(JSContext *cx, JS::HandleObject global) {
@@ -6079,8 +6071,8 @@ void js_register_cocos2dx_Scene(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_cocos2d_Scene_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Scene_class,
@@ -6088,21 +6080,21 @@ void js_register_cocos2dx_Scene(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Scene_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Scene>(cx, jsb_cocos2d_Scene_class, proto);
+    jsb_cocos2d_Scene_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Scene", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Scene>(cx, jsb_cocos2d_Scene_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_GLView_class;
-JSObject *jsb_cocos2d_GLView_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_GLView_prototype;
 
 bool js_cocos2dx_GLView_setFrameSize(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -6832,7 +6824,7 @@ void js_register_cocos2dx_GLView(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_GLView_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_GLView_class,
@@ -6840,20 +6832,20 @@ void js_register_cocos2dx_GLView(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_GLView_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::GLView>(cx, jsb_cocos2d_GLView_class, proto);
+    jsb_cocos2d_GLView_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "GLView", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::GLView>(cx, jsb_cocos2d_GLView_class, proto);
 }
 
 JSClass  *jsb_cocos2d_Director_class;
-JSObject *jsb_cocos2d_Director_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Director_prototype;
 
 bool js_cocos2dx_Director_pause(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -8221,9 +8213,9 @@ bool js_cocos2dx_Director_getInstance(JSContext *cx, uint32_t argc, JS::Value *v
     if (argc == 0) {
 
         auto ret = cocos2d::Director::getInstance();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Director>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_get_or_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Director");
+        JS::RootedObject proto(cx, jsb_cocos2d_Director_prototype->get());
+        jsb_ref_get_or_create_jsobject(cx, ret, jsb_cocos2d_Director_class, proto, &jsret, "cocos2d::Director");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -8321,7 +8313,7 @@ void js_register_cocos2dx_Director(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_Director_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Director_class,
@@ -8329,20 +8321,20 @@ void js_register_cocos2dx_Director(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Director_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Director>(cx, jsb_cocos2d_Director_class, proto);
+    jsb_cocos2d_Director_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Director", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Director>(cx, jsb_cocos2d_Director_class, proto);
 }
 
 JSClass  *jsb_cocos2d_Scheduler_class;
-JSObject *jsb_cocos2d_Scheduler_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Scheduler_prototype;
 
 bool js_cocos2dx_Scheduler_isCurrentTargetSalvaged(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -8532,11 +8524,10 @@ bool js_cocos2dx_Scheduler_constructor(JSContext *cx, uint32_t argc, JS::Value *
     bool ok = true;
     cocos2d::Scheduler* cobj = new (std::nothrow) cocos2d::Scheduler();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Scheduler>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Scheduler");
+    JS::RootedObject proto(cx, jsb_cocos2d_Scheduler_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Scheduler_class, proto, &jsobj, "cocos2d::Scheduler");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -8575,7 +8566,7 @@ void js_register_cocos2dx_Scheduler(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_Scheduler_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Scheduler_class,
@@ -8583,20 +8574,20 @@ void js_register_cocos2dx_Scheduler(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Scheduler_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Scheduler>(cx, jsb_cocos2d_Scheduler_class, proto);
+    jsb_cocos2d_Scheduler_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Scheduler", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Scheduler>(cx, jsb_cocos2d_Scheduler_class, proto);
 }
 
 JSClass  *jsb_cocos2d_AsyncTaskPool_class;
-JSObject *jsb_cocos2d_AsyncTaskPool_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_AsyncTaskPool_prototype;
 
 bool js_cocos2dx_AsyncTaskPool_stopTasks(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -8680,7 +8671,7 @@ void js_register_cocos2dx_AsyncTaskPool(JSContext *cx, JS::HandleObject global) 
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_AsyncTaskPool_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_AsyncTaskPool_class,
@@ -8688,20 +8679,20 @@ void js_register_cocos2dx_AsyncTaskPool(JSContext *cx, JS::HandleObject global) 
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_AsyncTaskPool_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::AsyncTaskPool>(cx, jsb_cocos2d_AsyncTaskPool_class, proto);
+    jsb_cocos2d_AsyncTaskPool_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "AsyncTaskPool", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::AsyncTaskPool>(cx, jsb_cocos2d_AsyncTaskPool_class, proto);
 }
 
 JSClass  *jsb_cocos2d_Configuration_class;
-JSObject *jsb_cocos2d_Configuration_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Configuration_prototype;
 
 bool js_cocos2dx_Configuration_supportsPVRTC(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -9179,9 +9170,9 @@ bool js_cocos2dx_Configuration_getInstance(JSContext *cx, uint32_t argc, JS::Val
     if (argc == 0) {
 
         auto ret = cocos2d::Configuration::getInstance();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Configuration>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_get_or_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Configuration");
+        JS::RootedObject proto(cx, jsb_cocos2d_Configuration_prototype->get());
+        jsb_ref_get_or_create_jsobject(cx, ret, jsb_cocos2d_Configuration_class, proto, &jsret, "cocos2d::Configuration");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -9237,7 +9228,7 @@ void js_register_cocos2dx_Configuration(JSContext *cx, JS::HandleObject global) 
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_Configuration_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Configuration_class,
@@ -9245,20 +9236,20 @@ void js_register_cocos2dx_Configuration(JSContext *cx, JS::HandleObject global) 
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Configuration_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Configuration>(cx, jsb_cocos2d_Configuration_class, proto);
+    jsb_cocos2d_Configuration_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Configuration", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Configuration>(cx, jsb_cocos2d_Configuration_class, proto);
 }
 
 JSClass  *jsb_cocos2d_Properties_class;
-JSObject *jsb_cocos2d_Properties_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Properties_prototype;
 
 bool js_cocos2dx_Properties_getVariable(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -10182,7 +10173,7 @@ void js_register_cocos2dx_Properties(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_Properties_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Properties_class,
@@ -10190,20 +10181,20 @@ void js_register_cocos2dx_Properties(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Properties_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Properties>(cx, jsb_cocos2d_Properties_class, proto);
+    jsb_cocos2d_Properties_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Properties", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Properties>(cx, jsb_cocos2d_Properties_class, proto);
 }
 
 JSClass  *jsb_cocos2d_FileUtils_class;
-JSObject *jsb_cocos2d_FileUtils_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_FileUtils_prototype;
 
 bool js_cocos2dx_FileUtils_fullPathForFilename(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -11144,7 +11135,7 @@ void js_register_cocos2dx_FileUtils(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_FileUtils_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_FileUtils_class,
@@ -11152,20 +11143,20 @@ void js_register_cocos2dx_FileUtils(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_FileUtils_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::FileUtils>(cx, jsb_cocos2d_FileUtils_class, proto);
+    jsb_cocos2d_FileUtils_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "FileUtils", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::FileUtils>(cx, jsb_cocos2d_FileUtils_class, proto);
 }
 
 JSClass  *jsb_cocos2d_EventAcceleration_class;
-JSObject *jsb_cocos2d_EventAcceleration_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EventAcceleration_prototype;
 
 bool js_cocos2dx_EventAcceleration_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -11176,11 +11167,10 @@ bool js_cocos2dx_EventAcceleration_constructor(JSContext *cx, uint32_t argc, JS:
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventAcceleration_constructor : Error processing arguments");
     cocos2d::EventAcceleration* cobj = new (std::nothrow) cocos2d::EventAcceleration(arg0);
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EventAcceleration>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EventAcceleration");
+    JS::RootedObject proto(cx, jsb_cocos2d_EventAcceleration_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EventAcceleration_class, proto, &jsobj, "cocos2d::EventAcceleration");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -11192,7 +11182,7 @@ bool js_cocos2dx_EventAcceleration_constructor(JSContext *cx, uint32_t argc, JS:
 }
 
 
-extern JSObject *jsb_cocos2d_Event_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Event_prototype;
 
 void js_register_cocos2dx_EventAcceleration(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_EventAcceleration_classOps = {
@@ -11208,8 +11198,8 @@ void js_register_cocos2dx_EventAcceleration(JSContext *cx, JS::HandleObject glob
     };
     jsb_cocos2d_EventAcceleration_class = &cocos2d_EventAcceleration_class;
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Event_prototype);
-    jsb_cocos2d_EventAcceleration_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Event_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EventAcceleration_class,
@@ -11217,20 +11207,20 @@ void js_register_cocos2dx_EventAcceleration(JSContext *cx, JS::HandleObject glob
         nullptr,
         nullptr,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EventAcceleration_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EventAcceleration>(cx, jsb_cocos2d_EventAcceleration_class, proto);
+    jsb_cocos2d_EventAcceleration_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EventAcceleration", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EventAcceleration>(cx, jsb_cocos2d_EventAcceleration_class, proto);
 }
 
 JSClass  *jsb_cocos2d_EventCustom_class;
-JSObject *jsb_cocos2d_EventCustom_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EventCustom_prototype;
 
 bool js_cocos2dx_EventCustom_getEventName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -11261,11 +11251,10 @@ bool js_cocos2dx_EventCustom_constructor(JSContext *cx, uint32_t argc, JS::Value
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventCustom_constructor : Error processing arguments");
     cocos2d::EventCustom* cobj = new (std::nothrow) cocos2d::EventCustom(arg0);
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EventCustom>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EventCustom");
+    JS::RootedObject proto(cx, jsb_cocos2d_EventCustom_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EventCustom_class, proto, &jsobj, "cocos2d::EventCustom");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -11277,7 +11266,7 @@ bool js_cocos2dx_EventCustom_constructor(JSContext *cx, uint32_t argc, JS::Value
 }
 
 
-extern JSObject *jsb_cocos2d_Event_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Event_prototype;
 
 void js_register_cocos2dx_EventCustom(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_EventCustom_classOps = {
@@ -11298,8 +11287,8 @@ void js_register_cocos2dx_EventCustom(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Event_prototype);
-    jsb_cocos2d_EventCustom_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Event_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EventCustom_class,
@@ -11307,20 +11296,20 @@ void js_register_cocos2dx_EventCustom(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EventCustom_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EventCustom>(cx, jsb_cocos2d_EventCustom_class, proto);
+    jsb_cocos2d_EventCustom_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EventCustom", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EventCustom>(cx, jsb_cocos2d_EventCustom_class, proto);
 }
 
 JSClass  *jsb_cocos2d_EventListener_class;
-JSObject *jsb_cocos2d_EventListener_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EventListener_prototype;
 
 bool js_cocos2dx_EventListener_setEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -11432,7 +11421,7 @@ void js_register_cocos2dx_EventListener(JSContext *cx, JS::HandleObject global) 
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_EventListener_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EventListener_class,
@@ -11440,20 +11429,20 @@ void js_register_cocos2dx_EventListener(JSContext *cx, JS::HandleObject global) 
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EventListener_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EventListener>(cx, jsb_cocos2d_EventListener_class, proto);
+    jsb_cocos2d_EventListener_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EventListener", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EventListener>(cx, jsb_cocos2d_EventListener_class, proto);
 }
 
 JSClass  *jsb_cocos2d_EventDispatcher_class;
-JSObject *jsb_cocos2d_EventDispatcher_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EventDispatcher_prototype;
 
 bool js_cocos2dx_EventDispatcher_setEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -11874,11 +11863,10 @@ bool js_cocos2dx_EventDispatcher_constructor(JSContext *cx, uint32_t argc, JS::V
     bool ok = true;
     cocos2d::EventDispatcher* cobj = new (std::nothrow) cocos2d::EventDispatcher();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EventDispatcher>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EventDispatcher");
+    JS::RootedObject proto(cx, jsb_cocos2d_EventDispatcher_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EventDispatcher_class, proto, &jsobj, "cocos2d::EventDispatcher");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -11922,7 +11910,7 @@ void js_register_cocos2dx_EventDispatcher(JSContext *cx, JS::HandleObject global
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_EventDispatcher_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EventDispatcher_class,
@@ -11930,20 +11918,20 @@ void js_register_cocos2dx_EventDispatcher(JSContext *cx, JS::HandleObject global
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EventDispatcher_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EventDispatcher>(cx, jsb_cocos2d_EventDispatcher_class, proto);
+    jsb_cocos2d_EventDispatcher_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EventDispatcher", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EventDispatcher>(cx, jsb_cocos2d_EventDispatcher_class, proto);
 }
 
 JSClass  *jsb_cocos2d_EventFocus_class;
-JSObject *jsb_cocos2d_EventFocus_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EventFocus_prototype;
 
 bool js_cocos2dx_EventFocus_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -11972,11 +11960,10 @@ bool js_cocos2dx_EventFocus_constructor(JSContext *cx, uint32_t argc, JS::Value 
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventFocus_constructor : Error processing arguments");
     cocos2d::EventFocus* cobj = new (std::nothrow) cocos2d::EventFocus(arg0, arg1);
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EventFocus>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EventFocus");
+    JS::RootedObject proto(cx, jsb_cocos2d_EventFocus_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EventFocus_class, proto, &jsobj, "cocos2d::EventFocus");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -11988,7 +11975,7 @@ bool js_cocos2dx_EventFocus_constructor(JSContext *cx, uint32_t argc, JS::Value 
 }
 
 
-extern JSObject *jsb_cocos2d_Event_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Event_prototype;
 
 void js_register_cocos2dx_EventFocus(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_EventFocus_classOps = {
@@ -12004,8 +11991,8 @@ void js_register_cocos2dx_EventFocus(JSContext *cx, JS::HandleObject global) {
     };
     jsb_cocos2d_EventFocus_class = &cocos2d_EventFocus_class;
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Event_prototype);
-    jsb_cocos2d_EventFocus_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Event_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EventFocus_class,
@@ -12013,20 +12000,20 @@ void js_register_cocos2dx_EventFocus(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EventFocus_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EventFocus>(cx, jsb_cocos2d_EventFocus_class, proto);
+    jsb_cocos2d_EventFocus_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EventFocus", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EventFocus>(cx, jsb_cocos2d_EventFocus_class, proto);
 }
 
 JSClass  *jsb_cocos2d_EventListenerAcceleration_class;
-JSObject *jsb_cocos2d_EventListenerAcceleration_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EventListenerAcceleration_prototype;
 
 bool js_cocos2dx_EventListenerAcceleration_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -12096,11 +12083,10 @@ bool js_cocos2dx_EventListenerAcceleration_constructor(JSContext *cx, uint32_t a
     bool ok = true;
     cocos2d::EventListenerAcceleration* cobj = new (std::nothrow) cocos2d::EventListenerAcceleration();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EventListenerAcceleration>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EventListenerAcceleration");
+    JS::RootedObject proto(cx, jsb_cocos2d_EventListenerAcceleration_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EventListenerAcceleration_class, proto, &jsobj, "cocos2d::EventListenerAcceleration");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -12112,7 +12098,7 @@ bool js_cocos2dx_EventListenerAcceleration_constructor(JSContext *cx, uint32_t a
 }
 
 
-extern JSObject *jsb_cocos2d_EventListener_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_EventListener_prototype;
 
 void js_register_cocos2dx_EventListenerAcceleration(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_EventListenerAcceleration_classOps = {
@@ -12133,8 +12119,8 @@ void js_register_cocos2dx_EventListenerAcceleration(JSContext *cx, JS::HandleObj
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_EventListener_prototype);
-    jsb_cocos2d_EventListenerAcceleration_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EventListener_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EventListenerAcceleration_class,
@@ -12142,20 +12128,20 @@ void js_register_cocos2dx_EventListenerAcceleration(JSContext *cx, JS::HandleObj
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EventListenerAcceleration_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EventListenerAcceleration>(cx, jsb_cocos2d_EventListenerAcceleration_class, proto);
+    jsb_cocos2d_EventListenerAcceleration_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EventListenerAcceleration", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EventListenerAcceleration>(cx, jsb_cocos2d_EventListenerAcceleration_class, proto);
 }
 
 JSClass  *jsb_cocos2d_EventListenerCustom_class;
-JSObject *jsb_cocos2d_EventListenerCustom_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EventListenerCustom_prototype;
 
 bool js_cocos2dx_EventListenerCustom_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -12163,11 +12149,10 @@ bool js_cocos2dx_EventListenerCustom_constructor(JSContext *cx, uint32_t argc, J
     bool ok = true;
     cocos2d::EventListenerCustom* cobj = new (std::nothrow) cocos2d::EventListenerCustom();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EventListenerCustom>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EventListenerCustom");
+    JS::RootedObject proto(cx, jsb_cocos2d_EventListenerCustom_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EventListenerCustom_class, proto, &jsobj, "cocos2d::EventListenerCustom");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -12179,7 +12164,7 @@ bool js_cocos2dx_EventListenerCustom_constructor(JSContext *cx, uint32_t argc, J
 }
 
 
-extern JSObject *jsb_cocos2d_EventListener_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_EventListener_prototype;
 
 void js_register_cocos2dx_EventListenerCustom(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_EventListenerCustom_classOps = {
@@ -12195,8 +12180,8 @@ void js_register_cocos2dx_EventListenerCustom(JSContext *cx, JS::HandleObject gl
     };
     jsb_cocos2d_EventListenerCustom_class = &cocos2d_EventListenerCustom_class;
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_EventListener_prototype);
-    jsb_cocos2d_EventListenerCustom_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EventListener_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EventListenerCustom_class,
@@ -12204,20 +12189,20 @@ void js_register_cocos2dx_EventListenerCustom(JSContext *cx, JS::HandleObject gl
         nullptr,
         nullptr,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EventListenerCustom_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EventListenerCustom>(cx, jsb_cocos2d_EventListenerCustom_class, proto);
+    jsb_cocos2d_EventListenerCustom_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EventListenerCustom", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EventListenerCustom>(cx, jsb_cocos2d_EventListenerCustom_class, proto);
 }
 
 JSClass  *jsb_cocos2d_EventListenerFocus_class;
-JSObject *jsb_cocos2d_EventListenerFocus_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EventListenerFocus_prototype;
 
 bool js_cocos2dx_EventListenerFocus_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -12245,11 +12230,10 @@ bool js_cocos2dx_EventListenerFocus_constructor(JSContext *cx, uint32_t argc, JS
     bool ok = true;
     cocos2d::EventListenerFocus* cobj = new (std::nothrow) cocos2d::EventListenerFocus();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EventListenerFocus>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EventListenerFocus");
+    JS::RootedObject proto(cx, jsb_cocos2d_EventListenerFocus_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EventListenerFocus_class, proto, &jsobj, "cocos2d::EventListenerFocus");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -12261,7 +12245,7 @@ bool js_cocos2dx_EventListenerFocus_constructor(JSContext *cx, uint32_t argc, JS
 }
 
 
-extern JSObject *jsb_cocos2d_EventListener_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_EventListener_prototype;
 
 void js_register_cocos2dx_EventListenerFocus(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_EventListenerFocus_classOps = {
@@ -12282,8 +12266,8 @@ void js_register_cocos2dx_EventListenerFocus(JSContext *cx, JS::HandleObject glo
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_EventListener_prototype);
-    jsb_cocos2d_EventListenerFocus_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EventListener_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EventListenerFocus_class,
@@ -12291,20 +12275,20 @@ void js_register_cocos2dx_EventListenerFocus(JSContext *cx, JS::HandleObject glo
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EventListenerFocus_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EventListenerFocus>(cx, jsb_cocos2d_EventListenerFocus_class, proto);
+    jsb_cocos2d_EventListenerFocus_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EventListenerFocus", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EventListenerFocus>(cx, jsb_cocos2d_EventListenerFocus_class, proto);
 }
 
 JSClass  *jsb_cocos2d_EventListenerKeyboard_class;
-JSObject *jsb_cocos2d_EventListenerKeyboard_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EventListenerKeyboard_prototype;
 
 bool js_cocos2dx_EventListenerKeyboard_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -12332,11 +12316,10 @@ bool js_cocos2dx_EventListenerKeyboard_constructor(JSContext *cx, uint32_t argc,
     bool ok = true;
     cocos2d::EventListenerKeyboard* cobj = new (std::nothrow) cocos2d::EventListenerKeyboard();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EventListenerKeyboard>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EventListenerKeyboard");
+    JS::RootedObject proto(cx, jsb_cocos2d_EventListenerKeyboard_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EventListenerKeyboard_class, proto, &jsobj, "cocos2d::EventListenerKeyboard");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -12348,7 +12331,7 @@ bool js_cocos2dx_EventListenerKeyboard_constructor(JSContext *cx, uint32_t argc,
 }
 
 
-extern JSObject *jsb_cocos2d_EventListener_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_EventListener_prototype;
 
 void js_register_cocos2dx_EventListenerKeyboard(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_EventListenerKeyboard_classOps = {
@@ -12369,8 +12352,8 @@ void js_register_cocos2dx_EventListenerKeyboard(JSContext *cx, JS::HandleObject 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_EventListener_prototype);
-    jsb_cocos2d_EventListenerKeyboard_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EventListener_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EventListenerKeyboard_class,
@@ -12378,20 +12361,20 @@ void js_register_cocos2dx_EventListenerKeyboard(JSContext *cx, JS::HandleObject 
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EventListenerKeyboard_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EventListenerKeyboard>(cx, jsb_cocos2d_EventListenerKeyboard_class, proto);
+    jsb_cocos2d_EventListenerKeyboard_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EventListenerKeyboard", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EventListenerKeyboard>(cx, jsb_cocos2d_EventListenerKeyboard_class, proto);
 }
 
 JSClass  *jsb_cocos2d_EventMouse_class;
-JSObject *jsb_cocos2d_EventMouse_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EventMouse_prototype;
 
 bool js_cocos2dx_EventMouse_getMouseButton(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -12706,11 +12689,10 @@ bool js_cocos2dx_EventMouse_constructor(JSContext *cx, uint32_t argc, JS::Value 
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventMouse_constructor : Error processing arguments");
     cocos2d::EventMouse* cobj = new (std::nothrow) cocos2d::EventMouse(arg0);
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EventMouse>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EventMouse");
+    JS::RootedObject proto(cx, jsb_cocos2d_EventMouse_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EventMouse_class, proto, &jsobj, "cocos2d::EventMouse");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -12722,7 +12704,7 @@ bool js_cocos2dx_EventMouse_constructor(JSContext *cx, uint32_t argc, JS::Value 
 }
 
 
-extern JSObject *jsb_cocos2d_Event_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Event_prototype;
 
 void js_register_cocos2dx_EventMouse(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_EventMouse_classOps = {
@@ -12757,8 +12739,8 @@ void js_register_cocos2dx_EventMouse(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Event_prototype);
-    jsb_cocos2d_EventMouse_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Event_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EventMouse_class,
@@ -12766,20 +12748,20 @@ void js_register_cocos2dx_EventMouse(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EventMouse_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EventMouse>(cx, jsb_cocos2d_EventMouse_class, proto);
+    jsb_cocos2d_EventMouse_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EventMouse", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EventMouse>(cx, jsb_cocos2d_EventMouse_class, proto);
 }
 
 JSClass  *jsb_cocos2d_EventListenerMouse_class;
-JSObject *jsb_cocos2d_EventListenerMouse_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EventListenerMouse_prototype;
 
 bool js_cocos2dx_EventListenerMouse_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -12807,11 +12789,10 @@ bool js_cocos2dx_EventListenerMouse_constructor(JSContext *cx, uint32_t argc, JS
     bool ok = true;
     cocos2d::EventListenerMouse* cobj = new (std::nothrow) cocos2d::EventListenerMouse();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EventListenerMouse>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EventListenerMouse");
+    JS::RootedObject proto(cx, jsb_cocos2d_EventListenerMouse_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EventListenerMouse_class, proto, &jsobj, "cocos2d::EventListenerMouse");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -12823,7 +12804,7 @@ bool js_cocos2dx_EventListenerMouse_constructor(JSContext *cx, uint32_t argc, JS
 }
 
 
-extern JSObject *jsb_cocos2d_EventListener_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_EventListener_prototype;
 
 void js_register_cocos2dx_EventListenerMouse(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_EventListenerMouse_classOps = {
@@ -12844,8 +12825,8 @@ void js_register_cocos2dx_EventListenerMouse(JSContext *cx, JS::HandleObject glo
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_EventListener_prototype);
-    jsb_cocos2d_EventListenerMouse_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EventListener_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EventListenerMouse_class,
@@ -12853,20 +12834,20 @@ void js_register_cocos2dx_EventListenerMouse(JSContext *cx, JS::HandleObject glo
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EventListenerMouse_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EventListenerMouse>(cx, jsb_cocos2d_EventListenerMouse_class, proto);
+    jsb_cocos2d_EventListenerMouse_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EventListenerMouse", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EventListenerMouse>(cx, jsb_cocos2d_EventListenerMouse_class, proto);
 }
 
 JSClass  *jsb_cocos2d_EventListenerTouchOneByOne_class;
-JSObject *jsb_cocos2d_EventListenerTouchOneByOne_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EventListenerTouchOneByOne_prototype;
 
 bool js_cocos2dx_EventListenerTouchOneByOne_isSwallowTouches(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -12934,11 +12915,10 @@ bool js_cocos2dx_EventListenerTouchOneByOne_constructor(JSContext *cx, uint32_t 
     bool ok = true;
     cocos2d::EventListenerTouchOneByOne* cobj = new (std::nothrow) cocos2d::EventListenerTouchOneByOne();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EventListenerTouchOneByOne>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EventListenerTouchOneByOne");
+    JS::RootedObject proto(cx, jsb_cocos2d_EventListenerTouchOneByOne_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EventListenerTouchOneByOne_class, proto, &jsobj, "cocos2d::EventListenerTouchOneByOne");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -12950,7 +12930,7 @@ bool js_cocos2dx_EventListenerTouchOneByOne_constructor(JSContext *cx, uint32_t 
 }
 
 
-extern JSObject *jsb_cocos2d_EventListener_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_EventListener_prototype;
 
 void js_register_cocos2dx_EventListenerTouchOneByOne(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_EventListenerTouchOneByOne_classOps = {
@@ -12977,8 +12957,8 @@ void js_register_cocos2dx_EventListenerTouchOneByOne(JSContext *cx, JS::HandleOb
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_EventListener_prototype);
-    jsb_cocos2d_EventListenerTouchOneByOne_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EventListener_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EventListenerTouchOneByOne_class,
@@ -12986,20 +12966,20 @@ void js_register_cocos2dx_EventListenerTouchOneByOne(JSContext *cx, JS::HandleOb
         properties,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EventListenerTouchOneByOne_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EventListenerTouchOneByOne>(cx, jsb_cocos2d_EventListenerTouchOneByOne_class, proto);
+    jsb_cocos2d_EventListenerTouchOneByOne_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EventListenerTouchOneByOne", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EventListenerTouchOneByOne>(cx, jsb_cocos2d_EventListenerTouchOneByOne_class, proto);
 }
 
 JSClass  *jsb_cocos2d_EventListenerTouchAllAtOnce_class;
-JSObject *jsb_cocos2d_EventListenerTouchAllAtOnce_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EventListenerTouchAllAtOnce_prototype;
 
 bool js_cocos2dx_EventListenerTouchAllAtOnce_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -13027,11 +13007,10 @@ bool js_cocos2dx_EventListenerTouchAllAtOnce_constructor(JSContext *cx, uint32_t
     bool ok = true;
     cocos2d::EventListenerTouchAllAtOnce* cobj = new (std::nothrow) cocos2d::EventListenerTouchAllAtOnce();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EventListenerTouchAllAtOnce>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EventListenerTouchAllAtOnce");
+    JS::RootedObject proto(cx, jsb_cocos2d_EventListenerTouchAllAtOnce_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EventListenerTouchAllAtOnce_class, proto, &jsobj, "cocos2d::EventListenerTouchAllAtOnce");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -13043,7 +13022,7 @@ bool js_cocos2dx_EventListenerTouchAllAtOnce_constructor(JSContext *cx, uint32_t
 }
 
 
-extern JSObject *jsb_cocos2d_EventListener_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_EventListener_prototype;
 
 void js_register_cocos2dx_EventListenerTouchAllAtOnce(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_EventListenerTouchAllAtOnce_classOps = {
@@ -13068,8 +13047,8 @@ void js_register_cocos2dx_EventListenerTouchAllAtOnce(JSContext *cx, JS::HandleO
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_EventListener_prototype);
-    jsb_cocos2d_EventListenerTouchAllAtOnce_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EventListener_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EventListenerTouchAllAtOnce_class,
@@ -13077,20 +13056,20 @@ void js_register_cocos2dx_EventListenerTouchAllAtOnce(JSContext *cx, JS::HandleO
         properties,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EventListenerTouchAllAtOnce_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EventListenerTouchAllAtOnce>(cx, jsb_cocos2d_EventListenerTouchAllAtOnce_class, proto);
+    jsb_cocos2d_EventListenerTouchAllAtOnce_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EventListenerTouchAllAtOnce", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EventListenerTouchAllAtOnce>(cx, jsb_cocos2d_EventListenerTouchAllAtOnce_class, proto);
 }
 
 JSClass  *jsb_cocos2d_Action_class;
-JSObject *jsb_cocos2d_Action_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Action_prototype;
 
 bool js_cocos2dx_Action_startWithTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -13471,7 +13450,7 @@ void js_register_cocos2dx_Action(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_Action_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Action_class,
@@ -13479,20 +13458,20 @@ void js_register_cocos2dx_Action(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Action_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Action>(cx, jsb_cocos2d_Action_class, proto);
+    jsb_cocos2d_Action_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Action", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Action>(cx, jsb_cocos2d_Action_class, proto);
 }
 
 JSClass  *jsb_cocos2d_FiniteTimeAction_class;
-JSObject *jsb_cocos2d_FiniteTimeAction_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_FiniteTimeAction_prototype;
 
 bool js_cocos2dx_FiniteTimeAction_setDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -13535,7 +13514,7 @@ bool js_cocos2dx_FiniteTimeAction_getDuration(JSContext *cx, uint32_t argc, JS::
     return false;
 }
 
-extern JSObject *jsb_cocos2d_Action_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Action_prototype;
 
 void js_register_cocos2dx_FiniteTimeAction(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_FiniteTimeAction_classOps = {
@@ -13557,8 +13536,8 @@ void js_register_cocos2dx_FiniteTimeAction(JSContext *cx, JS::HandleObject globa
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Action_prototype);
-    jsb_cocos2d_FiniteTimeAction_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Action_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_FiniteTimeAction_class,
@@ -13566,20 +13545,20 @@ void js_register_cocos2dx_FiniteTimeAction(JSContext *cx, JS::HandleObject globa
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_FiniteTimeAction_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::FiniteTimeAction>(cx, jsb_cocos2d_FiniteTimeAction_class, proto);
+    jsb_cocos2d_FiniteTimeAction_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "FiniteTimeAction", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::FiniteTimeAction>(cx, jsb_cocos2d_FiniteTimeAction_class, proto);
 }
 
 JSClass  *jsb_cocos2d_Speed_class;
-JSObject *jsb_cocos2d_Speed_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Speed_prototype;
 
 bool js_cocos2dx_Speed_setInnerAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -13714,11 +13693,10 @@ bool js_cocos2dx_Speed_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::Speed* cobj = new (std::nothrow) cocos2d::Speed();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Speed>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Speed");
+    JS::RootedObject proto(cx, jsb_cocos2d_Speed_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Speed_class, proto, &jsobj, "cocos2d::Speed");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -13730,7 +13708,7 @@ bool js_cocos2dx_Speed_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_Action_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Action_prototype;
 
 void js_register_cocos2dx_Speed(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_Speed_classOps = {
@@ -13755,8 +13733,8 @@ void js_register_cocos2dx_Speed(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Action_prototype);
-    jsb_cocos2d_Speed_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Action_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Speed_class,
@@ -13764,20 +13742,20 @@ void js_register_cocos2dx_Speed(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Speed_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Speed>(cx, jsb_cocos2d_Speed_class, proto);
+    jsb_cocos2d_Speed_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Speed", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Speed>(cx, jsb_cocos2d_Speed_class, proto);
 }
 
 JSClass  *jsb_cocos2d_Follow_class;
-JSObject *jsb_cocos2d_Follow_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Follow_prototype;
 
 bool js_cocos2dx_Follow_setBoundarySet(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -13937,11 +13915,10 @@ bool js_cocos2dx_Follow_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::Follow* cobj = new (std::nothrow) cocos2d::Follow();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Follow>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Follow");
+    JS::RootedObject proto(cx, jsb_cocos2d_Follow_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Follow_class, proto, &jsobj, "cocos2d::Follow");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -13970,7 +13947,7 @@ static bool js_cocos2dx_Follow_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_Action_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Action_prototype;
 
     
 void js_register_cocos2dx_Follow(JSContext *cx, JS::HandleObject global) {
@@ -13996,8 +13973,8 @@ void js_register_cocos2dx_Follow(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Action_prototype);
-    jsb_cocos2d_Follow_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Action_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Follow_class,
@@ -14005,21 +13982,21 @@ void js_register_cocos2dx_Follow(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Follow_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Follow>(cx, jsb_cocos2d_Follow_class, proto);
+    jsb_cocos2d_Follow_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Follow", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Follow>(cx, jsb_cocos2d_Follow_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_Image_class;
-JSObject *jsb_cocos2d_Image_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Image_prototype;
 
 bool js_cocos2dx_Image_hasPremultipliedAlpha(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -14338,11 +14315,10 @@ bool js_cocos2dx_Image_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::Image* cobj = new (std::nothrow) cocos2d::Image();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Image>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Image");
+    JS::RootedObject proto(cx, jsb_cocos2d_Image_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Image_class, proto, &jsobj, "cocos2d::Image");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -14392,7 +14368,7 @@ void js_register_cocos2dx_Image(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_Image_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Image_class,
@@ -14400,20 +14376,20 @@ void js_register_cocos2dx_Image(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Image_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Image>(cx, jsb_cocos2d_Image_class, proto);
+    jsb_cocos2d_Image_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Image", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Image>(cx, jsb_cocos2d_Image_class, proto);
 }
 
 JSClass  *jsb_cocos2d_GLProgramState_class;
-JSObject *jsb_cocos2d_GLProgramState_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_GLProgramState_prototype;
 
 bool js_cocos2dx_GLProgramState_setUniformCallback(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -15411,9 +15387,9 @@ bool js_cocos2dx_GLProgramState_create(JSContext *cx, uint32_t argc, JS::Value *
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_GLProgramState_create : Error processing arguments");
 
         auto ret = cocos2d::GLProgramState::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::GLProgramState>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::GLProgramState");
+        JS::RootedObject proto(cx, jsb_cocos2d_GLProgramState_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_GLProgramState_class, proto, &jsret, "cocos2d::GLProgramState");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -15564,7 +15540,7 @@ void js_register_cocos2dx_GLProgramState(JSContext *cx, JS::HandleObject global)
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_GLProgramState_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_GLProgramState_class,
@@ -15572,20 +15548,20 @@ void js_register_cocos2dx_GLProgramState(JSContext *cx, JS::HandleObject global)
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_GLProgramState_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::GLProgramState>(cx, jsb_cocos2d_GLProgramState_class, proto);
+    jsb_cocos2d_GLProgramState_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "GLProgramState", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::GLProgramState>(cx, jsb_cocos2d_GLProgramState_class, proto);
 }
 
 JSClass  *jsb_cocos2d_SpriteFrame_class;
-JSObject *jsb_cocos2d_SpriteFrame_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_SpriteFrame_prototype;
 
 bool js_cocos2dx_SpriteFrame_setAnchorPoint(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -16287,11 +16263,10 @@ bool js_cocos2dx_SpriteFrame_constructor(JSContext *cx, uint32_t argc, JS::Value
     bool ok = true;
     cocos2d::SpriteFrame* cobj = new (std::nothrow) cocos2d::SpriteFrame();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::SpriteFrame>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::SpriteFrame");
+    JS::RootedObject proto(cx, jsb_cocos2d_SpriteFrame_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_SpriteFrame_class, proto, &jsobj, "cocos2d::SpriteFrame");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -16369,7 +16344,7 @@ void js_register_cocos2dx_SpriteFrame(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_SpriteFrame_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_SpriteFrame_class,
@@ -16377,21 +16352,21 @@ void js_register_cocos2dx_SpriteFrame(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_SpriteFrame_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::SpriteFrame>(cx, jsb_cocos2d_SpriteFrame_class, proto);
+    jsb_cocos2d_SpriteFrame_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "SpriteFrame", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::SpriteFrame>(cx, jsb_cocos2d_SpriteFrame_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ActionInterval_class;
-JSObject *jsb_cocos2d_ActionInterval_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ActionInterval_prototype;
 
 bool js_cocos2dx_ActionInterval_getAmplitudeRate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -16477,7 +16452,7 @@ bool js_cocos2dx_ActionInterval_getElapsed(JSContext *cx, uint32_t argc, JS::Val
     return false;
 }
 
-extern JSObject *jsb_cocos2d_FiniteTimeAction_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_FiniteTimeAction_prototype;
 
 void js_register_cocos2dx_ActionInterval(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ActionInterval_classOps = {
@@ -16501,8 +16476,8 @@ void js_register_cocos2dx_ActionInterval(JSContext *cx, JS::HandleObject global)
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_FiniteTimeAction_prototype);
-    jsb_cocos2d_ActionInterval_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_FiniteTimeAction_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ActionInterval_class,
@@ -16510,20 +16485,20 @@ void js_register_cocos2dx_ActionInterval(JSContext *cx, JS::HandleObject global)
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ActionInterval_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ActionInterval>(cx, jsb_cocos2d_ActionInterval_class, proto);
+    jsb_cocos2d_ActionInterval_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ActionInterval", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ActionInterval>(cx, jsb_cocos2d_ActionInterval_class, proto);
 }
 
 JSClass  *jsb_cocos2d_Sequence_class;
-JSObject *jsb_cocos2d_Sequence_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Sequence_prototype;
 
 bool js_cocos2dx_Sequence_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -16595,11 +16570,10 @@ bool js_cocos2dx_Sequence_constructor(JSContext *cx, uint32_t argc, JS::Value *v
     bool ok = true;
     cocos2d::Sequence* cobj = new (std::nothrow) cocos2d::Sequence();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Sequence>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Sequence");
+    JS::RootedObject proto(cx, jsb_cocos2d_Sequence_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Sequence_class, proto, &jsobj, "cocos2d::Sequence");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -16628,7 +16602,7 @@ static bool js_cocos2dx_Sequence_ctor(JSContext *cx, uint32_t argc, JS::Value *v
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInterval_prototype;
 
     
 void js_register_cocos2dx_Sequence(JSContext *cx, JS::HandleObject global) {
@@ -16652,8 +16626,8 @@ void js_register_cocos2dx_Sequence(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
-    jsb_cocos2d_Sequence_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Sequence_class,
@@ -16661,21 +16635,21 @@ void js_register_cocos2dx_Sequence(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Sequence_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Sequence>(cx, jsb_cocos2d_Sequence_class, proto);
+    jsb_cocos2d_Sequence_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Sequence", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Sequence>(cx, jsb_cocos2d_Sequence_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_Repeat_class;
-JSObject *jsb_cocos2d_Repeat_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Repeat_prototype;
 
 bool js_cocos2dx_Repeat_setInnerAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -16770,11 +16744,10 @@ bool js_cocos2dx_Repeat_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::Repeat* cobj = new (std::nothrow) cocos2d::Repeat();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Repeat>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Repeat");
+    JS::RootedObject proto(cx, jsb_cocos2d_Repeat_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Repeat_class, proto, &jsobj, "cocos2d::Repeat");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -16803,7 +16776,7 @@ static bool js_cocos2dx_Repeat_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInterval_prototype;
 
     
 void js_register_cocos2dx_Repeat(JSContext *cx, JS::HandleObject global) {
@@ -16828,8 +16801,8 @@ void js_register_cocos2dx_Repeat(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
-    jsb_cocos2d_Repeat_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Repeat_class,
@@ -16837,21 +16810,21 @@ void js_register_cocos2dx_Repeat(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Repeat_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Repeat>(cx, jsb_cocos2d_Repeat_class, proto);
+    jsb_cocos2d_Repeat_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Repeat", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Repeat>(cx, jsb_cocos2d_Repeat_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_RepeatForever_class;
-JSObject *jsb_cocos2d_RepeatForever_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_RepeatForever_prototype;
 
 bool js_cocos2dx_RepeatForever_setInnerAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -16944,11 +16917,10 @@ bool js_cocos2dx_RepeatForever_constructor(JSContext *cx, uint32_t argc, JS::Val
     bool ok = true;
     cocos2d::RepeatForever* cobj = new (std::nothrow) cocos2d::RepeatForever();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::RepeatForever>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::RepeatForever");
+    JS::RootedObject proto(cx, jsb_cocos2d_RepeatForever_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_RepeatForever_class, proto, &jsobj, "cocos2d::RepeatForever");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -16977,7 +16949,7 @@ static bool js_cocos2dx_RepeatForever_ctor(JSContext *cx, uint32_t argc, JS::Val
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInterval_prototype;
 
     
 void js_register_cocos2dx_RepeatForever(JSContext *cx, JS::HandleObject global) {
@@ -17002,8 +16974,8 @@ void js_register_cocos2dx_RepeatForever(JSContext *cx, JS::HandleObject global) 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
-    jsb_cocos2d_RepeatForever_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_RepeatForever_class,
@@ -17011,21 +16983,21 @@ void js_register_cocos2dx_RepeatForever(JSContext *cx, JS::HandleObject global) 
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_RepeatForever_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::RepeatForever>(cx, jsb_cocos2d_RepeatForever_class, proto);
+    jsb_cocos2d_RepeatForever_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "RepeatForever", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::RepeatForever>(cx, jsb_cocos2d_RepeatForever_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_Spawn_class;
-JSObject *jsb_cocos2d_Spawn_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Spawn_prototype;
 
 bool js_cocos2dx_Spawn_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -17097,11 +17069,10 @@ bool js_cocos2dx_Spawn_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::Spawn* cobj = new (std::nothrow) cocos2d::Spawn();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Spawn>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Spawn");
+    JS::RootedObject proto(cx, jsb_cocos2d_Spawn_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Spawn_class, proto, &jsobj, "cocos2d::Spawn");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -17130,7 +17101,7 @@ static bool js_cocos2dx_Spawn_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInterval_prototype;
 
     
 void js_register_cocos2dx_Spawn(JSContext *cx, JS::HandleObject global) {
@@ -17154,8 +17125,8 @@ void js_register_cocos2dx_Spawn(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
-    jsb_cocos2d_Spawn_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Spawn_class,
@@ -17163,21 +17134,21 @@ void js_register_cocos2dx_Spawn(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Spawn_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Spawn>(cx, jsb_cocos2d_Spawn_class, proto);
+    jsb_cocos2d_Spawn_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Spawn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Spawn>(cx, jsb_cocos2d_Spawn_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_RotateTo_class;
-JSObject *jsb_cocos2d_RotateTo_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_RotateTo_prototype;
 
 bool js_cocos2dx_RotateTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -17269,11 +17240,10 @@ bool js_cocos2dx_RotateTo_constructor(JSContext *cx, uint32_t argc, JS::Value *v
     bool ok = true;
     cocos2d::RotateTo* cobj = new (std::nothrow) cocos2d::RotateTo();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::RotateTo>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::RotateTo");
+    JS::RootedObject proto(cx, jsb_cocos2d_RotateTo_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_RotateTo_class, proto, &jsobj, "cocos2d::RotateTo");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -17302,7 +17272,7 @@ static bool js_cocos2dx_RotateTo_ctor(JSContext *cx, uint32_t argc, JS::Value *v
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInterval_prototype;
 
     
 void js_register_cocos2dx_RotateTo(JSContext *cx, JS::HandleObject global) {
@@ -17330,8 +17300,8 @@ void js_register_cocos2dx_RotateTo(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
-    jsb_cocos2d_RotateTo_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_RotateTo_class,
@@ -17339,21 +17309,21 @@ void js_register_cocos2dx_RotateTo(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_RotateTo_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::RotateTo>(cx, jsb_cocos2d_RotateTo_class, proto);
+    jsb_cocos2d_RotateTo_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "RotateTo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::RotateTo>(cx, jsb_cocos2d_RotateTo_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_RotateBy_class;
-JSObject *jsb_cocos2d_RotateBy_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_RotateBy_prototype;
 
 bool js_cocos2dx_RotateBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -17471,11 +17441,10 @@ bool js_cocos2dx_RotateBy_constructor(JSContext *cx, uint32_t argc, JS::Value *v
     bool ok = true;
     cocos2d::RotateBy* cobj = new (std::nothrow) cocos2d::RotateBy();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::RotateBy>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::RotateBy");
+    JS::RootedObject proto(cx, jsb_cocos2d_RotateBy_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_RotateBy_class, proto, &jsobj, "cocos2d::RotateBy");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -17504,7 +17473,7 @@ static bool js_cocos2dx_RotateBy_ctor(JSContext *cx, uint32_t argc, JS::Value *v
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInterval_prototype;
 
     
 void js_register_cocos2dx_RotateBy(JSContext *cx, JS::HandleObject global) {
@@ -17532,8 +17501,8 @@ void js_register_cocos2dx_RotateBy(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
-    jsb_cocos2d_RotateBy_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_RotateBy_class,
@@ -17541,21 +17510,21 @@ void js_register_cocos2dx_RotateBy(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_RotateBy_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::RotateBy>(cx, jsb_cocos2d_RotateBy_class, proto);
+    jsb_cocos2d_RotateBy_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "RotateBy", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::RotateBy>(cx, jsb_cocos2d_RotateBy_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_MoveBy_class;
-JSObject *jsb_cocos2d_MoveBy_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_MoveBy_prototype;
 
 bool js_cocos2dx_MoveBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -17594,9 +17563,9 @@ bool js_cocos2dx_MoveBy_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MoveBy_create : Error processing arguments");
 
         auto ret = cocos2d::MoveBy::create(arg0, arg1);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::MoveBy>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::MoveBy");
+        JS::RootedObject proto(cx, jsb_cocos2d_MoveBy_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_MoveBy_class, proto, &jsret, "cocos2d::MoveBy");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -17610,11 +17579,10 @@ bool js_cocos2dx_MoveBy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::MoveBy* cobj = new (std::nothrow) cocos2d::MoveBy();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::MoveBy>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::MoveBy");
+    JS::RootedObject proto(cx, jsb_cocos2d_MoveBy_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_MoveBy_class, proto, &jsobj, "cocos2d::MoveBy");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -17643,7 +17611,7 @@ static bool js_cocos2dx_MoveBy_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInterval_prototype;
 
     
 void js_register_cocos2dx_MoveBy(JSContext *cx, JS::HandleObject global) {
@@ -17671,8 +17639,8 @@ void js_register_cocos2dx_MoveBy(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
-    jsb_cocos2d_MoveBy_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_MoveBy_class,
@@ -17680,21 +17648,21 @@ void js_register_cocos2dx_MoveBy(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_MoveBy_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::MoveBy>(cx, jsb_cocos2d_MoveBy_class, proto);
+    jsb_cocos2d_MoveBy_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "MoveBy", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::MoveBy>(cx, jsb_cocos2d_MoveBy_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_MoveTo_class;
-JSObject *jsb_cocos2d_MoveTo_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_MoveTo_prototype;
 
 bool js_cocos2dx_MoveTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -17733,9 +17701,9 @@ bool js_cocos2dx_MoveTo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_MoveTo_create : Error processing arguments");
 
         auto ret = cocos2d::MoveTo::create(arg0, arg1);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::MoveTo>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::MoveTo");
+        JS::RootedObject proto(cx, jsb_cocos2d_MoveTo_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_MoveTo_class, proto, &jsret, "cocos2d::MoveTo");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -17749,11 +17717,10 @@ bool js_cocos2dx_MoveTo_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::MoveTo* cobj = new (std::nothrow) cocos2d::MoveTo();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::MoveTo>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::MoveTo");
+    JS::RootedObject proto(cx, jsb_cocos2d_MoveTo_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_MoveTo_class, proto, &jsobj, "cocos2d::MoveTo");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -17782,7 +17749,7 @@ static bool js_cocos2dx_MoveTo_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_MoveBy_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_MoveBy_prototype;
 
     
 void js_register_cocos2dx_MoveTo(JSContext *cx, JS::HandleObject global) {
@@ -17810,8 +17777,8 @@ void js_register_cocos2dx_MoveTo(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_MoveBy_prototype);
-    jsb_cocos2d_MoveTo_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_MoveBy_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_MoveTo_class,
@@ -17819,21 +17786,21 @@ void js_register_cocos2dx_MoveTo(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_MoveTo_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::MoveTo>(cx, jsb_cocos2d_MoveTo_class, proto);
+    jsb_cocos2d_MoveTo_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "MoveTo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::MoveTo>(cx, jsb_cocos2d_MoveTo_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_SkewTo_class;
-JSObject *jsb_cocos2d_SkewTo_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_SkewTo_prototype;
 
 bool js_cocos2dx_SkewTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -17876,9 +17843,9 @@ bool js_cocos2dx_SkewTo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SkewTo_create : Error processing arguments");
 
         auto ret = cocos2d::SkewTo::create(arg0, arg1, arg2);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::SkewTo>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::SkewTo");
+        JS::RootedObject proto(cx, jsb_cocos2d_SkewTo_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_SkewTo_class, proto, &jsret, "cocos2d::SkewTo");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -17892,11 +17859,10 @@ bool js_cocos2dx_SkewTo_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::SkewTo* cobj = new (std::nothrow) cocos2d::SkewTo();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::SkewTo>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::SkewTo");
+    JS::RootedObject proto(cx, jsb_cocos2d_SkewTo_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_SkewTo_class, proto, &jsobj, "cocos2d::SkewTo");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -17925,7 +17891,7 @@ static bool js_cocos2dx_SkewTo_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInterval_prototype;
 
     
 void js_register_cocos2dx_SkewTo(JSContext *cx, JS::HandleObject global) {
@@ -17953,8 +17919,8 @@ void js_register_cocos2dx_SkewTo(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
-    jsb_cocos2d_SkewTo_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_SkewTo_class,
@@ -17962,21 +17928,21 @@ void js_register_cocos2dx_SkewTo(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_SkewTo_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::SkewTo>(cx, jsb_cocos2d_SkewTo_class, proto);
+    jsb_cocos2d_SkewTo_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "SkewTo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::SkewTo>(cx, jsb_cocos2d_SkewTo_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_SkewBy_class;
-JSObject *jsb_cocos2d_SkewBy_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_SkewBy_prototype;
 
 bool js_cocos2dx_SkewBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -18019,9 +17985,9 @@ bool js_cocos2dx_SkewBy_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SkewBy_create : Error processing arguments");
 
         auto ret = cocos2d::SkewBy::create(arg0, arg1, arg2);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::SkewBy>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::SkewBy");
+        JS::RootedObject proto(cx, jsb_cocos2d_SkewBy_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_SkewBy_class, proto, &jsret, "cocos2d::SkewBy");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -18035,11 +18001,10 @@ bool js_cocos2dx_SkewBy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::SkewBy* cobj = new (std::nothrow) cocos2d::SkewBy();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::SkewBy>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::SkewBy");
+    JS::RootedObject proto(cx, jsb_cocos2d_SkewBy_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_SkewBy_class, proto, &jsobj, "cocos2d::SkewBy");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -18068,7 +18033,7 @@ static bool js_cocos2dx_SkewBy_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_SkewTo_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_SkewTo_prototype;
 
     
 void js_register_cocos2dx_SkewBy(JSContext *cx, JS::HandleObject global) {
@@ -18096,8 +18061,8 @@ void js_register_cocos2dx_SkewBy(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_SkewTo_prototype);
-    jsb_cocos2d_SkewBy_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_SkewTo_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_SkewBy_class,
@@ -18105,21 +18070,21 @@ void js_register_cocos2dx_SkewBy(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_SkewBy_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::SkewBy>(cx, jsb_cocos2d_SkewBy_class, proto);
+    jsb_cocos2d_SkewBy_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "SkewBy", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::SkewBy>(cx, jsb_cocos2d_SkewBy_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_JumpBy_class;
-JSObject *jsb_cocos2d_JumpBy_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_JumpBy_prototype;
 
 bool js_cocos2dx_JumpBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -18166,9 +18131,9 @@ bool js_cocos2dx_JumpBy_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_JumpBy_create : Error processing arguments");
 
         auto ret = cocos2d::JumpBy::create(arg0, arg1, arg2, arg3);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::JumpBy>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::JumpBy");
+        JS::RootedObject proto(cx, jsb_cocos2d_JumpBy_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_JumpBy_class, proto, &jsret, "cocos2d::JumpBy");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -18182,11 +18147,10 @@ bool js_cocos2dx_JumpBy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::JumpBy* cobj = new (std::nothrow) cocos2d::JumpBy();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::JumpBy>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::JumpBy");
+    JS::RootedObject proto(cx, jsb_cocos2d_JumpBy_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_JumpBy_class, proto, &jsobj, "cocos2d::JumpBy");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -18215,7 +18179,7 @@ static bool js_cocos2dx_JumpBy_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInterval_prototype;
 
     
 void js_register_cocos2dx_JumpBy(JSContext *cx, JS::HandleObject global) {
@@ -18243,8 +18207,8 @@ void js_register_cocos2dx_JumpBy(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
-    jsb_cocos2d_JumpBy_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_JumpBy_class,
@@ -18252,21 +18216,21 @@ void js_register_cocos2dx_JumpBy(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_JumpBy_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::JumpBy>(cx, jsb_cocos2d_JumpBy_class, proto);
+    jsb_cocos2d_JumpBy_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "JumpBy", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::JumpBy>(cx, jsb_cocos2d_JumpBy_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_JumpTo_class;
-JSObject *jsb_cocos2d_JumpTo_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_JumpTo_prototype;
 
 bool js_cocos2dx_JumpTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -18313,9 +18277,9 @@ bool js_cocos2dx_JumpTo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_JumpTo_create : Error processing arguments");
 
         auto ret = cocos2d::JumpTo::create(arg0, arg1, arg2, arg3);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::JumpTo>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::JumpTo");
+        JS::RootedObject proto(cx, jsb_cocos2d_JumpTo_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_JumpTo_class, proto, &jsret, "cocos2d::JumpTo");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -18329,11 +18293,10 @@ bool js_cocos2dx_JumpTo_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::JumpTo* cobj = new (std::nothrow) cocos2d::JumpTo();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::JumpTo>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::JumpTo");
+    JS::RootedObject proto(cx, jsb_cocos2d_JumpTo_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_JumpTo_class, proto, &jsobj, "cocos2d::JumpTo");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -18362,7 +18325,7 @@ static bool js_cocos2dx_JumpTo_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_JumpBy_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_JumpBy_prototype;
 
     
 void js_register_cocos2dx_JumpTo(JSContext *cx, JS::HandleObject global) {
@@ -18390,8 +18353,8 @@ void js_register_cocos2dx_JumpTo(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_JumpBy_prototype);
-    jsb_cocos2d_JumpTo_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_JumpBy_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_JumpTo_class,
@@ -18399,21 +18362,21 @@ void js_register_cocos2dx_JumpTo(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_JumpTo_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::JumpTo>(cx, jsb_cocos2d_JumpTo_class, proto);
+    jsb_cocos2d_JumpTo_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "JumpTo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::JumpTo>(cx, jsb_cocos2d_JumpTo_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_BezierBy_class;
-JSObject *jsb_cocos2d_BezierBy_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_BezierBy_prototype;
 
 bool js_cocos2dx_BezierBy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -18421,11 +18384,10 @@ bool js_cocos2dx_BezierBy_constructor(JSContext *cx, uint32_t argc, JS::Value *v
     bool ok = true;
     cocos2d::BezierBy* cobj = new (std::nothrow) cocos2d::BezierBy();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::BezierBy>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::BezierBy");
+    JS::RootedObject proto(cx, jsb_cocos2d_BezierBy_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_BezierBy_class, proto, &jsobj, "cocos2d::BezierBy");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -18454,7 +18416,7 @@ static bool js_cocos2dx_BezierBy_ctor(JSContext *cx, uint32_t argc, JS::Value *v
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInterval_prototype;
 
     
 void js_register_cocos2dx_BezierBy(JSContext *cx, JS::HandleObject global) {
@@ -18476,8 +18438,8 @@ void js_register_cocos2dx_BezierBy(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
-    jsb_cocos2d_BezierBy_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_BezierBy_class,
@@ -18485,21 +18447,21 @@ void js_register_cocos2dx_BezierBy(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_BezierBy_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::BezierBy>(cx, jsb_cocos2d_BezierBy_class, proto);
+    jsb_cocos2d_BezierBy_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "BezierBy", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::BezierBy>(cx, jsb_cocos2d_BezierBy_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_BezierTo_class;
-JSObject *jsb_cocos2d_BezierTo_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_BezierTo_prototype;
 
 bool js_cocos2dx_BezierTo_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -18507,11 +18469,10 @@ bool js_cocos2dx_BezierTo_constructor(JSContext *cx, uint32_t argc, JS::Value *v
     bool ok = true;
     cocos2d::BezierTo* cobj = new (std::nothrow) cocos2d::BezierTo();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::BezierTo>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::BezierTo");
+    JS::RootedObject proto(cx, jsb_cocos2d_BezierTo_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_BezierTo_class, proto, &jsobj, "cocos2d::BezierTo");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -18540,7 +18501,7 @@ static bool js_cocos2dx_BezierTo_ctor(JSContext *cx, uint32_t argc, JS::Value *v
 }
 
 
-extern JSObject *jsb_cocos2d_BezierBy_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_BezierBy_prototype;
 
     
 void js_register_cocos2dx_BezierTo(JSContext *cx, JS::HandleObject global) {
@@ -18562,8 +18523,8 @@ void js_register_cocos2dx_BezierTo(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_BezierBy_prototype);
-    jsb_cocos2d_BezierTo_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_BezierBy_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_BezierTo_class,
@@ -18571,21 +18532,21 @@ void js_register_cocos2dx_BezierTo(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_BezierTo_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::BezierTo>(cx, jsb_cocos2d_BezierTo_class, proto);
+    jsb_cocos2d_BezierTo_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "BezierTo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::BezierTo>(cx, jsb_cocos2d_BezierTo_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ScaleTo_class;
-JSObject *jsb_cocos2d_ScaleTo_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ScaleTo_prototype;
 
 bool js_cocos2dx_ScaleTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -18757,11 +18718,10 @@ bool js_cocos2dx_ScaleTo_constructor(JSContext *cx, uint32_t argc, JS::Value *vp
     bool ok = true;
     cocos2d::ScaleTo* cobj = new (std::nothrow) cocos2d::ScaleTo();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ScaleTo>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ScaleTo");
+    JS::RootedObject proto(cx, jsb_cocos2d_ScaleTo_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ScaleTo_class, proto, &jsobj, "cocos2d::ScaleTo");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -18790,7 +18750,7 @@ static bool js_cocos2dx_ScaleTo_ctor(JSContext *cx, uint32_t argc, JS::Value *vp
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInterval_prototype;
 
     
 void js_register_cocos2dx_ScaleTo(JSContext *cx, JS::HandleObject global) {
@@ -18818,8 +18778,8 @@ void js_register_cocos2dx_ScaleTo(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
-    jsb_cocos2d_ScaleTo_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ScaleTo_class,
@@ -18827,21 +18787,21 @@ void js_register_cocos2dx_ScaleTo(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ScaleTo_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ScaleTo>(cx, jsb_cocos2d_ScaleTo_class, proto);
+    jsb_cocos2d_ScaleTo_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ScaleTo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ScaleTo>(cx, jsb_cocos2d_ScaleTo_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ScaleBy_class;
-JSObject *jsb_cocos2d_ScaleBy_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ScaleBy_prototype;
 
 bool js_cocos2dx_ScaleBy_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -18936,11 +18896,10 @@ bool js_cocos2dx_ScaleBy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp
     bool ok = true;
     cocos2d::ScaleBy* cobj = new (std::nothrow) cocos2d::ScaleBy();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ScaleBy>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ScaleBy");
+    JS::RootedObject proto(cx, jsb_cocos2d_ScaleBy_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ScaleBy_class, proto, &jsobj, "cocos2d::ScaleBy");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -18969,7 +18928,7 @@ static bool js_cocos2dx_ScaleBy_ctor(JSContext *cx, uint32_t argc, JS::Value *vp
 }
 
 
-extern JSObject *jsb_cocos2d_ScaleTo_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ScaleTo_prototype;
 
     
 void js_register_cocos2dx_ScaleBy(JSContext *cx, JS::HandleObject global) {
@@ -18996,8 +18955,8 @@ void js_register_cocos2dx_ScaleBy(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ScaleTo_prototype);
-    jsb_cocos2d_ScaleBy_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ScaleTo_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ScaleBy_class,
@@ -19005,21 +18964,21 @@ void js_register_cocos2dx_ScaleBy(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ScaleBy_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ScaleBy>(cx, jsb_cocos2d_ScaleBy_class, proto);
+    jsb_cocos2d_ScaleBy_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ScaleBy", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ScaleBy>(cx, jsb_cocos2d_ScaleBy_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_Blink_class;
-JSObject *jsb_cocos2d_Blink_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Blink_prototype;
 
 bool js_cocos2dx_Blink_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -19058,9 +19017,9 @@ bool js_cocos2dx_Blink_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Blink_create : Error processing arguments");
 
         auto ret = cocos2d::Blink::create(arg0, arg1);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Blink>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Blink");
+        JS::RootedObject proto(cx, jsb_cocos2d_Blink_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Blink_class, proto, &jsret, "cocos2d::Blink");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -19074,11 +19033,10 @@ bool js_cocos2dx_Blink_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::Blink* cobj = new (std::nothrow) cocos2d::Blink();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Blink>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Blink");
+    JS::RootedObject proto(cx, jsb_cocos2d_Blink_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Blink_class, proto, &jsobj, "cocos2d::Blink");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -19107,7 +19065,7 @@ static bool js_cocos2dx_Blink_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInterval_prototype;
 
     
 void js_register_cocos2dx_Blink(JSContext *cx, JS::HandleObject global) {
@@ -19135,8 +19093,8 @@ void js_register_cocos2dx_Blink(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
-    jsb_cocos2d_Blink_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Blink_class,
@@ -19144,21 +19102,21 @@ void js_register_cocos2dx_Blink(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Blink_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Blink>(cx, jsb_cocos2d_Blink_class, proto);
+    jsb_cocos2d_Blink_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Blink", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Blink>(cx, jsb_cocos2d_Blink_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_FadeTo_class;
-JSObject *jsb_cocos2d_FadeTo_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_FadeTo_prototype;
 
 bool js_cocos2dx_FadeTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -19197,9 +19155,9 @@ bool js_cocos2dx_FadeTo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FadeTo_create : Error processing arguments");
 
         auto ret = cocos2d::FadeTo::create(arg0, arg1);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::FadeTo>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::FadeTo");
+        JS::RootedObject proto(cx, jsb_cocos2d_FadeTo_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_FadeTo_class, proto, &jsret, "cocos2d::FadeTo");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -19213,11 +19171,10 @@ bool js_cocos2dx_FadeTo_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::FadeTo* cobj = new (std::nothrow) cocos2d::FadeTo();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::FadeTo>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::FadeTo");
+    JS::RootedObject proto(cx, jsb_cocos2d_FadeTo_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_FadeTo_class, proto, &jsobj, "cocos2d::FadeTo");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -19246,7 +19203,7 @@ static bool js_cocos2dx_FadeTo_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInterval_prototype;
 
     
 void js_register_cocos2dx_FadeTo(JSContext *cx, JS::HandleObject global) {
@@ -19274,8 +19231,8 @@ void js_register_cocos2dx_FadeTo(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
-    jsb_cocos2d_FadeTo_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_FadeTo_class,
@@ -19283,21 +19240,21 @@ void js_register_cocos2dx_FadeTo(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_FadeTo_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::FadeTo>(cx, jsb_cocos2d_FadeTo_class, proto);
+    jsb_cocos2d_FadeTo_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "FadeTo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::FadeTo>(cx, jsb_cocos2d_FadeTo_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_FadeIn_class;
-JSObject *jsb_cocos2d_FadeIn_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_FadeIn_prototype;
 
 bool js_cocos2dx_FadeIn_setReverseAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -19337,9 +19294,9 @@ bool js_cocos2dx_FadeIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FadeIn_create : Error processing arguments");
 
         auto ret = cocos2d::FadeIn::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::FadeIn>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::FadeIn");
+        JS::RootedObject proto(cx, jsb_cocos2d_FadeIn_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_FadeIn_class, proto, &jsret, "cocos2d::FadeIn");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -19353,11 +19310,10 @@ bool js_cocos2dx_FadeIn_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::FadeIn* cobj = new (std::nothrow) cocos2d::FadeIn();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::FadeIn>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::FadeIn");
+    JS::RootedObject proto(cx, jsb_cocos2d_FadeIn_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_FadeIn_class, proto, &jsobj, "cocos2d::FadeIn");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -19386,7 +19342,7 @@ static bool js_cocos2dx_FadeIn_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_FadeTo_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_FadeTo_prototype;
 
     
 void js_register_cocos2dx_FadeIn(JSContext *cx, JS::HandleObject global) {
@@ -19414,8 +19370,8 @@ void js_register_cocos2dx_FadeIn(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_FadeTo_prototype);
-    jsb_cocos2d_FadeIn_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_FadeTo_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_FadeIn_class,
@@ -19423,21 +19379,21 @@ void js_register_cocos2dx_FadeIn(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_FadeIn_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::FadeIn>(cx, jsb_cocos2d_FadeIn_class, proto);
+    jsb_cocos2d_FadeIn_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "FadeIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::FadeIn>(cx, jsb_cocos2d_FadeIn_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_FadeOut_class;
-JSObject *jsb_cocos2d_FadeOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_FadeOut_prototype;
 
 bool js_cocos2dx_FadeOut_setReverseAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -19477,9 +19433,9 @@ bool js_cocos2dx_FadeOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FadeOut_create : Error processing arguments");
 
         auto ret = cocos2d::FadeOut::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::FadeOut>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::FadeOut");
+        JS::RootedObject proto(cx, jsb_cocos2d_FadeOut_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_FadeOut_class, proto, &jsret, "cocos2d::FadeOut");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -19493,11 +19449,10 @@ bool js_cocos2dx_FadeOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp
     bool ok = true;
     cocos2d::FadeOut* cobj = new (std::nothrow) cocos2d::FadeOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::FadeOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::FadeOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_FadeOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_FadeOut_class, proto, &jsobj, "cocos2d::FadeOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -19526,7 +19481,7 @@ static bool js_cocos2dx_FadeOut_ctor(JSContext *cx, uint32_t argc, JS::Value *vp
 }
 
 
-extern JSObject *jsb_cocos2d_FadeTo_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_FadeTo_prototype;
 
     
 void js_register_cocos2dx_FadeOut(JSContext *cx, JS::HandleObject global) {
@@ -19554,8 +19509,8 @@ void js_register_cocos2dx_FadeOut(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_FadeTo_prototype);
-    jsb_cocos2d_FadeOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_FadeTo_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_FadeOut_class,
@@ -19563,21 +19518,21 @@ void js_register_cocos2dx_FadeOut(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_FadeOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::FadeOut>(cx, jsb_cocos2d_FadeOut_class, proto);
+    jsb_cocos2d_FadeOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "FadeOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::FadeOut>(cx, jsb_cocos2d_FadeOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_TintTo_class;
-JSObject *jsb_cocos2d_TintTo_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_TintTo_prototype;
 
 bool js_cocos2dx_TintTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -19674,11 +19629,10 @@ bool js_cocos2dx_TintTo_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::TintTo* cobj = new (std::nothrow) cocos2d::TintTo();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TintTo>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::TintTo");
+    JS::RootedObject proto(cx, jsb_cocos2d_TintTo_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_TintTo_class, proto, &jsobj, "cocos2d::TintTo");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -19707,7 +19661,7 @@ static bool js_cocos2dx_TintTo_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInterval_prototype;
 
     
 void js_register_cocos2dx_TintTo(JSContext *cx, JS::HandleObject global) {
@@ -19735,8 +19689,8 @@ void js_register_cocos2dx_TintTo(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
-    jsb_cocos2d_TintTo_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_TintTo_class,
@@ -19744,21 +19698,21 @@ void js_register_cocos2dx_TintTo(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_TintTo_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::TintTo>(cx, jsb_cocos2d_TintTo_class, proto);
+    jsb_cocos2d_TintTo_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TintTo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::TintTo>(cx, jsb_cocos2d_TintTo_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_TintBy_class;
-JSObject *jsb_cocos2d_TintBy_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_TintBy_prototype;
 
 bool js_cocos2dx_TintBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -19805,9 +19759,9 @@ bool js_cocos2dx_TintBy_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TintBy_create : Error processing arguments");
 
         auto ret = cocos2d::TintBy::create(arg0, arg1, arg2, arg3);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TintBy>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::TintBy");
+        JS::RootedObject proto(cx, jsb_cocos2d_TintBy_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_TintBy_class, proto, &jsret, "cocos2d::TintBy");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -19821,11 +19775,10 @@ bool js_cocos2dx_TintBy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::TintBy* cobj = new (std::nothrow) cocos2d::TintBy();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TintBy>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::TintBy");
+    JS::RootedObject proto(cx, jsb_cocos2d_TintBy_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_TintBy_class, proto, &jsobj, "cocos2d::TintBy");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -19854,7 +19807,7 @@ static bool js_cocos2dx_TintBy_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInterval_prototype;
 
     
 void js_register_cocos2dx_TintBy(JSContext *cx, JS::HandleObject global) {
@@ -19882,8 +19835,8 @@ void js_register_cocos2dx_TintBy(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
-    jsb_cocos2d_TintBy_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_TintBy_class,
@@ -19891,21 +19844,21 @@ void js_register_cocos2dx_TintBy(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_TintBy_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::TintBy>(cx, jsb_cocos2d_TintBy_class, proto);
+    jsb_cocos2d_TintBy_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TintBy", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::TintBy>(cx, jsb_cocos2d_TintBy_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_DelayTime_class;
-JSObject *jsb_cocos2d_DelayTime_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_DelayTime_prototype;
 
 bool js_cocos2dx_DelayTime_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -19917,9 +19870,9 @@ bool js_cocos2dx_DelayTime_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_DelayTime_create : Error processing arguments");
 
         auto ret = cocos2d::DelayTime::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::DelayTime>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::DelayTime");
+        JS::RootedObject proto(cx, jsb_cocos2d_DelayTime_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_DelayTime_class, proto, &jsret, "cocos2d::DelayTime");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -19933,11 +19886,10 @@ bool js_cocos2dx_DelayTime_constructor(JSContext *cx, uint32_t argc, JS::Value *
     bool ok = true;
     cocos2d::DelayTime* cobj = new (std::nothrow) cocos2d::DelayTime();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::DelayTime>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::DelayTime");
+    JS::RootedObject proto(cx, jsb_cocos2d_DelayTime_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_DelayTime_class, proto, &jsobj, "cocos2d::DelayTime");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -19966,7 +19918,7 @@ static bool js_cocos2dx_DelayTime_ctor(JSContext *cx, uint32_t argc, JS::Value *
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInterval_prototype;
 
     
 void js_register_cocos2dx_DelayTime(JSContext *cx, JS::HandleObject global) {
@@ -19993,8 +19945,8 @@ void js_register_cocos2dx_DelayTime(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
-    jsb_cocos2d_DelayTime_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_DelayTime_class,
@@ -20002,21 +19954,21 @@ void js_register_cocos2dx_DelayTime(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_DelayTime_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::DelayTime>(cx, jsb_cocos2d_DelayTime_class, proto);
+    jsb_cocos2d_DelayTime_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "DelayTime", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::DelayTime>(cx, jsb_cocos2d_DelayTime_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ReverseTime_class;
-JSObject *jsb_cocos2d_ReverseTime_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ReverseTime_prototype;
 
 bool js_cocos2dx_ReverseTime_initWithAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -20067,9 +20019,9 @@ bool js_cocos2dx_ReverseTime_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ReverseTime_create : Error processing arguments");
 
         auto ret = cocos2d::ReverseTime::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ReverseTime>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ReverseTime");
+        JS::RootedObject proto(cx, jsb_cocos2d_ReverseTime_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ReverseTime_class, proto, &jsret, "cocos2d::ReverseTime");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -20083,11 +20035,10 @@ bool js_cocos2dx_ReverseTime_constructor(JSContext *cx, uint32_t argc, JS::Value
     bool ok = true;
     cocos2d::ReverseTime* cobj = new (std::nothrow) cocos2d::ReverseTime();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ReverseTime>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ReverseTime");
+    JS::RootedObject proto(cx, jsb_cocos2d_ReverseTime_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ReverseTime_class, proto, &jsobj, "cocos2d::ReverseTime");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -20116,7 +20067,7 @@ static bool js_cocos2dx_ReverseTime_ctor(JSContext *cx, uint32_t argc, JS::Value
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInterval_prototype;
 
     
 void js_register_cocos2dx_ReverseTime(JSContext *cx, JS::HandleObject global) {
@@ -20144,8 +20095,8 @@ void js_register_cocos2dx_ReverseTime(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
-    jsb_cocos2d_ReverseTime_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ReverseTime_class,
@@ -20153,21 +20104,21 @@ void js_register_cocos2dx_ReverseTime(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ReverseTime_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ReverseTime>(cx, jsb_cocos2d_ReverseTime_class, proto);
+    jsb_cocos2d_ReverseTime_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ReverseTime", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ReverseTime>(cx, jsb_cocos2d_ReverseTime_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_TargetedAction_class;
-JSObject *jsb_cocos2d_TargetedAction_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_TargetedAction_prototype;
 
 bool js_cocos2dx_TargetedAction_getForcedTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -20294,11 +20245,10 @@ bool js_cocos2dx_TargetedAction_constructor(JSContext *cx, uint32_t argc, JS::Va
     bool ok = true;
     cocos2d::TargetedAction* cobj = new (std::nothrow) cocos2d::TargetedAction();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TargetedAction>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::TargetedAction");
+    JS::RootedObject proto(cx, jsb_cocos2d_TargetedAction_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_TargetedAction_class, proto, &jsobj, "cocos2d::TargetedAction");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -20327,7 +20277,7 @@ static bool js_cocos2dx_TargetedAction_ctor(JSContext *cx, uint32_t argc, JS::Va
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInterval_prototype;
 
     
 void js_register_cocos2dx_TargetedAction(JSContext *cx, JS::HandleObject global) {
@@ -20352,8 +20302,8 @@ void js_register_cocos2dx_TargetedAction(JSContext *cx, JS::HandleObject global)
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
-    jsb_cocos2d_TargetedAction_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_TargetedAction_class,
@@ -20361,21 +20311,21 @@ void js_register_cocos2dx_TargetedAction(JSContext *cx, JS::HandleObject global)
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_TargetedAction_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::TargetedAction>(cx, jsb_cocos2d_TargetedAction_class, proto);
+    jsb_cocos2d_TargetedAction_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TargetedAction", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::TargetedAction>(cx, jsb_cocos2d_TargetedAction_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_CardinalSplineTo_class;
-JSObject *jsb_cocos2d_CardinalSplineTo_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_CardinalSplineTo_prototype;
 
 bool js_cocos2dx_CardinalSplineTo_getPoints(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -20429,11 +20379,10 @@ bool js_cocos2dx_CardinalSplineTo_constructor(JSContext *cx, uint32_t argc, JS::
     bool ok = true;
     cocos2d::CardinalSplineTo* cobj = new (std::nothrow) cocos2d::CardinalSplineTo();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::CardinalSplineTo>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::CardinalSplineTo");
+    JS::RootedObject proto(cx, jsb_cocos2d_CardinalSplineTo_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_CardinalSplineTo_class, proto, &jsobj, "cocos2d::CardinalSplineTo");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -20445,7 +20394,7 @@ bool js_cocos2dx_CardinalSplineTo_constructor(JSContext *cx, uint32_t argc, JS::
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInterval_prototype;
 
 void js_register_cocos2dx_CardinalSplineTo(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_CardinalSplineTo_classOps = {
@@ -20467,8 +20416,8 @@ void js_register_cocos2dx_CardinalSplineTo(JSContext *cx, JS::HandleObject globa
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
-    jsb_cocos2d_CardinalSplineTo_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_CardinalSplineTo_class,
@@ -20476,20 +20425,20 @@ void js_register_cocos2dx_CardinalSplineTo(JSContext *cx, JS::HandleObject globa
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_CardinalSplineTo_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::CardinalSplineTo>(cx, jsb_cocos2d_CardinalSplineTo_class, proto);
+    jsb_cocos2d_CardinalSplineTo_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "CardinalSplineTo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::CardinalSplineTo>(cx, jsb_cocos2d_CardinalSplineTo_class, proto);
 }
 
 JSClass  *jsb_cocos2d_CardinalSplineBy_class;
-JSObject *jsb_cocos2d_CardinalSplineBy_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_CardinalSplineBy_prototype;
 
 bool js_cocos2dx_CardinalSplineBy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -20497,11 +20446,10 @@ bool js_cocos2dx_CardinalSplineBy_constructor(JSContext *cx, uint32_t argc, JS::
     bool ok = true;
     cocos2d::CardinalSplineBy* cobj = new (std::nothrow) cocos2d::CardinalSplineBy();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::CardinalSplineBy>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::CardinalSplineBy");
+    JS::RootedObject proto(cx, jsb_cocos2d_CardinalSplineBy_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_CardinalSplineBy_class, proto, &jsobj, "cocos2d::CardinalSplineBy");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -20513,7 +20461,7 @@ bool js_cocos2dx_CardinalSplineBy_constructor(JSContext *cx, uint32_t argc, JS::
 }
 
 
-extern JSObject *jsb_cocos2d_CardinalSplineTo_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_CardinalSplineTo_prototype;
 
 void js_register_cocos2dx_CardinalSplineBy(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_CardinalSplineBy_classOps = {
@@ -20529,8 +20477,8 @@ void js_register_cocos2dx_CardinalSplineBy(JSContext *cx, JS::HandleObject globa
     };
     jsb_cocos2d_CardinalSplineBy_class = &cocos2d_CardinalSplineBy_class;
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_CardinalSplineTo_prototype);
-    jsb_cocos2d_CardinalSplineBy_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_CardinalSplineTo_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_CardinalSplineBy_class,
@@ -20538,23 +20486,23 @@ void js_register_cocos2dx_CardinalSplineBy(JSContext *cx, JS::HandleObject globa
         nullptr,
         nullptr,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_CardinalSplineBy_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::CardinalSplineBy>(cx, jsb_cocos2d_CardinalSplineBy_class, proto);
+    jsb_cocos2d_CardinalSplineBy_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "CardinalSplineBy", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::CardinalSplineBy>(cx, jsb_cocos2d_CardinalSplineBy_class, proto);
 }
 
 JSClass  *jsb_cocos2d_CatmullRomTo_class;
-JSObject *jsb_cocos2d_CatmullRomTo_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_CatmullRomTo_prototype;
 
 
-extern JSObject *jsb_cocos2d_CardinalSplineTo_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_CardinalSplineTo_prototype;
 
 void js_register_cocos2dx_CatmullRomTo(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_CatmullRomTo_classOps = {
@@ -20570,8 +20518,8 @@ void js_register_cocos2dx_CatmullRomTo(JSContext *cx, JS::HandleObject global) {
     };
     jsb_cocos2d_CatmullRomTo_class = &cocos2d_CatmullRomTo_class;
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_CardinalSplineTo_prototype);
-    jsb_cocos2d_CatmullRomTo_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_CardinalSplineTo_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_CatmullRomTo_class,
@@ -20579,23 +20527,23 @@ void js_register_cocos2dx_CatmullRomTo(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_CatmullRomTo_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::CatmullRomTo>(cx, jsb_cocos2d_CatmullRomTo_class, proto);
+    jsb_cocos2d_CatmullRomTo_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "CatmullRomTo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::CatmullRomTo>(cx, jsb_cocos2d_CatmullRomTo_class, proto);
 }
 
 JSClass  *jsb_cocos2d_CatmullRomBy_class;
-JSObject *jsb_cocos2d_CatmullRomBy_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_CatmullRomBy_prototype;
 
 
-extern JSObject *jsb_cocos2d_CardinalSplineBy_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_CardinalSplineBy_prototype;
 
 void js_register_cocos2dx_CatmullRomBy(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_CatmullRomBy_classOps = {
@@ -20611,8 +20559,8 @@ void js_register_cocos2dx_CatmullRomBy(JSContext *cx, JS::HandleObject global) {
     };
     jsb_cocos2d_CatmullRomBy_class = &cocos2d_CatmullRomBy_class;
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_CardinalSplineBy_prototype);
-    jsb_cocos2d_CatmullRomBy_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_CardinalSplineBy_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_CatmullRomBy_class,
@@ -20620,20 +20568,20 @@ void js_register_cocos2dx_CatmullRomBy(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_CatmullRomBy_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::CatmullRomBy>(cx, jsb_cocos2d_CatmullRomBy_class, proto);
+    jsb_cocos2d_CatmullRomBy_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "CatmullRomBy", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::CatmullRomBy>(cx, jsb_cocos2d_CatmullRomBy_class, proto);
 }
 
 JSClass  *jsb_cocos2d_ActionEase_class;
-JSObject *jsb_cocos2d_ActionEase_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
 bool js_cocos2dx_ActionEase_initWithAction(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -20693,7 +20641,7 @@ bool js_cocos2dx_ActionEase_getInnerAction(JSContext *cx, uint32_t argc, JS::Val
     return false;
 }
 
-extern JSObject *jsb_cocos2d_ActionInterval_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInterval_prototype;
 
 void js_register_cocos2dx_ActionEase(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ActionEase_classOps = {
@@ -20715,8 +20663,8 @@ void js_register_cocos2dx_ActionEase(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype);
-    jsb_cocos2d_ActionEase_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInterval_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ActionEase_class,
@@ -20724,20 +20672,20 @@ void js_register_cocos2dx_ActionEase(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ActionEase_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ActionEase>(cx, jsb_cocos2d_ActionEase_class, proto);
+    jsb_cocos2d_ActionEase_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ActionEase", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ActionEase>(cx, jsb_cocos2d_ActionEase_class, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseRateAction_class;
-JSObject *jsb_cocos2d_EaseRateAction_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseRateAction_prototype;
 
 bool js_cocos2dx_EaseRateAction_setRate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -20832,9 +20780,9 @@ bool js_cocos2dx_EaseRateAction_create(JSContext *cx, uint32_t argc, JS::Value *
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseRateAction_create : Error processing arguments");
 
         auto ret = cocos2d::EaseRateAction::create(arg0, arg1);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseRateAction>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseRateAction");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseRateAction_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseRateAction_class, proto, &jsret, "cocos2d::EaseRateAction");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -20843,7 +20791,7 @@ bool js_cocos2dx_EaseRateAction_create(JSContext *cx, uint32_t argc, JS::Value *
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
 void js_register_cocos2dx_EaseRateAction(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_EaseRateAction_classOps = {
@@ -20871,8 +20819,8 @@ void js_register_cocos2dx_EaseRateAction(JSContext *cx, JS::HandleObject global)
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseRateAction_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseRateAction_class,
@@ -20880,20 +20828,20 @@ void js_register_cocos2dx_EaseRateAction(JSContext *cx, JS::HandleObject global)
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseRateAction_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseRateAction>(cx, jsb_cocos2d_EaseRateAction_class, proto);
+    jsb_cocos2d_EaseRateAction_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseRateAction", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseRateAction>(cx, jsb_cocos2d_EaseRateAction_class, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseIn_class;
-JSObject *jsb_cocos2d_EaseIn_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseIn_prototype;
 
 bool js_cocos2dx_EaseIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -20915,9 +20863,9 @@ bool js_cocos2dx_EaseIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseIn_create : Error processing arguments");
 
         auto ret = cocos2d::EaseIn::create(arg0, arg1);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseIn>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseIn");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseIn_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseIn_class, proto, &jsret, "cocos2d::EaseIn");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -20931,11 +20879,10 @@ bool js_cocos2dx_EaseIn_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::EaseIn* cobj = new (std::nothrow) cocos2d::EaseIn();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseIn>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseIn");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseIn_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseIn_class, proto, &jsobj, "cocos2d::EaseIn");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -20964,7 +20911,7 @@ static bool js_cocos2dx_EaseIn_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_EaseRateAction_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_EaseRateAction_prototype;
 
     
 void js_register_cocos2dx_EaseIn(JSContext *cx, JS::HandleObject global) {
@@ -20991,8 +20938,8 @@ void js_register_cocos2dx_EaseIn(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseRateAction_prototype);
-    jsb_cocos2d_EaseIn_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseRateAction_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseIn_class,
@@ -21000,21 +20947,21 @@ void js_register_cocos2dx_EaseIn(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseIn_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseIn>(cx, jsb_cocos2d_EaseIn_class, proto);
+    jsb_cocos2d_EaseIn_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseIn>(cx, jsb_cocos2d_EaseIn_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseOut_class;
-JSObject *jsb_cocos2d_EaseOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseOut_prototype;
 
 bool js_cocos2dx_EaseOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -21036,9 +20983,9 @@ bool js_cocos2dx_EaseOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseOut_create : Error processing arguments");
 
         auto ret = cocos2d::EaseOut::create(arg0, arg1);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseOut>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseOut");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseOut_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseOut_class, proto, &jsret, "cocos2d::EaseOut");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -21052,11 +20999,10 @@ bool js_cocos2dx_EaseOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp
     bool ok = true;
     cocos2d::EaseOut* cobj = new (std::nothrow) cocos2d::EaseOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseOut_class, proto, &jsobj, "cocos2d::EaseOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -21085,7 +21031,7 @@ static bool js_cocos2dx_EaseOut_ctor(JSContext *cx, uint32_t argc, JS::Value *vp
 }
 
 
-extern JSObject *jsb_cocos2d_EaseRateAction_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_EaseRateAction_prototype;
 
     
 void js_register_cocos2dx_EaseOut(JSContext *cx, JS::HandleObject global) {
@@ -21112,8 +21058,8 @@ void js_register_cocos2dx_EaseOut(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseRateAction_prototype);
-    jsb_cocos2d_EaseOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseRateAction_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseOut_class,
@@ -21121,21 +21067,21 @@ void js_register_cocos2dx_EaseOut(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseOut>(cx, jsb_cocos2d_EaseOut_class, proto);
+    jsb_cocos2d_EaseOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseOut>(cx, jsb_cocos2d_EaseOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseInOut_class;
-JSObject *jsb_cocos2d_EaseInOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseInOut_prototype;
 
 bool js_cocos2dx_EaseInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -21157,9 +21103,9 @@ bool js_cocos2dx_EaseInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseInOut_create : Error processing arguments");
 
         auto ret = cocos2d::EaseInOut::create(arg0, arg1);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseInOut>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseInOut");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseInOut_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseInOut_class, proto, &jsret, "cocos2d::EaseInOut");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -21173,11 +21119,10 @@ bool js_cocos2dx_EaseInOut_constructor(JSContext *cx, uint32_t argc, JS::Value *
     bool ok = true;
     cocos2d::EaseInOut* cobj = new (std::nothrow) cocos2d::EaseInOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseInOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseInOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseInOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseInOut_class, proto, &jsobj, "cocos2d::EaseInOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -21206,7 +21151,7 @@ static bool js_cocos2dx_EaseInOut_ctor(JSContext *cx, uint32_t argc, JS::Value *
 }
 
 
-extern JSObject *jsb_cocos2d_EaseRateAction_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_EaseRateAction_prototype;
 
     
 void js_register_cocos2dx_EaseInOut(JSContext *cx, JS::HandleObject global) {
@@ -21233,8 +21178,8 @@ void js_register_cocos2dx_EaseInOut(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseRateAction_prototype);
-    jsb_cocos2d_EaseInOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseRateAction_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseInOut_class,
@@ -21242,21 +21187,21 @@ void js_register_cocos2dx_EaseInOut(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseInOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseInOut>(cx, jsb_cocos2d_EaseInOut_class, proto);
+    jsb_cocos2d_EaseInOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseInOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseInOut>(cx, jsb_cocos2d_EaseInOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseExponentialIn_class;
-JSObject *jsb_cocos2d_EaseExponentialIn_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseExponentialIn_prototype;
 
 bool js_cocos2dx_EaseExponentialIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -21276,9 +21221,9 @@ bool js_cocos2dx_EaseExponentialIn_create(JSContext *cx, uint32_t argc, JS::Valu
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseExponentialIn_create : Error processing arguments");
 
         auto ret = cocos2d::EaseExponentialIn::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseExponentialIn>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseExponentialIn");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseExponentialIn_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseExponentialIn_class, proto, &jsret, "cocos2d::EaseExponentialIn");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -21292,11 +21237,10 @@ bool js_cocos2dx_EaseExponentialIn_constructor(JSContext *cx, uint32_t argc, JS:
     bool ok = true;
     cocos2d::EaseExponentialIn* cobj = new (std::nothrow) cocos2d::EaseExponentialIn();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseExponentialIn>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseExponentialIn");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseExponentialIn_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseExponentialIn_class, proto, &jsobj, "cocos2d::EaseExponentialIn");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -21325,7 +21269,7 @@ static bool js_cocos2dx_EaseExponentialIn_ctor(JSContext *cx, uint32_t argc, JS:
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseExponentialIn(JSContext *cx, JS::HandleObject global) {
@@ -21352,8 +21296,8 @@ void js_register_cocos2dx_EaseExponentialIn(JSContext *cx, JS::HandleObject glob
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseExponentialIn_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseExponentialIn_class,
@@ -21361,21 +21305,21 @@ void js_register_cocos2dx_EaseExponentialIn(JSContext *cx, JS::HandleObject glob
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseExponentialIn_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseExponentialIn>(cx, jsb_cocos2d_EaseExponentialIn_class, proto);
+    jsb_cocos2d_EaseExponentialIn_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseExponentialIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseExponentialIn>(cx, jsb_cocos2d_EaseExponentialIn_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseExponentialOut_class;
-JSObject *jsb_cocos2d_EaseExponentialOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseExponentialOut_prototype;
 
 bool js_cocos2dx_EaseExponentialOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -21395,9 +21339,9 @@ bool js_cocos2dx_EaseExponentialOut_create(JSContext *cx, uint32_t argc, JS::Val
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseExponentialOut_create : Error processing arguments");
 
         auto ret = cocos2d::EaseExponentialOut::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseExponentialOut>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseExponentialOut");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseExponentialOut_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseExponentialOut_class, proto, &jsret, "cocos2d::EaseExponentialOut");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -21411,11 +21355,10 @@ bool js_cocos2dx_EaseExponentialOut_constructor(JSContext *cx, uint32_t argc, JS
     bool ok = true;
     cocos2d::EaseExponentialOut* cobj = new (std::nothrow) cocos2d::EaseExponentialOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseExponentialOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseExponentialOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseExponentialOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseExponentialOut_class, proto, &jsobj, "cocos2d::EaseExponentialOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -21444,7 +21387,7 @@ static bool js_cocos2dx_EaseExponentialOut_ctor(JSContext *cx, uint32_t argc, JS
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseExponentialOut(JSContext *cx, JS::HandleObject global) {
@@ -21471,8 +21414,8 @@ void js_register_cocos2dx_EaseExponentialOut(JSContext *cx, JS::HandleObject glo
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseExponentialOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseExponentialOut_class,
@@ -21480,21 +21423,21 @@ void js_register_cocos2dx_EaseExponentialOut(JSContext *cx, JS::HandleObject glo
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseExponentialOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseExponentialOut>(cx, jsb_cocos2d_EaseExponentialOut_class, proto);
+    jsb_cocos2d_EaseExponentialOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseExponentialOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseExponentialOut>(cx, jsb_cocos2d_EaseExponentialOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseExponentialInOut_class;
-JSObject *jsb_cocos2d_EaseExponentialInOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseExponentialInOut_prototype;
 
 bool js_cocos2dx_EaseExponentialInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -21514,9 +21457,9 @@ bool js_cocos2dx_EaseExponentialInOut_create(JSContext *cx, uint32_t argc, JS::V
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseExponentialInOut_create : Error processing arguments");
 
         auto ret = cocos2d::EaseExponentialInOut::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseExponentialInOut>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseExponentialInOut");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseExponentialInOut_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseExponentialInOut_class, proto, &jsret, "cocos2d::EaseExponentialInOut");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -21530,11 +21473,10 @@ bool js_cocos2dx_EaseExponentialInOut_constructor(JSContext *cx, uint32_t argc, 
     bool ok = true;
     cocos2d::EaseExponentialInOut* cobj = new (std::nothrow) cocos2d::EaseExponentialInOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseExponentialInOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseExponentialInOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseExponentialInOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseExponentialInOut_class, proto, &jsobj, "cocos2d::EaseExponentialInOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -21563,7 +21505,7 @@ static bool js_cocos2dx_EaseExponentialInOut_ctor(JSContext *cx, uint32_t argc, 
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseExponentialInOut(JSContext *cx, JS::HandleObject global) {
@@ -21590,8 +21532,8 @@ void js_register_cocos2dx_EaseExponentialInOut(JSContext *cx, JS::HandleObject g
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseExponentialInOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseExponentialInOut_class,
@@ -21599,21 +21541,21 @@ void js_register_cocos2dx_EaseExponentialInOut(JSContext *cx, JS::HandleObject g
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseExponentialInOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseExponentialInOut>(cx, jsb_cocos2d_EaseExponentialInOut_class, proto);
+    jsb_cocos2d_EaseExponentialInOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseExponentialInOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseExponentialInOut>(cx, jsb_cocos2d_EaseExponentialInOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseSineIn_class;
-JSObject *jsb_cocos2d_EaseSineIn_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseSineIn_prototype;
 
 bool js_cocos2dx_EaseSineIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -21633,9 +21575,9 @@ bool js_cocos2dx_EaseSineIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseSineIn_create : Error processing arguments");
 
         auto ret = cocos2d::EaseSineIn::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseSineIn>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseSineIn");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseSineIn_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseSineIn_class, proto, &jsret, "cocos2d::EaseSineIn");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -21649,11 +21591,10 @@ bool js_cocos2dx_EaseSineIn_constructor(JSContext *cx, uint32_t argc, JS::Value 
     bool ok = true;
     cocos2d::EaseSineIn* cobj = new (std::nothrow) cocos2d::EaseSineIn();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseSineIn>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseSineIn");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseSineIn_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseSineIn_class, proto, &jsobj, "cocos2d::EaseSineIn");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -21682,7 +21623,7 @@ static bool js_cocos2dx_EaseSineIn_ctor(JSContext *cx, uint32_t argc, JS::Value 
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseSineIn(JSContext *cx, JS::HandleObject global) {
@@ -21709,8 +21650,8 @@ void js_register_cocos2dx_EaseSineIn(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseSineIn_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseSineIn_class,
@@ -21718,21 +21659,21 @@ void js_register_cocos2dx_EaseSineIn(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseSineIn_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseSineIn>(cx, jsb_cocos2d_EaseSineIn_class, proto);
+    jsb_cocos2d_EaseSineIn_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseSineIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseSineIn>(cx, jsb_cocos2d_EaseSineIn_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseSineOut_class;
-JSObject *jsb_cocos2d_EaseSineOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseSineOut_prototype;
 
 bool js_cocos2dx_EaseSineOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -21752,9 +21693,9 @@ bool js_cocos2dx_EaseSineOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseSineOut_create : Error processing arguments");
 
         auto ret = cocos2d::EaseSineOut::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseSineOut>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseSineOut");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseSineOut_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseSineOut_class, proto, &jsret, "cocos2d::EaseSineOut");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -21768,11 +21709,10 @@ bool js_cocos2dx_EaseSineOut_constructor(JSContext *cx, uint32_t argc, JS::Value
     bool ok = true;
     cocos2d::EaseSineOut* cobj = new (std::nothrow) cocos2d::EaseSineOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseSineOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseSineOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseSineOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseSineOut_class, proto, &jsobj, "cocos2d::EaseSineOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -21801,7 +21741,7 @@ static bool js_cocos2dx_EaseSineOut_ctor(JSContext *cx, uint32_t argc, JS::Value
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseSineOut(JSContext *cx, JS::HandleObject global) {
@@ -21828,8 +21768,8 @@ void js_register_cocos2dx_EaseSineOut(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseSineOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseSineOut_class,
@@ -21837,21 +21777,21 @@ void js_register_cocos2dx_EaseSineOut(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseSineOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseSineOut>(cx, jsb_cocos2d_EaseSineOut_class, proto);
+    jsb_cocos2d_EaseSineOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseSineOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseSineOut>(cx, jsb_cocos2d_EaseSineOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseSineInOut_class;
-JSObject *jsb_cocos2d_EaseSineInOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseSineInOut_prototype;
 
 bool js_cocos2dx_EaseSineInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -21871,9 +21811,9 @@ bool js_cocos2dx_EaseSineInOut_create(JSContext *cx, uint32_t argc, JS::Value *v
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseSineInOut_create : Error processing arguments");
 
         auto ret = cocos2d::EaseSineInOut::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseSineInOut>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseSineInOut");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseSineInOut_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseSineInOut_class, proto, &jsret, "cocos2d::EaseSineInOut");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -21887,11 +21827,10 @@ bool js_cocos2dx_EaseSineInOut_constructor(JSContext *cx, uint32_t argc, JS::Val
     bool ok = true;
     cocos2d::EaseSineInOut* cobj = new (std::nothrow) cocos2d::EaseSineInOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseSineInOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseSineInOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseSineInOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseSineInOut_class, proto, &jsobj, "cocos2d::EaseSineInOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -21920,7 +21859,7 @@ static bool js_cocos2dx_EaseSineInOut_ctor(JSContext *cx, uint32_t argc, JS::Val
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseSineInOut(JSContext *cx, JS::HandleObject global) {
@@ -21947,8 +21886,8 @@ void js_register_cocos2dx_EaseSineInOut(JSContext *cx, JS::HandleObject global) 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseSineInOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseSineInOut_class,
@@ -21956,21 +21895,21 @@ void js_register_cocos2dx_EaseSineInOut(JSContext *cx, JS::HandleObject global) 
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseSineInOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseSineInOut>(cx, jsb_cocos2d_EaseSineInOut_class, proto);
+    jsb_cocos2d_EaseSineInOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseSineInOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseSineInOut>(cx, jsb_cocos2d_EaseSineInOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseElastic_class;
-JSObject *jsb_cocos2d_EaseElastic_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseElastic_prototype;
 
 bool js_cocos2dx_EaseElastic_setPeriod(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -22065,7 +22004,7 @@ bool js_cocos2dx_EaseElastic_getPeriod(JSContext *cx, uint32_t argc, JS::Value *
     return false;
 }
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
 void js_register_cocos2dx_EaseElastic(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_EaseElastic_classOps = {
@@ -22088,8 +22027,8 @@ void js_register_cocos2dx_EaseElastic(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseElastic_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseElastic_class,
@@ -22097,20 +22036,20 @@ void js_register_cocos2dx_EaseElastic(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseElastic_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseElastic>(cx, jsb_cocos2d_EaseElastic_class, proto);
+    jsb_cocos2d_EaseElastic_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseElastic", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseElastic>(cx, jsb_cocos2d_EaseElastic_class, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseElasticIn_class;
-JSObject *jsb_cocos2d_EaseElasticIn_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseElasticIn_prototype;
 
 bool js_cocos2dx_EaseElasticIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -22185,11 +22124,10 @@ bool js_cocos2dx_EaseElasticIn_constructor(JSContext *cx, uint32_t argc, JS::Val
     bool ok = true;
     cocos2d::EaseElasticIn* cobj = new (std::nothrow) cocos2d::EaseElasticIn();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseElasticIn>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseElasticIn");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseElasticIn_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseElasticIn_class, proto, &jsobj, "cocos2d::EaseElasticIn");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -22218,7 +22156,7 @@ static bool js_cocos2dx_EaseElasticIn_ctor(JSContext *cx, uint32_t argc, JS::Val
 }
 
 
-extern JSObject *jsb_cocos2d_EaseElastic_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_EaseElastic_prototype;
 
     
 void js_register_cocos2dx_EaseElasticIn(JSContext *cx, JS::HandleObject global) {
@@ -22245,8 +22183,8 @@ void js_register_cocos2dx_EaseElasticIn(JSContext *cx, JS::HandleObject global) 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseElastic_prototype);
-    jsb_cocos2d_EaseElasticIn_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseElastic_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseElasticIn_class,
@@ -22254,21 +22192,21 @@ void js_register_cocos2dx_EaseElasticIn(JSContext *cx, JS::HandleObject global) 
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseElasticIn_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseElasticIn>(cx, jsb_cocos2d_EaseElasticIn_class, proto);
+    jsb_cocos2d_EaseElasticIn_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseElasticIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseElasticIn>(cx, jsb_cocos2d_EaseElasticIn_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseElasticOut_class;
-JSObject *jsb_cocos2d_EaseElasticOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseElasticOut_prototype;
 
 bool js_cocos2dx_EaseElasticOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -22343,11 +22281,10 @@ bool js_cocos2dx_EaseElasticOut_constructor(JSContext *cx, uint32_t argc, JS::Va
     bool ok = true;
     cocos2d::EaseElasticOut* cobj = new (std::nothrow) cocos2d::EaseElasticOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseElasticOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseElasticOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseElasticOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseElasticOut_class, proto, &jsobj, "cocos2d::EaseElasticOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -22376,7 +22313,7 @@ static bool js_cocos2dx_EaseElasticOut_ctor(JSContext *cx, uint32_t argc, JS::Va
 }
 
 
-extern JSObject *jsb_cocos2d_EaseElastic_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_EaseElastic_prototype;
 
     
 void js_register_cocos2dx_EaseElasticOut(JSContext *cx, JS::HandleObject global) {
@@ -22403,8 +22340,8 @@ void js_register_cocos2dx_EaseElasticOut(JSContext *cx, JS::HandleObject global)
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseElastic_prototype);
-    jsb_cocos2d_EaseElasticOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseElastic_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseElasticOut_class,
@@ -22412,21 +22349,21 @@ void js_register_cocos2dx_EaseElasticOut(JSContext *cx, JS::HandleObject global)
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseElasticOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseElasticOut>(cx, jsb_cocos2d_EaseElasticOut_class, proto);
+    jsb_cocos2d_EaseElasticOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseElasticOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseElasticOut>(cx, jsb_cocos2d_EaseElasticOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseElasticInOut_class;
-JSObject *jsb_cocos2d_EaseElasticInOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseElasticInOut_prototype;
 
 bool js_cocos2dx_EaseElasticInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -22501,11 +22438,10 @@ bool js_cocos2dx_EaseElasticInOut_constructor(JSContext *cx, uint32_t argc, JS::
     bool ok = true;
     cocos2d::EaseElasticInOut* cobj = new (std::nothrow) cocos2d::EaseElasticInOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseElasticInOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseElasticInOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseElasticInOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseElasticInOut_class, proto, &jsobj, "cocos2d::EaseElasticInOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -22534,7 +22470,7 @@ static bool js_cocos2dx_EaseElasticInOut_ctor(JSContext *cx, uint32_t argc, JS::
 }
 
 
-extern JSObject *jsb_cocos2d_EaseElastic_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_EaseElastic_prototype;
 
     
 void js_register_cocos2dx_EaseElasticInOut(JSContext *cx, JS::HandleObject global) {
@@ -22561,8 +22497,8 @@ void js_register_cocos2dx_EaseElasticInOut(JSContext *cx, JS::HandleObject globa
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseElastic_prototype);
-    jsb_cocos2d_EaseElasticInOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseElastic_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseElasticInOut_class,
@@ -22570,24 +22506,24 @@ void js_register_cocos2dx_EaseElasticInOut(JSContext *cx, JS::HandleObject globa
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseElasticInOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseElasticInOut>(cx, jsb_cocos2d_EaseElasticInOut_class, proto);
+    jsb_cocos2d_EaseElasticInOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseElasticInOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseElasticInOut>(cx, jsb_cocos2d_EaseElasticInOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseBounce_class;
-JSObject *jsb_cocos2d_EaseBounce_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseBounce_prototype;
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
 void js_register_cocos2dx_EaseBounce(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_EaseBounce_classOps = {
@@ -22603,8 +22539,8 @@ void js_register_cocos2dx_EaseBounce(JSContext *cx, JS::HandleObject global) {
     };
     jsb_cocos2d_EaseBounce_class = &cocos2d_EaseBounce_class;
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseBounce_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseBounce_class,
@@ -22612,20 +22548,20 @@ void js_register_cocos2dx_EaseBounce(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseBounce_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseBounce>(cx, jsb_cocos2d_EaseBounce_class, proto);
+    jsb_cocos2d_EaseBounce_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseBounce", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseBounce>(cx, jsb_cocos2d_EaseBounce_class, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseBounceIn_class;
-JSObject *jsb_cocos2d_EaseBounceIn_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseBounceIn_prototype;
 
 bool js_cocos2dx_EaseBounceIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -22645,9 +22581,9 @@ bool js_cocos2dx_EaseBounceIn_create(JSContext *cx, uint32_t argc, JS::Value *vp
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseBounceIn_create : Error processing arguments");
 
         auto ret = cocos2d::EaseBounceIn::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBounceIn>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseBounceIn");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseBounceIn_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseBounceIn_class, proto, &jsret, "cocos2d::EaseBounceIn");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -22661,11 +22597,10 @@ bool js_cocos2dx_EaseBounceIn_constructor(JSContext *cx, uint32_t argc, JS::Valu
     bool ok = true;
     cocos2d::EaseBounceIn* cobj = new (std::nothrow) cocos2d::EaseBounceIn();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBounceIn>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseBounceIn");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseBounceIn_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseBounceIn_class, proto, &jsobj, "cocos2d::EaseBounceIn");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -22694,7 +22629,7 @@ static bool js_cocos2dx_EaseBounceIn_ctor(JSContext *cx, uint32_t argc, JS::Valu
 }
 
 
-extern JSObject *jsb_cocos2d_EaseBounce_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_EaseBounce_prototype;
 
     
 void js_register_cocos2dx_EaseBounceIn(JSContext *cx, JS::HandleObject global) {
@@ -22721,8 +22656,8 @@ void js_register_cocos2dx_EaseBounceIn(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseBounce_prototype);
-    jsb_cocos2d_EaseBounceIn_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseBounce_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseBounceIn_class,
@@ -22730,21 +22665,21 @@ void js_register_cocos2dx_EaseBounceIn(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseBounceIn_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseBounceIn>(cx, jsb_cocos2d_EaseBounceIn_class, proto);
+    jsb_cocos2d_EaseBounceIn_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseBounceIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseBounceIn>(cx, jsb_cocos2d_EaseBounceIn_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseBounceOut_class;
-JSObject *jsb_cocos2d_EaseBounceOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseBounceOut_prototype;
 
 bool js_cocos2dx_EaseBounceOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -22764,9 +22699,9 @@ bool js_cocos2dx_EaseBounceOut_create(JSContext *cx, uint32_t argc, JS::Value *v
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseBounceOut_create : Error processing arguments");
 
         auto ret = cocos2d::EaseBounceOut::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBounceOut>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseBounceOut");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseBounceOut_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseBounceOut_class, proto, &jsret, "cocos2d::EaseBounceOut");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -22780,11 +22715,10 @@ bool js_cocos2dx_EaseBounceOut_constructor(JSContext *cx, uint32_t argc, JS::Val
     bool ok = true;
     cocos2d::EaseBounceOut* cobj = new (std::nothrow) cocos2d::EaseBounceOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBounceOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseBounceOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseBounceOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseBounceOut_class, proto, &jsobj, "cocos2d::EaseBounceOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -22813,7 +22747,7 @@ static bool js_cocos2dx_EaseBounceOut_ctor(JSContext *cx, uint32_t argc, JS::Val
 }
 
 
-extern JSObject *jsb_cocos2d_EaseBounce_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_EaseBounce_prototype;
 
     
 void js_register_cocos2dx_EaseBounceOut(JSContext *cx, JS::HandleObject global) {
@@ -22840,8 +22774,8 @@ void js_register_cocos2dx_EaseBounceOut(JSContext *cx, JS::HandleObject global) 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseBounce_prototype);
-    jsb_cocos2d_EaseBounceOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseBounce_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseBounceOut_class,
@@ -22849,21 +22783,21 @@ void js_register_cocos2dx_EaseBounceOut(JSContext *cx, JS::HandleObject global) 
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseBounceOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseBounceOut>(cx, jsb_cocos2d_EaseBounceOut_class, proto);
+    jsb_cocos2d_EaseBounceOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseBounceOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseBounceOut>(cx, jsb_cocos2d_EaseBounceOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseBounceInOut_class;
-JSObject *jsb_cocos2d_EaseBounceInOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseBounceInOut_prototype;
 
 bool js_cocos2dx_EaseBounceInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -22883,9 +22817,9 @@ bool js_cocos2dx_EaseBounceInOut_create(JSContext *cx, uint32_t argc, JS::Value 
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseBounceInOut_create : Error processing arguments");
 
         auto ret = cocos2d::EaseBounceInOut::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBounceInOut>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseBounceInOut");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseBounceInOut_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseBounceInOut_class, proto, &jsret, "cocos2d::EaseBounceInOut");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -22899,11 +22833,10 @@ bool js_cocos2dx_EaseBounceInOut_constructor(JSContext *cx, uint32_t argc, JS::V
     bool ok = true;
     cocos2d::EaseBounceInOut* cobj = new (std::nothrow) cocos2d::EaseBounceInOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBounceInOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseBounceInOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseBounceInOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseBounceInOut_class, proto, &jsobj, "cocos2d::EaseBounceInOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -22932,7 +22865,7 @@ static bool js_cocos2dx_EaseBounceInOut_ctor(JSContext *cx, uint32_t argc, JS::V
 }
 
 
-extern JSObject *jsb_cocos2d_EaseBounce_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_EaseBounce_prototype;
 
     
 void js_register_cocos2dx_EaseBounceInOut(JSContext *cx, JS::HandleObject global) {
@@ -22959,8 +22892,8 @@ void js_register_cocos2dx_EaseBounceInOut(JSContext *cx, JS::HandleObject global
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseBounce_prototype);
-    jsb_cocos2d_EaseBounceInOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_EaseBounce_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseBounceInOut_class,
@@ -22968,21 +22901,21 @@ void js_register_cocos2dx_EaseBounceInOut(JSContext *cx, JS::HandleObject global
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseBounceInOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseBounceInOut>(cx, jsb_cocos2d_EaseBounceInOut_class, proto);
+    jsb_cocos2d_EaseBounceInOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseBounceInOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseBounceInOut>(cx, jsb_cocos2d_EaseBounceInOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseBackIn_class;
-JSObject *jsb_cocos2d_EaseBackIn_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseBackIn_prototype;
 
 bool js_cocos2dx_EaseBackIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -23002,9 +22935,9 @@ bool js_cocos2dx_EaseBackIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseBackIn_create : Error processing arguments");
 
         auto ret = cocos2d::EaseBackIn::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBackIn>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseBackIn");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseBackIn_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseBackIn_class, proto, &jsret, "cocos2d::EaseBackIn");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -23018,11 +22951,10 @@ bool js_cocos2dx_EaseBackIn_constructor(JSContext *cx, uint32_t argc, JS::Value 
     bool ok = true;
     cocos2d::EaseBackIn* cobj = new (std::nothrow) cocos2d::EaseBackIn();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBackIn>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseBackIn");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseBackIn_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseBackIn_class, proto, &jsobj, "cocos2d::EaseBackIn");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -23051,7 +22983,7 @@ static bool js_cocos2dx_EaseBackIn_ctor(JSContext *cx, uint32_t argc, JS::Value 
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseBackIn(JSContext *cx, JS::HandleObject global) {
@@ -23078,8 +23010,8 @@ void js_register_cocos2dx_EaseBackIn(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseBackIn_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseBackIn_class,
@@ -23087,21 +23019,21 @@ void js_register_cocos2dx_EaseBackIn(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseBackIn_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseBackIn>(cx, jsb_cocos2d_EaseBackIn_class, proto);
+    jsb_cocos2d_EaseBackIn_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseBackIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseBackIn>(cx, jsb_cocos2d_EaseBackIn_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseBackOut_class;
-JSObject *jsb_cocos2d_EaseBackOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseBackOut_prototype;
 
 bool js_cocos2dx_EaseBackOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -23121,9 +23053,9 @@ bool js_cocos2dx_EaseBackOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseBackOut_create : Error processing arguments");
 
         auto ret = cocos2d::EaseBackOut::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBackOut>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseBackOut");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseBackOut_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseBackOut_class, proto, &jsret, "cocos2d::EaseBackOut");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -23137,11 +23069,10 @@ bool js_cocos2dx_EaseBackOut_constructor(JSContext *cx, uint32_t argc, JS::Value
     bool ok = true;
     cocos2d::EaseBackOut* cobj = new (std::nothrow) cocos2d::EaseBackOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBackOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseBackOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseBackOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseBackOut_class, proto, &jsobj, "cocos2d::EaseBackOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -23170,7 +23101,7 @@ static bool js_cocos2dx_EaseBackOut_ctor(JSContext *cx, uint32_t argc, JS::Value
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseBackOut(JSContext *cx, JS::HandleObject global) {
@@ -23197,8 +23128,8 @@ void js_register_cocos2dx_EaseBackOut(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseBackOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseBackOut_class,
@@ -23206,21 +23137,21 @@ void js_register_cocos2dx_EaseBackOut(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseBackOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseBackOut>(cx, jsb_cocos2d_EaseBackOut_class, proto);
+    jsb_cocos2d_EaseBackOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseBackOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseBackOut>(cx, jsb_cocos2d_EaseBackOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseBackInOut_class;
-JSObject *jsb_cocos2d_EaseBackInOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseBackInOut_prototype;
 
 bool js_cocos2dx_EaseBackInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -23240,9 +23171,9 @@ bool js_cocos2dx_EaseBackInOut_create(JSContext *cx, uint32_t argc, JS::Value *v
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseBackInOut_create : Error processing arguments");
 
         auto ret = cocos2d::EaseBackInOut::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBackInOut>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseBackInOut");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseBackInOut_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseBackInOut_class, proto, &jsret, "cocos2d::EaseBackInOut");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -23256,11 +23187,10 @@ bool js_cocos2dx_EaseBackInOut_constructor(JSContext *cx, uint32_t argc, JS::Val
     bool ok = true;
     cocos2d::EaseBackInOut* cobj = new (std::nothrow) cocos2d::EaseBackInOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBackInOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseBackInOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseBackInOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseBackInOut_class, proto, &jsobj, "cocos2d::EaseBackInOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -23289,7 +23219,7 @@ static bool js_cocos2dx_EaseBackInOut_ctor(JSContext *cx, uint32_t argc, JS::Val
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseBackInOut(JSContext *cx, JS::HandleObject global) {
@@ -23316,8 +23246,8 @@ void js_register_cocos2dx_EaseBackInOut(JSContext *cx, JS::HandleObject global) 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseBackInOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseBackInOut_class,
@@ -23325,21 +23255,21 @@ void js_register_cocos2dx_EaseBackInOut(JSContext *cx, JS::HandleObject global) 
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseBackInOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseBackInOut>(cx, jsb_cocos2d_EaseBackInOut_class, proto);
+    jsb_cocos2d_EaseBackInOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseBackInOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseBackInOut>(cx, jsb_cocos2d_EaseBackInOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseBezierAction_class;
-JSObject *jsb_cocos2d_EaseBezierAction_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseBezierAction_prototype;
 
 bool js_cocos2dx_EaseBezierAction_setBezierParamer(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -23385,9 +23315,9 @@ bool js_cocos2dx_EaseBezierAction_create(JSContext *cx, uint32_t argc, JS::Value
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseBezierAction_create : Error processing arguments");
 
         auto ret = cocos2d::EaseBezierAction::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBezierAction>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseBezierAction");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseBezierAction_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseBezierAction_class, proto, &jsret, "cocos2d::EaseBezierAction");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -23401,11 +23331,10 @@ bool js_cocos2dx_EaseBezierAction_constructor(JSContext *cx, uint32_t argc, JS::
     bool ok = true;
     cocos2d::EaseBezierAction* cobj = new (std::nothrow) cocos2d::EaseBezierAction();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseBezierAction>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseBezierAction");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseBezierAction_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseBezierAction_class, proto, &jsobj, "cocos2d::EaseBezierAction");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -23434,7 +23363,7 @@ static bool js_cocos2dx_EaseBezierAction_ctor(JSContext *cx, uint32_t argc, JS::
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseBezierAction(JSContext *cx, JS::HandleObject global) {
@@ -23462,8 +23391,8 @@ void js_register_cocos2dx_EaseBezierAction(JSContext *cx, JS::HandleObject globa
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseBezierAction_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseBezierAction_class,
@@ -23471,21 +23400,21 @@ void js_register_cocos2dx_EaseBezierAction(JSContext *cx, JS::HandleObject globa
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseBezierAction_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseBezierAction>(cx, jsb_cocos2d_EaseBezierAction_class, proto);
+    jsb_cocos2d_EaseBezierAction_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseBezierAction", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseBezierAction>(cx, jsb_cocos2d_EaseBezierAction_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseQuadraticActionIn_class;
-JSObject *jsb_cocos2d_EaseQuadraticActionIn_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseQuadraticActionIn_prototype;
 
 bool js_cocos2dx_EaseQuadraticActionIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -23505,9 +23434,9 @@ bool js_cocos2dx_EaseQuadraticActionIn_create(JSContext *cx, uint32_t argc, JS::
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseQuadraticActionIn_create : Error processing arguments");
 
         auto ret = cocos2d::EaseQuadraticActionIn::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuadraticActionIn>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseQuadraticActionIn");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseQuadraticActionIn_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseQuadraticActionIn_class, proto, &jsret, "cocos2d::EaseQuadraticActionIn");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -23521,11 +23450,10 @@ bool js_cocos2dx_EaseQuadraticActionIn_constructor(JSContext *cx, uint32_t argc,
     bool ok = true;
     cocos2d::EaseQuadraticActionIn* cobj = new (std::nothrow) cocos2d::EaseQuadraticActionIn();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuadraticActionIn>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseQuadraticActionIn");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuadraticActionIn_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseQuadraticActionIn_class, proto, &jsobj, "cocos2d::EaseQuadraticActionIn");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -23554,7 +23482,7 @@ static bool js_cocos2dx_EaseQuadraticActionIn_ctor(JSContext *cx, uint32_t argc,
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseQuadraticActionIn(JSContext *cx, JS::HandleObject global) {
@@ -23581,8 +23509,8 @@ void js_register_cocos2dx_EaseQuadraticActionIn(JSContext *cx, JS::HandleObject 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseQuadraticActionIn_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseQuadraticActionIn_class,
@@ -23590,21 +23518,21 @@ void js_register_cocos2dx_EaseQuadraticActionIn(JSContext *cx, JS::HandleObject 
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuadraticActionIn_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseQuadraticActionIn>(cx, jsb_cocos2d_EaseQuadraticActionIn_class, proto);
+    jsb_cocos2d_EaseQuadraticActionIn_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseQuadraticActionIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseQuadraticActionIn>(cx, jsb_cocos2d_EaseQuadraticActionIn_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseQuadraticActionOut_class;
-JSObject *jsb_cocos2d_EaseQuadraticActionOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseQuadraticActionOut_prototype;
 
 bool js_cocos2dx_EaseQuadraticActionOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -23624,9 +23552,9 @@ bool js_cocos2dx_EaseQuadraticActionOut_create(JSContext *cx, uint32_t argc, JS:
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseQuadraticActionOut_create : Error processing arguments");
 
         auto ret = cocos2d::EaseQuadraticActionOut::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuadraticActionOut>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseQuadraticActionOut");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseQuadraticActionOut_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseQuadraticActionOut_class, proto, &jsret, "cocos2d::EaseQuadraticActionOut");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -23640,11 +23568,10 @@ bool js_cocos2dx_EaseQuadraticActionOut_constructor(JSContext *cx, uint32_t argc
     bool ok = true;
     cocos2d::EaseQuadraticActionOut* cobj = new (std::nothrow) cocos2d::EaseQuadraticActionOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuadraticActionOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseQuadraticActionOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuadraticActionOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseQuadraticActionOut_class, proto, &jsobj, "cocos2d::EaseQuadraticActionOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -23673,7 +23600,7 @@ static bool js_cocos2dx_EaseQuadraticActionOut_ctor(JSContext *cx, uint32_t argc
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseQuadraticActionOut(JSContext *cx, JS::HandleObject global) {
@@ -23700,8 +23627,8 @@ void js_register_cocos2dx_EaseQuadraticActionOut(JSContext *cx, JS::HandleObject
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseQuadraticActionOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseQuadraticActionOut_class,
@@ -23709,21 +23636,21 @@ void js_register_cocos2dx_EaseQuadraticActionOut(JSContext *cx, JS::HandleObject
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuadraticActionOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseQuadraticActionOut>(cx, jsb_cocos2d_EaseQuadraticActionOut_class, proto);
+    jsb_cocos2d_EaseQuadraticActionOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseQuadraticActionOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseQuadraticActionOut>(cx, jsb_cocos2d_EaseQuadraticActionOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseQuadraticActionInOut_class;
-JSObject *jsb_cocos2d_EaseQuadraticActionInOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseQuadraticActionInOut_prototype;
 
 bool js_cocos2dx_EaseQuadraticActionInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -23743,9 +23670,9 @@ bool js_cocos2dx_EaseQuadraticActionInOut_create(JSContext *cx, uint32_t argc, J
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseQuadraticActionInOut_create : Error processing arguments");
 
         auto ret = cocos2d::EaseQuadraticActionInOut::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuadraticActionInOut>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseQuadraticActionInOut");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseQuadraticActionInOut_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseQuadraticActionInOut_class, proto, &jsret, "cocos2d::EaseQuadraticActionInOut");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -23759,11 +23686,10 @@ bool js_cocos2dx_EaseQuadraticActionInOut_constructor(JSContext *cx, uint32_t ar
     bool ok = true;
     cocos2d::EaseQuadraticActionInOut* cobj = new (std::nothrow) cocos2d::EaseQuadraticActionInOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuadraticActionInOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseQuadraticActionInOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuadraticActionInOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseQuadraticActionInOut_class, proto, &jsobj, "cocos2d::EaseQuadraticActionInOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -23792,7 +23718,7 @@ static bool js_cocos2dx_EaseQuadraticActionInOut_ctor(JSContext *cx, uint32_t ar
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseQuadraticActionInOut(JSContext *cx, JS::HandleObject global) {
@@ -23819,8 +23745,8 @@ void js_register_cocos2dx_EaseQuadraticActionInOut(JSContext *cx, JS::HandleObje
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseQuadraticActionInOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseQuadraticActionInOut_class,
@@ -23828,21 +23754,21 @@ void js_register_cocos2dx_EaseQuadraticActionInOut(JSContext *cx, JS::HandleObje
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuadraticActionInOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseQuadraticActionInOut>(cx, jsb_cocos2d_EaseQuadraticActionInOut_class, proto);
+    jsb_cocos2d_EaseQuadraticActionInOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseQuadraticActionInOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseQuadraticActionInOut>(cx, jsb_cocos2d_EaseQuadraticActionInOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseQuarticActionIn_class;
-JSObject *jsb_cocos2d_EaseQuarticActionIn_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseQuarticActionIn_prototype;
 
 bool js_cocos2dx_EaseQuarticActionIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -23862,9 +23788,9 @@ bool js_cocos2dx_EaseQuarticActionIn_create(JSContext *cx, uint32_t argc, JS::Va
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseQuarticActionIn_create : Error processing arguments");
 
         auto ret = cocos2d::EaseQuarticActionIn::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuarticActionIn>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseQuarticActionIn");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseQuarticActionIn_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseQuarticActionIn_class, proto, &jsret, "cocos2d::EaseQuarticActionIn");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -23878,11 +23804,10 @@ bool js_cocos2dx_EaseQuarticActionIn_constructor(JSContext *cx, uint32_t argc, J
     bool ok = true;
     cocos2d::EaseQuarticActionIn* cobj = new (std::nothrow) cocos2d::EaseQuarticActionIn();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuarticActionIn>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseQuarticActionIn");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuarticActionIn_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseQuarticActionIn_class, proto, &jsobj, "cocos2d::EaseQuarticActionIn");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -23911,7 +23836,7 @@ static bool js_cocos2dx_EaseQuarticActionIn_ctor(JSContext *cx, uint32_t argc, J
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseQuarticActionIn(JSContext *cx, JS::HandleObject global) {
@@ -23938,8 +23863,8 @@ void js_register_cocos2dx_EaseQuarticActionIn(JSContext *cx, JS::HandleObject gl
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseQuarticActionIn_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseQuarticActionIn_class,
@@ -23947,21 +23872,21 @@ void js_register_cocos2dx_EaseQuarticActionIn(JSContext *cx, JS::HandleObject gl
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuarticActionIn_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseQuarticActionIn>(cx, jsb_cocos2d_EaseQuarticActionIn_class, proto);
+    jsb_cocos2d_EaseQuarticActionIn_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseQuarticActionIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseQuarticActionIn>(cx, jsb_cocos2d_EaseQuarticActionIn_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseQuarticActionOut_class;
-JSObject *jsb_cocos2d_EaseQuarticActionOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseQuarticActionOut_prototype;
 
 bool js_cocos2dx_EaseQuarticActionOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -23981,9 +23906,9 @@ bool js_cocos2dx_EaseQuarticActionOut_create(JSContext *cx, uint32_t argc, JS::V
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseQuarticActionOut_create : Error processing arguments");
 
         auto ret = cocos2d::EaseQuarticActionOut::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuarticActionOut>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseQuarticActionOut");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseQuarticActionOut_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseQuarticActionOut_class, proto, &jsret, "cocos2d::EaseQuarticActionOut");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -23997,11 +23922,10 @@ bool js_cocos2dx_EaseQuarticActionOut_constructor(JSContext *cx, uint32_t argc, 
     bool ok = true;
     cocos2d::EaseQuarticActionOut* cobj = new (std::nothrow) cocos2d::EaseQuarticActionOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuarticActionOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseQuarticActionOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuarticActionOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseQuarticActionOut_class, proto, &jsobj, "cocos2d::EaseQuarticActionOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -24030,7 +23954,7 @@ static bool js_cocos2dx_EaseQuarticActionOut_ctor(JSContext *cx, uint32_t argc, 
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseQuarticActionOut(JSContext *cx, JS::HandleObject global) {
@@ -24057,8 +23981,8 @@ void js_register_cocos2dx_EaseQuarticActionOut(JSContext *cx, JS::HandleObject g
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseQuarticActionOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseQuarticActionOut_class,
@@ -24066,21 +23990,21 @@ void js_register_cocos2dx_EaseQuarticActionOut(JSContext *cx, JS::HandleObject g
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuarticActionOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseQuarticActionOut>(cx, jsb_cocos2d_EaseQuarticActionOut_class, proto);
+    jsb_cocos2d_EaseQuarticActionOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseQuarticActionOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseQuarticActionOut>(cx, jsb_cocos2d_EaseQuarticActionOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseQuarticActionInOut_class;
-JSObject *jsb_cocos2d_EaseQuarticActionInOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseQuarticActionInOut_prototype;
 
 bool js_cocos2dx_EaseQuarticActionInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -24100,9 +24024,9 @@ bool js_cocos2dx_EaseQuarticActionInOut_create(JSContext *cx, uint32_t argc, JS:
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseQuarticActionInOut_create : Error processing arguments");
 
         auto ret = cocos2d::EaseQuarticActionInOut::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuarticActionInOut>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseQuarticActionInOut");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseQuarticActionInOut_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseQuarticActionInOut_class, proto, &jsret, "cocos2d::EaseQuarticActionInOut");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -24116,11 +24040,10 @@ bool js_cocos2dx_EaseQuarticActionInOut_constructor(JSContext *cx, uint32_t argc
     bool ok = true;
     cocos2d::EaseQuarticActionInOut* cobj = new (std::nothrow) cocos2d::EaseQuarticActionInOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuarticActionInOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseQuarticActionInOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuarticActionInOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseQuarticActionInOut_class, proto, &jsobj, "cocos2d::EaseQuarticActionInOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -24149,7 +24072,7 @@ static bool js_cocos2dx_EaseQuarticActionInOut_ctor(JSContext *cx, uint32_t argc
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseQuarticActionInOut(JSContext *cx, JS::HandleObject global) {
@@ -24176,8 +24099,8 @@ void js_register_cocos2dx_EaseQuarticActionInOut(JSContext *cx, JS::HandleObject
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseQuarticActionInOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseQuarticActionInOut_class,
@@ -24185,21 +24108,21 @@ void js_register_cocos2dx_EaseQuarticActionInOut(JSContext *cx, JS::HandleObject
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuarticActionInOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseQuarticActionInOut>(cx, jsb_cocos2d_EaseQuarticActionInOut_class, proto);
+    jsb_cocos2d_EaseQuarticActionInOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseQuarticActionInOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseQuarticActionInOut>(cx, jsb_cocos2d_EaseQuarticActionInOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseQuinticActionIn_class;
-JSObject *jsb_cocos2d_EaseQuinticActionIn_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseQuinticActionIn_prototype;
 
 bool js_cocos2dx_EaseQuinticActionIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -24219,9 +24142,9 @@ bool js_cocos2dx_EaseQuinticActionIn_create(JSContext *cx, uint32_t argc, JS::Va
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseQuinticActionIn_create : Error processing arguments");
 
         auto ret = cocos2d::EaseQuinticActionIn::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuinticActionIn>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseQuinticActionIn");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseQuinticActionIn_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseQuinticActionIn_class, proto, &jsret, "cocos2d::EaseQuinticActionIn");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -24235,11 +24158,10 @@ bool js_cocos2dx_EaseQuinticActionIn_constructor(JSContext *cx, uint32_t argc, J
     bool ok = true;
     cocos2d::EaseQuinticActionIn* cobj = new (std::nothrow) cocos2d::EaseQuinticActionIn();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuinticActionIn>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseQuinticActionIn");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuinticActionIn_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseQuinticActionIn_class, proto, &jsobj, "cocos2d::EaseQuinticActionIn");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -24268,7 +24190,7 @@ static bool js_cocos2dx_EaseQuinticActionIn_ctor(JSContext *cx, uint32_t argc, J
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseQuinticActionIn(JSContext *cx, JS::HandleObject global) {
@@ -24295,8 +24217,8 @@ void js_register_cocos2dx_EaseQuinticActionIn(JSContext *cx, JS::HandleObject gl
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseQuinticActionIn_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseQuinticActionIn_class,
@@ -24304,21 +24226,21 @@ void js_register_cocos2dx_EaseQuinticActionIn(JSContext *cx, JS::HandleObject gl
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuinticActionIn_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseQuinticActionIn>(cx, jsb_cocos2d_EaseQuinticActionIn_class, proto);
+    jsb_cocos2d_EaseQuinticActionIn_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseQuinticActionIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseQuinticActionIn>(cx, jsb_cocos2d_EaseQuinticActionIn_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseQuinticActionOut_class;
-JSObject *jsb_cocos2d_EaseQuinticActionOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseQuinticActionOut_prototype;
 
 bool js_cocos2dx_EaseQuinticActionOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -24338,9 +24260,9 @@ bool js_cocos2dx_EaseQuinticActionOut_create(JSContext *cx, uint32_t argc, JS::V
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseQuinticActionOut_create : Error processing arguments");
 
         auto ret = cocos2d::EaseQuinticActionOut::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuinticActionOut>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseQuinticActionOut");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseQuinticActionOut_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseQuinticActionOut_class, proto, &jsret, "cocos2d::EaseQuinticActionOut");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -24354,11 +24276,10 @@ bool js_cocos2dx_EaseQuinticActionOut_constructor(JSContext *cx, uint32_t argc, 
     bool ok = true;
     cocos2d::EaseQuinticActionOut* cobj = new (std::nothrow) cocos2d::EaseQuinticActionOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuinticActionOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseQuinticActionOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuinticActionOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseQuinticActionOut_class, proto, &jsobj, "cocos2d::EaseQuinticActionOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -24387,7 +24308,7 @@ static bool js_cocos2dx_EaseQuinticActionOut_ctor(JSContext *cx, uint32_t argc, 
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseQuinticActionOut(JSContext *cx, JS::HandleObject global) {
@@ -24414,8 +24335,8 @@ void js_register_cocos2dx_EaseQuinticActionOut(JSContext *cx, JS::HandleObject g
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseQuinticActionOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseQuinticActionOut_class,
@@ -24423,21 +24344,21 @@ void js_register_cocos2dx_EaseQuinticActionOut(JSContext *cx, JS::HandleObject g
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuinticActionOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseQuinticActionOut>(cx, jsb_cocos2d_EaseQuinticActionOut_class, proto);
+    jsb_cocos2d_EaseQuinticActionOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseQuinticActionOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseQuinticActionOut>(cx, jsb_cocos2d_EaseQuinticActionOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseQuinticActionInOut_class;
-JSObject *jsb_cocos2d_EaseQuinticActionInOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseQuinticActionInOut_prototype;
 
 bool js_cocos2dx_EaseQuinticActionInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -24457,9 +24378,9 @@ bool js_cocos2dx_EaseQuinticActionInOut_create(JSContext *cx, uint32_t argc, JS:
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseQuinticActionInOut_create : Error processing arguments");
 
         auto ret = cocos2d::EaseQuinticActionInOut::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuinticActionInOut>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseQuinticActionInOut");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseQuinticActionInOut_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseQuinticActionInOut_class, proto, &jsret, "cocos2d::EaseQuinticActionInOut");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -24473,11 +24394,10 @@ bool js_cocos2dx_EaseQuinticActionInOut_constructor(JSContext *cx, uint32_t argc
     bool ok = true;
     cocos2d::EaseQuinticActionInOut* cobj = new (std::nothrow) cocos2d::EaseQuinticActionInOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseQuinticActionInOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseQuinticActionInOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuinticActionInOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseQuinticActionInOut_class, proto, &jsobj, "cocos2d::EaseQuinticActionInOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -24506,7 +24426,7 @@ static bool js_cocos2dx_EaseQuinticActionInOut_ctor(JSContext *cx, uint32_t argc
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseQuinticActionInOut(JSContext *cx, JS::HandleObject global) {
@@ -24533,8 +24453,8 @@ void js_register_cocos2dx_EaseQuinticActionInOut(JSContext *cx, JS::HandleObject
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseQuinticActionInOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseQuinticActionInOut_class,
@@ -24542,21 +24462,21 @@ void js_register_cocos2dx_EaseQuinticActionInOut(JSContext *cx, JS::HandleObject
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseQuinticActionInOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseQuinticActionInOut>(cx, jsb_cocos2d_EaseQuinticActionInOut_class, proto);
+    jsb_cocos2d_EaseQuinticActionInOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseQuinticActionInOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseQuinticActionInOut>(cx, jsb_cocos2d_EaseQuinticActionInOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseCircleActionIn_class;
-JSObject *jsb_cocos2d_EaseCircleActionIn_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseCircleActionIn_prototype;
 
 bool js_cocos2dx_EaseCircleActionIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -24576,9 +24496,9 @@ bool js_cocos2dx_EaseCircleActionIn_create(JSContext *cx, uint32_t argc, JS::Val
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseCircleActionIn_create : Error processing arguments");
 
         auto ret = cocos2d::EaseCircleActionIn::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCircleActionIn>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseCircleActionIn");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseCircleActionIn_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseCircleActionIn_class, proto, &jsret, "cocos2d::EaseCircleActionIn");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -24592,11 +24512,10 @@ bool js_cocos2dx_EaseCircleActionIn_constructor(JSContext *cx, uint32_t argc, JS
     bool ok = true;
     cocos2d::EaseCircleActionIn* cobj = new (std::nothrow) cocos2d::EaseCircleActionIn();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCircleActionIn>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseCircleActionIn");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseCircleActionIn_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseCircleActionIn_class, proto, &jsobj, "cocos2d::EaseCircleActionIn");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -24625,7 +24544,7 @@ static bool js_cocos2dx_EaseCircleActionIn_ctor(JSContext *cx, uint32_t argc, JS
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseCircleActionIn(JSContext *cx, JS::HandleObject global) {
@@ -24652,8 +24571,8 @@ void js_register_cocos2dx_EaseCircleActionIn(JSContext *cx, JS::HandleObject glo
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseCircleActionIn_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseCircleActionIn_class,
@@ -24661,21 +24580,21 @@ void js_register_cocos2dx_EaseCircleActionIn(JSContext *cx, JS::HandleObject glo
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseCircleActionIn_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseCircleActionIn>(cx, jsb_cocos2d_EaseCircleActionIn_class, proto);
+    jsb_cocos2d_EaseCircleActionIn_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseCircleActionIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseCircleActionIn>(cx, jsb_cocos2d_EaseCircleActionIn_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseCircleActionOut_class;
-JSObject *jsb_cocos2d_EaseCircleActionOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseCircleActionOut_prototype;
 
 bool js_cocos2dx_EaseCircleActionOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -24695,9 +24614,9 @@ bool js_cocos2dx_EaseCircleActionOut_create(JSContext *cx, uint32_t argc, JS::Va
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseCircleActionOut_create : Error processing arguments");
 
         auto ret = cocos2d::EaseCircleActionOut::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCircleActionOut>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseCircleActionOut");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseCircleActionOut_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseCircleActionOut_class, proto, &jsret, "cocos2d::EaseCircleActionOut");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -24711,11 +24630,10 @@ bool js_cocos2dx_EaseCircleActionOut_constructor(JSContext *cx, uint32_t argc, J
     bool ok = true;
     cocos2d::EaseCircleActionOut* cobj = new (std::nothrow) cocos2d::EaseCircleActionOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCircleActionOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseCircleActionOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseCircleActionOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseCircleActionOut_class, proto, &jsobj, "cocos2d::EaseCircleActionOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -24744,7 +24662,7 @@ static bool js_cocos2dx_EaseCircleActionOut_ctor(JSContext *cx, uint32_t argc, J
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseCircleActionOut(JSContext *cx, JS::HandleObject global) {
@@ -24771,8 +24689,8 @@ void js_register_cocos2dx_EaseCircleActionOut(JSContext *cx, JS::HandleObject gl
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseCircleActionOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseCircleActionOut_class,
@@ -24780,21 +24698,21 @@ void js_register_cocos2dx_EaseCircleActionOut(JSContext *cx, JS::HandleObject gl
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseCircleActionOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseCircleActionOut>(cx, jsb_cocos2d_EaseCircleActionOut_class, proto);
+    jsb_cocos2d_EaseCircleActionOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseCircleActionOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseCircleActionOut>(cx, jsb_cocos2d_EaseCircleActionOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseCircleActionInOut_class;
-JSObject *jsb_cocos2d_EaseCircleActionInOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseCircleActionInOut_prototype;
 
 bool js_cocos2dx_EaseCircleActionInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -24814,9 +24732,9 @@ bool js_cocos2dx_EaseCircleActionInOut_create(JSContext *cx, uint32_t argc, JS::
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseCircleActionInOut_create : Error processing arguments");
 
         auto ret = cocos2d::EaseCircleActionInOut::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCircleActionInOut>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseCircleActionInOut");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseCircleActionInOut_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseCircleActionInOut_class, proto, &jsret, "cocos2d::EaseCircleActionInOut");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -24830,11 +24748,10 @@ bool js_cocos2dx_EaseCircleActionInOut_constructor(JSContext *cx, uint32_t argc,
     bool ok = true;
     cocos2d::EaseCircleActionInOut* cobj = new (std::nothrow) cocos2d::EaseCircleActionInOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCircleActionInOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseCircleActionInOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseCircleActionInOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseCircleActionInOut_class, proto, &jsobj, "cocos2d::EaseCircleActionInOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -24863,7 +24780,7 @@ static bool js_cocos2dx_EaseCircleActionInOut_ctor(JSContext *cx, uint32_t argc,
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseCircleActionInOut(JSContext *cx, JS::HandleObject global) {
@@ -24890,8 +24807,8 @@ void js_register_cocos2dx_EaseCircleActionInOut(JSContext *cx, JS::HandleObject 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseCircleActionInOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseCircleActionInOut_class,
@@ -24899,21 +24816,21 @@ void js_register_cocos2dx_EaseCircleActionInOut(JSContext *cx, JS::HandleObject 
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseCircleActionInOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseCircleActionInOut>(cx, jsb_cocos2d_EaseCircleActionInOut_class, proto);
+    jsb_cocos2d_EaseCircleActionInOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseCircleActionInOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseCircleActionInOut>(cx, jsb_cocos2d_EaseCircleActionInOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseCubicActionIn_class;
-JSObject *jsb_cocos2d_EaseCubicActionIn_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseCubicActionIn_prototype;
 
 bool js_cocos2dx_EaseCubicActionIn_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -24933,9 +24850,9 @@ bool js_cocos2dx_EaseCubicActionIn_create(JSContext *cx, uint32_t argc, JS::Valu
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseCubicActionIn_create : Error processing arguments");
 
         auto ret = cocos2d::EaseCubicActionIn::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCubicActionIn>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseCubicActionIn");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseCubicActionIn_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseCubicActionIn_class, proto, &jsret, "cocos2d::EaseCubicActionIn");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -24949,11 +24866,10 @@ bool js_cocos2dx_EaseCubicActionIn_constructor(JSContext *cx, uint32_t argc, JS:
     bool ok = true;
     cocos2d::EaseCubicActionIn* cobj = new (std::nothrow) cocos2d::EaseCubicActionIn();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCubicActionIn>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseCubicActionIn");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseCubicActionIn_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseCubicActionIn_class, proto, &jsobj, "cocos2d::EaseCubicActionIn");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -24982,7 +24898,7 @@ static bool js_cocos2dx_EaseCubicActionIn_ctor(JSContext *cx, uint32_t argc, JS:
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseCubicActionIn(JSContext *cx, JS::HandleObject global) {
@@ -25009,8 +24925,8 @@ void js_register_cocos2dx_EaseCubicActionIn(JSContext *cx, JS::HandleObject glob
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseCubicActionIn_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseCubicActionIn_class,
@@ -25018,21 +24934,21 @@ void js_register_cocos2dx_EaseCubicActionIn(JSContext *cx, JS::HandleObject glob
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseCubicActionIn_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseCubicActionIn>(cx, jsb_cocos2d_EaseCubicActionIn_class, proto);
+    jsb_cocos2d_EaseCubicActionIn_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseCubicActionIn", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseCubicActionIn>(cx, jsb_cocos2d_EaseCubicActionIn_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseCubicActionOut_class;
-JSObject *jsb_cocos2d_EaseCubicActionOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseCubicActionOut_prototype;
 
 bool js_cocos2dx_EaseCubicActionOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -25052,9 +24968,9 @@ bool js_cocos2dx_EaseCubicActionOut_create(JSContext *cx, uint32_t argc, JS::Val
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseCubicActionOut_create : Error processing arguments");
 
         auto ret = cocos2d::EaseCubicActionOut::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCubicActionOut>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseCubicActionOut");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseCubicActionOut_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseCubicActionOut_class, proto, &jsret, "cocos2d::EaseCubicActionOut");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -25068,11 +24984,10 @@ bool js_cocos2dx_EaseCubicActionOut_constructor(JSContext *cx, uint32_t argc, JS
     bool ok = true;
     cocos2d::EaseCubicActionOut* cobj = new (std::nothrow) cocos2d::EaseCubicActionOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCubicActionOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseCubicActionOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseCubicActionOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseCubicActionOut_class, proto, &jsobj, "cocos2d::EaseCubicActionOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -25101,7 +25016,7 @@ static bool js_cocos2dx_EaseCubicActionOut_ctor(JSContext *cx, uint32_t argc, JS
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseCubicActionOut(JSContext *cx, JS::HandleObject global) {
@@ -25128,8 +25043,8 @@ void js_register_cocos2dx_EaseCubicActionOut(JSContext *cx, JS::HandleObject glo
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseCubicActionOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseCubicActionOut_class,
@@ -25137,21 +25052,21 @@ void js_register_cocos2dx_EaseCubicActionOut(JSContext *cx, JS::HandleObject glo
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseCubicActionOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseCubicActionOut>(cx, jsb_cocos2d_EaseCubicActionOut_class, proto);
+    jsb_cocos2d_EaseCubicActionOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseCubicActionOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseCubicActionOut>(cx, jsb_cocos2d_EaseCubicActionOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_EaseCubicActionInOut_class;
-JSObject *jsb_cocos2d_EaseCubicActionInOut_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_EaseCubicActionInOut_prototype;
 
 bool js_cocos2dx_EaseCubicActionInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -25171,9 +25086,9 @@ bool js_cocos2dx_EaseCubicActionInOut_create(JSContext *cx, uint32_t argc, JS::V
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EaseCubicActionInOut_create : Error processing arguments");
 
         auto ret = cocos2d::EaseCubicActionInOut::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCubicActionInOut>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::EaseCubicActionInOut");
+        JS::RootedObject proto(cx, jsb_cocos2d_EaseCubicActionInOut_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_EaseCubicActionInOut_class, proto, &jsret, "cocos2d::EaseCubicActionInOut");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -25187,11 +25102,10 @@ bool js_cocos2dx_EaseCubicActionInOut_constructor(JSContext *cx, uint32_t argc, 
     bool ok = true;
     cocos2d::EaseCubicActionInOut* cobj = new (std::nothrow) cocos2d::EaseCubicActionInOut();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::EaseCubicActionInOut>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::EaseCubicActionInOut");
+    JS::RootedObject proto(cx, jsb_cocos2d_EaseCubicActionInOut_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_EaseCubicActionInOut_class, proto, &jsobj, "cocos2d::EaseCubicActionInOut");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -25220,7 +25134,7 @@ static bool js_cocos2dx_EaseCubicActionInOut_ctor(JSContext *cx, uint32_t argc, 
 }
 
 
-extern JSObject *jsb_cocos2d_ActionEase_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
 
     
 void js_register_cocos2dx_EaseCubicActionInOut(JSContext *cx, JS::HandleObject global) {
@@ -25247,8 +25161,8 @@ void js_register_cocos2dx_EaseCubicActionInOut(JSContext *cx, JS::HandleObject g
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype);
-    jsb_cocos2d_EaseCubicActionInOut_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionEase_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_EaseCubicActionInOut_class,
@@ -25256,24 +25170,24 @@ void js_register_cocos2dx_EaseCubicActionInOut(JSContext *cx, JS::HandleObject g
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_EaseCubicActionInOut_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::EaseCubicActionInOut>(cx, jsb_cocos2d_EaseCubicActionInOut_class, proto);
+    jsb_cocos2d_EaseCubicActionInOut_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "EaseCubicActionInOut", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::EaseCubicActionInOut>(cx, jsb_cocos2d_EaseCubicActionInOut_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ActionInstant_class;
-JSObject *jsb_cocos2d_ActionInstant_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ActionInstant_prototype;
 
 
-extern JSObject *jsb_cocos2d_FiniteTimeAction_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_FiniteTimeAction_prototype;
 
 void js_register_cocos2dx_ActionInstant(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ActionInstant_classOps = {
@@ -25289,8 +25203,8 @@ void js_register_cocos2dx_ActionInstant(JSContext *cx, JS::HandleObject global) 
     };
     jsb_cocos2d_ActionInstant_class = &cocos2d_ActionInstant_class;
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_FiniteTimeAction_prototype);
-    jsb_cocos2d_ActionInstant_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_FiniteTimeAction_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ActionInstant_class,
@@ -25298,20 +25212,20 @@ void js_register_cocos2dx_ActionInstant(JSContext *cx, JS::HandleObject global) 
         nullptr,
         nullptr,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ActionInstant_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ActionInstant>(cx, jsb_cocos2d_ActionInstant_class, proto);
+    jsb_cocos2d_ActionInstant_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ActionInstant", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ActionInstant>(cx, jsb_cocos2d_ActionInstant_class, proto);
 }
 
 JSClass  *jsb_cocos2d_Show_class;
-JSObject *jsb_cocos2d_Show_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Show_prototype;
 
 bool js_cocos2dx_Show_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -25320,9 +25234,9 @@ bool js_cocos2dx_Show_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
 
         auto ret = cocos2d::Show::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Show>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Show");
+        JS::RootedObject proto(cx, jsb_cocos2d_Show_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Show_class, proto, &jsret, "cocos2d::Show");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -25336,11 +25250,10 @@ bool js_cocos2dx_Show_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::Show* cobj = new (std::nothrow) cocos2d::Show();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Show>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Show");
+    JS::RootedObject proto(cx, jsb_cocos2d_Show_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Show_class, proto, &jsobj, "cocos2d::Show");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -25369,7 +25282,7 @@ static bool js_cocos2dx_Show_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInstant_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInstant_prototype;
 
     
 void js_register_cocos2dx_Show(JSContext *cx, JS::HandleObject global) {
@@ -25396,8 +25309,8 @@ void js_register_cocos2dx_Show(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype);
-    jsb_cocos2d_Show_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Show_class,
@@ -25405,21 +25318,21 @@ void js_register_cocos2dx_Show(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Show_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Show>(cx, jsb_cocos2d_Show_class, proto);
+    jsb_cocos2d_Show_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Show", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Show>(cx, jsb_cocos2d_Show_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_Hide_class;
-JSObject *jsb_cocos2d_Hide_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Hide_prototype;
 
 bool js_cocos2dx_Hide_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -25428,9 +25341,9 @@ bool js_cocos2dx_Hide_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
 
         auto ret = cocos2d::Hide::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Hide>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Hide");
+        JS::RootedObject proto(cx, jsb_cocos2d_Hide_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Hide_class, proto, &jsret, "cocos2d::Hide");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -25444,11 +25357,10 @@ bool js_cocos2dx_Hide_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::Hide* cobj = new (std::nothrow) cocos2d::Hide();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Hide>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Hide");
+    JS::RootedObject proto(cx, jsb_cocos2d_Hide_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Hide_class, proto, &jsobj, "cocos2d::Hide");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -25477,7 +25389,7 @@ static bool js_cocos2dx_Hide_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInstant_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInstant_prototype;
 
     
 void js_register_cocos2dx_Hide(JSContext *cx, JS::HandleObject global) {
@@ -25504,8 +25416,8 @@ void js_register_cocos2dx_Hide(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype);
-    jsb_cocos2d_Hide_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Hide_class,
@@ -25513,21 +25425,21 @@ void js_register_cocos2dx_Hide(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Hide_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Hide>(cx, jsb_cocos2d_Hide_class, proto);
+    jsb_cocos2d_Hide_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Hide", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Hide>(cx, jsb_cocos2d_Hide_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ToggleVisibility_class;
-JSObject *jsb_cocos2d_ToggleVisibility_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ToggleVisibility_prototype;
 
 bool js_cocos2dx_ToggleVisibility_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -25536,9 +25448,9 @@ bool js_cocos2dx_ToggleVisibility_create(JSContext *cx, uint32_t argc, JS::Value
     if (argc == 0) {
 
         auto ret = cocos2d::ToggleVisibility::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ToggleVisibility>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ToggleVisibility");
+        JS::RootedObject proto(cx, jsb_cocos2d_ToggleVisibility_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ToggleVisibility_class, proto, &jsret, "cocos2d::ToggleVisibility");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -25552,11 +25464,10 @@ bool js_cocos2dx_ToggleVisibility_constructor(JSContext *cx, uint32_t argc, JS::
     bool ok = true;
     cocos2d::ToggleVisibility* cobj = new (std::nothrow) cocos2d::ToggleVisibility();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ToggleVisibility>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ToggleVisibility");
+    JS::RootedObject proto(cx, jsb_cocos2d_ToggleVisibility_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ToggleVisibility_class, proto, &jsobj, "cocos2d::ToggleVisibility");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -25568,7 +25479,7 @@ bool js_cocos2dx_ToggleVisibility_constructor(JSContext *cx, uint32_t argc, JS::
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInstant_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInstant_prototype;
 
 void js_register_cocos2dx_ToggleVisibility(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ToggleVisibility_classOps = {
@@ -25589,8 +25500,8 @@ void js_register_cocos2dx_ToggleVisibility(JSContext *cx, JS::HandleObject globa
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype);
-    jsb_cocos2d_ToggleVisibility_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ToggleVisibility_class,
@@ -25598,20 +25509,20 @@ void js_register_cocos2dx_ToggleVisibility(JSContext *cx, JS::HandleObject globa
         nullptr,
         nullptr,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ToggleVisibility_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ToggleVisibility>(cx, jsb_cocos2d_ToggleVisibility_class, proto);
+    jsb_cocos2d_ToggleVisibility_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ToggleVisibility", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ToggleVisibility>(cx, jsb_cocos2d_ToggleVisibility_class, proto);
 }
 
 JSClass  *jsb_cocos2d_RemoveSelf_class;
-JSObject *jsb_cocos2d_RemoveSelf_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_RemoveSelf_prototype;
 
 bool js_cocos2dx_RemoveSelf_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -25643,9 +25554,9 @@ bool js_cocos2dx_RemoveSelf_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
 
         auto ret = cocos2d::RemoveSelf::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::RemoveSelf>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::RemoveSelf");
+        JS::RootedObject proto(cx, jsb_cocos2d_RemoveSelf_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_RemoveSelf_class, proto, &jsret, "cocos2d::RemoveSelf");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -25655,9 +25566,9 @@ bool js_cocos2dx_RemoveSelf_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_RemoveSelf_create : Error processing arguments");
 
         auto ret = cocos2d::RemoveSelf::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::RemoveSelf>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::RemoveSelf");
+        JS::RootedObject proto(cx, jsb_cocos2d_RemoveSelf_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_RemoveSelf_class, proto, &jsret, "cocos2d::RemoveSelf");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -25671,11 +25582,10 @@ bool js_cocos2dx_RemoveSelf_constructor(JSContext *cx, uint32_t argc, JS::Value 
     bool ok = true;
     cocos2d::RemoveSelf* cobj = new (std::nothrow) cocos2d::RemoveSelf();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::RemoveSelf>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::RemoveSelf");
+    JS::RootedObject proto(cx, jsb_cocos2d_RemoveSelf_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_RemoveSelf_class, proto, &jsobj, "cocos2d::RemoveSelf");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -25687,7 +25597,7 @@ bool js_cocos2dx_RemoveSelf_constructor(JSContext *cx, uint32_t argc, JS::Value 
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInstant_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInstant_prototype;
 
 void js_register_cocos2dx_RemoveSelf(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_RemoveSelf_classOps = {
@@ -25713,8 +25623,8 @@ void js_register_cocos2dx_RemoveSelf(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype);
-    jsb_cocos2d_RemoveSelf_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_RemoveSelf_class,
@@ -25722,20 +25632,20 @@ void js_register_cocos2dx_RemoveSelf(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_RemoveSelf_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::RemoveSelf>(cx, jsb_cocos2d_RemoveSelf_class, proto);
+    jsb_cocos2d_RemoveSelf_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "RemoveSelf", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::RemoveSelf>(cx, jsb_cocos2d_RemoveSelf_class, proto);
 }
 
 JSClass  *jsb_cocos2d_FlipX_class;
-JSObject *jsb_cocos2d_FlipX_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_FlipX_prototype;
 
 bool js_cocos2dx_FlipX_initWithFlipX(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -25770,9 +25680,9 @@ bool js_cocos2dx_FlipX_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FlipX_create : Error processing arguments");
 
         auto ret = cocos2d::FlipX::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::FlipX>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::FlipX");
+        JS::RootedObject proto(cx, jsb_cocos2d_FlipX_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_FlipX_class, proto, &jsret, "cocos2d::FlipX");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -25786,11 +25696,10 @@ bool js_cocos2dx_FlipX_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::FlipX* cobj = new (std::nothrow) cocos2d::FlipX();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::FlipX>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::FlipX");
+    JS::RootedObject proto(cx, jsb_cocos2d_FlipX_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_FlipX_class, proto, &jsobj, "cocos2d::FlipX");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -25819,7 +25728,7 @@ static bool js_cocos2dx_FlipX_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInstant_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInstant_prototype;
 
     
 void js_register_cocos2dx_FlipX(JSContext *cx, JS::HandleObject global) {
@@ -25847,8 +25756,8 @@ void js_register_cocos2dx_FlipX(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype);
-    jsb_cocos2d_FlipX_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_FlipX_class,
@@ -25856,21 +25765,21 @@ void js_register_cocos2dx_FlipX(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_FlipX_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::FlipX>(cx, jsb_cocos2d_FlipX_class, proto);
+    jsb_cocos2d_FlipX_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "FlipX", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::FlipX>(cx, jsb_cocos2d_FlipX_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_FlipY_class;
-JSObject *jsb_cocos2d_FlipY_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_FlipY_prototype;
 
 bool js_cocos2dx_FlipY_initWithFlipY(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -25905,9 +25814,9 @@ bool js_cocos2dx_FlipY_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FlipY_create : Error processing arguments");
 
         auto ret = cocos2d::FlipY::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::FlipY>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::FlipY");
+        JS::RootedObject proto(cx, jsb_cocos2d_FlipY_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_FlipY_class, proto, &jsret, "cocos2d::FlipY");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -25921,11 +25830,10 @@ bool js_cocos2dx_FlipY_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::FlipY* cobj = new (std::nothrow) cocos2d::FlipY();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::FlipY>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::FlipY");
+    JS::RootedObject proto(cx, jsb_cocos2d_FlipY_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_FlipY_class, proto, &jsobj, "cocos2d::FlipY");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -25954,7 +25862,7 @@ static bool js_cocos2dx_FlipY_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInstant_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInstant_prototype;
 
     
 void js_register_cocos2dx_FlipY(JSContext *cx, JS::HandleObject global) {
@@ -25982,8 +25890,8 @@ void js_register_cocos2dx_FlipY(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype);
-    jsb_cocos2d_FlipY_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_FlipY_class,
@@ -25991,21 +25899,21 @@ void js_register_cocos2dx_FlipY(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_FlipY_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::FlipY>(cx, jsb_cocos2d_FlipY_class, proto);
+    jsb_cocos2d_FlipY_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "FlipY", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::FlipY>(cx, jsb_cocos2d_FlipY_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_Place_class;
-JSObject *jsb_cocos2d_Place_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Place_prototype;
 
 bool js_cocos2dx_Place_initWithPosition(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -26040,9 +25948,9 @@ bool js_cocos2dx_Place_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Place_create : Error processing arguments");
 
         auto ret = cocos2d::Place::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Place>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Place");
+        JS::RootedObject proto(cx, jsb_cocos2d_Place_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Place_class, proto, &jsret, "cocos2d::Place");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -26056,11 +25964,10 @@ bool js_cocos2dx_Place_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::Place* cobj = new (std::nothrow) cocos2d::Place();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Place>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Place");
+    JS::RootedObject proto(cx, jsb_cocos2d_Place_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Place_class, proto, &jsobj, "cocos2d::Place");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -26089,7 +25996,7 @@ static bool js_cocos2dx_Place_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInstant_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInstant_prototype;
 
     
 void js_register_cocos2dx_Place(JSContext *cx, JS::HandleObject global) {
@@ -26117,8 +26024,8 @@ void js_register_cocos2dx_Place(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype);
-    jsb_cocos2d_Place_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Place_class,
@@ -26126,21 +26033,21 @@ void js_register_cocos2dx_Place(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Place_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Place>(cx, jsb_cocos2d_Place_class, proto);
+    jsb_cocos2d_Place_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Place", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Place>(cx, jsb_cocos2d_Place_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_CallFunc_class;
-JSObject *jsb_cocos2d_CallFunc_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_CallFunc_prototype;
 
 bool js_cocos2dx_CallFunc_execute(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -26164,11 +26071,10 @@ bool js_cocos2dx_CallFunc_constructor(JSContext *cx, uint32_t argc, JS::Value *v
     bool ok = true;
     cocos2d::CallFunc* cobj = new (std::nothrow) cocos2d::CallFunc();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::CallFunc>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::CallFunc");
+    JS::RootedObject proto(cx, jsb_cocos2d_CallFunc_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_CallFunc_class, proto, &jsobj, "cocos2d::CallFunc");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -26197,7 +26103,7 @@ static bool js_cocos2dx_CallFunc_ctor(JSContext *cx, uint32_t argc, JS::Value *v
 }
 
 
-extern JSObject *jsb_cocos2d_ActionInstant_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ActionInstant_prototype;
 
     
 void js_register_cocos2dx_CallFunc(JSContext *cx, JS::HandleObject global) {
@@ -26220,8 +26126,8 @@ void js_register_cocos2dx_CallFunc(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype);
-    jsb_cocos2d_CallFunc_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ActionInstant_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_CallFunc_class,
@@ -26229,21 +26135,21 @@ void js_register_cocos2dx_CallFunc(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_CallFunc_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::CallFunc>(cx, jsb_cocos2d_CallFunc_class, proto);
+    jsb_cocos2d_CallFunc_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "CallFunc", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::CallFunc>(cx, jsb_cocos2d_CallFunc_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_CallFuncN_class;
-JSObject *jsb_cocos2d_CallFuncN_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_CallFuncN_prototype;
 
 bool js_cocos2dx_CallFuncN_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -26251,11 +26157,10 @@ bool js_cocos2dx_CallFuncN_constructor(JSContext *cx, uint32_t argc, JS::Value *
     bool ok = true;
     cocos2d::CallFuncN* cobj = new (std::nothrow) cocos2d::CallFuncN();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::CallFuncN>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::CallFuncN");
+    JS::RootedObject proto(cx, jsb_cocos2d_CallFuncN_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_CallFuncN_class, proto, &jsobj, "cocos2d::CallFuncN");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -26284,7 +26189,7 @@ static bool js_cocos2dx_CallFuncN_ctor(JSContext *cx, uint32_t argc, JS::Value *
 }
 
 
-extern JSObject *jsb_cocos2d_CallFunc_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_CallFunc_prototype;
 
     
 void js_register_cocos2dx_CallFuncN(JSContext *cx, JS::HandleObject global) {
@@ -26306,8 +26211,8 @@ void js_register_cocos2dx_CallFuncN(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_CallFunc_prototype);
-    jsb_cocos2d_CallFuncN_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_CallFunc_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_CallFuncN_class,
@@ -26315,21 +26220,21 @@ void js_register_cocos2dx_CallFuncN(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_CallFuncN_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::CallFuncN>(cx, jsb_cocos2d_CallFuncN_class, proto);
+    jsb_cocos2d_CallFuncN_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "CallFuncN", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::CallFuncN>(cx, jsb_cocos2d_CallFuncN_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ActionManager_class;
-JSObject *jsb_cocos2d_ActionManager_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ActionManager_prototype;
 
 bool js_cocos2dx_ActionManager_getActionByTag(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -26725,11 +26630,10 @@ bool js_cocos2dx_ActionManager_constructor(JSContext *cx, uint32_t argc, JS::Val
     bool ok = true;
     cocos2d::ActionManager* cobj = new (std::nothrow) cocos2d::ActionManager();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ActionManager>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ActionManager");
+    JS::RootedObject proto(cx, jsb_cocos2d_ActionManager_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ActionManager_class, proto, &jsobj, "cocos2d::ActionManager");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -26793,7 +26697,7 @@ void js_register_cocos2dx_ActionManager(JSContext *cx, JS::HandleObject global) 
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_ActionManager_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ActionManager_class,
@@ -26801,21 +26705,21 @@ void js_register_cocos2dx_ActionManager(JSContext *cx, JS::HandleObject global) 
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ActionManager_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ActionManager>(cx, jsb_cocos2d_ActionManager_class, proto);
+    jsb_cocos2d_ActionManager_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ActionManager", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ActionManager>(cx, jsb_cocos2d_ActionManager_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_AtlasNode_class;
-JSObject *jsb_cocos2d_AtlasNode_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_AtlasNode_prototype;
 
 bool js_cocos2dx_AtlasNode_updateAtlasValues(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -27103,9 +27007,9 @@ bool js_cocos2dx_AtlasNode_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_AtlasNode_create : Error processing arguments");
 
         auto ret = cocos2d::AtlasNode::create(arg0, arg1, arg2, arg3);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::AtlasNode>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::AtlasNode");
+        JS::RootedObject proto(cx, jsb_cocos2d_AtlasNode_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_AtlasNode_class, proto, &jsret, "cocos2d::AtlasNode");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -27119,11 +27023,10 @@ bool js_cocos2dx_AtlasNode_constructor(JSContext *cx, uint32_t argc, JS::Value *
     bool ok = true;
     cocos2d::AtlasNode* cobj = new (std::nothrow) cocos2d::AtlasNode();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::AtlasNode>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::AtlasNode");
+    JS::RootedObject proto(cx, jsb_cocos2d_AtlasNode_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_AtlasNode_class, proto, &jsobj, "cocos2d::AtlasNode");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -27135,7 +27038,7 @@ bool js_cocos2dx_AtlasNode_constructor(JSContext *cx, uint32_t argc, JS::Value *
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
 void js_register_cocos2dx_AtlasNode(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_AtlasNode_classOps = {
@@ -27171,8 +27074,8 @@ void js_register_cocos2dx_AtlasNode(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_cocos2d_AtlasNode_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_AtlasNode_class,
@@ -27180,20 +27083,20 @@ void js_register_cocos2dx_AtlasNode(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_AtlasNode_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::AtlasNode>(cx, jsb_cocos2d_AtlasNode_class, proto);
+    jsb_cocos2d_AtlasNode_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "AtlasNode", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::AtlasNode>(cx, jsb_cocos2d_AtlasNode_class, proto);
 }
 
 JSClass  *jsb_cocos2d_ClippingNode_class;
-JSObject *jsb_cocos2d_ClippingNode_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ClippingNode_prototype;
 
 bool js_cocos2dx_ClippingNode_hasContent(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -27408,11 +27311,10 @@ bool js_cocos2dx_ClippingNode_constructor(JSContext *cx, uint32_t argc, JS::Valu
     bool ok = true;
     cocos2d::ClippingNode* cobj = new (std::nothrow) cocos2d::ClippingNode();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ClippingNode>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ClippingNode");
+    JS::RootedObject proto(cx, jsb_cocos2d_ClippingNode_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ClippingNode_class, proto, &jsobj, "cocos2d::ClippingNode");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -27424,7 +27326,7 @@ bool js_cocos2dx_ClippingNode_constructor(JSContext *cx, uint32_t argc, JS::Valu
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
 void js_register_cocos2dx_ClippingNode(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ClippingNode_classOps = {
@@ -27456,8 +27358,8 @@ void js_register_cocos2dx_ClippingNode(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_cocos2d_ClippingNode_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ClippingNode_class,
@@ -27465,20 +27367,20 @@ void js_register_cocos2dx_ClippingNode(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ClippingNode_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ClippingNode>(cx, jsb_cocos2d_ClippingNode_class, proto);
+    jsb_cocos2d_ClippingNode_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ClippingNode", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ClippingNode>(cx, jsb_cocos2d_ClippingNode_class, proto);
 }
 
 JSClass  *jsb_cocos2d_DrawNode_class;
-JSObject *jsb_cocos2d_DrawNode_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_DrawNode_prototype;
 
 bool js_cocos2dx_DrawNode_drawLine(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -28222,9 +28124,9 @@ bool js_cocos2dx_DrawNode_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
 
         auto ret = cocos2d::DrawNode::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::DrawNode>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::DrawNode");
+        JS::RootedObject proto(cx, jsb_cocos2d_DrawNode_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_DrawNode_class, proto, &jsret, "cocos2d::DrawNode");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -28234,9 +28136,9 @@ bool js_cocos2dx_DrawNode_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_DrawNode_create : Error processing arguments");
 
         auto ret = cocos2d::DrawNode::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::DrawNode>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::DrawNode");
+        JS::RootedObject proto(cx, jsb_cocos2d_DrawNode_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_DrawNode_class, proto, &jsret, "cocos2d::DrawNode");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -28250,11 +28152,10 @@ bool js_cocos2dx_DrawNode_constructor(JSContext *cx, uint32_t argc, JS::Value *v
     bool ok = true;
     cocos2d::DrawNode* cobj = new (std::nothrow) cocos2d::DrawNode();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::DrawNode>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::DrawNode");
+    JS::RootedObject proto(cx, jsb_cocos2d_DrawNode_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_DrawNode_class, proto, &jsobj, "cocos2d::DrawNode");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -28283,7 +28184,7 @@ static bool js_cocos2dx_DrawNode_ctor(JSContext *cx, uint32_t argc, JS::Value *v
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
     
 void js_register_cocos2dx_DrawNode(JSContext *cx, JS::HandleObject global) {
@@ -28334,8 +28235,8 @@ void js_register_cocos2dx_DrawNode(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_cocos2d_DrawNode_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_DrawNode_class,
@@ -28343,21 +28244,21 @@ void js_register_cocos2dx_DrawNode(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_DrawNode_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::DrawNode>(cx, jsb_cocos2d_DrawNode_class, proto);
+    jsb_cocos2d_DrawNode_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "DrawNode", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::DrawNode>(cx, jsb_cocos2d_DrawNode_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_Label_class;
-JSObject *jsb_cocos2d_Label_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Label_prototype;
 
 bool js_cocos2dx_Label_isClipMarginEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -30046,9 +29947,9 @@ bool js_cocos2dx_Label_createWithBMFont(JSContext *cx, uint32_t argc, JS::Value 
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_createWithBMFont : Error processing arguments");
 
         auto ret = cocos2d::Label::createWithBMFont(arg0, arg1, arg2);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Label>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Label");
+        JS::RootedObject proto(cx, jsb_cocos2d_Label_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Label_class, proto, &jsret, "cocos2d::Label");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -30072,9 +29973,9 @@ bool js_cocos2dx_Label_createWithBMFont(JSContext *cx, uint32_t argc, JS::Value 
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_createWithBMFont : Error processing arguments");
 
         auto ret = cocos2d::Label::createWithBMFont(arg0, arg1, arg2, arg3);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Label>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Label");
+        JS::RootedObject proto(cx, jsb_cocos2d_Label_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Label_class, proto, &jsret, "cocos2d::Label");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -30100,9 +30001,9 @@ bool js_cocos2dx_Label_createWithBMFont(JSContext *cx, uint32_t argc, JS::Value 
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_createWithBMFont : Error processing arguments");
 
         auto ret = cocos2d::Label::createWithBMFont(arg0, arg1, arg2, arg3, arg4);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Label>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Label");
+        JS::RootedObject proto(cx, jsb_cocos2d_Label_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Label_class, proto, &jsret, "cocos2d::Label");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -30130,9 +30031,9 @@ bool js_cocos2dx_Label_createWithBMFont(JSContext *cx, uint32_t argc, JS::Value 
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_createWithBMFont : Error processing arguments");
 
         auto ret = cocos2d::Label::createWithBMFont(arg0, arg1, arg2, arg3, arg4, arg5);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Label>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Label");
+        JS::RootedObject proto(cx, jsb_cocos2d_Label_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Label_class, proto, &jsret, "cocos2d::Label");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -30147,9 +30048,9 @@ bool js_cocos2dx_Label_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
 
         auto ret = cocos2d::Label::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Label>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Label");
+        JS::RootedObject proto(cx, jsb_cocos2d_Label_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Label_class, proto, &jsret, "cocos2d::Label");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -30266,9 +30167,9 @@ bool js_cocos2dx_Label_createWithSystemFont(JSContext *cx, uint32_t argc, JS::Va
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_createWithSystemFont : Error processing arguments");
 
         auto ret = cocos2d::Label::createWithSystemFont(arg0, arg1, arg2);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Label>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Label");
+        JS::RootedObject proto(cx, jsb_cocos2d_Label_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Label_class, proto, &jsret, "cocos2d::Label");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -30284,9 +30185,9 @@ bool js_cocos2dx_Label_createWithSystemFont(JSContext *cx, uint32_t argc, JS::Va
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_createWithSystemFont : Error processing arguments");
 
         auto ret = cocos2d::Label::createWithSystemFont(arg0, arg1, arg2, arg3);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Label>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Label");
+        JS::RootedObject proto(cx, jsb_cocos2d_Label_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Label_class, proto, &jsret, "cocos2d::Label");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -30304,9 +30205,9 @@ bool js_cocos2dx_Label_createWithSystemFont(JSContext *cx, uint32_t argc, JS::Va
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_createWithSystemFont : Error processing arguments");
 
         auto ret = cocos2d::Label::createWithSystemFont(arg0, arg1, arg2, arg3, arg4);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Label>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Label");
+        JS::RootedObject proto(cx, jsb_cocos2d_Label_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Label_class, proto, &jsret, "cocos2d::Label");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -30326,9 +30227,9 @@ bool js_cocos2dx_Label_createWithSystemFont(JSContext *cx, uint32_t argc, JS::Va
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Label_createWithSystemFont : Error processing arguments");
 
         auto ret = cocos2d::Label::createWithSystemFont(arg0, arg1, arg2, arg3, arg4, arg5);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Label>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Label");
+        JS::RootedObject proto(cx, jsb_cocos2d_Label_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Label_class, proto, &jsret, "cocos2d::Label");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -30342,11 +30243,10 @@ bool js_cocos2dx_Label_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::Label* cobj = new (std::nothrow) cocos2d::Label();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Label>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Label");
+    JS::RootedObject proto(cx, jsb_cocos2d_Label_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Label_class, proto, &jsobj, "cocos2d::Label");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -30375,7 +30275,7 @@ static bool js_cocos2dx_Label_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
     
 void js_register_cocos2dx_Label(JSContext *cx, JS::HandleObject global) {
@@ -30471,8 +30371,8 @@ void js_register_cocos2dx_Label(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_cocos2d_Label_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Label_class,
@@ -30480,21 +30380,21 @@ void js_register_cocos2dx_Label(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Label_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Label>(cx, jsb_cocos2d_Label_class, proto);
+    jsb_cocos2d_Label_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Label", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Label>(cx, jsb_cocos2d_Label_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_LabelTTF_class;
-JSObject *jsb_cocos2d_LabelTTF_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_LabelTTF_prototype;
 
 bool js_cocos2dx_LabelTTF_getRenderLabel(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -30528,11 +30428,10 @@ bool js_cocos2dx_LabelTTF_constructor(JSContext *cx, uint32_t argc, JS::Value *v
     bool ok = true;
     cocos2d::LabelTTF* cobj = new (std::nothrow) cocos2d::LabelTTF();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::LabelTTF>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::LabelTTF");
+    JS::RootedObject proto(cx, jsb_cocos2d_LabelTTF_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_LabelTTF_class, proto, &jsobj, "cocos2d::LabelTTF");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -30561,7 +30460,7 @@ static bool js_cocos2dx_LabelTTF_ctor(JSContext *cx, uint32_t argc, JS::Value *v
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
     
 void js_register_cocos2dx_LabelTTF(JSContext *cx, JS::HandleObject global) {
@@ -30584,8 +30483,8 @@ void js_register_cocos2dx_LabelTTF(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_cocos2d_LabelTTF_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_LabelTTF_class,
@@ -30593,21 +30492,21 @@ void js_register_cocos2dx_LabelTTF(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_LabelTTF_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::LabelTTF>(cx, jsb_cocos2d_LabelTTF_class, proto);
+    jsb_cocos2d_LabelTTF_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "LabelTTF", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::LabelTTF>(cx, jsb_cocos2d_LabelTTF_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_Layer_class;
-JSObject *jsb_cocos2d_Layer_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Layer_prototype;
 
 bool js_cocos2dx_Layer_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -30616,9 +30515,9 @@ bool js_cocos2dx_Layer_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
 
         auto ret = cocos2d::Layer::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Layer>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Layer");
+        JS::RootedObject proto(cx, jsb_cocos2d_Layer_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Layer_class, proto, &jsret, "cocos2d::Layer");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -30632,11 +30531,10 @@ bool js_cocos2dx_Layer_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::Layer* cobj = new (std::nothrow) cocos2d::Layer();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Layer>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Layer");
+    JS::RootedObject proto(cx, jsb_cocos2d_Layer_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Layer_class, proto, &jsobj, "cocos2d::Layer");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -30665,7 +30563,7 @@ static bool js_cocos2dx_Layer_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
     
 void js_register_cocos2dx_Layer(JSContext *cx, JS::HandleObject global) {
@@ -30692,8 +30590,8 @@ void js_register_cocos2dx_Layer(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_cocos2d_Layer_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Layer_class,
@@ -30701,21 +30599,21 @@ void js_register_cocos2dx_Layer(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Layer_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Layer>(cx, jsb_cocos2d_Layer_class, proto);
+    jsb_cocos2d_Layer_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Layer", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Layer>(cx, jsb_cocos2d_Layer_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_LayerColor_class;
-JSObject *jsb_cocos2d_LayerColor_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_LayerColor_prototype;
 
 bool js_cocos2dx_LayerColor_changeWidthAndHeight(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -30947,11 +30845,10 @@ bool js_cocos2dx_LayerColor_constructor(JSContext *cx, uint32_t argc, JS::Value 
     bool ok = true;
     cocos2d::LayerColor* cobj = new (std::nothrow) cocos2d::LayerColor();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::LayerColor>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::LayerColor");
+    JS::RootedObject proto(cx, jsb_cocos2d_LayerColor_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_LayerColor_class, proto, &jsobj, "cocos2d::LayerColor");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -30980,7 +30877,7 @@ static bool js_cocos2dx_LayerColor_ctor(JSContext *cx, uint32_t argc, JS::Value 
 }
 
 
-extern JSObject *jsb_cocos2d_Layer_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Layer_prototype;
 
     
 void js_register_cocos2dx_LayerColor(JSContext *cx, JS::HandleObject global) {
@@ -31013,8 +30910,8 @@ void js_register_cocos2dx_LayerColor(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Layer_prototype);
-    jsb_cocos2d_LayerColor_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Layer_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_LayerColor_class,
@@ -31022,21 +30919,21 @@ void js_register_cocos2dx_LayerColor(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_LayerColor_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::LayerColor>(cx, jsb_cocos2d_LayerColor_class, proto);
+    jsb_cocos2d_LayerColor_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "LayerColor", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::LayerColor>(cx, jsb_cocos2d_LayerColor_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_LayerGradient_class;
-JSObject *jsb_cocos2d_LayerGradient_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_LayerGradient_prototype;
 
 bool js_cocos2dx_LayerGradient_getStartColor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -31412,11 +31309,10 @@ bool js_cocos2dx_LayerGradient_constructor(JSContext *cx, uint32_t argc, JS::Val
     bool ok = true;
     cocos2d::LayerGradient* cobj = new (std::nothrow) cocos2d::LayerGradient();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::LayerGradient>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::LayerGradient");
+    JS::RootedObject proto(cx, jsb_cocos2d_LayerGradient_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_LayerGradient_class, proto, &jsobj, "cocos2d::LayerGradient");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -31445,7 +31341,7 @@ static bool js_cocos2dx_LayerGradient_ctor(JSContext *cx, uint32_t argc, JS::Val
 }
 
 
-extern JSObject *jsb_cocos2d_LayerColor_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_LayerColor_prototype;
 
     
 void js_register_cocos2dx_LayerGradient(JSContext *cx, JS::HandleObject global) {
@@ -31485,8 +31381,8 @@ void js_register_cocos2dx_LayerGradient(JSContext *cx, JS::HandleObject global) 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_LayerColor_prototype);
-    jsb_cocos2d_LayerGradient_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_LayerColor_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_LayerGradient_class,
@@ -31494,21 +31390,21 @@ void js_register_cocos2dx_LayerGradient(JSContext *cx, JS::HandleObject global) 
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_LayerGradient_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::LayerGradient>(cx, jsb_cocos2d_LayerGradient_class, proto);
+    jsb_cocos2d_LayerGradient_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "LayerGradient", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::LayerGradient>(cx, jsb_cocos2d_LayerGradient_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_LayerMultiplex_class;
-JSObject *jsb_cocos2d_LayerMultiplex_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_LayerMultiplex_prototype;
 
 bool js_cocos2dx_LayerMultiplex_initWithArray(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -31607,11 +31503,10 @@ bool js_cocos2dx_LayerMultiplex_constructor(JSContext *cx, uint32_t argc, JS::Va
     bool ok = true;
     cocos2d::LayerMultiplex* cobj = new (std::nothrow) cocos2d::LayerMultiplex();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::LayerMultiplex>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::LayerMultiplex");
+    JS::RootedObject proto(cx, jsb_cocos2d_LayerMultiplex_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_LayerMultiplex_class, proto, &jsobj, "cocos2d::LayerMultiplex");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -31640,7 +31535,7 @@ static bool js_cocos2dx_LayerMultiplex_ctor(JSContext *cx, uint32_t argc, JS::Va
 }
 
 
-extern JSObject *jsb_cocos2d_Layer_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Layer_prototype;
 
     
 void js_register_cocos2dx_LayerMultiplex(JSContext *cx, JS::HandleObject global) {
@@ -31666,8 +31561,8 @@ void js_register_cocos2dx_LayerMultiplex(JSContext *cx, JS::HandleObject global)
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Layer_prototype);
-    jsb_cocos2d_LayerMultiplex_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Layer_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_LayerMultiplex_class,
@@ -31675,21 +31570,21 @@ void js_register_cocos2dx_LayerMultiplex(JSContext *cx, JS::HandleObject global)
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_LayerMultiplex_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::LayerMultiplex>(cx, jsb_cocos2d_LayerMultiplex_class, proto);
+    jsb_cocos2d_LayerMultiplex_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "LayerMultiplex", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::LayerMultiplex>(cx, jsb_cocos2d_LayerMultiplex_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_MenuItem_class;
-JSObject *jsb_cocos2d_MenuItem_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_MenuItem_prototype;
 
 bool js_cocos2dx_MenuItem_setEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -31942,11 +31837,10 @@ bool js_cocos2dx_MenuItem_constructor(JSContext *cx, uint32_t argc, JS::Value *v
     bool ok = true;
     cocos2d::MenuItem* cobj = new (std::nothrow) cocos2d::MenuItem();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::MenuItem>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::MenuItem");
+    JS::RootedObject proto(cx, jsb_cocos2d_MenuItem_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_MenuItem_class, proto, &jsobj, "cocos2d::MenuItem");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -31975,7 +31869,7 @@ static bool js_cocos2dx_MenuItem_ctor(JSContext *cx, uint32_t argc, JS::Value *v
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
     
 void js_register_cocos2dx_MenuItem(JSContext *cx, JS::HandleObject global) {
@@ -32006,8 +31900,8 @@ void js_register_cocos2dx_MenuItem(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_cocos2d_MenuItem_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_MenuItem_class,
@@ -32015,21 +31909,21 @@ void js_register_cocos2dx_MenuItem(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_MenuItem_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::MenuItem>(cx, jsb_cocos2d_MenuItem_class, proto);
+    jsb_cocos2d_MenuItem_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "MenuItem", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::MenuItem>(cx, jsb_cocos2d_MenuItem_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_MenuItemLabel_class;
-JSObject *jsb_cocos2d_MenuItemLabel_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_MenuItemLabel_prototype;
 
 bool js_cocos2dx_MenuItemLabel_setLabel(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -32241,11 +32135,10 @@ bool js_cocos2dx_MenuItemLabel_constructor(JSContext *cx, uint32_t argc, JS::Val
     bool ok = true;
     cocos2d::MenuItemLabel* cobj = new (std::nothrow) cocos2d::MenuItemLabel();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::MenuItemLabel>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::MenuItemLabel");
+    JS::RootedObject proto(cx, jsb_cocos2d_MenuItemLabel_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_MenuItemLabel_class, proto, &jsobj, "cocos2d::MenuItemLabel");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -32274,7 +32167,7 @@ static bool js_cocos2dx_MenuItemLabel_ctor(JSContext *cx, uint32_t argc, JS::Val
 }
 
 
-extern JSObject *jsb_cocos2d_MenuItem_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_MenuItem_prototype;
 
     
 void js_register_cocos2dx_MenuItemLabel(JSContext *cx, JS::HandleObject global) {
@@ -32303,8 +32196,8 @@ void js_register_cocos2dx_MenuItemLabel(JSContext *cx, JS::HandleObject global) 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_MenuItem_prototype);
-    jsb_cocos2d_MenuItemLabel_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_MenuItem_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_MenuItemLabel_class,
@@ -32312,21 +32205,21 @@ void js_register_cocos2dx_MenuItemLabel(JSContext *cx, JS::HandleObject global) 
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_MenuItemLabel_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::MenuItemLabel>(cx, jsb_cocos2d_MenuItemLabel_class, proto);
+    jsb_cocos2d_MenuItemLabel_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "MenuItemLabel", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::MenuItemLabel>(cx, jsb_cocos2d_MenuItemLabel_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_MenuItemAtlasFont_class;
-JSObject *jsb_cocos2d_MenuItemAtlasFont_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_MenuItemAtlasFont_prototype;
 
 bool js_cocos2dx_MenuItemAtlasFont_initWithString(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -32404,11 +32297,10 @@ bool js_cocos2dx_MenuItemAtlasFont_constructor(JSContext *cx, uint32_t argc, JS:
     bool ok = true;
     cocos2d::MenuItemAtlasFont* cobj = new (std::nothrow) cocos2d::MenuItemAtlasFont();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::MenuItemAtlasFont>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::MenuItemAtlasFont");
+    JS::RootedObject proto(cx, jsb_cocos2d_MenuItemAtlasFont_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_MenuItemAtlasFont_class, proto, &jsobj, "cocos2d::MenuItemAtlasFont");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -32437,7 +32329,7 @@ static bool js_cocos2dx_MenuItemAtlasFont_ctor(JSContext *cx, uint32_t argc, JS:
 }
 
 
-extern JSObject *jsb_cocos2d_MenuItemLabel_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_MenuItemLabel_prototype;
 
     
 void js_register_cocos2dx_MenuItemAtlasFont(JSContext *cx, JS::HandleObject global) {
@@ -32460,8 +32352,8 @@ void js_register_cocos2dx_MenuItemAtlasFont(JSContext *cx, JS::HandleObject glob
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_MenuItemLabel_prototype);
-    jsb_cocos2d_MenuItemAtlasFont_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_MenuItemLabel_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_MenuItemAtlasFont_class,
@@ -32469,21 +32361,21 @@ void js_register_cocos2dx_MenuItemAtlasFont(JSContext *cx, JS::HandleObject glob
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_MenuItemAtlasFont_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::MenuItemAtlasFont>(cx, jsb_cocos2d_MenuItemAtlasFont_class, proto);
+    jsb_cocos2d_MenuItemAtlasFont_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "MenuItemAtlasFont", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::MenuItemAtlasFont>(cx, jsb_cocos2d_MenuItemAtlasFont_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_MenuItemFont_class;
-JSObject *jsb_cocos2d_MenuItemFont_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_MenuItemFont_prototype;
 
 bool js_cocos2dx_MenuItemFont_setFontNameObj(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -32699,11 +32591,10 @@ bool js_cocos2dx_MenuItemFont_constructor(JSContext *cx, uint32_t argc, JS::Valu
     bool ok = true;
     cocos2d::MenuItemFont* cobj = new (std::nothrow) cocos2d::MenuItemFont();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::MenuItemFont>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::MenuItemFont");
+    JS::RootedObject proto(cx, jsb_cocos2d_MenuItemFont_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_MenuItemFont_class, proto, &jsobj, "cocos2d::MenuItemFont");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -32732,7 +32623,7 @@ static bool js_cocos2dx_MenuItemFont_ctor(JSContext *cx, uint32_t argc, JS::Valu
 }
 
 
-extern JSObject *jsb_cocos2d_MenuItemLabel_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_MenuItemLabel_prototype;
 
     
 void js_register_cocos2dx_MenuItemFont(JSContext *cx, JS::HandleObject global) {
@@ -32767,8 +32658,8 @@ void js_register_cocos2dx_MenuItemFont(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_MenuItemLabel_prototype);
-    jsb_cocos2d_MenuItemFont_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_MenuItemLabel_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_MenuItemFont_class,
@@ -32776,21 +32667,21 @@ void js_register_cocos2dx_MenuItemFont(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_MenuItemFont_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::MenuItemFont>(cx, jsb_cocos2d_MenuItemFont_class, proto);
+    jsb_cocos2d_MenuItemFont_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "MenuItemFont", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::MenuItemFont>(cx, jsb_cocos2d_MenuItemFont_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_MenuItemSprite_class;
-JSObject *jsb_cocos2d_MenuItemSprite_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_MenuItemSprite_prototype;
 
 bool js_cocos2dx_MenuItemSprite_setEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -33102,11 +32993,10 @@ bool js_cocos2dx_MenuItemSprite_constructor(JSContext *cx, uint32_t argc, JS::Va
     bool ok = true;
     cocos2d::MenuItemSprite* cobj = new (std::nothrow) cocos2d::MenuItemSprite();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::MenuItemSprite>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::MenuItemSprite");
+    JS::RootedObject proto(cx, jsb_cocos2d_MenuItemSprite_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_MenuItemSprite_class, proto, &jsobj, "cocos2d::MenuItemSprite");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -33135,7 +33025,7 @@ static bool js_cocos2dx_MenuItemSprite_ctor(JSContext *cx, uint32_t argc, JS::Va
 }
 
 
-extern JSObject *jsb_cocos2d_MenuItem_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_MenuItem_prototype;
 
     
 void js_register_cocos2dx_MenuItemSprite(JSContext *cx, JS::HandleObject global) {
@@ -33167,8 +33057,8 @@ void js_register_cocos2dx_MenuItemSprite(JSContext *cx, JS::HandleObject global)
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_MenuItem_prototype);
-    jsb_cocos2d_MenuItemSprite_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_MenuItem_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_MenuItemSprite_class,
@@ -33176,21 +33066,21 @@ void js_register_cocos2dx_MenuItemSprite(JSContext *cx, JS::HandleObject global)
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_MenuItemSprite_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::MenuItemSprite>(cx, jsb_cocos2d_MenuItemSprite_class, proto);
+    jsb_cocos2d_MenuItemSprite_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "MenuItemSprite", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::MenuItemSprite>(cx, jsb_cocos2d_MenuItemSprite_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_MenuItemImage_class;
-JSObject *jsb_cocos2d_MenuItemImage_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_MenuItemImage_prototype;
 
 bool js_cocos2dx_MenuItemImage_setDisabledSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -33368,11 +33258,10 @@ bool js_cocos2dx_MenuItemImage_constructor(JSContext *cx, uint32_t argc, JS::Val
     bool ok = true;
     cocos2d::MenuItemImage* cobj = new (std::nothrow) cocos2d::MenuItemImage();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::MenuItemImage>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::MenuItemImage");
+    JS::RootedObject proto(cx, jsb_cocos2d_MenuItemImage_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_MenuItemImage_class, proto, &jsobj, "cocos2d::MenuItemImage");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -33401,7 +33290,7 @@ static bool js_cocos2dx_MenuItemImage_ctor(JSContext *cx, uint32_t argc, JS::Val
 }
 
 
-extern JSObject *jsb_cocos2d_MenuItemSprite_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_MenuItemSprite_prototype;
 
     
 void js_register_cocos2dx_MenuItemImage(JSContext *cx, JS::HandleObject global) {
@@ -33428,8 +33317,8 @@ void js_register_cocos2dx_MenuItemImage(JSContext *cx, JS::HandleObject global) 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_MenuItemSprite_prototype);
-    jsb_cocos2d_MenuItemImage_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_MenuItemSprite_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_MenuItemImage_class,
@@ -33437,21 +33326,21 @@ void js_register_cocos2dx_MenuItemImage(JSContext *cx, JS::HandleObject global) 
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_MenuItemImage_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::MenuItemImage>(cx, jsb_cocos2d_MenuItemImage_class, proto);
+    jsb_cocos2d_MenuItemImage_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "MenuItemImage", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::MenuItemImage>(cx, jsb_cocos2d_MenuItemImage_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_MenuItemToggle_class;
-JSObject *jsb_cocos2d_MenuItemToggle_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_MenuItemToggle_prototype;
 
 bool js_cocos2dx_MenuItemToggle_setSubItems(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -33604,11 +33493,10 @@ bool js_cocos2dx_MenuItemToggle_constructor(JSContext *cx, uint32_t argc, JS::Va
     bool ok = true;
     cocos2d::MenuItemToggle* cobj = new (std::nothrow) cocos2d::MenuItemToggle();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::MenuItemToggle>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::MenuItemToggle");
+    JS::RootedObject proto(cx, jsb_cocos2d_MenuItemToggle_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_MenuItemToggle_class, proto, &jsobj, "cocos2d::MenuItemToggle");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -33637,7 +33525,7 @@ static bool js_cocos2dx_MenuItemToggle_ctor(JSContext *cx, uint32_t argc, JS::Va
 }
 
 
-extern JSObject *jsb_cocos2d_MenuItem_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_MenuItem_prototype;
 
     
 void js_register_cocos2dx_MenuItemToggle(JSContext *cx, JS::HandleObject global) {
@@ -33665,8 +33553,8 @@ void js_register_cocos2dx_MenuItemToggle(JSContext *cx, JS::HandleObject global)
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_MenuItem_prototype);
-    jsb_cocos2d_MenuItemToggle_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_MenuItem_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_MenuItemToggle_class,
@@ -33674,21 +33562,21 @@ void js_register_cocos2dx_MenuItemToggle(JSContext *cx, JS::HandleObject global)
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_MenuItemToggle_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::MenuItemToggle>(cx, jsb_cocos2d_MenuItemToggle_class, proto);
+    jsb_cocos2d_MenuItemToggle_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "MenuItemToggle", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::MenuItemToggle>(cx, jsb_cocos2d_MenuItemToggle_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_Menu_class;
-JSObject *jsb_cocos2d_Menu_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Menu_prototype;
 
 bool js_cocos2dx_Menu_initWithArray(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -33831,11 +33719,10 @@ bool js_cocos2dx_Menu_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::Menu* cobj = new (std::nothrow) cocos2d::Menu();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Menu>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Menu");
+    JS::RootedObject proto(cx, jsb_cocos2d_Menu_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Menu_class, proto, &jsobj, "cocos2d::Menu");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -33864,7 +33751,7 @@ static bool js_cocos2dx_Menu_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_Layer_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Layer_prototype;
 
     
 void js_register_cocos2dx_Menu(JSContext *cx, JS::HandleObject global) {
@@ -33893,8 +33780,8 @@ void js_register_cocos2dx_Menu(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Layer_prototype);
-    jsb_cocos2d_Menu_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Layer_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Menu_class,
@@ -33902,21 +33789,21 @@ void js_register_cocos2dx_Menu(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Menu_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Menu>(cx, jsb_cocos2d_Menu_class, proto);
+    jsb_cocos2d_Menu_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Menu", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Menu>(cx, jsb_cocos2d_Menu_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_MotionStreak_class;
-JSObject *jsb_cocos2d_MotionStreak_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_MotionStreak_prototype;
 
 bool js_cocos2dx_MotionStreak_reset(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -34410,11 +34297,10 @@ bool js_cocos2dx_MotionStreak_constructor(JSContext *cx, uint32_t argc, JS::Valu
     bool ok = true;
     cocos2d::MotionStreak* cobj = new (std::nothrow) cocos2d::MotionStreak();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::MotionStreak>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::MotionStreak");
+    JS::RootedObject proto(cx, jsb_cocos2d_MotionStreak_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_MotionStreak_class, proto, &jsobj, "cocos2d::MotionStreak");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -34443,7 +34329,7 @@ static bool js_cocos2dx_MotionStreak_ctor(JSContext *cx, uint32_t argc, JS::Valu
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
     
 void js_register_cocos2dx_MotionStreak(JSContext *cx, JS::HandleObject global) {
@@ -34487,8 +34373,8 @@ void js_register_cocos2dx_MotionStreak(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_cocos2d_MotionStreak_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_MotionStreak_class,
@@ -34496,21 +34382,21 @@ void js_register_cocos2dx_MotionStreak(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_MotionStreak_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::MotionStreak>(cx, jsb_cocos2d_MotionStreak_class, proto);
+    jsb_cocos2d_MotionStreak_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "MotionStreak", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::MotionStreak>(cx, jsb_cocos2d_MotionStreak_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ParticleBatchNode_class;
-JSObject *jsb_cocos2d_ParticleBatchNode_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ParticleBatchNode_prototype;
 
 bool js_cocos2dx_ParticleBatchNode_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -34820,9 +34706,9 @@ bool js_cocos2dx_ParticleBatchNode_create(JSContext *cx, uint32_t argc, JS::Valu
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleBatchNode_create : Error processing arguments");
 
         auto ret = cocos2d::ParticleBatchNode::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleBatchNode>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleBatchNode");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleBatchNode_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleBatchNode_class, proto, &jsret, "cocos2d::ParticleBatchNode");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -34834,9 +34720,9 @@ bool js_cocos2dx_ParticleBatchNode_create(JSContext *cx, uint32_t argc, JS::Valu
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleBatchNode_create : Error processing arguments");
 
         auto ret = cocos2d::ParticleBatchNode::create(arg0, arg1);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleBatchNode>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleBatchNode");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleBatchNode_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleBatchNode_class, proto, &jsret, "cocos2d::ParticleBatchNode");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -34862,9 +34748,9 @@ bool js_cocos2dx_ParticleBatchNode_createWithTexture(JSContext *cx, uint32_t arg
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleBatchNode_createWithTexture : Error processing arguments");
 
         auto ret = cocos2d::ParticleBatchNode::createWithTexture(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleBatchNode>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleBatchNode");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleBatchNode_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleBatchNode_class, proto, &jsret, "cocos2d::ParticleBatchNode");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -34884,9 +34770,9 @@ bool js_cocos2dx_ParticleBatchNode_createWithTexture(JSContext *cx, uint32_t arg
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleBatchNode_createWithTexture : Error processing arguments");
 
         auto ret = cocos2d::ParticleBatchNode::createWithTexture(arg0, arg1);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleBatchNode>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleBatchNode");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleBatchNode_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleBatchNode_class, proto, &jsret, "cocos2d::ParticleBatchNode");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -34900,11 +34786,10 @@ bool js_cocos2dx_ParticleBatchNode_constructor(JSContext *cx, uint32_t argc, JS:
     bool ok = true;
     cocos2d::ParticleBatchNode* cobj = new (std::nothrow) cocos2d::ParticleBatchNode();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleBatchNode>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ParticleBatchNode");
+    JS::RootedObject proto(cx, jsb_cocos2d_ParticleBatchNode_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ParticleBatchNode_class, proto, &jsobj, "cocos2d::ParticleBatchNode");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -34933,7 +34818,7 @@ static bool js_cocos2dx_ParticleBatchNode_ctor(JSContext *cx, uint32_t argc, JS:
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
     
 void js_register_cocos2dx_ParticleBatchNode(JSContext *cx, JS::HandleObject global) {
@@ -34973,8 +34858,8 @@ void js_register_cocos2dx_ParticleBatchNode(JSContext *cx, JS::HandleObject glob
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_cocos2d_ParticleBatchNode_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ParticleBatchNode_class,
@@ -34982,21 +34867,21 @@ void js_register_cocos2dx_ParticleBatchNode(JSContext *cx, JS::HandleObject glob
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ParticleBatchNode_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ParticleBatchNode>(cx, jsb_cocos2d_ParticleBatchNode_class, proto);
+    jsb_cocos2d_ParticleBatchNode_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ParticleBatchNode", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ParticleBatchNode>(cx, jsb_cocos2d_ParticleBatchNode_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ParticleData_class;
-JSObject *jsb_cocos2d_ParticleData_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ParticleData_prototype;
 
 bool js_cocos2dx_ParticleData_release(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -35085,11 +34970,10 @@ bool js_cocos2dx_ParticleData_constructor(JSContext *cx, uint32_t argc, JS::Valu
     bool ok = true;
     cocos2d::ParticleData* cobj = new (std::nothrow) cocos2d::ParticleData();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleData>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ParticleData");
+    JS::RootedObject proto(cx, jsb_cocos2d_ParticleData_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_cocos2d_ParticleData_class, proto, &jsobj, "cocos2d::ParticleData");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -35136,7 +35020,7 @@ void js_register_cocos2dx_ParticleData(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_ParticleData_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ParticleData_class,
@@ -35144,20 +35028,20 @@ void js_register_cocos2dx_ParticleData(JSContext *cx, JS::HandleObject global) {
         properties,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ParticleData_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ParticleData>(cx, jsb_cocos2d_ParticleData_class, proto);
+    jsb_cocos2d_ParticleData_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ParticleData", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ParticleData>(cx, jsb_cocos2d_ParticleData_class, proto);
 }
 
 JSClass  *jsb_cocos2d_ParticleSystem_class;
-JSObject *jsb_cocos2d_ParticleSystem_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ParticleSystem_prototype;
 
 bool js_cocos2dx_ParticleSystem_getStartSizeVar(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -37274,9 +37158,9 @@ bool js_cocos2dx_ParticleSystem_create(JSContext *cx, uint32_t argc, JS::Value *
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_create : Error processing arguments");
 
         auto ret = cocos2d::ParticleSystem::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleSystem>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleSystem");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleSystem_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleSystem_class, proto, &jsret, "cocos2d::ParticleSystem");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -37294,9 +37178,9 @@ bool js_cocos2dx_ParticleSystem_createWithTotalParticles(JSContext *cx, uint32_t
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystem_createWithTotalParticles : Error processing arguments");
 
         auto ret = cocos2d::ParticleSystem::createWithTotalParticles(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleSystem>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleSystem");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleSystem_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleSystem_class, proto, &jsret, "cocos2d::ParticleSystem");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -37310,11 +37194,10 @@ bool js_cocos2dx_ParticleSystem_constructor(JSContext *cx, uint32_t argc, JS::Va
     bool ok = true;
     cocos2d::ParticleSystem* cobj = new (std::nothrow) cocos2d::ParticleSystem();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleSystem>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ParticleSystem");
+    JS::RootedObject proto(cx, jsb_cocos2d_ParticleSystem_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ParticleSystem_class, proto, &jsobj, "cocos2d::ParticleSystem");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -37343,7 +37226,7 @@ static bool js_cocos2dx_ParticleSystem_ctor(JSContext *cx, uint32_t argc, JS::Va
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
     
 void js_register_cocos2dx_ParticleSystem(JSContext *cx, JS::HandleObject global) {
@@ -37475,8 +37358,8 @@ void js_register_cocos2dx_ParticleSystem(JSContext *cx, JS::HandleObject global)
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_cocos2d_ParticleSystem_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ParticleSystem_class,
@@ -37484,21 +37367,21 @@ void js_register_cocos2dx_ParticleSystem(JSContext *cx, JS::HandleObject global)
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ParticleSystem_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ParticleSystem>(cx, jsb_cocos2d_ParticleSystem_class, proto);
+    jsb_cocos2d_ParticleSystem_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ParticleSystem", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ParticleSystem>(cx, jsb_cocos2d_ParticleSystem_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ParticleSystemQuad_class;
-JSObject *jsb_cocos2d_ParticleSystemQuad_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ParticleSystemQuad_prototype;
 
 bool js_cocos2dx_ParticleSystemQuad_setDisplayFrame(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -37662,9 +37545,9 @@ bool js_cocos2dx_ParticleSystemQuad_createWithTotalParticles(JSContext *cx, uint
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSystemQuad_createWithTotalParticles : Error processing arguments");
 
         auto ret = cocos2d::ParticleSystemQuad::createWithTotalParticles(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleSystemQuad>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleSystemQuad");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleSystemQuad_class, proto, &jsret, "cocos2d::ParticleSystemQuad");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -37678,11 +37561,10 @@ bool js_cocos2dx_ParticleSystemQuad_constructor(JSContext *cx, uint32_t argc, JS
     bool ok = true;
     cocos2d::ParticleSystemQuad* cobj = new (std::nothrow) cocos2d::ParticleSystemQuad();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleSystemQuad>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ParticleSystemQuad");
+    JS::RootedObject proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ParticleSystemQuad_class, proto, &jsobj, "cocos2d::ParticleSystemQuad");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -37694,7 +37576,7 @@ bool js_cocos2dx_ParticleSystemQuad_constructor(JSContext *cx, uint32_t argc, JS
 }
 
 
-extern JSObject *jsb_cocos2d_ParticleSystem_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ParticleSystem_prototype;
 
 void js_register_cocos2dx_ParticleSystemQuad(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ParticleSystemQuad_classOps = {
@@ -37723,8 +37605,8 @@ void js_register_cocos2dx_ParticleSystemQuad(JSContext *cx, JS::HandleObject glo
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystem_prototype);
-    jsb_cocos2d_ParticleSystemQuad_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystem_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ParticleSystemQuad_class,
@@ -37732,20 +37614,20 @@ void js_register_cocos2dx_ParticleSystemQuad(JSContext *cx, JS::HandleObject glo
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ParticleSystemQuad>(cx, jsb_cocos2d_ParticleSystemQuad_class, proto);
+    jsb_cocos2d_ParticleSystemQuad_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ParticleSystemQuad", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ParticleSystemQuad>(cx, jsb_cocos2d_ParticleSystemQuad_class, proto);
 }
 
 JSClass  *jsb_cocos2d_ParticleFire_class;
-JSObject *jsb_cocos2d_ParticleFire_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ParticleFire_prototype;
 
 bool js_cocos2dx_ParticleFire_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -37754,9 +37636,9 @@ bool js_cocos2dx_ParticleFire_create(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleFire::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleFire>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleFire");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleFire_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleFire_class, proto, &jsret, "cocos2d::ParticleFire");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -37774,9 +37656,9 @@ bool js_cocos2dx_ParticleFire_createWithTotalParticles(JSContext *cx, uint32_t a
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleFire_createWithTotalParticles : Error processing arguments");
 
         auto ret = cocos2d::ParticleFire::createWithTotalParticles(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleFire>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleFire");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleFire_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleFire_class, proto, &jsret, "cocos2d::ParticleFire");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -37790,11 +37672,10 @@ bool js_cocos2dx_ParticleFire_constructor(JSContext *cx, uint32_t argc, JS::Valu
     bool ok = true;
     cocos2d::ParticleFire* cobj = new (std::nothrow) cocos2d::ParticleFire();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleFire>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ParticleFire");
+    JS::RootedObject proto(cx, jsb_cocos2d_ParticleFire_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ParticleFire_class, proto, &jsobj, "cocos2d::ParticleFire");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -37806,7 +37687,7 @@ bool js_cocos2dx_ParticleFire_constructor(JSContext *cx, uint32_t argc, JS::Valu
 }
 
 
-extern JSObject *jsb_cocos2d_ParticleSystemQuad_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ParticleSystemQuad_prototype;
 
 void js_register_cocos2dx_ParticleFire(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ParticleFire_classOps = {
@@ -37828,8 +37709,8 @@ void js_register_cocos2dx_ParticleFire(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype);
-    jsb_cocos2d_ParticleFire_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ParticleFire_class,
@@ -37837,20 +37718,20 @@ void js_register_cocos2dx_ParticleFire(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ParticleFire_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ParticleFire>(cx, jsb_cocos2d_ParticleFire_class, proto);
+    jsb_cocos2d_ParticleFire_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ParticleFire", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ParticleFire>(cx, jsb_cocos2d_ParticleFire_class, proto);
 }
 
 JSClass  *jsb_cocos2d_ParticleFireworks_class;
-JSObject *jsb_cocos2d_ParticleFireworks_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ParticleFireworks_prototype;
 
 bool js_cocos2dx_ParticleFireworks_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -37902,9 +37783,9 @@ bool js_cocos2dx_ParticleFireworks_create(JSContext *cx, uint32_t argc, JS::Valu
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleFireworks::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleFireworks>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleFireworks");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleFireworks_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleFireworks_class, proto, &jsret, "cocos2d::ParticleFireworks");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -37922,9 +37803,9 @@ bool js_cocos2dx_ParticleFireworks_createWithTotalParticles(JSContext *cx, uint3
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleFireworks_createWithTotalParticles : Error processing arguments");
 
         auto ret = cocos2d::ParticleFireworks::createWithTotalParticles(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleFireworks>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleFireworks");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleFireworks_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleFireworks_class, proto, &jsret, "cocos2d::ParticleFireworks");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -37938,11 +37819,10 @@ bool js_cocos2dx_ParticleFireworks_constructor(JSContext *cx, uint32_t argc, JS:
     bool ok = true;
     cocos2d::ParticleFireworks* cobj = new (std::nothrow) cocos2d::ParticleFireworks();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleFireworks>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ParticleFireworks");
+    JS::RootedObject proto(cx, jsb_cocos2d_ParticleFireworks_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ParticleFireworks_class, proto, &jsobj, "cocos2d::ParticleFireworks");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -37954,7 +37834,7 @@ bool js_cocos2dx_ParticleFireworks_constructor(JSContext *cx, uint32_t argc, JS:
 }
 
 
-extern JSObject *jsb_cocos2d_ParticleSystemQuad_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ParticleSystemQuad_prototype;
 
 void js_register_cocos2dx_ParticleFireworks(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ParticleFireworks_classOps = {
@@ -37982,8 +37862,8 @@ void js_register_cocos2dx_ParticleFireworks(JSContext *cx, JS::HandleObject glob
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype);
-    jsb_cocos2d_ParticleFireworks_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ParticleFireworks_class,
@@ -37991,20 +37871,20 @@ void js_register_cocos2dx_ParticleFireworks(JSContext *cx, JS::HandleObject glob
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ParticleFireworks_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ParticleFireworks>(cx, jsb_cocos2d_ParticleFireworks_class, proto);
+    jsb_cocos2d_ParticleFireworks_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ParticleFireworks", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ParticleFireworks>(cx, jsb_cocos2d_ParticleFireworks_class, proto);
 }
 
 JSClass  *jsb_cocos2d_ParticleSun_class;
-JSObject *jsb_cocos2d_ParticleSun_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ParticleSun_prototype;
 
 bool js_cocos2dx_ParticleSun_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -38056,9 +37936,9 @@ bool js_cocos2dx_ParticleSun_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleSun::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleSun>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleSun");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleSun_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleSun_class, proto, &jsret, "cocos2d::ParticleSun");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -38076,9 +37956,9 @@ bool js_cocos2dx_ParticleSun_createWithTotalParticles(JSContext *cx, uint32_t ar
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSun_createWithTotalParticles : Error processing arguments");
 
         auto ret = cocos2d::ParticleSun::createWithTotalParticles(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleSun>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleSun");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleSun_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleSun_class, proto, &jsret, "cocos2d::ParticleSun");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -38092,11 +37972,10 @@ bool js_cocos2dx_ParticleSun_constructor(JSContext *cx, uint32_t argc, JS::Value
     bool ok = true;
     cocos2d::ParticleSun* cobj = new (std::nothrow) cocos2d::ParticleSun();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleSun>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ParticleSun");
+    JS::RootedObject proto(cx, jsb_cocos2d_ParticleSun_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ParticleSun_class, proto, &jsobj, "cocos2d::ParticleSun");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -38108,7 +37987,7 @@ bool js_cocos2dx_ParticleSun_constructor(JSContext *cx, uint32_t argc, JS::Value
 }
 
 
-extern JSObject *jsb_cocos2d_ParticleSystemQuad_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ParticleSystemQuad_prototype;
 
 void js_register_cocos2dx_ParticleSun(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ParticleSun_classOps = {
@@ -38136,8 +38015,8 @@ void js_register_cocos2dx_ParticleSun(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype);
-    jsb_cocos2d_ParticleSun_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ParticleSun_class,
@@ -38145,20 +38024,20 @@ void js_register_cocos2dx_ParticleSun(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ParticleSun_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ParticleSun>(cx, jsb_cocos2d_ParticleSun_class, proto);
+    jsb_cocos2d_ParticleSun_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ParticleSun", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ParticleSun>(cx, jsb_cocos2d_ParticleSun_class, proto);
 }
 
 JSClass  *jsb_cocos2d_ParticleGalaxy_class;
-JSObject *jsb_cocos2d_ParticleGalaxy_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ParticleGalaxy_prototype;
 
 bool js_cocos2dx_ParticleGalaxy_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -38210,9 +38089,9 @@ bool js_cocos2dx_ParticleGalaxy_create(JSContext *cx, uint32_t argc, JS::Value *
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleGalaxy::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleGalaxy>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleGalaxy");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleGalaxy_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleGalaxy_class, proto, &jsret, "cocos2d::ParticleGalaxy");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -38230,9 +38109,9 @@ bool js_cocos2dx_ParticleGalaxy_createWithTotalParticles(JSContext *cx, uint32_t
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleGalaxy_createWithTotalParticles : Error processing arguments");
 
         auto ret = cocos2d::ParticleGalaxy::createWithTotalParticles(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleGalaxy>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleGalaxy");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleGalaxy_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleGalaxy_class, proto, &jsret, "cocos2d::ParticleGalaxy");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -38246,11 +38125,10 @@ bool js_cocos2dx_ParticleGalaxy_constructor(JSContext *cx, uint32_t argc, JS::Va
     bool ok = true;
     cocos2d::ParticleGalaxy* cobj = new (std::nothrow) cocos2d::ParticleGalaxy();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleGalaxy>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ParticleGalaxy");
+    JS::RootedObject proto(cx, jsb_cocos2d_ParticleGalaxy_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ParticleGalaxy_class, proto, &jsobj, "cocos2d::ParticleGalaxy");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -38262,7 +38140,7 @@ bool js_cocos2dx_ParticleGalaxy_constructor(JSContext *cx, uint32_t argc, JS::Va
 }
 
 
-extern JSObject *jsb_cocos2d_ParticleSystemQuad_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ParticleSystemQuad_prototype;
 
 void js_register_cocos2dx_ParticleGalaxy(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ParticleGalaxy_classOps = {
@@ -38290,8 +38168,8 @@ void js_register_cocos2dx_ParticleGalaxy(JSContext *cx, JS::HandleObject global)
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype);
-    jsb_cocos2d_ParticleGalaxy_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ParticleGalaxy_class,
@@ -38299,20 +38177,20 @@ void js_register_cocos2dx_ParticleGalaxy(JSContext *cx, JS::HandleObject global)
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ParticleGalaxy_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ParticleGalaxy>(cx, jsb_cocos2d_ParticleGalaxy_class, proto);
+    jsb_cocos2d_ParticleGalaxy_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ParticleGalaxy", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ParticleGalaxy>(cx, jsb_cocos2d_ParticleGalaxy_class, proto);
 }
 
 JSClass  *jsb_cocos2d_ParticleFlower_class;
-JSObject *jsb_cocos2d_ParticleFlower_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ParticleFlower_prototype;
 
 bool js_cocos2dx_ParticleFlower_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -38364,9 +38242,9 @@ bool js_cocos2dx_ParticleFlower_create(JSContext *cx, uint32_t argc, JS::Value *
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleFlower::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleFlower>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleFlower");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleFlower_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleFlower_class, proto, &jsret, "cocos2d::ParticleFlower");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -38384,9 +38262,9 @@ bool js_cocos2dx_ParticleFlower_createWithTotalParticles(JSContext *cx, uint32_t
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleFlower_createWithTotalParticles : Error processing arguments");
 
         auto ret = cocos2d::ParticleFlower::createWithTotalParticles(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleFlower>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleFlower");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleFlower_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleFlower_class, proto, &jsret, "cocos2d::ParticleFlower");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -38400,11 +38278,10 @@ bool js_cocos2dx_ParticleFlower_constructor(JSContext *cx, uint32_t argc, JS::Va
     bool ok = true;
     cocos2d::ParticleFlower* cobj = new (std::nothrow) cocos2d::ParticleFlower();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleFlower>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ParticleFlower");
+    JS::RootedObject proto(cx, jsb_cocos2d_ParticleFlower_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ParticleFlower_class, proto, &jsobj, "cocos2d::ParticleFlower");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -38416,7 +38293,7 @@ bool js_cocos2dx_ParticleFlower_constructor(JSContext *cx, uint32_t argc, JS::Va
 }
 
 
-extern JSObject *jsb_cocos2d_ParticleSystemQuad_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ParticleSystemQuad_prototype;
 
 void js_register_cocos2dx_ParticleFlower(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ParticleFlower_classOps = {
@@ -38444,8 +38321,8 @@ void js_register_cocos2dx_ParticleFlower(JSContext *cx, JS::HandleObject global)
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype);
-    jsb_cocos2d_ParticleFlower_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ParticleFlower_class,
@@ -38453,20 +38330,20 @@ void js_register_cocos2dx_ParticleFlower(JSContext *cx, JS::HandleObject global)
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ParticleFlower_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ParticleFlower>(cx, jsb_cocos2d_ParticleFlower_class, proto);
+    jsb_cocos2d_ParticleFlower_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ParticleFlower", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ParticleFlower>(cx, jsb_cocos2d_ParticleFlower_class, proto);
 }
 
 JSClass  *jsb_cocos2d_ParticleMeteor_class;
-JSObject *jsb_cocos2d_ParticleMeteor_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ParticleMeteor_prototype;
 
 bool js_cocos2dx_ParticleMeteor_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -38518,9 +38395,9 @@ bool js_cocos2dx_ParticleMeteor_create(JSContext *cx, uint32_t argc, JS::Value *
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleMeteor::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleMeteor>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleMeteor");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleMeteor_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleMeteor_class, proto, &jsret, "cocos2d::ParticleMeteor");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -38538,9 +38415,9 @@ bool js_cocos2dx_ParticleMeteor_createWithTotalParticles(JSContext *cx, uint32_t
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleMeteor_createWithTotalParticles : Error processing arguments");
 
         auto ret = cocos2d::ParticleMeteor::createWithTotalParticles(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleMeteor>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleMeteor");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleMeteor_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleMeteor_class, proto, &jsret, "cocos2d::ParticleMeteor");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -38554,11 +38431,10 @@ bool js_cocos2dx_ParticleMeteor_constructor(JSContext *cx, uint32_t argc, JS::Va
     bool ok = true;
     cocos2d::ParticleMeteor* cobj = new (std::nothrow) cocos2d::ParticleMeteor();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleMeteor>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ParticleMeteor");
+    JS::RootedObject proto(cx, jsb_cocos2d_ParticleMeteor_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ParticleMeteor_class, proto, &jsobj, "cocos2d::ParticleMeteor");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -38570,7 +38446,7 @@ bool js_cocos2dx_ParticleMeteor_constructor(JSContext *cx, uint32_t argc, JS::Va
 }
 
 
-extern JSObject *jsb_cocos2d_ParticleSystemQuad_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ParticleSystemQuad_prototype;
 
 void js_register_cocos2dx_ParticleMeteor(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ParticleMeteor_classOps = {
@@ -38598,8 +38474,8 @@ void js_register_cocos2dx_ParticleMeteor(JSContext *cx, JS::HandleObject global)
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype);
-    jsb_cocos2d_ParticleMeteor_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ParticleMeteor_class,
@@ -38607,20 +38483,20 @@ void js_register_cocos2dx_ParticleMeteor(JSContext *cx, JS::HandleObject global)
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ParticleMeteor_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ParticleMeteor>(cx, jsb_cocos2d_ParticleMeteor_class, proto);
+    jsb_cocos2d_ParticleMeteor_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ParticleMeteor", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ParticleMeteor>(cx, jsb_cocos2d_ParticleMeteor_class, proto);
 }
 
 JSClass  *jsb_cocos2d_ParticleSpiral_class;
-JSObject *jsb_cocos2d_ParticleSpiral_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ParticleSpiral_prototype;
 
 bool js_cocos2dx_ParticleSpiral_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -38672,9 +38548,9 @@ bool js_cocos2dx_ParticleSpiral_create(JSContext *cx, uint32_t argc, JS::Value *
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleSpiral::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleSpiral>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleSpiral");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleSpiral_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleSpiral_class, proto, &jsret, "cocos2d::ParticleSpiral");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -38692,9 +38568,9 @@ bool js_cocos2dx_ParticleSpiral_createWithTotalParticles(JSContext *cx, uint32_t
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSpiral_createWithTotalParticles : Error processing arguments");
 
         auto ret = cocos2d::ParticleSpiral::createWithTotalParticles(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleSpiral>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleSpiral");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleSpiral_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleSpiral_class, proto, &jsret, "cocos2d::ParticleSpiral");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -38708,11 +38584,10 @@ bool js_cocos2dx_ParticleSpiral_constructor(JSContext *cx, uint32_t argc, JS::Va
     bool ok = true;
     cocos2d::ParticleSpiral* cobj = new (std::nothrow) cocos2d::ParticleSpiral();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleSpiral>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ParticleSpiral");
+    JS::RootedObject proto(cx, jsb_cocos2d_ParticleSpiral_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ParticleSpiral_class, proto, &jsobj, "cocos2d::ParticleSpiral");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -38724,7 +38599,7 @@ bool js_cocos2dx_ParticleSpiral_constructor(JSContext *cx, uint32_t argc, JS::Va
 }
 
 
-extern JSObject *jsb_cocos2d_ParticleSystemQuad_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ParticleSystemQuad_prototype;
 
 void js_register_cocos2dx_ParticleSpiral(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ParticleSpiral_classOps = {
@@ -38752,8 +38627,8 @@ void js_register_cocos2dx_ParticleSpiral(JSContext *cx, JS::HandleObject global)
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype);
-    jsb_cocos2d_ParticleSpiral_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ParticleSpiral_class,
@@ -38761,20 +38636,20 @@ void js_register_cocos2dx_ParticleSpiral(JSContext *cx, JS::HandleObject global)
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ParticleSpiral_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ParticleSpiral>(cx, jsb_cocos2d_ParticleSpiral_class, proto);
+    jsb_cocos2d_ParticleSpiral_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ParticleSpiral", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ParticleSpiral>(cx, jsb_cocos2d_ParticleSpiral_class, proto);
 }
 
 JSClass  *jsb_cocos2d_ParticleExplosion_class;
-JSObject *jsb_cocos2d_ParticleExplosion_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ParticleExplosion_prototype;
 
 bool js_cocos2dx_ParticleExplosion_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -38826,9 +38701,9 @@ bool js_cocos2dx_ParticleExplosion_create(JSContext *cx, uint32_t argc, JS::Valu
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleExplosion::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleExplosion>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleExplosion");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleExplosion_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleExplosion_class, proto, &jsret, "cocos2d::ParticleExplosion");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -38846,9 +38721,9 @@ bool js_cocos2dx_ParticleExplosion_createWithTotalParticles(JSContext *cx, uint3
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleExplosion_createWithTotalParticles : Error processing arguments");
 
         auto ret = cocos2d::ParticleExplosion::createWithTotalParticles(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleExplosion>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleExplosion");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleExplosion_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleExplosion_class, proto, &jsret, "cocos2d::ParticleExplosion");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -38862,11 +38737,10 @@ bool js_cocos2dx_ParticleExplosion_constructor(JSContext *cx, uint32_t argc, JS:
     bool ok = true;
     cocos2d::ParticleExplosion* cobj = new (std::nothrow) cocos2d::ParticleExplosion();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleExplosion>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ParticleExplosion");
+    JS::RootedObject proto(cx, jsb_cocos2d_ParticleExplosion_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ParticleExplosion_class, proto, &jsobj, "cocos2d::ParticleExplosion");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -38878,7 +38752,7 @@ bool js_cocos2dx_ParticleExplosion_constructor(JSContext *cx, uint32_t argc, JS:
 }
 
 
-extern JSObject *jsb_cocos2d_ParticleSystemQuad_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ParticleSystemQuad_prototype;
 
 void js_register_cocos2dx_ParticleExplosion(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ParticleExplosion_classOps = {
@@ -38906,8 +38780,8 @@ void js_register_cocos2dx_ParticleExplosion(JSContext *cx, JS::HandleObject glob
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype);
-    jsb_cocos2d_ParticleExplosion_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ParticleExplosion_class,
@@ -38915,20 +38789,20 @@ void js_register_cocos2dx_ParticleExplosion(JSContext *cx, JS::HandleObject glob
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ParticleExplosion_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ParticleExplosion>(cx, jsb_cocos2d_ParticleExplosion_class, proto);
+    jsb_cocos2d_ParticleExplosion_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ParticleExplosion", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ParticleExplosion>(cx, jsb_cocos2d_ParticleExplosion_class, proto);
 }
 
 JSClass  *jsb_cocos2d_ParticleSmoke_class;
-JSObject *jsb_cocos2d_ParticleSmoke_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ParticleSmoke_prototype;
 
 bool js_cocos2dx_ParticleSmoke_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -38980,9 +38854,9 @@ bool js_cocos2dx_ParticleSmoke_create(JSContext *cx, uint32_t argc, JS::Value *v
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleSmoke::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleSmoke>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleSmoke");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleSmoke_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleSmoke_class, proto, &jsret, "cocos2d::ParticleSmoke");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -39000,9 +38874,9 @@ bool js_cocos2dx_ParticleSmoke_createWithTotalParticles(JSContext *cx, uint32_t 
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSmoke_createWithTotalParticles : Error processing arguments");
 
         auto ret = cocos2d::ParticleSmoke::createWithTotalParticles(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleSmoke>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleSmoke");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleSmoke_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleSmoke_class, proto, &jsret, "cocos2d::ParticleSmoke");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -39016,11 +38890,10 @@ bool js_cocos2dx_ParticleSmoke_constructor(JSContext *cx, uint32_t argc, JS::Val
     bool ok = true;
     cocos2d::ParticleSmoke* cobj = new (std::nothrow) cocos2d::ParticleSmoke();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleSmoke>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ParticleSmoke");
+    JS::RootedObject proto(cx, jsb_cocos2d_ParticleSmoke_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ParticleSmoke_class, proto, &jsobj, "cocos2d::ParticleSmoke");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -39032,7 +38905,7 @@ bool js_cocos2dx_ParticleSmoke_constructor(JSContext *cx, uint32_t argc, JS::Val
 }
 
 
-extern JSObject *jsb_cocos2d_ParticleSystemQuad_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ParticleSystemQuad_prototype;
 
 void js_register_cocos2dx_ParticleSmoke(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ParticleSmoke_classOps = {
@@ -39060,8 +38933,8 @@ void js_register_cocos2dx_ParticleSmoke(JSContext *cx, JS::HandleObject global) 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype);
-    jsb_cocos2d_ParticleSmoke_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ParticleSmoke_class,
@@ -39069,20 +38942,20 @@ void js_register_cocos2dx_ParticleSmoke(JSContext *cx, JS::HandleObject global) 
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ParticleSmoke_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ParticleSmoke>(cx, jsb_cocos2d_ParticleSmoke_class, proto);
+    jsb_cocos2d_ParticleSmoke_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ParticleSmoke", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ParticleSmoke>(cx, jsb_cocos2d_ParticleSmoke_class, proto);
 }
 
 JSClass  *jsb_cocos2d_ParticleSnow_class;
-JSObject *jsb_cocos2d_ParticleSnow_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ParticleSnow_prototype;
 
 bool js_cocos2dx_ParticleSnow_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -39134,9 +39007,9 @@ bool js_cocos2dx_ParticleSnow_create(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleSnow::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleSnow>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleSnow");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleSnow_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleSnow_class, proto, &jsret, "cocos2d::ParticleSnow");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -39154,9 +39027,9 @@ bool js_cocos2dx_ParticleSnow_createWithTotalParticles(JSContext *cx, uint32_t a
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleSnow_createWithTotalParticles : Error processing arguments");
 
         auto ret = cocos2d::ParticleSnow::createWithTotalParticles(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleSnow>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleSnow");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleSnow_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleSnow_class, proto, &jsret, "cocos2d::ParticleSnow");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -39170,11 +39043,10 @@ bool js_cocos2dx_ParticleSnow_constructor(JSContext *cx, uint32_t argc, JS::Valu
     bool ok = true;
     cocos2d::ParticleSnow* cobj = new (std::nothrow) cocos2d::ParticleSnow();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleSnow>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ParticleSnow");
+    JS::RootedObject proto(cx, jsb_cocos2d_ParticleSnow_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ParticleSnow_class, proto, &jsobj, "cocos2d::ParticleSnow");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -39186,7 +39058,7 @@ bool js_cocos2dx_ParticleSnow_constructor(JSContext *cx, uint32_t argc, JS::Valu
 }
 
 
-extern JSObject *jsb_cocos2d_ParticleSystemQuad_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ParticleSystemQuad_prototype;
 
 void js_register_cocos2dx_ParticleSnow(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ParticleSnow_classOps = {
@@ -39214,8 +39086,8 @@ void js_register_cocos2dx_ParticleSnow(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype);
-    jsb_cocos2d_ParticleSnow_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ParticleSnow_class,
@@ -39223,20 +39095,20 @@ void js_register_cocos2dx_ParticleSnow(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ParticleSnow_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ParticleSnow>(cx, jsb_cocos2d_ParticleSnow_class, proto);
+    jsb_cocos2d_ParticleSnow_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ParticleSnow", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ParticleSnow>(cx, jsb_cocos2d_ParticleSnow_class, proto);
 }
 
 JSClass  *jsb_cocos2d_ParticleRain_class;
-JSObject *jsb_cocos2d_ParticleRain_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ParticleRain_prototype;
 
 bool js_cocos2dx_ParticleRain_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -39288,9 +39160,9 @@ bool js_cocos2dx_ParticleRain_create(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 0) {
 
         auto ret = cocos2d::ParticleRain::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleRain>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleRain");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleRain_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleRain_class, proto, &jsret, "cocos2d::ParticleRain");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -39308,9 +39180,9 @@ bool js_cocos2dx_ParticleRain_createWithTotalParticles(JSContext *cx, uint32_t a
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_ParticleRain_createWithTotalParticles : Error processing arguments");
 
         auto ret = cocos2d::ParticleRain::createWithTotalParticles(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleRain>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParticleRain");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParticleRain_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParticleRain_class, proto, &jsret, "cocos2d::ParticleRain");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -39324,11 +39196,10 @@ bool js_cocos2dx_ParticleRain_constructor(JSContext *cx, uint32_t argc, JS::Valu
     bool ok = true;
     cocos2d::ParticleRain* cobj = new (std::nothrow) cocos2d::ParticleRain();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParticleRain>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ParticleRain");
+    JS::RootedObject proto(cx, jsb_cocos2d_ParticleRain_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ParticleRain_class, proto, &jsobj, "cocos2d::ParticleRain");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -39340,7 +39211,7 @@ bool js_cocos2dx_ParticleRain_constructor(JSContext *cx, uint32_t argc, JS::Valu
 }
 
 
-extern JSObject *jsb_cocos2d_ParticleSystemQuad_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ParticleSystemQuad_prototype;
 
 void js_register_cocos2dx_ParticleRain(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ParticleRain_classOps = {
@@ -39368,8 +39239,8 @@ void js_register_cocos2dx_ParticleRain(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype);
-    jsb_cocos2d_ParticleRain_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ParticleSystemQuad_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ParticleRain_class,
@@ -39377,20 +39248,20 @@ void js_register_cocos2dx_ParticleRain(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ParticleRain_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ParticleRain>(cx, jsb_cocos2d_ParticleRain_class, proto);
+    jsb_cocos2d_ParticleRain_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ParticleRain", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ParticleRain>(cx, jsb_cocos2d_ParticleRain_class, proto);
 }
 
 JSClass  *jsb_cocos2d_ProtectedNode_class;
-JSObject *jsb_cocos2d_ProtectedNode_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ProtectedNode_prototype;
 
 bool js_cocos2dx_ProtectedNode_addProtectedChild(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -39701,9 +39572,9 @@ bool js_cocos2dx_ProtectedNode_create(JSContext *cx, uint32_t argc, JS::Value *v
     if (argc == 0) {
 
         auto ret = cocos2d::ProtectedNode::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ProtectedNode>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ProtectedNode");
+        JS::RootedObject proto(cx, jsb_cocos2d_ProtectedNode_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ProtectedNode_class, proto, &jsret, "cocos2d::ProtectedNode");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -39717,11 +39588,10 @@ bool js_cocos2dx_ProtectedNode_constructor(JSContext *cx, uint32_t argc, JS::Val
     bool ok = true;
     cocos2d::ProtectedNode* cobj = new (std::nothrow) cocos2d::ProtectedNode();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ProtectedNode>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ProtectedNode");
+    JS::RootedObject proto(cx, jsb_cocos2d_ProtectedNode_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ProtectedNode_class, proto, &jsobj, "cocos2d::ProtectedNode");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -39733,7 +39603,7 @@ bool js_cocos2dx_ProtectedNode_constructor(JSContext *cx, uint32_t argc, JS::Val
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
 void js_register_cocos2dx_ProtectedNode(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_ProtectedNode_classOps = {
@@ -39768,8 +39638,8 @@ void js_register_cocos2dx_ProtectedNode(JSContext *cx, JS::HandleObject global) 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_cocos2d_ProtectedNode_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ProtectedNode_class,
@@ -39777,20 +39647,20 @@ void js_register_cocos2dx_ProtectedNode(JSContext *cx, JS::HandleObject global) 
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ProtectedNode_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ProtectedNode>(cx, jsb_cocos2d_ProtectedNode_class, proto);
+    jsb_cocos2d_ProtectedNode_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ProtectedNode", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ProtectedNode>(cx, jsb_cocos2d_ProtectedNode_class, proto);
 }
 
 JSClass  *jsb_cocos2d_Sprite_class;
-JSObject *jsb_cocos2d_Sprite_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Sprite_prototype;
 
 bool js_cocos2dx_Sprite_setSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -40718,11 +40588,10 @@ bool js_cocos2dx_Sprite_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
     bool ok = true;
     cocos2d::Sprite* cobj = new (std::nothrow) cocos2d::Sprite();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Sprite>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::Sprite");
+    JS::RootedObject proto(cx, jsb_cocos2d_Sprite_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Sprite_class, proto, &jsobj, "cocos2d::Sprite");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -40751,7 +40620,7 @@ static bool js_cocos2dx_Sprite_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
     
 void js_register_cocos2dx_Sprite(JSContext *cx, JS::HandleObject global) {
@@ -40807,8 +40676,8 @@ void js_register_cocos2dx_Sprite(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_cocos2d_Sprite_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Sprite_class,
@@ -40816,21 +40685,21 @@ void js_register_cocos2dx_Sprite(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Sprite_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Sprite>(cx, jsb_cocos2d_Sprite_class, proto);
+    jsb_cocos2d_Sprite_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Sprite", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Sprite>(cx, jsb_cocos2d_Sprite_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_RenderTexture_class;
-JSObject *jsb_cocos2d_RenderTexture_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_RenderTexture_prototype;
 
 bool js_cocos2dx_RenderTexture_setVirtualViewport(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -41509,11 +41378,10 @@ bool js_cocos2dx_RenderTexture_constructor(JSContext *cx, uint32_t argc, JS::Val
     bool ok = true;
     cocos2d::RenderTexture* cobj = new (std::nothrow) cocos2d::RenderTexture();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::RenderTexture>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::RenderTexture");
+    JS::RootedObject proto(cx, jsb_cocos2d_RenderTexture_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_RenderTexture_class, proto, &jsobj, "cocos2d::RenderTexture");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -41542,7 +41410,7 @@ static bool js_cocos2dx_RenderTexture_ctor(JSContext *cx, uint32_t argc, JS::Val
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
     
 void js_register_cocos2dx_RenderTexture(JSContext *cx, JS::HandleObject global) {
@@ -41591,8 +41459,8 @@ void js_register_cocos2dx_RenderTexture(JSContext *cx, JS::HandleObject global) 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_cocos2d_RenderTexture_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_RenderTexture_class,
@@ -41600,21 +41468,21 @@ void js_register_cocos2dx_RenderTexture(JSContext *cx, JS::HandleObject global) 
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_RenderTexture_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::RenderTexture>(cx, jsb_cocos2d_RenderTexture_class, proto);
+    jsb_cocos2d_RenderTexture_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "RenderTexture", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::RenderTexture>(cx, jsb_cocos2d_RenderTexture_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_GLProgram_class;
-JSObject *jsb_cocos2d_GLProgram_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_GLProgram_prototype;
 
 bool js_cocos2dx_GLProgram_getFragmentShaderLog(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -42299,11 +42167,10 @@ bool js_cocos2dx_GLProgram_constructor(JSContext *cx, uint32_t argc, JS::Value *
     bool ok = true;
     cocos2d::GLProgram* cobj = new (std::nothrow) cocos2d::GLProgram();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::GLProgram>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::GLProgram");
+    JS::RootedObject proto(cx, jsb_cocos2d_GLProgram_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_GLProgram_class, proto, &jsobj, "cocos2d::GLProgram");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -42381,7 +42248,7 @@ void js_register_cocos2dx_GLProgram(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_GLProgram_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_GLProgram_class,
@@ -42389,21 +42256,21 @@ void js_register_cocos2dx_GLProgram(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_GLProgram_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::GLProgram>(cx, jsb_cocos2d_GLProgram_class, proto);
+    jsb_cocos2d_GLProgram_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "GLProgram", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::GLProgram>(cx, jsb_cocos2d_GLProgram_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_GLProgramCache_class;
-JSObject *jsb_cocos2d_GLProgramCache_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_GLProgramCache_prototype;
 
 bool js_cocos2dx_GLProgramCache_loadDefaultGLPrograms(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -42531,9 +42398,9 @@ bool js_cocos2dx_GLProgramCache_getInstance(JSContext *cx, uint32_t argc, JS::Va
     if (argc == 0) {
 
         auto ret = cocos2d::GLProgramCache::getInstance();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::GLProgramCache>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_get_or_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::GLProgramCache");
+        JS::RootedObject proto(cx, jsb_cocos2d_GLProgramCache_prototype->get());
+        jsb_ref_get_or_create_jsobject(cx, ret, jsb_cocos2d_GLProgramCache_class, proto, &jsret, "cocos2d::GLProgramCache");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -42547,11 +42414,10 @@ bool js_cocos2dx_GLProgramCache_constructor(JSContext *cx, uint32_t argc, JS::Va
     bool ok = true;
     cocos2d::GLProgramCache* cobj = new (std::nothrow) cocos2d::GLProgramCache();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::GLProgramCache>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::GLProgramCache");
+    JS::RootedObject proto(cx, jsb_cocos2d_GLProgramCache_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_GLProgramCache_class, proto, &jsobj, "cocos2d::GLProgramCache");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -42593,7 +42459,7 @@ void js_register_cocos2dx_GLProgramCache(JSContext *cx, JS::HandleObject global)
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_GLProgramCache_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_GLProgramCache_class,
@@ -42601,20 +42467,20 @@ void js_register_cocos2dx_GLProgramCache(JSContext *cx, JS::HandleObject global)
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_GLProgramCache_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::GLProgramCache>(cx, jsb_cocos2d_GLProgramCache_class, proto);
+    jsb_cocos2d_GLProgramCache_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "GLProgramCache", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::GLProgramCache>(cx, jsb_cocos2d_GLProgramCache_class, proto);
 }
 
 JSClass  *jsb_cocos2d_RenderState_class;
-JSObject *jsb_cocos2d_RenderState_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_RenderState_prototype;
 
 bool js_cocos2dx_RenderState_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -42866,7 +42732,7 @@ void js_register_cocos2dx_RenderState(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_RenderState_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_RenderState_class,
@@ -42874,20 +42740,20 @@ void js_register_cocos2dx_RenderState(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_RenderState_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::RenderState>(cx, jsb_cocos2d_RenderState_class, proto);
+    jsb_cocos2d_RenderState_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "RenderState", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::RenderState>(cx, jsb_cocos2d_RenderState_class, proto);
 }
 
 JSClass  *jsb_cocos2d_Pass_class;
-JSObject *jsb_cocos2d_Pass_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Pass_prototype;
 
 bool js_cocos2dx_Pass_unbind(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -43089,9 +42955,9 @@ bool js_cocos2dx_Pass_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Pass_create : Error processing arguments");
 
         auto ret = cocos2d::Pass::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Pass>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Pass");
+        JS::RootedObject proto(cx, jsb_cocos2d_Pass_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Pass_class, proto, &jsret, "cocos2d::Pass");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -43127,9 +42993,9 @@ bool js_cocos2dx_Pass_createWithGLProgramState(JSContext *cx, uint32_t argc, JS:
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Pass_createWithGLProgramState : Error processing arguments");
 
         auto ret = cocos2d::Pass::createWithGLProgramState(arg0, arg1);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Pass>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Pass");
+        JS::RootedObject proto(cx, jsb_cocos2d_Pass_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Pass_class, proto, &jsret, "cocos2d::Pass");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -43138,7 +43004,7 @@ bool js_cocos2dx_Pass_createWithGLProgramState(JSContext *cx, uint32_t argc, JS:
 }
 
 
-extern JSObject *jsb_cocos2d_RenderState_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_RenderState_prototype;
 
 void js_register_cocos2dx_Pass(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_Pass_classOps = {
@@ -43171,8 +43037,8 @@ void js_register_cocos2dx_Pass(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_RenderState_prototype);
-    jsb_cocos2d_Pass_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_RenderState_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Pass_class,
@@ -43180,20 +43046,20 @@ void js_register_cocos2dx_Pass(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Pass_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Pass>(cx, jsb_cocos2d_Pass_class, proto);
+    jsb_cocos2d_Pass_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Pass", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Pass>(cx, jsb_cocos2d_Pass_class, proto);
 }
 
 JSClass  *jsb_cocos2d_Material_class;
-JSObject *jsb_cocos2d_Material_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Material_prototype;
 
 bool js_cocos2dx_Material_clone(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -43443,9 +43309,9 @@ bool js_cocos2dx_Material_createWithFilename(JSContext *cx, uint32_t argc, JS::V
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Material_createWithFilename : Error processing arguments");
 
         auto ret = cocos2d::Material::createWithFilename(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Material>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Material");
+        JS::RootedObject proto(cx, jsb_cocos2d_Material_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Material_class, proto, &jsret, "cocos2d::Material");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -43471,9 +43337,9 @@ bool js_cocos2dx_Material_createWithGLStateProgram(JSContext *cx, uint32_t argc,
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Material_createWithGLStateProgram : Error processing arguments");
 
         auto ret = cocos2d::Material::createWithGLStateProgram(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Material>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Material");
+        JS::RootedObject proto(cx, jsb_cocos2d_Material_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Material_class, proto, &jsret, "cocos2d::Material");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -43499,9 +43365,9 @@ bool js_cocos2dx_Material_createWithProperties(JSContext *cx, uint32_t argc, JS:
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Material_createWithProperties : Error processing arguments");
 
         auto ret = cocos2d::Material::createWithProperties(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::Material>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::Material");
+        JS::RootedObject proto(cx, jsb_cocos2d_Material_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_Material_class, proto, &jsret, "cocos2d::Material");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -43510,7 +43376,7 @@ bool js_cocos2dx_Material_createWithProperties(JSContext *cx, uint32_t argc, JS:
 }
 
 
-extern JSObject *jsb_cocos2d_RenderState_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_RenderState_prototype;
 
 void js_register_cocos2dx_Material(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_Material_classOps = {
@@ -43547,8 +43413,8 @@ void js_register_cocos2dx_Material(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_RenderState_prototype);
-    jsb_cocos2d_Material_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_RenderState_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Material_class,
@@ -43556,20 +43422,20 @@ void js_register_cocos2dx_Material(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Material_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Material>(cx, jsb_cocos2d_Material_class, proto);
+    jsb_cocos2d_Material_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Material", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Material>(cx, jsb_cocos2d_Material_class, proto);
 }
 
 JSClass  *jsb_cocos2d_TextureCache_class;
-JSObject *jsb_cocos2d_TextureCache_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_TextureCache_prototype;
 
 bool js_cocos2dx_TextureCache_reloadTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -44000,11 +43866,10 @@ bool js_cocos2dx_TextureCache_constructor(JSContext *cx, uint32_t argc, JS::Valu
     bool ok = true;
     cocos2d::TextureCache* cobj = new (std::nothrow) cocos2d::TextureCache();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TextureCache>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::TextureCache");
+    JS::RootedObject proto(cx, jsb_cocos2d_TextureCache_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_TextureCache_class, proto, &jsobj, "cocos2d::TextureCache");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -44051,7 +43916,7 @@ void js_register_cocos2dx_TextureCache(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_TextureCache_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_TextureCache_class,
@@ -44059,20 +43924,20 @@ void js_register_cocos2dx_TextureCache(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_TextureCache_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::TextureCache>(cx, jsb_cocos2d_TextureCache_class, proto);
+    jsb_cocos2d_TextureCache_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TextureCache", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::TextureCache>(cx, jsb_cocos2d_TextureCache_class, proto);
 }
 
 JSClass  *jsb_cocos2d_Device_class;
-JSObject *jsb_cocos2d_Device_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Device_prototype;
 
 bool js_cocos2dx_Device_setAccelerometerEnabled(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -44180,7 +44045,7 @@ void js_register_cocos2dx_Device(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_Device_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Device_class,
@@ -44188,20 +44053,20 @@ void js_register_cocos2dx_Device(JSContext *cx, JS::HandleObject global) {
         nullptr,
         nullptr,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Device_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Device>(cx, jsb_cocos2d_Device_class, proto);
+    jsb_cocos2d_Device_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Device", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Device>(cx, jsb_cocos2d_Device_class, proto);
 }
 
 JSClass  *jsb_cocos2d_SAXParser_class;
-JSObject *jsb_cocos2d_SAXParser_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_SAXParser_prototype;
 
 bool js_cocos2dx_SAXParser_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -44247,7 +44112,7 @@ void js_register_cocos2dx_SAXParser(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_SAXParser_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_SAXParser_class,
@@ -44255,20 +44120,20 @@ void js_register_cocos2dx_SAXParser(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_SAXParser_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::SAXParser>(cx, jsb_cocos2d_SAXParser_class, proto);
+    jsb_cocos2d_SAXParser_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "SAXParser", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::SAXParser>(cx, jsb_cocos2d_SAXParser_class, proto);
 }
 
 JSClass  *jsb_cocos2d_Application_class;
-JSObject *jsb_cocos2d_Application_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_Application_prototype;
 
 bool js_cocos2dx_Application_getTargetPlatform(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -44418,7 +44283,7 @@ void js_register_cocos2dx_Application(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_Application_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_Application_class,
@@ -44426,20 +44291,20 @@ void js_register_cocos2dx_Application(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_Application_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::Application>(cx, jsb_cocos2d_Application_class, proto);
+    jsb_cocos2d_Application_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Application", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::Application>(cx, jsb_cocos2d_Application_class, proto);
 }
 
 JSClass  *jsb_cocos2d_SpriteBatchNode_class;
-JSObject *jsb_cocos2d_SpriteBatchNode_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_SpriteBatchNode_prototype;
 
 bool js_cocos2dx_SpriteBatchNode_appendChild(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -45000,9 +44865,9 @@ bool js_cocos2dx_SpriteBatchNode_create(JSContext *cx, uint32_t argc, JS::Value 
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteBatchNode_create : Error processing arguments");
 
         auto ret = cocos2d::SpriteBatchNode::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::SpriteBatchNode>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::SpriteBatchNode");
+        JS::RootedObject proto(cx, jsb_cocos2d_SpriteBatchNode_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_SpriteBatchNode_class, proto, &jsret, "cocos2d::SpriteBatchNode");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -45014,9 +44879,9 @@ bool js_cocos2dx_SpriteBatchNode_create(JSContext *cx, uint32_t argc, JS::Value 
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteBatchNode_create : Error processing arguments");
 
         auto ret = cocos2d::SpriteBatchNode::create(arg0, arg1);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::SpriteBatchNode>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::SpriteBatchNode");
+        JS::RootedObject proto(cx, jsb_cocos2d_SpriteBatchNode_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_SpriteBatchNode_class, proto, &jsret, "cocos2d::SpriteBatchNode");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -45042,9 +44907,9 @@ bool js_cocos2dx_SpriteBatchNode_createWithTexture(JSContext *cx, uint32_t argc,
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteBatchNode_createWithTexture : Error processing arguments");
 
         auto ret = cocos2d::SpriteBatchNode::createWithTexture(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::SpriteBatchNode>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::SpriteBatchNode");
+        JS::RootedObject proto(cx, jsb_cocos2d_SpriteBatchNode_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_SpriteBatchNode_class, proto, &jsret, "cocos2d::SpriteBatchNode");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -45064,9 +44929,9 @@ bool js_cocos2dx_SpriteBatchNode_createWithTexture(JSContext *cx, uint32_t argc,
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_SpriteBatchNode_createWithTexture : Error processing arguments");
 
         auto ret = cocos2d::SpriteBatchNode::createWithTexture(arg0, arg1);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::SpriteBatchNode>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::SpriteBatchNode");
+        JS::RootedObject proto(cx, jsb_cocos2d_SpriteBatchNode_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_SpriteBatchNode_class, proto, &jsret, "cocos2d::SpriteBatchNode");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -45080,11 +44945,10 @@ bool js_cocos2dx_SpriteBatchNode_constructor(JSContext *cx, uint32_t argc, JS::V
     bool ok = true;
     cocos2d::SpriteBatchNode* cobj = new (std::nothrow) cocos2d::SpriteBatchNode();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::SpriteBatchNode>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::SpriteBatchNode");
+    JS::RootedObject proto(cx, jsb_cocos2d_SpriteBatchNode_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_SpriteBatchNode_class, proto, &jsobj, "cocos2d::SpriteBatchNode");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -45113,7 +44977,7 @@ static bool js_cocos2dx_SpriteBatchNode_ctor(JSContext *cx, uint32_t argc, JS::V
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
     
 void js_register_cocos2dx_SpriteBatchNode(JSContext *cx, JS::HandleObject global) {
@@ -45160,8 +45024,8 @@ void js_register_cocos2dx_SpriteBatchNode(JSContext *cx, JS::HandleObject global
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_cocos2d_SpriteBatchNode_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_SpriteBatchNode_class,
@@ -45169,21 +45033,21 @@ void js_register_cocos2dx_SpriteBatchNode(JSContext *cx, JS::HandleObject global
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_SpriteBatchNode_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::SpriteBatchNode>(cx, jsb_cocos2d_SpriteBatchNode_class, proto);
+    jsb_cocos2d_SpriteBatchNode_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "SpriteBatchNode", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::SpriteBatchNode>(cx, jsb_cocos2d_SpriteBatchNode_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_SpriteFrameCache_class;
-JSObject *jsb_cocos2d_SpriteFrameCache_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_SpriteFrameCache_prototype;
 
 bool js_cocos2dx_SpriteFrameCache_reloadTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -45543,9 +45407,9 @@ bool js_cocos2dx_SpriteFrameCache_getInstance(JSContext *cx, uint32_t argc, JS::
     if (argc == 0) {
 
         auto ret = cocos2d::SpriteFrameCache::getInstance();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::SpriteFrameCache>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_get_or_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::SpriteFrameCache");
+        JS::RootedObject proto(cx, jsb_cocos2d_SpriteFrameCache_prototype->get());
+        jsb_ref_get_or_create_jsobject(cx, ret, jsb_cocos2d_SpriteFrameCache_class, proto, &jsret, "cocos2d::SpriteFrameCache");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -45592,7 +45456,7 @@ void js_register_cocos2dx_SpriteFrameCache(JSContext *cx, JS::HandleObject globa
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_SpriteFrameCache_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_SpriteFrameCache_class,
@@ -45600,20 +45464,20 @@ void js_register_cocos2dx_SpriteFrameCache(JSContext *cx, JS::HandleObject globa
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_SpriteFrameCache_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::SpriteFrameCache>(cx, jsb_cocos2d_SpriteFrameCache_class, proto);
+    jsb_cocos2d_SpriteFrameCache_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "SpriteFrameCache", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::SpriteFrameCache>(cx, jsb_cocos2d_SpriteFrameCache_class, proto);
 }
 
 JSClass  *jsb_cocos2d_TextFieldTTF_class;
-JSObject *jsb_cocos2d_TextFieldTTF_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_TextFieldTTF_prototype;
 
 bool js_cocos2dx_TextFieldTTF_getCharCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -46087,11 +45951,10 @@ bool js_cocos2dx_TextFieldTTF_constructor(JSContext *cx, uint32_t argc, JS::Valu
     bool ok = true;
     cocos2d::TextFieldTTF* cobj = new (std::nothrow) cocos2d::TextFieldTTF();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TextFieldTTF>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::TextFieldTTF");
+    JS::RootedObject proto(cx, jsb_cocos2d_TextFieldTTF_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_TextFieldTTF_class, proto, &jsobj, "cocos2d::TextFieldTTF");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -46120,7 +45983,7 @@ static bool js_cocos2dx_TextFieldTTF_ctor(JSContext *cx, uint32_t argc, JS::Valu
 }
 
 
-extern JSObject *jsb_cocos2d_Label_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Label_prototype;
 
     
 void js_register_cocos2dx_TextFieldTTF(JSContext *cx, JS::HandleObject global) {
@@ -46164,8 +46027,8 @@ void js_register_cocos2dx_TextFieldTTF(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Label_prototype);
-    jsb_cocos2d_TextFieldTTF_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Label_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_TextFieldTTF_class,
@@ -46173,21 +46036,21 @@ void js_register_cocos2dx_TextFieldTTF(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_TextFieldTTF_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::TextFieldTTF>(cx, jsb_cocos2d_TextFieldTTF_class, proto);
+    jsb_cocos2d_TextFieldTTF_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TextFieldTTF", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::TextFieldTTF>(cx, jsb_cocos2d_TextFieldTTF_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_ParallaxNode_class;
-JSObject *jsb_cocos2d_ParallaxNode_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_ParallaxNode_prototype;
 
 bool js_cocos2dx_ParallaxNode_addChild(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -46250,9 +46113,9 @@ bool js_cocos2dx_ParallaxNode_create(JSContext *cx, uint32_t argc, JS::Value *vp
     if (argc == 0) {
 
         auto ret = cocos2d::ParallaxNode::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParallaxNode>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::ParallaxNode");
+        JS::RootedObject proto(cx, jsb_cocos2d_ParallaxNode_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_ParallaxNode_class, proto, &jsret, "cocos2d::ParallaxNode");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -46266,11 +46129,10 @@ bool js_cocos2dx_ParallaxNode_constructor(JSContext *cx, uint32_t argc, JS::Valu
     bool ok = true;
     cocos2d::ParallaxNode* cobj = new (std::nothrow) cocos2d::ParallaxNode();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::ParallaxNode>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::ParallaxNode");
+    JS::RootedObject proto(cx, jsb_cocos2d_ParallaxNode_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_ParallaxNode_class, proto, &jsobj, "cocos2d::ParallaxNode");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -46299,7 +46161,7 @@ static bool js_cocos2dx_ParallaxNode_ctor(JSContext *cx, uint32_t argc, JS::Valu
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
     
 void js_register_cocos2dx_ParallaxNode(JSContext *cx, JS::HandleObject global) {
@@ -46328,8 +46190,8 @@ void js_register_cocos2dx_ParallaxNode(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_cocos2d_ParallaxNode_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_ParallaxNode_class,
@@ -46337,21 +46199,21 @@ void js_register_cocos2dx_ParallaxNode(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_ParallaxNode_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::ParallaxNode>(cx, jsb_cocos2d_ParallaxNode_class, proto);
+    jsb_cocos2d_ParallaxNode_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "ParallaxNode", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::ParallaxNode>(cx, jsb_cocos2d_ParallaxNode_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_TMXObject_class;
-JSObject *jsb_cocos2d_TMXObject_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_TMXObject_prototype;
 
 bool js_cocos2dx_TMXObject_getGid(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -46645,11 +46507,10 @@ bool js_cocos2dx_TMXObject_constructor(JSContext *cx, uint32_t argc, JS::Value *
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObject_constructor : Error processing arguments");
     cocos2d::TMXObject* cobj = new (std::nothrow) cocos2d::TMXObject(arg0, arg1, arg2, arg3);
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TMXObject>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::TMXObject");
+    JS::RootedObject proto(cx, jsb_cocos2d_TMXObject_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_TMXObject_class, proto, &jsobj, "cocos2d::TMXObject");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -46693,7 +46554,7 @@ void js_register_cocos2dx_TMXObject(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_TMXObject_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_TMXObject_class,
@@ -46701,20 +46562,20 @@ void js_register_cocos2dx_TMXObject(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_TMXObject_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::TMXObject>(cx, jsb_cocos2d_TMXObject_class, proto);
+    jsb_cocos2d_TMXObject_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TMXObject", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::TMXObject>(cx, jsb_cocos2d_TMXObject_class, proto);
 }
 
 JSClass  *jsb_cocos2d_TMXObjectImage_class;
-JSObject *jsb_cocos2d_TMXObjectImage_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_TMXObjectImage_prototype;
 
 bool js_cocos2dx_TMXObjectImage_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -46743,11 +46604,10 @@ bool js_cocos2dx_TMXObjectImage_constructor(JSContext *cx, uint32_t argc, JS::Va
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObjectImage_constructor : Error processing arguments");
     cocos2d::TMXObjectImage* cobj = new (std::nothrow) cocos2d::TMXObjectImage(arg0, arg1);
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TMXObjectImage>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::TMXObjectImage");
+    JS::RootedObject proto(cx, jsb_cocos2d_TMXObjectImage_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_TMXObjectImage_class, proto, &jsobj, "cocos2d::TMXObjectImage");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -46759,7 +46619,7 @@ bool js_cocos2dx_TMXObjectImage_constructor(JSContext *cx, uint32_t argc, JS::Va
 }
 
 
-extern JSObject *jsb_cocos2d_Sprite_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Sprite_prototype;
 
 void js_register_cocos2dx_TMXObjectImage(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_TMXObjectImage_classOps = {
@@ -46775,8 +46635,8 @@ void js_register_cocos2dx_TMXObjectImage(JSContext *cx, JS::HandleObject global)
     };
     jsb_cocos2d_TMXObjectImage_class = &cocos2d_TMXObjectImage_class;
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Sprite_prototype);
-    jsb_cocos2d_TMXObjectImage_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Sprite_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_TMXObjectImage_class,
@@ -46784,20 +46644,20 @@ void js_register_cocos2dx_TMXObjectImage(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_TMXObjectImage_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::TMXObjectImage>(cx, jsb_cocos2d_TMXObjectImage_class, proto);
+    jsb_cocos2d_TMXObjectImage_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TMXObjectImage", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::TMXObjectImage>(cx, jsb_cocos2d_TMXObjectImage_class, proto);
 }
 
 JSClass  *jsb_cocos2d_TMXObjectShape_class;
-JSObject *jsb_cocos2d_TMXObjectShape_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_TMXObjectShape_prototype;
 
 bool js_cocos2dx_TMXObjectShape_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -46828,11 +46688,10 @@ bool js_cocos2dx_TMXObjectShape_constructor(JSContext *cx, uint32_t argc, JS::Va
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObjectShape_constructor : Error processing arguments");
     cocos2d::TMXObjectShape* cobj = new (std::nothrow) cocos2d::TMXObjectShape(arg0, arg1, arg2);
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TMXObjectShape>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::TMXObjectShape");
+    JS::RootedObject proto(cx, jsb_cocos2d_TMXObjectShape_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_TMXObjectShape_class, proto, &jsobj, "cocos2d::TMXObjectShape");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -46844,7 +46703,7 @@ bool js_cocos2dx_TMXObjectShape_constructor(JSContext *cx, uint32_t argc, JS::Va
 }
 
 
-extern JSObject *jsb_cocos2d_DrawNode_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_DrawNode_prototype;
 
 void js_register_cocos2dx_TMXObjectShape(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_TMXObjectShape_classOps = {
@@ -46860,8 +46719,8 @@ void js_register_cocos2dx_TMXObjectShape(JSContext *cx, JS::HandleObject global)
     };
     jsb_cocos2d_TMXObjectShape_class = &cocos2d_TMXObjectShape_class;
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_DrawNode_prototype);
-    jsb_cocos2d_TMXObjectShape_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_DrawNode_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_TMXObjectShape_class,
@@ -46869,20 +46728,20 @@ void js_register_cocos2dx_TMXObjectShape(JSContext *cx, JS::HandleObject global)
         nullptr,
         nullptr,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_TMXObjectShape_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::TMXObjectShape>(cx, jsb_cocos2d_TMXObjectShape_class, proto);
+    jsb_cocos2d_TMXObjectShape_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TMXObjectShape", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::TMXObjectShape>(cx, jsb_cocos2d_TMXObjectShape_class, proto);
 }
 
 JSClass  *jsb_cocos2d_TMXObjectGroup_class;
-JSObject *jsb_cocos2d_TMXObjectGroup_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_TMXObjectGroup_prototype;
 
 bool js_cocos2dx_TMXObjectGroup_setPositionOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -47121,11 +46980,10 @@ bool js_cocos2dx_TMXObjectGroup_constructor(JSContext *cx, uint32_t argc, JS::Va
     JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXObjectGroup_constructor : Error processing arguments");
     cocos2d::TMXObjectGroup* cobj = new (std::nothrow) cocos2d::TMXObjectGroup(arg0, arg1);
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TMXObjectGroup>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::TMXObjectGroup");
+    JS::RootedObject proto(cx, jsb_cocos2d_TMXObjectGroup_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_TMXObjectGroup_class, proto, &jsobj, "cocos2d::TMXObjectGroup");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -47137,7 +46995,7 @@ bool js_cocos2dx_TMXObjectGroup_constructor(JSContext *cx, uint32_t argc, JS::Va
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
 void js_register_cocos2dx_TMXObjectGroup(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_TMXObjectGroup_classOps = {
@@ -47166,8 +47024,8 @@ void js_register_cocos2dx_TMXObjectGroup(JSContext *cx, JS::HandleObject global)
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_cocos2d_TMXObjectGroup_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_TMXObjectGroup_class,
@@ -47175,20 +47033,20 @@ void js_register_cocos2dx_TMXObjectGroup(JSContext *cx, JS::HandleObject global)
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_TMXObjectGroup_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::TMXObjectGroup>(cx, jsb_cocos2d_TMXObjectGroup_class, proto);
+    jsb_cocos2d_TMXObjectGroup_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TMXObjectGroup", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::TMXObjectGroup>(cx, jsb_cocos2d_TMXObjectGroup_class, proto);
 }
 
 JSClass  *jsb_cocos2d_TMXLayerInfo_class;
-JSObject *jsb_cocos2d_TMXLayerInfo_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_TMXLayerInfo_prototype;
 
 bool js_cocos2dx_TMXLayerInfo_setProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -47236,11 +47094,10 @@ bool js_cocos2dx_TMXLayerInfo_constructor(JSContext *cx, uint32_t argc, JS::Valu
     bool ok = true;
     cocos2d::TMXLayerInfo* cobj = new (std::nothrow) cocos2d::TMXLayerInfo();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TMXLayerInfo>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::TMXLayerInfo");
+    JS::RootedObject proto(cx, jsb_cocos2d_TMXLayerInfo_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_TMXLayerInfo_class, proto, &jsobj, "cocos2d::TMXLayerInfo");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -47277,7 +47134,7 @@ void js_register_cocos2dx_TMXLayerInfo(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_TMXLayerInfo_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_TMXLayerInfo_class,
@@ -47285,20 +47142,20 @@ void js_register_cocos2dx_TMXLayerInfo(JSContext *cx, JS::HandleObject global) {
         properties,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_TMXLayerInfo_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::TMXLayerInfo>(cx, jsb_cocos2d_TMXLayerInfo_class, proto);
+    jsb_cocos2d_TMXLayerInfo_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TMXLayerInfo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::TMXLayerInfo>(cx, jsb_cocos2d_TMXLayerInfo_class, proto);
 }
 
 JSClass  *jsb_cocos2d_TMXObjectGroupInfo_class;
-JSObject *jsb_cocos2d_TMXObjectGroupInfo_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_TMXObjectGroupInfo_prototype;
 
 bool js_cocos2dx_TMXObjectGroupInfo_setProperties(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -47346,11 +47203,10 @@ bool js_cocos2dx_TMXObjectGroupInfo_constructor(JSContext *cx, uint32_t argc, JS
     bool ok = true;
     cocos2d::TMXObjectGroupInfo* cobj = new (std::nothrow) cocos2d::TMXObjectGroupInfo();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TMXObjectGroupInfo>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::TMXObjectGroupInfo");
+    JS::RootedObject proto(cx, jsb_cocos2d_TMXObjectGroupInfo_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_TMXObjectGroupInfo_class, proto, &jsobj, "cocos2d::TMXObjectGroupInfo");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -47387,7 +47243,7 @@ void js_register_cocos2dx_TMXObjectGroupInfo(JSContext *cx, JS::HandleObject glo
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_TMXObjectGroupInfo_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_TMXObjectGroupInfo_class,
@@ -47395,20 +47251,20 @@ void js_register_cocos2dx_TMXObjectGroupInfo(JSContext *cx, JS::HandleObject glo
         properties,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_TMXObjectGroupInfo_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::TMXObjectGroupInfo>(cx, jsb_cocos2d_TMXObjectGroupInfo_class, proto);
+    jsb_cocos2d_TMXObjectGroupInfo_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TMXObjectGroupInfo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::TMXObjectGroupInfo>(cx, jsb_cocos2d_TMXObjectGroupInfo_class, proto);
 }
 
 JSClass  *jsb_cocos2d_TMXTilesetInfo_class;
-JSObject *jsb_cocos2d_TMXTilesetInfo_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_TMXTilesetInfo_prototype;
 
 bool js_cocos2dx_TMXTilesetInfo_getRectForGID(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -47439,11 +47295,10 @@ bool js_cocos2dx_TMXTilesetInfo_constructor(JSContext *cx, uint32_t argc, JS::Va
     bool ok = true;
     cocos2d::TMXTilesetInfo* cobj = new (std::nothrow) cocos2d::TMXTilesetInfo();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TMXTilesetInfo>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::TMXTilesetInfo");
+    JS::RootedObject proto(cx, jsb_cocos2d_TMXTilesetInfo_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_TMXTilesetInfo_class, proto, &jsobj, "cocos2d::TMXTilesetInfo");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -47479,7 +47334,7 @@ void js_register_cocos2dx_TMXTilesetInfo(JSContext *cx, JS::HandleObject global)
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_TMXTilesetInfo_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_TMXTilesetInfo_class,
@@ -47487,20 +47342,20 @@ void js_register_cocos2dx_TMXTilesetInfo(JSContext *cx, JS::HandleObject global)
         properties,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_TMXTilesetInfo_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::TMXTilesetInfo>(cx, jsb_cocos2d_TMXTilesetInfo_class, proto);
+    jsb_cocos2d_TMXTilesetInfo_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TMXTilesetInfo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::TMXTilesetInfo>(cx, jsb_cocos2d_TMXTilesetInfo_class, proto);
 }
 
 JSClass  *jsb_cocos2d_TMXMapInfo_class;
-JSObject *jsb_cocos2d_TMXMapInfo_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_TMXMapInfo_prototype;
 
 bool js_cocos2dx_TMXMapInfo_getAllChildren(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -48436,9 +48291,9 @@ bool js_cocos2dx_TMXMapInfo_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_create : Error processing arguments");
 
         auto ret = cocos2d::TMXMapInfo::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TMXMapInfo>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::TMXMapInfo");
+        JS::RootedObject proto(cx, jsb_cocos2d_TMXMapInfo_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_TMXMapInfo_class, proto, &jsret, "cocos2d::TMXMapInfo");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -48458,9 +48313,9 @@ bool js_cocos2dx_TMXMapInfo_createWithXML(JSContext *cx, uint32_t argc, JS::Valu
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXMapInfo_createWithXML : Error processing arguments");
 
         auto ret = cocos2d::TMXMapInfo::createWithXML(arg0, arg1);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TMXMapInfo>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::TMXMapInfo");
+        JS::RootedObject proto(cx, jsb_cocos2d_TMXMapInfo_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_TMXMapInfo_class, proto, &jsret, "cocos2d::TMXMapInfo");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -48474,11 +48329,10 @@ bool js_cocos2dx_TMXMapInfo_constructor(JSContext *cx, uint32_t argc, JS::Value 
     bool ok = true;
     cocos2d::TMXMapInfo* cobj = new (std::nothrow) cocos2d::TMXMapInfo();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TMXMapInfo>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::TMXMapInfo");
+    JS::RootedObject proto(cx, jsb_cocos2d_TMXMapInfo_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_TMXMapInfo_class, proto, &jsobj, "cocos2d::TMXMapInfo");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -48575,7 +48429,7 @@ void js_register_cocos2dx_TMXMapInfo(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_cocos2d_TMXMapInfo_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_TMXMapInfo_class,
@@ -48583,21 +48437,21 @@ void js_register_cocos2dx_TMXMapInfo(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_TMXMapInfo_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::TMXMapInfo>(cx, jsb_cocos2d_TMXMapInfo_class, proto);
+    jsb_cocos2d_TMXMapInfo_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TMXMapInfo", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::TMXMapInfo>(cx, jsb_cocos2d_TMXMapInfo_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_TMXLayer_class;
-JSObject *jsb_cocos2d_TMXLayer_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_TMXLayer_prototype;
 
 bool js_cocos2dx_TMXLayer_getTileGIDAt(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -49190,9 +49044,9 @@ bool js_cocos2dx_TMXLayer_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXLayer_create : Error processing arguments");
 
         auto ret = cocos2d::TMXLayer::create(arg0, arg1, arg2);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TMXLayer>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::TMXLayer");
+        JS::RootedObject proto(cx, jsb_cocos2d_TMXLayer_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_TMXLayer_class, proto, &jsret, "cocos2d::TMXLayer");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -49206,11 +49060,10 @@ bool js_cocos2dx_TMXLayer_constructor(JSContext *cx, uint32_t argc, JS::Value *v
     bool ok = true;
     cocos2d::TMXLayer* cobj = new (std::nothrow) cocos2d::TMXLayer();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TMXLayer>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::TMXLayer");
+    JS::RootedObject proto(cx, jsb_cocos2d_TMXLayer_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_TMXLayer_class, proto, &jsobj, "cocos2d::TMXLayer");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -49239,7 +49092,7 @@ static bool js_cocos2dx_TMXLayer_ctor(JSContext *cx, uint32_t argc, JS::Value *v
 }
 
 
-extern JSObject *jsb_cocos2d_SpriteBatchNode_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_SpriteBatchNode_prototype;
 
     
 void js_register_cocos2dx_TMXLayer(JSContext *cx, JS::HandleObject global) {
@@ -49288,8 +49141,8 @@ void js_register_cocos2dx_TMXLayer(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_SpriteBatchNode_prototype);
-    jsb_cocos2d_TMXLayer_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_SpriteBatchNode_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_TMXLayer_class,
@@ -49297,21 +49150,21 @@ void js_register_cocos2dx_TMXLayer(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_TMXLayer_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::TMXLayer>(cx, jsb_cocos2d_TMXLayer_class, proto);
+    jsb_cocos2d_TMXLayer_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TMXLayer", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::TMXLayer>(cx, jsb_cocos2d_TMXLayer_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_TMXTiledMap_class;
-JSObject *jsb_cocos2d_TMXTiledMap_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_TMXTiledMap_prototype;
 
 bool js_cocos2dx_TMXTiledMap_getProperty(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -49727,9 +49580,9 @@ bool js_cocos2dx_TMXTiledMap_create(JSContext *cx, uint32_t argc, JS::Value *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXTiledMap_create : Error processing arguments");
 
         auto ret = cocos2d::TMXTiledMap::create(arg0);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TMXTiledMap>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::TMXTiledMap");
+        JS::RootedObject proto(cx, jsb_cocos2d_TMXTiledMap_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_TMXTiledMap_class, proto, &jsret, "cocos2d::TMXTiledMap");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -49749,9 +49602,9 @@ bool js_cocos2dx_TMXTiledMap_createWithXML(JSContext *cx, uint32_t argc, JS::Val
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXTiledMap_createWithXML : Error processing arguments");
 
         auto ret = cocos2d::TMXTiledMap::createWithXML(arg0, arg1);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TMXTiledMap>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::TMXTiledMap");
+        JS::RootedObject proto(cx, jsb_cocos2d_TMXTiledMap_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_TMXTiledMap_class, proto, &jsret, "cocos2d::TMXTiledMap");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -49765,11 +49618,10 @@ bool js_cocos2dx_TMXTiledMap_constructor(JSContext *cx, uint32_t argc, JS::Value
     bool ok = true;
     cocos2d::TMXTiledMap* cobj = new (std::nothrow) cocos2d::TMXTiledMap();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TMXTiledMap>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::TMXTiledMap");
+    JS::RootedObject proto(cx, jsb_cocos2d_TMXTiledMap_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_TMXTiledMap_class, proto, &jsobj, "cocos2d::TMXTiledMap");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -49798,7 +49650,7 @@ static bool js_cocos2dx_TMXTiledMap_ctor(JSContext *cx, uint32_t argc, JS::Value
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
     
 void js_register_cocos2dx_TMXTiledMap(JSContext *cx, JS::HandleObject global) {
@@ -49843,8 +49695,8 @@ void js_register_cocos2dx_TMXTiledMap(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_cocos2d_TMXTiledMap_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_TMXTiledMap_class,
@@ -49852,21 +49704,21 @@ void js_register_cocos2dx_TMXTiledMap(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_TMXTiledMap_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::TMXTiledMap>(cx, jsb_cocos2d_TMXTiledMap_class, proto);
+    jsb_cocos2d_TMXTiledMap_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TMXTiledMap", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::TMXTiledMap>(cx, jsb_cocos2d_TMXTiledMap_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_TileMapAtlas_class;
-JSObject *jsb_cocos2d_TileMapAtlas_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_TileMapAtlas_prototype;
 
 bool js_cocos2dx_TileMapAtlas_initWithTileFile(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -49974,9 +49826,9 @@ bool js_cocos2dx_TileMapAtlas_create(JSContext *cx, uint32_t argc, JS::Value *vp
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TileMapAtlas_create : Error processing arguments");
 
         auto ret = cocos2d::TileMapAtlas::create(arg0, arg1, arg2, arg3);
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TileMapAtlas>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::TileMapAtlas");
+        JS::RootedObject proto(cx, jsb_cocos2d_TileMapAtlas_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_TileMapAtlas_class, proto, &jsret, "cocos2d::TileMapAtlas");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -49990,11 +49842,10 @@ bool js_cocos2dx_TileMapAtlas_constructor(JSContext *cx, uint32_t argc, JS::Valu
     bool ok = true;
     cocos2d::TileMapAtlas* cobj = new (std::nothrow) cocos2d::TileMapAtlas();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::TileMapAtlas>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::TileMapAtlas");
+    JS::RootedObject proto(cx, jsb_cocos2d_TileMapAtlas_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_TileMapAtlas_class, proto, &jsobj, "cocos2d::TileMapAtlas");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -50023,7 +49874,7 @@ static bool js_cocos2dx_TileMapAtlas_ctor(JSContext *cx, uint32_t argc, JS::Valu
 }
 
 
-extern JSObject *jsb_cocos2d_AtlasNode_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_AtlasNode_prototype;
 
     
 void js_register_cocos2dx_TileMapAtlas(JSContext *cx, JS::HandleObject global) {
@@ -50054,8 +49905,8 @@ void js_register_cocos2dx_TileMapAtlas(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_AtlasNode_prototype);
-    jsb_cocos2d_TileMapAtlas_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_AtlasNode_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_TileMapAtlas_class,
@@ -50063,16 +49914,16 @@ void js_register_cocos2dx_TileMapAtlas(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_TileMapAtlas_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::TileMapAtlas>(cx, jsb_cocos2d_TileMapAtlas_class, proto);
+    jsb_cocos2d_TileMapAtlas_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "TileMapAtlas", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::TileMapAtlas>(cx, jsb_cocos2d_TileMapAtlas_class, proto);
     make_class_extend(cx, proto);
 }
 

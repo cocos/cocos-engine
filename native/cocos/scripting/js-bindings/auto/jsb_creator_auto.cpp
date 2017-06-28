@@ -13,7 +13,7 @@
 #include "scripting/js-bindings/manual/box2d/js_bindings_box2d_manual.h"
 
 JSClass  *jsb_creator_Scale9SpriteV2_class;
-JSObject *jsb_creator_Scale9SpriteV2_prototype;
+JS::PersistentRootedObject *jsb_creator_Scale9SpriteV2_prototype;
 
 bool js_creator_Scale9SpriteV2_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -791,11 +791,10 @@ bool js_creator_Scale9SpriteV2_constructor(JSContext *cx, uint32_t argc, JS::Val
     bool ok = true;
     creator::Scale9SpriteV2* cobj = new (std::nothrow) creator::Scale9SpriteV2();
 
-    js_type_class_t *typeClass = js_get_type_from_native<creator::Scale9SpriteV2>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "creator::Scale9SpriteV2");
+    JS::RootedObject proto(cx, jsb_creator_Scale9SpriteV2_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_creator_Scale9SpriteV2_class, proto, &jsobj, "creator::Scale9SpriteV2");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -824,7 +823,7 @@ static bool js_creator_Scale9SpriteV2_ctor(JSContext *cx, uint32_t argc, JS::Val
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
     
 void js_register_creator_Scale9SpriteV2(JSContext *cx, JS::HandleObject global) {
@@ -876,8 +875,8 @@ void js_register_creator_Scale9SpriteV2(JSContext *cx, JS::HandleObject global) 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_creator_Scale9SpriteV2_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_creator_Scale9SpriteV2_class,
@@ -885,21 +884,21 @@ void js_register_creator_Scale9SpriteV2(JSContext *cx, JS::HandleObject global) 
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_creator_Scale9SpriteV2_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<creator::Scale9SpriteV2>(cx, jsb_creator_Scale9SpriteV2_class, proto);
+    jsb_creator_Scale9SpriteV2_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "Scale9SpriteV2", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<creator::Scale9SpriteV2>(cx, jsb_creator_Scale9SpriteV2_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_creator_GraphicsNode_class;
-JSObject *jsb_creator_GraphicsNode_prototype;
+JS::PersistentRootedObject *jsb_creator_GraphicsNode_prototype;
 
 bool js_creator_GraphicsNode_quadraticCurveTo(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -1619,9 +1618,9 @@ bool js_creator_GraphicsNode_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     if (argc == 0) {
 
         auto ret = creator::GraphicsNode::create();
-        js_type_class_t *typeClass = js_get_type_from_native<creator::GraphicsNode>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "creator::GraphicsNode");
+        JS::RootedObject proto(cx, jsb_creator_GraphicsNode_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_creator_GraphicsNode_class, proto, &jsret, "creator::GraphicsNode");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -1635,11 +1634,10 @@ bool js_creator_GraphicsNode_constructor(JSContext *cx, uint32_t argc, JS::Value
     bool ok = true;
     creator::GraphicsNode* cobj = new (std::nothrow) creator::GraphicsNode();
 
-    js_type_class_t *typeClass = js_get_type_from_native<creator::GraphicsNode>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "creator::GraphicsNode");
+    JS::RootedObject proto(cx, jsb_creator_GraphicsNode_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_creator_GraphicsNode_class, proto, &jsobj, "creator::GraphicsNode");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -1668,7 +1666,7 @@ static bool js_creator_GraphicsNode_ctor(JSContext *cx, uint32_t argc, JS::Value
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
     
 void js_register_creator_GraphicsNode(JSContext *cx, JS::HandleObject global) {
@@ -1727,8 +1725,8 @@ void js_register_creator_GraphicsNode(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_creator_GraphicsNode_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_creator_GraphicsNode_class,
@@ -1736,21 +1734,21 @@ void js_register_creator_GraphicsNode(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_creator_GraphicsNode_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<creator::GraphicsNode>(cx, jsb_creator_GraphicsNode_class, proto);
+    jsb_creator_GraphicsNode_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "GraphicsNode", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<creator::GraphicsNode>(cx, jsb_creator_GraphicsNode_class, proto);
     make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_creator_PhysicsDebugDraw_class;
-JSObject *jsb_creator_PhysicsDebugDraw_prototype;
+JS::PersistentRootedObject *jsb_creator_PhysicsDebugDraw_prototype;
 
 bool js_creator_PhysicsDebugDraw_getDrawer(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -1828,11 +1826,10 @@ bool js_creator_PhysicsDebugDraw_constructor(JSContext *cx, uint32_t argc, JS::V
     bool ok = true;
     creator::PhysicsDebugDraw* cobj = new (std::nothrow) creator::PhysicsDebugDraw();
 
-    js_type_class_t *typeClass = js_get_type_from_native<creator::PhysicsDebugDraw>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "creator::PhysicsDebugDraw");
+    JS::RootedObject proto(cx, jsb_creator_PhysicsDebugDraw_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_creator_PhysicsDebugDraw_class, proto, &jsobj, "creator::PhysicsDebugDraw");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -1845,7 +1842,7 @@ bool js_creator_PhysicsDebugDraw_constructor(JSContext *cx, uint32_t argc, JS::V
 }
 
 
-extern JSObject *jsb_b2Draw_prototype;
+extern JS::PersistentRootedObject *jsb_b2Draw_prototype;
 
 void js_creator_PhysicsDebugDraw_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (PhysicsDebugDraw)", obj);
@@ -1875,8 +1872,8 @@ void js_register_creator_PhysicsDebugDraw(JSContext *cx, JS::HandleObject global
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_b2Draw_prototype);
-    jsb_creator_PhysicsDebugDraw_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_b2Draw_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_creator_PhysicsDebugDraw_class,
@@ -1884,20 +1881,20 @@ void js_register_creator_PhysicsDebugDraw(JSContext *cx, JS::HandleObject global
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_creator_PhysicsDebugDraw_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<creator::PhysicsDebugDraw>(cx, jsb_creator_PhysicsDebugDraw_class, proto);
+    jsb_creator_PhysicsDebugDraw_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "PhysicsDebugDraw", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<creator::PhysicsDebugDraw>(cx, jsb_creator_PhysicsDebugDraw_class, proto);
 }
 
 JSClass  *jsb_creator_PhysicsWorldManifoldWrapper_class;
-JSObject *jsb_creator_PhysicsWorldManifoldWrapper_prototype;
+JS::PersistentRootedObject *jsb_creator_PhysicsWorldManifoldWrapper_prototype;
 
 bool js_creator_PhysicsWorldManifoldWrapper_getSeparation(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -2034,11 +2031,10 @@ bool js_creator_PhysicsWorldManifoldWrapper_constructor(JSContext *cx, uint32_t 
     bool ok = true;
     creator::PhysicsWorldManifoldWrapper* cobj = new (std::nothrow) creator::PhysicsWorldManifoldWrapper();
 
-    js_type_class_t *typeClass = js_get_type_from_native<creator::PhysicsWorldManifoldWrapper>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "creator::PhysicsWorldManifoldWrapper");
+    JS::RootedObject proto(cx, jsb_creator_PhysicsWorldManifoldWrapper_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_creator_PhysicsWorldManifoldWrapper_class, proto, &jsobj, "creator::PhysicsWorldManifoldWrapper");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -2075,7 +2071,7 @@ void js_register_creator_PhysicsWorldManifoldWrapper(JSContext *cx, JS::HandleOb
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_creator_PhysicsWorldManifoldWrapper_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_creator_PhysicsWorldManifoldWrapper_class,
@@ -2083,20 +2079,20 @@ void js_register_creator_PhysicsWorldManifoldWrapper(JSContext *cx, JS::HandleOb
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_creator_PhysicsWorldManifoldWrapper_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<creator::PhysicsWorldManifoldWrapper>(cx, jsb_creator_PhysicsWorldManifoldWrapper_class, proto);
+    jsb_creator_PhysicsWorldManifoldWrapper_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "PhysicsWorldManifoldWrapper", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<creator::PhysicsWorldManifoldWrapper>(cx, jsb_creator_PhysicsWorldManifoldWrapper_class, proto);
 }
 
 JSClass  *jsb_creator_PhysicsUtils_class;
-JSObject *jsb_creator_PhysicsUtils_prototype;
+JS::PersistentRootedObject *jsb_creator_PhysicsUtils_prototype;
 
 bool js_creator_PhysicsUtils_addB2Body(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -2244,11 +2240,10 @@ bool js_creator_PhysicsUtils_constructor(JSContext *cx, uint32_t argc, JS::Value
     bool ok = true;
     creator::PhysicsUtils* cobj = new (std::nothrow) creator::PhysicsUtils();
 
-    js_type_class_t *typeClass = js_get_type_from_native<creator::PhysicsUtils>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "creator::PhysicsUtils");
+    JS::RootedObject proto(cx, jsb_creator_PhysicsUtils_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_creator_PhysicsUtils_class, proto, &jsobj, "creator::PhysicsUtils");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -2296,7 +2291,7 @@ void js_register_creator_PhysicsUtils(JSContext *cx, JS::HandleObject global) {
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_creator_PhysicsUtils_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_creator_PhysicsUtils_class,
@@ -2304,20 +2299,20 @@ void js_register_creator_PhysicsUtils(JSContext *cx, JS::HandleObject global) {
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_creator_PhysicsUtils_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<creator::PhysicsUtils>(cx, jsb_creator_PhysicsUtils_class, proto);
+    jsb_creator_PhysicsUtils_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "PhysicsUtils", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<creator::PhysicsUtils>(cx, jsb_creator_PhysicsUtils_class, proto);
 }
 
 JSClass  *jsb_creator_PhysicsContactImpulse_class;
-JSObject *jsb_creator_PhysicsContactImpulse_prototype;
+JS::PersistentRootedObject *jsb_creator_PhysicsContactImpulse_prototype;
 
 bool js_creator_PhysicsContactImpulse_getCount(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -2391,11 +2386,10 @@ bool js_creator_PhysicsContactImpulse_constructor(JSContext *cx, uint32_t argc, 
     bool ok = true;
     creator::PhysicsContactImpulse* cobj = new (std::nothrow) creator::PhysicsContactImpulse();
 
-    js_type_class_t *typeClass = js_get_type_from_native<creator::PhysicsContactImpulse>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "creator::PhysicsContactImpulse");
+    JS::RootedObject proto(cx, jsb_creator_PhysicsContactImpulse_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_creator_PhysicsContactImpulse_class, proto, &jsobj, "creator::PhysicsContactImpulse");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -2429,7 +2423,7 @@ void js_register_creator_PhysicsContactImpulse(JSContext *cx, JS::HandleObject g
     };
 
     JS::RootedObject parent_proto(cx, nullptr);
-    jsb_creator_PhysicsContactImpulse_prototype = JS_InitClass(
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_creator_PhysicsContactImpulse_class,
@@ -2437,20 +2431,20 @@ void js_register_creator_PhysicsContactImpulse(JSContext *cx, JS::HandleObject g
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_creator_PhysicsContactImpulse_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<creator::PhysicsContactImpulse>(cx, jsb_creator_PhysicsContactImpulse_class, proto);
+    jsb_creator_PhysicsContactImpulse_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "PhysicsContactImpulse", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<creator::PhysicsContactImpulse>(cx, jsb_creator_PhysicsContactImpulse_class, proto);
 }
 
 JSClass  *jsb_creator_PhysicsContactListener_class;
-JSObject *jsb_creator_PhysicsContactListener_prototype;
+JS::PersistentRootedObject *jsb_creator_PhysicsContactListener_prototype;
 
 bool js_creator_PhysicsContactListener_unregisterContactFixture(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -2514,11 +2508,10 @@ bool js_creator_PhysicsContactListener_constructor(JSContext *cx, uint32_t argc,
     bool ok = true;
     creator::PhysicsContactListener* cobj = new (std::nothrow) creator::PhysicsContactListener();
 
-    js_type_class_t *typeClass = js_get_type_from_native<creator::PhysicsContactListener>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "creator::PhysicsContactListener");
+    JS::RootedObject proto(cx, jsb_creator_PhysicsContactListener_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_creator_PhysicsContactListener_class, proto, &jsobj, "creator::PhysicsContactListener");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -2531,7 +2524,7 @@ bool js_creator_PhysicsContactListener_constructor(JSContext *cx, uint32_t argc,
 }
 
 
-extern JSObject *jsb_b2ContactListener_prototype;
+extern JS::PersistentRootedObject *jsb_b2ContactListener_prototype;
 
 void js_creator_PhysicsContactListener_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (PhysicsContactListener)", obj);
@@ -2560,8 +2553,8 @@ void js_register_creator_PhysicsContactListener(JSContext *cx, JS::HandleObject 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_b2ContactListener_prototype);
-    jsb_creator_PhysicsContactListener_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_b2ContactListener_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_creator_PhysicsContactListener_class,
@@ -2569,20 +2562,20 @@ void js_register_creator_PhysicsContactListener(JSContext *cx, JS::HandleObject 
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_creator_PhysicsContactListener_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<creator::PhysicsContactListener>(cx, jsb_creator_PhysicsContactListener_class, proto);
+    jsb_creator_PhysicsContactListener_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "PhysicsContactListener", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<creator::PhysicsContactListener>(cx, jsb_creator_PhysicsContactListener_class, proto);
 }
 
 JSClass  *jsb_creator_PhysicsAABBQueryCallback_class;
-JSObject *jsb_creator_PhysicsAABBQueryCallback_prototype;
+JS::PersistentRootedObject *jsb_creator_PhysicsAABBQueryCallback_prototype;
 
 bool js_creator_PhysicsAABBQueryCallback_init(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -2651,11 +2644,10 @@ bool js_creator_PhysicsAABBQueryCallback_constructor(JSContext *cx, uint32_t arg
     bool ok = true;
     creator::PhysicsAABBQueryCallback* cobj = new (std::nothrow) creator::PhysicsAABBQueryCallback();
 
-    js_type_class_t *typeClass = js_get_type_from_native<creator::PhysicsAABBQueryCallback>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "creator::PhysicsAABBQueryCallback");
+    JS::RootedObject proto(cx, jsb_creator_PhysicsAABBQueryCallback_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_creator_PhysicsAABBQueryCallback_class, proto, &jsobj, "creator::PhysicsAABBQueryCallback");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -2668,7 +2660,7 @@ bool js_creator_PhysicsAABBQueryCallback_constructor(JSContext *cx, uint32_t arg
 }
 
 
-extern JSObject *jsb_b2QueryCallback_prototype;
+extern JS::PersistentRootedObject *jsb_b2QueryCallback_prototype;
 
 void js_creator_PhysicsAABBQueryCallback_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (PhysicsAABBQueryCallback)", obj);
@@ -2697,8 +2689,8 @@ void js_register_creator_PhysicsAABBQueryCallback(JSContext *cx, JS::HandleObjec
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_b2QueryCallback_prototype);
-    jsb_creator_PhysicsAABBQueryCallback_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_b2QueryCallback_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_creator_PhysicsAABBQueryCallback_class,
@@ -2706,20 +2698,20 @@ void js_register_creator_PhysicsAABBQueryCallback(JSContext *cx, JS::HandleObjec
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_creator_PhysicsAABBQueryCallback_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<creator::PhysicsAABBQueryCallback>(cx, jsb_creator_PhysicsAABBQueryCallback_class, proto);
+    jsb_creator_PhysicsAABBQueryCallback_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "PhysicsAABBQueryCallback", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<creator::PhysicsAABBQueryCallback>(cx, jsb_creator_PhysicsAABBQueryCallback_class, proto);
 }
 
 JSClass  *jsb_creator_PhysicsRayCastCallback_class;
-JSObject *jsb_creator_PhysicsRayCastCallback_prototype;
+JS::PersistentRootedObject *jsb_creator_PhysicsRayCastCallback_prototype;
 
 bool js_creator_PhysicsRayCastCallback_getType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -2787,11 +2779,10 @@ bool js_creator_PhysicsRayCastCallback_constructor(JSContext *cx, uint32_t argc,
     bool ok = true;
     creator::PhysicsRayCastCallback* cobj = new (std::nothrow) creator::PhysicsRayCastCallback();
 
-    js_type_class_t *typeClass = js_get_type_from_native<creator::PhysicsRayCastCallback>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_create_weak_jsobject(cx, cobj, typeClass, &jsobj, "creator::PhysicsRayCastCallback");
+    JS::RootedObject proto(cx, jsb_creator_PhysicsRayCastCallback_prototype->get());
+    jsb_create_weak_jsobject(cx, cobj, jsb_creator_PhysicsRayCastCallback_class, proto, &jsobj, "creator::PhysicsRayCastCallback");
     JS_SetPrivate(jsobj.get(), cobj);
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
@@ -2804,7 +2795,7 @@ bool js_creator_PhysicsRayCastCallback_constructor(JSContext *cx, uint32_t argc,
 }
 
 
-extern JSObject *jsb_b2RayCastCallback_prototype;
+extern JS::PersistentRootedObject *jsb_b2RayCastCallback_prototype;
 
 void js_creator_PhysicsRayCastCallback_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (PhysicsRayCastCallback)", obj);
@@ -2834,8 +2825,8 @@ void js_register_creator_PhysicsRayCastCallback(JSContext *cx, JS::HandleObject 
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_b2RayCastCallback_prototype);
-    jsb_creator_PhysicsRayCastCallback_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_b2RayCastCallback_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_creator_PhysicsRayCastCallback_class,
@@ -2843,20 +2834,20 @@ void js_register_creator_PhysicsRayCastCallback(JSContext *cx, JS::HandleObject 
         nullptr,
         funcs,
         nullptr,
-        nullptr);
+        nullptr));
 
-    JS::RootedObject proto(cx, jsb_creator_PhysicsRayCastCallback_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<creator::PhysicsRayCastCallback>(cx, jsb_creator_PhysicsRayCastCallback_class, proto);
+    jsb_creator_PhysicsRayCastCallback_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "PhysicsRayCastCallback", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<creator::PhysicsRayCastCallback>(cx, jsb_creator_PhysicsRayCastCallback_class, proto);
 }
 
 JSClass  *jsb_creator_CameraNode_class;
-JSObject *jsb_creator_CameraNode_prototype;
+JS::PersistentRootedObject *jsb_creator_CameraNode_prototype;
 
 bool js_creator_CameraNode_removeTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -3002,9 +2993,9 @@ bool js_creator_CameraNode_getInstance(JSContext *cx, uint32_t argc, JS::Value *
     if (argc == 0) {
 
         auto ret = creator::CameraNode::getInstance();
-        js_type_class_t *typeClass = js_get_type_from_native<creator::CameraNode>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_get_or_create_jsobject(cx, ret, typeClass, &jsret, "creator::CameraNode");
+        JS::RootedObject proto(cx, jsb_creator_CameraNode_prototype->get());
+        jsb_ref_get_or_create_jsobject(cx, ret, jsb_creator_CameraNode_class, proto, &jsret, "creator::CameraNode");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -3018,11 +3009,10 @@ bool js_creator_CameraNode_constructor(JSContext *cx, uint32_t argc, JS::Value *
     bool ok = true;
     creator::CameraNode* cobj = new (std::nothrow) creator::CameraNode();
 
-    js_type_class_t *typeClass = js_get_type_from_native<creator::CameraNode>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "creator::CameraNode");
+    JS::RootedObject proto(cx, jsb_creator_CameraNode_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_creator_CameraNode_class, proto, &jsobj, "creator::CameraNode");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -3034,7 +3024,7 @@ bool js_creator_CameraNode_constructor(JSContext *cx, uint32_t argc, JS::Value *
 }
 
 
-extern JSObject *jsb_cocos2d_Node_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
 
 void js_register_creator_CameraNode(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps creator_CameraNode_classOps = {
@@ -3068,8 +3058,8 @@ void js_register_creator_CameraNode(JSContext *cx, JS::HandleObject global) {
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype);
-    jsb_creator_CameraNode_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Node_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_creator_CameraNode_class,
@@ -3077,16 +3067,16 @@ void js_register_creator_CameraNode(JSContext *cx, JS::HandleObject global) {
         properties,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_creator_CameraNode_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<creator::CameraNode>(cx, jsb_creator_CameraNode_class, proto);
+    jsb_creator_CameraNode_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "CameraNode", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<creator::CameraNode>(cx, jsb_creator_CameraNode_class, proto);
 }
 
 void register_all_creator(JSContext* cx, JS::HandleObject obj) {

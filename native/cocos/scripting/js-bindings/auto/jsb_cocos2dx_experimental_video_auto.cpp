@@ -4,7 +4,7 @@
 #include "ui/UIVideoPlayer.h"
 
 JSClass  *jsb_cocos2d_experimental_ui_VideoPlayer_class;
-JSObject *jsb_cocos2d_experimental_ui_VideoPlayer_prototype;
+JS::PersistentRootedObject *jsb_cocos2d_experimental_ui_VideoPlayer_prototype;
 
 bool js_cocos2dx_experimental_video_VideoPlayer_getFileName(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -305,9 +305,9 @@ bool js_cocos2dx_experimental_video_VideoPlayer_create(JSContext *cx, uint32_t a
     if (argc == 0) {
 
         auto ret = cocos2d::experimental::ui::VideoPlayer::create();
-        js_type_class_t *typeClass = js_get_type_from_native<cocos2d::experimental::ui::VideoPlayer>(ret);
         JS::RootedObject jsret(cx);
-        jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, &jsret, "cocos2d::experimental::ui::VideoPlayer");
+        JS::RootedObject proto(cx, jsb_cocos2d_experimental_ui_VideoPlayer_prototype->get());
+        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_experimental_ui_VideoPlayer_class, proto, &jsret, "cocos2d::experimental::ui::VideoPlayer");
         args.rval().set(JS::ObjectOrNullValue(jsret));
         return true;
     }
@@ -321,11 +321,10 @@ bool js_cocos2dx_experimental_video_VideoPlayer_constructor(JSContext *cx, uint3
     bool ok = true;
     cocos2d::experimental::ui::VideoPlayer* cobj = new (std::nothrow) cocos2d::experimental::ui::VideoPlayer();
 
-    js_type_class_t *typeClass = js_get_type_from_native<cocos2d::experimental::ui::VideoPlayer>(cobj);
-
     // create the js object and link the native object with the javascript object
     JS::RootedObject jsobj(cx);
-    jsb_ref_create_jsobject(cx, cobj, typeClass, &jsobj, "cocos2d::experimental::ui::VideoPlayer");
+    JS::RootedObject proto(cx, jsb_cocos2d_experimental_ui_VideoPlayer_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_experimental_ui_VideoPlayer_class, proto, &jsobj, "cocos2d::experimental::ui::VideoPlayer");
     JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
     args.rval().set(retVal);
     if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
@@ -337,7 +336,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_constructor(JSContext *cx, uint3
 }
 
 
-extern JSObject *jsb_cocos2d_ui_Widget_prototype;
+extern JS::PersistentRootedObject *jsb_cocos2d_ui_Widget_prototype;
 
 void js_register_cocos2dx_experimental_video_VideoPlayer(JSContext *cx, JS::HandleObject global) {
     static const JSClassOps cocos2d_experimental_ui_VideoPlayer_classOps = {
@@ -377,8 +376,8 @@ void js_register_cocos2dx_experimental_video_VideoPlayer(JSContext *cx, JS::Hand
         JS_FS_END
     };
 
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype);
-    jsb_cocos2d_experimental_ui_VideoPlayer_prototype = JS_InitClass(
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
         cx, global,
         parent_proto,
         jsb_cocos2d_experimental_ui_VideoPlayer_class,
@@ -386,16 +385,16 @@ void js_register_cocos2dx_experimental_video_VideoPlayer(JSContext *cx, JS::Hand
         nullptr,
         funcs,
         nullptr,
-        st_funcs);
+        st_funcs));
 
-    JS::RootedObject proto(cx, jsb_cocos2d_experimental_ui_VideoPlayer_prototype);
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::experimental::ui::VideoPlayer>(cx, jsb_cocos2d_experimental_ui_VideoPlayer_class, proto);
+    jsb_cocos2d_experimental_ui_VideoPlayer_prototype = typeClass->proto;
     JS::RootedValue className(cx);
     std_string_to_jsval(cx, "VideoPlayer", &className);
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    // add the proto and JSClass to the type->js info hash table
-    jsb_register_class<cocos2d::experimental::ui::VideoPlayer>(cx, jsb_cocos2d_experimental_ui_VideoPlayer_class, proto);
 }
 
 void register_all_cocos2dx_experimental_video(JSContext* cx, JS::HandleObject obj) {

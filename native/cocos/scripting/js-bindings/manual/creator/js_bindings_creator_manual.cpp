@@ -331,16 +331,16 @@ bool js_creator_PhysicsRayCastCallback_getNormals(JSContext *cx, uint32_t argc, 
 void register_all_creatorclasses_manual(JSContext* cx, JS::HandleObject obj) {
     JS::RootedObject tmpObj(cx);
     
-    tmpObj.set(jsb_creator_PhysicsContactListener_prototype);
+    tmpObj.set(jsb_creator_PhysicsContactListener_prototype->get());
     JS_DefineFunction(cx, tmpObj, "setPreSolve", js_creator_PhysicsContactListener_setPreSolve, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "setPostSolve", js_creator_PhysicsContactListener_setPostSolve, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "setBeginContact", js_creator_PhysicsContactListener_setBeginContact, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "setEndContact", js_creator_PhysicsContactListener_setEndContact, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
-    tmpObj.set(jsb_creator_PhysicsAABBQueryCallback_prototype);
+    tmpObj.set(jsb_creator_PhysicsAABBQueryCallback_prototype->get());
     JS_DefineFunction(cx, tmpObj, "getFixtures", js_creator_PhysicsAABBQueryCallback_getFixtures, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     
-    tmpObj.set(jsb_creator_PhysicsRayCastCallback_prototype);
+    tmpObj.set(jsb_creator_PhysicsRayCastCallback_prototype->get());
     JS_DefineFunction(cx, tmpObj, "getFixtures", js_creator_PhysicsRayCastCallback_getFixtures, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "getPoints", js_creator_PhysicsRayCastCallback_getPoints, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "getNormals", js_creator_PhysicsRayCastCallback_getNormals, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
