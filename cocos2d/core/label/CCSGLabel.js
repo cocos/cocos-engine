@@ -1257,8 +1257,9 @@ _ccsg.Label.pool = new JS.Pool(function (label) {
     label._resetBMFont();
     label._renderCmd._labelCanvas.width = 1;
     label._renderCmd._labelCanvas.height = 1;
-    label.removeFromParent(true);
-    // label._parent = null;
+    if (CC_DEV) {
+        cc.assert(!label._parent, 'Recycling label\'s parent should be null!');
+    }
     label._updateLabel();
     return true;
 }, 20);

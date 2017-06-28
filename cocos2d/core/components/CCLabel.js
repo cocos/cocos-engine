@@ -531,7 +531,7 @@ var Label = cc.Class({
                         sgNode = this._sgNode = new _ccsg.Label(this.string, JSON.stringify(font._fntConfig), font.spriteFrame);
                     } else {
                         cc.warnID(4012, font.name);
-                        sgNode = this._sgNode = _ccsg.Label.pool.get(this.string);
+                        sgNode = this._sgNode = new _ccsg.Label(this.string);
                     }
                 } else {
                     sgNode = this._sgNode = _ccsg.Label.pool.get(this.string, "", font.spriteFrame, font);
@@ -595,11 +595,10 @@ var Label = cc.Class({
     },
 
     onDestroy: function () {
-        var sgNode = this._sgNode;
-        //FIXME:: call order matters
+        var sgNodeBeforeDestroy = this._sgNode;
         this._super();
-        if (sgNode) {
-            _ccsg.Label.pool.put(sgNode);
+        if (sgNodeBeforeDestroy) {
+            _ccsg.Label.pool.put(sgNodeBeforeDestroy);
         }
     }
  });
