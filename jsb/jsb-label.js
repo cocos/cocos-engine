@@ -225,6 +225,8 @@ jsbLabel.prototype.getOutlineColor = function() {
     return this._outlineColor || cc.color(255,255,255,255);
 };
 
+jsbLabel.pool = new JS.Pool(0);
+
 
 cc.Label = function (string, fontHandle, spriteFrame) {
     fontHandle = fontHandle || "Arial";

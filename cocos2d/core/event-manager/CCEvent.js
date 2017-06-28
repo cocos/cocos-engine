@@ -330,7 +330,13 @@ var EventTouch = function (touchArr, bubbles) {
     cc.Event.call(this, cc.Event.TOUCH, bubbles);
     this._eventCode = 0;
     this._touches = touchArr || [];
-    this.currentTouch = null;
+    /**
+     * !#en The current touch object
+     * !#zh 当前触点对象
+     * @property touch
+     * @type {Touch}
+     */
+    this.touch = null;
 };
 
 JS.extend(EventTouch, cc.Event);

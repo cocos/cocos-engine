@@ -528,22 +528,22 @@ var Label = cc.Class({
             if (font.spriteFrame) {
                 if (CC_JSB) {
                     if (font.spriteFrame.textureLoaded()) {
-                        sgNode = this._sgNode = new _ccsg.Label(this.string, font.fntDataStr, font.spriteFrame);
+                        sgNode = this._sgNode = _ccsg.Label.pool.get(this.string, font.fntDataStr, font.spriteFrame);
                     } else {
                         cc.warnID(4012, font.name);
-                        sgNode = this._sgNode = new _ccsg.Label(this.string);
+                        sgNode = this._sgNode = _ccsg.Label.pool.get(this.string);
                     }
                 } else {
-                    sgNode = this._sgNode = new _ccsg.Label(this.string, font.fntDataStr, font.spriteFrame, font);
+                    sgNode = this._sgNode = _ccsg.Label.pool.get(this.string, font.fntDataStr, font.spriteFrame, font);
                 }
             } else {
                 cc.warnID(4011, font.name);
-                sgNode = this._sgNode = new _ccsg.Label(this.string);
+                sgNode = this._sgNode = _ccsg.Label.pool.get(this.string);
             }
         } else {
             var isAsset = font instanceof cc.Font;
             var ttfName = isAsset ? font.rawUrl : '';
-            sgNode = this._sgNode = new _ccsg.Label(this.string, ttfName);
+            sgNode = this._sgNode = _ccsg.Label.pool.get(this.string, ttfName);
         }
 
         if (CC_JSB) {
@@ -591,6 +591,12 @@ var Label = cc.Class({
             if (this.overflow === Overflow.NONE || this.overflow === Overflow.RESIZE_HEIGHT) {
                 this.node.setContentSize(this._sgNode.getContentSize());
             }
+        }
+    },
+
+    onDestroy: function () {
+        if (this._sgNode) {
+            _ccsg.Label.pool.put(this._sgNode);
         }
     }
  });
