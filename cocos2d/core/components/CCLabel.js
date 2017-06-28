@@ -404,10 +404,10 @@ var Label = cc.Class({
                     if (font instanceof cc.BitmapFont) {
                         if (font.spriteFrame) {
                             if (!CC_JSB) {
-                                this._sgNode.setFontFileOrFamily(font.fntDataStr, font.spriteFrame, font);
+                                this._sgNode.setFontFileOrFamily("", font.spriteFrame, font);
                             } else {
                                 if (font.spriteFrame.textureLoaded()) {
-                                    this._sgNode.setFontFileOrFamily(font.fntDataStr, font.spriteFrame);
+                                    this._sgNode.setFontFileOrFamily(JSON.stringify(font._fntConfig), font.spriteFrame);
                                 }
                                 else {
                                     cc.warnID(4012, font.name);
@@ -528,13 +528,13 @@ var Label = cc.Class({
             if (font.spriteFrame) {
                 if (CC_JSB) {
                     if (font.spriteFrame.textureLoaded()) {
-                        sgNode = this._sgNode = _ccsg.Label.pool.get(this.string, font.fntDataStr, font.spriteFrame);
+                        sgNode = this._sgNode = new _ccsg.Label(this.string, JSON.stringify(font._fntConfig), font.spriteFrame);
                     } else {
                         cc.warnID(4012, font.name);
-                        sgNode = this._sgNode = _ccsg.Label.pool.get(this.string);
+                        sgNode = this._sgNode = new _ccsg.Label(this.string);
                     }
                 } else {
-                    sgNode = this._sgNode = _ccsg.Label.pool.get(this.string, font.fntDataStr, font.spriteFrame, font);
+                    sgNode = this._sgNode = _ccsg.Label.pool.get(this.string, "", font.spriteFrame, font);
                 }
             } else {
                 cc.warnID(4011, font.name);
@@ -595,8 +595,10 @@ var Label = cc.Class({
     },
 
     onDestroy: function () {
-        if (this._sgNode) {
-            _ccsg.Label.pool.put(this._sgNode);
+        var sgNodeBeforeDestroy = this._sgNode;
+        this._super();
+        if (sgNodeBeforeDestroy) {
+            _ccsg.Label.pool.put(sgNodeBeforeDestroy);
         }
     }
  });
