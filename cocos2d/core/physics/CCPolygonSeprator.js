@@ -1,277 +1,315 @@
+// http://answers.unity3d.com/questions/977416/2d-polygon-convex-decomposition-code.html
 
-/**
- * Checks whether the vertices in <code>verticesArray</code> can be properly distributed into the new fixtures (more specifically, it makes sure there are no overlapping segments and the vertices are in anticlockwise order). 
- * It is recommended that you use this method for debugging only, because it may cost more CPU usage.
- * <p/>
- * @param verticesArray The vertices to be validated.
- * @return An integer which can have the following values:
- * <ul>
- * <li>0 if the vertices can be properly processed.</li>
- * <li>1 If there are overlapping lines.</li>
- * <li>2 if the points are <b>not</b> in anticlockwise order.</li>
- * <li>3 if there are overlapping lines <b>and</b> the points are <b>not</b> in anticlockwise order.</li>
- * </ul> 
- * */
-var validate = function(verticesArray) {
-    var i, n = verticesArray.length,
-    j, j2, i2, i3, d, ret = 0;
-    var fl, fl2 = false;
+/// <summary>
+/// This class is took from the "FarseerUnity" physics engine, which uses Mark Bayazit's decomposition algorithm.
+/// I also have to make it work with self-intersecting polygons, so I'll use another different algorithm to decompose a self-intersecting polygon into several simple polygons,
+/// and then I would decompose each of them into convex polygons.
+/// </summary>
 
-    for (i = 0; i < n; i++) {
-        i2 = (i < n - 1) ? i + 1 : 0;
-        i3 = (i > 0) ? i - 1 : n - 1;
+//From phed rev 36
 
-        fl = false;
-        for (j = 0; j < n; j++) {
-            if (((j != i) && j != i2)) {
-                if (!fl) {
-                    d = det(verticesArray[i].x, verticesArray[i].y, verticesArray[i2].x, verticesArray[i2].y, verticesArray[j].x, verticesArray[j].y);
-                    if ((d > 0)) {
-                        fl = true;
+/// <summary>
+/// Convex decomposition algorithm created by Mark Bayazit (http://mnbayazit.com/)
+/// For more information about this algorithm, see http://mnbayazit.com/406/bayazit
+/// </summary>
+ 
+function At(i, vertices) {
+    var s = vertices.length;
+    return vertices[i < 0 ? s - (-i % s) : i % s];
+}
+
+function Copy(i, j, vertices) {
+    var p = [];
+    while (j < i) j += vertices.length;
+    //p.reserve(j - i + 1);
+    for (; i <= j; ++i)
+    {
+        p.push(At(i, vertices));
+    }
+    return p;
+}
+
+/// <summary>
+/// Decompose the polygon into several smaller non-concave polygon.
+/// If the polygon is already convex, it will return the original polygon, unless it is over Settings.MaxPolygonVertices.
+/// Precondition: Counter Clockwise polygon
+/// </summary>
+/// <param name="vertices"></param>
+/// <returns></returns>
+function ConvexPartition(vertices) {
+    //We force it to CCW as it is a precondition in this algorithm.
+    ForceCounterClockWise (vertices);
+    
+    var list = [];
+    var d, lowerDist, upperDist;
+    var p;
+    var lowervar = cc.v2();
+    var uppervar = cc.v2(); // intersection points
+    var lowerIndex = 0, upperIndex = 0;
+    var lowerPoly, upperPoly;
+    
+    for (var i = 0; i < vertices.length; ++i) {
+        if (Reflex(i, vertices)) {
+            lowerDist = upperDist = 10e7; // std::numeric_limits<qreal>::max();
+            for (var j = 0; j < vertices.length; ++j) {
+                // if line intersects with an edge
+                if (Left(At(i - 1, vertices), At(i, vertices), At(j, vertices)) &&
+                    RightOn(At(i - 1, vertices), At(i, vertices), At(j - 1, vertices))) {
+                    // find the povar of intersection
+                    p = LineIntersect(At(i - 1, vertices), At(i, vertices), At(j, vertices),
+                                                At(j - 1, vertices));
+                    if (Right(At(i + 1, vertices), At(i, vertices), p)) {
+                        // make sure it's inside the poly
+                        d = SquareDist(At(i, vertices), p);
+                        if (d < lowerDist) {
+                            // keep only the closest intersection
+                            lowerDist = d;
+                            lowervar = p;
+                            lowerIndex = j;
+                        }
                     }
                 }
-
-                if ((j != i3)) {
-                    j2 = (j < n - 1) ? j + 1 : 0;
-                    if (hitSegment(verticesArray[i].x, verticesArray[i].y, verticesArray[i2].x, verticesArray[i2].y, verticesArray[j].x, verticesArray[j].y, verticesArray[j2].x, verticesArray[j2].y)) {
-                        ret = 1;
+                
+                if (Left(At(i + 1, vertices), At(i, vertices), At(j + 1, vertices)) &&
+                    RightOn(At(i + 1, vertices), At(i, vertices), At(j, vertices))) {
+                    p = LineIntersect(At(i + 1, vertices), At(i, vertices), At(j, vertices),
+                                                At(j + 1, vertices));
+                    if (Left(At(i - 1, vertices), At(i, vertices), p)) {
+                        d = SquareDist(At(i, vertices), p);
+                        if (d < upperDist) {
+                            upperDist = d;
+                            upperIndex = j;
+                            uppervar = p;
+                        }
                     }
                 }
             }
-        }
+            
+            // if there are no vertices to connect to, choose a povar in the middle
+            if (lowerIndex == (upperIndex + 1) % vertices.length) {
+                var sp = lowervar.add(upperInt).div(2);
+                
+                lowerPoly = Copy(i, upperIndex, vertices);
+                lowerPoly.Add(sp);
+                upperPoly = Copy(lowerIndex, i, vertices);
+                upperPoly.Add(sp);
+            }
+            else {
+                var highestScore = 0, bestIndex = lowerIndex;
+                
+                while (upperIndex < lowerIndex) {
+                    upperIndex += vertices.length;
+                }
 
-        if (!fl) {
-            fl2 = true;
-        }
-    }
-
-    if (fl2) {
-        if ((ret == 1)) {
-            ret = 3;
-        } else {
-            ret = 2;
-        }
-
-    }
-    return ret;
-}
-
-function calcShapes(verticesArray) {
-    var vec;
-    var i, n, j;
-    var d, t, dx, dy, minLen;
-    var i1, i2, i3, p1, p2, p3;
-    var j1, j2, v1, v2, k, h;
-    var vec1, vec2;
-    var v, hitV;
-    var isConvex;
-    var figsVec = [],
-    queue = [];
-
-    queue.push(verticesArray);
-
-    while (queue.length) {
-        vec = queue[0];
-        n = vec.length;
-        isConvex = true;
-
-        for (i = 0; i < n; i++) {
-            i1 = i;
-            i2 = (i < n - 1) ? i + 1 : i + 1 - n;
-            i3 = (i < n - 2) ? i + 2 : i + 2 - n;
-
-            p1 = vec[i1];
-            p2 = vec[i2];
-            p3 = vec[i3];
-
-            d = det(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
-            if ((d < 0)) {
-                isConvex = false;
-                minLen = Number.MAX_VALUE;
-
-                for (j = 0; j < n; j++) {
-                    if (((j != i1) && j != i2)) {
-                        j1 = j;
-                        j2 = (j < n - 1) ? j + 1 : 0;
-
-                        v1 = vec[j1];
-                        v2 = vec[j2];
-
-                        v = hitRay(p1.x, p1.y, p2.x, p2.y, v1.x, v1.y, v2.x, v2.y);
-
-                        if (v) {
-                            dx = p2.x - v.x;
-                            dy = p2.y - v.y;
-                            t = dx * dx + dy * dy;
-
-                            if ((t < minLen)) {
-                                h = j1;
-                                k = j2;
-                                hitV = v;
-                                minLen = t;
+                for (var j = lowerIndex; j <= upperIndex; ++j) {
+                    if (CanSee(i, j, vertices)) {
+                        var score = 1 / (SquareDist(At(i, vertices), At(j, vertices)) + 1);
+                        if (Reflex(j, vertices)) {
+                            if (RightOn(At(j - 1, vertices), At(j, vertices), At(i, vertices)) &&
+                                LeftOn(At(j + 1, vertices), At(j, vertices), At(i, vertices))) {
+                                score += 3;
+                            }
+                            else {
+                                score += 2;
                             }
                         }
-                    }
-                }
-
-                if ((minLen == Number.MAX_VALUE)) {
-                    err();
-                }
-
-                vec1 = new Array;
-                vec2 = new Array;
-
-                j1 = h;
-                j2 = k;
-                v1 = vec[j1];
-                v2 = vec[j2];
-
-                if (!pointsMatch(hitV.x, hitV.y, v2.x, v2.y)) {
-                    vec1.push(hitV);
-                }
-                if (!pointsMatch(hitV.x, hitV.y, v1.x, v1.y)) {
-                    vec2.push(hitV);
-                }
-
-                h = -1;
-                k = i1;
-                while (true) {
-                    if ((k != j2)) {
-                        vec1.push(vec[k]);
-                    } else {
-                        if (((h < 0) || h >= n)) {
-                            err();
+                        else {
+                            score += 1;
                         }
-                        if (!isOnSegment(v2.x, v2.y, vec[h].x, vec[h].y, p1.x, p1.y)) {
-                            vec1.push(vec[k]);
+                        
+                        if (score > highestScore) {
+                            bestIndex = j;
+                            highestScore = score;
                         }
-                        break;
-                    }
-
-                    h = k;
-                    if (((k - 1) < 0)) {
-                        k = n - 1;
-                    } else {
-                        k--;
                     }
                 }
-
-                vec1 = vec1.reverse();
-
-                h = -1;
-                k = i2;
-                while (true) {
-                    if ((k != j1)) {
-                        vec2.push(vec[k]);
-                    } else {
-                        if (((h < 0) || h >= n)) {
-                            err();
-                        }
-                        if (((k == j1) && !isOnSegment(v1.x, v1.y, vec[h].x, vec[h].y, p2.x, p2.y))) {
-                            vec2.push(vec[k]);
-                        }
-                        break;
-                    }
-
-                    h = k;
-                    if (((k + 1) > n - 1)) {
-                        k = 0;
-                    } else {
-                        k++;
-                    }
-                }
-
-                queue.push(vec1, vec2);
-                queue.shift();
-
-                break;
+                lowerPoly = Copy(i, bestIndex, vertices);
+                upperPoly = Copy(bestIndex, i, vertices);
             }
+            list = list.concat( ConvexPartition(lowerPoly) );
+            list = list.concat( ConvexPartition(upperPoly) );
+            return list;
         }
+    }
+    
+    // polygon is already convex
+    list.push(vertices);
+    
+    //Remove empty vertice collections
+    for (var i = list.length - 1; i >= 0; i--)
+    {
+        if (list[i].length == 0)
+            list.splice(i, 0);
+    }
+    
+    return list;
+}
 
-        if (isConvex) {
-            figsVec.push(queue.shift());
+function CanSee(i, j, vertices) {
+    if (Reflex(i, vertices)) {
+        if (LeftOn(At(i, vertices), At(i - 1, vertices), At(j, vertices)) &&
+            RightOn(At(i, vertices), At(i + 1, vertices), At(j, vertices))) return false;
+    }
+    else {
+        if (RightOn(At(i, vertices), At(i + 1, vertices), At(j, vertices)) ||
+            LeftOn(At(i, vertices), At(i - 1, vertices), At(j, vertices))) return false;
+    }
+    if (Reflex(j, vertices)) {
+        if (LeftOn(At(j, vertices), At(j - 1, vertices), At(i, vertices)) &&
+            RightOn(At(j, vertices), At(j + 1, vertices), At(i, vertices))) return false;
+    }
+    else {
+        if (RightOn(At(j, vertices), At(j + 1, vertices), At(i, vertices)) ||
+            LeftOn(At(j, vertices), At(j - 1, vertices), At(i, vertices))) return false;
+    }
+    
+    for (var k = 0; k < vertices.length; ++k) {
+        if ((k + 1) % vertices.length == i || k == i || (k + 1) % vertices.length == j || k == j)
+        {
+            continue; // ignore incident edges
+        }
+        var intersectionPoint = cc.v2();
+        if (LineIntersect2(At(i, vertices), At(j, vertices), At(k, vertices), At(k + 1, vertices), intersectionPoint))
+        {
+            return false;
         }
     }
-
-    return figsVec;
+    return true;
 }
 
-function hitRay(x1, y1, x2, y2, x3, y3, x4, y4) {
-    var t1 = x3 - x1,
-    t2 = y3 - y1,
-    t3 = x2 - x1,
-    t4 = y2 - y1,
-    t5 = x4 - x3,
-    t6 = y4 - y3,
-    t7 = t4 * t5 - t3 * t6,
-    a;
+// precondition: ccw
+function Reflex(i, vertices) {
+    return Right(i, vertices);
+}
 
-    a = (((t5 * t2) - t6 * t1) / t7);
-    var px = x1 + a * t3,
-    py = y1 + a * t4;
-    var b1 = isOnSegment(x2, y2, x1, y1, px, py);
-    var b2 = isOnSegment(px, py, x3, y3, x4, y4);
+function Right(a, b, c) {
+    if (typeof c === 'undefined') {
+        var i = a, vertices = b;
 
-    if ((b1 && b2)) {
-        return cc.v2(px, py);
+        a = At(i - 1, vertices);
+        b = At(i, vertices);
+        c = At(i + 1, vertices);
     }
 
-    return null;
+    return Area(a, b, c) < 0;
 }
 
-function hitSegment(x1, y1, x2, y2, x3, y3, x4, y4) {
-    var t1 = x3 - x1,
-    t2 = y3 - y1,
-    t3 = x2 - x1,
-    t4 = y2 - y1,
-    t5 = x4 - x3,
-    t6 = y4 - y3,
-    t7 = t4 * t5 - t3 * t6,
-    a;
+function Left(a, b, c) {
+    return Area(a, b, c) > 0;
+}
 
-    a = (((t5 * t2) - t6 * t1) / t7);
-    var px = x1 + a * t3,
-    py = y1 + a * t4;
-    var b1 = isOnSegment(px, py, x1, y1, x2, y2);
-    var b2 = isOnSegment(px, py, x3, y3, x4, y4);
+function LeftOn(a, b, c) {
+    return Area(a, b, c) >= 0;
+}
 
-    if ((b1 && b2)) {
-        return cc.v2(px, py);
+
+function RightOn(a, b, c) {
+    return Area(a, b, c) <= 0;
+}
+
+function SquareDist(a, b) {
+    var dx = b.x - a.x;
+    var dy = b.y - a.y;
+    return dx * dx + dy * dy;
+}
+
+//forces counter clock wise order.
+function ForceCounterClockWise(vertices) {
+    if (!IsCounterClockWise(vertices)) {
+        vertices.reverse();
     }
-
-    return null;
 }
 
-function isOnSegment(px, py, x1, y1, x2, y2) {
-    var b1 = ((((x1 + 0.1) >= px) && px >= x2 - 0.1) || (((x1 - 0.1) <= px) && px <= x2 + 0.1));
-    var b2 = ((((y1 + 0.1) >= py) && py >= y2 - 0.1) || (((y1 - 0.1) <= py) && py <= y2 + 0.1));
-    return ((b1 && b2) && isOnLine(px, py, x1, y1, x2, y2));
+function IsCounterClockWise(vertices) {
+    //We just return true for lines
+    if (vertices.length < 3)
+        return true;
+    
+    return (GetSignedArea(vertices) > 0);
 }
 
-function pointsMatch(x1, y1, x2, y2) {
-    var dx = (x2 >= x1) ? x2 - x1: x1 - x2,
-    dy = (y2 >= y1) ? y2 - y1: y1 - y2;
-    return ((dx < 0.1) && dy < 0.1);
-}
-
-function isOnLine(px, py, x1, y1, x2, y2) {
-    if ((((x2 - x1) > 0.1) || x1 - x2 > 0.1)) {
-        var a = (y2 - y1) / (x2 - x1),
-        possibleY = a * (px - x1) + y1,
-        diff = (possibleY > py) ? possibleY - py: py - possibleY;
-        return (diff < 0.1);
+//gets the signed area.
+function GetSignedArea(vertices) {
+    var i;
+    var area = 0;
+    
+    for (i = 0; i < vertices.length; i++) {
+        var j = (i + 1) % vertices.length;
+        area += vertices[i].x * vertices[j].y;
+        area -= vertices[i].y * vertices[j].x;
     }
-
-    return (((px - x1) < 0.1) || x1 - px < 0.1);
+    area /= 2;
+    return area;
 }
 
-function det(x1, y1, x2, y2, x3, y3) {
-    return x1 * y2 + x2 * y3 + x3 * y1 - y1 * x2 - y2 * x3 - y3 * x1;
+//From Mark Bayazit's convex decomposition algorithm
+function LineIntersect(p1, p2, q1, q2) {
+    var i = cc.v2();
+    var a1 = p2.y - p1.y;
+    var b1 = p1.x - p2.x;
+    var c1 = a1 * p1.x + b1 * p1.y;
+    var a2 = q2.y - q1.y;
+    var b2 = q1.x - q2.x;
+    var c2 = a2 * q1.x + b2 * q1.y;
+    var det = a1 * b2 - a2 * b1;
+    
+    if (!FloatEquals(det, 0)) {
+        // lines are not parallel
+        i.x = (b2 * c1 - b1 * c2) / det;
+        i.y = (a1 * c2 - a2 * c1) / det;
+    }
+    return i;
 }
 
-function err() {
-    throw new Error("A problem has occurred. Use the Validate() method to see where the problem is.");
+//from Eric Jordan's convex decomposition library, it checks if the lines a0->a1 and b0->b1 cross.
+//if they do, intersectionPovar will be filled with the povar of crossing. Grazing lines should not return true.
+function LineIntersect2(a0, a1, b0, b1, intersectionPoint) {
+    if (a0 == b0 || a0 == b1 || a1 == b0 || a1 == b1)
+        return false;
+    
+    var x1 = a0.x;
+    var y1 = a0.y;
+    var x2 = a1.x;
+    var y2 = a1.y;
+    var x3 = b0.x;
+    var y3 = b0.y;
+    var x4 = b1.x;
+    var y4 = b1.y;
+    
+    //AABB early exit
+    if (Math.max(x1, x2) < Math.min(x3, x4) || Math.max(x3, x4) < Math.min(x1, x2))
+        return false;
+    
+    if (Math.max(y1, y2) < Math.min(y3, y4) || Math.max(y3, y4) < Math.min(y1, y2))
+        return false;
+    
+    var ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3));
+    var ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3));
+    var denom = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+    if (Math.abs(denom) < 10e-7) {
+        //Lines are too close to parallel to call
+        return false;
+    }
+    ua /= denom;
+    ub /= denom;
+    
+    if ((0 < ua) && (ua < 1) && (0 < ub) && (ub < 1)) {
+        intersectionPoint.x = (x1 + ua * (x2 - x1));
+        intersectionPoint.y = (y1 + ua * (y2 - y1));
+        return true;
+    }
+    
+    return false;
 }
 
-exports.calcShapes = calcShapes;
-exports.validate = validate;
+function FloatEquals(value1, value2) {
+    return Math.abs(value1 - value2) <= 10e-7;
+}
+
+
+//returns a positive number if c is to the left of the line going from a to b. Positive number if povar is left, negative if povar is right, and 0 if points are collinear.</returns>
+function Area(a, b, c) {
+    return a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y);
+}
+
+module.exports = ConvexPartition;
