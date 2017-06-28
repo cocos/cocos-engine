@@ -769,6 +769,7 @@ var RichText = cc.Class({
         this._super();
 
         for (var i = 0; i < this._labelSegments.length; ++i) {
+            this._labelSegments[i].removeFromParent(true);
             _ccsg.Label.pool.put(this._labelSegments[i]);
         }
         this._resetState();
