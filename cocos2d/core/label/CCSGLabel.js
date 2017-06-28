@@ -1247,7 +1247,7 @@ _ccsg.Label = _ccsg.Node.extend({
 });
 
 _ccsg.Label.pool = new JS.Pool(function (label) {
-    if (!(label instanceof _ccsg.Label)) {
+    if (CC_EDITOR || !(label instanceof _ccsg.Label)) {
         return false;
     }
     label._string = "";
