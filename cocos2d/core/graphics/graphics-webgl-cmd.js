@@ -23,8 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
  
-var Shader      = require('./shader');
-
 var LineCap     = require('./types').LineCap;
 var LineJoin    = require('./types').LineJoin;
 
@@ -38,8 +36,10 @@ var Js    = cc.js;
 // Math
 var INIT_VERTS_SIZE = 32;
 
-var VERTS_FLOAT_LENGTH = 2;
-var VERTS_BYTE_LENGTH  = 8;
+var VERTS_FLOAT_LENGTH = 3;
+var VERTS_BYTE_LENGTH  = 12;
+
+var MAX_BUFFER_SIZE = 65535;
 
 var PI      = Math.PI;
 var min     = Math.min;
@@ -102,6 +102,81 @@ Path.prototype.reset = function () {
     }
 };
 
+// GraphicsBuffer
+function GraphicsBuffer () {
+    this.vertsOffset = 0;
+    this.vertsVBO = gl.createBuffer();
+    this.vertsBuffer = null;
+    this.uint32VertsBuffer = null;
+    this.vertsDirty = false;
+
+    this.indicesOffset = 0;
+    this.indicesVBO = gl.createBuffer();
+    this.indicesBuffer = null;
+    this.indicesDirty = false;
+}
+
+GraphicsBuffer.prototype.clear = function () {
+    this.vertsOffset = 0;
+    this.indicesOffset = 0;
+}
+
+GraphicsBuffer.prototype.alloc = function (cverts, cindices) {
+    var dnverts = this.vertsOffset + cverts;
+    if (dnverts > MAX_BUFFER_SIZE) {
+        return false;
+    }
+
+    var verts = this.vertsBuffer;
+    var nverts = verts ? verts.length / VERTS_FLOAT_LENGTH : 0;
+
+    if (dnverts > nverts) {
+        if (nverts === 0) {
+            nverts = INIT_VERTS_SIZE;
+        }
+
+        while (dnverts > nverts) {
+            nverts *= 2;
+        }
+
+        var newBuffer = new Float32Array(nverts * VERTS_FLOAT_LENGTH);
+
+        if (verts) {
+            for (var i = 0, l = verts.length; i < l; i++) {
+                newBuffer[i] = verts[i];
+            }
+        }
+
+        this.vertsBuffer = newBuffer;
+        this.uint32VertsBuffer = new Uint32Array(this.vertsBuffer.buffer);
+    }
+
+    var indices = this.indicesBuffer;
+    var dnindices = this.indicesOffset + cindices;
+    var nindices = indices ? indices.length : 0;
+
+    if (dnindices > nindices) {
+        if (nindices === 0) {
+            nindices = INIT_VERTS_SIZE * 3;
+        }
+
+        while (dnindices > nindices) {
+            nindices *= 2;
+        }
+
+        var newIndices = new Uint16Array(nindices);
+
+        if (indices) {
+            for (var i = 0, l = indices.length; i < l; i++) {
+                newIndices[i] = indices[i];
+            }
+        }
+        this.indicesBuffer = newIndices;
+    }
+
+    return true;
+}
+
 // webgl render command
 function WebGLRenderCmd (renderable) {
     this._rootCtor(renderable);
@@ -109,15 +184,9 @@ function WebGLRenderCmd (renderable) {
 
     var gl = cc._renderContext;
 
-    this._vertsOffset = 0;
-    this._vertsVBO = gl.createBuffer();
-    this._vertsBuffer = null;
-    this._vertsDirty = false;
-
-    this._indicesOffset = 0;
-    this._indicesVBO = gl.createBuffer();
-    this._indicesBuffer = null;
-    this._indicesDirty = false;
+    this._buffers = [];
+    this._buffer = null;
+    this._allocBuffer();
 
     this._matrix = new cc.math.Matrix4();
     this._matrix.identity();
@@ -125,17 +194,20 @@ function WebGLRenderCmd (renderable) {
     this._paths = [];
     this._points = [];
 
-    this._cmds = [];
+    this._curColorValue = 0;
 
     this._blendFunc = new cc.BlendFunc(cc.macro.BLEND_SRC, cc.macro.BLEND_DST);
 
     // init shader
-    this._shader = new cc.GLProgram();
-    this._shader.initWithVertexShaderByteArray(Shader.vert, Shader.frag);
-    this._shader.retain();
-    this._shader.addAttribute(cc.macro.ATTRIBUTE_NAME_POSITION, cc.macro.VERTEX_ATTRIB_POSITION);
-    this._shader.link();
-    this._shader.updateUniforms();
+    var shader = new cc.GLProgram();
+    shader.initWithVertexShaderByteArray(cc.PresetShaders.POSITION_COLOR_VERT, cc.PresetShaders.POSITION_COLOR_FRAG);
+    shader.retain();
+    shader.addAttribute(cc.macro.ATTRIBUTE_NAME_POSITION, cc.macro.VERTEX_ATTRIB_POSITION);
+    shader.addAttribute(cc.macro.ATTRIBUTE_NAME_COLOR, cc.macro.VERTEX_ATTRIB_COLOR);
+    shader.link();
+    shader.updateUniforms();
+
+    this._shaderProgram = shader;
 
     this._allocVerts(INIT_VERTS_SIZE);
 }
@@ -244,18 +316,22 @@ _p.close = function () {
 _p.stroke = function () {
     this._flattenPaths();
 
+    var color = this._strokeColor;
+    this._curColorValue = ((color.a<<24) >>> 0) + (color.b<<16) + (color.g<<8) + color.r;
+
     this._expandStroke();
 
-    this._vertsDirty = true;
     this._updatePathOffset = true;
 };
 
 _p.fill = function () {
     // this._flattenPaths();
 
+    var color = this._fillColor;
+    this._curColorValue = ((color.a<<24) >>> 0) + (color.b<<16) + (color.g<<8) + color.r;
+
     this._expandFill();
 
-    this._vertsDirty = true;
     this._updatePathOffset = true;
     this._filling = false;
 };
@@ -303,46 +379,36 @@ Js.getset(_p, 'strokeColor', _p.getStrokeColor, _p.setStrokeColor);
 Js.getset(_p, 'fillColor', _p.getFillColor, _p.setFillColor);
 
 _p._render = function () {
-    var vertsBuffer = this._vertsBuffer;
-    if (!vertsBuffer || vertsBuffer.length === 0 || this._cmds.length === 0) return;
+    let buffers = this._buffers;
+    if (buffers.length === 0) return;
 
-    var gl = cc._renderContext;
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertsVBO);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indicesVBO);
-
-    if (this._vertsDirty) {
-        gl.bufferData(gl.ARRAY_BUFFER, vertsBuffer, gl.STREAM_DRAW);
-        this._vertsDirty = false;
-    }
-
-    if (this._indicesDirty && this._indicesBuffer) {
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this._indicesBuffer, gl.STREAM_DRAW);
-        this._indicesDirty = false;
-    }
-
-    if (this._vertsOffset > 65536) {
-        cc.warnID(2401);
-    }
-
-    gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
-    gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 2, gl.FLOAT, false, VERTS_BYTE_LENGTH, 0);
-
-    var shader = this._shader;
-    var colorLocation = shader.getUniformLocationForName('color');
+    let gl = cc._renderContext;
 
     // draw paths
-    var cmds = this._cmds;
-    for (var i = 0, l = cmds.length; i < l; i++) {
-        var cmd = cmds[i];
+    for (let i = 0, l = buffers.length; i < l; i++) {
+        let buffer = buffers[i];
+        
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer.vertsVBO);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer.indicesVBO);
 
-        if (cmd.nIndices) {
-            var color = cmd.color;
-            gl.uniform4f(colorLocation, color.r / 255, color.g / 255, color.b / 255, color.a / 255);
-            gl.drawElements(gl.TRIANGLES, cmd.nIndices, gl.UNSIGNED_SHORT, cmd.indicesOffset * 2);
-
-            cc.incrementGLDraws(cmd.nverts);
+        if (buffer.vertsDirty) {
+            gl.bufferData(gl.ARRAY_BUFFER, buffer.vertsBuffer, gl.STREAM_DRAW);
+            buffer.vertsDirty = false;
         }
+
+        if (buffer.indicesDirty && buffer.indicesBuffer) {
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, buffer.indicesBuffer, gl.STREAM_DRAW);
+            buffer.indicesDirty = false;
+        }
+
+        gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
+        gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_COLOR);
+        gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 2, gl.FLOAT, false, VERTS_BYTE_LENGTH, 0);
+        gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_COLOR, 4, gl.UNSIGNED_BYTE, true, VERTS_BYTE_LENGTH, 8);
+
+        gl.drawElements(gl.TRIANGLES, buffer.indicesOffset, gl.UNSIGNED_SHORT, 0);
+
+        cc.g_NumberOfDraws++;
     }
 
     cc.checkGLErrorDebug();
@@ -351,7 +417,7 @@ _p._render = function () {
 _p.rendering = function () {
     cc.gl.blendFunc(this._blendFunc.src, this._blendFunc.dst);
 
-    var wt = this._worldTransform, mat = this._matrix.mat;
+    let wt = this._worldTransform, mat = this._matrix.mat;
     mat[0] = wt.a;
     mat[4] = wt.c;
     mat[12] = wt.tx;
@@ -359,7 +425,7 @@ _p.rendering = function () {
     mat[5] = wt.d;
     mat[13] = wt.ty;
 
-    var shader = this._shader;
+    let shader = this._shaderProgram;
     shader.use();
     shader._setUniformForMVPMatrixWithMat4(this._matrix);
 
@@ -368,23 +434,26 @@ _p.rendering = function () {
 
 // clear
 _p.clear = function (clean) {
-    this._vertsOffset = 0;
-    this._indicesOffset = 0;
-
     this._pathLength = 0;
     this._pathOffset = 0;
     this._pointsOffset = 0;
 
     this._curPath = null;
 
-    this._cmds.length = 0;
-
     if (clean) {
         this._paths.length = 0;
         this._points.length = 0;
 
-        this._vertsBuffer = null;
-        this._indicesBuffer = null;
+        this._buffer = null;
+        this._buffers = [];
+    }
+    else {
+        var buffers = this._buffers;
+        for(var i = 0; i < buffers.length; i++) {
+            buffers[i].clear();
+        }
+
+        this._buffer = buffers[0];
     }
 };
 
@@ -473,80 +542,31 @@ _p._flattenPaths = function () {
     }
 };
 
+_p._allocBuffer = function () {
+    if (this._buffer) {
+        var index = this._buffers.indexOf(this._buffer);
+        if (index < (this._buffers.length - 1)) {
+            this._buffer = this._buffers[index + 1];
+            return;
+        }
+    }
+
+    var buffer = new GraphicsBuffer();
+    this._buffers.push(buffer);
+    this._buffer = buffer;
+};
+
 _p._allocVerts = function (cverts) {
-    var dnverts = this._vertsOffset + cverts;
-    var buffer = this._vertsBuffer;
-    var nverts = buffer ? buffer.length / VERTS_FLOAT_LENGTH : 0;
-
-    if (dnverts > nverts) {
-        if (nverts === 0) {
-            nverts = INIT_VERTS_SIZE;
-        }
-
-        while (dnverts > nverts) {
-            nverts *= 2;
-        }
-
-        var newBuffer = new Float32Array(nverts * VERTS_FLOAT_LENGTH);
-
-        if (buffer) {
-            for (var i = 0, l = buffer.length; i < l; i++) {
-                newBuffer[i] = buffer[i];
-            }
-        }
-
-        this._vertsBuffer = newBuffer;
+    if (!this._buffer) {
+        this._allocBuffer();
     }
-};
 
-_p._allocIndices = function (cindices) {
-    var indices = this._indicesBuffer;
-    var dnindices = this._indicesOffset + cindices;
-    var nindices = indices ? indices.length : 0;
-
-    if (dnindices > nindices) {
-        if (nindices === 0) {
-            nindices = INIT_VERTS_SIZE * 3;
-        }
-
-        while (dnindices > nindices) {
-            nindices *= 2;
-        }
-
-        var newIndices = new Uint16Array(nindices);
-
-        if (indices) {
-            for (var i = 0, l = indices.length; i < l; i++) {
-                newIndices[i] = indices[i];
-            }
-        }
-        this._indicesBuffer = newIndices;
+    var nIndices = (cverts - 2*(this._pathLength-this._pathOffset)) * 3;
+    if (!this._buffer.alloc(cverts, nIndices)) {
+        this._allocBuffer();
+        this._buffer.alloc(cverts, nIndices);
     }
-};
-
-_p._pushCmd = function (cmd) {
-    var cmds = this._cmds;
-    var lastCmd = cmds[cmds.length - 1];
-
-    if (lastCmd) {
-        var lastColor = lastCmd.color;
-        var color = cmd.color;
-
-        if (lastColor.r === color.r &&
-            lastColor.g === color.g &&
-            lastColor.b === color.b &&
-            lastColor.a === color.a &&
-            (lastCmd.indicesOffset + lastCmd.nIndices === cmd.indicesOffset)) {
-            lastCmd.nIndices += cmd.nIndices;
-            lastCmd.nverts += cmd.nverts;
-        }
-        else {
-            cmds.push(cmd);
-        }
-    }
-    else {
-        cmds.push(cmd);
-    }
+    this._buffer.vertsDirty = true;
 };
 
 _p._expandStroke = function () {
@@ -580,8 +600,8 @@ _p._expandStroke = function () {
     }
 
     this._allocVerts(cverts);
-    this._allocIndices((cverts - 2*(this._pathLength-this._pathOffset)) * 3);
 
+    var buffer = this._buffer;
     for (var i = this._pathOffset, l = this._pathLength; i < l; i++) {
         var path = paths[i];
         var pts = path.points;
@@ -591,7 +611,7 @@ _p._expandStroke = function () {
         var s, e, loop;
 
         loop = path.closed;
-        var offset = this._vertsOffset;
+        var offset = buffer.vertsOffset;
 
         if (loop) {
             // Looping
@@ -640,11 +660,11 @@ _p._expandStroke = function () {
         }
 
         if (loop) {
-            var v0 = this._vget(offset);
-            var v1 = this._vget(offset + 1);
+            let vertsBuffer = buffer.vertsBuffer;
+
             // Loop it
-            this._vset(v0.x, v0.y);
-            this._vset(v1.x, v1.y);
+            this._vset(vertsBuffer[offset*VERTS_FLOAT_LENGTH], vertsBuffer[offset*VERTS_FLOAT_LENGTH+1]);
+            this._vset(vertsBuffer[(offset+1)*VERTS_FLOAT_LENGTH], vertsBuffer[(offset+1)*VERTS_FLOAT_LENGTH+1]);
         } else {
             // Add cap
             var dPos = p1.sub(p0);
@@ -662,25 +682,17 @@ _p._expandStroke = function () {
         }
 
         // stroke indices
-        var indicesOffset = this._indicesOffset;
-        var indicesBuffer = this._indicesBuffer;
+        var indicesOffset = buffer.indicesOffset;
+        var indicesBuffer = buffer.indicesBuffer;
 
-        for (var start = offset+2, end = this._vertsOffset; start < end; start++) {
+        for (var start = offset+2, end = buffer.vertsOffset; start < end; start++) {
             indicesBuffer[indicesOffset++] = start - 2;
             indicesBuffer[indicesOffset++] = start - 1;
             indicesBuffer[indicesOffset++] = start;
         }
 
-        this._pushCmd({
-            color: this._strokeColor,
-            indicesOffset: this._indicesOffset,
-            nIndices: indicesOffset - this._indicesOffset,
-            vertsOffset: offset,
-            nverts: this._vertsOffset - offset
-        });
-
-        this._indicesOffset = indicesOffset;
-        this._indicesDirty = true;
+        buffer.indicesOffset = indicesOffset;
+        buffer.indicesDirty = true;
     }
 };
 
@@ -699,8 +711,8 @@ _p._expandFill = function () {
     }
 
     this._allocVerts(cverts);
-    this._allocIndices((cverts - 2*(this._pathLength-this._pathOffset)) * 3);
 
+    var buffer = this._buffer;
     for (var i = this._pathOffset, l = this._pathLength; i < l; i++) {
         var path = paths[i];
         var pts = path.points;
@@ -711,18 +723,24 @@ _p._expandFill = function () {
         }
 
         // Calculate shape vertices.
-        var offset = this._vertsOffset;
+        var offset = buffer.vertsOffset;
 
         for (var j = 0; j < pointsLength; ++j) {
             this._vset(pts[j].x, pts[j].y, 0.5, 1);
         }
 
-        var indicesOffset = path.indicesOffset = this._indicesOffset;
-        var indicesBuffer = this._indicesBuffer;
+        var indicesOffset = path.indicesOffset = buffer.indicesOffset;
+        var indicesBuffer = buffer.indicesBuffer;
         var nIndices = 0;
 
         if (path.complex) {
-            var data = new Float32Array(this._vertsBuffer.buffer, offset * 8, (this._vertsOffset - offset) * 2);
+            var data = [];
+            var start = offset*VERTS_FLOAT_LENGTH, end = buffer.vertsOffset*VERTS_FLOAT_LENGTH; 
+            for (var i = start; i < end; i+=VERTS_FLOAT_LENGTH) {
+                data.push(buffer.vertsBuffer[i]);
+                data.push(buffer.vertsBuffer[i+1]);
+            }
+
             var newIndices = Earcut(data, null, 2);
 
             if (!newIndices || newIndices.length === 0) {
@@ -737,25 +755,17 @@ _p._expandFill = function () {
         }
         else {
             var first = offset;
-            for (var start = offset+2, end = this._vertsOffset; start < end; start++) {
+            for (var start = offset+2, end = buffer.vertsOffset; start < end; start++) {
                 indicesBuffer[indicesOffset++] = first;
                 indicesBuffer[indicesOffset++] = start - 1;
                 indicesBuffer[indicesOffset++] = start;
             }
 
-            nIndices = indicesOffset - this._indicesOffset;
+            nIndices = indicesOffset - buffer.indicesOffset;
         }
 
-        this._pushCmd({
-            color: this._fillColor,
-            indicesOffset: this._indicesOffset,
-            nIndices: nIndices,
-            vertsOffset: offset,
-            nverts: this._vertsOffset - offset
-        });
-
-        this._indicesOffset += nIndices;
-        this._indicesDirty = true;
+        buffer.indicesOffset += nIndices;
+        buffer.indicesDirty = true;
     }
 };
 
@@ -838,23 +848,17 @@ _p._calculateJoins = function (w, lineJoin, miterLimit) {
 };
 
 _p._vset = function (x, y) {
-    var offset = this._vertsOffset * VERTS_FLOAT_LENGTH;
-    var buffer = this._vertsBuffer;
+    let buffer = this._buffer;
+    let offset = buffer.vertsOffset * VERTS_FLOAT_LENGTH;
+    let vertsBuffer = buffer.vertsBuffer;
 
-    buffer[offset] = x;
-    buffer[offset + 1] = y;
+    vertsBuffer[offset] = x;
+    vertsBuffer[offset + 1] = y;
 
-    this._vertsOffset++;
+    buffer.uint32VertsBuffer[offset + 2] = this._curColorValue;
+
+    buffer.vertsOffset++;
 };
-
-_p._vget = function (index) {
-    var buffer = this._vertsBuffer;
-    var offset = index * VERTS_FLOAT_LENGTH;
-    return {
-        x: buffer[offset],
-        y: buffer[offset + 1]
-    };
- };
 
 //
 _p._chooseBevel = function (bevel, p0, p1, w) {

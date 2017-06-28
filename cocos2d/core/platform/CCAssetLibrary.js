@@ -28,6 +28,7 @@ var callInNextTick = require('./utils').callInNextTick;
 var Loader = require('../load-pipeline/CCLoader');
 var PackDownloader = require('../load-pipeline/pack-downloader');
 var AutoReleaseUtils = require('../load-pipeline/auto-release-utils');
+var decodeUuid = require('../utils/decode-uuid');
 
 /**
  * The asset library which managing loading/unloading assets in project.
@@ -111,7 +112,10 @@ var AssetLibrary = {
     },
 
     getImportedDir: function (uuid) {
-        return _libraryBase + uuid.slice(0, 2)/* + cc.path.sep + uuid*/;
+        if (CC_BUILD) {
+            uuid = decodeUuid(uuid);
+        }
+        return _libraryBase + uuid.slice(0, 2) + '/' + uuid;
     },
 
     _queryAssetInfoInEditor: function (uuid, callback) {
@@ -138,16 +142,15 @@ var AssetLibrary = {
     },
 
     _getAssetInfoInRuntime: function (uuid, result) {
-        if (!result) {
-            result = {url: null, raw: false};
-        }
+        result = result || {url: null, raw: false};
         var info = _uuidToRawAsset[uuid];
         if (info && !cc.isChildClassOf(info.type, cc.Asset)) {
             result.url = _rawAssetsBase + info.url;
             result.raw = true;
         }
         else {
-            result.url = this.getImportedDir(uuid) + '/' + uuid + '.json';
+            result.url = this.getImportedDir(uuid) + '.json';
+            result.raw = false;
         }
         return result;
     },

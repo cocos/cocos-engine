@@ -313,6 +313,10 @@ cc.Sequence = cc.ActionInterval.extend({
         this._actions = [];
 
         var paramArray = (tempArray instanceof Array) ? tempArray : arguments;
+        if (paramArray.length === 1) {
+            cc.errorID(1019);
+            return;
+        }
         var last = paramArray.length - 1;
         if ((last >= 0) && (paramArray[last] == null))
             cc.logID(1015);
@@ -444,6 +448,10 @@ cc.Sequence = cc.ActionInterval.extend({
 // todo: It should be use new
 cc.sequence = function (/*Multiple Arguments*/tempArray) {
     var paramArray = (tempArray instanceof Array) ? tempArray : arguments;
+    if (paramArray.length === 1) {
+        cc.errorID(1019);
+        return null;
+    }
     var last = paramArray.length - 1;
     if ((last >= 0) && (paramArray[last] == null))
         cc.logID(1015);
@@ -731,6 +739,10 @@ cc.Spawn = cc.ActionInterval.extend({
         this._two = null;
 
 		var paramArray = (tempArray instanceof Array) ? tempArray : arguments;
+        if (paramArray.length === 1) {
+            cc.errorID(1020);
+            return;
+        }
 		var last = paramArray.length - 1;
 		if ((last >= 0) && (paramArray[last] == null))
 			cc.logID(1015);
@@ -825,6 +837,10 @@ cc.Spawn = cc.ActionInterval.extend({
  */
 cc.spawn = function (/*Multiple Arguments*/tempArray) {
     var paramArray = (tempArray instanceof Array) ? tempArray : arguments;
+    if (paramArray.length === 1) {
+        cc.errorID(1020);
+        return null;
+    }
     if ((paramArray.length > 0) && (paramArray[paramArray.length - 1] == null))
         cc.logID(1015);
 

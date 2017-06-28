@@ -531,19 +531,19 @@ var Label = cc.Class({
                         sgNode = this._sgNode = new _ccsg.Label(this.string, JSON.stringify(font._fntConfig), font.spriteFrame);
                     } else {
                         cc.warnID(4012, font.name);
-                        sgNode = this._sgNode = new _ccsg.Label(this.string);
+                        sgNode = this._sgNode = _ccsg.Label.pool.get(this.string);
                     }
                 } else {
-                    sgNode = this._sgNode = new _ccsg.Label(this.string, "", font.spriteFrame, font);
+                    sgNode = this._sgNode = _ccsg.Label.pool.get(this.string, "", font.spriteFrame, font);
                 }
             } else {
                 cc.warnID(4011, font.name);
-                sgNode = this._sgNode = new _ccsg.Label(this.string);
+                sgNode = this._sgNode = _ccsg.Label.pool.get(this.string);
             }
         } else {
             var isAsset = font instanceof cc.Font;
             var ttfName = isAsset ? font.rawUrl : '';
-            sgNode = this._sgNode = new _ccsg.Label(this.string, ttfName);
+            sgNode = this._sgNode = _ccsg.Label.pool.get(this.string, ttfName);
         }
 
         if (CC_JSB) {
@@ -591,6 +591,15 @@ var Label = cc.Class({
             if (this.overflow === Overflow.NONE || this.overflow === Overflow.RESIZE_HEIGHT) {
                 this.node.setContentSize(this._sgNode.getContentSize());
             }
+        }
+    },
+
+    onDestroy: function () {
+        var sgNode = this._sgNode;
+        //FIXME:: call order matters
+        this._super();
+        if (sgNode) {
+            _ccsg.Label.pool.put(sgNode);
         }
     }
  });

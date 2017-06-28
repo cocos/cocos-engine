@@ -356,7 +356,7 @@ _ccsg.WebView.EventType = {
         this._div.style.height = contentSize.height + "px";
         this._div.style.width = contentSize.width + "px";
         this._div.style.overflow = "scroll";
-        this._div.style.border = "none";
+        this._iframe.style.border = "none";
         cc.game.container.appendChild(this._div);
         this.updateVisibility();
     };

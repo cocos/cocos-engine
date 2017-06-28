@@ -107,6 +107,17 @@ var TestScript = cc.Class({
     }
 });
 
+var TestDependency = cc.Class({
+    name: 'TestDependency',
+    extends: cc.Asset,
+    properties: {
+        dependency: {
+            default: '',
+            url: TestDependency,
+        }
+    }
+});
+
 // mocks to test engine extends
 
 cc.engine = new (cc.Class({

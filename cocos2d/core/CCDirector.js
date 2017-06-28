@@ -252,11 +252,11 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * @return {Vec2}
      */
     convertToGL: function (uiPoint) {
-        var docElem = document.documentElement;
+        var container = cc.game.container;
         var view = cc.view;
-        var box = docElem.getBoundingClientRect();
-        var left = box.left + window.pageXOffset - docElem.clientLeft;
-        var top = box.top + window.pageYOffset - docElem.clientTop;
+        var box = container.getBoundingClientRect();
+        var left = box.left + window.pageXOffset - container.clientLeft;
+        var top = box.top + window.pageYOffset - container.clientTop;
         var x = view._devicePixelRatio * (uiPoint.x - left);
         var y = view._devicePixelRatio * (top + box.height - uiPoint.y);
         return view._isRotated ? {x: view._viewPortRect.width - y, y: x} : {x: x, y: y};
@@ -273,19 +273,19 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * @return {Vec2}
      */
     convertToUI: function (glPoint) {
-        var docElem = document.documentElement;
+        var container = cc.game.container;
         var view = cc.view;
-        var box = docElem.getBoundingClientRect();
-        var left = box.left + window.pageXOffset - docElem.clientLeft;
-        var top = box.top + window.pageYOffset - docElem.clientTop;
+        var box = container.getBoundingClientRect();
+        var left = box.left + window.pageXOffset - container.clientLeft;
+        var top = box.top + window.pageYOffset - container.clientTop;
         var uiPoint = {x: 0, y: 0};
         if (view._isRotated) {
             uiPoint.x = left + glPoint.y / view._devicePixelRatio;
             uiPoint.y = top + box.height - (view._viewPortRect.width - glPoint.x) / view._devicePixelRatio;
         }
         else {
-            uiPoint.x = left + glPoint.x / view._devicePixelRatio;
-            uiPoint.y = top + box.height - glPoint.y / view._devicePixelRatio;
+            uiPoint.x = left + glPoint.x * view._devicePixelRatio;
+            uiPoint.y = top + box.height - glPoint.y * view._devicePixelRatio;
         }
         return uiPoint;
     },

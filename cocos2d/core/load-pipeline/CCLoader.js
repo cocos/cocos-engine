@@ -59,8 +59,6 @@ function getResWithUrl (res) {
         id = res;
     }
     isUuid = result.type ? result.type === 'uuid' : cc.AssetLibrary._getAssetUrl(id);
-    _info.url = null;
-    _info.raw = false;
     cc.AssetLibrary._getAssetInfoInRuntime(id, _info);
     result.url = !isUuid ? id : _info.url;
     if (_info.url && result.type === 'uuid' && _info.raw) {
@@ -261,10 +259,6 @@ proto.load = function(resources, progressCallback, completeCallback) {
 };
 
 proto.flowInDeps = function (owner, urlList, callback) {
-    if (owner && !owner.deps) {
-        owner.deps = [];
-    }
-
     _sharedList.length = 0;
     for (var i = 0; i < urlList.length; ++i) {
         var res = getResWithUrl(urlList[i]);
@@ -273,8 +267,6 @@ proto.flowInDeps = function (owner, urlList, callback) {
         var item = this.getItem(res.url);
         if (item) {
             _sharedList.push(item);
-            // Collect deps to avoid circle reference
-            owner && owner.deps.push(item);
         }
         else {
             _sharedList.push(res);
@@ -289,7 +281,7 @@ proto.flowInDeps = function (owner, urlList, callback) {
         callback(errors, items);
         // Clear deps because it's already done
         // Each item will only flowInDeps once, so it's still safe here
-        owner && (owner.deps.length = 0);
+        owner && owner.deps && (owner.deps.length = 0);
         items.destroy();
     });
     if (owner) {
@@ -338,8 +330,6 @@ proto._getReferenceKey = function (assetOrUrlOrUuid) {
         cc.warnID(4800, assetOrUrlOrUuid);
         return key;
     }
-    _info.url = null;
-    _info.raw = false;
     cc.AssetLibrary._getAssetInfoInRuntime(key, _info);
     return this._cache[_info.url] ? _info.url : key;
 };

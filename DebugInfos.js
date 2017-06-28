@@ -20,6 +20,8 @@ if (CC_DEBUG) {
         "1016": "cc.RotateTo.reverse(): it should be overridden in subclass.", //RotateTo.reverse
         "1017": "cc.GridAction.getGrid(): it should be overridden in subclass.", //ActionGrid.getGrid
         "1018": "Grid size must be (1,1)", //ActionGrid3D.initWithSize
+        "1019": "Failed to construct, Sequence construction needs two or more actions", //ActionInterval.sequence
+        "1020": "Failed to construct, Spawn construction needs two or more actions", //ActionInterval.spawn
         //configuration: 1100
         "1100": "Expected 'data' dict, but not found. Config file: %s", //loadConfigFile
         "1101": "Please load the resource first : %s", //loadConfigFile_2
