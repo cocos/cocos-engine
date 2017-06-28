@@ -26,13 +26,8 @@
 var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
 
 /**
- * !#en
- * PhysicsChainCollider also inherits from {{#crossLink "PhysicsCollider"}}PhysicsCollider{{/crossLink}}
- * !#zh
- * PhysicsPolygonCollider 同样也继承自 {{#crossLink "PhysicsCollider"}}PhysicsCollider{{/crossLink}}
  * @class PhysicsChainCollider
  * @extends PolygonCollider
- * @uses PhysicsCollider
  */
 var PhysicsChainCollider = cc.Class({
     name: 'cc.PhysicsChainCollider',
@@ -45,7 +40,20 @@ var PhysicsChainCollider = cc.Class({
     },
 
     properties: {
+        /**
+         * !#en Whether the chain is loop
+         * !#zh 链条是否首尾相连
+         * @property loop
+         * @type {Boolean}
+         */
         loop: false,
+
+        /**
+         * !#en Chain points
+         * !#zh 链条顶点数组
+         * @property points
+         * @type {[Vec2]}
+         */
         points: {
             default: function () {
                  return [cc.v2(-50, 0), cc.v2(50, 0)];
