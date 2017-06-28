@@ -23,6 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ * !#en Defines a Circle Collider .
+ * !#zh 用来定义圆形碰撞体
+ * @class Collider.Circle
+ */
 cc.Collider.Circle = cc.Class({
     properties: {
         _offset: cc.v2(0, 0),
@@ -74,7 +79,8 @@ cc.Collider.Circle = cc.Class({
  * !#en Circle Collider.
  * !#zh 圆形碰撞组件
  * @class CircleCollider
- * @extends Component
+ * @extends Collider
+ * @uses Collider.Circle
  */
 var CircleCollider = cc.Class({
     name: 'cc.CircleCollider',
