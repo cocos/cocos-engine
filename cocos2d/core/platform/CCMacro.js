@@ -1908,6 +1908,21 @@ cc.macro = {
      * @default 64
      */
     DOWNLOAD_MAX_CONCURRENT: 64,
+
+    /**
+     * !#en 
+     * Boolean that indicates if the canvas contains an alpha channel, default sets to false for better performance.
+     * Though if you want to make your canvas background transparent and show other dom elements at the background, 
+     * you can set it to true before `cc.game.run`.
+     * Web only.
+     * !#zh
+     * 用于设置 Canvas 背景是否支持 alpha 通道，默认为 false，这样可以有更高的性能表现。
+     * 如果你希望 Canvas 背景是透明的，并显示背后的其他 DOM 元素，你可以在 `cc.game.run` 之前将这个值设为 true。
+     * 仅支持 Web
+     * @property {Boolean} ENABLE_TRANSPARENT_CANVAS
+     * @default false
+     */
+    ENABLE_TRANSPARENT_CANVAS: false,
 };
 
 /**

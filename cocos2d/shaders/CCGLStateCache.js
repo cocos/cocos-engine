@@ -105,14 +105,14 @@ cc.gl.deleteProgram = function (program) {
  * @param {Number} dfactor
  */
 cc.gl.setBlending = function (sfactor, dfactor) {
-    var ctx = cc._renderContext;
-    if ((sfactor === ctx.ONE) && (dfactor === ctx.ZERO)) {
-        ctx.disable(ctx.BLEND);
+    var gl = cc._renderContext;
+    if ((sfactor === gl.ONE) && (dfactor === gl.ZERO)) {
+        gl.disable(gl.BLEND);
     } else {
-        ctx.enable(ctx.BLEND);
-        cc._renderContext.blendFunc(sfactor,dfactor);
+        gl.enable(gl.BLEND);
+        gl.blendFunc(sfactor,dfactor);
         //TODO need fix for WebGL
-        //ctx.blendFuncSeparate(ctx.SRC_ALPHA, dfactor, sfactor, dfactor);
+        // gl.blendFuncSeparate(sfactor, dfactor, sfactor, dfactor);
     }
 };
 
