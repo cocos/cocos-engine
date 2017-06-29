@@ -506,8 +506,8 @@ var _Deserializer = (function () {
                 }
 
                 sources.push('prop=d' + accessor + ';');
-                sources.push('if(typeof prop!=="undefined"){');
-                sources.push(    'if(typeof prop!=="object"){' +
+                sources.push(`if(typeof ${CC_JSB ? '(prop)' : 'prop'}!=="undefined"){`);
+                sources.push(    `if(typeof ${CC_JSB ? '(prop)' : 'prop'}!=="object"){` +
                                      'o' + accessor + '=prop;');
                 sources.push(    '}else{' +
                                      'if(prop){');
