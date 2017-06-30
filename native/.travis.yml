@@ -8,7 +8,7 @@ before_install:
 - tools/travis-scripts/before-install.sh
 branches:
   only:
-  - v1.5
+  - develop
 env:
   global:
   - secure: bUrk522Qw5Mc3SfDXHZtJ/aF9QbLXYDnUVSOJXt1wUB1d8xAQphTcZ1ARNYu7I5m3ZXqRfzTS4POOT58qeS3sYPpJ8urWW18hgX3I/dmsL1WJXmwnOV+0J3xLt6AT3ttqj7/emaf0xxuBvZ0szyRz0rU4wprtWftWMFiUrsF8G1an2Qa/g/f5LhilnDiKAqFdHMkn0ogaggL0PbgliHeHo7SEOfSF2gQaSIBta7jzE/BEZZ3R4AuReB3oNDwxr+1E4BpPaGO1lMLzdr8MAjWBGVLBRlpVDihgFTTmdka8UYasjEWDs6GbSjJRsTZQkluOo+1UylSiLn5o1tnWMqINo5DDaayBSKWRV/x+Sx+KMG221BwHLGFHrhEm8Jwc3g5IBiFrc9Xn/PAoCL3Zi/m0m8Y/TVIlA2nWuU0jeMZYXOb0ALCplAQMrG/Yt7euzgSjZ9iPvO7HO8BkaRkUxafcp6svWyMedNeDczG6liLSquJak+XIbOpWCOW+KVxc2S2Unz37MSOQR/aB9dJ8fKI/4e3LCdYrSKW9MSKAz9BSYA2IK2F8Fgr6zY3IPTANQCi6o8i/N54wsmpY17uvzqNDGuag5m/FkNpFWVQUy/TdONanXV6m1jvREaxtDHucSnP3olmvx6pi1awRspDfRmcILK08yvul+yLol0nQwenlx0=
