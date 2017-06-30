@@ -810,29 +810,6 @@ var Node = cc.Class({
         },
 
         /**
-         * Indicate whether ignore the anchor point property for positioning.
-         * @property _ignoreAnchor
-         * @type {Boolean}
-         * @private
-         */
-        _ignoreAnchor: {
-            get () {
-                return this.__ignoreAnchor;
-            },
-            set (value) {
-                if (this.__ignoreAnchor !== value) {
-                    this.__ignoreAnchor = value;
-                    this._sgNode.ignoreAnchor = value;
-                    var sizeProvider = this._sizeProvider;
-                    if (sizeProvider instanceof _ccsg.Node && sizeProvider !== this._sgNode) {
-                        sizeProvider.ignoreAnchor = value;
-                    }
-                    this.emit(ANCHOR_CHANGED);
-                }
-            },
-        },
-
-        /**
          * !#en Z order in depth which stands for the drawing order.
          * !#zh 该节点渲染排序的 Z 轴深度。
          * @property zIndex
@@ -899,7 +876,6 @@ var Node = cc.Class({
          */
         this._sizeProvider = null;
 
-        this.__ignoreAnchor = false;
         this._reorderChildDirty = false;
 
         // cache component
@@ -2390,7 +2366,6 @@ var Node = cc.Class({
         sgNode.setScale(self._scaleX, self._scaleY);
         sgNode.setSkewX(self._skewX);
         sgNode.setSkewY(self._skewY);
-        sgNode.setIgnoreAnchorPointForPosition(self.__ignoreAnchor);
 
         var arrivalOrder = sgNode._arrivalOrder;
         sgNode.setLocalZOrder(self._localZOrder);
@@ -2439,7 +2414,6 @@ var Node = cc.Class({
                 sizeProvider.setAnchorPoint(this._anchorPoint);
                 sizeProvider.setColor(this._color);
                 if (sizeProvider !== this._sgNode) {
-                    sizeProvider.ignoreAnchor = this.__ignoreAnchor;
                     sizeProvider.setOpacityModifyRGB(this._opacityModifyRGB);
                     if (!this._cascadeOpacityEnabled) {
                         sizeProvider.setOpacity(this._opacity);
