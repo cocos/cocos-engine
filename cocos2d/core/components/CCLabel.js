@@ -297,7 +297,7 @@ var Label = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.label.font_family',
             notify: function () {
                 if (this._sgNode) {
-                    this._sgNode.setFontFileOrFamily(this.fontFamily);
+                    this._sgNode.setFontFamily(this.fontFamily);
                 }
             },
             animatable: false
@@ -404,24 +404,22 @@ var Label = cc.Class({
                     if (font instanceof cc.BitmapFont) {
                         if (font.spriteFrame) {
                             if (!CC_JSB) {
-                                this._sgNode.setFontFileOrFamily("", font.spriteFrame, font);
+                                this._sgNode.setFontAsset(font);
                             } else {
                                 if (font.spriteFrame.textureLoaded()) {
-                                    this._sgNode.setFontFileOrFamily(JSON.stringify(font._fntConfig), font.spriteFrame);
+                                    this._sgNode.setFontAsset(font);
                                 }
                                 else {
                                     cc.warnID(4012, font.name);
-                                    this._sgNode.setFontFileOrFamily('');
+                                    this._sgNode.setFontFamily('');
                                 }
                             }
                         } else {
                             cc.warnID(4011, font.name);
-                            this._sgNode.setFontFileOrFamily('');
+                            this._sgNode.setFontFamily('');
                         }
                     } else {
-                        var isAsset = value instanceof cc.Font;
-                        var ttfName = isAsset ? value.rawUrl : '';
-                        this._sgNode.setFontFileOrFamily(ttfName);
+                        this._sgNode.setFontAsset(font);
                     }
                 }
 
@@ -458,7 +456,7 @@ var Label = cc.Class({
                 if (value) {
                     this.font = null;
                     if (this._sgNode) {
-                        this._sgNode.setFontFileOrFamily(this.fontFamily);
+                        this._sgNode.setFontFamily(this.fontFamily);
                     }
                 }
 
@@ -534,16 +532,14 @@ var Label = cc.Class({
                         sgNode = this._sgNode = new _ccsg.Label(this.string);
                     }
                 } else {
-                    sgNode = this._sgNode = _ccsg.Label.pool.get(this.string, "", font.spriteFrame, font);
+                    sgNode = this._sgNode = _ccsg.Label.pool.get(this.string, font);
                 }
             } else {
                 cc.warnID(4011, font.name);
-                sgNode = this._sgNode = _ccsg.Label.pool.get(this.string);
+                sgNode = this._sgNode = new _ccsg.Label(this.string);
             }
         } else {
-            var isAsset = font instanceof cc.Font;
-            var ttfName = isAsset ? font.rawUrl : '';
-            sgNode = this._sgNode = _ccsg.Label.pool.get(this.string, ttfName);
+            sgNode = this._sgNode = _ccsg.Label.pool.get(this.string, font);
         }
 
         if (CC_JSB) {
@@ -559,7 +555,9 @@ var Label = cc.Class({
         sgNode.setVerticalAlign( this.verticalAlign );
         sgNode.setFontSize( this._fontSize );
         if (this.useSystemFont) {
-            sgNode.setFontFileOrFamily(this.fontFamily);
+            sgNode.setFontFamily(this.fontFamily);
+        } else {
+            sgNode.setFontAsset(this.font);
         }
         sgNode.setOverflow( this.overflow );
         sgNode.enableWrapText( this._enableWrapText );
