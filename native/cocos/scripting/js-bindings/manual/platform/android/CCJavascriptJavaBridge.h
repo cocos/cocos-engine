@@ -143,7 +143,7 @@ private:
         ValueType checkType(const string& sig, size_t *pos);
     };
 
-    JS::Value convertReturnValue(JSContext *cx, ReturnValue retValue, ValueType type);
+    bool convertReturnValue(JSContext *cx, ReturnValue retValue, ValueType type, JS::MutableHandleValue ret);
 public:
     
     JS_BINDED_CLASS_GLUE(JavascriptJavaBridge);

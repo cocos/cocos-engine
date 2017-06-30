@@ -9,10 +9,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-bool JSB_localStorageGetItem(JSContext *cx, uint32_t argc, jsval *vp);
-bool JSB_localStorageRemoveItem(JSContext *cx, uint32_t argc, jsval *vp);
-bool JSB_localStorageSetItem(JSContext *cx, uint32_t argc, jsval *vp);
-bool JSB_localStorageClear(JSContext *cx, uint32_t argc, jsval *vp);
+bool JSB_localStorageGetItem(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool JSB_localStorageRemoveItem(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool JSB_localStorageSetItem(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool JSB_localStorageClear(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 #ifdef __cplusplus
 }

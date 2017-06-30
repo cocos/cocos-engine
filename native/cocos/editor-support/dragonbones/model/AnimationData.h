@@ -53,15 +53,15 @@ public:
     void addFFDTimeline(FFDTimelineData* value);
 
     /** @private */
-    inline BoneTimelineData* getBoneTimeline(const std::string& name) const
+    inline BoneTimelineData* getBoneTimeline(const std::string& theName) const
     {
-        return mapFind(boneTimelines, name);
+        return mapFind(boneTimelines, theName);
     }
 
     /** @private */
-    inline SlotTimelineData* getSlotTimeline(const std::string& name) const
+    inline SlotTimelineData* getSlotTimeline(const std::string& theName) const
     {
-        return mapFind(slotTimelines, name);
+        return mapFind(slotTimelines, theName);
     }
 
     /** @private */

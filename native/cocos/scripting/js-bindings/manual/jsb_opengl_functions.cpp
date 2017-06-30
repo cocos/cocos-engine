@@ -10,14 +10,13 @@
 
 #include "jsfriendapi.h"
 //#include "jsb_config.h"
-#include "scripting/js-bindings/manual/js_bindings_core.h"
 #include "scripting/js-bindings/manual/js_manual_conversions.h"
 #include "scripting/js-bindings/manual/jsb_opengl_functions.h"
 #include "platform/CCGL.h"
 
 // Arguments: GLenum
 // Ret value: void
-bool JSB_glActiveTexture(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glActiveTexture(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -33,7 +32,7 @@ bool JSB_glActiveTexture(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint, GLuint
 // Ret value: void
-bool JSB_glAttachShader(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glAttachShader(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -51,7 +50,7 @@ bool JSB_glAttachShader(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint, GLuint, char*
 // Ret value: void
-bool JSB_glBindAttribLocation(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glBindAttribLocation(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 3, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -69,7 +68,7 @@ bool JSB_glBindAttribLocation(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLuint
 // Ret value: void
-bool JSB_glBindBuffer(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glBindBuffer(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -86,7 +85,7 @@ bool JSB_glBindBuffer(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLuint
 // Ret value: void
-bool JSB_glBindFramebuffer(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glBindFramebuffer(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -103,7 +102,7 @@ bool JSB_glBindFramebuffer(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLuint
 // Ret value: void
-bool JSB_glBindRenderbuffer(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glBindRenderbuffer(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -120,7 +119,7 @@ bool JSB_glBindRenderbuffer(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLuint
 // Ret value: void
-bool JSB_glBindTexture(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glBindTexture(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -137,7 +136,7 @@ bool JSB_glBindTexture(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLclampf, GLclampf, GLclampf, GLclampf
 // Ret value: void
-bool JSB_glBlendColor(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glBlendColor(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 4, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -156,7 +155,7 @@ bool JSB_glBlendColor(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum
 // Ret value: void
-bool JSB_glBlendEquation(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glBlendEquation(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -172,7 +171,7 @@ bool JSB_glBlendEquation(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLenum
 // Ret value: void
-bool JSB_glBlendEquationSeparate(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glBlendEquationSeparate(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -189,7 +188,7 @@ bool JSB_glBlendEquationSeparate(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLenum
 // Ret value: void
-bool JSB_glBlendFunc(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -206,7 +205,7 @@ bool JSB_glBlendFunc(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLenum, GLenum, GLenum
 // Ret value: void
-bool JSB_glBlendFuncSeparate(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glBlendFuncSeparate(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 4, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -225,7 +224,7 @@ bool JSB_glBlendFuncSeparate(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, ArrayBufferView, GLenum
 // Ret value: void
-bool JSB_glBufferData(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glBufferData(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 3, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -244,7 +243,7 @@ bool JSB_glBufferData(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLintptr, ArrayBufferView
 // Ret value: void
-bool JSB_glBufferSubData(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glBufferSubData(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 3, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -263,7 +262,7 @@ bool JSB_glBufferSubData(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum
 // Ret value: GLenum
-bool JSB_glCheckFramebufferStatus(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glCheckFramebufferStatus(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -274,13 +273,13 @@ bool JSB_glCheckFramebufferStatus(JSContext *cx, uint32_t argc, jsval *vp) {
     GLenum ret_val;
 
     ret_val = glCheckFramebufferStatus((GLenum)arg0  );
-    args.rval().set(UINT_TO_JSVAL((uint32_t)ret_val));
+    args.rval().set(JS::Int32Value((uint32_t)ret_val));
     return true;
 }
 
 // Arguments: GLbitfield
 // Ret value: void
-bool JSB_glClear(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glClear(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -296,7 +295,7 @@ bool JSB_glClear(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLclampf, GLclampf, GLclampf, GLclampf
 // Ret value: void
-bool JSB_glClearColor(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glClearColor(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 4, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -315,7 +314,7 @@ bool JSB_glClearColor(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLclampf
 // Ret value: void
-bool JSB_glClearDepthf(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glClearDepthf(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -331,7 +330,7 @@ bool JSB_glClearDepthf(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint
 // Ret value: void
-bool JSB_glClearStencil(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glClearStencil(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -347,7 +346,7 @@ bool JSB_glClearStencil(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLboolean, GLboolean, GLboolean, GLboolean
 // Ret value: void
-bool JSB_glColorMask(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glColorMask(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 4, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -366,7 +365,7 @@ bool JSB_glColorMask(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint
 // Ret value: void
-bool JSB_glCompileShader(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glCompileShader(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -382,7 +381,7 @@ bool JSB_glCompileShader(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLint, GLenum, GLsizei, GLsizei, GLint, GLsizei, ArrayBufferView
 // Ret value: void
-bool JSB_glCompressedTexImage2D(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glCompressedTexImage2D(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 8, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -406,7 +405,7 @@ bool JSB_glCompressedTexImage2D(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLint, GLint, GLint, GLsizei, GLsizei, GLenum, GLsizei, ArrayBufferView
 // Ret value: void
-bool JSB_glCompressedTexSubImage2D(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glCompressedTexSubImage2D(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 9, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -431,7 +430,7 @@ bool JSB_glCompressedTexSubImage2D(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLint, GLenum, GLint, GLint, GLsizei, GLsizei, GLint
 // Ret value: void
-bool JSB_glCopyTexImage2D(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glCopyTexImage2D(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 8, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -454,7 +453,7 @@ bool JSB_glCopyTexImage2D(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLint, GLint, GLint, GLint, GLint, GLsizei, GLsizei
 // Ret value: void
-bool JSB_glCopyTexSubImage2D(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glCopyTexSubImage2D(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 8, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -477,19 +476,19 @@ bool JSB_glCopyTexSubImage2D(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments:
 // Ret value: GLuint
-bool JSB_glCreateProgram(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glCreateProgram(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 0, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     GLuint ret_val;
 
     ret_val = glCreateProgram( );
-    args.rval().set(UINT_TO_JSVAL((uint32_t)ret_val));
+    args.rval().set(JS::Int32Value((uint32_t)ret_val));
     return true;
 }
 
 // Arguments: GLenum
 // Ret value: GLuint
-bool JSB_glCreateShader(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glCreateShader(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -500,13 +499,13 @@ bool JSB_glCreateShader(JSContext *cx, uint32_t argc, jsval *vp) {
     GLuint ret_val;
 
     ret_val = glCreateShader((GLenum)arg0  );
-    args.rval().set(UINT_TO_JSVAL((uint32_t)ret_val));
+    args.rval().set(JS::Int32Value((uint32_t)ret_val));
     return true;
 }
 
 // Arguments: GLenum
 // Ret value: void
-bool JSB_glCullFace(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glCullFace(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -522,7 +521,7 @@ bool JSB_glCullFace(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint
 // Ret value: void
-bool JSB_glDeleteProgram(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glDeleteProgram(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -538,7 +537,7 @@ bool JSB_glDeleteProgram(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint
 // Ret value: void
-bool JSB_glDeleteShader(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glDeleteShader(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -554,7 +553,7 @@ bool JSB_glDeleteShader(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum
 // Ret value: void
-bool JSB_glDepthFunc(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glDepthFunc(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -570,7 +569,7 @@ bool JSB_glDepthFunc(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLboolean
 // Ret value: void
-bool JSB_glDepthMask(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glDepthMask(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -586,7 +585,7 @@ bool JSB_glDepthMask(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLclampf, GLclampf
 // Ret value: void
-bool JSB_glDepthRangef(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glDepthRangef(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -603,7 +602,7 @@ bool JSB_glDepthRangef(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint, GLuint
 // Ret value: void
-bool JSB_glDetachShader(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glDetachShader(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -620,7 +619,7 @@ bool JSB_glDetachShader(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum
 // Ret value: void
-bool JSB_glDisable(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glDisable(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -636,7 +635,7 @@ bool JSB_glDisable(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint
 // Ret value: void
-bool JSB_glDisableVertexAttribArray(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glDisableVertexAttribArray(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -652,7 +651,7 @@ bool JSB_glDisableVertexAttribArray(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLint, GLsizei
 // Ret value: void
-bool JSB_glDrawArrays(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glDrawArrays(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 3, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -670,7 +669,7 @@ bool JSB_glDrawArrays(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLsizei, GLenum, ArrayBufferView
 // Ret value: void
-bool JSB_glDrawElements(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glDrawElements(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 4, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -690,7 +689,7 @@ bool JSB_glDrawElements(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum
 // Ret value: void
-bool JSB_glEnable(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glEnable(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -706,7 +705,7 @@ bool JSB_glEnable(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint
 // Ret value: void
-bool JSB_glEnableVertexAttribArray(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glEnableVertexAttribArray(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -722,7 +721,7 @@ bool JSB_glEnableVertexAttribArray(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments:
 // Ret value: void
-bool JSB_glFinish(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glFinish(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 0, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     glFinish( );
@@ -732,7 +731,7 @@ bool JSB_glFinish(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments:
 // Ret value: void
-bool JSB_glFlush(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glFlush(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 0, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     glFlush( );
@@ -742,7 +741,7 @@ bool JSB_glFlush(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLenum, GLenum, GLuint
 // Ret value: void
-bool JSB_glFramebufferRenderbuffer(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glFramebufferRenderbuffer(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 4, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -761,7 +760,7 @@ bool JSB_glFramebufferRenderbuffer(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLenum, GLenum, GLuint, GLint
 // Ret value: void
-bool JSB_glFramebufferTexture2D(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glFramebufferTexture2D(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 5, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -781,7 +780,7 @@ bool JSB_glFramebufferTexture2D(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum
 // Ret value: void
-bool JSB_glFrontFace(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glFrontFace(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -797,7 +796,7 @@ bool JSB_glFrontFace(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum
 // Ret value: void
-bool JSB_glGenerateMipmap(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glGenerateMipmap(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -813,7 +812,7 @@ bool JSB_glGenerateMipmap(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint, char*
 // Ret value: int
-bool JSB_glGetAttribLocation(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glGetAttribLocation(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -825,25 +824,25 @@ bool JSB_glGetAttribLocation(JSContext *cx, uint32_t argc, jsval *vp) {
     int ret_val;
 
     ret_val = glGetAttribLocation((GLuint)arg0 , (char*)arg1  );
-    args.rval().set(INT_TO_JSVAL((int32_t)ret_val));
+    args.rval().set(JS::Int32Value((int32_t)ret_val));
     return true;
 }
 
 // Arguments:
 // Ret value: GLenum
-bool JSB_glGetError(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glGetError(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 0, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     GLenum ret_val;
 
     ret_val = glGetError( );
-    args.rval().set(UINT_TO_JSVAL((uint32_t)ret_val));
+    args.rval().set(JS::Int32Value((uint32_t)ret_val));
     return true;
 }
 
 // Arguments: GLuint, char*
 // Ret value: int
-bool JSB_glGetUniformLocation(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glGetUniformLocation(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -856,13 +855,13 @@ bool JSB_glGetUniformLocation(JSContext *cx, uint32_t argc, jsval *vp) {
     int ret_val;
 
     ret_val = glGetUniformLocation((GLuint)arg0 , (char*)arg1  );
-    args.rval().set(INT_TO_JSVAL((int32_t)ret_val));
+    args.rval().set(JS::Int32Value((int32_t)ret_val));
     return true;
 }
 
 // Arguments: GLenum, GLenum
 // Ret value: void
-bool JSB_glHint(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glHint(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -879,7 +878,7 @@ bool JSB_glHint(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint
 // Ret value: GLboolean
-bool JSB_glIsBuffer(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glIsBuffer(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -890,13 +889,13 @@ bool JSB_glIsBuffer(JSContext *cx, uint32_t argc, jsval *vp) {
     GLboolean ret_val;
 
     ret_val = glIsBuffer((GLuint)arg0  );
-    args.rval().set(INT_TO_JSVAL((int32_t)ret_val));
+    args.rval().set(JS::Int32Value((int32_t)ret_val));
     return true;
 }
 
 // Arguments: GLenum
 // Ret value: GLboolean
-bool JSB_glIsEnabled(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glIsEnabled(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -907,13 +906,13 @@ bool JSB_glIsEnabled(JSContext *cx, uint32_t argc, jsval *vp) {
     GLboolean ret_val;
 
     ret_val = glIsEnabled((GLenum)arg0  );
-    args.rval().set(INT_TO_JSVAL((int32_t)ret_val));
+    args.rval().set(JS::Int32Value((int32_t)ret_val));
     return true;
 }
 
 // Arguments: GLuint
 // Ret value: GLboolean
-bool JSB_glIsFramebuffer(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glIsFramebuffer(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -924,13 +923,13 @@ bool JSB_glIsFramebuffer(JSContext *cx, uint32_t argc, jsval *vp) {
     GLboolean ret_val;
 
     ret_val = glIsFramebuffer((GLuint)arg0  );
-    args.rval().set(INT_TO_JSVAL((int32_t)ret_val));
+    args.rval().set(JS::Int32Value((int32_t)ret_val));
     return true;
 }
 
 // Arguments: GLuint
 // Ret value: GLboolean
-bool JSB_glIsProgram(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glIsProgram(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -941,13 +940,13 @@ bool JSB_glIsProgram(JSContext *cx, uint32_t argc, jsval *vp) {
     GLboolean ret_val;
 
     ret_val = glIsProgram((GLuint)arg0  );
-    args.rval().set(INT_TO_JSVAL((int32_t)ret_val));
+    args.rval().set(JS::Int32Value((int32_t)ret_val));
     return true;
 }
 
 // Arguments: GLuint
 // Ret value: GLboolean
-bool JSB_glIsRenderbuffer(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glIsRenderbuffer(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -958,13 +957,13 @@ bool JSB_glIsRenderbuffer(JSContext *cx, uint32_t argc, jsval *vp) {
     GLboolean ret_val;
 
     ret_val = glIsRenderbuffer((GLuint)arg0  );
-    args.rval().set(INT_TO_JSVAL((int32_t)ret_val));
+    args.rval().set(JS::Int32Value((int32_t)ret_val));
     return true;
 }
 
 // Arguments: GLuint
 // Ret value: GLboolean
-bool JSB_glIsShader(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glIsShader(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -975,13 +974,13 @@ bool JSB_glIsShader(JSContext *cx, uint32_t argc, jsval *vp) {
     GLboolean ret_val;
 
     ret_val = glIsShader((GLuint)arg0  );
-    args.rval().set(INT_TO_JSVAL((int32_t)ret_val));
+    args.rval().set(JS::Int32Value((int32_t)ret_val));
     return true;
 }
 
 // Arguments: GLuint
 // Ret value: GLboolean
-bool JSB_glIsTexture(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glIsTexture(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -992,13 +991,13 @@ bool JSB_glIsTexture(JSContext *cx, uint32_t argc, jsval *vp) {
     GLboolean ret_val;
 
     ret_val = glIsTexture((GLuint)arg0  );
-    args.rval().set(INT_TO_JSVAL((int32_t)ret_val));
+    args.rval().set(JS::Int32Value((int32_t)ret_val));
     return true;
 }
 
 // Arguments: GLfloat
 // Ret value: void
-bool JSB_glLineWidth(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glLineWidth(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1014,7 +1013,7 @@ bool JSB_glLineWidth(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint
 // Ret value: void
-bool JSB_glLinkProgram(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glLinkProgram(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1030,7 +1029,7 @@ bool JSB_glLinkProgram(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLint
 // Ret value: void
-bool JSB_glPixelStorei(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glPixelStorei(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1047,7 +1046,7 @@ bool JSB_glPixelStorei(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLfloat, GLfloat
 // Ret value: void
-bool JSB_glPolygonOffset(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glPolygonOffset(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1064,7 +1063,7 @@ bool JSB_glPolygonOffset(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, ArrayBufferView
 // Ret value: void
-bool JSB_glReadPixels(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glReadPixels(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 7, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1087,7 +1086,7 @@ bool JSB_glReadPixels(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments:
 // Ret value: void
-bool JSB_glReleaseShaderCompiler(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glReleaseShaderCompiler(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 0, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     glReleaseShaderCompiler( );
@@ -1097,7 +1096,7 @@ bool JSB_glReleaseShaderCompiler(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLenum, GLsizei, GLsizei
 // Ret value: void
-bool JSB_glRenderbufferStorage(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glRenderbufferStorage(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 4, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1116,7 +1115,7 @@ bool JSB_glRenderbufferStorage(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLclampf, GLboolean
 // Ret value: void
-bool JSB_glSampleCoverage(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glSampleCoverage(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1133,7 +1132,7 @@ bool JSB_glSampleCoverage(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint, GLint, GLsizei, GLsizei
 // Ret value: void
-bool JSB_glScissor(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glScissor(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 4, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1152,7 +1151,7 @@ bool JSB_glScissor(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLint, GLuint
 // Ret value: void
-bool JSB_glStencilFunc(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glStencilFunc(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 3, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1170,7 +1169,7 @@ bool JSB_glStencilFunc(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLenum, GLint, GLuint
 // Ret value: void
-bool JSB_glStencilFuncSeparate(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glStencilFuncSeparate(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 4, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1189,7 +1188,7 @@ bool JSB_glStencilFuncSeparate(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint
 // Ret value: void
-bool JSB_glStencilMask(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glStencilMask(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1205,7 +1204,7 @@ bool JSB_glStencilMask(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLuint
 // Ret value: void
-bool JSB_glStencilMaskSeparate(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glStencilMaskSeparate(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1222,7 +1221,7 @@ bool JSB_glStencilMaskSeparate(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLenum, GLenum
 // Ret value: void
-bool JSB_glStencilOp(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glStencilOp(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 3, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1240,7 +1239,7 @@ bool JSB_glStencilOp(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLenum, GLenum, GLenum
 // Ret value: void
-bool JSB_glStencilOpSeparate(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glStencilOpSeparate(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 4, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1259,7 +1258,7 @@ bool JSB_glStencilOpSeparate(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLint, GLint, GLsizei, GLsizei, GLint, GLenum, GLenum, ArrayBufferView
 // Ret value: void
-bool JSB_glTexImage2D(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glTexImage2D(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 9, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1284,7 +1283,7 @@ bool JSB_glTexImage2D(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLenum, GLfloat
 // Ret value: void
-bool JSB_glTexParameterf(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glTexParameterf(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 3, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1302,7 +1301,7 @@ bool JSB_glTexParameterf(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLenum, GLint
 // Ret value: void
-bool JSB_glTexParameteri(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glTexParameteri(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 3, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1320,7 +1319,7 @@ bool JSB_glTexParameteri(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLenum, GLint, GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, ArrayBufferView
 // Ret value: void
-bool JSB_glTexSubImage2D(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glTexSubImage2D(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 9, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1345,7 +1344,7 @@ bool JSB_glTexSubImage2D(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint, GLfloat
 // Ret value: void
-bool JSB_glUniform1f(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glUniform1f(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1362,7 +1361,7 @@ bool JSB_glUniform1f(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint, GLsizei, TypedArray/Sequence
 // Ret value: void
-bool JSB_glUniform1fv(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glUniform1fv(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 3, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1381,7 +1380,7 @@ bool JSB_glUniform1fv(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint, GLint
 // Ret value: void
-bool JSB_glUniform1i(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glUniform1i(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1398,7 +1397,7 @@ bool JSB_glUniform1i(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint, GLsizei, TypedArray/Sequence
 // Ret value: void
-bool JSB_glUniform1iv(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glUniform1iv(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 3, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1417,7 +1416,7 @@ bool JSB_glUniform1iv(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint, GLfloat, GLfloat
 // Ret value: void
-bool JSB_glUniform2f(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glUniform2f(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 3, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1435,7 +1434,7 @@ bool JSB_glUniform2f(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint, GLsizei, TypedArray/Sequence
 // Ret value: void
-bool JSB_glUniform2fv(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glUniform2fv(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 3, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1454,7 +1453,7 @@ bool JSB_glUniform2fv(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint, GLint, GLint
 // Ret value: void
-bool JSB_glUniform2i(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glUniform2i(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 3, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1472,7 +1471,7 @@ bool JSB_glUniform2i(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint, GLsizei, TypedArray/Sequence
 // Ret value: void
-bool JSB_glUniform2iv(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glUniform2iv(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 3, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1491,7 +1490,7 @@ bool JSB_glUniform2iv(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint, GLfloat, GLfloat, GLfloat
 // Ret value: void
-bool JSB_glUniform3f(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glUniform3f(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 4, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1510,7 +1509,7 @@ bool JSB_glUniform3f(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint, GLsizei, TypedArray/Sequence
 // Ret value: void
-bool JSB_glUniform3fv(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glUniform3fv(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 3, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1529,7 +1528,7 @@ bool JSB_glUniform3fv(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint, GLint, GLint, GLint
 // Ret value: void
-bool JSB_glUniform3i(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glUniform3i(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 4, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1548,7 +1547,7 @@ bool JSB_glUniform3i(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint, GLsizei, TypedArray/Sequence
 // Ret value: void
-bool JSB_glUniform3iv(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glUniform3iv(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 3, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1567,7 +1566,7 @@ bool JSB_glUniform3iv(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint, GLfloat, GLfloat, GLfloat, GLfloat
 // Ret value: void
-bool JSB_glUniform4f(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glUniform4f(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 5, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1587,7 +1586,7 @@ bool JSB_glUniform4f(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint, GLsizei, TypedArray/Sequence
 // Ret value: void
-bool JSB_glUniform4fv(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glUniform4fv(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 3, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1606,7 +1605,7 @@ bool JSB_glUniform4fv(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint, GLint, GLint, GLint, GLint
 // Ret value: void
-bool JSB_glUniform4i(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glUniform4i(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 5, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1626,7 +1625,7 @@ bool JSB_glUniform4i(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint, GLsizei, TypedArray/Sequence
 // Ret value: void
-bool JSB_glUniform4iv(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glUniform4iv(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 3, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1645,7 +1644,7 @@ bool JSB_glUniform4iv(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint, GLboolean, TypedArray/Sequence
 // Ret value: void
-bool JSB_glUniformMatrix2fv(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glUniformMatrix2fv(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 3, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1664,7 +1663,7 @@ bool JSB_glUniformMatrix2fv(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint, GLboolean, TypedArray/Sequence
 // Ret value: void
-bool JSB_glUniformMatrix3fv(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glUniformMatrix3fv(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 3, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1683,7 +1682,7 @@ bool JSB_glUniformMatrix3fv(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint, GLboolean, TypedArray/Sequence
 // Ret value: void
-bool JSB_glUniformMatrix4fv(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glUniformMatrix4fv(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 3, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1702,7 +1701,7 @@ bool JSB_glUniformMatrix4fv(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint
 // Ret value: void
-bool JSB_glUseProgram(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glUseProgram(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1718,7 +1717,7 @@ bool JSB_glUseProgram(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint
 // Ret value: void
-bool JSB_glValidateProgram(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glValidateProgram(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1734,7 +1733,7 @@ bool JSB_glValidateProgram(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint, GLfloat
 // Ret value: void
-bool JSB_glVertexAttrib1f(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glVertexAttrib1f(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1751,7 +1750,7 @@ bool JSB_glVertexAttrib1f(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint, TypedArray/Sequence
 // Ret value: void
-bool JSB_glVertexAttrib1fv(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glVertexAttrib1fv(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1769,7 +1768,7 @@ bool JSB_glVertexAttrib1fv(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint, GLfloat, GLfloat
 // Ret value: void
-bool JSB_glVertexAttrib2f(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glVertexAttrib2f(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 3, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1787,7 +1786,7 @@ bool JSB_glVertexAttrib2f(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint, TypedArray/Sequence
 // Ret value: void
-bool JSB_glVertexAttrib2fv(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glVertexAttrib2fv(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1805,7 +1804,7 @@ bool JSB_glVertexAttrib2fv(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint, GLfloat, GLfloat, GLfloat
 // Ret value: void
-bool JSB_glVertexAttrib3f(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glVertexAttrib3f(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 4, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1824,7 +1823,7 @@ bool JSB_glVertexAttrib3f(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint, TypedArray/Sequence
 // Ret value: void
-bool JSB_glVertexAttrib3fv(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glVertexAttrib3fv(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1842,7 +1841,7 @@ bool JSB_glVertexAttrib3fv(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint, GLfloat, GLfloat, GLfloat, GLfloat
 // Ret value: void
-bool JSB_glVertexAttrib4f(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glVertexAttrib4f(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 5, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1862,7 +1861,7 @@ bool JSB_glVertexAttrib4f(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint, TypedArray/Sequence
 // Ret value: void
-bool JSB_glVertexAttrib4fv(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glVertexAttrib4fv(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1880,7 +1879,7 @@ bool JSB_glVertexAttrib4fv(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLuint, GLint, GLenum, GLboolean, GLsizei, GLvoid*
 // Ret value: void
-bool JSB_glVertexAttribPointer(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glVertexAttribPointer(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 6, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -1901,7 +1900,7 @@ bool JSB_glVertexAttribPointer(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: GLint, GLint, GLsizei, GLsizei
 // Ret value: void
-bool JSB_glViewport(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_glViewport(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 4, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;

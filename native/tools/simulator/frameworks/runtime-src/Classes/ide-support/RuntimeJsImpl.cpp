@@ -182,12 +182,6 @@ bool RuntimeJsImpl::startWithDebugger()
 {
     initJsEnv();
     
-    int debugPort = 5086;
-#if(CC_PLATFORM_MAC == CC_TARGET_PLATFORM || CC_PLATFORM_WIN32 == CC_TARGET_PLATFORM)
-    debugPort = ConfigParser::getInstance()->getDebugPort();
-#endif
-    ScriptingCore::getInstance()->enableDebugger(debugPort);
-    
     return true;
 }
 

@@ -39,12 +39,6 @@ if (window.ccui) {
     require('script/ccui/jsb_ccui_create_apis.js');
 }
 
-if (window.cp) {
-    // chipmunk
-    require('script/chipmunk/jsb_chipmunk_constants.js');
-    require('script/chipmunk/jsb_chipmunk.js');
-}
-
 require('script/jsb_opengl_constants.js');
 require('script/jsb_opengl.js');
 

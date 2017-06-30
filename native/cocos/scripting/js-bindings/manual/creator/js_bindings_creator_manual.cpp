@@ -44,12 +44,12 @@ USING_NS_CC_EXT;
 
 #pragma mark - conversions
 
-bool js_creator_PhysicsContactListener_setEndContact(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsContactListener_setEndContact(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsContactListener* cobj = (creator::PhysicsContactListener *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsContactListener_setEndContact : Invalid Native Object");
     if (argc == 1) {
@@ -58,19 +58,20 @@ bool js_creator_PhysicsContactListener_setEndContact(JSContext *cx, uint32_t arg
             if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
             {
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
-                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+                JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
                 auto lambda = [=](b2Contact* larg0) -> void {
-                    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                    jsval largv[1];
+                    JS::RootedValue largv(cx);
                     if (larg0) {
-                        largv[0] = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
-                    } else {
-                        largv[0] = JSVAL_NULL;
-                    };
+                        JS::RootedObject arg0Obj(cx);
+                        js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0, &arg0Obj);
+                        largv = JS::ObjectOrNullValue(arg0Obj);
+                    }
                     JS::RootedValue rval(cx);
-                    bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(1, largv), &rval);
+                    JS::HandleValueArray largs(largv);
+                    bool succeed = func->invoke(largs, &rval);
                     if (!succeed && JS_IsExceptionPending(cx)) {
-                        JS_ReportPendingException(cx);
+                        handlePendingException(cx);
                     }
                 };
                 arg0 = lambda;
@@ -87,15 +88,15 @@ bool js_creator_PhysicsContactListener_setEndContact(JSContext *cx, uint32_t arg
         return true;
     }
     
-    JS_ReportError(cx, "js_creator_PhysicsContactListener_setEndContact : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_creator_PhysicsContactListener_setEndContact : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_creator_PhysicsContactListener_setBeginContact(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsContactListener_setBeginContact(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsContactListener* cobj = (creator::PhysicsContactListener *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsContactListener_setBeginContact : Invalid Native Object");
     if (argc == 1) {
@@ -104,24 +105,25 @@ bool js_creator_PhysicsContactListener_setBeginContact(JSContext *cx, uint32_t a
             if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
             {
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
-                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+                JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
                 auto lambda = [=](b2Contact* larg0) -> void {
-                    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                    jsval largv[1];
+                    JS::RootedValue largv(cx);
                     if (larg0) {
                         // box2d will reuse cached memory, need first remove old proxy when create new jsobject
                         auto larg0Proxy = jsb_get_native_proxy(larg0);
                         if (larg0Proxy) {
                             jsb_remove_proxy(larg0Proxy);
                         }
-                        largv[0] = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
-                    } else {
-                        largv[0] = JSVAL_NULL;
-                    };
+                        JS::RootedObject arg0Obj(cx);
+                        js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0, &arg0Obj);
+                        largv = JS::ObjectOrNullValue(arg0Obj);
+                    }
                     JS::RootedValue rval(cx);
-                    bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(1, largv), &rval);
+                    JS::HandleValueArray largs(largv);
+                    bool succeed = func->invoke(largs, &rval);
                     if (!succeed && JS_IsExceptionPending(cx)) {
-                        JS_ReportPendingException(cx);
+                        handlePendingException(cx);
                     }
                 };
                 arg0 = lambda;
@@ -138,16 +140,16 @@ bool js_creator_PhysicsContactListener_setBeginContact(JSContext *cx, uint32_t a
         return true;
     }
     
-    JS_ReportError(cx, "js_creator_PhysicsContactListener_setBeginContact : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_creator_PhysicsContactListener_setBeginContact : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_creator_PhysicsContactListener_setPreSolve(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsContactListener_setPreSolve(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsContactListener* cobj = (creator::PhysicsContactListener *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsContactListener_setPreSolve : Invalid Native Object");
     if (argc == 1) {
@@ -156,19 +158,20 @@ bool js_creator_PhysicsContactListener_setPreSolve(JSContext *cx, uint32_t argc,
             if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
             {
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
-                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+                JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
                 auto lambda = [=](b2Contact* larg0) -> void {
-                    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                    jsval largv[1];
+                    JS::RootedValue largv(cx);
                     if (larg0) {
-                        largv[0] = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
-                    } else {
-                        largv[0] = JSVAL_NULL;
-                    };
+                        JS::RootedObject arg0Obj(cx);
+                        js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0, &arg0Obj);
+                        largv = JS::ObjectOrNullValue(arg0Obj);
+                    }
                     JS::RootedValue rval(cx);
-                    bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(1, largv), &rval);
+                    JS::HandleValueArray largs(largv);
+                    bool succeed = func->invoke(largs, &rval);
                     if (!succeed && JS_IsExceptionPending(cx)) {
-                        JS_ReportPendingException(cx);
+                        handlePendingException(cx);
                     }
                 };
                 arg0 = lambda;
@@ -185,16 +188,16 @@ bool js_creator_PhysicsContactListener_setPreSolve(JSContext *cx, uint32_t argc,
         return true;
     }
     
-    JS_ReportError(cx, "js_creator_PhysicsContactListener_setPreSolve : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_creator_PhysicsContactListener_setPreSolve : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_creator_PhysicsContactListener_setPostSolve(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsContactListener_setPostSolve(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsContactListener* cobj = (creator::PhysicsContactListener *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsContactListener_setPostSolve : Invalid Native Object");
     if (argc == 1) {
@@ -203,24 +206,29 @@ bool js_creator_PhysicsContactListener_setPostSolve(JSContext *cx, uint32_t argc
             if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
             {
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
-                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0), args.thisv()));
+                JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
                 auto lambda = [=](b2Contact* larg0, const creator::PhysicsContactImpulse* larg1) -> void {
-                    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                    jsval largv[2];
+                    JS::AutoValueVector largv(cx);
                     if (larg0) {
-                        largv[0] = OBJECT_TO_JSVAL(js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0));
+                        JS::RootedObject arg0Obj(cx);
+                        js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0, &arg0Obj);
+                        largv.append(JS::ObjectOrNullValue(arg0Obj));
                     } else {
-                        largv[0] = JSVAL_NULL;
-                    };
+                        largv.append(JS::NullHandleValue);
+                    }
                     if (larg1) {
-                        largv[1] = OBJECT_TO_JSVAL(js_get_or_create_jsobject<creator::PhysicsContactImpulse>(cx, (creator::PhysicsContactImpulse*)larg1));
+                        JS::RootedObject arg1Obj(cx);
+                        js_get_or_create_jsobject<creator::PhysicsContactImpulse>(cx, (creator::PhysicsContactImpulse*)larg1, &arg1Obj);
+                        largv.append(JS::ObjectOrNullValue(arg1Obj));
                     } else {
-                        largv[1] = JSVAL_NULL;
-                    };
+                        largv.append(JS::NullValue());
+                    }
                     JS::RootedValue rval(cx);
-                    bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(2, largv), &rval);
+                    JS::HandleValueArray largs(largv);
+                    bool succeed = func->invoke(largs, &rval);
                     if (!succeed && JS_IsExceptionPending(cx)) {
-                        JS_ReportPendingException(cx);
+                        handlePendingException(cx);
                     }
                 };
                 arg0 = lambda;
@@ -237,103 +245,102 @@ bool js_creator_PhysicsContactListener_setPostSolve(JSContext *cx, uint32_t argc
         return true;
     }
     
-    JS_ReportError(cx, "js_creator_PhysicsContactListener_setPostSolve : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_creator_PhysicsContactListener_setPostSolve : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-bool js_creator_PhysicsAABBQueryCallback_getFixtures(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsAABBQueryCallback_getFixtures(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsAABBQueryCallback* cobj = (creator::PhysicsAABBQueryCallback *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsAABBQueryCallback_getFixtures : Invalid Native Object");
     if (argc == 0) {
         std::vector<b2Fixture *> ret = cobj->getFixtures();
         
-        jsval jsret = array_of_b2Fixture_to_jsval(cx, ret);
-        args.rval().set( jsret );
-        
+        JS::RootedValue jsret(cx);
+        array_of_b2Fixture_to_jsval(cx, ret, &jsret);
         args.rval().set(jsret);
         return true;
     }
     
-    JS_ReportError(cx, "js_creator_PhysicsAABBQueryCallback_getFixtures : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_creator_PhysicsAABBQueryCallback_getFixtures : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_creator_PhysicsRayCastCallback_getFixtures(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsRayCastCallback_getFixtures(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsRayCastCallback* cobj = (creator::PhysicsRayCastCallback *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsRayCastCallback_getFixtures : Invalid Native Object");
     if (argc == 0) {
         std::vector<b2Fixture *> ret = cobj->getFixtures();
        
-        jsval jsret = array_of_b2Fixture_to_jsval(cx, ret);
-        args.rval().set( jsret );
-        
+        JS::RootedValue jsret(cx);
+        array_of_b2Fixture_to_jsval(cx, ret, &jsret);
+        args.rval().set(jsret);
         return true;
     }
     
-    JS_ReportError(cx, "js_creator_PhysicsRayCastCallback_getFixtures : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_creator_PhysicsRayCastCallback_getFixtures : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_creator_PhysicsRayCastCallback_getPoints(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsRayCastCallback_getPoints(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsRayCastCallback* cobj = (creator::PhysicsRayCastCallback *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsRayCastCallback_getPoints : Invalid Native Object");
     if (argc == 0) {
         std::vector<b2Vec2, std::allocator<b2Vec2> >& ret = cobj->getPoints();
         
-        jsval jsret = array_of_b2Vec2_to_jsval(cx, ret);
+        JS::RootedValue jsret(cx);
+        array_of_b2Vec2_to_jsval(cx, ret, &jsret);
         args.rval().set(jsret);
-        
         return true;
     }
     
-    JS_ReportError(cx, "js_creator_PhysicsRayCastCallback_getPoints : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_creator_PhysicsRayCastCallback_getPoints : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_PhysicsRayCastCallback_getNormals(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_PhysicsRayCastCallback_getNormals(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     creator::PhysicsRayCastCallback* cobj = (creator::PhysicsRayCastCallback *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_PhysicsRayCastCallback_getNormals : Invalid Native Object");
     if (argc == 0) {
         std::vector<b2Vec2, std::allocator<b2Vec2> >& ret = cobj->getNormals();
         
-        jsval jsret = array_of_b2Vec2_to_jsval(cx, ret);
+        JS::RootedValue jsret(cx);
+        array_of_b2Vec2_to_jsval(cx, ret, &jsret);
         args.rval().set(jsret);
-        
         return true;
     }
     
-    JS_ReportError(cx, "js_creator_PhysicsRayCastCallback_getNormals : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_creator_PhysicsRayCastCallback_getNormals : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
 void register_all_creatorclasses_manual(JSContext* cx, JS::HandleObject obj) {
     JS::RootedObject tmpObj(cx);
     
-    tmpObj.set(jsb_creator_PhysicsContactListener_prototype);
+    tmpObj.set(jsb_creator_PhysicsContactListener_prototype->get());
     JS_DefineFunction(cx, tmpObj, "setPreSolve", js_creator_PhysicsContactListener_setPreSolve, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "setPostSolve", js_creator_PhysicsContactListener_setPostSolve, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "setBeginContact", js_creator_PhysicsContactListener_setBeginContact, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "setEndContact", js_creator_PhysicsContactListener_setEndContact, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
-    tmpObj.set(jsb_creator_PhysicsAABBQueryCallback_prototype);
+    tmpObj.set(jsb_creator_PhysicsAABBQueryCallback_prototype->get());
     JS_DefineFunction(cx, tmpObj, "getFixtures", js_creator_PhysicsAABBQueryCallback_getFixtures, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     
-    tmpObj.set(jsb_creator_PhysicsRayCastCallback_prototype);
+    tmpObj.set(jsb_creator_PhysicsRayCastCallback_prototype->get());
     JS_DefineFunction(cx, tmpObj, "getFixtures", js_creator_PhysicsRayCastCallback_getFixtures, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "getPoints", js_creator_PhysicsRayCastCallback_getPoints, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "getNormals", js_creator_PhysicsRayCastCallback_getNormals, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);

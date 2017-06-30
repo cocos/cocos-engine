@@ -55,9 +55,9 @@ public:
     /** @private */
     virtual void addTexture(TextureData* value);
     /** @private */
-    inline TextureData* getTexture(const std::string& name) const
+    inline TextureData* getTexture(const std::string& texName) const
     {
-        return mapFind(textures, name);
+        return mapFind(textures, texName);
     }
 };
 

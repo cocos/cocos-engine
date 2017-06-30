@@ -5,7 +5,6 @@
 */
 #include "scripting/js-bindings/manual/localstorage/js_bindings_system_functions.h"
 #include "scripting/js-bindings/manual/js_bindings_config.h"
-#include "scripting/js-bindings/manual/js_bindings_core.h"
 #include "scripting/js-bindings/manual/js_manual_conversions.h"
 #include "scripting/js-bindings/manual/ScriptingCore.h"
 #include "storage/local-storage/LocalStorage.h"
@@ -14,7 +13,7 @@ USING_NS_CC;
 
 // Arguments: char*
 // Ret value: const char*
-bool JSB_localStorageGetItem(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_localStorageGetItem(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -26,11 +25,12 @@ bool JSB_localStorageGetItem(JSContext *cx, uint32_t argc, jsval *vp) {
 
     ok = localStorageGetItem(arg0, &ret_val);
     if (ok) {
-        jsval ret_jsval = std_string_to_jsval(cx, ret_val);
+        JS::RootedValue ret_jsval(cx);
+        std_string_to_jsval(cx, ret_val, &ret_jsval);
         args.rval().set(ret_jsval);
     }
     else {
-        args.rval().set(JSVAL_NULL);
+        args.rval().set(JS::NullValue());
     }
 
     return true;
@@ -38,7 +38,7 @@ bool JSB_localStorageGetItem(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: char*
 // Ret value: void
-bool JSB_localStorageRemoveItem(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_localStorageRemoveItem(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 1, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -54,7 +54,7 @@ bool JSB_localStorageRemoveItem(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: char*, char*
 // Ret value: void
-bool JSB_localStorageSetItem(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_localStorageSetItem(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 2, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -75,7 +75,7 @@ bool JSB_localStorageSetItem(JSContext *cx, uint32_t argc, jsval *vp) {
 
 // Arguments: char*, char*
 // Ret value: void
-bool JSB_localStorageClear(JSContext *cx, uint32_t argc, jsval *vp) {
+bool JSB_localStorageClear(JSContext *cx, uint32_t argc, JS::Value *vp) {
     JSB_PRECONDITION2( argc == 0, cx, false, "Invalid number of arguments" );
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 

@@ -209,7 +209,7 @@ void Node::cleanup()
     this->stopAllActions();
     // timers
     this->unscheduleAllCallbacks();
-
+    // Event listeners
     _eventDispatcher->removeEventListenersForTarget(this);
     
     for( const auto &child: _children)
@@ -978,12 +978,12 @@ void Node::postInsertChild(Node* child)
 
     if (_cascadeColorEnabled)
     {
-        child->updateCascadeColor();
+        updateCascadeColor();
     }
 
     if (_cascadeOpacityEnabled)
     {
-        child->updateCascadeOpacity();
+        updateCascadeOpacity();
     }
 }
 

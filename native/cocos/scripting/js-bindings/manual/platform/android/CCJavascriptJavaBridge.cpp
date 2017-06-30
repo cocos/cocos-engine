@@ -19,13 +19,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
- 
+
 #include <android/log.h>
 #include "scripting/js-bindings/manual/platform/android/CCJavascriptJavaBridge.h"
 
 #include "platform/android/jni/JniHelper.h"
 #include "scripting/js-bindings/manual/spidermonkey_specifics.h"
 #include "scripting/js-bindings/manual/ScriptingCore.h"
+#include "scripting/js-bindings/manual/cocos2d_specifics.hpp"
 #include "scripting/js-bindings/manual/js_manual_conversions.h"
 #include "base/ccUTF8.h"
 
@@ -37,7 +38,7 @@ extern "C" {
 #endif
 
 JNIEXPORT jint JNICALL Java_org_cocos2dx_lib_Cocos2dxJavascriptJavaBridge_evalString
-  (JNIEnv *env, jclass cls, jstring value)
+        (JNIEnv *env, jclass cls, jstring value)
 {
     bool strFlag = false;
     std::string strValue = cocos2d::StringUtils::getStringUTFCharsJNI(env, value, &strFlag);
@@ -86,7 +87,7 @@ bool JavascriptJavaBridge::CallInfo::execute(void)
         {
             m_retjstring = (jstring)m_env->CallStaticObjectMethod(m_classID, m_methodID);
             std::string strValue = cocos2d::StringUtils::getStringUTFCharsJNI(m_env, m_retjstring);
-            
+
             m_ret.stringValue = new string(strValue);
             break;
         }
@@ -112,36 +113,36 @@ bool JavascriptJavaBridge::CallInfo::execute(void)
 bool JavascriptJavaBridge::CallInfo::executeWithArgs(jvalue *args)
 {
     switch (m_returnType)
-     {
-         case TypeVoid:
-             m_env->CallStaticVoidMethodA(m_classID, m_methodID, args);
-             break;
+    {
+        case TypeVoid:
+            m_env->CallStaticVoidMethodA(m_classID, m_methodID, args);
+            break;
 
-         case TypeInteger:
-             m_ret.intValue = m_env->CallStaticIntMethodA(m_classID, m_methodID, args);
-             break;
+        case TypeInteger:
+            m_ret.intValue = m_env->CallStaticIntMethodA(m_classID, m_methodID, args);
+            break;
 
-         case TypeFloat:
-             m_ret.floatValue = m_env->CallStaticFloatMethodA(m_classID, m_methodID, args);
-             break;
+        case TypeFloat:
+            m_ret.floatValue = m_env->CallStaticFloatMethodA(m_classID, m_methodID, args);
+            break;
 
-         case TypeBoolean:
-             m_ret.boolValue = m_env->CallStaticBooleanMethodA(m_classID, m_methodID, args);
-             break;
+        case TypeBoolean:
+            m_ret.boolValue = m_env->CallStaticBooleanMethodA(m_classID, m_methodID, args);
+            break;
 
-         case TypeString:
+        case TypeString:
         {
-             m_retjstring = (jstring)m_env->CallStaticObjectMethodA(m_classID, m_methodID, args);
-             std::string strValue = cocos2d::StringUtils::getStringUTFCharsJNI(m_env, m_retjstring);
-             m_ret.stringValue = new string(strValue);
-             break;
+            m_retjstring = (jstring)m_env->CallStaticObjectMethodA(m_classID, m_methodID, args);
+            std::string strValue = cocos2d::StringUtils::getStringUTFCharsJNI(m_env, m_retjstring);
+            m_ret.stringValue = new string(strValue);
+            break;
         }
 
         default:
             m_error = JSJ_ERR_TYPE_NOT_SUPPORT;
             LOGD("Return type '%d' is not supported", static_cast<int>(m_returnType));
             return false;
-     }
+    }
 
     if (m_env->ExceptionCheck() == JNI_TRUE)
     {
@@ -256,8 +257,8 @@ bool JavascriptJavaBridge::CallInfo::getMethodInfo(void)
     }
     jstring _jstrClassName = m_env->NewStringUTF(m_className.c_str());
     m_classID = (jclass) m_env->CallObjectMethod(cocos2d::JniHelper::classloader,
-                                                   cocos2d::JniHelper::loadclassMethod_methodID,
-                                                   _jstrClassName);
+                                                 cocos2d::JniHelper::loadclassMethod_methodID,
+                                                 _jstrClassName);
 
     if (NULL == m_classID) {
         LOGD("Classloader failed to find class of %s", m_className.c_str());
@@ -269,9 +270,9 @@ bool JavascriptJavaBridge::CallInfo::getMethodInfo(void)
     {
         m_env->ExceptionClear();
         LOGD("Failed to find method id of %s.%s %s",
-                m_className.c_str(),
-                m_methodName.c_str(),
-                m_methodSig.c_str());
+             m_className.c_str(),
+             m_methodName.c_str(),
+             m_methodSig.c_str());
         m_error = JSJ_ERR_METHOD_NOT_FOUND;
         return false;
     }
@@ -279,25 +280,23 @@ bool JavascriptJavaBridge::CallInfo::getMethodInfo(void)
     return true;
 }
 
-JS::Value JavascriptJavaBridge::convertReturnValue(JSContext *cx, ReturnValue retValue, ValueType type)
+bool JavascriptJavaBridge::convertReturnValue(JSContext *cx, ReturnValue retValue, ValueType type, JS::MutableHandleValue ret)
 {
-	JS::Value ret = JSVAL_NULL;
-
-	switch (type)
-	{
-		case TypeInteger:
-			return INT_TO_JSVAL(retValue.intValue);
-		case TypeFloat:
-			return DOUBLE_TO_JSVAL((double)retValue.floatValue);
-		case TypeBoolean:
-			return BOOLEAN_TO_JSVAL(retValue.boolValue);
-		case TypeString:
-			return c_string_to_jsval(cx, retValue.stringValue->c_str(),retValue.stringValue->size());
+    switch (type)
+    {
+        case TypeInteger:
+            ret.set(JS::Int32Value(retValue.intValue));
+        case TypeFloat:
+            ret.set(JS::DoubleValue((double)retValue.floatValue));
+        case TypeBoolean:
+            ret.set(JS::BooleanValue(retValue.boolValue));
+        case TypeString:
+            c_string_to_jsval(cx, retValue.stringValue->c_str(), ret, retValue.stringValue->size());
         default:
-            break;
-	}
+            return false;
+    }
 
-	return ret;
+    return true;
 }
 
 /**
@@ -316,21 +315,19 @@ JS_BINDED_CONSTRUCTOR_IMPL(JavascriptJavaBridge)
     JavascriptJavaBridge* jsj = new JavascriptJavaBridge();
 
     js_proxy_t *p;
-    jsval out;
-    
+    JS::RootedValue out(cx, JS::NullHandleValue);
+
     JS::RootedObject proto(cx, JavascriptJavaBridge::js_proto);
-    JS::RootedObject parentProto(cx, JavascriptJavaBridge::js_parent);
-    JS::RootedObject obj(cx, JS_NewObject(cx, &JavascriptJavaBridge::js_class, proto, parentProto));
-    
+    JS::RootedObject obj(cx, JS_NewObjectWithGivenProto(cx, JavascriptJavaBridge::js_class, proto));
+    js_add_FinalizeHook(cx, obj, false);
+
     if (obj) {
         JS_SetPrivate(obj, jsj);
-        out = OBJECT_TO_JSVAL(obj);
+        out = JS::ObjectOrNullValue(obj);
     }
 
     args.rval().set(out);
-    p = jsb_new_proxy(jsj, obj);
-    
-    JS::AddNamedObjectRoot(cx, &p->obj, "JavascriptJavaBridge");
+    p = jsb_new_proxy(cx, jsj, obj);
     return true;
 }
 
@@ -342,7 +339,7 @@ static void basic_object_finalize(JSFreeOp *freeOp, JSObject *obj)
 {
     CCLOG("jsbindings: finalizing JS object %p (JavascriptJavaBridge)", obj);
     JavascriptJavaBridge* native = (JavascriptJavaBridge*)JS_GetPrivate(obj);
-    if(native)
+    if (native)
     {
         delete native;
     }
@@ -354,6 +351,7 @@ static void basic_object_finalize(JSFreeOp *freeOp, JSObject *obj)
 JS_BINDED_FUNC_IMPL(JavascriptJavaBridge, callStaticMethod)
 {
     JS::CallArgs argv = JS::CallArgsFromVp(argc, vp);
+    JS::RootedValue ret(cx);
     if (argc == 3) {
         JSStringWrapper arg0(argv[0]);
         JSStringWrapper arg1(argv[1]);
@@ -364,16 +362,18 @@ JS_BINDED_FUNC_IMPL(JavascriptJavaBridge, callStaticMethod)
             bool success = call.execute();
             int errorCode = call.getErrorCode();
             if(errorCode < 0)
-                JS_ReportError(cx, "js_cocos2dx_JSJavaBridge : call result code: %d", errorCode);
-            argv.rval().set(convertReturnValue(cx, call.getReturnValue(), call.getReturnValueType()));
-            return success;	
+                JS_ReportErrorUTF8(cx, "js_cocos2dx_JSJavaBridge : call result code: %d", errorCode);
+
+            success &= convertReturnValue(cx, call.getReturnValue(), call.getReturnValueType(), &ret);
+            argv.rval().set(ret);
+            return success;
         }
     }
     else if(argc > 3){
         JSStringWrapper arg0(argv[0]);
         JSStringWrapper arg1(argv[1]);
         JSStringWrapper arg2(argv[2]);
-        
+
         CallInfo call(arg0.get(), arg1.get(), arg2.get());
         if(call.isValid() && call.getArgumentsCount() == (argc - 3)){
             int count = argc - 3;
@@ -383,25 +383,26 @@ JS_BINDED_FUNC_IMPL(JavascriptJavaBridge, callStaticMethod)
                 switch (call.argumentTypeAtIndex(i))
                 {
                     case TypeInteger:
-                        double integer;
-                        JS::ToNumber(cx, argv.get(index), &integer);
-                        args[i].i = (int)integer;
+                        int integer;
+                        jsval_to_int32(cx, argv.get(index), &integer);
+                        args[i].i = integer;
                         break;
 
                     case TypeFloat:
-                        double floatNumber;
-                        JS::ToNumber(cx, argv.get(index), &floatNumber);
-                        args[i].f = (float)floatNumber;
+                        float floatNumber;
+                        jsval_to_float(cx, argv.get(index), &floatNumber);
+                        args[i].f = floatNumber;
                         break;
 
                     case TypeBoolean:
-                        args[i].z = JS::ToBoolean(argv.get(index)) ? JNI_TRUE : JNI_FALSE;
+                        args[i].z = argv.get(index).isBoolean() && argv.get(index).toBoolean() ? JNI_TRUE : JNI_FALSE;
                         break;
 
                     case TypeString:
                     default:
-                        JSStringWrapper arg(argv.get(index));
-                        args[i].l = call.getEnv()->NewStringUTF(arg.get());
+                        std::string str;
+                        jsval_to_std_string(cx, argv.get(index), &str);
+                        args[i].l = call.getEnv()->NewStringUTF(str.c_str());
                         break;
                 }
             }
@@ -409,23 +410,18 @@ JS_BINDED_FUNC_IMPL(JavascriptJavaBridge, callStaticMethod)
             if (args) delete []args;
             int errorCode = call.getErrorCode();
             if(errorCode < 0)
-                JS_ReportError(cx, "js_cocos2dx_JSJavaBridge : call result code: %d", errorCode);
-            argv.rval().set(convertReturnValue(cx, call.getReturnValue(), call.getReturnValueType()));
+                JS_ReportErrorUTF8(cx, "js_cocos2dx_JSJavaBridge : call result code: %d", errorCode);
+
+            success &= convertReturnValue(cx, call.getReturnValue(), call.getReturnValueType(), &ret);
+            argv.rval().set(ret);
             return success;
         }
-                
-    }else{
-    	JS_ReportError(cx, "js_cocos2dx_JSJavaBridge : wrong number of arguments: %d, was expecting more than 3", argc);	
-    }
-    
-    return false;
-}
 
-static bool js_is_native_obj(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    args.rval().setBoolean(true);
-    return true;    
+    }else{
+        JS_ReportErrorUTF8(cx, "js_cocos2dx_JSJavaBridge : wrong number of arguments: %d, was expecting more than 3", argc);
+    }
+
+    return false;
 }
 
 /**
@@ -434,21 +430,32 @@ static bool js_is_native_obj(JSContext *cx, uint32_t argc, jsval *vp)
  */
 void JavascriptJavaBridge::_js_register(JSContext *cx, JS::HandleObject global)
 {
-    JSClass jsclass = {
-        "JavascriptJavaBridge", JSCLASS_HAS_PRIVATE, JS_PropertyStub, JS_DeletePropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub,basic_object_finalize
+    static const JSClassOps jsclassOps = {
+            nullptr, nullptr, nullptr, nullptr,
+            nullptr, nullptr, nullptr,
+            basic_object_finalize,
+            nullptr, nullptr, nullptr, nullptr
     };
-    
-    JavascriptJavaBridge::js_class = jsclass;
-    static JSPropertySpec props[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_PS_END
+    static JSClass JavascriptJavaBridge_class = {
+            "JavascriptJavaBridge",
+            JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+            &jsclassOps
     };
-    
+    JavascriptJavaBridge::js_class = &JavascriptJavaBridge_class;
+
     static JSFunctionSpec funcs[] = {
-        JS_BINDED_FUNC_FOR_DEF(JavascriptJavaBridge, callStaticMethod),
-        JS_FS_END
+            JS_BINDED_FUNC_FOR_DEF(JavascriptJavaBridge, callStaticMethod),
+            JS_FS_END
     };
-    
-    JavascriptJavaBridge::js_parent = NULL;
-    JavascriptJavaBridge::js_proto = JS_InitClass(cx, global, JS::NullPtr(), &JavascriptJavaBridge::js_class , JavascriptJavaBridge::_js_constructor, 0, props, funcs, NULL, NULL);
+
+    JavascriptJavaBridge::js_proto = JS_InitClass(cx, global, nullptr, JavascriptJavaBridge::js_class, JavascriptJavaBridge::_js_constructor, 0, nullptr, funcs, nullptr, nullptr);
+
+    // add the proto and JSClass to the type->js info hash table
+    JS::RootedObject proto(cx, JavascriptJavaBridge::js_proto);
+    jsb_register_class<JavascriptJavaBridge>(cx, JavascriptJavaBridge::js_class, proto);
+
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "JavascriptJavaBridge", &className);
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
 }

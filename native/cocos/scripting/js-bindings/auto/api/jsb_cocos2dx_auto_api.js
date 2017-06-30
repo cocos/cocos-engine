@@ -3159,6 +3159,16 @@ getInstance : function (
 cc.Scheduler = {
 
 /**
+ * @method isCurrentTargetSalvaged
+ * @return {bool}
+ */
+isCurrentTargetSalvaged : function (
+)
+{
+    return false;
+},
+
+/**
  * @method setTimeScale
  * @param {float} arg0
  */
@@ -9959,16 +9969,6 @@ getShadowColor : function (
 },
 
 /**
- * @method getTTFConfig
- * @return {cc._ttfConfig}
- */
-getTTFConfig : function (
-)
-{
-    return cc._ttfConfig;
-},
-
-/**
  * @method enableItalics
  */
 enableItalics : function (
@@ -14373,16 +14373,6 @@ int
 },
 
 /**
- * @method getUniformFlags
- * @return {cc.GLProgram::UniformFlags}
- */
-getUniformFlags : function (
-)
-{
-    return cc.GLProgram::UniformFlags;
-},
-
-/**
  * @method getUniformLocationForName
  * @param {char} arg0
  * @return {int}
@@ -14576,18 +14566,6 @@ str
 )
 {
     return 0;
-},
-
-/**
- * @method getVertexAttrib
- * @param {String} arg0
- * @return {cc.VertexAttrib}
- */
-getVertexAttrib : function (
-str 
-)
-{
-    return cc.VertexAttrib;
 },
 
 /**
@@ -17586,239 +17564,6 @@ int
 TileMapAtlas : function (
 )
 {
-},
-
-};
-
-/**
- * @class SimpleAudioEngine
- */
-cc.AudioEngine = {
-
-/**
- * @method preloadBackgroundMusic
- * @param {char} arg0
- */
-preloadBackgroundMusic : function (
-char 
-)
-{
-},
-
-/**
- * @method stopBackgroundMusic
- */
-stopBackgroundMusic : function (
-)
-{
-},
-
-/**
- * @method stopAllEffects
- */
-stopAllEffects : function (
-)
-{
-},
-
-/**
- * @method getBackgroundMusicVolume
- * @return {float}
- */
-getBackgroundMusicVolume : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method resumeBackgroundMusic
- */
-resumeBackgroundMusic : function (
-)
-{
-},
-
-/**
- * @method setBackgroundMusicVolume
- * @param {float} arg0
- */
-setBackgroundMusicVolume : function (
-float 
-)
-{
-},
-
-/**
- * @method preloadEffect
- * @param {char} arg0
- */
-preloadEffect : function (
-char 
-)
-{
-},
-
-/**
- * @method isBackgroundMusicPlaying
- * @return {bool}
- */
-isBackgroundMusicPlaying : function (
-)
-{
-    return false;
-},
-
-/**
- * @method getEffectsVolume
- * @return {float}
- */
-getEffectsVolume : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method willPlayBackgroundMusic
- * @return {bool}
- */
-willPlayBackgroundMusic : function (
-)
-{
-    return false;
-},
-
-/**
- * @method pauseEffect
- * @param {unsigned int} arg0
- */
-pauseEffect : function (
-int 
-)
-{
-},
-
-/**
- * @method playEffect
- * @param {char} arg0
- * @param {bool} arg1
- * @param {float} arg2
- * @param {float} arg3
- * @param {float} arg4
- * @return {unsigned int}
- */
-playEffect : function (
-char, 
-bool, 
-float, 
-float, 
-float 
-)
-{
-    return 0;
-},
-
-/**
- * @method rewindBackgroundMusic
- */
-rewindBackgroundMusic : function (
-)
-{
-},
-
-/**
- * @method playBackgroundMusic
- * @param {char} arg0
- * @param {bool} arg1
- */
-playBackgroundMusic : function (
-char, 
-bool 
-)
-{
-},
-
-/**
- * @method resumeAllEffects
- */
-resumeAllEffects : function (
-)
-{
-},
-
-/**
- * @method setEffectsVolume
- * @param {float} arg0
- */
-setEffectsVolume : function (
-float 
-)
-{
-},
-
-/**
- * @method stopEffect
- * @param {unsigned int} arg0
- */
-stopEffect : function (
-int 
-)
-{
-},
-
-/**
- * @method pauseBackgroundMusic
- */
-pauseBackgroundMusic : function (
-)
-{
-},
-
-/**
- * @method pauseAllEffects
- */
-pauseAllEffects : function (
-)
-{
-},
-
-/**
- * @method unloadEffect
- * @param {char} arg0
- */
-unloadEffect : function (
-char 
-)
-{
-},
-
-/**
- * @method resumeEffect
- * @param {unsigned int} arg0
- */
-resumeEffect : function (
-int 
-)
-{
-},
-
-/**
- * @method end
- */
-end : function (
-)
-{
-},
-
-/**
- * @method getInstance
- * @return {cc.SimpleAudioEngine}
- */
-getInstance : function (
-)
-{
-    return cc.SimpleAudioEngine;
 },
 
 };

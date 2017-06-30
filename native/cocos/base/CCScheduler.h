@@ -429,6 +429,8 @@ public:
      @js NA
      */
     void performFunctionInCocosThread( const std::function<void()> &function);
+    
+    bool isCurrentTargetSalvaged () const { return _currentTargetSalvaged; };
 
 protected:
 

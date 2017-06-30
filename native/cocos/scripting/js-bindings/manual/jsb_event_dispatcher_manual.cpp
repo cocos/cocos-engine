@@ -32,10 +32,11 @@
 #include "base/CCEventCustom.h"
 #include "scripting/js-bindings/manual/ScriptingCore.h"
 #include "scripting/js-bindings/manual/cocos2d_specifics.hpp"
+#include "scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp"
 
 USING_NS_CC;
 
-bool js_EventListenerTouchOneByOne_create(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_EventListenerTouchOneByOne_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if (argc == 0) {
@@ -49,10 +50,6 @@ bool js_EventListenerTouchOneByOne_create(JSContext *cx, uint32_t argc, jsval *v
             if (!ok)
                 return false;
 
-            // Solve the crash when there is no return value of onTouchBegan.
-            // related issue : https://github.com/cocos-creator/fireball/issues/2557
-            // CCASSERT(jsret.isBoolean(), "the return value of onTouchBegan isn't boolean");
-            // return jsret.toBoolean();
             if (jsret.isBoolean()) {
                 return jsret.toBoolean();
             } else {
@@ -72,16 +69,18 @@ bool js_EventListenerTouchOneByOne_create(JSContext *cx, uint32_t argc, jsval *v
             ScriptingCore::getInstance()->handleTouchEvent(ret, EventTouch::EventCode::CANCELLED, touch, event);
         };
 
-        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerTouchOneByOne>(cx, ret)));
+        JS::RootedObject retObj(cx);
+        js_get_or_create_jsobject<EventListenerTouchOneByOne>(cx, ret, &retObj);
+        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(retObj));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_EventListenerTouchAllAtOnce_create(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_EventListenerTouchAllAtOnce_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if (argc == 0) {
@@ -103,16 +102,18 @@ bool js_EventListenerTouchAllAtOnce_create(JSContext *cx, uint32_t argc, jsval *
             ScriptingCore::getInstance()->handleTouchesEvent(ret, EventTouch::EventCode::CANCELLED, touches, event);
         };
 
-        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerTouchAllAtOnce>(cx, ret)));
+        JS::RootedObject retObj(cx);
+        js_get_or_create_jsobject<EventListenerTouchAllAtOnce>(cx, ret, &retObj);
+        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(retObj));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_EventListenerMouse_create(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_EventListenerMouse_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if (argc == 0) {
@@ -134,16 +135,18 @@ bool js_EventListenerMouse_create(JSContext *cx, uint32_t argc, jsval *vp)
             ScriptingCore::getInstance()->handleMouseEvent(ret, EventMouse::MouseEventType::MOUSE_SCROLL, event);
         };
 
-        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerMouse>(cx, ret)));
+        JS::RootedObject retObj(cx);
+        js_get_or_create_jsobject<EventListenerMouse>(cx, ret, &retObj);
+        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(retObj));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_EventListenerKeyboard_create(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_EventListenerKeyboard_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if (argc == 0) {
@@ -157,16 +160,18 @@ bool js_EventListenerKeyboard_create(JSContext *cx, uint32_t argc, jsval *vp)
             ScriptingCore::getInstance()->handleKeyboardEvent(ret, keyCode, false, event);
         };
 
-        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerKeyboard>(cx, ret)));
+        JS::RootedObject retObj(cx);
+        js_get_or_create_jsobject<EventListenerKeyboard>(cx, ret, &retObj);
+        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(retObj));
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_EventListenerAcceleration_create(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_EventListenerAcceleration_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -177,22 +182,27 @@ bool js_EventListenerAcceleration_create(JSContext *cx, uint32_t argc, jsval *vp
             if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
             {
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
-                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0)));
+                JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc));
                 wrapper = func.get();
                 auto lambda = [=](Acceleration* acc, Event* event) -> void {
-                    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                    jsval largv[2];
-                    largv[0] = ccacceleration_to_jsval(cx, *acc);
+                    JS::AutoValueVector largv(cx);
+                    JS::RootedValue larg(cx);
+                    ccacceleration_to_jsval(cx, *acc, &larg);
+                    largv.append(larg);
                     if (event) {
-                        js_type_class_t *typeClassEvent = js_get_type_from_native<Event>(event);
-                        largv[1] = OBJECT_TO_JSVAL(jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent));
+                        JS::RootedObject eventObj(cx);
+                        JS::RootedObject proto(cx, jsb_cocos2d_Event_prototype->get());
+                        jsb_get_or_create_weak_jsobject(cx, event, jsb_cocos2d_Event_class, proto, &eventObj, "EventAcceleration");
+                        largv.append(JS::ObjectOrNullValue(eventObj));
                     } else {
-                        largv[1] = JSVAL_NULL;
+                        largv.append(JS::NullValue());
                     };
                     JS::RootedValue rval(cx);
-                    bool succeed = func->invoke(2, &largv[0], &rval);
+                    JS::HandleValueArray largsv(largv);
+                    bool succeed = func->invoke(largsv, &rval);
                     if (!succeed && JS_IsExceptionPending(cx)) {
-                        JS_ReportPendingException(cx);
+                        handlePendingException(cx);
                     }
                 };
                 arg0 = lambda;
@@ -205,19 +215,21 @@ bool js_EventListenerAcceleration_create(JSContext *cx, uint32_t argc, jsval *vp
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventListenerAcceleration_create : Error processing arguments");
         
         auto ret = EventListenerAcceleration::create(arg0);
-        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerAcceleration>(cx, ret)));
+        JS::RootedObject jslistener(cx);
+        js_get_or_create_jsobject<EventListenerAcceleration>(cx, ret, &jslistener);
+        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(jslistener));
         if (wrapper)
         {
-            wrapper->setOwner(cx, jsret);
+            wrapper->setOwner(cx, jslistener);
         }
         args.rval().set(jsret);
         return true;
     }
-    JS_ReportError(cx, "js_cocos2dx_EventListenerAcceleration_create : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_EventListenerAcceleration_create : wrong number of arguments");
     return false;
 }
 
-bool js_EventListenerFocus_create(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_EventListenerFocus_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     if(argc == 0)
     {
@@ -226,18 +238,20 @@ bool js_EventListenerFocus_create(JSContext *cx, uint32_t argc, jsval *vp)
             ScriptingCore::getInstance()->handleFocusEvent(ret, widgetLoseFocus, widgetGetFocus);
         };
         
-        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerFocus>(cx, ret)));
+        JS::RootedObject retObj(cx);
+        js_get_or_create_jsobject<EventListenerFocus>(cx, ret, &retObj);
+        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(retObj));
 
         JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 
-bool js_EventListenerCustom_create(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_EventListenerCustom_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -250,21 +264,14 @@ bool js_EventListenerCustom_create(JSContext *cx, uint32_t argc, jsval *vp)
             if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
             {
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
-                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1)));
+                JS::RootedObject jsfunc(cx, args.get(1).toObjectOrNull());
+                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc));
                 wrapper = func.get();
                 auto lambda = [=](EventCustom* event) -> void {
-                    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                    jsval largv[1];
-                    if (event) {
-                        js_type_class_t *typeClassEvent = js_get_type_from_native<EventCustom>(event);
-                        largv[0] = OBJECT_TO_JSVAL(jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent));
-                    } else {
-                        largv[0] = JSVAL_NULL;
-                    };
                     JS::RootedValue rval(cx);
-                    bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(1, largv), &rval);
+                    bool succeed = func->invoke(JS::HandleValueArray::empty(), &rval);
                     if (!succeed && JS_IsExceptionPending(cx)) {
-                        JS_ReportPendingException(cx);
+                        handlePendingException(cx);
                     }
                 };
                 arg1 = lambda;
@@ -278,25 +285,27 @@ bool js_EventListenerCustom_create(JSContext *cx, uint32_t argc, jsval *vp)
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_EventListenerCustom_create : Error processing arguments");
 
         auto ret = EventListenerCustom::create(arg0, arg1);
-        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerCustom>(cx, ret)));
+        JS::RootedObject jslistener(cx);
+        js_get_or_create_jsobject<EventListenerCustom>(cx, ret, &jslistener);
+        JS::RootedValue jsret(cx, JS::ObjectOrNullValue(jslistener));
         if (wrapper)
         {
-            wrapper->setOwner(cx, jsret);
+            wrapper->setOwner(cx, jslistener);
         }
         args.rval().set(jsret);
         return true;
     }
-    JS_ReportError(cx, "js_cocos2dx_EventListenerCustom_create : wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_EventListenerCustom_create : wrong number of arguments");
     return false;
 }
 
 
-bool js_EventDispatcher_addCustomEventListener(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_EventDispatcher_addCustomEventListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::EventDispatcher* cobj = (cocos2d::EventDispatcher *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_EventDispatcher_addCustomEventListener : Invalid Native Object");
     if (argc == 2) {
@@ -307,20 +316,13 @@ bool js_EventDispatcher_addCustomEventListener(JSContext *cx, uint32_t argc, jsv
             if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
             {
                 JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
-                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1), args.thisv()));
+                JS::RootedObject jsfunc(cx, args.get(1).toObjectOrNull());
+                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
                 auto lambda = [=](cocos2d::EventCustom* event) -> void {
-                    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                    jsval largv[1];
-                    if (event) {
-                        js_type_class_t *typeClassEvent = js_get_type_from_native<EventCustom>(event);
-                        largv[0] = OBJECT_TO_JSVAL(jsb_get_or_create_weak_jsobject(cx, event, typeClassEvent));
-                    } else {
-                        largv[0] = JSVAL_NULL;
-                    };
                     JS::RootedValue rval(cx);
-                    bool succeed = func->invoke(JS::HandleValueArray::fromMarkedLocation(1, largv), &rval);
+                    bool succeed = func->invoke(JS::HandleValueArray::empty(), &rval);
                     if (!succeed && JS_IsExceptionPending(cx)) {
-                        JS_ReportPendingException(cx);
+                        handlePendingException(cx);
                     }
                 };
                 arg1 = lambda;
@@ -334,15 +336,14 @@ bool js_EventDispatcher_addCustomEventListener(JSContext *cx, uint32_t argc, jsv
         cocos2d::EventListenerCustom* ret = cobj->addCustomEventListener(arg0, arg1);
         JS::RootedValue jsret(cx);
         if (ret) {
-            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<EventListenerCustom>(cx, ret));
-            args.rval().set(jsret);
-        } else {
-            jsret = JSVAL_NULL;
-        };
+            JS::RootedObject retObj(cx);
+            js_get_or_create_jsobject<EventListenerCustom>(cx, ret, &retObj);
+            jsret = JS::ObjectOrNullValue(retObj);
+        }
         args.rval().set(jsret);
         return true;
     }
     
-    JS_ReportError(cx, "js_cocos2dx_EventDispatcher_addCustomEventListener : wrong number of arguments: %d, was expecting %d", argc, 2);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_EventDispatcher_addCustomEventListener : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }

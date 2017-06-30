@@ -47,7 +47,7 @@
         cocos2d::log(__VA_ARGS__);                                        \
         JSContext* globalContext = ScriptingCore::getInstance()->getGlobalContext();    \
         if( ! JS_IsExceptionPending( globalContext ) ) {                        \
-            JS_ReportError( globalContext, __VA_ARGS__ );                           \
+            JS_ReportErrorUTF8( globalContext, __VA_ARGS__ );                           \
         }                                                                       \
         return false;                                                       \
     }                                                                           \
@@ -57,7 +57,7 @@
         cocos2d::log("jsb: ERROR: File %s: Line: %d, Function: %s", __FILE__, __LINE__, __FUNCTION__ );         \
         cocos2d::log(__VA_ARGS__);                                        \
         if( ! JS_IsExceptionPending( context ) ) {                          \
-            JS_ReportError( context, __VA_ARGS__ );                             \
+            JS_ReportErrorUTF8( context, __VA_ARGS__ );                             \
         }                                                                       \
         return ret_value;                                                       \
     }                                                                           \
@@ -87,19 +87,11 @@
 #endif // JSB_REPRESENT_LONGLONG_AS_STR
 
 
-/** @def JSB_INCLUDE_CHIPMUNK
- Whether or not it should include JS bindings for Chipmunk
- */
-#ifndef JSB_INCLUDE_CHIPMUNK
-#define JSB_INCLUDE_CHIPMUNK 1
-#endif // JSB_INCLUDE_CHIPMUNK
-
-
 /** @def JSB_INCLUDE_COCOSBUILDERREADER
  Whether or not it should include JS bindings for CocosBuilder Reader
  */
 #ifndef JSB_INCLUDE_COCOSBUILDERREADER
-#define JSB_INCLUDE_COCOSBUILDERREADER 1
+#define JSB_INCLUDE_COCOSBUILDERREADER 0
 #endif // JSB_INCLUDE_COCOSBUILDERREADER
 
 /** @def JSB_INCLUDE_COCOSDENSHION
@@ -108,17 +100,6 @@
 #ifndef JSB_INCLUDE_COCOSDENSHION
 #define JSB_INCLUDE_COCOSDENSHION 1
 #endif // JSB_INCLUDE_COCOSDENSHION
-
-#if JSB_ENABLE_DEBUGGER
-#define JSB_ENSURE_AUTOCOMPARTMENT(cx, obj) \
-JSAutoCompartment ac(cx, obj)
-#else
-#define JSB_ENSURE_AUTOCOMPARTMENT(cx, obj)
-#endif
-
-#define JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET \
-JSAutoCompartment __jsb_ac(ScriptingCore::getInstance()->getGlobalContext(), ScriptingCore::getInstance()->getGlobalObject());
-
 
 /** @def JSB_INCLUDE_SYSTEM
  Whether or not it should include bindings for system components like LocalStorage

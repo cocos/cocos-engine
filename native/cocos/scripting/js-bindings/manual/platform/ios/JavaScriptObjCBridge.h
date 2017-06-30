@@ -87,7 +87,7 @@ private:
         ReturnValue getReturnValue(){
             return m_ret;
         }
-        bool execute(JSContext *cx,jsval *argv,unsigned argc);
+        bool execute(JSContext *cx,JS::Value *argv,unsigned argc);
     private:
         bool m_valid;
         int m_error;

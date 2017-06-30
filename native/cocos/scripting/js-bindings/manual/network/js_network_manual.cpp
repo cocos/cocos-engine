@@ -37,11 +37,12 @@ bool jsval_to_DownloaderHints(JSContext *cx, JS::HandleValue v, cocos2d::network
     JS_GetProperty(cx, tmp, "countOfMaxProcessingTasks", &jsCountOfMaxProcessingTasks) &&
     JS_GetProperty(cx, tmp, "timeoutInSeconds", &jsTimeoutInSeconds) &&
     JS_GetProperty(cx, tmp, "tempFileNameSuffix", &jsTempFileNameSuffix) &&
-    JS::ToNumber(cx, jsCountOfMaxProcessingTasks, &countOfMaxProcessingTasks) &&
-    JS::ToNumber(cx, jsTimeoutInSeconds, &timeoutInSeconds) &&
-    jsval_to_std_string(cx, jsTempFileNameSuffix, &tempFileNameSuffix);
-    
+    jsval_to_std_string(cx, jsTempFileNameSuffix, &tempFileNameSuffix) &&
+    jsCountOfMaxProcessingTasks.isNumber() && jsTimeoutInSeconds.isNumber();
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
+    
+    countOfMaxProcessingTasks = jsCountOfMaxProcessingTasks.toNumber();
+    timeoutInSeconds = jsTimeoutInSeconds.toNumber();
     
     ret->countOfMaxProcessingTasks = (uint32_t)countOfMaxProcessingTasks;
     ret->timeoutInSeconds = (uint32_t)timeoutInSeconds;
@@ -49,16 +50,22 @@ bool jsval_to_DownloaderHints(JSContext *cx, JS::HandleValue v, cocos2d::network
     return true;
 }
 
-jsval downloadTask_to_jsval(JSContext *cx, const cocos2d::network::DownloadTask& v)
+bool downloadTask_to_jsval(JSContext *cx, const cocos2d::network::DownloadTask& v, JS::MutableHandleValue ret)
 {
-    JS::RootedObject tmp(cx, JS_NewObject(cx, NULL, JS::NullPtr(), JS::NullPtr()));
-    if (!tmp) return JSVAL_NULL;
-    bool ok = JS_DefineProperty(cx, tmp, "identifier", JS::RootedValue(cx, std_string_to_jsval(cx, v.identifier)), JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
-    JS_DefineProperty(cx, tmp, "requestURL", JS::RootedValue(cx, std_string_to_jsval(cx, v.requestURL)), JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
-    JS_DefineProperty(cx, tmp, "storagePath", JS::RootedValue(cx, std_string_to_jsval(cx, v.storagePath)), JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    JS::RootedObject tmp(cx, JS_NewPlainObject(cx));
+    if (!tmp) return false;
+    JS::RootedValue idVal(cx);
+    JS::RootedValue urlVal(cx);
+    JS::RootedValue pathVal(cx);
+    bool ok = std_string_to_jsval(cx, v.identifier, &idVal) &&
+        std_string_to_jsval(cx, v.requestURL, &urlVal) &&
+        std_string_to_jsval(cx, v.storagePath, &pathVal) &&
+        JS_DefineProperty(cx, tmp, "identifier", idVal, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "requestURL", urlVal, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "storagePath", pathVal, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     if (ok) {
-        return OBJECT_TO_JSVAL(tmp);
+        ret.set(JS::ObjectOrNullValue(tmp));
     }
-    return JSVAL_NULL;
+    return ok;
 }
 

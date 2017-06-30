@@ -31,6 +31,6 @@
 
 bool jsval_to_DownloaderHints(JSContext *cx, JS::HandleValue v, cocos2d::network::DownloaderHints* ret);
 
-jsval downloadTask_to_jsval(JSContext *cx, const cocos2d::network::DownloadTask& v);
+bool downloadTask_to_jsval(JSContext *cx, const cocos2d::network::DownloadTask& v, JS::MutableHandleValue ret);
 
 #endif /* js_network_manual_hpp */

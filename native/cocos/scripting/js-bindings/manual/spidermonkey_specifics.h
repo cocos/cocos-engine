@@ -28,6 +28,9 @@
 #include "mozilla/Maybe.h"
 #include <unordered_map>
 
+#include "platform/CCPlatformMacros.h"
+#include "base/CCConsole.h"
+
 // Probably we can get rid of this struct, but since a lot of code
 // depends on it, we cannot remove it easily
 typedef struct js_proxy {
@@ -35,45 +38,11 @@ typedef struct js_proxy {
     void *ptr;
     /** the JS object, as a heap object. Required by GC best practices */
     JS::Heap<JSObject*> obj;
-    /** This is the raw pointer. The same as the "obj", but 'raw'. This is needed
-     because under certain circumstances JS::RemoveRootObject will be called on "obj"
-     and "obj" will became NULL. Which is not Ok if we need to use "obj" later for other stuff
-     */
-    JSObject* _jsobj;
 } js_proxy_t;
-
-
-class ScriptingRootHolder
-{
-public:
-    ScriptingRootHolder(JS::PersistentRootedObject* ptr)
-    {
-        set(ptr);
-    }
-    
-    void set(JS::PersistentRootedObject* k)
-    {
-        p = k;
-    }
-    
-    JSObject* ref()
-    {
-        return *p;
-    }
-    
-    JS::PersistentRootedObject* ptr()
-    {
-        return p;
-    }
-    
-private:
-    JS::PersistentRootedObject* p;
-};
 
 typedef struct js_type_class {
     JSClass *jsclass;
-    ScriptingRootHolder proto;
-    ScriptingRootHolder parentProto;
+    JS::PersistentRootedObject *proto;
 } js_type_class_t;
 
 extern std::unordered_map<std::string, js_type_class_t*> _js_global_type_map;
@@ -93,7 +62,7 @@ public:
 
 #define TEST_NATIVE_OBJECT(cx, native_obj) \
 if (!native_obj) { \
-    JS_ReportError(cx, "Invalid Native Object"); \
+    JS_ReportErrorUTF8(cx, "Invalid Native Object"); \
     return false; \
 }
 

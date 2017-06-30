@@ -22,7 +22,6 @@
  */
 
 #include "scripting/js-bindings/manual/js_bindings_config.h"
-#include "scripting/js-bindings/manual/js_bindings_core.h"
 #include "jsfriendapi.h"
 #include "scripting/js-bindings/manual/cocos2d_specifics.hpp"
 #include "scripting/js-bindings/manual/jsb_opengl_manual.h"
@@ -38,10 +37,10 @@ void JSB_register_opengl(JSContext *_cx, JS::HandleObject object)
     //
     // gl
     //
-    JS::RootedObject opengl(_cx, JS_NewObject(_cx, NULL, JS::NullPtr(), JS::NullPtr()));
+    JS::RootedObject opengl(_cx, JS_NewPlainObject(_cx));
 
     JS::RootedValue openglVal(_cx);
-    openglVal = OBJECT_TO_JSVAL(opengl);
+    openglVal = JS::ObjectOrNullValue(opengl);
     JS_SetProperty(_cx, object, "gl", openglVal);
 
     JS::RootedObject ccns(_cx);

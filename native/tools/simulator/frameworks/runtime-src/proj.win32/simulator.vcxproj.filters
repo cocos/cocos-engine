@@ -29,12 +29,6 @@
     <ClInclude Include="targetver.h">
       <Filter>win32</Filter>
     </ClInclude>
-    <ClInclude Include="..\Classes\ide-support\CodeIDESupport.h">
-      <Filter>Classes\ide-support</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Classes\ide-support\RuntimeJsImpl.h">
-      <Filter>Classes\ide-support</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Classes\AppDelegate.cpp">
@@ -46,9 +40,6 @@
     <ClCompile Include="SimulatorWin.cpp" />
     <ClCompile Include="stdafx.cpp">
       <Filter>win32</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Classes\ide-support\RuntimeJsImpl.cpp">
-      <Filter>Classes\ide-support</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

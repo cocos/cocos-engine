@@ -29,11 +29,11 @@
 using namespace cocos2d;
 using namespace cocos2d::ui;
 
-static bool js_cocos2dx_LayoutParameter_setMargin(JSContext *cx, uint32_t argc, jsval *vp)
+static bool js_cocos2dx_LayoutParameter_setMargin(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ui::LayoutParameter* cobj = (ui::LayoutParameter *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
 
@@ -46,49 +46,53 @@ static bool js_cocos2dx_LayoutParameter_setMargin(JSContext *cx, uint32_t argc, 
             JS_GetProperty(cx, tmp, "left", &jsleft) &&
             JS_GetProperty(cx, tmp, "top", &jstop) &&
             JS_GetProperty(cx, tmp, "right", &jsright) &&
-            JS_GetProperty(cx, tmp, "bottom", &jsbottom);
+            JS_GetProperty(cx, tmp, "bottom", &jsbottom) &&
+            jsleft.isNumber() && jstop.isNumber() && jsright.isNumber() && jsbottom.isNumber();
+        
+        JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
 
         left = jsleft.toNumber();
         top = jstop.toNumber();
         right = jsright.toNumber();
         bottom = jsbottom.toNumber();
 
-        JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
-
         cobj->setMargin(ui::Margin(left,top,right,bottom));
         return true;
     }
     else if (argc == 4) {
-        bool ok = true;
         double left, top,right,bottom;
-        JS::RootedValue jsv(cx, args[0]);
-        ok &= JS::ToNumber(cx, jsv, &left);
-        jsv.set(args[1]);
-        ok &= JS::ToNumber(cx, jsv, &top);
-        jsv.set(args[2]);
-        ok &= JS::ToNumber(cx, jsv, &right);
-        jsv.set(args[3]);
-        ok &= JS::ToNumber(cx, jsv, &bottom);
-
+        bool ok = args.get(0).isNumber() &&
+                  args.get(1).isNumber() &&
+                  args.get(2).isNumber() &&
+                  args.get(3).isNumber();
         JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
+        
+        JS::RootedValue jsv(cx, args.get(0));
+        left = jsv.toNumber();
+        jsv.set(args.get(1));
+        top = jsv.toNumber();
+        jsv.set(args.get(2));
+        right = jsv.toNumber();
+        jsv.set(args.get(3));
+        bottom = jsv.toNumber();
 
         cobj->setMargin(ui::Margin(left,top,right,bottom));
         return true;
     }
-    JS_ReportError(cx, "Invalid number of arguments");
+    JS_ReportErrorUTF8(cx, "Invalid number of arguments");
     return false;
 }
 
-static bool js_cocos2dx_LayoutParameter_getMargin(JSContext *cx, uint32_t argc, jsval *vp)
+static bool js_cocos2dx_LayoutParameter_getMargin(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ui::LayoutParameter* cobj = (ui::LayoutParameter *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
 
     if (argc == 0) {
-        JS::RootedObject tmp(cx, JS_NewObject(cx, NULL, JS::NullPtr(), JS::NullPtr()));
+        JS::RootedObject tmp(cx, JS_NewPlainObject(cx));
         if (!tmp) return false;
         ui::Margin margin = cobj->getMargin();
         bool ok = JS_DefineProperty(cx, tmp, "left", margin.left, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
@@ -97,7 +101,7 @@ static bool js_cocos2dx_LayoutParameter_getMargin(JSContext *cx, uint32_t argc, 
             JS_DefineProperty(cx, tmp, "bottom", margin.bottom, JSPROP_ENUMERATE | JSPROP_PERMANENT);
         if (ok)
         {
-            args.rval().set(OBJECT_TO_JSVAL(tmp));
+            args.rval().set(JS::ObjectOrNullValue(tmp));
         }
         else
         {
@@ -105,7 +109,7 @@ static bool js_cocos2dx_LayoutParameter_getMargin(JSContext *cx, uint32_t argc, 
         }
         return true;
     }
-    JS_ReportError(cx, "Invalid number of arguments");
+    JS_ReportErrorUTF8(cx, "Invalid number of arguments");
     return false;
 }
 
@@ -124,19 +128,23 @@ public:
         js_proxy_t * p = jsb_get_native_proxy(editBox);
         if (!p) return;
 
-        jsval arg = OBJECT_TO_JSVAL(p->obj);
-        JS::RootedValue delegateVal(ScriptingCore::getInstance()->getGlobalContext(), _JSDelegate);
-        ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxEditingDidBegin", 1, &arg);
+        JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+        JS::RootedValue arg(cx, JS::ObjectOrNullValue(p->obj));
+        JS::HandleValueArray args(arg);
+        JS::RootedValue delegateVal(cx, _JSDelegate);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxEditingDidBegin", args);
     }
 
     virtual void editBoxEditingDidEnd(EditBox* editBox) override
     {
         js_proxy_t * p = jsb_get_native_proxy(editBox);
         if (!p) return;
-
-        jsval arg = OBJECT_TO_JSVAL(p->obj);
-        JS::RootedValue delegateVal(ScriptingCore::getInstance()->getGlobalContext(), _JSDelegate);
-        ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxEditingDidEnd", 1, &arg);
+        
+        JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+        JS::RootedValue arg(cx, JS::ObjectOrNullValue(p->obj));
+        JS::HandleValueArray args(arg);
+        JS::RootedValue delegateVal(cx, _JSDelegate);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxEditingDidEnd", args);
     }
 
     virtual void editBoxTextChanged(EditBox* editBox, const std::string& text) override
@@ -146,23 +154,27 @@ public:
         
         JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
         
-        jsval dataVal[2];
-        dataVal[0] = OBJECT_TO_JSVAL(p->obj);
-        std::string arg1 = text;
-        dataVal[1] = std_string_to_jsval(cx, arg1);
+        JS::AutoValueVector valArr(cx);
+        valArr.append(JS::ObjectOrNullValue(p->obj));
+        JS::RootedValue argv(cx);
+        std_string_to_jsval(cx, text, &argv);
+        valArr.append(argv);
+        JS::HandleValueArray args(valArr);
         
         JS::RootedValue delegateVal(cx, _JSDelegate);
-        ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxTextChanged", 2, dataVal);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxTextChanged", args);
     }
 
     virtual void editBoxEditingReturn(EditBox* editBox) override
     {
         js_proxy_t * p = jsb_get_native_proxy(editBox);
         if (!p) return;
-
-        jsval arg = OBJECT_TO_JSVAL(p->obj);
-        JS::RootedValue delegateVal(ScriptingCore::getInstance()->getGlobalContext(), _JSDelegate);
-        ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxEditingReturn", 1, &arg);
+        
+        JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+        JS::RootedValue delegateVal(cx, _JSDelegate);
+        JS::RootedValue arg(cx, JS::ObjectOrNullValue(p->obj));
+        JS::HandleValueArray args(arg);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxEditingReturn", args);
     }
 
     void setJSDelegate(JS::HandleValue pJSDelegate)
@@ -173,11 +185,11 @@ private:
     JS::Heap<JS::Value> _JSDelegate;
 };
 
-static bool js_cocos2dx_CCEditBox_setDelegate(JSContext *cx, uint32_t argc, jsval *vp)
+static bool js_cocos2dx_CCEditBox_setDelegate(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::ui::EditBox* cobj = (cocos2d::ui::EditBox *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
 
@@ -197,19 +209,19 @@ static bool js_cocos2dx_CCEditBox_setDelegate(JSContext *cx, uint32_t argc, jsva
         args.rval().setUndefined();
         return true;
     }
-    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 
-extern JSObject* jsb_cocos2d_ui_LayoutParameter_prototype;
-extern JSObject* jsb_cocos2d_ui_EditBox_prototype;
+extern JS::PersistentRootedObject* jsb_cocos2d_ui_LayoutParameter_prototype;
+extern JS::PersistentRootedObject* jsb_cocos2d_ui_EditBox_prototype;
 
 void register_all_cocos2dx_ui_manual(JSContext* cx, JS::HandleObject global)
 {
-    JS::RootedObject proto(cx, jsb_cocos2d_ui_LayoutParameter_prototype);
+    JS::RootedObject proto(cx, jsb_cocos2d_ui_LayoutParameter_prototype->get());
     JS_DefineFunction(cx, proto, "setMargin", js_cocos2dx_LayoutParameter_setMargin, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, proto, "getMargin", js_cocos2dx_LayoutParameter_getMargin, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
-    proto.set(jsb_cocos2d_ui_EditBox_prototype);
+    proto.set(jsb_cocos2d_ui_EditBox_prototype->get());
     JS_DefineFunction(cx, proto, "setDelegate", js_cocos2dx_CCEditBox_setDelegate, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 }

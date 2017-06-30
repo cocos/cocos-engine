@@ -29,20 +29,20 @@
 
 void register_all_cocos2dx_spine_manual(JSContext* cx, JS::HandleObject global);
 
-extern jsval speventdata_to_jsval(JSContext* cx, spEventData& v);
-extern jsval spevent_to_jsval(JSContext* cx, spEvent& v);
-extern jsval spbonedata_to_jsval(JSContext* cx, const spBoneData* v);
-extern jsval spbone_to_jsval(JSContext* cx, spBone& v);
-extern jsval spskeleton_to_jsval(JSContext* cx, spSkeleton& v);
-extern jsval spattachment_to_jsval(JSContext* cx, spAttachment& v);
-extern jsval spregionattachment_to_jsval(JSContext* cx, spRegionAttachment& v);
-extern jsval spmeshattachment_to_jsval(JSContext* cx, spMeshAttachment& v);
-extern jsval spboundingboxattachment_to_jsval(JSContext* cx, spBoundingBoxAttachment& v);
-extern jsval spslotdata_to_jsval(JSContext* cx, spSlotData& v);
-extern jsval spslot_to_jsval(JSContext* cx, spSlot& v);
-extern jsval sptimeline_to_jsval(JSContext* cx, spTimeline& v);
-extern jsval spanimationstate_to_jsval(JSContext* cx, spAnimationState& v);
-extern jsval spanimation_to_jsval(JSContext* cx, spAnimation& v);
-extern jsval sptrackentry_to_jsval(JSContext* cx, spTrackEntry& v);
+extern bool speventdata_to_jsval(JSContext* cx, spEventData& v, JS::MutableHandleValue result);
+extern bool spevent_to_jsval(JSContext* cx, spEvent& v, JS::MutableHandleValue result);
+extern bool spbonedata_to_jsval(JSContext* cx, const spBoneData* v, JS::MutableHandleValue result);
+extern bool spbone_to_jsval(JSContext* cx, spBone& v, JS::MutableHandleValue result);
+extern bool spskeleton_to_jsval(JSContext* cx, spSkeleton& v, JS::MutableHandleValue result);
+extern bool spattachment_to_jsval(JSContext* cx, spAttachment& v, JS::MutableHandleValue result);
+extern bool spregionattachment_to_jsval(JSContext* cx, spRegionAttachment& v, JS::MutableHandleValue result);
+extern bool spmeshattachment_to_jsval(JSContext* cx, spMeshAttachment& v, JS::MutableHandleValue result);
+extern bool spboundingboxattachment_to_jsval(JSContext* cx, spBoundingBoxAttachment& v, JS::MutableHandleValue result);
+extern bool spslotdata_to_jsval(JSContext* cx, spSlotData& v, JS::MutableHandleValue result);
+extern bool spslot_to_jsval(JSContext* cx, spSlot& v, JS::MutableHandleValue result);
+extern bool sptimeline_to_jsval(JSContext* cx, spTimeline& v, JS::MutableHandleValue result);
+extern bool spanimationstate_to_jsval(JSContext* cx, spAnimationState& v, JS::MutableHandleValue result);
+extern bool spanimation_to_jsval(JSContext* cx, spAnimation& v, JS::MutableHandleValue result);
+extern bool sptrackentry_to_jsval(JSContext* cx, spTrackEntry& v, JS::MutableHandleValue entryVal);
 
 #endif /* defined(__jsb_cocos2dx_spine_manual__) */
