@@ -1047,7 +1047,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto._updateDOMPlaceholderFontStyle = function () {
-        this._placeholderLabel.setFontFileOrFamily(this._editBox._placeholderFontName);
+        this._placeholderLabel.setFontFamily(this._editBox._placeholderFontName);
         this._placeholderLabel.setFontSize(this._editBox._placeholderFontSize);
     };
 
@@ -1158,7 +1158,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         }
         if(this._textLabel) {
             this._textLabel.setFontSize(this._edFontSize);
-            this._textLabel.setFontFileOrFamily(this._edFontName);
+            this._textLabel.setFontFamily(this._edFontName);
         }
     };
 

@@ -250,7 +250,7 @@ var RichText = cc.Class({
     },
 
     _createFontLabel: function (string) {
-        return  _ccsg.Label.pool.get(string, this._getFontRawUrl());
+        return  _ccsg.Label.pool.get(string, this.font);
     },
 
     _getFontRawUrl: function() {
@@ -767,7 +767,6 @@ var RichText = cc.Class({
 
     onDestroy: function () {
         this._super();
-
         for (var i = 0; i < this._labelSegments.length; ++i) {
             this._labelSegments[i].removeFromParent(true);
             _ccsg.Label.pool.put(this._labelSegments[i]);

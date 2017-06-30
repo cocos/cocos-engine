@@ -144,10 +144,11 @@ _ccsg.Label = _ccsg.Node.extend({
     _fontAsset: null,
 
     //fontHandle it is a system font name, ttf file path or bmfont file path.
-    ctor: function(string, fontHandle, spriteFrame, fontAsset) {
+    ctor: function(string, fontAsset) {
         EventTarget.call(this);
+        var isAsset = fontAsset instanceof cc.Font;
+        var fontHandle =  isAsset ? fontAsset.rawUrl : '';
 
-        fontHandle = fontHandle || "";
         this._fontHandle = fontHandle;
         if (typeof string !== 'string') {
             string = '' + string;
@@ -167,8 +168,11 @@ _ccsg.Label = _ccsg.Node.extend({
         this._linesOffsetX = [];
         this._horizontalKernings = [];
         this._reusedRect =  cc.rect(0, 0, 0, 0);
-
-        this.setFontFileOrFamily(fontHandle, spriteFrame, fontAsset);
+        if (isAsset) {
+            this.setFontAsset(fontAsset);
+        } else {
+            this.setFontFamily(fontHandle);
+        }
         this.setString(this._string);
     },
 
@@ -448,34 +452,38 @@ _ccsg.Label = _ccsg.Node.extend({
         }
     },
 
-    setFontFileOrFamily: function(fontHandle, spriteFrame, fontAsset) {
-        fontHandle = fontHandle || "Arial";
+    setFontFamily: function (fontFamily) {
+        this._fontHandle = fontFamily || "Arial";
+        this._labelType = _ccsg.Label.Type.SystemFont;
+        this._blendFunc = cc.BlendFunc._alphaPremultiplied();
+        this._renderCmd._needDraw = true;
+        this._notifyLabelSkinDirty();
+        this.emit('load');
+    },
+
+    setFontAsset: function(fontAsset) {
         this._fontAsset = fontAsset;
+        var isAsset = fontAsset instanceof cc.Font;
+        if (!isAsset) {
+            this.setFontFamily('');
+            return;
+        }
+        var fontHandle =  isAsset ? fontAsset.rawUrl : '';
         var extName = cc.path.extname(fontHandle);
 
         this._resetBMFont();
-        //specify font family name directly
-        if (!extName && !spriteFrame) {
-            this._fontHandle = fontHandle;
-            this._labelType = _ccsg.Label.Type.SystemFont;
-            this._blendFunc = cc.BlendFunc._alphaPremultiplied();
-            this._renderCmd._needDraw = true;
-            this._notifyLabelSkinDirty();
-            this.emit('load');
-            return;
-        }
 
         if (extName === ".ttf") {
             this._labelType = _ccsg.Label.Type.TTF;
             this._blendFunc = cc.BlendFunc._alphaPremultiplied();
             this._renderCmd._needDraw = true;
             this._fontHandle = this._loadTTFFont(fontHandle);
-        } else if (spriteFrame) {
+        } else if (fontAsset.spriteFrame) {
             //todo add bmfont here
             this._labelType = _ccsg.Label.Type.BMFont;
             this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
             this._renderCmd._needDraw = false;
-            this._initBMFontWithString(this._string, fontHandle, spriteFrame);
+            this._initBMFontWithString(this._string, fontAsset);
         }
         this._notifyLabelSkinDirty();
     },
@@ -1129,14 +1137,14 @@ _ccsg.Label = _ccsg.Node.extend({
 
     },
 
-    _initBMFontWithString: function(str, fntFile, spriteFrame) {
+    _initBMFontWithString: function(str, fontAsset) {
         var self = this;
         if (self._config) {
             cc.logID(4002);
             return false;
         }
         this._string = str;
-        this._setBMFontFile(fntFile, spriteFrame);
+        this._setBMFontFile(fontAsset);
     },
 
     _createSpriteBatchNode: function(texture) {
@@ -1212,9 +1220,8 @@ _ccsg.Label = _ccsg.Node.extend({
         }
     },
 
-    _setBMFontFile: function(fntDataStr, spriteFrame) {
-        if (fntDataStr) {
-            this._fontHandle = fntDataStr;
+    _setBMFontFile: function(fontAsset) {
+        if (fontAsset) {
             if (this._labelType === _ccsg.Label.Type.BMFont) {
                 var self = this;
                 this._resetBMFont();
@@ -1225,6 +1232,7 @@ _ccsg.Label = _ccsg.Node.extend({
                 } else {
                     cc.warn('Invalid BMFont Assets!');
                 }
+                var spriteFrame = fontAsset.spriteFrame;
                 self._createFontChars();
                 self._spriteFrame = spriteFrame;
 
@@ -1264,10 +1272,11 @@ _ccsg.Label.pool = new JS.Pool(function (label) {
     return true;
 }, 20);
 
-_ccsg.Label.pool.get = function (string, fontHandle, spriteFrame, fontAsset) {
+_ccsg.Label.pool.get = function (string, fontAsset) {
     var label = this._get();
     if (label) {
-        fontHandle = fontHandle || "";
+        var isAsset = fontAsset instanceof cc.Font;
+        var fontHandle =  isAsset ? fontAsset.rawUrl : '';
         label._fontHandle = fontHandle;
         if (typeof string !== 'string') {
             string = '' + string;
@@ -1279,7 +1288,12 @@ _ccsg.Label.pool.get = function (string, fontHandle, spriteFrame, fontAsset) {
         label.setAnchorPoint(0.5, 0.5);
         _ccsg.Node.prototype.setContentSize.call(label, 128, 128);
 
-        label.setFontFileOrFamily(fontHandle, spriteFrame, fontAsset);
+        if (isAsset) {
+            label.setFontAsset(fontAsset);
+        } else {
+            label.setFontFamily("Arial");
+        }
+
         label.setString(string);
         label.setHorizontalAlign(cc.TextAlignment.LEFT);
         label.setVerticalAlign(cc.VerticalTextAlignment.TOP);
@@ -1297,7 +1311,7 @@ _ccsg.Label.pool.get = function (string, fontHandle, spriteFrame, fontAsset) {
         return label;
     }
     else {
-        return new _ccsg.Label(string, fontHandle, spriteFrame, fontAsset);
+        return new _ccsg.Label(string || "", fontAsset);
     }
 };
 
