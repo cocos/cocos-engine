@@ -170,6 +170,8 @@ exports.buildJsbPreview = function (sourceFile, outputFile, jsbSkipModules, call
 };
 
 exports.buildJsb = function (sourceFile, outputFile, jsbSkipModules, callback) {
+    var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
+
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
@@ -182,6 +184,7 @@ exports.buildJsb = function (sourceFile, outputFile, jsbSkipModules, callback) {
         .pipe(HandleErrors())
         .pipe(Source(outFile))
         .pipe(Buffer())
+        .pipe(FixJavaScriptCore())
         .pipe(Minifier(Utils.uglifyOptions('build', true, true), UglifyHarmony))
         .pipe(Optimizejs({
             sourceMap: false
@@ -191,6 +194,8 @@ exports.buildJsb = function (sourceFile, outputFile, jsbSkipModules, callback) {
 };
 
 exports.buildJsbMin = function (sourceFile, outputFile, jsbSkipModules, callback) {
+    var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
+
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
@@ -203,6 +208,7 @@ exports.buildJsbMin = function (sourceFile, outputFile, jsbSkipModules, callback
         .pipe(HandleErrors())
         .pipe(Source(outFile))
         .pipe(Buffer())
+        .pipe(FixJavaScriptCore())
         .pipe(Minifier(Utils.uglifyOptions('build', true, false), UglifyHarmony))
         .pipe(Optimizejs({
             sourceMap: false

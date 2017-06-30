@@ -624,6 +624,7 @@ if (CC_EDITOR || CC_TEST) {
     Component._help = '';
 
     // NON-INHERITED STATIC MEMBERS
+    // (TypeScript 2.3 will still inherit them, so always check hasOwnProperty before using)
 
     JS.value(Component, '_inspector', '', true);
     JS.value(Component, '_icon', '', true);
