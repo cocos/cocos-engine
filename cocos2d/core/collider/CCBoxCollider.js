@@ -23,6 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+
+/**
+ * !#en Defines a Box Collider .
+ * !#zh 用来定义包围盒碰撞体
+ * @class Collider.Box
+ */
 cc.Collider.Box = cc.Class({
     properties: {
         _offset: cc.v2(0, 0),
@@ -78,7 +84,8 @@ cc.Collider.Box = cc.Class({
  * !#en Box Collider.
  * !#zh 包围盒碰撞组件
  * @class BoxCollider
- * @extends Component
+ * @extends Collider
+ * @uses Collider.Box
  */
 var BoxCollider = cc.Class({
     name: 'cc.BoxCollider',

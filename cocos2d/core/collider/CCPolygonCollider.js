@@ -23,6 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ * !#en Defines a Polygon Collider .
+ * !#zh 用来定义多边形碰撞体
+ * @class Collider.Polygon
+ */
 cc.Collider.Polygon = cc.Class({
     properties: {
         threshold: {
@@ -73,11 +78,13 @@ cc.Collider.Polygon = cc.Class({
     }
 });
 
+
 /**
  * !#en Polygon Collider.
  * !#zh 多边形碰撞组件
  * @class PolygonCollider
- * @extends Component
+ * @extends Collider
+ * @uses Collider.Polygon
  */
 var PolygonCollider = cc.Class({
     name: 'cc.PolygonCollider',

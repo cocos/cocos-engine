@@ -672,7 +672,7 @@ var game = {
             this._renderContext = cc._renderContext = cc.webglContext
              = cc.create3DContext(localCanvas, {
                 'stencil': true,
-                'alpha': true,
+                'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS,
                 'antialias': cc.sys.isMobile
             });
         }
