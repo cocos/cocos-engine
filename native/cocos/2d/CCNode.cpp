@@ -2132,5 +2132,10 @@ void Node::setCameraMask(unsigned short mask, bool applyChildren)
     }
 }
 
+void Node::markTransformUpdated()
+{
+    _transformUpdated = true;
+}
+
 NS_CC_END
 

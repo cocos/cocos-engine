@@ -2370,6 +2370,22 @@ bool js_cocos2dx_Node_getChildren(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_cocos2dx_Node_getChildren : wrong number of arguments");
     return false;
 }
+bool js_cocos2dx_Node_markTransformUpdated(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Node_markTransformUpdated : Invalid Native Object");
+    if (argc == 0) {
+        cobj->markTransformUpdated();
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_Node_markTransformUpdated : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
 bool js_cocos2dx_Node_setOnExitCallback(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -5390,6 +5406,7 @@ void js_register_cocos2dx_Node(JSContext *cx, JS::HandleObject global) {
         JS_FN("setOpacityModifyRGB", js_cocos2dx_Node_setOpacityModifyRGB, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setCascadeOpacityEnabled", js_cocos2dx_Node_setCascadeOpacityEnabled, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getChildren", js_cocos2dx_Node_getChildren, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("markTransformUpdated", js_cocos2dx_Node_markTransformUpdated, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setOnExitCallback", js_cocos2dx_Node_setOnExitCallback, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("isIgnoreAnchorPointForPosition", js_cocos2dx_Node_isIgnoreAnchorPointForPosition, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getChildByName", js_cocos2dx_Node_getChildByName, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),

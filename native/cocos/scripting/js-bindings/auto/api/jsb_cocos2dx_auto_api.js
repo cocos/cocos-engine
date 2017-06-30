@@ -824,6 +824,14 @@ getChildren : function(
 },
 
 /**
+ * @method markTransformUpdated
+ */
+markTransformUpdated : function (
+)
+{
+},
+
+/**
  * @method setOnExitCallback
  * @param {function} arg0
  */
