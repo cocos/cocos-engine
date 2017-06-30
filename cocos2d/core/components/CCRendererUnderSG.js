@@ -91,10 +91,7 @@ var RendererUnderSG = cc.Class({
         if ( !node._cascadeOpacityEnabled ) {
             sgNode.setOpacity(node._opacity);
         }
-
         sgNode.setAnchorPoint(node._anchorPoint);
-        sgNode.setIgnoreAnchorPointForPosition(node.__ignoreAnchor);
-
         sgNode.setOpacityModifyRGB(node._opacityModifyRGB);
 
         // set z order to -1 to make sure component will rendered before all of its entity's children.
