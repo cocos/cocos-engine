@@ -184,7 +184,7 @@ jsbLabel.prototype.setFontAsset = function (fontAsset) {
 };
 
 jsbLabel.prototype.setFontFamily = function (fontFamily) {
-    fontFamily = fontFamily || 'Arial';
+    fontFamily = fontFamily || '';
     this._labelType = _ccsg.Label.Type.SystemFont;
     this.setSystemFontName(fontFamily);
     this._isSystemFontUsed = true;
@@ -258,7 +258,7 @@ cc.Label = function (string, fontHandle, spriteFrame) {
         type = _ccsg.Label.Type.BMFont;
     }
     else {
-        label = jsbLabel.createWithSystemFont(string, fontHandle, this._fontSize);
+        label = jsbLabel.createWithSystemFont(string || '', fontHandle, this._fontSize);
         type = _ccsg.Label.Type.SystemFont;
         label._isSystemFontUsed = true;
     }

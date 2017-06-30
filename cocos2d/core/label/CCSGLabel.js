@@ -149,7 +149,6 @@ _ccsg.Label = _ccsg.Node.extend({
         var isAsset = fontAsset instanceof cc.Font;
         var fontHandle =  isAsset ? fontAsset.rawUrl : '';
 
-        fontHandle = fontHandle || "Arial";
         this._fontHandle = fontHandle;
         if (typeof string !== 'string') {
             string = '' + string;
@@ -171,6 +170,8 @@ _ccsg.Label = _ccsg.Node.extend({
         this._reusedRect =  cc.rect(0, 0, 0, 0);
         if (isAsset) {
             this.setFontAsset(fontAsset);
+        } else {
+            this.setFontFamily(fontHandle);
         }
         this.setString(this._string);
     },
@@ -464,7 +465,7 @@ _ccsg.Label = _ccsg.Node.extend({
         this._fontAsset = fontAsset;
         var isAsset = fontAsset instanceof cc.Font;
         if (!isAsset) {
-            cc.warn('Invalid SetFontAsset call -> Invalid Assets!');
+            this.setFontFamily('');
             return;
         }
         var fontHandle =  isAsset ? fontAsset.rawUrl : '';

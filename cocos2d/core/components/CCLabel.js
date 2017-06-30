@@ -556,8 +556,6 @@ var Label = cc.Class({
         sgNode.setFontSize( this._fontSize );
         if (this.useSystemFont) {
             sgNode.setFontFamily(this.fontFamily);
-        } else {
-            sgNode.setFontAsset(this.font);
         }
         sgNode.setOverflow( this.overflow );
         sgNode.enableWrapText( this._enableWrapText );
