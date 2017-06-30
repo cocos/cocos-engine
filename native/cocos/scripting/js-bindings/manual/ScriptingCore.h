@@ -319,7 +319,7 @@ public:
      * Gets the cached script objects for all executed js file
      * @return @~english The cached script object map
      */
-    std::unordered_map<std::string, JSScript*>& getFileScript();
+    std::unordered_map<std::string, JS::PersistentRootedScript*>& getFileScript();
     /**@~english
      * Clean all script objects
      */

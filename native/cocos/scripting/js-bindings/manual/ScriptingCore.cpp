@@ -88,7 +88,7 @@ static char *_js_log_buf = NULL;
 static std::vector<sc_register_sth> registrationList;
 
 // name ~> JSScript map
-static std::unordered_map<std::string, JSScript*> filename_script;
+static std::unordered_map<std::string, JS::PersistentRootedScript*> filename_script;
 // port ~> socket map
 static std::unordered_map<int,int> ports_sockets;
 
@@ -634,7 +634,7 @@ bool ScriptingCore::getScript(const std::string& path, JS::MutableHandleScript s
     std::string byteCodePath = RemoveFileExt(std::string(path)) + BYTE_CODE_FILE_EXT;
     if (filename_script.find(byteCodePath) != filename_script.end())
     {
-        script.set(filename_script[byteCodePath]);
+        script.set(filename_script[byteCodePath]->get());
         return true;
     }
 
@@ -642,7 +642,7 @@ bool ScriptingCore::getScript(const std::string& path, JS::MutableHandleScript s
     std::string fullPath = cocos2d::FileUtils::getInstance()->fullPathForFilename(path);
     if (filename_script.find(fullPath) != filename_script.end())
     {
-        script.set(filename_script[fullPath]);
+        script.set(filename_script[fullPath]->get());
         return true;
     }
 
@@ -680,7 +680,7 @@ bool ScriptingCore::compileScript(const std::string& path, JS::HandleObject glob
             if (appended && result == JS::TranscodeResult::TranscodeResult_Ok)
             {
                 compileSucceed = true;
-                filename_script[byteCodePath] = script.get();
+                filename_script[byteCodePath] = new (std::nothrow) JS::PersistentRootedScript(_cx, script.get());
             }
         }
     }
@@ -708,7 +708,7 @@ bool ScriptingCore::compileScript(const std::string& path, JS::HandleObject glob
         }
         if (ok) {
             compileSucceed = true;
-            filename_script[fullPath] = script.get();
+            filename_script[fullPath] = new (std::nothrow) JS::PersistentRootedScript(_cx, script.get());
         }
     }
     
@@ -741,7 +741,7 @@ void ScriptingCore::cleanScript(const char *path)
     }
 }
 
-std::unordered_map<std::string, JSScript*>& ScriptingCore::getFileScript()
+std::unordered_map<std::string, JS::PersistentRootedScript*>& ScriptingCore::getFileScript()
 {
     return filename_script;
 }
@@ -830,6 +830,8 @@ void ScriptingCore::cleanup()
     
     localStorageFree();
     
+    cleanAllScript();
+    
     for (auto iter = _js_global_type_map.begin(); iter != _js_global_type_map.end(); ++iter)
     {
         CC_SAFE_DELETE(iter->second->proto);
@@ -851,7 +853,6 @@ void ScriptingCore::cleanup()
         _js_log_buf = nullptr;
     }
     
-    filename_script.clear();
     registrationList.clear();
 
     if (_cx)
