@@ -2492,12 +2492,11 @@ bool js_cocos2dx_Node_getChildren(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS_ReportErrorUTF8(cx, "js_cocos2dx_Node_getChildren : arguments error");
     return false;
 }
-<<<<<<< HEAD
-bool js_cocos2dx_Node_markTransformUpdated(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_Node_markTransformUpdated(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Node* cobj = (cocos2d::Node *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Node_markTransformUpdated : Invalid Native Object");
     if (argc == 0) {
@@ -2506,13 +2505,10 @@ bool js_cocos2dx_Node_markTransformUpdated(JSContext *cx, uint32_t argc, jsval *
         return true;
     }
 
-    JS_ReportError(cx, "js_cocos2dx_Node_markTransformUpdated : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Node_markTransformUpdated : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_cocos2dx_Node_setOnExitCallback(JSContext *cx, uint32_t argc, jsval *vp)
-=======
 bool js_cocos2dx_Node_setOnExitCallback(JSContext *cx, uint32_t argc, JS::Value *vp)
->>>>>>> Upgrade to spider monkey 52, pass 1
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true; CC_UNUSED_PARAM(ok);
