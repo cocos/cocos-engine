@@ -27,14 +27,7 @@
  * ClassManager
  */
 var ClassManager = cc.ClassManager = {
-    id: (0 | (Math.random() * 998)),
-
     instanceId: (0 | (Math.random() * 998)),
-
-    getNewID: function () {
-        return this.id++;
-    },
-
     getNewInstanceId: function () {
         return this.instanceId++;
     }
@@ -123,9 +116,6 @@ Class.extend = function (props) {
             }
         };
     }
-
-    desc.value = ClassManager.getNewID();
-    Object.defineProperty(proto, '__pid', desc);
 
     // Populate our constructed prototype object
     TheClass.prototype = proto;

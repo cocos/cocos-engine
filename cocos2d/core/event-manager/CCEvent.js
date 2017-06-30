@@ -25,7 +25,7 @@
 
 var JS = cc.js;
 
-var Event = cc.Event;
+require('../event/event');
 
 /**
  * !#en The mouse event
@@ -337,6 +337,9 @@ var EventTouch = function (touchArr, bubbles) {
      * @type {Touch}
      */
     this.touch = null;
+    // Actually duplicated, because of history issue, currentTouch was in the original design, touch was added in creator engine
+    // They should point to the same object
+    this.currentTouch = null;
 };
 
 JS.extend(EventTouch, cc.Event);
@@ -528,7 +531,7 @@ EventTouch.CANCELED = 3;
  * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
  */
 var EventAcceleration = function (acc, bubbles) {
-    cc.Event.call(this, Event.ACCELERATION, bubbles);
+    cc.Event.call(this, cc.Event.ACCELERATION, bubbles);
     this.acc = acc;
 };
 JS.extend(EventAcceleration, cc.Event);
@@ -544,7 +547,7 @@ JS.extend(EventAcceleration, cc.Event);
  * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
  */
 var EventKeyboard = function (keyCode, isPressed, bubbles) {
-    cc.Event.call(this, Event.KEYBOARD, bubbles);
+    cc.Event.call(this, cc.Event.KEYBOARD, bubbles);
     this.keyCode = keyCode;
     this.isPressed = isPressed;
 };
@@ -555,4 +558,4 @@ cc.Event.EventTouch = EventTouch;
 cc.Event.EventAcceleration = EventAcceleration;
 cc.Event.EventKeyboard = EventKeyboard;
 
-module.exports = Event;
+module.exports = cc.Event;
