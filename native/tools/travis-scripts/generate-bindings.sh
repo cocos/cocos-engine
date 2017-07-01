@@ -38,8 +38,6 @@ generate_bindings_glue_codes()
     popd
 }
 
-generate_bindings_glue_codes
-
 pushd "$PROJECT_ROOT"
 #Set git user for cocos2d-js repo
 git config user.email ${GH_EMAIL}
