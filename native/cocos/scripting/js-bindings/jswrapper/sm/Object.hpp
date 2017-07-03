@@ -86,7 +86,7 @@ namespace se {
         bool isSame(Object* o) const;
         bool attachChild(Object* child);
         bool detachChild(Object* child);
-        bool detachAllChildren();
+
     private:
         static void setContext(JSContext* cx);
 

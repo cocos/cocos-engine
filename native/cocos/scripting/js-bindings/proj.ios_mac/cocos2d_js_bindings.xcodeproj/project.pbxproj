@@ -19,12 +19,17 @@
 		1A119E9C18BDF19200352BAA /* jsb_cocos2dx_spine_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A119E3B18BDF19200352BAA /* jsb_cocos2dx_spine_auto.cpp */; };
 		1A119E9D18BDF19200352BAA /* jsb_cocos2dx_spine_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A119E3C18BDF19200352BAA /* jsb_cocos2dx_spine_auto.hpp */; };
 		1A119E9E18BDF19200352BAA /* jsb_cocos2dx_spine_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A119E3C18BDF19200352BAA /* jsb_cocos2dx_spine_auto.hpp */; };
-		1AB0647A1EF9647F0061E1AF /* libbmalloc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB064771EF9647F0061E1AF /* libbmalloc.a */; };
-		1AB0647C1EF9647F0061E1AF /* libWTF.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB064791EF9647F0061E1AF /* libWTF.a */; };
+		1A4E8E811F00CB0200F30872 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A4E8E801F00CB0200F30872 /* JavaScriptCore.framework */; };
+		1A4E8E831F00E84C00F30872 /* libChakraCoreStatic.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A4E8E821F00E84C00F30872 /* libChakraCoreStatic.a */; };
 		1AB5E62B18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AB5E62918D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp */; };
 		1AB5E62C18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AB5E62918D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp */; };
 		1AB5E62D18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1AB5E62A18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp */; };
 		1AB5E62E18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1AB5E62A18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp */; };
+		1AB64A011F035628000C28A7 /* libv8_base.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB649FC1F035628000C28A7 /* libv8_base.a */; };
+		1AB64A021F035628000C28A7 /* libv8_libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB649FD1F035628000C28A7 /* libv8_libbase.a */; };
+		1AB64A031F035628000C28A7 /* libv8_libplatform.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB649FE1F035628000C28A7 /* libv8_libplatform.a */; };
+		1AB64A041F035628000C28A7 /* libv8_libsampler.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB649FF1F035628000C28A7 /* libv8_libsampler.a */; };
+		1AB64A051F035628000C28A7 /* libv8_nosnapshot.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB64A001F035628000C28A7 /* libv8_nosnapshot.a */; };
 		1AC0650A1F00A62A009EC214 /* libmozglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AC065091F00A62A009EC214 /* libmozglue.a */; };
 		1AC0650C1F00A926009EC214 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AC0650B1F00A926009EC214 /* JavaScriptCore.framework */; };
 		1AFD36341EF115100097DBB1 /* Base.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFD35FA1EF115100097DBB1 /* Base.h */; };
@@ -210,6 +215,8 @@
 		1A119E3618BDF19200352BAA /* jsb_cocos2dx_extension_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_extension_auto.hpp; sourceTree = "<group>"; };
 		1A119E3B18BDF19200352BAA /* jsb_cocos2dx_spine_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_cocos2dx_spine_auto.cpp; sourceTree = "<group>"; };
 		1A119E3C18BDF19200352BAA /* jsb_cocos2dx_spine_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_spine_auto.hpp; sourceTree = "<group>"; };
+		1A4E8E801F00CB0200F30872 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		1A4E8E821F00E84C00F30872 /* libChakraCoreStatic.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libChakraCoreStatic.a; path = ../../../../../ChakraCore/out/Debug/lib/libChakraCoreStatic.a; sourceTree = "<group>"; };
 		1A5410A418B785A10016A3AF /* libjscocos2d Mac.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libjscocos2d Mac.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A5410A518B785A10016A3AF /* libjscocos2d iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libjscocos2d iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AB064771EF9647F0061E1AF /* libbmalloc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbmalloc.a; path = ../../../../../JavaScriptCore/build/lib/libbmalloc.a; sourceTree = "<group>"; };
@@ -217,6 +224,11 @@
 		1AB064791EF9647F0061E1AF /* libWTF.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWTF.a; path = ../../../../../JavaScriptCore/build/lib/libWTF.a; sourceTree = "<group>"; };
 		1AB5E62918D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_cocos2dx_ui_auto.cpp; sourceTree = "<group>"; };
 		1AB5E62A18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_ui_auto.hpp; sourceTree = "<group>"; };
+		1AB649FC1F035628000C28A7 /* libv8_base.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_base.a; path = ../../../../external/mac/libs/libv8_base.a; sourceTree = "<group>"; };
+		1AB649FD1F035628000C28A7 /* libv8_libbase.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_libbase.a; path = ../../../../external/mac/libs/libv8_libbase.a; sourceTree = "<group>"; };
+		1AB649FE1F035628000C28A7 /* libv8_libplatform.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_libplatform.a; path = ../../../../external/mac/libs/libv8_libplatform.a; sourceTree = "<group>"; };
+		1AB649FF1F035628000C28A7 /* libv8_libsampler.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_libsampler.a; path = ../../../../external/mac/libs/libv8_libsampler.a; sourceTree = "<group>"; };
+		1AB64A001F035628000C28A7 /* libv8_nosnapshot.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_nosnapshot.a; path = ../../../../external/mac/libs/libv8_nosnapshot.a; sourceTree = "<group>"; };
 		1AC065091F00A62A009EC214 /* libmozglue.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmozglue.a; path = ../../../../external/ios/libs/libmozglue.a; sourceTree = "<group>"; };
 		1AC0650B1F00A926009EC214 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
 		1AFD35FA1EF115100097DBB1 /* Base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Base.h; sourceTree = "<group>"; };
@@ -317,10 +329,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A4E8E811F00CB0200F30872 /* JavaScriptCore.framework in Frameworks */,
 				ED3057C71BEC7C8C0083C3ED /* libjs_static.a in Frameworks */,
 				1AFD37041EF116CB0097DBB1 /* libmozglue.a in Frameworks */,
-				1AB0647A1EF9647F0061E1AF /* libbmalloc.a in Frameworks */,
-				1AB0647C1EF9647F0061E1AF /* libWTF.a in Frameworks */,
+				1A4E8E831F00E84C00F30872 /* libChakraCoreStatic.a in Frameworks */,
+				1AB64A011F035628000C28A7 /* libv8_base.a in Frameworks */,
+				1AB64A021F035628000C28A7 /* libv8_libbase.a in Frameworks */,
+				1AB64A031F035628000C28A7 /* libv8_libplatform.a in Frameworks */,
+				1AB64A041F035628000C28A7 /* libv8_libsampler.a in Frameworks */,
+				1AB64A051F035628000C28A7 /* libv8_nosnapshot.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -505,6 +522,13 @@
 		1AFD37021EF116CA0097DBB1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1AB649FC1F035628000C28A7 /* libv8_base.a */,
+				1AB649FD1F035628000C28A7 /* libv8_libbase.a */,
+				1AB649FE1F035628000C28A7 /* libv8_libplatform.a */,
+				1AB649FF1F035628000C28A7 /* libv8_libsampler.a */,
+				1AB64A001F035628000C28A7 /* libv8_nosnapshot.a */,
+				1A4E8E821F00E84C00F30872 /* libChakraCoreStatic.a */,
+				1A4E8E801F00CB0200F30872 /* JavaScriptCore.framework */,
 				1AC0650B1F00A926009EC214 /* JavaScriptCore.framework */,
 				1AC065091F00A62A009EC214 /* libmozglue.a */,
 				1AB064771EF9647F0061E1AF /* libbmalloc.a */,
@@ -908,9 +932,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../../../../external/mac/libs",
-					"\"$(SRCROOT)/../../../../../JavaScriptCore/build/lib\"",
+					"\"$(SRCROOT)/../../../../../ChakraCore/out/Debug/lib\"",
 				);
-				SYSTEM_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../../../external/mac/include/JavaScriptCore";
+				SYSTEM_HEADER_SEARCH_PATHS = "";
 				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../../../external/mac/include $(SRCROOT)/../../../../external/sources $(SRCROOT)/../../../../cocos/platform/mac $(SRCROOT)/../../../../external/mac/include/spidermonkey $(SRCROOT)/../../../../external/mac/include/v8 $(SRCROOT)/../../../../external/mac/include/chakracore";
 			};
 			name = Debug;
@@ -930,9 +954,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../../../../external/mac/libs",
-					"\"$(SRCROOT)/../../../../../JavaScriptCore/build/lib\"",
+					"\"$(SRCROOT)/../../../../../ChakraCore/out/Debug/lib\"",
 				);
-				SYSTEM_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../../../external/mac/include/JavaScriptCore";
+				SYSTEM_HEADER_SEARCH_PATHS = "";
 				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../../../external/mac/include $(SRCROOT)/../../../../external/sources $(SRCROOT)/../../../../cocos/platform/mac $(SRCROOT)/../../../../external/mac/include/spidermonkey $(SRCROOT)/../../../../external/mac/include/v8 $(SRCROOT)/../../../../external/mac/include/chakracore";
 			};
 			name = Release;

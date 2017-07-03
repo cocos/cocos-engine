@@ -56,7 +56,6 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/../manual \
                     $(LOCAL_PATH)/../../../audio/include \
                     $(LOCAL_PATH)/../../../storage \
                     $(LOCAL_PATH)/../../../../extensions \
-                    $(LOCAL_PATH)/../../../../external/android/armeabi/include/spidermonkey \
                     $(LOCAL_PATH)/../../../editor-support/spine \
                     $(LOCAL_PATH)/../../../editor-support/cocosbuilder \
                     $(LOCAL_PATH)/../../../editor-support/cocostudio \

@@ -393,7 +393,7 @@ public:
     }
     ~UnscheduleNotifier()
     {
-        printf("~UnscheduleNotifier, target: %p, key: %s\n", _target, _key.c_str());
+        LOGD("~UnscheduleNotifier, target: %p, key: %s\n", _target, _key.c_str());
 
         se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
@@ -733,7 +733,7 @@ static bool Scheduler_unscheduleCommon(Scheduler* scheduler, const se::Value& js
     }
     else
     {
-        printf("WARNING: %s not found\n", __FUNCTION__);
+        LOGD("WARNING: %s not found\n", __FUNCTION__);
     }
     return true;
 }
@@ -1111,7 +1111,6 @@ static bool js_cocos2dx_Scheduler_unschedule(se::State& s)
     {
         se::Value jsFuncOrKey = args[0];
         se::Value jsTarget = args[1];
-//        s.thisObject()->detachChild(jsTarget.toObject());
         Scheduler* cobj = (Scheduler*)s.nativeThisObject();
         return Scheduler_unscheduleCommon(cobj, jsTarget, jsFuncOrKey);
     }
@@ -1129,7 +1128,6 @@ static bool js_cocos2dx_Scheduler_unscheduleAllForTarget(se::State& s)
     if (argc == 1)
     {
         se::Value target = args[0];
-//        s.thisObject()->detachChild(target.toObject());
         return Scheduler_unscheduleAllCallbacksCommon(cobj, target.toObject(), true);
     }
 
@@ -1146,7 +1144,7 @@ static bool js_cocos2dx_Scheduler_unscheduleAllCallbacks(se::State& s)
     if (argc == 0)
     {
         removeAllScheduleAndUpdate(true);
-//        s.thisObject()->detachAllChildren();
+
         Scheduler* cobj = (Scheduler*)s.nativeThisObject();
         cobj->unscheduleAll();
         CCLOG("After unschedule all callbacks");

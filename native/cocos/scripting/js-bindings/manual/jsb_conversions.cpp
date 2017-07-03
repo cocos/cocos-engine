@@ -179,6 +179,7 @@ bool seval_to_std_string(const se::Value& v, std::string* ret)
         *ret = v.toStringForce();
         return true;
     }
+    ret->clear();
     return false;
 }
 

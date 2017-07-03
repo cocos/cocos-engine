@@ -751,30 +751,6 @@ namespace se {
         return JS_CallFunctionName(__cx, jsbObj, "unregisterNativeRef", args, &rval);
     }
 
-    bool Object::detachAllChildren()
-    {
-        JSObject* ownerObj = _getJSObject();
-        if (ownerObj == nullptr)
-        {
-            LOGD("%s: try to detach on invalid object, owner: %p\n", __FUNCTION__, ownerObj);
-            return false;
-        }
-
-        JS::RootedValue valOwner(__cx, JS::ObjectValue(*ownerObj));
-
-        JS::RootedObject jsbObj(__cx);
-        JS::RootedObject globalObj(__cx, ScriptEngine::getInstance()->getGlobalObject()->_getJSObject());
-        get_or_create_js_obj(__cx, globalObj, "jsb", &jsbObj);
-
-        JS::AutoValueVector args(__cx);
-        args.resize(1);
-        args[0].set(valOwner);
-
-        JS::RootedValue rval(__cx);
-
-        return JS_CallFunctionName(__cx, jsbObj, "unregisterAllNativeRefs", args, &rval);
-    }
-
 } // namespace se {
 
 #endif // SCRIPT_ENGINE_SM
