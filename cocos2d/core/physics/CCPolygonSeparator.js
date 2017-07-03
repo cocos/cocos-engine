@@ -312,4 +312,8 @@ function Area(a, b, c) {
     return a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y);
 }
 
-module.exports = ConvexPartition;
+cc.PolygonSeparator = module.exports = {
+    ConvexPartition: ConvexPartition,
+    ForceCounterClockWise: ForceCounterClockWise,
+    IsCounterClockWise: IsCounterClockWise
+};
