@@ -53,8 +53,6 @@
 		9FB5D60A1A6917D8002361CA /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FB5D6091A6917D8002361CA /* libsqlite3.dylib */; };
 		9FB5D60E1A691A02002361CA /* libjscocos2d Mac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FB5D5D41A68FA00002361CA /* libjscocos2d Mac.a */; };
 		9FB6C05F1A69815100945236 /* lang in Resources */ = {isa = PBXBuildFile; fileRef = 9FB6C0571A69815100945236 /* lang */; };
-		9FB6C0621A69815100945236 /* RuntimeJsImpl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9FB6C05A1A69815100945236 /* RuntimeJsImpl.cpp */; };
-		9FB6C0631A69815100945236 /* RuntimeJsImpl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9FB6C05A1A69815100945236 /* RuntimeJsImpl.cpp */; };
 		9FD6FC0B1A5D27870028EDC6 /* libsimulator Mac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FD6FC081A5D26580028EDC6 /* libsimulator Mac.a */; settings = {ATTRIBUTES = (Required, ); }; };
 		9FD6FC0C1A5D278E0028EDC6 /* libsimulator iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FD6FC0A1A5D26580028EDC6 /* libsimulator iOS.a */; };
 		9FD6FC731A5D2A820028EDC6 /* ConsoleWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9FD6FC711A5D2A820028EDC6 /* ConsoleWindowController.m */; };
@@ -211,8 +209,6 @@
 		9FB5D6091A6917D8002361CA /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/usr/lib/libsqlite3.dylib; sourceTree = DEVELOPER_DIR; };
 		9FB6C0561A69815100945236 /* CodeIDESupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CodeIDESupport.h; sourceTree = "<group>"; };
 		9FB6C0571A69815100945236 /* lang */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lang; sourceTree = "<group>"; };
-		9FB6C05A1A69815100945236 /* RuntimeJsImpl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RuntimeJsImpl.cpp; sourceTree = "<group>"; };
-		9FB6C05B1A69815100945236 /* RuntimeJsImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RuntimeJsImpl.h; sourceTree = "<group>"; };
 		9FD6FC021A5D26580028EDC6 /* libsimulator.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libsimulator.xcodeproj; path = ../../../libsimulator/proj.ios_mac/libsimulator.xcodeproj; sourceTree = "<group>"; };
 		9FD6FC701A5D2A820028EDC6 /* ConsoleWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConsoleWindowController.h; sourceTree = "<group>"; };
 		9FD6FC711A5D2A820028EDC6 /* ConsoleWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConsoleWindowController.m; sourceTree = "<group>"; };
@@ -373,8 +369,6 @@
 			children = (
 				9FB6C0561A69815100945236 /* CodeIDESupport.h */,
 				9FB6C0571A69815100945236 /* lang */,
-				9FB6C05A1A69815100945236 /* RuntimeJsImpl.cpp */,
-				9FB6C05B1A69815100945236 /* RuntimeJsImpl.h */,
 			);
 			name = "ide-support";
 			path = "../Classes/ide-support";
@@ -646,7 +640,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				C07828FA18B4D72E00BD2287 /* SimulatorApp.mm in Sources */,
-				9FB6C0631A69815100945236 /* RuntimeJsImpl.cpp in Sources */,
 				5023813317EBBCE400990C9B /* AppDelegate.cpp in Sources */,
 				9FD6FC731A5D2A820028EDC6 /* ConsoleWindowController.m in Sources */,
 				C07828F818B4D72E00BD2287 /* main.m in Sources */,
@@ -658,7 +651,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				5023812517EBBCAC00990C9B /* RootViewController.mm in Sources */,
-				9FB6C0621A69815100945236 /* RuntimeJsImpl.cpp in Sources */,
 				F293BB9C15EB831F00256477 /* AppDelegate.cpp in Sources */,
 				5023812417EBBCAC00990C9B /* main.m in Sources */,
 				5023811817EBBCAC00990C9B /* AppController.mm in Sources */,
