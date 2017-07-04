@@ -31,11 +31,15 @@ LOCAL_SRC_FILES :=      ../animation/Animation.cpp \
                         ../cocos2dx/CCTextureData.cpp
 
 
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/../..
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/../.. \
+                    $(LOCAL_PATH)/../../.. \
+                    $(LOCAL_PATH)/../../../../external/sources
 
-LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/../..
+LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/../.. \
+                           $(LOCAL_PATH)/../../.. \
+                           $(LOCAL_PATH)/../../../../external/sources
 
-LOCAL_STATIC_LIBRARIES := cocos2dx_internal_static
+# LOCAL_STATIC_LIBRARIES := cocos2dx_internal_static
 
 LOCAL_CFLAGS += -Wno-psabi
 LOCAL_EXPORT_CFLAGS += -Wno-psabi
