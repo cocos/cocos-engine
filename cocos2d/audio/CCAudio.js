@@ -127,6 +127,14 @@ Audio.State = {
         }
     };
 
+    proto.unmount = function () {
+        this._src = '';
+        this._audioType = Audio.Type.UNKNOWN;
+        this._element = null;
+        this._state = Audio.State.INITIALZING;
+        this._loaded = false;
+    };
+
     proto.mount = function (elem) {
         if (elem instanceof HTMLElement) {
             this._element = document.createElement('audio');

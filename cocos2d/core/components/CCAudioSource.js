@@ -41,7 +41,11 @@ var AudioSource = cc.Class({
     },
 
     ctor: function () {
-        this.audio = new cc.Audio(this._clip);
+        this.audio = new cc.Audio();
+    },
+
+    onLoad: function () {
+        this.clip = this._clip;
     },
 
     properties: {
@@ -93,8 +97,12 @@ var AudioSource = cc.Class({
                 this._clip = value;
                 this.audio.stop();
                 this.audio.src = this._clip;
-                if (this.audio.preload) {
-                    this.audio.preload();
+                if (value) {
+                    if (this.audio.preload) {
+                        this.audio.preload();
+                    }
+                } else {
+                    this.audio.unmount();
                 }
             },
             url: cc.AudioClip,
