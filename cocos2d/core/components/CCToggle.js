@@ -32,7 +32,7 @@
  */
 var Toggle = cc.Class({
     name: 'cc.Toggle',
-    extends: require('./CCButton.js'),
+    extends: require('./CCButton'),
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/Toggle',
         help: 'i18n:COMPONENT.help_url.toggle',

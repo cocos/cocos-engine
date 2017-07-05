@@ -22,9 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-require('../label/CCSGLabel.js');
-require('../label/CCSGLabelCanvasRenderCmd.js');
-require('../label/CCSGLabelWebGLRenderCmd.js');
+require('../label/CCSGLabel');
+require('../label/CCSGLabelCanvasRenderCmd');
+require('../label/CCSGLabelWebGLRenderCmd');
 /**
  * !#en Enum for text alignment.
  * !#zh 文本横向对齐类型

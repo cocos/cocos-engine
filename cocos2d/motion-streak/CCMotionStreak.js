@@ -22,8 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-require('./CCSGMotionStreak.js');
-require('./CCSGMotionStreakWebGLRenderCmd.js');
+require('./CCSGMotionStreak');
+require('./CCSGMotionStreakWebGLRenderCmd');
 /**
  * !#en
  * cc.MotionStreak manages a Ribbon based on it's motion in absolute space.                 <br/>

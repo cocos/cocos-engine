@@ -24,7 +24,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-require('../editbox/CCSGEditBox.js');
+require('../editbox/CCSGEditBox');
 /**
  * !#en Enum for keyboard return types
  * !#zh 键盘的返回键类型

@@ -26,7 +26,7 @@
 require('./CCTiledMapAsset');
 require('./CCTiledLayer');
 require('./CCTiledObjectGroup');
-require('./CCSGTMXTiledMap.js');
+require('./CCSGTMXTiledMap');
 
 /**
  * !#en The orientation of tiled map.
