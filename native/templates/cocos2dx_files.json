@@ -737,7 +737,7 @@
         "cocos/network/SocketIO.h", 
         "cocos/network/Uri.cpp", 
         "cocos/network/Uri.h", 
-        "cocos/network/WebSocket.cpp", 
+        "cocos/network/WebSocket-libwebsockets.cpp", 
         "cocos/network/WebSocket.h", 
         "cocos/platform/CCApplication.h", 
         "cocos/platform/CCApplicationProtocol.h", 
