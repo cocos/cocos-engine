@@ -47,10 +47,10 @@ VertexAttachment.c \
 extension.c \
 spine-cocos2dx.cpp
 
-LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/..
+LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/.. \
+						   $(LOCAL_PATH)/../..
 
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/..
-
-LOCAL_STATIC_LIBRARIES := cocos2dx_internal_static
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/.. \
+					$(LOCAL_PATH)/../..
 
 include $(BUILD_STATIC_LIBRARY)

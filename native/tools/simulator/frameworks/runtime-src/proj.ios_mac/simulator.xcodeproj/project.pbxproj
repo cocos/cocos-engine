@@ -52,7 +52,6 @@
 		9FB5D6081A691774002361CA /* libjscocos2d iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FB5D5D61A68FA00002361CA /* libjscocos2d iOS.a */; };
 		9FB5D60A1A6917D8002361CA /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FB5D6091A6917D8002361CA /* libsqlite3.dylib */; };
 		9FB5D60E1A691A02002361CA /* libjscocos2d Mac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FB5D5D41A68FA00002361CA /* libjscocos2d Mac.a */; };
-		9FB6C05F1A69815100945236 /* lang in Resources */ = {isa = PBXBuildFile; fileRef = 9FB6C0571A69815100945236 /* lang */; };
 		9FD6FC0B1A5D27870028EDC6 /* libsimulator Mac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FD6FC081A5D26580028EDC6 /* libsimulator Mac.a */; settings = {ATTRIBUTES = (Required, ); }; };
 		9FD6FC0C1A5D278E0028EDC6 /* libsimulator iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FD6FC0A1A5D26580028EDC6 /* libsimulator iOS.a */; };
 		9FD6FC731A5D2A820028EDC6 /* ConsoleWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9FD6FC711A5D2A820028EDC6 /* ConsoleWindowController.m */; };
@@ -207,8 +206,6 @@
 		9FB5D5CE1A68F9FF002361CA /* cocos2d_js_bindings.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = cocos2d_js_bindings.xcodeproj; path = "../../../../../cocos/scripting/js-bindings/proj.ios_mac/cocos2d_js_bindings.xcodeproj"; sourceTree = "<group>"; };
 		9FB5D5F81A691342002361CA /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		9FB5D6091A6917D8002361CA /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/usr/lib/libsqlite3.dylib; sourceTree = DEVELOPER_DIR; };
-		9FB6C0561A69815100945236 /* CodeIDESupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CodeIDESupport.h; sourceTree = "<group>"; };
-		9FB6C0571A69815100945236 /* lang */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lang; sourceTree = "<group>"; };
 		9FD6FC021A5D26580028EDC6 /* libsimulator.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libsimulator.xcodeproj; path = ../../../libsimulator/proj.ios_mac/libsimulator.xcodeproj; sourceTree = "<group>"; };
 		9FD6FC701A5D2A820028EDC6 /* ConsoleWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConsoleWindowController.h; sourceTree = "<group>"; };
 		9FD6FC711A5D2A820028EDC6 /* ConsoleWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConsoleWindowController.m; sourceTree = "<group>"; };
@@ -364,16 +361,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		9FB6C0551A69815100945236 /* ide-support */ = {
-			isa = PBXGroup;
-			children = (
-				9FB6C0561A69815100945236 /* CodeIDESupport.h */,
-				9FB6C0571A69815100945236 /* lang */,
-			);
-			name = "ide-support";
-			path = "../Classes/ide-support";
-			sourceTree = "<group>";
-		};
 		9FD6FC031A5D26580028EDC6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -442,7 +429,6 @@
 		F293BB7C15EB830F00256477 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				9FB6C0551A69815100945236 /* ide-support */,
 				F293BB7E15EB831F00256477 /* AppDelegate.cpp */,
 				F293BB7F15EB831F00256477 /* AppDelegate.h */,
 			);
@@ -598,7 +584,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9FB6C05F1A69815100945236 /* lang in Resources */,
 				DA96489E1A70F925001F41E8 /* ConsoleWindow.xib in Resources */,
 				5023817617EBBE3400990C9B /* Icon.icns in Resources */,
 				9FFC07361A4A764100AED399 /* MainMenu.xib in Resources */,
