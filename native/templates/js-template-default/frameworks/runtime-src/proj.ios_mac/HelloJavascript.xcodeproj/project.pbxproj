@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		1A499EA91F0CD97F004E6AEC /* libicucore.A.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A499EA81F0CD97F004E6AEC /* libicucore.A.tbd */; };
+		1A499EB11F0CDCDD004E6AEC /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A499EB01F0CDCDD004E6AEC /* CFNetwork.framework */; };
+		1A499EB31F0CDCE9004E6AEC /* libicucore.A.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A499EB21F0CDCE9004E6AEC /* libicucore.A.tbd */; };
 		1A67682A180E9C060076BC67 /* libcocos2d Mac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AC6FB48180E9ACB004C840B /* libcocos2d Mac.a */; };
 		1A676839180E9C1E0076BC67 /* libcocos2d iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AC6FB56180E9ACB004C840B /* libcocos2d iOS.a */; };
 		1A82F5FB169AC92500C4B13A /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A82F5FA169AC92500C4B13A /* libsqlite3.dylib */; };
@@ -150,6 +152,8 @@
 /* Begin PBXFileReference section */
 		1A1A081B18C9DF05005C6854 /* project.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = project.json; path = ../../../project.json; sourceTree = "<group>"; };
 		1A499EA81F0CD97F004E6AEC /* libicucore.A.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libicucore.A.tbd; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/usr/lib/libicucore.A.tbd; sourceTree = DEVELOPER_DIR; };
+		1A499EB01F0CDCDD004E6AEC /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		1A499EB21F0CDCE9004E6AEC /* libicucore.A.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libicucore.A.tbd; path = usr/lib/libicucore.A.tbd; sourceTree = SDKROOT; };
 		1A6BF21418C9DB5900FB0E1C /* main.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = main.js; path = ../../../main.js; sourceTree = "<group>"; };
 		1A82F5FA169AC92500C4B13A /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		1A96A4F2174A3432008653A9 /* libcurl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcurl.a; path = "../../cocos2d-x/cocos2dx/platform/third_party/ios/libraries/libcurl.a"; sourceTree = "<group>"; };
@@ -233,6 +237,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A499EB31F0CDCE9004E6AEC /* libicucore.A.tbd in Frameworks */,
+				1A499EB11F0CDCDD004E6AEC /* CFNetwork.framework in Frameworks */,
 				FA676C781C71AFAB00E091E3 /* libiconv.dylib in Frameworks */,
 				BAEE4D841AC40C11003BEB0F /* Security.framework in Frameworks */,
 				C037820F18BF77DE00FE4F13 /* libjscocos2d Mac.a in Frameworks */,
@@ -366,6 +372,8 @@
 		A92275401517C094001B78AA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1A499EB21F0CDCE9004E6AEC /* libicucore.A.tbd */,
+				1A499EB01F0CDCDD004E6AEC /* CFNetwork.framework */,
 				1A499EA81F0CD97F004E6AEC /* libicucore.A.tbd */,
 				ABE457001D35194300F1F400 /* libPluginProtocol.a */,
 				AB45A1021D34F7E100033ACB /* GameController.framework */,

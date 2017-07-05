@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A499EBF1F0CDDF9004E6AEC /* libicucore.A.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A499EBE1F0CDDF9004E6AEC /* libicucore.A.tbd */; };
+		1A499EC11F0CDE01004E6AEC /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A499EC01F0CDE01004E6AEC /* CFNetwork.framework */; };
 		1A82F5FB169AC92500C4B13A /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A82F5FA169AC92500C4B13A /* libsqlite3.dylib */; };
 		1AC22EDE18CA0E11007112B9 /* project.json in Resources */ = {isa = PBXBuildFile; fileRef = 1A1A081B18C9DF05005C6854 /* project.json */; };
 		1AD7E0A818C9DB93004817A6 /* main.js in Resources */ = {isa = PBXBuildFile; fileRef = 1A6BF21418C9DB5900FB0E1C /* main.js */; };
@@ -91,6 +93,8 @@
 		07FC49C5830602CCA699BE78 /* libcocos2d Mac.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libcocos2d Mac.a"; path = "/Users/youyou/Desktop/workspace/fireball/cc/cocos2d-x/templates/js-template-binary/frameworks/runtime-src/proj.ios_mac/../../../../../../../../../../../../Applications/CocosCreator.app/Contents/Resources/cocos2d-x/prebuilt/mac/libcocos2d Mac.a"; sourceTree = "<absolute>"; };
 		180D448EA05BC67C8F36F0F3 /* libjscocos2d Mac.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libjscocos2d Mac.a"; path = "/Applications/CocosCreator.app/Contents/Resources/cocos2d-x/prebuilt/mac/libjscocos2d Mac.a"; sourceTree = "<absolute>"; };
 		1A1A081B18C9DF05005C6854 /* project.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = project.json; path = ../../../project.json; sourceTree = "<group>"; };
+		1A499EBE1F0CDDF9004E6AEC /* libicucore.A.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libicucore.A.tbd; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/usr/lib/libicucore.A.tbd; sourceTree = DEVELOPER_DIR; };
+		1A499EC01F0CDE01004E6AEC /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		1A6BF21418C9DB5900FB0E1C /* main.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = main.js; path = ../../../main.js; sourceTree = "<group>"; };
 		1A82F5FA169AC92500C4B13A /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		1A96A4F2174A3432008653A9 /* libcurl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcurl.a; path = "/Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos2dx/platform/third_party/ios/libraries/libcurl.a"; sourceTree = "<group>"; };
@@ -171,6 +175,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A499EC11F0CDE01004E6AEC /* CFNetwork.framework in Frameworks */,
 				ED545A921B68A26600C3958E /* libiconv.dylib in Frameworks */,
 				87D4C4451AB2187000F68C44 /* Security.framework in Frameworks */,
 				502380DC17EBB88200990C9B /* libcurl.dylib in Frameworks */,
@@ -193,6 +198,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A499EBF1F0CDDF9004E6AEC /* libicucore.A.tbd in Frameworks */,
 				AB2EB9D81D34F4ED00695C92 /* GameController.framework in Frameworks */,
 				AB2EB9D61D34F4D700695C92 /* SystemConfiguration.framework in Frameworks */,
 				ABE457031D35198000F1F400 /* libPluginProtocol.a in Frameworks */,
@@ -311,6 +317,8 @@
 		A92275401517C094001B78AA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1A499EC01F0CDE01004E6AEC /* CFNetwork.framework */,
+				1A499EBE1F0CDDF9004E6AEC /* libicucore.A.tbd */,
 				AB2EB9D71D34F4ED00695C92 /* GameController.framework */,
 				AB2EB9D51D34F4D700695C92 /* SystemConfiguration.framework */,
 				AB2EB9D31D34F4C400695C92 /* MobileCoreServices.framework */,
