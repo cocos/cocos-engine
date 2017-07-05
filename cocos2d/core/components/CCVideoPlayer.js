@@ -20,7 +20,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-require('../videoplayer/CCSGVideoPlayer.js');
+require('../videoplayer/CCSGVideoPlayer');
 /**
  * !#en Video event type
  * !#zh 视频事件类型
