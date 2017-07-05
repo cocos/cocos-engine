@@ -49,7 +49,7 @@
 #include <signal.h>
 #include <errno.h>
 
-#include "libwebsockets.h"
+#include "websockets/libwebsockets.h"
 
 #define NS_NETWORK_BEGIN namespace cocos2d { namespace network {
 #define NS_NETWORK_END }}
