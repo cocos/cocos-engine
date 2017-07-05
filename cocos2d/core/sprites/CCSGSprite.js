@@ -757,7 +757,4 @@ _ccsg.Sprite = _ccsg.Node.extend({
 
 cc.js.addon(_ccsg.Sprite.prototype, EventTarget.prototype);
 
-
-cc.assertID(typeof cc._tmp.PrototypeSprite === 'function', 3200, "SpritesPropertyDefine.js");
-cc._tmp.PrototypeSprite();
-delete cc._tmp.PrototypeSprite;
+require('./SpritesPropertyDefine');

@@ -2191,6 +2191,4 @@ _ccsg.Node.performType = {
 _ccsg.Node._performStacks = [[]];
 _ccsg.Node._performing = 0;
 
-cc.assertID(typeof cc._tmp.PrototypeCCNode === 'function', 3200, "BaseNodesPropertyDefine.js");
-cc._tmp.PrototypeCCNode();
-delete cc._tmp.PrototypeCCNode;
+require('./BaseNodesPropertyDefine');

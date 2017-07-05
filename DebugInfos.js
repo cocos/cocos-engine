@@ -237,8 +237,6 @@ if (CC_DEBUG) {
         "3115": "Frame Grabber: could not attach texture to framebuffer", //CCGrabber.grab
         "3116": "WebGLRenderingContext.CLAMP_TO_EDGE should be used in NPOT textures", //setTexParameters
         "3117": "Mimpap texture only works in POT textures", //generateMipmap
-        //MissingFile: 3200
-        "3200": "Missing file: %s", //MissingFile
         //RectWidth: 3300
         "3300": "Rect width exceeds maximum margin: %s", //RectWidth
         //RectHeight: 3400
