@@ -652,7 +652,7 @@
     <ClCompile Include="..\network\SocketIO.cpp">
       <Filter>network\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\network\WebSocket.cpp">
+    <ClCompile Include="..\network\WebSocket-libwebsockets.cpp">
       <Filter>network\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\ui\UIScale9Sprite.cpp">

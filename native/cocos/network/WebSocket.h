@@ -22,26 +22,25 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 
-"[WebSocket module] is based in part on the work of the libwebsockets  project
-(http://libwebsockets.org)"
-
  ****************************************************************************/
 
 #pragma once
 
+#include "platform/CCPlatformMacros.h"
+
 #include <string>
 #include <vector>
-#include <mutex>
-#include <memory>  // for std::shared_ptr
-#include <atomic>
-#include <condition_variable>
 
-#include "platform/CCPlatformMacros.h"
-#include "platform/CCStdC.h"
+#ifndef OBJC_CLASS
+#ifdef __OBJC__
+#define OBJC_CLASS(name) @class name
+#else
+#define OBJC_CLASS(name) class name
+#endif
+#endif // OBJC_CLASS
 
-struct lws;
-struct lws_protocols;
-struct lws_vhost;
+OBJC_CLASS(WebSocketImpl);
+
 /**
  * @addtogroup network
  * @{
@@ -49,11 +48,7 @@ struct lws_vhost;
 
 NS_CC_BEGIN
 
-class EventListenerCustom;
-
 namespace network {
-
-class WsThreadHelper;
 
 /**
  * WebSocket is wrapper of the libwebsockets-protocol, let the develop could call the websocket easily.
@@ -209,67 +204,21 @@ public:
      *  @brief Gets current state of connection.
      *  @return State the state value could be State::CONNECTING, State::OPEN, State::CLOSING or State::CLOSED
      */
-    State getReadyState();
+    State getReadyState() const;
 
     /**
      *  @brief Gets the URL of websocket connection.
      */
-    inline const std::string& getUrl() const { return _url; }
+    const std::string& getUrl() const;
 
     /**
      *  @brief Gets the protocol selected by websocket server.
      */
-    inline const std::string& getProtocol() const { return _selectedProtocol; }
+    const std::string& getProtocol() const;
 
+    Delegate* getDelegate() const;
 private:
-
-    // The following callback functions are invoked in websocket thread
-    void onClientOpenConnectionRequest();
-    int onSocketCallback(struct lws *wsi, int reason, void *in, ssize_t len);
-
-    int onClientWritable();
-    int onClientReceivedData(void* in, ssize_t len);
-    int onConnectionOpened();
-    int onConnectionError();
-    int onConnectionClosed();
-
-    struct lws_vhost* createVhost(struct lws_protocols* protocols, int& sslConnection);
-
-private:
-
-    std::mutex   _readyStateMutex;
-    State        _readyState;
-
-    std::string _url;
-
-    std::vector<char> _receivedData;
-
-    struct lws* _wsInstance;
-    struct lws_protocols* _lwsProtocols;
-    std::string _clientSupportedProtocols;
-    std::string _selectedProtocol;
-
-    std::shared_ptr<std::atomic<bool>> _isDestroyed;
-    Delegate* _delegate;
-
-    std::mutex _closeMutex;
-    std::condition_variable _closeCondition;
-
-    enum class CloseState
-    {
-        NONE,
-        SYNC_CLOSING,
-        SYNC_CLOSED,
-        ASYNC_CLOSING
-    };
-    CloseState _closeState;
-
-    std::string _caFilePath;
-
-    EventListenerCustom* _resetDirectorListener;
-
-    friend class WsThreadHelper;
-    friend class WebSocketCallbackWrapper;
+    WebSocketImpl* _impl;
 };
 
 } // namespace network {
