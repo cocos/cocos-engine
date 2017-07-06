@@ -97,12 +97,8 @@ var AudioSource = cc.Class({
                 this._clip = value;
                 this.audio.stop();
                 this.audio.src = this._clip;
-                if (value) {
-                    if (this.audio.preload) {
-                        this.audio.preload();
-                    }
-                } else {
-                    this.audio.unmount();
+                if (this.audio.preload) {
+                    this.audio.preload();
                 }
             },
             url: cc.AudioClip,

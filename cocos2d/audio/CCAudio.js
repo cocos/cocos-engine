@@ -85,8 +85,17 @@ Audio.State = {
 (function (proto) {
 
     proto.preload = function () {
-        var src = this._src,
-            audio = this;
+        var src = this._src, audio = this;
+
+        if (!src) {
+            this._src = '';
+            this._audioType = Audio.Type.UNKNOWN;
+            this._element = null;
+            this._state = Audio.State.INITIALZING;
+            this._loaded = false;
+            return;
+        }
+
         var item = cc.loader.getItem(src);
 
         if (!item) {
@@ -125,14 +134,6 @@ Audio.State = {
         } else {
             this._element.onended = null;
         }
-    };
-
-    proto.unmount = function () {
-        this._src = '';
-        this._audioType = Audio.Type.UNKNOWN;
-        this._element = null;
-        this._state = Audio.State.INITIALZING;
-        this._loaded = false;
     };
 
     proto.mount = function (elem) {
