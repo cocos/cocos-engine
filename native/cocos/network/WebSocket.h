@@ -27,6 +27,7 @@
 #pragma once
 
 #include "platform/CCPlatformMacros.h"
+#include "platform/CCStdC.h"
 
 #include <string>
 #include <vector>
