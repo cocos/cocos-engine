@@ -55,15 +55,6 @@ long
  */
 dragonBones.Matrix = {
 
-/**
- * @method Matrix
- * @constructor
- */
-Matrix : function (
-)
-{
-},
-
 };
 
 /**
@@ -198,15 +189,6 @@ getTypeIndex : function (
     return 0;
 },
 
-/**
- * @method AnimationData
- * @constructor
- */
-AnimationData : function (
-)
-{
-},
-
 };
 
 /**
@@ -222,15 +204,6 @@ getTypeIndex : function (
 )
 {
     return 0;
-},
-
-/**
- * @method BoneData
- * @constructor
- */
-BoneData : function (
-)
-{
 },
 
 };
@@ -260,15 +233,6 @@ generateColor : function (
     return dragonBones::ColorTransform;
 },
 
-/**
- * @method SlotData
- * @constructor
- */
-SlotData : function (
-)
-{
-},
-
 };
 
 /**
@@ -284,15 +248,6 @@ getTypeIndex : function (
 )
 {
     return 0;
-},
-
-/**
- * @method SkinData
- * @constructor
- */
-SkinData : function (
-)
-{
 },
 
 };
@@ -380,15 +335,6 @@ getTypeIndex : function (
     return 0;
 },
 
-/**
- * @method ArmatureData
- * @constructor
- */
-ArmatureData : function (
-)
-{
-},
-
 };
 
 /**
@@ -407,16 +353,6 @@ getArmatureNames : function (
 },
 
 /**
- * @method addArmature
- * @param {dragonBones::ArmatureData} arg0
- */
-addArmature : function (
-armaturedata 
-)
-{
-},
-
-/**
  * @method getArmature
  * @param {String} arg0
  * @return {dragonBones::ArmatureData}
@@ -429,6 +365,16 @@ str
 },
 
 /**
+ * @method addArmature
+ * @param {dragonBones::ArmatureData} arg0
+ */
+addArmature : function (
+armaturedata 
+)
+{
+},
+
+/**
  * @method getTypeIndex
  * @return {unsigned long}
  */
@@ -436,15 +382,6 @@ getTypeIndex : function (
 )
 {
     return 0;
-},
-
-/**
- * @method DragonBonesData
- * @constructor
- */
-DragonBonesData : function (
-)
-{
 },
 
 };
@@ -462,15 +399,6 @@ getTypeIndex : function (
 )
 {
     return 0;
-},
-
-/**
- * @method EventObject
- * @constructor
- */
-EventObject : function (
-)
-{
 },
 
 };
@@ -668,15 +596,6 @@ getTypeIndex : function (
     return 0;
 },
 
-/**
- * @method Armature
- * @constructor
- */
-Armature : function (
-)
-{
-},
-
 };
 
 /**
@@ -685,13 +604,31 @@ Armature : function (
 dragonBones.Animation = {
 
 /**
- * @method isPlaying
- * @return {bool}
+ * @method reset
  */
-isPlaying : function (
+reset : function (
 )
 {
-    return false;
+},
+
+/**
+ * @method play
+ * @return {dragonBones::AnimationState}
+ */
+play : function (
+)
+{
+    return dragonBones::AnimationState;
+},
+
+/**
+ * @method getLastAnimationState
+ * @return {dragonBones::AnimationState}
+ */
+getLastAnimationState : function (
+)
+{
+    return dragonBones::AnimationState;
 },
 
 /**
@@ -702,6 +639,82 @@ getAnimationNames : function (
 )
 {
     return new Array();
+},
+
+/**
+ * @method stop
+ * @param {String} arg0
+ */
+stop : function (
+str 
+)
+{
+},
+
+/**
+ * @method hasAnimation
+ * @param {String} arg0
+ * @return {bool}
+ */
+hasAnimation : function (
+str 
+)
+{
+    return false;
+},
+
+/**
+ * @method gotoAndStopByProgress
+ * @param {String} arg0
+ * @param {float} arg1
+ * @return {dragonBones::AnimationState}
+ */
+gotoAndStopByProgress : function (
+str, 
+float 
+)
+{
+    return dragonBones::AnimationState;
+},
+
+/**
+ * @method gotoAndStopByTime
+ * @param {String} arg0
+ * @param {float} arg1
+ * @return {dragonBones::AnimationState}
+ */
+gotoAndStopByTime : function (
+str, 
+float 
+)
+{
+    return dragonBones::AnimationState;
+},
+
+/**
+ * @method gotoAndPlayByTime
+ * @param {String} arg0
+ * @param {float} arg1
+ * @param {int} arg2
+ * @return {dragonBones::AnimationState}
+ */
+gotoAndPlayByTime : function (
+str, 
+float, 
+int 
+)
+{
+    return dragonBones::AnimationState;
+},
+
+/**
+ * @method isCompleted
+ * @return {bool}
+ */
+isCompleted : function (
+)
+{
+    return false;
 },
 
 /**
@@ -735,31 +748,29 @@ bool
 },
 
 /**
- * @method isCompleted
- * @return {bool}
- */
-isCompleted : function (
-)
-{
-    return false;
-},
-
-/**
- * @method reset
- */
-reset : function (
-)
-{
-},
-
-/**
- * @method play
+ * @method gotoAndPlayByFrame
+ * @param {String} arg0
+ * @param {unsigned int} arg1
+ * @param {int} arg2
  * @return {dragonBones::AnimationState}
  */
-play : function (
+gotoAndPlayByFrame : function (
+str, 
+int, 
+int 
 )
 {
     return dragonBones::AnimationState;
+},
+
+/**
+ * @method getLastAnimationName
+ * @return {String}
+ */
+getLastAnimationName : function (
+)
+{
+    return ;
 },
 
 /**
@@ -775,45 +786,23 @@ str
 },
 
 /**
- * @method stop
+ * @method isPlaying
+ * @return {bool}
+ */
+isPlaying : function (
+)
+{
+    return false;
+},
+
+/**
+ * @method gotoAndStopByFrame
  * @param {String} arg0
- */
-stop : function (
-str 
-)
-{
-},
-
-/**
- * @method getLastAnimationName
- * @return {String}
- */
-getLastAnimationName : function (
-)
-{
-    return ;
-},
-
-/**
- * @method getLastAnimationState
+ * @param {unsigned int} arg1
  * @return {dragonBones::AnimationState}
  */
-getLastAnimationState : function (
-)
-{
-    return dragonBones::AnimationState;
-},
-
-/**
- * @method gotoAndPlayByTime
- * @param {String} arg0
- * @param {float} arg1
- * @param {int} arg2
- * @return {dragonBones::AnimationState}
- */
-gotoAndPlayByTime : function (
+gotoAndStopByFrame : function (
 str, 
-float, 
 int 
 )
 {
@@ -837,76 +826,6 @@ int
 },
 
 /**
- * @method hasAnimation
- * @param {String} arg0
- * @return {bool}
- */
-hasAnimation : function (
-str 
-)
-{
-    return false;
-},
-
-/**
- * @method gotoAndStopByTime
- * @param {String} arg0
- * @param {float} arg1
- * @return {dragonBones::AnimationState}
- */
-gotoAndStopByTime : function (
-str, 
-float 
-)
-{
-    return dragonBones::AnimationState;
-},
-
-/**
- * @method gotoAndStopByProgress
- * @param {String} arg0
- * @param {float} arg1
- * @return {dragonBones::AnimationState}
- */
-gotoAndStopByProgress : function (
-str, 
-float 
-)
-{
-    return dragonBones::AnimationState;
-},
-
-/**
- * @method gotoAndPlayByFrame
- * @param {String} arg0
- * @param {unsigned int} arg1
- * @param {int} arg2
- * @return {dragonBones::AnimationState}
- */
-gotoAndPlayByFrame : function (
-str, 
-int, 
-int 
-)
-{
-    return dragonBones::AnimationState;
-},
-
-/**
- * @method gotoAndStopByFrame
- * @param {String} arg0
- * @param {unsigned int} arg1
- * @return {dragonBones::AnimationState}
- */
-gotoAndStopByFrame : function (
-str, 
-int 
-)
-{
-    return dragonBones::AnimationState;
-},
-
-/**
  * @method getTypeIndex
  * @return {unsigned long}
  */
@@ -914,15 +833,6 @@ getTypeIndex : function (
 )
 {
     return 0;
-},
-
-/**
- * @method Animation
- * @constructor
- */
-Animation : function (
-)
-{
 },
 
 };
@@ -1057,15 +967,6 @@ getTypeIndex : function (
 )
 {
     return 0;
-},
-
-/**
- * @method Bone
- * @constructor
- */
-Bone : function (
-)
-{
 },
 
 };
@@ -1446,15 +1347,6 @@ getTypeIndex : function (
     return 0;
 },
 
-/**
- * @method AnimationState
- * @constructor
- */
-AnimationState : function (
-)
-{
-},
-
 };
 
 /**
@@ -1472,15 +1364,6 @@ getTypeIndex : function (
     return 0;
 },
 
-/**
- * @method CCTextureData
- * @constructor
- */
-CCTextureData : function (
-)
-{
-},
-
 };
 
 /**
@@ -1496,15 +1379,6 @@ getTypeIndex : function (
 )
 {
     return 0;
-},
-
-/**
- * @method CCTextureAtlasData
- * @constructor
- */
-CCTextureAtlasData : function (
-)
-{
 },
 
 };
@@ -1656,15 +1530,6 @@ getTypeIndex : function (
 )
 {
     return 0;
-},
-
-/**
- * @method CCSlot
- * @constructor
- */
-CCSlot : function (
-)
-{
 },
 
 };

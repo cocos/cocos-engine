@@ -18,7 +18,6 @@ extern se::Class* __jsb_dragonBones_Matrix_class;
 
 bool js_register_dragonBones_Matrix(se::Object* obj);
 bool register_all_cocos2dx_dragonbones(se::Object* obj);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Matrix_Matrix);
 
 extern se::Object* __jsb_dragonBones_Transform_proto;
 extern se::Class* __jsb_dragonBones_Transform_class;
@@ -53,7 +52,6 @@ bool register_all_cocos2dx_dragonbones(se::Object* obj);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_AnimationData_getClassTypeIndex);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_AnimationData_getBoneTimeline);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_AnimationData_getTypeIndex);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_AnimationData_AnimationData);
 
 extern se::Object* __jsb_dragonBones_BoneData_proto;
 extern se::Class* __jsb_dragonBones_BoneData_class;
@@ -61,7 +59,6 @@ extern se::Class* __jsb_dragonBones_BoneData_class;
 bool js_register_dragonBones_BoneData(se::Object* obj);
 bool register_all_cocos2dx_dragonbones(se::Object* obj);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_BoneData_getTypeIndex);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_BoneData_BoneData);
 
 extern se::Object* __jsb_dragonBones_SlotData_proto;
 extern se::Class* __jsb_dragonBones_SlotData_class;
@@ -70,7 +67,6 @@ bool js_register_dragonBones_SlotData(se::Object* obj);
 bool register_all_cocos2dx_dragonbones(se::Object* obj);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_SlotData_getTypeIndex);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_SlotData_generateColor);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_SlotData_SlotData);
 
 extern se::Object* __jsb_dragonBones_SkinData_proto;
 extern se::Class* __jsb_dragonBones_SkinData_class;
@@ -78,7 +74,6 @@ extern se::Class* __jsb_dragonBones_SkinData_class;
 bool js_register_dragonBones_SkinData(se::Object* obj);
 bool register_all_cocos2dx_dragonbones(se::Object* obj);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_SkinData_getTypeIndex);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_SkinData_SkinData);
 
 extern se::Object* __jsb_dragonBones_ArmatureData_proto;
 extern se::Class* __jsb_dragonBones_ArmatureData_class;
@@ -92,7 +87,6 @@ SE_DECLARE_FUNC(js_cocos2dx_dragonbones_ArmatureData_getSkin);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_ArmatureData_getDefaultSkin);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_ArmatureData_getDefaultAnimation);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_ArmatureData_getTypeIndex);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_ArmatureData_ArmatureData);
 
 extern se::Object* __jsb_dragonBones_DragonBonesData_proto;
 extern se::Class* __jsb_dragonBones_DragonBonesData_class;
@@ -100,10 +94,9 @@ extern se::Class* __jsb_dragonBones_DragonBonesData_class;
 bool js_register_dragonBones_DragonBonesData(se::Object* obj);
 bool register_all_cocos2dx_dragonbones(se::Object* obj);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_DragonBonesData_getArmatureNames);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_DragonBonesData_addArmature);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_DragonBonesData_getArmature);
+SE_DECLARE_FUNC(js_cocos2dx_dragonbones_DragonBonesData_addArmature);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_DragonBonesData_getTypeIndex);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_DragonBonesData_DragonBonesData);
 
 extern se::Object* __jsb_dragonBones_EventObject_proto;
 extern se::Class* __jsb_dragonBones_EventObject_class;
@@ -111,7 +104,6 @@ extern se::Class* __jsb_dragonBones_EventObject_class;
 bool js_register_dragonBones_EventObject(se::Object* obj);
 bool register_all_cocos2dx_dragonbones(se::Object* obj);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_EventObject_getTypeIndex);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_EventObject_EventObject);
 
 extern se::Object* __jsb_dragonBones_Armature_proto;
 extern se::Class* __jsb_dragonBones_Armature_class;
@@ -136,32 +128,30 @@ SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Armature_getSlotByDisplay);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Armature_removeBone);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Armature_replaceTexture);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Armature_getTypeIndex);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Armature_Armature);
 
 extern se::Object* __jsb_dragonBones_Animation_proto;
 extern se::Class* __jsb_dragonBones_Animation_class;
 
 bool js_register_dragonBones_Animation(se::Object* obj);
 bool register_all_cocos2dx_dragonbones(se::Object* obj);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_isPlaying);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_getAnimationNames);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_fadeIn);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_isCompleted);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_reset);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_play);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_getState);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_stop);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_getLastAnimationName);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_getLastAnimationState);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_gotoAndPlayByTime);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_gotoAndPlayByProgress);
+SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_getAnimationNames);
+SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_stop);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_hasAnimation);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_gotoAndStopByTime);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_gotoAndStopByProgress);
+SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_gotoAndStopByTime);
+SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_gotoAndPlayByTime);
+SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_isCompleted);
+SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_fadeIn);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_gotoAndPlayByFrame);
+SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_getLastAnimationName);
+SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_getState);
+SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_isPlaying);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_gotoAndStopByFrame);
+SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_gotoAndPlayByProgress);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_getTypeIndex);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Animation_Animation);
 
 extern se::Object* __jsb_dragonBones_TransformObject_proto;
 extern se::Class* __jsb_dragonBones_TransformObject_class;
@@ -186,7 +176,6 @@ SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Bone_getVisible);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Bone_setVisible);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Bone_invalidUpdate);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Bone_getTypeIndex);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Bone_Bone);
 
 extern se::Object* __jsb_dragonBones_Slot_proto;
 extern se::Class* __jsb_dragonBones_Slot_class;
@@ -244,7 +233,6 @@ SE_DECLARE_FUNC(js_cocos2dx_dragonbones_AnimationState_isPlaying);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_AnimationState_addBoneMask);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_AnimationState_containsBoneMask);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_AnimationState_getTypeIndex);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_AnimationState_AnimationState);
 
 extern se::Object* __jsb_dragonBones_CCTextureData_proto;
 extern se::Class* __jsb_dragonBones_CCTextureData_class;
@@ -252,7 +240,6 @@ extern se::Class* __jsb_dragonBones_CCTextureData_class;
 bool js_register_dragonBones_CCTextureData(se::Object* obj);
 bool register_all_cocos2dx_dragonbones(se::Object* obj);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_CCTextureData_getTypeIndex);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_CCTextureData_CCTextureData);
 
 extern se::Object* __jsb_dragonBones_CCTextureAtlasData_proto;
 extern se::Class* __jsb_dragonBones_CCTextureAtlasData_class;
@@ -260,7 +247,6 @@ extern se::Class* __jsb_dragonBones_CCTextureAtlasData_class;
 bool js_register_dragonBones_CCTextureAtlasData(se::Object* obj);
 bool register_all_cocos2dx_dragonbones(se::Object* obj);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_CCTextureAtlasData_getTypeIndex);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_CCTextureAtlasData_CCTextureAtlasData);
 
 extern se::Object* __jsb_dragonBones_CCArmatureDisplay_proto;
 extern se::Class* __jsb_dragonBones_CCArmatureDisplay_class;
@@ -292,7 +278,6 @@ bool js_register_dragonBones_CCSlot(se::Object* obj);
 bool register_all_cocos2dx_dragonbones(se::Object* obj);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_CCSlot_getClassTypeIndex);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_CCSlot_getTypeIndex);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_CCSlot_CCSlot);
 
 extern se::Object* __jsb_dragonBones_CCFactory_proto;
 extern se::Class* __jsb_dragonBones_CCFactory_class;
