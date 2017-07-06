@@ -12,6 +12,7 @@
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp"
+#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_ui_auto.hpp"
 
 #include "storage/local-storage/LocalStorage.h"
 #include "cocos2d.h"
@@ -1738,6 +1739,135 @@ static bool register_empty_retain_release(se::Object* obj)
 static bool register_texture2d_manual(se::Object* obj)
 {
     __jsb_cocos2d_Texture2D_proto->defineFunction("setTexParameters", _SE(js_cocos2dx_Texture2D_setTexParameters));
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+class JSB_EditBoxDelegate
+: public Ref
+, public ui::EditBoxDelegate
+{
+public:
+    JSB_EditBoxDelegate()
+    {
+    }
+
+    virtual void editBoxEditingDidBegin(ui::EditBox* editBox) override
+    {
+        se::Value editBoxVal;
+        bool ok = native_ptr_to_seval<ui::EditBox>(editBox, __jsb_cocos2d_ui_EditBox_class, &editBoxVal);
+        if (!ok)
+        {
+            SE_REPORT_ERROR("Could not find js object for EditBox (%p)", editBox);
+            return;
+        }
+        se::ValueArray args;
+        args.reserve(1);
+        args.push_back(editBoxVal);
+
+        se::Value func;
+        _JSDelegate.toObject()->getProperty("editBoxEditingDidBegin", &func);
+        assert(func.isObject() && func.toObject()->isFunction());
+        func.toObject()->call(args, _JSDelegate.toObject());
+    }
+
+    virtual void editBoxEditingDidEnd(ui::EditBox* editBox) override
+    {
+        se::Value editBoxVal;
+        bool ok = native_ptr_to_seval<ui::EditBox>(editBox, __jsb_cocos2d_ui_EditBox_class, &editBoxVal);
+        if (!ok)
+        {
+            SE_REPORT_ERROR("Could not find js object for EditBox (%p)", editBox);
+            return;
+        }
+        se::ValueArray args;
+        args.reserve(1);
+        args.push_back(editBoxVal);
+
+        se::Value func;
+        _JSDelegate.toObject()->getProperty("editBoxEditingDidEnd", &func);
+        assert(func.isObject() && func.toObject()->isFunction());
+        func.toObject()->call(args, _JSDelegate.toObject());
+    }
+
+    virtual void editBoxTextChanged(ui::EditBox* editBox, const std::string& text) override
+    {
+        se::Value editBoxVal;
+        bool ok = native_ptr_to_seval<ui::EditBox>(editBox, __jsb_cocos2d_ui_EditBox_class, &editBoxVal);
+        if (!ok)
+        {
+            SE_REPORT_ERROR("Could not find js object for EditBox (%p)", editBox);
+            return;
+        }
+        se::ValueArray args;
+        args.reserve(2);
+        args.push_back(editBoxVal);
+
+        se::Value seText;
+        std_string_to_seval(text, &seText);
+        args.push_back(seText);
+
+        se::Value func;
+        _JSDelegate.toObject()->getProperty("editBoxTextChanged", &func);
+        assert(func.isObject() && func.toObject()->isFunction());
+        func.toObject()->call(args, _JSDelegate.toObject());
+    }
+
+    virtual void editBoxEditingReturn(ui::EditBox* editBox) override
+    {
+        se::Value editBoxVal;
+        bool ok = native_ptr_to_seval<ui::EditBox>(editBox, __jsb_cocos2d_ui_EditBox_class, &editBoxVal);
+        if (!ok)
+        {
+            SE_REPORT_ERROR("Could not find js object for EditBox (%p)", editBox);
+            return;
+        }
+        se::ValueArray args;
+        args.reserve(1);
+        args.push_back(editBoxVal);
+
+        se::Value func;
+        _JSDelegate.toObject()->getProperty("editBoxEditingReturn", &func);
+        assert(func.isObject() && func.toObject()->isFunction());
+        func.toObject()->call(args, _JSDelegate.toObject());
+    }
+
+    void setJSDelegate(const se::Value& jsDelegate)
+    {
+        assert(jsDelegate.isObject());
+        _JSDelegate = jsDelegate;
+    }
+private:
+    se::Value _JSDelegate;
+};
+
+static bool js_cocos2dx_CCEditBox_setDelegate(se::State& s)
+{
+    const auto& args = s.args();
+    int argc = (int)args.size();
+    if (argc == 1)
+    {
+        cocos2d::ui::EditBox* cobj = (cocos2d::ui::EditBox*)s.nativeThisObject();
+        // save the delegate
+        JSB_EditBoxDelegate* nativeDelegate = new (std::nothrow) JSB_EditBoxDelegate();
+        nativeDelegate->setJSDelegate(args[0]);
+        s.thisObject()->setProperty("_delegate", args[0]);
+        cobj->setUserObject(nativeDelegate);
+        cobj->setDelegate(nativeDelegate);
+        nativeDelegate->release();
+
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_CCEditBox_setDelegate)
+
+bool register_ui_manual(se::Object* obj)
+{
+    __jsb_cocos2d_ui_EditBox_proto->defineFunction("setDelegate", _SE(js_cocos2dx_CCEditBox_setDelegate));
 
     se::ScriptEngine::getInstance()->clearException();
     return true;

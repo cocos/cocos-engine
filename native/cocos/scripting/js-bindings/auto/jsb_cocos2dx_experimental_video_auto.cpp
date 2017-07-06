@@ -221,6 +221,55 @@ static bool js_cocos2dx_experimental_video_VideoPlayer_isFullScreenEnabled(se::S
 }
 SE_BIND_FUNC(js_cocos2dx_experimental_video_VideoPlayer_isFullScreenEnabled)
 
+static bool js_cocos2dx_experimental_video_VideoPlayer_addEventListener(se::State& s)
+{
+    cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
+    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_addEventListener : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        std::function<void (cocos2d::Ref *, cocos2d::experimental::ui::VideoPlayer::EventType)> arg0;
+        do {
+            if (args[0].isObject() && args[0].toObject()->isFunction())
+            {
+                se::Value jsThis(s.thisObject());
+                se::Value jsFunc(args[0]);
+                jsThis.toObject()->attachChild(jsFunc.toObject());
+                auto lambda = [=](cocos2d::Ref* larg0, cocos2d::experimental::ui::VideoPlayer::EventType larg1) -> void {
+                    se::ScriptEngine::getInstance()->clearException();
+                    se::AutoHandleScope hs;
+        
+                    CC_UNUSED bool ok = true;
+                    se::ValueArray args;
+                    args.resize(2);
+                    ok &= native_ptr_to_seval<cocos2d::Ref>((cocos2d::Ref*)larg0, &args[0]);
+                    ok &= int32_to_seval((int32_t)larg1, &args[1]);
+                    se::Value rval;
+                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
+                    se::Object* funcObj = jsFunc.toObject();
+                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    if (!succeed) {
+                        se::ScriptEngine::getInstance()->clearException();
+                    }
+                };
+                arg0 = lambda;
+            }
+            else
+            {
+                arg0 = nullptr;
+            }
+        } while(false)
+        ;
+        JSB_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_addEventListener : Error processing arguments");
+        cobj->addEventListener(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_experimental_video_VideoPlayer_addEventListener)
+
 static bool js_cocos2dx_experimental_video_VideoPlayer_duration(se::State& s)
 {
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
@@ -340,6 +389,7 @@ bool js_register_cocos2dx_experimental_video_VideoPlayer(se::Object* obj)
     cls->defineFunction("isKeepAspectRatioEnabled", _SE(js_cocos2dx_experimental_video_VideoPlayer_isKeepAspectRatioEnabled));
     cls->defineFunction("onPlayEvent", _SE(js_cocos2dx_experimental_video_VideoPlayer_onPlayEvent));
     cls->defineFunction("isFullScreenEnabled", _SE(js_cocos2dx_experimental_video_VideoPlayer_isFullScreenEnabled));
+    cls->defineFunction("addEventListener", _SE(js_cocos2dx_experimental_video_VideoPlayer_addEventListener));
     cls->defineFunction("duration", _SE(js_cocos2dx_experimental_video_VideoPlayer_duration));
     cls->defineFunction("isPlaying", _SE(js_cocos2dx_experimental_video_VideoPlayer_isPlaying));
     cls->defineFunction("seekTo", _SE(js_cocos2dx_experimental_video_VideoPlayer_seekTo));
@@ -350,7 +400,6 @@ bool js_register_cocos2dx_experimental_video_VideoPlayer(se::Object* obj)
 
     __jsb_cocos2d_experimental_ui_VideoPlayer_proto = cls->getProto();
     __jsb_cocos2d_experimental_ui_VideoPlayer_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
