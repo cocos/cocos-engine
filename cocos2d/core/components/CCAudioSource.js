@@ -41,7 +41,11 @@ var AudioSource = cc.Class({
     },
 
     ctor: function () {
-        this.audio = new cc.Audio(this._clip);
+        this.audio = new cc.Audio();
+    },
+
+    onLoad: function () {
+        this.clip = this._clip;
     },
 
     properties: {
