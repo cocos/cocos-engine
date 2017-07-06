@@ -103,15 +103,6 @@ float
     return 0;
 },
 
-/**
- * @method Transform
- * @constructor
- */
-Transform : function (
-)
-{
-},
-
 };
 
 /**
@@ -1255,18 +1246,6 @@ clear : function (
 },
 
 /**
- * @method contains
- * @param {dragonBones::IAnimateble} arg0
- * @return {bool}
- */
-contains : function (
-ianimateble 
-)
-{
-    return false;
-},
-
-/**
  * @method advanceTime
  * @param {float} arg0
  */
@@ -1277,12 +1256,15 @@ float
 },
 
 /**
- * @method WorldClock
- * @constructor
+ * @method contains
+ * @param {dragonBones::IAnimateble} arg0
+ * @return {bool}
  */
-WorldClock : function (
+contains : function (
+ianimateble 
 )
 {
+    return false;
 },
 
 };

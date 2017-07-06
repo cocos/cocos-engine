@@ -91,7 +91,6 @@ bool js_register_cocos2dx_dragonbones_BaseObject(se::Object* obj)
     __jsb_dragonBones_BaseObject_proto = cls->getProto();
     __jsb_dragonBones_BaseObject_class = cls;
 
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -309,7 +308,6 @@ bool js_register_cocos2dx_dragonbones_Matrix(se::Object* obj)
 
     __jsb_dragonBones_Matrix_proto = cls->getProto();
     __jsb_dragonBones_Matrix_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -542,35 +540,12 @@ static bool js_cocos2dx_dragonbones_Transform_set_scaleY(se::State& s)
 }
 SE_BIND_PROP_SET(js_cocos2dx_dragonbones_Transform_set_scaleY)
 
-SE_DECLARE_FINALIZE_FUNC(js_dragonBones_Transform_finalize)
-
-static bool js_cocos2dx_dragonbones_Transform_constructor(se::State& s)
-{
-    dragonBones::Transform* cobj = new (std::nothrow) dragonBones::Transform();
-    s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
-    return true;
-}
-SE_BIND_CTOR(js_cocos2dx_dragonbones_Transform_constructor, __jsb_dragonBones_Transform_class, js_dragonBones_Transform_finalize)
 
 
-
-
-bool js_dragonBones_Transform_finalize(se::State& s)
-{
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (dragonBones::Transform)", s.nativeThisObject());
-        dragonBones::Transform* cobj = (dragonBones::Transform*)s.nativeThisObject();
-        delete cobj;
-    }
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_dragonBones_Transform_finalize)
 
 bool js_register_cocos2dx_dragonbones_Transform(se::Object* obj)
 {
-    auto cls = se::Class::create("Transform", obj, nullptr, _SE(js_cocos2dx_dragonbones_Transform_constructor));
+    auto cls = se::Class::create("Transform", obj, nullptr, nullptr);
 
     cls->defineProperty("x", _SE(js_cocos2dx_dragonbones_Transform_get_x), _SE(js_cocos2dx_dragonbones_Transform_set_x));
     cls->defineProperty("y", _SE(js_cocos2dx_dragonbones_Transform_get_y), _SE(js_cocos2dx_dragonbones_Transform_set_y));
@@ -581,13 +556,11 @@ bool js_register_cocos2dx_dragonbones_Transform(se::Object* obj)
     cls->defineFunction("getRotation", _SE(js_cocos2dx_dragonbones_Transform_getRotation));
     cls->defineFunction("setRotation", _SE(js_cocos2dx_dragonbones_Transform_setRotation));
     cls->defineStaticFunction("normalizeRadian", _SE(js_cocos2dx_dragonbones_Transform_normalizeRadian));
-    cls->defineFinalizedFunction(_SE(js_dragonBones_Transform_finalize));
     cls->install();
     JSBClassType::registerClass<dragonBones::Transform>(cls);
 
     __jsb_dragonBones_Transform_proto = cls->getProto();
     __jsb_dragonBones_Transform_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -626,7 +599,6 @@ bool js_register_cocos2dx_dragonbones_TextureData(se::Object* obj)
 
     __jsb_dragonBones_TextureData_proto = cls->getProto();
     __jsb_dragonBones_TextureData_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -709,7 +681,6 @@ bool js_register_cocos2dx_dragonbones_TextureAtlasData(se::Object* obj)
 
     __jsb_dragonBones_TextureAtlasData_proto = cls->getProto();
     __jsb_dragonBones_TextureAtlasData_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -987,7 +958,6 @@ bool js_register_cocos2dx_dragonbones_AnimationData(se::Object* obj)
     __jsb_dragonBones_AnimationData_proto = cls->getProto();
     __jsb_dragonBones_AnimationData_class = cls;
 
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -1107,7 +1077,6 @@ bool js_register_cocos2dx_dragonbones_BoneData(se::Object* obj)
 
     __jsb_dragonBones_BoneData_proto = cls->getProto();
     __jsb_dragonBones_BoneData_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -1246,7 +1215,6 @@ bool js_register_cocos2dx_dragonbones_SlotData(se::Object* obj)
     __jsb_dragonBones_SlotData_proto = cls->getProto();
     __jsb_dragonBones_SlotData_class = cls;
 
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -1337,7 +1305,6 @@ bool js_register_cocos2dx_dragonbones_SkinData(se::Object* obj)
 
     __jsb_dragonBones_SkinData_proto = cls->getProto();
     __jsb_dragonBones_SkinData_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -1585,7 +1552,6 @@ bool js_register_cocos2dx_dragonbones_ArmatureData(se::Object* obj)
     __jsb_dragonBones_ArmatureData_proto = cls->getProto();
     __jsb_dragonBones_ArmatureData_class = cls;
 
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -1737,7 +1703,6 @@ bool js_register_cocos2dx_dragonbones_DragonBonesData(se::Object* obj)
 
     __jsb_dragonBones_DragonBonesData_proto = cls->getProto();
     __jsb_dragonBones_DragonBonesData_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -1974,7 +1939,6 @@ bool js_register_cocos2dx_dragonbones_EventObject(se::Object* obj)
 
     __jsb_dragonBones_EventObject_proto = cls->getProto();
     __jsb_dragonBones_EventObject_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -2405,7 +2369,6 @@ bool js_register_cocos2dx_dragonbones_Armature(se::Object* obj)
 
     __jsb_dragonBones_Armature_proto = cls->getProto();
     __jsb_dragonBones_Armature_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -3142,7 +3105,6 @@ bool js_register_cocos2dx_dragonbones_Animation(se::Object* obj)
     __jsb_dragonBones_Animation_proto = cls->getProto();
     __jsb_dragonBones_Animation_class = cls;
 
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -3299,7 +3261,6 @@ bool js_register_cocos2dx_dragonbones_TransformObject(se::Object* obj)
 
     __jsb_dragonBones_TransformObject_proto = cls->getProto();
     __jsb_dragonBones_TransformObject_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -3497,7 +3458,6 @@ bool js_register_cocos2dx_dragonbones_Bone(se::Object* obj)
     __jsb_dragonBones_Bone_proto = cls->getProto();
     __jsb_dragonBones_Bone_class = cls;
 
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -3669,7 +3629,6 @@ bool js_register_cocos2dx_dragonbones_Slot(se::Object* obj)
 
     __jsb_dragonBones_Slot_proto = cls->getProto();
     __jsb_dragonBones_Slot_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -3945,7 +3904,6 @@ bool js_register_cocos2dx_dragonbones_BaseFactory(se::Object* obj)
     __jsb_dragonBones_BaseFactory_proto = cls->getProto();
     __jsb_dragonBones_BaseFactory_class = cls;
 
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -3968,6 +3926,25 @@ static bool js_cocos2dx_dragonbones_WorldClock_clear(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_dragonbones_WorldClock_clear)
 
+static bool js_cocos2dx_dragonbones_WorldClock_advanceTime(se::State& s)
+{
+    dragonBones::WorldClock* cobj = (dragonBones::WorldClock*)s.nativeThisObject();
+    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_dragonbones_WorldClock_advanceTime : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        float arg0 = 0;
+        ok &= seval_to_float(args[0], &arg0);
+        JSB_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_WorldClock_advanceTime : Error processing arguments");
+        cobj->advanceTime(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_dragonbones_WorldClock_advanceTime)
+
 static bool js_cocos2dx_dragonbones_WorldClock_contains(se::State& s)
 {
     dragonBones::WorldClock* cobj = (dragonBones::WorldClock*)s.nativeThisObject();
@@ -3989,65 +3966,21 @@ static bool js_cocos2dx_dragonbones_WorldClock_contains(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_dragonbones_WorldClock_contains)
 
-static bool js_cocos2dx_dragonbones_WorldClock_advanceTime(se::State& s)
-{
-    dragonBones::WorldClock* cobj = (dragonBones::WorldClock*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_dragonbones_WorldClock_advanceTime : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        float arg0 = 0;
-        ok &= seval_to_float(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_WorldClock_advanceTime : Error processing arguments");
-        cobj->advanceTime(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_dragonbones_WorldClock_advanceTime)
-
-SE_DECLARE_FINALIZE_FUNC(js_dragonBones_WorldClock_finalize)
-
-static bool js_cocos2dx_dragonbones_WorldClock_constructor(se::State& s)
-{
-    dragonBones::WorldClock* cobj = new (std::nothrow) dragonBones::WorldClock();
-    s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
-    return true;
-}
-SE_BIND_CTOR(js_cocos2dx_dragonbones_WorldClock_constructor, __jsb_dragonBones_WorldClock_class, js_dragonBones_WorldClock_finalize)
 
 
-
-
-bool js_dragonBones_WorldClock_finalize(se::State& s)
-{
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (dragonBones::WorldClock)", s.nativeThisObject());
-        dragonBones::WorldClock* cobj = (dragonBones::WorldClock*)s.nativeThisObject();
-        delete cobj;
-    }
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_dragonBones_WorldClock_finalize)
 
 bool js_register_cocos2dx_dragonbones_WorldClock(se::Object* obj)
 {
-    auto cls = se::Class::create("WorldClock", obj, nullptr, _SE(js_cocos2dx_dragonbones_WorldClock_constructor));
+    auto cls = se::Class::create("WorldClock", obj, nullptr, nullptr);
 
     cls->defineFunction("clear", _SE(js_cocos2dx_dragonbones_WorldClock_clear));
-    cls->defineFunction("contains", _SE(js_cocos2dx_dragonbones_WorldClock_contains));
     cls->defineFunction("advanceTime", _SE(js_cocos2dx_dragonbones_WorldClock_advanceTime));
-    cls->defineFinalizedFunction(_SE(js_dragonBones_WorldClock_finalize));
+    cls->defineFunction("contains", _SE(js_cocos2dx_dragonbones_WorldClock_contains));
     cls->install();
     JSBClassType::registerClass<dragonBones::WorldClock>(cls);
 
     __jsb_dragonBones_WorldClock_proto = cls->getProto();
     __jsb_dragonBones_WorldClock_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -4643,7 +4576,6 @@ bool js_register_cocos2dx_dragonbones_AnimationState(se::Object* obj)
     __jsb_dragonBones_AnimationState_proto = cls->getProto();
     __jsb_dragonBones_AnimationState_class = cls;
 
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -4706,7 +4638,6 @@ bool js_register_cocos2dx_dragonbones_CCTextureData(se::Object* obj)
     __jsb_dragonBones_CCTextureData_proto = cls->getProto();
     __jsb_dragonBones_CCTextureData_class = cls;
 
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -4768,7 +4699,6 @@ bool js_register_cocos2dx_dragonbones_CCTextureAtlasData(se::Object* obj)
 
     __jsb_dragonBones_CCTextureAtlasData_proto = cls->getProto();
     __jsb_dragonBones_CCTextureAtlasData_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -5042,7 +4972,6 @@ bool js_register_cocos2dx_dragonbones_CCArmatureDisplay(se::Object* obj)
     __jsb_dragonBones_CCArmatureDisplay_proto = cls->getProto();
     __jsb_dragonBones_CCArmatureDisplay_class = cls;
 
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -5082,7 +5011,6 @@ bool js_register_cocos2dx_dragonbones_DBCCSprite(se::Object* obj)
 
     __jsb_dragonBones_DBCCSprite_proto = cls->getProto();
     __jsb_dragonBones_DBCCSprite_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -5164,7 +5092,6 @@ bool js_register_cocos2dx_dragonbones_CCSlot(se::Object* obj)
 
     __jsb_dragonBones_CCSlot_proto = cls->getProto();
     __jsb_dragonBones_CCSlot_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -5360,7 +5287,6 @@ bool js_register_cocos2dx_dragonbones_CCFactory(se::Object* obj)
 
     __jsb_dragonBones_CCFactory_proto = cls->getProto();
     __jsb_dragonBones_CCFactory_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;

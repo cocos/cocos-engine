@@ -21,6 +21,10 @@
 		1A119E9E18BDF19200352BAA /* jsb_cocos2dx_spine_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A119E3C18BDF19200352BAA /* jsb_cocos2dx_spine_auto.hpp */; };
 		1A4E8E811F00CB0200F30872 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A4E8E801F00CB0200F30872 /* JavaScriptCore.framework */; };
 		1A4E8E831F00E84C00F30872 /* libChakraCoreStatic.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A4E8E821F00E84C00F30872 /* libChakraCoreStatic.a */; };
+		1A5F228A1F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5F22881F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp */; };
+		1A5F228B1F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5F22881F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp */; };
+		1A5F228C1F0DDD6B0008BF09 /* jsb_dragonbones_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A5F22891F0DDD6B0008BF09 /* jsb_dragonbones_manual.hpp */; };
+		1A5F228D1F0DDD6B0008BF09 /* jsb_dragonbones_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A5F22891F0DDD6B0008BF09 /* jsb_dragonbones_manual.hpp */; };
 		1AB5E62B18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AB5E62918D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp */; };
 		1AB5E62C18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AB5E62918D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp */; };
 		1AB5E62D18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1AB5E62A18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp */; };
@@ -219,6 +223,8 @@
 		1A4E8E821F00E84C00F30872 /* libChakraCoreStatic.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libChakraCoreStatic.a; path = ../../../../../ChakraCore/out/Debug/lib/libChakraCoreStatic.a; sourceTree = "<group>"; };
 		1A5410A418B785A10016A3AF /* libjscocos2d Mac.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libjscocos2d Mac.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A5410A518B785A10016A3AF /* libjscocos2d iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libjscocos2d iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A5F22881F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_dragonbones_manual.cpp; sourceTree = "<group>"; };
+		1A5F22891F0DDD6B0008BF09 /* jsb_dragonbones_manual.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_dragonbones_manual.hpp; sourceTree = "<group>"; };
 		1AB064771EF9647F0061E1AF /* libbmalloc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbmalloc.a; path = ../../../../../JavaScriptCore/build/lib/libbmalloc.a; sourceTree = "<group>"; };
 		1AB064781EF9647F0061E1AF /* libJavaScriptCore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libJavaScriptCore.a; path = ../../../../../JavaScriptCore/build/lib/libJavaScriptCore.a; sourceTree = "<group>"; };
 		1AB064791EF9647F0061E1AF /* libWTF.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWTF.a; path = ../../../../../JavaScriptCore/build/lib/libWTF.a; sourceTree = "<group>"; };
@@ -419,6 +425,8 @@
 				1AFD36BF1EF116190097DBB1 /* jsb_xmlhttprequest.hpp */,
 				1AFD36C01EF116190097DBB1 /* ScriptingCore.cpp */,
 				1AFD36C11EF116190097DBB1 /* ScriptingCore.h */,
+				1A5F22881F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp */,
+				1A5F22891F0DDD6B0008BF09 /* jsb_dragonbones_manual.hpp */,
 			);
 			name = manual;
 			path = ../manual;
@@ -553,6 +561,7 @@
 				1AFD36881EF115100097DBB1 /* Class.hpp in Headers */,
 				1AFD36441EF115100097DBB1 /* SeApi.h in Headers */,
 				1AFD369C1EF115100097DBB1 /* Utils.hpp in Headers */,
+				1A5F228C1F0DDD6B0008BF09 /* jsb_dragonbones_manual.hpp in Headers */,
 				1AFD367A1EF115100097DBB1 /* SeApi.h in Headers */,
 				1AFD36661EF115100097DBB1 /* Ref.hpp in Headers */,
 				1AFD36561EF115100097DBB1 /* Object.hpp in Headers */,
@@ -637,6 +646,7 @@
 				1AFD36DD1EF116190097DBB1 /* jsb_global.h in Headers */,
 				BA4F59871E28DCD3003F5096 /* jsb_cocos2dx_network_auto.hpp in Headers */,
 				1AFD36751EF115100097DBB1 /* Object.hpp in Headers */,
+				1A5F228D1F0DDD6B0008BF09 /* jsb_dragonbones_manual.hpp in Headers */,
 				1AFD36631EF115100097DBB1 /* Object.hpp in Headers */,
 				1AFD369D1EF115100097DBB1 /* Utils.hpp in Headers */,
 				1AFD36431EF115100097DBB1 /* ScriptEngine.hpp in Headers */,
@@ -761,6 +771,7 @@
 				1AFD36DA1EF116190097DBB1 /* jsb_global.cpp in Sources */,
 				1AFD36CA1EF116190097DBB1 /* jsb_cocos2dx_extension_manual.cpp in Sources */,
 				1A119E8318BDF19200352BAA /* jsb_cocos2dx_auto.cpp in Sources */,
+				1A5F228A1F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp in Sources */,
 				4DFA4C101CBCC49000E3B736 /* jsb_creator_auto.cpp in Sources */,
 				1AFD367C1EF115100097DBB1 /* Utils.cpp in Sources */,
 				1AFD36E61EF116190097DBB1 /* jsb_node.cpp in Sources */,
@@ -797,6 +808,7 @@
 				4DFA4C111CBCC49000E3B736 /* jsb_creator_auto.cpp in Sources */,
 				1AFD366D1EF115100097DBB1 /* Class.cpp in Sources */,
 				BAF638DD1B5F5DC900CDB43A /* jsb_cocos2dx_audioengine_auto.cpp in Sources */,
+				1A5F228B1F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp in Sources */,
 				1AB5E62C18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp in Sources */,
 				1AFD36651EF115100097DBB1 /* Ref.cpp in Sources */,
 				BA4F59851E28DCD3003F5096 /* jsb_cocos2dx_network_auto.cpp in Sources */,

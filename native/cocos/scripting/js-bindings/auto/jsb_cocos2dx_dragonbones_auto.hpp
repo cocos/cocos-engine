@@ -28,7 +28,6 @@ bool register_all_cocos2dx_dragonbones(se::Object* obj);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Transform_getRotation);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Transform_setRotation);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Transform_normalizeRadian);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_Transform_Transform);
 
 extern se::Object* __jsb_dragonBones_TextureData_proto;
 extern se::Class* __jsb_dragonBones_TextureData_class;
@@ -220,9 +219,8 @@ extern se::Class* __jsb_dragonBones_WorldClock_class;
 bool js_register_dragonBones_WorldClock(se::Object* obj);
 bool register_all_cocos2dx_dragonbones(se::Object* obj);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_WorldClock_clear);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_WorldClock_contains);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_WorldClock_advanceTime);
-SE_DECLARE_FUNC(js_cocos2dx_dragonbones_WorldClock_WorldClock);
+SE_DECLARE_FUNC(js_cocos2dx_dragonbones_WorldClock_contains);
 
 extern se::Object* __jsb_dragonBones_AnimationState_proto;
 extern se::Class* __jsb_dragonBones_AnimationState_class;
