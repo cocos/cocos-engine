@@ -13,10 +13,13 @@ endif
 LOCAL_SRC_FILES := \
 ../../../Classes/AppDelegate.cpp \
 hellojavascript/main.cpp \
-../../../Classes/SDKManager.cpp \
+
+ifeq ($(USE_ANY_SDK),1)
+LOCAL_SRC_FILES += ../../../Classes/SDKManager.cpp \
 ../../../Classes/jsb_anysdk_basic_conversions.cpp \
 ../../../Classes/manualanysdkbindings.cpp \
 ../../../Classes/jsb_anysdk_protocols_auto.cpp
+endif
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../Classes \
 
