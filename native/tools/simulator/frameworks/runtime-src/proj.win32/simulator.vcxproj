@@ -131,7 +131,6 @@ if not exist "$(ProjectDir)..\..\..\runtime\win32" mkdir "$(ProjectDir)..\..\..\
 
 xcopy /Y /Q "$(OutDir)*.dll" "$(ProjectDir)..\..\..\runtime\win32"
 xcopy /Y /Q "$(OutDir)*.exe" "$(ProjectDir)..\..\..\runtime\win32"
-xcopy /Y /Q "$(OutDir)lang" "$(ProjectDir)..\..\..\runtime\win32"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
