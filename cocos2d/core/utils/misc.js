@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 var JS = require('../platform/js');
+var sys = require('../platform/CCSys');
 
 var misc = exports;
 
@@ -123,6 +124,10 @@ misc.imagePool.get = function () {
     return this._get() || new Image();
 };
 misc.imagePool._smallImg = "data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=";
+// Avoid problems on windows IE kernels, Edge, Firefox
+if (sys.os === OS_WINDOWS && sys.browser !== sys.BROWSER_TYPE_CHROME) {
+    misc.imagePool.resize(0);
+}
 
 misc.isBuiltinClassId = function (id) {
     return id.startsWith('cc.') || id.startsWith('dragonBones.') || id.startsWith('sp.') || id.startsWith('ccsg.');

@@ -196,7 +196,8 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
     },
 
     /**
-     * HTMLElement Object getter.
+     * HTMLElement Object getter, available only on web.
+     * In most case, it will return null, because we are recycling the dom image element for better loading performance and lower image cache memory usage.
      * @method getHtmlElementObj
      * @return {HTMLImageElement|HTMLCanvasElement}
      */
