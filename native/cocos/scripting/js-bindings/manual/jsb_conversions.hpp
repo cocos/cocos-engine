@@ -199,6 +199,30 @@ bool DownloadTask_to_seval(const cocos2d::network::DownloadTask& v, se::Value* r
 bool ResourceData_to_seval(const cocos2d::ResourceData& v, se::Value* ret);
 
 template<typename T>
+bool recreate_seval_by_native_ptr(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Class* cls, se::Value* ret)
+{
+    assert(ret != nullptr);
+    assert(cls != nullptr);
+    if (v == nullptr)
+    {
+        ret->setNull();
+        return true;
+    }
+
+    auto iter = se::__nativePtrToObjectMap.find(v);
+    if (iter != se::__nativePtrToObjectMap.end())
+    {
+        iter->second->clearPrivateData();
+    }
+
+    se::Object* obj = se::Object::createObjectWithClass(cls, false);
+    obj->setPrivateData(v);
+
+    ret->setObject(obj);
+    return true;
+}
+
+template<typename T>
 bool native_ptr_to_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Value* ret)
 {
     assert(ret != nullptr);

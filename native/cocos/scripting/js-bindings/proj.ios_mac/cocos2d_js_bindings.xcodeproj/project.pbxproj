@@ -25,6 +25,14 @@
 		1A5F228B1F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5F22881F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp */; };
 		1A5F228C1F0DDD6B0008BF09 /* jsb_dragonbones_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A5F22891F0DDD6B0008BF09 /* jsb_dragonbones_manual.hpp */; };
 		1A5F228D1F0DDD6B0008BF09 /* jsb_dragonbones_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A5F22891F0DDD6B0008BF09 /* jsb_dragonbones_manual.hpp */; };
+		1A5F22961F0E306C0008BF09 /* jsb_box2d_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5F22941F0E306C0008BF09 /* jsb_box2d_manual.cpp */; };
+		1A5F22971F0E306C0008BF09 /* jsb_box2d_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5F22941F0E306C0008BF09 /* jsb_box2d_manual.cpp */; };
+		1A5F22981F0E306C0008BF09 /* jsb_box2d_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A5F22951F0E306C0008BF09 /* jsb_box2d_manual.hpp */; };
+		1A5F22991F0E306C0008BF09 /* jsb_box2d_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A5F22951F0E306C0008BF09 /* jsb_box2d_manual.hpp */; };
+		1A5F229C1F0E37B20008BF09 /* jsb_creator_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5F229A1F0E37B20008BF09 /* jsb_creator_manual.cpp */; };
+		1A5F229D1F0E37B20008BF09 /* jsb_creator_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5F229A1F0E37B20008BF09 /* jsb_creator_manual.cpp */; };
+		1A5F229E1F0E37B20008BF09 /* jsb_creator_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A5F229B1F0E37B20008BF09 /* jsb_creator_manual.hpp */; };
+		1A5F229F1F0E37B20008BF09 /* jsb_creator_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A5F229B1F0E37B20008BF09 /* jsb_creator_manual.hpp */; };
 		1AB5E62B18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AB5E62918D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp */; };
 		1AB5E62C18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AB5E62918D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp */; };
 		1AB5E62D18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1AB5E62A18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp */; };
@@ -225,6 +233,10 @@
 		1A5410A518B785A10016A3AF /* libjscocos2d iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libjscocos2d iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A5F22881F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_dragonbones_manual.cpp; sourceTree = "<group>"; };
 		1A5F22891F0DDD6B0008BF09 /* jsb_dragonbones_manual.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_dragonbones_manual.hpp; sourceTree = "<group>"; };
+		1A5F22941F0E306C0008BF09 /* jsb_box2d_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_box2d_manual.cpp; sourceTree = "<group>"; };
+		1A5F22951F0E306C0008BF09 /* jsb_box2d_manual.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_box2d_manual.hpp; sourceTree = "<group>"; };
+		1A5F229A1F0E37B20008BF09 /* jsb_creator_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_creator_manual.cpp; sourceTree = "<group>"; };
+		1A5F229B1F0E37B20008BF09 /* jsb_creator_manual.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_creator_manual.hpp; sourceTree = "<group>"; };
 		1AB064771EF9647F0061E1AF /* libbmalloc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbmalloc.a; path = ../../../../../JavaScriptCore/build/lib/libbmalloc.a; sourceTree = "<group>"; };
 		1AB064781EF9647F0061E1AF /* libJavaScriptCore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libJavaScriptCore.a; path = ../../../../../JavaScriptCore/build/lib/libJavaScriptCore.a; sourceTree = "<group>"; };
 		1AB064791EF9647F0061E1AF /* libWTF.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWTF.a; path = ../../../../../JavaScriptCore/build/lib/libWTF.a; sourceTree = "<group>"; };
@@ -427,6 +439,10 @@
 				1AFD36C11EF116190097DBB1 /* ScriptingCore.h */,
 				1A5F22881F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp */,
 				1A5F22891F0DDD6B0008BF09 /* jsb_dragonbones_manual.hpp */,
+				1A5F22941F0E306C0008BF09 /* jsb_box2d_manual.cpp */,
+				1A5F22951F0E306C0008BF09 /* jsb_box2d_manual.hpp */,
+				1A5F229A1F0E37B20008BF09 /* jsb_creator_manual.cpp */,
+				1A5F229B1F0E37B20008BF09 /* jsb_creator_manual.hpp */,
 			);
 			name = manual;
 			path = ../manual;
@@ -585,6 +601,7 @@
 				1AFD36601EF115100097DBB1 /* Utils.hpp in Headers */,
 				1AFD36DC1EF116190097DBB1 /* jsb_global.h in Headers */,
 				1AFD36781EF115100097DBB1 /* ScriptEngine.hpp in Headers */,
+				1A5F229E1F0E37B20008BF09 /* jsb_creator_manual.hpp in Headers */,
 				1AFD36521EF115100097DBB1 /* HelperMacros.h in Headers */,
 				1AFD36501EF115100097DBB1 /* Class.hpp in Headers */,
 				1AFD36F41EF116190097DBB1 /* jsb_spine_manual.hpp in Headers */,
@@ -593,6 +610,7 @@
 				1AFD36481EF115100097DBB1 /* Utils.hpp in Headers */,
 				1AFD364A1EF115100097DBB1 /* config.hpp in Headers */,
 				1AB5E62D18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp in Headers */,
+				1A5F22981F0E306C0008BF09 /* jsb_box2d_manual.hpp in Headers */,
 				1AFD364C1EF115100097DBB1 /* Base.h in Headers */,
 				FA6F1BB51D815C2C007DD223 /* jsb_cocos2dx_dragonbones_auto.hpp in Headers */,
 				1AFD37001EF116190097DBB1 /* ScriptingCore.h in Headers */,
@@ -650,6 +668,7 @@
 				1AFD36631EF115100097DBB1 /* Object.hpp in Headers */,
 				1AFD369D1EF115100097DBB1 /* Utils.hpp in Headers */,
 				1AFD36431EF115100097DBB1 /* ScriptEngine.hpp in Headers */,
+				1A5F229F1F0E37B20008BF09 /* jsb_creator_manual.hpp in Headers */,
 				1AFD36FD1EF116190097DBB1 /* jsb_xmlhttprequest.hpp in Headers */,
 				1AFD365D1EF115100097DBB1 /* SeApi.h in Headers */,
 				1AFD364B1EF115100097DBB1 /* config.hpp in Headers */,
@@ -663,6 +682,7 @@
 				1AFD36F51EF116190097DBB1 /* jsb_spine_manual.hpp in Headers */,
 				BAF638DF1B5F5DC900CDB43A /* jsb_cocos2dx_audioengine_auto.hpp in Headers */,
 				1AFD368F1EF115100097DBB1 /* Object.hpp in Headers */,
+				1A5F22991F0E306C0008BF09 /* jsb_box2d_manual.hpp in Headers */,
 				1AFD363B1EF115100097DBB1 /* HelperMacros.h in Headers */,
 				1AFD364D1EF115100097DBB1 /* Base.h in Headers */,
 				1AFD37011EF116190097DBB1 /* ScriptingCore.h in Headers */,
@@ -745,6 +765,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1AFD36401EF115100097DBB1 /* ScriptEngine.cpp in Sources */,
+				1A5F229C1F0E37B20008BF09 /* jsb_creator_manual.cpp in Sources */,
 				1AFD36901EF115100097DBB1 /* ObjectWrap.cpp in Sources */,
 				1AFD36581EF115100097DBB1 /* ScriptEngine.cpp in Sources */,
 				1AFD36541EF115100097DBB1 /* Object.cpp in Sources */,
@@ -783,6 +804,7 @@
 				1AFD36FA1EF116190097DBB1 /* jsb_xmlhttprequest.cpp in Sources */,
 				BA4F59841E28DCD3003F5096 /* jsb_cocos2dx_network_auto.cpp in Sources */,
 				1AFD36461EF115100097DBB1 /* Utils.cpp in Sources */,
+				1A5F22961F0E306C0008BF09 /* jsb_box2d_manual.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -800,6 +822,7 @@
 				1AFD36811EF115100097DBB1 /* State.cpp in Sources */,
 				1AFD36FB1EF116190097DBB1 /* jsb_xmlhttprequest.cpp in Sources */,
 				1AFD36471EF115100097DBB1 /* Utils.cpp in Sources */,
+				1A5F229D1F0E37B20008BF09 /* jsb_creator_manual.cpp in Sources */,
 				FA6F1BB41D815C2C007DD223 /* jsb_cocos2dx_dragonbones_auto.cpp in Sources */,
 				1AFD36CB1EF116190097DBB1 /* jsb_cocos2dx_extension_manual.cpp in Sources */,
 				1AFD36731EF115100097DBB1 /* Object.cpp in Sources */,
@@ -813,6 +836,7 @@
 				1AFD36651EF115100097DBB1 /* Ref.cpp in Sources */,
 				BA4F59851E28DCD3003F5096 /* jsb_cocos2dx_network_auto.cpp in Sources */,
 				1A119E9C18BDF19200352BAA /* jsb_cocos2dx_spine_auto.cpp in Sources */,
+				1A5F22971F0E306C0008BF09 /* jsb_box2d_manual.cpp in Sources */,
 				1AFD36C71EF116190097DBB1 /* jsb_classtype.cpp in Sources */,
 				1AFD36951EF115100097DBB1 /* ScriptEngine.cpp in Sources */,
 				4BE089E41ADF965E00D65D4B /* jsb_cocos2dx_experimental_webView_auto.cpp in Sources */,

@@ -1076,13 +1076,46 @@ bool seval_to_TTFConfig(const se::Value& v, cocos2d::TTFConfig* ret)
 
 bool seval_to_b2Vec2(const se::Value& v, b2Vec2* ret)
 {
-    assert(false); //FIXME:
+    static b2Vec2 ZERO(0.0f, 0.0f);
+    assert(v.isObject() && ret != nullptr);
+    se::Object* obj = v.toObject();
+    se::Value x;
+    se::Value y;
+    bool ok = obj->getProperty("x", &x);
+    JSB_PRECONDITION3(ok && x.isNumber(), false, *ret = ZERO);
+    ok = obj->getProperty("y", &y);
+    JSB_PRECONDITION3(ok && y.isNumber(), false, *ret = ZERO);
+    ret->x = x.toFloat();
+    ret->y = y.toFloat();
     return true;
 }
 
 bool seval_to_b2AABB(const se::Value& v, b2AABB* ret)
 {
-    assert(false); //FIXME:
+    static b2AABB ZERO;
+    static bool __isFirst = true;
+    if (__isFirst)
+    {
+        ZERO.lowerBound.x = ZERO.lowerBound.y = 0;
+        ZERO.upperBound.x = ZERO.upperBound.y = 0;
+        __isFirst = false;
+    }
+    
+    assert(v.isObject() && ret != nullptr);
+    se::Object* obj = v.toObject();
+
+    bool ok = false;
+    se::Value tmp;
+    ok = obj->getProperty("lowerBound", &tmp);
+    JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+    ok = seval_to_b2Vec2(tmp, &ret->lowerBound);
+    JSB_PRECONDITION3(ok, false, *ret = ZERO);
+
+    ok = obj->getProperty("upperBound", &tmp);
+    JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+    ok = seval_to_b2Vec2(tmp, &ret->upperBound);
+    JSB_PRECONDITION3(ok, false, *ret = ZERO);
+
     return true;
 }
 
@@ -1953,18 +1986,94 @@ bool sptrackentry_to_seval(const spTrackEntry& v, se::Value* ret)
 // Box2d
 bool b2Vec2_to_seval(const b2Vec2& v, se::Value* ret)
 {
-    assert(false);//FIXME:
-    return false;
+    assert(ret != nullptr);
+    se::Object* obj = se::Object::createPlainObject(false);
+    obj->setProperty("x", se::Value(v.x));
+    obj->setProperty("y", se::Value(v.y));
+    ret->setObject(obj);
+    obj->release();
+
+    return true;
 }
 
 bool b2Manifold_to_seval(const b2Manifold* v, se::Value* ret)
 {
-    assert(false);//FIXME:
+    assert(v != nullptr);
+    assert(ret != nullptr);
+    bool ok = false;
+    se::Object* obj = se::Object::createPlainObject(true);
+
+    do
+    {
+        se::Value tmp;
+        ok = b2Vec2_to_seval(v->localPoint, &tmp);
+        if (!ok) break;
+        obj->setProperty("localPoint", tmp);
+
+        ok = b2Vec2_to_seval(v->localNormal, &tmp);
+        if (!ok) break;
+        obj->setProperty("localNormal", tmp);
+
+        obj->setProperty("pointCount", se::Value(v->pointCount));
+        obj->setProperty("type", se::Value((int32_t)v->type));
+
+        se::Object* arr = se::Object::createArrayObject(v->pointCount, true);
+
+        for (int32 i = 0; i < v->pointCount; ++i)
+        {
+            const b2ManifoldPoint& p = v->points[i];
+
+            se::Object* arrElement = se::Object::createPlainObject(true);
+
+            arrElement->setProperty("normalImpulse", se::Value(p.normalImpulse));
+            arrElement->setProperty("tangentImpulse", se::Value(p.tangentImpulse));
+            se::Value localPointVal;
+            ok = b2Vec2_to_seval(p.localPoint, &localPointVal);
+            if (!ok) break;
+            arrElement->setProperty("localPoint", localPointVal);
+
+            arr->setArrayElement(i, se::Value(arrElement));
+            arrElement->switchToUnrooted();
+            arrElement->release();
+        }
+
+        if (ok)
+            obj->setProperty("points", se::Value(arr));
+        arr->switchToUnrooted();
+        arr->release();
+
+    } while(false);
+
+    if (ok)
+        ret->setObject(obj);
+    else
+        ret->setNull();
+    obj->switchToUnrooted();
+    obj->release();
     return false;
 }
 
 bool b2AABB_to_seval(const b2AABB& v, se::Value* ret)
 {
-    assert(false);//FIXME:
-    return false;
+    assert(ret != nullptr);
+    se::Object* obj = se::Object::createPlainObject(false);
+
+    se::Object* lowerBound = se::Object::createPlainObject(false);
+    lowerBound->setProperty("x", se::Value(v.lowerBound.x));
+    lowerBound->setProperty("y", se::Value(v.lowerBound.y));
+
+    obj->setProperty("lowerBound", se::Value(lowerBound));
+    lowerBound->release();
+
+    se::Object* upperBound = se::Object::createPlainObject(false);
+    upperBound->setProperty("x", se::Value(v.upperBound.x));
+    upperBound->setProperty("y", se::Value(v.upperBound.y));
+
+    obj->setProperty("upperBound", se::Value(upperBound));
+    upperBound->release();
+
+    ret->setObject(obj);
+    obj->release();
+
+    return true;
 }

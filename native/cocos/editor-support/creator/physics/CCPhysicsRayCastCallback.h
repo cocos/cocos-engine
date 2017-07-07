@@ -40,12 +40,12 @@ public:
     
     virtual float32 ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float32 fraction);
     
-    std::vector<b2Fixture*>& getFixtures();
-    std::vector<b2Vec2>& getPoints();
-    std::vector<b2Vec2>& getNormals();
-    std::vector<float>& getFractions();
+    const std::vector<b2Fixture*>& getFixtures() const;
+    const std::vector<b2Vec2>& getPoints() const;
+    const std::vector<b2Vec2>& getNormals() const;
+    const std::vector<float>& getFractions() const;
     
-    int getType();
+    int getType() const;
     
 protected:
     int _rayCastType;

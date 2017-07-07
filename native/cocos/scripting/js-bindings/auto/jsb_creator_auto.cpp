@@ -755,7 +755,6 @@ bool js_register_creator_Scale9SpriteV2(se::Object* obj)
     __jsb_creator_Scale9SpriteV2_class = cls;
 
     se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { cc.Scale9SpriteV2.extend = cc.Class.extend; })()");
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -1530,7 +1529,6 @@ bool js_register_creator_GraphicsNode(se::Object* obj)
     __jsb_creator_GraphicsNode_class = cls;
 
     se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { cc.GraphicsNode.extend = cc.Class.extend; })()");
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -1630,7 +1628,6 @@ bool js_register_creator_PhysicsDebugDraw(se::Object* obj)
 
     __jsb_creator_PhysicsDebugDraw_proto = cls->getProto();
     __jsb_creator_PhysicsDebugDraw_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -1802,7 +1799,6 @@ bool js_register_creator_PhysicsWorldManifoldWrapper(se::Object* obj)
     __jsb_creator_PhysicsWorldManifoldWrapper_proto = cls->getProto();
     __jsb_creator_PhysicsWorldManifoldWrapper_class = cls;
 
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -1943,7 +1939,6 @@ bool js_register_creator_PhysicsUtils(se::Object* obj)
     __jsb_creator_PhysicsUtils_proto = cls->getProto();
     __jsb_creator_PhysicsUtils_class = cls;
 
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -2054,7 +2049,6 @@ bool js_register_creator_PhysicsContactImpulse(se::Object* obj)
     __jsb_creator_PhysicsContactImpulse_proto = cls->getProto();
     __jsb_creator_PhysicsContactImpulse_class = cls;
 
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -2139,7 +2133,6 @@ bool js_register_creator_PhysicsContactListener(se::Object* obj)
 
     __jsb_creator_PhysicsContactListener_proto = cls->getProto();
     __jsb_creator_PhysicsContactListener_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -2235,7 +2228,6 @@ bool js_register_creator_PhysicsAABBQueryCallback(se::Object* obj)
     __jsb_creator_PhysicsAABBQueryCallback_proto = cls->getProto();
     __jsb_creator_PhysicsAABBQueryCallback_class = cls;
 
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -2288,7 +2280,7 @@ static bool js_creator_PhysicsRayCastCallback_getFractions(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        std::vector<float, std::allocator<float> >& result = cobj->getFractions();
+        const std::vector<float, std::allocator<float> >& result = cobj->getFractions();
         ok &= std_vector_float_to_seval(result, &s.rval());
         JSB_PRECONDITION2(ok, false, "js_creator_PhysicsRayCastCallback_getFractions : Error processing arguments");
         return true;
@@ -2338,7 +2330,6 @@ bool js_register_creator_PhysicsRayCastCallback(se::Object* obj)
 
     __jsb_creator_PhysicsRayCastCallback_proto = cls->getProto();
     __jsb_creator_PhysicsRayCastCallback_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -2457,7 +2448,6 @@ bool js_register_creator_CameraNode(se::Object* obj)
 
     __jsb_creator_CameraNode_proto = cls->getProto();
     __jsb_creator_CameraNode_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
