@@ -24,7 +24,7 @@
  ****************************************************************************/
  
 var PTM_RATIO = require('../CCPhysicsTypes').PTM_RATIO;
-var PolygonSeprator = require('../CCPolygonSeprator');
+var PolygonSeparator = require('../CCPolygonSeparator');
 
 /**
  * @class PhysicsPolygonCollider
@@ -52,7 +52,7 @@ var PhysicsPolygonCollider = cc.Class({
             points.length -= 1;
         }
 
-        var polys = PolygonSeprator(points);
+        var polys = PolygonSeparator.ConvexPartition(points);
         var offset = this.offset;
 
         for (var i = 0; i < polys.length; i++) {
