@@ -1926,11 +1926,10 @@ cc.macro = {
 };
 
 /**
- * @module cc
- */
-
-/**
+ * !#en
  * default gl blend src function. Compatible with premultiplied alpha images.
+ * !#zh
+ * 默认的混合源模式
  * @property BLEND_SRC
  * @type {Number}
  */
@@ -1943,6 +1942,10 @@ cc.defineGetterSetter(cc.macro, "BLEND_SRC", function (){
         return cc.macro.SRC_ALPHA;
     }
 });
+
+/**
+ * @module cc
+ */
 
 /**
  * <p>

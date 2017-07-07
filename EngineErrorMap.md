@@ -76,6 +76,10 @@ cc.GridAction.getGrid(): it should be overridden in subclass.
 
 Grid size must be (1,1)
 
+### 1019
+
+Failed to construct, Sequence construction needs two or more actions.
+
 ### 1100
 
 Expected 'data' dict, but not found. Config file: %s
