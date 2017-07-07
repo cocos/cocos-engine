@@ -267,12 +267,12 @@ bool seval_to_b2JointDef(const se::Value& v, b2JointType type, b2JointDef* ret)
             def->motorSpeed = tmp.toFloat();
 
             ok = obj->getProperty("enableLimit", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
-            def->enableLimit = tmp.toFloat();
+            JSB_PRECONDITION3(ok && tmp.isBoolean(), false, *ret = ZERO);
+            def->enableLimit = tmp.toBoolean();
 
             ok = obj->getProperty("enableMotor", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
-            def->enableMotor = tmp.toFloat();
+            JSB_PRECONDITION3(ok && tmp.isBoolean(), false, *ret = ZERO);
+            def->enableMotor = tmp.toBoolean();
             break;
         }
         case e_pulleyJoint:
