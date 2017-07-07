@@ -39,7 +39,7 @@ cc.rendererCanvas = {
     _clearFillStyle: "rgb(0, 0, 0)",
     _dirtyRegion: null,
     _allNeedDraw: true,
-    _enableDirtyRegion: true,
+    _enableDirtyRegion: false,
     _debugDirtyRegion: false,
 
     //max dirty Region count, default is 10
