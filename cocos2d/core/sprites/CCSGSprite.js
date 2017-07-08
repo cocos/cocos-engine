@@ -758,11 +758,13 @@ _ccsg.Sprite = _ccsg.Node.extend({
 
 cc.js.addon(_ccsg.Sprite.prototype, EventTarget.prototype);
 
-var SameNameGetSets = ['opacity', 'color', 'offsetX', 'offsetY', 'texture', 'batchNode', 'quad'];
+var SameNameGetSets = ['opacity', 'color', 'texture', 'quad'];
 var DiffNameGetSets = {
     opacityModifyRGB: ['isOpacityModifyRGB', 'setOpacityModifyRGB'],
     flippedX: ['isFlippedX', 'setFlippedX'],
     flippedY: ['isFlippedY', 'setFlippedY'],
+    offsetX: ['_getOffsetX'],
+    offsetY: ['_getOffsetY'],
     textureRectRotated: ['isTextureRectRotated'],
 };
 Misc.propertyDefine(_ccsg.Sprite, SameNameGetSets, DiffNameGetSets);
