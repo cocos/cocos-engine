@@ -320,7 +320,7 @@ var Graphics = cc.Class({
      * @param {Boolean} [clean] Whether to clean the graphics inner cache.
      */
     clear: function (clean) {
-        this._sgNode.clear(clean);
+        this._sgNode.clear(!!clean);
     },
 
     /**
