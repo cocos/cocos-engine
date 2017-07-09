@@ -29,7 +29,7 @@
 #include "jsapi.h"
 #include "jsfriendapi.h"
 
-#include "ui/CocosGUI.h"
+#include "ui/UIWidget.h"
 #include "scripting/js-bindings/manual/js_bindings_config.h"
 #include "scripting/js-bindings/manual/spidermonkey_specifics.h"
 #include "scripting/js-bindings/manual/js_manual_conversions.h"

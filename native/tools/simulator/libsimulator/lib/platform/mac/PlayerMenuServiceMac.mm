@@ -5,8 +5,6 @@
 #include "cocos2d.h"
 #include "AppEvent.h"
 
-USING_NS_CC;
-
 ///////////////////////////////////////  menu helper  //////////////////////////////////////////////
 static bool __G_IS_MENUBAR_ENABLED__ = true;    // WTF
 
@@ -93,7 +91,7 @@ static bool __G_IS_MENUBAR_ENABLED__ = true;    // WTF
     buf << ",\"name\":" << "\"menuClicked\"" << "}";
     event.setDataString(buf.str());
     event.setUserData((void*)self.macMenuItem);
-    Director::getInstance()->getEventDispatcher()->dispatchEvent(&event);
+    cocos2d::Director::getInstance()->getEventDispatcher()->dispatchEvent(&event);
 }
 
 -(BOOL) validateMenuItem:(NSMenuItem *)menuItem
@@ -193,7 +191,7 @@ PlayerMenuServiceMac::PlayerMenuServiceMac()
 
 PlayerMenuServiceMac::~PlayerMenuServiceMac()
 {
-    log("~PlayerMenuServiceMac");
+    cocos2d::log("~PlayerMenuServiceMac");
     _items.clear();
 }
 
