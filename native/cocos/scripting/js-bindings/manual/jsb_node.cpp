@@ -42,7 +42,7 @@ static bool Node_constructor(se::State& s)
     printf("Node_constructor ...\n");
     Node* obj = new Node();
     s.thisObject()->setPrivateData(obj);
-    s.thisObject()->addRef();
+    s.thisObject()->addRef(); //FIXME: remove addRef.
     return true;
 }
 SE_BIND_CTOR(Node_constructor, __jsb_Node_class, Node_finalized)

@@ -35,6 +35,7 @@
 #include <memory>  // for std::shared_ptr
 #include <atomic>
 #include <condition_variable>
+#include <functional>
 
 #include "platform/CCPlatformMacros.h"
 #include "platform/CCStdC.h"
@@ -221,6 +222,17 @@ public:
      */
     inline const std::string& getProtocol() const { return _selectedProtocol; }
 
+    /**
+     *  @bridef Gets delegate of the WebSocket instance
+     */
+    inline Delegate* getDelegate() const { return _delegate; }
+
+    typedef std::function<void()> AfterCloseHook;
+    /**
+     *  @brief Sets the hook after onClose delegate method is invoked.
+     */
+    void setAfterCloseHook(std::shared_ptr<AfterCloseHook> afterCloseHook) { _afterCloseHook = afterCloseHook; }
+
 private:
 
     // The following callback functions are invoked in websocket thread
@@ -267,6 +279,8 @@ private:
     std::string _caFilePath;
 
     EventListenerCustom* _resetDirectorListener;
+
+    std::shared_ptr<AfterCloseHook> _afterCloseHook;
 
     friend class WsThreadHelper;
     friend class WebSocketCallbackWrapper;

@@ -403,8 +403,7 @@ SIOClientImpl::SIOClientImpl(const Uri& uri, const std::string& caFilePath) :
 
 SIOClientImpl::~SIOClientImpl()
 {
-    if (_connected)
-        disconnect();
+    assert(!_connected);
 
     CC_SAFE_DELETE(_ws);
 }
@@ -627,7 +626,7 @@ void SIOClientImpl::disconnect()
     SocketIO::getInstance()->removeSocket(_uri.getAuthority());
 
     // Close websocket connection should be at last.
-    _ws->close();
+    _ws->closeAsync();
 }
 
 SIOClientImpl* SIOClientImpl::create(const Uri& uri, const std::string& caFilePath)
@@ -661,9 +660,9 @@ void SIOClientImpl::connectToEndpoint(const std::string& endpoint)
 
 void SIOClientImpl::disconnectFromEndpoint(const std::string& endpoint)
 {
-    _clients.erase(endpoint);
+    size_t clientCount = _clients.size();
 
-    if (_clients.empty() || endpoint == "/")
+    if (clientCount == 1 || endpoint == "/")
     {
         CCLOGINFO("SIOClientImpl::disconnectFromEndpoint out of endpoints, checking for disconnect");
 
@@ -677,6 +676,7 @@ void SIOClientImpl::disconnectFromEndpoint(const std::string& endpoint)
         std::string s = "0::" + path;
 
         _ws->send(s);
+        _clients.erase(endpoint);
     }
 }
 
@@ -998,6 +998,7 @@ void SIOClientImpl::onClose(WebSocket* /*ws*/)
             Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
         
         SocketIO::getInstance()->removeSocket(_uri.getAuthority());
+        _clients.clear();
     }
 
     this->release();
@@ -1020,10 +1021,7 @@ SIOClient::SIOClient(const std::string& path, SIOClientImpl* impl, SocketIO::SIO
 
 SIOClient::~SIOClient()
 {
-    if (_connected)
-    {
-        _socket->disconnectFromEndpoint(_path);
-    }
+    assert(!_connected);
 }
 
 void SIOClient::onOpen()
@@ -1070,8 +1068,6 @@ void SIOClient::disconnect()
     _connected = false;
 
     _socket->disconnectFromEndpoint(_path);
-
-    this->release();
 }
 
 void SIOClient::socketClosed()
@@ -1135,17 +1131,17 @@ void SocketIO::destroyInstance()
     CC_SAFE_DELETE(_inst);
 }
 
-SIOClient* SocketIO::connect(SocketIO::SIODelegate& delegate, const std::string& uri)
+SIOClient* SocketIO::connect(SIODelegate& delegate, const std::string& uri)
 {
     return SocketIO::connect(uri, delegate);
 }
 
-SIOClient* SocketIO::connect(const std::string& uri, SocketIO::SIODelegate& delegate)
+SIOClient* SocketIO::connect(const std::string& uri, SIODelegate& delegate)
 {
     return SocketIO::connect(uri, delegate, "");
 }
 
-SIOClient* SocketIO::connect(const std::string& uri, SocketIO::SIODelegate& delegate, const std::string& caFilePath)
+SIOClient* SocketIO::connect(const std::string& uri, SIODelegate& delegate, const std::string& caFilePath)
 {
     Uri uriObj = Uri::parse(uri);
 
@@ -1172,7 +1168,7 @@ SIOClient* SocketIO::connect(const std::string& uri, SocketIO::SIODelegate& dele
         //check if already connected to endpoint, handle
         c = socket->getClient(path);
 
-        if(c == nullptr)
+        if (c == nullptr)
         {
             c = new (std::nothrow) SIOClient(path, socket, delegate);
 

@@ -8,6 +8,7 @@
 
 #include "jsb_xmlhttprequest.hpp"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
+#include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
 
 #include <string>
 #include <algorithm>
@@ -28,7 +29,7 @@ XMLHttpRequest::XMLHttpRequest()
 , _readyState(UNSENT)
 , _status(0)
 , _statusText()
-, _timeout(0)
+, _timeout(0UL)
 , _withCredentialsValue(false)
 , _errorFlag(false)
 , _isAborted(false)
@@ -630,10 +631,19 @@ SE_BIND_PROP_GET(XMLHttpRequest_getResponse)
 
 static bool XMLHttpRequest_getTimeout(se::State& s)
 {
-    assert(false);
+    XMLHttpRequest* cobj = (XMLHttpRequest*)s.nativeThisObject();
+    s.rval().setUlong(cobj->getTimeout());
     return true;
 }
 SE_BIND_PROP_GET(XMLHttpRequest_getTimeout)
+
+static bool XMLHttpRequest_setTimeout(se::State& s)
+{
+    XMLHttpRequest* cobj = (XMLHttpRequest*)s.nativeThisObject();
+    cobj->setTimeout(s.args()[0].toUlong());
+    return true;
+}
+SE_BIND_PROP_SET(XMLHttpRequest_setTimeout)
 
 static bool XMLHttpRequest_getResponseType(se::State& s)
 {
@@ -722,11 +732,13 @@ void jsb_register_XMLHttpRequest()
     cls->defineProperty("responseText", _SE(XMLHttpRequest_getResponseText), nullptr);
     cls->defineProperty("responseXML", _SE(XMLHttpRequest_getResponseXML), nullptr);
     cls->defineProperty("response", _SE(XMLHttpRequest_getResponse), nullptr);
-    cls->defineProperty("timeout", _SE(XMLHttpRequest_getTimeout), nullptr);
+    cls->defineProperty("timeout", _SE(XMLHttpRequest_getTimeout), _SE(XMLHttpRequest_setTimeout));
     cls->defineProperty("responseType", _SE(XMLHttpRequest_getResponseType), _SE(XMLHttpRequest_setResponseType));
     cls->defineProperty("withCredentials", _SE(XMLHttpRequest_getWithCredentials), nullptr);
 
     cls->install();
+
+    JSBClassType::registerClass<XMLHttpRequest>(cls);
 
     __jsb_XMLHttpRequest_class = cls;
 }

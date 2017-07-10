@@ -54,6 +54,9 @@ public:
     ResponseType getResponseType() const { return _responseType; }
     void setResponseType(ResponseType type) { _responseType = type; }
 
+    void setTimeout(unsigned long timeout) { _timeout = timeout;}
+    unsigned long getTimeout() const { return _timeout; }
+
 private:
     void gotHeader(std::string& header);
     void onResponse(cocos2d::network::HttpClient* client, cocos2d::network::HttpResponse* response);
@@ -74,7 +77,7 @@ private:
     long _status;
     std::string _statusText;
 
-    unsigned long long _timeout;
+    unsigned long _timeout;
     bool _withCredentialsValue;
     bool _errorFlag;
     bool _isAborted;

@@ -40,7 +40,7 @@ namespace se {
     
     State::State(Object* thisObject, const ValueArray& args)
     : _nativeThisObject(nullptr)
-    , _thisObject(thisObject)
+    , _thisObject(thisObject) //FIXME: need to retain thisObject, and remove addRef in constructor and ctor bindings code.
     , _args(&args)
     {
     }

@@ -522,6 +522,7 @@ WebSocket::WebSocket()
 , _isDestroyed(std::make_shared<std::atomic<bool>>(false))
 , _delegate(nullptr)
 , _closeState(CloseState::NONE)
+, _afterCloseHook(nullptr)
 {
     // reserve data buffer to avoid allocate memory frequently
     _receivedData.reserve(WS_RESERVE_RECEIVE_BUFFER_SIZE);
@@ -702,6 +703,7 @@ void WebSocket::close()
         return;
     }
 
+    std::shared_ptr<AfterCloseHook> hook = _afterCloseHook;
     _closeState = CloseState::SYNC_CLOSING;
     LOGD("close: WebSocket (%p) is closing...\n", this);
     {
@@ -712,7 +714,10 @@ void WebSocket::close()
             // but the callback of performInCocosThread has not been triggered. We need to invoke
             // onClose to release the websocket instance.
             _readyStateMutex.unlock();
+
             _delegate->onClose(this);
+            if (hook)
+                (*hook)();
             return;
         }
 
@@ -729,6 +734,8 @@ void WebSocket::close()
     // Wait 5 milliseconds for onConnectionClosed to exit!
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
     _delegate->onClose(this);
+    if (hook)
+        (*hook)();
 }
 
 void WebSocket::closeAsync()
@@ -1272,7 +1279,10 @@ int WebSocket::onConnectionClosed()
         }
         else
         {
+            std::shared_ptr<AfterCloseHook> hook = _afterCloseHook;
             _delegate->onClose(this);
+            if (hook)
+                (*hook)();
         }
     });
 
