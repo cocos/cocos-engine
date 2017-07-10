@@ -213,12 +213,14 @@ var RichText = cc.Class({
         VerticalAlign: VerticalAlign
     },
 
-    __preload: function () {
+    onEnable: function () {
         this._super();
+        this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+    },
 
-        if (!CC_EDITOR) {
-            this._registerEvents();
-        }
+    onDisable: function () {
+        this._super();
+        this.node.off(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
     },
 
     _createSgNode: function () {
@@ -319,10 +321,6 @@ var RichText = cc.Class({
         var myRect = label.getBoundingBoxToWorld();
 
         return cc.rectContainsPoint(myRect, point);
-    },
-
-    _registerEvents: function () {
-        this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
     },
 
     _resetState: function () {
