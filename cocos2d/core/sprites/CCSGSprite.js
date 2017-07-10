@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 var EventTarget = require("../event/event-target");
+var Misc = require('../utils/misc');
 
 /**
  * <p>_ccsg.Sprite is a 2d image ( http://en.wikipedia.org/wiki/Sprite_(computer_graphics) )  <br/>
@@ -757,7 +758,13 @@ _ccsg.Sprite = _ccsg.Node.extend({
 
 cc.js.addon(_ccsg.Sprite.prototype, EventTarget.prototype);
 
-
-cc.assertID(typeof cc._tmp.PrototypeSprite === 'function', 3200, "SpritesPropertyDefine.js");
-cc._tmp.PrototypeSprite();
-delete cc._tmp.PrototypeSprite;
+var SameNameGetSets = ['opacity', 'color', 'texture', 'quad'];
+var DiffNameGetSets = {
+    opacityModifyRGB: ['isOpacityModifyRGB', 'setOpacityModifyRGB'],
+    flippedX: ['isFlippedX', 'setFlippedX'],
+    flippedY: ['isFlippedY', 'setFlippedY'],
+    offsetX: ['_getOffsetX'],
+    offsetY: ['_getOffsetY'],
+    textureRectRotated: ['isTextureRectRotated'],
+};
+Misc.propertyDefine(_ccsg.Sprite, SameNameGetSets, DiffNameGetSets);

@@ -26,8 +26,6 @@
 
 require('./_CCClass');
 
-cc._tmp = cc._tmp || {};
-
 /**
  * !#en Key map for keyboard event
  * !#zh 键盘事件的按键值

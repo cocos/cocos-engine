@@ -22,9 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-require('./CCSGTMXLayer.js');
-require('./CCTMXLayerCanvasRenderCmd.js');
-require('./CCTMXLayerWebGLRenderCmd.js');
+require('./CCSGTMXLayer');
+require('./CCTMXLayerCanvasRenderCmd');
+require('./CCTMXLayerWebGLRenderCmd');
 /**
  * !#en Render the TMX layer.
  * !#zh 渲染 TMX layer。

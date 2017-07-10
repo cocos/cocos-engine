@@ -24,6 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var Misc = require('../utils/misc');
+
 var ActionManagerExist = !!cc.ActionManager;
 var emptyFunc = function () {};
 
@@ -2191,6 +2193,22 @@ _ccsg.Node.performType = {
 _ccsg.Node._performStacks = [[]];
 _ccsg.Node._performing = 0;
 
-cc.assertID(typeof cc._tmp.PrototypeCCNode === 'function', 3200, "BaseNodesPropertyDefine.js");
-cc._tmp.PrototypeCCNode();
-delete cc._tmp.PrototypeCCNode;
+
+var SameNameGetSets = ['skewX', 'skewY', 'vertexZ', 'rotation', 'rotationX', 'rotationY', 'scale', 'scaleX', 'scaleY',
+                       'children', 'childrenCount', 'parent', 'scheduler', 'shaderProgram', 'opacity', 'color'];
+var DiffNameGetSets = {
+    x: ['getPositionX', 'setPositionX'],
+    y: ['getPositionY', 'setPositionY'],
+    width: ['_getWidth', '_setWidth'],
+    height: ['_getHeight', '_setHeight'],
+    anchorX: ['_getAnchorX', '_setAnchorX'],
+    anchorY: ['_getAnchorY', '_setAnchorY'],
+    zIndex: ['getLocalZOrder', 'setLocalZOrder'],
+    visible: ['isVisible', 'setVisible'],
+    running: ['isRunning'],
+    ignoreAnchor: ['isIgnoreAnchorPointForPosition', 'setIgnoreAnchorPointForPosition'],
+    opacityModifyRGB: ['isOpacityModifyRGB', 'setOpacityModifyRGB'],
+    cascadeOpacity: ['isCascadeOpacityEnabled', 'setCascadeOpacityEnabled'],
+    cascadeColor: ['isCascadeColorEnabled', 'setCascadeColorEnabled'],
+};
+Misc.propertyDefine(_ccsg.Node, SameNameGetSets, DiffNameGetSets);

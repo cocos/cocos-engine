@@ -22,8 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-require('../label/CCHtmlTextParser.js');
-require('../label/CCTextUtils.js');
+require('../label/CCHtmlTextParser');
+require('../label/CCTextUtils');
 
 var HorizontalAlign = cc.TextAlignment;
 var VerticalAlign = cc.VerticalTextAlignment;
