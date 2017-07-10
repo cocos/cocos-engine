@@ -28,22 +28,22 @@ void ConfigParser::readConfig(const string &filepath)
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     // add writable path to search path temporarily for reading config file
-    vector<std::string> searchPathArray = FileUtils::getInstance()->getSearchPaths();
+    vector<std::string> searchPathArray = cocos2d::FileUtils::getInstance()->getSearchPaths();
     searchPathArray.insert(searchPathArray.begin(), FileServer::getShareInstance()->getWritePath());
-    FileUtils::getInstance()->setSearchPaths(searchPathArray);
+    cocos2d::FileUtils::getInstance()->setSearchPaths(searchPathArray);
 #endif
     
     // read config file
     if (fullPathFile.empty())
     {
-        fullPathFile = FileUtils::getInstance()->fullPathForFilename(CONFIG_FILE);
+        fullPathFile = cocos2d::FileUtils::getInstance()->fullPathForFilename(CONFIG_FILE);
     }
-    string fileContent = FileUtils::getInstance()->getStringFromFile(fullPathFile);
+    string fileContent = cocos2d::FileUtils::getInstance()->getStringFromFile(fullPathFile);
   
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     // revert search path
     searchPathArray.erase(searchPathArray.begin());
-    FileUtils::getInstance()->setSearchPaths(searchPathArray);
+    cocos2d::FileUtils::getInstance()->setSearchPaths(searchPathArray);
 #endif
 
     if(fileContent.empty())
@@ -146,7 +146,7 @@ string ConfigParser::getEntryFile()
     return _entryfile;
 }
 
-Size ConfigParser::getInitViewSize()
+cocos2d::Size ConfigParser::getInitViewSize()
 {
     return _initViewSize;
 }

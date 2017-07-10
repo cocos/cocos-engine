@@ -5,8 +5,6 @@
 
 #include "AppLang.h"
 
-USING_NS_CC;
-
 AppLang::AppLang()
     : _hasInit(false)
 {
@@ -19,7 +17,7 @@ void AppLang::readLocalizationFile()
     {
         _hasInit = true;
         
-        auto fileUtils = FileUtils::getInstance();
+        auto fileUtils = cocos2d::FileUtils::getInstance();
         
         if (!fileUtils->isFileExist(_localizationFileName))
         {
@@ -27,7 +25,7 @@ void AppLang::readLocalizationFile()
             return;
         }
         auto fullFilePath = fileUtils->fullPathForFilename(_localizationFileName);
-        std::string fileContent = FileUtils::getInstance()->getStringFromFile(fullFilePath);
+        std::string fileContent = cocos2d::FileUtils::getInstance()->getStringFromFile(fullFilePath);
         if(fileContent.empty())
             return;
         

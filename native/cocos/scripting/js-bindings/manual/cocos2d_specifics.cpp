@@ -81,40 +81,44 @@ JSFunctionWrapper::JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS:
 JSFunctionWrapper::~JSFunctionWrapper()
 {
     ScriptingCore* sc = ScriptingCore::getInstance();
-    JSContext* cx = sc->getGlobalContext();
-    JS::RootedObject ownerObj(cx);
-    _owner->getObj(&ownerObj);
-    JS::RootedValue ownerVal(_cx, JS::ObjectOrNullValue(ownerObj));
     
-    bool ok = true;
-    if (sc->getFinalizing() || !ownerVal.isObject())
+    if (sc->getFinalizing())
     {
-        ok = false;
-    }
-    else if (_cppOwner != nullptr)
-    {
-        js_proxy *t = jsb_get_js_proxy(cx, ownerObj);
-        // JS object already released, no need to do the following release anymore, gc will take care of everything
-        if (t == nullptr || _cppOwner != t->ptr)
+        bool ok = true;
+        JSContext* cx = sc->getGlobalContext();
+        JS::RootedObject ownerObj(cx);
+        _owner->getObj(&ownerObj);
+        JS::RootedValue ownerVal(_cx, JS::ObjectOrNullValue(ownerObj));
+        
+        if (!ownerVal.isObject())
         {
             ok = false;
         }
-    }
-    
-    if (ok)
-    {
-        JS::RootedObject obj(cx);
-        _jsthis->getObj(&obj);
-        JS::RootedValue thisVal(_cx, JS::ObjectOrNullValue(obj));
-        if (!thisVal.isNullOrUndefined())
+        else if (_cppOwner != nullptr)
         {
-            js_remove_object_reference(ownerVal, thisVal);
+            js_proxy *t = jsb_get_js_proxy(cx, ownerObj);
+            // JS object already released, no need to do the following release anymore, gc will take care of everything
+            if (t == nullptr || _cppOwner != t->ptr)
+            {
+                ok = false;
+            }
         }
-        _func->getObj(&obj);
-        JS::RootedValue funcVal(_cx, JS::ObjectOrNullValue(obj));
-        if (!funcVal.isNullOrUndefined())
+        
+        if (ok)
         {
-            js_remove_object_reference(ownerVal, funcVal);
+            JS::RootedObject obj(cx);
+            _jsthis->getObj(&obj);
+            JS::RootedValue thisVal(_cx, JS::ObjectOrNullValue(obj));
+            if (!thisVal.isNullOrUndefined())
+            {
+                js_remove_object_reference(ownerVal, thisVal);
+            }
+            _func->getObj(&obj);
+            JS::RootedValue funcVal(_cx, JS::ObjectOrNullValue(obj));
+            if (!funcVal.isNullOrUndefined())
+            {
+                js_remove_object_reference(ownerVal, funcVal);
+            }
         }
     }
     

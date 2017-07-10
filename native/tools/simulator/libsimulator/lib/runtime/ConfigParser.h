@@ -3,14 +3,12 @@
 
 #include <string>
 #include <vector>
-#include "cocos2d.h"
 #include "json/document.h"
 #include "ProjectConfig/SimulatorConfig.h"
 #include "ProjectConfig/ProjectConfig.h"
 #include "SimulatorExport.h"
 
 using namespace std;
-USING_NS_CC;
 
 #define CONFIG_FILE "config.json"
 

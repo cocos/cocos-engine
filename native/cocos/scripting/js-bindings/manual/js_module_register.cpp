@@ -100,3 +100,9 @@ int js_module_register()
 #endif
     return 1;
 }
+
+bool get_jsb_cocos2d_FileUtils_prototype(JS::MutableHandleObject ret)
+{
+    ret.set(jsb_cocos2d_FileUtils_prototype->get());
+    return true;
+}

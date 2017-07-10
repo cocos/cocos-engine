@@ -38,8 +38,6 @@ THE SOFTWARE.
 #define bzero(a, b) memset(a, 0, b);
 #endif
 
-USING_NS_CC;
-
 //1M size
 #define MAXPROTOLENGTH 1048576
 
@@ -76,7 +74,7 @@ void FileServer::readResFileFinfo()
     }
     
     //save file info to disk every five second
-    Director::getInstance()->getScheduler()->schedule([&](float){
+    cocos2d::Director::getInstance()->getScheduler()->schedule([&](float){
         rapidjson::StringBuffer buffer;
         rapidjson::Writer< rapidjson::StringBuffer > writer(buffer);
         _filecfgjson.Accept(writer);
@@ -259,7 +257,7 @@ _responseEndThread(false)
     _isUsingWritePath = true;
 #endif
     
-    _writePath = FileUtils::getInstance()->getWritablePath();
+    _writePath = cocos2d::FileUtils::getInstance()->getWritablePath();
     
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
 #include "Widget_mac.h"
