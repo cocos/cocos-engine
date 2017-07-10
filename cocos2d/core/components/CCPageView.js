@@ -194,6 +194,17 @@ var PageView = cc.Class({
         },
 
         /**
+         * !#en The time required to turn over a page. unit: second
+         * !#zh 每个页面翻页时所需时间。单位：秒
+         * @property {Number} pageTurningSpeed
+         */
+        pageTurningSpeed: {
+            default: 0.3,
+            type: cc.Float,
+            tooltip: CC_DEV && 'i18n:COMPONENT.pageview.pageTurningSpeed'
+        },
+
+        /**
          * !#en PageView events callback
          * !#zh 滚动视图的事件回调函数
          * @property {Component.EventHandler[]} pageEvents
@@ -558,20 +569,21 @@ var PageView = cc.Class({
         }
         else {
             var index = this._curPageIdx, nextIndex = index + this._getDragDirection(moveOffset);
+            var timeInSecond = this.pageTurningSpeed * Math.abs(index - nextIndex);
             if (nextIndex < this._pages.length) {
                 if (this._isScrollable(moveOffset, index, nextIndex)) {
-                    this.scrollToPage(nextIndex);
+                    this.scrollToPage(nextIndex, timeInSecond);
                     return;
                 }
                 else {
                     var touchMoveVelocity = this._calculateTouchMoveVelocity();
                     if (this._isQuicklyScrollable(touchMoveVelocity)) {
-                        this.scrollToPage(nextIndex);
+                        this.scrollToPage(nextIndex, timeInSecond);
                         return;
                     }
                 }
             }
-            this.scrollToPage(index);
+            this.scrollToPage(index, timeInSecond);
         }
     },
 
