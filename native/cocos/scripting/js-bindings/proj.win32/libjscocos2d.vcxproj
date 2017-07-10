@@ -18,6 +18,7 @@
     <ClCompile Include="..\auto\jsb_cocos2dx_extension_auto.cpp" />
     <ClCompile Include="..\auto\jsb_cocos2dx_network_auto.cpp" />
     <ClCompile Include="..\auto\jsb_cocos2dx_spine_auto.cpp" />
+    <ClCompile Include="..\auto\jsb_cocos2dx_ui_auto.cpp" />
     <ClCompile Include="..\auto\jsb_creator_auto.cpp" />
     <ClCompile Include="..\manual\box2d\js_bindings_box2d_manual.cpp" />
     <ClCompile Include="..\manual\cocos2d_specifics.cpp" />

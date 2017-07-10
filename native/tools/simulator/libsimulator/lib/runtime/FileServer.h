@@ -55,6 +55,7 @@ THE SOFTWARE.
 
 #include <thread>
 #include <list>
+#include <mutex>
 
 class CC_LIBSIM_DLL FileServer
 {
