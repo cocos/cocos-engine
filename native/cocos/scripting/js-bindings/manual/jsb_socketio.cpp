@@ -321,5 +321,7 @@ bool register_all_socketio(se::Object* obj)
     ctorVal.toObject()->defineFunction("close", _SE(SocketIO_close));
 
     __jsb_SocketIO_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
     return true;
 }

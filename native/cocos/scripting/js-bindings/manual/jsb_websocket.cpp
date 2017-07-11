@@ -452,5 +452,7 @@ bool register_all_websocket(se::Object* obj)
 
     __jsb_WebSocket_class = cls;
 
+    se::ScriptEngine::getInstance()->clearException();
+
     return true;
 }

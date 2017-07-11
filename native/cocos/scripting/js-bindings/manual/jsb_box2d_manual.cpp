@@ -1079,5 +1079,7 @@ bool register_all_box2d_manual(se::Object* obj)
     __jsb_b2ChainShape_proto->defineFunction("CreateLoop", _SE(js_box2dclasses_b2ChainShape_CreateLoop));
     __jsb_b2ChainShape_proto->defineFunction("CreateChain", _SE(js_box2dclasses_b2ChainShape_CreateChain));
 
+    se::ScriptEngine::getInstance()->clearException();
+
     return true;
 }

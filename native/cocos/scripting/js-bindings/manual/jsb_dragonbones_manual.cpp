@@ -412,5 +412,7 @@ bool register_all_dragonbones_manual(se::Object* obj)
     __jsb_dragonBones_Slot_proto->defineFunction("getMeshDisplay", _SE(js_cocos2dx_dragonbones_Slot_getMeshDisplay));
     __jsb_dragonBones_Slot_proto->defineFunction("setDisplay", _SE(js_cocos2dx_dragonbones_Slot_setDisplay));
 
+    se::ScriptEngine::getInstance()->clearException();
+
     return true;
 }

@@ -618,6 +618,13 @@ static bool getOrCreatePlainObject_r(const char* name, se::Object* parent, se::O
     return true;
 }
 
+static bool js_performance_now(se::State& s)
+{
+    //FIXME:
+    return true;
+}
+SE_BIND_FUNC(js_performance_now)
+
 bool jsb_register_global_variables()
 {
     auto global = se::ScriptEngine::getInstance()->getGlobalObject();
@@ -641,6 +648,13 @@ bool jsb_register_global_variables()
     global->defineFunction("__cleanScript", _SE(JSB_cleanScript));
     global->defineFunction("__isObjectValid", _SE(JSB_isObjectValid));
     global->defineFunction("close", _SE(JSB_closeWindow));
+
+    se::Object* performanceObj = se::Object::createPlainObject(false);
+    performanceObj->defineFunction("now", _SE(js_performance_now));
+    global->setProperty("performance", se::Value(performanceObj));
+    performanceObj->release();
+
+    se::ScriptEngine::getInstance()->clearException();
 
     return true;
 }

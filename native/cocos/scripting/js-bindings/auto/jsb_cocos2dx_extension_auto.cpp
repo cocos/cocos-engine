@@ -26,7 +26,7 @@ SE_BIND_FUNC(js_cocos2dx_extension_EventAssetsManagerEx_getAssetsManagerEx)
 static bool js_cocos2dx_extension_EventAssetsManagerEx_getDownloadedFiles(se::State& s)
 {
     cocos2d::extension::EventAssetsManagerEx* cobj = (cocos2d::extension::EventAssetsManagerEx*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_extension_EventAssetsManagerEx_getDownloadedFiles : Invalid Native Object");
+    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_extension_EventAssetsManagerEx_getD_creatownloadedFiles : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -301,7 +301,6 @@ bool js_register_cocos2dx_extension_EventAssetsManagerEx(se::Object* obj)
 
     __jsb_cocos2d_extension_EventAssetsManagerEx_proto = cls->getProto();
     __jsb_cocos2d_extension_EventAssetsManagerEx_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -616,7 +615,6 @@ bool js_register_cocos2dx_extension_Manifest(se::Object* obj)
 
     __jsb_cocos2d_extension_Manifest_proto = cls->getProto();
     __jsb_cocos2d_extension_Manifest_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -1199,13 +1197,116 @@ bool js_register_cocos2dx_extension_AssetsManagerEx(se::Object* obj)
     __jsb_cocos2d_extension_AssetsManagerEx_proto = cls->getProto();
     __jsb_cocos2d_extension_AssetsManagerEx_class = cls;
 
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
 se::Object* __jsb_cocos2d_extension_EventListenerAssetsManagerEx_proto = nullptr;
 se::Class* __jsb_cocos2d_extension_EventListenerAssetsManagerEx_class = nullptr;
+
+static bool js_cocos2dx_extension_EventListenerAssetsManagerEx_init(se::State& s)
+{
+    cocos2d::extension::EventListenerAssetsManagerEx* cobj = (cocos2d::extension::EventListenerAssetsManagerEx*)s.nativeThisObject();
+    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_extension_EventListenerAssetsManagerEx_init : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        const cocos2d::extension::AssetsManagerEx* arg0 = nullptr;
+        std::function<void (cocos2d::extension::EventAssetsManagerEx *)> arg1;
+        ok &= seval_to_native_ptr(args[0], &arg0);
+        do {
+            if (args[1].isObject() && args[1].toObject()->isFunction())
+            {
+                se::Value jsThis(s.thisObject());
+                se::Value jsFunc(args[1]);
+                jsThis.toObject()->attachChild(jsFunc.toObject());
+                auto lambda = [=](cocos2d::extension::EventAssetsManagerEx* larg0) -> void {
+                    se::ScriptEngine::getInstance()->clearException();
+                    se::AutoHandleScope hs;
+        
+                    CC_UNUSED bool ok = true;
+                    se::ValueArray args;
+                    args.resize(1);
+                    ok &= native_ptr_to_seval<cocos2d::extension::EventAssetsManagerEx>((cocos2d::extension::EventAssetsManagerEx*)larg0, &args[0]);
+                    se::Value rval;
+                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
+                    se::Object* funcObj = jsFunc.toObject();
+                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    if (!succeed) {
+                        se::ScriptEngine::getInstance()->clearException();
+                    }
+                };
+                arg1 = lambda;
+            }
+            else
+            {
+                arg1 = nullptr;
+            }
+        } while(false)
+        ;
+        JSB_PRECONDITION2(ok, false, "js_cocos2dx_extension_EventListenerAssetsManagerEx_init : Error processing arguments");
+        bool result = cobj->init(arg0, arg1);
+        ok &= boolean_to_seval(result, &s.rval());
+        JSB_PRECONDITION2(ok, false, "js_cocos2dx_extension_EventListenerAssetsManagerEx_init : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_extension_EventListenerAssetsManagerEx_init)
+
+static bool js_cocos2dx_extension_EventListenerAssetsManagerEx_create(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        cocos2d::extension::AssetsManagerEx* arg0 = nullptr;
+        std::function<void (cocos2d::extension::EventAssetsManagerEx *)> arg1;
+        ok &= seval_to_native_ptr(args[0], &arg0);
+        do {
+            if (args[1].isObject() && args[1].toObject()->isFunction())
+            {
+                se::Value jsThis(s.thisObject());
+                se::Value jsFunc(args[1]);
+                jsFunc.toObject()->setKeepRootedUntilDie(true);
+                auto lambda = [=](cocos2d::extension::EventAssetsManagerEx* larg0) -> void {
+                    se::ScriptEngine::getInstance()->clearException();
+                    se::AutoHandleScope hs;
+        
+                    CC_UNUSED bool ok = true;
+                    se::ValueArray args;
+                    args.resize(1);
+                    ok &= native_ptr_to_seval<cocos2d::extension::EventAssetsManagerEx>((cocos2d::extension::EventAssetsManagerEx*)larg0, &args[0]);
+                    se::Value rval;
+                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
+                    se::Object* funcObj = jsFunc.toObject();
+                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    if (!succeed) {
+                        se::ScriptEngine::getInstance()->clearException();
+                    }
+                };
+                arg1 = lambda;
+            }
+            else
+            {
+                arg1 = nullptr;
+            }
+        } while(false)
+        ;
+        JSB_PRECONDITION2(ok, false, "js_cocos2dx_extension_EventListenerAssetsManagerEx_create : Error processing arguments");
+        auto result = cocos2d::extension::EventListenerAssetsManagerEx::create(arg0, arg1);
+        result->retain();
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_extension_EventListenerAssetsManagerEx_class, false);
+        obj->setPrivateData(result);
+        s.rval().setObject(obj);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_extension_EventListenerAssetsManagerEx_create)
 
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_extension_EventListenerAssetsManagerEx_finalize)
 
@@ -1241,13 +1342,14 @@ bool js_register_cocos2dx_extension_EventListenerAssetsManagerEx(se::Object* obj
 {
     auto cls = se::Class::create("EventListenerAssetsManager", obj, __jsb_cocos2d_EventListenerCustom_proto, _SE(js_cocos2dx_extension_EventListenerAssetsManagerEx_constructor));
 
+    cls->defineFunction("init", _SE(js_cocos2dx_extension_EventListenerAssetsManagerEx_init));
+    cls->defineStaticFunction("create", _SE(js_cocos2dx_extension_EventListenerAssetsManagerEx_create));
     cls->defineFinalizedFunction(_SE(js_cocos2d_extension_EventListenerAssetsManagerEx_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::extension::EventListenerAssetsManagerEx>(cls);
 
     __jsb_cocos2d_extension_EventListenerAssetsManagerEx_proto = cls->getProto();
     __jsb_cocos2d_extension_EventListenerAssetsManagerEx_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -1550,7 +1652,6 @@ bool js_register_cocos2dx_extension_Control(se::Object* obj)
 
     __jsb_cocos2d_extension_Control_proto = cls->getProto();
     __jsb_cocos2d_extension_Control_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -2496,7 +2597,6 @@ bool js_register_cocos2dx_extension_ControlButton(se::Object* obj)
     __jsb_cocos2d_extension_ControlButton_class = cls;
 
     se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { cc.ControlButton.extend = cc.Class.extend; })()");
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -2768,7 +2868,6 @@ bool js_register_cocos2dx_extension_ControlHuePicker(se::Object* obj)
     __jsb_cocos2d_extension_ControlHuePicker_proto = cls->getProto();
     __jsb_cocos2d_extension_ControlHuePicker_class = cls;
 
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -2997,7 +3096,6 @@ bool js_register_cocos2dx_extension_ControlSaturationBrightnessPicker(se::Object
 
     __jsb_cocos2d_extension_ControlSaturationBrightnessPicker_proto = cls->getProto();
     __jsb_cocos2d_extension_ControlSaturationBrightnessPicker_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -3239,7 +3337,6 @@ bool js_register_cocos2dx_extension_ControlColourPicker(se::Object* obj)
     __jsb_cocos2d_extension_ControlColourPicker_class = cls;
 
     se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { cc.ControlColourPicker.extend = cc.Class.extend; })()");
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -3698,7 +3795,6 @@ bool js_register_cocos2dx_extension_ControlPotentiometer(se::Object* obj)
     __jsb_cocos2d_extension_ControlPotentiometer_class = cls;
 
     se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { cc.ControlPotentiometer.extend = cc.Class.extend; })()");
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -4269,7 +4365,6 @@ bool js_register_cocos2dx_extension_ControlSlider(se::Object* obj)
     __jsb_cocos2d_extension_ControlSlider_class = cls;
 
     se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { cc.ControlSlider.extend = cc.Class.extend; })()");
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -4746,7 +4841,6 @@ bool js_register_cocos2dx_extension_ControlStepper(se::Object* obj)
     __jsb_cocos2d_extension_ControlStepper_class = cls;
 
     se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { cc.ControlStepper.extend = cc.Class.extend; })()");
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -5018,7 +5112,6 @@ bool js_register_cocos2dx_extension_ControlSwitch(se::Object* obj)
     __jsb_cocos2d_extension_ControlSwitch_class = cls;
 
     se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { cc.ControlSwitch.extend = cc.Class.extend; })()");
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -5767,7 +5860,6 @@ bool js_register_cocos2dx_extension_ScrollView(se::Object* obj)
     __jsb_cocos2d_extension_ScrollView_class = cls;
 
     se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { cc.ScrollView.extend = cc.Class.extend; })()");
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -5902,7 +5994,6 @@ bool js_register_cocos2dx_extension_TableViewCell(se::Object* obj)
     __jsb_cocos2d_extension_TableViewCell_class = cls;
 
     se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { cc.TableViewCell.extend = cc.Class.extend; })()");
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -6199,7 +6290,6 @@ bool js_register_cocos2dx_extension_TableView(se::Object* obj)
     __jsb_cocos2d_extension_TableView_class = cls;
 
     se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { cc.TableView.extend = cc.Class.extend; })()");
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }

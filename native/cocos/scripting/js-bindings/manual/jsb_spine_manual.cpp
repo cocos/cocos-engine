@@ -277,13 +277,12 @@ static bool js_register_spine_TrackEntry(se::Object* obj)
     __jsb_spine_TrackEntry_class = cls;
     __jsb_spine_TrackEntry_proto = cls->getProto();
 
-    
+    se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
 bool register_all_spine_manual(se::Object* obj)
 {
     js_register_spine_TrackEntry(obj);
-
     return true;
 }

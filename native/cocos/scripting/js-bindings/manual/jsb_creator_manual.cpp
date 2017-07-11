@@ -260,6 +260,8 @@ bool register_all_creator_manual(se::Object* obj)
     __jsb_creator_PhysicsRayCastCallback_proto->defineFunction("getPoints", _SE(js_creator_PhysicsRayCastCallback_getPoints));
     __jsb_creator_PhysicsRayCastCallback_proto->defineFunction("getNormals", _SE(js_creator_PhysicsRayCastCallback_getNormals));
 
+    se::ScriptEngine::getInstance()->clearException();
+
     return true;
 }
 

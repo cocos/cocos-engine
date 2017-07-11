@@ -24,6 +24,18 @@ static bool jsb_cocos2d_extension_empty_func(se::State& s)
 }
 SE_BIND_FUNC(jsb_cocos2d_extension_empty_func)
 
+static bool js_cocos2dx_extension_EventListenerAssetsManagerEx_create(se::State& s)
+{
+    return true;
+}
+SE_BIND_FUNC(js_cocos2dx_extension_EventListenerAssetsManagerEx_create)
+
+static bool js_cocos2dx_extension_EventListenerAssetsManagerEx_init(se::State& s)
+{
+    return true;
+}
+SE_BIND_FUNC(js_cocos2dx_extension_EventListenerAssetsManagerEx_init)
+
 static bool js_cocos2dx_extension_loadRemoteImage(se::State& s)
 {
     const auto& args = s.args();
@@ -139,6 +151,11 @@ bool register_all_cocos2dx_extension_manual(se::Object* obj)
         e->defineFunction("retain", _SE(jsb_cocos2d_extension_empty_func));
         e->defineFunction("release", _SE(jsb_cocos2d_extension_empty_func));
     }
+
+    se::Value tmp;
+    __ccObj->getProperty("EventListenerAssetsManager", &tmp);
+    tmp.toObject()->defineFunction("create", _SE(js_cocos2dx_extension_EventListenerAssetsManagerEx_create));
+    __jsb_cocos2d_extension_AssetsManagerEx_proto->defineFunction("init", _SE(js_cocos2dx_extension_EventListenerAssetsManagerEx_init));
 
     __jsbObj->defineFunction("loadRemoteImg", _SE(js_cocos2dx_extension_loadRemoteImage));
 

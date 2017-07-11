@@ -1404,6 +1404,7 @@ bool jsb_register_Node_manual()
 #endif
 
     se::ScriptEngine::getInstance()->_setNodeEventListener(onReceiveNodeEvent);
+    se::ScriptEngine::getInstance()->clearException();
 
     return true;
 }

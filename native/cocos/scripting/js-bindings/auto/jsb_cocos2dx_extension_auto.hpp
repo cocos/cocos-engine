@@ -74,6 +74,8 @@ extern se::Class* __jsb_cocos2d_extension_EventListenerAssetsManagerEx_class;
 
 bool js_register_cocos2d_extension_EventListenerAssetsManagerEx(se::Object* obj);
 bool register_all_cocos2dx_extension(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_extension_EventListenerAssetsManagerEx_init);
+SE_DECLARE_FUNC(js_cocos2dx_extension_EventListenerAssetsManagerEx_create);
 SE_DECLARE_FUNC(js_cocos2dx_extension_EventListenerAssetsManagerEx_EventListenerAssetsManagerEx);
 
 extern se::Object* __jsb_cocos2d_extension_Control_proto;

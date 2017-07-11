@@ -741,4 +741,6 @@ void jsb_register_XMLHttpRequest()
     JSBClassType::registerClass<XMLHttpRequest>(cls);
 
     __jsb_XMLHttpRequest_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
 }

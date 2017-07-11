@@ -552,6 +552,8 @@ bool register_javascript_java_bridge(se::Object* obj)
     cls->install();
     __jsb_JavaScriptJavaBridge_class = cls;
 
+    se::ScriptEngine::getInstance()->clearException();
+
     return true;
 }
 
