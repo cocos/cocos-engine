@@ -43,12 +43,16 @@ JS::Value JavaScriptObjCBridge::convertReturnValue(JSContext *cx, ReturnValue re
     {
         case TypeInteger:
             ret = JS::Int32Value(retValue.intValue);
+            break;
         case TypeFloat:
             ret = JS::DoubleValue((double)retValue.floatValue);
+            break;
         case TypeBoolean:
             ret = JS::BooleanValue(retValue.boolValue);
+            break;
         case TypeString:
             c_string_to_jsval(cx, retValue.stringValue->c_str(), &ret, retValue.stringValue->size());
+            break;
         default:
             break;
     }

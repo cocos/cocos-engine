@@ -76,7 +76,9 @@ namespace jsb
         }
         ~Object()
         {
+#if COCOS2D_DEBUG > 1
             CCLOG("Release JSBObject %p, with proxy: %p", this, _proxy);
+#endif // COCOS2D_DEBUG
             if (_proxy)
             {
                 jsb_remove_proxy(_proxy);

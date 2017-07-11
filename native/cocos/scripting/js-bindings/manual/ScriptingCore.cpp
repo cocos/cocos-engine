@@ -1914,7 +1914,12 @@ bool jsb_remove_proxy(js_proxy_t* proxy)
 bool jsb_unbind_proxy(js_proxy_t* proxy)
 {
     void* nativeKey = proxy->ptr;
+#if COCOS2D_DEBUG > 1
     CC_ASSERT(nativeKey && "Invalid nativeKey");
+#else
+    if (!nativeKey)
+        return false;
+#endif // COCOS2D_DEBUG
     
     // delete entry in native proxy map
     auto it_nat = _native_js_global_map.find(nativeKey);
