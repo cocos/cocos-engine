@@ -286,12 +286,16 @@ bool JavascriptJavaBridge::convertReturnValue(JSContext *cx, ReturnValue retValu
     {
         case TypeInteger:
             ret.set(JS::Int32Value(retValue.intValue));
+            break;
         case TypeFloat:
             ret.set(JS::DoubleValue((double)retValue.floatValue));
+            break;
         case TypeBoolean:
             ret.set(JS::BooleanValue(retValue.boolValue));
+            break;
         case TypeString:
             c_string_to_jsval(cx, retValue.stringValue->c_str(), ret, retValue.stringValue->size());
+            break;
         default:
             return false;
     }
