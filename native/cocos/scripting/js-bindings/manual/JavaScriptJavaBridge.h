@@ -26,4 +26,4 @@ namespace se {
     class Object;
 }
 
-bool register_javascript_objc_bridge(se::Object* obj);
+bool register_javascript_java_bridge(se::Object* obj);

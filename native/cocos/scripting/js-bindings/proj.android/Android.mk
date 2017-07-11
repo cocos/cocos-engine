@@ -31,14 +31,19 @@ LOCAL_SRC_FILES := \
 					../auto/jsb_cocos2dx_spine_auto.cpp \
 					../auto/jsb_cocos2dx_ui_auto.cpp \
 					../auto/jsb_creator_auto.cpp \
+					../manual/JavaScriptJavaBridge.cpp \
 					../manual/ScriptingCore.cpp \
 					../manual/jsb_classtype.cpp \
 					../manual/jsb_cocos2dx_extension_manual.cpp \
 					../manual/jsb_cocos2dx_manual.cpp \
 					../manual/jsb_conversions.cpp \
+					../manual/jsb_creator_manual.cpp \
+					../manual/jsb_dragonbones_manual.cpp \
 					../manual/jsb_global.cpp \
 					../manual/jsb_node.cpp \
+					../manual/jsb_socketio.cpp \
 					../manual/jsb_spine_manual.cpp \
+					../manual/jsb_websocket.cpp \
 					../manual/jsb_xmlhttprequest.cpp
 
 LOCAL_CFLAGS := -DCOCOS2D_JAVASCRIPT
