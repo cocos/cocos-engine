@@ -163,12 +163,12 @@ var proto = Pipeline.prototype;
 proto.insertPipe = function (pipe, index) {
     // Must have handle and id, handle for flow, id for state flag
     if (!pipe.handle || !pipe.id || index > this._pipes.length) {
-        cc.warn('Invalid pipe or invalid index provided!');
+        cc.warnID(8302);
         return;
     }
 
     if (this._pipes.indexOf(pipe) > 0) {
-        cc.warn('The pipe to be inserted is already in the pipeline!');
+        cc.warnID(8303);
         return;
     }
 
@@ -227,6 +227,9 @@ proto.appendPipe = function (pipe) {
 
     pipe.pipeline = this;
     pipe.next = null;
+    if (this._pipes.length > 0) {
+        this._pipes[this._pipes.length - 1].next = pipe;
+    }
     this._pipes.push(pipe);
 };
 

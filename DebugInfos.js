@@ -15,7 +15,7 @@ if (CC_DEBUG) {
         "1011": "cc.ActionInterval.setAmplitudeRate(): it should be overridden in subclass.", //ActionInterval.setAmplitudeRate
         "1012": "cc.ActionInterval.getAmplitudeRate(): it should be overridden in subclass.", //ActionInterval.getAmplitudeRate
         "1013": "The speed parameter error", //ActionInterval.speed
-        "1014": "The repeat parameter error", //ActionInterval.repeat        
+        "1014": "The repeat parameter error", //ActionInterval.repeat
         "1015": "parameters should not be ending with null in Javascript", //ActionInterval.seqeunce
         "1016": "cc.RotateTo.reverse(): it should be overridden in subclass.", //RotateTo.reverse
         "1017": "cc.GridAction.getGrid(): it should be overridden in subclass.", //ActionGrid.getGrid
@@ -88,7 +88,7 @@ if (CC_DEBUG) {
         "1622": "_ccsg.Node._requestDirtyFlag: failed to satisfy the request, key (%s) for flag have already been taken", //_requestDirtyFlag
         "1623": "Set '%s' to normal node (not persist root node).", //_onHierarchyChanged
         "1624": "Replacing with the same sgNode", //_replaceSgNode
-        "1625": "The replacement sgNode should not contain any child.", //_replaceSgNode_2       
+        "1625": "The replacement sgNode should not contain any child.", //_replaceSgNode_2
         "1626": "Should not set alpha via 'color', set 'opacity' please.", //color
         "1627": "Not support for asynchronous creating node in SG", //ctor
         "1628": "Renderer error: Size of the cc._RendererInSG._sgNode must be zero", //__preload
@@ -291,16 +291,16 @@ if (CC_DEBUG) {
         "3633": "Properties function of '%s' should return an object!", //init
         "3634": "Disallow to use '.' in property name", //appendProp
         "3635": "Default array must be empty, set default value of %s.%s to [], and initialize in 'onLoad' or 'ctor' please. (just like 'this.%s = [...];')", //defineProp
-        "3636": "Do not set default value to non-empty object, unless the object defines its own 'clone' function. Set default value of %s.%s to null or {}, and initialize in 'onLoad' or 'ctor' please. (just like 'this.%s = {foo: bar};')", //defineProp_2        
-        "3637": "Can not declare %s.%s, it is already defined in the prototype of %s", //defineProp_3        
+        "3636": "Do not set default value to non-empty object, unless the object defines its own 'clone' function. Set default value of %s.%s to null or {}, and initialize in 'onLoad' or 'ctor' please. (just like 'this.%s = {foo: bar};')", //defineProp_2
+        "3637": "Can not declare %s.%s, it is already defined in the prototype of %s", //defineProp_3
         "3638": "'%s': the getter of '%s' is already defined!", //defineGetSet_2
         "3640": "'%s': the setter of '%s' is already defined!", //defineGetSet_4
         "3641": "Can not construct %s because it contains object property.", //getNewValueTypeCode
         "3642": "Cannot define %s.%s because static member name can not be '%s'.", //CCClass_4
-        "3643": "Can not define a member called 'constructor' in the class '%s', please use 'ctor' instead.", //CCClass_5        
+        "3643": "Can not define a member called 'constructor' in the class '%s', please use 'ctor' instead.", //CCClass_5
         "3644": "Please define 'type' parameter of %s.%s as the actual constructor.", //parseAttributes
         "3645": "Please define 'type' parameter of %s.%s as the constructor of %s.", //parseAttributes_2
-        "3646": "Unknown 'type' parameter of %s.%s：%s", //parseAttributes_3                
+        "3646": "Unknown 'type' parameter of %s.%s：%s", //parseAttributes_3
         "3647": "The length of range array must be equal or greater than 2", //parseAttributes_4
         "3648": "Can not declare %s.%s method, it is already defined in the properties of %s.",
         "3649": "CCClass %s have conflict between its ctor and __ctor__.",
@@ -325,7 +325,7 @@ if (CC_DEBUG) {
         "3812": "_addComponentAt: Index out of range", //_addComponentAt_2
         "3813": "removeComponent: Component must be non-nil", //removeComponent
         "3814": "Argument must be non-nil", //_removeComponent
-        "3815": "Component not owned by this entity", //_removeComponent_2        
+        "3815": "Component not owned by this entity", //_removeComponent_2
         "3816": "Node '%s' is already activating or deactivating.",
         "3817": "Sorry, the component of '%s' which with an index of %s is corrupted! It has been removed.",
         "3818": "Failed to read or parse project.json", //_loadConfig
@@ -413,7 +413,7 @@ if (CC_DEBUG) {
         "5403": "cc.js.mixin: arguments must be type object: ", //mixin
         "5404": "The base class to extend from must be non-nil", //extend
         "5405": "The class to extend must be non-nil", //extend
-        "5406": "Class should be extended before assigning any prototype members.", //extend                
+        "5406": "Class should be extended before assigning any prototype members.", //extend
         //PreprocessAttrs: 5500
         "5500": "'notify' can\'t work with 'get/set' !", //parseNotify
         "5501": "'notify' must work with 'default' !", //parseNotify_2
@@ -426,18 +426,18 @@ if (CC_DEBUG) {
         "5508": "Invalid type of %s.%s", //parseType_2
         "5509": "The 'type' attribute of '%s.%s' must be child class of cc.Asset, otherwise you should use 'url: %s' instead", //parseType_3
         "5510": "The 'type' attribute of '%s.%s' can not be 'Number', use 'Float' or 'Integer' instead please.", //parseType_4
-        "5511": "The 'type' attribute of '%s.%s' is undefined when loading script", //parseType_5                              
+        "5511": "The 'type' attribute of '%s.%s' is undefined when loading script", //parseType_5
         "5512": "Can not serialize '%s.%s' because the specified type is anonymous, please provide a class name or set the 'serializable' attribute of '%s.%s' to 'false'.", //postCheckType
         "5513": "The 'default' value of '%s.%s' should not be used with a 'get' function.", //default
         "5514": "The 'default' value of '%s.%s' should not be used with a 'set' function.", //default_2
         "5515": "The 'default' value of '%s.%s' can not be an constructor. Set default to null please.", //default_3
         "5516": "Property '%s.%s' must define at least one of 'default', 'get' or 'set'.", //default_4
-        "5517": "'%s.%s' hides inherited property '%s.%s'. To make the current property override that implementation, add the `override: true` attribute please.", //default_5                              
+        "5517": "'%s.%s' hides inherited property '%s.%s'. To make the current property override that implementation, add the `override: true` attribute please.", //default_5
         //Find: 5600
         "5600": "Argument must be non-nil", //find
         "5601": "Can not get current scene.", //find_2
         "5602": "Scene is destroyed", //find_3
-        "5603": "reference node is destroyed", //find_4                      
+        "5603": "reference node is destroyed", //find_4
         //Misc: 5700
         "5700": "no %s or %s on %s", //misc
         //ValueType: 5800
@@ -500,7 +500,7 @@ if (CC_DEBUG) {
         //Url: 7000
         "7000": "Failed to init asset\'s raw path.", //raw
         "7001": "Should not load '%s' from script dynamically, unless it is placed in the 'resources' folder.", //raw
-        "7002": "Sorry can not load '%s' because it is not placed in the 'resources' folder.", //raw                 
+        "7002": "Sorry can not load '%s' because it is not placed in the 'resources' folder.", //raw
         "7003": "Failed to init builtin asset\'s raw path.", //builtinRaw
         //Enum: 7100
         "7100": "%s already defined in Enum.", //Enum
@@ -528,7 +528,7 @@ if (CC_DEBUG) {
         "7219": "cc.TMXMapInfo.parseXMLFile(): Only base64 and/or gzip/zlib maps are supported", //_parseLayer
         //Wrapper: 7300
         "7300": "The new selected must be number", //CheckBox.selected
-        "7301": "The new bake must be boolean", //layer        
+        "7301": "The new bake must be boolean", //layer
         //ArmatureDisplay: 7400
         "7400": "Failed to set _defaultArmatureIndex for '%s' because its dragonAsset is invalid.", //_defaultArmatureIndex
         "7401": "Failed to set _defaultArmatureIndex for '%s' because the index is out of range.", //_defaultArmatureIndex
@@ -537,7 +537,7 @@ if (CC_DEBUG) {
         "7500": "Failed to set _defaultSkinIndex for '%s' because its skeletonData is invalid.", //_defaultSkinIndex
         "7501": "Failed to set _defaultSkinIndex for '%s' because the index is out of range.", //_defaultSkinIndex
         "7502": "Failed to set _animationIndex for '%s' because its skeletonData is invalid.", //_animationIndex
-        "7503": "Failed to set _animationIndex for '%s' because the index is out of range.", //_animationIndex        
+        "7503": "Failed to set _animationIndex for '%s' because the index is out of range.", //_animationIndex
         "7504": "Can not render dynamic created SkeletonData", //_createSgNode
         "7505": "Invalid type of atlasFile, atlas should be registered as raw asset.", //_createSgNode
         "7506": "Failed to load spine atlas '$s'", //TextureLoader.load
@@ -584,13 +584,15 @@ if (CC_DEBUG) {
         //Camera: 8300
         "8300": "Should only one camera exists, please check your project.", //cc.Camera.enabled
         "8301": "Camera does not support Canvas Mode.", //cc.Camera.enabled
+        "8302": "Invalid pipe or invalid index provided!", //pipeline.insertPipe
+        "8303": "The pipe to be inserted is already in the pipeline!", //pipeline.insertPipe
     };
     cc._LogInfos = logs;
 }
 
 // module.exports = false;
 
-// // Only Node.JS has a process variable that is of [[Class]] process 
+// // Only Node.JS has a process variable that is of [[Class]] process
 // try {
 //     module.exports = Object.prototype.toString.call(global.process) === '[object process]';
 //     module.exports = logs;
