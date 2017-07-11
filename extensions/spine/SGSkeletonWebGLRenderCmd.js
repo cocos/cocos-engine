@@ -111,7 +111,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
 
         // if data changed or the vertices will be overflow
         if ((cachedVertices + vertCount) * 6 > f32buffer.length ||
-            textureAtlas !== regionTextureAtlas ||
+            textureAtlas.texture.getRealTexture() !== regionTextureAtlas.texture.getRealTexture() ||
             blendMode !== slot.data.blendMode) {
             // render the cached data
             cc.renderer._batchRendering();
