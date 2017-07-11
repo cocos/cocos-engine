@@ -203,7 +203,8 @@
     "name": "Physics",
     "entries": [
       "./cocos2d/core/physics/index.js"
-    ]
+    ],
+    "dependencies": ["Collider"]
   },
   {
     "name": "StudioComponent",
