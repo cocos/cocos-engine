@@ -394,6 +394,8 @@ if (CC_DEBUG) {
         "4918": "cc.LabelBMFont._parseCommonArguments(): only supports 1 page", //loadFnt
         "4919": "cc.LabelBMFont._parseImageFileName() : file could not be found", //loadFnt
         "4920": "Sorry, you shouldn\'t use id as item identity any more, please use url or uuid instead, the current id is being set as url: (%s)", // load
+        "4921": "Invalid pipe or invalid index provided!", //pipeline.insertPipe
+        "4922": "The pipe to be inserted is already in the pipeline!", //pipeline.insertPipe
         //CCObject: 5000
         "5000": "object already destroyed", //destroy
         "5001": "object not yet destroyed", //realDestroyInEditor
@@ -584,8 +586,6 @@ if (CC_DEBUG) {
         //Camera: 8300
         "8300": "Should only one camera exists, please check your project.", //cc.Camera.enabled
         "8301": "Camera does not support Canvas Mode.", //cc.Camera.enabled
-        "8302": "Invalid pipe or invalid index provided!", //pipeline.insertPipe
-        "8303": "The pipe to be inserted is already in the pipeline!", //pipeline.insertPipe
     };
     cc._LogInfos = logs;
 }

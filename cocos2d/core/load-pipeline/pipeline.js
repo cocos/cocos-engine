@@ -163,12 +163,12 @@ var proto = Pipeline.prototype;
 proto.insertPipe = function (pipe, index) {
     // Must have handle and id, handle for flow, id for state flag
     if (!pipe.handle || !pipe.id || index > this._pipes.length) {
-        cc.warnID(8302);
+        cc.warnID(4921);
         return;
     }
 
     if (this._pipes.indexOf(pipe) > 0) {
-        cc.warnID(8303);
+        cc.warnID(4922);
         return;
     }
 
