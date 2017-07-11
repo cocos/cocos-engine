@@ -415,6 +415,8 @@ ScriptingCore::ScriptingCore()
 , _callFromScript(false)
 , _finalizing(nullptr)
 {
+    bool ok = JS_Init();
+    CCASSERT(ok, "ScriptingCore: failed to initialize JS engine.");
 }
 
 void ScriptingCore::string_report(JS::HandleValue val)
@@ -536,13 +538,7 @@ void ScriptingCore::createGlobalContext() {
     if (_cx) {
         ScriptingCore::removeAllProxys(_cx);
         JS_DestroyContext(_cx);
-        _cx = NULL;
-    }
-
-    // Start the engine. Added in SpiderMonkey v25
-    if (!JS_Init())
-    {
-        return;
+        _cx = nullptr;
     }
     
     _cx = JS_NewContext(JS::DefaultHeapMaxBytes);
@@ -820,6 +816,7 @@ void ScriptingCore::restartVM()
 ScriptingCore::~ScriptingCore()
 {
     cleanup();
+    JS_ShutDown();
 }
 
 void ScriptingCore::cleanup()
@@ -860,7 +857,6 @@ void ScriptingCore::cleanup()
         JS_LeaveCompartment(_cx, _oldCompartment);
         JS_EndRequest(_cx);
         JS_DestroyContext(_cx);
-        JS_ShutDown();
         _cx = nullptr;
     }
     
