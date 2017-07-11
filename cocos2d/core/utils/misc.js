@@ -124,8 +124,8 @@ misc.imagePool.get = function () {
     return this._get() || new Image();
 };
 misc.imagePool._smallImg = "data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=";
-// Avoid problems on windows IE kernels, Edge, Firefox
-if (sys.os === sys.OS_WINDOWS && sys.browser !== sys.BROWSER_TYPE_CHROME) {
+// Avoid problems on windows IE kernels, Edge, Firefox and Linux Firefox
+if ((sys.os === sys.OS_WINDOWS || sys.os === sys.OS_LINUX) && sys.browser !== sys.BROWSER_TYPE_CHROME) {
     misc.imagePool.resize(0);
 }
 

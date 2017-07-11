@@ -205,13 +205,14 @@ proto.on = function (type, callback, target, useCapture) {
 
 /**
  * !#en
- * Removes the callback previously registered with the same type, callback, target and or useCapture.
+ * Removes the listeners previously registered with the same type, callback, target and or useCapture,
+ * if only type is passed as parameter, all listeners registered with that type will be removed.
  * !#zh
- * 删除之前与同类型，回调，目标或 useCapture 注册的回调。
+ * 删除之前用同类型，回调，目标或 useCapture 注册的事件监听器，如果只传递 type，将会删除 type 类型的所有事件监听器。
  *
  * @method off
  * @param {String} type - A string representing the event type being removed.
- * @param {Function} callback - The callback to remove.
+ * @param {Function} [callback] - The callback to remove.
  * @param {Object} [target] - The target to invoke the callback, if it's not given, only callback without target will be removed
  * @param {Boolean} [useCapture=false] - Specifies whether the callback being removed was registered as a capturing callback or not.
  *                              If not specified, useCapture defaults to false. If a callback was registered twice,
@@ -222,8 +223,10 @@ proto.on = function (type, callback, target, useCapture) {
  * var touchEnd = node.on(cc.Node.EventType.TOUCH_END, function (event) {
  *     cc.log("this is callback");
  * }, node);
- * // remove touchEnd eventListener
+ * // remove touch end event listener
  * node.off(cc.Node.EventType.TOUCH_END, touchEnd, node);
+ * // remove all touch end event listeners
+ * node.off(cc.Node.EventType.TOUCH_END);
  */
 proto.off = function (type, callback, target, useCapture) {
     // Accept also patameters like: (type, callback, useCapture)
@@ -233,14 +236,17 @@ proto.off = function (type, callback, target, useCapture) {
     }
     else useCapture = !!useCapture;
     if (!callback) {
-        return;
+        this._capturingListeners && this._capturingListeners.removeAll(type);
+        this._bubblingListeners && this._bubblingListeners.removeAll(type);
     }
-    var listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
-    if (listeners) {
-        listeners.remove(type, callback, target);
+    else {
+        var listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
+        if (listeners) {
+            listeners.remove(type, callback, target);
 
-        if (target && target.__eventTargets) {
-            fastRemove(target.__eventTargets, this);
+            if (target && target.__eventTargets) {
+                fastRemove(target.__eventTargets, this);
+            }
         }
     }
 };
