@@ -12,12 +12,12 @@ using namespace cocos2d::network;
 
 se::Class* __jsb_SocketIO_class = nullptr;
 
-//c++11 map to callbacks
-typedef std::unordered_map<std::string/* eventName */, se::ValueArray/* 0:callbackFunc, 1:target */> JSB_SIOCallbackRegistry;
-
 class JSB_SocketIODelegate : public SocketIO::SIODelegate
 {
 public:
+
+    //c++11 map to callbacks
+    typedef std::unordered_map<std::string/* eventName */, se::ValueArray/* 0:callbackFunc, 1:target */> JSB_SIOCallbackRegistry;
 
     JSB_SocketIODelegate()
     {

@@ -37,6 +37,10 @@
 		1A5F229D1F0E37B20008BF09 /* jsb_creator_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5F229A1F0E37B20008BF09 /* jsb_creator_manual.cpp */; };
 		1A5F229E1F0E37B20008BF09 /* jsb_creator_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A5F229B1F0E37B20008BF09 /* jsb_creator_manual.hpp */; };
 		1A5F229F1F0E37B20008BF09 /* jsb_creator_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A5F229B1F0E37B20008BF09 /* jsb_creator_manual.hpp */; };
+		1A81B41E1F137BFE008C38F8 /* JavaScriptObjCBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A81B41C1F137BFE008C38F8 /* JavaScriptObjCBridge.h */; };
+		1A81B41F1F137BFE008C38F8 /* JavaScriptObjCBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A81B41C1F137BFE008C38F8 /* JavaScriptObjCBridge.h */; };
+		1A81B4201F137BFE008C38F8 /* JavaScriptObjCBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A81B41D1F137BFE008C38F8 /* JavaScriptObjCBridge.mm */; };
+		1A81B4211F137BFE008C38F8 /* JavaScriptObjCBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A81B41D1F137BFE008C38F8 /* JavaScriptObjCBridge.mm */; };
 		1AB5E62B18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AB5E62918D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp */; };
 		1AB5E62C18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AB5E62918D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp */; };
 		1AB5E62D18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1AB5E62A18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp */; };
@@ -249,6 +253,8 @@
 		1A5F22951F0E306C0008BF09 /* jsb_box2d_manual.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_box2d_manual.hpp; sourceTree = "<group>"; };
 		1A5F229A1F0E37B20008BF09 /* jsb_creator_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_creator_manual.cpp; sourceTree = "<group>"; };
 		1A5F229B1F0E37B20008BF09 /* jsb_creator_manual.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_creator_manual.hpp; sourceTree = "<group>"; };
+		1A81B41C1F137BFE008C38F8 /* JavaScriptObjCBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JavaScriptObjCBridge.h; sourceTree = "<group>"; };
+		1A81B41D1F137BFE008C38F8 /* JavaScriptObjCBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = JavaScriptObjCBridge.mm; sourceTree = "<group>"; };
 		1AB064771EF9647F0061E1AF /* libbmalloc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbmalloc.a; path = ../../../../../JavaScriptCore/build/lib/libbmalloc.a; sourceTree = "<group>"; };
 		1AB064781EF9647F0061E1AF /* libJavaScriptCore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libJavaScriptCore.a; path = ../../../../../JavaScriptCore/build/lib/libJavaScriptCore.a; sourceTree = "<group>"; };
 		1AB064791EF9647F0061E1AF /* libWTF.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWTF.a; path = ../../../../../JavaScriptCore/build/lib/libWTF.a; sourceTree = "<group>"; };
@@ -465,6 +471,8 @@
 				1AD4AE661F0F920700A823D8 /* jsb_websocket.hpp */,
 				1A159D4E1F13216F00558E38 /* jsb_socketio.cpp */,
 				1A159D4F1F13216F00558E38 /* jsb_socketio.hpp */,
+				1A81B41C1F137BFE008C38F8 /* JavaScriptObjCBridge.h */,
+				1A81B41D1F137BFE008C38F8 /* JavaScriptObjCBridge.mm */,
 			);
 			name = manual;
 			path = ../manual;
@@ -636,6 +644,7 @@
 				1AB5E62D18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp in Headers */,
 				1A5F22981F0E306C0008BF09 /* jsb_box2d_manual.hpp in Headers */,
 				1AFD364C1EF115100097DBB1 /* Base.h in Headers */,
+				1A81B41E1F137BFE008C38F8 /* JavaScriptObjCBridge.h in Headers */,
 				FA6F1BB51D815C2C007DD223 /* jsb_cocos2dx_dragonbones_auto.hpp in Headers */,
 				1AD4AE691F0F920700A823D8 /* jsb_websocket.hpp in Headers */,
 				1AFD37001EF116190097DBB1 /* ScriptingCore.h in Headers */,
@@ -709,6 +718,7 @@
 				1AFD36F51EF116190097DBB1 /* jsb_spine_manual.hpp in Headers */,
 				BAF638DF1B5F5DC900CDB43A /* jsb_cocos2dx_audioengine_auto.hpp in Headers */,
 				1AFD368F1EF115100097DBB1 /* Object.hpp in Headers */,
+				1A81B41F1F137BFE008C38F8 /* JavaScriptObjCBridge.h in Headers */,
 				1A5F22991F0E306C0008BF09 /* jsb_box2d_manual.hpp in Headers */,
 				1AFD363B1EF115100097DBB1 /* HelperMacros.h in Headers */,
 				1AFD364D1EF115100097DBB1 /* Base.h in Headers */,
@@ -807,6 +817,7 @@
 				1AFD36941EF115100097DBB1 /* ScriptEngine.cpp in Sources */,
 				1A159D501F13216F00558E38 /* jsb_socketio.cpp in Sources */,
 				1AFD36801EF115100097DBB1 /* State.cpp in Sources */,
+				1A81B4201F137BFE008C38F8 /* JavaScriptObjCBridge.mm in Sources */,
 				1A119E8F18BDF19200352BAA /* jsb_cocos2dx_extension_auto.cpp in Sources */,
 				1AFD369E1EF115100097DBB1 /* Value.cpp in Sources */,
 				1AB5E62B18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp in Sources */,
@@ -871,6 +882,7 @@
 				1AFD36C71EF116190097DBB1 /* jsb_classtype.cpp in Sources */,
 				1AFD36951EF115100097DBB1 /* ScriptEngine.cpp in Sources */,
 				4BE089E41ADF965E00D65D4B /* jsb_cocos2dx_experimental_webView_auto.cpp in Sources */,
+				1A81B4211F137BFE008C38F8 /* JavaScriptObjCBridge.mm in Sources */,
 				B38AD56E1B1D38700057DD7F /* jsb_cocos2dx_experimental_video_auto.cpp in Sources */,
 				1AFD36D31EF116190097DBB1 /* jsb_conversions.cpp in Sources */,
 				4D6E0D601E0384CF00DA5DB6 /* jsb_box2d_auto.cpp in Sources */,
