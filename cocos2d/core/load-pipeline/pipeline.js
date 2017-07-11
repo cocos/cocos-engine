@@ -162,19 +162,51 @@ var proto = Pipeline.prototype;
  */
 proto.insertPipe = function (pipe, index) {
     // Must have handle and id, handle for flow, id for state flag
-    if (!pipe.handle || !pipe.id) {
+    if (!pipe.handle || !pipe.id || index > this._pipes.length) {
+        cc.warnID(4921);
+        return;
+    }
+
+    if (this._pipes.indexOf(pipe) > 0) {
+        cc.warnID(4922);
         return;
     }
 
     pipe.pipeline = this;
+
+    var nextPipe = null;
     if (index < this._pipes.length) {
-        pipe.next = this._pipes[index];
-        this._pipes.splice(index, 0, pipe);
+        nextPipe = this._pipes[index];
     }
-    else {
-        pipe.next = null;
-        this._pipes.push(pipe);
+
+    var previousPipe = null;
+    if (index > 0) {
+        previousPipe = this._pipes[index-1];
     }
+
+    if (previousPipe) {
+        previousPipe.next = pipe;
+    }
+    pipe.next = nextPipe;
+
+    this._pipes.splice(index, 0, pipe);
+};
+
+/**
+ * !en
+ * Insert a pipe to the end of an existing pipe. The existing pipe must be a valid pipe in the pipeline.
+ * !zh
+ * 在当前 pipeline 的一个已知 pipe 后面插入一个新的 pipe。
+ * @method insertPipeAfter
+ * @param {Object} refPipe An existing pipe in the pipeline.
+ * @param {Object} newPipe The pipe to be inserted.
+ */
+proto.insertPipeAfter = function (refPipe, newPipe)  {
+    var index = this._pipes.indexOf(refPipe);
+    if (index < 0) {
+        return;
+    }
+    this.insertPipe(newPipe, index+1);
 };
 
 /**
@@ -195,6 +227,9 @@ proto.appendPipe = function (pipe) {
 
     pipe.pipeline = this;
     pipe.next = null;
+    if (this._pipes.length > 0) {
+        this._pipes[this._pipes.length - 1].next = pipe;
+    }
     this._pipes.push(pipe);
 };
 
