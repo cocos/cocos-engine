@@ -29,6 +29,7 @@ var Loader = require('../load-pipeline/CCLoader');
 var PackDownloader = require('../load-pipeline/pack-downloader');
 var AutoReleaseUtils = require('../load-pipeline/auto-release-utils');
 var decodeUuid = require('../utils/decode-uuid');
+var MD5Pipe = require('../load-pipeline/md5-pipe');
 
 /**
  * The asset library which managing loading/unloading assets in project.
@@ -272,6 +273,11 @@ var AssetLibrary = {
         if (CC_EDITOR && _libraryBase) {
             cc.errorID(6402);
             return;
+        }
+
+        var md5AssetsMap = options.md5AssetsMap;
+        if (md5AssetsMap) {
+            cc.loader.insertPipeAfter(cc.loader.assetLoader, new MD5Pipe(md5AssetsMap));
         }
 
         // 这里将路径转 url，不使用路径的原因是有的 runtime 不能解析 "\" 符号。

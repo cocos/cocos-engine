@@ -923,6 +923,7 @@ proto.setAutoReleaseRecursively = function (assetOrUrlOrUuid, autoRelease) {
     }
 };
 
+
 /**
  * !#en
  * Returns whether the asset is configured as auto released, despite how "Auto Release Assets" property is set on scene asset.<br>
