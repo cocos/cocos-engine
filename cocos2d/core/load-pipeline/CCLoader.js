@@ -32,7 +32,6 @@ var Loader = require('./loader');
 var AssetTable = require('./asset-table');
 var callInNextTick = require('../platform/utils').callInNextTick;
 var AutoReleaseUtils = require('./auto-release-utils');
-var MD5Pipe = require('./md5-pipe');
 
 var resources = new AssetTable();
 
@@ -924,11 +923,6 @@ proto.setAutoReleaseRecursively = function (assetOrUrlOrUuid, autoRelease) {
     }
 };
 
-proto.enableMD5Cache = function (md5AssetsMap) {
-    if (md5AssetsMap) {
-        this.insertPipeAfter(this.assetLoader, new MD5Pipe(md5AssetsMap));
-    }
-};
 
 /**
  * !#en
