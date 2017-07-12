@@ -65,6 +65,11 @@ namespace se {
         __isolate = isolate;
     }
 
+    void Object::cleanup()
+    {
+        __nativePtrToObjectMap.clear();
+    }
+
     Object* Object::createPlainObject(bool rooted)
     {
         v8::Local<v8::Object> jsobj = v8::Object::New(__isolate);

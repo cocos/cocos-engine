@@ -151,12 +151,6 @@ bool register_all_cocos2dx_extension_manual(se::Object* obj)
         e->defineFunction("retain", _SE(jsb_cocos2d_extension_empty_func));
         e->defineFunction("release", _SE(jsb_cocos2d_extension_empty_func));
     }
-
-    se::Value tmp;
-    __ccObj->getProperty("EventListenerAssetsManager", &tmp);
-    tmp.toObject()->defineFunction("create", _SE(js_cocos2dx_extension_EventListenerAssetsManagerEx_create));
-    __jsb_cocos2d_extension_AssetsManagerEx_proto->defineFunction("init", _SE(js_cocos2dx_extension_EventListenerAssetsManagerEx_init));
-
     __jsbObj->defineFunction("loadRemoteImg", _SE(js_cocos2dx_extension_loadRemoteImage));
 
     se::ScriptEngine::getInstance()->clearException();

@@ -1,6 +1,7 @@
 #include "Class.hpp"
 #include "Object.hpp"
 #include "Utils.hpp"
+#include "ScriptEngine.hpp"
 
 #ifdef SCRIPT_ENGINE_SM
 
@@ -17,6 +18,8 @@ namespace se {
             assert(false);
             return true;
         }
+
+        std::vector<Class*> __allClasses;
     }
 
     Class::Class()
@@ -28,13 +31,13 @@ namespace se {
     {
         memset(&_jsCls, 0, sizeof(_jsCls));
         memset(&_classOps, 0, sizeof(_classOps));
+
+        __allClasses.push_back(this);
     }
 
     Class::~Class()
     {
-        SAFE_RELEASE(_parent);
-        SAFE_RELEASE(_proto);
-        SAFE_RELEASE(_parentProto);
+
     }
 
     Class* Class::create(const char* className, Object* obj, Object* parentProto, JSNative ctor)
@@ -51,11 +54,12 @@ namespace se {
     bool Class::init(const char* clsName, Object* parent, Object *parentProto, JSNative ctor)
     {
         _name = clsName;
+
         _parent = parent;
         if (_parent != nullptr)
             _parent->addRef();
-        _parentProto = parentProto;
 
+        _parentProto = parentProto;
         if (_parentProto != nullptr)
             _parentProto->addRef();
 
@@ -67,6 +71,13 @@ namespace se {
         }
 
         return true;
+    }
+
+    void Class::destroy()
+    {
+        SAFE_RELEASE(_parent);
+        SAFE_RELEASE(_proto);
+        SAFE_RELEASE(_parentProto);
     }
 
     bool Class::install()
@@ -97,14 +108,8 @@ namespace se {
         _staticFuncs.push_back(JS_FS_END);
         _staticProperties.push_back(JS_PS_END);
 
-        JS::RootedObject jsobj(__cx,
-                               JS_InitClass(__cx, parent, parentProto, &_jsCls,
-                                            _ctor, 0,
-                                            _properties.data(), _funcs.data(),
-                                            _staticProperties.data(), _staticFuncs.data())
-                               );
-
-        if (jsobj)
+        JSObject* jsobj = JS_InitClass(__cx, parent, parentProto, &_jsCls, _ctor, 0, _properties.data(), _funcs.data(), _staticProperties.data(), _staticFuncs.data());
+        if (jsobj != nullptr)
         {
             _proto = Object::_createJSObject(nullptr, jsobj, true);
             return true;
@@ -186,8 +191,19 @@ namespace se {
     }
 
     void Class::cleanup()
-    {// TODO:
+    {
+        for (auto cls : __allClasses)
+        {
+            cls->destroy();
+        }
 
+        se::ScriptEngine::getInstance()->addAfterCleanupHook([](){
+            for (auto cls : __allClasses)
+            {
+                delete cls;
+            }
+            __allClasses.clear();
+        });
     }
 
 } // namespace se {

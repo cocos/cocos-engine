@@ -89,6 +89,7 @@ namespace se {
 
     private:
         static void setContext(JSContext* cx);
+        static void cleanup();
 
         void putToRoot(JSObject* thing, DestroyNotify notify = nullptr, void* data = nullptr);
         void putToHeap(JSObject* thing);
@@ -119,6 +120,7 @@ namespace se {
 
 
     extern std::unordered_map<void* /*native*/, Object* /*jsobj*/> __nativePtrToObjectMap;
+    extern std::unordered_map<Object*, void*> __objectMap; // Currently, the value `void*` is always nullptr
 
 } // namespace se {
 

@@ -241,6 +241,12 @@ SE_BIND_FUNC(js_box2dclasses_b2Draw_GetFlags)
 
 
 
+bool js_b2Draw_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (b2Draw)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_b2Draw_finalize)
 
 bool js_register_box2dclasses_b2Draw(se::Object* obj)
 {
@@ -257,12 +263,12 @@ bool js_register_box2dclasses_b2Draw(se::Object* obj)
     cls->defineFunction("DrawSegment", _SE(js_box2dclasses_b2Draw_DrawSegment));
     cls->defineFunction("DrawSolidCircle", _SE(js_box2dclasses_b2Draw_DrawSolidCircle));
     cls->defineFunction("GetFlags", _SE(js_box2dclasses_b2Draw_GetFlags));
+    cls->defineFinalizedFunction(_SE(js_b2Draw_finalize));
     cls->install();
     JSBClassType::registerClass<b2Draw>(cls);
 
     __jsb_b2Draw_proto = cls->getProto();
     __jsb_b2Draw_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -431,6 +437,12 @@ SE_BIND_FUNC(js_box2dclasses_b2Shape_TestPoint)
 
 
 
+bool js_b2Shape_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (b2Shape)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_b2Shape_finalize)
 
 bool js_register_box2dclasses_b2Shape(se::Object* obj)
 {
@@ -443,12 +455,12 @@ bool js_register_box2dclasses_b2Shape(se::Object* obj)
     cls->defineFunction("ComputeAABB", _SE(js_box2dclasses_b2Shape_ComputeAABB));
     cls->defineFunction("GetChildCount", _SE(js_box2dclasses_b2Shape_GetChildCount));
     cls->defineFunction("TestPoint", _SE(js_box2dclasses_b2Shape_TestPoint));
+    cls->defineFinalizedFunction(_SE(js_b2Shape_finalize));
     cls->install();
     JSBClassType::registerClass<b2Shape>(cls);
 
     __jsb_b2Shape_proto = cls->getProto();
     __jsb_b2Shape_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -726,7 +738,6 @@ bool js_register_box2dclasses_b2CircleShape(se::Object* obj)
     __jsb_b2CircleShape_proto = cls->getProto();
     __jsb_b2CircleShape_class = cls;
 
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -939,7 +950,6 @@ bool js_register_box2dclasses_b2EdgeShape(se::Object* obj)
 
     __jsb_b2EdgeShape_proto = cls->getProto();
     __jsb_b2EdgeShape_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -1210,7 +1220,6 @@ bool js_register_box2dclasses_b2ChainShape(se::Object* obj)
     __jsb_b2ChainShape_proto = cls->getProto();
     __jsb_b2ChainShape_class = cls;
 
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -1461,7 +1470,6 @@ bool js_register_box2dclasses_b2PolygonShape(se::Object* obj)
 
     __jsb_b2PolygonShape_proto = cls->getProto();
     __jsb_b2PolygonShape_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -2470,6 +2478,12 @@ SE_BIND_FUNC(js_box2dclasses_b2Body_GetPosition)
 
 
 
+bool js_b2Body_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (b2Body)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_b2Body_finalize)
 
 bool js_register_box2dclasses_b2Body(se::Object* obj)
 {
@@ -2525,12 +2539,12 @@ bool js_register_box2dclasses_b2Body(se::Object* obj)
     cls->defineFunction("SetFixedRotation", _SE(js_box2dclasses_b2Body_SetFixedRotation));
     cls->defineFunction("ApplyAngularImpulse", _SE(js_box2dclasses_b2Body_ApplyAngularImpulse));
     cls->defineFunction("GetPosition", _SE(js_box2dclasses_b2Body_GetPosition));
+    cls->defineFinalizedFunction(_SE(js_b2Body_finalize));
     cls->install();
     JSBClassType::registerClass<b2Body>(cls);
 
     __jsb_b2Body_proto = cls->getProto();
     __jsb_b2Body_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -2958,6 +2972,12 @@ SE_BIND_FUNC(js_box2dclasses_b2Fixture_GetDensity)
 
 
 
+bool js_b2Fixture_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (b2Fixture)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_b2Fixture_finalize)
 
 bool js_register_box2dclasses_b2Fixture(se::Object* obj)
 {
@@ -2983,12 +3003,12 @@ bool js_register_box2dclasses_b2Fixture(se::Object* obj)
     cls->defineFunction("IsSensor", _SE(js_box2dclasses_b2Fixture_IsSensor));
     cls->defineFunction("GetType", _SE(js_box2dclasses_b2Fixture_GetType));
     cls->defineFunction("GetDensity", _SE(js_box2dclasses_b2Fixture_GetDensity));
+    cls->defineFinalizedFunction(_SE(js_b2Fixture_finalize));
     cls->install();
     JSBClassType::registerClass<b2Fixture>(cls);
 
     __jsb_b2Fixture_proto = cls->getProto();
     __jsb_b2Fixture_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -3081,6 +3101,12 @@ SE_BIND_FUNC(js_box2dclasses_b2ContactListener_PostSolve)
 
 
 
+bool js_b2ContactListener_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (b2ContactListener)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_b2ContactListener_finalize)
 
 bool js_register_box2dclasses_b2ContactListener(se::Object* obj)
 {
@@ -3090,12 +3116,12 @@ bool js_register_box2dclasses_b2ContactListener(se::Object* obj)
     cls->defineFunction("PreSolve", _SE(js_box2dclasses_b2ContactListener_PreSolve));
     cls->defineFunction("BeginContact", _SE(js_box2dclasses_b2ContactListener_BeginContact));
     cls->defineFunction("PostSolve", _SE(js_box2dclasses_b2ContactListener_PostSolve));
+    cls->defineFinalizedFunction(_SE(js_b2ContactListener_finalize));
     cls->install();
     JSBClassType::registerClass<b2ContactListener>(cls);
 
     __jsb_b2ContactListener_proto = cls->getProto();
     __jsb_b2ContactListener_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -3127,18 +3153,24 @@ SE_BIND_FUNC(js_box2dclasses_b2QueryCallback_ReportFixture)
 
 
 
+bool js_b2QueryCallback_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (b2QueryCallback)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_b2QueryCallback_finalize)
 
 bool js_register_box2dclasses_b2QueryCallback(se::Object* obj)
 {
     auto cls = se::Class::create("b2QueryCallback", obj, nullptr, nullptr);
 
     cls->defineFunction("ReportFixture", _SE(js_box2dclasses_b2QueryCallback_ReportFixture));
+    cls->defineFinalizedFunction(_SE(js_b2QueryCallback_finalize));
     cls->install();
     JSBClassType::registerClass<b2QueryCallback>(cls);
 
     __jsb_b2QueryCallback_proto = cls->getProto();
     __jsb_b2QueryCallback_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -3176,18 +3208,24 @@ SE_BIND_FUNC(js_box2dclasses_b2RayCastCallback_ReportFixture)
 
 
 
+bool js_b2RayCastCallback_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (b2RayCastCallback)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_b2RayCastCallback_finalize)
 
 bool js_register_box2dclasses_b2RayCastCallback(se::Object* obj)
 {
     auto cls = se::Class::create("b2RayCastCallback", obj, nullptr, nullptr);
 
     cls->defineFunction("ReportFixture", _SE(js_box2dclasses_b2RayCastCallback_ReportFixture));
+    cls->defineFinalizedFunction(_SE(js_b2RayCastCallback_finalize));
     cls->install();
     JSBClassType::registerClass<b2RayCastCallback>(cls);
 
     __jsb_b2RayCastCallback_proto = cls->getProto();
     __jsb_b2RayCastCallback_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -3994,7 +4032,6 @@ bool js_register_box2dclasses_b2World(se::Object* obj)
     __jsb_b2World_proto = cls->getProto();
     __jsb_b2World_class = cls;
 
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -4402,6 +4439,12 @@ SE_BIND_FUNC(js_box2dclasses_b2Contact_ResetRestitution)
 
 
 
+bool js_b2Contact_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (b2Contact)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_b2Contact_finalize)
 
 bool js_register_box2dclasses_b2Contact(se::Object* obj)
 {
@@ -4426,12 +4469,12 @@ bool js_register_box2dclasses_b2Contact(se::Object* obj)
     cls->defineFunction("GetManifold", _SE(js_box2dclasses_b2Contact_GetManifold));
     cls->defineFunction("Evaluate", _SE(js_box2dclasses_b2Contact_Evaluate));
     cls->defineFunction("ResetRestitution", _SE(js_box2dclasses_b2Contact_ResetRestitution));
+    cls->defineFinalizedFunction(_SE(js_b2Contact_finalize));
     cls->install();
     JSBClassType::registerClass<b2Contact>(cls);
 
     __jsb_b2Contact_proto = cls->getProto();
     __jsb_b2Contact_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -4674,6 +4717,12 @@ SE_BIND_FUNC(js_box2dclasses_b2Joint_IsActive)
 
 
 
+bool js_b2Joint_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (b2Joint)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_b2Joint_finalize)
 
 bool js_register_box2dclasses_b2Joint(se::Object* obj)
 {
@@ -4691,12 +4740,12 @@ bool js_register_box2dclasses_b2Joint(se::Object* obj)
     cls->defineFunction("GetAnchorB", _SE(js_box2dclasses_b2Joint_GetAnchorB));
     cls->defineFunction("GetReactionForce", _SE(js_box2dclasses_b2Joint_GetReactionForce));
     cls->defineFunction("IsActive", _SE(js_box2dclasses_b2Joint_IsActive));
+    cls->defineFinalizedFunction(_SE(js_b2Joint_finalize));
     cls->install();
     JSBClassType::registerClass<b2Joint>(cls);
 
     __jsb_b2Joint_proto = cls->getProto();
     __jsb_b2Joint_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -4948,6 +4997,12 @@ SE_BIND_FUNC(js_box2dclasses_b2DistanceJoint_SetLength)
 
 extern se::Object* __jsb_b2Joint_proto;
 
+bool js_b2DistanceJoint_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (b2DistanceJoint)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_b2DistanceJoint_finalize)
 
 bool js_register_box2dclasses_b2DistanceJoint(se::Object* obj)
 {
@@ -4966,12 +5021,12 @@ bool js_register_box2dclasses_b2DistanceJoint(se::Object* obj)
     cls->defineFunction("GetAnchorB", _SE(js_box2dclasses_b2DistanceJoint_GetAnchorB));
     cls->defineFunction("GetReactionForce", _SE(js_box2dclasses_b2DistanceJoint_GetReactionForce));
     cls->defineFunction("SetLength", _SE(js_box2dclasses_b2DistanceJoint_SetLength));
+    cls->defineFinalizedFunction(_SE(js_b2DistanceJoint_finalize));
     cls->install();
     JSBClassType::registerClass<b2DistanceJoint>(cls);
 
     __jsb_b2DistanceJoint_proto = cls->getProto();
     __jsb_b2DistanceJoint_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -5186,6 +5241,12 @@ SE_BIND_FUNC(js_box2dclasses_b2FrictionJoint_GetMaxTorque)
 
 extern se::Object* __jsb_b2Joint_proto;
 
+bool js_b2FrictionJoint_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (b2FrictionJoint)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_b2FrictionJoint_finalize)
 
 bool js_register_box2dclasses_b2FrictionJoint(se::Object* obj)
 {
@@ -5202,12 +5263,12 @@ bool js_register_box2dclasses_b2FrictionJoint(se::Object* obj)
     cls->defineFunction("GetAnchorB", _SE(js_box2dclasses_b2FrictionJoint_GetAnchorB));
     cls->defineFunction("GetReactionForce", _SE(js_box2dclasses_b2FrictionJoint_GetReactionForce));
     cls->defineFunction("GetMaxTorque", _SE(js_box2dclasses_b2FrictionJoint_GetMaxTorque));
+    cls->defineFinalizedFunction(_SE(js_b2FrictionJoint_finalize));
     cls->install();
     JSBClassType::registerClass<b2FrictionJoint>(cls);
 
     __jsb_b2FrictionJoint_proto = cls->getProto();
     __jsb_b2FrictionJoint_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -5385,6 +5446,12 @@ SE_BIND_FUNC(js_box2dclasses_b2GearJoint_GetRatio)
 
 extern se::Object* __jsb_b2Joint_proto;
 
+bool js_b2GearJoint_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (b2GearJoint)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_b2GearJoint_finalize)
 
 bool js_register_box2dclasses_b2GearJoint(se::Object* obj)
 {
@@ -5399,12 +5466,12 @@ bool js_register_box2dclasses_b2GearJoint(se::Object* obj)
     cls->defineFunction("GetAnchorB", _SE(js_box2dclasses_b2GearJoint_GetAnchorB));
     cls->defineFunction("GetReactionForce", _SE(js_box2dclasses_b2GearJoint_GetReactionForce));
     cls->defineFunction("GetRatio", _SE(js_box2dclasses_b2GearJoint_GetRatio));
+    cls->defineFinalizedFunction(_SE(js_b2GearJoint_finalize));
     cls->install();
     JSBClassType::registerClass<b2GearJoint>(cls);
 
     __jsb_b2GearJoint_proto = cls->getProto();
     __jsb_b2GearJoint_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -5694,6 +5761,12 @@ SE_BIND_FUNC(js_box2dclasses_b2MotorJoint_SetCorrectionFactor)
 
 extern se::Object* __jsb_b2Joint_proto;
 
+bool js_b2MotorJoint_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (b2MotorJoint)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_b2MotorJoint_finalize)
 
 bool js_register_box2dclasses_b2MotorJoint(se::Object* obj)
 {
@@ -5714,12 +5787,12 @@ bool js_register_box2dclasses_b2MotorJoint(se::Object* obj)
     cls->defineFunction("GetLinearOffset", _SE(js_box2dclasses_b2MotorJoint_GetLinearOffset));
     cls->defineFunction("GetMaxTorque", _SE(js_box2dclasses_b2MotorJoint_GetMaxTorque));
     cls->defineFunction("SetCorrectionFactor", _SE(js_box2dclasses_b2MotorJoint_SetCorrectionFactor));
+    cls->defineFinalizedFunction(_SE(js_b2MotorJoint_finalize));
     cls->install();
     JSBClassType::registerClass<b2MotorJoint>(cls);
 
     __jsb_b2MotorJoint_proto = cls->getProto();
     __jsb_b2MotorJoint_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -5991,6 +6064,12 @@ SE_BIND_FUNC(js_box2dclasses_b2MouseJoint_ShiftOrigin)
 
 extern se::Object* __jsb_b2Joint_proto;
 
+bool js_b2MouseJoint_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (b2MouseJoint)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_b2MouseJoint_finalize)
 
 bool js_register_box2dclasses_b2MouseJoint(se::Object* obj)
 {
@@ -6010,12 +6089,12 @@ bool js_register_box2dclasses_b2MouseJoint(se::Object* obj)
     cls->defineFunction("GetAnchorB", _SE(js_box2dclasses_b2MouseJoint_GetAnchorB));
     cls->defineFunction("GetReactionForce", _SE(js_box2dclasses_b2MouseJoint_GetReactionForce));
     cls->defineFunction("ShiftOrigin", _SE(js_box2dclasses_b2MouseJoint_ShiftOrigin));
+    cls->defineFinalizedFunction(_SE(js_b2MouseJoint_finalize));
     cls->install();
     JSBClassType::registerClass<b2MouseJoint>(cls);
 
     __jsb_b2MouseJoint_proto = cls->getProto();
     __jsb_b2MouseJoint_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -6454,6 +6533,12 @@ SE_BIND_FUNC(js_box2dclasses_b2PrismaticJoint_GetAnchorB)
 
 extern se::Object* __jsb_b2Joint_proto;
 
+bool js_b2PrismaticJoint_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (b2PrismaticJoint)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_b2PrismaticJoint_finalize)
 
 bool js_register_box2dclasses_b2PrismaticJoint(se::Object* obj)
 {
@@ -6482,12 +6567,12 @@ bool js_register_box2dclasses_b2PrismaticJoint(se::Object* obj)
     cls->defineFunction("SetLimits", _SE(js_box2dclasses_b2PrismaticJoint_SetLimits));
     cls->defineFunction("GetUpperLimit", _SE(js_box2dclasses_b2PrismaticJoint_GetUpperLimit));
     cls->defineFunction("GetAnchorB", _SE(js_box2dclasses_b2PrismaticJoint_GetAnchorB));
+    cls->defineFinalizedFunction(_SE(js_b2PrismaticJoint_finalize));
     cls->install();
     JSBClassType::registerClass<b2PrismaticJoint>(cls);
 
     __jsb_b2PrismaticJoint_proto = cls->getProto();
     __jsb_b2PrismaticJoint_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -6737,6 +6822,12 @@ SE_BIND_FUNC(js_box2dclasses_b2PulleyJoint_GetRatio)
 
 extern se::Object* __jsb_b2Joint_proto;
 
+bool js_b2PulleyJoint_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (b2PulleyJoint)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_b2PulleyJoint_finalize)
 
 bool js_register_box2dclasses_b2PulleyJoint(se::Object* obj)
 {
@@ -6755,12 +6846,12 @@ bool js_register_box2dclasses_b2PulleyJoint(se::Object* obj)
     cls->defineFunction("GetReactionForce", _SE(js_box2dclasses_b2PulleyJoint_GetReactionForce));
     cls->defineFunction("ShiftOrigin", _SE(js_box2dclasses_b2PulleyJoint_ShiftOrigin));
     cls->defineFunction("GetRatio", _SE(js_box2dclasses_b2PulleyJoint_GetRatio));
+    cls->defineFinalizedFunction(_SE(js_b2PulleyJoint_finalize));
     cls->install();
     JSBClassType::registerClass<b2PulleyJoint>(cls);
 
     __jsb_b2PulleyJoint_proto = cls->getProto();
     __jsb_b2PulleyJoint_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -7181,6 +7272,12 @@ SE_BIND_FUNC(js_box2dclasses_b2RevoluteJoint_GetAnchorB)
 
 extern se::Object* __jsb_b2Joint_proto;
 
+bool js_b2RevoluteJoint_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (b2RevoluteJoint)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_b2RevoluteJoint_finalize)
 
 bool js_register_box2dclasses_b2RevoluteJoint(se::Object* obj)
 {
@@ -7208,12 +7305,12 @@ bool js_register_box2dclasses_b2RevoluteJoint(se::Object* obj)
     cls->defineFunction("GetReactionTorque", _SE(js_box2dclasses_b2RevoluteJoint_GetReactionTorque));
     cls->defineFunction("GetUpperLimit", _SE(js_box2dclasses_b2RevoluteJoint_GetUpperLimit));
     cls->defineFunction("GetAnchorB", _SE(js_box2dclasses_b2RevoluteJoint_GetAnchorB));
+    cls->defineFinalizedFunction(_SE(js_b2RevoluteJoint_finalize));
     cls->install();
     JSBClassType::registerClass<b2RevoluteJoint>(cls);
 
     __jsb_b2RevoluteJoint_proto = cls->getProto();
     __jsb_b2RevoluteJoint_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -7409,6 +7506,12 @@ SE_BIND_FUNC(js_box2dclasses_b2RopeJoint_GetLimitState)
 
 extern se::Object* __jsb_b2Joint_proto;
 
+bool js_b2RopeJoint_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (b2RopeJoint)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_b2RopeJoint_finalize)
 
 bool js_register_box2dclasses_b2RopeJoint(se::Object* obj)
 {
@@ -7424,12 +7527,12 @@ bool js_register_box2dclasses_b2RopeJoint(se::Object* obj)
     cls->defineFunction("GetAnchorB", _SE(js_box2dclasses_b2RopeJoint_GetAnchorB));
     cls->defineFunction("GetReactionForce", _SE(js_box2dclasses_b2RopeJoint_GetReactionForce));
     cls->defineFunction("GetLimitState", _SE(js_box2dclasses_b2RopeJoint_GetLimitState));
+    cls->defineFinalizedFunction(_SE(js_b2RopeJoint_finalize));
     cls->install();
     JSBClassType::registerClass<b2RopeJoint>(cls);
 
     __jsb_b2RopeJoint_proto = cls->getProto();
     __jsb_b2RopeJoint_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -7662,6 +7765,12 @@ SE_BIND_FUNC(js_box2dclasses_b2WeldJoint_GetReferenceAngle)
 
 extern se::Object* __jsb_b2Joint_proto;
 
+bool js_b2WeldJoint_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (b2WeldJoint)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_b2WeldJoint_finalize)
 
 bool js_register_box2dclasses_b2WeldJoint(se::Object* obj)
 {
@@ -7679,12 +7788,12 @@ bool js_register_box2dclasses_b2WeldJoint(se::Object* obj)
     cls->defineFunction("GetAnchorB", _SE(js_box2dclasses_b2WeldJoint_GetAnchorB));
     cls->defineFunction("GetReactionForce", _SE(js_box2dclasses_b2WeldJoint_GetReactionForce));
     cls->defineFunction("GetReferenceAngle", _SE(js_box2dclasses_b2WeldJoint_GetReferenceAngle));
+    cls->defineFinalizedFunction(_SE(js_b2WeldJoint_finalize));
     cls->install();
     JSBClassType::registerClass<b2WeldJoint>(cls);
 
     __jsb_b2WeldJoint_proto = cls->getProto();
     __jsb_b2WeldJoint_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -8085,6 +8194,12 @@ SE_BIND_FUNC(js_box2dclasses_b2WheelJoint_EnableMotor)
 
 extern se::Object* __jsb_b2Joint_proto;
 
+bool js_b2WheelJoint_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (b2WheelJoint)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_b2WheelJoint_finalize)
 
 bool js_register_box2dclasses_b2WheelJoint(se::Object* obj)
 {
@@ -8111,12 +8226,12 @@ bool js_register_box2dclasses_b2WheelJoint(se::Object* obj)
     cls->defineFunction("GetJointSpeed", _SE(js_box2dclasses_b2WheelJoint_GetJointSpeed));
     cls->defineFunction("GetMaxMotorTorque", _SE(js_box2dclasses_b2WheelJoint_GetMaxMotorTorque));
     cls->defineFunction("EnableMotor", _SE(js_box2dclasses_b2WheelJoint_EnableMotor));
+    cls->defineFinalizedFunction(_SE(js_b2WheelJoint_finalize));
     cls->install();
     JSBClassType::registerClass<b2WheelJoint>(cls);
 
     __jsb_b2WheelJoint_proto = cls->getProto();
     __jsb_b2WheelJoint_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;

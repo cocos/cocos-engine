@@ -1344,7 +1344,7 @@ static bool onReceiveNodeEvent(void* node, se::ScriptEngine::NodeEventType type)
     return ret;
 }
 
-bool jsb_register_Node_manual()
+bool jsb_register_Node_manual(se::Object* global)
 {
 #if STANDALONE_TEST
     auto cls = se::Class::create("Node", __ccObj, nullptr, _SE(Node_constructor));

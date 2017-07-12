@@ -26,7 +26,7 @@ SE_BIND_FUNC(js_cocos2dx_extension_EventAssetsManagerEx_getAssetsManagerEx)
 static bool js_cocos2dx_extension_EventAssetsManagerEx_getDownloadedFiles(se::State& s)
 {
     cocos2d::extension::EventAssetsManagerEx* cobj = (cocos2d::extension::EventAssetsManagerEx*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_extension_EventAssetsManagerEx_getD_creatownloadedFiles : Invalid Native Object");
+    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_extension_EventAssetsManagerEx_getDownloadedFiles : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;

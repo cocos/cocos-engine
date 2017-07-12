@@ -305,6 +305,10 @@ static bool register_sys_localStorage(se::Object* obj)
     strFilePath += "/jsb.sqlite";
     localStorageInit(strFilePath);
 
+    se::ScriptEngine::getInstance()->addBeforeCleanupHook([](){
+        localStorageFree();
+    });
+
     se::ScriptEngine::getInstance()->clearException();
 
     return true;

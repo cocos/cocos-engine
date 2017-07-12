@@ -43,6 +43,8 @@
     void funcName##Registry(JSFreeOp* _fop, JSObject* _obj) \
     { \
         void* nativeThisObject = JS_GetPrivate(_obj); \
+        if (nativeThisObject == nullptr) \
+            return; \
         se::State state(nativeThisObject); \
         if (!funcName(state)) \
             return; \

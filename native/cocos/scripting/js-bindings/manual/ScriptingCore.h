@@ -130,6 +130,8 @@ public:
     virtual void setCalledFromScript(bool callFromScript) override { _callFromScript = callFromScript; };
     virtual bool isCalledFromScript() override { return _callFromScript; };
 
+    void restartVM();
+
 private:
     ScriptingCore();
 

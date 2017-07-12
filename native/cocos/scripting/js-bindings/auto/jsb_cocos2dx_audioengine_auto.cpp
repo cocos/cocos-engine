@@ -130,7 +130,6 @@ bool js_register_cocos2dx_audioengine_AudioProfile(se::Object* obj)
     __jsb_cocos2d_experimental_AudioProfile_proto = cls->getProto();
     __jsb_cocos2d_experimental_AudioProfile_class = cls;
 
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -693,6 +692,12 @@ SE_BIND_FUNC(js_cocos2dx_audioengine_AudioEngine_getProfile)
 
 
 
+bool js_cocos2d_experimental_AudioEngine_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::experimental::AudioEngine)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_experimental_AudioEngine_finalize)
 
 bool js_register_cocos2dx_audioengine_AudioEngine(se::Object* obj)
 {
@@ -723,12 +728,12 @@ bool js_register_cocos2dx_audioengine_AudioEngine(se::Object* obj)
     cls->defineStaticFunction("getDefaultProfile", _SE(js_cocos2dx_audioengine_AudioEngine_getDefaultProfile));
     cls->defineStaticFunction("setFinishCallback", _SE(js_cocos2dx_audioengine_AudioEngine_setFinishCallback));
     cls->defineStaticFunction("getProfile", _SE(js_cocos2dx_audioengine_AudioEngine_getProfile));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_experimental_AudioEngine_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::experimental::AudioEngine>(cls);
 
     __jsb_cocos2d_experimental_AudioEngine_proto = cls->getProto();
     __jsb_cocos2d_experimental_AudioEngine_class = cls;
-
 
     se::ScriptEngine::getInstance()->clearException();
     return true;

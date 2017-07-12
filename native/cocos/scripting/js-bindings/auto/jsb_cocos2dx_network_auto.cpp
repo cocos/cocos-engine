@@ -252,7 +252,6 @@ bool js_register_cocos2dx_network_Downloader(se::Object* obj)
     __jsb_cocos2d_network_Downloader_proto = cls->getProto();
     __jsb_cocos2d_network_Downloader_class = cls;
 
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }

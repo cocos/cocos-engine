@@ -5,7 +5,6 @@
 #include "jsb_global.h"
 #include "jsb_conversions.hpp"
 
-
 using namespace cocos2d;
 
 se::Object* __jscObj = nullptr;
@@ -578,7 +577,7 @@ SE_BIND_FUNC(JSB_cleanScript)
 
 static bool JSB_core_restartVM(se::State& s)
 {
-    assert(false);
+    Director::getInstance()->restart();
     return true;
 }
 SE_BIND_FUNC(JSB_core_restartVM)
@@ -620,15 +619,14 @@ static bool getOrCreatePlainObject_r(const char* name, se::Object* parent, se::O
 
 static bool js_performance_now(se::State& s)
 {
+    assert(false);
     //FIXME:
     return true;
 }
 SE_BIND_FUNC(js_performance_now)
 
-bool jsb_register_global_variables()
+bool jsb_register_global_variables(se::Object* global)
 {
-    auto global = se::ScriptEngine::getInstance()->getGlobalObject();
-
     global->defineFunction("require", _SE(require));
 
     getOrCreatePlainObject_r("cc", global, &__ccObj);

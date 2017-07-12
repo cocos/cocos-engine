@@ -1217,6 +1217,8 @@ static bool js_cocos2dx_Touch_constructor(se::State& s)
 SE_BIND_CTOR(js_cocos2dx_Touch_constructor, __jsb_cocos2d_Touch_class, js_cocos2d_Touch_finalize)
 
 
+
+
 bool js_cocos2d_Touch_finalize(se::State& s)
 {
     if (s.nativeThisObject() != nullptr)
@@ -1479,7 +1481,7 @@ bool js_cocos2d_EventTouch_finalize(se::State& s)
 {
     if (s.nativeThisObject() != nullptr)
     {
-//        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EventTouch)", s.nativeThisObject());
+        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EventTouch)", s.nativeThisObject());
         cocos2d::EventTouch* cobj = (cocos2d::EventTouch*)s.nativeThisObject();
         if (cobj->getReferenceCount() == 1)
             cobj->autorelease();
@@ -1644,6 +1646,12 @@ SE_BIND_FUNC(js_cocos2dx_ComponentContainer_get)
 
 
 
+bool js_cocos2d_ComponentContainer_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ComponentContainer)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_ComponentContainer_finalize)
 
 bool js_register_cocos2dx_ComponentContainer(se::Object* obj)
 {
@@ -1655,6 +1663,7 @@ bool js_register_cocos2dx_ComponentContainer(se::Object* obj)
     cls->defineFunction("add", _SE(js_cocos2dx_ComponentContainer_add));
     cls->defineFunction("isEmpty", _SE(js_cocos2dx_ComponentContainer_isEmpty));
     cls->defineFunction("getComponent", _SE(js_cocos2dx_ComponentContainer_get));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_ComponentContainer_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ComponentContainer>(cls);
 
@@ -5587,6 +5596,12 @@ SE_BIND_FUNC(js_cocos2dx_GLView_pollEvents)
 
 
 
+bool js_cocos2d_GLView_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::GLView)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLView_finalize)
 
 bool js_register_cocos2dx_GLView(se::Object* obj)
 {
@@ -5623,6 +5638,7 @@ bool js_register_cocos2dx_GLView(se::Object* obj)
     cls->defineFunction("getVisibleSize", _SE(js_cocos2dx_GLView_getVisibleSize));
     cls->defineFunction("isScissorEnabled", _SE(js_cocos2dx_GLView_isScissorEnabled));
     cls->defineFunction("pollEvents", _SE(js_cocos2dx_GLView_pollEvents));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_GLView_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GLView>(cls);
 
@@ -6816,6 +6832,12 @@ SE_BIND_FUNC(js_cocos2dx_Director_getInstance)
 
 
 
+bool js_cocos2d_Director_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Director)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_Director_finalize)
 
 bool js_register_cocos2dx_Director(se::Object* obj)
 {
@@ -6887,6 +6909,7 @@ bool js_register_cocos2dx_Director(se::Object* obj)
     cls->defineFunction("setAnimationInterval", _SE(js_cocos2dx_Director_setAnimationInterval));
     cls->defineFunction("getActionManager", _SE(js_cocos2dx_Director_getActionManager));
     cls->defineStaticFunction("getInstance", _SE(js_cocos2dx_Director_getInstance));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_Director_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::Director>(cls);
 
@@ -7112,6 +7135,12 @@ SE_BIND_FUNC(js_cocos2dx_AsyncTaskPool_getInstance)
 
 
 
+bool js_cocos2d_AsyncTaskPool_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::AsyncTaskPool)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_AsyncTaskPool_finalize)
 
 bool js_register_cocos2dx_AsyncTaskPool(se::Object* obj)
 {
@@ -7120,6 +7149,7 @@ bool js_register_cocos2dx_AsyncTaskPool(se::Object* obj)
     cls->defineFunction("stopTasks", _SE(js_cocos2dx_AsyncTaskPool_stopTasks));
     cls->defineStaticFunction("destroyInstance", _SE(js_cocos2dx_AsyncTaskPool_destroyInstance));
     cls->defineStaticFunction("getInstance", _SE(js_cocos2dx_AsyncTaskPool_getInstance));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_AsyncTaskPool_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::AsyncTaskPool>(cls);
 
@@ -7580,6 +7610,12 @@ SE_BIND_FUNC(js_cocos2dx_Configuration_getInstance)
 
 
 
+bool js_cocos2d_Configuration_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Configuration)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_Configuration_finalize)
 
 bool js_register_cocos2dx_Configuration(se::Object* obj)
 {
@@ -7609,6 +7645,7 @@ bool js_register_cocos2dx_Configuration(se::Object* obj)
     cls->defineFunction("supportsMapBuffer", _SE(js_cocos2dx_Configuration_supportsMapBuffer));
     cls->defineStaticFunction("destroyInstance", _SE(js_cocos2dx_Configuration_destroyInstance));
     cls->defineStaticFunction("getInstance", _SE(js_cocos2dx_Configuration_getInstance));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_Configuration_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::Configuration>(cls);
 
@@ -8305,6 +8342,12 @@ SE_BIND_FUNC(js_cocos2dx_Properties_parseVec4)
 
 
 
+bool js_cocos2d_Properties_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Properties)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_Properties_finalize)
 
 bool js_register_cocos2dx_Properties(se::Object* obj)
 {
@@ -8338,6 +8381,7 @@ bool js_register_cocos2dx_Properties(se::Object* obj)
     cls->defineStaticFunction("parseVec2", _SE(js_cocos2dx_Properties_parseVec2));
     cls->defineStaticFunction("createNonRefCounted", _SE(js_cocos2dx_Properties_createNonRefCounted));
     cls->defineStaticFunction("parseVec4", _SE(js_cocos2dx_Properties_parseVec4));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_Properties_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::Properties>(cls);
 
@@ -9185,6 +9229,12 @@ SE_BIND_FUNC(js_cocos2dx_FileUtils_getInstance)
 
 
 
+bool js_cocos2d_FileUtils_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::FileUtils)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_FileUtils_finalize)
 
 bool js_register_cocos2dx_FileUtils(se::Object* obj)
 {
@@ -9229,6 +9279,7 @@ bool js_register_cocos2dx_FileUtils(se::Object* obj)
     cls->defineFunction("getWritablePath", _SE(js_cocos2dx_FileUtils_getWritablePath));
     cls->defineStaticFunction("setDelegate", _SE(js_cocos2dx_FileUtils_setDelegate));
     cls->defineStaticFunction("getInstance", _SE(js_cocos2dx_FileUtils_getInstance));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_FileUtils_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::FileUtils>(cls);
 
@@ -9442,6 +9493,12 @@ SE_BIND_FUNC(js_cocos2dx_EventListener_checkAvailable)
 
 
 
+bool js_cocos2d_EventListener_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EventListener)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_EventListener_finalize)
 
 bool js_register_cocos2dx_EventListener(se::Object* obj)
 {
@@ -9451,6 +9508,7 @@ bool js_register_cocos2dx_EventListener(se::Object* obj)
     cls->defineFunction("isEnabled", _SE(js_cocos2dx_EventListener_isEnabled));
     cls->defineFunction("clone", _SE(js_cocos2dx_EventListener_clone));
     cls->defineFunction("checkAvailable", _SE(js_cocos2dx_EventListener_checkAvailable));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_EventListener_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::EventListener>(cls);
 
@@ -10508,7 +10566,7 @@ bool js_cocos2d_EventMouse_finalize(se::State& s)
 {
     if (s.nativeThisObject() != nullptr)
     {
-//        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EventMouse)", s.nativeThisObject());
+        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EventMouse)", s.nativeThisObject());
         cocos2d::EventMouse* cobj = (cocos2d::EventMouse*)s.nativeThisObject();
         if (cobj->getReferenceCount() == 1)
             cobj->autorelease();
@@ -11068,6 +11126,12 @@ SE_BIND_FUNC(js_cocos2dx_Action_reverse)
 
 
 
+bool js_cocos2d_Action_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Action)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_Action_finalize)
 
 bool js_register_cocos2dx_Action(se::Object* obj)
 {
@@ -11088,6 +11152,7 @@ bool js_register_cocos2dx_Action(se::Object* obj)
     cls->defineFunction("setTarget", _SE(js_cocos2dx_Action_setTarget));
     cls->defineFunction("isDone", _SE(js_cocos2dx_Action_isDone));
     cls->defineFunction("reverse", _SE(js_cocos2dx_Action_reverse));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_Action_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::Action>(cls);
 
@@ -11141,6 +11206,12 @@ SE_BIND_FUNC(js_cocos2dx_FiniteTimeAction_getDuration)
 
 extern se::Object* __jsb_cocos2d_Action_proto;
 
+bool js_cocos2d_FiniteTimeAction_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::FiniteTimeAction)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_FiniteTimeAction_finalize)
 
 bool js_register_cocos2dx_FiniteTimeAction(se::Object* obj)
 {
@@ -11148,6 +11219,7 @@ bool js_register_cocos2dx_FiniteTimeAction(se::Object* obj)
 
     cls->defineFunction("setDuration", _SE(js_cocos2dx_FiniteTimeAction_setDuration));
     cls->defineFunction("getDuration", _SE(js_cocos2dx_FiniteTimeAction_getDuration));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_FiniteTimeAction_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::FiniteTimeAction>(cls);
 
@@ -12715,6 +12787,12 @@ SE_BIND_FUNC(js_cocos2dx_GLProgramState_getOrCreateWithShaders)
 
 
 
+bool js_cocos2d_GLProgramState_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::GLProgramState)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLProgramState_finalize)
 
 bool js_register_cocos2dx_GLProgramState(se::Object* obj)
 {
@@ -12749,6 +12827,7 @@ bool js_register_cocos2dx_GLProgramState(se::Object* obj)
     cls->defineStaticFunction("getOrCreateWithGLProgramName", _SE(js_cocos2dx_GLProgramState_getOrCreateWithGLProgramName));
     cls->defineStaticFunction("getOrCreateWithGLProgram", _SE(js_cocos2dx_GLProgramState_getOrCreateWithGLProgram));
     cls->defineStaticFunction("getOrCreateWithShaders", _SE(js_cocos2dx_GLProgramState_getOrCreateWithShaders));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_GLProgramState_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GLProgramState>(cls);
 
@@ -13487,6 +13566,12 @@ SE_BIND_FUNC(js_cocos2dx_ActionInterval_getElapsed)
 
 extern se::Object* __jsb_cocos2d_FiniteTimeAction_proto;
 
+bool js_cocos2d_ActionInterval_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ActionInterval)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_ActionInterval_finalize)
 
 bool js_register_cocos2dx_ActionInterval(se::Object* obj)
 {
@@ -13496,6 +13581,7 @@ bool js_register_cocos2dx_ActionInterval(se::Object* obj)
     cls->defineFunction("initWithDuration", _SE(js_cocos2dx_ActionInterval_initWithDuration));
     cls->defineFunction("setAmplitudeRate", _SE(js_cocos2dx_ActionInterval_setAmplitudeRate));
     cls->defineFunction("getElapsed", _SE(js_cocos2dx_ActionInterval_getElapsed));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_ActionInterval_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ActionInterval>(cls);
 
@@ -16453,11 +16539,18 @@ se::Class* __jsb_cocos2d_CatmullRomTo_class = nullptr;
 
 extern se::Object* __jsb_cocos2d_CardinalSplineTo_proto;
 
+bool js_cocos2d_CatmullRomTo_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::CatmullRomTo)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_CatmullRomTo_finalize)
 
 bool js_register_cocos2dx_CatmullRomTo(se::Object* obj)
 {
     auto cls = se::Class::create("CatmullRomTo", obj, __jsb_cocos2d_CardinalSplineTo_proto, nullptr);
 
+    cls->defineFinalizedFunction(_SE(js_cocos2d_CatmullRomTo_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::CatmullRomTo>(cls);
 
@@ -16474,11 +16567,18 @@ se::Class* __jsb_cocos2d_CatmullRomBy_class = nullptr;
 
 extern se::Object* __jsb_cocos2d_CardinalSplineBy_proto;
 
+bool js_cocos2d_CatmullRomBy_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::CatmullRomBy)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_CatmullRomBy_finalize)
 
 bool js_register_cocos2dx_CatmullRomBy(se::Object* obj)
 {
     auto cls = se::Class::create("CatmullRomBy", obj, __jsb_cocos2d_CardinalSplineBy_proto, nullptr);
 
+    cls->defineFinalizedFunction(_SE(js_cocos2d_CatmullRomBy_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::CatmullRomBy>(cls);
 
@@ -16534,6 +16634,12 @@ SE_BIND_FUNC(js_cocos2dx_ActionEase_getInnerAction)
 
 extern se::Object* __jsb_cocos2d_ActionInterval_proto;
 
+bool js_cocos2d_ActionEase_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ActionEase)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_ActionEase_finalize)
 
 bool js_register_cocos2dx_ActionEase(se::Object* obj)
 {
@@ -16541,6 +16647,7 @@ bool js_register_cocos2dx_ActionEase(se::Object* obj)
 
     cls->defineFunction("initWithAction", _SE(js_cocos2dx_ActionEase_initWithAction));
     cls->defineFunction("getInnerAction", _SE(js_cocos2dx_ActionEase_getInnerAction));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_ActionEase_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ActionEase>(cls);
 
@@ -16640,6 +16747,12 @@ SE_BIND_FUNC(js_cocos2dx_EaseRateAction_create)
 
 extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
+bool js_cocos2d_EaseRateAction_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseRateAction)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_EaseRateAction_finalize)
 
 bool js_register_cocos2dx_EaseRateAction(se::Object* obj)
 {
@@ -16649,6 +16762,7 @@ bool js_register_cocos2dx_EaseRateAction(se::Object* obj)
     cls->defineFunction("initWithAction", _SE(js_cocos2dx_EaseRateAction_initWithAction));
     cls->defineFunction("getRate", _SE(js_cocos2dx_EaseRateAction_getRate));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_EaseRateAction_create));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_EaseRateAction_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::EaseRateAction>(cls);
 
@@ -17478,6 +17592,12 @@ SE_BIND_FUNC(js_cocos2dx_EaseElastic_getPeriod)
 
 extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
+bool js_cocos2d_EaseElastic_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseElastic)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_EaseElastic_finalize)
 
 bool js_register_cocos2dx_EaseElastic(se::Object* obj)
 {
@@ -17486,6 +17606,7 @@ bool js_register_cocos2dx_EaseElastic(se::Object* obj)
     cls->defineFunction("setPeriod", _SE(js_cocos2dx_EaseElastic_setPeriod));
     cls->defineFunction("initWithAction", _SE(js_cocos2dx_EaseElastic_initWithAction));
     cls->defineFunction("getPeriod", _SE(js_cocos2dx_EaseElastic_getPeriod));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_EaseElastic_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::EaseElastic>(cls);
 
@@ -17790,11 +17911,18 @@ se::Class* __jsb_cocos2d_EaseBounce_class = nullptr;
 
 extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
+bool js_cocos2d_EaseBounce_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseBounce)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_EaseBounce_finalize)
 
 bool js_register_cocos2dx_EaseBounce(se::Object* obj)
 {
     auto cls = se::Class::create("EaseBounce", obj, __jsb_cocos2d_ActionEase_proto, nullptr);
 
+    cls->defineFinalizedFunction(_SE(js_cocos2d_EaseBounce_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::EaseBounce>(cls);
 
@@ -19641,11 +19769,18 @@ se::Class* __jsb_cocos2d_ActionInstant_class = nullptr;
 
 extern se::Object* __jsb_cocos2d_FiniteTimeAction_proto;
 
+bool js_cocos2d_ActionInstant_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ActionInstant)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_ActionInstant_finalize)
 
 bool js_register_cocos2dx_ActionInstant(se::Object* obj)
 {
     auto cls = se::Class::create("ActionInstant", obj, __jsb_cocos2d_FiniteTimeAction_proto, nullptr);
 
+    cls->defineFinalizedFunction(_SE(js_cocos2d_ActionInstant_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ActionInstant>(cls);
 
@@ -23575,11 +23710,9 @@ static bool js_cocos2dx_Label_createWithBMFont(se::State& s)
         std::string arg1;
         cocos2d::SpriteFrame* arg2 = nullptr;
         ok &= seval_to_std_string(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_Label_createWithBMFont1 : Error processing arguments");
         ok &= seval_to_std_string(args[1], &arg1);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_Label_createWithBMFont2 : Error processing arguments");
         ok &= seval_to_native_ptr(args[2], &arg2);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_Label_createWithBMFont3 : Error processing arguments");
+        JSB_PRECONDITION2(ok, false, "js_cocos2dx_Label_createWithBMFont : Error processing arguments");
         auto result = cocos2d::Label::createWithBMFont(arg0, arg1, arg2);
         result->retain();
         auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_Label_class, false);
@@ -34029,6 +34162,12 @@ SE_BIND_FUNC(js_cocos2dx_RenderState_finalize)
 
 
 
+bool js_cocos2d_RenderState_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::RenderState)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_RenderState_finalize)
 
 bool js_register_cocos2dx_RenderState(se::Object* obj)
 {
@@ -34042,6 +34181,7 @@ bool js_register_cocos2dx_RenderState(se::Object* obj)
     cls->defineFunction("setParent", _SE(js_cocos2dx_RenderState_setParent));
     cls->defineStaticFunction("initialize", _SE(js_cocos2dx_RenderState_initialize));
     cls->defineStaticFunction("finalize", _SE(js_cocos2dx_RenderState_finalize));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_RenderState_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::RenderState>(cls);
 
@@ -34242,6 +34382,12 @@ SE_BIND_FUNC(js_cocos2dx_Pass_createWithGLProgramState)
 
 extern se::Object* __jsb_cocos2d_RenderState_proto;
 
+bool js_cocos2d_Pass_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Pass)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_Pass_finalize)
 
 bool js_register_cocos2dx_Pass(se::Object* obj)
 {
@@ -34256,6 +34402,7 @@ bool js_register_cocos2dx_Pass(se::Object* obj)
     cls->defineFunction("setVertexAttribBinding", _SE(js_cocos2dx_Pass_setVertexAttribBinding));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_Pass_create));
     cls->defineStaticFunction("createWithGLProgramState", _SE(js_cocos2dx_Pass_createWithGLProgramState));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_Pass_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::Pass>(cls);
 
@@ -34524,6 +34671,12 @@ SE_BIND_FUNC(js_cocos2dx_Material_createWithProperties)
 
 extern se::Object* __jsb_cocos2d_RenderState_proto;
 
+bool js_cocos2d_Material_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Material)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_Material_finalize)
 
 bool js_register_cocos2dx_Material(se::Object* obj)
 {
@@ -34542,6 +34695,7 @@ bool js_register_cocos2dx_Material(se::Object* obj)
     cls->defineStaticFunction("createWithFilename", _SE(js_cocos2dx_Material_createWithFilename));
     cls->defineStaticFunction("createWithGLStateProgram", _SE(js_cocos2dx_Material_createWithGLStateProgram));
     cls->defineStaticFunction("createWithProperties", _SE(js_cocos2dx_Material_createWithProperties));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_Material_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::Material>(cls);
 
@@ -35048,6 +35202,12 @@ SE_BIND_FUNC(js_cocos2dx_Device_getDPI)
 
 
 
+bool js_cocos2d_Device_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Device)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_Device_finalize)
 
 bool js_register_cocos2dx_Device(se::Object* obj)
 {
@@ -35058,6 +35218,7 @@ bool js_register_cocos2dx_Device(se::Object* obj)
     cls->defineStaticFunction("setKeepScreenOn", _SE(js_cocos2dx_Device_setKeepScreenOn));
     cls->defineStaticFunction("vibrate", _SE(js_cocos2dx_Device_vibrate));
     cls->defineStaticFunction("getDPI", _SE(js_cocos2dx_Device_getDPI));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_Device_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::Device>(cls);
 
@@ -35094,12 +35255,19 @@ SE_BIND_FUNC(js_cocos2dx_SAXParser_init)
 
 
 
+bool js_cocos2d_SAXParser_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::SAXParser)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_SAXParser_finalize)
 
 bool js_register_cocos2dx_SAXParser(se::Object* obj)
 {
     auto cls = se::Class::create("PlistParser", obj, nullptr, nullptr);
 
     cls->defineFunction("init", _SE(js_cocos2dx_SAXParser_init));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_SAXParser_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::SAXParser>(cls);
 
@@ -35219,6 +35387,12 @@ SE_BIND_FUNC(js_cocos2dx_Application_getInstance)
 
 
 
+bool js_cocos2d_Application_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Application)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_Application_finalize)
 
 bool js_register_cocos2dx_Application(se::Object* obj)
 {
@@ -35230,6 +35404,7 @@ bool js_register_cocos2dx_Application(se::Object* obj)
     cls->defineFunction("getVersion", _SE(js_cocos2dx_Application_getVersion));
     cls->defineStaticFunction("destroyInstance", _SE(js_cocos2dx_Application_destroyInstance));
     cls->defineStaticFunction("getInstance", _SE(js_cocos2dx_Application_getInstance));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_Application_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::Application>(cls);
 
@@ -36085,6 +36260,12 @@ SE_BIND_FUNC(js_cocos2dx_SpriteFrameCache_getInstance)
 
 
 
+bool js_cocos2d_SpriteFrameCache_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::SpriteFrameCache)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_SpriteFrameCache_finalize)
 
 bool js_register_cocos2dx_SpriteFrameCache(se::Object* obj)
 {
@@ -36105,6 +36286,7 @@ bool js_register_cocos2dx_SpriteFrameCache(se::Object* obj)
     cls->defineFunction("removeSpriteFramesFromTexture", _SE(js_cocos2dx_SpriteFrameCache_removeSpriteFramesFromTexture));
     cls->defineStaticFunction("destroyInstance", _SE(js_cocos2dx_SpriteFrameCache_destroyInstance));
     cls->defineStaticFunction("getInstance", _SE(js_cocos2dx_SpriteFrameCache_getInstance));
+    cls->defineFinalizedFunction(_SE(js_cocos2d_SpriteFrameCache_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::SpriteFrameCache>(cls);
 
@@ -40312,6 +40494,12 @@ SE_BIND_FUNC(js_cocos2dx_SimpleAudioEngine_getInstance)
 
 
 
+bool js_CocosDenshion_SimpleAudioEngine_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (CocosDenshion::SimpleAudioEngine)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_CocosDenshion_SimpleAudioEngine_finalize)
 
 bool js_register_cocos2dx_SimpleAudioEngine(se::Object* obj)
 {
@@ -40340,6 +40528,7 @@ bool js_register_cocos2dx_SimpleAudioEngine(se::Object* obj)
     cls->defineFunction("resumeEffect", _SE(js_cocos2dx_SimpleAudioEngine_resumeEffect));
     cls->defineStaticFunction("end", _SE(js_cocos2dx_SimpleAudioEngine_end));
     cls->defineStaticFunction("getInstance", _SE(js_cocos2dx_SimpleAudioEngine_getInstance));
+    cls->defineFinalizedFunction(_SE(js_CocosDenshion_SimpleAudioEngine_finalize));
     cls->install();
     JSBClassType::registerClass<CocosDenshion::SimpleAudioEngine>(cls);
 

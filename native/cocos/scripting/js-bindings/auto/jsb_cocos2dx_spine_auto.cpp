@@ -802,7 +802,6 @@ bool js_register_cocos2dx_spine_SkeletonRenderer(se::Object* obj)
     __jsb_spine_SkeletonRenderer_proto = cls->getProto();
     __jsb_spine_SkeletonRenderer_class = cls;
 
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -1750,7 +1749,6 @@ bool js_register_cocos2dx_spine_SkeletonAnimation(se::Object* obj)
     __jsb_spine_SkeletonAnimation_class = cls;
 
     se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { sp.SkeletonAnimation.extend = cc.Class.extend; })()");
-
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }

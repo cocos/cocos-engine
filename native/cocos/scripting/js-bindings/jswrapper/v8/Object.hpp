@@ -90,6 +90,7 @@ namespace se {
     private:
         static void nativeObjectFinalizeHook(void* nativeObj);
         static void setIsolate(v8::Isolate* isolate);
+        static void cleanup();
 
         Class* _cls;
         ObjectWrap _obj;

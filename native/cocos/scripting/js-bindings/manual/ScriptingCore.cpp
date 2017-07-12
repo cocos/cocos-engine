@@ -103,7 +103,7 @@ int ScriptingCore::sendEvent(cocos2d::ScriptEvent* evt)
     // special type, can't use this code after JSAutoCompartment
     if (evt->type == kRestartGame)
     {
-//        restartVM();
+        restartVM();
         return 0;
     }
 
@@ -191,3 +191,9 @@ int ScriptingCore::handleNodeEvent(void* data)
     return ret ? 1 : 0;
 }
 
+void ScriptingCore::restartVM()
+{
+    se::ScriptEngine::getInstance()->cleanup();
+    se::ScriptEngine::getInstance()->init();
+    Application::getInstance()->applicationDidFinishLaunching();
+}

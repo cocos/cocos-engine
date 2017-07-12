@@ -8,6 +8,7 @@
 namespace se {
  
     std::unordered_map<void* /*native*/, Object* /*jsobj*/> __nativePtrToObjectMap;
+    std::unordered_map<Object*, void*> __objectMap; // Currently, the value `void*` is always nullptr
 
     namespace {
         JSContext *__cx = nullptr;
@@ -45,7 +46,6 @@ namespace se {
     , _cls(nullptr)
     , _finalizeCb(nullptr)
     {
-
     }
 
     Object::~Object()
@@ -66,6 +66,12 @@ namespace se {
 
         if (_isRooted)
             teardownRooting();
+
+        auto iter = __objectMap.find(this);
+        if (iter != __objectMap.end())
+        {
+            __objectMap.erase(iter);
+        }
     }
 
     bool Object::init(Class* cls, JSObject* obj, bool rooted)
@@ -76,6 +82,9 @@ namespace se {
             putToRoot(obj);
         else
             putToHeap(obj);
+
+        assert(__objectMap.find(this) == __objectMap.end());
+        __objectMap.emplace(this, nullptr);
 
         return true;
     }
@@ -185,8 +194,6 @@ namespace se {
         _finalizeCb = finalizeCb;
     }
 
-    // --- Getter/Setter
-
     bool Object::getProperty(const char* name, Value* data)
     {
         JSObject* jsobj = _getJSObject();
@@ -229,8 +236,6 @@ namespace se {
         return JS_DefineProperty(__cx, jsObj, name, JS::UndefinedHandleValue, JSPROP_PERMANENT | JSPROP_ENUMERATE | JSPROP_SHARED, getter, setter);
     }
 
-    // --- call
-
     bool Object::call(const ValueArray& args, Object* thisObject, Value* rval/* = nullptr*/)
     {
         assert(isFunction());
@@ -264,8 +269,6 @@ namespace se {
         return ok;
     }
 
-    // --- Register Function
-
     bool Object::defineFunction(const char *funcName, JSNative func, int minArgs)
     {
         JS::RootedObject object(__cx, _getJSObject());
@@ -273,9 +276,7 @@ namespace se {
         return ok;
     }
 
-    // --- Arrays
-
-    bool Object::getArrayLength(uint32_t* length) const 
+    bool Object::getArrayLength(uint32_t* length) const
     {
         assert(length != nullptr);
         if (!isArray())
@@ -506,6 +507,19 @@ namespace se {
         __cx = cx;
     }
 
+    void Object::cleanup()
+    {
+        for (const auto& e : __objectMap)
+        {
+            e.first->reset();
+        }
+
+        ScriptEngine::getInstance()->addAfterCleanupHook([](){
+            __objectMap.clear();
+            __nativePtrToObjectMap.clear();
+        });
+    }
+
     void Object::debug(const char *what)
     {
 //        LOGD("Object %p %s\n", this,
@@ -588,7 +602,8 @@ namespace se {
     void Object::reset()
     {
         debug("reset()");
-        if (!_isRooted) {
+        if (!_isRooted)
+        {
             _heap = JS::GCPolicy<JSObject*>::initial();
             return;
         }

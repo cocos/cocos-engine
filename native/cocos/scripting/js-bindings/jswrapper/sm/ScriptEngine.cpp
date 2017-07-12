@@ -80,6 +80,9 @@ namespace se {
         void privateDataFinalize(JSFreeOp* fop, JSObject* obj)
         {
             internal::PrivateData* p = (internal::PrivateData*)JS_GetPrivate(obj);
+            if (p == nullptr)
+                return;
+
             JS_SetPrivate(obj, p->data);
             if (p->finalizeCb != nullptr)
                 p->finalizeCb(fop, obj);
@@ -96,97 +99,13 @@ namespace se {
              * garbage collected. */
             if (status == JSGC_BEGIN)
             {
-                LOGD("on_garbage_collect: begin, Native -> JS map count: %d\n", (int)__nativePtrToObjectMap.size());
+                LOGD("on_garbage_collect: begin, Native -> JS map count: %d, all objects: %d\n", (int)__nativePtrToObjectMap.size(), (int)__objectMap.size());
             }
             else if (status == JSGC_END)
             {
-                LOGD("on_garbage_collect: end, Native -> JS map count: %d\n", (int)__nativePtrToObjectMap.size());
+                LOGD("on_garbage_collect: end, Native -> JS map count: %d, all objects: %d\n", (int)__nativePtrToObjectMap.size(), (int)__objectMap.size());
             }
         }
-
-//        class MOZ_STACK_CLASS AutoReportException
-//        {
-//            JSContext* cx;
-//        public:
-//            explicit AutoReportException(JSContext* cx)
-//            : cx(cx)
-//            {}
-//            ~AutoReportException();
-//        };
-//
-//        bool PrintStackTrace(JSContext* cx, JS::HandleValue exn)
-//        {
-//            if (!exn.isObject())
-//                return false;
-//
-//            mozilla::Maybe<JSAutoCompartment> ac;
-//            JS::RootedObject exnObj(cx, &exn.toObject());
-////            if (IsCrossCompartmentWrapper(exnObj)) {
-////                exnObj = UncheckedUnwrap(exnObj);
-////                ac.emplace(cx, exnObj);
-////            }
-//
-//            // Ignore non-ErrorObject thrown by |throw| statement.
-////            if (!exnObj->is<ErrorObject>())
-////                return true;
-//
-//            // Exceptions thrown while compiling top-level script have no stack.
-//            JS::RootedObject stackObj(cx, exnObj->as<ErrorObject>().stack());
-//            if (!stackObj)
-//                return true;
-//
-//            JS::RootedString stackStr(cx);
-//            if (!JS::BuildStackString(cx, stackObj, &stackStr, 2))
-//                return false;
-//
-//            JS::UniqueChars stack(JS_EncodeStringToUTF8(cx, stackStr));
-//            if (!stack)
-//                return false;
-//
-//            LOGD("Stack:\n%s\n", stack.get());
-//
-//            return true;
-//        }
-//
-//        AutoReportException::~AutoReportException()
-//        {
-//            if (!JS_IsExceptionPending(cx))
-//                return;
-//
-//            // Get exception object before printing and clearing exception.
-//            JS::RootedValue exn(cx);
-//            (void) JS_GetPendingException(cx, &exn);
-//
-//            JS_ClearPendingException(cx);
-//
-//            ShellContext* sc = GetShellContext(cx);
-//            js::ErrorReport report(cx);
-//            if (!report.init(cx, exn, js::ErrorReport::WithSideEffects)) {
-//                LOGE("out of memory initializing ErrorReport\n");
-//                fflush(stderr);
-//                JS_ClearPendingException(cx);
-//                return;
-//            }
-//
-//            MOZ_ASSERT(!JSREPORT_IS_WARNING(report.report()->flags));
-//
-//            FILE* fp = ErrorFilePointer();
-//            PrintError(cx, fp, report.toStringResult(), report.report(), reportWarnings);
-//            
-//            {
-//                JS::AutoSaveExceptionState savedExc(cx);
-//                if (!PrintStackTrace(cx, exn))
-//                    fputs("(Unable to print stack trace)\n", fp);
-//                savedExc.restore();
-//            }
-//            
-//            if (report.report()->errorNumber == JSMSG_OUT_OF_MEMORY)
-//                sc->exitCode = EXITCODE_OUT_OF_MEMORY;
-//            else
-//                sc->exitCode = EXITCODE_RUNTIME_ERROR;
-//            
-//            JS_ClearPendingException(cx);
-//        }
 
     }
 
@@ -218,6 +137,8 @@ namespace se {
             , _isValid(false)
             , _nodeEventListener(nullptr)
     {
+        bool ok = JS_Init();
+        assert(ok);
     }
 
     void ScriptEngine::myWeakPointerCompartmentCallback(JSContext* cx, JSCompartment* comp, void* data)
@@ -247,21 +168,9 @@ namespace se {
         }
     }
 
-    void ScriptEngine::myExtraGCRootsTracer(JSTracer* trc, void* data)
-    {
-//        for (const auto& e : __nativePtrToObjectMap)
-//        {
-//            if (!e.second->isRooted())
-//                e.second->trace(trc, data);
-//        }
-    }
-
     bool ScriptEngine::init()
     {
         LOGD("Initializing SpiderMonkey \n");
-
-        if (!JS_Init())
-            return false;
 
         _cx = JS_NewContext(JS::DefaultHeapMaxBytes);
 
@@ -325,7 +234,6 @@ namespace se {
         JS_DefineFunction(_cx, rootedGlobalObj, "log", __log, 0, JSPROP_PERMANENT);
         JS_DefineFunction(_cx, rootedGlobalObj, "forceGC", __forceGC, 0, JSPROP_READONLY | JSPROP_PERMANENT);
 
-//        JS_AddExtraGCRootsTracer(_cx, ScriptEngine::myExtraGCRootsTracer, nullptr);
 //        JS_AddWeakPointerZoneGroupCallback(_cx, ScriptEngine::myWeakPointerZoneGroupCallback, nullptr);
         JS_AddWeakPointerCompartmentCallback(_cx, ScriptEngine::myWeakPointerCompartmentCallback, nullptr);
 
@@ -343,26 +251,83 @@ namespace se {
     ScriptEngine::~ScriptEngine()
     {
         cleanup();
+        JS_ShutDown();
     }
 
     void ScriptEngine::cleanup()
     {
-        Class::cleanup();
-//        JS_RemoveExtraGCRootsTracer(_cx, ScriptEngine::myExtraGCRootsTracer, nullptr);
-//        JS_RemoveWeakPointerZoneGroupCallback(_cx, ScriptEngine::myWeakPointerZoneGroupCallback);
-        JS_RemoveWeakPointerCompartmentCallback(_cx, ScriptEngine::myWeakPointerCompartmentCallback);
-        SAFE_RELEASE(_globalObj);
+        if (!_isValid)
+            return;
 
+        for (const auto& hook : _beforeCleanupHookArray)
+        {
+            hook();
+        }
+        _beforeCleanupHookArray.clear();
+
+        SAFE_RELEASE(_globalObj);
+        Class::cleanup();
+        Object::cleanup();
+
+        // JS_RemoveWeakPointerZoneGroupCallback(_cx, ScriptEngine::myWeakPointerZoneGroupCallback);
+        JS_RemoveWeakPointerCompartmentCallback(_cx, ScriptEngine::myWeakPointerCompartmentCallback);
         JS_LeaveCompartment(_cx, _oldCompartment);
 
         JS_EndRequest(_cx);
         JS_DestroyContext(_cx);
-        JS_ShutDown();
+
+        _cx = nullptr;
+        _globalObj = nullptr;
+        _oldCompartment = nullptr;
+        _isValid = false;
+        _nodeEventListener = nullptr;
+
+        _registerCallbackArray.clear();
+
+        for (const auto& hook : _afterCleanupHookArray)
+        {
+            hook();
+        }
+        _afterCleanupHookArray.clear();
+    }
+
+    void ScriptEngine::addBeforeCleanupHook(const std::function<void()>& hook)
+    {
+        _beforeCleanupHookArray.push_back(hook);
+    }
+
+    void ScriptEngine::addAfterCleanupHook(const std::function<void()>& hook)
+    {
+        _afterCleanupHookArray.push_back(hook);
     }
 
     Object* ScriptEngine::getGlobalObject()
     {
         return _globalObj;
+    }
+
+    void ScriptEngine::addRegisterCallback(RegisterCallback cb)
+    {
+        assert(std::find(_registerCallbackArray.begin(), _registerCallbackArray.end(), cb) == _registerCallbackArray.end());
+        _registerCallbackArray.push_back(cb);
+    }
+
+    bool ScriptEngine::start()
+    {
+        bool ok = false;
+        _startTime = std::chrono::steady_clock::now();
+
+        for (auto cb : _registerCallbackArray)
+        {
+            ok = cb(_globalObj);
+            assert(ok);
+            if (!ok)
+                break;
+        }
+
+        // After ScriptEngine is started, _registerCallbackArray isn't needed. Therefore, clear it here.
+        _registerCallbackArray.clear();
+        return ok;
     }
 
     bool ScriptEngine::executeScriptBuffer(const char* string, Value* data, const char* fileName)
@@ -392,29 +357,6 @@ namespace se {
             internal::jsToSeValue(_cx, rcValue, data);
         }
         return ok;
-    }
-
-    bool ScriptEngine::executeScriptFile(const std::string &filePath, Value *rval/* = nullptr*/)
-    {
-        bool ret = false;
-        FILE* fp = fopen(filePath.c_str(), "rb");
-        if (fp != nullptr)
-        {
-            fseek(fp, 0, SEEK_END);
-            long fileSize = ftell(fp);
-            fseek(fp, 0, SEEK_SET);
-            char* buffer = (char*) malloc(fileSize);
-            fread(buffer, fileSize, 1, fp);
-            ret = executeScriptBuffer(buffer, fileSize, rval, filePath.c_str());
-            free(buffer);
-            fclose(fp);
-        }
-        else
-        {
-            assert(false);
-        }
-
-        return ret;
     }
 
     void ScriptEngine::_retainScriptObject(void* owner, void* target)
