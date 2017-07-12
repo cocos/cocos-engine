@@ -26,7 +26,7 @@
 var Pipeline = require('./pipeline');
 
 var ID = 'MD5Pipe';
-var FilePathRegex = /(\.[^.\n\\/]*)$/;
+var ExtnameRegex = /(\.[^.\n\\/]*)$/;
 
 var MD5Pipe = function (md5AssetsMap) {
     this.id = ID;
@@ -40,7 +40,7 @@ MD5Pipe.prototype.handle = function(item) {
     let hashValue = this.md5AssetsMap[item.url];
     if (hashValue) {
         var matched = false;
-        item.url  = item.url.replace(FilePathRegex, function(match, p1) {
+        item.url  = item.url.replace(ExtnameRegex, function(match, p1) {
             matched = true;
             return '.' + hashValue + p1;
         });
