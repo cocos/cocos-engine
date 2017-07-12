@@ -574,7 +574,7 @@ cc.js.unregisterClass to remove the id of unused class';
  * @param {Boolean} [writable=false]
  */
 js.obsolete = function (obj, obsoleted, newPropName, writable) {
-    var oldName = obsoleted.split('.').slice(-1)[0];
+    var oldName = /([^.]+)$/.exec(obsoleted)[0];
     function get () {
         if (CC_DEV) {
             cc.warnID(5400, obsoleted, newPropName);
