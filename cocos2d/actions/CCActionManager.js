@@ -29,15 +29,13 @@
  * @constructor
  * @private
  */
-var HashElement = cc._Class.extend({
-    ctor:function () {
-        this.actions = [];
-        this.target = null; //ccobject
-        this.actionIndex = 0;
-        this.currentAction = null; //CCAction
-        this.paused = false;
-    }
-});
+var HashElement = function () {
+    this.actions = [];
+    this.target = null; //ccobject
+    this.actionIndex = 0;
+    this.currentAction = null; //CCAction
+    this.paused = false;
+};
 
 /**
  * !#en
@@ -91,6 +89,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
         element.actionIndex = 0;
         element.currentAction = null;
         element.paused = false;
+        element.target = null;
         this._elementPool.push(element);
     },
 
