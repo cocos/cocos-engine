@@ -36,7 +36,6 @@ sp._SGSkeleton = _ccsg.Node.extend({
     _premultipliedAlpha: false,
     _ownsSkeletonData: null,
     _atlas: null,
-    _blendFunc: null,
 
     ctor: function(skeletonDataFile, atlasFile, scale) {
         _ccsg.Node.prototype.ctor.call(this);
@@ -57,7 +56,6 @@ sp._SGSkeleton = _ccsg.Node.extend({
     init: function () {
         _ccsg.Node.prototype.init.call(this);
         this._premultipliedAlpha = (cc._renderType === cc.game.RENDER_TYPE_WEBGL && cc.OPTIMIZE_BLEND_FUNC_FOR_PREMULTIPLIED_ALPHA);
-        this._blendFunc = {src: cc.BLEND_SRC, dst: cc.BLEND_DST};
         this.scheduleUpdate();
     },
 
@@ -147,7 +145,7 @@ sp._SGSkeleton = _ccsg.Node.extend({
      */
     getBoundingBox: function () {
         var minX = cc.macro.FLT_MAX, minY = cc.macro.FLT_MAX, maxX = cc.macro.FLT_MIN, maxY = cc.macro.FLT_MIN;
-        var scaleX = this.getScaleX(), scaleY = this.getScaleY(), vertices = [],
+        var scaleX = this.getScaleX(), scaleY = this.getScaleY(), vertices,
             slots = this._skeleton.slots, VERTEX = spine.RegionAttachment;
 
         for (var i = 0, slotCount = slots.length; i < slotCount; ++i) {
@@ -289,27 +287,27 @@ sp._SGSkeleton = _ccsg.Node.extend({
     },
 
     /**
-     * Returns the blendFunc of sp._SGSkeleton.
+     * Returns the blendFunc of sp._SGSkeleton, actually it's the first slot's blend function.
      * @returns {BlendFunc}
      */
     getBlendFunc: function () {
-        return this._blendFunc;
+        var slot = this._skeleton.drawOrder[0];
+        if (slot) {
+            var blend = this._renderCmd._getBlendFunc(slot.data.blendMode, this._premultipliedAlpha);
+            return blend;
+        }
+        else {
+            return {};
+        }
     },
 
     /**
-     * Sets the blendFunc of sp._SGSkeleton.
+     * Sets the blendFunc of sp._SGSkeleton, it won't have any effect for skeleton, skeleton is using slot's data to determine the blend function.
      * @param {BlendFunc|Number} src
      * @param {Number} [dst]
      */
     setBlendFunc: function (src, dst) {
-        var locBlendFunc = this._blendFunc;
-        if (dst === undefined) {
-            locBlendFunc.src = src.src;
-            locBlendFunc.dst = src.dst;
-        } else {
-            locBlendFunc.src = src;
-            locBlendFunc.dst = dst;
-        }
+        return;
     },
 
     /**
@@ -324,6 +322,19 @@ sp._SGSkeleton = _ccsg.Node.extend({
 
 // fireball#2856
 
-Object.defineProperty(sp._SGSkeleton.prototype, 'opacityModifyRGB', {
-    get: sp._SGSkeleton.prototype.isOpacityModifyRGB
+var proto = sp._SGSkeleton.prototype;
+Object.defineProperty(proto, 'opacityModifyRGB', {
+    get: proto.isOpacityModifyRGB
+});
+
+// For renderer webgl to identify skeleton's default blend function
+Object.defineProperty(proto, '_blendFunc', {
+    get: proto.getBlendFunc
+});
+
+// For renderer webgl to identify skeleton's default texture
+Object.defineProperty(proto, '_texture', {
+    get: function () {
+        return this._renderCmd._currTexture;
+    }
 });

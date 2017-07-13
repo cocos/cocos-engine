@@ -28,21 +28,6 @@
 var spine = sp.spine;
 var animEventType = sp.AnimationEventType;
 
-sp._atlasPage_createTexture_webGL = function (self, path) {
-    var texture = cc.textureCache.addImage(path);
-    self.rendererObject = new cc.TextureAtlas(texture, 128);
-    self.width = texture.getPixelWidth();
-    self.height = texture.getPixelHeight();
-};
-
-sp._atlasPage_createTexture_canvas = function(self, path) {
-    self._texture = cc.textureCache.addImage(path);
-};
-
-sp._atlasPage_disposeTexture = function (self) {
-    self.rendererObject.release();
-};
-
 sp._atlasLoader = {
     spAtlasFile:null,
     setAtlasFile:function(spAtlasFile){
