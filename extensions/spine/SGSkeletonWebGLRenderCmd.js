@@ -30,19 +30,15 @@ sp._SGSkeleton.WebGLRenderCmd = function (renderableObject) {
     this._needDraw = true;
     this._matrix = new cc.math.Matrix4();
     this._matrix.identity();
+    this._currBlendFunc = {};
     this.vertexType = cc.renderer.VertexType.CUSTOM;
-    this.setShaderProgram(cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURECOLOR));
+    this.setShaderProgram(cc.shaderCache.programForKey(cc.macro.SHADER_SPRITE_POSITION_TEXTURECOLOR));
 };
 
 var proto = sp._SGSkeleton.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
 proto.constructor = sp._SGSkeleton.WebGLRenderCmd;
 
 proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
-
-    // rendering the cached data first
-    cc.renderer._batchRendering();
-    vertexDataOffset = 0;
-
     var node = this._node;
     var color = this._displayedColor, locSkeleton = node._skeleton;
 
@@ -51,17 +47,6 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
     var blendMode = -1;
     var dataInited = false;
     var cachedVertices = 0;
-
-    var wt = this._worldTransform, mat = this._matrix.mat;
-    mat[0] = wt.a;
-    mat[4] = wt.c;
-    mat[12] = wt.tx;
-    mat[1] = wt.b;
-    mat[5] = wt.d;
-    mat[13] = wt.ty;
-
-    this._shaderProgram.use();
-    this._shaderProgram._setUniformForMVPMatrixWithMat4(this._matrix);
 
     locSkeleton.r = color.r / 255;
     locSkeleton.g = color.g / 255;
@@ -105,18 +90,16 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
         if (!dataInited) {
             textureAtlas = regionTextureAtlas;
             blendMode = slot.data.blendMode;
-            cc.renderer._updateBatchedInfo(textureAtlas.texture.getRealTexture(), this._getBlendFunc(blendMode, premultiAlpha), this.getShaderProgram());
             dataInited = true;
         }
 
         // if data changed or the vertices will be overflow
-        if ((cachedVertices + vertCount) * 6 > f32buffer.length ||
+        if (vertexDataOffset + vertCount * 6 > f32buffer.length ||
             textureAtlas.texture.getRealTexture() !== regionTextureAtlas.texture.getRealTexture() ||
             blendMode !== slot.data.blendMode) {
             // render the cached data
             cc.renderer._batchRendering();
             vertexDataOffset = 0;
-            cachedVertices = 0;
 
             // update the batched info
             textureAtlas = regionTextureAtlas;
@@ -148,16 +131,21 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
         }
 
         // update the index data
-        cachedVertices += vertCount;
         vertexDataOffset += vertCount * 6;
     }
 
-    // render the left vertices
-    if (cachedVertices > 0) {
-        cc.renderer._batchRendering();
-    }
-
     if (node._debugBones || node._debugSlots) {
+        // flush previous vertices
+        cc.renderer._batchRendering();
+
+        var wt = this._worldTransform, mat = this._matrix.mat;
+        mat[0] = wt.a;
+        mat[4] = wt.c;
+        mat[12] = wt.tx;
+        mat[1] = wt.b;
+        mat[5] = wt.d;
+        mat[13] = wt.ty;
+
         cc.math.glMatrixMode(cc.math.KM_GL_MODELVIEW);
         //cc.math.glPushMatrixWitMat4(this._matrix);
         cc.current_stack.stack.push(cc.current_stack.top);
@@ -209,7 +197,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
 };
 
 proto._getBlendFunc = function (blendMode, premultiAlpha) {
-    var ret = {};
+    var ret = this._currBlendFunc;
     switch (blendMode) {
         case spine.BlendMode.Normal:
             ret.src = premultiAlpha ? cc.macro.ONE : cc.macro.SRC_ALPHA;
@@ -254,19 +242,28 @@ proto._uploadRegionAttachmentData = function(attachment, slot, premultipliedAlph
         nodeB = nodeColor.b,
         nodeA = this._displayedOpacity;
     var vertices = attachment.updateWorldVertices(slot, premultipliedAlpha);
+    var wt = this._worldTransform,
+        wa = wt.a, wb = wt.b, wc = wt.c, wd = wt.d,
+        wx = wt.tx, wy = wt.ty,
+        z = this._node.vertexZ;
+
     var offset = vertexDataOffset;
     // generate 6 vertices data (two triangles) from the quad vertices
     // using two angles : (0, 1, 2) & (0, 2, 3)
     for (var i = 0; i < 6; i++) {
         var srcIdx = i < 4 ? i % 3 : i - 2;
+        var vx = vertices[srcIdx * 8],
+            vy = vertices[srcIdx * 8 + 1];
+        var x = vx * wa + vy * wb + wx,
+            y = vx * wc + vy * wd + wy;
         var r = vertices[srcIdx * 8 + 2] * nodeR,
             g = vertices[srcIdx * 8 + 3] * nodeG,
             b = vertices[srcIdx * 8 + 4] * nodeB,
             a = vertices[srcIdx * 8 + 5] * nodeA;
         var color = ((a<<24) | (b<<16) | (g<<8) | r);
-        f32buffer[offset] = vertices[srcIdx * 8];
-        f32buffer[offset + 1] = vertices[srcIdx * 8 + 1];
-        f32buffer[offset + 2] = this._node.vertexZ;
+        f32buffer[offset] = x;
+        f32buffer[offset + 1] = y;
+        f32buffer[offset + 2] = z;
         ui32buffer[offset + 3] = color;
         f32buffer[offset + 4] = vertices[srcIdx * 8 + 6];
         f32buffer[offset + 5] = vertices[srcIdx * 8 + 7];
@@ -286,6 +283,10 @@ proto._uploadRegionAttachmentData = function(attachment, slot, premultipliedAlph
 };
 
 proto._uploadMeshAttachmentData = function(attachment, slot, premultipliedAlpha, f32buffer, ui32buffer, vertexDataOffset) {
+    var wt = this._worldTransform,
+        wa = wt.a, wb = wt.b, wc = wt.c, wd = wt.d,
+        wx = wt.tx, wy = wt.ty,
+        z = this._node.vertexZ;
     // get the vertex data
     var vertices = attachment.updateWorldVertices(slot, premultipliedAlpha);
     var offset = vertexDataOffset;
@@ -295,18 +296,37 @@ proto._uploadMeshAttachmentData = function(attachment, slot, premultipliedAlpha,
         nodeB = nodeColor.b,
         nodeA = this._displayedOpacity;
     for (var i = 0, n = vertices.length; i < n; i += 8) {
+        var vx = vertices[i],
+            vy = vertices[i + 1];
+        var x = vx * wa + vy * wb + wx,
+            y = vx * wc + vy * wd + wy;
         var r = vertices[i + 2] * nodeR,
             g = vertices[i + 3] * nodeG,
             b = vertices[i + 4] * nodeB,
             a = vertices[i + 5] * nodeA;
         var color = ((a<<24) | (b<<16) | (g<<8) | r);
 
-        f32buffer[offset] = vertices[i];
-        f32buffer[offset + 1] = vertices[i + 1];
-        f32buffer[offset + 2] = this._node.vertexZ;
+        f32buffer[offset] = x;
+        f32buffer[offset + 1] = y;
+        f32buffer[offset + 2] = z;
         ui32buffer[offset + 3] = color;
         f32buffer[offset + 4] = vertices[i + 6];
         f32buffer[offset + 5] = vertices[i + 7];
         offset += 6;
     }
 };
+
+// For renderer webgl to identify skeleton's default texture
+Object.defineProperty(proto, '_texture', {
+    get: function () {
+        var node = this._node;
+        var slot = node._skeleton.drawOrder[0];
+        if (slot) {
+            var textureAtlas = node.getTextureAtlas(slot.attachment);
+            return textureAtlas.texture.getRealTexture();
+        }
+        else {
+            return null;
+        }
+    }
+});
