@@ -42,11 +42,8 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
     var node = this._node;
     var color = this._displayedColor, locSkeleton = node._skeleton;
 
-    var textureAtlas, attachment, slot, i, n;
+    var attachment, slot, i, n;
     var premultiAlpha = node._premultipliedAlpha;
-    var blendMode = -1;
-    var dataInited = false;
-    var cachedVertices = 0;
 
     locSkeleton.r = color.r / 255;
     locSkeleton.g = color.g / 255;
@@ -86,25 +83,18 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
             continue;
         }
         var regionTextureAtlas = node.getTextureAtlas(attachment);
-        // init data at the first time
-        if (!dataInited) {
-            textureAtlas = regionTextureAtlas;
-            blendMode = slot.data.blendMode;
-            dataInited = true;
-        }
 
-        // if data changed or the vertices will be overflow
-        if (vertexDataOffset + vertCount * 6 > f32buffer.length ||
-            textureAtlas.texture.getRealTexture() !== regionTextureAtlas.texture.getRealTexture() ||
-            blendMode !== slot.data.blendMode) {
+        // Broken for changing batch info
+        var batchBroken = cc.renderer._updateBatchedInfo(regionTextureAtlas.texture.getRealTexture(), this._getBlendFunc(slot.data.blendMode, premultiAlpha), this._shaderProgram);
+
+        // Broken for vertex data overflow
+        if (!batchBroken && vertexDataOffset + vertCount * 6 > f32buffer.length) {
             // render the cached data
             cc.renderer._batchRendering();
+            batchBroken = true;
+        }
+        if (batchBroken) {
             vertexDataOffset = 0;
-
-            // update the batched info
-            textureAtlas = regionTextureAtlas;
-            blendMode = slot.data.blendMode;
-            cc.renderer._updateBatchedInfo(textureAtlas.texture.getRealTexture(), this._getBlendFunc(blendMode, premultiAlpha), this.getShaderProgram());
         }
 
         // update the vertex buffer
@@ -321,7 +311,7 @@ Object.defineProperty(proto, '_texture', {
     get: function () {
         var node = this._node;
         var slot = node._skeleton.drawOrder[0];
-        if (slot) {
+        if (slot && slot.attachment) {
             var textureAtlas = node.getTextureAtlas(slot.attachment);
             return textureAtlas.texture.getRealTexture();
         }

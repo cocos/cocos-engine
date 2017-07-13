@@ -311,17 +311,22 @@ cc.rendererWebGL = {
     },
 
     _updateBatchedInfo: function (texture, blendFunc, shaderProgram) {
-        if (texture) {
+        if (texture !== _batchedInfo.texture ||
+            blendFunc.src !== _batchedInfo.blendSrc ||
+            blendFunc.dst !== _batchedInfo.blendDst ||
+            shaderProgram !== _batchedInfo.shader) {
+            // Draw batched elements
+            this._batchRendering();
+            // Update _batchedInfo
             _batchedInfo.texture = texture;
-        }
-
-        if (blendFunc) {
             _batchedInfo.blendSrc = blendFunc.src;
             _batchedInfo.blendDst = blendFunc.dst;
-        }
-
-        if (shaderProgram) {
             _batchedInfo.shader = shaderProgram;
+
+            return true;
+        }
+        else {
+            return false;
         }
     },
 
