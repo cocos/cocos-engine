@@ -1016,6 +1016,11 @@ bool js_box2dclasses_b2Body_CreateFixture(JSContext *cx, uint32_t argc, JS::Valu
             b2Fixture* ret = cobj->CreateFixture(arg0);
             JS::RootedValue jsret(cx);
             if (ret) {
+                // box2d will reuse cached memory, need first remove old proxy when create new jsobject
+                auto retProxy = jsb_get_native_proxy(ret);
+                if (retProxy) {
+                    jsb_remove_proxy(retProxy);
+                }
                 JS::RootedObject retObj(cx);
                 js_get_or_create_jsobject<b2Fixture>(cx, (b2Fixture*)ret, &retObj);
                 jsret = JS::ObjectOrNullValue(retObj);
@@ -1118,7 +1123,6 @@ bool js_box2dclasses_b2PolygonShape_Set(JSContext *cx, uint32_t argc, JS::Value 
         cobj->Set(arg0, arg1);
         
         delete [] arg0;
-        
         args.rval().setUndefined();
         return true;
     }
@@ -1239,6 +1243,7 @@ bool js_box2dclasses_b2ChainShape_CreateChain(JSContext *cx, uint32_t argc, JS::
         
         cobj->CreateChain(arg0, arg1);
         
+        delete[] arg0;
         args.rval().setUndefined();
         return true;
     }
@@ -1266,6 +1271,8 @@ bool js_box2dclasses_b2ChainShape_CreateLoop(JSContext *cx, uint32_t argc, JS::V
         JSB_PRECONDITION2(ok, cx, false, "js_box2dclasses_b2PolygonShape_Set : Error processing arguments");
         
         cobj->CreateLoop(arg0, arg1);
+        
+        delete[] arg0;
         args.rval().setUndefined();
         return true;
     }
