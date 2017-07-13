@@ -30,6 +30,7 @@ sp._SGSkeleton.WebGLRenderCmd = function (renderableObject) {
     this._needDraw = true;
     this._matrix = new cc.math.Matrix4();
     this._matrix.identity();
+    this._currTexture = null;
     this._currBlendFunc = {};
     this.vertexType = cc.renderer.VertexType.CUSTOM;
     this.setShaderProgram(cc.shaderCache.programForKey(cc.macro.SHADER_SPRITE_POSITION_TEXTURECOLOR));
@@ -85,7 +86,8 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
         var regionTextureAtlas = node.getTextureAtlas(attachment);
 
         // Broken for changing batch info
-        var batchBroken = cc.renderer._updateBatchedInfo(regionTextureAtlas.texture.getRealTexture(), this._getBlendFunc(slot.data.blendMode, premultiAlpha), this._shaderProgram);
+        this._currTexture = regionTextureAtlas.texture.getRealTexture();
+        var batchBroken = cc.renderer._updateBatchedInfo(this._currTexture, this._getBlendFunc(slot.data.blendMode, premultiAlpha), this._shaderProgram);
 
         // Broken for vertex data overflow
         if (!batchBroken && vertexDataOffset + vertCount * 6 > f32buffer.length) {
@@ -305,18 +307,3 @@ proto._uploadMeshAttachmentData = function(attachment, slot, premultipliedAlpha,
         offset += 6;
     }
 };
-
-// For renderer webgl to identify skeleton's default texture
-Object.defineProperty(proto, '_texture', {
-    get: function () {
-        var node = this._node;
-        var slot = node._skeleton.drawOrder[0];
-        if (slot && slot.attachment) {
-            var textureAtlas = node.getTextureAtlas(slot.attachment);
-            return textureAtlas.texture.getRealTexture();
-        }
-        else {
-            return null;
-        }
-    }
-});

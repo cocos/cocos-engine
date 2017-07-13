@@ -145,7 +145,7 @@ sp._SGSkeleton = _ccsg.Node.extend({
      */
     getBoundingBox: function () {
         var minX = cc.macro.FLT_MAX, minY = cc.macro.FLT_MAX, maxX = cc.macro.FLT_MIN, maxY = cc.macro.FLT_MIN;
-        var scaleX = this.getScaleX(), scaleY = this.getScaleY(), vertices = [],
+        var scaleX = this.getScaleX(), scaleY = this.getScaleY(), vertices,
             slots = this._skeleton.slots, VERTEX = spine.RegionAttachment;
 
         for (var i = 0, slotCount = slots.length; i < slotCount; ++i) {
@@ -322,11 +322,19 @@ sp._SGSkeleton = _ccsg.Node.extend({
 
 // fireball#2856
 
-Object.defineProperty(sp._SGSkeleton.prototype, 'opacityModifyRGB', {
-    get: sp._SGSkeleton.prototype.isOpacityModifyRGB
+var proto = sp._SGSkeleton.prototype;
+Object.defineProperty(proto, 'opacityModifyRGB', {
+    get: proto.isOpacityModifyRGB
 });
 
 // For renderer webgl to identify skeleton's default blend function
-Object.defineProperty(sp._SGSkeleton.prototype, '_blendFunc', {
-    get: sp._SGSkeleton.prototype.getBlendFunc
+Object.defineProperty(proto, '_blendFunc', {
+    get: proto.getBlendFunc
+});
+
+// For renderer webgl to identify skeleton's default texture
+Object.defineProperty(proto, '_texture', {
+    get: function () {
+        return this._renderCmd._currTexture;
+    }
 });
