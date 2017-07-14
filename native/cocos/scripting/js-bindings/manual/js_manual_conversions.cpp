@@ -2068,7 +2068,7 @@ bool ccvalue_to_jsval(JSContext* cx, const cocos2d::Value& v, JS::MutableHandleV
             ccvaluemapintkey_to_jsval(cx, obj.asIntKeyMap(), ret);
             break;
         default:
-            return false;
+            ret.set(JS::NullHandleValue);
             break;
     }
 
