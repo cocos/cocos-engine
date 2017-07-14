@@ -89,6 +89,7 @@ var AnimationClip = cc.Class({
          * @param {[SpriteFrame]} spriteFrames
          * @param {Number} sample
          * @return {AnimationClip}
+         * @static
          * @example
          *
          * var clip = cc.AnimationClip.createWithSpriteFrames(spriteFrames, 10);
