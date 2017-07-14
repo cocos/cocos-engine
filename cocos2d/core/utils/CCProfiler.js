@@ -29,16 +29,7 @@ var macro = require('../platform/CCMacro');
 var _fps = document.createElement('div');
 _fps.id = 'fps';
 
-let stats = PStats.new(_fps, {
-    values: {
-        frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: 500 },
-        fps: { desc: 'Framerate (FPS)', below: 30, average: 500 },
-        draws: { desc: 'Draw call' },
-        logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: 500, color: '#080' },
-        render: { desc: 'Renderer (ms)', min: 0, max: 50, average: 500, color: '#f90' }
-    },
-    css: '.pstats {left: ' + macro.DIRECTOR_STATS_POSITION.x + 'px; bottom: ' + macro.DIRECTOR_STATS_POSITION.y + 'px;}'
-});
+var stats = null;
 
 let _showFPS = false;
 
@@ -84,6 +75,21 @@ cc.profiler = module.exports = {
 
     showStats () {
         if (!_showFPS) {
+            if (!stats) {
+                stats = PStats.new(_fps, {
+                    showGraph: false,
+                    values: {
+                        frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: 500 },
+                        fps: { desc: 'Framerate (FPS)', below: 30, average: 500 },
+                        draws: { desc: 'Draw call' },
+                        logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: 500, color: '#080' },
+                        render: { desc: 'Renderer (ms)', min: 0, max: 50, average: 500, color: '#f90' },
+                        mode: { desc: cc._renderType === cc.game.RENDER_TYPE_WEBGL ? 'WebGL' : 'Canvas', min: 1 }
+                    },
+                    css: '.pstats {left: ' + macro.DIRECTOR_STATS_POSITION.x + 'px; bottom: ' + macro.DIRECTOR_STATS_POSITION.y + 'px;}'
+                });
+            }
+
             if (_fps.parentElement === null) {
                 document.body.appendChild(_fps);
             }
