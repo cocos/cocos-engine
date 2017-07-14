@@ -750,14 +750,19 @@ else {
                 break;
             case sys.BROWSER_TYPE_CHROME:
                 // Chrome on android supports WebGL from v. 30
-                if(browserVer >= 30.0) {
+                if (browserVer >= 30.0) {
                     _supportWebGL = true;
                 } else {
                     _supportWebGL = false;
                 }
                 break;
-            case sys.BROWSER_TYPE_360:
             case sys.BROWSER_TYPE_UC:
+                if (browserVer > 11.0) {
+                    _supportWebGL = true;
+                } else {
+                    _supportWebGL = false;
+                }
+            case sys.BROWSER_TYPE_360:
                 _supportWebGL = false;
             }
         }
