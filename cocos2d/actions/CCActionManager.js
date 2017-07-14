@@ -35,6 +35,7 @@ var HashElement = function () {
     this.actionIndex = 0;
     this.currentAction = null; //CCAction
     this.paused = false;
+    this.lock = false;
 };
 
 /**
@@ -90,6 +91,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
         element.currentAction = null;
         element.paused = false;
         element.target = null;
+        element.lock = false;
         this._elementPool.push(element);
     },
 
@@ -377,7 +379,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
 
     _deleteHashElement:function (element) {
         var ret = false;
-        if (element) {
+        if (element && !element.lock) {
             if (this._hashTargets[element.target.__instanceId]) {
                 delete this._hashTargets[element.target.__instanceId];
                 var targets = this._arrayTargets;
@@ -406,6 +408,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
             this._currentTarget = locTargets[elt];
             locCurrTarget = this._currentTarget;
             if (!locCurrTarget.paused && locCurrTarget.actions) {
+                locCurrTarget.lock = true;
                 // The 'actions' CCMutableArray may change while inside this loop.
                 for (locCurrTarget.actionIndex = 0; locCurrTarget.actionIndex < locCurrTarget.actions.length; locCurrTarget.actionIndex++) {
                     locCurrTarget.currentAction = locCurrTarget.actions[locCurrTarget.actionIndex];
@@ -415,7 +418,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
                     //use for speed
                     locCurrTarget.currentAction.step(dt * ( locCurrTarget.currentAction._speedMethod ? locCurrTarget.currentAction._speed : 1 ) );
                     
-                    if (locCurrTarget.currentAction.isDone()) {
+                    if (locCurrTarget.currentAction && locCurrTarget.currentAction.isDone()) {
                         locCurrTarget.currentAction.stop();
                         var action = locCurrTarget.currentAction;
                         // Make currentAction nil to prevent removeAction from salvaging it.
@@ -425,6 +428,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
 
                     locCurrTarget.currentAction = null;
                 }
+                locCurrTarget.lock = false;
             }
             // only delete currentTarget if no actions were scheduled during the cycle (issue #481)
             if (locCurrTarget.actions.length === 0) {
