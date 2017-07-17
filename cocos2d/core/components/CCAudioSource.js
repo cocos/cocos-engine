@@ -94,6 +94,9 @@ var AudioSource = cc.Class({
                 return this._clip;
             },
             set: function (value) {
+                if (value === this._clip) {
+                    return;
+                }
                 this._clip = value;
                 this.audio.stop();
                 this.audio.src = this._clip;
