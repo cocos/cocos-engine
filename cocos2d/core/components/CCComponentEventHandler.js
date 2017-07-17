@@ -93,7 +93,7 @@ cc.Component.EventHandler = cc.Class({
          * @method emitEvents
          * @param {Component.EventHandler[]} events
          * @param {any} ...params
-         * @statics
+         * @static
          */
         emitEvents: CC_JSB ? function (events, ...args) {
             for (var i = 0, l = events.length; i < l; i++) {

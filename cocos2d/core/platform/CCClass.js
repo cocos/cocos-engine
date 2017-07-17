@@ -379,18 +379,9 @@ function define (className, baseClass, mixins, options) {
 function normalizeClassName_DEV (className) {
     var DefaultName = 'CCClass';
     if (className) {
-        className = Array.prototype.map.call(className, function (x) {
-            return /^[a-zA-Z0-9_$]/.test(x) ? x : '_';
-        }).join('');
+        className = className.replace(/^[^$A-Za-z_]/, '_').replace(/[^0-9A-Za-z_$]/g, '_');
         try {
             // validate name
-            Function('function ' + className + '(){}')();
-            return className;
-        }
-        catch (e) {
-            className = DefaultName + '_' + className;
-        }
-        try {
             Function('function ' + className + '(){}')();
             return className;
         }
