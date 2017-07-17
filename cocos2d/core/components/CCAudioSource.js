@@ -44,10 +44,6 @@ var AudioSource = cc.Class({
         this.audio = new cc.Audio();
     },
 
-    onLoad: function () {
-        this.clip = this._clip;
-    },
-
     properties: {
         _clip: {
             default: '',
