@@ -2073,7 +2073,7 @@ cc.incrementGLDraws = function (addNumber) {
  * @method checkGLErrorDebug
  */
 cc.checkGLErrorDebug = function () {
-    if (cc.renderMode === cc.game.RENDER_TYPE_WEBGL) {
+    if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
         var _error = cc._renderContext.getError();
         if (_error) {
             cc.logID(2400, _error);
