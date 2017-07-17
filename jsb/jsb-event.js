@@ -36,9 +36,11 @@ Event.EventMouse.pool.get = function (fromEvt, eventType) {
     var loc = fromEvt.getLocation();
     event._x = loc.x;
     event._y = loc.y;
-    var prevLoc = fromEvt.getPreviousLocation();
-    event._prevX = prevLoc.x;
-    event._prevY = prevLoc.y;
+    var listener = fromEvt._listener;
+    if (listener) {
+        event._prevX = listener._previousX;
+        event._prevY = listener._previousY;
+    }
     event._scrollX = fromEvt.getScrollX();
     event._scrollY = fromEvt.getScrollY();
 
