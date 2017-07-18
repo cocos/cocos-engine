@@ -1,64 +1,94 @@
 
-function PhysicsContactListener () {
-    this._contactFixtures = [];
-}
+cc.PhysicsContactListener = module.exports = {
+    create: function () {
+        var contactFixtures = [];
 
-PhysicsContactListener.prototype.setBeginContact = function (cb) {
-    this._BeginContact = cb;
-};
+        var isWasm = b2.isWasm;
+        var contactListener = isWasm ? new Box2D.JSContactListener() : {};
 
-PhysicsContactListener.prototype.setEndContact = function (cb) {
-    this._EndContact = cb;
-};
+        var _BeginContact, _EndContact, _PreSolve, _PostSolve;
 
-PhysicsContactListener.prototype.setPreSolve = function (cb) {
-    this._PreSolve = cb;
-};
+        contactListener.setBeginContact = function (cb) {
+            _BeginContact = cb;
+        };
 
-PhysicsContactListener.prototype.setPostSolve = function (cb) {
-    this._PostSolve = cb;
-};
+        contactListener.setEndContact = function (cb) {
+            _EndContact = cb;
+        };
 
-PhysicsContactListener.prototype.BeginContact = function (contact) {
-    if (!this._BeginContact) return;
+        contactListener.setPreSolve = function (cb) {
+            _PreSolve = cb;
+        };
 
-    var fixtureA = contact.GetFixtureA();
-    var fixtureB = contact.GetFixtureB();
-    var fixtures = this._contactFixtures;
-    
-    contact._shouldReport = false;
-    
-    if (fixtures.indexOf(fixtureA) !== -1 || fixtures.indexOf(fixtureB) !== -1) {
-        contact._shouldReport = true; // for quick check whether this contact should report
-        this._BeginContact(contact);
+        contactListener.setPostSolve = function (cb) {
+            _PostSolve = cb;
+        };
+
+        contactListener.BeginContact = function (contact) {
+            if (!_BeginContact) return;
+
+            if (isWasm) {
+                contact = Box2D.wrapPointer( contact, b2.Contact );
+            }
+
+            var fixtureA = contact.GetFixtureA();
+            var fixtureB = contact.GetFixtureB();
+            var fixtures = contactFixtures;
+            
+            contact._shouldReport = false;
+            
+            if (fixtures.indexOf(fixtureA) !== -1 || fixtures.indexOf(fixtureB) !== -1) {
+                contact._shouldReport = true; // for quick check whether this contact should report
+                _BeginContact(contact);
+            }
+        };
+
+        contactListener.EndContact = function (contact) {
+            if (!_EndContact) return;
+
+            if (isWasm) {
+                contact = Box2D.wrapPointer( contact, b2.Contact );
+            }
+
+            if (!contact._shouldReport) return;
+
+            contact._shouldReport = false;
+            _EndContact(contact);
+        };
+
+        contactListener.PreSolve = function (contact) {
+            if (!_PreSolve) return;
+
+            if (isWasm) {
+                contact = Box2D.wrapPointer( contact, b2.Contact );
+            }
+
+            if (!contact._shouldReport) return;
+
+            _PreSolve(contact);
+        };
+
+        contactListener.PostSolve = function (contact, impulse) {
+            if (!_PostSolve) return;
+
+            if (isWasm) {
+                contact = Box2D.wrapPointer( contact, b2.Contact );
+                impulse = Box2D.wrapPointer( impulse, b2.ContactImpulse );
+            }
+
+            if (!contact._shouldReport) return;
+
+            _PostSolve(contact, impulse);
+        };
+
+        contactListener.registerContactFixture = function (fixture) {
+            contactFixtures.push(fixture);
+        };
+
+        contactListener.unregisterContactFixture = function (fixture) {
+            cc.js.array.remove(contactFixtures, fixture);
+        };
+
+        return contactListener;
     }
 };
-
-PhysicsContactListener.prototype.EndContact = function (contact) {
-    if (this._EndContact && contact._shouldReport) {
-        contact._shouldReport = false;
-        this._EndContact(contact);
-    }
-};
-
-PhysicsContactListener.prototype.PreSolve = function (contact, oldManifold) {
-    if (this._PreSolve && contact._shouldReport) {
-        this._PreSolve(contact, oldManifold);
-    }
-};
-
-PhysicsContactListener.prototype.PostSolve = function (contact, impulse) {
-    if (this._PostSolve && contact._shouldReport) {
-        this._PostSolve(contact, impulse);
-    }
-};
-
-PhysicsContactListener.prototype.registerContactFixture = function (fixture) {
-    this._contactFixtures.push(fixture);
-};
-
-PhysicsContactListener.prototype.unregisterContactFixture = function (fixture) {
-    cc.js.array.remove(this._contactFixtures, fixture);
-};
-
-cc.PhysicsContactListener = module.exports = PhysicsContactListener;
