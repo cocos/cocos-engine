@@ -244,15 +244,12 @@ var Mask = cc.Class({
         }
     },
 
-    __preload: function () {
-        this._refreshStencil();
-    },
-
     onEnable: function () {
         this._super();
         if (this.spriteFrame) {
             this.spriteFrame.ensureLoadTexture();
         }
+        this._refreshStencil();
         this.node.on('size-changed', this._refreshStencil, this);
         this.node.on('anchor-changed', this._refreshStencil, this);
     },
