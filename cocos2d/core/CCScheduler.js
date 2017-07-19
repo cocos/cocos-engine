@@ -535,7 +535,7 @@ cc.Scheduler = cc._Class.extend({
         //selector, target, interval, repeat, delay, paused
         //selector, target, interval, paused
         if (arguments.length === 4 || arguments.length === 5) {
-            paused = repeat;
+            paused = !!repeat;
             repeat = cc.macro.REPEAT_FOREVER;
             delay = 0;
         }
