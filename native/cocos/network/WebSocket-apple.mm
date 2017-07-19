@@ -13,19 +13,21 @@
 
 @interface WebSocketImpl : NSObject<SRWebSocketDelegate>
 {
-    cocos2d::network::WebSocket* _ccws;
-    cocos2d::network::WebSocket::Delegate* _delegate;
-    std::string _url;
-    std::string _selectedProtocol;
-}
 
-@property (nonatomic, retain) SRWebSocket* ws;
+}
 
 @end
 
 //
 
 @implementation WebSocketImpl
+{
+    SRWebSocket* _ws;
+    cocos2d::network::WebSocket* _ccws;
+    cocos2d::network::WebSocket::Delegate* _delegate;
+    std::string _url;
+    std::string _selectedProtocol;
+}
 
 -(id) initWithURL:(const std::string&) url protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates ws:(cocos2d::network::WebSocket*) ccws delegate:(const cocos2d::network::WebSocket::Delegate&) delegate
 {
@@ -35,37 +37,42 @@
         _delegate = const_cast<cocos2d::network::WebSocket::Delegate*>(&delegate);
         _url = url;
         NSURL* nsUrl = [[NSURL alloc] initWithString:[[NSString alloc] initWithUTF8String:_url.c_str()]];
-        self.ws = [[SRWebSocket alloc] initWithURL:nsUrl protocols:protocols allowsUntrustedSSLCertificates:allowsUntrustedSSLCertificates];
-        self.ws.delegate = self;
-        [self.ws open];
+        _ws = [[SRWebSocket alloc] initWithURL:nsUrl protocols:protocols allowsUntrustedSSLCertificates:allowsUntrustedSSLCertificates];
+        _ws.delegate = self;
+        [_ws open];
     }
     return self;
 }
 
+-(void) dealloc
+{
+    NSLog(@"WebSocketImpl-apple dealloc: %p, SRWebSocket ref: %ld", self, CFGetRetainCount((__bridge CFTypeRef)_ws));
+}
+
 -(void) sendString:(NSString*) message
 {
-    [self.ws sendString:message error:nil];
+    [_ws sendString:message error:nil];
 }
 
 -(void) sendData:(NSData*) data
 {
-    [self.ws sendData:data error:nil];
+    [_ws sendData:data error:nil];
 }
 
 -(void) close
 {
-    [self.ws close];
+    [_ws close];
 }
 
 -(void) closeAsync
 {
-    [self.ws close];
+    [_ws close];
 }
 
 -(cocos2d::network::WebSocket::State) getReadyState
 {
     cocos2d::network::WebSocket::State ret;
-    SRReadyState state = self.ws.readyState;
+    SRReadyState state = _ws.readyState;
     switch (state) {
         case SR_OPEN:
             ret = cocos2d::network::WebSocket::State::OPEN;
@@ -112,7 +119,7 @@
 {
     NSLog(@":( Websocket Failed With Error %@", error);
     _delegate->onError(_ccws, cocos2d::network::WebSocket::ErrorCode::UNKNOWN);
-    self.ws = nil;
+    [self webSocket:webSocket didCloseWithCode:0 reason:@"onerror" wasClean:YES];
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveMessageWithString:(nonnull NSString *)string
@@ -139,11 +146,9 @@
     _delegate->onMessage(_ccws, data);
 }
 
-- (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean;
+- (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean
 {
     _delegate->onClose(_ccws);
-
-    self.ws = nil;
 }
 
 @end
@@ -166,7 +171,6 @@ WebSocket::WebSocket()
 
 WebSocket::~WebSocket()
 {
-    _impl = nil;
 }
 
 
