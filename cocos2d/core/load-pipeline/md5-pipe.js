@@ -28,16 +28,24 @@ var Pipeline = require('./pipeline');
 var ID = 'MD5Pipe';
 var ExtnameRegex = /(\.[^.\n\\/]*)$/;
 
-var MD5Pipe = function (md5AssetsMap) {
+var MD5Pipe = function (md5AssetsMap, libraryBase, rawAssetsBase) {
     this.id = ID;
     this.async = false;
     this.pipeline = null;
     this.md5AssetsMap = md5AssetsMap;
+    this.libraryBase = libraryBase;
+    this.rawAssetsBase = rawAssetsBase;
 };
 MD5Pipe.ID = ID;
 
 MD5Pipe.prototype.handle = function(item) {
-    let hashValue = this.md5AssetsMap[item.url];
+    var key = item.url;
+    if (item.url.startsWith(this.libraryBase)) {
+        key = key.slice(this.libraryBase.length);
+    } else {
+        key = key.slice(this.rawAssetsBase.length);
+    }
+    let hashValue = this.md5AssetsMap[key];
     if (hashValue) {
         var matched = false;
         item.url  = item.url.replace(ExtnameRegex, function(match, p1) {

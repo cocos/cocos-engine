@@ -275,10 +275,6 @@ var AssetLibrary = {
             return;
         }
 
-        var md5AssetsMap = options.md5AssetsMap;
-        if (md5AssetsMap) {
-            cc.loader.insertPipeAfter(cc.loader.assetLoader, new MD5Pipe(md5AssetsMap));
-        }
 
         // 这里将路径转 url，不使用路径的原因是有的 runtime 不能解析 "\" 符号。
         // 不使用 url.format 的原因是 windows 不支持 file:// 和 /// 开头的协议，所以只能用 replace 操作直接把路径转成 URL。
@@ -287,6 +283,11 @@ var AssetLibrary = {
         _libraryBase = cc.path._setEndWithSep(libraryPath, '/');
 
         _rawAssetsBase = options.rawAssetsBase;
+
+        var md5AssetsMap = options.md5AssetsMap;
+        if (md5AssetsMap) {
+            cc.loader.insertPipeAfter(cc.loader.assetLoader, new MD5Pipe(md5AssetsMap, _libraryBase, _rawAssetsBase));
+        }
 
         // init raw assets
 
