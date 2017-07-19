@@ -296,6 +296,8 @@ bool JavascriptJavaBridge::convertReturnValue(JSContext *cx, ReturnValue retValu
         case TypeString:
             c_string_to_jsval(cx, retValue.stringValue->c_str(), ret, retValue.stringValue->size());
             break;
+        case TypeVoid:
+            break;
         default:
             return false;
     }
