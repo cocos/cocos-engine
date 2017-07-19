@@ -535,12 +535,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				509D4AC917EBB2AB00697056 /* RootViewController.mm in Sources */,
-				AB2EB9CB1D34F41700695C92 /* jsb_anysdk_basic_conversions.cpp in Sources */,
 				AB2EB9CE1D34F41700695C92 /* SDKManager.cpp in Sources */,
 				AB2EB9CC1D34F41700695C92 /* jsb_anysdk_protocols_auto.cpp in Sources */,
-				D4545227156E28EF00887EB5 /* AppDelegate.cpp in Sources */,
+				AB2EB9CB1D34F41700695C92 /* jsb_anysdk_basic_conversions.cpp in Sources */,
 				AB2EB9CD1D34F41700695C92 /* manualanysdkbindings.cpp in Sources */,
+				509D4AC917EBB2AB00697056 /* RootViewController.mm in Sources */,
+				D4545227156E28EF00887EB5 /* AppDelegate.cpp in Sources */,
 				509D4AC817EBB2AB00697056 /* main.m in Sources */,
 				509D4ABC17EBB2AB00697056 /* AppController.mm in Sources */,
 			);
