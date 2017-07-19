@@ -26,6 +26,7 @@
 'use strict';
 
 const Utils = require('../util/utils');
+const createBundler = require('../util/create-bundler');
 const Path = require('path');
 
 const Source = require('vinyl-source-stream');
@@ -42,13 +43,13 @@ const Optimizejs = require('gulp-optimize-js');
 exports.buildCocosJs = function (sourceFile, outputFile, excludes, callback) {
     var outDir = Path.dirname(outputFile);
     var outFile = Path.basename(outputFile);
-    var bundler = Utils.createBundler(sourceFile);
+    var bundler = createBundler(sourceFile);
 
     excludes && excludes.forEach(function (file) {
         bundler.ignore(file);
     });
 
-    var uglifyOption = Utils.uglifyOptions('build', false, true);
+    var uglifyOption = Utils.getUglifyOptions('build', false, true);
 
     bundler = bundler.bundle();
     bundler = bundler.pipe(Source(outFile));
@@ -70,13 +71,13 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, callback) {
 exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, callback, createMap) {
     var outDir = Path.dirname(outputFile);
     var outFile = Path.basename(outputFile);
-    var bundler = Utils.createBundler(sourceFile);
+    var bundler = createBundler(sourceFile);
 
     excludes && excludes.forEach(function (file) {
         bundler.ignore(file);
     });
 
-    var uglifyOption = Utils.uglifyOptions('build', false, false);
+    var uglifyOption = Utils.getUglifyOptions('build', false, false);
 
     var Size = null;
     try {
@@ -128,14 +129,14 @@ exports.buildPreview = function (sourceFile, outputFile, callback) {
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
-    var bundler = Utils.createBundler(sourceFile);
+    var bundler = createBundler(sourceFile);
     bundler.bundle()
         .on('error', HandleErrors.handler)
         .pipe(HandleErrors())
         .pipe(Source(outFile))
         .pipe(Buffer())
         .pipe(Sourcemaps.init({loadMaps: true}))
-        .pipe(Minifier(Utils.uglifyOptions('preview', false, false), UglifyHarmony))
+        .pipe(Minifier(Utils.getUglifyOptions('preview', false, false), UglifyHarmony))
         .pipe(Optimizejs({
             sourceMap: false
         }))
@@ -152,7 +153,7 @@ exports.buildJsbPreview = function (sourceFile, outputFile, jsbSkipModules, call
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
-    var bundler = Utils.createBundler(sourceFile);
+    var bundler = createBundler(sourceFile);
     jsbSkipModules.forEach(function (module) {
         bundler.ignore(require.resolve(module));
     });
@@ -161,7 +162,7 @@ exports.buildJsbPreview = function (sourceFile, outputFile, jsbSkipModules, call
         .pipe(HandleErrors())
         .pipe(Source(outFile))
         .pipe(Buffer())
-        .pipe(Minifier(Utils.uglifyOptions('preview', true, false), UglifyHarmony))
+        .pipe(Minifier(Utils.getUglifyOptions('preview', true, false), UglifyHarmony))
         .pipe(Optimizejs({
             sourceMap: false
         }))
@@ -175,7 +176,7 @@ exports.buildJsb = function (sourceFile, outputFile, jsbSkipModules, callback) {
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
-    var bundler = Utils.createBundler(sourceFile);
+    var bundler = createBundler(sourceFile);
     jsbSkipModules.forEach(function (module) {
         bundler.ignore(require.resolve(module));
     });
@@ -185,7 +186,7 @@ exports.buildJsb = function (sourceFile, outputFile, jsbSkipModules, callback) {
         .pipe(Source(outFile))
         .pipe(Buffer())
         .pipe(FixJavaScriptCore())
-        .pipe(Minifier(Utils.uglifyOptions('build', true, true), UglifyHarmony))
+        .pipe(Minifier(Utils.getUglifyOptions('build', true, true), UglifyHarmony))
         .pipe(Optimizejs({
             sourceMap: false
         }))
@@ -199,7 +200,7 @@ exports.buildJsbMin = function (sourceFile, outputFile, jsbSkipModules, callback
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
-    var bundler = Utils.createBundler(sourceFile);
+    var bundler = createBundler(sourceFile);
     jsbSkipModules.forEach(function (module) {
         bundler.ignore(require.resolve(module));
     });
@@ -209,7 +210,7 @@ exports.buildJsbMin = function (sourceFile, outputFile, jsbSkipModules, callback
         .pipe(Source(outFile))
         .pipe(Buffer())
         .pipe(FixJavaScriptCore())
-        .pipe(Minifier(Utils.uglifyOptions('build', true, false), UglifyHarmony))
+        .pipe(Minifier(Utils.getUglifyOptions('build', true, false), UglifyHarmony))
         .pipe(Optimizejs({
             sourceMap: false
         }))
