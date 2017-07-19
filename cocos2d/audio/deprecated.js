@@ -102,9 +102,8 @@ exports.deprecated = function (audioEngine) {
 	});
 	js.get(audioEngine, 'playEffect', function () {
 		// cc.warn(INFO, 'audioEngine.playEffect', 'audioEngine.play');
-
 		return function (url, loop, volume) {
-			return audioEngine.play(url, loop, volume === undefined ? effectsVolume : volume);
+			return audioEngine.play(url, loop || false, volume === undefined ? effectsVolume : volume);
 		}
 	});
 	js.get(audioEngine, 'setEffectsVolume', function (volume) {
