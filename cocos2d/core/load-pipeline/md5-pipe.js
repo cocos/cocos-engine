@@ -40,10 +40,12 @@ MD5Pipe.ID = ID;
 
 MD5Pipe.prototype.handle = function(item) {
     var key = item.url;
-    if (item.url.startsWith(this.libraryBase)) {
+    if (key.startsWith(this.libraryBase)) {
         key = key.slice(this.libraryBase.length);
-    } else {
+    } else if(key.startsWith(this.rawAssetsBase)) {
         key = key.slice(this.rawAssetsBase.length);
+    } else {
+        return item;
     }
     let hashValue = this.md5AssetsMap[key];
     if (hashValue) {
