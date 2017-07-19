@@ -286,7 +286,7 @@ var ccclass = checkCtorArgument(function (ctor, name) {
  *     }
  * });
  * @typescript
- * property(options?: {type?: any; url?: typeof cc.RawAsset; visible?: boolean|(() => boolean); displayName?: string; tooltip?: string; multiline?: boolean; readonly?: boolean; min?: number; max?: number; step?: number; range?: number[]; slide?: boolean; serializable?: boolean; editorOnly?: boolean; override?: boolean; animatable?: boolean; default?: any}): Function
+ * property(options?: {type?: any; url?: typeof cc.RawAsset; visible?: boolean|(() => boolean); displayName?: string; tooltip?: string; multiline?: boolean; readonly?: boolean; min?: number; max?: number; step?: number; range?: number[]; slide?: boolean; serializable?: boolean; editorOnly?: boolean; override?: boolean; animatable?: boolean; default?: any} | any[]|Function|cc.ValueType|number|string|boolean): Function
  * property(_target: Object, _key: any, _desc?: any): void
  */
 function property (ctorProtoOrOptions, propName, desc) {

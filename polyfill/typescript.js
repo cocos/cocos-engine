@@ -1,3 +1,4 @@
+// tslib 1.7.1
 var extendStatics = Object.setPrototypeOf ||
                     ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
                     function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
