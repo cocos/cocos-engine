@@ -228,7 +228,18 @@ Audio.State = {
         this._bindEnded(function () {
             this._bindEnded();
         }.bind(this));
-        this._element.currentTime = num;
+        try {
+            this._element.currentTime = num;
+        } catch (err) {
+            var _element = this._element;
+            if (_element.addEventListener) {
+                var func = function () {
+                    _element.removeEventListener('loadedmetadata', func);
+                    _element.currentTime = num;
+                };
+                _element.addEventListener('loadedmetadata', func);
+            }
+        }
     };
     proto.getCurrentTime = function () {
         return this._element ? this._element.currentTime : 0;
