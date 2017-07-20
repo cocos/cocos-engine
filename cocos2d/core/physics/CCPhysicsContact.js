@@ -4,6 +4,7 @@ var ContactType = require('./CCPhysicsTypes').ContactType;
 
 var pools = [];
 
+var isWasm = b2.isWasm;
 
 // temp world manifold
 var pointCache = [cc.v2(), cc.v2()];
@@ -240,21 +241,36 @@ PhysicsContact.prototype.getWorldManifold = function () {
     }
     else {
         this._b2contact.GetWorldManifold(b2worldmanifold);
-        var b2points = b2worldmanifold.points;
-        var b2separations = b2worldmanifold.separations;
 
-        var count = this._b2contact.GetManifold().pointCount;
-        points.length = separations.length = count;
-        
-        for (var i = 0; i < count; i++) {
-            var p = pointCache[i];
-            p.x = b2points[i].x * PTM_RATIO;
-            p.y = b2points[i].y * PTM_RATIO;
+        if (isWasm) {
+            var count = this._b2contact.GetManifold().get_pointCount();
+            points.length = separations.length = count;
             
-            points[i] = p;
-            separations[i] = b2separations[i] * PTM_RATIO;
-        }
+            for (var i = 0; i < count; i++) {
+                var p = pointCache[i];
+                var b2point = b2worldmanifold.get_points(i);
+                p.x = b2point.x * PTM_RATIO;
+                p.y = b2point.y * PTM_RATIO;
+                points[i] = p;
 
+                separations[i] = b2worldmanifold.get_separations(i) * PTM_RATIO;
+            }
+        }
+        else {
+            var b2points = b2worldmanifold.points;
+
+            var count = this._b2contact.GetManifold().pointCount;
+            points.length = separations.length = count;
+            
+            for (var i = 0; i < count; i++) {
+                var p = pointCache[i];
+                p.x = b2points[i].x * PTM_RATIO;
+                p.y = b2points[i].y * PTM_RATIO;
+                
+                points[i] = p;
+            }
+        }
+       
         normal.x = b2worldmanifold.normal.x;
         normal.y = b2worldmanifold.normal.y;
     }
@@ -302,18 +318,35 @@ PhysicsContact.prototype.getManifold = function () {
     }
     else {
         var b2manifold = this._b2contact.GetManifold();
-        var b2points = b2manifold.points;
-        var count = points.length = b2manifold.pointCount;
 
-        for (var i = 0; i < count; i++) {
-            var p = manifoldPointCache[i];
-            var b2p = b2points[i];
-            p.localPoint.x = b2p.localPoint.x * PTM_RATIO;
-            p.localPoint.Y = b2p.localPoint.Y * PTM_RATIO;
-            p.normalImpulse = b2p.normalImpulse * PTM_RATIO;
-            p.tangentImpulse = b2p.tangentImpulse;
+        if (isWasm) {
+            var count = points.length = b2manifold.pointCount;
 
-            points[i] = p;
+            for (var i = 0; i < count; i++) {
+                var p = manifoldPointCache[i];
+                var b2p = b2manifold.get_points(i);
+                p.localPoint.x = b2p.localPoint.x * PTM_RATIO;
+                p.localPoint.Y = b2p.localPoint.Y * PTM_RATIO;
+                p.normalImpulse = b2p.normalImpulse * PTM_RATIO;
+                p.tangentImpulse = b2p.tangentImpulse;
+
+                points[i] = p;
+            }
+        }
+        else {
+            var b2points = b2manifold.points;
+            var count = points.length = b2manifold.pointCount;
+
+            for (var i = 0; i < count; i++) {
+                var p = manifoldPointCache[i];
+                var b2p = b2points[i];
+                p.localPoint.x = b2p.localPoint.x * PTM_RATIO;
+                p.localPoint.Y = b2p.localPoint.Y * PTM_RATIO;
+                p.normalImpulse = b2p.normalImpulse * PTM_RATIO;
+                p.tangentImpulse = b2p.tangentImpulse;
+
+                points[i] = p;
+            }
         }
 
         localPoint.x = b2manifold.localPoint.x * PTM_RATIO;
@@ -342,6 +375,11 @@ PhysicsContact.prototype.getManifold = function () {
  * @return {PhysicsImpulse}
  */
 PhysicsContact.prototype.getImpulse = function () {
+    if (isWasm) {
+        cc.warn('Wasm not support getImpulse yet.');
+        return null;
+    }
+
     var b2impulse = this._impulse;
     if (!b2impulse) return null;
 
@@ -356,7 +394,14 @@ PhysicsContact.prototype.getImpulse = function () {
             tangentImpulses[i] = b2impulse.getTangentImpulse(i);
         }
     }
-    else {
+    else if (isWasm) {
+        count = b2impulse.get_count();
+        for (var i = 0; i < count; i++) {
+            normalImpulses[i] = b2impulse.get_normalImpulses(i) * PTM_RATIO;
+            tangentImpulses[i] = b2impulse.get_tangentImpulses(i);
+        }
+    }
+    else  {
         count = b2impulse.count;
         for (var i = 0; i < count; i++) {
             normalImpulses[i] = b2impulse.normalImpulses[i] * PTM_RATIO;

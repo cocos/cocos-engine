@@ -122,6 +122,10 @@ var PhysicsManager = cc.Class({
         this._steping = true;
         var timeStep = 1/cc.game.config['frameRate'];
 
+        if (this._debugDrawer) {
+            this._debugDrawer.ClearDraw();
+        }
+
         // http://new.gafferongames.com/post/fix_your_timestep/
         // will be super slow
         
@@ -366,7 +370,7 @@ var PhysicsManager = cc.Class({
 
         if (this._contactListener) return;
 
-        var listener = new cc.PhysicsContactListener();
+        var listener = CC_JSB ? new cc.PhysicsContactListener() : cc.PhysicsContactListener.create();
         listener.setBeginContact(this._onBeginContact);
         listener.setEndContact(this._onEndContact);
         listener.setPreSolve(this._onPreSolve);
@@ -375,8 +379,8 @@ var PhysicsManager = cc.Class({
 
         this._contactListener = listener;
 
-        this._aabbQueryCallback = new cc.PhysicsAABBQueryCallback();
-        this._raycastQueryCallback = new cc.PhysicsRayCastCallback();
+        this._aabbQueryCallback = CC_JSB ? new cc.PhysicsAABBQueryCallback() : cc.PhysicsAABBQueryCallback.create();
+        this._raycastQueryCallback = CC_JSB ? new cc.PhysicsRayCastCallback() : cc.PhysicsRayCastCallback.create();
     },
 
     _init: function () {
@@ -501,7 +505,7 @@ cc.js.getset(PhysicsManager.prototype, 'debugDrawFlags',
     function (value) {
         if (value && !this._debugDrawFlags) {
             if (!this._debugDrawer) {
-                this._debugDrawer = new cc.PhysicsDebugDraw(PTM_RATIO);
+                this._debugDrawer = CC_JSB ? new cc.PhysicsDebugDraw(PTM_RATIO) : cc.PhysicsDebugDraw.create();
                 this._world.SetDebugDraw( this._debugDrawer );
             }
 

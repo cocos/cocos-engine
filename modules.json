@@ -204,7 +204,8 @@
   {
     "name": "Physics",
     "entries": [
-      "./cocos2d/core/physics/index.js"
+      "./cocos2d/core/physics/index.js",
+      "./wasm/box2d/index.js"
     ],
     "dependencies": ["Collider"]
   },

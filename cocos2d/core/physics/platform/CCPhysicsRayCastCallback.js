@@ -1,59 +1,73 @@
+var isWasm = b2.isWasm;
 
-function PhysicsRayCastCallback () {
-    this._type = 0;
-    this._fixtures = [];
-    this._points = [];
-    this._normals = [];
-    this._fractions = [];
-}
+cc.PhysicsRayCastCallback = module.exports = {
+    create: function () {
+        var type = 0;
+        var fixtures = [];
+        var points = [];
+        var normals = [];
+        var fractions = [];
 
-PhysicsRayCastCallback.prototype.init = function (type) {
-    this._type = type;
-    this._fixtures.length = 0;
-    this._points.length = 0;
-    this._normals.length = 0;
-    this._fractions.length = 0;
-};
+        var callback = isWasm ? new Box2D.JSRayCastCallback() : {};
 
-PhysicsRayCastCallback.prototype.ReportFixture = function (fixture, point, normal, fraction) {
-    if (this._type === 0) { // closest
-        this._fixtures[0] = fixture;
-        this._points[0] = point;
-        this._normals[0] = normal;
-        this._fractions[0] = fraction;
-        return fraction;
+        callback.init = function (raycastType) {
+            type = raycastType;
+            fixtures.length = 0;
+            points.length = 0;
+            normals.length = 0;
+            fractions.length = 0;
+        };
+
+        callback.ReportFixture = function (fixture, point, normal, fraction) {
+            if (isWasm) {
+                fixture = Box2D.wrapPointer( fixture, b2.Fixture );
+                point = Box2D.wrapPointer( point, b2.Vec2 );
+                normal = Box2D.wrapPointer( normal, b2.Vec2 );
+
+                point = new b2.Vec2(point.x, point.y);
+                normal = new b2.Vec2(normal.x, normal.y);
+            }
+
+            if (type === 0) { // closest
+                fixtures[0] = fixture;
+                points[0] = point;
+                normals[0] = normal;
+                fractions[0] = fraction;
+                return fraction;
+            }
+
+            fixtures.push(fixture);
+            points.push(point);
+            normals.push(normal);
+            fractions.push(fraction);
+            
+            if (type === 1) { // any
+                return 0;
+            }
+            else if (type >= 2) { // all
+                return 1;
+            }
+
+            return fraction;
+        };
+
+
+        callback.getFixtures = function () {
+            return fixtures;
+        };
+
+        callback.getPoints = function () {
+            return points;
+        };
+
+        callback.getNormals = function () {
+            return normals;
+        };
+
+        callback.getFractions = function () {
+            return fractions;
+        };
+
+        return callback;
     }
-
-    this._fixtures.push(fixture);
-    this._points.push(point);
-    this._normals.push(normal);
-    this._fractions.push(fraction);
-    
-    if (this._type === 1) { // any
-        return 0;
-    }
-    else if (this._type >= 2) { // all
-        return 1;
-    }
-
-    return fraction;
 };
-
-
-PhysicsRayCastCallback.prototype.getFixtures = function () {
-    return this._fixtures;
-};
-
-PhysicsRayCastCallback.prototype.getPoints = function () {
-    return this._points;
-};
-
-PhysicsRayCastCallback.prototype.getNormals = function () {
-    return this._normals;
-};
-
-PhysicsRayCastCallback.prototype.getFractions = function () {
-    return this._fractions;
-};
-
-cc.PhysicsRayCastCallback = module.exports = PhysicsRayCastCallback;

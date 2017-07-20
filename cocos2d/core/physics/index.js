@@ -1,5 +1,5 @@
 
-if (!CC_JSB) {
+if (!CC_JSB && (!CC_BUILD || CC_EDITOR)) {
     window.b2 = require('../../../external/box2d/box2d');
 }
 

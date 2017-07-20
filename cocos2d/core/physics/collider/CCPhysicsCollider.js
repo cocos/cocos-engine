@@ -180,11 +180,10 @@ var PhysicsCollider = cc.Class({
             maskBits |= 1 << i;
         }
 
-        var filter = {
-            categoryBits: categoryBits,
-            maskBits: maskBits,
-            groupIndex: 0
-        };
+        var filter = b2.isWasm ? new b2.Filter() : {};
+        filter.categoryBits = categoryBits;
+        filter.maskBits = maskBits;
+        filter.groupIndex = 0;
 
         var manager = cc.director.getPhysicsManager();
 
@@ -197,7 +196,7 @@ var PhysicsCollider = cc.Class({
             fixDef.friction = this.friction;
             fixDef.restitution = this.restitution;
             fixDef.shape = shape;
-
+            
             fixDef.filter = filter;
 
             var fixture = innerBody.CreateFixture(fixDef);
