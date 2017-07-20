@@ -654,5 +654,11 @@ bool jsb_register_global_variables(se::Object* global)
 
     se::ScriptEngine::getInstance()->clearException();
 
+    se::ScriptEngine::getInstance()->addAfterCleanupHook([](){
+        __ccObj->release();
+        __jsbObj->release();
+        __jscObj->release();
+    });
+
     return true;
 }

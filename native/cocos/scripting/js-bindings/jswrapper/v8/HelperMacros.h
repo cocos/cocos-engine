@@ -44,6 +44,8 @@
 #define SE_BIND_FINALIZE_FUNC(funcName) \
     void funcName##Registry(void* nativeThisObject) \
     { \
+        if (nativeThisObject == nullptr) \
+            return; \
         se::State state(nativeThisObject); \
         if (!funcName(state)) \
             return; \

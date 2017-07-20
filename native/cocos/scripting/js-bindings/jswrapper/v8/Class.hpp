@@ -19,6 +19,7 @@ namespace se {
         static Class* create(const std::string& clsName, Object* parent, Object* parentProto, v8::FunctionCallback ctor);
 
 		bool install();
+        void destroy();
 
         bool defineFunction(const char *name, v8::FunctionCallback func);
         bool defineProperty(const char *name, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter);
@@ -33,6 +34,8 @@ namespace se {
         const char* getName() const { return _name.c_str(); }
 
 	private:
+        void setCreateProto(bool createProto);
+
         bool init(const std::string& clsName, Object* parent, Object* parentProto, v8::FunctionCallback ctor);
         static void cleanup();
 //        static v8::Local<v8::Object> _createJSObject(const std::string &clsName, Class** outCls);
@@ -47,6 +50,7 @@ namespace se {
         v8::FunctionCallback _ctor;
 		v8::UniquePersistent<v8::FunctionTemplate> _ctorTemplate;
         V8FinalizeFunc _finalizeFunc;
+        bool _createProto;
 
         friend class ScriptEngine;
         friend class Object;

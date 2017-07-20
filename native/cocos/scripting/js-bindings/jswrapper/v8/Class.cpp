@@ -4,6 +4,7 @@
 
 #include "Object.hpp"
 #include "Utils.hpp"
+#include "ScriptEngine.hpp"
 
 namespace se {
 // ------------------------------------------------------- Object
@@ -11,6 +12,7 @@ namespace se {
     namespace {
 //        std::unordered_map<std::string, Class *> __clsMap;
         v8::Isolate* __isolate = nullptr;
+        std::vector<Class*> __allClasses;
     }
 
     Class::Class()
@@ -19,13 +21,13 @@ namespace se {
     , _proto(nullptr)
     , _ctor(nullptr)
     , _finalizeFunc(nullptr)
+    , _createProto(true)
     {
-
+        __allClasses.push_back(this);
     }
 
     Class::~Class()
     {
-        SAFE_RELEASE(_proto);
     }
 
     /* static */
@@ -43,8 +45,15 @@ namespace se {
     bool Class::init(const std::string& clsName, Object* parent, Object* parentProto, v8::FunctionCallback ctor)
     {
         _name = clsName;
+
         _parent = parent;
+        if (_parent != nullptr)
+            _parent->addRef();
+
         _parentProto = parentProto;
+        if (_parentProto != nullptr)
+            _parentProto->addRef();
+
         _ctor = ctor;
 
         _ctorTemplate.Reset(__isolate, v8::FunctionTemplate::New(__isolate, _ctor));
@@ -58,10 +67,33 @@ namespace se {
         return true;
     }
 
+    void Class::destroy()
+    {
+        SAFE_RELEASE(_parent);
+        SAFE_RELEASE(_proto);
+        SAFE_RELEASE(_parentProto);
+        _ctorTemplate.Reset();
+    }
+
     void Class::cleanup()
     {
-        //TODO:
-        assert(false);
+        for (auto cls : __allClasses)
+        {
+            cls->destroy();
+        }
+
+        se::ScriptEngine::getInstance()->addAfterCleanupHook([](){
+            for (auto cls : __allClasses)
+            {
+                delete cls;
+            }
+            __allClasses.clear();
+        });
+    }
+
+    void Class::setCreateProto(bool createProto)
+    {
+        _createProto = createProto;
     }
 
     bool Class::install()
@@ -96,7 +128,12 @@ namespace se {
         v8::MaybeLocal<v8::Value> prototypeObj = ctorChecked->Get(context, prototypeName.ToLocalChecked());
         if (prototypeObj.IsEmpty())
             return false;
-        _proto = Object::_createJSObject(this, v8::Local<v8::Object>::Cast(prototypeObj.ToLocalChecked()), true); //FIXME: release proto in cleanup method
+
+        if (_createProto)
+        {
+            // Proto object is released in Class::destroy.
+            _proto = Object::_createJSObject(this, v8::Local<v8::Object>::Cast(prototypeObj.ToLocalChecked()), true);
+        }
         return true;
     }
 

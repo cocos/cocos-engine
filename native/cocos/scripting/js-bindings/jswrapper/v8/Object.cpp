@@ -8,6 +8,7 @@
 namespace se {
 
     std::unordered_map<void* /*native*/, Object* /*jsobj*/> __nativePtrToObjectMap;
+    std::unordered_map<Object*, void*> __objectMap; // Currently, the value `void*` is always nullptr
     
     namespace {
         v8::Isolate* __isolate = nullptr;
@@ -19,6 +20,7 @@ namespace se {
     , _isKeepRootedUntilDie(false)
     , _hasPrivateData(false)
     , _finalizeCb(nullptr)
+    , _internalData(nullptr)
     {
     }
 
@@ -27,6 +29,12 @@ namespace se {
         if (_isRooted)
         {
             _obj.unref();
+        }
+
+        auto iter = __objectMap.find(this);
+        if (iter != __objectMap.end())
+        {
+            __objectMap.erase(iter);
         }
     }
 
@@ -65,9 +73,64 @@ namespace se {
         __isolate = isolate;
     }
 
+    /* static */
     void Object::cleanup()
     {
+        void* nativeObj = nullptr;
+        Object* obj = nullptr;
+        Class* cls = nullptr;
+
+        for (const auto& e : __nativePtrToObjectMap)
+        {
+            nativeObj = e.first;
+            obj = e.second;
+
+            if (obj->_finalizeCb != nullptr)
+            {
+                obj->_finalizeCb(nativeObj);
+            }
+            else
+            {
+                if (obj->_getClass() != nullptr)
+                {
+                    if (obj->_getClass()->_finalizeFunc != nullptr)
+                    {
+                        obj->_getClass()->_finalizeFunc(nativeObj);
+                    }
+                }
+            }
+            // internal data should only be freed in Object::cleanup, since in other case, it is freed in ScriptEngine::privateDataFinalize
+            if (obj->_internalData != nullptr)
+            {
+                free(obj->_internalData);
+                obj->_internalData = nullptr;
+            }
+            obj->release();
+        }
+
         __nativePtrToObjectMap.clear();
+
+        std::vector<Object*> toReleaseObjects;
+        for (const auto& e : __objectMap)
+        {
+            obj = e.first;
+            cls = obj->_getClass();
+            obj->_obj.persistent().Reset();
+            obj->_isRooted = false;
+
+            if (cls != nullptr && cls->_name == "__CCPrivateData")
+            {
+                toReleaseObjects.push_back(obj);
+            }
+        }
+
+        for (auto e : toReleaseObjects)
+        {
+            e->release();
+        }
+
+        __objectMap.clear();
+        __isolate = nullptr;
     }
 
     Object* Object::createPlainObject(bool rooted)
@@ -178,6 +241,9 @@ namespace se {
             _obj.ref();
         }
 
+        assert(__objectMap.find(this) == __objectMap.end());
+        __objectMap.emplace(this, nullptr);
+
         return true;
     }
 
@@ -276,7 +342,6 @@ namespace se {
         return true;
     }
 
-    // --- ArrayBuffer
     bool Object::isArrayBuffer() const
     {
         v8::Local<v8::Object> obj = const_cast<Object*>(this)->_obj.handle(__isolate);
@@ -297,7 +362,7 @@ namespace se {
     void Object::setPrivateData(void* data)
     {
         assert(!_hasPrivateData);
-        internal::setPrivate(__isolate, _obj, data);
+        internal::setPrivate(__isolate, _obj, data, &_internalData);
         __nativePtrToObjectMap.emplace(data, this);
         _hasPrivateData = true;
     }
@@ -327,8 +392,6 @@ namespace se {
     {
         return _obj;
     }
-
-// --- Call Function
 
     bool Object::call(const ValueArray& args, Object* thisObject, Value* rval/* = nullptr*/)
     {
@@ -384,8 +447,6 @@ namespace se {
         return false;
     }
 
-// --- Register Function
-
     bool Object::defineFunction(const char *funcName, void (*func)(const v8::FunctionCallbackInfo<v8::Value> &args))
     {
         v8::MaybeLocal<v8::String> maybeFuncName = v8::String::NewFromUtf8(__isolate, funcName, v8::NewStringType::kNormal);
@@ -403,8 +464,6 @@ namespace se {
 
         return ret.IsJust() && ret.FromJust();
     }
-
-// --- Arrays
 
     bool Object::isArray() const
     {
@@ -565,7 +624,8 @@ namespace se {
         return true;
     }
 
-    Class* Object::_getClass() const {
+    Class* Object::_getClass() const
+    {
         return _cls;
     }
 
@@ -607,16 +667,19 @@ namespace se {
         }
     }
 
-    bool Object::isRooted() const {
+    bool Object::isRooted() const
+    {
         return _isRooted;
     }
 
-    bool Object::isSame(Object *o) const {
+    bool Object::isSame(Object *o) const
+    {
         Object* a = const_cast<Object*>(this);
         return a->_obj.handle(__isolate) == o->_obj.handle(__isolate);
     }
 
-    bool Object::attachChild(Object *child) {
+    bool Object::attachChild(Object *child)
+    {
         assert(child);
 
         Object* global = ScriptEngine::getInstance()->getGlobalObject();
@@ -637,7 +700,8 @@ namespace se {
         return true;
     }
 
-    bool Object::detachChild(Object *child) {
+    bool Object::detachChild(Object *child)
+    {
         assert(child);
 
         Object* global = ScriptEngine::getInstance()->getGlobalObject();

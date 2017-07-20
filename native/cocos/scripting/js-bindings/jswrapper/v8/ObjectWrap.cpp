@@ -83,10 +83,10 @@ namespace se {
         ObjectWrap *wrap = data.GetParameter();
 //        LOGD("weakCallback: %p, nativeObj = %p, finalize: %p\n", wrap, wrap->_nativeObj, wrap->_finalizeCb);
         assert(wrap->refs_ == 0);
-        wrap->handle_.Reset();
         if (wrap->_finalizeCb != nullptr) {
             wrap->_finalizeCb(wrap->_nativeObj);
         }
+        wrap->handle_.Reset();
     }
 
 } // namespace se {

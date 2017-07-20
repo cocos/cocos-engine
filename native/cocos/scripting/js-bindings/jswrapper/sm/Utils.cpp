@@ -160,7 +160,7 @@ namespace se {
     void setReturnValue(JSContext* cx, const Value& data, const JS::CallArgs& argv)
     {
         JS::RootedValue rval(cx);
-        internal::seToJsValue(cx, data, &rval);
+        seToJsValue(cx, data, &rval);
         argv.rval().set(rval);
     }
 
@@ -191,14 +191,16 @@ namespace se {
         found = !!(cls->flags & JSCLASS_HAS_PRIVATE);
 
         if (found)
+        {
             return JS_GetPrivate(obj);
+        }
 
         if (JS_HasProperty(cx, obj, KEY_PRIVATE_DATA, &found) && found)
         {
             JS::RootedValue jsData(cx);
             if (JS_GetProperty(cx, obj, KEY_PRIVATE_DATA, &jsData))
             {
-                internal::PrivateData* privateData = (internal::PrivateData*)JS_GetPrivate(jsData.toObjectOrNull());
+                PrivateData* privateData = (PrivateData*)JS_GetPrivate(jsData.toObjectOrNull());
                 return privateData->data;
             }
         }
@@ -220,7 +222,7 @@ namespace se {
         {
             assert(finalizeCb);
             Object* privateObj = Object::createObjectWithClass(__jsb_CCPrivateData_class, false);
-            internal::PrivateData* privateData = (internal::PrivateData*)malloc(sizeof(internal::PrivateData));
+            PrivateData* privateData = (PrivateData*)malloc(sizeof(PrivateData));
             privateData->data = data;
             privateData->finalizeCb = finalizeCb;
             JS_SetPrivate(privateObj->_getJSObject(), privateData);
@@ -246,7 +248,7 @@ namespace se {
             JS::RootedValue jsData(cx);
             assert(JS_GetProperty(cx, obj, KEY_PRIVATE_DATA, &jsData));
 
-            internal::PrivateData* privateData = (internal::PrivateData*)JS_GetPrivate(jsData.toObjectOrNull());
+            PrivateData* privateData = (PrivateData*)JS_GetPrivate(jsData.toObjectOrNull());
             free(privateData);
             JS_SetPrivate(jsData.toObjectOrNull(), nullptr);
             bool ok = JS_DeleteProperty(cx, obj, KEY_PRIVATE_DATA);

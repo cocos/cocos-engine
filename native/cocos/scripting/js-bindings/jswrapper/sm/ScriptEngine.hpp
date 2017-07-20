@@ -81,6 +81,7 @@ namespace se {
         Object* _globalObj;
 
         bool _isValid;
+        bool _isInCleanup;
         NodeEventListener _nodeEventListener;
 
         std::vector<RegisterCallback> _registerCallbackArray;

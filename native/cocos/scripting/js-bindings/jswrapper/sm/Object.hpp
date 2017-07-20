@@ -75,10 +75,7 @@ namespace se {
         void* getPrivateData();
         void clearPrivateData();
 
-        typedef void (*DestroyNotify)(JS::HandleObject thing, void *data);
-
-
-        void switchToRooted(DestroyNotify notify = nullptr, void *data = nullptr);
+        void switchToRooted();
         void switchToUnrooted();
         void setKeepRootedUntilDie(bool keepRooted);
         bool isRooted() const;
@@ -91,7 +88,7 @@ namespace se {
         static void setContext(JSContext* cx);
         static void cleanup();
 
-        void putToRoot(JSObject* thing, DestroyNotify notify = nullptr, void* data = nullptr);
+        void putToRoot(JSObject* thing);
         void putToHeap(JSObject* thing);
         void debug(const char *what);
         void teardownRooting();
@@ -103,13 +100,10 @@ namespace se {
 
         bool _isRooted;  /* wrapper is in rooted mode */
         bool _isKeepRootedUntilDie;
-        bool _hasWeakRef;  /* we have a weak reference to the GjsContext */
 
         JS::Heap<JSObject*> _heap;  /* should be untouched if in rooted mode */
         JS::PersistentRootedObject* _root;  /* should be null if not in rooted mode */
 
-        DestroyNotify m_notify;
-        void* m_data;
         bool _hasPrivateData;
 
         Class* _cls;

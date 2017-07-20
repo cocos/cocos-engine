@@ -13,6 +13,10 @@ namespace se {
 
     class Class;
 
+    namespace internal {
+        struct PrivateData;
+    }
+
     class Object : public Ref
     {
     private:
@@ -33,12 +37,10 @@ namespace se {
         static Object* createObjectWithClass(Class* cls, bool rooted);
         static Object* _createJSObject(Class* cls, v8::Local<v8::Object> obj, bool rooted);
 
-        // --- Getter/Setter
         bool getProperty(const char *name, Value* data);
         void setProperty(const char *name, const Value& data);
         bool defineProperty(const char *name, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter);
 
-        // --- Function
         bool isFunction() const;
         bool _isNativeFunction() const;
         bool call(const ValueArray& args, Object* thisObject, Value* rval = nullptr);
@@ -46,7 +48,6 @@ namespace se {
         bool defineFunction(const char *funcName, v8::FunctionCallback func);
 
 
-        // --- TypedArrays
         bool isTypedArray() const;
         bool getTypedArrayData(uint8_t** ptr, size_t* length) const;
 
@@ -55,19 +56,16 @@ namespace se {
 //        void getAsUint16Array(unsigned short **ptr, unsigned int *length);
 //        void getAsUint32Array(unsigned int **ptr, unsigned int *length);
 
-        // --- Arrays
         bool isArray() const;
         bool getArrayLength(uint32_t* length) const;
         bool getArrayElement(uint32_t index, Value* data) const;
         bool setArrayElement(uint32_t index, const Value& data);
 
-        // --- ArrayBuffer
         bool isArrayBuffer() const;
         bool getArrayBufferData(uint8_t** ptr, size_t* length) const;
 
         bool getAllKeys(std::vector<std::string>* allKeys) const;
 
-        // --- Private
         void setPrivateData(void* data);
         void* getPrivateData() const;
         void clearPrivateData();
@@ -98,11 +96,13 @@ namespace se {
         bool _isKeepRootedUntilDie;
         bool _hasPrivateData;
         V8FinalizeFunc _finalizeCb;
+        internal::PrivateData* _internalData;
 
         friend class ScriptEngine;
     };
 
     extern std::unordered_map<void* /*native*/, Object* /*jsobj*/> __nativePtrToObjectMap;
+    extern std::unordered_map<Object*, void*> __objectMap; // Currently, the value `void*` is always nullptr
 
 } // namespace se {
 

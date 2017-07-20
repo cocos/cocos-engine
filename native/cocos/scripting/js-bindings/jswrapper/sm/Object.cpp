@@ -25,23 +25,14 @@ namespace se {
                 jsObj.set(nsval.toObjectOrNull());
             }
         }
-
-//        void on_context_destroy(void* data)
-//        {
-//            auto self = static_cast<Object*>(data);
-//            self->invalidate();
-//        }
     }
 
     // ------------------------------------------------------- Object
 
     Object::Object()
     : _isRooted(false)
-    , _hasWeakRef(false)
     , _root(nullptr)
     , _isKeepRootedUntilDie(false)
-    , m_notify(nullptr)
-    , m_data(nullptr)
     , _hasPrivateData(false)
     , _cls(nullptr)
     , _finalizeCb(nullptr)
@@ -517,6 +508,7 @@ namespace se {
         ScriptEngine::getInstance()->addAfterCleanupHook([](){
             __objectMap.clear();
             __nativePtrToObjectMap.clear();
+            __cx = nullptr;
         });
     }
 
@@ -534,62 +526,20 @@ namespace se {
         delete _root;
         _root = nullptr;
         _isRooted = false;
-
-        if (!_hasWeakRef)
-            return;
-
-        //cjh        auto gjs_cx = static_cast<GjsContext *>(JS_GetContextPrivate(__cx));
-        //        g_object_weak_unref(G_OBJECT(gjs_cx), on_context_destroy, this);
-        _hasWeakRef = false;
     }
 
-    /* Called for a rooted wrapper when the JSContext is about to be destroyed.
-     * This calls the destroy-notify callback if one was passed to root(), and
-     * then removes all rooting from the object. */
-    void Object::invalidate()
-    {
-        debug("invalidate()");
-        assert(_isRooted);
-
-        /* The weak ref is already gone because the context is dead, so no need
-         * to remove it. */
-        _hasWeakRef = false;
-
-        /* The object is still live across this callback. */
-        if (m_notify)
-        {
-            JS::RootedObject rootedObj(__cx, _getJSObject());
-            m_notify(rootedObj, m_data);
-        }
-        
-        reset();
-    }
-
-    /* To access the GC thing, call get(). In many cases you can just use the
-     * MaybeOwned wrapper in place of the GC thing itself due to the implicit
-     * cast operator. But if you want to call methods on the GC thing, for
-     * example if it's a JS::Value, you have to use get(). */
     JSObject* Object::_getJSObject() const
     {
         return _isRooted ? _root->get() : _heap.get();
     }
 
-    /* Roots the GC thing. You must not use this if you're already using the
-     * wrapper to store a non-rooted GC thing. */
-    void Object::putToRoot(JSObject* thing, DestroyNotify notify/* = nullptr*/, void* data/* = nullptr*/)
+    void Object::putToRoot(JSObject* thing)
     {
         debug("root()");
         assert(!_isRooted);
         assert(_heap.get() == JS::GCPolicy<JSObject*>::initial());
         _isRooted = true;
-        m_notify = notify;
-        m_data = data;
         _root = new JS::PersistentRootedObject(__cx, thing);
-
-        //cjh        auto gjs_cx = static_cast<GjsContext *>(JS_GetContextPrivate(__cx));
-        //        assert(GJS_IS_CONTEXT(gjs_cx));
-        //        g_object_weak_ref(G_OBJECT(gjs_cx), on_context_destroy, this);
-        _hasWeakRef = true;
     }
 
     void Object::putToHeap(JSObject* thing)
@@ -602,18 +552,17 @@ namespace se {
     void Object::reset()
     {
         debug("reset()");
-        if (!_isRooted)
+        if (_isRooted)
+        {
+            teardownRooting();
+        }
+        else
         {
             _heap = JS::GCPolicy<JSObject*>::initial();
-            return;
         }
-
-        teardownRooting();
-        m_notify = nullptr;
-        m_data = nullptr;
     }
 
-    void Object::switchToRooted(DestroyNotify notify/* = nullptr*/, void *data/* = nullptr*/)
+    void Object::switchToRooted()
     {
         debug("switch to rooted");
         if (_isRooted)
@@ -625,7 +574,7 @@ namespace se {
         JS::RootedObject thing(__cx, _heap);
 
         reset();
-        putToRoot(thing, notify, data);
+        putToRoot(thing);
         assert(_isRooted);
     }
 
@@ -674,6 +623,9 @@ namespace se {
     {
         debug("updateAfterGC()");
         assert(!_isRooted);
+        bool isGarbageCollected = false;
+        internal::PrivateData* internalData = nullptr;
+
         JSObject* oldPtr = _heap.unbarrieredGet();
         if (_heap.unbarrieredGet() != nullptr)
             JS_UpdateWeakPointerAfterGC(&_heap);
@@ -689,7 +641,12 @@ namespace se {
         {
             assert(oldPtr == newPtr);
         }
-        return (newPtr == nullptr);
+        isGarbageCollected = (newPtr == nullptr);
+        if (isGarbageCollected && internalData != nullptr)
+        {
+            free(internalData);
+        }
+        return isGarbageCollected;
     }
     
     bool Object::isRooted() const

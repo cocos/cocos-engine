@@ -50,23 +50,25 @@ namespace se {
     private:
         ScriptEngine();
         ~ScriptEngine();
-        bool init();
-        void cleanup();
-
     public:
 
         static ScriptEngine* getInstance();
         static void destroyInstance();
 
-        // --- Returns the global object
         Object* getGlobalObject() const;
 
-        // --- Execute
+        typedef bool (*RegisterCallback)(Object*);
+        void addRegisterCallback(RegisterCallback cb);
+        bool start();
+
+        bool init();
+        void cleanup();
+        void addBeforeCleanupHook(const std::function<void()>& hook);
+        void addAfterCleanupHook(const std::function<void()>& hook);
+
         bool executeScriptBuffer(const char *string, Value *data = nullptr, const char *fileName = nullptr);
         bool executeScriptBuffer(const char *string, size_t length, Value *data = nullptr, const char *fileName = nullptr);
-        bool executeScriptFile(const std::string &filePath, Value *rval = nullptr);
 
-        // --- Run GC
         void gc();
 
         bool isValid() const;
@@ -106,6 +108,11 @@ namespace se {
 
         bool _isValid;
         NodeEventListener _nodeEventListener;
+
+        std::vector<RegisterCallback> _registerCallbackArray;
+        std::chrono::steady_clock::time_point _startTime;
+        std::vector<std::function<void()>> _beforeCleanupHookArray;
+        std::vector<std::function<void()>> _afterCleanupHookArray;
     };
 
 } // namespace se {

@@ -30,7 +30,7 @@ namespace se {
         void setReturnValue(const Value& data, const v8::PropertyCallbackInfo<v8::Value>& argv);
 
         bool hasPrivate(v8::Isolate* isolate, v8::Local<v8::Value> value);
-        void setPrivate(v8::Isolate* isolate, ObjectWrap& wrap, void* data);
+        void setPrivate(v8::Isolate* isolate, ObjectWrap& wrap, void* data, PrivateData** outInternalData);
         void* getPrivate(v8::Isolate* isolate, v8::Local<v8::Value> value);
         void clearPrivate(v8::Isolate* isolate, ObjectWrap& wrap);
 

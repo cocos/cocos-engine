@@ -135,32 +135,45 @@ namespace se {
             , _globalObj(nullptr)
             , _oldCompartment(nullptr)
             , _isValid(false)
+            , _isInCleanup(false)
             , _nodeEventListener(nullptr)
     {
         bool ok = JS_Init();
         assert(ok);
     }
 
+    /* static */
     void ScriptEngine::myWeakPointerCompartmentCallback(JSContext* cx, JSCompartment* comp, void* data)
     {
         myWeakPointerZoneGroupCallback(cx, data);
     }
 
+    /* static */
     void ScriptEngine::myWeakPointerZoneGroupCallback(JSContext* cx, void* data)
     {
+        bool isInCleanup = getInstance()->_isInCleanup;
         bool isIterUpdated = false;
+        Object* obj = nullptr;
         auto iter = __nativePtrToObjectMap.begin();
-        for (; iter != __nativePtrToObjectMap.end();)
+        while (iter != __nativePtrToObjectMap.end())
         {
+            obj = iter->second;
             isIterUpdated = false;
-            if (!iter->second->isRooted())
+            if (!obj->isRooted())
             {
-                if (iter->second->updateAfterGC(data))
+                if (obj->updateAfterGC(data))
                 {
-                    iter->second->release();
+                    obj->release();
                     iter = __nativePtrToObjectMap.erase(iter);
                     isIterUpdated = true;
                 }
+            }
+            else if (isInCleanup) // Rooted and in cleanup step
+            {
+                obj->teardownRooting();
+                obj->release();
+                iter = __nativePtrToObjectMap.erase(iter);
+                isIterUpdated = true;
             }
 
             if (!isIterUpdated)
@@ -259,6 +272,7 @@ namespace se {
         if (!_isValid)
             return;
 
+        _isInCleanup = true;
         for (const auto& hook : _beforeCleanupHookArray)
         {
             hook();
@@ -270,7 +284,7 @@ namespace se {
         Object::cleanup();
 
         // JS_RemoveWeakPointerZoneGroupCallback(_cx, ScriptEngine::myWeakPointerZoneGroupCallback);
-        JS_RemoveWeakPointerCompartmentCallback(_cx, ScriptEngine::myWeakPointerCompartmentCallback);
+//        JS_RemoveWeakPointerCompartmentCallback(_cx, ScriptEngine::myWeakPointerCompartmentCallback);
         JS_LeaveCompartment(_cx, _oldCompartment);
 
         JS_EndRequest(_cx);
@@ -289,6 +303,7 @@ namespace se {
             hook();
         }
         _afterCleanupHookArray.clear();
+        _isInCleanup = false;
     }
 
     void ScriptEngine::addBeforeCleanupHook(const std::function<void()>& hook)
@@ -409,6 +424,9 @@ namespace se {
 
     void ScriptEngine::clearException()
     {
+        if (_cx == nullptr)
+            return;
+
         if (JS_IsExceptionPending(_cx))
         {
             JS::RootedValue exceptionValue(_cx);

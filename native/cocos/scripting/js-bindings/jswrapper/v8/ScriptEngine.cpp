@@ -30,10 +30,6 @@ namespace se {
             ScriptEngine::getInstance()->gc();
         }
 
-        void privateDataContructor(const v8::FunctionCallbackInfo<v8::Value>& info)
-        {
-        }
-
         void myFatalErrorCallback(const char* location, const char* message)
         {
             LOGD("[FATAL ERROR] location: %s, message: %s\n", location, message);
@@ -109,23 +105,26 @@ namespace se {
     , _isValid(false)
     , _nodeEventListener(nullptr)
     {
-
+        //        RETRUN_VAL_IF_FAIL(v8::V8::InitializeICUDefaultLocation(nullptr, "/Users/james/Project/v8/out.gn/x64.debug/icudtl.dat"), false);
+        //        v8::V8::InitializeExternalStartupData("/Users/james/Project/v8/out.gn/x64.debug/natives_blob.bin", "/Users/james/Project/v8/out.gn/x64.debug/snapshot_blob.bin"); //TODO
+        _platform = v8::platform::CreateDefaultPlatform();
+        v8::V8::InitializePlatform(_platform);
+        bool ok = v8::V8::Initialize();
+        assert(ok);
     }
 
     ScriptEngine::~ScriptEngine()
     {
         cleanup();
+        v8::V8::Dispose();
+        v8::V8::ShutdownPlatform();
+        delete _platform;
+        _platform = nullptr;
     }
 
     bool ScriptEngine::init()
     {
         LOGD("Initializing V8\n");
-
-//        RETRUN_VAL_IF_FAIL(v8::V8::InitializeICUDefaultLocation(nullptr, "/Users/james/Project/v8/out.gn/x64.debug/icudtl.dat"), false);
-//        v8::V8::InitializeExternalStartupData("/Users/james/Project/v8/out.gn/x64.debug/natives_blob.bin", "/Users/james/Project/v8/out.gn/x64.debug/snapshot_blob.bin"); //TODO
-        _platform = v8::platform::CreateDefaultPlatform();
-        v8::V8::InitializePlatform(_platform);
-        RETRUN_VAL_IF_FAIL(v8::V8::Initialize(), false);
 
         // Create a new Isolate and make it the current one.
         _createParams.array_buffer_allocator = &_allocator;
@@ -150,8 +149,9 @@ namespace se {
         _globalObj->defineFunction("log", __log);
         _globalObj->defineFunction("forceGC", __forceGC);
 
-        __jsb_CCPrivateData_class = Class::create("__CCPrivateData", _globalObj, nullptr, privateDataContructor);
+        __jsb_CCPrivateData_class = Class::create("__CCPrivateData", _globalObj, nullptr, nullptr);
         __jsb_CCPrivateData_class->defineFinalizedFunction(privateDataFinalize);
+        __jsb_CCPrivateData_class->setCreateProto(false);
         __jsb_CCPrivateData_class->install();
 
         _isValid = true;
@@ -161,18 +161,40 @@ namespace se {
 
     void ScriptEngine::cleanup()
     {
-        SAFE_RELEASE(_globalObj);
+        if (!_isValid)
+            return;
 
-        Class::cleanup();
-        _context.Get(_isolate)->Exit();
-        _context.Reset();
-        _isolate->Exit();
+        {
+            AutoHandleScope hs;
+            for (const auto& hook : _beforeCleanupHookArray)
+            {
+                hook();
+            }
+            _beforeCleanupHookArray.clear();
 
+            SAFE_RELEASE(_globalObj);
+            Object::cleanup();
+            Class::cleanup();
+            gc();
+
+            _context.Get(_isolate)->Exit();
+            _context.Reset();
+            _isolate->Exit();
+        }
         _isolate->Dispose();
 
-        v8::V8::Dispose();
-        v8::V8::ShutdownPlatform();
-        delete _platform;
+        _isolate = nullptr;
+        _globalObj = nullptr;
+        _isValid = false;
+        _nodeEventListener = nullptr;
+
+        _registerCallbackArray.clear();
+
+        for (const auto& hook : _afterCleanupHookArray)
+        {
+            hook();
+        }
+        _afterCleanupHookArray.clear();
     }
 
     Object* ScriptEngine::getGlobalObject() const
@@ -180,9 +202,43 @@ namespace se {
         return _globalObj;
     }
 
+    void ScriptEngine::addBeforeCleanupHook(const std::function<void()>& hook)
+    {
+        _beforeCleanupHookArray.push_back(hook);
+    }
+
+    void ScriptEngine::addAfterCleanupHook(const std::function<void()>& hook)
+    {
+        _afterCleanupHookArray.push_back(hook);
+    }
+
+    void ScriptEngine::addRegisterCallback(RegisterCallback cb)
+    {
+        assert(std::find(_registerCallbackArray.begin(), _registerCallbackArray.end(), cb) == _registerCallbackArray.end());
+        _registerCallbackArray.push_back(cb);
+    }
+
+    bool ScriptEngine::start()
+    {
+        bool ok = false;
+        _startTime = std::chrono::steady_clock::now();
+
+        for (auto cb : _registerCallbackArray)
+        {
+            ok = cb(_globalObj);
+            assert(ok);
+            if (!ok)
+                break;
+        }
+
+        // After ScriptEngine is started, _registerCallbackArray isn't needed. Therefore, clear it here.
+        _registerCallbackArray.clear();
+        return ok;
+    }
+
     void ScriptEngine::gc()
     {
-        LOGD("GC begin ..., (js->native map) size: %d\n", (int)__nativePtrToObjectMap.size());
+        LOGD("GC begin ..., (js->native map) size: %d, all objects: %d\n", (int)__nativePtrToObjectMap.size(), (int)__objectMap.size());
         const double kLongIdlePauseInSeconds = 1.0;
         _isolate->ContextDisposedNotification();
         _isolate->IdleNotificationDeadline(_platform->MonotonicallyIncreasingTime() + kLongIdlePauseInSeconds);
@@ -190,14 +246,13 @@ namespace se {
         // garbage and will therefore also invoke all weak callbacks of actually
         // unreachable persistent handles.
         _isolate->LowMemoryNotification();
-        LOGD("GC end ..., (js->native map) size: %d\n", (int)__nativePtrToObjectMap.size());
+        LOGD("GC end ..., (js->native map) size: %d, all objects: %d\n", (int)__nativePtrToObjectMap.size(), (int)__objectMap.size());
     }
 
     bool ScriptEngine::isValid() const
     {
         return _isValid;
     }
-
 
     bool ScriptEngine::executeScriptBuffer(const char* string, Value *data, const char *fileName)
     {
@@ -240,25 +295,6 @@ namespace se {
         }
 
         return success;
-    }
-
-    bool ScriptEngine::executeScriptFile(const std::string& filePath, Value* rval/* = nullptr*/)
-    {
-        bool ret = false;
-        FILE* fp = fopen(filePath.c_str(), "rb");
-        if (fp != nullptr)
-        {
-            fseek(fp, 0, SEEK_END);
-            size_t fileSize = (size_t)ftell(fp);
-            fseek(fp, 0, SEEK_SET);
-            char* buffer = (char*) malloc(fileSize);
-            fread(buffer, fileSize, 1, fp);
-            ret = executeScriptBuffer(buffer, fileSize, rval, filePath.c_str());
-            free(buffer);
-            fclose(fp);
-        }
-
-        return ret;
     }
 
     void ScriptEngine::_retainScriptObject(void* owner, void* target)

@@ -159,7 +159,7 @@ namespace se {
             return ret.IsJust() && ret.FromJust();
         }
 
-        void setPrivate(v8::Isolate* isolate, ObjectWrap& wrap, void* data)
+        void setPrivate(v8::Isolate* isolate, ObjectWrap& wrap, void* data, PrivateData** outInternalData)
         {
             v8::Local<v8::Object> obj = wrap.handle(isolate);
             int c =  obj->InternalFieldCount();
@@ -167,15 +167,17 @@ namespace se {
             {
                 wrap.wrap(data);
 //                LOGD("setPrivate1: %p\n", data);
+                if (outInternalData != nullptr)
+                    *outInternalData = nullptr;
             }
             else
             {
                 Object* privateObj = Object::createObjectWithClass(__jsb_CCPrivateData_class, false);
-                internal::PrivateData* privateData = (internal::PrivateData*)malloc(sizeof(internal::PrivateData));
+                PrivateData* privateData = (PrivateData*)malloc(sizeof(PrivateData));
                 privateData->data = data;
                 privateData->seObj = privateObj;
 
-                privateObj->_getWrap().setFinalizeCallback(privateObj->_getClass()->_getFinalizeFunction());
+                privateObj->_getWrap().setFinalizeCallback(__jsb_CCPrivateData_class->_getFinalizeFunction());
                 privateObj->_getWrap().wrap(privateData);
 
                 v8::MaybeLocal<v8::String> key = v8::String::NewFromUtf8(isolate, KEY_PRIVATE_DATA, v8::NewStringType::kNormal);
@@ -183,7 +185,10 @@ namespace se {
                 v8::Maybe<bool> ret = obj->Set(isolate->GetCurrentContext(), key.ToLocalChecked(), privateObj->_getJSObject());
                 assert(!ret.IsNothing());
 //                LOGD("setPrivate: native data: %p\n", privateData);
-//                privateObj->release();
+//                privateObj->release(); // NOTE: it's released in ScriptEngine::privateDataFinalize
+
+                if (outInternalData != nullptr)
+                    *outInternalData = privateData;
             }
         }
 
@@ -220,7 +225,7 @@ namespace se {
             v8::MaybeLocal<v8::Object> privateObj = mbVal.ToLocalChecked()->ToObject(context);
             if (privateObj.IsEmpty())
                 return nullptr;
-            internal::PrivateData* privateData =  (internal::PrivateData*)ObjectWrap::unwrap(privateObj.ToLocalChecked());
+            PrivateData* privateData =  (PrivateData*)ObjectWrap::unwrap(privateObj.ToLocalChecked());
 //                LOGD("getPrivate: native data: %p\n", privateData);
             return privateData->data;
         }
@@ -254,7 +259,7 @@ namespace se {
                 if (privateObj.IsEmpty())
                     return;
 
-                internal::PrivateData* privateData =  (internal::PrivateData*)ObjectWrap::unwrap(privateObj.ToLocalChecked());
+                PrivateData* privateData =  (PrivateData*)ObjectWrap::unwrap(privateObj.ToLocalChecked());
                 free(privateData);
                 v8::Maybe<bool> ok = obj->Delete(context, keyChecked);
                 if (ok.IsNothing())
