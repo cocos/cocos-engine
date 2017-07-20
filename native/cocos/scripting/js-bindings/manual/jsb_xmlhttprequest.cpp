@@ -455,7 +455,6 @@ static bool XMLHttpRequest_constructor(se::State& s)
 {
     XMLHttpRequest* request = new XMLHttpRequest();
     s.thisObject()->setPrivateData(request);
-    s.thisObject()->addRef();
 
     se::Value thiz(s.thisObject());
 

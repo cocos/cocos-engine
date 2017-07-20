@@ -90,7 +90,7 @@ public:
 
         if (eventName == "disconnect")
         {
-            cocos2d::log("disconnect ... ");
+            cocos2d::log("disconnect ... "); //FIXME:
         }
     }
 
@@ -114,6 +114,7 @@ static bool SocketIO_finalize(se::State& s)
     SIOClient* cobj = (SIOClient*)s.nativeThisObject();
     CCLOGINFO("jsbindings: finalizing JS object %p (SocketIO)", cobj);
     cobj->disconnect();
+    cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(SocketIO_finalize)
@@ -271,6 +272,7 @@ static bool SocketIO_connect(se::State& s)
 
         CCLOG("Calling native SocketIO.connect method");
         SIOClient* ret = SocketIO::connect(url, *siodelegate, caFilePath);
+        ret->retain();
 
         se::Object* obj = se::Object::createObjectWithClass(__jsb_SocketIO_class, false);
         obj->setPrivateData(ret);

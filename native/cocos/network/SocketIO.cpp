@@ -405,7 +405,7 @@ SIOClientImpl::~SIOClientImpl()
 {
     assert(!_connected);
 
-    CC_SAFE_DELETE(_ws);
+    _ws->release();
 }
 
 void SIOClientImpl::handshake()
@@ -587,7 +587,7 @@ void SIOClientImpl::openSocket()
     _ws = new (std::nothrow) WebSocket();
     if (!_ws->init(*this, s.str(), nullptr, _caFilePath))
     {
-        CC_SAFE_DELETE(_ws);
+        CC_SAFE_RELEASE_NULL(_ws);
     }
 
     return;
@@ -1016,7 +1016,8 @@ SIOClient::SIOClient(const std::string& path, SIOClientImpl* impl, SocketIO::SIO
     , _socket(impl)
     , _delegate(&delegate)
 {
-
+    static uint32_t instanceIdCounter = 0;
+    _instanceId = instanceIdCounter++;
 }
 
 SIOClient::~SIOClient()
@@ -1065,9 +1066,11 @@ void SIOClient::emit(const std::string& eventname, const std::string& args)
 
 void SIOClient::disconnect()
 {
-    _connected = false;
-
-    _socket->disconnectFromEndpoint(_path);
+    if (_connected)
+    {
+        _connected = false;
+        _socket->disconnectFromEndpoint(_path);
+    }
 }
 
 void SIOClient::socketClosed()
@@ -1105,6 +1108,11 @@ void SIOClient::fireEvent(const std::string& eventName, const std::string& data)
 void SIOClient::setTag(const char* tag)
 {
     _tag = tag;
+}
+
+uint32_t SIOClient::getInstanceId() const
+{
+    return _instanceId;
 }
 
 //begin SocketIO methods

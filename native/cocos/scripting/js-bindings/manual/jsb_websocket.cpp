@@ -8,6 +8,7 @@
 #include "base/ccUTF8.h"
 #include "base/CCDirector.h"
 
+using namespace cocos2d;
 using namespace cocos2d::network;
 
 /*
@@ -38,7 +39,7 @@ using namespace cocos2d::network;
 
 se::Class* __jsb_WebSocket_class = nullptr;
 
-class JSB_WebSocketDelegate : public WebSocket::Delegate
+class JSB_WebSocketDelegate : public Ref, public WebSocket::Delegate
 {
 public:
 
@@ -46,11 +47,13 @@ public:
     {
     }
 
-    ~JSB_WebSocketDelegate()
+private:
+    virtual ~JSB_WebSocketDelegate()
     {
         CCLOGINFO("In the destructor of JSB_WebSocketDelegate(%p)", this);
     }
 
+public:
     virtual void onOpen(WebSocket* ws) override
     {
         se::ScriptEngine::getInstance()->clearException();
@@ -186,6 +189,9 @@ public:
             jsObj->release();
 
         } while(false);
+
+        ws->release();
+        release(); // Release delegate self at last
     }
 
     virtual void onError(WebSocket* ws, const WebSocket::ErrorCode& error) override
@@ -235,22 +241,15 @@ static bool WebSocket_finalize(se::State& s)
     WebSocket* cobj = (WebSocket*)s.nativeThisObject();
     CCLOGINFO("jsbindings: finalizing JS object %p (WebSocket)", cobj);
 
-    WebSocket::Delegate* delegate = cobj->getDelegate();
-
-    auto hook = std::make_shared<WebSocket::AfterCloseHook>([=](){
-        // Delete WebSocket delegate
-        delete delegate;
-        // Delete WebSocket instance
-        delete cobj;
-    });
-    cobj->setAfterCloseHook(hook);
-
     // Manually close if web socket is not closed
     if (cobj->getReadyState() != WebSocket::State::CLOSED)
     {
         CCLOGINFO("WebSocket (%p) isn't closed, try to close it!", cobj);
         cobj->closeAsync();
     }
+
+    static_cast<JSB_WebSocketDelegate*>(cobj->getDelegate())->release();
+    cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(WebSocket_finalize)
@@ -309,15 +308,37 @@ static bool WebSocket_constructor(se::State& s)
 
             cobj = new (std::nothrow) WebSocket();
             JSB_WebSocketDelegate* delegate = new (std::nothrow) JSB_WebSocketDelegate();
-            delegate->setJSDelegate(se::Value(obj));
-            cobj->init(*delegate, url, &protocols, caFilePath);
+            if (cobj->init(*delegate, url, &protocols, caFilePath))
+            {
+                delegate->setJSDelegate(se::Value(obj));
+                cobj->retain(); // release in finalize function and onClose delegate method
+                delegate->retain(); // release in finalize function and onClose delegate method
+            }
+            else
+            {
+                cobj->release();
+                delegate->release();
+                SE_REPORT_ERROR("WebSocket init failed!");
+                return false;
+            }
         }
         else
         {
             cobj = new (std::nothrow) WebSocket();
             JSB_WebSocketDelegate* delegate = new (std::nothrow) JSB_WebSocketDelegate();
-            delegate->setJSDelegate(se::Value(obj));
-            cobj->init(*delegate, url);
+            if (cobj->init(*delegate, url))
+            {
+                delegate->setJSDelegate(se::Value(obj));
+                cobj->retain(); // release in finalize function and onClose delegate method
+                delegate->retain(); // release in finalize function and onClose delegate method
+            }
+            else
+            {
+                cobj->release();
+                delegate->release();
+                SE_REPORT_ERROR("WebSocket init failed!");
+                return false;
+            }
         }
 
         obj->setProperty("url", args[0]);
@@ -329,7 +350,6 @@ static bool WebSocket_constructor(se::State& s)
         obj->setProperty("protocol", se::Value(""));
 
         obj->setPrivateData(cobj);
-        obj->addRef();
 
         return true;
     }

@@ -152,14 +152,12 @@
 		15AE1BB419AADFEF00C27E9E /* HttpResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AAF5365180E3374000584C8 /* HttpResponse.h */; };
 		15AE1BB519AADFEF00C27E9E /* SocketIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AAF5366180E3374000584C8 /* SocketIO.cpp */; };
 		15AE1BB619AADFEF00C27E9E /* SocketIO.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AAF5367180E3374000584C8 /* SocketIO.h */; };
-		15AE1BB719AADFEF00C27E9E /* WebSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AAF5368180E3374000584C8 /* WebSocket.cpp */; };
 		15AE1BB819AADFEF00C27E9E /* WebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AAF5369180E3374000584C8 /* WebSocket.h */; };
 		15AE1BBA19AADFF000C27E9E /* HttpClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AAF5363180E3374000584C8 /* HttpClient.h */; };
 		15AE1BBB19AADFF000C27E9E /* HttpRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AAF5364180E3374000584C8 /* HttpRequest.h */; };
 		15AE1BBC19AADFF000C27E9E /* HttpResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AAF5365180E3374000584C8 /* HttpResponse.h */; };
 		15AE1BBD19AADFF000C27E9E /* SocketIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AAF5366180E3374000584C8 /* SocketIO.cpp */; };
 		15AE1BBE19AADFF000C27E9E /* SocketIO.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AAF5367180E3374000584C8 /* SocketIO.h */; };
-		15AE1BBF19AADFF000C27E9E /* WebSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AAF5368180E3374000584C8 /* WebSocket.cpp */; };
 		15AE1BC019AADFF000C27E9E /* WebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AAF5369180E3374000584C8 /* WebSocket.h */; };
 		15AE1BC119AADFFB00C27E9E /* cocos-ext.h in Headers */ = {isa = PBXBuildFile; fileRef = 46A167D21807AF4D005B8026 /* cocos-ext.h */; };
 		15AE1BC219AADFFB00C27E9E /* ExtensionMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 46A168321807AF4E005B8026 /* ExtensionMacros.h */; };
@@ -234,6 +232,90 @@
 		1A12775A18DFCC4F0005F345 /* CCTweenFunction.h in Headers */ = {isa = PBXBuildFile; fileRef = 2986667918B1B079000E39CA /* CCTweenFunction.h */; };
 		1A12775B18DFCC540005F345 /* CCTweenFunction.h in Headers */ = {isa = PBXBuildFile; fileRef = 2986667918B1B079000E39CA /* CCTweenFunction.h */; };
 		1A12775C18DFCC590005F345 /* CCTweenFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2986667818B1B079000E39CA /* CCTweenFunction.cpp */; };
+		1A28FF1A1F20AF94007A1D9D /* WebSocket-apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF191F20AF94007A1D9D /* WebSocket-apple.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF1B1F20AF94007A1D9D /* WebSocket-apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF191F20AF94007A1D9D /* WebSocket-apple.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF4D1F20AFAB007A1D9D /* SRDelegateController.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF1F1F20AFAB007A1D9D /* SRDelegateController.h */; };
+		1A28FF4E1F20AFAB007A1D9D /* SRDelegateController.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF1F1F20AFAB007A1D9D /* SRDelegateController.h */; };
+		1A28FF4F1F20AFAB007A1D9D /* SRDelegateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF201F20AFAB007A1D9D /* SRDelegateController.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF501F20AFAB007A1D9D /* SRDelegateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF201F20AFAB007A1D9D /* SRDelegateController.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF511F20AFAB007A1D9D /* SRIOConsumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF221F20AFAB007A1D9D /* SRIOConsumer.h */; };
+		1A28FF521F20AFAB007A1D9D /* SRIOConsumer.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF221F20AFAB007A1D9D /* SRIOConsumer.h */; };
+		1A28FF531F20AFAB007A1D9D /* SRIOConsumer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF231F20AFAB007A1D9D /* SRIOConsumer.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF541F20AFAB007A1D9D /* SRIOConsumer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF231F20AFAB007A1D9D /* SRIOConsumer.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF551F20AFAB007A1D9D /* SRIOConsumerPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF241F20AFAB007A1D9D /* SRIOConsumerPool.h */; };
+		1A28FF561F20AFAB007A1D9D /* SRIOConsumerPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF241F20AFAB007A1D9D /* SRIOConsumerPool.h */; };
+		1A28FF571F20AFAB007A1D9D /* SRIOConsumerPool.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF251F20AFAB007A1D9D /* SRIOConsumerPool.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF581F20AFAB007A1D9D /* SRIOConsumerPool.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF251F20AFAB007A1D9D /* SRIOConsumerPool.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF591F20AFAB007A1D9D /* NSRunLoop+SRWebSocketPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF261F20AFAB007A1D9D /* NSRunLoop+SRWebSocketPrivate.h */; };
+		1A28FF5A1F20AFAB007A1D9D /* NSRunLoop+SRWebSocketPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF261F20AFAB007A1D9D /* NSRunLoop+SRWebSocketPrivate.h */; };
+		1A28FF5B1F20AFAB007A1D9D /* NSURLRequest+SRWebSocketPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF271F20AFAB007A1D9D /* NSURLRequest+SRWebSocketPrivate.h */; };
+		1A28FF5C1F20AFAB007A1D9D /* NSURLRequest+SRWebSocketPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF271F20AFAB007A1D9D /* NSURLRequest+SRWebSocketPrivate.h */; };
+		1A28FF5D1F20AFAB007A1D9D /* SRProxyConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF291F20AFAB007A1D9D /* SRProxyConnect.h */; };
+		1A28FF5E1F20AFAB007A1D9D /* SRProxyConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF291F20AFAB007A1D9D /* SRProxyConnect.h */; };
+		1A28FF5F1F20AFAB007A1D9D /* SRProxyConnect.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF2A1F20AFAB007A1D9D /* SRProxyConnect.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF601F20AFAB007A1D9D /* SRProxyConnect.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF2A1F20AFAB007A1D9D /* SRProxyConnect.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF611F20AFAB007A1D9D /* SRRunLoopThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF2C1F20AFAB007A1D9D /* SRRunLoopThread.h */; };
+		1A28FF621F20AFAB007A1D9D /* SRRunLoopThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF2C1F20AFAB007A1D9D /* SRRunLoopThread.h */; };
+		1A28FF631F20AFAB007A1D9D /* SRRunLoopThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF2D1F20AFAB007A1D9D /* SRRunLoopThread.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF641F20AFAB007A1D9D /* SRRunLoopThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF2D1F20AFAB007A1D9D /* SRRunLoopThread.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF651F20AFAB007A1D9D /* SRPinningSecurityPolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF2F1F20AFAB007A1D9D /* SRPinningSecurityPolicy.h */; };
+		1A28FF661F20AFAB007A1D9D /* SRPinningSecurityPolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF2F1F20AFAB007A1D9D /* SRPinningSecurityPolicy.h */; };
+		1A28FF671F20AFAB007A1D9D /* SRPinningSecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF301F20AFAB007A1D9D /* SRPinningSecurityPolicy.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF681F20AFAB007A1D9D /* SRPinningSecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF301F20AFAB007A1D9D /* SRPinningSecurityPolicy.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF691F20AFAB007A1D9D /* SRConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF311F20AFAB007A1D9D /* SRConstants.h */; };
+		1A28FF6A1F20AFAB007A1D9D /* SRConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF311F20AFAB007A1D9D /* SRConstants.h */; };
+		1A28FF6B1F20AFAB007A1D9D /* SRConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF321F20AFAB007A1D9D /* SRConstants.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF6C1F20AFAB007A1D9D /* SRConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF321F20AFAB007A1D9D /* SRConstants.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF6D1F20AFAB007A1D9D /* SRError.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF341F20AFAB007A1D9D /* SRError.h */; };
+		1A28FF6E1F20AFAB007A1D9D /* SRError.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF341F20AFAB007A1D9D /* SRError.h */; };
+		1A28FF6F1F20AFAB007A1D9D /* SRError.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF351F20AFAB007A1D9D /* SRError.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF701F20AFAB007A1D9D /* SRError.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF351F20AFAB007A1D9D /* SRError.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF711F20AFAB007A1D9D /* SRHash.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF361F20AFAB007A1D9D /* SRHash.h */; };
+		1A28FF721F20AFAB007A1D9D /* SRHash.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF361F20AFAB007A1D9D /* SRHash.h */; };
+		1A28FF731F20AFAB007A1D9D /* SRHash.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF371F20AFAB007A1D9D /* SRHash.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF741F20AFAB007A1D9D /* SRHash.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF371F20AFAB007A1D9D /* SRHash.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF751F20AFAB007A1D9D /* SRHTTPConnectMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF381F20AFAB007A1D9D /* SRHTTPConnectMessage.h */; };
+		1A28FF761F20AFAB007A1D9D /* SRHTTPConnectMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF381F20AFAB007A1D9D /* SRHTTPConnectMessage.h */; };
+		1A28FF771F20AFAB007A1D9D /* SRHTTPConnectMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF391F20AFAB007A1D9D /* SRHTTPConnectMessage.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF781F20AFAB007A1D9D /* SRHTTPConnectMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF391F20AFAB007A1D9D /* SRHTTPConnectMessage.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF791F20AFAB007A1D9D /* SRLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF3A1F20AFAB007A1D9D /* SRLog.h */; };
+		1A28FF7A1F20AFAB007A1D9D /* SRLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF3A1F20AFAB007A1D9D /* SRLog.h */; };
+		1A28FF7B1F20AFAB007A1D9D /* SRLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF3B1F20AFAB007A1D9D /* SRLog.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF7C1F20AFAB007A1D9D /* SRLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF3B1F20AFAB007A1D9D /* SRLog.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF7D1F20AFAB007A1D9D /* SRMutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF3C1F20AFAB007A1D9D /* SRMutex.h */; };
+		1A28FF7E1F20AFAB007A1D9D /* SRMutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF3C1F20AFAB007A1D9D /* SRMutex.h */; };
+		1A28FF7F1F20AFAB007A1D9D /* SRMutex.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF3D1F20AFAB007A1D9D /* SRMutex.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF801F20AFAB007A1D9D /* SRMutex.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF3D1F20AFAB007A1D9D /* SRMutex.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF811F20AFAB007A1D9D /* SRRandom.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF3E1F20AFAB007A1D9D /* SRRandom.h */; };
+		1A28FF821F20AFAB007A1D9D /* SRRandom.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF3E1F20AFAB007A1D9D /* SRRandom.h */; };
+		1A28FF831F20AFAB007A1D9D /* SRRandom.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF3F1F20AFAB007A1D9D /* SRRandom.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF841F20AFAB007A1D9D /* SRRandom.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF3F1F20AFAB007A1D9D /* SRRandom.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF851F20AFAB007A1D9D /* SRSIMDHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF401F20AFAB007A1D9D /* SRSIMDHelpers.h */; };
+		1A28FF861F20AFAB007A1D9D /* SRSIMDHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF401F20AFAB007A1D9D /* SRSIMDHelpers.h */; };
+		1A28FF871F20AFAB007A1D9D /* SRSIMDHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF411F20AFAB007A1D9D /* SRSIMDHelpers.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF881F20AFAB007A1D9D /* SRSIMDHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF411F20AFAB007A1D9D /* SRSIMDHelpers.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF891F20AFAB007A1D9D /* SRURLUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF421F20AFAB007A1D9D /* SRURLUtilities.h */; };
+		1A28FF8A1F20AFAB007A1D9D /* SRURLUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF421F20AFAB007A1D9D /* SRURLUtilities.h */; };
+		1A28FF8B1F20AFAB007A1D9D /* SRURLUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF431F20AFAB007A1D9D /* SRURLUtilities.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF8C1F20AFAB007A1D9D /* SRURLUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF431F20AFAB007A1D9D /* SRURLUtilities.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF8D1F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF441F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.h */; };
+		1A28FF8E1F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF441F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.h */; };
+		1A28FF8F1F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF451F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF901F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF451F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF911F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF461F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.h */; };
+		1A28FF921F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF461F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.h */; };
+		1A28FF931F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF471F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF941F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF471F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF951F20AFAB007A1D9D /* SocketRocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF481F20AFAB007A1D9D /* SocketRocket.h */; };
+		1A28FF961F20AFAB007A1D9D /* SocketRocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF481F20AFAB007A1D9D /* SocketRocket.h */; };
+		1A28FF971F20AFAB007A1D9D /* SRSecurityPolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF491F20AFAB007A1D9D /* SRSecurityPolicy.h */; };
+		1A28FF981F20AFAB007A1D9D /* SRSecurityPolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF491F20AFAB007A1D9D /* SRSecurityPolicy.h */; };
+		1A28FF991F20AFAB007A1D9D /* SRSecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF4A1F20AFAB007A1D9D /* SRSecurityPolicy.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF9A1F20AFAB007A1D9D /* SRSecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF4A1F20AFAB007A1D9D /* SRSecurityPolicy.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF9B1F20AFAB007A1D9D /* SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF4B1F20AFAB007A1D9D /* SRWebSocket.h */; };
+		1A28FF9C1F20AFAB007A1D9D /* SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF4B1F20AFAB007A1D9D /* SRWebSocket.h */; };
+		1A28FF9D1F20AFAB007A1D9D /* SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF4C1F20AFAB007A1D9D /* SRWebSocket.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A28FF9E1F20AFAB007A1D9D /* SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF4C1F20AFAB007A1D9D /* SRWebSocket.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		1A570061180BC5A10088DEC7 /* CCAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A570047180BC5A10088DEC7 /* CCAction.cpp */; };
 		1A570062180BC5A10088DEC7 /* CCAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A570047180BC5A10088DEC7 /* CCAction.cpp */; };
 		1A570063180BC5A10088DEC7 /* CCAction.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A570048180BC5A10088DEC7 /* CCAction.h */; };
@@ -1856,6 +1938,48 @@
 		15EFA210198A2BB5000C57D3 /* CCProtectedNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCProtectedNode.h; sourceTree = "<group>"; };
 		15FB20721AE7BF8600C31518 /* CCAutoPolygon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCAutoPolygon.cpp; sourceTree = "<group>"; };
 		15FB20731AE7BF8600C31518 /* CCAutoPolygon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCAutoPolygon.h; sourceTree = "<group>"; };
+		1A28FF191F20AF94007A1D9D /* WebSocket-apple.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "WebSocket-apple.mm"; sourceTree = "<group>"; };
+		1A28FF1F1F20AFAB007A1D9D /* SRDelegateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRDelegateController.h; sourceTree = "<group>"; };
+		1A28FF201F20AFAB007A1D9D /* SRDelegateController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRDelegateController.m; sourceTree = "<group>"; };
+		1A28FF221F20AFAB007A1D9D /* SRIOConsumer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRIOConsumer.h; sourceTree = "<group>"; };
+		1A28FF231F20AFAB007A1D9D /* SRIOConsumer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRIOConsumer.m; sourceTree = "<group>"; };
+		1A28FF241F20AFAB007A1D9D /* SRIOConsumerPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRIOConsumerPool.h; sourceTree = "<group>"; };
+		1A28FF251F20AFAB007A1D9D /* SRIOConsumerPool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRIOConsumerPool.m; sourceTree = "<group>"; };
+		1A28FF261F20AFAB007A1D9D /* NSRunLoop+SRWebSocketPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSRunLoop+SRWebSocketPrivate.h"; sourceTree = "<group>"; };
+		1A28FF271F20AFAB007A1D9D /* NSURLRequest+SRWebSocketPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURLRequest+SRWebSocketPrivate.h"; sourceTree = "<group>"; };
+		1A28FF291F20AFAB007A1D9D /* SRProxyConnect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRProxyConnect.h; sourceTree = "<group>"; };
+		1A28FF2A1F20AFAB007A1D9D /* SRProxyConnect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRProxyConnect.m; sourceTree = "<group>"; };
+		1A28FF2C1F20AFAB007A1D9D /* SRRunLoopThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRRunLoopThread.h; sourceTree = "<group>"; };
+		1A28FF2D1F20AFAB007A1D9D /* SRRunLoopThread.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRRunLoopThread.m; sourceTree = "<group>"; };
+		1A28FF2F1F20AFAB007A1D9D /* SRPinningSecurityPolicy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRPinningSecurityPolicy.h; sourceTree = "<group>"; };
+		1A28FF301F20AFAB007A1D9D /* SRPinningSecurityPolicy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRPinningSecurityPolicy.m; sourceTree = "<group>"; };
+		1A28FF311F20AFAB007A1D9D /* SRConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRConstants.h; sourceTree = "<group>"; };
+		1A28FF321F20AFAB007A1D9D /* SRConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRConstants.m; sourceTree = "<group>"; };
+		1A28FF341F20AFAB007A1D9D /* SRError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRError.h; sourceTree = "<group>"; };
+		1A28FF351F20AFAB007A1D9D /* SRError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRError.m; sourceTree = "<group>"; };
+		1A28FF361F20AFAB007A1D9D /* SRHash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRHash.h; sourceTree = "<group>"; };
+		1A28FF371F20AFAB007A1D9D /* SRHash.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRHash.m; sourceTree = "<group>"; };
+		1A28FF381F20AFAB007A1D9D /* SRHTTPConnectMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRHTTPConnectMessage.h; sourceTree = "<group>"; };
+		1A28FF391F20AFAB007A1D9D /* SRHTTPConnectMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRHTTPConnectMessage.m; sourceTree = "<group>"; };
+		1A28FF3A1F20AFAB007A1D9D /* SRLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRLog.h; sourceTree = "<group>"; };
+		1A28FF3B1F20AFAB007A1D9D /* SRLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRLog.m; sourceTree = "<group>"; };
+		1A28FF3C1F20AFAB007A1D9D /* SRMutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRMutex.h; sourceTree = "<group>"; };
+		1A28FF3D1F20AFAB007A1D9D /* SRMutex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRMutex.m; sourceTree = "<group>"; };
+		1A28FF3E1F20AFAB007A1D9D /* SRRandom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRRandom.h; sourceTree = "<group>"; };
+		1A28FF3F1F20AFAB007A1D9D /* SRRandom.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRRandom.m; sourceTree = "<group>"; };
+		1A28FF401F20AFAB007A1D9D /* SRSIMDHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRSIMDHelpers.h; sourceTree = "<group>"; };
+		1A28FF411F20AFAB007A1D9D /* SRSIMDHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRSIMDHelpers.m; sourceTree = "<group>"; };
+		1A28FF421F20AFAB007A1D9D /* SRURLUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRURLUtilities.h; sourceTree = "<group>"; };
+		1A28FF431F20AFAB007A1D9D /* SRURLUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRURLUtilities.m; sourceTree = "<group>"; };
+		1A28FF441F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSRunLoop+SRWebSocket.h"; sourceTree = "<group>"; };
+		1A28FF451F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSRunLoop+SRWebSocket.m"; sourceTree = "<group>"; };
+		1A28FF461F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURLRequest+SRWebSocket.h"; sourceTree = "<group>"; };
+		1A28FF471F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURLRequest+SRWebSocket.m"; sourceTree = "<group>"; };
+		1A28FF481F20AFAB007A1D9D /* SocketRocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SocketRocket.h; sourceTree = "<group>"; };
+		1A28FF491F20AFAB007A1D9D /* SRSecurityPolicy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRSecurityPolicy.h; sourceTree = "<group>"; };
+		1A28FF4A1F20AFAB007A1D9D /* SRSecurityPolicy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRSecurityPolicy.m; sourceTree = "<group>"; };
+		1A28FF4B1F20AFAB007A1D9D /* SRWebSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRWebSocket.h; sourceTree = "<group>"; };
+		1A28FF4C1F20AFAB007A1D9D /* SRWebSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRWebSocket.m; sourceTree = "<group>"; };
 		1A570047180BC5A10088DEC7 /* CCAction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCAction.cpp; sourceTree = "<group>"; };
 		1A570048180BC5A10088DEC7 /* CCAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCAction.h; sourceTree = "<group>"; };
 		1A570049180BC5A10088DEC7 /* CCActionCamera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCActionCamera.cpp; sourceTree = "<group>"; };
@@ -1978,7 +2102,6 @@
 		1AAF5365180E3374000584C8 /* HttpResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HttpResponse.h; sourceTree = "<group>"; };
 		1AAF5366180E3374000584C8 /* SocketIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SocketIO.cpp; sourceTree = "<group>"; };
 		1AAF5367180E3374000584C8 /* SocketIO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SocketIO.h; sourceTree = "<group>"; };
-		1AAF5368180E3374000584C8 /* WebSocket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebSocket.cpp; sourceTree = "<group>"; };
 		1AAF5369180E3374000584C8 /* WebSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebSocket.h; sourceTree = "<group>"; };
 		1AAF584C180E40B9000584C8 /* LocalStorage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LocalStorage.cpp; sourceTree = "<group>"; };
 		1AAF584D180E40B9000584C8 /* LocalStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalStorage.h; sourceTree = "<group>"; };
@@ -2964,6 +3087,111 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		1A28FF1C1F20AFAB007A1D9D /* SocketRocket */ = {
+			isa = PBXGroup;
+			children = (
+				1A28FF1D1F20AFAB007A1D9D /* Internal */,
+				1A28FF441F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.h */,
+				1A28FF451F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.m */,
+				1A28FF461F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.h */,
+				1A28FF471F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.m */,
+				1A28FF481F20AFAB007A1D9D /* SocketRocket.h */,
+				1A28FF491F20AFAB007A1D9D /* SRSecurityPolicy.h */,
+				1A28FF4A1F20AFAB007A1D9D /* SRSecurityPolicy.m */,
+				1A28FF4B1F20AFAB007A1D9D /* SRWebSocket.h */,
+				1A28FF4C1F20AFAB007A1D9D /* SRWebSocket.m */,
+			);
+			name = SocketRocket;
+			path = ../external/sources/SocketRocket;
+			sourceTree = "<group>";
+		};
+		1A28FF1D1F20AFAB007A1D9D /* Internal */ = {
+			isa = PBXGroup;
+			children = (
+				1A28FF1E1F20AFAB007A1D9D /* Delegate */,
+				1A28FF211F20AFAB007A1D9D /* IOConsumer */,
+				1A28FF261F20AFAB007A1D9D /* NSRunLoop+SRWebSocketPrivate.h */,
+				1A28FF271F20AFAB007A1D9D /* NSURLRequest+SRWebSocketPrivate.h */,
+				1A28FF281F20AFAB007A1D9D /* Proxy */,
+				1A28FF2B1F20AFAB007A1D9D /* RunLoop */,
+				1A28FF2E1F20AFAB007A1D9D /* Security */,
+				1A28FF311F20AFAB007A1D9D /* SRConstants.h */,
+				1A28FF321F20AFAB007A1D9D /* SRConstants.m */,
+				1A28FF331F20AFAB007A1D9D /* Utilities */,
+			);
+			path = Internal;
+			sourceTree = "<group>";
+		};
+		1A28FF1E1F20AFAB007A1D9D /* Delegate */ = {
+			isa = PBXGroup;
+			children = (
+				1A28FF1F1F20AFAB007A1D9D /* SRDelegateController.h */,
+				1A28FF201F20AFAB007A1D9D /* SRDelegateController.m */,
+			);
+			path = Delegate;
+			sourceTree = "<group>";
+		};
+		1A28FF211F20AFAB007A1D9D /* IOConsumer */ = {
+			isa = PBXGroup;
+			children = (
+				1A28FF221F20AFAB007A1D9D /* SRIOConsumer.h */,
+				1A28FF231F20AFAB007A1D9D /* SRIOConsumer.m */,
+				1A28FF241F20AFAB007A1D9D /* SRIOConsumerPool.h */,
+				1A28FF251F20AFAB007A1D9D /* SRIOConsumerPool.m */,
+			);
+			path = IOConsumer;
+			sourceTree = "<group>";
+		};
+		1A28FF281F20AFAB007A1D9D /* Proxy */ = {
+			isa = PBXGroup;
+			children = (
+				1A28FF291F20AFAB007A1D9D /* SRProxyConnect.h */,
+				1A28FF2A1F20AFAB007A1D9D /* SRProxyConnect.m */,
+			);
+			path = Proxy;
+			sourceTree = "<group>";
+		};
+		1A28FF2B1F20AFAB007A1D9D /* RunLoop */ = {
+			isa = PBXGroup;
+			children = (
+				1A28FF2C1F20AFAB007A1D9D /* SRRunLoopThread.h */,
+				1A28FF2D1F20AFAB007A1D9D /* SRRunLoopThread.m */,
+			);
+			path = RunLoop;
+			sourceTree = "<group>";
+		};
+		1A28FF2E1F20AFAB007A1D9D /* Security */ = {
+			isa = PBXGroup;
+			children = (
+				1A28FF2F1F20AFAB007A1D9D /* SRPinningSecurityPolicy.h */,
+				1A28FF301F20AFAB007A1D9D /* SRPinningSecurityPolicy.m */,
+			);
+			path = Security;
+			sourceTree = "<group>";
+		};
+		1A28FF331F20AFAB007A1D9D /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				1A28FF341F20AFAB007A1D9D /* SRError.h */,
+				1A28FF351F20AFAB007A1D9D /* SRError.m */,
+				1A28FF361F20AFAB007A1D9D /* SRHash.h */,
+				1A28FF371F20AFAB007A1D9D /* SRHash.m */,
+				1A28FF381F20AFAB007A1D9D /* SRHTTPConnectMessage.h */,
+				1A28FF391F20AFAB007A1D9D /* SRHTTPConnectMessage.m */,
+				1A28FF3A1F20AFAB007A1D9D /* SRLog.h */,
+				1A28FF3B1F20AFAB007A1D9D /* SRLog.m */,
+				1A28FF3C1F20AFAB007A1D9D /* SRMutex.h */,
+				1A28FF3D1F20AFAB007A1D9D /* SRMutex.m */,
+				1A28FF3E1F20AFAB007A1D9D /* SRRandom.h */,
+				1A28FF3F1F20AFAB007A1D9D /* SRRandom.m */,
+				1A28FF401F20AFAB007A1D9D /* SRSIMDHelpers.h */,
+				1A28FF411F20AFAB007A1D9D /* SRSIMDHelpers.m */,
+				1A28FF421F20AFAB007A1D9D /* SRURLUtilities.h */,
+				1A28FF431F20AFAB007A1D9D /* SRURLUtilities.m */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
 		1A570046180BC59A0088DEC7 /* actions */ = {
 			isa = PBXGroup;
 			children = (
@@ -3300,6 +3528,7 @@
 		1A57033E180BD0490088DEC7 /* external */ = {
 			isa = PBXGroup;
 			children = (
+				1A28FF1C1F20AFAB007A1D9D /* SocketRocket */,
 				4DED476A1DFFA4AF0070C5C4 /* Box2D */,
 				BAEA45511E279D5C00FA219F /* tinydir */,
 				BA68D7951D62F4B600B7A3F9 /* clipper */,
@@ -4218,7 +4447,7 @@
 		507003271B69821300E83DDD /* WebSocket */ = {
 			isa = PBXGroup;
 			children = (
-				1AAF5368180E3374000584C8 /* WebSocket.cpp */,
+				1A28FF191F20AF94007A1D9D /* WebSocket-apple.mm */,
 				1AAF5369180E3374000584C8 /* WebSocket.h */,
 			);
 			name = WebSocket;
@@ -4655,6 +4884,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A28FF891F20AFAB007A1D9D /* SRURLUtilities.h in Headers */,
 				A6F0D7A71C27964D0029CC44 /* UIPageViewIndicator.h in Headers */,
 				50ABBE9B1925AB6F00A911A9 /* CCRef.h in Headers */,
 				50ABBE851925AB6F00A911A9 /* ccFPSImages.h in Headers */,
@@ -4671,6 +4901,7 @@
 				50ABBEA51925AB6F00A911A9 /* CCScriptSupport.h in Headers */,
 				BAFF7CC61D59E0DB0051B92F /* CCDisplayFactory.h in Headers */,
 				BAFF7DCC1D5C1CF80051B92F /* spine-cocos2dx.h in Headers */,
+				1A28FF5D1F20AFAB007A1D9D /* SRProxyConnect.h in Headers */,
 				15AE1B9A19AADFDF00C27E9E /* UIHBox.h in Headers */,
 				1ABA68B01888D700007D1BB4 /* CCFontCharMap.h in Headers */,
 				FA6F1B4F1D80F858007DD223 /* TimelineState.h in Headers */,
@@ -4740,6 +4971,7 @@
 				B276EF5F1988D1D500CD400F /* CCVertexIndexData.h in Headers */,
 				1A57007F180BC5A10088DEC7 /* CCActionInterval.h in Headers */,
 				4D2E690D1CC543B40032DD5C /* Triangulate.h in Headers */,
+				1A28FF751F20AFAB007A1D9D /* SRHTTPConnectMessage.h in Headers */,
 				1A570083180BC5A10088DEC7 /* CCActionManager.h in Headers */,
 				4DC06BE51E8A68D400CA08B1 /* CCPhysicsUtils.h in Headers */,
 				4DED483E1DFFA4AF0070C5C4 /* b2CircleContact.h in Headers */,
@@ -4753,6 +4985,7 @@
 				50ABBEC31925AB6F00A911A9 /* CCVector.h in Headers */,
 				1A57008B180BC5A10088DEC7 /* CCActionProgressTimer.h in Headers */,
 				50ABBD8D1925AB4100A911A9 /* CCGLProgram.h in Headers */,
+				1A28FF5B1F20AFAB007A1D9D /* NSURLRequest+SRWebSocketPrivate.h in Headers */,
 				50ABBEA11925AB6F00A911A9 /* CCScheduler.h in Headers */,
 				BAFF7D841D5C1CF80051B92F /* IkConstraint.h in Headers */,
 				15AE1B6219AADA9900C27E9E /* UIButton.h in Headers */,
@@ -4770,6 +5003,7 @@
 				4DED480C1DFFA4AF0070C5C4 /* b2Math.h in Headers */,
 				BAFF7C981D59E0DA0051B92F /* CCBatchNode.h in Headers */,
 				1A5700A0180BC5D20088DEC7 /* CCNode.h in Headers */,
+				1A28FF811F20AFAB007A1D9D /* SRRandom.h in Headers */,
 				50ABC0671926664800A911A9 /* CCPlatformDefine-mac.h in Headers */,
 				BAFF7DB01D5C1CF80051B92F /* SkeletonBounds.h in Headers */,
 				4DED48461DFFA4AF0070C5C4 /* b2ContactSolver.h in Headers */,
@@ -4778,6 +5012,7 @@
 				1A570114180BC8EE0088DEC7 /* CCDrawNode.h in Headers */,
 				4DED48061DFFA4AF0070C5C4 /* b2Draw.h in Headers */,
 				4DED48721DFFA4AF0070C5C4 /* b2PrismaticJoint.h in Headers */,
+				1A28FF551F20AFAB007A1D9D /* SRIOConsumerPool.h in Headers */,
 				BAEA45551E279D5C00FA219F /* tinydir.h in Headers */,
 				15AE1B5819AADA9900C27E9E /* UISlider.h in Headers */,
 				1A57011D180BC90D0088DEC7 /* CCGrabber.h in Headers */,
@@ -4819,6 +5054,7 @@
 				50ABBE5F1925AB6F00A911A9 /* CCEventListener.h in Headers */,
 				15AE197519AAD35700C27E9E /* CCTimeLine.h in Headers */,
 				1A5701C9180BCB5A0088DEC7 /* CCLabelTextFormatter.h in Headers */,
+				1A28FF591F20AFAB007A1D9D /* NSRunLoop+SRWebSocketPrivate.h in Headers */,
 				5034CA37191D591100CE6051 /* ccShader_PositionColorLengthTexture.vert in Headers */,
 				15AE1B6419AADA9900C27E9E /* UICheckBox.h in Headers */,
 				1A5701E0180BCB8C0088DEC7 /* CCLayer.h in Headers */,
@@ -4841,6 +5077,7 @@
 				FA6F1B871D80F858007DD223 /* ColorTransform.h in Headers */,
 				A60A9D621C200DE10070800A /* CCPhysicsSprite.h in Headers */,
 				BAFF7DD21D5C1CF80051B92F /* TransformConstraint.h in Headers */,
+				1A28FF851F20AFAB007A1D9D /* SRSIMDHelpers.h in Headers */,
 				1A5701F0180BCB8C0088DEC7 /* CCTransitionProgress.h in Headers */,
 				1A5701F9180BCBAD0088DEC7 /* CCMenu.h in Headers */,
 				50ABBD401925AB0000A911A9 /* CCMath.h in Headers */,
@@ -4856,6 +5093,7 @@
 				BAFF7CE61D59E0DB0051B92F /* CCUtilMath.h in Headers */,
 				50643BE419BFCF1800EF68ED /* CCPlatformMacros.h in Headers */,
 				BAFF7DA41D5C1CF80051B92F /* Skeleton.h in Headers */,
+				1A28FF511F20AFAB007A1D9D /* SRIOConsumer.h in Headers */,
 				BA68D7B01D62F66300B7A3F9 /* CCMaterial.h in Headers */,
 				BA68D7BE1D62F71700B7A3F9 /* CCFrameBuffer.h in Headers */,
 				1A57020A180BCBDF0088DEC7 /* CCMotionStreak.h in Headers */,
@@ -4887,12 +5125,14 @@
 				1A57022F180BCC1A0088DEC7 /* CCParticleSystemQuad.h in Headers */,
 				BA68D7931D62F4A500B7A3F9 /* sweep_context.h in Headers */,
 				4DED482A1DFFA4AF0070C5C4 /* b2TimeStep.h in Headers */,
+				1A28FF9B1F20AFAB007A1D9D /* SRWebSocket.h in Headers */,
 				50643BE219BFCF1800EF68ED /* CCPlatformConfig.h in Headers */,
 				BAFF7DB41D5C1CF80051B92F /* SkeletonData.h in Headers */,
 				A63CF0061CD9CF3500A6971D /* CCUIMultilineTextField.h in Headers */,
 				5034CA49191D591100CE6051 /* ccShader_Label_df.frag in Headers */,
 				292DB14119B4574100A80320 /* UIEditBoxImpl.h in Headers */,
 				50CB247919D9C5A100687767 /* AudioEngine-inl.h in Headers */,
+				1A28FF611F20AFAB007A1D9D /* SRRunLoopThread.h in Headers */,
 				50ABBD561925AB0000A911A9 /* TransformUtils.h in Headers */,
 				BAFF7CCA1D59E0DB0051B92F /* CCDisplayManager.h in Headers */,
 				299754F6193EC95400A54AC3 /* ObjectFactory.h in Headers */,
@@ -4914,6 +5154,7 @@
 				1A57028C180BCC900088DEC7 /* CCSpriteFrameCache.h in Headers */,
 				4DED48421DFFA4AF0070C5C4 /* b2Contact.h in Headers */,
 				C503066E1B60B583001E6D43 /* CCSkinNode.h in Headers */,
+				1A28FF971F20AFAB007A1D9D /* SRSecurityPolicy.h in Headers */,
 				FA6F1B931D80F858007DD223 /* AnimationData.h in Headers */,
 				5027253A190BF1B900AAF4ED /* cocos2d.h in Headers */,
 				BAFF7CAE1D59E0DA0051B92F /* CCComController.h in Headers */,
@@ -4945,6 +5186,7 @@
 				15AE1BDF19AAE01E00C27E9E /* CCInvocation.h in Headers */,
 				BAFF7D9C1D5C1CF80051B92F /* PathConstraintData.h in Headers */,
 				50ABBE431925AB6F00A911A9 /* CCDirector.h in Headers */,
+				1A28FF911F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.h in Headers */,
 				BA68D7871D62F4A500B7A3F9 /* advancing_front.h in Headers */,
 				1A12775B18DFCC540005F345 /* CCTweenFunction.h in Headers */,
 				1A5702CA180BCE370088DEC7 /* CCTextFieldTTF.h in Headers */,
@@ -4968,6 +5210,7 @@
 				1A5FB7CC1DF10E3500C918C1 /* AudioMacros.h in Headers */,
 				BAFF7DBC1D5C1CF80051B92F /* SkeletonRenderer.h in Headers */,
 				15AE186519AAD31D00C27E9E /* CDOpenALSupport.h in Headers */,
+				1A28FF691F20AFAB007A1D9D /* SRConstants.h in Headers */,
 				15AE1B5C19AADA9900C27E9E /* UITextAtlas.h in Headers */,
 				1A5702FC180BCE750088DEC7 /* CCTMXXMLParser.h in Headers */,
 				FA6F1B8F1D80F858007DD223 /* Transform.h in Headers */,
@@ -5019,11 +5262,13 @@
 				15AE197619AAD35700C27E9E /* CCTimelineMacro.h in Headers */,
 				4DED483A1DFFA4AF0070C5C4 /* b2ChainAndPolygonContact.h in Headers */,
 				4DED48561DFFA4AF0070C5C4 /* b2PolygonContact.h in Headers */,
+				1A28FF791F20AFAB007A1D9D /* SRLog.h in Headers */,
 				50ABBE6F1925AB6F00A911A9 /* CCEventListenerKeyboard.h in Headers */,
 				4DC06BE91E8A68D400CA08B1 /* CCPhysicsWorldManifoldWrapper.h in Headers */,
 				50ABBE9D1925AB6F00A911A9 /* CCRefPtr.h in Headers */,
 				4DED484A1DFFA4AF0070C5C4 /* b2EdgeAndCircleContact.h in Headers */,
 				FA6F1B631D80F858007DD223 /* TransformObject.h in Headers */,
+				1A28FF6D1F20AFAB007A1D9D /* SRError.h in Headers */,
 				B257B461198A353E00D9A687 /* CCPrimitiveCommand.h in Headers */,
 				5034CA31191D591100CE6051 /* ccShader_PositionTexture_uColor.vert in Headers */,
 				4DED48821DFFA4AF0070C5C4 /* b2WeldJoint.h in Headers */,
@@ -5034,6 +5279,7 @@
 				15AE1B6619AADA9900C27E9E /* UIImageView.h in Headers */,
 				15AE1BB419AADFEF00C27E9E /* HttpResponse.h in Headers */,
 				50ABBE291925AB6F00A911A9 /* CCAutoreleasePool.h in Headers */,
+				1A28FF651F20AFAB007A1D9D /* SRPinningSecurityPolicy.h in Headers */,
 				299CF1FD19A434BC00C378C1 /* ccRandom.h in Headers */,
 				505385021B01887A00793096 /* CCProperties.h in Headers */,
 				50ABBE471925AB6F00A911A9 /* CCEvent.h in Headers */,
@@ -5047,6 +5293,7 @@
 				BAFF7D5C1D5C1CF80051B92F /* Attachment.h in Headers */,
 				BA68D7811D62F4A500B7A3F9 /* utils.h in Headers */,
 				15AE1BCF19AAE01E00C27E9E /* CCControlExtensions.h in Headers */,
+				1A28FF951F20AFAB007A1D9D /* SocketRocket.h in Headers */,
 				BAFF7CF01D59E0DB0051B92F /* DictionaryHelper.h in Headers */,
 				50643BD919BFAF4400EF68ED /* CCApplication.h in Headers */,
 				BA68D78B1D62F4A500B7A3F9 /* cdt.h in Headers */,
@@ -5080,6 +5327,7 @@
 				50ABC0231926664800A911A9 /* CCGLViewImpl-desktop.h in Headers */,
 				A63CF0081CD9CF3500A6971D /* CCUIPasswordTextField.h in Headers */,
 				1AD473AD1EAD9A5300202582 /* Uri.h in Headers */,
+				1A28FF8D1F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.h in Headers */,
 				4DED48521DFFA4AF0070C5C4 /* b2PolygonAndCircleContact.h in Headers */,
 				4DED48861DFFA4AF0070C5C4 /* b2WheelJoint.h in Headers */,
 				4DED485A1DFFA4AF0070C5C4 /* b2DistanceJoint.h in Headers */,
@@ -5101,6 +5349,7 @@
 				292DB13F19B4574100A80320 /* UIEditBox.h in Headers */,
 				50ABBE671925AB6F00A911A9 /* CCEventListenerCustom.h in Headers */,
 				50ABBE2F1925AB6F00A911A9 /* ccConfig.h in Headers */,
+				1A28FF4D1F20AFAB007A1D9D /* SRDelegateController.h in Headers */,
 				1AAF5851180E40B9000584C8 /* LocalStorage.h in Headers */,
 				A0E749F91BA8FD7F001A8332 /* UIEditBoxImpl-common.h in Headers */,
 				FA6F1B9F1D80F858007DD223 /* FrameData.h in Headers */,
@@ -5122,12 +5371,14 @@
 				50ABBDAB1925AB4100A911A9 /* CCRenderCommandPool.h in Headers */,
 				5034CA45191D591100CE6051 /* ccShader_Label_outline.frag in Headers */,
 				50ABBEB11925AB6F00A911A9 /* CCUserDefault.h in Headers */,
+				1A28FF7D1F20AFAB007A1D9D /* SRMutex.h in Headers */,
 				50ABBEC71925AB6F00A911A9 /* etc1.h in Headers */,
 				50ABBEA91925AB6F00A911A9 /* CCTouch.h in Headers */,
 				50ABBE971925AB6F00A911A9 /* CCProtocols.h in Headers */,
 				50ABC0691926664800A911A9 /* CCStdC-mac.h in Headers */,
 				501216901AC47380009A4BEA /* CCRenderState.h in Headers */,
 				BAFF7DC01D5C1CF80051B92F /* Skin.h in Headers */,
+				1A28FF711F20AFAB007A1D9D /* SRHash.h in Headers */,
 				15AE1BD119AAE01E00C27E9E /* CCControlHuePicker.h in Headers */,
 				FA6F1B891D80F858007DD223 /* Matrix.h in Headers */,
 				B5CE6DC01B3BF2B1002B0419 /* UIAbstractCheckButton.h in Headers */,
@@ -5160,6 +5411,7 @@
 				FA6F1B6E1D80F858007DD223 /* CCFactory.h in Headers */,
 				50643BDA19BFAF4400EF68ED /* CCApplication.h in Headers */,
 				503DD8EF1926736A00CD74DD /* CCPlatformDefine-ios.h in Headers */,
+				1A28FF921F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.h in Headers */,
 				292DB14019B4574100A80320 /* UIEditBox.h in Headers */,
 				50ABBD3B1925AB0000A911A9 /* CCAffineTransform.h in Headers */,
 				5034CA38191D591100CE6051 /* ccShader_PositionColorLengthTexture.vert in Headers */,
@@ -5167,6 +5419,7 @@
 				50ABBE7C1925AB6F00A911A9 /* CCEventMouse.h in Headers */,
 				4DC06BD21E8A68D400CA08B1 /* CCPhysicsAABBQueryCallback.h in Headers */,
 				50ABBE9C1925AB6F00A911A9 /* CCRef.h in Headers */,
+				1A28FF961F20AFAB007A1D9D /* SocketRocket.h in Headers */,
 				50ABBD961925AB4100A911A9 /* CCGLProgramState.h in Headers */,
 				4649FF031BBA9FBE0001CC6F /* CCVertexAttribBinding.h in Headers */,
 				50ABBDB41925AB4100A911A9 /* ccShaders.h in Headers */,
@@ -5179,6 +5432,7 @@
 				15AE1B9119AADA9A00C27E9E /* UIWidget.h in Headers */,
 				FA6F1B721D80F858007DD223 /* CCSlot.h in Headers */,
 				50ABC0041926664800A911A9 /* CCLock-apple.h in Headers */,
+				1A28FF8E1F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.h in Headers */,
 				5034CA40191D591100CE6051 /* ccShader_Position_uColor.vert in Headers */,
 				B5CE6DCB1B3C05BA002B0419 /* UIRadioButton.h in Headers */,
 				BAFF7DCF1D5C1CF80051B92F /* spine.h in Headers */,
@@ -5206,6 +5460,7 @@
 				4DED486F1DFFA4AF0070C5C4 /* b2MouseJoint.h in Headers */,
 				503DD8EC1926736A00CD74DD /* CCGLViewImpl-ios.h in Headers */,
 				4DC06BEA1E8A68D400CA08B1 /* CCPhysicsWorldManifoldWrapper.h in Headers */,
+				1A28FF821F20AFAB007A1D9D /* SRRandom.h in Headers */,
 				BAFF7D7D1D5C1CF80051B92F /* EventData.h in Headers */,
 				FA6F1B9C1D80F858007DD223 /* DragonBonesData.h in Headers */,
 				BAFF7CF71D59E3840051B92F /* CocosStudioExtension.h in Headers */,
@@ -5314,6 +5569,7 @@
 				BAFF7CBB1D59E0DB0051B92F /* CCDataReaderHelper.h in Headers */,
 				BA68D7B51D62F66300B7A3F9 /* CCPass.h in Headers */,
 				BAFF7C8D1D59E0DA0051B92F /* CCArmatureAnimation.h in Headers */,
+				1A28FF6A1F20AFAB007A1D9D /* SRConstants.h in Headers */,
 				50ABBFFE1926664800A911A9 /* CCFileUtils-apple.h in Headers */,
 				1A5701A4180BCB590088DEC7 /* CCFontAtlas.h in Headers */,
 				15AE1C0219AAE01E00C27E9E /* CCScrollView.h in Headers */,
@@ -5332,11 +5588,14 @@
 				52B47A2E1A5349A3004E4C60 /* HttpAsynConnection-apple.h in Headers */,
 				15AE1BBC19AADFF000C27E9E /* HttpResponse.h in Headers */,
 				15AE186019AAD31200C27E9E /* SimpleAudioEngine_objc.h in Headers */,
+				1A28FF521F20AFAB007A1D9D /* SRIOConsumer.h in Headers */,
 				50ABBDA61925AB4100A911A9 /* CCQuadCommand.h in Headers */,
+				1A28FF981F20AFAB007A1D9D /* SRSecurityPolicy.h in Headers */,
 				15AE1BB019AADFDF00C27E9E /* UILayoutManager.h in Headers */,
 				50ABBE9E1925AB6F00A911A9 /* CCRefPtr.h in Headers */,
 				1A5701CA180BCB5A0088DEC7 /* CCLabelTextFormatter.h in Headers */,
 				50643BDC19BFAF4400EF68ED /* CCStdC.h in Headers */,
+				1A28FF761F20AFAB007A1D9D /* SRHTTPConnectMessage.h in Headers */,
 				BAFF7D6D1D5C1CF80051B92F /* BoneData.h in Headers */,
 				4DED48211DFFA4AF0070C5C4 /* b2ContactManager.h in Headers */,
 				5034CA22191D591100CE6051 /* ccShader_PositionTextureColorAlphaTest.frag in Headers */,
@@ -5351,6 +5610,7 @@
 				1A5701E1180BCB8C0088DEC7 /* CCLayer.h in Headers */,
 				BAFF7C951D59E0DA0051B92F /* CCArmatureDefine.h in Headers */,
 				15AE1BEE19AAE01E00C27E9E /* CCControlExtensions.h in Headers */,
+				1A28FF621F20AFAB007A1D9D /* SRRunLoopThread.h in Headers */,
 				BAFF7C811D59E0DA0051B92F /* CCActionNode.h in Headers */,
 				1A5701E5180BCB8C0088DEC7 /* CCScene.h in Headers */,
 				1A5701E9180BCB8C0088DEC7 /* CCTransition.h in Headers */,
@@ -5379,6 +5639,7 @@
 				4DED486B1DFFA4AF0070C5C4 /* b2MotorJoint.h in Headers */,
 				5034CA34191D591100CE6051 /* ccShader_PositionTexture_uColor.frag in Headers */,
 				BAFF7D751D5C1CF80051B92F /* Cocos2dAttachmentLoader.h in Headers */,
+				1A28FF7A1F20AFAB007A1D9D /* SRLog.h in Headers */,
 				BAFF7CE71D59E0DB0051B92F /* CCUtilMath.h in Headers */,
 				15AE197C19AAD35700C27E9E /* CCFrame.h in Headers */,
 				BAFF7DB11D5C1CF80051B92F /* SkeletonBounds.h in Headers */,
@@ -5406,6 +5667,7 @@
 				29394CF119B01DBA00D2DE1A /* UIWebView.h in Headers */,
 				2980F0261BA9A5550059E678 /* CCUISingleLineTextField.h in Headers */,
 				4DC06BDE1E8A68D400CA08B1 /* CCPhysicsDebugDraw.h in Headers */,
+				1A28FF721F20AFAB007A1D9D /* SRHash.h in Headers */,
 				B24AA988195A675C007B4522 /* CCFastTMXLayer.h in Headers */,
 				15AE1B7319AADA9A00C27E9E /* UIListView.h in Headers */,
 				5034CA2C191D591100CE6051 /* ccShader_PositionTextureA8Color.vert in Headers */,
@@ -5429,6 +5691,7 @@
 				BAFF7D711D5C1CF80051B92F /* BoundingBoxAttachment.h in Headers */,
 				FA6F1B5E1D80F858007DD223 /* IArmatureDisplay.h in Headers */,
 				5034CA4A191D591100CE6051 /* ccShader_Label_df.frag in Headers */,
+				1A28FF9C1F20AFAB007A1D9D /* SRWebSocket.h in Headers */,
 				4D2E690A1CC543B40032DD5C /* CCGraphicsNode.h in Headers */,
 				BA68D7901D62F4A500B7A3F9 /* sweep.h in Headers */,
 				BAEA45561E279D5C00FA219F /* tinydir.h in Headers */,
@@ -5481,6 +5744,8 @@
 				BAFF7D5D1D5C1CF80051B92F /* Attachment.h in Headers */,
 				BAFF7CDF1D59E0DB0051B92F /* CCTransformHelp.h in Headers */,
 				BA679B3B1CEC373000F875FA /* CCEventListenerAssetsManagerEx.h in Headers */,
+				1A28FF5E1F20AFAB007A1D9D /* SRProxyConnect.h in Headers */,
+				1A28FF4E1F20AFAB007A1D9D /* SRDelegateController.h in Headers */,
 				4DED481D1DFFA4AF0070C5C4 /* b2Body.h in Headers */,
 				292DB14219B4574100A80320 /* UIEditBoxImpl.h in Headers */,
 				FAC8F2611D339EC20061CEDD /* CCTMXLayer.h in Headers */,
@@ -5488,6 +5753,7 @@
 				50ABBE2A1925AB6F00A911A9 /* CCAutoreleasePool.h in Headers */,
 				4DED48731DFFA4AF0070C5C4 /* b2PrismaticJoint.h in Headers */,
 				1A57030F180BCF190088DEC7 /* CCComponent.h in Headers */,
+				1A28FF8A1F20AFAB007A1D9D /* SRURLUtilities.h in Headers */,
 				FA6F1B501D80F858007DD223 /* TimelineState.h in Headers */,
 				BA679B371CEC373000F875FA /* CCEventAssetsManagerEx.h in Headers */,
 				85505F071B60E3BA003F2CD4 /* CCSkeletonNode.h in Headers */,
@@ -5551,8 +5817,10 @@
 				FA6F1B441D80F858007DD223 /* Animation.h in Headers */,
 				38B8E2E419E671D2002D7CE7 /* UILayoutComponent.h in Headers */,
 				50ABBD4F1925AB0000A911A9 /* MathUtil.h in Headers */,
+				1A28FF561F20AFAB007A1D9D /* SRIOConsumerPool.h in Headers */,
 				15AE1C0619AAE01E00C27E9E /* CCTableViewCell.h in Headers */,
 				50ABBEBE1925AB6F00A911A9 /* ccUtils.h in Headers */,
+				1A28FF7E1F20AFAB007A1D9D /* SRMutex.h in Headers */,
 				FA6F1B8C1D80F858007DD223 /* Point.h in Headers */,
 				BAFF7CA51D59E0DA0051B92F /* CCComAttribute.h in Headers */,
 				BAFF7C911D59E0DA0051B92F /* CCArmatureDataManager.h in Headers */,
@@ -5589,6 +5857,7 @@
 				BAFF7CA11D59E0DA0051B92F /* CCColliderDetector.h in Headers */,
 				15AE1BF619AAE01E00C27E9E /* CCControlSlider.h in Headers */,
 				50ABBEDA1925AB6F00A911A9 /* ZipUtils.h in Headers */,
+				1A28FF5C1F20AFAB007A1D9D /* NSURLRequest+SRWebSocketPrivate.h in Headers */,
 				50ABBDC01925AB4100A911A9 /* CCTextureCache.h in Headers */,
 				B276EF641988D1D500CD400F /* CCVertexIndexBuffer.h in Headers */,
 				ED9C6A9718599AD8000A5232 /* CCNodeGrid.h in Headers */,
@@ -5596,6 +5865,7 @@
 				50ABC0201926664800A911A9 /* CCThread.h in Headers */,
 				15AE1B8519AADA9A00C27E9E /* UITextField.h in Headers */,
 				BAFF7DA51D5C1CF80051B92F /* Skeleton.h in Headers */,
+				1A28FF6E1F20AFAB007A1D9D /* SRError.h in Headers */,
 				15AE184B19AAD30500C27E9E /* Export.h in Headers */,
 				50ABBED21925AB6F00A911A9 /* TGAlib.h in Headers */,
 				4DED47F11DFFA4AF0070C5C4 /* b2ChainShape.h in Headers */,
@@ -5608,6 +5878,7 @@
 				4DED488B1DFFA4AF0070C5C4 /* b2Rope.h in Headers */,
 				50ABBE581925AB6F00A911A9 /* CCEventFocus.h in Headers */,
 				4DED482B1DFFA4AF0070C5C4 /* b2TimeStep.h in Headers */,
+				1A28FF661F20AFAB007A1D9D /* SRPinningSecurityPolicy.h in Headers */,
 				15AE1B9719AADAA100C27E9E /* UIVideoPlayer.h in Headers */,
 				BAFF7CED1D59E0DB0051B92F /* CocoStudio.h in Headers */,
 				50ABC00A1926664800A911A9 /* CCCommon.h in Headers */,
@@ -5622,10 +5893,12 @@
 				BAFF7DCD1D5C1CF80051B92F /* spine-cocos2dx.h in Headers */,
 				B63990CF1A490AFE00B07923 /* CCAsyncTaskPool.h in Headers */,
 				A614E2E11C8E761D0065A737 /* CCLabelTTF.h in Headers */,
+				1A28FF5A1F20AFAB007A1D9D /* NSRunLoop+SRWebSocketPrivate.h in Headers */,
 				15AE1BC319AADFFB00C27E9E /* cocos-ext.h in Headers */,
 				15AE1B8B19AADA9A00C27E9E /* UIImageView.h in Headers */,
 				BA68D7BF1D62F71700B7A3F9 /* CCFrameBuffer.h in Headers */,
 				50ABBE601925AB6F00A911A9 /* CCEventListener.h in Headers */,
+				1A28FF861F20AFAB007A1D9D /* SRSIMDHelpers.h in Headers */,
 				FA6F1B4C1D80F858007DD223 /* IAnimateble.h in Headers */,
 				4D76BE3D1A4AAF0A00102962 /* CCActionTimelineNode.h in Headers */,
 				50ABBEB21925AB6F00A911A9 /* CCUserDefault.h in Headers */,
@@ -5703,6 +5976,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A28FF7F1F20AFAB007A1D9D /* SRMutex.m in Sources */,
 				4DED48381DFFA4AF0070C5C4 /* b2ChainAndPolygonContact.cpp in Sources */,
 				4D2E69071CC543B40032DD5C /* CCGraphicsNode.cpp in Sources */,
 				4DED48221DFFA4AF0070C5C4 /* b2Fixture.cpp in Sources */,
@@ -5754,6 +6028,7 @@
 				4DC06BDB1E8A68D400CA08B1 /* CCPhysicsDebugDraw.cpp in Sources */,
 				50ABBE8B1925AB6F00A911A9 /* CCNS.cpp in Sources */,
 				FA6F1B551D80F858007DD223 /* Armature.cpp in Sources */,
+				1A28FF6B1F20AFAB007A1D9D /* SRConstants.m in Sources */,
 				15AE1BD819AAE01E00C27E9E /* CCControlStepper.cpp in Sources */,
 				1A570061180BC5A10088DEC7 /* CCAction.cpp in Sources */,
 				15AE1BDC19AAE01E00C27E9E /* CCControlUtils.cpp in Sources */,
@@ -5823,6 +6098,7 @@
 				4DED47D81DFFA4AF0070C5C4 /* b2CollideCircle.cpp in Sources */,
 				BAFF7D461D5C1CF80051B92F /* Animation.c in Sources */,
 				BA68D7851D62F4A500B7A3F9 /* advancing_front.cc in Sources */,
+				1A28FF991F20AFAB007A1D9D /* SRSecurityPolicy.m in Sources */,
 				15AE1B6D19AADA9900C27E9E /* UIHelper.cpp in Sources */,
 				29394CF219B01DBA00D2DE1A /* UIWebView.mm in Sources */,
 				A0534A671B872FFD006B03E5 /* CCDownloader-apple.mm in Sources */,
@@ -5871,6 +6147,7 @@
 				1A12775C18DFCC590005F345 /* CCTweenFunction.cpp in Sources */,
 				BAFF7CEE1D59E0DB0051B92F /* DictionaryHelper.cpp in Sources */,
 				4DED48481DFFA4AF0070C5C4 /* b2EdgeAndCircleContact.cpp in Sources */,
+				1A28FF5F1F20AFAB007A1D9D /* SRProxyConnect.m in Sources */,
 				BAFF7CD01D59E0DB0051B92F /* CCProcessBase.cpp in Sources */,
 				FA6F1B451D80F858007DD223 /* AnimationState.cpp in Sources */,
 				1A5701E6180BCB8C0088DEC7 /* CCTransition.cpp in Sources */,
@@ -5895,6 +6172,7 @@
 				1A570208180BCBDF0088DEC7 /* CCMotionStreak.cpp in Sources */,
 				1A570210180BCBF40088DEC7 /* CCProgressTimer.cpp in Sources */,
 				292DB14D19B4574100A80320 /* UIEditBoxImpl-mac.mm in Sources */,
+				1A28FF8F1F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.m in Sources */,
 				BAFF7D921D5C1CF80051B92F /* PathAttachment.c in Sources */,
 				FA6F1BA11D80F858007DD223 /* TimelineData.cpp in Sources */,
 				BAFF7DC61D5C1CF80051B92F /* SlotData.c in Sources */,
@@ -5914,6 +6192,7 @@
 				1A570225180BCC1A0088DEC7 /* CCParticleExamples.cpp in Sources */,
 				1A570229180BCC1A0088DEC7 /* CCParticleSystem.cpp in Sources */,
 				4DED48801DFFA4AF0070C5C4 /* b2WeldJoint.cpp in Sources */,
+				1A28FF671F20AFAB007A1D9D /* SRPinningSecurityPolicy.m in Sources */,
 				1A57022D180BCC1A0088DEC7 /* CCParticleSystemQuad.cpp in Sources */,
 				1A57027E180BCC900088DEC7 /* CCSprite.cpp in Sources */,
 				1A570282180BCC900088DEC7 /* CCSpriteBatchNode.cpp in Sources */,
@@ -5923,6 +6202,7 @@
 				50ABC0191926664800A911A9 /* CCSAXParser.cpp in Sources */,
 				4DED480E1DFFA4AF0070C5C4 /* b2Settings.cpp in Sources */,
 				BAFF7DAA1D5C1CF80051B92F /* SkeletonBatch.cpp in Sources */,
+				1A28FF571F20AFAB007A1D9D /* SRIOConsumerPool.m in Sources */,
 				BAFF7DA21D5C1CF80051B92F /* Skeleton.c in Sources */,
 				BAFF7CD41D59E0DB0051B92F /* CCSkin.cpp in Sources */,
 				1A57028A180BCC900088DEC7 /* CCSpriteFrameCache.cpp in Sources */,
@@ -5949,6 +6229,7 @@
 				15AE1B5519AADA9900C27E9E /* UIScrollView.cpp in Sources */,
 				FA6F1BAD1D80F858007DD223 /* TextureData.cpp in Sources */,
 				50ABBE7D1925AB6F00A911A9 /* CCEventTouch.cpp in Sources */,
+				1A28FF4F1F20AFAB007A1D9D /* SRDelegateController.m in Sources */,
 				1A5702EA180BCE750088DEC7 /* CCTileMapAtlas.cpp in Sources */,
 				50ABBD971925AB4100A911A9 /* CCGLProgramStateCache.cpp in Sources */,
 				BAFF7CC81D59E0DB0051B92F /* CCDisplayManager.cpp in Sources */,
@@ -5972,12 +6253,14 @@
 				BAFF7DD41D5C1CF80051B92F /* TransformConstraintData.c in Sources */,
 				4DED487C1DFFA4AF0070C5C4 /* b2RopeJoint.cpp in Sources */,
 				1A5702FA180BCE750088DEC7 /* CCTMXXMLParser.cpp in Sources */,
+				1A28FF631F20AFAB007A1D9D /* SRRunLoopThread.m in Sources */,
 				50ABBD5C1925AB0000A911A9 /* Vec3.cpp in Sources */,
 				ED3057911BEC77770083C3ED /* edtaa3func.cpp in Sources */,
 				BAFF7D821D5C1CF80051B92F /* IkConstraint.c in Sources */,
 				FA6F1B5F1D80F858007DD223 /* Slot.cpp in Sources */,
 				BAFF7C921D59E0DA0051B92F /* CCArmatureDefine.cpp in Sources */,
 				1A570300180BCE890088DEC7 /* CCParallaxNode.cpp in Sources */,
+				1A28FF831F20AFAB007A1D9D /* SRRandom.m in Sources */,
 				FA6F1B651D80F858007DD223 /* CCArmatureDisplay.cpp in Sources */,
 				1A57030C180BCF190088DEC7 /* CCComponent.cpp in Sources */,
 				15FB20741AE7BF8600C31518 /* CCAutoPolygon.cpp in Sources */,
@@ -5986,6 +6269,7 @@
 				1A570310180BCF190088DEC7 /* CCComponentContainer.cpp in Sources */,
 				50ABBD3C1925AB0000A911A9 /* CCGeometry.cpp in Sources */,
 				5012168E1AC47380009A4BEA /* CCRenderState.cpp in Sources */,
+				1A28FF771F20AFAB007A1D9D /* SRHTTPConnectMessage.m in Sources */,
 				A63CF00B1CD9CF3500A6971D /* CCUISingleLineTextField.m in Sources */,
 				FA6F1BA51D80F858007DD223 /* DataParser.cpp in Sources */,
 				50ABC0011926664800A911A9 /* CCLock-apple.cpp in Sources */,
@@ -5996,6 +6280,7 @@
 				4DED48261DFFA4AF0070C5C4 /* b2Island.cpp in Sources */,
 				50ABBEB31925AB6F00A911A9 /* CCUserDefault-apple.mm in Sources */,
 				BAFF7DBA1D5C1CF80051B92F /* SkeletonRenderer.cpp in Sources */,
+				1A28FF7B1F20AFAB007A1D9D /* SRLog.m in Sources */,
 				29394CF619B01DBA00D2DE1A /* UIWebViewImpl-ios.mm in Sources */,
 				50ABBE831925AB6F00A911A9 /* ccFPSImages.c in Sources */,
 				15AE1B7019AADA9900C27E9E /* CocosGUI.cpp in Sources */,
@@ -6009,8 +6294,11 @@
 				15AE186819AAD31D00C27E9E /* CDXMacOSXSupport.mm in Sources */,
 				4DED48441DFFA4AF0070C5C4 /* b2ContactSolver.cpp in Sources */,
 				BAFF7C8E1D59E0DA0051B92F /* CCArmatureDataManager.cpp in Sources */,
+				1A28FF1A1F20AF94007A1D9D /* WebSocket-apple.mm in Sources */,
 				BA68D7891D62F4A500B7A3F9 /* cdt.cc in Sources */,
 				BAFF7C761D59E0DA0051B92F /* CCActionFrameEasing.cpp in Sources */,
+				1A28FF6F1F20AFAB007A1D9D /* SRError.m in Sources */,
+				1A28FF531F20AFAB007A1D9D /* SRIOConsumer.m in Sources */,
 				4DED48501DFFA4AF0070C5C4 /* b2PolygonAndCircleContact.cpp in Sources */,
 				38ACD1FC1A27111900C3093D /* WidgetCallBackHandlerProtocol.cpp in Sources */,
 				50ABBD8B1925AB4100A911A9 /* CCGLProgram.cpp in Sources */,
@@ -6085,6 +6373,7 @@
 				4DED486C1DFFA4AF0070C5C4 /* b2MouseJoint.cpp in Sources */,
 				BAFF7D5A1D5C1CF80051B92F /* Attachment.c in Sources */,
 				A63CF0071CD9CF3500A6971D /* CCUIMultilineTextField.m in Sources */,
+				1A28FF731F20AFAB007A1D9D /* SRHash.m in Sources */,
 				B5668D7D1B3838E4003CBD5E /* UIScrollViewBar.cpp in Sources */,
 				BAFF7CA21D59E0DA0051B92F /* CCComAttribute.cpp in Sources */,
 				50ABBE9F1925AB6F00A911A9 /* CCScheduler.cpp in Sources */,
@@ -6104,14 +6393,15 @@
 				BA679B3C1CEC373000F875FA /* Manifest.cpp in Sources */,
 				BAFF7D9E1D5C1CF80051B92F /* RegionAttachment.c in Sources */,
 				4D76BE3A1A4AAF0A00102962 /* CCActionTimelineNode.cpp in Sources */,
+				1A28FF871F20AFAB007A1D9D /* SRSIMDHelpers.m in Sources */,
 				50ABBD601925AB0000A911A9 /* Vec4.cpp in Sources */,
 				4DED47D41DFFA4AF0070C5C4 /* b2BroadPhase.cpp in Sources */,
 				50ABC05F1926664800A911A9 /* CCApplication-mac.mm in Sources */,
-				15AE1BB719AADFEF00C27E9E /* WebSocket.cpp in Sources */,
 				15AE1B5119AADA9900C27E9E /* UIPageView.cpp in Sources */,
 				ED3057A11BEC77D50083C3ED /* xxhash.c in Sources */,
 				50ABBD381925AB0000A911A9 /* CCAffineTransform.cpp in Sources */,
 				BAFF7D561D5C1CF80051B92F /* AtlasAttachmentLoader.c in Sources */,
+				1A28FF8B1F20AFAB007A1D9D /* SRURLUtilities.m in Sources */,
 				ED3057881BEC773E0083C3ED /* tinyxml2.cpp in Sources */,
 				BAFF7CBC1D59E0DB0051B92F /* CCDatas.cpp in Sources */,
 				4DED47DA1DFFA4AF0070C5C4 /* b2CollideEdge.cpp in Sources */,
@@ -6120,7 +6410,9 @@
 				A60A9D5F1C200DE10070800A /* CCPhysicsDebugNode.cpp in Sources */,
 				15AE1B5719AADA9900C27E9E /* UISlider.cpp in Sources */,
 				BAFF7C961D59E0DA0051B92F /* CCBatchNode.cpp in Sources */,
+				1A28FF9D1F20AFAB007A1D9D /* SRWebSocket.m in Sources */,
 				1ABA68AE1888D700007D1BB4 /* CCFontCharMap.cpp in Sources */,
+				1A28FF931F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6132,10 +6424,12 @@
 				BAFF7D7F1D5C1CF80051B92F /* extension.c in Sources */,
 				15AE1B9819AADAA100C27E9E /* UIVideoPlayer-ios.mm in Sources */,
 				FA6F1B521D80F858007DD223 /* WorldClock.cpp in Sources */,
+				1A28FF601F20AFAB007A1D9D /* SRProxyConnect.m in Sources */,
 				15AE1C0519AAE01E00C27E9E /* CCTableViewCell.cpp in Sources */,
 				2986667F18B1B246000E39CA /* CCTweenFunction.cpp in Sources */,
 				FA6F1B701D80F858007DD223 /* CCSlot.cpp in Sources */,
 				50ABBDA01925AB4100A911A9 /* CCGroupCommand.cpp in Sources */,
+				1A28FF901F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.m in Sources */,
 				50ABC0161926664800A911A9 /* CCImage.cpp in Sources */,
 				15AE1BFB19AAE01E00C27E9E /* CCControlUtils.cpp in Sources */,
 				B230ED7219B417AE00364AA8 /* CCTrianglesCommand.cpp in Sources */,
@@ -6174,6 +6468,7 @@
 				4DFA4C181CBCE34100E3B736 /* CCScale9Sprite.cpp in Sources */,
 				BA68D7B71D62F66300B7A3F9 /* CCTechnique.cpp in Sources */,
 				BA68D7A51D62F60100B7A3F9 /* UITabControl.cpp in Sources */,
+				1A28FF9A1F20AFAB007A1D9D /* SRSecurityPolicy.m in Sources */,
 				50ABBE281925AB6F00A911A9 /* CCAutoreleasePool.cpp in Sources */,
 				A60A9D641C200DE70070800A /* CCPhysicsSprite.cpp in Sources */,
 				BAFF7D531D5C1CF80051B92F /* Atlas.c in Sources */,
@@ -6183,9 +6478,11 @@
 				1A570066180BC5A10088DEC7 /* CCActionCamera.cpp in Sources */,
 				4DED47E31DFFA4AF0070C5C4 /* b2Distance.cpp in Sources */,
 				4DC06BE81E8A68D400CA08B1 /* CCPhysicsWorldManifoldWrapper.cpp in Sources */,
+				1A28FF581F20AFAB007A1D9D /* SRIOConsumerPool.m in Sources */,
 				B276EF661988D1D500CD400F /* CCVertexIndexBuffer.cpp in Sources */,
 				15AE1C0119AAE01E00C27E9E /* CCScrollView.cpp in Sources */,
 				ED30579E1BEC77BD0083C3ED /* ConvertUTFWrapper.cpp in Sources */,
+				1A28FF801F20AFAB007A1D9D /* SRMutex.m in Sources */,
 				1A57006A180BC5A10088DEC7 /* CCActionCatmullRom.cpp in Sources */,
 				15AE1BEF19AAE01E00C27E9E /* CCControlHuePicker.cpp in Sources */,
 				BAFF7DA31D5C1CF80051B92F /* Skeleton.c in Sources */,
@@ -6244,7 +6541,9 @@
 				4DED487D1DFFA4AF0070C5C4 /* b2RopeJoint.cpp in Sources */,
 				15AE192419AAD35100C27E9E /* CocoLoader.cpp in Sources */,
 				BAFF7C971D59E0DA0051B92F /* CCBatchNode.cpp in Sources */,
+				1A28FF681F20AFAB007A1D9D /* SRPinningSecurityPolicy.m in Sources */,
 				BA679B3D1CEC373000F875FA /* Manifest.cpp in Sources */,
+				1A28FF9E1F20AFAB007A1D9D /* SRWebSocket.m in Sources */,
 				BA68D7BD1D62F71700B7A3F9 /* CCFrameBuffer.cpp in Sources */,
 				85505F041B60E3AB003F2CD4 /* CCBoneNode.cpp in Sources */,
 				50ABBE421925AB6F00A911A9 /* CCDirector.cpp in Sources */,
@@ -6342,6 +6641,7 @@
 				BAFF7DC71D5C1CF80051B92F /* SlotData.c in Sources */,
 				BAFF7DCB1D5C1CF80051B92F /* spine-cocos2dx.cpp in Sources */,
 				1A5701F8180BCBAD0088DEC7 /* CCMenu.cpp in Sources */,
+				1A28FF741F20AFAB007A1D9D /* SRHash.m in Sources */,
 				50ABBD511925AB0000A911A9 /* Quaternion.cpp in Sources */,
 				1A5701FC180BCBAD0088DEC7 /* CCMenuItem.cpp in Sources */,
 				BAFF7CDD1D59E0DB0051B92F /* CCTransformHelp.cpp in Sources */,
@@ -6386,14 +6686,19 @@
 				50ABBD901925AB4100A911A9 /* CCGLProgramCache.cpp in Sources */,
 				BAFF7C9F1D59E0DA0051B92F /* CCColliderDetector.cpp in Sources */,
 				4DC06BE41E8A68D400CA08B1 /* CCPhysicsUtils.cpp in Sources */,
+				1A28FF941F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.m in Sources */,
 				4DED481B1DFFA4AF0070C5C4 /* b2Body.cpp in Sources */,
 				BAFF7D631D5C1CF80051B92F /* AttachmentVertices.cpp in Sources */,
+				1A28FF1B1F20AF94007A1D9D /* WebSocket-apple.mm in Sources */,
 				ED3057931BEC77790083C3ED /* edtaa3func.cpp in Sources */,
 				4DC06BDC1E8A68D400CA08B1 /* CCPhysicsDebugDraw.cpp in Sources */,
 				15AE197F19AAD35700C27E9E /* CCTimeLine.cpp in Sources */,
 				BAFF7D9F1D5C1CF80051B92F /* RegionAttachment.c in Sources */,
+				1A28FF7C1F20AFAB007A1D9D /* SRLog.m in Sources */,
 				1A57027F180BCC900088DEC7 /* CCSprite.cpp in Sources */,
+				1A28FF641F20AFAB007A1D9D /* SRRunLoopThread.m in Sources */,
 				15AE1B8819AADA9A00C27E9E /* UICheckBox.cpp in Sources */,
+				1A28FF6C1F20AFAB007A1D9D /* SRConstants.m in Sources */,
 				1A570283180BCC900088DEC7 /* CCSpriteBatchNode.cpp in Sources */,
 				1A570287180BCC900088DEC7 /* CCSpriteFrame.cpp in Sources */,
 				BAFF7CF51D59E3840051B92F /* CocosStudioExtension.cpp in Sources */,
@@ -6432,9 +6737,11 @@
 				50ABBDBA1925AB4100A911A9 /* CCTextureAtlas.cpp in Sources */,
 				1A5702FB180BCE750088DEC7 /* CCTMXXMLParser.cpp in Sources */,
 				BAFF7C9B1D59E0DA0051B92F /* CCBone.cpp in Sources */,
+				1A28FF8C1F20AFAB007A1D9D /* SRURLUtilities.m in Sources */,
 				1A570301180BCE890088DEC7 /* CCParallaxNode.cpp in Sources */,
 				1A57030D180BCF190088DEC7 /* CCComponent.cpp in Sources */,
 				464AD6E6197EBB1400E502D8 /* pvr.cpp in Sources */,
+				1A28FF541F20AFAB007A1D9D /* SRIOConsumer.m in Sources */,
 				15AE1B7619AADA9A00C27E9E /* UIPageView.cpp in Sources */,
 				1A570311180BCF190088DEC7 /* CCComponentContainer.cpp in Sources */,
 				50ABBE2C1925AB6F00A911A9 /* ccCArray.cpp in Sources */,
@@ -6459,9 +6766,11 @@
 				15AE1B8219AADA9A00C27E9E /* UITextBMFont.cpp in Sources */,
 				BAFF7CB51D59E0DB0051B92F /* CCComRender.cpp in Sources */,
 				BAFF7CBD1D59E0DB0051B92F /* CCDatas.cpp in Sources */,
+				1A28FF781F20AFAB007A1D9D /* SRHTTPConnectMessage.m in Sources */,
 				50ABBE6A1925AB6F00A911A9 /* CCEventListenerFocus.cpp in Sources */,
 				50ABBE661925AB6F00A911A9 /* CCEventListenerCustom.cpp in Sources */,
 				503DD8F81926B0DB00CD74DD /* CCIMEDispatcher.cpp in Sources */,
+				1A28FF881F20AFAB007A1D9D /* SRSIMDHelpers.m in Sources */,
 				50ABBDB21925AB4100A911A9 /* ccShaders.cpp in Sources */,
 				50ABBD451925AB0000A911A9 /* CCVertex.cpp in Sources */,
 				50ABBEB01925AB6F00A911A9 /* CCUserDefault.cpp in Sources */,
@@ -6513,6 +6822,7 @@
 				BA68D79F1D62F59000B7A3F9 /* CCMeshCommand.cpp in Sources */,
 				503DD8E51926736A00CD74DD /* CCDirectorCaller-ios.mm in Sources */,
 				BAFF7CD51D59E0DB0051B92F /* CCSkin.cpp in Sources */,
+				1A28FF841F20AFAB007A1D9D /* SRRandom.m in Sources */,
 				BA68D77E1D62F4A500B7A3F9 /* shapes.cc in Sources */,
 				BAFF7DD91D5C1CF80051B92F /* VertexAttachment.c in Sources */,
 				BAFF7C731D59E0DA0051B92F /* CCActionFrame.cpp in Sources */,
@@ -6536,6 +6846,8 @@
 				2980F0231BA9A5550059E678 /* CCUIEditBoxIOS.mm in Sources */,
 				50ABBED01925AB6F00A911A9 /* TGAlib.cpp in Sources */,
 				503DD8E31926736A00CD74DD /* CCDevice-ios.mm in Sources */,
+				1A28FF701F20AFAB007A1D9D /* SRError.m in Sources */,
+				1A28FF501F20AFAB007A1D9D /* SRDelegateController.m in Sources */,
 				BAFF7C771D59E0DA0051B92F /* CCActionFrameEasing.cpp in Sources */,
 				50ABBEB41925AB6F00A911A9 /* CCUserDefault-apple.mm in Sources */,
 				50ABBE3A1925AB6F00A911A9 /* CCData.cpp in Sources */,
@@ -6547,7 +6859,6 @@
 				15EFA212198A2BB5000C57D3 /* CCProtectedNode.cpp in Sources */,
 				4DED47EF1DFFA4AF0070C5C4 /* b2ChainShape.cpp in Sources */,
 				50ABBD981925AB4100A911A9 /* CCGLProgramStateCache.cpp in Sources */,
-				15AE1BBF19AADFF000C27E9E /* WebSocket.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6566,6 +6877,7 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -6594,7 +6906,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -6615,6 +6927,7 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -6639,7 +6952,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;

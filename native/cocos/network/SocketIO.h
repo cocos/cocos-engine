@@ -213,6 +213,7 @@ private:
     SocketIO::SIODelegate* _delegate;
 
     EventRegistry _eventRegistry;
+    uint32_t _instanceId;
 
     void fireEvent(const std::string& eventName, const std::string& data);
 
@@ -283,6 +284,11 @@ public:
     {
         return _tag.c_str();
     }
+
+    /**
+     * Gets instance id
+     */
+    uint32_t getInstanceId() const;
 
 };
 
