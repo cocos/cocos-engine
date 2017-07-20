@@ -22,27 +22,27 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 
-"[WebSocket module] is based in part on the work of the libwebsockets  project
-(http://libwebsockets.org)"
-
  ****************************************************************************/
 
 #pragma once
 
-#include <string>
-#include <vector>
-#include <mutex>
-#include <memory>  // for std::shared_ptr
-#include <atomic>
-#include <condition_variable>
-#include <functional>
-
 #include "platform/CCPlatformMacros.h"
 #include "platform/CCStdC.h"
+#include "base/CCRef.h"
 
-struct lws;
-struct lws_protocols;
-struct lws_vhost;
+#include <string>
+#include <vector>
+
+#ifndef OBJC_CLASS
+#ifdef __OBJC__
+#define OBJC_CLASS(name) @class name
+#else
+#define OBJC_CLASS(name) class name
+#endif
+#endif // OBJC_CLASS
+
+OBJC_CLASS(WebSocketImpl);
+
 /**
  * @addtogroup network
  * @{
@@ -50,17 +50,13 @@ struct lws_vhost;
 
 NS_CC_BEGIN
 
-class EventListenerCustom;
-
 namespace network {
-
-class WsThreadHelper;
 
 /**
  * WebSocket is wrapper of the libwebsockets-protocol, let the develop could call the websocket easily.
  * Please note that all public methods of WebSocket have to be invoked on Cocos Thread.
  */
-class CC_DLL WebSocket
+class CC_DLL WebSocket : public Ref
 {
 public:
     /**
@@ -75,6 +71,8 @@ public:
      * @js ctor
      */
     WebSocket();
+
+private:
     /**
      * Destructor of WebSocket.
      *
@@ -83,6 +81,7 @@ public:
      */
     virtual ~WebSocket();
 
+public:
     /**
      * Data structure for message
      */
@@ -210,80 +209,21 @@ public:
      *  @brief Gets current state of connection.
      *  @return State the state value could be State::CONNECTING, State::OPEN, State::CLOSING or State::CLOSED
      */
-    State getReadyState();
+    State getReadyState() const;
 
     /**
      *  @brief Gets the URL of websocket connection.
      */
-    inline const std::string& getUrl() const { return _url; }
+    const std::string& getUrl() const;
 
     /**
      *  @brief Gets the protocol selected by websocket server.
      */
-    inline const std::string& getProtocol() const { return _selectedProtocol; }
+    const std::string& getProtocol() const;
 
-    /**
-     *  @bridef Gets delegate of the WebSocket instance
-     */
-    inline Delegate* getDelegate() const { return _delegate; }
-
-    typedef std::function<void()> AfterCloseHook;
-    /**
-     *  @brief Sets the hook after onClose delegate method is invoked.
-     */
-    void setAfterCloseHook(std::shared_ptr<AfterCloseHook> afterCloseHook) { _afterCloseHook = afterCloseHook; }
-
+    Delegate* getDelegate() const;
 private:
-
-    // The following callback functions are invoked in websocket thread
-    void onClientOpenConnectionRequest();
-    int onSocketCallback(struct lws *wsi, int reason, void *in, ssize_t len);
-
-    int onClientWritable();
-    int onClientReceivedData(void* in, ssize_t len);
-    int onConnectionOpened();
-    int onConnectionError();
-    int onConnectionClosed();
-
-    struct lws_vhost* createVhost(struct lws_protocols* protocols, int& sslConnection);
-
-private:
-
-    std::mutex   _readyStateMutex;
-    State        _readyState;
-
-    std::string _url;
-
-    std::vector<char> _receivedData;
-
-    struct lws* _wsInstance;
-    struct lws_protocols* _lwsProtocols;
-    std::string _clientSupportedProtocols;
-    std::string _selectedProtocol;
-
-    std::shared_ptr<std::atomic<bool>> _isDestroyed;
-    Delegate* _delegate;
-
-    std::mutex _closeMutex;
-    std::condition_variable _closeCondition;
-
-    enum class CloseState
-    {
-        NONE,
-        SYNC_CLOSING,
-        SYNC_CLOSED,
-        ASYNC_CLOSING
-    };
-    CloseState _closeState;
-
-    std::string _caFilePath;
-
-    EventListenerCustom* _resetDirectorListener;
-
-    std::shared_ptr<AfterCloseHook> _afterCloseHook;
-
-    friend class WsThreadHelper;
-    friend class WebSocketCallbackWrapper;
+    WebSocketImpl* _impl;
 };
 
 } // namespace network {

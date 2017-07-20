@@ -34,7 +34,14 @@
 #include "base/CCEventDispatcher.h"
 #include "base/CCEventListenerCustom.h"
 #include "platform/CCFileUtils.h"
+#include "platform/CCStdC.h"
 
+#include <string>
+#include <vector>
+#include <mutex>
+#include <memory>  // for std::shared_ptr
+#include <atomic>
+#include <condition_variable>
 #include <thread>
 #include <mutex>
 #include <queue>
@@ -51,6 +58,10 @@
 #define WS_RESERVE_RECEIVE_BUFFER_SIZE (4096)
 
 #define  LOG_TAG    "WebSocket.cpp"
+
+struct lws;
+struct lws_protocols;
+struct lws_vhost;
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
 // log, CCLOG aren't threadsafe, since we uses sub threads for parsing pcm data, threadsafe log output
@@ -169,7 +180,74 @@ static void printWebSocketLog(int level, const char *line)
 #endif // #if COCOS2D_DEBUG > 0
 }
 
-NS_NETWORK_BEGIN
+class WebSocketImpl
+{
+public:
+    static void closeAllConnections();
+    WebSocketImpl(cocos2d::network::WebSocket* ws);
+    ~WebSocketImpl();
+
+    bool init(const cocos2d::network::WebSocket::Delegate& delegate,
+              const std::string& url,
+              const std::vector<std::string>* protocols = nullptr,
+              const std::string& caFilePath = "");
+
+    void send(const std::string& message);
+    void send(const unsigned char* binaryMsg, unsigned int len);
+    void close();
+    void closeAsync();
+    cocos2d::network::WebSocket::State getReadyState() const;
+    const std::string& getUrl() const;
+    const std::string& getProtocol() const;
+    cocos2d::network::WebSocket::Delegate* getDelegate() const;
+
+private:
+    // The following callback functions are invoked in websocket thread
+    void onClientOpenConnectionRequest();
+    int onSocketCallback(struct lws *wsi, int reason, void *in, ssize_t len);
+
+    int onClientWritable();
+    int onClientReceivedData(void* in, ssize_t len);
+    int onConnectionOpened();
+    int onConnectionError();
+    int onConnectionClosed();
+
+    struct lws_vhost* createVhost(struct lws_protocols* protocols, int& sslConnection);
+
+private:
+    cocos2d::network::WebSocket* _ws;
+    cocos2d::network::WebSocket::State _readyState;
+    std::mutex  _readyStateMutex;
+    std::string _url;
+    std::vector<char> _receivedData;
+
+    struct lws* _wsInstance;
+    struct lws_protocols* _lwsProtocols;
+    std::string _clientSupportedProtocols;
+    std::string _selectedProtocol;
+
+    std::shared_ptr<std::atomic<bool>> _isDestroyed;
+    cocos2d::network::WebSocket::Delegate* _delegate;
+
+    std::mutex _closeMutex;
+    std::condition_variable _closeCondition;
+
+    enum class CloseState
+    {
+        NONE,
+        SYNC_CLOSING,
+        SYNC_CLOSED,
+        ASYNC_CLOSING
+    };
+    CloseState _closeState;
+
+    std::string _caFilePath;
+
+    cocos2d::EventListenerCustom* _resetDirectorListener;
+
+    friend class WsThreadHelper;
+    friend class WebSocketCallbackWrapper;
+};
 
 enum WS_MSG {
     WS_MSG_TO_SUBTRHEAD_SENDING_STRING = 0,
@@ -177,7 +255,9 @@ enum WS_MSG {
     WS_MSG_TO_SUBTHREAD_CREATE_CONNECTION
 };
 
-static std::vector<WebSocket*>* __websocketInstances = nullptr;
+class WsThreadHelper;
+
+static std::vector<WebSocketImpl*>* __websocketInstances = nullptr;
 static std::mutex __instanceMutex;
 static struct lws_context* __wsContext = nullptr;
 static WsThreadHelper* __wsHelper = nullptr;
@@ -299,7 +379,7 @@ public:
             return 0;
         }
         int ret = 0;
-        WebSocket* ws = (WebSocket*)lws_wsi_user(wsi);
+        WebSocketImpl* ws = (WebSocketImpl*)lws_wsi_user(wsi);
         if (ws != nullptr && __websocketInstances != nullptr)
         {
             if (std::find(__websocketInstances->begin(), __websocketInstances->end(), ws) != __websocketInstances->end())
@@ -357,7 +437,7 @@ void WsThreadHelper::onSubThreadLoop()
             for (; iter != __wsHelper->_subThreadWsMessageQueue->end(); )
             {
                 auto msg = (*iter);
-                auto ws = (WebSocket*)msg->user;
+                auto ws = (WebSocketImpl*)msg->user;
                 // TODO: ws may be a invalid pointer
                 if (msg->what == WS_MSG_TO_SUBTHREAD_CREATE_CONNECTION)
                 {
@@ -427,7 +507,7 @@ void WsThreadHelper::wsThreadEntryFunc()
 
 void WsThreadHelper::sendMessageToCocosThread(const std::function<void()>& cb)
 {
-    Director::getInstance()->getScheduler()->performFunctionInCocosThread(cb);
+    cocos2d::Director::getInstance()->getScheduler()->performFunctionInCocosThread(cb);
 }
 
 void WsThreadHelper::sendMessageToWebSocketThread(WsMessage *msg)
@@ -495,16 +575,17 @@ private:
     ssize_t _frameLength;
     std::vector<unsigned char> _data;
 };
+
 //
 
-void WebSocket::closeAllConnections()
+void WebSocketImpl::closeAllConnections()
 {
     if (__websocketInstances != nullptr)
     {
         ssize_t count = __websocketInstances->size();
         for (ssize_t i = count-1; i >=0 ; i--)
         {
-            WebSocket* instance = __websocketInstances->at(i);
+            WebSocketImpl* instance = __websocketInstances->at(i);
             instance->close();
         }
 
@@ -515,33 +596,33 @@ void WebSocket::closeAllConnections()
     }
 }
 
-WebSocket::WebSocket()
-: _readyState(State::CONNECTING)
+WebSocketImpl::WebSocketImpl(cocos2d::network::WebSocket* ws)
+: _ws(ws)
+, _readyState(cocos2d::network::WebSocket::State::CONNECTING)
 , _wsInstance(nullptr)
 , _lwsProtocols(nullptr)
 , _isDestroyed(std::make_shared<std::atomic<bool>>(false))
 , _delegate(nullptr)
 , _closeState(CloseState::NONE)
-, _afterCloseHook(nullptr)
 {
     // reserve data buffer to avoid allocate memory frequently
     _receivedData.reserve(WS_RESERVE_RECEIVE_BUFFER_SIZE);
     if (__websocketInstances == nullptr)
     {
-        __websocketInstances = new (std::nothrow) std::vector<WebSocket*>();
+        __websocketInstances = new (std::nothrow) std::vector<WebSocketImpl*>();
     }
 
     __websocketInstances->push_back(this);
     
     std::shared_ptr<std::atomic<bool>> isDestroyed = _isDestroyed;
-    _resetDirectorListener = Director::getInstance()->getEventDispatcher()->addCustomEventListener(Director::EVENT_RESET, [this, isDestroyed](EventCustom*){
+    _resetDirectorListener = cocos2d::Director::getInstance()->getEventDispatcher()->addCustomEventListener(cocos2d::Director::EVENT_RESET, [this, isDestroyed](cocos2d::EventCustom*){
         if (*isDestroyed)
             return;
         close();
     });
 }
 
-WebSocket::~WebSocket()
+WebSocketImpl::~WebSocketImpl()
 {
     LOGD("In the destructor of WebSocket (%p)\n", this);
 
@@ -570,18 +651,18 @@ WebSocket::~WebSocket()
         CC_SAFE_DELETE(__wsHelper);
     }
 
-    Director::getInstance()->getEventDispatcher()->removeEventListener(_resetDirectorListener);
+    cocos2d::Director::getInstance()->getEventDispatcher()->removeEventListener(_resetDirectorListener);
     
     *_isDestroyed = true;
 }
 
 
-bool WebSocket::init(const Delegate& delegate,
+bool WebSocketImpl::init(const cocos2d::network::WebSocket::Delegate& delegate,
                      const std::string& url,
                      const std::vector<std::string>* protocols/* = nullptr*/,
                      const std::string& caFilePath/* = ""*/)
 {
-    _delegate = const_cast<Delegate*>(&delegate);
+    _delegate = const_cast<cocos2d::network::WebSocket::Delegate*>(&delegate);
     _url = url;
     _caFilePath = caFilePath;
 
@@ -640,12 +721,12 @@ bool WebSocket::init(const Delegate& delegate,
     return true;
 }
 
-void WebSocket::send(const std::string& message)
+void WebSocketImpl::send(const std::string& message)
 {
-    if (_readyState == State::OPEN)
+    if (_readyState == cocos2d::network::WebSocket::State::OPEN)
     {
         // In main thread
-        Data* data = new (std::nothrow) Data();
+        cocos2d::network::WebSocket::Data* data = new (std::nothrow) cocos2d::network::WebSocket::Data();
         data->bytes = (char*)malloc(message.length() + 1);
         // Make sure the last byte is '\0'
         data->bytes[message.length()] = '\0';
@@ -664,12 +745,12 @@ void WebSocket::send(const std::string& message)
     }
 }
 
-void WebSocket::send(const unsigned char* binaryMsg, unsigned int len)
+void WebSocketImpl::send(const unsigned char* binaryMsg, unsigned int len)
 {
-    if (_readyState == State::OPEN)
+    if (_readyState == cocos2d::network::WebSocket::State::OPEN)
     {
         // In main thread
-        Data* data = new (std::nothrow) Data();
+        cocos2d::network::WebSocket::Data* data = new (std::nothrow) cocos2d::network::WebSocket::Data();
         if (len == 0)
         {
             // If data length is zero, allocate 1 byte for safe.
@@ -695,7 +776,7 @@ void WebSocket::send(const unsigned char* binaryMsg, unsigned int len)
     }
 }
 
-void WebSocket::close()
+void WebSocketImpl::close()
 {
     if (_closeState != CloseState::NONE)
     {
@@ -703,25 +784,21 @@ void WebSocket::close()
         return;
     }
 
-    std::shared_ptr<AfterCloseHook> hook = _afterCloseHook;
     _closeState = CloseState::SYNC_CLOSING;
     LOGD("close: WebSocket (%p) is closing...\n", this);
     {
         _readyStateMutex.lock();
-        if (_readyState == State::CLOSED)
+        if (_readyState == cocos2d::network::WebSocket::State::CLOSED)
         {
             // If readState is closed, it means that onConnectionClosed was invoked in websocket thread,
             // but the callback of performInCocosThread has not been triggered. We need to invoke
             // onClose to release the websocket instance.
             _readyStateMutex.unlock();
-
-            _delegate->onClose(this);
-            if (hook)
-                (*hook)();
+            _delegate->onClose(_ws);
             return;
         }
 
-        _readyState = State::CLOSING;
+        _readyState = cocos2d::network::WebSocket::State::CLOSING;
         _readyStateMutex.unlock();
     }
 
@@ -733,12 +810,10 @@ void WebSocket::close()
 
     // Wait 5 milliseconds for onConnectionClosed to exit!
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    _delegate->onClose(this);
-    if (hook)
-        (*hook)();
+    _delegate->onClose(_ws);
 }
 
-void WebSocket::closeAsync()
+void WebSocketImpl::closeAsync()
 {
     if (_closeState != CloseState::NONE)
     {
@@ -750,24 +825,39 @@ void WebSocket::closeAsync()
 
     LOGD("closeAsync: WebSocket (%p) is closing...\n", this);
     std::lock_guard<std::mutex> lk(_readyStateMutex);
-    if (_readyState == State::CLOSED || _readyState == State::CLOSING)
+    if (_readyState == cocos2d::network::WebSocket::State::CLOSED || _readyState == cocos2d::network::WebSocket::State::CLOSING)
     {
         LOGD("closeAsync: WebSocket (%p) was closed, no need to close it again!\n", this);
         return;
     }
 
-    _readyState = State::CLOSING;
+    _readyState = cocos2d::network::WebSocket::State::CLOSING;
 }
 
-WebSocket::State WebSocket::getReadyState()
+cocos2d::network::WebSocket::State WebSocketImpl::getReadyState() const
 {
-    std::lock_guard<std::mutex> lk(_readyStateMutex);
+    std::lock_guard<std::mutex> lk(const_cast<WebSocketImpl*>(this)->_readyStateMutex);
     return _readyState;
 }
 
-struct lws_vhost* WebSocket::createVhost(struct lws_protocols* protocols, int& sslConnection)
+const std::string& WebSocketImpl::getUrl() const
 {
-    auto fileUtils = FileUtils::getInstance();
+    return _url;
+}
+
+const std::string& WebSocketImpl::getProtocol() const
+{
+    return _selectedProtocol;
+}
+
+cocos2d::network::WebSocket::Delegate* WebSocketImpl::getDelegate() const
+{
+    return _delegate;
+}
+
+struct lws_vhost* WebSocketImpl::createVhost(struct lws_protocols* protocols, int& sslConnection)
+{
+    auto fileUtils = cocos2d::FileUtils::getInstance();
     bool isCAFileExist = fileUtils->isFileExist(_caFilePath);
     if (isCAFileExist)
     {
@@ -851,7 +941,7 @@ struct lws_vhost* WebSocket::createVhost(struct lws_protocols* protocols, int& s
     return vhost;
 }
 
-void WebSocket::onClientOpenConnectionRequest()
+void WebSocketImpl::onClientOpenConnectionRequest()
 {
     if (nullptr != __wsContext)
     {
@@ -873,10 +963,10 @@ void WebSocket::onClientOpenConnectionRequest()
         };
 
         _readyStateMutex.lock();
-        _readyState = State::CONNECTING;
+        _readyState = cocos2d::network::WebSocket::State::CONNECTING;
         _readyStateMutex.unlock();
 
-        Uri uri = Uri::parse(_url);
+        cocos2d::network::Uri uri = cocos2d::network::Uri::parse(_url);
         LOGD("scheme: %s, host: %s, port: %d, path: %s\n", uri.getScheme().c_str(), uri.getHostName().c_str(), static_cast<int>(uri.getPort()), uri.getPathEtc().c_str());
 
         int sslConnection = 0;
@@ -932,12 +1022,12 @@ void WebSocket::onClientOpenConnectionRequest()
     }
 }
 
-int WebSocket::onClientWritable()
+int WebSocketImpl::onClientWritable()
 {
 //    LOGD("onClientWritable ... \n");
     {
         std::lock_guard<std::mutex> readMutex(_readyStateMutex);
-        if (_readyState == State::CLOSING)
+        if (_readyState == cocos2d::network::WebSocket::State::CLOSING)
         {
             LOGD("Closing websocket (%p) connection.\n", this);
             return -1;
@@ -973,7 +1063,7 @@ int WebSocket::onClientWritable()
         {
             WsMessage* subThreadMsg = *iter;
 
-            Data* data = (Data*)subThreadMsg->data;
+            cocos2d::network::WebSocket::Data* data = (cocos2d::network::WebSocket::Data*)subThreadMsg->data;
 
             const ssize_t c_bufferSize = WS_RX_BUFFER_SIZE;
 
@@ -1099,7 +1189,7 @@ int WebSocket::onClientWritable()
     return 0;
 }
 
-int WebSocket::onClientReceivedData(void* in, ssize_t len)
+int WebSocketImpl::onClientReceivedData(void* in, ssize_t len)
 {
     // In websocket thread
     static int packageIndex = 0;
@@ -1142,7 +1232,7 @@ int WebSocket::onClientReceivedData(void* in, ssize_t len)
             // In UI thread
             LOGD("Notify data len %d to Cocos thread.\n", (int)frameSize);
 
-            Data data;
+            cocos2d::network::WebSocket::Data data;
             data.isBinary = isBinary;
             data.bytes = (char*)frameData->data();
             data.len = frameSize;
@@ -1153,7 +1243,7 @@ int WebSocket::onClientReceivedData(void* in, ssize_t len)
             }
             else
             {
-                _delegate->onMessage(this, data);
+                _delegate->onMessage(_ws, data);
             }
 
             delete frameData;
@@ -1163,7 +1253,7 @@ int WebSocket::onClientReceivedData(void* in, ssize_t len)
     return 0;
 }
 
-int WebSocket::onConnectionOpened()
+int WebSocketImpl::onConnectionOpened()
 {
     const lws_protocols* lwsSelectedProtocol = lws_get_protocol(_wsInstance);
     _selectedProtocol = lwsSelectedProtocol->name;
@@ -1176,11 +1266,11 @@ int WebSocket::onConnectionOpened()
 
     {
         std::lock_guard<std::mutex> lk(_readyStateMutex);
-        if (_readyState == State::CLOSING || _readyState == State::CLOSED)
+        if (_readyState == cocos2d::network::WebSocket::State::CLOSING || _readyState == cocos2d::network::WebSocket::State::CLOSED)
         {
             return 0;
         }
-        _readyState = State::OPEN;
+        _readyState = cocos2d::network::WebSocket::State::OPEN;
     }
 
     std::shared_ptr<std::atomic<bool>> isDestroyed = _isDestroyed;
@@ -1191,22 +1281,22 @@ int WebSocket::onConnectionOpened()
         }
         else
         {
-            _delegate->onOpen(this);
+            _delegate->onOpen(_ws);
         }
     });
     return 0;
 }
 
-int WebSocket::onConnectionError()
+int WebSocketImpl::onConnectionError()
 {
     {
         std::lock_guard<std::mutex> lk(_readyStateMutex);
         LOGD("WebSocket (%p) onConnectionError, state: %d ...\n", this, (int)_readyState);
-        if (_readyState == State::CLOSED)
+        if (_readyState == cocos2d::network::WebSocket::State::CLOSED)
         {
             return 0;
         }
-        _readyState = State::CLOSING;
+        _readyState = cocos2d::network::WebSocket::State::CLOSING;
     }
 
     std::shared_ptr<std::atomic<bool>> isDestroyed = _isDestroyed;
@@ -1217,7 +1307,7 @@ int WebSocket::onConnectionError()
         }
         else
         {
-            _delegate->onError(this, ErrorCode::CONNECTION_FAILURE);
+            _delegate->onError(_ws, cocos2d::network::WebSocket::ErrorCode::CONNECTION_FAILURE);
         }
     });
 
@@ -1226,17 +1316,17 @@ int WebSocket::onConnectionError()
     return 0;
 }
 
-int WebSocket::onConnectionClosed()
+int WebSocketImpl::onConnectionClosed()
 {
     {
         std::lock_guard<std::mutex> lk(_readyStateMutex);
         LOGD("WebSocket (%p) onConnectionClosed, state: %d ...\n", this, (int)_readyState);
-        if (_readyState == State::CLOSED)
+        if (_readyState == cocos2d::network::WebSocket::State::CLOSED)
         {
             return 0;
         }
 
-        if (_readyState == State::CLOSING)
+        if (_readyState == cocos2d::network::WebSocket::State::CLOSING)
         {
             if (_closeState == CloseState::SYNC_CLOSING)
             {
@@ -1268,7 +1358,7 @@ int WebSocket::onConnectionClosed()
             LOGD("onConnectionClosed, WebSocket (%p) is closing by server.\n", this);
         }
 
-        _readyState = State::CLOSED;
+        _readyState = cocos2d::network::WebSocket::State::CLOSED;
     }
 
     std::shared_ptr<std::atomic<bool>> isDestroyed = _isDestroyed;
@@ -1279,10 +1369,7 @@ int WebSocket::onConnectionClosed()
         }
         else
         {
-            std::shared_ptr<AfterCloseHook> hook = _afterCloseHook;
-            _delegate->onClose(this);
-            if (hook)
-                (*hook)();
+            _delegate->onClose(_ws);
         }
     });
 
@@ -1290,7 +1377,7 @@ int WebSocket::onConnectionClosed()
     return 0;
 }
 
-int WebSocket::onSocketCallback(struct lws *wsi,
+int WebSocketImpl::onSocketCallback(struct lws *wsi,
                      int reason,
                      void *in, ssize_t len)
 {
@@ -1334,6 +1421,72 @@ int WebSocket::onSocketCallback(struct lws *wsi,
     }
 
     return ret;
+}
+
+NS_NETWORK_BEGIN
+
+/*static*/
+void WebSocket::closeAllConnections()
+{
+    WebSocketImpl::closeAllConnections();
+}
+
+WebSocket::WebSocket()
+{
+    _impl = new (std::nothrow) WebSocketImpl(this);
+}
+
+WebSocket::~WebSocket()
+{
+    delete _impl;
+}
+
+bool WebSocket::init(const Delegate& delegate,
+          const std::string& url,
+          const std::vector<std::string>* protocols/* = nullptr*/,
+          const std::string& caFilePath/* = ""*/)
+{
+    return _impl->init(delegate, url, protocols, caFilePath);
+}
+
+void WebSocket::send(const std::string& message)
+{
+    _impl->send(message);
+}
+
+void WebSocket::send(const unsigned char* binaryMsg, unsigned int len)
+{
+    _impl->send(binaryMsg, len);
+}
+
+void WebSocket::close()
+{
+    _impl->close();
+}
+
+void WebSocket::closeAsync()
+{
+    _impl->closeAsync();
+}
+
+WebSocket::State WebSocket::getReadyState() const
+{
+    return _impl->getReadyState();
+}
+
+const std::string& WebSocket::getUrl() const
+{
+    return _impl->getUrl();
+}
+
+const std::string& WebSocket::getProtocol() const
+{
+    return _impl->getProtocol();
+}
+
+WebSocket::Delegate* WebSocket::getDelegate() const
+{
+    return _impl->getDelegate();
 }
 
 NS_NETWORK_END
