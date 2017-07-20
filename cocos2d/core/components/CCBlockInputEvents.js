@@ -33,10 +33,10 @@ function stopPropagation (event) {
 
 /**
  * !#en
- * This component will block all input events, preventing the input from penetrating into the underlying node, typically for the background of the top UI.<br>
+ * This component will block all input events (mouse and touch) within the bounding box of the node, preventing the input from penetrating into the underlying node, typically for the background of the top UI.<br>
  * This component does not have any API interface and can be added directly to the scene to take effect.
  * !#zh
- * 该组件将拦截所有输入事件，防止输入穿透到下层节点，一般用于上层 UI 的背景。<br>
+ * 该组件将拦截所属节点 bounding box 内的所有输入事件（鼠标和触摸），防止输入穿透到下层节点，一般用于上层 UI 的背景。<br>
  * 该组件没有任何 API 接口，直接添加到场景即可生效。
  *
  * @class BlockInputEvents
@@ -52,16 +52,15 @@ const BlockInputEvents = cc.Class({
     },
 
     onEnable () {
-        var target = this;  // specify the target so that the event callback will not conflict with other components,
-                            // otherwise we should declare disallowMultiple
         for (var i = 0; i < BlockEvents.length; i++) {
-            this.node.on(BlockEvents[i], stopPropagation, target);
+            // supply the 'this' parameter so that the callback could be added and removed correctly,
+            // even if the same component is added more than once to a Node.
+            this.node.on(BlockEvents[i], stopPropagation, this);
         }
     },
     onDisable () {
-        var target = this;
         for (var i = 0; i < BlockEvents.length; i++) {
-            this.node.off(BlockEvents[i], stopPropagation, target);
+            this.node.off(BlockEvents[i], stopPropagation, this);
         }
     }
 });
