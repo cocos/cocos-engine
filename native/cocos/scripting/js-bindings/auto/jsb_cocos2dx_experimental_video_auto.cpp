@@ -349,7 +349,6 @@ static bool js_cocos2dx_experimental_video_VideoPlayer_constructor(se::State& s)
 {
     cocos2d::experimental::ui::VideoPlayer* cobj = new (std::nothrow) cocos2d::experimental::ui::VideoPlayer();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_experimental_video_VideoPlayer_constructor, __jsb_cocos2d_experimental_ui_VideoPlayer_class, js_cocos2d_experimental_ui_VideoPlayer_finalize)

@@ -565,7 +565,6 @@ static bool js_cocos2dx_experimental_webView_WebView_constructor(se::State& s)
 {
     cocos2d::experimental::ui::WebView* cobj = new (std::nothrow) cocos2d::experimental::ui::WebView();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_experimental_webView_WebView_constructor, __jsb_cocos2d_experimental_ui_WebView_class, js_cocos2d_experimental_ui_WebView_finalize)

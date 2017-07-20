@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#import <Foundation/Foundation.h>
+
 // @interface NativeOcClass : NSObject 
 // {
 
@@ -325,7 +327,6 @@ static bool JavaScriptObjCBridge_constructor(se::State& s)
 {
     JavaScriptObjCBridge* cobj = new (std::nothrow) JavaScriptObjCBridge();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef(); //FIXME: remove this
     return true;
 }
 SE_BIND_CTOR(JavaScriptObjCBridge_constructor, __jsb_JavaScriptObjCBridge_class, JavaScriptObjCBridge_finalize)

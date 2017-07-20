@@ -678,7 +678,6 @@ static bool js_creator_Scale9SpriteV2_constructor(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = new (std::nothrow) creator::Scale9SpriteV2();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_creator_Scale9SpriteV2_constructor, __jsb_creator_Scale9SpriteV2_class, js_creator_Scale9SpriteV2_finalize)
@@ -687,7 +686,6 @@ static bool js_creator_Scale9SpriteV2_ctor(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = new (std::nothrow) creator::Scale9SpriteV2();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_creator_Scale9SpriteV2_ctor, __jsb_creator_Scale9SpriteV2_class, js_creator_Scale9SpriteV2_finalize)
@@ -1449,7 +1447,6 @@ static bool js_creator_GraphicsNode_constructor(se::State& s)
 {
     creator::GraphicsNode* cobj = new (std::nothrow) creator::GraphicsNode();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_creator_GraphicsNode_constructor, __jsb_creator_GraphicsNode_class, js_creator_GraphicsNode_finalize)
@@ -1458,7 +1455,6 @@ static bool js_creator_GraphicsNode_ctor(se::State& s)
 {
     creator::GraphicsNode* cobj = new (std::nothrow) creator::GraphicsNode();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_creator_GraphicsNode_ctor, __jsb_creator_GraphicsNode_class, js_creator_GraphicsNode_finalize)
@@ -1594,7 +1590,6 @@ static bool js_creator_PhysicsDebugDraw_constructor(se::State& s)
 {
     creator::PhysicsDebugDraw* cobj = new (std::nothrow) creator::PhysicsDebugDraw();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_creator_PhysicsDebugDraw_constructor, __jsb_creator_PhysicsDebugDraw_class, js_creator_PhysicsDebugDraw_finalize)
@@ -1759,7 +1754,6 @@ static bool js_creator_PhysicsWorldManifoldWrapper_constructor(se::State& s)
 {
     creator::PhysicsWorldManifoldWrapper* cobj = new (std::nothrow) creator::PhysicsWorldManifoldWrapper();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_creator_PhysicsWorldManifoldWrapper_constructor, __jsb_creator_PhysicsWorldManifoldWrapper_class, js_creator_PhysicsWorldManifoldWrapper_finalize)
@@ -1903,7 +1897,6 @@ static bool js_creator_PhysicsUtils_constructor(se::State& s)
 {
     creator::PhysicsUtils* cobj = new (std::nothrow) creator::PhysicsUtils();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_creator_PhysicsUtils_constructor, __jsb_creator_PhysicsUtils_class, js_creator_PhysicsUtils_finalize)
@@ -2012,7 +2005,6 @@ static bool js_creator_PhysicsContactImpulse_constructor(se::State& s)
 {
     creator::PhysicsContactImpulse* cobj = new (std::nothrow) creator::PhysicsContactImpulse();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_creator_PhysicsContactImpulse_constructor, __jsb_creator_PhysicsContactImpulse_class, js_creator_PhysicsContactImpulse_finalize)
@@ -2100,7 +2092,6 @@ static bool js_creator_PhysicsContactListener_constructor(se::State& s)
 {
     creator::PhysicsContactListener* cobj = new (std::nothrow) creator::PhysicsContactListener();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_creator_PhysicsContactListener_constructor, __jsb_creator_PhysicsContactListener_class, js_creator_PhysicsContactListener_finalize)
@@ -2194,7 +2185,6 @@ static bool js_creator_PhysicsAABBQueryCallback_constructor(se::State& s)
 {
     creator::PhysicsAABBQueryCallback* cobj = new (std::nothrow) creator::PhysicsAABBQueryCallback();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_creator_PhysicsAABBQueryCallback_constructor, __jsb_creator_PhysicsAABBQueryCallback_class, js_creator_PhysicsAABBQueryCallback_finalize)
@@ -2296,7 +2286,6 @@ static bool js_creator_PhysicsRayCastCallback_constructor(se::State& s)
 {
     creator::PhysicsRayCastCallback* cobj = new (std::nothrow) creator::PhysicsRayCastCallback();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_creator_PhysicsRayCastCallback_constructor, __jsb_creator_PhysicsRayCastCallback_class, js_creator_PhysicsRayCastCallback_finalize)
@@ -2411,7 +2400,6 @@ static bool js_creator_CameraNode_constructor(se::State& s)
 {
     creator::CameraNode* cobj = new (std::nothrow) creator::CameraNode();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_creator_CameraNode_constructor, __jsb_creator_CameraNode_class, js_creator_CameraNode_finalize)

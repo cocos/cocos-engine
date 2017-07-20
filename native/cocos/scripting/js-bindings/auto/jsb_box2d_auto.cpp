@@ -696,7 +696,6 @@ static bool js_box2dclasses_b2CircleShape_constructor(se::State& s)
 {
     b2CircleShape* cobj = new (std::nothrow) b2CircleShape();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_box2dclasses_b2CircleShape_constructor, __jsb_b2CircleShape_class, js_b2CircleShape_finalize)
@@ -912,7 +911,6 @@ static bool js_box2dclasses_b2EdgeShape_constructor(se::State& s)
 {
     b2EdgeShape* cobj = new (std::nothrow) b2EdgeShape();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_box2dclasses_b2EdgeShape_constructor, __jsb_b2EdgeShape_class, js_b2EdgeShape_finalize)
@@ -1178,7 +1176,6 @@ static bool js_box2dclasses_b2ChainShape_constructor(se::State& s)
 {
     b2ChainShape* cobj = new (std::nothrow) b2ChainShape();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_box2dclasses_b2ChainShape_constructor, __jsb_b2ChainShape_class, js_b2ChainShape_finalize)
@@ -1430,7 +1427,6 @@ static bool js_box2dclasses_b2PolygonShape_constructor(se::State& s)
 {
     b2PolygonShape* cobj = new (std::nothrow) b2PolygonShape();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_box2dclasses_b2PolygonShape_constructor, __jsb_b2PolygonShape_class, js_b2PolygonShape_finalize)
@@ -3964,7 +3960,6 @@ static bool js_box2dclasses_b2World_constructor(se::State& s)
     JSB_PRECONDITION2(ok, false, "js_box2dclasses_b2World_constructor : Error processing arguments");
     b2World* cobj = new (std::nothrow) b2World(arg0);
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_box2dclasses_b2World_constructor, __jsb_b2World_class, js_b2World_finalize)

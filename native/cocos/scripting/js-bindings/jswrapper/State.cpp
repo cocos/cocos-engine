@@ -43,6 +43,10 @@ namespace se {
     , _thisObject(thisObject) //FIXME: need to retain thisObject, and remove addRef in constructor and ctor bindings code.
     , _args(&args)
     {
+        if (_thisObject != nullptr)
+        {
+            _thisObject->addRef();
+        }
     }
     
     void* State::nativeThisObject() const

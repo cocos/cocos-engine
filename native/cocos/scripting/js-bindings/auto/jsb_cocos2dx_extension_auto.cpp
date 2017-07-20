@@ -254,7 +254,6 @@ static bool js_cocos2dx_extension_EventAssetsManagerEx_constructor(se::State& s)
     JSB_PRECONDITION2(ok, false, "js_cocos2dx_extension_EventAssetsManagerEx_constructor : Error processing arguments");
     cocos2d::extension::EventAssetsManagerEx* cobj = new (std::nothrow) cocos2d::extension::EventAssetsManagerEx(arg0, arg1, arg2);
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_extension_EventAssetsManagerEx_constructor, __jsb_cocos2d_extension_EventAssetsManagerEx_class, js_cocos2d_extension_EventAssetsManagerEx_finalize)
@@ -547,7 +546,6 @@ static bool js_cocos2dx_extension_Manifest_constructor(se::State& s)
             if (!ok) { ok = true; break; }
             cocos2d::extension::Manifest* cobj = new (std::nothrow) cocos2d::extension::Manifest(arg0, arg1);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -555,7 +553,6 @@ static bool js_cocos2dx_extension_Manifest_constructor(se::State& s)
         if (argc == 0) {
             cocos2d::extension::Manifest* cobj = new (std::nothrow) cocos2d::extension::Manifest();
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -566,7 +563,6 @@ static bool js_cocos2dx_extension_Manifest_constructor(se::State& s)
             if (!ok) { ok = true; break; }
             cocos2d::extension::Manifest* cobj = new (std::nothrow) cocos2d::extension::Manifest(arg0);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -1125,7 +1121,6 @@ static bool js_cocos2dx_extension_AssetsManagerEx_constructor(se::State& s)
             if (!ok) { ok = true; break; }
             cocos2d::extension::AssetsManagerEx* cobj = new (std::nothrow) cocos2d::extension::AssetsManagerEx(arg0, arg1, arg2);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -1139,7 +1134,6 @@ static bool js_cocos2dx_extension_AssetsManagerEx_constructor(se::State& s)
             if (!ok) { ok = true; break; }
             cocos2d::extension::AssetsManagerEx* cobj = new (std::nothrow) cocos2d::extension::AssetsManagerEx(arg0, arg1);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -1314,7 +1308,6 @@ static bool js_cocos2dx_extension_EventListenerAssetsManagerEx_constructor(se::S
 {
     cocos2d::extension::EventListenerAssetsManagerEx* cobj = new (std::nothrow) cocos2d::extension::EventListenerAssetsManagerEx();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_extension_EventListenerAssetsManagerEx_constructor, __jsb_cocos2d_extension_EventListenerAssetsManagerEx_class, js_cocos2d_extension_EventListenerAssetsManagerEx_finalize)
@@ -1605,7 +1598,6 @@ static bool js_cocos2dx_extension_Control_constructor(se::State& s)
 {
     cocos2d::extension::Control* cobj = new (std::nothrow) cocos2d::extension::Control();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_extension_Control_constructor, __jsb_cocos2d_extension_Control_class, js_cocos2d_extension_Control_finalize)
@@ -2511,7 +2503,6 @@ static bool js_cocos2dx_extension_ControlButton_constructor(se::State& s)
 {
     cocos2d::extension::ControlButton* cobj = new (std::nothrow) cocos2d::extension::ControlButton();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_extension_ControlButton_constructor, __jsb_cocos2d_extension_ControlButton_class, js_cocos2d_extension_ControlButton_finalize)
@@ -2520,7 +2511,6 @@ static bool js_cocos2dx_extension_ControlButton_ctor(se::State& s)
 {
     cocos2d::extension::ControlButton* cobj = new (std::nothrow) cocos2d::extension::ControlButton();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_extension_ControlButton_ctor, __jsb_cocos2d_extension_ControlButton_class, js_cocos2d_extension_ControlButton_finalize)
@@ -2822,7 +2812,6 @@ static bool js_cocos2dx_extension_ControlHuePicker_constructor(se::State& s)
 {
     cocos2d::extension::ControlHuePicker* cobj = new (std::nothrow) cocos2d::extension::ControlHuePicker();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_extension_ControlHuePicker_constructor, __jsb_cocos2d_extension_ControlHuePicker_class, js_cocos2d_extension_ControlHuePicker_finalize)
@@ -3053,7 +3042,6 @@ static bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_constructor(
 {
     cocos2d::extension::ControlSaturationBrightnessPicker* cobj = new (std::nothrow) cocos2d::extension::ControlSaturationBrightnessPicker();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_extension_ControlSaturationBrightnessPicker_constructor, __jsb_cocos2d_extension_ControlSaturationBrightnessPicker_class, js_cocos2d_extension_ControlSaturationBrightnessPicker_finalize)
@@ -3281,7 +3269,6 @@ static bool js_cocos2dx_extension_ControlColourPicker_constructor(se::State& s)
 {
     cocos2d::extension::ControlColourPicker* cobj = new (std::nothrow) cocos2d::extension::ControlColourPicker();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_extension_ControlColourPicker_constructor, __jsb_cocos2d_extension_ControlColourPicker_class, js_cocos2d_extension_ControlColourPicker_finalize)
@@ -3290,7 +3277,6 @@ static bool js_cocos2dx_extension_ControlColourPicker_ctor(se::State& s)
 {
     cocos2d::extension::ControlColourPicker* cobj = new (std::nothrow) cocos2d::extension::ControlColourPicker();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_extension_ControlColourPicker_ctor, __jsb_cocos2d_extension_ControlColourPicker_class, js_cocos2d_extension_ControlColourPicker_finalize)
@@ -3729,7 +3715,6 @@ static bool js_cocos2dx_extension_ControlPotentiometer_constructor(se::State& s)
 {
     cocos2d::extension::ControlPotentiometer* cobj = new (std::nothrow) cocos2d::extension::ControlPotentiometer();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_extension_ControlPotentiometer_constructor, __jsb_cocos2d_extension_ControlPotentiometer_class, js_cocos2d_extension_ControlPotentiometer_finalize)
@@ -3738,7 +3723,6 @@ static bool js_cocos2dx_extension_ControlPotentiometer_ctor(se::State& s)
 {
     cocos2d::extension::ControlPotentiometer* cobj = new (std::nothrow) cocos2d::extension::ControlPotentiometer();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_extension_ControlPotentiometer_ctor, __jsb_cocos2d_extension_ControlPotentiometer_class, js_cocos2d_extension_ControlPotentiometer_finalize)
@@ -4297,7 +4281,6 @@ static bool js_cocos2dx_extension_ControlSlider_constructor(se::State& s)
 {
     cocos2d::extension::ControlSlider* cobj = new (std::nothrow) cocos2d::extension::ControlSlider();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_extension_ControlSlider_constructor, __jsb_cocos2d_extension_ControlSlider_class, js_cocos2d_extension_ControlSlider_finalize)
@@ -4306,7 +4289,6 @@ static bool js_cocos2dx_extension_ControlSlider_ctor(se::State& s)
 {
     cocos2d::extension::ControlSlider* cobj = new (std::nothrow) cocos2d::extension::ControlSlider();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_extension_ControlSlider_ctor, __jsb_cocos2d_extension_ControlSlider_class, js_cocos2d_extension_ControlSlider_finalize)
@@ -4773,7 +4755,6 @@ static bool js_cocos2dx_extension_ControlStepper_constructor(se::State& s)
 {
     cocos2d::extension::ControlStepper* cobj = new (std::nothrow) cocos2d::extension::ControlStepper();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_extension_ControlStepper_constructor, __jsb_cocos2d_extension_ControlStepper_class, js_cocos2d_extension_ControlStepper_finalize)
@@ -4782,7 +4763,6 @@ static bool js_cocos2dx_extension_ControlStepper_ctor(se::State& s)
 {
     cocos2d::extension::ControlStepper* cobj = new (std::nothrow) cocos2d::extension::ControlStepper();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_extension_ControlStepper_ctor, __jsb_cocos2d_extension_ControlStepper_class, js_cocos2d_extension_ControlStepper_finalize)
@@ -5059,7 +5039,6 @@ static bool js_cocos2dx_extension_ControlSwitch_constructor(se::State& s)
 {
     cocos2d::extension::ControlSwitch* cobj = new (std::nothrow) cocos2d::extension::ControlSwitch();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_extension_ControlSwitch_constructor, __jsb_cocos2d_extension_ControlSwitch_class, js_cocos2d_extension_ControlSwitch_finalize)
@@ -5068,7 +5047,6 @@ static bool js_cocos2dx_extension_ControlSwitch_ctor(se::State& s)
 {
     cocos2d::extension::ControlSwitch* cobj = new (std::nothrow) cocos2d::extension::ControlSwitch();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_extension_ControlSwitch_ctor, __jsb_cocos2d_extension_ControlSwitch_class, js_cocos2d_extension_ControlSwitch_finalize)
@@ -5780,7 +5758,6 @@ static bool js_cocos2dx_extension_ScrollView_constructor(se::State& s)
 {
     cocos2d::extension::ScrollView* cobj = new (std::nothrow) cocos2d::extension::ScrollView();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_extension_ScrollView_constructor, __jsb_cocos2d_extension_ScrollView_class, js_cocos2d_extension_ScrollView_finalize)
@@ -5789,7 +5766,6 @@ static bool js_cocos2dx_extension_ScrollView_ctor(se::State& s)
 {
     cocos2d::extension::ScrollView* cobj = new (std::nothrow) cocos2d::extension::ScrollView();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_extension_ScrollView_ctor, __jsb_cocos2d_extension_ScrollView_class, js_cocos2d_extension_ScrollView_finalize)
@@ -5943,7 +5919,6 @@ static bool js_cocos2dx_extension_TableViewCell_constructor(se::State& s)
 {
     cocos2d::extension::TableViewCell* cobj = new (std::nothrow) cocos2d::extension::TableViewCell();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_extension_TableViewCell_constructor, __jsb_cocos2d_extension_TableViewCell_class, js_cocos2d_extension_TableViewCell_finalize)
@@ -5952,7 +5927,6 @@ static bool js_cocos2dx_extension_TableViewCell_ctor(se::State& s)
 {
     cocos2d::extension::TableViewCell* cobj = new (std::nothrow) cocos2d::extension::TableViewCell();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_extension_TableViewCell_ctor, __jsb_cocos2d_extension_TableViewCell_class, js_cocos2d_extension_TableViewCell_finalize)
@@ -6231,7 +6205,6 @@ static bool js_cocos2dx_extension_TableView_constructor(se::State& s)
 {
     cocos2d::extension::TableView* cobj = new (std::nothrow) cocos2d::extension::TableView();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_extension_TableView_constructor, __jsb_cocos2d_extension_TableView_class, js_cocos2d_extension_TableView_finalize)
@@ -6240,7 +6213,6 @@ static bool js_cocos2dx_extension_TableView_ctor(se::State& s)
 {
     cocos2d::extension::TableView* cobj = new (std::nothrow) cocos2d::extension::TableView();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_extension_TableView_ctor, __jsb_cocos2d_extension_TableView_class, js_cocos2d_extension_TableView_finalize)

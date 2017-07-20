@@ -205,7 +205,6 @@ static bool js_cocos2dx_network_Downloader_constructor(se::State& s)
             if (!ok) { ok = true; break; }
             cocos2d::network::Downloader* cobj = new (std::nothrow) cocos2d::network::Downloader(arg0);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -213,7 +212,6 @@ static bool js_cocos2dx_network_Downloader_constructor(se::State& s)
         if (argc == 0) {
             cocos2d::network::Downloader* cobj = new (std::nothrow) cocos2d::network::Downloader();
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);

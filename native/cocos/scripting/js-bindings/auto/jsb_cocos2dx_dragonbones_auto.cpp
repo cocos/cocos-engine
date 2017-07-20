@@ -5067,7 +5067,6 @@ static bool js_cocos2dx_dragonbones_CCFactory_constructor(se::State& s)
 {
     dragonBones::CCFactory* cobj = new (std::nothrow) dragonBones::CCFactory();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_dragonbones_CCFactory_constructor, __jsb_dragonBones_CCFactory_class, js_dragonBones_CCFactory_finalize)

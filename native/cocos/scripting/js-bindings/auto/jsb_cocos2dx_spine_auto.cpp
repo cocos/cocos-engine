@@ -653,7 +653,6 @@ static bool js_cocos2dx_spine_SkeletonRenderer_constructor(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonRenderer* cobj = new (std::nothrow) spine::SkeletonRenderer(arg0);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -668,7 +667,6 @@ static bool js_cocos2dx_spine_SkeletonRenderer_constructor(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonRenderer* cobj = new (std::nothrow) spine::SkeletonRenderer(arg0, arg1);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -676,7 +674,6 @@ static bool js_cocos2dx_spine_SkeletonRenderer_constructor(se::State& s)
         if (argc == 0) {
             spine::SkeletonRenderer* cobj = new (std::nothrow) spine::SkeletonRenderer();
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -691,7 +688,6 @@ static bool js_cocos2dx_spine_SkeletonRenderer_constructor(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonRenderer* cobj = new (std::nothrow) spine::SkeletonRenderer(arg0, arg1);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -709,7 +705,6 @@ static bool js_cocos2dx_spine_SkeletonRenderer_constructor(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonRenderer* cobj = new (std::nothrow) spine::SkeletonRenderer(arg0, arg1, arg2);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -723,7 +718,6 @@ static bool js_cocos2dx_spine_SkeletonRenderer_constructor(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonRenderer* cobj = new (std::nothrow) spine::SkeletonRenderer(arg0, arg1);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -740,7 +734,6 @@ static bool js_cocos2dx_spine_SkeletonRenderer_constructor(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonRenderer* cobj = new (std::nothrow) spine::SkeletonRenderer(arg0, arg1, arg2);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -1491,7 +1484,6 @@ static bool js_cocos2dx_spine_SkeletonAnimation_constructor(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* cobj = new (std::nothrow) spine::SkeletonAnimation(arg0);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -1506,7 +1498,6 @@ static bool js_cocos2dx_spine_SkeletonAnimation_constructor(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* cobj = new (std::nothrow) spine::SkeletonAnimation(arg0, arg1);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -1514,7 +1505,6 @@ static bool js_cocos2dx_spine_SkeletonAnimation_constructor(se::State& s)
         if (argc == 0) {
             spine::SkeletonAnimation* cobj = new (std::nothrow) spine::SkeletonAnimation();
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -1529,7 +1519,6 @@ static bool js_cocos2dx_spine_SkeletonAnimation_constructor(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* cobj = new (std::nothrow) spine::SkeletonAnimation(arg0, arg1);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -1547,7 +1536,6 @@ static bool js_cocos2dx_spine_SkeletonAnimation_constructor(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* cobj = new (std::nothrow) spine::SkeletonAnimation(arg0, arg1, arg2);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -1561,7 +1549,6 @@ static bool js_cocos2dx_spine_SkeletonAnimation_constructor(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* cobj = new (std::nothrow) spine::SkeletonAnimation(arg0, arg1);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -1578,7 +1565,6 @@ static bool js_cocos2dx_spine_SkeletonAnimation_constructor(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* cobj = new (std::nothrow) spine::SkeletonAnimation(arg0, arg1, arg2);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -1602,7 +1588,6 @@ static bool js_cocos2dx_spine_SkeletonAnimation_ctor(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* cobj = new (std::nothrow) spine::SkeletonAnimation(arg0);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -1617,7 +1602,6 @@ static bool js_cocos2dx_spine_SkeletonAnimation_ctor(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* cobj = new (std::nothrow) spine::SkeletonAnimation(arg0, arg1);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -1625,7 +1609,6 @@ static bool js_cocos2dx_spine_SkeletonAnimation_ctor(se::State& s)
         if (argc == 0) {
             spine::SkeletonAnimation* cobj = new (std::nothrow) spine::SkeletonAnimation();
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -1640,7 +1623,6 @@ static bool js_cocos2dx_spine_SkeletonAnimation_ctor(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* cobj = new (std::nothrow) spine::SkeletonAnimation(arg0, arg1);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -1658,7 +1640,6 @@ static bool js_cocos2dx_spine_SkeletonAnimation_ctor(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* cobj = new (std::nothrow) spine::SkeletonAnimation(arg0, arg1, arg2);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -1672,7 +1653,6 @@ static bool js_cocos2dx_spine_SkeletonAnimation_ctor(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* cobj = new (std::nothrow) spine::SkeletonAnimation(arg0, arg1);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);
@@ -1689,7 +1669,6 @@ static bool js_cocos2dx_spine_SkeletonAnimation_ctor(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* cobj = new (std::nothrow) spine::SkeletonAnimation(arg0, arg1, arg2);
             s.thisObject()->setPrivateData(cobj);
-            s.thisObject()->addRef();
             return true;
         }
     } while(false);

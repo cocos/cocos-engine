@@ -432,7 +432,6 @@ static bool JavaScriptJavaBridge_constructor(se::State& s)
 {
     JavaScriptJavaBridge* cobj = new (std::nothrow) JavaScriptJavaBridge();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef(); //FIXME: remove this
     return true;
 }
 SE_BIND_CTOR(JavaScriptJavaBridge_constructor, __jsb_JavaScriptJavaBridge_class, JavaScriptJavaBridge_finalize)

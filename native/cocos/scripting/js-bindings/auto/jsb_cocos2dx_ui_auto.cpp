@@ -65,7 +65,6 @@ static bool js_cocos2dx_ui_LayoutParameter_constructor(se::State& s)
 {
     cocos2d::ui::LayoutParameter* cobj = new (std::nothrow) cocos2d::ui::LayoutParameter();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_LayoutParameter_constructor, __jsb_cocos2d_ui_LayoutParameter_class, js_cocos2d_ui_LayoutParameter_finalize)
@@ -170,7 +169,6 @@ static bool js_cocos2dx_ui_LinearLayoutParameter_constructor(se::State& s)
 {
     cocos2d::ui::LinearLayoutParameter* cobj = new (std::nothrow) cocos2d::ui::LinearLayoutParameter();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_LinearLayoutParameter_constructor, __jsb_cocos2d_ui_LinearLayoutParameter_class, js_cocos2d_ui_LinearLayoutParameter_finalize)
@@ -350,7 +348,6 @@ static bool js_cocos2dx_ui_RelativeLayoutParameter_constructor(se::State& s)
 {
     cocos2d::ui::RelativeLayoutParameter* cobj = new (std::nothrow) cocos2d::ui::RelativeLayoutParameter();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_RelativeLayoutParameter_constructor, __jsb_cocos2d_ui_RelativeLayoutParameter_class, js_cocos2d_ui_RelativeLayoutParameter_finalize)
@@ -1847,7 +1844,6 @@ static bool js_cocos2dx_ui_Widget_constructor(se::State& s)
 {
     cocos2d::ui::Widget* cobj = new (std::nothrow) cocos2d::ui::Widget();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_Widget_constructor, __jsb_cocos2d_ui_Widget_class, js_cocos2d_ui_Widget_finalize)
@@ -1856,7 +1852,6 @@ static bool js_cocos2dx_ui_Widget_ctor(se::State& s)
 {
     cocos2d::ui::Widget* cobj = new (std::nothrow) cocos2d::ui::Widget();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_Widget_ctor, __jsb_cocos2d_ui_Widget_class, js_cocos2d_ui_Widget_finalize)
@@ -2639,7 +2634,6 @@ static bool js_cocos2dx_ui_Layout_constructor(se::State& s)
 {
     cocos2d::ui::Layout* cobj = new (std::nothrow) cocos2d::ui::Layout();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_Layout_constructor, __jsb_cocos2d_ui_Layout_class, js_cocos2d_ui_Layout_finalize)
@@ -2648,7 +2642,6 @@ static bool js_cocos2dx_ui_Layout_ctor(se::State& s)
 {
     cocos2d::ui::Layout* cobj = new (std::nothrow) cocos2d::ui::Layout();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_Layout_ctor, __jsb_cocos2d_ui_Layout_class, js_cocos2d_ui_Layout_finalize)
@@ -3598,7 +3591,6 @@ static bool js_cocos2dx_ui_Button_constructor(se::State& s)
 {
     cocos2d::ui::Button* cobj = new (std::nothrow) cocos2d::ui::Button();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_Button_constructor, __jsb_cocos2d_ui_Button_class, js_cocos2d_ui_Button_finalize)
@@ -3607,7 +3599,6 @@ static bool js_cocos2dx_ui_Button_ctor(se::State& s)
 {
     cocos2d::ui::Button* cobj = new (std::nothrow) cocos2d::ui::Button();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_Button_ctor, __jsb_cocos2d_ui_Button_class, js_cocos2d_ui_Button_finalize)
@@ -4378,7 +4369,6 @@ static bool js_cocos2dx_ui_CheckBox_constructor(se::State& s)
 {
     cocos2d::ui::CheckBox* cobj = new (std::nothrow) cocos2d::ui::CheckBox();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_CheckBox_constructor, __jsb_cocos2d_ui_CheckBox_class, js_cocos2d_ui_CheckBox_finalize)
@@ -4387,7 +4377,6 @@ static bool js_cocos2dx_ui_CheckBox_ctor(se::State& s)
 {
     cocos2d::ui::CheckBox* cobj = new (std::nothrow) cocos2d::ui::CheckBox();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_CheckBox_ctor, __jsb_cocos2d_ui_CheckBox_class, js_cocos2d_ui_CheckBox_finalize)
@@ -4587,7 +4576,6 @@ static bool js_cocos2dx_ui_RadioButton_constructor(se::State& s)
 {
     cocos2d::ui::RadioButton* cobj = new (std::nothrow) cocos2d::ui::RadioButton();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_RadioButton_constructor, __jsb_cocos2d_ui_RadioButton_class, js_cocos2d_ui_RadioButton_finalize)
@@ -4596,7 +4584,6 @@ static bool js_cocos2dx_ui_RadioButton_ctor(se::State& s)
 {
     cocos2d::ui::RadioButton* cobj = new (std::nothrow) cocos2d::ui::RadioButton();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_RadioButton_ctor, __jsb_cocos2d_ui_RadioButton_class, js_cocos2d_ui_RadioButton_finalize)
@@ -4928,7 +4915,6 @@ static bool js_cocos2dx_ui_RadioButtonGroup_constructor(se::State& s)
 {
     cocos2d::ui::RadioButtonGroup* cobj = new (std::nothrow) cocos2d::ui::RadioButtonGroup();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_RadioButtonGroup_constructor, __jsb_cocos2d_ui_RadioButtonGroup_class, js_cocos2d_ui_RadioButtonGroup_finalize)
@@ -4937,7 +4923,6 @@ static bool js_cocos2dx_ui_RadioButtonGroup_ctor(se::State& s)
 {
     cocos2d::ui::RadioButtonGroup* cobj = new (std::nothrow) cocos2d::ui::RadioButtonGroup();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_RadioButtonGroup_ctor, __jsb_cocos2d_ui_RadioButtonGroup_class, js_cocos2d_ui_RadioButtonGroup_finalize)
@@ -5214,7 +5199,6 @@ static bool js_cocos2dx_ui_ImageView_constructor(se::State& s)
 {
     cocos2d::ui::ImageView* cobj = new (std::nothrow) cocos2d::ui::ImageView();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_ImageView_constructor, __jsb_cocos2d_ui_ImageView_class, js_cocos2d_ui_ImageView_finalize)
@@ -5223,7 +5207,6 @@ static bool js_cocos2dx_ui_ImageView_ctor(se::State& s)
 {
     cocos2d::ui::ImageView* cobj = new (std::nothrow) cocos2d::ui::ImageView();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_ImageView_ctor, __jsb_cocos2d_ui_ImageView_class, js_cocos2d_ui_ImageView_finalize)
@@ -5938,7 +5921,6 @@ static bool js_cocos2dx_ui_Text_constructor(se::State& s)
 {
     cocos2d::ui::Text* cobj = new (std::nothrow) cocos2d::ui::Text();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_Text_constructor, __jsb_cocos2d_ui_Text_class, js_cocos2d_ui_Text_finalize)
@@ -5947,7 +5929,6 @@ static bool js_cocos2dx_ui_Text_ctor(se::State& s)
 {
     cocos2d::ui::Text* cobj = new (std::nothrow) cocos2d::ui::Text();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_Text_ctor, __jsb_cocos2d_ui_Text_class, js_cocos2d_ui_Text_finalize)
@@ -6186,7 +6167,6 @@ static bool js_cocos2dx_ui_TextAtlas_constructor(se::State& s)
 {
     cocos2d::ui::TextAtlas* cobj = new (std::nothrow) cocos2d::ui::TextAtlas();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_TextAtlas_constructor, __jsb_cocos2d_ui_TextAtlas_class, js_cocos2d_ui_TextAtlas_finalize)
@@ -6195,7 +6175,6 @@ static bool js_cocos2dx_ui_TextAtlas_ctor(se::State& s)
 {
     cocos2d::ui::TextAtlas* cobj = new (std::nothrow) cocos2d::ui::TextAtlas();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_TextAtlas_ctor, __jsb_cocos2d_ui_TextAtlas_class, js_cocos2d_ui_TextAtlas_finalize)
@@ -6521,7 +6500,6 @@ static bool js_cocos2dx_ui_LoadingBar_constructor(se::State& s)
 {
     cocos2d::ui::LoadingBar* cobj = new (std::nothrow) cocos2d::ui::LoadingBar();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_LoadingBar_constructor, __jsb_cocos2d_ui_LoadingBar_class, js_cocos2d_ui_LoadingBar_finalize)
@@ -6530,7 +6508,6 @@ static bool js_cocos2dx_ui_LoadingBar_ctor(se::State& s)
 {
     cocos2d::ui::LoadingBar* cobj = new (std::nothrow) cocos2d::ui::LoadingBar();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_LoadingBar_ctor, __jsb_cocos2d_ui_LoadingBar_class, js_cocos2d_ui_LoadingBar_finalize)
@@ -7643,7 +7620,6 @@ static bool js_cocos2dx_ui_ScrollView_constructor(se::State& s)
 {
     cocos2d::ui::ScrollView* cobj = new (std::nothrow) cocos2d::ui::ScrollView();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_ScrollView_constructor, __jsb_cocos2d_ui_ScrollView_class, js_cocos2d_ui_ScrollView_finalize)
@@ -7652,7 +7628,6 @@ static bool js_cocos2dx_ui_ScrollView_ctor(se::State& s)
 {
     cocos2d::ui::ScrollView* cobj = new (std::nothrow) cocos2d::ui::ScrollView();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_ScrollView_ctor, __jsb_cocos2d_ui_ScrollView_class, js_cocos2d_ui_ScrollView_finalize)
@@ -8452,7 +8427,6 @@ static bool js_cocos2dx_ui_ListView_constructor(se::State& s)
 {
     cocos2d::ui::ListView* cobj = new (std::nothrow) cocos2d::ui::ListView();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_ListView_constructor, __jsb_cocos2d_ui_ListView_class, js_cocos2d_ui_ListView_finalize)
@@ -8461,7 +8435,6 @@ static bool js_cocos2dx_ui_ListView_ctor(se::State& s)
 {
     cocos2d::ui::ListView* cobj = new (std::nothrow) cocos2d::ui::ListView();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_ListView_ctor, __jsb_cocos2d_ui_ListView_class, js_cocos2d_ui_ListView_finalize)
@@ -9167,7 +9140,6 @@ static bool js_cocos2dx_ui_Slider_constructor(se::State& s)
 {
     cocos2d::ui::Slider* cobj = new (std::nothrow) cocos2d::ui::Slider();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_Slider_constructor, __jsb_cocos2d_ui_Slider_class, js_cocos2d_ui_Slider_finalize)
@@ -9176,7 +9148,6 @@ static bool js_cocos2dx_ui_Slider_ctor(se::State& s)
 {
     cocos2d::ui::Slider* cobj = new (std::nothrow) cocos2d::ui::Slider();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_Slider_ctor, __jsb_cocos2d_ui_Slider_class, js_cocos2d_ui_Slider_finalize)
@@ -9751,7 +9722,6 @@ static bool js_cocos2dx_ui_UICCTextField_constructor(se::State& s)
 {
     cocos2d::ui::UICCTextField* cobj = new (std::nothrow) cocos2d::ui::UICCTextField();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_UICCTextField_constructor, __jsb_cocos2d_ui_UICCTextField_class, js_cocos2d_ui_UICCTextField_finalize)
@@ -10731,7 +10701,6 @@ static bool js_cocos2dx_ui_TextField_constructor(se::State& s)
 {
     cocos2d::ui::TextField* cobj = new (std::nothrow) cocos2d::ui::TextField();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_TextField_constructor, __jsb_cocos2d_ui_TextField_class, js_cocos2d_ui_TextField_finalize)
@@ -10740,7 +10709,6 @@ static bool js_cocos2dx_ui_TextField_ctor(se::State& s)
 {
     cocos2d::ui::TextField* cobj = new (std::nothrow) cocos2d::ui::TextField();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_TextField_ctor, __jsb_cocos2d_ui_TextField_class, js_cocos2d_ui_TextField_finalize)
@@ -10976,7 +10944,6 @@ static bool js_cocos2dx_ui_TextBMFont_constructor(se::State& s)
 {
     cocos2d::ui::TextBMFont* cobj = new (std::nothrow) cocos2d::ui::TextBMFont();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_TextBMFont_constructor, __jsb_cocos2d_ui_TextBMFont_class, js_cocos2d_ui_TextBMFont_finalize)
@@ -10985,7 +10952,6 @@ static bool js_cocos2dx_ui_TextBMFont_ctor(se::State& s)
 {
     cocos2d::ui::TextBMFont* cobj = new (std::nothrow) cocos2d::ui::TextBMFont();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_TextBMFont_ctor, __jsb_cocos2d_ui_TextBMFont_class, js_cocos2d_ui_TextBMFont_finalize)
@@ -11584,7 +11550,6 @@ static bool js_cocos2dx_ui_PageView_constructor(se::State& s)
 {
     cocos2d::ui::PageView* cobj = new (std::nothrow) cocos2d::ui::PageView();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_PageView_constructor, __jsb_cocos2d_ui_PageView_class, js_cocos2d_ui_PageView_finalize)
@@ -11593,7 +11558,6 @@ static bool js_cocos2dx_ui_PageView_ctor(se::State& s)
 {
     cocos2d::ui::PageView* cobj = new (std::nothrow) cocos2d::ui::PageView();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_PageView_ctor, __jsb_cocos2d_ui_PageView_class, js_cocos2d_ui_PageView_finalize)
@@ -11931,7 +11895,6 @@ static bool js_cocos2dx_ui_RichElement_constructor(se::State& s)
 {
     cocos2d::ui::RichElement* cobj = new (std::nothrow) cocos2d::ui::RichElement();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_RichElement_constructor, __jsb_cocos2d_ui_RichElement_class, js_cocos2d_ui_RichElement_finalize)
@@ -11940,7 +11903,6 @@ static bool js_cocos2dx_ui_RichElement_ctor(se::State& s)
 {
     cocos2d::ui::RichElement* cobj = new (std::nothrow) cocos2d::ui::RichElement();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_RichElement_ctor, __jsb_cocos2d_ui_RichElement_class, js_cocos2d_ui_RichElement_finalize)
@@ -12479,7 +12441,6 @@ static bool js_cocos2dx_ui_RichElementText_constructor(se::State& s)
 {
     cocos2d::ui::RichElementText* cobj = new (std::nothrow) cocos2d::ui::RichElementText();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_RichElementText_constructor, __jsb_cocos2d_ui_RichElementText_class, js_cocos2d_ui_RichElementText_finalize)
@@ -12488,7 +12449,6 @@ static bool js_cocos2dx_ui_RichElementText_ctor(se::State& s)
 {
     cocos2d::ui::RichElementText* cobj = new (std::nothrow) cocos2d::ui::RichElementText();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_RichElementText_ctor, __jsb_cocos2d_ui_RichElementText_class, js_cocos2d_ui_RichElementText_finalize)
@@ -12688,7 +12648,6 @@ static bool js_cocos2dx_ui_RichElementImage_constructor(se::State& s)
 {
     cocos2d::ui::RichElementImage* cobj = new (std::nothrow) cocos2d::ui::RichElementImage();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_RichElementImage_constructor, __jsb_cocos2d_ui_RichElementImage_class, js_cocos2d_ui_RichElementImage_finalize)
@@ -12697,7 +12656,6 @@ static bool js_cocos2dx_ui_RichElementImage_ctor(se::State& s)
 {
     cocos2d::ui::RichElementImage* cobj = new (std::nothrow) cocos2d::ui::RichElementImage();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_RichElementImage_ctor, __jsb_cocos2d_ui_RichElementImage_class, js_cocos2d_ui_RichElementImage_finalize)
@@ -12807,7 +12765,6 @@ static bool js_cocos2dx_ui_RichElementCustomNode_constructor(se::State& s)
 {
     cocos2d::ui::RichElementCustomNode* cobj = new (std::nothrow) cocos2d::ui::RichElementCustomNode();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_RichElementCustomNode_constructor, __jsb_cocos2d_ui_RichElementCustomNode_class, js_cocos2d_ui_RichElementCustomNode_finalize)
@@ -12816,7 +12773,6 @@ static bool js_cocos2dx_ui_RichElementCustomNode_ctor(se::State& s)
 {
     cocos2d::ui::RichElementCustomNode* cobj = new (std::nothrow) cocos2d::ui::RichElementCustomNode();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_RichElementCustomNode_ctor, __jsb_cocos2d_ui_RichElementCustomNode_class, js_cocos2d_ui_RichElementCustomNode_finalize)
@@ -12894,7 +12850,6 @@ static bool js_cocos2dx_ui_RichElementNewLine_constructor(se::State& s)
 {
     cocos2d::ui::RichElementNewLine* cobj = new (std::nothrow) cocos2d::ui::RichElementNewLine();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_RichElementNewLine_constructor, __jsb_cocos2d_ui_RichElementNewLine_class, js_cocos2d_ui_RichElementNewLine_finalize)
@@ -12903,7 +12858,6 @@ static bool js_cocos2dx_ui_RichElementNewLine_ctor(se::State& s)
 {
     cocos2d::ui::RichElementNewLine* cobj = new (std::nothrow) cocos2d::ui::RichElementNewLine();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_RichElementNewLine_ctor, __jsb_cocos2d_ui_RichElementNewLine_class, js_cocos2d_ui_RichElementNewLine_finalize)
@@ -13980,7 +13934,6 @@ static bool js_cocos2dx_ui_RichText_constructor(se::State& s)
 {
     cocos2d::ui::RichText* cobj = new (std::nothrow) cocos2d::ui::RichText();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_RichText_constructor, __jsb_cocos2d_ui_RichText_class, js_cocos2d_ui_RichText_finalize)
@@ -13989,7 +13942,6 @@ static bool js_cocos2dx_ui_RichText_ctor(se::State& s)
 {
     cocos2d::ui::RichText* cobj = new (std::nothrow) cocos2d::ui::RichText();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_RichText_ctor, __jsb_cocos2d_ui_RichText_class, js_cocos2d_ui_RichText_finalize)
@@ -14136,7 +14088,6 @@ static bool js_cocos2dx_ui_HBox_constructor(se::State& s)
 {
     cocos2d::ui::HBox* cobj = new (std::nothrow) cocos2d::ui::HBox();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_HBox_constructor, __jsb_cocos2d_ui_HBox_class, js_cocos2d_ui_HBox_finalize)
@@ -14145,7 +14096,6 @@ static bool js_cocos2dx_ui_HBox_ctor(se::State& s)
 {
     cocos2d::ui::HBox* cobj = new (std::nothrow) cocos2d::ui::HBox();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_HBox_ctor, __jsb_cocos2d_ui_HBox_class, js_cocos2d_ui_HBox_finalize)
@@ -14248,7 +14198,6 @@ static bool js_cocos2dx_ui_VBox_constructor(se::State& s)
 {
     cocos2d::ui::VBox* cobj = new (std::nothrow) cocos2d::ui::VBox();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_VBox_constructor, __jsb_cocos2d_ui_VBox_class, js_cocos2d_ui_VBox_finalize)
@@ -14257,7 +14206,6 @@ static bool js_cocos2dx_ui_VBox_ctor(se::State& s)
 {
     cocos2d::ui::VBox* cobj = new (std::nothrow) cocos2d::ui::VBox();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_VBox_ctor, __jsb_cocos2d_ui_VBox_class, js_cocos2d_ui_VBox_finalize)
@@ -14360,7 +14308,6 @@ static bool js_cocos2dx_ui_RelativeBox_constructor(se::State& s)
 {
     cocos2d::ui::RelativeBox* cobj = new (std::nothrow) cocos2d::ui::RelativeBox();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_RelativeBox_constructor, __jsb_cocos2d_ui_RelativeBox_class, js_cocos2d_ui_RelativeBox_finalize)
@@ -14369,7 +14316,6 @@ static bool js_cocos2dx_ui_RelativeBox_ctor(se::State& s)
 {
     cocos2d::ui::RelativeBox* cobj = new (std::nothrow) cocos2d::ui::RelativeBox();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_RelativeBox_ctor, __jsb_cocos2d_ui_RelativeBox_class, js_cocos2d_ui_RelativeBox_finalize)
@@ -15424,7 +15370,6 @@ static bool js_cocos2dx_ui_Scale9Sprite_constructor(se::State& s)
 {
     cocos2d::ui::Scale9Sprite* cobj = new (std::nothrow) cocos2d::ui::Scale9Sprite();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_Scale9Sprite_constructor, __jsb_cocos2d_ui_Scale9Sprite_class, js_cocos2d_ui_Scale9Sprite_finalize)
@@ -15433,7 +15378,6 @@ static bool js_cocos2dx_ui_Scale9Sprite_ctor(se::State& s)
 {
     cocos2d::ui::Scale9Sprite* cobj = new (std::nothrow) cocos2d::ui::Scale9Sprite();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_Scale9Sprite_ctor, __jsb_cocos2d_ui_Scale9Sprite_class, js_cocos2d_ui_Scale9Sprite_finalize)
@@ -16043,7 +15987,6 @@ static bool js_cocos2dx_ui_EditBox_constructor(se::State& s)
 {
     cocos2d::ui::EditBox* cobj = new (std::nothrow) cocos2d::ui::EditBox();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_EditBox_constructor, __jsb_cocos2d_ui_EditBox_class, js_cocos2d_ui_EditBox_finalize)
@@ -16052,7 +15995,6 @@ static bool js_cocos2dx_ui_EditBox_ctor(se::State& s)
 {
     cocos2d::ui::EditBox* cobj = new (std::nothrow) cocos2d::ui::EditBox();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_EditBox_ctor, __jsb_cocos2d_ui_EditBox_class, js_cocos2d_ui_EditBox_finalize)
@@ -17064,7 +17006,6 @@ static bool js_cocos2dx_ui_LayoutComponent_constructor(se::State& s)
 {
     cocos2d::ui::LayoutComponent* cobj = new (std::nothrow) cocos2d::ui::LayoutComponent();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_ui_LayoutComponent_constructor, __jsb_cocos2d_ui_LayoutComponent_class, js_cocos2d_ui_LayoutComponent_finalize)
@@ -17073,7 +17014,6 @@ static bool js_cocos2dx_ui_LayoutComponent_ctor(se::State& s)
 {
     cocos2d::ui::LayoutComponent* cobj = new (std::nothrow) cocos2d::ui::LayoutComponent();
     s.thisObject()->setPrivateData(cobj);
-    s.thisObject()->addRef();
     return true;
 }
 SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_LayoutComponent_ctor, __jsb_cocos2d_ui_LayoutComponent_class, js_cocos2d_ui_LayoutComponent_finalize)
