@@ -1,5 +1,5 @@
 
-if (!CC_JSB && (CC_PREVIEW || CC_EDITOR)) {
+if (!CC_JSB && (CC_PREVIEW || CC_EDITOR || CC_TEST)) {
     window.b2 = require('../../../wasm/box2d/lib/box2d');
 }
 
