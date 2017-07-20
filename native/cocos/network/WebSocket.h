@@ -28,6 +28,7 @@
 
 #include "platform/CCPlatformMacros.h"
 #include "platform/CCStdC.h"
+#include "base/CCRef.h"
 
 #include <string>
 #include <vector>
@@ -55,7 +56,7 @@ namespace network {
  * WebSocket is wrapper of the libwebsockets-protocol, let the develop could call the websocket easily.
  * Please note that all public methods of WebSocket have to be invoked on Cocos Thread.
  */
-class CC_DLL WebSocket
+class CC_DLL WebSocket : public Ref
 {
 public:
     /**
@@ -70,6 +71,8 @@ public:
      * @js ctor
      */
     WebSocket();
+
+private:
     /**
      * Destructor of WebSocket.
      *
@@ -78,6 +81,7 @@ public:
      */
     virtual ~WebSocket();
 
+public:
     /**
      * Data structure for message
      */

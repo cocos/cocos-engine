@@ -406,7 +406,7 @@ SIOClientImpl::~SIOClientImpl()
     if (_connected)
         disconnect();
 
-    CC_SAFE_DELETE(_ws);
+    _ws->release();
 }
 
 void SIOClientImpl::handshake()
@@ -588,7 +588,7 @@ void SIOClientImpl::openSocket()
     _ws = new (std::nothrow) WebSocket();
     if (!_ws->init(*this, s.str(), nullptr, _caFilePath))
     {
-        CC_SAFE_DELETE(_ws);
+        CC_SAFE_RELEASE_NULL(_ws);
     }
 
     return;
