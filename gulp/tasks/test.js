@@ -43,10 +43,11 @@ const Sourcemaps = require('gulp-sourcemaps');
 const UglifyHarmony = require('uglify-js-harmony');
 
 const Utils = require('../util/utils');
+const createBundler = require('../util/create-bundler');
 
 exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFileForExtends, callback) {
     var cacheDir = Path.resolve(Path.dirname(outputFile), '.cache/test-compile-cache');
-    var engine = Utils.createBundler(sourceFile, {
+    var engine = createBundler(sourceFile, {
         sourcemaps: GEN_SOURCE_MAPS,
         cacheDir: cacheDir
     })
@@ -61,7 +62,7 @@ exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFi
     }
 
     // remove `..args` used in CC_JSB
-    engine = engine.pipe(Minifier(Utils.uglifyOptions('test', false, false), UglifyHarmony));
+    engine = engine.pipe(Minifier(Utils.getUglifyOptions('test', false, false), UglifyHarmony));
 
     if (GEN_SOURCE_MAPS) {
         engine = engine.pipe(Sourcemaps.write('./', {
@@ -74,7 +75,7 @@ exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFi
     engine = engine.pipe(Gulp.dest(Path.dirname(outputFile)));
 
     if (Fs.existsSync(sourceFileForExtends)) {
-        var engineExtends = Utils.createBundler(sourceFileForExtends,
+        var engineExtends = createBundler(sourceFileForExtends,
             {
                 sourcemaps: GEN_SOURCE_MAPS,
                 babelifyOpt: {
