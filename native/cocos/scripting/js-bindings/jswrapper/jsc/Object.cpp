@@ -180,8 +180,6 @@ namespace se {
         _finalizeCb = finalizeCb;
     }
 
-    // --- Getter/Setter
-
     bool Object::getProperty(const char* name, Value* data)
     {
         assert(data != nullptr);
@@ -240,8 +238,6 @@ namespace se {
         return internal::defineProperty(this, name, getter, setter);
     }
 
-    // --- call
-
     bool Object::call(const ValueArray& args, Object* thisObject, Value* rval/* = nullptr*/)
     {
         assert(isFunction());
@@ -296,9 +292,7 @@ namespace se {
         return true;
     }
 
-    // --- Arrays
-
-    bool Object::getArrayLength(uint32_t* length) const 
+    bool Object::getArrayLength(uint32_t* length) const
     {
         assert(isArray());
         assert(length != nullptr);
@@ -452,10 +446,12 @@ namespace se {
         __cx = cx;
     }
 
-    void Object::debug(const char *what)
+    void Object::cleanup()
     {
-//        LOGD("Object %p %s\n", this,
-//               what);
+        ScriptEngine::getInstance()->addAfterCleanupHook([](){
+            __nativePtrToObjectMap.clear();
+            __cx = nullptr;
+        });
     }
 
     JSObjectRef Object::_getJSObject() const
@@ -470,7 +466,6 @@ namespace se {
 
     void Object::switchToRooted()
     {
-        debug("switch to rooted");
         if (_isRooted)
             return;
 
@@ -486,7 +481,6 @@ namespace se {
         if (_isKeepRootedUntilDie)
             return;
 
-        debug("switch to unrooted");
         JSValueUnprotect(__cx, _obj);
         _isRooted = false;
     }

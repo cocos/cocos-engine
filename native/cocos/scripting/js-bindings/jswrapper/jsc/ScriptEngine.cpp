@@ -124,11 +124,34 @@ namespace se {
 
     void ScriptEngine::cleanup()
     {
-        SAFE_RELEASE(_globalObj);
+        if (!_isValid)
+            return;
 
+        for (const auto& hook : _beforeCleanupHookArray)
+        {
+            hook();
+        }
+        _beforeCleanupHookArray.clear();
+
+        SAFE_RELEASE(_globalObj);
+        Object::cleanup();
         Class::cleanup();
-        
+        gc();
+
         JSGlobalContextRelease(_cx);
+
+        _cx = nullptr;
+        _globalObj = nullptr;
+        _isValid = false;
+        _nodeEventListener = nullptr;
+
+        _registerCallbackArray.clear();
+
+        for (const auto& hook : _afterCleanupHookArray)
+        {
+            hook();
+        }
+        _afterCleanupHookArray.clear();
     }
 
     std::string ScriptEngine::_formatException(JSValueRef exception)
@@ -173,6 +196,40 @@ namespace se {
     Object* ScriptEngine::getGlobalObject()
     {
         return _globalObj;
+    }
+
+    void ScriptEngine::addBeforeCleanupHook(const std::function<void()>& hook)
+    {
+        _beforeCleanupHookArray.push_back(hook);
+    }
+
+    void ScriptEngine::addAfterCleanupHook(const std::function<void()>& hook)
+    {
+        _afterCleanupHookArray.push_back(hook);
+    }
+
+    void ScriptEngine::addRegisterCallback(RegisterCallback cb)
+    {
+        assert(std::find(_registerCallbackArray.begin(), _registerCallbackArray.end(), cb) == _registerCallbackArray.end());
+        _registerCallbackArray.push_back(cb);
+    }
+
+    bool ScriptEngine::start()
+    {
+        bool ok = false;
+        _startTime = std::chrono::steady_clock::now();
+
+        for (auto cb : _registerCallbackArray)
+        {
+            ok = cb(_globalObj);
+            assert(ok);
+            if (!ok)
+                break;
+        }
+
+        // After ScriptEngine is started, _registerCallbackArray isn't needed. Therefore, clear it here.
+        _registerCallbackArray.clear();
+        return ok;
     }
 
     void ScriptEngine::gc()
@@ -237,25 +294,6 @@ namespace se {
         }
 
         return ok;
-    }
-
-    bool ScriptEngine::executeScriptFile(const std::string &filePath, Value *rval/* = nullptr*/)
-    {
-        bool ret = false;
-        FILE* fp = fopen(filePath.c_str(), "rb");
-        if (fp != nullptr)
-        {
-            fseek(fp, 0, SEEK_END);
-            long fileSize = ftell(fp);
-            fseek(fp, 0, SEEK_SET);
-            char* buffer = (char*) malloc(fileSize);
-            fread(buffer, fileSize, 1, fp);
-            ret = executeScriptBuffer(buffer, fileSize, rval, filePath.c_str());
-            free(buffer);
-            fclose(fp);
-        }
-
-        return ret;
     }
 
     void ScriptEngine::_retainScriptObject(void* owner, void* target)

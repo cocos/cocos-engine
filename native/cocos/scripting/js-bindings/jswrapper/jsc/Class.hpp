@@ -10,14 +10,6 @@ namespace se {
 
     class Object;
 
-    struct JSPropertySpec
-    {
-        const char* name;
-        JSObjectCallAsFunctionCallback getter;
-        JSObjectCallAsFunctionCallback setter;
-        JSPropertyAttributes attributes;
-    };
-
     class Class
     {
     public:
@@ -45,6 +37,14 @@ namespace se {
         
         static void setContext(JSContextRef cx);
         static void cleanup();
+
+        struct JSPropertySpec
+        {
+            const char* name;
+            JSObjectCallAsFunctionCallback getter;
+            JSObjectCallAsFunctionCallback setter;
+            JSPropertyAttributes attributes;
+        };
 
         std::string _name;
         Object* _parent;
