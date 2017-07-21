@@ -77,6 +77,7 @@ namespace se {
             : _cx(nullptr)
             , _globalObj(nullptr)
             , _isValid(false)
+            , _isInCleanup(false)
     {
     }
 
@@ -127,6 +128,7 @@ namespace se {
         if (!_isValid)
             return;
 
+        _isInCleanup = true;
         for (const auto& hook : _beforeCleanupHookArray)
         {
             hook();
@@ -152,6 +154,7 @@ namespace se {
             hook();
         }
         _afterCleanupHookArray.clear();
+        _isInCleanup = false;
     }
 
     std::string ScriptEngine::_formatException(JSValueRef exception)

@@ -34,19 +34,27 @@ namespace se {
         bool ok = true;
         Object* globalObject = ScriptEngine::getInstance()->getGlobalObject();
         Value v;
-        ok = globalObject->getProperty("__defineProperty", &v);
-        if (!ok)
+        ok = globalObject->getProperty("Object", &v);
+        if (!ok || !v.isObject())
         {
-            LOGD("ERROR: couldn't find __defineProperty\n");
+            LOGD("ERROR: couldn't find Object\n");
             return false;
         }
 
-        Object* definePropertyFunc = v.toObject();
+        Value definePropertyFunc;
+        ok = v.toObject()->getProperty("defineProperty", &definePropertyFunc);
+        if (!ok || !v.isObject())
+        {
+            LOGD("ERROR: couldn't find Object.defineProperty\n");
+            return false;
+        }
 
         ValueArray args;
-        args.reserve(4);
+        args.reserve(3);
         args.push_back(Value(obj));
         args.push_back(Value(name));
+
+        Object* desc = Object::createPlainObject(false);
 
         JSObjectRef getter = nullptr;
         if (jsGetter != nullptr)
@@ -65,18 +73,21 @@ namespace se {
         if (getter != nullptr)
         {
             Object* getterObj = Object::_createJSObject(nullptr, getter, false);
-            args.push_back(Value(getterObj));
+            desc->setProperty("get", se::Value(getterObj));
             getterObj->release();
         }
 
         if (setter != nullptr)
         {
             Object* setterObj = Object::_createJSObject(nullptr, setter, false);
-            args.push_back(Value(setterObj));
+            desc->setProperty("set", se::Value(setterObj));
             setterObj->release();
         }
-        
-        definePropertyFunc->call(args, nullptr);
+
+        args.push_back(Value(desc));
+        definePropertyFunc.toObject()->call(args, nullptr);
+
+        desc->release();
         return true;
     }
 

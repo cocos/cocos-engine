@@ -27,8 +27,6 @@ namespace se {
             &sandbox_classOps
         };
 
-        // --- SM Error Reporter
-
         void reportWarning(JSContext* cx, JSErrorReport* report) {
             MOZ_RELEASE_ASSERT(report);
             MOZ_RELEASE_ASSERT(JSREPORT_IS_WARNING(report->flags));

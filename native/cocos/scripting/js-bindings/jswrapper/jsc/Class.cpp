@@ -19,32 +19,7 @@ namespace se {
     namespace {
 //        std::unordered_map<std::string, Class *> __clsMap;
         JSContextRef __cx = nullptr;
-
-        JSValueRef _getPropertyCallback(JSContextRef context, JSObjectRef object, JSStringRef propertyName, JSValueRef* exception)
-        {
-            std::string name;
-            internal::jsStringToStdString(context, propertyName, &name);
-            LOGD("propertyName: %s\n", name.c_str());
-            return JSValueMakeUndefined(__cx);
-        }
-
-        bool _setPropertyCallback(JSContextRef context, JSObjectRef object, JSStringRef propertyName, JSValueRef value, JSValueRef* exception)
-        {
-            std::string name;
-            internal::jsStringToStdString(context, propertyName, &name);
-            LOGD("propertyName: %s\n", name.c_str());
-            assert(false);
-            return false;
-        }
-
-        bool _hasPropertyCallback(JSContextRef context, JSObjectRef object, JSStringRef propertyName)
-        {
-            std::string name;
-            internal::jsStringToStdString(context, propertyName, &name);
-            LOGD("propertyName: %s\n", name.c_str());
-//            assert(false);
-            return true;
-        }
+        std::vector<Class*> __allClasses;
 
         void defaultFinalizeCallback(JSObjectRef _obj)
         {
@@ -69,15 +44,11 @@ namespace se {
     , _finalizeOp(nullptr)
     {
         _jsClsDef = kJSClassDefinitionEmpty;
+        __allClasses.push_back(this);
     }
 
     Class::~Class()
     {
-        SAFE_RELEASE(_parent);
-        SAFE_RELEASE(_proto);
-        SAFE_RELEASE(_parentProto);
-
-        JSClassRelease(_jsCls);
     }
 
     Class* Class::create(const std::string& className, Object* obj, Object* parentProto, JSObjectCallAsConstructorCallback ctor)
@@ -247,9 +218,29 @@ namespace se {
         return _proto;
     }
 
-    void Class::cleanup()
-    {// TODO:
+    void Class::destroy()
+    {
+        SAFE_RELEASE(_parent);
+        SAFE_RELEASE(_proto);
+        SAFE_RELEASE(_parentProto);
 
+        JSClassRelease(_jsCls);
+    }
+
+    void Class::cleanup()
+    {
+        for (auto cls : __allClasses)
+        {
+            cls->destroy();
+        }
+
+        se::ScriptEngine::getInstance()->addAfterCleanupHook([](){
+            for (auto cls : __allClasses)
+            {
+                delete cls;
+            }
+            __allClasses.clear();
+        });
     }
 
 } // namespace se {

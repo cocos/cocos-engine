@@ -31,6 +31,7 @@ namespace se {
 
     private:
         bool init(const std::string& clsName, Object* obj, Object* parentProto, JSObjectCallAsConstructorCallback ctor);
+        void destroy();
 
 //        static JSObjectRef _createJSObject(const std::string &clsName, Class** outCls);
         static JSObjectRef _createJSObjectWithClass(Class* cls);
