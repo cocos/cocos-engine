@@ -112,7 +112,7 @@ var CustomFontLoader = {
             fontDescriptor.addHandler(callback);
             this._fontCache[fontFamilyName] = fontDescriptor;
 
-            fontFace.load().then(function() {
+            fontFace.loaded.then(function() {
                 fontDescriptor.onLoaded();
             });
         } else {
