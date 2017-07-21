@@ -32,7 +32,6 @@ namespace se {
 
         bool init(JsValueRef obj, bool rooted);
 
-        // --- Getter/Setter
         bool getProperty(const char* name, Value* data);
         void setProperty(const char* name, const Value& v);
         bool defineProperty(const char *name, JsNativeFunction getter, JsNativeFunction setter);
@@ -42,14 +41,12 @@ namespace se {
         void _cleanup(void* nativeObject = nullptr);
         void _setFinalizeCallback(JsFinalizeCallback finalizeCb);
 
-        // --- Function
         bool isFunction() const;
         bool _isNativeFunction() const;
         bool call(const ValueArray& args, Object* thisObject, Value* rval = nullptr);
 
         bool defineFunction(const char *funcName, JsNativeFunction func);
 
-        // --- TypedArrays
         bool isTypedArray() const;
         bool getTypedArrayData(uint8_t** ptr, size_t* length) const;
 
@@ -58,19 +55,16 @@ namespace se {
 //        void getAsUint32Array(unsigned int **ptr, unsigned int *length);
 //        void getAsFloat32Array(float **ptr, unsigned int *length);
 
-        // --- Arrays
         bool isArray() const;
         bool getArrayLength(uint32_t* length) const;
         bool getArrayElement(uint32_t index, Value* data) const;
         bool setArrayElement(uint32_t index, const Value& data);
 
-        // --- ArrayBuffer
         bool isArrayBuffer() const;
         bool getArrayBufferData(uint8_t** ptr, size_t* length) const;
 
         bool getAllKeys(std::vector<std::string>* allKeys) const;
 
-        // --- Private
         void setPrivateData(void* data);
         void* getPrivateData();
         void clearPrivateData();
@@ -85,11 +79,11 @@ namespace se {
         bool detachChild(Object* child);
 
     private:
-        void debug(const char *what);
+        static void cleanup();
 
         Class* _cls;
         JsValueRef _obj;
-        bool _isRooted;  /* wrapper is in rooted mode */
+        bool _isRooted;
         bool _isKeepRootedUntilDie;
         bool _hasPrivateData;
         bool _isCleanup;

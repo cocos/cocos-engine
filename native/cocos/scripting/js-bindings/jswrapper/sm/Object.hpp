@@ -98,7 +98,7 @@ namespace se {
         void trace(JSTracer* tracer, void* data);
         bool updateAfterGC(void* data);
 
-        bool _isRooted;  /* wrapper is in rooted mode */
+        bool _isRooted;
         bool _isKeepRootedUntilDie;
 
         JS::Heap<JSObject*> _heap;  /* should be untouched if in rooted mode */

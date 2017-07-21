@@ -86,7 +86,7 @@ namespace se {
 
         Class* _cls;
         JSObjectRef _obj;
-        bool _isRooted;  /* wrapper is in rooted mode */
+        bool _isRooted;
         bool _isKeepRootedUntilDie;
         bool _hasPrivateData;
         bool _isCleanup;

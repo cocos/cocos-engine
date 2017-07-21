@@ -214,7 +214,8 @@ namespace se {
         internal::PrivateData* privateData = (internal::PrivateData*)malloc(sizeof(internal::PrivateData));
         privateData->data = data;
         privateData->finalizeCb = finalizeCb;
-        assert(JSObjectSetPrivate(privateObj->_getJSObject(), privateData));
+        ok = JSObjectSetPrivate(privateObj->_getJSObject(), privateData);
+        assert(ok);
 
         JSStringRef key = JSStringCreateWithUTF8CString(KEY_PRIVATE_DATA);
         JSObjectSetProperty(__cx, obj, key, privateObj->_getJSObject(), kJSPropertyAttributeDontEnum, nullptr);

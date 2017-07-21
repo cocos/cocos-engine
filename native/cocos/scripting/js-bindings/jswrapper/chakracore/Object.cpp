@@ -197,12 +197,18 @@ namespace se {
         _isCleanup = true;
     }
 
+    void Object::cleanup()
+    {
+        ScriptEngine::getInstance()->addAfterCleanupHook([](){
+            __nativePtrToObjectMap.clear();
+            __cx = nullptr;
+        });
+    }
+
     void Object::_setFinalizeCallback(JsFinalizeCallback finalizeCb)
     {
         _finalizeCb = finalizeCb;
     }
-
-    // --- Getter/Setter
 
     bool Object::getProperty(const char* name, Value* data)
     {
@@ -237,7 +243,6 @@ namespace se {
         return internal::defineProperty(_obj, name, getter, setter, true, true);
     }
 
-    // --- call
     bool Object::call(const ValueArray& args, Object* thisObject, Value* rval/* = nullptr*/)
     {
         assert(isFunction());
@@ -314,8 +319,6 @@ namespace se {
         _CHECK(JsSetProperty(_obj, propertyId, funcVal, true));
         return true;
     }
-
-    // --- Arrays
 
     static bool isArrayOfObject(JsValueRef obj)
     {
@@ -465,8 +468,6 @@ namespace se {
         return false;
     }
 
-
-
     bool Object::isTypedArray() const
     {
         JsValueType type;
@@ -499,7 +500,6 @@ namespace se {
         return ret;
     }
 
-    // --- ArrayBuffer
     bool Object::isArrayBuffer() const
     {
         JsValueType type;
@@ -574,12 +574,6 @@ namespace se {
         }
     }
 
-    void Object::debug(const char *what)
-    {
-//        LOGD("Object %p %s\n", this,
-//               what);
-    }
-
     JsValueRef Object::_getJSObject() const
     {
         return _obj;
@@ -614,7 +608,6 @@ namespace se {
         _CHECK(JsRelease(_obj, &count));
         _isRooted = false;
     }
-
 
     void Object::setKeepRootedUntilDie(bool keepRooted)
     {
