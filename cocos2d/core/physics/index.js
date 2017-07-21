@@ -1,6 +1,6 @@
 
-if (!CC_JSB) {
-    window.b2 = require('../../../external/box2d/box2d');
+if (!CC_JSB && (CC_PREVIEW || CC_EDITOR || CC_TEST)) {
+    window.b2 = require('../../../wasm/box2d/lib/box2d');
 }
 
 require('./CCPhysicsManager');

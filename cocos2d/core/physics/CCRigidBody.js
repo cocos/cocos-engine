@@ -309,9 +309,8 @@ var RigidBody = cc.Class({
                 this._linearVelocity = value;
                 var b2body = this._b2Body;
                 if (b2body) {
-                    var temp = CC_JSB ? tempb2Vec21 : b2body.m_linearVelocity;
-                    temp.Set(value.x/PTM_RATIO, value.y/PTM_RATIO);
-                    b2body.SetLinearVelocity(temp);
+                    tempb2Vec21.Set(value.x/PTM_RATIO, value.y/PTM_RATIO);
+                    b2body.SetLinearVelocity(tempb2Vec21);
                 }
             }
         },
@@ -637,20 +636,23 @@ var RigidBody = cc.Class({
             var list = this._b2Body.GetJointList();
             if (!list) return [];
 
-            joints.push(list.joint._joint);
+            joints.push(cc.Joint.getTypedJoint(list.joint)._joint);
             
             // find prev joint
             var prev = list.prev;
             while (prev) {
-                joints.push(prev.joint._joint);
+                joints.push(cc.Joint.getTypedJoint(prev.joint)._joint);
                 prev = prev.prev;
+
+                if (b2.isWasm && (prev.ptr || prev.a) === 0) break; 
             }
 
             // find next joint
             var next = list.next;
             while (next) {
-                joints.push(next.joint._joint);
+                joints.push(cc.Joint.getTypedJoint(next.joint)._joint);
                 next = next.next;
+                if (b2.isWasm && (next.ptr || next.a) === 0) break;
             }
 
             return joints;
@@ -813,10 +815,9 @@ var RigidBody = cc.Class({
         var b2body = this._b2Body;
         if (!b2body) return;
 
-        var temp = CC_JSB ? tempb2Vec21 : b2body.m_linearVelocity;
-        temp.Set(0, 0);
+        tempb2Vec21.Set(0, 0);
 
-        b2body.SetLinearVelocity(temp);
+        b2body.SetLinearVelocity(tempb2Vec21);
         b2body.SetAngularVelocity(0);
     },
 

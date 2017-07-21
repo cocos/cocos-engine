@@ -199,8 +199,6 @@ var Joint = cc.Class({
         if (this.body && this.body._getBody() &&
             this.connectedBody && this.connectedBody._getBody()) {
 
-            var world = cc.director.getPhysicsManager()._getWorld();
-            
             var def = this._createJointDef();
             if (!def) return;
 
@@ -208,7 +206,7 @@ var Joint = cc.Class({
             def.bodyB = this.connectedBody._getBody();
             def.collideConnected = this.collideConnected;
 
-            this._joint = world.CreateJoint(def);
+            this._joint = this._createJoint(def);
             if (this._joint) {
                 this._joint._joint = this;
             }
@@ -233,7 +231,36 @@ var Joint = cc.Class({
 
     _createJointDef: function () {
         return null;
+    },
+
+    _createJoint: function (def) {
+        var joint = cc.director.getPhysicsManager()._getWorld().CreateJoint(def);
+        joint = Joint.getTypedJoint(joint);
+        return joint;
     }
+});
+
+Joint.getTypedJoint = function (joint) {
+    if (b2.isWasm) {
+        joint = Box2D.wrapPointer(joint.ptr || joint.a, b2[Joint.Type[joint.GetType()]]);
+    }
+
+    return joint;
+};
+
+Joint.Type = cc.Enum({
+    UnkownJoint: 0,
+    RevoluteJoint: 1,
+    PrismaticJoint: 2,
+    DistanceJoint: 3,
+    PulleyJoint: 4,
+    MouseJoint: 5,
+    GearJoint: 6,
+    WheelJoint: 7,
+    WeldJoint: 8,
+    FrictionJoint: 9,
+    RopeJoint: 10,
+    MotorJoint: 11
 });
 
 cc.Joint = module.exports = Joint;

@@ -76,7 +76,14 @@ var PhysicsPolygonCollider = cc.Class({
                 }
 
                 if (vertices.length === b2.maxPolygonVertices) {
-                    shape.Set(vertices, vertices.length);
+                    if (b2.isWasm) {
+                        var ptr = Box2D.createVerticesBuffer(vertices);
+                        shape.Set(ptr, vertices.length);
+                    }
+                    else {
+                        shape.Set(vertices, vertices.length);
+                    }
+                    
                     shapes.push(shape);
 
                     shape = null;
@@ -88,7 +95,14 @@ var PhysicsPolygonCollider = cc.Class({
             }
 
             if (shape) {
-                shape.Set(vertices, vertices.length);
+                if (b2.isWasm) {
+                    var ptr = Box2D.createVerticesBuffer(vertices);
+                    shape.Set(ptr, vertices.length);
+                }
+                else {
+                    shape.Set(vertices, vertices.length);
+                }
+                
                 shapes.push(shape);
             }
         }
