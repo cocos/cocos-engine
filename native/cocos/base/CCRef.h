@@ -123,7 +123,6 @@ protected:
      */
     Ref();
 
-public:
     /**
      * Destructor
      *
