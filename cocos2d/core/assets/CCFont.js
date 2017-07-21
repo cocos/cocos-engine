@@ -30,7 +30,7 @@
  * !#en Class for Font handling.
  * !#zh 字体资源类。
  * @class Font
- * @extends RawAsset
+ * @extends Asset
  *
  */
 var Font = cc.Class({

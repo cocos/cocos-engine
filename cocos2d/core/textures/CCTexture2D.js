@@ -28,7 +28,6 @@ var sys = require('../platform/CCSys');
 var JS = require('../platform/js');
 var misc = require('../utils/misc');
 var game = require('../CCGame');
-require('../platform/_CCClass');
 require('../platform/CCClass');
 
 /**
@@ -60,18 +59,17 @@ var WrapMode = cc.Enum({
 });
 
 /**
- * <p>
- * This class allows to easily create OpenGL or Canvas 2D textures from images, text or raw data.                                    <br/>
- * The created cc.Texture2D object will always have power-of-two dimensions.                                                <br/>
+ * This class allows to easily create OpenGL or Canvas 2D textures from images, text or raw data.<br/>
+ * The created cc.Texture2D object will always have power-of-two dimensions.<br/>
  * Depending on how you create the cc.Texture2D object, the actual image area of the texture might be smaller than the texture dimensions <br/>
- *  i.e. "contentSize" != (pixelsWide, pixelsHigh) and (maxS, maxT) != (1.0, 1.0).                                           <br/>
- * Be aware that the content of the generated textures will be upside-down! </p>
-
+ * i.e. "contentSize" != (pixelsWide, pixelsHigh) and (maxS, maxT) != (1.0, 1.0).<br/>
+ * Be aware that the content of the generated textures will be upside-down!
+ *
  * @class Texture2D
  * @uses EventTarget
  * @extends RawAsset
  */
-var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
+var Texture2D = cc.Class({
 
     name: 'cc.Texture2D',
     extends: require('../assets/CCRawAsset'),
@@ -82,7 +80,14 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
     },
 
     ctor: function () {
+        /**
+         * The source file's url for the texture, it could be empty if the texture wasn't created via a file.
+         * @property url
+         * @type {String}
+         * @readonly
+         */
         this.url = null;
+
         this._textureLoaded = false;
         this._htmlElementObj = null;
         this._contentSize = cc.size(0, 0);
@@ -102,6 +107,29 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
             this._hasMipmaps = false;
 
             this._webTextureObj = null;
+        }
+    },
+
+    properties: {
+        /**
+         * Content width in points.
+         * @property width
+         * @type {Number}
+         */
+        width: {
+            get () {
+                return this._contentSize.width;
+            }
+        },
+        /**
+         * Content height in points.
+         * @property height
+         * @type {Number}
+         */
+        height: {
+            get () {
+                return this._contentSize.height;
+            }
         }
     },
 
@@ -130,13 +158,6 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
      */
     getContentSize: function () {
         return cc.size(this._contentSize.width, this._contentSize.height);
-    },
-
-    _getWidth: function () {
-        return this._contentSize.width;
-    },
-    _getHeight: function () {
-        return this._contentSize.height;
     },
 
     /**
@@ -365,156 +386,151 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
     }
 });
 
-Texture2D.WrapMode = WrapMode;
-
-var _c = Texture2D;
-
 /**
  * 32-bit texture: RGBA8888
- * @property PIXEL_FORMAT_RGBA8888
+ * @property {Number} PIXEL_FORMAT_RGBA8888
  * @static
- * @type {Number}
  */
-_c.PIXEL_FORMAT_RGBA8888 = 2;
+Texture2D.PIXEL_FORMAT_RGBA8888 = 2;
 
 /**
  * 24-bit texture: RGB888, not supported yet
- * @property PIXEL_FORMAT_RGB888
+ * @property {Number} PIXEL_FORMAT_RGB888
  * @static
- * @type {Number}
  */
-_c.PIXEL_FORMAT_RGB888 = 3;
+Texture2D.PIXEL_FORMAT_RGB888 = 3;
 
 /**
  * 16-bit texture without Alpha channel, not supported yet
- * @property PIXEL_FORMAT_RGB565
+ * @property {Number} PIXEL_FORMAT_RGB565
  * @static
- * @type {Number}
  */
-_c.PIXEL_FORMAT_RGB565 = 4;
+Texture2D.PIXEL_FORMAT_RGB565 = 4;
 
 /**
  * 8-bit textures used as masks, not supported yet
- * @property PIXEL_FORMAT_A8
+ * @property {Number} PIXEL_FORMAT_A8
  * @static
- * @type {Number}
  */
-_c.PIXEL_FORMAT_A8 = 5;
+Texture2D.PIXEL_FORMAT_A8 = 5;
 
 /**
  * 8-bit intensity texture, not supported yet
- * @property PIXEL_FORMAT_I8
+ * @property {Number} PIXEL_FORMAT_I8
  * @static
- * @type {Number}
  */
-_c.PIXEL_FORMAT_I8 = 6;
+Texture2D.PIXEL_FORMAT_I8 = 6;
 
 /**
  * 16-bit textures used as masks, not supported yet
- * @property PIXEL_FORMAT_AI88
+ * @property {Number} PIXEL_FORMAT_AI88
  * @static
- * @type {Number}
  */
-_c.PIXEL_FORMAT_AI88 = 7;
+Texture2D.PIXEL_FORMAT_AI88 = 7;
 
 /**
  * 16-bit textures: RGBA4444, not supported yet
- * @property PIXEL_FORMAT_RGBA4444
+ * @property {Number} PIXEL_FORMAT_RGBA4444
  * @static
- * @type {Number}
  */
-_c.PIXEL_FORMAT_RGBA4444 = 8;
+Texture2D.PIXEL_FORMAT_RGBA4444 = 8;
 
 /**
  * 16-bit textures: RGB5A1, not supported yet
- * @property PIXEL_FORMAT_RGB5A1
+ * @property {Number} PIXEL_FORMAT_RGB5A1
  * @static
- * @type {Number}
  */
-_c.PIXEL_FORMAT_RGB5A1 = 7;
+Texture2D.PIXEL_FORMAT_RGB5A1 = 7;
 
 /**
  * 4-bit PVRTC-compressed texture: PVRTC4, not supported yet
- * @property PIXEL_FORMAT_PVRTC4
+ * @property {Number} PIXEL_FORMAT_PVRTC4
  * @static
- * @type {Number}
  */
-_c.PIXEL_FORMAT_PVRTC4 = 9;
+Texture2D.PIXEL_FORMAT_PVRTC4 = 9;
 
 /**
  * 2-bit PVRTC-compressed texture: PVRTC2, not supported yet
- * @property PIXEL_FORMAT_PVRTC2
+ * @property {Number} PIXEL_FORMAT_PVRTC2
  * @static
- * @type {Number}
  */
-_c.PIXEL_FORMAT_PVRTC2 = 10;
+Texture2D.PIXEL_FORMAT_PVRTC2 = 10;
 
 /**
  * Default texture format: RGBA8888
- * @property PIXEL_FORMAT_DEFAULT
+ * @property {Number} PIXEL_FORMAT_DEFAULT
  * @static
- * @type {Number}
  */
-_c.PIXEL_FORMAT_DEFAULT = _c.PIXEL_FORMAT_RGBA8888;
+Texture2D.PIXEL_FORMAT_DEFAULT = Texture2D.PIXEL_FORMAT_RGBA8888;
 
 /**
  * The default pixel format
- * @property defaultPixelFormat
+ * @property {Number} defaultPixelFormat
  * @static
- * @type {Number}
  */
-_c.defaultPixelFormat = _c.PIXEL_FORMAT_DEFAULT;
+Texture2D.defaultPixelFormat = Texture2D.PIXEL_FORMAT_DEFAULT;
 
-var _M = Texture2D._M = {};
-_M[_c.PIXEL_FORMAT_RGBA8888] = "RGBA8888";
-_M[_c.PIXEL_FORMAT_RGB888] = "RGB888";
-_M[_c.PIXEL_FORMAT_RGB565] = "RGB565";
-_M[_c.PIXEL_FORMAT_A8] = "A8";
-_M[_c.PIXEL_FORMAT_I8] = "I8";
-_M[_c.PIXEL_FORMAT_AI88] = "AI88";
-_M[_c.PIXEL_FORMAT_RGBA4444] = "RGBA4444";
-_M[_c.PIXEL_FORMAT_RGB5A1] = "RGB5A1";
-_M[_c.PIXEL_FORMAT_PVRTC4] = "PVRTC4";
-_M[_c.PIXEL_FORMAT_PVRTC2] = "PVRTC2";
+var PIXEL_FORMAT_NAMES = {};
+PIXEL_FORMAT_NAMES[Texture2D.PIXEL_FORMAT_RGBA8888] = "RGBA8888";
+PIXEL_FORMAT_NAMES[Texture2D.PIXEL_FORMAT_RGB888] = "RGB888";
+PIXEL_FORMAT_NAMES[Texture2D.PIXEL_FORMAT_RGB565] = "RGB565";
+PIXEL_FORMAT_NAMES[Texture2D.PIXEL_FORMAT_A8] = "A8";
+PIXEL_FORMAT_NAMES[Texture2D.PIXEL_FORMAT_I8] = "I8";
+PIXEL_FORMAT_NAMES[Texture2D.PIXEL_FORMAT_AI88] = "AI88";
+PIXEL_FORMAT_NAMES[Texture2D.PIXEL_FORMAT_RGBA4444] = "RGBA4444";
+PIXEL_FORMAT_NAMES[Texture2D.PIXEL_FORMAT_RGB5A1] = "RGB5A1";
+PIXEL_FORMAT_NAMES[Texture2D.PIXEL_FORMAT_PVRTC4] = "PVRTC4";
+PIXEL_FORMAT_NAMES[Texture2D.PIXEL_FORMAT_PVRTC2] = "PVRTC2";
 
-var _B = Texture2D._B = {};
-_B[_c.PIXEL_FORMAT_RGBA8888] = 32;
-_B[_c.PIXEL_FORMAT_RGB888] = 24;
-_B[_c.PIXEL_FORMAT_RGB565] = 16;
-_B[_c.PIXEL_FORMAT_A8] = 8;
-_B[_c.PIXEL_FORMAT_I8] = 8;
-_B[_c.PIXEL_FORMAT_AI88] = 16;
-_B[_c.PIXEL_FORMAT_RGBA4444] = 16;
-_B[_c.PIXEL_FORMAT_RGB5A1] = 16;
-_B[_c.PIXEL_FORMAT_PVRTC4] = 4;
-_B[_c.PIXEL_FORMAT_PVRTC2] = 3;
+var BITS_PER_PIXELS = {};
+BITS_PER_PIXELS[Texture2D.PIXEL_FORMAT_RGBA8888] = 32;
+BITS_PER_PIXELS[Texture2D.PIXEL_FORMAT_RGB888] = 24;
+BITS_PER_PIXELS[Texture2D.PIXEL_FORMAT_RGB565] = 16;
+BITS_PER_PIXELS[Texture2D.PIXEL_FORMAT_A8] = 8;
+BITS_PER_PIXELS[Texture2D.PIXEL_FORMAT_I8] = 8;
+BITS_PER_PIXELS[Texture2D.PIXEL_FORMAT_AI88] = 16;
+BITS_PER_PIXELS[Texture2D.PIXEL_FORMAT_RGBA4444] = 16;
+BITS_PER_PIXELS[Texture2D.PIXEL_FORMAT_RGB5A1] = 16;
+BITS_PER_PIXELS[Texture2D.PIXEL_FORMAT_PVRTC4] = 4;
+BITS_PER_PIXELS[Texture2D.PIXEL_FORMAT_PVRTC2] = 3;
 
 var _p = Texture2D.prototype;
 
 // Extended properties
-/** @expose */
-_p.name;
-cc.defineGetterSetter(_p, "name", _p.getName);
-/** @expose */
-_p.pixelFormat;
-cc.defineGetterSetter(_p, "pixelFormat", _p.getPixelFormat);
-/** @expose */
-_p.pixelWidth;
-cc.defineGetterSetter(_p, "pixelWidth", _p.getPixelWidth);
-/** @expose */
-_p.pixelHeight;
-cc.defineGetterSetter(_p, "pixelHeight", _p.getPixelHeight);
-/** @expose */
-_p.width;
-cc.defineGetterSetter(_p, "width", _p._getWidth);
-/** @expose */
-_p.height;
-cc.defineGetterSetter(_p, "height", _p._getHeight);
+
+/**
+ * WebGLTexture Object.
+ * @property name
+ * @type {WebGLTexture}
+ * @readonly
+ */
+JS.get(_p, "name", _p.getName);
+/**
+ * Pixel format of the texture.
+ * @property pixelFormat
+ * @type {Number}
+ * @readonly
+ */
+JS.get(_p, "pixelFormat", _p.getPixelFormat);
+/**
+ * Width in pixels.
+ * @property pixelWidth
+ * @type {Number}
+ * @readonly
+ */
+JS.get(_p, "pixelWidth", _p.getPixelWidth);
+/**
+ * Height in pixels.
+ * @property pixelHeight
+ * @type {Number}
+ * @readonly
+ */
+JS.get(_p, "pixelHeight", _p.getPixelHeight);
 
 game.once(game.EVENT_RENDERER_INITED, function () {
     if(cc._renderType === game.RENDER_TYPE_CANVAS) {
 
-        var renderToCache = function(image, cache){
+        function renderToCache (image, cache){
             var w = image.width;
             var h = image.height;
 
@@ -546,9 +562,9 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 ctx.putImageData(to, 0, 0);
             }
             image.onload = null;
-        };
+        }
 
-        var generateGrayTexture = function(texture, rect, renderCanvas){
+        function generateGrayTexture (texture, rect, renderCanvas){
             if (texture === null)
                 return null;
             renderCanvas = renderCanvas || document.createElement("canvas");
@@ -565,7 +581,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             }
             context.putImageData(imgData, 0, 0);
             return renderCanvas;
-        };
+        }
 
         _p._generateTextureCacheForColor = function(){
             if (this.channelCache)
@@ -600,7 +616,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
         _p._generateGrayTexture = function() {
             if(!this._textureLoaded)
                 return null;
-            var grayElement = generateGrayTexture(this._htmlElementObj);;
+            var grayElement = generateGrayTexture(this._htmlElementObj);
             var newTexture = new Texture2D();
             newTexture.initWithElement(grayElement);
             newTexture.handleLoadedTexture();
@@ -688,14 +704,14 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             newTexture.handleLoadedTexture();
             return newTexture;
         };
-
-    } else if (cc._renderType === game.RENDER_TYPE_WEBGL) {
+    }
+    else if (cc._renderType === game.RENDER_TYPE_WEBGL) {
         _p.initWithData = function (data, pixelFormat, pixelsWide, pixelsHigh, contentSize) {
             var self = this, tex2d = Texture2D;
             var gl = cc._renderContext;
             var format = gl.RGBA, type = gl.UNSIGNED_BYTE;
 
-            var bitsPerPixel = Texture2D._B[pixelFormat];
+            var bitsPerPixel = BITS_PER_PIXELS[pixelFormat];
 
             var bytesPerRow = pixelsWide * bitsPerPixel / 8;
             if (bytesPerRow % 8 === 0) {
@@ -897,12 +913,12 @@ game.once(game.EVENT_RENDERER_INITED, function () {
         };
 
         _p.stringForFormat = function () {
-            return Texture2D._M[this._pixelFormat];
+            return PIXEL_FORMAT_NAMES[this._pixelFormat];
         };
 
         _p.bitsPerPixelForFormat = function (format) {//TODO I want to delete the format argument, use this._pixelFormat
             format = format || this._pixelFormat;
-            var value = Texture2D._B[format];
+            var value = BITS_PER_PIXELS[format];
             if (value != null) return value;
             cc.logID(3110, format);
             return -1;
@@ -1013,52 +1029,5 @@ game.once(game.EVENT_RENDERER_INITED, function () {
         };
     }
 });
-
-/**
- * WebGLTexture Object.
- * @property name
- * @type {WebGLTexture}
- * @readonly
- */
-
-/**
- * The source file's url for the texture, it could be empty if the texture wasn't created via a file.
- * @property url
- * @type {String}
- * @readonly
- */
-
-/**
- * Pixel format of the texture.
- * @property pixelFormat
- * @type {Number}
- * @readonly
- */
-
-/**
- * Width in pixels.
- * @property pixelWidth
- * @type {Number}
- * @readonly
- */
-
-/**
- * Height in pixels.
- * @property pixelHeight
- * @type {Number}
- * @readonly
- */
-
-/**
- * Content width in points.
- * @property width
- * @type {Number}
- */
-
-/**
- * Content height in points.
- * @property height
- * @type {Number}
- */
 
 cc.Texture2D = module.exports = Texture2D;
