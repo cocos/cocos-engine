@@ -88,6 +88,10 @@ namespace se {
         {
             wrap->_finalizeCb(wrap->_nativeObj); // wrap will be destroyed in wrap->_finalizeCb, should not use any wrap object after this line.
         }
+        else
+        {
+            assert(false);
+        }
     }
 
 } // namespace se {

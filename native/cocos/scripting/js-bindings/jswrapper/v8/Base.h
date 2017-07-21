@@ -11,6 +11,8 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <functional>
+#include <algorithm> // for std::find
 #include <assert.h>
 
 #include "HelperMacros.h"
