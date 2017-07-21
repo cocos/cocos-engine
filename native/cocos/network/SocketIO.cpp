@@ -656,6 +656,7 @@ void SIOClientImpl::connectToEndpoint(const std::string& endpoint)
     SocketIOPacket *packet = SocketIOPacket::createPacketWithType("connect", _version);
     packet->setEndpoint(endpoint);
     this->send(packet);
+    delete packet;
 }
 
 void SIOClientImpl::disconnectFromEndpoint(const std::string& endpoint)
@@ -685,6 +686,7 @@ void SIOClientImpl::heartbeat(float /*dt*/)
     SocketIOPacket *packet = SocketIOPacket::createPacketWithType("heartbeat", _version);
 
     this->send(packet);
+    delete packet;
 
     CCLOGINFO("Heartbeat sent");
 }
@@ -699,6 +701,7 @@ void SIOClientImpl::send(const std::string& endpoint, const std::string& s)
             packet->setEndpoint(endpoint);
             packet->addData(s);
             this->send(packet);
+            delete packet;
             break;
         }
     case SocketIOPacket::SocketIOVersion::V10x:
@@ -729,6 +732,7 @@ void SIOClientImpl::emit(const std::string& endpoint, const std::string& eventna
     packet->setEvent(eventname);
     packet->addData(args);
     this->send(packet);
+    delete packet;
 }
 
 void SIOClientImpl::onOpen(WebSocket* /*ws*/)

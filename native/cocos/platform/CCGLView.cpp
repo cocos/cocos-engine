@@ -304,6 +304,7 @@ void GLView::handleTouchesBegin(int num, intptr_t ids[], float xs[], float ys[])
     if (touchEvent->_touches.empty())
     {
         CCLOG("touchesBegan: size = 0");
+        touchEvent->release();
         return;
     }
 
@@ -353,6 +354,7 @@ void GLView::handleTouchesMove(int num, intptr_t ids[], float xs[], float ys[], 
             if (tempX < 0 || tempX > _designResolutionSize.width ||
                 tempY < 0 || tempY > _designResolutionSize.height)
             {
+                touchEvent->release();
                 return;
             }
 
@@ -364,6 +366,7 @@ void GLView::handleTouchesMove(int num, intptr_t ids[], float xs[], float ys[], 
         {
             // It is error, should return.
             CCLOG("Moving touches with id: %ld error", (long int)id);
+            touchEvent->release();
             return;
         }
     }
@@ -371,6 +374,7 @@ void GLView::handleTouchesMove(int num, intptr_t ids[], float xs[], float ys[], 
     if (touchEvent->_touches.empty())
     {
         CCLOG("touchesMoved: size = 0");
+        touchEvent->release();
         return;
     }
 
@@ -418,6 +422,7 @@ void GLView::handleTouchesOfEndOrCancel(EventTouch::EventCode eventCode, int num
         else
         {
             CCLOG("Ending touches with id: %ld error", static_cast<long>(id));
+            touchEvent->release();
             return;
         }
 
@@ -426,6 +431,7 @@ void GLView::handleTouchesOfEndOrCancel(EventTouch::EventCode eventCode, int num
     if (touchEvent->_touches.empty())
     {
         CCLOG("touchesEnded or touchesCancel: size = 0");
+        touchEvent->release();
         return;
     }
 

@@ -8,11 +8,12 @@
 #include "base/ccUTF8.h"
 #include "base/CCDirector.h"
 
+using namespace cocos2d;
 using namespace cocos2d::network;
 
 se::Class* __jsb_SocketIO_class = nullptr;
 
-class JSB_SocketIODelegate : public SocketIO::SIODelegate
+class JSB_SocketIODelegate : public Ref, public SocketIO::SIODelegate
 {
 public:
 
@@ -23,7 +24,7 @@ public:
     {
     }
 
-    ~JSB_SocketIODelegate()
+    virtual ~JSB_SocketIODelegate()
     {
         CCLOGINFO("In the destructor of JSB_SocketIODelegate(%p)", this);
     }
@@ -40,6 +41,7 @@ public:
     {
         CCLOG("JSB SocketIO::SIODelegate->onClose method called from native");
         this->fireEventToScript(client, "disconnect", "");
+        release();
     }
 
     virtual void onError(SIOClient* client, const std::string& data) override
@@ -114,6 +116,7 @@ static bool SocketIO_finalize(se::State& s)
     SIOClient* cobj = (SIOClient*)s.nativeThisObject();
     CCLOGINFO("jsbindings: finalizing JS object %p (SocketIO)", cobj);
     cobj->disconnect();
+    static_cast<JSB_SocketIODelegate*>(cobj->getDelegate())->release();
     cobj->release();
     return true;
 }
@@ -272,14 +275,24 @@ static bool SocketIO_connect(se::State& s)
 
         CCLOG("Calling native SocketIO.connect method");
         SIOClient* ret = SocketIO::connect(url, *siodelegate, caFilePath);
-        ret->retain();
+        if (ret != nullptr)
+        {
+            ret->retain();
+            siodelegate->retain();
 
-        se::Object* obj = se::Object::createObjectWithClass(__jsb_SocketIO_class, false);
-        obj->setPrivateData(ret);
+            se::Object* obj = se::Object::createObjectWithClass(__jsb_SocketIO_class, false);
+            obj->setPrivateData(ret);
 
-        s.rval().setObject(obj);
+            s.rval().setObject(obj);
 
-        return true;
+            return true;
+        }
+        else
+        {
+            siodelegate->release();
+            SE_REPORT_ERROR("SocketIO.connect return nullptr!");
+            return false;
+        }
     }
     SE_REPORT_ERROR("JSB SocketIO.connect: Wrong number of arguments");
     return false;
