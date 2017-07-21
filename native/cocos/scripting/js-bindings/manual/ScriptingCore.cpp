@@ -44,7 +44,7 @@ ScriptingCore::ScriptingCore()
 
 ScriptingCore::~ScriptingCore()
 {
-
+    se::ScriptEngine::destroyInstance();
 }
 
 // Override functions
