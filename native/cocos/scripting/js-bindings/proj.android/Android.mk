@@ -40,6 +40,7 @@ LOCAL_SRC_FILES := \
 					../manual/jsb_creator_manual.cpp \
 					../manual/jsb_dragonbones_manual.cpp \
 					../manual/jsb_global.cpp \
+					../manual/jsb_module_register.cpp \
 					../manual/jsb_node.cpp \
 					../manual/jsb_socketio.cpp \
 					../manual/jsb_spine_manual.cpp \
