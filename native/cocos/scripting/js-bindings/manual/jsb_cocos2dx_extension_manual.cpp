@@ -24,17 +24,6 @@ static bool jsb_cocos2d_extension_empty_func(se::State& s)
 }
 SE_BIND_FUNC(jsb_cocos2d_extension_empty_func)
 
-static bool js_cocos2dx_extension_EventListenerAssetsManagerEx_create(se::State& s)
-{
-    return true;
-}
-SE_BIND_FUNC(js_cocos2dx_extension_EventListenerAssetsManagerEx_create)
-
-static bool js_cocos2dx_extension_EventListenerAssetsManagerEx_init(se::State& s)
-{
-    return true;
-}
-SE_BIND_FUNC(js_cocos2dx_extension_EventListenerAssetsManagerEx_init)
 
 static bool js_cocos2dx_extension_loadRemoteImage(se::State& s)
 {
