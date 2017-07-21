@@ -10,11 +10,12 @@ namespace se {
 
 	class Object;
 
-	class Class {
-
-	public:
+	class Class
+    {
+    private:
         Class();
-		~Class();
+        ~Class();
+    public:
 
         static Class* create(const std::string& clsName, Object* parent, Object* parentProto, v8::FunctionCallback ctor);
 

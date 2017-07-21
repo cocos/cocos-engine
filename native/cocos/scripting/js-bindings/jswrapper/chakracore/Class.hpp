@@ -10,27 +10,12 @@ namespace se {
 
     class Object;
 
-    typedef JsValueRef (*JSObjectGetPropertyCallback)(JsValueRef thisObject, const char* name);
-    typedef void (*JSObjectSetPropertyCallback)(JsValueRef thisObject, const char* name, JsValueRef value);
-
-    struct JSFunctionSpec
-    {
-        const char* name;
-        JsNativeFunction func;
-    };
-
-    struct JSPropertySpec
-    {
-        const char* name;
-        JsNativeFunction getter;
-        JsNativeFunction setter;
-    };
-
     class Class
     {
-    public:
+    private:
         Class();
         ~Class();
+    public:
 
         static Class* create(const std::string& className, Object* obj, Object* parentProto, JsNativeFunction ctor);
 
@@ -51,6 +36,19 @@ namespace se {
         static JsValueRef _createJSObjectWithClass(Class* cls);
 
         static void cleanup();
+
+        struct JSFunctionSpec
+        {
+            const char* name;
+            JsNativeFunction func;
+        };
+
+        struct JSPropertySpec
+        {
+            const char* name;
+            JsNativeFunction getter;
+            JsNativeFunction setter;
+        };
 
         std::string _name;
         Object* _parent;

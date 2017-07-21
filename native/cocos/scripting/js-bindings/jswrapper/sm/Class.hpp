@@ -12,9 +12,10 @@ namespace se {
 
     class Class
     {
-    public:
+    private:
         Class();
         ~Class();
+    public:
 
         static Class* create(const char* className, Object* obj, Object* parentProto, JSNative ctor);
 

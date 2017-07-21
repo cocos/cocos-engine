@@ -12,10 +12,10 @@ namespace se {
 
     class Class
     {
-    public:
+    private:
         Class();
         ~Class();
-
+    public:
         static Class* create(const std::string& className, Object* obj, Object* parentProto, JSObjectCallAsConstructorCallback ctor);
 
         bool install();
