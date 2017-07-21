@@ -32,7 +32,6 @@ namespace se {
 
         bool init(JSObjectRef obj, bool rooted);
 
-        // --- Getter/Setter
         bool getProperty(const char* name, Value* data);
         void setProperty(const char* name, const Value& v);
         bool defineProperty(const char *name, JSObjectCallAsFunctionCallback getter, JSObjectCallAsFunctionCallback setter);
