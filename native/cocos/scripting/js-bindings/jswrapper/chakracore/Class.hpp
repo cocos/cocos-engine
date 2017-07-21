@@ -32,6 +32,8 @@ namespace se {
 
     private:
         bool init(const std::string& clsName, Object* obj, Object* parentProto, JsNativeFunction ctor);
+        void destroy();
+
 //        static JsValueRef _createJSObject(const std::string &clsName, Class** outCls);
         static JsValueRef _createJSObjectWithClass(Class* cls);
 

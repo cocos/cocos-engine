@@ -14,8 +14,6 @@ namespace se {
 #define JS_PSGS(name, getter, setter, attr) {name, getter, setter, attr}
 #define JS_PS_END JS_PSGS(0, 0, 0, 0)
 
-    // --- Global Lookup for Constructor Functions
-
     namespace {
 //        std::unordered_map<std::string, Class *> __clsMap;
         JSContextRef __cx = nullptr;
@@ -234,7 +232,7 @@ namespace se {
             cls->destroy();
         }
 
-        se::ScriptEngine::getInstance()->addAfterCleanupHook([](){
+        ScriptEngine::getInstance()->addAfterCleanupHook([](){
             for (auto cls : __allClasses)
             {
                 delete cls;

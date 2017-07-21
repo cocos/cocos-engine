@@ -190,8 +190,12 @@ namespace se {
 
         if (_isRooted)
         {
-            unsigned int count = 0;
-            _CHECK(JsRelease(_obj, &count));
+            // Don't unprotect if it's in cleanup, otherwise, it will trigger crash.
+            if (!ScriptEngine::getInstance()->_isInCleanup)
+            {
+                unsigned int count = 0;
+                _CHECK(JsRelease(_obj, &count));
+            }
         }
 
         _isCleanup = true;
@@ -201,7 +205,6 @@ namespace se {
     {
         ScriptEngine::getInstance()->addAfterCleanupHook([](){
             __nativePtrToObjectMap.clear();
-            __cx = nullptr;
         });
     }
 
@@ -586,7 +589,6 @@ namespace se {
 
     void Object::switchToRooted()
     {
-        debug("switch to rooted");
         if (_isRooted)
             return;
 
@@ -603,7 +605,6 @@ namespace se {
         if (_isKeepRootedUntilDie)
             return;
 
-        debug("switch to unrooted");
         unsigned int count = 0;
         _CHECK(JsRelease(_obj, &count));
         _isRooted = false;

@@ -5,6 +5,7 @@
 #include "Object.hpp"
 #include "Utils.hpp"
 #include "State.hpp"
+#include "ScriptEngine.hpp"
 
 namespace se {
 
@@ -15,6 +16,7 @@ namespace se {
 
     namespace {
 //        std::unordered_map<std::string, Class *> __clsMap;
+        std::vector<Class*> __allClasses;
 
         JsValueRef emptyContructor(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
         {
@@ -40,13 +42,11 @@ namespace se {
     , _ctor(nullptr)
     , _finalizeOp(nullptr)
     {
+        __allClasses.push_back(this);
     }
 
     Class::~Class()
     {
-        SAFE_RELEASE(_parent);
-        SAFE_RELEASE(_proto);
-        SAFE_RELEASE(_parentProto);
     }
 
     Class* Class::create(const std::string& className, Object* obj, Object* parentProto, JsNativeFunction ctor)
@@ -203,9 +203,27 @@ namespace se {
         return _proto;
     }
 
+    void Class::destroy()
+    {
+        SAFE_RELEASE(_parent);
+        SAFE_RELEASE(_proto);
+        SAFE_RELEASE(_parentProto);
+    }
+
     void Class::cleanup()
-    {// TODO:
-        assert(false);
+    {
+        for (auto cls : __allClasses)
+        {
+            cls->destroy();
+        }
+
+        ScriptEngine::getInstance()->addAfterCleanupHook([](){
+            for (auto cls : __allClasses)
+            {
+                delete cls;
+            }
+            __allClasses.clear();
+        });
     }
 
 } // namespace se {

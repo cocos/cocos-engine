@@ -77,6 +77,7 @@ namespace se {
         Object* _globalObj;
 
         bool _isValid;
+        bool _isInCleanup;
         unsigned _currentSourceContext;
         NodeEventListener _nodeEventListener;
 
@@ -84,6 +85,8 @@ namespace se {
         std::chrono::steady_clock::time_point _startTime;
         std::vector<std::function<void()>> _beforeCleanupHookArray;
         std::vector<std::function<void()>> _afterCleanupHookArray;
+
+        friend class Object;
     };
 
  } // namespace se {
