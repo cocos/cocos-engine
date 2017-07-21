@@ -405,7 +405,7 @@ SIOClientImpl::~SIOClientImpl()
 {
     assert(!_connected);
 
-    _ws->release();
+    CC_SAFE_RELEASE(_ws);
 }
 
 void SIOClientImpl::handshake()
@@ -465,6 +465,7 @@ void SIOClientImpl::handshakeResponse(HttpClient* /*sender*/, HttpResponse *resp
             client.second->getDelegate()->onError(client.second, response->getErrorBuffer());
         }
 
+        onClose(nullptr);
         return;
     }
 
