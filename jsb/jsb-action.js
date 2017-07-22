@@ -271,13 +271,13 @@ cc.ToggleVisibility.prototype.update = function (dt) {
 
 // Special call func
 cc.callFunc = function (selector, selectorTarget, data) {
-    var callback = function (sender, data) {
+    var callback = function (sender) {
         if (sender) {
             sender = sender._owner || sender;
         }
         selector.call(this, sender, data);
     };
-    var action = cc.CallFunc.create(callback, selectorTarget, data);
+    var action = selectorTarget ? cc.CallFunc.create(callback, selectorTarget) : cc.CallFunc.create(callback);
     if (!ENABLE_GC_FOR_NATIVE_OBJECTS) {
         action.retain();
         action._retained = true;
@@ -287,15 +287,18 @@ cc.callFunc = function (selector, selectorTarget, data) {
 
 cc.CallFunc.prototype._ctor = function (selector, selectorTarget, data) {
     if(selector !== undefined){
-        var callback = function (sender, data) {
+        var callback = function (sender) {
             if (sender) {
                 sender = sender._owner || sender;
             }
             selector.call(this, sender, data);
         };
-        if(selectorTarget === undefined)
+        if (selectorTarget === undefined) {
             this.initWithFunction(callback);
-        else this.initWithFunction(callback, selectorTarget, data);
+        }
+        else {
+            this.initWithFunction(callback, selectorTarget);
+        }
     }
     if (!ENABLE_GC_FOR_NATIVE_OBJECTS) {
         this.retain();
