@@ -97,7 +97,7 @@ require('../cocos2d/core/event-manager/CCEvent');
 require('../cocos2d/core/event-manager/CCSystemEvent');
 require('../CCDebugger');
 
-if (CC_DEV) {
+if (CC_DEBUG) {
     //Debug Info ID map
     require('../DebugInfos');
 }
