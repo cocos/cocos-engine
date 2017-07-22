@@ -542,12 +542,6 @@ static bool js_callFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
             thisObj = args.get(1).toObjectOrNull();
         }
         std::shared_ptr<JSFunctionWrapper> tmpCobj(new JSFunctionWrapper(cx, thisObj, callback, jsobj));
-        
-        if (argc >= 3)
-        {
-            JS::RootedObject data(cx, args.get(2).toObjectOrNull());
-            tmpCobj->setData(cx, data);
-        }
 
         bool ok = ret->initWithFunction([=](Node* sender){
             JS::RootedValue senderVal(cx);
@@ -568,16 +562,7 @@ static bool js_callFunc(JSContext *cx, uint32_t argc, JS::Value *vp)
             }
             
             JS::RootedValue retval(cx);
-            JS::AutoValueVector valArr(cx);
-            valArr.append(senderVal);
-            if (argc >= 3)
-            {
-                JS::RootedObject data(cx);
-                tmpCobj->getData(cx, &data);
-                JS::RootedValue dataVal(cx, JS::ObjectOrNullValue(data));
-                valArr.append(dataVal);
-            }
-            JS::HandleValueArray callArgs(valArr);
+            JS::HandleValueArray callArgs(senderVal);
             
             tmpCobj->invoke(callArgs, &retval);
         });
@@ -611,12 +596,6 @@ bool js_cocos2dx_CallFunc_initWithFunction(JSContext *cx, uint32_t argc, JS::Val
             thisObj = args.get(1).toObjectOrNull();
         }
         std::shared_ptr<JSFunctionWrapper> tmpCobj(new JSFunctionWrapper(cx, thisObj, callback, obj));
-        
-        if (argc >= 3)
-        {
-            JS::RootedObject data(cx, args.get(2).toObjectOrNull());
-            tmpCobj->setData(cx, data);
-        }
 
         action->initWithFunction([=](Node* sender){
             JS::RootedValue senderVal(cx);
@@ -633,16 +612,7 @@ bool js_cocos2dx_CallFunc_initWithFunction(JSContext *cx, uint32_t argc, JS::Val
             }
             
             JS::RootedValue retval(cx);
-            JS::AutoValueVector valArr(cx);
-            valArr.append(senderVal);
-            if (argc >= 3)
-            {
-                JS::RootedObject data(cx);
-                tmpCobj->getData(cx, &data);
-                JS::RootedValue dataVal(cx, JS::ObjectOrNullValue(data));
-                valArr.append(dataVal);
-            }
-            JS::HandleValueArray callArgs(valArr);
+            JS::HandleValueArray callArgs(senderVal);
             
             tmpCobj->invoke(callArgs, &retval);
         });
