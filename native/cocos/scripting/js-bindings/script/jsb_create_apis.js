@@ -282,10 +282,19 @@ cc.Place.prototype._ctor = function(pos, y) {
 };
 
 cc.CallFunc.prototype._ctor = function(selector, selectorTarget, data) {
-    if(selector !== undefined){
-        if(selectorTarget === undefined)
+    if (selector !== undefined) {
+        if (selectorTarget === undefined) {
             this.initWithFunction(selector);
-        else this.initWithFunction(selector, selectorTarget, data);
+        }
+        else {
+            var callback = selector;
+            if (data !== undefined) {
+                callback = function (sender) {
+                    selector.call(this, sender, data);
+                }
+            }
+            this.initWithFunction(callback, selectorTarget);
+        }
     }
 };
 

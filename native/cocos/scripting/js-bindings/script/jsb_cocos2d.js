@@ -762,7 +762,20 @@ cc.toggleVisibility = cc.ToggleVisibility.create;
 cc.removeSelf = cc.RemoveSelf.create;
 cc.flipX = cc.FlipX.create;
 cc.flipY = cc.FlipY.create;
-cc.callFunc = cc.CallFunc.create;
+cc.callFunc = function (selector, target, data) {
+    var callback = selector;
+    if (data !== undefined) {
+        callback = function (sender) {
+            selector.call(this, sender, data);
+        };
+    }
+    if (target !== undefined) {
+        cc.CallFunc.create(callback);
+    }
+    else {
+        cc.CallFunc.create(callback, target);
+    }
+}
 cc.actionInterval = cc.ActionInterval.create;
 cc.rotateTo = cc.RotateTo.create;
 cc.rotateBy = cc.RotateBy.create;
