@@ -469,6 +469,8 @@ cc.Director._beforeUpdateListener = {
     callback: function () {
         // cocos-creator/fireball#5157
         cc.director.emit(cc.Director._EVENT_NEXT_TICK);
+        // User can use this event to do things before update
+        cc.director.emit(cc.Director.EVENT_BEFORE_UPDATE);
         // Call start for new added components
         cc.director._compScheduler.startPhase();
         // Update for components

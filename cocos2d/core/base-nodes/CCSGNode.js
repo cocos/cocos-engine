@@ -153,7 +153,6 @@ _ccsg.Node = cc.Class({
         _ignoreAnchorPointForPosition: false,
         tag: cc.macro.NODE_TAG_INVALID,
 
-        _showNode: false,
         _name: '',                     ///<a string label, an user defined string to identify this node
 
         _realOpacity: 255,
