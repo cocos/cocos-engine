@@ -50,21 +50,26 @@ exports.getUglifyOptions = function (platform, isJSB, isDebugBuild) {
             comparisons: false,  // optimize comparisons
             //evaluate: true,  // evaluate constant expressions
             booleans: false,  // optimize boolean expressions
+            typeofs: false,  // Transforms typeof foo == "undefined" into foo === void 0. Note: recommend to set this value to false for IE10 and earlier versions due to known issues.
             loops: false,  // optimize loops
             unused: false,  // drop unused variables/functions
             hoist_funs: false,  // hoist function declarations
             hoist_vars: false, // hoist variable declarations
             if_return: false,  // optimize if-s followed by return/continue
+            inline: false,  // embed simple functions
             join_vars: false,  // join var declarations
             cascade: false,  // try to cascade `right` into `left` in sequences
-            collapse_vars: false,
+            collapse_vars: false,   // Collapse single-use non-constant variables - side effects permitting.
+            reduce_vars: false, // Improve optimization on variables assigned with and used as constant values.
             //warnings: true,
             negate_iife: false,
             pure_getters: false,
             pure_funcs: null,
             drop_console: false,
+            // expression: false, // Pass true to preserve completion values from terminal statements without return, e.g. in bookmarklets.
             keep_fargs: true,
             keep_fnames: true,
+            // keep_infinity: false,  // Pass true to prevent Infinity from being compressed into 1/0, which may cause performance issues on Chrome.
             side_effects: false  // drop side-effect-free statements
         }
     };

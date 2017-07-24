@@ -38,9 +38,10 @@ const Buffer = require('vinyl-buffer');
 const HandleErrors = require('../util/handleErrors');
 const Es = require('event-stream');
 
-const Minifier = require('gulp-uglify/minifier');
 const Sourcemaps = require('gulp-sourcemaps');
-const UglifyHarmony = require('uglify-js-harmony');
+const Composer = require('gulp-uglify/composer');
+const Uglify = require('uglify-es');
+const Minify = Composer(Uglify, console);
 
 const Utils = require('../util/utils');
 const createBundler = require('../util/create-bundler');
@@ -62,7 +63,7 @@ exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFi
     }
 
     // remove `..args` used in CC_JSB
-    engine = engine.pipe(Minifier(Utils.getUglifyOptions('test', false, false), UglifyHarmony));
+    engine = engine.pipe(Minify(Utils.getUglifyOptions('test', false, false)));
 
     if (GEN_SOURCE_MAPS) {
         engine = engine.pipe(Sourcemaps.write('./', {
