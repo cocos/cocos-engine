@@ -263,9 +263,10 @@ static CCAccelerometerDispatcher* s_pAccelerometerDispatcher;
             NSAssert(false, @"unknown orientation");
     }
 
-    cocos2d::EventAcceleration event(*_acceleration);
+    cocos2d::EventAcceleration* event = new (std::nothrow) cocos2d::EventAcceleration(*_acceleration);
     auto dispatcher = cocos2d::Director::getInstance()->getEventDispatcher();
-    dispatcher->dispatchEvent(&event);
+    dispatcher->dispatchEvent(event);
+    event->release();
 }
 @end
 #endif // !defined(CC_TARGET_OS_TVOS)

@@ -90,7 +90,7 @@ bool Configuration::init()
 
 Configuration::~Configuration()
 {
-    CC_SAFE_DELETE(_loadedEvent);
+    CC_SAFE_RELEASE(_loadedEvent);
 }
 
 std::string Configuration::getInfo() const
