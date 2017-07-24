@@ -286,7 +286,9 @@ var AssetLibrary = {
 
         var md5AssetsMap = options.md5AssetsMap;
         if (md5AssetsMap) {
-            cc.loader.insertPipeAfter(cc.loader.assetLoader, new MD5Pipe(md5AssetsMap, _libraryBase, _rawAssetsBase));
+            var md5Pipe = new MD5Pipe(md5AssetsMap, _libraryBase, _rawAssetsBase);
+            cc.loader.insertPipeAfter(cc.loader.assetLoader, md5Pipe);
+            cc.loader.md5Pipe = md5Pipe;
         }
 
         // init raw assets
