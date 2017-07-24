@@ -1,5 +1,5 @@
 
-let useWasm = !!window.WebAssembly;
+let useWasm = window._CCSettings.supportWasm && !!window.WebAssembly;
 
 let modules = [
     require('./box2d')

@@ -68,7 +68,7 @@ var jsbSkipModules = [
     '../../extensions/dragonbones/CCArmatureDisplay',
     '../../extensions/dragonbones/CCSlot',
     '../../extensions/dragonbones/CCTextureData',
-    '../../external/box2d/box2d.js',
+    '../../wasm/box2d/lib/box2d.js',
     '../../cocos2d/core/physics/platform/CCPhysicsDebugDraw.js',
     '../../cocos2d/core/physics/platform/CCPhysicsUtils.js',
     '../../cocos2d/core/physics/platform/CCPhysicsAABBQueryCallback.js',

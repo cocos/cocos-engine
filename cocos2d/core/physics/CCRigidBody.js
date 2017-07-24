@@ -33,6 +33,8 @@ var BodyType = require('./CCPhysicsTypes').BodyType;
 var tempb2Vec21 = new b2.Vec2();
 var tempb2Vec22 = new b2.Vec2();
 
+var isWasm = b2.isWasm;
+
 var VEC2_ZERO = cc.Vec2.ZERO;
 
 /**
@@ -309,8 +311,9 @@ var RigidBody = cc.Class({
                 this._linearVelocity = value;
                 var b2body = this._b2Body;
                 if (b2body) {
-                    tempb2Vec21.Set(value.x/PTM_RATIO, value.y/PTM_RATIO);
-                    b2body.SetLinearVelocity(tempb2Vec21);
+                    var temp = (CC_JSB || isWasm) ? tempb2Vec21 : b2body.m_linearVelocity;
+                    temp.Set(value.x/PTM_RATIO, value.y/PTM_RATIO);
+                    b2body.SetLinearVelocity(temp);
                 }
             }
         },
@@ -644,7 +647,7 @@ var RigidBody = cc.Class({
                 joints.push(cc.Joint.getTypedJoint(prev.joint)._joint);
                 prev = prev.prev;
 
-                if (b2.isWasm && (prev.ptr || prev.a) === 0) break; 
+                if (isWasm && (prev.ptr || prev.a) === 0) break; 
             }
 
             // find next joint
@@ -652,7 +655,7 @@ var RigidBody = cc.Class({
             while (next) {
                 joints.push(cc.Joint.getTypedJoint(next.joint)._joint);
                 next = next.next;
-                if (b2.isWasm && (next.ptr || next.a) === 0) break;
+                if (isWasm && (next.ptr || next.a) === 0) break;
             }
 
             return joints;
@@ -815,9 +818,10 @@ var RigidBody = cc.Class({
         var b2body = this._b2Body;
         if (!b2body) return;
 
-        tempb2Vec21.Set(0, 0);
+        var temp = (CC_JSB || isWasm) ? tempb2Vec21 : b2body.m_linearVelocity;
+        temp.Set(0, 0);
 
-        b2body.SetLinearVelocity(tempb2Vec21);
+        b2body.SetLinearVelocity(temp);
         b2body.SetAngularVelocity(0);
     },
 
