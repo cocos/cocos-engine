@@ -1756,9 +1756,14 @@ public:
     JSB_EditBoxDelegate()
     {
     }
+    virtual ~JSB_EditBoxDelegate()
+    {
+        CCLOGINFO("JSB_EditBoxDelegate (%p) was destroyed!", this);
+    }
 
     virtual void editBoxEditingDidBegin(ui::EditBox* editBox) override
     {
+        se::AutoHandleScope hs;
         se::Value editBoxVal;
         bool ok = native_ptr_to_seval<ui::EditBox>(editBox, __jsb_cocos2d_ui_EditBox_class, &editBoxVal);
         if (!ok)
@@ -1778,6 +1783,7 @@ public:
 
     virtual void editBoxEditingDidEnd(ui::EditBox* editBox) override
     {
+        se::AutoHandleScope hs;
         se::Value editBoxVal;
         bool ok = native_ptr_to_seval<ui::EditBox>(editBox, __jsb_cocos2d_ui_EditBox_class, &editBoxVal);
         if (!ok)
@@ -1797,6 +1803,7 @@ public:
 
     virtual void editBoxTextChanged(ui::EditBox* editBox, const std::string& text) override
     {
+        se::AutoHandleScope hs;
         se::Value editBoxVal;
         bool ok = native_ptr_to_seval<ui::EditBox>(editBox, __jsb_cocos2d_ui_EditBox_class, &editBoxVal);
         if (!ok)
@@ -1820,6 +1827,7 @@ public:
 
     virtual void editBoxEditingReturn(ui::EditBox* editBox) override
     {
+        se::AutoHandleScope hs;
         se::Value editBoxVal;
         bool ok = native_ptr_to_seval<ui::EditBox>(editBox, __jsb_cocos2d_ui_EditBox_class, &editBoxVal);
         if (!ok)
