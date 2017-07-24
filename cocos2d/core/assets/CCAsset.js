@@ -122,7 +122,7 @@ cc.Asset = cc.Class({
          * @static
          * @private
          */
-        deserialize: function (data) {
+        deserialize: CC_EDITOR && function (data) {
             return cc.deserialize(data);
         },
 
@@ -144,7 +144,7 @@ cc.Asset = cc.Class({
      * @return {String}
      * @private
      */
-    serialize: function () {
+    serialize: CC_EDITOR && function () {
         return Editor.serialize(this);
     },
 
@@ -169,7 +169,7 @@ cc.Asset = cc.Class({
      * @param {String[]} rawFiles
      * @private
      */
-    _setRawFiles: function (rawFiles) {
+    _setRawFiles: CC_EDITOR && function (rawFiles) {
         this._rawFiles = rawFiles.length > 0 ? rawFiles : null;
     },
 

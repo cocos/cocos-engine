@@ -62,17 +62,17 @@ var WrapMode = cc.Enum({
  * This class allows to easily create OpenGL or Canvas 2D textures from images, text or raw data.<br/>
  * The created cc.Texture2D object will always have power-of-two dimensions.<br/>
  * Depending on how you create the cc.Texture2D object, the actual image area of the texture might be smaller than the texture dimensions <br/>
- * i.e. "contentSize" != (pixelsWide, pixelsHigh) and (maxS, maxT) != (1.0, 1.0).<br/>
+ * i.e. "contentSize" != (pixelsWidth, pixelsHight) and (maxS, maxT) != (1.0, 1.0).<br/>
  * Be aware that the content of the generated textures will be upside-down!
  *
  * @class Texture2D
  * @uses EventTarget
- * @extends RawAsset
+ * @extends Asset
  */
 var Texture2D = cc.Class({
 
     name: 'cc.Texture2D',
-    extends: require('../assets/CCRawAsset'),
+    extends: require('../assets/CCAsset'),
     mixins: [EventTarget],
 
     statics: {
@@ -131,6 +131,16 @@ var Texture2D = cc.Class({
                 return this._contentSize.height;
             }
         }
+    },
+
+    /**
+     * Returns the texture's url.<br>
+     * The Texture object overrides the toString() method of the Object object; it does not inherit Object.prototype.toString(). For Texture objects, the toString() method returns a string representation of the object. JavaScript calls the toString() method automatically when a texture is to be represented as a text value or when a texture is referred to in a string concatenation.
+     * @method toString
+     * @return {String}
+     */
+    toString () {
+        return this.url || '';
     },
 
     /**
