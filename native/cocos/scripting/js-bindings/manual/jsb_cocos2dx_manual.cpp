@@ -1763,6 +1763,7 @@ public:
 
     virtual void editBoxEditingDidBegin(ui::EditBox* editBox) override
     {
+        se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
         se::Value editBoxVal;
         bool ok = native_ptr_to_seval<ui::EditBox>(editBox, __jsb_cocos2d_ui_EditBox_class, &editBoxVal);
@@ -1783,6 +1784,7 @@ public:
 
     virtual void editBoxEditingDidEnd(ui::EditBox* editBox) override
     {
+        se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
         se::Value editBoxVal;
         bool ok = native_ptr_to_seval<ui::EditBox>(editBox, __jsb_cocos2d_ui_EditBox_class, &editBoxVal);
@@ -1803,6 +1805,7 @@ public:
 
     virtual void editBoxTextChanged(ui::EditBox* editBox, const std::string& text) override
     {
+        se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
         se::Value editBoxVal;
         bool ok = native_ptr_to_seval<ui::EditBox>(editBox, __jsb_cocos2d_ui_EditBox_class, &editBoxVal);
@@ -1827,6 +1830,7 @@ public:
 
     virtual void editBoxEditingReturn(ui::EditBox* editBox) override
     {
+        se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
         se::Value editBoxVal;
         bool ok = native_ptr_to_seval<ui::EditBox>(editBox, __jsb_cocos2d_ui_EditBox_class, &editBoxVal);
