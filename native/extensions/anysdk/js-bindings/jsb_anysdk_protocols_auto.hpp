@@ -147,6 +147,17 @@ void js_anysdk_framework_ProtocolCustom_finalize(JSContext *cx, JSObject *obj);
 void js_register_anysdk_framework_ProtocolCustom(JSContext *cx, JS::HandleObject global);
 void register_all_anysdk_framework(JSContext* cx, JS::HandleObject obj);
 
+extern JSClass  *jsb_anysdk_framework_ProtocolAdTracking_class;
+extern JSObject *jsb_anysdk_framework_ProtocolAdTracking_prototype;
+
+bool js_anysdk_framework_ProtocolAdTracking_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
+void js_anysdk_framework_ProtocolAdTracking_finalize(JSContext *cx, JSObject *obj);
+void js_register_anysdk_framework_ProtocolAdTracking(JSContext *cx, JS::HandleObject global);
+void register_all_anysdk_framework(JSContext* cx, JS::HandleObject obj);
+bool js_anysdk_framework_ProtocolAdTracking_onPay(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_anysdk_framework_ProtocolAdTracking_onLogin(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_anysdk_framework_ProtocolAdTracking_onRegister(JSContext *cx, uint32_t argc, JS::Value *vp);
+
 extern JSClass  *jsb_anysdk_framework_AgentManager_class;
 extern JSObject *jsb_anysdk_framework_AgentManager_prototype;
 
@@ -158,6 +169,7 @@ bool js_anysdk_framework_AgentManager_unloadAllPlugins(JSContext *cx, uint32_t a
 bool js_anysdk_framework_AgentManager_getSocialPlugin(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_anysdk_framework_AgentManager_getPushPlugin(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_anysdk_framework_AgentManager_getUserPlugin(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_anysdk_framework_AgentManager_getAdTrackingPlugin(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_anysdk_framework_AgentManager_getCustomPlugin(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_anysdk_framework_AgentManager_getCustomParam(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_anysdk_framework_AgentManager_loadAllPlugins(JSContext *cx, uint32_t argc, JS::Value *vp);
