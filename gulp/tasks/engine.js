@@ -32,8 +32,9 @@ const Path = require('path');
 const Source = require('vinyl-source-stream');
 const Gulp = require('gulp');
 const Buffer = require('vinyl-buffer');
-const Minifier = require('gulp-uglify/minifier');
-const UglifyHarmony = require('uglify-js-harmony');
+const Composer = require('gulp-uglify/composer');
+const Uglify = require('uglify-es');
+const Minify = Composer(Uglify, console);
 const Sourcemaps = require('gulp-sourcemaps');
 const EventStream = require('event-stream');
 const Chalk = require('chalk');
@@ -55,7 +56,7 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, callback) {
     bundler = bundler.pipe(Source(outFile));
     bundler = bundler.pipe(Buffer());
     bundler = bundler.pipe(Sourcemaps.init({loadMaps: true}));
-    bundler = bundler.pipe(Minifier(uglifyOption, UglifyHarmony));
+    bundler = bundler.pipe(Minify(uglifyOption));
     bundler = bundler.pipe(Optimizejs({
         sourceMap: false
     }));
@@ -98,7 +99,7 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, callback, 
         console.error('Can not use sourcemap with optimize-js');
         bundler = bundler.pipe(Sourcemaps.init({loadMaps: true}));
     }
-    bundler = bundler.pipe(Minifier(uglifyOption, UglifyHarmony));
+    bundler = bundler.pipe(Minify(uglifyOption));
     bundler = bundler.pipe(Optimizejs({
         sourceMap: false
     }));
@@ -136,7 +137,7 @@ exports.buildPreview = function (sourceFile, outputFile, callback) {
         .pipe(Source(outFile))
         .pipe(Buffer())
         .pipe(Sourcemaps.init({loadMaps: true}))
-        .pipe(Minifier(Utils.getUglifyOptions('preview', false, false), UglifyHarmony))
+        .pipe(Minify(Utils.getUglifyOptions('preview', false, false)))
         .pipe(Optimizejs({
             sourceMap: false
         }))
@@ -162,7 +163,7 @@ exports.buildJsbPreview = function (sourceFile, outputFile, jsbSkipModules, call
         .pipe(HandleErrors())
         .pipe(Source(outFile))
         .pipe(Buffer())
-        .pipe(Minifier(Utils.getUglifyOptions('preview', true, false), UglifyHarmony))
+        .pipe(Minify(Utils.getUglifyOptions('preview', true, false)))
         .pipe(Optimizejs({
             sourceMap: false
         }))
@@ -186,7 +187,7 @@ exports.buildJsb = function (sourceFile, outputFile, jsbSkipModules, callback) {
         .pipe(Source(outFile))
         .pipe(Buffer())
         .pipe(FixJavaScriptCore())
-        .pipe(Minifier(Utils.getUglifyOptions('build', true, true), UglifyHarmony))
+        .pipe(Minify(Utils.getUglifyOptions('build', true, true)))
         .pipe(Optimizejs({
             sourceMap: false
         }))
@@ -210,7 +211,7 @@ exports.buildJsbMin = function (sourceFile, outputFile, jsbSkipModules, callback
         .pipe(Source(outFile))
         .pipe(Buffer())
         .pipe(FixJavaScriptCore())
-        .pipe(Minifier(Utils.getUglifyOptions('build', true, false), UglifyHarmony))
+        .pipe(Minify(Utils.getUglifyOptions('build', true, false)))
         .pipe(Optimizejs({
             sourceMap: false
         }))
