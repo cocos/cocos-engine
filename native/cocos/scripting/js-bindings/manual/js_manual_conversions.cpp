@@ -391,28 +391,13 @@ bool jsval_to_double( JSContext *cx, JS::HandleValue vp, double *ret )
     return ok;
 }
 
-// XXX: sizeof(long) == 8 in 64 bits on OS X... apparently on Windows it is 32 bits (???)
-bool jsval_to_long( JSContext *cx, JS::HandleValue vp, long *r )
+bool jsval_to_long( JSContext *cx, JS::HandleValue vp, long *out )
 {
-#ifdef __LP64__
-    // compatibility check
-    assert(sizeof(long)==8);
-    JS::RootedString jsstr(cx, vp.toString());
-    JSB_PRECONDITION2(jsstr, cx, false, "Error converting value to string");
-
-    char *str = JS_EncodeString(cx, jsstr);
-    JSB_PRECONDITION2(str, cx, false, "Error encoding string");
-
-    char *endptr;
-    long ret = strtol(str, &endptr, 10);
-#else
-    // compatibility check
-    assert(sizeof(int)==4);
-    long ret = vp.toInt32();
-#endif
-
-    *r = ret;
-    return true;
+    bool ok = vp.isNumber();
+    if (ok) {
+        *out = (long)vp.toNumber();
+    }
+    return ok;
 }
 
 
