@@ -53,7 +53,7 @@ JSStringWrapper::JSStringWrapper()
 {
 }
 
-JSStringWrapper::JSStringWrapper(JSString* str, JSContext* cx/* = NULL*/)
+JSStringWrapper::JSStringWrapper(JS::HandleString str, JSContext* cx/* = NULL*/)
 : _buffer(nullptr)
 {
     set(str, cx);
@@ -74,7 +74,8 @@ void JSStringWrapper::set(JS::HandleValue val, JSContext* cx)
 {
     if (val.isString())
     {
-        this->set(val.toString(), cx);
+        JS::RootedString str(cx, val.toString());
+        this->set(str, cx);
     }
     else
     {
@@ -82,7 +83,7 @@ void JSStringWrapper::set(JS::HandleValue val, JSContext* cx)
     }
 }
 
-void JSStringWrapper::set(JSString* str, JSContext* cx)
+void JSStringWrapper::set(JS::HandleString str, JSContext* cx)
 {
     CC_SAFE_DELETE_ARRAY(_buffer);
 
@@ -90,8 +91,7 @@ void JSStringWrapper::set(JSString* str, JSContext* cx)
     {
         cx = ScriptingCore::getInstance()->getGlobalContext();
     }
-    JS::RootedString jsstr(cx, str);
-    _buffer = JS_EncodeStringToUTF8(cx, jsstr);
+    _buffer = JS_EncodeStringToUTF8(cx, str);
 }
 
 const char* JSStringWrapper::get()
@@ -182,7 +182,7 @@ bool long_to_jsval( JSContext *cx, long number, JS::MutableHandleValue ret )
 
     char chr[128];
     snprintf(chr, sizeof(chr)-1, "%ld", number);
-    JSString *ret_obj = JS_NewStringCopyZ(cx, chr);
+    JS::RootedString ret_obj(cx, JS_NewStringCopyZ(cx, chr));
     ret.set(JS::StringValue(ret_obj));
 #else
     CCASSERT( sizeof(int)==4, "Error!");
@@ -198,7 +198,7 @@ bool ulong_to_jsval( JSContext *cx, unsigned long number, JS::MutableHandleValue
 
     char chr[128];
     snprintf(chr, sizeof(chr)-1, "%lu", number);
-    JSString *ret_obj = JS_NewStringCopyZ(cx, chr);
+    JS::RootedString ret_obj(cx, JS_NewStringCopyZ(cx, chr));
     ret.set(JS::StringValue(ret_obj));
 #else
     CCASSERT( sizeof(int)==4, "Error!");
@@ -212,7 +212,7 @@ bool long_long_to_jsval( JSContext *cx, long long number, JS::MutableHandleValue
 #if JSB_REPRESENT_LONGLONG_AS_STR
     char chr[128];
     snprintf(chr, sizeof(chr)-1, "%lld", number);
-    JSString *ret_obj = JS_NewStringCopyZ(cx, chr);
+    JS::RootedString ret_obj(cx, JS_NewStringCopyZ(cx, chr));
     ret.set(JS::StringValue(ret_obj));
 #else
     CCASSERT( sizeof(long long)==8, "Error!");
@@ -228,7 +228,7 @@ bool long_long_to_jsval( JSContext *cx, long long number, JS::MutableHandleValue
 
 bool jsval_to_charptr( JSContext *cx, JS::HandleValue vp, const char **ret )
 {
-    JSString *jsstr = vp.toString();
+    JS::RootedString jsstr(cx, vp.toString());
     JSB_PRECONDITION2( jsstr, cx, false, "invalid string" );
 
     JSStringWrapper strWrapper(jsstr);
@@ -391,28 +391,13 @@ bool jsval_to_double( JSContext *cx, JS::HandleValue vp, double *ret )
     return ok;
 }
 
-// XXX: sizeof(long) == 8 in 64 bits on OS X... apparently on Windows it is 32 bits (???)
-bool jsval_to_long( JSContext *cx, JS::HandleValue vp, long *r )
+bool jsval_to_long( JSContext *cx, JS::HandleValue vp, long *out )
 {
-#ifdef __LP64__
-    // compatibility check
-    assert( sizeof(long)==8);
-    JSString *jsstr = vp.toString();
-    JSB_PRECONDITION2(jsstr, cx, false, "Error converting value to string");
-
-    char *str = JS_EncodeString(cx, jsstr);
-    JSB_PRECONDITION2(str, cx, false, "Error encoding string");
-
-    char *endptr;
-    long ret = strtol(str, &endptr, 10);
-#else
-    // compatibility check
-    assert( sizeof(int)==4);
-    long ret = vp.toInt32();
-#endif
-
-    *r = ret;
-    return true;
+    bool ok = vp.isNumber();
+    if (ok) {
+        *out = (long)vp.toNumber();
+    }
+    return ok;
 }
 
 
@@ -433,7 +418,7 @@ bool jsval_to_ulong( JSContext *cx, JS::HandleValue vp, unsigned long *out)
 
 bool jsval_to_long_long(JSContext *cx, JS::HandleValue vp, long long* r)
 {
-    JSString *jsstr = vp.toString();
+    JS::RootedString jsstr(cx, vp.toString());
     JSB_PRECONDITION2(jsstr, cx, false, "Error converting value to string");
 
     char *str = JS_EncodeString(cx, jsstr);
@@ -453,7 +438,7 @@ bool jsval_to_long_long(JSContext *cx, JS::HandleValue vp, long long* r)
 bool jsval_to_std_string(JSContext *cx, JS::HandleValue v, std::string* ret) {
     if (v.isString())
     {
-        JSString *tmp = v.toString();
+        JS::RootedString tmp(cx, v.toString());
         JSB_PRECONDITION3(tmp, cx, false, "Error processing arguments");
 
         JSStringWrapper str(tmp);
@@ -645,7 +630,8 @@ bool jsvals_variadic_to_ccvaluevector( JSContext *cx, JS::Value *vp, int argc, c
         }
         else if (value.isString())
         {
-            JSStringWrapper valueWapper(value.toString(), cx);
+            JS::RootedString str(cx, value.toString());
+            JSStringWrapper valueWapper(str, cx);
             ret->push_back(Value(valueWapper.get()));
         }
         else if (value.isNumber())
@@ -860,7 +846,8 @@ bool jsval_to_ccvalue(JSContext* cx, JS::HandleValue v, cocos2d::Value* ret)
     }
     else if (v.isString())
     {
-        JSStringWrapper valueWapper(v.toString(), cx);
+        JS::RootedString str(cx, v.toString());
+        JSStringWrapper valueWapper(str, cx);
         *ret = Value(valueWapper.get());
     }
     else if (v.isNumber())
@@ -901,6 +888,7 @@ bool jsval_to_ccvaluemap(JSContext* cx, JS::HandleValue v, cocos2d::ValueMap* re
     ValueMap& dict = *ret;
     JS::RootedId idp(cx);
     JS::RootedValue key(cx);
+    JS::RootedString keystr(cx);
     JS::RootedValue value(cx);
     JS::RootedObject jsobj(cx);
     for (int i = 0; i < ids.length(); ++i)
@@ -917,7 +905,8 @@ bool jsval_to_ccvaluemap(JSContext* cx, JS::HandleValue v, cocos2d::ValueMap* re
             continue; // ignore integer properties
         }
 
-        JSStringWrapper keyWrapper(key.toString(), cx);
+        keystr = key.toString();
+        JSStringWrapper keyWrapper(keystr, cx);
         JS_GetPropertyById(cx, tmp, idp, &value);
         if (value.isObject())
         {
@@ -946,7 +935,8 @@ bool jsval_to_ccvaluemap(JSContext* cx, JS::HandleValue v, cocos2d::ValueMap* re
         }
         else if (value.isString())
         {
-            JSStringWrapper valueWapper(value.toString(), cx);
+            JS::RootedString valuestr(cx, value.toString());
+            JSStringWrapper valueWapper(valuestr, cx);
             dict.insert(ValueMap::value_type(keyWrapper.get(), Value(valueWapper.get())));
         }
         else if (value.isNumber())
@@ -1033,7 +1023,8 @@ bool jsval_to_ccvaluemapintkey(JSContext* cx, JS::HandleValue v, cocos2d::ValueM
         }
         else if (value.isString())
         {
-            JSStringWrapper valueWapper(value.toString(), cx);
+            JS::RootedString valuestr(cx, value.toString());
+            JSStringWrapper valueWapper(valuestr, cx);
             dict.insert(ValueMapIntKey::value_type(keyVal, Value(valueWapper.get())));
         }
         else if (value.isNumber())
@@ -1101,7 +1092,8 @@ bool jsval_to_ccvaluevector(JSContext* cx, JS::HandleValue v, cocos2d::ValueVect
             }
             else if (value.isString())
             {
-                JSStringWrapper valueWapper(value.toString(), cx);
+                JS::RootedString valuestr(cx, value.toString());
+                JSStringWrapper valueWapper(valuestr, cx);
                 ret->push_back(Value(valueWapper.get()));
             }
             else if (value.isNumber())
@@ -1155,7 +1147,8 @@ bool jsval_to_std_vector_string( JSContext *cx, JS::HandleValue vp, std::vector<
         {
             if (value.isString())
             {
-                JSStringWrapper valueWapper(value.toString(), cx);
+                JS::RootedString valuestr(cx, value.toString());
+                JSStringWrapper valueWapper(valuestr, cx);
                 ret->push_back(valueWapper.get());
             }
             else
@@ -1541,12 +1534,14 @@ bool jsval_to_std_map_string_string(JSContext* cx, JS::HandleValue v, std::map<s
             continue; // only take account of string key
         }
 
-        JSStringWrapper keyWrapper(key.toString(), cx);
+        JS::RootedString keystr(cx, key.toString());
+        JSStringWrapper keyWrapper(keystr, cx);
 
         JS_GetPropertyById(cx, tmp, idp, &value);
         if (value.isString())
         {
-            JSStringWrapper valueWapper(value.toString(), cx);
+            JS::RootedString valuestr(cx, value.toString());
+            JSStringWrapper valueWapper(valuestr, cx);
             dict[keyWrapper.get()] = valueWapper.get();
         }
         else
@@ -1624,7 +1619,7 @@ bool c_string_to_jsval(JSContext* cx, const char* v, JS::MutableHandleValue ret,
     const jschar* strUTF16 = (jschar*)cc_utf8_to_utf16(v, (int)length, &utf16_size);
 
     if (strUTF16 && utf16_size > 0) {
-        JSString* str = JS_NewUCStringCopyN(cx, strUTF16, (size_t)utf16_size);
+        JS::RootedString str(cx, JS_NewUCStringCopyN(cx, strUTF16, (size_t)utf16_size));
         if (str) {
             ret.set(JS::StringValue(str));
         }
@@ -1635,7 +1630,7 @@ bool c_string_to_jsval(JSContext* cx, const char* v, JS::MutableHandleValue ret,
     bool ok = StringUtils::UTF8ToUTF16(std::string(v, length), strUTF16);
 
     if (ok && !strUTF16.empty()) {
-        JSString* str = JS_NewUCStringCopyN(cx, reinterpret_cast<const char16_t*>(strUTF16.data()), strUTF16.size());
+        JS::RootedString str(cx, JS_NewUCStringCopyN(cx, reinterpret_cast<const char16_t*>(strUTF16.data()), strUTF16.size()));
         if (str) {
             ret.set(JS::StringValue(str));
         }
@@ -1837,7 +1832,8 @@ bool jsval_to_FontDefinition( JSContext *cx, JS::HandleValue vp, FontDefinition 
     // font name
     JS::RootedValue jsr(cx);
     JS_GetProperty(cx, jsobj, "fontName", &jsr);
-    JSStringWrapper wrapper(jsr.toString());
+    JS::RootedString jsstr(cx, jsr.toString());
+    JSStringWrapper wrapper(jsstr);
     const char* fontName = wrapper.get();
 
     if (fontName && strlen(fontName) > 0)

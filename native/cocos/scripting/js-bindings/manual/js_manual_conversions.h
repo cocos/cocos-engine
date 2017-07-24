@@ -55,12 +55,12 @@ class JSStringWrapper
 {
 public:
     JSStringWrapper();
-    JSStringWrapper(JSString* str, JSContext* cx = NULL);
-    JSStringWrapper(JS::HandleValue val, JSContext* cx = NULL);
+    JSStringWrapper(JS::HandleString str, JSContext* cx = nullptr);
+    JSStringWrapper(JS::HandleValue val, JSContext* cx = nullptr);
     ~JSStringWrapper();
 
     void set(JS::HandleValue val, JSContext* cx);
-    void set(JSString* str, JSContext* cx);
+    void set(JS::HandleString str, JSContext* cx);
     const char* get();
 
 private:
@@ -216,6 +216,7 @@ bool jsval_to_ccmap_string_key(JSContext *cx, JS::HandleValue v, cocos2d::Map<st
     
     JS::RootedId idp(cx);
     JS::RootedValue key(cx);
+    JS::RootedString keystr(cx);
     JS::RootedValue value(cx);
     JS::RootedObject jsobj(cx);
     for (int i = 0; i < ids.length(); ++i)
@@ -229,7 +230,8 @@ bool jsval_to_ccmap_string_key(JSContext *cx, JS::HandleValue v, cocos2d::Map<st
         {
             continue; // ignore integer properties
         }
-        JSStringWrapper keyWrapper(key.toString(), cx);
+        keystr.set(key.toString());
+        JSStringWrapper keyWrapper(keystr, cx);
 
         JS_GetPropertyById(cx, tmp, idp, &value);
         if (value.isObject())

@@ -15,6 +15,7 @@ using namespace anysdk;
 #include "ProtocolCustom.h"
 #include "AgentManager.h"
 #include "JSBRelation.h"
+#include "ProtocolAdTracking.h"
 
 JSClass  *jsb_anysdk_framework_PluginProtocol_class;
 JSObject *jsb_anysdk_framework_PluginProtocol_prototype;
@@ -1544,6 +1545,114 @@ void js_register_anysdk_framework_ProtocolCustom(JSContext *cx, JS::HandleObject
     jsb_register_class<anysdk::framework::ProtocolCustom>(cx, jsb_anysdk_framework_ProtocolCustom_class, proto);
 }
 
+JSClass  *jsb_anysdk_framework_ProtocolAdTracking_class;
+JSObject *jsb_anysdk_framework_ProtocolAdTracking_prototype;
+
+bool js_anysdk_framework_ProtocolAdTracking_onPay(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true; CC_UNUSED_PARAM(ok);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
+    anysdk::framework::ProtocolAdTracking* cobj = (anysdk::framework::ProtocolAdTracking *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_anysdk_framework_ProtocolAdTracking_onPay : Invalid Native Object");
+    if (argc == 1) {
+        std::map<std::string, std::string> arg0;
+        ok &= jsval_to_std_map_string_string(cx, args.get(0), &arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_anysdk_framework_ProtocolAdTracking_onPay : Error processing arguments");
+        cobj->onPay(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportErrorUTF8(cx, "js_anysdk_framework_ProtocolAdTracking_onPay : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_anysdk_framework_ProtocolAdTracking_onLogin(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true; CC_UNUSED_PARAM(ok);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
+    anysdk::framework::ProtocolAdTracking* cobj = (anysdk::framework::ProtocolAdTracking *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_anysdk_framework_ProtocolAdTracking_onLogin : Invalid Native Object");
+    if (argc == 1) {
+        std::map<std::string, std::string> arg0;
+        ok &= jsval_to_std_map_string_string(cx, args.get(0), &arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_anysdk_framework_ProtocolAdTracking_onLogin : Error processing arguments");
+        cobj->onLogin(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportErrorUTF8(cx, "js_anysdk_framework_ProtocolAdTracking_onLogin : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_anysdk_framework_ProtocolAdTracking_onRegister(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true; CC_UNUSED_PARAM(ok);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
+    anysdk::framework::ProtocolAdTracking* cobj = (anysdk::framework::ProtocolAdTracking *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_anysdk_framework_ProtocolAdTracking_onRegister : Invalid Native Object");
+    if (argc == 1) {
+        const char* arg0 = nullptr;
+        std::string arg0_tmp; ok &= jsval_to_std_string(cx, args.get(0), &arg0_tmp); arg0 = arg0_tmp.c_str();
+        JSB_PRECONDITION2(ok, cx, false, "js_anysdk_framework_ProtocolAdTracking_onRegister : Error processing arguments");
+        cobj->onRegister(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportErrorUTF8(cx, "js_anysdk_framework_ProtocolAdTracking_onRegister : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+
+extern JSObject *jsb_anysdk_framework_PluginProtocol_prototype;
+
+void js_register_anysdk_framework_ProtocolAdTracking(JSContext *cx, JS::HandleObject global) {
+    static const JSClassOps anysdk_framework_ProtocolAdTracking_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    static JSClass anysdk_framework_ProtocolAdTracking_class = {
+        "ProtocolAdTracking",
+        JSCLASS_HAS_PRIVATE,
+        &anysdk_framework_ProtocolAdTracking_classOps
+    };
+    jsb_anysdk_framework_ProtocolAdTracking_class = &anysdk_framework_ProtocolAdTracking_class;
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("onPay", js_anysdk_framework_ProtocolAdTracking_onPay, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("onLogin", js_anysdk_framework_ProtocolAdTracking_onLogin, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("onRegister", js_anysdk_framework_ProtocolAdTracking_onRegister, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_anysdk_framework_PluginProtocol_prototype);
+    jsb_anysdk_framework_ProtocolAdTracking_prototype = JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_anysdk_framework_ProtocolAdTracking_class,
+        dummy_constructor<anysdk::framework::ProtocolAdTracking>, 0,
+        nullptr,
+        funcs,
+        nullptr,
+        nullptr);
+
+    JS::RootedObject proto(cx, jsb_anysdk_framework_ProtocolAdTracking_prototype);
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ProtocolAdTracking", &className);
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<anysdk::framework::ProtocolAdTracking>(cx, jsb_anysdk_framework_ProtocolAdTracking_class, proto);
+}
+
 JSClass  *jsb_anysdk_framework_AgentManager_class;
 JSObject *jsb_anysdk_framework_AgentManager_prototype;
 
@@ -1639,6 +1748,32 @@ bool js_anysdk_framework_AgentManager_getUserPlugin(JSContext *cx, uint32_t argc
     }
 
     JS_ReportErrorUTF8(cx, "js_anysdk_framework_AgentManager_getUserPlugin : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_anysdk_framework_AgentManager_getAdTrackingPlugin(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true; CC_UNUSED_PARAM(ok);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
+    anysdk::framework::AgentManager* cobj = (anysdk::framework::AgentManager *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_anysdk_framework_AgentManager_getAdTrackingPlugin : Invalid Native Object");
+    if (argc == 0) {
+        anysdk::framework::ProtocolAdTracking* ret = cobj->getAdTrackingPlugin();
+        JS::RootedValue jsret(cx);
+        if (ret) {
+            JS::RootedObject jsretObj(cx);
+            js_get_or_create_jsobject<anysdk::framework::ProtocolAdTracking>(cx, (anysdk::framework::ProtocolAdTracking*)ret, &jsretObj);
+            jsret = JS::ObjectOrNullValue(jsretObj);
+        } else {
+            jsret = JS::NullHandleValue;
+        };
+        JSB_PRECONDITION2(ok, cx, false, "js_anysdk_framework_AgentManager_getAdTrackingPlugin : error parsing return value");
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportErrorUTF8(cx, "js_anysdk_framework_AgentManager_getAdTrackingPlugin : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_anysdk_framework_AgentManager_getCustomPlugin(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -1974,6 +2109,7 @@ void js_register_anysdk_framework_AgentManager(JSContext *cx, JS::HandleObject g
         JS_FN("getSocialPlugin", js_anysdk_framework_AgentManager_getSocialPlugin, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getPushPlugin", js_anysdk_framework_AgentManager_getPushPlugin, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getUserPlugin", js_anysdk_framework_AgentManager_getUserPlugin, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getAdTrackingPlugin", js_anysdk_framework_AgentManager_getAdTrackingPlugin, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getCustomPlugin", js_anysdk_framework_AgentManager_getCustomPlugin, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getCustomParam", js_anysdk_framework_AgentManager_getCustomParam, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("loadAllPlugins", js_anysdk_framework_AgentManager_loadAllPlugins, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -2100,6 +2236,7 @@ void register_all_anysdk_framework(JSContext* cx, JS::HandleObject obj) {
     js_register_anysdk_framework_ProtocolIAP(cx, ns);
     js_register_anysdk_framework_AgentManager(cx, ns);
     js_register_anysdk_framework_ProtocolSocial(cx, ns);
+    js_register_anysdk_framework_ProtocolAdTracking(cx, ns);
     js_register_anysdk_framework_ProtocolAnalytics(cx, ns);
     js_register_anysdk_framework_ProtocolAds(cx, ns);
     js_register_anysdk_framework_ProtocolCrash(cx, ns);

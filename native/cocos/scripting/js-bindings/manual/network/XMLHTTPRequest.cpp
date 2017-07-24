@@ -525,7 +525,7 @@ JS_BINDED_PROP_SET_IMPL(MinXmlHttpRequest, timeout)
  */
 JS_BINDED_PROP_GET_IMPL(MinXmlHttpRequest, responseType)
 {
-    JSString* str = JS_NewStringCopyN(cx, "", 0);
+    JS::RootedString str(cx, JS_NewStringCopyN(cx, "", 0));
     switch(_responseType)
     {
     case ResponseType::STRING:
@@ -564,7 +564,7 @@ JS_BINDED_PROP_SET_IMPL(MinXmlHttpRequest, responseType)
 {
     JS::RootedValue type(cx, args.get(0));
     if (type.isString()) {
-        JSString* str = type.toString();
+        JS::RootedString str(cx, type.toString());
         bool equal;
 
         JS_StringEqualsAscii(cx, str, "text", &equal);
@@ -754,8 +754,8 @@ JS_BINDED_FUNC_IMPL(MinXmlHttpRequest, open)
         const char* method;
         const char* urlstr;
         bool async = true;
-        JSString* jsMethod = args.get(0).toString();
-        JSString* jsURL = args.get(1).toString();
+        JS::RootedString jsMethod(cx, args.get(0).toString());
+        JS::RootedString jsURL(cx, args.get(1).toString());
 
         if (argc > 2 && args.get(2).isBoolean()) {
             async = args.get(2).toBoolean();
@@ -821,7 +821,8 @@ JS_BINDED_FUNC_IMPL(MinXmlHttpRequest, send)
         JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
         if (args.get(0).isString())
         {
-            JSStringWrapper strWrap(args.get(0).toString());
+            JS::RootedString str(cx, args.get(0).toString());
+            JSStringWrapper strWrap(str);
             data = strWrap.get();
             _setHttpRequestData(data.c_str(), static_cast<size_t>(data.length()));
         }
@@ -947,7 +948,7 @@ JS_BINDED_FUNC_IMPL(MinXmlHttpRequest, getAllResponseHeaders)
  */
 JS_BINDED_FUNC_IMPL(MinXmlHttpRequest, getResponseHeader)
 {
-    JSString *header_value;
+    JS::RootedString header_value(cx);
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if (!args.get(0).isString()) {
@@ -993,8 +994,8 @@ JS_BINDED_FUNC_IMPL(MinXmlHttpRequest, setRequestHeader)
         const char* field;
         const char* value;
 
-        JSString* jsField = args.get(0).toString();
-        JSString* jsValue = args.get(1).toString();
+        JS::RootedString jsField(cx, args.get(0).toString());
+        JS::RootedString jsValue(cx, args.get(1).toString());
 
         JSStringWrapper w1(jsField);
         JSStringWrapper w2(jsValue);
