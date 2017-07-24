@@ -43,8 +43,8 @@ function ConvexPartition(vertices) {
     var list = [];
     var d, lowerDist, upperDist;
     var p;
-    var lowervar = cc.v2();
-    var uppervar = cc.v2(); // intersection points
+    var lowerInt = cc.v2();
+    var upperInt = cc.v2(); // intersection points
     var lowerIndex = 0, upperIndex = 0;
     var lowerPoly, upperPoly;
     
@@ -64,7 +64,7 @@ function ConvexPartition(vertices) {
                         if (d < lowerDist) {
                             // keep only the closest intersection
                             lowerDist = d;
-                            lowervar = p;
+                            lowerInt = p;
                             lowerIndex = j;
                         }
                     }
@@ -79,7 +79,7 @@ function ConvexPartition(vertices) {
                         if (d < upperDist) {
                             upperDist = d;
                             upperIndex = j;
-                            uppervar = p;
+                            upperInt = p;
                         }
                     }
                 }
@@ -87,12 +87,12 @@ function ConvexPartition(vertices) {
             
             // if there are no vertices to connect to, choose a povar in the middle
             if (lowerIndex == (upperIndex + 1) % vertices.length) {
-                var sp = lowervar.add(upperInt).div(2);
+                var sp = lowerInt.add(upperInt).div(2);
                 
                 lowerPoly = Copy(i, upperIndex, vertices);
-                lowerPoly.Add(sp);
+                lowerPoly.push(sp);
                 upperPoly = Copy(lowerIndex, i, vertices);
-                upperPoly.Add(sp);
+                upperPoly.push(sp);
             }
             else {
                 var highestScore = 0, bestIndex = lowerIndex;

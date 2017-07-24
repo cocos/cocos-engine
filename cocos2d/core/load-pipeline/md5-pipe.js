@@ -39,26 +39,31 @@ var MD5Pipe = function (md5AssetsMap, libraryBase, rawAssetsBase) {
 MD5Pipe.ID = ID;
 
 MD5Pipe.prototype.handle = function(item) {
-    var key = item.url;
+    item.url = this.transformURL(item.url);
+    return item;
+};
+
+MD5Pipe.prototype.transformURL = function (url) {
+    var key = url;
     if (key.startsWith(this.libraryBase)) {
         key = key.slice(this.libraryBase.length);
     } else if(key.startsWith(this.rawAssetsBase)) {
         key = key.slice(this.rawAssetsBase.length);
     } else {
-        return item;
+        return url;
     }
     let hashValue = this.md5AssetsMap[key];
     if (hashValue) {
         var matched = false;
-        item.url  = item.url.replace(ExtnameRegex, function(match, p1) {
+        url  = url.replace(ExtnameRegex, function(match, p1) {
             matched = true;
             return '.' + hashValue + p1;
         });
         if (!matched) {
-            item.url = item.url + '.' + hashValue;
+            url = url + '.' + hashValue;
         }
     }
-    return item;
+    return url;
 };
 
 

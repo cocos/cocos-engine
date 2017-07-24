@@ -52,5 +52,6 @@ module.exports = [
     require('./CCLabelOutline'),
     require('./CCRichText'),
     require('./CCToggleGroup'),
-    require('./CCToggle')
+    require('./CCToggle'),
+    require('./CCBlockInputEvents'),
 ];
