@@ -79,7 +79,8 @@ bool JavaScriptObjCBridge::CallInfo::execute(JSContext *cx,JS::Value *argv,unsig
             m_error = JSO_ERR_TYPE_NOT_SUPPORT;
             return false;
         }else if(arg.isString()){
-            JSStringWrapper valueWapper(arg.toString(), cx);
+            JS::RootedString valuestr(cx, arg.toString());
+            JSStringWrapper valueWapper(valuestr, cx);
             [m_dic setObject:[NSString stringWithCString:valueWapper.get() encoding:NSUTF8StringEncoding] forKey:key];
         }else if(arg.isNumber()){
             double a = arg.toNumber();

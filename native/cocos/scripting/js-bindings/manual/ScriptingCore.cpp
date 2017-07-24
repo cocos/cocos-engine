@@ -292,7 +292,7 @@ bool JSB_cleanScript(JSContext *cx, uint32_t argc, JS::Value *vp)
     }
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JSString *jsPath = args.get(0).toString();
+    JS::RootedString jsPath(cx, args.get(0).toString());
     JSB_PRECONDITION2(jsPath, cx, false, "Error js file in clean script");
     JSStringWrapper wrapper(jsPath);
     ScriptingCore::getInstance()->cleanScript(wrapper.get());
@@ -903,7 +903,7 @@ bool ScriptingCore::log(JSContext* cx, uint32_t argc, JS::Value *vp)
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 #if COCOS2D_DEBUG
     if (argc > 0) {
-        JSString *string = args.get(0).toString();
+        JS::RootedString string(cx, args.get(0).toString());
         if (string) {
             JSStringWrapper wrapper(string);
             js_log("%s", wrapper.get());
@@ -1100,12 +1100,12 @@ bool ScriptingCore::executeScript(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if (argc >= 1) {
         JS::RootedValue jsstr(cx, args.get(0));
-        JSString* str = jsstr.toString();
+        JS::RootedString str(cx, jsstr.toString());
         JSStringWrapper path(str);
         bool res = false;
         JS::RootedValue jsret(cx);
         if (argc == 2 && args.get(1).isString()) {
-            JSString* globalName = args.get(1).toString();
+            JS::RootedString globalName(cx, args.get(1).toString());
             JSStringWrapper name(globalName);
 
             JS::RootedObject debugObj(cx, engine->getDebugGlobal());
