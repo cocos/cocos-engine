@@ -92,11 +92,13 @@ static std::unordered_map<std::string, JS::PersistentRootedScript*> filename_scr
 // port ~> socket map
 static std::unordered_map<int,int> ports_sockets;
 
-static void ReportException(JSContext *cx)
+static void cc_closesocket(int fd)
 {
-    if (JS_IsExceptionPending(cx)) {
-        handlePendingException(cx);
-    }
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32 || CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
+    closesocket(fd);
+#else
+    close(fd);
+#endif
 }
 
 static std::string getTouchesFuncName(EventTouch::EventCode eventCode)
@@ -190,6 +192,13 @@ void ScriptingCore::executeJSFunctionWithThisObj(JS::HandleValue thisObj,
         if (JS_IsExceptionPending(_cx)) {
             handlePendingException(_cx);
         }
+    }
+}
+
+static void ReportException(JSContext *cx)
+{
+    if (JS_IsExceptionPending(cx)) {
+        handlePendingException(cx);
     }
 }
 
@@ -391,12 +400,59 @@ static const JSClass global_class = {
     &global_classOps
 };
 
+// Callbacks
+
 static bool
 GetBuildId(JS::BuildIdCharVector* buildId)
 {
     const char buildid[] = "cocos_xdr";
     bool ok = buildId->append(buildid, strlen(buildid));
     return ok;
+}
+
+void jsbWeakPointerCompartmentCallback(JSContext* cx, JSCompartment* comp, void* data)
+{
+    auto it_js = _native_js_global_map.begin();
+    while (it_js != _native_js_global_map.end())
+    {
+        js_proxy_t *proxy = it_js->second;
+        if (proxy->obj)
+        {
+            JS_UpdateWeakPointerAfterGC(&proxy->obj);
+        }
+        it_js++;
+    }
+}
+
+static void
+on_garbage_collect(JSContext* cx, JSGCStatus status, void* data)
+{
+    /* We finalize any pending toggle refs before doing any garbage collection,
+     * so that we can collect the JS wrapper objects, and in order to minimize
+     * the chances of objects having a pending toggle up queued when they are
+     * garbage collected. */
+    if (status == JSGC_BEGIN)
+    {
+        printf("on_garbage_collect: begin, Native -> JS map count: %d\n", (int)_native_js_global_map.size());
+    }
+    else if (status == JSGC_END)
+    {
+        printf("on_garbage_collect: end, Native -> JS map count: %d\n", (int)_native_js_global_map.size());
+    }
+}
+
+// Promise support
+
+static JSObject*
+GetIncumbentGlobalCallback(JSContext* cx) {
+    return JS::CurrentGlobalOrNull(cx);
+}
+
+static bool
+EnqueuePromiseJobCallback(JSContext* cx, JS::HandleObject job,
+                                      JS::HandleObject allocationSite,
+                                      JS::HandleObject incumbentGlobal, void* data) {
+    return true;
 }
 
 ScriptingCore* ScriptingCore::getInstance()
@@ -416,7 +472,10 @@ ScriptingCore::ScriptingCore()
 , _finalizing(nullptr)
 {
     bool ok = JS_Init();
-    CCASSERT(ok, "ScriptingCore: failed to initialize JS engine.");
+    if (!ok) {
+        CCLOG("System errno : %d", errno);
+        CCASSERT(ok, "ScriptingCore: failed to initialize JS engine.");
+    }
 }
 
 void ScriptingCore::string_report(JS::HandleValue val)
@@ -504,36 +563,6 @@ void ScriptingCore::removeAllProxys(JSContext *cx)
     _native_js_global_map.clear();
 }
 
-void jsbWeakPointerCompartmentCallback(JSContext* cx, JSCompartment* comp, void* data)
-{
-    auto it_js = _native_js_global_map.begin();
-    while (it_js != _native_js_global_map.end())
-    {
-        js_proxy_t *proxy = it_js->second;
-        if (proxy->obj)
-        {
-            JS_UpdateWeakPointerAfterGC(&proxy->obj);
-        }
-        it_js++;
-    }
-}
-static void
-on_garbage_collect(JSContext* cx, JSGCStatus status, void* data)
-{
-    /* We finalize any pending toggle refs before doing any garbage collection,
-     * so that we can collect the JS wrapper objects, and in order to minimize
-     * the chances of objects having a pending toggle up queued when they are
-     * garbage collected. */
-    if (status == JSGC_BEGIN)
-    {
-        printf("on_garbage_collect: begin, Native -> JS map count: %d\n", (int)_native_js_global_map.size());
-    }
-    else if (status == JSGC_END)
-    {
-        printf("on_garbage_collect: end, Native -> JS map count: %d\n", (int)_native_js_global_map.size());
-    }
-}
-
 void ScriptingCore::createGlobalContext() {
     if (_cx) {
         ScriptingCore::removeAllProxys(_cx);
@@ -555,6 +584,8 @@ void ScriptingCore::createGlobalContext() {
     JS_SetDefaultLocale(_cx, "UTF-8");
     JS::SetWarningReporter(_cx, ScriptingCore::reportError);
     
+    JS::SetEnqueuePromiseJobCallback(_cx, EnqueuePromiseJobCallback);
+    JS::SetGetIncumbentGlobalCallback(_cx, GetIncumbentGlobalCallback);
 //    JS_SetGCCallback(_cx, on_garbage_collect, nullptr);
     
     if (!JS::InitSelfHostedCode(_cx))
