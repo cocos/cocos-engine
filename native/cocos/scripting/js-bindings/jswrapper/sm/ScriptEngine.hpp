@@ -19,8 +19,8 @@ namespace se {
     class AutoHandleScope
     {
     public:
-        AutoHandleScope() {}
-        ~AutoHandleScope() {}
+        AutoHandleScope();
+        ~AutoHandleScope();
     };
     
     class ScriptEngine

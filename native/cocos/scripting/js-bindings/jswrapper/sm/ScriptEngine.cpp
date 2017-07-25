@@ -105,6 +105,82 @@ namespace se {
             }
         }
 
+        // For promise
+        using JobQueue = JS::GCVector<JSObject*, 0, js::SystemAllocPolicy>;
+
+        // Per-context shell state.
+        struct PromiseState
+        {
+            explicit PromiseState(JSContext* cx);
+
+            JS::PersistentRooted<JobQueue> jobQueue;
+            bool drainingJobQueue;
+            bool quitting;
+        };
+
+        PromiseState::PromiseState(JSContext* cx)
+        : drainingJobQueue(false)
+        , quitting(false)
+        {}
+
+        PromiseState* getPromiseState(JSContext* cx)
+        {
+            PromiseState* sc = static_cast<PromiseState*>(JS_GetContextPrivate(cx));
+            assert(sc);
+            return sc;
+        }
+
+        JSObject* onGetIncumbentGlobalCallback(JSContext* cx)
+        {
+            return JS::CurrentGlobalOrNull(cx);
+        }
+
+        bool onEnqueuePromiseJobCallback(JSContext* cx, JS::HandleObject job, JS::HandleObject allocationSite,
+                                       JS::HandleObject incumbentGlobal, void* data)
+        {
+            PromiseState* sc = getPromiseState(cx);
+            assert(job);
+            return sc->jobQueue.append(job);
+        }
+
+        bool drainJobQueue()
+        {
+            JSContext* cx = ScriptEngine::getInstance()->_getContext();
+            PromiseState* sc = getPromiseState(cx);
+            if (sc->quitting || sc->drainingJobQueue)
+                return true;
+
+            sc->drainingJobQueue = true;
+
+            JS::RootedObject job(cx);
+            JS::HandleValueArray args(JS::HandleValueArray::empty());
+            JS::RootedValue rval(cx);
+            // Execute jobs in a loop until we've reached the end of the queue.
+            // Since executing a job can trigger enqueuing of additional jobs,
+            // it's crucial to re-check the queue length during each iteration.
+            for (size_t i = 0; i < sc->jobQueue.length(); i++)
+            {
+                job = sc->jobQueue[i];
+                JSAutoCompartment ac(cx, job);
+                JS::Call(cx, JS::UndefinedHandleValue, job, args, &rval);
+                ScriptEngine::getInstance()->clearException();
+                sc->jobQueue[i].set(nullptr);
+            }
+            sc->jobQueue.clear();
+            sc->drainingJobQueue = false;
+
+            return true;
+        }
+    }
+
+    AutoHandleScope::AutoHandleScope()
+    {
+
+    }
+
+    AutoHandleScope::~AutoHandleScope()
+    {
+        drainJobQueue();
     }
 
     ScriptEngine *ScriptEngine::getInstance()
@@ -200,6 +276,11 @@ namespace se {
         if (!JS::InitSelfHostedCode(_cx))
             return false;
 
+        PromiseState* sc = new (std::nothrow) PromiseState(_cx);
+        if (!sc)
+            return false;
+
+        JS_SetContextPrivate(_cx, sc);
 
         // Waiting is allowed on the shell's main thread, for now.
         JS_SetFutexCanWait(_cx);
@@ -228,7 +309,8 @@ namespace se {
                     .setExtraWarnings(true)
                     .setIon(true)
                     .setBaseline(true)
-                    .setAsmJS(true);
+                    .setAsmJS(true)
+                    .setNativeRegExp(true);
 #endif
 
         JSObject* globalObj = JS_NewGlobalObject(_cx, &globalClass, nullptr, JS::DontFireOnNewGlobalHook, options);
@@ -249,6 +331,10 @@ namespace se {
         JS_AddWeakPointerCompartmentCallback(_cx, ScriptEngine::myWeakPointerCompartmentCallback, nullptr);
 
         JS_FireOnNewGlobalObject(_cx, rootedGlobalObj);
+
+        sc->jobQueue.init(_cx, JobQueue(js::SystemAllocPolicy()));
+        JS::SetEnqueuePromiseJobCallback(_cx, onEnqueuePromiseJobCallback);
+        JS::SetGetIncumbentGlobalCallback(_cx, onGetIncumbentGlobalCallback);
 
         __jsb_CCPrivateData_class = Class::create("__CCPrivateData", _globalObj, nullptr, privateDataContructor);
         __jsb_CCPrivateData_class->defineFinalizedFunction(privateDataFinalize);
@@ -277,6 +363,9 @@ namespace se {
         }
         _beforeCleanupHookArray.clear();
 
+        auto sc = getPromiseState(_cx);
+        sc->quitting = true;
+
         SAFE_RELEASE(_globalObj);
         Class::cleanup();
         Object::cleanup();
@@ -285,9 +374,15 @@ namespace se {
 //        JS_RemoveWeakPointerCompartmentCallback(_cx, ScriptEngine::myWeakPointerCompartmentCallback);
         JS_LeaveCompartment(_cx, _oldCompartment);
 
+        JS::SetGetIncumbentGlobalCallback(_cx, nullptr);
+        JS::SetEnqueuePromiseJobCallback(_cx, nullptr);
+
+        sc->jobQueue.reset();
+
         JS_EndRequest(_cx);
         JS_DestroyContext(_cx);
 
+        delete sc;
         _cx = nullptr;
         _globalObj = nullptr;
         _oldCompartment = nullptr;
