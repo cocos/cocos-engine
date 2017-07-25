@@ -233,12 +233,12 @@ jsbLabel.prototype.getOutlineColor = function() {
 };
 
 
-cc.Label = function (string, fontHandle, spriteFrame) {
+cc.Label = function (string, fontHandle, spriteFrame, fontSize) {
     fontHandle = fontHandle || "Arial";
     var extName = cc.path.extname(fontHandle);
 
     var type = _ccsg.Label.Type.TTF;
-    this._fontSize = 40;
+    this._fontSize = fontSize;
 
     var label;
     if (extName === ".ttf") {
@@ -279,12 +279,12 @@ cc.Label.Overflow = cc.Enum({
 
 cc.Label.pool = new cc.js.Pool(0);
 //Note: The pool.get method only used for creating TTF and SystemFont
-cc.Label.pool.get = function (string, fontAsset) {
+cc.Label.pool.get = function (string, fontAsset, spriteFrame, fontSize) {
     this._fontAsset = fontAsset;
     var isAsset = fontAsset instanceof cc.Font;
     if (!isAsset) {
-        return new _ccsg.Label(string);
+        return new _ccsg.Label(string, null, null, fontSize);
     }
     var fontHandle =  isAsset ? fontAsset.rawUrl : '';
-    return new _ccsg.Label(string, fontHandle);
+    return new _ccsg.Label(string, fontHandle, spriteFrame, fontSize);
 };
