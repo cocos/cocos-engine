@@ -784,7 +784,7 @@ sp.Skeleton = cc.Class({
      */
     addAnimation: function (trackIndex, name, loop, delay) {
         if (this._sgNode) {
-            return this._sgNode.addAnimation(trackIndex, name, loop, delay);
+            return this._sgNode.addAnimation(trackIndex, name, loop, delay || 0);
         }
         return null;
     },
