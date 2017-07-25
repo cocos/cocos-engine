@@ -146,7 +146,12 @@ gulp.task('build-test-cases', ['clean-test-cases'], function (done) {
 gulp.task('build-test', ['clean-test', 'build-test-cases'], function (done) {
     Test.build('./index.js', './bin/cocos2d-js-for-test.js',
                '../editor/test-utils/engine-extends-entry.js', './bin/cocos2d-js-extends-for-test.js',
-               done);
+               false, done);
+});
+gulp.task('build-test-sm', ['clean-test', 'build-test-cases'], function (done) {
+    Test.build('./index.js', './bin/cocos2d-js-for-test.js',
+               '../editor/test-utils/engine-extends-entry.js', './bin/cocos2d-js-extends-for-test.js',
+               true, done);
 });
 
 gulp.task('unit-runner', ['build-test'], function (done) {

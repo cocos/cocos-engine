@@ -23,13 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const GEN_SOURCE_MAPS = false;
+const UGLIFY = false;
 
 'use strict';
 
 const Path = require('path');
 const Fs = require('fs');
-const Del = require('del');
 const Source = require('vinyl-source-stream');
 const Gulp = require('gulp');
 const Fb = require('gulp-fb');
@@ -46,10 +45,10 @@ const Minify = Composer(Uglify, console);
 const Utils = require('../util/utils');
 const createBundler = require('../util/create-bundler');
 
-exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFileForExtends, callback) {
+exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFileForExtends, sourcemaps, callback) {
     var cacheDir = Path.resolve(Path.dirname(outputFile), '.cache/test-compile-cache');
     var engine = createBundler(sourceFile, {
-        sourcemaps: GEN_SOURCE_MAPS,
+        sourcemaps: sourcemaps,
         cacheDir: cacheDir
     })
         .bundle()
@@ -58,19 +57,21 @@ exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFi
         .pipe(Source(Path.basename(outputFile)))
         .pipe(Buffer());
 
-    if (GEN_SOURCE_MAPS) {
-        engine = engine.pipe(Sourcemaps.init({loadMaps: true}));
-    }
+    if (UGLIFY) {
+        if (sourcemaps) {
+            engine = engine.pipe(Sourcemaps.init({loadMaps: true}));
+        }
 
-    // remove `..args` used in CC_JSB
-    engine = engine.pipe(Minify(Utils.getUglifyOptions('test', false, false)));
+        // remove `...args` used in CC_JSB
+        engine = engine.pipe(Minify(Utils.getUglifyOptions('test', false, false)));
 
-    if (GEN_SOURCE_MAPS) {
-        engine = engine.pipe(Sourcemaps.write('./', {
-            sourceRoot: '../',
-            includeContent: false,
-            addComment: true
-        }));
+        if (sourcemaps) {
+            engine = engine.pipe(Sourcemaps.write('./', {
+                sourceRoot: '../',
+                includeContent: false,
+                addComment: true
+            }));
+        }
     }
 
     engine = engine.pipe(Gulp.dest(Path.dirname(outputFile)));
@@ -78,7 +79,7 @@ exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFi
     if (Fs.existsSync(sourceFileForExtends)) {
         var engineExtends = createBundler(sourceFileForExtends,
             {
-                sourcemaps: GEN_SOURCE_MAPS,
+                sourcemaps: sourcemaps,
                 babelifyOpt: {
                     presets: ['env'],
                     ast: false,
