@@ -252,7 +252,7 @@ var RichText = cc.Class({
     },
 
     _createFontLabel: function (string) {
-        return  _ccsg.Label.pool.get(string, this.font);
+        return  _ccsg.Label.pool.get(string, this.font, null, this.fontSize);
     },
 
     _getFontRawUrl: function() {
