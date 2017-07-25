@@ -443,17 +443,87 @@ on_garbage_collect(JSContext* cx, JSGCStatus status, void* data)
 
 // Promise support
 
-static JSObject*
-GetIncumbentGlobalCallback(JSContext* cx) {
+using JobQueue = JS::GCVector<JSObject*, 0, js::SystemAllocPolicy>;
+
+// Per-context shell state.
+struct PromiseState
+{
+    explicit PromiseState(JSContext* cx);
+    ~PromiseState();
+    
+    JS::PersistentRooted<JobQueue> jobQueue;
+    bool drainingJobQueue;
+    bool quitting;
+    EventListenerCustom *drainJobsHook;
+};
+
+PromiseState* getPromiseState(JSContext* cx)
+{
+    PromiseState* sc = static_cast<PromiseState*>(JS_GetContextPrivate(cx));
+    assert(sc);
+    return sc;
+}
+
+JSObject* onGetIncumbentGlobalCallback(JSContext* cx)
+{
     return JS::CurrentGlobalOrNull(cx);
 }
 
-static bool
-EnqueuePromiseJobCallback(JSContext* cx, JS::HandleObject job,
-                                      JS::HandleObject allocationSite,
-                                      JS::HandleObject incumbentGlobal, void* data) {
+bool onEnqueuePromiseJobCallback(JSContext* cx, JS::HandleObject job, JS::HandleObject allocationSite,
+                                 JS::HandleObject incumbentGlobal, void* data)
+{
+    PromiseState* sc = getPromiseState(cx);
+    assert(job);
+    return sc->jobQueue.append(job);
+}
+
+bool drainJobQueue()
+{
+    JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
+    PromiseState* sc = getPromiseState(cx);
+    if (sc->quitting || sc->drainingJobQueue)
+    return true;
+    
+    sc->drainingJobQueue = true;
+    
+    JS::RootedObject job(cx);
+    JS::HandleValueArray args(JS::HandleValueArray::empty());
+    JS::RootedValue rval(cx);
+    // Execute jobs in a loop until we've reached the end of the queue.
+    // Since executing a job can trigger enqueuing of additional jobs,
+    // it's crucial to re-check the queue length during each iteration.
+    for (size_t i = 0; i < sc->jobQueue.length(); i++)
+    {
+        job = sc->jobQueue[i];
+        JSAutoCompartment ac(cx, job);
+        JS::Call(cx, JS::UndefinedHandleValue, job, args, &rval);
+        if (JS_IsExceptionPending(cx)) {
+            handlePendingException(cx);
+        }
+        sc->jobQueue[i].set(nullptr);
+    }
+    sc->jobQueue.clear();
+    sc->drainingJobQueue = false;
+    
     return true;
 }
+
+PromiseState::PromiseState(JSContext* cx)
+: drainingJobQueue(false)
+, quitting(false)
+{
+    drainJobsHook = Director::getInstance()->getEventDispatcher()->addCustomEventListener(Director::EVENT_AFTER_DRAW, [&](EventCustom *event) {
+        drainJobQueue();
+    });
+}
+
+PromiseState::~PromiseState()
+{
+    Director::getInstance()->getEventDispatcher()->removeEventListener(drainJobsHook);
+    CC_SAFE_RELEASE(drainJobsHook);
+}
+
+// Promise support end
 
 ScriptingCore* ScriptingCore::getInstance()
 {
@@ -466,6 +536,8 @@ ScriptingCore* ScriptingCore::getInstance()
 
 ScriptingCore::ScriptingCore()
 : _cx(nullptr)
+, _global(nullptr)
+, _debugGlobal(nullptr)
 , _jsInited(false)
 , _needCleanup(false)
 , _callFromScript(false)
@@ -583,15 +655,19 @@ void ScriptingCore::createGlobalContext() {
     JS_SetFutexCanWait(_cx);
     JS_SetDefaultLocale(_cx, "UTF-8");
     JS::SetWarningReporter(_cx, ScriptingCore::reportError);
-    
-    JS::SetEnqueuePromiseJobCallback(_cx, EnqueuePromiseJobCallback);
-    JS::SetGetIncumbentGlobalCallback(_cx, GetIncumbentGlobalCallback);
 //    JS_SetGCCallback(_cx, on_garbage_collect, nullptr);
     
     if (!JS::InitSelfHostedCode(_cx))
     {
         return;
     }
+    
+    PromiseState* sc = new (std::nothrow) PromiseState(_cx);
+    if (!sc)
+    {
+        return;
+    }
+    JS_SetContextPrivate(_cx, sc);
     
     JS_BeginRequest(_cx);
     
@@ -618,10 +694,11 @@ void ScriptingCore::createGlobalContext() {
 #endif
     
     JS::RootedObject global(_cx, JS_NewGlobalObject(_cx, &global_class, nullptr, JS::DontFireOnNewGlobalHook, options));
-    _global = new JS::PersistentRootedObject(_cx, global);
+    _global = new (std::nothrow) JS::PersistentRootedObject(_cx, global);
     
     _oldCompartment = JS_EnterCompartment(_cx, global);
     JS_InitStandardClasses(_cx, global);
+    JS_DefineDebuggerObject(_cx, global);
     
     // Register ScriptingCore system bindings
     registerDefaultClasses(_cx, global);
@@ -629,6 +706,11 @@ void ScriptingCore::createGlobalContext() {
     JS_AddWeakPointerCompartmentCallback(_cx, &jsbWeakPointerCompartmentCallback, nullptr);
     JS_FireOnNewGlobalObject(_cx, global);
     JS::SetBuildIdOp(_cx, GetBuildId);
+    
+    // Support promise
+    sc->jobQueue.init(_cx, JobQueue(js::SystemAllocPolicy()));
+    JS::SetEnqueuePromiseJobCallback(_cx, onEnqueuePromiseJobCallback);
+    JS::SetGetIncumbentGlobalCallback(_cx, onGetIncumbentGlobalCallback);
 
     runScript("script/jsb_prepare.js");
 
@@ -867,6 +949,9 @@ void ScriptingCore::cleanup()
     }
     _js_global_type_map.clear();
     
+    auto sc = getPromiseState(_cx);
+    sc->quitting = true;
+    
     // force gc
     JS_GC(_cx);
     PoolManager::getInstance()->getCurrentPool()->clear();
@@ -886,11 +971,16 @@ void ScriptingCore::cleanup()
     if (_cx)
     {
         JS_LeaveCompartment(_cx, _oldCompartment);
+        JS::SetGetIncumbentGlobalCallback(_cx, nullptr);
+        JS::SetEnqueuePromiseJobCallback(_cx, nullptr);
         JS_EndRequest(_cx);
         JS_DestroyContext(_cx);
-        _cx = nullptr;
     }
     
+    delete sc;
+    _cx = nullptr;
+    _global = nullptr;
+    _oldCompartment = nullptr;
     _needCleanup = false;
 }
 
@@ -948,6 +1038,10 @@ bool ScriptingCore::log(JSContext* cx, uint32_t argc, JS::Value *vp)
 
 void ScriptingCore::retainScriptObject(cocos2d::Ref* owner, cocos2d::Ref* target)
 {
+    if (!_global)
+    {
+        return;
+    }
     JS::RootedObject global(_cx, _global->get());
     JS::RootedObject jsbObj(_cx);
     get_or_create_js_obj(_cx, global, "jsb", &jsbObj);
@@ -981,6 +1075,10 @@ void ScriptingCore::retainScriptObject(cocos2d::Ref* owner, cocos2d::Ref* target
 
 void ScriptingCore::rootScriptObject(cocos2d::Ref* target)
 {
+    if (!_global)
+    {
+        return;
+    }
     JS::RootedObject global(_cx, _global->get());
     JS::RootedObject jsbObj(_cx);
     get_or_create_js_obj(_cx, global, "jsb", &jsbObj);
