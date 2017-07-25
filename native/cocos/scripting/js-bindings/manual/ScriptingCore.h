@@ -40,7 +40,7 @@
 #include <memory>
 #include <chrono>
 
-#define ENGINE_VERSION "Cocos2d-JS v3.14"
+#define ENGINE_VERSION "Cocos Creator v1.6"
 
 void js_log(const char *format, ...);
 
@@ -75,7 +75,7 @@ class CC_JS_DLL ScriptingCore : public cocos2d::ScriptEngineProtocol
 private:
     JSContext *_cx;
     JS::PersistentRootedObject *_global;
-    JS::PersistentRootedObject _debugGlobal;
+    JS::PersistentRootedObject *_debugGlobal;
     JSCompartment *_oldCompartment;
     bool _jsInited;
     bool _needCleanup;
@@ -460,7 +460,7 @@ public:
      * Gets the debug environment's global object
      * @return @~english The debug environment's global object
      */
-    JSObject* getDebugGlobal() { return _debugGlobal.get(); }
+    JSObject* getDebugGlobal() { return _debugGlobal->get(); }
     /**@~english
      * Gets the global object
      * @return @~english The global object
