@@ -553,9 +553,7 @@ var Label = cc.Class({
         sgNode.setVisible(false);
         sgNode.setHorizontalAlign( this.horizontalAlign );
         sgNode.setVerticalAlign( this.verticalAlign );
-        if (!(font instanceof cc.TTFFont)) {
-            sgNode.setFontSize( this._fontSize );
-        }
+        sgNode.setFontSize( this._fontSize );
         if (this.useSystemFont) {
             sgNode.setFontFamily(this.fontFamily);
         }
