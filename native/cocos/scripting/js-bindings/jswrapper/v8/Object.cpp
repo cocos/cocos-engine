@@ -63,7 +63,7 @@ namespace se {
         }
         else
         {
-            assert(false);
+//            assert(false);
         }
     }
 
@@ -362,6 +362,7 @@ namespace se {
     void Object::setPrivateData(void* data)
     {
         assert(!_hasPrivateData);
+        assert(__nativePtrToObjectMap.find(data) == __nativePtrToObjectMap.end());
         internal::setPrivate(__isolate, _obj, data, &_internalData);
         __nativePtrToObjectMap.emplace(data, this);
         _hasPrivateData = true;

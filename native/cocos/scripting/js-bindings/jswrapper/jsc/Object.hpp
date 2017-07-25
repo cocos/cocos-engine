@@ -83,15 +83,20 @@ namespace se {
         static void setContext(JSContextRef cx);
         static void cleanup();
 
+        void ref();
+        void unref();
+
         Class* _cls;
         JSObjectRef _obj;
         bool _isRooted;
         bool _isKeepRootedUntilDie;
+        uint32_t _jsRefCount;
         bool _hasPrivateData;
         bool _isCleanup;
         JSObjectFinalizeCallback _finalizeCb;
 
         friend class ScriptEngine;
+        friend class AutoHandleScope;
     };
 
 

@@ -212,7 +212,9 @@ bool recreate_seval_by_native_ptr(typename std::enable_if<!std::is_base_of<cocos
     auto iter = se::__nativePtrToObjectMap.find(v);
     if (iter != se::__nativePtrToObjectMap.end())
     {
-        iter->second->clearPrivateData();
+        se::Object* seObj = iter->second;
+        seObj->clearPrivateData();
+        seObj->release();
     }
 
     se::Object* obj = se::Object::createObjectWithClass(cls, false);
@@ -236,7 +238,7 @@ bool native_ptr_to_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T
     auto iter = se::__nativePtrToObjectMap.find(v);
     if (iter == se::__nativePtrToObjectMap.end())
     { // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
-//        CCLOGWARN("WARNING: non-Ref type: (%s) isn't catched!", typeid(*v).name());
+        CCLOGWARN("WARNING: non-Ref type: (%s) isn't catched!", typeid(*v).name());
         se::Class* cls = JSBClassType::findClass<T>(v);
         assert(cls != nullptr);
         obj = se::Object::createObjectWithClass(cls, false);

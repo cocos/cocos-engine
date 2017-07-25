@@ -793,7 +793,6 @@ static bool js_EventListenerCustom_create(se::State& s)
             funcVal.toObject()->call(argArr, nullptr);
 
         });
-//        ret->retain();
 
         se::Object* obj = se::Object::createObjectWithClass(__jsb_cocos2d_EventListenerCustom_class, false);
         obj->setPrivateData(ret);

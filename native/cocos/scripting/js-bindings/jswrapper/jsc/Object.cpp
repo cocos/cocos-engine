@@ -19,6 +19,7 @@ namespace se {
     , _obj(nullptr)
     , _isRooted(false)
     , _isKeepRootedUntilDie(false)
+    , _jsRefCount(0)
     , _hasPrivateData(false)
     , _isCleanup(false)
     , _finalizeCb(nullptr)
@@ -27,7 +28,9 @@ namespace se {
 
     Object::~Object()
     {
+        assert(_jsRefCount == 0 || _jsRefCount == 1);
         _cleanup();
+        AutoHandleScope::unrefObject(this);
     }
 
     Object* Object::createPlainObject(bool rooted)
@@ -138,6 +141,8 @@ namespace se {
         {
             JSValueProtect(__cx, _obj);
         }
+
+        AutoHandleScope::refObject(this);
         return true;
     }
 
@@ -427,6 +432,7 @@ namespace se {
     void Object::setPrivateData(void *data)
     {
         assert(!_hasPrivateData);
+        assert(__nativePtrToObjectMap.find(data) == __nativePtrToObjectMap.end());
         internal::setPrivate(_obj, data, _finalizeCb);
         __nativePtrToObjectMap.emplace(data, this);
         _hasPrivateData = true;
@@ -487,6 +493,19 @@ namespace se {
         _isRooted = false;
     }
 
+    void Object::ref()
+    {
+        assert(_jsRefCount == 0);
+        JSValueProtect(__cx, _obj);
+        ++_jsRefCount;
+    }
+
+    void Object::unref()
+    {
+        assert(_jsRefCount == 1);
+        JSValueUnprotect(__cx, _obj);
+        --_jsRefCount;
+    }
 
     void Object::setKeepRootedUntilDie(bool keepRooted)
     {

@@ -561,6 +561,7 @@ namespace se {
     void Object::setPrivateData(void *data)
     {
         assert(!_hasPrivateData);
+        assert(__nativePtrToObjectMap.find(data) == __nativePtrToObjectMap.end());
         internal::setPrivate(_obj, data, _finalizeCb);
         __nativePtrToObjectMap.emplace(data, this);
         _hasPrivateData = true;

@@ -741,9 +741,10 @@ void GLViewImpl::onGLFWKeyCallback(GLFWwindow *window, int key, int scancode, in
 {
     if (GLFW_REPEAT != action)
     {
-        EventKeyboard event(g_keyCodeMap[key], GLFW_PRESS == action);
+        EventKeyboard* event = new (std::nothrow)EventKeyboard(g_keyCodeMap[key], GLFW_PRESS == action);
         auto dispatcher = Director::getInstance()->getEventDispatcher();
-        dispatcher->dispatchEvent(&event);
+        dispatcher->dispatchEvent(event);
+        event->release();
     }
 
     if (GLFW_RELEASE != action)

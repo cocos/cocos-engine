@@ -262,7 +262,7 @@ namespace se {
         }
         else
         {
-            JSStringRef key = JSStringCreateWithUTF8CString(KEY_PRIVATE_DATA);
+            JSStringRef key = JSStringCreateWithUTF8CString(KEY_PRIVATE_DATA); //FIXME: cache the key string
             if (JSObjectHasProperty(__cx, obj, key))
             {
                 JSValueRef value = JSObjectGetProperty(__cx, obj, key, nullptr);

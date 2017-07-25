@@ -1434,9 +1434,10 @@ void Widget::dispatchFocusEvent(cocos2d::ui::Widget *widgetLoseFocus, cocos2d::u
             widgetLoseFocus->onFocusChanged(widgetLoseFocus, widgetGetFocus);
         }
 
-        EventFocus event(widgetLoseFocus, widgetGetFocus);
+        EventFocus* event = new (std::nothrow) EventFocus(widgetLoseFocus, widgetGetFocus);
         auto dispatcher = cocos2d::Director::getInstance()->getEventDispatcher();
-        dispatcher->dispatchEvent(&event);
+        dispatcher->dispatchEvent(event);
+        event->release();
     }
 
 }

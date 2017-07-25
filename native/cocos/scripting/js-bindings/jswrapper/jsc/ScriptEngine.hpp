@@ -19,8 +19,19 @@ namespace se {
     class AutoHandleScope
     {
     public:
-        AutoHandleScope() {}
-        ~AutoHandleScope() {}
+        AutoHandleScope();
+        ~AutoHandleScope();
+
+    private:
+        static void _unrefAllObjects();
+
+        static void refObject(Object* obj);
+        static void unrefObject(Object* obj);
+
+        static int __scopeCount;
+        static std::vector<Object*> __localObjects;
+
+        friend class Object;
     };
     
     class ScriptEngine

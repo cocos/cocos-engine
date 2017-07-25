@@ -474,6 +474,7 @@ namespace se {
     void Object::setPrivateData(void* data)
     {
         assert(!_hasPrivateData);
+        assert(__nativePtrToObjectMap.find(data) == __nativePtrToObjectMap.end());
         JS::RootedObject obj(__cx, _getJSObject());
         internal::setPrivate(__cx, obj, data, _finalizeCb);
 
