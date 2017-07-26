@@ -88,20 +88,7 @@ Class.extend = function (props) {
         TheClass = Function(ctor)();
     }
     else {
-        TheClass = CC_JSB ? function (...args) {
-            this.__instanceId = ClassManager.getNewInstanceId();
-            if (this.ctor) {
-                switch (args.length) {
-                    case 0: this.ctor(); break;
-                    case 1: this.ctor(args[0]); break;
-                    case 2: this.ctor(args[0], args[1]); break;
-                    case 3: this.ctor(args[0], args[1], args[2]); break;
-                    case 4: this.ctor(args[0], args[1], args[2], args[3]); break;
-                    case 5: this.ctor(args[0], args[1], args[2], args[3], args[4]); break;
-                    default: this.ctor.apply(this, args);
-                }
-            }
-        } : function (arg0, arg1, arg2, arg3, arg4) {
+        TheClass = function (arg0, arg1, arg2, arg3, arg4) {
             this.__instanceId = ClassManager.getNewInstanceId();
             if (this.ctor) {
                 switch (arguments.length) {
@@ -131,13 +118,7 @@ Class.extend = function (props) {
         
         if (hasSuperCall) {
             desc.value = (function (name, fn) {
-                return CC_JSB ? function (...args) {
-                    var tmp = this._super;
-                    this._super = _super[name];
-                    var ret = fn.apply(this, args);
-                    this._super = tmp;
-                    return ret;
-                } : function () {
+                return function () {
                     var tmp = this._super;
 
                     // Add a new ._super() method that is the same method

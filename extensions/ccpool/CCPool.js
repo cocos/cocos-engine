@@ -119,18 +119,7 @@ cc.pool = /** @lends cc.pool# */{
      * @method getFromPool
      * @returns {*} Call the reuse function an return the obj.
      */
-    getFromPool: CC_JSB ? function (objClass, ...args) {
-        if (this.hasObject(objClass)) {
-            var cid = cc.js._getClassId(objClass);
-            var list = this._pool[cid];
-            var obj = list.pop();
-            // User implementation for re-enable the object
-            obj.reuse && obj.reuse.apply(obj, args);
-            // JSB release to avoid memory leak
-            CC_JSB && obj.release && this._autoRelease(obj);
-            return obj;
-        }
-    } : function (objClass/*,args*/) {
+    getFromPool: function (objClass/*,args*/) {
         if (this.hasObject(objClass)) {
             var cid = cc.js._getClassId(objClass);
             var list = this._pool[cid];

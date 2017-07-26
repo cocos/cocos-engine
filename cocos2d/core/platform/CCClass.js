@@ -516,9 +516,8 @@ function _createCtor (ctors, baseClass, className, options) {
     // bound super calls
     var superCallBounded = baseClass && boundSuperCalls(baseClass, options, className);
 
-    var args = CC_JSB ? '...args' : '';
     var ctorName = CC_DEV ? normalizeClassName_DEV(className) : 'CCClass';
-    var body = 'return function ' + ctorName + '(' + args + '){\n';
+    var body = 'return function ' + ctorName + '(){\n';
 
     if (superCallBounded) {
         body += 'this._super=null;\n';
@@ -534,7 +533,7 @@ function _createCtor (ctors, baseClass, className, options) {
         if (useTryCatch) {
             body += 'try{\n';
         }
-        var SNIPPET = CC_JSB ? '].apply(this,args);\n' : '].apply(this,arguments);\n';
+        var SNIPPET = '].apply(this,arguments);\n';
         if (ctorLen === 1) {
             body += ctorName + '.__ctors__[0' + SNIPPET;
         }
@@ -566,12 +565,7 @@ function _validateCtor_DEV (ctor, baseClass, className, options) {
             else {
                 cc.warnID(3600, className);
                 // suppresss super call
-                ctor = CC_JSB ? function (...args) {
-                    this._super = function () {};
-                    var ret = originCtor.apply(this, args);
-                    this._super = null;
-                    return ret;
-                } : function () {
+                ctor = function () {
                     this._super = function () {};
                     var ret = originCtor.apply(this, arguments);
                     this._super = null;
@@ -663,13 +657,7 @@ function boundSuperCalls (baseClass, options, className) {
                     hasSuperCall = true;
                     // boundSuperCall
                     options[funcName] = (function (superFunc, func) {
-                        return CC_JSB ? function (...args) {
-                            var tmp = this._super;
-                            this._super = superFunc;
-                            var ret = func.apply(this, args);
-                            this._super = tmp;
-                            return ret;
-                        } : function () {
+                        return function () {
                             var tmp = this._super;
 
                             // Add a new ._super() method that is the same method but on the super-Class
