@@ -126,7 +126,8 @@ JS.extend(CCLoader, Pipeline);
 var proto = CCLoader.prototype;
 
 /**
- * Get XMLHttpRequest.
+ * Gets a new XMLHttpRequest instance.
+ * @method getXMLHttpRequest
  * @returns {XMLHttpRequest}
  */
 proto.getXMLHttpRequest = getXMLHttpRequest;

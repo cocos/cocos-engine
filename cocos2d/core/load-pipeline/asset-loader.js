@@ -68,6 +68,9 @@ AssetLoader.prototype.handle = function (item, callback) {
                     alias: item.id,
                     complete: true
                 };
+                if (CC_EDITOR) {
+                    self.pipeline._cache[url] = reusedArray[0];
+                }
                 queue.append(reusedArray);
                 // Dispatch to other raw type downloader
                 item.type = ext;
