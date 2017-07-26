@@ -209,13 +209,7 @@ cc._initDebugSetting = function (mode) {
                 return console.error.apply(console, arguments);
             };
         }
-        cc.assert = CC_JSB ? function (cond, ...args) {
-            var msg = args[0];
-            if (!cond && msg) {
-                msg = cc.js.formatStr.apply(null, args);
-                throw new Error(msg);
-            }
-        } : function (cond, msg) {
+        cc.assert = function (cond, msg) {
             if (!cond) {
                 if (msg) {
                     msg = cc.js.formatStr.apply(null, cc.js.shiftArguments.apply(null, arguments));
@@ -312,12 +306,7 @@ cc._initDebugSetting = function (mode) {
         }
         cc.assert.apply(null, argsArr);
     }, 'Assert');
-    cc.assertID = CC_JSB ? function (cond, ...args) {
-        if (cond) {
-            return;
-        }
-        assertFailed.apply(null, args);
-    } : function (cond) {
+    cc.assertID = function (cond) {
         'use strict';
         if (cond) {
             return;
@@ -338,25 +327,7 @@ cc._throw = CC_EDITOR ? Editor.error : function (error) {
 var errorMapUrl = 'https://github.com/cocos-creator/engine/blob/master/EngineErrorMap.md';
 
 function genLogFunc(func, type) {
-    return CC_JSB ? function (...args) {
-        var id = args[0];
-        if (args.length === 1) {
-            CC_DEBUG ? func(cc._LogInfos[id]) : func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details.');
-            return;
-        }
-        if (CC_DEBUG) {
-            args[0] = cc._LogInfos[id];
-            func.apply(cc, args);
-        } else {
-            var msg = '';
-            if (args.length === 2) {
-                msg = 'Arguments: ' + args[1];
-            } else if (args.length > 2) {
-                msg = 'Arguments: ' + args.slice(1).join(', ');
-            }
-            func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + msg);
-        }
-    } : function (id) {
+    return function (id) {
         'use strict';
         if (arguments.length === 1) {
             CC_DEBUG ? func(cc._LogInfos[id]) : func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details.');

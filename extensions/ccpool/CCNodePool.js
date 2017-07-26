@@ -143,24 +143,7 @@ cc.NodePool.prototype = {
      * @example
      *   let newNode = this.myPool.get();
      */
-    get: CC_JSB ? function (...args) {
-        var last = this._pool.length-1;
-        if (last < 0) {
-            return null;
-        }
-        else {
-            // Pop the last object in pool
-            var obj = this._pool[last];
-            this._pool.length = last;
-
-            // Invoke pool handler
-            var handler = this.poolHandlerComp ? obj.getComponent(this.poolHandlerComp) : null;
-            if (handler && handler.reuse) {
-                handler.reuse.apply(handler, args);
-            }
-            return obj;
-        }
-    } : function () {
+    get: function () {
         var last = this._pool.length-1;
         if (last < 0) {
             return null;
