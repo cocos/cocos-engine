@@ -358,11 +358,14 @@ JS_BINDED_FUNC_IMPL(JavascriptJavaBridge, callStaticMethod)
 {
     JS::CallArgs argv = JS::CallArgsFromVp(argc, vp);
     JS::RootedValue ret(cx);
-    if (argc == 3) {
-        JSStringWrapper arg0(argv[0]);
-        JSStringWrapper arg1(argv[1]);
-        JSStringWrapper arg2(argv[2]);
 
+    if (argc == 3) {
+        JS::RootedString valuestr0(cx, argv.get(0).toString());
+        JSStringWrapper arg0(valuestr0, cx);
+        JS::RootedString valuestr1(cx, argv.get(1).toString());
+        JSStringWrapper arg1(valuestr1, cx);
+        JS::RootedString valuestr2(cx, argv.get(2).toString());
+        JSStringWrapper arg2(valuestr2, cx);
         CallInfo call(arg0.get(), arg1.get(), arg2.get());
         if(call.isValid()){
             bool success = call.execute();
@@ -376,10 +379,12 @@ JS_BINDED_FUNC_IMPL(JavascriptJavaBridge, callStaticMethod)
         }
     }
     else if(argc > 3){
-        JSStringWrapper arg0(argv[0]);
-        JSStringWrapper arg1(argv[1]);
-        JSStringWrapper arg2(argv[2]);
-
+        JS::RootedString valuestr0(cx, argv.get(0).toString());
+        JSStringWrapper arg0(valuestr0, cx);
+        JS::RootedString valuestr1(cx, argv.get(1).toString());
+        JSStringWrapper arg1(valuestr1, cx);
+        JS::RootedString valuestr2(cx, argv.get(2).toString());
+        JSStringWrapper arg2(valuestr2, cx);
         CallInfo call(arg0.get(), arg1.get(), arg2.get());
         if(call.isValid() && call.getArgumentsCount() == (argc - 3)){
             int count = argc - 3;
