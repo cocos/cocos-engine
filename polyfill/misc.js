@@ -13,3 +13,16 @@ if (!Number.isInteger) {
         return typeof value === 'number' && (value | 0) === value;
     };
 }
+
+if (!console.time) {
+    var Timer = window.performance || Date;
+    var _timerTable = Object.create(null);
+    console.time = function (label) {
+        _timerTable[label] = Timer.now();
+    };
+    console.timeEnd = function (label) {
+        var startTime = _timerTable[label];
+        var duration = Timer.now() - startTime;
+        console.log(`${label}: ${duration}ms`);
+    };
+}

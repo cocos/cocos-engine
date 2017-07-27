@@ -69,6 +69,7 @@ if (CC_DEV) {
 }
 
 // polyfills
+require('../polyfill/misc');
 if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('../polyfill/typescript');
 }
