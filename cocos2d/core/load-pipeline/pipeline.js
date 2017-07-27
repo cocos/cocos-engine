@@ -384,7 +384,7 @@ proto.getItem = function (id) {
 
     // downloader.js downloadUuid
     if (item.alias)
-        item = this._cache[item.alias];
+        item = item.alias;
 
     return item;
 };
