@@ -515,6 +515,7 @@ PromiseState::PromiseState(JSContext* cx)
     drainJobsHook = Director::getInstance()->getEventDispatcher()->addCustomEventListener(Director::EVENT_AFTER_DRAW, [&](EventCustom *event) {
         drainJobQueue();
     });
+    CC_SAFE_RETAIN(drainJobsHook);
 }
 
 PromiseState::~PromiseState()
@@ -629,7 +630,19 @@ void ScriptingCore::removeAllProxys(JSContext *cx)
     auto it_js = _native_js_global_map.begin();
     while (it_js != _native_js_global_map.end())
     {
-        CC_SAFE_DELETE(it_js->second);
+        // Erase hook private first in case gc access the proxy again
+        auto proxy = it_js->second;
+        JS::RootedObject jsObj(cx, proxy->obj);
+        JS::RootedValue hook(cx);
+        JS_GetProperty(cx, jsObj, "__hook", &hook);
+        
+        if (hook.isObject())
+        {
+            JSObject *hookObj = hook.toObjectOrNull();
+            JS_SetPrivate(hookObj, nullptr);
+        }
+        
+        CC_SAFE_DELETE(proxy);
         it_js = _native_js_global_map.erase(it_js);
     }
     _native_js_global_map.clear();
@@ -949,9 +962,6 @@ void ScriptingCore::cleanup()
     }
     _js_global_type_map.clear();
     
-    auto sc = getPromiseState(_cx);
-    sc->quitting = true;
-    
     // force gc
     JS_GC(_cx);
     PoolManager::getInstance()->getCurrentPool()->clear();
@@ -967,6 +977,11 @@ void ScriptingCore::cleanup()
     }
     
     registrationList.clear();
+    
+    // Release promise state
+    auto sc = getPromiseState(_cx);
+    sc->quitting = true;
+    delete sc;
 
     if (_cx)
     {
@@ -977,7 +992,6 @@ void ScriptingCore::cleanup()
         JS_DestroyContext(_cx);
     }
     
-    delete sc;
     _cx = nullptr;
     _global = nullptr;
     _oldCompartment = nullptr;
