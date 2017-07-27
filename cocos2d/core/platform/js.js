@@ -568,6 +568,9 @@ js.obsoletes = function (obj, objName, props, writable) {
     }
 };
 
+var REGEXP_NUM_OR_STR = /(%d)|(%s)/;
+var REGEXP_STR = /%s/;
+
 /**
  * A string tool to construct a string with format string.
  * for example:
@@ -577,36 +580,32 @@ js.obsoletes = function (obj, objName, props, writable) {
  * @returns {String}
  */
 js.formatStr = function () {
-    var args = arguments;
-    var l = args.length;
-    if (l < 1) return '';
-    var REGEXP_NUM_OR_STR = /(%d)|(%s)/;
+    var argLen = arguments.length;
+    if (argLen === 0) {
+        return '';
+    }
+    var msg = arguments[0];
+    if (argLen === 1) {
+        return '' + msg;
+    }
 
-    var i = 1;
-    var str = args[0];
-    var hasSubstitution = typeof str === 'string' && REGEXP_NUM_OR_STR.test(str);
+    var hasSubstitution = typeof msg === 'string' && REGEXP_NUM_OR_STR.test(msg);
     if (hasSubstitution) {
-        var REGEXP_STR = /%s/;
-        for (; i < l; ++i) {
-            var arg = args[i];
+        for (let i = 1; i < argLen; ++i) {
+            var arg = arguments[i];
             var regExpToTest = typeof arg === 'number' ? REGEXP_NUM_OR_STR : REGEXP_STR;
-            if (regExpToTest.test(str))
-                str = str.replace(regExpToTest, arg);
+            if (regExpToTest.test(msg))
+                msg = msg.replace(regExpToTest, arg);
             else
-                str += ' ' + arg;
+                msg += ' ' + arg;
         }
     }
     else {
-        if (l > 1) {
-            for (; i < l; ++i) {
-                str += ' ' + args[i];
-            }
-        }
-        else {
-            str = '' + str;
+        for (let i = 1; i < argLen; ++i) {
+            msg += ' ' + arguments[i];
         }
     }
-    return str;
+    return msg;
 };
 
 // see https://github.com/petkaantonov/bluebird/issues/1389
