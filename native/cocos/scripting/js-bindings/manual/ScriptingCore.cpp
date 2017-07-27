@@ -967,6 +967,7 @@ void ScriptingCore::cleanup()
     PoolManager::getInstance()->getCurrentPool()->clear();
     CC_SAFE_DELETE(_global);
     JS_GC(_cx);
+    JS_GC(_cx);
     
     JS_RemoveWeakPointerCompartmentCallback(_cx, jsbWeakPointerCompartmentCallback);
     removeAllProxys(_cx);
