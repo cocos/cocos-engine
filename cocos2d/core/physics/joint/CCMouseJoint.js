@@ -259,7 +259,7 @@ var MouseJoint = cc.Class({
     },
 
     update: function () {
-        if (!this._pressPoint) {
+        if (!this._pressPoint || !this._isValid()) {
             return;
         }
 

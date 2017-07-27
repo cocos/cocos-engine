@@ -196,9 +196,7 @@ var Joint = cc.Class({
 
         this.body = this.getComponent(cc.RigidBody);
         
-        if (this.body && this.body._getBody() &&
-            this.connectedBody && this.connectedBody._getBody()) {
-
+        if (this._isValid()) {
             var world = cc.director.getPhysicsManager()._getWorld();
             
             var def = this._createJointDef();
@@ -219,7 +217,7 @@ var Joint = cc.Class({
     __destroy: function () {
         if (!this._inited) return;
 
-        if (this.body && this.body._getBody()) {
+        if (this._isValid()) {
             cc.director.getPhysicsManager()._getWorld().DestroyJoint(this._joint);
         }
         
@@ -233,6 +231,11 @@ var Joint = cc.Class({
 
     _createJointDef: function () {
         return null;
+    },
+
+    _isValid: function () {
+        return this.body && this.body._getBody() &&
+            this.connectedBody && this.connectedBody._getBody();
     }
 });
 
