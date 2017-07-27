@@ -25,20 +25,6 @@
 
 'use strict';
 
-// Check version
-var _engineNumberVersion = (function () {
-    var result = /Cocos2d\-JS\sv([\d]+)\.([\d]+)/.exec(cc.ENGINE_VERSION);
-    if (result && result[1]) {
-        return {
-            major: parseInt(result[1]),
-            minor: parseInt(result[2])
-        };
-    }
-    else {
-        return null;
-    }
-})();
-
 var originLog = console.log;
 
 // overwrite original console.log
@@ -128,9 +114,5 @@ require('./jsb-audio');
 require('./jsb-tiledmap');
 require('./jsb-box2d');
 require('./jsb-dragonbones');
-
-if (cc.runtime) {
-    require('./versions/jsb-polyfill-runtime');
-}
 
 require('../extends');
