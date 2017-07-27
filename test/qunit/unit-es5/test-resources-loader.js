@@ -14,7 +14,7 @@
             };
             var options = {
                 libraryPath: assetDir + '/library',
-                rawAssetsBase: cc.path.dirname(cc.path._setEndWithSep(assetDir, false) + '.dummyExtForDirname') + '/',
+                rawAssetsBase: cc.path.dirname(cc.path.stripSep(assetDir) + '.dummyExtForDirname') + '/',
                 rawAssets: {
                     assets: Assets
                 }
