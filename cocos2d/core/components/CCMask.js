@@ -206,6 +206,8 @@ var Mask = cc.Class({
         }
     },
 
+    _initSgNode: function () {},
+
     _createSgNode: function () {
         return new cc.ClippingNode();
     },
