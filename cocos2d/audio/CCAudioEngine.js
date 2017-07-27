@@ -97,6 +97,11 @@ var audioEngine = {
      * var audioID = cc.audioEngine.play(path, false, 0.5);
      */
     play: function (filePath, loop, volume/*, profile*/) {
+        if (CC_DEBUG && (typeof filePath !== 'string')) {
+            cc.errorID(8400);
+            return;
+        }
+
         var audio = getAudioFromPath(filePath);
         var callback = function () {
             audio.setLoop(loop || false);
