@@ -35,6 +35,9 @@ var tempB2AABB = new b2.AABB();
 var tempB2Vec21 = new b2.Vec2();
 var tempB2Vec22 = new b2.Vec2();
 
+var FIXED_TIME_STEP = 1/60;
+var MAX_ACCUMULATOR = 1/5;
+
 /**
  * !#en
  * Physics manager uses box2d as the inner physics system, and hide most box2d implement details(creating rigidbody, synchronize rigidbody info to node).
@@ -79,7 +82,29 @@ var PhysicsManager = cc.Class({
          * @property {Number} PTM_RATIO
          * @static
          */
-        PTM_RATIO: PTM_RATIO
+        PTM_RATIO: PTM_RATIO,
+
+        /**
+         * !#en
+         * The velocity iterations for the velocity constraint solver.
+         * !#zh
+         * 速度更新迭代数
+         * @property {Number} VELOCITY_ITERATIONS
+         * @default 10
+         * @static
+         */
+        VELOCITY_ITERATIONS: 10,
+
+        /**
+         * !#en
+         * The position Iterations for the position constraint solver.
+         * !#zh
+         * 位置迭代更新数
+         * @property {Number} POSITION_ITERATIONS
+         * @default 10
+         * @static
+         */
+        POSITION_ITERATIONS: 10
     },
 
     ctor: function () {
@@ -97,7 +122,21 @@ var PhysicsManager = cc.Class({
 
         this._delayEvents = [];
 
-        // this._accumulator = 0;
+        this._accumulator = 0;
+
+        /**
+         * !#en
+         * If enabled accumulator, then will call step function with a fixed time step. 
+         * And if the update dt is bigger than the time step, then will call step function several times.
+         * If disabled accumulator, then will call step function with a time step calculated with the frame rate.
+         * !#zh
+         * 如果开启此选项，那么将会以一个固定的时间步来更新物理引擎，如果一个 update 的间隔时间大于这个时间步，则会对物理引擎进行多次更新。
+         * 如果关闭此选项，那么将会根据设定的 frame rate 计算出一个时间步来更新物理引擎。
+         * @property {Boolean} enabledAccumulator
+         * @default false
+         */
+        this.enabledAccumulator = false;
+        
     },
 
     pushDelayEvent: function (target, func, args) {
@@ -120,16 +159,28 @@ var PhysicsManager = cc.Class({
         this.emit('before-step');
         
         this._steping = true;
-        var timeStep = 1/cc.game.config['frameRate'];
 
-        // http://new.gafferongames.com/post/fix_your_timestep/
-        // will be super slow
+        var velocityIterations = PhysicsManager.VELOCITY_ITERATIONS;
+        var positionIterations = PhysicsManager.POSITION_ITERATIONS;
+
+        if (this.enabledAccumulator) {
+            this._accumulator += dt;
         
-        // this._accumulator += dt;
-        // while (this._accumulator > timeStep) {
-            world.Step(timeStep, 10, 10);
-        //     this._accumulator -= timeStep;
-        // }
+            // max accumulator time to avoid spiral of death
+            if (this._accumulator > MAX_ACCUMULATOR) {
+                this._accumulator = MAX_ACCUMULATOR;
+            }
+
+            while (this._accumulator > FIXED_TIME_STEP) {
+                world.Step(FIXED_TIME_STEP, velocityIterations, positionIterations);
+                this._accumulator -= FIXED_TIME_STEP;
+            }
+        }
+        else {
+            var timeStep = 1/cc.game.config['frameRate'];
+            world.Step(timeStep, velocityIterations, positionIterations);
+        }
+        
 
         world.DrawDebugData();
 
