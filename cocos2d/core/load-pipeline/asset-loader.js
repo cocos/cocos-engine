@@ -65,7 +65,7 @@ AssetLoader.prototype.handle = function (item, callback) {
                     url: url,
                     type: ext,
                     error: null,
-                    alias: item.id,
+                    alias: item,
                     complete: true
                 };
                 if (CC_EDITOR) {
