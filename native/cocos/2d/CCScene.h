@@ -80,6 +80,9 @@ public:
 
     /** override function */
     virtual void removeAllChildren() override;
+    
+    /** override function */
+    virtual void cleanup() override;
 
 CC_CONSTRUCTOR_ACCESS:
     Scene();
