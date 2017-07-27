@@ -167,16 +167,24 @@ cc.js.mixin(cc.director, {
      * @param {Function} [onLaunched] - The function invoked at the scene after launch.
      */
     runSceneImmediate: function (scene, onBeforeLoadScene, onLaunched) {
-        var id, node, game = cc.game;
-        var persistNodes = game._persistRootNodes;
+        const console = window.console;    // should mangle
+        const INIT_SCENE = CC_DEBUG ? 'InitScene' : 'I';
+        const AUTO_RELEASE = CC_DEBUG ? 'AutoRelease' : 'AR';
+        const DESTROY = CC_DEBUG ? 'Destroy' : 'D';
+        const ATTACH_PERSIST = CC_DEBUG ? 'AttachPersist' : 'AP';
+        const ACTIVATE = CC_DEBUG ? 'Activate' : 'A';
 
         if (scene instanceof cc.Scene) {
+            console.time(INIT_SCENE);
             scene._load();  // ensure scene initialized
+            console.timeEnd(INIT_SCENE);
         }
 
         // detach persist nodes
-        for (id in persistNodes) {
-            node = persistNodes[id];
+        var game = cc.game;
+        var persistNodes = game._persistRootNodes;
+        for (let id in persistNodes) {
+            let node = persistNodes[id];
             game._ignoreRemovePersistNode = node;
             node.parent = null;
             game._ignoreRemovePersistNode = null;
@@ -185,10 +193,13 @@ cc.js.mixin(cc.director, {
         var oldScene = this._scene;
 
         // auto release assets
+        console.time(AUTO_RELEASE);
         var autoReleaseAssets = oldScene && oldScene.autoReleaseAssets && oldScene.dependAssets;
         AutoReleaseUtils.autoRelease(cc.loader, autoReleaseAssets, scene.dependAssets);
+        console.timeEnd(AUTO_RELEASE);
 
         // unload scene
+        console.time(DESTROY);
         if (cc.isValid(oldScene)) {
             oldScene.destroy();
         }
@@ -197,6 +208,7 @@ cc.js.mixin(cc.director, {
 
         // purge destroyed nodes belongs to old scene
         cc.Object._deferredDestroy();
+        console.timeEnd(DESTROY);
 
         if (onBeforeLoadScene) {
             onBeforeLoadScene();
@@ -211,8 +223,9 @@ cc.js.mixin(cc.director, {
             sgScene = scene._sgNode;
 
             // Re-attach or replace persist nodes
-            for (id in persistNodes) {
-                node = persistNodes[id];
+            console.time(ATTACH_PERSIST);
+            for (let id in persistNodes) {
+                let node = persistNodes[id];
                 var existNode = scene.getChildByUuid(id);
                 if (existNode) {
                     // scene also contains the persist node, select the old one
@@ -224,7 +237,10 @@ cc.js.mixin(cc.director, {
                     node.parent = scene;
                 }
             }
+            console.timeEnd(ATTACH_PERSIST);
+            console.time(ACTIVATE);
             scene._activate();
+            console.timeEnd(ACTIVATE);
         }
 
         // Run or replace rendering scene
@@ -390,7 +406,9 @@ cc.js.mixin(cc.director, {
             }
         }
         //cc.AssetLibrary.unloadAsset(uuid);     // force reload
+        console.time('LoadScene ' + uuid);
         cc.AssetLibrary.loadAsset(uuid, function (error, sceneAsset) {
+            console.timeEnd('LoadScene ' + uuid);
             var self = cc.director;
             self._loadingScene = '';
             if (error) {
