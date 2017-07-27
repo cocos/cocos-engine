@@ -145,13 +145,13 @@ Audio.State = {
             this._element = new WebAudioElement(elem, this);
             this._audioType = Audio.Type.WEBAUDIO;
         }
-        this._bindEnded();
         this._state = Audio.State.INITIALZING;
         this._loaded = true;
     };
 
     proto.play = function () {
         if (!this._element) return;
+        this._bindEnded();
         this._element.play();
         this.emit('play');
         this._state = Audio.State.PLAYING;
@@ -201,7 +201,7 @@ Audio.State = {
                 break;
             }
         }
-        this.emit('ended');
+        this._unbindEnded();
         this.emit('stop');
         this._state = Audio.State.PAUSED;
     };
