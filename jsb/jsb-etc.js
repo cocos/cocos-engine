@@ -177,15 +177,14 @@ window.clearTimeout = clearInterval;
 // SocketIO
 if (window.SocketIO) {
     window.io = window.SocketIO;
+    SocketIO.prototype._jsbEmit = SocketIO.prototype.emit;
+    SocketIO.prototype.emit = function (uri, delegate) {
+        if (typeof delegate === 'object') {
+            delegate = JSON.stringify(delegate);
+        }
+        this._jsbEmit(uri, delegate);
+    };
 }
-
-SocketIO.prototype._jsbEmit = SocketIO.prototype.emit;
-SocketIO.prototype.emit = function (uri, delegate) {
-    if (typeof delegate === 'object') {
-        delegate = JSON.stringify(delegate);
-    }
-    this._jsbEmit(uri, delegate);
-};
 
 cc.Node.prototype.setIgnoreAnchorPointForPosition = cc.Node.prototype.ignoreAnchorPointForPosition;
 
