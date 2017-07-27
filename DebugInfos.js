@@ -290,7 +290,7 @@ if (CC_DEBUG) {
         "3633": "Properties function of '%s' should return an object!", //init
         "3634": "Disallow to use '.' in property name", //appendProp
         "3635": "Default array must be empty, set default value of %s.%s to [], and initialize in 'onLoad' or 'ctor' please. (just like 'this.%s = [...];')", //defineProp
-        "3636": "Do not set default value to non-empty object, unless the object defines its own 'clone' function. Set default value of %s.%s to null or {}, and initialize in 'onLoad' or 'ctor' please. (just like 'this.%s = {foo: bar};')", //defineProp_2
+        "3636": "Can not set default value to non-empty object, unless the object derived from cc.ValueType and overwrite the 'clone' function. Set default value of %s.%s to null or {}, and initialize in 'onLoad' or 'ctor' please. (just like 'this.%s = {foo: bar};')", //defineProp_2
         "3637": "Can not declare %s.%s, it is already defined in the prototype of %s", //defineProp_3
         "3638": "'%s': the getter of '%s' is already defined!", //defineGetSet_2
         "3640": "'%s': the setter of '%s' is already defined!", //defineGetSet_4
