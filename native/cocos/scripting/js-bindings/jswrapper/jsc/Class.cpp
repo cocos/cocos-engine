@@ -131,7 +131,7 @@ namespace se {
         _proto = Object::_createJSObject(this, JSValueToObject(__cx, prototypeObj, nullptr), true); // FIXME: release me in cleanup method
 
         // reset constructor
-        _proto->setProperty("constructor", se::Value(ctorObj));
+        _proto->setProperty("constructor", Value(ctorObj));
 
         // Set instance properties
         for (const auto& property : _properties)

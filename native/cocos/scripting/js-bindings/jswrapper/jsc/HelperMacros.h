@@ -44,6 +44,8 @@
 #define SE_BIND_FINALIZE_FUNC(funcName) \
     void funcName##Registry(JSObjectRef _obj) \
     { \
+        auto se = se::ScriptEngine::getInstance(); \
+        se->_setInGC(true); \
         void* nativeThisObject = JSObjectGetPrivate(_obj); \
         if (nativeThisObject != nullptr) \
         { \
@@ -55,6 +57,7 @@
             ret = funcName(state); \
             SAFE_RELEASE(_thisObject); \
         } \
+        se->_setInGC(false); \
     }
 
 #define SE_DECLARE_FINALIZE_FUNC(funcName) \

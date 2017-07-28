@@ -21,17 +21,6 @@ namespace se {
     public:
         AutoHandleScope();
         ~AutoHandleScope();
-
-    private:
-        static void _unrefAllObjects();
-
-        static void refObject(Object* obj);
-        static void unrefObject(Object* obj);
-
-        static int __scopeCount;
-        static std::vector<Object*> __localObjects;
-
-        friend class Object;
     };
     
     class ScriptEngine
@@ -43,6 +32,8 @@ namespace se {
     public:
         static ScriptEngine* getInstance();
         static void destroyInstance();
+
+
 
         Object* getGlobalObject();
 
@@ -58,6 +49,8 @@ namespace se {
         bool executeScriptBuffer(const char *string, Value *data = nullptr, const char *fileName = nullptr);
         bool executeScriptBuffer(const char *string, size_t length, Value *data = nullptr, const char *fileName = nullptr);
 
+        bool isInGC();
+        void _setInGC(bool isInGC);
         void gc();
 
         bool isValid() { return _isValid; }
@@ -80,12 +73,15 @@ namespace se {
         bool _setNodeEventListener(NodeEventListener listener);
 
         std::string _formatException(JSValueRef exception);
+
+        JSContextRef _getContext() const { return _cx; }
     private:
 
         JSGlobalContextRef _cx;
 
         Object* _globalObj;
 
+        bool _isInGC;
         bool _isValid;
         bool _isInCleanup;
         NodeEventListener _nodeEventListener;

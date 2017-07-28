@@ -225,7 +225,7 @@ bool recreate_seval_by_native_ptr(typename std::enable_if<!std::is_base_of<cocos
 }
 
 template<typename T>
-bool native_ptr_to_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Value* ret)
+bool native_ptr_to_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Value* ret, bool* isReturnCachedValue = nullptr)
 {
     assert(ret != nullptr);
     if (v == nullptr)
@@ -243,10 +243,18 @@ bool native_ptr_to_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T
         assert(cls != nullptr);
         obj = se::Object::createObjectWithClass(cls, false);
         obj->setPrivateData(v);
+        if (isReturnCachedValue != nullptr)
+        {
+            *isReturnCachedValue = false;
+        }
     }
     else
     {
         obj = iter->second;
+        if (isReturnCachedValue != nullptr)
+        {
+            *isReturnCachedValue = true;
+        }
     }
 
     ret->setObject(obj);
@@ -254,7 +262,47 @@ bool native_ptr_to_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T
 }
 
 template<typename T>
-bool native_ptr_to_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Class* cls, se::Value* ret)
+bool native_ptr_to_rooted_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Value* ret, bool* isReturnCachedValue = nullptr)
+{
+    assert(ret != nullptr);
+    if (v == nullptr)
+    {
+        ret->setNull();
+        return true;
+    }
+
+    se::Object* obj = nullptr;
+    auto iter = se::__nativePtrToObjectMap.find(v);
+    if (iter == se::__nativePtrToObjectMap.end())
+    { // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
+        CCLOGWARN("WARNING: non-Ref type: (%s) isn't catched!", typeid(*v).name());
+        se::Class* cls = JSBClassType::findClass<T>(v);
+        assert(cls != nullptr);
+        obj = se::Object::createObjectWithClass(cls, false);
+        obj->setPrivateData(v);
+        obj->switchToRooted();
+        if (isReturnCachedValue != nullptr)
+        {
+            *isReturnCachedValue = false;
+        }
+    }
+    else
+    {
+        obj = iter->second;
+        printf("Return from cache, type: (%s, %p), se::Object type: %s\n", typeid(*v).name(), v, obj->_privateDataType.c_str());
+        assert(0 == strcmp(typeid(*v).name(), obj->_privateDataType.c_str()));
+        if (isReturnCachedValue != nullptr)
+        {
+            *isReturnCachedValue = true;
+        }
+    }
+
+    ret->setObject(obj);
+    return true;
+}
+
+template<typename T>
+bool native_ptr_to_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Class* cls, se::Value* ret, bool* isReturnCachedValue = nullptr)
 {
     assert(ret != nullptr);
     if (v == nullptr)
@@ -271,10 +319,19 @@ bool native_ptr_to_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T
         assert(cls != nullptr);
         obj = se::Object::createObjectWithClass(cls, false);
         obj->setPrivateData(v);
+
+        if (isReturnCachedValue != nullptr)
+        {
+            *isReturnCachedValue = false;
+        }
     }
     else
     {
         obj = iter->second;
+        if (isReturnCachedValue != nullptr)
+        {
+            *isReturnCachedValue = true;
+        }
     }
 
     ret->setObject(obj);
@@ -282,7 +339,45 @@ bool native_ptr_to_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T
 }
 
 template<typename T>
-bool native_ptr_to_seval(typename std::enable_if<std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Value* ret)
+bool native_ptr_to_rooted_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Class* cls, se::Value* ret, bool* isReturnCachedValue = nullptr)
+{
+    assert(ret != nullptr);
+    if (v == nullptr)
+    {
+        ret->setNull();
+        return true;
+    }
+
+    se::Object* obj = nullptr;
+    auto iter = se::__nativePtrToObjectMap.find(v);
+    if (iter == se::__nativePtrToObjectMap.end())
+    { // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
+        //        CCLOGWARN("WARNING: Ref type: (%s) isn't catched!", typeid(*v).name());
+        assert(cls != nullptr);
+        obj = se::Object::createObjectWithClass(cls, false);
+        obj->setPrivateData(v);
+        obj->switchToRooted();
+
+        if (isReturnCachedValue != nullptr)
+        {
+            *isReturnCachedValue = false;
+        }
+    }
+    else
+    {
+        obj = iter->second;
+        if (isReturnCachedValue != nullptr)
+        {
+            *isReturnCachedValue = true;
+        }
+    }
+
+    ret->setObject(obj);
+    return true;
+}
+
+template<typename T>
+bool native_ptr_to_seval(typename std::enable_if<std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Value* ret, bool* isReturnCachedValue = nullptr)
 {
     assert(ret != nullptr);
     if (v == nullptr)
@@ -301,11 +396,19 @@ bool native_ptr_to_seval(typename std::enable_if<std::is_base_of<cocos2d::Ref,T>
         obj = se::Object::createObjectWithClass(cls, false);
         obj->setPrivateData(v);
         v->retain(); // Retain the native object to unify the logic in finalize method of js object.
+        if (isReturnCachedValue != nullptr)
+        {
+            *isReturnCachedValue = false;
+        }
     }
     else
     {
         obj = iter->second;
 //        CCLOG("INFO: Found Ref type: (%s, native: %p, se: %p) from cache!", typeid(*v).name(), v, obj);
+        if (isReturnCachedValue != nullptr)
+        {
+            *isReturnCachedValue = true;
+        }
     }
 
     ret->setObject(obj);
@@ -313,7 +416,7 @@ bool native_ptr_to_seval(typename std::enable_if<std::is_base_of<cocos2d::Ref,T>
 }
 
 template<typename T>
-bool native_ptr_to_seval(typename std::enable_if<std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Class* cls, se::Value* ret)
+bool native_ptr_to_seval(typename std::enable_if<std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Class* cls, se::Value* ret, bool* isReturnCachedValue = nullptr)
 {
     assert(ret != nullptr);
     if (v == nullptr)
@@ -331,10 +434,18 @@ bool native_ptr_to_seval(typename std::enable_if<std::is_base_of<cocos2d::Ref,T>
         obj = se::Object::createObjectWithClass(cls, false);
         obj->setPrivateData(v);
         v->retain(); // Retain the native object to unify the logic in finalize method of js object.
+        if (isReturnCachedValue != nullptr)
+        {
+            *isReturnCachedValue = false;
+        }
     }
     else
     {
         obj = iter->second;
+        if (isReturnCachedValue != nullptr)
+        {
+            *isReturnCachedValue = true;
+        }
     }
 
     ret->setObject(obj);

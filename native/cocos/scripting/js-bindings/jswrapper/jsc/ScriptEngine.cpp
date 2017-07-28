@@ -10,68 +10,20 @@ extern "C" JS_EXPORT void JSSynchronousGarbageCollectForDebugging(JSContextRef);
 
 namespace se {
 
-    int AutoHandleScope::__scopeCount = -1;
-    std::vector<Object*> AutoHandleScope::__localObjects;
-
     AutoHandleScope::AutoHandleScope()
     {
-        if (__scopeCount == -1)
-        {
-            __localObjects.reserve(50);
-            __scopeCount = 0;
-        }
 
-        ++__scopeCount;
     }
 
     AutoHandleScope::~AutoHandleScope()
     {
-        --__scopeCount;
-        if (__scopeCount == 0)
-        {
-            _unrefAllObjects();
-        }
+
     }
-
-    // static
-    void AutoHandleScope::_unrefAllObjects()
-    {
-        if (!__localObjects.empty())
-        {
-            LOGD("AutoHandleScope::_unrefAllObjects, object count: %d\n", (int)__localObjects.size());
-            for (auto obj : __localObjects)
-            {
-                obj->unref();
-            }
-
-            __localObjects.clear();
-        }
-    }
-
-    // static
-    void AutoHandleScope::refObject(Object* obj)
-    {
-        assert(std::find(__localObjects.begin(), __localObjects.end(), obj) == __localObjects.end());
-        __localObjects.push_back(obj);
-        obj->ref();
-    }
-
-    // static
-    void AutoHandleScope::unrefObject(Object* obj)
-    {
-        auto iter = std::find(__localObjects.begin(), __localObjects.end(), obj);
-        if (iter != __localObjects.end())
-        {
-            __localObjects.erase(iter);
-            obj->unref();
-        }
-    }
-
-    //
 
     Class* __jsb_CCPrivateData_class = nullptr;
-    
+    //
     namespace {
+
         ScriptEngine* __instance = nullptr;
 
         JSValueRef __forceGC(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
@@ -135,6 +87,7 @@ namespace se {
     ScriptEngine::ScriptEngine()
             : _cx(nullptr)
             , _globalObj(nullptr)
+            , _isInGC(false)
             , _isValid(false)
             , _isInCleanup(false)
     {
@@ -253,6 +206,16 @@ namespace se {
         }
 
         return ret;
+    }
+
+    bool ScriptEngine::isInGC()
+    {
+        return _isInGC;
+    }
+
+    void ScriptEngine::_setInGC(bool isInGC)
+    {
+        _isInGC = isInGC;
     }
 
     Object* ScriptEngine::getGlobalObject()

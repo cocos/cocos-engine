@@ -108,7 +108,7 @@ namespace se {
         // For promise
         using JobQueue = JS::GCVector<JSObject*, 0, js::SystemAllocPolicy>;
 
-        // Per-context shell state.
+        // Per-context promise state.
         struct PromiseState
         {
             explicit PromiseState(JSContext* cx);
