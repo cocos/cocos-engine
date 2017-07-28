@@ -561,14 +561,14 @@ bool jsval_to_TTFConfig(JSContext *cx, JS::HandleValue v, cocos2d::TTFConfig* re
             ok &= jsval_to_std_string(cx,js_fontFilePath,&ret->fontFilePath);
         }
         
-        if (JS_GetProperty(cx, tmp, "fontSize", &js_fontSize) && js_fontSize.isInt32())
+        if (JS_GetProperty(cx, tmp, "fontSize", &js_fontSize) && js_fontSize.isNumber())
         {
-            ret->fontSize = js_fontSize.toInt32();
+            ret->fontSize = (float)js_fontSize.toNumber();
         }
         
-        if (JS_GetProperty(cx, tmp, "outlineSize", &js_outlineSize) && js_outlineSize.isInt32())
+        if (JS_GetProperty(cx, tmp, "outlineSize", &js_outlineSize) && js_outlineSize.isNumber())
         {
-            ret->outlineSize = js_outlineSize.toInt32();
+            ret->outlineSize = (int)js_outlineSize.toNumber();
         }
         
         if (JS_GetProperty(cx, tmp, "glyphs", &js_glyphs) && js_glyphs.isInt32())
