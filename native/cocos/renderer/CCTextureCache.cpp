@@ -572,6 +572,8 @@ void TextureCache::waitForQuit()
     _needQuit = true;
     _sleepCondition.notify_one();
     if (_loadingThread) _loadingThread->join();
+
+    addImageAsyncCallBack(0.0f);
 }
 
 std::string TextureCache::getCachedTextureInfo() const
