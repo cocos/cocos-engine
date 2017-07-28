@@ -293,12 +293,16 @@ var game = {
      * @method restart
      */
     restart: function () {
-        cc.director.popToSceneStackLevel(0);
+        // Clear scene
+        cc.director.getScene().destroy();
+        cc.Object._deferredDestroy();
+        cc.director.purgeDirector();
         // Clean up audio
         if (cc.audioEngine) {
             cc.audioEngine.uncacheAll();
         }
 
+        cc.director.reset();
         game.onStart();
     },
 
