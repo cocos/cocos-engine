@@ -140,9 +140,7 @@ namespace se {
                     break;
                 case Type::Object:
                 {
-                    assert(nullptr == _u._object);
-                    _u._object = v._u._object;
-                    _u._object->addRef();
+                    setObject(v._u._object);
                 }
                     break;
                 default:
@@ -171,8 +169,14 @@ namespace se {
                     _u._boolean = v._u._boolean;
                     break;
                 case Type::Object:
+                {
+                    if (_u._object != nullptr)
+                    {
+                        _u._object->release();
+                    }
                     _u._object = v._u._object;
                     v._u._object = nullptr;
+                }
                     break;
                 default:
                     break;
@@ -311,9 +315,15 @@ namespace se {
 
         if (_u._object != object)
         {
-            SAFE_RELEASE(_u._object);
+            if (_u._object != nullptr)
+            {
+                _u._object->release();
+            }
             _u._object = object;
-            SAFE_ADD_REF(_u._object);
+            if (_u._object != nullptr)
+            {
+                _u._object->addRef();
+            }
         }
     }
 
