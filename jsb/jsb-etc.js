@@ -208,10 +208,6 @@ window._ccsg = {
     CameraNode: cc.CameraNode
 };
 
-// __errorHandler
-window.__errorHandler = function (filename, lineno, message) {
-};
-
 // fix cc.formatStr (#2630)
 cc.formatStr = cc.js.formatStr;
 
@@ -219,3 +215,18 @@ cc.formatStr = cc.js.formatStr;
 if (cc.Image && cc.Image.setPNGPremultipliedAlphaEnabled) {
     cc.Image.setPNGPremultipliedAlphaEnabled(false);
 }
+
+// __errorHandler
+window.__errorHandler = function (filename, lineno, message) {
+};
+
+// global cleanup. Dangerous!!! please do not invoke this function, it's used internally by the restart process
+window.__cleanup = function () {
+    // Destroy scene
+    cc.director.getScene().destroy();
+    cc.Object._deferredDestroy();
+    // Cleanup loader
+    cc.loader.releaseAll();
+    // Cleanup textureCache
+    cc.textureCache.removeAllTextures();
+};
