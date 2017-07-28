@@ -44,12 +44,14 @@ var getAudioFromPath = function (path) {
     }
 
     audio = new Audio(path);
-    audio.on('ended', function () {
+    var callback = function () {
         var id = this.instanceId;
         delete id2audio[id];
         var index = list.indexOf(id);
         cc.js.array.fastRemoveAt(list, index);
-    });
+    };
+    audio.on('ended', callback);
+    audio.on('stop', callback);
     id2audio[id] = audio;
 
     audio.instanceId = id;
@@ -376,7 +378,6 @@ var audioEngine = {
             return false;
         audio.off('load', audio.__callback);
         audio.stop();
-        audio.emit('ended');
         return true;
     },
 
@@ -394,7 +395,6 @@ var audioEngine = {
             if (audio && audio.stop) {
                 audio.stop();
                 audio.off('load', audio.__callback);
-                audio.emit('ended');
             }
         }
     },
