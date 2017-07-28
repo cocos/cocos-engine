@@ -632,14 +632,17 @@ void ScriptingCore::removeAllProxys(JSContext *cx)
     {
         // Erase hook private first in case gc access the proxy again
         auto proxy = it_js->second;
-        JS::RootedObject jsObj(cx, proxy->obj);
-        JS::RootedValue hook(cx);
-        JS_GetProperty(cx, jsObj, "__hook", &hook);
-        
-        if (hook.isObject())
+        if (proxy->obj.get())
         {
-            JSObject *hookObj = hook.toObjectOrNull();
-            JS_SetPrivate(hookObj, nullptr);
+            JS::RootedObject jsObj(cx, proxy->obj);
+            JS::RootedValue hook(cx);
+            JS_GetProperty(cx, jsObj, "__hook", &hook);
+            
+            if (hook.isObject())
+            {
+                JSObject *hookObj = hook.toObjectOrNull();
+                JS_SetPrivate(hookObj, nullptr);
+            }
         }
         
         CC_SAFE_DELETE(proxy);
@@ -735,6 +738,7 @@ void ScriptingCore::createGlobalContext() {
             handlePendingException(_cx);
         }
     }
+    registrationList.clear();
     
     _jsInited = true;
     _needCleanup = true;
@@ -952,9 +956,14 @@ void ScriptingCore::cleanup()
     }
     
     localStorageFree();
-    
     cleanAllScript();
     
+    // Cleanup js objects
+    JS::RootedObject global(_cx, _global->get());
+    JS::RootedValue globalVal(_cx, JS::ObjectOrNullValue(global));
+    executeFunctionWithOwner(globalVal, "__cleanup", JS::HandleValueArray::empty());
+    
+    // Cleanup jsb type map
     for (auto iter = _js_global_type_map.begin(); iter != _js_global_type_map.end(); ++iter)
     {
         CC_SAFE_DELETE(iter->second->proto);
@@ -969,15 +978,15 @@ void ScriptingCore::cleanup()
     JS_GC(_cx);
     JS_GC(_cx);
     
+    // Remove tracker to object ref, remove all jsb objects proxy
     JS_RemoveWeakPointerCompartmentCallback(_cx, jsbWeakPointerCompartmentCallback);
     removeAllProxys(_cx);
 
+    // Remove log buf
     if (_js_log_buf) {
         free(_js_log_buf);
         _js_log_buf = nullptr;
     }
-    
-    registrationList.clear();
     
     // Release promise state
     auto sc = getPromiseState(_cx);
