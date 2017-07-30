@@ -453,6 +453,7 @@ _ccsg.Label = _ccsg.Node.extend({
     },
 
     setFontFamily: function (fontFamily) {
+        this._resetBMFont();
         this._fontHandle = fontFamily || "Arial";
         this._labelType = _ccsg.Label.Type.SystemFont;
         this._blendFunc = cc.BlendFunc._alphaPremultiplied();
