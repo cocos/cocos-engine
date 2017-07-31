@@ -69,10 +69,6 @@ cc.Collider.Polygon = cc.Class({
         }
     },
 
-    resetInEditor: CC_EDITOR && function () {
-        this.resetPointsByContour();
-    },
-
     resetPointsByContour: CC_EDITOR && function () {
         _Scene.PhysicsUtils.resetPoints(this, {threshold: this.threshold});
     }
