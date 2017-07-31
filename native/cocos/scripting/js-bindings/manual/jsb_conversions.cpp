@@ -1488,7 +1488,7 @@ namespace {
 
         if (ok)
             ret->setObject(obj);
-        obj->switchToUnrooted();
+        obj->unroot();
         obj->release();
         return ok;
     }
@@ -1532,7 +1532,7 @@ bool std_vector_Touch_to_seval(const std::vector<cocos2d::Touch*>& v, se::Value*
         ret->setObject(arr);
     else
         ret->setUndefined();
-    arr->switchToUnrooted();
+    arr->unroot();
     arr->release();
     return ok;
 }
@@ -2033,13 +2033,13 @@ bool b2Manifold_to_seval(const b2Manifold* v, se::Value* ret)
             arrElement->setProperty("localPoint", localPointVal);
 
             arr->setArrayElement(i, se::Value(arrElement));
-            arrElement->switchToUnrooted();
+            arrElement->unroot();
             arrElement->release();
         }
 
         if (ok)
             obj->setProperty("points", se::Value(arr));
-        arr->switchToUnrooted();
+        arr->unroot();
         arr->release();
 
     } while(false);
@@ -2048,7 +2048,7 @@ bool b2Manifold_to_seval(const b2Manifold* v, se::Value* ret)
         ret->setObject(obj);
     else
         ret->setNull();
-    obj->switchToUnrooted();
+    obj->unroot();
     obj->release();
     return false;
 }

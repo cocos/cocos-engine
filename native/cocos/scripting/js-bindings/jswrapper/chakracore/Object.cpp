@@ -271,7 +271,7 @@ namespace se {
             {
                 if (!arg.toObject()->isRooted())
                 {
-                    arg.toObject()->switchToRooted();
+                    arg.toObject()->root();
                     toUnrootedObjects.push_back(arg.toObject());
                 }
             }
@@ -290,7 +290,7 @@ namespace se {
 
         for (auto& obj: toUnrootedObjects)
         {
-            obj->switchToUnrooted();
+            obj->unroot();
         }
 
         if (errCode == JsNoError)
@@ -588,7 +588,7 @@ namespace se {
         return _cls;
     }
 
-    void Object::switchToRooted()
+    void Object::root()
     {
         if (_isRooted)
             return;
@@ -598,7 +598,7 @@ namespace se {
         _isRooted = true;
     }
 
-    void Object::switchToUnrooted()
+    void Object::unroot()
     {
         if (!_isRooted)
             return;
@@ -618,7 +618,7 @@ namespace se {
         if (_isKeepRootedUntilDie)
         {
             if (!_isRooted)
-                switchToRooted();
+                root();
         }
     }
     

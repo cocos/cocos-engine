@@ -438,7 +438,7 @@ static bool invokeJSTouchOneByOneCallback(EventListenerTouchOneByOne* listener, 
 
         if (type == TOUCH_ONE_BY_ONE_ON_TOUCH_BEGAN && !arg1Obj->isRooted())
         {
-            arg1Obj->switchToRooted();
+            arg1Obj->root();
         }
 
         argArr.push_back(std::move(arg1Val));
@@ -463,7 +463,7 @@ static bool invokeJSTouchOneByOneCallback(EventListenerTouchOneByOne* listener, 
         {
             if (arg1Obj->isRooted())
             {
-                arg1Obj->switchToUnrooted();
+                arg1Obj->unroot();
             }
         }
     }
@@ -471,7 +471,7 @@ static bool invokeJSTouchOneByOneCallback(EventListenerTouchOneByOne* listener, 
     {
         if (arg1Obj->isRooted())
         {
-            arg1Obj->switchToUnrooted();
+            arg1Obj->unroot();
         }
     }
 

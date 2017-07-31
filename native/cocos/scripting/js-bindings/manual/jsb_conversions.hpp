@@ -280,7 +280,7 @@ bool native_ptr_to_rooted_seval(typename std::enable_if<!std::is_base_of<cocos2d
         assert(cls != nullptr);
         obj = se::Object::createObjectWithClass(cls, false);
         obj->setPrivateData(v);
-        obj->switchToRooted();
+        obj->root();
         if (isReturnCachedValue != nullptr)
         {
             *isReturnCachedValue = false;
@@ -354,7 +354,7 @@ bool native_ptr_to_rooted_seval(typename std::enable_if<!std::is_base_of<cocos2d
         assert(cls != nullptr);
         obj = se::Object::createObjectWithClass(cls, false);
         obj->setPrivateData(v);
-        obj->switchToRooted();
+        obj->root();
 
         if (isReturnCachedValue != nullptr)
         {
@@ -467,7 +467,7 @@ bool Vector_to_seval(const cocos2d::Vector<T*>& v, se::Value* ret)
     }
 
     ret->setObject(obj);
-    obj->switchToUnrooted();
+    obj->unroot();
     obj->release();
 
     return ok;
@@ -488,7 +488,7 @@ bool Map_string_key_to_seval(const cocos2d::Map<std::string, T*>& v, se::Value* 
     }
 
     ret->setObject(obj);
-    obj->switchToUnrooted();
+    obj->unroot();
     obj->release();
     return false;
 }

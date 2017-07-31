@@ -36,7 +36,7 @@
         { \
             if (v.isObject() && v.toObject()->isRooted()) \
             { \
-                v.toObject()->switchToUnrooted(); \
+                v.toObject()->unroot(); \
             } \
         } \
         return _jsRet; \
@@ -83,7 +83,7 @@
         { \
             if (v.isObject() && v.toObject()->isRooted()) \
             { \
-                v.toObject()->switchToUnrooted(); \
+                v.toObject()->unroot(); \
             } \
         } \
         return _jsRet; \
@@ -113,7 +113,7 @@
         { \
             if (v.isObject() && v.toObject()->isRooted()) \
             { \
-                v.toObject()->switchToUnrooted(); \
+                v.toObject()->unroot(); \
             } \
         } \
         return _jsRet; \
@@ -148,7 +148,7 @@
         ret = funcName(state); \
         if (args[0].isObject() && args[0].toObject()->isRooted()) \
         { \
-            args[0].toObject()->switchToUnrooted(); \
+            args[0].toObject()->unroot(); \
         } \
         return JS_INVALID_REFERENCE; \
     }

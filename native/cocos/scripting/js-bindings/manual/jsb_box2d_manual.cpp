@@ -556,7 +556,7 @@ bool array_of_b2Fixture_to_seval(const std::vector<b2Fixture*>& fixtures, se::Va
     else
         ret->setUndefined();
 
-    obj->switchToUnrooted();
+    obj->unroot();
     obj->release();
     return true;
 }
@@ -584,7 +584,7 @@ bool array_of_b2Vec2_to_seval(const std::vector<b2Vec2>& vs, se::Value* ret)
     else
         ret->setUndefined();
 
-    obj->switchToUnrooted();
+    obj->unroot();
     obj->release();
     return true;
 }
@@ -921,7 +921,7 @@ static bool js_box2dclasses_b2Body_GetJointList(se::State& s)
         else
             s.rval().setNull();
 
-        arr->switchToUnrooted();
+        arr->unroot();
         arr->release();
 
         return true;

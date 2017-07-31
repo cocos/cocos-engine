@@ -6810,7 +6810,7 @@ static bool js_cocos2dx_Director_getInstance(se::State& s)
         auto result = cocos2d::Director::getInstance();
         se::Value instanceVal;
         native_ptr_to_seval<cocos2d::Director>(result, __jsb_cocos2d_Director_class, &instanceVal);
-        instanceVal.toObject()->switchToRooted();
+        instanceVal.toObject()->root();
         s.rval() = instanceVal;
         return true;
     }
@@ -7587,7 +7587,7 @@ static bool js_cocos2dx_Configuration_getInstance(se::State& s)
         auto result = cocos2d::Configuration::getInstance();
         se::Value instanceVal;
         native_ptr_to_seval<cocos2d::Configuration>(result, __jsb_cocos2d_Configuration_class, &instanceVal);
-        instanceVal.toObject()->switchToRooted();
+        instanceVal.toObject()->root();
         s.rval() = instanceVal;
         return true;
     }
@@ -33732,7 +33732,7 @@ static bool js_cocos2dx_GLProgramCache_getInstance(se::State& s)
         auto result = cocos2d::GLProgramCache::getInstance();
         se::Value instanceVal;
         native_ptr_to_seval<cocos2d::GLProgramCache>(result, __jsb_cocos2d_GLProgramCache_class, &instanceVal);
-        instanceVal.toObject()->switchToRooted();
+        instanceVal.toObject()->root();
         s.rval() = instanceVal;
         return true;
     }
@@ -36020,7 +36020,7 @@ static bool js_cocos2dx_SpriteFrameCache_getInstance(se::State& s)
         auto result = cocos2d::SpriteFrameCache::getInstance();
         se::Value instanceVal;
         native_ptr_to_seval<cocos2d::SpriteFrameCache>(result, __jsb_cocos2d_SpriteFrameCache_class, &instanceVal);
-        instanceVal.toObject()->switchToRooted();
+        instanceVal.toObject()->root();
         s.rval() = instanceVal;
         return true;
     }

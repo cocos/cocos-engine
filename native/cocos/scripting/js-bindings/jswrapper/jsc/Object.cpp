@@ -470,7 +470,7 @@ namespace se {
         return _cls;
     }
 
-    void Object::switchToRooted()
+    void Object::root()
     {
         if (_isRooted)
             return;
@@ -479,7 +479,7 @@ namespace se {
         _isRooted = true;
     }
 
-    void Object::switchToUnrooted()
+    void Object::unroot()
     {
         if (!_isRooted)
             return;
@@ -512,7 +512,7 @@ namespace se {
         if (_isKeepRootedUntilDie)
         {
             if (!_isRooted)
-                switchToRooted();
+                root();
         }
     }
     

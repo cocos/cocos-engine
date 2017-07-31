@@ -563,7 +563,7 @@ namespace se {
         }
     }
 
-    void Object::switchToRooted()
+    void Object::root()
     {
         debug("switch to rooted");
         if (_isRooted)
@@ -579,7 +579,7 @@ namespace se {
         assert(_isRooted);
     }
 
-    void Object::switchToUnrooted()
+    void Object::unroot()
     {
         if (!_isRooted)
             return;
@@ -604,7 +604,7 @@ namespace se {
         if (_isKeepRootedUntilDie)
         {
             if (!_isRooted)
-                switchToRooted();
+                root();
         }
     }
 

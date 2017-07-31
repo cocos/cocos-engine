@@ -84,7 +84,7 @@ public:
             SE_REPORT_ERROR("Can't get onopen function!");
         }
 
-        jsObj->switchToUnrooted();
+        jsObj->unroot();
         jsObj->release();
     }
 
@@ -147,7 +147,7 @@ public:
             SE_REPORT_ERROR("Can't get onmessage function!");
         }
 
-        jsObj->switchToUnrooted();
+        jsObj->unroot();
         jsObj->release();
     }
 
@@ -185,7 +185,7 @@ public:
                 SE_REPORT_ERROR("Can't get onclose function!");
             }
 
-            jsObj->switchToUnrooted();
+            jsObj->unroot();
             jsObj->release();
 
         } while(false);
@@ -223,7 +223,7 @@ public:
             SE_REPORT_ERROR("Can't get onerror function!");
         }
 
-        jsObj->switchToUnrooted();
+        jsObj->unroot();
         jsObj->release();
     }
 

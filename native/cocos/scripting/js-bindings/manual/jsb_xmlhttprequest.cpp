@@ -472,7 +472,7 @@ static bool XMLHttpRequest_constructor(se::State& s)
     };
 
     request->onloadstart = [cb, thiz](){
-        thiz.toObject()->switchToRooted();
+        thiz.toObject()->root();
         cb("onloadstart");
     };
     request->onload = [cb](){
@@ -480,7 +480,7 @@ static bool XMLHttpRequest_constructor(se::State& s)
     };
     request->onloadend = [cb, thiz](){
         cb("onloadend");
-        thiz.toObject()->switchToUnrooted();
+        thiz.toObject()->unroot();
     };
     request->onreadystatechange = [cb](){
         cb("onreadystatechange");

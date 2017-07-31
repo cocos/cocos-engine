@@ -112,7 +112,7 @@ static bool js_cocos2dx_dragonbones_ArmatureData_get_animations(se::State& s)
             retObj->setProperty(e.first.c_str(), tmp);
         }
     }
-    retObj->switchToUnrooted();
+    retObj->unroot();
     s.rval().setObject(retObj);
     return true;
 }
@@ -133,7 +133,7 @@ static bool js_cocos2dx_dragonbones_ArmatureData_get_bones(se::State& s)
             retObj->setProperty(e.first.c_str(), tmp);
         }
     }
-    retObj->switchToUnrooted();
+    retObj->unroot();
     s.rval().setObject(retObj);
     return true;
 }
@@ -154,7 +154,7 @@ static bool js_cocos2dx_dragonbones_ArmatureData_get_skins(se::State& s)
             retObj->setProperty(e.first.c_str(), tmp);
         }
     }
-    retObj->switchToUnrooted();
+    retObj->unroot();
     s.rval().setObject(retObj);
     return true;
 }
@@ -175,7 +175,7 @@ static bool js_cocos2dx_dragonbones_ArmatureData_get_slots(se::State& s)
             retObj->setProperty(e.first.c_str(), tmp);
         }
     }
-    retObj->switchToUnrooted();
+    retObj->unroot();
     s.rval().setObject(retObj);
     return true;
 }
@@ -459,15 +459,15 @@ bool register_all_dragonbones_manual(se::Object* obj)
             auto iter = se::__nativePtrToObjectMap.find(obj);
             if (iter != se::__nativePtrToObjectMap.end())
             {
-                CCLOG("%s: %p was recycled!", typeName.c_str(), obj);
+//                CCLOG("%s: %p was recycled!", typeName.c_str(), obj);
                 se::Object* seObj = iter->second;
                 seObj->clearPrivateData();
-                seObj->switchToUnrooted();
+                seObj->unroot();
                 seObj->release();
             }
             else
             {
-                CCLOG("Didn't find %s, %p in map", typeName.c_str(), obj);
+//                CCLOG("Didn't find %s, %p in map", typeName.c_str(), obj);
     //            assert(false);
             }
         };

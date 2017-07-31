@@ -70,8 +70,8 @@ namespace se {
         void* getPrivateData();
         void clearPrivateData();
 
-        void switchToRooted();
-        void switchToUnrooted();
+        void root();
+        void unroot();
         void setKeepRootedUntilDie(bool keepRooted);
         bool isRooted() const;
 
