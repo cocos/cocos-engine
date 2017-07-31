@@ -35,7 +35,7 @@ static bool js_cocos2dx_extension_loadRemoteImage(se::State& s)
         bool ok = false;
         std::string url;
         ok = seval_to_std_string(args[0], &url);
-        JSB_PRECONDITION2(ok, false, "Converting 'url' failed!");
+        SE_PRECONDITION2(ok, false, "Converting 'url' failed!");
 
         se::Value func = args[1];
         assert(func.isObject() && func.toObject()->isFunction());
@@ -54,7 +54,7 @@ static bool js_cocos2dx_extension_loadRemoteImage(se::State& s)
             {
                 args[0].setBoolean(true);
                 bool ok = native_ptr_to_seval<Texture2D>(tex, &args[1]);
-                JSB_PRECONDITION2(ok, false, "Converting 'tex' argument failed!");
+                SE_PRECONDITION2(ok, false, "Converting 'tex' argument failed!");
             }
             else
             {

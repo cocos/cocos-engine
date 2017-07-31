@@ -15,7 +15,7 @@
 static bool js_creator_PhysicsContactListener_setPreSolve(se::State& s)
 {
     creator::PhysicsContactListener* cobj = (creator::PhysicsContactListener*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -50,7 +50,7 @@ static bool js_creator_PhysicsContactListener_setPreSolve(se::State& s)
                 arg0 = nullptr;
             }
         } while(false);
-        JSB_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setPreSolve(arg0);
         return true;
     }
@@ -62,7 +62,7 @@ SE_BIND_FUNC(js_creator_PhysicsContactListener_setPreSolve)
 static bool js_creator_PhysicsContactListener_setPostSolve(se::State& s)
 {
     creator::PhysicsContactListener* cobj = (creator::PhysicsContactListener*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -99,7 +99,7 @@ static bool js_creator_PhysicsContactListener_setPostSolve(se::State& s)
                 arg0 = nullptr;
             }
         } while(false);
-        JSB_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setPostSolve(arg0);
         return true;
     }
@@ -111,7 +111,7 @@ SE_BIND_FUNC(js_creator_PhysicsContactListener_setPostSolve)
 static bool js_creator_PhysicsContactListener_setBeginContact(se::State& s)
 {
     creator::PhysicsContactListener* cobj = (creator::PhysicsContactListener*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -155,7 +155,7 @@ static bool js_creator_PhysicsContactListener_setBeginContact(se::State& s)
                 arg0 = nullptr;
             }
         } while(false);
-        JSB_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setBeginContact(arg0);
         return true;
     }
@@ -167,7 +167,7 @@ SE_BIND_FUNC(js_creator_PhysicsContactListener_setBeginContact)
 static bool js_creator_PhysicsContactListener_setEndContact(se::State& s)
 {
     creator::PhysicsContactListener* cobj = (creator::PhysicsContactListener*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -202,7 +202,7 @@ static bool js_creator_PhysicsContactListener_setEndContact(se::State& s)
                 arg0 = nullptr;
             }
         } while(false);
-        JSB_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setEndContact(arg0);
         return true;
     }

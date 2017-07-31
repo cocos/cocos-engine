@@ -264,7 +264,7 @@ static bool WebSocket_constructor(se::State& s)
         std::string url;
 
         bool ok = seval_to_std_string(args[0], &url);
-        JSB_PRECONDITION2(ok, false, "Error processing url argument");
+        SE_PRECONDITION2(ok, false, "Error processing url argument");
 
         se::Object* obj = s.thisObject();
         WebSocket* cobj = nullptr;
@@ -277,7 +277,7 @@ static bool WebSocket_constructor(se::State& s)
             {
                 std::string protocol;
                 ok = seval_to_std_string(args[1], &protocol);
-                JSB_PRECONDITION2(ok, false, "Error processing protocol string");
+                SE_PRECONDITION2(ok, false, "Error processing protocol string");
                 protocols.push_back(protocol);
             }
             else if (args[1].isObject() && args[1].toObject()->isArray())
@@ -285,7 +285,7 @@ static bool WebSocket_constructor(se::State& s)
                 se::Object* protocolArr = args[1].toObject();
                 uint32_t len = 0;
                 ok = protocolArr->getArrayLength(&len);
-                JSB_PRECONDITION2(ok, false, "getArrayLength failed!");
+                SE_PRECONDITION2(ok, false, "getArrayLength failed!");
 
                 se::Value tmp;
                 for (uint32_t i=0; i < len; ++i)
@@ -295,7 +295,7 @@ static bool WebSocket_constructor(se::State& s)
 
                     std::string protocol;
                     ok = seval_to_std_string(tmp, &protocol);
-                    JSB_PRECONDITION2(ok, false, "Error processing protocol object");
+                    SE_PRECONDITION2(ok, false, "Error processing protocol object");
                     protocols.push_back(protocol);
                 }
             }
@@ -303,7 +303,7 @@ static bool WebSocket_constructor(se::State& s)
             if (argc > 2)
             {
                 ok = seval_to_std_string(args[2], &caFilePath);
-                JSB_PRECONDITION2(ok, false, "Error processing caFilePath");
+                SE_PRECONDITION2(ok, false, "Error processing caFilePath");
             }
 
             cobj = new (std::nothrow) WebSocket();
@@ -372,7 +372,7 @@ static bool WebSocket_send(se::State& s)
         {
             std::string data;
             ok = seval_to_std_string(args[0], &data);
-            JSB_PRECONDITION2(ok, false, "Convert string failed");
+            SE_PRECONDITION2(ok, false, "Convert string failed");
 //FIXME: We didn't find a way to get the JS string length in JSB2.0.
 //            if (data.empty() && len > 0)
 //            {
@@ -392,12 +392,12 @@ static bool WebSocket_send(se::State& s)
             if (dataObj->isArrayBuffer())
             {
                 ok = dataObj->getArrayBufferData(&ptr, &length);
-                JSB_PRECONDITION2(ok, false, "getArrayBufferData failed!");
+                SE_PRECONDITION2(ok, false, "getArrayBufferData failed!");
             }
             else if (dataObj->isTypedArray())
             {
                 ok = dataObj->getTypedArrayData(&ptr, &length);
-                JSB_PRECONDITION2(ok, false, "getTypedArrayData failed!");
+                SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
             }
             else
             {

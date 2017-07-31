@@ -80,7 +80,7 @@ static bool js_PlistParser_parse(se::State& s)
     if (argc == 1) {
         std::string arg0;
         ok &= seval_to_std_string(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
 
         std::string parsedStr = delegator->parseText(arg0);
         std::replace(parsedStr.begin(), parsedStr.end(), '\n', ' ');
@@ -209,7 +209,7 @@ static bool JSB_localStorageGetItem(se::State& s)
         bool ok = true;
         std::string key;
         ok = seval_to_std_string(args[0], &key);
-        JSB_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         std::string value;
         ok = localStorageGetItem(key, &value);
         if (ok)
@@ -232,7 +232,7 @@ static bool JSB_localStorageRemoveItem(se::State& s)
         bool ok = true;
         std::string key;
         ok = seval_to_std_string(args[0], &key);
-        JSB_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         localStorageRemoveItem(key);
         return true;
     }
@@ -251,11 +251,11 @@ static bool JSB_localStorageSetItem(se::State& s)
         bool ok = true;
         std::string key;
         ok = seval_to_std_string(args[0], &key);
-        JSB_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
 
         std::string value;
         ok = seval_to_std_string(args[0], &value);
-        JSB_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         localStorageSetItem(key, value);
         return true;
     }
@@ -337,13 +337,13 @@ static bool invokeJSMouseCallback(EventListenerMouse* listener, const char* func
     argArr.reserve(1);
     se::Value arg1Val;
     ok = native_ptr_to_seval<EventMouse>(arg1, &arg1Val);
-    JSB_PRECONDITION2(ok, false, "invokeJSMouseCallback convert arg1 failed!");
+    SE_PRECONDITION2(ok, false, "invokeJSMouseCallback convert arg1 failed!");
     argArr.push_back(std::move(arg1Val));
 
     assert(se::__nativePtrToObjectMap.find(arg1) != se::__nativePtrToObjectMap.end());
 
     ok = funcVal.toObject()->call(argArr, listenerObj, retVal);
-    JSB_PRECONDITION2(ok, false, "invokeJSMouseCallback call function failed!");
+    SE_PRECONDITION2(ok, false, "invokeJSMouseCallback call function failed!");
 
     return true;
 }
@@ -545,16 +545,16 @@ static bool invokeJSTouchAllAtOnceCallback(EventListenerTouchAllAtOnce* listener
 
     se::Value arg1Val;
     ok = std_vector_Touch_to_seval(touches, &arg1Val);
-    JSB_PRECONDITION2(ok, false, "invokeJSTouchAllAtOnceCallback convert arg1 failed!");
+    SE_PRECONDITION2(ok, false, "invokeJSTouchAllAtOnceCallback convert arg1 failed!");
     argArr.push_back(std::move(arg1Val));
 
     se::Value arg2Val;
     ok = native_ptr_to_seval<Event>(event, &arg2Val);
-    JSB_PRECONDITION2(ok, false, "invokeJSTouchAllAtOnceCallback convert arg2 failed!");
+    SE_PRECONDITION2(ok, false, "invokeJSTouchAllAtOnceCallback convert arg2 failed!");
     argArr.push_back(std::move(arg2Val));
 
     ok = funcVal.toObject()->call(argArr, listenerObj, retVal);
-    JSB_PRECONDITION2(ok, false, "invokeJSTouchAllAtOnceCallback call function failed!");
+    SE_PRECONDITION2(ok, false, "invokeJSTouchAllAtOnceCallback call function failed!");
 
     return true;
 }
@@ -620,17 +620,17 @@ static bool invokeJSKeyboardCallback(EventListenerKeyboard* listener, const char
 
     se::Value arg1Val;
     ok = int32_to_seval((int32_t)keyCode, &arg1Val);
-    JSB_PRECONDITION2(ok, false, "invokeJSKeyboardCallback convert arg1 failed!");
+    SE_PRECONDITION2(ok, false, "invokeJSKeyboardCallback convert arg1 failed!");
     argArr.push_back(std::move(arg1Val));
 
 
     se::Value arg2Val;
     ok = native_ptr_to_seval<Event>(event, &arg2Val);
-    JSB_PRECONDITION2(ok, false, "invokeJSKeyboardCallback convert arg2 failed!");
+    SE_PRECONDITION2(ok, false, "invokeJSKeyboardCallback convert arg2 failed!");
     argArr.push_back(std::move(arg2Val));
 
     ok = funcVal.toObject()->call(argArr, listenerObj, retVal);
-    JSB_PRECONDITION2(ok, false, "invokeJSKeyboardCallback call function failed!");
+    SE_PRECONDITION2(ok, false, "invokeJSKeyboardCallback call function failed!");
 
     return true;
 }
@@ -754,7 +754,7 @@ static bool js_EventListenerCustom_create(se::State& s)
         bool ok = false;
         std::string eventName;
         ok = seval_to_std_string(args[0], &eventName);
-        JSB_PRECONDITION2(ok && !eventName.empty(), false, "Convert event name failed!");
+        SE_PRECONDITION2(ok && !eventName.empty(), false, "Convert event name failed!");
 
         se::Value funcVal = args[1];
         assert(funcVal.isObject() && funcVal.toObject()->isFunction());
@@ -787,7 +787,7 @@ static bool js_EventListenerCustom_create(se::State& s)
             {
                 se::Value arg1Val;
                 ok = native_ptr_to_seval<EventCustom>(event, &arg1Val);
-                JSB_PRECONDITION2_VOID(ok, "EventListenerCustom::create callback: convert arg1 failed!");
+                SE_PRECONDITION2_VOID(ok, "EventListenerCustom::create callback: convert arg1 failed!");
                 argArr.push_back(std::move(arg1Val));
             }
             funcVal.toObject()->call(argArr, nullptr);
@@ -859,7 +859,7 @@ static bool js_cocos2dx_Sequence_or_Spawn_create(se::State& s, se::Class* cls)
         if (argc == 1 && args[0].isObject() && args[0].toObject()->isArray())
         {
             ok &= seval_to_Vector(args[0], &array);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
         }
         else
         {
@@ -915,7 +915,7 @@ static bool js_cocos2dx_ActionInterval_repeat(se::State& s)
     const auto& args = s.args();
     int argc = (int)args.size();
     cocos2d::ActionInterval* cobj = (cocos2d::ActionInterval *)s.nativeThisObject();
-    JSB_PRECONDITION2( cobj, false, "js_cocos2dx_ActionInterval_repeat : Invalid Native Object");
+    SE_PRECONDITION2( cobj, false, "js_cocos2dx_ActionInterval_repeat : Invalid Native Object");
 
     if (argc == 1)
     {
@@ -948,7 +948,7 @@ static bool js_cocos2dx_ActionInterval_repeatForever(se::State& s)
     const auto& args = s.args();
     int argc = (int)args.size();
     cocos2d::ActionInterval* cobj = (cocos2d::ActionInterval *)s.nativeThisObject();
-    JSB_PRECONDITION2( cobj, false, "js_cocos2dx_ActionInterval_repeatForever : Invalid Native Object");
+    SE_PRECONDITION2( cobj, false, "js_cocos2dx_ActionInterval_repeatForever : Invalid Native Object");
 
     if (argc == 0) {
         cocos2d::RepeatForever* action = new (std::nothrow) cocos2d::RepeatForever;
@@ -971,7 +971,7 @@ static bool js_cocos2dx_ActionInterval_speed(se::State& s)
     const auto& args = s.args();
     int argc = (int)args.size();
     cocos2d::ActionInterval* cobj = (cocos2d::ActionInterval *)s.nativeThisObject();
-    JSB_PRECONDITION2( cobj, false, "js_cocos2dx_ActionInterval_speed : Invalid Native Object");
+    SE_PRECONDITION2( cobj, false, "js_cocos2dx_ActionInterval_speed : Invalid Native Object");
 
     if (argc == 1)
     {
@@ -1042,7 +1042,7 @@ static bool js_cocos2dx_ActionInterval_easing(se::State& s)
     const auto& args = s.args();
     uint32_t argc = (uint32_t)args.size();
     cocos2d::ActionInterval* oldAction = (cocos2d::ActionInterval *)s.nativeThisObject();
-    JSB_PRECONDITION2 (oldAction, false, "js_cocos2dx_ActionInterval_easing : Invalid Native Object");
+    SE_PRECONDITION2 (oldAction, false, "js_cocos2dx_ActionInterval_easing : Invalid Native Object");
 
     cocos2d::ActionInterval* newAction = nullptr;
     se::Value jsTag;
@@ -1312,7 +1312,7 @@ static bool js_cocos2dx_CallFunc_init(cocos2d::CallFuncN* nativeObj, se::Object*
 
     if (!funcVal.isObject() || !funcVal.toObject()->isFunction())
     {
-        JSB_PRECONDITION2(false, false, "js_cocos2dx_CallFunc_create, args[0](func) isn't a function object");
+        SE_PRECONDITION2(false, false, "js_cocos2dx_CallFunc_create, args[0](func) isn't a function object");
     }
 
     jsobj->attachChild(funcVal.toObject());
@@ -1322,7 +1322,7 @@ static bool js_cocos2dx_CallFunc_init(cocos2d::CallFuncN* nativeObj, se::Object*
         thisVal = args[1];
         if (!thisVal.isObject())
         {
-            JSB_PRECONDITION2(false, false, "js_cocos2dx_CallFunc_create, args[1](this) isn't an object");
+            SE_PRECONDITION2(false, false, "js_cocos2dx_CallFunc_create, args[1](this) isn't an object");
         }
         jsobj->attachChild(thisVal.toObject());
     }
@@ -1368,7 +1368,7 @@ static bool js_cocos2dx_CallFunc_init(cocos2d::CallFuncN* nativeObj, se::Object*
         }
         else
         {
-            JSB_PRECONDITION2_VOID(false, "js_cocos2dx_CallFunc_create, funcVal is null or undefined!");
+            SE_PRECONDITION2_VOID(false, "js_cocos2dx_CallFunc_create, funcVal is null or undefined!");
         }
     });
 
@@ -1432,12 +1432,12 @@ static bool js_BezierActions_init(se::State& s, T* nativeObj)
         bool ok = false;
         double t = 0.0;
         ok = seval_to_double(args[0], &t);
-        JSB_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
 
         std::vector<Vec2> arr;
         ok = seval_to_std_vector_Vec2(args[1], &arr);
-        JSB_PRECONDITION2(ok, false, "Error processing arguments");
-        JSB_PRECONDITION2(arr.size() >= 3, false, "args[1] isn't an array with 3 elements");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(arr.size() >= 3, false, "args[1] isn't an array with 3 elements");
 
         ccBezierConfig config;
         config.controlPoint_1 = arr[0];
@@ -1445,7 +1445,7 @@ static bool js_BezierActions_init(se::State& s, T* nativeObj)
         config.endPosition = arr[2];
 
         ok = nativeObj->initWithDuration(t, config);
-        JSB_PRECONDITION2(ok, false, "initWithDuration failed!");
+        SE_PRECONDITION2(ok, false, "initWithDuration failed!");
 
         return true;
     }
@@ -1508,15 +1508,15 @@ static bool js_CardinalSplineActions_init(se::State& s, T* nativeObj)
     {
         double dur = 0.0;
         ok = seval_to_double(args[0], &dur);
-        JSB_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
 
         std::vector<Vec2> arr;
         ok = seval_to_std_vector_Vec2(args[1], &arr);
-        JSB_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
 
         double ten = 0.0;
         ok = seval_to_double(args[2], &ten);
-        JSB_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
 
         PointArray* points = PointArray::create(arr.size());
 
@@ -1526,7 +1526,7 @@ static bool js_CardinalSplineActions_init(se::State& s, T* nativeObj)
         }
 
         ok = nativeObj->initWithDuration(dur, points, ten);
-        JSB_PRECONDITION2(ok, false, "initWithDuration failed!");
+        SE_PRECONDITION2(ok, false, "initWithDuration failed!");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 1);
@@ -1587,11 +1587,11 @@ static bool js_CatmullRomActions_init(se::State& s, T* nativeObj)
     {
         double dur = 0.0;
         ok = seval_to_double(args[0], &dur);
-        JSB_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
 
         std::vector<Vec2> arr;
         ok = seval_to_std_vector_Vec2(args[1], &arr);
-        JSB_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
 
         PointArray* points = PointArray::create(arr.size());
 
@@ -1601,7 +1601,7 @@ static bool js_CatmullRomActions_init(se::State& s, T* nativeObj)
         }
 
         ok = nativeObj->initWithDuration(dur, points);
-        JSB_PRECONDITION2(ok, false, "initWithDuration failed!");
+        SE_PRECONDITION2(ok, false, "initWithDuration failed!");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 1);
@@ -1700,7 +1700,7 @@ bool js_cocos2dx_Texture2D_setTexParameters(se::State& s)
         && seval_to_uint32(args[2], &arg2)
         && seval_to_uint32(args[3], &arg3);
 
-        JSB_PRECONDITION2(ok, false, "Converting arguments failed!");
+        SE_PRECONDITION2(ok, false, "Converting arguments failed!");
         Texture2D* cobj = (Texture2D*)s.nativeThisObject();
 
         Texture2D::TexParams param = { arg0, arg1, arg2, arg3 };

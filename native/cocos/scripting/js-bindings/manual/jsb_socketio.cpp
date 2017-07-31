@@ -149,7 +149,7 @@ static bool SocketIO_send(se::State& s)
     {
         std::string payload;
         bool ok = seval_to_std_string(args[0], &payload);
-        JSB_PRECONDITION2(ok, false, "Converting payload failed!");
+        SE_PRECONDITION2(ok, false, "Converting payload failed!");
 
         cobj->send(payload);
         return true;
@@ -171,11 +171,11 @@ static bool SocketIO_emit(se::State& s)
         bool ok = false;
         std::string eventName;
         ok = seval_to_std_string(args[0], &eventName);
-        JSB_PRECONDITION2(ok, false, "Converting eventName failed!");
+        SE_PRECONDITION2(ok, false, "Converting eventName failed!");
 
         std::string payload;
         ok = seval_to_std_string(args[1], &payload);
-        JSB_PRECONDITION2(ok, false, "Converting payload failed!");
+        SE_PRECONDITION2(ok, false, "Converting payload failed!");
 
         CCLOG("JSB SocketIO emit event '%s' with payload: %s", eventName.c_str(), payload.c_str());
 
@@ -216,7 +216,7 @@ static bool SocketIO_on(se::State& s)
         bool ok = false;
         std::string eventName;
         ok = seval_to_std_string(args[0], &eventName);
-        JSB_PRECONDITION2(ok, false, "Converting eventName failed!");
+        SE_PRECONDITION2(ok, false, "Converting eventName failed!");
 
         CCLOG("JSB SocketIO eventName to: '%s'", eventName.c_str());
 
@@ -243,7 +243,7 @@ static bool SocketIO_connect(se::State& s)
         bool ok = false;
 
         ok = seval_to_std_string(args[0], &url);
-        JSB_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
 
         if (argc == 2)
         {
@@ -255,7 +255,7 @@ static bool SocketIO_connect(se::State& s)
             {
                 // Assume it's CA root file path
                 ok = seval_to_std_string(args[1], &caFilePath);
-                JSB_PRECONDITION2( ok, false, "Error processing arguments");
+                SE_PRECONDITION2( ok, false, "Error processing arguments");
             }
         }
 
@@ -267,7 +267,7 @@ static bool SocketIO_connect(se::State& s)
             {
                 // Assume it's CA root file path
                 ok = seval_to_std_string(args[2], &caFilePath);
-                JSB_PRECONDITION2( ok, false, "Error processing arguments");
+                SE_PRECONDITION2( ok, false, "Error processing arguments");
             }
         }
 

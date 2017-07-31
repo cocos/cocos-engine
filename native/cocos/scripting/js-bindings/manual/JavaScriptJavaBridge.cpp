@@ -446,13 +446,13 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State& s)
         bool ok = false;
         std::string clsName, methodName, methodSig;
         ok = seval_to_std_string(args[0], &clsName);
-        JSB_PRECONDITION2(ok, false, "Converting class name failed!");
+        SE_PRECONDITION2(ok, false, "Converting class name failed!");
 
         ok = seval_to_std_string(args[1], &methodName);
-        JSB_PRECONDITION2(ok, false, "Converting method name failed!");
+        SE_PRECONDITION2(ok, false, "Converting method name failed!");
 
         ok = seval_to_std_string(args[2], &methodSig);
-        JSB_PRECONDITION2(ok, false, "Converting method signature failed!");
+        SE_PRECONDITION2(ok, false, "Converting method signature failed!");
 
         JavaScriptJavaBridge::CallInfo call(clsName.c_str(), methodName.c_str(), methodSig.c_str());
         if (call.isValid())
@@ -475,13 +475,13 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State& s)
         bool ok = false;
         std::string clsName, methodName, methodSig;
         ok = seval_to_std_string(args[0], &clsName);
-        JSB_PRECONDITION2(ok, false, "Converting class name failed!");
+        SE_PRECONDITION2(ok, false, "Converting class name failed!");
 
         ok = seval_to_std_string(args[1], &methodName);
-        JSB_PRECONDITION2(ok, false, "Converting method name failed!");
+        SE_PRECONDITION2(ok, false, "Converting method name failed!");
 
         ok = seval_to_std_string(args[2], &methodSig);
-        JSB_PRECONDITION2(ok, false, "Converting method signature failed!");
+        SE_PRECONDITION2(ok, false, "Converting method signature failed!");
 
         JavaScriptJavaBridge::CallInfo call(clsName.c_str(), methodName.c_str(), methodSig.c_str());
         if (call.isValid() && call.getArgumentsCount() == (argc - 3))

@@ -15,19 +15,19 @@ bool seval_to_b2BodyDef(const se::Value& v, b2BodyDef* ret)
     bool ok = false;
     se::Value tmp, tmp2;
     ok = obj->getProperty("angle", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
     ret->angle = tmp.toFloat();
 
     ok = obj->getProperty("angularVelocity", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
     ret->angularVelocity = tmp.toFloat();
 
     ok = obj->getProperty("linearDamping", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
     ret->linearDamping = tmp.toFloat();
 
     ok = obj->getProperty("angularDamping", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
     ret->angularDamping = tmp.toFloat();
 
     ok = obj->getProperty("gravityScale", &tmp);
@@ -55,7 +55,7 @@ bool seval_to_b2BodyDef(const se::Value& v, b2BodyDef* ret)
         ret->fixedRotation = true;
 
     ok = obj->getProperty("bullet", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isBoolean(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isBoolean(), false, *ret = ZERO);
     ret->bullet = tmp.toBoolean();
 
     ok = obj->getProperty("active", &tmp);
@@ -65,31 +65,31 @@ bool seval_to_b2BodyDef(const se::Value& v, b2BodyDef* ret)
         ret->active = true;
 
     ok = obj->getProperty("type", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
     ret->type = (b2BodyType)tmp.toInt32();
 
     // position
     ok = obj->getProperty("position", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
 
     ok = tmp.toObject()->getProperty("x", &tmp2);
-    JSB_PRECONDITION3(ok && tmp2.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp2.isNumber(), false, *ret = ZERO);
     ret->position.x = tmp2.toFloat();
 
     ok = tmp.toObject()->getProperty("y", &tmp2);
-    JSB_PRECONDITION3(ok && tmp2.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp2.isNumber(), false, *ret = ZERO);
     ret->position.y = tmp2.toFloat();
 
     // linearVelocity
     ok = obj->getProperty("linearVelocity", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
 
     ok = tmp.toObject()->getProperty("x", &tmp2);
-    JSB_PRECONDITION3(ok && tmp2.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp2.isNumber(), false, *ret = ZERO);
     ret->linearVelocity.x = tmp2.toFloat();
 
     ok = tmp.toObject()->getProperty("y", &tmp2);
-    JSB_PRECONDITION3(ok && tmp2.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp2.isNumber(), false, *ret = ZERO);
     ret->linearVelocity.y = tmp2.toFloat();
 
     return true;
@@ -106,17 +106,17 @@ bool seval_to_b2JointDef(const se::Value& v, b2JointType type, b2JointDef* ret)
     bool ok = false;
     se::Value tmp;
     ok = obj->getProperty("bodyA", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
     ok = seval_to_native_ptr(tmp, &ret->bodyA);
-    JSB_PRECONDITION3(ok, false, *ret = ZERO);
+    SE_PRECONDITION3(ok, false, *ret = ZERO);
 
     ok = obj->getProperty("bodyB", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
     ok = seval_to_native_ptr(tmp, &ret->bodyB);
-    JSB_PRECONDITION3(ok, false, *ret = ZERO);
+    SE_PRECONDITION3(ok, false, *ret = ZERO);
 
     ok = obj->getProperty("collideConnected", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isBoolean(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isBoolean(), false, *ret = ZERO);
     ret->collideConnected = tmp.toBoolean();
 
     switch (type) {
@@ -125,15 +125,15 @@ bool seval_to_b2JointDef(const se::Value& v, b2JointType type, b2JointDef* ret)
             b2DistanceJointDef* def = (b2DistanceJointDef*)ret;
 
             ok = obj->getProperty("length", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->length = tmp.toFloat();
 
             ok = obj->getProperty("frequencyHz", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->frequencyHz = tmp.toFloat();
 
             ok = obj->getProperty("dampingRatio", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->dampingRatio = tmp.toFloat();
             break;
         }
@@ -142,21 +142,21 @@ bool seval_to_b2JointDef(const se::Value& v, b2JointType type, b2JointDef* ret)
             b2FrictionJointDef* def = (b2FrictionJointDef*)ret;
 
             ok = obj->getProperty("localAnchorA", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
             ok = seval_to_b2Vec2(tmp, &def->localAnchorA);
-            JSB_PRECONDITION3(ok, false, *ret = ZERO);
+            SE_PRECONDITION3(ok, false, *ret = ZERO);
 
             ok = obj->getProperty("localAnchorB", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
             ok = seval_to_b2Vec2(tmp, &def->localAnchorB);
-            JSB_PRECONDITION3(ok, false, *ret = ZERO);
+            SE_PRECONDITION3(ok, false, *ret = ZERO);
 
             ok = obj->getProperty("maxForce", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->maxForce = tmp.toFloat();
 
             ok = obj->getProperty("maxTorque", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->maxTorque = tmp.toFloat();
             break;
         }
@@ -165,17 +165,17 @@ bool seval_to_b2JointDef(const se::Value& v, b2JointType type, b2JointDef* ret)
             b2GearJointDef* def = (b2GearJointDef*)ret;
 
             ok = obj->getProperty("valjoint1", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
             ok = seval_to_native_ptr(tmp, &def->joint1);
-            JSB_PRECONDITION3(ok, false, *ret = ZERO);
+            SE_PRECONDITION3(ok, false, *ret = ZERO);
 
             ok = obj->getProperty("valjoint2", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
             ok = seval_to_native_ptr(tmp, &def->joint2);
-            JSB_PRECONDITION3(ok, false, *ret = ZERO);
+            SE_PRECONDITION3(ok, false, *ret = ZERO);
 
             ok = obj->getProperty("ratio", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->ratio = tmp.toFloat();
             break;
         }
@@ -184,24 +184,24 @@ bool seval_to_b2JointDef(const se::Value& v, b2JointType type, b2JointDef* ret)
             b2MotorJointDef* def = (b2MotorJointDef*)ret;
 
             ok = obj->getProperty("linearOffset", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
             ok = seval_to_b2Vec2(tmp, &def->linearOffset);
-            JSB_PRECONDITION3(ok, false, *ret = ZERO);
+            SE_PRECONDITION3(ok, false, *ret = ZERO);
 
             ok = obj->getProperty("angularOffset", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->angularOffset = tmp.toFloat();
 
             ok = obj->getProperty("maxForce", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->maxForce = tmp.toFloat();
 
             ok = obj->getProperty("maxTorque", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->maxTorque = tmp.toFloat();
 
             ok = obj->getProperty("correctionFactor", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->correctionFactor = tmp.toFloat();
             break;
         }
@@ -210,20 +210,20 @@ bool seval_to_b2JointDef(const se::Value& v, b2JointType type, b2JointDef* ret)
             b2MouseJointDef* def = (b2MouseJointDef*)ret;
 
             ok = obj->getProperty("target", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
             ok = seval_to_b2Vec2(tmp, &def->target);
-            JSB_PRECONDITION3(ok, false, *ret = ZERO);
+            SE_PRECONDITION3(ok, false, *ret = ZERO);
 
             ok = obj->getProperty("frequencyHz", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->frequencyHz = tmp.toFloat();
 
             ok = obj->getProperty("maxForce", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->maxForce = tmp.toFloat();
 
             ok = obj->getProperty("dampingRatio", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->dampingRatio = tmp.toFloat();
             break;
         }
@@ -232,46 +232,46 @@ bool seval_to_b2JointDef(const se::Value& v, b2JointType type, b2JointDef* ret)
             b2PrismaticJointDef* def = (b2PrismaticJointDef*)ret;
 
             ok = obj->getProperty("localAnchorA", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
             ok = seval_to_b2Vec2(tmp, &def->localAnchorA);
-            JSB_PRECONDITION3(ok, false, *ret = ZERO);
+            SE_PRECONDITION3(ok, false, *ret = ZERO);
 
             ok = obj->getProperty("localAnchorB", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
             ok = seval_to_b2Vec2(tmp, &def->localAnchorB);
-            JSB_PRECONDITION3(ok, false, *ret = ZERO);
+            SE_PRECONDITION3(ok, false, *ret = ZERO);
 
             ok = obj->getProperty("localAxisA", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
             ok = seval_to_b2Vec2(tmp, &def->localAxisA);
-            JSB_PRECONDITION3(ok, false, *ret = ZERO);
+            SE_PRECONDITION3(ok, false, *ret = ZERO);
 
             ok = obj->getProperty("lowerTranslation", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->lowerTranslation = tmp.toFloat();
 
             ok = obj->getProperty("referenceAngle", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->referenceAngle = tmp.toFloat();
 
             ok = obj->getProperty("upperTranslation", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->upperTranslation = tmp.toFloat();
 
             ok = obj->getProperty("maxMotorForce", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->maxMotorForce = tmp.toFloat();
 
             ok = obj->getProperty("motorSpeed", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->motorSpeed = tmp.toFloat();
 
             ok = obj->getProperty("enableLimit", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isBoolean(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isBoolean(), false, *ret = ZERO);
             def->enableLimit = tmp.toBoolean();
 
             ok = obj->getProperty("enableMotor", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isBoolean(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isBoolean(), false, *ret = ZERO);
             def->enableMotor = tmp.toBoolean();
             break;
         }
@@ -280,39 +280,39 @@ bool seval_to_b2JointDef(const se::Value& v, b2JointType type, b2JointDef* ret)
             b2PulleyJointDef* def = (b2PulleyJointDef*)ret;
 
             ok = obj->getProperty("localAnchorA", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
             ok = seval_to_b2Vec2(tmp, &def->localAnchorA);
-            JSB_PRECONDITION3(ok, false, *ret = ZERO);
+            SE_PRECONDITION3(ok, false, *ret = ZERO);
 
             ok = obj->getProperty("localAnchorB", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
             ok = seval_to_b2Vec2(tmp, &def->localAnchorB);
-            JSB_PRECONDITION3(ok, false, *ret = ZERO);
+            SE_PRECONDITION3(ok, false, *ret = ZERO);
 
             ok = obj->getProperty("groundAnchorA", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
             ok = seval_to_b2Vec2(tmp, &def->groundAnchorA);
-            JSB_PRECONDITION3(ok, false, *ret = ZERO);
+            SE_PRECONDITION3(ok, false, *ret = ZERO);
 
             ok = obj->getProperty("groundAnchorB", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
             ok = seval_to_b2Vec2(tmp, &def->groundAnchorB);
-            JSB_PRECONDITION3(ok, false, *ret = ZERO);
+            SE_PRECONDITION3(ok, false, *ret = ZERO);
 
             ok = obj->getProperty("lengthB", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->lengthB = tmp.toFloat();
 
             ok = obj->getProperty("lengthA", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->lengthA = tmp.toFloat();
 
             ok = obj->getProperty("ratio", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->ratio = tmp.toFloat();
 
             ok = obj->getProperty("collideConnected", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isBoolean(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isBoolean(), false, *ret = ZERO);
             def->collideConnected = tmp.toBoolean();
             break;
         }
@@ -321,41 +321,41 @@ bool seval_to_b2JointDef(const se::Value& v, b2JointType type, b2JointDef* ret)
             b2RevoluteJointDef* def = (b2RevoluteJointDef*)ret;
 
             ok = obj->getProperty("localAnchorA", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
             ok = seval_to_b2Vec2(tmp, &def->localAnchorA);
-            JSB_PRECONDITION3(ok, false, *ret = ZERO);
+            SE_PRECONDITION3(ok, false, *ret = ZERO);
 
             ok = obj->getProperty("localAnchorB", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
             ok = seval_to_b2Vec2(tmp, &def->localAnchorB);
-            JSB_PRECONDITION3(ok, false, *ret = ZERO);
+            SE_PRECONDITION3(ok, false, *ret = ZERO);
 
             ok = obj->getProperty("lowerAngle", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->lowerAngle = tmp.toFloat();
 
             ok = obj->getProperty("referenceAngle", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->referenceAngle = tmp.toFloat();
 
             ok = obj->getProperty("upperAngle", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->upperAngle = tmp.toFloat();
 
             ok = obj->getProperty("maxMotorTorque", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->maxMotorTorque = tmp.toFloat();
 
             ok = obj->getProperty("motorSpeed", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->motorSpeed = tmp.toFloat();
 
             ok = obj->getProperty("enableLimit", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isBoolean(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isBoolean(), false, *ret = ZERO);
             def->enableLimit = tmp.toBoolean();
 
             ok = obj->getProperty("enableMotor", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isBoolean(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isBoolean(), false, *ret = ZERO);
             def->enableMotor = tmp.toBoolean();
             break;
         }
@@ -364,17 +364,17 @@ bool seval_to_b2JointDef(const se::Value& v, b2JointType type, b2JointDef* ret)
             b2RopeJointDef* def = (b2RopeJointDef*)ret;
 
             ok = obj->getProperty("localAnchorA", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
             ok = seval_to_b2Vec2(tmp, &def->localAnchorA);
-            JSB_PRECONDITION3(ok, false, *ret = ZERO);
+            SE_PRECONDITION3(ok, false, *ret = ZERO);
 
             ok = obj->getProperty("localAnchorB", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
             ok = seval_to_b2Vec2(tmp, &def->localAnchorB);
-            JSB_PRECONDITION3(ok, false, *ret = ZERO);
+            SE_PRECONDITION3(ok, false, *ret = ZERO);
 
             ok = obj->getProperty("maxLength", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->maxLength = tmp.toFloat();
             break;
         }
@@ -383,25 +383,25 @@ bool seval_to_b2JointDef(const se::Value& v, b2JointType type, b2JointDef* ret)
             b2WeldJointDef* def = (b2WeldJointDef*)ret;
 
             ok = obj->getProperty("localAnchorA", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
             ok = seval_to_b2Vec2(tmp, &def->localAnchorA);
-            JSB_PRECONDITION3(ok, false, *ret = ZERO);
+            SE_PRECONDITION3(ok, false, *ret = ZERO);
 
             ok = obj->getProperty("localAnchorB", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
             ok = seval_to_b2Vec2(tmp, &def->localAnchorB);
-            JSB_PRECONDITION3(ok, false, *ret = ZERO);
+            SE_PRECONDITION3(ok, false, *ret = ZERO);
 
             ok = obj->getProperty("referenceAngle", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->referenceAngle = tmp.toFloat();
 
             ok = obj->getProperty("frequencyHz", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->frequencyHz = tmp.toFloat();
 
             ok = obj->getProperty("dampingRatio", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->dampingRatio = tmp.toFloat();
             break;
         }
@@ -410,38 +410,38 @@ bool seval_to_b2JointDef(const se::Value& v, b2JointType type, b2JointDef* ret)
             b2WheelJointDef* def = (b2WheelJointDef*)ret;
 
             ok = obj->getProperty("localAnchorA", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
             ok = seval_to_b2Vec2(tmp, &def->localAnchorA);
-            JSB_PRECONDITION3(ok, false, *ret = ZERO);
+            SE_PRECONDITION3(ok, false, *ret = ZERO);
 
             ok = obj->getProperty("localAnchorB", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
             ok = seval_to_b2Vec2(tmp, &def->localAnchorB);
-            JSB_PRECONDITION3(ok, false, *ret = ZERO);
+            SE_PRECONDITION3(ok, false, *ret = ZERO);
 
             ok = obj->getProperty("localAxisA", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
             ok = seval_to_b2Vec2(tmp, &def->localAxisA);
-            JSB_PRECONDITION3(ok, false, *ret = ZERO);
+            SE_PRECONDITION3(ok, false, *ret = ZERO);
 
             ok = obj->getProperty("frequencyHz", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->frequencyHz = tmp.toFloat();
 
             ok = obj->getProperty("maxMotorTorque", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->maxMotorTorque = tmp.toFloat();
 
             ok = obj->getProperty("dampingRatio", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->dampingRatio = tmp.toFloat();
 
             ok = obj->getProperty("motorSpeed", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
             def->motorSpeed = tmp.toFloat();
 
             ok = obj->getProperty("enableMotor", &tmp);
-            JSB_PRECONDITION3(ok && tmp.isBoolean(), false, *ret = ZERO);
+            SE_PRECONDITION3(ok && tmp.isBoolean(), false, *ret = ZERO);
             def->enableMotor = tmp.toBoolean();
 
             break;
@@ -470,25 +470,25 @@ bool seval_to_b2FixtureDef(const se::Value& v, b2FixtureDef* ret)
         ret->friction = 0.2f;
 
     ok = obj->getProperty("restitution", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
     ret->restitution = tmp.toFloat();
 
     ok = obj->getProperty("density", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
     ret->density = tmp.toFloat();
 
     ok = obj->getProperty("isSensor", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isBoolean(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isBoolean(), false, *ret = ZERO);
     ret->isSensor = tmp.toBoolean();
 
     ok = obj->getProperty("shape", &tmp);
-    JSB_PRECONDITION3(ok, false, *ret = ZERO);
+    SE_PRECONDITION3(ok, false, *ret = ZERO);
     ok = seval_to_native_ptr(tmp, &ret->shape);
-    JSB_PRECONDITION3(ok, false, *ret = ZERO);
+    SE_PRECONDITION3(ok, false, *ret = ZERO);
 
     se::Value filterVal;
     ok = obj->getProperty("filter", &filterVal);
-    JSB_PRECONDITION3(ok && filterVal.isObject(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && filterVal.isObject(), false, *ret = ZERO);
 
     se::Object* filterObj = filterVal.toObject();
 
@@ -596,7 +596,7 @@ static bool js_box2dclasses_b2Shape_SetRadius(se::State& s)
     if (argc == 1)
     {
         b2Shape* cobj = (b2Shape *)s.nativeThisObject();
-        JSB_PRECONDITION2(args[0].isNumber(), false, "The radius isn't a number!");
+        SE_PRECONDITION2(args[0].isNumber(), false, "The radius isn't a number!");
         cobj->m_radius = args[0].toFloat();
         return true;
     }
@@ -631,7 +631,7 @@ static bool js_box2dclasses_b2World_CreateBody(se::State& s)
 
         b2BodyDef def;
         ok = seval_to_b2BodyDef(args[0], &def);
-        JSB_PRECONDITION2(ok, false, "seval_to_b2BodyDef failed!");
+        SE_PRECONDITION2(ok, false, "seval_to_b2BodyDef failed!");
 
         b2Body* ret = cobj->CreateBody(&def);
         // box2d will reuse cached memory, need first remove old proxy when create new jsobject
@@ -653,7 +653,7 @@ static bool js_box2dclasses_b2CircleShape_SetPosition(se::State& s)
         b2CircleShape* cobj = (b2CircleShape *)s.nativeThisObject();
         b2Vec2 arg0;
         ok = seval_to_b2Vec2(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "seval_to_b2Vec2 failed!");
+        SE_PRECONDITION2(ok, false, "seval_to_b2Vec2 failed!");
         cobj->m_p = arg0;
         return true;
     }
@@ -671,7 +671,7 @@ static bool js_box2dclasses_b2CircleShape_GetPosition(se::State& s)
         b2CircleShape* cobj = (b2CircleShape *)s.nativeThisObject();
         bool ok = false;
         ok = b2Vec2_to_seval(cobj->m_p, &s.rval());
-        JSB_PRECONDITION2(ok, false, "b2Vec2_to_seval failed!");
+        SE_PRECONDITION2(ok, false, "b2Vec2_to_seval failed!");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 0);
@@ -693,7 +693,7 @@ static bool js_box2dclasses_b2World_CreateJoint(se::State& s)
         se::Object* seObj = args[0].toObject();
         se::Value tmp;
         ok = seObj->getProperty("type", &tmp);
-        JSB_PRECONDITION2(ok, false, "Get type failed!");
+        SE_PRECONDITION2(ok, false, "Get type failed!");
         if (tmp.isNumber())
             type = (b2JointType)tmp.toInt32();
 
@@ -759,7 +759,7 @@ static bool js_box2dclasses_b2World_CreateJoint(se::State& s)
         }
 
         ok = seval_to_b2JointDef(args[0], type, tmpDef);
-        JSB_PRECONDITION2(ok, false, "seval_to_b2JointDef failed!");
+        SE_PRECONDITION2(ok, false, "seval_to_b2JointDef failed!");
 
         b2Joint* ret = cobj->CreateJoint(tmpDef);
 
@@ -769,7 +769,7 @@ static bool js_box2dclasses_b2World_CreateJoint(se::State& s)
 
         delete tmpDef;
 
-        JSB_PRECONDITION2(ok, false, "recreate_seval_by_native_ptr failed!");
+        SE_PRECONDITION2(ok, false, "recreate_seval_by_native_ptr failed!");
 
         return true;
     }
@@ -789,22 +789,22 @@ static bool js_box2dclasses_b2Body_CreateFixture(se::State& s)
     {
         b2Shape* arg0;
         ok = seval_to_native_ptr(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "seval_to_native_ptr failed!");
+        SE_PRECONDITION2(ok, false, "seval_to_native_ptr failed!");
 
         float arg1 = args[1].toFloat();
         b2Fixture* ret = cobj->CreateFixture(arg0, arg1);
         ok = recreate_seval_by_native_ptr<b2Fixture>(ret, __jsb_b2Fixture_class, &s.rval());
-        JSB_PRECONDITION2(ok, false, "native_ptr_to_seval failed!");
+        SE_PRECONDITION2(ok, false, "native_ptr_to_seval failed!");
         return true;
     }
     else if (argc == 1)
     {
         b2FixtureDef def;
         ok = seval_to_b2FixtureDef(args[0], &def);
-        JSB_PRECONDITION2(ok, false, "seval_to_b2FixtureDef failed!");
+        SE_PRECONDITION2(ok, false, "seval_to_b2FixtureDef failed!");
         b2Fixture* ret = cobj->CreateFixture(&def);
         ok = recreate_seval_by_native_ptr<b2Fixture>(ret, __jsb_b2Fixture_class, &s.rval());
-        JSB_PRECONDITION2(ok, false, "native_ptr_to_seval failed!");
+        SE_PRECONDITION2(ok, false, "native_ptr_to_seval failed!");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 1);
@@ -942,11 +942,11 @@ static bool js_box2dclasses_b2PolygonShape_Set(se::State& s)
         b2PolygonShape* cobj = (b2PolygonShape *)s.nativeThisObject();
         int arg1 = 0;
         ok = seval_to_int32(args[1], &arg1);
-        JSB_PRECONDITION2(ok, false, "seval_to_int32 failed!");
+        SE_PRECONDITION2(ok, false, "seval_to_int32 failed!");
 
         b2Vec2* arg0 = new (std::nothrow) b2Vec2[arg1];
         ok = seval_to_array_of_b2Vec2(args[0], arg0, arg1);
-        JSB_PRECONDITION2(ok, false, "seval_to_array_of_b2Vec2 failed!");
+        SE_PRECONDITION2(ok, false, "seval_to_array_of_b2Vec2 failed!");
 
         cobj->Set(arg0, arg1);
 
@@ -970,9 +970,9 @@ static bool js_box2dclasses_b2PolygonShape_SetAsBox(se::State& s)
         b2PolygonShape* cobj = (b2PolygonShape *)s.nativeThisObject();
         float arg0 = 0.0f, arg1 = 0.0f;
         ok = seval_to_float(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "seval_to_float failed!");
+        SE_PRECONDITION2(ok, false, "seval_to_float failed!");
         ok = seval_to_float(args[1], &arg1);
-        JSB_PRECONDITION2(ok, false, "seval_to_float failed!");
+        SE_PRECONDITION2(ok, false, "seval_to_float failed!");
 
         cobj->SetAsBox(arg0, arg1);
 
@@ -984,16 +984,16 @@ static bool js_box2dclasses_b2PolygonShape_SetAsBox(se::State& s)
         b2PolygonShape* cobj = (b2PolygonShape *)s.nativeThisObject();
         float arg0 = 0.0f, arg1 = 0.0f;
         ok = seval_to_float(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "seval_to_float failed!");
+        SE_PRECONDITION2(ok, false, "seval_to_float failed!");
         ok = seval_to_float(args[1], &arg1);
-        JSB_PRECONDITION2(ok, false, "seval_to_float failed!");
+        SE_PRECONDITION2(ok, false, "seval_to_float failed!");
 
         b2Vec2 arg2;
         float arg3 = 0.0f;
         ok = seval_to_b2Vec2(args[2], &arg2);
-        JSB_PRECONDITION2(ok, false, "seval_to_b2Vec2 failed!");
+        SE_PRECONDITION2(ok, false, "seval_to_b2Vec2 failed!");
         ok = seval_to_float(args[3], &arg3);
-        JSB_PRECONDITION2(ok, false, "seval_to_float failed!");
+        SE_PRECONDITION2(ok, false, "seval_to_float failed!");
 
         cobj->SetAsBox(arg0, arg1, arg2, arg3);
         return true;
@@ -1014,11 +1014,11 @@ static bool js_box2dclasses_b2ChainShape_CreateLoop(se::State& s)
         b2ChainShape* cobj = (b2ChainShape *)s.nativeThisObject();
         int arg1 = 0;
         ok = seval_to_int32(args[1], &arg1);
-        JSB_PRECONDITION2(ok, false, "seval_to_int32 failed!");
+        SE_PRECONDITION2(ok, false, "seval_to_int32 failed!");
 
         b2Vec2* arg0 = new (std::nothrow) b2Vec2[arg1];
         ok = seval_to_array_of_b2Vec2(args[0], arg0, arg1);
-        JSB_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
 
         cobj->CreateLoop(arg0, arg1);
 
@@ -1041,11 +1041,11 @@ static bool js_box2dclasses_b2ChainShape_CreateChain(se::State& s)
         b2ChainShape* cobj = (b2ChainShape *)s.nativeThisObject();
         int arg1 = 0;
         ok = seval_to_int32(args[1], &arg1);
-        JSB_PRECONDITION2(ok, false, "seval_to_int32 failed!");
+        SE_PRECONDITION2(ok, false, "seval_to_int32 failed!");
 
         b2Vec2* arg0 = new (std::nothrow) b2Vec2[arg1];
         ok = seval_to_array_of_b2Vec2(args[0], arg0, arg1);
-        JSB_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
 
         cobj->CreateChain(arg0, arg1);
 

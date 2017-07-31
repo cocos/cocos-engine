@@ -25,7 +25,6 @@
 		1A159D511F13216F00558E38 /* jsb_socketio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A159D4E1F13216F00558E38 /* jsb_socketio.cpp */; };
 		1A159D521F13216F00558E38 /* jsb_socketio.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A159D4F1F13216F00558E38 /* jsb_socketio.hpp */; };
 		1A159D531F13216F00558E38 /* jsb_socketio.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A159D4F1F13216F00558E38 /* jsb_socketio.hpp */; };
-		1A4E8E811F00CB0200F30872 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A4E8E801F00CB0200F30872 /* JavaScriptCore.framework */; };
 		1A4E8E831F00E84C00F30872 /* libChakraCoreStatic.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A4E8E821F00E84C00F30872 /* libChakraCoreStatic.a */; };
 		1A5F228A1F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5F22881F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp */; };
 		1A5F228B1F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5F22881F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp */; };
@@ -39,6 +38,8 @@
 		1A5F229D1F0E37B20008BF09 /* jsb_creator_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5F229A1F0E37B20008BF09 /* jsb_creator_manual.cpp */; };
 		1A5F229E1F0E37B20008BF09 /* jsb_creator_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A5F229B1F0E37B20008BF09 /* jsb_creator_manual.hpp */; };
 		1A5F229F1F0E37B20008BF09 /* jsb_creator_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A5F229B1F0E37B20008BF09 /* jsb_creator_manual.hpp */; };
+		1A62FCB21F282DDB0002E38C /* libbmalloc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A62FCB11F282DDB0002E38C /* libbmalloc.a */; };
+		1A62FCB41F282DE30002E38C /* libWTF.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A62FCAF1F282DDA0002E38C /* libWTF.a */; };
 		1A81B41E1F137BFE008C38F8 /* JavaScriptObjCBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A81B41C1F137BFE008C38F8 /* JavaScriptObjCBridge.h */; };
 		1A81B41F1F137BFE008C38F8 /* JavaScriptObjCBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A81B41C1F137BFE008C38F8 /* JavaScriptObjCBridge.h */; };
 		1A81B4201F137BFE008C38F8 /* JavaScriptObjCBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A81B41D1F137BFE008C38F8 /* JavaScriptObjCBridge.mm */; };
@@ -259,6 +260,14 @@
 		1A5F22951F0E306C0008BF09 /* jsb_box2d_manual.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_box2d_manual.hpp; sourceTree = "<group>"; };
 		1A5F229A1F0E37B20008BF09 /* jsb_creator_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_creator_manual.cpp; sourceTree = "<group>"; };
 		1A5F229B1F0E37B20008BF09 /* jsb_creator_manual.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_creator_manual.hpp; sourceTree = "<group>"; };
+		1A62FCAA1F282DDA0002E38C /* libbmalloc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbmalloc.a; path = "../../../../../JavaScriptCore/build-osx/lib/libbmalloc.a"; sourceTree = "<group>"; };
+		1A62FCAB1F282DDA0002E38C /* libJavaScriptCore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libJavaScriptCore.a; path = "../../../../../JavaScriptCore/build-osx/lib/libJavaScriptCore.a"; sourceTree = "<group>"; };
+		1A62FCAC1F282DDA0002E38C /* libWTF.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWTF.a; path = "../../../../../JavaScriptCore/build-osx/lib/libWTF.a"; sourceTree = "<group>"; };
+		1A62FCAD1F282DDA0002E38C /* libbmalloc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbmalloc.a; path = "../../../../../JavaScriptCore/build-osx/lib/libbmalloc.a"; sourceTree = "<group>"; };
+		1A62FCAE1F282DDA0002E38C /* libJavaScriptCore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libJavaScriptCore.a; path = "../../../../../JavaScriptCore/build-osx/lib/libJavaScriptCore.a"; sourceTree = "<group>"; };
+		1A62FCAF1F282DDA0002E38C /* libWTF.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWTF.a; path = "../../../../../JavaScriptCore/build-osx/lib/libWTF.a"; sourceTree = "<group>"; };
+		1A62FCB01F282DDB0002E38C /* libJavaScriptCore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libJavaScriptCore.a; path = "../../../../../JavaScriptCore/build-osx/lib/libJavaScriptCore.a"; sourceTree = "<group>"; };
+		1A62FCB11F282DDB0002E38C /* libbmalloc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbmalloc.a; path = "../../../../../JavaScriptCore/build-osx/lib/libbmalloc.a"; sourceTree = "<group>"; };
 		1A81B41C1F137BFE008C38F8 /* JavaScriptObjCBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JavaScriptObjCBridge.h; sourceTree = "<group>"; };
 		1A81B41D1F137BFE008C38F8 /* JavaScriptObjCBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = JavaScriptObjCBridge.mm; sourceTree = "<group>"; };
 		1A81B4221F149E7B008C38F8 /* jsb_module_register.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_module_register.cpp; sourceTree = "<group>"; };
@@ -375,7 +384,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1A4E8E811F00CB0200F30872 /* JavaScriptCore.framework in Frameworks */,
+				1A62FCB21F282DDB0002E38C /* libbmalloc.a in Frameworks */,
+				1A62FCB41F282DE30002E38C /* libWTF.a in Frameworks */,
 				1A10510E1F14CB4000D4322C /* libjs_static.a in Frameworks */,
 				1A10510C1F14CB4000D4322C /* libmozglue.a in Frameworks */,
 				1A4E8E831F00E84C00F30872 /* libChakraCoreStatic.a in Frameworks */,
@@ -581,6 +591,14 @@
 		1AFD37021EF116CA0097DBB1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1A62FCB11F282DDB0002E38C /* libbmalloc.a */,
+				1A62FCB01F282DDB0002E38C /* libJavaScriptCore.a */,
+				1A62FCAD1F282DDA0002E38C /* libbmalloc.a */,
+				1A62FCAE1F282DDA0002E38C /* libJavaScriptCore.a */,
+				1A62FCAF1F282DDA0002E38C /* libWTF.a */,
+				1A62FCAA1F282DDA0002E38C /* libbmalloc.a */,
+				1A62FCAB1F282DDA0002E38C /* libJavaScriptCore.a */,
+				1A62FCAC1F282DDA0002E38C /* libWTF.a */,
 				1A10510D1F14CB4000D4322C /* libjs_static.a */,
 				1A1051061F14C0B600D4322C /* libjs_static.a */,
 				1A1051071F14C0B600D4322C /* libmozglue.a */,
@@ -1026,6 +1044,7 @@
 					"$(SRCROOT)/../../../../external/mac/libs",
 					"\"$(SRCROOT)/../../../../../ChakraCore/out/Debug/lib\"",
 					/usr/local/Cellar/icu4c/58.2/lib,
+					"\"$(SRCROOT)/../../../../../JavaScriptCore/build-osx/lib\"",
 				);
 				SYSTEM_HEADER_SEARCH_PATHS = "";
 				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../../../external/mac/include $(SRCROOT)/../../../../external/sources $(SRCROOT)/../../../../cocos/platform/mac $(SRCROOT)/../../../../external/mac/include/spidermonkey $(SRCROOT)/../../../../external/mac/include/v8 $(SRCROOT)/../../../../external/mac/include/chakracore";
@@ -1049,6 +1068,7 @@
 					"$(SRCROOT)/../../../../external/mac/libs",
 					"\"$(SRCROOT)/../../../../../ChakraCore/out/Debug/lib\"",
 					/usr/local/Cellar/icu4c/58.2/lib,
+					"\"$(SRCROOT)/../../../../../JavaScriptCore/build-osx/lib\"",
 				);
 				SYSTEM_HEADER_SEARCH_PATHS = "";
 				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../../../external/mac/include $(SRCROOT)/../../../../external/sources $(SRCROOT)/../../../../cocos/platform/mac $(SRCROOT)/../../../../external/mac/include/spidermonkey $(SRCROOT)/../../../../external/mac/include/v8 $(SRCROOT)/../../../../external/mac/include/chakracore";

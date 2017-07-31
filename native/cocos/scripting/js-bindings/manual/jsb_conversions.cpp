@@ -190,9 +190,9 @@ bool seval_to_Vec2(const se::Value& v, cocos2d::Vec2* pt)
     se::Value x;
     se::Value y;
     bool ok = obj->getProperty("x", &x);
-    JSB_PRECONDITION3(ok && x.isNumber(), false, *pt = cocos2d::Vec2::ZERO);
+    SE_PRECONDITION3(ok && x.isNumber(), false, *pt = cocos2d::Vec2::ZERO);
     ok = obj->getProperty("y", &y);
-    JSB_PRECONDITION3(ok && y.isNumber(), false, *pt = cocos2d::Vec2::ZERO);
+    SE_PRECONDITION3(ok && y.isNumber(), false, *pt = cocos2d::Vec2::ZERO);
     pt->x = x.toFloat();
     pt->y = y.toFloat();
     return true;
@@ -206,11 +206,11 @@ bool seval_to_Vec3(const se::Value& v, cocos2d::Vec3* pt)
     se::Value y;
     se::Value z;
     bool ok = obj->getProperty("x", &x);
-    JSB_PRECONDITION3(ok && x.isNumber(), false, *pt = cocos2d::Vec3::ZERO);
+    SE_PRECONDITION3(ok && x.isNumber(), false, *pt = cocos2d::Vec3::ZERO);
     ok = obj->getProperty("y", &y);
-    JSB_PRECONDITION3(ok && y.isNumber(), false, *pt = cocos2d::Vec3::ZERO);
+    SE_PRECONDITION3(ok && y.isNumber(), false, *pt = cocos2d::Vec3::ZERO);
     ok = obj->getProperty("z", &z);
-    JSB_PRECONDITION3(ok && z.isNumber(), false, *pt = cocos2d::Vec3::ZERO);
+    SE_PRECONDITION3(ok && z.isNumber(), false, *pt = cocos2d::Vec3::ZERO);
     pt->x = x.toFloat();
     pt->y = y.toFloat();
     pt->z = z.toFloat();
@@ -227,13 +227,13 @@ bool seval_to_Vec4(const se::Value& v, cocos2d::Vec4* pt)
     se::Value z;
     se::Value w;
     bool ok = obj->getProperty("x", &x);
-    JSB_PRECONDITION3(ok && x.isNumber(), false, *pt = cocos2d::Vec4::ZERO);
+    SE_PRECONDITION3(ok && x.isNumber(), false, *pt = cocos2d::Vec4::ZERO);
     ok = obj->getProperty("y", &y);
-    JSB_PRECONDITION3(ok && y.isNumber(), false, *pt = cocos2d::Vec4::ZERO);
+    SE_PRECONDITION3(ok && y.isNumber(), false, *pt = cocos2d::Vec4::ZERO);
     ok = obj->getProperty("z", &z);
-    JSB_PRECONDITION3(ok && z.isNumber(), false, *pt = cocos2d::Vec4::ZERO);
+    SE_PRECONDITION3(ok && z.isNumber(), false, *pt = cocos2d::Vec4::ZERO);
     ok = obj->getProperty("w", &w);
-    JSB_PRECONDITION3(ok && w.isNumber(), false, *pt = cocos2d::Vec4::ZERO);
+    SE_PRECONDITION3(ok && w.isNumber(), false, *pt = cocos2d::Vec4::ZERO);
     pt->x = x.toFloat();
     pt->y = y.toFloat();
     pt->z = z.toFloat();
@@ -245,14 +245,14 @@ bool seval_to_Mat4(const se::Value& v, cocos2d::Mat4* mat)
 {
     assert(v.isObject() && mat != nullptr);
 
-    JSB_PRECONDITION3(v.toObject()->isArray(), false, *mat = cocos2d::Mat4::IDENTITY;);
+    SE_PRECONDITION3(v.toObject()->isArray(), false, *mat = cocos2d::Mat4::IDENTITY;);
 
     se::Object* obj = v.toObject();
 
     bool ok = false;
     uint32_t len = 0;
     ok = obj->getArrayLength(&len);
-    JSB_PRECONDITION3(ok, false, *mat = cocos2d::Mat4::IDENTITY);
+    SE_PRECONDITION3(ok, false, *mat = cocos2d::Mat4::IDENTITY);
 
     if (len != 16)
     {
@@ -265,7 +265,7 @@ bool seval_to_Mat4(const se::Value& v, cocos2d::Mat4* mat)
     for (uint32_t i = 0; i < len; ++i)
     {
         ok = obj->getArrayElement(i, &tmp);
-        JSB_PRECONDITION3(ok, false, *mat = cocos2d::Mat4::IDENTITY);
+        SE_PRECONDITION3(ok, false, *mat = cocos2d::Mat4::IDENTITY);
 
         if (tmp.isNumber())
         {
@@ -292,9 +292,9 @@ bool seval_to_Size(const se::Value& v, cocos2d::Size* size)
     se::Value height;
 
     bool ok = obj->getProperty("width", &width);
-    JSB_PRECONDITION3(ok && width.isNumber(), false, *size = cocos2d::Size::ZERO);
+    SE_PRECONDITION3(ok && width.isNumber(), false, *size = cocos2d::Size::ZERO);
     ok = obj->getProperty("height", &height);
-    JSB_PRECONDITION3(ok && height.isNumber(), false, *size = cocos2d::Size::ZERO);
+    SE_PRECONDITION3(ok && height.isNumber(), false, *size = cocos2d::Size::ZERO);
     size->width = width.toFloat();
     size->height = height.toFloat();
     return true;
@@ -310,13 +310,13 @@ bool seval_to_Rect(const se::Value& v, cocos2d::Rect* rect)
     se::Value height;
 
     bool ok = obj->getProperty("x", &x);
-    JSB_PRECONDITION3(ok && x.isNumber(), false, *rect = cocos2d::Rect::ZERO);
+    SE_PRECONDITION3(ok && x.isNumber(), false, *rect = cocos2d::Rect::ZERO);
     ok = obj->getProperty("y", &y);
-    JSB_PRECONDITION3(ok && y.isNumber(), false, *rect = cocos2d::Rect::ZERO);
+    SE_PRECONDITION3(ok && y.isNumber(), false, *rect = cocos2d::Rect::ZERO);
     ok = obj->getProperty("width", &width);
-    JSB_PRECONDITION3(ok && width.isNumber(), false, *rect = cocos2d::Rect::ZERO);
+    SE_PRECONDITION3(ok && width.isNumber(), false, *rect = cocos2d::Rect::ZERO);
     ok = obj->getProperty("height", &height);
-    JSB_PRECONDITION3(ok && height.isNumber(), false, *rect = cocos2d::Rect::ZERO);
+    SE_PRECONDITION3(ok && height.isNumber(), false, *rect = cocos2d::Rect::ZERO);
     rect->origin.x = x.toFloat();
     rect->origin.y = y.toFloat();
     rect->size.width = width.toFloat();
@@ -333,11 +333,11 @@ bool seval_to_Color3B(const se::Value& v, cocos2d::Color3B* color)
     se::Value g;
     se::Value b;
     bool ok = obj->getProperty("r", &r);
-    JSB_PRECONDITION3(ok && r.isNumber(), false, *color = cocos2d::Color3B::BLACK);
+    SE_PRECONDITION3(ok && r.isNumber(), false, *color = cocos2d::Color3B::BLACK);
     ok = obj->getProperty("g", &g);
-    JSB_PRECONDITION3(ok && g.isNumber(), false, *color = cocos2d::Color3B::BLACK);
+    SE_PRECONDITION3(ok && g.isNumber(), false, *color = cocos2d::Color3B::BLACK);
     ok = obj->getProperty("b", &b);
-    JSB_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color3B::BLACK);
+    SE_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color3B::BLACK);
     color->r = (GLubyte)r.toUint16();
     color->g = (GLubyte)g.toUint16();
     color->b = (GLubyte)b.toUint16();
@@ -353,13 +353,13 @@ bool seval_to_Color4B(const se::Value& v, cocos2d::Color4B* color)
     se::Value b;
     se::Value a;
     bool ok = obj->getProperty("r", &r);
-    JSB_PRECONDITION3(ok && r.isNumber(), false, *color = cocos2d::Color4B::BLACK);
+    SE_PRECONDITION3(ok && r.isNumber(), false, *color = cocos2d::Color4B::BLACK);
     ok = obj->getProperty("g", &g);
-    JSB_PRECONDITION3(ok && g.isNumber(), false, *color = cocos2d::Color4B::BLACK);
+    SE_PRECONDITION3(ok && g.isNumber(), false, *color = cocos2d::Color4B::BLACK);
     ok = obj->getProperty("b", &b);
-    JSB_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color4B::BLACK);
+    SE_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color4B::BLACK);
     ok = obj->getProperty("a", &a);
-    JSB_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color4B::BLACK);
+    SE_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color4B::BLACK);
     color->r = (GLubyte)r.toUint16();
     color->g = (GLubyte)g.toUint16();
     color->b = (GLubyte)b.toUint16();
@@ -376,13 +376,13 @@ bool seval_to_Color4F(const se::Value& v, cocos2d::Color4F* color)
     se::Value b;
     se::Value a;
     bool ok = obj->getProperty("r", &r);
-    JSB_PRECONDITION3(ok && r.isNumber(), false, *color = cocos2d::Color4F::BLACK);
+    SE_PRECONDITION3(ok && r.isNumber(), false, *color = cocos2d::Color4F::BLACK);
     ok = obj->getProperty("g", &g);
-    JSB_PRECONDITION3(ok && g.isNumber(), false, *color = cocos2d::Color4F::BLACK);
+    SE_PRECONDITION3(ok && g.isNumber(), false, *color = cocos2d::Color4F::BLACK);
     ok = obj->getProperty("b", &b);
-    JSB_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color4F::BLACK);
+    SE_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color4F::BLACK);
     ok = obj->getProperty("a", &a);
-    JSB_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color4F::BLACK);
+    SE_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color4F::BLACK);
     color->r = r.toFloat() / 255.0f;
     color->g = g.toFloat() / 255.0f;
     color->b = b.toFloat() / 255.0f;
@@ -402,7 +402,7 @@ bool seval_to_ccvalue(const se::Value& v, cocos2d::Value* ret)
             // It's a normal js object.
             cocos2d::ValueMap dictVal;
             ok = seval_to_ccvaluemap(v, &dictVal);
-            JSB_PRECONDITION3(ok, false, *ret = cocos2d::Value::Null);
+            SE_PRECONDITION3(ok, false, *ret = cocos2d::Value::Null);
             *ret = cocos2d::Value(dictVal);
         }
         else
@@ -410,7 +410,7 @@ bool seval_to_ccvalue(const se::Value& v, cocos2d::Value* ret)
             // It's a js array object.
             cocos2d::ValueVector arrVal;
             ok = seval_to_ccvaluevector(v, &arrVal);
-            JSB_PRECONDITION3(ok, false, *ret = cocos2d::Value::Null);
+            SE_PRECONDITION3(ok, false, *ret = cocos2d::Value::Null);
             *ret = cocos2d::Value(arrVal);
         }
     }
@@ -446,23 +446,23 @@ bool seval_to_ccvaluemap(const se::Value& v, cocos2d::ValueMap* ret)
 
     assert(v.isObject());
 
-    JSB_PRECONDITION3(!v.isNullOrUndefined(), false, ret->clear());
+    SE_PRECONDITION3(!v.isNullOrUndefined(), false, ret->clear());
 
     se::Object* obj = v.toObject();
 
     cocos2d::ValueMap& dict = *ret;
 
     std::vector<std::string> allKeys;
-    JSB_PRECONDITION3(obj->getAllKeys(&allKeys), false, ret->clear());
+    SE_PRECONDITION3(obj->getAllKeys(&allKeys), false, ret->clear());
 
     bool ok = false;
     se::Value value;
     cocos2d::Value ccvalue;
     for (const auto& key : allKeys)
     {
-        JSB_PRECONDITION3(obj->getProperty(key.c_str(), &value), false, ret->clear());
+        SE_PRECONDITION3(obj->getProperty(key.c_str(), &value), false, ret->clear());
         ok = seval_to_ccvalue(value, &ccvalue);
-        JSB_PRECONDITION3(ok, false, ret->clear());
+        SE_PRECONDITION3(ok, false, ret->clear());
         dict.emplace(key, ccvalue);
     }
 
@@ -490,21 +490,21 @@ bool seval_to_ccvaluemapintkey(const se::Value& v, cocos2d::ValueMapIntKey* ret)
 
     assert(v.isObject());
 
-    JSB_PRECONDITION3(!v.isNullOrUndefined(), false, ret->clear());
+    SE_PRECONDITION3(!v.isNullOrUndefined(), false, ret->clear());
 
     se::Object* obj = v.toObject();
 
     cocos2d::ValueMapIntKey& dict = *ret;
 
     std::vector<std::string> allKeys;
-    JSB_PRECONDITION3(obj->getAllKeys(&allKeys), false, ret->clear());
+    SE_PRECONDITION3(obj->getAllKeys(&allKeys), false, ret->clear());
 
     bool ok = false;
     se::Value value;
     cocos2d::Value ccvalue;
     for (const auto& key : allKeys)
     {
-        JSB_PRECONDITION3(obj->getProperty(key.c_str(), &value), false, ret->clear());
+        SE_PRECONDITION3(obj->getProperty(key.c_str(), &value), false, ret->clear());
 
         if (!isNumberString(key))
         {
@@ -515,7 +515,7 @@ bool seval_to_ccvaluemapintkey(const se::Value& v, cocos2d::ValueMapIntKey* ret)
         int intKey = atoi(key.c_str());
 
         ok = seval_to_ccvalue(value, &ccvalue);
-        JSB_PRECONDITION3(ok, false, ret->clear());
+        SE_PRECONDITION3(ok, false, ret->clear());
         dict.emplace(intKey, ccvalue);
     }
     
@@ -529,7 +529,7 @@ bool seval_to_ccvaluevector(const se::Value& v,  cocos2d::ValueVector* ret)
     assert(v.isObject());
 
     se::Object* obj = v.toObject();
-    JSB_PRECONDITION3(obj->isArray(), false, ret->clear());
+    SE_PRECONDITION3(obj->isArray(), false, ret->clear());
 
     uint32_t len = 0;
     obj->getArrayLength(&len);
@@ -542,7 +542,7 @@ bool seval_to_ccvaluevector(const se::Value& v,  cocos2d::ValueVector* ret)
         if (obj->getArrayElement(i, &value))
         {
             ok = seval_to_ccvalue(value, &ccvalue);
-            JSB_PRECONDITION3(ok, false, ret->clear());
+            SE_PRECONDITION3(ok, false, ret->clear());
             ret->push_back(ccvalue);
         }
     }
@@ -558,7 +558,7 @@ bool sevals_variadic_to_ccvaluevector(const se::ValueArray& args, cocos2d::Value
     for (const auto& arg : args)
     {
         ok = seval_to_ccvalue(arg, &ccvalue);
-        JSB_PRECONDITION3(ok, false, ret->clear());
+        SE_PRECONDITION3(ok, false, ret->clear());
         ret->push_back(ccvalue);
     }
 
@@ -573,10 +573,10 @@ bool seval_to_blendfunc(const se::Value& v, cocos2d::BlendFunc* ret)
     bool ok = false;
 
     ok = obj->getProperty("src", &value);
-    JSB_PRECONDITION3(ok, false, *ret = cocos2d::BlendFunc::DISABLE);
+    SE_PRECONDITION3(ok, false, *ret = cocos2d::BlendFunc::DISABLE);
     ret->src = value.toUint32();
     ok = obj->getProperty("dst", &value);
-    JSB_PRECONDITION3(ok, false, *ret = cocos2d::BlendFunc::DISABLE);
+    SE_PRECONDITION3(ok, false, *ret = cocos2d::BlendFunc::DISABLE);
 
     ret->dst = value.toUint32();
     return true;
@@ -594,7 +594,7 @@ bool seval_to_std_vector_string(const se::Value& v, std::vector<std::string>* re
         se::Value value;
         for (uint32_t i = 0; i < len; ++i)
         {
-            JSB_PRECONDITION3(obj->getArrayElement(i, &value), false, ret->clear());
+            SE_PRECONDITION3(obj->getArrayElement(i, &value), false, ret->clear());
             assert(value.isString());
             ret->push_back(value.toString());
         }
@@ -617,7 +617,7 @@ bool seval_to_std_vector_int(const se::Value& v, std::vector<int>* ret)
         se::Value value;
         for (uint32_t i = 0; i < len; ++i)
         {
-            JSB_PRECONDITION3(obj->getArrayElement(i, &value), false, ret->clear());
+            SE_PRECONDITION3(obj->getArrayElement(i, &value), false, ret->clear());
             assert(value.isNumber());
             ret->push_back(value.toInt32());
         }
@@ -640,7 +640,7 @@ bool seval_to_std_vector_float(const se::Value& v, std::vector<float>* ret)
         se::Value value;
         for (uint32_t i = 0; i < len; ++i)
         {
-            JSB_PRECONDITION3(obj->getArrayElement(i, &value), false, ret->clear());
+            SE_PRECONDITION3(obj->getArrayElement(i, &value), false, ret->clear());
             assert(value.isNumber());
             ret->push_back(value.toFloat());
         }
@@ -664,7 +664,7 @@ bool seval_to_std_vector_Vec2(const se::Value& v, std::vector<cocos2d::Vec2>* re
         cocos2d::Vec2 pt;
         for (uint32_t i = 0; i < len; ++i)
         {
-            JSB_PRECONDITION3(obj->getArrayElement(i, &value) && seval_to_Vec2(value, &pt), false, ret->clear());
+            SE_PRECONDITION3(obj->getArrayElement(i, &value) && seval_to_Vec2(value, &pt), false, ret->clear());
             ret->push_back(pt);
         }
         return true;
@@ -687,7 +687,7 @@ bool seval_to_std_vector_Touch(const se::Value& v, std::vector<cocos2d::Touch*>*
         cocos2d::Touch* touch = nullptr;
         for (uint32_t i = 0; i < len; ++i)
         {
-            JSB_PRECONDITION3(obj->getArrayElement(i, &value), false, ret->clear());
+            SE_PRECONDITION3(obj->getArrayElement(i, &value), false, ret->clear());
             assert(value.isObject());
             touch = (cocos2d::Touch*)value.toObject()->getPrivateData();
             ret->push_back(touch);
@@ -711,21 +711,21 @@ bool seval_to_std_map_string_string(const se::Value& v, std::map<std::string, st
 
     assert(v.isObject());
 
-    JSB_PRECONDITION3(!v.isNullOrUndefined(), false, ret->clear());
+    SE_PRECONDITION3(!v.isNullOrUndefined(), false, ret->clear());
 
     se::Object* obj = v.toObject();
 
     std::vector<std::string> allKeys;
-    JSB_PRECONDITION3(obj->getAllKeys(&allKeys), false, ret->clear());
+    SE_PRECONDITION3(obj->getAllKeys(&allKeys), false, ret->clear());
 
     bool ok = false;
     se::Value value;
     std::string strValue;
     for (const auto& key : allKeys)
     {
-        JSB_PRECONDITION3(obj->getProperty(key.c_str(), &value), false, ret->clear());
+        SE_PRECONDITION3(obj->getProperty(key.c_str(), &value), false, ret->clear());
         ok = seval_to_std_string(value, &strValue);
-        JSB_PRECONDITION3(ok, false, ret->clear());
+        SE_PRECONDITION3(ok, false, ret->clear());
         ret->emplace(key, strValue);
     }
     
@@ -890,19 +890,19 @@ bool seval_to_Acceleration(const se::Value& v, cocos2d::Acceleration* ret)
     se::Value tmp;
 
     ok = obj->getProperty("x", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, ret->x = ret->y = ret->z = ret->timestamp = 0.0);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, ret->x = ret->y = ret->z = ret->timestamp = 0.0);
     ret->x = tmp.toNumber();
 
     ok = obj->getProperty("y", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, ret->x = ret->y = ret->z = ret->timestamp = 0.0);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, ret->x = ret->y = ret->z = ret->timestamp = 0.0);
     ret->y = tmp.toNumber();
 
     ok = obj->getProperty("z", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, ret->x = ret->y = ret->z = ret->timestamp = 0.0);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, ret->x = ret->y = ret->z = ret->timestamp = 0.0);
     ret->z = tmp.toNumber();
 
     ok = obj->getProperty("timestamp", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, ret->x = ret->y = ret->z = ret->timestamp = 0.0);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, ret->x = ret->y = ret->z = ret->timestamp = 0.0);
     ret->timestamp = tmp.toNumber();
 
     return true;
@@ -917,19 +917,19 @@ bool seval_to_Quaternion(const se::Value& v, cocos2d::Quaternion* ret)
     se::Value tmp;
 
     ok = obj->getProperty("x", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = cocos2d::Quaternion::ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = cocos2d::Quaternion::ZERO);
     ret->x = tmp.toFloat();
 
     ok = obj->getProperty("y", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = cocos2d::Quaternion::ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = cocos2d::Quaternion::ZERO);
     ret->y = tmp.toFloat();
 
     ok = obj->getProperty("z", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = cocos2d::Quaternion::ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = cocos2d::Quaternion::ZERO);
     ret->z = tmp.toFloat();
 
     ok = obj->getProperty("w", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = cocos2d::Quaternion::ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = cocos2d::Quaternion::ZERO);
     ret->w = tmp.toFloat();
 
     return true;
@@ -946,27 +946,27 @@ bool seval_to_AffineTransform(const se::Value& v, cocos2d::AffineTransform* ret)
     bool ok = false;
 
     ok = obj->getProperty("a", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
     ret->a = tmp.toFloat();
 
     ok = obj->getProperty("b", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
     ret->b = tmp.toFloat();
 
     ok = obj->getProperty("c", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
     ret->c = tmp.toFloat();
 
     ok = obj->getProperty("d", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
     ret->d = tmp.toFloat();
 
     ok = obj->getProperty("tx", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
     ret->tx = tmp.toFloat();
 
     ok = obj->getProperty("ty", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
     ret->ty = tmp.toFloat();
 
     return true;
@@ -983,19 +983,19 @@ bool seval_to_Viewport(const se::Value& v, cocos2d::experimental::Viewport* ret)
     bool ok = false;
 
     ok = obj->getProperty("left", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
     ret->_left = tmp.toFloat();
 
     ok = obj->getProperty("bottom", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
     ret->_bottom = tmp.toFloat();
 
     ok = obj->getProperty("width", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
     ret->_width = tmp.toFloat();
 
     ok = obj->getProperty("height", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
     ret->_height = tmp.toFloat();
 
     return true;
@@ -1030,15 +1030,15 @@ bool seval_to_DownloaderHints(const se::Value& v, cocos2d::network::DownloaderHi
     bool ok = false;
 
     ok = obj->getProperty("countOfMaxProcessingTasks", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
     ret->countOfMaxProcessingTasks = tmp.toUint32();
 
     ok = obj->getProperty("timeoutInSeconds", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
     ret->timeoutInSeconds = tmp.toUint32();
 
     ok = obj->getProperty("tempFileNameSuffix", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isString(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isString(), false, *ret = ZERO);
     ret->tempFileNameSuffix = tmp.toString();
 
     return ok;
@@ -1054,15 +1054,15 @@ bool seval_to_ResourceData(const se::Value& v, cocos2d::ResourceData* ret)
     bool ok = false;
 
     ok = obj->getProperty("type", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
     ret->type = tmp.toInt32();
 
     ok = obj->getProperty("name", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isString(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isString(), false, *ret = ZERO);
     ret->file = tmp.toString();
 
     ok = obj->getProperty("plist", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isString(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isString(), false, *ret = ZERO);
     ret->plist = tmp.toString();
 
     return ok;
@@ -1082,9 +1082,9 @@ bool seval_to_b2Vec2(const se::Value& v, b2Vec2* ret)
     se::Value x;
     se::Value y;
     bool ok = obj->getProperty("x", &x);
-    JSB_PRECONDITION3(ok && x.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && x.isNumber(), false, *ret = ZERO);
     ok = obj->getProperty("y", &y);
-    JSB_PRECONDITION3(ok && y.isNumber(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && y.isNumber(), false, *ret = ZERO);
     ret->x = x.toFloat();
     ret->y = y.toFloat();
     return true;
@@ -1107,14 +1107,14 @@ bool seval_to_b2AABB(const se::Value& v, b2AABB* ret)
     bool ok = false;
     se::Value tmp;
     ok = obj->getProperty("lowerBound", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
     ok = seval_to_b2Vec2(tmp, &ret->lowerBound);
-    JSB_PRECONDITION3(ok, false, *ret = ZERO);
+    SE_PRECONDITION3(ok, false, *ret = ZERO);
 
     ok = obj->getProperty("upperBound", &tmp);
-    JSB_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+    SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
     ok = seval_to_b2Vec2(tmp, &ret->upperBound);
-    JSB_PRECONDITION3(ok, false, *ret = ZERO);
+    SE_PRECONDITION3(ok, false, *ret = ZERO);
 
     return true;
 }
@@ -1766,7 +1766,7 @@ bool spevent_to_seval(const spEvent& v, se::Value* ret)
     se::Object* obj = se::Object::createPlainObject(false);
 
     se::Value dataVal;
-    JSB_PRECONDITION3(speventdata_to_seval(*v.data, &dataVal), false, ret->setUndefined());
+    SE_PRECONDITION3(speventdata_to_seval(*v.data, &dataVal), false, ret->setUndefined());
     obj->setProperty("data", dataVal);
     obj->setProperty("time", se::Value(v.time));
     obj->setProperty("intValue", se::Value(v.intValue));
@@ -1788,7 +1788,7 @@ bool spbonedata_to_seval(const spBoneData& v, se::Value* ret)
     se::Value parentVal;
     if (0 != strcmp(v.name, "root") && v.parent)
     {
-        JSB_PRECONDITION3(spbonedata_to_seval(*v.parent, &parentVal), false, ret->setUndefined());
+        SE_PRECONDITION3(spbonedata_to_seval(*v.parent, &parentVal), false, ret->setUndefined());
     }
 
     obj->setProperty("index", se::Value(v.index));
@@ -1820,11 +1820,11 @@ bool spbone_to_seval(const spBone& v, se::Value* ret)
     se::Value parentVal;
     if (0 != strcmp(v.data->name, "root") && v.parent)
     {
-        JSB_PRECONDITION3(spbone_to_seval(*v.parent, &parentVal), false, ret->setUndefined());
+        SE_PRECONDITION3(spbone_to_seval(*v.parent, &parentVal), false, ret->setUndefined());
     }
 
     se::Value data;
-    JSB_PRECONDITION3(spbonedata_to_seval(*v.data, &data), false, ret->setUndefined());
+    SE_PRECONDITION3(spbonedata_to_seval(*v.data, &data), false, ret->setUndefined());
 
     obj->setProperty("data", data);
     obj->setProperty("parent", parentVal);
@@ -1888,7 +1888,7 @@ bool spslotdata_to_seval(const spSlotData& v, se::Value* ret)
     se::Object* obj = se::Object::createPlainObject(false);
 
     se::Value boneData;
-    JSB_PRECONDITION3(spbonedata_to_seval(*v.boneData, &boneData), false, ret->setUndefined());
+    SE_PRECONDITION3(spbonedata_to_seval(*v.boneData, &boneData), false, ret->setUndefined());
 
     obj->setProperty("name", se::Value(v.name));
     obj->setProperty("attachmentName", se::Value(v.attachmentName));
@@ -1911,13 +1911,13 @@ bool spslot_to_seval(const spSlot& v, se::Value* ret)
     se::Object* obj = se::Object::createPlainObject(false);
 
     se::Value bone;
-    JSB_PRECONDITION3(spbone_to_seval(*v.bone, &bone), false, ret->setUndefined());
+    SE_PRECONDITION3(spbone_to_seval(*v.bone, &bone), false, ret->setUndefined());
 
     se::Value attachment;
-    JSB_PRECONDITION3(spattachment_to_seval(*v.attachment, &attachment), false, ret->setUndefined());
+    SE_PRECONDITION3(spattachment_to_seval(*v.attachment, &attachment), false, ret->setUndefined());
 
     se::Value data;
-    JSB_PRECONDITION3(spslotdata_to_seval(*v.data, &data), false, ret->setUndefined());
+    SE_PRECONDITION3(spslotdata_to_seval(*v.data, &data), false, ret->setUndefined());
 
     obj->setProperty("r", se::Value(v.r));
     obj->setProperty("g", se::Value(v.g));
@@ -1966,7 +1966,7 @@ bool spanimation_to_seval(const spAnimation& v, se::Value* ret)
     se::Object* obj = se::Object::createPlainObject(false);
 
     se::Value timelines;
-    JSB_PRECONDITION3(sptimeline_to_seval(**v.timelines, &timelines), false, ret->setUndefined());
+    SE_PRECONDITION3(sptimeline_to_seval(**v.timelines, &timelines), false, ret->setUndefined());
 
     obj->setProperty("name", se::Value(v.name));
     obj->setProperty("duration", se::Value(v.duration));

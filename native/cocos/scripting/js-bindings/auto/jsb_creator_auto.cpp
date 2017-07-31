@@ -18,7 +18,7 @@ static bool js_creator_Scale9SpriteV2_setTexture(se::State& s)
 {
     CC_UNUSED bool ok = true;
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2( cobj, false, "js_creator_Scale9SpriteV2_setTexture : Invalid Native Object");
+    SE_PRECONDITION2( cobj, false, "js_creator_Scale9SpriteV2_setTexture : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -28,7 +28,7 @@ static bool js_creator_Scale9SpriteV2_setTexture(se::State& s)
             if (!ok) { ok = true; break; }
             bool result = cobj->setTexture(arg0);
             ok &= boolean_to_seval(result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setTexture : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setTexture : Error processing arguments");
             return true;
         }
     } while(false);
@@ -40,7 +40,7 @@ static bool js_creator_Scale9SpriteV2_setTexture(se::State& s)
             if (!ok) { ok = true; break; }
             bool result = cobj->setTexture(arg0);
             ok &= boolean_to_seval(result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setTexture : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setTexture : Error processing arguments");
             return true;
         }
     } while(false);
@@ -53,14 +53,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_setTexture)
 static bool js_creator_Scale9SpriteV2_getFillType(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_getFillType : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_getFillType : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = (int)cobj->getFillType();
         ok &= int32_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_getFillType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_getFillType : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -71,14 +71,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_getFillType)
 static bool js_creator_Scale9SpriteV2_isTrimmedContentSizeEnabled(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_isTrimmedContentSizeEnabled : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_isTrimmedContentSizeEnabled : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cobj->isTrimmedContentSizeEnabled();
         ok &= boolean_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_isTrimmedContentSizeEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_isTrimmedContentSizeEnabled : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -89,14 +89,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_isTrimmedContentSizeEnabled)
 static bool js_creator_Scale9SpriteV2_getState(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_getState : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_getState : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = (int)cobj->getState();
         ok &= int32_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_getState : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_getState : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -107,14 +107,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_getState)
 static bool js_creator_Scale9SpriteV2_setState(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_setState : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_setState : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         creator::Scale9SpriteV2::State arg0;
         ok &= seval_to_int32(args[0], (int32_t *)&arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setState : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setState : Error processing arguments");
         cobj->setState(arg0);
         return true;
     }
@@ -126,14 +126,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_setState)
 static bool js_creator_Scale9SpriteV2_setInsetBottom(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_setInsetBottom : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_setInsetBottom : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         float arg0 = 0;
         ok &= seval_to_float(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setInsetBottom : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setInsetBottom : Error processing arguments");
         cobj->setInsetBottom(arg0);
         return true;
     }
@@ -145,14 +145,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_setInsetBottom)
 static bool js_creator_Scale9SpriteV2_setFillRange(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_setFillRange : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_setFillRange : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         float arg0 = 0;
         ok &= seval_to_float(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setFillRange : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setFillRange : Error processing arguments");
         cobj->setFillRange(arg0);
         return true;
     }
@@ -164,14 +164,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_setFillRange)
 static bool js_creator_Scale9SpriteV2_getFillStart(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_getFillStart : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_getFillStart : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         float result = cobj->getFillStart();
         ok &= float_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_getFillStart : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_getFillStart : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -182,14 +182,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_getFillStart)
 static bool js_creator_Scale9SpriteV2_getFillRange(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_getFillRange : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_getFillRange : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         float result = cobj->getFillRange();
         ok &= float_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_getFillRange : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_getFillRange : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -200,14 +200,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_getFillRange)
 static bool js_creator_Scale9SpriteV2_setInsetTop(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_setInsetTop : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_setInsetTop : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         float arg0 = 0;
         ok &= seval_to_float(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setInsetTop : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setInsetTop : Error processing arguments");
         cobj->setInsetTop(arg0);
         return true;
     }
@@ -219,14 +219,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_setInsetTop)
 static bool js_creator_Scale9SpriteV2_setRenderingType(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_setRenderingType : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_setRenderingType : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         creator::Scale9SpriteV2::RenderingType arg0;
         ok &= seval_to_int32(args[0], (int32_t *)&arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setRenderingType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setRenderingType : Error processing arguments");
         cobj->setRenderingType(arg0);
         return true;
     }
@@ -238,14 +238,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_setRenderingType)
 static bool js_creator_Scale9SpriteV2_setDistortionOffset(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_setDistortionOffset : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_setDistortionOffset : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::Vec2 arg0;
         ok &= seval_to_Vec2(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setDistortionOffset : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setDistortionOffset : Error processing arguments");
         cobj->setDistortionOffset(arg0);
         return true;
     }
@@ -258,7 +258,7 @@ static bool js_creator_Scale9SpriteV2_setFillCenter(se::State& s)
 {
     CC_UNUSED bool ok = true;
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2( cobj, false, "js_creator_Scale9SpriteV2_setFillCenter : Invalid Native Object");
+    SE_PRECONDITION2( cobj, false, "js_creator_Scale9SpriteV2_setFillCenter : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -293,7 +293,7 @@ static bool js_creator_Scale9SpriteV2_setSpriteFrame(se::State& s)
 {
     CC_UNUSED bool ok = true;
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2( cobj, false, "js_creator_Scale9SpriteV2_setSpriteFrame : Invalid Native Object");
+    SE_PRECONDITION2( cobj, false, "js_creator_Scale9SpriteV2_setSpriteFrame : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -303,7 +303,7 @@ static bool js_creator_Scale9SpriteV2_setSpriteFrame(se::State& s)
             if (!ok) { ok = true; break; }
             bool result = cobj->setSpriteFrame(arg0);
             ok &= boolean_to_seval(result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setSpriteFrame : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setSpriteFrame : Error processing arguments");
             return true;
         }
     } while(false);
@@ -315,7 +315,7 @@ static bool js_creator_Scale9SpriteV2_setSpriteFrame(se::State& s)
             if (!ok) { ok = true; break; }
             bool result = cobj->setSpriteFrame(arg0);
             ok &= boolean_to_seval(result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setSpriteFrame : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setSpriteFrame : Error processing arguments");
             return true;
         }
     } while(false);
@@ -328,14 +328,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_setSpriteFrame)
 static bool js_creator_Scale9SpriteV2_getBlendFunc(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_getBlendFunc : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_getBlendFunc : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const cocos2d::BlendFunc& result = cobj->getBlendFunc();
         ok &= blendfunc_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_getBlendFunc : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_getBlendFunc : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -347,7 +347,7 @@ static bool js_creator_Scale9SpriteV2_initWithTexture(se::State& s)
 {
     CC_UNUSED bool ok = true;
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2( cobj, false, "js_creator_Scale9SpriteV2_initWithTexture : Invalid Native Object");
+    SE_PRECONDITION2( cobj, false, "js_creator_Scale9SpriteV2_initWithTexture : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -357,7 +357,7 @@ static bool js_creator_Scale9SpriteV2_initWithTexture(se::State& s)
             if (!ok) { ok = true; break; }
             bool result = cobj->initWithTexture(arg0);
             ok &= boolean_to_seval(result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_initWithTexture : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_initWithTexture : Error processing arguments");
             return true;
         }
     } while(false);
@@ -369,7 +369,7 @@ static bool js_creator_Scale9SpriteV2_initWithTexture(se::State& s)
             if (!ok) { ok = true; break; }
             bool result = cobj->initWithTexture(arg0);
             ok &= boolean_to_seval(result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_initWithTexture : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_initWithTexture : Error processing arguments");
             return true;
         }
     } while(false);
@@ -382,14 +382,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_initWithTexture)
 static bool js_creator_Scale9SpriteV2_getInsetLeft(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_getInsetLeft : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_getInsetLeft : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         float result = cobj->getInsetLeft();
         ok &= float_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_getInsetLeft : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_getInsetLeft : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -400,14 +400,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_getInsetLeft)
 static bool js_creator_Scale9SpriteV2_getInsetBottom(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_getInsetBottom : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_getInsetBottom : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         float result = cobj->getInsetBottom();
         ok &= float_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_getInsetBottom : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_getInsetBottom : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -418,14 +418,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_getInsetBottom)
 static bool js_creator_Scale9SpriteV2_setDistortionTiling(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_setDistortionTiling : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_setDistortionTiling : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::Vec2 arg0;
         ok &= seval_to_Vec2(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setDistortionTiling : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setDistortionTiling : Error processing arguments");
         cobj->setDistortionTiling(arg0);
         return true;
     }
@@ -437,14 +437,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_setDistortionTiling)
 static bool js_creator_Scale9SpriteV2_getRenderingType(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_getRenderingType : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_getRenderingType : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = (int)cobj->getRenderingType();
         ok &= int32_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_getRenderingType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_getRenderingType : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -455,14 +455,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_getRenderingType)
 static bool js_creator_Scale9SpriteV2_setFillStart(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_setFillStart : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_setFillStart : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         float arg0 = 0;
         ok &= seval_to_float(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setFillStart : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setFillStart : Error processing arguments");
         cobj->setFillStart(arg0);
         return true;
     }
@@ -474,14 +474,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_setFillStart)
 static bool js_creator_Scale9SpriteV2_getInsetRight(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_getInsetRight : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_getInsetRight : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         float result = cobj->getInsetRight();
         ok &= float_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_getInsetRight : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_getInsetRight : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -493,7 +493,7 @@ static bool js_creator_Scale9SpriteV2_setBlendFunc(se::State& s)
 {
     CC_UNUSED bool ok = true;
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2( cobj, false, "js_creator_Scale9SpriteV2_setBlendFunc : Invalid Native Object");
+    SE_PRECONDITION2( cobj, false, "js_creator_Scale9SpriteV2_setBlendFunc : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -527,14 +527,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_setBlendFunc)
 static bool js_creator_Scale9SpriteV2_getFillCenter(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_getFillCenter : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_getFillCenter : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const cocos2d::Vec2& result = cobj->getFillCenter();
         ok &= Vec2_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_getFillCenter : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_getFillCenter : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -545,14 +545,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_getFillCenter)
 static bool js_creator_Scale9SpriteV2_getInsetTop(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_getInsetTop : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_getInsetTop : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         float result = cobj->getInsetTop();
         ok &= float_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_getInsetTop : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_getInsetTop : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -563,14 +563,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_getInsetTop)
 static bool js_creator_Scale9SpriteV2_setInsetLeft(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_setInsetLeft : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_setInsetLeft : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         float arg0 = 0;
         ok &= seval_to_float(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setInsetLeft : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setInsetLeft : Error processing arguments");
         cobj->setInsetLeft(arg0);
         return true;
     }
@@ -583,7 +583,7 @@ static bool js_creator_Scale9SpriteV2_initWithSpriteFrame(se::State& s)
 {
     CC_UNUSED bool ok = true;
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2( cobj, false, "js_creator_Scale9SpriteV2_initWithSpriteFrame : Invalid Native Object");
+    SE_PRECONDITION2( cobj, false, "js_creator_Scale9SpriteV2_initWithSpriteFrame : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -593,7 +593,7 @@ static bool js_creator_Scale9SpriteV2_initWithSpriteFrame(se::State& s)
             if (!ok) { ok = true; break; }
             bool result = cobj->initWithSpriteFrame(arg0);
             ok &= boolean_to_seval(result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_initWithSpriteFrame : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_initWithSpriteFrame : Error processing arguments");
             return true;
         }
     } while(false);
@@ -605,7 +605,7 @@ static bool js_creator_Scale9SpriteV2_initWithSpriteFrame(se::State& s)
             if (!ok) { ok = true; break; }
             bool result = cobj->initWithSpriteFrame(arg0);
             ok &= boolean_to_seval(result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_initWithSpriteFrame : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_initWithSpriteFrame : Error processing arguments");
             return true;
         }
     } while(false);
@@ -618,14 +618,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_initWithSpriteFrame)
 static bool js_creator_Scale9SpriteV2_setFillType(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_setFillType : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_setFillType : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         creator::Scale9SpriteV2::FillType arg0;
         ok &= seval_to_int32(args[0], (int32_t *)&arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setFillType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setFillType : Error processing arguments");
         cobj->setFillType(arg0);
         return true;
     }
@@ -637,14 +637,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_setFillType)
 static bool js_creator_Scale9SpriteV2_setInsetRight(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_setInsetRight : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_setInsetRight : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         float arg0 = 0;
         ok &= seval_to_float(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setInsetRight : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setInsetRight : Error processing arguments");
         cobj->setInsetRight(arg0);
         return true;
     }
@@ -656,14 +656,14 @@ SE_BIND_FUNC(js_creator_Scale9SpriteV2_setInsetRight)
 static bool js_creator_Scale9SpriteV2_enableTrimmedContentSize(se::State& s)
 {
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_enableTrimmedContentSize : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_Scale9SpriteV2_enableTrimmedContentSize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         bool arg0;
         ok &= seval_to_boolean(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_enableTrimmedContentSize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_enableTrimmedContentSize : Error processing arguments");
         cobj->enableTrimmedContentSize(arg0);
         return true;
     }
@@ -763,7 +763,7 @@ se::Class* __jsb_creator_GraphicsNode_class = nullptr;
 static bool js_creator_GraphicsNode_quadraticCurveTo(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_quadraticCurveTo : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_quadraticCurveTo : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -776,7 +776,7 @@ static bool js_creator_GraphicsNode_quadraticCurveTo(se::State& s)
         ok &= seval_to_float(args[1], &arg1);
         ok &= seval_to_float(args[2], &arg2);
         ok &= seval_to_float(args[3], &arg3);
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_quadraticCurveTo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_quadraticCurveTo : Error processing arguments");
         cobj->quadraticCurveTo(arg0, arg1, arg2, arg3);
         return true;
     }
@@ -788,7 +788,7 @@ SE_BIND_FUNC(js_creator_GraphicsNode_quadraticCurveTo)
 static bool js_creator_GraphicsNode_moveTo(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_moveTo : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_moveTo : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -797,7 +797,7 @@ static bool js_creator_GraphicsNode_moveTo(se::State& s)
         float arg1 = 0;
         ok &= seval_to_float(args[0], &arg0);
         ok &= seval_to_float(args[1], &arg1);
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_moveTo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_moveTo : Error processing arguments");
         cobj->moveTo(arg0, arg1);
         return true;
     }
@@ -809,7 +809,7 @@ SE_BIND_FUNC(js_creator_GraphicsNode_moveTo)
 static bool js_creator_GraphicsNode_lineTo(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_lineTo : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_lineTo : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -818,7 +818,7 @@ static bool js_creator_GraphicsNode_lineTo(se::State& s)
         float arg1 = 0;
         ok &= seval_to_float(args[0], &arg0);
         ok &= seval_to_float(args[1], &arg1);
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_lineTo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_lineTo : Error processing arguments");
         cobj->lineTo(arg0, arg1);
         return true;
     }
@@ -830,7 +830,7 @@ SE_BIND_FUNC(js_creator_GraphicsNode_lineTo)
 static bool js_creator_GraphicsNode_stroke(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_stroke : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_stroke : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -845,7 +845,7 @@ SE_BIND_FUNC(js_creator_GraphicsNode_stroke)
 static bool js_creator_GraphicsNode_arc(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_arc : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_arc : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -862,7 +862,7 @@ static bool js_creator_GraphicsNode_arc(se::State& s)
         ok &= seval_to_float(args[3], &arg3);
         ok &= seval_to_float(args[4], &arg4);
         ok &= seval_to_boolean(args[5], &arg5);
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_arc : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_arc : Error processing arguments");
         cobj->arc(arg0, arg1, arg2, arg3, arg4, arg5);
         return true;
     }
@@ -874,14 +874,14 @@ SE_BIND_FUNC(js_creator_GraphicsNode_arc)
 static bool js_creator_GraphicsNode_setLineJoin(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_setLineJoin : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_setLineJoin : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         creator::LineJoin arg0;
         ok &= seval_to_int32(args[0], (int32_t *)&arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_setLineJoin : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_setLineJoin : Error processing arguments");
         cobj->setLineJoin(arg0);
         return true;
     }
@@ -893,7 +893,7 @@ SE_BIND_FUNC(js_creator_GraphicsNode_setLineJoin)
 static bool js_creator_GraphicsNode_close(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_close : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_close : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -908,7 +908,7 @@ SE_BIND_FUNC(js_creator_GraphicsNode_close)
 static bool js_creator_GraphicsNode_ellipse(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_ellipse : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_ellipse : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -921,7 +921,7 @@ static bool js_creator_GraphicsNode_ellipse(se::State& s)
         ok &= seval_to_float(args[1], &arg1);
         ok &= seval_to_float(args[2], &arg2);
         ok &= seval_to_float(args[3], &arg3);
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_ellipse : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_ellipse : Error processing arguments");
         cobj->ellipse(arg0, arg1, arg2, arg3);
         return true;
     }
@@ -933,14 +933,14 @@ SE_BIND_FUNC(js_creator_GraphicsNode_ellipse)
 static bool js_creator_GraphicsNode_setLineWidth(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_setLineWidth : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_setLineWidth : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         float arg0 = 0;
         ok &= seval_to_float(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_setLineWidth : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_setLineWidth : Error processing arguments");
         cobj->setLineWidth(arg0);
         return true;
     }
@@ -952,7 +952,7 @@ SE_BIND_FUNC(js_creator_GraphicsNode_setLineWidth)
 static bool js_creator_GraphicsNode_fill(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_fill : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_fill : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -967,14 +967,14 @@ SE_BIND_FUNC(js_creator_GraphicsNode_fill)
 static bool js_creator_GraphicsNode_getStrokeColor(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_getStrokeColor : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_getStrokeColor : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         cocos2d::Color4F result = cobj->getStrokeColor();
         ok &= Color4F_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_getStrokeColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_getStrokeColor : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -985,14 +985,14 @@ SE_BIND_FUNC(js_creator_GraphicsNode_getStrokeColor)
 static bool js_creator_GraphicsNode_setLineCap(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_setLineCap : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_setLineCap : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         creator::LineCap arg0;
         ok &= seval_to_int32(args[0], (int32_t *)&arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_setLineCap : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_setLineCap : Error processing arguments");
         cobj->setLineCap(arg0);
         return true;
     }
@@ -1004,7 +1004,7 @@ SE_BIND_FUNC(js_creator_GraphicsNode_setLineCap)
 static bool js_creator_GraphicsNode_circle(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_circle : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_circle : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1015,7 +1015,7 @@ static bool js_creator_GraphicsNode_circle(se::State& s)
         ok &= seval_to_float(args[0], &arg0);
         ok &= seval_to_float(args[1], &arg1);
         ok &= seval_to_float(args[2], &arg2);
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_circle : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_circle : Error processing arguments");
         cobj->circle(arg0, arg1, arg2);
         return true;
     }
@@ -1027,7 +1027,7 @@ SE_BIND_FUNC(js_creator_GraphicsNode_circle)
 static bool js_creator_GraphicsNode_roundRect(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_roundRect : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_roundRect : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1042,7 +1042,7 @@ static bool js_creator_GraphicsNode_roundRect(se::State& s)
         ok &= seval_to_float(args[2], &arg2);
         ok &= seval_to_float(args[3], &arg3);
         ok &= seval_to_float(args[4], &arg4);
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_roundRect : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_roundRect : Error processing arguments");
         cobj->roundRect(arg0, arg1, arg2, arg3, arg4);
         return true;
     }
@@ -1054,7 +1054,7 @@ SE_BIND_FUNC(js_creator_GraphicsNode_roundRect)
 static bool js_creator_GraphicsNode_draw(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_draw : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_draw : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1065,7 +1065,7 @@ static bool js_creator_GraphicsNode_draw(se::State& s)
         ok &= seval_to_native_ptr(args[0], &arg0);
         ok &= seval_to_Mat4(args[1], &arg1);
         ok &= seval_to_uint32(args[2], &arg2);
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_draw : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_draw : Error processing arguments");
         cobj->draw(arg0, arg1, arg2);
         return true;
     }
@@ -1077,7 +1077,7 @@ SE_BIND_FUNC(js_creator_GraphicsNode_draw)
 static bool js_creator_GraphicsNode_bezierCurveTo(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_bezierCurveTo : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_bezierCurveTo : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1094,7 +1094,7 @@ static bool js_creator_GraphicsNode_bezierCurveTo(se::State& s)
         ok &= seval_to_float(args[3], &arg3);
         ok &= seval_to_float(args[4], &arg4);
         ok &= seval_to_float(args[5], &arg5);
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_bezierCurveTo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_bezierCurveTo : Error processing arguments");
         cobj->bezierCurveTo(arg0, arg1, arg2, arg3, arg4, arg5);
         return true;
     }
@@ -1106,7 +1106,7 @@ SE_BIND_FUNC(js_creator_GraphicsNode_bezierCurveTo)
 static bool js_creator_GraphicsNode_arcTo(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_arcTo : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_arcTo : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1121,7 +1121,7 @@ static bool js_creator_GraphicsNode_arcTo(se::State& s)
         ok &= seval_to_float(args[2], &arg2);
         ok &= seval_to_float(args[3], &arg3);
         ok &= seval_to_float(args[4], &arg4);
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_arcTo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_arcTo : Error processing arguments");
         cobj->arcTo(arg0, arg1, arg2, arg3, arg4);
         return true;
     }
@@ -1133,7 +1133,7 @@ SE_BIND_FUNC(js_creator_GraphicsNode_arcTo)
 static bool js_creator_GraphicsNode_fillRect(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_fillRect : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_fillRect : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1146,7 +1146,7 @@ static bool js_creator_GraphicsNode_fillRect(se::State& s)
         ok &= seval_to_float(args[1], &arg1);
         ok &= seval_to_float(args[2], &arg2);
         ok &= seval_to_float(args[3], &arg3);
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_fillRect : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_fillRect : Error processing arguments");
         cobj->fillRect(arg0, arg1, arg2, arg3);
         return true;
     }
@@ -1158,7 +1158,7 @@ SE_BIND_FUNC(js_creator_GraphicsNode_fillRect)
 static bool js_creator_GraphicsNode_onDraw(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_onDraw : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_onDraw : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1167,7 +1167,7 @@ static bool js_creator_GraphicsNode_onDraw(se::State& s)
         unsigned int arg1 = 0;
         ok &= seval_to_Mat4(args[0], &arg0);
         ok &= seval_to_uint32(args[1], &arg1);
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_onDraw : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_onDraw : Error processing arguments");
         cobj->onDraw(arg0, arg1);
         return true;
     }
@@ -1179,14 +1179,14 @@ SE_BIND_FUNC(js_creator_GraphicsNode_onDraw)
 static bool js_creator_GraphicsNode_setFillColor(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_setFillColor : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_setFillColor : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::Color4F arg0;
         ok &= seval_to_Color4F(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_setFillColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_setFillColor : Error processing arguments");
         cobj->setFillColor(arg0);
         return true;
     }
@@ -1198,14 +1198,14 @@ SE_BIND_FUNC(js_creator_GraphicsNode_setFillColor)
 static bool js_creator_GraphicsNode_getFillColor(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_getFillColor : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_getFillColor : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         cocos2d::Color4F result = cobj->getFillColor();
         ok &= Color4F_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_getFillColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_getFillColor : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1216,7 +1216,7 @@ SE_BIND_FUNC(js_creator_GraphicsNode_getFillColor)
 static bool js_creator_GraphicsNode_beginPath(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_beginPath : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_beginPath : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -1231,14 +1231,14 @@ SE_BIND_FUNC(js_creator_GraphicsNode_beginPath)
 static bool js_creator_GraphicsNode_setDeviceRatio(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_setDeviceRatio : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_setDeviceRatio : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         float arg0 = 0;
         ok &= seval_to_float(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_setDeviceRatio : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_setDeviceRatio : Error processing arguments");
         cobj->setDeviceRatio(arg0);
         return true;
     }
@@ -1250,7 +1250,7 @@ SE_BIND_FUNC(js_creator_GraphicsNode_setDeviceRatio)
 static bool js_creator_GraphicsNode_rect(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_rect : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_rect : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1263,7 +1263,7 @@ static bool js_creator_GraphicsNode_rect(se::State& s)
         ok &= seval_to_float(args[1], &arg1);
         ok &= seval_to_float(args[2], &arg2);
         ok &= seval_to_float(args[3], &arg3);
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_rect : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_rect : Error processing arguments");
         cobj->rect(arg0, arg1, arg2, arg3);
         return true;
     }
@@ -1275,14 +1275,14 @@ SE_BIND_FUNC(js_creator_GraphicsNode_rect)
 static bool js_creator_GraphicsNode_getMiterLimit(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_getMiterLimit : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_getMiterLimit : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         float result = cobj->getMiterLimit();
         ok &= float_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_getMiterLimit : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_getMiterLimit : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1293,14 +1293,14 @@ SE_BIND_FUNC(js_creator_GraphicsNode_getMiterLimit)
 static bool js_creator_GraphicsNode_getLineJoin(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_getLineJoin : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_getLineJoin : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = (int)cobj->getLineJoin();
         ok &= int32_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_getLineJoin : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_getLineJoin : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1311,14 +1311,14 @@ SE_BIND_FUNC(js_creator_GraphicsNode_getLineJoin)
 static bool js_creator_GraphicsNode_getLineCap(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_getLineCap : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_getLineCap : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = (int)cobj->getLineCap();
         ok &= int32_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_getLineCap : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_getLineCap : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1329,14 +1329,14 @@ SE_BIND_FUNC(js_creator_GraphicsNode_getLineCap)
 static bool js_creator_GraphicsNode_setMiterLimit(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_setMiterLimit : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_setMiterLimit : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         float arg0 = 0;
         ok &= seval_to_float(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_setMiterLimit : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_setMiterLimit : Error processing arguments");
         cobj->setMiterLimit(arg0);
         return true;
     }
@@ -1348,7 +1348,7 @@ SE_BIND_FUNC(js_creator_GraphicsNode_setMiterLimit)
 static bool js_creator_GraphicsNode_clear(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_clear : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_clear : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1359,7 +1359,7 @@ static bool js_creator_GraphicsNode_clear(se::State& s)
     if (argc == 1) {
         bool arg0;
         ok &= seval_to_boolean(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_clear : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_clear : Error processing arguments");
         cobj->clear(arg0);
         return true;
     }
@@ -1371,14 +1371,14 @@ SE_BIND_FUNC(js_creator_GraphicsNode_clear)
 static bool js_creator_GraphicsNode_getDeviceRatio(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_getDeviceRatio : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_getDeviceRatio : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         float result = cobj->getDeviceRatio();
         ok &= float_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_getDeviceRatio : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_getDeviceRatio : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1389,14 +1389,14 @@ SE_BIND_FUNC(js_creator_GraphicsNode_getDeviceRatio)
 static bool js_creator_GraphicsNode_getLineWidth(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_getLineWidth : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_getLineWidth : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         float result = cobj->getLineWidth();
         ok &= float_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_getLineWidth : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_getLineWidth : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1407,14 +1407,14 @@ SE_BIND_FUNC(js_creator_GraphicsNode_getLineWidth)
 static bool js_creator_GraphicsNode_setStrokeColor(se::State& s)
 {
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_setStrokeColor : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_GraphicsNode_setStrokeColor : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::Color4F arg0;
         ok &= seval_to_Color4F(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_GraphicsNode_setStrokeColor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_setStrokeColor : Error processing arguments");
         cobj->setStrokeColor(arg0);
         return true;
     }
@@ -1535,14 +1535,14 @@ se::Class* __jsb_creator_PhysicsDebugDraw_class = nullptr;
 static bool js_creator_PhysicsDebugDraw_getDrawer(se::State& s)
 {
     creator::PhysicsDebugDraw* cobj = (creator::PhysicsDebugDraw*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_PhysicsDebugDraw_getDrawer : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsDebugDraw_getDrawer : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         creator::GraphicsNode* result = cobj->getDrawer();
         ok &= native_ptr_to_seval<creator::GraphicsNode>((creator::GraphicsNode*)result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsDebugDraw_getDrawer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsDebugDraw_getDrawer : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1553,7 +1553,7 @@ SE_BIND_FUNC(js_creator_PhysicsDebugDraw_getDrawer)
 static bool js_creator_PhysicsDebugDraw_ClearDraw(se::State& s)
 {
     creator::PhysicsDebugDraw* cobj = (creator::PhysicsDebugDraw*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_PhysicsDebugDraw_ClearDraw : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsDebugDraw_ClearDraw : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -1568,14 +1568,14 @@ SE_BIND_FUNC(js_creator_PhysicsDebugDraw_ClearDraw)
 static bool js_creator_PhysicsDebugDraw_AddDrawerToNode(se::State& s)
 {
     creator::PhysicsDebugDraw* cobj = (creator::PhysicsDebugDraw*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_PhysicsDebugDraw_AddDrawerToNode : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsDebugDraw_AddDrawerToNode : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::Node* arg0 = nullptr;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsDebugDraw_AddDrawerToNode : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsDebugDraw_AddDrawerToNode : Error processing arguments");
         cobj->AddDrawerToNode(arg0);
         return true;
     }
@@ -1634,17 +1634,17 @@ se::Class* __jsb_creator_PhysicsWorldManifoldWrapper_class = nullptr;
 static bool js_creator_PhysicsWorldManifoldWrapper_getSeparation(se::State& s)
 {
     creator::PhysicsWorldManifoldWrapper* cobj = (creator::PhysicsWorldManifoldWrapper*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_PhysicsWorldManifoldWrapper_getSeparation : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsWorldManifoldWrapper_getSeparation : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
         ok &= seval_to_int32(args[0], (int32_t *)&arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsWorldManifoldWrapper_getSeparation : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsWorldManifoldWrapper_getSeparation : Error processing arguments");
         float result = cobj->getSeparation(arg0);
         ok &= float_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsWorldManifoldWrapper_getSeparation : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsWorldManifoldWrapper_getSeparation : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -1655,17 +1655,17 @@ SE_BIND_FUNC(js_creator_PhysicsWorldManifoldWrapper_getSeparation)
 static bool js_creator_PhysicsWorldManifoldWrapper_getX(se::State& s)
 {
     creator::PhysicsWorldManifoldWrapper* cobj = (creator::PhysicsWorldManifoldWrapper*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_PhysicsWorldManifoldWrapper_getX : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsWorldManifoldWrapper_getX : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
         ok &= seval_to_int32(args[0], (int32_t *)&arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsWorldManifoldWrapper_getX : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsWorldManifoldWrapper_getX : Error processing arguments");
         float result = cobj->getX(arg0);
         ok &= float_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsWorldManifoldWrapper_getX : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsWorldManifoldWrapper_getX : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -1676,17 +1676,17 @@ SE_BIND_FUNC(js_creator_PhysicsWorldManifoldWrapper_getX)
 static bool js_creator_PhysicsWorldManifoldWrapper_getY(se::State& s)
 {
     creator::PhysicsWorldManifoldWrapper* cobj = (creator::PhysicsWorldManifoldWrapper*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_PhysicsWorldManifoldWrapper_getY : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsWorldManifoldWrapper_getY : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
         ok &= seval_to_int32(args[0], (int32_t *)&arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsWorldManifoldWrapper_getY : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsWorldManifoldWrapper_getY : Error processing arguments");
         float result = cobj->getY(arg0);
         ok &= float_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsWorldManifoldWrapper_getY : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsWorldManifoldWrapper_getY : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -1697,14 +1697,14 @@ SE_BIND_FUNC(js_creator_PhysicsWorldManifoldWrapper_getY)
 static bool js_creator_PhysicsWorldManifoldWrapper_getCount(se::State& s)
 {
     creator::PhysicsWorldManifoldWrapper* cobj = (creator::PhysicsWorldManifoldWrapper*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_PhysicsWorldManifoldWrapper_getCount : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsWorldManifoldWrapper_getCount : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cobj->getCount();
         ok &= int32_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsWorldManifoldWrapper_getCount : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsWorldManifoldWrapper_getCount : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1715,14 +1715,14 @@ SE_BIND_FUNC(js_creator_PhysicsWorldManifoldWrapper_getCount)
 static bool js_creator_PhysicsWorldManifoldWrapper_getNormalY(se::State& s)
 {
     creator::PhysicsWorldManifoldWrapper* cobj = (creator::PhysicsWorldManifoldWrapper*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_PhysicsWorldManifoldWrapper_getNormalY : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsWorldManifoldWrapper_getNormalY : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         float result = cobj->getNormalY();
         ok &= float_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsWorldManifoldWrapper_getNormalY : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsWorldManifoldWrapper_getNormalY : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1733,14 +1733,14 @@ SE_BIND_FUNC(js_creator_PhysicsWorldManifoldWrapper_getNormalY)
 static bool js_creator_PhysicsWorldManifoldWrapper_getNormalX(se::State& s)
 {
     creator::PhysicsWorldManifoldWrapper* cobj = (creator::PhysicsWorldManifoldWrapper*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_PhysicsWorldManifoldWrapper_getNormalX : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsWorldManifoldWrapper_getNormalX : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         float result = cobj->getNormalX();
         ok &= float_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsWorldManifoldWrapper_getNormalX : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsWorldManifoldWrapper_getNormalX : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1803,14 +1803,14 @@ se::Class* __jsb_creator_PhysicsUtils_class = nullptr;
 static bool js_creator_PhysicsUtils_addB2Body(se::State& s)
 {
     creator::PhysicsUtils* cobj = (creator::PhysicsUtils*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_PhysicsUtils_addB2Body : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsUtils_addB2Body : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         b2Body* arg0 = nullptr;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsUtils_addB2Body : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsUtils_addB2Body : Error processing arguments");
         cobj->addB2Body(arg0);
         return true;
     }
@@ -1822,7 +1822,7 @@ SE_BIND_FUNC(js_creator_PhysicsUtils_addB2Body)
 static bool js_creator_PhysicsUtils_syncNode(se::State& s)
 {
     creator::PhysicsUtils* cobj = (creator::PhysicsUtils*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_PhysicsUtils_syncNode : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsUtils_syncNode : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -1837,14 +1837,14 @@ SE_BIND_FUNC(js_creator_PhysicsUtils_syncNode)
 static bool js_creator_PhysicsUtils_removeB2Body(se::State& s)
 {
     creator::PhysicsUtils* cobj = (creator::PhysicsUtils*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_PhysicsUtils_removeB2Body : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsUtils_removeB2Body : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         b2Body* arg0 = nullptr;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsUtils_removeB2Body : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsUtils_removeB2Body : Error processing arguments");
         cobj->removeB2Body(arg0);
         return true;
     }
@@ -1861,10 +1861,10 @@ static bool js_creator_PhysicsUtils_getContactManifoldWrapper(se::State& s)
     if (argc == 1) {
         b2Contact* arg0 = nullptr;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsUtils_getContactManifoldWrapper : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsUtils_getContactManifoldWrapper : Error processing arguments");
         const creator::PhysicsManifoldWrapper* result = creator::PhysicsUtils::getContactManifoldWrapper(arg0);
         ok &= native_ptr_to_seval<creator::PhysicsManifoldWrapper>((creator::PhysicsManifoldWrapper*)result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsUtils_getContactManifoldWrapper : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsUtils_getContactManifoldWrapper : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -1880,10 +1880,10 @@ static bool js_creator_PhysicsUtils_getContactWorldManifoldWrapper(se::State& s)
     if (argc == 1) {
         b2Contact* arg0 = nullptr;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsUtils_getContactWorldManifoldWrapper : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsUtils_getContactWorldManifoldWrapper : Error processing arguments");
         const creator::PhysicsWorldManifoldWrapper* result = creator::PhysicsUtils::getContactWorldManifoldWrapper(arg0);
         ok &= native_ptr_to_seval<creator::PhysicsWorldManifoldWrapper>((creator::PhysicsWorldManifoldWrapper*)result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsUtils_getContactWorldManifoldWrapper : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsUtils_getContactWorldManifoldWrapper : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -1942,14 +1942,14 @@ se::Class* __jsb_creator_PhysicsContactImpulse_class = nullptr;
 static bool js_creator_PhysicsContactImpulse_getCount(se::State& s)
 {
     creator::PhysicsContactImpulse* cobj = (creator::PhysicsContactImpulse*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_PhysicsContactImpulse_getCount : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsContactImpulse_getCount : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cobj->getCount();
         ok &= int32_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsContactImpulse_getCount : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsContactImpulse_getCount : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1960,17 +1960,17 @@ SE_BIND_FUNC(js_creator_PhysicsContactImpulse_getCount)
 static bool js_creator_PhysicsContactImpulse_getNormalImpulse(se::State& s)
 {
     creator::PhysicsContactImpulse* cobj = (creator::PhysicsContactImpulse*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_PhysicsContactImpulse_getNormalImpulse : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsContactImpulse_getNormalImpulse : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
         ok &= seval_to_int32(args[0], (int32_t *)&arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsContactImpulse_getNormalImpulse : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsContactImpulse_getNormalImpulse : Error processing arguments");
         float result = cobj->getNormalImpulse(arg0);
         ok &= float_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsContactImpulse_getNormalImpulse : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsContactImpulse_getNormalImpulse : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -1981,17 +1981,17 @@ SE_BIND_FUNC(js_creator_PhysicsContactImpulse_getNormalImpulse)
 static bool js_creator_PhysicsContactImpulse_getTangentImpulse(se::State& s)
 {
     creator::PhysicsContactImpulse* cobj = (creator::PhysicsContactImpulse*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_PhysicsContactImpulse_getTangentImpulse : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsContactImpulse_getTangentImpulse : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
         ok &= seval_to_int32(args[0], (int32_t *)&arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsContactImpulse_getTangentImpulse : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsContactImpulse_getTangentImpulse : Error processing arguments");
         float result = cobj->getTangentImpulse(arg0);
         ok &= float_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsContactImpulse_getTangentImpulse : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsContactImpulse_getTangentImpulse : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -2051,14 +2051,14 @@ se::Class* __jsb_creator_PhysicsContactListener_class = nullptr;
 static bool js_creator_PhysicsContactListener_unregisterContactFixture(se::State& s)
 {
     creator::PhysicsContactListener* cobj = (creator::PhysicsContactListener*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_PhysicsContactListener_unregisterContactFixture : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsContactListener_unregisterContactFixture : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         b2Fixture* arg0 = nullptr;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsContactListener_unregisterContactFixture : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsContactListener_unregisterContactFixture : Error processing arguments");
         cobj->unregisterContactFixture(arg0);
         return true;
     }
@@ -2070,14 +2070,14 @@ SE_BIND_FUNC(js_creator_PhysicsContactListener_unregisterContactFixture)
 static bool js_creator_PhysicsContactListener_registerContactFixture(se::State& s)
 {
     creator::PhysicsContactListener* cobj = (creator::PhysicsContactListener*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_PhysicsContactListener_registerContactFixture : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsContactListener_registerContactFixture : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         b2Fixture* arg0 = nullptr;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsContactListener_registerContactFixture : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsContactListener_registerContactFixture : Error processing arguments");
         cobj->registerContactFixture(arg0);
         return true;
     }
@@ -2136,7 +2136,7 @@ static bool js_creator_PhysicsAABBQueryCallback_init(se::State& s)
 {
     CC_UNUSED bool ok = true;
     creator::PhysicsAABBQueryCallback* cobj = (creator::PhysicsAABBQueryCallback*)s.nativeThisObject();
-    JSB_PRECONDITION2( cobj, false, "js_creator_PhysicsAABBQueryCallback_init : Invalid Native Object");
+    SE_PRECONDITION2( cobj, false, "js_creator_PhysicsAABBQueryCallback_init : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -2164,14 +2164,14 @@ SE_BIND_FUNC(js_creator_PhysicsAABBQueryCallback_init)
 static bool js_creator_PhysicsAABBQueryCallback_getFixture(se::State& s)
 {
     creator::PhysicsAABBQueryCallback* cobj = (creator::PhysicsAABBQueryCallback*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_PhysicsAABBQueryCallback_getFixture : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsAABBQueryCallback_getFixture : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         b2Fixture* result = cobj->getFixture();
         ok &= native_ptr_to_seval<b2Fixture>((b2Fixture*)result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsAABBQueryCallback_getFixture : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsAABBQueryCallback_getFixture : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2228,14 +2228,14 @@ se::Class* __jsb_creator_PhysicsRayCastCallback_class = nullptr;
 static bool js_creator_PhysicsRayCastCallback_getType(se::State& s)
 {
     creator::PhysicsRayCastCallback* cobj = (creator::PhysicsRayCastCallback*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_PhysicsRayCastCallback_getType : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsRayCastCallback_getType : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cobj->getType();
         ok &= int32_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsRayCastCallback_getType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsRayCastCallback_getType : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2246,14 +2246,14 @@ SE_BIND_FUNC(js_creator_PhysicsRayCastCallback_getType)
 static bool js_creator_PhysicsRayCastCallback_init(se::State& s)
 {
     creator::PhysicsRayCastCallback* cobj = (creator::PhysicsRayCastCallback*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_PhysicsRayCastCallback_init : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsRayCastCallback_init : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
         ok &= seval_to_int32(args[0], (int32_t *)&arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsRayCastCallback_init : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsRayCastCallback_init : Error processing arguments");
         cobj->init(arg0);
         return true;
     }
@@ -2265,14 +2265,14 @@ SE_BIND_FUNC(js_creator_PhysicsRayCastCallback_init)
 static bool js_creator_PhysicsRayCastCallback_getFractions(se::State& s)
 {
     creator::PhysicsRayCastCallback* cobj = (creator::PhysicsRayCastCallback*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_PhysicsRayCastCallback_getFractions : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsRayCastCallback_getFractions : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::vector<float, std::allocator<float> >& result = cobj->getFractions();
         ok &= std_vector_float_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_creator_PhysicsRayCastCallback_getFractions : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsRayCastCallback_getFractions : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2330,14 +2330,14 @@ se::Class* __jsb_creator_CameraNode_class = nullptr;
 static bool js_creator_CameraNode_removeTarget(se::State& s)
 {
     creator::CameraNode* cobj = (creator::CameraNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_CameraNode_removeTarget : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_CameraNode_removeTarget : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::Node* arg0 = nullptr;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_CameraNode_removeTarget : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_CameraNode_removeTarget : Error processing arguments");
         cobj->removeTarget(arg0);
         return true;
     }
@@ -2349,7 +2349,7 @@ SE_BIND_FUNC(js_creator_CameraNode_removeTarget)
 static bool js_creator_CameraNode_setTransform(se::State& s)
 {
     creator::CameraNode* cobj = (creator::CameraNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_CameraNode_setTransform : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_CameraNode_setTransform : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -2366,7 +2366,7 @@ static bool js_creator_CameraNode_setTransform(se::State& s)
         ok &= seval_to_float(args[3], &arg3);
         ok &= seval_to_float(args[4], &arg4);
         ok &= seval_to_float(args[5], &arg5);
-        JSB_PRECONDITION2(ok, false, "js_creator_CameraNode_setTransform : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_CameraNode_setTransform : Error processing arguments");
         cobj->setTransform(arg0, arg1, arg2, arg3, arg4, arg5);
         return true;
     }
@@ -2378,14 +2378,14 @@ SE_BIND_FUNC(js_creator_CameraNode_setTransform)
 static bool js_creator_CameraNode_addTarget(se::State& s)
 {
     creator::CameraNode* cobj = (creator::CameraNode*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_creator_CameraNode_addTarget : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_creator_CameraNode_addTarget : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::Node* arg0 = nullptr;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_creator_CameraNode_addTarget : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_creator_CameraNode_addTarget : Error processing arguments");
         cobj->addTarget(arg0);
         return true;
     }

@@ -9,14 +9,14 @@ se::Class* __jsb_cocos2d_experimental_ui_VideoPlayer_class = nullptr;
 static bool js_cocos2dx_experimental_video_VideoPlayer_getFileName(se::State& s)
 {
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_getFileName : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_getFileName : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::string& result = cobj->getFileName();
         ok &= std_string_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_getFileName : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_getFileName : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -27,14 +27,14 @@ SE_BIND_FUNC(js_cocos2dx_experimental_video_VideoPlayer_getFileName)
 static bool js_cocos2dx_experimental_video_VideoPlayer_getURL(se::State& s)
 {
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_getURL : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_getURL : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::string& result = cobj->getURL();
         ok &= std_string_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_getURL : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_getURL : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -45,7 +45,7 @@ SE_BIND_FUNC(js_cocos2dx_experimental_video_VideoPlayer_getURL)
 static bool js_cocos2dx_experimental_video_VideoPlayer_play(se::State& s)
 {
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_play : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_play : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -60,14 +60,14 @@ SE_BIND_FUNC(js_cocos2dx_experimental_video_VideoPlayer_play)
 static bool js_cocos2dx_experimental_video_VideoPlayer_setKeepAspectRatioEnabled(se::State& s)
 {
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_setKeepAspectRatioEnabled : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_setKeepAspectRatioEnabled : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         bool arg0;
         ok &= seval_to_boolean(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_setKeepAspectRatioEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_setKeepAspectRatioEnabled : Error processing arguments");
         cobj->setKeepAspectRatioEnabled(arg0);
         return true;
     }
@@ -79,14 +79,14 @@ SE_BIND_FUNC(js_cocos2dx_experimental_video_VideoPlayer_setKeepAspectRatioEnable
 static bool js_cocos2dx_experimental_video_VideoPlayer_currentTime(se::State& s)
 {
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_currentTime : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_currentTime : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         float result = cobj->currentTime();
         ok &= float_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_currentTime : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_currentTime : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -97,7 +97,7 @@ SE_BIND_FUNC(js_cocos2dx_experimental_video_VideoPlayer_currentTime)
 static bool js_cocos2dx_experimental_video_VideoPlayer_stop(se::State& s)
 {
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_stop : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_stop : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -112,14 +112,14 @@ SE_BIND_FUNC(js_cocos2dx_experimental_video_VideoPlayer_stop)
 static bool js_cocos2dx_experimental_video_VideoPlayer_setFullScreenEnabled(se::State& s)
 {
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_setFullScreenEnabled : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_setFullScreenEnabled : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         bool arg0;
         ok &= seval_to_boolean(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_setFullScreenEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_setFullScreenEnabled : Error processing arguments");
         cobj->setFullScreenEnabled(arg0);
         return true;
     }
@@ -131,14 +131,14 @@ SE_BIND_FUNC(js_cocos2dx_experimental_video_VideoPlayer_setFullScreenEnabled)
 static bool js_cocos2dx_experimental_video_VideoPlayer_setFileName(se::State& s)
 {
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_setFileName : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_setFileName : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         std::string arg0;
         ok &= seval_to_std_string(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_setFileName : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_setFileName : Error processing arguments");
         cobj->setFileName(arg0);
         return true;
     }
@@ -150,14 +150,14 @@ SE_BIND_FUNC(js_cocos2dx_experimental_video_VideoPlayer_setFileName)
 static bool js_cocos2dx_experimental_video_VideoPlayer_setURL(se::State& s)
 {
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_setURL : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_setURL : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         std::string arg0;
         ok &= seval_to_std_string(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_setURL : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_setURL : Error processing arguments");
         cobj->setURL(arg0);
         return true;
     }
@@ -169,14 +169,14 @@ SE_BIND_FUNC(js_cocos2dx_experimental_video_VideoPlayer_setURL)
 static bool js_cocos2dx_experimental_video_VideoPlayer_isKeepAspectRatioEnabled(se::State& s)
 {
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_isKeepAspectRatioEnabled : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_isKeepAspectRatioEnabled : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cobj->isKeepAspectRatioEnabled();
         ok &= boolean_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_isKeepAspectRatioEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_isKeepAspectRatioEnabled : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -187,14 +187,14 @@ SE_BIND_FUNC(js_cocos2dx_experimental_video_VideoPlayer_isKeepAspectRatioEnabled
 static bool js_cocos2dx_experimental_video_VideoPlayer_onPlayEvent(se::State& s)
 {
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_onPlayEvent : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_onPlayEvent : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
         ok &= seval_to_int32(args[0], (int32_t *)&arg0);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_onPlayEvent : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_onPlayEvent : Error processing arguments");
         cobj->onPlayEvent(arg0);
         return true;
     }
@@ -206,14 +206,14 @@ SE_BIND_FUNC(js_cocos2dx_experimental_video_VideoPlayer_onPlayEvent)
 static bool js_cocos2dx_experimental_video_VideoPlayer_isFullScreenEnabled(se::State& s)
 {
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_isFullScreenEnabled : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_isFullScreenEnabled : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cobj->isFullScreenEnabled();
         ok &= boolean_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_isFullScreenEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_isFullScreenEnabled : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -224,7 +224,7 @@ SE_BIND_FUNC(js_cocos2dx_experimental_video_VideoPlayer_isFullScreenEnabled)
 static bool js_cocos2dx_experimental_video_VideoPlayer_addEventListener(se::State& s)
 {
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_addEventListener : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_addEventListener : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -261,7 +261,7 @@ static bool js_cocos2dx_experimental_video_VideoPlayer_addEventListener(se::Stat
             }
         } while(false)
         ;
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_addEventListener : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_addEventListener : Error processing arguments");
         cobj->addEventListener(arg0);
         return true;
     }
@@ -273,14 +273,14 @@ SE_BIND_FUNC(js_cocos2dx_experimental_video_VideoPlayer_addEventListener)
 static bool js_cocos2dx_experimental_video_VideoPlayer_duration(se::State& s)
 {
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_duration : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_duration : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         float result = cobj->duration();
         ok &= float_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_duration : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_duration : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -291,14 +291,14 @@ SE_BIND_FUNC(js_cocos2dx_experimental_video_VideoPlayer_duration)
 static bool js_cocos2dx_experimental_video_VideoPlayer_isPlaying(se::State& s)
 {
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_isPlaying : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_isPlaying : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cobj->isPlaying();
         ok &= boolean_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_isPlaying : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_isPlaying : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -309,14 +309,14 @@ SE_BIND_FUNC(js_cocos2dx_experimental_video_VideoPlayer_isPlaying)
 static bool js_cocos2dx_experimental_video_VideoPlayer_seekTo(se::State& s)
 {
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_seekTo : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_seekTo : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         float arg0 = 0;
         ok &= seval_to_float(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_seekTo : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_seekTo : Error processing arguments");
         cobj->seekTo(arg0);
         return true;
     }

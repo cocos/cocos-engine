@@ -498,19 +498,19 @@ static bool Node_schedule(se::State& s)
         if (argc >= 2)
         {
             ok = seval_to_float(args[1], &interval);
-            JSB_PRECONDITION2(ok, false, "Converting 'interval' argument failed");
+            SE_PRECONDITION2(ok, false, "Converting 'interval' argument failed");
         }
 
         if (argc >= 3)
         {
             ok = seval_to_uint32(args[2], &repeat);
-            JSB_PRECONDITION2(ok, false, "Converting 'interval' argument failed");
+            SE_PRECONDITION2(ok, false, "Converting 'interval' argument failed");
         }
 
         if (argc >= 4)
         {
             ok = seval_to_float(args[3], &delay);
-            JSB_PRECONDITION2(ok, false, "Converting 'delay' argument failed");
+            SE_PRECONDITION2(ok, false, "Converting 'delay' argument failed");
         }
 
         if (argc >= 5 && !args[4].isNullOrUndefined())
@@ -524,7 +524,7 @@ static bool Node_schedule(se::State& s)
             {
                 ok = false;
             }
-            JSB_PRECONDITION2(ok, false, "Converting 'key' argument failed");
+            SE_PRECONDITION2(ok, false, "Converting 'key' argument failed");
         }
 
         return Scheduler_scheduleCommon(thiz->getScheduler(), jsThis, jsFunc, interval, repeat, delay, !thiz->isRunning(), key, false, "cc.Node.schedule");
@@ -559,7 +559,7 @@ static bool Node_scheduleOnce(se::State& s)
     if (argc >= 2)
     {
         ok = seval_to_float(args[1], &delay);
-        JSB_PRECONDITION2(ok, false, "Converting 'delay' argument failed");
+        SE_PRECONDITION2(ok, false, "Converting 'delay' argument failed");
     }
 
     if (argc >= 3 && !args[2].isNullOrUndefined())
@@ -573,7 +573,7 @@ static bool Node_scheduleOnce(se::State& s)
         {
             ok = false;
         }
-        JSB_PRECONDITION2(ok, false, "Converting 'key' argument failed");
+        SE_PRECONDITION2(ok, false, "Converting 'key' argument failed");
     }
 
     return Scheduler_scheduleCommon(thiz->getScheduler(), jsThis, jsFunc, 0.0f, 0, delay, !thiz->isRunning(), key, false, "cc.Node.scheduleOnce");
@@ -679,7 +679,7 @@ static bool Node_scheduleUpdateWithPriority(se::State& s)
     if (argc == 1)
     {
         bool ok = seval_to_int32(args[0], &priority);
-        JSB_PRECONDITION2(ok, false, "Converting priority failed!");
+        SE_PRECONDITION2(ok, false, "Converting priority failed!");
         return Scheduler_scheduleUpdateCommon(thiz->getScheduler(), jsThis, priority, !thiz->isRunning());
     }
 
@@ -891,7 +891,7 @@ static bool Node_setContentSize(se::State& s)
     {
         cocos2d::Size arg0;
         ok &= seval_to_Size(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setContentSize(arg0);
         return true;
     }
@@ -919,7 +919,7 @@ static bool Node_setAnchorPoint(se::State& s)
     {
         cocos2d::Vec2 arg0;
         ok &= seval_to_Vec2(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setAnchorPoint(arg0);
         return true;
     }
@@ -948,7 +948,7 @@ static bool Node_setPosition(se::State& s)
     {
         cocos2d::Vec2 arg0;
         ok &= seval_to_Vec2(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setPosition(arg0);
         return true;
     }
@@ -985,13 +985,13 @@ static bool js_cocos2dx_Scheduler_scheduleUpdateForTarget(se::State& s)
         if (argc >= 2)
         {
             ok = seval_to_int32(args[1], &priority);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
         }
 
         if (argc >= 3)
         {
             ok = seval_to_boolean(args[2], &isPaused);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
         }
 
         Scheduler* cobj = (Scheduler*)s.nativeThisObject();
@@ -1056,25 +1056,25 @@ static bool js_cocos2dx_Scheduler_schedule(se::State& s)
         if (argc >= 3)
         {
             ok = seval_to_float(args[2], &interval);
-            JSB_PRECONDITION2(ok, false, "Converting 'interval' argument failed");
+            SE_PRECONDITION2(ok, false, "Converting 'interval' argument failed");
         }
 
         if (argc >= 4)
         {
             ok = seval_to_uint32(args[3], &repeat);
-            JSB_PRECONDITION2(ok, false, "Converting 'interval' argument failed");
+            SE_PRECONDITION2(ok, false, "Converting 'interval' argument failed");
         }
 
         if (argc >= 5)
         {
             ok = seval_to_float(args[4], &delay);
-            JSB_PRECONDITION2(ok, false, "Converting 'delay' argument failed");
+            SE_PRECONDITION2(ok, false, "Converting 'delay' argument failed");
         }
 
         if (argc >= 6)
         {
             ok = seval_to_boolean(args[5], &isPaused);
-            JSB_PRECONDITION2(ok, false, "Converting 'isPaused' argument failed");
+            SE_PRECONDITION2(ok, false, "Converting 'isPaused' argument failed");
         }
 
         if (argc >= 7 && !args[6].isNullOrUndefined())
@@ -1088,7 +1088,7 @@ static bool js_cocos2dx_Scheduler_schedule(se::State& s)
             {
                 ok = false;
             }
-            JSB_PRECONDITION2(ok, false, "Converting 'key' argument failed");
+            SE_PRECONDITION2(ok, false, "Converting 'key' argument failed");
         }
 
         return Scheduler_scheduleCommon(cobj, jsThis, jsFunc, interval, repeat, delay, isPaused, key, !isBindedObject, "cc.Scheduler.schedule");
@@ -1164,7 +1164,7 @@ static bool js_cocos2dx_Scheduler_unscheduleAllCallbacksWithMinPriority(se::Stat
         int minPriority = 0;
         bool ok = false;
         ok = seval_to_int32(args[0], &minPriority);
-        JSB_PRECONDITION2(ok, false, "Converting minPriority failed!");
+        SE_PRECONDITION2(ok, false, "Converting minPriority failed!");
 
         removeAllSchedules(true);
         removeScheduleUpdatesForMinPriority(minPriority);

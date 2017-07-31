@@ -42,7 +42,7 @@ static bool jsb_spine_TrackEntry_get_mixingFrom(se::State& s)
     if (cobj->mixingFrom)
     {
         bool ok = sptrackentry_to_seval(*cobj->mixingFrom, &s.rval());
-        JSB_PRECONDITION2(ok, false, "Converting track entry failed!");
+        SE_PRECONDITION2(ok, false, "Converting track entry failed!");
         return true;
     }
     s.rval().setNull();
@@ -56,7 +56,7 @@ static bool jsb_spine_TrackEntry_get_next(se::State& s)
     if (cobj->next)
     {
         bool ok = sptrackentry_to_seval(*cobj->next, &s.rval());
-        JSB_PRECONDITION2(ok, false, "Converting track entry failed!");
+        SE_PRECONDITION2(ok, false, "Converting track entry failed!");
         return true;
     }
     s.rval().setNull();
@@ -236,7 +236,7 @@ static bool jsb_spine_TrackEntry_get_animation(se::State& s)
 {
     spTrackEntry* cobj = (spTrackEntry*) s.nativeThisObject();
 
-    JSB_PRECONDITION2(spanimation_to_seval(*cobj->animation, &s.rval()), false, "Converting spAnimation failed!");
+    SE_PRECONDITION2(spanimation_to_seval(*cobj->animation, &s.rval()), false, "Converting spAnimation failed!");
     return true;
 }
 SE_BIND_PROP_GET(jsb_spine_TrackEntry_get_animation)

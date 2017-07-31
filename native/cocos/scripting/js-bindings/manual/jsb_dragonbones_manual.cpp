@@ -17,7 +17,7 @@ static bool js_cocos2dx_dragonbones_Armature_getAnimation(se::State& s)
         dragonBones::Armature* cobj = (dragonBones::Armature*)s.nativeThisObject();
         dragonBones::Animation& ret = cobj->getAnimation();
         bool ok = native_ptr_to_rooted_seval<dragonBones::Animation>(&ret, __jsb_dragonBones_Animation_class, &s.rval());
-        JSB_PRECONDITION2(ok, false, "Convert dragonBones::Animation to se::Value failed!");
+        SE_PRECONDITION2(ok, false, "Convert dragonBones::Animation to se::Value failed!");
         return true;
     }
 
@@ -33,7 +33,7 @@ static bool js_cocos2dx_dragonbones_Armature_getArmatureData(se::State& s)
         dragonBones::Armature* cobj = (dragonBones::Armature*)s.nativeThisObject();
         const dragonBones::ArmatureData& ret = cobj->getArmatureData();
         bool ok = native_ptr_to_rooted_seval<dragonBones::ArmatureData>((dragonBones::ArmatureData*)&ret, __jsb_dragonBones_ArmatureData_class, &s.rval());
-        JSB_PRECONDITION2(ok, false, "Convert dragonBones::ArmatureData to se::Value failed!");
+        SE_PRECONDITION2(ok, false, "Convert dragonBones::ArmatureData to se::Value failed!");
         return true;
     }
 
@@ -51,7 +51,7 @@ static bool js_cocos2dx_dragonbones_Armature_getDisplay(se::State& s)
         if (ret != nullptr)
         {
             bool ok = native_ptr_to_seval<dragonBones::CCArmatureDisplay>(ret, __jsb_dragonBones_CCArmatureDisplay_class, &s.rval());
-            JSB_PRECONDITION2(ok, false, "Convert dragonBones::Animation to se::Value failed!");
+            SE_PRECONDITION2(ok, false, "Convert dragonBones::Animation to se::Value failed!");
         }
         else
         {
@@ -72,7 +72,7 @@ static bool js_cocos2dx_dragonbones_CCArmatureDisplay_getAnimation(se::State& s)
         dragonBones::CCArmatureDisplay* cobj = (dragonBones::CCArmatureDisplay*)s.nativeThisObject();
         dragonBones::Animation& ret = cobj->getAnimation();
         bool ok = native_ptr_to_rooted_seval<dragonBones::Animation>(&ret, __jsb_dragonBones_Animation_class, &s.rval());
-        JSB_PRECONDITION2(ok, false, "Convert dragonBones::Animation to se::Value failed!");
+        SE_PRECONDITION2(ok, false, "Convert dragonBones::Animation to se::Value failed!");
         return true;
     }
 
@@ -88,7 +88,7 @@ static bool js_cocos2dx_dragonbones_AnimationState_getAnimationData(se::State& s
         dragonBones::AnimationState* cobj = (dragonBones::AnimationState*)s.nativeThisObject();
         const dragonBones::AnimationData& ret = cobj->getAnimationData();
         bool ok = native_ptr_to_rooted_seval<dragonBones::AnimationData>((dragonBones::AnimationData*)&ret, __jsb_dragonBones_AnimationData_class, &s.rval());
-        JSB_PRECONDITION2(ok, false, "Convert dragonBones::AnimationData to se::Value failed!");
+        SE_PRECONDITION2(ok, false, "Convert dragonBones::AnimationData to se::Value failed!");
         return true;
     }
 
@@ -108,7 +108,7 @@ static bool js_cocos2dx_dragonbones_ArmatureData_get_animations(se::State& s)
         if (!e.first.empty())
         {
             ok = native_ptr_to_rooted_seval<dragonBones::AnimationData>(e.second, __jsb_dragonBones_AnimationData_class, &tmp);
-            JSB_PRECONDITION2(ok, false, "Convert dragonBones::AnimationData to se::Value failed!");
+            SE_PRECONDITION2(ok, false, "Convert dragonBones::AnimationData to se::Value failed!");
             retObj->setProperty(e.first.c_str(), tmp);
         }
     }
@@ -129,7 +129,7 @@ static bool js_cocos2dx_dragonbones_ArmatureData_get_bones(se::State& s)
         if (!e.first.empty())
         {
             ok = native_ptr_to_rooted_seval<dragonBones::BoneData>(e.second, __jsb_dragonBones_BoneData_class, &tmp);
-            JSB_PRECONDITION2(ok, false, "Convert dragonBones::AnimationData to se::Value failed!");
+            SE_PRECONDITION2(ok, false, "Convert dragonBones::AnimationData to se::Value failed!");
             retObj->setProperty(e.first.c_str(), tmp);
         }
     }
@@ -150,7 +150,7 @@ static bool js_cocos2dx_dragonbones_ArmatureData_get_skins(se::State& s)
         if (!e.first.empty())
         {
             ok = native_ptr_to_rooted_seval<dragonBones::SkinData>(e.second, __jsb_dragonBones_SkinData_class, &tmp);
-            JSB_PRECONDITION2(ok, false, "Convert dragonBones::AnimationData to se::Value failed!");
+            SE_PRECONDITION2(ok, false, "Convert dragonBones::AnimationData to se::Value failed!");
             retObj->setProperty(e.first.c_str(), tmp);
         }
     }
@@ -171,7 +171,7 @@ static bool js_cocos2dx_dragonbones_ArmatureData_get_slots(se::State& s)
         if (!e.first.empty())
         {
             ok = native_ptr_to_rooted_seval<dragonBones::SlotData>(e.second, __jsb_dragonBones_SlotData_class, &tmp);
-            JSB_PRECONDITION2(ok, false, "Convert dragonBones::AnimationData to se::Value failed!");
+            SE_PRECONDITION2(ok, false, "Convert dragonBones::AnimationData to se::Value failed!");
             retObj->setProperty(e.first.c_str(), tmp);
         }
     }
@@ -187,7 +187,7 @@ static bool js_cocos2dx_dragonbones_DragonBonesData_get_armatureNames(se::State&
 
     const auto& ret = cobj->getArmatureNames();
     bool ok = std_vector_string_to_seval(ret, &s.rval());
-    JSB_PRECONDITION2(ok, false, "Convert ArmatureNames to se::Value failed!");
+    SE_PRECONDITION2(ok, false, "Convert ArmatureNames to se::Value failed!");
     return true;
 }
 SE_BIND_PROP_GET(js_cocos2dx_dragonbones_DragonBonesData_get_armatureNames)
@@ -205,11 +205,11 @@ static bool js_cocos2dx_dragonbones_WorldClock_add(se::State& s)
         {
             dragonBones::IAnimateble* arg0 = nullptr;
             bool ok = arg0Val.isObject();
-            JSB_PRECONDITION2(ok, false, "WorldClock_add argument isn't object");
+            SE_PRECONDITION2(ok, false, "WorldClock_add argument isn't object");
 
             void* animateable = nullptr;
             ok = seval_to_native_ptr(arg0Val, &animateable);
-            JSB_PRECONDITION2(ok, false, "WorldClock_add argument get native ptr failed!");
+            SE_PRECONDITION2(ok, false, "WorldClock_add argument get native ptr failed!");
 
             auto armatureObj = static_cast<dragonBones::Armature*>(animateable);
             arg0 = dynamic_cast<dragonBones::Armature*>(armatureObj);
@@ -243,11 +243,11 @@ static bool js_cocos2dx_dragonbones_WorldClock_remove(se::State& s)
         {
             dragonBones::IAnimateble* arg0 = nullptr;
             bool ok = arg0Val.isObject();
-            JSB_PRECONDITION2(ok, false, "WorldClock_remove argument isn't object");
+            SE_PRECONDITION2(ok, false, "WorldClock_remove argument isn't object");
 
             void* animateable = nullptr;
             ok = seval_to_native_ptr(arg0Val, &animateable);
-            JSB_PRECONDITION2(ok, false, "WorldClock_remove argument get native ptr failed!");
+            SE_PRECONDITION2(ok, false, "WorldClock_remove argument get native ptr failed!");
 
             auto armatureObj = static_cast<dragonBones::Armature*>(animateable);
             arg0 = dynamic_cast<dragonBones::Armature*>(armatureObj);
@@ -274,7 +274,7 @@ static bool js_cocos2dx_dragonbones_CCFactory_getFactory(se::State& s)
     {
         const dragonBones::CCFactory& ret = dragonBones::CCFactory::factory;
         bool ok = native_ptr_to_rooted_seval<dragonBones::CCFactory>((dragonBones::CCFactory*)&ret, __jsb_dragonBones_CCFactory_class, &s.rval());
-        JSB_PRECONDITION2(ok, false, "Convert dragonBones::CCFactory to se::Value failed!");
+        SE_PRECONDITION2(ok, false, "Convert dragonBones::CCFactory to se::Value failed!");
         return true;
     }
 
@@ -288,7 +288,7 @@ static bool js_cocos2dx_dragonbones_TransformObject_getGlobal(se::State& s)
     dragonBones::TransformObject* cobj = (dragonBones::TransformObject *)s.nativeThisObject();
     bool isReturnCached = false;
     bool ok = native_ptr_to_rooted_seval<dragonBones::Transform>(&cobj->global, __jsb_dragonBones_Transform_class, &s.rval(), &isReturnCached);
-    JSB_PRECONDITION2(ok, false, "Convert dragonBones::Transform to se::Value failed!");
+    SE_PRECONDITION2(ok, false, "Convert dragonBones::Transform to se::Value failed!");
     if (!isReturnCached)
     {
         s.thisObject()->attachChild(s.rval().toObject());
@@ -302,7 +302,7 @@ static bool js_cocos2dx_dragonbones_TransformObject_getOrigin(se::State& s)
     dragonBones::TransformObject* cobj = (dragonBones::TransformObject *)s.nativeThisObject();
     bool isReturnCached = false;
     bool ok = native_ptr_to_rooted_seval<dragonBones::Transform>(&cobj->origin, __jsb_dragonBones_Transform_class, &s.rval(), &isReturnCached);
-    JSB_PRECONDITION2(ok, false, "Convert dragonBones::Transform to se::Value failed!");
+    SE_PRECONDITION2(ok, false, "Convert dragonBones::Transform to se::Value failed!");
     if (!isReturnCached)
     {
         s.thisObject()->attachChild(s.rval().toObject());
@@ -316,7 +316,7 @@ static bool js_cocos2dx_dragonbones_TransformObject_getOffset(se::State& s)
     dragonBones::TransformObject* cobj = (dragonBones::TransformObject *)s.nativeThisObject();
     bool isReturnCached = false;
     bool ok = native_ptr_to_rooted_seval<dragonBones::Transform>(&cobj->offset, __jsb_dragonBones_Transform_class, &s.rval(), &isReturnCached);
-    JSB_PRECONDITION2(ok, false, "Convert dragonBones::Transform to se::Value failed!");
+    SE_PRECONDITION2(ok, false, "Convert dragonBones::Transform to se::Value failed!");
     if (!isReturnCached)
     {
         s.thisObject()->attachChild(s.rval().toObject());
@@ -330,7 +330,7 @@ static bool js_cocos2dx_dragonbones_Slot_getRawDisplay(se::State& s)
     dragonBones::Slot* cobj = (dragonBones::Slot *)s.nativeThisObject();
     dragonBones::DBCCSprite* ret = static_cast<dragonBones::DBCCSprite*>(cobj->getRawDisplay());
     bool ok = native_ptr_to_seval<dragonBones::DBCCSprite>(ret, __jsb_dragonBones_DBCCSprite_class, &s.rval());
-    JSB_PRECONDITION2(ok, false, "Convert dragonBones::DBCCSprite to se::Value failed!");
+    SE_PRECONDITION2(ok, false, "Convert dragonBones::DBCCSprite to se::Value failed!");
     return true;
 }
 SE_BIND_FUNC(js_cocos2dx_dragonbones_Slot_getRawDisplay)
@@ -340,7 +340,7 @@ static bool js_cocos2dx_dragonbones_Slot_getDisplay(se::State& s)
     dragonBones::Slot* cobj = (dragonBones::Slot *)s.nativeThisObject();
     dragonBones::DBCCSprite* ret = static_cast<dragonBones::DBCCSprite*>(cobj->getDisplay());
     bool ok = native_ptr_to_seval<dragonBones::DBCCSprite>(ret, __jsb_dragonBones_DBCCSprite_class, &s.rval());
-    JSB_PRECONDITION2(ok, false, "Convert dragonBones::DBCCSprite to se::Value failed!");
+    SE_PRECONDITION2(ok, false, "Convert dragonBones::DBCCSprite to se::Value failed!");
     return true;
 }
 SE_BIND_FUNC(js_cocos2dx_dragonbones_Slot_getDisplay)
@@ -350,7 +350,7 @@ static bool js_cocos2dx_dragonbones_Slot_getMeshDisplay(se::State& s)
     dragonBones::Slot* cobj = (dragonBones::Slot *)s.nativeThisObject();
     dragonBones::DBCCSprite* ret = static_cast<dragonBones::DBCCSprite*>(cobj->getMeshDisplay());
     bool ok = native_ptr_to_seval<dragonBones::DBCCSprite>(ret, __jsb_dragonBones_DBCCSprite_class, &s.rval());
-    JSB_PRECONDITION2(ok, false, "Convert dragonBones::DBCCSprite to se::Value failed!");
+    SE_PRECONDITION2(ok, false, "Convert dragonBones::DBCCSprite to se::Value failed!");
     return true;
 }
 SE_BIND_FUNC(js_cocos2dx_dragonbones_Slot_getMeshDisplay)
@@ -365,10 +365,10 @@ static bool js_cocos2dx_dragonbones_Slot_setDisplay(se::State& s)
         dragonBones::Slot* cobj = (dragonBones::Slot *)s.nativeThisObject();
         dragonBones::DBCCSprite* dbSprite = nullptr;
         bool ok = seval_to_native_ptr(args[0], &dbSprite);
-        JSB_PRECONDITION2(ok, false, "Convert se::Value to dragonBones::DBCCSprite failed!");
+        SE_PRECONDITION2(ok, false, "Convert se::Value to dragonBones::DBCCSprite failed!");
         dragonBones::DisplayType type;
         ok = seval_to_int32(args[1], (int32_t *)&type);
-        JSB_PRECONDITION2(ok, false, "Convert se::Value to dragonBones::DisplayType failed!");
+        SE_PRECONDITION2(ok, false, "Convert se::Value to dragonBones::DisplayType failed!");
         cobj->setDisplay(dbSprite, type);
         return true;
     }

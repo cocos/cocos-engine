@@ -36,12 +36,12 @@ namespace {
             Vec2 pt1, pt2;
             bool ok = false;
             ok = seval_to_Vec2(args[0], &pt1);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             ok = seval_to_Vec2(args[1], &pt2);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             Vec2 result = pt1 + pt2;
             ok = Vec2_to_seval(result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             return true;
         }
 
@@ -58,9 +58,9 @@ namespace {
             Vec2 pt1, pt2;
             bool ok = false;
             ok = seval_to_Vec2(args[0], &pt1);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             ok = seval_to_Vec2(args[1], &pt2);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             float result = pt1.getDistanceSq(pt2);
             s.rval().setFloat(result);
             return true;
@@ -78,9 +78,9 @@ namespace {
             Vec2 pt1, pt2;
             bool ok = false;
             ok = seval_to_Vec2(args[0], &pt1);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             ok = seval_to_Vec2(args[1], &pt2);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             float result = pt1.getDistance(pt2);
             s.rval().setFloat(result);
             return true;
@@ -99,12 +99,12 @@ namespace {
             Vec2 pt1, pt2;
             bool ok = false;
             ok = seval_to_Vec2(args[0], &pt1);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             ok = seval_to_Vec2(args[1], &pt2);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             Vec2 result = pt1 - pt2;
             ok = Vec2_to_seval(result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             return true;
         }
 
@@ -121,10 +121,10 @@ namespace {
             Vec2 pt;
             bool ok = false;
             ok = seval_to_Vec2(args[0], &pt);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             pt = -pt;
             ok = Vec2_to_seval(pt, &s.rval());
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             return true;
         }
 
@@ -141,11 +141,11 @@ namespace {
             Vec2 pt;
             bool ok = false;
             ok = seval_to_Vec2(args[0], &pt);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             SE_ASSERT(args[1].isNumber(), "Error processing arguments");
             Vec2 result = pt * args[1].toFloat();
             ok = Vec2_to_seval(result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             return true;
         }
 
@@ -162,12 +162,12 @@ namespace {
             Vec2 pt1, pt2;
             bool ok = false;
             ok = seval_to_Vec2(args[0], &pt1);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             ok = seval_to_Vec2(args[1], &pt2);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             Vec2 result = pt1.getMidpoint(pt2);
             ok = Vec2_to_seval(result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             return true;
         }
 
@@ -184,9 +184,9 @@ namespace {
             Vec2 pt1, pt2;
             bool ok = false;
             ok = seval_to_Vec2(args[0], &pt1);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             ok = seval_to_Vec2(args[1], &pt2);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             float result = pt1.dot(pt2);
             s.rval().setFloat(result);
             return true;
@@ -205,9 +205,9 @@ namespace {
             Vec2 pt1, pt2;
             bool ok = false;
             ok = seval_to_Vec2(args[0], &pt1);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             ok = seval_to_Vec2(args[1], &pt2);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             float result = pt1.cross(pt2);
             s.rval().setFloat(result);
         }
@@ -225,10 +225,10 @@ namespace {
             Vec2 pt;
             bool ok = false;
             ok = seval_to_Vec2(args[0], &pt);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             Vec2 result = pt.getPerp();
             ok = Vec2_to_seval(result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             return true;
         }
 
@@ -245,10 +245,10 @@ namespace {
             Vec2 pt;
             bool ok = false;
             ok = seval_to_Vec2(args[0], &pt);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             Vec2 result = pt.getRPerp();
             ok = Vec2_to_seval(result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             return true;
         }
 
@@ -265,12 +265,12 @@ namespace {
             Vec2 pt1, pt2;
             bool ok = false;
             ok = seval_to_Vec2(args[0], &pt1);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             ok = seval_to_Vec2(args[1], &pt2);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             Vec2 result = pt1.project(pt2);
             ok = Vec2_to_seval(result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             return true;
         }
 
@@ -287,12 +287,12 @@ namespace {
             Vec2 pt1, pt2;
             bool ok = false;
             ok = seval_to_Vec2(args[0], &pt1);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             ok = seval_to_Vec2(args[1], &pt2);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             Vec2 result = pt1.rotate(pt2);
             ok = Vec2_to_seval(result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             return true;
         }
 
@@ -309,10 +309,10 @@ namespace {
             Vec2 pt;
             bool ok = false;
             ok = seval_to_Vec2(args[0], &pt);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             pt.normalize();
             ok = Vec2_to_seval(pt, &s.rval());
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             return true;
         }
 
@@ -329,14 +329,14 @@ namespace {
             Vec2 pt1, pt2, pt3;
             bool ok = false;
             ok = seval_to_Vec2(args[0], &pt1);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             ok = seval_to_Vec2(args[1], &pt2);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             ok = seval_to_Vec2(args[1], &pt3);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             Vec2 result = pt1.getClampPoint(pt2, pt3);
             ok = Vec2_to_seval(result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             return true;
         }
 
@@ -353,7 +353,7 @@ namespace {
             Vec2 pt;
             bool ok = false;
             ok = seval_to_Vec2(args[0], &pt);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             float result = pt.getLengthSq();
             s.rval().setFloat(result);
             return true;
@@ -372,7 +372,7 @@ namespace {
             Vec2 pt;
             bool ok = false;
             ok = seval_to_Vec2(args[0], &pt);
-            JSB_PRECONDITION2(ok, false, "Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             float result = pt.getLength();
             s.rval().setFloat(result);
             return true;

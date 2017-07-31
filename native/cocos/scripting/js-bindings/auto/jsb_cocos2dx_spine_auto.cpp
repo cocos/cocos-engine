@@ -8,14 +8,14 @@ se::Class* __jsb_spine_SkeletonRenderer_class = nullptr;
 static bool js_cocos2dx_spine_SkeletonRenderer_setTimeScale(se::State& s)
 {
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_setTimeScale : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_setTimeScale : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         float arg0 = 0;
         ok &= seval_to_float(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_setTimeScale : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_setTimeScale : Error processing arguments");
         cobj->setTimeScale(arg0);
         return true;
     }
@@ -27,14 +27,14 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonRenderer_setTimeScale)
 static bool js_cocos2dx_spine_SkeletonRenderer_getDebugSlotsEnabled(se::State& s)
 {
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_getDebugSlotsEnabled : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_getDebugSlotsEnabled : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cobj->getDebugSlotsEnabled();
         ok &= boolean_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_getDebugSlotsEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_getDebugSlotsEnabled : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -46,7 +46,7 @@ static bool js_cocos2dx_spine_SkeletonRenderer_setAttachment(se::State& s)
 {
     CC_UNUSED bool ok = true;
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-    JSB_PRECONDITION2( cobj, false, "js_cocos2dx_spine_SkeletonRenderer_setAttachment : Invalid Native Object");
+    SE_PRECONDITION2( cobj, false, "js_cocos2dx_spine_SkeletonRenderer_setAttachment : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -59,7 +59,7 @@ static bool js_cocos2dx_spine_SkeletonRenderer_setAttachment(se::State& s)
             if (!ok) { ok = true; break; }
             bool result = cobj->setAttachment(arg0, arg1);
             ok &= boolean_to_seval(result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_setAttachment : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_setAttachment : Error processing arguments");
             return true;
         }
     } while(false);
@@ -74,7 +74,7 @@ static bool js_cocos2dx_spine_SkeletonRenderer_setAttachment(se::State& s)
             if (!ok) { ok = true; break; }
             bool result = cobj->setAttachment(arg0, arg1);
             ok &= boolean_to_seval(result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_setAttachment : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_setAttachment : Error processing arguments");
             return true;
         }
     } while(false);
@@ -87,7 +87,7 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonRenderer_setAttachment)
 static bool js_cocos2dx_spine_SkeletonRenderer_setBonesToSetupPose(se::State& s)
 {
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_setBonesToSetupPose : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_setBonesToSetupPose : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -102,14 +102,14 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonRenderer_setBonesToSetupPose)
 static bool js_cocos2dx_spine_SkeletonRenderer_setDebugSlotsEnabled(se::State& s)
 {
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_setDebugSlotsEnabled : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_setDebugSlotsEnabled : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         bool arg0;
         ok &= seval_to_boolean(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_setDebugSlotsEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_setDebugSlotsEnabled : Error processing arguments");
         cobj->setDebugSlotsEnabled(arg0);
         return true;
     }
@@ -122,7 +122,7 @@ static bool js_cocos2dx_spine_SkeletonRenderer_initWithJsonFile(se::State& s)
 {
     CC_UNUSED bool ok = true;
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-    JSB_PRECONDITION2( cobj, false, "js_cocos2dx_spine_SkeletonRenderer_initWithJsonFile : Invalid Native Object");
+    SE_PRECONDITION2( cobj, false, "js_cocos2dx_spine_SkeletonRenderer_initWithJsonFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -193,7 +193,7 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonRenderer_initWithJsonFile)
 static bool js_cocos2dx_spine_SkeletonRenderer_setSlotsToSetupPose(se::State& s)
 {
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_setSlotsToSetupPose : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_setSlotsToSetupPose : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -209,7 +209,7 @@ static bool js_cocos2dx_spine_SkeletonRenderer_initWithBinaryFile(se::State& s)
 {
     CC_UNUSED bool ok = true;
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-    JSB_PRECONDITION2( cobj, false, "js_cocos2dx_spine_SkeletonRenderer_initWithBinaryFile : Invalid Native Object");
+    SE_PRECONDITION2( cobj, false, "js_cocos2dx_spine_SkeletonRenderer_initWithBinaryFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -280,7 +280,7 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonRenderer_initWithBinaryFile)
 static bool js_cocos2dx_spine_SkeletonRenderer_setToSetupPose(se::State& s)
 {
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_setToSetupPose : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_setToSetupPose : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -295,14 +295,14 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonRenderer_setToSetupPose)
 static bool js_cocos2dx_spine_SkeletonRenderer_getBlendFunc(se::State& s)
 {
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_getBlendFunc : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_getBlendFunc : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const cocos2d::BlendFunc& result = cobj->getBlendFunc();
         ok &= blendfunc_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_getBlendFunc : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_getBlendFunc : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -313,7 +313,7 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonRenderer_getBlendFunc)
 static bool js_cocos2dx_spine_SkeletonRenderer_updateWorldTransform(se::State& s)
 {
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_updateWorldTransform : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_updateWorldTransform : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -328,7 +328,7 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonRenderer_updateWorldTransform)
 static bool js_cocos2dx_spine_SkeletonRenderer_getAttachment(se::State& s)
 {
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_getAttachment : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_getAttachment : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -337,10 +337,10 @@ static bool js_cocos2dx_spine_SkeletonRenderer_getAttachment(se::State& s)
         std::string arg1;
         ok &= seval_to_std_string(args[0], &arg0);
         ok &= seval_to_std_string(args[1], &arg1);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_getAttachment : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_getAttachment : Error processing arguments");
         spAttachment* result = cobj->getAttachment(arg0, arg1);
         ok &= spattachment_to_seval(*result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_getAttachment : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_getAttachment : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -351,7 +351,7 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonRenderer_getAttachment)
 static bool js_cocos2dx_spine_SkeletonRenderer_initialize(se::State& s)
 {
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_initialize : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -366,14 +366,14 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonRenderer_initialize)
 static bool js_cocos2dx_spine_SkeletonRenderer_setDebugBonesEnabled(se::State& s)
 {
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_setDebugBonesEnabled : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_setDebugBonesEnabled : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         bool arg0;
         ok &= seval_to_boolean(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_setDebugBonesEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_setDebugBonesEnabled : Error processing arguments");
         cobj->setDebugBonesEnabled(arg0);
         return true;
     }
@@ -385,14 +385,14 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonRenderer_setDebugBonesEnabled)
 static bool js_cocos2dx_spine_SkeletonRenderer_getDebugBonesEnabled(se::State& s)
 {
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_getDebugBonesEnabled : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_getDebugBonesEnabled : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cobj->getDebugBonesEnabled();
         ok &= boolean_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_getDebugBonesEnabled : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_getDebugBonesEnabled : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -403,14 +403,14 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonRenderer_getDebugBonesEnabled)
 static bool js_cocos2dx_spine_SkeletonRenderer_getTimeScale(se::State& s)
 {
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_getTimeScale : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_getTimeScale : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         float result = cobj->getTimeScale();
         ok &= float_to_seval(result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_getTimeScale : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_getTimeScale : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -421,14 +421,14 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonRenderer_getTimeScale)
 static bool js_cocos2dx_spine_SkeletonRenderer_setBlendFunc(se::State& s)
 {
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_setBlendFunc : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_setBlendFunc : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::BlendFunc arg0;
         ok &= seval_to_blendfunc(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_setBlendFunc : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_setBlendFunc : Error processing arguments");
         cobj->setBlendFunc(arg0);
         return true;
     }
@@ -441,7 +441,7 @@ static bool js_cocos2dx_spine_SkeletonRenderer_setSkin(se::State& s)
 {
     CC_UNUSED bool ok = true;
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-    JSB_PRECONDITION2( cobj, false, "js_cocos2dx_spine_SkeletonRenderer_setSkin : Invalid Native Object");
+    SE_PRECONDITION2( cobj, false, "js_cocos2dx_spine_SkeletonRenderer_setSkin : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -451,7 +451,7 @@ static bool js_cocos2dx_spine_SkeletonRenderer_setSkin(se::State& s)
             if (!ok) { ok = true; break; }
             bool result = cobj->setSkin(arg0);
             ok &= boolean_to_seval(result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_setSkin : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_setSkin : Error processing arguments");
             return true;
         }
     } while(false);
@@ -463,7 +463,7 @@ static bool js_cocos2dx_spine_SkeletonRenderer_setSkin(se::State& s)
             if (!ok) { ok = true; break; }
             bool result = cobj->setSkin(arg0);
             ok &= boolean_to_seval(result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_setSkin : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_setSkin : Error processing arguments");
             return true;
         }
     } while(false);
@@ -476,17 +476,17 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonRenderer_setSkin)
 static bool js_cocos2dx_spine_SkeletonRenderer_findSlot(se::State& s)
 {
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_findSlot : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_findSlot : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         std::string arg0;
         ok &= seval_to_std_string(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_findSlot : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_findSlot : Error processing arguments");
         spSlot* result = cobj->findSlot(arg0);
         ok &= spslot_to_seval(*result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_findSlot : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_findSlot : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -497,14 +497,14 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonRenderer_findSlot)
 static bool js_cocos2dx_spine_SkeletonRenderer_getSkeleton(se::State& s)
 {
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_getSkeleton : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_getSkeleton : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         spSkeleton* result = cobj->getSkeleton();
         ok &= spskeleton_to_seval(*result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_getSkeleton : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_getSkeleton : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -515,17 +515,17 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonRenderer_getSkeleton)
 static bool js_cocos2dx_spine_SkeletonRenderer_findBone(se::State& s)
 {
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_findBone : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_findBone : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         std::string arg0;
         ok &= seval_to_std_string(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_findBone : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_findBone : Error processing arguments");
         spBone* result = cobj->findBone(arg0);
         ok &= spbone_to_seval(*result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_findBone : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_findBone : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -536,7 +536,7 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonRenderer_findBone)
 static bool js_cocos2dx_spine_SkeletonRenderer_drawDebug(se::State& s)
 {
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_drawDebug : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_drawDebug : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -547,7 +547,7 @@ static bool js_cocos2dx_spine_SkeletonRenderer_drawDebug(se::State& s)
         ok &= seval_to_native_ptr(args[0], &arg0);
         ok &= seval_to_Mat4(args[1], &arg1);
         ok &= seval_to_uint32(args[2], &arg2);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_drawDebug : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_drawDebug : Error processing arguments");
         cobj->drawDebug(arg0, arg1, arg2);
         return true;
     }
@@ -572,7 +572,7 @@ static bool js_cocos2dx_spine_SkeletonRenderer_createWithFile(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonRenderer* result = spine::SkeletonRenderer::createWithFile(arg0, arg1);
             ok &= native_ptr_to_seval<spine::SkeletonRenderer>((spine::SkeletonRenderer*)result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_createWithFile : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_createWithFile : Error processing arguments");
             return true;
         }
     } while (false);
@@ -590,7 +590,7 @@ static bool js_cocos2dx_spine_SkeletonRenderer_createWithFile(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonRenderer* result = spine::SkeletonRenderer::createWithFile(arg0, arg1, arg2);
             ok &= native_ptr_to_seval<spine::SkeletonRenderer>((spine::SkeletonRenderer*)result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_createWithFile : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_createWithFile : Error processing arguments");
             return true;
         }
     } while (false);
@@ -598,7 +598,7 @@ static bool js_cocos2dx_spine_SkeletonRenderer_createWithFile(se::State& s)
         if (argc == 0) {
             spine::SkeletonRenderer* result = spine::SkeletonRenderer::create();
             ok &= native_ptr_to_seval<spine::SkeletonRenderer>((spine::SkeletonRenderer*)result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_createWithFile : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_createWithFile : Error processing arguments");
             return true;
         }
     } while (false);
@@ -612,7 +612,7 @@ static bool js_cocos2dx_spine_SkeletonRenderer_createWithFile(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonRenderer* result = spine::SkeletonRenderer::createWithFile(arg0, arg1);
             ok &= native_ptr_to_seval<spine::SkeletonRenderer>((spine::SkeletonRenderer*)result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_createWithFile : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_createWithFile : Error processing arguments");
             return true;
         }
     } while (false);
@@ -629,7 +629,7 @@ static bool js_cocos2dx_spine_SkeletonRenderer_createWithFile(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonRenderer* result = spine::SkeletonRenderer::createWithFile(arg0, arg1, arg2);
             ok &= native_ptr_to_seval<spine::SkeletonRenderer>((spine::SkeletonRenderer*)result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_createWithFile : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_createWithFile : Error processing arguments");
             return true;
         }
     } while (false);
@@ -805,7 +805,7 @@ se::Class* __jsb_spine_SkeletonAnimation_class = nullptr;
 static bool js_cocos2dx_spine_SkeletonAnimation_setAnimation(se::State& s)
 {
     spine::SkeletonAnimation* cobj = (spine::SkeletonAnimation*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_setAnimation : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_setAnimation : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -816,10 +816,10 @@ static bool js_cocos2dx_spine_SkeletonAnimation_setAnimation(se::State& s)
         ok &= seval_to_int32(args[0], (int32_t *)&arg0);
         ok &= seval_to_std_string(args[1], &arg1);
         ok &= seval_to_boolean(args[2], &arg2);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_setAnimation : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_setAnimation : Error processing arguments");
         spTrackEntry* result = cobj->setAnimation(arg0, arg1, arg2);
         ok &= sptrackentry_to_seval(*result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_setAnimation : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_setAnimation : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
@@ -830,17 +830,17 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonAnimation_setAnimation)
 static bool js_cocos2dx_spine_SkeletonAnimation_findAnimation(se::State& s)
 {
     spine::SkeletonAnimation* cobj = (spine::SkeletonAnimation*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_findAnimation : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_findAnimation : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         std::string arg0;
         ok &= seval_to_std_string(args[0], &arg0);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_findAnimation : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_findAnimation : Error processing arguments");
         spAnimation* result = cobj->findAnimation(arg0);
         ok &= spanimation_to_seval(*result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_findAnimation : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_findAnimation : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -851,7 +851,7 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonAnimation_findAnimation)
 static bool js_cocos2dx_spine_SkeletonAnimation_setMix(se::State& s)
 {
     spine::SkeletonAnimation* cobj = (spine::SkeletonAnimation*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_setMix : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_setMix : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -862,7 +862,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_setMix(se::State& s)
         ok &= seval_to_std_string(args[0], &arg0);
         ok &= seval_to_std_string(args[1], &arg1);
         ok &= seval_to_float(args[2], &arg2);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_setMix : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_setMix : Error processing arguments");
         cobj->setMix(arg0, arg1, arg2);
         return true;
     }
@@ -874,7 +874,7 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonAnimation_setMix)
 static bool js_cocos2dx_spine_SkeletonAnimation_setDisposeListener(se::State& s)
 {
     spine::SkeletonAnimation* cobj = (spine::SkeletonAnimation*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_setDisposeListener : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_setDisposeListener : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -910,7 +910,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_setDisposeListener(se::State& s)
             }
         } while(false)
         ;
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_setDisposeListener : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_setDisposeListener : Error processing arguments");
         cobj->setDisposeListener(arg0);
         return true;
     }
@@ -922,7 +922,7 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonAnimation_setDisposeListener)
 static bool js_cocos2dx_spine_SkeletonAnimation_setAnimationStateData(se::State& s)
 {
     spine::SkeletonAnimation* cobj = (spine::SkeletonAnimation*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_setAnimationStateData : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_setAnimationStateData : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -930,7 +930,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_setAnimationStateData(se::State&
         spAnimationStateData* arg0 = nullptr;
         #pragma warning NO CONVERSION TO NATIVE FOR spAnimationStateData*
         ok = false;
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_setAnimationStateData : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_setAnimationStateData : Error processing arguments");
         cobj->setAnimationStateData(arg0);
         return true;
     }
@@ -942,7 +942,7 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonAnimation_setAnimationStateData)
 static bool js_cocos2dx_spine_SkeletonAnimation_setEndListener(se::State& s)
 {
     spine::SkeletonAnimation* cobj = (spine::SkeletonAnimation*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_setEndListener : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_setEndListener : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -978,7 +978,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_setEndListener(se::State& s)
             }
         } while(false)
         ;
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_setEndListener : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_setEndListener : Error processing arguments");
         cobj->setEndListener(arg0);
         return true;
     }
@@ -990,14 +990,14 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonAnimation_setEndListener)
 static bool js_cocos2dx_spine_SkeletonAnimation_getState(se::State& s)
 {
     spine::SkeletonAnimation* cobj = (spine::SkeletonAnimation*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_getState : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_getState : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         spAnimationState* result = cobj->getState();
         ok &= spanimationstate_to_seval(*result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_getState : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_getState : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1008,7 +1008,7 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonAnimation_getState)
 static bool js_cocos2dx_spine_SkeletonAnimation_setCompleteListener(se::State& s)
 {
     spine::SkeletonAnimation* cobj = (spine::SkeletonAnimation*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_setCompleteListener : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_setCompleteListener : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1044,7 +1044,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_setCompleteListener(se::State& s
             }
         } while(false)
         ;
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_setCompleteListener : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_setCompleteListener : Error processing arguments");
         cobj->setCompleteListener(arg0);
         return true;
     }
@@ -1056,23 +1056,23 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonAnimation_setCompleteListener)
 static bool js_cocos2dx_spine_SkeletonAnimation_getCurrent(se::State& s)
 {
     spine::SkeletonAnimation* cobj = (spine::SkeletonAnimation*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_getCurrent : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_getCurrent : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         spTrackEntry* result = cobj->getCurrent();
         ok &= sptrackentry_to_seval(*result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_getCurrent : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_getCurrent : Error processing arguments");
         return true;
     }
     if (argc == 1) {
         int arg0 = 0;
         ok &= seval_to_int32(args[0], (int32_t *)&arg0);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_getCurrent : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_getCurrent : Error processing arguments");
         spTrackEntry* result = cobj->getCurrent(arg0);
         ok &= sptrackentry_to_seval(*result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_getCurrent : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_getCurrent : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -1083,7 +1083,7 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonAnimation_getCurrent)
 static bool js_cocos2dx_spine_SkeletonAnimation_setEventListener(se::State& s)
 {
     spine::SkeletonAnimation* cobj = (spine::SkeletonAnimation*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_setEventListener : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_setEventListener : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1120,7 +1120,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_setEventListener(se::State& s)
             }
         } while(false)
         ;
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_setEventListener : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_setEventListener : Error processing arguments");
         cobj->setEventListener(arg0);
         return true;
     }
@@ -1132,7 +1132,7 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonAnimation_setEventListener)
 static bool js_cocos2dx_spine_SkeletonAnimation_clearTrack(se::State& s)
 {
     spine::SkeletonAnimation* cobj = (spine::SkeletonAnimation*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_clearTrack : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_clearTrack : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1143,7 +1143,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_clearTrack(se::State& s)
     if (argc == 1) {
         int arg0 = 0;
         ok &= seval_to_int32(args[0], (int32_t *)&arg0);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_clearTrack : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_clearTrack : Error processing arguments");
         cobj->clearTrack(arg0);
         return true;
     }
@@ -1155,7 +1155,7 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonAnimation_clearTrack)
 static bool js_cocos2dx_spine_SkeletonAnimation_setInterruptListener(se::State& s)
 {
     spine::SkeletonAnimation* cobj = (spine::SkeletonAnimation*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_setInterruptListener : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_setInterruptListener : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1191,7 +1191,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_setInterruptListener(se::State& 
             }
         } while(false)
         ;
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_setInterruptListener : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_setInterruptListener : Error processing arguments");
         cobj->setInterruptListener(arg0);
         return true;
     }
@@ -1203,7 +1203,7 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonAnimation_setInterruptListener)
 static bool js_cocos2dx_spine_SkeletonAnimation_addAnimation(se::State& s)
 {
     spine::SkeletonAnimation* cobj = (spine::SkeletonAnimation*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_addAnimation : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_addAnimation : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1214,10 +1214,10 @@ static bool js_cocos2dx_spine_SkeletonAnimation_addAnimation(se::State& s)
         ok &= seval_to_int32(args[0], (int32_t *)&arg0);
         ok &= seval_to_std_string(args[1], &arg1);
         ok &= seval_to_boolean(args[2], &arg2);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_addAnimation : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_addAnimation : Error processing arguments");
         spTrackEntry* result = cobj->addAnimation(arg0, arg1, arg2);
         ok &= sptrackentry_to_seval(*result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_addAnimation : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_addAnimation : Error processing arguments");
         return true;
     }
     if (argc == 4) {
@@ -1229,10 +1229,10 @@ static bool js_cocos2dx_spine_SkeletonAnimation_addAnimation(se::State& s)
         ok &= seval_to_std_string(args[1], &arg1);
         ok &= seval_to_boolean(args[2], &arg2);
         ok &= seval_to_float(args[3], &arg3);
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_addAnimation : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_addAnimation : Error processing arguments");
         spTrackEntry* result = cobj->addAnimation(arg0, arg1, arg2, arg3);
         ok &= sptrackentry_to_seval(*result, &s.rval());
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_addAnimation : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_addAnimation : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
@@ -1243,7 +1243,7 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonAnimation_addAnimation)
 static bool js_cocos2dx_spine_SkeletonAnimation_clearTracks(se::State& s)
 {
     spine::SkeletonAnimation* cobj = (spine::SkeletonAnimation*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_clearTracks : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_clearTracks : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -1258,7 +1258,7 @@ SE_BIND_FUNC(js_cocos2dx_spine_SkeletonAnimation_clearTracks)
 static bool js_cocos2dx_spine_SkeletonAnimation_setStartListener(se::State& s)
 {
     spine::SkeletonAnimation* cobj = (spine::SkeletonAnimation*)s.nativeThisObject();
-    JSB_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_setStartListener : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonAnimation_setStartListener : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1294,7 +1294,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_setStartListener(se::State& s)
             }
         } while(false)
         ;
-        JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_setStartListener : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_setStartListener : Error processing arguments");
         cobj->setStartListener(arg0);
         return true;
     }
@@ -1318,7 +1318,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile(se::State& 
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* result = spine::SkeletonAnimation::createWithBinaryFile(arg0, arg1);
             ok &= native_ptr_to_seval<spine::SkeletonAnimation>((spine::SkeletonAnimation*)result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile : Error processing arguments");
             return true;
         }
     } while (false);
@@ -1335,7 +1335,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile(se::State& 
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* result = spine::SkeletonAnimation::createWithBinaryFile(arg0, arg1, arg2);
             ok &= native_ptr_to_seval<spine::SkeletonAnimation>((spine::SkeletonAnimation*)result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile : Error processing arguments");
             return true;
         }
     } while (false);
@@ -1350,7 +1350,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile(se::State& 
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* result = spine::SkeletonAnimation::createWithBinaryFile(arg0, arg1);
             ok &= native_ptr_to_seval<spine::SkeletonAnimation>((spine::SkeletonAnimation*)result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile : Error processing arguments");
             return true;
         }
     } while (false);
@@ -1368,7 +1368,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile(se::State& 
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* result = spine::SkeletonAnimation::createWithBinaryFile(arg0, arg1, arg2);
             ok &= native_ptr_to_seval<spine::SkeletonAnimation>((spine::SkeletonAnimation*)result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile : Error processing arguments");
             return true;
         }
     } while (false);
@@ -1410,7 +1410,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* result = spine::SkeletonAnimation::createWithJsonFile(arg0, arg1);
             ok &= native_ptr_to_seval<spine::SkeletonAnimation>((spine::SkeletonAnimation*)result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile : Error processing arguments");
             return true;
         }
     } while (false);
@@ -1427,7 +1427,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* result = spine::SkeletonAnimation::createWithJsonFile(arg0, arg1, arg2);
             ok &= native_ptr_to_seval<spine::SkeletonAnimation>((spine::SkeletonAnimation*)result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile : Error processing arguments");
             return true;
         }
     } while (false);
@@ -1442,7 +1442,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* result = spine::SkeletonAnimation::createWithJsonFile(arg0, arg1);
             ok &= native_ptr_to_seval<spine::SkeletonAnimation>((spine::SkeletonAnimation*)result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile : Error processing arguments");
             return true;
         }
     } while (false);
@@ -1460,7 +1460,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile(se::State& s)
             if (!ok) { ok = true; break; }
             spine::SkeletonAnimation* result = spine::SkeletonAnimation::createWithJsonFile(arg0, arg1, arg2);
             ok &= native_ptr_to_seval<spine::SkeletonAnimation>((spine::SkeletonAnimation*)result, &s.rval());
-            JSB_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile : Error processing arguments");
             return true;
         }
     } while (false);

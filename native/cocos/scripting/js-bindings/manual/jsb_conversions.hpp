@@ -10,7 +10,7 @@
 #include "cocos/editor-support/spine/spine.h"
 #include "Box2D/Box2D.h"
 
-#define JSB_PRECONDITION2_VOID(condition, ...) \
+#define SE_PRECONDITION2_VOID(condition, ...) \
     do { \
         if ( ! (condition) ) { \
             cocos2d::log("jsb: ERROR: File %s: Line: %d, Function: %s", __FILE__, __LINE__, __FUNCTION__ ); \
@@ -19,7 +19,7 @@
         } \
     } while(0)
 
-#define JSB_PRECONDITION2(condition, ret_value, ...) \
+#define SE_PRECONDITION2(condition, ret_value, ...) \
     do { \
         if ( ! (condition) ) { \
             cocos2d::log("jsb: ERROR: File %s: Line: %d, Function: %s", __FILE__, __LINE__, __FUNCTION__ ); \
@@ -29,7 +29,7 @@
     } while(0)
 
 
-#define JSB_PRECONDITION3(condition, ret_value, failed_code) \
+#define SE_PRECONDITION3(condition, ret_value, failed_code) \
     do { \
         if (!(condition)) \
         { \
