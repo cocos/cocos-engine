@@ -29,7 +29,6 @@ THE SOFTWARE.
 #include "base/CCDirector.h"
 #include "base/ccUTF8.h"
 #include "renderer/CCRenderer.h"
-#include "renderer/CCFrameBuffer.h"
 
 NS_CC_BEGIN
 

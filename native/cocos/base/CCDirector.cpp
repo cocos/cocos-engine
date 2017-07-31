@@ -47,8 +47,6 @@ THE SOFTWARE.
 #include "renderer/CCTextureCache.h"
 #include "renderer/ccGLStateCache.h"
 #include "renderer/CCRenderer.h"
-#include "renderer/CCRenderState.h"
-#include "renderer/CCFrameBuffer.h"
 #include "base/CCUserDefault.h"
 #include "base/ccFPSImages.h"
 #include "base/CCScheduler.h"
@@ -144,7 +142,6 @@ bool Director::init(void)
     _winSizeInPoints = Size::ZERO;
 
     _openGLView = nullptr;
-    _defaultFBO = nullptr;
     
     _contentScaleFactor = 1.0f;
 
@@ -173,7 +170,6 @@ bool Director::init(void)
     initMatrixStack();
 
     _renderer = new (std::nothrow) Renderer;
-    RenderState::initialize();
 
     return true;
 }
@@ -190,7 +186,6 @@ Director::~Director(void)
     CC_SAFE_RELEASE(_notificationNode);
     CC_SAFE_RELEASE(_scheduler);
     CC_SAFE_RELEASE(_actionManager);
-    CC_SAFE_DELETE(_defaultFBO);
 
     CC_SAFE_RELEASE(_eventBeforeUpdate);
     CC_SAFE_RELEASE(_eventAfterUpdate);
@@ -276,7 +271,7 @@ void Director::drawScene()
     }
 
     _renderer->clear();
-    experimental::FrameBuffer::clearAllFBOs();
+
     /* to avoid flickr, nextScene MUST be here: after tick and before draw.
      * FIXME: Which bug is this one. It seems that it can't be reproduced with v0.9
      */
@@ -392,9 +387,6 @@ void Director::setOpenGLView(GLView *openGLView)
         {
             _eventDispatcher->setEnabled(true);
         }
-        
-        _defaultFBO = experimental::FrameBuffer::getOrCreateDefaultFBO(_openGLView);
-        _defaultFBO->retain();
     }
 }
 
@@ -683,9 +675,6 @@ void Director::setDepthTest(bool on)
 void Director::setClearColor(const Color4F& clearColor)
 {
     _renderer->setClearColor(clearColor);
-    auto defaultFBO = experimental::FrameBuffer::getOrCreateDefaultFBO(_openGLView);
-    
-    if(defaultFBO) defaultFBO->setClearColor(clearColor);
 }
 
 static void GLToClipTransform(Mat4 *transformOut)
@@ -1035,8 +1024,6 @@ void Director::reset()
 
     GL::invalidateStateCache();
 
-    RenderState::finalize();
-
     destroyTextureCache();
 }
 
@@ -1060,9 +1047,6 @@ void Director::purgeDirector()
 void Director::restartDirector()
 {
     reset();
-
-    // RenderState need to be reinitialized
-    RenderState::initialize();
 
     // Texture cache need to be reinitialized
     initTextureCache();

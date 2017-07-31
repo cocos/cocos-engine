@@ -41,7 +41,6 @@ THE SOFTWARE.
 #include "2d/CCComponent.h"
 #include "renderer/CCGLProgram.h"
 #include "renderer/CCGLProgramState.h"
-#include "renderer/CCMaterial.h"
 #include "math/TransformUtils.h"
 
 

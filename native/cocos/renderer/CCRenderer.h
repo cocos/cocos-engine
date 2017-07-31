@@ -60,7 +60,6 @@ NS_CC_BEGIN
 
 class EventListenerCustom;
 class TrianglesCommand;
-class MeshCommand;
 
 /** Class that knows how to sort `RenderCommand` objects.
  Since the commands that have `z == 0` are "pushed back" in
@@ -220,8 +219,6 @@ protected:
     
     void flush2D();
     
-    void flush3D();
-
     void flushTriangles();
 
     void processRenderCommand(RenderCommand* command);
@@ -237,7 +234,6 @@ protected:
 
     std::vector<RenderQueue> _renderGroups;
 
-    MeshCommand* _lastBatchedMeshCommand;
     std::vector<TrianglesCommand*> _queuedTriangleCommands;
 
     //for TrianglesCommand
