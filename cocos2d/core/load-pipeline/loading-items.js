@@ -75,7 +75,8 @@ function createItem (id, queueId) {
         result = {
             queueId: queueId,
             id: id.url,
-            url: urlItem.url,
+            url: urlItem.url, // real download url, maybe changed
+            rawUrl: urlItem.url, // url used in scripts
             urlParam: urlItem.param,
             error: null,
             content: null,
@@ -90,7 +91,8 @@ function createItem (id, queueId) {
         result = {
             queueId: queueId,
             id: id,
-            url: urlItem.url,
+            url: urlItem.url, // real download url, maybe changed
+            rawUrl: urlItem.url, // url used in scripts
             urlParam: urlItem.param,
             type: Path.extname(id).toLowerCase().substr(1),
             error: null,

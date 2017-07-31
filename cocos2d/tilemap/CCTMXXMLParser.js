@@ -639,7 +639,6 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
             tilesets.push(map);
         }
 
-        var md5Pipe = cc.loader.md5Pipe;
         for (i = 0; i < tilesets.length; i++) {
             var selTileset = tilesets[i];
             // If this is an external tileset then start parsing that
@@ -675,10 +674,6 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                     tileset.sourceImage = dir + imagename;
                 } else {
                     tileset.sourceImage = this._resources + (this._resources ? "/" : "") + imagename;
-                }
-                // transform md5 URL
-                if (md5Pipe) {
-                    tileset.sourceImage = md5Pipe.transformURL(tileset.sourceImage);
                 }
 
                 this.setTilesets(tileset);
