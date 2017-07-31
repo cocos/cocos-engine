@@ -1719,7 +1719,8 @@ bool cccolor3b_to_jsval(JSContext* cx, const Color3B& v, JS::MutableHandleValue 
     JS::RootedObject tmp(cx, JS_NewPlainObject(cx));
     bool ok = JS_DefineProperty(cx, tmp, "r", (int32_t)v.r, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
     JS_DefineProperty(cx, tmp, "g", (int32_t)v.g, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
-    JS_DefineProperty(cx, tmp, "b", (int32_t)v.b, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    JS_DefineProperty(cx, tmp, "b", (int32_t)v.b, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+    JS_DefineProperty(cx, tmp, "a", 255, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     if (ok) {
         ret.set(JS::ObjectOrNullValue(tmp));
     }
