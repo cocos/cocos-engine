@@ -228,7 +228,6 @@ window.__cleanup = function () {
     // Reset other js caches
     cc.js._registeredClassIds = {};
     cc.js._registeredClassNames = {};
-    cc._RF.reset();
     // Cleanup loader
     cc.loader.releaseAll();
     // Cleanup textureCache
