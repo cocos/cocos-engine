@@ -41,16 +41,16 @@ public:
     PhysicsContactListener();
     virtual ~PhysicsContactListener();
     
-    void setBeginContact(std::function<void(b2Contact* contact)> callback);
-    void setEndContact(std::function<void(b2Contact* contact)> callback);
-    void setPreSolve(std::function<void(b2Contact* contact)> callback);
-    void setPostSolve(std::function<void(b2Contact* contact, const PhysicsContactImpulse* impulse)> callback);
+    void setBeginContact(const std::function<void(b2Contact* contact)>& callback);
+    void setEndContact(const std::function<void(b2Contact* contact)>& callback);
+    void setPreSolve(const std::function<void(b2Contact* contact)>& callback);
+    void setPostSolve(const std::function<void(b2Contact* contact, const PhysicsContactImpulse* impulse)>& callback);
     
     
-    virtual void BeginContact(b2Contact* contact);
-    virtual void EndContact(b2Contact* contact);
-    virtual void PreSolve(b2Contact* contact, const b2Manifold* oldManifold);
-    virtual void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse);
+    virtual void BeginContact(b2Contact* contact) override;
+    virtual void EndContact(b2Contact* contact) override;
+    virtual void PreSolve(b2Contact* contact, const b2Manifold* oldManifold) override;
+    virtual void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) override;
     
     void registerContactFixture(b2Fixture* fixture);
     void unregisterContactFixture(b2Fixture* fixture);
