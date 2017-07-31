@@ -111,7 +111,8 @@ namespace se {
         if (nullptr == globalObj)
             return false;
 
-        _globalObj = Object::_createJSObject(nullptr, globalObj, true);
+        _globalObj = Object::_createJSObject(nullptr, globalObj);
+        _globalObj->root();
 
         JSStringRef propertyName = JSStringCreateWithUTF8CString("log");
         JSObjectSetProperty(_cx, globalObj, propertyName, JSObjectMakeFunctionWithCallback(_cx, propertyName, __log), kJSPropertyAttributeReadOnly, nullptr);
@@ -140,6 +141,7 @@ namespace se {
         if (!_isValid)
             return;
 
+        LOGD("ScriptEngine::cleanup begin ...");
         _isInCleanup = true;
         for (const auto& hook : _beforeCleanupHookArray)
         {
@@ -167,6 +169,7 @@ namespace se {
         }
         _afterCleanupHookArray.clear();
         _isInCleanup = false;
+        LOGD("ScriptEngine::cleanup end ...");
     }
 
     std::string ScriptEngine::_formatException(JSValueRef exception)

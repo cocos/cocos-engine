@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 
+#include "HandleObject.hpp"
+
 namespace se {
 
     class Object;
@@ -41,6 +43,7 @@ namespace se {
         explicit Value(const char* v);
         explicit Value(const std::string& v);
         explicit Value(Object* o);
+        explicit Value(const HandleObject& o);
 
         ~Value();
 
@@ -51,6 +54,7 @@ namespace se {
         Value& operator=(const char* v);
         Value& operator=(const std::string& v);
         Value& operator=(Object* o);
+        Value& operator=(const HandleObject& o);
 
         void setUndefined();
         void setNull();
@@ -68,6 +72,7 @@ namespace se {
         void setString(const char* v);
         void setString(const std::string& v);
         void setObject(Object* o);
+        void setObject(const HandleObject& o);
 
         int8_t toInt8() const;
         uint8_t toUint8() const;

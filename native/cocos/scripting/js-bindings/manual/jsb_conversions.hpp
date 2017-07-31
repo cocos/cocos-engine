@@ -86,7 +86,7 @@ bool seval_to_FontDefinition(const se::Value& v, cocos2d::FontDefinition* ret);
 bool seval_to_Acceleration(const se::Value& v, cocos2d::Acceleration* ret);
 bool seval_to_Quaternion(const se::Value& v, cocos2d::Quaternion* ret);
 bool seval_to_AffineTransform(const se::Value& v, cocos2d::AffineTransform* ret);
-bool seval_to_Viewport(const se::Value& v, cocos2d::experimental::Viewport* ret);
+//bool seval_to_Viewport(const se::Value& v, cocos2d::experimental::Viewport* ret);
 bool seval_to_Data(const se::Value& v, cocos2d::Data* ret);
 bool seval_to_DownloaderHints(const se::Value& v, cocos2d::network::DownloaderHints* ret);
 bool seval_to_ResourceData(const se::Value& v, cocos2d::ResourceData* ret);
@@ -193,7 +193,7 @@ bool Acceleration_to_seval(const cocos2d::Acceleration* v, se::Value* ret);
 bool Quaternion_to_seval(const cocos2d::Quaternion& v, se::Value* ret);
 bool ManifestAsset_to_seval(const cocos2d::extension::ManifestAsset& v, se::Value* ret);
 bool AffineTransform_to_seval(const cocos2d::AffineTransform& v, se::Value* ret);
-bool Viewport_to_seval(const cocos2d::experimental::Viewport& v, se::Value* ret);
+//bool Viewport_to_seval(const cocos2d::experimental::Viewport& v, se::Value* ret);
 bool Data_to_seval(const cocos2d::Data& v, se::Value* ret);
 bool DownloadTask_to_seval(const cocos2d::network::DownloadTask& v, se::Value* ret);
 bool ResourceData_to_seval(const cocos2d::ResourceData& v, se::Value* ret);
@@ -217,7 +217,7 @@ bool recreate_seval_by_native_ptr(typename std::enable_if<!std::is_base_of<cocos
         seObj->release();
     }
 
-    se::Object* obj = se::Object::createObjectWithClass(cls, false);
+    se::Object* obj = se::Object::createObjectWithClass(cls);
     obj->setPrivateData(v);
 
     ret->setObject(obj);
@@ -241,7 +241,7 @@ bool native_ptr_to_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T
         CCLOGWARN("WARNING: non-Ref type: (%s) isn't catched!", typeid(*v).name());
         se::Class* cls = JSBClassType::findClass<T>(v);
         assert(cls != nullptr);
-        obj = se::Object::createObjectWithClass(cls, false);
+        obj = se::Object::createObjectWithClass(cls);
         obj->setPrivateData(v);
         if (isReturnCachedValue != nullptr)
         {
@@ -278,7 +278,7 @@ bool native_ptr_to_rooted_seval(typename std::enable_if<!std::is_base_of<cocos2d
         CCLOGWARN("WARNING: non-Ref type: (%s) isn't catched!", typeid(*v).name());
         se::Class* cls = JSBClassType::findClass<T>(v);
         assert(cls != nullptr);
-        obj = se::Object::createObjectWithClass(cls, false);
+        obj = se::Object::createObjectWithClass(cls);
         obj->setPrivateData(v);
         obj->root();
         if (isReturnCachedValue != nullptr)
@@ -315,7 +315,7 @@ bool native_ptr_to_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T
     { // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
 //        CCLOGWARN("WARNING: Ref type: (%s) isn't catched!", typeid(*v).name());
         assert(cls != nullptr);
-        obj = se::Object::createObjectWithClass(cls, false);
+        obj = se::Object::createObjectWithClass(cls);
         obj->setPrivateData(v);
 
         if (isReturnCachedValue != nullptr)
@@ -352,7 +352,7 @@ bool native_ptr_to_rooted_seval(typename std::enable_if<!std::is_base_of<cocos2d
     { // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
         //        CCLOGWARN("WARNING: Ref type: (%s) isn't catched!", typeid(*v).name());
         assert(cls != nullptr);
-        obj = se::Object::createObjectWithClass(cls, false);
+        obj = se::Object::createObjectWithClass(cls);
         obj->setPrivateData(v);
         obj->root();
 
@@ -391,7 +391,7 @@ bool native_ptr_to_seval(typename std::enable_if<std::is_base_of<cocos2d::Ref,T>
 //        CCLOGWARN("WARNING: Ref type: (%s) isn't catched!", typeid(*v).name());
         se::Class* cls = JSBClassType::findClass<T>(v);
         assert(cls != nullptr);
-        obj = se::Object::createObjectWithClass(cls, false);
+        obj = se::Object::createObjectWithClass(cls);
         obj->setPrivateData(v);
         v->retain(); // Retain the native object to unify the logic in finalize method of js object.
         if (isReturnCachedValue != nullptr)
@@ -429,7 +429,7 @@ bool native_ptr_to_seval(typename std::enable_if<std::is_base_of<cocos2d::Ref,T>
     { // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
         CCLOGWARN("WARNING: Ref type: (%s) isn't catched!", typeid(*v).name());
         assert(cls != nullptr);
-        obj = se::Object::createObjectWithClass(cls, false);
+        obj = se::Object::createObjectWithClass(cls);
         obj->setPrivateData(v);
         v->retain(); // Retain the native object to unify the logic in finalize method of js object.
         if (isReturnCachedValue != nullptr)
@@ -455,7 +455,7 @@ bool Vector_to_seval(const cocos2d::Vector<T*>& v, se::Value* ret)
 {
     assert(ret != nullptr);
     bool ok = true;
-    se::Object* obj = se::Object::createArrayObject(v.size(), true);
+    se::HandleObject obj(se::Object::createArrayObject(v.size()));
 
     uint32_t i = 0;
     se::Value tmp;
@@ -467,8 +467,6 @@ bool Vector_to_seval(const cocos2d::Vector<T*>& v, se::Value* ret)
     }
 
     ret->setObject(obj);
-    obj->unroot();
-    obj->release();
 
     return ok;
 }
@@ -478,7 +476,7 @@ bool Map_string_key_to_seval(const cocos2d::Map<std::string, T*>& v, se::Value* 
 {
     assert(ret != nullptr);
 
-    se::Object* obj = se::Object::createPlainObject(true);
+    se::HandleObject obj(se::Object::createPlainObject());
 
     se::Value tmp;
     for (const auto& e : v)
@@ -488,8 +486,6 @@ bool Map_string_key_to_seval(const cocos2d::Map<std::string, T*>& v, se::Value* 
     }
 
     ret->setObject(obj);
-    obj->unroot();
-    obj->release();
     return false;
 }
 

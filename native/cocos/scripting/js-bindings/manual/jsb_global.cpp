@@ -610,7 +610,7 @@ static bool getOrCreatePlainObject_r(const char* name, se::Object* parent, se::O
     }
     else
     {
-        *outObj = se::Object::createPlainObject(false);
+        *outObj = se::Object::createPlainObject();
         parent->setProperty(name, se::Value(*outObj));
     }
 
@@ -647,10 +647,9 @@ bool jsb_register_global_variables(se::Object* global)
     global->defineFunction("__isObjectValid", _SE(JSB_isObjectValid));
     global->defineFunction("close", _SE(JSB_closeWindow));
 
-    se::Object* performanceObj = se::Object::createPlainObject(false);
+    se::HandleObject performanceObj(se::Object::createPlainObject());
     performanceObj->defineFunction("now", _SE(js_performance_now));
     global->setProperty("performance", se::Value(performanceObj));
-    performanceObj->release();
 
     se::ScriptEngine::getInstance()->clearException();
 

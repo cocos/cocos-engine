@@ -535,7 +535,7 @@ bool seval_to_array_of_b2Vec2(const se::Value& v, b2Vec2* outPoints, uint32_t nu
 
 bool array_of_b2Fixture_to_seval(const std::vector<b2Fixture*>& fixtures, se::Value* ret)
 {
-    se::Object* obj = se::Object::createArrayObject(fixtures.size(), true);
+    se::HandleObject obj(se::Object::createArrayObject(fixtures.size()));
 
     se::Value tmp;
     int i = 0;
@@ -556,14 +556,12 @@ bool array_of_b2Fixture_to_seval(const std::vector<b2Fixture*>& fixtures, se::Va
     else
         ret->setUndefined();
 
-    obj->unroot();
-    obj->release();
     return true;
 }
 
 bool array_of_b2Vec2_to_seval(const std::vector<b2Vec2>& vs, se::Value* ret)
 {
-    se::Object* obj = se::Object::createArrayObject(vs.size(), true);
+    se::HandleObject obj(se::Object::createArrayObject(vs.size()));
 
     se::Value tmp;
     int i = 0;
@@ -584,8 +582,6 @@ bool array_of_b2Vec2_to_seval(const std::vector<b2Vec2>& vs, se::Value* ret)
     else
         ret->setUndefined();
 
-    obj->unroot();
-    obj->release();
     return true;
 }
 
@@ -869,7 +865,7 @@ static bool js_box2dclasses_b2Body_GetJointList(se::State& s)
         b2Body* cobj = (b2Body *)s.nativeThisObject();
 
         b2JointEdge* list = cobj->GetJointList();
-        se::Object* arr = se::Object::createArrayObject(0, true);
+        se::HandleObject arr = (se::Object::createArrayObject(0));
 
         do
         {
@@ -920,9 +916,6 @@ static bool js_box2dclasses_b2Body_GetJointList(se::State& s)
             s.rval().setObject(arr);
         else
             s.rval().setNull();
-
-        arr->unroot();
-        arr->release();
 
         return true;
     }

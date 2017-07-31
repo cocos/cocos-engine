@@ -70,7 +70,7 @@
         bool ret = true; \
         se::ValueArray args; \
         se::internal::jsToSeArgs(_cx, argc, _argv, &args); \
-        se::Object* thisObject = se::Object::createObjectWithClass(cls, false); \
+        se::Object* thisObject = se::Object::createObjectWithClass(cls); \
         JSValueRef _jsRet = JSValueMakeUndefined(_cx); \
         se::State state(thisObject, args); \
         ret = funcName(state); \
@@ -100,7 +100,7 @@
         JSValueRef _jsRet = JSValueMakeUndefined(_cx); \
         se::ValueArray args; \
         se::internal::jsToSeArgs(_cx, argc, _argv, &args); \
-        se::Object* thisObject = se::Object::_createJSObject(cls, _thisObject, false); \
+        se::Object* thisObject = se::Object::_createJSObject(cls, _thisObject); \
         thisObject->_setFinalizeCallback(_SE(finalizeCb)); \
         se::State state(thisObject, args); \
         ret = funcName(state); \

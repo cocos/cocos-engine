@@ -124,7 +124,6 @@ bool jsb_register_all_modules()
     se->addAfterCleanupHook([](){
         JSBClassType::cleanup();
         PoolManager::getInstance()->getCurrentPool()->clear();
-        CCLOG("test");
     });
     return true;
 }

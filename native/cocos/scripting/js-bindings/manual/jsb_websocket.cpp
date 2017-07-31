@@ -68,7 +68,7 @@ public:
 
         se::Object* wsObj = iter->second;
         wsObj->setProperty("protocol", se::Value(ws->getProtocol()));
-        se::Object* jsObj = se::Object::createPlainObject(true);
+        se::HandleObject jsObj(se::Object::createPlainObject());
         jsObj->setProperty("type", se::Value("open"));
 
         se::Value func;
@@ -83,9 +83,6 @@ public:
         {
             SE_REPORT_ERROR("Can't get onopen function!");
         }
-
-        jsObj->unroot();
-        jsObj->release();
     }
 
     virtual void onMessage(WebSocket* ws, const WebSocket::Data& data) override
@@ -101,7 +98,7 @@ public:
             return;
 
         se::Object* wsObj = iter->second;
-        se::Object* jsObj = se::Object::createPlainObject(true);
+        se::HandleObject jsObj(se::Object::createPlainObject());
         jsObj->setProperty("type", se::Value("message"));
 
         se::Value func;
@@ -113,9 +110,8 @@ public:
 
             if (data.isBinary)
             {
-                se::Object* dataObj = se::Object::createArrayBufferObject(data.bytes, data.len, false);
+                se::HandleObject dataObj(se::Object::createArrayBufferObject(data.bytes, data.len));
                 jsObj->setProperty("data", se::Value(dataObj));
-                dataObj->release();
             }
             else
             {
@@ -146,9 +142,6 @@ public:
         {
             SE_REPORT_ERROR("Can't get onmessage function!");
         }
-
-        jsObj->unroot();
-        jsObj->release();
     }
 
     virtual void onClose(WebSocket* ws) override
@@ -169,7 +162,7 @@ public:
             }
 
             se::Object* wsObj = iter->second;
-            se::Object* jsObj = se::Object::createPlainObject(true);
+            se::HandleObject jsObj(se::Object::createPlainObject());
             jsObj->setProperty("type", se::Value("close"));
 
             se::Value func;
@@ -184,9 +177,6 @@ public:
             {
                 SE_REPORT_ERROR("Can't get onclose function!");
             }
-
-            jsObj->unroot();
-            jsObj->release();
 
         } while(false);
 
@@ -207,7 +197,7 @@ public:
             return;
 
         se::Object* wsObj = iter->second;
-        se::Object* jsObj = se::Object::createPlainObject(true);
+        se::HandleObject jsObj(se::Object::createPlainObject());
         jsObj->setProperty("type", se::Value("error"));
 
         se::Value func;
@@ -222,9 +212,6 @@ public:
         {
             SE_REPORT_ERROR("Can't get onerror function!");
         }
-
-        jsObj->unroot();
-        jsObj->release();
     }
 
     void setJSDelegate(const se::Value& jsDelegate)

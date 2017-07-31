@@ -12,6 +12,7 @@
 
 #include "Object.hpp"
 #include "ScriptEngine.hpp"
+#include "HandleObject.hpp"
 
 namespace se {
 
@@ -54,7 +55,7 @@ namespace se {
         args.push_back(Value(obj));
         args.push_back(Value(name));
 
-        Object* desc = Object::createPlainObject(false);
+        HandleObject desc(Object::createPlainObject());
 
         JSObjectRef getter = nullptr;
         if (jsGetter != nullptr)
@@ -72,22 +73,19 @@ namespace se {
 
         if (getter != nullptr)
         {
-            Object* getterObj = Object::_createJSObject(nullptr, getter, false);
+            HandleObject getterObj(Object::_createJSObject(nullptr, getter));
             desc->setProperty("get", se::Value(getterObj));
-            getterObj->release();
         }
 
         if (setter != nullptr)
         {
-            Object* setterObj = Object::_createJSObject(nullptr, setter, false);
+            HandleObject setterObj(Object::_createJSObject(nullptr, setter));
             desc->setProperty("set", se::Value(setterObj));
-            setterObj->release();
         }
 
         args.push_back(Value(desc));
         definePropertyFunc.toObject()->call(args, nullptr);
 
-        desc->release();
         return true;
     }
 
@@ -136,9 +134,9 @@ namespace se {
         }
         else if (JSValueIsObject(cx, jsValue))
         {
-            Object* obj = Object::_createJSObject(nullptr, JSValueToObject(cx, jsValue, nullptr), true);
+            HandleObject obj(Object::_createJSObject(nullptr, JSValueToObject(cx, jsValue, nullptr)));
+            obj->root();
             data->setObject(obj);
-            obj->release();
         }
         else
         {
@@ -221,7 +219,7 @@ namespace se {
         }
 
         assert(finalizeCb);
-        Object* privateObj = Object::createObjectWithClass(__jsb_CCPrivateData_class, false);
+        HandleObject privateObj(Object::createObjectWithClass(__jsb_CCPrivateData_class));
         internal::PrivateData* privateData = (internal::PrivateData*)malloc(sizeof(internal::PrivateData));
         privateData->data = data;
         privateData->finalizeCb = finalizeCb;
@@ -231,7 +229,6 @@ namespace se {
         JSStringRef key = JSStringCreateWithUTF8CString(KEY_PRIVATE_DATA);
         JSObjectSetProperty(__cx, obj, key, privateObj->_getJSObject(), kJSPropertyAttributeDontEnum, nullptr);
         JSStringRelease(key);
-        privateObj->release();
     }
 
     void* getPrivate(JSObjectRef obj)

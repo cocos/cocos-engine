@@ -19,18 +19,14 @@ namespace se {
     public:
         virtual ~Object();
 
-        static Object* createPlainObject(bool rooted);
-//        static Object* createObject(const char* clsName, bool rooted);
-        static Object* createArrayObject(size_t length, bool rooted);
-        static Object* createUint8TypedArray(uint8_t* data, size_t byteLength, bool rooted);
-        static Object* createArrayBufferObject(void* data, size_t byteLength, bool rooted);
-        static Object* createJSONObject(const std::string& jsonStr, bool rooted);
+        static Object* createPlainObject();
+        static Object* createArrayObject(size_t length);
+        static Object* createUint8TypedArray(uint8_t* data, size_t byteLength);
+        static Object* createArrayBufferObject(void* data, size_t byteLength);
+        static Object* createJSONObject(const std::string& jsonStr);
         static Object* getObjectWithPtr(void* ptr);
-//        static Object* getOrCreateObjectWithPtr(void* ptr, const char* clsName, bool rooted);
-        static Object* createObjectWithClass(Class* cls, bool rooted);
-        static Object* _createJSObject(Class* cls, JSObjectRef obj, bool rooted);
-
-        bool init(JSObjectRef obj, bool rooted);
+        static Object* createObjectWithClass(Class* cls);
+        static Object* _createJSObject(Class* cls, JSObjectRef obj);
 
         bool getProperty(const char* name, Value* data);
         void setProperty(const char* name, const Value& v);
@@ -51,11 +47,6 @@ namespace se {
         bool isTypedArray() const;
         bool getTypedArrayData(uint8_t** ptr, size_t* length) const;
 
-//        void getAsUint8Array(unsigned char **ptr, unsigned int *length);
-//        void getAsUint16Array(unsigned short **ptr, unsigned int *length);
-//        void getAsUint32Array(unsigned int **ptr, unsigned int *length);
-//        void getAsFloat32Array(float **ptr, unsigned int *length);
-
         bool isArray() const;
         bool getArrayLength(uint32_t* length) const;
         bool getArrayElement(uint32_t index, Value* data) const;
@@ -72,7 +63,6 @@ namespace se {
 
         void root();
         void unroot();
-        void setKeepRootedUntilDie(bool keepRooted);
         bool isRooted() const;
 
         bool isSame(Object* o) const;
@@ -83,14 +73,11 @@ namespace se {
         static void setContext(JSContextRef cx);
         static void cleanup();
 
-        void ref();
-        void unref();
+        bool init(JSObjectRef obj);
 
         Class* _cls;
         JSObjectRef _obj;
-        bool _isRooted;
-        bool _isKeepRootedUntilDie;
-        uint32_t _jsRefCount;
+        uint32_t _rootCount;
         bool _hasPrivateData;
         bool _isCleanup;
         JSObjectFinalizeCallback _finalizeCb;
@@ -98,7 +85,6 @@ namespace se {
         friend class ScriptEngine;
         friend class AutoHandleScope;
     };
-
 
     extern std::unordered_map<void* /*native*/, Object* /*jsobj*/> __nativePtrToObjectMap;
 

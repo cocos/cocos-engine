@@ -59,7 +59,7 @@ static bool Node_create(se::State& s)
 {
     Node* node = Node::create();
     node->retain();
-    auto obj = se::Object::createObjectWithClass(__jsb_Node_class, false);
+    auto obj = se::Object::createObjectWithClass(__jsb_Node_class);
     obj->setPrivateData(node);
     s.rval().setObject(obj);
     return true;
@@ -445,7 +445,7 @@ static bool Scheduler_scheduleCommon(Scheduler* scheduler, const se::Value& jsTh
 
     if (toRootTarget)
     {
-        target->setKeepRootedUntilDie(true);
+        target->root();
     }
     scheduler->schedule([jsThis, jsFunc, unscheduleNotifier, callFromDebug](float dt){
         se::ScriptEngine::getInstance()->clearException();

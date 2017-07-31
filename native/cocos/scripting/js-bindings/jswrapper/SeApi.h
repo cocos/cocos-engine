@@ -21,3 +21,4 @@
 #include "Value.hpp"
 #include "Object.hpp"
 #include "State.hpp"
+#include "HandleObject.hpp"

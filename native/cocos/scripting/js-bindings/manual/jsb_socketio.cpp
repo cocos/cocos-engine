@@ -280,7 +280,7 @@ static bool SocketIO_connect(se::State& s)
             ret->retain();
             siodelegate->retain();
 
-            se::Object* obj = se::Object::createObjectWithClass(__jsb_SocketIO_class, false);
+            se::Object* obj = se::Object::createObjectWithClass(__jsb_SocketIO_class);
             obj->setPrivateData(ret);
 
             s.rval().setObject(obj);

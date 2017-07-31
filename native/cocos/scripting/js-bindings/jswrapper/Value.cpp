@@ -115,6 +115,12 @@ namespace se {
         setObject(o);
     }
 
+    Value::Value(const HandleObject& o)
+    : _type(Type::Undefined)
+    {
+        setObject(o);
+    }
+
     Value::~Value()
     {
         reset(Type::Undefined);
@@ -206,6 +212,12 @@ namespace se {
     }
 
     Value& Value::operator=(Object* o)
+    {
+        setObject(o);
+        return *this;
+    }
+
+    Value& Value::operator=(const HandleObject& o)
     {
         setObject(o);
         return *this;
@@ -327,6 +339,11 @@ namespace se {
         }
     }
 
+    void Value::setObject(const HandleObject& o)
+    {
+        setObject(o.get());
+    }
+
     int8_t Value::toInt8() const
     {
         return static_cast<int8_t>(toNumber());
@@ -410,9 +427,6 @@ namespace se {
         }
         else if (_type == Type::Number)
         {
-//            std::stringstream ss;
-//            ss << _u._number;
-//            ret = ss.str();
             char tmp[350] = {0};
             snprintf(tmp, sizeof(tmp), "%lf", _u._number);
             ret = tmp;

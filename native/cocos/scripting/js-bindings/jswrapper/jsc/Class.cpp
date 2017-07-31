@@ -103,7 +103,7 @@ namespace se {
         _jsCls = JSClassCreate(&_jsClsDef);
 
         JSObjectRef jsCtor = JSObjectMakeConstructor(__cx, _jsCls, _ctor);
-        Object* ctorObj = Object::_createJSObject(this, jsCtor, false);
+        HandleObject ctorObj(Object::_createJSObject(this, jsCtor));
 
         Value functionCtor;
         ScriptEngine::getInstance()->getGlobalObject()->getProperty("Function", &functionCtor);
@@ -127,8 +127,8 @@ namespace se {
         JSStringRelease(prototypeName);
         assert(prototypeObj != nullptr);
 
-        // FIXME: how to release ctor?
-        _proto = Object::_createJSObject(this, JSValueToObject(__cx, prototypeObj, nullptr), true); // FIXME: release me in cleanup method
+        _proto = Object::_createJSObject(this, JSValueToObject(__cx, prototypeObj, nullptr));
+        _proto->root();
 
         // reset constructor
         _proto->setProperty("constructor", Value(ctorObj));
@@ -142,12 +142,10 @@ namespace se {
         // Set class properties
         for (const auto& property : _staticProperties)
         {
-            internal::defineProperty(ctorObj, property.name, property.getter, property.setter);
+            internal::defineProperty(ctorObj.get(), property.name, property.getter, property.setter);
         }
 
         _parent->setProperty(_name.c_str(), Value(ctorObj));
-
-        ctorObj->release();
 
         return true;
     }

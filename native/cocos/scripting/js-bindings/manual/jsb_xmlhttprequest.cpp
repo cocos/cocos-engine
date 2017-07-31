@@ -678,11 +678,10 @@ static bool XMLHttpRequest_getResponse(se::State& s)
             if (xhr->getResponseType() == XMLHttpRequest::ResponseType::JSON)
             {
                 const std::string& jsonText = xhr->getResponseText();
-                se::Object* seObj = se::Object::createJSONObject(jsonText, false);
-                if (seObj != nullptr)
+                se::HandleObject seObj(se::Object::createJSONObject(jsonText));
+                if (!seObj.isEmpty())
                 {
                     s.rval().setObject(seObj);
-                    seObj->release();
                 }
                 else
                 {
@@ -692,11 +691,10 @@ static bool XMLHttpRequest_getResponse(se::State& s)
             else if (xhr->getResponseType() == XMLHttpRequest::ResponseType::ARRAY_BUFFER)
             {
                 const Data& data = xhr->getResponseData();
-                se::Object* seObj = se::Object::createArrayBufferObject(data.getBytes(), data.getSize(), false);
-                if (seObj != nullptr)
+                se::HandleObject seObj(se::Object::createArrayBufferObject(data.getBytes(), data.getSize()));
+                if (!seObj.isEmpty())
                 {
                     s.rval().setObject(seObj);
-                    seObj->release();
                 }
                 else
                 {

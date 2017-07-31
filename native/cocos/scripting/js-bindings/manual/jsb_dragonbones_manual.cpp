@@ -100,7 +100,7 @@ SE_BIND_FUNC(js_cocos2dx_dragonbones_AnimationState_getAnimationData)
 static bool js_cocos2dx_dragonbones_ArmatureData_get_animations(se::State& s)
 {
     dragonBones::ArmatureData* cobj = (dragonBones::ArmatureData*)s.nativeThisObject();
-    se::Object* retObj = se::Object::createPlainObject(true);
+    se::HandleObject retObj(se::Object::createPlainObject());
     bool ok = false;
     se::Value tmp;
     for (const auto& e : cobj->animations)
@@ -112,7 +112,6 @@ static bool js_cocos2dx_dragonbones_ArmatureData_get_animations(se::State& s)
             retObj->setProperty(e.first.c_str(), tmp);
         }
     }
-    retObj->unroot();
     s.rval().setObject(retObj);
     return true;
 }
@@ -121,7 +120,7 @@ SE_BIND_PROP_GET(js_cocos2dx_dragonbones_ArmatureData_get_animations)
 static bool js_cocos2dx_dragonbones_ArmatureData_get_bones(se::State& s)
 {
     dragonBones::ArmatureData* cobj = (dragonBones::ArmatureData*)s.nativeThisObject();
-    se::Object* retObj = se::Object::createPlainObject(true);
+    se::HandleObject retObj(se::Object::createPlainObject());
     bool ok = false;
     se::Value tmp;
     for (const auto& e : cobj->bones)
@@ -133,7 +132,6 @@ static bool js_cocos2dx_dragonbones_ArmatureData_get_bones(se::State& s)
             retObj->setProperty(e.first.c_str(), tmp);
         }
     }
-    retObj->unroot();
     s.rval().setObject(retObj);
     return true;
 }
@@ -142,7 +140,7 @@ SE_BIND_PROP_GET(js_cocos2dx_dragonbones_ArmatureData_get_bones)
 static bool js_cocos2dx_dragonbones_ArmatureData_get_skins(se::State& s)
 {
     dragonBones::ArmatureData* cobj = (dragonBones::ArmatureData*)s.nativeThisObject();
-    se::Object* retObj = se::Object::createPlainObject(true);
+    se::HandleObject retObj(se::Object::createPlainObject());
     bool ok = false;
     se::Value tmp;
     for (const auto& e : cobj->skins)
@@ -154,7 +152,6 @@ static bool js_cocos2dx_dragonbones_ArmatureData_get_skins(se::State& s)
             retObj->setProperty(e.first.c_str(), tmp);
         }
     }
-    retObj->unroot();
     s.rval().setObject(retObj);
     return true;
 }
@@ -163,7 +160,7 @@ SE_BIND_PROP_GET(js_cocos2dx_dragonbones_ArmatureData_get_skins)
 static bool js_cocos2dx_dragonbones_ArmatureData_get_slots(se::State& s)
 {
     dragonBones::ArmatureData* cobj = (dragonBones::ArmatureData*)s.nativeThisObject();
-    se::Object* retObj = se::Object::createPlainObject(true);
+    se::HandleObject retObj(se::Object::createPlainObject());
     bool ok = false;
     se::Value tmp;
     for (const auto& e : cobj->slots)
@@ -175,7 +172,6 @@ static bool js_cocos2dx_dragonbones_ArmatureData_get_slots(se::State& s)
             retObj->setProperty(e.first.c_str(), tmp);
         }
     }
-    retObj->unroot();
     s.rval().setObject(retObj);
     return true;
 }
@@ -399,10 +395,9 @@ bool register_all_dragonbones_manual(se::Object* obj)
     global->getProperty("dragonBones", &dragonBonesVal);
     dragonBonesVal.toObject()->getProperty("WorldClock", &worldClockVal);
 
-    se::Object* globalClock = se::Object::createObjectWithClass(__jsb_dragonBones_WorldClock_class, false);
+    se::HandleObject globalClock(se::Object::createObjectWithClass(__jsb_dragonBones_WorldClock_class));
     globalClock->setPrivateData(&dragonBones::WorldClock::clock);
     worldClockVal.toObject()->setProperty("clock", se::Value(globalClock));
-    globalClock->release();
 
     __jsb_dragonBones_WorldClock_proto->defineFunction("add", _SE(js_cocos2dx_dragonbones_WorldClock_add));
     __jsb_dragonBones_WorldClock_proto->defineFunction("remove", _SE(js_cocos2dx_dragonbones_WorldClock_remove));

@@ -40,7 +40,7 @@ static bool js_cocos2dx_extension_loadRemoteImage(se::State& s)
         se::Value func = args[1];
         assert(func.isObject() && func.toObject()->isFunction());
 
-        func.toObject()->setKeepRootedUntilDie(true);
+        func.toObject()->root();
 
         auto onSuccess = [func](Texture2D* tex) -> bool {
 

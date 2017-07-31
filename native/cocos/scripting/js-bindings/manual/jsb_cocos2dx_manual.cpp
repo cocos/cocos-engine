@@ -88,7 +88,7 @@ static bool js_PlistParser_parse(se::State& s)
         se::Value strVal;
         std_string_to_seval(parsedStr, &strVal);
 
-        se::Object* robj = se::Object::createJSONObject(strVal.toString(), false);
+        se::HandleObject robj(se::Object::createJSONObject(strVal.toString()));
         s.rval().setObject(robj);
         return true;
     }
@@ -286,20 +286,18 @@ static bool register_sys_localStorage(se::Object* obj)
     se::Value sys;
     if (!obj->getProperty("sys", &sys))
     {
-        se::Object* sysObj = se::Object::createPlainObject(false);
+        se::HandleObject sysObj(se::Object::createPlainObject());
         obj->setProperty("sys", se::Value(sysObj));
         sys.setObject(sysObj);
-        sysObj->release();
     }
 
-    se::Object* localStorageObj = se::Object::createPlainObject(false);
+    se::HandleObject localStorageObj(se::Object::createPlainObject());
     sys.toObject()->setProperty("localStorage", se::Value(localStorageObj));
 
     localStorageObj->defineFunction("getItem", _SE(JSB_localStorageGetItem));
     localStorageObj->defineFunction("removeItem", _SE(JSB_localStorageRemoveItem));
     localStorageObj->defineFunction("setItem", _SE(JSB_localStorageSetItem));
     localStorageObj->defineFunction("clear", _SE(JSB_localStorageClear));
-    localStorageObj->release();
 
     std::string strFilePath = cocos2d::FileUtils::getInstance()->getWritablePath();
     strFilePath += "/jsb.sqlite";
@@ -354,8 +352,8 @@ static bool js_EventListenerMouse_create(se::State& s)
     int argc = (int)args.size();
 
     if (argc == 0) {
-        auto ret = EventListenerMouse::create();
-        ret->retain();
+        auto ret = new (std::nothrow) EventListenerMouse();
+        ret->init();
 
         ret->onMouseDown = [ret](EventMouse* event) {
             invokeJSMouseCallback(ret, "onMouseDown", event, nullptr);
@@ -373,7 +371,7 @@ static bool js_EventListenerMouse_create(se::State& s)
             invokeJSMouseCallback(ret, "onMouseScroll", event, nullptr);
         };
 
-        se::Object* obj = se::Object::createObjectWithClass(__jsb_cocos2d_EventListenerMouse_class, false);
+        se::Object* obj = se::Object::createObjectWithClass(__jsb_cocos2d_EventListenerMouse_class);
         obj->setPrivateData(ret);
         s.rval().setObject(obj);
 
@@ -484,8 +482,8 @@ static bool js_EventListenerTouchOneByOne_create(se::State& s)
     int argc = (int)args.size();
 
     if (argc == 0) {
-        auto ret = EventListenerTouchOneByOne::create();
-        ret->retain();
+        auto ret = new (std::nothrow) EventListenerTouchOneByOne();
+        ret->init();
 
         ret->onTouchBegan = [ret](Touch* touch, Event* event) -> bool {
 
@@ -509,7 +507,7 @@ static bool js_EventListenerTouchOneByOne_create(se::State& s)
             invokeJSTouchOneByOneCallback(ret, TOUCH_ONE_BY_ONE_ON_TOUCH_CANCELLED, touch, event, nullptr);
         };
 
-        se::Object* obj = se::Object::createObjectWithClass(__jsb_cocos2d_EventListenerTouchOneByOne_class, false);
+        se::Object* obj = se::Object::createObjectWithClass(__jsb_cocos2d_EventListenerTouchOneByOne_class);
         obj->setPrivateData(ret);
         s.rval().setObject(obj);
 
@@ -566,8 +564,8 @@ static bool js_EventListenerTouchAllAtOnce_create(se::State& s)
 
     if (argc == 0)
     {
-        auto ret = EventListenerTouchAllAtOnce::create();
-        ret->retain();
+        auto ret = new (std::nothrow) EventListenerTouchAllAtOnce();
+        ret->init();
 
         ret->onTouchesBegan = [ret](const std::vector<Touch*>& touches, Event* event) {
             invokeJSTouchAllAtOnceCallback(ret, "onTouchesBegan", touches, event, nullptr);
@@ -585,7 +583,7 @@ static bool js_EventListenerTouchAllAtOnce_create(se::State& s)
             invokeJSTouchAllAtOnceCallback(ret, "onTouchesCancelled", touches, event, nullptr);
         };
 
-        se::Object* obj = se::Object::createObjectWithClass(__jsb_cocos2d_EventListenerTouchAllAtOnce_class, false);
+        se::Object* obj = se::Object::createObjectWithClass(__jsb_cocos2d_EventListenerTouchAllAtOnce_class);
         obj->setPrivateData(ret);
         s.rval().setObject(obj);
 
@@ -642,8 +640,8 @@ static bool js_EventListenerKeyboard_create(se::State& s)
 
     if (argc == 0)
     {
-        auto ret = EventListenerKeyboard::create();
-        ret->retain();
+        auto ret = new (std::nothrow) EventListenerKeyboard();
+        ret->init();
 
         ret->onKeyPressed = [ret](EventKeyboard::KeyCode keyCode, Event* event) {
             invokeJSKeyboardCallback(ret, "onKeyPressed", keyCode, event, nullptr);
@@ -653,7 +651,7 @@ static bool js_EventListenerKeyboard_create(se::State& s)
             invokeJSKeyboardCallback(ret, "onKeyReleased", keyCode, event, nullptr);
         };
 
-        se::Object* obj = se::Object::createObjectWithClass(__jsb_cocos2d_EventListenerKeyboard_class, false);
+        se::Object* obj = se::Object::createObjectWithClass(__jsb_cocos2d_EventListenerKeyboard_class);
         obj->setPrivateData(ret);
         s.rval().setObject(obj);
 
@@ -672,7 +670,7 @@ static bool js_EventListenerAcceleration_create(se::State& s)
 
     if (argc == 1)
     {
-        se::Object* obj = se::Object::createObjectWithClass(__jsb_cocos2d_EventListenerAcceleration_class, false);
+        se::Object* obj = se::Object::createObjectWithClass(__jsb_cocos2d_EventListenerAcceleration_class);
         s.rval().setObject(obj);
 
         std::function<void (Acceleration*, Event*)> arg0;
@@ -707,8 +705,8 @@ static bool js_EventListenerAcceleration_create(se::State& s)
             }
         } while(false);
 
-        auto ret = EventListenerAcceleration::create(arg0);
-        ret->retain();
+        auto ret = new (std::nothrow) EventListenerAcceleration();
+        ret->init(arg0);
 
         obj->setPrivateData(ret);
 
@@ -727,12 +725,30 @@ static bool js_EventListenerFocus_create(se::State& s)
 
     if (argc == 0)
     {
-        auto ret = EventListenerFocus::create();
-        ret->retain();
+        auto ret = new (std::nothrow) EventListenerFocus();
+        ret->init();
 
-        assert(false);
+        ret->onFocusChanged = [ret](ui::Widget* lostFocusWidget, ui::Widget* getFocusWidget){
 
-        se::Object* obj = se::Object::createObjectWithClass(__jsb_cocos2d_EventListenerFocus_class, false);
+            se::Value thisVal;
+            native_ptr_to_seval<EventListenerFocus>(ret, &thisVal);
+
+            assert(thisVal.isObject());
+
+            se::Value funcVal;
+            if (thisVal.toObject()->getProperty("onFocusChanged", &funcVal) && funcVal.isObject() && funcVal.toObject()->isFunction())
+            {
+                se::ValueArray args;
+                args.resize(2);
+
+                native_ptr_to_seval<ui::Widget>(lostFocusWidget, &args[0]);
+                native_ptr_to_seval<ui::Widget>(getFocusWidget, &args[1]);
+
+                funcVal.toObject()->call(args, thisVal.toObject());
+            }
+        };
+
+        se::Object* obj = se::Object::createObjectWithClass(__jsb_cocos2d_EventListenerFocus_class);
         obj->setPrivateData(ret);
         s.rval().setObject(obj);
 
@@ -794,7 +810,7 @@ static bool js_EventListenerCustom_create(se::State& s)
 
         });
 
-        se::Object* obj = se::Object::createObjectWithClass(__jsb_cocos2d_EventListenerCustom_class, false);
+        se::Object* obj = se::Object::createObjectWithClass(__jsb_cocos2d_EventListenerCustom_class);
         obj->setPrivateData(ret);
         s.rval().setObject(obj);
 
@@ -877,7 +893,7 @@ static bool js_cocos2dx_Sequence_or_Spawn_create(se::State& s, se::Class* cls)
         ok = ret->init(array);
         if (ok)
         {
-            se::Object* obj = se::Object::createObjectWithClass(cls, false);
+            se::Object* obj = se::Object::createObjectWithClass(cls);
             obj->setPrivateData(ret);
             s.rval().setObject(obj);
         }
@@ -1384,7 +1400,7 @@ static bool js_cocos2dx_CallFunc_create(se::State& s)
     if (argc >= 1 && argc <= 3)
     {
         CallFuncN* ret = new (std::nothrow) CallFuncN;
-        se::Object* jsobj = se::Object::createObjectWithClass(__jsb_cocos2d_CallFuncN_class, false);
+        se::Object* jsobj = se::Object::createObjectWithClass(__jsb_cocos2d_CallFuncN_class);
         jsobj->setPrivateData(ret);
 
         if (js_cocos2dx_CallFunc_init(ret, jsobj, args))
@@ -1460,7 +1476,7 @@ static bool js_cocos2dx_BezierBy_create(se::State& s)
     bool ok = js_BezierActions_init(s, nativeObj);
     if (ok)
     {
-        se::Object* jsobj = se::Object::createObjectWithClass(__jsb_cocos2d_BezierBy_class, false);
+        se::Object* jsobj = se::Object::createObjectWithClass(__jsb_cocos2d_BezierBy_class);
         jsobj->setPrivateData(nativeObj);
         s.rval().setObject(jsobj);
     }
@@ -1482,7 +1498,7 @@ static bool js_cocos2dx_BezierTo_create(se::State& s)
     bool ok = js_BezierActions_init(s, nativeObj);
     if (ok)
     {
-        se::Object* jsobj = se::Object::createObjectWithClass(__jsb_cocos2d_BezierTo_class, false);
+        se::Object* jsobj = se::Object::createObjectWithClass(__jsb_cocos2d_BezierTo_class);
         jsobj->setPrivateData(nativeObj);
         s.rval().setObject(jsobj);
     }
@@ -1539,7 +1555,7 @@ static bool js_cocos2dx_CardinalSplineBy_create(se::State& s)
     bool ok = js_CardinalSplineActions_init(s, nativeObj);
     if (ok)
     {
-        se::Object* jsobj = se::Object::createObjectWithClass(__jsb_cocos2d_CardinalSplineBy_class, false);
+        se::Object* jsobj = se::Object::createObjectWithClass(__jsb_cocos2d_CardinalSplineBy_class);
         jsobj->setPrivateData(nativeObj);
         s.rval().setObject(jsobj);
     }
@@ -1561,7 +1577,7 @@ static bool js_cocos2dx_CardinalSplineTo_create(se::State& s)
     bool ok = js_CardinalSplineActions_init(s, nativeObj);
     if (ok)
     {
-        se::Object* jsobj = se::Object::createObjectWithClass(__jsb_cocos2d_CardinalSplineTo_class, false);
+        se::Object* jsobj = se::Object::createObjectWithClass(__jsb_cocos2d_CardinalSplineTo_class);
         jsobj->setPrivateData(nativeObj);
         s.rval().setObject(jsobj);
     }
@@ -1614,7 +1630,7 @@ static bool js_cocos2dx_CatmullRomBy_create(se::State& s)
     bool ok = js_CatmullRomActions_init(s, nativeObj);
     if (ok)
     {
-        se::Object* jsobj = se::Object::createObjectWithClass(__jsb_cocos2d_CatmullRomBy_class, false);
+        se::Object* jsobj = se::Object::createObjectWithClass(__jsb_cocos2d_CatmullRomBy_class);
         jsobj->setPrivateData(nativeObj);
         s.rval().setObject(jsobj);
     }
@@ -1636,7 +1652,7 @@ static bool js_cocos2dx_CatmullRomTo_create(se::State& s)
     bool ok = js_CatmullRomActions_init(s, nativeObj);
     if (ok)
     {
-        se::Object* jsobj = se::Object::createObjectWithClass(__jsb_cocos2d_CatmullRomTo_class, false);
+        se::Object* jsobj = se::Object::createObjectWithClass(__jsb_cocos2d_CatmullRomTo_class);
         jsobj->setPrivateData(nativeObj);
         s.rval().setObject(jsobj);
     }

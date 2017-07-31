@@ -7,7 +7,7 @@
 #include "ScriptEngine.hpp"
 
 namespace se {
- 
+
     std::unordered_map<void* /*native*/, Object* /*jsobj*/> __nativePtrToObjectMap;
 
     namespace {
@@ -17,9 +17,7 @@ namespace se {
     Object::Object()
     : _cls(nullptr)
     , _obj(nullptr)
-    , _isRooted(false)
-    , _isKeepRootedUntilDie(false)
-    , _jsRefCount(0)
+    , _rootCount(0)
     , _hasPrivateData(false)
     , _isCleanup(false)
     , _finalizeCb(nullptr)
@@ -28,28 +26,19 @@ namespace se {
 
     Object::~Object()
     {
-        assert(_jsRefCount == 0 || _jsRefCount == 1);
         _cleanup();
     }
 
-    Object* Object::createPlainObject(bool rooted)
+    Object* Object::createPlainObject()
     {
-        Object* obj = _createJSObject(nullptr, JSObjectMake(__cx, nullptr, nullptr), rooted);
+        Object* obj = _createJSObject(nullptr, JSObjectMake(__cx, nullptr, nullptr));
         return obj;
     }
 
-//    Object* Object::createObject(const char* clsName, bool rooted)
-//    {
-//        Class* cls = nullptr;
-//        JSObjectRef jsObj = Class::_createJSObject(clsName, &cls);
-//        Object* obj = _createJSObject(cls, jsObj, rooted);
-//        return obj;
-//    }
-
-    Object* Object::createArrayObject(size_t length, bool rooted)
+    Object* Object::createArrayObject(size_t length)
     {
         JSObjectRef jsObj = JSObjectMakeArray(__cx, 0, nullptr, nullptr);
-        Object* obj = _createJSObject(nullptr, jsObj, rooted);
+        Object* obj = _createJSObject(nullptr, jsObj);
         return obj;
     }
 
@@ -58,25 +47,25 @@ namespace se {
         free(bytes);
     }
 
-    Object* Object::createArrayBufferObject(void* data, size_t byteLength, bool rooted)
+    Object* Object::createArrayBufferObject(void* data, size_t byteLength)
     {
         void* copiedData = malloc(byteLength);
         memcpy(copiedData, data, byteLength);
         JSObjectRef jsobj = JSObjectMakeArrayBufferWithBytesNoCopy(__cx, copiedData, byteLength, myJSTypedArrayBytesDeallocator, nullptr, nullptr);
-        Object* obj = Object::_createJSObject(nullptr, jsobj, rooted);
+        Object* obj = Object::_createJSObject(nullptr, jsobj);
         return obj;
     }
 
-    Object* Object::createUint8TypedArray(uint8_t* data, size_t byteLength, bool rooted)
+    Object* Object::createUint8TypedArray(uint8_t* data, size_t byteLength)
     {
         void* copiedData = malloc(byteLength);
         memcpy(copiedData, data, byteLength);
         JSObjectRef jsobj = JSObjectMakeTypedArrayWithBytesNoCopy(__cx, kJSTypedArrayTypeUint8Array, copiedData, byteLength, myJSTypedArrayBytesDeallocator, nullptr, nullptr);
-        Object* obj = Object::_createJSObject(nullptr, jsobj, rooted);
+        Object* obj = Object::_createJSObject(nullptr, jsobj);
         return obj;
     }
 
-    Object* Object::createJSONObject(const std::string& jsonStr, bool rooted)
+    Object* Object::createJSONObject(const std::string& jsonStr)
     {
         Object* obj = nullptr;
         JSStringRef jsStr = JSStringCreateWithUTF8CString(jsonStr.c_str());
@@ -84,7 +73,7 @@ namespace se {
 
         if (ret != nullptr)
         {
-            obj = Object::_createJSObject(nullptr, JSValueToObject(__cx, ret, nullptr), rooted);
+            obj = Object::_createJSObject(nullptr, JSValueToObject(__cx, ret, nullptr));
         }
         return obj;
     }
@@ -101,28 +90,17 @@ namespace se {
         return obj;
     }
 
-//    Object* Object::getOrCreateObjectWithPtr(void* ptr, const char* clsName, bool rooted)
-//    {
-//        Object* obj = getObjectWithPtr(ptr);
-//        if (obj == nullptr)
-//        {
-//            obj = createObject(clsName, rooted);
-//            obj->setPrivateData(ptr);
-//        }
-//        return obj;
-//    }
-
-    Object* Object::createObjectWithClass(Class* cls, bool rooted)
+    Object* Object::createObjectWithClass(Class* cls)
     {
         JSObjectRef jsobj = Class::_createJSObjectWithClass(cls);
-        Object* obj = Object::_createJSObject(cls, jsobj, rooted);
+        Object* obj = Object::_createJSObject(cls, jsobj);
         return obj;
     }
 
-    Object* Object::_createJSObject(Class* cls, JSObjectRef obj, bool rooted)
+    Object* Object::_createJSObject(Class* cls, JSObjectRef obj)
     {
         Object* ret = new Object();
-        if (!ret->init(obj, rooted))
+        if (!ret->init(obj))
         {
             delete ret;
             ret = nullptr;
@@ -132,15 +110,9 @@ namespace se {
         return ret;
     }
 
-    bool Object::init(JSObjectRef obj, bool rooted)
+    bool Object::init(JSObjectRef obj)
     {
         _obj = obj;
-        _isRooted = rooted;
-        if (_isRooted)
-        {
-            JSValueProtect(__cx, _obj);
-        }
-
         return true;
     }
 
@@ -170,8 +142,9 @@ namespace se {
             }
         }
 
-        if (_isRooted)
+        if (_rootCount > 0)
         {
+//            printf("Object::_cleanup, (%p) rootCount: %u\n", this, _rootCount);
             // Don't unprotect if it's in cleanup, otherwise, it will trigger crash.
             if (!ScriptEngine::getInstance()->_isInCleanup)
                 JSValueUnprotect(__cx, _obj);
@@ -381,27 +354,6 @@ namespace se {
         return false;
     }
 
-//    void Object::getAsUint8Array(unsigned char **ptr, unsigned int *length)
-//    {
-//        assert(false);
-//    }
-//
-//    void Object::getAsUint16Array(unsigned short **ptr, unsigned int *length)
-//    {
-//        assert(false);
-//    }
-//
-//
-//    void Object::getAsUint32Array(unsigned int **ptr, unsigned int *length)
-//    {
-//        assert(false);
-//    }
-//
-//    void Object::getAsFloat32Array(float **ptr, unsigned int *length)
-//    {
-//        assert(false);
-//    }
-
     bool Object::isArray() const
     {
         return JSValueIsArray(__cx, _obj);
@@ -472,53 +424,28 @@ namespace se {
 
     void Object::root()
     {
-        if (_isRooted)
-            return;
-
-        JSValueProtect(__cx, _obj);
-        _isRooted = true;
+        if (_rootCount == 0)
+        {
+            JSValueProtect(__cx, _obj);
+        }
+        ++_rootCount;
     }
 
     void Object::unroot()
     {
-        if (!_isRooted)
-            return;
-
-        if (_isKeepRootedUntilDie)
-            return;
-
-        JSValueUnprotect(__cx, _obj);
-        _isRooted = false;
-    }
-
-    void Object::ref()
-    {
-        assert(_jsRefCount == 0);
-        JSValueProtect(__cx, _obj);
-        ++_jsRefCount;
-    }
-
-    void Object::unref()
-    {
-        assert(_jsRefCount == 1);
-        JSValueUnprotect(__cx, _obj);
-        --_jsRefCount;
-    }
-
-    void Object::setKeepRootedUntilDie(bool keepRooted)
-    {
-        _isKeepRootedUntilDie = keepRooted;
-
-        if (_isKeepRootedUntilDie)
+        if (_rootCount > 0)
         {
-            if (!_isRooted)
-                root();
+            --_rootCount;
+            if (_rootCount == 0)
+            {
+                JSValueUnprotect(__cx, _obj);
+            }
         }
     }
     
     bool Object::isRooted() const
     {
-        return _isRooted;
+        return _rootCount > 0;
     }
 
     bool Object::isSame(Object* o) const
