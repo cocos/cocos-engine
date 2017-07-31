@@ -30,7 +30,6 @@ namespace se {
     {
         assert(_jsRefCount == 0 || _jsRefCount == 1);
         _cleanup();
-        AutoHandleScope::unrefObject(this);
     }
 
     Object* Object::createPlainObject(bool rooted)
@@ -142,7 +141,6 @@ namespace se {
             JSValueProtect(__cx, _obj);
         }
 
-        AutoHandleScope::refObject(this);
         return true;
     }
 

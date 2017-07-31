@@ -289,8 +289,6 @@ bool native_ptr_to_rooted_seval(typename std::enable_if<!std::is_base_of<cocos2d
     else
     {
         obj = iter->second;
-        printf("Return from cache, type: (%s, %p), se::Object type: %s\n", typeid(*v).name(), v, obj->_privateDataType.c_str());
-        assert(0 == strcmp(typeid(*v).name(), obj->_privateDataType.c_str()));
         if (isReturnCachedValue != nullptr)
         {
             *isReturnCachedValue = true;
