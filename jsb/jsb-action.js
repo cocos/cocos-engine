@@ -469,11 +469,6 @@ function syncColorUpdate (dt) {
     var target = this._getSgTarget();
     if (target._owner) {
         var color = target.getColor();
-        var alpha = color.a;
-        if (alpha !== 255) {
-            target._owner.opacity = alpha;
-            color.a = 255;
-        }
         target._owner.color = color;
     }
 }
