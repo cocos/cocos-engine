@@ -49,7 +49,8 @@ AssetLoader.prototype.handle = function (item, callback) {
             callback(error);
         }
         else {
-            item.url = url;
+            item.url = url; // real download url, maybe changed
+            item.rawUrl && (item.rawUrl = url); // url used in scripts
             item.isRawAsset = isRawAsset;
             if (isRawAsset) {
                 var ext = Path.extname(url).toLowerCase();

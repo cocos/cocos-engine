@@ -76,6 +76,7 @@ function createItem (id, queueId) {
             queueId: queueId,
             id: id.url,
             url: urlItem.url,
+            rawUrl: urlItem.url,
             urlParam: urlItem.param,
             error: null,
             content: null,
