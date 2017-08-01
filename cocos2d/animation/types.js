@@ -84,12 +84,16 @@ function WrappedInfo (info) {
     this.direction = 1;
     this.stopped = true;
     this.iterations = 0;
+    this.frameIndex = undefined;
 }
 
 WrappedInfo.prototype.set = function (info) {
-    for (var k in info) {
-        this[k] = info[k];
-    }
+    this.ratio = info.ratio;
+    this.time = info.time;
+    this.direction = info.direction;
+    this.stopped = info.stopped;
+    this.iterations = info.iterations;
+    this.frameIndex = info.frameIndex;
 };
 
 /**
