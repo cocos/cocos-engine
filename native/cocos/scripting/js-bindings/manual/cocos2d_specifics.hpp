@@ -90,15 +90,23 @@ namespace jsb
             {
                 jsb_remove_proxy(_proxy);
             }
-            _proxy = jsb_bind_proxy(cx, this, jsobj);
-            
-            if (_jsRef.size() > 0)
+            JS::RootedValue val(cx, JS::ObjectOrNullValue(jsobj));
+            if (val.isNullOrUndefined())
             {
-                JS::RootedObject proto(cx, jsb_PrivateHook_prototype);
-                JS::RootedObject hook(cx, JS_NewObjectWithGivenProto(cx, jsb_PrivateHook_class, proto));
-                JS::RootedValue hookVal(cx, JS::ObjectOrNullValue(hook));
-                JS_SetProperty(cx, jsobj, _jsRef.c_str(), hookVal);
-                JS_SetPrivate(hook.get(), this);
+                _proxy = nullptr;
+            }
+            else
+            {
+                _proxy = jsb_bind_proxy(cx, this, jsobj);
+                
+                if (_jsRef.size() > 0)
+                {
+                    JS::RootedObject proto(cx, jsb_PrivateHook_prototype);
+                    JS::RootedObject hook(cx, JS_NewObjectWithGivenProto(cx, jsb_PrivateHook_class, proto));
+                    JS::RootedValue hookVal(cx, JS::ObjectOrNullValue(hook));
+                    JS_SetProperty(cx, jsobj, _jsRef.c_str(), hookVal);
+                    JS_SetPrivate(hook.get(), this);
+                }
             }
         }
         bool getObj(JS::MutableHandleObject obj)
@@ -108,7 +116,11 @@ namespace jsb
                 obj.set(_proxy->obj);
                 return true;
             }
-            return false;
+            else
+            {
+                obj.set(JS::UndefinedValue().toObjectOrNull());
+                return false;
+            }
         }
         
         static Object *getJSBObject(JSContext *cx, JS::HandleObject jsobj, const std::string &jsRefName)
