@@ -85,7 +85,8 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
         ox = node._position.x,
         oy = node._position.y,
         mapx = ox * a + oy * c + tx,
-        mapy = ox * b + oy * d + ty;
+        mapy = ox * b + oy * d + ty,
+        w = tilew * a, h = tileh * d;
 
     var opacity = node._opacity,
         cr = this._displayedColor.r,
@@ -103,12 +104,28 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
     var startCol = 0, startRow = 0,
         maxCol = cols, maxRow = rows;
 
-    if (cc.macro.ENABLE_TILEDMAP_CULLING) {
+    var cullingA = a, cullingD = d, 
+        cullingMapx = mapx, cullingMapy = mapy,
+        cullingW = w, cullingH = h;
+    var enabledCulling = cc.macro.ENABLE_TILEDMAP_CULLING;
+    
+    if (enabledCulling) {
+        if (this._cameraFlag > 0) {
+            var tmpt = cc.affineTransformConcat(cc.Camera.main.viewMatrix, wt);
+            cullingA = tmpt.a;
+            cullingD = tmpt.d;
+            cullingMapx = ox * cullingA + oy * tmpt.c + tmpt.tx;
+            cullingMapy = ox * tmpt.b + oy * cullingD + tmpt.ty;
+            cullingW = tilew * cullingA;
+            cullingH = tileh * cullingD;
+        }
+
         if (!hasRotation && layerOrientation === Orientation.ORTHO) {
-            startCol = Math.floor(-(mapx - extw * a) / (maptw * a));
-            startRow = Math.floor((mapy - exth * d + mapth * rows * d - winh) / (mapth * d));
-            maxCol = Math.ceil((winw - mapx + extw * a) / (maptw * a));
-            maxRow = rows - Math.floor(-(mapy + exth * d) / (mapth * d));
+            startCol = Math.floor(-(cullingMapx - extw * cullingA) / (maptw * cullingA));
+            startRow = Math.floor((cullingMapy - exth * cullingD + mapth * rows * cullingD - winh) / (mapth * cullingD));
+            maxCol = Math.ceil((winw - cullingMapx + extw * cullingA) / (maptw * cullingA));
+            maxRow = rows - Math.floor(-(cullingMapy + exth * cullingD) / (mapth * cullingD));
+
             // Adjustment
             if (startCol < 0) startCol = 0;
             if (startRow < 0) startRow = 0;
@@ -121,7 +138,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
         offset = vertexDataOffset,
         colOffset = startRow * cols, z, gid, grid,
         i, top, left, bottom, right, 
-        w = tilew * a, h = tileh * d, gt, gl, gb, gr,
+        gt, gl, gb, gr,
         wa = a, wb = b, wc = c, wd = d, wtx = tx, wty = ty, // world
         flagged = false, flippedX = false, flippedY = false,
         vertices = this._vertices,
@@ -181,25 +198,27 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
             }
             right = left + tilew;
             top = bottom + tileh;
+
             // TMX_ORIENTATION_ISO trim
-            if (!hasRotation && layerOrientation === Orientation.ISO) {
-                gb = mapy + bottom*d;
-                if (gb > winh+h) {
-                    col += Math.floor((gb-winh)*2/h) - 1;
+            if (enabledCulling && !hasRotation && layerOrientation === Orientation.ISO) {
+                gb = cullingMapy + bottom*cullingD;
+                if (gb > winh+cullingH) {
+                    col += Math.floor((gb-winh)*2/cullingH) - 1;
                     continue;
                 }
-                gr = mapx + right*a;
-                if (gr < -w) {
-                    col += Math.floor((-gr)*2/w) - 1;
+                gr = cullingMapx + right*cullingA;
+                if (gr < -cullingW) {
+                    col += Math.floor((-gr)*2/cullingW) - 1;
                     continue;
                 }
-                gl = mapx + left*a;
-                gt = mapy + top*d;
+                gl = cullingMapx + left*cullingA;
+                gt = cullingMapy + top*cullingD;
                 if (gl > winw || gt < 0) {
                     col = maxCol;
                     continue;
                 }
             }
+
             // Rotation and Flip
             if (gid > TileFlag.DIAGONAL) {
                 flagged = true;
