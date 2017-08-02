@@ -262,17 +262,14 @@ SE_BIND_CTOR(js_cocos2dx_extension_EventAssetsManagerEx_constructor, __jsb_cocos
 
 extern se::Object* __jsb_cocos2d_EventCustom_proto;
 
-bool js_cocos2d_extension_EventAssetsManagerEx_finalize(se::State& s)
+static bool js_cocos2d_extension_EventAssetsManagerEx_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::EventAssetsManagerEx)", s.nativeThisObject());
-        cocos2d::extension::EventAssetsManagerEx* cobj = (cocos2d::extension::EventAssetsManagerEx*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::EventAssetsManagerEx)", s.nativeThisObject());
+    cocos2d::extension::EventAssetsManagerEx* cobj = (cocos2d::extension::EventAssetsManagerEx*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_extension_EventAssetsManagerEx_finalize)
@@ -574,17 +571,14 @@ SE_BIND_CTOR(js_cocos2dx_extension_Manifest_constructor, __jsb_cocos2d_extension
 
 
 
-bool js_cocos2d_extension_Manifest_finalize(se::State& s)
+static bool js_cocos2d_extension_Manifest_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::Manifest)", s.nativeThisObject());
-        cocos2d::extension::Manifest* cobj = (cocos2d::extension::Manifest*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::Manifest)", s.nativeThisObject());
+    cocos2d::extension::Manifest* cobj = (cocos2d::extension::Manifest*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_extension_Manifest_finalize)
@@ -1057,7 +1051,7 @@ static bool js_cocos2dx_extension_AssetsManagerEx_create(se::State& s)
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_AssetsManagerEx_create : Error processing arguments");
         auto result = cocos2d::extension::AssetsManagerEx::create(arg0, arg1);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_extension_AssetsManagerEx_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_extension_AssetsManagerEx_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -1145,17 +1139,14 @@ SE_BIND_CTOR(js_cocos2dx_extension_AssetsManagerEx_constructor, __jsb_cocos2d_ex
 
 
 
-bool js_cocos2d_extension_AssetsManagerEx_finalize(se::State& s)
+static bool js_cocos2d_extension_AssetsManagerEx_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::AssetsManagerEx)", s.nativeThisObject());
-        cocos2d::extension::AssetsManagerEx* cobj = (cocos2d::extension::AssetsManagerEx*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::AssetsManagerEx)", s.nativeThisObject());
+    cocos2d::extension::AssetsManagerEx* cobj = (cocos2d::extension::AssetsManagerEx*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_extension_AssetsManagerEx_finalize)
@@ -1264,7 +1255,7 @@ static bool js_cocos2dx_extension_EventListenerAssetsManagerEx_create(se::State&
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[1]);
-                jsFunc.toObject()->setKeepRootedUntilDie(true);
+                jsFunc.toObject()->root();
                 auto lambda = [=](cocos2d::extension::EventAssetsManagerEx* larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
@@ -1292,7 +1283,7 @@ static bool js_cocos2dx_extension_EventListenerAssetsManagerEx_create(se::State&
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_EventListenerAssetsManagerEx_create : Error processing arguments");
         auto result = cocos2d::extension::EventListenerAssetsManagerEx::create(arg0, arg1);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_extension_EventListenerAssetsManagerEx_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_extension_EventListenerAssetsManagerEx_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -1316,17 +1307,14 @@ SE_BIND_CTOR(js_cocos2dx_extension_EventListenerAssetsManagerEx_constructor, __j
 
 extern se::Object* __jsb_cocos2d_EventListenerCustom_proto;
 
-bool js_cocos2d_extension_EventListenerAssetsManagerEx_finalize(se::State& s)
+static bool js_cocos2d_extension_EventListenerAssetsManagerEx_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::EventListenerAssetsManagerEx)", s.nativeThisObject());
-        cocos2d::extension::EventListenerAssetsManagerEx* cobj = (cocos2d::extension::EventListenerAssetsManagerEx*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::EventListenerAssetsManagerEx)", s.nativeThisObject());
+    cocos2d::extension::EventListenerAssetsManagerEx* cobj = (cocos2d::extension::EventListenerAssetsManagerEx*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_extension_EventListenerAssetsManagerEx_finalize)
@@ -1582,7 +1570,7 @@ static bool js_cocos2dx_extension_Control_create(se::State& s)
     if (argc == 0) {
         auto result = cocos2d::extension::Control::create();
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_extension_Control_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_extension_Control_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -1606,17 +1594,14 @@ SE_BIND_CTOR(js_cocos2dx_extension_Control_constructor, __jsb_cocos2d_extension_
 
 extern se::Object* __jsb_cocos2d_Layer_proto;
 
-bool js_cocos2d_extension_Control_finalize(se::State& s)
+static bool js_cocos2d_extension_Control_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::Control)", s.nativeThisObject());
-        cocos2d::extension::Control* cobj = (cocos2d::extension::Control*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::Control)", s.nativeThisObject());
+    cocos2d::extension::Control* cobj = (cocos2d::extension::Control*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_extension_Control_finalize)
@@ -2520,17 +2505,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_extension_ControlButton_ctor, __jsb_cocos2d_ext
 
 extern se::Object* __jsb_cocos2d_extension_Control_proto;
 
-bool js_cocos2d_extension_ControlButton_finalize(se::State& s)
+static bool js_cocos2d_extension_ControlButton_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::ControlButton)", s.nativeThisObject());
-        cocos2d::extension::ControlButton* cobj = (cocos2d::extension::ControlButton*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::ControlButton)", s.nativeThisObject());
+    cocos2d::extension::ControlButton* cobj = (cocos2d::extension::ControlButton*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_extension_ControlButton_finalize)
@@ -2796,7 +2778,7 @@ static bool js_cocos2dx_extension_ControlHuePicker_create(se::State& s)
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ControlHuePicker_create : Error processing arguments");
         auto result = cocos2d::extension::ControlHuePicker::create(arg0, arg1);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_extension_ControlHuePicker_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_extension_ControlHuePicker_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -2820,17 +2802,14 @@ SE_BIND_CTOR(js_cocos2dx_extension_ControlHuePicker_constructor, __jsb_cocos2d_e
 
 extern se::Object* __jsb_cocos2d_extension_Control_proto;
 
-bool js_cocos2d_extension_ControlHuePicker_finalize(se::State& s)
+static bool js_cocos2d_extension_ControlHuePicker_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::ControlHuePicker)", s.nativeThisObject());
-        cocos2d::extension::ControlHuePicker* cobj = (cocos2d::extension::ControlHuePicker*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::ControlHuePicker)", s.nativeThisObject());
+    cocos2d::extension::ControlHuePicker* cobj = (cocos2d::extension::ControlHuePicker*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_extension_ControlHuePicker_finalize)
@@ -3026,7 +3005,7 @@ static bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_create(se::S
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ControlSaturationBrightnessPicker_create : Error processing arguments");
         auto result = cocos2d::extension::ControlSaturationBrightnessPicker::create(arg0, arg1);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_extension_ControlSaturationBrightnessPicker_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_extension_ControlSaturationBrightnessPicker_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -3050,17 +3029,14 @@ SE_BIND_CTOR(js_cocos2dx_extension_ControlSaturationBrightnessPicker_constructor
 
 extern se::Object* __jsb_cocos2d_extension_Control_proto;
 
-bool js_cocos2d_extension_ControlSaturationBrightnessPicker_finalize(se::State& s)
+static bool js_cocos2d_extension_ControlSaturationBrightnessPicker_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::ControlSaturationBrightnessPicker)", s.nativeThisObject());
-        cocos2d::extension::ControlSaturationBrightnessPicker* cobj = (cocos2d::extension::ControlSaturationBrightnessPicker*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::ControlSaturationBrightnessPicker)", s.nativeThisObject());
+    cocos2d::extension::ControlSaturationBrightnessPicker* cobj = (cocos2d::extension::ControlSaturationBrightnessPicker*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_extension_ControlSaturationBrightnessPicker_finalize)
@@ -3253,7 +3229,7 @@ static bool js_cocos2dx_extension_ControlColourPicker_create(se::State& s)
     if (argc == 0) {
         auto result = cocos2d::extension::ControlColourPicker::create();
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_extension_ControlColourPicker_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_extension_ControlColourPicker_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -3286,17 +3262,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_extension_ControlColourPicker_ctor, __jsb_cocos
 
 extern se::Object* __jsb_cocos2d_extension_Control_proto;
 
-bool js_cocos2d_extension_ControlColourPicker_finalize(se::State& s)
+static bool js_cocos2d_extension_ControlColourPicker_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::ControlColourPicker)", s.nativeThisObject());
-        cocos2d::extension::ControlColourPicker* cobj = (cocos2d::extension::ControlColourPicker*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::ControlColourPicker)", s.nativeThisObject());
+    cocos2d::extension::ControlColourPicker* cobj = (cocos2d::extension::ControlColourPicker*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_extension_ControlColourPicker_finalize)
@@ -3699,7 +3672,7 @@ static bool js_cocos2dx_extension_ControlPotentiometer_create(se::State& s)
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ControlPotentiometer_create : Error processing arguments");
         auto result = cocos2d::extension::ControlPotentiometer::create(arg0, arg1, arg2);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_extension_ControlPotentiometer_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_extension_ControlPotentiometer_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -3732,17 +3705,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_extension_ControlPotentiometer_ctor, __jsb_coco
 
 extern se::Object* __jsb_cocos2d_extension_Control_proto;
 
-bool js_cocos2d_extension_ControlPotentiometer_finalize(se::State& s)
+static bool js_cocos2d_extension_ControlPotentiometer_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::ControlPotentiometer)", s.nativeThisObject());
-        cocos2d::extension::ControlPotentiometer* cobj = (cocos2d::extension::ControlPotentiometer*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::ControlPotentiometer)", s.nativeThisObject());
+    cocos2d::extension::ControlPotentiometer* cobj = (cocos2d::extension::ControlPotentiometer*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_extension_ControlPotentiometer_finalize)
@@ -4298,17 +4268,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_extension_ControlSlider_ctor, __jsb_cocos2d_ext
 
 extern se::Object* __jsb_cocos2d_extension_Control_proto;
 
-bool js_cocos2d_extension_ControlSlider_finalize(se::State& s)
+static bool js_cocos2d_extension_ControlSlider_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::ControlSlider)", s.nativeThisObject());
-        cocos2d::extension::ControlSlider* cobj = (cocos2d::extension::ControlSlider*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::ControlSlider)", s.nativeThisObject());
+    cocos2d::extension::ControlSlider* cobj = (cocos2d::extension::ControlSlider*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_extension_ControlSlider_finalize)
@@ -4739,7 +4706,7 @@ static bool js_cocos2dx_extension_ControlStepper_create(se::State& s)
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ControlStepper_create : Error processing arguments");
         auto result = cocos2d::extension::ControlStepper::create(arg0, arg1);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_extension_ControlStepper_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_extension_ControlStepper_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -4772,17 +4739,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_extension_ControlStepper_ctor, __jsb_cocos2d_ex
 
 extern se::Object* __jsb_cocos2d_extension_Control_proto;
 
-bool js_cocos2d_extension_ControlStepper_finalize(se::State& s)
+static bool js_cocos2d_extension_ControlStepper_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::ControlStepper)", s.nativeThisObject());
-        cocos2d::extension::ControlStepper* cobj = (cocos2d::extension::ControlStepper*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::ControlStepper)", s.nativeThisObject());
+    cocos2d::extension::ControlStepper* cobj = (cocos2d::extension::ControlStepper*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_extension_ControlStepper_finalize)
@@ -5056,17 +5020,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_extension_ControlSwitch_ctor, __jsb_cocos2d_ext
 
 extern se::Object* __jsb_cocos2d_extension_Control_proto;
 
-bool js_cocos2d_extension_ControlSwitch_finalize(se::State& s)
+static bool js_cocos2d_extension_ControlSwitch_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::ControlSwitch)", s.nativeThisObject());
-        cocos2d::extension::ControlSwitch* cobj = (cocos2d::extension::ControlSwitch*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::ControlSwitch)", s.nativeThisObject());
+    cocos2d::extension::ControlSwitch* cobj = (cocos2d::extension::ControlSwitch*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_extension_ControlSwitch_finalize)
@@ -5775,17 +5736,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_extension_ScrollView_ctor, __jsb_cocos2d_extens
 
 extern se::Object* __jsb_cocos2d_Layer_proto;
 
-bool js_cocos2d_extension_ScrollView_finalize(se::State& s)
+static bool js_cocos2d_extension_ScrollView_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::ScrollView)", s.nativeThisObject());
-        cocos2d::extension::ScrollView* cobj = (cocos2d::extension::ScrollView*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::ScrollView)", s.nativeThisObject());
+    cocos2d::extension::ScrollView* cobj = (cocos2d::extension::ScrollView*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_extension_ScrollView_finalize)
@@ -5903,7 +5861,7 @@ static bool js_cocos2dx_extension_TableViewCell_create(se::State& s)
     if (argc == 0) {
         auto result = cocos2d::extension::TableViewCell::create();
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_extension_TableViewCell_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_extension_TableViewCell_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -5936,17 +5894,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_extension_TableViewCell_ctor, __jsb_cocos2d_ext
 
 extern se::Object* __jsb_cocos2d_Node_proto;
 
-bool js_cocos2d_extension_TableViewCell_finalize(se::State& s)
+static bool js_cocos2d_extension_TableViewCell_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::TableViewCell)", s.nativeThisObject());
-        cocos2d::extension::TableViewCell* cobj = (cocos2d::extension::TableViewCell*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::TableViewCell)", s.nativeThisObject());
+    cocos2d::extension::TableViewCell* cobj = (cocos2d::extension::TableViewCell*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_extension_TableViewCell_finalize)
@@ -6222,17 +6177,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_extension_TableView_ctor, __jsb_cocos2d_extensi
 
 extern se::Object* __jsb_cocos2d_extension_ScrollView_proto;
 
-bool js_cocos2d_extension_TableView_finalize(se::State& s)
+static bool js_cocos2d_extension_TableView_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::TableView)", s.nativeThisObject());
-        cocos2d::extension::TableView* cobj = (cocos2d::extension::TableView*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::extension::TableView)", s.nativeThisObject());
+    cocos2d::extension::TableView* cobj = (cocos2d::extension::TableView*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_extension_TableView_finalize)
@@ -6272,10 +6224,9 @@ bool register_all_cocos2dx_extension(se::Object* obj)
     se::Value nsVal;
     if (!obj->getProperty("cc", &nsVal))
     {
-        se::Object* jsobj = se::Object::createPlainObject(false);
+        se::HandleObject jsobj(se::Object::createPlainObject());
         nsVal.setObject(jsobj);
         obj->setProperty("cc", nsVal);
-        jsobj->release();
     }
     se::Object* ns = nsVal.toObject();
 

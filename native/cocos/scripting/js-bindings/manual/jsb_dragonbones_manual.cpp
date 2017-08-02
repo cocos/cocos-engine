@@ -2,6 +2,7 @@
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
+#include "cocos/scripting/js-bindings/manual/jsb_helper.hpp"
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_dragonbones_auto.hpp"
 #include "cocos/editor-support/dragonbones/cocos2dx/CCDragonBonesHeaders.h"
 
@@ -415,38 +416,9 @@ bool register_all_dragonbones_manual(se::Object* obj)
     __jsb_dragonBones_Slot_proto->defineFunction("getMeshDisplay", _SE(js_cocos2dx_dragonbones_Slot_getMeshDisplay));
     __jsb_dragonBones_Slot_proto->defineFunction("setDisplay", _SE(js_cocos2dx_dragonbones_Slot_setDisplay));
 
-    class CleanupTask : public Ref
-    {
-    public:
-
-        static void pushTaskToAutoReleasePool(const std::function<void()>& cb)
-        {
-            auto ret = new (std::nothrow) CleanupTask();
-            ret->_cb = cb;
-            ret->autorelease();
-        }
-
-        CleanupTask()
-        : _cb(nullptr)
-        {
-
-        }
-
-        virtual ~CleanupTask()
-        {
-            if (_cb != nullptr)
-            {
-                _cb();
-            }
-        }
-
-    private:
-        std::function<void()> _cb;
-    };
-
     dragonBones::BaseObject::setObjectRecycleOrDestroyCallback([](dragonBones::BaseObject* obj, int type){
 
-        std::string typeName = typeid(*obj).name();
+//        std::string typeName = typeid(*obj).name();
         auto cleanup = [=](){
             se::AutoHandleScope hs;
             se::ScriptEngine::getInstance()->clearException();

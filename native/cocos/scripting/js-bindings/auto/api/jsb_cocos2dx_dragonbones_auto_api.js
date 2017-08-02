@@ -101,16 +101,6 @@ float
  */
 dragonBones.TextureData = {
 
-/**
- * @method generateRectangle
- * @return {dragonBones::Rectangle}
- */
-generateRectangle : function (
-)
-{
-    return dragonBones::Rectangle;
-},
-
 };
 
 /**
@@ -168,18 +158,6 @@ getClassTypeIndex : function (
 },
 
 /**
- * @method getBoneTimeline
- * @param {String} arg0
- * @return {dragonBones::BoneTimelineData}
- */
-getBoneTimeline : function (
-str 
-)
-{
-    return dragonBones::BoneTimelineData;
-},
-
-/**
  * @method getTypeIndex
  * @return {unsigned long}
  */
@@ -221,16 +199,6 @@ getTypeIndex : function (
 )
 {
     return 0;
-},
-
-/**
- * @method generateColor
- * @return {dragonBones::ColorTransform}
- */
-generateColor : function (
-)
-{
-    return dragonBones::ColorTransform;
 },
 
 };

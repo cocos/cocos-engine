@@ -96,6 +96,7 @@ static bool js_cocos2dx_audioengine_AudioProfile_constructor(se::State& s)
 {
     cocos2d::experimental::AudioProfile* cobj = new (std::nothrow) cocos2d::experimental::AudioProfile();
     s.thisObject()->setPrivateData(cobj);
+    se::__nonRefNativeObjectCreatedByCtorMap.emplace(cobj, true);
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_audioengine_AudioProfile_constructor, __jsb_cocos2d_experimental_AudioProfile_class, js_cocos2d_experimental_AudioProfile_finalize)
@@ -103,11 +104,13 @@ SE_BIND_CTOR(js_cocos2dx_audioengine_AudioProfile_constructor, __jsb_cocos2d_exp
 
 
 
-bool js_cocos2d_experimental_AudioProfile_finalize(se::State& s)
+static bool js_cocos2d_experimental_AudioProfile_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::experimental::AudioProfile)", s.nativeThisObject());
+    auto iter = se::__nonRefNativeObjectCreatedByCtorMap.find(s.nativeThisObject());
+    if (iter != se::__nonRefNativeObjectCreatedByCtorMap.end())
     {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::experimental::AudioProfile)", s.nativeThisObject());
+        se::__nonRefNativeObjectCreatedByCtorMap.erase(iter);
         cocos2d::experimental::AudioProfile* cobj = (cocos2d::experimental::AudioProfile*)s.nativeThisObject();
         delete cobj;
     }
@@ -399,7 +402,7 @@ static bool js_cocos2dx_audioengine_AudioEngine_preload(se::State& s)
                 {
                     se::Value jsThis(s.thisObject());
                     se::Value jsFunc(args[1]);
-                    jsFunc.toObject()->setKeepRootedUntilDie(true);
+                    jsFunc.toObject()->root();
                     auto lambda = [=](bool larg0) -> void {
                         se::ScriptEngine::getInstance()->clearException();
                         se::AutoHandleScope hs;
@@ -622,7 +625,7 @@ static bool js_cocos2dx_audioengine_AudioEngine_setFinishCallback(se::State& s)
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[1]);
-                jsFunc.toObject()->setKeepRootedUntilDie(true);
+                jsFunc.toObject()->root();
                 auto lambda = [=](int larg0, const std::basic_string<char> & larg1) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
@@ -691,12 +694,6 @@ SE_BIND_FUNC(js_cocos2dx_audioengine_AudioEngine_getProfile)
 
 
 
-bool js_cocos2d_experimental_AudioEngine_finalize(se::State& s)
-{
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::experimental::AudioEngine)", s.nativeThisObject());
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cocos2d_experimental_AudioEngine_finalize)
 
 bool js_register_cocos2dx_audioengine_AudioEngine(se::Object* obj)
 {
@@ -727,7 +724,6 @@ bool js_register_cocos2dx_audioengine_AudioEngine(se::Object* obj)
     cls->defineStaticFunction("getDefaultProfile", _SE(js_cocos2dx_audioengine_AudioEngine_getDefaultProfile));
     cls->defineStaticFunction("setFinishCallback", _SE(js_cocos2dx_audioengine_AudioEngine_setFinishCallback));
     cls->defineStaticFunction("getProfile", _SE(js_cocos2dx_audioengine_AudioEngine_getProfile));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_experimental_AudioEngine_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::experimental::AudioEngine>(cls);
 
@@ -744,10 +740,9 @@ bool register_all_cocos2dx_audioengine(se::Object* obj)
     se::Value nsVal;
     if (!obj->getProperty("jsb", &nsVal))
     {
-        se::Object* jsobj = se::Object::createPlainObject(false);
+        se::HandleObject jsobj(se::Object::createPlainObject());
         nsVal.setObject(jsobj);
         obj->setProperty("jsb", nsVal);
-        jsobj->release();
     }
     se::Object* ns = nsVal.toObject();
 

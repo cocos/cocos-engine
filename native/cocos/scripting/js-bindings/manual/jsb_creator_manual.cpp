@@ -34,7 +34,7 @@ static bool js_creator_PhysicsContactListener_setPreSolve(se::State& s)
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
-                    ok &= native_ptr_to_seval<b2Contact>(larg0, __jsb_b2Contact_class, &args[0]);
+                    ok &= native_ptr_to_rooted_seval<b2Contact>(larg0, __jsb_b2Contact_class, &args[0]);
                     se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
@@ -81,12 +81,18 @@ static bool js_creator_PhysicsContactListener_setPostSolve(se::State& s)
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(2);
-                    ok &= native_ptr_to_seval<b2Contact>(larg0, __jsb_b2Contact_class, &args[0]);
-                    ok &= native_ptr_to_seval<creator::PhysicsContactImpulse>((creator::PhysicsContactImpulse*)larg1, __jsb_creator_PhysicsContactImpulse_class, &args[1]);
 
+                    bool fromCache = false;
+                    ok &= native_ptr_to_rooted_seval<b2Contact>(larg0, __jsb_b2Contact_class, &args[0]);
+                    ok &= native_ptr_to_seval<creator::PhysicsContactImpulse>((creator::PhysicsContactImpulse*)larg1, __jsb_creator_PhysicsContactImpulse_class, &args[1], &fromCache);
+                    if (!fromCache)
+                    {
+                        jsThis.toObject()->attachChild(args[1].toObject());
+                    }
                     se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
+
                     bool succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
@@ -137,9 +143,8 @@ static bool js_creator_PhysicsContactListener_setBeginContact(se::State& s)
                         * setPreSolve
                         * setPostSolve
                         * setEndContact
-                     box2d will reuse cached memory, so recreate seval here.
                      */
-                    ok &= recreate_seval_by_native_ptr<b2Contact>(larg0, __jsb_b2Contact_class, &args[0]);
+                    ok &= native_ptr_to_rooted_seval<b2Contact>(larg0, __jsb_b2Contact_class, &args[0]);
                     se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
@@ -186,7 +191,7 @@ static bool js_creator_PhysicsContactListener_setEndContact(se::State& s)
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
-                    ok &= native_ptr_to_seval<b2Contact>(larg0, __jsb_b2Contact_class, &args[0]);
+                    ok &= native_ptr_to_rooted_seval<b2Contact>(larg0, __jsb_b2Contact_class, &args[0]);
                     se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();

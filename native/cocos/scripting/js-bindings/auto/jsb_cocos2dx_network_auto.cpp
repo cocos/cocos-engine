@@ -205,6 +205,7 @@ static bool js_cocos2dx_network_Downloader_constructor(se::State& s)
             if (!ok) { ok = true; break; }
             cocos2d::network::Downloader* cobj = new (std::nothrow) cocos2d::network::Downloader(arg0);
             s.thisObject()->setPrivateData(cobj);
+            se::__nonRefNativeObjectCreatedByCtorMap.emplace(cobj, true);
             return true;
         }
     } while(false);
@@ -212,6 +213,7 @@ static bool js_cocos2dx_network_Downloader_constructor(se::State& s)
         if (argc == 0) {
             cocos2d::network::Downloader* cobj = new (std::nothrow) cocos2d::network::Downloader();
             s.thisObject()->setPrivateData(cobj);
+            se::__nonRefNativeObjectCreatedByCtorMap.emplace(cobj, true);
             return true;
         }
     } while(false);
@@ -223,11 +225,13 @@ SE_BIND_CTOR(js_cocos2dx_network_Downloader_constructor, __jsb_cocos2d_network_D
 
 
 
-bool js_cocos2d_network_Downloader_finalize(se::State& s)
+static bool js_cocos2d_network_Downloader_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::network::Downloader)", s.nativeThisObject());
+    auto iter = se::__nonRefNativeObjectCreatedByCtorMap.find(s.nativeThisObject());
+    if (iter != se::__nonRefNativeObjectCreatedByCtorMap.end())
     {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::network::Downloader)", s.nativeThisObject());
+        se::__nonRefNativeObjectCreatedByCtorMap.erase(iter);
         cocos2d::network::Downloader* cobj = (cocos2d::network::Downloader*)s.nativeThisObject();
         delete cobj;
     }
@@ -260,10 +264,9 @@ bool register_all_cocos2dx_network(se::Object* obj)
     se::Value nsVal;
     if (!obj->getProperty("jsb", &nsVal))
     {
-        se::Object* jsobj = se::Object::createPlainObject(false);
+        se::HandleObject jsobj(se::Object::createPlainObject());
         nsVal.setObject(jsobj);
         obj->setProperty("jsb", nsVal);
-        jsobj->release();
     }
     se::Object* ns = nsVal.toObject();
 

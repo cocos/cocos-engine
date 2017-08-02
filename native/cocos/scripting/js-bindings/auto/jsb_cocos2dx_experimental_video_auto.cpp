@@ -333,7 +333,7 @@ static bool js_cocos2dx_experimental_video_VideoPlayer_create(se::State& s)
     if (argc == 0) {
         auto result = cocos2d::experimental::ui::VideoPlayer::create();
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_experimental_ui_VideoPlayer_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_experimental_ui_VideoPlayer_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -357,17 +357,14 @@ SE_BIND_CTOR(js_cocos2dx_experimental_video_VideoPlayer_constructor, __jsb_cocos
 
 extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
-bool js_cocos2d_experimental_ui_VideoPlayer_finalize(se::State& s)
+static bool js_cocos2d_experimental_ui_VideoPlayer_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::experimental::ui::VideoPlayer)", s.nativeThisObject());
-        cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::experimental::ui::VideoPlayer)", s.nativeThisObject());
+    cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_experimental_ui_VideoPlayer_finalize)
@@ -410,10 +407,9 @@ bool register_all_cocos2dx_experimental_video(se::Object* obj)
     se::Value nsVal;
     if (!obj->getProperty("ccui", &nsVal))
     {
-        se::Object* jsobj = se::Object::createPlainObject(false);
+        se::HandleObject jsobj(se::Object::createPlainObject());
         nsVal.setObject(jsobj);
         obj->setProperty("ccui", nsVal);
-        jsobj->release();
     }
     se::Object* ns = nsVal.toObject();
 

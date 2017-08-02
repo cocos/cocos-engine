@@ -746,17 +746,14 @@ SE_BIND_CTOR(js_cocos2dx_spine_SkeletonRenderer_constructor, __jsb_spine_Skeleto
 
 extern se::Object* __jsb_cocos2d_Node_proto;
 
-bool js_spine_SkeletonRenderer_finalize(se::State& s)
+static bool js_spine_SkeletonRenderer_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (spine::SkeletonRenderer)", s.nativeThisObject());
-        spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (spine::SkeletonRenderer)", s.nativeThisObject());
+    spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_spine_SkeletonRenderer_finalize)
@@ -1385,7 +1382,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_create(se::State& s)
     if (argc == 0) {
         auto result = spine::SkeletonAnimation::create();
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_spine_SkeletonAnimation_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_spine_SkeletonAnimation_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -1682,17 +1679,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_spine_SkeletonAnimation_ctor, __jsb_spine_Skele
 
 extern se::Object* __jsb_spine_SkeletonRenderer_proto;
 
-bool js_spine_SkeletonAnimation_finalize(se::State& s)
+static bool js_spine_SkeletonAnimation_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (spine::SkeletonAnimation)", s.nativeThisObject());
-        spine::SkeletonAnimation* cobj = (spine::SkeletonAnimation*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (spine::SkeletonAnimation)", s.nativeThisObject());
+    spine::SkeletonAnimation* cobj = (spine::SkeletonAnimation*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_spine_SkeletonAnimation_finalize)
@@ -1738,10 +1732,9 @@ bool register_all_cocos2dx_spine(se::Object* obj)
     se::Value nsVal;
     if (!obj->getProperty("sp", &nsVal))
     {
-        se::Object* jsobj = se::Object::createPlainObject(false);
+        se::HandleObject jsobj(se::Object::createPlainObject());
         nsVal.setObject(jsobj);
         obj->setProperty("sp", nsVal);
-        jsobj->release();
     }
     se::Object* ns = nsVal.toObject();
 

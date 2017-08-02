@@ -2,6 +2,7 @@
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
+#include "cocos/scripting/js-bindings/manual/jsb_helper.hpp"
 #include "cocos/scripting/js-bindings/auto/jsb_box2d_auto.hpp"
 
 bool seval_to_b2BodyDef(const se::Value& v, b2BodyDef* ret)
@@ -542,7 +543,7 @@ bool array_of_b2Fixture_to_seval(const std::vector<b2Fixture*>& fixtures, se::Va
     bool ok = false;
     for (const auto& e : fixtures)
     {
-        ok = native_ptr_to_seval<b2Fixture>(e, &tmp);
+        ok = native_ptr_to_rooted_seval<b2Fixture>(e, &tmp);
         if (!ok)
             break;
         ok = obj->setArrayElement(i, tmp);
@@ -630,8 +631,8 @@ static bool js_box2dclasses_b2World_CreateBody(se::State& s)
         SE_PRECONDITION2(ok, false, "seval_to_b2BodyDef failed!");
 
         b2Body* ret = cobj->CreateBody(&def);
-        // box2d will reuse cached memory, need first remove old proxy when create new jsobject
-        recreate_seval_by_native_ptr<b2Body>(ret, __jsb_b2Body_class, &s.rval());
+
+        native_ptr_to_rooted_seval<b2Body>(ret, __jsb_b2Body_class, &s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 1);
@@ -683,7 +684,7 @@ static bool js_box2dclasses_b2World_CreateJoint(se::State& s)
     {
         bool ok = false;
         b2World* cobj = (b2World *)s.nativeThisObject();
-        b2JointDef* tmpDef;
+        b2JointDef* tmpDef = nullptr;
         b2JointType type = e_unknownJoint;
 
         se::Object* seObj = args[0].toObject();
@@ -750,8 +751,10 @@ static bool js_box2dclasses_b2World_CreateJoint(se::State& s)
                 break;
             }
             default:
+            {
                 assert(false);
                 break;
+            }
         }
 
         ok = seval_to_b2JointDef(args[0], type, tmpDef);
@@ -761,11 +764,11 @@ static bool js_box2dclasses_b2World_CreateJoint(se::State& s)
 
         se::Class* cls = JSBClassType::findClass<b2Joint>(ret);
         assert(cls != nullptr);
-        ok = recreate_seval_by_native_ptr<b2Joint>(ret, cls, &s.rval());
+        ok = native_ptr_to_rooted_seval<b2Joint>(ret, cls, &s.rval());
 
         delete tmpDef;
 
-        SE_PRECONDITION2(ok, false, "recreate_seval_by_native_ptr failed!");
+        SE_PRECONDITION2(ok, false, "native_ptr_to_rooted_seval failed!");
 
         return true;
     }
@@ -789,8 +792,8 @@ static bool js_box2dclasses_b2Body_CreateFixture(se::State& s)
 
         float arg1 = args[1].toFloat();
         b2Fixture* ret = cobj->CreateFixture(arg0, arg1);
-        ok = recreate_seval_by_native_ptr<b2Fixture>(ret, __jsb_b2Fixture_class, &s.rval());
-        SE_PRECONDITION2(ok, false, "native_ptr_to_seval failed!");
+        ok = native_ptr_to_rooted_seval<b2Fixture>(ret, __jsb_b2Fixture_class, &s.rval());
+        SE_PRECONDITION2(ok, false, "native_ptr_to_rooted_seval failed!");
         return true;
     }
     else if (argc == 1)
@@ -799,8 +802,8 @@ static bool js_box2dclasses_b2Body_CreateFixture(se::State& s)
         ok = seval_to_b2FixtureDef(args[0], &def);
         SE_PRECONDITION2(ok, false, "seval_to_b2FixtureDef failed!");
         b2Fixture* ret = cobj->CreateFixture(&def);
-        ok = recreate_seval_by_native_ptr<b2Fixture>(ret, __jsb_b2Fixture_class, &s.rval());
-        SE_PRECONDITION2(ok, false, "native_ptr_to_seval failed!");
+        ok = native_ptr_to_rooted_seval<b2Fixture>(ret, __jsb_b2Fixture_class, &s.rval());
+        SE_PRECONDITION2(ok, false, "native_ptr_to_rooted_seval failed!");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 1);
@@ -876,7 +879,7 @@ static bool js_box2dclasses_b2Body_GetJointList(se::State& s)
             int i = 0;
 
             se::Value tmp;
-            ok = native_ptr_to_seval<b2Joint>(list->joint, &tmp);
+            ok = native_ptr_to_rooted_seval<b2Joint>(list->joint, &tmp);
             if (!ok) break;
 
             ok = arr->setArrayElement(i++, tmp);
@@ -886,7 +889,7 @@ static bool js_box2dclasses_b2Body_GetJointList(se::State& s)
             b2JointEdge* prev = list->prev;
             while (prev) {
 
-                ok = native_ptr_to_seval<b2Joint>(prev->joint, &tmp);
+                ok = native_ptr_to_rooted_seval<b2Joint>(prev->joint, &tmp);
                 if (!ok) break;
 
                 ok = arr->setArrayElement(i++, tmp);
@@ -898,7 +901,7 @@ static bool js_box2dclasses_b2Body_GetJointList(se::State& s)
 
             b2JointEdge* next = list->next;
             while (next) {
-                ok = native_ptr_to_seval<b2Joint>(next->joint, &tmp);
+                ok = native_ptr_to_rooted_seval<b2Joint>(next->joint, &tmp);
                 if (!ok) break;
 
                 ok = arr->setArrayElement(i++, tmp);
@@ -1073,6 +1076,39 @@ bool register_all_box2d_manual(se::Object* obj)
     __jsb_b2ChainShape_proto->defineFunction("CreateChain", _SE(js_box2dclasses_b2ChainShape_CreateChain));
 
     se::ScriptEngine::getInstance()->clearException();
+
+    b2SetObjectDestroyNotifier([](void* obj, const char* type){
+
+        std::string typeName = type;
+        auto cleanup = [=](){
+            se::AutoHandleScope hs;
+            se::ScriptEngine::getInstance()->clearException();
+
+            auto iter = se::__nativePtrToObjectMap.find(obj);
+            if (iter != se::__nativePtrToObjectMap.end())
+            {
+//                CCLOG("%s, %p was recycled!", typeName.c_str(), obj);
+                se::Object* seObj = iter->second;
+                seObj->clearPrivateData();
+                seObj->unroot();
+                seObj->release();
+            }
+            else
+            {
+//                 CCLOG("Didn't find %s, %p in map", typeName.c_str(), obj);
+//                 assert(false);
+            }
+        };
+
+        if (!se::ScriptEngine::getInstance()->isInGC())
+        {
+            cleanup();
+        }
+        else
+        {
+            CleanupTask::pushTaskToAutoReleasePool(cleanup);
+        }
+    });
 
     return true;
 }

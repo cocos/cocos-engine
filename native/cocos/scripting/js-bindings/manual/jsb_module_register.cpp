@@ -26,6 +26,8 @@
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 #include "cocos/scripting/js-bindings/manual/jsb_node.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_manual.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_box2d_manual.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_creator_manual.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_spine_manual.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_dragonbones_manual.hpp"
@@ -102,7 +104,11 @@ bool jsb_register_all_modules()
     se->addRegisterCallback(register_all_spine_manual);
 
     se->addRegisterCallback(register_all_box2dclasses);
+    se->addRegisterCallback(register_all_box2d_manual);
+
     se->addRegisterCallback(register_all_creator);
+    se->addRegisterCallback(register_all_creator_manual);
+
     se->addRegisterCallback(register_all_cocos2dx_dragonbones);
     se->addRegisterCallback(register_all_dragonbones_manual);
 

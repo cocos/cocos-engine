@@ -423,40 +423,6 @@ SE_DECLARE_FUNC(js_cocos2dx_Configuration_supportsMapBuffer);
 SE_DECLARE_FUNC(js_cocos2dx_Configuration_destroyInstance);
 SE_DECLARE_FUNC(js_cocos2dx_Configuration_getInstance);
 
-extern se::Object* __jsb_cocos2d_Properties_proto;
-extern se::Class* __jsb_cocos2d_Properties_class;
-
-bool js_register_cocos2d_Properties(se::Object* obj);
-bool register_all_cocos2dx(se::Object* obj);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_getVariable);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_getString);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_getLong);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_getNamespace);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_getPath);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_getMat4);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_exists);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_setString);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_getId);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_rewind);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_setVariable);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_getBool);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_getColor);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_getType);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_getNextNamespace);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_getInt);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_getVec3);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_getVec2);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_getVec4);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_getNextProperty);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_getFloat);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_getQuaternionFromAxisAngle);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_parseColor);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_parseVec3);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_parseAxisAngle);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_parseVec2);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_createNonRefCounted);
-SE_DECLARE_FUNC(js_cocos2dx_Properties_parseVec4);
-
 extern se::Object* __jsb_cocos2d_FileUtils_proto;
 extern se::Class* __jsb_cocos2d_FileUtils_class;
 
@@ -2181,54 +2147,6 @@ SE_DECLARE_FUNC(js_cocos2dx_GLProgramCache_getGLProgram);
 SE_DECLARE_FUNC(js_cocos2dx_GLProgramCache_destroyInstance);
 SE_DECLARE_FUNC(js_cocos2dx_GLProgramCache_getInstance);
 SE_DECLARE_FUNC(js_cocos2dx_GLProgramCache_GLProgramCache);
-
-extern se::Object* __jsb_cocos2d_RenderState_proto;
-extern se::Class* __jsb_cocos2d_RenderState_class;
-
-bool js_register_cocos2d_RenderState(se::Object* obj);
-bool register_all_cocos2dx(se::Object* obj);
-SE_DECLARE_FUNC(js_cocos2dx_RenderState_setTexture);
-SE_DECLARE_FUNC(js_cocos2dx_RenderState_getTopmost);
-SE_DECLARE_FUNC(js_cocos2dx_RenderState_getTexture);
-SE_DECLARE_FUNC(js_cocos2dx_RenderState_bind);
-SE_DECLARE_FUNC(js_cocos2dx_RenderState_getName);
-SE_DECLARE_FUNC(js_cocos2dx_RenderState_setParent);
-SE_DECLARE_FUNC(js_cocos2dx_RenderState_initialize);
-SE_DECLARE_FUNC(js_cocos2dx_RenderState_finalize);
-
-extern se::Object* __jsb_cocos2d_Pass_proto;
-extern se::Class* __jsb_cocos2d_Pass_class;
-
-bool js_register_cocos2d_Pass(se::Object* obj);
-bool register_all_cocos2dx(se::Object* obj);
-SE_DECLARE_FUNC(js_cocos2dx_Pass_unbind);
-SE_DECLARE_FUNC(js_cocos2dx_Pass_bind);
-SE_DECLARE_FUNC(js_cocos2dx_Pass_clone);
-SE_DECLARE_FUNC(js_cocos2dx_Pass_getGLProgramState);
-SE_DECLARE_FUNC(js_cocos2dx_Pass_getVertexAttributeBinding);
-SE_DECLARE_FUNC(js_cocos2dx_Pass_getHash);
-SE_DECLARE_FUNC(js_cocos2dx_Pass_setVertexAttribBinding);
-SE_DECLARE_FUNC(js_cocos2dx_Pass_create);
-SE_DECLARE_FUNC(js_cocos2dx_Pass_createWithGLProgramState);
-
-extern se::Object* __jsb_cocos2d_Material_proto;
-extern se::Class* __jsb_cocos2d_Material_class;
-
-bool js_register_cocos2d_Material(se::Object* obj);
-bool register_all_cocos2dx(se::Object* obj);
-SE_DECLARE_FUNC(js_cocos2dx_Material_clone);
-SE_DECLARE_FUNC(js_cocos2dx_Material_getTechniqueCount);
-SE_DECLARE_FUNC(js_cocos2dx_Material_setName);
-SE_DECLARE_FUNC(js_cocos2dx_Material_getTechniqueByIndex);
-SE_DECLARE_FUNC(js_cocos2dx_Material_getName);
-SE_DECLARE_FUNC(js_cocos2dx_Material_getTechniques);
-SE_DECLARE_FUNC(js_cocos2dx_Material_setTechnique);
-SE_DECLARE_FUNC(js_cocos2dx_Material_getTechniqueByName);
-SE_DECLARE_FUNC(js_cocos2dx_Material_addTechnique);
-SE_DECLARE_FUNC(js_cocos2dx_Material_getTechnique);
-SE_DECLARE_FUNC(js_cocos2dx_Material_createWithFilename);
-SE_DECLARE_FUNC(js_cocos2dx_Material_createWithGLStateProgram);
-SE_DECLARE_FUNC(js_cocos2dx_Material_createWithProperties);
 
 extern se::Object* __jsb_cocos2d_TextureCache_proto;
 extern se::Class* __jsb_cocos2d_TextureCache_class;

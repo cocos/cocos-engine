@@ -88,16 +88,30 @@ bool seval_to_boolean(const se::Value& v, bool* ret)
     if (v.isBoolean())
     {
         *ret = v.toBoolean();
-        return true;
     }
-
-    if (v.isNumber())
+    else if (v.isNumber())
     {
         *ret = v.toInt32() != 0 ? true : false;
-        return true;
     }
-    *ret = false;
-    return false;
+    else if (v.isNullOrUndefined())
+    {
+        *ret = false;
+    }
+    else if (v.isObject())
+    {
+        *ret = true;
+    }
+    else if (v.isString())
+    {
+        *ret = v.toString().empty() ? false : true;
+    }
+    else
+    {
+        *ret = false;
+        assert(false);
+    }
+
+    return true;
 }
 
 bool seval_to_float(const se::Value& v, float* ret)

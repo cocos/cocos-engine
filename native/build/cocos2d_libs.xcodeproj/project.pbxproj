@@ -546,6 +546,10 @@
 		1A9DCA28180E6955007A3AD4 /* CCGLBufferedNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A9DCA02180E6955007A3AD4 /* CCGLBufferedNode.cpp */; };
 		1A9DCA29180E6955007A3AD4 /* CCGLBufferedNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A9DCA03180E6955007A3AD4 /* CCGLBufferedNode.h */; };
 		1A9DCA2A180E6955007A3AD4 /* CCGLBufferedNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A9DCA03180E6955007A3AD4 /* CCGLBufferedNode.h */; };
+		1A9F0F971F301DE200A499E1 /* b2ObjectDestroyNotifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A9F0F951F301DE200A499E1 /* b2ObjectDestroyNotifier.cpp */; };
+		1A9F0F981F301DE200A499E1 /* b2ObjectDestroyNotifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A9F0F951F301DE200A499E1 /* b2ObjectDestroyNotifier.cpp */; };
+		1A9F0F991F301DE200A499E1 /* b2ObjectDestroyNotifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A9F0F961F301DE200A499E1 /* b2ObjectDestroyNotifier.h */; };
+		1A9F0F9A1F301DE200A499E1 /* b2ObjectDestroyNotifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A9F0F961F301DE200A499E1 /* b2ObjectDestroyNotifier.h */; };
 		1AAF584F180E40B9000584C8 /* LocalStorage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AAF584C180E40B9000584C8 /* LocalStorage.cpp */; };
 		1AAF5850180E40B9000584C8 /* LocalStorage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AAF584C180E40B9000584C8 /* LocalStorage.cpp */; };
 		1AAF5851180E40B9000584C8 /* LocalStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AAF584D180E40B9000584C8 /* LocalStorage.h */; };
@@ -2065,6 +2069,8 @@
 		1A97ABFD1A1D962A0076D9CC /* MathUtilSSE.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MathUtilSSE.inl; sourceTree = "<group>"; };
 		1A9DCA02180E6955007A3AD4 /* CCGLBufferedNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCGLBufferedNode.cpp; sourceTree = "<group>"; };
 		1A9DCA03180E6955007A3AD4 /* CCGLBufferedNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCGLBufferedNode.h; sourceTree = "<group>"; };
+		1A9F0F951F301DE200A499E1 /* b2ObjectDestroyNotifier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = b2ObjectDestroyNotifier.cpp; sourceTree = "<group>"; };
+		1A9F0F961F301DE200A499E1 /* b2ObjectDestroyNotifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = b2ObjectDestroyNotifier.h; sourceTree = "<group>"; };
 		1AAF5363180E3374000584C8 /* HttpClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HttpClient.h; sourceTree = "<group>"; };
 		1AAF5364180E3374000584C8 /* HttpRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HttpRequest.h; sourceTree = "<group>"; };
 		1AAF5365180E3374000584C8 /* HttpResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HttpResponse.h; sourceTree = "<group>"; };
@@ -4067,6 +4073,8 @@
 				4DED47941DFFA4AF0070C5C4 /* Dynamics */,
 				4DED47CE1DFFA4AF0070C5C4 /* Rope */,
 				4DED47D11DFFA4AF0070C5C4 /* UseBox2D.cmake */,
+				1A9F0F951F301DE200A499E1 /* b2ObjectDestroyNotifier.cpp */,
+				1A9F0F961F301DE200A499E1 /* b2ObjectDestroyNotifier.h */,
 			);
 			name = Box2D;
 			path = ../external/sources/Box2D;
@@ -4925,6 +4933,7 @@
 				BAFF7D841D5C1CF80051B92F /* IkConstraint.h in Headers */,
 				15AE1B6219AADA9900C27E9E /* UIButton.h in Headers */,
 				ED30577D1BEC76C90083C3ED /* crypt.h in Headers */,
+				1A9F0F991F301DE200A499E1 /* b2ObjectDestroyNotifier.h in Headers */,
 				50ABBDB71925AB4100A911A9 /* CCTexture2D.h in Headers */,
 				50ABBE811925AB6F00A911A9 /* CCEventType.h in Headers */,
 				1A57008F180BC5A10088DEC7 /* CCActionTiledGrid.h in Headers */,
@@ -5453,6 +5462,7 @@
 				FA6F1B681D80F858007DD223 /* CCArmatureDisplay.h in Headers */,
 				15AE198119AAD35700C27E9E /* CCTimelineMacro.h in Headers */,
 				FA6F1B621D80F858007DD223 /* Slot.h in Headers */,
+				1A9F0F9A1F301DE200A499E1 /* b2ObjectDestroyNotifier.h in Headers */,
 				4D6CF43A1E83AAD5003327D4 /* CCCameraNode.h in Headers */,
 				15AE1B7719AADA9A00C27E9E /* UIPageView.h in Headers */,
 				50ABBD8A1925AB4100A911A9 /* CCCustomCommand.h in Headers */,
@@ -6214,6 +6224,7 @@
 				4DED48501DFFA4AF0070C5C4 /* b2PolygonAndCircleContact.cpp in Sources */,
 				38ACD1FC1A27111900C3093D /* WidgetCallBackHandlerProtocol.cpp in Sources */,
 				50ABBD8B1925AB4100A911A9 /* CCGLProgram.cpp in Sources */,
+				1A9F0F971F301DE200A499E1 /* b2ObjectDestroyNotifier.cpp in Sources */,
 				464AD6E5197EBB1400E502D8 /* pvr.cpp in Sources */,
 				50ABBDA31925AB4100A911A9 /* CCQuadCommand.cpp in Sources */,
 				50ABC01D1926664800A911A9 /* CCThread.cpp in Sources */,
@@ -6608,6 +6619,7 @@
 				15AE1B8819AADA9A00C27E9E /* UICheckBox.cpp in Sources */,
 				1A28FF6C1F20AFAB007A1D9D /* SRConstants.m in Sources */,
 				1A570283180BCC900088DEC7 /* CCSpriteBatchNode.cpp in Sources */,
+				1A9F0F981F301DE200A499E1 /* b2ObjectDestroyNotifier.cpp in Sources */,
 				1A570287180BCC900088DEC7 /* CCSpriteFrame.cpp in Sources */,
 				BAFF7CF51D59E3840051B92F /* CocosStudioExtension.cpp in Sources */,
 				FA6F1B741D80F858007DD223 /* CCTextureData.cpp in Sources */,

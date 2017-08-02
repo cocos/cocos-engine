@@ -1894,16 +1894,6 @@ IsLocked : function (
 },
 
 /**
- * @method GetContactList
-* @return {b2Contact|b2Contact}
-*/
-GetContactList : function(
-)
-{
-    return b2Contact;
-},
-
-/**
  * @method SetDebugDraw
  * @param {b2Draw} arg0
  */

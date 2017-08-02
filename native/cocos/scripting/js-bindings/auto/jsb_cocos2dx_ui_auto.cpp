@@ -49,7 +49,7 @@ static bool js_cocos2dx_ui_LayoutParameter_create(se::State& s)
     if (argc == 0) {
         auto result = cocos2d::ui::LayoutParameter::create();
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_LayoutParameter_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_LayoutParameter_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -72,17 +72,14 @@ SE_BIND_CTOR(js_cocos2dx_ui_LayoutParameter_constructor, __jsb_cocos2d_ui_Layout
 
 
 
-bool js_cocos2d_ui_LayoutParameter_finalize(se::State& s)
+static bool js_cocos2d_ui_LayoutParameter_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::LayoutParameter)", s.nativeThisObject());
-        cocos2d::ui::LayoutParameter* cobj = (cocos2d::ui::LayoutParameter*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::LayoutParameter)", s.nativeThisObject());
+    cocos2d::ui::LayoutParameter* cobj = (cocos2d::ui::LayoutParameter*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_LayoutParameter_finalize)
@@ -153,7 +150,7 @@ static bool js_cocos2dx_ui_LinearLayoutParameter_create(se::State& s)
     if (argc == 0) {
         auto result = cocos2d::ui::LinearLayoutParameter::create();
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_LinearLayoutParameter_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_LinearLayoutParameter_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -177,17 +174,14 @@ SE_BIND_CTOR(js_cocos2dx_ui_LinearLayoutParameter_constructor, __jsb_cocos2d_ui_
 
 extern se::Object* __jsb_cocos2d_ui_LayoutParameter_proto;
 
-bool js_cocos2d_ui_LinearLayoutParameter_finalize(se::State& s)
+static bool js_cocos2d_ui_LinearLayoutParameter_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::LinearLayoutParameter)", s.nativeThisObject());
-        cocos2d::ui::LinearLayoutParameter* cobj = (cocos2d::ui::LinearLayoutParameter*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::LinearLayoutParameter)", s.nativeThisObject());
+    cocos2d::ui::LinearLayoutParameter* cobj = (cocos2d::ui::LinearLayoutParameter*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_LinearLayoutParameter_finalize)
@@ -332,7 +326,7 @@ static bool js_cocos2dx_ui_RelativeLayoutParameter_create(se::State& s)
     if (argc == 0) {
         auto result = cocos2d::ui::RelativeLayoutParameter::create();
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RelativeLayoutParameter_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RelativeLayoutParameter_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -356,17 +350,14 @@ SE_BIND_CTOR(js_cocos2dx_ui_RelativeLayoutParameter_constructor, __jsb_cocos2d_u
 
 extern se::Object* __jsb_cocos2d_ui_LayoutParameter_proto;
 
-bool js_cocos2d_ui_RelativeLayoutParameter_finalize(se::State& s)
+static bool js_cocos2d_ui_RelativeLayoutParameter_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RelativeLayoutParameter)", s.nativeThisObject());
-        cocos2d::ui::RelativeLayoutParameter* cobj = (cocos2d::ui::RelativeLayoutParameter*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RelativeLayoutParameter)", s.nativeThisObject());
+    cocos2d::ui::RelativeLayoutParameter* cobj = (cocos2d::ui::RelativeLayoutParameter*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_RelativeLayoutParameter_finalize)
@@ -1828,7 +1819,7 @@ static bool js_cocos2dx_ui_Widget_create(se::State& s)
     if (argc == 0) {
         auto result = cocos2d::ui::Widget::create();
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_Widget_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_Widget_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -1861,17 +1852,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_Widget_ctor, __jsb_cocos2d_ui_Widget_class, 
 
 extern se::Object* __jsb_cocos2d_ProtectedNode_proto;
 
-bool js_cocos2d_ui_Widget_finalize(se::State& s)
+static bool js_cocos2d_ui_Widget_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::Widget)", s.nativeThisObject());
-        cocos2d::ui::Widget* cobj = (cocos2d::ui::Widget*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::Widget)", s.nativeThisObject());
+    cocos2d::ui::Widget* cobj = (cocos2d::ui::Widget*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_Widget_finalize)
@@ -2618,7 +2606,7 @@ static bool js_cocos2dx_ui_Layout_create(se::State& s)
     if (argc == 0) {
         auto result = cocos2d::ui::Layout::create();
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_Layout_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_Layout_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -2651,17 +2639,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_Layout_ctor, __jsb_cocos2d_ui_Layout_class, 
 
 extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
-bool js_cocos2d_ui_Layout_finalize(se::State& s)
+static bool js_cocos2d_ui_Layout_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::Layout)", s.nativeThisObject());
-        cocos2d::ui::Layout* cobj = (cocos2d::ui::Layout*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::Layout)", s.nativeThisObject());
+    cocos2d::ui::Layout* cobj = (cocos2d::ui::Layout*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_Layout_finalize)
@@ -3608,17 +3593,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_Button_ctor, __jsb_cocos2d_ui_Button_class, 
 
 extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
-bool js_cocos2d_ui_Button_finalize(se::State& s)
+static bool js_cocos2d_ui_Button_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::Button)", s.nativeThisObject());
-        cocos2d::ui::Button* cobj = (cocos2d::ui::Button*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::Button)", s.nativeThisObject());
+    cocos2d::ui::Button* cobj = (cocos2d::ui::Button*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_Button_finalize)
@@ -4170,12 +4152,6 @@ SE_BIND_FUNC(js_cocos2dx_ui_AbstractCheckButton_loadTextureFrontCrossDisabled)
 
 extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
-bool js_cocos2d_ui_AbstractCheckButton_finalize(se::State& s)
-{
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::AbstractCheckButton)", s.nativeThisObject());
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_AbstractCheckButton_finalize)
 
 bool js_register_cocos2dx_ui_AbstractCheckButton(se::Object* obj)
 {
@@ -4202,7 +4178,6 @@ bool js_register_cocos2dx_ui_AbstractCheckButton(se::Object* obj)
     cls->defineFunction("loadTextureBackGround", _SE(js_cocos2dx_ui_AbstractCheckButton_loadTextureBackGround));
     cls->defineFunction("setZoomScale", _SE(js_cocos2dx_ui_AbstractCheckButton_setZoomScale));
     cls->defineFunction("loadTextureFrontCrossDisabled", _SE(js_cocos2dx_ui_AbstractCheckButton_loadTextureFrontCrossDisabled));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_AbstractCheckButton_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::AbstractCheckButton>(cls);
 
@@ -4386,17 +4361,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_CheckBox_ctor, __jsb_cocos2d_ui_CheckBox_cla
 
 extern se::Object* __jsb_cocos2d_ui_AbstractCheckButton_proto;
 
-bool js_cocos2d_ui_CheckBox_finalize(se::State& s)
+static bool js_cocos2d_ui_CheckBox_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::CheckBox)", s.nativeThisObject());
-        cocos2d::ui::CheckBox* cobj = (cocos2d::ui::CheckBox*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::CheckBox)", s.nativeThisObject());
+    cocos2d::ui::CheckBox* cobj = (cocos2d::ui::CheckBox*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_CheckBox_finalize)
@@ -4593,17 +4565,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_RadioButton_ctor, __jsb_cocos2d_ui_RadioButt
 
 extern se::Object* __jsb_cocos2d_ui_AbstractCheckButton_proto;
 
-bool js_cocos2d_ui_RadioButton_finalize(se::State& s)
+static bool js_cocos2d_ui_RadioButton_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RadioButton)", s.nativeThisObject());
-        cocos2d::ui::RadioButton* cobj = (cocos2d::ui::RadioButton*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RadioButton)", s.nativeThisObject());
+    cocos2d::ui::RadioButton* cobj = (cocos2d::ui::RadioButton*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_RadioButton_finalize)
@@ -4899,7 +4868,7 @@ static bool js_cocos2dx_ui_RadioButtonGroup_create(se::State& s)
     if (argc == 0) {
         auto result = cocos2d::ui::RadioButtonGroup::create();
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RadioButtonGroup_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RadioButtonGroup_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -4932,17 +4901,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_RadioButtonGroup_ctor, __jsb_cocos2d_ui_Radi
 
 extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
-bool js_cocos2d_ui_RadioButtonGroup_finalize(se::State& s)
+static bool js_cocos2d_ui_RadioButtonGroup_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RadioButtonGroup)", s.nativeThisObject());
-        cocos2d::ui::RadioButtonGroup* cobj = (cocos2d::ui::RadioButtonGroup*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RadioButtonGroup)", s.nativeThisObject());
+    cocos2d::ui::RadioButtonGroup* cobj = (cocos2d::ui::RadioButtonGroup*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_RadioButtonGroup_finalize)
@@ -5216,17 +5182,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_ImageView_ctor, __jsb_cocos2d_ui_ImageView_c
 
 extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
-bool js_cocos2d_ui_ImageView_finalize(se::State& s)
+static bool js_cocos2d_ui_ImageView_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::ImageView)", s.nativeThisObject());
-        cocos2d::ui::ImageView* cobj = (cocos2d::ui::ImageView*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::ImageView)", s.nativeThisObject());
+    cocos2d::ui::ImageView* cobj = (cocos2d::ui::ImageView*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_ImageView_finalize)
@@ -5938,17 +5901,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_Text_ctor, __jsb_cocos2d_ui_Text_class, js_c
 
 extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
-bool js_cocos2d_ui_Text_finalize(se::State& s)
+static bool js_cocos2d_ui_Text_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::Text)", s.nativeThisObject());
-        cocos2d::ui::Text* cobj = (cocos2d::ui::Text*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::Text)", s.nativeThisObject());
+    cocos2d::ui::Text* cobj = (cocos2d::ui::Text*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_Text_finalize)
@@ -6184,17 +6144,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_TextAtlas_ctor, __jsb_cocos2d_ui_TextAtlas_c
 
 extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
-bool js_cocos2d_ui_TextAtlas_finalize(se::State& s)
+static bool js_cocos2d_ui_TextAtlas_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::TextAtlas)", s.nativeThisObject());
-        cocos2d::ui::TextAtlas* cobj = (cocos2d::ui::TextAtlas*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::TextAtlas)", s.nativeThisObject());
+    cocos2d::ui::TextAtlas* cobj = (cocos2d::ui::TextAtlas*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_TextAtlas_finalize)
@@ -6517,17 +6474,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_LoadingBar_ctor, __jsb_cocos2d_ui_LoadingBar
 
 extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
-bool js_cocos2d_ui_LoadingBar_finalize(se::State& s)
+static bool js_cocos2d_ui_LoadingBar_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::LoadingBar)", s.nativeThisObject());
-        cocos2d::ui::LoadingBar* cobj = (cocos2d::ui::LoadingBar*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::LoadingBar)", s.nativeThisObject());
+    cocos2d::ui::LoadingBar* cobj = (cocos2d::ui::LoadingBar*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_LoadingBar_finalize)
@@ -7604,7 +7558,7 @@ static bool js_cocos2dx_ui_ScrollView_create(se::State& s)
     if (argc == 0) {
         auto result = cocos2d::ui::ScrollView::create();
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_ScrollView_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_ScrollView_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -7637,17 +7591,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_ScrollView_ctor, __jsb_cocos2d_ui_ScrollView
 
 extern se::Object* __jsb_cocos2d_ui_Layout_proto;
 
-bool js_cocos2d_ui_ScrollView_finalize(se::State& s)
+static bool js_cocos2d_ui_ScrollView_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::ScrollView)", s.nativeThisObject());
-        cocos2d::ui::ScrollView* cobj = (cocos2d::ui::ScrollView*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::ScrollView)", s.nativeThisObject());
+    cocos2d::ui::ScrollView* cobj = (cocos2d::ui::ScrollView*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_ScrollView_finalize)
@@ -8411,7 +8362,7 @@ static bool js_cocos2dx_ui_ListView_create(se::State& s)
     if (argc == 0) {
         auto result = cocos2d::ui::ListView::create();
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_ListView_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_ListView_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -8444,17 +8395,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_ListView_ctor, __jsb_cocos2d_ui_ListView_cla
 
 extern se::Object* __jsb_cocos2d_ui_ScrollView_proto;
 
-bool js_cocos2d_ui_ListView_finalize(se::State& s)
+static bool js_cocos2d_ui_ListView_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::ListView)", s.nativeThisObject());
-        cocos2d::ui::ListView* cobj = (cocos2d::ui::ListView*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::ListView)", s.nativeThisObject());
+    cocos2d::ui::ListView* cobj = (cocos2d::ui::ListView*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_ListView_finalize)
@@ -9157,17 +9105,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_Slider_ctor, __jsb_cocos2d_ui_Slider_class, 
 
 extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
-bool js_cocos2d_ui_Slider_finalize(se::State& s)
+static bool js_cocos2d_ui_Slider_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::Slider)", s.nativeThisObject());
-        cocos2d::ui::Slider* cobj = (cocos2d::ui::Slider*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::Slider)", s.nativeThisObject());
+    cocos2d::ui::Slider* cobj = (cocos2d::ui::Slider*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_Slider_finalize)
@@ -9706,7 +9651,7 @@ static bool js_cocos2dx_ui_UICCTextField_create(se::State& s)
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_UICCTextField_create : Error processing arguments");
         auto result = cocos2d::ui::UICCTextField::create(arg0, arg1, arg2);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_UICCTextField_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_UICCTextField_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -9730,17 +9675,14 @@ SE_BIND_CTOR(js_cocos2dx_ui_UICCTextField_constructor, __jsb_cocos2d_ui_UICCText
 
 extern se::Object* __jsb_cocos2d_TextFieldTTF_proto;
 
-bool js_cocos2d_ui_UICCTextField_finalize(se::State& s)
+static bool js_cocos2d_ui_UICCTextField_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::UICCTextField)", s.nativeThisObject());
-        cocos2d::ui::UICCTextField* cobj = (cocos2d::ui::UICCTextField*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::UICCTextField)", s.nativeThisObject());
+    cocos2d::ui::UICCTextField* cobj = (cocos2d::ui::UICCTextField*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_UICCTextField_finalize)
@@ -10718,17 +10660,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_TextField_ctor, __jsb_cocos2d_ui_TextField_c
 
 extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
-bool js_cocos2d_ui_TextField_finalize(se::State& s)
+static bool js_cocos2d_ui_TextField_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::TextField)", s.nativeThisObject());
-        cocos2d::ui::TextField* cobj = (cocos2d::ui::TextField*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::TextField)", s.nativeThisObject());
+    cocos2d::ui::TextField* cobj = (cocos2d::ui::TextField*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_TextField_finalize)
@@ -10961,17 +10900,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_TextBMFont_ctor, __jsb_cocos2d_ui_TextBMFont
 
 extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
-bool js_cocos2d_ui_TextBMFont_finalize(se::State& s)
+static bool js_cocos2d_ui_TextBMFont_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::TextBMFont)", s.nativeThisObject());
-        cocos2d::ui::TextBMFont* cobj = (cocos2d::ui::TextBMFont*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::TextBMFont)", s.nativeThisObject());
+    cocos2d::ui::TextBMFont* cobj = (cocos2d::ui::TextBMFont*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_TextBMFont_finalize)
@@ -11534,7 +11470,7 @@ static bool js_cocos2dx_ui_PageView_create(se::State& s)
     if (argc == 0) {
         auto result = cocos2d::ui::PageView::create();
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_PageView_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_PageView_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -11567,17 +11503,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_PageView_ctor, __jsb_cocos2d_ui_PageView_cla
 
 extern se::Object* __jsb_cocos2d_ui_ListView_proto;
 
-bool js_cocos2d_ui_PageView_finalize(se::State& s)
+static bool js_cocos2d_ui_PageView_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::PageView)", s.nativeThisObject());
-        cocos2d::ui::PageView* cobj = (cocos2d::ui::PageView*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::PageView)", s.nativeThisObject());
+    cocos2d::ui::PageView* cobj = (cocos2d::ui::PageView*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_PageView_finalize)
@@ -11791,12 +11724,6 @@ SE_BIND_FUNC(js_cocos2dx_ui_Helper_doLayout)
 
 
 
-bool js_cocos2d_ui_Helper_finalize(se::State& s)
-{
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::Helper)", s.nativeThisObject());
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_Helper_finalize)
 
 bool js_register_cocos2dx_ui_Helper(se::Object* obj)
 {
@@ -11810,7 +11737,6 @@ bool js_register_cocos2dx_ui_Helper(se::Object* obj)
     cls->defineStaticFunction("seekWidgetByTag", _SE(js_cocos2dx_ui_Helper_seekWidgetByTag));
     cls->defineStaticFunction("restrictCapInsetRect", _SE(js_cocos2dx_ui_Helper_restrictCapInsetRect));
     cls->defineStaticFunction("doLayout", _SE(js_cocos2dx_ui_Helper_doLayout));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_Helper_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::Helper>(cls);
 
@@ -11911,17 +11837,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_RichElement_ctor, __jsb_cocos2d_ui_RichEleme
     
 
 
-bool js_cocos2d_ui_RichElement_finalize(se::State& s)
+static bool js_cocos2d_ui_RichElement_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RichElement)", s.nativeThisObject());
-        cocos2d::ui::RichElement* cobj = (cocos2d::ui::RichElement*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RichElement)", s.nativeThisObject());
+    cocos2d::ui::RichElement* cobj = (cocos2d::ui::RichElement*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_RichElement_finalize)
@@ -12185,7 +12108,7 @@ static bool js_cocos2dx_ui_RichElementText_create(se::State& s)
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
         auto result = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementText_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementText_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -12208,7 +12131,7 @@ static bool js_cocos2dx_ui_RichElementText_create(se::State& s)
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
         auto result = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementText_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementText_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -12233,7 +12156,7 @@ static bool js_cocos2dx_ui_RichElementText_create(se::State& s)
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
         auto result = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementText_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementText_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -12260,7 +12183,7 @@ static bool js_cocos2dx_ui_RichElementText_create(se::State& s)
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
         auto result = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementText_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementText_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -12289,7 +12212,7 @@ static bool js_cocos2dx_ui_RichElementText_create(se::State& s)
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
         auto result = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementText_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementText_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -12320,7 +12243,7 @@ static bool js_cocos2dx_ui_RichElementText_create(se::State& s)
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
         auto result = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementText_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementText_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -12353,7 +12276,7 @@ static bool js_cocos2dx_ui_RichElementText_create(se::State& s)
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
         auto result = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementText_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementText_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -12388,7 +12311,7 @@ static bool js_cocos2dx_ui_RichElementText_create(se::State& s)
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
         auto result = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementText_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementText_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -12425,7 +12348,7 @@ static bool js_cocos2dx_ui_RichElementText_create(se::State& s)
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
         auto result = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementText_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementText_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -12458,17 +12381,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_RichElementText_ctor, __jsb_cocos2d_ui_RichE
 
 extern se::Object* __jsb_cocos2d_ui_RichElement_proto;
 
-bool js_cocos2d_ui_RichElementText_finalize(se::State& s)
+static bool js_cocos2d_ui_RichElementText_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RichElementText)", s.nativeThisObject());
-        cocos2d::ui::RichElementText* cobj = (cocos2d::ui::RichElementText*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RichElementText)", s.nativeThisObject());
+    cocos2d::ui::RichElementText* cobj = (cocos2d::ui::RichElementText*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_RichElementText_finalize)
@@ -12613,7 +12533,7 @@ static bool js_cocos2dx_ui_RichElementImage_create(se::State& s)
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementImage_create : Error processing arguments");
         auto result = cocos2d::ui::RichElementImage::create(arg0, arg1, arg2, arg3);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementImage_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementImage_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -12632,7 +12552,7 @@ static bool js_cocos2dx_ui_RichElementImage_create(se::State& s)
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementImage_create : Error processing arguments");
         auto result = cocos2d::ui::RichElementImage::create(arg0, arg1, arg2, arg3, arg4);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementImage_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementImage_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -12665,17 +12585,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_RichElementImage_ctor, __jsb_cocos2d_ui_Rich
 
 extern se::Object* __jsb_cocos2d_ui_RichElement_proto;
 
-bool js_cocos2d_ui_RichElementImage_finalize(se::State& s)
+static bool js_cocos2d_ui_RichElementImage_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RichElementImage)", s.nativeThisObject());
-        cocos2d::ui::RichElementImage* cobj = (cocos2d::ui::RichElementImage*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RichElementImage)", s.nativeThisObject());
+    cocos2d::ui::RichElementImage* cobj = (cocos2d::ui::RichElementImage*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_RichElementImage_finalize)
@@ -12749,7 +12666,7 @@ static bool js_cocos2dx_ui_RichElementCustomNode_create(se::State& s)
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementCustomNode_create : Error processing arguments");
         auto result = cocos2d::ui::RichElementCustomNode::create(arg0, arg1, arg2, arg3);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementCustomNode_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementCustomNode_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -12782,17 +12699,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_RichElementCustomNode_ctor, __jsb_cocos2d_ui
 
 extern se::Object* __jsb_cocos2d_ui_RichElement_proto;
 
-bool js_cocos2d_ui_RichElementCustomNode_finalize(se::State& s)
+static bool js_cocos2d_ui_RichElementCustomNode_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RichElementCustomNode)", s.nativeThisObject());
-        cocos2d::ui::RichElementCustomNode* cobj = (cocos2d::ui::RichElementCustomNode*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RichElementCustomNode)", s.nativeThisObject());
+    cocos2d::ui::RichElementCustomNode* cobj = (cocos2d::ui::RichElementCustomNode*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_RichElementCustomNode_finalize)
@@ -12834,7 +12748,7 @@ static bool js_cocos2dx_ui_RichElementNewLine_create(se::State& s)
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementNewLine_create : Error processing arguments");
         auto result = cocos2d::ui::RichElementNewLine::create(arg0, arg1, arg2);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementNewLine_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichElementNewLine_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -12867,17 +12781,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_RichElementNewLine_ctor, __jsb_cocos2d_ui_Ri
 
 extern se::Object* __jsb_cocos2d_ui_RichElement_proto;
 
-bool js_cocos2d_ui_RichElementNewLine_finalize(se::State& s)
+static bool js_cocos2d_ui_RichElementNewLine_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RichElementNewLine)", s.nativeThisObject());
-        cocos2d::ui::RichElementNewLine* cobj = (cocos2d::ui::RichElementNewLine*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RichElementNewLine)", s.nativeThisObject());
+    cocos2d::ui::RichElementNewLine* cobj = (cocos2d::ui::RichElementNewLine*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_RichElementNewLine_finalize)
@@ -13851,7 +13762,7 @@ static bool js_cocos2dx_ui_RichText_create(se::State& s)
     if (argc == 0) {
         auto result = cocos2d::ui::RichText::create();
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichText_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichText_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -13874,7 +13785,7 @@ static bool js_cocos2dx_ui_RichText_createWithXML(se::State& s)
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichText_createWithXML : Error processing arguments");
         auto result = cocos2d::ui::RichText::createWithXML(arg0, arg1);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichText_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichText_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -13890,7 +13801,7 @@ static bool js_cocos2dx_ui_RichText_createWithXML(se::State& s)
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[2]);
-                jsFunc.toObject()->setKeepRootedUntilDie(true);
+                jsFunc.toObject()->root();
                 auto lambda = [=](const std::basic_string<char> & larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
@@ -13918,7 +13829,7 @@ static bool js_cocos2dx_ui_RichText_createWithXML(se::State& s)
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichText_createWithXML : Error processing arguments");
         auto result = cocos2d::ui::RichText::createWithXML(arg0, arg1, arg2);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichText_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_RichText_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -13951,17 +13862,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_RichText_ctor, __jsb_cocos2d_ui_RichText_cla
 
 extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
-bool js_cocos2d_ui_RichText_finalize(se::State& s)
+static bool js_cocos2d_ui_RichText_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RichText)", s.nativeThisObject());
-        cocos2d::ui::RichText* cobj = (cocos2d::ui::RichText*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RichText)", s.nativeThisObject());
+    cocos2d::ui::RichText* cobj = (cocos2d::ui::RichText*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_RichText_finalize)
@@ -14105,17 +14013,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_HBox_ctor, __jsb_cocos2d_ui_HBox_class, js_c
 
 extern se::Object* __jsb_cocos2d_ui_Layout_proto;
 
-bool js_cocos2d_ui_HBox_finalize(se::State& s)
+static bool js_cocos2d_ui_HBox_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::HBox)", s.nativeThisObject());
-        cocos2d::ui::HBox* cobj = (cocos2d::ui::HBox*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::HBox)", s.nativeThisObject());
+    cocos2d::ui::HBox* cobj = (cocos2d::ui::HBox*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_HBox_finalize)
@@ -14215,17 +14120,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_VBox_ctor, __jsb_cocos2d_ui_VBox_class, js_c
 
 extern se::Object* __jsb_cocos2d_ui_Layout_proto;
 
-bool js_cocos2d_ui_VBox_finalize(se::State& s)
+static bool js_cocos2d_ui_VBox_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::VBox)", s.nativeThisObject());
-        cocos2d::ui::VBox* cobj = (cocos2d::ui::VBox*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::VBox)", s.nativeThisObject());
+    cocos2d::ui::VBox* cobj = (cocos2d::ui::VBox*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_VBox_finalize)
@@ -14325,17 +14227,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_RelativeBox_ctor, __jsb_cocos2d_ui_RelativeB
 
 extern se::Object* __jsb_cocos2d_ui_Layout_proto;
 
-bool js_cocos2d_ui_RelativeBox_finalize(se::State& s)
+static bool js_cocos2d_ui_RelativeBox_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RelativeBox)", s.nativeThisObject());
-        cocos2d::ui::RelativeBox* cobj = (cocos2d::ui::RelativeBox*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RelativeBox)", s.nativeThisObject());
+    cocos2d::ui::RelativeBox* cobj = (cocos2d::ui::RelativeBox*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_RelativeBox_finalize)
@@ -15387,17 +15286,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_Scale9Sprite_ctor, __jsb_cocos2d_ui_Scale9Sp
 
 extern se::Object* __jsb_cocos2d_Node_proto;
 
-bool js_cocos2d_ui_Scale9Sprite_finalize(se::State& s)
+static bool js_cocos2d_ui_Scale9Sprite_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::Scale9Sprite)", s.nativeThisObject());
-        cocos2d::ui::Scale9Sprite* cobj = (cocos2d::ui::Scale9Sprite*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::Scale9Sprite)", s.nativeThisObject());
+    cocos2d::ui::Scale9Sprite* cobj = (cocos2d::ui::Scale9Sprite*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_Scale9Sprite_finalize)
@@ -16004,17 +15900,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_EditBox_ctor, __jsb_cocos2d_ui_EditBox_class
 
 extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
-bool js_cocos2d_ui_EditBox_finalize(se::State& s)
+static bool js_cocos2d_ui_EditBox_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::EditBox)", s.nativeThisObject());
-        cocos2d::ui::EditBox* cobj = (cocos2d::ui::EditBox*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::EditBox)", s.nativeThisObject());
+    cocos2d::ui::EditBox* cobj = (cocos2d::ui::EditBox*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_EditBox_finalize)
@@ -16971,7 +16864,7 @@ static bool js_cocos2dx_ui_LayoutComponent_create(se::State& s)
     if (argc == 0) {
         auto result = cocos2d::ui::LayoutComponent::create();
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_LayoutComponent_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_LayoutComponent_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -17023,17 +16916,14 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_LayoutComponent_ctor, __jsb_cocos2d_ui_Layou
 
 extern se::Object* __jsb_cocos2d_Component_proto;
 
-bool js_cocos2d_ui_LayoutComponent_finalize(se::State& s)
+static bool js_cocos2d_ui_LayoutComponent_finalize(se::State& s)
 {
-    if (s.nativeThisObject() != nullptr)
-    {
-        cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::LayoutComponent)", s.nativeThisObject());
-        cocos2d::ui::LayoutComponent* cobj = (cocos2d::ui::LayoutComponent*)s.nativeThisObject();
-        if (cobj->getReferenceCount() == 1)
-            cobj->autorelease();
-        else
-            cobj->release();
-    }
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::LayoutComponent)", s.nativeThisObject());
+    cocos2d::ui::LayoutComponent* cobj = (cocos2d::ui::LayoutComponent*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_LayoutComponent_finalize)
@@ -17406,9 +17296,14 @@ SE_BIND_FUNC(js_cocos2dx_ui_TabHeader_create)
 
 extern se::Object* __jsb_cocos2d_ui_AbstractCheckButton_proto;
 
-bool js_cocos2d_ui_TabHeader_finalize(se::State& s)
+static bool js_cocos2d_ui_TabHeader_finalize(se::State& s)
 {
     cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::TabHeader)", s.nativeThisObject());
+    cocos2d::ui::TabHeader* cobj = (cocos2d::ui::TabHeader*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_TabHeader_finalize)
@@ -17858,7 +17753,7 @@ static bool js_cocos2dx_ui_TabControl_create(se::State& s)
     if (argc == 0) {
         auto result = cocos2d::ui::TabControl::create();
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_TabControl_class, false);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_ui_TabControl_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -17871,9 +17766,14 @@ SE_BIND_FUNC(js_cocos2dx_ui_TabControl_create)
 
 extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
-bool js_cocos2d_ui_TabControl_finalize(se::State& s)
+static bool js_cocos2d_ui_TabControl_finalize(se::State& s)
 {
     cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::TabControl)", s.nativeThisObject());
+    cocos2d::ui::TabControl* cobj = (cocos2d::ui::TabControl*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_ui_TabControl_finalize)
@@ -17920,10 +17820,9 @@ bool register_all_cocos2dx_ui(se::Object* obj)
     se::Value nsVal;
     if (!obj->getProperty("ccui", &nsVal))
     {
-        se::Object* jsobj = se::Object::createPlainObject(false);
+        se::HandleObject jsobj(se::Object::createPlainObject());
         nsVal.setObject(jsobj);
         obj->setProperty("ccui", nsVal);
-        jsobj->release();
     }
     se::Object* ns = nsVal.toObject();
 

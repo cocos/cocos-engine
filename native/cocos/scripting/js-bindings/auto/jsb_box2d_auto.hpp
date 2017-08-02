@@ -237,7 +237,6 @@ SE_DECLARE_FUNC(js_box2dclasses_b2World_GetAllowSleeping);
 SE_DECLARE_FUNC(js_box2dclasses_b2World_GetProxyCount);
 SE_DECLARE_FUNC(js_box2dclasses_b2World_RayCast);
 SE_DECLARE_FUNC(js_box2dclasses_b2World_IsLocked);
-SE_DECLARE_FUNC(js_box2dclasses_b2World_GetContactList);
 SE_DECLARE_FUNC(js_box2dclasses_b2World_SetDebugDraw);
 SE_DECLARE_FUNC(js_box2dclasses_b2World_Dump);
 SE_DECLARE_FUNC(js_box2dclasses_b2World_SetAutoClearForces);

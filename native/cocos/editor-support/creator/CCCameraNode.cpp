@@ -22,6 +22,15 @@ namespace creator {
     
     CameraNode::~CameraNode()
     {
+        if (!_commands.empty())
+        {
+            for (const auto& c : _commands)
+            {
+                delete c.beforeVisitCommand;
+                delete c.afterVisitCommand;
+            }
+            _commands.clear();
+        }
     }
     
     void CameraNode::setTransform(float a, float b, float c, float d, float tx, float ty)

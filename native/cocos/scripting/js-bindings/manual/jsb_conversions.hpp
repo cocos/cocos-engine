@@ -218,9 +218,9 @@ bool recreate_seval_by_native_ptr(typename std::enable_if<!std::is_base_of<cocos
     }
 
     se::Object* obj = se::Object::createObjectWithClass(cls);
+    ret->setObject(obj, true);
     obj->setPrivateData(v);
 
-    ret->setObject(obj);
     return true;
 }
 
@@ -242,6 +242,7 @@ bool native_ptr_to_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T
         se::Class* cls = JSBClassType::findClass<T>(v);
         assert(cls != nullptr);
         obj = se::Object::createObjectWithClass(cls);
+        ret->setObject(obj, true);
         obj->setPrivateData(v);
         if (isReturnCachedValue != nullptr)
         {
@@ -255,9 +256,9 @@ bool native_ptr_to_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T
         {
             *isReturnCachedValue = true;
         }
+        ret->setObject(obj);
     }
 
-    ret->setObject(obj);
     return true;
 }
 
@@ -279,8 +280,9 @@ bool native_ptr_to_rooted_seval(typename std::enable_if<!std::is_base_of<cocos2d
         se::Class* cls = JSBClassType::findClass<T>(v);
         assert(cls != nullptr);
         obj = se::Object::createObjectWithClass(cls);
-        obj->setPrivateData(v);
         obj->root();
+        obj->setPrivateData(v);
+
         if (isReturnCachedValue != nullptr)
         {
             *isReturnCachedValue = false;
@@ -313,9 +315,10 @@ bool native_ptr_to_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T
     auto iter = se::__nativePtrToObjectMap.find(v);
     if (iter == se::__nativePtrToObjectMap.end())
     { // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
-//        CCLOGWARN("WARNING: Ref type: (%s) isn't catched!", typeid(*v).name());
+        CCLOGWARN("WARNING: Ref type: (%s) isn't catched!", typeid(*v).name());
         assert(cls != nullptr);
         obj = se::Object::createObjectWithClass(cls);
+        ret->setObject(obj, true);
         obj->setPrivateData(v);
 
         if (isReturnCachedValue != nullptr)
@@ -330,9 +333,9 @@ bool native_ptr_to_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T
         {
             *isReturnCachedValue = true;
         }
+        ret->setObject(obj);
     }
 
-    ret->setObject(obj);
     return true;
 }
 
@@ -350,11 +353,11 @@ bool native_ptr_to_rooted_seval(typename std::enable_if<!std::is_base_of<cocos2d
     auto iter = se::__nativePtrToObjectMap.find(v);
     if (iter == se::__nativePtrToObjectMap.end())
     { // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
-        //        CCLOGWARN("WARNING: Ref type: (%s) isn't catched!", typeid(*v).name());
+        CCLOGWARN("WARNING: non-Ref type: (%s) isn't catched!", typeid(*v).name());
         assert(cls != nullptr);
         obj = se::Object::createObjectWithClass(cls);
-        obj->setPrivateData(v);
         obj->root();
+        obj->setPrivateData(v);
 
         if (isReturnCachedValue != nullptr)
         {
@@ -388,10 +391,11 @@ bool native_ptr_to_seval(typename std::enable_if<std::is_base_of<cocos2d::Ref,T>
     auto iter = se::__nativePtrToObjectMap.find(v);
     if (iter == se::__nativePtrToObjectMap.end())
     { // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
-//        CCLOGWARN("WARNING: Ref type: (%s) isn't catched!", typeid(*v).name());
+        CCLOGWARN("WARNING: Ref type: (%s) isn't catched!", typeid(*v).name());
         se::Class* cls = JSBClassType::findClass<T>(v);
         assert(cls != nullptr);
         obj = se::Object::createObjectWithClass(cls);
+        ret->setObject(obj, true);
         obj->setPrivateData(v);
         v->retain(); // Retain the native object to unify the logic in finalize method of js object.
         if (isReturnCachedValue != nullptr)
@@ -407,9 +411,9 @@ bool native_ptr_to_seval(typename std::enable_if<std::is_base_of<cocos2d::Ref,T>
         {
             *isReturnCachedValue = true;
         }
+        ret->setObject(obj);
     }
 
-    ret->setObject(obj);
     return true;
 }
 
@@ -430,6 +434,7 @@ bool native_ptr_to_seval(typename std::enable_if<std::is_base_of<cocos2d::Ref,T>
         CCLOGWARN("WARNING: Ref type: (%s) isn't catched!", typeid(*v).name());
         assert(cls != nullptr);
         obj = se::Object::createObjectWithClass(cls);
+        ret->setObject(obj, true);
         obj->setPrivateData(v);
         v->retain(); // Retain the native object to unify the logic in finalize method of js object.
         if (isReturnCachedValue != nullptr)
@@ -444,9 +449,9 @@ bool native_ptr_to_seval(typename std::enable_if<std::is_base_of<cocos2d::Ref,T>
         {
             *isReturnCachedValue = true;
         }
+        ret->setObject(obj);
     }
 
-    ret->setObject(obj);
     return true;
 }
 
