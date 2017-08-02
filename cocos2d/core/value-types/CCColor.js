@@ -399,7 +399,7 @@ var Color = (function () {
             hexString += 'FF';
         }
         var hex = parseInt(((hexString.indexOf('#') > -1) ? hexString.substring(1) : hexString), 16);
-        this._val = ((this._val & 0xff000000) | hex) >>> 0;
+        this._val = ((this._val & 0x00000000) | hex) >>> 0;
         return this;
     };
 
