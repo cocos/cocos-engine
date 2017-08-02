@@ -9,9 +9,6 @@
 #include "../Value.hpp"
 
 namespace se {
-
-    extern const bool NEED_THIS;
-    extern const bool DONT_NEED_THIS;
     
     namespace internal {
 

@@ -174,6 +174,8 @@ namespace se {
             // Don't unprotect if it's in cleanup, otherwise, it will trigger crash.
             if (!ScriptEngine::getInstance()->_isInCleanup)
                 JSValueUnprotect(__cx, _obj);
+
+            _rootCount = 0;
         }
 
         _isCleanup = true;

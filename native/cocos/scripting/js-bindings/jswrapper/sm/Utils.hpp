@@ -10,9 +10,6 @@
 
 namespace se {
 
-    extern const bool NEED_THIS;
-    extern const bool DONT_NEED_THIS;
-
     class Class;
 
     namespace internal {

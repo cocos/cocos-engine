@@ -12,11 +12,9 @@
 
 #include "Object.hpp"
 #include "ScriptEngine.hpp"
+#include "../HandleObject.hpp"
 
 namespace se {
-
-    const bool NEED_THIS = true;
-    const bool DONT_NEED_THIS = false;
 
     namespace internal {
 
@@ -117,7 +115,18 @@ namespace se {
         else if (type == JsObject || type == JsFunction || type == JsArrayBuffer
                  || type == JsTypedArray || type == JsArray)
         {
-            Object* obj = Object::_createJSObject(nullptr, jsValue, true);
+            void* nativePtr = internal::getPrivate(jsValue);
+            Object* obj = nullptr;
+            if (nativePtr != nullptr)
+            {
+                obj = Object::getObjectWithPtr(nativePtr);
+            }
+
+            if (obj == nullptr)
+            {
+                obj = Object::_createJSObject(nullptr, jsValue);
+                obj->root();
+            }
             data->setObject(obj);
             obj->release();
         }
@@ -216,7 +225,7 @@ namespace se {
         }
 
         assert(finalizeCb);
-        Object* privateObj = Object::createObjectWithClass(__jsb_CCPrivateData_class, false);
+        HandleObject privateObj(Object::createObjectWithClass(__jsb_CCPrivateData_class));
         internal::PrivateData* privateData = (internal::PrivateData*)malloc(sizeof(internal::PrivateData));
         privateData->data = data;
         privateData->finalizeCb = finalizeCb;
@@ -226,7 +235,6 @@ namespace se {
         JsPropertyIdRef propertyId = JS_INVALID_REFERENCE;
         JsCreatePropertyId(KEY_PRIVATE_DATA, strlen(KEY_PRIVATE_DATA), &propertyId);
         _CHECK(JsSetProperty(obj, propertyId, privateObj->_getJSObject(), true));
-        privateObj->release();
     }
 
     void* getPrivate(JsValueRef obj)

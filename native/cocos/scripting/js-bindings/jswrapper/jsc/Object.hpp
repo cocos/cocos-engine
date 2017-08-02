@@ -22,7 +22,6 @@ namespace se {
         static Object* createJSONObject(const std::string& jsonStr);
         static Object* getObjectWithPtr(void* ptr);
         static Object* createObjectWithClass(Class* cls);
-        static Object* _createJSObject(Class* cls, JSObjectRef obj);
 
         bool getProperty(const char* name, Value* data);
         void setProperty(const char* name, const Value& v);
@@ -60,6 +59,7 @@ namespace se {
         bool detachChild(Object* child);
 
         // Private API used in wrapper
+        static Object* _createJSObject(Class* cls, JSObjectRef obj);
         JSObjectRef _getJSObject() const;
         Class* _getClass() const;
         void _setFinalizeCallback(JSObjectFinalizeCallback finalizeCb);

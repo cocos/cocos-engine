@@ -16,9 +16,6 @@
 
 namespace se {
 
-    const bool NEED_THIS = true;
-    const bool DONT_NEED_THIS = false;
-
     namespace internal {
 
     std::string jsToStdString(JSContext* cx, JS::HandleString jsStr)

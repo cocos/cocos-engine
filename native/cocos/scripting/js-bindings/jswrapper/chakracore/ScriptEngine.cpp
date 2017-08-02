@@ -76,6 +76,7 @@ namespace se {
             , _globalObj(nullptr)
             , _isValid(false)
             , _isInCleanup(false)
+            , _isInGC(false)
             , _currentSourceContext(0)
     {
     }
@@ -96,7 +97,8 @@ namespace se {
 
         _CHECK(JsSetRuntimeBeforeCollectCallback(_rt, nullptr, myJsBeforeCollectCallback));
 
-        _globalObj = Object::_createJSObject(nullptr, globalObj, true);
+        _globalObj = Object::_createJSObject(nullptr, globalObj);
+        _globalObj->root();
 
         _globalObj->defineFunction("log", __log);
         _globalObj->defineFunction("forceGC", __forceGC);
@@ -240,6 +242,16 @@ namespace se {
         // After ScriptEngine is started, _registerCallbackArray isn't needed. Therefore, clear it here.
         _registerCallbackArray.clear();
         return ok;
+    }
+
+    bool ScriptEngine::isInGC()
+    {
+        return _isInGC;
+    }
+
+    void ScriptEngine::_setInGC(bool isInGC)
+    {
+        _isInGC = isInGC;
     }
 
     void ScriptEngine::gc()

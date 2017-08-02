@@ -47,12 +47,15 @@
     { \
         if (nativeThisObject != nullptr) \
         { \
+            auto se = se::ScriptEngine::getInstance(); \
+            se->_setInGC(true); \
             bool ret = false; \
             se::State state(nativeThisObject); \
             se::Object* _thisObject = state.thisObject(); \
             if (_thisObject) _thisObject->_cleanup(nativeThisObject); \
             ret = funcName(state); \
             SAFE_RELEASE(_thisObject); \
+            se->_setInGC(false); \
         } \
     }
 
@@ -68,7 +71,7 @@
         bool ret = true; \
         se::ValueArray args; \
         se::internal::jsToSeArgs(argc, _argv+1, &args); \
-        se::Object* thisObject = se::Object::createObjectWithClass(cls, false); \
+        se::Object* thisObject = se::Object::createObjectWithClass(cls); \
         JsValueRef _jsRet = thisObject->_getJSObject(); \
         se::State state(thisObject, args); \
         ret = funcName(state); \
@@ -98,7 +101,7 @@
         bool ret = true; \
         se::ValueArray args; \
         se::internal::jsToSeArgs(argc, _argv+1, &args); \
-        se::Object* thisObject = se::Object::_createJSObject(cls, _argv[0], false); \
+        se::Object* thisObject = se::Object::_createJSObject(cls, _argv[0]); \
         thisObject->_setFinalizeCallback(_SE(finalizeCb)); \
         se::State state(thisObject, args); \
         ret = funcName(state); \

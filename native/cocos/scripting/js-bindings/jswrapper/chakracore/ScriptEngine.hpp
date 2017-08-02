@@ -46,6 +46,8 @@ namespace se {
         bool executeScriptBuffer(const char *string, Value *data = nullptr, const char *fileName = nullptr);
         bool executeScriptBuffer(const char *string, size_t length, Value *data = nullptr, const char *fileName = nullptr);
 
+        bool isInGC();
+        void _setInGC(bool isInGC);
         void gc();
 
         bool isValid() { return _isValid; }
@@ -78,6 +80,7 @@ namespace se {
 
         bool _isValid;
         bool _isInCleanup;
+        bool _isInGC;
         unsigned _currentSourceContext;
         NodeEventListener _nodeEventListener;
 

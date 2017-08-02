@@ -12,12 +12,9 @@
 
 #include "Object.hpp"
 #include "ScriptEngine.hpp"
-#include "HandleObject.hpp"
+#include "../HandleObject.hpp"
 
 namespace se {
-
-    const bool NEED_THIS = true;
-    const bool DONT_NEED_THIS = false;
 
     namespace internal {
 

@@ -6,6 +6,7 @@
 #include "Utils.hpp"
 #include "State.hpp"
 #include "ScriptEngine.hpp"
+#include "../HandleObject.hpp"
 
 namespace se {
 
@@ -94,13 +95,14 @@ namespace se {
         }
         _CHECK(JsCreateNamedFunction(funcName, _ctor, nullptr, &jsConstructor));
 
-        Object* ctorObj = Object::_createJSObject(nullptr, jsConstructor, false);
+        HandleObject ctorObj(Object::_createJSObject(nullptr, jsConstructor));
 
         // create class's prototype and project its member functions
         JsValueRef prototype;
         _CHECK(JsCreateObject(&prototype));
 
-        Object* prototypeObj = Object::_createJSObject(this, prototype, true);
+        Object* prototypeObj = Object::_createJSObject(this, prototype);
+        prototypeObj->root();
 
         for (const auto& func : _funcs)
         {
@@ -133,8 +135,6 @@ namespace se {
 
         _proto = prototypeObj;
         _parent->setProperty(_name.c_str(), Value(ctorObj));
-
-        ctorObj->release();
 
         return true;
     }

@@ -14,46 +14,26 @@ namespace se {
 
     class Object final : public Ref
     {
-    private:
-        Object();
     public:
-        virtual ~Object();
-
-        static Object* createPlainObject(bool rooted);
-//        static Object* createObject(const char* clsName, bool rooted);
-        static Object* createArrayObject(size_t length, bool rooted);
-        static Object* createUint8TypedArray(uint8_t* data, size_t byteLength, bool rooted);
-        static Object* createArrayBufferObject(void* data, size_t byteLength, bool rooted);
-        static Object* createJSONObject(const std::string& jsonStr, bool rooted);
+        static Object* createPlainObject();
+        static Object* createArrayObject(size_t length);
+        static Object* createUint8TypedArray(uint8_t* data, size_t byteLength);
+        static Object* createArrayBufferObject(void* data, size_t byteLength);
+        static Object* createJSONObject(const std::string& jsonStr);
         static Object* getObjectWithPtr(void* ptr);
-//        static Object* getOrCreateObjectWithPtr(void* ptr, const char* clsName, bool rooted);
-        static Object* createObjectWithClass(Class* cls, bool rooted);
-        static Object* _createJSObject(Class* cls, JsValueRef obj, bool rooted);
-
-        bool init(JsValueRef obj, bool rooted);
+        static Object* createObjectWithClass(Class* cls);
 
         bool getProperty(const char* name, Value* data);
         void setProperty(const char* name, const Value& v);
         bool defineProperty(const char *name, JsNativeFunction getter, JsNativeFunction setter);
 
-        JsValueRef _getJSObject() const;
-        Class* _getClass() const;
-        void _cleanup(void* nativeObject = nullptr);
-        void _setFinalizeCallback(JsFinalizeCallback finalizeCb);
-
         bool isFunction() const;
-        bool _isNativeFunction() const;
         bool call(const ValueArray& args, Object* thisObject, Value* rval = nullptr);
 
         bool defineFunction(const char *funcName, JsNativeFunction func);
 
         bool isTypedArray() const;
         bool getTypedArrayData(uint8_t** ptr, size_t* length) const;
-
-//        void getAsUint8Array(unsigned char **ptr, unsigned int *length);
-//        void getAsUint16Array(unsigned short **ptr, unsigned int *length);
-//        void getAsUint32Array(unsigned int **ptr, unsigned int *length);
-//        void getAsFloat32Array(float **ptr, unsigned int *length);
 
         bool isArray() const;
         bool getArrayLength(uint32_t* length) const;
@@ -66,26 +46,37 @@ namespace se {
         bool getAllKeys(std::vector<std::string>* allKeys) const;
 
         void setPrivateData(void* data);
-        void* getPrivateData();
+        void* getPrivateData() const;
         void clearPrivateData();
 
         void root();
         void unroot();
-        void setKeepRootedUntilDie(bool keepRooted);
         bool isRooted() const;
 
         bool isSame(Object* o) const;
         bool attachChild(Object* child);
         bool detachChild(Object* child);
 
+        // Private API used in wrapper
+        static Object* _createJSObject(Class* cls, JsValueRef obj);
+        JsValueRef _getJSObject() const;
+        Class* _getClass() const;
+        void _cleanup(void* nativeObject = nullptr);
+        void _setFinalizeCallback(JsFinalizeCallback finalizeCb);
+        bool _isNativeFunction() const;
+        //
+
     private:
         static void cleanup();
 
+        Object();
+        virtual ~Object();
+        bool init(JsValueRef obj);
+
         Class* _cls;
         JsValueRef _obj;
-        bool _isRooted;
-        bool _isKeepRootedUntilDie;
-        bool _hasPrivateData;
+        uint32_t _rootCount;
+        void* _privateData;
         bool _isCleanup;
         JsFinalizeCallback _finalizeCb;
 
@@ -94,6 +85,7 @@ namespace se {
 
 
     extern std::unordered_map<void* /*native*/, Object* /*jsobj*/> __nativePtrToObjectMap;
+    extern std::unordered_map<void* /*native*/, bool> __nonRefNativeObjectCreatedByCtorMap;
 
 } // namespace se {
 
