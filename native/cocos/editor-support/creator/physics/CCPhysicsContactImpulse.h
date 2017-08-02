@@ -29,7 +29,7 @@
 #include "cocos2d.h"
 
 namespace creator {
-    class CC_DLL PhysicsContactImpulse : public cocos2d::Ref
+    class CC_DLL PhysicsContactImpulse
     {
     public:
         PhysicsContactImpulse();
