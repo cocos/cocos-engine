@@ -179,9 +179,10 @@ let Camera = cc.Class({
         
         Camera.main = null;
 
-        let targets = this._targets;
-        for (let i = 0, l = targets.length; i < l; i++) {
-            this._removeTargetInSg(targets[i]);
+        // target sgNode may changed, so directly remove sgTargets here.
+        let sgTargets = this._sgTarges;
+        for (let i = sgTargets.length - 1; i >= 0; i--) {
+            this._removeTargetInSg(sgTargets[i]);
         }
     },
 
