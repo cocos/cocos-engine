@@ -136,7 +136,8 @@ namespace se {
 
             if (object == nullptr)
             {
-                object = Object::_createJSObject(nullptr, jsval.toObjectOrNull(), true); //FIXME: ?? should root?
+                object = Object::_createJSObject(nullptr, jsval.toObjectOrNull());
+                object->root();
             }
             v->setObject(object);
             object->release();
@@ -221,7 +222,7 @@ namespace se {
         else
         {
             assert(finalizeCb);
-            Object* privateObj = Object::createObjectWithClass(__jsb_CCPrivateData_class, false);
+            Object* privateObj = Object::createObjectWithClass(__jsb_CCPrivateData_class);
             PrivateData* privateData = (PrivateData*)malloc(sizeof(PrivateData));
             privateData->data = data;
             privateData->finalizeCb = finalizeCb;

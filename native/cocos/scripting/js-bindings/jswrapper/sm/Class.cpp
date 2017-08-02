@@ -67,9 +67,9 @@ namespace se {
         if (_ctor == nullptr)
         {
             _ctor = empty_constructor;
-            LOGD("( %s ) has empty constructor!\n", clsName);
         }
 
+        LOGD("Class init ( %s ) ...\n", clsName);
         return true;
     }
 
@@ -111,7 +111,9 @@ namespace se {
         JSObject* jsobj = JS_InitClass(__cx, parent, parentProto, &_jsCls, _ctor, 0, _properties.data(), _funcs.data(), _staticProperties.data(), _staticFuncs.data());
         if (jsobj != nullptr)
         {
-            _proto = Object::_createJSObject(nullptr, jsobj, true);
+            _proto = Object::_createJSObject(nullptr, jsobj);
+            LOGD("_proto: %p, name: %s\n", _proto, _name);
+            _proto->root();
             return true;
         }
 

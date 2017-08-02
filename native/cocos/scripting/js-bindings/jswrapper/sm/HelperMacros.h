@@ -58,7 +58,7 @@
         JS::CallArgs _argv = JS::CallArgsFromVp(argc, _vp); \
         se::ValueArray args; \
         se::internal::jsToSeArgs(_cx, argc, _argv, &args); \
-        se::Object* thisObject = se::Object::createObjectWithClass(cls, false); \
+        se::Object* thisObject = se::Object::createObjectWithClass(cls); \
         _argv.rval().setObject(*thisObject->_getJSObject()); \
         se::State state(thisObject, args); \
         ret = funcName(state); \
@@ -88,7 +88,7 @@
         JS::Value _thiz = _argv.computeThis(_cx); \
         se::ValueArray args; \
         se::internal::jsToSeArgs(_cx, argc, _argv, &args); \
-        se::Object* thisObject = se::Object::_createJSObject(cls, _thiz.toObjectOrNull(), false); \
+        se::Object* thisObject = se::Object::_createJSObject(cls, _thiz.toObjectOrNull()); \
         thisObject->_setFinalizeCallback(finalizeCb##Registry); \
         se::State state(thisObject, args); \
         ret = funcName(state); \

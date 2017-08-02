@@ -97,11 +97,13 @@ namespace se {
              * garbage collected. */
             if (status == JSGC_BEGIN)
             {
+                ScriptEngine::getInstance()->_setInGC(true);
                 LOGD("on_garbage_collect: begin, Native -> JS map count: %d, all objects: %d\n", (int)__nativePtrToObjectMap.size(), (int)__objectMap.size());
             }
             else if (status == JSGC_END)
             {
                 LOGD("on_garbage_collect: end, Native -> JS map count: %d, all objects: %d\n", (int)__nativePtrToObjectMap.size(), (int)__objectMap.size());
+                ScriptEngine::getInstance()->_setInGC(false);
             }
         }
 
@@ -208,6 +210,7 @@ namespace se {
             : _cx(nullptr)
             , _globalObj(nullptr)
             , _oldCompartment(nullptr)
+            , _isInGC(false)
             , _isValid(false)
             , _isInCleanup(false)
             , _nodeEventListener(nullptr)
@@ -244,7 +247,7 @@ namespace se {
             }
             else if (isInCleanup) // Rooted and in cleanup step
             {
-                obj->teardownRooting();
+                obj->unprotect();
                 obj->release();
                 iter = __nativePtrToObjectMap.erase(iter);
                 isIterUpdated = true;
@@ -318,7 +321,8 @@ namespace se {
         if (nullptr == globalObj)
             return false;
 
-        _globalObj = Object::_createJSObject(nullptr, globalObj, true);
+        _globalObj = Object::_createJSObject(nullptr, globalObj);
+        _globalObj->root();
         JS::RootedObject rootedGlobalObj(_cx, _globalObj->_getJSObject());
 
         _oldCompartment = JS_EnterCompartment(_cx, rootedGlobalObj);
@@ -407,6 +411,16 @@ namespace se {
     void ScriptEngine::addAfterCleanupHook(const std::function<void()>& hook)
     {
         _afterCleanupHookArray.push_back(hook);
+    }
+
+    bool ScriptEngine::isInGC()
+    {
+        return _isInGC;
+    }
+
+    void ScriptEngine::_setInGC(bool isInGC)
+    {
+        _isInGC = isInGC;
     }
 
     Object* ScriptEngine::getGlobalObject()
