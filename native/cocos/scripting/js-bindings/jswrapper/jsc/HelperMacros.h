@@ -33,7 +33,7 @@
         se::internal::seToJsValue(_cx, state.rval(), &_jsRet); \
         for (auto& v : args) \
         { \
-            if (v.isObject() && v.toObject()->isRooted()) \
+            if (v.isObject()) \
             { \
                 v.toObject()->unroot(); \
             } \
@@ -53,8 +53,8 @@
             se::State state(nativeThisObject); \
             se::Object* _thisObject = state.thisObject(); \
             if (_thisObject) _thisObject->_cleanup(nativeThisObject); \
-            JSObjectSetPrivate(_obj, nullptr); \
             ret = funcName(state); \
+            JSObjectSetPrivate(_obj, nullptr); \
             SAFE_RELEASE(_thisObject); \
         } \
         se->_setInGC(false); \
@@ -84,7 +84,7 @@
         } \
         for (auto& v : args) \
         { \
-            if (v.isObject() && v.toObject()->isRooted()) \
+            if (v.isObject()) \
             { \
                 v.toObject()->unroot(); \
             } \
@@ -113,7 +113,7 @@
         } \
         for (auto& v : args) \
         { \
-            if (v.isObject() && v.toObject()->isRooted()) \
+            if (v.isObject()) \
             { \
                 v.toObject()->unroot(); \
             } \

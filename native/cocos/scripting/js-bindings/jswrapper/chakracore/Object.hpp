@@ -12,7 +12,7 @@ namespace se {
 
     class Class;
 
-    class Object : public Ref
+    class Object final : public Ref
     {
     private:
         Object();

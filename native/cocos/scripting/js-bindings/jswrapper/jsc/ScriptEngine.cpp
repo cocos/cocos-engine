@@ -211,6 +211,18 @@ namespace se {
         return ret;
     }
 
+    void ScriptEngine::_clearException(JSValueRef exception)
+    {
+        if (exception != nullptr)
+        {
+            std::string exceptionStr = _formatException(exception);
+            if (!exceptionStr.empty())
+            {
+                LOGD("%s\n", exceptionStr.c_str());
+            }
+        }
+    }
+
     bool ScriptEngine::isInGC()
     {
         return _isInGC;

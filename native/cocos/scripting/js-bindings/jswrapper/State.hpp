@@ -6,7 +6,7 @@ namespace se {
 
     class Object;
 
-    class State
+    class State final
     {
     public:
         State();

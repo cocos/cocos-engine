@@ -23,7 +23,7 @@ namespace se {
         ~AutoHandleScope();
     };
     
-    class ScriptEngine
+    class ScriptEngine final
     {
     private:
         ScriptEngine();
@@ -73,6 +73,7 @@ namespace se {
         bool _setNodeEventListener(NodeEventListener listener);
 
         std::string _formatException(JSValueRef exception);
+        void _clearException(JSValueRef exception);
 
         JSContextRef _getContext() const { return _cx; }
     private:

@@ -23,7 +23,7 @@ namespace se {
         ~AutoHandleScope();
     };
     
-    class ScriptEngine
+    class ScriptEngine final
     {
     private:
         ScriptEngine();

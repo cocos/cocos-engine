@@ -120,7 +120,16 @@ namespace se {
         }
         else if (JSValueIsNumber(cx, jsValue))
         {
-            data->setNumber(JSValueToNumber(cx, jsValue, nullptr));
+            JSValueRef exception = nullptr;
+            double number = JSValueToNumber(cx, jsValue, &exception);
+            if (exception != nullptr)
+            {
+                ScriptEngine::getInstance()->_clearException(exception);
+            }
+            else
+            {
+                data->setNumber(number);
+            }
         }
         else if (JSValueIsBoolean(cx, jsValue))
         {
@@ -134,9 +143,18 @@ namespace se {
         }
         else if (JSValueIsObject(cx, jsValue))
         {
-            HandleObject obj(Object::_createJSObject(nullptr, JSValueToObject(cx, jsValue, nullptr)));
-            obj->root();
-            data->setObject(obj);
+            JSValueRef exception = nullptr;
+            JSObjectRef jsobj = JSValueToObject(cx, jsValue, &exception);
+            if (exception != nullptr)
+            {
+                ScriptEngine::getInstance()->_clearException(exception);
+            }
+            else
+            {
+                HandleObject obj(Object::_createJSObject(nullptr, jsobj));
+                obj->root();
+                data->setObject(obj);
+            }
         }
         else
         {
@@ -179,8 +197,17 @@ namespace se {
 
     void forceConvertJsValueToStdString(JSContextRef cx, JSValueRef jsval, std::string* ret)
     {
-        JSStringRef jsstr = JSValueToStringCopy(cx, jsval, nullptr);
-        jsStringToStdString(cx, jsstr, ret);
+        JSValueRef exception = nullptr;
+        JSStringRef jsstr = JSValueToStringCopy(cx, jsval, &exception);
+        if (exception != nullptr)
+        {
+            ScriptEngine::getInstance()->_clearException(exception);
+            ret->clear();
+        }
+        else
+        {
+            jsStringToStdString(cx, jsstr, ret);
+        }
         JSStringRelease(jsstr);
     }
 
@@ -227,7 +254,12 @@ namespace se {
         assert(ok);
 
         JSStringRef key = JSStringCreateWithUTF8CString(KEY_PRIVATE_DATA);
-        JSObjectSetProperty(__cx, obj, key, privateObj->_getJSObject(), kJSPropertyAttributeDontEnum, nullptr);
+        JSValueRef exception = nullptr;
+        JSObjectSetProperty(__cx, obj, key, privateObj->_getJSObject(), kJSPropertyAttributeDontEnum, &exception);
+        if (exception != nullptr)
+        {
+            ScriptEngine::getInstance()->_clearException(exception);
+        }
         JSStringRelease(key);
     }
 
@@ -241,10 +273,26 @@ namespace se {
         bool found = JSObjectHasProperty(__cx, obj, key);
         if (found)
         {
-            JSValueRef privateDataVal = JSObjectGetProperty(__cx, obj, key, nullptr);
-            internal::PrivateData* privateData = (internal::PrivateData*)JSObjectGetPrivate(JSValueToObject(__cx, privateDataVal, nullptr));
-            assert(privateData != nullptr);
-            data = privateData->data;
+            JSValueRef exception = nullptr;
+            JSValueRef privateDataVal = JSObjectGetProperty(__cx, obj, key, &exception);
+            do
+            {
+                if (exception != nullptr)
+                    break;
+
+                JSObjectRef jsobj = JSValueToObject(__cx, privateDataVal, &exception);
+                if (exception != nullptr)
+                    break;
+
+                internal::PrivateData* privateData = (internal::PrivateData*)JSObjectGetPrivate(jsobj);
+                assert(privateData != nullptr);
+                data = privateData->data;
+            } while(false);
+
+            if (exception != nullptr)
+            {
+                ScriptEngine::getInstance()->_clearException(exception);
+            }
         }
         JSStringRelease(key);
         return data;
@@ -262,13 +310,28 @@ namespace se {
             JSStringRef key = JSStringCreateWithUTF8CString(KEY_PRIVATE_DATA); //FIXME: cache the key string
             if (JSObjectHasProperty(__cx, obj, key))
             {
-                JSValueRef value = JSObjectGetProperty(__cx, obj, key, nullptr);
-                JSObjectRef propertyObj = JSValueToObject(__cx, value, nullptr);
-                internal::PrivateData* privateData = (internal::PrivateData*)JSObjectGetPrivate(propertyObj);
-                free(privateData);
-                JSObjectSetPrivate(propertyObj, nullptr);
-                bool ok = JSObjectDeleteProperty(__cx, obj, key, nullptr);
-                assert(ok);
+                JSValueRef exception = nullptr;
+                do
+                {
+                    JSValueRef value = JSObjectGetProperty(__cx, obj, key, &exception);
+                    if (exception != nullptr)
+                        break;
+
+                    JSObjectRef propertyObj = JSValueToObject(__cx, value, &exception);
+                    if (exception != nullptr)
+                        break;
+
+                    internal::PrivateData* privateData = (internal::PrivateData*)JSObjectGetPrivate(propertyObj);
+                    free(privateData);
+                    JSObjectSetPrivate(propertyObj, nullptr);
+                    bool ok = JSObjectDeleteProperty(__cx, obj, key, nullptr);
+                    assert(ok);
+                } while (false);
+
+                if (exception != nullptr)
+                {
+                    ScriptEngine::getInstance()->_clearException(exception);
+                }
             }
 
             JSStringRelease(key);

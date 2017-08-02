@@ -34,7 +34,7 @@
         se::internal::setReturnValue(state.rval(), _v8args); \
         for (auto& v : args) \
         { \
-            if (v.isObject() && v.toObject()->isRooted()) \
+            if (v.isObject()) \
             { \
                 v.toObject()->unroot(); \
             } \
@@ -73,7 +73,7 @@
         if (_found) _property.toObject()->call(args, thisObject); \
         for (auto& v : args) \
         { \
-            if (v.isObject() && v.toObject()->isRooted()) \
+            if (v.isObject()) \
             { \
                 v.toObject()->unroot(); \
             } \

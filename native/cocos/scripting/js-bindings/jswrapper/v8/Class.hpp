@@ -10,7 +10,7 @@ namespace se {
 
 	class Object;
 
-	class Class
+	class Class final
     {
     private:
         Class();

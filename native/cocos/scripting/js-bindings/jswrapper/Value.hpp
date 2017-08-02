@@ -9,7 +9,7 @@ namespace se {
 
     class Object;
 
-    class Value
+    class Value final
     {
     public:
         enum class Type
@@ -42,19 +42,19 @@ namespace se {
         explicit Value(double v);
         explicit Value(const char* v);
         explicit Value(const std::string& v);
-        explicit Value(Object* o);
-        explicit Value(const HandleObject& o);
+        explicit Value(Object* o, bool autoRootUnroot = false);
+        explicit Value(const HandleObject& o, bool autoRootUnroot = false);
 
         ~Value();
 
         Value& operator=(const Value& v);
         Value& operator=(Value&& v);
-        Value& operator=(bool v);
-        Value& operator=(double v);
-        Value& operator=(const char* v);
-        Value& operator=(const std::string& v);
-        Value& operator=(Object* o);
-        Value& operator=(const HandleObject& o);
+//        Value& operator=(bool v);
+//        Value& operator=(double v);
+//        Value& operator=(const char* v);
+//        Value& operator=(const std::string& v);
+//        Value& operator=(Object* o);
+//        Value& operator=(const HandleObject& o);
 
         void setUndefined();
         void setNull();
@@ -71,8 +71,8 @@ namespace se {
         void setNumber(double v);
         void setString(const char* v);
         void setString(const std::string& v);
-        void setObject(Object* o);
-        void setObject(const HandleObject& o);
+        void setObject(Object* o, bool autoRootUnroot = false);
+        void setObject(const HandleObject& o, bool autoRootUnroot = false);
 
         int8_t toInt8() const;
         uint8_t toUint8() const;
@@ -112,6 +112,8 @@ namespace se {
             std::string* _string;
             Object* _object;
         } _u;
+
+        bool _autoRootUnroot;
     };
 
     using ValueArray = std::vector<Value>;

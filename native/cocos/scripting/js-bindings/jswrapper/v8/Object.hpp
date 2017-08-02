@@ -17,7 +17,7 @@ namespace se {
         struct PrivateData;
     }
 
-    class Object : public Ref
+    class Object final : public Ref
     {
     private:
         Object();

@@ -10,115 +10,136 @@ namespace se {
 
     Value::Value()
     : _type(Type::Undefined)
+    , _autoRootUnroot(false)
     {
+        memset(&_u, 0, sizeof(_u));
     }
 
     Value::Value(Type type)
     : _type(Type::Undefined)
+    , _autoRootUnroot(false)
     {
+        memset(&_u, 0, sizeof(_u));
         reset(type);
     }
 
     Value::Value(const Value& v)
     : _type(Type::Undefined)
+    , _autoRootUnroot(false)
     {
         *this = v;
     }
 
     Value::Value(Value&& v)
     : _type(Type::Undefined)
+    , _autoRootUnroot(false)
     {
         *this = std::move(v);
     }
 
     Value::Value(bool v)
     : _type(Type::Undefined)
+    , _autoRootUnroot(false)
     {
         setBoolean(v);
     }
 
     Value::Value(int8_t v)
     : _type(Type::Undefined)
+    , _autoRootUnroot(false)
     {
         setInt8(v);
     }
 
     Value::Value(uint8_t v)
     : _type(Type::Undefined)
+    , _autoRootUnroot(false)
     {
         setUint8(v);
     }
 
     Value::Value(int32_t v)
     : _type(Type::Undefined)
+    , _autoRootUnroot(false)
     {
         setInt32(v);
     }
 
     Value::Value(uint32_t v)
     : _type(Type::Undefined)
+    , _autoRootUnroot(false)
     {
         setUint32(v);
     }
 
     Value::Value(int16_t v)
     : _type(Type::Undefined)
+    , _autoRootUnroot(false)
     {
         setInt16(v);
     }
 
     Value::Value(uint16_t v)
     : _type(Type::Undefined)
+    , _autoRootUnroot(false)
     {
         setUint16(v);
     }
 
     Value::Value(long v)
     : _type(Type::Undefined)
+    , _autoRootUnroot(false)
     {
         setLong(v);
     }
 
     Value::Value(unsigned long v)
     : _type(Type::Undefined)
+    , _autoRootUnroot(false)
     {
         setUlong(v);
     }
 
     Value::Value(float v)
     : _type(Type::Undefined)
+    , _autoRootUnroot(false)
     {
         setFloat(v);
     }
 
     Value::Value(double v)
     : _type(Type::Undefined)
+    , _autoRootUnroot(false)
     {
         setNumber(v);
     }
 
     Value::Value(const char* v)
     : _type(Type::Undefined)
+    , _autoRootUnroot(false)
     {
         setString(v);
     }
 
     Value::Value(const std::string& v)
     : _type(Type::Undefined)
+    , _autoRootUnroot(false)
     {
         setString(v);
     }
 
-    Value::Value(Object* o)
+    Value::Value(Object* o, bool autoRootUnroot/* = false*/)
     : _type(Type::Undefined)
+    , _autoRootUnroot(false)
     {
-        setObject(o);
+        setObject(o, autoRootUnroot);
     }
 
-    Value::Value(const HandleObject& o)
+    Value::Value(const HandleObject& o, bool autoRootUnroot/* = false*/)
     : _type(Type::Undefined)
+    , _autoRootUnroot(false)
     {
-        setObject(o);
+        setObject(o, autoRootUnroot);
     }
 
     Value::~Value()
@@ -134,7 +155,11 @@ namespace se {
 
             switch (_type) {
                 case Type::Null:
+                case Type::Undefined:
+                {
+                    memset(&_u, 0, sizeof(_u));
                     break;
+                }
                 case Type::Number:
                     _u._number = v._u._number;
                     break;
@@ -146,7 +171,7 @@ namespace se {
                     break;
                 case Type::Object:
                 {
-                    setObject(v._u._object);
+                    setObject(v._u._object, v._autoRootUnroot);
                 }
                     break;
                 default:
@@ -164,7 +189,11 @@ namespace se {
 
             switch (_type) {
                 case Type::Null:
+                case Type::Undefined:
+                {
+                    memset(&_u, 0, sizeof(_u));
                     break;
+                }
                 case Type::Number:
                     _u._number = v._u._number;
                     break;
@@ -176,12 +205,18 @@ namespace se {
                     break;
                 case Type::Object:
                 {
-                    if (_u._object != nullptr)
+                    if (_u._object != nullptr) // When old value is also an Object, reset will take no effect, therefore, _u._object may not be nullptr.
                     {
+                        if (_autoRootUnroot)
+                        {
+                            _u._object->unroot();
+                        }
                         _u._object->release();
                     }
                     _u._object = v._u._object;
-                    v._u._object = nullptr;
+                    _autoRootUnroot = v._autoRootUnroot;
+                    v._u._object = nullptr; // Reset to nullptr here to avoid 'release' operation in v.reset(Type::Undefined) since it's a move operation here.
+                    v._autoRootUnroot = false;
                 }
                     break;
                 default:
@@ -193,35 +228,35 @@ namespace se {
         return *this;
     }
 
-    Value& Value::operator=(bool v)
-    {
-        setBoolean(v);
-        return *this;
-    }
-
-    Value& Value::operator=(double v)
-    {
-        setNumber(v);
-        return *this;
-    }
-
-    Value& Value::operator=(const std::string& v)
-    {
-        setString(v);
-        return *this;
-    }
-
-    Value& Value::operator=(Object* o)
-    {
-        setObject(o);
-        return *this;
-    }
-
-    Value& Value::operator=(const HandleObject& o)
-    {
-        setObject(o);
-        return *this;
-    }
+//    Value& Value::operator=(bool v)
+//    {
+//        setBoolean(v);
+//        return *this;
+//    }
+//
+//    Value& Value::operator=(double v)
+//    {
+//        setNumber(v);
+//        return *this;
+//    }
+//
+//    Value& Value::operator=(const std::string& v)
+//    {
+//        setString(v);
+//        return *this;
+//    }
+//
+//    Value& Value::operator=(Object* o)
+//    {
+//        setObject(o);
+//        return *this;
+//    }
+//
+//    Value& Value::operator=(const HandleObject& o)
+//    {
+//        setObject(o);
+//        return *this;
+//    }
 
    	void Value::setUndefined()
     {
@@ -318,30 +353,54 @@ namespace se {
         *_u._string = v;
     }
 
-   	void Value::setObject(Object* object)
+   	void Value::setObject(Object* object, bool autoRootUnroot/* = false*/)
     {
-        if (object != nullptr)
-            reset(Type::Object);
-        else
+        if (object == nullptr)
+        {
             reset(Type::Null);
+            return;
+        }
+
+        if (_type != Type::Object)
+        {
+            reset(Type::Object);
+        }
 
         if (_u._object != object)
         {
-            if (_u._object != nullptr)
+            if (object != nullptr)
             {
+                object->addRef();
+                if (autoRootUnroot)
+                {
+                    object->root();
+                }
+            }
+
+            if (_u._object != nullptr) // When old value is also an Object, reset will take no effect, therefore, _u._object may not be nullptr.
+            {
+                if (_autoRootUnroot)
+                {
+                    _u._object->unroot();
+                }
                 _u._object->release();
             }
             _u._object = object;
-            if (_u._object != nullptr)
+            _autoRootUnroot = autoRootUnroot;
+        }
+        else
+        {
+            _autoRootUnroot = autoRootUnroot;
+            if (_autoRootUnroot)
             {
-                _u._object->addRef();
+                _u._object->root();
             }
         }
     }
 
-    void Value::setObject(const HandleObject& o)
+    void Value::setObject(const HandleObject& o, bool autoRootUnroot/* = false*/)
     {
-        setObject(o.get());
+        setObject(o.get(), autoRootUnroot);
     }
 
     int8_t Value::toInt8() const
@@ -469,8 +528,20 @@ namespace se {
                     delete _u._string;
                     break;
                 case Type::Object:
-                    SAFE_RELEASE(_u._object);
+                {
+                    if (_u._object != nullptr)
+                    {
+                        if (_autoRootUnroot)
+                        {
+                            _u._object->unroot();
+                        }
+                        _u._object->release();
+                        _u._object = nullptr;
+                    }
+
+                    _autoRootUnroot = false;
                     break;
+                }
                 default:
                     break;
             }

@@ -109,11 +109,18 @@ namespace se {
         ScriptEngine::getInstance()->getGlobalObject()->getProperty("Function", &functionCtor);
         ctorObj->setProperty("constructor", functionCtor);
 
+        JSValueRef exception = nullptr;
         for (const auto& staticfunc : _staticFuncs)
         {
             JSStringRef name = JSStringCreateWithUTF8CString(staticfunc.name);
             JSObjectRef func = JSObjectMakeFunctionWithCallback(__cx, nullptr, staticfunc.callAsFunction);
-            JSObjectSetProperty(__cx, jsCtor, name, func, kJSPropertyAttributeNone, nullptr);
+
+            exception = nullptr;
+            JSObjectSetProperty(__cx, jsCtor, name, func, kJSPropertyAttributeNone, &exception);
+            if (exception != nullptr)
+            {
+                ScriptEngine::getInstance()->_clearException(exception);
+            }
             JSStringRelease(name);
         }
 
@@ -122,12 +129,24 @@ namespace se {
         bool exist = JSObjectHasProperty(__cx, jsCtor, prototypeName);
         if (exist)
         {
-            prototypeObj = JSObjectGetProperty(__cx, jsCtor, prototypeName, nullptr);
+            exception = nullptr;
+            prototypeObj = JSObjectGetProperty(__cx, jsCtor, prototypeName, &exception);
+            if (exception != nullptr)
+            {
+                ScriptEngine::getInstance()->_clearException(exception);
+            }
         }
         JSStringRelease(prototypeName);
         assert(prototypeObj != nullptr);
 
-        _proto = Object::_createJSObject(this, JSValueToObject(__cx, prototypeObj, nullptr));
+        exception = nullptr;
+        JSObjectRef protoJSObj = JSValueToObject(__cx, prototypeObj, &exception);
+        if (exception != nullptr)
+        {
+            ScriptEngine::getInstance()->_clearException(exception);
+        }
+
+        _proto = Object::_createJSObject(this, protoJSObj);
         _proto->root();
 
         // reset constructor
@@ -183,21 +202,6 @@ namespace se {
         _finalizeOp = func;
         return true;
     }
-
-//    JSObjectRef Class::_createJSObject(const std::string &clsName, Class** outCls)
-//    {
-//        auto iter = __clsMap.find(clsName);
-//        if (iter == __clsMap.end())
-//        {
-//            *outCls = nullptr;
-//            return nullptr;
-//        }
-//
-//        Class* thiz = iter->second;
-//        *outCls = thiz;
-//
-//        return _createJSObjectWithClass(thiz);
-//    }
 
     JSObjectRef Class::_createJSObjectWithClass(Class* cls)
     {

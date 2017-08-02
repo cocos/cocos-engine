@@ -9,6 +9,7 @@
 namespace se {
 
     std::unordered_map<void* /*native*/, Object* /*jsobj*/> __nativePtrToObjectMap;
+    std::unordered_map<void* /*native*/, bool> __nonRefNativeObjectCreatedByCtorMap;
 
     namespace {
         JSContextRef __cx = nullptr;
@@ -37,7 +38,13 @@ namespace se {
 
     Object* Object::createArrayObject(size_t length)
     {
-        JSObjectRef jsObj = JSObjectMakeArray(__cx, 0, nullptr, nullptr);
+        JSValueRef exception = nullptr;
+        JSObjectRef jsObj = JSObjectMakeArray(__cx, 0, nullptr, &exception);
+        if (exception != nullptr)
+        {
+            ScriptEngine::getInstance()->_clearException(exception);
+            return nullptr;
+        }
         Object* obj = _createJSObject(nullptr, jsObj);
         return obj;
     }
@@ -51,7 +58,13 @@ namespace se {
     {
         void* copiedData = malloc(byteLength);
         memcpy(copiedData, data, byteLength);
-        JSObjectRef jsobj = JSObjectMakeArrayBufferWithBytesNoCopy(__cx, copiedData, byteLength, myJSTypedArrayBytesDeallocator, nullptr, nullptr);
+        JSValueRef exception = nullptr;
+        JSObjectRef jsobj = JSObjectMakeArrayBufferWithBytesNoCopy(__cx, copiedData, byteLength, myJSTypedArrayBytesDeallocator, nullptr, &exception);
+        if (exception != nullptr)
+        {
+            ScriptEngine::getInstance()->_clearException(exception);
+            return nullptr;
+        }
         Object* obj = Object::_createJSObject(nullptr, jsobj);
         return obj;
     }
@@ -60,7 +73,13 @@ namespace se {
     {
         void* copiedData = malloc(byteLength);
         memcpy(copiedData, data, byteLength);
-        JSObjectRef jsobj = JSObjectMakeTypedArrayWithBytesNoCopy(__cx, kJSTypedArrayTypeUint8Array, copiedData, byteLength, myJSTypedArrayBytesDeallocator, nullptr, nullptr);
+        JSValueRef exception = nullptr;
+        JSObjectRef jsobj = JSObjectMakeTypedArrayWithBytesNoCopy(__cx, kJSTypedArrayTypeUint8Array, copiedData, byteLength, myJSTypedArrayBytesDeallocator, nullptr, &exception);
+        if (exception != nullptr)
+        {
+            ScriptEngine::getInstance()->_clearException(exception);
+            return nullptr;
+        }
         Object* obj = Object::_createJSObject(nullptr, jsobj);
         return obj;
     }
@@ -73,7 +92,14 @@ namespace se {
 
         if (ret != nullptr)
         {
-            obj = Object::_createJSObject(nullptr, JSValueToObject(__cx, ret, nullptr));
+            JSValueRef exception = nullptr;
+            JSObjectRef jsobj = JSValueToObject(__cx, ret, &exception);
+            if (exception != nullptr)
+            {
+                ScriptEngine::getInstance()->_clearException(exception);
+                return nullptr;
+            }
+            obj = Object::_createJSObject(nullptr, jsobj);
         }
         return obj;
     }
@@ -166,7 +192,13 @@ namespace se {
 
         if (exist)
         {
-            JSValueRef jsValue = JSObjectGetProperty(__cx, _obj, jsName, nullptr);
+            JSValueRef exception = nullptr;
+            JSValueRef jsValue = JSObjectGetProperty(__cx, _obj, jsName, &exception);
+            if (exception != nullptr)
+            {
+                ScriptEngine::getInstance()->_clearException(exception);
+                return false;
+            }
             internal::jsToSeValue(__cx, jsValue, data);
         }
 
@@ -207,7 +239,14 @@ namespace se {
             jsValue = JSValueMakeUndefined(__cx);
         }
 
-        JSObjectSetProperty(__cx, obj, jsName, jsValue, kJSPropertyAttributeNone, nullptr);
+        JSValueRef exception = nullptr;
+        JSObjectSetProperty(__cx, obj, jsName, jsValue, kJSPropertyAttributeNone, &exception);
+
+        if (exception != nullptr)
+        {
+            ScriptEngine::getInstance()->_clearException(exception);
+        }
+
         JSStringRelease(jsName);
     }
 
@@ -250,12 +289,7 @@ namespace se {
         // Function call failed, try to output exception
         if (exception != nullptr)
         {
-            std::string exceptionStr = se::ScriptEngine::getInstance()->_formatException(exception);
-            if (!exceptionStr.empty())
-            {
-                LOGD("%s\n", exceptionStr.c_str());
-            }
-            se::ScriptEngine::getInstance()->clearException();
+            ScriptEngine::getInstance()->_clearException(exception);
         }
 
         return false;
@@ -264,8 +298,13 @@ namespace se {
     bool Object::defineFunction(const char* funcName, JSObjectCallAsFunctionCallback func)
     {
         JSStringRef jsName = JSStringCreateWithUTF8CString(funcName);
-        JSObjectRef jsFunc = JSObjectMakeFunctionWithCallback(__cx, nullptr, func);
-        JSObjectSetProperty(__cx, _obj, jsName, jsFunc, kJSPropertyAttributeNone, nullptr);
+        JSObjectRef jsFunc = JSObjectMakeFunctionWithCallback(__cx, jsName, func);
+        JSValueRef exception = nullptr;
+        JSObjectSetProperty(__cx, _obj, jsName, jsFunc, kJSPropertyAttributeNone, &exception);
+        if (exception != nullptr)
+        {
+            ScriptEngine::getInstance()->_clearException(exception);
+        }
         JSStringRelease(jsName);
         return true;
     }
@@ -275,7 +314,16 @@ namespace se {
         assert(isArray());
         assert(length != nullptr);
         JSStringRef key = JSStringCreateWithUTF8CString("length");
-        JSValueRef v = JSObjectGetProperty(__cx, _obj, key, nullptr);
+        JSValueRef exception = nullptr;
+        JSValueRef v = JSObjectGetProperty(__cx, _obj, key, &exception);
+        if (exception != nullptr)
+        {
+            ScriptEngine::getInstance()->_clearException(exception);
+            JSStringRelease(key);
+            *length = 0;
+            return false;
+        }
+
         assert(JSValueIsNumber(__cx, v));
         double len = JSValueToNumber(__cx, v, nullptr);
         JSStringRelease(key);
@@ -288,7 +336,15 @@ namespace se {
     {
         assert(isArray());
         assert(data != nullptr);
-        JSValueRef v = JSObjectGetPropertyAtIndex(__cx, _obj, index, nullptr);
+        JSValueRef exception = nullptr;
+        JSValueRef v = JSObjectGetPropertyAtIndex(__cx, _obj, index, &exception);
+
+        if (exception != nullptr)
+        {
+            ScriptEngine::getInstance()->_clearException(exception);
+            return false;
+        }
+
         internal::jsToSeValue(__cx, v, data);
 
         return true;
@@ -300,7 +356,14 @@ namespace se {
 
         JSValueRef v;
         internal::seToJsValue(__cx, data, &v);
-        JSObjectSetPropertyAtIndex(__cx, _obj, index, v, nullptr);
+        JSValueRef exception = nullptr;
+        JSObjectSetPropertyAtIndex(__cx, _obj, index, v, &exception);
+        if (exception != nullptr)
+        {
+            ScriptEngine::getInstance()->_clearException(exception);
+            return false;
+        }
+
         return true;
     }
 
@@ -335,8 +398,21 @@ namespace se {
     bool Object::getTypedArrayData(uint8_t** ptr, size_t* length) const
     {
         assert(isTypedArray());
-        *length = JSObjectGetTypedArrayByteLength(__cx, _obj, nullptr);
-        *ptr = (uint8_t*)JSObjectGetTypedArrayBytesPtr(__cx, _obj, nullptr);
+        JSValueRef exception = nullptr;
+        *length = JSObjectGetTypedArrayByteLength(__cx, _obj, &exception);
+        if (exception != nullptr)
+        {
+            ScriptEngine::getInstance()->_clearException(exception);
+            return false;
+        }
+
+        *ptr = (uint8_t*)JSObjectGetTypedArrayBytesPtr(__cx, _obj, &exception);
+        if (exception != nullptr)
+        {
+            ScriptEngine::getInstance()->_clearException(exception);
+            return false;
+        }
+
         return (*ptr != nullptr);
     }
 
@@ -361,7 +437,13 @@ namespace se {
 
     bool Object::isArrayBuffer() const
     {
-        JSTypedArrayType type = JSValueGetTypedArrayType(__cx, _obj, nullptr);
+        JSValueRef exception = nullptr;
+        JSTypedArrayType type = JSValueGetTypedArrayType(__cx, _obj, &exception);
+        if (exception != nullptr)
+        {
+            ScriptEngine::getInstance()->_clearException(exception);
+            return false;
+        }
         return type == kJSTypedArrayTypeArrayBuffer;
     }
 
@@ -369,8 +451,21 @@ namespace se {
     {
         assert(ptr && length);
         assert(isArrayBuffer());
-        *length = JSObjectGetArrayBufferByteLength(__cx, _obj, nullptr);
-        *ptr = (uint8_t*)JSObjectGetArrayBufferBytesPtr(__cx, _obj, nullptr);
+        JSValueRef exception = nullptr;
+        *length = JSObjectGetArrayBufferByteLength(__cx, _obj, &exception);
+        if (exception != nullptr)
+        {
+            ScriptEngine::getInstance()->_clearException(exception);
+            return false;
+        }
+
+        *ptr = (uint8_t*)JSObjectGetArrayBufferBytesPtr(__cx, _obj, &exception);
+        if (exception != nullptr)
+        {
+            ScriptEngine::getInstance()->_clearException(exception);
+            return false;
+        }
+
         return (*ptr != nullptr);
     }
 
@@ -408,6 +503,7 @@ namespace se {
     {
         ScriptEngine::getInstance()->addAfterCleanupHook([](){
             __nativePtrToObjectMap.clear();
+            __nonRefNativeObjectCreatedByCtorMap.clear();
             __cx = nullptr;
         });
     }

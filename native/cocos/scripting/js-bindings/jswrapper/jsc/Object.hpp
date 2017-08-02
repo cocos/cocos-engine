@@ -12,7 +12,7 @@ namespace se {
 
     class Class;
 
-    class Object : public Ref
+    class Object final : public Ref
     {
     private:
         Object();
@@ -87,6 +87,7 @@ namespace se {
     };
 
     extern std::unordered_map<void* /*native*/, Object* /*jsobj*/> __nativePtrToObjectMap;
+    extern std::unordered_map<void* /*native*/, bool> __nonRefNativeObjectCreatedByCtorMap;
 
 } // namespace se {
 

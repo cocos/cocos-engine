@@ -28,7 +28,7 @@
         se::internal::setReturnValue(_cx, state.rval(), _argv); \
         for (auto& v : args) \
         { \
-            if (v.isObject() && v.toObject()->isRooted()) \
+            if (v.isObject()) \
             { \
                 v.toObject()->unroot(); \
             } \
@@ -71,7 +71,7 @@
         } \
         for (auto& v : args) \
         { \
-            if (v.isObject() && v.toObject()->isRooted()) \
+            if (v.isObject()) \
             { \
                 v.toObject()->unroot(); \
             } \
@@ -101,7 +101,7 @@
         } \
         for (auto& v : args) \
         { \
-            if (v.isObject() && v.toObject()->isRooted()) \
+            if (v.isObject()) \
             { \
                 v.toObject()->unroot(); \
             } \

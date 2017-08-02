@@ -47,7 +47,7 @@ namespace se {
         v8::HandleScope _handleScope;
     };
 
-    class ScriptEngine
+    class ScriptEngine final
     {
     private:
         ScriptEngine();

@@ -34,7 +34,7 @@
         se::internal::seToJsValue(state.rval(), &_jsRet); \
         for (auto& v : args) \
         { \
-            if (v.isObject() && v.toObject()->isRooted()) \
+            if (v.isObject()) \
             { \
                 v.toObject()->unroot(); \
             } \
@@ -81,7 +81,7 @@
         } \
         for (auto& v : args) \
         { \
-            if (v.isObject() && v.toObject()->isRooted()) \
+            if (v.isObject()) \
             { \
                 v.toObject()->unroot(); \
             } \
@@ -111,7 +111,7 @@
         } \
         for (auto& v : args) \
         { \
-            if (v.isObject() && v.toObject()->isRooted()) \
+            if (v.isObject()) \
             { \
                 v.toObject()->unroot(); \
             } \
