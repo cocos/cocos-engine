@@ -9,6 +9,7 @@ namespace se {
 
     std::unordered_map<void* /*native*/, Object* /*jsobj*/> __nativePtrToObjectMap;
     std::unordered_map<Object*, void*> __objectMap; // Currently, the value `void*` is always nullptr
+    std::unordered_map<void* /*native*/, bool> __nonRefNativeObjectCreatedByCtorMap;
     
     namespace {
         v8::Isolate* __isolate = nullptr;
@@ -16,9 +17,8 @@ namespace se {
 
     Object::Object()
     : _cls(nullptr)
-    , _isRooted(false)
-    , _isKeepRootedUntilDie(false)
-    , _hasPrivateData(false)
+    , _rootCount(0)
+    , _privateData(nullptr)
     , _finalizeCb(nullptr)
     , _internalData(nullptr)
     {
@@ -26,7 +26,7 @@ namespace se {
 
     Object::~Object()
     {
-        if (_isRooted)
+        if (_rootCount > 0)
         {
             _obj.unref();
         }
@@ -109,6 +109,7 @@ namespace se {
         }
 
         __nativePtrToObjectMap.clear();
+        __nonRefNativeObjectCreatedByCtorMap.clear();
 
         std::vector<Object*> toReleaseObjects;
         for (const auto& e : __objectMap)
@@ -116,7 +117,7 @@ namespace se {
             obj = e.first;
             cls = obj->_getClass();
             obj->_obj.persistent().Reset();
-            obj->_isRooted = false;
+            obj->_rootCount = 0;
 
             if (cls != nullptr && cls->_name == "__CCPrivateData")
             {
@@ -133,21 +134,12 @@ namespace se {
         __isolate = nullptr;
     }
 
-    Object* Object::createPlainObject(bool rooted)
+    Object* Object::createPlainObject()
     {
         v8::Local<v8::Object> jsobj = v8::Object::New(__isolate);
-        Object* obj = _createJSObject(nullptr, jsobj, rooted);
+        Object* obj = _createJSObject(nullptr, jsobj);
         return obj;
     }
-
-//    Object* Object::createObject(const char* clsName, bool rooted)
-//    {
-//        Class* cls = nullptr;
-//        auto jsobj = Class::_createJSObject(clsName, &cls);
-//        Object* obj = _createJSObject(cls, jsobj, rooted);
-//
-//        return obj;
-//    }
 
     Object* Object::getObjectWithPtr(void* ptr)
     {
@@ -161,21 +153,10 @@ namespace se {
         return obj;
     }
 
-//    Object* Object::getOrCreateObjectWithPtr(void* ptr, const char* clsName, bool rooted)
-//    {
-//        Object* obj = getObjectWithPtr(ptr);
-//        if (obj == nullptr)
-//        {
-//            obj = createObject(clsName, rooted);
-//            obj->setPrivateData(ptr);
-//        }
-//        return obj;
-//    }
-
-    Object* Object::_createJSObject(Class* cls, v8::Local<v8::Object> obj, bool rooted)
+    Object* Object::_createJSObject(Class* cls, v8::Local<v8::Object> obj)
     {
         Object* ret = new Object();
-        if (!ret->init(cls, obj, rooted))
+        if (!ret->init(cls, obj))
         {
             delete ret;
             ret = nullptr;
@@ -183,38 +164,38 @@ namespace se {
         return ret;
     }
 
-    Object* Object::createObjectWithClass(Class* cls, bool rooted)
+    Object* Object::createObjectWithClass(Class* cls)
     {
         v8::Local<v8::Object> jsobj = Class::_createJSObjectWithClass(cls);
-        Object* obj = Object::_createJSObject(cls, jsobj, rooted);
+        Object* obj = Object::_createJSObject(cls, jsobj);
         return obj;
     }
 
-    Object* Object::createArrayObject(size_t length, bool rooted)
+    Object* Object::createArrayObject(size_t length)
     {
         v8::Local<v8::Array> jsobj = v8::Array::New(__isolate, (int)length);
-        Object* obj = Object::_createJSObject(nullptr, jsobj, rooted);
+        Object* obj = Object::_createJSObject(nullptr, jsobj);
         return obj;
     }
 
-    Object* Object::createArrayBufferObject(void* data, size_t byteLength, bool rooted)
+    Object* Object::createArrayBufferObject(void* data, size_t byteLength)
     {
         v8::Local<v8::ArrayBuffer> jsobj = v8::ArrayBuffer::New(__isolate, byteLength);
         memcpy(jsobj->GetContents().Data(), data, byteLength);
-        Object* obj = Object::_createJSObject(nullptr, jsobj, rooted);
+        Object* obj = Object::_createJSObject(nullptr, jsobj);
         return obj;
     }
     
-    Object* Object::createUint8TypedArray(uint8_t* data, size_t byteLength, bool rooted)
+    Object* Object::createUint8TypedArray(uint8_t* data, size_t byteLength)
     {
         v8::Local<v8::ArrayBuffer> jsobj = v8::ArrayBuffer::New(__isolate, byteLength);
         memcpy(jsobj->GetContents().Data(), data, byteLength);
         v8::Local<v8::Uint8Array> arr = v8::Uint8Array::New(jsobj, 0, byteLength);
-        Object* obj = Object::_createJSObject(nullptr, arr, rooted);
+        Object* obj = Object::_createJSObject(nullptr, arr);
         return obj;
     }
 
-    Object* Object::createJSONObject(const std::string& jsonStr, bool rooted)
+    Object* Object::createJSONObject(const std::string& jsonStr)
     {
         v8::Local<v8::Context> context = __isolate->GetCurrentContext();
         Value strVal(jsonStr);
@@ -226,20 +207,15 @@ namespace se {
             return nullptr;
 
         v8::Local<v8::Object> jsobj = v8::Local<v8::Object>::Cast(ret.ToLocalChecked());
-        return Object::_createJSObject(nullptr, jsobj, rooted);
+        return Object::_createJSObject(nullptr, jsobj);
     }
 
-    bool Object::init(Class* cls, v8::Local<v8::Object> obj, bool rooted)
+    bool Object::init(Class* cls, v8::Local<v8::Object> obj)
     {
         _cls = cls;
-        _isRooted = rooted;
+
         _obj.init(obj);
         _obj.setFinalizeCallback(nativeObjectFinalizeHook);
-
-        if (_isRooted)
-        {
-            _obj.ref();
-        }
 
         assert(__objectMap.find(this) == __objectMap.end());
         __objectMap.emplace(this, nullptr);
@@ -361,26 +337,30 @@ namespace se {
 
     void Object::setPrivateData(void* data)
     {
-        assert(!_hasPrivateData);
+        assert(_privateData == nullptr);
         assert(__nativePtrToObjectMap.find(data) == __nativePtrToObjectMap.end());
         internal::setPrivate(__isolate, _obj, data, &_internalData);
         __nativePtrToObjectMap.emplace(data, this);
-        _hasPrivateData = true;
+        _privateData = data;
     }
 
     void* Object::getPrivateData() const
     {
-        return internal::getPrivate(__isolate, const_cast<Object*>(this)->_obj.handle(__isolate));
+        if (_privateData == nullptr)
+        {
+            const_cast<Object*>(this)->_privateData = internal::getPrivate(__isolate, const_cast<Object*>(this)->_obj.handle(__isolate));
+        }
+        return _privateData;
     }
 
     void Object::clearPrivateData()
     {
-        if (_hasPrivateData)
+        if (_privateData != nullptr)
         {
             void* data = getPrivateData();
             __nativePtrToObjectMap.erase(data);
             internal::clearPrivate(__isolate, _obj);
-            _hasPrivateData = false;
+            _privateData = nullptr;
         }
     }
 
@@ -638,39 +618,28 @@ namespace se {
 
     void Object::root()
     {
-        if (_isRooted)
-            return;
-
-        _obj.ref();
-        _isRooted = true;
+        if (_rootCount == 0)
+        {
+            _obj.ref();
+        }
+        ++_rootCount;
     }
 
     void Object::unroot()
     {
-        if (!_isRooted)
-            return;
-
-        if (_isKeepRootedUntilDie)
-            return;
-
-        _obj.unref();
-        _isRooted = false;
-    }
-
-    void Object::setKeepRootedUntilDie(bool keepRooted)
-    {
-        _isKeepRootedUntilDie = keepRooted;
-
-        if (_isKeepRootedUntilDie)
+        if (_rootCount > 0)
         {
-            if (!_isRooted)
-                root();
+            --_rootCount;
+            if (_rootCount == 0)
+            {
+                _obj.unref();
+            }
         }
     }
 
     bool Object::isRooted() const
     {
-        return _isRooted;
+        return _rootCount > 0;
     }
 
     bool Object::isSame(Object *o) const

@@ -63,6 +63,7 @@ namespace se {
         bool _isNativeFunction(JSNative func) const;
         JSObject* _getJSObject() const;
         Class* _getClass() const { return _cls; }
+        //
 
     private:
         Object();

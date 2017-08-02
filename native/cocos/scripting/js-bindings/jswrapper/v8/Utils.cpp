@@ -100,7 +100,18 @@ namespace se {
                 v8::MaybeLocal<v8::Object> jsObj = jsval->ToObject(isolate->GetCurrentContext());
                 if (!jsObj.IsEmpty())
                 {
-                    Object* obj = Object::_createJSObject(nullptr, jsObj.ToLocalChecked(), false);
+                    void* nativePtr = internal::getPrivate(isolate, jsObj.ToLocalChecked());
+                    Object* obj = nullptr;
+                    if (nativePtr != nullptr)
+                    {
+                        obj = Object::getObjectWithPtr(nativePtr);
+                    }
+
+                    if (obj == nullptr)
+                    {
+                        obj = Object::_createJSObject(nullptr, jsObj.ToLocalChecked());
+                        obj->root();
+                    }
                     v->setObject(obj);
                     obj->release();
                 }
@@ -172,7 +183,7 @@ namespace se {
             }
             else
             {
-                Object* privateObj = Object::createObjectWithClass(__jsb_CCPrivateData_class, false);
+                Object* privateObj = Object::createObjectWithClass(__jsb_CCPrivateData_class);
                 PrivateData* privateData = (PrivateData*)malloc(sizeof(PrivateData));
                 privateData->data = data;
                 privateData->seObj = privateObj;

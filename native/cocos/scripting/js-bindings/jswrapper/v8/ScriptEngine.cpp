@@ -103,6 +103,7 @@ namespace se {
     , _isolate(nullptr)
     , _globalObj(nullptr)
     , _isValid(false)
+    , _isInGC(false)
     , _nodeEventListener(nullptr)
     {
         //        RETRUN_VAL_IF_FAIL(v8::V8::InitializeICUDefaultLocation(nullptr, "/Users/james/Project/v8/out.gn/x64.debug/icudtl.dat"), false);
@@ -144,7 +145,8 @@ namespace se {
         Class::setIsolate(_isolate);
         Object::setIsolate(_isolate);
 
-        _globalObj = Object::_createJSObject(nullptr, _context.Get(_isolate)->Global(), true);
+        _globalObj = Object::_createJSObject(nullptr, _context.Get(_isolate)->Global());
+        _globalObj->root();
 
         _globalObj->defineFunction("log", __log);
         _globalObj->defineFunction("forceGC", __forceGC);
@@ -247,6 +249,16 @@ namespace se {
         // unreachable persistent handles.
         _isolate->LowMemoryNotification();
         LOGD("GC end ..., (js->native map) size: %d, all objects: %d\n", (int)__nativePtrToObjectMap.size(), (int)__objectMap.size());
+    }
+
+    bool ScriptEngine::isInGC()
+    {
+        return _isInGC;
+    }
+
+    void ScriptEngine::_setInGC(bool isInGC)
+    {
+        _isInGC = isInGC;
     }
 
     bool ScriptEngine::isValid() const

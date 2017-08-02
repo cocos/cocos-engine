@@ -14,11 +14,7 @@ namespace se {
 
     class Object final : public Ref
     {
-    private:
-        Object();
     public:
-        virtual ~Object();
-
         static Object* createPlainObject();
         static Object* createArrayObject(size_t length);
         static Object* createUint8TypedArray(uint8_t* data, size_t byteLength);
@@ -32,14 +28,8 @@ namespace se {
         void setProperty(const char* name, const Value& v);
         bool defineProperty(const char *name, JSObjectCallAsFunctionCallback getter, JSObjectCallAsFunctionCallback setter);
 
-        JSObjectRef _getJSObject() const;
-        Class* _getClass() const;
-        void _setFinalizeCallback(JSObjectFinalizeCallback finalizeCb);
-
-        void _cleanup(void* nativeObject = nullptr);
-
         bool isFunction() const;
-        bool _isNativeFunction() const;
+
         bool call(const ValueArray& args, Object* thisObject, Value* rval = nullptr);
 
         bool defineFunction(const char *funcName, JSObjectCallAsFunctionCallback func);
@@ -69,9 +59,21 @@ namespace se {
         bool attachChild(Object* child);
         bool detachChild(Object* child);
 
+        // Private API used in wrapper
+        JSObjectRef _getJSObject() const;
+        Class* _getClass() const;
+        void _setFinalizeCallback(JSObjectFinalizeCallback finalizeCb);
+
+        void _cleanup(void* nativeObject = nullptr);
+        bool _isNativeFunction() const;
+        //
+
     private:
         static void setContext(JSContextRef cx);
         static void cleanup();
+
+        Object();
+        virtual ~Object();
 
         bool init(JSObjectRef obj);
 

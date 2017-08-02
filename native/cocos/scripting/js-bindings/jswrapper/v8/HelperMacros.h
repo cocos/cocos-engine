@@ -46,9 +46,11 @@
     { \
         if (nativeThisObject == nullptr) \
             return; \
+        auto se = se::ScriptEngine::getInstance(); \
+        se->_setInGC(true); \
         se::State state(nativeThisObject); \
-        if (!funcName(state)) \
-            return; \
+        SE_UNUSED bool ok = funcName(state); \
+        se->_setInGC(false); \
     }
 
 #define SE_DECLARE_FINALIZE_FUNC(funcName) \
@@ -63,7 +65,7 @@
         SE_UNUSED bool ret = true; \
         se::ValueArray args; \
         se::internal::jsToSeArgs(_v8args, &args); \
-        se::Object* thisObject = se::Object::_createJSObject(cls, _v8args.This(), false); \
+        se::Object* thisObject = se::Object::_createJSObject(cls, _v8args.This()); \
         thisObject->_setFinalizeCallback(_SE(finalizeCb)); \
         se::State state(thisObject, args); \
         ret = funcName(state); \

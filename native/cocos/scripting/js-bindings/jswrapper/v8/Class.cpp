@@ -132,7 +132,8 @@ namespace se {
         if (_createProto)
         {
             // Proto object is released in Class::destroy.
-            _proto = Object::_createJSObject(this, v8::Local<v8::Object>::Cast(prototypeObj.ToLocalChecked()), true);
+            _proto = Object::_createJSObject(this, v8::Local<v8::Object>::Cast(prototypeObj.ToLocalChecked()));
+            _proto->root();
         }
         return true;
     }

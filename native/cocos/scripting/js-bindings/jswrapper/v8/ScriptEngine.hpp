@@ -71,6 +71,8 @@ namespace se {
         bool executeScriptBuffer(const char *string, Value *data = nullptr, const char *fileName = nullptr);
         bool executeScriptBuffer(const char *string, size_t length, Value *data = nullptr, const char *fileName = nullptr);
 
+        bool isInGC();
+        void _setInGC(bool isInGC);
         void gc();
 
         bool isValid() const;
@@ -109,6 +111,7 @@ namespace se {
         Object* _globalObj;
 
         bool _isValid;
+        bool _isInGC;
         NodeEventListener _nodeEventListener;
 
         std::vector<RegisterCallback> _registerCallbackArray;
