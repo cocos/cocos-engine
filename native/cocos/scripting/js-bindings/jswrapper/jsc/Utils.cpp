@@ -151,9 +151,20 @@ namespace se {
             }
             else
             {
-                HandleObject obj(Object::_createJSObject(nullptr, jsobj)); //FIXME: consider which in sm, new create a new object everytime?
-                obj->root();
+                void* nativePtr = internal::getPrivate(jsobj);
+                Object* obj = nullptr;
+                if (nativePtr != nullptr)
+                {
+                    obj = Object::getObjectWithPtr(nativePtr);
+                }
+
+                if (obj == nullptr)
+                {
+                    obj = Object::_createJSObject(nullptr, jsobj);
+                    obj->root();
+                }
                 data->setObject(obj);
+                obj->release();
             }
         }
         else

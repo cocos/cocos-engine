@@ -58,7 +58,7 @@ namespace se {
         bool getAllKeys(std::vector<std::string>* allKeys) const;
 
         void setPrivateData(void* data);
-        void* getPrivateData();
+        void* getPrivateData() const;
         void clearPrivateData();
 
         void root();
@@ -78,7 +78,7 @@ namespace se {
         Class* _cls;
         JSObjectRef _obj;
         uint32_t _rootCount;
-        bool _hasPrivateData;
+        void* _privateData;
         bool _isCleanup;
         JSObjectFinalizeCallback _finalizeCb;
 

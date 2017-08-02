@@ -19,7 +19,7 @@ namespace se {
     : _cls(nullptr)
     , _obj(nullptr)
     , _rootCount(0)
-    , _hasPrivateData(false)
+    , _privateData(nullptr)
     , _isCleanup(false)
     , _finalizeCb(nullptr)
     {
@@ -147,7 +147,7 @@ namespace se {
         if (_isCleanup)
             return;
 
-        if (_hasPrivateData)
+        if (_privateData != nullptr)
         {
             if (nativeObj == nullptr)
             {
@@ -469,28 +469,32 @@ namespace se {
         return (*ptr != nullptr);
     }
 
-    void* Object::getPrivateData()
+    void* Object::getPrivateData() const
     {
-        return internal::getPrivate(_obj);
+        if (_privateData == nullptr)
+        {
+            const_cast<Object*>(this)->_privateData = internal::getPrivate(_obj);
+        }
+        return _privateData;
     }
 
-    void Object::setPrivateData(void *data)
+    void Object::setPrivateData(void* data)
     {
-        assert(!_hasPrivateData);
+        assert(_privateData == nullptr);
         assert(__nativePtrToObjectMap.find(data) == __nativePtrToObjectMap.end());
         internal::setPrivate(_obj, data, _finalizeCb);
         __nativePtrToObjectMap.emplace(data, this);
-        _hasPrivateData = true;
+        _privateData = data;
     }
 
     void Object::clearPrivateData()
     {
-        if (_hasPrivateData)
+        if (_privateData != nullptr)
         {
             void* data = getPrivateData();
             __nativePtrToObjectMap.erase(data);
             internal::clearPrivate(_obj);
-            _hasPrivateData = false;
+            _privateData = nullptr;
         }
     }
 

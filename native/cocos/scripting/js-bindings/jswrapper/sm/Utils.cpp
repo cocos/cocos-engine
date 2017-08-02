@@ -128,9 +128,10 @@ namespace se {
             Object* object = nullptr;
 
             JS::RootedObject jsobj(cx, jsval.toObjectOrNull());
-            if (hasPrivate(cx, jsobj))
+            void* nativeObj = getPrivate(cx, jsobj);
+
+            if (nativeObj != nullptr)
             {
-                void* nativeObj = getPrivate(cx, jsobj);
                 object = Object::getObjectWithPtr(nativeObj);
             }
 
