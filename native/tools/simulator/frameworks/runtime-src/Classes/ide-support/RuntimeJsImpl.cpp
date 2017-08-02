@@ -159,6 +159,10 @@ RuntimeJsImpl* RuntimeJsImpl::create()
 
 bool RuntimeJsImpl::initJsEnv()
 {
+    if (!ScriptingCore::getInstance()->getGlobalContext())
+    {
+        _hasStarted = false;
+    }
     if (_hasStarted)
     {
         return true;
