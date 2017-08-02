@@ -305,6 +305,7 @@ bool js_cocos2dx_PluginParam_create(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::RootedValue jsret(cx, JS::NullHandleValue);
     JS::RootedObject paramObj(cx);
     js_get_or_create_jsobject<PluginParam>(cx, ret, &paramObj);
+    JS_SetPrivate(paramObj.get(), ret);
     jsret = JS::ObjectOrNullValue(paramObj);
     args.rval().set(jsret);
     return true;
@@ -314,15 +315,11 @@ extern JSObject *jsb_anysdk_framework_PluginProtocol_prototype;
 
 void js_anysdk_PluginParam_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (PluginParam)", obj);
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsObj(cx, obj);
-    js_proxy_t* proxy = jsb_get_js_proxy(cx, jsObj);
-    if (proxy) {
-        PluginParam *nobj = static_cast<PluginParam *>(proxy->ptr);
+    void *nativePtr = JS_GetPrivate(obj);
+    if (nativePtr) {
+        PluginParam *nobj = static_cast<PluginParam *>(nativePtr);
         if (nobj)
             delete nobj;
-        
-        jsb_remove_proxy(proxy);
     }
 }
 
