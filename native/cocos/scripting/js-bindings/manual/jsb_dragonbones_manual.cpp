@@ -396,7 +396,7 @@ bool register_all_dragonbones_manual(se::Object* obj)
     global->getProperty("dragonBones", &dragonBonesVal);
     dragonBonesVal.toObject()->getProperty("WorldClock", &worldClockVal);
 
-    se::HandleObject globalClock(se::Object::createObjectWithClass(__jsb_dragonBones_WorldClock_class));
+    se::Object* globalClock = se::Object::createObjectWithClass(__jsb_dragonBones_WorldClock_class);
     globalClock->setPrivateData(&dragonBones::WorldClock::clock);
     worldClockVal.toObject()->setProperty("clock", se::Value(globalClock));
 
