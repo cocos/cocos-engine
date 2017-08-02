@@ -1,3 +1,29 @@
+/****************************************************************************
+ Copyright (c) 2017 Chukong Technologies Inc.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Chukong Aipu reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
+
+var JS = require('../platform/js');
 
 function parseDepends (key, parsed) {
     var item = cc.loader.getItem(key);
@@ -15,35 +41,88 @@ function parseDepends (key, parsed) {
     }
 }
 
-function release (loader, key, nextSceneAssets) {
-    if (!nextSceneAssets || nextSceneAssets.indexOf(key) === -1) {
-        loader.release(key);
+function visitAsset (asset, excludeMap) {
+    var key = cc.loader._getReferenceKey(asset);
+    if ( !excludeMap[key] ) {
+        excludeMap[key] = true;
+        parseDepends(key, excludeMap);
+    }
+}
+
+function visitComponent (comp, excludeMap) {
+    var props = Object.getOwnPropertyNames(comp);
+    for (var i = 0; i < props.length; i++) {
+        var value = comp[props[i]];
+        if (typeof value === 'object' && value) {
+            if (Array.isArray(value)) {
+                for (var j = 0; j < value.length; j++) {
+                    let val = value[j];
+                    if (val instanceof cc.RawAsset) {
+                        visitAsset(val, excludeMap);
+                    }
+                }
+            }
+            else if (!value.constructor || value.constructor === Object) {
+                for (let key in value) {
+                    if (value.hasOwnProperty(key)) {
+                        let subValue = value[key];
+                        if (subValue instanceof cc.RawAsset) {
+                            visitAsset(subValue, excludeMap);
+                        }
+                    }
+                }
+            }
+            else if (value instanceof cc.RawAsset) {
+                visitAsset(value, excludeMap);
+            }
+        }
+    }
+}
+
+function visitNode (node, excludeMap) {
+    for (let i = 0; i < node._components.length; i++) {
+        visitComponent(node._components[i], excludeMap);
+    }
+    for (let i = 0; i < node._children.length; i++) {
+        visitNode(node._children[i], excludeMap);
     }
 }
 
 module.exports = {
     // do auto release
-    autoRelease: function (loader, oldSceneAssets, nextSceneAssets) {
-        var releaseSettings = loader._autoReleaseSetting;
-        var i, key;
+    autoRelease: function (oldSceneAssets, nextSceneAssets, persistNodeMap) {
+        var releaseSettings = cc.loader._autoReleaseSetting;
+        var excludeMap = JS.createMap();
+
+        // collect next scene assets
+        if (nextSceneAssets) {
+            for (let i = 0; i < nextSceneAssets.length; i++) {
+                excludeMap[nextSceneAssets[i]] = true;
+            }
+        }
+
+        // collect assets used by persist nodes
+        for (let id in persistNodeMap) {
+            visitNode(persistNodeMap[id], excludeMap)
+        }
 
         // remove ununsed scene assets
         if (oldSceneAssets) {
-            for (i = 0; i < oldSceneAssets.length; i++) {
-                key = oldSceneAssets[i];
-                if (releaseSettings[key] !== false) {
-                    release(loader, key, nextSceneAssets);
+            for (let i = 0; i < oldSceneAssets.length; i++) {
+                let key = oldSceneAssets[i];
+                if (releaseSettings[key] !== false && !excludeMap[key]) {
+                    cc.loader.release(key);
                 }
             }
         }
 
         // remove auto release assets
+        // (releasing asset will change _autoReleaseSetting, so don't use for-in)
         var keys = Object.keys(releaseSettings);
-        // releasing asset will change _autoReleaseSetting, so don't use enumerator
-        for (i = 0; i < keys.length; i++) {
-            key = keys[i];
-            if (releaseSettings[key] === true) {
-                release(loader, key, nextSceneAssets);
+        for (let i = 0; i < keys.length; i++) {
+            let key = keys[i];
+            if (releaseSettings[key] === true && !excludeMap[key]) {
+                cc.loader.release(key);
             }
         }
     },

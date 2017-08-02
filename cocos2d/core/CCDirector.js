@@ -563,7 +563,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             // auto release assets
             console.time(AUTO_RELEASE);
             var autoReleaseAssets = oldScene && oldScene.autoReleaseAssets && oldScene.dependAssets;
-            AutoReleaseUtils.autoRelease(cc.loader, autoReleaseAssets, scene.dependAssets);
+            AutoReleaseUtils.autoRelease(autoReleaseAssets, scene.dependAssets, persistNodes);
             console.timeEnd(AUTO_RELEASE);
         }
 
