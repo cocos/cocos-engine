@@ -100,7 +100,7 @@ namespace se {
         JsValueRef prototype;
         _CHECK(JsCreateObject(&prototype));
 
-        Object* prototypeObj = Object::_createJSObject(nullptr, prototype, true);
+        Object* prototypeObj = Object::_createJSObject(this, prototype, true);
 
         for (const auto& func : _funcs)
         {

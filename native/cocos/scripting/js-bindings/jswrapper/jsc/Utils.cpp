@@ -151,7 +151,7 @@ namespace se {
             }
             else
             {
-                HandleObject obj(Object::_createJSObject(nullptr, jsobj));
+                HandleObject obj(Object::_createJSObject(nullptr, jsobj)); //FIXME: consider which in sm, new create a new object everytime?
                 obj->root();
                 data->setObject(obj);
             }
