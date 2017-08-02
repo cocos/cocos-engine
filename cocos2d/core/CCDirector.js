@@ -558,7 +558,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             // auto release assets
             CC_DEBUG && console.time('AutoRelease');
             var autoReleaseAssets = oldScene && oldScene.autoReleaseAssets && oldScene.dependAssets;
-            AutoReleaseUtils.autoRelease(cc.loader, autoReleaseAssets, scene.dependAssets);
+            AutoReleaseUtils.autoRelease(autoReleaseAssets, scene.dependAssets, persistNodes);
             CC_DEBUG && console.timeEnd('AutoRelease');
         }
 

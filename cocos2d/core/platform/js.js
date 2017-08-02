@@ -621,6 +621,25 @@ js.shiftArguments = function () {
 };
 
 /**
+ * #en
+ * A simple wrapper of `Object.create(null)` which ensures the return object have no prototype (and thus no inherited members). So we can skip `hasOwnProperty` calls on property lookups. It is a worthwhile optimization than the `{}` literal when `hasOwnProperty` calls are necessary.
+ * #zh
+ * 该方法是对 `Object.create(null)` 的简单封装。`Object.create(null)` 用于创建无 prototype （也就无继承）的空对象。这样我们在该对象上查找属性时，就不用进行 `hasOwnProperty` 判断。在需要频繁判断 `hasOwnProperty` 时，使用这个方法性能会比 `{}` 更高。
+ *
+ * @method createMap
+ * @param {Boolean} [forceDictMode=false] - Apply the delete operator to newly created map object. This causes V8 to put the object in "dictionary mode" and disables creation of hidden classes which are very expensive for objects that are constantly changing shape.
+ * @return {Object}
+ */
+js.createMap = function (forceDictMode) {
+    var map = Object.create(null);
+    if (forceDictMode) {
+        map["__"] = undefined;
+        delete map["__"];
+    }
+    return map;
+};
+
+/**
  * @class array
  * @static
  */
