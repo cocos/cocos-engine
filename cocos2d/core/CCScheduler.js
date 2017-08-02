@@ -550,8 +550,8 @@ cc.Scheduler = cc._Class.extend({
             element = HashTimerEntry.get(null, target, 0, null, null, paused);
             this._arrayForTimers.push(element);
             this._hashForTimers[instanceId] = element;
-        } else {
-            cc.assert(element.paused === paused, '');
+        } else if (element.paused !== paused) {
+            cc.warnID(1511);
         }
 
         var timer, i;

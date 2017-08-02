@@ -62,6 +62,7 @@ if (CC_DEBUG) {
         "1508": "Argument callback must not be empty", //isScheduled
         "1509": "Argument target must be non-nullptr", //isScheduled
         "1510": "cc.Scheduler: Illegal target which doesn't have uuid or instanceId",
+        "1511": "cc.Scheduler: pause state of the scheduled task doesn't match the element pause state in Scheduler, the given paused state will be ignored",
         //Node: 1600
         "1600": "getZOrder is deprecated. Please use getLocalZOrder instead.", //getZOrder
         "1601": "setZOrder is deprecated. Please use setLocalZOrder instead.", //setZOrder
