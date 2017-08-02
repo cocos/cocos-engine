@@ -179,6 +179,7 @@ let Camera = cc.Class({
         
         Camera.main = null;
 
+        // target sgNode may changed, so directly remove sgTargets here.
         let sgTargets = this._sgTarges;
         for (let i = sgTargets.length - 1; i >= 0; i--) {
             this._removeTargetInSg(sgTargets[i]);
