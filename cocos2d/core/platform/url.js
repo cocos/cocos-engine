@@ -107,7 +107,7 @@ cc.url = {
     _init: function (mountPaths) {
         for (var dir in mountPaths) {
             var path = mountPaths[dir];
-            path = cc.path._setEndWithSep(path, '/');
+            path = cc.path.stripSep(path) + '/';
             _mounts[dir] = path;
         }
 
