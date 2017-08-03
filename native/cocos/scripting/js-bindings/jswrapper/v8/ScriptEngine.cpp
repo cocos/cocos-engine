@@ -152,7 +152,7 @@ namespace se {
         _globalObj->defineFunction("forceGC", __forceGC);
 
         __jsb_CCPrivateData_class = Class::create("__CCPrivateData", _globalObj, nullptr, nullptr);
-        __jsb_CCPrivateData_class->defineFinalizedFunction(privateDataFinalize);
+        __jsb_CCPrivateData_class->defineFinalizeFunction(privateDataFinalize);
         __jsb_CCPrivateData_class->setCreateProto(false);
         __jsb_CCPrivateData_class->install();
 

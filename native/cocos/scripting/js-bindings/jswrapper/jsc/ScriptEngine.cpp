@@ -95,6 +95,7 @@ namespace se {
 
     bool ScriptEngine::init()
     {
+        cleanup();
         LOGD("Initializing JavaScriptCore \n");
 
         _cx = JSGlobalContextCreate(nullptr);
@@ -123,7 +124,7 @@ namespace se {
         JSStringRelease(propertyName);
 
         __jsb_CCPrivateData_class = Class::create("__CCPrivateData", _globalObj, nullptr, privateDataContructor);
-        __jsb_CCPrivateData_class->defineFinalizedFunction(privateDataFinalize);
+        __jsb_CCPrivateData_class->defineFinalizeFunction(privateDataFinalize);
         __jsb_CCPrivateData_class->install();
 
         _isValid = true;
@@ -280,13 +281,14 @@ namespace se {
         LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
     }
 
-    bool ScriptEngine::executeScriptBuffer(const char *string, Value *data, const char *fileName)
+    bool ScriptEngine::executeScriptBuffer(const char *script, ssize_t length, Value *data, const char *fileName)
     {
-        return executeScriptBuffer(string, strlen(string), data, fileName);
-    }
+        assert(script != nullptr);
+        if (length < 0)
+        {
+            length = strlen(script);
+        }
 
-    bool ScriptEngine::executeScriptBuffer(const char *script, size_t length, Value *data, const char *fileName)
-    {
         std::string exceptionStr;
         std::string scriptStr(script, length);
 

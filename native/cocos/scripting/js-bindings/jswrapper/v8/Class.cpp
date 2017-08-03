@@ -174,7 +174,7 @@ namespace se {
         return true;
     }
 
-    bool Class::defineFinalizedFunction(V8FinalizeFunc finalizeFunc)
+    bool Class::defineFinalizeFunction(V8FinalizeFunc finalizeFunc)
     {
         assert(finalizeFunc != nullptr);
         _finalizeFunc = finalizeFunc;

@@ -26,7 +26,7 @@ namespace se {
         bool defineProperty(const char *name, JsNativeFunction getter, JsNativeFunction setter);
         bool defineStaticFunction(const char *name, JsNativeFunction func);
         bool defineStaticProperty(const char *name, JsNativeFunction getter, JsNativeFunction setter);
-        bool defineFinalizedFunction(JsFinalizeCallback func);
+        bool defineFinalizeFunction(JsFinalizeCallback func);
 
         const char* getName() const { return _name.c_str(); }
 

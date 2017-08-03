@@ -341,7 +341,7 @@ namespace se {
         JS::SetGetIncumbentGlobalCallback(_cx, onGetIncumbentGlobalCallback);
 
         __jsb_CCPrivateData_class = Class::create("__CCPrivateData", _globalObj, nullptr, privateDataContructor);
-        __jsb_CCPrivateData_class->defineFinalizedFunction(privateDataFinalize);
+        __jsb_CCPrivateData_class->defineFinalizeFunction(privateDataFinalize);
         __jsb_CCPrivateData_class->install();
 
         _isValid = true;
