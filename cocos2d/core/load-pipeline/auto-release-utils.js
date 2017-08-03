@@ -55,7 +55,7 @@ function visitComponent (comp, excludeMap) {
         var value = comp[props[i]];
         if (typeof value === 'object' && value) {
             if (Array.isArray(value)) {
-                for (var j = 0; j < value.length; j++) {
+                for (let j = 0; j < value.length; j++) {
                     let val = value[j];
                     if (val instanceof cc.RawAsset) {
                         visitAsset(val, excludeMap);
@@ -63,12 +63,11 @@ function visitComponent (comp, excludeMap) {
                 }
             }
             else if (!value.constructor || value.constructor === Object) {
-                for (let key in value) {
-                    if (value.hasOwnProperty(key)) {
-                        let subValue = value[key];
-                        if (subValue instanceof cc.RawAsset) {
-                            visitAsset(subValue, excludeMap);
-                        }
+                let keys = Object.getOwnPropertyNames(value);
+                for (let j = 0; j < keys.length; j++) {
+                    let val = value[keys[j]];
+                    if (val instanceof cc.RawAsset) {
+                        visitAsset(val, excludeMap);
                     }
                 }
             }
@@ -90,7 +89,7 @@ function visitNode (node, excludeMap) {
 
 module.exports = {
     // do auto release
-    autoRelease: function (oldSceneAssets, nextSceneAssets, persistNodeMap) {
+    autoRelease: function (oldSceneAssets, nextSceneAssets, persistNodes) {
         var releaseSettings = cc.loader._autoReleaseSetting;
         var excludeMap = JS.createMap();
 
@@ -102,8 +101,8 @@ module.exports = {
         }
 
         // collect assets used by persist nodes
-        for (let id in persistNodeMap) {
-            visitNode(persistNodeMap[id], excludeMap)
+        for (let i = 0; i < persistNodes.length; i++) {
+            visitNode(persistNodes[i], excludeMap)
         }
 
         // remove ununsed scene assets
