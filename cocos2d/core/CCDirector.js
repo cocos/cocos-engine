@@ -425,6 +425,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      */
     purgeCachedData: function () {
         cc.textureCache._clear();
+        cc.loader.releaseAll();
     },
 
     /**
