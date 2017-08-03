@@ -154,25 +154,34 @@ var ProgressBar = cc.Class({
                     totalWidth = entitySize.width;
                     totalHeight = this.totalLength;
                     break;
-                case Mode.FILLED:
+            }
+
+            //handling filled mode
+            if (this.mode === Mode.FILLED) {
+                if (this.barSprite.type !== cc.Sprite.Type.FILLED) {
+                    cc.warn('ProgressBar FILLED mode only works when barSprite\'s Type is FILLED!');
+                } else {
                     if (this.reverse) {
                         actualLenth = actualLenth * -1;
                     }
                     this.barSprite.fillRange = actualLenth;
-                    break;
+                }
+            } else {
+                if (this.barSprite.type !== cc.Sprite.Type.FILLED) {
+
+                    var anchorOffsetX = anchorPoint.x - entityAnchorPoint.x;
+                    var anchorOffsetY = anchorPoint.y - entityAnchorPoint.y;
+                    var finalPosition = cc.p(totalWidth * anchorOffsetX, totalHeight * anchorOffsetY);
+
+                    entity.setPosition(cc.pAdd(entityPosition, finalPosition));
+
+                    entity.setAnchorPoint(anchorPoint);
+                    entity.setContentSize(finalContentSize);
+                } else {
+                    cc.warn('ProgressBar non-FILLED mode only works when barSprite\'s Type is non-FILLED!');
+                }
             }
 
-            if (this.barSprite.type !== cc.Sprite.Type.FILLED) {
-
-                var anchorOffsetX = anchorPoint.x - entityAnchorPoint.x;
-                var anchorOffsetY = anchorPoint.y - entityAnchorPoint.y;
-                var finalPosition = cc.p(totalWidth * anchorOffsetX, totalHeight * anchorOffsetY);
-
-                entity.setPosition(cc.pAdd(entityPosition, finalPosition));
-
-                entity.setAnchorPoint(anchorPoint);
-                entity.setContentSize(finalContentSize);
-            }
 
 
         }
@@ -187,7 +196,7 @@ var ProgressBar = cc.Class({
         barSprite: {
             default: null,
             type: cc.Sprite,
-            tooltip: 'i18n:COMPONENT.progress.bar_sprite',
+            tooltip: CC_DEV && 'i18n:COMPONENT.progress.bar_sprite',
             notify: function() {
                 this._initBarSprite();
             },
@@ -202,7 +211,7 @@ var ProgressBar = cc.Class({
         mode: {
             default: Mode.HORIZONTAL,
             type: Mode,
-            tooltip: 'i18n:COMPONENT.progress.mode',
+            tooltip: CC_DEV && 'i18n:COMPONENT.progress.mode',
             notify: function() {
                 if (this.barSprite) {
                     var entity = this.barSprite.node;
@@ -221,16 +230,23 @@ var ProgressBar = cc.Class({
             animatable: false
         },
 
+        _N$totalLength: 1,
         /**
          * !#en The total width or height of the bar sprite.
          * !#zh 进度条实际的总长度
          * @property {Number} totalLength
          */
         totalLength: {
-            default: 1,
             range: [0, Number.MAX_VALUE],
-            tooltip: 'i18n:COMPONENT.progress.total_length',
-            notify: function(value) {
+            tooltip: CC_DEV && 'i18n:COMPONENT.progress.total_length',
+            get: function () {
+                return this._N$totalLength;
+            },
+            set: function(value) {
+                if (this.mode === Mode.FILLED) {
+                    value = cc.clamp01(value);
+                }
+                this._N$totalLength = value;
                 this._updateBarStatus();
             }
         },
@@ -245,7 +261,7 @@ var ProgressBar = cc.Class({
             type: 'Float',
             range: [0, 1, 0.1],
             slide: true,
-            tooltip: 'i18n:COMPONENT.progress.progress',
+            tooltip: CC_DEV && 'i18n:COMPONENT.progress.progress',
             notify: function() {
                 this._updateBarStatus();
             }
@@ -258,7 +274,7 @@ var ProgressBar = cc.Class({
          */
         reverse: {
             default: false,
-            tooltip: 'i18n:COMPONENT.progress.reverse',
+            tooltip: CC_DEV && 'i18n:COMPONENT.progress.reverse',
             notify: function() {
                 if (this.barSprite) {
                     this.barSprite.fillStart = 1 - this.barSprite.fillStart;

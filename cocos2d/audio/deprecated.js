@@ -25,11 +25,11 @@
  ****************************************************************************/
 
 var js = cc.js;
-var INFO = cc._LogInfos.deprecated;
+// var INFO = cc._LogInfos.deprecated;
 
 exports.removed = function (audioEngine) {
 	function willPlayMusicError () {
-		cc.error('Sorry, cc.audioEngine.willPlayMusic is removed.');
+		cc.errorID(1403);
 	}
 	js.getset(audioEngine, 'willPlayMusic', willPlayMusicError, willPlayMusicError);
 };
@@ -102,9 +102,8 @@ exports.deprecated = function (audioEngine) {
 	});
 	js.get(audioEngine, 'playEffect', function () {
 		// cc.warn(INFO, 'audioEngine.playEffect', 'audioEngine.play');
-
 		return function (url, loop, volume) {
-			return audioEngine.play(url, loop, volume === undefined ? effectsVolume : volume);
+			return audioEngine.play(url, loop || false, volume === undefined ? effectsVolume : volume);
 		}
 	});
 	js.get(audioEngine, 'setEffectsVolume', function (volume) {

@@ -23,8 +23,8 @@
  ****************************************************************************/
 
 cc.RenderTexture.CanvasRenderCmd = function(renderableObject){
-    _ccsg.Node.CanvasRenderCmd.call(this, renderableObject);
-    this._needDraw = true;
+    this._rootCtor(renderableObject);
+    this._needDraw = false;
     this._clearColorStr = "rgba(255,255,255,1)";
 
     this._cacheCanvas = document.createElement('canvas');
@@ -86,6 +86,8 @@ proto.end = function(){
     var node = this._node;
 
     cc.renderer._renderingToCacheCanvas(this._cacheContext, node.__instanceId);
+    var spriteRenderCmd = node.sprite._renderCmd;
+    spriteRenderCmd._notifyRegionStatus && spriteRenderCmd._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.Dirty);
 };
 
 proto.clearRect = function(x, y, width, height){
@@ -94,11 +96,4 @@ proto.clearRect = function(x, y, width, height){
 
 proto.clearDepth = function(depthValue){
     cc.log("clearDepth isn't supported on Cocos2d-Html5");
-};
-
-proto.visit = function(parentCmd){
-    var node = this._node;
-    this._syncStatus(parentCmd);
-    node.sprite.visit(this);
-    this._dirtyFlag = 0;
 };

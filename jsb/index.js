@@ -25,78 +25,86 @@
 
 'use strict';
 
-// Check version
-var _engineNumberVersion = (function () {
-    var result = /Cocos2d\-JS\sv([\d]+)\.([\d]+)/.exec(cc.ENGINE_VERSION);
-    if (result && result[1]) {
-        return {
-            major: parseInt(result[1]),
-            minor: parseInt(result[2])
-        };
-    }
-    else {
-        return null;
-    }
-})();
-
-// Version polyfills
-if (_engineNumberVersion) {
-    if (_engineNumberVersion.major === 3) {
-        if (_engineNumberVersion.minor < 6) {
-            require('./versions/jsb-polyfill-v3.5');
-        }
-        if (_engineNumberVersion.minor < 9) {
-            require('./versions/jsb-polyfill-v3.8');
-        }
-        if (_engineNumberVersion.minor < 10) {
-            require('./versions/jsb-polyfill-v3.9');
-        }
-    }
-}
-
 var originLog = console.log;
-
-// cc.initEngine
-cc.initEngine = function (config, cb) {
-    require('script/jsb.js');
-    cc._renderType = cc.game.RENDER_TYPE_OPENGL;
-    cc._engineLoaded = true;
-    originLog(cc.ENGINE_VERSION);
-    if (cb) cb();
-};
 
 // overwrite original console.log
 try {
-    console.log = function () {
-        originLog.call(console, cc.js.formatStr.apply(null, arguments));
+    console.log = function (...args) {
+        originLog(cc.js.formatStr.apply(null, args));
     };
 }
 catch (e) {
 }
 
-// Macros, if "global_defs" not preprocessed by uglify, just declare them globally
-eval(
-    /* use EVAL to prevent the uglify from renaming symbols */
-    'if(typeof CC_TEST=="undefined")' +
-        'window.CC_TEST=typeof describe!="undefined"||typeof QUnit=="object";' +
-    'if(typeof CC_EDITOR=="undefined")' +
-        'window.CC_EDITOR=typeof Editor=="object"&&typeof process=="object"&&"electron" in process.versions;' +
-    'if(typeof CC_DEV=="undefined")' +
-        'window.CC_DEV=CC_EDITOR||CC_TEST;' +
-    'if(typeof CC_JSB=="undefined")' +
-        'window.CC_JSB=true;'
-);
+function defineMacro (name, defaultValue) {
+    // if "global_defs" not preprocessed by uglify, just declare them globally,
+    // this may happened in release version's preview page.
+    // (use evaled code to prevent mangle by uglify)
+    return 'if(typeof ' + name +  '=="undefined")' +
+           name + '=' + defaultValue + ';';
+}
+function defined (name) {
+    return 'typeof ' + name + '=="object"';
+}
+Function(
+    defineMacro('CC_TEST', defined('tap') + '||' + defined('QUnit')) +
+    defineMacro('CC_EDITOR', defined('Editor') + '&&' + defined('process') + '&&"electron" in process.versions') +
+    defineMacro('CC_PREVIEW', '!CC_EDITOR') +
+    defineMacro('CC_DEV', true) +    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
+    defineMacro('CC_DEBUG', true) +  // CC_DEV || Debug Build
+    defineMacro('CC_JSB', defined('jsb')) +
+    defineMacro('CC_BUILD', false)
+)();
 
-require('./jsb-predefine');
-require('./jsb-loader');
+if (!cc.ClassManager) {
+    cc.ClassManager = window.ClassManager;
+}
+
+if (CC_DEV) {
+    /**
+     * contains internal apis for unit tests
+     * @expose
+     */
+    cc._Test = {};
+}
+
+// polyfills
+require('../polyfill/misc');
+if (!(CC_EDITOR && Editor.isMainProcess)) {
+    require('../polyfill/typescript');
+}
+
+// predefine some modules for cocos
+require('../cocos2d/core/platform/js');
+require('../cocos2d/core/value-types');
+require('../cocos2d/core/utils/find');
+require('../cocos2d/core/utils/mutable-forward-iterator');
+require('../cocos2d/core/event');
+require('../cocos2d/core/event-manager/CCEvent');
+require('../cocos2d/core/event-manager/CCSystemEvent');
+require('../CCDebugger');
+
+if (CC_DEBUG) {
+    //Debug Info ID map
+    require('../DebugInfos');
+}
+
+// Mark memory model
+var macro = require('../cocos2d/core/platform/CCMacro');
+
+if (window.__ENABLE_GC_FOR_NATIVE_OBJECTS__ !== undefined) {
+    macro.ENABLE_GC_FOR_NATIVE_OBJECTS = window.__ENABLE_GC_FOR_NATIVE_OBJECTS__;
+}
+
 require('./jsb-game');
+require('./jsb-loader');
 require('./jsb-director');
 require('./jsb-tex-sprite-frame');
 require('./jsb-scale9sprite');
 require('./jsb-label');
 require('./jsb-editbox');
 require('./jsb-videoplayer');
-require('./jsb-webview.js');
+require('./jsb-webview');
 require('./jsb-particle');
 require('./jsb-spine');
 require('./jsb-enums');
@@ -105,7 +113,7 @@ require('./jsb-action');
 require('./jsb-etc');
 require('./jsb-audio');
 require('./jsb-tiledmap');
+require('./jsb-box2d');
+require('./jsb-dragonbones');
 
-if (cc.runtime) {
-    require('./versions/jsb-polyfill-runtime');
-}
+require('../extends');

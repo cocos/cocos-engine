@@ -1,6 +1,9 @@
 var Contact = require('./CCContact');
 var CollisionType = Contact.CollisionType;
 
+var tempRect = cc.rect();
+var tempVec2 = cc.v2();
+
 /**
  * !#en
  * A simple collision manager class. 
@@ -9,6 +12,7 @@ var CollisionType = Contact.CollisionType;
  * 一个简单的碰撞组件管理类，用于处理节点之间的碰撞组件是否产生了碰撞，并调用相应回调函数。
  *
  * @class CollisionManager
+ * @uses EventTarget
  * @example
  *
  * // Get the collision manager.
@@ -52,9 +56,6 @@ var CollisionType = Contact.CollisionType;
  *         this.node.color = cc.Color.WHITE;
  *     }
  * }
-});
-
- * 
  */
 var CollisionManager = cc.Class({
     mixins: [cc.EventTarget],
@@ -180,7 +181,9 @@ var CollisionManager = cc.Class({
             }
             else if (collider instanceof cc.PolygonCollider) {
                 world.position = null;
-                world.points = collider.points.slice(0, collider.points.length);
+                world.points = collider.points.map(function (p) {
+                    return cc.v2(p.x, p.y);
+                });
             }
             else if (collider instanceof cc.CircleCollider) {
                 world.position = cc.v2();
@@ -203,13 +206,18 @@ var CollisionManager = cc.Class({
 
         if (collider instanceof cc.BoxCollider) {
             var size = collider.size;
-            var rect = cc.rect(offset.x - size.width/2, offset.y - size.height/2, size.width, size.height);
+
+            tempRect.x = offset.x - size.width/2;
+            tempRect.y = offset.y - size.height/2;
+            tempRect.width = size.width;
+            tempRect.height = size.height;
+
             var wps = world.points;
             var wp0 = wps[0];
             var wp1 = wps[1];
             var wp2 = wps[2];
             var wp3 = wps[3];
-            cc.obbApplyAffineTransform(rect, t, wp0, wp1, wp2, wp3);
+            cc.obbApplyAffineTransform(tempRect, t, wp0, wp1, wp2, wp3);
 
             var minx = Math.min(wp0.x, wp1.x, wp2.x, wp3.x);
             var miny = Math.min(wp0.y, wp1.y, wp2.y, wp3.y);
@@ -222,19 +230,22 @@ var CollisionManager = cc.Class({
             aabb.height = maxy - miny;
         }
         else if (collider instanceof cc.CircleCollider) {
+            // calculate world position
             var p = cc.pointApplyAffineTransform(collider.offset, t);
 
-            var tmpX = t.tx, tmpY = t.ty;
+            world.position.x = p.x;
+            world.position.y = p.y;
+
+            // calculate world radius
             t.tx = t.ty = 0;
 
-            var tempP = cc.pointApplyAffineTransform(cc.v2(collider.radius, 0), t);
-            var d = cc.v2(tempP).mag();
+            tempVec2.x = collider.radius;
+            tempVec2.y = 0;
+
+            var tempP = cc.pointApplyAffineTransform(tempVec2, t);
+            var d = Math.sqrt(tempP.x * tempP.x + tempP.y * tempP.y);
 
             world.radius = d;
-            world.position = cc.v2(p);
-
-            t.tx = tmpX;
-            t.ty = tmpY;
 
             aabb.x = p.x - d;
             aabb.y = p.y - d;
@@ -245,11 +256,21 @@ var CollisionManager = cc.Class({
             var points = collider.points;
             var worldPoints = world.points;
 
+            worldPoints.length = points.length;
+
             var minx = 1e6, miny = 1e6, maxx = -1e6, maxy = -1e6;
             for (var i = 0, l = points.length; i < l; i++) {
-                var p = points[i].add(offset);
-                p = cc.pointApplyAffineTransform(p, t);
-                worldPoints[i] = p;
+                if (!worldPoints[i]) {
+                    worldPoints[i] = cc.v2();
+                }
+
+                tempVec2.x = points[i].x + offset.x;
+                tempVec2.y = points[i].y + offset.y;
+                
+                var p = cc.pointApplyAffineTransform(tempVec2, t);
+                
+                worldPoints[i].x = p.x;
+                worldPoints[i].y = p.y;
 
                 if (p.x > maxx) maxx = p.x;
                 if (p.x < minx) minx = p.x;
@@ -304,8 +325,17 @@ var CollisionManager = cc.Class({
             collider.node.off('group-changed', this.onNodeGroupChanged, this);
         }
         else {
-            cc.error('collider not added or already removed');
+            cc.errorID(6600);
         }
+    },
+
+    attachDebugDrawToCamera: function (camera) {
+        if (!this._debugDrawer) return;
+        camera.addTarget(this._debugDrawer);
+    },
+    detachDebugDrawFromCamera: function (camera) {
+        if (!this._debugDrawer) return;
+        camera.removeTarget(this._debugDrawer);
     },
 
     onNodeGroupChanged: function (event) {
@@ -350,17 +380,16 @@ var CollisionManager = cc.Class({
 
             if (this.enabledDrawBoundingBox) {
                 var aabb = collider.world.aabb;
-                var ps = [cc.v2(aabb.xMin, aabb.yMin), cc.v2(aabb.xMin, aabb.yMax), cc.v2(aabb.xMax, aabb.yMax), cc.v2(aabb.xMax, aabb.yMin)];
                 
-                if (ps.length > 0) {
-                    debugDrawer.strokeColor = cc.Color.BLUE;
-                    debugDrawer.moveTo(ps[0].x, ps[0].y);
-                    for (var j = 1; j < ps.length; j++) {
-                        debugDrawer.lineTo(ps[j].x, ps[j].y);
-                    }
-                    debugDrawer.close();
-                    debugDrawer.stroke();
-                }
+                debugDrawer.strokeColor = cc.Color.BLUE;
+                
+                debugDrawer.moveTo(aabb.xMin, aabb.yMin);
+                debugDrawer.lineTo(aabb.xMin, aabb.yMax);
+                debugDrawer.lineTo(aabb.xMax, aabb.yMax);
+                debugDrawer.lineTo(aabb.xMax, aabb.yMin);
+
+                debugDrawer.close();
+                debugDrawer.stroke();
             }
         }
     },

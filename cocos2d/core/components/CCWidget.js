@@ -38,10 +38,11 @@ var LEFT_RIGHT = LEFT | RIGHT;
  * !#en
  * Stores and manipulate the anchoring based on its parent.
  * Widget are used for GUI but can also be used for other things.
- * Widget will adjust current node's position and size automatically, but the results after adjustment can not be obtained until the next frame.
+ * Widget will adjust current node's position and size automatically, but the results after adjustment can not be obtained until the next frame unless you call {{#crossLink "Widget/updateAlignment:method"}}{{/crossLink}} manually.
  * !#zh
  * Widget 组件，用于设置和适配其相对于父节点的边距，Widget 通常被用于 UI 界面，也可以用于其他地方。
- * Widget 会自动调整当前节点的坐标和宽高，不过目前调整后的结果要到下一帧才能在脚本里获取到。
+ * Widget 会自动调整当前节点的坐标和宽高，不过目前调整后的结果要到下一帧才能在脚本里获取到，除非你先手动调用 {{#crossLink "Widget/updateAlignment:method"}}{{/crossLink}}。
+ *
  * @class Widget
  * @extends Component
  */
@@ -57,6 +58,28 @@ var Widget = cc.Class({
     },
 
     properties: {
+
+        /**
+         * !#en Specifies an alignment target that can only be one of the parent nodes of the current node.
+         * The default value is null, and when null, indicates the current parent.
+         * !#zh 指定一个对齐目标，只能是当前节点的其中一个父节点，默认为空，为空时表示当前父节点。
+         * @property {Node} target
+         * @default null
+         */
+        target: {
+            get: function () {
+                return this._target;
+            },
+            set: function (value) {
+                this._target = value;
+                if (CC_EDITOR && !cc.engine._isPlaying && this.node._parent) {
+                    // adjust the offsets to keep the size and position unchanged after target chagned
+                    WidgetManager.updateOffsetsToStayPut(this);
+                }
+            },
+            type: cc.Node,
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.target',
+        },
 
         // ENABLE ALIGN ?
 
@@ -75,7 +98,7 @@ var Widget = cc.Class({
                 this._setAlign(TOP, value);
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.widget.align_top',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.align_top',
         },
 
         /**
@@ -102,7 +125,7 @@ var Widget = cc.Class({
                 }
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.widget.align_v_center',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.align_v_center',
         },
 
         /**
@@ -120,7 +143,7 @@ var Widget = cc.Class({
                 this._setAlign(BOT, value);
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.widget.align_bottom',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.align_bottom',
         },
 
         /**
@@ -138,7 +161,7 @@ var Widget = cc.Class({
                 this._setAlign(LEFT, value);
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.widget.align_left',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.align_left',
         },
 
         /**
@@ -165,7 +188,7 @@ var Widget = cc.Class({
                 }
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.widget.align_h_center',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.align_h_center',
         },
 
         /**
@@ -183,7 +206,7 @@ var Widget = cc.Class({
                 this._setAlign(RIGHT, value);
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.widget.align_right',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.align_right',
         },
 
         /**
@@ -240,7 +263,7 @@ var Widget = cc.Class({
             set: function (value) {
                 this._top = value;
             },
-            tooltip: 'i18n:COMPONENT.widget.top',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.top',
         },
 
         /**
@@ -260,7 +283,7 @@ var Widget = cc.Class({
             set: function (value) {
                 this._bottom = value;
             },
-            tooltip: 'i18n:COMPONENT.widget.bottom',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.bottom',
         },
 
         /**
@@ -280,7 +303,7 @@ var Widget = cc.Class({
             set: function (value) {
                 this._left = value;
             },
-            tooltip: 'i18n:COMPONENT.widget.left',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.left',
         },
 
         /**
@@ -300,7 +323,7 @@ var Widget = cc.Class({
             set: function (value) {
                 this._right = value;
             },
-            tooltip: 'i18n:COMPONENT.widget.right',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.right',
         },
 
         /**
@@ -319,7 +342,7 @@ var Widget = cc.Class({
             set: function (value) {
                 this._horizontalCenter = value;
             },
-            tooltip: 'i18n:COMPONENT.widget.horizontal_center',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.horizontal_center',
         },
 
         /**
@@ -338,7 +361,7 @@ var Widget = cc.Class({
             set: function (value) {
                 this._verticalCenter = value;
             },
-            tooltip: 'i18n:COMPONENT.widget.vertical_center',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.vertical_center',
         },
 
         // PARCENTAGE OR ABSOLUTE
@@ -465,11 +488,13 @@ var Widget = cc.Class({
          */
         isAlignOnce: {
             default: true,
-            tooltip: 'i18n:COMPONENT.widget.align_once',
+            tooltip: CC_DEV && 'i18n:COMPONENT.widget.align_once',
             displayName: "AlignOnce"
         },
 
         //
+
+        _target: null,
 
         /**
          * !#zh: 对齐开关，由 AlignFlags 组成
@@ -560,7 +585,27 @@ var Widget = cc.Class({
 
             this._alignFlags &= ~flag;
         }
-    }
+    },
+
+    /**
+     * !#en
+     * Immediately perform the widget alignment. You need to manually call this method only if
+     * you need to get the latest results after the alignment before the end of current frame.
+     * !#zh
+     * 立刻执行 widget 对齐操作。这个接口一般不需要手工调用。
+     * 只有当你需要在当前帧结束前获得 widget 对齐后的最新结果时才需要手动调用这个方法。
+     *
+     * @method updateAlignment
+     *
+     * @example
+     * widget.top = 10;       // change top margin
+     * cc.log(widget.node.y); // not yet changed
+     * widget.updateAlignment();
+     * cc.log(widget.node.y); // changed
+     */
+    updateAlignment: function () {
+        WidgetManager.updateAlignment(this.node);
+    },
 });
 
 

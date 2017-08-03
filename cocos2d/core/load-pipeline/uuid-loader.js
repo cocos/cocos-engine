@@ -27,9 +27,6 @@ var JS = require('../platform/js');
 require('../platform/deserialize');
 var LoadingItems = require('./loading-items');
 
-// temp deserialize info
-var _tdInfo = new cc.deserialize.Details();
-
 function isSceneObj (json) {
     var SCENE_ID = 'cc.Scene';
     var PREFAB_ID = 'cc.Prefab';
@@ -41,9 +38,12 @@ function isSceneObj (json) {
 }
 
 function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRuntime, callback) {
-    var uuid = item.id, uuidList = tdInfo.uuidList;
+    var uuidList = tdInfo.uuidList;
     var objList, propList, depends;
     var i, dependUuid;
+    // cache dependencies for auto release
+    var dependKeys = item.dependKeys = [];
+
     if (deferredLoadRawAssetsInRuntime) {
         objList = [];
         propList = [];
@@ -58,13 +58,13 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
                 // skip preloading raw assets
                 var url = info.url;
                 obj[prop] = url;
+                dependKeys.push(url);
             }
             else {
                 objList.push(obj);
                 propList.push(prop);
                 // declare depends assets
                 depends.push({
-                    id: dependUuid,
                     type: 'uuid',
                     uuid: dependUuid,
                     deferredLoadRaw: true,
@@ -73,14 +73,13 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
         }
     }
     else {
-        objList = JS.array.copy(tdInfo.uuidObjList);
-        propList = JS.array.copy(tdInfo.uuidPropList);
+        objList = tdInfo.uuidObjList;
+        propList = tdInfo.uuidPropList;
         depends = new Array(uuidList.length);
         // declare depends assets
         for (i = 0; i < uuidList.length; i++) {
             dependUuid = uuidList[i];
             depends[i] = {
-                id: dependUuid,
                 type: 'uuid',
                 uuid: dependUuid
             };
@@ -103,17 +102,14 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
     }
     // fast path
     if (depends.length === 0) {
-        asset._uuid = uuid;
+        cc.deserialize.Details.pool.put(tdInfo);
         return callback(null, asset);
     }
-
-    // cache dependencies for auto release
-    var dependKeys = item.dependKeys = [];
 
     // Predefine content for dependencies usage
     item.content = asset;
     pipeline.flowInDeps(item, depends, function (errors, items) {
-        var item;
+        var item, missingAssetReporter;
         for (var src in items.map) {
             item = items.map[src];
             if (item.uuid && item.content) {
@@ -122,51 +118,64 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
         }
         for (var i = 0; i < depends.length; i++) {
             var dependSrc = depends[i].uuid;
+            var dependUrl = depends[i].url;
             var dependObj = objList[i];
             var dependProp = propList[i];
-            item = items.map[dependSrc];
+            item = items.map[dependUrl];
             if (item) {
+                var thisOfLoadCallback = {
+                    obj: dependObj,
+                    prop: dependProp
+                };
+                function loadCallback (item) {
+                    var value = item.isRawAsset ? item.rawUrl : item.content;
+                    this.obj[this.prop] = value;
+                    if (item.uuid !== asset._uuid && dependKeys.indexOf(item.id) < 0) {
+                        dependKeys.push(item.id);
+                    }
+                }
                 if (item.complete || item.content) {
                     if (item.error) {
-                        cc._throw(item.error);
+                        if (CC_EDITOR && item.error.errorCode === 'db.NOTFOUND') {
+                            if (!missingAssetReporter) {
+                                var MissingObjectReporter = Editor.require('app://editor/page/scene-utils/missing-object-reporter');
+                                missingAssetReporter = new MissingObjectReporter(asset);
+                            }
+                            missingAssetReporter.stashByOwner(dependObj, dependProp, Editor.serialize.asAsset(dependSrc));
+                        }
+                        else {
+                            cc._throw(item.error);
+                        }
                     }
                     else {
-                        var value = item.isRawAsset ? item.url : item.content;
-                        dependObj[dependProp] = value;
-                        dependKeys.push(dependSrc || item.url);
+                        loadCallback.call(thisOfLoadCallback, item);
                     }
                 }
                 else {
                     // item was removed from cache, but ready in pipeline actually
-                    var loadCallback = function (item) {
-                        var value = item.isRawAsset ? item.url : item.content;
-                        this.obj[this.prop] = value;
-                        dependKeys.push(item.uuid || item.url);
-                    };
-                    var target = {
-                        obj: dependObj,
-                        prop: dependProp
-                    };
-                    // Hack to get a better behavior
                     var queue = LoadingItems.getQueue(item);
-                    var list = queue._callbackTable[dependSrc];
-                    if (list) {
-                        list.unshift(loadCallback, target);
+                    // Hack to get a better behavior
+                    var iterator = queue._callbackTable[dependSrc];
+                    if (iterator) {
+                        iterator.array.unshift(loadCallback, thisOfLoadCallback);
                     }
                     else {
-                        queue.addListener(dependSrc, loadCallback, target);
+                        queue.addListener(dependSrc, loadCallback, thisOfLoadCallback);
                     }
                 }
             }
         }
-        asset._uuid = uuid;
+        if (CC_EDITOR && missingAssetReporter) {
+            missingAssetReporter.reportByOwner();
+        }
+        cc.deserialize.Details.pool.put(tdInfo);
         callback(null, asset);
     });
 }
 
 // can deferred load raw assets in runtime
 function canDeferredLoad (asset, item, isScene) {
-    if (CC_EDITOR) {
+    if (CC_EDITOR || CC_JSB) {
         return false;
     }
     var res = item.deferredLoadRaw;
@@ -177,49 +186,69 @@ function canDeferredLoad (asset, item, isScene) {
         }
     }
     else if (isScene) {
-        if (asset instanceof cc.SceneAsset) {
+        if (asset instanceof cc.SceneAsset || asset instanceof cc.Prefab) {
             res = asset.asyncLoadAssets;
             //if (res) {
             //    cc.log('deferred load raw assets for ' + item.id);
             //}
         }
-        //else if (asset instanceof cc.Scene) {
-        //    deferredLoadRawAssetsInRuntime = asset._asyncLoadAssets;
-        //}
     }
     return res;
 }
 
+var MissingClass;
+
 function loadUuid (item, callback) {
+    if (CC_EDITOR) {
+        MissingClass = MissingClass || Editor.require('app://editor/page/scene-utils/missing-class-reporter').MissingClass;
+    }
+
     var json;
     if (typeof item.content === 'string') {
         try {
             json = JSON.parse(item.content);
         }
         catch (e) {
-            callback( new Error('Uuid Loader: Parse asset [' + item.id + '] failed : ' + e.stack) );
-            return;
+            return new Error('Uuid Loader: Parse asset [' + item.id + '] failed : ' + e.stack);
         }
     }
     else if (typeof item.content === 'object') {
         json = item.content;
     }
     else {
-        callback( new Error('JSON Loader: Input item doesn\'t contain string content') );
-        return;
+        return new Error('JSON Loader: Input item doesn\'t contain string content');
     }
 
+    var classFinder;
     var isScene = isSceneObj(json);
-    var classFinder = isScene ? cc._MissingScript.safeFindClass : function (id) {
-        var cls = JS._getClassById(id);
-        if (cls) {
-            return cls;
+    if (isScene) {
+        if (CC_EDITOR) {
+            MissingClass.hasMissingClass = false;
+            classFinder = function (type, data, owner, propName) {
+                var res = MissingClass.classFinder(type, data, owner, propName);
+                if (res) {
+                    return res;
+                }
+                return cc._MissingScript.getMissingWrapper(type, data);
+            };
+            classFinder.onDereferenced = MissingClass.classFinder.onDereferenced;
         }
-        cc.warn('Can not get class "%s"', id);
-        return Object;
-    };
+        else {
+            classFinder = cc._MissingScript.safeFindClass;
+        }
+    }
+    else {
+        classFinder = function (id) {
+            var cls = JS._getClassById(id);
+            if (cls) {
+                return cls;
+            }
+            cc.warnID(4903, id);
+            return Object;
+        };
+    }
 
-    var tdInfo = CC_JSB ? new cc.deserialize.Details() : (item.deserializeInfo || _tdInfo);
+    var tdInfo = cc.deserialize.Details.pool.get();
 
     var asset;
     try {
@@ -230,16 +259,19 @@ function loadUuid (item, callback) {
         });
     }
     catch (e) {
+        cc.deserialize.Details.pool.put(tdInfo);
         var err = CC_JSB ? (e + '\n' + e.stack) : e.stack;
-        callback( new Error('Uuid Loader: Deserialize asset [' + item.id + '] failed : ' + err) );
-        return;
+        return new Error('Uuid Loader: Deserialize asset [' + item.id + '] failed : ' + err);
+    }
+
+    asset._uuid = item.uuid;
+
+    if (CC_EDITOR && isScene && MissingClass.hasMissingClass) {
+        MissingClass.reportMissingClass(asset);
     }
 
     var deferredLoad = canDeferredLoad(asset, item, isScene);
     loadDepends(this.pipeline, item, asset, tdInfo, deferredLoad, callback);
-
-    // tdInfo 是用来重用的临时对象，每次使用后都要重设，这样才对 GC 友好。
-    tdInfo.reset();
 }
 
 module.exports = loadUuid;

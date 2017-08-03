@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var ENABLE_GC_FOR_NATIVE_OBJECTS = cc.macro.ENABLE_GC_FOR_NATIVE_OBJECTS;
+
 // Independent Action from retain/release
 var actionArr = [
     'ActionEase',
@@ -51,18 +53,11 @@ var actionArr = [
     'Place',
     'CallFunc',
     'DelayTime',
-    'Sequence',
-    'Spawn',
     'Speed',
     'Repeat',
     'RepeatForever',
     'Follow',
     'TargetedAction',
-    'Animate',
-    'OrbitCamera',
-    'GridAction',
-    'ProgressTo',
-    'ProgressFromTo',
     'ActionInterval',
     'RotateTo',
     'RotateBy',
@@ -82,34 +77,90 @@ var actionArr = [
     'TintBy',
 ];
 
+cc.Action.prototype._getSgTarget = cc.Action.prototype.getTarget;
+cc.Action.prototype.getTarget = function () {
+    var sgNode = this._getSgTarget();
+    return sgNode._owner || sgNode;
+};
+
 function setCtorReplacer (proto) {
     var ctor = proto._ctor;
-    proto._ctor = function () {
-        ctor.apply(this, arguments);
+    proto._ctor = function (...args) {
+        ctor.apply(this, args);
         this.retain();
         this._retained = true;
     };
 }
 function setAliasReplacer (name, type) {
     var aliasName = name[0].toLowerCase() + name.substr(1);
-    cc[aliasName] = function () {
-        var action = type.create.apply(this, arguments);
+    cc[aliasName] = function (...args) {
+        var action = type.create.apply(this, args);
         action.retain();
         action._retained = true;
         return action;
     };
 }
 
-for (var i = 0; i < actionArr.length; ++i) {
-    var name = actionArr[i];
-    var type = cc[name];
-    if (!type) 
-        continue;
-    var proto = type.prototype;
-    setCtorReplacer(proto);
-    if (name.indexOf('Ease') === -1) {
-        setAliasReplacer(name, type);
+if (!ENABLE_GC_FOR_NATIVE_OBJECTS) {
+    for (var i = 0; i < actionArr.length; ++i) {
+        var name = actionArr[i];
+        var type = cc[name];
+        if (!type) 
+            continue;
+        var proto = type.prototype;
+        setCtorReplacer(proto);
+        if (name.indexOf('Ease') === -1) {
+            setAliasReplacer(name, type);
+        }
     }
+}
+
+cc.Sequence.prototype._ctor = function (...args) {
+    var paramArray = (args[0] instanceof Array) ? args[0] : args;
+    if (paramArray.length === 1) {
+        cc.errorID(1019);
+        return;
+    }
+    var last = paramArray.length - 1;
+    if ((last >= 0) && (paramArray[last] == null))
+        cc.logID(1015);
+
+    if (last >= 0) {
+        this.init(paramArray);
+    }
+
+    if (!ENABLE_GC_FOR_NATIVE_OBJECTS) {
+        this.retain();
+        this._retained = true;
+    }
+};
+
+cc.sequence = function (...args) {
+    var paramArray = (args[0] instanceof Array) ? args[0] : args;
+    return new cc.Sequence(paramArray);
+}
+
+cc.Spawn.prototype._ctor = function (...args) {
+    var paramArray = (args[0] instanceof Array) ? args[0] : args;
+    if (paramArray.length === 1)
+        cc.errorID(1020);
+    var last = paramArray.length - 1;
+    if ((last >= 0) && (paramArray[last] == null))
+        cc.logID(1015);
+
+    if (last >= 0) {
+        this.init(paramArray);
+    }
+
+    if (!ENABLE_GC_FOR_NATIVE_OBJECTS) {
+        this.retain();
+        this._retained = true;
+    }
+};
+
+cc.spawn = function (...args) {
+    var paramArray = (args[0] instanceof Array) ? args[0] : args;
+    return new cc.Spawn(paramArray);
 }
 
 cc.targetedAction = function (target, action) {
@@ -127,7 +178,7 @@ cc.follow = function (followedNode, rect) {
 };
 
 cc.Follow.prototype.update = function(dt) {
-    var target = this.getTarget();
+    var target = this._getSgTarget();
     if (target._owner) {
         target._owner.setPosition(target.getPosition());
     }
@@ -148,7 +199,7 @@ cc.FlipX = _FlipX.extend({
     },
 
     update:function (dt) {
-        var target = this.getTarget();
+        var target = this._getSgTarget();
         target.scaleX = Math.abs(target.scaleX) * (this._flippedX ? -1 : 1);
     },
 
@@ -180,7 +231,7 @@ cc.FlipY = _FlipY.extend({
     },
 
     update:function (dt) {
-        var target = this.getTarget();
+        var target = this._getSgTarget();
         target.scaleY = Math.abs(target.scaleY) * (this._flippedY ? -1 : 1);
     },
 
@@ -207,74 +258,83 @@ function setRendererVisibility (sgNode, toggleVisible, visible) {
 }
 
 cc.Show.prototype.update = function (dt) {
-    setRendererVisibility(this.getTarget(), false, true);
+    setRendererVisibility(this._getSgTarget(), false, true);
 };
 
 cc.Hide.prototype.update = function (dt) {
-    setRendererVisibility(this.getTarget(), false, false);
+    setRendererVisibility(this._getSgTarget(), false, false);
 };
 
 cc.ToggleVisibility.prototype.update = function (dt) {
-    setRendererVisibility(this.getTarget(), true);
+    setRendererVisibility(this._getSgTarget(), true);
 };
 
 // Special call func
 cc.callFunc = function (selector, selectorTarget, data) {
-    var callback = function (sender, data) {
+    var callback = function (sender) {
         if (sender) {
             sender = sender._owner || sender;
         }
         selector.call(this, sender, data);
     };
-    var action = cc.CallFunc.create(callback, selectorTarget, data);
-    action.retain();
-    action._retained = true;
+    var action = selectorTarget ? cc.CallFunc.create(callback, selectorTarget) : cc.CallFunc.create(callback);
+    if (!ENABLE_GC_FOR_NATIVE_OBJECTS) {
+        action.retain();
+        action._retained = true;
+    }
     return action;
 };
 
 cc.CallFunc.prototype._ctor = function (selector, selectorTarget, data) {
     if(selector !== undefined){
-        var callback = function (sender, data) {
+        var callback = function (sender) {
             if (sender) {
                 sender = sender._owner || sender;
             }
             selector.call(this, sender, data);
         };
-        if(selectorTarget === undefined)
+        if (selectorTarget === undefined) {
             this.initWithFunction(callback);
-        else this.initWithFunction(callback, selectorTarget, data);
+        }
+        else {
+            this.initWithFunction(callback, selectorTarget);
+        }
     }
-    this.retain();
-    this._retained = true;
+    if (!ENABLE_GC_FOR_NATIVE_OBJECTS) {
+        this.retain();
+        this._retained = true;
+    }
 };
 
 function setChainFuncReplacer (proto, name) {
     var oldFunc = proto[name];
-    proto[name] = function () {
+    proto[name] = function (...args) {
         if (this._retained) {
             this.release();
             this._retained = false;
         }
-        var newAction = oldFunc.apply(this, arguments);
+        var newAction = oldFunc.apply(this, args);
         newAction.retain();
         newAction._retained = true;
         return newAction;
     };
 }
 
-setChainFuncReplacer(cc.ActionInterval.prototype, 'repeat');
-setChainFuncReplacer(cc.ActionInterval.prototype, 'repeatForever');
-setChainFuncReplacer(cc.ActionInterval.prototype, 'easing');
+if (!ENABLE_GC_FOR_NATIVE_OBJECTS) {
+    setChainFuncReplacer(cc.ActionInterval.prototype, 'repeat');
+    setChainFuncReplacer(cc.ActionInterval.prototype, 'repeatForever');
+    setChainFuncReplacer(cc.ActionInterval.prototype, 'easing');
 
-var jsbRunAction = cc.Node.prototype.runAction;
-cc.Node.prototype.runAction = function (action) {
-    jsbRunAction.call(this, action);
-    if (action._retained) {
-        action.release();
-        action._retained = false;
-    }
-    return action;
-};
+    var jsbRunAction = cc.Node.prototype.runAction;
+    cc.Node.prototype.runAction = function (action) {
+        jsbRunAction.call(this, action);
+        if (action._retained) {
+            action.release();
+            action._retained = false;
+        }
+        return action;
+    };
+}
 
 function getSGTarget (target) {
     if (target instanceof cc.Component) {
@@ -293,7 +353,7 @@ cc.ActionManager.prototype.addAction = function (action, target, paused) {
     target = getSGTarget(target);
     if (target) {
         jsbAddAction.call(this, action, target, paused);
-        if (action._retained) {
+        if (!ENABLE_GC_FOR_NATIVE_OBJECTS && action._retained) {
             action.release();
             action._retained = false;
         }
@@ -303,13 +363,16 @@ cc.ActionManager.prototype.addAction = function (action, target, paused) {
 function actionMgrFuncReplacer (funcName, targetPos) {
     var proto = cc.ActionManager.prototype;
     var oldFunc = proto[funcName];
-    proto[funcName] = function () {
-        arguments[targetPos] = getSGTarget(arguments[targetPos]);
-        if (!arguments[targetPos]) {
+    proto[funcName] = function (...args) {
+        for (var i = 0; i < args.length; i++) {
+            if (i === targetPos)
+                args[i] = getSGTarget(args[i]);
+        }
+        if (!args[targetPos]) {
             return;
         }
         else {
-            return oldFunc.apply(this, arguments);
+            return oldFunc.apply(this, args);
         }
     };
 }
@@ -351,7 +414,7 @@ cc.ActionManager.prototype.pauseTargets = function (targetsToPause) {
 
 function syncPositionUpdate (dt) {
     this._jsbUpdate(dt);
-    var target = this.getTarget();
+    var target = this._getSgTarget();
     if (target._owner) {
         target._owner.x = target.getPositionX();
         target._owner.y = target.getPositionY();
@@ -360,7 +423,7 @@ function syncPositionUpdate (dt) {
 
 function syncRotationUpdate (dt) {
     this._jsbUpdate(dt);
-    var target = this.getTarget();
+    var target = this._getSgTarget();
     if (target._owner) {
         target._owner.rotationX = target.getRotationX();
         target._owner.rotationY = target.getRotationY();
@@ -369,7 +432,7 @@ function syncRotationUpdate (dt) {
 
 function syncScaleUpdate (dt) {
     this._jsbUpdate(dt);
-    var target = this.getTarget();
+    var target = this._getSgTarget();
     if (target._owner) {
         target._owner.scaleX = target.getScaleX();
         target._owner.scaleY = target.getScaleY();
@@ -378,7 +441,7 @@ function syncScaleUpdate (dt) {
 
 function syncRemoveSelfUpdate (dt) {
     this._jsbUpdate(dt);
-    var target = this.getTarget();
+    var target = this._getSgTarget();
     if (target._owner) {
         target._owner.removeFromParent();
     }
@@ -386,7 +449,7 @@ function syncRemoveSelfUpdate (dt) {
 
 function syncSkewUpdate (dt) {
     this._jsbUpdate(dt);
-    var target = this.getTarget();
+    var target = this._getSgTarget();
     if (target._owner) {
         target._owner.skewX = target.getSkewX();
         target._owner.skewY = target.getSkewY();
@@ -395,7 +458,7 @@ function syncSkewUpdate (dt) {
 
 function syncOpacityUpdate (dt) {
     this._jsbUpdate(dt);
-    var target = this.getTarget();
+    var target = this._getSgTarget();
     if (target._owner) {
         target._owner.opacity = target.getOpacity();
     }
@@ -403,9 +466,10 @@ function syncOpacityUpdate (dt) {
 
 function syncColorUpdate (dt) {
     this._jsbUpdate(dt);
-    var target = this.getTarget();
+    var target = this._getSgTarget();
     if (target._owner) {
-        target._owner.color = target.getColor();
+        var color = target.getColor();
+        target._owner.color = color;
     }
 }
 

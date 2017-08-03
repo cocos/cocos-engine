@@ -28,7 +28,7 @@
  */
 
 // implements a simple texture loader like sp._atlasLoader
-var TextureLoader = cc.Class({
+var TextureLoader = !CC_JSB && cc.Class({
     ctor: function () {
         // {SkeletonData}
         this.asset = arguments[0];
@@ -46,25 +46,22 @@ var TextureLoader = cc.Class({
         for (var i = 0; i < urls.length; i++) {
             var url = urls[i];
             if (url.endsWith(line)) {
-                return cc.textureCache.addImage(url);
+                var texture = cc.textureCache.addImage(url);
+                var tex = new sp.SkeletonTexture({ width: texture.getPixelWidth(), height: texture.getPixelHeight() });
+                tex.setRealTexture(texture);
+                return tex;
             }
         }
         return null;
     },
-    load: function (page, line, spAtlas) {
+    load: function (line) {
         var texture = this.getTexture(line);
         if (texture) {
-            if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
-                page.rendererObject = new cc.TextureAtlas(texture, 128);
-                page.width = texture.getPixelWidth();
-                page.height = texture.getPixelHeight();
-            }
-            else {
-                page._texture = texture;
-            }
+            return texture;
         }
         else {
-            cc.error('Failed to load spine atlas "$s"', line);
+            cc.errorID(7506, line);
+            return null;
         }
     },
     unload: function (obj) {
@@ -128,7 +125,7 @@ var SkeletonData = cc.Class({
         // -------------------------------------------------
 
         /**
-         * @property {Texture2D} textures
+         * @property {Texture2D[]} textures
          */
         textures: {
             default: [],
@@ -156,7 +153,7 @@ var SkeletonData = cc.Class({
 
     // PUBLIC
 
-    createNode: function (callback) {
+    createNode: CC_EDITOR && function (callback) {
         //var Url = require('fire-url');
         //var node = new cc.Node(Url.basenameNoExt(info.url));
         //var skeleton = node.addComponent(sp.Skeleton);
@@ -203,7 +200,7 @@ var SkeletonData = cc.Class({
 
         if ( !(this.textures && this.textures.length > 0) ) {
             if ( !quiet ) {
-                cc.error('Please re-import "%s" because its textures is not initialized! (This workflow will be improved in the future.)', this.name);
+                cc.errorID(7507, this.name);
             }
             return null;
         }
@@ -274,12 +271,13 @@ var SkeletonData = cc.Class({
 
         if ( !this.atlasText ) {
             if ( !quiet ) {
-                cc.error('The atlas asset of "%s" is not exists!', this.name);
+                cc.errorID(7508, this.name);
             }
             return null;
         }
 
-        return this._atlasCache = new sp.spine.Atlas(this.atlasText, new TextureLoader(this));
+        var loader =  new TextureLoader(this);
+        return this._atlasCache = new sp.spine.TextureAtlas(this.atlasText, loader.load.bind(loader));
     }
 });
 

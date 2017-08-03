@@ -124,6 +124,8 @@ jsbLabel.prototype.setColor = function(color) {
     }
 };
 
+jsbLabel.prototype.setSpacingX = jsbLabel.prototype.setAdditionalKerning;
+
 jsbLabel.prototype._setTTFConfig = jsbLabel.prototype.setTTFConfig;
 jsbLabel.prototype.setTTFConfig = function (config) {
     this._setTTFConfig(config);
@@ -148,37 +150,44 @@ jsbLabel.prototype.setContentSize = function (size, height) {
     this.setDimensions(newWidth, newHeight);
 };
 
-
-jsbLabel.prototype.setFontFileOrFamily = function (fontHandle) {
-    fontHandle = fontHandle || '';
+jsbLabel.prototype.setFontAsset = function (fontAsset) {
+    this._fontAsset = fontAsset;
+    var isAsset = fontAsset instanceof cc.Font;
+    if (!isAsset) {
+        this.setFontFamily('Arial');
+        return;
+    }
+    var fontHandle =  isAsset ? fontAsset.rawUrl : '';
     var extName = cc.path.extname(fontHandle);
-    //specify font family name directly
-    if (!extName) {
-        this._labelType = _ccsg.Label.Type.SystemFont;
-        this.setSystemFontName(fontHandle);
-        this._isSystemFontUsed = true;
-    }
-    else {
-        if (extName === '.ttf') {
-            if(!this._ttfConfig) {
-                this._ttfConfig = {
-                    fontFilePath: fontHandle,
-                    fontSize: 40,
-                    outlineSize: 0,
-                    glyphs: 0,
-                    customGlyphs: "",
-                    distanceFieldEnable: false
-                };
-            }
-            this._labelType = _ccsg.Label.Type.TTF;
-            this._ttfConfig.fontFilePath = fontHandle;
-            this.setTTFConfig(this._ttfConfig);
-        } else if (extName === '.fnt') {
-            this._labelType = _ccsg.Label.Type.BMFont;
-            this.setBMFontFilePath(fontHandle);
-            this.setFontSize(this.getFontSize());
+
+    if (extName === '.ttf') {
+        if(!this._ttfConfig) {
+            this._ttfConfig = {
+                fontFilePath: fontHandle,
+                fontSize: this._fontSize,
+                outlineSize: 0,
+                glyphs: 0,
+                customGlyphs: "",
+                distanceFieldEnable: false
+            };
         }
+        this._labelType = _ccsg.Label.Type.TTF;
+        this._ttfConfig.fontFilePath = fontHandle;
+        this.setTTFConfig(this._ttfConfig);
+    } else if (fontAsset.spriteFrame) {
+        this._labelType = _ccsg.Label.Type.BMFont;
+        this.setBMFontFilePath(JSON.stringify(fontAsset._fntConfig), fontAsset.spriteFrame);
+        this.setFontSize(this.getFontSize());
     }
+    //FIXME: hack for bmfont crash. remove this line when it fixed in native
+    this.getContentSize();
+};
+
+jsbLabel.prototype.setFontFamily = function (fontFamily) {
+    fontFamily = fontFamily || '';
+    this._labelType = _ccsg.Label.Type.SystemFont;
+    this.setSystemFontName(fontFamily);
+    this._isSystemFontUsed = true;
     //FIXME: hack for bmfont crash. remove this line when it fixed in native
     this.getContentSize();
 };
@@ -224,31 +233,32 @@ jsbLabel.prototype.getOutlineColor = function() {
 };
 
 
-cc.Label = function (string, fontHandle) {
+cc.Label = function (string, fontHandle, spriteFrame, fontSize) {
     fontHandle = fontHandle || "Arial";
     var extName = cc.path.extname(fontHandle);
 
     var type = _ccsg.Label.Type.TTF;
+    this._fontSize = fontSize;
 
     var label;
     if (extName === ".ttf") {
         var ttfConfig = {
             fontFilePath: fontHandle,
-            fontSize: 40,
+            fontSize: this._fontSize,
             outlineSize: 0,
             glyphs: 0,
             customGlyphs: "",
             distanceFieldEnable: false
         };
-        label = jsbLabel.createWithTTF(ttfConfig, string, 40);
+        label = jsbLabel.createWithTTF(ttfConfig, string, this._fontSize);
         label._ttfConfig = ttfConfig;
     }
-    else if (extName === ".fnt") {
-        label = jsbLabel.createWithBMFont(fontHandle, string);
+    else if (spriteFrame) {
+        label = jsbLabel.createWithBMFont(fontHandle, string, spriteFrame);
         type = _ccsg.Label.Type.BMFont;
     }
     else {
-        label = jsbLabel.createWithSystemFont(string || '', fontHandle, 40);
+        label = jsbLabel.createWithSystemFont(string || '', fontHandle, this._fontSize);
         type = _ccsg.Label.Type.SystemFont;
         label._isSystemFontUsed = true;
     }
@@ -266,3 +276,15 @@ cc.Label.Overflow = cc.Enum({
     SHRINK: 2,
     RESIZE_HEIGHT: 3
 });
+
+cc.Label.pool = new cc.js.Pool(0);
+//Note: The pool.get method only used for creating TTF and SystemFont
+cc.Label.pool.get = function (string, fontAsset, spriteFrame, fontSize) {
+    this._fontAsset = fontAsset;
+    var isAsset = fontAsset instanceof cc.Font;
+    if (!isAsset) {
+        return new _ccsg.Label(string, null, null, fontSize);
+    }
+    var fontHandle =  isAsset ? fontAsset.rawUrl : '';
+    return new _ccsg.Label(string, fontHandle, spriteFrame, fontSize);
+};

@@ -33,14 +33,9 @@
  * @param {Number} id
  */
 cc.Touch = cc._Class.extend(/** @lends cc.Touch# */{
-    _lastModified: 0,
-    _point:null,
-    _prevPoint:null,
-    _id:0,
-    _startPointCaptured: false,
-    _startPoint:null,
 
     ctor:function (x, y, id) {
+        this._lastModified = 0;
         this.setTouchInfo(id, x, y);
     },
 

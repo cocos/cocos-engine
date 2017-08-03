@@ -32,11 +32,11 @@ var NIL = function () {};
  * cc.Scene 是 cc.Node 的子类，仅作为一个抽象的概念。<br/>
  * cc.Scene 和 cc.Node 有点不同，用户不应直接修改 cc.Scene。
  * @class Scene
- * @extends _BaseNode
+ * @extends Node
  */
 cc.Scene = cc.Class({
     name: 'cc.Scene',
-    extends: require('./utils/base-node'),
+    extends: require('./CCNode'),
 
     properties: {
 
@@ -67,63 +67,30 @@ cc.Scene = cc.Class({
     },
 
     destroy: function () {
-        var children = this._children;
-        var DontDestroy = cc.Object.Flags.DontDestroy;
-
-        for (var i = 0, len = children.length; i < len; ++i) {
-            var child = children[i];
-            if (child.isValid) {
-                if (!(child._objFlags & DontDestroy)) {
-                    child.destroy();
-                }
-            }
-        }
-
         this._super();
         this._activeInHierarchy = false;
     },
 
     _onHierarchyChanged: NIL,
+    _instantiate : null,
 
     _load: function () {
-        if ( ! this._inited) {
-
-            this._updateDummySgNode();
-
-            // deactivate ActionManager and EventManager by default
-            cc.director.getActionManager().pauseTarget(this);
-            cc.eventManager.pauseTarget(this);
-
-            var children = this._children;
-            for (var i = 0, len = children.length; i < len; i++) {
-                children[i]._onBatchCreated();
+        if (!this._inited) {
+            if (CC_TEST) {
+                cc.assert(!this._activeInHierarchy, 'Should deactivate ActionManager and EventManager by default');
             }
-
+            this._onBatchCreated();
             this._inited = true;
         }
     },
 
     _activate: function (active) {
         active = (active !== false);
-        var i, child, children = this._children, len = children.length;
-
         if (CC_EDITOR || CC_TEST) {
             // register all nodes to editor
-            for (i = 0; i < len; ++i) {
-                child = children[i];
-                child._registerIfAttached(active);
-            }
+            this._registerIfAttached(active);
         }
-
-        this._activeInHierarchy = active;
-
-        // invoke onLoad and onEnable
-        for (i = 0; i < len; ++i) {
-            child = children[i];
-            if (child._active) {
-                child._onActivatedInHierarchy(active);
-            }
-        }
+        cc.director._nodeActivator.activateNode(this, active);
     }
 });
 

@@ -51,8 +51,19 @@ var ToggleGroup = cc.Class({
          * @property {Boolean} allowSwitchOff
          */
         allowSwitchOff: {
-            tooltip: 'i18n:COMPONENT.toggle_group.allowSwitchOff',
+            tooltip: CC_DEV && 'i18n:COMPONENT.toggle_group.allowSwitchOff',
             default: false
+        },
+
+        /**
+         * !#en Read only property, return the toggle items array reference managed by toggleGroup.
+         * !#zh 只读属性，返回 toggleGroup 管理的 toggle 数组引用
+         * @property {Array} toggleItems
+         */
+        toggleItems: {
+            get: function (){
+                return this._toggleItems;
+            }
         }
     },
 
@@ -70,11 +81,7 @@ var ToggleGroup = cc.Class({
 
     addToggle: function (toggle) {
         var index = this._toggleItems.indexOf(toggle);
-        if (index > -1) {
-            cc.warn('Toggle alreay in ToggleGroup.'
-                    + 'Something bad happened,' +
-                    ' please report this issue to the Creator developer, thanks.');
-        } else {
+        if (index === -1) {
             this._toggleItems.push(toggle);
         }
         this._allowOnlyOneToggleChecked();
@@ -84,10 +91,6 @@ var ToggleGroup = cc.Class({
         var index = this._toggleItems.indexOf(toggle);
         if(index > -1) {
             this._toggleItems.splice(index, 1);
-        } else {
-            cc.warn('Toggle is not in ToggleGroup.'
-                    + 'Something bad happened,' +
-                    ' please report this issue to the Creator developer, thanks.');
         }
         this._makeAtLeastOneToggleChecked();
     },

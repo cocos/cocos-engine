@@ -92,6 +92,14 @@ dragonBones.CCArmatureDisplay = cc.Class({
         this.off(type, listener, target);
     },
 
+    dispose : function() {
+        if (this._armature) {
+            this.advanceTimeBySelf(false);
+            this._armature.dispose();
+            this._armature = null;
+        }
+    },
+
     armature : function() {
         return this._armature;
     },

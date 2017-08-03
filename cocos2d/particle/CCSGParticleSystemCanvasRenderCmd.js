@@ -26,7 +26,7 @@
  * ParticleSystem's canvas render command
  */
 _ccsg.ParticleSystem.CanvasRenderCmd = function(renderable){
-    _ccsg.Node.CanvasRenderCmd.call(this, renderable);
+    this._rootCtor(renderable);
     this._needDraw = true;
 
     this._drawMode = _ccsg.ParticleSystem.TEXTURE_MODE;
@@ -35,7 +35,7 @@ _ccsg.ParticleSystem.CanvasRenderCmd = function(renderable){
     this._pointRect = cc.rect(0, 0, 0, 0);
     //region for local bb
     this._localRegion = new cc.Region();
-    this._tintCache = document.createElement("canvas");
+    this._tintCache = null;
 };
 var proto = _ccsg.ParticleSystem.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
 proto.constructor = _ccsg.ParticleSystem.CanvasRenderCmd;
@@ -94,7 +94,7 @@ proto.getLocalBB = function() {
 };
 
 proto.updateStatus = function() {
-    _ccsg.Node.CanvasRenderCmd.prototype.updateStatus.call(this);
+    this.originUpdateStatus();
     this._updateCurrentRegions();
     this._regionFlag = _ccsg.Node.CanvasRenderCmd.RegionStatus.DirtyDouble;
     this._dirtyFlag &= ~_ccsg.Node._dirtyFlags.contentDirty;
@@ -174,7 +174,10 @@ proto.rendering = function (ctx, scaleX, scaleY) {
     cc.g_NumberOfDraws++;
 };
 
-proto._changeTextureColor = function(texture, color, rect){
+proto._changeTextureColor = function (texture, color, rect) {
+    if (!this._tintCache) {
+        this._tintCache = document.createElement("canvas");
+    }
     var tintCache = this._tintCache;
     var textureContentSize = texture.getContentSize();
     tintCache.width = textureContentSize.width;

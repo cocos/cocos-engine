@@ -58,124 +58,123 @@ var GraphicsNode = _ccsg.Node.extend({
 var _p = GraphicsNode.prototype;
 
 // draw api
-Js.mixin(_p, {
-    // properties
-    _strokeColor: null,
-    _fillColor: null,
 
-    _lineWidth: 1,
+// properties
+_p._strokeColor = null;
+_p._fillColor = null;
 
-    _lineCap: LineCap.BUTT,
-    _lineJoin: LineJoin.MITER,
+_p._lineWidth = 1;
 
-    _miterLimit: 10,
+_p._lineCap = LineCap.BUTT;
+_p._lineJoin = LineJoin.MITER;
 
-    setStrokeColor: function (v) {
-        this._strokeColor = v;
-        this._renderCmd.setStrokeColor(v);
-    },
-    getStrokeColor: function () {
-        return this._strokeColor;
-    },
+_p._miterLimit = 10;
 
-    setFillColor: function (v) {
-        this._fillColor = v;
-        this._renderCmd.setFillColor(v);
-    },
-    getFillColor: function () {
-        return this._fillColor;
-    },
+_p.setStrokeColor = function (v) {
+    this._strokeColor = v;
+    this._renderCmd.setStrokeColor(v);
+};
+_p.getStrokeColor = function () {
+    return this._strokeColor;
+};
 
-    setLineWidth: function (v) {
-        this._lineWidth = v;
-        this._renderCmd.setLineWidth(v);
-    },
-    getLineWidth: function () {
-        return this._lineWidth;
-    },
+_p.setFillColor = function (v) {
+    this._fillColor = v;
+    this._renderCmd.setFillColor(v);
+};
+_p.getFillColor = function () {
+    return this._fillColor;
+};
 
-    setLineCap: function (v) {
-        this._lineCap = v;
-        this._renderCmd.setLineCap(v);
-    },
-    getLineCap: function () {
-        return this._lineCap;
-    },
+_p.setLineWidth = function (v) {
+    this._lineWidth = v;
+    this._renderCmd.setLineWidth(v);
+};
+_p.getLineWidth = function () {
+    return this._lineWidth;
+};
 
-    setLineJoin: function (v) {
-        this._lineJoin = v;
-        this._renderCmd.setLineJoin(v);
-    },
-    getLineJoin: function () {
-        return this._lineJoin;
-    },
+_p.setLineCap = function (v) {
+    this._lineCap = v;
+    this._renderCmd.setLineCap(v);
+};
+_p.getLineCap = function () {
+    return this._lineCap;
+};
 
-    setMiterLimit: function (v) {
-        this._miterLimit = v;
-        this._renderCmd.setMiterLimit(v);
-    },
-    getMiterLimit: function () {
-        return this._miterLimit;
-    },
+_p.setLineJoin = function (v) {
+    this._lineJoin = v;
+    this._renderCmd.setLineJoin(v);
+};
+_p.getLineJoin = function () {
+    return this._lineJoin;
+};
 
-    // draw functions
-    
-    beginPath: function () {
-        this._renderCmd.beginPath();
-    },
+_p.setMiterLimit = function (v) {
+    this._miterLimit = v;
+    this._renderCmd.setMiterLimit(v);
+};
+_p.getMiterLimit = function () {
+    return this._miterLimit;
+};
 
-    moveTo: function (x, y) {
-        this._renderCmd.moveTo(x, y);
-    },
+// draw functions
 
-    lineTo: function (x, y) {
-        this._renderCmd.lineTo(x, y);
-    },
+_p.beginPath = function () {
+    this._renderCmd.beginPath();
+};
 
-    bezierCurveTo: function (c1x, c1y, c2x, c2y, x, y) {
-        this._renderCmd.bezierCurveTo(c1x, c1y, c2x, c2y, x, y);
-    },
+_p.moveTo = function (x, y) {
+    this._renderCmd.moveTo(x, y);
+};
 
-    quadraticCurveTo: function (cx, cy, x, y) {
-        this._renderCmd.quadraticCurveTo(cx, cy, x, y);
-    },
+_p.lineTo = function (x, y) {
+    this._renderCmd.lineTo(x, y);
+};
 
-    //
-    arc: function (cx, cy, r, a0, a1, counterclockwise) {
-        this._renderCmd.arc(cx, cy, r, a0, a1, counterclockwise);
-    },
+_p.bezierCurveTo = function (c1x, c1y, c2x, c2y, x, y) {
+    this._renderCmd.bezierCurveTo(c1x, c1y, c2x, c2y, x, y);
+};
 
-    ellipse: function (cx, cy, rx, ry) {
-        this._renderCmd.ellipse(cx, cy, rx, ry);
-    },
+_p.quadraticCurveTo = function (cx, cy, x, y) {
+    this._renderCmd.quadraticCurveTo(cx, cy, x, y);
+};
 
-    circle: function (cx, cy, r) {
-        this._renderCmd.circle(cx, cy, r);
-    },
+//
+_p.arc = function (cx, cy, r, a0, a1, counterclockwise) {
+    this._renderCmd.arc(cx, cy, r, a0, a1, counterclockwise);
+};
 
-    rect: function (x, y, w, h) {
-        this._renderCmd.rect(x, y, w, h);
-    },
+_p.ellipse = function (cx, cy, rx, ry) {
+    this._renderCmd.ellipse(cx, cy, rx, ry);
+};
 
-    roundRect: function (x, y, w, h, r) {
-        this._renderCmd.roundRect(x, y, w, h, r);
-    },
+_p.circle = function (cx, cy, r) {
+    this._renderCmd.circle(cx, cy, r);
+};
 
-    fillRect: function (x, y, w, h) {
-        this._renderCmd.fillRect(x, y, w, h);
-    },
+_p.rect = function (x, y, w, h) {
+    this._renderCmd.rect(x, y, w, h);
+};
 
-    close: function () {
-        this._renderCmd.close();
-    },
+_p.roundRect = function (x, y, w, h, r) {
+    this._renderCmd.roundRect(x, y, w, h, r);
+};
 
-    stroke: function () {
-        this._renderCmd.stroke();
-    },
+_p.fillRect = function (x, y, w, h) {
+    this._renderCmd.fillRect(x, y, w, h);
+};
 
-    fill: function () {
-        this._renderCmd.fill();
-    }
-});
+_p.close = function () {
+    this._renderCmd.close();
+};
+
+_p.stroke = function () {
+    this._renderCmd.stroke();
+};
+
+_p.fill = function () {
+    this._renderCmd.fill();
+};
 
 module.exports = GraphicsNode;

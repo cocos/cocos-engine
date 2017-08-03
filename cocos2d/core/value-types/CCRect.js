@@ -39,12 +39,11 @@ var JS = require('../platform/js');
  * !#zh
  * cc.Rect类的构造函数。可以通过 {{#crossLink "cc/rect:method"}} cc.rect {{/crossLink}} 简便方法进行创建。
  *
- * @method Rect
+ * @method constructor
  * @param {Number} [x=0]
  * @param {Number} [y=0]
  * @param {Number} [w=0]
  * @param {Number} [h=0]
- * @return {Rect}
  */
 function Rect (x, y, w, h) {
     if (x && typeof x === 'object') {
@@ -60,6 +59,19 @@ function Rect (x, y, w, h) {
 }
 JS.extend(Rect, ValueType);
 require('../platform/CCClass').fastDefine('cc.Rect', Rect, { x: 0, y: 0, width: 0, height: 0 });
+
+/**
+ * @property {Number} x
+ */
+/**
+ * @property {Number} y
+ */
+/**
+ * @property {Number} width
+ */
+/**
+ * @property {Number} height
+ */
 
 /**
  * !#en Creates a rectangle from two coordinate values.
@@ -93,9 +105,9 @@ Rect.fromMinMax = function (v1, v2) {
  * @param b {Rect} Rect b
  * @return {Number} The contains result, 1 is a contains b, -1 is b contains a, 0 is no contains.
  * @example
- * var a = new cc.rect(0, 0, 10, 10);
- * var b = new cc.rect(5, 5, 5, 5);
- * var c = new cc.rect(20, 20, 10, 10);
+ * var a = new cc.Rect(0, 0, 10, 10);
+ * var b = new cc.Rect(5, 5, 5, 5);
+ * var c = new cc.Rect(20, 20, 10, 10);
  * cc.Rect.contain(a, b); //  1;
  * cc.Rect.contain(b, a); // -1;
  * cc.Rect.contain(a, c); //  0;
@@ -126,7 +138,7 @@ var proto = Rect.prototype;
  * @method clone
  * @return {Rect}
  * @example
- * var a = new cc.rect(0, 0, 10, 10);
+ * var a = new cc.Rect(0, 0, 10, 10);
  * a.clone();// Rect {x: 0, y: 0, width: 10, height: 10}
  */
 proto.clone = function () {
@@ -140,8 +152,8 @@ proto.clone = function () {
  * @param {Rect} other
  * @return {Boolean}
  * @example
- * var a = new cc.rect(0, 0, 10, 10);
- * var b = new cc.rect(0, 0, 10, 10);
+ * var a = new cc.Rect(0, 0, 10, 10);
+ * var b = new cc.Rect(0, 0, 10, 10);
  * a.equals(b);// true;
  */
 proto.equals = function (other) {
@@ -161,8 +173,8 @@ proto.equals = function (other) {
  * @param {Rect} [out] - optional, the receiving vector.
  * @return {Rect}
  * @example
- * var a = new cc.rect(0, 0, 10, 10);
- * var b = new cc.rect(50, 50, 100, 100);
+ * var a = new cc.Rect(0, 0, 10, 10);
+ * var b = new cc.Rect(50, 50, 100, 100);
  * update (dt) {
  *    // method 1;
  *    var c = a.lerp(b, dt * 0.1);
@@ -189,7 +201,7 @@ proto.lerp = function (to, ratio, out) {
  * @method toString
  * @return {String}
  * @example
- * var a = new cc.rect(0, 0, 10, 10);
+ * var a = new cc.Rect(0, 0, 10, 10);
  * a.toString();// "(0.00, 0.00, 10.00, 10.00)";
  */
 proto.toString = function () {
@@ -203,13 +215,13 @@ proto.toString = function () {
  * @property xMin
  * @type {Number}
  */
-Object.defineProperty(proto, 'xMin', {
-    get: function () { return this.x; },
-    set: function (value) {
+JS.getset(proto, 'xMin',
+    function () { return this.x; },
+    function (value) {
         this.width += this.x - value;
         this.x = value;
     }
-});
+);
 
 /**
  * !#en TODO
@@ -217,13 +229,13 @@ Object.defineProperty(proto, 'xMin', {
  * @property yMin
  * @type {Number}
  */
-Object.defineProperty(proto, 'yMin', {
-    get: function () { return this.y; },
-    set: function (value) {
+JS.getset(proto, 'yMin',
+    function () { return this.y; },
+    function (value) {
         this.height += this.y - value;
         this.y = value;
     }
-});
+);
 
 /**
  * !#en TODO
@@ -231,10 +243,10 @@ Object.defineProperty(proto, 'yMin', {
  * @property xMax
  * @type {Number}
  */
-Object.defineProperty(proto, 'xMax', {
-    get: function () { return this.x + this.width; },
-    set: function (value) { this.width = value - this.x; }
-});
+JS.getset(proto, 'xMax',
+    function () { return this.x + this.width; },
+    function (value) { this.width = value - this.x; }
+);
 
 /**
  * !#en TODO
@@ -242,42 +254,56 @@ Object.defineProperty(proto, 'xMax', {
  * @property yMax
  * @type {Number}
  */
-Object.defineProperty(proto, 'yMax', {
-    get: function () { return this.y + this.height; },
-    set: function (value) { this.height = value - this.y; }
-});
+JS.getset(proto, 'yMax',
+    function () { return this.y + this.height; },
+    function (value) { this.height = value - this.y; }
+);
 
 /**
- * !#en TODO
+ * !#en The position of the center of the rectangle.
  * !#zh 矩形的中心点。
- * @property center
- * @type {Number}
+ * @property {Vec2} center
  */
-Object.defineProperty(proto, 'center', {
-    get: function () {
+JS.getset(proto, 'center',
+    function () {
         return new cc.Vec2(this.x + this.width * 0.5,
             this.y + this.height * 0.5);
     },
-    set: function (value) {
+    function (value) {
         this.x = value.x - this.width * 0.5;
         this.y = value.y - this.height * 0.5;
     }
-});
+);
 
 /**
- * !#en TODO
+ * !#en The X and Y position of the rectangle.
+ * !#zh 矩形的 x 和 y 坐标。
+ * @property {Vec2} origin
+ */
+JS.getset(proto, 'origin',
+    function () {
+        return new cc.Vec2(this.x, this.y);
+    },
+    function (value) {
+        this.x = value.x;
+        this.y = value.y;
+    }
+);
+
+/**
+ * !#en Width and height of the rectangle.
  * !#zh 矩形的大小。
  * @property {Size} size
  */
-Object.defineProperty(proto, 'size', {
-    get: function () {
+JS.getset(proto, 'size',
+    function () {
         return new cc.Size(this.width, this.height);
     },
-    set: function (value) {
+    function (value) {
         this.width = value.width;
         this.height = value.height;
     }
-});
+);
 
 /**
  * !#en TODO
@@ -286,8 +312,8 @@ Object.defineProperty(proto, 'size', {
  * @param {Rect} rect
  * @type {Boolean}
  * @example
- * var a = new cc.rect(0, 0, 10, 10);
- * var b = new cc.rect(0, 0, 20, 20);
+ * var a = new cc.Rect(0, 0, 10, 10);
+ * var b = new cc.Rect(0, 0, 20, 20);
  * a.intersects(b);// true
  */
 proto.intersects = function (rect) {
@@ -302,15 +328,15 @@ proto.intersects = function (rect) {
  * @param {Vec2} point
  * @type {Boolean}
  * @example
- * var a = new cc.rect(0, 0, 10, 10);
- * var b = new cc.v2(0, 5);
+ * var a = new cc.Rect(0, 0, 10, 10);
+ * var b = new cc.Vec2(0, 5);
  * a.contains(b);// true
  */
 proto.contains = function (point) {
-    return (this.x < point.x &&
-            this.x + this.width > point.x &&
-            this.y < point.y &&
-            this.y + this.height > point.y);
+    return (this.x <= point.x &&
+            this.x + this.width >= point.x &&
+            this.y <= point.y &&
+            this.y + this.height >= point.y);
 };
 
 /**
@@ -320,15 +346,15 @@ proto.contains = function (point) {
  * @param {Rect} rect
  * @type {Boolean}
  * @example
- * var a = new cc.rect(0, 0, 10, 10);
- * var b = new cc.rect(0, 0, 20, 20);
+ * var a = new cc.Rect(0, 0, 10, 10);
+ * var b = new cc.Rect(0, 0, 20, 20);
  * a.containsRect(b);// true
  */
 proto.containsRect = function (rect) {
-    return (this.x < rect.x &&
-            this.x + this.width > rect.x + rect.width &&
-            this.y < rect.y &&
-            this.y + this.height > rect.y + rect.height);
+    return (this.x <= rect.x &&
+            this.x + this.width >= rect.x + rect.width &&
+            this.y <= rect.y &&
+            this.y + this.height >= rect.y + rect.height);
 };
 
 cc.Rect = Rect;
@@ -344,13 +370,13 @@ cc.Rect = Rect;
  * !#zh
  * 该方法用来快速创建一个新的矩形。{{#crossLink "Rect/Rect:method"}}cc.Rect{{/crossLink}}
  * @method rect
- * @param {Number[]|Number} [x=0]
+ * @param {Number} [x=0]
  * @param {Number} [y=0]
  * @param {Number} [w=0]
  * @param {Number} [h=0]
  * @return {Rect}
  * @example
- * var a = new cc.rect(0 , 0, 10, 0);
+ * var a = new cc.Rect(0 , 0, 10, 0);
  */
 cc.rect = function rect (x, y, w, h) {
     return new Rect(x, y, w, h);
@@ -367,10 +393,10 @@ cc.rect = function rect (x, y, w, h) {
  * @param {Rect} rect2
  * @return {Boolean}
  * @example
- * var a = new cc.rect(0, 0, 10, 10);
- * var b = new cc.rect(0, 0, 5, 5);
+ * var a = new cc.Rect(0, 0, 10, 10);
+ * var b = new cc.Rect(0, 0, 5, 5);
  * cc.rectEqualToRect(a, b); // false;
- * var c = new cc.rect(0, 0, 5, 5);
+ * var c = new cc.Rect(0, 0, 5, 5);
  * cc.rectEqualToRect(b, c); // true;
  */
 cc.rectEqualToRect = function (rect1, rect2) {
@@ -391,8 +417,8 @@ cc._rectEqualToZero = function(rect){
  * @param {Rect} rect2
  * @return {Boolean}
  * @example
- * var a = new cc.rect(0, 0, 20, 20);
- * var b = new cc.rect(10, 10, 20, 20);
+ * var a = new cc.Rect(0, 0, 20, 20);
+ * var b = new cc.Rect(10, 10, 20, 20);
  * cc.rectContainsRect(a, b); // true;
  */
 cc.rectContainsRect = function (rect1, rect2) {
@@ -410,7 +436,7 @@ cc.rectContainsRect = function (rect1, rect2) {
  * @param {Rect} rect
  * @return {Number} The rightmost x value.
  * @example
- * var a = new cc.rect(10, 0, 20, 20);
+ * var a = new cc.Rect(10, 0, 20, 20);
  * cc.rectGetMaxX(a); // 30;
  */
 cc.rectGetMaxX = function (rect) {
@@ -424,7 +450,7 @@ cc.rectGetMaxX = function (rect) {
  * @param {Rect} rect
  * @return {Number} The midpoint x value.
  * @example
- * var a = new cc.rect(10, 0, 20, 20);
+ * var a = new cc.Rect(10, 0, 20, 20);
  * cc.rectGetMidX(a); // 20;
  */
 cc.rectGetMidX = function (rect) {
@@ -437,7 +463,7 @@ cc.rectGetMidX = function (rect) {
  * @param {Rect} rect
  * @return {Number} The leftmost x value.
  * @example
- * var a = new cc.rect(10, 0, 20, 20);
+ * var a = new cc.Rect(10, 0, 20, 20);
  * cc.rectGetMinX(a); // 10;
  */
 cc.rectGetMinX = function (rect) {
@@ -451,7 +477,7 @@ cc.rectGetMinX = function (rect) {
  * @param {Rect} rect
  * @return {Number} The topmost y value.
  * @example
- * var a = new cc.rect(0, 10, 20, 20);
+ * var a = new cc.Rect(0, 10, 20, 20);
  * cc.rectGetMaxY(a); // 30;
  */
 cc.rectGetMaxY = function (rect) {
@@ -465,7 +491,7 @@ cc.rectGetMaxY = function (rect) {
  * @param {Rect} rect
  * @return {Number} The midpoint y value.
  * @example
- * var a = new cc.rect(0, 10, 20, 20);
+ * var a = new cc.Rect(0, 10, 20, 20);
  * cc.rectGetMidY(a); // 20;
  */
 cc.rectGetMidY = function (rect) {
@@ -479,7 +505,7 @@ cc.rectGetMidY = function (rect) {
  * @param {Rect} rect
  * @return {Number} The bottommost y value.
  * @example
- * var a = new cc.rect(0, 10, 20, 20);
+ * var a = new cc.Rect(0, 10, 20, 20);
  * cc.rectGetMinY(a); // 10;
  */
 cc.rectGetMinY = function (rect) {
@@ -494,8 +520,8 @@ cc.rectGetMinY = function (rect) {
  * @param {Vec2} point
  * @return {Boolean}
  * @example
- * var a = new cc.rect(0, 10, 20, 20);
- * var b = cc.v2(0, 10, 10, 10);
+ * var a = new cc.Rect(0, 10, 20, 20);
+ * var b = new cc.Vec2(0, 10, 10, 10);
  * cc.rectContainsPoint(a, b); // true;
  */
 cc.rectContainsPoint = function (rect, point) {
@@ -511,8 +537,8 @@ cc.rectContainsPoint = function (rect, point) {
  * @param {Rect} rectB
  * @return {Boolean}
  * @example
- * var a = new cc.rect(0, 10, 20, 20);
- * var b = new cc.rect(0, 10, 10, 10);
+ * var a = new cc.Rect(0, 10, 20, 20);
+ * var b = new cc.Rect(0, 10, 10, 10);
  * cc.rectIntersectsRect(a, b); // true;
  */
 cc.rectIntersectsRect = function (ra, rb) {
@@ -531,8 +557,8 @@ cc.rectIntersectsRect = function (ra, rb) {
  * @param {Rect} rectB
  * @return {Boolean}
  * @example
- * var a = new cc.rect(0, 10, 20, 20);
- * var b = new cc.rect(0, 10, 10, 10);
+ * var a = new cc.Rect(0, 10, 20, 20);
+ * var b = new cc.Rect(0, 10, 10, 10);
  * cc.rectOverlapsRect(a, b); // true;
  */
 cc.rectOverlapsRect = function (rectA, rectB) {
@@ -550,8 +576,8 @@ cc.rectOverlapsRect = function (rectA, rectB) {
  * @param {Rect} rectB
  * @return {Rect}
  * @example
- * var a = new cc.rect(0, 10, 20, 20);
- * var b = new cc.rect(0, 10, 10, 10);
+ * var a = new cc.Rect(0, 10, 20, 20);
+ * var b = new cc.Rect(0, 10, 10, 10);
  * cc.rectUnion(a, b); // Rect {x: 0, y: 10, width: 20, height: 20};
  */
 cc.rectUnion = function (rectA, rectB) {
@@ -571,8 +597,8 @@ cc.rectUnion = function (rectA, rectB) {
  * @param {Rect} rectB
  * @return {Rect}
  * @example
- * var a = new cc.rect(0, 10, 20, 20);
- * var b = new cc.rect(0, 10, 10, 10);
+ * var a = new cc.Rect(0, 10, 20, 20);
+ * var b = new cc.Rect(0, 10, 10, 10);
  * cc.rectIntersection(a, b); // Rect {x: 0, y: 10, width: 10, height: 10};
  */
 cc.rectIntersection = function (rectA, rectB) {

@@ -26,7 +26,7 @@ var macro = cc.macro;
 
 //Sprite's WebGL render command
 _ccsg.Sprite.WebGLRenderCmd = function (renderable) {
-    _ccsg.Node.WebGLRenderCmd.call(this, renderable);
+    this._rootCtor(renderable);
     this._needDraw = true;
 
     this._vertices = [
@@ -35,11 +35,10 @@ _ccsg.Sprite.WebGLRenderCmd = function (renderable) {
         {x: 0, y: 0, u: 0, v: 0}, // tr
         {x: 0, y: 0, u: 0, v: 0}  // br
     ];
-    this._color = new Uint32Array(1);
     this._dirty = false;
     this._recursiveDirty = false;
 
-    this._shaderProgram = cc.shaderCache.programForKey(macro.SHADER_SPRITE_POSITION_TEXTURECOLORALPHATEST);
+    this._shaderProgram = cc.shaderCache.programForKey(macro.SHADER_SPRITE_POSITION_TEXTURECOLOR);
 };
 
 var proto = _ccsg.Sprite.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
@@ -61,24 +60,6 @@ proto.setDirtyRecursively = function (value) {
         child = locChildren[i];
         (child instanceof _ccsg.Sprite) && child._renderCmd.setDirtyRecursively(value);
     }
-};
-
-proto._setBatchNodeForAddChild = function (child) {
-    var node = this._node;
-    if (node._batchNode) {
-        if (!(child instanceof _ccsg.Sprite)) {
-            cc.log(cc._LogInfos.Sprite.addChild);
-            return false;
-        }
-        if (child.texture._webTextureObj !== node.textureAtlas.texture._webTextureObj)
-            cc.log(cc._LogInfos.Sprite_addChild_2);
-
-        //put it in descendants array of batch node
-        node._batchNode.appendChild(child);
-        if (!node._reorderChildDirty)
-            node._setReorderChildDirtyRecursively();
-    }
-    return true;
 };
 
 proto._handleTextureForRotatedTexture = function (texture) {
@@ -116,9 +97,6 @@ proto._textureLoadedCallback = function (event) {
     node.texture = sender;
     node.setTextureRect(locRect, node._rectRotated);
 
-    // by default use "Self Render".
-    // if the sprite is added to a batchnode, then it will automatically switch to "batchnode Render"
-    node.setBatchNode(node._batchNode);
     node.emit("load");
 
     // Force refresh the render command list
@@ -128,7 +106,7 @@ proto._textureLoadedCallback = function (event) {
 proto._setTextureCoords = function (rect) {
     var node = this._node;
 
-    var tex = node._batchNode ? node.textureAtlas.texture : node._texture;
+    var tex = node._texture;
     var uvs = this._vertices;
     if (!tex)
         return;
@@ -209,11 +187,6 @@ proto._setTextureCoords = function (rect) {
 proto._setColorDirty = function () {};
 
 proto._updateBlendFunc = function () {
-    if (this._batchNode) {
-        cc.log(cc._LogInfos.Sprite__updateBlendFunc);
-        return;
-    }
-
     // it's possible to have an untextured sprite
     var node = this._node;
     if (!node._texture || !node._texture.hasPremultipliedAlpha()) {
@@ -229,25 +202,17 @@ proto._updateBlendFunc = function () {
 
 proto._setTexture = function (texture) {
     var node = this._node;
-    // If batchnode, then texture id should be the same
-    if (node._batchNode) {
-        if(node._batchNode.texture !== texture){
-            cc.log(cc._LogInfos.Sprite_setTexture);
-            return;
-        }
-    }else{
-        if(node._texture !== texture){
-            node._textureLoaded = texture ? texture._textureLoaded : false;
-            node._texture = texture;
-            this._updateBlendFunc();
 
-            if (node._textureLoaded) {
-                // Force refresh the render command list
-                cc.renderer.childrenOrderDirty = true;
-            }
+    if(node._texture !== texture){
+        node._textureLoaded = texture ? texture._textureLoaded : false;
+        node._texture = texture;
+        this._updateBlendFunc();
+
+        if (node._textureLoaded) {
+            // Force refresh the render command list
+            cc.renderer.childrenOrderDirty = true;
         }
     }
-
 };
 
 proto._checkTextureBoundary = function (texture, rect, rotated) {
@@ -261,10 +226,10 @@ proto._checkTextureBoundary = function (texture, rect, rotated) {
             _y = rect.y + rect.height;
         }
         if (_x > texture.width) {
-            cc.error(cc._LogInfos.RectWidth, texture.url);
+            cc.errorID(3300, texture.url);
         }
         if (_y > texture.height) {
-            cc.error(cc._LogInfos.RectHeight, texture.url);
+            cc.errorID(3400, texture.url);
         }
     }
 };
@@ -300,16 +265,17 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
 
     // Fill in vertex data with quad information (4 vertices for sprite)
     var opacity = this._displayedOpacity;
-    var r = this._displayedColor.r,
-        g = this._displayedColor.g,
-        b = this._displayedColor.b;
+    var color, colorVal = this._displayedColor._val;
     if (node._opacityModifyRGB) {
-        var a = opacity / 255;
-        r *= a;
-        g *= a;
-        b *= a;
+        var a = opacity / 255,
+            r = this._displayedColor.r * a,
+            g = this._displayedColor.g * a,
+            b = this._displayedColor.b * a;
+        color = ((opacity<<24) >>> 0) + (b<<16) + (g<<8) + r;
     }
-    this._color[0] = ((opacity<<24) | (b<<16) | (g<<8) | r);
+    else {
+        color = ((opacity<<24) >>> 0) + ((colorVal&0xff00)<<8) + ((colorVal&0xff0000)>>8) + (colorVal>>>24);
+    }
     var z = node._vertexZ;
 
     var vertices = this._vertices;
@@ -319,7 +285,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
         f32buffer[offset] = vertex.x;
         f32buffer[offset + 1] = vertex.y;
         f32buffer[offset + 2] = z;
-        ui32buffer[offset + 3] = this._color[0];
+        ui32buffer[offset + 3] = color;
         f32buffer[offset + 4] = vertex.u;
         f32buffer[offset + 5] = vertex.v;
         offset += 6;

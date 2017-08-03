@@ -25,7 +25,7 @@
 var ccgl = cc.gl;
 
 cc.Scale9Sprite.WebGLRenderCmd = function (renderable) {
-    _ccsg.Node.WebGLRenderCmd.call(this, renderable);
+    this._rootCtor(renderable);
     if (this._node.loaded()) {
         this._needDraw = true;
     }
@@ -34,7 +34,6 @@ cc.Scale9Sprite.WebGLRenderCmd = function (renderable) {
     }
 
     this.vertexType = cc.renderer.VertexType.QUAD;
-    this._color = new Uint32Array(1);
     this._dirty = false;
     this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_SPRITE_POSITION_TEXTURECOLOR);
 };
@@ -52,7 +51,7 @@ proto._uploadSliced = function (vertices, uvs, color, z, f32buffer, ui32buffer, 
             f32buffer[offset] = vertices[off];
             f32buffer[offset+1] = vertices[off+1];
             f32buffer[offset+2] = z;
-            ui32buffer[offset+3] = color[0];
+            ui32buffer[offset+3] = color;
             f32buffer[offset+4] = uvs[off];
             f32buffer[offset+5] = uvs[off+1];
             offset += 6;
@@ -60,7 +59,7 @@ proto._uploadSliced = function (vertices, uvs, color, z, f32buffer, ui32buffer, 
             f32buffer[offset] = vertices[off+2];
             f32buffer[offset + 1] = vertices[off+3];
             f32buffer[offset + 2] = z;
-            ui32buffer[offset + 3] = color[0];
+            ui32buffer[offset + 3] = color;
             f32buffer[offset + 4] = uvs[off+2];
             f32buffer[offset + 5] = uvs[off+3];
             offset += 6;
@@ -68,7 +67,7 @@ proto._uploadSliced = function (vertices, uvs, color, z, f32buffer, ui32buffer, 
             f32buffer[offset] = vertices[off+8];
             f32buffer[offset + 1] = vertices[off+9];
             f32buffer[offset + 2] = z;
-            ui32buffer[offset + 3] = color[0];
+            ui32buffer[offset + 3] = color;
             f32buffer[offset + 4] = uvs[off+8];
             f32buffer[offset + 5] = uvs[off+9];
             offset += 6;
@@ -76,7 +75,7 @@ proto._uploadSliced = function (vertices, uvs, color, z, f32buffer, ui32buffer, 
             f32buffer[offset] = vertices[off+10];
             f32buffer[offset + 1] = vertices[off+11];
             f32buffer[offset + 2] = z;
-            ui32buffer[offset + 3] = color[0];
+            ui32buffer[offset + 3] = color;
             f32buffer[offset + 4] = uvs[off+10];
             f32buffer[offset + 5] = uvs[off+11];
             offset += 6;
@@ -102,6 +101,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
     }
 
     if (node._distortionOffset && this._shaderProgram === Scale9Sprite.WebGLRenderCmd._distortionProgram) {
+        this._shaderProgram.use();
         this._shaderProgram.setUniformLocationWith2f(
             Scale9Sprite.WebGLRenderCmd._distortionOffset,
             node._distortionOffset.x, node._distortionOffset.y
@@ -115,16 +115,17 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
 
     // Color & z
     var opacity = this._displayedOpacity;
-    var r = this._displayedColor.r,
-        g = this._displayedColor.g,
-        b = this._displayedColor.b;
+    var color, colorVal = this._displayedColor._val;
     if (node._opacityModifyRGB) {
-        var a = opacity / 255;
-        r *= a;
-        g *= a;
-        b *= a;
+        var a = opacity / 255,
+            r = this._displayedColor.r * a,
+            g = this._displayedColor.g * a,
+            b = this._displayedColor.b * a;
+        color = ((opacity<<24) >>> 0) + (b<<16) + (g<<8) + r;
     }
-    this._color[0] = ((opacity<<24) | (b<<16) | (g<<8) | r);
+    else {
+        color = ((opacity<<24) >>> 0) + ((colorVal&0xff00)<<8) + ((colorVal&0xff0000)>>8) + (colorVal>>>24);
+    }
     var z = node._vertexZ;
 
     // Upload data
@@ -137,28 +138,48 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
     case types.SIMPLE:
     case types.TILED:
     case types.FILLED:
+    case types.MESH:
         // Inline for performance
         len = this._node._vertCount;
         for (var i = 0, srcOff = 0; i < len; i++, srcOff += 2) {
             f32buffer[offset] = vertices[srcOff];
             f32buffer[offset + 1] = vertices[srcOff+1];
             f32buffer[offset + 2] = z;
-            ui32buffer[offset + 3] = this._color[0];
+            ui32buffer[offset + 3] = color;
             f32buffer[offset + 4] = uvs[srcOff];
             f32buffer[offset + 5] = uvs[srcOff+1];
             offset += 6;
         }
         break;
     case types.SLICED:
-        len = this._uploadSliced(vertices, uvs, this._color, z, f32buffer, ui32buffer, offset);
+        len = this._uploadSliced(vertices, uvs, color, z, f32buffer, ui32buffer, offset);
         break;
     }
-    if (node._renderingType === types.FILLED && node._fillType === Scale9Sprite.FillType.RADIAL) {
+
+    if (node._renderingType === types.MESH ) {
+        this.vertexType = cc.renderer.VertexType.CUSTOM;
+    }
+    else if (node._renderingType === types.FILLED && node._fillType === Scale9Sprite.FillType.RADIAL) {
         this.vertexType = cc.renderer.VertexType.TRIANGLE;
     }
     else {
         this.vertexType = cc.renderer.VertexType.QUAD;
     }
+    return len;
+};
+
+proto.uploadIndexData = function (indexData, indexSize, batchingSize) {
+    var polygonInfo = this._node._meshPolygonInfo;
+    if (! polygonInfo) {
+        return 0;
+    }
+
+    var indices = polygonInfo.triangles.indices;
+    var len = indices.length;
+    for (var i = 0; i < len; i++) {
+        indexData[indexSize + i] = batchingSize + indices[i];
+    }
+
     return len;
 };
 
@@ -192,13 +213,13 @@ Scale9Sprite.WebGLRenderCmd._getGrayShaderProgram = function(){
 
 Scale9Sprite.WebGLRenderCmd._grayShaderFragment =
     "precision lowp float;\n"
-    + "varying vec4 v_fragmentColor; \n"
-    + "varying vec2 v_texCoord; \n"
-    + "void main() \n"
-    + "{ \n"
-    + "    vec4 c = texture2D(CC_Texture0, v_texCoord); \n"
-    + "    gl_FragColor.xyz = vec3(0.2126*c.r + 0.7152*c.g + 0.0722*c.b); \n"
-    +"     gl_FragColor.w = c.w ; \n"
+    + "varying vec4 v_fragmentColor;\n"
+    + "varying vec2 v_texCoord;\n"
+    + "void main()\n"
+    + "{\n"
+    + "vec4 c = texture2D(CC_Texture0, v_texCoord);\n"
+    + "gl_FragColor.xyz = vec3(0.2126*c.r + 0.7152*c.g + 0.0722*c.b);\n"
+    + "gl_FragColor.w = c.w ;\n"
     + "}";
 
 Scale9Sprite.WebGLRenderCmd._distortionProgram = null;
@@ -224,13 +245,13 @@ Scale9Sprite.WebGLRenderCmd._getDistortionProgram = function(){
 var distortionSpriteShader = {
     shaderKey: 'cc.Sprite.Shader.Distortion',
     fShader:  "precision lowp float;\n"
-        + "varying vec4 v_fragmentColor; \n"
-        + "varying vec2 v_texCoord; \n"
-        + "uniform vec2 u_offset; \n"
-        + "uniform vec2 u_offset_tiling; \n"
+        + "varying vec4 v_fragmentColor;\n"
+        + "varying vec2 v_texCoord;\n"
+        + "uniform vec2 u_offset;\n"
+        + "uniform vec2 u_offset_tiling;\n"
         + "const float PI = 3.14159265359;\n"
-        + "void main() \n"
-        + "{ \n"
+        + "void main()\n"
+        + "{\n"
         + "float halfPI = 0.5 * PI;\n"
         + "float maxFactor = sin(halfPI);\n"
         + "vec2 uv = v_texCoord;\n"
@@ -239,7 +260,7 @@ var distortionSpriteShader = {
         + "if (d < (2.0-maxFactor)) {\n"
         + "d = length(xy * maxFactor);\n"
         + "float z = sqrt(1.0 - d * d);\n"
-        + " float r = atan(d, z) / PI;\n"
+        + "float r = atan(d, z) / PI;\n"
         + "float phi = atan(xy.y, xy.x);\n"
         + "uv.x = r * cos(phi) + 0.5;\n"
         + "uv.y = r * sin(phi) + 0.5;\n"
@@ -247,7 +268,7 @@ var distortionSpriteShader = {
         + "discard;\n"
         + "}\n"
         + "uv = uv * u_offset_tiling + u_offset;\n"
-        + "uv = fract(uv); \n"
+        + "uv = fract(uv);\n"
         + "gl_FragColor = v_fragmentColor * texture2D(CC_Texture0, uv);\n"
         + "}"
 };

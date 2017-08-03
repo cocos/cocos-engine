@@ -39,7 +39,7 @@ var EventTarget = require("../event/event-target");
  *
  * @class SpriteFrame
  * @extends Asset
- *
+ * @uses EventTarget
  * @example
  * // load a cc.SpriteFrame with image path (Recommend)
  * var self = this;
@@ -82,7 +82,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * Constructor of SpriteFrame class.
      * !#zh
      * SpriteFrame 类的构造函数。
-     * @method SpriteFrame
+     * @method constructor
      * @param {String|Texture2D} [filename]
      * @param {Rect} [rect]
      * @param {Boolean} [rotated] - Whether the frame is rotated in the texture
@@ -268,6 +268,10 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             this._textureLoaded = locLoaded;
             this._texture = texture;
             function textureLoadedCallback () {
+                if (!self._texture) {
+                    // clearTexture called while loading texture...
+                    return;
+                }
                 self._textureLoaded = true;
                 var w = texture.width, h = texture.height;
 
@@ -299,7 +303,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                     self.setOffset(cc.v2(0, 0));
                 }
 
-                //dispatch 'load' event of cc.SpriteFrame
+                // dispatch 'load' event of cc.SpriteFrame
                 self.emit("load");
             }
 
@@ -385,7 +389,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
         this._rotated = rotated || false;
 
-        //loading texture
+        // loading texture
         var texture = textureOrTextureFile;
         if (cc.js.isString(texture)) {
             this._textureFilename = texture;
@@ -395,7 +399,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             this._refreshTexture(texture);
         }
         else {
-            //todo log error
+            // todo log error
         }
 
         return true;
@@ -409,11 +413,11 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * !#en If a loading scene is marked as `asyncLoadAssets`, all the textures of the SpriteFrame which
+     * !#en If a loading scene (or prefab) is marked as `asyncLoadAssets`, all the textures of the SpriteFrame which
      * associated by user's custom Components in the scene, will not preload automatically.
      * These textures will be load when Sprite component is going to render the SpriteFrames.
      * You can call this method if you want to load the texture early.
-     * !#zh 当加载中的场景被标记为 `asyncLoadAssets` 时，用户在场景中由自定义组件关联到的所有 SpriteFrame 的贴图都不会被提前加载。
+     * !#zh 当加载中的场景或 Prefab 被标记为 `asyncLoadAssets` 时，用户在场景中由自定义组件关联到的所有 SpriteFrame 的贴图都不会被提前加载。
      * 只有当 Sprite 组件要渲染这些 SpriteFrame 时，才会检查贴图是否加载。如果你希望加载过程提前，你可以手工调用这个方法。
      *
      * @method ensureLoadTexture
@@ -432,6 +436,24 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
     },
 
+    /**
+     * !#en
+     * If you do not need to use the SpriteFrame temporarily, you can call this method so that its texture could be garbage collected. Then when you need to render the SpriteFrame, you should call `ensureLoadTexture` manually to reload texture.
+     * !#zh
+     * 当你暂时不再使用这个 SpriteFrame 时，可以调用这个方法来保证引用的贴图对象能被 GC。然后当你要渲染 SpriteFrame 时，你需要手动调用 `ensureLoadTexture` 来重新加载贴图。
+     *
+     * @method clearTexture
+     * @example
+     * spriteFrame.clearTexture();
+     * // when you need the SpriteFrame again...
+     * spriteFrame.once('load', onSpriteFrameLoaded);
+     * spriteFrame.ensureLoadTexture();
+     */
+    clearTexture: function () {
+        this._textureLoaded = false;
+        this._texture = null;
+    },
+
     _checkRect: function (texture) {
         var rect = this._rect;
         var maxX = rect.x, maxY = rect.y;
@@ -444,12 +466,16 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             maxY += rect.height;
         }
         if (maxX > texture.getPixelWidth()) {
-            cc.error(cc._LogInfos.RectWidth, texture.url + '/' + this.name);
+            cc.errorID(3300, texture.url + '/' + this.name);
         }
         if (maxY > texture.getPixelHeight()) {
-            cc.error(cc._LogInfos.RectHeight, texture.url + '/' + this.name);
+            cc.errorID(3400, texture.url + '/' + this.name);
         }
     },
+
+    // _instantiate () {
+    //     var clone = new cc.SpriteFrame();
+    // },
 
     // SERIALIZATION
 
@@ -464,7 +490,10 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                 uuid = url._uuid;
             }
             else {
-                uuid = Editor.UuidCache.urlToUuid(url);
+                uuid = Editor.Utils.UuidCache.urlToUuid(url);
+            }
+            if (exporting) {
+                uuid = Editor.Utils.UuidUtils.compressUuid(uuid, true);
             }
         }
         var capInsets;

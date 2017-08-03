@@ -108,7 +108,7 @@ var inputManager = /** @lends cc.inputManager# */{
             if(index == null){
                 var unusedIndex = this._getUnUsedIndex();
                 if (unusedIndex === -1) {
-                    cc.log(cc._LogInfos.inputManager.handleTouchesBegin, unusedIndex);
+                    cc.logID(2300, unusedIndex);
                     continue;
                 }
                 //curTouch = this._touches[unusedIndex] = selTouch;

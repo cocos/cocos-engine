@@ -60,10 +60,10 @@ cc.Asset = cc.Class({
             get: function () {
                 if (this._rawFiles) {
                     if (cc.AssetLibrary) {
-                        return cc.AssetLibrary.getImportedDir(this._uuid) + '/' + this._uuid + '/' + this._rawFiles[0];
+                        return cc.AssetLibrary.getImportedDir(this._uuid) + '/' + this._rawFiles[0];
                     }
                     else {
-                        cc.error('asset.url is not usable in core process');
+                        cc.errorID(6400);
                     }
                 }
                 return '';
@@ -84,13 +84,13 @@ cc.Asset = cc.Class({
             get: function () {
                 if (this._rawFiles) {
                     if (cc.AssetLibrary) {
-                        var dir = cc.AssetLibrary.getImportedDir(this._uuid) + '/' + this._uuid + '/';
+                        var dir = cc.AssetLibrary.getImportedDir(this._uuid) + '/';
                         return this._rawFiles.map(function (filename) {
                             return dir + filename;
                         });
                     }
                     else {
-                        cc.error('asset.urls is not usable in core process');
+                        cc.errorID(6401);
                     }
                 }
                 return [];
@@ -127,8 +127,8 @@ cc.Asset = cc.Class({
         },
 
         /**
-         * !#en Indicates whether its dependent raw assets can support deferred load if the owner scene is marked as `asyncLoadAssets`.
-         * !#zh 当场景被标记为 `asyncLoadAssets`，禁止延迟加载该资源所依赖的其它 RawAsset。
+         * !#en Indicates whether its dependent raw assets can support deferred load if the owner scene (or prefab) is marked as `asyncLoadAssets`.
+         * !#zh 当场景或 Prefab 被标记为 `asyncLoadAssets`，禁止延迟加载该资源所依赖的其它 RawAsset。
          *
          * @property {Boolean} preventDeferredLoadDependents
          * @default false

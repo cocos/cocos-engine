@@ -23,49 +23,93 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const UGLIFY = false;
+
 'use strict';
 
 const Path = require('path');
 const Fs = require('fs');
-const Del = require('del');
 const Source = require('vinyl-source-stream');
 const Gulp = require('gulp');
 const Fb = require('gulp-fb');
+const Babel = require('gulp-babel');
 const Buffer = require('vinyl-buffer');
 const HandleErrors = require('../util/handleErrors');
-const EventStream = require('event-stream');
+const Es = require('event-stream');
 
-const Utils = require('./utils');
+const Sourcemaps = require('gulp-sourcemaps');
+const Composer = require('gulp-uglify/composer');
+const Uglify = require('uglify-es');
+const Minify = Composer(Uglify, console);
 
-exports.build = function (sourceFile, outputFile, callback) {
-    var jsEntryEditorExtends = '../editor/test-utils/engine-extends-entry.js';
+const Utils = require('../util/utils');
+const createBundler = require('../util/create-bundler');
 
-    if (Fs.existsSync(jsEntryEditorExtends)) {
-        sourceFile = [sourceFile, jsEntryEditorExtends]
-    }
-
-    Utils.createBundler(sourceFile)
-        .ignore('./bin/modular-cocos2d-cut.js')
+exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFileForExtends, sourcemaps, callback) {
+    var cacheDir = Path.resolve(Path.dirname(outputFile), '.cache/test-compile-cache');
+    var engine = createBundler(sourceFile, {
+        sourcemaps: sourcemaps,
+        cacheDir: cacheDir
+    })
         .bundle()
         .on('error', HandleErrors.handler)
         .pipe(HandleErrors())
         .pipe(Source(Path.basename(outputFile)))
-        .pipe(Buffer())
-        .pipe(Gulp.dest(Path.dirname(outputFile)))
-        .on('end', callback);
-};
+        .pipe(Buffer());
 
-exports.clean = function (list, callback) {
-    Del(list, callback)
+    if (UGLIFY) {
+        if (sourcemaps) {
+            engine = engine.pipe(Sourcemaps.init({loadMaps: true}));
+        }
+
+        // remove `...args` used in CC_JSB
+        engine = engine.pipe(Minify(Utils.getUglifyOptions('test', false, false)));
+
+        if (sourcemaps) {
+            engine = engine.pipe(Sourcemaps.write('./', {
+                sourceRoot: '../',
+                includeContent: false,
+                addComment: true
+            }));
+        }
+    }
+
+    engine = engine.pipe(Gulp.dest(Path.dirname(outputFile)));
+
+    if (Fs.existsSync(sourceFileForExtends)) {
+        var engineExtends = createBundler(sourceFileForExtends,
+            {
+                sourcemaps: sourcemaps,
+                babelifyOpt: {
+                    presets: ['env'],
+                    ast: false,
+                    babelrc: false,
+                    highlightCode: false,
+                    sourceMaps: true,
+                    compact: false
+                },
+                cacheDir: cacheDir
+            })
+            .bundle()
+            .on('error', HandleErrors.handler)
+            .pipe(HandleErrors())
+            .pipe(Source(Path.basename(outputFileForExtends)))
+            .pipe(Buffer())
+            .pipe(Gulp.dest(Path.dirname(outputFileForExtends)));
+        Es.merge(engine, engineExtends).on('end', callback);
+    }
+    else {
+        engine.on('end', callback);
+    }
 };
 
 exports.unit = function (outDir, libs, callback) {
-    var title = 'Cocos2d-JS Test Suite';
+    var title = 'CocosCreator Engine Test Suite';
     if (Fs.existsSync('./bin/cocos2d-js-extends-for-test.js')) {
         libs.push('./bin/cocos2d-js-extends-for-test.js');
-        title += ' (Editor Extends Included)'
+        title += ' (Editor Extends Included)';
     }
-    return Gulp.src('test/qunit/unit/**/*.js', { read: false, base: './' })
+    return Gulp.src(['test/qunit/unit-es5/**/*.js', './bin/test/**/*.js'], { read: false, base: './' })
         .pipe(Fb.toFileList())
         .pipe(Fb.generateRunner('test/qunit/lib/qunit-runner.html', outDir, title, libs))
         .pipe(Gulp.dest(outDir))
@@ -80,7 +124,26 @@ exports.test = function (callback) {
         console.error('Please run "npm install gulp-qunit" before running "gulp test".');
         throw e;
     }
-    return Gulp.src('bin/qunit-runner.html', { read: false })
+    return Gulp.src('bin/qunit-runner.html')
         .pipe(qunit({ timeout: 5 }))
+        .on('end', callback);
+};
+
+exports.buildTestCase = function (outDir, callback) {
+    return Gulp.src('test/qunit/unit/**/*.js')
+        .pipe(Babel({
+            presets: ['env'],
+            plugins: [
+                // make sure that transform-decorators-legacy comes before transform-class-properties.
+                'transform-decorators-legacy',
+                'transform-class-properties',
+            ],
+            ast: false,
+            babelrc: false,
+            highlightCode: false,
+            sourceMaps: true,
+            compact: false
+        }))
+        .pipe(Gulp.dest(outDir))
         .on('end', callback);
 };

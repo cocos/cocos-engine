@@ -1,5 +1,6 @@
-require('./CCAction.js');
-require('./CCActionInterval.js');
-require('./CCActionInstant.js');
-require('./CCActionEase.js');
-require('./CCActionCatmullRom.js');
+require('./CCActionManager');
+require('./CCAction');
+require('./CCActionInterval');
+require('./CCActionInstant');
+require('./CCActionEase');
+require('./CCActionCatmullRom');

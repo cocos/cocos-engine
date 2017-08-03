@@ -44,7 +44,7 @@ var RendererInSG = cc.Class({
         var sgNode = this._sgNode = this._createSgNode();
         sgNode.setVisible(false);
         if (CC_EDITOR && !sgNode) {
-            cc.error('Not support for asynchronous creating node in SG');
+            cc.errorID(1627);
         }
         if (CC_JSB) {
             // retain immediately
@@ -65,16 +65,16 @@ var RendererInSG = cc.Class({
             var sgSize = this._sgNode.getContentSize();
             // sgSize is not a Vec2 in JSB
             if (sgSize.width !== 0 || sgSize.height !== 0) {
-                cc.error('Renderer error: Size of the cc._RendererInSG._sgNode must be zero');
+                cc.errorID(1628);
             }
         }
     },
 
     onEnable: function () {
-        if (CC_JSB && cc.director.getActionManager().getNumberOfRunningActionsInTarget(this.node) > 0) {
-            cc.error('The node "%s" has a component inherited from "cc._RendererInSG"', this.node.name);
-            cc.error('JSB environment is not support invoke node.runAction before the "cc._RendererInSG" component enabled.');
-            cc.error('Please use runAction in the method "start" instead.');
+        if (CC_JSB && cc.director._actionManager && cc.director._actionManager.getNumberOfRunningActionsInTarget(this.node) > 0) {
+            cc.errorID(1629, this.node.name);
+            cc.errorID(1630);
+            cc.errorID(1631);
         }
         this._replaceSgNode(this._sgNode);
     },
@@ -104,7 +104,7 @@ var RendererInSG = cc.Class({
         replaced._entity = null;
 
         if (CC_EDITOR && replaced === sgNode) {
-            cc.warn('The same sgNode');
+            cc.warnID(1624);
             return;
         }
 
@@ -115,7 +115,7 @@ var RendererInSG = cc.Class({
         replaced.removeAllChildren(false);
         if (sgNode.getChildrenCount() > 0) {
             if (CC_EDITOR) {
-                cc.warn('The replacement sgNode should not contain any child.');
+                cc.warnID(1625);
             }
             sgNode.removeAllChildren(false);
         }

@@ -26,7 +26,7 @@
  * ParticleSystem's WebGL render command
  */
 _ccsg.ParticleSystem.WebGLRenderCmd = function(renderable){
-    _ccsg.Node.WebGLRenderCmd.call(this, renderable);
+    this._rootCtor(renderable);
     this._needDraw = true;
 
     this._matrix = new cc.math.Matrix4();
@@ -347,7 +347,7 @@ proto._allocMemory = function(){
     var node  = this._node;
     //cc.assert((!this._quads && !this._indices), "Memory already allocated");
     if(node._batchNode){
-        cc.log("_ccsg.ParticleSystem._allocMemory(): Memory should not be allocated when not using batchNode");
+        cc.logID(6016);
         return false;
     }
 
@@ -361,7 +361,7 @@ proto._allocMemory = function(){
     for (var i = 0; i < totalParticles; i++)
         locQuads[i] = new cc.V3F_C4B_T2F_Quad(null, null, null, null, locQuadsArrayBuffer, i * quadSize);
     if (!locQuads || !this._indices) {
-        cc.log("cocos2d: Particle system: not enough memory");
+        cc.logID(6013);
         return false;
     }
     this._quadsArrayBuffer = locQuadsArrayBuffer;

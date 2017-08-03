@@ -24,18 +24,18 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const tempCIDGenerater = new (require('./id-generater'))('TmpCId.');
+
+
 function _getPropertyDescriptor (obj, name) {
-    var pd = Object.getOwnPropertyDescriptor(obj, name);
-    if (pd) {
-        return pd;
+    while (obj) {
+        var pd = Object.getOwnPropertyDescriptor(obj, name);
+        if (pd) {
+            return pd;
+        }
+        obj = Object.getPrototypeOf(obj);
     }
-    var p = Object.getPrototypeOf(obj);
-    if (p) {
-        return _getPropertyDescriptor(p, name);
-    }
-    else {
-        return null;
-    }
+    return null;
 }
 
 function _copyprop(name, source, target) {
@@ -45,9 +45,9 @@ function _copyprop(name, source, target) {
 
 /**
  * This module provides some JavaScript utilities.
- * All members can be accessed with cc.js
+ * All members can be accessed with "cc.js".
+ * @submodule js
  * @module js
- * @namespace cc.js
  */
 var js = {
 
@@ -91,7 +91,7 @@ var js = {
             var source = arguments[i];
             if (source) {
                 if (typeof source !== 'object') {
-                    cc.error('cc.js.addon called on non-object:', source);
+                    cc.errorID(5402, source);
                     continue;
                 }
                 for ( var name in source) {
@@ -118,7 +118,7 @@ var js = {
             var source = arguments[i];
             if (source) {
                 if (typeof source !== 'object') {
-                    cc.error('cc.js.mixin: arguments must be type object:', source);
+                    cc.errorID(5403, source);
                     continue;
                 }
                 for ( var name in source) {
@@ -133,7 +133,6 @@ var js = {
      * Derive the class from the supplied base class.
      * Both classes are just native javascript constructors, not created by cc.Class, so
      * usually you will want to inherit using {{#crossLink "cc/Class:method"}}cc.Class {{/crossLink}} instead.
-     *
      * @method extend
      * @param {Function} cls
      * @param {Function} base - the baseclass to inherit
@@ -142,21 +141,45 @@ var js = {
     extend: function (cls, base) {
         if (CC_DEV) {
             if (!base) {
-                cc.error('The base class to extend from must be non-nil');
+                cc.errorID(5404);
                 return;
             }
             if (!cls) {
-                cc.error('The class to extend must be non-nil');
+                cc.errorID(5405);
                 return;
             }
             if (Object.keys(cls.prototype).length > 0) {
-                cc.error('Class should be extended before assigning any prototype members.');
+                cc.errorID(5406);
             }
         }
         for (var p in base) if (base.hasOwnProperty(p)) cls[p] = base[p];
-        cls.prototype = Object.create(base.prototype);
-        cls.prototype.constructor = cls;
+        cls.prototype = Object.create(base.prototype, {
+            constructor: {
+                value: cls,
+                writable: true,
+                configurable: true
+            }
+        });
         return cls;
+    },
+
+    /**
+     * Get super class
+     * @method getSuper
+     * @param {Function} ctor - the constructor of subclass
+     * @return {Function}
+     */
+    getSuper (ctor) {
+        if (CC_JSB && ctor.hasOwnProperty('$super')) {
+            // babel runtime uses Object.setPrototypeOf to inherit static members,
+            // so $super will always inheritable even if it is non-enumerable.
+            return ctor.$super;
+        }
+        else {
+            var proto = ctor.prototype; // binded function do not have prototype
+            var dunderProto = proto && Object.getPrototypeOf(proto);
+            return dunderProto && dunderProto.constructor;
+        }
     },
 
     /**
@@ -181,30 +204,126 @@ var js = {
     getPropertyDescriptor: _getPropertyDescriptor
 };
 
+
+var tmpValueDesc = {
+    value: undefined,
+    enumerable: false,
+    writable: false,
+    configurable: true
+};
+
 /**
- * Get class name of the object, if object is just a {} (and which class named 'Object'), it will return null.
+ * Define value, just help to call Object.defineProperty.<br>
+ * The configurable will be true.
+ * @method value
+ * @param {Object} obj
+ * @param {String} prop
+ * @param {any} value
+ * @param {Boolean} [writable=false]
+ * @param {Boolean} [enumerable=false]
+ */
+js.value = function (obj, prop, value, writable, enumerable) {
+    tmpValueDesc.value = value;
+    tmpValueDesc.writable = writable;
+    tmpValueDesc.enumerable = enumerable;
+    Object.defineProperty(obj, prop, tmpValueDesc);
+    tmpValueDesc.value = undefined;
+};
+
+var tmpGetSetDesc = {
+    get: null,
+    set: null,
+    enumerable: false,
+};
+
+/**
+ * Define get set accessor, just help to call Object.defineProperty(...)
+ * @method getset
+ * @param {Object} obj
+ * @param {String} prop
+ * @param {Function} getter
+ * @param {Function} setter
+ * @param {Boolean} [enumerable=false]
+ */
+js.getset = function (obj, prop, getter, setter, enumerable) {
+    if (typeof setter !== 'function') {
+        enumerable = setter;
+        setter = undefined;
+    }
+    tmpGetSetDesc.get = getter;
+    tmpGetSetDesc.set = setter;
+    tmpGetSetDesc.enumerable = enumerable;
+    Object.defineProperty(obj, prop, tmpGetSetDesc);
+    tmpGetSetDesc.get = null;
+    tmpGetSetDesc.set = null;
+};
+
+var tmpGetDesc = {
+    get: null,
+    enumerable: false,
+    configurable: false
+};
+
+/**
+ * Define get accessor, just help to call Object.defineProperty(...)
+ * @method get
+ * @param {Object} obj
+ * @param {String} prop
+ * @param {Function} getter
+ * @param {Boolean} [enumerable=false]
+ * @param {Boolean} [configurable=false]
+ */
+js.get = function (obj, prop, getter, enumerable, configurable) {
+    tmpGetDesc.get = getter;
+    tmpGetDesc.enumerable = enumerable;
+    tmpGetDesc.configurable = configurable;
+    Object.defineProperty(obj, prop, tmpGetDesc);
+    tmpGetDesc.get = null;
+};
+
+var tmpSetDesc = {
+    set: null,
+    enumerable: false,
+    configurable: false
+};
+
+/**
+ * Define set accessor, just help to call Object.defineProperty(...)
+ * @method set
+ * @param {Object} obj
+ * @param {String} prop
+ * @param {Function} setter
+ * @param {Boolean} [enumerable=false]
+ * @param {Boolean} [configurable=false]
+ */
+js.set = function (obj, prop, setter, enumerable, configurable) {
+    tmpSetDesc.set = setter;
+    tmpSetDesc.enumerable = enumerable;
+    tmpSetDesc.configurable = configurable;
+    Object.defineProperty(obj, prop, tmpSetDesc);
+    tmpSetDesc.set = null;
+};
+
+/**
+ * Get class name of the object, if object is just a {} (and which class named 'Object'), it will return "".
  * (modified from <a href="http://stackoverflow.com/questions/1249531/how-to-get-a-javascript-objects-class">the code from this stackoverflow post</a>)
  * @method getClassName
- * @param {Object|Function} obj - instance or constructor
+ * @param {Object|Function} objOrCtor - instance or constructor
  * @return {String}
  */
-js.getClassName = function (obj) {
-    if (typeof obj === 'function') {
-        if (obj.prototype.__classname__) {
-            return obj.prototype.__classname__;
+js.getClassName = function (objOrCtor) {
+    if (typeof objOrCtor === 'function') {
+        var prototype = objOrCtor.prototype;
+        if (prototype && prototype.hasOwnProperty('__classname__') && prototype.__classname__) {
+            return prototype.__classname__;
         }
-    }
-    else if (obj && obj.constructor) {
-        if (obj.constructor.prototype && obj.constructor.prototype.hasOwnProperty('__classname__')) {
-            return obj.__classname__;
-        }
-        var retval;
+        var retval = '';
         //  for browsers which have name property in the constructor of the object, such as chrome
-        if (obj.constructor.name) {
-            retval = obj.constructor.name;
+        if (objOrCtor.name) {
+            retval = objOrCtor.name;
         }
-        if (obj.constructor.toString) {
-            var arr, str = obj.constructor.toString();
+        if (objOrCtor.toString) {
+            var arr, str = objOrCtor.toString();
             if (str.charAt(0) === '[') {
                 // str is "[object objectClass]"
                 arr = str.match(/\[\w+\s*(\w+)\]/);
@@ -219,18 +338,15 @@ js.getClassName = function (obj) {
         }
         return retval !== 'Object' ? retval : '';
     }
+    else if (objOrCtor && objOrCtor.constructor) {
+        return js.getClassName(objOrCtor.constructor);
+    }
     return '';
 };
 
-var TCID_PREFIX = 'cc.TmpCId.';
-var id = 0;
-function getTempCID () {
-    return TCID_PREFIX + (id++);
+function isTempClassId (id) {
+    return typeof id !== 'string' || id.startsWith(tempCIDGenerater.prefix);
 }
-
-var isTempClassId = CC_DEV && function (id) {
-    return typeof id !== 'string' || id.startsWith(TCID_PREFIX);
-};
 
 // id 注册
 (function () {
@@ -243,7 +359,7 @@ var isTempClassId = CC_DEV && function (id) {
             if (constructor.prototype.hasOwnProperty(key)) {
                 delete table[constructor.prototype[key]];
             }
-            constructor.prototype[key] = id;
+            js.value(constructor.prototype, key, id);
             // register class
             if (id) {
                 var registered = table[id];
@@ -287,7 +403,7 @@ cc.js.unregisterClass to remove the id of unused class';
         doSetClassName(className, constructor);
         // auto set class id
         if (!constructor.prototype.hasOwnProperty('__cid__')) {
-            var id = className || getTempCID();
+            var id = className || tempCIDGenerater.getNewId();
             if (id) {
                 js._setClassId(id, constructor);
             }
@@ -303,8 +419,7 @@ cc.js.unregisterClass to remove the id of unused class';
      * @method unregisterClass
      * @param {Function} ...constructor - the class you will want to unregister, any number of classes can be added
      */
-    js.unregisterClass = function (constructor) {
-        'use strict';
+    js.unregisterClass = function () {
         for (var i = 0; i < arguments.length; i++) {
             var p = arguments[i].prototype;
             var classId = p.__cid__;
@@ -353,7 +468,7 @@ cc.js.unregisterClass to remove the id of unused class';
         var res;
         if (typeof obj === 'function' && obj.prototype.hasOwnProperty('__cid__')) {
             res = obj.prototype.__cid__;
-            if (!allowTempId && CC_DEV && isTempClassId(res)) {
+            if (!allowTempId && (CC_DEV || CC_EDITOR) && isTempClassId(res)) {
                 return '';
             }
             return res;
@@ -362,7 +477,7 @@ cc.js.unregisterClass to remove the id of unused class';
             var prototype = obj.constructor.prototype;
             if (prototype && prototype.hasOwnProperty('__cid__')) {
                 res = obj.__cid__;
-                if (!allowTempId && CC_DEV && isTempClassId(res)) {
+                if (!allowTempId && (CC_DEV || CC_EDITOR) && isTempClassId(res)) {
                     return '';
                 }
                 return res;
@@ -372,90 +487,39 @@ cc.js.unregisterClass to remove the id of unused class';
     };
 
     if (CC_DEV) {
-        Object.defineProperty(js, '_registeredClassIds', {
-            get: function () {
+        js.getset(js, '_registeredClassIds',
+            function () {
                 var dump = {};
                 for (var id in _idToClass) {
                     dump[id] = _idToClass[id];
                 }
                 return dump;
             },
-            set: function (value) {
+            function (value) {
                 js.clear(_idToClass);
                 for (var id in value) {
                     _idToClass[id] = value[id];
                 }
             }
-        });
-        Object.defineProperty(js, '_registeredClassNames', {
-            get: function () {
+        );
+        js.getset(js, '_registeredClassNames', 
+            function () {
                 var dump = {};
                 for (var id in _nameToClass) {
                     dump[id] = _nameToClass[id];
                 }
                 return dump;
             },
-            set: function (value) {
+            function (value) {
                 js.clear(_nameToClass);
                 for (var id in value) {
                     _nameToClass[id] = value[id];
                 }
             }
-        });
+        );
     }
 
 })();
-
-/**
- * Define get set accessor, just help to call Object.defineProperty(...)
- * @method getset
- * @param {any} obj
- * @param {String} prop
- * @param {Function} getter
- * @param {Function} setter
- * @param {Boolean} [enumerable=false]
- */
-js.getset = function (obj, prop, getter, setter, enumerable) {
-    if (typeof setter !== 'function') {
-        enumerable = setter;
-        setter = undefined;
-    }
-    Object.defineProperty(obj, prop, {
-        get: getter,
-        set: setter,
-        enumerable: !!enumerable
-    });
-};
-
-/**
- * Define get accessor, just help to call Object.defineProperty(...)
- * @method get
- * @param {any} obj
- * @param {String} prop
- * @param {Function} getter
- * @param {Boolean} [enumerable=false]
- */
-js.get = function (obj, prop, getter, enumerable) {
-    Object.defineProperty(obj, prop, {
-        get: getter,
-        enumerable: !!enumerable
-    });
-};
-
-/**
- * Define set accessor, just help to call Object.defineProperty(...)
- * @method set
- * @param {any} obj
- * @param {String} prop
- * @param {Function} setter
- * @param {Boolean} [enumerable=false]
- */
-js.set = function (obj, prop, setter, enumerable) {
-    Object.defineProperty(obj, prop, {
-        set: setter,
-        enumerable: !!enumerable
-    });
-};
 
 /**
  * Defines a polyfill field for obsoleted codes.
@@ -466,10 +530,10 @@ js.set = function (obj, prop, setter, enumerable) {
  * @param {Boolean} [writable=false]
  */
 js.obsolete = function (obj, obsoleted, newPropName, writable) {
-    var oldName = obsoleted.split('.').slice(-1);
+    var oldName = /([^.]+)$/.exec(obsoleted)[0];
     function get () {
         if (CC_DEV) {
-            cc.warn('"%s" is deprecated, use "%s" instead please.', obsoleted, newPropName);
+            cc.warnID(5400, obsoleted, newPropName);
         }
         return this[newPropName];
     }
@@ -478,7 +542,7 @@ js.obsolete = function (obj, obsoleted, newPropName, writable) {
             get,
             function (value) {
                 if (CC_DEV) {
-                    cc.warn('"%s" is deprecated, use "%s" instead please.', obsoleted, newPropName);
+                    cc.warnID(5401, obsoleted, newPropName);
                 }
                 this[newPropName] = value;
             }
@@ -504,6 +568,9 @@ js.obsoletes = function (obj, objName, props, writable) {
     }
 };
 
+var REGEXP_NUM_OR_STR = /(%d)|(%s)/;
+var REGEXP_STR = /%s/;
+
 /**
  * A string tool to construct a string with format string.
  * for example:
@@ -513,36 +580,61 @@ js.obsoletes = function (obj, objName, props, writable) {
  * @returns {String}
  */
 js.formatStr = function () {
-    var args = arguments;
-    var l = args.length;
-    if (l < 1) return '';
-    var REGEXP_NUM_OR_STR = /(%d)|(%s)/;
+    var argLen = arguments.length;
+    if (argLen === 0) {
+        return '';
+    }
+    var msg = arguments[0];
+    if (argLen === 1) {
+        return '' + msg;
+    }
 
-    var i = 1;
-    var str = args[0];
-    var hasSubstitution = typeof str === 'string' && REGEXP_NUM_OR_STR.test(str);
+    var hasSubstitution = typeof msg === 'string' && REGEXP_NUM_OR_STR.test(msg);
     if (hasSubstitution) {
-        var REGEXP_STR = /%s/;
-        for (; i < l; ++i) {
-            var arg = args[i];
+        for (let i = 1; i < argLen; ++i) {
+            var arg = arguments[i];
             var regExpToTest = typeof arg === 'number' ? REGEXP_NUM_OR_STR : REGEXP_STR;
-            if (regExpToTest.test(str))
-                str = str.replace(regExpToTest, arg);
+            if (regExpToTest.test(msg))
+                msg = msg.replace(regExpToTest, arg);
             else
-                str += ' ' + arg;
+                msg += ' ' + arg;
         }
     }
     else {
-        if (l > 1) {
-            for (; i < l; ++i) {
-                str += ' ' + args[i];
-            }
-        }
-        else {
-            str = '' + str;
+        for (let i = 1; i < argLen; ++i) {
+            msg += ' ' + arguments[i];
         }
     }
-    return str;
+    return msg;
+};
+
+// see https://github.com/petkaantonov/bluebird/issues/1389
+js.shiftArguments = function () {
+    var len = arguments.length - 1;
+    var args = new Array(len);
+    for(var i = 0; i < len; ++i) {
+        args[i] = arguments[i + 1];
+    }
+    return args;
+};
+
+/**
+ * #en
+ * A simple wrapper of `Object.create(null)` which ensures the return object have no prototype (and thus no inherited members). So we can skip `hasOwnProperty` calls on property lookups. It is a worthwhile optimization than the `{}` literal when `hasOwnProperty` calls are necessary.
+ * #zh
+ * 该方法是对 `Object.create(null)` 的简单封装。`Object.create(null)` 用于创建无 prototype （也就无继承）的空对象。这样我们在该对象上查找属性时，就不用进行 `hasOwnProperty` 判断。在需要频繁判断 `hasOwnProperty` 时，使用这个方法性能会比 `{}` 更高。
+ *
+ * @method createMap
+ * @param {Boolean} [forceDictMode=false] - Apply the delete operator to newly created map object. This causes V8 to put the object in "dictionary mode" and disables creation of hidden classes which are very expensive for objects that are constantly changing shape.
+ * @return {Object}
+ */
+js.createMap = function (forceDictMode) {
+    var map = Object.create(null);
+    if (forceDictMode) {
+        map["__"] = undefined;
+        delete map["__"];
+    }
+    return map;
 };
 
 /**
@@ -585,7 +677,7 @@ function fastRemoveAt (array, index) {
  */
 function remove (array, value) {
     var index = array.indexOf(value);
-    if (index !== -1) {
+    if (index >= 0) {
         removeAt(array, index);
         return true;
     }
@@ -603,7 +695,7 @@ function remove (array, value) {
  */
 function fastRemove (array, value) {
     var index = array.indexOf(value);
-    if (index !== -1) {
+    if (index >= 0) {
         array[index] = array[array.length - 1];
         --array.length;
     }
@@ -620,7 +712,7 @@ function verifyType (array, type) {
     if (array && array.length > 0) {
         for (var i = 0; i < array.length; i++) {
             if (!(array[i] instanceof  type)) {
-                cc.log(cc._LogInfos.Array.verifyType);
+                cc.logID(1300);
                 return false;
             }
         }
@@ -679,7 +771,7 @@ var indexOf = Array.prototype.indexOf;
  * @return {Boolean}
  */
 function contains (array, value) {
-    return indexOf.call(array, value) !== -1;
+    return indexOf.call(array, value) >= 0;
 }
 
 /**
@@ -709,6 +801,160 @@ js.array = {
     MutableForwardIterator: require('../utils/mutable-forward-iterator')
 };
 
+// OBJECT POOL
+
+/**
+ * !#en
+ * A fixed-length object pool designed for general type.<br>
+ * The implementation of this object pool is very simple,
+ * it can helps you to improve your game performance for objects which need frequent release and recreate operations<br/>
+ * !#zh
+ * 长度固定的对象缓存池，可以用来缓存各种对象类型。<br/>
+ * 这个对象池的实现非常精简，它可以帮助您提高游戏性能，适用于优化对象的反复创建和销毁。
+ * @class Pool
+ * @example
+ *
+ *Example 1:
+ *
+ *function Details () {
+ *    this.uuidList = [];
+ *};
+ *Details.prototype.reset = function () {
+ *    this.uuidList.length = 0;
+ *};
+ *Details.pool = new JS.Pool(function (obj) {
+ *    obj.reset();
+ *}, 5);
+ *Details.pool.get = function () {
+ *    return this._get() || new Details();
+ *};
+ *
+ *var detail = Details.pool.get();
+ *...
+ *Details.pool.put(detail);
+ *
+ *Example 2:
+ *
+ *function Details (buffer) {
+ *    this.uuidList = buffer;
+ *};
+ *...
+ *Details.pool.get = function (buffer) {
+ *    var cached = this._get();
+ *    if (cached) {
+ *        cached.uuidList = buffer;
+ *        return cached;
+ *    }
+ *    else {
+ *        return new Details(buffer);
+ *    }
+ *};
+ *
+ *var detail = Details.pool.get( [] );
+ *...
+ */
+/**
+ * !#en
+ * Constructor for creating an object pool for the specific object type.
+ * You can pass a callback argument for process the cleanup logic when the object is recycled.
+ * !#zh
+ * 使用构造函数来创建一个指定对象类型的对象池，您可以传递一个回调函数，用于处理对象回收时的清理逻辑。
+ * @method constructor
+ * @param {Function} [cleanupFunc] - the callback method used to process the cleanup logic when the object is recycled.
+ * @param {Object} cleanupFunc.obj
+ * @param {Number} size - initializes the length of the array
+ * @typescript
+ * constructor(cleanupFunc: (obj: any) => void, size: number)
+ * constructor(size: number)
+ */
+function Pool (cleanupFunc, size) {
+    if (typeof cleanupFunc === 'number') {
+        size = cleanupFunc;
+        cleanupFunc = null;
+    }
+    this.get = null;
+    this.count = 0;
+    this._pool = new Array(size);
+    this._cleanup = cleanupFunc;
+}
+
+/**
+ * !#en
+ * Get and initialize an object from pool. This method defaults to null and requires the user to implement it.
+ * !#zh
+ * 获取并初始化对象池中的对象。这个方法默认为空，需要用户自己实现。
+ * @method get
+ * @param {any} ...params - parameters to used to initialize the object
+ * @returns {Object}
+ */
+
+/**
+ * !#en
+ * The current number of available objects, the default is 0, it will gradually increase with the recycle of the object,
+ * the maximum will not exceed the size specified when the constructor is called.
+ * !#zh
+ * 当前可用对象数量，一开始默认是 0，随着对象的回收会逐渐增大，最大不会超过调用构造函数时指定的 size。
+ * @property {Number} count
+ * @default 0
+ */
+
+/**
+ * !#en
+ * Get an object from pool, if no available object in the pool, null will be returned.
+ * !#zh
+ * 获取对象池中的对象，如果对象池没有可用对象，则返回空。
+ * @method _get
+ * @returns {Object|null}
+ */
+Pool.prototype._get = function () {
+    if (this.count > 0) {
+        --this.count;
+        var cache = this._pool[this.count];
+        this._pool[this.count] = null;
+        return cache;
+    }
+    return null;
+};
+
+/**
+ * !#en Put an object into the pool.
+ * !#zh 向对象池返还一个不再需要的对象。
+ * @method put
+ */
+Pool.prototype.put = function (obj) {
+    var pool = this._pool;
+    if (this.count < pool.length) {
+        if (this._cleanup && this._cleanup(obj) === false) {
+            return;
+        }
+        pool[this.count] = obj;
+        ++this.count;
+    }
+};
+
+/**
+ * !#en Resize the pool.
+ * !#zh 设置对象池容量。
+ * @method resize
+ */
+Pool.prototype.resize = function (length) {
+    if (length >= 0) {
+        this._pool.length = length;
+        if (this.count > length) {
+            this.count = length;
+        }
+    }
+};
+
+js.Pool = Pool;
+
+//
+
 cc.js = js;
 
 module.exports = js;
+
+// fix submodule pollute ...
+/**
+ * @submodule cc
+ */

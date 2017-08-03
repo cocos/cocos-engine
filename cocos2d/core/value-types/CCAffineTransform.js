@@ -98,6 +98,22 @@ cc.pointApplyAffineTransform = function (point, transOrY, t) {
     return {x: t.a * x + t.c * y + t.tx, y: t.b * x + t.d * y + t.ty};
 };
 
+cc._pointApplyAffineTransformIn = function (point, transOrY, transOrOut, out) {
+    var x, y, t;
+    if (out === undefined) {
+        t = transOrY;
+        x = point.x;
+        y = point.y;
+        out = transOrOut;
+    } else {
+        x = point;
+        y = transOrY;
+        t = transOrOut;
+    }
+    out.x = t.a * x + t.c * y + t.tx;
+    out.y = t.b * x + t.d * y + t.ty;
+};
+
 cc._pointApplyAffineTransform = function (x, y, t) {   //it will remove.
     return cc.pointApplyAffineTransform(x, y, t);
 };
@@ -356,4 +372,22 @@ cc.affineTransformInvert = function (t) {
     var determinant = 1 / (t.a * t.d - t.b * t.c);
     return {a: determinant * t.d, b: -determinant * t.b, c: -determinant * t.c, d: determinant * t.a,
         tx: determinant * (t.c * t.ty - t.d * t.tx), ty: determinant * (t.b * t.tx - t.a * t.ty)};
+};
+
+/**
+ * !#en Put the invert transform of an AffineTransform object into the out AffineTransform object.
+ * !#zh 求逆矩阵并存入用户传入的矩阵对象参数。
+ * @method affineTransformInvert
+ * @param {AffineTransform} t
+ * @param {AffineTransform} out
+ */
+cc.affineTransformInvertOut = function (t, out) {
+    var a = t.a, b = t.b, c = t.c, d = t.d;
+    var determinant = 1 / (a * d - b * c);
+    out.a = determinant * d;
+    out.b = -determinant * b;
+    out.c = -determinant * c;
+    out.d = determinant * a;
+    out.tx = determinant * (c * t.ty - d * t.tx);
+    out.ty = determinant * (b * t.tx - a * t.ty);
 };

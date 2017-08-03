@@ -23,6 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+require('./CCTiledMapAsset');
+require('./CCTiledLayer');
+require('./CCTiledObjectGroup');
+require('./CCSGTMXTiledMap');
+
 /**
  * !#en The orientation of tiled map.
  * !#zh Tiled Map 地图方向。
@@ -383,11 +388,11 @@ var TiledMap = cc.Class({
     },
 
     initWithTMXFile:function (tmxFile) {
-        cc.error('Method "initWithTMXFile" is no effect now, please set property "tmxAsset" instead.');
+        cc.errorID(7200);
     },
 
     initWithXML:function(tmxString, resourcePath){
-        cc.error('Method "initWithXML" is no effect now, please set property "tmxAsset" instead.');
+        cc.errorID(7201);
     },
 
     /**
@@ -694,14 +699,12 @@ var TiledMap = cc.Class({
                 }
 
                 if (!node || !addedLayer) {
-                    cc.error('Add component TiledLayer into node failed.');
+                    cc.errorID(7202);
                 }
 
                 addedLayer._replaceSgNode(sgLayer);
                 node.setSiblingIndex(sgLayer.getLocalZOrder());
                 node.setAnchorPoint(this.node.getAnchorPoint());
-            } else {
-                existedLayers[theIndex].setSiblingIndex(sgLayer.getLocalZOrder());
             }
         }
 
@@ -730,15 +733,49 @@ var TiledMap = cc.Class({
                 }
 
                 if (!node || !addedGroup) {
-                    cc.error('Add component TiledLayer into node failed.');
+                    cc.errorID(7202);
                 }
 
                 addedGroup._replaceSgNode(sgGroup);
                 node.setSiblingIndex(sgGroup.getLocalZOrder());
                 node.setAnchorPoint(this.node.getAnchorPoint());
                 addedGroup.enabled = sgGroup.isVisible();
-            } else {
-                existedGroups[theIndex].setSiblingIndex(sgGroup.getLocalZOrder());
+            }
+        }
+
+        // get the current layer & group node names in order
+        var curChildren = this.node.getChildren();
+        var curLayerNames = [];
+        for (i = 0, n = curChildren.length; i < n; i++) {
+            child = curChildren[i];
+            tmxLayer = child.getComponent(cc.TiledLayer);
+            tmxGroup = child.getComponent(cc.TiledObjectGroup);
+            if (tmxLayer || tmxGroup) {
+                curLayerNames.push(child._name);
+            }
+        }
+
+        // get the current layer & group sgNode names in order
+        var sgLayerNames = [];
+        var sgLayers = [];
+        var sgChildren = this._sgNode.getChildren();
+        for (i = 0, n = sgChildren.length; i < n; i++) {
+            child = sgChildren[i];
+            if (child instanceof _ccsg.TMXLayer) {
+                sgLayerNames.push(child.getLayerName());
+                sgLayers.push(child);
+            }
+            else if (child instanceof _ccsg.TMXObjectGroup) {
+                sgLayerNames.push(child.getGroupName());
+                sgLayers.push(child);
+            }
+        }
+        for (i = sgLayerNames.length - 1; i >= 0; i--) {
+            var curName = sgLayerNames[i];
+            var nodeIdx = curLayerNames.indexOf(curName);
+            if (i !== nodeIdx) {
+                var curNode = this.node.getChildByName(curName);
+                curNode.setSiblingIndex(sgLayers[i].getLocalZOrder());
             }
         }
 
@@ -847,6 +884,6 @@ var TiledMap = cc.Class({
 cc.TiledMap = module.exports = TiledMap;
 cc.js.obsolete(cc.TiledMap.prototype, 'cc.TiledMap.tmxFile', 'tmxAsset', true);
 cc.js.get(cc.TiledMap.prototype, 'mapLoaded', function () {
-    cc.error('Property "mapLoaded" is unused now. Please write the logic to the callback "start".');
+    cc.errorID(7203);
     return [];
 }, false);

@@ -57,7 +57,7 @@ class TextureParser {
         // the loaded texture array
         this.textures = [];
     }
-    load (page, line) {
+    load (line) {
         var name = Path.basename(line);
         var base = Path.dirname(this.atlasPath);
         var path = Path.resolve(base, name);
@@ -66,6 +66,10 @@ class TextureParser {
             console.log('UUID is initialized for "%s".', path);
             var url = Editor.assetdb.uuidToUrl(uuid);
             this.textures.push(url);
+            var tex = new Spine.Texture({});
+            tex.setFilters = function() {};
+            tex.setWraps = function() {};
+            return tex;
         }
         else if (!Fs.existsSync(path)) {
             Editor.error('Can not find texture "%s" for atlas "%s"', line, this.atlasPath);
@@ -74,6 +78,8 @@ class TextureParser {
             // AssetDB may call postImport more than once, we can get uuid in the next time.
             console.warn('WARN: UUID not yet initialized for "%s".', path);
         }
+
+        return null;
     }
     unload () {}
 }
@@ -167,7 +173,7 @@ class SpineMeta extends CustomAssetMeta {
                 // parse atlas textures
                 var textureParser = new TextureParser(res.atlasPath);
                 try {
-                    new Spine.Atlas(res.data, textureParser);
+                    new Spine.TextureAtlas(res.data, textureParser.load.bind(textureParser));
                 }
                 catch (err) {
                     return cb(new Error(`Failed to load atlas file: "${res.atlasPath}". ${err.stack || err}`));

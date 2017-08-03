@@ -22,7 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
+require('../../clipping-nodes/CCClippingNode');
+require('../../clipping-nodes/CCClippingNodeCanvasRenderCmd');
+require('../../clipping-nodes/CCClippingNodeWebGLRenderCmd');
 var Base = cc._RendererInSG;
 
 /**
@@ -50,6 +52,9 @@ var MaskType = cc.Enum({
      */
     IMAGE_STENCIL: 2,
 });
+
+const SEGEMENTS_MIN = 3;
+const SEGEMENTS_MAX = 10000;
 
 /**
  * !#en The Mask Component
@@ -91,7 +96,7 @@ var Mask = cc.Class({
                 this._refreshStencil();
             },
             type: MaskType,
-            tooltip: 'i18n:COMPONENT.mask.type',
+            tooltip: CC_DEV && 'i18n:COMPONENT.mask.type',
         },
 
         /**
@@ -106,8 +111,8 @@ var Mask = cc.Class({
         spriteFrame: {
             default: null,
             type: cc.SpriteFrame,
-            tooltip: 'i18n:COMPONENT.mask.spriteFrame',
-            notify: function() {
+            tooltip: CC_DEV && 'i18n:COMPONENT.mask.spriteFrame',
+            notify: function () {
                 this._refreshStencil();
             }
         },
@@ -131,10 +136,10 @@ var Mask = cc.Class({
             type: cc.Float,
             range: [0, 1, 0.1],
             slide: true,
-            tooltip: 'i18n:COMPONENT.mask.alphaThreshold',
-            notify: function() {
+            tooltip: CC_DEV && 'i18n:COMPONENT.mask.alphaThreshold',
+            notify: function () {
                 if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
-                    cc.warn("The alphaThreshold invalid in Canvas Mode.");
+                    cc.warnID(4201);
                     return;
                 }
                 this._sgNode.setAlphaThreshold(this.alphaThreshold);
@@ -151,10 +156,10 @@ var Mask = cc.Class({
         inverted: {
             default: false,
             type: cc.Boolean,
-            tooltip: 'i18n:COMPONENT.mask.inverted',
-            notify: function() {
+            tooltip: CC_DEV && 'i18n:COMPONENT.mask.inverted',
+            notify: function () {
                 if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
-                    cc.warn("The inverted invalid in Canvas Mode.");
+                    cc.warnID(4202);
                     return;
                 }
                 this._sgNode.setInverted(this.inverted);
@@ -174,11 +179,10 @@ var Mask = cc.Class({
                 return this._segements;
             },
             set: function (value) {
-                this._segements = value < 3 ? 3 : value;
+                this._segements = cc.clampf(value, SEGEMENTS_MIN, SEGEMENTS_MAX);
                 this._refreshStencil();
             },
-            type: cc.Integer,
-            tooltip: 'i18n:COMPONENT.mask.segements',
+            tooltip: CC_DEV && 'i18n:COMPONENT.mask.segements',
         },
 
         _resizeToTarget: {
@@ -202,11 +206,11 @@ var Mask = cc.Class({
         }
     },
 
+    _initSgNode: function () {},
+
     _createSgNode: function () {
         return new cc.ClippingNode();
     },
-
-    _initSgNode: function () {},
 
     _hitTest: function (point) {
         var size = this.node.getContentSize(),
@@ -221,35 +225,25 @@ var Mask = cc.Class({
                 right = rect.x + rect.width - point.x,
                 bottom = point.y - rect.y,
                 top = rect.y + rect.height - point.y;
-            if (left >= 0 && right >= 0 && top >= 0 && bottom >= 0) {
-                return true;
-            }
-            else {
-                return false;
-            }
+
+            return left >= 0 && right >= 0 && top >= 0 && bottom >= 0;
         }
         else if (this.type === MaskType.ELLIPSE) {
             var a = w / 2, b = h / 2;
             var cx = trans.a * a + trans.c * b + trans.tx;
             var cy = trans.b * a + trans.d * b + trans.ty;
             var px = point.x - cx, py = point.y - cy;
-            if (px * px / (a * a) + py * py / (b * b) < 1) {
-                return true;
-            }
-            else {
-                return false;
-            }
+
+            return px * px / (a * a) + py * py / (b * b) < 1;
         }
     },
 
     onEnable: function () {
-        if (this.type === MaskType.IMAGE_STENCIL &&
-            cc._renderType !== cc.game.RENDER_TYPE_WEBGL && !CC_JSB) {
-            cc.warn("MaskType: IMAGE_STENCIL only support WebGL mode.");
-            return;
+        this._super();
+        if (this.spriteFrame) {
+            this.spriteFrame.ensureLoadTexture();
         }
         this._refreshStencil();
-        this._super();
         this.node.on('size-changed', this._refreshStencil, this);
         this.node.on('anchor-changed', this._refreshStencil, this);
     },
@@ -260,7 +254,7 @@ var Mask = cc.Class({
         this.node.off('anchor-changed', this._refreshStencil, this);
     },
 
-    _calculateCircle: function(center, radius, segements) {
+    _calculateCircle: function (center, radius, segements) {
         var polies =[];
         var anglePerStep = Math.PI * 2 / segements;
         for(var step = 0; step < segements; ++ step) {
@@ -272,6 +266,13 @@ var Mask = cc.Class({
     },
 
     _refreshStencil: function () {
+        // Check whether the conditions are met
+        if (this.type === MaskType.IMAGE_STENCIL &&
+            cc._renderType !== cc.game.RENDER_TYPE_WEBGL && !CC_JSB) {
+            cc.warnID(4200);
+            return;
+        }
+
         var contentSize = this.node.getContentSize();
         var anchorPoint = this.node.getAnchorPoint();
         var stencil = this._clippingStencil;

@@ -55,8 +55,8 @@
  * Constructor for creating a pool for a specific node template (usually a prefab). You can pass a component (type or name) argument for handling event for reusing and recycling node.
  * !#zh
  * 使用构造函数来创建一个节点专用的对象池，您可以传递一个组件类型或名称，用于处理节点回收和复用时的事件逻辑。
- * @param {[Function|String]} poolHandlerComp !#en The constructor or the class name of the component to control the unuse/reuse logic. !#zh 处理节点回收和复用事件逻辑的组件类型或名称。
- * @method NodePool
+ * @method constructor
+ * @param {Function|String} [poolHandlerComp] !#en The constructor or the class name of the component to control the unuse/reuse logic. !#zh 处理节点回收和复用事件逻辑的组件类型或名称。
  * @example
  *  properties: {
  *    template: cc.Prefab
@@ -65,6 +65,8 @@
       // MyTemplateHandler is a component with 'unuse' and 'reuse' to handle events when node is reused or recycled.
  *    this.myPool = new cc.NodePool('MyTemplateHandler');
  *  }
+ * @typescript
+ * constructor(poolHandlerComp?: {prototype: Component}|string)
  */
 cc.NodePool = function (poolHandlerComp) {
     /**
@@ -83,6 +85,7 @@ cc.NodePool.prototype = {
      * !#en The current available size in the pool
      * !#zh 获取当前缓冲池的可用对象数量
      * @method size
+     * @return {Number}
      */
     size: function () {
         return this._pool.length;
@@ -109,6 +112,7 @@ cc.NodePool.prototype = {
      * 这个函数会自动将目标节点从父节点上移除，但是不会进行 cleanup 操作。
      * 这个函数会调用 poolHandlerComp 的 unuse 函数，如果组件和函数都存在的话。
      * @method put
+     * @param {Node} obj
      * @example
      *   let myNode = cc.instantiate(this.template);
      *   this.myPool.put(myNode);
@@ -134,8 +138,8 @@ cc.NodePool.prototype = {
      * !#zh 获取对象池中的对象，如果对象池没有可用对象，则返回空。
      * 这个函数会调用 poolHandlerComp 的 reuse 函数，如果组件和函数都存在的话。
      * @method get
-     * @param {any} params - !#en Params to pass to 'reuse' method in poolHandlerComp !#zh 向 poolHandlerComp 中的 'reuse' 函数传递的参数
-     * @return {Object|null}
+     * @param {any} ...params - !#en Params to pass to 'reuse' method in poolHandlerComp !#zh 向 poolHandlerComp 中的 'reuse' 函数传递的参数
+     * @return {Node|null}
      * @example
      *   let newNode = this.myPool.get();
      */

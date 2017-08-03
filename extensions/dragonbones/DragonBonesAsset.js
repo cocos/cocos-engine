@@ -23,6 +23,16 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ * @module dragonBones
+ */
+
+/**
+ * !#en The skeleton data of dragonBones.
+ * !#zh dragonBones 的 骨骼数据。
+ * @class DragonBonesAsset
+ * @extends Asset
+ */
 var DragonBonesAsset = cc.Class({
     name: 'dragonBones.DragonBonesAsset',
     extends: cc.Asset,
@@ -31,6 +41,8 @@ var DragonBonesAsset = cc.Class({
         _dragonBonesJson : '',
 
         /**
+         * !#en See http://developer.egret.com/cn/github/egret-docs/DB/dbLibs/dataFormat/index.html
+         * !#zh 可查看 DragonBones 官方文档 http://developer.egret.com/cn/github/egret-docs/DB/dbLibs/dataFormat/index.html
          * @property {string} dragonBonesJson
          */
         dragonBonesJson : {

@@ -29,7 +29,7 @@ var StaggerAxis = null;
 var StaggerIndex = null;
 
 _ccsg.TMXLayer.CanvasRenderCmd = function(renderable){
-    _ccsg.Node.CanvasRenderCmd.call(this, renderable);
+    this._rootCtor(renderable);
     this._needDraw = true;
 
     if (!Orientation) {
@@ -43,62 +43,6 @@ _ccsg.TMXLayer.CanvasRenderCmd = function(renderable){
 
 var proto = _ccsg.TMXLayer.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
 proto.constructor = _ccsg.TMXLayer.CanvasRenderCmd;
-
-proto.visit = function (parentCmd) {
-    var node = this._node, renderer = cc.renderer;
-
-    parentCmd = parentCmd || this.getParentRenderCmd();
-    if (parentCmd) {
-        this._curLevel = parentCmd._curLevel + 1;
-    }
-    this._propagateFlagsDown(parentCmd);
-
-    // quick return if not visible
-    if (!node._visible)
-        return;
-
-    if (isNaN(node._customZ)) {
-        node._vertexZ = renderer.assignedZ;
-        renderer.assignedZ += renderer.assignedZStep;
-    }
-
-    this._syncStatus(parentCmd);
-
-    // Visit children
-    var children = node._children, child,
-        spTiles = node._spriteTiles,
-        i, len = children.length;
-    if (len > 0) {
-        node.sortAllChildren();
-        // draw children zOrder < 0
-        for (i = 0; i < len; i++) {
-            child = children[i];
-            if (child._localZOrder < 0) {
-                child._renderCmd.visit(this);
-            }
-            else {
-                break;
-            }
-        }
-
-        renderer.pushRenderCommand(this);
-        for (; i < len; i++) {
-            child = children[i];
-            if (child._localZOrder === 0 && spTiles[child.tag]) {
-                if (isNaN(child._customZ)) {
-                    child._vertexZ = renderer.assignedZ;
-                    renderer.assignedZ += renderer.assignedZStep;
-                }
-                child._renderCmd.updateStatus();
-                continue;
-            }
-            child._renderCmd.visit(this);
-        }
-    } else {
-        renderer.pushRenderCommand(this);
-    }
-    this._dirtyFlag = 0;
-};
 
 proto.rendering = function (ctx, scaleX, scaleY) {
     var node = this._node, hasRotation = (node._rotationX || node._rotationY),
@@ -134,16 +78,19 @@ proto.rendering = function (ctx, scaleX, scaleY) {
     // Culling
     var startCol = 0, startRow = 0,
         maxCol = cols, maxRow = rows;
-    if (!hasRotation && layerOrientation === Orientation.ORTHO) {
-        startCol = Math.floor(-(mapx - extw * a) / (maptw * a));
-        startRow = Math.floor((mapy - exth * d + mapth * rows * d - winh) / (mapth * d));
-        maxCol = Math.ceil((winw - mapx + extw * a) / (maptw * a));
-        maxRow = rows - Math.floor(-(mapy + exth * d) / (mapth * d));
-        // Adjustment
-        if (startCol < 0) startCol = 0;
-        if (startRow < 0) startRow = 0;
-        if (maxCol > cols) maxCol = cols;
-        if (maxRow > rows) maxRow = rows;
+
+    if (cc.macro.ENABLE_TILEDMAP_CULLING) {
+        if (!hasRotation && layerOrientation === Orientation.ORTHO) {
+            startCol = Math.floor(-(mapx - extw * a) / (maptw * a));
+            startRow = Math.floor((mapy - exth * d + mapth * rows * d - winh) / (mapth * d));
+            maxCol = Math.ceil((winw - mapx + extw * a) / (maptw * a));
+            maxRow = rows - Math.floor(-(mapy + exth * d) / (mapth * d));
+            // Adjustment
+            if (startCol < 0) startCol = 0;
+            if (startRow < 0) startRow = 0;
+            if (maxCol > cols) maxCol = cols;
+            if (maxRow > rows) maxRow = rows;
+        }
     }
 
     var i, row, col, colOffset = startRow * cols, z, 

@@ -23,7 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var misc = {};
+var JS = require('../platform/js');
+var sys = require('../platform/CCSys');
+
+var misc = exports;
 
 misc.propertyDefine = function (ctor, sameNameGetSets, diffNameGetSets) {
     function define (np, propName, getter, setter) {
@@ -38,7 +41,7 @@ misc.propertyDefine = function (ctor, sameNameGetSets, diffNameGetSets) {
                 var clsName = (cc.Class._isCCClass(ctor) && cc.js.getClassName(ctor)) ||
                               ctor.name ||
                               '(anonymous class)';
-                cc.warn('no %s or %s on %s', propName, getter, clsName);
+                cc.warnID(5700, propName, getter, clsName);
             }
             else {
                 cc.js.getset(np, propName, getterFunc, np[setter]);
@@ -72,7 +75,7 @@ misc.NextPOT = function (x) {
     return x + 1;
 };
 
-//var DirtyFlags = misc.DirtyFlags = {
+//var DirtyFlags = m.DirtyFlags = {
 //    TRANSFORM: 1 << 0,
 //    SIZE: 1 << 1,
 //    //Visible:
@@ -87,21 +90,54 @@ misc.NextPOT = function (x) {
 //
 //DirtyFlags.WIDGET = DirtyFlags.TRANSFORM | DirtyFlags.SIZE;
 
-misc.destructIgnoreId = function () {
-    // The same as Object._destruct but dont reset _id when destroyed
-    for (var key in this) {
-        if (this.hasOwnProperty(key) && key !== '_id') {
-            switch (typeof this[key]) {
-                case 'string':
-                    this[key] = '';
-                    break;
-                case 'object':
-                case 'function':
-                    this[key] = null;
-                    break;
+if (CC_EDITOR) {
+    // use anonymous function here to ensure it will not being hoisted without CC_EDITOR
+
+    misc.tryCatchFunctor_EDITOR = function (funcName, forwardArgs, afterCall, bindArg) {
+        function call_FUNC_InTryCatch (_R_ARGS_) {
+            try {
+                target._FUNC_(_U_ARGS_);
             }
+            catch (e) {
+                cc._throw(e);
+            }
+            _AFTER_CALL_
         }
-    }
+        // use evaled code to generate named function
+        return Function('arg', 'return ' + call_FUNC_InTryCatch
+                    .toString()
+                    .replace(/_FUNC_/g, funcName)
+                    .replace('_R_ARGS_', 'target' + (forwardArgs ? ', ' + forwardArgs : ''))
+                    .replace('_U_ARGS_', forwardArgs || '')
+                    .replace('_AFTER_CALL_', afterCall || ''))(bindArg);
+    };
+}
+
+misc.imagePool = new JS.Pool(function (img) {
+                            if (img instanceof HTMLImageElement) {
+                                img.src = this._smallImg;
+                                return true;
+                            }
+                            return false;
+                       }, 10);
+misc.imagePool.get = function () {
+    return this._get() || new Image();
+};
+misc.imagePool._smallImg = "data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=";
+// Avoid problems on windows IE kernels, Edge, Firefox and Linux Firefox
+if ((sys.os === sys.OS_WINDOWS || sys.os === sys.OS_LINUX) && sys.browser !== sys.BROWSER_TYPE_CHROME) {
+    misc.imagePool.resize(0);
+}
+
+misc.isBuiltinClassId = function (id) {
+    return id.startsWith('cc.') || id.startsWith('dragonBones.') || id.startsWith('sp.') || id.startsWith('ccsg.');
 };
 
-module.exports = misc;
+
+var BASE64_KEYS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+var BASE64_VALUES = new Array(123); // max char code in base64Keys
+for (let i = 0; i < 123; ++i) BASE64_VALUES[i] = 64; // fill with placeholder('=') index
+for (let i = 0; i < 64; ++i) BASE64_VALUES[BASE64_KEYS.charCodeAt(i)] = i;
+
+// decoded value indexed by base64 char code
+misc.BASE64_VALUES = BASE64_VALUES;

@@ -23,7 +23,7 @@
  ****************************************************************************/
 
 cc.Scale9Sprite.CanvasRenderCmd = function (renderable) {
-    _ccsg.Node.CanvasRenderCmd.call(this, renderable);
+    this._rootCtor(renderable);
     if (this._node.loaded()) {
         this._needDraw = true;
     }
@@ -44,6 +44,11 @@ proto.transform = function (parentCmd, recursive) {
 
 proto._updateDisplayColor = function(parentColor){
     _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayColor.call(this, parentColor);
+    this._originalTexture = this._textureToRender = null;
+};
+
+proto._syncDisplayColor = function(parentColor){
+    _ccsg.Node.WebGLRenderCmd.prototype._syncDisplayColor.call(this, parentColor);
     this._originalTexture = this._textureToRender = null;
 };
 

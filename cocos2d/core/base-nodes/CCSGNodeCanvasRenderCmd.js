@@ -27,12 +27,11 @@ cc.CustomRenderCmd = function (target, func) {
     this._needDraw = true;
     this._target = target;
     this._callback = func;
-
-    this.rendering = function (ctx, scaleX, scaleY) {
-        if (!this._callback)
-            return;
-        this._callback.call(this._target, ctx, scaleX, scaleY);
-    };
+};
+cc.CustomRenderCmd.prototype.rendering = function (ctx, scaleX, scaleY) {
+    if (!this._callback)
+        return;
+    this._callback.call(this._target, ctx, scaleX, scaleY);
 };
 
 var dirtyFlags = _ccsg.Node._dirtyFlags = {
@@ -53,7 +52,7 @@ cc.js.get(dirtyFlags, 'all', function () {
     return (1 << count) - 1;
 }, false);
 _ccsg.Node._requestDirtyFlag = function (key) {
-    cc.assert(!dirtyFlags[key], cc._LogInfos.Node._requestDirtyFlag, key);
+    cc.assertID(!dirtyFlags[key], 1622, key);
 
     var count = dirtyFlags.COUNT;
     var value = 1 << count;
@@ -63,11 +62,17 @@ _ccsg.Node._requestDirtyFlag = function (key) {
 };
 
 var ONE_DEGREE = Math.PI / 180;
-var stack = new Array(50);
 
 function transformChildTree (root) {
     var index = 1;
     var children, child, curr, parentCmd, i, len;
+    var stack = _ccsg.Node._performStacks[_ccsg.Node._performing];
+    if (!stack) {
+        stack = [];
+        _ccsg.Node._performStacks.push(stack);
+    }
+    stack.length = 0;
+    _ccsg.Node._performing++;
     stack[0] = root;
     while (index) {
         index--;
@@ -86,31 +91,37 @@ function transformChildTree (root) {
             }
         }
     }
+    _ccsg.Node._performing--;
 }
 
 //-------------------------Base -------------------------
-_ccsg.Node.RenderCmd = function(renderable){
-    this._dirtyFlag = 1;                           //need update the transform at first.
-    cc.renderer.pushDirtyNode(this);
-
+_ccsg.Node.RenderCmd = function (renderable) {
     this._node = renderable;
+    this._anchorPointInPoints = new cc.Vec2(0, 0);
+
     this._needDraw = false;
-    this._anchorPointInPoints = new cc.Vec2(0,0);
+    this._dirtyFlag = 1;
+    this._curLevel = -1;
+
+    this._cameraFlag = 0;
+
+    this._displayedColor = new cc.Color(255, 255, 255, 255);
+    this._displayedOpacity = 255;
+    this._cascadeColorEnabledDirty = false;
+    this._cascadeOpacityEnabledDirty = false;
 
     this._transform = {a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0};
     this._worldTransform = {a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0};
     this._inverse = {a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0};
-
-    this._displayedOpacity = 255;
-    this._displayedColor = cc.color(255, 255, 255, 255);
-    this._cascadeColorEnabledDirty = false;
-    this._cascadeOpacityEnabledDirty = false;
-    this._curLevel = -1;
-
+    this._transformUpdated = false;
+    
+    cc.renderer.pushDirtyNode(this);
 };
 
 _ccsg.Node.RenderCmd.prototype = {
     constructor: _ccsg.Node.RenderCmd,
+
+    _ctor: _ccsg.Node.RenderCmd,
 
     getAnchorPointInPoints: function(){
         return cc.p(this._anchorPointInPoints);
@@ -136,8 +147,9 @@ _ccsg.Node.RenderCmd.prototype = {
     },
 
     getParentToNodeTransform: function(){
-        if(this._dirtyFlag & dirtyFlags.transformDirty)
-            this._inverse = cc.affineTransformInvert(this.getNodeToParentTransform());
+        if (this._dirtyFlag & dirtyFlags.transformDirty) {
+            cc.affineTransformInvertOut(this.getNodeToParentTransform(), this._inverse);
+        }
         return this._inverse;
     },
 
@@ -168,112 +180,98 @@ _ccsg.Node.RenderCmd.prototype = {
             t = this._transform,
             wt = this._worldTransform;         //get the world transform
 
-        var hasRotation = node._rotationX || node._rotationY;
-        var hasSkew = node._skewX || node._skewY;
-        var sx = node._scaleX, sy = node._scaleY;
-        var appX = this._anchorPointInPoints.x, appY = this._anchorPointInPoints.y;
-        var a = 1, b = 0, c = 0, d = 1;
-        if (hasRotation || hasSkew) {
-            // position 
-            t.tx = node._position.x;
-            t.ty = node._position.y;
+        if (!this._transformUpdated) {
+            var hasRotation = node._rotationX || node._rotationY;
+            var hasSkew = node._skewX || node._skewY;
+            var sx = node._scaleX, sy = node._scaleY;
+            var appX = this._anchorPointInPoints.x, appY = this._anchorPointInPoints.y;
+            var a = 1, b = 0, c = 0, d = 1;
+            if (hasRotation || hasSkew) {
+                // position
+                t.tx = node._position.x;
+                t.ty = node._position.y;
 
-            // rotation
-            if (hasRotation) {
-                var rotationRadiansX = node._rotationX * ONE_DEGREE;
-                c = Math.sin(rotationRadiansX);
-                d = Math.cos(rotationRadiansX);
-                if (node._rotationY === node._rotationX) {
-                    a = d;
-                    b = -c;
+                // rotation
+                if (hasRotation) {
+                    var rotationRadiansX = node._rotationX * ONE_DEGREE;
+                    c = Math.sin(rotationRadiansX);
+                    d = Math.cos(rotationRadiansX);
+                    if (node._rotationY === node._rotationX) {
+                        a = d;
+                        b = -c;
+                    }
+                    else {
+                        var rotationRadiansY = node._rotationY * ONE_DEGREE;
+                        a = Math.cos(rotationRadiansY);
+                        b = -Math.sin(rotationRadiansY);
+                    }
                 }
-                else {
-                    var rotationRadiansY = node._rotationY * ONE_DEGREE;
-                    a = Math.cos(rotationRadiansY);
-                    b = -Math.sin(rotationRadiansY);
+
+                // scale
+                t.a = a *= sx;
+                t.b = b *= sx;
+                t.c = c *= sy;
+                t.d = d *= sy;
+
+                // skew
+                if (hasSkew) {
+                    var skx = Math.tan(node._skewX * ONE_DEGREE);
+                    var sky = Math.tan(node._skewY * ONE_DEGREE);
+                    if (skx === Infinity)
+                        skx = 99999999;
+                    if (sky === Infinity)
+                        sky = 99999999;
+                    t.a = a + c * sky;
+                    t.b = b + d * sky;
+                    t.c = c + a * skx;
+                    t.d = d + b * skx;
+                }
+
+                if (appX || appY) {
+                    t.tx -= t.a * appX + t.c * appY;
+                    t.ty -= t.b * appX + t.d * appY;
+                    // adjust anchorPoint
+                    if (node._ignoreAnchorPointForPosition) {
+                        t.tx += appX;
+                        t.ty += appY;
+                    }
                 }
             }
+            else {
+                t.a = sx;
+                t.b = 0;
+                t.c = 0;
+                t.d = sy;
+                t.tx = node._position.x;
+                t.ty = node._position.y;
 
-            // scale
-            t.a = a *= sx;
-            t.b = b *= sx;
-            t.c = c *= sy;
-            t.d = d *= sy;
-
-            // skew
-            if (hasSkew) {
-                var skx = Math.tan(node._skewX * ONE_DEGREE);
-                var sky = Math.tan(node._skewY * ONE_DEGREE);
-                if (skx === Infinity)
-                    skx = 99999999;
-                if (sky === Infinity)
-                    sky = 99999999;
-                t.a = a + c * sky;
-                t.b = b + d * sky;
-                t.c = c + a * skx;
-                t.d = d + b * skx;
-            }
-
-            if (appX || appY) {
-                t.tx -= t.a * appX + t.c * appY;
-                t.ty -= t.b * appX + t.d * appY;
-                // adjust anchorPoint
-                if (node._ignoreAnchorPointForPosition) {
-                    t.tx += appX;
-                    t.ty += appY;
+                if (appX || appY) {
+                    t.tx -= t.a * appX;
+                    t.ty -= t.d * appY;
+                    // adjust anchorPoint
+                    if (node._ignoreAnchorPointForPosition) {
+                        t.tx += appX;
+                        t.ty += appY;
+                    }
                 }
-            }
-
-            if (pt) {
-                // cc.AffineTransformConcat is incorrect at get world transform
-                wt.a = t.a * pt.a + t.b * pt.c;                               //a
-                wt.b = t.a * pt.b + t.b * pt.d;                               //b
-                wt.c = t.c * pt.a + t.d * pt.c;                               //c
-                wt.d = t.c * pt.b + t.d * pt.d;                               //d
-                wt.tx = pt.a * t.tx + pt.c * t.ty + pt.tx;
-                wt.ty = pt.d * t.ty + pt.ty + pt.b * t.tx;
-            } else {
-                wt.a = t.a;
-                wt.b = t.b;
-                wt.c = t.c;
-                wt.d = t.d;
-                wt.tx = t.tx;
-                wt.ty = t.ty;
             }
         }
-        else {
-            t.a = sx;
-            t.b = 0;
-            t.c = 0;
-            t.d = sy;
-            t.tx = node._position.x;
-            t.ty = node._position.y;
 
-            if (appX || appY) {
-                t.tx -= t.a * appX;
-                t.ty -= t.d * appY;
-                // adjust anchorPoint
-                if (node._ignoreAnchorPointForPosition) {
-                    t.tx += appX;
-                    t.ty += appY;
-                }
-            }
-
-            if (pt) {
-                wt.a  = t.a  * pt.a + t.b  * pt.c;
-                wt.b  = t.a  * pt.b + t.b  * pt.d;
-                wt.c  = t.c  * pt.a + t.d  * pt.c;
-                wt.d  = t.c  * pt.b + t.d  * pt.d;
-                wt.tx = t.tx * pt.a + t.ty * pt.c + pt.tx;
-                wt.ty = t.tx * pt.b + t.ty * pt.d + pt.ty;
-            } else {
-                wt.a = t.a;
-                wt.b = t.b;
-                wt.c = t.c;
-                wt.d = t.d;
-                wt.tx = t.tx;
-                wt.ty = t.ty;
-            }
+        // update world transform
+        if (pt) {
+            wt.a  = t.a  * pt.a + t.b  * pt.c;
+            wt.b  = t.a  * pt.b + t.b  * pt.d;
+            wt.c  = t.c  * pt.a + t.d  * pt.c;
+            wt.d  = t.c  * pt.b + t.d  * pt.d;
+            wt.tx = t.tx * pt.a + t.ty * pt.c + pt.tx;
+            wt.ty = t.tx * pt.b + t.ty * pt.d + pt.ty;
+        } else {
+            wt.a = t.a;
+            wt.b = t.b;
+            wt.c = t.c;
+            wt.d = t.d;
+            wt.tx = t.tx;
+            wt.ty = t.ty;
         }
 
         if (this._currentRegion) {
@@ -281,11 +279,18 @@ _ccsg.Node.RenderCmd.prototype = {
             this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.DirtyDouble);
         }
 
+        var Camera = cc.Camera;
+        if (cc._renderType === cc.game.RENDER_TYPE_WEBGL && Camera) {
+            // check if node is in camera
+            var camera = Camera.main;
+            if (parentCmd && this._cameraFlag != Camera.flags.InCamera) {
+                this._cameraFlag = parentCmd._cameraFlag > 0 ? Camera.flags.ParentInCamera : 0;
+            }
+        }
+
         if (recursive) {
             transformChildTree(node);
         }
-
-        this._cacheDirty = true;
     },
 
     getNodeToParentTransform: function () {
@@ -293,6 +298,18 @@ _ccsg.Node.RenderCmd.prototype = {
             this.transform();
         }
         return this._transform;
+    },
+
+    setNodeToParentTransform: function(transform) {
+        if (transform) {
+            // use specified transform
+            this._transform = transform;
+            this._transformUpdated = true;
+        } else {
+            // not use the specified transform
+            this._transformUpdated = false;
+        }
+        this.setDirtyFlag(dirtyFlags.transformDirty);
     },
 
     _propagateFlagsDown: function(parentCmd) {
@@ -327,17 +344,12 @@ _ccsg.Node.RenderCmd.prototype = {
         }
         this._propagateFlagsDown(parentCmd);
 
-        // quick return if not visible
-        if (!node._visible)
-            return;
-
         if (isNaN(node._customZ)) {
             node._vertexZ = renderer.assignedZ;
             renderer.assignedZ += renderer.assignedZStep;
         }
 
         this._syncStatus(parentCmd);
-        this.visitChildren();
     },
 
     _updateDisplayColor: function (parentColor) {
@@ -492,47 +504,19 @@ _ccsg.Node.RenderCmd.prototype = {
         if (locFlag & dirtyFlags.transformDirty)
             //update the transform
             this.transform(parentCmd);
-    },
-
-    visitChildren: function(){
-        var renderer = cc.renderer;
-        var node = this._node;
-        var i, children = node._children, child;
-        var len = children.length;
-        if (len > 0) {
-            node.sortAllChildren();
-            // draw children zOrder < 0
-            for (i = 0; i < len; i++) {
-                child = children[i];
-                if (child._localZOrder < 0) {
-                    child._renderCmd.visit(this);
-                }
-                else {
-                    break;
-                }
-            }
-
-            renderer.pushRenderCommand(this);
-            for (; i < len; i++) {
-                children[i]._renderCmd.visit(this);
-            }
-        } else {
-            renderer.pushRenderCommand(this);
-        }
-        this._dirtyFlag = 0;
     }
 };
 
-_ccsg.Node.RenderCmd.prototype.originVisit = _ccsg.Node.RenderCmd.prototype.visit;
 _ccsg.Node.RenderCmd.prototype.originTransform = _ccsg.Node.RenderCmd.prototype.transform;
+_ccsg.Node.RenderCmd.prototype.originUpdateStatus = _ccsg.Node.RenderCmd.prototype.updateStatus;
+_ccsg.Node.RenderCmd.prototype._originSyncStatus = _ccsg.Node.RenderCmd.prototype._syncStatus;
 
 //-----------------------Canvas ---------------------------
 
 //The _ccsg.Node's render command for Canvas
 _ccsg.Node.CanvasRenderCmd = function (renderable) {
-    _ccsg.Node.RenderCmd.call(this, renderable);
-    this._cachedParent = null;
-    this._cacheDirty = false;
+    this._ctor(renderable);
+
     this._currentRegion = new cc.Region();
     this._oldRegion = new cc.Region();
     this._regionFlag = 0;
@@ -546,6 +530,7 @@ _ccsg.Node.CanvasRenderCmd.RegionStatus = {
 
 var proto = _ccsg.Node.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.RenderCmd.prototype);
 proto.constructor = _ccsg.Node.CanvasRenderCmd;
+proto._rootCtor = _ccsg.Node.CanvasRenderCmd;
 proto._notifyRegionStatus = function(status) {
     if (this._needDraw && this._regionFlag < status) {
         this._regionFlag = status;
@@ -556,8 +541,8 @@ var localBB = new cc.Rect();
 proto.getLocalBB = function() {
     var node = this._node;
     localBB.x = localBB.y = 0;
-    localBB.width = node._getWidth();
-    localBB.height = node._getHeight();
+    localBB.width = node._contentSize.width;
+    localBB.height = node._contentSize.height;
     return localBB;
 };
 
@@ -572,33 +557,7 @@ proto._updateCurrentRegions = function() {
     this._currentRegion.updateRegion(this.getLocalBB(), this._worldTransform);
 };
 
-proto.setDirtyFlag = function (dirtyFlag, child) {
-    _ccsg.Node.RenderCmd.prototype.setDirtyFlag.call(this, dirtyFlag, child);
-    this._setCacheDirty(child);                  //TODO it should remove from here.
-    if(this._cachedParent)
-        this._cachedParent.setDirtyFlag(dirtyFlag, true);
-};
-
-proto._setCacheDirty = function () {
-    if (this._cacheDirty === false) {
-        this._cacheDirty = true;
-        var cachedP = this._cachedParent;
-        cachedP && cachedP !== this && cachedP._setNodeDirtyForCache && cachedP._setNodeDirtyForCache();
-    }
-};
-
-proto._setCachedParent = function (cachedParent) {
-    if (this._cachedParent === cachedParent)
-        return;
-
-    this._cachedParent = cachedParent;
-    var children = this._node._children;
-    for (var i = 0, len = children.length; i < len; i++)
-        children[i]._renderCmd._setCachedParent(cachedParent);
-};
-
 proto.detachFromParent = function () {
-    this._cachedParent = null;
     var selChildren = this._node._children, item;
     for (var i = 0, len = selChildren.length; i < len; i++) {
         item = selChildren[i];

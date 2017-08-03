@@ -26,10 +26,39 @@
 'use strict';
 
 // cc.game
-cc.js.mixin(cc.game, {
+cc.game = {
+
+    DEBUG_MODE_NONE: 0,
+    DEBUG_MODE_INFO: 1,
+    DEBUG_MODE_WARN: 2,
+    DEBUG_MODE_ERROR: 3,
+    DEBUG_MODE_INFO_FOR_WEB_PAGE: 4,
+    DEBUG_MODE_WARN_FOR_WEB_PAGE: 5,
+    DEBUG_MODE_ERROR_FOR_WEB_PAGE: 6,
+
+    EVENT_HIDE: "game_on_hide",
+    EVENT_SHOW: "game_on_show",
+    EVENT_RESIZE: "game_on_resize",
+
+    _onShowListener: null,
+    _onHideListener: null,
 
     // states
     _paused: false, //whether the game is paused
+    _prepareCalled: false,//whether the prepare function has been called
+    _prepared: false,//whether the engine has prepared
+
+    /**
+     * Config of game
+     * @type {Object}
+     */
+    config: null,
+
+    /**
+     * Callback when the scripts of engine have been load.
+     * @type {Function}
+     */
+    onStart: null,
 
     // Scenes list
     _sceneInfos: [],
@@ -46,7 +75,7 @@ cc.js.mixin(cc.game, {
     CONFIG_KEY: {
         width: 'width',
         height: 'height',
-        engineDir: 'engineDir',
+        // engineDir: 'engineDir',
         modules: 'modules',
         debugMode: 'debugMode',
         showFPS: 'showFPS',
@@ -58,6 +87,29 @@ cc.js.mixin(cc.game, {
         scenes: 'scenes'
     },
 
+//@Public Methods
+
+//  @Game play control
+    /**
+     * Set frameRate of game.
+     * @param frameRate
+     */
+    setFrameRate: function (frameRate) {
+        var self = this, config = self.config, CONFIG_KEY = self.CONFIG_KEY;
+        config[CONFIG_KEY.frameRate] = frameRate;
+        cc.director.setAnimationInterval(1.0/frameRate);
+    },
+
+    /**
+     * Run the game frame by frame.
+     */
+    step: function () {
+        cc.director.mainLoop();
+    },
+
+    /**
+     * Pause the game.
+     */
     pause: function () {
         this._paused = true;
         cc.director.pause();
@@ -78,6 +130,20 @@ cc.js.mixin(cc.game, {
         return this._paused;
     },
 
+    /**
+     * Restart game.
+     */
+    restart: function () {
+        __restartVM();
+    },
+
+    /**
+     * End game, it will close the game window
+     */
+    end: function () {
+        close();
+    },
+
     prepare: function (cb) {
         var self = this,
             config = self.config,
@@ -94,35 +160,28 @@ cc.js.mixin(cc.game, {
         if (this._prepareCalled) {
             return;
         }
+        
         // Prepare never called and engine ready
-        if (cc._engineLoaded) {
-            this._prepareCalled = true;
+        this._prepareCalled = true;
 
-            // Additional step in JSB
-            cc.director.sharedInit();
+        // Additional step in JSB
+        cc._renderType = cc.game.RENDER_TYPE_OPENGL;
+        cc.director.sharedInit();
 
-            // Load game scripts
-            var jsList = config[CONFIG_KEY.jsList];
-            if (jsList) {
-                cc.loader.load(jsList, function (err) {
-                    if (err) throw new Error(JSON.stringify(err));
-                    self._prepared = true;
-                    self.emit(self.EVENT_GAME_INITED);
-                    if (cb) cb();
-                });
-            }
-            else {
-                self.emit(self.EVENT_GAME_INITED);
+        // Load game scripts
+        var jsList = config[CONFIG_KEY.jsList];
+        if (jsList) {
+            cc.loader.load(jsList, function (err) {
+                if (err) throw new Error(JSON.stringify(err));
+                self._prepared = true;
                 if (cb) cb();
-            }
-
-            return;
+                self.emit(self.EVENT_GAME_INITED);
+            });
         }
-
-        // Engine not loaded yet
-        cc.initEngine(this.config, function () {
-            self.prepare(cb);
-        });
+        else {
+            if (cb) cb();
+            self.emit(self.EVENT_GAME_INITED);
+        }
     },
 
     /**
@@ -158,8 +217,8 @@ cc.js.mixin(cc.game, {
      * @param {Node} node - The node to be made persistent
      */
     addPersistRootNode: function (node) {
-        if (!(node instanceof cc.Node) || !node.uuid) {
-            cc.warn('The target can not be made persist because it\'s not a cc.Node or it doesn\'t have _id property.');
+        if (!cc.Node.isNode(node) || !node.uuid) {
+            cc.warnID(3803);
             return;
         }
         var id = node.uuid;
@@ -170,11 +229,11 @@ cc.js.mixin(cc.game, {
                     node.parent = scene;
                 }
                 else if ( !(node.parent instanceof cc.Scene) ) {
-                    cc.warn('The node can not be made persist because it\'s not under root node.');
+                    cc.warnID(3801);
                     return;
                 }
                 else if (node.parent !== scene) {
-                    cc.warn('The node can not be made persist because it\'s not in current scene.');
+                    cc.warnID(3802);
                     return;
                 }
                 this._persistRootNodes[id] = node;
@@ -243,7 +302,7 @@ cc.js.mixin(cc.game, {
             config[CONFIG_KEY.renderMode] = 0;
         }
         config[CONFIG_KEY.showFPS] = (CONFIG_KEY.showFPS in config) ? (!!config[CONFIG_KEY.showFPS]) : true;
-        config[CONFIG_KEY.engineDir] = config[CONFIG_KEY.engineDir] || 'frameworks/cocos2d-html5';
+        // config[CONFIG_KEY.engineDir] = config[CONFIG_KEY.engineDir] || 'frameworks/cocos2d-html5';
 
         // Group List and Collide Map
         this.groupList = config.groupList || [];
@@ -258,14 +317,16 @@ cc.js.mixin(cc.game, {
 
         this.config = config;
     }
-});
+};
 
 cc.EventTarget.call(cc.game);
 cc.js.addon(cc.game, cc.EventTarget.prototype);
 
-cc.eventManager.addCustomListener(cc.game.EVENT_HIDE, function () {
+cc.game._onHideListener = cc.eventManager.addCustomListener(cc.game.EVENT_HIDE, function () {
     cc.game.emit(cc.game.EVENT_HIDE, cc.game);
 });
-cc.eventManager.addCustomListener(cc.game.EVENT_SHOW, function () {
+cc.game._onShowListener = cc.eventManager.addCustomListener(cc.game.EVENT_SHOW, function () {
     cc.game.emit(cc.game.EVENT_SHOW, cc.game);
 });
+
+cc._initDebugSetting(cc.game.DEBUG_MODE_INFO);

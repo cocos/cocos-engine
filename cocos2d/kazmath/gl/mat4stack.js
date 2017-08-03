@@ -35,6 +35,7 @@
 cc.math.Matrix4Stack = function(top, stack) {
     this.top = top;
     this.stack = stack || [];
+    this.lastUpdated = 0;
     //this._matrixPool = [];            // use pool in next version
 };
 var proto = cc.math.Matrix4Stack.prototype;
@@ -49,11 +50,17 @@ proto.push = function(item) {
     this.stack.push(this.top);
     this.top = new cc.math.Matrix4(item);
     //this.top = this._getFromPool(item);
+    this.update();
 };
 
 proto.pop = function() {
     //this._putInPool(this.top);
     this.top = this.stack.pop();
+    this.update();
+};
+
+proto.update = function () {
+    this.lastUpdated ++;
 };
 
 proto.release = function(){

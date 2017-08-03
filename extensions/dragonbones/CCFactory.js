@@ -55,7 +55,8 @@ dragonBones.CCFactory = cc.Class({
         armature._skinData = dataPackage.skin;
         armature._animation = BaseObject.borrowObject(dragonBones.Animation);
         armature._display = armatureDisplayContainer;
-
+        armatureDisplayContainer.setCascadeOpacityEnabled(true);
+        armatureDisplayContainer.setCascadeColorEnabled(true);
         armatureDisplayContainer._armature = armature;
         armature._animation._armature = armature;
 
@@ -70,7 +71,10 @@ dragonBones.CCFactory = cc.Class({
         var displayList = [];
 
         slot.name = slotData.name;
-        slot._rawDisplay = new _ccsg.Sprite();
+        slot._rawDisplay = new cc.Scale9Sprite();
+        slot._rawDisplay.setRenderingType(cc.Scale9Sprite.RenderingType.SIMPLE); // use simple rendering type as default
+        slot._rawDisplay.setAnchorPoint(cc.p(0,0));
+        slot._meshDisplay = slot._rawDisplay;
 
         for (var i = 0, l = slotDisplayDataSet.displays.length; i < l; ++i) {
             var displayData = slotDisplayDataSet.displays[i];
@@ -84,19 +88,16 @@ dragonBones.CCFactory = cc.Class({
                     break;
 
                 case dragonBones.DisplayType.Mesh:
-                    // TODO support mesh display
-                    //if (!displayData.texture) {
-                    //    displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
-                    //}
-                    //
-                    //if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
-                    //    displayList.push(slot._rawDisplay);
-                    //} else {
-                    //    cc.log('Canvas is not support mesh slot!');
-                    //    displayList.push(slot._rawDisplay);
-                    //}
-                    cc.warn('WARN: Now mesh display is not supported in web!');
-                    displayList.push(slot._rawDisplay);
+                    if (!displayData.texture) {
+                        displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
+                    }
+
+                    if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
+                        slot._meshDisplay.setRenderingType(cc.Scale9Sprite.RenderingType.MESH);
+                        displayList.push(slot._meshDisplay);
+                    } else {
+                        cc.warnID(6200);
+                    }
                     break;
 
                 case dragonBones.DisplayType.Armature:
@@ -126,7 +127,36 @@ dragonBones.CCFactory = cc.Class({
         }
 
         slot._setDisplayList(displayList);
+        slot._rawDisplay.setLocalZOrder(slotData.zOrder);
 
         return slot;
+    },
+
+    getTextureDisplay: function(textureName, textureAtlasName) {
+        var textureData = this._getTextureData(textureAtlasName, textureName);
+        if (textureData) {
+            if (!textureData.texture) {
+                var textureAtlasTexture = textureData.parent.texture;
+                var rect = cc.rect(textureData.region.x, textureData.region.y, textureData.region.width, textureData.region.height);
+                var offset = cc.p(0, 0);
+                var originSize = cc.size(textureData.region.width, textureData.region.height);
+                textureData.texture = new cc.SpriteFrame();
+                textureData.texture.setTexture(textureAtlasTexture, rect, textureData.rotated, offset, originSize); // TODO multiply textureAtlas
+            }
+
+            var ret = new cc.Scale9Sprite();
+            ret.initWithSpriteFrame(textureData.texture);
+            return ret;
+        }
+
+        return null;
     }
 });
+
+dragonBones.CCFactory._factory = null;
+dragonBones.CCFactory.getFactory = function() {
+    if (!dragonBones.CCFactory._factory) {
+        dragonBones.CCFactory._factory = new dragonBones.CCFactory();
+    }
+    return dragonBones.CCFactory._factory;
+};

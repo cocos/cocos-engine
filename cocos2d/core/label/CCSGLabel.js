@@ -23,9 +23,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+require('./CCTextUtils');
+var EventTarget = require("../event/event-target");
+var JS = require("../platform/js");
 
-var EventTarget = require("../cocos2d/core/event/event-target");
-cc.fontFamilyCache = {};
 
 var FontLetterDefinition = function() {
     this._u = 0;
@@ -129,6 +130,10 @@ _ccsg.Label = _ccsg.Node.extend({
     _outlined: false,
     _outlineColor: null,
     _outlineWidth: 1,
+    _gradientEnabled: false,
+    _gradientStartColor: cc.color(255, 255, 255, 255),
+    _gradientEndColor: cc.color(255, 255, 255, 255),
+    _gradientDirection: 0,
     _className: "Label",
     //used for left and right margin
     _margin : 0,
@@ -136,12 +141,14 @@ _ccsg.Label = _ccsg.Node.extend({
     _isBold: false,
     _isItalic: false,
     _isUnderline: false,
+    _fontAsset: null,
 
     //fontHandle it is a system font name, ttf file path or bmfont file path.
-    ctor: function(string, fontHandle, textureUrl) {
+    ctor: function(string, fontAsset) {
         EventTarget.call(this);
+        var isAsset = fontAsset instanceof cc.Font;
+        var fontHandle =  isAsset ? fontAsset.rawUrl : '';
 
-        fontHandle = fontHandle || "";
         this._fontHandle = fontHandle;
         if (typeof string !== 'string') {
             string = '' + string;
@@ -150,34 +157,44 @@ _ccsg.Label = _ccsg.Node.extend({
         this._string = string;
 
         _ccsg.Node.prototype.ctor.call(this);
-        this.setAnchorPoint(cc.p(0.5, 0.5));
-        _ccsg.Node.prototype.setContentSize.call(this, cc.size(128, 128));
+        this.setAnchorPoint(0.5, 0.5);
+        _ccsg.Node.prototype.setContentSize.call(this, 128, 128);
         this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
 
-        this.setFontFileOrFamily(fontHandle, textureUrl);
+        this._imageOffset = cc.p(0, 0);
+        this._numberOfLines = 0;
+        this._lettersInfo = [];
+        this._linesWidth = [];
+        this._linesOffsetX = [];
+        this._horizontalKernings = [];
+        this._reusedRect =  cc.rect(0, 0, 0, 0);
+        if (isAsset) {
+            this.setFontAsset(fontAsset);
+        } else {
+            this.setFontFamily(fontHandle);
+        }
         this.setString(this._string);
     },
 
     _resetBMFont: function() {
-        this._imageOffset = cc.p(0, 0);
+        this._imageOffset.x = this._imageOffset.y = 0;
         this._cascadeColorEnabled = true;
         this._cascadeOpacityEnabled = true;
         this._fontAtlas = null;
         this._config = null;
         this._numberOfLines =  0;
-        this._lettersInfo =  [];
-        this._linesWidth =  [];
-        this._linesOffsetX =  [];
+        this._lettersInfo.length = 0;
+        this._linesWidth.length = 0;
+        this._linesOffsetX.length = 0;
         this._textDesiredHeight =  0;
         this._letterOffsetY =  0;
         this._tailoredTopY =  0;
         this._tailoredBottomY =  0;
         this._bmfontScale =  1.0;
-        this._additionalKerning =  0;
-        this._horizontalKernings =  [];
+        this._horizontalKernings.length = 0;
         this._lineBreakWithoutSpaces =  false;
 
-        this._reusedRect =  cc.rect(0, 0, 0, 0);
+        this._reusedRect.x = this._reusedRect.y = this._reusedRect.width = this._reusedRect.height = 0;
         this._textureLoaded = false;
 
         if (this._spriteBatchNode) {
@@ -300,6 +317,45 @@ _ccsg.Label = _ccsg.Node.extend({
         this._notifyLabelSkinDirty();
     },
 
+    setFillColorGradientEnabled: function(value) {
+        if(this._gradientEnabled === value) return;
+
+        this._gradientEnabled = !!value;
+        this._notifyLabelSkinDirty();
+    },
+    getFillColorGradientEnabled: function () {
+        return this._gradientEnabled;
+    },
+
+    setGradientStartColor: function (value) {
+        if(this._gradientStartColor === value) return;
+        this._gradientStartColor = value;
+        this._notifyLabelSkinDirty();
+    },
+
+    getGradientStartColor: function () {
+        return this._gradientStartColor;
+    },
+
+    setGradientEndColor: function (value) {
+        if(this._gradientEndColor === value) return;
+        this._gradientEndColor = value;
+        this._notifyLabelSkinDirty();
+    },
+
+    getGradientEndColor: function () {
+        return this._gradientEndColor;
+    },
+
+    setFillColorGradientDirection: function (direction) {
+        this._gradientDirection = direction;
+        this._notifyLabelSkinDirty();
+    },
+
+    getFillColorGradientDirection: function () {
+        return this._gradientDirection;
+    },
+
     getOutlineColor: function() {
         return this._outlineColor;
     },
@@ -367,6 +423,7 @@ _ccsg.Label = _ccsg.Node.extend({
     setSpacingX: function(spacing) {
         if (this._spacingX === spacing) return;
         this._spacingX = spacing;
+        this._notifyLabelSkinDirty();
     },
 
     setLineHeight: function(lineHeight) {
@@ -395,33 +452,39 @@ _ccsg.Label = _ccsg.Node.extend({
         }
     },
 
-    setFontFileOrFamily: function(fontHandle, textureUrl) {
-        fontHandle = fontHandle || "Arial";
+    setFontFamily: function (fontFamily) {
+        this._resetBMFont();
+        this._fontHandle = fontFamily || "Arial";
+        this._labelType = _ccsg.Label.Type.SystemFont;
+        this._blendFunc = cc.BlendFunc._alphaPremultiplied();
+        this._renderCmd._needDraw = true;
+        this._notifyLabelSkinDirty();
+        this.emit('load');
+    },
+
+    setFontAsset: function(fontAsset) {
+        this._fontAsset = fontAsset;
+        var isAsset = fontAsset instanceof cc.Font;
+        if (!isAsset) {
+            this.setFontFamily('');
+            return;
+        }
+        var fontHandle =  isAsset ? fontAsset.rawUrl : '';
         var extName = cc.path.extname(fontHandle);
 
         this._resetBMFont();
-        //specify font family name directly
-        if (!extName) {
-            this._fontHandle = fontHandle;
-            this._labelType = _ccsg.Label.Type.SystemFont;
-            this._blendFunc = cc.BlendFunc._alphaPremultiplied();
-            this._renderCmd._needDraw = true;
-            this._notifyLabelSkinDirty();
-            this.emit('load');
-            return;
-        }
 
         if (extName === ".ttf") {
             this._labelType = _ccsg.Label.Type.TTF;
             this._blendFunc = cc.BlendFunc._alphaPremultiplied();
             this._renderCmd._needDraw = true;
             this._fontHandle = this._loadTTFFont(fontHandle);
-        } else if (extName === ".fnt") {
+        } else if (fontAsset.spriteFrame) {
             //todo add bmfont here
             this._labelType = _ccsg.Label.Type.BMFont;
             this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
             this._renderCmd._needDraw = false;
-            this._initBMFontWithString(this._string, fontHandle, textureUrl);
+            this._initBMFontWithString(this._string, fontAsset);
         }
         this._notifyLabelSkinDirty();
     },
@@ -535,9 +598,6 @@ _ccsg.Label = _ccsg.Node.extend({
         }
         return _ccsg.Node.prototype._getHeight.call(this);
     },
-});
-
-cc.BMFontHelper = {
     _alignText: function() {
         var ret = true;
 
@@ -638,14 +698,37 @@ cc.BMFontHelper = {
                 if (this._reusedRect.height > 0 && this._reusedRect.width > 0) {
                     var fontChar = this.getChildByTag(ctr);
                     var locTexture = this._spriteBatchNode._texture;
+                    var spriteFrame = this._spriteFrame;
+
+                    var isRotated = this._spriteFrame.isRotated();
+
+                    var originalSize = spriteFrame._originalSize;
+                    var rect = spriteFrame._rect;
+                    var offset = spriteFrame._offset;
+                    var trimmedLeft = offset.x + (originalSize.width - rect.width) / 2;
+                    var trimmedTop = offset.y - (originalSize.height - rect.height) / 2;
+
+
+                    if(!isRotated) {
+                        this._reusedRect.x += (rect.x - trimmedLeft);
+                        this._reusedRect.y += (rect.y + trimmedTop);
+                    } else {
+                        var originalX = this._reusedRect.x;
+                        this._reusedRect.x = rect.x + rect.height - this._reusedRect.y - this._reusedRect.height - trimmedTop;
+                        this._reusedRect.y = originalX + rect.y - trimmedLeft;
+                        if (this._reusedRect.y < 0) {
+                            this._reusedRect.height = this._reusedRect.height + trimmedTop;
+                        }
+                    }
 
                     if (!fontChar) {
                         fontChar = new _ccsg.Sprite();
-                        fontChar.initWithTexture(locTexture);
+                        fontChar.initWithTexture(locTexture, this._reusedRect, isRotated);
                         fontChar.setAnchorPoint(cc.p(0, 1));
+                    } else {
+                        fontChar.setTextureRect(this._reusedRect, isRotated);
                     }
 
-                    fontChar.setTextureRect(this._reusedRect, false, this._reusedRect.size);
 
                     var letterPositionX = this._lettersInfo[ctr]._positionX + this._linesOffsetX[this._lettersInfo[ctr]._lineIndex];
                     fontChar.setPosition(letterPositionX, py);
@@ -764,7 +847,7 @@ cc.BMFontHelper = {
                 letterDef = this._fontAtlas.getLetterDefinitionForChar(character);
                 if (!letterDef) {
                     this._recordPlaceholderInfo(letterIndex, character);
-                    console.log("Can't find letter definition in font file for letter:" + character);
+                    console.log("Can't find letter definition in texture atlas " + this._config.atlasName + " for letter:" + character);
                     continue;
                 }
 
@@ -793,7 +876,7 @@ cc.BMFontHelper = {
                     nextLetterX += this._horizontalKernings[letterIndex + 1];
                 }
 
-                nextLetterX += letterDef._xAdvance * this._bmfontScale + this._additionalKerning;
+                nextLetterX += letterDef._xAdvance * this._bmfontScale + this._spacingX;
 
                 tokenRight = letterPosition.x + letterDef._width * this._bmfontScale;
 
@@ -1012,12 +1095,15 @@ cc.BMFontHelper = {
         }
 
         var len = 1;
-        var nextLetterX = 0;
+        letterDef = this._fontAtlas.getLetterDefinitionForChar(character);
+        if (!letterDef) {
+            return len;
+        }
+        var nextLetterX = letterDef._xAdvance * this._bmfontScale + this._spacingX;
         var letterDef;
         var letterX;
         for (var index = startIndex + 1; index < textLen; ++index) {
             character = text.charAt(index);
-            //calculate the word boundary
 
             letterDef = this._fontAtlas.getLetterDefinitionForChar(character);
             if (!letterDef) {
@@ -1028,11 +1114,9 @@ cc.BMFontHelper = {
             if(letterX + letterDef._width * this._bmfontScale > this._maxLineWidth
                && !cc.TextUtils.isUnicodeSpace(character)
                && this._maxLineWidth > 0) {
-                if(len >= 2) {
-                    return len - 1;
-                }
+                return len;
             }
-            nextLetterX += letterDef._xAdvance * this._bmfontScale + this._additionalKerning;
+            nextLetterX += letterDef._xAdvance * this._bmfontScale + this._spacingX;
             if (character === "\n"
                 || cc.TextUtils.isUnicodeSpace(character)
                 || cc.TextUtils.isUnicodeCJK(character)) {
@@ -1054,14 +1138,14 @@ cc.BMFontHelper = {
 
     },
 
-    _initBMFontWithString: function(str, fntFile, textureUrl) {
+    _initBMFontWithString: function(str, fontAsset) {
         var self = this;
         if (self._config) {
-            cc.log("_ccsg.Label._initBMFontWithString(): re-init is no longer supported");
+            cc.logID(4002);
             return false;
         }
         this._string = str;
-        this._setBMFontFile(fntFile, textureUrl);
+        this._setBMFontFile(fontAsset);
     },
 
     _createSpriteBatchNode: function(texture) {
@@ -1137,49 +1221,104 @@ cc.BMFontHelper = {
         }
     },
 
-    _setBMFontFile: function(filename, textureUrl) {
-        if (filename) {
-            this._fontHandle = filename;
+    _setBMFontFile: function(fontAsset) {
+        if (fontAsset) {
             if (this._labelType === _ccsg.Label.Type.BMFont) {
                 var self = this;
                 this._resetBMFont();
 
-                cc.loader.load(this._fontHandle, function(err, config) {
-                    if (err) {
-                        cc.log("_ccsg.Label._initBMFontWithString(): Impossible to create font. Please check file");
-                    }
+                var fntConfig = this._fontAsset._fntConfig;
+                if (fntConfig) {
+                    self._config = fntConfig;
+                } else {
+                    cc.warn('Invalid BMFont Assets!');
+                }
+                var spriteFrame = fontAsset.spriteFrame;
+                self._createFontChars();
+                self._spriteFrame = spriteFrame;
 
-                    self._config = config;
-                    self._createFontChars();
-                    var texture = cc.textureCache.addImage(textureUrl || self._config.atlasName);
-                    var locIsLoaded = texture.isLoaded();
-                    self._textureLoaded = locIsLoaded;
-                    if (!locIsLoaded) {
-                        texture.once("load", function() {
-                            var self = this;
+                var createLabelSprites = function () {
+                    var texture = spriteFrame.getTexture();
+                    self._textureLoaded = texture.isLoaded();
+                    self._createSpriteBatchNode(texture);
+                    self.emit("load");
+                };
 
-                            if (!self._spriteBatchNode) {
-                                self._createSpriteBatchNode(texture);
-                            }
-                            self._textureLoaded = true;
-                            self.emit("load");
-                        }, self);
-                    } else {
-                        if (!self._spriteBatchNode) {
-                            self._createSpriteBatchNode(texture);
-                            self.emit("load");
-                        }
-                    }
-                });
+                if (spriteFrame.textureLoaded()) {
+                    createLabelSprites();
+                } else {
+                    spriteFrame.once('load', createLabelSprites);
+                    spriteFrame.ensureLoadTexture();
+                }
             }
         }
+    }
+});
+
+_ccsg.Label.pool = new JS.Pool(function (label) {
+    if (CC_EDITOR || !(label instanceof _ccsg.Label)) {
+        return false;
+    }
+    label._string = "";
+    label._fontAsset = null;
+    label._fontHandle = "";
+    label._labelType = 0;
+    label._resetBMFont();
+    label._renderCmd._labelCanvas.width = 1;
+    label._renderCmd._labelCanvas.height = 1;
+    if (CC_DEV) {
+        cc.assert(!label._parent, 'Recycling label\'s parent should be null!');
+    }
+    label._updateLabel();
+    return true;
+}, 20);
+
+_ccsg.Label.pool.get = function (string, fontAsset) {
+    var label = this._get();
+    if (label) {
+        var isAsset = fontAsset instanceof cc.Font;
+        var fontHandle =  isAsset ? fontAsset.rawUrl : '';
+        label._fontHandle = fontHandle;
+        if (typeof string !== 'string') {
+            string = '' + string;
+        }
+        label._string = string;
+
+        label._position.x = 0;
+        label._position.y = 0;
+        label.setAnchorPoint(0.5, 0.5);
+        _ccsg.Node.prototype.setContentSize.call(label, 128, 128);
+
+        if (isAsset) {
+            label.setFontAsset(fontAsset);
+        } else {
+            label.setFontFamily("Arial");
+        }
+
+        label.setString(string);
+        label.setHorizontalAlign(cc.TextAlignment.LEFT);
+        label.setVerticalAlign(cc.VerticalTextAlignment.TOP);
+        label.setFontSize(40);
+        label.setOverflow(0);
+        label.enableWrapText(true);
+        label.setVisible(true);
+        label.setLineHeight(40);
+        label.setOutlined(false);
+        label.enableBold(false);
+        label.enableItalics(false);
+        label.enableUnderline(false);
+        label.setBlendFunc(cc.macro.SRC_ALPHA, cc.macro.ONE_MINUS_SRC_ALPHA);
+
+        return label;
+    }
+    else {
+        return new _ccsg.Label(string || "", fontAsset);
     }
 };
 
 
 var _p = _ccsg.Label.prototype;
 cc.js.addon(_p, EventTarget.prototype);
-cc.js.mixin(_p, cc.BMFontHelper);
 
 _ccsg.Label.Type = cc.Enum({
     TTF: 0,

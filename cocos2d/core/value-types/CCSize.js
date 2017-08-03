@@ -42,10 +42,9 @@ var JS = require('../platform/js');
  * @class Size
  */
 /**
- * @method Size
- * @param {Number} width
- * @param {Number} height
- * @return {Size}
+ * @method constructor
+ * @param {Number|Size} width
+ * @param {Number} [height]
  */
 function Size (width, height) {
     if (width && typeof width === 'object') {
@@ -57,6 +56,13 @@ function Size (width, height) {
 }
 JS.extend(Size, ValueType);
 require('../platform/CCClass').fastDefine('cc.Size', Size, { width: 0, height: 0});
+
+/**
+ * @property {Number} width
+ */
+/**
+ * @property {Number} height
+ */
 
 /**
  * !#en return a Size object with width = 0 and height = 0.
@@ -142,6 +148,10 @@ proto.toString = function () {
 };
 
 /**
+ * @module cc
+ */
+
+/**
  * !#en
  * Helper function that creates a cc.Size.<br/>
  * Please use cc.p or cc.v2 instead, it will soon replace cc.Size.
@@ -150,7 +160,7 @@ proto.toString = function () {
  * 注意：可以使用 cc.p 或者是 cc.v2 代替，它们将很快取代 cc.Size。
  * @method size
  * @param {Number|Size} w - width or a size object
- * @param {Number} h - height
+ * @param {Number} [h] - height
  * @return {Size}
  * @example {@link utils/api/engine/docs/cocos2d/core/value-types/CCSize/size.js}
  */

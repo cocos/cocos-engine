@@ -260,7 +260,7 @@ cc.math.getMat4MultiplyValueSIMD = function (pM1, pM2) {
 
 cc.math.mat4AssignSIMD = function (pOut, pIn) {
     if(pOut == pIn) {
-        cc.log("cc.math.mat4Assign(): pOut equals pIn");//TODO: ADD SIMD?
+        cc.logID(7905);//TODO: ADD SIMD?
         return pOut;
     }
 
@@ -269,7 +269,7 @@ cc.math.mat4AssignSIMD = function (pOut, pIn) {
 
 proto.assignFromSIMD = function (mat4) {
     if(this == mat4) {
-        cc.log("cc.mat.Matrix4.assignFrom(): mat4 equals current matrix");//TODO: ADD SIMD?
+        cc.logID(7906);//TODO: ADD SIMD?
         return this;
     }
 
@@ -286,7 +286,7 @@ proto.assignFromSIMD = function (mat4) {
 
 proto.equalsSIMD = function (mat4) {
     if(this === mat4){
-        cc.log("cc.math.Matrix4 equals: pMat1 and pMat2 are same object.");
+        cc.logID(7907);
         return true;
     }
     var m10 = SIMD.float32x4.load(this.mat, 0);

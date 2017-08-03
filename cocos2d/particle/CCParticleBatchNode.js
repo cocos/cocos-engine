@@ -140,6 +140,20 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
         return this.initWithTexture(tex, capacity);
     },
 
+    visit: function (parent) {
+        var cmd = this._renderCmd, parentCmd = parent ? parent._renderCmd : null;
+
+        // quick return if not visible
+        if (!this._visible) {
+            cmd._propagateFlagsDown(parentCmd);
+            return;
+        }
+
+        cmd.visit(parentCmd);
+        cc.renderer.pushRenderCommand(cmd);
+        cmd._dirtyFlag = 0;
+    },
+
     /**
      * Add a child into the cc.ParticleBatchNode
      * @param {ccsg.ParticleSystem} child
@@ -163,7 +177,7 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
             this.setBlendFunc(childBlendFunc);
         else{
             if((childBlendFunc.src !== this._blendFunc.src) || (childBlendFunc.dst !== this._blendFunc.dst)){
-                cc.log("_ccsg.ParticleSystem.addChild() : Can't add a ParticleSystem that uses a different blending function");
+                cc.logID(6002);
                 return;
             }
         }
@@ -223,7 +237,7 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
         if(!(child instanceof _ccsg.ParticleSystem))
             throw new Error("cc.ParticleBatchNode.removeChild(): only supports _ccsg.ParticleSystem as children");
         if(this._children.indexOf(child) === -1){
-            cc.log("cc.ParticleBatchNode.removeChild(): doesn't contain the sprite. Can't remove it");
+            cc.logID(6003);
             return;
         }
 
@@ -253,7 +267,7 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
         if(!(child instanceof _ccsg.ParticleSystem))
             throw new Error("cc.ParticleBatchNode.reorderChild(): only supports cc.QuadParticleSystems as children");
         if(this._children.indexOf(child) === -1){
-            cc.log("cc.ParticleBatchNode.reorderChild(): Child doesn't belong to batch");
+            cc.logID(6004);
             return;
         }
 
@@ -383,12 +397,11 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
     },
 
     _increaseAtlasCapacityTo:function (quantity) {
-        cc.log("cocos2d: cc.ParticleBatchNode: resizing TextureAtlas capacity from [" + this.textureAtlas.getCapacity()
-            + "] to [" + quantity + "].");
+        cc.logID(6006, this.textureAtlas.getCapacity(), quantity);
 
         if (!this.textureAtlas.resizeCapacity(quantity)) {
             // serious problems
-            cc.log("cc.ParticleBatchNode._increaseAtlasCapacityTo() : WARNING: Not enough memory to resize the atlas");
+            cc.logID(6005);
         }
     },
 
@@ -454,7 +467,7 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
         if(!child)
             throw new Error("cc.ParticleBatchNode._addChildHelper(): child should be non-null");
         if(child.parent){
-            cc.log("cc.ParticleBatchNode._addChildHelper(): child already added. It can't be added again");
+            cc.logID(6007);
             return null;
         }
 
@@ -470,8 +483,8 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
         child._setLocalZOrder(z);
         child.parent = this;
         if (this._running) {
-            child.onEnter();
-            child.onEnterTransitionDidFinish();
+            child.performRecursive(_ccsg.Node.performType.onEnter);
+            child.performRecursive(_ccsg.Node.performType.onEnterTransitionDidFinish);
         }
         return pos;
     },

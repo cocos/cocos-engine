@@ -32,8 +32,8 @@ var RIGHT   = 1 << 5;
 var HORIZONTAL = LEFT | CENTER | RIGHT;
 var VERTICAL = TOP | MID | BOT;
 
-// returns a readonly size of the parent node
-function getParentSize (parent) {
+// returns a readonly size of the node
+function getReadonlyNodeSize (parent) {
     if (parent instanceof cc.Scene) {
         return CC_EDITOR ? cc.engine.getDesignResolutionSize() : cc.visibleRect;
     }
@@ -45,38 +45,86 @@ function getParentSize (parent) {
     }
 }
 
+function computeInverseTransForTarget (widgetNode, target, out_inverseTranslate, out_inverseScale) {
+    var scaleX = widgetNode._parent._scaleX;
+    var scaleY = widgetNode._parent._scaleY;
+    var translateX = 0;
+    var translateY = 0;
+    for (var node = widgetNode._parent;;) {
+        var pos = node._position;
+        translateX += pos.x;
+        translateY += pos.y;
+        node = node._parent;    // loop increment
+        if (!node) {
+            // ERROR: widgetNode should be child of target
+            out_inverseTranslate.x = out_inverseTranslate.y = 0;
+            out_inverseScale.x = out_inverseScale.y = 1;
+            return;
+        }
+        if (node !== target) {
+            var sx = node._scaleX;
+            var sy = node._scaleY;
+            translateX *= sx;
+            translateY *= sy;
+            scaleX *= sx;
+            scaleY *= sy;
+        }
+        else {
+            break;
+        }
+    }
+    out_inverseScale.x = scaleX !== 0 ? (1 / scaleX) : 1;
+    out_inverseScale.y = scaleY !== 0 ? (1 / scaleY) : 1;
+    out_inverseTranslate.x = -translateX;
+    out_inverseTranslate.y = -translateY;
+}
+
+var tInverseTranslate = cc.Vec2.ZERO;
+var tInverseScale = cc.Vec2.ONE;
+
 // align to borders by adjusting node's position and size (ignore rotation)
-function alignToParent (node, widget) {
-    var visibleRect;
+function align (node, widget) {
+    var hasTarget = widget._target;
+    var target;
+    var inverseTranslate, inverseScale;
+    if (hasTarget) {
+        target = hasTarget;
+        inverseTranslate = tInverseTranslate;
+        inverseScale = tInverseScale;
+        computeInverseTransForTarget(node, target, inverseTranslate, inverseScale);
+    }
+    else {
+        target = node._parent;
+    }
+    var targetSize = getReadonlyNodeSize(target);
+    var targetAnchor = target._anchorPoint;
 
-    var parent = node._parent;
-    var parentSize = getParentSize(parent);
-    var parentAnchor = parent._anchorPoint;
-
-    var isRoot = !CC_EDITOR && parent instanceof cc.Scene;
+    var isRoot = !CC_EDITOR && target instanceof cc.Scene;
     var x = node._position.x, y = node._position.y;
-    var anchor = node.getAnchorPoint();
+    var anchor = node._anchorPoint;
 
     if (widget._alignFlags & HORIZONTAL) {
 
-        var parentWidth = parentSize.width;
-        var localLeft, localRight;
+        var localLeft, localRight, targetWidth = targetSize.width;
         if (isRoot) {
-            visibleRect = cc.visibleRect;
-            localLeft = visibleRect.left.x;
-            localRight = visibleRect.right.x;
+            localLeft = cc.visibleRect.left.x;
+            localRight = cc.visibleRect.right.x;
         }
         else {
-            localLeft = -parentAnchor.x * parentWidth;
-            localRight = localLeft + parentWidth;
+            localLeft = -targetAnchor.x * targetWidth;
+            localRight = localLeft + targetWidth;
         }
 
         // adjust borders according to offsets
+        localLeft += widget._isAbsLeft ? widget._left : widget._left * targetWidth;
+        localRight -= widget._isAbsRight ? widget._right : widget._right * targetWidth;
 
-        localLeft += widget._isAbsLeft ? widget._left : widget._left * parentWidth;
-        localRight -= widget._isAbsRight ? widget._right : widget._right * parentWidth;
-
-        //
+        if (hasTarget) {
+            localLeft += inverseTranslate.x;
+            localLeft *= inverseScale.x;
+            localRight += inverseTranslate.x;
+            localRight *= inverseScale.x;
+        }
 
         var width, anchorX = anchor.x, scaleX = node._scaleX;
         if (scaleX < 0) {
@@ -85,15 +133,22 @@ function alignToParent (node, widget) {
         }
         if (widget.isStretchWidth) {
             width = localRight - localLeft;
-            node.width = width / scaleX;
+            if (scaleX !== 0) {
+                node.width = width / scaleX;
+            }
             x = localLeft + anchorX * width;
         }
         else {
             width = node.width * scaleX;
             if (widget.isAlignHorizontalCenter) {
-                var localHorizontalCenter = widget._isAbsHorizontalCenter ? widget._horizontalCenter : widget._horizontalCenter * parentWidth;
-                var parentCenter = (0.5 - parentAnchor.x) * parentWidth;
-                x = parentCenter + (anchorX - 0.5) * width + localHorizontalCenter;
+                var localHorizontalCenter = widget._isAbsHorizontalCenter ? widget._horizontalCenter : widget._horizontalCenter * targetWidth;
+                var targetCenter = (0.5 - targetAnchor.x) * targetSize.width;
+                if (hasTarget) {
+                    localHorizontalCenter *= inverseScale.x;
+                    targetCenter += inverseTranslate.x;
+                    targetCenter *= inverseScale.x;
+                }
+                x = targetCenter + (anchorX - 0.5) * width + localHorizontalCenter;
             }
             else if (widget.isAlignLeft) {
                 x = localLeft + anchorX * width;
@@ -106,24 +161,27 @@ function alignToParent (node, widget) {
 
     if (widget._alignFlags & VERTICAL) {
 
-        var parentHeight = parentSize.height;
-        var localTop, localBottom;
+        var localTop, localBottom, targetHeight = targetSize.height;
         if (isRoot) {
-            visibleRect = cc.visibleRect;
-            localBottom = visibleRect.bottom.y;
-            localTop = visibleRect.top.y;
+            localBottom = cc.visibleRect.bottom.y;
+            localTop = cc.visibleRect.top.y;
         }
         else {
-            localBottom = -parentAnchor.y * parentHeight;
-            localTop = localBottom + parentHeight;
+            localBottom = -targetAnchor.y * targetHeight;
+            localTop = localBottom + targetHeight;
         }
 
         // adjust borders according to offsets
+        localBottom += widget._isAbsBottom ? widget._bottom : widget._bottom * targetHeight;
+        localTop -= widget._isAbsTop ? widget._top : widget._top * targetHeight;
 
-        localBottom += widget._isAbsBottom ? widget._bottom : widget._bottom * parentHeight;
-        localTop -= widget._isAbsTop ? widget._top : widget._top * parentHeight;
-
-        //
+        if (hasTarget) {
+            // transform
+            localBottom += inverseTranslate.y;
+            localBottom *= inverseScale.y;
+            localTop += inverseTranslate.y;
+            localTop *= inverseScale.y;
+        }
 
         var height, anchorY = anchor.y, scaleY = node._scaleY;
         if (scaleY < 0) {
@@ -132,15 +190,22 @@ function alignToParent (node, widget) {
         }
         if (widget.isStretchHeight) {
             height = localTop - localBottom;
-            node.height = height / scaleY;
+            if (scaleY !== 0) {
+                node.height = height / scaleY;
+            }
             y = localBottom + anchorY * height;
         }
         else {
             height = node.height * scaleY;
             if (widget.isAlignVerticalCenter) {
-                var localVerticalCenter = widget._isAbsVerticalCenter ? widget._verticalCenter : widget._verticalCenter * parentHeight;
-                var parentMiddle = (0.5 - parentAnchor.y) * parentHeight;
-                y = parentMiddle + (anchorY - 0.5) * height + localVerticalCenter;
+                var localVerticalCenter = widget._isAbsVerticalCenter ? widget._verticalCenter : widget._verticalCenter * targetHeight;
+                var targetMiddle = (0.5 - targetAnchor.y) * targetSize.height;
+                if (hasTarget) {
+                    localVerticalCenter *= inverseScale.y;
+                    targetMiddle += inverseTranslate.y;
+                    targetMiddle *= inverseScale.y;
+                }
+                y = targetMiddle + (anchorY - 0.5) * height + localVerticalCenter;
             }
             else if (widget.isAlignBottom) {
                 y = localBottom + anchorY * height;
@@ -157,7 +222,17 @@ function alignToParent (node, widget) {
 function visitNode (node) {
     var widget = node._widget;
     if (widget) {
-        alignToParent(node, widget);
+        if (CC_DEV) {
+            var target = widget._target;
+            if (target) {
+                var isParent = node !== target && node.isChildOf(target);
+                if (!isParent) {
+                    cc.errorID(6500);
+                    widget._target = null;
+                }
+            }
+        }
+        align(node, widget);
         if ((!CC_EDITOR || animationState.animatedSinceLastFrame) && widget.isAlignOnce) {
             widget.enabled = false;
         }
@@ -222,7 +297,7 @@ function refreshScene () {
                         widget.enabled = false;
                     }
                     else {
-                        alignToParent(node, widget);
+                        align(node, widget);
                     }
                 }
             }
@@ -231,7 +306,7 @@ function refreshScene () {
                 // because user may remove more than one item during a step.
                 for (iterator.i = 0; iterator.i < activeWidgets.length; ++iterator.i) {
                     widget = activeWidgets[iterator.i];
-                    alignToParent(widget.node, widget);
+                    align(widget.node, widget);
                 }
             }
         }
@@ -251,32 +326,41 @@ var adjustWidgetToAllowMovingInEditor = CC_EDITOR && function (event) {
     var oldPos = event.detail;
     var newPos = this.node.position;
     var delta = newPos.sub(oldPos);
-    var parentSize = getParentSize(this.node._parent);
+
+    var target = this.node._parent;
+    var inverseScale = cc.Vec2.ONE;
+
+    if (this._target) {
+        target = this._target;
+        computeInverseTransForTarget(this.node, target, new cc.Vec2(), inverseScale);
+    }
+
+    var targetSize = getReadonlyNodeSize(target);
     var deltaInPercent;
-    if (parentSize.width !== 0 && parentSize.height !== 0) {
-        deltaInPercent = cc.v2(delta.x / parentSize.width, delta.y / parentSize.height);
+    if (targetSize.width !== 0 && targetSize.height !== 0) {
+        deltaInPercent = new cc.Vec2(delta.x / targetSize.width, delta.y / targetSize.height);
     }
     else {
-        deltaInPercent = cc.v2();
+        deltaInPercent = cc.Vec2.ZERO;
     }
 
     if (this.isAlignTop) {
-        this.top -= (this.isAbsoluteTop ? delta.y : deltaInPercent.y);
+        this.top -= (this.isAbsoluteTop ? delta.y : deltaInPercent.y) * inverseScale.y;
     }
     if (this.isAlignBottom) {
-        this.bottom += (this.isAbsoluteBottom ? delta.y : deltaInPercent.y);
+        this.bottom += (this.isAbsoluteBottom ? delta.y : deltaInPercent.y) * inverseScale.y;
     }
     if (this.isAlignLeft) {
-        this.left += (this.isAbsoluteLeft ? delta.x : deltaInPercent.x);
+        this.left += (this.isAbsoluteLeft ? delta.x : deltaInPercent.x) * inverseScale.x;
     }
     if (this.isAlignRight) {
-        this.right -= (this.isAbsoluteRight ? delta.x : deltaInPercent.x);
+        this.right -= (this.isAbsoluteRight ? delta.x : deltaInPercent.x) * inverseScale.x;
     }
     if (this.isAlignHorizontalCenter) {
-        this.horizontalCenter += (this.isAbsoluteHorizontalCenter ? delta.x : deltaInPercent.x);
+        this.horizontalCenter += (this.isAbsoluteHorizontalCenter ? delta.x : deltaInPercent.x) * inverseScale.x;
     }
     if (this.isAlignVerticalCenter) {
-        this.verticalCenter += (this.isAbsoluteVerticalCenter ? delta.y : deltaInPercent.y);
+        this.verticalCenter += (this.isAbsoluteVerticalCenter ? delta.y : deltaInPercent.y) * inverseScale.y;
     }
 };
 
@@ -286,34 +370,54 @@ var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (event) {
     }
     var oldSize = event.detail;
     var newSize = this.node.getContentSize();
-    // delta size
     var delta = cc.p(newSize.width - oldSize.width, newSize.height - oldSize.height);
-    var parentSize = getParentSize(this.node._parent);
+
+    var target = this.node._parent;
+    var inverseScale = cc.Vec2.ONE;
+    if (this._target) {
+        target = this._target;
+        computeInverseTransForTarget(this.node, target, new cc.Vec2(), inverseScale);
+    }
+
+    var targetSize = getReadonlyNodeSize(target);
     var deltaInPercent;
-    if (parentSize.width !== 0 && parentSize.height !== 0) {
-        deltaInPercent = cc.v2(delta.x / parentSize.width, delta.y / parentSize.height);
+    if (targetSize.width !== 0 && targetSize.height !== 0) {
+        deltaInPercent = new cc.Vec2(delta.x / targetSize.width, delta.y / targetSize.height);
     }
     else {
-        deltaInPercent = cc.v2();
+        deltaInPercent = cc.Vec2.ZERO;
     }
 
-    var anchor = this.node.getAnchorPoint();
+    var anchor = this.node._anchorPoint;
 
     if (this.isAlignTop) {
-        this.top -= (this.isAbsoluteTop ? delta.y : deltaInPercent.y) * (1 - anchor.y);
+        this.top -= (this.isAbsoluteTop ? delta.y : deltaInPercent.y) * (1 - anchor.y) * inverseScale.y;
     }
     if (this.isAlignBottom) {
-        this.bottom -= (this.isAbsoluteBottom ? delta.y : deltaInPercent.y) * anchor.y;
+        this.bottom -= (this.isAbsoluteBottom ? delta.y : deltaInPercent.y) * anchor.y * inverseScale.y;
     }
     if (this.isAlignLeft) {
-        this.left -= (this.isAbsoluteLeft ? delta.x : deltaInPercent.x) * anchor.x;
+        this.left -= (this.isAbsoluteLeft ? delta.x : deltaInPercent.x) * anchor.x * inverseScale.x;
     }
     if (this.isAlignRight) {
-        this.right -= (this.isAbsoluteRight ? delta.x : deltaInPercent.x) * (1 - anchor.x);
+        this.right -= (this.isAbsoluteRight ? delta.x : deltaInPercent.x) * (1 - anchor.x) * inverseScale.x;
     }
 };
 
 var activeWidgets = [];
+
+// updateAlignment from scene to node recursively
+function updateAlignment (node) {
+    var parent = node._parent;
+    if (cc.Node.isNode(parent)) {
+        updateAlignment(parent);
+    }
+    var widget = node._widget ||
+                 node.getComponent(cc.Widget);  // node._widget will be null when widget is disabled
+    if (widget) {
+        align(node, widget);
+    }
+}
 
 var widgetManager = cc._widgetManager = module.exports = {
     _AlignFlags: {
@@ -341,14 +445,16 @@ var widgetManager = cc._widgetManager = module.exports = {
     },
     remove: function (widget) {
         widget.node._widget = null;
-        var index = activeWidgets.indexOf(widget);
-        if (index > -1) {
-            this._activeWidgetsIterator.removeAt(index);
-        }
+        this._activeWidgetsIterator.remove(widget);
         if (CC_EDITOR && !cc.engine.isPlaying) {
             widget.node.off('position-changed', adjustWidgetToAllowMovingInEditor, widget);
             widget.node.off('size-changed', adjustWidgetToAllowResizingInEditor, widget);
         }
     },
-    _getParentSize: getParentSize
+    updateAlignment: updateAlignment
 };
+
+if (CC_EDITOR) {
+    module.exports._computeInverseTransForTarget = computeInverseTransForTarget;
+    module.exports._getReadonlyNodeSize = getReadonlyNodeSize;
+}

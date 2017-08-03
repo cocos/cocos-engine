@@ -26,14 +26,10 @@
 
 require('./_CCClass');
 
-cc._tmp = cc._tmp || {};
-
 /**
  * !#en Key map for keyboard event
  * !#zh 键盘事件的按键值
  * @enum KEY
- * @readonly
- * @type {Object}
  * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCCommon/KEY.js}
  */
 cc.KEY = {
@@ -1040,91 +1036,75 @@ cc.KEY = {
 };
 
 /**
- * @module cc
- */
-
-/**
  * Image formats
  * @enum ImageFormat
- * @static
- * @namespace cc
  */
+
 cc.ImageFormat = cc.Enum({
     /**
      * Image Format:JPG
      * @property JPG
      * @type {Number}
-     * @static
      */
     JPG: 0,
     /**
      * Image Format:PNG
      * @property PNG
      * @type {Number}
-     * @static
      */
     PNG: 1,
     /**
      * Image Format:TIFF
      * @property TIFF
      * @type {Number}
-     * @static
      */
     TIFF: 2,
     /**
      * Image Format:WEBP
      * @property WEBP
      * @type {Number}
-     * @static
      */
     WEBP: 3,
     /**
      * Image Format:PVR
      * @property PVR
      * @type {Number}
-     * @static
      */
     PVR: 4,
     /**
      * Image Format:ETC
      * @property ETC
      * @type {Number}
-     * @static
      */
     ETC: 5,
     /**
      * Image Format:S3TC
      * @property S3TC
      * @type {Number}
-     * @static
      */
     S3TC: 6,
     /**
      * Image Format:ATITC
      * @property ATITC
      * @type {Number}
-     * @static
      */
     ATITC: 7,
     /**
      * Image Format:TGA
      * @property TGA
      * @type {Number}
-     * @static
      */
     TGA: 8,
     /**
      * Image Format:RAWDATA
      * @property RAWDATA
      * @type {Number}
-     * @static
      */
     RAWDATA: 9,
     /**
      * Image Format:UNKNOWN
      * @property UNKNOWN
      * @type {Number}
-     * @static
      */
     UNKNOWN: 10
 });
@@ -1159,16 +1139,13 @@ cc.getImageFormatByData = function (imgData) {
 
 /**
  * Predefined constants
- * @enum Macro
- * @static
+ * @enum macro
  * @type {Object}
- * @namespace cc
  */
 cc.macro = {
     /**
      * @property INVALID_INDEX
      * @type {Number}
-     * @readonly
      */
     INVALID_INDEX: -1,
 
@@ -1176,7 +1153,6 @@ cc.macro = {
      * Default Node tag
      * @property NODE_TAG_INVALID
      * @type {Number}
-     * @readonly
      */
     NODE_TAG_INVALID: -1,
 
@@ -1184,7 +1160,6 @@ cc.macro = {
      * PI is the ratio of a circle's circumference to its diameter.
      * @property PI
      * @type {Number}
-     * @readonly
      */
     PI: Math.PI,
 
@@ -1192,7 +1167,6 @@ cc.macro = {
      * PI * 2
      * @property PI2
      * @type {Number}
-     * @readonly
      */
     PI2: Math.PI * 2,
 
@@ -1200,7 +1174,6 @@ cc.macro = {
      * Maximum float value
      * @property FLT_MAX
      * @type {Number}
-     * @readonly
      */
     FLT_MAX: parseFloat('3.402823466e+38F'),
 
@@ -1208,7 +1181,6 @@ cc.macro = {
      * Minimum float value
      * @property FLT_MIN
      * @type {Number}
-     * @readonly
      */
     FLT_MIN: parseFloat("1.175494351e-38F"),
 
@@ -1216,7 +1188,6 @@ cc.macro = {
      * PI / 180
      * @property RAD
      * @type {Number}
-     * @readonly
      */
     RAD: Math.PI / 180,
 
@@ -1224,7 +1195,6 @@ cc.macro = {
      * One degree
      * @property DEG
      * @type {Number}
-     * @readonly
      */
     DEG: 180 / Math.PI,
 
@@ -1232,21 +1202,18 @@ cc.macro = {
      * Maximum unsigned int value
      * @property UINT_MAX
      * @type {Number}
-     * @readonly
      */
     UINT_MAX: 0xffffffff,
 
     /**
      * @property REPEAT_FOREVER
      * @type {Number}
-     * @readonly
      */
     REPEAT_FOREVER: CC_JSB ? 0xffffffff : (Number.MAX_VALUE - 1),
 
     /**
      * @property FLT_EPSILON
      * @type {Number}
-     * @readonly
      */
     FLT_EPSILON: 0.0000001192092896,
 
@@ -1254,91 +1221,78 @@ cc.macro = {
     /**
      * @property ONE
      * @type {Number}
-     * @readonly
      */
     ONE: 1,
 
     /**
      * @property ZERO
      * @type {Number}
-     * @readonly
      */
     ZERO: 0,
 
     /**
      * @property SRC_ALPHA
      * @type {Number}
-     * @readonly
      */
     SRC_ALPHA: 0x0302,
 
     /**
      * @property SRC_ALPHA_SATURATE
      * @type {Number}
-     * @readonly
      */
     SRC_ALPHA_SATURATE: 0x308,
 
     /**
      * @property SRC_COLOR
      * @type {Number}
-     * @readonly
      */
     SRC_COLOR: 0x300,
 
     /**
      * @property DST_ALPHA
      * @type {Number}
-     * @readonly
      */
     DST_ALPHA: 0x304,
 
     /**
      * @property DST_COLOR
      * @type {Number}
-     * @readonly
      */
     DST_COLOR: 0x306,
 
     /**
      * @property ONE_MINUS_SRC_ALPHA
      * @type {Number}
-     * @readonly
      */
     ONE_MINUS_SRC_ALPHA: 0x0303,
 
     /**
      * @property ONE_MINUS_SRC_COLOR
      * @type {Number}
-     * @readonly
      */
     ONE_MINUS_SRC_COLOR: 0x301,
 
     /**
      * @property ONE_MINUS_DST_ALPHA
      * @type {Number}
-     * @readonly
      */
     ONE_MINUS_DST_ALPHA: 0x305,
 
     /**
      * @property ONE_MINUS_DST_COLOR
      * @type {Number}
-     * @readonly
      */
     ONE_MINUS_DST_COLOR: 0x0307,
 
     /**
      * @property ONE_MINUS_CONSTANT_ALPHA
      * @type {Number}
-     * @readonly
      */
     ONE_MINUS_CONSTANT_ALPHA: 0x8004,
 
     /**
      * @property ONE_MINUS_CONSTANT_COLOR
      * @type {Number}
-     * @readonly
      */
     ONE_MINUS_CONSTANT_COLOR: 0x8002,
 
@@ -1346,7 +1300,6 @@ cc.macro = {
      * the constant variable equals gl.LINEAR for texture
      * @property LINEAR
      * @type {Number}
-     * @readonly
      */
     LINEAR: 0x2601,
 
@@ -1354,7 +1307,6 @@ cc.macro = {
      * default gl blend dst function. Compatible with premultiplied alpha images.
      * @property BLEND_DST
      * @type {Number}
-     * @readonly
      */
     BLEND_DST: 0x0303,
 
@@ -1365,7 +1317,6 @@ cc.macro = {
      * Device oriented vertically, home button on the bottom (UIDeviceOrientationPortrait)
      * @property WEB_ORIENTATION_PORTRAIT
      * @type {Number}
-     * @readonly
      */
     WEB_ORIENTATION_PORTRAIT: 0,
 
@@ -1373,7 +1324,6 @@ cc.macro = {
      * Device oriented horizontally, home button on the right (UIDeviceOrientationLandscapeLeft)
      * @property WEB_ORIENTATION_LANDSCAPE_LEFT
      * @type {Number}
-     * @readonly
      */
     WEB_ORIENTATION_LANDSCAPE_LEFT: -90,
 
@@ -1381,7 +1331,6 @@ cc.macro = {
      * Device oriented vertically, home button on the top (UIDeviceOrientationPortraitUpsideDown)
      * @property WEB_ORIENTATION_PORTRAIT_UPSIDE_DOWN
      * @type {Number}
-     * @readonly
      */
     WEB_ORIENTATION_PORTRAIT_UPSIDE_DOWN: 180,
 
@@ -1389,7 +1338,6 @@ cc.macro = {
      * Device oriented horizontally, home button on the left (UIDeviceOrientationLandscapeRight)
      * @property WEB_ORIENTATION_LANDSCAPE_RIGHT
      * @type {Number}
-     * @readonly
      */
     WEB_ORIENTATION_LANDSCAPE_RIGHT: 90,
 
@@ -1397,7 +1345,6 @@ cc.macro = {
      * Oriented vertically
      * @property ORIENTATION_PORTRAIT
      * @type {Number}
-     * @readonly
      */
     ORIENTATION_PORTRAIT: 1,
 
@@ -1405,7 +1352,6 @@ cc.macro = {
      * Oriented horizontally
      * @property ORIENTATION_LANDSCAPE
      * @type {Number}
-     * @readonly
      */
     ORIENTATION_LANDSCAPE: 2,
 
@@ -1413,7 +1359,6 @@ cc.macro = {
      * Oriented automatically
      * @property ORIENTATION_AUTO
      * @type {Number}
-     * @readonly
      */
     ORIENTATION_AUTO: 3,
 
@@ -1425,34 +1370,30 @@ cc.macro = {
 
 
     // ------------------- vertex attrib flags -----------------------------
+
     /**
      * @property VERTEX_ATTRIB_FLAG_NONE
      * @type {Number}
-     * @readonly
      */
     VERTEX_ATTRIB_FLAG_NONE: 0,
     /**
      * @property VERTEX_ATTRIB_FLAG_POSITION
      * @type {Number}
-     * @readonly
      */
     VERTEX_ATTRIB_FLAG_POSITION: 1 << 0,
     /**
      * @property VERTEX_ATTRIB_FLAG_COLOR
      * @type {Number}
-     * @readonly
      */
     VERTEX_ATTRIB_FLAG_COLOR: 1 << 1,
     /**
      * @property VERTEX_ATTRIB_FLAG_TEX_COORDS
      * @type {Number}
-     * @readonly
      */
     VERTEX_ATTRIB_FLAG_TEX_COORDS: 1 << 2,
     /**
      * @property VERTEX_ATTRIB_FLAG_POS_COLOR_TEX
      * @type {Number}
-     * @readonly
      */
     VERTEX_ATTRIB_FLAG_POS_COLOR_TEX: ( (1 << 0) | (1 << 1) | (1 << 2) ),
 
@@ -1460,7 +1401,6 @@ cc.macro = {
      * GL server side states
      * @property GL_ALL
      * @type {Number}
-     * @readonly
      */
     GL_ALL: 0,
 
@@ -1468,25 +1408,21 @@ cc.macro = {
     /**
      * @property VERTEX_ATTRIB_POSITION
      * @type {Number}
-     * @readonly
      */
     VERTEX_ATTRIB_POSITION: 0,
     /**
      * @property VERTEX_ATTRIB_COLOR
      * @type {Number}
-     * @readonly
      */
     VERTEX_ATTRIB_COLOR: 1,
     /**
      * @property VERTEX_ATTRIB_TEX_COORDS
      * @type {Number}
-     * @readonly
      */
     VERTEX_ATTRIB_TEX_COORDS: 2,
     /**
      * @property VERTEX_ATTRIB_MAX
      * @type {Number}
-     * @readonly
      */
     VERTEX_ATTRIB_MAX: 3,
 
@@ -1494,55 +1430,46 @@ cc.macro = {
     /**
      * @property UNIFORM_PMATRIX
      * @type {Number}
-     * @readonly
      */
     UNIFORM_PMATRIX: 0,
     /**
      * @property UNIFORM_MVMATRIX
      * @type {Number}
-     * @readonly
      */
     UNIFORM_MVMATRIX: 1,
     /**
      * @property UNIFORM_MVPMATRIX
      * @type {Number}
-     * @readonly
      */
     UNIFORM_MVPMATRIX: 2,
     /**
      * @property UNIFORM_TIME
      * @type {Number}
-     * @readonly
      */
     UNIFORM_TIME: 3,
     /**
      * @property UNIFORM_SINTIME
      * @type {Number}
-     * @readonly
      */
     UNIFORM_SINTIME: 4,
     /**
      * @property UNIFORM_COSTIME
      * @type {Number}
-     * @readonly
      */
     UNIFORM_COSTIME: 5,
     /**
      * @property UNIFORM_RANDOM01
      * @type {Number}
-     * @readonly
      */
     UNIFORM_RANDOM01: 6,
     /**
      * @property UNIFORM_SAMPLER
      * @type {Number}
-     * @readonly
      */
     UNIFORM_SAMPLER: 7,
     /**
      * @property UNIFORM_MAX
      * @type {Number}
-     * @readonly
      */
     UNIFORM_MAX: 8,
 
@@ -1550,67 +1477,56 @@ cc.macro = {
     /**
      * @property SHADER_POSITION_TEXTURECOLOR
      * @type {String}
-     * @readonly
      */
     SHADER_POSITION_TEXTURECOLOR: "ShaderPositionTextureColor",
     /**
      * @property SHADER_SPRITE_POSITION_TEXTURECOLOR
      * @type {String}
-     * @readonly
      */
     SHADER_SPRITE_POSITION_TEXTURECOLOR: "ShaderSpritePositionTextureColor",
     /**
      * @property SHADER_POSITION_TEXTURECOLORALPHATEST
      * @type {String}
-     * @readonly
      */
     SHADER_POSITION_TEXTURECOLORALPHATEST: "ShaderPositionTextureColorAlphaTest",
     /**
      * @property SHADER_SPRITE_POSITION_TEXTURECOLORALPHATEST
      * @type {String}
-     * @readonly
      */
     SHADER_SPRITE_POSITION_TEXTURECOLORALPHATEST: "ShaderSpritePositionTextureColorAlphaTest",
     /**
      * @property SHADER_POSITION_COLOR
      * @type {String}
-     * @readonly
      */
     SHADER_POSITION_COLOR: "ShaderPositionColor",
     /**
      * @property SHADER_SPRITE_POSITION_COLOR
      * @type {String}
-     * @readonly
      */
     SHADER_SPRITE_POSITION_COLOR: "ShaderSpritePositionColor",
     /**
      * @property SHADER_POSITION_TEXTURE
      * @type {String}
-     * @readonly
      */
     SHADER_POSITION_TEXTURE: "ShaderPositionTexture",
     /**
      * @property SHADER_POSITION_TEXTURE_UCOLOR
      * @type {String}
-     * @readonly
      */
     SHADER_POSITION_TEXTURE_UCOLOR: "ShaderPositionTexture_uColor",
     /**
      * @property SHADER_POSITION_TEXTUREA8COLOR
      * @type {String}
-     * @readonly
      */
     SHADER_POSITION_TEXTUREA8COLOR: "ShaderPositionTextureA8Color",
     /**
      * @property SHADER_POSITION_UCOLOR
      * @type {String}
-     * @readonly
      */
     SHADER_POSITION_UCOLOR: "ShaderPosition_uColor",
     /**
      * @property SHADER_POSITION_LENGTHTEXTURECOLOR
      * @type {String}
-     * @readonly
      */
     SHADER_POSITION_LENGTHTEXTURECOLOR: "ShaderPositionLengthTextureColor",
 
@@ -1618,55 +1534,46 @@ cc.macro = {
     /**
      * @property UNIFORM_PMATRIX_S
      * @type {String}
-     * @readonly
      */
     UNIFORM_PMATRIX_S: "CC_PMatrix",
     /**
      * @property UNIFORM_MVMATRIX_S
      * @type {String}
-     * @readonly
      */
     UNIFORM_MVMATRIX_S: "CC_MVMatrix",
     /**
      * @property UNIFORM_MVPMATRIX_S
      * @type {String}
-     * @readonly
      */
     UNIFORM_MVPMATRIX_S: "CC_MVPMatrix",
     /**
      * @property UNIFORM_TIME_S
      * @type {String}
-     * @readonly
      */
     UNIFORM_TIME_S: "CC_Time",
     /**
      * @property UNIFORM_SINTIME_S
      * @type {String}
-     * @readonly
      */
     UNIFORM_SINTIME_S: "CC_SinTime",
     /**
      * @property UNIFORM_COSTIME_S
      * @type {String}
-     * @readonly
      */
     UNIFORM_COSTIME_S: "CC_CosTime",
     /**
      * @property UNIFORM_RANDOM01_S
      * @type {String}
-     * @readonly
      */
     UNIFORM_RANDOM01_S: "CC_Random01",
     /**
      * @property UNIFORM_SAMPLER_S
      * @type {String}
-     * @readonly
      */
     UNIFORM_SAMPLER_S: "CC_Texture0",
     /**
      * @property UNIFORM_ALPHA_TEST_VALUE_S
      * @type {String}
-     * @readonly
      */
     UNIFORM_ALPHA_TEST_VALUE_S: "CC_alpha_value",
 
@@ -1674,19 +1581,16 @@ cc.macro = {
     /**
      * @property ATTRIBUTE_NAME_COLOR
      * @type {String}
-     * @readonly
      */
     ATTRIBUTE_NAME_COLOR: "a_color",
     /**
      * @property ATTRIBUTE_NAME_POSITION
      * @type {String}
-     * @readonly
      */
     ATTRIBUTE_NAME_POSITION: "a_position",
     /**
      * @property ATTRIBUTE_NAME_TEX_COORD
      * @type {String}
-     * @readonly
      */
     ATTRIBUTE_NAME_TEX_COORD: "a_texCoord",
 
@@ -1695,7 +1599,6 @@ cc.macro = {
      * default size for font size
      * @property ITEM_SIZE
      * @type {Number}
-     * @readonly
      */
     ITEM_SIZE: 32,
 
@@ -1703,21 +1606,18 @@ cc.macro = {
      * default tag for current item
      * @property CURRENT_ITEM
      * @type {Number}
-     * @readonly
      */
     CURRENT_ITEM: 0xc0c05001,
     /**
      * default tag for zoom action tag
      * @property ZOOM_ACTION_TAG
      * @type {Number}
-     * @readonly
      */
     ZOOM_ACTION_TAG: 0xc0c05002,
     /**
      * default tag for normal
      * @property NORMAL_TAG
      * @type {Number}
-     * @readonly
      */
     NORMAL_TAG: 8801,
 
@@ -1725,7 +1625,6 @@ cc.macro = {
      * default selected tag
      * @property SELECTED_TAG
      * @type {Number}
-     * @readonly
      */
     SELECTED_TAG: 8802,
 
@@ -1733,7 +1632,6 @@ cc.macro = {
      * default disabled tag
      * @property DISABLE_TAG
      * @type {Number}
-     * @readonly
      */
     DISABLE_TAG: 8803,
 
@@ -1747,28 +1645,24 @@ cc.macro = {
      *  The same for bottom and top.                                                   <br/>
      *                                                                                 <br/>
      *  This formula prevents artifacts by using 99% of the texture.                   <br/>
-     *  The "correct" way to prevent artifacts is by using the spritesheet-artifact-fixer.py or a similar tool.<br/>
+     *  The "correct" way to prevent artifacts is by expand the texture's border with the same color by 1 pixel<br/>
      *                                                                                  <br/>
      *  Affected nodes:                                                                 <br/>
-     *      - _ccsg.Sprite / cc.SpriteBatchNode and subclasses: cc.LabelBMFont, _ccsg.TMXTiledMap <br/>
-     *      - cc.LabelAtlas                                                              <br/>
-     *      - cc.QuadParticleSystem                                                      <br/>
-     *      - cc.TileMap                                                                 <br/>
+     *      - _ccsg.Sprite                                                              <br/>
+     *      - _ccsg.TMXTiledMap                                                         <br/>
      *                                                                                  <br/>
-     *  To enabled set it to 1. Disabled by default.<br/>
+     *  Enabled by default. To disabled set it to 0. <br/>
      *  To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
      * </p>
      *
      * @property {Number} FIX_ARTIFACTS_BY_STRECHING_TEXEL
-     * @readonly
      */
-    FIX_ARTIFACTS_BY_STRECHING_TEXEL: 1,
+    FIX_ARTIFACTS_BY_STRECHING_TEXEL: 0,
 
     /**
      * Position of the FPS (Default: 0,0 (bottom-left corner))<br/>
      * To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
      * @property {Vec2} DIRECTOR_STATS_POSITION
-     * @readonly
      */
     DIRECTOR_STATS_POSITION: cc.p(0, 0),
 
@@ -1782,7 +1676,6 @@ cc.macro = {
      *   To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
      * </p>
      * @property {Number} DIRECTOR_FPS_INTERVAL
-     * @readonly
      */
     DIRECTOR_FPS_INTERVAL: 0.5,
 
@@ -1795,7 +1688,6 @@ cc.macro = {
      *    To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
      * </p>
      * @property {Number} COCOSNODE_RENDER_SUBPIXEL
-     * @readonly
      */
     COCOSNODE_RENDER_SUBPIXEL: 1,
 
@@ -1808,7 +1700,6 @@ cc.macro = {
      *   To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
      * </p>
      * @property {Number} SPRITEBATCHNODE_RENDER_SUBPIXEL
-     * @readonly
      */
     SPRITEBATCHNODE_RENDER_SUBPIXEL: 1,
 
@@ -1817,7 +1708,6 @@ cc.macro = {
      *     Automatically premultiply alpha for PNG resources
      * </p>
      * @property {Number} AUTO_PREMULTIPLIED_ALPHA_FOR_PNG
-     * @readonly
      */
     AUTO_PREMULTIPLIED_ALPHA_FOR_PNG: 0,
 
@@ -1830,7 +1720,6 @@ cc.macro = {
      *     To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
      * </p>
      * @property {Number} OPTIMIZE_BLEND_FUNC_FOR_PREMULTIPLIED_ALPHA
-     * @readonly
      */
     OPTIMIZE_BLEND_FUNC_FOR_PREMULTIPLIED_ALPHA: 0,
 
@@ -1843,7 +1732,6 @@ cc.macro = {
      *   To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
      * </p>
      * @property {Number} TEXTURE_ATLAS_USE_TRIANGLE_STRIP
-     * @readonly
      */
     TEXTURE_ATLAS_USE_TRIANGLE_STRIP: 0,
 
@@ -1857,7 +1745,6 @@ cc.macro = {
      *    To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
      * </p>
      * @property {Number} TEXTURE_ATLAS_USE_VAO
-     * @readonly
      */
     TEXTURE_ATLAS_USE_VAO: 0,
 
@@ -1874,7 +1761,7 @@ cc.macro = {
      *  This value DOES NOT govern the PVR (PVR.GZ, PVR.CCZ) files. If NPOT PVR is loaded, then it will create an NPOT texture ignoring this value.<br/>
      *  To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
      * </p>
-     * @readonly
+     * @property TEXTURE_NPOT_SUPPORT
      * @type {Number}
      * @deprecated This value will be removed in 1.1 and NPOT textures will be loaded by default if the device supports it.
      */
@@ -1889,7 +1776,6 @@ cc.macro = {
      *     This feature is enabled by default.
      * </p>
      * @property {Number} USE_LA88_LABELS
-     * @readonly
      */
     USE_LA88_LABELS: 1,
 
@@ -1904,7 +1790,6 @@ cc.macro = {
      *      2 -- draw texture box
      * </p>
      * @property {Number} SPRITE_DEBUG_DRAW
-     * @readonly
      */
     SPRITE_DEBUG_DRAW: 0,
 
@@ -1916,7 +1801,6 @@ cc.macro = {
      *   To enable set it to a value different than 0. Disabled by default.<br/>
      * </p>
      * @property {Number} LABELBMFONT_DEBUG_DRAW
-     * @readonly
      */
     LABELBMFONT_DEBUG_DRAW: 0,
 
@@ -1928,7 +1812,6 @@ cc.macro = {
      *    To enable set it to a value different than 0. Disabled by default.
      * </p>
      * @property {Number} LABELATLAS_DEBUG_DRAW
-     * @readonly
      */
     LABELATLAS_DEBUG_DRAW: 0,
 
@@ -1939,7 +1822,6 @@ cc.macro = {
      *    If disabled, only the last run action will take effect.
      * </p>
      * @property {Number} ENABLE_STACKABLE_ACTIONS
-     * @readonly
      */
     ENABLE_STACKABLE_ACTIONS: 1,
 
@@ -1956,7 +1838,6 @@ cc.macro = {
      *      If you are migrating your code from GL ES 1.1, then keep it disabled. Once all your code works as expected, turn it on.
      * </p>
      * @property {Number} ENABLE_GL_STATE_CACHE
-     * @readonly
      */
     // Editors do not need to cache fix bug for https://github.com/cocos-creator/fireball/issues/3079
     ENABLE_GL_STATE_CACHE: CC_EDITOR ? 0 : 1,
@@ -1981,14 +1862,72 @@ cc.macro = {
      * 你可以修改这个值来获得你需要的效果，默认值是 5000 毫秒。
      * @property {Number} TOUCH_TIMEOUT
      */
-    TOUCH_TIMEOUT: 5000
+    TOUCH_TIMEOUT: 5000,
+
+    /**
+     * !#en 
+     * The maximum vertex count for a single batched draw call.
+     * !#zh
+     * 最大可以被单次批处理渲染的顶点数量。
+     * @property {Number} BATCH_VERTEX_COUNT
+     */
+    BATCH_VERTEX_COUNT: 20000,
+
+    /**
+     * !#en 
+     * JSB only, using JS object life cycle to control C++ object or inversely, 
+     * it indicates two different memory model controled by the native macro CC_ENABLE_GC_FOR_NATIVE_OBJECTS.
+     * Modify the JS macro value won't have any effect.
+     * !#zh
+     * 仅限 JSB 有意义，使用 JS 对象生命周期来控制 C++ 对象，或是相反，这标示了两种不同的内存模型，
+     * 它的值被 native 宏 CC_ENABLE_GC_FOR_NATIVE_OBJECTS 所控制，修改 JS 宏的值不会产生任何效果。
+     * @property {Number} ENABLE_GC_FOR_NATIVE_OBJECTS
+     */
+    ENABLE_GC_FOR_NATIVE_OBJECTS: true,
+
+    /**
+     * !#en 
+     * Whether or not enabled tiled map auto culling.
+     * !#zh
+     * 是否开启瓦片地图的自动裁减功能。
+     * @property {Boolean} ENABLE_TILEDMAP_CULLING
+     * @default true
+     */
+    ENABLE_TILEDMAP_CULLING: true,
+
+    /**
+     * !#en 
+     * The max concurrent task number for the downloader
+     * !#zh
+     * 下载任务的最大并发数限制，在安卓平台部分机型或版本上可能需要限制在较低的水平
+     * @property {Number} DOWNLOAD_MAX_CONCURRENT
+     * @default 64
+     */
+    DOWNLOAD_MAX_CONCURRENT: 64,
+
+    /**
+     * !#en 
+     * Boolean that indicates if the canvas contains an alpha channel, default sets to false for better performance.
+     * Though if you want to make your canvas background transparent and show other dom elements at the background, 
+     * you can set it to true before `cc.game.run`.
+     * Web only.
+     * !#zh
+     * 用于设置 Canvas 背景是否支持 alpha 通道，默认为 false，这样可以有更高的性能表现。
+     * 如果你希望 Canvas 背景是透明的，并显示背后的其他 DOM 元素，你可以在 `cc.game.run` 之前将这个值设为 true。
+     * 仅支持 Web
+     * @property {Boolean} ENABLE_TRANSPARENT_CANVAS
+     * @default false
+     */
+    ENABLE_TRANSPARENT_CANVAS: false,
 };
 
 /**
+ * !#en
  * default gl blend src function. Compatible with premultiplied alpha images.
+ * !#zh
+ * 默认的混合源模式
  * @property BLEND_SRC
  * @type {Number}
- * @readonly
  */
 cc.defineGetterSetter(cc.macro, "BLEND_SRC", function (){
     if (cc._renderType === cc.game.RENDER_TYPE_WEBGL
@@ -2001,13 +1940,17 @@ cc.defineGetterSetter(cc.macro, "BLEND_SRC", function (){
 });
 
 /**
+ * @module cc
+ */
+
+/**
  * <p>
  *     Linear interpolation between 2 numbers, the ratio sets how much it is biased to each end
  * </p>
+ * @method lerp
  * @param {Number} a number A
  * @param {Number} b number B
  * @param {Number} r ratio between 0 and 1
- * @method lerp
  * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCMacro/lerp.js}
  */
 cc.lerp = function (a, b, r) {
@@ -2128,10 +2071,10 @@ cc.incrementGLDraws = function (addNumber) {
  * @method checkGLErrorDebug
  */
 cc.checkGLErrorDebug = function () {
-    if (cc.renderMode === cc.game.RENDER_TYPE_WEBGL) {
+    if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
         var _error = cc._renderContext.getError();
         if (_error) {
-            cc.log(cc._LogInfos.checkGLErrorDebug, _error);
+            cc.logID(2400, _error);
         }
     }
 };

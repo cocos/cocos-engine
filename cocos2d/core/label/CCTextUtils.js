@@ -53,20 +53,27 @@ var CustomFontLoader = {
     _canvasContext: null,
     _testString: "BESbswy",
     _allFontsLoaded: false,
+    _intervalId: 0,
     loadTTF: function (url, callback) {
+        var fontFamilyName = this._getFontFamily(url);
+
+        var md5Pipe = cc.loader.md5Pipe;
+        if (md5Pipe) {
+            url = md5Pipe.transformURL(url);
+        }
         //these platforms support window.FontFace, but it sucks sometimes.
         var useFontFace = (cc.sys.browserType !== cc.sys.BROWSER_TYPE_BAIDU
                            && cc.sys.browserType !== cc.sys.BROWSER_TYPE_BAIDU_APP
                            && cc.sys.browserType !== cc.sys.BROWSER_TYPE_MOBILE_QQ);
 
         if (window.FontFace && useFontFace) {
-            this._loadWithFontFace(url, callback);
+            this._loadWithFontFace(fontFamilyName, url, callback);
         } else {
-            this._loadWithCSS(url, callback);
+            this._loadWithCSS(fontFamilyName, url, callback);
         }
 
-        if(!cc.director.getScheduler().isScheduled(this._checkFontLoaded, this)) {
-            cc.director.getScheduler().schedule(this._checkFontLoaded, this, 0.1);
+        if (this._intervalId === 0) {
+            this._intervalId = setInterval(this._checkFontLoaded.bind(this), 100);
         }
     },
 
@@ -89,12 +96,12 @@ var CustomFontLoader = {
         }
 
         if(this._allFontsLoaded) {
-            cc.director.getScheduler().unschedule(this._checkFontLoaded, this);
+            clearInterval(this._intervalId);
+            this._intervalId = 0;
         }
     },
 
-    _loadWithFontFace: function(url, callback) {
-        var fontFamilyName = this._getFontFamily(url);
+    _loadWithFontFace: function(fontFamilyName, url, callback) {
 
         var fontDescriptor = this._fontCache[fontFamilyName];
         if(!fontDescriptor) {
@@ -115,9 +122,7 @@ var CustomFontLoader = {
         }
     },
 
-    _loadWithCSS: function(url, callback) {
-        var fontFamilyName = this._getFontFamily(url);
-
+    _loadWithCSS: function(fontFamilyName, url, callback) {
         var fontDescriptor = this._fontCache[fontFamilyName];
         if(!fontDescriptor) {
             //fall back implementations
@@ -168,7 +173,7 @@ var CustomFontLoader = {
                 setTimeout(function () {
                     //in case some font won't cause the width as to system font.
                     if(!self._allFontsLoaded) {
-                        cc.log("force notify all fonts loaded!");
+                        cc.logID(4004);
                         fontDescriptor.onLoaded();
                         cc.director.getScheduler().unschedule(this._checkFontLoaded, this);
                     }
@@ -200,9 +205,9 @@ var CustomFontLoader = {
 var TextUtils = {
     label_wordRex : /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûа-яА-ЯЁё]+|\S)/,
     label_symbolRex : /^[!,.:;}\]%\?>、‘“》？。，！]/,
-    label_lastWordRex : /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûа-яА-ЯЁё]+|\S)$/,
-    label_lastEnglish : /[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûа-яА-ЯЁё]+$/,
-    label_firsrEnglish : /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûа-яА-ЯЁё]/,
+    label_lastWordRex : /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]+|\S)$/,
+    label_lastEnglish : /[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]+$/,
+    label_firsrEnglish : /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]/,
     label_wrapinspection : true,
 
     isUnicodeCJK: function(ch) {

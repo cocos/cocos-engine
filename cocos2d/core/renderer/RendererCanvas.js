@@ -39,7 +39,7 @@ cc.rendererCanvas = {
     _clearFillStyle: "rgb(0, 0, 0)",
     _dirtyRegion: null,
     _allNeedDraw: true,
-    _enableDirtyRegion: true,
+    _enableDirtyRegion: false,
     _debugDirtyRegion: false,
 
     //max dirty Region count, default is 10
@@ -104,14 +104,19 @@ cc.rendererCanvas = {
         var dirtyList = this._dirtyRegion.getDirtyRegions();
         ctx.save();
         //add clip
-        var scaleX = ctxWrapper._scaleX;
-        var scaleY = ctxWrapper._scaleY;
-        ctxWrapper.setTransform({a:1, b:0, c:0, d:1, tx:0,ty:0}, scaleX, scaleY);
+        ctxWrapper.setTransform({a:1, b:0, c:0, d:1, tx:0,ty:0}, 1, 1);
 
         ctx.beginPath();
+
+        var x = 0, y = 0, width = 0, height = 0, scaleX = ctxWrapper._scaleX, scaleY = ctxWrapper._scaleY;
         for(var index = 0, count = dirtyList.length; index < count; ++index) {
+            // fix dirty rectangle black border for #fireball/issues/3819
             var region = dirtyList[index];
-            ctx.rect(region._minX , -region._maxY, region._width, region._height);
+            x = (region._minX * scaleX | 0) - 1;
+            y = (-region._maxY * scaleX | 0) - 1;
+            width = (region._width * scaleX | 0) + 2;
+            height = (region._height * scaleY | 0) + 2;
+            ctx.rect(x, y, width, height);
         }
 
         ctx.clip();
@@ -127,14 +132,18 @@ cc.rendererCanvas = {
         var ctx = ctxWrapper.getContext();
         var dirtyList = this._dirtyRegion.getDirtyRegions();
         //add clip
-        var scaleX = ctxWrapper._scaleX;
-        var scaleY = ctxWrapper._scaleY;
-        ctxWrapper.setTransform({a:1, b:0, c:0, d:1, tx:0,ty:0}, scaleX, scaleY);
+        ctxWrapper.setTransform({a:1, b:0, c:0, d:1, tx:0,ty:0}, 1, 1);
 
         ctx.beginPath();
+
+        var x = 0, y = 0, width = 0, height = 0, scaleX = ctxWrapper._scaleX, scaleY = ctxWrapper._scaleY;
         for(var index = 0, count = dirtyList.length; index < count; ++index) {
             var region = dirtyList[index];
-            ctx.rect(region._minX, -region._maxY, region._width, region._height);
+            x = (region._minX * scaleX | 0) - 1;
+            y = (-region._maxY * scaleX | 0) - 1;
+            width = (region._width * scaleX | 0) + 2;
+            height = (region._height * scaleY | 0) + 2;
+            ctx.rect(x, y, width, height);
         }
         var oldstyle = ctx.fillStyle;
         ctx.fillStyle = 'green';
@@ -217,7 +226,7 @@ cc.rendererCanvas = {
      */
     _renderingToCacheCanvas: function (ctx, instanceID, scaleX, scaleY) {
         if (!ctx)
-            cc.log("The context of RenderTexture is invalid.");
+            cc.logID(7600);
         scaleX = scaleX === undefined ? 1 : scaleX;
         scaleY = scaleY === undefined ? 1 : scaleY;
         instanceID = instanceID || this._currentID;

@@ -1,4 +1,5 @@
 var JS = require('./js');
+var CCClass = require('./CCClass');
 
 // definitions for CCObject.Flags
 
@@ -10,13 +11,13 @@ var EditorOnly = 1 << 4;
 var Dirty = 1 << 5;
 var DontDestroy = 1 << 6;
 var Destroying = 1 << 7;
-var Activating = 1 << 8;
+var Deactivating = 1 << 8;
 //var HideInGame = 1 << 9;
 //var HideInEditor = 1 << 10;
 
 var IsOnEnableCalled = 1 << 11;
 var IsEditorOnEnableCalled = 1 << 12;
-var IsPreloadCalled = 1 << 13;
+var IsPreloadStarted = 1 << 13;
 var IsOnLoadCalled = 1 << 14;
 var IsOnLoadStarted = 1 << 15;
 var IsStartCalled = 1 << 16;
@@ -29,13 +30,11 @@ var IsPositionLocked = 1 << 21;
 
 //var Hide = HideInGame | HideInEditor;
 // should not clone or serialize these flags
-var PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Activating |
-                       IsPreloadCalled | IsOnLoadStarted | IsOnLoadCalled | IsStartCalled |
+var PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Deactivating |
+                       IsPreloadStarted | IsOnLoadStarted | IsOnLoadCalled | IsStartCalled |
                        IsOnEnableCalled | IsEditorOnEnableCalled |
                        IsRotationLocked | IsScaleLocked | IsAnchorLocked | IsSizeLocked | IsPositionLocked
                        /*RegisteredInEditor*/);
-// TODO
-//var PersistentMask = Destroyed | RealDestroyed | DontSave | EditorOnly;
 
 /**
  * The base class of most of all the objects in Fireball.
@@ -59,16 +58,17 @@ function CCObject () {
      */
     this._objFlags = 0;
 }
+CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0 });
 
 /**
  * Bit mask that controls object states.
- * @class Flags
+ * @enum Flags
  * @static
  * @private
  */
-CCObject.Flags = {
+JS.value(CCObject, 'Flags', {
 
-    Destroyed: Destroyed,
+    Destroyed,
     //ToDestroy: ToDestroy,
 
     /**
@@ -76,16 +76,16 @@ CCObject.Flags = {
      * !#zh 该对象将不会被保存。
      * @property {Number} DontSave
      */
-    DontSave: DontSave,
+    DontSave,
 
     /**
      * !#en The object will not be saved when building a player.
      * !#zh 构建项目时，该对象将不会被保存。
      * @property {Number} EditorOnly
      */
-    EditorOnly: EditorOnly,
+    EditorOnly,
 
-    Dirty: Dirty,
+    Dirty,
 
     /**
      * !#en Dont destroy automatically when loading a new scene.
@@ -93,14 +93,21 @@ CCObject.Flags = {
      * @property DontDestroy
      * @private
      */
-    DontDestroy: DontDestroy,
+    DontDestroy,
 
-    PersistentMask: PersistentMask,
+    PersistentMask,
 
     // FLAGS FOR ENGINE
 
-    Destroying: Destroying,
-    Activating: Activating,
+    Destroying,
+
+    /**
+     * !#en The node is deactivating.
+     * !#zh 节点正在反激活的过程中。
+     * @property Deactivating
+     * @private
+     */
+    Deactivating,
 
     ///**
     // * !#en
@@ -138,23 +145,19 @@ CCObject.Flags = {
 
     // FLAGS FOR COMPONENT
 
-    IsPreloadCalled: IsPreloadCalled,
-    IsOnLoadCalled: IsOnLoadCalled,
-    IsOnLoadStarted: IsOnLoadStarted,
-    IsOnEnableCalled: IsOnEnableCalled,
-    IsStartCalled: IsStartCalled,
-    IsEditorOnEnableCalled: IsEditorOnEnableCalled,
+    IsPreloadStarted,
+    IsOnLoadStarted,
+    IsOnLoadCalled,
+    IsOnEnableCalled,
+    IsStartCalled,
+    IsEditorOnEnableCalled,
 
-    IsPositionLocked: IsPositionLocked,
-    IsRotationLocked: IsRotationLocked,
-    IsScaleLocked: IsScaleLocked,
-    IsAnchorLocked: IsAnchorLocked,
-    IsSizeLocked: IsSizeLocked,
-};
-
-require('./CCClass').fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0 });
-
-// internal static
+    IsPositionLocked,
+    IsRotationLocked,
+    IsScaleLocked,
+    IsAnchorLocked,
+    IsSizeLocked,
+});
 
 var objectsToDestroy = [];
 
@@ -180,18 +183,13 @@ function deferredDestroy () {
     }
 }
 
-Object.defineProperty(CCObject, '_deferredDestroy', {
-    value: deferredDestroy,
-    // enumerable is false by default
-});
+JS.value(CCObject, '_deferredDestroy', deferredDestroy);
 
 if (CC_EDITOR) {
-    Object.defineProperty(CCObject, '_clearDeferredDestroyTimer', {
-        value: function () {
-            if (deferredDestroyTimer !== null) {
-                clearImmediate(deferredDestroyTimer);
-                deferredDestroyTimer = null;
-            }
+    JS.value(CCObject, '_clearDeferredDestroyTimer', function () {
+        if (deferredDestroyTimer !== null) {
+            clearImmediate(deferredDestroyTimer);
+            deferredDestroyTimer = null;
         }
     });
 }
@@ -260,7 +258,7 @@ var deferredDestroyTimer = null;
  */
 prototype.destroy = function () {
     if (this._objFlags & Destroyed) {
-        cc.warn('object already destroyed');
+        cc.warnID(5000);
         return false;
     }
     if (this._objFlags & ToDestroy) {
@@ -289,11 +287,11 @@ if (CC_EDITOR || CC_TEST) {
      */
     prototype.realDestroyInEditor = function () {
         if ( !(this._objFlags & Destroyed) ) {
-            cc.warn('object not yet destroyed');
+            cc.warnID(5001);
             return;
         }
         if (this._objFlags & RealDestroyed) {
-            cc.warn('object already destroyed');
+            cc.warnID(5000);
             return;
         }
         this._destruct();
@@ -301,29 +299,98 @@ if (CC_EDITOR || CC_TEST) {
     };
 }
 
-/**
- * Clear all references in the instance.
- *
- * NOTE: this method will not clear the getter or setter functions which defined in the INSTANCE of CCObject.
- *       You can override the _destruct method if you need.
- * @method _destruct
- * @private
- */
-prototype._destruct = function () {
-    // 所有可枚举到的属性，都会被清空
-    for (var key in this) {
-        if (this.hasOwnProperty(key)) {
-            switch (typeof this[key]) {
+function compileDestruct (obj, ctor) {
+    var key, propsToReset = {};
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            switch (typeof obj[key]) {
                 case 'string':
-                    this[key] = '';
+                    propsToReset[key] = '';
                     break;
                 case 'object':
                 case 'function':
-                    this[key] = null;
+                    propsToReset[key] = null;
                     break;
             }
         }
     }
+    // Overwrite propsToReset according to Class
+    if (cc.Class._isCCClass(ctor)) {
+        var attrs = cc.Class.Attr.getClassAttrs(ctor);
+        var propList = ctor.__props__;
+        for (var i = 0; i < propList.length; i++) {
+            key = propList[i];
+            var attrKey = key + cc.Class.Attr.DELIMETER + 'default';
+            if (attrKey in attrs) {
+                switch (typeof attrs[attrKey]) {
+                    case 'string':
+                        propsToReset[key] = '';
+                        break;
+                    case 'object':
+                    case 'function':
+                        propsToReset[key] = null;
+                        break;
+                    case 'undefined':
+                        propsToReset[key] = undefined;
+                        break;
+                }
+            }
+        }
+    }
+    // compile code
+    var skipId = obj instanceof cc._BaseNode || obj instanceof cc.Component;
+    var func = '';
+    for (key in propsToReset) {
+        if (skipId && key === '_id') {
+            continue;
+        }
+        var statement;
+        if (CCClass.IDENTIFIER_RE.test(key)) {
+            statement = 'o.' + key + '=';
+        }
+        else {
+            statement = 'o[' + CCClass.escapeForJS(key) + ']=';
+        }
+        var val = propsToReset[key];
+        if (val === '') {
+            val = '""';
+        }
+        func += (statement + val + ';\n');
+    }
+    return Function('o', func);
+}
+
+/**
+ * Clear all references in the instance.
+ *
+ * NOTE: this method will not clear the getter or setter functions which defined in the instance of CCObject.
+ *       You can override the _destruct method if you need, for example:
+ *       _destruct: function () {
+ *           for (var key in this) {
+ *               if (this.hasOwnProperty(key)) {
+ *                   switch (typeof this[key]) {
+ *                       case 'string':
+ *                           this[key] = '';
+ *                           break;
+ *                       case 'object':
+ *                       case 'function':
+ *                           this[key] = null;
+ *                           break;
+ *               }
+ *           }
+ *       }
+ *
+ * @method _destruct
+ * @private
+ */
+prototype._destruct = function () {
+    var ctor = this.constructor;
+    var destruct = ctor.__destruct__;
+    if (!destruct) {
+        destruct = compileDestruct(this, ctor);
+        JS.value(ctor, '__destruct__', destruct, true);
+    }
+    destruct(this);
 };
 
 /**
@@ -335,7 +402,7 @@ prototype._onPreDestroy = null;
 
 prototype._destroyImmediate = function () {
     if (this._objFlags & Destroyed) {
-        cc.error('object already destroyed');
+        cc.errorID(5000);
         return;
     }
     // engine internal callback
@@ -343,7 +410,7 @@ prototype._destroyImmediate = function () {
         this._onPreDestroy();
     }
 
-    if (!CC_EDITOR || cc.engine._isPlaying) {
+    if ((CC_TEST ? (/* make CC_EDITOR mockable*/ Function('return !CC_EDITOR'))() : !CC_EDITOR) || cc.engine._isPlaying) {
         this._destruct();
     }
 
@@ -393,18 +460,13 @@ cc.isValid = function (value) {
 };
 
 if (CC_EDITOR || CC_TEST) {
-    Object.defineProperty(CCObject, '_willDestroy', {
-        value: function (obj) {
-            return !(obj._objFlags & Destroyed) && (obj._objFlags & ToDestroy) > 0;
-        }
+    JS.value(CCObject, '_willDestroy', function (obj) {
+        return !(obj._objFlags & Destroyed) && (obj._objFlags & ToDestroy) > 0;
     });
-    Object.defineProperty(CCObject, '_cancelDestroy', {
-        value: function (obj) {
-            obj._objFlags &= ~ToDestroy;
-            JS.array.fastRemove(objectsToDestroy, obj);
-        }
+    JS.value(CCObject, '_cancelDestroy', function (obj) {
+        obj._objFlags &= ~ToDestroy;
+        JS.array.fastRemove(objectsToDestroy, obj);
     });
 }
 
-cc.Object = CCObject;
-module.exports = CCObject;
+cc.Object = module.exports = CCObject;

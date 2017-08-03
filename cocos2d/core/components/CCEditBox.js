@@ -24,7 +24,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
+require('../editbox/CCSGEditBox');
 /**
  * !#en Enum for keyboard return types
  * !#zh 键盘的返回键类型
@@ -178,7 +178,7 @@ var EditBox = cc.Class({
          * @property {String} string
          */
         string: {
-            tooltip: 'i18n:COMPONENT.editbox.string',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.string',
             get: function () {
                 return this._sgNode.string;
             },
@@ -190,10 +190,10 @@ var EditBox = cc.Class({
         /**
          * !#en The background image of EditBox.
          * !#zh 输入框的背景图片
-         * @property {SpriteFrame} backGroundImage
+         * @property {SpriteFrame} backgroundImage
          */
         backgroundImage: {
-            tooltip: 'i18n:COMPONENT.editbox.backgroundImage',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.backgroundImage',
             default: null,
             type: cc.SpriteFrame,
             notify: function() {
@@ -221,7 +221,7 @@ var EditBox = cc.Class({
          */
         returnType: {
             default: KeyboardReturnType.DEFAULT,
-            tooltip: 'i18n:COMPONENT.editbox.returnType',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.returnType',
             displayName: 'KeyboardReturnType',
             type: KeyboardReturnType,
             notify: function() {
@@ -236,7 +236,7 @@ var EditBox = cc.Class({
          * @default InputFlag.DEFAULT
          */
         inputFlag: {
-            tooltip: 'i18n:COMPONENT.editbox.input_flag',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.input_flag',
             default: InputFlag.DEFAULT,
             type: InputFlag,
             notify: function() {
@@ -253,7 +253,7 @@ var EditBox = cc.Class({
          * @default InputMode.ANY
          */
         inputMode: {
-            tooltip: 'i18n:COMPONENT.editbox.input_mode',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.input_mode',
             default: InputMode.ANY,
             type: InputMode,
             notify: function() {
@@ -267,7 +267,7 @@ var EditBox = cc.Class({
          * @property {Number} fontSize
          */
         fontSize: {
-            tooltip: 'i18n:COMPONENT.editbox.font_size',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.font_size',
             default: 20,
             notify: function() {
                 this._sgNode.fontSize = this.fontSize;
@@ -280,7 +280,7 @@ var EditBox = cc.Class({
          * @property {Number} lineHeight
          */
         lineHeight: {
-            tooltip: 'i18n:COMPONENT.editbox.line_height',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.line_height',
             default: 40,
             notify: function() {
                 this._sgNode.setLineHeight(this.lineHeight);
@@ -293,7 +293,7 @@ var EditBox = cc.Class({
          * @property {Color} fontColor
          */
         fontColor: {
-            tooltip: 'i18n:COMPONENT.editbox.font_color',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.font_color',
             default: cc.Color.WHITE,
             notify: function() {
                 this._sgNode.fontColor = this.fontColor;
@@ -306,7 +306,7 @@ var EditBox = cc.Class({
          * @property {String} placeholder
          */
         placeholder: {
-            tooltip: 'i18n:COMPONENT.editbox.placeholder',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.placeholder',
             default: 'Enter text here...',
             notify: function() {
                 this._sgNode.placeholder = this.placeholder;
@@ -319,7 +319,7 @@ var EditBox = cc.Class({
          * @property {Number} placeholderFontSize
          */
         placeholderFontSize: {
-            tooltip: 'i18n:COMPONENT.editbox.placeholder_font_size',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.placeholder_font_size',
             default: 20,
             notify: function() {
                 this._sgNode.placeholderFontSize = this.placeholderFontSize;
@@ -332,7 +332,7 @@ var EditBox = cc.Class({
          * @property {Color} placeholderFontColor
          */
         placeholderFontColor: {
-            tooltip: 'i18n:COMPONENT.editbox.placeholder_font_color',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.placeholder_font_color',
             default: cc.Color.GRAY,
             notify: function() {
                 this._sgNode.placeholderFontColor = this.placeholderFontColor;
@@ -349,7 +349,7 @@ var EditBox = cc.Class({
          * @property {Number} maxLength
          */
         maxLength: {
-            tooltip: 'i18n:COMPONENT.editbox.max_length',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.max_length',
             default: 20,
             notify: function() {
                 this._sgNode.maxLength = this.maxLength;
@@ -363,7 +363,7 @@ var EditBox = cc.Class({
          * @property {Boolean} stayOnTop
          */
         stayOnTop: {
-            tooltip: 'i18n:COMPONENT.editbox.stay_on_top',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.stay_on_top',
             default: false,
             notify: function () {
                 if(!CC_JSB) {
@@ -382,7 +382,7 @@ var EditBox = cc.Class({
          * @property {Number} tabIndex
          */
         tabIndex: {
-            tooltip: 'i18n:COMPONENT.editbox.tab_index',
+            tooltip: CC_DEV && 'i18n:COMPONENT.editbox.tab_index',
             get: function () {
                 return this._tabIndex;
             },
@@ -395,7 +395,7 @@ var EditBox = cc.Class({
         /**
          * !#en The event handler to be called when EditBox began to edit text.
          * !#zh 开始编辑文本输入框触发的事件回调。
-         * @property {Component.EventHandler} editingDidBegin
+         * @property {Component.EventHandler} editingDidBegan
          */
         editingDidBegan: {
             default: [],
@@ -593,7 +593,7 @@ cc.EditBox = module.exports = EditBox;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event editing-did-began
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {EditBox} event.detail - The EditBox component.
  */
 
@@ -603,7 +603,7 @@ cc.EditBox = module.exports = EditBox;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event editing-did-ended
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {EditBox} event.detail - The EditBox component.
  */
 
@@ -613,7 +613,7 @@ cc.EditBox = module.exports = EditBox;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event text-changed
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {EditBox} event.detail - The EditBox component.
  */
 
@@ -623,6 +623,20 @@ cc.EditBox = module.exports = EditBox;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event editing-return
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {EditBox} event.detail - The EditBox component.
+ */
+
+/**
+ * !#en if you don't need the EditBox and it isn't in any running Scene, you should
+ * call the destroy method on this component or the associated node explicitly.
+ * Otherwise, the created DOM element won't be removed from web page.
+ * !#zh
+ * 如果你不再使用 EditBox，并且组件未添加到场景中，那么你必须手动对组件或所在节点调用 destroy。
+ * 这样才能移除网页上的 DOM 节点，避免 Web 平台内存泄露。
+ * @example
+ * editbox.node.parent = null;  // or  editbox.node.removeFromParent(false);
+ * // when you don't need editbox anymore
+ * editbox.node.destroy();
+ * @method destroy
  */

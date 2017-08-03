@@ -39,8 +39,44 @@ function MutableForwardIterator (array) {
 
 var proto = MutableForwardIterator.prototype;
 
-proto.removeAt = function (i) {
-    this.array.splice(i, 1);
+proto.remove = function (value) {
+    var index = this.array.indexOf(value);
+    if (index >= 0) {
+        this.removeAt(index);
+    }
+};
+proto.removeAt = function (i, count) {
+    var current = this.i;
+    if (typeof count === 'undefined') {
+        this.array.splice(i, 1);
+        if (i <= current) {
+            this.i = current - 1;
+        }
+    }
+    else {
+        this.array.splice(i, count);
+        if (i > current) {
+            return;
+        }
+        if (i + count - 1 > current) {
+            this.i = i - 1;
+        }
+        else {
+            this.i = current - count;
+        }
+    }
+};
+proto.fastRemove = function (value) {
+    var index = this.array.indexOf(value);
+    if (index >= 0) {
+        this.fastRemoveAt(index);
+    }
+};
+proto.fastRemoveAt = function (i) {
+    var array = this.array;
+    array[i] = array[array.length - 1];
+    --array.length;
+
     if (i <= this.i) {
         --this.i;
     }

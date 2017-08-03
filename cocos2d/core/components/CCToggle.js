@@ -32,7 +32,7 @@
  */
 var Toggle = cc.Class({
     name: 'cc.Toggle',
-    extends: require('./CCButton.js'),
+    extends: require('./CCButton'),
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/Toggle',
         help: 'i18n:COMPONENT.help_url.toggle',
@@ -48,7 +48,7 @@ var Toggle = cc.Class({
          */
         isChecked: {
             default: true,
-            tooltip: 'i18n:COMPONENT.toggle.isChecked',
+            tooltip: CC_DEV && 'i18n:COMPONENT.toggle.isChecked',
             notify: function() {
                 this._updateCheckMark();
             }
@@ -63,7 +63,7 @@ var Toggle = cc.Class({
          */
         toggleGroup: {
             default: null,
-            tooltip: 'i18n:COMPONENT.toggle.toggleGroup',
+            tooltip: CC_DEV && 'i18n:COMPONENT.toggle.toggleGroup',
             type: cc.ToggleGroup
         },
 
@@ -75,7 +75,7 @@ var Toggle = cc.Class({
         checkMark: {
             default: null,
             type: cc.Sprite,
-            tooltip: 'i18n:COMPONENT.toggle.checkMark'
+            tooltip: CC_DEV && 'i18n:COMPONENT.toggle.checkMark'
         },
 
         /**
@@ -108,7 +108,7 @@ var Toggle = cc.Class({
         if(!CC_EDITOR) {
             this._registerToggleEvent();
         }
-        if(this.toggleGroup) {
+        if(this.toggleGroup && this.toggleGroup.enabled) {
             this.toggleGroup.addToggle(this);
         }
     },
@@ -118,14 +118,14 @@ var Toggle = cc.Class({
         if(!CC_EDITOR) {
             this._unregisterToggleEvent();
         }
-        if(this.toggleGroup) {
+        if(this.toggleGroup && this.toggleGroup.enabled) {
             this.toggleGroup.removeToggle(this);
         }
     },
 
     _updateCheckMark: function () {
         if(this.checkMark) {
-            this.checkMark.enabled = !!this.isChecked;
+            this.checkMark.node.active = !!this.isChecked;
         }
     },
 
@@ -151,7 +151,7 @@ var Toggle = cc.Class({
     },
 
     toggle: function (event) {
-        if(this.toggleGroup && this.isChecked) {
+        if(this.toggleGroup && this.toggleGroup.enabled && this.isChecked) {
             if(!this.toggleGroup.allowSwitchOff) {
                 return;
             }
@@ -160,11 +160,12 @@ var Toggle = cc.Class({
 
         this._updateCheckMark();
 
-        this._emitToggleEvents(event);
 
-        if(this.toggleGroup) {
+        if(this.toggleGroup && this.toggleGroup.enabled) {
             this.toggleGroup.updateToggles(this);
         }
+
+        this._emitToggleEvents(event);
     },
 
     _emitToggleEvents: function () {
@@ -180,18 +181,19 @@ var Toggle = cc.Class({
      * @method check
      */
     check: function () {
-        if(this.toggleGroup && this.isChecked) {
+        if(this.toggleGroup && this.toggleGroup.enabled && this.isChecked) {
             if(!this.toggleGroup.allowSwitchOff) {
                 return;
             }
         }
 
         this.isChecked = true;
-        this.node.emit('toggle', this);
 
-        if(this.toggleGroup) {
+        if(this.toggleGroup && this.toggleGroup.enabled) {
             this.toggleGroup.updateToggles(this);
         }
+
+        this._emitToggleEvents();
     },
 
     /**
@@ -200,7 +202,7 @@ var Toggle = cc.Class({
      * @method uncheck
      */
     uncheck: function () {
-        if(this.toggleGroup && this.isChecked) {
+        if(this.toggleGroup && this.toggleGroup.enabled && this.isChecked) {
             if(!this.toggleGroup.allowSwitchOff) {
                 return;
             }
@@ -208,7 +210,7 @@ var Toggle = cc.Class({
 
         this.isChecked = false;
 
-        this.node.emit('toggle', this);
+        this._emitToggleEvents();
     }
 
 
@@ -222,6 +224,6 @@ cc.Toggle = module.exports = Toggle;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event toggle
- * @param {Event} event
+ * @param {Event.EventCustom} event
  * @param {Toggle} event.detail - The Toggle component.
  */

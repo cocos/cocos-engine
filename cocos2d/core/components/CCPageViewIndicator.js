@@ -73,7 +73,7 @@ var PageViewIndicator = cc.Class({
         spriteFrame: {
             default: null,
             type: cc.SpriteFrame,
-            tooltip: 'i18n:COMPONENT.pageview_indicator.spriteFrame'
+            tooltip: CC_DEV && 'i18n:COMPONENT.pageview_indicator.spriteFrame'
         },
 
         /**
@@ -84,7 +84,7 @@ var PageViewIndicator = cc.Class({
         direction: {
             default: Direction.HORIZONTAL,
             type: Direction,
-            tooltip: 'i18n:COMPONENT.pageview_indicator.direction'
+            tooltip: CC_DEV && 'i18n:COMPONENT.pageview_indicator.direction'
         },
 
         /**
@@ -94,7 +94,7 @@ var PageViewIndicator = cc.Class({
          */
         cellSize: {
             default: cc.size(20, 20),
-            tooltip: 'i18n:COMPONENT.layout.cell_size'
+            tooltip: CC_DEV && 'i18n:COMPONENT.pageview_indicator.cell_size'
         },
 
         /**
@@ -104,7 +104,7 @@ var PageViewIndicator = cc.Class({
          */
         spacing: {
             default: 0,
-            tooltip: 'i18n:COMPONENT.pageview_indicator.spacing'
+            tooltip: CC_DEV && 'i18n:COMPONENT.pageview_indicator.spacing'
         }
     },
 

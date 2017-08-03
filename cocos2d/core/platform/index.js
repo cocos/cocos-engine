@@ -25,11 +25,14 @@
 
 require('./js');
 require('./CCClass');
+require('./CCClassDecorator');
+require('./CCEnum');
 require('./CCObject');
 require('./callbacks-invoker');
 require('./url');
 require('./deserialize');
 require('./instantiate');
+require('./instantiate-jit');
 require('./requiring-frame');
 require('./CCSys');
 require('./CCMacro');

@@ -37,7 +37,7 @@ var Collider = cc.Class({
         editing: {
             default: false,
             serializable: false,
-            tooltip: 'i18n:COMPONENT.collider.editing'
+            tooltip: CC_DEV && 'i18n:COMPONENT.collider.editing'
         },
 
         /**
@@ -48,6 +48,7 @@ var Collider = cc.Class({
          * @default 0
          */
         tag: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.tag',            
             default: 0,
             range: [0, 10e6],
             type: cc.Integer

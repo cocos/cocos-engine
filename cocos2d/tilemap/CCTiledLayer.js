@@ -22,7 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
+require('./CCSGTMXLayer');
+require('./CCTMXLayerCanvasRenderCmd');
+require('./CCTMXLayerWebGLRenderCmd');
 /**
  * !#en Render the TMX layer.
  * !#zh 渲染 TMX layer。
@@ -33,7 +35,7 @@ var TiledLayer = cc.Class({
     name: 'cc.TiledLayer',
 
     // Inherits from the abstract class directly,
-    // because TiledLayer not create or maintains the sgNode by itself. 
+    // because TiledLayer not create or maintains the sgNode by itself.
     extends: cc._SGComponent,
 
     onEnable: function() {

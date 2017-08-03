@@ -75,9 +75,15 @@ cc.js.mixin(cc.path, {
 
 // cc.Scheduler
 cc.Scheduler.prototype.schedule = function (callback, target, interval, repeat, delay, paused) {
-    repeat = isFinite(repeat) ? repeat : cc.macro.REPEAT_FOREVER;
-    delay =  delay || 0;
-    paused = !!paused;
+    if (delay === undefined || paused === undefined) {
+        paused = !!repeat;
+        repeat = cc.macro.REPEAT_FOREVER;
+    }
+    else {
+        paused = !!paused;
+        repeat = isFinite(repeat) ? repeat : cc.macro.REPEAT_FOREVER;
+    }
+    delay = delay || 0;
     this.scheduleCallbackForTarget(target, callback, interval, repeat, delay, paused);
 };
 cc.Scheduler.prototype.scheduleUpdate = cc.Scheduler.prototype.scheduleUpdateForTarget;
@@ -124,13 +130,14 @@ WindowTimeFun.prototype.fun = function () {
  @param {number} delay
  @return {number}
  */
-window.setTimeout = function (code, delay) {
+window.setTimeout = function (code, delay, ...args) {
     var target = new WindowTimeFun(code);
-    if (arguments.length > 2)
-        target._args = Array.prototype.slice.call(arguments, 2);
+    if (args.length > 0) {
+        target._args = args;
+    }
     var original = target.fun;
     target.fun = function () {
-        original.apply(this, arguments);
+        original.call(this);
         clearTimeout(target._intervalId);
     };
     cc.director.getScheduler()._schedule(target.fun, target, delay / 1000, 0, 0, false, target._intervalId+'');
@@ -144,11 +151,12 @@ window.setTimeout = function (code, delay) {
  @param {number} delay
  @return {number}
  */
-window.setInterval = function (code, delay) {
+window.setInterval = function (code, delay, ...args) {
     var target = new WindowTimeFun(code);
-    if (arguments.length > 2)
-        target._args = Array.prototype.slice.call(arguments, 2);
-    cc.director.getScheduler()._schedule(target.fun, target, delay / 1000, cc.REPEAT_FOREVER, 0, false, target._intervalId+'');
+    if (args.length > 0) {
+        target._args = args;
+    }
+    cc.director.getScheduler()._schedule(target.fun, target, delay / 1000, cc.macro.REPEAT_FOREVER, 0, false, target._intervalId+'');
     _windowTimeFunHash[target._intervalId] = target;
     return target._intervalId;
 };
@@ -169,15 +177,14 @@ window.clearTimeout = clearInterval;
 // SocketIO
 if (window.SocketIO) {
     window.io = window.SocketIO;
+    SocketIO.prototype._jsbEmit = SocketIO.prototype.emit;
+    SocketIO.prototype.emit = function (uri, delegate) {
+        if (typeof delegate === 'object') {
+            delegate = JSON.stringify(delegate);
+        }
+        this._jsbEmit(uri, delegate);
+    };
 }
-
-SocketIO.prototype._jsbEmit = SocketIO.prototype.emit;
-SocketIO.prototype.emit = function (uri, delegate) {
-    if (typeof delegate === 'object') {
-        delegate = JSON.stringify(delegate);
-    }
-    this._jsbEmit(uri, delegate);
-};
 
 cc.Node.prototype.setIgnoreAnchorPointForPosition = cc.Node.prototype.ignoreAnchorPointForPosition;
 
@@ -197,15 +204,9 @@ window._ccsg = {
     TMXObjectImage: cc.TMXObjetImage,
     TMXObjectShape: cc.TMXObjectShape,
     TMXLayer: cc.TMXLayer,
-    MotionStreak: cc.MotionStreak
+    MotionStreak: cc.MotionStreak,
+    CameraNode: cc.CameraNode
 };
-
-// __errorHandler
-window.__errorHandler = function (err) {
-};
-
-// rename cc.Class to cc._Class
-cc._Class = cc.Class;
 
 // fix cc.formatStr (#2630)
 cc.formatStr = cc.js.formatStr;
@@ -214,3 +215,21 @@ cc.formatStr = cc.js.formatStr;
 if (cc.Image && cc.Image.setPNGPremultipliedAlphaEnabled) {
     cc.Image.setPNGPremultipliedAlphaEnabled(false);
 }
+
+// __errorHandler
+window.__errorHandler = function (filename, lineno, message) {
+};
+
+// global cleanup. Dangerous!!! please do not invoke this function, it's used internally by the restart process
+window.__cleanup = function () {
+    // Destroy scene
+    cc.director.getScene().destroy();
+    cc.Object._deferredDestroy();
+    // Reset other js caches
+    cc.js._registeredClassIds = {};
+    cc.js._registeredClassNames = {};
+    // Cleanup loader
+    cc.loader.releaseAll();
+    // Cleanup textureCache
+    cc.textureCache.removeAllTextures();
+};

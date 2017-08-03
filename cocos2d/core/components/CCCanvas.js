@@ -59,6 +59,10 @@ var Canvas = cc.Class({
         disallowMultiple: true,
     },
 
+    resetInEditor: CC_EDITOR && function () {
+        _Scene._applyCanvasPreferences(this);
+    },
+
     statics: {
         /**
          * !#en Current active canvas, the scene should only have one active canvas at the same time.
@@ -87,7 +91,7 @@ var Canvas = cc.Class({
                 this._designResolution.height = value.height;
                 this.applySettings();
             },
-            tooltip: 'i18n:COMPONENT.canvas.design_resolution'
+            tooltip: CC_DEV && 'i18n:COMPONENT.canvas.design_resolution'
         },
 
         _fitWidth: false,
@@ -109,7 +113,7 @@ var Canvas = cc.Class({
                     this.applySettings();
                 }
             },
-            tooltip: 'i18n:COMPONENT.canvas.fit_height'
+            tooltip: CC_DEV && 'i18n:COMPONENT.canvas.fit_height'
         },
 
         /**
@@ -128,7 +132,7 @@ var Canvas = cc.Class({
                     this.applySettings();
                 }
             },
-            tooltip: 'i18n:COMPONENT.canvas.fit_width'
+            tooltip: CC_DEV && 'i18n:COMPONENT.canvas.fit_width'
         }
     },
 
@@ -150,12 +154,11 @@ var Canvas = cc.Class({
     __preload: function () {
         if (CC_DEV) {
             var Flags = cc.Object.Flags;
-            this._objFlags &= Flags.PersistentMask; // for 1.0 project
             this._objFlags |= (Flags.IsPositionLocked | Flags.IsAnchorLocked | Flags.IsSizeLocked);
         }
 
         if (Canvas.instance) {
-            return cc.error("Can't init canvas '%s' because it conflicts with the existing '%s', the scene should only have one active canvas at the same time",
+            return cc.errorID(6700,
                 this.node.name, Canvas.instance.node.name);
         }
         Canvas.instance = this;
@@ -166,11 +169,10 @@ var Canvas = cc.Class({
         else if (CC_DEV) {
             var renderer = this.node.getComponent(cc._RendererUnderSG);
             if (renderer) {
-                cc.error('Should not add Canvas to a node which already contains a renderer component (%s).',
-                    cc.js.getClassName(renderer));
+                cc.errorID(6701, cc.js.getClassName(renderer));
             }
             else {
-                cc.error('Should not add Canvas to a node which size is already used by its other component.');
+                cc.errorID(6702);
             }
         }
 

@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 var JS = cc.js;
+var isBuiltinClassId = require('../utils/misc').isBuiltinClassId;
 
 /*
  * A temp fallback to contain the original serialized data which can not be loaded.
@@ -53,8 +54,8 @@ var MissingScript = cc.Class({
         //_scriptUuid: {
         //    get: function () {
         //        var id = this._$erialized.__type__;
-        //        if (Editor.UuidUtils.isUuid(id)) {
-        //            return Editor.UuidUtils.decompressUuid(id);
+        //        if (Editor.Utils.UuidUtils.isUuid(id)) {
+        //            return Editor.Utils.UuidUtils.decompressUuid(id);
         //        }
         //        return '';
         //    },
@@ -63,8 +64,8 @@ var MissingScript = cc.Class({
         //            cc.error('Scripts not yet compiled, please fix script errors and compile first.');
         //            return;
         //        }
-        //        if (value && Editor.UuidUtils.isUuid(value._uuid)) {
-        //            var classId = Editor.UuidUtils.compressUuid(value);
+        //        if (value && Editor.Utils.UuidUtils.isUuid(value._uuid)) {
+        //            var classId = Editor.Utils.UuidUtils.compressUuid(value);
         //            if (cc.js._getClassById(classId)) {
         //                this._$erialized.__type__ = classId;
         //                Editor.Ipc.sendToWins('reload:window-scripts', sandbox.compiled);
@@ -104,18 +105,22 @@ var MissingScript = cc.Class({
             }
             if (id) {
                 cc.deserialize.reportMissingClass(id);
-                if (data.node && (CC_EDITOR && Editor.UuidUtils.isUuid(id))) {
-                    return MissingScript;
-                }
-                else {
-                    return MissingClass;
-                }
+                return MissingScript.getMissingWrapper(id, data);
             }
             return null;
+        },
+        getMissingWrapper: function (id, data) {
+            if (data.node && (/^[0-9a-zA-Z+/]{23}$/.test(id) || isBuiltinClassId(id))) {
+                // is component
+                return MissingScript;
+            }
+            else {
+                return MissingClass;
+            }
         }
     },
     onLoad: function () {
-        cc.warn('Script attached to "%s" is missing or invalid.', this.node.name);
+        cc.warnID(4600, this.node.name);
     }
 });
 

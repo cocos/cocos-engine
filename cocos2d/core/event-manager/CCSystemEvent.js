@@ -69,6 +69,7 @@ var EventType = cc.Enum({
 
 var keyboardListener = null;
 var accelerationListener = null;
+var keyboardListenerAddFrame = 0;
 var SystemEvent = cc.Class({
     name: 'SystemEvent',
     extends: EventTarget,
@@ -104,7 +105,11 @@ var SystemEvent = cc.Class({
                 });
             }
             if (!cc.eventManager.hasEventListener(cc._EventListenerKeyboard.LISTENER_ID)) {
-                cc.eventManager.addListener(keyboardListener, 1);
+                var currentFrame = cc.director.getTotalFrames();
+                if (currentFrame !== keyboardListenerAddFrame) {
+                    cc.eventManager.addListener(keyboardListener, 1);
+                    keyboardListenerAddFrame = currentFrame;
+                }
             }
         }
 
@@ -113,15 +118,10 @@ var SystemEvent = cc.Class({
             if (!accelerationListener) {
                 accelerationListener = cc.EventListener.create({
                     event: cc.EventListener.ACCELERATION,
-                    callback: function (accelEvent, event) {
+                    callback: function (acc, event) {
                         event.type = EventType.DEVICEMOTION;
-                        // fix android acc values are opposite
-                        if (!CC_JSB && cc.sys.os === cc.sys.OS_ANDROID &&
-                            cc.sys.browserType !== cc.sys.BROWSER_TYPE_MOBILE_QQ) {
-                            event.acc = cc.p(-accelEvent.x, -accelEvent.y);
-                        }
-                        else {
-                            event.acc = cc.p(accelEvent.x, accelEvent.y);
+                        if (CC_JSB) {
+                            event.acc = acc;
                         }
                         cc.systemEvent.dispatchEvent(event);
                     }
@@ -156,5 +156,15 @@ var SystemEvent = cc.Class({
 
 cc.SystemEvent = module.exports = SystemEvent;
 if (!CC_EDITOR) {
+/** 
+ * @module cc
+ */
+
+/**
+ * !#en The System event singleton for global usage
+ * !#zh 系统事件单例，方便全局使用
+ * @property systemEvent
+ * @type {SystemEvent}
+ */    
     cc.systemEvent = new cc.SystemEvent();
 }

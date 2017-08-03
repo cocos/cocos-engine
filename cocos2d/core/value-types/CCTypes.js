@@ -31,12 +31,11 @@
  *
  */
 /**
- * @method Acceleration
+ * @method constructor
  * @param {Number} x
  * @param {Number} y
  * @param {Number} z
  * @param {Number} timestamp
- * @return {Acceleration}
  */
 cc.Acceleration = function (x, y, z, timestamp) {
     this.x = x || 0;
@@ -52,10 +51,9 @@ cc.Acceleration = function (x, y, z, timestamp) {
  * @Constructor
  */
 /**
- * @method BlendFunc
+ * @method constructor
  * @param {Number} src1 source blend function
  * @param {Number} dst1 destination blend function
- * @return {BlendFunc}
  */
 cc.BlendFunc = function (src1, dst1) {
     this.src = src1;

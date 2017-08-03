@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
+require('./CCSGTMXObjectGroup');
 /**
  * !#en Renders the TMX object group.
  * !#zh 渲染 tmx object group。

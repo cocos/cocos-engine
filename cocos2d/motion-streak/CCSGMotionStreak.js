@@ -340,7 +340,7 @@ _ccsg.MotionStreak = _ccsg.Node.extend({
      * @returns {number}
      */
     getOpacity:function () {
-        cc.log("cc.MotionStreak.getOpacity has not been supported.");
+        cc.logID(5901);
         return 0;
     },
 
@@ -350,7 +350,7 @@ _ccsg.MotionStreak = _ccsg.Node.extend({
      * @param opacity
      */
     setOpacity:function (opacity) {
-        cc.log("cc.MotionStreak.setOpacity has not been supported.");
+        cc.logID(5902);
     },
 
     /**

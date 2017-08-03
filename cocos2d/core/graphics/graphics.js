@@ -317,9 +317,10 @@ var Graphics = cc.Class({
      * !#en Erasing any previously drawn content.
      * !#zh 擦除之前绘制的所有内容的方法。
      * @method clear
+     * @param {Boolean} [clean] Whether to clean the graphics inner cache.
      */
-    clear: function () {
-        this._sgNode.clear();
+    clear: function (clean) {
+        this._sgNode.clear(!!clean);
     },
 
     /**
@@ -343,7 +344,7 @@ var Graphics = cc.Class({
     /**
      * !#en Fills the current or given path with the current fill style.
      * !#zh 根据当前的画线样式，填充当前或已经存在的路径。
-     * @method stroke
+     * @method fill
      */
     fill: function () {
         this._sgNode.fill();

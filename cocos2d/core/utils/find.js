@@ -33,29 +33,29 @@
  * @static
  * @param {String} path
  * @param {Node} [referenceNode]
- * @return {Node} the node or null if not found
+ * @return {Node|null} the node or null if not found
  */
 cc.find = module.exports = function (path, referenceNode) {
     if (path == null) {
-        cc.error('Argument must be non-nil');
+        cc.errorID(5600);
         return null;
     }
     if (!referenceNode) {
         var scene = cc.director.getScene();
         if (!scene) {
             if (CC_DEV) {
-                cc.warn('Can not get current scene.');
+                cc.warnID(5601);
             }
             return null;
         }
         else if (CC_DEV && !scene.isValid) {
-            cc.warn('Scene is destroyed');
+            cc.warnID(5602);
             return null;
         }
         referenceNode = scene;
     }
     else if (CC_DEV && !referenceNode.isValid) {
-        cc.warn('reference node is destroyed');
+        cc.warnID(5603);
         return null;
     }
 

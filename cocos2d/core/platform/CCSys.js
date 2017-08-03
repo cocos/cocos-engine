@@ -550,8 +550,11 @@ else {
         iOS = true;
         osVersion = uaResult[2] || '';
         osMainVersion = parseInt(osVersion) || 0;
-    } else if (/(iPhone|iPad|iPod)/.exec(nav.platform)) {
+    } 
+    else if (/(iPhone|iPad|iPod)/.exec(nav.platform)) {
         iOS = true;
+        osVersion = '';
+        osMainVersion = 0;
     }
 
     var osName = sys.OS_UNKNOWN;
@@ -560,7 +563,7 @@ else {
     else if (nav.appVersion.indexOf("Mac") !== -1) osName = sys.OS_OSX;
     else if (nav.appVersion.indexOf("X11") !== -1 && nav.appVersion.indexOf("Linux") === -1) osName = sys.OS_UNIX;
     else if (isAndroid) osName = sys.OS_ANDROID;
-    else if (nav.appVersion.indexOf("Linux") !== -1) osName = sys.OS_LINUX;
+    else if (nav.appVersion.indexOf("Linux") !== -1 || ua.indexOf("ubuntu") !== -1) osName = sys.OS_LINUX;
 
     /**
      * Indicate the running os name
@@ -585,15 +588,17 @@ else {
     sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
     /* Determine the browser type */
     (function(){
-        var typeReg1 = /mqqbrowser|sogou|qzone|liebao|micromessenger|ucbrowser|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|trident|miuibrowser/i;
-        var typeReg2 = /qqbrowser|chrome|safari|firefox|opr|oupeng|opera/i;
+        var typeReg1 = /mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|ucbrowser|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
+        var typeReg2 = /qqbrowser|chrome|safari|firefox|trident|opera|opr|oupeng/i;
         var browserTypes = typeReg1.exec(ua);
         if(!browserTypes) browserTypes = typeReg2.exec(ua);
-        var browserType = browserTypes ? browserTypes[0] : sys.BROWSER_TYPE_UNKNOWN;
+        var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
         if (browserType === 'micromessenger')
             browserType = sys.BROWSER_TYPE_WECHAT;
-        else if (browserType === "safari" && (ua.match(/android.*applewebkit/)))
+        else if (browserType === "safari" && isAndroid)
             browserType = sys.BROWSER_TYPE_ANDROID;
+        else if (browserType === "qq" && ua.match(/android.*applewebkit/i))
+            brwoserType = sys.BROWSER_TYPE_ANDROID;
         else if (browserType === "trident")
             browserType = sys.BROWSER_TYPE_IE;
         else if (browserType === "360 aphone")
@@ -613,8 +618,8 @@ else {
     sys.browserVersion = "";
     /* Determine the browser version number */
     (function(){
-        var versionReg1 = /(micromessenger|qq|mx|maxthon|baidu|sogou)(mobile)?(browser)?\/?([\d.]+)/i;
-        var versionReg2 = /(msie |rv:|firefox|chrome|ucbrowser|oupeng|opera|opr|safari|miui)(mobile)?(browser)?\/?([\d.]+)/i;
+        var versionReg1 = /(mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|uc|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui)(mobile)?(browser)?\/?([\d.]+)/i;
+        var versionReg2 = /(qqbrowser|chrome|safari|firefox|trident|opera|opr|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
         var tmp = ua.match(versionReg1);
         if(!tmp) tmp = ua.match(versionReg2);
         sys.browserVersion = tmp ? tmp[4] : "";
@@ -641,30 +646,31 @@ else {
     var _tmpCanvas1 = document.createElement("canvas"),
         _tmpCanvas2 = document.createElement("canvas");
 
-    cc.create3DContext = function (canvas, opt_attribs) {
-        var names = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
-        var context = null;
-        for (var ii = 0; ii < names.length; ++ii) {
+    cc.create3DContext = function (canvas, opt_attribs, opt_contextType) {
+        if (opt_contextType) {
             try {
-                context = canvas.getContext(names[ii], opt_attribs);
+                return canvas.getContext(opt_contextType, opt_attribs);
             } catch (e) {
-            }
-            if (context) {
-                break;
+                return null;
             }
         }
-        return context;
+        else {
+            return cc.create3DContext(canvas, opt_attribs, "webgl") || 
+                   cc.create3DContext(canvas, opt_attribs, "experimental-webgl") ||
+                   cc.create3DContext(canvas, opt_attribs, "webkit-3d") ||
+                   cc.create3DContext(canvas, opt_attribs, "moz-webgl") ||
+                   null;
+        }
     };
 
     //Whether or not the Canvas BlendModes are supported.
     sys._supportCanvasNewBlendModes = (function(){
-        var data1, data2;
         var canvas = _tmpCanvas1;
         canvas.width = 1;
         canvas.height = 1;
         var context = canvas.getContext('2d');
         context.fillStyle = '#000';
-        context.fillRect(0,0,1,1);
+        context.fillRect(0, 0, 1, 1);
         context.globalCompositeOperation = 'multiply';
 
         var canvas2 = _tmpCanvas2;
@@ -672,30 +678,10 @@ else {
         canvas2.height = 1;
         var context2 = canvas2.getContext('2d');
         context2.fillStyle = '#fff';
-        context2.fillRect(0,0,1,1);
+        context2.fillRect(0, 0, 1, 1);
         context.drawImage(canvas2, 0, 0, 1, 1);
 
-        data1 = context.getImageData(0,0,1,1).data[0];
-
-        canvas = _tmpCanvas1;
-        canvas.width = 1;
-        canvas.height = 1;
-        var context = canvas.getContext('2d');
-        context.fillStyle = '#fff';
-        context.fillRect(0,0,1,1);
-        context.globalCompositeOperation = 'destination-atop';
-
-        canvas2 = _tmpCanvas2;
-        canvas2.width = 1;
-        canvas2.height = 1;
-        var context2 = canvas2.getContext('2d');
-        context2.fillStyle = '#000';
-        context2.fillRect(0,0,1,1);
-        context.drawImage(canvas2, 0, 0, 1, 1);
-
-        data2 = context.getImageData(0,0,1,1).data[0];
-
-        return (data1 === 0) && (data2 === 0);
+        return context.getImageData(0, 0, 1, 1).data[0] === 0;
     })();
 
     // Adjust mobile css settings
@@ -719,7 +705,7 @@ else {
         localStorage = null;
     } catch (e) {
         var warn = function () {
-            cc.warn("Warning: localStorage isn't enabled. Please confirm browser cookie or privacy option");
+            cc.warnID(5200);
         };
         sys.localStorage = {
             getItem : warn,
@@ -733,58 +719,53 @@ else {
     var _supportCanvas = !!_tmpCanvas1.getContext("2d");
     var _supportWebGL = false;
     if (win.WebGLRenderingContext) {
-        var tmpCanvas = document.createElement("CANVAS");
-        try{
-            var context = cc.create3DContext(tmpCanvas, {'stencil': true});
-            if (context && context.getShaderPrecisionFormat) {
-                _supportWebGL = true;
-            }
-
-            if (_supportWebGL && sys.os === sys.OS_IOS && sys.osMainVersion === 9) {
-                // Not activating WebGL in iOS 9 UIWebView because it may crash when entering background
-                if (!window.indexedDB) {
-                    _supportWebGL = false;
-                }
-            }
-
-            if (_supportWebGL && sys.os === sys.OS_ANDROID) {
-                var browserVer = parseFloat(sys.browserVersion);
-                switch (sys.browserType) {
-                case sys.BROWSER_TYPE_MOBILE_QQ:
-                case sys.BROWSER_TYPE_BAIDU:
-                case sys.BROWSER_TYPE_BAIDU_APP:
-                    // QQ & Baidu Brwoser 6.2+ (using blink kernel)
-                    if (browserVer >= 6.2) {
-                        _supportWebGL = true;
-                    }
-                    else {
-                        _supportWebGL = false;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_ANDROID:
-                    // Android 5+ default browser
-                    if (sys.osMainVersion && sys.osMainVersion >= 5) {
-                        _supportWebGL = true;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_CHROME:
-                    // Chrome on android supports WebGL from v. 30
-                    if(browserVer >= 30.0) {
-                      _supportWebGL = true;
-                    } else {
-                      _supportWebGL = false;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_UNKNOWN:
-                case sys.BROWSER_TYPE_360:
-                case sys.BROWSER_TYPE_MIUI:
-                case sys.BROWSER_TYPE_UC:
-                    _supportWebGL = false;
-                }
+        if (cc.create3DContext(document.createElement("CANVAS"))) {
+            _supportWebGL = true;
+        }
+        if (_supportWebGL && sys.os === sys.OS_IOS && sys.osMainVersion === 9) {
+            // Not activating WebGL in iOS 9 UIWebView because it may crash when entering background
+            if (!win.indexedDB) {
+                _supportWebGL = false;
             }
         }
-        catch (e) {}
-        tmpCanvas = null;
+        if (_supportWebGL && sys.os === sys.OS_ANDROID) {
+            var browserVer = parseFloat(sys.browserVersion);
+            switch (sys.browserType) {
+            case sys.BROWSER_TYPE_MOBILE_QQ:
+            case sys.BROWSER_TYPE_BAIDU:
+            case sys.BROWSER_TYPE_BAIDU_APP:
+                // QQ & Baidu Brwoser 6.2+ (using blink kernel)
+                if (browserVer >= 6.2) {
+                    _supportWebGL = true;
+                }
+                else {
+                    _supportWebGL = false;
+                }
+                break;
+            case sys.BROWSER_TYPE_ANDROID:
+                // Android 5+ default browser
+                if (sys.osMainVersion && sys.osMainVersion >= 5) {
+                    _supportWebGL = true;
+                }
+                break;
+            case sys.BROWSER_TYPE_CHROME:
+                // Chrome on android supports WebGL from v. 30
+                if (browserVer >= 30.0) {
+                    _supportWebGL = true;
+                } else {
+                    _supportWebGL = false;
+                }
+                break;
+            case sys.BROWSER_TYPE_UC:
+                if (browserVer > 11.0) {
+                    _supportWebGL = true;
+                } else {
+                    _supportWebGL = false;
+                }
+            case sys.BROWSER_TYPE_360:
+                _supportWebGL = false;
+            }
+        }
     }
 
     /**
@@ -870,7 +851,7 @@ else {
         }
     } catch(error) {
         __audioSupport.WEB_AUDIO = false;
-        cc.log("browser don't support web audio");
+        cc.logID(5201);
     }
 
     var formatSupport = [];

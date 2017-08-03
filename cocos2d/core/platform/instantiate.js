@@ -24,49 +24,66 @@
  ****************************************************************************/
 
 var CCObject = require('./CCObject');
+var Destroyed = CCObject.Flags.Destroyed;
 var PersistentMask = CCObject.Flags.PersistentMask;
 var Attr = require('./attribute');
 var _isDomNode = require('./utils').isDomNode;
 
 /**
- * !#en Clones the object original and returns the clone.
+ * !#en Clones the object `original` and returns the clone, or instantiate a node from the Prefab.
+ * !#zh 克隆指定的任意类型的对象，或者从 Prefab 实例化出新节点。
  *
- * See [Clone exists Entity](/en/scripting/create-destroy-entities/#instantiate)
- *
- * !#zh 复制给定的对象
- *
- * 详细用法可参考[复制已有Entity](/zh/scripting/create-destroy-entities/#instantiate)
- *
- * Instantiate 时，function 和 dom 等非可序列化对象会直接保留原有引用，Asset 会直接进行浅拷贝，可序列化类型会进行深拷贝。
- * <del>对于 Entity / Component 等 Scene Object，如果对方也会被一起 Instantiate，则重定向到新的引用，否则保留为原来的引用。</del>
+ * （Instantiate 时，function 和 dom 等非可序列化对象会直接保留原有引用，Asset 会直接进行浅拷贝，可序列化类型会进行深拷贝。）
  *
  * @method instantiate
- * @param {Object} original - An existing object that you want to make a copy of.
- * @return {Object} the newly instantiated object
+ * @param {Prefab|Node|Object} original - An existing object that you want to make a copy of.
+ * @return {Node|Object} the newly instantiated object
+ * @typescript
+ * instantiate(original: Prefab): Node
+ * instantiate<T>(original: T): T
+ * @example
+ * // instantiate node from prefab
+ * var scene = cc.director.getScene();
+ * var node = cc.instantiate(prefabAsset);
+ * node.parent = scene;
+ * // clone node
+ * var scene = cc.director.getScene();
+ * var node = cc.instantiate(targetNode);
+ * node.parent = scene;
  */
-function instantiate (original) {
-    if (typeof original !== 'object' || Array.isArray(original)) {
-        if (CC_DEV) {
-            cc.error('The thing you want to instantiate must be an object');
+function instantiate (original, internal_force) {
+    if (!internal_force) {
+        if (typeof original !== 'object' || Array.isArray(original)) {
+            if (CC_DEV) {
+                cc.errorID(6900);
+            }
+            return null;
         }
-        return null;
-    }
-    if (!original) {
-        if (CC_DEV) {
-            cc.error('The thing you want to instantiate is nil');
+        if (!original) {
+            if (CC_DEV) {
+                cc.errorID(6901);
+            }
+            return null;
         }
-        return null;
-    }
-    if (original instanceof CCObject && !original.isValid) {
-        if (CC_DEV) {
-            cc.error('The thing you want to instantiate is destroyed');
+        if (!cc.isValid(original)) {
+            if (CC_DEV) {
+                cc.errorID(6902);
+            }
+            return null;
         }
-        return null;
+        if (CC_DEV && original instanceof cc.Component) {
+            cc.warn('Should not instantiate a single cc.Component directly, you must instantiate the entire node.');
+        }
     }
 
     var clone;
     if (original instanceof CCObject) {
-        // invoke _instantiate method if supplied
+        // Invoke _instantiate method if supplied.
+        // The _instantiate callback will be called only on the root object, its associated object will not be called.
+        // @callback associated
+        // @param {Object} [instantiated] - If supplied, _instantiate just need to initialize the instantiated object,
+        //                                  no need to create new object by itself.
+        // @returns {Object} - the instantiated object
         if (original._instantiate) {
             cc.game._isCloning = true;
             clone = original._instantiate();
@@ -76,7 +93,7 @@ function instantiate (original) {
         else if (original instanceof cc.Asset) {
             // 不允许用通用方案实例化资源
             if (CC_DEV) {
-                cc.error('The instantiate method for given asset do not implemented');
+                cc.errorID(6903);
             }
             return null;
         }
@@ -88,18 +105,13 @@ function instantiate (original) {
     return clone;
 }
 
-/*
- * Reserved tags:
- * - _iN$t: the cloned instance
- */
-
-var objsToClearTmpVar = [];   // 用于重设临时变量
+var objsToClearTmpVar = [];   // used to reset _iN$t variable
 
 ///**
 // * Do instantiate object, the object to instantiate must be non-nil.
 // * 这是一个通用的 instantiate 方法，可能效率比较低。
 // * 之后可以给各种类型重写快速实例化的特殊实现，但应该在单元测试中将结果和这个方法的结果进行对比。
-// * 值得注意的是，这个方法不可重入，不支持 mixin。
+// * 值得注意的是，这个方法不可重入。
 // *
 // * @param {Object} obj - 该方法仅供内部使用，用户需负责保证参数合法。什么参数是合法的请参考 cc.instantiate 的实现。
 // * @param {Node} [parent] - 只有在该对象下的场景物体会被克隆。
@@ -108,23 +120,29 @@ var objsToClearTmpVar = [];   // 用于重设临时变量
 // */
 function doInstantiate (obj, parent) {
     if (Array.isArray(obj)) {
-        cc.error('Can not instantiate array');
+        if (CC_DEV) {
+            cc.errorID(6904);
+        }
         return null;
     }
     if (!CC_JSB && _isDomNode && _isDomNode(obj)) {
-        cc.error('Can not instantiate DOM element');
+        if (CC_DEV) {
+            cc.errorID(6905);
+        }
         return null;
     }
 
     var clone;
     if (obj._iN$t) {
         clone = obj._iN$t;
+        // enumerateObject will always push obj to objsToClearTmpVar
     }
     else {
         // User can specify an existing object by assigning the "_iN$t" property
         var klass = obj.constructor;
         clone = new klass();
     }
+
     enumerateObject(obj, clone, parent);
 
     for (var i = 0, len = objsToClearTmpVar.length; i < len; ++i) {
@@ -135,53 +153,56 @@ function doInstantiate (obj, parent) {
     return clone;
 }
 
+var SERIALIZABLE = Attr.DELIMETER + 'serializable';
 // @param {Object} obj - The object to instantiate, typeof must be 'object' and should not be an array.
-function enumerateObject (obj, clone, parent) {
-    var value, type, key;
-    var klass = obj.constructor;
-    obj._iN$t = clone;
-    objsToClearTmpVar.push(obj);
-    if (cc.Class._isCCClass(klass)) {
-        var DELIMETER = Attr.DELIMETER;
-        var props = klass.__props__;
-        var attrs = Attr.getClassAttrs(klass);
-        for (var p = 0; p < props.length; p++) {
-            key = props[p];
-            if (attrs[key + DELIMETER + 'serializable'] !== false) {
-                value = obj[key];
-                type = typeof value;
-                if (type === 'object') {
-                    clone[key] = value ? instantiateObj(value, parent, clone, key) : value;
-                }
-                else {
-                    clone[key] = (type !== 'function') ? value : null;
-                }
+
+function enumerateCCClass (klass, obj, clone, parent) {
+    var props = klass.__props__;
+    var attrs = Attr.getClassAttrs(klass);
+    for (var p = 0; p < props.length; p++) {
+        var key = props[p];
+        if (attrs[key + SERIALIZABLE] !== false) {
+            var value = obj[key];
+            if (typeof value === 'object' && value) {
+                clone[key] = value._iN$t || instantiateObj(value, parent);
+            }
+            else {
+                clone[key] = value;
             }
         }
-        if (CC_EDITOR && (clone instanceof cc._BaseNode || clone instanceof cc.Component)) {
-            clone._id = '';
-        }
+    }
+    if (CC_EDITOR && (obj instanceof cc._BaseNode || obj instanceof cc.Component)) {
+        clone._id = '';
+    }
+}
+
+function enumerateObject (obj, clone, parent) {
+    // 目前使用“_iN$t”这个特殊字段来存实例化后的对象，这样做主要是为了防止循环引用
+    // 注意，为了避免循环引用，所有新创建的实例，必须在赋值前被设为源对象的_iN$t
+    obj._iN$t = clone;
+    objsToClearTmpVar.push(obj);
+    var klass = obj.constructor;
+    if (cc.Class._isCCClass(klass)) {
+        enumerateCCClass(klass, obj, clone, parent);
     }
     else {
         // primitive javascript object
-        for (key in obj) {
-            if ( !obj.hasOwnProperty(key) ||
-                 // starts with "__" but not "__type__"
-                 (key.charCodeAt(0) === 95 && key.charCodeAt(1) === 95 && key !== '__type__')
-               ) {
+        for (var key in obj) {
+            if (!obj.hasOwnProperty(key) ||
+                (key.charCodeAt(0) === 95 && key.charCodeAt(1) === 95 &&   // starts with "__"
+                 key !== '__type__')
+            ) {
                 continue;
             }
-            value = obj[key];
-            if (value === clone) {
-                continue;   // value is obj._iN$t
-            }
-            // instantiate field
-            type = typeof value;
-            if (type === 'object') {
-                clone[key] = value ? instantiateObj(value, parent, clone, key) : value;
+            var value = obj[key];
+            if (typeof value === 'object' && value) {
+                if (value === clone) {
+                    continue;   // value is obj._iN$t
+                }
+                clone[key] = value._iN$t || instantiateObj(value, parent);
             }
             else {
-                clone[key] = (type !== 'function') ? value : null;
+                clone[key] = value;
             }
         }
     }
@@ -190,80 +211,71 @@ function enumerateObject (obj, clone, parent) {
     }
 }
 
-///**
-// * @return {Object} - the original non-nil object, typeof must be 'object'
-// */
-function instantiateObj (obj, parent, ownerObj, ownerKey) {
-    // 目前使用“_iN$t”这个特殊字段来存实例化后的对象，这样做主要是为了防止循环引用
-    // 注意，为了避免循环引用，所有新创建的实例，必须在赋值前被设为源对象的_iN$t
-    var clone = obj._iN$t;
-    if (clone) {
-        // has been instantiated
-        return clone;
+/*
+ * @param {Object|Array} obj - the original non-nil object, typeof must be 'object'
+ * @return {Object|Array} - the original non-nil object, typeof must be 'object'
+ */
+function instantiateObj (obj, parent) {
+    if (obj instanceof cc.ValueType) {
+        return obj.clone();
     }
-
-    if ( !cc.isValid(obj) ) {
-        return null;
-    }
-
     if (obj instanceof cc.Asset) {
         // 所有资源直接引用，不需要拷贝
         return obj;
     }
-    else if (Array.isArray(obj)) {
+    var clone;
+    if (Array.isArray(obj)) {
         var len = obj.length;
         clone = new Array(len);
         obj._iN$t = clone;
         for (var i = 0; i < len; ++i) {
             var value = obj[i];
-            // instantiate field
-            var type = typeof value;
-            if (type === 'object') {
-                clone[i] = value ? instantiateObj(value, parent, clone, '' + i) : value;
+            if (typeof value === 'object' && value) {
+                clone[i] = value._iN$t || instantiateObj(value, parent);
             }
             else {
-                clone[i] = (type !== 'function') ? value : null;
+                clone[i] = value;
             }
         }
         objsToClearTmpVar.push(obj);
         return clone;
     }
-    else if (obj instanceof cc.ValueType) {
-        return obj.clone();
+    else if (obj._objFlags & Destroyed) {
+        // the same as cc.isValid(obj)
+        return null;
     }
-    else {
-        var ctor = obj.constructor;
-        if (cc.Class._isCCClass(ctor)) {
-            if (parent) {
-                if (parent instanceof cc.Component) {
-                    if (obj instanceof cc._BaseNode || obj instanceof cc.Component) {
+
+    var ctor = obj.constructor;
+    if (cc.Class._isCCClass(ctor)) {
+        if (parent) {
+            if (parent instanceof cc.Component) {
+                if (obj instanceof cc._BaseNode || obj instanceof cc.Component) {
+                    return obj;
+                }
+            }
+            else if (parent instanceof cc._BaseNode) {
+                if (obj instanceof cc._BaseNode) {
+                    if (!obj.isChildOf(parent)) {
+                        // should not clone other nodes if not descendant
                         return obj;
                     }
                 }
-                else if (parent instanceof cc._BaseNode) {
-                    if (obj instanceof cc._BaseNode) {
-                        if (!obj.isChildOf(parent)) {
-                            // should not clone other nodes if not descendant
-                            return obj;
-                        }
-                    }
-                    else if (obj instanceof cc.Component) {
-                        if (!obj.node.isChildOf(parent)) {
-                            // should not clone other component if not descendant
-                            return obj;
-                        }
+                else if (obj instanceof cc.Component) {
+                    if (!obj.node.isChildOf(parent)) {
+                        // should not clone other component if not descendant
+                        return obj;
                     }
                 }
             }
         }
-        else if (ctor !== Object) {
-            // unknown type
-            return obj;
-        }
-        clone = new ctor();
-        enumerateObject(obj, clone, parent);
-        return clone;
     }
+    else if (ctor !== Object) {
+        // unknown type
+        return obj;
+    }
+    clone = new ctor();
+    enumerateObject(obj, clone, parent);
+    return clone;
 }
 
 instantiate._clone = doInstantiate;

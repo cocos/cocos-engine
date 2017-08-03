@@ -134,7 +134,7 @@ var tiffReader = /** @lends tiffReader# */{
                         // Denominator
                         fieldValues.push(this.getUint32(valueOffset + indexOffset + 4));
                     } else {
-                        cc.log("Can't handle this field type or size");
+                        cc.logID(8000);
                     }
                 } else {
                     fieldValues.push(this.getBytes(fieldTypeLength, valueOffset + indexOffset));
@@ -152,7 +152,7 @@ var tiffReader = /** @lends tiffReader# */{
 
     getBytes: function (numBytes, offset) {
         if (numBytes <= 0) {
-            cc.log("No bytes requested");
+            cc.logID(8001);
         } else if (numBytes <= 1) {
             return this.getUint8(offset);
         } else if (numBytes <= 2) {
@@ -162,7 +162,7 @@ var tiffReader = /** @lends tiffReader# */{
         } else if (numBytes <= 4) {
             return this.getUint32(offset);
         } else {
-            cc.log("Too many bytes requested");
+            cc.logID(8002);
         }
     },
 
@@ -296,7 +296,7 @@ var tiffReader = /** @lends tiffReader# */{
         if (fileDirectory['StripByteCounts']) {
             var stripByteCountValues = fileDirectory['StripByteCounts'].values;
         } else {
-            cc.log("Missing StripByteCounts!");
+            cc.logID(8003);
 
             // Infer StripByteCounts, if possible.
             if (numStripOffsetValues === 1) {

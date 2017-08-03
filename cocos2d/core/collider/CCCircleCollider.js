@@ -24,19 +24,11 @@
  ****************************************************************************/
 
 /**
- * !#en Circle Collider.
- * !#zh 圆形碰撞组件
- * @class CircleCollider
- * @extends Component
+ * !#en Defines a Circle Collider .
+ * !#zh 用来定义圆形碰撞体
+ * @class Collider.Circle
  */
-var CircleCollider = cc.Class({
-    name: 'cc.CircleCollider',
-    extends: require('./CCCollider'),
-
-    editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.collider/Circle Collider',
-    },
-
+cc.Collider.Circle = cc.Class({
     properties: {
         _offset: cc.v2(0, 0),
         _radius: 50,
@@ -64,6 +56,7 @@ var CircleCollider = cc.Class({
          * @type {Number}
          */
         radius: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.radius',
             get: function () {
                 return this._radius;
             },
@@ -71,7 +64,32 @@ var CircleCollider = cc.Class({
                 this._radius = value < 0 ? 0 : value;
             }
         }
+    },
+
+    resetInEditor: CC_EDITOR && function () {
+        var size = this.node.getContentSize();
+        var radius = Math.max(size.width, size.height);
+        if (radius !== 0) {
+            this.radius = radius;
+        }
     }
+});
+
+/**
+ * !#en Circle Collider.
+ * !#zh 圆形碰撞组件
+ * @class CircleCollider
+ * @extends Collider
+ * @uses Collider.Circle
+ */
+var CircleCollider = cc.Class({
+    name: 'cc.CircleCollider',
+    extends: cc.Collider,
+    mixins: [cc.Collider.Circle],
+
+    editor: CC_EDITOR && {
+        menu: 'i18n:MAIN_MENU.component.collider/Circle Collider'
+    },
 });
 
 cc.CircleCollider = module.exports = CircleCollider;

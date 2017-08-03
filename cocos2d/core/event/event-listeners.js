@@ -26,8 +26,6 @@
 var JS = cc.js;
 var CallbacksHandler = require('../platform/callbacks-invoker').CallbacksHandler;
 
-var REMOVE_PLACEHOLDER = CallbacksHandler.REMOVE_PLACEHOLDER;
-
 // Extends CallbacksHandler to handle and invoke event callbacks.
 function EventListeners () {
     CallbacksHandler.call(this);
@@ -36,60 +34,36 @@ JS.extend(EventListeners, CallbacksHandler);
 
 EventListeners.prototype.invoke = function (event, captureListeners) {
     var key = event.type,
-        list = this._callbackTable[key],
-        i, endIndex,
+        iterator = this._callbackTable[key],
+        i,
         callingFunc, target, hasTarget;
 
-    this._invoking[key] = true;
-
-    if (list) {
+    if (iterator) {
+        var list = iterator.array;
         if (list.length === 1) {
             callingFunc = list[0];
-            if (callingFunc !== REMOVE_PLACEHOLDER) {
-                callingFunc.call(event.currentTarget, event, captureListeners);
-            }
+            callingFunc.call(event.currentTarget, event, captureListeners);
         }
         else {
-            endIndex = list.length - 1;
-            if (key === cc.Director.EVENT_COMPONENT_UPDATE) {
-                var dt = event.detail;
-                for (i = 1; i <= endIndex; i += 2) {
-                    target = list[i];
-                    if (target !== REMOVE_PLACEHOLDER) {
-                        target.update(dt);
-                    }
+            iterator.length = list.length;
+            for (i = iterator.i = 0; i < iterator.length; i = iterator.i) {
+                callingFunc = list[i];
+                target = list[i+1];
+                hasTarget = target && typeof target === 'object';
+                if (hasTarget) {
+                    iterator.i = i + 2;
+                    callingFunc.call(target, event, captureListeners);
                 }
-            }
-            else {
-                for (i = 0; i <= endIndex;) {
-                    callingFunc = list[i];
-                    var increment = 1;
-                    // cheap detection for function
-                    if (callingFunc !== REMOVE_PLACEHOLDER) {
-                        target = list[i+1];
-                        hasTarget = target && typeof target === 'object';
-                        if (hasTarget) {
-                            callingFunc.call(target, event, captureListeners);
-                            increment = 2;
-                        }
-                        else {
-                            callingFunc.call(event.currentTarget, event, captureListeners);
-                        }
-
-                        if (event._propagationImmediateStopped || i + increment > endIndex) {
-                            break;
-                        }
-                    }
-
-                    i += increment;
+                else {
+                    iterator.i = i + 1;
+                    callingFunc.call(event.currentTarget, event, captureListeners);
+                }
+                if (event._propagationImmediateStopped) {
+                    break;
                 }
             }
         }
     }
-    this._invoking[key] = false;
-
-    // Delay removing
-    this._clearToRemove(key);
 };
 
 module.exports = EventListeners;

@@ -28,6 +28,8 @@ var callInNextTick = require('./utils').callInNextTick;
 var Loader = require('../load-pipeline/CCLoader');
 var PackDownloader = require('../load-pipeline/pack-downloader');
 var AutoReleaseUtils = require('../load-pipeline/auto-release-utils');
+var decodeUuid = require('../utils/decode-uuid');
+var MD5Pipe = require('../load-pipeline/md5-pipe');
 
 /**
  * The asset library which managing loading/unloading assets in project.
@@ -44,6 +46,13 @@ var _uuidToRawAsset = {};
 
 function isScene (asset) {
     return asset && (asset.constructor === cc.SceneAsset || asset instanceof cc.Scene);
+}
+
+// types
+
+function RawAssetEntry (url, type) {
+    this.url = url;
+    this.type = type;
 }
 
 // publics
@@ -63,8 +72,6 @@ var AssetLibrary = {
      * @param {Boolean} options.readMainCache - Default is true. If false, the asset and all its depends assets will reload and create new instances from library.
      * @param {Boolean} options.writeMainCache - Default is true. If true, the result will cache to AssetLibrary, and MUST be unload by user manually.
      * @param {Asset} options.existingAsset - load to existing asset, this argument is only available in editor
-     * @param {deserialize.Details} options.deserializeInfo - specified a DeserializeInfo object if you want,
-     *                                                        this parameter is only available in editor.
      * @private
      */
     loadAsset: function (uuid, callback, options) {
@@ -74,12 +81,9 @@ var AssetLibrary = {
         // var readMainCache = typeof (options && options.readMainCache) !== 'undefined' ? readMainCache : true;
         // var writeMainCache = typeof (options && options.writeMainCache) !== 'undefined' ? writeMainCache : true;
         var item = {
-            id: uuid,
+            uuid: uuid,
             type: 'uuid'
         };
-        if (options && options.deserializeInfo) {
-            item.deserializeInfo = options.deserializeInfo;
-        }
         if (options && options.existingAsset) {
             item.existingAsset = options.existingAsset;
         }
@@ -93,11 +97,13 @@ var AssetLibrary = {
                         Editor.error('Sorry, the scene data of "%s" is corrupted!', uuid);
                     }
                     else {
-                        asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(uuid);
+                        var key = cc.loader._getReferenceKey(uuid);
+                        asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(key);
                     }
                 }
                 if (CC_EDITOR || isScene(asset)) {
-                    Loader.removeItem(uuid);
+                    var id = cc.loader._getReferenceKey(uuid);
+                    Loader.removeItem(id);
                 }
             }
             if (callback) {
@@ -107,14 +113,17 @@ var AssetLibrary = {
     },
 
     getImportedDir: function (uuid) {
-        return _libraryBase + uuid.slice(0, 2)/* + cc.path.sep + uuid*/;
+        if (CC_BUILD) {
+            uuid = decodeUuid(uuid);
+        }
+        return _libraryBase + uuid.slice(0, 2) + '/' + uuid;
     },
 
     _queryAssetInfoInEditor: function (uuid, callback) {
         if (CC_EDITOR) {
             Editor.Ipc.sendToMain('scene:query-asset-info-by-uuid', uuid, function (err, info) {
                 if (info) {
-                    Editor.UuidCache.cache(info.url, uuid);
+                    Editor.Utils.UuidCache.cache(info.url, uuid);
                     var ctor = Editor.assets[info.type];
                     if (ctor) {
                         var isRawAsset = !cc.isChildClassOf(ctor, Asset);
@@ -125,27 +134,34 @@ var AssetLibrary = {
                     }
                 }
                 else {
-                    callback(new Error('Can not get asset url by uuid "' + uuid + '", the asset may be deleted.'));
+                    var error = new Error('Can not get asset url by uuid "' + uuid + '", the asset may be deleted.');
+                    error.errorCode = 'db.NOTFOUND';
+                    callback(error);
                 }
             });
         }
     },
 
-    _getAssetInfoInRuntime: function (uuid) {
+    _getAssetInfoInRuntime: function (uuid, result) {
+        result = result || {url: null, raw: false};
         var info = _uuidToRawAsset[uuid];
         if (info && !cc.isChildClassOf(info.type, cc.Asset)) {
-            return {
-                url: _rawAssetsBase + info.url,
-                raw: true,
-            };
+            result.url = _rawAssetsBase + info.url;
+            result.raw = true;
         }
         else {
-            var url = this.getImportedDir(uuid) + '/' + uuid + '.json';
-            return {
-                url: url,
-                raw: false,
-            };
+            result.url = this.getImportedDir(uuid) + '.json';
+            result.raw = false;
         }
+        return result;
+    },
+
+    _getAssetUrl: function (uuid) {
+        var info = _uuidToRawAsset[uuid];
+        if (info) {
+            return _rawAssetsBase + info.url;
+        }
+        return null;
     },
 
     /**
@@ -204,10 +220,10 @@ var AssetLibrary = {
     loadJson: function (json, callback) {
         var randomUuid = '' + ((new Date()).getTime() + Math.random());
         var item = {
-            id: randomUuid,
+            uuid: randomUuid,
             type: 'uuid',
             content: json,
-            skips: [ Loader.downloader.id ]
+            skips: [ Loader.assetLoader.id, Loader.downloader.id ]
         };
         Loader.load(item, function (error, asset) {
             if (error) {
@@ -215,10 +231,12 @@ var AssetLibrary = {
             }
             else {
                 if (asset.constructor === cc.SceneAsset) {
-                    asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(randomUuid);
+                    var key = cc.loader._getReferenceKey(randomUuid);
+                    asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(key);
                 }
                 if (CC_EDITOR || isScene(asset)) {
-                    Loader.removeItem(randomUuid);
+                    var id = cc.loader._getReferenceKey(randomUuid);
+                    Loader.removeItem(id);
                 }
             }
             asset._uuid = '';
@@ -253,9 +271,10 @@ var AssetLibrary = {
      */
     init: function (options) {
         if (CC_EDITOR && _libraryBase) {
-            cc.error('AssetLibrary has already been initialized!');
+            cc.errorID(6402);
             return;
         }
+
 
         // 这里将路径转 url，不使用路径的原因是有的 runtime 不能解析 "\" 符号。
         // 不使用 url.format 的原因是 windows 不支持 file:// 和 /// 开头的协议，所以只能用 replace 操作直接把路径转成 URL。
@@ -264,6 +283,13 @@ var AssetLibrary = {
         _libraryBase = cc.path._setEndWithSep(libraryPath, '/');
 
         _rawAssetsBase = options.rawAssetsBase;
+
+        var md5AssetsMap = options.md5AssetsMap;
+        if (md5AssetsMap) {
+            var md5Pipe = new MD5Pipe(md5AssetsMap, _libraryBase, _rawAssetsBase);
+            cc.loader.insertPipeAfter(cc.loader.assetLoader, md5Pipe);
+            cc.loader.md5Pipe = md5Pipe;
+        }
 
         // init raw assets
 
@@ -283,10 +309,7 @@ var AssetLibrary = {
                         cc.error('Cannot get', typeId);
                         continue;
                     }
-                    _uuidToRawAsset[uuid] = {
-                        url: mountPoint + '/' + url,
-                        type: type,
-                    };
+                    _uuidToRawAsset[uuid] = new RawAssetEntry(mountPoint + '/' + url, type);
                     // init resources
                     if (mountPoint === 'assets' && url.startsWith(RES_DIR)) {
                         if (cc.isChildClassOf(type, Asset)) {
@@ -356,4 +379,4 @@ AssetLibrary._uuidToAsset = {};
 //    }
 //};
 
-cc.AssetLibrary = AssetLibrary;
+module.exports = cc.AssetLibrary = AssetLibrary;

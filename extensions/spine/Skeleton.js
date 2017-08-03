@@ -69,6 +69,34 @@ sp.Skeleton = cc.Class({
     properties: {
 
         /**
+         * Record the listeners.
+         */
+        _startListener: {
+            default: null,
+            serializable: false,
+        },
+        _endListener: {
+            default: null,
+            serializable: false,
+        },
+        _completeListener: {
+            default: null,
+            serializable: false,
+        },
+        _eventListener: {
+            default: null,
+            serializable: false,
+        },
+        _disposeListener: {
+            default: null,
+            serializable: false,
+        },
+        _interruptListener: {
+            default: null,
+            serializable: false,
+        },
+
+        /**
          * !#en The skeletal animation is paused?
          * !#zh 该骨骼动画是否暂停。
          * @property paused
@@ -115,7 +143,7 @@ sp.Skeleton = cc.Class({
                 this.defaultAnimation = '';
                 this._refresh();
             },
-            tooltip: 'i18n:COMPONENT.skeleton.skeleton_data'
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.skeleton_data'
         },
 
         ///**
@@ -198,7 +226,7 @@ sp.Skeleton = cc.Class({
                     skinsEnum = this.skeletonData.getSkinsEnum();
                 }
                 if ( !skinsEnum ) {
-                    return cc.error('Failed to set _defaultSkinIndex for "%s" because its skeletonData is invalid.',
+                    return cc.errorID('',
                         this.name);
                 }
                 var skinName = skinsEnum[value];
@@ -209,13 +237,13 @@ sp.Skeleton = cc.Class({
                     }
                 }
                 else {
-                    cc.error('Failed to set _defaultSkinIndex for "%s" because the index is out of range.', this.name);
+                    cc.errorID(7501, this.name);
                 }
             },
             type: DefaultSkinsEnum,
             visible: true,
             displayName: "Default Skin",
-            tooltip: 'i18n:COMPONENT.skeleton.default_skin'
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.default_skin'
         },
 
         // value of 0 represents no animation
@@ -243,21 +271,21 @@ sp.Skeleton = cc.Class({
                     animsEnum = this.skeletonData.getAnimsEnum();
                 }
                 if ( !animsEnum ) {
-                    return cc.error('Failed to set _animationIndex for "%s" because its skeletonData is invalid.', this.name);
+                    return cc.errorID(7502, this.name);
                 }
                 var animName = animsEnum[value];
                 if (animName !== undefined) {
                     this.animation = animName;
                 }
                 else {
-                    cc.error('Failed to set _animationIndex for "%s" because the index is out of range.', this.name);
+                    cc.errorID(7503, this.name);
                 }
 
             },
             type: DefaultAnimsEnum,
             visible: true,
             displayName: 'Animation',
-            tooltip: 'i18n:COMPONENT.skeleton.animation'
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.animation'
         },
 
         //// for inspector
@@ -282,7 +310,7 @@ sp.Skeleton = cc.Class({
          */
         loop: {
             default: true,
-            tooltip: 'i18n:COMPONENT.skeleton.loop'
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.loop'
         },
 
         /**
@@ -305,7 +333,7 @@ sp.Skeleton = cc.Class({
                     this._sgNode.setPremultipliedAlpha(value);
                 }
             },
-            tooltip: 'i18n:COMPONENT.skeleton.premultipliedAlpha'
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.premultipliedAlpha'
         },
 
         /**
@@ -321,7 +349,7 @@ sp.Skeleton = cc.Class({
                     this._sgNode.setTimeScale(this.timeScale);
                 }
             },
-            tooltip: 'i18n:COMPONENT.skeleton.time_scale'
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.time_scale'
         },
 
         /**
@@ -338,7 +366,7 @@ sp.Skeleton = cc.Class({
                 }
             },
             editorOnly: true,
-            tooltip: 'i18n:COMPONENT.skeleton.debug_slots'
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.debug_slots'
         },
 
         /**
@@ -355,19 +383,19 @@ sp.Skeleton = cc.Class({
                 }
             },
             editorOnly: true,
-            tooltip: 'i18n:COMPONENT.skeleton.debug_bones'
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.debug_bones'
         }
     },
 
     // IMPLEMENT
 
     __preload: function () {
-        // sgNode 的尺寸不是很可靠 同时 Node 的框框也没办法和渲染匹配 只好强制尺寸为零
-        if (CC_DEV) {
+        if (CC_EDITOR || CC_DEV) {
             var Flags = cc.Object.Flags;
             this._objFlags &= Flags.PersistentMask; // for v1.0 project
             this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);
         }
+        // sgNode 的尺寸不是很可靠 同时 Node 的框框也没办法和渲染匹配 只好强制尺寸为零
         this.node.setContentSize(0, 0);
         //
         this._refresh();
@@ -378,23 +406,33 @@ sp.Skeleton = cc.Class({
             if (CC_JSB) {
                 var uuid = this.skeletonData._uuid;
                 if ( !uuid ) {
-                    cc.error('Can not render dynamic created SkeletonData');
+                    cc.errorID(7504);
                     return null;
                 }
                 var jsonFile = this.skeletonData.rawUrl;
                 var atlasFile = this.skeletonData.atlasUrl;
                 if (atlasFile) {
                     if (typeof atlasFile !== 'string') {
-                        cc.error('Invalid type of atlasFile, atlas should be registered as raw asset.');
+                        cc.errorID(7505);
                         return null;
                     }
-                    return new sp._SGSkeletonAnimation(jsonFile, atlasFile, this.skeletonData.scale);
+                    try {
+                        return new sp._SGSkeletonAnimation(jsonFile, atlasFile, this.skeletonData.scale);
+                    }
+                    catch (e) {
+                        cc._throw(e);
+                    }
                 }
             }
             else {
                 var data = this.skeletonData.getRuntimeData();
                 if (data) {
-                    return new sp._SGSkeletonAnimation(data, null, this.skeletonData.scale);
+                    try {
+                        return new sp._SGSkeletonAnimation(data, null, this.skeletonData.scale);
+                    }
+                    catch (e) {
+                        cc._throw(e);
+                    }
                 }
             }
         }
@@ -412,6 +450,14 @@ sp.Skeleton = cc.Class({
                 this.pause();
             }
         };
+
+        // using the recorded event listeners
+        this._startListener && this.setStartListener(this._startListener);
+        this._endListener && this.setEndListener(this._endListener);
+        this._completeListener && this.setCompleteListener(this._completeListener);
+        this._eventListener && this.setEventListener(this._eventListener);
+        this._interruptListener && this.setInterruptListener(this._interruptListener);
+        this._disposeListener && this.setDisposeListener(this._disposeListener);
 
         //if (!CC_EDITOR) {
         //    function animationCallback (ccObj, trackIndex, type, event, loopCount) {
@@ -738,7 +784,21 @@ sp.Skeleton = cc.Class({
      */
     addAnimation: function (trackIndex, name, loop, delay) {
         if (this._sgNode) {
-            return this._sgNode.addAnimation(trackIndex, name, loop, delay);
+            return this._sgNode.addAnimation(trackIndex, name, loop, delay || 0);
+        }
+        return null;
+    },
+
+    /**
+     * !#en Find animation with specified name.
+     * !#zh 查找指定名称的动画
+     * @method findAnimation
+     * @param {String} name
+     * @returns {sp.spine.Animation}
+     */
+    findAnimation: function (name) {
+        if (this._sgNode) {
+            return this._sgNode.findAnimation(name);
         }
         return null;
     },
@@ -811,8 +871,22 @@ sp.Skeleton = cc.Class({
      * @param {function} listener
      */
     setStartListener: function (listener) {
+        this._startListener = listener;
         if (this._sgNode) {
             this._sgNode.setStartListener(listener);
+        }
+    },
+
+    /**
+     * !#en Set the interrupt event listener.
+     * !#zh 用来设置动画被打断的事件监听。
+     * @method setInterruptListener
+     * @param {function} listener
+     */
+    setInterruptListener: function (listener) {
+        this._interruptListener = listener;
+        if (this._sgNode) {
+            this._sgNode.setInterruptListener(listener);
         }
     },
 
@@ -823,41 +897,123 @@ sp.Skeleton = cc.Class({
      * @param {function} listener
      */
     setEndListener: function (listener) {
+        this._endListener = listener;
         if (this._sgNode) {
             this._sgNode.setEndListener(listener);
         }
     },
 
+    /**
+     * !#en Set the dispose event listener.
+     * !#zh 用来设置动画将被销毁的事件监听。
+     * @method setDisposeListener
+     * @param {function} listener
+     */
+    setDisposeListener: function (listener) {
+        this._disposeListener = listener;
+        if (this._sgNode) {
+            this._sgNode.setDisposeListener(listener);
+        }
+    },
+
+    /**
+     * !#en Set the complete event listener.
+     * !#zh 用来设置动画播放一次循环结束后的事件监听。
+     * @method setCompleteListener
+     * @param {function} listener
+     */
     setCompleteListener: function (listener) {
+        this._completeListener = listener;
         if (this._sgNode) {
             this._sgNode.setCompleteListener(listener);
         }
     },
 
+    /**
+     * !#en Set the animation event listener.
+     * !#zh 用来设置动画播放过程中帧事件的监听。
+     * @method setEventListener
+     * @param {function} listener
+     */
     setEventListener: function (listener) {
+        this._eventListener = listener;
         if (this._sgNode) {
             this._sgNode.setEventListener(listener);
         }
     },
 
+    /**
+     * !#en Set the start event listener for specified TrackEntry (only supported on Web).
+     * !#zh 用来为指定的 TrackEntry 设置动画开始播放的事件监听。（只支持 Web 平台）
+     * @method setTrackStartListener
+     * @param {sp.spine.TrackEntry} entry
+     * @param {function} listener
+     */
     setTrackStartListener: function (entry, listener) {
         if (this._sgNode) {
             this._sgNode.setTrackStartListener(entry, listener);
         }
     },
 
+    /**
+     * !#en Set the interrupt event listener for specified TrackEntry (only supported on Web).
+     * !#zh 用来为指定的 TrackEntry 设置动画被打断的事件监听。（只支持 Web 平台）
+     * @method setTrackInterruptListener
+     * @param {sp.spine.TrackEntry} entry
+     * @param {function} listener
+     */
+    setTrackInterruptListener: function (entry, listener) {
+        if (this._sgNode) {
+            this._sgNode.setTrackInterruptListener(entry, listener);
+        }
+    },
+
+    /**
+     * !#en Set the end event listener for specified TrackEntry (only supported on Web).
+     * !#zh 用来为指定的 TrackEntry 设置动画播放结束的事件监听。（只支持 Web 平台）
+     * @method setTrackEndListener
+     * @param {sp.spine.TrackEntry} entry
+     * @param {function} listener
+     */
     setTrackEndListener: function (entry, listener) {
         if (this._sgNode) {
             this._sgNode.setTrackEndListener(entry, listener);
         }
     },
 
+    /**
+     * !#en Set the dispose event listener for specified TrackEntry (only supported on Web).
+     * !#zh 用来为指定的 TrackEntry 设置动画即将被销毁的事件监听。（只支持 Web 平台）
+     * @method setTrackDisposeListener
+     * @param {sp.spine.TrackEntry} entry
+     * @param {function} listener
+     */
+    setTrackDisposeListener: function(entry, listener){
+        if (this._sgNode) {
+            this._sgNode.setTrackDisposeListener(entry, listener);
+        }
+    },
+
+    /**
+     * !#en Set the complete event listener for specified TrackEntry (only supported on Web).
+     * !#zh 用来为指定的 TrackEntry 设置动画一次循环播放结束的事件监听。（只支持 Web 平台）
+     * @method setTrackCompleteListener
+     * @param {sp.spine.TrackEntry} entry
+     * @param {function} listener
+     */
     setTrackCompleteListener: function (entry, listener) {
         if (this._sgNode) {
             this._sgNode.setTrackCompleteListener(entry, listener);
         }
     },
 
+    /**
+     * !#en Set the event listener for specified TrackEntry (only supported on Web).
+     * !#zh 用来为指定的 TrackEntry 设置动画帧事件的监听。（只支持 Web 平台）
+     * @method setTrackEventListener
+     * @param {sp.spine.TrackEntry} entry
+     * @param {function} listener
+     */
     setTrackEventListener: function (entry, listener) {
         if (this._sgNode) {
             this._sgNode.setTrackEventListener(entry, listener);

@@ -259,9 +259,9 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
      * @param {Number} index
      */
     updateQuadFromSprite: function (sprite, index) {
-        cc.assert(sprite, cc._LogInfos.SpriteBatchNode.updateQuadFromSprite_2);
+        cc.assertID(sprite, 2623);
         if (!(sprite instanceof _ccsg.Sprite)) {
-            cc.log(cc._LogInfos.SpriteBatchNode.updateQuadFromSprite);
+            cc.log(2616);
             return;
         }
 
@@ -380,7 +380,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
      * @param {Number} [tag]
      */
     addChild: function (child, zOrder, tag) {
-        cc.assert(child !== undefined, cc._LogInfos.SpriteBatchNode.addChild_3);
+        cc.assertID(child !== undefined, 2614);
 
         if(!this._isValidChild(child))
             return;
@@ -397,11 +397,11 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
 
     _isValidChild: function (child) {
         if (!(child instanceof _ccsg.Sprite)) {
-            cc.log(cc._LogInfos.Sprite.addChild_4);
+            cc.logID(2618);
             return false;
         }
         if (child.texture !== this._texture) {
-            cc.log(cc._LogInfos.Sprite.addChild_5);
+            cc.logID(2619);
             return false;
         }
         return true;

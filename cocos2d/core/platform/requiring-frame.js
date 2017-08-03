@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2013-2017 Chukong Technologies Inc.
 
  http://www.cocos.com
 
@@ -25,41 +25,48 @@
 
 var requiringFrames = [];  // the requiring frame infos
 
-cc._RFpush = function (module, uuid, script) {
-    if (arguments.length === 2) {
-        script = uuid;
-        uuid = '';
-    }
-    requiringFrames.push({
-        uuid: uuid,
-        script: script,
-        module: module,
-        exports: module.exports,    // original exports
-        beh: null
-    });
-};
-
-cc._RFpop = function () {
-    var frameInfo = requiringFrames.pop();
-    // check exports
-    var module = frameInfo.module;
-    var exports = module.exports;
-    if (exports === frameInfo.exports) {
-        for (var anyKey in exports) {
-            // exported
-            return;
+cc._RF = {
+    push: function (module, uuid, script) {
+        if (script === undefined) {
+            script = uuid;
+            uuid = '';
         }
-        // auto export component
-        module.exports = exports = frameInfo.beh;
+        requiringFrames.push({
+            uuid: uuid,
+            script: script,
+            module: module,
+            exports: module.exports,    // original exports
+            beh: null
+        });
+    },
+    pop: function () {
+        var frameInfo = requiringFrames.pop();
+        // check exports
+        var module = frameInfo.module;
+        var exports = module.exports;
+        if (exports === frameInfo.exports) {
+            for (var anyKey in exports) {
+                // exported
+                return;
+            }
+            // auto export component
+            module.exports = exports = frameInfo.cls;
+        }
+    },
+    peek: function () {
+        return requiringFrames[requiringFrames.length - 1];
     }
-};
-
-cc._RFpeek = function () {
-    return requiringFrames[requiringFrames.length - 1];
 };
 
 if (CC_EDITOR) {
-    cc._RFreset = function () {
+    cc._RF.reset = function () {
         requiringFrames = [];
     };
+}
+
+cc._RFpush = cc._RF.push;
+cc._RFpop = cc._RF.pop;
+cc._RFpeek = cc._RF.peek;
+if (CC_EDITOR) {
+    cc._RFreset = cc._RF.reset;
 }

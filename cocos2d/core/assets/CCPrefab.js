@@ -23,55 +23,86 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-function visitWrapper (wrapper, visitor) {
-    visitor(wrapper);
-
-    var children = wrapper._children;
-    for (var i = 0; i < children.length; i++) {
-        visitor(children[i]);
-    }
-}
-
 /**
  * !#en Class for prefab handling.
  * !#zh 预制资源类。
  * @class Prefab
  * @extends Asset
- *
  */
 var Prefab = cc.Class({
     name: 'cc.Prefab',
     extends: cc.Asset,
 
     properties: {
-        data: null
-    },
+        /**
+         * @property {Node} data - the main cc.Node in the prefab
+         */
+        data: null,
 
-    createNode: function (cb) {
-        if (CC_EDITOR) {
-            var node = cc.instantiate(this);
-            cb(null, node);
+        /**
+         * !#en Indicates the raw assets of this prefab can be load after prefab loaded.
+         * !#zh 指示该 Prefab 依赖的资源可否在 Prefab 加载后再延迟加载。
+         * @property {Boolean} asyncLoadAssets
+         * @default false
+         */
+        asyncLoadAssets: undefined,
+
+        /**
+         * Cache function for fast instantiation
+         * @property {Function} _createFunction
+         * @private
+         */
+        _createFunction: {
+            default: null,
+            serializable: false
         }
     },
 
-    _instantiate: function () {
+    createNode: CC_EDITOR && function (cb) {
+        var node = cc.instantiate(this);
+        node.name = this.name;
+        cb(null, node);
+    },
+
+    /**
+     * Dynamically translation prefab data into minimized code.<br/>
+     * This method will be called automatically before the first time the prefab being instantiated,
+     * but you can re-call to refresh the create function once you modified the original prefab data in script.
+     * @method compileCreateFunction
+     */
+    compileCreateFunction: function () {
+        var jit = require('../platform/instantiate-jit');
+        this._createFunction = jit.compile(this.data);
+    },
+
+    // just instantiate, will not initialize the Node, this will be called during Node's initialization.
+    // @param {Node} [rootToRedirect] - specify an instantiated prefabRoot that all references to prefabRoot in prefab
+    //                                  will redirect to
+    _doInstantiate: function (rootToRedirect) {
         if (this.data._prefab) {
             // prefab asset is always synced
             this.data._prefab._synced = true;
         }
         else {
             // temp guard code
-            cc.warn('internal error: _prefab is undefined');
+            cc.warnID(3700);
         }
+        if (!this._createFunction) {
+            this.compileCreateFunction();
+        }
+        return this._createFunction(rootToRedirect);  // this.data._instantiate();
+    },
 
-        // instantiate
-        var node = cc.instantiate(this.data);
-
+    _instantiate: function () {
+        // instantiate node
+        var node = this._doInstantiate();
+        // initialize node
+        this.data._instantiate(node);
+        // link prefab in editor
         if (CC_EDITOR || CC_TEST) {
             // This operation is not necessary, but some old prefab asset may not contain complete data.
             _Scene.PrefabUtils.linkPrefab(this, node);
         }
-
         return node;
     }
 });

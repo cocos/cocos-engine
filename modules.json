@@ -45,13 +45,15 @@
   {
     "name": "ParticleSystem",
     "entries": [
-      "./cocos2d/particle/CCParticleSystem.js"
+      "./cocos2d/particle/CCParticleSystem.js",
+      "./cocos2d/particle/CCParticleAsset.js"
     ]
   },
   {
     "name": "TiledMap",
     "entries": [
-      "./cocos2d/tilemap/CCTiledMap.js"
+      "./cocos2d/tilemap/CCTiledMap.js",
+      "./cocos2d/tilemap/CCTiledMapAsset.js"
     ]
   },
   {
@@ -139,9 +141,14 @@
     ]
   },
   {
+    "name": "WebView",
+    "entries": [
+      "./cocos2d/core/components/CCWebView.js"
+    ]
+  },
+  {
     "name": "RichText",
     "entries": [
-      "./cocos2d/core/label/CCHtmlTextParser.js",
       "./cocos2d/core/components/CCRichText.js"
     ]
   },
@@ -170,8 +177,6 @@
       "./cocos2d/core/collider/index.js"
     ]
   },
-
-
   {
     "name": "Action",
     "entries": [
@@ -194,6 +199,45 @@
     "name": "DragonBones",
     "entries": [
       "./extensions/dragonbones/index.js"
+    ]
+  },
+  {
+    "name": "Physics",
+    "entries": [
+      "./cocos2d/core/physics/index.js"
+    ],
+    "dependencies": ["Collider"]
+  },
+  {
+    "name": "StudioComponent",
+    "entries": [
+      "./cocos2d/core/components/CCStudioComponent.js"
+    ]
+  },
+  {
+    "name": "RenderTexture",
+    "entries": [
+      "./cocos2d/render-texture/CCRenderTexture.js",
+      "./cocos2d/render-texture/CCRenderTextureCanvasRenderCmd.js",
+      "./cocos2d/render-texture/CCRenderTextureWebGLRenderCmd.js"
+    ]
+  },
+  {
+    "name": "Chipmunk",
+    "entries": [
+      "./external/chipmunk/chipmunk.js"
+    ]
+  },
+  {
+    "name": "Camera",
+    "entries": [
+      "./cocos2d/core/camera/CCCamera.js"
+    ]
+  },
+  {
+    "name": "Intersection",
+    "entries": [
+      "./cocos2d/core/collider/CCIntersection.js"
     ]
   }
 ]

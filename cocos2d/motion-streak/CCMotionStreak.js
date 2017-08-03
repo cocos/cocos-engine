@@ -22,7 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
+require('./CCSGMotionStreak');
+require('./CCSGMotionStreakWebGLRenderCmd');
 /**
  * !#en
  * cc.MotionStreak manages a Ribbon based on it's motion in absolute space.                 <br/>
@@ -95,7 +96,7 @@ var MotionStreak = cc.Class({
                 }
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.motionStreak.fadeTime'
+            tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.fadeTime'
         },
 
         /**
@@ -118,7 +119,7 @@ var MotionStreak = cc.Class({
                 }
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.motionStreak.minSeg'
+            tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.minSeg'
         },
 
         /**
@@ -141,7 +142,7 @@ var MotionStreak = cc.Class({
                 }
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.motionStreak.stroke'
+            tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.stroke'
         },
 
         /**
@@ -163,7 +164,7 @@ var MotionStreak = cc.Class({
             set: function (value) {
                 this._texture = value;
                 if (this._motionStreak) {
-                    if (cc.js.isString(value))
+                    if (value && cc.js.isString(value))
                         value = cc.textureCache.addImage(value);
 
                     this._motionStreak.setTexture(value);
@@ -171,7 +172,7 @@ var MotionStreak = cc.Class({
             },
             url: cc.Texture2D,
             animatable: false,
-            tooltip: 'i18n:COMPONENT.motionStreak.texture'
+            tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.texture'
         },
 
         /**
@@ -194,7 +195,7 @@ var MotionStreak = cc.Class({
                     this._motionStreak.tintWithColor(value);
                 }
             },
-            tooltip: 'i18n:COMPONENT.motionStreak.color'
+            tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.color'
         },
 
         /**
@@ -218,7 +219,7 @@ var MotionStreak = cc.Class({
                 }
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.motionStreak.fastMode'
+            tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.fastMode'
         }
     },
 
@@ -250,7 +251,7 @@ var MotionStreak = cc.Class({
 
     __preload: function () {
         if (cc._renderType !== cc.game.RENDER_TYPE_WEBGL && !CC_JSB) {
-            cc.warn("MotionStreak only support WebGL mode.");
+            cc.warnID(5900);
             return;
         }
         this._root = new _ccsg.Node();
@@ -263,9 +264,18 @@ var MotionStreak = cc.Class({
             sgNode.addChild(this._root, -10);
         }
         this._motionStreak = motionStreak;
+
     },
 
-    lateUpdate: function (delta) {
+    onEnable: function () {
+        this.node.on('position-changed', this._onNodePositionChanged, this);
+    },
+
+    onDisable: function () {
+        this.node.off('position-changed', this._onNodePositionChanged, this);
+    },
+
+    _onNodePositionChanged: function () {
         if (CC_EDITOR && !this.preview) {
             return;
         }
@@ -278,7 +288,6 @@ var MotionStreak = cc.Class({
             var ty = worldMt.ty - (node.height / 2 + node.anchorY * node.height);
             this._root.setPosition(-tx, -ty);
             this._motionStreak.setPosition(tx, ty);
-            this._motionStreak.update(delta);
         }
     }
 });

@@ -340,7 +340,7 @@ cc.math.getMat4MultiplyValue = function (pM1, pM2) {
  */
 cc.math.mat4Assign = function (pOut, pIn) {
     if (pOut === pIn) {
-        cc.log("cc.math.mat4Assign(): pOut equals pIn");
+        cc.logID(7901);
         return pOut;
     }
 
@@ -376,7 +376,7 @@ cc.math.mat4Assign = function (pOut, pIn) {
  */
 proto.assignFrom = function(mat4) {
     if (this === mat4) {
-        cc.log("cc.mat.Matrix4.assignFrom(): mat4 equals current matrix");
+        cc.logID(7902);
         return this;
     }
     var outArr = this.mat, inArr = mat4.mat;
@@ -410,7 +410,7 @@ proto.assignFrom = function(mat4) {
  */
 proto.equals = function(mat4) {
     if (this === mat4) {
-        cc.log("cc.math.Matrix4 equal: pMat1 and pMat2 are same object.");
+        cc.logID(7903);
         return true;
     }
     var matA = this.mat, matB = mat4.mat, EPSILON = cc.math.EPSILON;
@@ -983,7 +983,7 @@ proto.extractPlane = function(planeType) {
             plane.d = mat[15] + mat[14];
             break;
         default:
-            cc.log("cc.math.Matrix4.extractPlane: Invalid plane index");
+            cc.logID(7904);
             break;
     }
 

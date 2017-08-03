@@ -27,16 +27,14 @@ require('./platform');
 require('./assets');
 
 if (!CC_EDITOR || !Editor.isMainProcess) {
-    if (!CC_JSB) {
-        require('./sprites/CCSpriteFrameCache');
-    }
-
     require('./CCNode');
     require('./CCScene');
 
     require('./components');
     require('./graphics');
     require('./collider');
+    require('./physics');
+    require('./camera/CCCamera');
 }
 
 require('./base-ui/CCWidgetManager');

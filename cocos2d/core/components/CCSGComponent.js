@@ -88,10 +88,10 @@ var SGComponent = cc.Class({
         else if (CC_DEV) {
             var name = cc.js.getClassName(this);
             if (this.node.getComponent(cc.Canvas)) {
-                cc.error('Should not add renderer component (%s) to a Canvas node.', name);
+                cc.errorID(3627, name);
             }
             else {
-                cc.error('Should not add %s to a node which size is already used by its other component.', name);
+                cc.errorID(3628, name);
             }
         }
     }

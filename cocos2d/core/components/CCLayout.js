@@ -196,8 +196,8 @@ var Layout = cc.Class({
                 }
                 this._doLayoutDirty();
             },
+            tooltip: CC_DEV && 'i18n:COMPONENT.layout.layout_type',
             animatable: false,
-            tooltip: 'i18n:COMPONENT.layout.layout_type'
         },
 
 
@@ -211,7 +211,8 @@ var Layout = cc.Class({
          */
         resizeMode: {
             type: ResizeMode,
-            tooltip: 'i18n:COMPONENT.layout.resize_mode',
+            tooltip: CC_DEV && 'i18n:COMPONENT.layout.resize_mode',
+            animatable: false,
             get: function() {
                 return this._resize;
             },
@@ -229,7 +230,6 @@ var Layout = cc.Class({
                 }
                 this._doLayoutDirty();
             },
-            animatable: false
         },
 
         /**
@@ -240,12 +240,11 @@ var Layout = cc.Class({
          */
         cellSize: {
             default: cc.size(40, 40),
-            tooltip: 'i18n:COMPONENT.layout.cell_size',
+            tooltip: CC_DEV && 'i18n:COMPONENT.layout.cell_size',
             type: cc.Size,
             notify: function() {
                 this._doLayoutDirty();
             },
-            animatable: false
         },
 
         /**
@@ -257,7 +256,7 @@ var Layout = cc.Class({
          */
         startAxis: {
             default: AxisDirection.HORIZONTAL,
-            tooltip: 'i18n:COMPONENT.layout.start_axis',
+            tooltip: CC_DEV && 'i18n:COMPONENT.layout.start_axis',
             type: AxisDirection,
             notify: function() {
                 if (CC_EDITOR && this._resize === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
@@ -281,11 +280,10 @@ var Layout = cc.Class({
          */
         paddingLeft: {
             default: 0,
-            tooltip: 'i18n:COMPONENT.layout.padding_left',
+            tooltip: CC_DEV && 'i18n:COMPONENT.layout.padding_left',
             notify: function () {
                 this._doLayoutDirty();
             },
-            animatable: false
         },
 
         /**
@@ -295,11 +293,10 @@ var Layout = cc.Class({
          */
         paddingRight: {
             default: 0,
-            tooltip: 'i18n:COMPONENT.layout.padding_right',
+            tooltip: CC_DEV && 'i18n:COMPONENT.layout.padding_right',
             notify: function () {
                 this._doLayoutDirty();
             },
-            animatable: false
         },
 
         /**
@@ -309,11 +306,10 @@ var Layout = cc.Class({
          */
         paddingTop: {
             default: 0,
-            tooltip: 'i18n:COMPONENT.layout.padding_top',
+            tooltip: CC_DEV && 'i18n:COMPONENT.layout.padding_top',
             notify: function () {
                 this._doLayoutDirty();
             },
-            animatable: false
         },
 
         /**
@@ -323,11 +319,10 @@ var Layout = cc.Class({
          */
         paddingBottom: {
             default: 0,
-            tooltip: 'i18n:COMPONENT.layout.padding_bottom',
+            tooltip: CC_DEV && 'i18n:COMPONENT.layout.padding_bottom',
             notify: function () {
                 this._doLayoutDirty();
             },
-            animatable: false
         },
 
         /**
@@ -340,8 +335,7 @@ var Layout = cc.Class({
             notify: function() {
                 this._doLayoutDirty();
             },
-            animatable: false,
-            tooltip: 'i18n:COMPONENT.layout.space_x'
+            tooltip: CC_DEV && 'i18n:COMPONENT.layout.space_x'
         },
 
         /**
@@ -354,8 +348,7 @@ var Layout = cc.Class({
             notify: function() {
                 this._doLayoutDirty();
             },
-            animatable: false,
-            tooltip: 'i18n:COMPONENT.layout.space_y'
+            tooltip: CC_DEV && 'i18n:COMPONENT.layout.space_y'
         },
 
         /**
@@ -371,8 +364,8 @@ var Layout = cc.Class({
             notify: function() {
                 this._doLayoutDirty();
             },
-            animatable: false,
-            tooltip: 'i18n:COMPONENT.layout.vertical_direction'
+            tooltip: CC_DEV && 'i18n:COMPONENT.layout.vertical_direction',
+            animatable: false
         },
 
         /**
@@ -388,8 +381,8 @@ var Layout = cc.Class({
             notify: function() {
                 this._doLayoutDirty();
             },
-            animatable: false,
-            tooltip: 'i18n:COMPONENT.layout.horizontal_direction'
+            tooltip: CC_DEV && 'i18n:COMPONENT.layout.horizontal_direction',
+            animatable: false
         },
     },
 
@@ -925,7 +918,7 @@ var Layout = cc.Class({
  */
 Object.defineProperty(Layout.prototype, "padding", {
     get: function () {
-        cc.warn('Property padding is deprecated, please use paddingLeft, paddingRight, paddingTop and paddingBottom instead');
+        cc.warnID(4100);
         return this.paddingLeft;
     },
     set: function (value) {

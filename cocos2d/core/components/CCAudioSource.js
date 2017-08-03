@@ -41,7 +41,7 @@ var AudioSource = cc.Class({
     },
 
     ctor: function () {
-        this.audio = new cc.Audio(this._clip);
+        this.audio = new cc.Audio();
     },
 
     properties: {
@@ -90,6 +90,9 @@ var AudioSource = cc.Class({
                 return this._clip;
             },
             set: function (value) {
+                if (value === this._clip) {
+                    return;
+                }
                 this._clip = value;
                 this.audio.stop();
                 this.audio.src = this._clip;
@@ -98,7 +101,7 @@ var AudioSource = cc.Class({
                 }
             },
             url: cc.AudioClip,
-            tooltip: 'i18n:COMPONENT.audio.clip',
+            tooltip: CC_DEV && 'i18n:COMPONENT.audio.clip',
             animatable: false
         },
 
@@ -114,6 +117,7 @@ var AudioSource = cc.Class({
                 return this._volume;
             },
             set: function (value) {
+                value = cc.clamp01(value);
                 this._volume = value;
                 var audio = this.audio;
                 if (audio && !this._mute) {
@@ -126,7 +130,7 @@ var AudioSource = cc.Class({
                 }
                 return value;
             },
-            tooltip: 'i18n:COMPONENT.audio.volume'
+            tooltip: CC_DEV && 'i18n:COMPONENT.audio.volume'
         },
 
         /**
@@ -148,7 +152,7 @@ var AudioSource = cc.Class({
                 return value;
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.audio.mute',
+            tooltip: CC_DEV && 'i18n:COMPONENT.audio.mute',
         },
 
         /**
@@ -170,7 +174,7 @@ var AudioSource = cc.Class({
                 return value;
             },
             animatable: false,
-            tooltip: 'i18n:COMPONENT.audio.loop'
+            tooltip: CC_DEV && 'i18n:COMPONENT.audio.loop'
         },
 
         /**
@@ -182,7 +186,7 @@ var AudioSource = cc.Class({
          */
         playOnLoad: {
             default: false,
-            tooltip: 'i18n:COMPONENT.audio.play_on_load',
+            tooltip: CC_DEV && 'i18n:COMPONENT.audio.play_on_load',
             animatable: false
         },
 
@@ -193,7 +197,8 @@ var AudioSource = cc.Class({
     },
 
     _pausedCallback: function () {
-        if (!this.audio || this.audio.paused) return;
+        var audio = this.audio;
+        if (!audio || audio.paused) return;
         this.audio.pause();
         this._pausedFlag = true;
     },
@@ -313,7 +318,7 @@ var AudioSource = cc.Class({
         }
         return time;
     },
-    
+
     /**
      * !#en Set current time
      * !#zh 设置当前的播放时间
@@ -333,7 +338,7 @@ var AudioSource = cc.Class({
         audio.setCurrentTime(time);
         return time;
     },
-    
+
     /**
      * !#en Get audio duration
      * !#zh 获取当前音频的长度

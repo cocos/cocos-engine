@@ -40,24 +40,12 @@
 
 /**
  * Constructor
- * @method EventListener
+ * @method constructor
  * @param {Number} type
  * @param {Number} listenerID
  * @param {Number} callback
- * @return {EventListener}
  */
 cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
-    _onEvent: null,          // Event callback function
-    _type: 0,                // Event listener type
-    _listenerID: null,       // Event listener ID
-    _registered: false,      // Whether the listener has been added to dispatcher.
-
-    _fixedPriority: 0,       // The higher the number, the higher the priority, 0 is for scene graph base priority.
-    _node: null,             // scene graph based priority
-    _target: null,
-    _paused: true,           // Whether the listener is paused
-    _isEnabled: true,        // Whether the listener is enabled
-
     /*
      * Initializes event with type and callback function.
      * @param {Number} type
@@ -65,9 +53,16 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
      * @param {Function} callback
      */
     ctor: function (type, listenerID, callback) {
-        this._onEvent = callback;
-        this._type = type || 0;
-        this._listenerID = listenerID || "";
+        this._onEvent = callback;   // Event callback function
+        this._type = type || 0;     // Event listener type
+        this._listenerID = listenerID || "";    // Event listener ID
+        this._registered = false;   // Whether the listener has been added to dispatcher.
+
+        this._fixedPriority = 0;    // The higher the number, the higher the priority, 0 is for scene graph base priority.
+        this._node = null;          // scene graph based priority
+        this._target = null;
+        this._paused = true;        // Whether the listener is paused
+        this._isEnabled = true;     // Whether the listener is enabled
     },
 
     /*
@@ -292,21 +287,13 @@ cc.EventListener.KEYBOARD = 3;
  */
 cc.EventListener.MOUSE = 4;
 /**
- * !#en The type code of focus event listener.
+ * !#en The type code of acceleration event listener.
  * !#zh 加速器事件监听器类型
  * @property ACCELERATION
  * @type {Number}
  * @static
  */
 cc.EventListener.ACCELERATION = 6;
-/*
- * !#en The type code of Focus change event listener.
- * !#zh 焦点事件监听器类型
- * @property FOCUS
- * @type {Number}
- * @static
- */
-cc.EventListener.FOCUS = 7;
 /*
  * !#en The type code of custom event listener.
  * !#zh 自定义事件监听器类型
@@ -320,13 +307,12 @@ cc._EventListenerCustom = cc.EventListener.extend({
     _onCustomEvent: null,
     ctor: function (listenerId, callback) {
         this._onCustomEvent = callback;
-        var selfPointer = this;
-        var listener = function (event) {
-            if (selfPointer._onCustomEvent !== null)
-                selfPointer._onCustomEvent(event);
-        };
+        cc.EventListener.prototype.ctor.call(this, cc.EventListener.CUSTOM, listenerId, this._callback);
+    },
 
-        cc.EventListener.prototype.ctor.call(this, cc.EventListener.CUSTOM, listenerId, listener);
+    _callback: function (event) {
+        if (this._onCustomEvent !== null)
+            this._onCustomEvent(event);
     },
 
     checkAvailable: function () {
@@ -345,31 +331,31 @@ cc._EventListenerMouse = cc.EventListener.extend({
     onMouseScroll: null,
 
     ctor: function () {
-        var selfPointer = this;
-        var listener = function (event) {
-            var eventType = cc.Event.EventMouse;
-            switch (event._eventType) {
-                case eventType.DOWN:
-                    if (selfPointer.onMouseDown)
-                        selfPointer.onMouseDown(event);
-                    break;
-                case eventType.UP:
-                    if (selfPointer.onMouseUp)
-                        selfPointer.onMouseUp(event);
-                    break;
-                case eventType.MOVE:
-                    if (selfPointer.onMouseMove)
-                        selfPointer.onMouseMove(event);
-                    break;
-                case eventType.SCROLL:
-                    if (selfPointer.onMouseScroll)
-                        selfPointer.onMouseScroll(event);
-                    break;
-                default:
-                    break;
-            }
-        };
-        cc.EventListener.prototype.ctor.call(this, cc.EventListener.MOUSE, cc._EventListenerMouse.LISTENER_ID, listener);
+        cc.EventListener.prototype.ctor.call(this, cc.EventListener.MOUSE, cc._EventListenerMouse.LISTENER_ID, this._callback);
+    },
+
+    _callback: function (event) {
+        var eventType = cc.Event.EventMouse;
+        switch (event._eventType) {
+            case eventType.DOWN:
+                if (this.onMouseDown)
+                    this.onMouseDown(event);
+                break;
+            case eventType.UP:
+                if (this.onMouseUp)
+                    this.onMouseUp(event);
+                break;
+            case eventType.MOVE:
+                if (this.onMouseMove)
+                    this.onMouseMove(event);
+                break;
+            case eventType.SCROLL:
+                if (this.onMouseScroll)
+                    this.onMouseScroll(event);
+                break;
+            default:
+                break;
+        }
     },
 
     clone: function () {
@@ -421,7 +407,7 @@ cc._EventListenerTouchOneByOne = cc.EventListener.extend({
 
     checkAvailable: function () {
         if(!this.onTouchBegan){
-            cc.log(cc._LogInfos._checkEventListenerAvailable.touchOneByOne);
+            cc.logID(1801);
             return false;
         }
         return true;
@@ -452,7 +438,7 @@ cc._EventListenerTouchAllAtOnce = cc.EventListener.extend({
     checkAvailable: function(){
         if (this.onTouchesBegan === null && this.onTouchesMoved === null
             && this.onTouchesEnded === null && this.onTouchesCancelled === null) {
-            cc.log(cc._LogInfos._checkEventListenerAvailable.touchAllAtOnce);
+            cc.logID(1802);
             return false;
         }
         return true;
@@ -476,7 +462,7 @@ cc._EventListenerTouchAllAtOnce.LISTENER_ID = "__cc_touch_all_at_once";
  */
 cc.EventListener.create = function(argObj){
 
-    cc.assert(argObj&&argObj.event, cc._LogInfos.EventListener.create);
+    cc.assertID(argObj&&argObj.event, 1900);
 
     var listenerType = argObj.event;
     delete argObj.event;
@@ -497,8 +483,7 @@ cc.EventListener.create = function(argObj){
     else if(listenerType === cc.EventListener.ACCELERATION){
         listener = new cc._EventListenerAcceleration(argObj.callback);
         delete argObj.callback;
-    } else if(listenerType === cc.EventListener.FOCUS)
-        listener = new cc._EventListenerFocus();
+    }
 
     for(var key in argObj) {
         listener[key] = argObj[key];
@@ -507,47 +492,21 @@ cc.EventListener.create = function(argObj){
     return listener;
 };
 
-cc._EventListenerFocus = cc.EventListener.extend({
-    clone: function(){
-        var listener = new cc._EventListenerFocus();
-        listener.onFocusChanged = this.onFocusChanged;
-        return listener;
-    },
-    checkAvailable: function(){
-        if(!this.onFocusChanged){
-            cc.log("Invalid EventListenerFocus!");
-            return false;
-        }
-        return true;
-    },
-    onFocusChanged: null,
-    ctor: function(){
-        var listener = function(event){
-            if(this.onFocusChanged)
-                this.onFocusChanged(event._widgetLoseFocus, event._widgetGetFocus);
-        };
-        cc.EventListener.prototype.ctor.call(this, cc.EventListener.FOCUS, cc._EventListenerFocus.LISTENER_ID, listener);
-    }
-});
-
-cc._EventListenerFocus.LISTENER_ID = "__cc_focus_event";
-
 //Acceleration
 cc._EventListenerAcceleration = cc.EventListener.extend({
     _onAccelerationEvent: null,
 
     ctor: function (callback) {
         this._onAccelerationEvent = callback;
-        var selfPointer = this;
-        var listener = function (event) {
-            selfPointer._onAccelerationEvent(event.acc, event);
-        };
-        cc.EventListener.prototype.ctor.call(this, cc.EventListener.ACCELERATION, cc._EventListenerAcceleration.LISTENER_ID, listener);
+        cc.EventListener.prototype.ctor.call(this, cc.EventListener.ACCELERATION, cc._EventListenerAcceleration.LISTENER_ID, this._callback);
+    },
+
+    _callback: function (event) {
+        this._onAccelerationEvent(event.acc, event);
     },
 
     checkAvailable: function () {
-
-        cc.assert(this._onAccelerationEvent, cc._LogInfos._checkEventListenerAvailable.acceleration);
+        cc.assertID(this._onAccelerationEvent, 1803);
 
         return true;
     },
@@ -566,17 +525,17 @@ cc._EventListenerKeyboard = cc.EventListener.extend({
     onKeyReleased: null,
 
     ctor: function () {
-        var selfPointer = this;
-        var listener = function (event) {
-            if (event.isPressed) {
-                if (selfPointer.onKeyPressed)
-                    selfPointer.onKeyPressed(event.keyCode, event);
-            } else {
-                if (selfPointer.onKeyReleased)
-                    selfPointer.onKeyReleased(event.keyCode, event);
-            }
-        };
-        cc.EventListener.prototype.ctor.call(this, cc.EventListener.KEYBOARD, cc._EventListenerKeyboard.LISTENER_ID, listener);
+        cc.EventListener.prototype.ctor.call(this, cc.EventListener.KEYBOARD, cc._EventListenerKeyboard.LISTENER_ID, this._callback);
+    },
+
+    _callback: function (event) {
+        if (event.isPressed) {
+            if (this.onKeyPressed)
+                this.onKeyPressed(event.keyCode, event);
+        } else {
+            if (this.onKeyReleased)
+                this.onKeyReleased(event.keyCode, event);
+        }
     },
 
     clone: function () {
@@ -588,7 +547,7 @@ cc._EventListenerKeyboard = cc.EventListener.extend({
 
     checkAvailable: function () {
         if (this.onKeyPressed === null && this.onKeyReleased === null) {
-            cc.log(cc._LogInfos._checkEventListenerAvailable.keyboard);
+            cc.logID(1800);
             return false;
         }
         return true;

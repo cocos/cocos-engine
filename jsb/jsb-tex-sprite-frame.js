@@ -47,7 +47,9 @@ cc.TextureCache.prototype.addImageAsync = function (url, cb, target) {
     });
     return localTex;
 };
-// Fix for compatibility with old APIs
+if (!cc.TextureCache.prototype._addImage) {
+    cc.TextureCache.prototype._addImage = cc.TextureCache.prototype.addImage;
+}
 cc.TextureCache.prototype.addImage = function (url, cb, target) {
     if (typeof cb === "function") {
         return this.addImageAsync(url, cb, target);
@@ -87,7 +89,13 @@ cc.textureCache.removeTextureForKey = function (key) {
 // cc.Texture2D
 
 cc.Class._fastDefine('cc.Texture2D', cc.Texture2D, []);
-cc.Texture2D.$super = cc.RawAsset;
+cc.js.value(cc.Texture2D, '$super', cc.RawAsset);   // not inheritable in JSB and TypeScript
+
+cc.Texture2D.WrapMode = cc.Enum({
+    REPEAT: 0x2901,
+    CLAMP_TO_EDGE: 0x812f,
+    MIRRORED_REPEAT: 0x8370
+});
 
 var prototype = cc.Texture2D.prototype;
 
@@ -103,22 +111,29 @@ cc.js.get(prototype, 'pixelHeight', prototype.getPixelHeight);
 // cc.SpriteFrame
 
 cc.Class._fastDefine('cc.SpriteFrame', cc.SpriteFrame, []);
-cc.SpriteFrame.$super = cc.Asset;
+cc.js.value(cc.SpriteFrame, '$super', cc.Asset);    // not inheritable in JSB and TypeScript
 
 prototype = cc.SpriteFrame.prototype;
+prototype._setTexture = prototype.setTexture;
+prototype._initWithTexture = prototype.initWithTexture;
 
 cc.js.mixin(prototype, cc.EventTarget.prototype);
-prototype.textureLoaded = function () {
-    return this.getTexture() !== null;
-};
 
 prototype._ctor = function (filename, rect, rotated, offset, originalSize) {
     this._name = '';
+    this.insetTop = 0;
+    this.insetBottom = 0;
+    this.insetLeft = 0;
+    this.insetRight = 0;
     if (filename !== undefined) {
         this.initWithTexture(filename, rect, rotated, offset, originalSize);
     } else {
         //todo log Error
     }
+};
+
+prototype.textureLoaded = function () {
+    return this.getTexture() !== null;
 };
 
 prototype.setTexture = function (textureOrTextureFile, rect, rotated, offset, originalSize) {
@@ -149,6 +164,8 @@ prototype.setTexture = function (textureOrTextureFile, rect, rotated, offset, or
     return true;
 };
 
+prototype.initWithTexture = prototype.setTexture;
+
 prototype._loadTexture = function () {
     if (this._textureFilename) {
         var texture = cc.textureCache.addImage(this._textureFilename);
@@ -162,8 +179,9 @@ prototype.ensureLoadTexture = function () {
     }
 };
 
-prototype._initWithTexture = prototype.initWithTexture;
-prototype.initWithTexture = prototype.setTexture;
+prototype.clearTexture = function () {
+    this._setTexture(null);
+};
 
 prototype._refreshTexture = function (texture) {
 
@@ -183,16 +201,8 @@ prototype._refreshTexture = function (texture) {
         if (originalSize.width === 0 || originalSize.height === 0) {
             originalSize = cc.size(w, h);
         }
-
         var offset = this.getOffset();
         var rotated = this.isRotated();
-
-        if (this.insetTop === undefined) {
-            this.insetTop = 0;
-            this.insetBottom = 0;
-            this.insetLeft = 0;
-            this.insetRight = 0;
-        }
 
         this._initWithTexture(texture, rect, rotated, offset, originalSize);
 
@@ -244,10 +254,10 @@ prototype._checkRect = function (texture) {
         maxY += rect.height;
     }
     if (maxX > texture.getPixelWidth()) {
-        cc.error(cc._LogInfos.RectWidth, texture.url);
+        cc.errorID(3300, texture.url);
     }
     if (maxY > texture.getPixelHeight()) {
-        cc.error(cc._LogInfos.RectHeight, texture.url);
+        cc.errorID(3400, texture.url);
     }
 };
 
@@ -256,6 +266,17 @@ prototype.getTexture = function () {
     var tex = this._getTexture();
     this._texture = tex;
     return tex;
+};
+
+prototype._clone = prototype.clone;
+prototype.clone = function () {
+    var cloned = this._clone();
+    cloned._name = this._name;
+    cloned.insetTop = this.insetTop;
+    cloned.insetBottom = this.insetBottom;
+    cloned.insetLeft = this.insetLeft;
+    cloned.insetRight = this.insetRight;
+    return cloned;
 };
 
 cc.js.set(prototype, '_textureFilenameSetter', function (url) {

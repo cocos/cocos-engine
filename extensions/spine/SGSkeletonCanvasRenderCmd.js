@@ -25,7 +25,7 @@
 var spine = sp.spine;
 
 sp._SGSkeleton.CanvasRenderCmd = function(renderableObject){
-    _ccsg.Node.CanvasRenderCmd.call(this, renderableObject);
+    this._rootCtor(renderableObject);
     this._needDraw = true;
 };
 
@@ -61,7 +61,7 @@ proto.rendering = function (wrapper, scaleX, scaleY) {
         var points = [];
         for (i = 0, n = locSkeleton.slots.length; i < n; i++) {
             slot = locSkeleton.drawOrder[i];
-            if (!slot.attachment || slot.attachment.type != sp.ATTACHMENT_TYPE.REGION)
+            if (!slot.attachment || !(slot.attachment instanceof spine.RegionAttachment))
                 continue;
             attachment = slot.attachment;
             this._updateRegionAttachmentSlot(attachment, slot, points);
@@ -77,8 +77,8 @@ proto.rendering = function (wrapper, scaleX, scaleY) {
 
         for (i = 0, n = locSkeleton.bones.length; i < n; i++) {
             bone = locSkeleton.bones[i];
-            var x = bone.data.length * bone.m00 + bone.worldX;
-            var y = bone.data.length * bone.m10 + bone.worldY;
+            var x = bone.data.length * bone.a + bone.worldX;
+            var y = bone.data.length * bone.c + bone.worldY;
             drawingUtil.drawLine(
                 {x: bone.worldX, y: bone.worldY},
                 {x: x, y: y});
@@ -98,7 +98,7 @@ proto.rendering = function (wrapper, scaleX, scaleY) {
 };
 
 proto.updateStatus = function() {
-    _ccsg.Node.CanvasRenderCmd.prototype.updateStatus.call(this);
+    this.originUpdateStatus();
     this._updateCurrentRegions();
     this._regionFlag = _ccsg.Node.CanvasRenderCmd.RegionStatus.DirtyDouble;
     this._dirtyFlag &= ~_ccsg.Node._dirtyFlags.contentDirty;
@@ -112,8 +112,8 @@ proto._updateRegionAttachmentSlot = function(attachment, slot, points) {
     if(!points)
         return;
 
-    var vertices = {}, VERTEX = sp.VERTEX_INDEX, bone = slot.bone;
-    attachment.computeVertices(bone.skeleton.x, bone.skeleton.y, bone, vertices);
+    var vertices = attachment.updateWorldVertices(slot, false);
+    var VERTEX = spine.RegionAttachment;
     points.length = 0;
     points.push(cc.p(vertices[VERTEX.X1], vertices[VERTEX.Y1]));
     points.push(cc.p(vertices[VERTEX.X4], vertices[VERTEX.Y4]));
@@ -130,7 +130,7 @@ proto._createChildFormSkeletonData = function(){
         slot._slotNode = slotNode;
 
         if(attachment instanceof spine.RegionAttachment){
-            spriteName = attachment.rendererObject.name;
+            spriteName = attachment.region.name;
             sprite = this._createSprite(slot, attachment);
             slot.currentSprite = sprite;
             slot.currentSpriteName = spriteName;
@@ -142,8 +142,8 @@ proto._createChildFormSkeletonData = function(){
 };
 
 proto._createSprite = function(slot, attachment){
-    var rendererObject = attachment.rendererObject;
-    var texture = rendererObject.page._texture;
+    var rendererObject = attachment.region;
+    var texture = rendererObject.texture.getRealTexture();
     var rect = new cc.Rect(rendererObject.x, rendererObject.y, rendererObject.width, rendererObject.height);
     var sprite = new _ccsg.Sprite();
     sprite.initWithTexture(texture, rect, rendererObject.rotate, false);
@@ -174,11 +174,10 @@ proto._updateChild = function(){
             slotNode.setVisible(false);
             continue;
         }
-        var type = attachment.type;
-        if (type === spine.AttachmentType.region){
-            if(attachment.rendererObject){
+        if (attachment instanceof spine.RegionAttachment){
+            if(attachment.region){
                 if(!slot.currentSpriteName || slot.currentSpriteName !== attachment.name){
-                     var spriteName = attachment.rendererObject.name;
+                     var spriteName = attachment.region.name;
                     if(slot.currentSprite !== undefined)
                         slot.currentSprite.setVisible(false);
                     slot.sprites = slot.sprites ||{};
@@ -193,7 +192,7 @@ proto._updateChild = function(){
                 }
             }
             var bone = slot.bone;
-            if (attachment.regionOffsetX === 0 && attachment.regionOffsetY === 0) {
+            if (attachment.region.offsetX === 0 && attachment.region.offsetY === 0) {
                 ax = attachment.x;
                 ay = attachment.y;
             }
@@ -203,27 +202,27 @@ proto._updateChild = function(){
                 ax = (attachment.offset[0] + attachment.offset[4]) * 0.5;
                 ay = (attachment.offset[1] + attachment.offset[5]) * 0.5;
             }
-            slotNode.setPosition(bone.worldX + ax * bone.m00 + ay * bone.m01, bone.worldY + ax * bone.m10 + ay * bone.m11);
-            slotNode.setScale(bone.worldScaleX, bone.worldScaleY);
+            slotNode.setPosition(bone.worldX + ax * bone.a + ay * bone.b, bone.worldY + ax * bone.c + ay * bone.d);
+            slotNode.setScale(bone.getWorldScaleX(), bone.getWorldScaleY());
 
             //set the color and opacity
             selSprite = slot.currentSprite;
-            selSprite._flippedX = bone.worldFlipX;
-            selSprite._flippedY = bone.worldFlipY;
+            selSprite._flippedX = bone.skeleton.flipX;
+            selSprite._flippedY = bone.skeleton.flipY;
             if(selSprite._flippedY || selSprite._flippedX){
-                slotNode.setRotation(bone.worldRotation);
+                slotNode.setRotation(bone.getWorldRotationX());
                 selSprite.setRotation(attachment.rotation);
             }else{
-                slotNode.setRotation(-bone.worldRotation);
+                slotNode.setRotation(-bone.getWorldRotationX());
                 selSprite.setRotation(-attachment.rotation);
             }
 
             //hack for sprite
-            selSprite._renderCmd._displayedOpacity = 0 | (opacity * slot.a);
-            var r = 0 | (color.r * slot.r), g = 0 | (color.g * slot.g), b = 0 | (color.b * slot.b);
+            selSprite._renderCmd._displayedOpacity = 0 | (opacity * slot.color.a);
+            var r = 0 | (color.r * slot.color.r), g = 0 | (color.g * slot.color.g), b = 0 | (color.b * slot.color.b);
             selSprite.setColor(cc.color(r,g,b));
             selSprite._renderCmd._updateColor();
-        } else if (type === spine.AttachmentType.skinnedmesh) {
+        } else if (attachment instanceof spine.MeshAttachment) {
             //todo for mesh
         } else {
             slotNode.setVisible(false);

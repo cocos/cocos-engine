@@ -85,9 +85,22 @@ Audio.State = {
 (function (proto) {
 
     proto.preload = function () {
-        var src = this._src,
-            audio = this;
+        var src = this._src, audio = this;
+
+        if (!src) {
+            this._src = '';
+            this._audioType = Audio.Type.UNKNOWN;
+            this._element = null;
+            this._state = Audio.State.INITIALZING;
+            this._loaded = false;
+            return;
+        }
+
         var item = cc.loader.getItem(src);
+
+        if (!item) {
+            item = cc.loader.getItem(src + '?useDom=1');
+        }
 
         // If the resource does not exist
         if (!item) {
@@ -132,13 +145,13 @@ Audio.State = {
             this._element = new WebAudioElement(elem, this);
             this._audioType = Audio.Type.WEBAUDIO;
         }
-        this._bindEnded();
         this._state = Audio.State.INITIALZING;
         this._loaded = true;
     };
 
     proto.play = function () {
         if (!this._element) return;
+        this._bindEnded();
         this._element.play();
         this.emit('play');
         this._state = Audio.State.PLAYING;
@@ -188,7 +201,7 @@ Audio.State = {
                 break;
             }
         }
-        this.emit('ended');
+        this._unbindEnded();
         this.emit('stop');
         this._state = Audio.State.PAUSED;
     };
@@ -215,7 +228,18 @@ Audio.State = {
         this._bindEnded(function () {
             this._bindEnded();
         }.bind(this));
-        this._element.currentTime = num;
+        try {
+            this._element.currentTime = num;
+        } catch (err) {
+            var _element = this._element;
+            if (_element.addEventListener) {
+                var func = function () {
+                    _element.removeEventListener('loadedmetadata', func);
+                    _element.currentTime = num;
+                };
+                _element.addEventListener('loadedmetadata', func);
+            }
+        }
     };
     proto.getCurrentTime = function () {
         return this._element ? this._element.currentTime : 0;
@@ -240,6 +264,10 @@ Audio.State = {
         return this._src = string;
     });
 
+    proto.__defineGetter__('paused', function () {
+        return this._element ? this._element.paused : true;
+    });
+
     // setFinishCallback
 
 })(Audio.prototype);
@@ -261,6 +289,12 @@ var WebAudioElement = function (buffer, audio) {
     this.playedLength = 0;
 
     this._currextTimer = null;
+
+    this._endCallback = function () {
+        if (this.onended) {
+            this.onended(this);
+        }
+    }.bind(this);
 };
 
 (function (proto) {
@@ -305,11 +339,7 @@ var WebAudioElement = function (buffer, audio) {
 
         this._currentSource = audio;
 
-        audio.onended = function () {
-            if (this.onended) {
-                this.onended(this);
-            }
-        }.bind(this);
+        audio.onended = this._endCallback;
 
         // If the current audio context time stamp is 0
         // There may be a need to touch events before you can actually start playing audio
@@ -366,8 +396,9 @@ var WebAudioElement = function (buffer, audio) {
     proto.__defineGetter__('volume', function () { return this._volume['gain'].value; });
     proto.__defineSetter__('volume', function (num) {
         this._volume['gain'].value = num;
-        if (cc.sys.os === cc.sys.OS_IOS && !this.paused) {
+        if (cc.sys.os === cc.sys.OS_IOS && !this.paused && this._currentSource) {
             // IOS must be stop webAudio
+            this._currentSource.onended = null;
             this.pause();
             this.play();
         }

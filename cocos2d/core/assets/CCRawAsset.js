@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 var CCObject = require('../platform/CCObject');
+
 /**
  * !#en
  * The base class for registering asset types.
@@ -36,8 +37,7 @@ var CCObject = require('../platform/CCObject');
  * - createNode (static)
  *
  * @class RawAsset
- * @extends CCObject
- * @static
+ * @extends Object
  */
 cc.RawAsset = cc.Class({
     name: 'cc.RawAsset', extends: CCObject,

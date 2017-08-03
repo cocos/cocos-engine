@@ -4,12 +4,13 @@
  You can choose between MIT and BSD-3-Clause license. License file will be added later.
  --*/
 
+var Misc = require('../core/utils/misc');
+var strValue = Misc.BASE64_VALUES;
+
 /**
  * mixin cc.Codec.Base64
  */
-cc.Codec.Base64 = {name:'Jacob__Codec__Base64'};
-
-cc.Codec.Base64._keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+var Base64 = {name:'Jacob__Codec__Base64'};
 
 /**
  * <p>
@@ -22,7 +23,7 @@ cc.Codec.Base64._keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0
  * //decode string
  * cc.Codec.Base64.decode("U29tZSBTdHJpbmc="); // => "Some String"
  */
-cc.Codec.Base64.decode = function Jacob__Codec__Base64__decode(input) {
+Base64.decode = function Jacob__Codec__Base64__decode(input) {
     var output = [],
         chr1, chr2, chr3,
         enc1, enc2, enc3, enc4,
@@ -31,10 +32,10 @@ cc.Codec.Base64.decode = function Jacob__Codec__Base64__decode(input) {
     input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
 
     while (i < input.length) {
-        enc1 = this._keyStr.indexOf(input.charAt(i++));
-        enc2 = this._keyStr.indexOf(input.charAt(i++));
-        enc3 = this._keyStr.indexOf(input.charAt(i++));
-        enc4 = this._keyStr.indexOf(input.charAt(i++));
+        enc1 = strValue[input.charCodeAt(i++)];
+        enc2 = strValue[input.charCodeAt(i++)];
+        enc3 = strValue[input.charCodeAt(i++)];
+        enc4 = strValue[input.charCodeAt(i++)];
 
         chr1 = (enc1 << 2) | (enc2 >> 4);
         chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
@@ -68,7 +69,7 @@ cc.Codec.Base64.decode = function Jacob__Codec__Base64__decode(input) {
  * //decode string to array
  * var decodeArr = cc.Codec.Base64.decodeAsArray("U29tZSBTdHJpbmc=");
  */
-cc.Codec.Base64.decodeAsArray = function Jacob__Codec__Base64___decodeAsArray(input, bytes) {
+Base64.decodeAsArray = function Jacob__Codec__Base64___decodeAsArray(input, bytes) {
     var dec = this.decode(input),
         ar = [], i, j, len;
     for (i = 0, len = dec.length / bytes; i < len; i++) {
@@ -80,3 +81,5 @@ cc.Codec.Base64.decodeAsArray = function Jacob__Codec__Base64___decodeAsArray(in
 
     return ar;
 };
+
+module.exports = Base64;

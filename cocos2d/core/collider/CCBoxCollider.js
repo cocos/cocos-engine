@@ -23,20 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+
 /**
- * !#en Box Collider.
- * !#zh 包围盒碰撞组件
- * @class BoxCollider
- * @extends Component
+ * !#en Defines a Box Collider .
+ * !#zh 用来定义包围盒碰撞体
+ * @class Collider.Box
  */
-var BoxCollider = cc.Class({
-    name: 'cc.BoxCollider',
-    extends: cc.Collider,
-
-    editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.collider/Box Collider',
-    },
-
+cc.Collider.Box = cc.Class({
     properties: {
         _offset: cc.v2(0, 0),
         _size: cc.size(100, 100),
@@ -48,6 +41,7 @@ var BoxCollider = cc.Class({
          * @type {Vec2}
          */
         offset: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.offset',
             get: function () {
                 return this._offset;
             },
@@ -64,6 +58,7 @@ var BoxCollider = cc.Class({
          * @type {Size}
          */
         size: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.size',            
             get: function () {
                 return this._size;
             },
@@ -73,6 +68,32 @@ var BoxCollider = cc.Class({
             },
             type: cc.Size
         }
+    },
+
+    resetInEditor: CC_EDITOR && function () {
+        var size = this.node.getContentSize();
+        if (size.width !== 0 && size.height !== 0) {
+            this.size = cc.size( size );
+            this.offset.x = (0.5 - this.node.anchorX) * size.width;
+            this.offset.y = (0.5 - this.node.anchorY) * size.height;
+        }
+    }
+});
+
+/**
+ * !#en Box Collider.
+ * !#zh 包围盒碰撞组件
+ * @class BoxCollider
+ * @extends Collider
+ * @uses Collider.Box
+ */
+var BoxCollider = cc.Class({
+    name: 'cc.BoxCollider',
+    extends: cc.Collider,
+    mixins: [cc.Collider.Box],
+
+    editor: CC_EDITOR && {
+        menu: 'i18n:MAIN_MENU.component.collider/Box Collider',
     }
 });
 

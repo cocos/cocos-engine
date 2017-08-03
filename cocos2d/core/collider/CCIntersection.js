@@ -75,7 +75,7 @@ Intersection.lineRect = lineRect;
  * @method linePolygon
  * @param {Vec2} a1 - The start point of the line
  * @param {Vec2} a2 - The end point of the line
- * @param {[Vec2]} b - The polygon, a set of points
+ * @param {Vec2[]} b - The polygon, a set of points
  * @return {boolean}
  */
 function linePolygon ( a1, a2, b ) {
@@ -129,7 +129,7 @@ Intersection.rectRect = rectRect;
  * !#zh 测试矩形与多边形是否相交
  * @method rectPolygon
  * @param {Rect} a - The rect
- * @param {[Vec2]} b - The polygon, a set of points
+ * @param {Vec2[]} b - The polygon, a set of points
  * @return {boolean}
  */
 function rectPolygon ( a, b ) {
@@ -180,8 +180,8 @@ Intersection.rectPolygon = rectPolygon;
  * !#en Test polygon and polygon
  * !#zh 测试多边形与多边形是否相交
  * @method polygonPolygon
- * @param {[Vec2]} a - The first polygon, a set of points
- * @param {[Vec2]} b - The second polygon, a set of points
+ * @param {Vec2[]} a - The first polygon, a set of points
+ * @param {Vec2[]} b - The second polygon, a set of points
  * @return {boolean}
  */
 function polygonPolygon ( a, b ) {
@@ -222,6 +222,7 @@ Intersection.polygonPolygon = polygonPolygon;
  * @param {Object} a - Object contains position and radius
  * @param {Object} b - Object contains position and radius
  * @return {boolean}
+ * @typescript circleCircle(a: {position: Vec2, radius: number}, b: {position: Vec2, radius: number}): boolean
  */
 function circleCircle (a, b) {
     var distance = a.position.sub(b.position).mag();
@@ -235,9 +236,10 @@ Intersection.circleCircle = circleCircle;
  * !#en Test polygon and circle
  * !#zh 测试矩形与圆形是否相交
  * @method polygonCircle
- * @param {[Vec2]} polygon - The Polygon, a set of points
+ * @param {Vec2[]} polygon - The Polygon, a set of points
  * @param {Object} circle - Object contains position and radius
  * @return {boolean}
+ * @typescript polygonCircle(polygon: Vec2[], circle: {position: Vec2, radius: number}): boolean
  */
 function polygonCircle (polygon, circle) {
     var position = circle.position;
@@ -264,7 +266,7 @@ Intersection.polygonCircle = polygonCircle;
  * !#zh 测试一个点是否在一个多边形中
  * @method pointInPolygon
  * @param {Vec2} point - The point
- * @param {[Vec2]} polygon - The polygon, a set of points
+ * @param {Vec2[]} polygon - The polygon, a set of points
  * @return {boolean}
  */
 function pointInPolygon (point, polygon) {
