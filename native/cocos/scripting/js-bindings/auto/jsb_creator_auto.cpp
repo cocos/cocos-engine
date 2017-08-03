@@ -1751,6 +1751,7 @@ static bool js_creator_PhysicsWorldManifoldWrapper_constructor(se::State& s)
 {
     creator::PhysicsWorldManifoldWrapper* cobj = new (std::nothrow) creator::PhysicsWorldManifoldWrapper();
     s.thisObject()->setPrivateData(cobj);
+    se::__nonRefNativeObjectCreatedByCtorMap.emplace(cobj, true);
     return true;
 }
 SE_BIND_CTOR(js_creator_PhysicsWorldManifoldWrapper_constructor, __jsb_creator_PhysicsWorldManifoldWrapper_class, js_creator_PhysicsWorldManifoldWrapper_finalize)
@@ -1761,11 +1762,6 @@ SE_BIND_CTOR(js_creator_PhysicsWorldManifoldWrapper_constructor, __jsb_creator_P
 static bool js_creator_PhysicsWorldManifoldWrapper_finalize(se::State& s)
 {
     cocos2d::log("jsbindings: finalizing JS object %p (creator::PhysicsWorldManifoldWrapper)", s.nativeThisObject());
-    creator::PhysicsWorldManifoldWrapper* cobj = (creator::PhysicsWorldManifoldWrapper*)s.nativeThisObject();
-    if (cobj->getReferenceCount() == 1)
-        cobj->autorelease();
-    else
-        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_creator_PhysicsWorldManifoldWrapper_finalize)
@@ -1786,6 +1782,247 @@ bool js_register_creator_PhysicsWorldManifoldWrapper(se::Object* obj)
 
     __jsb_creator_PhysicsWorldManifoldWrapper_proto = cls->getProto();
     __jsb_creator_PhysicsWorldManifoldWrapper_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_creator_PhysicsManifoldWrapper_proto = nullptr;
+se::Class* __jsb_creator_PhysicsManifoldWrapper_class = nullptr;
+
+static bool js_creator_PhysicsManifoldWrapper_getNormalImpulse(se::State& s)
+{
+    creator::PhysicsManifoldWrapper* cobj = (creator::PhysicsManifoldWrapper*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsManifoldWrapper_getNormalImpulse : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        int arg0 = 0;
+        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsManifoldWrapper_getNormalImpulse : Error processing arguments");
+        float result = cobj->getNormalImpulse(arg0);
+        ok &= float_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsManifoldWrapper_getNormalImpulse : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_creator_PhysicsManifoldWrapper_getNormalImpulse)
+
+static bool js_creator_PhysicsManifoldWrapper_getLocalNormalY(se::State& s)
+{
+    creator::PhysicsManifoldWrapper* cobj = (creator::PhysicsManifoldWrapper*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsManifoldWrapper_getLocalNormalY : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cobj->getLocalNormalY();
+        ok &= float_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsManifoldWrapper_getLocalNormalY : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_creator_PhysicsManifoldWrapper_getLocalNormalY)
+
+static bool js_creator_PhysicsManifoldWrapper_getLocalNormalX(se::State& s)
+{
+    creator::PhysicsManifoldWrapper* cobj = (creator::PhysicsManifoldWrapper*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsManifoldWrapper_getLocalNormalX : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cobj->getLocalNormalX();
+        ok &= float_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsManifoldWrapper_getLocalNormalX : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_creator_PhysicsManifoldWrapper_getLocalNormalX)
+
+static bool js_creator_PhysicsManifoldWrapper_getLocalPointY(se::State& s)
+{
+    creator::PhysicsManifoldWrapper* cobj = (creator::PhysicsManifoldWrapper*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsManifoldWrapper_getLocalPointY : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cobj->getLocalPointY();
+        ok &= float_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsManifoldWrapper_getLocalPointY : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_creator_PhysicsManifoldWrapper_getLocalPointY)
+
+static bool js_creator_PhysicsManifoldWrapper_getLocalPointX(se::State& s)
+{
+    creator::PhysicsManifoldWrapper* cobj = (creator::PhysicsManifoldWrapper*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsManifoldWrapper_getLocalPointX : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cobj->getLocalPointX();
+        ok &= float_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsManifoldWrapper_getLocalPointX : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_creator_PhysicsManifoldWrapper_getLocalPointX)
+
+static bool js_creator_PhysicsManifoldWrapper_getType(se::State& s)
+{
+    creator::PhysicsManifoldWrapper* cobj = (creator::PhysicsManifoldWrapper*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsManifoldWrapper_getType : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getType();
+        ok &= int32_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsManifoldWrapper_getType : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_creator_PhysicsManifoldWrapper_getType)
+
+static bool js_creator_PhysicsManifoldWrapper_getX(se::State& s)
+{
+    creator::PhysicsManifoldWrapper* cobj = (creator::PhysicsManifoldWrapper*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsManifoldWrapper_getX : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        int arg0 = 0;
+        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsManifoldWrapper_getX : Error processing arguments");
+        float result = cobj->getX(arg0);
+        ok &= float_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsManifoldWrapper_getX : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_creator_PhysicsManifoldWrapper_getX)
+
+static bool js_creator_PhysicsManifoldWrapper_getY(se::State& s)
+{
+    creator::PhysicsManifoldWrapper* cobj = (creator::PhysicsManifoldWrapper*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsManifoldWrapper_getY : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        int arg0 = 0;
+        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsManifoldWrapper_getY : Error processing arguments");
+        float result = cobj->getY(arg0);
+        ok &= float_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsManifoldWrapper_getY : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_creator_PhysicsManifoldWrapper_getY)
+
+static bool js_creator_PhysicsManifoldWrapper_getTangentImpulse(se::State& s)
+{
+    creator::PhysicsManifoldWrapper* cobj = (creator::PhysicsManifoldWrapper*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsManifoldWrapper_getTangentImpulse : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        int arg0 = 0;
+        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsManifoldWrapper_getTangentImpulse : Error processing arguments");
+        float result = cobj->getTangentImpulse(arg0);
+        ok &= float_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsManifoldWrapper_getTangentImpulse : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_creator_PhysicsManifoldWrapper_getTangentImpulse)
+
+static bool js_creator_PhysicsManifoldWrapper_getCount(se::State& s)
+{
+    creator::PhysicsManifoldWrapper* cobj = (creator::PhysicsManifoldWrapper*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_creator_PhysicsManifoldWrapper_getCount : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getCount();
+        ok &= int32_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_creator_PhysicsManifoldWrapper_getCount : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_creator_PhysicsManifoldWrapper_getCount)
+
+SE_DECLARE_FINALIZE_FUNC(js_creator_PhysicsManifoldWrapper_finalize)
+
+static bool js_creator_PhysicsManifoldWrapper_constructor(se::State& s)
+{
+    creator::PhysicsManifoldWrapper* cobj = new (std::nothrow) creator::PhysicsManifoldWrapper();
+    s.thisObject()->setPrivateData(cobj);
+    se::__nonRefNativeObjectCreatedByCtorMap.emplace(cobj, true);
+    return true;
+}
+SE_BIND_CTOR(js_creator_PhysicsManifoldWrapper_constructor, __jsb_creator_PhysicsManifoldWrapper_class, js_creator_PhysicsManifoldWrapper_finalize)
+
+
+
+
+static bool js_creator_PhysicsManifoldWrapper_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (creator::PhysicsManifoldWrapper)", s.nativeThisObject());
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_creator_PhysicsManifoldWrapper_finalize)
+
+bool js_register_creator_PhysicsManifoldWrapper(se::Object* obj)
+{
+    auto cls = se::Class::create("PhysicsManifoldWrapper", obj, nullptr, _SE(js_creator_PhysicsManifoldWrapper_constructor));
+
+    cls->defineFunction("getNormalImpulse", _SE(js_creator_PhysicsManifoldWrapper_getNormalImpulse));
+    cls->defineFunction("getLocalNormalY", _SE(js_creator_PhysicsManifoldWrapper_getLocalNormalY));
+    cls->defineFunction("getLocalNormalX", _SE(js_creator_PhysicsManifoldWrapper_getLocalNormalX));
+    cls->defineFunction("getLocalPointY", _SE(js_creator_PhysicsManifoldWrapper_getLocalPointY));
+    cls->defineFunction("getLocalPointX", _SE(js_creator_PhysicsManifoldWrapper_getLocalPointX));
+    cls->defineFunction("getType", _SE(js_creator_PhysicsManifoldWrapper_getType));
+    cls->defineFunction("getX", _SE(js_creator_PhysicsManifoldWrapper_getX));
+    cls->defineFunction("getY", _SE(js_creator_PhysicsManifoldWrapper_getY));
+    cls->defineFunction("getTangentImpulse", _SE(js_creator_PhysicsManifoldWrapper_getTangentImpulse));
+    cls->defineFunction("getCount", _SE(js_creator_PhysicsManifoldWrapper_getCount));
+    cls->defineFinalizedFunction(_SE(js_creator_PhysicsManifoldWrapper_finalize));
+    cls->install();
+    JSBClassType::registerClass<creator::PhysicsManifoldWrapper>(cls);
+
+    __jsb_creator_PhysicsManifoldWrapper_proto = cls->getProto();
+    __jsb_creator_PhysicsManifoldWrapper_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -1857,7 +2094,7 @@ static bool js_creator_PhysicsUtils_getContactManifoldWrapper(se::State& s)
         ok &= seval_to_native_ptr(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_creator_PhysicsUtils_getContactManifoldWrapper : Error processing arguments");
         const creator::PhysicsManifoldWrapper* result = creator::PhysicsUtils::getContactManifoldWrapper(arg0);
-        ok &= native_ptr_to_seval<creator::PhysicsManifoldWrapper>((creator::PhysicsManifoldWrapper*)result, &s.rval());
+        ok &= native_ptr_to_rooted_seval<creator::PhysicsManifoldWrapper>((creator::PhysicsManifoldWrapper*)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_creator_PhysicsUtils_getContactManifoldWrapper : Error processing arguments");
         return true;
     }
@@ -1876,7 +2113,7 @@ static bool js_creator_PhysicsUtils_getContactWorldManifoldWrapper(se::State& s)
         ok &= seval_to_native_ptr(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_creator_PhysicsUtils_getContactWorldManifoldWrapper : Error processing arguments");
         const creator::PhysicsWorldManifoldWrapper* result = creator::PhysicsUtils::getContactWorldManifoldWrapper(arg0);
-        ok &= native_ptr_to_seval<creator::PhysicsWorldManifoldWrapper>((creator::PhysicsWorldManifoldWrapper*)result, &s.rval());
+        ok &= native_ptr_to_rooted_seval<creator::PhysicsWorldManifoldWrapper>((creator::PhysicsWorldManifoldWrapper*)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_creator_PhysicsUtils_getContactWorldManifoldWrapper : Error processing arguments");
         return true;
     }
@@ -2449,6 +2686,7 @@ bool register_all_creator(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
+    js_register_creator_PhysicsManifoldWrapper(ns);
     js_register_creator_PhysicsRayCastCallback(ns);
     js_register_creator_PhysicsDebugDraw(ns);
     js_register_creator_PhysicsContactListener(ns);

@@ -103,6 +103,23 @@ SE_DECLARE_FUNC(js_creator_PhysicsWorldManifoldWrapper_getNormalY);
 SE_DECLARE_FUNC(js_creator_PhysicsWorldManifoldWrapper_getNormalX);
 SE_DECLARE_FUNC(js_creator_PhysicsWorldManifoldWrapper_PhysicsWorldManifoldWrapper);
 
+extern se::Object* __jsb_creator_PhysicsManifoldWrapper_proto;
+extern se::Class* __jsb_creator_PhysicsManifoldWrapper_class;
+
+bool js_register_creator_PhysicsManifoldWrapper(se::Object* obj);
+bool register_all_creator(se::Object* obj);
+SE_DECLARE_FUNC(js_creator_PhysicsManifoldWrapper_getNormalImpulse);
+SE_DECLARE_FUNC(js_creator_PhysicsManifoldWrapper_getLocalNormalY);
+SE_DECLARE_FUNC(js_creator_PhysicsManifoldWrapper_getLocalNormalX);
+SE_DECLARE_FUNC(js_creator_PhysicsManifoldWrapper_getLocalPointY);
+SE_DECLARE_FUNC(js_creator_PhysicsManifoldWrapper_getLocalPointX);
+SE_DECLARE_FUNC(js_creator_PhysicsManifoldWrapper_getType);
+SE_DECLARE_FUNC(js_creator_PhysicsManifoldWrapper_getX);
+SE_DECLARE_FUNC(js_creator_PhysicsManifoldWrapper_getY);
+SE_DECLARE_FUNC(js_creator_PhysicsManifoldWrapper_getTangentImpulse);
+SE_DECLARE_FUNC(js_creator_PhysicsManifoldWrapper_getCount);
+SE_DECLARE_FUNC(js_creator_PhysicsManifoldWrapper_PhysicsManifoldWrapper);
+
 extern se::Object* __jsb_creator_PhysicsUtils_proto;
 extern se::Class* __jsb_creator_PhysicsUtils_class;
 
