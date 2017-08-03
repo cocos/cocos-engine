@@ -133,7 +133,7 @@ cc.rendererWebGL = {
     init: function () {
         var gl = cc._renderContext;
         gl.disable(gl.CULL_FACE);
-        gl.disable(gl.DEPTH_TEST);
+        gl.enable(gl.DEPTH_TEST);
 
         this.mat4Identity = new cc.math.Matrix4();
         this.mat4Identity.identity();
