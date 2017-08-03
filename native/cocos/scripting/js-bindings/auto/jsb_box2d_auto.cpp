@@ -304,7 +304,7 @@ static bool js_box2dclasses_b2Shape_Clone(se::State& s)
         ok &= seval_to_native_ptr(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2Shape_Clone : Error processing arguments");
         b2Shape* result = cobj->Clone(arg0);
-        ok &= native_ptr_to_seval<b2Shape>((b2Shape*)result, &s.rval());
+        ok &= native_ptr_to_rooted_seval<b2Shape>((b2Shape*)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2Shape_Clone : Error processing arguments");
         return true;
     }
@@ -430,19 +430,6 @@ SE_BIND_FUNC(js_box2dclasses_b2Shape_TestPoint)
 
 
 
-static bool js_b2Shape_finalize(se::State& s)
-{
-    cocos2d::log("jsbindings: finalizing JS object %p (b2Shape)", s.nativeThisObject());
-    auto iter = se::__nonRefNativeObjectCreatedByCtorMap.find(s.nativeThisObject());
-    if (iter != se::__nonRefNativeObjectCreatedByCtorMap.end())
-    {
-        se::__nonRefNativeObjectCreatedByCtorMap.erase(iter);
-        b2Shape* cobj = (b2Shape*)s.nativeThisObject();
-        delete cobj;
-    }
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_b2Shape_finalize)
 
 bool js_register_box2dclasses_b2Shape(se::Object* obj)
 {
@@ -455,7 +442,6 @@ bool js_register_box2dclasses_b2Shape(se::Object* obj)
     cls->defineFunction("ComputeAABB", _SE(js_box2dclasses_b2Shape_ComputeAABB));
     cls->defineFunction("GetChildCount", _SE(js_box2dclasses_b2Shape_GetChildCount));
     cls->defineFunction("TestPoint", _SE(js_box2dclasses_b2Shape_TestPoint));
-    cls->defineFinalizedFunction(_SE(js_b2Shape_finalize));
     cls->install();
     JSBClassType::registerClass<b2Shape>(cls);
 
@@ -524,7 +510,7 @@ static bool js_box2dclasses_b2CircleShape_Clone(se::State& s)
         ok &= seval_to_native_ptr(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2CircleShape_Clone : Error processing arguments");
         b2Shape* result = cobj->Clone(arg0);
-        ok &= native_ptr_to_seval<b2Shape>((b2Shape*)result, &s.rval());
+        ok &= native_ptr_to_rooted_seval<b2Shape>((b2Shape*)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2CircleShape_Clone : Error processing arguments");
         return true;
     }
@@ -802,7 +788,7 @@ static bool js_box2dclasses_b2EdgeShape_Clone(se::State& s)
         ok &= seval_to_native_ptr(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2EdgeShape_Clone : Error processing arguments");
         b2Shape* result = cobj->Clone(arg0);
-        ok &= native_ptr_to_seval<b2Shape>((b2Shape*)result, &s.rval());
+        ok &= native_ptr_to_rooted_seval<b2Shape>((b2Shape*)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2EdgeShape_Clone : Error processing arguments");
         return true;
     }
@@ -1167,7 +1153,7 @@ static bool js_box2dclasses_b2ChainShape_Clone(se::State& s)
         ok &= seval_to_native_ptr(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2ChainShape_Clone : Error processing arguments");
         b2Shape* result = cobj->Clone(arg0);
-        ok &= native_ptr_to_seval<b2Shape>((b2Shape*)result, &s.rval());
+        ok &= native_ptr_to_rooted_seval<b2Shape>((b2Shape*)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2ChainShape_Clone : Error processing arguments");
         return true;
     }
@@ -1288,7 +1274,7 @@ static bool js_box2dclasses_b2PolygonShape_Clone(se::State& s)
         ok &= seval_to_native_ptr(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2PolygonShape_Clone : Error processing arguments");
         b2Shape* result = cobj->Clone(arg0);
-        ok &= native_ptr_to_seval<b2Shape>((b2Shape*)result, &s.rval());
+        ok &= native_ptr_to_rooted_seval<b2Shape>((b2Shape*)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2PolygonShape_Clone : Error processing arguments");
         return true;
     }
@@ -1639,20 +1625,8 @@ static bool js_box2dclasses_b2Body_ApplyForce(se::State& s)
         b2Vec2 arg1;
         bool arg2;
         ok &= seval_to_b2Vec2(args[0], &arg0);
-        if (!ok)
-        {
-//            printf("error \n");
-        }
         ok &= seval_to_b2Vec2(args[1], &arg1);
-        if (!ok)
-        {
-//            printf("error \n");
-        }
         ok &= seval_to_boolean(args[2], &arg2);
-        if (!ok)
-        {
-//            printf("error \n");
-        }
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2Body_ApplyForce : Error processing arguments");
         cobj->ApplyForce(arg0, arg1, arg2);
         return true;
@@ -2640,7 +2614,7 @@ static bool js_box2dclasses_b2Fixture_GetShape(se::State& s)
     do {
         if (argc == 0) {
             const b2Shape* result = cobj->GetShape();
-            ok &= native_ptr_to_seval<b2Shape>((b2Shape*)result, &s.rval());
+            ok &= native_ptr_to_rooted_seval<b2Shape>((b2Shape*)result, &s.rval());
             SE_PRECONDITION2(ok, false, "js_box2dclasses_b2Fixture_GetShape : Error processing arguments");
             return true;
         }
@@ -2649,7 +2623,7 @@ static bool js_box2dclasses_b2Fixture_GetShape(se::State& s)
     do {
         if (argc == 0) {
             b2Shape* result = cobj->GetShape();
-            ok &= native_ptr_to_seval<b2Shape>((b2Shape*)result, &s.rval());
+            ok &= native_ptr_to_rooted_seval<b2Shape>((b2Shape*)result, &s.rval());
             SE_PRECONDITION2(ok, false, "js_box2dclasses_b2Fixture_GetShape : Error processing arguments");
             return true;
         }
