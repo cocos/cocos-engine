@@ -135,8 +135,8 @@ namespace se {
             if (object == nullptr)
             {
                 object = Object::_createJSObject(nullptr, jsval.toObjectOrNull());
-                object->root();
             }
+            object->root(); // Root it here since it will be unrooted in at the end of SE_BIND_FUNC
             v->setObject(object);
             object->release();
         }
@@ -153,8 +153,6 @@ namespace se {
             assert(false);
         }
     }
-
-    // --- Sets the return value for a function
 
     void setReturnValue(JSContext* cx, const Value& data, const JS::CallArgs& argv)
     {

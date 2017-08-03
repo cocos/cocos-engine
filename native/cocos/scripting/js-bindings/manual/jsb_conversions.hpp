@@ -276,7 +276,6 @@ bool native_ptr_to_rooted_seval(typename std::enable_if<!std::is_base_of<cocos2d
     auto iter = se::__nativePtrToObjectMap.find(v);
     if (iter == se::__nativePtrToObjectMap.end())
     { // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
-        CCLOGWARN("WARNING: non-Ref type: (%s) isn't catched!", typeid(*v).name());
         se::Class* cls = JSBClassType::findClass<T>(v);
         assert(cls != nullptr);
         obj = se::Object::createObjectWithClass(cls);
@@ -287,14 +286,17 @@ bool native_ptr_to_rooted_seval(typename std::enable_if<!std::is_base_of<cocos2d
         {
             *isReturnCachedValue = false;
         }
+        CCLOGWARN("WARNING: non-Ref type: (%s) isn't catched!", typeid(*v).name());
     }
     else
     {
         obj = iter->second;
+        assert(obj->isRooted());
         if (isReturnCachedValue != nullptr)
         {
             *isReturnCachedValue = true;
         }
+        // CCLOG("return cached object: %s, se::Object:%p, native: %p", typeid(*v).name(), obj, v);
     }
 
     ret->setObject(obj);
@@ -353,7 +355,6 @@ bool native_ptr_to_rooted_seval(typename std::enable_if<!std::is_base_of<cocos2d
     auto iter = se::__nativePtrToObjectMap.find(v);
     if (iter == se::__nativePtrToObjectMap.end())
     { // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
-        CCLOGWARN("WARNING: non-Ref type: (%s) isn't catched!", typeid(*v).name());
         assert(cls != nullptr);
         obj = se::Object::createObjectWithClass(cls);
         obj->root();
@@ -363,14 +364,17 @@ bool native_ptr_to_rooted_seval(typename std::enable_if<!std::is_base_of<cocos2d
         {
             *isReturnCachedValue = false;
         }
+        CCLOGWARN("WARNING: non-Ref type: (%s) isn't catched, se::Object:%p, native: %p", typeid(*v).name(), obj, v);
     }
     else
     {
         obj = iter->second;
+        assert(obj->isRooted());
         if (isReturnCachedValue != nullptr)
         {
             *isReturnCachedValue = true;
         }
+        // CCLOG("return cached object: %s, se::Object:%p, native: %p", typeid(*v).name(), obj, v);
     }
 
     ret->setObject(obj);

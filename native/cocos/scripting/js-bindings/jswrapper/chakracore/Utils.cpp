@@ -125,8 +125,8 @@ namespace se {
             if (obj == nullptr)
             {
                 obj = Object::_createJSObject(nullptr, jsValue);
-                obj->root();
             }
+            obj->root(); // Root it here since it will be unrooted in at the end of SE_BIND_FUNC
             data->setObject(obj);
             obj->release();
         }
