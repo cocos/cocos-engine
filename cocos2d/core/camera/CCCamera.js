@@ -52,6 +52,8 @@ let Camera = cc.Class({
 
         this._sgTarges = [];
 
+        this._checkedTimes = 0;
+
         this.visibleRect = {
             left: cc.v2(),
             right: cc.v2(),
@@ -118,13 +120,14 @@ let Camera = cc.Class({
             sgNode = target;
         }
 
-        if (!sgNode) return;
+        if (!sgNode || sgNode._cameraInfo) return;
 
+        sgNode._cameraInfo = {
+            touched: this._checkedTimes
+        };
         this._sgNode.addTarget(sgNode);
 
-        if (this._sgTarges.indexOf(sgNode) === -1) {
-            this._sgTarges.push(sgNode);
-        }
+        this._sgTarges.push(sgNode);
 
         if (!CC_JSB) {
             var cmd = sgNode._renderCmd;
@@ -144,9 +147,11 @@ let Camera = cc.Class({
             sgNode = target;
         }
 
-        if (!sgNode) return;
+        if (!sgNode || !sgNode._cameraInfo) return;
 
         this._sgNode.removeTarget(sgNode);
+        delete sgNode._cameraInfo;
+        
         cc.js.array.remove(this._sgTarges, sgNode);
         
         if (!CC_JSB) {
@@ -299,7 +304,37 @@ let Camera = cc.Class({
         }
     },
 
+    _checkSgTargets: function () {
+        let targets = this._targets;
+        let sgTarges = this._sgTarges;
+
+        let checkedTimes = ++this._checkedTimes;
+
+        for (let i = 0, l = targets.length; i < l; i++) {
+            let target = targets[i];
+            let sgNode = target;
+
+            if (target instanceof cc.Node) {
+                sgNode = target._sgNode;
+                if (!sgNode._cameraInfo) {
+                    this._addSgTargetInSg(sgNode);
+                }
+            }
+
+            sgNode._cameraInfo.touched = checkedTimes;
+        }
+
+        for (let i = sgTarges.length - 1; i >= 0; i--) {
+            let sgTarget = sgTarges[i];
+            if (sgTarget._cameraInfo.touched !== checkedTimes) {
+                this._removeTargetInSg(sgTarget);
+            }
+        }
+    },
+
     lateUpdate: !CC_EDITOR && function () {
+        this._checkSgTargets();
+
         let m = this.viewMatrix;
         let im = this.invertViewMatrix;
         let viewPort = this.viewPort;
