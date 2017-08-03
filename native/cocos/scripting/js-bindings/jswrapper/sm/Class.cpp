@@ -148,7 +148,7 @@ namespace se {
         return true;
     }
 
-    bool Class::defineFinalizedFunction(JSFinalizeOp func)
+    bool Class::defineFinalizeFunction(JSFinalizeOp func)
     {
         _finalizeOp = func;
         return true;

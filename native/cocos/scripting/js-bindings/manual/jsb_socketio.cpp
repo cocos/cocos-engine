@@ -317,7 +317,7 @@ SE_BIND_FUNC(SocketIO_close)
 bool register_all_socketio(se::Object* obj)
 {
     se::Class* cls = se::Class::create("SocketIO", obj, nullptr, nullptr);
-    cls->defineFinalizedFunction(_SE(SocketIO_finalize));
+    cls->defineFinalizeFunction(_SE(SocketIO_finalize));
 
     cls->defineProperty("tag", _SE(SocketIO_prop_getTag), _SE(SocketIO_prop_setTag));
 

@@ -4585,7 +4585,7 @@ bool js_register_cocos2dx_dragonbones_CCArmatureDisplay(se::Object* obj)
     cls->defineFunction("hasEvent", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_hasEvent));
     cls->defineFunction("armature", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_getArmature));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_create));
-    cls->defineFinalizedFunction(_SE(js_dragonBones_CCArmatureDisplay_finalize));
+    cls->defineFinalizeFunction(_SE(js_dragonBones_CCArmatureDisplay_finalize));
     cls->install();
     JSBClassType::registerClass<dragonBones::CCArmatureDisplay>(cls);
 
@@ -4637,7 +4637,7 @@ bool js_register_cocos2dx_dragonbones_DBCCSprite(se::Object* obj)
     auto cls = se::Class::create("DBCCSprite", obj, __jsb_cocos2d_Sprite_proto, nullptr);
 
     cls->defineStaticFunction("create", _SE(js_cocos2dx_dragonbones_DBCCSprite_create));
-    cls->defineFinalizedFunction(_SE(js_dragonBones_DBCCSprite_finalize));
+    cls->defineFinalizeFunction(_SE(js_dragonBones_DBCCSprite_finalize));
     cls->install();
     JSBClassType::registerClass<dragonBones::DBCCSprite>(cls);
 
@@ -4891,7 +4891,7 @@ bool js_register_cocos2dx_dragonbones_CCFactory(se::Object* obj)
     cls->defineFunction("getSoundEventManater", _SE(js_cocos2dx_dragonbones_CCFactory_getSoundEventManater));
     cls->defineFunction("buildArmatureDisplay", _SE(js_cocos2dx_dragonbones_CCFactory_buildArmatureDisplay));
     cls->defineFunction("parseTextureAtlasData", _SE(js_cocos2dx_dragonbones_CCFactory_parseTextureAtlasData));
-    cls->defineFinalizedFunction(_SE(js_dragonBones_CCFactory_finalize));
+    cls->defineFinalizeFunction(_SE(js_dragonBones_CCFactory_finalize));
     cls->install();
     JSBClassType::registerClass<dragonBones::CCFactory>(cls);
 

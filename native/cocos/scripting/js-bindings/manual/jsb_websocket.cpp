@@ -440,7 +440,7 @@ SE_BIND_PROP_GET(WebSocket_getReadyState)
 bool register_all_websocket(se::Object* obj)
 {
     se::Class* cls = se::Class::create("WebSocket", obj, nullptr, _SE(WebSocket_constructor));
-    cls->defineFinalizedFunction(_SE(WebSocket_finalize));
+    cls->defineFinalizeFunction(_SE(WebSocket_finalize));
 
     cls->defineFunction("send", _SE(WebSocket_send));
     cls->defineFunction("close", _SE(WebSocket_close));

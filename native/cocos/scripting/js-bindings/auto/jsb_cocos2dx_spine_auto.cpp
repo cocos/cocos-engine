@@ -785,7 +785,7 @@ bool js_register_cocos2dx_spine_SkeletonRenderer(se::Object* obj)
     cls->defineFunction("findBone", _SE(js_cocos2dx_spine_SkeletonRenderer_findBone));
     cls->defineFunction("drawDebug", _SE(js_cocos2dx_spine_SkeletonRenderer_drawDebug));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_spine_SkeletonRenderer_createWithFile));
-    cls->defineFinalizedFunction(_SE(js_spine_SkeletonRenderer_finalize));
+    cls->defineFinalizeFunction(_SE(js_spine_SkeletonRenderer_finalize));
     cls->install();
     JSBClassType::registerClass<spine::SkeletonRenderer>(cls);
 
@@ -1714,7 +1714,7 @@ bool js_register_cocos2dx_spine_SkeletonAnimation(se::Object* obj)
     cls->defineStaticFunction("createWithBinaryFile", _SE(js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_spine_SkeletonAnimation_create));
     cls->defineStaticFunction("createWithJsonFile", _SE(js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile));
-    cls->defineFinalizedFunction(_SE(js_spine_SkeletonAnimation_finalize));
+    cls->defineFinalizeFunction(_SE(js_spine_SkeletonAnimation_finalize));
     cls->install();
     JSBClassType::registerClass<spine::SkeletonAnimation>(cls);
 

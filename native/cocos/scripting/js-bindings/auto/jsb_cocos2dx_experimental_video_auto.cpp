@@ -390,7 +390,7 @@ bool js_register_cocos2dx_experimental_video_VideoPlayer(se::Object* obj)
     cls->defineFunction("isPlaying", _SE(js_cocos2dx_experimental_video_VideoPlayer_isPlaying));
     cls->defineFunction("seekTo", _SE(js_cocos2dx_experimental_video_VideoPlayer_seekTo));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_experimental_video_VideoPlayer_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_experimental_ui_VideoPlayer_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_experimental_ui_VideoPlayer_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::experimental::ui::VideoPlayer>(cls);
 

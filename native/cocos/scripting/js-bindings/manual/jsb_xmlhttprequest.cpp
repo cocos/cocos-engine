@@ -795,7 +795,7 @@ SE_BIND_PROP_GET(XMLHttpRequest_getWithCredentials)
 bool register_all_xmlhttprequest(se::Object* global)
 {
     se::Class* cls = se::Class::create("XMLHttpRequest", global, nullptr, _SE(XMLHttpRequest_constructor));
-    cls->defineFinalizedFunction(_SE(XMLHttpRequest_finalize));
+    cls->defineFinalizeFunction(_SE(XMLHttpRequest_finalize));
 
     cls->defineFunction("open", _SE(XMLHttpRequest_open));
     cls->defineFunction("abort", _SE(XMLHttpRequest_abort));

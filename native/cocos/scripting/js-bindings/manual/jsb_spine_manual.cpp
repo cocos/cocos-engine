@@ -270,7 +270,7 @@ static bool js_register_spine_TrackEntry(se::Object* obj)
     cls->defineProperty("timelinesRotationCount", _SE(jsb_spine_TrackEntry_get_timelinesRotationCount), nullptr);
     cls->defineProperty("animation", _SE(jsb_spine_TrackEntry_get_animation), nullptr);
 
-    cls->defineFinalizedFunction(_SE(jsb_spine_TrackEntry_finalize));
+    cls->defineFinalizeFunction(_SE(jsb_spine_TrackEntry_finalize));
     cls->install();
 
     JSBClassType::registerClass<spTrackEntry>(cls);

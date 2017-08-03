@@ -247,7 +247,7 @@ bool js_register_cocos2dx_network_Downloader(se::Object* obj)
     cls->defineFunction("setOnTaskProgress", _SE(js_cocos2dx_network_Downloader_setOnTaskProgress));
     cls->defineFunction("createDownloadFileTask", _SE(js_cocos2dx_network_Downloader_createDownloadFileTask));
     cls->defineFunction("setOnFileTaskSuccess", _SE(js_cocos2dx_network_Downloader_setOnFileTaskSuccess));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_network_Downloader_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_network_Downloader_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::network::Downloader>(cls);
 

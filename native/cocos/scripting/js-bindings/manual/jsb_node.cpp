@@ -1389,7 +1389,7 @@ bool jsb_register_Node_manual(se::Object* global)
 #if STANDALONE_TEST
     cls->defineFunction("addChild", _SE(Node_addChild));
     cls->defineFunction("getChildren", _SE(Node_getChildren));
-    cls->defineFinalizedFunction(_SE(Node_finalized));
+    cls->defineFinalizeFunction(_SE(Node_finalized));
 
     cls->install();
 

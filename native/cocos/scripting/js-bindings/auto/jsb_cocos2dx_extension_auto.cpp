@@ -291,7 +291,7 @@ bool js_register_cocos2dx_extension_EventAssetsManagerEx(se::Object* obj)
     cls->defineFunction("getEventCode", _SE(js_cocos2dx_extension_EventAssetsManagerEx_getEventCode));
     cls->defineFunction("getPercent", _SE(js_cocos2dx_extension_EventAssetsManagerEx_getPercent));
     cls->defineFunction("isResuming", _SE(js_cocos2dx_extension_EventAssetsManagerEx_isResuming));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_extension_EventAssetsManagerEx_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_extension_EventAssetsManagerEx_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::extension::EventAssetsManagerEx>(cls);
 
@@ -599,7 +599,7 @@ bool js_register_cocos2dx_extension_Manifest(se::Object* obj)
     cls->defineFunction("parseJSONString", _SE(js_cocos2dx_extension_Manifest_parseJSONString));
     cls->defineFunction("getVersionFileUrl", _SE(js_cocos2dx_extension_Manifest_getVersionFileUrl));
     cls->defineFunction("getSearchPaths", _SE(js_cocos2dx_extension_Manifest_getSearchPaths));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_extension_Manifest_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_extension_Manifest_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::extension::Manifest>(cls);
 
@@ -1175,7 +1175,7 @@ bool js_register_cocos2dx_extension_AssetsManagerEx(se::Object* obj)
     cls->defineFunction("downloadFailedAssets", _SE(js_cocos2dx_extension_AssetsManagerEx_downloadFailedAssets));
     cls->defineFunction("isResuming", _SE(js_cocos2dx_extension_AssetsManagerEx_isResuming));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_extension_AssetsManagerEx_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_extension_AssetsManagerEx_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_extension_AssetsManagerEx_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::extension::AssetsManagerEx>(cls);
 
@@ -1325,7 +1325,7 @@ bool js_register_cocos2dx_extension_EventListenerAssetsManagerEx(se::Object* obj
 
     cls->defineFunction("init", _SE(js_cocos2dx_extension_EventListenerAssetsManagerEx_init));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_extension_EventListenerAssetsManagerEx_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_extension_EventListenerAssetsManagerEx_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_extension_EventListenerAssetsManagerEx_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::extension::EventListenerAssetsManagerEx>(cls);
 
@@ -1623,7 +1623,7 @@ bool js_register_cocos2dx_extension_Control(se::Object* obj)
     cls->defineFunction("getTouchLocation", _SE(js_cocos2dx_extension_Control_getTouchLocation));
     cls->defineFunction("isHighlighted", _SE(js_cocos2dx_extension_Control_isHighlighted));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_extension_Control_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_extension_Control_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_extension_Control_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::extension::Control>(cls);
 
@@ -2561,7 +2561,7 @@ bool js_register_cocos2dx_extension_ControlButton(se::Object* obj)
     cls->defineFunction("getTitleForState", _SE(js_cocos2dx_extension_ControlButton_getTitleForState));
     cls->defineFunction("ctor", _SE(js_cocos2dx_extension_ControlButton_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_extension_ControlButton_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_extension_ControlButton_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_extension_ControlButton_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::extension::ControlButton>(cls);
 
@@ -2829,7 +2829,7 @@ bool js_register_cocos2dx_extension_ControlHuePicker(se::Object* obj)
     cls->defineFunction("getHuePercentage", _SE(js_cocos2dx_extension_ControlHuePicker_getHuePercentage));
     cls->defineFunction("setSlider", _SE(js_cocos2dx_extension_ControlHuePicker_setSlider));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_extension_ControlHuePicker_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_extension_ControlHuePicker_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_extension_ControlHuePicker_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::extension::ControlHuePicker>(cls);
 
@@ -3054,7 +3054,7 @@ bool js_register_cocos2dx_extension_ControlSaturationBrightnessPicker(se::Object
     cls->defineFunction("getSaturation", _SE(js_cocos2dx_extension_ControlSaturationBrightnessPicker_getSaturation));
     cls->defineFunction("getBrightness", _SE(js_cocos2dx_extension_ControlSaturationBrightnessPicker_getBrightness));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_extension_ControlSaturationBrightnessPicker_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_extension_ControlSaturationBrightnessPicker_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_extension_ControlSaturationBrightnessPicker_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::extension::ControlSaturationBrightnessPicker>(cls);
 
@@ -3288,7 +3288,7 @@ bool js_register_cocos2dx_extension_ControlColourPicker(se::Object* obj)
     cls->defineFunction("getBackground", _SE(js_cocos2dx_extension_ControlColourPicker_getBackground));
     cls->defineFunction("ctor", _SE(js_cocos2dx_extension_ControlColourPicker_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_extension_ControlColourPicker_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_extension_ControlColourPicker_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_extension_ControlColourPicker_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::extension::ControlColourPicker>(cls);
 
@@ -3741,7 +3741,7 @@ bool js_register_cocos2dx_extension_ControlPotentiometer(se::Object* obj)
     cls->defineFunction("potentiometerMoved", _SE(js_cocos2dx_extension_ControlPotentiometer_potentiometerMoved));
     cls->defineFunction("ctor", _SE(js_cocos2dx_extension_ControlPotentiometer_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_extension_ControlPotentiometer_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_extension_ControlPotentiometer_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_extension_ControlPotentiometer_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::extension::ControlPotentiometer>(cls);
 
@@ -4306,7 +4306,7 @@ bool js_register_cocos2dx_extension_ControlSlider(se::Object* obj)
     cls->defineFunction("setMaximumAllowedValue", _SE(js_cocos2dx_extension_ControlSlider_setMaximumAllowedValue));
     cls->defineFunction("ctor", _SE(js_cocos2dx_extension_ControlSlider_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_extension_ControlSlider_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_extension_ControlSlider_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_extension_ControlSlider_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::extension::ControlSlider>(cls);
 
@@ -4777,7 +4777,7 @@ bool js_register_cocos2dx_extension_ControlStepper(se::Object* obj)
     cls->defineFunction("setMinusSprite", _SE(js_cocos2dx_extension_ControlStepper_setMinusSprite));
     cls->defineFunction("ctor", _SE(js_cocos2dx_extension_ControlStepper_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_extension_ControlStepper_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_extension_ControlStepper_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_extension_ControlStepper_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::extension::ControlStepper>(cls);
 
@@ -5043,7 +5043,7 @@ bool js_register_cocos2dx_extension_ControlSwitch(se::Object* obj)
     cls->defineFunction("hasMoved", _SE(js_cocos2dx_extension_ControlSwitch_hasMoved));
     cls->defineFunction("ctor", _SE(js_cocos2dx_extension_ControlSwitch_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_extension_ControlSwitch_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_extension_ControlSwitch_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_extension_ControlSwitch_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::extension::ControlSwitch>(cls);
 
@@ -5786,7 +5786,7 @@ bool js_register_cocos2dx_extension_ScrollView(se::Object* obj)
     cls->defineFunction("setZoomScale", _SE(js_cocos2dx_extension_ScrollView_setZoomScale));
     cls->defineFunction("ctor", _SE(js_cocos2dx_extension_ScrollView_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_extension_ScrollView_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_extension_ScrollView_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_extension_ScrollView_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::extension::ScrollView>(cls);
 
@@ -5915,7 +5915,7 @@ bool js_register_cocos2dx_extension_TableViewCell(se::Object* obj)
     cls->defineFunction("setIdx", _SE(js_cocos2dx_extension_TableViewCell_setIdx));
     cls->defineFunction("ctor", _SE(js_cocos2dx_extension_TableViewCell_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_extension_TableViewCell_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_extension_TableViewCell_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_extension_TableViewCell_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::extension::TableViewCell>(cls);
 
@@ -6206,7 +6206,7 @@ bool js_register_cocos2dx_extension_TableView(se::Object* obj)
     cls->defineFunction("cellAtIndex", _SE(js_cocos2dx_extension_TableView_cellAtIndex));
     cls->defineFunction("dequeueCell", _SE(js_cocos2dx_extension_TableView_dequeueCell));
     cls->defineFunction("ctor", _SE(js_cocos2dx_extension_TableView_ctor));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_extension_TableView_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_extension_TableView_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::extension::TableView>(cls);
 

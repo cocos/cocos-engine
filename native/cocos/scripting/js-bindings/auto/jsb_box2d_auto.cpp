@@ -719,7 +719,7 @@ bool js_register_box2dclasses_b2CircleShape(se::Object* obj)
     cls->defineFunction("TestPoint", _SE(js_box2dclasses_b2CircleShape_TestPoint));
     cls->defineFunction("GetSupportVertex", _SE(js_box2dclasses_b2CircleShape_GetSupportVertex));
     cls->defineFunction("GetSupport", _SE(js_box2dclasses_b2CircleShape_GetSupport));
-    cls->defineFinalizedFunction(_SE(js_b2CircleShape_finalize));
+    cls->defineFinalizeFunction(_SE(js_b2CircleShape_finalize));
     cls->install();
     JSBClassType::registerClass<b2CircleShape>(cls);
 
@@ -934,7 +934,7 @@ bool js_register_box2dclasses_b2EdgeShape(se::Object* obj)
     cls->defineFunction("ComputeAABB", _SE(js_box2dclasses_b2EdgeShape_ComputeAABB));
     cls->defineFunction("GetChildCount", _SE(js_box2dclasses_b2EdgeShape_GetChildCount));
     cls->defineFunction("TestPoint", _SE(js_box2dclasses_b2EdgeShape_TestPoint));
-    cls->defineFinalizedFunction(_SE(js_b2EdgeShape_finalize));
+    cls->defineFinalizeFunction(_SE(js_b2EdgeShape_finalize));
     cls->install();
     JSBClassType::registerClass<b2EdgeShape>(cls);
 
@@ -1205,7 +1205,7 @@ bool js_register_box2dclasses_b2ChainShape(se::Object* obj)
     cls->defineFunction("SetPrevVertex", _SE(js_box2dclasses_b2ChainShape_SetPrevVertex));
     cls->defineFunction("SetNextVertex", _SE(js_box2dclasses_b2ChainShape_SetNextVertex));
     cls->defineFunction("Clone", _SE(js_box2dclasses_b2ChainShape_Clone));
-    cls->defineFinalizedFunction(_SE(js_b2ChainShape_finalize));
+    cls->defineFinalizeFunction(_SE(js_b2ChainShape_finalize));
     cls->install();
     JSBClassType::registerClass<b2ChainShape>(cls);
 
@@ -1458,7 +1458,7 @@ bool js_register_box2dclasses_b2PolygonShape(se::Object* obj)
     cls->defineFunction("GetChildCount", _SE(js_box2dclasses_b2PolygonShape_GetChildCount));
     cls->defineFunction("TestPoint", _SE(js_box2dclasses_b2PolygonShape_TestPoint));
     cls->defineFunction("Validate", _SE(js_box2dclasses_b2PolygonShape_Validate));
-    cls->defineFinalizedFunction(_SE(js_b2PolygonShape_finalize));
+    cls->defineFinalizeFunction(_SE(js_b2PolygonShape_finalize));
     cls->install();
     JSBClassType::registerClass<b2PolygonShape>(cls);
 
@@ -2533,7 +2533,7 @@ bool js_register_box2dclasses_b2Body(se::Object* obj)
     cls->defineFunction("SetFixedRotation", _SE(js_box2dclasses_b2Body_SetFixedRotation));
     cls->defineFunction("ApplyAngularImpulse", _SE(js_box2dclasses_b2Body_ApplyAngularImpulse));
     cls->defineFunction("GetPosition", _SE(js_box2dclasses_b2Body_GetPosition));
-    cls->defineFinalizedFunction(_SE(js_b2Body_finalize));
+    cls->defineFinalizeFunction(_SE(js_b2Body_finalize));
     cls->install();
     JSBClassType::registerClass<b2Body>(cls);
 
@@ -2997,7 +2997,7 @@ bool js_register_box2dclasses_b2Fixture(se::Object* obj)
     cls->defineFunction("IsSensor", _SE(js_box2dclasses_b2Fixture_IsSensor));
     cls->defineFunction("GetType", _SE(js_box2dclasses_b2Fixture_GetType));
     cls->defineFunction("GetDensity", _SE(js_box2dclasses_b2Fixture_GetDensity));
-    cls->defineFinalizedFunction(_SE(js_b2Fixture_finalize));
+    cls->defineFinalizeFunction(_SE(js_b2Fixture_finalize));
     cls->install();
     JSBClassType::registerClass<b2Fixture>(cls);
 
@@ -3969,7 +3969,7 @@ bool js_register_box2dclasses_b2World(se::Object* obj)
     cls->defineFunction("GetContactCount", _SE(js_box2dclasses_b2World_GetContactCount));
     cls->defineFunction("SetWarmStarting", _SE(js_box2dclasses_b2World_SetWarmStarting));
     cls->defineFunction("SetContactFilter", _SE(js_box2dclasses_b2World_SetContactFilter));
-    cls->defineFinalizedFunction(_SE(js_b2World_finalize));
+    cls->defineFinalizeFunction(_SE(js_b2World_finalize));
     cls->install();
     JSBClassType::registerClass<b2World>(cls);
 
@@ -4413,7 +4413,7 @@ bool js_register_box2dclasses_b2Contact(se::Object* obj)
     cls->defineFunction("GetManifold", _SE(js_box2dclasses_b2Contact_GetManifold));
     cls->defineFunction("Evaluate", _SE(js_box2dclasses_b2Contact_Evaluate));
     cls->defineFunction("ResetRestitution", _SE(js_box2dclasses_b2Contact_ResetRestitution));
-    cls->defineFinalizedFunction(_SE(js_b2Contact_finalize));
+    cls->defineFinalizeFunction(_SE(js_b2Contact_finalize));
     cls->install();
     JSBClassType::registerClass<b2Contact>(cls);
 
@@ -4684,7 +4684,7 @@ bool js_register_box2dclasses_b2Joint(se::Object* obj)
     cls->defineFunction("GetAnchorB", _SE(js_box2dclasses_b2Joint_GetAnchorB));
     cls->defineFunction("GetReactionForce", _SE(js_box2dclasses_b2Joint_GetReactionForce));
     cls->defineFunction("IsActive", _SE(js_box2dclasses_b2Joint_IsActive));
-    cls->defineFinalizedFunction(_SE(js_b2Joint_finalize));
+    cls->defineFinalizeFunction(_SE(js_b2Joint_finalize));
     cls->install();
     JSBClassType::registerClass<b2Joint>(cls);
 
@@ -4965,7 +4965,7 @@ bool js_register_box2dclasses_b2DistanceJoint(se::Object* obj)
     cls->defineFunction("GetAnchorB", _SE(js_box2dclasses_b2DistanceJoint_GetAnchorB));
     cls->defineFunction("GetReactionForce", _SE(js_box2dclasses_b2DistanceJoint_GetReactionForce));
     cls->defineFunction("SetLength", _SE(js_box2dclasses_b2DistanceJoint_SetLength));
-    cls->defineFinalizedFunction(_SE(js_b2DistanceJoint_finalize));
+    cls->defineFinalizeFunction(_SE(js_b2DistanceJoint_finalize));
     cls->install();
     JSBClassType::registerClass<b2DistanceJoint>(cls);
 
@@ -5207,7 +5207,7 @@ bool js_register_box2dclasses_b2FrictionJoint(se::Object* obj)
     cls->defineFunction("GetAnchorB", _SE(js_box2dclasses_b2FrictionJoint_GetAnchorB));
     cls->defineFunction("GetReactionForce", _SE(js_box2dclasses_b2FrictionJoint_GetReactionForce));
     cls->defineFunction("GetMaxTorque", _SE(js_box2dclasses_b2FrictionJoint_GetMaxTorque));
-    cls->defineFinalizedFunction(_SE(js_b2FrictionJoint_finalize));
+    cls->defineFinalizeFunction(_SE(js_b2FrictionJoint_finalize));
     cls->install();
     JSBClassType::registerClass<b2FrictionJoint>(cls);
 
@@ -5410,7 +5410,7 @@ bool js_register_box2dclasses_b2GearJoint(se::Object* obj)
     cls->defineFunction("GetAnchorB", _SE(js_box2dclasses_b2GearJoint_GetAnchorB));
     cls->defineFunction("GetReactionForce", _SE(js_box2dclasses_b2GearJoint_GetReactionForce));
     cls->defineFunction("GetRatio", _SE(js_box2dclasses_b2GearJoint_GetRatio));
-    cls->defineFinalizedFunction(_SE(js_b2GearJoint_finalize));
+    cls->defineFinalizeFunction(_SE(js_b2GearJoint_finalize));
     cls->install();
     JSBClassType::registerClass<b2GearJoint>(cls);
 
@@ -5731,7 +5731,7 @@ bool js_register_box2dclasses_b2MotorJoint(se::Object* obj)
     cls->defineFunction("GetLinearOffset", _SE(js_box2dclasses_b2MotorJoint_GetLinearOffset));
     cls->defineFunction("GetMaxTorque", _SE(js_box2dclasses_b2MotorJoint_GetMaxTorque));
     cls->defineFunction("SetCorrectionFactor", _SE(js_box2dclasses_b2MotorJoint_SetCorrectionFactor));
-    cls->defineFinalizedFunction(_SE(js_b2MotorJoint_finalize));
+    cls->defineFinalizeFunction(_SE(js_b2MotorJoint_finalize));
     cls->install();
     JSBClassType::registerClass<b2MotorJoint>(cls);
 
@@ -6033,7 +6033,7 @@ bool js_register_box2dclasses_b2MouseJoint(se::Object* obj)
     cls->defineFunction("GetAnchorB", _SE(js_box2dclasses_b2MouseJoint_GetAnchorB));
     cls->defineFunction("GetReactionForce", _SE(js_box2dclasses_b2MouseJoint_GetReactionForce));
     cls->defineFunction("ShiftOrigin", _SE(js_box2dclasses_b2MouseJoint_ShiftOrigin));
-    cls->defineFinalizedFunction(_SE(js_b2MouseJoint_finalize));
+    cls->defineFinalizeFunction(_SE(js_b2MouseJoint_finalize));
     cls->install();
     JSBClassType::registerClass<b2MouseJoint>(cls);
 
@@ -6511,7 +6511,7 @@ bool js_register_box2dclasses_b2PrismaticJoint(se::Object* obj)
     cls->defineFunction("SetLimits", _SE(js_box2dclasses_b2PrismaticJoint_SetLimits));
     cls->defineFunction("GetUpperLimit", _SE(js_box2dclasses_b2PrismaticJoint_GetUpperLimit));
     cls->defineFunction("GetAnchorB", _SE(js_box2dclasses_b2PrismaticJoint_GetAnchorB));
-    cls->defineFinalizedFunction(_SE(js_b2PrismaticJoint_finalize));
+    cls->defineFinalizeFunction(_SE(js_b2PrismaticJoint_finalize));
     cls->install();
     JSBClassType::registerClass<b2PrismaticJoint>(cls);
 
@@ -6790,7 +6790,7 @@ bool js_register_box2dclasses_b2PulleyJoint(se::Object* obj)
     cls->defineFunction("GetReactionForce", _SE(js_box2dclasses_b2PulleyJoint_GetReactionForce));
     cls->defineFunction("ShiftOrigin", _SE(js_box2dclasses_b2PulleyJoint_ShiftOrigin));
     cls->defineFunction("GetRatio", _SE(js_box2dclasses_b2PulleyJoint_GetRatio));
-    cls->defineFinalizedFunction(_SE(js_b2PulleyJoint_finalize));
+    cls->defineFinalizeFunction(_SE(js_b2PulleyJoint_finalize));
     cls->install();
     JSBClassType::registerClass<b2PulleyJoint>(cls);
 
@@ -7249,7 +7249,7 @@ bool js_register_box2dclasses_b2RevoluteJoint(se::Object* obj)
     cls->defineFunction("GetReactionTorque", _SE(js_box2dclasses_b2RevoluteJoint_GetReactionTorque));
     cls->defineFunction("GetUpperLimit", _SE(js_box2dclasses_b2RevoluteJoint_GetUpperLimit));
     cls->defineFunction("GetAnchorB", _SE(js_box2dclasses_b2RevoluteJoint_GetAnchorB));
-    cls->defineFinalizedFunction(_SE(js_b2RevoluteJoint_finalize));
+    cls->defineFinalizeFunction(_SE(js_b2RevoluteJoint_finalize));
     cls->install();
     JSBClassType::registerClass<b2RevoluteJoint>(cls);
 
@@ -7471,7 +7471,7 @@ bool js_register_box2dclasses_b2RopeJoint(se::Object* obj)
     cls->defineFunction("GetAnchorB", _SE(js_box2dclasses_b2RopeJoint_GetAnchorB));
     cls->defineFunction("GetReactionForce", _SE(js_box2dclasses_b2RopeJoint_GetReactionForce));
     cls->defineFunction("GetLimitState", _SE(js_box2dclasses_b2RopeJoint_GetLimitState));
-    cls->defineFinalizedFunction(_SE(js_b2RopeJoint_finalize));
+    cls->defineFinalizeFunction(_SE(js_b2RopeJoint_finalize));
     cls->install();
     JSBClassType::registerClass<b2RopeJoint>(cls);
 
@@ -7732,7 +7732,7 @@ bool js_register_box2dclasses_b2WeldJoint(se::Object* obj)
     cls->defineFunction("GetAnchorB", _SE(js_box2dclasses_b2WeldJoint_GetAnchorB));
     cls->defineFunction("GetReactionForce", _SE(js_box2dclasses_b2WeldJoint_GetReactionForce));
     cls->defineFunction("GetReferenceAngle", _SE(js_box2dclasses_b2WeldJoint_GetReferenceAngle));
-    cls->defineFinalizedFunction(_SE(js_b2WeldJoint_finalize));
+    cls->defineFinalizeFunction(_SE(js_b2WeldJoint_finalize));
     cls->install();
     JSBClassType::registerClass<b2WeldJoint>(cls);
 
@@ -8170,7 +8170,7 @@ bool js_register_box2dclasses_b2WheelJoint(se::Object* obj)
     cls->defineFunction("GetJointSpeed", _SE(js_box2dclasses_b2WheelJoint_GetJointSpeed));
     cls->defineFunction("GetMaxMotorTorque", _SE(js_box2dclasses_b2WheelJoint_GetMaxMotorTorque));
     cls->defineFunction("EnableMotor", _SE(js_box2dclasses_b2WheelJoint_EnableMotor));
-    cls->defineFinalizedFunction(_SE(js_b2WheelJoint_finalize));
+    cls->defineFinalizeFunction(_SE(js_b2WheelJoint_finalize));
     cls->install();
     JSBClassType::registerClass<b2WheelJoint>(cls);
 

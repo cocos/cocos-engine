@@ -612,7 +612,7 @@ bool js_register_cocos2dx_experimental_webView_WebView(se::Object* obj)
     cls->defineFunction("setOnDidFinishLoading", _SE(js_cocos2dx_experimental_webView_WebView_setOnDidFinishLoading));
     cls->defineFunction("getOnDidFinishLoading", _SE(js_cocos2dx_experimental_webView_WebView_getOnDidFinishLoading));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_experimental_webView_WebView_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_experimental_ui_WebView_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_experimental_ui_WebView_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::experimental::ui::WebView>(cls);
 

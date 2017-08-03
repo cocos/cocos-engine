@@ -742,7 +742,7 @@ bool js_register_creator_Scale9SpriteV2(se::Object* obj)
     cls->defineFunction("setInsetRight", _SE(js_creator_Scale9SpriteV2_setInsetRight));
     cls->defineFunction("enableTrimmedContentSize", _SE(js_creator_Scale9SpriteV2_enableTrimmedContentSize));
     cls->defineFunction("ctor", _SE(js_creator_Scale9SpriteV2_ctor));
-    cls->defineFinalizedFunction(_SE(js_creator_Scale9SpriteV2_finalize));
+    cls->defineFinalizeFunction(_SE(js_creator_Scale9SpriteV2_finalize));
     cls->install();
     JSBClassType::registerClass<creator::Scale9SpriteV2>(cls);
 
@@ -1511,7 +1511,7 @@ bool js_register_creator_GraphicsNode(se::Object* obj)
     cls->defineFunction("setStrokeColor", _SE(js_creator_GraphicsNode_setStrokeColor));
     cls->defineFunction("ctor", _SE(js_creator_GraphicsNode_ctor));
     cls->defineStaticFunction("create", _SE(js_creator_GraphicsNode_create));
-    cls->defineFinalizedFunction(_SE(js_creator_GraphicsNode_finalize));
+    cls->defineFinalizeFunction(_SE(js_creator_GraphicsNode_finalize));
     cls->install();
     JSBClassType::registerClass<creator::GraphicsNode>(cls);
 
@@ -1614,7 +1614,7 @@ bool js_register_creator_PhysicsDebugDraw(se::Object* obj)
     cls->defineFunction("getDrawer", _SE(js_creator_PhysicsDebugDraw_getDrawer));
     cls->defineFunction("ClearDraw", _SE(js_creator_PhysicsDebugDraw_ClearDraw));
     cls->defineFunction("AddDrawerToNode", _SE(js_creator_PhysicsDebugDraw_AddDrawerToNode));
-    cls->defineFinalizedFunction(_SE(js_creator_PhysicsDebugDraw_finalize));
+    cls->defineFinalizeFunction(_SE(js_creator_PhysicsDebugDraw_finalize));
     cls->install();
     JSBClassType::registerClass<creator::PhysicsDebugDraw>(cls);
 
@@ -1776,7 +1776,7 @@ bool js_register_creator_PhysicsWorldManifoldWrapper(se::Object* obj)
     cls->defineFunction("getCount", _SE(js_creator_PhysicsWorldManifoldWrapper_getCount));
     cls->defineFunction("getNormalY", _SE(js_creator_PhysicsWorldManifoldWrapper_getNormalY));
     cls->defineFunction("getNormalX", _SE(js_creator_PhysicsWorldManifoldWrapper_getNormalX));
-    cls->defineFinalizedFunction(_SE(js_creator_PhysicsWorldManifoldWrapper_finalize));
+    cls->defineFinalizeFunction(_SE(js_creator_PhysicsWorldManifoldWrapper_finalize));
     cls->install();
     JSBClassType::registerClass<creator::PhysicsWorldManifoldWrapper>(cls);
 
@@ -2017,7 +2017,7 @@ bool js_register_creator_PhysicsManifoldWrapper(se::Object* obj)
     cls->defineFunction("getY", _SE(js_creator_PhysicsManifoldWrapper_getY));
     cls->defineFunction("getTangentImpulse", _SE(js_creator_PhysicsManifoldWrapper_getTangentImpulse));
     cls->defineFunction("getCount", _SE(js_creator_PhysicsManifoldWrapper_getCount));
-    cls->defineFinalizedFunction(_SE(js_creator_PhysicsManifoldWrapper_finalize));
+    cls->defineFinalizeFunction(_SE(js_creator_PhysicsManifoldWrapper_finalize));
     cls->install();
     JSBClassType::registerClass<creator::PhysicsManifoldWrapper>(cls);
 
@@ -2159,7 +2159,7 @@ bool js_register_creator_PhysicsUtils(se::Object* obj)
     cls->defineFunction("removeB2Body", _SE(js_creator_PhysicsUtils_removeB2Body));
     cls->defineStaticFunction("getContactManifoldWrapper", _SE(js_creator_PhysicsUtils_getContactManifoldWrapper));
     cls->defineStaticFunction("getContactWorldManifoldWrapper", _SE(js_creator_PhysicsUtils_getContactWorldManifoldWrapper));
-    cls->defineFinalizedFunction(_SE(js_creator_PhysicsUtils_finalize));
+    cls->defineFinalizeFunction(_SE(js_creator_PhysicsUtils_finalize));
     cls->install();
     JSBClassType::registerClass<creator::PhysicsUtils>(cls);
 
@@ -2261,7 +2261,7 @@ bool js_register_creator_PhysicsContactImpulse(se::Object* obj)
     cls->defineFunction("getCount", _SE(js_creator_PhysicsContactImpulse_getCount));
     cls->defineFunction("getNormalImpulse", _SE(js_creator_PhysicsContactImpulse_getNormalImpulse));
     cls->defineFunction("getTangentImpulse", _SE(js_creator_PhysicsContactImpulse_getTangentImpulse));
-    cls->defineFinalizedFunction(_SE(js_creator_PhysicsContactImpulse_finalize));
+    cls->defineFinalizeFunction(_SE(js_creator_PhysicsContactImpulse_finalize));
     cls->install();
     JSBClassType::registerClass<creator::PhysicsContactImpulse>(cls);
 
@@ -2348,7 +2348,7 @@ bool js_register_creator_PhysicsContactListener(se::Object* obj)
 
     cls->defineFunction("unregisterContactFixture", _SE(js_creator_PhysicsContactListener_unregisterContactFixture));
     cls->defineFunction("registerContactFixture", _SE(js_creator_PhysicsContactListener_registerContactFixture));
-    cls->defineFinalizedFunction(_SE(js_creator_PhysicsContactListener_finalize));
+    cls->defineFinalizeFunction(_SE(js_creator_PhysicsContactListener_finalize));
     cls->install();
     JSBClassType::registerClass<creator::PhysicsContactListener>(cls);
 
@@ -2444,7 +2444,7 @@ bool js_register_creator_PhysicsAABBQueryCallback(se::Object* obj)
 
     cls->defineFunction("init", _SE(js_creator_PhysicsAABBQueryCallback_init));
     cls->defineFunction("getFixture", _SE(js_creator_PhysicsAABBQueryCallback_getFixture));
-    cls->defineFinalizedFunction(_SE(js_creator_PhysicsAABBQueryCallback_finalize));
+    cls->defineFinalizeFunction(_SE(js_creator_PhysicsAABBQueryCallback_finalize));
     cls->install();
     JSBClassType::registerClass<creator::PhysicsAABBQueryCallback>(cls);
 
@@ -2549,7 +2549,7 @@ bool js_register_creator_PhysicsRayCastCallback(se::Object* obj)
     cls->defineFunction("getType", _SE(js_creator_PhysicsRayCastCallback_getType));
     cls->defineFunction("init", _SE(js_creator_PhysicsRayCastCallback_init));
     cls->defineFunction("getFractions", _SE(js_creator_PhysicsRayCastCallback_getFractions));
-    cls->defineFinalizedFunction(_SE(js_creator_PhysicsRayCastCallback_finalize));
+    cls->defineFinalizeFunction(_SE(js_creator_PhysicsRayCastCallback_finalize));
     cls->install();
     JSBClassType::registerClass<creator::PhysicsRayCastCallback>(cls);
 
@@ -2663,7 +2663,7 @@ bool js_register_creator_CameraNode(se::Object* obj)
     cls->defineFunction("removeTarget", _SE(js_creator_CameraNode_removeTarget));
     cls->defineFunction("setTransform", _SE(js_creator_CameraNode_setTransform));
     cls->defineFunction("addTarget", _SE(js_creator_CameraNode_addTarget));
-    cls->defineFinalizedFunction(_SE(js_creator_CameraNode_finalize));
+    cls->defineFinalizeFunction(_SE(js_creator_CameraNode_finalize));
     cls->install();
     JSBClassType::registerClass<creator::CameraNode>(cls);
 

@@ -91,7 +91,7 @@ bool js_register_cocos2dx_ui_LayoutParameter(se::Object* obj)
     cls->defineFunction("clone", _SE(js_cocos2dx_ui_LayoutParameter_clone));
     cls->defineFunction("getLayoutType", _SE(js_cocos2dx_ui_LayoutParameter_getLayoutType));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_LayoutParameter_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_LayoutParameter_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_LayoutParameter_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::LayoutParameter>(cls);
 
@@ -193,7 +193,7 @@ bool js_register_cocos2dx_ui_LinearLayoutParameter(se::Object* obj)
     cls->defineFunction("setGravity", _SE(js_cocos2dx_ui_LinearLayoutParameter_setGravity));
     cls->defineFunction("getGravity", _SE(js_cocos2dx_ui_LinearLayoutParameter_getGravity));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_LinearLayoutParameter_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_LinearLayoutParameter_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_LinearLayoutParameter_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::LinearLayoutParameter>(cls);
 
@@ -373,7 +373,7 @@ bool js_register_cocos2dx_ui_RelativeLayoutParameter(se::Object* obj)
     cls->defineFunction("setRelativeName", _SE(js_cocos2dx_ui_RelativeLayoutParameter_setRelativeName));
     cls->defineFunction("getAlign", _SE(js_cocos2dx_ui_RelativeLayoutParameter_getAlign));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_RelativeLayoutParameter_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_RelativeLayoutParameter_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_RelativeLayoutParameter_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::RelativeLayoutParameter>(cls);
 
@@ -1941,7 +1941,7 @@ bool js_register_cocos2dx_ui_Widget(se::Object* obj)
     cls->defineStaticFunction("enableDpadNavigation", _SE(js_cocos2dx_ui_Widget_enableDpadNavigation));
     cls->defineStaticFunction("getCurrentFocusedWidget", _SE(js_cocos2dx_ui_Widget_getCurrentFocusedWidget));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_Widget_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_Widget_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_Widget_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::Widget>(cls);
 
@@ -2691,7 +2691,7 @@ bool js_register_cocos2dx_ui_Layout(se::Object* obj)
     cls->defineFunction("setLayoutType", _SE(js_cocos2dx_ui_Layout_setLayoutType));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_Layout_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_Layout_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_Layout_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_Layout_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::Layout>(cls);
 
@@ -3648,7 +3648,7 @@ bool js_register_cocos2dx_ui_Button(se::Object* obj)
     cls->defineFunction("setZoomScale", _SE(js_cocos2dx_ui_Button_setZoomScale));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_Button_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_Button_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_Button_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_Button_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::Button>(cls);
 
@@ -4380,7 +4380,7 @@ bool js_register_cocos2dx_ui_CheckBox(se::Object* obj)
     cls->defineFunction("addEventListener", _SE(js_cocos2dx_ui_CheckBox_addEventListener));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_CheckBox_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_CheckBox_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_CheckBox_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_CheckBox_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::CheckBox>(cls);
 
@@ -4584,7 +4584,7 @@ bool js_register_cocos2dx_ui_RadioButton(se::Object* obj)
     cls->defineFunction("addEventListener", _SE(js_cocos2dx_ui_RadioButton_addEventListener));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_RadioButton_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_RadioButton_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_RadioButton_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_RadioButton_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::RadioButton>(cls);
 
@@ -4930,7 +4930,7 @@ bool js_register_cocos2dx_ui_RadioButtonGroup(se::Object* obj)
     cls->defineFunction("setSelectedButton", _SE(js_cocos2dx_ui_RadioButtonGroup_setSelectedButton));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_RadioButtonGroup_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_RadioButtonGroup_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_RadioButtonGroup_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_RadioButtonGroup_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::RadioButtonGroup>(cls);
 
@@ -5208,7 +5208,7 @@ bool js_register_cocos2dx_ui_ImageView(se::Object* obj)
     cls->defineFunction("isScale9Enabled", _SE(js_cocos2dx_ui_ImageView_isScale9Enabled));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_ImageView_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_ImageView_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_ImageView_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_ImageView_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::ImageView>(cls);
 
@@ -5950,7 +5950,7 @@ bool js_register_cocos2dx_ui_Text(se::Object* obj)
     cls->defineFunction("setTextHorizontalAlignment", _SE(js_cocos2dx_ui_Text_setTextHorizontalAlignment));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_Text_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_Text_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_Text_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_Text_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::Text>(cls);
 
@@ -6168,7 +6168,7 @@ bool js_register_cocos2dx_ui_TextAtlas(se::Object* obj)
     cls->defineFunction("adaptRenderers", _SE(js_cocos2dx_ui_TextAtlas_adaptRenderers));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_TextAtlas_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_TextAtlas_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_TextAtlas_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_TextAtlas_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::TextAtlas>(cls);
 
@@ -6502,7 +6502,7 @@ bool js_register_cocos2dx_ui_LoadingBar(se::Object* obj)
     cls->defineFunction("getPercent", _SE(js_cocos2dx_ui_LoadingBar_getPercent));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_LoadingBar_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_LoadingBar_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_LoadingBar_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_LoadingBar_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::LoadingBar>(cls);
 
@@ -7663,7 +7663,7 @@ bool js_register_cocos2dx_ui_ScrollView(se::Object* obj)
     cls->defineFunction("scrollToTopRight", _SE(js_cocos2dx_ui_ScrollView_scrollToTopRight));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_ScrollView_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_ScrollView_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_ScrollView_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_ScrollView_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::ScrollView>(cls);
 
@@ -8446,7 +8446,7 @@ bool js_register_cocos2dx_ui_ListView(se::Object* obj)
     cls->defineFunction("insertCustomItem", _SE(js_cocos2dx_ui_ListView_insertCustomItem));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_ListView_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_ListView_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_ListView_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_ListView_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::ListView>(cls);
 
@@ -9148,7 +9148,7 @@ bool js_register_cocos2dx_ui_Slider(se::Object* obj)
     cls->defineFunction("setZoomScale", _SE(js_cocos2dx_ui_Slider_setZoomScale));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_Slider_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_Slider_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_Slider_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_Slider_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::Slider>(cls);
 
@@ -9717,7 +9717,7 @@ bool js_register_cocos2dx_ui_UICCTextField(se::Object* obj)
     cls->defineFunction("setMaxLength", _SE(js_cocos2dx_ui_UICCTextField_setMaxLength));
     cls->defineFunction("setDeleteBackward", _SE(js_cocos2dx_ui_UICCTextField_setDeleteBackward));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_UICCTextField_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_UICCTextField_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_UICCTextField_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::UICCTextField>(cls);
 
@@ -10723,7 +10723,7 @@ bool js_register_cocos2dx_ui_TextField(se::Object* obj)
     cls->defineFunction("getTouchSize", _SE(js_cocos2dx_ui_TextField_getTouchSize));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_TextField_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_TextField_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_TextField_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_TextField_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::TextField>(cls);
 
@@ -10924,7 +10924,7 @@ bool js_register_cocos2dx_ui_TextBMFont(se::Object* obj)
     cls->defineFunction("resetRender", _SE(js_cocos2dx_ui_TextBMFont_resetRender));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_TextBMFont_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_TextBMFont_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_TextBMFont_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_TextBMFont_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::TextBMFont>(cls);
 
@@ -11547,7 +11547,7 @@ bool js_register_cocos2dx_ui_PageView(se::Object* obj)
     cls->defineFunction("addPage", _SE(js_cocos2dx_ui_PageView_addPage));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_PageView_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_PageView_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_PageView_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_PageView_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::PageView>(cls);
 
@@ -11857,7 +11857,7 @@ bool js_register_cocos2dx_ui_RichElement(se::Object* obj)
     cls->defineFunction("init", _SE(js_cocos2dx_ui_RichElement_init));
     cls->defineFunction("setColor", _SE(js_cocos2dx_ui_RichElement_setColor));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_RichElement_ctor));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_RichElement_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_RichElement_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::RichElement>(cls);
 
@@ -12400,7 +12400,7 @@ bool js_register_cocos2dx_ui_RichElementText(se::Object* obj)
     cls->defineFunction("init", _SE(js_cocos2dx_ui_RichElementText_init));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_RichElementText_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_RichElementText_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_RichElementText_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_RichElementText_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::RichElementText>(cls);
 
@@ -12607,7 +12607,7 @@ bool js_register_cocos2dx_ui_RichElementImage(se::Object* obj)
     cls->defineFunction("setUrl", _SE(js_cocos2dx_ui_RichElementImage_setUrl));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_RichElementImage_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_RichElementImage_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_RichElementImage_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_RichElementImage_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::RichElementImage>(cls);
 
@@ -12718,7 +12718,7 @@ bool js_register_cocos2dx_ui_RichElementCustomNode(se::Object* obj)
     cls->defineFunction("init", _SE(js_cocos2dx_ui_RichElementCustomNode_init));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_RichElementCustomNode_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_RichElementCustomNode_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_RichElementCustomNode_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_RichElementCustomNode_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::RichElementCustomNode>(cls);
 
@@ -12799,7 +12799,7 @@ bool js_register_cocos2dx_ui_RichElementNewLine(se::Object* obj)
 
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_RichElementNewLine_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_RichElementNewLine_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_RichElementNewLine_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_RichElementNewLine_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::RichElementNewLine>(cls);
 
@@ -13925,7 +13925,7 @@ bool js_register_cocos2dx_ui_RichText(se::Object* obj)
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_RichText_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_RichText_create));
     cls->defineStaticFunction("createWithXML", _SE(js_cocos2dx_ui_RichText_createWithXML));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_RichText_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_RichText_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::RichText>(cls);
 
@@ -14032,7 +14032,7 @@ bool js_register_cocos2dx_ui_HBox(se::Object* obj)
     cls->defineFunction("initWithSize", _SE(js_cocos2dx_ui_HBox_initWithSize));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_HBox_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_HBox_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_HBox_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_HBox_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::HBox>(cls);
 
@@ -14139,7 +14139,7 @@ bool js_register_cocos2dx_ui_VBox(se::Object* obj)
     cls->defineFunction("initWithSize", _SE(js_cocos2dx_ui_VBox_initWithSize));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_VBox_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_VBox_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_VBox_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_VBox_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::VBox>(cls);
 
@@ -14246,7 +14246,7 @@ bool js_register_cocos2dx_ui_RelativeBox(se::Object* obj)
     cls->defineFunction("initWithSize", _SE(js_cocos2dx_ui_RelativeBox_initWithSize));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_RelativeBox_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_RelativeBox_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_RelativeBox_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_RelativeBox_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::RelativeBox>(cls);
 
@@ -15342,7 +15342,7 @@ bool js_register_cocos2dx_ui_Scale9Sprite(se::Object* obj)
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_Scale9Sprite_create));
     cls->defineStaticFunction("createWithSpriteFrameName", _SE(js_cocos2dx_ui_Scale9Sprite_createWithSpriteFrameName));
     cls->defineStaticFunction("createWithSpriteFrame", _SE(js_cocos2dx_ui_Scale9Sprite_createWithSpriteFrame));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_Scale9Sprite_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_Scale9Sprite_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::Scale9Sprite>(cls);
 
@@ -15937,7 +15937,7 @@ bool js_register_cocos2dx_ui_EditBox(se::Object* obj)
     cls->defineFunction("setFont", _SE(js_cocos2dx_ui_EditBox_setFont));
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_EditBox_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_EditBox_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_EditBox_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_EditBox_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::EditBox>(cls);
 
@@ -16984,7 +16984,7 @@ bool js_register_cocos2dx_ui_LayoutComponent(se::Object* obj)
     cls->defineFunction("ctor", _SE(js_cocos2dx_ui_LayoutComponent_ctor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_LayoutComponent_create));
     cls->defineStaticFunction("bindLayoutComponent", _SE(js_cocos2dx_ui_LayoutComponent_bindLayoutComponent));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_LayoutComponent_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_LayoutComponent_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::LayoutComponent>(cls);
 
@@ -17323,7 +17323,7 @@ bool js_register_cocos2dx_ui_TabHeader(se::Object* obj)
     cls->defineFunction("setTitleText", _SE(js_cocos2dx_ui_TabHeader_setTitleText));
     cls->defineFunction("setTitleColor", _SE(js_cocos2dx_ui_TabHeader_setTitleColor));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_TabHeader_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_TabHeader_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_TabHeader_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::TabHeader>(cls);
 
@@ -17802,7 +17802,7 @@ bool js_register_cocos2dx_ui_TabControl(se::Object* obj)
     cls->defineFunction("getHeaderSelectedZoom", _SE(js_cocos2dx_ui_TabControl_getHeaderSelectedZoom));
     cls->defineFunction("getHeaderHeight", _SE(js_cocos2dx_ui_TabControl_getHeaderHeight));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_ui_TabControl_create));
-    cls->defineFinalizedFunction(_SE(js_cocos2d_ui_TabControl_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_ui_TabControl_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::ui::TabControl>(cls);
 
