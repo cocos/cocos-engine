@@ -203,6 +203,10 @@ namespace se {
             }
             internal::jsToSeValue(__cx, jsValue, data);
         }
+        else
+        {
+            data->setUndefined();
+        }
 
         JSStringRelease(jsName);
 
