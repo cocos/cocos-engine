@@ -140,6 +140,10 @@
 		BA4F598D1E28DE4A003F5096 /* js_network_manual.h in Headers */ = {isa = PBXBuildFile; fileRef = BA4F598A1E28DE4A003F5096 /* js_network_manual.h */; };
 		BA4F598E1E28DE4A003F5096 /* js_network_manual.h in Headers */ = {isa = PBXBuildFile; fileRef = BA4F598A1E28DE4A003F5096 /* js_network_manual.h */; };
 		BA539A021EB9CA48004EF002 /* libmozglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BA539A011EB9CA48004EF002 /* libmozglue.a */; };
+		BAB362141F347539002789F6 /* BaseJSAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAB362121F347539002789F6 /* BaseJSAction.cpp */; };
+		BAB362151F347539002789F6 /* BaseJSAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAB362121F347539002789F6 /* BaseJSAction.cpp */; };
+		BAB362161F347539002789F6 /* BaseJSAction.h in Headers */ = {isa = PBXBuildFile; fileRef = BAB362131F347539002789F6 /* BaseJSAction.h */; };
+		BAB362171F347539002789F6 /* BaseJSAction.h in Headers */ = {isa = PBXBuildFile; fileRef = BAB362131F347539002789F6 /* BaseJSAction.h */; };
 		BAC53CFE1EEE414F004FB51F /* libmozglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BAC53CFD1EEE414F004FB51F /* libmozglue.a */; };
 		BAF638DC1B5F5DC900CDB43A /* jsb_cocos2dx_audioengine_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAF638DA1B5F5DC900CDB43A /* jsb_cocos2dx_audioengine_auto.cpp */; };
 		BAF638DD1B5F5DC900CDB43A /* jsb_cocos2dx_audioengine_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAF638DA1B5F5DC900CDB43A /* jsb_cocos2dx_audioengine_auto.cpp */; };
@@ -231,6 +235,8 @@
 		BA4F59891E28DE4A003F5096 /* js_network_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_network_manual.cpp; sourceTree = "<group>"; };
 		BA4F598A1E28DE4A003F5096 /* js_network_manual.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_network_manual.h; sourceTree = "<group>"; };
 		BA539A011EB9CA48004EF002 /* libmozglue.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmozglue.a; path = ../../../../external/mac/libs/libmozglue.a; sourceTree = "<group>"; };
+		BAB362121F347539002789F6 /* BaseJSAction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BaseJSAction.cpp; sourceTree = "<group>"; };
+		BAB362131F347539002789F6 /* BaseJSAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseJSAction.h; sourceTree = "<group>"; };
 		BAC53CFD1EEE414F004FB51F /* libmozglue.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmozglue.a; path = ../../../../external/ios/libs/libmozglue.a; sourceTree = "<group>"; };
 		BAF638DA1B5F5DC900CDB43A /* jsb_cocos2dx_audioengine_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_cocos2dx_audioengine_auto.cpp; sourceTree = "<group>"; };
 		BAF638DB1B5F5DC900CDB43A /* jsb_cocos2dx_audioengine_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_audioengine_auto.hpp; sourceTree = "<group>"; };
@@ -324,6 +330,8 @@
 				4D11DCCB1E486C9400DB6838 /* creator */,
 				4D9BB2BF1DFE4E2600B58565 /* box2d */,
 				FA6F1BB71D816265007DD223 /* dragonbones */,
+				BAB362121F347539002789F6 /* BaseJSAction.cpp */,
+				BAB362131F347539002789F6 /* BaseJSAction.h */,
 				4DFA4BFE1CBCBC4E00E3B736 /* js_module_register.cpp */,
 				4DFA4BFF1CBCBC4E00E3B736 /* js_module_register.h */,
 				4DFA4C001CBCBC4E00E3B736 /* js-BindingsExport.h */,
@@ -490,6 +498,7 @@
 				1A119ED918BDF19200352BAA /* js_bindings_opengl.h in Headers */,
 				FA6F1BB51D815C2C007DD223 /* jsb_cocos2dx_dragonbones_auto.hpp in Headers */,
 				4D9BB2C31DFE4E2600B58565 /* js_bindings_box2d_manual.h in Headers */,
+				BAB362161F347539002789F6 /* BaseJSAction.h in Headers */,
 				4DFA4C051CBCBC4E00E3B736 /* js-BindingsExport.h in Headers */,
 				BAF638DE1B5F5DC900CDB43A /* jsb_cocos2dx_audioengine_auto.hpp in Headers */,
 				1A119EF118BDF19200352BAA /* js_bindings_system_functions_registration.h in Headers */,
@@ -511,6 +520,7 @@
 				83A5661C18DA878400FC31A0 /* jsb_socketio.h in Headers */,
 				1A1D3B7B18C44FD000922D3C /* jsb_event_dispatcher_manual.h in Headers */,
 				4DFA4C041CBCBC4E00E3B736 /* js_module_register.h in Headers */,
+				BAB362171F347539002789F6 /* BaseJSAction.h in Headers */,
 				1A119EF618BDF19200352BAA /* js_bindings_system_registration.h in Headers */,
 				1A119ED218BDF19200352BAA /* js_bindings_config.h in Headers */,
 				4D6E0D5F1E0384CC00DA5DB6 /* jsb_box2d_auto.hpp in Headers */,
@@ -637,6 +647,7 @@
 				1A119E8318BDF19200352BAA /* jsb_cocos2dx_auto.cpp in Sources */,
 				4DFA4C101CBCC49000E3B736 /* jsb_creator_auto.cpp in Sources */,
 				4D9BB2C21DFE4E2600B58565 /* js_bindings_box2d_manual.cpp in Sources */,
+				BAB362141F347539002789F6 /* BaseJSAction.cpp in Sources */,
 				1AB5E63318D05BF30088DAA4 /* jsb_cocos2dx_ui_manual.cpp in Sources */,
 				1A119EC918BDF19200352BAA /* jsb_cocos2dx_extension_manual.cpp in Sources */,
 				1A119EDB18BDF19200352BAA /* js_manual_conversions.cpp in Sources */,
@@ -655,6 +666,7 @@
 				0541A75B19738AD200E45470 /* JavaScriptObjCBridge.mm in Sources */,
 				BA4F598C1E28DE4A003F5096 /* js_network_manual.cpp in Sources */,
 				1A119EEE18BDF19200352BAA /* js_bindings_system_functions.cpp in Sources */,
+				BAB362151F347539002789F6 /* BaseJSAction.cpp in Sources */,
 				4DFA4C021CBCBC4E00E3B736 /* js_module_register.cpp in Sources */,
 				1A119EEA18BDF19200352BAA /* jsb_opengl_registration.cpp in Sources */,
 				1A119EF818BDF19200352BAA /* jsb_websocket.cpp in Sources */,
