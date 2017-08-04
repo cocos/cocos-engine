@@ -116,6 +116,9 @@
     <ClCompile Include="..\manual\creator\js_bindings_creator_manual.cpp">
       <Filter>manual</Filter>
     </ClCompile>
+    <ClCompile Include="..\manual\BaseJSAction.cpp">
+      <Filter>manual</Filter>
+    </ClCompile>
     <ClCompile Include="..\auto\jsb_cocos2dx_ui_auto.cpp">
       <Filter>auto</Filter>
     </ClCompile>
@@ -221,6 +224,9 @@
       <Filter>manual</Filter>
     </ClInclude>
     <ClInclude Include="..\manual\creator\js_bindings_creator_manual.h">
+      <Filter>manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\manual\BaseJSAction.h">
       <Filter>manual</Filter>
     </ClInclude>
   </ItemGroup>
