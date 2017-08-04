@@ -6,6 +6,10 @@
 #include "Class.hpp"
 #include "Utils.hpp"
 
+#include "inspector_agent.h"
+#include "env.h"
+#include "node.h"
+
 #define RETRUN_VAL_IF_FAIL(cond, val) \
     if (!(cond)) return val
 
@@ -105,6 +109,8 @@ namespace se {
     , _isValid(false)
     , _isInGC(false)
     , _nodeEventListener(nullptr)
+    , _env(nullptr)
+    , _inspectorAgent(nullptr)
     {
         //        RETRUN_VAL_IF_FAIL(v8::V8::InitializeICUDefaultLocation(nullptr, "/Users/james/Project/v8/out.gn/x64.debug/icudtl.dat"), false);
         //        v8::V8::InitializeExternalStartupData("/Users/james/Project/v8/out.gn/x64.debug/natives_blob.bin", "/Users/james/Project/v8/out.gn/x64.debug/snapshot_blob.bin"); //TODO
@@ -156,6 +162,20 @@ namespace se {
         __jsb_CCPrivateData_class->setCreateProto(false);
         __jsb_CCPrivateData_class->install();
 
+        // V8 inspector stuff, most code are taken from NodeJS.
+
+        _isolateData = node::CreateIsolateData(_isolate, uv_default_loop());
+        _env = node::CreateEnvironment(_isolateData, _context.Get(_isolate), 0, nullptr, 0, nullptr);
+
+        _inspectorAgent = new node::inspector::Agent(node::Environment::GetCurrent(_isolate));
+
+        node::DebugOptions options;
+        options.set_wait_for_connect(true);
+        options.set_inspector_enabled(true);
+        _inspectorAgent->Start(_platform, "", options);
+
+        //
+
         _isValid = true;
 
         return _isValid;
@@ -178,6 +198,12 @@ namespace se {
             Object::cleanup();
             Class::cleanup();
             gc();
+
+            _inspectorAgent->Stop();
+
+            node::FreeIsolateData(_isolateData);
+            _env->CleanupHandles();
+            node::FreeEnvironment(_env);
 
             _context.Get(_isolate)->Exit();
             _context.Reset();

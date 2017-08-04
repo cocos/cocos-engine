@@ -9,6 +9,15 @@
 
 #include <chrono>
 
+namespace node {
+    namespace inspector {
+        class Agent;
+    }
+
+    class Environment;
+    class IsolateData;
+}
+
 namespace se {
 
     class Object;
@@ -118,6 +127,10 @@ namespace se {
         std::chrono::steady_clock::time_point _startTime;
         std::vector<std::function<void()>> _beforeCleanupHookArray;
         std::vector<std::function<void()>> _afterCleanupHookArray;
+
+        node::Environment* _env;
+        node::IsolateData* _isolateData;
+        node::inspector::Agent* _inspectorAgent;
     };
 
 } // namespace se {
