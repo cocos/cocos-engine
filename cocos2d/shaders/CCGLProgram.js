@@ -164,7 +164,7 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
 
         if (this._vertShader)
             locGL.attachShader(this._programObj, this._vertShader);
-        cc.checkGLErrorDebug();
+        // cc.checkGLErrorDebug();
 
         if (this._fragShader)
             locGL.attachShader(this._programObj, this._fragShader);
@@ -173,7 +173,7 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
             delete this._hashForUniforms[key];
         }
 
-        cc.checkGLErrorDebug();
+        // cc.checkGLErrorDebug();
         return true;
     },
 
