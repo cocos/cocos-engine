@@ -20,6 +20,7 @@
     <ClCompile Include="..\auto\jsb_cocos2dx_spine_auto.cpp" />
     <ClCompile Include="..\auto\jsb_cocos2dx_ui_auto.cpp" />
     <ClCompile Include="..\auto\jsb_creator_auto.cpp" />
+    <ClCompile Include="..\manual\BaseJSAction.cpp" />
     <ClCompile Include="..\manual\box2d\js_bindings_box2d_manual.cpp" />
     <ClCompile Include="..\manual\cocos2d_specifics.cpp" />
     <ClCompile Include="..\manual\creator\js_bindings_creator_manual.cpp" />
@@ -52,6 +53,7 @@
     <ClInclude Include="..\auto\jsb_cocos2dx_spine_auto.hpp" />
     <ClInclude Include="..\auto\jsb_cocos2dx_ui_auto.hpp" />
     <ClInclude Include="..\auto\jsb_creator_auto.hpp" />
+    <ClInclude Include="..\manual\BaseJSAction.h" />
     <ClInclude Include="..\manual\box2d\js_bindings_box2d_manual.h" />
     <ClInclude Include="..\manual\cocos2d_specifics.hpp" />
     <ClInclude Include="..\manual\creator\js_bindings_creator_manual.h" />

@@ -204,15 +204,6 @@ cc.speed = cc.Speed.create = function (action, speed) {
     return new cc.Speed(action, speed);
 };
 
-cc.Follow.prototype._ctor = function (followedNode, rect) {
-    if (followedNode)
-        rect ? this.initWithTarget(followedNode, rect)
-             : this.initWithTarget(followedNode);
-};
-cc.follow = cc.Follow.create = function (followedNode, rect) {
-    return new cc.Follow(followedNode, rect);
-};
-
 cc.CardinalSplineTo.prototype._ctor = cc.CardinalSplineBy.prototype._ctor = function(duration, points, tension) {
     tension !== undefined && this.initWithDuration(duration, points, tension);
 };
