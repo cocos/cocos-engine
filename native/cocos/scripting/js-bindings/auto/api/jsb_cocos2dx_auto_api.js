@@ -5231,74 +5231,6 @@ Speed : function (
 };
 
 /**
- * @class Follow
- */
-cc.Follow = {
-
-/**
- * @method setBoundarySet
- * @param {bool} arg0
- */
-setBoundarySet : function (
-bool 
-)
-{
-},
-
-/**
- * @method initWithTarget
- * @param {cc.Node} arg0
- * @param {rect_object} arg1
- * @return {bool}
- */
-initWithTarget : function (
-node, 
-rect 
-)
-{
-    return false;
-},
-
-/**
- * @method initWithTargetAndOffset
- * @param {cc.Node} arg0
- * @param {float} arg1
- * @param {float} arg2
- * @param {rect_object} arg3
- * @return {bool}
- */
-initWithTargetAndOffset : function (
-node, 
-float, 
-float, 
-rect 
-)
-{
-    return false;
-},
-
-/**
- * @method isBoundarySet
- * @return {bool}
- */
-isBoundarySet : function (
-)
-{
-    return false;
-},
-
-/**
- * @method Follow
- * @constructor
- */
-Follow : function (
-)
-{
-},
-
-};
-
-/**
  * @class Image
  */
 cc.Image = {
@@ -17562,6 +17494,22 @@ int
  * @constructor
  */
 TileMapAtlas : function (
+)
+{
+},
+
+};
+
+/**
+ * @class BaseJSAction
+ */
+cc.BaseJSAction = {
+
+/**
+ * @method BaseJSAction
+ * @constructor
+ */
+BaseJSAction : function (
 )
 {
 },
