@@ -21,6 +21,7 @@ LOCAL_SRC_FILES := ../auto/jsb_cocos2dx_extension_auto.cpp \
                    ../manual/ScriptingCore.cpp \
                    ../manual/cocos2d_specifics.cpp \
                    ../manual/js_manual_conversions.cpp \
+                   ../manual/BaseJSAction.cpp \
                    ../manual/creator/js_bindings_creator_manual.cpp \
                    ../manual/box2d/js_bindings_box2d_manual.cpp \
                    ../manual/js_bindings_opengl.cpp \
