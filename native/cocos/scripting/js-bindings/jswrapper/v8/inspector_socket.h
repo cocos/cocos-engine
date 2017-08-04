@@ -3,7 +3,6 @@
 
 #include "http_parser.h"
 #include "util.h"
-#include "util-inl.h"
 #include "uv.h"
 
 #include <string>

@@ -435,4 +435,6 @@ class BufferValue : public MaybeStackBuffer<char> {
 
 #endif  // defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
 
+#include "util-inl.h"
+
 #endif  // SRC_UTIL_H_

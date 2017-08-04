@@ -110,7 +110,6 @@ namespace se {
     , _isInGC(false)
     , _nodeEventListener(nullptr)
     , _env(nullptr)
-    , _inspectorAgent(nullptr)
     {
         //        RETRUN_VAL_IF_FAIL(v8::V8::InitializeICUDefaultLocation(nullptr, "/Users/james/Project/v8/out.gn/x64.debug/icudtl.dat"), false);
         //        v8::V8::InitializeExternalStartupData("/Users/james/Project/v8/out.gn/x64.debug/natives_blob.bin", "/Users/james/Project/v8/out.gn/x64.debug/snapshot_blob.bin"); //TODO
@@ -167,12 +166,10 @@ namespace se {
         _isolateData = node::CreateIsolateData(_isolate, uv_default_loop());
         _env = node::CreateEnvironment(_isolateData, _context.Get(_isolate), 0, nullptr, 0, nullptr);
 
-        _inspectorAgent = new node::inspector::Agent(node::Environment::GetCurrent(_isolate));
-
         node::DebugOptions options;
         options.set_wait_for_connect(true);
         options.set_inspector_enabled(true);
-        _inspectorAgent->Start(_platform, "", options);
+        _env->inspector_agent()->Start(_platform, "", options);
 
         //
 
@@ -199,7 +196,7 @@ namespace se {
             Class::cleanup();
             gc();
 
-            _inspectorAgent->Stop();
+            _env->inspector_agent()->Stop();
 
             node::FreeIsolateData(_isolateData);
             _env->CleanupHandles();
@@ -261,6 +258,7 @@ namespace se {
 
         // After ScriptEngine is started, _registerCallbackArray isn't needed. Therefore, clear it here.
         _registerCallbackArray.clear();
+
         return ok;
     }
 

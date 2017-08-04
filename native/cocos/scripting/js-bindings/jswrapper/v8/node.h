@@ -4,7 +4,23 @@
 
 #include <stddef.h>
 
-#define NODE_EXTERN
+#ifdef _WIN32
+# ifndef BUILDING_NODE_EXTENSION
+#   define NODE_EXTERN __declspec(dllexport)
+# else
+#   define NODE_EXTERN __declspec(dllimport)
+# endif
+#else
+# define NODE_EXTERN /* nothing */
+#endif
+
+#include <assert.h>
+#include <stdint.h>
+
+#ifndef NODE_STRINGIFY
+#define NODE_STRINGIFY(n) NODE_STRINGIFY_HELPER(n)
+#define NODE_STRINGIFY_HELPER(n) #n
+#endif
 
 // The arraysize(arr) macro returns the # of elements in an array arr.
 // The expression is a compile-time constant, and therefore can be
@@ -133,5 +149,11 @@ NODE_EXTERN Environment* CreateEnvironment(IsolateData* isolate_data,
                                            int exec_argc,
                                            const char* const* exec_argv);
 NODE_EXTERN void FreeEnvironment(Environment* env);
+
+void SetupProcessObject(Environment* env,
+                        int argc,
+                        const char* const* argv,
+                        int exec_argc,
+                        const char* const* exec_argv);
 
 } // namespace node {

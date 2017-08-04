@@ -97,14 +97,14 @@ BufferValue::BufferValue(Isolate* isolate, Local<Value> value) {
   }
 }
 
-//void LowMemoryNotification() {
-//cjh  if (v8_initialized) {
-//    auto isolate = v8::Isolate::GetCurrent();
-//    if (isolate != nullptr) {
-//      isolate->LowMemoryNotification();
-//    }
+void LowMemoryNotification() {
+//  if (v8_initialized) {
+    auto isolate = v8::Isolate::GetCurrent();
+    if (isolate != nullptr) {
+      isolate->LowMemoryNotification();
+    }
 //  }
-//}
+}
 
 void DumpBacktrace(FILE* fp) {
 }

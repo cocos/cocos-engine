@@ -130,7 +130,6 @@ namespace se {
 
         node::Environment* _env;
         node::IsolateData* _isolateData;
-        node::inspector::Agent* _inspectorAgent;
     };
 
 } // namespace se {
