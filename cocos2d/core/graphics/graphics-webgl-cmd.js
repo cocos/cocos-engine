@@ -411,7 +411,7 @@ _p._render = function () {
         cc.g_NumberOfDraws++;
     }
 
-    cc.checkGLErrorDebug();
+    // cc.checkGLErrorDebug();
 };
 
 _p.rendering = function () {
