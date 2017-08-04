@@ -738,19 +738,6 @@ bool js_cocos2dx_Speed_initWithAction(JSContext *cx, uint32_t argc, JS::Value *v
 bool js_cocos2dx_Speed_getInnerAction(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_cocos2dx_Speed_Speed(JSContext *cx, uint32_t argc, JS::Value *vp);
 
-extern JSClass  *jsb_cocos2d_Follow_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Follow_prototype;
-
-bool js_cocos2dx_Follow_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Follow_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Follow(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Follow_setBoundarySet(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Follow_initWithTarget(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Follow_initWithTargetAndOffset(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Follow_isBoundarySet(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Follow_Follow(JSContext *cx, uint32_t argc, JS::Value *vp);
-
 extern JSClass  *jsb_cocos2d_Image_class;
 extern JS::PersistentRootedObject *jsb_cocos2d_Image_prototype;
 
@@ -2920,5 +2907,14 @@ bool js_cocos2dx_TileMapAtlas_getTileAt(JSContext *cx, uint32_t argc, JS::Value 
 bool js_cocos2dx_TileMapAtlas_setTile(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_cocos2dx_TileMapAtlas_create(JSContext *cx, uint32_t argc, JS::Value *vp);
 bool js_cocos2dx_TileMapAtlas_TileMapAtlas(JSContext *cx, uint32_t argc, JS::Value *vp);
+
+extern JSClass  *jsb_cocos2d_BaseJSAction_class;
+extern JS::PersistentRootedObject *jsb_cocos2d_BaseJSAction_prototype;
+
+bool js_cocos2dx_BaseJSAction_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
+void js_cocos2dx_BaseJSAction_finalize(JSContext *cx, JSObject *obj);
+void js_register_cocos2dx_BaseJSAction(JSContext *cx, JS::HandleObject global);
+void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
+bool js_cocos2dx_BaseJSAction_BaseJSAction(JSContext *cx, uint32_t argc, JS::Value *vp);
 
 #endif // __cocos2dx_h__

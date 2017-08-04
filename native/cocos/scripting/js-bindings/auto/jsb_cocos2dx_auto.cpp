@@ -3,6 +3,7 @@
 #include "cocos2d.h"
 #include "2d/CCProtectedNode.h"
 #include "base/CCAsyncTaskPool.h"
+#include "scripting/js-bindings/manual/BaseJSAction.h"
 
 JSClass  *jsb_cocos2d_Acceleration_class;
 JS::PersistentRootedObject *jsb_cocos2d_Acceleration_prototype;
@@ -13748,247 +13749,6 @@ void js_register_cocos2dx_Speed(JSContext *cx, JS::HandleObject global) {
     JS_SetProperty(cx, proto, "_className", className);
     JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
     JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-}
-
-JSClass  *jsb_cocos2d_Follow_class;
-JS::PersistentRootedObject *jsb_cocos2d_Follow_prototype;
-
-bool js_cocos2dx_Follow_setBoundarySet(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true; CC_UNUSED_PARAM(ok);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::Follow* cobj = (cocos2d::Follow *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Follow_setBoundarySet : Invalid Native Object");
-    if (argc == 1) {
-        bool arg0;
-        ok &= jsval_to_bool(cx, args.get(0), &arg0);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_setBoundarySet : Error processing arguments");
-        cobj->setBoundarySet(arg0);
-        args.rval().setUndefined();
-        return true;
-    }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_Follow_setBoundarySet : wrong number of arguments: %d, was expecting %d", argc, 1);
-    return false;
-}
-bool js_cocos2dx_Follow_initWithTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true; CC_UNUSED_PARAM(ok);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::Follow* cobj = (cocos2d::Follow *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Follow_initWithTarget : Invalid Native Object");
-    if (argc == 1) {
-        cocos2d::Node* arg0 = nullptr;
-        do {
-            if (args.get(0).isNull()) { arg0 = nullptr; break; }
-            if (!args.get(0).isObject()) { ok = false; break; }
-            js_proxy_t *jsProxy;
-            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(cx, tmpObj);
-            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
-            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
-        } while (0);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_initWithTarget : Error processing arguments");
-        bool ret = cobj->initWithTarget(arg0);
-        JS::RootedValue jsret(cx);
-        jsret = JS::BooleanValue(ret);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_initWithTarget : error parsing return value");
-        args.rval().set(jsret);
-        return true;
-    }
-    if (argc == 2) {
-        cocos2d::Node* arg0 = nullptr;
-        cocos2d::Rect arg1;
-        do {
-            if (args.get(0).isNull()) { arg0 = nullptr; break; }
-            if (!args.get(0).isObject()) { ok = false; break; }
-            js_proxy_t *jsProxy;
-            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(cx, tmpObj);
-            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
-            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
-        } while (0);
-        ok &= jsval_to_ccrect(cx, args.get(1), &arg1);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_initWithTarget : Error processing arguments");
-        bool ret = cobj->initWithTarget(arg0, arg1);
-        JS::RootedValue jsret(cx);
-        jsret = JS::BooleanValue(ret);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_initWithTarget : error parsing return value");
-        args.rval().set(jsret);
-        return true;
-    }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_Follow_initWithTarget : wrong number of arguments: %d, was expecting %d", argc, 1);
-    return false;
-}
-bool js_cocos2dx_Follow_initWithTargetAndOffset(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true; CC_UNUSED_PARAM(ok);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::Follow* cobj = (cocos2d::Follow *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Follow_initWithTargetAndOffset : Invalid Native Object");
-    if (argc == 3) {
-        cocos2d::Node* arg0 = nullptr;
-        float arg1 = 0;
-        float arg2 = 0;
-        do {
-            if (args.get(0).isNull()) { arg0 = nullptr; break; }
-            if (!args.get(0).isObject()) { ok = false; break; }
-            js_proxy_t *jsProxy;
-            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(cx, tmpObj);
-            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
-            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
-        } while (0);
-        ok &= jsval_to_float(cx, args.get(1), &arg1);
-        ok &= jsval_to_float(cx, args.get(2), &arg2);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_initWithTargetAndOffset : Error processing arguments");
-        bool ret = cobj->initWithTargetAndOffset(arg0, arg1, arg2);
-        JS::RootedValue jsret(cx);
-        jsret = JS::BooleanValue(ret);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_initWithTargetAndOffset : error parsing return value");
-        args.rval().set(jsret);
-        return true;
-    }
-    if (argc == 4) {
-        cocos2d::Node* arg0 = nullptr;
-        float arg1 = 0;
-        float arg2 = 0;
-        cocos2d::Rect arg3;
-        do {
-            if (args.get(0).isNull()) { arg0 = nullptr; break; }
-            if (!args.get(0).isObject()) { ok = false; break; }
-            js_proxy_t *jsProxy;
-            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-            jsProxy = jsb_get_js_proxy(cx, tmpObj);
-            arg0 = (cocos2d::Node*)(jsProxy ? jsProxy->ptr : NULL);
-            JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
-        } while (0);
-        ok &= jsval_to_float(cx, args.get(1), &arg1);
-        ok &= jsval_to_float(cx, args.get(2), &arg2);
-        ok &= jsval_to_ccrect(cx, args.get(3), &arg3);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_initWithTargetAndOffset : Error processing arguments");
-        bool ret = cobj->initWithTargetAndOffset(arg0, arg1, arg2, arg3);
-        JS::RootedValue jsret(cx);
-        jsret = JS::BooleanValue(ret);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_initWithTargetAndOffset : error parsing return value");
-        args.rval().set(jsret);
-        return true;
-    }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_Follow_initWithTargetAndOffset : wrong number of arguments: %d, was expecting %d", argc, 3);
-    return false;
-}
-bool js_cocos2dx_Follow_isBoundarySet(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true; CC_UNUSED_PARAM(ok);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::Follow* cobj = (cocos2d::Follow *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Follow_isBoundarySet : Invalid Native Object");
-    if (argc == 0) {
-        bool ret = cobj->isBoundarySet();
-        JS::RootedValue jsret(cx);
-        jsret = JS::BooleanValue(ret);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Follow_isBoundarySet : error parsing return value");
-        args.rval().set(jsret);
-        return true;
-    }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_Follow_isBoundarySet : wrong number of arguments: %d, was expecting %d", argc, 0);
-    return false;
-}
-bool js_cocos2dx_Follow_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
-    cocos2d::Follow* cobj = new (std::nothrow) cocos2d::Follow();
-
-    // create the js object and link the native object with the javascript object
-    JS::RootedObject jsobj(cx);
-    JS::RootedObject proto(cx, jsb_cocos2d_Follow_prototype->get());
-    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_Follow_class, proto, &jsobj, "cocos2d::Follow");
-    JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
-    args.rval().set(retVal);
-    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
-    {
-        JS::HandleValueArray argsv(args);
-        ScriptingCore::getInstance()->executeFunctionWithOwner(retVal, "_ctor", argsv);
-    }
-    return true;
-}
-static bool js_cocos2dx_Follow_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    cocos2d::Follow *nobj = new (std::nothrow) cocos2d::Follow();
-    jsb_ref_init(cx, obj, nobj, "cocos2d::Follow");
-    jsb_new_proxy(cx, nobj, obj);
-    bool isFound = false;
-    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
-    {
-        JS::HandleValueArray argsv(args);
-        JS::RootedValue objVal(cx, JS::ObjectOrNullValue(obj));
-        ScriptingCore::getInstance()->executeFunctionWithOwner(objVal, "_ctor", argsv);
-    }
-    args.rval().setUndefined();
-    return true;
-}
-
-
-extern JS::PersistentRootedObject *jsb_cocos2d_Action_prototype;
-
-    
-void js_register_cocos2dx_Follow(JSContext *cx, JS::HandleObject global) {
-    static const JSClassOps cocos2d_Follow_classOps = {
-        nullptr, nullptr, nullptr, nullptr,
-        nullptr, nullptr, nullptr,
-        nullptr,
-        nullptr, nullptr, nullptr, nullptr
-    };
-    static JSClass cocos2d_Follow_class = {
-        "Follow",
-        JSCLASS_HAS_PRIVATE,
-        &cocos2d_Follow_classOps
-    };
-    jsb_cocos2d_Follow_class = &cocos2d_Follow_class;
-
-    static JSFunctionSpec funcs[] = {
-        JS_FN("setBoundarySet", js_cocos2dx_Follow_setBoundarySet, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("initWithTarget", js_cocos2dx_Follow_initWithTarget, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("initWithTargetAndOffset", js_cocos2dx_Follow_initWithTargetAndOffset, 3, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("isBoundarySet", js_cocos2dx_Follow_isBoundarySet, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("ctor", js_cocos2dx_Follow_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FS_END
-    };
-
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_Action_prototype->get());
-    JS::RootedObject proto(cx, JS_InitClass(
-        cx, global,
-        parent_proto,
-        jsb_cocos2d_Follow_class,
-        js_cocos2dx_Follow_constructor, 0,
-        nullptr,
-        funcs,
-        nullptr,
-        nullptr));
-
-    // add the proto and JSClass to the type->js info hash table
-    js_type_class_t *typeClass = jsb_register_class<cocos2d::Follow>(cx, jsb_cocos2d_Follow_class, proto);
-    jsb_cocos2d_Follow_prototype = typeClass->proto;
-    JS::RootedValue className(cx);
-    std_string_to_jsval(cx, "Follow", &className);
-    JS_SetProperty(cx, proto, "_className", className);
-    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
-    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-    make_class_extend(cx, proto);
 }
 
 JSClass  *jsb_cocos2d_Image_class;
@@ -49923,6 +49683,91 @@ void js_register_cocos2dx_TileMapAtlas(JSContext *cx, JS::HandleObject global) {
     make_class_extend(cx, proto);
 }
 
+JSClass  *jsb_cocos2d_BaseJSAction_class;
+JS::PersistentRootedObject *jsb_cocos2d_BaseJSAction_prototype;
+
+bool js_cocos2dx_BaseJSAction_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    cocos2d::BaseJSAction* cobj = new (std::nothrow) cocos2d::BaseJSAction();
+
+    // create the js object and link the native object with the javascript object
+    JS::RootedObject jsobj(cx);
+    JS::RootedObject proto(cx, jsb_cocos2d_BaseJSAction_prototype->get());
+    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_BaseJSAction_class, proto, &jsobj, "cocos2d::BaseJSAction");
+    JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
+    args.rval().set(retVal);
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
+    {
+        JS::HandleValueArray argsv(args);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(retVal, "_ctor", argsv);
+    }
+    return true;
+}
+static bool js_cocos2dx_BaseJSAction_ctor(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    cocos2d::BaseJSAction *nobj = new (std::nothrow) cocos2d::BaseJSAction();
+    jsb_ref_init(cx, obj, nobj, "cocos2d::BaseJSAction");
+    jsb_new_proxy(cx, nobj, obj);
+    bool isFound = false;
+    if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
+    {
+        JS::HandleValueArray argsv(args);
+        JS::RootedValue objVal(cx, JS::ObjectOrNullValue(obj));
+        ScriptingCore::getInstance()->executeFunctionWithOwner(objVal, "_ctor", argsv);
+    }
+    args.rval().setUndefined();
+    return true;
+}
+
+
+extern JS::PersistentRootedObject *jsb_cocos2d_Action_prototype;
+
+    
+void js_register_cocos2dx_BaseJSAction(JSContext *cx, JS::HandleObject global) {
+    static const JSClassOps cocos2d_BaseJSAction_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        nullptr,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    static JSClass cocos2d_BaseJSAction_class = {
+        "BaseJSAction",
+        JSCLASS_HAS_PRIVATE,
+        &cocos2d_BaseJSAction_classOps
+    };
+    jsb_cocos2d_BaseJSAction_class = &cocos2d_BaseJSAction_class;
+
+    static JSFunctionSpec funcs[] = {
+        JS_FN("ctor", js_cocos2dx_BaseJSAction_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FS_END
+    };
+
+    JS::RootedObject parent_proto(cx, jsb_cocos2d_Action_prototype->get());
+    JS::RootedObject proto(cx, JS_InitClass(
+        cx, global,
+        parent_proto,
+        jsb_cocos2d_BaseJSAction_class,
+        js_cocos2dx_BaseJSAction_constructor, 0,
+        nullptr,
+        funcs,
+        nullptr,
+        nullptr));
+
+    // add the proto and JSClass to the type->js info hash table
+    js_type_class_t *typeClass = jsb_register_class<cocos2d::BaseJSAction>(cx, jsb_cocos2d_BaseJSAction_class, proto);
+    jsb_cocos2d_BaseJSAction_prototype = typeClass->proto;
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "BaseJSAction", &className);
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    make_class_extend(cx, proto);
+}
+
 void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj) {
     // Get the ns
     JS::RootedObject ns(cx);
@@ -50063,7 +49908,6 @@ void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj) {
     js_register_cocos2dx_EaseQuarticActionOut(cx, ns);
     js_register_cocos2dx_EaseBackIn(cx, ns);
     js_register_cocos2dx_ParticleExplosion(cx, ns);
-    js_register_cocos2dx_Follow(cx, ns);
     js_register_cocos2dx_TintBy(cx, ns);
     js_register_cocos2dx_ReverseTime(cx, ns);
     js_register_cocos2dx_EaseQuarticActionIn(cx, ns);
@@ -50096,6 +49940,7 @@ void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj) {
     js_register_cocos2dx_RotateBy(cx, ns);
     js_register_cocos2dx_FileUtils(cx, ns);
     js_register_cocos2dx_CallFuncN(cx, ns);
+    js_register_cocos2dx_BaseJSAction(cx, ns);
     js_register_cocos2dx_Sequence(cx, ns);
     js_register_cocos2dx_EaseBounceInOut(cx, ns);
     js_register_cocos2dx_Scene(cx, ns);
