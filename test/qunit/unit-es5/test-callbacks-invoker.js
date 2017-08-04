@@ -19,11 +19,6 @@ test('test', function () {
     cb1.once('1 should be called');
     cb2.once('2 should be called');
 
-    var invokeA = ci.bindKey('a');
-    invokeA();
-    cb1.once('1 should be called again').disable();
-    cb2.once('2 should be called again').disable();
-
     cb3.enable();
     ci.invoke('b');
     cb3.once('3 should be called');
