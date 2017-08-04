@@ -30,6 +30,7 @@
 #include "scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp"
 #include "scripting/js-bindings/manual/js_bindings_config.h"
 #include "scripting/js-bindings/auto/jsb_cocos2dx_ui_auto.hpp"
+#include "network/HttpClient.h"
 
 #include "cocos2d.h" // we used cocos2dVersion() ...
 
@@ -957,6 +958,9 @@ void ScriptingCore::cleanup()
     
     localStorageFree();
     cleanAllScript();
+    
+    // clear http client callbacks
+    network::HttpClient::destroyInstance();
     
     // Cleanup js objects
     JS::RootedObject global(_cx, _global->get());
