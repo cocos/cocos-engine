@@ -33,10 +33,10 @@ var JS = require('./js');
  * @private
  */
 var CallbacksHandler = (function () {
-    this._callbackTable = {};
-    this._invoking = {};
-    this._toRemove = {};
-    this._toRemoveAll = null;
+    this._callbackTable = JS.createMap(true);
+    this._invoking = JS.createMap(true);
+    this._toRemove = JS.createMap(true);
+    this._toRemoveAll = '';
 });
 
 // Avoid to equal to user set target (null for example)
