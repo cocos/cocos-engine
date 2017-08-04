@@ -142,7 +142,6 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
         var locGL = this._glContext;
         this._programObj = locGL.createProgram();
         this._projectionUpdated = -1;
-        //cc.checkGLErrorDebug();
 
         this._vertShader = null;
         this._fragShader = null;
@@ -164,7 +163,6 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
 
         if (this._vertShader)
             locGL.attachShader(this._programObj, this._vertShader);
-        // cc.checkGLErrorDebug();
 
         if (this._fragShader)
             locGL.attachShader(this._programObj, this._fragShader);
@@ -173,7 +171,8 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
             delete this._hashForUniforms[key];
         }
 
-        // cc.checkGLErrorDebug();
+        if (CC_DEV)
+            cc.checkGLErrorDebug();
         return true;
     },
 
