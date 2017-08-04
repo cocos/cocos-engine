@@ -44,7 +44,8 @@ MD5Pipe.prototype.handle = function(item) {
 };
 
 MD5Pipe.prototype.transformURL = function (url) {
-    var key = url;
+    var split = url.split('?');
+    var key = split[0];
     if (key.startsWith(this.libraryBase)) {
         key = key.slice(this.libraryBase.length);
     } else if(key.startsWith(this.rawAssetsBase)) {

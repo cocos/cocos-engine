@@ -302,6 +302,9 @@ _ccsg.VideoPlayer.EventType = {
     };
 
     proto.updateURL = function (path) {
+        if (cc.loader.md5Pipe) {
+            path = cc.loader.md5Pipe.transformURL(path);
+        }
         var source, video, extname;
         var node = this._node;
 

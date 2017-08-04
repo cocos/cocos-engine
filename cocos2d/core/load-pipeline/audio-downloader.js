@@ -34,7 +34,11 @@ var context = __audioSupport.context;
 
 function loadDomAudio (item, callback) {
     var dom = document.createElement('audio');
-    dom.src = item.url;
+    var url = item.url;
+    if (cc.loader.md5Pipe) {
+        url = cc.loader.md5Pipe.transformURL(url);
+    }
+    dom.src = url;
     var clearEvent = function () {
         clearTimeout(timer);
         dom.removeEventListener("canplaythrough", success, false);
