@@ -186,7 +186,7 @@ CallbacksHandler.prototype.removeAll = function (key) {
  * @method remove
  * @param {String} key
  * @param {Function} callback
- * @param {Object} target
+ * @param {Object} [target]
  * @return {Boolean} removed
  */
 CallbacksHandler.prototype.remove = function (key, callback, target) {
