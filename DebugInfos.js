@@ -395,6 +395,7 @@ if (CC_DEBUG) {
         "4920": "Sorry, you shouldn\'t use id as item identity any more, please use url or uuid instead, the current id is being set as url: (%s)", // load
         "4921": "Invalid pipe or invalid index provided!", //pipeline.insertPipe
         "4922": "The pipe to be inserted is already in the pipeline!", //pipeline.insertPipe
+        "4923": "Sorry, the texture asset (%s) hasn't be released because it's still in use, please check.", //cc.loader.release
         //CCObject: 5000
         "5000": "object already destroyed", //destroy
         "5001": "object not yet destroyed", //realDestroyInEditor

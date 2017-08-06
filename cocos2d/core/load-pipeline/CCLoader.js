@@ -748,10 +748,27 @@ proto.release = function (asset) {
         var id = this._getReferenceKey(asset);
         var item = this.getItem(id);
         if (item) {
-            var removed = this.removeItem(id);
             asset = item.content;
-            // TODO: AUDIO
-            if (asset instanceof cc.Asset) {
+            if (asset instanceof cc.Texture2D) {
+                if (CC_JSB) {
+                    // Avoid releasing textures still in use 
+                    var refCount = jsb.getReferenceCount(asset);
+                    // An unused texture should only be referenced by TextureCache and its js object
+                    if (refCount <= 2) {
+                        cc.textureCache.removeTextureForKey(item.url);
+                        this.removeItem(id);
+                    }
+                    else {
+                        cc.warnID(4923, asset.getPath());
+                    }
+                }
+                else {
+                    cc.textureCache.removeTextureForKey(item.url);
+                    this.removeItem(id);
+                }
+            }
+            else if (asset instanceof cc.Asset) {
+                var removed = this.removeItem(id);
                 if (CC_JSB && asset instanceof cc.SpriteFrame && removed) {
                     // for the "Temporary solution" in deserialize.js
                     asset.release();
@@ -761,9 +778,7 @@ proto.release = function (asset) {
                     this.release(urls[i]);
                 }
             }
-            else if (asset instanceof cc.Texture2D) {
-                cc.textureCache.removeTextureForKey(item.url);
-            }
+            // TODO: AUDIO
         }
     }
 };
