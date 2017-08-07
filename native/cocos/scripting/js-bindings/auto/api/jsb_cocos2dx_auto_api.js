@@ -3159,16 +3159,6 @@ getInstance : function (
 cc.Scheduler = {
 
 /**
- * @method isCurrentTargetSalvaged
- * @return {bool}
- */
-isCurrentTargetSalvaged : function (
-)
-{
-    return false;
-},
-
-/**
  * @method setTimeScale
  * @param {float} arg0
  */
@@ -3179,13 +3169,13 @@ float
 },
 
 /**
- * @method unscheduleAllWithMinPriority
- * @param {int} arg0
+ * @method isCurrentTargetSalvaged
+ * @return {bool}
  */
-unscheduleAllWithMinPriority : function (
-int 
+isCurrentTargetSalvaged : function (
 )
 {
+    return false;
 },
 
 /**
@@ -3209,16 +3199,6 @@ int
 },
 
 /**
- * @method performFunctionInCocosThread
- * @param {function} arg0
- */
-performFunctionInCocosThread : function (
-func 
-)
-{
-},
-
-/**
  * @method unscheduleAll
  */
 unscheduleAll : function (
@@ -3234,6 +3214,34 @@ getTimeScale : function (
 )
 {
     return 0;
+},
+
+/**
+ * @method unscheduleAllWithMinPriority
+ * @param {int} arg0
+ */
+unscheduleAllWithMinPriority : function (
+int 
+)
+{
+},
+
+/**
+ * @method performFunctionInCocosThread
+ * @param {function} arg0
+ */
+performFunctionInCocosThread : function (
+func 
+)
+{
+},
+
+/**
+ * @method removeAllFunctionsToBePerformedInCocosThread
+ */
+removeAllFunctionsToBePerformedInCocosThread : function (
+)
+{
 },
 
 /**
