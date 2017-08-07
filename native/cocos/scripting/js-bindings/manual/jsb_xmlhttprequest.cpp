@@ -24,6 +24,17 @@ using namespace cocos2d::network;
 class XMLHttpRequest
 {
 public:
+
+    // Ready States: https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/readyState
+    enum class ReadyState
+    {
+        UNSENT = 0, // Client has been created. open() not called yet.
+        OPENED = 1, // open() has been called.
+        HEADERS_RECEIVED = 2, // send() has been called, and headers and status are available.
+        LOADING = 3, // Downloading; responseText holds partial data.
+        DONE = 4 // The operation is complete.
+    };
+
     enum class ResponseType
     {
         STRING,
@@ -32,13 +43,6 @@ public:
         DOCUMENT,
         JSON
     };
-
-    // Ready States (http://www.w3.org/TR/XMLHttpRequest/#interface-xmlhttprequest)
-    static const unsigned short UNSENT = 0;
-    static const unsigned short OPENED = 1;
-    static const unsigned short HEADERS_RECEIVED = 2;
-    static const unsigned short LOADING = 3;
-    static const unsigned short DONE = 4;
 
     std::function<void()> onloadstart;
     std::function<void()> onload;
@@ -60,19 +64,22 @@ public:
     std::string getAllResponseHeaders() const;
     std::string getResonpseHeader(const std::string& key) const;
 
-    int getReadyState() const { return _readyState; }
-    long getStatus() const { return _status; }
+    ReadyState getReadyState() const { return _readyState; }
+    uint16_t getStatus() const { return _status; }
     const std::string& getStatusText() const { return _statusText; }
     const std::string& getResponseText() const { return _responseText; }
     const cocos2d::Data& getResponseData() const { return _responseData; }
     ResponseType getResponseType() const { return _responseType; }
     void setResponseType(ResponseType type) { _responseType = type; }
 
-    void setTimeout(unsigned long timeout) { _timeout = timeout;}
-    unsigned long getTimeout() const { return _timeout; }
+    void setTimeout(unsigned long timeoutInMilliseconds);
+    unsigned long getTimeout() const;
+
+    void abort();
 
 private:
-    void gotHeader(std::string& header);
+    void setReadyState(ReadyState readyState);
+    void getHeader(const std::string& header);
     void onResponse(cocos2d::network::HttpClient* client, cocos2d::network::HttpResponse* response);
 
     void setHttpRequestData(const char* data, size_t len);
@@ -87,14 +94,14 @@ private:
     std::string _responseXML;
     cocos2d::Data _responseData;
 
-    int _readyState;
-    long _status;
+    ReadyState _readyState;
+    uint16_t _status;
     std::string _statusText;
 
-    unsigned long _timeout;
     bool _withCredentialsValue;
     bool _errorFlag;
     bool _isAborted;
+    bool _isLoadStart;
 
     std::unordered_map<std::string, std::string> _httpHeader;
     std::unordered_map<std::string, std::string> _requestHeader;
@@ -111,13 +118,13 @@ XMLHttpRequest::XMLHttpRequest()
 , onerror(nullptr)
 , ontimeout(nullptr)
 , _responseType(ResponseType:: STRING)
-, _readyState(UNSENT)
+, _readyState(ReadyState::UNSENT)
 , _status(0)
 , _statusText()
-, _timeout(0UL)
 , _withCredentialsValue(false)
 , _errorFlag(false)
 , _isAborted(false)
+, _isLoadStart(false)
 , _httpRequest(new HttpRequest())
 {
 
@@ -150,9 +157,10 @@ bool XMLHttpRequest::open(const std::string& method, const std::string& url)
     _httpRequest->setRequestType(requestType);
     _httpRequest->setUrl(_url);
 
-    _readyState = OPENED;
     _status = 0;
     _isAborted = false;
+
+    setReadyState(ReadyState::OPENED);
 
     return true;
 }
@@ -174,12 +182,50 @@ void XMLHttpRequest::sendBinary(const Data& data)
     sendRequest();
 }
 
-void XMLHttpRequest::gotHeader(std::string& header)
+void XMLHttpRequest::setTimeout(unsigned long timeoutInMilliseconds)
 {
-    // Get Header and Set StatusText
-    // Split String into Tokens
-    char * cstr = new (std::nothrow) char [header.length()+1];
+    _httpRequest->setTimeout(timeoutInMilliseconds / 1000.0f);
+}
 
+unsigned long XMLHttpRequest::getTimeout() const
+{
+    return _httpRequest->getTimeout() * 1000.0f;
+}
+
+void XMLHttpRequest::abort()
+{
+    if (!_isLoadStart)
+        return;
+
+    _isAborted = true;
+
+    setReadyState(ReadyState::DONE);
+
+    if (onabort != nullptr)
+    {
+        onabort();
+    }
+
+    if (onloadend != nullptr)
+    {
+        onloadend();
+    }
+}
+
+void XMLHttpRequest::setReadyState(ReadyState readyState)
+{
+    if (_readyState != readyState)
+    {
+        _readyState = readyState;
+        if (onreadystatechange != nullptr)
+        {
+            onreadystatechange();
+        }
+    }
+}
+
+void XMLHttpRequest::getHeader(const std::string& header)
+{
     // check for colon.
     size_t found_header_field = header.find_first_of(":");
 
@@ -210,11 +256,16 @@ void XMLHttpRequest::gotHeader(std::string& header)
     }
     else
     {
-        // Seems like we have the response Code! Parse it and check for it.
-        char * pch;
-        strcpy(cstr, header.c_str());
+        // Get Header and Set StatusText
+        // Split String into Tokens
+        char* cstr = new (std::nothrow) char [header.length()+1];
 
-        pch = strtok(cstr," ");
+        // Seems like we have the response Code! Parse it and check for it.
+        char* pch;
+        strncpy(cstr, header.c_str(), header.length());
+        cstr[header.length()] = '\0';
+
+        pch = strtok(cstr, " ");
         while (pch != nullptr)
         {
             std::stringstream ss;
@@ -242,17 +293,14 @@ void XMLHttpRequest::gotHeader(std::string& header)
             
             pch = strtok (nullptr, " ");
         }
+
+        CC_SAFE_DELETE_ARRAY(cstr);
     }
-    
-    CC_SAFE_DELETE_ARRAY(cstr);
 }
 
 void XMLHttpRequest::onResponse(HttpClient* client, HttpResponse* response)
 {
-//    _elapsedTime = 0;
-//    _scheduler->unscheduleAllForTarget(this);
-
-    if(_isAborted || _readyState == UNSENT)
+    if(_isAborted || _readyState == ReadyState::UNSENT)
     {
         return;
     }
@@ -299,15 +347,13 @@ void XMLHttpRequest::onResponse(HttpClient* client, HttpResponse* response)
 
     std::istringstream stream(header);
     std::string line;
-    while(std::getline(stream, line)) {
-        gotHeader(line);
+    while(std::getline(stream, line))
+    {
+        getHeader(line);
     }
 
     /** get the response data **/
     std::vector<char>* buffer = response->getResponseData();
-
-    _status = statusCode;
-    _readyState = DONE;
 
     if (_responseType == ResponseType::STRING || _responseType == ResponseType::JSON)
     {
@@ -318,10 +364,9 @@ void XMLHttpRequest::onResponse(HttpClient* client, HttpResponse* response)
         _responseData.copy((unsigned char*)buffer->data(), buffer->size());
     }
 
-    if (onreadystatechange != nullptr)
-    {
-        onreadystatechange();
-    }
+    _status = statusCode;
+
+    setReadyState(ReadyState::DONE);
 
     if (onload != nullptr)
     {
@@ -346,6 +391,8 @@ void XMLHttpRequest::sendRequest()
     {
         onloadstart();
     }
+
+    _isLoadStart = true;
 }
 
 void XMLHttpRequest::setHttpRequestData(const char* data, size_t len)
@@ -416,7 +463,7 @@ void XMLHttpRequest::setHttpRequestHeader()
         const char* second = it->second.c_str();
         size_t len = sizeof(char) * (strlen(first) + 3 + strlen(second));
         char* test = (char*) malloc(len);
-        memset(test, 0,len);
+        memset(test, 0, len);
 
         strcpy(test, first);
         strcpy(test + strlen(first) , ": ");
@@ -441,11 +488,8 @@ se::Class* __jsb_XMLHttpRequest_class = nullptr;
 static bool XMLHttpRequest_finalize(se::State& s)
 {
     printf("XMLHttpRequest_finalize ... \n");
-    if (s.nativeThisObject())
-    {
-        XMLHttpRequest* request = (XMLHttpRequest*)s.nativeThisObject();
-        delete request;
-    }
+    XMLHttpRequest* request = (XMLHttpRequest*)s.nativeThisObject();
+    delete request;
     return true;
 }
 SE_BIND_FINALIZE_FUNC(XMLHttpRequest_finalize)
@@ -510,7 +554,8 @@ SE_BIND_FUNC(XMLHttpRequest_open)
 
 static bool XMLHttpRequest_abort(se::State& s)
 {
-    assert(false);
+    XMLHttpRequest* request = (XMLHttpRequest*)s.nativeThisObject();
+    request->abort();
     return true;
 }
 SE_BIND_FUNC(XMLHttpRequest_abort)
@@ -669,7 +714,7 @@ static bool XMLHttpRequest_getResponse(se::State& s)
     }
     else
     {
-        if (xhr->getReadyState() != XMLHttpRequest::DONE)
+        if (xhr->getReadyState() != XMLHttpRequest::ReadyState::DONE)
         {
             s.rval().setNull();
         }

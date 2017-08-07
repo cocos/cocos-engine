@@ -120,29 +120,33 @@ public:
      * Set the timeout value for connecting.
      *
      * @param value the timeout value for connecting.
+     * @deprecated Please use `HttpRequest.setTimeout` instead.
      */
-    void setTimeoutForConnect(int value);
+    CC_DEPRECATED_ATTRIBUTE void setTimeoutForConnect(int value);
 
     /**
      * Get the timeout value for connecting.
      *
      * @return int the timeout value for connecting.
+     * @deprecated Please use `HttpRequest.getTimeout` instead.
      */
-    int getTimeoutForConnect();
+    CC_DEPRECATED_ATTRIBUTE int getTimeoutForConnect();
 
     /**
      * Set the timeout value for reading.
      *
      * @param value the timeout value for reading.
+     * @deprecated Please use `HttpRequest.setTimeout` instead.
      */
-    void setTimeoutForRead(int value);
+    CC_DEPRECATED_ATTRIBUTE void setTimeoutForRead(int value);
 
     /**
      * Get the timeout value for reading.
      *
      * @return int the timeout value for reading.
+     * @deprecated Please use `HttpRequest.setTimeout` instead.
      */
-    int getTimeoutForRead();
+    CC_DEPRECATED_ATTRIBUTE int getTimeoutForRead();
 
     HttpCookie* getCookie() const {return _cookie; }
 
