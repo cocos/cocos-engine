@@ -962,10 +962,12 @@ void ScriptingCore::cleanup()
     // clear http client callbacks
     network::HttpClient::destroyInstance();
     
-    // Cleanup js objects
-    JS::RootedObject global(_cx, _global->get());
-    JS::RootedValue globalVal(_cx, JS::ObjectOrNullValue(global));
-    executeFunctionWithOwner(globalVal, "__cleanup", JS::HandleValueArray::empty());
+    {
+        // Cleanup js objects
+        JS::RootedObject global(_cx, _global->get());
+        JS::RootedValue globalVal(_cx, JS::ObjectOrNullValue(global));
+        executeFunctionWithOwner(globalVal, "__cleanup", JS::HandleValueArray::empty());
+    }
     
     // Cleanup jsb type map
     for (auto iter = _js_global_type_map.begin(); iter != _js_global_type_map.end(); ++iter)
