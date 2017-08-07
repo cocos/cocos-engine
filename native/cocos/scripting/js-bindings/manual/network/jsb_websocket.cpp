@@ -218,6 +218,7 @@ void js_cocos2dx_WebSocket_finalize(JSFreeOp *fop, JSObject *obj) {
     WebSocket *cobj = static_cast<WebSocket *>(JS_GetPrivate(obj));
     if (cobj)
     {
+        ScriptingCore::getInstance()->setFinalizing(true);
         // Manually close if WebSocket is not closed
         if (cobj->getReadyState() != WebSocket::State::CLOSED)
         {
@@ -225,6 +226,7 @@ void js_cocos2dx_WebSocket_finalize(JSFreeOp *fop, JSObject *obj) {
         }
         static_cast<JSB_WebSocketDelegate*>(cobj->getDelegate())->release();
         cobj->release();
+        ScriptingCore::getInstance()->setFinalizing(false);
     }
 }
 
