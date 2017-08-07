@@ -153,7 +153,9 @@ public:
     void setOwner(JSContext* cx, JS::HandleObject owner);
     void setData(JSContext* cx, JS::HandleObject data);
     void getData(JSContext* cx, JS::MutableHandleObject data);
+    void setJSCallback(JSContext* cx, JS::HandleObject callback);
     void getJSCallback(JSContext* cx, JS::MutableHandleObject callback);
+    void setJSTarget(JSContext* cx, JS::HandleObject target);
     void getJSTarget(JSContext* cx, JS::MutableHandleObject target);
     
     bool invoke(JS::HandleValueArray args, JS::MutableHandleValue rval);

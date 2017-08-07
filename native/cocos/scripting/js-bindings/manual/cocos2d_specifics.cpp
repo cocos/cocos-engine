@@ -157,6 +157,8 @@ void JSFunctionWrapper::setOwner(JSContext* cx, JS::HandleObject owner)
 
 void JSFunctionWrapper::setData(JSContext* cx, JS::HandleObject data)
 {
+    JS::RootedObject oldData(cx);
+    _data->getObj(&oldData);
     _data->setObj(cx, data);
     
     JS::RootedObject owner(cx);
@@ -164,7 +166,12 @@ void JSFunctionWrapper::setData(JSContext* cx, JS::HandleObject data)
     JS::RootedValue ownerVal(cx, JS::ObjectOrNullValue(owner));
     if (!ownerVal.isNullOrUndefined())
     {
-        JS::RootedValue dataVal(cx, JS::ObjectOrNullValue(data));
+        JS::RootedValue dataVal(cx, JS::ObjectOrNullValue(oldData));
+        if (!dataVal.isNullOrUndefined())
+        {
+            js_remove_object_reference(ownerVal, dataVal);
+        }
+        dataVal.set(JS::ObjectOrNullValue(data));
         if (!dataVal.isNullOrUndefined() && data.get() != owner.get())
         {
             js_add_object_reference(ownerVal, dataVal);
@@ -177,9 +184,57 @@ void JSFunctionWrapper::getData(JSContext* cx, JS::MutableHandleObject data)
     _data->getObj(data);
 }
 
+void JSFunctionWrapper::setJSCallback(JSContext* cx, JS::HandleObject callback)
+{
+    JS::RootedObject oldCallback(cx);
+    _func->getObj(&oldCallback);
+    _func->setObj(cx, callback);
+    
+    JS::RootedObject owner(cx);
+    _owner->getObj(&owner);
+    JS::RootedValue ownerVal(cx, JS::ObjectOrNullValue(owner));
+    if (!ownerVal.isNullOrUndefined())
+    {
+        JS::RootedValue callbackVal(cx, JS::ObjectOrNullValue(oldCallback));
+        if (!callbackVal.isNullOrUndefined())
+        {
+            js_remove_object_reference(ownerVal, callbackVal);
+        }
+        callbackVal.set(JS::ObjectOrNullValue(callback));
+        if (!callbackVal.isNullOrUndefined() && callback.get() != owner.get())
+        {
+            js_add_object_reference(ownerVal, callbackVal);
+        }
+    }
+}
+
 void JSFunctionWrapper::getJSCallback(JSContext* cx, JS::MutableHandleObject callback)
 {
     _func->getObj(callback);
+}
+
+void JSFunctionWrapper::setJSTarget(JSContext* cx, JS::HandleObject target)
+{
+    JS::RootedObject oldThis(cx);
+    _jsthis->getObj(&oldThis);
+    _jsthis->setObj(cx, target);
+    
+    JS::RootedObject owner(cx);
+    _owner->getObj(&owner);
+    JS::RootedValue ownerVal(cx, JS::ObjectOrNullValue(owner));
+    if (!ownerVal.isNullOrUndefined())
+    {
+        JS::RootedValue targetVal(cx, JS::ObjectOrNullValue(oldThis));
+        if (!targetVal.isNullOrUndefined())
+        {
+            js_remove_object_reference(ownerVal, targetVal);
+        }
+        targetVal.set(JS::ObjectOrNullValue(target));
+        if (!targetVal.isNullOrUndefined() && target.get() != owner.get())
+        {
+            js_add_object_reference(ownerVal, targetVal);
+        }
+    }
 }
 
 void JSFunctionWrapper::getJSTarget(JSContext* cx, JS::MutableHandleObject target)
