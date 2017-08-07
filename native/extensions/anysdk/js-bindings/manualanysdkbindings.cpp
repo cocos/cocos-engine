@@ -29,7 +29,7 @@ bool js_anysdk_PluginParam_constructor(JSContext *cx, uint32_t argc, JS::Value *
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     
-    PluginParam* cobj = NULL;
+    PluginParam* cobj = nullptr;
     
     do {
         if (argc == 2) {
@@ -264,7 +264,7 @@ bool jsb_anysdk_PluginParam_getStrMapValue(JSContext *cx, uint32_t argc, JS::Val
 bool js_cocos2dx_PluginParam_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    PluginParam* ret = NULL;
+    PluginParam* ret = nullptr;
     if(argc == 0){
         ret = new PluginParam();
     }
@@ -380,7 +380,6 @@ class ProtocolShareResultListener : public ShareResultListener, public JSFunctio
 public:
     ProtocolShareResultListener(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
     : JSFunctionWrapper(cx, jsthis, func, owner)
-    , _ctx(cx)
     {
     }
     ~ProtocolShareResultListener()
@@ -392,18 +391,17 @@ public:
     {
         CCLOG("on action result: %d, msg: %s.", code, msg);
         
-        JS::RootedValue retval(_ctx);
-        JS::AutoValueVector valArr(_ctx);
-        JS::RootedValue tmp(_ctx);
+        JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+        JS::RootedValue retval(cx);
+        JS::AutoValueVector valArr(cx);
+        JS::RootedValue tmp(cx);
         valArr.append( JS::Int32Value(code) );
-        std_string_to_jsval(_ctx, msg, &tmp);
+        std_string_to_jsval(cx, msg, &tmp);
         valArr.append( tmp );
         
         JS::HandleValueArray args(valArr);
         invoke(args, &retval);
     }
-private:
-    JSContext* _ctx;
 };
 
 bool jsb_anysdk_ProtocolShare_setResultListener(JSContext *cx, uint32_t argc, JS::Value *vp){
@@ -937,7 +935,6 @@ class ProtocolAdsResultListener : public AdsListener, public JSFunctionWrapper
 public:
     ProtocolAdsResultListener(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
     : JSFunctionWrapper(cx, jsthis, func, owner)
-    , _ctx(cx)
     {
     }
     ~ProtocolAdsResultListener()
@@ -949,11 +946,12 @@ public:
     {
         CCLOG("on ads result: %d, msg: %s.", code, msg);
         
-        JS::RootedValue retval(_ctx);
-        JS::AutoValueVector valArr(_ctx);
-        JS::RootedValue tmp(_ctx);
+        JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+        JS::RootedValue retval(cx);
+        JS::AutoValueVector valArr(cx);
+        JS::RootedValue tmp(cx);
         valArr.append( JS::Int32Value(code) );
-        std_string_to_jsval(_ctx, msg, &tmp);
+        std_string_to_jsval(cx, msg, &tmp);
         valArr.append( tmp );
         JS::HandleValueArray args(valArr);
         
@@ -962,11 +960,12 @@ public:
     virtual void onPlayerGetPoints(ProtocolAds* pAdsPlugin, int points) 
     {
         CCLOG("on player get points: %d.", points);
-        JS::RootedObject paramObj(_ctx);
-        js_get_or_create_jsobject<ProtocolAds>(_ctx, pAdsPlugin, &paramObj);
+        JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+        JS::RootedObject paramObj(cx);
+        js_get_or_create_jsobject<ProtocolAds>(cx, pAdsPlugin, &paramObj);
         
-        JS::RootedValue retval(_ctx);
-        JS::AutoValueVector valArr(_ctx);
+        JS::RootedValue retval(cx);
+        JS::AutoValueVector valArr(cx);
         valArr.append( JS::ObjectOrNullValue(paramObj) );
         valArr.append( JS::Int32Value(points) );
         JS::HandleValueArray args(valArr);
@@ -981,6 +980,12 @@ public:
         {
             _instance = new ProtocolAdsResultListener(cx, jsthis, func, owner);
         }
+        else
+        {
+            _instance->setOwner(cx, owner);
+            _instance->setJSTarget(cx, jsthis);
+            _instance->setJSCallback(cx, func);
+        }
         return _instance;
     }
     static void purge()
@@ -988,13 +993,11 @@ public:
         if (_instance != NULL)
         {
             delete _instance;
-            _instance = NULL;
+            _instance = nullptr;
         }
     }
-private:
-    JSContext* _ctx;
 };
-ProtocolAdsResultListener* ProtocolAdsResultListener::_instance = NULL;
+ProtocolAdsResultListener* ProtocolAdsResultListener::_instance = nullptr;
 
 static bool jsb_anysdk_framework_ProtocolAds_setAdsListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -1079,7 +1082,6 @@ class ProtocolIAPResultListener : public PayResultListener, public JSFunctionWra
 public:
     ProtocolIAPResultListener(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
     : JSFunctionWrapper(cx, jsthis, func, owner)
-    , _ctx(cx)
     {
     }
     ~ProtocolIAPResultListener()
@@ -1091,7 +1093,8 @@ public:
     {
         CCLOG("on pay result: %d, msg: %s.", code, msg);
         
-        JS::RootedValue retval(_ctx);
+        JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+        JS::RootedValue retval(cx);
         
         std::string vec="{";
         for (auto iter = info.begin(); iter != info.end(); ++iter)
@@ -1103,12 +1106,12 @@ public:
         }
         vec.replace(vec.length() - 1, 1, "}");
         
-        JS::AutoValueVector valArr(_ctx);
-        JS::RootedValue tmp(_ctx);
+        JS::AutoValueVector valArr(cx);
+        JS::RootedValue tmp(cx);
         valArr.append( JS::Int32Value(code) );
-        std_string_to_jsval(_ctx, msg, &tmp);
+        std_string_to_jsval(cx, msg, &tmp);
         valArr.append( tmp );
-        std_string_to_jsval(_ctx, vec, &tmp);
+        std_string_to_jsval(cx, vec, &tmp);
         valArr.append( tmp );
         JS::HandleValueArray args(valArr);
         
@@ -1120,7 +1123,8 @@ public:
     {
         CCLOG("on request result: %d, msg: %s.", code, msg);
         
-        JS::RootedValue retval(_ctx);
+        JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+        JS::RootedValue retval(cx);
         
         string value = "{";
         map<string, TProductInfo >::iterator iterParent;
@@ -1148,12 +1152,12 @@ public:
         value.append("}");
         
         
-        JS::AutoValueVector valArr(_ctx);
-        JS::RootedValue tmp(_ctx);
+        JS::AutoValueVector valArr(cx);
+        JS::RootedValue tmp(cx);
         valArr.append( JS::Int32Value(code) );
-        std_string_to_jsval(_ctx, msg, &tmp);
+        std_string_to_jsval(cx, msg, &tmp);
         valArr.append( tmp );
-        std_string_to_jsval(_ctx, value, &tmp);
+        std_string_to_jsval(cx, value, &tmp);
         valArr.append( tmp );
         
         JS::HandleValueArray args(valArr);
@@ -1175,11 +1179,9 @@ public:
     {
         auto listener = std_map[key];
         delete listener;
-        listener = NULL;
+        listener = nullptr;
         std_map.erase(key);
     }
-private:
-    JSContext* _ctx;
 };
 ProtocolIAPResultListener::STD_MAP ProtocolIAPResultListener::std_map;
 
@@ -1271,7 +1273,6 @@ class ProtocolPushActionListener : public PushActionListener, public JSFunctionW
 public:
     ProtocolPushActionListener(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
     : JSFunctionWrapper(cx, jsthis, func, owner)
-    , _ctx(cx)
     {
     }
     ~ProtocolPushActionListener()
@@ -1283,15 +1284,16 @@ public:
     {
         CCLOG("on push result: %d, msg: %s.", code, msg);
         
-        JS::RootedObject paramObj(_ctx);
-        js_get_or_create_jsobject<ProtocolPush>(_ctx, pPlugin, &paramObj);
+        JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+        JS::RootedObject paramObj(cx);
+        js_get_or_create_jsobject<ProtocolPush>(cx, pPlugin, &paramObj);
 
-        JS::RootedValue retval(_ctx);
-        JS::AutoValueVector valArr(_ctx);
-        JS::RootedValue tmp(_ctx);
+        JS::RootedValue retval(cx);
+        JS::AutoValueVector valArr(cx);
+        JS::RootedValue tmp(cx);
         valArr.append( JS::ObjectOrNullValue(paramObj) );
         valArr.append( JS::Int32Value(code) );
-        std_string_to_jsval(_ctx, msg, &tmp);
+        std_string_to_jsval(cx, msg, &tmp);
         valArr.append( tmp );
         JS::HandleValueArray args(valArr);
         
@@ -1305,6 +1307,12 @@ public:
         {
             _instance = new ProtocolPushActionListener(cx, jsthis, func, owner);
         }
+        else
+        {
+            _instance->setOwner(cx, owner);
+            _instance->setJSTarget(cx, jsthis);
+            _instance->setJSCallback(cx, func);
+        }
         return _instance;
     }
     static void purge()
@@ -1312,13 +1320,11 @@ public:
         if (_instance != NULL)
         {
             delete _instance;
-            _instance = NULL;
+            _instance = nullptr;
         }
     }
-private:
-    JSContext* _ctx;
 };
-ProtocolPushActionListener* ProtocolPushActionListener::_instance = NULL;
+ProtocolPushActionListener* ProtocolPushActionListener::_instance = nullptr;
 
 static bool jsb_anysdk_framework_ProtocolPush_setActionListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -1452,7 +1458,6 @@ class ProtocolUserActionListener : public UserActionListener, public JSFunctionW
 public:
     ProtocolUserActionListener(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
     : JSFunctionWrapper(cx, jsthis, func, owner)
-    , _ctx(cx)
     {
     }
     ~ProtocolUserActionListener()
@@ -1464,14 +1469,15 @@ public:
     {
         CCLOG("on user action result: %d, msg: %s.", code, msg);
         
-        JS::RootedObject paramObj(_ctx);
-        js_get_or_create_jsobject<ProtocolUser>(_ctx, pPlugin, &paramObj);
-        JS::RootedValue retval(_ctx);
-        JS::AutoValueVector valArr(_ctx);
-        JS::RootedValue tmp(_ctx);
+        JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+        JS::RootedObject paramObj(cx);
+        js_get_or_create_jsobject<ProtocolUser>(cx, pPlugin, &paramObj);
+        JS::RootedValue retval(cx);
+        JS::AutoValueVector valArr(cx);
+        JS::RootedValue tmp(cx);
         valArr.append( JS::ObjectOrNullValue(paramObj) );
         valArr.append( JS::Int32Value(code) );
-        std_string_to_jsval(_ctx, msg, &tmp);
+        std_string_to_jsval(cx, msg, &tmp);
         valArr.append( tmp );
         
         JS::HandleValueArray args(valArr);
@@ -1480,8 +1486,14 @@ public:
 
     static ProtocolUserActionListener* _instance;
     static ProtocolUserActionListener* getInstance(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner){
-        if (_instance == NULL){
+        if (_instance == nullptr){
             _instance = new ProtocolUserActionListener(cx, jsthis, func, owner);
+        }
+        else
+        {
+            _instance->setOwner(cx, owner);
+            _instance->setJSTarget(cx, jsthis);
+            _instance->setJSCallback(cx, func);
         }
         return _instance;
     }
@@ -1489,13 +1501,11 @@ public:
         if (_instance)
         {
             delete _instance;
-            _instance = NULL;
+            _instance = nullptr;
         }
     }
-private:
-    JSContext* _ctx;
 };
-ProtocolUserActionListener* ProtocolUserActionListener::_instance = NULL;
+ProtocolUserActionListener* ProtocolUserActionListener::_instance = nullptr;
 
 static bool jsb_anysdk_framework_ProtocolUser_setActionListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -1538,7 +1548,6 @@ class ProtocolSocialListener : public SocialListener, public JSFunctionWrapper
 public:
     ProtocolSocialListener(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
     : JSFunctionWrapper(cx, jsthis, func, owner)
-    , _ctx(cx)
     {
     }
     ~ProtocolSocialListener()
@@ -1550,11 +1559,12 @@ public:
     {
         CCLOG("on action result: %d, msg: %s.", code, msg);
         
-        JS::RootedValue retval(_ctx);
-        JS::AutoValueVector valArr(_ctx);
-        JS::RootedValue tmp(_ctx);
+        JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+        JS::RootedValue retval(cx);
+        JS::AutoValueVector valArr(cx);
+        JS::RootedValue tmp(cx);
         valArr.append( JS::Int32Value(code) );
-        std_string_to_jsval(_ctx, msg, &tmp);
+        std_string_to_jsval(cx, msg, &tmp);
         valArr.append( tmp );
         JS::HandleValueArray args(valArr);
         invoke(args, &retval);
@@ -1567,6 +1577,12 @@ public:
         {
             _instance = new ProtocolSocialListener(cx, jsthis, func, owner);
         }
+        else
+        {
+            _instance->setOwner(cx, owner);
+            _instance->setJSTarget(cx, jsthis);
+            _instance->setJSCallback(cx, func);
+        }
         return _instance;
     }
     static void purge()
@@ -1574,13 +1590,11 @@ public:
         if (_instance != NULL)
         {
             delete _instance;
-            _instance = NULL;
+            _instance = nullptr;
         }
     }
-private:
-    JSContext* _ctx;
 };
-ProtocolSocialListener* ProtocolSocialListener::_instance = NULL;
+ProtocolSocialListener* ProtocolSocialListener::_instance = nullptr;
 
 static bool jsb_anysdk_framework_ProtocolSocial_setListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -1652,7 +1666,6 @@ class ProtocolRECListener : public RECResultListener, public JSFunctionWrapper
 public:
     ProtocolRECListener(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
     : JSFunctionWrapper(cx, jsthis, func, owner)
-    , _ctx(cx)
     {
     }
     ~ProtocolRECListener()
@@ -1664,11 +1677,12 @@ public:
     {
         CCLOG("on action result: %d, msg: %s.", code, msg);
         
-        JS::RootedValue retval(_ctx);
-        JS::AutoValueVector valArr(_ctx);
-        JS::RootedValue tmp(_ctx);
+        JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+        JS::RootedValue retval(cx);
+        JS::AutoValueVector valArr(cx);
+        JS::RootedValue tmp(cx);
         valArr.append( JS::Int32Value(code) );
-        std_string_to_jsval(_ctx, msg, &tmp);
+        std_string_to_jsval(cx, msg, &tmp);
         valArr.append( tmp );
         
         JS::HandleValueArray args(valArr);
@@ -1682,6 +1696,12 @@ public:
         {
             _instance = new ProtocolRECListener(cx, jsthis, func, owner);
         }
+        else
+        {
+            _instance->setOwner(cx, owner);
+            _instance->setJSTarget(cx, jsthis);
+            _instance->setJSCallback(cx, func);
+        }
         return _instance;
     }
     static void purge()
@@ -1689,13 +1709,11 @@ public:
         if (_instance != NULL)
         {
             delete _instance;
-            _instance = NULL;
+            _instance = nullptr;
         }
     }
-private:
-    JSContext* _ctx;
 };
-ProtocolRECListener* ProtocolRECListener::_instance = NULL;
+ProtocolRECListener* ProtocolRECListener::_instance = nullptr;
 
 static bool jsb_anysdk_framework_ProtocolREC_setResultListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
@@ -1739,7 +1757,6 @@ class ProtocolCustomListener : public CustomResultListener, public JSFunctionWra
 public:
     ProtocolCustomListener(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
     : JSFunctionWrapper(cx, jsthis, func, owner)
-    , _ctx(cx)
     {
     }
     ~ProtocolCustomListener()
@@ -1751,11 +1768,12 @@ public:
     {
         CCLOG("on action result: %d, msg: %s.", code, msg);
         
-        JS::RootedValue retval(_ctx);
-        JS::AutoValueVector valArr(_ctx);
-        JS::RootedValue tmp(_ctx);
+        JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+        JS::RootedValue retval(cx);
+        JS::AutoValueVector valArr(cx);
+        JS::RootedValue tmp(cx);
         valArr.append( JS::Int32Value(code) );
-        std_string_to_jsval(_ctx, msg, &tmp);
+        std_string_to_jsval(cx, msg, &tmp);
         valArr.append( tmp );
         
         JS::HandleValueArray args(valArr);
@@ -1769,6 +1787,12 @@ public:
         {
             _instance = new ProtocolCustomListener(cx, jsthis, func, owner);
         }
+        else
+        {
+            _instance->setOwner(cx, owner);
+            _instance->setJSTarget(cx, jsthis);
+            _instance->setJSCallback(cx, func);
+        }
         return _instance;
     }
     static void purge()
@@ -1776,13 +1800,11 @@ public:
         if (_instance != NULL)
         {
             delete _instance;
-            _instance = NULL;
+            _instance = nullptr;
         }
     }
-private:
-    JSContext* _ctx;
 };
-ProtocolCustomListener* ProtocolCustomListener::_instance = NULL;
+ProtocolCustomListener* ProtocolCustomListener::_instance = nullptr;
 
 static bool jsb_anysdk_framework_ProtocolCustom_setResultListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
