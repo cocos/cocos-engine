@@ -1054,13 +1054,16 @@ bool js_CCNode_unschedule(JSContext *cx, uint32_t argc, JS::Value *vp)
         if (targetArray) {
             CCLOGINFO("unschedule target number: %ld", static_cast<long>(targetArray->size()));
 
+            JS::RootedObject func(cx, args.get(0).toObjectOrNull());
             for (const auto& tmp : *targetArray)
             {
-                JSScheduleWrapper* target = tmp;
-                if (node == target->getTarget())
+                JSScheduleWrapper* wrapper = tmp;
+                JS::RootedObject wrapperFunc(cx);
+                wrapper->getJSCallback(cx, &wrapperFunc);
+                if (node == wrapper->getTarget() && wrapperFunc.get() == func.get())
                 {
-                    sched->unschedule(schedule_selector(JSScheduleWrapper::scheduleFunc), target);
-                    JSScheduleWrapper::removeTargetForJSObject(cx, obj, target);
+                    sched->unschedule(schedule_selector(JSScheduleWrapper::scheduleFunc), wrapper);
+                    JSScheduleWrapper::removeTargetForJSObject(cx, obj, wrapper);
                     break;
                 }
             }
@@ -1769,13 +1772,13 @@ bool js_CCScheduler_unscheduleCallbackForTarget(JSContext *cx, uint32_t argc, JS
                 // For details to reproduce it, please refer to SchedulerTest/SchedulerUpdate.
                 if(! arr) return true;
 
+                JS::RootedObject tmpFunc(cx, args.get(1).toObjectOrNull());
                 JSScheduleWrapper* wrapper = nullptr;
                 for(ssize_t i = 0; i < arr->size(); ++i) {
                     wrapper = (JSScheduleWrapper*)arr->at(i);
-                    JS::RootedObject wrapperTarget(cx);
-                    wrapper->getJSTarget(cx, &wrapperTarget);
-                    CCASSERT(tmpObj.get() == wrapperTarget.get(), "Wrong target object.");
-                    if(wrapperTarget.get() == tmpObj.get()) {
+                    JS::RootedObject wrapperFunc(cx);
+                    wrapper->getJSCallback(cx, &wrapperFunc);
+                    if(wrapperFunc.get() == tmpFunc.get()) {
                         cobj->unschedule(schedule_selector(JSScheduleWrapper::scheduleFunc), wrapper);
                         JSScheduleWrapper::removeTargetForJSObject(cx, tmpObj, wrapper);
                         break;
