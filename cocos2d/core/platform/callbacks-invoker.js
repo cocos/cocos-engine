@@ -25,7 +25,6 @@
 
 const JS = require('./js');
 const fastRemoveAt = JS.array.fastRemoveAt;
-const indexOfFrom = JS.array.indexOf;
 
 function CallbackList () {
     this.callbacks = [];

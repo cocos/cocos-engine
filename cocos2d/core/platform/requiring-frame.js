@@ -63,10 +63,3 @@ if (CC_EDITOR) {
         requiringFrames = [];
     };
 }
-
-cc._RFpush = cc._RF.push;
-cc._RFpop = cc._RF.pop;
-cc._RFpeek = cc._RF.peek;
-if (CC_EDITOR) {
-    cc._RFreset = cc._RF.reset;
-}
