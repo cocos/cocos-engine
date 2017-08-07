@@ -8333,26 +8333,6 @@ void js_register_cocos2dx_Director(JSContext *cx, JS::HandleObject global) {
 JSClass  *jsb_cocos2d_Scheduler_class;
 JS::PersistentRootedObject *jsb_cocos2d_Scheduler_prototype;
 
-bool js_cocos2dx_Scheduler_isCurrentTargetSalvaged(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true; CC_UNUSED_PARAM(ok);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::Scheduler* cobj = (cocos2d::Scheduler *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Scheduler_isCurrentTargetSalvaged : Invalid Native Object");
-    if (argc == 0) {
-        bool ret = cobj->isCurrentTargetSalvaged();
-        JS::RootedValue jsret(cx);
-        jsret = JS::BooleanValue(ret);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Scheduler_isCurrentTargetSalvaged : error parsing return value");
-        args.rval().set(jsret);
-        return true;
-    }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_Scheduler_isCurrentTargetSalvaged : wrong number of arguments: %d, was expecting %d", argc, 0);
-    return false;
-}
 bool js_cocos2dx_Scheduler_setTimeScale(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -8373,24 +8353,24 @@ bool js_cocos2dx_Scheduler_setTimeScale(JSContext *cx, uint32_t argc, JS::Value 
     JS_ReportErrorUTF8(cx, "js_cocos2dx_Scheduler_setTimeScale : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_cocos2dx_Scheduler_unscheduleAllWithMinPriority(JSContext *cx, uint32_t argc, JS::Value *vp)
+bool js_cocos2dx_Scheduler_isCurrentTargetSalvaged(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true; CC_UNUSED_PARAM(ok);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Scheduler* cobj = (cocos2d::Scheduler *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Scheduler_unscheduleAllWithMinPriority : Invalid Native Object");
-    if (argc == 1) {
-        int arg0 = 0;
-        ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Scheduler_unscheduleAllWithMinPriority : Error processing arguments");
-        cobj->unscheduleAllWithMinPriority(arg0);
-        args.rval().setUndefined();
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Scheduler_isCurrentTargetSalvaged : Invalid Native Object");
+    if (argc == 0) {
+        bool ret = cobj->isCurrentTargetSalvaged();
+        JS::RootedValue jsret(cx);
+        jsret = JS::BooleanValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Scheduler_isCurrentTargetSalvaged : error parsing return value");
+        args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_Scheduler_unscheduleAllWithMinPriority : wrong number of arguments: %d, was expecting %d", argc, 1);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Scheduler_isCurrentTargetSalvaged : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_Scheduler_update(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8431,6 +8411,62 @@ bool js_cocos2dx_Scheduler_unscheduleScriptEntry(JSContext *cx, uint32_t argc, J
     }
 
     JS_ReportErrorUTF8(cx, "js_cocos2dx_Scheduler_unscheduleScriptEntry : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+bool js_cocos2dx_Scheduler_unscheduleAll(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
+    cocos2d::Scheduler* cobj = (cocos2d::Scheduler *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Scheduler_unscheduleAll : Invalid Native Object");
+    if (argc == 0) {
+        cobj->unscheduleAll();
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Scheduler_unscheduleAll : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_Scheduler_getTimeScale(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true; CC_UNUSED_PARAM(ok);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
+    cocos2d::Scheduler* cobj = (cocos2d::Scheduler *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Scheduler_getTimeScale : Invalid Native Object");
+    if (argc == 0) {
+        float ret = cobj->getTimeScale();
+        JS::RootedValue jsret(cx);
+        jsret = JS::NumberValue(ret);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Scheduler_getTimeScale : error parsing return value");
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Scheduler_getTimeScale : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_cocos2dx_Scheduler_unscheduleAllWithMinPriority(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true; CC_UNUSED_PARAM(ok);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
+    cocos2d::Scheduler* cobj = (cocos2d::Scheduler *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Scheduler_unscheduleAllWithMinPriority : Invalid Native Object");
+    if (argc == 1) {
+        int arg0 = 0;
+        ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Scheduler_unscheduleAllWithMinPriority : Error processing arguments");
+        cobj->unscheduleAllWithMinPriority(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Scheduler_unscheduleAllWithMinPriority : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_cocos2dx_Scheduler_performFunctionInCocosThread(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8479,40 +8515,20 @@ bool js_cocos2dx_Scheduler_performFunctionInCocosThread(JSContext *cx, uint32_t 
     JS_ReportErrorUTF8(cx, "js_cocos2dx_Scheduler_performFunctionInCocosThread : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_cocos2dx_Scheduler_unscheduleAll(JSContext *cx, uint32_t argc, JS::Value *vp)
+bool js_cocos2dx_Scheduler_removeAllFunctionsToBePerformedInCocosThread(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     cocos2d::Scheduler* cobj = (cocos2d::Scheduler *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Scheduler_unscheduleAll : Invalid Native Object");
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Scheduler_removeAllFunctionsToBePerformedInCocosThread : Invalid Native Object");
     if (argc == 0) {
-        cobj->unscheduleAll();
+        cobj->removeAllFunctionsToBePerformedInCocosThread();
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_Scheduler_unscheduleAll : wrong number of arguments: %d, was expecting %d", argc, 0);
-    return false;
-}
-bool js_cocos2dx_Scheduler_getTimeScale(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true; CC_UNUSED_PARAM(ok);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::Scheduler* cobj = (cocos2d::Scheduler *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_Scheduler_getTimeScale : Invalid Native Object");
-    if (argc == 0) {
-        float ret = cobj->getTimeScale();
-        JS::RootedValue jsret(cx);
-        jsret = JS::NumberValue(ret);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_Scheduler_getTimeScale : error parsing return value");
-        args.rval().set(jsret);
-        return true;
-    }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_Scheduler_getTimeScale : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_Scheduler_removeAllFunctionsToBePerformedInCocosThread : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_cocos2dx_Scheduler_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
@@ -8551,14 +8567,15 @@ void js_register_cocos2dx_Scheduler(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_Scheduler_class = &cocos2d_Scheduler_class;
 
     static JSFunctionSpec funcs[] = {
-        JS_FN("isCurrentTargetSalvaged", js_cocos2dx_Scheduler_isCurrentTargetSalvaged, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setTimeScale", js_cocos2dx_Scheduler_setTimeScale, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("unscheduleAllWithMinPriority", js_cocos2dx_Scheduler_unscheduleAllWithMinPriority, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("isCurrentTargetSalvaged", js_cocos2dx_Scheduler_isCurrentTargetSalvaged, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("update", js_cocos2dx_Scheduler_update, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("unscheduleScriptEntry", js_cocos2dx_Scheduler_unscheduleScriptEntry, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("performFunctionInCocosThread", js_cocos2dx_Scheduler_performFunctionInCocosThread, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("unscheduleAll", js_cocos2dx_Scheduler_unscheduleAll, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getTimeScale", js_cocos2dx_Scheduler_getTimeScale, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("unscheduleAllWithMinPriority", js_cocos2dx_Scheduler_unscheduleAllWithMinPriority, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("performFunctionInCocosThread", js_cocos2dx_Scheduler_performFunctionInCocosThread, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("removeAllFunctionsToBePerformedInCocosThread", js_cocos2dx_Scheduler_removeAllFunctionsToBePerformedInCocosThread, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
     };
 
