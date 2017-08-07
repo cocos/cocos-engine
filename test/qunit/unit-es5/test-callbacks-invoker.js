@@ -6,12 +6,12 @@ test('test', function () {
     var cb1 = Callback();
     var cb2 = Callback();
     var cb3 = Callback();
-    strictEqual(ci.add('a', cb1), true, 'first cb key');
+    ci.add('a', cb1);
     strictEqual(ci.has('a', function () {}), false, '`has` should return false if the callback not exists');
     strictEqual(ci.has('a', cb1), true, '`has` should return true if the callback exists');
-    strictEqual(ci.add('a', cb2), false, 'not first key');
-    strictEqual(ci.add('b', cb3), true, 'another first key');
-    strictEqual(ci.add('nil', undefined), true, 'null callback should also return true');
+    ci.add('a', cb2);
+    ci.add('b', cb3);
+    ci.add('nil', undefined);
 
     cb1.enable();
     cb2.enable();
@@ -178,7 +178,7 @@ test('remove all callbacks during invoking', function () {
 
     cb1.expect(2, 'first callback should be invoked twice');
     cb2.expect(1, 'second callback should be invoked once');
-    cb3.expect(2, 'third callback should be invoked twice');
+    cb3.expect(0, 'third callback should never invoked');
     strictEqual(ci.has('eve'), false, 'All callbacks should be removed');
 });
 
@@ -247,7 +247,7 @@ test('CallbacksInvoker support target', function () {
     };
 
     ci.add('a', cb1);
-    strictEqual(ci.add('a', cb1, target1), false, 'can add callback with target');
+    ci.add('a', cb1, target1);
     ci.add('a', cb1);
     ci.add('a', cb1, target2);
     ci.add('a', cb1, target2);
@@ -255,8 +255,8 @@ test('CallbacksInvoker support target', function () {
     ci.add('a', cb2, target1);
     ci.add('a', cb3);
     ci.add('a', cb3, target1);
+    ci.add('b', cb1, target1);
 
-    strictEqual(ci.add('b', cb1, target1), true, 'can add callback with target for new event key');
     strictEqual(ci.has('a', cb2), false, '`has` should return false if the callback without target not exists');
     strictEqual(ci.has('a', cb2, target1), true, '`has` should return true if the callback with correct target exists');
     strictEqual(ci.has('a', cb3), true, '`has` should return true if the callback without target exists');
@@ -447,5 +447,5 @@ test('remove many during nest invoke', function () {
     ci.add('visit', cb3);
     ci.invoke('visit');
 
-    deepEqual(actualSequence, [cb1, cb1, cb2, cb3, cb3], 'invoke sequence');
+    deepEqual(actualSequence, [cb1, cb2, cb1, cb2, cb3, cb3], 'invoke sequence');
 });
