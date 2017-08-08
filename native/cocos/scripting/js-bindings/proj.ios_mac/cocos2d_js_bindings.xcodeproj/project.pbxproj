@@ -39,48 +39,27 @@
 		1A5F229E1F0E37B20008BF09 /* jsb_creator_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A5F229B1F0E37B20008BF09 /* jsb_creator_manual.hpp */; };
 		1A5F229F1F0E37B20008BF09 /* jsb_creator_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A5F229B1F0E37B20008BF09 /* jsb_creator_manual.hpp */; };
 		1A7759BC1F32BB240012A210 /* libbmalloc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A62FCB11F282DDB0002E38C /* libbmalloc.a */; };
-		1A7759BD1F32BB240012A210 /* libJavaScriptCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A62FCAB1F282DDA0002E38C /* libJavaScriptCore.a */; };
 		1A7759BE1F32BB240012A210 /* libWTF.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A62FCAF1F282DDA0002E38C /* libWTF.a */; };
 		1A7759C91F340FB10012A210 /* inspector_agent.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A7759C11F340FB10012A210 /* inspector_agent.cc */; };
-		1A7759CA1F340FB10012A210 /* inspector_agent.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A7759C11F340FB10012A210 /* inspector_agent.cc */; };
 		1A7759CB1F340FB10012A210 /* inspector_agent.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7759C21F340FB10012A210 /* inspector_agent.h */; };
-		1A7759CC1F340FB10012A210 /* inspector_agent.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7759C21F340FB10012A210 /* inspector_agent.h */; };
 		1A7759CD1F340FB10012A210 /* inspector_io.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A7759C31F340FB10012A210 /* inspector_io.cc */; };
-		1A7759CE1F340FB10012A210 /* inspector_io.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A7759C31F340FB10012A210 /* inspector_io.cc */; };
 		1A7759CF1F340FB10012A210 /* inspector_io.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7759C41F340FB10012A210 /* inspector_io.h */; };
-		1A7759D01F340FB10012A210 /* inspector_io.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7759C41F340FB10012A210 /* inspector_io.h */; };
 		1A7759D11F340FB10012A210 /* inspector_socket_server.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A7759C51F340FB10012A210 /* inspector_socket_server.cc */; };
-		1A7759D21F340FB10012A210 /* inspector_socket_server.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A7759C51F340FB10012A210 /* inspector_socket_server.cc */; };
 		1A7759D31F340FB10012A210 /* inspector_socket_server.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7759C61F340FB10012A210 /* inspector_socket_server.h */; };
-		1A7759D41F340FB10012A210 /* inspector_socket_server.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7759C61F340FB10012A210 /* inspector_socket_server.h */; };
 		1A7759D51F340FB10012A210 /* inspector_socket.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A7759C71F340FB10012A210 /* inspector_socket.cc */; };
-		1A7759D61F340FB10012A210 /* inspector_socket.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A7759C71F340FB10012A210 /* inspector_socket.cc */; };
 		1A7759D71F340FB10012A210 /* inspector_socket.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7759C81F340FB10012A210 /* inspector_socket.h */; };
-		1A7759D81F340FB10012A210 /* inspector_socket.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7759C81F340FB10012A210 /* inspector_socket.h */; };
 		1A7759DB1F34105B0012A210 /* node_debug_options.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A7759D91F34105B0012A210 /* node_debug_options.cc */; };
-		1A7759DC1F34105B0012A210 /* node_debug_options.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A7759D91F34105B0012A210 /* node_debug_options.cc */; };
 		1A7759DD1F34105B0012A210 /* node_debug_options.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7759DA1F34105B0012A210 /* node_debug_options.h */; };
-		1A7759DE1F34105B0012A210 /* node_debug_options.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7759DA1F34105B0012A210 /* node_debug_options.h */; };
 		1A7759E11F3410A20012A210 /* http_parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 1A7759DF1F3410A20012A210 /* http_parser.c */; };
-		1A7759E21F3410A20012A210 /* http_parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 1A7759DF1F3410A20012A210 /* http_parser.c */; };
 		1A7759E31F3410A20012A210 /* http_parser.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7759E01F3410A20012A210 /* http_parser.h */; };
-		1A7759E41F3410A20012A210 /* http_parser.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7759E01F3410A20012A210 /* http_parser.h */; };
 		1A7759E81F3411050012A210 /* util-inl.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7759E51F3411050012A210 /* util-inl.h */; };
-		1A7759E91F3411050012A210 /* util-inl.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7759E51F3411050012A210 /* util-inl.h */; };
 		1A7759EA1F3411050012A210 /* util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A7759E61F3411050012A210 /* util.cc */; };
-		1A7759EB1F3411050012A210 /* util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A7759E61F3411050012A210 /* util.cc */; };
 		1A7759EC1F3411050012A210 /* util.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7759E71F3411050012A210 /* util.h */; };
-		1A7759ED1F3411050012A210 /* util.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7759E71F3411050012A210 /* util.h */; };
 		1A7759F01F341D6E0012A210 /* env.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A7759EE1F341D6E0012A210 /* env.cc */; };
-		1A7759F11F341D6E0012A210 /* env.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A7759EE1F341D6E0012A210 /* env.cc */; };
 		1A7759F21F341D6E0012A210 /* env.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7759EF1F341D6E0012A210 /* env.h */; };
-		1A7759F31F341D6E0012A210 /* env.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7759EF1F341D6E0012A210 /* env.h */; };
 		1A7759F61F3421B90012A210 /* node.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A7759F41F3421B90012A210 /* node.cc */; };
-		1A7759F71F3421B90012A210 /* node.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A7759F41F3421B90012A210 /* node.cc */; };
 		1A7759F81F3421B90012A210 /* node.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7759F51F3421B90012A210 /* node.h */; };
-		1A7759F91F3421B90012A210 /* node.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7759F51F3421B90012A210 /* node.h */; };
 		1A7759FB1F3460BB0012A210 /* node_mutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7759FA1F3460BB0012A210 /* node_mutex.h */; };
-		1A7759FC1F3460BB0012A210 /* node_mutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7759FA1F3460BB0012A210 /* node_mutex.h */; };
 		1A7759FE1F34679A0012A210 /* libuv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A7759FD1F3467990012A210 /* libuv.a */; };
 		1A775A001F346A090012A210 /* libinspector.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A7759FF1F346A090012A210 /* libinspector.a */; };
 		1A81B41E1F137BFE008C38F8 /* JavaScriptObjCBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A81B41C1F137BFE008C38F8 /* JavaScriptObjCBridge.h */; };
@@ -463,7 +442,6 @@
 			files = (
 				1A7759FE1F34679A0012A210 /* libuv.a in Frameworks */,
 				1A7759BC1F32BB240012A210 /* libbmalloc.a in Frameworks */,
-				1A7759BD1F32BB240012A210 /* libJavaScriptCore.a in Frameworks */,
 				1A7759BE1F32BB240012A210 /* libWTF.a in Frameworks */,
 				1A10510E1F14CB4000D4322C /* libjs_static.a in Frameworks */,
 				1A10510C1F14CB4000D4322C /* libmozglue.a in Frameworks */,
@@ -814,7 +792,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1A7759D41F340FB10012A210 /* inspector_socket_server.h in Headers */,
 				1AFD36991EF115100097DBB1 /* SeApi.h in Headers */,
 				1AFD366B1EF115100097DBB1 /* Base.h in Headers */,
 				1AFD36A11EF115100097DBB1 /* Value.hpp in Headers */,
@@ -828,11 +805,7 @@
 				1AFD36C91EF116190097DBB1 /* jsb_classtype.hpp in Headers */,
 				1AFD36351EF115100097DBB1 /* Base.h in Headers */,
 				1AFD36931EF115100097DBB1 /* ObjectWrap.h in Headers */,
-				1A7759F31F341D6E0012A210 /* env.h in Headers */,
 				1AFD36D11EF116190097DBB1 /* jsb_cocos2dx_manual.hpp in Headers */,
-				1A7759ED1F3411050012A210 /* util.h in Headers */,
-				1A7759CC1F340FB10012A210 /* inspector_agent.h in Headers */,
-				1A7759FC1F3460BB0012A210 /* node_mutex.h in Headers */,
 				1AFD36711EF115100097DBB1 /* HelperMacros.h in Headers */,
 				1AFD36611EF115100097DBB1 /* Utils.hpp in Headers */,
 				1AFD36451EF115100097DBB1 /* SeApi.h in Headers */,
@@ -848,9 +821,7 @@
 				1AFD365B1EF115100097DBB1 /* ScriptEngine.hpp in Headers */,
 				1AFD36851EF115100097DBB1 /* Base.h in Headers */,
 				1AFD36DD1EF116190097DBB1 /* jsb_global.h in Headers */,
-				1A7759F91F3421B90012A210 /* node.h in Headers */,
 				BA4F59871E28DCD3003F5096 /* jsb_cocos2dx_network_auto.hpp in Headers */,
-				1A7759D01F340FB10012A210 /* inspector_io.h in Headers */,
 				1AFD36751EF115100097DBB1 /* Object.hpp in Headers */,
 				1A5F228D1F0DDD6B0008BF09 /* jsb_dragonbones_manual.hpp in Headers */,
 				1AFD36631EF115100097DBB1 /* Object.hpp in Headers */,
@@ -859,12 +830,9 @@
 				1A5F229F1F0E37B20008BF09 /* jsb_creator_manual.hpp in Headers */,
 				1AFD36FD1EF116190097DBB1 /* jsb_xmlhttprequest.hpp in Headers */,
 				1AFD365D1EF115100097DBB1 /* SeApi.h in Headers */,
-				1A7759E41F3410A20012A210 /* http_parser.h in Headers */,
 				1AFD364B1EF115100097DBB1 /* config.hpp in Headers */,
 				1AFD368B1EF115100097DBB1 /* HelperMacros.h in Headers */,
-				1A7759D81F340FB10012A210 /* inspector_socket.h in Headers */,
 				1A9F0FA01F30235C00A499E1 /* jsb_helper.hpp in Headers */,
-				1A7759E91F3411050012A210 /* util-inl.h in Headers */,
 				1A81B4271F149E7B008C38F8 /* jsb_module_register.hpp in Headers */,
 				1AF82D461F2EE1C40002C5A0 /* HandleObject.hpp in Headers */,
 				1AFD36511EF115100097DBB1 /* Class.hpp in Headers */,
@@ -879,7 +847,6 @@
 				1AFD368F1EF115100097DBB1 /* Object.hpp in Headers */,
 				1A81B41F1F137BFE008C38F8 /* JavaScriptObjCBridge.h in Headers */,
 				1A5F22991F0E306C0008BF09 /* jsb_box2d_manual.hpp in Headers */,
-				1A7759DE1F34105B0012A210 /* node_debug_options.h in Headers */,
 				1AFD363B1EF115100097DBB1 /* HelperMacros.h in Headers */,
 				1AFD364D1EF115100097DBB1 /* Base.h in Headers */,
 				1AD4AE6A1F0F920700A823D8 /* jsb_websocket.hpp in Headers */,
@@ -1032,7 +999,6 @@
 				1AFD364F1EF115100097DBB1 /* Class.cpp in Sources */,
 				1AFD363D1EF115100097DBB1 /* Object.cpp in Sources */,
 				1AFD367D1EF115100097DBB1 /* Utils.cpp in Sources */,
-				1A7759D21F340FB10012A210 /* inspector_socket_server.cc in Sources */,
 				1A81B4251F149E7B008C38F8 /* jsb_module_register.cpp in Sources */,
 				1AFD36371EF115100097DBB1 /* Class.cpp in Sources */,
 				1AFD36811EF115100097DBB1 /* State.cpp in Sources */,
@@ -1040,10 +1006,6 @@
 				1AFD36471EF115100097DBB1 /* Utils.cpp in Sources */,
 				1A5F229D1F0E37B20008BF09 /* jsb_creator_manual.cpp in Sources */,
 				FA6F1BB41D815C2C007DD223 /* jsb_cocos2dx_dragonbones_auto.cpp in Sources */,
-				1A7759F11F341D6E0012A210 /* env.cc in Sources */,
-				1A7759D61F340FB10012A210 /* inspector_socket.cc in Sources */,
-				1A7759DC1F34105B0012A210 /* node_debug_options.cc in Sources */,
-				1A7759EB1F3411050012A210 /* util.cc in Sources */,
 				1AFD36CB1EF116190097DBB1 /* jsb_cocos2dx_extension_manual.cpp in Sources */,
 				1AFD36731EF115100097DBB1 /* Object.cpp in Sources */,
 				1A119E9018BDF19200352BAA /* jsb_cocos2dx_extension_auto.cpp in Sources */,
@@ -1058,13 +1020,10 @@
 				1A119E9C18BDF19200352BAA /* jsb_cocos2dx_spine_auto.cpp in Sources */,
 				1A5F22971F0E306C0008BF09 /* jsb_box2d_manual.cpp in Sources */,
 				1AFD36C71EF116190097DBB1 /* jsb_classtype.cpp in Sources */,
-				1A7759F71F3421B90012A210 /* node.cc in Sources */,
 				1AFD36951EF115100097DBB1 /* ScriptEngine.cpp in Sources */,
 				4BE089E41ADF965E00D65D4B /* jsb_cocos2dx_experimental_webView_auto.cpp in Sources */,
 				1A81B4211F137BFE008C38F8 /* JavaScriptObjCBridge.mm in Sources */,
-				1A7759CE1F340FB10012A210 /* inspector_io.cc in Sources */,
 				B38AD56E1B1D38700057DD7F /* jsb_cocos2dx_experimental_video_auto.cpp in Sources */,
-				1A7759E21F3410A20012A210 /* http_parser.c in Sources */,
 				1AFD36D31EF116190097DBB1 /* jsb_conversions.cpp in Sources */,
 				4D6E0D601E0384CF00DA5DB6 /* jsb_box2d_auto.cpp in Sources */,
 				1AFD36871EF115100097DBB1 /* Class.cpp in Sources */,
@@ -1080,7 +1039,6 @@
 				1AFD36FF1EF116190097DBB1 /* ScriptingCore.cpp in Sources */,
 				1AFD36DB1EF116190097DBB1 /* jsb_global.cpp in Sources */,
 				1A9F0F9E1F30235C00A499E1 /* jsb_helper.cpp in Sources */,
-				1A7759CA1F340FB10012A210 /* inspector_agent.cc in Sources */,
 				1AFD36911EF115100097DBB1 /* ObjectWrap.cpp in Sources */,
 				1AD4AE681F0F920700A823D8 /* jsb_websocket.cpp in Sources */,
 			);
