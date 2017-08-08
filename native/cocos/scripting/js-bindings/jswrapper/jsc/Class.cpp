@@ -146,6 +146,16 @@ namespace se {
             ScriptEngine::getInstance()->_clearException(exception);
         }
 
+        //NOTE: I's weird that proto object has a private data which is an invalid adress.
+        // We have to reset its private data to the max value of unsigned long.
+        // Therefore, in SE_BIND_FUNC of HelperMacro.h, we could distinguish whether it's a
+        // proto object. Don't set it to nullptr since static method will get private data
+        // with nullptr. This line is needed by Web Inspector because it needs to extend
+        // all global JS values including global proto object. However, proto objects will
+        // not have a private data which will cause crash while debugging in Safari since
+        // se::State::nativeThisObject() will return nullptr.
+        JSObjectSetPrivate(protoJSObj, (void*)std::numeric_limits<unsigned long>::max());
+
         _proto = Object::_createJSObject(this, protoJSObj);
         _proto->root();
 

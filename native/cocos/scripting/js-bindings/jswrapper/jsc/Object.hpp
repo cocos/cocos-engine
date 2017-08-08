@@ -305,7 +305,7 @@ namespace se {
         Object();
         virtual ~Object();
 
-        bool init(JSObjectRef obj);
+        bool init(Class* cls, JSObjectRef obj);
 
         Class* _cls;
         JSObjectRef _obj;

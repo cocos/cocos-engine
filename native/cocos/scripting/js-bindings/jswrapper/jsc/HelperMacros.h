@@ -23,19 +23,22 @@
     JSValueRef funcName##Registry(JSContextRef _cx, JSObjectRef _function, JSObjectRef _thisObject, size_t _argc, const JSValueRef _argv[], JSValueRef* _exception) \
     { \
         unsigned short argc = (unsigned short) _argc; \
-        JSValueRef _jsRet = nullptr; \
-        bool ret = true; \
-        se::ValueArray args; \
-        se::internal::jsToSeArgs(_cx, argc, _argv, &args); \
+        JSValueRef _jsRet = JSValueMakeUndefined(_cx); \
         void* nativeThisObject = se::internal::getPrivate(_thisObject); \
-        se::State state(nativeThisObject, args); \
-        ret = funcName(state); \
-        se::internal::seToJsValue(_cx, state.rval(), &_jsRet); \
-        for (auto& v : args) \
+        if (nativeThisObject != (void*)std::numeric_limits<unsigned long>::max()) \
         { \
-            if (v.isObject()) \
+            bool ret = true; \
+            se::ValueArray args; \
+            se::internal::jsToSeArgs(_cx, argc, _argv, &args); \
+            se::State state(nativeThisObject, args); \
+            ret = funcName(state); \
+            se::internal::seToJsValue(_cx, state.rval(), &_jsRet); \
+            for (auto& v : args) \
             { \
-                v.toObject()->unroot(); \
+                if (v.isObject()) \
+                { \
+                    v.toObject()->unroot(); \
+                } \
             } \
         } \
         return _jsRet; \
@@ -126,12 +129,16 @@
     JSValueRef funcName##Registry(JSContextRef _cx, JSObjectRef _function, JSObjectRef _thisObject, size_t argc, const JSValueRef _argv[], JSValueRef* _exception) \
     { \
         assert(argc == 0); \
-        JSValueRef _jsRet = nullptr; \
-        bool ret = true; \
+        JSValueRef _jsRet = JSValueMakeUndefined(_cx); \
         void* nativeThisObject = se::internal::getPrivate(_thisObject); \
-        se::State state(nativeThisObject); \
-        ret = funcName(state); \
-        se::internal::seToJsValue(_cx, state.rval(), &_jsRet); \
+        if (nativeThisObject != (void*)std::numeric_limits<unsigned long>::max()) \
+        { \
+            se::State state(nativeThisObject); \
+            if (funcName(state)) \
+            { \
+                se::internal::seToJsValue(_cx, state.rval(), &_jsRet); \
+            } \
+        } \
         return _jsRet; \
     }
 
@@ -141,17 +148,20 @@
     { \
         assert(argc == 1); \
         JSValueRef _jsRet = JSValueMakeUndefined(_cx); \
-        bool ret = true; \
         void* nativeThisObject = se::internal::getPrivate(_thisObject); \
-        se::Value data; \
-        se::internal::jsToSeValue(_cx, _argv[0], &data); \
-        se::ValueArray args; \
-        args.push_back(std::move(data)); \
-        se::State state(nativeThisObject, args); \
-        ret = funcName(state); \
-        if (args[0].isObject() && args[0].toObject()->isRooted()) \
+        if (nativeThisObject != (void*)std::numeric_limits<unsigned long>::max()) \
         { \
-            args[0].toObject()->unroot(); \
+            bool ret = true; \
+            se::Value data; \
+            se::internal::jsToSeValue(_cx, _argv[0], &data); \
+            se::ValueArray args; \
+            args.push_back(std::move(data)); \
+            se::State state(nativeThisObject, args); \
+            ret = funcName(state); \
+            if (args[0].isObject() && args[0].toObject()->isRooted()) \
+            { \
+                args[0].toObject()->unroot(); \
+            } \
         } \
         return _jsRet; \
     }

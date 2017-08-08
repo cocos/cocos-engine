@@ -126,19 +126,19 @@ namespace se {
     Object* Object::_createJSObject(Class* cls, JSObjectRef obj)
     {
         Object* ret = new Object();
-        if (!ret->init(obj))
+        if (!ret->init(cls, obj))
         {
             delete ret;
             ret = nullptr;
         }
 
-        ret->_cls = cls;
         return ret;
     }
 
-    bool Object::init(JSObjectRef obj)
+    bool Object::init(Class* cls, JSObjectRef obj)
     {
         _obj = obj;
+        _cls = cls;
         return true;
     }
 

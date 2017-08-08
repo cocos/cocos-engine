@@ -103,6 +103,10 @@ namespace se {
         if (nullptr == _cx)
             return false;
 
+        JSStringRef ctxName = JSStringCreateWithUTF8CString("Cocos2d-x JSB");
+        JSGlobalContextSetName(_cx, ctxName);
+        JSStringRelease(ctxName);
+
         internal::setContext(_cx);
         Class::setContext(_cx);
         Object::setContext(_cx);
