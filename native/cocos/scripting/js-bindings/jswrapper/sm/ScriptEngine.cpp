@@ -27,12 +27,12 @@ namespace se {
             &sandbox_classOps
         };
 
-        void reportWarning(JSContext* cx, JSErrorReport* report) {
+        void reportWarning(JSContext* cx, JSErrorReport* report)
+        {
             MOZ_RELEASE_ASSERT(report);
             MOZ_RELEASE_ASSERT(JSREPORT_IS_WARNING(report->flags));
 
-            LOGE("%s:%u:%s\n",
-                    report->filename ? report->filename : "<no filename>",
+            LOGE("%s:%u:%s\n", report->filename ? report->filename : "<no filename>",
                     (unsigned int) report->lineno,
                     report->message().c_str());
         }

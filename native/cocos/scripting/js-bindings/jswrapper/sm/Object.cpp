@@ -364,7 +364,7 @@ namespace se {
         if (_privateData == nullptr)
         {
             JS::RootedObject obj(__cx, _getJSObject());
-            const_cast<Object*>(this)->_privateData = internal::getPrivate(obj);
+            const_cast<Object*>(this)->_privateData = internal::getPrivate(__cx, obj);
         }
         return _privateData;
     }
