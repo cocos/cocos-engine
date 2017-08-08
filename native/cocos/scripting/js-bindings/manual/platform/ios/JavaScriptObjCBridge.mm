@@ -272,8 +272,10 @@ static void JavaScriptObjCBridge_finalize(JSFreeOp *freeOp, JSObject *obj)
 JS_BINDED_FUNC_IMPL(JavaScriptObjCBridge, callStaticMethod){
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if (argc >= 2) {
-        JSStringWrapper arg0(args.get(0));
-        JSStringWrapper arg1(args.get(1));
+        JS::RootedString valuestr0(cx, args.get(0).toString());
+        JSStringWrapper arg0(valuestr0, cx);
+        JS::RootedString valuestr1(cx, args.get(1).toString());
+        JSStringWrapper arg1(valuestr1, cx);
         CallInfo call(arg0.get(),arg1.get());
         bool ok = call.execute(cx,args.array(),argc);
         if(!ok){
