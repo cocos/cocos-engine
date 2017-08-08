@@ -579,7 +579,7 @@ cc.js.getset(PhysicsManager.prototype, 'debugDrawFlags',
  * The physics world gravity.
  * !#zh
  * 物理世界重力值
- * @property {Number} gravity
+ * @property {Vec2} gravity
  */
 cc.js.getset(PhysicsManager.prototype, 'gravity',
     function () {
