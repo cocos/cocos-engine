@@ -86,6 +86,9 @@ private:
 
 	std::chrono::steady_clock::time_point _engineStartTime;
 public:
+    
+    static const char* EVENT_RESET;
+    
     ~ScriptingCore();
 
     /**@~english
