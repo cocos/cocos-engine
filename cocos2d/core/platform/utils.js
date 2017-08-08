@@ -104,8 +104,9 @@ if (CC_DEV) {
         return true;
     };
     module.exports.cloneable_DEV = function (obj) {
-        return obj && typeof obj.clone === 'function' &&
-              (obj.constructor.prototype.hasOwnProperty('clone') || obj.hasOwnProperty('clone'));
+        return obj &&
+               typeof obj.clone === 'function' &&
+               ( (obj.constructor && obj.constructor.prototype.hasOwnProperty('clone')) || obj.hasOwnProperty('clone') );
     };
 }
 

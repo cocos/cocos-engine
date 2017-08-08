@@ -474,6 +474,9 @@ proto.instantiateObj = function (obj) {
     else if (ctor === Object) {
         createCode = new Declaration(LOCAL_OBJ, '{}');
     }
+    else if (!ctor) {
+        createCode = new Declaration(LOCAL_OBJ, 'Object.create(null)');
+    }
     else {
         // do not clone unknown type
         return this.getObjRef(obj);
