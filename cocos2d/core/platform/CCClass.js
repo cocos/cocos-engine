@@ -863,8 +863,7 @@ function CCClass (options) {
             continue;
         }
         var func = options[funcName];
-        // TODO: call validateMethod on es6
-        if (!preprocess.validateMethod(func, funcName, name, cls, base)) {
+        if (!preprocess.validateMethodWithProps(func, funcName, name, cls, base)) {
             continue;
         }
         // use value to redefine some super method defined as getter

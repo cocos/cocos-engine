@@ -166,6 +166,7 @@ var ccclass = checkCtorArgument(function (ctor, name) {
     if (base === Object) {
         base = null;
     }
+
     var proto = {
         name,
         extends: base,
@@ -177,11 +178,23 @@ var ccclass = checkCtorArgument(function (ctor, name) {
         JS.mixin(proto, decoratedProto);
         ctor.__ccclassProto__ = undefined;
     }
+
     var res = cc.Class(proto);
-    // if (FIX_BABEL6) {
-    //     for (var method in Object.getOwnPropertyNames(ctor.prototype)) {
-    //     }
-    // }
+
+    // validate methods
+    if (CC_DEV) {
+        var methods = Object.getOwnPropertyNames(ctor.prototype);
+        for (var i = 0; i < methods.length; ++i) {
+            var methodName = methods[i];
+            if (methodName !== 'constructor') {
+                var func = ctor.prototype[methodName];
+                if (typeof func === 'function') {
+                    Preprocess.doValidateMethodWithProps_DEV(func, methodName, JS.getClassName(ctor), ctor, base);
+                }
+            }
+        }
+    }
+
     return res;
 });
 

@@ -278,7 +278,7 @@ if (CC_DEBUG) {
         "3621": "Unknown type of %s.%s, maybe you want is '%s'.", //CCClass
         "3622": "Unknown type of %s.%s, property should be defined in 'properties' or 'ctor'", //CCClass_2
         "3623": "Can not use 'editor' attribute, '%s' not inherits from Components.", //CCClass_3
-        "3624": "'%s' overrided '%s' but '%s' is defined as 'false' so the super method will not be called. You can set '%s' to null to disable this warning.", //CCClass_4
+        "3624": "'%s' overwrote '%s' but '%s' is defined as 'false' so the super method will not be called. You can set '%s' to null to disable this warning.", //CCClass_4
         "3625": "[isChildClassOf] superclass should be function type, not", //isChildClassOf
         "3626": "Can't remove '%s' because '%s' depends on it.", //destroy
         "3627": "Should not add renderer component (%s) to a Canvas node.", //_registSizeProvider
@@ -433,7 +433,7 @@ if (CC_DEBUG) {
         "5514": "The 'default' value of '%s.%s' should not be used with a 'set' function.", //default_2
         "5515": "The 'default' value of '%s.%s' can not be an constructor. Set default to null please.", //default_3
         "5516": "Property '%s.%s' must define at least one of 'default', 'get' or 'set'.", //default_4
-        "5517": "'%s.%s' hides inherited property '%s.%s'. To make the current property override that implementation, add the `override: true` attribute please.", //default_5
+        "5517": "'%s.%s' hides inherited property '%s.%s'. To make the current property overwrite that implementation, add the `override: true` attribute please.", //default_5
         //Find: 5600
         "5600": "Argument must be non-nil", //find
         "5601": "Can not get current scene.", //find_2
