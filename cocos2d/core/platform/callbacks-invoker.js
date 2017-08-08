@@ -30,10 +30,11 @@ function CallbackList () {
     this.callbacks = [];
     this.targets = [];      // same length with callbacks, nullable
     this.isInvoking = false;
-    this.containRemoved = false;
+    this.containCanceled = false;
 }
+var proto = CallbackList.prototype;
 
-CallbackList.prototype.removeBy = function (array, value) {
+proto.removeBy = function (array, value) {
     var callbacks = this.callbacks;
     var targets = this.targets;
     for (var i = 0; i < array.length; ++i) {
@@ -45,18 +46,33 @@ CallbackList.prototype.removeBy = function (array, value) {
     }
 };
 
-// filter all removed callbacks and compact array
-CallbackList.prototype.purge = function () {
-    this.removeBy(this.callbacks, null);
-    this.containRemoved = false;
+proto.cancel = function (index) {
+    this.callbacks[index] = this.targets[index] = null;
+    this.containCanceled = true;
 };
+
+proto.cancelAll = function () {
+    let callbacks = this.callbacks;
+    let targets = this.targets;
+    for (let i = 0; i < callbacks.length; i++) {
+        callbacks[i] = targets[i] = null;
+    }
+    this.containCanceled = true;
+};
+
+// filter all removed callbacks and compact array
+proto.purgeCanceled = function () {
+    this.removeBy(this.callbacks, null);
+    this.containCanceled = false;
+};
+
 
 const MAX_SIZE = 16;
 const callbackListPool = new JS.Pool(function (list) {
     list.callbacks.length = 0;
     list.targets.length = 0;
     list.isInvoking = false;
-    list.containRemoved = false;
+    list.containCanceled = false;
 }, MAX_SIZE);
 callbackListPool.get = function () {
     return this._get() || new CallbackList();
@@ -72,6 +88,7 @@ callbackListPool.get = function () {
 function CallbacksHandler () {
     this._callbackTable = JS.createMap(true);
 }
+proto = CallbacksHandler.prototype;
 
 /**
  * @method add
@@ -79,7 +96,7 @@ function CallbacksHandler () {
  * @param {Function} callback
  * @param {Object} [target] - can be null
  */
-CallbacksHandler.prototype.add = function (key, callback, target) {
+proto.add = function (key, callback, target) {
     var list = this._callbackTable[key];
     if (!list) {
         list = this._callbackTable[key] = callbackListPool.get();
@@ -97,7 +114,7 @@ CallbacksHandler.prototype.add = function (key, callback, target) {
  * @param {Object} [target]
  * @return {Boolean}
  */
-CallbacksHandler.prototype.has = function (key, callback, target) {
+proto.has = function (key, callback, target) {
     var list = this._callbackTable[key];
     if (!list) {
         return false;
@@ -129,18 +146,13 @@ CallbacksHandler.prototype.has = function (key, callback, target) {
  * @method removeAll
  * @param {String|Object} keyOrTarget - The event key to be removed or the target to be removed
  */
-CallbacksHandler.prototype.removeAll = function (keyOrTarget) {
+proto.removeAll = function (keyOrTarget) {
     if (typeof keyOrTarget === 'string') {
         // remove by key
         let list = this._callbackTable[keyOrTarget];
         if (list) {
             if (list.isInvoking) {
-                let callbacks = list.callbacks;
-                let targets = list.targets;
-                for (let i = 0; i < callbacks.length; i++) {
-                    callbacks[i] = targets[i] = null;
-                }
-                list.containRemoved = true;
+                list.cancelAll();
             }
             else {
                 callbackListPool.put(list);
@@ -153,12 +165,10 @@ CallbacksHandler.prototype.removeAll = function (keyOrTarget) {
         for (let key in this._callbackTable) {
             let list = this._callbackTable[key];
             if (list.isInvoking) {
-                let callbacks = list.callbacks;
                 let targets = list.targets;
                 for (let i = 0; i < targets.length; ++i) {
                     if (targets[i] === keyOrTarget) {
-                        callbacks[i] = targets[i] = null;
-                        list.containRemoved = true;
+                        list.cancel(i);
                     }
                 }
             }
@@ -175,7 +185,7 @@ CallbacksHandler.prototype.removeAll = function (keyOrTarget) {
  * @param {Function} callback
  * @param {Object} [target]
  */
-CallbacksHandler.prototype.remove = function (key, callback, target) {
+proto.remove = function (key, callback, target) {
     var list = this._callbackTable[key];
     if (list) {
         target = target || null;
@@ -184,8 +194,7 @@ CallbacksHandler.prototype.remove = function (key, callback, target) {
         for (var i = 0; i < callbacks.length; ++i) {
             if (callbacks[i] === callback && targets[i] === target) {
                 if (list.isInvoking) {
-                    callbacks[i] = targets[i] = null;
-                    list.containRemoved = true;
+                    list.cancel(i);
                 }
                 else {
                     fastRemoveAt(callbacks, i);
@@ -246,8 +255,8 @@ CallbacksInvoker.prototype.invoke = function (key, p1, p2, p3, p4, p5) {
 
         if (rootInvoker) {
             list.isInvoking = false;
-            if (list.containRemoved) {
-                list.purge();
+            if (list.containCanceled) {
+                list.purgeCanceled();
             }
         }
     }

@@ -54,8 +54,8 @@ EventListeners.prototype.invoke = function (event, captureListeners) {
 
         if (rootInvoker) {
             list.isInvoking = false;
-            if (list.containRemoved) {
-                list.purge();
+            if (list.containCanceled) {
+                list.purgeCanceled();
             }
         }
     }
