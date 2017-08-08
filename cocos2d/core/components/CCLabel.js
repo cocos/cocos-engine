@@ -526,7 +526,7 @@ var Label = cc.Class({
                 }
             } else {
                 cc.warnID(4011, font.name);
-                sgNode = this._sgNode = new _ccsg.Label(this.string);
+                sgNode = this._sgNode = _ccsg.Label.pool.get(this.string);
             }
         } else {
             sgNode = this._sgNode = _ccsg.Label.pool.get(this.string, font, null, this._fontSize);
