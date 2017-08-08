@@ -83,10 +83,11 @@ using namespace cocos2d;
 
 std::unordered_map<std::string, js_type_class_t*> _js_global_type_map;
 static std::unordered_map<void*, js_proxy_t*> _native_js_global_map;
-
-static char *_js_log_buf = NULL;
-
 static std::vector<sc_register_sth> registrationList;
+
+static char *_js_log_buf = nullptr;
+
+const char *ScriptingCore::EVENT_RESET = "scriptingcore_event_reset";
 
 // name ~> JSScript map
 static std::unordered_map<std::string, JS::PersistentRootedScript*> filename_script;
@@ -935,6 +936,7 @@ bool ScriptingCore::requireScript(const char *path, JS::HandleObject global, JSC
 
 void ScriptingCore::reset()
 {
+    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(EVENT_RESET);
     Director::getInstance()->restart();
 }
 
@@ -957,7 +959,6 @@ void ScriptingCore::cleanup()
     }
     
     localStorageFree();
-    cleanAllScript();
     
     // clear http client callbacks
     network::HttpClient::destroyInstance();
@@ -968,6 +969,9 @@ void ScriptingCore::cleanup()
         JS::RootedValue globalVal(_cx, JS::ObjectOrNullValue(global));
         executeFunctionWithOwner(globalVal, "__cleanup", JS::HandleValueArray::empty());
     }
+    
+    // Clear all cached script
+    cleanAllScript();
     
     // Cleanup jsb type map
     for (auto iter = _js_global_type_map.begin(); iter != _js_global_type_map.end(); ++iter)

@@ -15,8 +15,11 @@
 #include "ProtocolREC.h"
 #include "ProtocolAdTracking.h"
 #include "ProtocolCustom.h"
-#include "mozilla/Maybe.h"
 #include "JSBRelation.h"
+#include "base/CCDirector.h"
+#include "base/CCEventDispatcher.h"
+#include "base/CCEventListenerCustom.h"
+#include "base/CCEventCustom.h"
 
 using namespace anysdk::framework;
 
@@ -976,7 +979,7 @@ public:
     static ProtocolAdsResultListener* _instance;
     static ProtocolAdsResultListener* getInstance(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
     {
-        if (_instance == NULL)
+        if (_instance == nullptr)
         {
             _instance = new ProtocolAdsResultListener(cx, jsthis, func, owner);
         }
@@ -1028,7 +1031,7 @@ static bool jsb_anysdk_framework_ProtocolAds_removeListener(JSContext *cx, uint3
     js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ProtocolAds* cobj = (ProtocolAds *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
-    if (ProtocolAdsResultListener::_instance != NULL)
+    if (ProtocolAdsResultListener::_instance != nullptr)
     {
         ProtocolAdsResultListener::purge();
     }
@@ -1178,9 +1181,18 @@ public:
     static void purge(std::string key)
     {
         auto listener = std_map[key];
-        delete listener;
-        listener = nullptr;
+        CC_SAFE_DELETE(listener);
         std_map.erase(key);
+    }
+    static void clear()
+    {
+        STD_MAP::iterator it = std_map.begin();
+        while (it != std_map.end())
+        {
+            auto listener = it->second;
+            CC_SAFE_DELETE(listener);
+            it = std_map.erase(it);
+        }
     }
 };
 ProtocolIAPResultListener::STD_MAP ProtocolIAPResultListener::std_map;
@@ -1303,7 +1315,7 @@ public:
     static ProtocolPushActionListener* _instance;
     static ProtocolPushActionListener* getInstance(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
     {
-        if (_instance == NULL)
+        if (_instance == nullptr)
         {
             _instance = new ProtocolPushActionListener(cx, jsthis, func, owner);
         }
@@ -1486,7 +1498,8 @@ public:
 
     static ProtocolUserActionListener* _instance;
     static ProtocolUserActionListener* getInstance(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner){
-        if (_instance == nullptr){
+        if (_instance == nullptr)
+        {
             _instance = new ProtocolUserActionListener(cx, jsthis, func, owner);
         }
         else
@@ -1573,7 +1586,7 @@ public:
     static ProtocolSocialListener* _instance;
     static ProtocolSocialListener* getInstance(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
     {
-        if (_instance == NULL)
+        if (_instance == nullptr)
         {
             _instance = new ProtocolSocialListener(cx, jsthis, func, owner);
         }
@@ -1692,7 +1705,7 @@ public:
     static ProtocolRECListener* _instance;
     static ProtocolRECListener* getInstance(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
     {
-        if (_instance == NULL)
+        if (_instance == nullptr)
         {
             _instance = new ProtocolRECListener(cx, jsthis, func, owner);
         }
@@ -1783,7 +1796,7 @@ public:
     static ProtocolCustomListener* _instance;
     static ProtocolCustomListener* getInstance(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
     {
-        if (_instance == NULL)
+        if (_instance == nullptr)
         {
             _instance = new ProtocolCustomListener(cx, jsthis, func, owner);
         }
@@ -1918,4 +1931,36 @@ void register_all_anysdk_manual(JSContext* cx, JS::HandleObject obj) {
     proto.set(jsb_anysdk_framework_ProtocolREC_prototype);
     JS_DefineFunction(cx, proto, "setResultListener", jsb_anysdk_framework_ProtocolREC_setResultListener, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, proto, "removeListener", jsb_anysdk_framework_ProtocolREC_removeListener, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    
+    cocos2d::EventListenerCustom* _event = cocos2d::Director::getInstance()->getEventDispatcher()->addCustomEventListener(ScriptingCore::EVENT_RESET, [&](cocos2d::EventCustom *event) {
+        cocos2d::Director::getInstance()->getEventDispatcher()->removeEventListener(_event);
+        CC_SAFE_RELEASE(_event);
+        
+        ProtocolIAPResultListener::clear();
+        if (ProtocolAdsResultListener::_instance != nullptr)
+        {
+            CC_SAFE_DELETE(ProtocolAdsResultListener::_instance);
+        }
+        if (ProtocolSocialListener::_instance != nullptr)
+        {
+            CC_SAFE_DELETE(ProtocolSocialListener::_instance);
+        }
+        if (ProtocolPushActionListener::_instance != nullptr)
+        {
+            CC_SAFE_DELETE(ProtocolPushActionListener::_instance);
+        }
+        if (ProtocolUserActionListener::_instance != nullptr)
+        {
+            CC_SAFE_DELETE(ProtocolUserActionListener::_instance);
+        }
+        if (ProtocolCustomListener::_instance != nullptr)
+        {
+            CC_SAFE_DELETE(ProtocolCustomListener::_instance);
+        }
+        if (ProtocolRECListener::_instance != nullptr)
+        {
+            CC_SAFE_DELETE(ProtocolRECListener::_instance);
+        }
+    });
+    _event->retain();
 }
