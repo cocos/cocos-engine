@@ -414,7 +414,7 @@ var BaseNode = cc.Class({
      * node.attr(attrs);
      */
     attr (attrs) {
-        Js.mixin(this, attrs);
+        JS.mixin(this, attrs);
     },
 
     // composition: GET
