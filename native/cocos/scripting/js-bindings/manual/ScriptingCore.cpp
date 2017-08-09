@@ -937,6 +937,12 @@ bool ScriptingCore::requireScript(const char *path, JS::HandleObject global, JSC
 void ScriptingCore::reset()
 {
     Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(EVENT_RESET);
+    
+    // Cleanup js objects
+    JS::RootedObject global(_cx, _global->get());
+    JS::RootedValue globalVal(_cx, JS::ObjectOrNullValue(global));
+    executeFunctionWithOwner(globalVal, "__cleanup", JS::HandleValueArray::empty());
+    
     Director::getInstance()->restart();
 }
 
@@ -962,13 +968,6 @@ void ScriptingCore::cleanup()
     
     // clear http client callbacks
     network::HttpClient::destroyInstance();
-    
-    {
-        // Cleanup js objects
-        JS::RootedObject global(_cx, _global->get());
-        JS::RootedValue globalVal(_cx, JS::ObjectOrNullValue(global));
-        executeFunctionWithOwner(globalVal, "__cleanup", JS::HandleValueArray::empty());
-    }
     
     // Clear all cached script
     cleanAllScript();
