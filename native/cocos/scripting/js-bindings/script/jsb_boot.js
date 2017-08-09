@@ -79,15 +79,6 @@ window._windowResizeListener = cc.eventManager.addCustomListener('window-resize'
     cc.visibleRect.init();
 });
 
-cc.audioEngine = cc.AudioEngine.getInstance();
-cc.audioEngine.end = function(){
-    this.stopMusic();
-    this.stopAllEffects();
-};
-cc.audioEngine.features = {
-    MULTI_CHANNEL: true, 
-    AUTOPLAY: true
-};
 
 cc.configuration = cc.Configuration.getInstance();
 cc.textureCache = cc.director.getTextureCache();

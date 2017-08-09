@@ -11,99 +11,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\auto\jsb_box2d_auto.cpp" />
-    <ClCompile Include="..\auto\jsb_cocos2dx_auto.cpp" />
-    <ClCompile Include="..\auto\jsb_cocos2dx_audioengine_auto.cpp" />
-    <ClCompile Include="..\auto\jsb_cocos2dx_builder_auto.cpp" />
-    <ClCompile Include="..\auto\jsb_cocos2dx_dragonbones_auto.cpp" />
-    <ClCompile Include="..\auto\jsb_cocos2dx_extension_auto.cpp" />
-    <ClCompile Include="..\auto\jsb_cocos2dx_network_auto.cpp" />
-    <ClCompile Include="..\auto\jsb_cocos2dx_spine_auto.cpp" />
-    <ClCompile Include="..\auto\jsb_cocos2dx_studio_auto.cpp" />
-    <ClCompile Include="..\auto\jsb_cocos2dx_ui_auto.cpp" />
-    <ClCompile Include="..\auto\jsb_creator_auto.cpp" />
-    <ClCompile Include="..\auto\js_bindings_chipmunk_auto_classes.cpp" />
-    <ClCompile Include="..\auto\js_bindings_chipmunk_functions.cpp" />
-    <ClCompile Include="..\manual\box2d\js_bindings_box2d_manual.cpp" />
-    <ClCompile Include="..\manual\chipmunk\js_bindings_chipmunk_manual.cpp" />
-    <ClCompile Include="..\manual\chipmunk\js_bindings_chipmunk_registration.cpp" />
-    <ClCompile Include="..\manual\cocos2d_specifics.cpp" />
-    <ClCompile Include="..\manual\cocosbuilder\js_bindings_ccbreader.cpp" />
-    <ClCompile Include="..\manual\cocostudio\jsb_cocos2dx_studio_conversions.cpp" />
-    <ClCompile Include="..\manual\cocostudio\jsb_cocos2dx_studio_manual.cpp" />
-    <ClCompile Include="..\manual\component\CCComponentJS.cpp" />
-    <ClCompile Include="..\manual\creator\js_bindings_creator_manual.cpp" />
-    <ClCompile Include="..\manual\dragonbones\jsb_cocos2dx_dragonbones_manual.cpp" />
-    <ClCompile Include="..\manual\extension\jsb_cocos2dx_extension_manual.cpp" />
-    <ClCompile Include="..\manual\jsb_event_dispatcher_manual.cpp" />
-    <ClCompile Include="..\manual\jsb_opengl_functions.cpp" />
-    <ClCompile Include="..\manual\jsb_opengl_manual.cpp" />
-    <ClCompile Include="..\manual\jsb_opengl_registration.cpp" />
-    <ClCompile Include="..\manual\js_bindings_core.cpp" />
-    <ClCompile Include="..\manual\js_bindings_opengl.cpp" />
-    <ClCompile Include="..\manual\js_manual_conversions.cpp" />
-    <ClCompile Include="..\manual\js_module_register.cpp" />
-    <ClCompile Include="..\manual\localstorage\js_bindings_system_functions.cpp" />
-    <ClCompile Include="..\manual\localstorage\js_bindings_system_registration.cpp" />
-    <ClCompile Include="..\manual\network\jsb_socketio.cpp" />
-    <ClCompile Include="..\manual\network\jsb_websocket.cpp" />
-    <ClCompile Include="..\manual\network\js_network_manual.cpp" />
-    <ClCompile Include="..\manual\network\XMLHTTPRequest.cpp" />
-    <ClCompile Include="..\manual\ScriptingCore.cpp" />
-    <ClCompile Include="..\manual\spine\jsb_cocos2dx_spine_manual.cpp" />
-    <ClCompile Include="..\manual\ui\jsb_cocos2dx_ui_manual.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\auto\jsb_box2d_auto.hpp" />
-    <ClInclude Include="..\auto\jsb_cocos2dx_auto.hpp" />
-    <ClInclude Include="..\auto\jsb_cocos2dx_audioengine_auto.hpp" />
-    <ClInclude Include="..\auto\jsb_cocos2dx_builder_auto.hpp" />
-    <ClInclude Include="..\auto\jsb_cocos2dx_dragonbones_auto.hpp" />
-    <ClInclude Include="..\auto\jsb_cocos2dx_extension_auto.hpp" />
-    <ClInclude Include="..\auto\jsb_cocos2dx_network_auto.hpp" />
-    <ClInclude Include="..\auto\jsb_cocos2dx_spine_auto.hpp" />
-    <ClInclude Include="..\auto\jsb_cocos2dx_studio_auto.hpp" />
-    <ClInclude Include="..\auto\jsb_cocos2dx_ui_auto.hpp" />
-    <ClInclude Include="..\auto\jsb_creator_auto.hpp" />
-    <ClInclude Include="..\auto\js_bindings_chipmunk_auto_classes.h" />
-    <ClInclude Include="..\auto\js_bindings_chipmunk_auto_classes_registration.h" />
-    <ClInclude Include="..\auto\js_bindings_chipmunk_functions.h" />
-    <ClInclude Include="..\auto\js_bindings_chipmunk_functions_registration.h" />
-    <ClInclude Include="..\manual\box2d\js_bindings_box2d_manual.h" />
-    <ClInclude Include="..\manual\chipmunk\js_bindings_chipmunk_manual.h" />
-    <ClInclude Include="..\manual\chipmunk\js_bindings_chipmunk_registration.h" />
-    <ClInclude Include="..\manual\cocos2d_specifics.hpp" />
-    <ClInclude Include="..\manual\cocosbuilder\cocosbuilder_specifics.hpp" />
-    <ClInclude Include="..\manual\cocosbuilder\js_bindings_ccbreader.h" />
-    <ClInclude Include="..\manual\cocostudio\jsb_cocos2dx_studio_conversions.h" />
-    <ClInclude Include="..\manual\cocostudio\jsb_cocos2dx_studio_manual.h" />
-    <ClInclude Include="..\manual\component\CCComponentJS.h" />
-    <ClInclude Include="..\manual\creator\js_bindings_creator_manual.h" />
-    <ClInclude Include="..\manual\dragonbones\jsb_cocos2dx_dragonbones_manual.h" />
-    <ClInclude Include="..\manual\extension\jsb_cocos2dx_extension_manual.h" />
-    <ClInclude Include="..\manual\jsb_event_dispatcher_manual.h" />
-    <ClInclude Include="..\manual\jsb_helper.h" />
-    <ClInclude Include="..\manual\jsb_opengl_functions.h" />
-    <ClInclude Include="..\manual\jsb_opengl_manual.h" />
-    <ClInclude Include="..\manual\jsb_opengl_registration.h" />
-    <ClInclude Include="..\manual\js_bindings_config.h" />
-    <ClInclude Include="..\manual\js_bindings_core.h" />
-    <ClInclude Include="..\manual\js_bindings_opengl.h" />
-    <ClInclude Include="..\manual\js_manual_conversions.h" />
-    <ClInclude Include="..\manual\js_module_register.h" />
-    <ClInclude Include="..\manual\localstorage\js_bindings_system_functions.h" />
-    <ClInclude Include="..\manual\localstorage\js_bindings_system_functions_registration.h" />
-    <ClInclude Include="..\manual\localstorage\js_bindings_system_registration.h" />
-    <ClInclude Include="..\manual\network\jsb_socketio.h" />
-    <ClInclude Include="..\manual\network\jsb_websocket.h" />
-    <ClInclude Include="..\manual\network\js_network_manual.h" />
-    <ClInclude Include="..\manual\network\XMLHTTPRequest.h" />
-    <ClInclude Include="..\manual\ScriptingCore.h" />
-    <ClInclude Include="..\manual\spidermonkey_specifics.h" />
-    <ClInclude Include="..\manual\spine\jsb_cocos2dx_spine_manual.h" />
-    <ClInclude Include="..\manual\ui\jsb_cocos2dx_ui_manual.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\..\2d\libcocos2d.vcxproj">
       <Project>{98a51ba8-fc3a-415b-ac8f-8c7bd464e93e}</Project>
     </ProjectReference>
@@ -117,6 +24,88 @@
     <ProjectReference Include="..\..\..\..\external\sources\Box2D\proj.win32\libBox2D.vcxproj">
       <Project>{EB7E5610-C178-49C9-8B4C-1C283E616ED9}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\auto\jsb_box2d_auto.cpp" />
+    <ClCompile Include="..\auto\jsb_cocos2dx_audioengine_auto.cpp" />
+    <ClCompile Include="..\auto\jsb_cocos2dx_auto.cpp" />
+    <ClCompile Include="..\auto\jsb_cocos2dx_dragonbones_auto.cpp" />
+    <ClCompile Include="..\auto\jsb_cocos2dx_experimental_video_auto.cpp" />
+    <ClCompile Include="..\auto\jsb_cocos2dx_experimental_webView_auto.cpp" />
+    <ClCompile Include="..\auto\jsb_cocos2dx_extension_auto.cpp" />
+    <ClCompile Include="..\auto\jsb_cocos2dx_network_auto.cpp" />
+    <ClCompile Include="..\auto\jsb_cocos2dx_spine_auto.cpp" />
+    <ClCompile Include="..\auto\jsb_cocos2dx_ui_auto.cpp" />
+    <ClCompile Include="..\auto\jsb_creator_auto.cpp" />
+    <ClCompile Include="..\jswrapper\HandleObject.cpp" />
+    <ClCompile Include="..\jswrapper\Ref.cpp" />
+    <ClCompile Include="..\jswrapper\State.cpp" />
+    <ClCompile Include="..\jswrapper\v8\Class.cpp" />
+    <ClCompile Include="..\jswrapper\v8\Object.cpp" />
+    <ClCompile Include="..\jswrapper\v8\ObjectWrap.cpp" />
+    <ClCompile Include="..\jswrapper\v8\ScriptEngine.cpp" />
+    <ClCompile Include="..\jswrapper\v8\Utils.cpp" />
+    <ClCompile Include="..\jswrapper\Value.cpp" />
+    <ClCompile Include="..\manual\jsb_box2d_manual.cpp" />
+    <ClCompile Include="..\manual\jsb_classtype.cpp" />
+    <ClCompile Include="..\manual\jsb_cocos2dx_extension_manual.cpp" />
+    <ClCompile Include="..\manual\jsb_cocos2dx_manual.cpp" />
+    <ClCompile Include="..\manual\jsb_conversions.cpp" />
+    <ClCompile Include="..\manual\jsb_creator_manual.cpp" />
+    <ClCompile Include="..\manual\jsb_dragonbones_manual.cpp" />
+    <ClCompile Include="..\manual\jsb_global.cpp" />
+    <ClCompile Include="..\manual\jsb_helper.cpp" />
+    <ClCompile Include="..\manual\jsb_module_register.cpp" />
+    <ClCompile Include="..\manual\jsb_node.cpp" />
+    <ClCompile Include="..\manual\jsb_socketio.cpp" />
+    <ClCompile Include="..\manual\jsb_spine_manual.cpp" />
+    <ClCompile Include="..\manual\jsb_websocket.cpp" />
+    <ClCompile Include="..\manual\jsb_xmlhttprequest.cpp" />
+    <ClCompile Include="..\manual\ScriptingCore.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\auto\jsb_box2d_auto.hpp" />
+    <ClInclude Include="..\auto\jsb_cocos2dx_audioengine_auto.hpp" />
+    <ClInclude Include="..\auto\jsb_cocos2dx_auto.hpp" />
+    <ClInclude Include="..\auto\jsb_cocos2dx_dragonbones_auto.hpp" />
+    <ClInclude Include="..\auto\jsb_cocos2dx_experimental_video_auto.hpp" />
+    <ClInclude Include="..\auto\jsb_cocos2dx_experimental_webView_auto.hpp" />
+    <ClInclude Include="..\auto\jsb_cocos2dx_extension_auto.hpp" />
+    <ClInclude Include="..\auto\jsb_cocos2dx_network_auto.hpp" />
+    <ClInclude Include="..\auto\jsb_cocos2dx_spine_auto.hpp" />
+    <ClInclude Include="..\auto\jsb_cocos2dx_ui_auto.hpp" />
+    <ClInclude Include="..\auto\jsb_creator_auto.hpp" />
+    <ClInclude Include="..\jswrapper\config.hpp" />
+    <ClInclude Include="..\jswrapper\HandleObject.hpp" />
+    <ClInclude Include="..\jswrapper\Object.hpp" />
+    <ClInclude Include="..\jswrapper\Ref.hpp" />
+    <ClInclude Include="..\jswrapper\SeApi.h" />
+    <ClInclude Include="..\jswrapper\State.hpp" />
+    <ClInclude Include="..\jswrapper\v8\Base.h" />
+    <ClInclude Include="..\jswrapper\v8\Class.hpp" />
+    <ClInclude Include="..\jswrapper\v8\HelperMacros.h" />
+    <ClInclude Include="..\jswrapper\v8\Object.hpp" />
+    <ClInclude Include="..\jswrapper\v8\ObjectWrap.h" />
+    <ClInclude Include="..\jswrapper\v8\ScriptEngine.hpp" />
+    <ClInclude Include="..\jswrapper\v8\SeApi.h" />
+    <ClInclude Include="..\jswrapper\v8\Utils.hpp" />
+    <ClInclude Include="..\jswrapper\Value.hpp" />
+    <ClInclude Include="..\manual\jsb_box2d_manual.hpp" />
+    <ClInclude Include="..\manual\jsb_classtype.hpp" />
+    <ClInclude Include="..\manual\jsb_cocos2dx_extension_manual.hpp" />
+    <ClInclude Include="..\manual\jsb_cocos2dx_manual.hpp" />
+    <ClInclude Include="..\manual\jsb_conversions.hpp" />
+    <ClInclude Include="..\manual\jsb_creator_manual.hpp" />
+    <ClInclude Include="..\manual\jsb_dragonbones_manual.hpp" />
+    <ClInclude Include="..\manual\jsb_global.h" />
+    <ClInclude Include="..\manual\jsb_helper.hpp" />
+    <ClInclude Include="..\manual\jsb_module_register.hpp" />
+    <ClInclude Include="..\manual\jsb_node.hpp" />
+    <ClInclude Include="..\manual\jsb_socketio.hpp" />
+    <ClInclude Include="..\manual\jsb_spine_manual.hpp" />
+    <ClInclude Include="..\manual\jsb_websocket.hpp" />
+    <ClInclude Include="..\manual\jsb_xmlhttprequest.hpp" />
+    <ClInclude Include="..\manual\ScriptingCore.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{39379840-825A-45A0-B363-C09FFEF864BD}</ProjectGuid>
@@ -176,8 +165,8 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_LIB;COCOS2D_DEBUG=1;XP_WIN;JS_HAVE___INTN;JS_INTPTR_TYPE=int;COCOS2D_JAVASCRIPT=1;CC_ENABLE_CHIPMUNK_INTEGRATION=1;_CRT_SECURE_NO_WARNINGS;_USRJSSTATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..;$(EngineRoot);$(EngineRoot)cocos\editor-support;$(ProjectDir)..\auto;$(ProjectDir)..\manual;$(EngineRoot)external\win32\include\spidermonkey;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;HAVE_INSPECTOR;_DEBUG;_LIB;COCOS2D_DEBUG=1;XP_WIN;JS_HAVE___INTN;JS_INTPTR_TYPE=int;COCOS2D_JAVASCRIPT=1;CC_ENABLE_CHIPMUNK_INTEGRATION=1;_CRT_SECURE_NO_WARNINGS;_USRJSSTATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..;$(EngineRoot);$(EngineRoot)cocos\editor-support;$(ProjectDir)..\auto;$(ProjectDir)..\manual;$(EngineRoot)external\win32\include\spidermonkey;$(EngineRoot)external\win32\include\v8;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4068;4101;4800;4251;4244;4099;4083;4700;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
@@ -200,8 +189,8 @@
       <Optimization>MinSpace</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_LIB;XP_WIN;JS_HAVE___INTN;JS_INTPTR_TYPE=int;COCOS2D_JAVASCRIPT=1;CC_ENABLE_CHIPMUNK_INTEGRATION=1;_CRT_SECURE_NO_WARNINGS;_USRJSSTATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..;$(EngineRoot);$(EngineRoot)cocos\editor-support;$(ProjectDir)..\auto;$(ProjectDir)..\manual;$(EngineRoot)external\win32\include\spidermonkey;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;HAVE_INSPECTOR;NDEBUG;_LIB;XP_WIN;JS_HAVE___INTN;JS_INTPTR_TYPE=int;COCOS2D_JAVASCRIPT=1;CC_ENABLE_CHIPMUNK_INTEGRATION=1;_CRT_SECURE_NO_WARNINGS;_USRJSSTATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..;$(EngineRoot);$(EngineRoot)cocos\editor-support;$(ProjectDir)..\auto;$(ProjectDir)..\manual;$(EngineRoot)external\win32\include\spidermonkey;$(EngineRoot)external\win32\include\v8;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4068;4101;4800;4251;4244;4099;4083;4700;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat>None</DebugInformationFormat>

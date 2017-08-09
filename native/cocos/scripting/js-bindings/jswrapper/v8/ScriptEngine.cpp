@@ -6,9 +6,18 @@
 #include "Class.hpp"
 #include "Utils.hpp"
 
+#if SE_ENABLE_INSPECTOR
 #include "inspector_agent.h"
 #include "env.h"
 #include "node.h"
+#endif
+
+#include "cocos2d.h"
+
+#undef LOGD
+
+#define LOGD cocos2d::log
+
 
 #define RETRUN_VAL_IF_FAIL(cond, val) \
     if (!(cond)) return val
@@ -111,7 +120,9 @@ namespace se {
     , _isValid(false)
     , _isInGC(false)
     , _nodeEventListener(nullptr)
+#if SE_ENABLE_INSPECTOR
     , _env(nullptr)
+#endif
     {
         //        RETRUN_VAL_IF_FAIL(v8::V8::InitializeICUDefaultLocation(nullptr, "/Users/james/Project/v8/out.gn/x64.debug/icudtl.dat"), false);
         //        v8::V8::InitializeExternalStartupData("/Users/james/Project/v8/out.gn/x64.debug/natives_blob.bin", "/Users/james/Project/v8/out.gn/x64.debug/snapshot_blob.bin"); //TODO
@@ -340,6 +351,7 @@ namespace se {
             }
         }
 
+        assert(success);
         return success;
     }
 

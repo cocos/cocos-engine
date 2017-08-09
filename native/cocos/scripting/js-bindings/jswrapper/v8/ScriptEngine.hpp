@@ -9,6 +9,7 @@
 
 #include <chrono>
 
+#if SE_ENABLE_INSPECTOR
 namespace node {
     namespace inspector {
         class Agent;
@@ -17,6 +18,7 @@ namespace node {
     class Environment;
     class IsolateData;
 }
+#endif
 
 namespace se {
 
@@ -112,8 +114,10 @@ namespace se {
         std::vector<std::function<void()>> _beforeCleanupHookArray;
         std::vector<std::function<void()>> _afterCleanupHookArray;
 
+#if SE_ENABLE_INSPECTOR
         node::Environment* _env;
         node::IsolateData* _isolateData;
+#endif
     };
 
 } // namespace se {

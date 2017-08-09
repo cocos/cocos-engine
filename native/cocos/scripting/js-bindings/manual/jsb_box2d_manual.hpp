@@ -1,9 +1,8 @@
 #pragma once
 
-#include <vector>
+#include "Box2D/Box2D.h"
 
-struct b2Fixture;
-struct b2Vec2;
+#include <vector>
 
 namespace se {
     class Object;
