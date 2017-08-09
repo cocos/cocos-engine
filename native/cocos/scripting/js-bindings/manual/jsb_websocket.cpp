@@ -125,14 +125,14 @@ public:
                 {// Normal string
                     dataVal.setString(data.bytes);
                 }
+
                 if (dataVal.isNullOrUndefined())
                 {
                     ws->closeAsync();
                 }
                 else
                 {
-                    jsObj->setProperty("data", se::Value());
-                    func.toObject()->call(args, wsObj);
+                    jsObj->setProperty("data", se::Value(dataVal));
                 }
             }
 

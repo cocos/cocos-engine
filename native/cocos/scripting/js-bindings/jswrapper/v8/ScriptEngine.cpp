@@ -105,6 +105,8 @@ namespace se {
     ScriptEngine::ScriptEngine()
     : _platform(nullptr)
     , _isolate(nullptr)
+    , _handleScope(nullptr)
+    , _allocator(nullptr)
     , _globalObj(nullptr)
     , _isValid(false)
     , _isInGC(false)
@@ -132,8 +134,10 @@ namespace se {
     {
         LOGD("Initializing V8\n");
 
+        assert(_allocator == nullptr);
+        _allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
         // Create a new Isolate and make it the current one.
-        _createParams.array_buffer_allocator = &_allocator;
+        _createParams.array_buffer_allocator = _allocator;
         _isolate = v8::Isolate::New(_createParams);
         v8::HandleScope hs(_isolate);
         _isolate->Enter();
@@ -161,6 +165,7 @@ namespace se {
         __jsb_CCPrivateData_class->setCreateProto(false);
         __jsb_CCPrivateData_class->install();
 
+#if SE_ENABLE_INSPECTOR
         // V8 inspector stuff, most code are taken from NodeJS.
 
         _isolateData = node::CreateIsolateData(_isolate, uv_default_loop());
@@ -172,6 +177,7 @@ namespace se {
         _env->inspector_agent()->Start(_platform, "", options);
 
         //
+#endif
 
         _isValid = true;
 
@@ -196,11 +202,13 @@ namespace se {
             Class::cleanup();
             gc();
 
+#if SE_ENABLE_INSPECTOR
             _env->inspector_agent()->Stop();
 
             node::FreeIsolateData(_isolateData);
             _env->CleanupHandles();
             node::FreeEnvironment(_env);
+#endif
 
             _context.Get(_isolate)->Exit();
             _context.Reset();
@@ -208,6 +216,8 @@ namespace se {
         }
         _isolate->Dispose();
 
+        delete _allocator;
+        _allocator = nullptr;
         _isolate = nullptr;
         _globalObj = nullptr;
         _isValid = false;
