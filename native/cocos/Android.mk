@@ -123,7 +123,6 @@ base/CCEventTouch.cpp \
 base/CCIMEDispatcher.cpp \
 base/CCNS.cpp \
 base/CCProfiling.cpp \
-base/CCProperties.cpp \
 base/CCRef.cpp \
 base/CCScheduler.cpp \
 base/CCScriptSupport.cpp \
@@ -150,25 +149,18 @@ renderer/CCGLProgramCache.cpp \
 renderer/CCGLProgramState.cpp \
 renderer/CCGLProgramStateCache.cpp \
 renderer/CCGroupCommand.cpp \
-renderer/CCMaterial.cpp \
-renderer/CCMeshCommand.cpp \
-renderer/CCPass.cpp \
 renderer/CCPrimitive.cpp \
 renderer/CCPrimitiveCommand.cpp \
 renderer/CCQuadCommand.cpp \
 renderer/CCRenderCommand.cpp \
-renderer/CCRenderState.cpp \
 renderer/CCRenderer.cpp \
-renderer/CCTechnique.cpp \
 renderer/CCTexture2D.cpp \
 renderer/CCTextureAtlas.cpp \
 renderer/CCTextureCache.cpp \
 renderer/CCTrianglesCommand.cpp \
-renderer/CCVertexAttribBinding.cpp \
 renderer/CCVertexIndexBuffer.cpp \
 renderer/CCVertexIndexData.cpp \
 renderer/ccGLStateCache.cpp \
-renderer/CCFrameBuffer.cpp \
 renderer/ccShaders.cpp \
 storage/local-storage/LocalStorage-android.cpp \
 ../external/sources/ConvertUTF/ConvertUTFWrapper.cpp \
@@ -231,6 +223,7 @@ storage/local-storage/LocalStorage-android.cpp \
 ../external/sources/Box2D/Dynamics/b2World.cpp \
 ../external/sources/Box2D/Dynamics/b2WorldCallbacks.cpp \
 ../external/sources/Box2D/Rope/b2Rope.cpp \
+../external/sources/Box2D/b2ObjectDestroyNotifier.cpp
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH) \
                     $(LOCAL_PATH)/platform \

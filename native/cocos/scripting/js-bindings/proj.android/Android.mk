@@ -11,6 +11,7 @@ LOCAL_SRC_FILES := \
 					../jswrapper/Ref.cpp \
 					../jswrapper/State.cpp \
 					../jswrapper/Value.cpp \
+					../jswrapper/HandleObject.cpp \
 					../jswrapper/sm/Class.cpp \
 					../jswrapper/sm/ScriptEngine.cpp \
 					../jswrapper/sm/Object.cpp \
@@ -20,6 +21,16 @@ LOCAL_SRC_FILES := \
 					../jswrapper/v8/ObjectWrap.cpp \
 					../jswrapper/v8/ScriptEngine.cpp \
 					../jswrapper/v8/Utils.cpp \
+					../jswrapper/v8/env.cc \
+					../jswrapper/v8/inspector_agent.cc \
+					../jswrapper/v8/inspector_io.cc \
+					../jswrapper/v8/inspector_socket.cc \
+					../jswrapper/v8/inspector_socket_server.cc \
+					../jswrapper/v8/node.cc \
+					../jswrapper/v8/node_debug_options.cc \
+					../jswrapper/v8/util.cc \
+					../jswrapper/v8/http_parser.c \
+					../jswrapper/v8/SHA1.cpp \
 					../auto/jsb_box2d_auto.cpp \
 					../auto/jsb_cocos2dx_audioengine_auto.cpp \
 					../auto/jsb_cocos2dx_auto.cpp \
@@ -33,6 +44,8 @@ LOCAL_SRC_FILES := \
 					../auto/jsb_creator_auto.cpp \
 					../manual/JavaScriptJavaBridge.cpp \
 					../manual/ScriptingCore.cpp \
+					../manual/jsb_helper.cpp \
+					../manual/jsb_box2d_manual.cpp \
 					../manual/jsb_classtype.cpp \
 					../manual/jsb_cocos2dx_extension_manual.cpp \
 					../manual/jsb_cocos2dx_manual.cpp \
@@ -47,9 +60,9 @@ LOCAL_SRC_FILES := \
 					../manual/jsb_websocket.cpp \
 					../manual/jsb_xmlhttprequest.cpp
 
-LOCAL_CFLAGS := -DCOCOS2D_JAVASCRIPT
+LOCAL_CFLAGS := -DHAVE_INSPECTOR
 
-LOCAL_EXPORT_CFLAGS := -DCOCOS2D_JAVASCRIPT
+LOCAL_EXPORT_CFLAGS := 
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../manual \
                     $(LOCAL_PATH)/../manual/cocostudio \
@@ -77,7 +90,7 @@ LOCAL_EXPORT_LDLIBS := -lz
 
 LOCAL_STATIC_LIBRARIES := cocos2dx_static
 LOCAL_STATIC_LIBRARIES += spidermonkey_static spidermonkey_glue_static
-LOCAL_STATIC_LIBRARIES += v8_libplatform_static v8_base_static v8_libbase_static v8_libsampler_static v8_nosnapshot_static
+LOCAL_WHOLE_STATIC_LIBRARIES += v8_base_static v8_inspector_static v8_libplatform_static v8_libbase_static v8_libsampler_static v8_nosnapshot_static v8_builtins_setup_static v8_builtins_generators_static uv_static
 
 include $(BUILD_STATIC_LIBRARY)
 #==============================================================
