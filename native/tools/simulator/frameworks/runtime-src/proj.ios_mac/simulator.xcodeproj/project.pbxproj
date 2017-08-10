@@ -52,13 +52,14 @@
 		9FB5D6081A691774002361CA /* libjscocos2d iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FB5D5D61A68FA00002361CA /* libjscocos2d iOS.a */; };
 		9FB5D60A1A6917D8002361CA /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FB5D6091A6917D8002361CA /* libsqlite3.dylib */; };
 		9FB5D60E1A691A02002361CA /* libjscocos2d Mac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FB5D5D41A68FA00002361CA /* libjscocos2d Mac.a */; };
-		9FB6C05F1A69815100945236 /* lang in Resources */ = {isa = PBXBuildFile; fileRef = 9FB6C0571A69815100945236 /* lang */; };
-		9FB6C0621A69815100945236 /* RuntimeJsImpl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9FB6C05A1A69815100945236 /* RuntimeJsImpl.cpp */; };
-		9FB6C0631A69815100945236 /* RuntimeJsImpl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9FB6C05A1A69815100945236 /* RuntimeJsImpl.cpp */; };
 		9FD6FC0B1A5D27870028EDC6 /* libsimulator Mac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FD6FC081A5D26580028EDC6 /* libsimulator Mac.a */; settings = {ATTRIBUTES = (Required, ); }; };
 		9FD6FC0C1A5D278E0028EDC6 /* libsimulator iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FD6FC0A1A5D26580028EDC6 /* libsimulator iOS.a */; };
 		9FD6FC731A5D2A820028EDC6 /* ConsoleWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9FD6FC711A5D2A820028EDC6 /* ConsoleWindowController.m */; };
 		9FFC07361A4A764100AED399 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9FFC07341A4A764100AED399 /* MainMenu.xib */; };
+		BAC396D31F0F955800EB5F11 /* lang in Resources */ = {isa = PBXBuildFile; fileRef = BAC396D01F0F955800EB5F11 /* lang */; };
+		BAC396D41F0F955800EB5F11 /* lang in Resources */ = {isa = PBXBuildFile; fileRef = BAC396D01F0F955800EB5F11 /* lang */; };
+		BAC396D51F0F955800EB5F11 /* RuntimeJsImpl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAC396D11F0F955800EB5F11 /* RuntimeJsImpl.cpp */; };
+		BAC396D61F0F955800EB5F11 /* RuntimeJsImpl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAC396D11F0F955800EB5F11 /* RuntimeJsImpl.cpp */; };
 		C05D1C121923449100B808A4 /* config.json in Resources */ = {isa = PBXBuildFile; fileRef = C05D1C111923449100B808A4 /* config.json */; };
 		C05D1C131923449100B808A4 /* config.json in Resources */ = {isa = PBXBuildFile; fileRef = C05D1C111923449100B808A4 /* config.json */; };
 		C07828F818B4D72E00BD2287 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C07828F418B4D72E00BD2287 /* main.m */; };
@@ -209,15 +210,15 @@
 		9FB5D5CE1A68F9FF002361CA /* cocos2d_js_bindings.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = cocos2d_js_bindings.xcodeproj; path = "../../../../../cocos/scripting/js-bindings/proj.ios_mac/cocos2d_js_bindings.xcodeproj"; sourceTree = "<group>"; };
 		9FB5D5F81A691342002361CA /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		9FB5D6091A6917D8002361CA /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/usr/lib/libsqlite3.dylib; sourceTree = DEVELOPER_DIR; };
-		9FB6C0561A69815100945236 /* CodeIDESupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CodeIDESupport.h; sourceTree = "<group>"; };
-		9FB6C0571A69815100945236 /* lang */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lang; sourceTree = "<group>"; };
-		9FB6C05A1A69815100945236 /* RuntimeJsImpl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RuntimeJsImpl.cpp; sourceTree = "<group>"; };
-		9FB6C05B1A69815100945236 /* RuntimeJsImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RuntimeJsImpl.h; sourceTree = "<group>"; };
 		9FD6FC021A5D26580028EDC6 /* libsimulator.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libsimulator.xcodeproj; path = ../../../libsimulator/proj.ios_mac/libsimulator.xcodeproj; sourceTree = "<group>"; };
 		9FD6FC701A5D2A820028EDC6 /* ConsoleWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConsoleWindowController.h; sourceTree = "<group>"; };
 		9FD6FC711A5D2A820028EDC6 /* ConsoleWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConsoleWindowController.m; sourceTree = "<group>"; };
 		9FFC07351A4A764100AED399 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		9FFC07371A4A765100AED399 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "zh-Hans"; path = "zh-Hans.lproj/MainMenu.xib"; sourceTree = "<group>"; };
+		BAC396D01F0F955800EB5F11 /* lang */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = lang; path = "../Classes/ide-support/lang"; sourceTree = "<group>"; };
+		BAC396D11F0F955800EB5F11 /* RuntimeJsImpl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RuntimeJsImpl.cpp; path = "../Classes/ide-support/RuntimeJsImpl.cpp"; sourceTree = "<group>"; };
+		BAC396D21F0F955800EB5F11 /* RuntimeJsImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RuntimeJsImpl.h; path = "../Classes/ide-support/RuntimeJsImpl.h"; sourceTree = "<group>"; };
+		BAC396D71F0F973C00EB5F11 /* CodeIDESupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodeIDESupport.h; path = "../Classes/ide-support/CodeIDESupport.h"; sourceTree = "<group>"; };
 		C05D1C111923449100B808A4 /* config.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = config.json; path = ../../../config.json; sourceTree = "<group>"; };
 		C07828F418B4D72E00BD2287 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		C07828F618B4D72E00BD2287 /* SimulatorApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimulatorApp.h; sourceTree = "<group>"; };
@@ -368,18 +369,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		9FB6C0551A69815100945236 /* ide-support */ = {
-			isa = PBXGroup;
-			children = (
-				9FB6C0561A69815100945236 /* CodeIDESupport.h */,
-				9FB6C0571A69815100945236 /* lang */,
-				9FB6C05A1A69815100945236 /* RuntimeJsImpl.cpp */,
-				9FB6C05B1A69815100945236 /* RuntimeJsImpl.h */,
-			);
-			name = "ide-support";
-			path = "../Classes/ide-support";
-			sourceTree = "<group>";
-		};
 		9FD6FC031A5D26580028EDC6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -387,6 +376,17 @@
 				9FD6FC0A1A5D26580028EDC6 /* libsimulator iOS.a */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		BAC396CF1F0F937800EB5F11 /* ide-support */ = {
+			isa = PBXGroup;
+			children = (
+				BAC396D71F0F973C00EB5F11 /* CodeIDESupport.h */,
+				BAC396D01F0F955800EB5F11 /* lang */,
+				BAC396D11F0F955800EB5F11 /* RuntimeJsImpl.cpp */,
+				BAC396D21F0F955800EB5F11 /* RuntimeJsImpl.h */,
+			);
+			name = "ide-support";
 			sourceTree = "<group>";
 		};
 		F293B3BD15EB7BE500256477 = {
@@ -448,7 +448,7 @@
 		F293BB7C15EB830F00256477 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				9FB6C0551A69815100945236 /* ide-support */,
+				BAC396CF1F0F937800EB5F11 /* ide-support */,
 				F293BB7E15EB831F00256477 /* AppDelegate.cpp */,
 				F293BB7F15EB831F00256477 /* AppDelegate.h */,
 			);
@@ -604,7 +604,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9FB6C05F1A69815100945236 /* lang in Resources */,
+				BAC396D41F0F955800EB5F11 /* lang in Resources */,
 				DA96489E1A70F925001F41E8 /* ConsoleWindow.xib in Resources */,
 				5023817617EBBE3400990C9B /* Icon.icns in Resources */,
 				9FFC07361A4A764100AED399 /* MainMenu.xib in Resources */,
@@ -626,6 +626,7 @@
 				5023811F17EBBCAC00990C9B /* Icon-152.png in Resources */,
 				5023812017EBBCAC00990C9B /* Icon-57.png in Resources */,
 				521A8E7019F0C3D200D177D7 /* Default-667h@2x.png in Resources */,
+				BAC396D31F0F955800EB5F11 /* lang in Resources */,
 				5023812217EBBCAC00990C9B /* Icon-76.png in Resources */,
 				5091733A17ECE17A00D62437 /* Icon-80.png in Resources */,
 				5091733717ECE17A00D62437 /* Icon-40.png in Resources */,
@@ -646,10 +647,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				C07828FA18B4D72E00BD2287 /* SimulatorApp.mm in Sources */,
-				9FB6C0631A69815100945236 /* RuntimeJsImpl.cpp in Sources */,
 				5023813317EBBCE400990C9B /* AppDelegate.cpp in Sources */,
 				9FD6FC731A5D2A820028EDC6 /* ConsoleWindowController.m in Sources */,
 				C07828F818B4D72E00BD2287 /* main.m in Sources */,
+				BAC396D61F0F955800EB5F11 /* RuntimeJsImpl.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -658,10 +659,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				5023812517EBBCAC00990C9B /* RootViewController.mm in Sources */,
-				9FB6C0621A69815100945236 /* RuntimeJsImpl.cpp in Sources */,
 				F293BB9C15EB831F00256477 /* AppDelegate.cpp in Sources */,
 				5023812417EBBCAC00990C9B /* main.m in Sources */,
 				5023811817EBBCAC00990C9B /* AppController.mm in Sources */,
+				BAC396D51F0F955800EB5F11 /* RuntimeJsImpl.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -728,7 +729,7 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
-				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				CONFIGURATION_BUILD_DIR = ../../../../../simulator/mac;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = mac/Prefix.pch;
@@ -765,6 +766,7 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = ../../../../../simulator/mac;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = mac/Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (

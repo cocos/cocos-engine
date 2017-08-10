@@ -10,8 +10,8 @@
     <Filter Include="resource">
       <UniqueIdentifier>{2d1d0979-58cd-4ab6-b91c-13650158f1fa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Classes\ide-support">
-      <UniqueIdentifier>{9f68f9a7-7069-4c93-94ae-942a0aa910c1}</UniqueIdentifier>
+    <Filter Include="Classes\ide-support">		
+      <UniqueIdentifier>{9f68f9a7-7069-4c93-94ae-942a0aa910c1}</UniqueIdentifier>		
     </Filter>
   </ItemGroup>
   <ItemGroup>

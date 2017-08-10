@@ -36,7 +36,7 @@
 #include "runtime/ConfigParser.h"
 
 #include "cocos2d.h"
-#include "CodeIDESupport.h"
+#include "ide-support/CodeIDESupport.h"
 
 #include "platform/mac/PlayerMac.h"
 #include "AppEvent.h"

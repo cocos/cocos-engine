@@ -20,29 +20,11 @@
 
 using namespace anysdk::framework;
 
-
-template<class T>
-static bool dummy_constructor(JSContext *cx, uint32_t argc, jsval *vp) {
-    JS_ReportError(cx, "Constructor for the requested class is not available, please refer to the API reference.");
-    return false;
-}
-
-static bool empty_constructor(JSContext *cx, uint32_t argc, jsval *vp) {
-    return false;
-}
-
-static bool js_is_native_obj(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    args.rval().setBoolean(true);
-    return true;
-}
-
 JSClass  *jsb_anysdk_framework_PluginParam_class;
 JSObject *jsb_anysdk_framework_PluginParam_prototype;
 
 
-bool js_anysdk_PluginParam_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_anysdk_PluginParam_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
@@ -66,18 +48,20 @@ bool js_anysdk_PluginParam_constructor(JSContext *cx, uint32_t argc, jsval *vp)
                     break;
                 case PluginParam::kParamTypeFloat:
                 {
-                   	double arg1;
-                    ok &= JS::ToNumber(cx, args.get(1), &arg1);
+                   	float arg1;
+                    ok &= jsval_to_float(cx, args.get(1), &arg1);
                     if (ok) {
-                        float tempArg = arg1;
-                        cobj = new PluginParam(tempArg);
+                        cobj = new PluginParam(arg1);
                     }
                 }
                     break;
                 case PluginParam::kParamTypeBool:
                 {
-                    bool arg1 = JS::ToBoolean(args.get(1));
-                    cobj = new PluginParam(arg1);
+                    bool arg1;
+                    ok &= jsval_to_bool(cx, args.get(1), &arg1);
+                    if (ok) {
+                        cobj = new PluginParam(arg1);
+                    }
                 }
                     break;
                 case PluginParam::kParamTypeString:
@@ -100,127 +84,128 @@ bool js_anysdk_PluginParam_constructor(JSContext *cx, uint32_t argc, jsval *vp)
             if (!ok || NULL == cobj) { ok = true; break; }
             
             js_type_class_t *typeClass = js_get_type_from_native<PluginParam>(cobj);
-            JS::RootedObject proto(cx, typeClass->proto.ref());
-            JS::RootedObject parent(cx, typeClass->parentProto.ref());
-            JS::RootedObject jsobj(cx, JS_NewObject(cx, typeClass->jsclass, proto, parent));
-            js_proxy_t* p = jsb_new_proxy(cobj, jsobj);
-            AddNamedObjectRoot(cx, &p->obj, "anysdk::framework::PluginParam");
+            JS::RootedObject proto(cx, typeClass->proto->get());
+            JS::RootedObject jsobj(cx, JS_NewObjectWithGivenProto(cx, typeClass->jsclass, proto));
+            js_add_FinalizeHook(cx, jsobj, false);
+            jsb_new_proxy(cx, cobj, jsobj);
+            JS::RootedValue objVal(cx, JS::ObjectOrNullValue(jsobj));
+            js_add_object_root(objVal);
             
-            args.rval().set(OBJECT_TO_JSVAL(jsobj));
+            args.rval().set(objVal);
             return true;
         }
     } while (0);
     
-    JS_ReportError(cx, "wrong number of arguments");
+    JS_ReportErrorUTF8(cx, "wrong number of arguments");
     return false;
 }
 
-bool jsb_anysdk_PluginParam_getStringValue(JSContext *cx, uint32_t argc, jsval *vp)
+bool jsb_anysdk_PluginParam_getStringValue(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 	JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-	js_proxy_t *proxy = jsb_get_js_proxy(obj);
+	js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
 	anysdk::framework::PluginParam* cobj = (anysdk::framework::PluginParam *)(proxy ? proxy->ptr : NULL);
 	JSB_PRECONDITION2( cobj, cx, false, "jsb_anysdk_PluginParam_getStringValue : Invalid Native Object");
 	if (argc == 0) {
 		std::string ret = cobj->getStringValue();
-		jsval jsret = JSVAL_NULL;
-        jsret = std_string_to_jsval(cx, ret);
+		JS::RootedValue jsret(cx, JS::NullHandleValue);
+        std_string_to_jsval(cx, ret, &jsret);
         args.rval().set(jsret);
 		return true;
 	}
 
-	JS_ReportError(cx, "jsb_anysdk_PluginParam_getStringValue : wrong number of arguments: %d, was expecting %d", argc, 0);
+	JS_ReportErrorUTF8(cx, "jsb_anysdk_PluginParam_getStringValue : wrong number of arguments: %d, was expecting %d", argc, 0);
 	return false;
 }
 
-bool jsb_anysdk_PluginParam_getCurrentType(JSContext *cx, uint32_t argc, jsval *vp)
+bool jsb_anysdk_PluginParam_getCurrentType(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-	js_proxy_t *proxy = jsb_get_js_proxy(obj);
+	js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
 	anysdk::framework::PluginParam* cobj = (anysdk::framework::PluginParam *)(proxy ? proxy->ptr : NULL);
 	JSB_PRECONDITION2( cobj, cx, false, "jsb_anysdk_PluginParam_getCurrentType : Invalid Native Object");
 	if (argc == 0) {
 		int ret = cobj->getCurrentType();
-		jsval jsret = JSVAL_NULL;
-        jsret = int32_to_jsval(cx, ret);
+		JS::RootedValue jsret(cx, JS::NullHandleValue);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
 		return true;
 	}
 
-	JS_ReportError(cx, "jsb_anysdk_PluginParam_getCurrentType : wrong number of arguments: %d, was expecting %d", argc, 0);
+	JS_ReportErrorUTF8(cx, "jsb_anysdk_PluginParam_getCurrentType : wrong number of arguments: %d, was expecting %d", argc, 0);
 	return false;
 }
 
-bool jsb_anysdk_PluginParam_getIntValue(JSContext *cx, uint32_t argc, jsval *vp)
+bool jsb_anysdk_PluginParam_getIntValue(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-	js_proxy_t *proxy = jsb_get_js_proxy(obj);
+	js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
 	anysdk::framework::PluginParam* cobj = (anysdk::framework::PluginParam *)(proxy ? proxy->ptr : NULL);
 	JSB_PRECONDITION2( cobj, cx, false, "jsb_anysdk_PluginParam_getIntValue : Invalid Native Object");
 	if (argc == 0) {
 		int ret = cobj->getIntValue();
-		jsval jsret = JSVAL_NULL;
-        jsret = int32_to_jsval(cx, ret);
+		JS::RootedValue jsret(cx, JS::NullHandleValue);
+        jsret = JS::Int32Value(ret);
         args.rval().set(jsret);
 		return true;
 	}
 
-	JS_ReportError(cx, "jsb_anysdk_PluginParam_getIntValue : wrong number of arguments: %d, was expecting %d", argc, 0);
+	JS_ReportErrorUTF8(cx, "jsb_anysdk_PluginParam_getIntValue : wrong number of arguments: %d, was expecting %d", argc, 0);
 	return false;
 }
 
-bool jsb_anysdk_PluginParam_getFloatValue(JSContext *cx, uint32_t argc, jsval *vp)
+bool jsb_anysdk_PluginParam_getFloatValue(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-	js_proxy_t *proxy = jsb_get_js_proxy(obj);
+	js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
 	anysdk::framework::PluginParam* cobj = (anysdk::framework::PluginParam *)(proxy ? proxy->ptr : NULL);
 	JSB_PRECONDITION2( cobj, cx, false, "jsb_anysdk_PluginParam_getFloatValue : Invalid Native Object");
 	if (argc == 0) {
 		float ret = cobj->getFloatValue();
-		jsval jsret = JSVAL_NULL;
+		JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret.setNumber(ret);
         args.rval().set(jsret);
 		return true;
 	}
 
-	JS_ReportError(cx, "jsb_anysdk_PluginParam_getFloatValue : wrong number of arguments: %d, was expecting %d", argc, 0);
+	JS_ReportErrorUTF8(cx, "jsb_anysdk_PluginParam_getFloatValue : wrong number of arguments: %d, was expecting %d", argc, 0);
 	return false;
 }
 
-bool jsb_anysdk_PluginParam_getBoolValue(JSContext *cx, uint32_t argc, jsval *vp)
+bool jsb_anysdk_PluginParam_getBoolValue(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-	js_proxy_t *proxy = jsb_get_js_proxy(obj);
+	js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
 	anysdk::framework::PluginParam* cobj = (anysdk::framework::PluginParam *)(proxy ? proxy->ptr : NULL);
 	JSB_PRECONDITION2( cobj, cx, false, "jsb_anysdk_PluginParam_getBoolValue : Invalid Native Object");
 	if (argc == 0) {
 		bool ret = cobj->getBoolValue();
-		jsval jsret = JSVAL_NULL;
+		JS::RootedValue jsret(cx, JS::NullHandleValue);
         jsret.setBoolean(ret);
         args.rval().set(jsret);
 		return true;
 	}
 
-	JS_ReportError(cx, "jsb_anysdk_PluginParam_getBoolValue : wrong number of arguments: %d, was expecting %d", argc, 0);
+	JS_ReportErrorUTF8(cx, "jsb_anysdk_PluginParam_getBoolValue : wrong number of arguments: %d, was expecting %d", argc, 0);
 	return false;
 }
 
-bool jsb_anysdk_PluginParam_getMapValue(JSContext *cx, uint32_t argc, jsval *vp)
+bool jsb_anysdk_PluginParam_getMapValue(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-	js_proxy_t *proxy = jsb_get_js_proxy(obj);
+	js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
 	anysdk::framework::PluginParam* cobj = (anysdk::framework::PluginParam *)(proxy ? proxy->ptr : NULL);
 	JSB_PRECONDITION2( cobj, cx, false, "jsb_anysdk_PluginParam_getMapValue : Invalid Native Object");
 	if (argc == 0) {
 		typedef std::map<std::string, PluginParam*> MAP_PLUGINPARAM;
 		MAP_PLUGINPARAM values = cobj->getMapValue();
-		JS::RootedObject tmp(cx, JS_NewObject(cx, NULL, JS::NullPtr(), JS::NullPtr()));
+		JS::RootedObject tmp(cx, JS_NewPlainObject(cx));
     	if (!tmp) return false;
 
     	MAP_PLUGINPARAM::iterator iter;
@@ -228,30 +213,31 @@ bool jsb_anysdk_PluginParam_getMapValue(JSContext *cx, uint32_t argc, jsval *vp)
     	for (iter = values.begin(); iter != values.end(); iter++)
     	{
     		std::string str_key = ((std::string)(iter->first));
-            JS::RootedObject paramObj(cx, js_get_or_create_jsobject<PluginParam>(cx, (PluginParam*)&(iter->second)));
-            JS::RootedValue paramVal(cx, OBJECT_TO_JSVAL(paramObj));
+            JS::RootedObject paramObj(cx);
+            js_get_or_create_jsobject<PluginParam>(cx, (PluginParam*)&(iter->second), &paramObj);
+            JS::RootedValue paramVal(cx, JS::ObjectOrNullValue(paramObj));
             ok &= JS_DefineProperty(cx, tmp, str_key.c_str(), paramVal, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     	}
 
-		jsval jsret = JSVAL_NULL;
-        jsret = OBJECT_TO_JSVAL(tmp);
+		JS::RootedValue jsret(cx, JS::NullHandleValue);
+        jsret = JS::ObjectOrNullValue(tmp);
         args.rval().set(jsret);
 	}
 
-	JS_ReportError(cx, "jsb_anysdk_PluginParam_getMapValue : wrong number of arguments: %d, was expecting %d", argc, 0);
+	JS_ReportErrorUTF8(cx, "jsb_anysdk_PluginParam_getMapValue : wrong number of arguments: %d, was expecting %d", argc, 0);
 	return true;
 }
 
-bool jsb_anysdk_PluginParam_getStrMapValue(JSContext *cx, uint32_t argc, jsval *vp)
+bool jsb_anysdk_PluginParam_getStrMapValue(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-	js_proxy_t *proxy = jsb_get_js_proxy(obj);
+	js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
 	anysdk::framework::PluginParam* cobj = (anysdk::framework::PluginParam *)(proxy ? proxy->ptr : NULL);
 	JSB_PRECONDITION2( cobj, cx, false, "jsb_anysdk_PluginParam_getStrMapValue : Invalid Native Object");
 	if (argc == 0) {
         StringMap values = cobj->getStrMapValue();
-        JS::RootedObject tmp(cx, JS_NewObject(cx, NULL, JS::NullPtr(), JS::NullPtr()));
+        JS::RootedObject tmp(cx, JS_NewPlainObject(cx));
     	if (!tmp) return false;
 
     	StringMap::iterator iter;
@@ -260,21 +246,22 @@ bool jsb_anysdk_PluginParam_getStrMapValue(JSContext *cx, uint32_t argc, jsval *
     	{
     		std::string str_key = ((std::string)(iter->first));
     		std::string str_tmp = ((std::string)(iter->second));
-            JS::RootedValue tmpVal(cx, std_string_to_jsval(cx, str_tmp));
+            JS::RootedValue tmpVal(cx);
+            std_string_to_jsval(cx, str_tmp, &tmpVal);
             ok &= JS_DefineProperty(cx, tmp, str_key.c_str(), tmpVal, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     	}
 
-		jsval jsret = JSVAL_NULL;
-        jsret = OBJECT_TO_JSVAL(tmp);
+		JS::RootedValue jsret(cx, JS::NullHandleValue);
+        jsret = JS::ObjectOrNullValue(tmp);
         args.rval().set(jsret);
 		return true;
 	}
 
-	JS_ReportError(cx, "jsb_anysdk_PluginParam_getStrMapValue : wrong number of arguments: %d, was expecting %d", argc, 0);
+	JS_ReportErrorUTF8(cx, "jsb_anysdk_PluginParam_getStrMapValue : wrong number of arguments: %d, was expecting %d", argc, 0);
 	return false;
 }
 
-bool js_cocos2dx_PluginParam_create(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_cocos2dx_PluginParam_create(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     PluginParam* ret = NULL;
@@ -285,51 +272,8 @@ bool js_cocos2dx_PluginParam_create(JSContext *cx, uint32_t argc, jsval *vp)
         bool ok = true;
         JS::RootedValue arg0(cx, args.get(0));
         if ( arg0.isObject() ){
-            if (arg0.isNullOrUndefined()) {
-                CCLOG("%s", "jsval_to_ccvaluemap: the jsval is not an object.");
-                return false;
-            }
-            JS::RootedObject tmp(cx, arg0.toObjectOrNull());
-            
-            JS::RootedObject it(cx, JS_NewPropertyIterator(cx, tmp));
-            
             StringMap arg;
-            
-            while (true)
-            {
-                JS::RootedId idp(cx);
-                JS::RootedValue key(cx);
-                if (! JS_NextProperty(cx, it, idp.address()) || ! JS_IdToValue(cx, idp, &key)) {
-                    return false; // error
-                }
-                
-                if (key.isNullOrUndefined()) {
-                    break; // end of iteration
-                }
-                
-                if (!key.isString()) {
-                    continue; // ignore integer properties
-                }
-                
-                JSStringWrapper keyWrapper(key.toString(), cx);
-                
-                std::string v1;
-                std::string v2;
-                
-                v1 = keyWrapper.get();
-                JS::RootedValue value(cx);
-                JS_GetPropertyById(cx, tmp, idp, &value);
-                if (value.isString())
-                {
-                    bool ok = jsval_to_std_string(cx, value, &v2);
-                    if (ok){
-                        arg.insert( std::map<std::string,std::string>::value_type(v1, v2) );
-                    }
-                    else{
-                        CCLOG("wrong param in stringmap.\n");
-                    }
-                }
-            }
+            jsval_to_std_map_string_string(cx, arg0, &arg);
             ret = new PluginParam( arg );
         }
         else if(arg0.isBoolean()){
@@ -354,13 +298,14 @@ bool js_cocos2dx_PluginParam_create(JSContext *cx, uint32_t argc, jsval *vp)
         }
     }
     else{
-        JS_ReportError(cx, "js_cocos2dx_PluginParam_create : wrong number of arguments: %d, was expecting %d", argc, 0);
+        JS_ReportErrorUTF8(cx, "js_cocos2dx_PluginParam_create : wrong number of arguments: %d, was expecting %d", argc, 0);
         return false;
     }
     
-    jsval jsret = JSVAL_NULL;
-    JS::RootedObject paramObj(cx, js_get_or_create_jsobject<PluginParam>(cx, ret));
-    jsret = OBJECT_TO_JSVAL(paramObj);
+    JS::RootedValue jsret(cx, JS::NullHandleValue);
+    JS::RootedObject paramObj(cx);
+    js_get_or_create_jsobject<PluginParam>(cx, ret, &paramObj);
+    jsret = JS::ObjectOrNullValue(paramObj);
     args.rval().set(jsret);
     return true;
 }
@@ -369,8 +314,9 @@ extern JSObject *jsb_anysdk_framework_PluginProtocol_prototype;
 
 void js_anysdk_PluginParam_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (PluginParam)", obj);
-    JS::RootedObject jsObj(ScriptingCore::getInstance()->getGlobalContext(), obj);
-    js_proxy_t* proxy = jsb_get_js_proxy(jsObj);
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+    JS::RootedObject jsObj(cx, obj);
+    js_proxy_t* proxy = jsb_get_js_proxy(cx, jsObj);
     if (proxy) {
         PluginParam *nobj = static_cast<PluginParam *>(proxy->ptr);
         if (nobj)
@@ -381,22 +327,19 @@ void js_anysdk_PluginParam_finalize(JSFreeOp *fop, JSObject *obj) {
 }
 
 void js_register_anysdkbindings_PluginParam(JSContext *cx, JS::HandleObject global) {
-	jsb_anysdk_framework_PluginParam_class = (JSClass *)calloc(1, sizeof(JSClass));
-	jsb_anysdk_framework_PluginParam_class->name = "PluginParam";
-	jsb_anysdk_framework_PluginParam_class->addProperty = JS_PropertyStub;
-	jsb_anysdk_framework_PluginParam_class->delProperty = JS_DeletePropertyStub;
-	jsb_anysdk_framework_PluginParam_class->getProperty = JS_PropertyStub;
-	jsb_anysdk_framework_PluginParam_class->setProperty = JS_StrictPropertyStub;
-	jsb_anysdk_framework_PluginParam_class->enumerate = JS_EnumerateStub;
-	jsb_anysdk_framework_PluginParam_class->resolve = JS_ResolveStub;
-	jsb_anysdk_framework_PluginParam_class->convert = JS_ConvertStub;
-	jsb_anysdk_framework_PluginParam_class->finalize = js_anysdk_PluginParam_finalize;
-	jsb_anysdk_framework_PluginParam_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
-
-	static JSPropertySpec properties[] = {
-		JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-		JS_PS_END
-	};
+    static const JSClassOps PluginParam_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        js_anysdk_PluginParam_finalize,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass PluginParam_class = {
+        "PluginParam",
+        JSCLASS_HAS_PRIVATE | JSCLASS_HAS_RESERVED_SLOTS(2) | JSCLASS_FOREGROUND_FINALIZE,
+        &PluginParam_classOps
+    };
+    jsb_anysdk_framework_PluginParam_class = &PluginParam_class;
 
 	static JSFunctionSpec funcs[] = {
 		JS_FN("getCurrentType", jsb_anysdk_PluginParam_getCurrentType, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -420,97 +363,82 @@ void js_register_anysdkbindings_PluginParam(JSContext *cx, JS::HandleObject glob
 		parent_proto, // parent proto
 		jsb_anysdk_framework_PluginParam_class,
 		js_anysdk_PluginParam_constructor, 0, // no constructor
-		properties,
+		nullptr,
 		funcs,
-		NULL, // no static properties
+		nullptr, // no static properties
 		st_funcs);
     
-    // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_anysdk_framework_PluginParam_prototype);
-    jsb_register_class<anysdk::framework::PluginParam>(cx, jsb_anysdk_framework_PluginParam_class, proto, parent_proto);
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "PluginParam", &className);
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<anysdk::framework::PluginParam>(cx, jsb_anysdk_framework_PluginParam_class, proto);
 }
 
-class ProtocolShareResultListener : public ShareResultListener
+class ProtocolShareResultListener : public ShareResultListener, public JSFunctionWrapper
 {
 public:
-    ProtocolShareResultListener()
+    ProtocolShareResultListener(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
+    : JSFunctionWrapper(cx, jsthis, func, owner)
+    , _ctx(cx)
     {
     }
     ~ProtocolShareResultListener()
     {
         CCLOG("on share result ~listener");
-        _jsCallback.destroyIfConstructed();
-        _jsThisObj.destroyIfConstructed();
-        _ctxObj.destroyIfConstructed();
     }
 
     virtual void onShareResult(ShareResultCode code, const char* msg) 
     {
         CCLOG("on action result: %d, msg: %s.", code, msg);
-        JS::RootedObject thisObj(_ctx, _jsThisObj.ref().get().toObjectOrNull());
-        JSAutoCompartment ac(_ctx, _ctxObj.ref());
         
         JS::RootedValue retval(_ctx);
-        if (!_jsCallback.ref().get().isNullOrUndefined())
-        {
-            JS::AutoValueVector valArr(_ctx);
-            valArr.append( INT_TO_JSVAL(code) );
-            valArr.append( std_string_to_jsval(_ctx, msg) );
-            
-            JS::HandleValueArray args = JS::HandleValueArray::fromMarkedLocation(2, valArr.begin());
-            JS_CallFunctionValue(_ctx, thisObj, _jsCallback.ref(), args, &retval);
-        }
-    }
-    
-    void setJSCallbackThis(JSContext *cx, JS::HandleValue jsThisObj)
-    {
-        _jsThisObj.construct(cx, jsThisObj);
-    }
-    void setJSCallbackFunc(JSContext *cx, JS::HandleValue func) {
-        _jsCallback.construct(cx, func);
-    }
-    void setJSCallbackCtx(JSContext *ctx, JS::HandleObject ctxObj) {
-        _ctx = ctx;
-        _ctxObj.construct(ctx, ctxObj);
+        JS::AutoValueVector valArr(_ctx);
+        JS::RootedValue tmp(_ctx);
+        valArr.append( JS::Int32Value(code) );
+        std_string_to_jsval(_ctx, msg, &tmp);
+        valArr.append( tmp );
+        
+        JS::HandleValueArray args(valArr);
+        invoke(args, &retval);
     }
 private:
-    mozilla::Maybe<JS::PersistentRootedValue> _jsCallback;
-    mozilla::Maybe<JS::PersistentRootedValue> _jsThisObj;
-    mozilla::Maybe<JS::PersistentRootedObject> _ctxObj;
     JSContext* _ctx;
 };
 
-bool jsb_anysdk_ProtocolShare_setResultListener(JSContext *cx, uint32_t argc, jsval *vp){
+bool jsb_anysdk_ProtocolShare_setResultListener(JSContext *cx, uint32_t argc, JS::Value *vp){
     CCLOG("in ProtocolShare_setResultListener, argc:%d.", argc);
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ProtocolShare* cobj = (ProtocolShare *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
     if (argc != 2)
     {
-		JS_ReportError(cx, "jsb_anysdk_ProtocolShare_setResultListener : wrong number of arguments: %d, was expecting %d", argc, 0);
+		JS_ReportErrorUTF8(cx, "jsb_anysdk_ProtocolShare_setResultListener : wrong number of arguments: %d, was expecting %d", argc, 0);
     	return false;
     }
-    ProtocolShareResultListener* listener = new ProtocolShareResultListener();
-    listener->setJSCallbackFunc( cx, args.get(0) );
-    listener->setJSCallbackThis( cx, args.get(1) );
-    listener->setJSCallbackCtx( cx, obj );
+    JS::RootedObject jsthis(cx, args.get(1).toObjectOrNull());
+    JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+    ProtocolShareResultListener* listener = new ProtocolShareResultListener(cx, jsthis, jsfunc, obj);
     cobj->setResultListener(listener);
 	return true;
 }
 
 
-bool jsb_anysdk_ProtocolShare_share(JSContext *cx, uint32_t argc, jsval *vp){
+bool jsb_anysdk_ProtocolShare_share(JSContext *cx, uint32_t argc, JS::Value *vp){
     CCLOG("in ProtocolShare_share, argc:%d.", argc);
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ProtocolShare* cobj = (ProtocolShare *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
     if (argc != 1)
     {
-		JS_ReportError(cx, "jsb_anysdk_ProtocolShare_share : wrong number of arguments: %d, was expecting %d", argc, 0);
+		JS_ReportErrorUTF8(cx, "jsb_anysdk_ProtocolShare_share : wrong number of arguments: %d, was expecting %d", argc, 0);
     	return true;
     }
     JS::RootedValue arg0(cx, args.get(0));
@@ -521,7 +449,7 @@ bool jsb_anysdk_ProtocolShare_share(JSContext *cx, uint32_t argc, jsval *vp){
         }
         
         TShareInfo info;
-        bool ok = jsval_to_TShareInfo(cx, arg0, &info);
+        bool ok = jsval_to_std_map_string_string(cx, arg0, &info);
         JSB_PRECONDITION2(ok, cx, false, "jsb_anysdk_ProtocolShare_share : Error processing arguments");
         
 	    cobj->share( info );
@@ -537,22 +465,19 @@ void js_anysdk_framework_ProtocolShare_finalize(JSFreeOp *fop, JSObject *obj) {
 }
 
 void js_register_anysdkbindings_ProtocolShare(JSContext *cx, JS::HandleObject global) {
-	jsb_anysdk_framework_ProtocolShare_class = (JSClass *)calloc(1, sizeof(JSClass));
-	jsb_anysdk_framework_ProtocolShare_class->name = "ProtocolShare";
-	jsb_anysdk_framework_ProtocolShare_class->addProperty = JS_PropertyStub;
-	jsb_anysdk_framework_ProtocolShare_class->delProperty = JS_DeletePropertyStub;
-	jsb_anysdk_framework_ProtocolShare_class->getProperty = JS_PropertyStub;
-	jsb_anysdk_framework_ProtocolShare_class->setProperty = JS_StrictPropertyStub;
-	jsb_anysdk_framework_ProtocolShare_class->enumerate = JS_EnumerateStub;
-	jsb_anysdk_framework_ProtocolShare_class->resolve = JS_ResolveStub;
-	jsb_anysdk_framework_ProtocolShare_class->convert = JS_ConvertStub;
-	jsb_anysdk_framework_ProtocolShare_class->finalize = js_anysdk_framework_ProtocolShare_finalize;
-	jsb_anysdk_framework_ProtocolShare_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
-
-    static JSPropertySpec properties[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_PS_END
-	};
+    static const JSClassOps ProtocolShare_classOps = {
+        nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr,
+        js_anysdk_framework_ProtocolShare_finalize,
+        nullptr, nullptr, nullptr, nullptr
+    };
+    
+    static JSClass ProtocolShare_class = {
+        "ProtocolShare",
+        JSCLASS_HAS_PRIVATE | JSCLASS_HAS_RESERVED_SLOTS(2) | JSCLASS_FOREGROUND_FINALIZE,
+        &ProtocolShare_classOps
+    };
+    jsb_anysdk_framework_ProtocolShare_class = &ProtocolShare_class;
 
 	static JSFunctionSpec funcs[] = {
 		JS_FN("share", jsb_anysdk_ProtocolShare_share, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -570,21 +495,26 @@ void js_register_anysdkbindings_ProtocolShare(JSContext *cx, JS::HandleObject gl
         parent_proto, // parent proto
 		jsb_anysdk_framework_ProtocolShare_class,
 		empty_constructor, 0, // no constructor
-		properties,
+		nullptr,
 		funcs,
-		NULL, // no static properties
+		nullptr, // no static properties
 		st_funcs);
     
-    // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_anysdk_framework_ProtocolShare_prototype);
-    jsb_register_class<anysdk::framework::ProtocolShare>(cx, jsb_anysdk_framework_ProtocolShare_class, proto, parent_proto);
+    JS::RootedValue className(cx);
+    std_string_to_jsval(cx, "ProtocolShare", &className);
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
+    jsb_register_class<anysdk::framework::ProtocolShare>(cx, jsb_anysdk_framework_ProtocolShare_class, proto);
 }
 
-static bool jsb_anysdk_framework_PluginProtocol_callFuncWithParam(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_PluginProtocol_callFuncWithParam(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     PluginProtocol* cobj = (PluginProtocol *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
     CCLOG("callFuncWithParam, param count:%d.\n", argc);
@@ -598,7 +528,7 @@ static bool jsb_anysdk_framework_PluginProtocol_callFuncWithParam(JSContext *cx,
         return true;
     }
     else if (argc == 0) {
-    	JS_ReportError(cx, "Invalid number of arguments");
+    	JS_ReportErrorUTF8(cx, "Invalid number of arguments");
         return false;
     }
     else{
@@ -610,15 +540,18 @@ static bool jsb_anysdk_framework_PluginProtocol_callFuncWithParam(JSContext *cx,
 		std::vector<PluginParam*> params;
     	
         JS::RootedObject obj_1(cx, args.get(1).toObjectOrNull());
-		if ( JS_IsArrayObject(cx, obj_1) )
+        bool isArray = false;
+        JS_IsArrayObject(cx, obj_1, &isArray);
+		if ( isArray )
 		{
-			JS::RootedObject jsArr(cx);
+            JS::RootedObject jsArr(cx);
             JS::RootedValue arg1Val(cx, args.get(1));
 			bool ok = args.get(1).isObject() && JS_ValueToObject( cx, arg1Val, &jsArr );
             JSB_PRECONDITION2(ok, cx, false, "jsb_anysdk_framework_PluginProtocol_callFuncWithParam : Error processing arguments");
-			
-			uint32_t len = 0;
-    		JS_GetArrayLength(cx, jsArr, &len);
+            
+            uint32_t len = 0;
+            JS_GetArrayLength(cx, jsArr, &len);
+            params.reserve(len);
     		CCLOG("param len: %d", len);
     		for (uint32_t i=0; i < len; i++)
 		    {
@@ -628,7 +561,7 @@ static bool jsb_anysdk_framework_PluginProtocol_callFuncWithParam(JSContext *cx,
 		            if (value.isObject())
 		            {
                         JS::RootedObject jsobj(cx, value.toObjectOrNull());
-						js_proxy_t *proxy_2 = jsb_get_js_proxy(jsobj);
+						js_proxy_t *proxy_2 = jsb_get_js_proxy(cx, jsobj);
 						PluginParam* pobj_2 = (PluginParam *)(proxy_2 ? proxy_2->ptr : NULL);
 						params.push_back(pobj_2);
 		            }
@@ -639,7 +572,7 @@ static bool jsb_anysdk_framework_PluginProtocol_callFuncWithParam(JSContext *cx,
             for (int i = 1; i < argc; i++)
             {
 			    JS::RootedObject jsobj(cx, args.get(i).toObjectOrNull());
-			    js_proxy_t *proxy_2 = jsb_get_js_proxy(jsobj);
+			    js_proxy_t *proxy_2 = jsb_get_js_proxy(cx, jsobj);
 				PluginParam* param = (PluginParam *)(proxy_2 ? proxy_2->ptr : NULL);
                 params.push_back(param);
             }
@@ -649,11 +582,11 @@ static bool jsb_anysdk_framework_PluginProtocol_callFuncWithParam(JSContext *cx,
     }
 }
 
-static bool jsb_anysdk_framework_PluginProtocol_callStringFuncWithParam(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_PluginProtocol_callStringFuncWithParam(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     PluginProtocol* cobj = (PluginProtocol *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
 	CCLOG("callStringFuncWithParam, param count:%d.\n", argc);
@@ -664,12 +597,13 @@ static bool jsb_anysdk_framework_PluginProtocol_callStringFuncWithParam(JSContex
     	ok &= jsval_to_std_string(cx, arg0Val, &arg0);
     	CCLOG("arg0: %s\n", arg0.c_str());
     	std::string ret = cobj->callStringFuncWithParam(arg0.c_str(), NULL);
-        JS::RootedValue jsret(cx, std_string_to_jsval(cx, ret));
+        JS::RootedValue jsret(cx);
+        std_string_to_jsval(cx, ret, &jsret);
         args.rval().set(jsret);
         return true;
     }
     else if (argc == 0) {
-    	JS_ReportError(cx, "Invalid number of arguments");
+    	JS_ReportErrorUTF8(cx, "Invalid number of arguments");
         return false;
     }
     else{
@@ -680,8 +614,10 @@ static bool jsb_anysdk_framework_PluginProtocol_callStringFuncWithParam(JSContex
 
 		std::vector<PluginParam*> params;
     	
+        bool isArray = false;
         JS::RootedObject obj_1(cx, args.get(1).toObjectOrNull());
-		if ( JS_IsArrayObject(cx, obj_1) )
+        JS_IsArrayObject(cx, obj_1, &isArray);
+		if ( isArray )
 		{
 			JS::RootedObject jsArr(cx);
             JS::RootedValue arg1Val(cx, args.get(1));
@@ -690,6 +626,7 @@ static bool jsb_anysdk_framework_PluginProtocol_callStringFuncWithParam(JSContex
 			
 			uint32_t len = 0;
     		JS_GetArrayLength(cx, jsArr, &len);
+            params.reserve(len);
     		CCLOG("param len: %d", len);
     		for (uint32_t i=0; i < len; i++)
 		    {
@@ -699,7 +636,7 @@ static bool jsb_anysdk_framework_PluginProtocol_callStringFuncWithParam(JSContex
 		            if (value.isObject())
                     {
                         JS::RootedObject jsobj(cx, value.toObjectOrNull());
-						js_proxy_t *proxy_2 = jsb_get_js_proxy(jsobj);
+						js_proxy_t *proxy_2 = jsb_get_js_proxy(cx, jsobj);
 						PluginParam* pobj_2 = (PluginParam *)(proxy_2 ? proxy_2->ptr : NULL);
 						params.push_back(pobj_2);
 		            }
@@ -710,23 +647,24 @@ static bool jsb_anysdk_framework_PluginProtocol_callStringFuncWithParam(JSContex
             for (int i = 1; i < argc; i++)
             {
                 JS::RootedObject jsobj(cx, args.get(i).toObjectOrNull());
-			    js_proxy_t *proxy_2 = jsb_get_js_proxy(jsobj);
+			    js_proxy_t *proxy_2 = jsb_get_js_proxy(cx, jsobj);
 				PluginParam* param = (PluginParam *)(proxy_2 ? proxy_2->ptr : NULL);
                 params.push_back(param);
             }
 		}
 		std::string ret = cobj->callStringFuncWithParam(arg0.c_str(), params);
-        JS::RootedValue jsret(cx, std_string_to_jsval(cx, ret));
+        JS::RootedValue jsret(cx);
+        std_string_to_jsval(cx, ret, &jsret);
         args.rval().set(jsret);
     	return true;
     }
 }
 
-static bool jsb_anysdk_framework_PluginProtocol_callIntFuncWithParam(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_PluginProtocol_callIntFuncWithParam(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     PluginProtocol* cobj = (PluginProtocol *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
 	CCLOG("callIntFuncWithParam, param count:%d.\n", argc);
@@ -737,12 +675,12 @@ static bool jsb_anysdk_framework_PluginProtocol_callIntFuncWithParam(JSContext *
     	ok &= jsval_to_std_string(cx, arg0Val, &arg0);
     	CCLOG("arg0: %s\n", arg0.c_str());
     	int ret =cobj->callIntFuncWithParam(arg0.c_str(), NULL);
-        JS::RootedValue jsret(cx, INT_TO_JSVAL(ret));
+        JS::RootedValue jsret(cx, JS::Int32Value(ret));
 		args.rval().set(jsret);
         return true;
     }
     else if (argc == 0) {
-    	JS_ReportError(cx, "Invalid number of arguments");
+    	JS_ReportErrorUTF8(cx, "Invalid number of arguments");
         return false;
     }
     else{
@@ -754,7 +692,8 @@ static bool jsb_anysdk_framework_PluginProtocol_callIntFuncWithParam(JSContext *
 		std::vector<PluginParam*> params;
         
         JS::RootedObject obj_1(cx, args.get(1).toObjectOrNull());
-        if ( JS_IsArrayObject(cx, obj_1) )
+        bool isArray = false;
+        if ( JS_IsArrayObject(cx, obj_1, &isArray) && isArray )
 		{
             JS::RootedObject jsArr(cx);
             JS::RootedValue arg1Val(cx, args.get(1));
@@ -772,7 +711,7 @@ static bool jsb_anysdk_framework_PluginProtocol_callIntFuncWithParam(JSContext *
 		            if (value.isObject())
                     {
                         JS::RootedObject jsobj(cx, value.toObjectOrNull());
-						js_proxy_t *proxy_2 = jsb_get_js_proxy(jsobj);
+						js_proxy_t *proxy_2 = jsb_get_js_proxy(cx, jsobj);
 						PluginParam* pobj_2 = (PluginParam *)(proxy_2 ? proxy_2->ptr : NULL);
 						params.push_back(pobj_2);
 		            }
@@ -783,23 +722,23 @@ static bool jsb_anysdk_framework_PluginProtocol_callIntFuncWithParam(JSContext *
             for (int i = 1; i < argc; i++)
             {
                 JS::RootedObject jsobj(cx, args.get(i).toObjectOrNull());
-			    js_proxy_t *proxy_2 = jsb_get_js_proxy(jsobj);
+			    js_proxy_t *proxy_2 = jsb_get_js_proxy(cx, jsobj);
 				PluginParam* param = (PluginParam *)(proxy_2 ? proxy_2->ptr : NULL);
                 params.push_back(param);
             }
 		}
 		int ret = cobj->callIntFuncWithParam(arg0.c_str(), params);
-        JS::RootedValue jsret(cx, INT_TO_JSVAL(ret));
+        JS::RootedValue jsret(cx, JS::Int32Value(ret));
         args.rval().set(jsret);
     	return true;
     }
 }
 
-static bool jsb_anysdk_framework_PluginProtocol_callBoolFuncWithParam(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_PluginProtocol_callBoolFuncWithParam(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     PluginProtocol* cobj = (PluginProtocol *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
 	CCLOG("callBoolFuncWithParam, param count:%d.\n", argc);
@@ -810,12 +749,12 @@ static bool jsb_anysdk_framework_PluginProtocol_callBoolFuncWithParam(JSContext 
     	ok &= jsval_to_std_string(cx, arg0Val, &arg0);
     	CCLOG("arg0: %s\n", arg0.c_str());
     	bool ret = cobj->callBoolFuncWithParam(arg0.c_str(), NULL);
-        JS::RootedValue jsret(cx, BOOLEAN_TO_JSVAL(ret));
+        JS::RootedValue jsret(cx, JS::BooleanValue(ret));
         args.rval().set(jsret);
         return true;
     }
     else if (argc == 0) {
-    	JS_ReportError(cx, "Invalid number of arguments");
+    	JS_ReportErrorUTF8(cx, "Invalid number of arguments");
         return false;
     }
     else{
@@ -827,7 +766,8 @@ static bool jsb_anysdk_framework_PluginProtocol_callBoolFuncWithParam(JSContext 
 		std::vector<PluginParam*> params;
         
         JS::RootedObject obj_1(cx, args.get(1).toObjectOrNull());
-        if ( JS_IsArrayObject(cx, obj_1) )
+        bool isArray = false;
+        if ( JS_IsArrayObject(cx, obj_1, &isArray) && isArray )
         {
             JS::RootedObject jsArr(cx);
             JS::RootedValue arg1Val(cx, args.get(1));
@@ -845,7 +785,7 @@ static bool jsb_anysdk_framework_PluginProtocol_callBoolFuncWithParam(JSContext 
 		            if (value.isObject())
                     {
                         JS::RootedObject jsobj(cx, value.toObjectOrNull());
-						js_proxy_t *proxy_2 = jsb_get_js_proxy(jsobj);
+						js_proxy_t *proxy_2 = jsb_get_js_proxy(cx, jsobj);
 						PluginParam* pobj_2 = (PluginParam *)(proxy_2 ? proxy_2->ptr : NULL);
 						params.push_back(pobj_2);
 		            }
@@ -856,23 +796,23 @@ static bool jsb_anysdk_framework_PluginProtocol_callBoolFuncWithParam(JSContext 
             for (int i = 1; i < argc; i++)
             {
                 JS::RootedObject jsobj(cx, args.get(i).toObjectOrNull());
-			    js_proxy_t *proxy_2 = jsb_get_js_proxy(jsobj);
+			    js_proxy_t *proxy_2 = jsb_get_js_proxy(cx, jsobj);
 				PluginParam* param = (PluginParam *)(proxy_2 ? proxy_2->ptr : NULL);
                 params.push_back(param);
             }
 		}
 		bool ret = cobj->callBoolFuncWithParam(arg0.c_str(), params);
-        JS::RootedValue jsret(cx, BOOLEAN_TO_JSVAL(ret));
+        JS::RootedValue jsret(cx, JS::BooleanValue(ret));
         args.rval().set(jsret);
     	return true;
     }
 }
 
-static bool jsb_anysdk_framework_PluginProtocol_callFloatFuncWithParam(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_PluginProtocol_callFloatFuncWithParam(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     PluginProtocol* cobj = (PluginProtocol *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
 	CCLOG("callFloatFuncWithParam, param count:%d.\n", argc);
@@ -883,12 +823,12 @@ static bool jsb_anysdk_framework_PluginProtocol_callFloatFuncWithParam(JSContext
     	ok &= jsval_to_std_string(cx, arg0Val, &arg0);
     	CCLOG("arg0: %s\n", arg0.c_str());
     	double ret = cobj->callFloatFuncWithParam(arg0.c_str(), NULL);
-        JS::RootedValue jsret(cx, DOUBLE_TO_JSVAL(ret));
+        JS::RootedValue jsret(cx, JS::DoubleValue(ret));
         args.rval().set(jsret);
         return true;
     }
     else if (argc == 0) {
-    	JS_ReportError(cx, "Invalid number of arguments");
+    	JS_ReportErrorUTF8(cx, "Invalid number of arguments");
         return false;
     }
     else{
@@ -900,7 +840,8 @@ static bool jsb_anysdk_framework_PluginProtocol_callFloatFuncWithParam(JSContext
 		std::vector<PluginParam*> params;
         
         JS::RootedObject obj_1(cx, args.get(1).toObjectOrNull());
-        if ( JS_IsArrayObject(cx, obj_1) )
+        bool isArray = false;
+        if ( JS_IsArrayObject(cx, obj_1, &isArray) && isArray )
         {
             JS::RootedObject jsArr(cx);
             JS::RootedValue arg1Val(cx, args.get(1));
@@ -918,7 +859,7 @@ static bool jsb_anysdk_framework_PluginProtocol_callFloatFuncWithParam(JSContext
 		            if (value.isObject())
                     {
                         JS::RootedObject jsobj(cx, value.toObjectOrNull());
-						js_proxy_t *proxy_2 = jsb_get_js_proxy(jsobj);
+						js_proxy_t *proxy_2 = jsb_get_js_proxy(cx, jsobj);
 						PluginParam* pobj_2 = (PluginParam *)(proxy_2 ? proxy_2->ptr : NULL);
 						params.push_back(pobj_2);
 		            }
@@ -929,23 +870,23 @@ static bool jsb_anysdk_framework_PluginProtocol_callFloatFuncWithParam(JSContext
             for (int i = 1; i < argc; i++)
             {
                 JS::RootedObject jsobj(cx, args.get(i).toObjectOrNull());
-			    js_proxy_t *proxy_2 = jsb_get_js_proxy(jsobj);
+			    js_proxy_t *proxy_2 = jsb_get_js_proxy(cx, jsobj);
 				PluginParam* param = (PluginParam *)(proxy_2 ? proxy_2->ptr : NULL);
                 params.push_back(param);
             }
 		}
         double ret = cobj->callFloatFuncWithParam(arg0.c_str(), params);
-        JS::RootedValue jsret(cx, DOUBLE_TO_JSVAL(ret));
+        JS::RootedValue jsret(cx, JS::DoubleValue(ret));
         args.rval().set(jsret);
     	return true;
     }
 }
 
-static bool jsb_anysdk_framework_AgentManager_getIAPPlugin(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_AgentManager_getIAPPlugin(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     AgentManager* cobj = (AgentManager *)(proxy ? proxy->ptr : NULL);
 
     if (argc != 0)
@@ -963,21 +904,22 @@ static bool jsb_anysdk_framework_AgentManager_getIAPPlugin(JSContext *cx, uint32
         std::string key = std::string(iter->first);
         CCLOG("iap key: %s.", key.c_str());
         ProtocolIAP* iap_plugin = (ProtocolIAP*)(iter->second);
-        JS::RootedObject paramObj(cx, js_get_or_create_jsobject<ProtocolIAP>(cx, iap_plugin));
-		dictElement = OBJECT_TO_JSVAL(paramObj);
+        JS::RootedObject paramObj(cx);
+        js_get_or_create_jsobject<ProtocolIAP>(cx, iap_plugin, &paramObj);
+		dictElement = JS::ObjectOrNullValue(paramObj);
 
 		JS_SetProperty(cx, jsretArr, key.c_str(), dictElement);
     }
-    JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(jsretArr));
+    JS::RootedValue jsret(cx, JS::ObjectOrNullValue(jsretArr));
     args.rval().set(jsret);
 
 	return true;
 }
-static bool jsb_anysdk_framework_AgentManager_getFrameworkVersion(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_AgentManager_getFrameworkVersion(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     AgentManager* cobj = (AgentManager *)(proxy ? proxy->ptr : NULL);
     
     if (argc != 0)
@@ -986,78 +928,61 @@ static bool jsb_anysdk_framework_AgentManager_getFrameworkVersion(JSContext *cx,
         return false;
     }
     
-    args.rval().set(JS::RootedValue(cx, std_string_to_jsval(cx, cobj->getFrameworkVersion())));
+    JS::RootedValue jsret(cx);
+    std_string_to_jsval(cx, cobj->getFrameworkVersion(), &jsret);
+    args.rval().set(jsret);
     return true;
 
 }
 
-class ProtocolAdsResultListener : public AdsListener
+class ProtocolAdsResultListener : public AdsListener, public JSFunctionWrapper
 {
 public:
-    ProtocolAdsResultListener()
+    ProtocolAdsResultListener(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
+    : JSFunctionWrapper(cx, jsthis, func, owner)
+    , _ctx(cx)
     {
     }
     ~ProtocolAdsResultListener()
     {
         CCLOG("on ads result ~listener");
-        _jsCallback.destroyIfConstructed();
-        _jsThisObj.destroyIfConstructed();
-        _ctxObj.destroyIfConstructed();
     }
 
     virtual void onAdsResult(AdsResultCode code, const char* msg)
     {
         CCLOG("on ads result: %d, msg: %s.", code, msg);
-        JS::RootedObject thisObj(_ctx, _jsThisObj.ref().get().toObjectOrNull());
-        JSAutoCompartment ac(_ctx, _ctxObj.ref());
         
         JS::RootedValue retval(_ctx);
-        if (!_jsCallback.ref().get().isNullOrUndefined())
-        {
-            JS::AutoValueVector valArr(_ctx);
-            valArr.append( INT_TO_JSVAL(code) );
-            valArr.append( std_string_to_jsval(_ctx, msg) );
-            
-            JS::HandleValueArray args = JS::HandleValueArray::fromMarkedLocation(2, valArr.begin());
-            JS_CallFunctionValue(_ctx, thisObj, _jsCallback.ref(), args, &retval);
-        }
+        JS::AutoValueVector valArr(_ctx);
+        JS::RootedValue tmp(_ctx);
+        valArr.append( JS::Int32Value(code) );
+        std_string_to_jsval(_ctx, msg, &tmp);
+        valArr.append( tmp );
+        JS::HandleValueArray args(valArr);
+        
+        invoke(args, &retval);
     }
     virtual void onPlayerGetPoints(ProtocolAds* pAdsPlugin, int points) 
     {
         CCLOG("on player get points: %d.", points);
-        JS::RootedObject thisObj(_ctx, _jsThisObj.ref().get().toObjectOrNull());
-        JSAutoCompartment ac(_ctx, _ctxObj.ref());
-        JS::RootedObject paramObj(_ctx, js_get_or_create_jsobject<ProtocolAds>(_ctx, pAdsPlugin));
+        JS::RootedObject paramObj(_ctx);
+        js_get_or_create_jsobject<ProtocolAds>(_ctx, pAdsPlugin, &paramObj);
+        
         JS::RootedValue retval(_ctx);
-        if (!_jsCallback.ref().get().isNullOrUndefined())
-        {
-            JS::AutoValueVector valArr(_ctx);
-            valArr.append( OBJECT_TO_JSVAL(paramObj) );
-            valArr.append( INT_TO_JSVAL(points) );
-            
-            JS::HandleValueArray args = JS::HandleValueArray::fromMarkedLocation(2, valArr.begin());
-            JS_CallFunctionValue(_ctx, thisObj, _jsCallback.ref(), args, &retval);
-        }
-    }
-    
-    void setJSCallbackThis(JSContext *cx, JS::HandleValue jsThisObj)
-    {
-        _jsThisObj.construct(cx, jsThisObj);
-    }
-    void setJSCallbackFunc(JSContext *cx, JS::HandleValue func) {
-        _jsCallback.construct(cx, func);
-    }
-    void setJSCallbackCtx(JSContext *ctx, JS::HandleObject ctxObj) {
-        _ctx = ctx;
-        _ctxObj.construct(ctx, ctxObj);
+        JS::AutoValueVector valArr(_ctx);
+        valArr.append( JS::ObjectOrNullValue(paramObj) );
+        valArr.append( JS::Int32Value(points) );
+        JS::HandleValueArray args(valArr);
+        
+        invoke(args, &retval);
     }
 
     static ProtocolAdsResultListener* _instance;
-    static ProtocolAdsResultListener* getInstance()
+    static ProtocolAdsResultListener* getInstance(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
     {
         if (_instance == NULL)
         {
-            _instance = new ProtocolAdsResultListener();
+            _instance = new ProtocolAdsResultListener(cx, jsthis, func, owner);
         }
         return _instance;
     }
@@ -1070,41 +995,37 @@ public:
         }
     }
 private:
-    mozilla::Maybe<JS::PersistentRootedValue> _jsCallback;
-    mozilla::Maybe<JS::PersistentRootedValue> _jsThisObj;
-    mozilla::Maybe<JS::PersistentRootedObject> _ctxObj;
     JSContext* _ctx;
 };
 ProtocolAdsResultListener* ProtocolAdsResultListener::_instance = NULL;
 
-static bool jsb_anysdk_framework_ProtocolAds_setAdsListener(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_ProtocolAds_setAdsListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     CCLOG("in ProtocolAds_setAdsListener, argc:%d.", argc);
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ProtocolAds* cobj = (ProtocolAds *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
     if (argc != 2)
     {
-		JS_ReportError(cx, "jsb_anysdk_framework_ProtocolAds_setAdsListener : wrong number of arguments: %d, was expecting %d", argc, 0);
+		JS_ReportErrorUTF8(cx, "jsb_anysdk_framework_ProtocolAds_setAdsListener : wrong number of arguments: %d, was expecting %d", argc, 0);
     	return false;
     }
 
-    ProtocolAdsResultListener* listener = ProtocolAdsResultListener::getInstance();
-    listener->setJSCallbackFunc( cx, args.get(0) );
-    listener->setJSCallbackThis( cx, args.get(1) );
-    listener->setJSCallbackCtx( cx, obj );
+    JS::RootedObject jsthis(cx, args.get(1).toObjectOrNull());
+    JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+    ProtocolAdsResultListener* listener = ProtocolAdsResultListener::getInstance(cx, jsthis, jsfunc, obj);
     cobj->setAdsListener(listener);
 	return true;
 }
 
-static bool jsb_anysdk_framework_ProtocolAds_removeListener(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_ProtocolAds_removeListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     CCLOG("in ProtocolAds_removeListener, argc:%d.", argc);
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ProtocolAds* cobj = (ProtocolAds *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
     if (ProtocolAdsResultListener::_instance != NULL)
@@ -1116,11 +1037,11 @@ static bool jsb_anysdk_framework_ProtocolAds_removeListener(JSContext *cx, uint3
 	return true;
 }
 
-static bool jsb_anysdk_framework_ProtocolAnalytics_logEvent(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_ProtocolAnalytics_logEvent(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ProtocolAnalytics* cobj = (ProtocolAnalytics *)(proxy ? proxy->ptr : NULL);
 
     JS::RootedValue arg0(cx, args.get(0));
@@ -1145,125 +1066,110 @@ static bool jsb_anysdk_framework_ProtocolAnalytics_logEvent(JSContext *cx, uint3
         }
 
     	LogEventParamMap params;
-        bool ok = jsval_to_TProductInfo(cx, args.get(1), &params);
+        bool ok = jsval_to_std_map_string_string(cx, args.get(1), &params);
         JSB_PRECONDITION2(ok, cx, false, "jsb_anysdk_framework_ProtocolAnalytics_logEvent : Error processing arguments");
 	    
 	    cobj->logEvent(arg.c_str(), &params);
 
     	return true;
     }
-	JS_ReportError(cx, "jsb_anysdk_framework_ProtocolAnalytics_logEvent : wrong number of arguments: %d, was expecting %d", argc, 0);
+	JS_ReportErrorUTF8(cx, "jsb_anysdk_framework_ProtocolAnalytics_logEvent : wrong number of arguments: %d, was expecting %d", argc, 0);
 	return true;
 }
 
-class ProtocolIAPResultListener : public PayResultListener
+class ProtocolIAPResultListener : public PayResultListener, public JSFunctionWrapper
 {
 public:
-    ProtocolIAPResultListener()
+    ProtocolIAPResultListener(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
+    : JSFunctionWrapper(cx, jsthis, func, owner)
+    , _ctx(cx)
     {
     }
     ~ProtocolIAPResultListener()
     {
         CCLOG("on IAP result ~listener");
-        _jsCallback.destroyIfConstructed();
-        _jsThisObj.destroyIfConstructed();
-        _ctxObj.destroyIfConstructed();
     }
 
     virtual void onPayResult(PayResultCode code, const char* msg, TProductInfo info)
     {
         CCLOG("on pay result: %d, msg: %s.", code, msg);
-        JS::RootedObject thisObj(_ctx, _jsThisObj.ref().get().toObjectOrNull());
-        JSAutoCompartment ac(_ctx, _ctxObj.ref());
         
         JS::RootedValue retval(_ctx);
-        if (!_jsCallback.ref().get().isNullOrUndefined())
+        
+        std::string vec="{";
+        for (auto iter = info.begin(); iter != info.end(); ++iter)
         {
-            std::string vec="{";
-            for (auto iter = info.begin(); iter != info.end(); ++iter)
-            {
-                std::string key = std::string(iter->first);
-                std::string value = (std::string)(iter->second);
-                // CCLOG("productInfo key: %s, value: %s.", key.c_str(), value.c_str());
-                vec += key + ":" +value+ ",";
-            }
-            vec.replace(vec.length() - 1, 1, "}");
-            
-            JS::AutoValueVector valArr(_ctx);
-            valArr.append( INT_TO_JSVAL(code) );
-            valArr.append( std_string_to_jsval(_ctx, msg) );
-            valArr.append( std_string_to_jsval(_ctx, vec) );
-            
-            JS::HandleValueArray args = JS::HandleValueArray::fromMarkedLocation(3, valArr.begin());
-            JS_CallFunctionValue(_ctx, thisObj, _jsCallback.ref(), args, &retval);
+            std::string key = std::string(iter->first);
+            std::string value = (std::string)(iter->second);
+            // CCLOG("productInfo key: %s, value: %s.", key.c_str(), value.c_str());
+            vec += key + ":" +value+ ",";
         }
+        vec.replace(vec.length() - 1, 1, "}");
+        
+        JS::AutoValueVector valArr(_ctx);
+        JS::RootedValue tmp(_ctx);
+        valArr.append( JS::Int32Value(code) );
+        std_string_to_jsval(_ctx, msg, &tmp);
+        valArr.append( tmp );
+        std_string_to_jsval(_ctx, vec, &tmp);
+        valArr.append( tmp );
+        JS::HandleValueArray args(valArr);
+        
+        invoke(args, &retval);
     }
     
     
     virtual void onRequestResult(RequestResultCode code, const char* msg, AllProductsInfo info)
     {
         CCLOG("on request result: %d, msg: %s.", code, msg);
-        JS::RootedObject thisObj(_ctx, _jsThisObj.ref().get().toObjectOrNull());
-        JSAutoCompartment ac(_ctx, _ctxObj.ref());
         
         JS::RootedValue retval(_ctx);
-        if (!_jsCallback.ref().get().isNullOrUndefined())
+        
+        string value = "{";
+        map<string, TProductInfo >::iterator iterParent;
+        iterParent = info.begin();
+        while(iterParent != info.end())
         {
-            string value = "{";
-            map<string, TProductInfo >::iterator iterParent;
-            iterParent = info.begin();
-            while(iterParent != info.end())
+            value.append(iterParent->first);
+            value.append("={");
+            map<string, string> infoChild = iterParent->second;
+            map<string, string >::iterator iterChild;
+            iterChild = infoChild.begin();
+            while(iterChild != infoChild.end())
             {
-                value.append(iterParent->first);
-                value.append("={");
-                map<string, string> infoChild = iterParent->second;
-                map<string, string >::iterator iterChild;
-                iterChild = infoChild.begin();
-                while(iterChild != infoChild.end())
-                {
-                    value.append(iterChild->first);
-                    value.append("=");
-                    value.append(iterChild->second);
-                    iterChild++;
-                    if(iterChild != infoChild.end())
-                        value.append(", ");
-                }
-                iterParent++;
-                if(iterParent != info.end())
-                    value.append("}, ");
+                value.append(iterChild->first);
+                value.append("=");
+                value.append(iterChild->second);
+                iterChild++;
+                if(iterChild != infoChild.end())
+                value.append(", ");
             }
-            value.append("}");
-
-            
-            JS::AutoValueVector valArr(_ctx);
-            valArr.append( INT_TO_JSVAL(code) );
-            valArr.append( std_string_to_jsval(_ctx, msg) );
-            valArr.append( std_string_to_jsval(_ctx, value) );
-            
-            JS::HandleValueArray args = JS::HandleValueArray::fromMarkedLocation(3, valArr.begin());
-            JS_CallFunctionValue(_ctx, thisObj, _jsCallback.ref(), args, &retval);
+            iterParent++;
+            if(iterParent != info.end())
+            value.append("}, ");
         }
-    }
-    
-    void setJSCallbackThis(JSContext *cx, JS::HandleValue jsThisObj)
-    {
-        _jsThisObj.construct(cx, jsThisObj);
-    }
-    void setJSCallbackFunc(JSContext *cx, JS::HandleValue func) {
-        _jsCallback.construct(cx, func);
-    }
-    void setJSCallbackCtx(JSContext *ctx, JS::HandleObject ctxObj) {
-        _ctx = ctx;
-        _ctxObj.construct(ctx, ctxObj);
+        value.append("}");
+        
+        
+        JS::AutoValueVector valArr(_ctx);
+        JS::RootedValue tmp(_ctx);
+        valArr.append( JS::Int32Value(code) );
+        std_string_to_jsval(_ctx, msg, &tmp);
+        valArr.append( tmp );
+        std_string_to_jsval(_ctx, value, &tmp);
+        valArr.append( tmp );
+        
+        JS::HandleValueArray args(valArr);
+        invoke(args, &retval);
     }
 
 	typedef std::map<std::string, ProtocolIAPResultListener*> STD_MAP;
     static STD_MAP std_map;
-    static ProtocolIAPResultListener* getListenerByKey(std::string key)
+    static ProtocolIAPResultListener* getListenerByKey(std::string key, JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
     {
         auto listener = std_map[key];
         if (listener == NULL) {
-            listener = new ProtocolIAPResultListener();
+            listener = new ProtocolIAPResultListener(cx, jsthis, func, owner);
             std_map[key] = listener;
         }
         return listener;
@@ -1276,24 +1182,21 @@ public:
         std_map.erase(key);
     }
 private:
-    mozilla::Maybe<JS::PersistentRootedValue> _jsCallback;
-    mozilla::Maybe<JS::PersistentRootedValue> _jsThisObj;
-    mozilla::Maybe<JS::PersistentRootedObject> _ctxObj;
     JSContext* _ctx;
 };
 ProtocolIAPResultListener::STD_MAP ProtocolIAPResultListener::std_map;
 
-static bool jsb_anysdk_framework_ProtocolIAP_setResultListener(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_ProtocolIAP_setResultListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     CCLOG("in ProtocolAds_setAdsListener, argc:%d.", argc);
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ProtocolIAP* cobj = (ProtocolIAP *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
     if (argc != 2)
     {
-		JS_ReportError(cx, "jsb_anysdk_framework_ProtocolAds_setAdsListener : wrong number of arguments: %d, was expecting %d", argc, 0);
+		JS_ReportErrorUTF8(cx, "jsb_anysdk_framework_ProtocolAds_setAdsListener : wrong number of arguments: %d, was expecting %d", argc, 0);
     	return true;
     }
 	std::string p_id = cobj->getPluginId();
@@ -1304,22 +1207,22 @@ static bool jsb_anysdk_framework_ProtocolIAP_setResultListener(JSContext *cx, ui
     if (ProtocolIAPResultListener::std_map[p_id] == NULL)
     {
         CCLOG("will set listener:");
-        ProtocolIAPResultListener* listener = ProtocolIAPResultListener::getListenerByKey(p_id);
-        listener->setJSCallbackFunc( cx, args.get(0) );
-        listener->setJSCallbackThis( cx, args.get(1) );
-        listener->setJSCallbackCtx( cx, obj );
+        
+        JS::RootedObject jsthis(cx, args.get(1).toObjectOrNull());
+        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+        ProtocolIAPResultListener* listener = ProtocolIAPResultListener::getListenerByKey(p_id, cx, jsthis, jsfunc, obj);
 	    cobj->setResultListener(listener);
     }
 
 	return true;
 }
 
-static bool jsb_anysdk_framework_ProtocolIAP_removeListener(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_ProtocolIAP_removeListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     CCLOG("in ProtocolIAP_removeListener, argc:%d.", argc);
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ProtocolIAP* cobj = (ProtocolIAP *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
     std::string p_id = cobj->getPluginId();
@@ -1337,17 +1240,17 @@ static bool jsb_anysdk_framework_ProtocolIAP_removeListener(JSContext *cx, uint3
 	return true;
 }
 
-static bool jsb_anysdk_framework_ProtocolIAP_payForProduct(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_ProtocolIAP_payForProduct(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     CCLOG("in ProtocolIAP_payForProduct, argc:%d.", argc);
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ProtocolIAP* cobj = (ProtocolIAP *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
     if (argc != 1)
     {
-		JS_ReportError(cx, "jsb_anysdk_framework_ProtocolIAP_payForProduct : wrong number of arguments: %d, was expecting %d", argc, 0);
+		JS_ReportErrorUTF8(cx, "jsb_anysdk_framework_ProtocolIAP_payForProduct : wrong number of arguments: %d, was expecting %d", argc, 0);
     	return true;
     }
     JS::RootedValue arg0(cx, args.get(0));
@@ -1358,7 +1261,7 @@ static bool jsb_anysdk_framework_ProtocolIAP_payForProduct(JSContext *cx, uint32
         }
         
         TProductInfo arg;
-        bool ok = jsval_to_TPaymentInfo(cx, arg0, &arg);
+        bool ok = jsval_to_std_map_string_string(cx, arg0, &arg);
         JSB_PRECONDITION2(ok, cx, false, "jsb_anysdk_framework_ProtocolIAP_payForProduct : Error processing arguments");
 	    
 	    cobj->payForProduct( arg );
@@ -1366,58 +1269,44 @@ static bool jsb_anysdk_framework_ProtocolIAP_payForProduct(JSContext *cx, uint32
 	return true;
 }
 
-class ProtocolPushActionListener : public PushActionListener
+class ProtocolPushActionListener : public PushActionListener, public JSFunctionWrapper
 {
 public:
-    ProtocolPushActionListener()
+    ProtocolPushActionListener(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
+    : JSFunctionWrapper(cx, jsthis, func, owner)
+    , _ctx(cx)
     {
     }
     ~ProtocolPushActionListener()
     {
         CCLOG("on Push result ~listener");
-        _jsCallback.destroyIfConstructed();
-        _jsThisObj.destroyIfConstructed();
-        _ctxObj.destroyIfConstructed();
     }
 
     virtual void onActionResult(ProtocolPush* pPlugin, PushActionResultCode code, const char* msg)
     {
         CCLOG("on push result: %d, msg: %s.", code, msg);
-        JS::RootedObject thisObj(_ctx, _jsThisObj.ref().get().toObjectOrNull());
-        JSAutoCompartment ac(_ctx, _ctxObj.ref());
-        JS::RootedObject paramObj(_ctx, js_get_or_create_jsobject<ProtocolPush>(_ctx, pPlugin));
+        
+        JS::RootedObject paramObj(_ctx);
+        js_get_or_create_jsobject<ProtocolPush>(_ctx, pPlugin, &paramObj);
 
         JS::RootedValue retval(_ctx);
-        if (!_jsCallback.ref().get().isNullOrUndefined())
-        {
-            JS::AutoValueVector valArr(_ctx);
-            valArr.append( OBJECT_TO_JSVAL(paramObj) );
-            valArr.append( INT_TO_JSVAL(code) );
-            valArr.append( std_string_to_jsval(_ctx, msg) );
-            
-            JS::HandleValueArray args = JS::HandleValueArray::fromMarkedLocation(3, valArr.begin());
-            JS_CallFunctionValue(_ctx, thisObj, _jsCallback.ref(), args, &retval);
-        }
-    }
-    
-    void setJSCallbackThis(JSContext *cx, JS::HandleValue jsThisObj)
-    {
-        _jsThisObj.construct(cx, jsThisObj);
-    }
-    void setJSCallbackFunc(JSContext *cx, JS::HandleValue func) {
-        _jsCallback.construct(cx, func);
-    }
-    void setJSCallbackCtx(JSContext *ctx, JS::HandleObject ctxObj) {
-        _ctx = ctx;
-        _ctxObj.construct(ctx, ctxObj);
+        JS::AutoValueVector valArr(_ctx);
+        JS::RootedValue tmp(_ctx);
+        valArr.append( JS::ObjectOrNullValue(paramObj) );
+        valArr.append( JS::Int32Value(code) );
+        std_string_to_jsval(_ctx, msg, &tmp);
+        valArr.append( tmp );
+        JS::HandleValueArray args(valArr);
+        
+        invoke(args, &retval);
     }
 
     static ProtocolPushActionListener* _instance;
-    static ProtocolPushActionListener* getInstance()
+    static ProtocolPushActionListener* getInstance(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
     {
         if (_instance == NULL)
         {
-            _instance = new ProtocolPushActionListener();
+            _instance = new ProtocolPushActionListener(cx, jsthis, func, owner);
         }
         return _instance;
     }
@@ -1430,40 +1319,37 @@ public:
         }
     }
 private:
-    mozilla::Maybe<JS::PersistentRootedValue> _jsCallback;
-    mozilla::Maybe<JS::PersistentRootedValue> _jsThisObj;
-    mozilla::Maybe<JS::PersistentRootedObject> _ctxObj;
     JSContext* _ctx;
 };
 ProtocolPushActionListener* ProtocolPushActionListener::_instance = NULL;
 
-static bool jsb_anysdk_framework_ProtocolPush_setActionListener(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_ProtocolPush_setActionListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     CCLOG("in ProtocolPush_setActionListener, argc:%d.", argc);
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ProtocolPush* cobj = (ProtocolPush *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
     if (argc != 2)
     {
-		JS_ReportError(cx, "jsb_anysdk_framework_ProtocolPush_setActionListener : wrong number of arguments: %d, was expecting %d", argc, 0);
+		JS_ReportErrorUTF8(cx, "jsb_anysdk_framework_ProtocolPush_setActionListener : wrong number of arguments: %d, was expecting %d", argc, 0);
     	return false;
     }
-    ProtocolPushActionListener* listener = ProtocolPushActionListener::getInstance();
-    listener->setJSCallbackFunc( cx, args.get(0) );
-    listener->setJSCallbackThis( cx, args.get(1) );
-    listener->setJSCallbackCtx( cx, obj );
+    
+    JS::RootedObject jsthis(cx, args.get(1).toObjectOrNull());
+    JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+    ProtocolPushActionListener* listener = ProtocolPushActionListener::getInstance(cx, jsthis, jsfunc, obj);
     cobj->setActionListener(listener);
 	return true;
 }
 
-static bool jsb_anysdk_framework_ProtocolPush_removeListener(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_ProtocolPush_removeListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     CCLOG("in ProtocolPush_removeListener, argc:%d.", argc);
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ProtocolPush* cobj = (ProtocolPush *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
     if (ProtocolPushActionListener::_instance != NULL)
@@ -1475,23 +1361,24 @@ static bool jsb_anysdk_framework_ProtocolPush_removeListener(JSContext *cx, uint
 	return true;
 }
 
-static bool jsb_anysdk_framework_ProtocolPush_setTags(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_ProtocolPush_setTags(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     CCLOG("in ProtocolPush_setActionListener, argc:%d.", argc);
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ProtocolPush* cobj = (ProtocolPush *)(proxy ? proxy->ptr : NULL);
     if (argc != 1)
     {
-		JS_ReportError(cx, "jsb_anysdk_framework_ProtocolPush_setTags : wrong number of arguments: %d, was expecting %d", argc, 0);
+		JS_ReportErrorUTF8(cx, "jsb_anysdk_framework_ProtocolPush_setTags : wrong number of arguments: %d, was expecting %d", argc, 0);
     	return true;
     }
     JS::RootedValue arg0(cx, args.get(0));
 	if ( arg0.isObject() ){
 	    list<std::string> arg;
     	JS::RootedObject jsobj(cx, arg0.toObjectOrNull());
-	    JSB_PRECONDITION3( jsobj && JS_IsArrayObject( cx, jsobj), cx, false, "Object must be an array");
+        bool isArray = false;
+	    JSB_PRECONDITION3(jsobj && JS_IsArrayObject(cx, jsobj, &isArray) && isArray, cx, false, "Object must be an array");
 
 	    uint32_t len;
 	    JS_GetArrayLength(cx, jsobj, &len);
@@ -1520,23 +1407,24 @@ static bool jsb_anysdk_framework_ProtocolPush_setTags(JSContext *cx, uint32_t ar
 	return true;
 }
 
-static bool jsb_anysdk_framework_ProtocolPush_delTags(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_ProtocolPush_delTags(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     CCLOG("in ProtocolPush_setActionListener, argc:%d.", argc);
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ProtocolPush* cobj = (ProtocolPush *)(proxy ? proxy->ptr : NULL);
     if (argc != 1)
     {
-		JS_ReportError(cx, "jsb_anysdk_framework_ProtocolPush_delTags : wrong number of arguments: %d, was expecting %d", argc, 0);
+		JS_ReportErrorUTF8(cx, "jsb_anysdk_framework_ProtocolPush_delTags : wrong number of arguments: %d, was expecting %d", argc, 0);
     	return true;
     }
     JS::RootedValue arg0(cx, args.get(0));
 	if ( arg0.isObject() ){
 	    list<std::string> arg;
-    	JS::RootedObject jsobj(cx, arg0.toObjectOrNull());
-	    JSB_PRECONDITION3( jsobj && JS_IsArrayObject( cx, jsobj), cx, false, "Object must be an array");
+        JS::RootedObject jsobj(cx, arg0.toObjectOrNull());
+        bool isArray = false;
+	    JSB_PRECONDITION3(jsobj && JS_IsArrayObject( cx, jsobj, &isArray) && isArray, cx, false, "Object must be an array");
 
 	    uint32_t len;
 	    JS_GetArrayLength(cx, jsobj, &len);
@@ -1562,55 +1450,41 @@ static bool jsb_anysdk_framework_ProtocolPush_delTags(JSContext *cx, uint32_t ar
 	return true;
 }
 
-class ProtocolUserActionListener : public UserActionListener
+class ProtocolUserActionListener : public UserActionListener, public JSFunctionWrapper
 {
 public:
-    ProtocolUserActionListener()
+    ProtocolUserActionListener(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
+    : JSFunctionWrapper(cx, jsthis, func, owner)
+    , _ctx(cx)
     {
     }
     ~ProtocolUserActionListener()
     {
         CCLOG("on user action result ~listener");
-        _jsCallback.destroyIfConstructed();
-        _jsThisObj.destroyIfConstructed();
-        _ctxObj.destroyIfConstructed();
     }
 
     virtual void onActionResult(ProtocolUser* pPlugin, UserActionResultCode code, const char* msg)
     {
         CCLOG("on user action result: %d, msg: %s.", code, msg);
-        JS::RootedObject thisObj(_ctx, _jsThisObj.ref().get().toObjectOrNull());
-        JSAutoCompartment ac(_ctx, _ctxObj.ref());
-        JS::RootedObject paramObj(_ctx, js_get_or_create_jsobject<ProtocolUser>(_ctx, pPlugin));
+        
+        JS::RootedObject paramObj(_ctx);
+        js_get_or_create_jsobject<ProtocolUser>(_ctx, pPlugin, &paramObj);
         JS::RootedValue retval(_ctx);
-	    if (!_jsCallback.ref().get().isNullOrUndefined())
-	    {
-            JS::AutoValueVector valArr(_ctx);
-	        valArr.append( OBJECT_TO_JSVAL(paramObj) );
-	        valArr.append( INT_TO_JSVAL(code) );
-	        valArr.append( std_string_to_jsval(_ctx, msg) );
-
-            JS::HandleValueArray args = JS::HandleValueArray::fromMarkedLocation(3, valArr.begin());
-            JS_CallFunctionValue(_ctx, thisObj, _jsCallback.ref(), args, &retval);
-	    }
-    }
-    
-    void setJSCallbackThis(JSContext *cx, JS::HandleValue jsThisObj)
-    {
-        _jsThisObj.construct(cx, jsThisObj);
-    }
-    void setJSCallbackFunc(JSContext *cx, JS::HandleValue func) {
-        _jsCallback.construct(cx, func);
-    }
-    void setJSCallbackCtx(JSContext *ctx, JS::HandleObject ctxObj) {
-        _ctx = ctx;
-        _ctxObj.construct(ctx, ctxObj);
+        JS::AutoValueVector valArr(_ctx);
+        JS::RootedValue tmp(_ctx);
+        valArr.append( JS::ObjectOrNullValue(paramObj) );
+        valArr.append( JS::Int32Value(code) );
+        std_string_to_jsval(_ctx, msg, &tmp);
+        valArr.append( tmp );
+        
+        JS::HandleValueArray args(valArr);
+        invoke(args, &retval);
     }
 
     static ProtocolUserActionListener* _instance;
-    static ProtocolUserActionListener* getInstance(){
+    static ProtocolUserActionListener* getInstance(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner){
         if (_instance == NULL){
-            _instance = new ProtocolUserActionListener();
+            _instance = new ProtocolUserActionListener(cx, jsthis, func, owner);
         }
         return _instance;
     }
@@ -1622,39 +1496,35 @@ public:
         }
     }
 private:
-    mozilla::Maybe<JS::PersistentRootedValue> _jsCallback;
-    mozilla::Maybe<JS::PersistentRootedValue> _jsThisObj;
-    mozilla::Maybe<JS::PersistentRootedObject> _ctxObj;
     JSContext* _ctx;
 };
 ProtocolUserActionListener* ProtocolUserActionListener::_instance = NULL;
 
-static bool jsb_anysdk_framework_ProtocolUser_setActionListener(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_ProtocolUser_setActionListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     CCLOG("in ProtocolUser_setActionListener, argc:%d.", argc);
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ProtocolUser* cobj = (ProtocolUser *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
     if (argc != 2)
     {
-		JS_ReportError(cx, "jsb_anysdk_framework_ProtocolUser_setActionListener : wrong number of arguments: %d, was expecting %d", argc, 0);
+		JS_ReportErrorUTF8(cx, "jsb_anysdk_framework_ProtocolUser_setActionListener : wrong number of arguments: %d, was expecting %d", argc, 0);
     	return false;
     }
-    ProtocolUserActionListener* listener = ProtocolUserActionListener::getInstance();
-    listener->setJSCallbackFunc( cx, args.get(0) );
-    listener->setJSCallbackThis( cx, args.get(1) );
-    listener->setJSCallbackCtx( cx, obj );
+    JS::RootedObject jsthis(cx, args.get(1).toObjectOrNull());
+    JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+    ProtocolUserActionListener* listener = ProtocolUserActionListener::getInstance(cx, jsthis, jsfunc, obj);
     cobj->setActionListener(listener);
 	return true;
 }
-static bool jsb_anysdk_framework_ProtocolUser_removeListener(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_ProtocolUser_removeListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     CCLOG("in ProtocolUser_removeListener, argc:%d.", argc);
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ProtocolUser* cobj = (ProtocolUser *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
     if (ProtocolUserActionListener::_instance != NULL)
@@ -1666,56 +1536,39 @@ static bool jsb_anysdk_framework_ProtocolUser_removeListener(JSContext *cx, uint
 	return true;
 }
 
-class ProtocolSocialListener : public SocialListener
+class ProtocolSocialListener : public SocialListener, public JSFunctionWrapper
 {
 public:
-    ProtocolSocialListener()
+    ProtocolSocialListener(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
+    : JSFunctionWrapper(cx, jsthis, func, owner)
+    , _ctx(cx)
     {
     }
     ~ProtocolSocialListener()
     {
         CCLOG("on social result ~listener");
-        _jsCallback.destroyIfConstructed();
-        _jsThisObj.destroyIfConstructed();
-        _ctxObj.destroyIfConstructed();
     }
 
     virtual void onSocialResult(SocialRetCode code, const char* msg)
     {
         CCLOG("on action result: %d, msg: %s.", code, msg);
-        JS::RootedObject thisObj(_ctx, _jsThisObj.ref().get().toObjectOrNull());
-        JSAutoCompartment ac(_ctx, _ctxObj.ref());
         
         JS::RootedValue retval(_ctx);
-        if (!_jsCallback.ref().get().isNullOrUndefined())
-        {
-            JS::AutoValueVector valArr(_ctx);
-            valArr.append( INT_TO_JSVAL(code) );
-            valArr.append( std_string_to_jsval(_ctx, msg) );
-            
-            JS::HandleValueArray args = JS::HandleValueArray::fromMarkedLocation(2, valArr.begin());
-            JS_CallFunctionValue(_ctx, thisObj, _jsCallback.ref(), args, &retval);
-        }
-    }
-    
-    void setJSCallbackThis(JSContext *cx, JS::HandleValue jsThisObj)
-    {
-        _jsThisObj.construct(cx, jsThisObj);
-    }
-    void setJSCallbackFunc(JSContext *cx, JS::HandleValue func) {
-        _jsCallback.construct(cx, func);
-    }
-    void setJSCallbackCtx(JSContext *ctx, JS::HandleObject ctxObj) {
-        _ctx = ctx;
-        _ctxObj.construct(ctx, ctxObj);
+        JS::AutoValueVector valArr(_ctx);
+        JS::RootedValue tmp(_ctx);
+        valArr.append( JS::Int32Value(code) );
+        std_string_to_jsval(_ctx, msg, &tmp);
+        valArr.append( tmp );
+        JS::HandleValueArray args(valArr);
+        invoke(args, &retval);
     }
 
     static ProtocolSocialListener* _instance;
-    static ProtocolSocialListener* getInstance()
+    static ProtocolSocialListener* getInstance(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
     {
         if (_instance == NULL)
         {
-            _instance = new ProtocolSocialListener();
+            _instance = new ProtocolSocialListener(cx, jsthis, func, owner);
         }
         return _instance;
     }
@@ -1728,40 +1581,36 @@ public:
         }
     }
 private:
-    mozilla::Maybe<JS::PersistentRootedValue> _jsCallback;
-    mozilla::Maybe<JS::PersistentRootedValue> _jsThisObj;
-    mozilla::Maybe<JS::PersistentRootedObject> _ctxObj;
     JSContext* _ctx;
 };
 ProtocolSocialListener* ProtocolSocialListener::_instance = NULL;
 
-static bool jsb_anysdk_framework_ProtocolSocial_setListener(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_ProtocolSocial_setListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     CCLOG("in ProtocolSocial_setListener, argc:%d.", argc);
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ProtocolSocial* cobj = (ProtocolSocial *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
     if (argc != 2)
     {
-		JS_ReportError(cx, "jsb_anysdk_framework_ProtocolSocial_setListener : wrong number of arguments: %d, was expecting %d", argc, 0);
+		JS_ReportErrorUTF8(cx, "jsb_anysdk_framework_ProtocolSocial_setListener : wrong number of arguments: %d, was expecting %d", argc, 0);
     	return false;
     }
-    ProtocolSocialListener* listener = ProtocolSocialListener::getInstance();
-    listener->setJSCallbackFunc( cx, args.get(0) );
-    listener->setJSCallbackThis( cx, args.get(1) );
-    listener->setJSCallbackCtx( cx, obj );
+    JS::RootedObject jsthis(cx, args.get(1).toObjectOrNull());
+    JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+    ProtocolSocialListener* listener = ProtocolSocialListener::getInstance(cx, jsthis, jsfunc, obj);
     cobj->setListener(listener);
 	return true;
 }
 
-static bool jsb_anysdk_framework_ProtocolSocial_removeListener(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_ProtocolSocial_removeListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     CCLOG("in ProtocolSocial_removeListener, argc:%d.", argc);
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ProtocolSocial* cobj = (ProtocolSocial *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
     if (ProtocolSocialListener::_instance != NULL)
@@ -1773,16 +1622,16 @@ static bool jsb_anysdk_framework_ProtocolSocial_removeListener(JSContext *cx, ui
 	return true;
 }
 
-static bool jsb_anysdk_framework_ProtocolSocial_unlockAchievement(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_ProtocolSocial_unlockAchievement(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     CCLOG("in ProtocolSocial_unlockAchievement, argc:%d.", argc);
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ProtocolSocial* cobj = (ProtocolSocial *)(proxy ? proxy->ptr : NULL);
     if (argc != 1)
     {
-		JS_ReportError(cx, "jsb_anysdk_framework_ProtocolSocial_unlockAchievement : wrong number of arguments: %d, was expecting %d", argc, 0);
+		JS_ReportErrorUTF8(cx, "jsb_anysdk_framework_ProtocolSocial_unlockAchievement : wrong number of arguments: %d, was expecting %d", argc, 0);
     	return false;
     }
     JS::RootedValue arg0(cx, args.get(0));
@@ -1793,7 +1642,7 @@ static bool jsb_anysdk_framework_ProtocolSocial_unlockAchievement(JSContext *cx,
         }
         
         TAchievementInfo arg;
-        bool ok = jsval_to_TAchievementInfo(cx, arg0, &arg);
+        bool ok = jsval_to_std_map_string_string(cx, arg0, &arg);
         JSB_PRECONDITION2(ok, cx, false, "jsb_anysdk_framework_ProtocolSocial_unlockAchievement : Error processing arguments");
         
 	    cobj->unlockAchievement( arg );
@@ -1801,56 +1650,40 @@ static bool jsb_anysdk_framework_ProtocolSocial_unlockAchievement(JSContext *cx,
 	return true;
 }
 
-class ProtocolRECListener : public RECResultListener
+class ProtocolRECListener : public RECResultListener, public JSFunctionWrapper
 {
 public:
-    ProtocolRECListener()
+    ProtocolRECListener(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
+    : JSFunctionWrapper(cx, jsthis, func, owner)
+    , _ctx(cx)
     {
     }
     ~ProtocolRECListener()
     {
         CCLOG("on REC result ~listener");
-        _jsCallback.destroyIfConstructed();
-        _jsThisObj.destroyIfConstructed();
-        _ctxObj.destroyIfConstructed();
     }
     
     virtual void onRECResult(RECResultCode code, const char* msg)
     {
         CCLOG("on action result: %d, msg: %s.", code, msg);
-        JS::RootedObject thisObj(_ctx, _jsThisObj.ref().get().toObjectOrNull());
-        JSAutoCompartment ac(_ctx, _ctxObj.ref());
         
         JS::RootedValue retval(_ctx);
-        if (!_jsCallback.ref().get().isNullOrUndefined())
-        {
-            JS::AutoValueVector valArr(_ctx);
-            valArr.append( INT_TO_JSVAL(code) );
-            valArr.append( std_string_to_jsval(_ctx, msg) );
-            
-            JS::HandleValueArray args = JS::HandleValueArray::fromMarkedLocation(2, valArr.begin());
-            JS_CallFunctionValue(_ctx, thisObj, _jsCallback.ref(), args, &retval);
-        }
-    }
-    
-    void setJSCallbackThis(JSContext *cx, JS::HandleValue jsThisObj)
-    {
-        _jsThisObj.construct(cx, jsThisObj);
-    }
-    void setJSCallbackFunc(JSContext *cx, JS::HandleValue func) {
-        _jsCallback.construct(cx, func);
-    }
-    void setJSCallbackCtx(JSContext *ctx, JS::HandleObject ctxObj) {
-        _ctx = ctx;
-        _ctxObj.construct(ctx, ctxObj);
+        JS::AutoValueVector valArr(_ctx);
+        JS::RootedValue tmp(_ctx);
+        valArr.append( JS::Int32Value(code) );
+        std_string_to_jsval(_ctx, msg, &tmp);
+        valArr.append( tmp );
+        
+        JS::HandleValueArray args(valArr);
+        invoke(args, &retval);
     }
     
     static ProtocolRECListener* _instance;
-    static ProtocolRECListener* getInstance()
+    static ProtocolRECListener* getInstance(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
     {
         if (_instance == NULL)
         {
-            _instance = new ProtocolRECListener();
+            _instance = new ProtocolRECListener(cx, jsthis, func, owner);
         }
         return _instance;
     }
@@ -1863,40 +1696,36 @@ public:
         }
     }
 private:
-    mozilla::Maybe<JS::PersistentRootedValue> _jsCallback;
-    mozilla::Maybe<JS::PersistentRootedValue> _jsThisObj;
-    mozilla::Maybe<JS::PersistentRootedObject> _ctxObj;
     JSContext* _ctx;
 };
 ProtocolRECListener* ProtocolRECListener::_instance = NULL;
 
-static bool jsb_anysdk_framework_ProtocolREC_setResultListener(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_ProtocolREC_setResultListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     CCLOG("in ProtocolREC_setListener, argc:%d.", argc);
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ProtocolREC* cobj = (ProtocolREC *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
     if (argc != 2)
     {
-        JS_ReportError(cx, "jsb_anysdk_framework_ProtocolREC_setListener : wrong number of arguments: %d, was expecting %d", argc, 0);
+        JS_ReportErrorUTF8(cx, "jsb_anysdk_framework_ProtocolREC_setListener : wrong number of arguments: %d, was expecting %d", argc, 0);
         return false;
     }
-    ProtocolRECListener* listener = ProtocolRECListener::getInstance();
-    listener->setJSCallbackFunc( cx, args.get(0) );
-    listener->setJSCallbackThis( cx, args.get(1) );
-    listener->setJSCallbackCtx( cx, obj );
+    JS::RootedObject jsthis(cx, args.get(1).toObjectOrNull());
+    JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+    ProtocolRECListener* listener = ProtocolRECListener::getInstance(cx, jsthis, jsfunc, obj);
     cobj->setResultListener(listener);
     return true;
 }
 
-static bool jsb_anysdk_framework_ProtocolREC_removeListener(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_ProtocolREC_removeListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     CCLOG("in ProtocolREC_removeListener, argc:%d.", argc);
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ProtocolREC* cobj = (ProtocolREC *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
     if (ProtocolRECListener::_instance != NULL)
@@ -1908,56 +1737,40 @@ static bool jsb_anysdk_framework_ProtocolREC_removeListener(JSContext *cx, uint3
     return true;
 }
 
-class ProtocolCustomListener : public CustomResultListener
+class ProtocolCustomListener : public CustomResultListener, public JSFunctionWrapper
 {
 public:
-    ProtocolCustomListener()
+    ProtocolCustomListener(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
+    : JSFunctionWrapper(cx, jsthis, func, owner)
+    , _ctx(cx)
     {
     }
     ~ProtocolCustomListener()
     {
         CCLOG("on Custom result ~listener");
-        _jsCallback.destroyIfConstructed();
-        _jsThisObj.destroyIfConstructed();
-        _ctxObj.destroyIfConstructed();
     }
     
     virtual void onCustomResult(CustomResultCode code, const char* msg)
     {
         CCLOG("on action result: %d, msg: %s.", code, msg);
-        JS::RootedObject thisObj(_ctx, _jsThisObj.ref().get().toObjectOrNull());
-        JSAutoCompartment ac(_ctx, _ctxObj.ref());
         
         JS::RootedValue retval(_ctx);
-        if (!_jsCallback.ref().get().isNullOrUndefined())
-        {
-            JS::AutoValueVector valArr(_ctx);
-            valArr.append( INT_TO_JSVAL(code) );
-            valArr.append( std_string_to_jsval(_ctx, msg) );
-            
-            JS::HandleValueArray args = JS::HandleValueArray::fromMarkedLocation(2, valArr.begin());
-            JS_CallFunctionValue(_ctx, thisObj, _jsCallback.ref(), args, &retval);
-        }
-    }
-    
-    void setJSCallbackThis(JSContext *cx, JS::HandleValue jsThisObj)
-    {
-        _jsThisObj.construct(cx, jsThisObj);
-    }
-    void setJSCallbackFunc(JSContext *cx, JS::HandleValue func) {
-        _jsCallback.construct(cx, func);
-    }
-    void setJSCallbackCtx(JSContext *ctx, JS::HandleObject ctxObj) {
-        _ctx = ctx;
-        _ctxObj.construct(ctx, ctxObj);
+        JS::AutoValueVector valArr(_ctx);
+        JS::RootedValue tmp(_ctx);
+        valArr.append( JS::Int32Value(code) );
+        std_string_to_jsval(_ctx, msg, &tmp);
+        valArr.append( tmp );
+        
+        JS::HandleValueArray args(valArr);
+        invoke(args, &retval);
     }
     
     static ProtocolCustomListener* _instance;
-    static ProtocolCustomListener* getInstance()
+    static ProtocolCustomListener* getInstance(JSContext* cx, JS::HandleObject jsthis, JS::HandleObject func, JS::HandleObject owner)
     {
         if (_instance == NULL)
         {
-            _instance = new ProtocolCustomListener();
+            _instance = new ProtocolCustomListener(cx, jsthis, func, owner);
         }
         return _instance;
     }
@@ -1970,40 +1783,36 @@ public:
         }
     }
 private:
-    mozilla::Maybe<JS::PersistentRootedValue> _jsCallback;
-    mozilla::Maybe<JS::PersistentRootedValue> _jsThisObj;
-    mozilla::Maybe<JS::PersistentRootedObject> _ctxObj;
     JSContext* _ctx;
 };
 ProtocolCustomListener* ProtocolCustomListener::_instance = NULL;
 
-static bool jsb_anysdk_framework_ProtocolCustom_setResultListener(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_ProtocolCustom_setResultListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     CCLOG("in ProtocolCustom_setListener, argc:%d.", argc);
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ProtocolCustom* cobj = (ProtocolCustom *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
     if (argc != 2)
     {
-        JS_ReportError(cx, "jsb_anysdk_framework_ProtocolCustom_setListener : wrong number of arguments: %d, was expecting %d", argc, 0);
+        JS_ReportErrorUTF8(cx, "jsb_anysdk_framework_ProtocolCustom_setListener : wrong number of arguments: %d, was expecting %d", argc, 0);
         return false;
     }
-    ProtocolCustomListener* listener = ProtocolCustomListener::getInstance();
-    listener->setJSCallbackFunc( cx, args.get(0) );
-    listener->setJSCallbackThis( cx, args.get(1) );
-    listener->setJSCallbackCtx( cx, obj );
+    JS::RootedObject jsthis(cx, args.get(1).toObjectOrNull());
+    JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+    ProtocolCustomListener* listener = ProtocolCustomListener::getInstance(cx, jsthis, jsfunc, obj);
     cobj->setResultListener(listener);
     return true;
 }
 
-static bool jsb_anysdk_framework_ProtocolCustom_removeListener(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_anysdk_framework_ProtocolCustom_removeListener(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     CCLOG("in ProtocolCustom_removeListener, argc:%d.", argc);
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
     ProtocolCustom* cobj = (ProtocolCustom *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
     if (ProtocolCustomListener::_instance != NULL)
@@ -2015,47 +1824,6 @@ static bool jsb_anysdk_framework_ProtocolCustom_removeListener(JSContext *cx, ui
     return true;
 }
 
-static bool jsb_anysdk_framework_ProtocolAdTracking_trackEvent(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
-    ProtocolAdTracking* cobj = (ProtocolAdTracking *)(proxy ? proxy->ptr : NULL);
-
-    JS::RootedValue arg0(cx, args.get(0));
-    std::string arg;
-    bool ok = jsval_to_std_string(cx, arg0, &arg);
-    CCLOG("trackEvent, argc: %d, str: %s.", argc, arg.c_str());
-    if (!ok)
-    {
-        CCLOG("jsb_anysdk_framework_ProtocolAdTracking_trackEvent param type is wrong.");
-        return false;
-    }
-    if (argc == 1)
-    {
-        cobj->trackEvent(arg.c_str());
-        return true;
-    }
-    else if(argc == 2)
-    {
-        if (!args.get(1).isObject() || args.get(1).isNullOrUndefined()) {
-            CCLOG("%s", "jsval_to_stdmap: the jsval is not an object.");
-            return false;
-        }
-
-        std::map<std::string, std::string>  params;
-        bool ok = jsval_to_std_map_string_string(cx, args.get(1), &params);
-        JSB_PRECONDITION2(ok, cx, false, "jsb_anysdk_framework_ProtocolAdTracking_trackEvent : Error processing arguments");
-        
-        cobj->trackEvent(arg.c_str(), &params);
-
-        return true;
-    }
-    JS_ReportError(cx, "jsb_anysdk_framework_ProtocolAdTracking_trackEvent : wrong number of arguments: %d, was expecting %d", argc, 0);
-    return true;
-}
-
-extern JSObject* jsb_anysdk_framework_ProtocolAdTracking_prototype;
 extern JSObject* jsb_anysdk_framework_ProtocolREC_prototype;
 extern JSObject* jsb_anysdk_framework_ProtocolCustom_prototype;
 extern JSObject* jsb_anysdk_framework_PluginProtocol_prototype;
@@ -2131,9 +1899,4 @@ void register_all_anysdk_manual(JSContext* cx, JS::HandleObject obj) {
     proto.set(jsb_anysdk_framework_ProtocolREC_prototype);
     JS_DefineFunction(cx, proto, "setResultListener", jsb_anysdk_framework_ProtocolREC_setResultListener, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, proto, "removeListener", jsb_anysdk_framework_ProtocolREC_removeListener, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-
-    //ProtocolAdTracking
-    proto.set(jsb_anysdk_framework_ProtocolAdTracking_prototype);
-    JS_DefineFunction(cx, proto, "trackEvent", jsb_anysdk_framework_ProtocolAdTracking_trackEvent, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-
 }

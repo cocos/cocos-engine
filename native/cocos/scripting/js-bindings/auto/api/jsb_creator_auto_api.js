@@ -1263,6 +1263,28 @@ float
 },
 
 /**
+ * @method getVisibleRect
+ * @return {rect_object}
+ */
+getVisibleRect : function (
+)
+{
+    return cc.Rect;
+},
+
+/**
+ * @method containsNode
+ * @param {cc.Node} arg0
+ * @return {bool}
+ */
+containsNode : function (
+node 
+)
+{
+    return false;
+},
+
+/**
  * @method addTarget
  * @param {cc.Node} arg0
  */
@@ -1270,6 +1292,16 @@ addTarget : function (
 node 
 )
 {
+},
+
+/**
+ * @method getInstance
+ * @return {creator::CameraNode}
+ */
+getInstance : function (
+)
+{
+    return creator::CameraNode;
 },
 
 /**

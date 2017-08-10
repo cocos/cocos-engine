@@ -226,15 +226,19 @@ class GitArchiver(object):
 
         # Check config.json to insert a zip file content to the final generated zip file
         extra_folders = []
-        config_data = self.load_json_file("config.json")
+        config_path = path.join(self.main_repo_abspath, "tools", "make-package")
+        config_data = self.load_json_file(path.join(config_path, "config.json"))
 
         for zip_file in config_data["extra_zip_files"]:
-            zip_config = self.load_json_file(zip_file["zip_config_path"])
+            zip_config = self.load_json_file(path.join(config_path, zip_file["zip_config_path"]))
             zip_file_name = zip_config["version"] + '.zip'
             extra_to_zip_file = zip_file["extract_to_zip_path"]
             zip_file_path = os.path.join(zip_file["zip_file_path"], zip_file_name)
+            zip_config_version = zip_config["version"]
             # 'v' letter was swallowed by github, so we need to substring it from the 2nd letter
-            extra_folder_name = zip_config["repo_name"] + '-' + zip_config["version"][1:]
+            if zip_config_version[0] == 'v':
+                zip_config_version = zip_config_version[1:]
+            extra_folder_name = zip_config["repo_name"] + '-' + zip_config_version
             extra_folder_path = os.path.join(self.main_repo_abspath, extra_folder_name)
             extra_folders.append(extra_folder_path)
             extra_file_paths = self.unpack_zipfile(zip_file_path, self.main_repo_abspath)

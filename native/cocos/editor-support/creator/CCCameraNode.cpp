@@ -13,11 +13,14 @@
 using namespace cocos2d;
 
 namespace creator {
-    cocos2d::Mat4 CameraNode::_tempMat;
+    static CameraNode* _cameraInstance;
+    
     
     CameraNode::CameraNode()
     {
         _mat.setIdentity();
+        _cameraInstance = this;
+        visitingIndex = 0;
     }
     
     CameraNode::~CameraNode()
@@ -31,6 +34,11 @@ namespace creator {
             }
             _commands.clear();
         }
+        _cameraInstance = nullptr;
+    }
+    
+    CameraNode* CameraNode::getInstance() {
+        return _cameraInstance;
     }
     
     void CameraNode::setTransform(float a, float b, float c, float d, float tx, float ty)
@@ -42,17 +50,40 @@ namespace creator {
         m[5] = d;
         m[12] = tx;
         m[13] = ty;
+        
+        _inverseMat = _mat;
+        _inverseMat.inverse();
+        
+        _visibleRect.origin = Director::getInstance()->getVisibleOrigin();
+        _visibleRect.size = Director::getInstance()->getVisibleSize();
+        
+        _visibleRect = RectApplyTransform(_visibleRect, _inverseMat);
+    }
+    
+    const cocos2d::Rect& CameraNode::getVisibleRect()
+    {
+        return _visibleRect;
+    }
+    
+    bool CameraNode::containsNode(cocos2d::Node* node)
+    {
+        while (node) {
+            if (std::find(_nodes.begin(), _nodes.end(), node) !=_nodes.end()) {
+                return true;
+            }
+            node = node->getParent();
+        }
+        
+        return false;
     }
     
     void CameraNode::addTarget(Node* target)
     {
-        for (auto i = _commands.begin(); i != _commands.end(); i++)
-        {
-            if (i->target == target)
-            {
-                return;
-            }
+        if (std::find(_nodes.begin(), _nodes.end(), target) !=_nodes.end()) {
+            return;
         }
+        
+        _nodes.push_back(target);
         
         CustomCommand* beforeVisitCommand = new CustomCommand();
         CustomCommand* afterVisitCommand = new CustomCommand();
@@ -85,6 +116,13 @@ namespace creator {
                 delete i->afterVisitCommand;
                 
                 _commands.erase(i);
+                break;
+            }
+        }
+        
+        for (auto i = _nodes.begin(); i != _nodes.end(); i++) {
+            if (*i == target) {
+                _nodes.erase(i);
                 break;
             }
         }

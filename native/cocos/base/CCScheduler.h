@@ -429,6 +429,8 @@ public:
      @js NA
      */
     void performFunctionInCocosThread( const std::function<void()> &function);
+    
+    bool isCurrentTargetSalvaged () const { return _currentTargetSalvaged; };
 
     /** Schedules the 'callback' function for a given target with a given priority.
      The 'callback' selector will be called every frame.

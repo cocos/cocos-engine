@@ -80,6 +80,9 @@ public:
 
     /** override function */
     virtual void removeAllChildren() override;
+    
+    /** override function */
+    virtual void cleanup() override;
 
     virtual void cleanup() override;
 

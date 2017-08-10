@@ -35,6 +35,7 @@
 #include "base/ccUTF8.h"
 #include "renderer/CCTextureCache.h"
 #include "2d/CCSpriteFrame.h"
+#include "json/document-wrapper.h"
 
 using namespace std;
 NS_CC_BEGIN
@@ -143,9 +144,13 @@ public:
 
     /** allocates a BMFontConfiguration with a FNT file */
     static BMFontConfiguration * create(const std::string& fntDataString, SpriteFrame* spriteFrame);
+    static BMFontConfiguration * createWithJsonString(const std::string& jsonString, SpriteFrame* spriteFrame);
 
     /** initializes a BitmapFontConfiguration with a FNT file */
     bool initWithFNTfile(const std::string& fntDataString, SpriteFrame* spriteFrame);
+    /** initializes a BitmapFontConfiguration with a JSON string */
+    bool initWithJsonString(const std::string& jsonString, SpriteFrame* spriteFrame);
+
 
     inline const std::string& getAtlasName(){ return _atlasName; }
     inline void setAtlasName(const std::string& atlasName) { _atlasName = atlasName; }
@@ -153,6 +158,7 @@ public:
     std::set<unsigned int>* getCharacterSet() const;
 private:
     std::set<unsigned int>* parseConfigFile(const std::string& fntDataString);
+    std::set<unsigned int>* parseJsonConfigFile(const std::string& jsonDataString);
     std::set<unsigned int>* parseBinaryConfigFile(unsigned char* pData, unsigned long size, const std::string& controlFile);
     void parseCharacterDefinition(const char* line, BMFontDef *characterDefinition);
     void parseInfoArguments(const char* line);
@@ -161,8 +167,18 @@ private:
     void parseKerningEntry(const char* line);
     void purgeKerningDictionary();
     void purgeFontDefDictionary();
+    rapidjson::Document _json;
 };
 
+BMFontConfiguration* FNTConfigLoadJson(const std::string& jsonString, SpriteFrame* spriteFrame)
+{
+    BMFontConfiguration* ret = nullptr;
+    
+    
+    ret = BMFontConfiguration::createWithJsonString(jsonString, spriteFrame);
+    
+    return ret;
+}
 
 BMFontConfiguration* FNTConfigLoadFile(const std::string& fntDataString, SpriteFrame* spriteFrame)
 {
@@ -188,6 +204,35 @@ BMFontConfiguration * BMFontConfiguration::create(const std::string& fntDataStri
     }
     CC_SAFE_DELETE(ret);
     return nullptr;
+}
+
+BMFontConfiguration * BMFontConfiguration::createWithJsonString(const std::string& jsonString,
+                                                                SpriteFrame* spriteFrame)
+{
+    BMFontConfiguration * ret = new (std::nothrow) BMFontConfiguration();
+    if (ret->initWithJsonString(jsonString, spriteFrame))
+    {
+        ret->autorelease();
+        return ret;
+    }
+    CC_SAFE_DELETE(ret);
+    return nullptr;
+}
+
+bool BMFontConfiguration::initWithJsonString(const std::string& jsonString, SpriteFrame* spriteFrame)
+{
+    _kerningDictionary = nullptr;
+    _fontDefDictionary = nullptr;
+    _spriteFrame = spriteFrame;
+    
+    _characterSet = this->parseJsonConfigFile(jsonString);
+    
+    if (! _characterSet)
+    {
+        return false;
+    }
+    
+    return true;
 }
 
 bool BMFontConfiguration::initWithFNTfile(const std::string& fntDataString, SpriteFrame* spriteFrame)
@@ -260,6 +305,74 @@ void BMFontConfiguration::purgeFontDefDictionary()
         HASH_DEL(_fontDefDictionary, current);
         free(current);
     }
+}
+
+std::set<unsigned int>* BMFontConfiguration::parseJsonConfigFile(const std::string& jsonDataString)
+{
+    _json.Parse<0>(jsonDataString.c_str());
+    std::set<unsigned int> *validCharsString = new (std::nothrow) std::set<unsigned int>();
+    _fontSize = _json["fontSize"].GetInt();
+    _commonHeight = _json["commonHeight"].GetInt();
+    _atlasName = _json["atlasName"].GetString();
+    
+    auto fontDefDictionary = _json["fontDefDictionary"].GetObject();
+    for (rapidjson::Value::ConstMemberIterator itr = fontDefDictionary.MemberBegin();
+         itr != fontDefDictionary.MemberEnd(); ++itr)
+    {
+        tFontDefHashElement* element = (tFontDefHashElement*)malloc( sizeof(*element) );
+        unsigned int charID = atoi(itr->name.GetString());
+        element->fontDef.charID = charID;
+        
+        auto charObj = itr->value.GetObject();
+        int i = 0;
+        for (rapidjson::Value::ConstMemberIterator charObjItr = charObj.MemberBegin();
+             charObjItr != charObj.MemberEnd(); ++charObjItr)
+        {
+            if (i == 0) {
+                int j = 0;
+                auto rectObjc = charObjItr->value.GetObject();
+                for (rapidjson::Value::ConstMemberIterator rectObjItr = rectObjc.MemberBegin();
+                     rectObjItr != rectObjc.MemberEnd(); ++rectObjItr)
+                {
+                    if (j == 0) {
+                        element->fontDef.rect.origin.x = rectObjItr->value.GetInt();
+                    }else if (j == 1) {
+                        element->fontDef.rect.origin.y = rectObjItr->value.GetInt();
+                    }else if (j == 2) {
+                        element->fontDef.rect.size.width = rectObjItr->value.GetInt();
+                    }else if (j == 3) {
+                        element->fontDef.rect.size.height = rectObjItr->value.GetInt();
+                    }
+                    j++;
+                }
+            } else if (i == 1) {
+                element->fontDef.xOffset = charObjItr->value.GetInt();
+            }else if (i == 2) {
+                element->fontDef.yOffset = charObjItr->value.GetInt();
+            }else if (i == 3) {
+                element->fontDef.xAdvance = charObjItr->value.GetInt();
+            }
+            ++i;
+        }
+        
+        element->key = element->fontDef.charID;
+        HASH_ADD_INT(_fontDefDictionary, key, element);
+        
+        validCharsString->insert(element->fontDef.charID);
+    }
+    
+    auto kerning = _json["kerningDict"].GetObject();
+    
+    for (rapidjson::Value::ConstMemberIterator itr = kerning.MemberBegin();
+         itr != kerning.MemberEnd(); ++itr)
+    {
+        tKerningHashElement *element = (tKerningHashElement *)calloc( sizeof( *element ), 1 );
+        element->amount = itr->value.GetInt();
+        element->key = atoi(itr->name.GetString());
+        HASH_ADD_INT(_kerningDictionary,key, element);
+    }
+    
+    return validCharsString;
 }
 
 std::set<unsigned int>* BMFontConfiguration::parseConfigFile(const std::string& fntDataString)
@@ -627,11 +740,11 @@ void BMFontConfiguration::parseKerningEntry(const char* line)
     HASH_ADD_INT(_kerningDictionary,key, element);
 }
 
-FontFNT * FontFNT::create(const std::string& fntFilePath,
+FontFNT * FontFNT::create(const std::string& jsonString,
                           SpriteFrame* spriteFrame,
                           const Vec2& imageOffset /* = Vec2::ZERO */)
 {
-    BMFontConfiguration *newConf = FNTConfigLoadFile(fntFilePath, spriteFrame);
+    BMFontConfiguration *newConf = FNTConfigLoadJson(jsonString, spriteFrame);
     if (!newConf)
         return nullptr;
 

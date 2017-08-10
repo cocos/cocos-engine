@@ -35,9 +35,9 @@ public:
     /** @private */
     void addArmature(ArmatureData* value);
 
-    inline ArmatureData* getArmature(const std::string& name) const
+    inline ArmatureData* getArmature(const std::string& theName) const
     {
-        return mapFind(armatures, name);
+        return mapFind(armatures, theName);
     }
 
     inline const std::vector<std::string>& getArmatureNames() const 

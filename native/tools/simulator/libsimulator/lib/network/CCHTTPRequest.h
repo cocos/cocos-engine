@@ -23,7 +23,6 @@
 #include "curl/curl.h"
 
 using namespace std;
-//USING_NS_CC;
 
 NS_CC_EXTRA_BEGIN
 

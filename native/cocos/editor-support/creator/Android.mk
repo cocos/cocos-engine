@@ -18,10 +18,14 @@ LOCAL_SRC_FILES := CCScale9Sprite.cpp \
     physics/CCPhysicsContactImpulse.cpp \
     CCCameraNode.cpp
 
-LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/..
+LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/.. \
+                           $(LOCAL_PATH)/../.. \
+                           $(LOCAL_PATH)/../../../external/sources
 
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/..
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/.. \
+                    $(LOCAL_PATH)/../.. \
+                    $(LOCAL_PATH)/../../../external/sources
 
-LOCAL_STATIC_LIBRARIES := cocos2dx_internal_static
+# LOCAL_STATIC_LIBRARIES := cocos2dx_internal_static
 
 include $(BUILD_STATIC_LIBRARY)

@@ -10,17 +10,11 @@ ifeq ($(COCOS_SIMULATOR_BUILD),1)
 LOCAL_ARM_MODE := arm
 endif
 
-FILE_LIST := hellojavascript/main.cpp
-FILE_LIST += $(wildcard $(LOCAL_PATH)/../../../Classes/*.cpp)
-FILE_LIST += $(wildcard $(LOCAL_PATH)/../../../Classes/ide-support/*.cpp)
-FILE_LIST += $(wildcard $(LOCAL_PATH)/../../../Classes/ide-support/*.c)
-
-LOCAL_SRC_FILES := $(FILE_LIST:$(LOCAL_PATH)/%=%)
+LOCAL_SRC_FILES := hellojavascript/main.cpp \
+				   ../../../Classes/AppDelegate.cpp \
+				   ../../../Classes/ide-support/RuntimeJsImpl.cpp
 
 LOCAL_C_INCLUDES := \
-$(LOCAL_PATH)/../../../Classes/protobuf-lite \
-$(LOCAL_PATH)/../../../Classes/runtime \
-$(LOCAL_PATH)/../../../Classes/jsb \
 $(LOCAL_PATH)/../../../Classes \
 $(LOCAL_PATH)/../../../../../../../external \
 $(LOCAL_PATH)/../../../../../../../tools/simulator/libsimulator/lib \

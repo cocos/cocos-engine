@@ -25,7 +25,6 @@ THE SOFTWARE.
 #ifndef  _FILE_SERVER__H_
 #define  _FILE_SERVER__H_
 
-#include "cocos2d.h"
 #include "json/document.h"
 #include "json/filereadstream.h"
 #include "json/stringbuffer.h"
@@ -53,6 +52,10 @@ THE SOFTWARE.
 #else
 #include <unistd.h>
 #endif
+
+#include <thread>
+#include <list>
+#include <mutex>
 
 class CC_LIBSIM_DLL FileServer
 {

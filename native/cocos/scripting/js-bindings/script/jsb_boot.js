@@ -26,7 +26,6 @@
 
 'use strict';
 
-
 //+++++++++++++++++++++++++Engine initialization function begin+++++++++++++++++++++++++++
 
 // Define singleton objects
@@ -62,6 +61,7 @@ cc.view.setResolutionPolicy = function(resolutionPolicy){
     var size = cc.view.getDesignResolutionSize();
     cc.view.setDesignResolutionSize(size.width,size.height,resolutionPolicy);
 };
+
 cc.view.getCanvasSize = cc.view.getFrameSize;
 cc.view.getVisibleSizeInPixel = cc.view.getVisibleSize;
 cc.view.getVisibleOriginInPixel = cc.view.getVisibleOrigin;
@@ -74,11 +74,10 @@ cc.view.getTargetDensityDPI = function() {return cc.macro.DENSITYDPI_DEVICE;};
 
 cc.eventManager = cc.director.getEventDispatcher();
 
-window._windowResizeListener = cc.eventManager.addCustomListener('window-resize', function () {
+cc.eventManager._resizeListener = cc.eventManager.addCustomListener('window-resize', function () {
     cc.winSize = cc.director.getWinSize();
     cc.visibleRect.init();
 });
-
 
 cc.configuration = cc.Configuration.getInstance();
 cc.textureCache = cc.director.getTextureCache();

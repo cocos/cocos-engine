@@ -93,6 +93,7 @@ public:
 };
 
 typedef std::vector< VecPoint* > VecPointVector;
+    
 
 struct Path
 {
@@ -105,19 +106,47 @@ struct Path
 };
 typedef struct Path Path;
 
+class GraphicsBuffer
+{
+public:
+    GraphicsBuffer();
+    ~GraphicsBuffer();
+    
+    bool allocVerts(int vertsCount);
+    void allocIndices(int indicesCount);
+    
+    void clear();
+    
+    // verts
+    int nVerts;
+    int vertsOffset;
+    VecVertex* verts;
+    bool vertsDirty;
+    
+    // indices
+    int nIndices;
+    int indicesOffset;
+    GLushort* indices;
+    bool indicesDirty;
+    
+    GLuint buffersVBO[2];
+};
+
 struct Command
 {
     cocos2d::Color4F color;
     float strokeMult;
-
+    
     int nVerts;
     int vertsOffset;
     int nIndices;
     int indicesOffset;
+    
+    GraphicsBuffer* buffer;
 };
 typedef struct Command Command;
 typedef std::vector< Command* > CommandVector;
-
+    
 
 class CC_DLL GraphicsNode : public cocos2d::Node
 {
@@ -222,9 +251,8 @@ protected:
 
     void calculateJoins(float w, int lineJoin, float miterLimit);
 
-    void allocVerts(int count);
-    void allocIndices(int count);
-
+    void allocBuffer();
+    
     void vset(float x, float y, float u, float v);
 
     void pushCommand(cocos2d::Color4F& color, float strokeMult, int vertsOffset, int nVerts, int indicesOffset, int nIndices);
@@ -240,12 +268,9 @@ protected:
 
     cocos2d::CustomCommand _customCommand;
 
-    bool _vertsDirty;
-    bool _indicesDirty;
     bool _needUpdatePathOffset;
 
 
-    GLuint _buffersVBO[2];
     float _ratio;
 
     float _lineWidth;
@@ -254,7 +279,7 @@ protected:
     LineJoin _lineJoin;
     cocos2d::Color4F _strokeColor;
     cocos2d::Color4F _fillColor;
-
+    
     float _fringeWidth;
 
     float _tessTol;
@@ -266,7 +291,7 @@ protected:
     // points
     int _nPoints;
     VecPointVector _points;
-
+    
     // commands
     int _nCommands;
     CommandVector _commands;
@@ -276,18 +301,12 @@ protected:
     int _nPath;
     int _pathOffset;
     std::vector<Path*> _paths;
-
+    
+    // buffer
+    std::vector<GraphicsBuffer*> _buffers;
+    GraphicsBuffer* _buffer;
+    
     Path* _curPath;
-
-    // verts
-    int _nVerts;
-    int _vertsOffset;
-    VecVertex* _verts;
-
-    // indices
-    int _nIndices;
-    int _indicesOffset;
-    GLushort* _indices;
 };
 
 }

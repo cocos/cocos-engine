@@ -243,6 +243,8 @@ LOCAL_EXPORT_LDLIBS := -lGLESv2 \
                        -landroid
 
 LOCAL_STATIC_LIBRARIES := cocos_freetype2_static
+LOCAL_STATIC_LIBRARIES += spine_static
+LOCAL_STATIC_LIBRARIES += creator_static
 LOCAL_STATIC_LIBRARIES += cocos_png_static
 LOCAL_STATIC_LIBRARIES += cocos_jpeg_static
 LOCAL_STATIC_LIBRARIES += cocos_tiff_static
@@ -279,9 +281,7 @@ LOCAL_STATIC_LIBRARIES += cocos_ui_static
 LOCAL_STATIC_LIBRARIES += spine_static
 LOCAL_STATIC_LIBRARIES += dragonbones_static
 LOCAL_STATIC_LIBRARIES += creator_static
-LOCAL_STATIC_LIBRARIES += cocos_network_static
-LOCAL_STATIC_LIBRARIES += cocosdenshion_static
-LOCAL_STATIC_LIBRARIES += audioengine_static
+LOCAL_STATIC_LIBRARIES += cocos2dx_internal_static
 
 include $(BUILD_STATIC_LIBRARY)
 

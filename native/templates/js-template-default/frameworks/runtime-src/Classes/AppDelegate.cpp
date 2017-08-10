@@ -75,13 +75,10 @@ bool AppDelegate::applicationDidFinishLaunching()
     sc->addRegisterCallback(register_all_anysdk_framework);
     sc->addRegisterCallback(register_all_anysdk_manual);
 #endif
+    ScriptEngineManager::getInstance()->setScriptEngine(sc);
     sc->start();
     sc->runScript("script/jsb_boot.js");
-#if defined(COCOS2D_DEBUG) && (COCOS2D_DEBUG > 0)
-    sc->enableDebugger();
-#endif
-    ScriptEngineManager::getInstance()->setScriptEngine(sc);
-    ScriptingCore::getInstance()->runScript("main.js");
+    sc->runScript("main.js");
     
     return true;
 }

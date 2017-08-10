@@ -7,8 +7,7 @@
 #ifndef __Simulator__RuntimeJsImpl__
 #define __Simulator__RuntimeJsImpl__
 
-#include "CodeIDESupport.h"
-#include "cocos2d.h"
+#include "ide-support/CodeIDESupport.h"
 
 #if (COCOS2D_DEBUG > 0) && (CC_CODE_IDE_DEBUG_SUPPORT > 0)
 #include "runtime/RuntimeProtocol.h"

@@ -141,6 +141,11 @@ void Timer::update(float dt)
         {
             break;
         }
+        
+        if (_scheduler->isCurrentTargetSalvaged())
+        {
+            break;
+        }
     }
 }
 

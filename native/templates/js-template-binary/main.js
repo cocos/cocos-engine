@@ -37,7 +37,7 @@
     //      2 - Forced to use WebGL renderer, but this will be ignored on mobile browsers
 
     "engineDir"     : "frameworks/cocos2d-html5/",
-    // In debug mode, if you use the whole engine to develop your game, you should specify its relative path with "engineDir",
+    // (Deprecated) In debug mode, if you use the whole engine to develop your game, you should specify its relative path with "engineDir",
     // but if you are using a single engine file, you can ignore it.
 
     "modules"       : ["cocos2d"],

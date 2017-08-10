@@ -198,9 +198,9 @@ public:
     void addSlot(SlotDisplayDataSet* value);
 
     /** @private */
-    inline SlotDisplayDataSet* getSlot(const std::string& name) const
+    inline SlotDisplayDataSet* getSlot(const std::string& theName) const
     {
-        return mapFind(slots, name);
+        return mapFind(slots, theName);
     }
 };
 
@@ -265,34 +265,34 @@ public:
     /** @private */
     void addAnimation(AnimationData* value);
 
-    inline BoneData* getBone(const std::string& name) const
+    inline BoneData* getBone(const std::string& theName) const
     {
-        return mapFind(bones, name);
+        return mapFind(bones, theName);
     }
 
-    inline SlotData* getSlot(const std::string& name) const
+    inline SlotData* getSlot(const std::string& theName) const
     {
-        return mapFind(slots, name);
+        return mapFind(slots, theName);
     }
 
-    inline SkinData* getSkin(const std::string& name) const
+    inline SkinData* getSkin(const std::string& theName) const
     {
-        if (name.empty())
+        if (theName.empty())
         {
             return _defaultSkin;
         }
 
-        return mapFind(skins, name);
+        return mapFind(skins, theName);
     }
 
-    inline AnimationData* getAnimation(const std::string& name) const
+    inline AnimationData* getAnimation(const std::string& theName) const
     {
-        if (name.empty())
+        if (theName.empty())
         {
             return _defaultAnimation;
         }
 
-        return mapFind(animations, name);
+        return mapFind(animations, theName);
     }
 
     inline const std::vector<BoneData*>& getSortedBones() // const

@@ -4,8 +4,6 @@
 
 PLAYER_NS_BEGIN
 
-USING_NS_CC;
-
 PlayerProtocol *PlayerProtocol::_instance = nullptr;
 
 PlayerProtocol::PlayerProtocol()

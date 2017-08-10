@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A499EBF1F0CDDF9004E6AEC /* libicucore.A.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A499EBE1F0CDDF9004E6AEC /* libicucore.A.tbd */; };
+		1A499EC11F0CDE01004E6AEC /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A499EC01F0CDE01004E6AEC /* CFNetwork.framework */; };
 		1A82F5FB169AC92500C4B13A /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A82F5FA169AC92500C4B13A /* libsqlite3.dylib */; };
 		1AC22EDE18CA0E11007112B9 /* project.json in Resources */ = {isa = PBXBuildFile; fileRef = 1A1A081B18C9DF05005C6854 /* project.json */; };
 		1AD7E0A818C9DB93004817A6 /* main.js in Resources */ = {isa = PBXBuildFile; fileRef = 1A6BF21418C9DB5900FB0E1C /* main.js */; };
@@ -66,14 +68,14 @@
 		AB2EB9CE1D34F41700695C92 /* SDKManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB2EB9C91D34F41700695C92 /* SDKManager.cpp */; };
 		AB2EB9D01D34F4A000695C92 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2EB9CF1D34F4A000695C92 /* CFNetwork.framework */; };
 		AB2EB9D21D34F4B500695C92 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2EB9D11D34F4B500695C92 /* CoreFoundation.framework */; };
-		AB2EB9D41D34F4C400695C92 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2EB9D31D34F4C400695C92 /* MobileCoreServices.framework */; };
 		AB2EB9D61D34F4D700695C92 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2EB9D51D34F4D700695C92 /* SystemConfiguration.framework */; };
 		AB2EB9D81D34F4ED00695C92 /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2EB9D71D34F4ED00695C92 /* GameController.framework */; };
+		ABE456E71D34F87F00F1F400 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2EB9D31D34F4C400695C92 /* MobileCoreServices.framework */; };
 		ABE457031D35198000F1F400 /* libPluginProtocol.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE457021D35198000F1F400 /* libPluginProtocol.a */; };
 		BA4E718719EB6E7900932425 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA4E718619EB6E7900932425 /* MediaPlayer.framework */; };
 		C03780EB18BEE0E400FE4F13 /* src in Resources */ = {isa = PBXBuildFile; fileRef = C03780EA18BEE0E400FE4F13 /* src */; };
 		C03780EC18BEE0E400FE4F13 /* src in Resources */ = {isa = PBXBuildFile; fileRef = C03780EA18BEE0E400FE4F13 /* src */; };
-		C03C8B4B18A770DD00723415 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C03C8B4818A770DD00723415 /* main.cpp */; };
+		C03C8B4B18A770DD00723415 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = C03C8B4818A770DD00723415 /* main.mm */; };
 		C05D1C171923467600B808A4 /* config.json in Resources */ = {isa = PBXBuildFile; fileRef = C05D1C161923467600B808A4 /* config.json */; };
 		C05D1C181923467600B808A4 /* config.json in Resources */ = {isa = PBXBuildFile; fileRef = C05D1C161923467600B808A4 /* config.json */; };
 		C0799CB918BAE62000E9C828 /* res in Resources */ = {isa = PBXBuildFile; fileRef = C0799CB518BAE62000E9C828 /* res */; };
@@ -91,6 +93,8 @@
 		07FC49C5830602CCA699BE78 /* libcocos2d Mac.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libcocos2d Mac.a"; path = "/Users/youyou/Desktop/workspace/fireball/cc/cocos2d-x/templates/js-template-binary/frameworks/runtime-src/proj.ios_mac/../../../../../../../../../../../../Applications/CocosCreator.app/Contents/Resources/cocos2d-x/prebuilt/mac/libcocos2d Mac.a"; sourceTree = "<absolute>"; };
 		180D448EA05BC67C8F36F0F3 /* libjscocos2d Mac.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libjscocos2d Mac.a"; path = "/Applications/CocosCreator.app/Contents/Resources/cocos2d-x/prebuilt/mac/libjscocos2d Mac.a"; sourceTree = "<absolute>"; };
 		1A1A081B18C9DF05005C6854 /* project.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = project.json; path = ../../../project.json; sourceTree = "<group>"; };
+		1A499EBE1F0CDDF9004E6AEC /* libicucore.A.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libicucore.A.tbd; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/usr/lib/libicucore.A.tbd; sourceTree = DEVELOPER_DIR; };
+		1A499EC01F0CDE01004E6AEC /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		1A6BF21418C9DB5900FB0E1C /* main.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = main.js; path = ../../../main.js; sourceTree = "<group>"; };
 		1A82F5FA169AC92500C4B13A /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		1A96A4F2174A3432008653A9 /* libcurl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcurl.a; path = "/Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos2dx/platform/third_party/ios/libraries/libcurl.a"; sourceTree = "<group>"; };
@@ -154,7 +158,7 @@
 		ABE457021D35198000F1F400 /* libPluginProtocol.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libPluginProtocol.a; path = "/Applications/CocosCreator.app/Contents/Resources/cocos2d-x/external/ios/libs/libPluginProtocol.a"; sourceTree = "<absolute>"; };
 		BA4E718619EB6E7900932425 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.0.sdk/System/Library/Frameworks/MediaPlayer.framework; sourceTree = DEVELOPER_DIR; };
 		C03780EA18BEE0E400FE4F13 /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = src; path = ../../../src; sourceTree = "<group>"; };
-		C03C8B4818A770DD00723415 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		C03C8B4818A770DD00723415 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		C05D1C161923467600B808A4 /* config.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = config.json; path = ../../../config.json; sourceTree = "<group>"; };
 		C0799CB518BAE62000E9C828 /* res */ = {isa = PBXFileReference; lastKnownFileType = folder; name = res; path = ../../../res; sourceTree = "<group>"; };
 		D454520B156E22BD00887EB5 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
@@ -171,6 +175,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A499EC11F0CDE01004E6AEC /* CFNetwork.framework in Frameworks */,
 				ED545A921B68A26600C3958E /* libiconv.dylib in Frameworks */,
 				87D4C4451AB2187000F68C44 /* Security.framework in Frameworks */,
 				502380DC17EBB88200990C9B /* libcurl.dylib in Frameworks */,
@@ -193,10 +198,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A499EBF1F0CDDF9004E6AEC /* libicucore.A.tbd in Frameworks */,
 				AB2EB9D81D34F4ED00695C92 /* GameController.framework in Frameworks */,
 				AB2EB9D61D34F4D700695C92 /* SystemConfiguration.framework in Frameworks */,
 				ABE457031D35198000F1F400 /* libPluginProtocol.a in Frameworks */,
-				AB2EB9D41D34F4C400695C92 /* MobileCoreServices.framework in Frameworks */,
+				ABE456E71D34F87F00F1F400 /* MobileCoreServices.framework in Frameworks */,
 				AB2EB9D21D34F4B500695C92 /* CoreFoundation.framework in Frameworks */,
 				AB2EB9D01D34F4A000695C92 /* CFNetwork.framework in Frameworks */,
 				294D7D781D0D6667002CE7B7 /* CoreText.framework in Frameworks */,
@@ -267,7 +273,7 @@
 		509D4ACA17EBB2BE00697056 /* mac */ = {
 			isa = PBXGroup;
 			children = (
-				C03C8B4818A770DD00723415 /* main.cpp */,
+				C03C8B4818A770DD00723415 /* main.mm */,
 				509D4ACB17EBB2BE00697056 /* Icon.icns */,
 				509D4ACC17EBB2BE00697056 /* Info.plist */,
 				509D4ACE17EBB2BE00697056 /* Prefix.pch */,
@@ -311,6 +317,8 @@
 		A92275401517C094001B78AA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1A499EC01F0CDE01004E6AEC /* CFNetwork.framework */,
+				1A499EBE1F0CDDF9004E6AEC /* libicucore.A.tbd */,
 				AB2EB9D71D34F4ED00695C92 /* GameController.framework */,
 				AB2EB9D51D34F4D700695C92 /* SystemConfiguration.framework */,
 				AB2EB9D31D34F4C400695C92 /* MobileCoreServices.framework */,
@@ -519,7 +527,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				509D4A8117EBB24E00697056 /* AppDelegate.cpp in Sources */,
-				C03C8B4B18A770DD00723415 /* main.cpp in Sources */,
+				C03C8B4B18A770DD00723415 /* main.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -527,12 +535,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				509D4AC917EBB2AB00697056 /* RootViewController.mm in Sources */,
-				AB2EB9CB1D34F41700695C92 /* jsb_anysdk_basic_conversions.cpp in Sources */,
 				AB2EB9CE1D34F41700695C92 /* SDKManager.cpp in Sources */,
 				AB2EB9CC1D34F41700695C92 /* jsb_anysdk_protocols_auto.cpp in Sources */,
-				D4545227156E28EF00887EB5 /* AppDelegate.cpp in Sources */,
+				AB2EB9CB1D34F41700695C92 /* jsb_anysdk_basic_conversions.cpp in Sources */,
 				AB2EB9CD1D34F41700695C92 /* manualanysdkbindings.cpp in Sources */,
+				509D4AC917EBB2AB00697056 /* RootViewController.mm in Sources */,
+				D4545227156E28EF00887EB5 /* AppDelegate.cpp in Sources */,
 				509D4AC817EBB2AB00697056 /* main.m in Sources */,
 				509D4ABC17EBB2AB00697056 /* AppController.mm in Sources */,
 			);
@@ -564,7 +572,7 @@
 					"/Applications/CocosCreator.app/Contents/Resources/cocos2d-x/tools/simulator/libsimulator/lib/protobuf-lite",
 				);
 				INFOPLIST_FILE = mac/Info.plist;
-				LIBRARY_SEARCH_PATHS = " /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/prebuilt/mac";
+				LIBRARY_SEARCH_PATHS = "/Applications/CocosCreator.app/Contents/Resources/cocos2d-x/prebuilt/mac";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				OTHER_LDFLAGS = "";
 				SDKROOT = macosx;
@@ -594,7 +602,7 @@
 					"/Applications/CocosCreator.app/Contents/Resources/cocos2d-x/tools/simulator/libsimulator/lib/protobuf-lite",
 				);
 				INFOPLIST_FILE = mac/Info.plist;
-				LIBRARY_SEARCH_PATHS = " /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/prebuilt/mac";
+				LIBRARY_SEARCH_PATHS = "/Applications/CocosCreator.app/Contents/Resources/cocos2d-x/prebuilt/mac";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				OTHER_LDFLAGS = "";
 				SDKROOT = macosx;
@@ -614,13 +622,12 @@
 					"COCOS2D_DEBUG=1",
 					USE_FILE32API,
 					COCOS2D_JAVASCRIPT,
-					CC_ENABLE_CHIPMUNK_INTEGRATION,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -638,12 +645,11 @@
 					NDEBUG,
 					USE_FILE32API,
 					COCOS2D_JAVASCRIPT,
-					CC_ENABLE_CHIPMUNK_INTEGRATION,
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -674,7 +680,7 @@
 					"/Applications/CocosCreator.app/Contents/Resources/cocos2d-x/tools/simulator/libsimulator/lib/protobuf-lite",
 				);
 				INFOPLIST_FILE = ios/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = (
 					"/Applications/CocosCreator.app/Contents/Resources/cocos2d-x/prebuilt/ios",
 					"/Applications/CocosCreator.app/Contents/Resources/cocos2d-x/external/ios/libs",
@@ -710,7 +716,7 @@
 					"/Applications/CocosCreator.app/Contents/Resources/cocos2d-x/tools/simulator/libsimulator/lib/protobuf-lite",
 				);
 				INFOPLIST_FILE = ios/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = (
 					"/Applications/CocosCreator.app/Contents/Resources/cocos2d-x/prebuilt/ios",
 					"/Applications/CocosCreator.app/Contents/Resources/cocos2d-x/external/ios/libs",

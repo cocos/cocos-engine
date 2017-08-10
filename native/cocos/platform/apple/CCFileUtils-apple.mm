@@ -319,7 +319,7 @@ std::string FileUtilsApple::getFullPathForDirectoryAndFilename(const std::string
         // Because method "pathForResource" will return nil if the directory contains "../".
         auto theIdx = directory.find("..");
         if (theIdx != std::string::npos && theIdx > 0) {
-            NSArray<NSString *>* pathComps = [dirStr pathComponents];
+            NSMutableArray<NSString *>* pathComps = [NSMutableArray arrayWithArray:[dirStr pathComponents]];
             NSUInteger idx = [pathComps indexOfObject:@".."];
             while (idx != NSNotFound && idx > 0) {          // if found ".." & it's not at the beginning of the string
                 [pathComps removeObjectAtIndex: idx];       // remove the item ".."

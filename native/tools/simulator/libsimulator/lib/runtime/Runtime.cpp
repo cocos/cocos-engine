@@ -103,7 +103,7 @@ void resetDesignResolution()
         if (size.width < size.height)
             std::swap(size.width, size.height);
     }
-    Director::getInstance()->getOpenGLView()->setDesignResolutionSize(size.width, size.height, ResolutionPolicy::EXACT_FIT);
+    cocos2d::Director::getInstance()->getOpenGLView()->setDesignResolutionSize(size.width, size.height, ResolutionPolicy::EXACT_FIT);
 }
 
 //
@@ -172,7 +172,7 @@ const ProjectConfig &RuntimeEngine::getProjectConfig()
 void RuntimeEngine::setProjectPath(const std::string &workPath)
 {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32 || CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
-    vector<std::string> searchPathArray = FileUtils::getInstance()->getSearchPaths();
+    vector<std::string> searchPathArray = cocos2d::FileUtils::getInstance()->getSearchPaths();
 
     if (workPath.empty())
     {
@@ -214,7 +214,7 @@ void RuntimeEngine::setProjectPath(const std::string &workPath)
 
     // add writable path to search path
     searchPathArray.insert(searchPathArray.begin(), FileServer::getShareInstance()->getWritePath());
-    FileUtils::getInstance()->setSearchPaths(searchPathArray);
+    cocos2d::FileUtils::getInstance()->setSearchPaths(searchPathArray);
 #endif
 }
 
@@ -237,7 +237,7 @@ void RuntimeEngine::start()
 #endif
 
     // set search path
-    string path = FileUtils::getInstance()->fullPathForFilename(_project.getScriptFileRealPath().c_str());
+    string path = cocos2d::FileUtils::getInstance()->fullPathForFilename(_project.getScriptFileRealPath().c_str());
     size_t pos;
     while ((pos = path.find_first_of("\\")) != std::string::npos)
     {
@@ -248,15 +248,15 @@ void RuntimeEngine::start()
     if (p != path.npos)
     {
         workdir = path.substr(0, p);
-        FileUtils::getInstance()->addSearchPath(workdir);
+        cocos2d::FileUtils::getInstance()->addSearchPath(workdir);
     }
 
     // update search pathes
-    FileUtils::getInstance()->addSearchPath(_project.getProjectDir());
+    cocos2d::FileUtils::getInstance()->addSearchPath(_project.getProjectDir());
     auto &customizedPathes = _project.getSearchPath();
     for (auto &path : customizedPathes)
     {
-        FileUtils::getInstance()->addSearchPath(path);
+        cocos2d::FileUtils::getInstance()->addSearchPath(path);
     }
 
     //
@@ -316,10 +316,10 @@ RuntimeProtocol* RuntimeEngine::getRuntime()
 
 void RuntimeEngine::showUI()
 {
-    auto scene = Scene::create();
+    auto scene = cocos2d::Scene::create();
     auto connectLayer = new ConnectWaitLayer();
     connectLayer->autorelease();
-    auto director = Director::getInstance();
+    auto director = cocos2d::Director::getInstance();
     scene->addChild(connectLayer);
     director->runWithScene(scene);
 }
@@ -370,7 +370,7 @@ void RuntimeEngine::trackEvent(const std::string &eventName)
     char cidBuf[64] = {0};
     auto guid = player::DeviceEx::getInstance()->getUserGUID();
     snprintf(cidBuf, sizeof(cidBuf), "%x", XXH32(guid.c_str(), (int)guid.length(), 0));
-    auto request = extra::HTTPRequest::createWithUrl(NULL,
+    auto request = cocos2d::extra::HTTPRequest::createWithUrl(NULL,
                                                      "http://www.google-analytics.com/collect",
                                                      kCCHTTPRequestMethodPOST);
     request->addPOSTValue("v", "1");
@@ -379,7 +379,7 @@ void RuntimeEngine::trackEvent(const std::string &eventName)
     request->addPOSTValue("t", "event");
 
     request->addPOSTValue("an", "simulator");
-    request->addPOSTValue("av", cocos2dVersion());
+    request->addPOSTValue("av", cocos2d::cocos2dVersion());
 
     request->addPOSTValue("ec", platform);
     request->addPOSTValue("ea", eventName.c_str());
