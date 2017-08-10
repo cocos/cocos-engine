@@ -544,7 +544,7 @@ SE_BIND_FUNC(JavaScriptJavaBridge_callStaticMethod)
 bool register_javascript_java_bridge(se::Object* obj)
 {
     se::Class* cls = se::Class::create("JavascriptJavaBridge", obj, nullptr, _SE(JavaScriptJavaBridge_constructor));
-    cls->defineFinalizedFunction(_SE(JavaScriptJavaBridge_finalize));
+    cls->defineFinalizeFunction(_SE(JavaScriptJavaBridge_finalize));
 
     cls->defineFunction("callStaticMethod", _SE(JavaScriptJavaBridge_callStaticMethod));
 
