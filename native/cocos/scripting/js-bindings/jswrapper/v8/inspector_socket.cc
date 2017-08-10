@@ -3,7 +3,8 @@
 
 #include "base64.h"
 
-#include "openssl/sha.h"  // Sha-1 hash
+//#include "openssl/sha.h"  // Sha-1 hash
+#include "SHA1.h"
 
 #include <string.h>
 #include <vector>
@@ -385,10 +386,16 @@ static void generate_accept_string(const std::string& client_key,
   // Magic string from websockets spec.
   static const char ws_magic[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
   std::string input(client_key + ws_magic);
-  char hash[SHA_DIGEST_LENGTH];
-  SHA1(reinterpret_cast<const unsigned char*>(&input[0]), input.size(),
-       reinterpret_cast<unsigned char*>(hash));
-  node::base64_encode(hash, sizeof(hash), *buffer, sizeof(*buffer));
+//  char hash[SHA_DIGEST_LENGTH];
+//  SHA1(reinterpret_cast<const unsigned char*>(&input[0]), input.size(),
+//       reinterpret_cast<unsigned char*>(hash));
+
+    se::SHA1Sum::Hash hash = {0};
+    se::SHA1Sum s;
+    s.update(reinterpret_cast<const unsigned char*>(&input[0]), (uint32_t)input.size());
+    s.finish(hash);
+
+  node::base64_encode((char*)hash, sizeof(hash), *buffer, sizeof(*buffer));
 }
 
 static int header_value_cb(http_parser* parser, const char* at, size_t length) {
