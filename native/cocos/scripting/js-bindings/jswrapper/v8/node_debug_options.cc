@@ -25,7 +25,7 @@ int parse_and_validate_port(const std::string& port) {
   const long result = strtol(port.c_str(), &endptr, 10);  // NOLINT(runtime/int)
   if (errno != 0 || *endptr != '\0'||
       (result != 0 && result < 1024) || result > 65535) {
-    fprintf(stderr, "Debug port must be 0 or in range 1024 to 65535.\n");
+    LOGE("Debug port must be 0 or in range 1024 to 65535.\n");
     exit(12);
   }
   return static_cast<int>(result);
@@ -98,7 +98,7 @@ bool DebugOptions::ParseOption(const char* argv0, const std::string& option) {
   } else if (option_name == "--debug-port" ||
              option_name == "--inspect-port") {
     if (!has_argument) {
-      fprintf(stderr, "%s: %s requires an argument\n",
+      LOGE("%s: %s requires an argument\n",
               argv0, option.c_str());
       exit(9);
     }
@@ -108,8 +108,7 @@ bool DebugOptions::ParseOption(const char* argv0, const std::string& option) {
 
 #if !HAVE_INSPECTOR
   if (inspector_enabled_) {
-    fprintf(stderr,
-            "Inspector support is not available with this Node.js build\n");
+    LOGE("Inspector support is not available with this Node.js build\n");
   }
   inspector_enabled_ = false;
   return false;

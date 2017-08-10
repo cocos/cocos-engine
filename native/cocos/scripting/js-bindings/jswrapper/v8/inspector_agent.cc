@@ -4,7 +4,6 @@
 
 #include "inspector_io.h"
 #include "env.h"
-//cjh #include "env-inl.h"
 #include "node.h"
 #include "v8-inspector.h"
 #include "v8-platform.h"
@@ -116,8 +115,8 @@ static int StartDebugSignalHandler() {
   CHECK_EQ(0, pthread_sigmask(SIG_SETMASK, &sigmask, nullptr));
   CHECK_EQ(0, pthread_attr_destroy(&attr));
   if (err != 0) {
-    fprintf(stderr, "node[%d]: pthread_create: %s\n", getpid(), strerror(err));
-    fflush(stderr);
+    LOGE("node[%d]: pthread_create: %s\n", getpid(), strerror(err));
+
     // Leave SIGUSR1 blocked.  We don't install a signal handler,
     // receiving the signal would terminate the process.
     return -err;

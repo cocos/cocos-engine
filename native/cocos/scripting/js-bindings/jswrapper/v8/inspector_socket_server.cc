@@ -42,6 +42,14 @@ static const uint8_t PROTOCOL_JSON[] = {
   #include "v8_inspector_protocol_json.h"  // NOLINT(build/include_order)
 };
 
+template<typename T>
+static std::string to_string(T arg)
+{
+    std::stringstream ss;
+    ss << arg;
+    return ss.str();
+}
+
 void Escape(std::string* string) {
   for (char& c : *string) {
     c = (c == '\"' || c == '\\') ? '_' : c;
@@ -100,12 +108,11 @@ void PrintDebuggerReadyMessage(const std::string& host,
     return;
   }
   for (const std::string& id : ids) {
-    fprintf(out, "Debugger listening..., visit [ chrome-devtools://devtools/bundled/inspector.html?v8only=true&%s ] in chrome browser to debug!\n",
-            FormatWsAddress(host, port, id, true).c_str());
+    LOGD("Debugger listening..., visit [ chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=%s ] in chrome browser to debug!\n",
+            FormatWsAddress(host, port, id, false).c_str());
   }
-  fprintf(out, "For help see %s\n",
+  LOGD("For help see %s\n",
           "https://nodejs.org/en/docs/inspector");
-  fflush(out);
 }
 
 void SendHttpResponse(InspectorSocket* socket, const std::string& response) {
@@ -396,14 +403,12 @@ bool InspectorSocketServer::Start() {
   hints.ai_flags = AI_NUMERICSERV;
   hints.ai_socktype = SOCK_STREAM;
   uv_getaddrinfo_t req;
-  const std::string port_string = std::to_string(port_);
+  const std::string port_string = to_string(port_);
   int err = uv_getaddrinfo(loop_, &req, nullptr, host_.c_str(),
                            port_string.c_str(), &hints);
   if (err < 0) {
-    if (out_ != NULL) {
-      fprintf(out_, "Unable to resolve \"%s\": %s\n", host_.c_str(),
+      LOGE("Unable to resolve \"%s\": %s\n", host_.c_str(),
               uv_strerror(err));
-    }
     return false;
   }
   for (addrinfo* address = req.addrinfo; address != nullptr;
@@ -418,11 +423,8 @@ bool InspectorSocketServer::Start() {
   // We only show error if we failed to start server on all addresses. We only
   // show one error, for the last address.
   if (server_sockets_.empty()) {
-    if (out_ != NULL) {
-      fprintf(out_, "Starting inspector on %s:%d failed: %s\n",
+      LOGE("Starting inspector on %s:%d failed: %s\n",
               host_.c_str(), port_, uv_strerror(err));
-      fflush(out_);
-    }
     return false;
   }
   state_ = ServerState::kRunning;

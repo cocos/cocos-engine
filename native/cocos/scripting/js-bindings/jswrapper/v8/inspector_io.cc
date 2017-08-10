@@ -3,7 +3,6 @@
 
 #include "inspector_socket_server.h"
 #include "env.h"
-//cjh #include "env-inl.h"
 #include "node.h"
 //cjh #include "node_crypto.h"
 #include "node_mutex.h"
@@ -276,8 +275,7 @@ void InspectorIo::WaitForDisconnect() {
   if (state_ == State::kConnected) {
     state_ = State::kShutDown;
     Write(TransportAction::kStop, 0, StringView());
-    fprintf(stderr, "Waiting for the debugger to disconnect...\n");
-    fflush(stderr);
+    LOGD("Waiting for the debugger to disconnect...\n");
     parent_env_->inspector_agent()->RunMessageLoop();
   }
 }
@@ -417,7 +415,7 @@ void InspectorIo::DispatchMessages() {
         CHECK_EQ(session_delegate_, nullptr);
         session_id_ = std::get<1>(task);
         state_ = State::kConnected;
-        fprintf(stderr, "Debugger attached.\n");
+        LOGD("Debugger attached.\n");
         session_delegate_ = std::unique_ptr<InspectorSessionDelegate>(
             new IoSessionDelegate(this));
         parent_env_->inspector_agent()->Connect(session_delegate_.get());

@@ -711,10 +711,9 @@ NO_RETURN void Assert(const char* const (*args)[4]) {
     snprintf(pid, sizeof(pid), "[%u]", getpid());
 #endif
 
-    fprintf(stderr, "%s%s: %s:%s:%s%s Assertion `%s' failed.\n",
+    LOGE("%s%s: %s:%s:%s%s Assertion `%s' failed.\n",
             exepath, pid, filename, linenum,
             function, *function ? ":" : "", message);
-    fflush(stderr);
     
     Abort();
 }
