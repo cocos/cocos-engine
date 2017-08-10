@@ -100,7 +100,7 @@ void PrintDebuggerReadyMessage(const std::string& host,
     return;
   }
   for (const std::string& id : ids) {
-    fprintf(out, "Debugger listening on %s\n",
+    fprintf(out, "Debugger listening..., visit [ chrome-devtools://devtools/bundled/inspector.html?v8only=true&%s ] in chrome browser to debug!\n",
             FormatWsAddress(host, port, id, true).c_str());
   }
   fprintf(out, "For help see %s\n",
