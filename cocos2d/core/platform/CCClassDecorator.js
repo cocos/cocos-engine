@@ -42,16 +42,15 @@ const Preprocess = require('./preprocess-class');
 const JS = require('./js');
 const isPlainEmptyObj_DEV = CC_DEV && require('./utils').isPlainEmptyObj_DEV;
 
+// caches for class construction
+const CACHE_KEY = '__ccclassCache__';
+
 function fNOP (ctor) {
     return ctor;
 }
 
 function getSubDict (obj, key) {
-    var res = obj[key];
-    if (!res) {
-        res = obj[key] = {};
-    }
-    return res;
+    return obj[key] || (obj[key] = {});
 }
 
 function checkCtorArgument (decorate) {
@@ -103,12 +102,12 @@ var checkNumberArgument = _argumentChecker('number');
 // var checkBooleanArgument = _argumentChecker('boolean');
 
 
-function getClassProto (ctor, decoratorName) {
+function getClassCache (ctor, decoratorName) {
     if (CC_DEV && cc.Class._isCCClass(ctor)) {
-        cc.error('@%s should be used after @ccclass for class "%s"', decoratorName, JS.getClassName(ctor));
+        cc.error('`@%s` should be used after @ccclass for class "%s"', decoratorName, JS.getClassName(ctor));
         return null;
     }
-    return getSubDict(ctor, '__ccclassProto__');
+    return getSubDict(ctor, CACHE_KEY);
 }
 
 function getDefaultFromInitializer (initializer) {
@@ -129,6 +128,100 @@ function getDefaultFromInitializer (initializer) {
         // so we dont need to simplify into `{}` or `[]` or vec2 completely.
         return initializer;
     }
+}
+
+
+function extractActualDefaultValues (ctor) {
+    var dummyObj;
+    try {
+        dummyObj = new ctor();
+    }
+    catch (e) {
+        if (CC_DEV) {
+            cc.warnID(3652, JS.getClassName(ctor), e);
+        }
+        return {};
+    }
+    return dummyObj;
+}
+
+function genProperty (ctor, properties, propName, options, desc, cache) {
+    var fullOptions = options && (Preprocess.getFullFormOfProperty(options) || options);
+    var existsProperty = properties[propName];
+    var prop = JS.mixin(existsProperty || {}, fullOptions || {});
+
+    var isGetset = desc && (desc.get || desc.set);
+    if (isGetset) {
+        // typescript or babel
+        if (CC_DEV && options && (options.get || options.set)) {
+            var errorProps = getSubDict(cache, 'errorProps');
+            if (!errorProps[propName]) {
+                errorProps[propName] = true;
+                cc.warnID(3655, propName, JS.getClassName(ctor), propName, propName);
+            }
+        }
+        if (desc.get) {
+            prop.get = desc.get;
+        }
+        if (desc.set) {
+            prop.set = desc.set;
+        }
+    }
+    else {
+        if (CC_DEV && (prop.get || prop.set)) {
+            // @property({
+            //     get () { ... },
+            //     set (...) { ... },
+            // })
+            // value;
+            cc.errorID(3655, propName, JS.getClassName(ctor), propName, propName);
+            return;
+        }
+        // member variables
+        var defaultValue = undefined;
+        var isDefaultValueSpecified = false;
+        if (desc) {
+            // babel
+            if (desc.initializer) {
+                // @property(...)
+                // value = null;
+                defaultValue = getDefaultFromInitializer(desc.initializer);
+                isDefaultValueSpecified = true;
+            }
+            else {
+                // @property(...)
+                // value;
+            }
+        }
+        else {
+            // typescript
+            var actualDefaultValues = cache.default || (cache.default = extractActualDefaultValues(ctor));
+            if (actualDefaultValues.hasOwnProperty(propName)) {
+                // @property(...)
+                // value = null;
+                defaultValue = actualDefaultValues[propName];
+                isDefaultValueSpecified = true;
+            }
+            else {
+                // @property(...)
+                // value;
+            }
+        }
+
+        if (CC_DEV) {
+            if (options && options.hasOwnProperty('default')) {
+                cc.warnID(3653, propName, JS.getClassName(ctor));
+                // prop.default = options.default;
+            }
+            else if (!isDefaultValueSpecified) {
+                cc.warnID(3654, propName);
+                // prop.default = fullOptions.hasOwnProperty('default') ? fullOptions.default : undefined;
+            }
+        }
+        prop.default = defaultValue;
+    }
+
+    properties[propName] = prop;
 }
 
 /**
@@ -173,10 +266,14 @@ var ccclass = checkCtorArgument(function (ctor, name) {
         ctor,
         __ES6__: true,
     };
-    var decoratedProto = ctor.__ccclassProto__;
-    if (decoratedProto) {
-        JS.mixin(proto, decoratedProto);
-        ctor.__ccclassProto__ = undefined;
+    var cache = ctor[CACHE_KEY];
+    if (cache) {
+        var decoratedProto = cache.proto;
+        if (decoratedProto) {
+            // decoratedProto.properties = createProperties(ctor, decoratedProto.properties);
+            JS.mixin(proto, decoratedProto);
+        }
+        ctor[CACHE_KEY] = undefined;
     }
 
     var res = cc.Class(proto);
@@ -305,64 +402,11 @@ var ccclass = checkCtorArgument(function (ctor, name) {
 function property (ctorProtoOrOptions, propName, desc) {
     var options = null;
     function normalized (ctorProto, propName, desc) {
-        var ccclassProto = getClassProto(ctorProto.constructor);
-        if (ccclassProto) {
-            var props = getSubDict(ccclassProto, 'properties');
-            var prop = props[propName];
-            var fullOptions = options && (Preprocess.getFullFormOfProperty(options) || options);
-            // if (options && prop && (typeof prop !== 'object')) {
-            //     if (CC_DEV && prop) {
-            //         cc.error('Can not merge decorator %s with %s for property %s of Class "%s"',
-            //             prop, options, propName, JS.getClassName(ctorProto.constructor));
-            //     }
-            //     prop = options;
-            // }
-            prop = JS.mixin(prop || {}, fullOptions || {});
-            if (desc) {
-                if (desc.initializer) {
-                    if (CC_DEV && options && options.hasOwnProperty('default')) {
-                        cc.warnID(3650, 'default', propName, JS.getClassName(ctorProto.constructor));
-                    }
-
-                    prop.default = getDefaultFromInitializer(desc.initializer);
-                }
-                else {
-                    if (desc.get) {
-                        if (CC_DEV && options && options.get) {
-                            cc.warnID(3650, 'get', propName, JS.getClassName(ctorProto.constructor));
-                        }
-                        prop.get = desc.get;
-                    }
-                    if (desc.set) {
-                        if (CC_DEV && options && options.set) {
-                            cc.warnID(3650, 'set', propName, JS.getClassName(ctorProto.constructor));
-                        }
-                        prop.set = desc.set;
-                    }
-                }
-            }
-            else {
-                // is typescript...
-                if (CC_DEV) {
-                    // can not get default value...
-                    if (isPlainEmptyObj_DEV(prop)) {
-                        cc.error('Failed to get default value of "%s" in class "%s". ' +
-                                 'If using TypeScript, you also need to pass in the "default" attribute required by the "property" decorator.', propName, JS.getClassName(ctorProto.constructor));
-                    }
-                    else if (prop.get || prop.set) {
-                        cc.error('Can not define get set in decorator of "%s" in class "%s", please use:\n' +
-                                 '@decorator(...)\n' +
-                                 'get %s () {\n' +
-                                 '  ...\n' +
-                                 '}\n' +
-                                 '@decorator\n' +
-                                 'set %s () {\n' +
-                                 '  ...\n' +
-                                 '}', propName, JS.getClassName(ctorProto.constructor), propName, propName);
-                    }
-                }
-            }
-            props[propName] = prop;
+        var cache = getClassCache(ctorProto.constructor);
+        if (cache) {
+            var ccclassProto = getSubDict(cache, 'proto');
+            var properties = getSubDict(ccclassProto, 'properties');
+            genProperty(ctorProto.constructor, properties, propName, options, desc, cache);
         }
     }
     if (typeof propName === 'undefined') {
@@ -378,9 +422,10 @@ function property (ctorProtoOrOptions, propName, desc) {
 
 function createEditorDecorator (argCheckFunc, editorPropName, staticValue) {
     return argCheckFunc(function (ctor, decoratedValue) {
-        var proto = getClassProto(ctor, editorPropName);
-        if (proto) {
+        var cache = getClassCache(ctor, editorPropName);
+        if (cache) {
             var value = (staticValue !== undefined) ? staticValue : decoratedValue;
+            var proto = getSubDict(cache, 'proto');
             getSubDict(proto, 'editor')[editorPropName] = value;
         }
     }, editorPropName);
@@ -636,9 +681,9 @@ function mixins () {
         mixins[i] = arguments[i];
     }
     return function (ctor) {
-        var proto = getClassProto(ctor, 'mixins');
-        if (proto) {
-            proto.mixins = mixins;
+        var cache = getClassCache(ctor, 'mixins');
+        if (cache) {
+            getSubDict(cache, 'proto').mixins = mixins;
         }
     }
 }
