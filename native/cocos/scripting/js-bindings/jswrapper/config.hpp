@@ -5,7 +5,7 @@
 //#define SCRIPT_ENGINE_JSC
 //#define SCRIPT_ENGINE_CHAKRACORE
 
-#define SE_ENABLE_INSPECTOR 0
+#define SE_ENABLE_INSPECTOR 1
 
 #ifdef ANDROID
 
@@ -19,5 +19,11 @@
 
 #define LOGD printf
 #define LOGE printf
+
+#endif
+
+#if defined (__unix__) || (defined (__APPLE__) && defined (__MACH__))
+
+#define __POSIX__
 
 #endif

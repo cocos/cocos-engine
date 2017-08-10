@@ -11,6 +11,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef __POSIX__
+#include <unistd.h>
+#endif
+
 #define NODE_VERSION "JSB2.0" //cjh added
 
 static inline const char *errno_string(int errorno) {
