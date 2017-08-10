@@ -316,12 +316,14 @@ let Camera = cc.Class({
 
             if (target instanceof cc.Node) {
                 sgNode = target._sgNode;
-                if (!sgNode._cameraInfo) {
+                if (sgNode && !sgNode._cameraInfo) {
                     this._addSgTargetInSg(sgNode);
                 }
             }
 
-            sgNode._cameraInfo.touched = checkedTimes;
+            if (sgNode) {
+                sgNode._cameraInfo.touched = checkedTimes;
+            }
         }
 
         for (let i = sgTarges.length - 1; i >= 0; i--) {
