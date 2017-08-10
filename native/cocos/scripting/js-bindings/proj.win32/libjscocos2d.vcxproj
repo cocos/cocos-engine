@@ -41,9 +41,19 @@
     <ClCompile Include="..\jswrapper\Ref.cpp" />
     <ClCompile Include="..\jswrapper\State.cpp" />
     <ClCompile Include="..\jswrapper\v8\Class.cpp" />
+    <ClCompile Include="..\jswrapper\v8\env.cc" />
+    <ClCompile Include="..\jswrapper\v8\http_parser.c" />
+    <ClCompile Include="..\jswrapper\v8\inspector_agent.cc" />
+    <ClCompile Include="..\jswrapper\v8\inspector_io.cc" />
+    <ClCompile Include="..\jswrapper\v8\inspector_socket.cc" />
+    <ClCompile Include="..\jswrapper\v8\inspector_socket_server.cc" />
+    <ClCompile Include="..\jswrapper\v8\node.cc" />
+    <ClCompile Include="..\jswrapper\v8\node_debug_options.cc" />
     <ClCompile Include="..\jswrapper\v8\Object.cpp" />
     <ClCompile Include="..\jswrapper\v8\ObjectWrap.cpp" />
     <ClCompile Include="..\jswrapper\v8\ScriptEngine.cpp" />
+    <ClCompile Include="..\jswrapper\v8\SHA1.cpp" />
+    <ClCompile Include="..\jswrapper\v8\util.cc" />
     <ClCompile Include="..\jswrapper\v8\Utils.cpp" />
     <ClCompile Include="..\jswrapper\Value.cpp" />
     <ClCompile Include="..\manual\jsb_box2d_manual.cpp" />
@@ -82,13 +92,27 @@
     <ClInclude Include="..\jswrapper\SeApi.h" />
     <ClInclude Include="..\jswrapper\State.hpp" />
     <ClInclude Include="..\jswrapper\v8\Base.h" />
+    <ClInclude Include="..\jswrapper\v8\base64.h" />
     <ClInclude Include="..\jswrapper\v8\Class.hpp" />
+    <ClInclude Include="..\jswrapper\v8\env.h" />
     <ClInclude Include="..\jswrapper\v8\HelperMacros.h" />
+    <ClInclude Include="..\jswrapper\v8\http_parser.h" />
+    <ClInclude Include="..\jswrapper\v8\inspector_agent.h" />
+    <ClInclude Include="..\jswrapper\v8\inspector_io.h" />
+    <ClInclude Include="..\jswrapper\v8\inspector_socket.h" />
+    <ClInclude Include="..\jswrapper\v8\inspector_socket_server.h" />
+    <ClInclude Include="..\jswrapper\v8\node.h" />
+    <ClInclude Include="..\jswrapper\v8\node_debug_options.h" />
+    <ClInclude Include="..\jswrapper\v8\node_mutex.h" />
     <ClInclude Include="..\jswrapper\v8\Object.hpp" />
     <ClInclude Include="..\jswrapper\v8\ObjectWrap.h" />
     <ClInclude Include="..\jswrapper\v8\ScriptEngine.hpp" />
     <ClInclude Include="..\jswrapper\v8\SeApi.h" />
+    <ClInclude Include="..\jswrapper\v8\SHA1.h" />
+    <ClInclude Include="..\jswrapper\v8\util-inl.h" />
+    <ClInclude Include="..\jswrapper\v8\util.h" />
     <ClInclude Include="..\jswrapper\v8\Utils.hpp" />
+    <ClInclude Include="..\jswrapper\v8\v8_inspector_protocol_json.h" />
     <ClInclude Include="..\jswrapper\Value.hpp" />
     <ClInclude Include="..\manual\jsb_box2d_manual.hpp" />
     <ClInclude Include="..\manual\jsb_classtype.hpp" />
@@ -166,7 +190,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;HAVE_INSPECTOR;_DEBUG;_LIB;COCOS2D_DEBUG=1;XP_WIN;JS_HAVE___INTN;JS_INTPTR_TYPE=int;COCOS2D_JAVASCRIPT=1;CC_ENABLE_CHIPMUNK_INTEGRATION=1;_CRT_SECURE_NO_WARNINGS;_USRJSSTATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..;$(EngineRoot);$(EngineRoot)cocos\editor-support;$(ProjectDir)..\auto;$(ProjectDir)..\manual;$(EngineRoot)external\win32\include\spidermonkey;$(EngineRoot)external\win32\include\v8;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..;$(EngineRoot);$(EngineRoot)cocos\editor-support;$(ProjectDir)..\auto;$(ProjectDir)..\manual;$(EngineRoot)external\win32\include\spidermonkey;$(EngineRoot)external\win32\include\v8;$(EngineRoot)external\win32\include\uv;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4068;4101;4800;4251;4244;4099;4083;4700;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
@@ -190,7 +214,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;HAVE_INSPECTOR;NDEBUG;_LIB;XP_WIN;JS_HAVE___INTN;JS_INTPTR_TYPE=int;COCOS2D_JAVASCRIPT=1;CC_ENABLE_CHIPMUNK_INTEGRATION=1;_CRT_SECURE_NO_WARNINGS;_USRJSSTATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..;$(EngineRoot);$(EngineRoot)cocos\editor-support;$(ProjectDir)..\auto;$(ProjectDir)..\manual;$(EngineRoot)external\win32\include\spidermonkey;$(EngineRoot)external\win32\include\v8;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..;$(EngineRoot);$(EngineRoot)cocos\editor-support;$(ProjectDir)..\auto;$(ProjectDir)..\manual;$(EngineRoot)external\win32\include\spidermonkey;$(EngineRoot)external\win32\include\v8;$(EngineRoot)external\win32\include\uv;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4068;4101;4800;4251;4244;4099;4083;4700;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat>None</DebugInformationFormat>

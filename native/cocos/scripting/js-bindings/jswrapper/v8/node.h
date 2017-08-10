@@ -44,10 +44,11 @@ template <typename T, size_t N>
 char (&ArraySizeHelper(const T (&array)[N]))[N];
 #endif
 
+#ifdef __POSIX__
 void RegisterSignalHandler(int signal,
                            void (*handler)(int signal),
                            bool reset_handler = false);
-
+#endif // __POSIX__
 
 namespace node {
 

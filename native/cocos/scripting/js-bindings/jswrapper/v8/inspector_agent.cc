@@ -15,8 +15,6 @@
 #include <unordered_map>
 #include <vector>
 
-#define __POSIX__ //cjh added
-
 #ifdef __POSIX__
 #include <unistd.h>  // setuid, getuid
 #endif  // __POSIX__

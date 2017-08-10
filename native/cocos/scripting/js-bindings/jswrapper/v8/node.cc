@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 #define NODE_VERSION "JSB2.0" //cjh added
 
@@ -337,6 +336,7 @@ static inline const char *errno_string(int errorno) {
   }
 }
 
+#ifdef __POSIX__
 void RegisterSignalHandler(int signal,
                            void (*handler)(int signal),
                            bool reset_handler) {
@@ -352,6 +352,7 @@ void RegisterSignalHandler(int signal,
     sigfillset(&sa.sa_mask);
     CHECK_EQ(sigaction(signal, &sa, nullptr), 0);
 }
+#endif // __POSIX__
 
 using namespace v8;
 

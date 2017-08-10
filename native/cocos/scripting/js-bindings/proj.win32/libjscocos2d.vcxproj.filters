@@ -125,6 +125,36 @@
     <ClCompile Include="..\jswrapper\v8\Class.cpp">
       <Filter>jswrapper\v8</Filter>
     </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\inspector_agent.cc">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\inspector_io.cc">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\inspector_socket.cc">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\inspector_socket_server.cc">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\node.cc">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\node_debug_options.cc">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\util.cc">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\env.cc">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\http_parser.c">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\SHA1.cpp">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\auto\jsb_cocos2dx_auto.hpp">
@@ -251,6 +281,48 @@
       <Filter>jswrapper\v8</Filter>
     </ClInclude>
     <ClInclude Include="..\jswrapper\v8\HelperMacros.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\http_parser.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\inspector_agent.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\inspector_io.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\inspector_socket.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\inspector_socket_server.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\node.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\node_debug_options.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\node_mutex.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\util.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\util-inl.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\v8_inspector_protocol_json.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\base64.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\env.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\SHA1.h">
       <Filter>jswrapper\v8</Filter>
     </ClInclude>
   </ItemGroup>

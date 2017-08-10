@@ -12,11 +12,11 @@
 #include "node.h"
 #endif
 
-#include "cocos2d.h"
+//#include "cocos2d.h"
 
-#undef LOGD
+//#undef LOGD
 
-#define LOGD cocos2d::log
+//#define LOGD cocos2d::log
 
 
 #define RETRUN_VAL_IF_FAIL(cond, val) \
