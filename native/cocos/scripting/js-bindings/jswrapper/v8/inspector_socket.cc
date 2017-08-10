@@ -1,4 +1,7 @@
 #include "inspector_socket.h"
+
+#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+
 #include "util.h"
 
 #include "base64.h"
@@ -633,3 +636,5 @@ void InspectorSocket::reinit() {
 
 }  // namespace inspector
 }  // namespace node
+
+#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR

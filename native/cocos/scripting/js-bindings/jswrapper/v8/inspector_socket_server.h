@@ -1,6 +1,9 @@
 #ifndef SRC_INSPECTOR_SOCKET_SERVER_H_
 #define SRC_INSPECTOR_SOCKET_SERVER_H_
 
+#include "../config.hpp"
+#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+
 #include "inspector_agent.h"
 #include "inspector_socket.h"
 #include "uv.h"
@@ -95,5 +98,7 @@ class InspectorSocketServer {
 
 }  // namespace inspector
 }  // namespace node
+
+#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #endif  // SRC_INSPECTOR_SOCKET_SERVER_H_

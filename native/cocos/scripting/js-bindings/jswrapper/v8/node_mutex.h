@@ -1,6 +1,9 @@
 #ifndef SRC_NODE_MUTEX_H_
 #define SRC_NODE_MUTEX_H_
 
+#include "../config.hpp"
+#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+
 #include "util.h"
 #include "uv.h"
 
@@ -183,5 +186,7 @@ MutexBase<Traits>::ScopedUnlock::~ScopedUnlock() {
 }
 
 }  // namespace node
+
+#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #endif  // SRC_NODE_MUTEX_H_

@@ -1,5 +1,7 @@
 #include "inspector_socket_server.h"
 
+#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+
 #include "node.h"
 #include "uv.h"
 #include "zlib.h"
@@ -638,3 +640,5 @@ void ServerSocket::SocketClosedCallback(uv_handle_t* tcp_socket) {
 
 }  // namespace inspector
 }  // namespace node
+
+#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR

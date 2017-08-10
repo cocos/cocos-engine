@@ -1,6 +1,9 @@
 #ifndef SRC_INSPECTOR_SOCKET_H_
 #define SRC_INSPECTOR_SOCKET_H_
 
+#include "../config.hpp"
+#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+
 #include "http_parser.h"
 #include "util.h"
 #include "uv.h"
@@ -97,5 +100,6 @@ inline InspectorSocket* inspector_from_stream(uv_handle_t* stream) {
 }  // namespace inspector
 }  // namespace node
 
+#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #endif  // SRC_INSPECTOR_SOCKET_H_

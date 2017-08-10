@@ -1,4 +1,7 @@
 #include "node.h"
+
+#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+
 #include "util.h"
 #include "env.h"
 #include "http_parser.h"
@@ -1126,3 +1129,5 @@ void SetupProcessObject(Environment* env,
 #undef READONLY_PROPERTY
 
 } // namespace node {
+
+#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR

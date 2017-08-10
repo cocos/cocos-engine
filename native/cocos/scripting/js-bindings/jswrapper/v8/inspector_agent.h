@@ -1,6 +1,9 @@
 #ifndef SRC_INSPECTOR_AGENT_H_
 #define SRC_INSPECTOR_AGENT_H_
 
+#include "../config.hpp"
+#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+
 #include <memory>
 
 #include <stddef.h>
@@ -109,5 +112,7 @@ class Agent {
 
 }  // namespace inspector
 }  // namespace node
+
+#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #endif  // SRC_INSPECTOR_AGENT_H_

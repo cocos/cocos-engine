@@ -1,6 +1,9 @@
 #ifndef SRC_NODE_DEBUG_OPTIONS_H_
 #define SRC_NODE_DEBUG_OPTIONS_H_
 
+#include "../config.hpp"
+#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+
 #include <string>
 
 // Forward declaration to break recursive dependency chain with src/env.h.
@@ -36,5 +39,7 @@ class DebugOptions {
 };
 
 }  // namespace node
+
+#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #endif  // SRC_NODE_DEBUG_OPTIONS_H_

@@ -22,6 +22,9 @@
  * IN THE SOFTWARE.
  */
 #include "http_parser.h"
+
+#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+
 #include <assert.h>
 #include <stddef.h>
 #include <ctype.h>
@@ -2466,3 +2469,5 @@ http_parser_version(void) {
          HTTP_PARSER_VERSION_MINOR * 0x00100 |
          HTTP_PARSER_VERSION_PATCH * 0x00001;
 }
+
+#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR

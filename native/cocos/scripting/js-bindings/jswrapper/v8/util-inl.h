@@ -22,6 +22,10 @@
 #ifndef SRC_UTIL_INL_H_
 #define SRC_UTIL_INL_H_
 
+#ifndef NODE_UTIL_H_INCLUDE
+#error "util-inl.h could only be included in util.h"
+#endif
+
 #if defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
 
 #include "util.h"

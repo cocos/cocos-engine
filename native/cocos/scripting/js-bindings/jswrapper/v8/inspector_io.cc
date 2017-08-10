@@ -1,4 +1,5 @@
 #include "inspector_io.h"
+#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #include "inspector_socket_server.h"
 #include "env.h"
@@ -527,3 +528,5 @@ void IoSessionDelegate::SendMessageToFrontend(
 
 }  // namespace inspector
 }  // namespace node
+
+#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR

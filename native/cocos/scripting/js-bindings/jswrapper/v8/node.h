@@ -1,5 +1,8 @@
 #pragma once
 
+#include "../config.hpp"
+#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+
 #include "v8.h"
 
 #include <stddef.h>
@@ -158,3 +161,5 @@ void SetupProcessObject(Environment* env,
                         const char* const* exec_argv);
 
 } // namespace node {
+
+#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR

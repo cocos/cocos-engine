@@ -1,5 +1,7 @@
 #include "inspector_agent.h"
 
+#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+
 #include "inspector_io.h"
 #include "env.h"
 //cjh #include "env-inl.h"
@@ -810,3 +812,5 @@ void Agent::RequestIoThreadStart() {
 
 //cjh NODE_MODULE_CONTEXT_AWARE_BUILTIN(inspector,
 //                                  node::inspector::Agent::InitInspector);
+
+#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR

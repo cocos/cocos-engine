@@ -1,4 +1,7 @@
 #include "env.h"
+
+#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+
 #include "uv.h"
 
 using namespace v8;
@@ -115,3 +118,5 @@ namespace node {
     }
 
 } // namespace node {
+
+#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR

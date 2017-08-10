@@ -8,6 +8,8 @@
 //#include "mozilla/EndianUtils.h"
 #include "SHA1.h"
 
+#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+
 #include <string.h>
 #include <assert.h>
 
@@ -524,3 +526,5 @@ shaCompress(volatile unsigned* aX, const uint32_t* aBuf)
   XH(3) += D;
   XH(4) += E;
 }
+
+#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR

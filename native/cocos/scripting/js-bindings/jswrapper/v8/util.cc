@@ -20,6 +20,9 @@
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "util.h"
+
+#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+
 //cjh #include "string_bytes.h"
 //#include "node_buffer.h"
 //#include "node_internals.h"
@@ -110,3 +113,5 @@ void DumpBacktrace(FILE* fp) {
 }
 
 }  // namespace node
+
+#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR

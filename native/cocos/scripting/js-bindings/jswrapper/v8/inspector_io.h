@@ -1,6 +1,9 @@
 #ifndef SRC_INSPECTOR_IO_H_
 #define SRC_INSPECTOR_IO_H_
 
+#include "../config.hpp"
+#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+
 #include "inspector_socket_server.h"
 #include "node_debug_options.h"
 #include "node_mutex.h"
@@ -171,5 +174,7 @@ std::unique_ptr<v8_inspector::StringBuffer> Utf8ToStringView(
 
 }  // namespace inspector
 }  // namespace node
+
+#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #endif  // SRC_INSPECTOR_IO_H_

@@ -22,6 +22,9 @@
 #ifndef SRC_UTIL_H_
 #define SRC_UTIL_H_
 
+#include "../config.hpp"
+#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+
 #define NODE_WANT_INTERNALS 1 //cjh added
 
 #if defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
@@ -435,6 +438,9 @@ class BufferValue : public MaybeStackBuffer<char> {
 
 #endif  // defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
 
+#define NODE_UTIL_H_INCLUDE
 #include "util-inl.h"
+
+#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #endif  // SRC_UTIL_H_

@@ -20,6 +20,10 @@
  */
 #ifndef http_parser_h
 #define http_parser_h
+
+#include "../config.hpp"
+#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -359,4 +363,7 @@ int http_body_is_final(const http_parser *parser);
 #ifdef __cplusplus
 }
 #endif
+
+#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+
 #endif

@@ -1,5 +1,8 @@
 #pragma once
 
+#include "../config.hpp"
+#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+
 #include "inspector_agent.h"
 
 #include "v8.h"
@@ -621,4 +624,6 @@ Environment::NewFunctionTemplate(v8::FunctionCallback callback,
 
 
 } // namespace node {
+
+#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 

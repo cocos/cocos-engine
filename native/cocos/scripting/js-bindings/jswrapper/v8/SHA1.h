@@ -8,6 +8,9 @@
 
 #pragma once
 
+#include "../config.hpp"
+#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+
 //#include "mozilla/Types.h"
 
 #include <stddef.h>
@@ -64,4 +67,6 @@ public:
 };
 
 } /* namespace se */
+
+#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
