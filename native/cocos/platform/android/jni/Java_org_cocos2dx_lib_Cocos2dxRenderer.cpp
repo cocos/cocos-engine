@@ -21,8 +21,9 @@ extern "C" {
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeOnPause() {
         if (Director::getInstance()->getOpenGLView()) {
                 Application::getInstance()->applicationDidEnterBackground();
-                cocos2d::EventCustom backgroundEvent(EVENT_COME_TO_BACKGROUND);
-                cocos2d::Director::getInstance()->getEventDispatcher()->dispatchEvent(&backgroundEvent);
+                cocos2d::EventCustom* backgroundEvent = new (std::nothrow) cocos2d::EventCustom(EVENT_COME_TO_BACKGROUND);
+                cocos2d::Director::getInstance()->getEventDispatcher()->dispatchEvent(backgroundEvent);
+                backgroundEvent->release();
         }
     }
 
@@ -34,8 +35,9 @@ extern "C" {
             if (!firstTime)
                 Application::getInstance()->applicationWillEnterForeground();
 
-            cocos2d::EventCustom foregroundEvent(EVENT_COME_TO_FOREGROUND);
-            cocos2d::Director::getInstance()->getEventDispatcher()->dispatchEvent(&foregroundEvent);
+            cocos2d::EventCustom* foregroundEvent = new (std::nothrow) cocos2d::EventCustom(EVENT_COME_TO_FOREGROUND);
+            cocos2d::Director::getInstance()->getEventDispatcher()->dispatchEvent(foregroundEvent);
+            foregroundEvent->release();
 
             firstTime = false;
         }

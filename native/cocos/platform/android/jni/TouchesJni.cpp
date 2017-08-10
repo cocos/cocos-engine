@@ -110,8 +110,9 @@ extern "C" {
         }
 
         cocos2d::EventKeyboard::KeyCode cocos2dKey = g_keyCodeMap.at(keyCode);
-        cocos2d::EventKeyboard event(cocos2dKey, isPressed);
-        cocos2d::Director::getInstance()->getEventDispatcher()->dispatchEvent(&event);
+        cocos2d::EventKeyboard* event = new (std::nothrow) cocos2d::EventKeyboard(cocos2dKey, isPressed);
+        cocos2d::Director::getInstance()->getEventDispatcher()->dispatchEvent(event);
+        event->release();
         return JNI_TRUE;
 
     }}
