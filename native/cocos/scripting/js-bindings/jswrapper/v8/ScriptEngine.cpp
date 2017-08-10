@@ -185,6 +185,7 @@ namespace se {
         node::DebugOptions options;
         options.set_wait_for_connect(true);
         options.set_inspector_enabled(true);
+//        options.set_host_name("192.168.2.4"); // Change IP while remote debugging on Android device.
         _env->inspector_agent()->Start(_platform, "", options);
 
         //
