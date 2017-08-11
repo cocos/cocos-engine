@@ -28,12 +28,9 @@ var macro = require('./CCMacro');
 var TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
 
 /**
- * <p>
- *  This class manages all events of input. include: touch, mouse, accelerometer, keyboard                                       <br/>
- * </p>
- * @class inputManager
+ *  This class manages all events of input. include: touch, mouse, accelerometer, keyboard
  */
-var inputManager = /** @lends cc.inputManager# */{
+var inputManager = {
     _mousePressed: false,
 
     _isRegisterEvent: false,
@@ -389,95 +386,92 @@ var inputManager = /** @lends cc.inputManager# */{
     registerSystemEvent: function(element){
         if(this._isRegisterEvent) return;
 
-        var locView = this._glView = cc.view;
+        this._glView = cc.view;
         var selfPointer = this;
-        var supportMouse = ('mouse' in cc.sys.capabilities), supportTouches = ('touches' in cc.sys.capabilities);
 
-        //HACK
-        //  - At the same time to trigger the ontouch event and onmouse event
-        //  - The function will execute 2 times
-        //The known browser:
-        //  liebiao
-        //  miui
-        //  WECHAT
-        var prohibition = false;
-        if( cc.sys.isMobile)
-            prohibition = true;
-
-        //register touch event
+        var supportMouse = ('mouse' in cc.sys.capabilities);
         if (supportMouse) {
-            !prohibition && window.addEventListener('mousedown', function () {
-                selfPointer._mousePressed = true;
-            }, false);
+            //HACK
+            //  - At the same time to trigger the ontouch event and onmouse event
+            //  - The function will execute 2 times
+            //The known browser:
+            //  liebiao
+            //  miui
+            //  WECHAT
+            var prohibition = cc.sys.isMobile;
+            if (!prohibition) {
+                window.addEventListener('mousedown', function () {
+                    selfPointer._mousePressed = true;
+                }, false);
 
-            !prohibition && window.addEventListener('mouseup', function (event) {
-                var savePressed = selfPointer._mousePressed;
-                selfPointer._mousePressed = false;
+                window.addEventListener('mouseup', function (event) {
+                    if(!selfPointer._mousePressed)
+                        return;
+                    
+                    selfPointer._mousePressed = false;
 
-                if(!savePressed)
-                    return;
+                    var pos = selfPointer.getHTMLElementPosition(element);
+                    var location = selfPointer.getPointByEvent(event, pos);
+                    if (!cc.rectContainsPoint(new cc.Rect(pos.left, pos.top, pos.width, pos.height), location)){
+                        selfPointer.handleTouchesEnd([selfPointer.getTouchByXY(location.x, location.y, pos)]);
 
-                var pos = selfPointer.getHTMLElementPosition(element);
-                var location = selfPointer.getPointByEvent(event, pos);
-                if (!cc.rectContainsPoint(new cc.Rect(pos.left, pos.top, pos.width, pos.height), location)){
+                        var mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.UP);
+                        mouseEvent.setButton(event.button);
+                        cc.eventManager.dispatchEvent(mouseEvent);
+                    }
+                }, false);
+
+                //register canvas mouse event
+                element.addEventListener("mousedown", function (event) {
+                    selfPointer._mousePressed = true;
+
+                    var pos = selfPointer.getHTMLElementPosition(element);
+                    var location = selfPointer.getPointByEvent(event, pos);
+
+                    selfPointer.handleTouchesBegin([selfPointer.getTouchByXY(location.x, location.y, pos)]);
+
+                    var mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.DOWN);
+                    mouseEvent.setButton(event.button);
+                    cc.eventManager.dispatchEvent(mouseEvent);
+
+                    event.stopPropagation();
+                    event.preventDefault();
+                    element.focus();
+                }, false);
+
+                element.addEventListener("mouseup", function (event) {
+                    selfPointer._mousePressed = false;
+
+                    var pos = selfPointer.getHTMLElementPosition(element);
+                    var location = selfPointer.getPointByEvent(event, pos);
+
                     selfPointer.handleTouchesEnd([selfPointer.getTouchByXY(location.x, location.y, pos)]);
 
                     var mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.UP);
                     mouseEvent.setButton(event.button);
                     cc.eventManager.dispatchEvent(mouseEvent);
-                }
-            }, false);
 
-            //register canvas mouse event
-            !prohibition && element.addEventListener("mousedown", function (event) {
-                selfPointer._mousePressed = true;
+                    event.stopPropagation();
+                    event.preventDefault();
+                }, false);
 
-                var pos = selfPointer.getHTMLElementPosition(element);
-                var location = selfPointer.getPointByEvent(event, pos);
+                element.addEventListener("mousemove", function (event) {
+                    var pos = selfPointer.getHTMLElementPosition(element);
+                    var location = selfPointer.getPointByEvent(event, pos);
 
-                selfPointer.handleTouchesBegin([selfPointer.getTouchByXY(location.x, location.y, pos)]);
+                    selfPointer.handleTouchesMove([selfPointer.getTouchByXY(location.x, location.y, pos)]);
 
-                var mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.DOWN);
-                mouseEvent.setButton(event.button);
-                cc.eventManager.dispatchEvent(mouseEvent);
+                    var mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.MOVE);
+                    if(selfPointer._mousePressed)
+                        mouseEvent.setButton(event.button);
+                    else
+                        mouseEvent.setButton(null);
+                    cc.eventManager.dispatchEvent(mouseEvent);
 
-                event.stopPropagation();
-                event.preventDefault();
-                element.focus();
-            }, false);
-
-            !prohibition && element.addEventListener("mouseup", function (event) {
-                selfPointer._mousePressed = false;
-
-                var pos = selfPointer.getHTMLElementPosition(element);
-                var location = selfPointer.getPointByEvent(event, pos);
-
-                selfPointer.handleTouchesEnd([selfPointer.getTouchByXY(location.x, location.y, pos)]);
-
-                var mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.UP);
-                mouseEvent.setButton(event.button);
-                cc.eventManager.dispatchEvent(mouseEvent);
-
-                event.stopPropagation();
-                event.preventDefault();
-            }, false);
-
-            !prohibition && element.addEventListener("mousemove", function (event) {
-                var pos = selfPointer.getHTMLElementPosition(element);
-                var location = selfPointer.getPointByEvent(event, pos);
-
-                selfPointer.handleTouchesMove([selfPointer.getTouchByXY(location.x, location.y, pos)]);
-
-                var mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.MOVE);
-                if(selfPointer._mousePressed)
-                    mouseEvent.setButton(event.button);
-                else
-                    mouseEvent.setButton(null);
-                cc.eventManager.dispatchEvent(mouseEvent);
-
-                event.stopPropagation();
-                event.preventDefault();
-            }, false);
+                    event.stopPropagation();
+                    event.preventDefault();
+                }, false);
+            }
 
             element.addEventListener("mousewheel", function (event) {
                 var pos = selfPointer.getHTMLElementPosition(element);
@@ -515,7 +509,7 @@ var inputManager = /** @lends cc.inputManager# */{
                 "MSPointerCancel"   : selfPointer.handleTouchesCancel
             };
 
-            for(var eventName in _pointerEventsMap){
+            for(let eventName in _pointerEventsMap){
                 (function(_pointerEvent, _touchEvent){
                     element.addEventListener(_pointerEvent, function (event){
                         var pos = selfPointer.getHTMLElementPosition(element);
@@ -529,52 +523,41 @@ var inputManager = /** @lends cc.inputManager# */{
             }
         }
 
-        if(supportTouches) {
-            //register canvas touch event
-            element.addEventListener("touchstart", function (event) {
-                if (!event.changedTouches) return;
+        //register touch event
+        var supportTouches = ('touches' in cc.sys.capabilities);
+        if (supportTouches) {
+            var _touchEventsMap = {
+                "touchstart": function (touchesToHandle) {
+                    selfPointer.handleTouchesBegin(touchesToHandle);
+                    element.focus();
+                },
+                "touchmove": function (touchesToHandle) {
+                    selfPointer.handleTouchesMove(touchesToHandle);
+                },
+                "touchend": function (touchesToHandle) {
+                    selfPointer.handleTouchesEnd(touchesToHandle);
+                },
+                "touchcancel": function (touchesToHandle) {
+                    selfPointer.handleTouchesCancel(touchesToHandle);
+                }
+            };
 
-                var pos = selfPointer.getHTMLElementPosition(element);
-                pos.left -= document.body.scrollLeft;
-                pos.top -= document.body.scrollTop;
-                selfPointer.handleTouchesBegin(selfPointer.getTouchesByEvent(event, pos));
-                event.stopPropagation();
-                event.preventDefault();
-                element.focus();
-            }, false);
+            for (let eventName in _touchEventsMap) {
+                let handler = _touchEventsMap[eventName];
+                element.addEventListener(eventName, function (event) {
+                    if (!event.changedTouches) return;
 
-            element.addEventListener("touchmove", function (event) {
-                if (!event.changedTouches) return;
+                    var pos = selfPointer.getHTMLElementPosition(element);
+                    var body = document.body;
+                    pos.left -= body.scrollLeft;
+                    pos.top -= body.scrollTop;
 
-                var pos = selfPointer.getHTMLElementPosition(element);
-                pos.left -= document.body.scrollLeft;
-                pos.top -= document.body.scrollTop;
-                selfPointer.handleTouchesMove(selfPointer.getTouchesByEvent(event, pos));
-                event.stopPropagation();
-                event.preventDefault();
-            }, false);
+                    handler(selfPointer.getTouchesByEvent(event, pos));
 
-            element.addEventListener("touchend", function (event) {
-                if (!event.changedTouches) return;
-
-                var pos = selfPointer.getHTMLElementPosition(element);
-                pos.left -= document.body.scrollLeft;
-                pos.top -= document.body.scrollTop;
-                selfPointer.handleTouchesEnd(selfPointer.getTouchesByEvent(event, pos));
-                event.stopPropagation();
-                event.preventDefault();
-            }, false);
-
-            element.addEventListener("touchcancel", function (event) {
-                if (!event.changedTouches) return;
-
-                var pos = selfPointer.getHTMLElementPosition(element);
-                pos.left -= document.body.scrollLeft;
-                pos.top -= document.body.scrollTop;
-                selfPointer.handleTouchesCancel(selfPointer.getTouchesByEvent(event, pos));
-                event.stopPropagation();
-                event.preventDefault();
-            }, false);
+                    event.stopPropagation();
+                    event.preventDefault();
+                }, false);
+            }
         }
 
         //register keyboard event
