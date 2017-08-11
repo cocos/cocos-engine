@@ -668,10 +668,8 @@ var game = {
         this.frame = (localContainer.parentNode === document.body) ? document.documentElement : localContainer.parentNode;
 
         function addClass (element, name) {
-            function hasClass (element, name) {
-                return (' ' + element.className + ' ').indexOf(' ' + name + ' ') > -1;
-            }
-            if (!hasClass(element, name)) {
+            var hasClass = (' ' + element.className + ' ').indexOf(' ' + name + ' ') > -1;
+            if (!hasClass) {
                 if (element.className) {
                     element.className += " ";
                 }
