@@ -151,15 +151,15 @@ def main():
         output_dir = '%s/cocos/scripting/js-bindings/auto' % project_root
 
         cmd_args = {
-                    # 'cocos2dx.ini' : ('cocos2d-x', 'jsb_cocos2dx_auto'), \
-                    # 'cocos2dx_audioengine.ini' : ('cocos2dx_audioengine', 'jsb_cocos2dx_audioengine_auto'), \
-                    # 'cocos2dx_network.ini' : ('cocos2dx_network', 'jsb_cocos2dx_network_auto'), \
-                    # 'cocos2dx_extension.ini' : ('cocos2dx_extension', 'jsb_cocos2dx_extension_auto'), \
-                    # 'cocos2dx_ui.ini' : ('cocos2dx_ui', 'jsb_cocos2dx_ui_auto'), \
-                    # 'cocos2dx_spine.ini' : ('cocos2dx_spine', 'jsb_cocos2dx_spine_auto'), \
-                    # 'cocos2dx_dragonbones.ini' : ('cocos2dx_dragonbones', 'jsb_cocos2dx_dragonbones_auto'), \
-                    # 'cocos2dx_experimental_webView.ini' : ('cocos2dx_experimental_webView', 'jsb_cocos2dx_experimental_webView_auto'), \
-                    # 'cocos2dx_experimental_video.ini' : ('cocos2dx_experimental_video', 'jsb_cocos2dx_experimental_video_auto'), \
+                    'cocos2dx.ini' : ('cocos2d-x', 'jsb_cocos2dx_auto'), \
+                    'cocos2dx_audioengine.ini' : ('cocos2dx_audioengine', 'jsb_cocos2dx_audioengine_auto'), \
+                    'cocos2dx_network.ini' : ('cocos2dx_network', 'jsb_cocos2dx_network_auto'), \
+                    'cocos2dx_extension.ini' : ('cocos2dx_extension', 'jsb_cocos2dx_extension_auto'), \
+                    'cocos2dx_ui.ini' : ('cocos2dx_ui', 'jsb_cocos2dx_ui_auto'), \
+                    'cocos2dx_spine.ini' : ('cocos2dx_spine', 'jsb_cocos2dx_spine_auto'), \
+                    'cocos2dx_dragonbones.ini' : ('cocos2dx_dragonbones', 'jsb_cocos2dx_dragonbones_auto'), \
+                    'cocos2dx_experimental_webView.ini' : ('cocos2dx_experimental_webView', 'jsb_cocos2dx_experimental_webView_auto'), \
+                    'cocos2dx_experimental_video.ini' : ('cocos2dx_experimental_video', 'jsb_cocos2dx_experimental_video_auto'), \
                     'creator.ini': ('creator', 'jsb_creator_auto'),
                     'box2d.ini' : ('box2d', 'jsb_box2d_auto'),
                     }

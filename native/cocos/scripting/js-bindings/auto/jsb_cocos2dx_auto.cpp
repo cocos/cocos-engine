@@ -1,9 +1,6 @@
 #include "scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp"
 #include "scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "cocos2d.h"
-#include "audio/include/SimpleAudioEngine.h"
-#include "2d/CCProtectedNode.h"
-#include "base/CCAsyncTaskPool.h"
 
 se::Object* __jsb_cocos2d_Acceleration_proto = nullptr;
 se::Class* __jsb_cocos2d_Acceleration_class = nullptr;
@@ -2065,6 +2062,21 @@ static bool js_cocos2dx_Node_getChildren(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_Node_getChildren)
+
+static bool js_cocos2dx_Node_markTransformUpdated(se::State& s)
+{
+    cocos2d::Node* cobj = (cocos2d::Node*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Node_markTransformUpdated : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->markTransformUpdated();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Node_markTransformUpdated)
 
 static bool js_cocos2dx_Node_pause(se::State& s)
 {
@@ -4674,6 +4686,7 @@ bool js_register_cocos2dx_Node(se::Object* obj)
     cls->defineFunction("setOpacityModifyRGB", _SE(js_cocos2dx_Node_setOpacityModifyRGB));
     cls->defineFunction("setCascadeOpacityEnabled", _SE(js_cocos2dx_Node_setCascadeOpacityEnabled));
     cls->defineFunction("getChildren", _SE(js_cocos2dx_Node_getChildren));
+    cls->defineFunction("markTransformUpdated", _SE(js_cocos2dx_Node_markTransformUpdated));
     cls->defineFunction("pause", _SE(js_cocos2dx_Node_pause));
     cls->defineFunction("convertToWorldSpaceAR", _SE(js_cocos2dx_Node_convertToWorldSpaceAR));
     cls->defineFunction("isIgnoreAnchorPointForPosition", _SE(js_cocos2dx_Node_isIgnoreAnchorPointForPosition));
@@ -6886,24 +6899,23 @@ static bool js_cocos2dx_Scheduler_setTimeScale(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Scheduler_setTimeScale)
 
-static bool js_cocos2dx_Scheduler_unscheduleAllWithMinPriority(se::State& s)
+static bool js_cocos2dx_Scheduler_isCurrentTargetSalvaged(se::State& s)
 {
     cocos2d::Scheduler* cobj = (cocos2d::Scheduler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Scheduler_unscheduleAllWithMinPriority : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Scheduler_isCurrentTargetSalvaged : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_Scheduler_unscheduleAllWithMinPriority : Error processing arguments");
-        cobj->unscheduleAllWithMinPriority(arg0);
+    if (argc == 0) {
+        bool result = cobj->isCurrentTargetSalvaged();
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_Scheduler_isCurrentTargetSalvaged : Error processing arguments");
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_cocos2dx_Scheduler_unscheduleAllWithMinPriority)
+SE_BIND_FUNC(js_cocos2dx_Scheduler_isCurrentTargetSalvaged)
 
 static bool js_cocos2dx_Scheduler_update(se::State& s)
 {
@@ -6976,6 +6988,25 @@ static bool js_cocos2dx_Scheduler_getTimeScale(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Scheduler_getTimeScale)
 
+static bool js_cocos2dx_Scheduler_unscheduleAllWithMinPriority(se::State& s)
+{
+    cocos2d::Scheduler* cobj = (cocos2d::Scheduler*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Scheduler_unscheduleAllWithMinPriority : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        int arg0 = 0;
+        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_Scheduler_unscheduleAllWithMinPriority : Error processing arguments");
+        cobj->unscheduleAllWithMinPriority(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Scheduler_unscheduleAllWithMinPriority)
+
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_Scheduler_finalize)
 
 static bool js_cocos2dx_Scheduler_constructor(se::State& s)
@@ -7006,11 +7037,12 @@ bool js_register_cocos2dx_Scheduler(se::Object* obj)
     auto cls = se::Class::create("Scheduler", obj, nullptr, _SE(js_cocos2dx_Scheduler_constructor));
 
     cls->defineFunction("setTimeScale", _SE(js_cocos2dx_Scheduler_setTimeScale));
-    cls->defineFunction("unscheduleAllWithMinPriority", _SE(js_cocos2dx_Scheduler_unscheduleAllWithMinPriority));
+    cls->defineFunction("isCurrentTargetSalvaged", _SE(js_cocos2dx_Scheduler_isCurrentTargetSalvaged));
     cls->defineFunction("update", _SE(js_cocos2dx_Scheduler_update));
     cls->defineFunction("unscheduleScriptEntry", _SE(js_cocos2dx_Scheduler_unscheduleScriptEntry));
     cls->defineFunction("unscheduleAll", _SE(js_cocos2dx_Scheduler_unscheduleAll));
     cls->defineFunction("getTimeScale", _SE(js_cocos2dx_Scheduler_getTimeScale));
+    cls->defineFunction("unscheduleAllWithMinPriority", _SE(js_cocos2dx_Scheduler_unscheduleAllWithMinPriority));
     cls->defineFinalizeFunction(_SE(js_cocos2d_Scheduler_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::Scheduler>(cls);
@@ -33058,19 +33090,6 @@ SE_BIND_FUNC(js_cocos2dx_Device_getDPI)
 
 
 
-static bool js_cocos2d_Device_finalize(se::State& s)
-{
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Device)", s.nativeThisObject());
-    auto iter = se::__nonRefNativeObjectCreatedByCtorMap.find(s.nativeThisObject());
-    if (iter != se::__nonRefNativeObjectCreatedByCtorMap.end())
-    {
-        se::__nonRefNativeObjectCreatedByCtorMap.erase(iter);
-        cocos2d::Device* cobj = (cocos2d::Device*)s.nativeThisObject();
-        delete cobj;
-    }
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cocos2d_Device_finalize)
 
 bool js_register_cocos2dx_Device(se::Object* obj)
 {
@@ -33081,7 +33100,6 @@ bool js_register_cocos2dx_Device(se::Object* obj)
     cls->defineStaticFunction("setKeepScreenOn", _SE(js_cocos2dx_Device_setKeepScreenOn));
     cls->defineStaticFunction("vibrate", _SE(js_cocos2dx_Device_vibrate));
     cls->defineStaticFunction("getDPI", _SE(js_cocos2dx_Device_getDPI));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_Device_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::Device>(cls);
 

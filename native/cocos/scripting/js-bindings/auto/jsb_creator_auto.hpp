@@ -177,6 +177,9 @@ bool js_register_creator_CameraNode(se::Object* obj);
 bool register_all_creator(se::Object* obj);
 SE_DECLARE_FUNC(js_creator_CameraNode_removeTarget);
 SE_DECLARE_FUNC(js_creator_CameraNode_setTransform);
+SE_DECLARE_FUNC(js_creator_CameraNode_getVisibleRect);
+SE_DECLARE_FUNC(js_creator_CameraNode_containsNode);
 SE_DECLARE_FUNC(js_creator_CameraNode_addTarget);
+SE_DECLARE_FUNC(js_creator_CameraNode_getInstance);
 SE_DECLARE_FUNC(js_creator_CameraNode_CameraNode);
 
