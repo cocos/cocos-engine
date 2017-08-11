@@ -1,7 +1,6 @@
 #include "scripting/js-bindings/auto/jsb_cocos2dx_spine_auto.hpp"
 #include "scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "spine/spine-cocos2dx.h"
-#include "spine/jsb_cocos2dx_spine_manual.h"
 
 se::Object* __jsb_spine_SkeletonRenderer_proto = nullptr;
 se::Class* __jsb_spine_SkeletonRenderer_class = nullptr;
