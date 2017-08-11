@@ -84,8 +84,10 @@ namespace se {
     };
 
 
-    extern std::unordered_map<void* /*native*/, Object* /*jsobj*/> __nativePtrToObjectMap;
-    extern std::unordered_map<void* /*native*/, bool> __nonRefNativeObjectCreatedByCtorMap;
+    // key: native ptr, value: se::Object
+    extern std::unordered_map<void*, Object*> __nativePtrToObjectMap;
+    // key: native ptr, value: non-ref object created by ctor
+    extern std::unordered_map<void*, bool> __nonRefNativeObjectCreatedByCtorMap;
 
 } // namespace se {
 

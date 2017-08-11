@@ -174,7 +174,7 @@ void __JSPlistDelegator::endElement(void *ctx, const char *name) {
     }
 }
 
-void __JSPlistDelegator::textHandler(void* /*ctx*/, const char *ch, int len) {
+void __JSPlistDelegator::textHandler(void*, const char *ch, int len) {
     std::string text((char*)ch, 0, len);
 
     if (_isStoringCharacters)

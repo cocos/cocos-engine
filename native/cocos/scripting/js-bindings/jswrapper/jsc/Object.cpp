@@ -8,8 +8,10 @@
 
 namespace se {
 
-    std::unordered_map<void* /*native*/, Object* /*jsobj*/> __nativePtrToObjectMap;
-    std::unordered_map<void* /*native*/, bool> __nonRefNativeObjectCreatedByCtorMap;
+    // key: native ptr, value: se::Object
+    std::unordered_map<void*, Object*> __nativePtrToObjectMap;
+    // key: native ptr, value: non-ref object created by ctor
+    std::unordered_map<void*, bool> __nonRefNativeObjectCreatedByCtorMap;
 
     namespace {
         JSContextRef __cx = nullptr;

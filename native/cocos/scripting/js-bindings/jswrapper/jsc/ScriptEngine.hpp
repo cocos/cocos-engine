@@ -141,7 +141,7 @@ namespace se {
             CLEANUP
         };
         bool _onReceiveNodeEvent(void* node, NodeEventType type);
-        using NodeEventListener = bool(*)(void*/*node*/, NodeEventType);
+        using NodeEventListener = bool(*)(void*, NodeEventType);
         bool _setNodeEventListener(NodeEventListener listener);
 
         std::string _formatException(JSValueRef exception);
