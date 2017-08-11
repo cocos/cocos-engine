@@ -217,33 +217,35 @@ var inputManager = {
      */
     getHTMLElementPosition: function (element) {
         var docElem = document.documentElement;
-        var win = window;
-        var box = null;
+        var leftOffset = window.pageXOffset - docElem.clientLeft;
+        var topOffset = window.pageYOffset - docElem.clientTop;
         if (typeof element.getBoundingClientRect === 'function') {
-            box = element.getBoundingClientRect();
-        } else {
+            var box = element.getBoundingClientRect();
+            return {
+                left: box.left + leftOffset,
+                top: box.top + topOffset,
+                width: box.width,
+                height: box.height
+            };
+        }
+        else {
             if (element instanceof HTMLCanvasElement) {
-                box = {
-                    left: 0,
-                    top: 0,
+                return {
+                    left: leftOffset,
+                    top: topOffset,
                     width: element.width,
                     height: element.height
                 };
-            } else {
-                box = {
-                    left: 0,
-                    top: 0,
+            }
+            else {
+                return {
+                    left: leftOffset,
+                    top: topOffset,
                     width: parseInt(element.style.width),
                     height: parseInt(element.style.height)
                 };
             }
         }
-        return {
-            left: box.left + win.pageXOffset - docElem.clientLeft,
-            top: box.top + win.pageYOffset - docElem.clientTop,
-            width: box.width,
-            height: box.height
-        };
     },
 
     /**
