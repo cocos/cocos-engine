@@ -420,85 +420,73 @@ var inputManager = {
                         cc.eventManager.dispatchEvent(mouseEvent);
                     }
                 }, false);
-
-                //register canvas mouse event
-                element.addEventListener("mousedown", function (event) {
-                    selfPointer._mousePressed = true;
-
-                    var pos = selfPointer.getHTMLElementPosition(element);
-                    var location = selfPointer.getPointByEvent(event, pos);
-
-                    selfPointer.handleTouchesBegin([selfPointer.getTouchByXY(location.x, location.y, pos)]);
-
-                    var mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.DOWN);
-                    mouseEvent.setButton(event.button);
-                    cc.eventManager.dispatchEvent(mouseEvent);
-
-                    event.stopPropagation();
-                    event.preventDefault();
-                    element.focus();
-                }, false);
-
-                element.addEventListener("mouseup", function (event) {
-                    selfPointer._mousePressed = false;
-
-                    var pos = selfPointer.getHTMLElementPosition(element);
-                    var location = selfPointer.getPointByEvent(event, pos);
-
-                    selfPointer.handleTouchesEnd([selfPointer.getTouchByXY(location.x, location.y, pos)]);
-
-                    var mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.UP);
-                    mouseEvent.setButton(event.button);
-                    cc.eventManager.dispatchEvent(mouseEvent);
-
-                    event.stopPropagation();
-                    event.preventDefault();
-                }, false);
-
-                element.addEventListener("mousemove", function (event) {
-                    var pos = selfPointer.getHTMLElementPosition(element);
-                    var location = selfPointer.getPointByEvent(event, pos);
-
-                    selfPointer.handleTouchesMove([selfPointer.getTouchByXY(location.x, location.y, pos)]);
-
-                    var mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.MOVE);
-                    if(selfPointer._mousePressed)
-                        mouseEvent.setButton(event.button);
-                    else
-                        mouseEvent.setButton(null);
-                    cc.eventManager.dispatchEvent(mouseEvent);
-
-                    event.stopPropagation();
-                    event.preventDefault();
-                }, false);
             }
 
-            element.addEventListener("mousewheel", function (event) {
-                var pos = selfPointer.getHTMLElementPosition(element);
-                var location = selfPointer.getPointByEvent(event, pos);
+            // register canvas mouse event
+            var _elementMouseEvents = [
+                !prohibition && {
+                    name: "mousedown",
+                    type: cc.Event.EventMouse.DOWN,
+                    handler: function (event, mouseEvent, location, pos) {
+                        selfPointer._mousePressed = true;
+                        selfPointer.handleTouchesBegin([selfPointer.getTouchByXY(location.x, location.y, pos)]);
+                        mouseEvent.setButton(event.button);
+                        element.focus();
+                    }
+                },
+                !prohibition && {
+                    name: "mouseup",
+                    type: cc.Event.EventMouse.UP,
+                    handler: function (event, mouseEvent, location, pos) {
+                        selfPointer._mousePressed = false;
+                        selfPointer.handleTouchesEnd([selfPointer.getTouchByXY(location.x, location.y, pos)]);
+                        mouseEvent.setButton(event.button);
+                    }
+                },
+                !prohibition && {
+                    name: "mousemove",
+                    type: cc.Event.EventMouse.MOVE,
+                    handler: function (event, mouseEvent, location, pos) {
+                        selfPointer.handleTouchesMove([selfPointer.getTouchByXY(location.x, location.y, pos)]);
+                        mouseEvent.setButton(selfPointer._mousePressed ? event.button : null);
+                    }
+                },
+                {
+                    name: "mousewheel",
+                    type: cc.Event.EventMouse.SCROLL,
+                    handler: function (event, mouseEvent, location, pos) {
+                        mouseEvent.setButton(event.button);
+                        mouseEvent.setScrollData(0, event.wheelDelta);
+                    }
+                },
+                {
+                    /* firefox fix */
+                    name: "DOMMouseScroll",
+                    type: cc.Event.EventMouse.SCROLL,
+                    handler: function (event, mouseEvent, location, pos) {
+                        mouseEvent.setButton(event.button);
+                        mouseEvent.setScrollData(0, event.detail * -120);
+                    }
+                }
+            ];
+            for (let i = 0; i < _elementMouseEvents.length; ++i) {
+                let event = _elementMouseEvents[i];
+                if (event) {
+                    let type = event.type;
+                    let handler = event.handler;
+                    element.addEventListener(event.name, function (event) {
+                        var pos = selfPointer.getHTMLElementPosition(element);
+                        var location = selfPointer.getPointByEvent(event, pos);
+                        var mouseEvent = selfPointer.getMouseEvent(location, pos, type);
 
-                var mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.SCROLL);
-                mouseEvent.setButton(event.button);
-                mouseEvent.setScrollData(0, event.wheelDelta);
-                cc.eventManager.dispatchEvent(mouseEvent);
+                        handler(event, mouseEvent, location, pos);
 
-                event.stopPropagation();
-                event.preventDefault();
-            }, false);
-
-            /* firefox fix */
-            element.addEventListener("DOMMouseScroll", function(event) {
-                var pos = selfPointer.getHTMLElementPosition(element);
-                var location = selfPointer.getPointByEvent(event, pos);
-
-                var mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.SCROLL);
-                mouseEvent.setButton(event.button);
-                mouseEvent.setScrollData(0, event.detail * -120);
-                cc.eventManager.dispatchEvent(mouseEvent);
-
-                event.stopPropagation();
-                event.preventDefault();
-            }, false);
+                        cc.eventManager.dispatchEvent(mouseEvent);
+                        event.stopPropagation();
+                        event.preventDefault();
+                    }, false);
+                }
+            }
         }
 
         if(window.navigator.msPointerEnabled){
