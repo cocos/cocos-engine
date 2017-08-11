@@ -423,61 +423,42 @@ var inputManager = {
             }
 
             // register canvas mouse event
-            var _elementMouseEvents = [
-                !prohibition && {
-                    name: "mousedown",
-                    type: cc.Event.EventMouse.DOWN,
-                    handler: function (event, mouseEvent, location, pos) {
-                        selfPointer._mousePressed = true;
-                        selfPointer.handleTouchesBegin([selfPointer.getTouchByXY(location.x, location.y, pos)]);
-                        mouseEvent.setButton(event.button);
-                        element.focus();
+            var EventMouse = cc.Event.EventMouse;
+            var _mouseEventsOnElement = [
+                !prohibition && ["mousedown", EventMouse.DOWN, function (event, mouseEvent, location, pos) {
+                    selfPointer._mousePressed = true;
+                    selfPointer.handleTouchesBegin([selfPointer.getTouchByXY(location.x, location.y, pos)]);
+                    element.focus();
+                }],
+                !prohibition && ["mouseup", EventMouse.UP, function (event, mouseEvent, location, pos) {
+                    selfPointer._mousePressed = false;
+                    selfPointer.handleTouchesEnd([selfPointer.getTouchByXY(location.x, location.y, pos)]);
+                }],
+                !prohibition && ["mousemove", EventMouse.MOVE, function (event, mouseEvent, location, pos) {
+                    selfPointer.handleTouchesMove([selfPointer.getTouchByXY(location.x, location.y, pos)]);
+                    if (!selfPointer._mousePressed) {
+                        mouseEvent.setButton(null);
                     }
-                },
-                !prohibition && {
-                    name: "mouseup",
-                    type: cc.Event.EventMouse.UP,
-                    handler: function (event, mouseEvent, location, pos) {
-                        selfPointer._mousePressed = false;
-                        selfPointer.handleTouchesEnd([selfPointer.getTouchByXY(location.x, location.y, pos)]);
-                        mouseEvent.setButton(event.button);
-                    }
-                },
-                !prohibition && {
-                    name: "mousemove",
-                    type: cc.Event.EventMouse.MOVE,
-                    handler: function (event, mouseEvent, location, pos) {
-                        selfPointer.handleTouchesMove([selfPointer.getTouchByXY(location.x, location.y, pos)]);
-                        mouseEvent.setButton(selfPointer._mousePressed ? event.button : null);
-                    }
-                },
-                {
-                    name: "mousewheel",
-                    type: cc.Event.EventMouse.SCROLL,
-                    handler: function (event, mouseEvent, location, pos) {
-                        mouseEvent.setButton(event.button);
-                        mouseEvent.setScrollData(0, event.wheelDelta);
-                    }
-                },
-                {
-                    /* firefox fix */
-                    name: "DOMMouseScroll",
-                    type: cc.Event.EventMouse.SCROLL,
-                    handler: function (event, mouseEvent, location, pos) {
-                        mouseEvent.setButton(event.button);
-                        mouseEvent.setScrollData(0, event.detail * -120);
-                    }
-                }
+                }],
+                ["mousewheel", EventMouse.SCROLL, function (event, mouseEvent) {
+                    mouseEvent.setScrollData(0, event.wheelDelta);
+                }],
+                /* firefox fix */
+                ["DOMMouseScroll", EventMouse.SCROLL, function (event, mouseEvent) {
+                    mouseEvent.setScrollData(0, event.detail * -120);
+                }]
             ];
-            for (let i = 0; i < _elementMouseEvents.length; ++i) {
-                let event = _elementMouseEvents[i];
-                if (event) {
-                    let type = event.type;
-                    let handler = event.handler;
-                    element.addEventListener(event.name, function (event) {
+            for (let i = 0; i < _mouseEventsOnElement.length; ++i) {
+                let entry = _mouseEventsOnElement[i];
+                if (entry) {
+                    let name = entry[0];
+                    let type = entry[1];
+                    let handler = entry[2];
+                    element.addEventListener(name, function (event) {
                         var pos = selfPointer.getHTMLElementPosition(element);
                         var location = selfPointer.getPointByEvent(event, pos);
                         var mouseEvent = selfPointer.getMouseEvent(location, pos, type);
+                        mouseEvent.setButton(event.button);
 
                         handler(event, mouseEvent, location, pos);
 
@@ -496,18 +477,16 @@ var inputManager = {
                 "MSPointerUp"       : selfPointer.handleTouchesEnd,
                 "MSPointerCancel"   : selfPointer.handleTouchesCancel
             };
-
             for(let eventName in _pointerEventsMap){
-                (function(_pointerEvent, _touchEvent){
-                    element.addEventListener(_pointerEvent, function (event){
-                        var pos = selfPointer.getHTMLElementPosition(element);
-                        pos.left -= document.documentElement.scrollLeft;
-                        pos.top -= document.documentElement.scrollTop;
+                let touchEvent = _pointerEventsMap[eventName];
+                element.addEventListener(eventName, function (event){
+                    var pos = selfPointer.getHTMLElementPosition(element);
+                    pos.left -= document.documentElement.scrollLeft;
+                    pos.top -= document.documentElement.scrollTop;
 
-                        _touchEvent.call(selfPointer, [selfPointer.getTouchByXY(event.clientX, event.clientY, pos)]);
-                        event.stopPropagation();
-                    }, false);
-                })(eventName, _pointerEventsMap[eventName]);
+                    touchEvent.call(selfPointer, [selfPointer.getTouchByXY(event.clientX, event.clientY, pos)]);
+                    event.stopPropagation();
+                }, false);
             }
         }
 
