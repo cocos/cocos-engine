@@ -32,6 +32,8 @@ var Loader = require('./loader');
 var AssetTable = require('./asset-table');
 var callInNextTick = require('../platform/utils').callInNextTick;
 var AutoReleaseUtils = require('./auto-release-utils');
+// var pushToMap = require('../utils/misc').pushToMap;
+var ReleasedAssetChecker = CC_DEBUG && require('./released-asset-checker');
 
 var resources = new AssetTable();
 
@@ -121,6 +123,10 @@ function CCLoader () {
 
     // assets to release automatically
     this._autoReleaseSetting = {};
+
+    if (CC_DEBUG) {
+        this._releasedAssetChecker_DEBUG = new ReleasedAssetChecker();
+    }
 }
 JS.extend(CCLoader, Pipeline);
 var proto = CCLoader.prototype;
@@ -762,6 +768,9 @@ proto.release = function (asset) {
             }
             else if (asset instanceof cc.Texture2D) {
                 cc.textureCache.removeTextureForKey(item.url);
+            }
+            if (CC_DEBUG && removed) {
+                this._releasedAssetChecker_DEBUG.setReleased(item, id);
             }
         }
     }

@@ -633,9 +633,12 @@ js.shiftArguments = function () {
 js.createMap = function (forceDictMode) {
     var map = Object.create(null);
     if (forceDictMode) {
-        const INVALID_IDENTIFIER = '.';
-        map[INVALID_IDENTIFIER] = true;
-        delete map[INVALID_IDENTIFIER];
+        const INVALID_IDENTIFIER_1 = '.';
+        const INVALID_IDENTIFIER_2 = '/';
+        map[INVALID_IDENTIFIER_1] = true;
+        map[INVALID_IDENTIFIER_2] = true;
+        delete map[INVALID_IDENTIFIER_1];
+        delete map[INVALID_IDENTIFIER_2];
     }
     return map;
 };
