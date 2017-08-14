@@ -27,6 +27,7 @@ se::Object* __jsb_anysdk_framework_PluginParam_proto = nullptr;
 static bool js_anysdk_PluginParam_finalize(se::State& s)
 {
     PluginParam* cobj = (PluginParam*)s.nativeThisObject();
+    CCLOGINFO("js_anysdk_PluginParam_finalize: %p", cobj);
     delete cobj;
     return true;
 }
@@ -265,8 +266,8 @@ bool js_cocos2dx_PluginParam_create(se::State& s)
         {
             double number = args[0].toNumber();
             double iptr = 0.0;
-            std::modf(number, &iptr);
-            if (iptr > 0.0 || iptr < 0.0)
+            double frac = std::modf(number, &iptr);
+            if (frac > 0.0 || frac < 0.0)
             {
                 ret = new PluginParam((float)number);
             }
