@@ -1,4 +1,5 @@
-#include "scripting/js-bindings/auto/jsb_anysdk_protocols_auto.hpp"
+#include "jsb_anysdk_protocols_auto.hpp"
+#include "jsb_anysdk_basic_conversions.h"
 #include "scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "PluginManager.h"
 #include "ProtocolAnalytics.h"
