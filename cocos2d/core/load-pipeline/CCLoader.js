@@ -234,7 +234,7 @@ proto.load = function(resources, progressCallback, completeCallback) {
         callInNextTick(function () {
             if (completeCallback) {
                 if (singleRes) {
-                    var id = res.url;
+                    let id = res.url;
                     completeCallback.call(self, items.getError(id), items.getContent(id));
                 }
                 else {
@@ -244,7 +244,7 @@ proto.load = function(resources, progressCallback, completeCallback) {
             }
 
             if (CC_EDITOR) {
-                for (var id in self._cache) {
+                for (let id in self._cache) {
                     if (self._cache[id].complete) {
                         self.removeItem(id);
                     }
