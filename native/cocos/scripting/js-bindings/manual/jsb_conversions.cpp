@@ -1300,6 +1300,7 @@ bool Color3B_to_seval(const cocos2d::Color3B& v, se::Value* ret)
     obj->setProperty("r", se::Value(v.r));
     obj->setProperty("g", se::Value(v.g));
     obj->setProperty("b", se::Value(v.b));
+    obj->setProperty("a", se::Value(255));
     ret->setObject(obj);
 
     return true;
