@@ -676,6 +676,10 @@ var RichText = cc.Class({
             if(label instanceof cc.Scale9Sprite) {
                 positionY += (this.lineHeight - label.getContentSize().height) / 2;
             }
+            
+            if( label._outlined && label._outlineWidth ) {
+                positionY += ( label._outlineWidth * 2 );
+            }
 
             label.setPositionY(positionY);
 
