@@ -582,8 +582,11 @@ var _Deserializer = (function () {
     }
 
     function _deserializeFireClass (self, obj, serialized, klass, target) {
-        var deserialize = klass.__deserialize__;
-        if (!deserialize) {
+        var deserialize;
+        if (klass.hasOwnProperty('__deserialize__')) {
+            deserialize = klass.__deserialize__;
+        }
+        else {
             deserialize = compileDeserialize(self, klass);
             // if (CC_TEST && !isPhantomJS) {
             //     cc.log(deserialize);
