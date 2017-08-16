@@ -643,17 +643,6 @@ SE_DECLARE_FUNC(js_cocos2dx_Speed_initWithAction);
 SE_DECLARE_FUNC(js_cocos2dx_Speed_getInnerAction);
 SE_DECLARE_FUNC(js_cocos2dx_Speed_Speed);
 
-extern se::Object* __jsb_cocos2d_Follow_proto;
-extern se::Class* __jsb_cocos2d_Follow_class;
-
-bool js_register_cocos2d_Follow(se::Object* obj);
-bool register_all_cocos2dx(se::Object* obj);
-SE_DECLARE_FUNC(js_cocos2dx_Follow_setBoundarySet);
-SE_DECLARE_FUNC(js_cocos2dx_Follow_initWithTarget);
-SE_DECLARE_FUNC(js_cocos2dx_Follow_initWithTargetAndOffset);
-SE_DECLARE_FUNC(js_cocos2dx_Follow_isBoundarySet);
-SE_DECLARE_FUNC(js_cocos2dx_Follow_Follow);
-
 extern se::Object* __jsb_cocos2d_Image_proto;
 extern se::Class* __jsb_cocos2d_Image_class;
 
@@ -2479,4 +2468,11 @@ SE_DECLARE_FUNC(js_cocos2dx_TileMapAtlas_getTileAt);
 SE_DECLARE_FUNC(js_cocos2dx_TileMapAtlas_setTile);
 SE_DECLARE_FUNC(js_cocos2dx_TileMapAtlas_create);
 SE_DECLARE_FUNC(js_cocos2dx_TileMapAtlas_TileMapAtlas);
+
+extern se::Object* __jsb_cocos2d_BaseJSAction_proto;
+extern se::Class* __jsb_cocos2d_BaseJSAction_class;
+
+bool js_register_cocos2d_BaseJSAction(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_BaseJSAction_BaseJSAction);
 

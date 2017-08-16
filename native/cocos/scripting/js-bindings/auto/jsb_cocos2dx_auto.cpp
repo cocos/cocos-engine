@@ -1,6 +1,7 @@
 #include "scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp"
 #include "scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "cocos2d.h"
+#include "scripting/js-bindings/manual/BaseJSAction.h"
 
 se::Object* __jsb_cocos2d_Acceleration_proto = nullptr;
 se::Class* __jsb_cocos2d_Acceleration_class = nullptr;
@@ -10518,174 +10519,6 @@ bool js_register_cocos2dx_Speed(se::Object* obj)
     __jsb_cocos2d_Speed_proto = cls->getProto();
     __jsb_cocos2d_Speed_class = cls;
 
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-se::Object* __jsb_cocos2d_Follow_proto = nullptr;
-se::Class* __jsb_cocos2d_Follow_class = nullptr;
-
-static bool js_cocos2dx_Follow_setBoundarySet(se::State& s)
-{
-    cocos2d::Follow* cobj = (cocos2d::Follow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Follow_setBoundarySet : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        bool arg0;
-        ok &= seval_to_boolean(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_Follow_setBoundarySet : Error processing arguments");
-        cobj->setBoundarySet(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_Follow_setBoundarySet)
-
-static bool js_cocos2dx_Follow_initWithTarget(se::State& s)
-{
-    cocos2d::Follow* cobj = (cocos2d::Follow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Follow_initWithTarget : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        cocos2d::Node* arg0 = nullptr;
-        ok &= seval_to_native_ptr(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_Follow_initWithTarget : Error processing arguments");
-        bool result = cobj->initWithTarget(arg0);
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_Follow_initWithTarget : Error processing arguments");
-        return true;
-    }
-    if (argc == 2) {
-        cocos2d::Node* arg0 = nullptr;
-        cocos2d::Rect arg1;
-        ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_Rect(args[1], &arg1);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_Follow_initWithTarget : Error processing arguments");
-        bool result = cobj->initWithTarget(arg0, arg1);
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_Follow_initWithTarget : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_Follow_initWithTarget)
-
-static bool js_cocos2dx_Follow_initWithTargetAndOffset(se::State& s)
-{
-    cocos2d::Follow* cobj = (cocos2d::Follow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Follow_initWithTargetAndOffset : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 3) {
-        cocos2d::Node* arg0 = nullptr;
-        float arg1 = 0;
-        float arg2 = 0;
-        ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_float(args[1], &arg1);
-        ok &= seval_to_float(args[2], &arg2);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_Follow_initWithTargetAndOffset : Error processing arguments");
-        bool result = cobj->initWithTargetAndOffset(arg0, arg1, arg2);
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_Follow_initWithTargetAndOffset : Error processing arguments");
-        return true;
-    }
-    if (argc == 4) {
-        cocos2d::Node* arg0 = nullptr;
-        float arg1 = 0;
-        float arg2 = 0;
-        cocos2d::Rect arg3;
-        ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_float(args[1], &arg1);
-        ok &= seval_to_float(args[2], &arg2);
-        ok &= seval_to_Rect(args[3], &arg3);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_Follow_initWithTargetAndOffset : Error processing arguments");
-        bool result = cobj->initWithTargetAndOffset(arg0, arg1, arg2, arg3);
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_Follow_initWithTargetAndOffset : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_Follow_initWithTargetAndOffset)
-
-static bool js_cocos2dx_Follow_isBoundarySet(se::State& s)
-{
-    cocos2d::Follow* cobj = (cocos2d::Follow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Follow_isBoundarySet : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        bool result = cobj->isBoundarySet();
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_Follow_isBoundarySet : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_Follow_isBoundarySet)
-
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_Follow_finalize)
-
-static bool js_cocos2dx_Follow_constructor(se::State& s)
-{
-    cocos2d::Follow* cobj = new (std::nothrow) cocos2d::Follow();
-    s.thisObject()->setPrivateData(cobj);
-    return true;
-}
-SE_BIND_CTOR(js_cocos2dx_Follow_constructor, __jsb_cocos2d_Follow_class, js_cocos2d_Follow_finalize)
-
-static bool js_cocos2dx_Follow_ctor(se::State& s)
-{
-    cocos2d::Follow* cobj = new (std::nothrow) cocos2d::Follow();
-    s.thisObject()->setPrivateData(cobj);
-    return true;
-}
-SE_BIND_SUB_CLS_CTOR(js_cocos2dx_Follow_ctor, __jsb_cocos2d_Follow_class, js_cocos2d_Follow_finalize)
-
-
-    
-
-extern se::Object* __jsb_cocos2d_Action_proto;
-
-static bool js_cocos2d_Follow_finalize(se::State& s)
-{
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Follow)", s.nativeThisObject());
-    cocos2d::Follow* cobj = (cocos2d::Follow*)s.nativeThisObject();
-    if (cobj->getReferenceCount() == 1)
-        cobj->autorelease();
-    else
-        cobj->release();
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cocos2d_Follow_finalize)
-
-bool js_register_cocos2dx_Follow(se::Object* obj)
-{
-    auto cls = se::Class::create("Follow", obj, __jsb_cocos2d_Action_proto, _SE(js_cocos2dx_Follow_constructor));
-
-    cls->defineFunction("setBoundarySet", _SE(js_cocos2dx_Follow_setBoundarySet));
-    cls->defineFunction("initWithTarget", _SE(js_cocos2dx_Follow_initWithTarget));
-    cls->defineFunction("initWithTargetAndOffset", _SE(js_cocos2dx_Follow_initWithTargetAndOffset));
-    cls->defineFunction("isBoundarySet", _SE(js_cocos2dx_Follow_isBoundarySet));
-    cls->defineFunction("ctor", _SE(js_cocos2dx_Follow_ctor));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_Follow_finalize));
-    cls->install();
-    JSBClassType::registerClass<cocos2d::Follow>(cls);
-
-    __jsb_cocos2d_Follow_proto = cls->getProto();
-    __jsb_cocos2d_Follow_class = cls;
-
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { cc.Follow.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -37815,6 +37648,61 @@ bool js_register_cocos2dx_TileMapAtlas(se::Object* obj)
     return true;
 }
 
+se::Object* __jsb_cocos2d_BaseJSAction_proto = nullptr;
+se::Class* __jsb_cocos2d_BaseJSAction_class = nullptr;
+
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_BaseJSAction_finalize)
+
+static bool js_cocos2dx_BaseJSAction_constructor(se::State& s)
+{
+    cocos2d::BaseJSAction* cobj = new (std::nothrow) cocos2d::BaseJSAction();
+    s.thisObject()->setPrivateData(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_cocos2dx_BaseJSAction_constructor, __jsb_cocos2d_BaseJSAction_class, js_cocos2d_BaseJSAction_finalize)
+
+static bool js_cocos2dx_BaseJSAction_ctor(se::State& s)
+{
+    cocos2d::BaseJSAction* cobj = new (std::nothrow) cocos2d::BaseJSAction();
+    s.thisObject()->setPrivateData(cobj);
+    return true;
+}
+SE_BIND_SUB_CLS_CTOR(js_cocos2dx_BaseJSAction_ctor, __jsb_cocos2d_BaseJSAction_class, js_cocos2d_BaseJSAction_finalize)
+
+
+    
+
+extern se::Object* __jsb_cocos2d_Action_proto;
+
+static bool js_cocos2d_BaseJSAction_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::BaseJSAction)", s.nativeThisObject());
+    cocos2d::BaseJSAction* cobj = (cocos2d::BaseJSAction*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_BaseJSAction_finalize)
+
+bool js_register_cocos2dx_BaseJSAction(se::Object* obj)
+{
+    auto cls = se::Class::create("BaseJSAction", obj, __jsb_cocos2d_Action_proto, _SE(js_cocos2dx_BaseJSAction_constructor));
+
+    cls->defineFunction("ctor", _SE(js_cocos2dx_BaseJSAction_ctor));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_BaseJSAction_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::BaseJSAction>(cls);
+
+    __jsb_cocos2d_BaseJSAction_proto = cls->getProto();
+    __jsb_cocos2d_BaseJSAction_class = cls;
+
+    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { cc.BaseJSAction.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
 bool register_all_cocos2dx(se::Object* obj)
 {
     // Get the ns
@@ -37957,7 +37845,6 @@ bool register_all_cocos2dx(se::Object* obj)
     js_register_cocos2dx_EaseQuarticActionOut(ns);
     js_register_cocos2dx_EaseBackIn(ns);
     js_register_cocos2dx_ParticleExplosion(ns);
-    js_register_cocos2dx_Follow(ns);
     js_register_cocos2dx_TintBy(ns);
     js_register_cocos2dx_ReverseTime(ns);
     js_register_cocos2dx_EaseQuarticActionIn(ns);
@@ -37990,6 +37877,7 @@ bool register_all_cocos2dx(se::Object* obj)
     js_register_cocos2dx_RotateBy(ns);
     js_register_cocos2dx_FileUtils(ns);
     js_register_cocos2dx_CallFuncN(ns);
+    js_register_cocos2dx_BaseJSAction(ns);
     js_register_cocos2dx_Sequence(ns);
     js_register_cocos2dx_EaseBounceInOut(ns);
     js_register_cocos2dx_Scene(ns);
