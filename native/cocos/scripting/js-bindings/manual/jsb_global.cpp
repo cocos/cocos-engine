@@ -499,16 +499,7 @@ static bool JSBCore_platform(se::State& s)
     }
 
     Application::Platform platform;
-
-    // config.deviceType: Device Type
-    // 'mobile' for any kind of mobile devices, 'desktop' for PCs, 'browser' for Web Browsers
-    // #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
-    //     platform = JS_InternString(_cx, "desktop");
-    // #else
-    platform = Application::Platform::OS_IPHONE; // FIXME:
-//    platform = Application::getInstance()->getTargetPlatform();
-    // #endif
-
+    platform = Application::getInstance()->getTargetPlatform();
     s.rval().setInt32((int32_t)platform);
     return true;
 }
@@ -570,7 +561,7 @@ SE_BIND_FUNC(JSBCore_os)
 
 static bool JSB_cleanScript(se::State& s)
 {
-    assert(false);
+    assert(false); //FIXME:
     return true;
 }
 SE_BIND_FUNC(JSB_cleanScript)
@@ -584,16 +575,34 @@ SE_BIND_FUNC(JSB_core_restartVM)
 
 static bool JSB_closeWindow(se::State& s)
 {
-//    assert(false);//FIXME: cjh
-    se::ScriptEngine::getInstance()->gc();
+    EventListenerCustom* _event = Director::getInstance()->getEventDispatcher()->addCustomEventListener(Director::EVENT_AFTER_DRAW, [&](EventCustom *event) {
+        Director::getInstance()->getEventDispatcher()->removeEventListener(_event);
+        CC_SAFE_RELEASE(_event);
+
+        se::ScriptEngine::getInstance()->cleanup();
+    });
+    _event->retain();
+    Director::getInstance()->end();
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+    exit(0);
+#endif
     return true;
 }
 SE_BIND_FUNC(JSB_closeWindow)
 
 static bool JSB_isObjectValid(se::State& s)
 {
-    s.rval().setBoolean(true);
-    return true;
+    const auto& args = s.args();
+    int argc = (int)args.size();
+    if (argc == 1)
+    {
+        void* nativePtr = nullptr;
+        seval_to_native_ptr(args[0], &nativePtr);
+        return nativePtr != nullptr;
+    }
+
+    SE_REPORT_ERROR("Invalid number of arguments: %d. Expecting: 1", argc);
+    return false;
 }
 SE_BIND_FUNC(JSB_isObjectValid)
 

@@ -644,11 +644,11 @@ static bool js_EventListenerKeyboard_create(se::State& s)
         ret->init();
 
         ret->onKeyPressed = [ret](EventKeyboard::KeyCode keyCode, Event* event) {
-            invokeJSKeyboardCallback(ret, "onKeyPressed", keyCode, event, nullptr);
+            invokeJSKeyboardCallback(ret, "_onKeyPressed", keyCode, event, nullptr);
         };
 
         ret->onKeyReleased = [ret](EventKeyboard::KeyCode keyCode, Event* event) {
-            invokeJSKeyboardCallback(ret, "onKeyReleased", keyCode, event, nullptr);
+            invokeJSKeyboardCallback(ret, "_onKeyReleased", keyCode, event, nullptr);
         };
 
         se::Object* obj = se::Object::createObjectWithClass(__jsb_cocos2d_EventListenerKeyboard_class);
@@ -827,33 +827,33 @@ SE_BIND_FUNC(js_EventListenerCustom_create)
 static bool register_eventlistener(se::Object* obj)
 {
     se::Value v;
-    __ccObj->getProperty("EventListenerMouse", &v);LOGD("%s, %d\n", __FUNCTION__, __LINE__);
-    assert(v.isObject());LOGD("%s, %d\n", __FUNCTION__, __LINE__);
-    v.toObject()->defineFunction("create", _SE(js_EventListenerMouse_create));LOGD("%s, %d\n", __FUNCTION__, __LINE__);
+    __ccObj->getProperty("EventListenerMouse", &v);
+    assert(v.isObject());
+    v.toObject()->defineFunction("create", _SE(js_EventListenerMouse_create));
 
-    __ccObj->getProperty("EventListenerTouchOneByOne", &v);LOGD("%s, %d\n", __FUNCTION__, __LINE__);
-    assert(v.isObject());LOGD("%s, %d\n", __FUNCTION__, __LINE__);
-    v.toObject()->defineFunction("create", _SE(js_EventListenerTouchOneByOne_create));LOGD("%s, %d\n", __FUNCTION__, __LINE__);
+    __ccObj->getProperty("EventListenerTouchOneByOne", &v);
+    assert(v.isObject());
+    v.toObject()->defineFunction("create", _SE(js_EventListenerTouchOneByOne_create));
 
-    __ccObj->getProperty("EventListenerTouchAllAtOnce", &v);LOGD("%s, %d\n", __FUNCTION__, __LINE__);
-    assert(v.isObject());LOGD("%s, %d\n", __FUNCTION__, __LINE__);
-    v.toObject()->defineFunction("create", _SE(js_EventListenerTouchAllAtOnce_create));LOGD("%s, %d\n", __FUNCTION__, __LINE__);
+    __ccObj->getProperty("EventListenerTouchAllAtOnce", &v);
+    assert(v.isObject());
+    v.toObject()->defineFunction("create", _SE(js_EventListenerTouchAllAtOnce_create));
 
-    __ccObj->getProperty("EventListenerKeyboard", &v);LOGD("%s, %d\n", __FUNCTION__, __LINE__);
-    assert(v.isObject());LOGD("%s, %d\n", __FUNCTION__, __LINE__);
-    v.toObject()->defineFunction("create", _SE(js_EventListenerKeyboard_create));LOGD("%s, %d\n", __FUNCTION__, __LINE__);
+    __ccObj->getProperty("EventListenerKeyboard", &v);
+    assert(v.isObject());
+    v.toObject()->defineFunction("create", _SE(js_EventListenerKeyboard_create));
 
-    __ccObj->getProperty("EventListenerAcceleration", &v);LOGD("%s, %d\n", __FUNCTION__, __LINE__);
-    assert(v.isObject());LOGD("%s, %d\n", __FUNCTION__, __LINE__);
-    v.toObject()->defineFunction("create", _SE(js_EventListenerAcceleration_create));LOGD("%s, %d\n", __FUNCTION__, __LINE__);
+    __ccObj->getProperty("EventListenerAcceleration", &v);
+    assert(v.isObject());
+    v.toObject()->defineFunction("create", _SE(js_EventListenerAcceleration_create));
 
-    __ccObj->getProperty("EventListenerFocus", &v);LOGD("%s, %d\n", __FUNCTION__, __LINE__);
-    assert(v.isObject());LOGD("%s, %d\n", __FUNCTION__, __LINE__);
-    v.toObject()->defineFunction("create", _SE(js_EventListenerFocus_create));LOGD("%s, %d\n", __FUNCTION__, __LINE__);
+    __ccObj->getProperty("EventListenerFocus", &v);
+    assert(v.isObject());
+    v.toObject()->defineFunction("create", _SE(js_EventListenerFocus_create));
 
-    __ccObj->getProperty("EventListenerCustom", &v);LOGD("%s, %d\n", __FUNCTION__, __LINE__);
-    assert(v.isObject());LOGD("%s, %d\n", __FUNCTION__, __LINE__);
-    v.toObject()->defineFunction("create", _SE(js_EventListenerCustom_create));LOGD("%s, %d\n", __FUNCTION__, __LINE__);
+    __ccObj->getProperty("EventListenerCustom", &v);
+    assert(v.isObject());
+    v.toObject()->defineFunction("create", _SE(js_EventListenerCustom_create));
 
     se::ScriptEngine::getInstance()->clearException();
 
@@ -1906,13 +1906,12 @@ bool register_ui_manual(se::Object* obj)
 
 bool register_all_cocos2dx_manual(se::Object* obj)
 {
-    LOGD("%s, %d\n", __FUNCTION__, __LINE__);
-    register_plist_parser(obj);    LOGD("%s, %d\n", __FUNCTION__, __LINE__);
-    register_sys_localStorage(obj);    LOGD("%s, %d\n", __FUNCTION__, __LINE__);
-    register_eventlistener(obj);    LOGD("%s, %d\n", __FUNCTION__, __LINE__);
-    register_actions(obj);    LOGD("%s, %d\n", __FUNCTION__, __LINE__);
-    register_empty_retain_release(obj);    LOGD("%s, %d\n", __FUNCTION__, __LINE__);
-    register_texture2d_manual(obj);    LOGD("%s, %d\n", __FUNCTION__, __LINE__);
+    register_plist_parser(obj);
+    register_sys_localStorage(obj);
+    register_eventlistener(obj);
+    register_actions(obj);
+    register_empty_retain_release(obj);
+    register_texture2d_manual(obj);
     return true;
 }
 
