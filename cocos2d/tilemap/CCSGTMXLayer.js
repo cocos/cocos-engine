@@ -294,6 +294,11 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
         } else {
             renderer.pushRenderCommand(cmd);
         }
+
+        if(cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
+            renderer.pushRenderCommand(this._renderCmd._depthTestVisitCmd);
+        }
+
         cmd._dirtyFlag = 0;
     },
 

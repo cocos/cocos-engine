@@ -54,12 +54,22 @@ _ccsg.TMXLayer.WebGLRenderCmd = function(renderableObject){
         StaggerAxis = cc.TiledMap.StaggerAxis;
         StaggerIndex = cc.TiledMap.StaggerIndex;
     }
+
+    // close DepthTest, local use DepthTest;
+    this._depthTestVisitCmd = new cc.CustomRenderCmd(this, _closeDepthTest);
 };
+
+function _closeDepthTest () {
+    cc.renderer.setDepthTest(false);
+}
 
 var proto = _ccsg.TMXLayer.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
 proto.constructor = _ccsg.TMXLayer.WebGLRenderCmd;
 
 proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
+    // open Depth Test
+    cc.renderer.setDepthTest(true);
+
     var node = this._node, hasRotation = (node._rotationX || node._rotationY),
         layerOrientation = node.layerOrientation,
         tiles = node.tiles;
@@ -167,6 +177,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
             z = colOffset + col;
             // Skip sprite tiles
             if (spTiles[z]) {
+                spTiles[z]._vertexZ = node._vertexZ + cc.renderer.assignedZStep * z / tiles.length;
                 continue;
             }
 
