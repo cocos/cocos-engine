@@ -505,23 +505,39 @@ var RichText = cc.Class({
 
             var spriteRect = spriteFrame.getRect();
             var scaleFactor = 1;
-            if(spriteRect.height > this.lineHeight) {
-                scaleFactor = this.lineHeight / spriteRect.height;
+            var spriteWidth = spriteRect.width;
+            var spriteHeight = spriteRect.height;
+            var expectWidht = richTextElement.style.imageWidth;
+            var expectHeight = richTextElement.style.imageHeight;
+
+            //follow the original rule, the image height must less then lineHeight
+            if(expectHeight && expectHeight > 0 && expectHeight < this.lineHeight )
+            {
+                scaleFactor = expectHeight / spriteRect.height;
+                spriteWidth = spriteWidth * scaleFactor;
+                spriteHeight = spriteHeight * scaleFactor;
             }
+            else if(spriteRect.height > this.lineHeight) {
+                scaleFactor = this.lineHeight / spriteRect.height;
+                spriteWidth = spriteWidth * scaleFactor;
+                spriteHeight = spriteHeight * scaleFactor;
+            }
+            if(expectWidht && expectWidht > 0) spriteWidth = expectWidht;
+
             if(this.maxWidth > 0) {
-                if(this._lineOffsetX + spriteRect.width * scaleFactor > this.maxWidth) {
+                if(this._lineOffsetX + spriteWidth > this.maxWidth) {
                     this._updateLineInfo();
                 }
-                this._lineOffsetX += spriteRect.width * scaleFactor;
+                this._lineOffsetX += spriteWidth;
 
             } else {
-                this._lineOffsetX += spriteRect.width * scaleFactor;
+                this._lineOffsetX += spriteWidth;
                 if(this._lineOffsetX > this._labelWidth) {
                     this._labelWidth = this._lineOffsetX;
                 }
             }
             this._applySpriteFrame(spriteFrame);
-            sprite.setContentSize(spriteRect.width * scaleFactor, spriteRect.height * scaleFactor);
+            sprite.setContentSize(spriteWidth, spriteHeight);
             sprite._lineCount = this._lineCount;
 
             if(richTextElement.style.event) {

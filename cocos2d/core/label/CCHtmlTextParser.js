@@ -123,38 +123,40 @@ cc.HtmlTextParser.prototype = {
         if(header && header[0].length > 0) {
             tagName = header[0].trim();
             if(tagName.startsWith("img") && tagName[tagName.length-1] === "/") {
-                var srcBegin = tagName.indexOf('=');
-                var remainingArgument = tagName.substring(srcBegin+1).trim();
-                var imageSrc;
-                var endQuotIndex = -1;
-                var isValidImageTag = false;
-                switch(remainingArgument[0]){
-                  case "'":
-                      endQuotIndex = remainingArgument.indexOf("'", 1);
-                      if(endQuotIndex > -1) {
-                          imageSrc = remainingArgument.substring(1, endQuotIndex);
-                          isValidImageTag = true;
-                      }
-                      break;
-                  case "\"":
-                      endQuotIndex = remainingArgument.indexOf("\"", 1);
-                      if(endQuotIndex > -1) {
-                          imageSrc = remainingArgument.substring(1, endQuotIndex);
-                          isValidImageTag = true;
-                      }
-                      break;
-                  default:
-                      //invalid tag
-                      break;
-                }
-                if(isValidImageTag) {
-                    obj.isImage = true;
-                    obj.src = imageSrc;
-                    eventHanlderString = remainingArgument.substring(endQuotIndex+1).trim();
-                    if(eventHanlderString.match(eventRegx)){
-                        eventObj = this._processEventHandler(eventHanlderString);
-                        obj.event = eventObj;
+                var imageAttrReg = /(\s)*src(\s)*=|(\s)*height(\s)*=|(\s)*width(\s)*=|(\s)*click(\s)*=/;
+                header = attribute.match(imageAttrReg);
+                var tagValue;
+                var remainingArgument;
+                while (header) {
+                    //skip the invalid tags at first
+                    attribute = attribute.substring(attribute.indexOf(header[0]));
+                    tagName = attribute.substr(0, header[0].length);
+                    //remove space and = character
+                    remainingArgument = attribute.substring(tagName.length).trim();
+                    nextSpace = remainingArgument.indexOf(' ');
+
+                    tagValue = (nextSpace > -1) ? remainingArgument.substr(0, nextSpace) : remainingArgument;
+                    tagName = tagName.replace(/[^a-zA-Z]/g, "").trim();
+                    tagName = tagName.toLocaleLowerCase();
+
+                    attribute = remainingArgument.substring(nextSpace).trim();
+                    if (tagName === "src") {
+                        obj.isImage = true
+                        if( tagValue.indexOf('\'')===0 ) tagValue = tagValue.substring( 1, tagValue.length - 1 );
+                        if( tagValue.indexOf('\"')===0 ) tagValue = tagValue.substring( 1, tagValue.length - 1 );
+                        obj.src = tagValue;
+                    } else if (tagName === "height") {
+                        obj.imageHeight = parseInt(tagValue);
+                    } else if (tagName === "width") {
+                        obj.imageWidth = parseInt(tagValue);
+                    } else if (tagName === "click") {
+                        obj.event = this._processEventHandler(tagName + "=" + tagValue);
                     }
+                    header = attribute.match(imageAttrReg);
+                }
+
+                if( obj.isImage )
+                {
                     this._resultObjectArray.push({text: "", style: obj});
                 }
 
