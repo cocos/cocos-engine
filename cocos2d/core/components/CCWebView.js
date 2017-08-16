@@ -151,7 +151,39 @@ var WebView = cc.Class({
     _onWebViewLoadError: function () {
         cc.Component.EventHandler.emitEvents(this.webviewEvents, this, EventType.ERROR);
         this.node.emit('error', this);
+    },
+
+    /**
+     * !#en
+     * Set javascript interface scheme.
+     * Note: only available on Android and iOS at the moment.
+     * !#zh
+     * 设置 javascript 接口方案。
+     * 注意：目前只能在 Android 和 iOS 上使用。
+     * @method setJavascriptInterfaceScheme
+     * @param {String} scheme
+     */
+    setJavascriptInterfaceScheme: function (scheme) {
+        if (this._sgNode) {
+            this._sgNode.setJavascriptInterfaceScheme(scheme);
+        }
+    },
+    /**
+     * !#en
+     * This callback called when load URL that start with javascript interface scheme.
+     * Note: only available on Android and iOS at the moment.
+     * !#zh
+     * 当加载 URL 以 JavaScript 接口方案开始时调用这个回调函数。
+     * 注意：目前只能在 Android 和 iOS 上使用。
+     * @method setOnJSCallback
+     * @param {Function} callback
+     */
+    setOnJSCallback: function (callback) {
+        if (this._sgNode) {
+            this._sgNode.setOnJSCallback(callback);
+        }
     }
+
 });
 
 cc.WebView = module.exports = WebView;
