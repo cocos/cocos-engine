@@ -65,7 +65,7 @@ _ccsg.MotionStreak.WebGLRenderCmd.prototype.rendering = function(ctx){
         //position
         ctx.bindBuffer(ctx.ARRAY_BUFFER, node._verticesBuffer);
         ctx.bufferData(ctx.ARRAY_BUFFER, node._vertices, ctx.DYNAMIC_DRAW);
-        ctx.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 2, ctx.FLOAT, false, 0, 0);
+        ctx.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 3, ctx.FLOAT, false, 0, 0);
 
         //texcoords
         ctx.bindBuffer(ctx.ARRAY_BUFFER, node._texCoordsBuffer);

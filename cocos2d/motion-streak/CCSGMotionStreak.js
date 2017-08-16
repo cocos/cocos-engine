@@ -32,7 +32,7 @@
  * @param {Number} offset
  * @param {Number} nuPoints
  */
-function vertexLineToPolygon (points, stroke, vertices, offset, nuPoints) {
+function vertexLineToPolygon (points, stroke, vertices, offset, nuPoints, vertexZ) {
     nuPoints += offset;
     if (nuPoints <= 1)
         return;
@@ -68,22 +68,22 @@ function vertexLineToPolygon (points, stroke, vertices, offset, nuPoints) {
         }
         perpVector = cc.pMult(perpVector, stroke);
 
-        vertices[idx * 2] = p1.x + perpVector.x;
-        vertices[idx * 2 + 1] = p1.y + perpVector.y;
-        vertices[(idx + 1) * 2] = p1.x - perpVector.x;
-        vertices[(idx + 1) * 2 + 1] = p1.y - perpVector.y;
+        var vZ = vertexZ + cc.renderer.assignedZStep * i / vertices.length;
+        vertices[idx * 3] = p1.x + perpVector.x;
+        vertices[idx * 3 + 1] = p1.y + perpVector.y;
+        vertices[idx * 3 + 2] = vZ;
+        vertices[(idx + 1) * 3] = p1.x - perpVector.x;
+        vertices[(idx + 1) * 3 + 1] = p1.y - perpVector.y;
+        vertices[(idx + 1) * 3 + 2] = vZ;
     }
-
     // Validate vertexes
     offset = (offset === 0) ? 0 : offset - 1;
     for (i = offset; i < nuPointsMinus; i++) {
-        idx = i * 2;
-        var idx1 = idx + 2;
-
-        var v1 = cc.v2(vertices[idx * 2], vertices[idx * 2 + 1]);
-        var v2 = cc.v2(vertices[(idx + 1) * 2], vertices[(idx + 1) * 2 + 1]);
-        var v3 = cc.v2(vertices[idx1 * 2], vertices[idx1 * 2 + 1]);
-        var v4 = cc.v2(vertices[(idx1 + 1) * 2], vertices[(idx1 + 1) * 2 + 1]);
+        idx = i * 6;
+        var v1 = cc.v2(vertices[idx], vertices[idx + 1]);
+        var v2 = cc.v2(vertices[idx + 3], vertices[idx + 4]);
+        var v3 = cc.v2(vertices[idx + 6], vertices[idx + 7]);
+        var v4 = cc.v2(vertices[idx + 9], vertices[idx + 10]);
 
         //BOOL fixVertex = !ccpLineIntersect(ccp(p1.x, p1.y), ccp(p4.x, p4.y), ccp(p2.x, p2.y), ccp(p3.x, p3.y), &s, &t);
         var fixVertexResult = vertexLineIntersect(v1.x, v1.y, v4.x, v4.y, v2.x, v2.y, v3.x, v3.y);
@@ -93,10 +93,11 @@ function vertexLineToPolygon (points, stroke, vertices, offset, nuPoints) {
                 isSuccess = true;
 
         if (isSuccess) {
-            vertices[idx1 * 2] = v4.x;
-            vertices[idx1 * 2 + 1] = v4.y;
-            vertices[(idx1 + 1) * 2] = v3.x;
-            vertices[(idx1 + 1) * 2 + 1] = v3.y;
+            var v3Idx = idx + 6, v4Idx = idx + 9;
+            vertices[v3Idx] = v4.x;
+            vertices[v3Idx + 1] = v4.y;
+            vertices[v4Idx] = v3.x;
+            vertices[v4Idx + 1] = v3.y;
         }
     }
 }
@@ -390,7 +391,7 @@ _ccsg.MotionStreak = _ccsg.Node.extend({
         this._pointState = new Float32Array(locMaxPoints);
         this._pointVertexes = new Float32Array(locMaxPoints * 2);
 
-        this._vertices = new Float32Array(locMaxPoints * 4);
+        this._vertices = new Float32Array(locMaxPoints * 6);
         this._texCoords = new Float32Array(locMaxPoints * 4);
         this._colorPointer = new Uint8Array(locMaxPoints * 8);
 
@@ -584,16 +585,16 @@ _ccsg.MotionStreak = _ccsg.Node.extend({
                     locPointVertexes[newIdx * 2 + 1] = locPointVertexes[i * 2 + 1];
 
                     // Move vertices
-                    i2 = i * 2;
-                    newIdx2 = newIdx * 2;
-                    locVertices[newIdx2 * 2] = locVertices[i2 * 2];
-                    locVertices[newIdx2 * 2 + 1] = locVertices[i2 * 2 + 1];
-                    locVertices[(newIdx2 + 1) * 2] = locVertices[(i2 + 1) * 2];
-                    locVertices[(newIdx2 + 1) * 2 + 1] = locVertices[(i2 + 1) * 2 + 1];
+                    i2 = i * 3;
+                    newIdx2 = newIdx * 3;
+                    locVertices[newIdx2] = locVertices[i2];
+                    locVertices[newIdx2 + 1] = locVertices[i2 + 1];
+                    locVertices[newIdx2 + 3] = locVertices[i2 + 3];
+                    locVertices[newIdx2 + 4] = locVertices[i2 + 4];
 
                     // Move color
-                    i2 *= 4;
-                    newIdx2 *= 4;
+                    i2 = i * 8;
+                    newIdx2 = newIdx * 8;
                     locColorPointer[newIdx2 + 0] = locColorPointer[i2 + 0];
                     locColorPointer[newIdx2 + 1] = locColorPointer[i2 + 1];
                     locColorPointer[newIdx2 + 2] = locColorPointer[i2 + 2];
@@ -647,15 +648,15 @@ _ccsg.MotionStreak = _ccsg.Node.extend({
             // Generate polygon
             if (locNuPoints > 0 && this.fastMode) {
                 if (locNuPoints > 1)
-                    vertexLineToPolygon(locPointVertexes, this._stroke, this._vertices, locNuPoints, 1);
+                    vertexLineToPolygon(locPointVertexes, this._stroke, this._vertices, locNuPoints, 1, this._vertexZ);
                 else
-                    vertexLineToPolygon(locPointVertexes, this._stroke, this._vertices, 0, 2);
+                    vertexLineToPolygon(locPointVertexes, this._stroke, this._vertices, 0, 2, this._vertexZ);
             }
             locNuPoints++;
         }
 
         if (!this.fastMode)
-            vertexLineToPolygon(locPointVertexes, this._stroke, this._vertices, 0, locNuPoints);
+            vertexLineToPolygon(locPointVertexes, this._stroke, this._vertices, 0, locNuPoints, this._vertexZ);
 
         // Updated Tex Coords only if they are different than previous step
         if (locNuPoints && this._previousNuPoints !== locNuPoints) {
