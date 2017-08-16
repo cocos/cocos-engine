@@ -127,6 +127,7 @@ cc.HtmlTextParser.prototype = {
                 header = attribute.match(imageAttrReg);
                 var tagValue;
                 var remainingArgument;
+                var isValidImageTag = false;
                 while (header) {
                     //skip the invalid tags at first
                     attribute = attribute.substring(attribute.indexOf(header[0]));
@@ -142,8 +143,14 @@ cc.HtmlTextParser.prototype = {
                     attribute = remainingArgument.substring(nextSpace).trim();
                     if (tagName === "src") {
                         obj.isImage = true
-                        if( tagValue.indexOf('\'')===0 ) tagValue = tagValue.substring( 1, tagValue.length - 1 );
-                        if( tagValue.indexOf('\"')===0 ) tagValue = tagValue.substring( 1, tagValue.length - 1 );
+                        if( tagValue.endsWith( '\/' ) ) tagValue = tagValue.substring( 0, tagValue.length - 1 );
+                        if( tagValue.indexOf('\'')===0 ) {
+                            isValidImageTag = true;
+                            tagValue = tagValue.substring( 1, tagValue.length - 1 );
+                        } else if( tagValue.indexOf('"')===0 ) {
+                            isValidImageTag = true;
+                            tagValue = tagValue.substring( 1, tagValue.length - 1 );
+                        }
                         obj.src = tagValue;
                     } else if (tagName === "height") {
                         obj.imageHeight = parseInt(tagValue);
@@ -155,7 +162,7 @@ cc.HtmlTextParser.prototype = {
                     header = attribute.match(imageAttrReg);
                 }
 
-                if( obj.isImage )
+                if( isValidImageTag && obj.isImage )
                 {
                     this._resultObjectArray.push({text: "", style: obj});
                 }
