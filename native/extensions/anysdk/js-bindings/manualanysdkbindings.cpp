@@ -1934,7 +1934,6 @@ void register_all_anysdk_manual(JSContext* cx, JS::HandleObject obj) {
     
     cocos2d::EventListenerCustom* _event = cocos2d::Director::getInstance()->getEventDispatcher()->addCustomEventListener(ScriptingCore::EVENT_RESET, [&](cocos2d::EventCustom *event) {
         cocos2d::Director::getInstance()->getEventDispatcher()->removeEventListener(_event);
-        CC_SAFE_RELEASE(_event);
         
         ProtocolIAPResultListener::clear();
         if (ProtocolAdsResultListener::_instance != nullptr)
@@ -1962,5 +1961,4 @@ void register_all_anysdk_manual(JSContext* cx, JS::HandleObject obj) {
             CC_SAFE_DELETE(ProtocolRECListener::_instance);
         }
     });
-    _event->retain();
 }
