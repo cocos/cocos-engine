@@ -501,6 +501,11 @@ var Label = cc.Class({
 
     },
 
+    onEnable: function () {
+        this._super();
+        this._updateNodeSize();
+    },
+
     _createSgNode: function () {
         return null;
     },
