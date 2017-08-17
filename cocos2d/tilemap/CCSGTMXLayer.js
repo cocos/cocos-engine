@@ -296,7 +296,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
         }
 
         if(cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
-            renderer.pushRenderCommand(this._renderCmd._depthTestVisitCmd);
+            renderer.pushRenderCommand(this._renderCmd._disableDepthTestCmd);
         }
 
         cmd._dirtyFlag = 0;

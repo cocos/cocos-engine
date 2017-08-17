@@ -55,11 +55,11 @@ _ccsg.TMXLayer.WebGLRenderCmd = function(renderableObject){
         StaggerIndex = cc.TiledMap.StaggerIndex;
     }
 
-    // close DepthTest, local use DepthTest;
-    this._depthTestVisitCmd = new cc.CustomRenderCmd(this, _closeDepthTest);
+    // disable DepthTest, local use DepthTest;
+    this._disableDepthTestCmd = new cc.CustomRenderCmd(this, _disableDepthTest);
 };
 
-function _closeDepthTest () {
+function _disableDepthTest () {
     cc.renderer.setDepthTest(false);
 }
 
@@ -67,7 +67,7 @@ var proto = _ccsg.TMXLayer.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.W
 proto.constructor = _ccsg.TMXLayer.WebGLRenderCmd;
 
 proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
-    // open Depth Test
+    // enable Depth Test
     cc.renderer.setDepthTest(true);
 
     var node = this._node, hasRotation = (node._rotationX || node._rotationY),
