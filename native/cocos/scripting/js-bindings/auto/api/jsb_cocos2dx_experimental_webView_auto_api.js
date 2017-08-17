@@ -107,6 +107,16 @@ str
 },
 
 /**
+ * @method setOnJSCallback
+ * @param {function} arg0
+ */
+setOnJSCallback : function (
+func 
+)
+{
+},
+
+/**
  * @method getOnJSCallback
  * @return {function}
  */
