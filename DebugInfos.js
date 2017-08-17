@@ -302,8 +302,39 @@ if (CC_DEBUG) {
         "3647": "The length of range array must be equal or greater than 2", //parseAttributes_4
         "3648": "Can not declare %s.%s method, it is already defined in the properties of %s.",
         "3649": "CCClass %s have conflict between its ctor and __ctor__.",
-        "3650": "No need to specifiy '%s' attribute for '%s' in class \"%s\".",
+        "3650": "No need to specifiy \"%s\" attribute for \"%s\" property in \"%s\" class.",    // 已废弃，提示信息仅用于生成 markdown 给旧版本用户查阅
         "3651": "Can not call `_super` or `prototype.ctor` in ES6 Classes \"%s\", use `super` instead please.",
+        "3652": "Failed to construct a dummy instance of the \"%s\" class using `new` behind the scenes. This is for getting default values declared in TypeScript. Please ensure the class will be able to construct during script's initialization. %s",
+        "3653": "Please do not specifiy \"default\" attribute in decorator of \"%s\" property in \"%s\" class.\n" +
+                "  Default value must be initialized at their declaration: \uD83D\uDE02\n" +
+                "    // Before:\n" +
+                "    @property({\n" +
+                "      type: cc.Integer\n" +
+                "      default: 0  // <--\n" +
+                "    })\n" +
+                "    value;\n\n" +
+                "    // After:\n" +
+                "    @property({\n" +
+                "      type: cc.Integer\n" +
+                "    })\n" +
+                "    value = 0;    // <--",
+        "3654": "Please specifiy a default value for \"%s\" property at its declaration: \uD83D\uDE02\n" +
+                "    // Before:\n" +
+                "    @property(...)\n" +
+                "    value;\n\n" +
+                "    // After:\n" +
+                "    @property(...)\n" +
+                "    value = 0;",
+        "3655": "Can not specifiy \"get\" or \"set\"  attribute in decorator for \"%s\" property in \"%s\" class.\n" +
+                "  Please use:\n" +
+                "    @property(...)\n" +
+                "    get %s () {\n" +
+                "      ...\n" +
+                "    }\n" +
+                "    @property\n" +
+                "    set %s (value) {\n" +
+                "      ...\n" +
+                "    }",
         //Prefab: 3700
         "3700": "internal error: _prefab is undefined", //_doInstantiate
         "3701": "Failed to load prefab asset for node '%s'", //syncWithPrefab
