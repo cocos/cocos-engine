@@ -69,74 +69,74 @@ _forceExtend(ccui.Widget.prototype, {
     }
 });
 
-_safeExtend(ccui.Button.prototype, {
-    _fontStyleRE: /^(\d+)px\s+['"]?([\w\s\d]+)['"]?$/,
+// _safeExtend(ccui.Button.prototype, {
+//     _fontStyleRE: /^(\d+)px\s+['"]?([\w\s\d]+)['"]?$/,
 
-    _getTitleFont: function() {
-        var size = this.getTitleFontSize();
-        var name = this.getTitleFontName();
-        return size + "px '" + name + "'";
-    },
+//     _getTitleFont: function() {
+//         var size = this.getTitleFontSize();
+//         var name = this.getTitleFontName();
+//         return size + "px '" + name + "'";
+//     },
 
-    _setTitleFont: function(fontStyle) {
-        var res = this._fontStyleRE.exec(fontStyle);
-        if(res) {
-            this.setTitleFontSize(parseInt(res[1]));
-            this.setTitleFontName(res[2]);
-        }
-    }
-});
+//     _setTitleFont: function(fontStyle) {
+//         var res = this._fontStyleRE.exec(fontStyle);
+//         if(res) {
+//             this.setTitleFontSize(parseInt(res[1]));
+//             this.setTitleFontName(res[2]);
+//         }
+//     }
+// });
 
-_safeExtend(ccui.Text.prototype, {
-    _getBoundingWidth: function() {
-        return this.getTextAreaSize().width;
-    },
-    _getBoundingHeight: function() {
-        return this.getTextAreaSize().height;
-    },
+// _safeExtend(ccui.Text.prototype, {
+//     _getBoundingWidth: function() {
+//         return this.getTextAreaSize().width;
+//     },
+//     _getBoundingHeight: function() {
+//         return this.getTextAreaSize().height;
+//     },
 
-    _setBoundingWidth: function(w) {
-        var size = cc.size(w, this.getTextAreaSize().height);
-        this.setTextAreaSize(size);
-    },
-    _setBoundingHeight: function(h) {
-        var size = cc.size(this.getTextAreaSize().width, h);
-        this.setTextAreaSize(size);
-    }
-});
+//     _setBoundingWidth: function(w) {
+//         var size = cc.size(w, this.getTextAreaSize().height);
+//         this.setTextAreaSize(size);
+//     },
+//     _setBoundingHeight: function(h) {
+//         var size = cc.size(this.getTextAreaSize().width, h);
+//         this.setTextAreaSize(size);
+//     }
+// });
 
-_safeExtend(ccui.TextField.prototype, {
-    _fontStyleRE: /^(\d+)px\s+['"]?([\w\s\d]+)['"]?$/,
+// _safeExtend(ccui.TextField.prototype, {
+//     _fontStyleRE: /^(\d+)px\s+['"]?([\w\s\d]+)['"]?$/,
 
-    _getFont: function() {
-        var size = this.getFontSize();
-        var name = this.getFontName();
-        return size + "px '" + name + "'";
-    },
+//     _getFont: function() {
+//         var size = this.getFontSize();
+//         var name = this.getFontName();
+//         return size + "px '" + name + "'";
+//     },
 
-    _setFont: function(fontStyle) {
-        var res = this._fontStyleRE.exec(fontStyle);
-        if(res) {
-            this.setFontSize(parseInt(res[1]));
-            this.setFontName(res[2]);
-        }
-    }
-});
+//     _setFont: function(fontStyle) {
+//         var res = this._fontStyleRE.exec(fontStyle);
+//         if(res) {
+//             this.setFontSize(parseInt(res[1]));
+//             this.setFontName(res[2]);
+//         }
+//     }
+// });
 
-_safeExtend(ccui.ScrollView.prototype, {
-    _getInnerWidth: function() {
-        return this.getInnerContainerSize().width;
-    },
-    _getInnerHeight: function() {
-        return this.getInnerContainerSize().height;
-    },
+// _safeExtend(ccui.ScrollView.prototype, {
+//     _getInnerWidth: function() {
+//         return this.getInnerContainerSize().width;
+//     },
+//     _getInnerHeight: function() {
+//         return this.getInnerContainerSize().height;
+//     },
 
-    _setInnerWidth: function(w) {
-        var size = cc.size(w, this.getInnerContainerSize().height);
-        this.setInnerContainerSize(size);
-    },
-    _setInnerHeight: function(h) {
-        var size = cc.size(this.getInnerContainerSize().width, h);
-        this.setInnerContainerSize(size);
-    }
-});
+//     _setInnerWidth: function(w) {
+//         var size = cc.size(w, this.getInnerContainerSize().height);
+//         this.setInnerContainerSize(size);
+//     },
+//     _setInnerHeight: function(h) {
+//         var size = cc.size(this.getInnerContainerSize().width, h);
+//         this.setInnerContainerSize(size);
+//     }
+// });

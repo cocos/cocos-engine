@@ -9,158 +9,170 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="manual\extension">
-      <UniqueIdentifier>{f4329991-ce95-4f10-9442-92d63bd6aea1}</UniqueIdentifier>
+    <Filter Include="jswrapper">
+      <UniqueIdentifier>{3d033fce-2d30-4079-9cc4-cf7f1a497b24}</UniqueIdentifier>
     </Filter>
-    <Filter Include="manual\localstorage">
-      <UniqueIdentifier>{3248ad6e-d03d-4cce-8846-81aa376fc480}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="manual\network">
-      <UniqueIdentifier>{7b278f66-4153-44d8-ba60-d7b7feed8a17}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="manual\spine">
-      <UniqueIdentifier>{59756149-2598-457f-ae42-ad675d5f3783}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="manual\ui">
-      <UniqueIdentifier>{db4d6533-8c6a-4a18-bdd6-c9b98b897458}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="manual\dragonbones">
-      <UniqueIdentifier>{36372247-74fd-4169-8120-06c8c0596530}</UniqueIdentifier>
+    <Filter Include="jswrapper\v8">
+      <UniqueIdentifier>{9a591c3c-2315-4910-860e-a8abb363b7bd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\auto\jsb_cocos2dx_auto.cpp">
       <Filter>auto</Filter>
     </ClCompile>
-    <ClCompile Include="..\auto\jsb_cocos2dx_audioengine_auto.cpp">
+    <ClCompile Include="..\auto\jsb_cocos2dx_dragonbones_auto.cpp">
       <Filter>auto</Filter>
     </ClCompile>
-    <ClCompile Include="..\manual\js_manual_conversions.cpp">
-      <Filter>manual</Filter>
+    <ClCompile Include="..\auto\jsb_cocos2dx_experimental_video_auto.cpp">
+      <Filter>auto</Filter>
     </ClCompile>
-    <ClCompile Include="..\manual\jsb_opengl_functions.cpp">
-      <Filter>manual</Filter>
-    </ClCompile>
-    <ClCompile Include="..\manual\jsb_opengl_manual.cpp">
-      <Filter>manual</Filter>
-    </ClCompile>
-    <ClCompile Include="..\manual\jsb_opengl_registration.cpp">
-      <Filter>manual</Filter>
-    </ClCompile>
-    <ClCompile Include="..\manual\ScriptingCore.cpp">
-      <Filter>manual</Filter>
-    </ClCompile>
-    <ClCompile Include="..\manual\cocos2d_specifics.cpp">
-      <Filter>manual</Filter>
-    </ClCompile>
-    <ClCompile Include="..\manual\js_bindings_opengl.cpp">
-      <Filter>manual</Filter>
-    </ClCompile>
-    <ClCompile Include="..\manual\jsb_event_dispatcher_manual.cpp">
-      <Filter>manual</Filter>
+    <ClCompile Include="..\auto\jsb_cocos2dx_experimental_webView_auto.cpp">
+      <Filter>auto</Filter>
     </ClCompile>
     <ClCompile Include="..\auto\jsb_cocos2dx_extension_auto.cpp">
+      <Filter>auto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\auto\jsb_cocos2dx_network_auto.cpp">
       <Filter>auto</Filter>
     </ClCompile>
     <ClCompile Include="..\auto\jsb_cocos2dx_spine_auto.cpp">
       <Filter>auto</Filter>
     </ClCompile>
-    <ClCompile Include="..\manual\extension\jsb_cocos2dx_extension_manual.cpp">
-      <Filter>manual\extension</Filter>
-    </ClCompile>
-    <ClCompile Include="..\manual\localstorage\js_bindings_system_functions.cpp">
-      <Filter>manual\localstorage</Filter>
-    </ClCompile>
-    <ClCompile Include="..\manual\localstorage\js_bindings_system_registration.cpp">
-      <Filter>manual\localstorage</Filter>
-    </ClCompile>
-    <ClCompile Include="..\manual\network\jsb_socketio.cpp">
-      <Filter>manual\network</Filter>
-    </ClCompile>
-    <ClCompile Include="..\manual\network\jsb_websocket.cpp">
-      <Filter>manual\network</Filter>
-    </ClCompile>
-    <ClCompile Include="..\manual\network\XMLHTTPRequest.cpp">
-      <Filter>manual\network</Filter>
-    </ClCompile>
-    <ClCompile Include="..\manual\spine\jsb_cocos2dx_spine_manual.cpp">
-      <Filter>manual\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\manual\ui\jsb_cocos2dx_ui_manual.cpp">
-      <Filter>manual\ui</Filter>
+    <ClCompile Include="..\auto\jsb_cocos2dx_ui_auto.cpp">
+      <Filter>auto</Filter>
     </ClCompile>
     <ClCompile Include="..\auto\jsb_creator_auto.cpp">
-      <Filter>auto</Filter>
-    </ClCompile>
-    <ClCompile Include="..\manual\js_module_register.cpp">
-      <Filter>manual</Filter>
-    </ClCompile>
-    <ClCompile Include="..\auto\jsb_cocos2dx_dragonbones_auto.cpp">
-      <Filter>auto</Filter>
-    </ClCompile>
-    <ClCompile Include="..\manual\dragonbones\jsb_cocos2dx_dragonbones_manual.cpp">
-      <Filter>manual\dragonbones</Filter>
-    </ClCompile>
-    <ClCompile Include="..\manual\network\js_network_manual.cpp">
-      <Filter>manual\network</Filter>
-    </ClCompile>
-    <ClCompile Include="..\auto\jsb_cocos2dx_network_auto.cpp">
       <Filter>auto</Filter>
     </ClCompile>
     <ClCompile Include="..\auto\jsb_box2d_auto.cpp">
       <Filter>auto</Filter>
     </ClCompile>
-    <ClCompile Include="..\manual\box2d\js_bindings_box2d_manual.cpp">
-      <Filter>manual</Filter>
-    </ClCompile>
-    <ClCompile Include="..\manual\creator\js_bindings_creator_manual.cpp">
-      <Filter>manual</Filter>
-    </ClCompile>
-    <ClCompile Include="..\auto\jsb_cocos2dx_ui_auto.cpp">
+    <ClCompile Include="..\auto\jsb_cocos2dx_audioengine_auto.cpp">
       <Filter>auto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\manual\jsb_box2d_manual.cpp">
+      <Filter>manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\manual\jsb_classtype.cpp">
+      <Filter>manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\manual\jsb_cocos2dx_extension_manual.cpp">
+      <Filter>manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\manual\jsb_cocos2dx_manual.cpp">
+      <Filter>manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\manual\jsb_conversions.cpp">
+      <Filter>manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\manual\jsb_creator_manual.cpp">
+      <Filter>manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\manual\jsb_dragonbones_manual.cpp">
+      <Filter>manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\manual\jsb_global.cpp">
+      <Filter>manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\manual\jsb_helper.cpp">
+      <Filter>manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\manual\jsb_module_register.cpp">
+      <Filter>manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\manual\jsb_node.cpp">
+      <Filter>manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\manual\jsb_socketio.cpp">
+      <Filter>manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\manual\jsb_spine_manual.cpp">
+      <Filter>manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\manual\jsb_websocket.cpp">
+      <Filter>manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\manual\jsb_xmlhttprequest.cpp">
+      <Filter>manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\manual\ScriptingCore.cpp">
+      <Filter>manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\HandleObject.cpp">
+      <Filter>jswrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\Ref.cpp">
+      <Filter>jswrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\State.cpp">
+      <Filter>jswrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\Value.cpp">
+      <Filter>jswrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\Object.cpp">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\ObjectWrap.cpp">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\ScriptEngine.cpp">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\Utils.cpp">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\Class.cpp">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\inspector_agent.cc">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\inspector_io.cc">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\inspector_socket.cc">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\inspector_socket_server.cc">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\node.cc">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\node_debug_options.cc">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\util.cc">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\env.cc">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\http_parser.c">
+      <Filter>jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jswrapper\v8\SHA1.cpp">
+      <Filter>jswrapper\v8</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\auto\jsb_cocos2dx_auto.hpp">
       <Filter>auto</Filter>
     </ClInclude>
-    <ClInclude Include="..\auto\jsb_cocos2dx_audioengine_auto.hpp">
+    <ClInclude Include="..\auto\jsb_cocos2dx_dragonbones_auto.hpp">
       <Filter>auto</Filter>
     </ClInclude>
-    <ClInclude Include="..\manual\js_bindings_opengl.h">
-      <Filter>manual</Filter>
+    <ClInclude Include="..\auto\jsb_cocos2dx_experimental_video_auto.hpp">
+      <Filter>auto</Filter>
     </ClInclude>
-    <ClInclude Include="..\manual\js_manual_conversions.h">
-      <Filter>manual</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\jsb_helper.h">
-      <Filter>manual</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\jsb_opengl_functions.h">
-      <Filter>manual</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\jsb_opengl_manual.h">
-      <Filter>manual</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\jsb_opengl_registration.h">
-      <Filter>manual</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\ScriptingCore.h">
-      <Filter>manual</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\spidermonkey_specifics.h">
-      <Filter>manual</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\cocos2d_specifics.hpp">
-      <Filter>manual</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\js_bindings_config.h">
-      <Filter>manual</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\jsb_event_dispatcher_manual.h">
-      <Filter>manual</Filter>
+    <ClInclude Include="..\auto\jsb_cocos2dx_experimental_webView_auto.hpp">
+      <Filter>auto</Filter>
     </ClInclude>
     <ClInclude Include="..\auto\jsb_cocos2dx_extension_auto.hpp">
+      <Filter>auto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\auto\jsb_cocos2dx_network_auto.hpp">
       <Filter>auto</Filter>
     </ClInclude>
     <ClInclude Include="..\auto\jsb_cocos2dx_spine_auto.hpp">
@@ -169,59 +181,149 @@
     <ClInclude Include="..\auto\jsb_cocos2dx_ui_auto.hpp">
       <Filter>auto</Filter>
     </ClInclude>
-    <ClInclude Include="..\manual\extension\jsb_cocos2dx_extension_manual.h">
-      <Filter>manual\extension</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\localstorage\js_bindings_system_functions.h">
-      <Filter>manual\localstorage</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\localstorage\js_bindings_system_functions_registration.h">
-      <Filter>manual\localstorage</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\localstorage\js_bindings_system_registration.h">
-      <Filter>manual\localstorage</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\network\jsb_socketio.h">
-      <Filter>manual\network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\network\jsb_websocket.h">
-      <Filter>manual\network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\network\XMLHTTPRequest.h">
-      <Filter>manual\network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\spine\jsb_cocos2dx_spine_manual.h">
-      <Filter>manual\spine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\ui\jsb_cocos2dx_ui_manual.h">
-      <Filter>manual\ui</Filter>
-    </ClInclude>
     <ClInclude Include="..\auto\jsb_creator_auto.hpp">
-      <Filter>auto</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\js_module_register.h">
-      <Filter>manual</Filter>
-    </ClInclude>
-    <ClInclude Include="..\auto\jsb_cocos2dx_dragonbones_auto.hpp">
-      <Filter>auto</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\dragonbones\jsb_cocos2dx_dragonbones_manual.h">
-      <Filter>manual\dragonbones</Filter>
-    </ClInclude>
-    <ClInclude Include="..\manual\network\js_network_manual.h">
-      <Filter>manual\network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\auto\jsb_cocos2dx_network_auto.hpp">
       <Filter>auto</Filter>
     </ClInclude>
     <ClInclude Include="..\auto\jsb_box2d_auto.hpp">
       <Filter>auto</Filter>
     </ClInclude>
-    <ClInclude Include="..\manual\box2d\js_bindings_box2d_manual.h">
+    <ClInclude Include="..\auto\jsb_cocos2dx_audioengine_auto.hpp">
+      <Filter>auto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\manual\jsb_box2d_manual.hpp">
       <Filter>manual</Filter>
     </ClInclude>
-    <ClInclude Include="..\manual\creator\js_bindings_creator_manual.h">
+    <ClInclude Include="..\manual\jsb_classtype.hpp">
       <Filter>manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\manual\jsb_cocos2dx_extension_manual.hpp">
+      <Filter>manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\manual\jsb_cocos2dx_manual.hpp">
+      <Filter>manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\manual\jsb_conversions.hpp">
+      <Filter>manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\manual\jsb_creator_manual.hpp">
+      <Filter>manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\manual\jsb_dragonbones_manual.hpp">
+      <Filter>manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\manual\jsb_global.h">
+      <Filter>manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\manual\jsb_helper.hpp">
+      <Filter>manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\manual\jsb_module_register.hpp">
+      <Filter>manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\manual\jsb_node.hpp">
+      <Filter>manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\manual\jsb_socketio.hpp">
+      <Filter>manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\manual\jsb_spine_manual.hpp">
+      <Filter>manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\manual\jsb_websocket.hpp">
+      <Filter>manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\manual\jsb_xmlhttprequest.hpp">
+      <Filter>manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\manual\ScriptingCore.h">
+      <Filter>manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\config.hpp">
+      <Filter>jswrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\HandleObject.hpp">
+      <Filter>jswrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\Object.hpp">
+      <Filter>jswrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\Ref.hpp">
+      <Filter>jswrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\SeApi.h">
+      <Filter>jswrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\State.hpp">
+      <Filter>jswrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\Value.hpp">
+      <Filter>jswrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\Object.hpp">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\ObjectWrap.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\ScriptEngine.hpp">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\SeApi.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\Utils.hpp">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\Base.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\Class.hpp">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\HelperMacros.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\http_parser.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\inspector_agent.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\inspector_io.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\inspector_socket.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\inspector_socket_server.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\node.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\node_debug_options.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\node_mutex.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\util.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\util-inl.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\v8_inspector_protocol_json.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\base64.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\env.h">
+      <Filter>jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jswrapper\v8\SHA1.h">
+      <Filter>jswrapper\v8</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

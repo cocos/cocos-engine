@@ -610,9 +610,6 @@ protected:
     /* Renderer for the Director */
     Renderer *_renderer;
 
-    /* Default FrameBufferObject*/
-    experimental::FrameBuffer* _defaultFBO;
-
     /* Console for the director */
     Console *_console;
 

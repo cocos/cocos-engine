@@ -31,12 +31,7 @@
 #include "renderer/CCCustomCommand.h"
 #include "renderer/CCGroupCommand.h"
 #include "renderer/CCPrimitiveCommand.h"
-#include "renderer/CCMeshCommand.h"
 #include "renderer/CCGLProgramCache.h"
-#include "renderer/CCMaterial.h"
-#include "renderer/CCTechnique.h"
-#include "renderer/CCPass.h"
-#include "renderer/CCRenderState.h"
 #include "renderer/ccGLStateCache.h"
 
 #include "base/CCConfiguration.h"
@@ -146,28 +141,23 @@ void RenderQueue::restoreRenderState()
     if (_isCullEnabled)
     {
         glEnable(GL_CULL_FACE);
-        RenderState::StateBlock::_defaultState->setCullFace(true);
     }
     else
     {
         glDisable(GL_CULL_FACE);
-        RenderState::StateBlock::_defaultState->setCullFace(false);
     }
 
 
     if (_isDepthEnabled)
     {
         glEnable(GL_DEPTH_TEST);
-        RenderState::StateBlock::_defaultState->setDepthTest(true);
     }
     else
     {
         glDisable(GL_DEPTH_TEST);
-        RenderState::StateBlock::_defaultState->setDepthTest(false);
     }
 
     glDepthMask(_isDepthWrite);
-    RenderState::StateBlock::_defaultState->setDepthWrite(_isDepthEnabled);
 
     CHECK_GL_ERROR_DEBUG();
 }
@@ -181,8 +171,7 @@ static const int DEFAULT_RENDER_QUEUE = 0;
 // constructors, destructor, init
 //
 Renderer::Renderer()
-:_lastBatchedMeshCommand(nullptr)
-,_filledVertex(0)
+:_filledVertex(0)
 ,_filledIndex(0)
 ,_glViewAssigned(false)
 ,_isRendering(false)
@@ -367,9 +356,6 @@ void Renderer::processRenderCommand(RenderCommand* command)
     auto commandType = command->getType();
     if( RenderCommand::Type::TRIANGLES_COMMAND == commandType)
     {
-        // flush other queues
-        flush3D();
-
         auto cmd = static_cast<TrianglesCommand*>(command);
         
         // flush own queue when buffer is full
@@ -384,37 +370,6 @@ void Renderer::processRenderCommand(RenderCommand* command)
         _queuedTriangleCommands.push_back(cmd);
         _filledIndex += cmd->getIndexCount();
         _filledVertex += cmd->getVertexCount();
-    }
-    else if (RenderCommand::Type::MESH_COMMAND == commandType)
-    {
-        flush2D();
-        auto cmd = static_cast<MeshCommand*>(command);
-        
-        if (cmd->isSkipBatching() || _lastBatchedMeshCommand == nullptr || _lastBatchedMeshCommand->getMaterialID() != cmd->getMaterialID())
-        {
-            flush3D();
-
-            CCGL_DEBUG_INSERT_EVENT_MARKER("RENDERER_MESH_COMMAND");
-
-            if(cmd->isSkipBatching())
-            {
-                // XXX: execute() will call bind() and unbind()
-                // but unbind() shouldn't be call if the next command is a MESH_COMMAND with Material.
-                // Once most of cocos2d-x moves to Pass/StateBlock, only bind() should be used.
-                cmd->execute();
-            }
-            else
-            {
-                cmd->preBatchDraw();
-                cmd->batchDraw();
-                _lastBatchedMeshCommand = cmd;
-            }
-        }
-        else
-        {
-            CCGL_DEBUG_INSERT_EVENT_MARKER("RENDERER_MESH_COMMAND");
-            cmd->batchDraw();
-        }
     }
     else if(RenderCommand::Type::GROUP_COMMAND == commandType)
     {
@@ -466,22 +421,15 @@ void Renderer::visitRenderQueue(RenderQueue& queue)
             glEnable(GL_DEPTH_TEST);
             glDepthMask(true);
             glEnable(GL_BLEND);
-            RenderState::StateBlock::_defaultState->setDepthTest(true);
-            RenderState::StateBlock::_defaultState->setDepthWrite(true);
-            RenderState::StateBlock::_defaultState->setBlend(true);
         }
         else
         {
             glDisable(GL_DEPTH_TEST);
             glDepthMask(false);
             glEnable(GL_BLEND);
-            RenderState::StateBlock::_defaultState->setDepthTest(false);
-            RenderState::StateBlock::_defaultState->setDepthWrite(false);
-            RenderState::StateBlock::_defaultState->setBlend(true);
         }
         glDisable(GL_CULL_FACE);
-        RenderState::StateBlock::_defaultState->setCullFace(false);
-        
+
         for (auto it = zNegQueue.cbegin(); it != zNegQueue.cend(); ++it)
         {
             processRenderCommand(*it);
@@ -500,11 +448,6 @@ void Renderer::visitRenderQueue(RenderQueue& queue)
         glDepthMask(true);
         glDisable(GL_BLEND);
         glEnable(GL_CULL_FACE);
-        RenderState::StateBlock::_defaultState->setDepthTest(true);
-        RenderState::StateBlock::_defaultState->setDepthWrite(true);
-        RenderState::StateBlock::_defaultState->setBlend(false);
-        RenderState::StateBlock::_defaultState->setCullFace(true);
-
 
         for (auto it = opaqueQueue.cbegin(); it != opaqueQueue.cend(); ++it)
         {
@@ -524,12 +467,6 @@ void Renderer::visitRenderQueue(RenderQueue& queue)
         glEnable(GL_BLEND);
         glEnable(GL_CULL_FACE);
 
-        RenderState::StateBlock::_defaultState->setDepthTest(true);
-        RenderState::StateBlock::_defaultState->setDepthWrite(false);
-        RenderState::StateBlock::_defaultState->setBlend(true);
-        RenderState::StateBlock::_defaultState->setCullFace(true);
-
-
         for (auto it = transQueue.cbegin(); it != transQueue.cend(); ++it)
         {
             processRenderCommand(*it);
@@ -548,24 +485,15 @@ void Renderer::visitRenderQueue(RenderQueue& queue)
             glEnable(GL_DEPTH_TEST);
             glDepthMask(true);
             glEnable(GL_BLEND);
-
-            RenderState::StateBlock::_defaultState->setDepthTest(true);
-            RenderState::StateBlock::_defaultState->setDepthWrite(true);
-            RenderState::StateBlock::_defaultState->setBlend(true);
         }
         else
         {
             glDisable(GL_DEPTH_TEST);
             glDepthMask(false);
             glEnable(GL_BLEND);
-
-            RenderState::StateBlock::_defaultState->setDepthTest(false);
-            RenderState::StateBlock::_defaultState->setDepthWrite(false);
-            RenderState::StateBlock::_defaultState->setBlend(true);
         }
         glDisable(GL_CULL_FACE);
-        RenderState::StateBlock::_defaultState->setCullFace(false);
-        
+
         for (auto it = zZeroQueue.cbegin(); it != zZeroQueue.cend(); ++it)
         {
             processRenderCommand(*it);
@@ -584,24 +512,15 @@ void Renderer::visitRenderQueue(RenderQueue& queue)
             glEnable(GL_DEPTH_TEST);
             glDepthMask(true);
             glEnable(GL_BLEND);
-            
-            RenderState::StateBlock::_defaultState->setDepthTest(true);
-            RenderState::StateBlock::_defaultState->setDepthWrite(true);
-            RenderState::StateBlock::_defaultState->setBlend(true);
         }
         else
         {
             glDisable(GL_DEPTH_TEST);
             glDepthMask(false);
             glEnable(GL_BLEND);
-            
-            RenderState::StateBlock::_defaultState->setDepthTest(false);
-            RenderState::StateBlock::_defaultState->setDepthWrite(false);
-            RenderState::StateBlock::_defaultState->setBlend(true);
         }
         glDisable(GL_CULL_FACE);
-        RenderState::StateBlock::_defaultState->setCullFace(false);
-        
+
         for (auto it = zPosQueue.cbegin(); it != zPosQueue.cend(); ++it)
         {
             processRenderCommand(*it);
@@ -651,7 +570,6 @@ void Renderer::clean()
     _queuedTriangleCommands.clear();
     _filledVertex = 0;
     _filledIndex = 0;
-    _lastBatchedMeshCommand = nullptr;
 }
 
 void Renderer::clear()
@@ -661,8 +579,6 @@ void Renderer::clear()
     glClearColor(_clearColor.r, _clearColor.g, _clearColor.b, _clearColor.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDepthMask(false);
-
-    RenderState::StateBlock::_defaultState->setDepthWrite(false);
 }
 
 void Renderer::setDepthTest(bool enable)
@@ -673,16 +589,11 @@ void Renderer::setDepthTest(bool enable)
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
 
-        RenderState::StateBlock::_defaultState->setDepthTest(true);
-        RenderState::StateBlock::_defaultState->setDepthFunction(RenderState::DEPTH_LEQUAL);
-
 //        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     }
     else
     {
         glDisable(GL_DEPTH_TEST);
-
-        RenderState::StateBlock::_defaultState->setDepthTest(false);
     }
 
     _isDepthTestFor2D = enable;
@@ -855,23 +766,11 @@ void Renderer::drawBatchedTriangles()
 void Renderer::flush()
 {
     flush2D();
-    flush3D();
 }
 
 void Renderer::flush2D()
 {
     flushTriangles();
-}
-
-void Renderer::flush3D()
-{
-    if (_lastBatchedMeshCommand)
-    {
-        CCGL_DEBUG_INSERT_EVENT_MARKER("RENDERER_BATCH_MESH");
-
-        _lastBatchedMeshCommand->postBatchDraw();
-        _lastBatchedMeshCommand = nullptr;
-    }
 }
 
 void Renderer::flushTriangles()

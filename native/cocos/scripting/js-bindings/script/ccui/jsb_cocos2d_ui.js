@@ -32,35 +32,35 @@ cc.EditBox = ccui.EditBox;
 
 cc.Scale9Sprite = ccui.Scale9Sprite;
 
-// GUI
-/**
- * @type {Object}
- * UI Helper
- */
-ccui.helper = ccui.Helper;
+// // GUI
+// /**
+//  * @type {Object}
+//  * UI Helper
+//  */
+// ccui.helper = ccui.Helper;
 
-// =====================Constants=====================
+// // =====================Constants=====================
 
-/*
- * UILayout
- */
-//layoutBackGround color type
-ccui.Layout.BG_COLOR_NONE = 0;
-ccui.Layout.BG_COLOR_SOLID = 1;
-ccui.Layout.BG_COLOR_GRADIENT = 2;
+// /*
+//  * UILayout
+//  */
+// //layoutBackGround color type
+// ccui.Layout.BG_COLOR_NONE = 0;
+// ccui.Layout.BG_COLOR_SOLID = 1;
+// ccui.Layout.BG_COLOR_GRADIENT = 2;
 
-//Layout type
-ccui.Layout.ABSOLUTE = 0;
-ccui.Layout.LINEAR_VERTICAL = 1;
-ccui.Layout.LINEAR_HORIZONTAL = 2;
-ccui.Layout.RELATIVE = 3;
+// //Layout type
+// ccui.Layout.ABSOLUTE = 0;
+// ccui.Layout.LINEAR_VERTICAL = 1;
+// ccui.Layout.LINEAR_HORIZONTAL = 2;
+// ccui.Layout.RELATIVE = 3;
 
-//Layout clipping type
-ccui.Layout.CLIPPING_STENCIL = 0;
-ccui.Layout.CLIPPING_SCISSOR = 1;
+// //Layout clipping type
+// ccui.Layout.CLIPPING_STENCIL = 0;
+// ccui.Layout.CLIPPING_SCISSOR = 1;
 
-ccui.Layout.BACKGROUND_IMAGE_ZORDER = -1;
-ccui.Layout.BACKGROUND_RENDERER_ZORDER = -2;
+// ccui.Layout.BACKGROUND_IMAGE_ZORDER = -1;
+// ccui.Layout.BACKGROUND_RENDERER_ZORDER = -2;
 
 /*
  * UILayoutDefine
@@ -147,18 +147,18 @@ ccui.LayoutParameter.NONE = 0;
 ccui.LayoutParameter.LINEAR = 1;
 ccui.LayoutParameter.RELATIVE = 2;
 
-//LayoutComponent
-ccui.LayoutComponent.horizontalEdge = {};
-ccui.LayoutComponent.horizontalEdge.NONE = 0;
-ccui.LayoutComponent.horizontalEdge.LEFT = 1;
-ccui.LayoutComponent.horizontalEdge.RIGHT = 2;
-ccui.LayoutComponent.horizontalEdge.CENTER = 3;
+// //LayoutComponent
+// ccui.LayoutComponent.horizontalEdge = {};
+// ccui.LayoutComponent.horizontalEdge.NONE = 0;
+// ccui.LayoutComponent.horizontalEdge.LEFT = 1;
+// ccui.LayoutComponent.horizontalEdge.RIGHT = 2;
+// ccui.LayoutComponent.horizontalEdge.CENTER = 3;
 
-ccui.LayoutComponent.verticalEdge = {};
-ccui.LayoutComponent.verticalEdge.NONE = 0;
-ccui.LayoutComponent.verticalEdge.BOTTOM = 1;
-ccui.LayoutComponent.verticalEdge.TOP = 2;
-ccui.LayoutComponent.verticalEdge.CENTER = 3;
+// ccui.LayoutComponent.verticalEdge = {};
+// ccui.LayoutComponent.verticalEdge.NONE = 0;
+// ccui.LayoutComponent.verticalEdge.BOTTOM = 1;
+// ccui.LayoutComponent.verticalEdge.TOP = 2;
+// ccui.LayoutComponent.verticalEdge.CENTER = 3;
 /*
  * UIWidget
  */
@@ -195,81 +195,81 @@ ccui.Widget.RIGHT = 1;
 ccui.Widget.UP = 2;
 ccui.Widget.DOWN = 3;
 
-/*
- * UIListView
- */
-//listView event type
-ccui.ListView.EVENT_SELECTED_ITEM = 0;
-ccui.ListView.ON_SELECTED_ITEM_START = 0;
-ccui.ListView.ON_SELECTED_ITEM_END = 1;
+// /*
+//  * UIListView
+//  */
+// //listView event type
+// ccui.ListView.EVENT_SELECTED_ITEM = 0;
+// ccui.ListView.ON_SELECTED_ITEM_START = 0;
+// ccui.ListView.ON_SELECTED_ITEM_END = 1;
 
-//listView gravity
-ccui.ListView.GRAVITY_LEFT = 0;
-ccui.ListView.GRAVITY_RIGHT = 1;
-ccui.ListView.GRAVITY_CENTER_HORIZONTAL = 2;
-ccui.ListView.GRAVITY_TOP = 3;
-ccui.ListView.GRAVITY_BOTTOM = 4;
-ccui.ListView.GRAVITY_CENTER_VERTICAL = 5;
+// //listView gravity
+// ccui.ListView.GRAVITY_LEFT = 0;
+// ccui.ListView.GRAVITY_RIGHT = 1;
+// ccui.ListView.GRAVITY_CENTER_HORIZONTAL = 2;
+// ccui.ListView.GRAVITY_TOP = 3;
+// ccui.ListView.GRAVITY_BOTTOM = 4;
+// ccui.ListView.GRAVITY_CENTER_VERTICAL = 5;
 
-//list view magnetic type
-ccui.ListView.MAGNETIC_NONE = 0;
-ccui.ListView.MAGNETIC_CENTER = 1;
-ccui.ListView.MAGNETIC_BOTH_END = 2;
-ccui.ListView.MAGNETIC_LEFT = 3;
-ccui.ListView.MAGNETIC_RIGHT = 4;
-ccui.ListView.MAGNETIC_TOP = 5;
-ccui.ListView.MAGNETIC_BOTTOM = 6;
+// //list view magnetic type
+// ccui.ListView.MAGNETIC_NONE = 0;
+// ccui.ListView.MAGNETIC_CENTER = 1;
+// ccui.ListView.MAGNETIC_BOTH_END = 2;
+// ccui.ListView.MAGNETIC_LEFT = 3;
+// ccui.ListView.MAGNETIC_RIGHT = 4;
+// ccui.ListView.MAGNETIC_TOP = 5;
+// ccui.ListView.MAGNETIC_BOTTOM = 6;
 
-/*
- * UIScrollView
- */
-//ScrollView direction
-ccui.ScrollView.DIR_NONE = 0;
-ccui.ScrollView.DIR_VERTICAL = 1;
-ccui.ScrollView.DIR_HORIZONTAL = 2;
-ccui.ScrollView.DIR_BOTH = 3;
+// /*
+//  * UIScrollView
+//  */
+// //ScrollView direction
+// ccui.ScrollView.DIR_NONE = 0;
+// ccui.ScrollView.DIR_VERTICAL = 1;
+// ccui.ScrollView.DIR_HORIZONTAL = 2;
+// ccui.ScrollView.DIR_BOTH = 3;
 
-//ScrollView event
-ccui.ScrollView.EVENT_SCROLL_TO_TOP = 0;
-ccui.ScrollView.EVENT_SCROLL_TO_BOTTOM = 1;
-ccui.ScrollView.EVENT_SCROLL_TO_LEFT = 2;
-ccui.ScrollView.EVENT_SCROLL_TO_RIGHT = 3;
-ccui.ScrollView.EVENT_SCROLLING = 4;
-ccui.ScrollView.EVENT_BOUNCE_TOP = 5;
-ccui.ScrollView.EVENT_BOUNCE_BOTTOM = 6;
-ccui.ScrollView.EVENT_BOUNCE_LEFT = 7;
-ccui.ScrollView.EVENT_BOUNCE_RIGHT = 8;
-ccui.ScrollView.EVENT_CONTAINER_MOVED = 9;
-ccui.ScrollView.EVENT_AUTOSCROLL_ENDED = 10;
+// //ScrollView event
+// ccui.ScrollView.EVENT_SCROLL_TO_TOP = 0;
+// ccui.ScrollView.EVENT_SCROLL_TO_BOTTOM = 1;
+// ccui.ScrollView.EVENT_SCROLL_TO_LEFT = 2;
+// ccui.ScrollView.EVENT_SCROLL_TO_RIGHT = 3;
+// ccui.ScrollView.EVENT_SCROLLING = 4;
+// ccui.ScrollView.EVENT_BOUNCE_TOP = 5;
+// ccui.ScrollView.EVENT_BOUNCE_BOTTOM = 6;
+// ccui.ScrollView.EVENT_BOUNCE_LEFT = 7;
+// ccui.ScrollView.EVENT_BOUNCE_RIGHT = 8;
+// ccui.ScrollView.EVENT_CONTAINER_MOVED = 9;
+// ccui.ScrollView.EVENT_AUTOSCROLL_ENDED = 10;
 
-ccui.ScrollView.MOVEDIR_TOP = 0;
-ccui.ScrollView.MOVEDIR_BOTTOM = 1;
-ccui.ScrollView.MOVEDIR_LEFT = 2;
-ccui.ScrollView.MOVEDIR_RIGHT = 3;
+// ccui.ScrollView.MOVEDIR_TOP = 0;
+// ccui.ScrollView.MOVEDIR_BOTTOM = 1;
+// ccui.ScrollView.MOVEDIR_LEFT = 2;
+// ccui.ScrollView.MOVEDIR_RIGHT = 3;
 
-/*
- * UIPageView
- */
-//PageView event
-ccui.PageView.EVENT_TURNING = 0;
+// /*
+//  * UIPageView
+//  */
+// //PageView event
+// ccui.PageView.EVENT_TURNING = 0;
 
-//PageView touch direction
-ccui.PageView.TOUCH_DIR_LEFT = 0;
-ccui.PageView.TOUCH_DIR_RIGHT = 1;
-ccui.PageView.TOUCH_DIR_UP = 2;
-ccui.PageView.TOUCH_DIR_DOWN = 3;
+// //PageView touch direction
+// ccui.PageView.TOUCH_DIR_LEFT = 0;
+// ccui.PageView.TOUCH_DIR_RIGHT = 1;
+// ccui.PageView.TOUCH_DIR_UP = 2;
+// ccui.PageView.TOUCH_DIR_DOWN = 3;
 
-//PageView direction
-ccui.PageView.DIRECTION_LEFT = 0;
-ccui.PageView.DIRECTION_RIGHT = 1;
+// //PageView direction
+// ccui.PageView.DIRECTION_LEFT = 0;
+// ccui.PageView.DIRECTION_RIGHT = 1;
 
-/*
- * UIButton
- */
-ccui.NORMAL_RENDERER_ZORDER = -2;
-ccui.PRESSED_RENDERER_ZORDER = -2;
-ccui.DISABLED_RENDERER_ZORDER = -2;
-ccui.TITLE_RENDERER_ZORDER = -1;
+// /*
+//  * UIButton
+//  */
+// ccui.NORMAL_RENDERER_ZORDER = -2;
+// ccui.PRESSED_RENDERER_ZORDER = -2;
+// ccui.DISABLED_RENDERER_ZORDER = -2;
+// ccui.TITLE_RENDERER_ZORDER = -1;
 
 ccui.Scale9Sprite.POSITIONS_CENTRE = 0;                //CCScale9Sprite.js
 ccui.Scale9Sprite.POSITIONS_TOP = 1;
@@ -281,80 +281,80 @@ ccui.Scale9Sprite.POSITIONS_TOPLEFT = 6;
 ccui.Scale9Sprite.POSITIONS_BOTTOMRIGHT = 7;
 ccui.Scale9Sprite.POSITIONS_BOTTOMLEFT = 8;
 
-/*
- * UICheckBox
- */
-//CheckBoxEvent type
-ccui.CheckBox.EVENT_SELECTED = 0;
-ccui.CheckBox.EVENT_UNSELECTED = 1;
+// /*
+//  * UICheckBox
+//  */
+// //CheckBoxEvent type
+// ccui.CheckBox.EVENT_SELECTED = 0;
+// ccui.CheckBox.EVENT_UNSELECTED = 1;
 
-//Render zorder
-ccui.CheckBox.BOX_RENDERER_ZORDER = -1;
-ccui.CheckBox.BOX_SELECTED_RENDERER_ZORDER = -1;
-ccui.CheckBox.BOX_DISABLED_RENDERER_ZORDER = -1;
-ccui.CheckBox.FRONT_CROSS_RENDERER_ZORDER = -1;
-ccui.CheckBox.FRONT_CROSS_DISABLED_RENDERER_ZORDER = -1;
+// //Render zorder
+// ccui.CheckBox.BOX_RENDERER_ZORDER = -1;
+// ccui.CheckBox.BOX_SELECTED_RENDERER_ZORDER = -1;
+// ccui.CheckBox.BOX_DISABLED_RENDERER_ZORDER = -1;
+// ccui.CheckBox.FRONT_CROSS_RENDERER_ZORDER = -1;
+// ccui.CheckBox.FRONT_CROSS_DISABLED_RENDERER_ZORDER = -1;
 
-/*
- * UIImageView
- */
-ccui.ImageView.RENDERER_ZORDER = -1;
+// /*
+//  * UIImageView
+//  */
+// ccui.ImageView.RENDERER_ZORDER = -1;
 
-/*
- * UILoadingBar
- */
-//loadingBar Type
-ccui.LoadingBar.TYPE_LEFT = 0;
-ccui.LoadingBar.TYPE_RIGHT = 1;
+// /*
+//  * UILoadingBar
+//  */
+// //loadingBar Type
+// ccui.LoadingBar.TYPE_LEFT = 0;
+// ccui.LoadingBar.TYPE_RIGHT = 1;
 
-ccui.LoadingBar.RENDERER_ZORDER = -1;
+// ccui.LoadingBar.RENDERER_ZORDER = -1;
 
-/*
- * UISlider
- */
-//Slider event type
-ccui.Slider.EVENT_PERCENT_CHANGED = 0;
-ccui.Slider.EVENT_SLIDEBALL_DOWN = 1;
-ccui.Slider.EVENT_SLIDEBALL_UP = 2;
-ccui.Slider.EVENT_SLIDEBALL_CANCEL = 3;
+// /*
+//  * UISlider
+//  */
+// //Slider event type
+// ccui.Slider.EVENT_PERCENT_CHANGED = 0;
+// ccui.Slider.EVENT_SLIDEBALL_DOWN = 1;
+// ccui.Slider.EVENT_SLIDEBALL_UP = 2;
+// ccui.Slider.EVENT_SLIDEBALL_CANCEL = 3;
 
-//Render zorder
-ccui.Slider.BASEBAR_RENDERER_ZORDER = -3;
-ccui.Slider.PROGRESSBAR_RENDERER_ZORDER = -2;
-ccui.Slider.BALL_RENDERER_ZORDER = -1;
+// //Render zorder
+// ccui.Slider.BASEBAR_RENDERER_ZORDER = -3;
+// ccui.Slider.PROGRESSBAR_RENDERER_ZORDER = -2;
+// ccui.Slider.BALL_RENDERER_ZORDER = -1;
 
-/*
- * UIText
- */
-ccui.Text.RENDERER_ZORDER = -1;
+// /*
+//  * UIText
+//  */
+// ccui.Text.RENDERER_ZORDER = -1;
 
-/*
- * UITextAtlas
- */
-ccui.TextAtlas.RENDERER_ZORDER = -1;
+// /*
+//  * UITextAtlas
+//  */
+// ccui.TextAtlas.RENDERER_ZORDER = -1;
 
-/*
- * UITextBMFont
- */
-ccui.TextBMFont.RENDERER_ZORDER = -1;
+// /*
+//  * UITextBMFont
+//  */
+// ccui.TextBMFont.RENDERER_ZORDER = -1;
 
-/*
- * UITextField
- */
-//TextField event
-ccui.TextField.EVENT_ATTACH_WITH_IME = 0;
-ccui.TextField.EVENT_DETACH_WITH_IME = 1;
-ccui.TextField.EVENT_INSERT_TEXT = 2;
-ccui.TextField.EVENT_DELETE_BACKWARD = 3;
+// /*
+//  * UITextField
+//  */
+// //TextField event
+// ccui.TextField.EVENT_ATTACH_WITH_IME = 0;
+// ccui.TextField.EVENT_DETACH_WITH_IME = 1;
+// ccui.TextField.EVENT_INSERT_TEXT = 2;
+// ccui.TextField.EVENT_DELETE_BACKWARD = 3;
 
-ccui.TextField.RENDERER_ZORDER = -1;
+// ccui.TextField.RENDERER_ZORDER = -1;
 
-/*
- * UIRadioButton
- */
-ccui.RadioButton.EVENT_SELECTED = 0;
-ccui.RadioButton.EVENT_UNSELECTED = 1;
-ccui.RadioButtonGroup.EVENT_SELECT_CHANGED = 0;
+// /*
+//  * UIRadioButton
+//  */
+// ccui.RadioButton.EVENT_SELECTED = 0;
+// ccui.RadioButton.EVENT_UNSELECTED = 1;
+// ccui.RadioButtonGroup.EVENT_SELECT_CHANGED = 0;
 
 /*
  * UIMargin
@@ -509,17 +509,17 @@ if (ccui.VideoPlayer)
     };
 }
 
-ccui.Text.prototype._setString = ccui.Text.prototype.setString;
-ccui.Text.prototype.setString = function(text)
-{
-    var textType = typeof text;
-    if(textType === 'string')
-        this._setString(text);
-    else if(textType === 'number')
-        this._setString('' + text);
-    else
-        cc.log('ccui.Text.setString error: text is not string，is ' + (typeof text));
-};
+// ccui.Text.prototype._setString = ccui.Text.prototype.setString;
+// ccui.Text.prototype.setString = function(text)
+// {
+//     var textType = typeof text;
+//     if(textType === 'string')
+//         this._setString(text);
+//     else if(textType === 'number')
+//         this._setString('' + text);
+//     else
+//         cc.log('ccui.Text.setString error: text is not string，is ' + (typeof text));
+// };
 
 /*
  * UIWidget temporary solution to addChild
@@ -558,39 +558,39 @@ ccui.Widget.prototype.addTouchEventListener = function (selector, target)
     }
 };
 
-function _ui_addEventListener(selector, target) {
-    var realCallback;
-    var realTarget;
+// function _ui_addEventListener(selector, target) {
+//     var realCallback;
+//     var realTarget;
 
-    if (target && (typeof target === "function")) {
-        realCallback = target;
-        realTarget = selector;
-    }
-    else if (selector && (typeof selector === "function")) {
-        realCallback = selector;
-        realTarget = target;
-    }
+//     if (target && (typeof target === "function")) {
+//         realCallback = target;
+//         realTarget = selector;
+//     }
+//     else if (selector && (typeof selector === "function")) {
+//         realCallback = selector;
+//         realTarget = target;
+//     }
 
-    if (realCallback) {
-        if (realTarget)
-            this._addEventListener( realCallback.bind(realTarget) );
-        else
-            this._addEventListener(realCallback);
-    }
-    else {
-        cc.log('_ui_addEventListener error: callback is null');
-    }
-};
+//     if (realCallback) {
+//         if (realTarget)
+//             this._addEventListener( realCallback.bind(realTarget) );
+//         else
+//             this._addEventListener(realCallback);
+//     }
+//     else {
+//         cc.log('_ui_addEventListener error: callback is null');
+//     }
+// };
 
-function _ui_applyEventListener(ctor) {
-    var proto = ctor.prototype;
-    proto._addEventListener = proto.addEventListener;
-    proto.addEventListener = _ui_addEventListener;
-}
+// function _ui_applyEventListener(ctor) {
+//     var proto = ctor.prototype;
+//     proto._addEventListener = proto.addEventListener;
+//     proto.addEventListener = _ui_addEventListener;
+// }
 
-_ui_applyEventListener(ccui.CheckBox);
-_ui_applyEventListener(ccui.Slider);
-_ui_applyEventListener(ccui.TextField);
-_ui_applyEventListener(ccui.PageView);
-_ui_applyEventListener(ccui.ScrollView);
-_ui_applyEventListener(ccui.ListView);
+// _ui_applyEventListener(ccui.CheckBox);
+// _ui_applyEventListener(ccui.Slider);
+// _ui_applyEventListener(ccui.TextField);
+// _ui_applyEventListener(ccui.PageView);
+// _ui_applyEventListener(ccui.ScrollView);
+// _ui_applyEventListener(ccui.ListView);

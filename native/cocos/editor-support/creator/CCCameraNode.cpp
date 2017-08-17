@@ -13,7 +13,7 @@
 using namespace cocos2d;
 
 namespace creator {
-    static CameraNode* _cameraInstance;
+    static CameraNode* _cameraInstance = nullptr;
     
     
     CameraNode::CameraNode()
@@ -25,6 +25,15 @@ namespace creator {
     
     CameraNode::~CameraNode()
     {
+        if (!_commands.empty())
+        {
+            for (const auto& c : _commands)
+            {
+                delete c.beforeVisitCommand;
+                delete c.afterVisitCommand;
+            }
+            _commands.clear();
+        }
         _cameraInstance = nullptr;
     }
     

@@ -573,6 +573,7 @@ void TextureCache::waitForQuit()
     _sleepCondition.notify_one();
     if (_loadingThread) _loadingThread->join();
 
+    // Clear async tasks which are still in the queue.
     addImageAsyncCallBack(0.0f);
 }
 

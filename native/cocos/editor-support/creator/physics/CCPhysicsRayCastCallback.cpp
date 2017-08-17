@@ -55,23 +55,23 @@ float32 PhysicsRayCastCallback::ReportFixture(b2Fixture* fixture, const b2Vec2& 
     return fraction;
 }
 
-std::vector<b2Fixture*>& PhysicsRayCastCallback::getFixtures() {
+const std::vector<b2Fixture*>& PhysicsRayCastCallback::getFixtures() const {
     return _fixtures;
 }
 
-std::vector<b2Vec2>& PhysicsRayCastCallback::getPoints() {
+const std::vector<b2Vec2>& PhysicsRayCastCallback::getPoints() const {
     return _points;
 }
 
-std::vector<b2Vec2>& PhysicsRayCastCallback::getNormals() {
+const std::vector<b2Vec2>& PhysicsRayCastCallback::getNormals() const {
     return _normals;
 }
     
-std::vector<float>& PhysicsRayCastCallback::getFractions() {
+const std::vector<float>& PhysicsRayCastCallback::getFractions() const {
     return _fractions;
 }
 
-int PhysicsRayCastCallback::getType() {
+int PhysicsRayCastCallback::getType() const {
     return _rayCastType;
 }
 

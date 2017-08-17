@@ -42,8 +42,8 @@ public:
     
     virtual bool ReportFixture(b2Fixture* fixture);
     
-    b2Fixture* getFixture();
-    const std::vector<b2Fixture*> getFixtures() const;
+    b2Fixture* getFixture() const;
+    const std::vector<b2Fixture*>& getFixtures() const;
     
 protected:
     b2Vec2 _point;

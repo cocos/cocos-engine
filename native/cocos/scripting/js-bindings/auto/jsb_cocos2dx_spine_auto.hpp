@@ -1,60 +1,60 @@
+#pragma once
 #include "base/ccConfig.h"
-#ifndef __cocos2dx_spine_h__
-#define __cocos2dx_spine_h__
 
-#include "jsapi.h"
-#include "jsfriendapi.h"
+#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
-extern JSClass  *jsb_spine_SkeletonRenderer_class;
-extern JS::PersistentRootedObject *jsb_spine_SkeletonRenderer_prototype;
+extern se::Object* __jsb_spine_SkeletonRenderer_proto;
+extern se::Class* __jsb_spine_SkeletonRenderer_class;
 
-bool js_cocos2dx_spine_SkeletonRenderer_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_spine_SkeletonRenderer_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_spine_SkeletonRenderer(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx_spine(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_spine_SkeletonRenderer_setTimeScale(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonRenderer_getDebugSlotsEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonRenderer_setAttachment(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonRenderer_setBonesToSetupPose(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonRenderer_setDebugSlotsEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonRenderer_initWithJsonFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonRenderer_setSlotsToSetupPose(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonRenderer_initWithBinaryFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonRenderer_setToSetupPose(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonRenderer_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonRenderer_updateWorldTransform(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonRenderer_initialize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonRenderer_setDebugBonesEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonRenderer_getDebugBonesEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonRenderer_getTimeScale(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonRenderer_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonRenderer_setSkin(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonRenderer_getSkeleton(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonRenderer_drawDebug(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonRenderer_createWithFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonRenderer_SkeletonRenderer(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_register_spine_SkeletonRenderer(se::Object* obj);
+bool register_all_cocos2dx_spine(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_setTimeScale);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_getDebugSlotsEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_setAttachment);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_setBonesToSetupPose);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_setDebugSlotsEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_initWithJsonFile);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_setSlotsToSetupPose);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_initWithBinaryFile);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_setToSetupPose);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_getBlendFunc);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_updateWorldTransform);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_getAttachment);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_initialize);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_setDebugBonesEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_getDebugBonesEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_getTimeScale);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_setBlendFunc);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_setSkin);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_findSlot);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_getSkeleton);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_findBone);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_drawDebug);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_createWithFile);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_SkeletonRenderer);
 
-extern JSClass  *jsb_spine_SkeletonAnimation_class;
-extern JS::PersistentRootedObject *jsb_spine_SkeletonAnimation_prototype;
+extern se::Object* __jsb_spine_SkeletonAnimation_proto;
+extern se::Class* __jsb_spine_SkeletonAnimation_class;
 
-bool js_cocos2dx_spine_SkeletonAnimation_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_spine_SkeletonAnimation_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_spine_SkeletonAnimation(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx_spine(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_spine_SkeletonAnimation_findAnimation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonAnimation_setMix(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonAnimation_setDisposeListener(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonAnimation_setEndListener(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonAnimation_getState(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonAnimation_setCompleteListener(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonAnimation_setEventListener(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonAnimation_clearTrack(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonAnimation_setInterruptListener(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonAnimation_clearTracks(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonAnimation_setStartListener(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonAnimation_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_spine_SkeletonAnimation_SkeletonAnimation(JSContext *cx, uint32_t argc, JS::Value *vp);
+bool js_register_spine_SkeletonAnimation(se::Object* obj);
+bool register_all_cocos2dx_spine(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonAnimation_setAnimation);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonAnimation_findAnimation);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonAnimation_setMix);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonAnimation_setDisposeListener);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonAnimation_setAnimationStateData);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonAnimation_setEndListener);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonAnimation_getState);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonAnimation_setCompleteListener);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonAnimation_getCurrent);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonAnimation_setEventListener);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonAnimation_clearTrack);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonAnimation_setInterruptListener);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonAnimation_addAnimation);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonAnimation_clearTracks);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonAnimation_setStartListener);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonAnimation_createWithBinaryFile);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonAnimation_create);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonAnimation_createWithJsonFile);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonAnimation_SkeletonAnimation);
 
-#endif // __cocos2dx_spine_h__

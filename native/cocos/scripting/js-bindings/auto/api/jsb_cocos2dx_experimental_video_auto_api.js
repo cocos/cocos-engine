@@ -125,6 +125,16 @@ isFullScreenEnabled : function (
 },
 
 /**
+ * @method addEventListener
+ * @param {function} arg0
+ */
+addEventListener : function (
+func 
+)
+{
+},
+
+/**
  * @method duration
  * @return {float}
  */

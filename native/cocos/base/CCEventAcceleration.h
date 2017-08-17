@@ -48,6 +48,7 @@ public:
     EventAcceleration(const Acceleration& acc);
 
 private:
+    virtual ~EventAcceleration() {}
     Acceleration _acc;
     friend class EventListenerAcceleration;
 };

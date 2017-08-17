@@ -109,18 +109,13 @@ void HttpClient::networkThreadAlone(HttpRequest* request, HttpResponse* response
     if (nullptr != _scheduler)
     {
         _scheduler->performFunctionInCocosThread([this, response, request]{
-            const ccHttpRequestCallback& callback = request->getCallback();
-            Ref* pTarget = request->getTarget();
-            SEL_HttpResponse pSelector = request->getSelector();
+            const ccHttpRequestCallback& callback = request->getResponseCallback();
 
             if (callback != nullptr)
             {
                 callback(this, response);
             }
-            else if (pTarget && pSelector)
-            {
-                (pTarget->*pSelector)(this, response);
-            }
+
             response->release();
             // do not release in other thread
             request->release();
@@ -145,7 +140,7 @@ static int processTask(HttpClient* client, HttpRequest* request, NSString* reque
 
     NSMutableURLRequest *nsrequest = [NSMutableURLRequest requestWithURL:url
                                                cachePolicy:NSURLRequestReloadIgnoringLocalAndRemoteCacheData
-                                           timeoutInterval:HttpClient::getInstance()->getTimeoutForConnect()];
+                                           timeoutInterval:request->getTimeout()];
 
     //set request type
     [nsrequest setHTTPMethod:requestType];
@@ -460,17 +455,11 @@ void HttpClient::dispatchResponseCallbacks()
     if (response)
     {
         HttpRequest *request = response->getHttpRequest();
-        const ccHttpRequestCallback& callback = request->getCallback();
-        Ref* pTarget = request->getTarget();
-        SEL_HttpResponse pSelector = request->getSelector();
+        const ccHttpRequestCallback& callback = request->getResponseCallback();
 
         if (callback != nullptr)
         {
             callback(this, response);
-        }
-        else if (pTarget && pSelector)
-        {
-            (pTarget->*pSelector)(this, response);
         }
 
         response->release();

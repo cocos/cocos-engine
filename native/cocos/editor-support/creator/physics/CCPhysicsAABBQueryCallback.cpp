@@ -46,12 +46,12 @@ bool PhysicsAABBQueryCallback::ReportFixture(b2Fixture* fixture)
     return true;
 }
 
-b2Fixture* PhysicsAABBQueryCallback::getFixture()
+b2Fixture* PhysicsAABBQueryCallback::getFixture() const
 {
     return _fixtures.size() > 0 ? _fixtures[0] : nullptr;
 }
 
-const std::vector<b2Fixture*> PhysicsAABBQueryCallback::getFixtures() const
+const std::vector<b2Fixture*>& PhysicsAABBQueryCallback::getFixtures() const
 {
     return _fixtures;
 }

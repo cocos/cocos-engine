@@ -59,11 +59,11 @@ public:
 CC_CONSTRUCTOR_ACCESS:
     /** Constructor */
     Event(Type type);
-public:
+protected:
     /** Destructor.
      */
     virtual ~Event();
-
+public:
     /** Gets the event type.
      *
      * @return The event type.

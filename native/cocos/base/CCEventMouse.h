@@ -174,6 +174,8 @@ public:
 
 
 private:
+    virtual ~EventMouse() {}
+
     MouseEventType _mouseEventType;
     int _mouseButton;
     float _x;

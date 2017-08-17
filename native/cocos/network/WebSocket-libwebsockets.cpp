@@ -204,7 +204,7 @@ public:
 private:
     // The following callback functions are invoked in websocket thread
     void onClientOpenConnectionRequest();
-    int onSocketCallback(struct lws *wsi, int reason, void *in, ssize_t len);
+    int onSocketCallback(struct lws *wsi, enum lws_callback_reasons reason, void* in, ssize_t len);
 
     int onClientWritable();
     int onClientReceivedData(void* in, ssize_t len);
@@ -372,7 +372,7 @@ private:
 class WebSocketCallbackWrapper {
 public:
 
-    static int onSocketCallback(struct lws *wsi, enum lws_callback_reasons reason, void *user, void *in, size_t len)
+    static int onSocketCallback(struct lws *wsi, enum lws_callback_reasons reason, void* user, void* in, size_t len)
     {
         // Gets the user data from context. We know that it's a 'WebSocket' instance.
         if (wsi == nullptr) {
@@ -1377,9 +1377,7 @@ int WebSocketImpl::onConnectionClosed()
     return 0;
 }
 
-int WebSocketImpl::onSocketCallback(struct lws *wsi,
-                     int reason,
-                     void *in, ssize_t len)
+int WebSocketImpl::onSocketCallback(struct lws *wsi, enum lws_callback_reasons reason, void* in, ssize_t len)
 {
     //LOGD("socket callback for %d reason\n", reason);
 

@@ -33,7 +33,6 @@ THE SOFTWARE.
 #include "renderer/CCGLProgramCache.h"
 #include "renderer/ccGLStateCache.h"
 #include "renderer/CCRenderer.h"
-#include "renderer/CCRenderState.h"
 #include "renderer/CCTexture2D.h"
 #include "platform/CCGL.h"
 
@@ -390,10 +389,8 @@ void Grid3D::beforeBlit()
         CHECK_GL_ERROR_DEBUG();
 
         glEnable(GL_DEPTH_TEST);
-        RenderState::StateBlock::_defaultState->setDepthTest(true);
 
         glDepthMask(true);
-        RenderState::StateBlock::_defaultState->setDepthWrite(true);
     }
 }
 
@@ -405,10 +402,8 @@ void Grid3D::afterBlit()
             glEnable(GL_DEPTH_TEST);
         else
             glDisable(GL_DEPTH_TEST);
-        RenderState::StateBlock::_defaultState->setDepthTest(_oldDepthTestValue);
 
         glDepthMask(_oldDepthWriteValue);
-        RenderState::StateBlock::_defaultState->setDepthWrite(_oldDepthWriteValue);
     }
 }
 

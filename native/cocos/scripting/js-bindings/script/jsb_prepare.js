@@ -184,6 +184,10 @@ cc.Class.extend = function (prop) {
 
 jsb.registerNativeRef = function (owner, target) {
     if (owner && target && owner !== target) {
+        if (owner instanceof cc.Scheduler)
+        {
+            log("jsb.registerNativeRef add target (" + target + ") to Scheduler");
+        }
         var refs = owner.__nativeRefs;
         if (!refs) {
             refs = owner.__nativeRefs = [];

@@ -88,6 +88,8 @@ public:
 #endif
 
 private:
+    virtual ~EventTouch() {}
+
     EventCode _eventCode;
     std::vector<Touch*> _touches;
 

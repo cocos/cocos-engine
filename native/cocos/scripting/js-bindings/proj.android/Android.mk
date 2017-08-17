@@ -7,47 +7,65 @@ LOCAL_MODULE_FILENAME := libjscocos2d
 
 LOCAL_ARM_MODE := arm
 
-LOCAL_SRC_FILES := ../auto/jsb_cocos2dx_extension_auto.cpp \
-                   ../auto/jsb_cocos2dx_experimental_webView_auto.cpp \
-                   ../auto/jsb_cocos2dx_experimental_video_auto.cpp \
-                   ../auto/jsb_cocos2dx_spine_auto.cpp \
-                   ../auto/jsb_cocos2dx_dragonbones_auto.cpp \
-                   ../auto/jsb_cocos2dx_auto.cpp \
-                   ../auto/jsb_cocos2dx_audioengine_auto.cpp \
-                   ../auto/jsb_cocos2dx_ui_auto.cpp \
-                   ../auto/jsb_cocos2dx_network_auto.cpp \
-                   ../auto/jsb_creator_auto.cpp \
-                   ../auto/jsb_box2d_auto.cpp \
-                   ../manual/ScriptingCore.cpp \
-                   ../manual/cocos2d_specifics.cpp \
-                   ../manual/js_manual_conversions.cpp \
-                   ../manual/creator/js_bindings_creator_manual.cpp \
-                   ../manual/box2d/js_bindings_box2d_manual.cpp \
-                   ../manual/js_bindings_opengl.cpp \
-                   ../manual/jsb_opengl_functions.cpp \
-                   ../manual/jsb_opengl_manual.cpp \
-                   ../manual/jsb_opengl_registration.cpp \
-                   ../manual/jsb_event_dispatcher_manual.cpp \
-                   ../manual/js_module_register.cpp \
-                   ../manual/experimental/jsb_cocos2dx_experimental_video_manual.cpp \
-                   ../manual/experimental/jsb_cocos2dx_experimental_webView_manual.cpp \
-                   ../manual/extension/jsb_cocos2dx_extension_manual.cpp \
-                   ../manual/localstorage/js_bindings_system_functions.cpp \
-                   ../manual/localstorage/js_bindings_system_registration.cpp \
-                   ../manual/network/jsb_socketio.cpp \
-                   ../manual/network/jsb_websocket.cpp \
-                   ../manual/network/XMLHTTPRequest.cpp \
-                   ../manual/network/js_network_manual.cpp \
-                   ../manual/spine/jsb_cocos2dx_spine_manual.cpp \
-                   ../manual/dragonbones/jsb_cocos2dx_dragonbones_manual.cpp \
-                   ../manual/ui/jsb_cocos2dx_ui_manual.cpp \
-                   ../manual/platform/android/CCJavascriptJavaBridge.cpp
+LOCAL_SRC_FILES := \
+					../jswrapper/Ref.cpp \
+					../jswrapper/State.cpp \
+					../jswrapper/Value.cpp \
+					../jswrapper/HandleObject.cpp \
+					../jswrapper/sm/Class.cpp \
+					../jswrapper/sm/ScriptEngine.cpp \
+					../jswrapper/sm/Object.cpp \
+					../jswrapper/sm/Utils.cpp \
+					../jswrapper/v8/Class.cpp \
+					../jswrapper/v8/Object.cpp \
+					../jswrapper/v8/ObjectWrap.cpp \
+					../jswrapper/v8/ScriptEngine.cpp \
+					../jswrapper/v8/Utils.cpp \
+					../jswrapper/v8/env.cc \
+					../jswrapper/v8/inspector_agent.cc \
+					../jswrapper/v8/inspector_io.cc \
+					../jswrapper/v8/inspector_socket.cc \
+					../jswrapper/v8/inspector_socket_server.cc \
+					../jswrapper/v8/node.cc \
+					../jswrapper/v8/node_debug_options.cc \
+					../jswrapper/v8/util.cc \
+					../jswrapper/v8/http_parser.c \
+					../jswrapper/v8/SHA1.cpp \
+					../auto/jsb_box2d_auto.cpp \
+					../auto/jsb_cocos2dx_audioengine_auto.cpp \
+					../auto/jsb_cocos2dx_auto.cpp \
+					../auto/jsb_cocos2dx_dragonbones_auto.cpp \
+					../auto/jsb_cocos2dx_experimental_video_auto.cpp \
+					../auto/jsb_cocos2dx_experimental_webView_auto.cpp \
+					../auto/jsb_cocos2dx_extension_auto.cpp \
+					../auto/jsb_cocos2dx_network_auto.cpp \
+					../auto/jsb_cocos2dx_spine_auto.cpp \
+					../auto/jsb_cocos2dx_ui_auto.cpp \
+					../auto/jsb_creator_auto.cpp \
+					../manual/JavaScriptJavaBridge.cpp \
+					../manual/ScriptingCore.cpp \
+					../manual/jsb_helper.cpp \
+					../manual/jsb_box2d_manual.cpp \
+					../manual/jsb_classtype.cpp \
+					../manual/jsb_cocos2dx_extension_manual.cpp \
+					../manual/jsb_cocos2dx_manual.cpp \
+					../manual/jsb_conversions.cpp \
+					../manual/jsb_creator_manual.cpp \
+					../manual/jsb_dragonbones_manual.cpp \
+					../manual/jsb_global.cpp \
+					../manual/jsb_module_register.cpp \
+					../manual/jsb_node.cpp \
+					../manual/jsb_socketio.cpp \
+					../manual/jsb_spine_manual.cpp \
+					../manual/jsb_websocket.cpp \
+					../manual/jsb_xmlhttprequest.cpp
 
-LOCAL_CFLAGS := -DCOCOS2D_JAVASCRIPT
+LOCAL_CFLAGS := -DHAVE_INSPECTOR
 
-LOCAL_EXPORT_CFLAGS := -DCOCOS2D_JAVASCRIPT
+LOCAL_EXPORT_CFLAGS := 
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../manual \
+                    $(LOCAL_PATH)/../manual/cocostudio \
                     $(LOCAL_PATH)/../manual/spine \
                     $(LOCAL_PATH)/../manual/platform/android \
                     $(LOCAL_PATH)/../auto \
@@ -58,18 +76,21 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/../manual \
                     $(LOCAL_PATH)/../../../storage \
                     $(LOCAL_PATH)/../../../../extensions \
                     $(LOCAL_PATH)/../../../editor-support/spine \
+                    $(LOCAL_PATH)/../../../editor-support/cocosbuilder \
                     $(LOCAL_PATH)/../../../editor-support/cocostudio \
                     $(LOCAL_PATH)/../../../editor-support/creator
 
 
+
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/../manual \
                            $(LOCAL_PATH)/../auto \
-                           $(LOCAL_PATH)/../../../audio/include
+                           $(LOCAL_PATH)/../../../audio/include 
 
 LOCAL_EXPORT_LDLIBS := -lz
 
 LOCAL_STATIC_LIBRARIES := cocos2dx_static
-LOCAL_STATIC_LIBRARIES += spidermonkey_static
+LOCAL_STATIC_LIBRARIES += spidermonkey_static spidermonkey_glue_static
+LOCAL_WHOLE_STATIC_LIBRARIES += v8_base_static v8_inspector_static v8_libplatform_static v8_libbase_static v8_libsampler_static v8_nosnapshot_static v8_builtins_setup_static v8_builtins_generators_static uv_static
 
 include $(BUILD_STATIC_LIBRARY)
 #==============================================================

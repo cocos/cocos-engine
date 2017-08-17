@@ -796,18 +796,13 @@ void HttpClient::networkThreadAlone(HttpRequest* request, HttpResponse* response
     if (_scheduler != nullptr)
     {
         _scheduler->performFunctionInCocosThread([this, response, request]{
-            const ccHttpRequestCallback& callback = request->getCallback();
-            Ref* pTarget = request->getTarget();
-            SEL_HttpResponse pSelector = request->getSelector();
+            const ccHttpRequestCallback& callback = request->getResponseCallback();
 
             if (callback != nullptr)
             {
                 callback(this, response);
             }
-            else if (pTarget && pSelector)
-            {
-                (pTarget->*pSelector)(this, response);
-            }
+
             response->release();
             // do not release in other thread
             request->release();
@@ -970,17 +965,11 @@ void HttpClient::dispatchResponseCallbacks()
     if (response)
     {
         HttpRequest *request = response->getHttpRequest();
-        const ccHttpRequestCallback& callback = request->getCallback();
-        Ref* pTarget = request->getTarget();
-        SEL_HttpResponse pSelector = request->getSelector();
+        const ccHttpRequestCallback& callback = request->getResponseCallback();
 
         if (callback != nullptr)
         {
             callback(this, response);
-        }
-        else if (pTarget && pSelector)
-        {
-            (pTarget->*pSelector)(this, response);
         }
 
         response->release();

@@ -868,6 +868,130 @@ PhysicsWorldManifoldWrapper : function (
 };
 
 /**
+ * @class PhysicsManifoldWrapper
+ */
+cc.PhysicsManifoldWrapper = {
+
+/**
+ * @method getNormalImpulse
+ * @param {int} arg0
+ * @return {float}
+ */
+getNormalImpulse : function (
+int 
+)
+{
+    return 0;
+},
+
+/**
+ * @method getLocalNormalY
+ * @return {float}
+ */
+getLocalNormalY : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method getLocalNormalX
+ * @return {float}
+ */
+getLocalNormalX : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method getLocalPointY
+ * @return {float}
+ */
+getLocalPointY : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method getLocalPointX
+ * @return {float}
+ */
+getLocalPointX : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method getType
+ * @return {int}
+ */
+getType : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method getX
+ * @param {int} arg0
+ * @return {float}
+ */
+getX : function (
+int 
+)
+{
+    return 0;
+},
+
+/**
+ * @method getY
+ * @param {int} arg0
+ * @return {float}
+ */
+getY : function (
+int 
+)
+{
+    return 0;
+},
+
+/**
+ * @method getTangentImpulse
+ * @param {int} arg0
+ * @return {float}
+ */
+getTangentImpulse : function (
+int 
+)
+{
+    return 0;
+},
+
+/**
+ * @method getCount
+ * @return {int}
+ */
+getCount : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method PhysicsManifoldWrapper
+ * @constructor
+ */
+PhysicsManifoldWrapper : function (
+)
+{
+},
+
+};
+
+/**
  * @class PhysicsUtils
  */
 cc.PhysicsUtils = {

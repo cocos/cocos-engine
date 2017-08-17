@@ -66,6 +66,8 @@ public:
      */
     inline const std::string& getEventName() const { return _eventName; };
 protected:
+    virtual ~EventCustom() {}
+
     void* _userData;       ///< User data
     std::string _eventName;
 };

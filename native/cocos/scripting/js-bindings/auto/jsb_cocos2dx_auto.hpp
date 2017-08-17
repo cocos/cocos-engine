@@ -1,2924 +1,2478 @@
+#pragma once
 #include "base/ccConfig.h"
-#ifndef __cocos2dx_h__
-#define __cocos2dx_h__
-
-#include "jsapi.h"
-#include "jsfriendapi.h"
-
-extern JSClass  *jsb_cocos2d_Acceleration_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Acceleration_prototype;
-
-bool js_cocos2dx_Acceleration_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Acceleration_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Acceleration(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Acceleration_Acceleration(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Texture2D_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Texture2D_prototype;
-
-bool js_cocos2dx_Texture2D_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Texture2D_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Texture2D(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Texture2D_getGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_getMaxT(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_setAlphaTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_getStringForFormat(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_initWithImage(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_setGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_getMaxS(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_hasPremultipliedAlpha(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_getPixelsHigh(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_getAlphaTextureName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_getBitsPerPixelForFormat(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_getName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_initWithString(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_setMaxT(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_getPath(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_drawInRect(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_getContentSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_setAliasTexParameters(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_setAntiAliasTexParameters(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_generateMipmap(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_getDescription(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_getPixelFormat(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_getContentSizeInPixels(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_releaseGLTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_getPixelsWide(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_drawAtPoint(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_hasMipmaps(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_setMaxS(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_setDefaultAlphaPixelFormat(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_getDefaultAlphaPixelFormat(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Texture2D_Texture2D(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Touch_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Touch_prototype;
-
-bool js_cocos2dx_Touch_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Touch_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Touch(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Touch_getPreviousLocationInView(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Touch_getLocation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Touch_getDelta(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Touch_getStartLocationInView(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Touch_getCurrentForce(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Touch_getStartLocation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Touch_getID(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Touch_setTouchInfo(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Touch_getMaxForce(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Touch_getLocationInView(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Touch_getPreviousLocation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Touch_Touch(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Event_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Event_prototype;
-
-bool js_cocos2dx_Event_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Event_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Event(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Event_isStopped(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Event_getType(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Event_getCurrentTarget(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Event_stopPropagation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Event_Event(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EventTouch_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EventTouch_prototype;
-
-bool js_cocos2dx_EventTouch_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EventTouch_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EventTouch(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EventTouch_getEventCode(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventTouch_setEventCode(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventTouch_EventTouch(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ComponentContainer_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ComponentContainer_prototype;
-
-bool js_cocos2dx_ComponentContainer_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ComponentContainer_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ComponentContainer(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ComponentContainer_visit(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ComponentContainer_remove(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ComponentContainer_removeAll(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ComponentContainer_add(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ComponentContainer_isEmpty(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ComponentContainer_get(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Component_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Component_prototype;
-
-bool js_cocos2dx_Component_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Component_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Component(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Component_setEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Component_setName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Component_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Component_getOwner(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Component_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Component_setOwner(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Component_getName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Component_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Component_Component(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Node_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Node_prototype;
-
-bool js_cocos2dx_Node_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Node_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Node(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Node_addChild(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_removeComponent(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getDescription(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setOpacityModifyRGB(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setCascadeOpacityEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getChildren(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_markTransformUpdated(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setOnExitCallback(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_isIgnoreAnchorPointForPosition(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getChildByName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_updateDisplayedOpacity(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getCameraMask(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setRotation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setScaleZ(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setScaleY(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setScaleX(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setonEnterTransitionDidFinishCallback(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_removeAllComponents(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node__setLocalZOrder(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setCameraMask(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getTag(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setAfterVisitCallback(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getNodeToWorldAffineTransform(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_removeChild(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getScene(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getEventDispatcher(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setSkewX(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setGLProgramState(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setOnEnterCallback(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_stopActionsByFlags(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setNormalizedPosition(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setonExitTransitionDidStartCallback(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_convertTouchToNodeSpace(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_removeAllChildrenWithCleanup(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getRotationSkewX(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getRotationSkewY(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getNodeToWorldTransform(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_isCascadeOpacityEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setParent(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getNodeToParentAffineTransform(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_isOpacityModifyRGB(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_stopActionByTag(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_reorderChild(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setSkewY(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setPositionY(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setPositionX(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setNodeToParentTransform(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getAnchorPoint(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getNumberOfRunningActions(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_updateTransform(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_isVisible(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getChildrenCount(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getNodeToParentTransform(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_convertToNodeSpaceAR(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_addComponent(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_runAction(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getRotation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getAnchorPointInPoints(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_visit(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_removeChildByName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setPositionZ(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getGLProgramState(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setScheduler(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_stopAllActions(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getSkewX(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getSkewY(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_isScheduled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getDisplayedColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getActionByTag(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setRotationSkewX(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setRotationSkewY(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getDisplayedOpacity(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getLocalZOrder(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getScheduler(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setBeforeVisitCallback(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setActionManager(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getPosition(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_insertChildBefore(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_isRunning(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getParent(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getWorldToNodeTransform(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getPositionY(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getPositionX(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_removeChildByTag(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_updateDisplayedColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setVisible(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getParentToNodeAffineTransform(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getPositionZ(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setGlobalZOrder(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setScale(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getChildByTag(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getScaleZ(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getScaleY(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getScaleX(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setLocalZOrder(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setCascadeColorEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setOpacity(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getComponent(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getContentSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_stopAllActionsByTag(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getBoundingBox(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setIgnoreAnchorPointForPosition(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setEventDispatcher(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getGlobalZOrder(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_draw(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setUserObject(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_enumerateChildren(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_removeFromParentAndCleanup(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_convertTouchToNodeSpaceAR(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_update(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_sortAllChildren(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getWorldToNodeAffineTransform(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getScale(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getOpacity(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_updateOrderOfArrival(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getNormalizedPosition(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getParentToNodeTransform(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_convertToNodeSpace(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_setTag(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_isCascadeColorEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_stopAction(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_getActionManager(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Node_Node(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Scene_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Scene_prototype;
-
-bool js_cocos2dx_Scene_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Scene_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Scene(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Scene_initWithSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Scene_render(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Scene_createWithSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Scene_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Scene_Scene(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_GLView_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_GLView_prototype;
-
-bool js_cocos2dx_GLView_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_GLView_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_GLView(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_GLView_setFrameSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_getViewPortRect(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_setContentScaleFactor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_getContentScaleFactor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_setIMEKeyboardState(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_isAntiAliasEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_setScissorInPoints(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_getViewName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_isOpenGLReady(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_setCursorVisible(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_getScaleY(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_getScaleX(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_getVisibleOrigin(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_getFrameSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_setFrameZoomFactor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_getFrameZoomFactor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_getDesignResolutionSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_windowShouldClose(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_setDesignResolutionSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_getResolutionPolicy(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_isRetinaDisplay(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_renderScene(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_setViewPortInPoints(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_getScissorRect(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_enableAntiAlias(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_getRetinaFactor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_setViewName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_getVisibleRect(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_getVisibleSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_isScissorEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_pollEvents(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLView_setGLContextAttrs(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Director_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Director_prototype;
-
-bool js_cocos2dx_Director_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Director_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Director(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Director_pause(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_isPurgeDirectorInNextLoop(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_setEventDispatcher(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_setContentScaleFactor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_getContentScaleFactor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_getWinSizeInPixels(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_getDeltaTime(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_setGLDefaultValues(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_setActionManager(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_setAlphaBlending(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_popToRootScene(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_loadMatrix(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_getNotificationNode(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_getWinSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_end(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_getTextureCache(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_isSendCleanupToScene(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_getVisibleOrigin(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_mainLoop(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_setDepthTest(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_getFrameRate(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_getSecondsPerFrame(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_resetMatrixStack(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_convertToUI(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_pushMatrix(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_setDefaultValues(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_setScheduler(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_getMatrix(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_isValid(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_startAnimation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_getOpenGLView(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_getRunningScene(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_setViewport(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_stopAnimation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_popToSceneStackLevel(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_resume(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_isNextDeltaTimeZero(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_setClearColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_setOpenGLView(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_convertToGL(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_purgeCachedData(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_getTotalFrames(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_runWithScene(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_setNotificationNode(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_drawScene(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_restart(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_popScene(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_loadIdentityMatrix(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_isDisplayStats(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_setProjection(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_multiplyMatrix(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_getZEye(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_setNextDeltaTimeZero(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_popMatrix(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_getVisibleSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_getScheduler(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_pushScene(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_getAnimationInterval(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_isPaused(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_setDisplayStats(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_getEventDispatcher(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_replaceScene(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_setAnimationInterval(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_getActionManager(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Director_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Scheduler_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Scheduler_prototype;
-
-bool js_cocos2dx_Scheduler_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Scheduler_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Scheduler(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Scheduler_isCurrentTargetSalvaged(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Scheduler_setTimeScale(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Scheduler_unscheduleAllWithMinPriority(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Scheduler_update(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Scheduler_unscheduleScriptEntry(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Scheduler_performFunctionInCocosThread(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Scheduler_unscheduleAll(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Scheduler_getTimeScale(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Scheduler_Scheduler(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_AsyncTaskPool_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_AsyncTaskPool_prototype;
-
-bool js_cocos2dx_AsyncTaskPool_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_AsyncTaskPool_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_AsyncTaskPool(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_AsyncTaskPool_stopTasks(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_AsyncTaskPool_destroyInstance(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_AsyncTaskPool_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Configuration_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Configuration_prototype;
-
-bool js_cocos2dx_Configuration_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Configuration_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Configuration(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Configuration_supportsPVRTC(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_supportsOESDepth24(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_getMaxModelviewStackDepth(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_supportsShareableVAO(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_supportsBGRA8888(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_checkForGLExtension(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_supportsNPOT(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_getMaxSupportPointLightInShader(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_getMaxTextureSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_setValue(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_getMaxSupportSpotLightInShader(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_supportsETC(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_getMaxSupportDirLightInShader(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_loadConfigFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_supportsDiscardFramebuffer(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_supportsOESPackedDepthStencil(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_getInfo(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_getMaxTextureUnits(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_getValue(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_gatherGPUInfo(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_supportsMapBuffer(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_destroyInstance(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Configuration_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Properties_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Properties_prototype;
-
-bool js_cocos2dx_Properties_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Properties_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Properties(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Properties_getVariable(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_getString(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_getLong(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_getNamespace(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_getPath(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_getMat4(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_exists(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_setString(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_getId(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_rewind(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_setVariable(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_getBool(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_getColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_getType(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_getNextNamespace(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_getInt(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_getVec3(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_getVec2(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_getVec4(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_getNextProperty(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_getFloat(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_getQuaternionFromAxisAngle(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_parseColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_parseVec3(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_parseAxisAngle(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_parseVec2(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_createNonRefCounted(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Properties_parseVec4(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_FileUtils_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_FileUtils_prototype;
-
-bool js_cocos2dx_FileUtils_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_FileUtils_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_FileUtils(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_FileUtils_fullPathForFilename(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_getStringFromFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_removeFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_isAbsolutePath(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_renameFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_loadFilenameLookupDictionaryFromFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_isPopupNotify(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_getValueVectorFromFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_getSearchPaths(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_writeToFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_listFiles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_getValueMapFromFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_getFileSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_getValueMapFromData(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_removeDirectory(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_setSearchPaths(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_writeStringToFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_setSearchResolutionsOrder(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_addSearchResolutionsOrder(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_addSearchPath(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_writeValueVectorToFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_isFileExist(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_purgeCachedEntries(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_fullPathFromRelativeFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_getSuitableFOpen(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_writeValueMapToFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_getFileExtension(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_setWritablePath(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_setPopupNotify(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_isDirectoryExist(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_setDefaultResourceRootPath(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_getSearchResolutionsOrder(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_createDirectory(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_listFilesRecursively(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_getWritablePath(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_setDelegate(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FileUtils_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EventAcceleration_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EventAcceleration_prototype;
-
-bool js_cocos2dx_EventAcceleration_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EventAcceleration_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EventAcceleration(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EventAcceleration_EventAcceleration(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EventCustom_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EventCustom_prototype;
-
-bool js_cocos2dx_EventCustom_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EventCustom_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EventCustom(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EventCustom_getEventName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventCustom_EventCustom(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EventListener_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EventListener_prototype;
-
-bool js_cocos2dx_EventListener_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EventListener_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EventListener(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EventListener_setEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventListener_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventListener_clone(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventListener_checkAvailable(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EventDispatcher_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EventDispatcher_prototype;
-
-bool js_cocos2dx_EventDispatcher_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EventDispatcher_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EventDispatcher(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EventDispatcher_setEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventDispatcher_removeAllEventListeners(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventDispatcher_addEventListenerWithSceneGraphPriority(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventDispatcher_addEventListenerWithFixedPriority(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventDispatcher_removeEventListenersForTarget(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventDispatcher_resumeEventListenersForTarget(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventDispatcher_setPriority(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventDispatcher_dispatchEvent(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventDispatcher_hasEventListener(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventDispatcher_pauseEventListenersForTarget(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventDispatcher_removeCustomEventListeners(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventDispatcher_removeEventListener(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventDispatcher_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventDispatcher_EventDispatcher(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EventFocus_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EventFocus_prototype;
-
-bool js_cocos2dx_EventFocus_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EventFocus_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EventFocus(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EventFocus_EventFocus(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EventListenerAcceleration_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EventListenerAcceleration_prototype;
-
-bool js_cocos2dx_EventListenerAcceleration_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EventListenerAcceleration_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EventListenerAcceleration(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EventListenerAcceleration_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventListenerAcceleration_EventListenerAcceleration(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EventListenerCustom_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EventListenerCustom_prototype;
-
-bool js_cocos2dx_EventListenerCustom_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EventListenerCustom_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EventListenerCustom(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EventListenerCustom_EventListenerCustom(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EventListenerFocus_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EventListenerFocus_prototype;
-
-bool js_cocos2dx_EventListenerFocus_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EventListenerFocus_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EventListenerFocus(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EventListenerFocus_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventListenerFocus_EventListenerFocus(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EventListenerKeyboard_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EventListenerKeyboard_prototype;
-
-bool js_cocos2dx_EventListenerKeyboard_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EventListenerKeyboard_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EventListenerKeyboard(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EventListenerKeyboard_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventListenerKeyboard_EventListenerKeyboard(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EventMouse_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EventMouse_prototype;
-
-bool js_cocos2dx_EventMouse_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EventMouse_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EventMouse(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EventMouse_getMouseButton(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventMouse_getLocation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventMouse_setMouseButton(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventMouse_setScrollData(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventMouse_getPreviousLocationInView(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventMouse_getDelta(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventMouse_getStartLocation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventMouse_getCursorY(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventMouse_getCursorX(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventMouse_getLocationInView(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventMouse_getScrollY(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventMouse_setCursorPosition(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventMouse_getScrollX(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventMouse_getPreviousLocation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventMouse_getStartLocationInView(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventMouse_EventMouse(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EventListenerMouse_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EventListenerMouse_prototype;
-
-bool js_cocos2dx_EventListenerMouse_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EventListenerMouse_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EventListenerMouse(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EventListenerMouse_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventListenerMouse_EventListenerMouse(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EventListenerTouchOneByOne_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EventListenerTouchOneByOne_prototype;
-
-bool js_cocos2dx_EventListenerTouchOneByOne_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EventListenerTouchOneByOne_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EventListenerTouchOneByOne(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EventListenerTouchOneByOne_isSwallowTouches(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventListenerTouchOneByOne_setSwallowTouches(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventListenerTouchOneByOne_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventListenerTouchOneByOne_EventListenerTouchOneByOne(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EventListenerTouchAllAtOnce_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EventListenerTouchAllAtOnce_prototype;
-
-bool js_cocos2dx_EventListenerTouchAllAtOnce_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EventListenerTouchAllAtOnce_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EventListenerTouchAllAtOnce(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EventListenerTouchAllAtOnce_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EventListenerTouchAllAtOnce_EventListenerTouchAllAtOnce(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Action_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Action_prototype;
-
-bool js_cocos2dx_Action_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Action_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Action(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Action_startWithTarget(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Action_setOriginalTarget(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Action_clone(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Action_getOriginalTarget(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Action_stop(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Action_update(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Action_getTarget(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Action_getFlags(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Action_step(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Action_setTag(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Action_setFlags(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Action_getTag(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Action_setTarget(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Action_isDone(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Action_reverse(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_FiniteTimeAction_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_FiniteTimeAction_prototype;
-
-bool js_cocos2dx_FiniteTimeAction_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_FiniteTimeAction_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_FiniteTimeAction(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_FiniteTimeAction_setDuration(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FiniteTimeAction_getDuration(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Speed_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Speed_prototype;
-
-bool js_cocos2dx_Speed_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Speed_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Speed(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Speed_setInnerAction(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Speed_getSpeed(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Speed_setSpeed(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Speed_initWithAction(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Speed_getInnerAction(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Speed_Speed(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Follow_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Follow_prototype;
-
-bool js_cocos2dx_Follow_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Follow_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Follow(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Follow_setBoundarySet(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Follow_initWithTarget(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Follow_initWithTargetAndOffset(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Follow_isBoundarySet(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Follow_Follow(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Image_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Image_prototype;
-
-bool js_cocos2dx_Image_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Image_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Image(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Image_hasPremultipliedAlpha(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Image_getDataLen(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Image_saveToFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Image_hasAlpha(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Image_isCompressed(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Image_getHeight(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Image_initWithImageFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Image_getWidth(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Image_getBitPerPixel(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Image_getFileType(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Image_getFilePath(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Image_getNumberOfMipmaps(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Image_getRenderFormat(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Image_setPVRImagesHavePremultipliedAlpha(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Image_setPNGPremultipliedAlphaEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Image_Image(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_GLProgramState_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_GLProgramState_prototype;
-
-bool js_cocos2dx_GLProgramState_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_GLProgramState_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_GLProgramState(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_GLProgramState_setUniformCallback(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_getVertexAttribsFlags(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_applyAutoBinding(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_setUniformVec2(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_setUniformVec3(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_setVertexAttribCallback(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_apply(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_getNodeBinding(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_applyGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_setNodeBinding(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_setUniformInt(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_setParameterAutoBinding(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_setUniformVec2v(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_getUniformCount(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_applyAttributes(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_clone(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_setGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_setUniformFloatv(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_getGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_setUniformTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_applyUniforms(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_setUniformFloat(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_setUniformMat4(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_setUniformVec3v(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_getVertexAttribCount(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_getOrCreateWithGLProgramName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_getOrCreateWithGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramState_getOrCreateWithShaders(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_SpriteFrame_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_SpriteFrame_prototype;
-
-bool js_cocos2dx_SpriteFrame_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_SpriteFrame_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_SpriteFrame(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_SpriteFrame_setAnchorPoint(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_setOffsetInPixels(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_getOriginalSizeInPixels(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_setOriginalSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_setRectInPixels(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_getRect(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_setOffset(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_initWithTextureFilename(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_setRect(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_initWithTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_getOriginalSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_clone(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_getRectInPixels(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_isRotated(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_setRotated(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_getOffset(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_setOriginalSizeInPixels(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_getAnchorPoint(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_hasAnchorPoint(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_getOffsetInPixels(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_createWithTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrame_SpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ActionInterval_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ActionInterval_prototype;
-
-bool js_cocos2dx_ActionInterval_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ActionInterval_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ActionInterval(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ActionInterval_getAmplitudeRate(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ActionInterval_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ActionInterval_setAmplitudeRate(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ActionInterval_getElapsed(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Sequence_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Sequence_prototype;
-
-bool js_cocos2dx_Sequence_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Sequence_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Sequence(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Sequence_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sequence_initWithTwoActions(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sequence_Sequence(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Repeat_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Repeat_prototype;
-
-bool js_cocos2dx_Repeat_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Repeat_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Repeat(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Repeat_setInnerAction(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Repeat_initWithAction(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Repeat_getInnerAction(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Repeat_Repeat(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_RepeatForever_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_RepeatForever_prototype;
-
-bool js_cocos2dx_RepeatForever_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_RepeatForever_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_RepeatForever(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_RepeatForever_setInnerAction(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RepeatForever_initWithAction(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RepeatForever_getInnerAction(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RepeatForever_RepeatForever(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Spawn_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Spawn_prototype;
-
-bool js_cocos2dx_Spawn_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Spawn_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Spawn(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Spawn_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Spawn_initWithTwoActions(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Spawn_Spawn(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_RotateTo_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_RotateTo_prototype;
-
-bool js_cocos2dx_RotateTo_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_RotateTo_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_RotateTo(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_RotateTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RotateTo_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RotateTo_RotateTo(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_RotateBy_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_RotateBy_prototype;
-
-bool js_cocos2dx_RotateBy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_RotateBy_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_RotateBy(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_RotateBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RotateBy_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RotateBy_RotateBy(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_MoveBy_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_MoveBy_prototype;
-
-bool js_cocos2dx_MoveBy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_MoveBy_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_MoveBy(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_MoveBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MoveBy_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MoveBy_MoveBy(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_MoveTo_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_MoveTo_prototype;
-
-bool js_cocos2dx_MoveTo_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_MoveTo_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_MoveTo(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_MoveTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MoveTo_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MoveTo_MoveTo(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_SkewTo_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_SkewTo_prototype;
-
-bool js_cocos2dx_SkewTo_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_SkewTo_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_SkewTo(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_SkewTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SkewTo_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SkewTo_SkewTo(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_SkewBy_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_SkewBy_prototype;
-
-bool js_cocos2dx_SkewBy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_SkewBy_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_SkewBy(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_SkewBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SkewBy_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SkewBy_SkewBy(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_JumpBy_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_JumpBy_prototype;
-
-bool js_cocos2dx_JumpBy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_JumpBy_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_JumpBy(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_JumpBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_JumpBy_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_JumpBy_JumpBy(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_JumpTo_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_JumpTo_prototype;
-
-bool js_cocos2dx_JumpTo_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_JumpTo_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_JumpTo(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_JumpTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_JumpTo_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_JumpTo_JumpTo(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_BezierBy_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_BezierBy_prototype;
-
-bool js_cocos2dx_BezierBy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_BezierBy_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_BezierBy(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_BezierBy_BezierBy(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_BezierTo_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_BezierTo_prototype;
-
-bool js_cocos2dx_BezierTo_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_BezierTo_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_BezierTo(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_BezierTo_BezierTo(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ScaleTo_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ScaleTo_prototype;
-
-bool js_cocos2dx_ScaleTo_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ScaleTo_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ScaleTo(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ScaleTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ScaleTo_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ScaleTo_ScaleTo(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ScaleBy_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ScaleBy_prototype;
-
-bool js_cocos2dx_ScaleBy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ScaleBy_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ScaleBy(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ScaleBy_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ScaleBy_ScaleBy(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Blink_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Blink_prototype;
-
-bool js_cocos2dx_Blink_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Blink_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Blink(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Blink_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Blink_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Blink_Blink(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_FadeTo_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_FadeTo_prototype;
-
-bool js_cocos2dx_FadeTo_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_FadeTo_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_FadeTo(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_FadeTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FadeTo_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FadeTo_FadeTo(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_FadeIn_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_FadeIn_prototype;
-
-bool js_cocos2dx_FadeIn_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_FadeIn_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_FadeIn(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_FadeIn_setReverseAction(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FadeIn_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FadeIn_FadeIn(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_FadeOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_FadeOut_prototype;
-
-bool js_cocos2dx_FadeOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_FadeOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_FadeOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_FadeOut_setReverseAction(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FadeOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FadeOut_FadeOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_TintTo_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_TintTo_prototype;
-
-bool js_cocos2dx_TintTo_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_TintTo_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_TintTo(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_TintTo_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TintTo_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TintTo_TintTo(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_TintBy_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_TintBy_prototype;
-
-bool js_cocos2dx_TintBy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_TintBy_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_TintBy(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_TintBy_initWithDuration(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TintBy_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TintBy_TintBy(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_DelayTime_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_DelayTime_prototype;
-
-bool js_cocos2dx_DelayTime_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_DelayTime_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_DelayTime(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_DelayTime_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DelayTime_DelayTime(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ReverseTime_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ReverseTime_prototype;
-
-bool js_cocos2dx_ReverseTime_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ReverseTime_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ReverseTime(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ReverseTime_initWithAction(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ReverseTime_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ReverseTime_ReverseTime(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_TargetedAction_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_TargetedAction_prototype;
-
-bool js_cocos2dx_TargetedAction_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_TargetedAction_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_TargetedAction(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_TargetedAction_getForcedTarget(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TargetedAction_initWithTarget(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TargetedAction_setForcedTarget(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TargetedAction_TargetedAction(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_CardinalSplineTo_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_CardinalSplineTo_prototype;
-
-bool js_cocos2dx_CardinalSplineTo_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_CardinalSplineTo_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_CardinalSplineTo(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_CardinalSplineTo_getPoints(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_CardinalSplineTo_updatePosition(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_CardinalSplineTo_CardinalSplineTo(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_CardinalSplineBy_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_CardinalSplineBy_prototype;
-
-bool js_cocos2dx_CardinalSplineBy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_CardinalSplineBy_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_CardinalSplineBy(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_CardinalSplineBy_CardinalSplineBy(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_CatmullRomTo_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_CatmullRomTo_prototype;
-
-bool js_cocos2dx_CatmullRomTo_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_CatmullRomTo_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_CatmullRomTo(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-
-extern JSClass  *jsb_cocos2d_CatmullRomBy_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_CatmullRomBy_prototype;
-
-bool js_cocos2dx_CatmullRomBy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_CatmullRomBy_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_CatmullRomBy(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-
-extern JSClass  *jsb_cocos2d_ActionEase_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ActionEase_prototype;
-
-bool js_cocos2dx_ActionEase_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ActionEase_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ActionEase(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ActionEase_initWithAction(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ActionEase_getInnerAction(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseRateAction_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseRateAction_prototype;
-
-bool js_cocos2dx_EaseRateAction_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseRateAction_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseRateAction(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseRateAction_setRate(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseRateAction_initWithAction(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseRateAction_getRate(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseRateAction_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseIn_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseIn_prototype;
-
-bool js_cocos2dx_EaseIn_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseIn_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseIn(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseIn_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseIn_EaseIn(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseOut_prototype;
-
-bool js_cocos2dx_EaseOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseOut_EaseOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseInOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseInOut_prototype;
-
-bool js_cocos2dx_EaseInOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseInOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseInOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseInOut_EaseInOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseExponentialIn_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseExponentialIn_prototype;
-
-bool js_cocos2dx_EaseExponentialIn_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseExponentialIn_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseExponentialIn(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseExponentialIn_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseExponentialIn_EaseExponentialIn(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseExponentialOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseExponentialOut_prototype;
-
-bool js_cocos2dx_EaseExponentialOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseExponentialOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseExponentialOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseExponentialOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseExponentialOut_EaseExponentialOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseExponentialInOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseExponentialInOut_prototype;
-
-bool js_cocos2dx_EaseExponentialInOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseExponentialInOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseExponentialInOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseExponentialInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseExponentialInOut_EaseExponentialInOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseSineIn_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseSineIn_prototype;
-
-bool js_cocos2dx_EaseSineIn_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseSineIn_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseSineIn(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseSineIn_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseSineIn_EaseSineIn(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseSineOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseSineOut_prototype;
-
-bool js_cocos2dx_EaseSineOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseSineOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseSineOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseSineOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseSineOut_EaseSineOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseSineInOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseSineInOut_prototype;
-
-bool js_cocos2dx_EaseSineInOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseSineInOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseSineInOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseSineInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseSineInOut_EaseSineInOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseElastic_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseElastic_prototype;
-
-bool js_cocos2dx_EaseElastic_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseElastic_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseElastic(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseElastic_setPeriod(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseElastic_initWithAction(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseElastic_getPeriod(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseElasticIn_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseElasticIn_prototype;
-
-bool js_cocos2dx_EaseElasticIn_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseElasticIn_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseElasticIn(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseElasticIn_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseElasticIn_EaseElasticIn(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseElasticOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseElasticOut_prototype;
-
-bool js_cocos2dx_EaseElasticOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseElasticOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseElasticOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseElasticOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseElasticOut_EaseElasticOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseElasticInOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseElasticInOut_prototype;
-
-bool js_cocos2dx_EaseElasticInOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseElasticInOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseElasticInOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseElasticInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseElasticInOut_EaseElasticInOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseBounce_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseBounce_prototype;
-
-bool js_cocos2dx_EaseBounce_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseBounce_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseBounce(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-
-extern JSClass  *jsb_cocos2d_EaseBounceIn_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseBounceIn_prototype;
-
-bool js_cocos2dx_EaseBounceIn_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseBounceIn_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseBounceIn(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseBounceIn_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseBounceIn_EaseBounceIn(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseBounceOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseBounceOut_prototype;
-
-bool js_cocos2dx_EaseBounceOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseBounceOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseBounceOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseBounceOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseBounceOut_EaseBounceOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseBounceInOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseBounceInOut_prototype;
-
-bool js_cocos2dx_EaseBounceInOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseBounceInOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseBounceInOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseBounceInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseBounceInOut_EaseBounceInOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseBackIn_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseBackIn_prototype;
-
-bool js_cocos2dx_EaseBackIn_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseBackIn_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseBackIn(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseBackIn_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseBackIn_EaseBackIn(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseBackOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseBackOut_prototype;
-
-bool js_cocos2dx_EaseBackOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseBackOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseBackOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseBackOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseBackOut_EaseBackOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseBackInOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseBackInOut_prototype;
-
-bool js_cocos2dx_EaseBackInOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseBackInOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseBackInOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseBackInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseBackInOut_EaseBackInOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseBezierAction_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseBezierAction_prototype;
-
-bool js_cocos2dx_EaseBezierAction_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseBezierAction_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseBezierAction(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseBezierAction_setBezierParamer(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseBezierAction_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseBezierAction_EaseBezierAction(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseQuadraticActionIn_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseQuadraticActionIn_prototype;
-
-bool js_cocos2dx_EaseQuadraticActionIn_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseQuadraticActionIn_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseQuadraticActionIn(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseQuadraticActionIn_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseQuadraticActionIn_EaseQuadraticActionIn(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseQuadraticActionOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseQuadraticActionOut_prototype;
-
-bool js_cocos2dx_EaseQuadraticActionOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseQuadraticActionOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseQuadraticActionOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseQuadraticActionOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseQuadraticActionOut_EaseQuadraticActionOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseQuadraticActionInOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseQuadraticActionInOut_prototype;
-
-bool js_cocos2dx_EaseQuadraticActionInOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseQuadraticActionInOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseQuadraticActionInOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseQuadraticActionInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseQuadraticActionInOut_EaseQuadraticActionInOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseQuarticActionIn_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseQuarticActionIn_prototype;
-
-bool js_cocos2dx_EaseQuarticActionIn_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseQuarticActionIn_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseQuarticActionIn(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseQuarticActionIn_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseQuarticActionIn_EaseQuarticActionIn(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseQuarticActionOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseQuarticActionOut_prototype;
-
-bool js_cocos2dx_EaseQuarticActionOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseQuarticActionOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseQuarticActionOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseQuarticActionOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseQuarticActionOut_EaseQuarticActionOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseQuarticActionInOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseQuarticActionInOut_prototype;
-
-bool js_cocos2dx_EaseQuarticActionInOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseQuarticActionInOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseQuarticActionInOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseQuarticActionInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseQuarticActionInOut_EaseQuarticActionInOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseQuinticActionIn_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseQuinticActionIn_prototype;
-
-bool js_cocos2dx_EaseQuinticActionIn_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseQuinticActionIn_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseQuinticActionIn(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseQuinticActionIn_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseQuinticActionIn_EaseQuinticActionIn(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseQuinticActionOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseQuinticActionOut_prototype;
-
-bool js_cocos2dx_EaseQuinticActionOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseQuinticActionOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseQuinticActionOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseQuinticActionOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseQuinticActionOut_EaseQuinticActionOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseQuinticActionInOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseQuinticActionInOut_prototype;
-
-bool js_cocos2dx_EaseQuinticActionInOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseQuinticActionInOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseQuinticActionInOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseQuinticActionInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseQuinticActionInOut_EaseQuinticActionInOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseCircleActionIn_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseCircleActionIn_prototype;
-
-bool js_cocos2dx_EaseCircleActionIn_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseCircleActionIn_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseCircleActionIn(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseCircleActionIn_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseCircleActionIn_EaseCircleActionIn(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseCircleActionOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseCircleActionOut_prototype;
-
-bool js_cocos2dx_EaseCircleActionOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseCircleActionOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseCircleActionOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseCircleActionOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseCircleActionOut_EaseCircleActionOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseCircleActionInOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseCircleActionInOut_prototype;
-
-bool js_cocos2dx_EaseCircleActionInOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseCircleActionInOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseCircleActionInOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseCircleActionInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseCircleActionInOut_EaseCircleActionInOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseCubicActionIn_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseCubicActionIn_prototype;
-
-bool js_cocos2dx_EaseCubicActionIn_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseCubicActionIn_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseCubicActionIn(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseCubicActionIn_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseCubicActionIn_EaseCubicActionIn(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseCubicActionOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseCubicActionOut_prototype;
-
-bool js_cocos2dx_EaseCubicActionOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseCubicActionOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseCubicActionOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseCubicActionOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseCubicActionOut_EaseCubicActionOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_EaseCubicActionInOut_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_EaseCubicActionInOut_prototype;
-
-bool js_cocos2dx_EaseCubicActionInOut_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_EaseCubicActionInOut_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_EaseCubicActionInOut(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_EaseCubicActionInOut_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_EaseCubicActionInOut_EaseCubicActionInOut(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ActionInstant_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ActionInstant_prototype;
-
-bool js_cocos2dx_ActionInstant_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ActionInstant_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ActionInstant(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-
-extern JSClass  *jsb_cocos2d_Show_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Show_prototype;
-
-bool js_cocos2dx_Show_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Show_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Show(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Show_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Show_Show(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Hide_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Hide_prototype;
-
-bool js_cocos2dx_Hide_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Hide_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Hide(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Hide_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Hide_Hide(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ToggleVisibility_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ToggleVisibility_prototype;
-
-bool js_cocos2dx_ToggleVisibility_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ToggleVisibility_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ToggleVisibility(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ToggleVisibility_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ToggleVisibility_ToggleVisibility(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_RemoveSelf_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_RemoveSelf_prototype;
-
-bool js_cocos2dx_RemoveSelf_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_RemoveSelf_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_RemoveSelf(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_RemoveSelf_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RemoveSelf_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RemoveSelf_RemoveSelf(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_FlipX_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_FlipX_prototype;
-
-bool js_cocos2dx_FlipX_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_FlipX_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_FlipX(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_FlipX_initWithFlipX(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FlipX_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FlipX_FlipX(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_FlipY_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_FlipY_prototype;
-
-bool js_cocos2dx_FlipY_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_FlipY_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_FlipY(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_FlipY_initWithFlipY(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FlipY_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_FlipY_FlipY(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Place_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Place_prototype;
-
-bool js_cocos2dx_Place_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Place_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Place(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Place_initWithPosition(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Place_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Place_Place(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_CallFunc_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_CallFunc_prototype;
-
-bool js_cocos2dx_CallFunc_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_CallFunc_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_CallFunc(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_CallFunc_execute(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_CallFunc_CallFunc(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_CallFuncN_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_CallFuncN_prototype;
-
-bool js_cocos2dx_CallFuncN_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_CallFuncN_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_CallFuncN(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_CallFuncN_CallFuncN(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ActionManager_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ActionManager_prototype;
-
-bool js_cocos2dx_ActionManager_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ActionManager_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ActionManager(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ActionManager_getActionByTag(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ActionManager_removeActionByTag(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ActionManager_removeActionsByFlags(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ActionManager_removeAllActions(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ActionManager_addAction(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ActionManager_resumeTarget(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ActionManager_update(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ActionManager_pauseTarget(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ActionManager_getNumberOfRunningActionsInTarget(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ActionManager_removeAllActionsFromTarget(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ActionManager_resumeTargets(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ActionManager_removeAction(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ActionManager_removeAllActionsByTag(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ActionManager_pauseAllRunningActions(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ActionManager_ActionManager(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_AtlasNode_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_AtlasNode_prototype;
-
-bool js_cocos2dx_AtlasNode_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_AtlasNode_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_AtlasNode(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_AtlasNode_updateAtlasValues(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_AtlasNode_initWithTileFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_AtlasNode_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_AtlasNode_setTextureAtlas(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_AtlasNode_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_AtlasNode_getTextureAtlas(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_AtlasNode_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_AtlasNode_getQuadsToDraw(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_AtlasNode_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_AtlasNode_initWithTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_AtlasNode_setQuadsToDraw(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_AtlasNode_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_AtlasNode_AtlasNode(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ClippingNode_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ClippingNode_prototype;
-
-bool js_cocos2dx_ClippingNode_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ClippingNode_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ClippingNode(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ClippingNode_hasContent(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ClippingNode_setInverted(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ClippingNode_setStencil(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ClippingNode_getAlphaThreshold(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ClippingNode_getStencil(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ClippingNode_setAlphaThreshold(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ClippingNode_isInverted(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ClippingNode_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ClippingNode_ClippingNode(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_DrawNode_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_DrawNode_prototype;
-
-bool js_cocos2dx_DrawNode_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_DrawNode_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_DrawNode(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_DrawNode_drawLine(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_drawPoints(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_drawRect(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_drawSolidCircle(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_setLineWidth(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_onDrawGLPoint(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_drawPolygon(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_drawDot(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_drawCatmullRom(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_drawSegment(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_onDraw(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_drawCircle(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_drawQuadBezier(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_onDrawGLLine(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_drawSolidPoly(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_drawTriangle(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_clear(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_drawCardinalSpline(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_drawSolidRect(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_getLineWidth(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_drawPoint(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_drawCubicBezier(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_DrawNode_DrawNode(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Label_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Label_prototype;
-
-bool js_cocos2dx_Label_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Label_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Label(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Label_isClipMarginEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_enableShadow(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_setDimensions(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getWidth(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getString(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getHeight(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_disableEffect(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getTextColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_enableWrap(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_setWidth(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getAdditionalKerning(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getBMFontSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getMaxLineWidth(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getHorizontalAlignment(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getShadowOffset(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getLineSpacing(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_setClipMarginEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_setString(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_setSystemFontName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_isWrapEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getOutlineSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_setBMFontFilePath(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_initWithTTF(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_setLineHeight(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_setSystemFontSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_setOverflow(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_enableStrikethrough(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_updateContent(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getStringLength(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_setLineBreakWithoutSpace(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getStringNumLines(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_enableOutline(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getShadowBlurRadius(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getEffectColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_removeAllChildrenWithCleanup(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_setCharMap(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getFontDefinition(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getDimensions(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_setMaxLineWidth(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getSystemFontName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_setVerticalAlignment(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_setLineSpacing(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getLineHeight(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getShadowColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_enableItalics(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_setTextColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getLetter(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_setHeight(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_isShadowEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_enableGlow(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getOverflow(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getVerticalAlignment(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_setAdditionalKerning(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getSystemFontSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getTextAlignment(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getBMFontFilePath(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_setHorizontalAlignment(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_enableBold(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_enableUnderline(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_getLabelEffectType(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_setFontDefinition(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_setAlignment(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_requestSystemFontRefresh(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_setBMFontSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_createWithBMFont(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_createWithCharMap(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_createWithSystemFont(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Label_Label(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_LabelTTF_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_LabelTTF_prototype;
-
-bool js_cocos2dx_LabelTTF_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_LabelTTF_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_LabelTTF(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_LabelTTF_getRenderLabel(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LabelTTF_LabelTTF(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Layer_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Layer_prototype;
-
-bool js_cocos2dx_Layer_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Layer_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Layer(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Layer_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Layer_Layer(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_LayerColor_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_LayerColor_prototype;
-
-bool js_cocos2dx_LayerColor_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_LayerColor_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_LayerColor(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_LayerColor_changeWidthAndHeight(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerColor_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerColor_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerColor_changeWidth(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerColor_initWithColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerColor_changeHeight(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerColor_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerColor_LayerColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_LayerGradient_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_LayerGradient_prototype;
-
-bool js_cocos2dx_LayerGradient_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_LayerGradient_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_LayerGradient(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_LayerGradient_getStartColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerGradient_isCompressedInterpolation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerGradient_getStartOpacity(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerGradient_setVector(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerGradient_setStartOpacity(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerGradient_setCompressedInterpolation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerGradient_setEndOpacity(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerGradient_getVector(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerGradient_setEndColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerGradient_initWithColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerGradient_getEndColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerGradient_getEndOpacity(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerGradient_setStartColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerGradient_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerGradient_LayerGradient(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_LayerMultiplex_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_LayerMultiplex_prototype;
-
-bool js_cocos2dx_LayerMultiplex_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_LayerMultiplex_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_LayerMultiplex(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_LayerMultiplex_initWithArray(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerMultiplex_switchToAndReleaseMe(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerMultiplex_addLayer(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerMultiplex_switchTo(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_LayerMultiplex_LayerMultiplex(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_MenuItem_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_MenuItem_prototype;
-
-bool js_cocos2dx_MenuItem_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_MenuItem_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_MenuItem(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_MenuItem_setEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItem_activate(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItem_initWithCallback(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItem_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItem_selected(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItem_isSelected(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItem_setCallback(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItem_unselected(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItem_rect(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItem_MenuItem(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_MenuItemLabel_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_MenuItemLabel_prototype;
-
-bool js_cocos2dx_MenuItemLabel_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_MenuItemLabel_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_MenuItemLabel(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_MenuItemLabel_setLabel(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemLabel_getString(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemLabel_getDisabledColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemLabel_setString(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemLabel_initWithLabel(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemLabel_setDisabledColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemLabel_getLabel(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemLabel_MenuItemLabel(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_MenuItemAtlasFont_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_MenuItemAtlasFont_prototype;
-
-bool js_cocos2dx_MenuItemAtlasFont_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_MenuItemAtlasFont_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_MenuItemAtlasFont(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_MenuItemAtlasFont_initWithString(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemAtlasFont_MenuItemAtlasFont(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_MenuItemFont_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_MenuItemFont_prototype;
-
-bool js_cocos2dx_MenuItemFont_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_MenuItemFont_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_MenuItemFont(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_MenuItemFont_setFontNameObj(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemFont_getFontSizeObj(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemFont_setFontSizeObj(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemFont_initWithString(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemFont_getFontNameObj(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemFont_setFontName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemFont_getFontSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemFont_getFontName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemFont_setFontSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemFont_MenuItemFont(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_MenuItemSprite_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_MenuItemSprite_prototype;
-
-bool js_cocos2dx_MenuItemSprite_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_MenuItemSprite_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_MenuItemSprite(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_MenuItemSprite_setEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemSprite_selected(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemSprite_setNormalImage(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemSprite_setDisabledImage(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemSprite_initWithNormalSprite(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemSprite_setSelectedImage(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemSprite_getDisabledImage(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemSprite_getSelectedImage(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemSprite_getNormalImage(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemSprite_unselected(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemSprite_MenuItemSprite(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_MenuItemImage_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_MenuItemImage_prototype;
-
-bool js_cocos2dx_MenuItemImage_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_MenuItemImage_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_MenuItemImage(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_MenuItemImage_setDisabledSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemImage_setSelectedSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemImage_setNormalSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemImage_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemImage_initWithNormalImage(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemImage_MenuItemImage(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_MenuItemToggle_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_MenuItemToggle_prototype;
-
-bool js_cocos2dx_MenuItemToggle_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_MenuItemToggle_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_MenuItemToggle(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_MenuItemToggle_setSubItems(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemToggle_initWithItem(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemToggle_getSelectedIndex(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemToggle_addSubItem(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemToggle_getSelectedItem(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemToggle_setSelectedIndex(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MenuItemToggle_MenuItemToggle(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Menu_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Menu_prototype;
-
-bool js_cocos2dx_Menu_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Menu_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Menu(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Menu_initWithArray(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Menu_setEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Menu_alignItemsVertically(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Menu_isEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Menu_alignItemsHorizontallyWithPadding(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Menu_alignItemsVerticallyWithPadding(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Menu_alignItemsHorizontally(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Menu_Menu(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_MotionStreak_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_MotionStreak_prototype;
-
-bool js_cocos2dx_MotionStreak_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_MotionStreak_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_MotionStreak(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_MotionStreak_reset(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MotionStreak_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MotionStreak_setMinSeg(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MotionStreak_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MotionStreak_tintWithColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MotionStreak_getMinSeg(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MotionStreak_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MotionStreak_setFadeTime(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MotionStreak_setStartingPositionInitialized(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MotionStreak_getFadeTime(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MotionStreak_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MotionStreak_isStartingPositionInitialized(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MotionStreak_isFastMode(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MotionStreak_getStroke(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MotionStreak_initWithFade(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MotionStreak_setFastMode(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MotionStreak_setStroke(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MotionStreak_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_MotionStreak_MotionStreak(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ParticleBatchNode_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ParticleBatchNode_prototype;
-
-bool js_cocos2dx_ParticleBatchNode_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ParticleBatchNode_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ParticleBatchNode(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ParticleBatchNode_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleBatchNode_initWithTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleBatchNode_disableParticle(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleBatchNode_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleBatchNode_setTextureAtlas(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleBatchNode_initWithFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleBatchNode_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleBatchNode_removeAllChildrenWithCleanup(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleBatchNode_getTextureAtlas(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleBatchNode_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleBatchNode_insertChild(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleBatchNode_removeChildAtIndex(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleBatchNode_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleBatchNode_createWithTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleBatchNode_ParticleBatchNode(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ParticleData_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ParticleData_prototype;
-
-bool js_cocos2dx_ParticleData_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ParticleData_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ParticleData(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ParticleData_release(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleData_getMaxCount(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleData_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleData_copyParticle(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleData_ParticleData(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ParticleSystem_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ParticleSystem_prototype;
-
-bool js_cocos2dx_ParticleSystem_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ParticleSystem_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ParticleSystem(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ParticleSystem_getStartSizeVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_isFull(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getBatchNode(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getStartColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getPositionType(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setPosVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getEndSpin(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setRotatePerSecondVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getStartSpinVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getRadialAccelVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getEndSizeVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setTangentialAccel(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getRadialAccel(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setStartRadius(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setRotatePerSecond(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setEndSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getGravity(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_resumeEmissions(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getTangentialAccel(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setEndRadius(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getSpeed(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_pauseEmissions(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getAngle(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setEndColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setStartSpin(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setDuration(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_initWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_addParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getPosVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_updateWithNoTime(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_isBlendAdditive(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getSpeedVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setPositionType(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_stopSystem(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getSourcePosition(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setLifeVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setEndColorVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getAtlasIndex(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getStartSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setStartSpinVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_resetSystem(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setAtlasIndex(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setTangentialAccelVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setEndRadiusVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getEndRadius(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_isActive(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setRadialAccelVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setStartSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setSpeed(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getStartSpin(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getResourceFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getRotatePerSecond(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setEmitterMode(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getDuration(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setSourcePosition(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_stop(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_updateParticleQuads(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getEndSpinVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setBlendAdditive(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setLife(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setAngleVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setRotationIsDir(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_start(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setEndSizeVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setAngle(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setBatchNode(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getTangentialAccelVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getEmitterMode(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setEndSpinVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_initWithFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getAngleVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setStartColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getRotatePerSecondVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getEndSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getLife(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_isPaused(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setSpeedVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setAutoRemoveOnFinish(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setGravity(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_postStep(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setEmissionRate(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getEndColorVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getRotationIsDir(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getEmissionRate(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getEndColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getLifeVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setStartSizeVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getStartRadius(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getParticleCount(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getStartRadiusVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setStartColorVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setEndSpin(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setRadialAccel(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_initWithDictionary(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_isAutoRemoveOnFinish(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setStartRadiusVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getEndRadiusVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_getStartColorVar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystem_ParticleSystem(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ParticleSystemQuad_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ParticleSystemQuad_prototype;
-
-bool js_cocos2dx_ParticleSystemQuad_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ParticleSystemQuad_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ParticleSystemQuad(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ParticleSystemQuad_setDisplayFrame(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystemQuad_setTextureWithRect(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystemQuad_listenRendererRecreated(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystemQuad_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystemQuad_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSystemQuad_ParticleSystemQuad(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ParticleFire_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ParticleFire_prototype;
-
-bool js_cocos2dx_ParticleFire_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ParticleFire_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ParticleFire(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ParticleFire_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleFire_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleFire_ParticleFire(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ParticleFireworks_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ParticleFireworks_prototype;
-
-bool js_cocos2dx_ParticleFireworks_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ParticleFireworks_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ParticleFireworks(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ParticleFireworks_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleFireworks_initWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleFireworks_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleFireworks_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleFireworks_ParticleFireworks(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ParticleSun_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ParticleSun_prototype;
-
-bool js_cocos2dx_ParticleSun_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ParticleSun_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ParticleSun(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ParticleSun_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSun_initWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSun_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSun_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSun_ParticleSun(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ParticleGalaxy_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ParticleGalaxy_prototype;
-
-bool js_cocos2dx_ParticleGalaxy_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ParticleGalaxy_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ParticleGalaxy(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ParticleGalaxy_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleGalaxy_initWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleGalaxy_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleGalaxy_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleGalaxy_ParticleGalaxy(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ParticleFlower_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ParticleFlower_prototype;
-
-bool js_cocos2dx_ParticleFlower_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ParticleFlower_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ParticleFlower(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ParticleFlower_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleFlower_initWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleFlower_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleFlower_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleFlower_ParticleFlower(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ParticleMeteor_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ParticleMeteor_prototype;
-
-bool js_cocos2dx_ParticleMeteor_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ParticleMeteor_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ParticleMeteor(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ParticleMeteor_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleMeteor_initWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleMeteor_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleMeteor_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleMeteor_ParticleMeteor(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ParticleSpiral_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ParticleSpiral_prototype;
-
-bool js_cocos2dx_ParticleSpiral_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ParticleSpiral_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ParticleSpiral(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ParticleSpiral_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSpiral_initWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSpiral_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSpiral_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSpiral_ParticleSpiral(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ParticleExplosion_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ParticleExplosion_prototype;
-
-bool js_cocos2dx_ParticleExplosion_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ParticleExplosion_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ParticleExplosion(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ParticleExplosion_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleExplosion_initWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleExplosion_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleExplosion_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleExplosion_ParticleExplosion(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ParticleSmoke_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ParticleSmoke_prototype;
-
-bool js_cocos2dx_ParticleSmoke_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ParticleSmoke_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ParticleSmoke(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ParticleSmoke_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSmoke_initWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSmoke_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSmoke_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSmoke_ParticleSmoke(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ParticleSnow_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ParticleSnow_prototype;
-
-bool js_cocos2dx_ParticleSnow_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ParticleSnow_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ParticleSnow(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ParticleSnow_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSnow_initWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSnow_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSnow_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleSnow_ParticleSnow(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ParticleRain_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ParticleRain_prototype;
-
-bool js_cocos2dx_ParticleRain_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ParticleRain_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ParticleRain(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ParticleRain_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleRain_initWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleRain_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleRain_createWithTotalParticles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParticleRain_ParticleRain(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ProtectedNode_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ProtectedNode_prototype;
-
-bool js_cocos2dx_ProtectedNode_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ProtectedNode_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ProtectedNode(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ProtectedNode_addProtectedChild(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ProtectedNode_disableCascadeColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ProtectedNode_removeProtectedChildByTag(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ProtectedNode_reorderProtectedChild(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ProtectedNode_removeAllProtectedChildrenWithCleanup(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ProtectedNode_disableCascadeOpacity(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ProtectedNode_sortAllProtectedChildren(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ProtectedNode_getProtectedChildByTag(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ProtectedNode_removeProtectedChild(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ProtectedNode_removeAllProtectedChildren(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ProtectedNode_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ProtectedNode_ProtectedNode(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Sprite_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Sprite_prototype;
-
-bool js_cocos2dx_Sprite_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Sprite_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Sprite(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Sprite_setSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_setFlippedY(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_setFlippedX(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_setRotationSkewX(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_setRotationSkewY(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_getResourceType(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_initWithTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_getBatchNode(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_getOffsetPosition(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_removeAllChildrenWithCleanup(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_setTextureRect(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_initWithSpriteFrameName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_isFrameDisplayed(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_getAtlasIndex(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_setBatchNode(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_setDisplayFrameWithAnimationName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_setTextureAtlas(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_getSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_getResourceName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_isDirty(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_setAtlasIndex(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_setDirty(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_isTextureRectRotated(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_getTextureRect(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_initWithFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_getTextureAtlas(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_initWithSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_isFlippedX(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_isFlippedY(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_setVertexRect(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Sprite_Sprite(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_RenderTexture_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_RenderTexture_prototype;
-
-bool js_cocos2dx_RenderTexture_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_RenderTexture_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_RenderTexture(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_RenderTexture_setVirtualViewport(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_clearStencil(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_getClearDepth(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_getClearStencil(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_end(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_setClearStencil(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_setSprite(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_getSprite(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_isAutoDraw(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_setKeepMatrix(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_setClearFlags(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_begin(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_setAutoDraw(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_setClearColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_beginWithClear(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_clearDepth(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_getClearColor(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_clear(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_getClearFlags(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_newImage(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_setClearDepth(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_initWithWidthAndHeight(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderTexture_RenderTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_GLProgram_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_GLProgram_prototype;
-
-bool js_cocos2dx_GLProgram_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_GLProgram_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_GLProgram(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_GLProgram_getFragmentShaderLog(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_bindAttribLocation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_getUniformLocationForName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_use(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_getVertexShaderLog(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_getUniform(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_initWithByteArrays(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_setUniformLocationWith1f(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_initWithFilenames(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_setUniformLocationWith3f(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_setUniformsForBuiltins(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_setUniformLocationWith3i(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_setUniformLocationWith4f(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_updateUniforms(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_getUniformLocation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_link(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_reset(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_getAttribLocation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_setUniformLocationWith2f(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_setUniformLocationWith4i(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_setUniformLocationWith1i(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_setUniformLocationWith2i(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_createWithByteArrays(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_createWithFilenames(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgram_GLProgram(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_GLProgramCache_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_GLProgramCache_prototype;
-
-bool js_cocos2dx_GLProgramCache_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_GLProgramCache_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_GLProgramCache(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_GLProgramCache_loadDefaultGLPrograms(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramCache_reloadDefaultGLProgramsRelativeToLights(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramCache_addGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramCache_reloadDefaultGLPrograms(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramCache_getGLProgram(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramCache_destroyInstance(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramCache_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_GLProgramCache_GLProgramCache(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_RenderState_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_RenderState_prototype;
-
-bool js_cocos2dx_RenderState_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_RenderState_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_RenderState(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_RenderState_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderState_getTopmost(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderState_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderState_bind(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderState_getName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderState_getStateBlock(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderState_setParent(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderState_initialize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_RenderState_finalize(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Pass_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Pass_prototype;
-
-bool js_cocos2dx_Pass_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Pass_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Pass(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Pass_unbind(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Pass_bind(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Pass_clone(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Pass_getGLProgramState(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Pass_getVertexAttributeBinding(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Pass_getHash(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Pass_setVertexAttribBinding(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Pass_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Pass_createWithGLProgramState(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Material_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Material_prototype;
-
-bool js_cocos2dx_Material_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Material_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Material(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Material_clone(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Material_getTechniqueCount(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Material_setName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Material_getTechniqueByIndex(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Material_getName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Material_getTechniques(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Material_setTechnique(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Material_getTechniqueByName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Material_addTechnique(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Material_getTechnique(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Material_createWithFilename(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Material_createWithGLStateProgram(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Material_createWithProperties(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_TextureCache_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_TextureCache_prototype;
-
-bool js_cocos2dx_TextureCache_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_TextureCache_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_TextureCache(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_TextureCache_reloadTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextureCache_unbindAllImageAsync(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextureCache_removeTextureForKey(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextureCache_removeAllTextures(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextureCache_addImageAsync(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextureCache_getAllTextures(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextureCache_getDescription(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextureCache_getCachedTextureInfo(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextureCache_addImage(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextureCache_unbindImageAsync(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextureCache_getTextureForKey(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextureCache_getTextureFilePath(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextureCache_renameTextureWithKey(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextureCache_removeUnusedTextures(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextureCache_removeTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextureCache_waitForQuit(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextureCache_TextureCache(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Device_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Device_prototype;
-
-bool js_cocos2dx_Device_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Device_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Device(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Device_setAccelerometerEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Device_setAccelerometerInterval(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Device_setKeepScreenOn(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Device_vibrate(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Device_getDPI(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_SAXParser_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_SAXParser_prototype;
-
-bool js_cocos2dx_SAXParser_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_SAXParser_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_SAXParser(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_SAXParser_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_Application_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_Application_prototype;
-
-bool js_cocos2dx_Application_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_Application_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_Application(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_Application_getTargetPlatform(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Application_getCurrentLanguage(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Application_openURL(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Application_getVersion(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Application_destroyInstance(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_Application_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_SpriteBatchNode_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_SpriteBatchNode_prototype;
-
-bool js_cocos2dx_SpriteBatchNode_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_SpriteBatchNode_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_SpriteBatchNode(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_SpriteBatchNode_appendChild(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteBatchNode_addSpriteWithoutQuad(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteBatchNode_reorderBatch(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteBatchNode_initWithTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteBatchNode_getBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteBatchNode_lowestAtlasIndexInChild(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteBatchNode_atlasIndexForChild(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteBatchNode_setTextureAtlas(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteBatchNode_initWithFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteBatchNode_getTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteBatchNode_increaseAtlasCapacity(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteBatchNode_getTextureAtlas(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteBatchNode_insertQuadFromSprite(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteBatchNode_setTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteBatchNode_rebuildIndexInOrder(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteBatchNode_highestAtlasIndexInChild(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteBatchNode_removeChildAtIndex(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteBatchNode_removeSpriteFromAtlas(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteBatchNode_setBlendFunc(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteBatchNode_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteBatchNode_createWithTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteBatchNode_SpriteBatchNode(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_SpriteFrameCache_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_SpriteFrameCache_prototype;
-
-bool js_cocos2dx_SpriteFrameCache_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_SpriteFrameCache_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_SpriteFrameCache(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_SpriteFrameCache_reloadTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrameCache_addSpriteFramesWithFileContent(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrameCache_addSpriteFrame(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrameCache_addSpriteFramesWithFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrameCache_getSpriteFrameByName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrameCache_removeSpriteFramesFromFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrameCache_init(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrameCache_removeSpriteFrames(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrameCache_removeUnusedSpriteFrames(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrameCache_removeSpriteFramesFromFileContent(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrameCache_removeSpriteFrameByName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrameCache_isSpriteFramesWithFileLoaded(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrameCache_removeSpriteFramesFromTexture(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrameCache_destroyInstance(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_SpriteFrameCache_getInstance(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_TextFieldTTF_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_TextFieldTTF_prototype;
-
-bool js_cocos2dx_TextFieldTTF_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_TextFieldTTF_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_TextFieldTTF(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_TextFieldTTF_getCharCount(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextFieldTTF_setCursorChar(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextFieldTTF_setSecureTextEntry(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextFieldTTF_setCursorEnabled(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextFieldTTF_getColorSpaceHolder(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextFieldTTF_initWithPlaceHolder(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextFieldTTF_appendString(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextFieldTTF_getPasswordTextStyle(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextFieldTTF_setPasswordTextStyle(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextFieldTTF_setColorSpaceHolder(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextFieldTTF_detachWithIME(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextFieldTTF_setPlaceHolder(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextFieldTTF_setCursorFromPoint(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextFieldTTF_isSecureTextEntry(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextFieldTTF_getPlaceHolder(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextFieldTTF_setCursorPosition(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextFieldTTF_attachWithIME(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextFieldTTF_textFieldWithPlaceHolder(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TextFieldTTF_TextFieldTTF(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_ParallaxNode_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_ParallaxNode_prototype;
-
-bool js_cocos2dx_ParallaxNode_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_ParallaxNode_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_ParallaxNode(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_ParallaxNode_addChild(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParallaxNode_removeAllChildrenWithCleanup(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParallaxNode_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_ParallaxNode_ParallaxNode(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_TMXObject_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_TMXObject_prototype;
-
-bool js_cocos2dx_TMXObject_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_TMXObject_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_TMXObject(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_TMXObject_getGid(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObject_setObjectName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObject_getObjectSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObject_getProperty(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObject_getObjectVisible(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObject_getType(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObject_getId(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObject_getObjectRotation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObject_getProperties(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObject_getOffset(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObject_setProperties(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObject_getObjectName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObject_getNode(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObject_TMXObject(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_TMXObjectImage_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_TMXObjectImage_prototype;
-
-bool js_cocos2dx_TMXObjectImage_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_TMXObjectImage_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_TMXObjectImage(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_TMXObjectImage_TMXObjectImage(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_TMXObjectShape_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_TMXObjectShape_prototype;
-
-bool js_cocos2dx_TMXObjectShape_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_TMXObjectShape_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_TMXObjectShape(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_TMXObjectShape_TMXObjectShape(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_TMXObjectGroup_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_TMXObjectGroup_prototype;
-
-bool js_cocos2dx_TMXObjectGroup_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_TMXObjectGroup_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_TMXObjectGroup(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_TMXObjectGroup_setPositionOffset(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObjectGroup_getProperty(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObjectGroup_getPositionOffset(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObjectGroup_getObject(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObjectGroup_getObjects(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObjectGroup_setGroupName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObjectGroup_getProperties(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObjectGroup_getGroupName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObjectGroup_setProperties(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObjectGroup_TMXObjectGroup(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_TMXLayerInfo_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_TMXLayerInfo_prototype;
-
-bool js_cocos2dx_TMXLayerInfo_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_TMXLayerInfo_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_TMXLayerInfo(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_TMXLayerInfo_setProperties(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayerInfo_getProperties(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayerInfo_TMXLayerInfo(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_TMXObjectGroupInfo_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_TMXObjectGroupInfo_prototype;
-
-bool js_cocos2dx_TMXObjectGroupInfo_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_TMXObjectGroupInfo_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_TMXObjectGroupInfo(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_TMXObjectGroupInfo_setProperties(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObjectGroupInfo_getProperties(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXObjectGroupInfo_TMXObjectGroupInfo(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_TMXTilesetInfo_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_TMXTilesetInfo_prototype;
-
-bool js_cocos2dx_TMXTilesetInfo_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_TMXTilesetInfo_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_TMXTilesetInfo(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_TMXTilesetInfo_getRectForGID(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXTilesetInfo_TMXTilesetInfo(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_TMXMapInfo_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_TMXMapInfo_prototype;
-
-bool js_cocos2dx_TMXMapInfo_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_TMXMapInfo_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_TMXMapInfo(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_TMXMapInfo_getAllChildren(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_getHexSideLength(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_setTileSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_initWithTMXFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_getOrientation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_setObjectGroups(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_setLayers(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_parseXMLFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_getParentElement(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_setTMXFileName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_parseXMLString(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_getLayers(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_getStaggerAxis(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_setHexSideLength(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_getTilesets(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_getParentGID(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_setParentElement(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_initWithXML(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_setParentGID(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_getLayerAttribs(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_getTileSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_setAllChildren(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_getTileProperties(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_isStoringCharacters(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_getExternalTilesetFileName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_getObjectGroups(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_getTMXFileName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_setStaggerIndex(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_setCurrentString(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_setProperties(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_setOrientation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_setTileProperties(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_setMapSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_getCurrentString(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_setStoringCharacters(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_setStaggerAxis(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_getMapSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_setTilesets(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_getProperties(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_getStaggerIndex(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_setLayerAttribs(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_createWithXML(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXMapInfo_TMXMapInfo(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_TMXLayer_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_TMXLayer_prototype;
-
-bool js_cocos2dx_TMXLayer_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_TMXLayer_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_TMXLayer(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_TMXLayer_getTileGIDAt(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_getPositionAt(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_setLayerOrientation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_setTileOpacity(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_releaseMap(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_getLayerSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_setMapTileSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_getLayerOrientation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_setProperties(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_setLayerName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_removeTileAt(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_initWithTilesetInfo(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_setupTiles(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_setTileGID(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_getMapTileSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_getProperty(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_setLayerSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_getLayerName(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_setTileSet(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_getTileSet(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_getProperties(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_getTileAt(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXLayer_TMXLayer(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_TMXTiledMap_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_TMXTiledMap_prototype;
-
-bool js_cocos2dx_TMXTiledMap_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_TMXTiledMap_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_TMXTiledMap(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_TMXTiledMap_getProperty(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXTiledMap_getLayerNum(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXTiledMap_setMapSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXTiledMap_getObjectGroup(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXTiledMap_getObjectGroups(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXTiledMap_getResourceFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXTiledMap_initWithTMXFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXTiledMap_getTileSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXTiledMap_getMapSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXTiledMap_initWithXML(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXTiledMap_getProperties(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXTiledMap_getPropertiesForGID(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXTiledMap_setTileSize(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXTiledMap_setProperties(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXTiledMap_getLayer(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXTiledMap_getMapOrientation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXTiledMap_setMapOrientation(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXTiledMap_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXTiledMap_createWithXML(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TMXTiledMap_TMXTiledMap(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-extern JSClass  *jsb_cocos2d_TileMapAtlas_class;
-extern JS::PersistentRootedObject *jsb_cocos2d_TileMapAtlas_prototype;
-
-bool js_cocos2dx_TileMapAtlas_constructor(JSContext *cx, uint32_t argc, JS::Value *vp);
-void js_cocos2dx_TileMapAtlas_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_TileMapAtlas(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_TileMapAtlas_initWithTileFile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TileMapAtlas_releaseMap(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TileMapAtlas_getTileAt(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TileMapAtlas_setTile(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TileMapAtlas_create(JSContext *cx, uint32_t argc, JS::Value *vp);
-bool js_cocos2dx_TileMapAtlas_TileMapAtlas(JSContext *cx, uint32_t argc, JS::Value *vp);
-
-#endif // __cocos2dx_h__
+
+#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
+
+extern se::Object* __jsb_cocos2d_Acceleration_proto;
+extern se::Class* __jsb_cocos2d_Acceleration_class;
+
+bool js_register_cocos2d_Acceleration(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Acceleration_Acceleration);
+
+extern se::Object* __jsb_cocos2d_Texture2D_proto;
+extern se::Class* __jsb_cocos2d_Texture2D_class;
+
+bool js_register_cocos2d_Texture2D(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_getGLProgram);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_getMaxT);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_setAlphaTexture);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_getStringForFormat);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_initWithImage);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_setGLProgram);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_getMaxS);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_hasPremultipliedAlpha);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_getPixelsHigh);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_getAlphaTextureName);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_getBitsPerPixelForFormat);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_getName);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_initWithString);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_setMaxT);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_getPath);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_drawInRect);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_getContentSize);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_setAliasTexParameters);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_setAntiAliasTexParameters);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_generateMipmap);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_getDescription);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_getPixelFormat);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_getContentSizeInPixels);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_releaseGLTexture);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_getPixelsWide);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_drawAtPoint);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_hasMipmaps);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_setMaxS);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_setDefaultAlphaPixelFormat);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_getDefaultAlphaPixelFormat);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_Texture2D);
+
+extern se::Object* __jsb_cocos2d_Touch_proto;
+extern se::Class* __jsb_cocos2d_Touch_class;
+
+bool js_register_cocos2d_Touch(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Touch_getPreviousLocationInView);
+SE_DECLARE_FUNC(js_cocos2dx_Touch_getLocation);
+SE_DECLARE_FUNC(js_cocos2dx_Touch_getDelta);
+SE_DECLARE_FUNC(js_cocos2dx_Touch_getStartLocationInView);
+SE_DECLARE_FUNC(js_cocos2dx_Touch_getCurrentForce);
+SE_DECLARE_FUNC(js_cocos2dx_Touch_getStartLocation);
+SE_DECLARE_FUNC(js_cocos2dx_Touch_getID);
+SE_DECLARE_FUNC(js_cocos2dx_Touch_setTouchInfo);
+SE_DECLARE_FUNC(js_cocos2dx_Touch_getMaxForce);
+SE_DECLARE_FUNC(js_cocos2dx_Touch_getLocationInView);
+SE_DECLARE_FUNC(js_cocos2dx_Touch_getPreviousLocation);
+SE_DECLARE_FUNC(js_cocos2dx_Touch_Touch);
+
+extern se::Object* __jsb_cocos2d_Event_proto;
+extern se::Class* __jsb_cocos2d_Event_class;
+
+bool js_register_cocos2d_Event(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Event_isStopped);
+SE_DECLARE_FUNC(js_cocos2dx_Event_getType);
+SE_DECLARE_FUNC(js_cocos2dx_Event_getCurrentTarget);
+SE_DECLARE_FUNC(js_cocos2dx_Event_stopPropagation);
+SE_DECLARE_FUNC(js_cocos2dx_Event_Event);
+
+extern se::Object* __jsb_cocos2d_EventTouch_proto;
+extern se::Class* __jsb_cocos2d_EventTouch_class;
+
+bool js_register_cocos2d_EventTouch(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EventTouch_getEventCode);
+SE_DECLARE_FUNC(js_cocos2dx_EventTouch_setTouches);
+SE_DECLARE_FUNC(js_cocos2dx_EventTouch_setEventCode);
+SE_DECLARE_FUNC(js_cocos2dx_EventTouch_getTouches);
+SE_DECLARE_FUNC(js_cocos2dx_EventTouch_EventTouch);
+
+extern se::Object* __jsb_cocos2d_ComponentContainer_proto;
+extern se::Class* __jsb_cocos2d_ComponentContainer_class;
+
+bool js_register_cocos2d_ComponentContainer(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ComponentContainer_visit);
+SE_DECLARE_FUNC(js_cocos2dx_ComponentContainer_remove);
+SE_DECLARE_FUNC(js_cocos2dx_ComponentContainer_removeAll);
+SE_DECLARE_FUNC(js_cocos2dx_ComponentContainer_add);
+SE_DECLARE_FUNC(js_cocos2dx_ComponentContainer_isEmpty);
+SE_DECLARE_FUNC(js_cocos2dx_ComponentContainer_get);
+
+extern se::Object* __jsb_cocos2d_Component_proto;
+extern se::Class* __jsb_cocos2d_Component_class;
+
+bool js_register_cocos2d_Component(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Component_setEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_Component_setName);
+SE_DECLARE_FUNC(js_cocos2dx_Component_isEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_Component_getOwner);
+SE_DECLARE_FUNC(js_cocos2dx_Component_init);
+SE_DECLARE_FUNC(js_cocos2dx_Component_setOwner);
+SE_DECLARE_FUNC(js_cocos2dx_Component_getName);
+SE_DECLARE_FUNC(js_cocos2dx_Component_create);
+SE_DECLARE_FUNC(js_cocos2dx_Component_Component);
+
+extern se::Object* __jsb_cocos2d_Node_proto;
+extern se::Class* __jsb_cocos2d_Node_class;
+
+bool js_register_cocos2d_Node(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Node_addChild);
+SE_DECLARE_FUNC(js_cocos2dx_Node_removeComponent);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getGLProgram);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getDescription);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setOpacityModifyRGB);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setCascadeOpacityEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getChildren);
+SE_DECLARE_FUNC(js_cocos2dx_Node_markTransformUpdated);
+SE_DECLARE_FUNC(js_cocos2dx_Node_pause);
+SE_DECLARE_FUNC(js_cocos2dx_Node_convertToWorldSpaceAR);
+SE_DECLARE_FUNC(js_cocos2dx_Node_isIgnoreAnchorPointForPosition);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getChildByName);
+SE_DECLARE_FUNC(js_cocos2dx_Node_updateDisplayedOpacity);
+SE_DECLARE_FUNC(js_cocos2dx_Node_init);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getBeforeVisitCallback);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getCameraMask);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setRotation);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setScaleZ);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setScaleY);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setScaleX);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getColor);
+SE_DECLARE_FUNC(js_cocos2dx_Node_removeAllComponents);
+SE_DECLARE_FUNC(js_cocos2dx_Node__setLocalZOrder);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setCameraMask);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getTag);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setAfterVisitCallback);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getNodeToWorldAffineTransform);
+SE_DECLARE_FUNC(js_cocos2dx_Node_removeChild);
+SE_DECLARE_FUNC(js_cocos2dx_Node_convertToWorldSpace);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getScene);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getEventDispatcher);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setSkewX);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setGLProgramState);
+SE_DECLARE_FUNC(js_cocos2dx_Node_stopActionsByFlags);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setNormalizedPosition);
+SE_DECLARE_FUNC(js_cocos2dx_Node_convertTouchToNodeSpace);
+SE_DECLARE_FUNC(js_cocos2dx_Node_removeAllChildrenWithCleanup);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getRotationSkewX);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getRotationSkewY);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getNodeToWorldTransform);
+SE_DECLARE_FUNC(js_cocos2dx_Node_isCascadeOpacityEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setParent);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getName);
+SE_DECLARE_FUNC(js_cocos2dx_Node_resume);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getNodeToParentAffineTransform);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getAfterVisitCallback);
+SE_DECLARE_FUNC(js_cocos2dx_Node_isOpacityModifyRGB);
+SE_DECLARE_FUNC(js_cocos2dx_Node_stopActionByTag);
+SE_DECLARE_FUNC(js_cocos2dx_Node_reorderChild);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setSkewY);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setColor);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setPositionY);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setPositionX);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setNodeToParentTransform);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getAnchorPoint);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getNumberOfRunningActions);
+SE_DECLARE_FUNC(js_cocos2dx_Node_updateTransform);
+SE_DECLARE_FUNC(js_cocos2dx_Node_isVisible);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getChildrenCount);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getNodeToParentTransform);
+SE_DECLARE_FUNC(js_cocos2dx_Node_convertToNodeSpaceAR);
+SE_DECLARE_FUNC(js_cocos2dx_Node_addComponent);
+SE_DECLARE_FUNC(js_cocos2dx_Node_runAction);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setGLProgram);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getRotation);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getAnchorPointInPoints);
+SE_DECLARE_FUNC(js_cocos2dx_Node_visit);
+SE_DECLARE_FUNC(js_cocos2dx_Node_removeChildByName);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setPositionZ);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getGLProgramState);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setScheduler);
+SE_DECLARE_FUNC(js_cocos2dx_Node_stopAllActions);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getSkewX);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getSkewY);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getDisplayedColor);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getActionByTag);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setRotationSkewX);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setRotationSkewY);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setName);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getDisplayedOpacity);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getLocalZOrder);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getScheduler);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setBeforeVisitCallback);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setActionManager);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getPosition);
+SE_DECLARE_FUNC(js_cocos2dx_Node_insertChildBefore);
+SE_DECLARE_FUNC(js_cocos2dx_Node_isRunning);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getParent);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getWorldToNodeTransform);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getPositionY);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getPositionX);
+SE_DECLARE_FUNC(js_cocos2dx_Node_removeChildByTag);
+SE_DECLARE_FUNC(js_cocos2dx_Node_updateDisplayedColor);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setVisible);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getParentToNodeAffineTransform);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getPositionZ);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setGlobalZOrder);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setScale);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getChildByTag);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getScaleZ);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getScaleY);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getScaleX);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setLocalZOrder);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setCascadeColorEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setOpacity);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getComponent);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getContentSize);
+SE_DECLARE_FUNC(js_cocos2dx_Node_stopAllActionsByTag);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getBoundingBox);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setIgnoreAnchorPointForPosition);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setEventDispatcher);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getGlobalZOrder);
+SE_DECLARE_FUNC(js_cocos2dx_Node_draw);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setUserObject);
+SE_DECLARE_FUNC(js_cocos2dx_Node_enumerateChildren);
+SE_DECLARE_FUNC(js_cocos2dx_Node_removeFromParentAndCleanup);
+SE_DECLARE_FUNC(js_cocos2dx_Node_convertTouchToNodeSpaceAR);
+SE_DECLARE_FUNC(js_cocos2dx_Node_update);
+SE_DECLARE_FUNC(js_cocos2dx_Node_sortAllChildren);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getWorldToNodeAffineTransform);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getScale);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getOpacity);
+SE_DECLARE_FUNC(js_cocos2dx_Node_updateOrderOfArrival);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getNormalizedPosition);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getParentToNodeTransform);
+SE_DECLARE_FUNC(js_cocos2dx_Node_convertToNodeSpace);
+SE_DECLARE_FUNC(js_cocos2dx_Node_setTag);
+SE_DECLARE_FUNC(js_cocos2dx_Node_isCascadeColorEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_Node_stopAction);
+SE_DECLARE_FUNC(js_cocos2dx_Node_getActionManager);
+SE_DECLARE_FUNC(js_cocos2dx_Node_create);
+SE_DECLARE_FUNC(js_cocos2dx_Node_Node);
+
+extern se::Object* __jsb_cocos2d_Scene_proto;
+extern se::Class* __jsb_cocos2d_Scene_class;
+
+bool js_register_cocos2d_Scene(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Scene_initWithSize);
+SE_DECLARE_FUNC(js_cocos2dx_Scene_render);
+SE_DECLARE_FUNC(js_cocos2dx_Scene_createWithSize);
+SE_DECLARE_FUNC(js_cocos2dx_Scene_create);
+SE_DECLARE_FUNC(js_cocos2dx_Scene_Scene);
+
+extern se::Object* __jsb_cocos2d_GLView_proto;
+extern se::Class* __jsb_cocos2d_GLView_class;
+
+bool js_register_cocos2d_GLView(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_setFrameSize);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_getViewPortRect);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_setContentScaleFactor);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_getContentScaleFactor);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_setIMEKeyboardState);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_isAntiAliasEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_setScissorInPoints);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_getViewName);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_isOpenGLReady);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_setCursorVisible);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_getScaleY);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_getScaleX);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_getVisibleOrigin);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_getFrameSize);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_setFrameZoomFactor);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_getFrameZoomFactor);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_getDesignResolutionSize);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_windowShouldClose);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_setDesignResolutionSize);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_getResolutionPolicy);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_isRetinaDisplay);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_renderScene);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_setViewPortInPoints);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_getScissorRect);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_enableAntiAlias);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_getRetinaFactor);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_setViewName);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_getVisibleRect);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_getVisibleSize);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_isScissorEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_GLView_pollEvents);
+
+extern se::Object* __jsb_cocos2d_Director_proto;
+extern se::Class* __jsb_cocos2d_Director_class;
+
+bool js_register_cocos2d_Director(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Director_pause);
+SE_DECLARE_FUNC(js_cocos2dx_Director_isPurgeDirectorInNextLoop);
+SE_DECLARE_FUNC(js_cocos2dx_Director_setEventDispatcher);
+SE_DECLARE_FUNC(js_cocos2dx_Director_setContentScaleFactor);
+SE_DECLARE_FUNC(js_cocos2dx_Director_getContentScaleFactor);
+SE_DECLARE_FUNC(js_cocos2dx_Director_getWinSizeInPixels);
+SE_DECLARE_FUNC(js_cocos2dx_Director_getDeltaTime);
+SE_DECLARE_FUNC(js_cocos2dx_Director_setGLDefaultValues);
+SE_DECLARE_FUNC(js_cocos2dx_Director_setActionManager);
+SE_DECLARE_FUNC(js_cocos2dx_Director_setAlphaBlending);
+SE_DECLARE_FUNC(js_cocos2dx_Director_popToRootScene);
+SE_DECLARE_FUNC(js_cocos2dx_Director_loadMatrix);
+SE_DECLARE_FUNC(js_cocos2dx_Director_getNotificationNode);
+SE_DECLARE_FUNC(js_cocos2dx_Director_getWinSize);
+SE_DECLARE_FUNC(js_cocos2dx_Director_end);
+SE_DECLARE_FUNC(js_cocos2dx_Director_getTextureCache);
+SE_DECLARE_FUNC(js_cocos2dx_Director_isSendCleanupToScene);
+SE_DECLARE_FUNC(js_cocos2dx_Director_getVisibleOrigin);
+SE_DECLARE_FUNC(js_cocos2dx_Director_mainLoop);
+SE_DECLARE_FUNC(js_cocos2dx_Director_setDepthTest);
+SE_DECLARE_FUNC(js_cocos2dx_Director_getFrameRate);
+SE_DECLARE_FUNC(js_cocos2dx_Director_getSecondsPerFrame);
+SE_DECLARE_FUNC(js_cocos2dx_Director_resetMatrixStack);
+SE_DECLARE_FUNC(js_cocos2dx_Director_convertToUI);
+SE_DECLARE_FUNC(js_cocos2dx_Director_pushMatrix);
+SE_DECLARE_FUNC(js_cocos2dx_Director_setDefaultValues);
+SE_DECLARE_FUNC(js_cocos2dx_Director_init);
+SE_DECLARE_FUNC(js_cocos2dx_Director_setScheduler);
+SE_DECLARE_FUNC(js_cocos2dx_Director_getMatrix);
+SE_DECLARE_FUNC(js_cocos2dx_Director_isValid);
+SE_DECLARE_FUNC(js_cocos2dx_Director_startAnimation);
+SE_DECLARE_FUNC(js_cocos2dx_Director_getOpenGLView);
+SE_DECLARE_FUNC(js_cocos2dx_Director_getRunningScene);
+SE_DECLARE_FUNC(js_cocos2dx_Director_setViewport);
+SE_DECLARE_FUNC(js_cocos2dx_Director_stopAnimation);
+SE_DECLARE_FUNC(js_cocos2dx_Director_popToSceneStackLevel);
+SE_DECLARE_FUNC(js_cocos2dx_Director_resume);
+SE_DECLARE_FUNC(js_cocos2dx_Director_isNextDeltaTimeZero);
+SE_DECLARE_FUNC(js_cocos2dx_Director_setClearColor);
+SE_DECLARE_FUNC(js_cocos2dx_Director_setOpenGLView);
+SE_DECLARE_FUNC(js_cocos2dx_Director_convertToGL);
+SE_DECLARE_FUNC(js_cocos2dx_Director_purgeCachedData);
+SE_DECLARE_FUNC(js_cocos2dx_Director_getTotalFrames);
+SE_DECLARE_FUNC(js_cocos2dx_Director_runWithScene);
+SE_DECLARE_FUNC(js_cocos2dx_Director_setNotificationNode);
+SE_DECLARE_FUNC(js_cocos2dx_Director_drawScene);
+SE_DECLARE_FUNC(js_cocos2dx_Director_restart);
+SE_DECLARE_FUNC(js_cocos2dx_Director_popScene);
+SE_DECLARE_FUNC(js_cocos2dx_Director_loadIdentityMatrix);
+SE_DECLARE_FUNC(js_cocos2dx_Director_isDisplayStats);
+SE_DECLARE_FUNC(js_cocos2dx_Director_setProjection);
+SE_DECLARE_FUNC(js_cocos2dx_Director_multiplyMatrix);
+SE_DECLARE_FUNC(js_cocos2dx_Director_getZEye);
+SE_DECLARE_FUNC(js_cocos2dx_Director_setNextDeltaTimeZero);
+SE_DECLARE_FUNC(js_cocos2dx_Director_popMatrix);
+SE_DECLARE_FUNC(js_cocos2dx_Director_getVisibleSize);
+SE_DECLARE_FUNC(js_cocos2dx_Director_getScheduler);
+SE_DECLARE_FUNC(js_cocos2dx_Director_pushScene);
+SE_DECLARE_FUNC(js_cocos2dx_Director_getAnimationInterval);
+SE_DECLARE_FUNC(js_cocos2dx_Director_isPaused);
+SE_DECLARE_FUNC(js_cocos2dx_Director_setDisplayStats);
+SE_DECLARE_FUNC(js_cocos2dx_Director_getEventDispatcher);
+SE_DECLARE_FUNC(js_cocos2dx_Director_replaceScene);
+SE_DECLARE_FUNC(js_cocos2dx_Director_setAnimationInterval);
+SE_DECLARE_FUNC(js_cocos2dx_Director_getActionManager);
+SE_DECLARE_FUNC(js_cocos2dx_Director_getInstance);
+
+extern se::Object* __jsb_cocos2d_Scheduler_proto;
+extern se::Class* __jsb_cocos2d_Scheduler_class;
+
+bool js_register_cocos2d_Scheduler(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Scheduler_setTimeScale);
+SE_DECLARE_FUNC(js_cocos2dx_Scheduler_isCurrentTargetSalvaged);
+SE_DECLARE_FUNC(js_cocos2dx_Scheduler_update);
+SE_DECLARE_FUNC(js_cocos2dx_Scheduler_unscheduleScriptEntry);
+SE_DECLARE_FUNC(js_cocos2dx_Scheduler_unscheduleAll);
+SE_DECLARE_FUNC(js_cocos2dx_Scheduler_getTimeScale);
+SE_DECLARE_FUNC(js_cocos2dx_Scheduler_unscheduleAllWithMinPriority);
+SE_DECLARE_FUNC(js_cocos2dx_Scheduler_Scheduler);
+
+extern se::Object* __jsb_cocos2d_AsyncTaskPool_proto;
+extern se::Class* __jsb_cocos2d_AsyncTaskPool_class;
+
+bool js_register_cocos2d_AsyncTaskPool(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_AsyncTaskPool_stopTasks);
+SE_DECLARE_FUNC(js_cocos2dx_AsyncTaskPool_destroyInstance);
+SE_DECLARE_FUNC(js_cocos2dx_AsyncTaskPool_getInstance);
+
+extern se::Object* __jsb_cocos2d_Configuration_proto;
+extern se::Class* __jsb_cocos2d_Configuration_class;
+
+bool js_register_cocos2d_Configuration(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_supportsPVRTC);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_supportsOESDepth24);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_getMaxModelviewStackDepth);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_supportsShareableVAO);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_supportsBGRA8888);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_checkForGLExtension);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_supportsNPOT);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_init);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_getMaxSupportPointLightInShader);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_getMaxTextureSize);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_setValue);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_getMaxSupportSpotLightInShader);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_supportsETC);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_getMaxSupportDirLightInShader);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_loadConfigFile);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_supportsDiscardFramebuffer);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_supportsOESPackedDepthStencil);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_getInfo);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_getMaxTextureUnits);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_getValue);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_gatherGPUInfo);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_supportsMapBuffer);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_destroyInstance);
+SE_DECLARE_FUNC(js_cocos2dx_Configuration_getInstance);
+
+extern se::Object* __jsb_cocos2d_FileUtils_proto;
+extern se::Class* __jsb_cocos2d_FileUtils_class;
+
+bool js_register_cocos2d_FileUtils(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_writeDataToFile);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_fullPathForFilename);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_getStringFromFile);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_removeFile);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_getDataFromFile);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_isAbsolutePath);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_renameFile);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_loadFilenameLookupDictionaryFromFile);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_isPopupNotify);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_getValueVectorFromFile);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_getSearchPaths);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_writeToFile);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_listFiles);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_getValueMapFromFile);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_getFileSize);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_getValueMapFromData);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_removeDirectory);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_setSearchPaths);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_writeStringToFile);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_setSearchResolutionsOrder);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_addSearchResolutionsOrder);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_addSearchPath);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_writeValueVectorToFile);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_isFileExist);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_purgeCachedEntries);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_fullPathFromRelativeFile);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_getSuitableFOpen);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_writeValueMapToFile);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_getFileExtension);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_setWritablePath);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_setPopupNotify);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_isDirectoryExist);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_setDefaultResourceRootPath);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_getSearchResolutionsOrder);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_createDirectory);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_listFilesRecursively);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_getWritablePath);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_setDelegate);
+SE_DECLARE_FUNC(js_cocos2dx_FileUtils_getInstance);
+
+extern se::Object* __jsb_cocos2d_EventAcceleration_proto;
+extern se::Class* __jsb_cocos2d_EventAcceleration_class;
+
+bool js_register_cocos2d_EventAcceleration(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EventAcceleration_EventAcceleration);
+
+extern se::Object* __jsb_cocos2d_EventCustom_proto;
+extern se::Class* __jsb_cocos2d_EventCustom_class;
+
+bool js_register_cocos2d_EventCustom(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EventCustom_getEventName);
+SE_DECLARE_FUNC(js_cocos2dx_EventCustom_EventCustom);
+
+extern se::Object* __jsb_cocos2d_EventListener_proto;
+extern se::Class* __jsb_cocos2d_EventListener_class;
+
+bool js_register_cocos2d_EventListener(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EventListener_setEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_EventListener_isEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_EventListener_clone);
+SE_DECLARE_FUNC(js_cocos2dx_EventListener_checkAvailable);
+
+extern se::Object* __jsb_cocos2d_EventDispatcher_proto;
+extern se::Class* __jsb_cocos2d_EventDispatcher_class;
+
+bool js_register_cocos2d_EventDispatcher(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EventDispatcher_setEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_EventDispatcher_removeAllEventListeners);
+SE_DECLARE_FUNC(js_cocos2dx_EventDispatcher_addEventListenerWithSceneGraphPriority);
+SE_DECLARE_FUNC(js_cocos2dx_EventDispatcher_addCustomEventListener);
+SE_DECLARE_FUNC(js_cocos2dx_EventDispatcher_addEventListenerWithFixedPriority);
+SE_DECLARE_FUNC(js_cocos2dx_EventDispatcher_removeEventListenersForTarget);
+SE_DECLARE_FUNC(js_cocos2dx_EventDispatcher_resumeEventListenersForTarget);
+SE_DECLARE_FUNC(js_cocos2dx_EventDispatcher_setPriority);
+SE_DECLARE_FUNC(js_cocos2dx_EventDispatcher_dispatchEvent);
+SE_DECLARE_FUNC(js_cocos2dx_EventDispatcher_hasEventListener);
+SE_DECLARE_FUNC(js_cocos2dx_EventDispatcher_pauseEventListenersForTarget);
+SE_DECLARE_FUNC(js_cocos2dx_EventDispatcher_removeCustomEventListeners);
+SE_DECLARE_FUNC(js_cocos2dx_EventDispatcher_removeEventListener);
+SE_DECLARE_FUNC(js_cocos2dx_EventDispatcher_isEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_EventDispatcher_EventDispatcher);
+
+extern se::Object* __jsb_cocos2d_EventFocus_proto;
+extern se::Class* __jsb_cocos2d_EventFocus_class;
+
+bool js_register_cocos2d_EventFocus(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EventFocus_EventFocus);
+
+extern se::Object* __jsb_cocos2d_EventListenerAcceleration_proto;
+extern se::Class* __jsb_cocos2d_EventListenerAcceleration_class;
+
+bool js_register_cocos2d_EventListenerAcceleration(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EventListenerAcceleration_init);
+SE_DECLARE_FUNC(js_cocos2dx_EventListenerAcceleration_EventListenerAcceleration);
+
+extern se::Object* __jsb_cocos2d_EventListenerCustom_proto;
+extern se::Class* __jsb_cocos2d_EventListenerCustom_class;
+
+bool js_register_cocos2d_EventListenerCustom(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EventListenerCustom_EventListenerCustom);
+
+extern se::Object* __jsb_cocos2d_EventListenerFocus_proto;
+extern se::Class* __jsb_cocos2d_EventListenerFocus_class;
+
+bool js_register_cocos2d_EventListenerFocus(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EventListenerFocus_init);
+SE_DECLARE_FUNC(js_cocos2dx_EventListenerFocus_EventListenerFocus);
+
+extern se::Object* __jsb_cocos2d_EventListenerKeyboard_proto;
+extern se::Class* __jsb_cocos2d_EventListenerKeyboard_class;
+
+bool js_register_cocos2d_EventListenerKeyboard(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EventListenerKeyboard_init);
+SE_DECLARE_FUNC(js_cocos2dx_EventListenerKeyboard_EventListenerKeyboard);
+
+extern se::Object* __jsb_cocos2d_EventMouse_proto;
+extern se::Class* __jsb_cocos2d_EventMouse_class;
+
+bool js_register_cocos2d_EventMouse(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EventMouse_getMouseButton);
+SE_DECLARE_FUNC(js_cocos2dx_EventMouse_getLocation);
+SE_DECLARE_FUNC(js_cocos2dx_EventMouse_setMouseButton);
+SE_DECLARE_FUNC(js_cocos2dx_EventMouse_setScrollData);
+SE_DECLARE_FUNC(js_cocos2dx_EventMouse_getPreviousLocationInView);
+SE_DECLARE_FUNC(js_cocos2dx_EventMouse_getDelta);
+SE_DECLARE_FUNC(js_cocos2dx_EventMouse_getStartLocation);
+SE_DECLARE_FUNC(js_cocos2dx_EventMouse_getCursorY);
+SE_DECLARE_FUNC(js_cocos2dx_EventMouse_getCursorX);
+SE_DECLARE_FUNC(js_cocos2dx_EventMouse_getLocationInView);
+SE_DECLARE_FUNC(js_cocos2dx_EventMouse_getScrollY);
+SE_DECLARE_FUNC(js_cocos2dx_EventMouse_setCursorPosition);
+SE_DECLARE_FUNC(js_cocos2dx_EventMouse_getScrollX);
+SE_DECLARE_FUNC(js_cocos2dx_EventMouse_getPreviousLocation);
+SE_DECLARE_FUNC(js_cocos2dx_EventMouse_getStartLocationInView);
+SE_DECLARE_FUNC(js_cocos2dx_EventMouse_EventMouse);
+
+extern se::Object* __jsb_cocos2d_EventListenerMouse_proto;
+extern se::Class* __jsb_cocos2d_EventListenerMouse_class;
+
+bool js_register_cocos2d_EventListenerMouse(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EventListenerMouse_init);
+SE_DECLARE_FUNC(js_cocos2dx_EventListenerMouse_EventListenerMouse);
+
+extern se::Object* __jsb_cocos2d_EventListenerTouchOneByOne_proto;
+extern se::Class* __jsb_cocos2d_EventListenerTouchOneByOne_class;
+
+bool js_register_cocos2d_EventListenerTouchOneByOne(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EventListenerTouchOneByOne_isSwallowTouches);
+SE_DECLARE_FUNC(js_cocos2dx_EventListenerTouchOneByOne_setSwallowTouches);
+SE_DECLARE_FUNC(js_cocos2dx_EventListenerTouchOneByOne_init);
+SE_DECLARE_FUNC(js_cocos2dx_EventListenerTouchOneByOne_EventListenerTouchOneByOne);
+
+extern se::Object* __jsb_cocos2d_EventListenerTouchAllAtOnce_proto;
+extern se::Class* __jsb_cocos2d_EventListenerTouchAllAtOnce_class;
+
+bool js_register_cocos2d_EventListenerTouchAllAtOnce(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EventListenerTouchAllAtOnce_init);
+SE_DECLARE_FUNC(js_cocos2dx_EventListenerTouchAllAtOnce_EventListenerTouchAllAtOnce);
+
+extern se::Object* __jsb_cocos2d_Action_proto;
+extern se::Class* __jsb_cocos2d_Action_class;
+
+bool js_register_cocos2d_Action(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Action_startWithTarget);
+SE_DECLARE_FUNC(js_cocos2dx_Action_setOriginalTarget);
+SE_DECLARE_FUNC(js_cocos2dx_Action_clone);
+SE_DECLARE_FUNC(js_cocos2dx_Action_getOriginalTarget);
+SE_DECLARE_FUNC(js_cocos2dx_Action_stop);
+SE_DECLARE_FUNC(js_cocos2dx_Action_update);
+SE_DECLARE_FUNC(js_cocos2dx_Action_getTarget);
+SE_DECLARE_FUNC(js_cocos2dx_Action_getFlags);
+SE_DECLARE_FUNC(js_cocos2dx_Action_step);
+SE_DECLARE_FUNC(js_cocos2dx_Action_setTag);
+SE_DECLARE_FUNC(js_cocos2dx_Action_setFlags);
+SE_DECLARE_FUNC(js_cocos2dx_Action_getTag);
+SE_DECLARE_FUNC(js_cocos2dx_Action_setTarget);
+SE_DECLARE_FUNC(js_cocos2dx_Action_isDone);
+SE_DECLARE_FUNC(js_cocos2dx_Action_reverse);
+
+extern se::Object* __jsb_cocos2d_FiniteTimeAction_proto;
+extern se::Class* __jsb_cocos2d_FiniteTimeAction_class;
+
+bool js_register_cocos2d_FiniteTimeAction(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_FiniteTimeAction_setDuration);
+SE_DECLARE_FUNC(js_cocos2dx_FiniteTimeAction_getDuration);
+
+extern se::Object* __jsb_cocos2d_Speed_proto;
+extern se::Class* __jsb_cocos2d_Speed_class;
+
+bool js_register_cocos2d_Speed(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Speed_setInnerAction);
+SE_DECLARE_FUNC(js_cocos2dx_Speed_getSpeed);
+SE_DECLARE_FUNC(js_cocos2dx_Speed_setSpeed);
+SE_DECLARE_FUNC(js_cocos2dx_Speed_initWithAction);
+SE_DECLARE_FUNC(js_cocos2dx_Speed_getInnerAction);
+SE_DECLARE_FUNC(js_cocos2dx_Speed_Speed);
+
+extern se::Object* __jsb_cocos2d_Image_proto;
+extern se::Class* __jsb_cocos2d_Image_class;
+
+bool js_register_cocos2d_Image(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Image_hasPremultipliedAlpha);
+SE_DECLARE_FUNC(js_cocos2dx_Image_getDataLen);
+SE_DECLARE_FUNC(js_cocos2dx_Image_saveToFile);
+SE_DECLARE_FUNC(js_cocos2dx_Image_hasAlpha);
+SE_DECLARE_FUNC(js_cocos2dx_Image_isCompressed);
+SE_DECLARE_FUNC(js_cocos2dx_Image_getHeight);
+SE_DECLARE_FUNC(js_cocos2dx_Image_initWithImageFile);
+SE_DECLARE_FUNC(js_cocos2dx_Image_getWidth);
+SE_DECLARE_FUNC(js_cocos2dx_Image_getBitPerPixel);
+SE_DECLARE_FUNC(js_cocos2dx_Image_getFileType);
+SE_DECLARE_FUNC(js_cocos2dx_Image_getFilePath);
+SE_DECLARE_FUNC(js_cocos2dx_Image_getNumberOfMipmaps);
+SE_DECLARE_FUNC(js_cocos2dx_Image_getRenderFormat);
+SE_DECLARE_FUNC(js_cocos2dx_Image_setPVRImagesHavePremultipliedAlpha);
+SE_DECLARE_FUNC(js_cocos2dx_Image_setPNGPremultipliedAlphaEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_Image_Image);
+
+extern se::Object* __jsb_cocos2d_GLProgramState_proto;
+extern se::Class* __jsb_cocos2d_GLProgramState_class;
+
+bool js_register_cocos2d_GLProgramState(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_setUniformCallback);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_getVertexAttribsFlags);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_applyAutoBinding);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_setUniformVec2);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_setUniformVec3);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_setVertexAttribCallback);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_apply);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_getNodeBinding);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_applyGLProgram);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_setNodeBinding);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_setUniformInt);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_setParameterAutoBinding);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_setUniformVec2v);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_getUniformCount);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_applyAttributes);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_clone);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_setGLProgram);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_setUniformFloatv);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_getGLProgram);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_setUniformTexture);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_applyUniforms);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_setUniformFloat);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_setUniformMat4);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_setUniformVec3v);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_getVertexAttribCount);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_create);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_getOrCreateWithGLProgramName);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_getOrCreateWithGLProgram);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramState_getOrCreateWithShaders);
+
+extern se::Object* __jsb_cocos2d_SpriteFrame_proto;
+extern se::Class* __jsb_cocos2d_SpriteFrame_class;
+
+bool js_register_cocos2d_SpriteFrame(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_setAnchorPoint);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_setTexture);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_getTexture);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_setOffsetInPixels);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_getOriginalSizeInPixels);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_setOriginalSize);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_setRectInPixels);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_getRect);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_setOffset);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_initWithTextureFilename);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_setRect);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_initWithTexture);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_getOriginalSize);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_clone);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_getRectInPixels);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_isRotated);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_setRotated);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_getOffset);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_setOriginalSizeInPixels);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_getAnchorPoint);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_hasAnchorPoint);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_getOffsetInPixels);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_create);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_createWithTexture);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrame_SpriteFrame);
+
+extern se::Object* __jsb_cocos2d_ActionInterval_proto;
+extern se::Class* __jsb_cocos2d_ActionInterval_class;
+
+bool js_register_cocos2d_ActionInterval(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ActionInterval_getAmplitudeRate);
+SE_DECLARE_FUNC(js_cocos2dx_ActionInterval_initWithDuration);
+SE_DECLARE_FUNC(js_cocos2dx_ActionInterval_setAmplitudeRate);
+SE_DECLARE_FUNC(js_cocos2dx_ActionInterval_getElapsed);
+
+extern se::Object* __jsb_cocos2d_Sequence_proto;
+extern se::Class* __jsb_cocos2d_Sequence_class;
+
+bool js_register_cocos2d_Sequence(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Sequence_init);
+SE_DECLARE_FUNC(js_cocos2dx_Sequence_initWithTwoActions);
+SE_DECLARE_FUNC(js_cocos2dx_Sequence_Sequence);
+
+extern se::Object* __jsb_cocos2d_Repeat_proto;
+extern se::Class* __jsb_cocos2d_Repeat_class;
+
+bool js_register_cocos2d_Repeat(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Repeat_setInnerAction);
+SE_DECLARE_FUNC(js_cocos2dx_Repeat_initWithAction);
+SE_DECLARE_FUNC(js_cocos2dx_Repeat_getInnerAction);
+SE_DECLARE_FUNC(js_cocos2dx_Repeat_Repeat);
+
+extern se::Object* __jsb_cocos2d_RepeatForever_proto;
+extern se::Class* __jsb_cocos2d_RepeatForever_class;
+
+bool js_register_cocos2d_RepeatForever(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_RepeatForever_setInnerAction);
+SE_DECLARE_FUNC(js_cocos2dx_RepeatForever_initWithAction);
+SE_DECLARE_FUNC(js_cocos2dx_RepeatForever_getInnerAction);
+SE_DECLARE_FUNC(js_cocos2dx_RepeatForever_RepeatForever);
+
+extern se::Object* __jsb_cocos2d_Spawn_proto;
+extern se::Class* __jsb_cocos2d_Spawn_class;
+
+bool js_register_cocos2d_Spawn(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Spawn_init);
+SE_DECLARE_FUNC(js_cocos2dx_Spawn_initWithTwoActions);
+SE_DECLARE_FUNC(js_cocos2dx_Spawn_Spawn);
+
+extern se::Object* __jsb_cocos2d_RotateTo_proto;
+extern se::Class* __jsb_cocos2d_RotateTo_class;
+
+bool js_register_cocos2d_RotateTo(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_RotateTo_initWithDuration);
+SE_DECLARE_FUNC(js_cocos2dx_RotateTo_create);
+SE_DECLARE_FUNC(js_cocos2dx_RotateTo_RotateTo);
+
+extern se::Object* __jsb_cocos2d_RotateBy_proto;
+extern se::Class* __jsb_cocos2d_RotateBy_class;
+
+bool js_register_cocos2d_RotateBy(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_RotateBy_initWithDuration);
+SE_DECLARE_FUNC(js_cocos2dx_RotateBy_create);
+SE_DECLARE_FUNC(js_cocos2dx_RotateBy_RotateBy);
+
+extern se::Object* __jsb_cocos2d_MoveBy_proto;
+extern se::Class* __jsb_cocos2d_MoveBy_class;
+
+bool js_register_cocos2d_MoveBy(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_MoveBy_initWithDuration);
+SE_DECLARE_FUNC(js_cocos2dx_MoveBy_create);
+SE_DECLARE_FUNC(js_cocos2dx_MoveBy_MoveBy);
+
+extern se::Object* __jsb_cocos2d_MoveTo_proto;
+extern se::Class* __jsb_cocos2d_MoveTo_class;
+
+bool js_register_cocos2d_MoveTo(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_MoveTo_initWithDuration);
+SE_DECLARE_FUNC(js_cocos2dx_MoveTo_create);
+SE_DECLARE_FUNC(js_cocos2dx_MoveTo_MoveTo);
+
+extern se::Object* __jsb_cocos2d_SkewTo_proto;
+extern se::Class* __jsb_cocos2d_SkewTo_class;
+
+bool js_register_cocos2d_SkewTo(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_SkewTo_initWithDuration);
+SE_DECLARE_FUNC(js_cocos2dx_SkewTo_create);
+SE_DECLARE_FUNC(js_cocos2dx_SkewTo_SkewTo);
+
+extern se::Object* __jsb_cocos2d_SkewBy_proto;
+extern se::Class* __jsb_cocos2d_SkewBy_class;
+
+bool js_register_cocos2d_SkewBy(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_SkewBy_initWithDuration);
+SE_DECLARE_FUNC(js_cocos2dx_SkewBy_create);
+SE_DECLARE_FUNC(js_cocos2dx_SkewBy_SkewBy);
+
+extern se::Object* __jsb_cocos2d_JumpBy_proto;
+extern se::Class* __jsb_cocos2d_JumpBy_class;
+
+bool js_register_cocos2d_JumpBy(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_JumpBy_initWithDuration);
+SE_DECLARE_FUNC(js_cocos2dx_JumpBy_create);
+SE_DECLARE_FUNC(js_cocos2dx_JumpBy_JumpBy);
+
+extern se::Object* __jsb_cocos2d_JumpTo_proto;
+extern se::Class* __jsb_cocos2d_JumpTo_class;
+
+bool js_register_cocos2d_JumpTo(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_JumpTo_initWithDuration);
+SE_DECLARE_FUNC(js_cocos2dx_JumpTo_create);
+SE_DECLARE_FUNC(js_cocos2dx_JumpTo_JumpTo);
+
+extern se::Object* __jsb_cocos2d_BezierBy_proto;
+extern se::Class* __jsb_cocos2d_BezierBy_class;
+
+bool js_register_cocos2d_BezierBy(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_BezierBy_BezierBy);
+
+extern se::Object* __jsb_cocos2d_BezierTo_proto;
+extern se::Class* __jsb_cocos2d_BezierTo_class;
+
+bool js_register_cocos2d_BezierTo(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_BezierTo_BezierTo);
+
+extern se::Object* __jsb_cocos2d_ScaleTo_proto;
+extern se::Class* __jsb_cocos2d_ScaleTo_class;
+
+bool js_register_cocos2d_ScaleTo(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ScaleTo_initWithDuration);
+SE_DECLARE_FUNC(js_cocos2dx_ScaleTo_create);
+SE_DECLARE_FUNC(js_cocos2dx_ScaleTo_ScaleTo);
+
+extern se::Object* __jsb_cocos2d_ScaleBy_proto;
+extern se::Class* __jsb_cocos2d_ScaleBy_class;
+
+bool js_register_cocos2d_ScaleBy(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ScaleBy_create);
+SE_DECLARE_FUNC(js_cocos2dx_ScaleBy_ScaleBy);
+
+extern se::Object* __jsb_cocos2d_Blink_proto;
+extern se::Class* __jsb_cocos2d_Blink_class;
+
+bool js_register_cocos2d_Blink(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Blink_initWithDuration);
+SE_DECLARE_FUNC(js_cocos2dx_Blink_create);
+SE_DECLARE_FUNC(js_cocos2dx_Blink_Blink);
+
+extern se::Object* __jsb_cocos2d_FadeTo_proto;
+extern se::Class* __jsb_cocos2d_FadeTo_class;
+
+bool js_register_cocos2d_FadeTo(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_FadeTo_initWithDuration);
+SE_DECLARE_FUNC(js_cocos2dx_FadeTo_create);
+SE_DECLARE_FUNC(js_cocos2dx_FadeTo_FadeTo);
+
+extern se::Object* __jsb_cocos2d_FadeIn_proto;
+extern se::Class* __jsb_cocos2d_FadeIn_class;
+
+bool js_register_cocos2d_FadeIn(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_FadeIn_setReverseAction);
+SE_DECLARE_FUNC(js_cocos2dx_FadeIn_create);
+SE_DECLARE_FUNC(js_cocos2dx_FadeIn_FadeIn);
+
+extern se::Object* __jsb_cocos2d_FadeOut_proto;
+extern se::Class* __jsb_cocos2d_FadeOut_class;
+
+bool js_register_cocos2d_FadeOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_FadeOut_setReverseAction);
+SE_DECLARE_FUNC(js_cocos2dx_FadeOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_FadeOut_FadeOut);
+
+extern se::Object* __jsb_cocos2d_TintTo_proto;
+extern se::Class* __jsb_cocos2d_TintTo_class;
+
+bool js_register_cocos2d_TintTo(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_TintTo_initWithDuration);
+SE_DECLARE_FUNC(js_cocos2dx_TintTo_create);
+SE_DECLARE_FUNC(js_cocos2dx_TintTo_TintTo);
+
+extern se::Object* __jsb_cocos2d_TintBy_proto;
+extern se::Class* __jsb_cocos2d_TintBy_class;
+
+bool js_register_cocos2d_TintBy(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_TintBy_initWithDuration);
+SE_DECLARE_FUNC(js_cocos2dx_TintBy_create);
+SE_DECLARE_FUNC(js_cocos2dx_TintBy_TintBy);
+
+extern se::Object* __jsb_cocos2d_DelayTime_proto;
+extern se::Class* __jsb_cocos2d_DelayTime_class;
+
+bool js_register_cocos2d_DelayTime(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_DelayTime_create);
+SE_DECLARE_FUNC(js_cocos2dx_DelayTime_DelayTime);
+
+extern se::Object* __jsb_cocos2d_ReverseTime_proto;
+extern se::Class* __jsb_cocos2d_ReverseTime_class;
+
+bool js_register_cocos2d_ReverseTime(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ReverseTime_initWithAction);
+SE_DECLARE_FUNC(js_cocos2dx_ReverseTime_create);
+SE_DECLARE_FUNC(js_cocos2dx_ReverseTime_ReverseTime);
+
+extern se::Object* __jsb_cocos2d_TargetedAction_proto;
+extern se::Class* __jsb_cocos2d_TargetedAction_class;
+
+bool js_register_cocos2d_TargetedAction(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_TargetedAction_getForcedTarget);
+SE_DECLARE_FUNC(js_cocos2dx_TargetedAction_initWithTarget);
+SE_DECLARE_FUNC(js_cocos2dx_TargetedAction_setForcedTarget);
+SE_DECLARE_FUNC(js_cocos2dx_TargetedAction_TargetedAction);
+
+extern se::Object* __jsb_cocos2d_CardinalSplineTo_proto;
+extern se::Class* __jsb_cocos2d_CardinalSplineTo_class;
+
+bool js_register_cocos2d_CardinalSplineTo(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_CardinalSplineTo_updatePosition);
+SE_DECLARE_FUNC(js_cocos2dx_CardinalSplineTo_CardinalSplineTo);
+
+extern se::Object* __jsb_cocos2d_CardinalSplineBy_proto;
+extern se::Class* __jsb_cocos2d_CardinalSplineBy_class;
+
+bool js_register_cocos2d_CardinalSplineBy(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_CardinalSplineBy_CardinalSplineBy);
+
+extern se::Object* __jsb_cocos2d_CatmullRomTo_proto;
+extern se::Class* __jsb_cocos2d_CatmullRomTo_class;
+
+bool js_register_cocos2d_CatmullRomTo(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_CatmullRomBy_proto;
+extern se::Class* __jsb_cocos2d_CatmullRomBy_class;
+
+bool js_register_cocos2d_CatmullRomBy(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_ActionEase_proto;
+extern se::Class* __jsb_cocos2d_ActionEase_class;
+
+bool js_register_cocos2d_ActionEase(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ActionEase_initWithAction);
+SE_DECLARE_FUNC(js_cocos2dx_ActionEase_getInnerAction);
+
+extern se::Object* __jsb_cocos2d_EaseRateAction_proto;
+extern se::Class* __jsb_cocos2d_EaseRateAction_class;
+
+bool js_register_cocos2d_EaseRateAction(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseRateAction_setRate);
+SE_DECLARE_FUNC(js_cocos2dx_EaseRateAction_initWithAction);
+SE_DECLARE_FUNC(js_cocos2dx_EaseRateAction_getRate);
+SE_DECLARE_FUNC(js_cocos2dx_EaseRateAction_create);
+
+extern se::Object* __jsb_cocos2d_EaseIn_proto;
+extern se::Class* __jsb_cocos2d_EaseIn_class;
+
+bool js_register_cocos2d_EaseIn(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseIn_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseIn_EaseIn);
+
+extern se::Object* __jsb_cocos2d_EaseOut_proto;
+extern se::Class* __jsb_cocos2d_EaseOut_class;
+
+bool js_register_cocos2d_EaseOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseOut_EaseOut);
+
+extern se::Object* __jsb_cocos2d_EaseInOut_proto;
+extern se::Class* __jsb_cocos2d_EaseInOut_class;
+
+bool js_register_cocos2d_EaseInOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseInOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseInOut_EaseInOut);
+
+extern se::Object* __jsb_cocos2d_EaseExponentialIn_proto;
+extern se::Class* __jsb_cocos2d_EaseExponentialIn_class;
+
+bool js_register_cocos2d_EaseExponentialIn(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseExponentialIn_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseExponentialIn_EaseExponentialIn);
+
+extern se::Object* __jsb_cocos2d_EaseExponentialOut_proto;
+extern se::Class* __jsb_cocos2d_EaseExponentialOut_class;
+
+bool js_register_cocos2d_EaseExponentialOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseExponentialOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseExponentialOut_EaseExponentialOut);
+
+extern se::Object* __jsb_cocos2d_EaseExponentialInOut_proto;
+extern se::Class* __jsb_cocos2d_EaseExponentialInOut_class;
+
+bool js_register_cocos2d_EaseExponentialInOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseExponentialInOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseExponentialInOut_EaseExponentialInOut);
+
+extern se::Object* __jsb_cocos2d_EaseSineIn_proto;
+extern se::Class* __jsb_cocos2d_EaseSineIn_class;
+
+bool js_register_cocos2d_EaseSineIn(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseSineIn_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseSineIn_EaseSineIn);
+
+extern se::Object* __jsb_cocos2d_EaseSineOut_proto;
+extern se::Class* __jsb_cocos2d_EaseSineOut_class;
+
+bool js_register_cocos2d_EaseSineOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseSineOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseSineOut_EaseSineOut);
+
+extern se::Object* __jsb_cocos2d_EaseSineInOut_proto;
+extern se::Class* __jsb_cocos2d_EaseSineInOut_class;
+
+bool js_register_cocos2d_EaseSineInOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseSineInOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseSineInOut_EaseSineInOut);
+
+extern se::Object* __jsb_cocos2d_EaseElastic_proto;
+extern se::Class* __jsb_cocos2d_EaseElastic_class;
+
+bool js_register_cocos2d_EaseElastic(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseElastic_setPeriod);
+SE_DECLARE_FUNC(js_cocos2dx_EaseElastic_initWithAction);
+SE_DECLARE_FUNC(js_cocos2dx_EaseElastic_getPeriod);
+
+extern se::Object* __jsb_cocos2d_EaseElasticIn_proto;
+extern se::Class* __jsb_cocos2d_EaseElasticIn_class;
+
+bool js_register_cocos2d_EaseElasticIn(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseElasticIn_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseElasticIn_EaseElasticIn);
+
+extern se::Object* __jsb_cocos2d_EaseElasticOut_proto;
+extern se::Class* __jsb_cocos2d_EaseElasticOut_class;
+
+bool js_register_cocos2d_EaseElasticOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseElasticOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseElasticOut_EaseElasticOut);
+
+extern se::Object* __jsb_cocos2d_EaseElasticInOut_proto;
+extern se::Class* __jsb_cocos2d_EaseElasticInOut_class;
+
+bool js_register_cocos2d_EaseElasticInOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseElasticInOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseElasticInOut_EaseElasticInOut);
+
+extern se::Object* __jsb_cocos2d_EaseBounce_proto;
+extern se::Class* __jsb_cocos2d_EaseBounce_class;
+
+bool js_register_cocos2d_EaseBounce(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_EaseBounceIn_proto;
+extern se::Class* __jsb_cocos2d_EaseBounceIn_class;
+
+bool js_register_cocos2d_EaseBounceIn(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseBounceIn_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseBounceIn_EaseBounceIn);
+
+extern se::Object* __jsb_cocos2d_EaseBounceOut_proto;
+extern se::Class* __jsb_cocos2d_EaseBounceOut_class;
+
+bool js_register_cocos2d_EaseBounceOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseBounceOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseBounceOut_EaseBounceOut);
+
+extern se::Object* __jsb_cocos2d_EaseBounceInOut_proto;
+extern se::Class* __jsb_cocos2d_EaseBounceInOut_class;
+
+bool js_register_cocos2d_EaseBounceInOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseBounceInOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseBounceInOut_EaseBounceInOut);
+
+extern se::Object* __jsb_cocos2d_EaseBackIn_proto;
+extern se::Class* __jsb_cocos2d_EaseBackIn_class;
+
+bool js_register_cocos2d_EaseBackIn(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseBackIn_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseBackIn_EaseBackIn);
+
+extern se::Object* __jsb_cocos2d_EaseBackOut_proto;
+extern se::Class* __jsb_cocos2d_EaseBackOut_class;
+
+bool js_register_cocos2d_EaseBackOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseBackOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseBackOut_EaseBackOut);
+
+extern se::Object* __jsb_cocos2d_EaseBackInOut_proto;
+extern se::Class* __jsb_cocos2d_EaseBackInOut_class;
+
+bool js_register_cocos2d_EaseBackInOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseBackInOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseBackInOut_EaseBackInOut);
+
+extern se::Object* __jsb_cocos2d_EaseBezierAction_proto;
+extern se::Class* __jsb_cocos2d_EaseBezierAction_class;
+
+bool js_register_cocos2d_EaseBezierAction(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseBezierAction_setBezierParamer);
+SE_DECLARE_FUNC(js_cocos2dx_EaseBezierAction_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseBezierAction_EaseBezierAction);
+
+extern se::Object* __jsb_cocos2d_EaseQuadraticActionIn_proto;
+extern se::Class* __jsb_cocos2d_EaseQuadraticActionIn_class;
+
+bool js_register_cocos2d_EaseQuadraticActionIn(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseQuadraticActionIn_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseQuadraticActionIn_EaseQuadraticActionIn);
+
+extern se::Object* __jsb_cocos2d_EaseQuadraticActionOut_proto;
+extern se::Class* __jsb_cocos2d_EaseQuadraticActionOut_class;
+
+bool js_register_cocos2d_EaseQuadraticActionOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseQuadraticActionOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseQuadraticActionOut_EaseQuadraticActionOut);
+
+extern se::Object* __jsb_cocos2d_EaseQuadraticActionInOut_proto;
+extern se::Class* __jsb_cocos2d_EaseQuadraticActionInOut_class;
+
+bool js_register_cocos2d_EaseQuadraticActionInOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseQuadraticActionInOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseQuadraticActionInOut_EaseQuadraticActionInOut);
+
+extern se::Object* __jsb_cocos2d_EaseQuarticActionIn_proto;
+extern se::Class* __jsb_cocos2d_EaseQuarticActionIn_class;
+
+bool js_register_cocos2d_EaseQuarticActionIn(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseQuarticActionIn_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseQuarticActionIn_EaseQuarticActionIn);
+
+extern se::Object* __jsb_cocos2d_EaseQuarticActionOut_proto;
+extern se::Class* __jsb_cocos2d_EaseQuarticActionOut_class;
+
+bool js_register_cocos2d_EaseQuarticActionOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseQuarticActionOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseQuarticActionOut_EaseQuarticActionOut);
+
+extern se::Object* __jsb_cocos2d_EaseQuarticActionInOut_proto;
+extern se::Class* __jsb_cocos2d_EaseQuarticActionInOut_class;
+
+bool js_register_cocos2d_EaseQuarticActionInOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseQuarticActionInOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseQuarticActionInOut_EaseQuarticActionInOut);
+
+extern se::Object* __jsb_cocos2d_EaseQuinticActionIn_proto;
+extern se::Class* __jsb_cocos2d_EaseQuinticActionIn_class;
+
+bool js_register_cocos2d_EaseQuinticActionIn(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseQuinticActionIn_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseQuinticActionIn_EaseQuinticActionIn);
+
+extern se::Object* __jsb_cocos2d_EaseQuinticActionOut_proto;
+extern se::Class* __jsb_cocos2d_EaseQuinticActionOut_class;
+
+bool js_register_cocos2d_EaseQuinticActionOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseQuinticActionOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseQuinticActionOut_EaseQuinticActionOut);
+
+extern se::Object* __jsb_cocos2d_EaseQuinticActionInOut_proto;
+extern se::Class* __jsb_cocos2d_EaseQuinticActionInOut_class;
+
+bool js_register_cocos2d_EaseQuinticActionInOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseQuinticActionInOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseQuinticActionInOut_EaseQuinticActionInOut);
+
+extern se::Object* __jsb_cocos2d_EaseCircleActionIn_proto;
+extern se::Class* __jsb_cocos2d_EaseCircleActionIn_class;
+
+bool js_register_cocos2d_EaseCircleActionIn(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseCircleActionIn_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseCircleActionIn_EaseCircleActionIn);
+
+extern se::Object* __jsb_cocos2d_EaseCircleActionOut_proto;
+extern se::Class* __jsb_cocos2d_EaseCircleActionOut_class;
+
+bool js_register_cocos2d_EaseCircleActionOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseCircleActionOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseCircleActionOut_EaseCircleActionOut);
+
+extern se::Object* __jsb_cocos2d_EaseCircleActionInOut_proto;
+extern se::Class* __jsb_cocos2d_EaseCircleActionInOut_class;
+
+bool js_register_cocos2d_EaseCircleActionInOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseCircleActionInOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseCircleActionInOut_EaseCircleActionInOut);
+
+extern se::Object* __jsb_cocos2d_EaseCubicActionIn_proto;
+extern se::Class* __jsb_cocos2d_EaseCubicActionIn_class;
+
+bool js_register_cocos2d_EaseCubicActionIn(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseCubicActionIn_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseCubicActionIn_EaseCubicActionIn);
+
+extern se::Object* __jsb_cocos2d_EaseCubicActionOut_proto;
+extern se::Class* __jsb_cocos2d_EaseCubicActionOut_class;
+
+bool js_register_cocos2d_EaseCubicActionOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseCubicActionOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseCubicActionOut_EaseCubicActionOut);
+
+extern se::Object* __jsb_cocos2d_EaseCubicActionInOut_proto;
+extern se::Class* __jsb_cocos2d_EaseCubicActionInOut_class;
+
+bool js_register_cocos2d_EaseCubicActionInOut(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_EaseCubicActionInOut_create);
+SE_DECLARE_FUNC(js_cocos2dx_EaseCubicActionInOut_EaseCubicActionInOut);
+
+extern se::Object* __jsb_cocos2d_ActionInstant_proto;
+extern se::Class* __jsb_cocos2d_ActionInstant_class;
+
+bool js_register_cocos2d_ActionInstant(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_Show_proto;
+extern se::Class* __jsb_cocos2d_Show_class;
+
+bool js_register_cocos2d_Show(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Show_create);
+SE_DECLARE_FUNC(js_cocos2dx_Show_Show);
+
+extern se::Object* __jsb_cocos2d_Hide_proto;
+extern se::Class* __jsb_cocos2d_Hide_class;
+
+bool js_register_cocos2d_Hide(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Hide_create);
+SE_DECLARE_FUNC(js_cocos2dx_Hide_Hide);
+
+extern se::Object* __jsb_cocos2d_ToggleVisibility_proto;
+extern se::Class* __jsb_cocos2d_ToggleVisibility_class;
+
+bool js_register_cocos2d_ToggleVisibility(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ToggleVisibility_create);
+SE_DECLARE_FUNC(js_cocos2dx_ToggleVisibility_ToggleVisibility);
+
+extern se::Object* __jsb_cocos2d_RemoveSelf_proto;
+extern se::Class* __jsb_cocos2d_RemoveSelf_class;
+
+bool js_register_cocos2d_RemoveSelf(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_RemoveSelf_init);
+SE_DECLARE_FUNC(js_cocos2dx_RemoveSelf_create);
+SE_DECLARE_FUNC(js_cocos2dx_RemoveSelf_RemoveSelf);
+
+extern se::Object* __jsb_cocos2d_FlipX_proto;
+extern se::Class* __jsb_cocos2d_FlipX_class;
+
+bool js_register_cocos2d_FlipX(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_FlipX_initWithFlipX);
+SE_DECLARE_FUNC(js_cocos2dx_FlipX_create);
+SE_DECLARE_FUNC(js_cocos2dx_FlipX_FlipX);
+
+extern se::Object* __jsb_cocos2d_FlipY_proto;
+extern se::Class* __jsb_cocos2d_FlipY_class;
+
+bool js_register_cocos2d_FlipY(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_FlipY_initWithFlipY);
+SE_DECLARE_FUNC(js_cocos2dx_FlipY_create);
+SE_DECLARE_FUNC(js_cocos2dx_FlipY_FlipY);
+
+extern se::Object* __jsb_cocos2d_Place_proto;
+extern se::Class* __jsb_cocos2d_Place_class;
+
+bool js_register_cocos2d_Place(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Place_initWithPosition);
+SE_DECLARE_FUNC(js_cocos2dx_Place_create);
+SE_DECLARE_FUNC(js_cocos2dx_Place_Place);
+
+extern se::Object* __jsb_cocos2d_CallFunc_proto;
+extern se::Class* __jsb_cocos2d_CallFunc_class;
+
+bool js_register_cocos2d_CallFunc(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_CallFunc_execute);
+SE_DECLARE_FUNC(js_cocos2dx_CallFunc_CallFunc);
+
+extern se::Object* __jsb_cocos2d_CallFuncN_proto;
+extern se::Class* __jsb_cocos2d_CallFuncN_class;
+
+bool js_register_cocos2d_CallFuncN(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_CallFuncN_CallFuncN);
+
+extern se::Object* __jsb_cocos2d_ActionManager_proto;
+extern se::Class* __jsb_cocos2d_ActionManager_class;
+
+bool js_register_cocos2d_ActionManager(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ActionManager_getActionByTag);
+SE_DECLARE_FUNC(js_cocos2dx_ActionManager_removeActionByTag);
+SE_DECLARE_FUNC(js_cocos2dx_ActionManager_removeActionsByFlags);
+SE_DECLARE_FUNC(js_cocos2dx_ActionManager_removeAllActions);
+SE_DECLARE_FUNC(js_cocos2dx_ActionManager_addAction);
+SE_DECLARE_FUNC(js_cocos2dx_ActionManager_resumeTarget);
+SE_DECLARE_FUNC(js_cocos2dx_ActionManager_update);
+SE_DECLARE_FUNC(js_cocos2dx_ActionManager_pauseTarget);
+SE_DECLARE_FUNC(js_cocos2dx_ActionManager_getNumberOfRunningActionsInTarget);
+SE_DECLARE_FUNC(js_cocos2dx_ActionManager_removeAllActionsFromTarget);
+SE_DECLARE_FUNC(js_cocos2dx_ActionManager_resumeTargets);
+SE_DECLARE_FUNC(js_cocos2dx_ActionManager_removeAction);
+SE_DECLARE_FUNC(js_cocos2dx_ActionManager_removeAllActionsByTag);
+SE_DECLARE_FUNC(js_cocos2dx_ActionManager_pauseAllRunningActions);
+SE_DECLARE_FUNC(js_cocos2dx_ActionManager_ActionManager);
+
+extern se::Object* __jsb_cocos2d_AtlasNode_proto;
+extern se::Class* __jsb_cocos2d_AtlasNode_class;
+
+bool js_register_cocos2d_AtlasNode(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_AtlasNode_updateAtlasValues);
+SE_DECLARE_FUNC(js_cocos2dx_AtlasNode_initWithTileFile);
+SE_DECLARE_FUNC(js_cocos2dx_AtlasNode_getTexture);
+SE_DECLARE_FUNC(js_cocos2dx_AtlasNode_setTextureAtlas);
+SE_DECLARE_FUNC(js_cocos2dx_AtlasNode_setBlendFunc);
+SE_DECLARE_FUNC(js_cocos2dx_AtlasNode_getBlendFunc);
+SE_DECLARE_FUNC(js_cocos2dx_AtlasNode_getQuadsToDraw);
+SE_DECLARE_FUNC(js_cocos2dx_AtlasNode_setTexture);
+SE_DECLARE_FUNC(js_cocos2dx_AtlasNode_initWithTexture);
+SE_DECLARE_FUNC(js_cocos2dx_AtlasNode_setQuadsToDraw);
+SE_DECLARE_FUNC(js_cocos2dx_AtlasNode_create);
+SE_DECLARE_FUNC(js_cocos2dx_AtlasNode_AtlasNode);
+
+extern se::Object* __jsb_cocos2d_ClippingNode_proto;
+extern se::Class* __jsb_cocos2d_ClippingNode_class;
+
+bool js_register_cocos2d_ClippingNode(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ClippingNode_hasContent);
+SE_DECLARE_FUNC(js_cocos2dx_ClippingNode_setInverted);
+SE_DECLARE_FUNC(js_cocos2dx_ClippingNode_setStencil);
+SE_DECLARE_FUNC(js_cocos2dx_ClippingNode_getAlphaThreshold);
+SE_DECLARE_FUNC(js_cocos2dx_ClippingNode_getStencil);
+SE_DECLARE_FUNC(js_cocos2dx_ClippingNode_setAlphaThreshold);
+SE_DECLARE_FUNC(js_cocos2dx_ClippingNode_isInverted);
+SE_DECLARE_FUNC(js_cocos2dx_ClippingNode_create);
+SE_DECLARE_FUNC(js_cocos2dx_ClippingNode_ClippingNode);
+
+extern se::Object* __jsb_cocos2d_DrawNode_proto;
+extern se::Class* __jsb_cocos2d_DrawNode_class;
+
+bool js_register_cocos2d_DrawNode(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_drawLine);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_drawPoints);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_drawRect);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_drawSolidCircle);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_setLineWidth);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_onDrawGLPoint);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_drawPolygon);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_drawDot);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_drawCatmullRom);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_drawSegment);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_getBlendFunc);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_onDraw);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_drawCircle);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_drawQuadBezier);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_onDrawGLLine);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_drawSolidPoly);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_drawTriangle);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_setBlendFunc);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_clear);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_drawCardinalSpline);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_drawSolidRect);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_getLineWidth);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_drawPoint);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_drawCubicBezier);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_create);
+SE_DECLARE_FUNC(js_cocos2dx_DrawNode_DrawNode);
+
+extern se::Object* __jsb_cocos2d_Label_proto;
+extern se::Class* __jsb_cocos2d_Label_class;
+
+bool js_register_cocos2d_Label(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Label_isClipMarginEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_Label_enableShadow);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setDimensions);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getWidth);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getString);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getHeight);
+SE_DECLARE_FUNC(js_cocos2dx_Label_disableEffect);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getTextColor);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getBlendFunc);
+SE_DECLARE_FUNC(js_cocos2dx_Label_enableWrap);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setWidth);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getAdditionalKerning);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getBMFontSize);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getMaxLineWidth);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getHorizontalAlignment);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getShadowOffset);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getLineSpacing);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setClipMarginEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setString);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setSystemFontName);
+SE_DECLARE_FUNC(js_cocos2dx_Label_isWrapEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getOutlineSize);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setBMFontFilePath);
+SE_DECLARE_FUNC(js_cocos2dx_Label_initWithTTF);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setLineHeight);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setSystemFontSize);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setOverflow);
+SE_DECLARE_FUNC(js_cocos2dx_Label_enableStrikethrough);
+SE_DECLARE_FUNC(js_cocos2dx_Label_updateContent);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getStringLength);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setLineBreakWithoutSpace);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getStringNumLines);
+SE_DECLARE_FUNC(js_cocos2dx_Label_enableOutline);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getShadowBlurRadius);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getEffectColor);
+SE_DECLARE_FUNC(js_cocos2dx_Label_removeAllChildrenWithCleanup);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setCharMap);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getFontDefinition);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getDimensions);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setMaxLineWidth);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getSystemFontName);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setVerticalAlignment);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setLineSpacing);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getLineHeight);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getShadowColor);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getTTFConfig);
+SE_DECLARE_FUNC(js_cocos2dx_Label_enableItalics);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setTextColor);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getLetter);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setHeight);
+SE_DECLARE_FUNC(js_cocos2dx_Label_isShadowEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_Label_enableGlow);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getOverflow);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getVerticalAlignment);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setAdditionalKerning);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getSystemFontSize);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setBlendFunc);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getTextAlignment);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getBMFontFilePath);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setHorizontalAlignment);
+SE_DECLARE_FUNC(js_cocos2dx_Label_enableBold);
+SE_DECLARE_FUNC(js_cocos2dx_Label_enableUnderline);
+SE_DECLARE_FUNC(js_cocos2dx_Label_getLabelEffectType);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setFontDefinition);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setAlignment);
+SE_DECLARE_FUNC(js_cocos2dx_Label_requestSystemFontRefresh);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setBMFontSize);
+SE_DECLARE_FUNC(js_cocos2dx_Label_createWithBMFont);
+SE_DECLARE_FUNC(js_cocos2dx_Label_create);
+SE_DECLARE_FUNC(js_cocos2dx_Label_createWithCharMap);
+SE_DECLARE_FUNC(js_cocos2dx_Label_createWithSystemFont);
+SE_DECLARE_FUNC(js_cocos2dx_Label_Label);
+
+extern se::Object* __jsb_cocos2d_LabelTTF_proto;
+extern se::Class* __jsb_cocos2d_LabelTTF_class;
+
+bool js_register_cocos2d_LabelTTF(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_LabelTTF_getRenderLabel);
+SE_DECLARE_FUNC(js_cocos2dx_LabelTTF_LabelTTF);
+
+extern se::Object* __jsb_cocos2d_Layer_proto;
+extern se::Class* __jsb_cocos2d_Layer_class;
+
+bool js_register_cocos2d_Layer(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Layer_create);
+SE_DECLARE_FUNC(js_cocos2dx_Layer_Layer);
+
+extern se::Object* __jsb_cocos2d_LayerColor_proto;
+extern se::Class* __jsb_cocos2d_LayerColor_class;
+
+bool js_register_cocos2d_LayerColor(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_LayerColor_changeWidthAndHeight);
+SE_DECLARE_FUNC(js_cocos2dx_LayerColor_getBlendFunc);
+SE_DECLARE_FUNC(js_cocos2dx_LayerColor_setBlendFunc);
+SE_DECLARE_FUNC(js_cocos2dx_LayerColor_changeWidth);
+SE_DECLARE_FUNC(js_cocos2dx_LayerColor_initWithColor);
+SE_DECLARE_FUNC(js_cocos2dx_LayerColor_changeHeight);
+SE_DECLARE_FUNC(js_cocos2dx_LayerColor_create);
+SE_DECLARE_FUNC(js_cocos2dx_LayerColor_LayerColor);
+
+extern se::Object* __jsb_cocos2d_LayerGradient_proto;
+extern se::Class* __jsb_cocos2d_LayerGradient_class;
+
+bool js_register_cocos2d_LayerGradient(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_LayerGradient_getStartColor);
+SE_DECLARE_FUNC(js_cocos2dx_LayerGradient_isCompressedInterpolation);
+SE_DECLARE_FUNC(js_cocos2dx_LayerGradient_getStartOpacity);
+SE_DECLARE_FUNC(js_cocos2dx_LayerGradient_setVector);
+SE_DECLARE_FUNC(js_cocos2dx_LayerGradient_setStartOpacity);
+SE_DECLARE_FUNC(js_cocos2dx_LayerGradient_setCompressedInterpolation);
+SE_DECLARE_FUNC(js_cocos2dx_LayerGradient_setEndOpacity);
+SE_DECLARE_FUNC(js_cocos2dx_LayerGradient_getVector);
+SE_DECLARE_FUNC(js_cocos2dx_LayerGradient_setEndColor);
+SE_DECLARE_FUNC(js_cocos2dx_LayerGradient_initWithColor);
+SE_DECLARE_FUNC(js_cocos2dx_LayerGradient_getEndColor);
+SE_DECLARE_FUNC(js_cocos2dx_LayerGradient_getEndOpacity);
+SE_DECLARE_FUNC(js_cocos2dx_LayerGradient_setStartColor);
+SE_DECLARE_FUNC(js_cocos2dx_LayerGradient_create);
+SE_DECLARE_FUNC(js_cocos2dx_LayerGradient_LayerGradient);
+
+extern se::Object* __jsb_cocos2d_LayerMultiplex_proto;
+extern se::Class* __jsb_cocos2d_LayerMultiplex_class;
+
+bool js_register_cocos2d_LayerMultiplex(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_LayerMultiplex_initWithArray);
+SE_DECLARE_FUNC(js_cocos2dx_LayerMultiplex_switchToAndReleaseMe);
+SE_DECLARE_FUNC(js_cocos2dx_LayerMultiplex_addLayer);
+SE_DECLARE_FUNC(js_cocos2dx_LayerMultiplex_switchTo);
+SE_DECLARE_FUNC(js_cocos2dx_LayerMultiplex_LayerMultiplex);
+
+extern se::Object* __jsb_cocos2d_MenuItem_proto;
+extern se::Class* __jsb_cocos2d_MenuItem_class;
+
+bool js_register_cocos2d_MenuItem(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItem_setEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItem_activate);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItem_initWithCallback);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItem_isEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItem_selected);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItem_isSelected);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItem_setCallback);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItem_unselected);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItem_rect);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItem_MenuItem);
+
+extern se::Object* __jsb_cocos2d_MenuItemLabel_proto;
+extern se::Class* __jsb_cocos2d_MenuItemLabel_class;
+
+bool js_register_cocos2d_MenuItemLabel(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemLabel_setLabel);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemLabel_getString);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemLabel_getDisabledColor);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemLabel_setString);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemLabel_initWithLabel);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemLabel_setDisabledColor);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemLabel_getLabel);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemLabel_MenuItemLabel);
+
+extern se::Object* __jsb_cocos2d_MenuItemAtlasFont_proto;
+extern se::Class* __jsb_cocos2d_MenuItemAtlasFont_class;
+
+bool js_register_cocos2d_MenuItemAtlasFont(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemAtlasFont_initWithString);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemAtlasFont_MenuItemAtlasFont);
+
+extern se::Object* __jsb_cocos2d_MenuItemFont_proto;
+extern se::Class* __jsb_cocos2d_MenuItemFont_class;
+
+bool js_register_cocos2d_MenuItemFont(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemFont_setFontNameObj);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemFont_getFontSizeObj);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemFont_setFontSizeObj);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemFont_initWithString);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemFont_getFontNameObj);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemFont_setFontName);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemFont_getFontSize);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemFont_getFontName);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemFont_setFontSize);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemFont_MenuItemFont);
+
+extern se::Object* __jsb_cocos2d_MenuItemSprite_proto;
+extern se::Class* __jsb_cocos2d_MenuItemSprite_class;
+
+bool js_register_cocos2d_MenuItemSprite(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemSprite_setEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemSprite_selected);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemSprite_setNormalImage);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemSprite_setDisabledImage);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemSprite_initWithNormalSprite);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemSprite_setSelectedImage);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemSprite_getDisabledImage);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemSprite_getSelectedImage);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemSprite_getNormalImage);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemSprite_unselected);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemSprite_MenuItemSprite);
+
+extern se::Object* __jsb_cocos2d_MenuItemImage_proto;
+extern se::Class* __jsb_cocos2d_MenuItemImage_class;
+
+bool js_register_cocos2d_MenuItemImage(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemImage_setDisabledSpriteFrame);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemImage_setSelectedSpriteFrame);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemImage_setNormalSpriteFrame);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemImage_init);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemImage_initWithNormalImage);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemImage_MenuItemImage);
+
+extern se::Object* __jsb_cocos2d_MenuItemToggle_proto;
+extern se::Class* __jsb_cocos2d_MenuItemToggle_class;
+
+bool js_register_cocos2d_MenuItemToggle(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemToggle_setSubItems);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemToggle_initWithItem);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemToggle_getSubItems);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemToggle_getSelectedIndex);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemToggle_addSubItem);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemToggle_getSelectedItem);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemToggle_setSelectedIndex);
+SE_DECLARE_FUNC(js_cocos2dx_MenuItemToggle_MenuItemToggle);
+
+extern se::Object* __jsb_cocos2d_Menu_proto;
+extern se::Class* __jsb_cocos2d_Menu_class;
+
+bool js_register_cocos2d_Menu(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Menu_initWithArray);
+SE_DECLARE_FUNC(js_cocos2dx_Menu_setEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_Menu_alignItemsVertically);
+SE_DECLARE_FUNC(js_cocos2dx_Menu_isEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_Menu_alignItemsHorizontally);
+SE_DECLARE_FUNC(js_cocos2dx_Menu_alignItemsHorizontallyWithPadding);
+SE_DECLARE_FUNC(js_cocos2dx_Menu_alignItemsVerticallyWithPadding);
+SE_DECLARE_FUNC(js_cocos2dx_Menu_alignItemsInRowsWithArray);
+SE_DECLARE_FUNC(js_cocos2dx_Menu_alignItemsInColumnsWithArray);
+SE_DECLARE_FUNC(js_cocos2dx_Menu_Menu);
+
+extern se::Object* __jsb_cocos2d_MotionStreak_proto;
+extern se::Class* __jsb_cocos2d_MotionStreak_class;
+
+bool js_register_cocos2d_MotionStreak(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_MotionStreak_reset);
+SE_DECLARE_FUNC(js_cocos2dx_MotionStreak_setTexture);
+SE_DECLARE_FUNC(js_cocos2dx_MotionStreak_setMinSeg);
+SE_DECLARE_FUNC(js_cocos2dx_MotionStreak_getTexture);
+SE_DECLARE_FUNC(js_cocos2dx_MotionStreak_tintWithColor);
+SE_DECLARE_FUNC(js_cocos2dx_MotionStreak_getMinSeg);
+SE_DECLARE_FUNC(js_cocos2dx_MotionStreak_setBlendFunc);
+SE_DECLARE_FUNC(js_cocos2dx_MotionStreak_setFadeTime);
+SE_DECLARE_FUNC(js_cocos2dx_MotionStreak_setStartingPositionInitialized);
+SE_DECLARE_FUNC(js_cocos2dx_MotionStreak_getFadeTime);
+SE_DECLARE_FUNC(js_cocos2dx_MotionStreak_getBlendFunc);
+SE_DECLARE_FUNC(js_cocos2dx_MotionStreak_isStartingPositionInitialized);
+SE_DECLARE_FUNC(js_cocos2dx_MotionStreak_isFastMode);
+SE_DECLARE_FUNC(js_cocos2dx_MotionStreak_getStroke);
+SE_DECLARE_FUNC(js_cocos2dx_MotionStreak_initWithFade);
+SE_DECLARE_FUNC(js_cocos2dx_MotionStreak_setFastMode);
+SE_DECLARE_FUNC(js_cocos2dx_MotionStreak_setStroke);
+SE_DECLARE_FUNC(js_cocos2dx_MotionStreak_create);
+SE_DECLARE_FUNC(js_cocos2dx_MotionStreak_MotionStreak);
+
+extern se::Object* __jsb_cocos2d_ParticleBatchNode_proto;
+extern se::Class* __jsb_cocos2d_ParticleBatchNode_class;
+
+bool js_register_cocos2d_ParticleBatchNode(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleBatchNode_setTexture);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleBatchNode_initWithTexture);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleBatchNode_disableParticle);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleBatchNode_getTexture);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleBatchNode_setTextureAtlas);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleBatchNode_initWithFile);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleBatchNode_setBlendFunc);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleBatchNode_removeAllChildrenWithCleanup);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleBatchNode_getBlendFunc);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleBatchNode_insertChild);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleBatchNode_removeChildAtIndex);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleBatchNode_create);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleBatchNode_createWithTexture);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleBatchNode_ParticleBatchNode);
+
+extern se::Object* __jsb_cocos2d_ParticleSystem_proto;
+extern se::Class* __jsb_cocos2d_ParticleSystem_class;
+
+bool js_register_cocos2d_ParticleSystem(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getStartSizeVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getTexture);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_isFull);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getBatchNode);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getStartColor);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getPositionType);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setPosVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getEndSpin);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setRotatePerSecondVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getStartSpinVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getRadialAccelVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getEndSizeVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setTangentialAccel);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getRadialAccel);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setStartRadius);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setRotatePerSecond);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setEndSize);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getGravity);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_resumeEmissions);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getTangentialAccel);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setEndRadius);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getSpeed);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_pauseEmissions);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getAngle);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setEndColor);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setStartSpin);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setDuration);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_initWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_addParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setTexture);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getPosVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_updateWithNoTime);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_isBlendAdditive);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getSpeedVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setPositionType);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_stopSystem);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getSourcePosition);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setLifeVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setEndColorVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getAtlasIndex);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getStartSize);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setStartSpinVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_resetSystem);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setAtlasIndex);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setTangentialAccelVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setEndRadiusVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getEndRadius);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_isActive);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setRadialAccelVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setStartSize);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setSpeed);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getStartSpin);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getResourceFile);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getRotatePerSecond);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setEmitterMode);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getDuration);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setSourcePosition);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_stop);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_updateParticleQuads);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getEndSpinVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setBlendAdditive);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setLife);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setAngleVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setRotationIsDir);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_start);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setEndSizeVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setAngle);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setBatchNode);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getTangentialAccelVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getEmitterMode);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setEndSpinVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_initWithFile);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getAngleVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setStartColor);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getRotatePerSecondVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getEndSize);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getLife);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_isPaused);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setSpeedVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setAutoRemoveOnFinish);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setGravity);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_postStep);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setEmissionRate);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getEndColorVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getRotationIsDir);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getEmissionRate);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getEndColor);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getLifeVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setStartSizeVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getStartRadius);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getParticleCount);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getStartRadiusVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getBlendFunc);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setStartColorVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setEndSpin);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setRadialAccel);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_initWithDictionary);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_isAutoRemoveOnFinish);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setStartRadiusVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_setBlendFunc);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getEndRadiusVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_getStartColorVar);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_create);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_createWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystem_ParticleSystem);
+
+extern se::Object* __jsb_cocos2d_ParticleSystemQuad_proto;
+extern se::Class* __jsb_cocos2d_ParticleSystemQuad_class;
+
+bool js_register_cocos2d_ParticleSystemQuad(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystemQuad_setDisplayFrame);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystemQuad_setTextureWithRect);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystemQuad_listenRendererRecreated);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystemQuad_create);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystemQuad_createWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSystemQuad_ParticleSystemQuad);
+
+extern se::Object* __jsb_cocos2d_ParticleFire_proto;
+extern se::Class* __jsb_cocos2d_ParticleFire_class;
+
+bool js_register_cocos2d_ParticleFire(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleFire_create);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleFire_createWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleFire_ParticleFire);
+
+extern se::Object* __jsb_cocos2d_ParticleFireworks_proto;
+extern se::Class* __jsb_cocos2d_ParticleFireworks_class;
+
+bool js_register_cocos2d_ParticleFireworks(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleFireworks_init);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleFireworks_initWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleFireworks_create);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleFireworks_createWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleFireworks_ParticleFireworks);
+
+extern se::Object* __jsb_cocos2d_ParticleSun_proto;
+extern se::Class* __jsb_cocos2d_ParticleSun_class;
+
+bool js_register_cocos2d_ParticleSun(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSun_init);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSun_initWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSun_create);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSun_createWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSun_ParticleSun);
+
+extern se::Object* __jsb_cocos2d_ParticleGalaxy_proto;
+extern se::Class* __jsb_cocos2d_ParticleGalaxy_class;
+
+bool js_register_cocos2d_ParticleGalaxy(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleGalaxy_init);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleGalaxy_initWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleGalaxy_create);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleGalaxy_createWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleGalaxy_ParticleGalaxy);
+
+extern se::Object* __jsb_cocos2d_ParticleFlower_proto;
+extern se::Class* __jsb_cocos2d_ParticleFlower_class;
+
+bool js_register_cocos2d_ParticleFlower(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleFlower_init);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleFlower_initWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleFlower_create);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleFlower_createWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleFlower_ParticleFlower);
+
+extern se::Object* __jsb_cocos2d_ParticleMeteor_proto;
+extern se::Class* __jsb_cocos2d_ParticleMeteor_class;
+
+bool js_register_cocos2d_ParticleMeteor(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleMeteor_init);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleMeteor_initWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleMeteor_create);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleMeteor_createWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleMeteor_ParticleMeteor);
+
+extern se::Object* __jsb_cocos2d_ParticleSpiral_proto;
+extern se::Class* __jsb_cocos2d_ParticleSpiral_class;
+
+bool js_register_cocos2d_ParticleSpiral(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSpiral_init);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSpiral_initWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSpiral_create);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSpiral_createWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSpiral_ParticleSpiral);
+
+extern se::Object* __jsb_cocos2d_ParticleExplosion_proto;
+extern se::Class* __jsb_cocos2d_ParticleExplosion_class;
+
+bool js_register_cocos2d_ParticleExplosion(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleExplosion_init);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleExplosion_initWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleExplosion_create);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleExplosion_createWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleExplosion_ParticleExplosion);
+
+extern se::Object* __jsb_cocos2d_ParticleSmoke_proto;
+extern se::Class* __jsb_cocos2d_ParticleSmoke_class;
+
+bool js_register_cocos2d_ParticleSmoke(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSmoke_init);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSmoke_initWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSmoke_create);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSmoke_createWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSmoke_ParticleSmoke);
+
+extern se::Object* __jsb_cocos2d_ParticleSnow_proto;
+extern se::Class* __jsb_cocos2d_ParticleSnow_class;
+
+bool js_register_cocos2d_ParticleSnow(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSnow_init);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSnow_initWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSnow_create);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSnow_createWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleSnow_ParticleSnow);
+
+extern se::Object* __jsb_cocos2d_ParticleRain_proto;
+extern se::Class* __jsb_cocos2d_ParticleRain_class;
+
+bool js_register_cocos2d_ParticleRain(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleRain_init);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleRain_initWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleRain_create);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleRain_createWithTotalParticles);
+SE_DECLARE_FUNC(js_cocos2dx_ParticleRain_ParticleRain);
+
+extern se::Object* __jsb_cocos2d_ProtectedNode_proto;
+extern se::Class* __jsb_cocos2d_ProtectedNode_class;
+
+bool js_register_cocos2d_ProtectedNode(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ProtectedNode_addProtectedChild);
+SE_DECLARE_FUNC(js_cocos2dx_ProtectedNode_disableCascadeColor);
+SE_DECLARE_FUNC(js_cocos2dx_ProtectedNode_removeProtectedChildByTag);
+SE_DECLARE_FUNC(js_cocos2dx_ProtectedNode_reorderProtectedChild);
+SE_DECLARE_FUNC(js_cocos2dx_ProtectedNode_removeAllProtectedChildrenWithCleanup);
+SE_DECLARE_FUNC(js_cocos2dx_ProtectedNode_disableCascadeOpacity);
+SE_DECLARE_FUNC(js_cocos2dx_ProtectedNode_sortAllProtectedChildren);
+SE_DECLARE_FUNC(js_cocos2dx_ProtectedNode_getProtectedChildByTag);
+SE_DECLARE_FUNC(js_cocos2dx_ProtectedNode_removeProtectedChild);
+SE_DECLARE_FUNC(js_cocos2dx_ProtectedNode_removeAllProtectedChildren);
+SE_DECLARE_FUNC(js_cocos2dx_ProtectedNode_create);
+SE_DECLARE_FUNC(js_cocos2dx_ProtectedNode_ProtectedNode);
+
+extern se::Object* __jsb_cocos2d_Sprite_proto;
+extern se::Class* __jsb_cocos2d_Sprite_class;
+
+bool js_register_cocos2d_Sprite(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_setSpriteFrame);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_setTexture);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_getTexture);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_setFlippedY);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_setFlippedX);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_setRotationSkewX);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_setRotationSkewY);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_getResourceType);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_initWithTexture);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_getBatchNode);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_getOffsetPosition);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_removeAllChildrenWithCleanup);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_setTextureRect);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_initWithSpriteFrameName);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_isFrameDisplayed);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_getAtlasIndex);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_setBatchNode);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_getBlendFunc);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_setDisplayFrameWithAnimationName);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_setTextureAtlas);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_getSpriteFrame);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_getResourceName);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_isDirty);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_setAtlasIndex);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_setDirty);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_isTextureRectRotated);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_getTextureRect);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_initWithFile);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_setBlendFunc);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_getTextureAtlas);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_initWithSpriteFrame);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_isFlippedX);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_isFlippedY);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_setVertexRect);
+SE_DECLARE_FUNC(js_cocos2dx_Sprite_Sprite);
+
+extern se::Object* __jsb_cocos2d_RenderTexture_proto;
+extern se::Class* __jsb_cocos2d_RenderTexture_class;
+
+bool js_register_cocos2d_RenderTexture(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_setVirtualViewport);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_clearStencil);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_getClearDepth);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_getClearStencil);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_end);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_setClearStencil);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_setSprite);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_getSprite);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_isAutoDraw);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_setKeepMatrix);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_setClearFlags);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_begin);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_setAutoDraw);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_setClearColor);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_beginWithClear);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_clearDepth);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_getClearColor);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_clear);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_getClearFlags);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_newImage);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_setClearDepth);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_initWithWidthAndHeight);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_create);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_RenderTexture);
+
+extern se::Object* __jsb_cocos2d_GLProgram_proto;
+extern se::Class* __jsb_cocos2d_GLProgram_class;
+
+bool js_register_cocos2d_GLProgram(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_getFragmentShaderLog);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_bindAttribLocation);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_getUniformLocationForName);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_use);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_getVertexShaderLog);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_getUniform);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_initWithByteArrays);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_setUniformLocationWith1f);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_initWithFilenames);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_setUniformLocationWith3f);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_setUniformsForBuiltins);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_setUniformLocationWith3i);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_setUniformLocationWith4f);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_updateUniforms);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_getUniformLocation);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_link);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_reset);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_getAttribLocation);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_setUniformLocationWith2f);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_setUniformLocationWith4i);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_setUniformLocationWith1i);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_setUniformLocationWith2i);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_createWithByteArrays);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_createWithFilenames);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgram_GLProgram);
+
+extern se::Object* __jsb_cocos2d_GLProgramCache_proto;
+extern se::Class* __jsb_cocos2d_GLProgramCache_class;
+
+bool js_register_cocos2d_GLProgramCache(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramCache_loadDefaultGLPrograms);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramCache_reloadDefaultGLProgramsRelativeToLights);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramCache_addGLProgram);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramCache_reloadDefaultGLPrograms);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramCache_getGLProgram);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramCache_destroyInstance);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramCache_getInstance);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramCache_GLProgramCache);
+
+extern se::Object* __jsb_cocos2d_TextureCache_proto;
+extern se::Class* __jsb_cocos2d_TextureCache_class;
+
+bool js_register_cocos2d_TextureCache(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_TextureCache_reloadTexture);
+SE_DECLARE_FUNC(js_cocos2dx_TextureCache_unbindAllImageAsync);
+SE_DECLARE_FUNC(js_cocos2dx_TextureCache_removeTextureForKey);
+SE_DECLARE_FUNC(js_cocos2dx_TextureCache_removeAllTextures);
+SE_DECLARE_FUNC(js_cocos2dx_TextureCache_addImageAsync);
+SE_DECLARE_FUNC(js_cocos2dx_TextureCache_getAllTextures);
+SE_DECLARE_FUNC(js_cocos2dx_TextureCache_getDescription);
+SE_DECLARE_FUNC(js_cocos2dx_TextureCache_getCachedTextureInfo);
+SE_DECLARE_FUNC(js_cocos2dx_TextureCache_addImage);
+SE_DECLARE_FUNC(js_cocos2dx_TextureCache_unbindImageAsync);
+SE_DECLARE_FUNC(js_cocos2dx_TextureCache_getTextureForKey);
+SE_DECLARE_FUNC(js_cocos2dx_TextureCache_getTextureFilePath);
+SE_DECLARE_FUNC(js_cocos2dx_TextureCache_renameTextureWithKey);
+SE_DECLARE_FUNC(js_cocos2dx_TextureCache_removeUnusedTextures);
+SE_DECLARE_FUNC(js_cocos2dx_TextureCache_removeTexture);
+SE_DECLARE_FUNC(js_cocos2dx_TextureCache_waitForQuit);
+SE_DECLARE_FUNC(js_cocos2dx_TextureCache_TextureCache);
+
+extern se::Object* __jsb_cocos2d_Device_proto;
+extern se::Class* __jsb_cocos2d_Device_class;
+
+bool js_register_cocos2d_Device(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Device_setAccelerometerEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_Device_setAccelerometerInterval);
+SE_DECLARE_FUNC(js_cocos2dx_Device_setKeepScreenOn);
+SE_DECLARE_FUNC(js_cocos2dx_Device_vibrate);
+SE_DECLARE_FUNC(js_cocos2dx_Device_getDPI);
+
+extern se::Object* __jsb_cocos2d_SAXParser_proto;
+extern se::Class* __jsb_cocos2d_SAXParser_class;
+
+bool js_register_cocos2d_SAXParser(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_SAXParser_init);
+
+extern se::Object* __jsb_cocos2d_Application_proto;
+extern se::Class* __jsb_cocos2d_Application_class;
+
+bool js_register_cocos2d_Application(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_Application_getTargetPlatform);
+SE_DECLARE_FUNC(js_cocos2dx_Application_getCurrentLanguage);
+SE_DECLARE_FUNC(js_cocos2dx_Application_openURL);
+SE_DECLARE_FUNC(js_cocos2dx_Application_getVersion);
+SE_DECLARE_FUNC(js_cocos2dx_Application_destroyInstance);
+SE_DECLARE_FUNC(js_cocos2dx_Application_getInstance);
+
+extern se::Object* __jsb_cocos2d_SpriteBatchNode_proto;
+extern se::Class* __jsb_cocos2d_SpriteBatchNode_class;
+
+bool js_register_cocos2d_SpriteBatchNode(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteBatchNode_appendChild);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteBatchNode_addSpriteWithoutQuad);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteBatchNode_reorderBatch);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteBatchNode_initWithTexture);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteBatchNode_getBlendFunc);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteBatchNode_lowestAtlasIndexInChild);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteBatchNode_atlasIndexForChild);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteBatchNode_setTextureAtlas);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteBatchNode_initWithFile);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteBatchNode_getTexture);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteBatchNode_increaseAtlasCapacity);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteBatchNode_insertQuadFromSprite);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteBatchNode_setTexture);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteBatchNode_rebuildIndexInOrder);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteBatchNode_highestAtlasIndexInChild);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteBatchNode_removeChildAtIndex);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteBatchNode_removeSpriteFromAtlas);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteBatchNode_setBlendFunc);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteBatchNode_create);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteBatchNode_createWithTexture);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteBatchNode_SpriteBatchNode);
+
+extern se::Object* __jsb_cocos2d_SpriteFrameCache_proto;
+extern se::Class* __jsb_cocos2d_SpriteFrameCache_class;
+
+bool js_register_cocos2d_SpriteFrameCache(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrameCache_reloadTexture);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrameCache_addSpriteFramesWithFileContent);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrameCache_addSpriteFrame);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrameCache_addSpriteFramesWithFile);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrameCache_getSpriteFrameByName);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrameCache_removeSpriteFramesFromFile);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrameCache_init);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrameCache_removeSpriteFrames);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrameCache_removeUnusedSpriteFrames);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrameCache_removeSpriteFramesFromFileContent);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrameCache_removeSpriteFrameByName);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrameCache_isSpriteFramesWithFileLoaded);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrameCache_removeSpriteFramesFromTexture);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrameCache_destroyInstance);
+SE_DECLARE_FUNC(js_cocos2dx_SpriteFrameCache_getInstance);
+
+extern se::Object* __jsb_cocos2d_TextFieldTTF_proto;
+extern se::Class* __jsb_cocos2d_TextFieldTTF_class;
+
+bool js_register_cocos2d_TextFieldTTF(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_TextFieldTTF_getCharCount);
+SE_DECLARE_FUNC(js_cocos2dx_TextFieldTTF_setCursorChar);
+SE_DECLARE_FUNC(js_cocos2dx_TextFieldTTF_setSecureTextEntry);
+SE_DECLARE_FUNC(js_cocos2dx_TextFieldTTF_setCursorEnabled);
+SE_DECLARE_FUNC(js_cocos2dx_TextFieldTTF_getColorSpaceHolder);
+SE_DECLARE_FUNC(js_cocos2dx_TextFieldTTF_initWithPlaceHolder);
+SE_DECLARE_FUNC(js_cocos2dx_TextFieldTTF_appendString);
+SE_DECLARE_FUNC(js_cocos2dx_TextFieldTTF_getPasswordTextStyle);
+SE_DECLARE_FUNC(js_cocos2dx_TextFieldTTF_setPasswordTextStyle);
+SE_DECLARE_FUNC(js_cocos2dx_TextFieldTTF_setColorSpaceHolder);
+SE_DECLARE_FUNC(js_cocos2dx_TextFieldTTF_detachWithIME);
+SE_DECLARE_FUNC(js_cocos2dx_TextFieldTTF_setPlaceHolder);
+SE_DECLARE_FUNC(js_cocos2dx_TextFieldTTF_setCursorFromPoint);
+SE_DECLARE_FUNC(js_cocos2dx_TextFieldTTF_isSecureTextEntry);
+SE_DECLARE_FUNC(js_cocos2dx_TextFieldTTF_getPlaceHolder);
+SE_DECLARE_FUNC(js_cocos2dx_TextFieldTTF_setCursorPosition);
+SE_DECLARE_FUNC(js_cocos2dx_TextFieldTTF_attachWithIME);
+SE_DECLARE_FUNC(js_cocos2dx_TextFieldTTF_textFieldWithPlaceHolder);
+SE_DECLARE_FUNC(js_cocos2dx_TextFieldTTF_TextFieldTTF);
+
+extern se::Object* __jsb_cocos2d_ParallaxNode_proto;
+extern se::Class* __jsb_cocos2d_ParallaxNode_class;
+
+bool js_register_cocos2d_ParallaxNode(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_ParallaxNode_addChild);
+SE_DECLARE_FUNC(js_cocos2dx_ParallaxNode_removeAllChildrenWithCleanup);
+SE_DECLARE_FUNC(js_cocos2dx_ParallaxNode_create);
+SE_DECLARE_FUNC(js_cocos2dx_ParallaxNode_ParallaxNode);
+
+extern se::Object* __jsb_cocos2d_TMXObject_proto;
+extern se::Class* __jsb_cocos2d_TMXObject_class;
+
+bool js_register_cocos2d_TMXObject(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObject_getGid);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObject_setObjectName);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObject_getObjectSize);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObject_getProperty);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObject_getObjectVisible);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObject_getType);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObject_getId);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObject_getObjectRotation);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObject_getProperties);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObject_getOffset);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObject_setProperties);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObject_getObjectName);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObject_getNode);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObject_TMXObject);
+
+extern se::Object* __jsb_cocos2d_TMXObjectImage_proto;
+extern se::Class* __jsb_cocos2d_TMXObjectImage_class;
+
+bool js_register_cocos2d_TMXObjectImage(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObjectImage_TMXObjectImage);
+
+extern se::Object* __jsb_cocos2d_TMXObjectShape_proto;
+extern se::Class* __jsb_cocos2d_TMXObjectShape_class;
+
+bool js_register_cocos2d_TMXObjectShape(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObjectShape_TMXObjectShape);
+
+extern se::Object* __jsb_cocos2d_TMXObjectGroup_proto;
+extern se::Class* __jsb_cocos2d_TMXObjectGroup_class;
+
+bool js_register_cocos2d_TMXObjectGroup(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObjectGroup_setPositionOffset);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObjectGroup_getProperty);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObjectGroup_getPositionOffset);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObjectGroup_getObject);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObjectGroup_getObjects);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObjectGroup_setGroupName);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObjectGroup_getProperties);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObjectGroup_getGroupName);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObjectGroup_setProperties);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObjectGroup_TMXObjectGroup);
+
+extern se::Object* __jsb_cocos2d_TMXLayerInfo_proto;
+extern se::Class* __jsb_cocos2d_TMXLayerInfo_class;
+
+bool js_register_cocos2d_TMXLayerInfo(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayerInfo_setProperties);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayerInfo_getProperties);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayerInfo_TMXLayerInfo);
+
+extern se::Object* __jsb_cocos2d_TMXObjectGroupInfo_proto;
+extern se::Class* __jsb_cocos2d_TMXObjectGroupInfo_class;
+
+bool js_register_cocos2d_TMXObjectGroupInfo(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObjectGroupInfo_setProperties);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObjectGroupInfo_getProperties);
+SE_DECLARE_FUNC(js_cocos2dx_TMXObjectGroupInfo_TMXObjectGroupInfo);
+
+extern se::Object* __jsb_cocos2d_TMXTilesetInfo_proto;
+extern se::Class* __jsb_cocos2d_TMXTilesetInfo_class;
+
+bool js_register_cocos2d_TMXTilesetInfo(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_TMXTilesetInfo_getRectForGID);
+SE_DECLARE_FUNC(js_cocos2dx_TMXTilesetInfo_TMXTilesetInfo);
+
+extern se::Object* __jsb_cocos2d_TMXMapInfo_proto;
+extern se::Class* __jsb_cocos2d_TMXMapInfo_class;
+
+bool js_register_cocos2d_TMXMapInfo(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_getAllChildren);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_getHexSideLength);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_setTileSize);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_initWithTMXFile);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_getOrientation);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_setObjectGroups);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_setLayers);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_parseXMLFile);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_getParentElement);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_setTMXFileName);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_parseXMLString);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_getLayers);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_getStaggerAxis);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_setHexSideLength);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_getTilesets);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_getParentGID);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_setParentElement);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_initWithXML);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_setParentGID);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_getLayerAttribs);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_getTileSize);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_setAllChildren);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_getTileProperties);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_isStoringCharacters);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_getExternalTilesetFileName);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_getObjectGroups);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_getTMXFileName);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_setStaggerIndex);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_setCurrentString);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_setProperties);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_setOrientation);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_setTileProperties);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_setMapSize);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_getCurrentString);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_setStoringCharacters);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_setStaggerAxis);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_getMapSize);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_setTilesets);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_getProperties);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_getStaggerIndex);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_setLayerAttribs);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_create);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_createWithXML);
+SE_DECLARE_FUNC(js_cocos2dx_TMXMapInfo_TMXMapInfo);
+
+extern se::Object* __jsb_cocos2d_TMXLayer_proto;
+extern se::Class* __jsb_cocos2d_TMXLayer_class;
+
+bool js_register_cocos2d_TMXLayer(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_getTileGIDAt);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_getPositionAt);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_setLayerOrientation);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_setTileOpacity);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_releaseMap);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_getLayerSize);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_setMapTileSize);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_getLayerOrientation);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_setProperties);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_setLayerName);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_removeTileAt);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_initWithTilesetInfo);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_setupTiles);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_setTileGID);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_getMapTileSize);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_getProperty);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_setLayerSize);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_getLayerName);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_setTileSet);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_getTileSet);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_getProperties);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_getTileAt);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_create);
+SE_DECLARE_FUNC(js_cocos2dx_TMXLayer_TMXLayer);
+
+extern se::Object* __jsb_cocos2d_TMXTiledMap_proto;
+extern se::Class* __jsb_cocos2d_TMXTiledMap_class;
+
+bool js_register_cocos2d_TMXTiledMap(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_TMXTiledMap_getProperty);
+SE_DECLARE_FUNC(js_cocos2dx_TMXTiledMap_getLayerNum);
+SE_DECLARE_FUNC(js_cocos2dx_TMXTiledMap_setMapSize);
+SE_DECLARE_FUNC(js_cocos2dx_TMXTiledMap_getObjectGroup);
+SE_DECLARE_FUNC(js_cocos2dx_TMXTiledMap_getObjectGroups);
+SE_DECLARE_FUNC(js_cocos2dx_TMXTiledMap_getResourceFile);
+SE_DECLARE_FUNC(js_cocos2dx_TMXTiledMap_initWithTMXFile);
+SE_DECLARE_FUNC(js_cocos2dx_TMXTiledMap_getTileSize);
+SE_DECLARE_FUNC(js_cocos2dx_TMXTiledMap_getMapSize);
+SE_DECLARE_FUNC(js_cocos2dx_TMXTiledMap_initWithXML);
+SE_DECLARE_FUNC(js_cocos2dx_TMXTiledMap_getProperties);
+SE_DECLARE_FUNC(js_cocos2dx_TMXTiledMap_getPropertiesForGID);
+SE_DECLARE_FUNC(js_cocos2dx_TMXTiledMap_setTileSize);
+SE_DECLARE_FUNC(js_cocos2dx_TMXTiledMap_setProperties);
+SE_DECLARE_FUNC(js_cocos2dx_TMXTiledMap_getLayer);
+SE_DECLARE_FUNC(js_cocos2dx_TMXTiledMap_getMapOrientation);
+SE_DECLARE_FUNC(js_cocos2dx_TMXTiledMap_setMapOrientation);
+SE_DECLARE_FUNC(js_cocos2dx_TMXTiledMap_create);
+SE_DECLARE_FUNC(js_cocos2dx_TMXTiledMap_createWithXML);
+SE_DECLARE_FUNC(js_cocos2dx_TMXTiledMap_TMXTiledMap);
+
+extern se::Object* __jsb_cocos2d_TileMapAtlas_proto;
+extern se::Class* __jsb_cocos2d_TileMapAtlas_class;
+
+bool js_register_cocos2d_TileMapAtlas(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_TileMapAtlas_initWithTileFile);
+SE_DECLARE_FUNC(js_cocos2dx_TileMapAtlas_releaseMap);
+SE_DECLARE_FUNC(js_cocos2dx_TileMapAtlas_getTileAt);
+SE_DECLARE_FUNC(js_cocos2dx_TileMapAtlas_setTile);
+SE_DECLARE_FUNC(js_cocos2dx_TileMapAtlas_create);
+SE_DECLARE_FUNC(js_cocos2dx_TileMapAtlas_TileMapAtlas);
+
+extern se::Object* __jsb_cocos2d_BaseJSAction_proto;
+extern se::Class* __jsb_cocos2d_BaseJSAction_class;
+
+bool js_register_cocos2d_BaseJSAction(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_BaseJSAction_BaseJSAction);
+

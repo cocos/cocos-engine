@@ -54,6 +54,8 @@ public:
     EventFocus(ui::Widget* widgetLoseFocus, ui::Widget* widgetGetFocus);
 
 private:
+    virtual ~EventFocus() {}
+
     ui::Widget *_widgetGetFocus;
     ui::Widget *_widgetLoseFocus;
 

@@ -1,452 +1,642 @@
 #include "scripting/js-bindings/auto/jsb_cocos2dx_experimental_webView_auto.hpp"
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && !defined(CC_TARGET_OS_TVOS)
-#include "scripting/js-bindings/manual/cocos2d_specifics.hpp"
+#include "scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "ui/UIWebView.h"
 
-JSClass  *jsb_cocos2d_experimental_ui_WebView_class;
-JS::PersistentRootedObject *jsb_cocos2d_experimental_ui_WebView_prototype;
+se::Object* __jsb_cocos2d_experimental_ui_WebView_proto = nullptr;
+se::Class* __jsb_cocos2d_experimental_ui_WebView_class = nullptr;
 
-bool js_cocos2dx_experimental_webView_WebView_canGoBack(JSContext *cx, uint32_t argc, JS::Value *vp)
+static bool js_cocos2dx_experimental_webView_WebView_setOnShouldStartLoading(se::State& s)
 {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true; CC_UNUSED_PARAM(ok);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_webView_WebView_canGoBack : Invalid Native Object");
-    if (argc == 0) {
-        bool ret = cobj->canGoBack();
-        JS::RootedValue jsret(cx);
-        jsret = JS::BooleanValue(ret);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_webView_WebView_canGoBack : error parsing return value");
-        args.rval().set(jsret);
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_webView_WebView_setOnShouldStartLoading : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        std::function<bool (cocos2d::experimental::ui::WebView *, const std::basic_string<char> &)> arg0;
+        do {
+            if (args[0].isObject() && args[0].toObject()->isFunction())
+            {
+                se::Value jsThis(s.thisObject());
+                se::Value jsFunc(args[0]);
+                jsThis.toObject()->attachChild(jsFunc.toObject());
+                auto lambda = [=](cocos2d::experimental::ui::WebView* larg0, const std::basic_string<char> & larg1) -> bool {
+                    se::ScriptEngine::getInstance()->clearException();
+                    se::AutoHandleScope hs;
+        
+                    CC_UNUSED bool ok = true;
+                    se::ValueArray args;
+                    args.resize(2);
+                    ok &= native_ptr_to_seval<cocos2d::experimental::ui::WebView>((cocos2d::experimental::ui::WebView*)larg0, &args[0]);
+                    ok &= std_string_to_seval(larg1, &args[1]);
+                    se::Value rval;
+                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
+                    se::Object* funcObj = jsFunc.toObject();
+                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    if (!succeed) {
+                        se::ScriptEngine::getInstance()->clearException();
+                    }
+                    bool result;
+                    ok &= seval_to_boolean(rval, &result);
+                    SE_PRECONDITION2(ok, result, "lambda function : Error processing return value with type bool");
+                    return result;
+                };
+                arg0 = lambda;
+            }
+            else
+            {
+                arg0 = nullptr;
+            }
+        } while(false)
+        ;
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_webView_WebView_setOnShouldStartLoading : Error processing arguments");
+        cobj->setOnShouldStartLoading(arg0);
         return true;
     }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_webView_WebView_canGoBack : wrong number of arguments: %d, was expecting %d", argc, 0);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-bool js_cocos2dx_experimental_webView_WebView_loadHTMLString(JSContext *cx, uint32_t argc, JS::Value *vp)
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_setOnShouldStartLoading)
+
+static bool js_cocos2dx_experimental_webView_WebView_setOnDidFailLoading(se::State& s)
 {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true; CC_UNUSED_PARAM(ok);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_webView_WebView_loadHTMLString : Invalid Native Object");
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_webView_WebView_setOnDidFailLoading : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        std::function<void (cocos2d::experimental::ui::WebView *, const std::basic_string<char> &)> arg0;
+        do {
+            if (args[0].isObject() && args[0].toObject()->isFunction())
+            {
+                se::Value jsThis(s.thisObject());
+                se::Value jsFunc(args[0]);
+                jsThis.toObject()->attachChild(jsFunc.toObject());
+                auto lambda = [=](cocos2d::experimental::ui::WebView* larg0, const std::basic_string<char> & larg1) -> void {
+                    se::ScriptEngine::getInstance()->clearException();
+                    se::AutoHandleScope hs;
+        
+                    CC_UNUSED bool ok = true;
+                    se::ValueArray args;
+                    args.resize(2);
+                    ok &= native_ptr_to_seval<cocos2d::experimental::ui::WebView>((cocos2d::experimental::ui::WebView*)larg0, &args[0]);
+                    ok &= std_string_to_seval(larg1, &args[1]);
+                    se::Value rval;
+                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
+                    se::Object* funcObj = jsFunc.toObject();
+                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    if (!succeed) {
+                        se::ScriptEngine::getInstance()->clearException();
+                    }
+                };
+                arg0 = lambda;
+            }
+            else
+            {
+                arg0 = nullptr;
+            }
+        } while(false)
+        ;
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_webView_WebView_setOnDidFailLoading : Error processing arguments");
+        cobj->setOnDidFailLoading(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_setOnDidFailLoading)
+
+static bool js_cocos2dx_experimental_webView_WebView_canGoBack(se::State& s)
+{
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_webView_WebView_canGoBack : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->canGoBack();
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_webView_WebView_canGoBack : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_canGoBack)
+
+static bool js_cocos2dx_experimental_webView_WebView_loadHTMLString(se::State& s)
+{
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_webView_WebView_loadHTMLString : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         std::string arg0;
-        ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_webView_WebView_loadHTMLString : Error processing arguments");
+        ok &= seval_to_std_string(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_webView_WebView_loadHTMLString : Error processing arguments");
         cobj->loadHTMLString(arg0);
-        args.rval().setUndefined();
         return true;
     }
     if (argc == 2) {
         std::string arg0;
         std::string arg1;
-        ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        ok &= jsval_to_std_string(cx, args.get(1), &arg1);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_webView_WebView_loadHTMLString : Error processing arguments");
+        ok &= seval_to_std_string(args[0], &arg0);
+        ok &= seval_to_std_string(args[1], &arg1);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_webView_WebView_loadHTMLString : Error processing arguments");
         cobj->loadHTMLString(arg0, arg1);
-        args.rval().setUndefined();
         return true;
     }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_webView_WebView_loadHTMLString : wrong number of arguments: %d, was expecting %d", argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
-bool js_cocos2dx_experimental_webView_WebView_goForward(JSContext *cx, uint32_t argc, JS::Value *vp)
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_loadHTMLString)
+
+static bool js_cocos2dx_experimental_webView_WebView_goForward(se::State& s)
 {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_webView_WebView_goForward : Invalid Native Object");
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_webView_WebView_goForward : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->goForward();
-        args.rval().setUndefined();
         return true;
     }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_webView_WebView_goForward : wrong number of arguments: %d, was expecting %d", argc, 0);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-bool js_cocos2dx_experimental_webView_WebView_goBack(JSContext *cx, uint32_t argc, JS::Value *vp)
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_goForward)
+
+static bool js_cocos2dx_experimental_webView_WebView_goBack(se::State& s)
 {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_webView_WebView_goBack : Invalid Native Object");
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_webView_WebView_goBack : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->goBack();
-        args.rval().setUndefined();
         return true;
     }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_webView_WebView_goBack : wrong number of arguments: %d, was expecting %d", argc, 0);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-bool js_cocos2dx_experimental_webView_WebView_setScalesPageToFit(JSContext *cx, uint32_t argc, JS::Value *vp)
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_goBack)
+
+static bool js_cocos2dx_experimental_webView_WebView_setScalesPageToFit(se::State& s)
 {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true; CC_UNUSED_PARAM(ok);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_webView_WebView_setScalesPageToFit : Invalid Native Object");
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_webView_WebView_setScalesPageToFit : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         bool arg0;
-        ok &= jsval_to_bool(cx, args.get(0), &arg0);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_webView_WebView_setScalesPageToFit : Error processing arguments");
+        ok &= seval_to_boolean(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_webView_WebView_setScalesPageToFit : Error processing arguments");
         cobj->setScalesPageToFit(arg0);
-        args.rval().setUndefined();
         return true;
     }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_webView_WebView_setScalesPageToFit : wrong number of arguments: %d, was expecting %d", argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-bool js_cocos2dx_experimental_webView_WebView_getOnDidFailLoading(JSContext *cx, uint32_t argc, JS::Value *vp)
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_setScalesPageToFit)
+
+static bool js_cocos2dx_experimental_webView_WebView_getOnDidFailLoading(se::State& s)
 {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true; CC_UNUSED_PARAM(ok);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_webView_WebView_getOnDidFailLoading : Invalid Native Object");
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_webView_WebView_getOnDidFailLoading : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::experimental::ui::WebView::ccWebViewCallback ret = cobj->getOnDidFailLoading();
-        JS::RootedValue jsret(cx);
+        cocos2d::experimental::ui::WebView::ccWebViewCallback result = cobj->getOnDidFailLoading();
         #pragma warning NO CONVERSION FROM NATIVE FOR std::function;
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_webView_WebView_getOnDidFailLoading : error parsing return value");
-        args.rval().set(jsret);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_webView_WebView_getOnDidFailLoading : Error processing arguments");
         return true;
     }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_webView_WebView_getOnDidFailLoading : wrong number of arguments: %d, was expecting %d", argc, 0);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-bool js_cocos2dx_experimental_webView_WebView_loadFile(JSContext *cx, uint32_t argc, JS::Value *vp)
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_getOnDidFailLoading)
+
+static bool js_cocos2dx_experimental_webView_WebView_loadFile(se::State& s)
 {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true; CC_UNUSED_PARAM(ok);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_webView_WebView_loadFile : Invalid Native Object");
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_webView_WebView_loadFile : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         std::string arg0;
-        ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_webView_WebView_loadFile : Error processing arguments");
+        ok &= seval_to_std_string(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_webView_WebView_loadFile : Error processing arguments");
         cobj->loadFile(arg0);
-        args.rval().setUndefined();
         return true;
     }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_webView_WebView_loadFile : wrong number of arguments: %d, was expecting %d", argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-bool js_cocos2dx_experimental_webView_WebView_loadURL(JSContext *cx, uint32_t argc, JS::Value *vp)
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_loadFile)
+
+static bool js_cocos2dx_experimental_webView_WebView_loadURL(se::State& s)
 {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true; CC_UNUSED_PARAM(ok);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_webView_WebView_loadURL : Invalid Native Object");
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_webView_WebView_loadURL : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         std::string arg0;
-        ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_webView_WebView_loadURL : Error processing arguments");
+        ok &= seval_to_std_string(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_webView_WebView_loadURL : Error processing arguments");
         cobj->loadURL(arg0);
-        args.rval().setUndefined();
         return true;
     }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_webView_WebView_loadURL : wrong number of arguments: %d, was expecting %d", argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-bool js_cocos2dx_experimental_webView_WebView_setBounces(JSContext *cx, uint32_t argc, JS::Value *vp)
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_loadURL)
+
+static bool js_cocos2dx_experimental_webView_WebView_setBounces(se::State& s)
 {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true; CC_UNUSED_PARAM(ok);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_webView_WebView_setBounces : Invalid Native Object");
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_webView_WebView_setBounces : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         bool arg0;
-        ok &= jsval_to_bool(cx, args.get(0), &arg0);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_webView_WebView_setBounces : Error processing arguments");
+        ok &= seval_to_boolean(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_webView_WebView_setBounces : Error processing arguments");
         cobj->setBounces(arg0);
-        args.rval().setUndefined();
         return true;
     }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_webView_WebView_setBounces : wrong number of arguments: %d, was expecting %d", argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-bool js_cocos2dx_experimental_webView_WebView_evaluateJS(JSContext *cx, uint32_t argc, JS::Value *vp)
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_setBounces)
+
+static bool js_cocos2dx_experimental_webView_WebView_evaluateJS(se::State& s)
 {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true; CC_UNUSED_PARAM(ok);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_webView_WebView_evaluateJS : Invalid Native Object");
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_webView_WebView_evaluateJS : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         std::string arg0;
-        ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_webView_WebView_evaluateJS : Error processing arguments");
+        ok &= seval_to_std_string(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_webView_WebView_evaluateJS : Error processing arguments");
         cobj->evaluateJS(arg0);
-        args.rval().setUndefined();
         return true;
     }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_webView_WebView_evaluateJS : wrong number of arguments: %d, was expecting %d", argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-bool js_cocos2dx_experimental_webView_WebView_getOnJSCallback(JSContext *cx, uint32_t argc, JS::Value *vp)
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_evaluateJS)
+
+static bool js_cocos2dx_experimental_webView_WebView_setOnJSCallback(se::State& s)
 {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true; CC_UNUSED_PARAM(ok);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_webView_WebView_getOnJSCallback : Invalid Native Object");
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_webView_WebView_setOnJSCallback : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        std::function<void (cocos2d::experimental::ui::WebView *, const std::basic_string<char> &)> arg0;
+        do {
+            if (args[0].isObject() && args[0].toObject()->isFunction())
+            {
+                se::Value jsThis(s.thisObject());
+                se::Value jsFunc(args[0]);
+                jsThis.toObject()->attachChild(jsFunc.toObject());
+                auto lambda = [=](cocos2d::experimental::ui::WebView* larg0, const std::basic_string<char> & larg1) -> void {
+                    se::ScriptEngine::getInstance()->clearException();
+                    se::AutoHandleScope hs;
+        
+                    CC_UNUSED bool ok = true;
+                    se::ValueArray args;
+                    args.resize(2);
+                    ok &= native_ptr_to_seval<cocos2d::experimental::ui::WebView>((cocos2d::experimental::ui::WebView*)larg0, &args[0]);
+                    ok &= std_string_to_seval(larg1, &args[1]);
+                    se::Value rval;
+                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
+                    se::Object* funcObj = jsFunc.toObject();
+                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    if (!succeed) {
+                        se::ScriptEngine::getInstance()->clearException();
+                    }
+                };
+                arg0 = lambda;
+            }
+            else
+            {
+                arg0 = nullptr;
+            }
+        } while(false)
+        ;
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_webView_WebView_setOnJSCallback : Error processing arguments");
+        cobj->setOnJSCallback(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_setOnJSCallback)
+
+static bool js_cocos2dx_experimental_webView_WebView_getOnJSCallback(se::State& s)
+{
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_webView_WebView_getOnJSCallback : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::experimental::ui::WebView::ccWebViewCallback ret = cobj->getOnJSCallback();
-        JS::RootedValue jsret(cx);
+        cocos2d::experimental::ui::WebView::ccWebViewCallback result = cobj->getOnJSCallback();
         #pragma warning NO CONVERSION FROM NATIVE FOR std::function;
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_webView_WebView_getOnJSCallback : error parsing return value");
-        args.rval().set(jsret);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_webView_WebView_getOnJSCallback : Error processing arguments");
         return true;
     }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_webView_WebView_getOnJSCallback : wrong number of arguments: %d, was expecting %d", argc, 0);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-bool js_cocos2dx_experimental_webView_WebView_canGoForward(JSContext *cx, uint32_t argc, JS::Value *vp)
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_getOnJSCallback)
+
+static bool js_cocos2dx_experimental_webView_WebView_canGoForward(se::State& s)
 {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true; CC_UNUSED_PARAM(ok);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_webView_WebView_canGoForward : Invalid Native Object");
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_webView_WebView_canGoForward : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
-        bool ret = cobj->canGoForward();
-        JS::RootedValue jsret(cx);
-        jsret = JS::BooleanValue(ret);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_webView_WebView_canGoForward : error parsing return value");
-        args.rval().set(jsret);
+        bool result = cobj->canGoForward();
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_webView_WebView_canGoForward : Error processing arguments");
         return true;
     }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_webView_WebView_canGoForward : wrong number of arguments: %d, was expecting %d", argc, 0);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-bool js_cocos2dx_experimental_webView_WebView_getOnShouldStartLoading(JSContext *cx, uint32_t argc, JS::Value *vp)
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_canGoForward)
+
+static bool js_cocos2dx_experimental_webView_WebView_getOnShouldStartLoading(se::State& s)
 {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true; CC_UNUSED_PARAM(ok);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_webView_WebView_getOnShouldStartLoading : Invalid Native Object");
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_webView_WebView_getOnShouldStartLoading : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
-        std::function<bool (cocos2d::experimental::ui::WebView *, const std::basic_string<char> &)> ret = cobj->getOnShouldStartLoading();
-        JS::RootedValue jsret(cx);
+        std::function<bool (cocos2d::experimental::ui::WebView *, const std::basic_string<char> &)> result = cobj->getOnShouldStartLoading();
         #pragma warning NO CONVERSION FROM NATIVE FOR std::function;
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_webView_WebView_getOnShouldStartLoading : error parsing return value");
-        args.rval().set(jsret);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_webView_WebView_getOnShouldStartLoading : Error processing arguments");
         return true;
     }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_webView_WebView_getOnShouldStartLoading : wrong number of arguments: %d, was expecting %d", argc, 0);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-bool js_cocos2dx_experimental_webView_WebView_stopLoading(JSContext *cx, uint32_t argc, JS::Value *vp)
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_getOnShouldStartLoading)
+
+static bool js_cocos2dx_experimental_webView_WebView_stopLoading(se::State& s)
 {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_webView_WebView_stopLoading : Invalid Native Object");
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_webView_WebView_stopLoading : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->stopLoading();
-        args.rval().setUndefined();
         return true;
     }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_webView_WebView_stopLoading : wrong number of arguments: %d, was expecting %d", argc, 0);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-bool js_cocos2dx_experimental_webView_WebView_reload(JSContext *cx, uint32_t argc, JS::Value *vp)
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_stopLoading)
+
+static bool js_cocos2dx_experimental_webView_WebView_reload(se::State& s)
 {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_webView_WebView_reload : Invalid Native Object");
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_webView_WebView_reload : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
     if (argc == 0) {
         cobj->reload();
-        args.rval().setUndefined();
         return true;
     }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_webView_WebView_reload : wrong number of arguments: %d, was expecting %d", argc, 0);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-bool js_cocos2dx_experimental_webView_WebView_setJavascriptInterfaceScheme(JSContext *cx, uint32_t argc, JS::Value *vp)
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_reload)
+
+static bool js_cocos2dx_experimental_webView_WebView_loadData(se::State& s)
 {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true; CC_UNUSED_PARAM(ok);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_webView_WebView_setJavascriptInterfaceScheme : Invalid Native Object");
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_webView_WebView_loadData : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 4) {
+        cocos2d::Data arg0;
+        std::string arg1;
+        std::string arg2;
+        std::string arg3;
+        ok &= seval_to_Data(args[0], &arg0);
+        ok &= seval_to_std_string(args[1], &arg1);
+        ok &= seval_to_std_string(args[2], &arg2);
+        ok &= seval_to_std_string(args[3], &arg3);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_webView_WebView_loadData : Error processing arguments");
+        cobj->loadData(arg0, arg1, arg2, arg3);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_loadData)
+
+static bool js_cocos2dx_experimental_webView_WebView_setJavascriptInterfaceScheme(se::State& s)
+{
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_webView_WebView_setJavascriptInterfaceScheme : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         std::string arg0;
-        ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_webView_WebView_setJavascriptInterfaceScheme : Error processing arguments");
+        ok &= seval_to_std_string(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_webView_WebView_setJavascriptInterfaceScheme : Error processing arguments");
         cobj->setJavascriptInterfaceScheme(arg0);
-        args.rval().setUndefined();
         return true;
     }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_webView_WebView_setJavascriptInterfaceScheme : wrong number of arguments: %d, was expecting %d", argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-bool js_cocos2dx_experimental_webView_WebView_getOnDidFinishLoading(JSContext *cx, uint32_t argc, JS::Value *vp)
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_setJavascriptInterfaceScheme)
+
+static bool js_cocos2dx_experimental_webView_WebView_setOnDidFinishLoading(se::State& s)
 {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true; CC_UNUSED_PARAM(ok);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_webView_WebView_getOnDidFinishLoading : Invalid Native Object");
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_webView_WebView_setOnDidFinishLoading : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        std::function<void (cocos2d::experimental::ui::WebView *, const std::basic_string<char> &)> arg0;
+        do {
+            if (args[0].isObject() && args[0].toObject()->isFunction())
+            {
+                se::Value jsThis(s.thisObject());
+                se::Value jsFunc(args[0]);
+                jsThis.toObject()->attachChild(jsFunc.toObject());
+                auto lambda = [=](cocos2d::experimental::ui::WebView* larg0, const std::basic_string<char> & larg1) -> void {
+                    se::ScriptEngine::getInstance()->clearException();
+                    se::AutoHandleScope hs;
+        
+                    CC_UNUSED bool ok = true;
+                    se::ValueArray args;
+                    args.resize(2);
+                    ok &= native_ptr_to_seval<cocos2d::experimental::ui::WebView>((cocos2d::experimental::ui::WebView*)larg0, &args[0]);
+                    ok &= std_string_to_seval(larg1, &args[1]);
+                    se::Value rval;
+                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
+                    se::Object* funcObj = jsFunc.toObject();
+                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    if (!succeed) {
+                        se::ScriptEngine::getInstance()->clearException();
+                    }
+                };
+                arg0 = lambda;
+            }
+            else
+            {
+                arg0 = nullptr;
+            }
+        } while(false)
+        ;
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_webView_WebView_setOnDidFinishLoading : Error processing arguments");
+        cobj->setOnDidFinishLoading(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_setOnDidFinishLoading)
+
+static bool js_cocos2dx_experimental_webView_WebView_getOnDidFinishLoading(se::State& s)
+{
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_webView_WebView_getOnDidFinishLoading : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::experimental::ui::WebView::ccWebViewCallback ret = cobj->getOnDidFinishLoading();
-        JS::RootedValue jsret(cx);
+        cocos2d::experimental::ui::WebView::ccWebViewCallback result = cobj->getOnDidFinishLoading();
         #pragma warning NO CONVERSION FROM NATIVE FOR std::function;
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_webView_WebView_getOnDidFinishLoading : error parsing return value");
-        args.rval().set(jsret);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_webView_WebView_getOnDidFinishLoading : Error processing arguments");
         return true;
     }
-
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_webView_WebView_getOnDidFinishLoading : wrong number of arguments: %d, was expecting %d", argc, 0);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-bool js_cocos2dx_experimental_webView_WebView_create(JSContext *cx, uint32_t argc, JS::Value *vp)
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_getOnDidFinishLoading)
+
+static bool js_cocos2dx_experimental_webView_WebView_create(se::State& s)
 {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true; CC_UNUSED_PARAM(ok);
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
-
-        auto ret = cocos2d::experimental::ui::WebView::create();
-        JS::RootedObject jsret(cx);
-        JS::RootedObject proto(cx, jsb_cocos2d_experimental_ui_WebView_prototype->get());
-        jsb_ref_autoreleased_create_jsobject(cx, ret, jsb_cocos2d_experimental_ui_WebView_class, proto, &jsret, "cocos2d::experimental::ui::WebView");
-        args.rval().set(JS::ObjectOrNullValue(jsret));
+        auto result = cocos2d::experimental::ui::WebView::create();
+        result->retain();
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_experimental_ui_WebView_class);
+        obj->setPrivateData(result);
+        s.rval().setObject(obj);
         return true;
     }
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_webView_WebView_create : wrong number of arguments");
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
+SE_BIND_FUNC(js_cocos2dx_experimental_webView_WebView_create)
 
-bool js_cocos2dx_experimental_webView_WebView_constructor(JSContext *cx, uint32_t argc, JS::Value *vp)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_experimental_ui_WebView_finalize)
+
+static bool js_cocos2dx_experimental_webView_WebView_constructor(se::State& s)
 {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
     cocos2d::experimental::ui::WebView* cobj = new (std::nothrow) cocos2d::experimental::ui::WebView();
+    s.thisObject()->setPrivateData(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_cocos2dx_experimental_webView_WebView_constructor, __jsb_cocos2d_experimental_ui_WebView_class, js_cocos2d_experimental_ui_WebView_finalize)
 
-    // create the js object and link the native object with the javascript object
-    JS::RootedObject jsobj(cx);
-    JS::RootedObject proto(cx, jsb_cocos2d_experimental_ui_WebView_prototype->get());
-    jsb_ref_create_jsobject(cx, cobj, jsb_cocos2d_experimental_ui_WebView_class, proto, &jsobj, "cocos2d::experimental::ui::WebView");
-    JS::RootedValue retVal(cx, JS::ObjectOrNullValue(jsobj));
-    args.rval().set(retVal);
-    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok) 
-    {
-        JS::HandleValueArray argsv(args);
-        ScriptingCore::getInstance()->executeFunctionWithOwner(retVal, "_ctor", argsv);
-    }
+
+
+extern se::Object* __jsb_cocos2d_ui_Widget_proto;
+
+static bool js_cocos2d_experimental_ui_WebView_finalize(se::State& s)
+{
+    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::experimental::ui::WebView)", s.nativeThisObject());
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_experimental_ui_WebView_finalize)
+
+bool js_register_cocos2dx_experimental_webView_WebView(se::Object* obj)
+{
+    auto cls = se::Class::create("WebView", obj, __jsb_cocos2d_ui_Widget_proto, _SE(js_cocos2dx_experimental_webView_WebView_constructor));
+
+    cls->defineFunction("setOnShouldStartLoading", _SE(js_cocos2dx_experimental_webView_WebView_setOnShouldStartLoading));
+    cls->defineFunction("setOnDidFailLoading", _SE(js_cocos2dx_experimental_webView_WebView_setOnDidFailLoading));
+    cls->defineFunction("canGoBack", _SE(js_cocos2dx_experimental_webView_WebView_canGoBack));
+    cls->defineFunction("loadHTMLString", _SE(js_cocos2dx_experimental_webView_WebView_loadHTMLString));
+    cls->defineFunction("goForward", _SE(js_cocos2dx_experimental_webView_WebView_goForward));
+    cls->defineFunction("goBack", _SE(js_cocos2dx_experimental_webView_WebView_goBack));
+    cls->defineFunction("setScalesPageToFit", _SE(js_cocos2dx_experimental_webView_WebView_setScalesPageToFit));
+    cls->defineFunction("getOnDidFailLoading", _SE(js_cocos2dx_experimental_webView_WebView_getOnDidFailLoading));
+    cls->defineFunction("loadFile", _SE(js_cocos2dx_experimental_webView_WebView_loadFile));
+    cls->defineFunction("loadURL", _SE(js_cocos2dx_experimental_webView_WebView_loadURL));
+    cls->defineFunction("setBounces", _SE(js_cocos2dx_experimental_webView_WebView_setBounces));
+    cls->defineFunction("evaluateJS", _SE(js_cocos2dx_experimental_webView_WebView_evaluateJS));
+    cls->defineFunction("setOnJSCallback", _SE(js_cocos2dx_experimental_webView_WebView_setOnJSCallback));
+    cls->defineFunction("getOnJSCallback", _SE(js_cocos2dx_experimental_webView_WebView_getOnJSCallback));
+    cls->defineFunction("canGoForward", _SE(js_cocos2dx_experimental_webView_WebView_canGoForward));
+    cls->defineFunction("getOnShouldStartLoading", _SE(js_cocos2dx_experimental_webView_WebView_getOnShouldStartLoading));
+    cls->defineFunction("stopLoading", _SE(js_cocos2dx_experimental_webView_WebView_stopLoading));
+    cls->defineFunction("reload", _SE(js_cocos2dx_experimental_webView_WebView_reload));
+    cls->defineFunction("loadData", _SE(js_cocos2dx_experimental_webView_WebView_loadData));
+    cls->defineFunction("setJavascriptInterfaceScheme", _SE(js_cocos2dx_experimental_webView_WebView_setJavascriptInterfaceScheme));
+    cls->defineFunction("setOnDidFinishLoading", _SE(js_cocos2dx_experimental_webView_WebView_setOnDidFinishLoading));
+    cls->defineFunction("getOnDidFinishLoading", _SE(js_cocos2dx_experimental_webView_WebView_getOnDidFinishLoading));
+    cls->defineStaticFunction("create", _SE(js_cocos2dx_experimental_webView_WebView_create));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_experimental_ui_WebView_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::experimental::ui::WebView>(cls);
+
+    __jsb_cocos2d_experimental_ui_WebView_proto = cls->getProto();
+    __jsb_cocos2d_experimental_ui_WebView_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-
-extern JS::PersistentRootedObject *jsb_cocos2d_ui_Widget_prototype;
-
-void js_register_cocos2dx_experimental_webView_WebView(JSContext *cx, JS::HandleObject global) {
-    static const JSClassOps cocos2d_experimental_ui_WebView_classOps = {
-        nullptr, nullptr, nullptr, nullptr,
-        nullptr, nullptr, nullptr,
-        nullptr,
-        nullptr, nullptr, nullptr, nullptr
-    };
-    static JSClass cocos2d_experimental_ui_WebView_class = {
-        "WebView",
-        JSCLASS_HAS_PRIVATE,
-        &cocos2d_experimental_ui_WebView_classOps
-    };
-    jsb_cocos2d_experimental_ui_WebView_class = &cocos2d_experimental_ui_WebView_class;
-
-    static JSFunctionSpec funcs[] = {
-        JS_FN("canGoBack", js_cocos2dx_experimental_webView_WebView_canGoBack, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("loadHTMLString", js_cocos2dx_experimental_webView_WebView_loadHTMLString, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("goForward", js_cocos2dx_experimental_webView_WebView_goForward, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("goBack", js_cocos2dx_experimental_webView_WebView_goBack, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("setScalesPageToFit", js_cocos2dx_experimental_webView_WebView_setScalesPageToFit, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("getOnDidFailLoading", js_cocos2dx_experimental_webView_WebView_getOnDidFailLoading, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("loadFile", js_cocos2dx_experimental_webView_WebView_loadFile, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("loadURL", js_cocos2dx_experimental_webView_WebView_loadURL, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("setBounces", js_cocos2dx_experimental_webView_WebView_setBounces, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("evaluateJS", js_cocos2dx_experimental_webView_WebView_evaluateJS, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("getOnJSCallback", js_cocos2dx_experimental_webView_WebView_getOnJSCallback, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("canGoForward", js_cocos2dx_experimental_webView_WebView_canGoForward, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("getOnShouldStartLoading", js_cocos2dx_experimental_webView_WebView_getOnShouldStartLoading, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("stopLoading", js_cocos2dx_experimental_webView_WebView_stopLoading, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("reload", js_cocos2dx_experimental_webView_WebView_reload, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("setJavascriptInterfaceScheme", js_cocos2dx_experimental_webView_WebView_setJavascriptInterfaceScheme, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("getOnDidFinishLoading", js_cocos2dx_experimental_webView_WebView_getOnDidFinishLoading, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FS_END
-    };
-
-    static JSFunctionSpec st_funcs[] = {
-        JS_FN("create", js_cocos2dx_experimental_webView_WebView_create, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FS_END
-    };
-
-    JS::RootedObject parent_proto(cx, jsb_cocos2d_ui_Widget_prototype->get());
-    JS::RootedObject proto(cx, JS_InitClass(
-        cx, global,
-        parent_proto,
-        jsb_cocos2d_experimental_ui_WebView_class,
-        js_cocos2dx_experimental_webView_WebView_constructor, 0,
-        nullptr,
-        funcs,
-        nullptr,
-        st_funcs));
-
-    // add the proto and JSClass to the type->js info hash table
-    js_type_class_t *typeClass = jsb_register_class<cocos2d::experimental::ui::WebView>(cx, jsb_cocos2d_experimental_ui_WebView_class, proto);
-    jsb_cocos2d_experimental_ui_WebView_prototype = typeClass->proto;
-    JS::RootedValue className(cx);
-    std_string_to_jsval(cx, "WebView", &className);
-    JS_SetProperty(cx, proto, "_className", className);
-    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
-    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
-}
-
-void register_all_cocos2dx_experimental_webView(JSContext* cx, JS::HandleObject obj) {
+bool register_all_cocos2dx_experimental_webView(se::Object* obj)
+{
     // Get the ns
-    JS::RootedObject ns(cx);
-    get_or_create_js_obj(cx, obj, "ccui", &ns);
+    se::Value nsVal;
+    if (!obj->getProperty("ccui", &nsVal))
+    {
+        se::HandleObject jsobj(se::Object::createPlainObject());
+        nsVal.setObject(jsobj);
+        obj->setProperty("ccui", nsVal);
+    }
+    se::Object* ns = nsVal.toObject();
 
-    js_register_cocos2dx_experimental_webView_WebView(cx, ns);
+    js_register_cocos2dx_experimental_webView_WebView(ns);
+    return true;
 }
 
 #endif //#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && !defined(CC_TARGET_OS_TVOS)

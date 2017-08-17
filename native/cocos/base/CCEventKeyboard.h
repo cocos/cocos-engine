@@ -228,6 +228,8 @@ public:
     EventKeyboard(KeyCode keyCode, bool isPressed);
 
 private:
+    virtual ~EventKeyboard() {}
+
     KeyCode _keyCode;
     bool _isPressed;
 

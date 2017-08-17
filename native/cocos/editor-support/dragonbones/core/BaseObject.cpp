@@ -3,8 +3,9 @@ DRAGONBONES_NAMESPACE_BEGIN
 
 std::size_t BaseObject::_hashCode = 0;
 std::size_t BaseObject::_defaultMaxCount = 5000;
-std::map<std::size_t, std::size_t> BaseObject::_maxCountMap;
-std::map<std::size_t, std::vector<BaseObject*>> BaseObject::_poolsMap;
+std::unordered_map<std::size_t, std::size_t> BaseObject::_maxCountMap;
+std::unordered_map<std::size_t, std::vector<BaseObject*>> BaseObject::_poolsMap;
+BaseObject::RecycleOrDestroyCallback BaseObject::_recycleOrDestroyCallback = nullptr;
 
 void BaseObject::_returnObject(BaseObject* object)
 {
@@ -23,11 +24,22 @@ void BaseObject::_returnObject(BaseObject* object)
         {
             DRAGONBONES_ASSERT(false, "The object aleady in pool.");
         }
+
+        if (_recycleOrDestroyCallback != nullptr)
+            _recycleOrDestroyCallback(object, 0);
     }
     else
     {
+        if (_recycleOrDestroyCallback != nullptr)
+            _recycleOrDestroyCallback(object, 1);
+
         delete object;
     }
+}
+
+void BaseObject::setObjectRecycleOrDestroyCallback(const std::function<void(BaseObject*, int)>& cb)
+{
+    _recycleOrDestroyCallback = cb;
 }
 
 void BaseObject::setMaxCount(std::size_t classTypeIndex, std::size_t maxCount)
@@ -116,7 +128,11 @@ void BaseObject::clearPool(std::size_t classTypeIndex)
 BaseObject::BaseObject() :
     hashCode(BaseObject::_hashCode++)
 {}
-BaseObject::~BaseObject(){}
+BaseObject::~BaseObject()
+{
+    int i = 0;
+    ++i;
+}
 
 void BaseObject::returnToPool()
 {

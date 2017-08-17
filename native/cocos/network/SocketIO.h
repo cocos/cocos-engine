@@ -153,7 +153,7 @@ public:
      *  @param  delegate the delegate which want to receive events from the socket.io client.
      *  @return SIOClient* an initialized SIOClient if connected successfully, otherwise nullptr.
      */
-    static SIOClient* connect(const std::string& uri, SocketIO::SIODelegate& delegate);
+    static SIOClient* connect(const std::string& uri, SIODelegate& delegate);
 
     /**
      *  Static client creation method, similar to socketio.connect(uri) in JS.
@@ -162,7 +162,7 @@ public:
      *  @param caFilePath The ca file path for wss connection
      *  @return SIOClient* an initialized SIOClient if connected successfully, otherwise nullptr.
      */
-    static SIOClient* connect(const std::string& uri, SocketIO::SIODelegate& delegate, const std::string& caFilePath);
+    static SIOClient* connect(const std::string& uri, SIODelegate& delegate, const std::string& caFilePath);
 
     /**
      *  Static client creation method, similar to socketio.connect(uri) in JS.
@@ -170,7 +170,7 @@ public:
      *  @param  uri      the URI of the socket.io server.
      *  @return SIOClient* an initialized SIOClient if connected successfully, otherwise nullptr.
      */
-    CC_DEPRECATED_ATTRIBUTE  static SIOClient* connect(SocketIO::SIODelegate& delegate, const std::string& uri);
+    CC_DEPRECATED_ATTRIBUTE  static SIOClient* connect(SIODelegate& delegate, const std::string& uri);
 
 private:
 
@@ -213,6 +213,7 @@ private:
     SocketIO::SIODelegate* _delegate;
 
     EventRegistry _eventRegistry;
+    uint32_t _instanceId;
 
     void fireEvent(const std::string& eventName, const std::string& data);
 
@@ -283,6 +284,11 @@ public:
     {
         return _tag.c_str();
     }
+
+    /**
+     * Gets instance id
+     */
+    uint32_t getInstanceId() const;
 
 };
 
