@@ -967,10 +967,10 @@ var View = cc._Class.extend({
         return this._isRotated ? {x: this._viewPortRect.width - y, y: x} : {x: x, y: y};
     },
 
-    _convertMouseToLocationInView: function (point, relatedPos) {
+    _convertMouseToLocationInView: function (in_out_point, relatedPos) {
         var viewport = this._viewPortRect, _t = this;
-        point.x = ((_t._devicePixelRatio * (point.x - relatedPos.left)) - viewport.x) / _t._scaleX;
-        point.y = (_t._devicePixelRatio * (relatedPos.top + relatedPos.height - point.y) - viewport.y) / _t._scaleY;
+        in_out_point.x = ((_t._devicePixelRatio * (in_out_point.x - relatedPos.left)) - viewport.x) / _t._scaleX;
+        in_out_point.y = (_t._devicePixelRatio * (relatedPos.top + relatedPos.height - in_out_point.y) - viewport.y) / _t._scaleY;
     },
 
     _convertPointWithScale: function (point) {

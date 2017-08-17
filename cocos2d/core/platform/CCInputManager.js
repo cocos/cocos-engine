@@ -28,12 +28,9 @@ var macro = require('./CCMacro');
 var TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
 
 /**
- * <p>
- *  This class manages all events of input. include: touch, mouse, accelerometer, keyboard                                       <br/>
- * </p>
- * @class inputManager
+ *  This class manages all events of input. include: touch, mouse, accelerometer, keyboard
  */
-var inputManager = /** @lends cc.inputManager# */{
+var inputManager = {
     _mousePressed: false,
 
     _isRegisterEvent: false,
@@ -220,33 +217,35 @@ var inputManager = /** @lends cc.inputManager# */{
      */
     getHTMLElementPosition: function (element) {
         var docElem = document.documentElement;
-        var win = window;
-        var box = null;
+        var leftOffset = window.pageXOffset - docElem.clientLeft;
+        var topOffset = window.pageYOffset - docElem.clientTop;
         if (typeof element.getBoundingClientRect === 'function') {
-            box = element.getBoundingClientRect();
-        } else {
+            var box = element.getBoundingClientRect();
+            return {
+                left: box.left + leftOffset,
+                top: box.top + topOffset,
+                width: box.width,
+                height: box.height
+            };
+        }
+        else {
             if (element instanceof HTMLCanvasElement) {
-                box = {
-                    left: 0,
-                    top: 0,
+                return {
+                    left: leftOffset,
+                    top: topOffset,
                     width: element.width,
                     height: element.height
                 };
-            } else {
-                box = {
-                    left: 0,
-                    top: 0,
+            }
+            else {
+                return {
+                    left: leftOffset,
+                    top: topOffset,
                     width: parseInt(element.style.width),
                     height: parseInt(element.style.height)
                 };
             }
         }
-        return {
-            left: box.left + win.pageXOffset - docElem.clientLeft,
-            top: box.top + win.pageYOffset - docElem.clientTop,
-            width: box.width,
-            height: box.height
-        };
     },
 
     /**
@@ -320,12 +319,12 @@ var inputManager = /** @lends cc.inputManager# */{
      */
     getMouseEvent: function(location, pos, eventType){
         var locPreMouse = this._prevMousePoint;
-        this._glView._convertMouseToLocationInView(location, pos);
         var mouseEvent = new cc.Event.EventMouse(eventType);
-        mouseEvent.setLocation(location.x, location.y);
         mouseEvent._setPrevCursor(locPreMouse.x, locPreMouse.y);
         locPreMouse.x = location.x;
         locPreMouse.y = location.y;
+        this._glView._convertMouseToLocationInView(locPreMouse, pos);
+        mouseEvent.setLocation(locPreMouse.x, locPreMouse.y);
         return mouseEvent;
     },
 
@@ -389,122 +388,88 @@ var inputManager = /** @lends cc.inputManager# */{
     registerSystemEvent: function(element){
         if(this._isRegisterEvent) return;
 
-        var locView = this._glView = cc.view;
+        this._glView = cc.view;
         var selfPointer = this;
-        var supportMouse = ('mouse' in cc.sys.capabilities), supportTouches = ('touches' in cc.sys.capabilities);
 
-        //HACK
-        //  - At the same time to trigger the ontouch event and onmouse event
-        //  - The function will execute 2 times
-        //The known browser:
-        //  liebiao
-        //  miui
-        //  WECHAT
-        var prohibition = false;
-        if( cc.sys.isMobile)
-            prohibition = true;
-
-        //register touch event
+        var supportMouse = ('mouse' in cc.sys.capabilities);
         if (supportMouse) {
-            !prohibition && window.addEventListener('mousedown', function () {
-                selfPointer._mousePressed = true;
-            }, false);
+            //HACK
+            //  - At the same time to trigger the ontouch event and onmouse event
+            //  - The function will execute 2 times
+            //The known browser:
+            //  liebiao
+            //  miui
+            //  WECHAT
+            var prohibition = cc.sys.isMobile;
+            if (!prohibition) {
+                window.addEventListener('mousedown', function () {
+                    selfPointer._mousePressed = true;
+                }, false);
 
-            !prohibition && window.addEventListener('mouseup', function (event) {
-                var savePressed = selfPointer._mousePressed;
-                selfPointer._mousePressed = false;
+                window.addEventListener('mouseup', function (event) {
+                    if(!selfPointer._mousePressed)
+                        return;
+                    
+                    selfPointer._mousePressed = false;
 
-                if(!savePressed)
-                    return;
+                    var pos = selfPointer.getHTMLElementPosition(element);
+                    var location = selfPointer.getPointByEvent(event, pos);
+                    if (!cc.rectContainsPoint(new cc.Rect(pos.left, pos.top, pos.width, pos.height), location)){
+                        selfPointer.handleTouchesEnd([selfPointer.getTouchByXY(location.x, location.y, pos)]);
 
-                var pos = selfPointer.getHTMLElementPosition(element);
-                var location = selfPointer.getPointByEvent(event, pos);
-                if (!cc.rectContainsPoint(new cc.Rect(pos.left, pos.top, pos.width, pos.height), location)){
+                        var mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.UP);
+                        mouseEvent.setButton(event.button);
+                        cc.eventManager.dispatchEvent(mouseEvent);
+                    }
+                }, false);
+            }
+
+            // register canvas mouse event
+            var EventMouse = cc.Event.EventMouse;
+            var _mouseEventsOnElement = [
+                !prohibition && ["mousedown", EventMouse.DOWN, function (event, mouseEvent, location, pos) {
+                    selfPointer._mousePressed = true;
+                    selfPointer.handleTouchesBegin([selfPointer.getTouchByXY(location.x, location.y, pos)]);
+                    element.focus();
+                }],
+                !prohibition && ["mouseup", EventMouse.UP, function (event, mouseEvent, location, pos) {
+                    selfPointer._mousePressed = false;
                     selfPointer.handleTouchesEnd([selfPointer.getTouchByXY(location.x, location.y, pos)]);
+                }],
+                !prohibition && ["mousemove", EventMouse.MOVE, function (event, mouseEvent, location, pos) {
+                    selfPointer.handleTouchesMove([selfPointer.getTouchByXY(location.x, location.y, pos)]);
+                    if (!selfPointer._mousePressed) {
+                        mouseEvent.setButton(null);
+                    }
+                }],
+                ["mousewheel", EventMouse.SCROLL, function (event, mouseEvent) {
+                    mouseEvent.setScrollData(0, event.wheelDelta);
+                }],
+                /* firefox fix */
+                ["DOMMouseScroll", EventMouse.SCROLL, function (event, mouseEvent) {
+                    mouseEvent.setScrollData(0, event.detail * -120);
+                }]
+            ];
+            for (let i = 0; i < _mouseEventsOnElement.length; ++i) {
+                let entry = _mouseEventsOnElement[i];
+                if (entry) {
+                    let name = entry[0];
+                    let type = entry[1];
+                    let handler = entry[2];
+                    element.addEventListener(name, function (event) {
+                        var pos = selfPointer.getHTMLElementPosition(element);
+                        var location = selfPointer.getPointByEvent(event, pos);
+                        var mouseEvent = selfPointer.getMouseEvent(location, pos, type);
+                        mouseEvent.setButton(event.button);
 
-                    var mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.UP);
-                    mouseEvent.setButton(event.button);
-                    cc.eventManager.dispatchEvent(mouseEvent);
+                        handler(event, mouseEvent, location, pos);
+
+                        cc.eventManager.dispatchEvent(mouseEvent);
+                        event.stopPropagation();
+                        event.preventDefault();
+                    }, false);
                 }
-            }, false);
-
-            //register canvas mouse event
-            !prohibition && element.addEventListener("mousedown", function (event) {
-                selfPointer._mousePressed = true;
-
-                var pos = selfPointer.getHTMLElementPosition(element);
-                var location = selfPointer.getPointByEvent(event, pos);
-
-                selfPointer.handleTouchesBegin([selfPointer.getTouchByXY(location.x, location.y, pos)]);
-
-                var mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.DOWN);
-                mouseEvent.setButton(event.button);
-                cc.eventManager.dispatchEvent(mouseEvent);
-
-                event.stopPropagation();
-                event.preventDefault();
-                element.focus();
-            }, false);
-
-            !prohibition && element.addEventListener("mouseup", function (event) {
-                selfPointer._mousePressed = false;
-
-                var pos = selfPointer.getHTMLElementPosition(element);
-                var location = selfPointer.getPointByEvent(event, pos);
-
-                selfPointer.handleTouchesEnd([selfPointer.getTouchByXY(location.x, location.y, pos)]);
-
-                var mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.UP);
-                mouseEvent.setButton(event.button);
-                cc.eventManager.dispatchEvent(mouseEvent);
-
-                event.stopPropagation();
-                event.preventDefault();
-            }, false);
-
-            !prohibition && element.addEventListener("mousemove", function (event) {
-                var pos = selfPointer.getHTMLElementPosition(element);
-                var location = selfPointer.getPointByEvent(event, pos);
-
-                selfPointer.handleTouchesMove([selfPointer.getTouchByXY(location.x, location.y, pos)]);
-
-                var mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.MOVE);
-                if(selfPointer._mousePressed)
-                    mouseEvent.setButton(event.button);
-                else
-                    mouseEvent.setButton(null);
-                cc.eventManager.dispatchEvent(mouseEvent);
-
-                event.stopPropagation();
-                event.preventDefault();
-            }, false);
-
-            element.addEventListener("mousewheel", function (event) {
-                var pos = selfPointer.getHTMLElementPosition(element);
-                var location = selfPointer.getPointByEvent(event, pos);
-
-                var mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.SCROLL);
-                mouseEvent.setButton(event.button);
-                mouseEvent.setScrollData(0, event.wheelDelta);
-                cc.eventManager.dispatchEvent(mouseEvent);
-
-                event.stopPropagation();
-                event.preventDefault();
-            }, false);
-
-            /* firefox fix */
-            element.addEventListener("DOMMouseScroll", function(event) {
-                var pos = selfPointer.getHTMLElementPosition(element);
-                var location = selfPointer.getPointByEvent(event, pos);
-
-                var mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.SCROLL);
-                mouseEvent.setButton(event.button);
-                mouseEvent.setScrollData(0, event.detail * -120);
-                cc.eventManager.dispatchEvent(mouseEvent);
-
-                event.stopPropagation();
-                event.preventDefault();
-            }, false);
+            }
         }
 
         if(window.navigator.msPointerEnabled){
@@ -514,67 +479,54 @@ var inputManager = /** @lends cc.inputManager# */{
                 "MSPointerUp"       : selfPointer.handleTouchesEnd,
                 "MSPointerCancel"   : selfPointer.handleTouchesCancel
             };
+            for(let eventName in _pointerEventsMap){
+                let touchEvent = _pointerEventsMap[eventName];
+                element.addEventListener(eventName, function (event){
+                    var pos = selfPointer.getHTMLElementPosition(element);
+                    pos.left -= document.documentElement.scrollLeft;
+                    pos.top -= document.documentElement.scrollTop;
 
-            for(var eventName in _pointerEventsMap){
-                (function(_pointerEvent, _touchEvent){
-                    element.addEventListener(_pointerEvent, function (event){
-                        var pos = selfPointer.getHTMLElementPosition(element);
-                        pos.left -= document.documentElement.scrollLeft;
-                        pos.top -= document.documentElement.scrollTop;
-
-                        _touchEvent.call(selfPointer, [selfPointer.getTouchByXY(event.clientX, event.clientY, pos)]);
-                        event.stopPropagation();
-                    }, false);
-                })(eventName, _pointerEventsMap[eventName]);
+                    touchEvent.call(selfPointer, [selfPointer.getTouchByXY(event.clientX, event.clientY, pos)]);
+                    event.stopPropagation();
+                }, false);
             }
         }
 
-        if(supportTouches) {
-            //register canvas touch event
-            element.addEventListener("touchstart", function (event) {
-                if (!event.changedTouches) return;
+        //register touch event
+        var supportTouches = ('touches' in cc.sys.capabilities);
+        if (supportTouches) {
+            var _touchEventsMap = {
+                "touchstart": function (touchesToHandle) {
+                    selfPointer.handleTouchesBegin(touchesToHandle);
+                    element.focus();
+                },
+                "touchmove": function (touchesToHandle) {
+                    selfPointer.handleTouchesMove(touchesToHandle);
+                },
+                "touchend": function (touchesToHandle) {
+                    selfPointer.handleTouchesEnd(touchesToHandle);
+                },
+                "touchcancel": function (touchesToHandle) {
+                    selfPointer.handleTouchesCancel(touchesToHandle);
+                }
+            };
 
-                var pos = selfPointer.getHTMLElementPosition(element);
-                pos.left -= document.body.scrollLeft;
-                pos.top -= document.body.scrollTop;
-                selfPointer.handleTouchesBegin(selfPointer.getTouchesByEvent(event, pos));
-                event.stopPropagation();
-                event.preventDefault();
-                element.focus();
-            }, false);
+            for (let eventName in _touchEventsMap) {
+                let handler = _touchEventsMap[eventName];
+                element.addEventListener(eventName, function (event) {
+                    if (!event.changedTouches) return;
 
-            element.addEventListener("touchmove", function (event) {
-                if (!event.changedTouches) return;
+                    var pos = selfPointer.getHTMLElementPosition(element);
+                    var body = document.body;
+                    pos.left -= body.scrollLeft;
+                    pos.top -= body.scrollTop;
 
-                var pos = selfPointer.getHTMLElementPosition(element);
-                pos.left -= document.body.scrollLeft;
-                pos.top -= document.body.scrollTop;
-                selfPointer.handleTouchesMove(selfPointer.getTouchesByEvent(event, pos));
-                event.stopPropagation();
-                event.preventDefault();
-            }, false);
+                    handler(selfPointer.getTouchesByEvent(event, pos));
 
-            element.addEventListener("touchend", function (event) {
-                if (!event.changedTouches) return;
-
-                var pos = selfPointer.getHTMLElementPosition(element);
-                pos.left -= document.body.scrollLeft;
-                pos.top -= document.body.scrollTop;
-                selfPointer.handleTouchesEnd(selfPointer.getTouchesByEvent(event, pos));
-                event.stopPropagation();
-                event.preventDefault();
-            }, false);
-
-            element.addEventListener("touchcancel", function (event) {
-                if (!event.changedTouches) return;
-
-                var pos = selfPointer.getHTMLElementPosition(element);
-                pos.left -= document.body.scrollLeft;
-                pos.top -= document.body.scrollTop;
-                selfPointer.handleTouchesCancel(selfPointer.getTouchesByEvent(event, pos));
-                event.stopPropagation();
-                event.preventDefault();
-            }, false);
+                    event.stopPropagation();
+                    event.preventDefault();
+                }, false);
+            }
         }
 
         //register keyboard event
