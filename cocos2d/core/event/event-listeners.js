@@ -26,8 +26,6 @@
 var JS = cc.js;
 var CallbacksHandler = require('../platform/callbacks-invoker').CallbacksHandler;
 
-var REMOVE_PLACEHOLDER = CallbacksHandler.REMOVE_PLACEHOLDER;
-
 // Extends CallbacksHandler to handle and invoke event callbacks.
 function EventListeners () {
     CallbacksHandler.call(this);
@@ -35,50 +33,32 @@ function EventListeners () {
 JS.extend(EventListeners, CallbacksHandler);
 
 EventListeners.prototype.invoke = function (event, captureListeners) {
-    var key = event.type,
-        list = this._callbackTable[key],
-        i, endIndex,
-        callingFunc, target, hasTarget;
-
-    this._invoking[key] = true;
-
+    var key = event.type;
+    var list = this._callbackTable[key];
     if (list) {
-        if (list.length === 1) {
-            callingFunc = list[0];
-            if (callingFunc !== REMOVE_PLACEHOLDER) {
-                callingFunc.call(event.currentTarget, event, captureListeners);
+        var rootInvoker = !list.isInvoking;
+        list.isInvoking = true;
+
+        var callbacks = list.callbacks;
+        var targets = list.targets;
+        for (var i = 0, len = callbacks.length; i < len; ++i) {
+            var callback = callbacks[i];
+            if (callback) {
+                var target = targets[i] || event.currentTarget;
+                callback.call(target, event, captureListeners);
+                if (event._propagationImmediateStopped) {
+                    break;
+                }
             }
         }
-        else {
-            endIndex = list.length - 1;
-            for (i = 0; i <= endIndex;) {
-                callingFunc = list[i];
-                var increment = 1;
-                // cheap detection for function
-                if (callingFunc !== REMOVE_PLACEHOLDER) {
-                    target = list[i+1];
-                    hasTarget = target && typeof target === 'object';
-                    if (hasTarget) {
-                        callingFunc.call(target, event, captureListeners);
-                        increment = 2;
-                    }
-                    else {
-                        callingFunc.call(event.currentTarget, event, captureListeners);
-                    }
 
-                    if (event._propagationImmediateStopped || i + increment > endIndex) {
-                        break;
-                    }
-                }
-
-                i += increment;
+        if (rootInvoker) {
+            list.isInvoking = false;
+            if (list.containCanceled) {
+                list.purgeCanceled();
             }
         }
     }
-    this._invoking[key] = false;
-
-    // Delay removing
-    this._clearToRemove(key);
 };
 
 module.exports = EventListeners;

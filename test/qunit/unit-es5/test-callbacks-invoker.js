@@ -3,26 +3,21 @@ largeModule('CallbacksInvoker');
 test('test', function () {
     var ci = new cc._Test.CallbacksInvoker();
 
-    var cb1 = new Callback();
-    var cb2 = new Callback();
-    var cb3 = new Callback();
-    strictEqual(ci.add('a', cb1), true, 'first cb key');
+    var cb1 = Callback();
+    var cb2 = Callback();
+    var cb3 = Callback();
+    ci.add('a', cb1);
     strictEqual(ci.has('a', function () {}), false, '`has` should return false if the callback not exists');
     strictEqual(ci.has('a', cb1), true, '`has` should return true if the callback exists');
-    strictEqual(ci.add('a', cb2), false, 'not first key');
-    strictEqual(ci.add('b', cb3), true, 'another first key');
-    strictEqual(ci.add('nil', undefined), true, 'null callback should also return true');
+    ci.add('a', cb2);
+    ci.add('b', cb3);
+    ci.add('nil', undefined);
 
     cb1.enable();
     cb2.enable();
     ci.invoke('a');
     cb1.once('1 should be called');
     cb2.once('2 should be called');
-
-    var invokeA = ci.bindKey('a');
-    invokeA();
-    cb1.once('1 should be called again').disable();
-    cb2.once('2 should be called again').disable();
 
     cb3.enable();
     ci.invoke('b');
@@ -45,10 +40,10 @@ test('test', function () {
 
 test('remove self during invoking', function () {
     var ci = new cc._Test.CallbacksInvoker();
-    var cb1 = new Callback(function () {
+    var cb1 = Callback(function () {
         ci.remove('eve', cb1);
     }).enable();
-    var cb2 = new Callback().enable();
+    var cb2 = Callback().enable();
 
     ci.add('eve', cb1);
     ci.add('eve', cb2);
@@ -61,10 +56,10 @@ test('remove self during invoking', function () {
 
 test('remove self with target during invoking', function () {
     var ci = new cc._Test.CallbacksInvoker();
-    var cb1 = new Callback(function () {
+    var cb1 = Callback(function () {
         ci.remove('eve', cb1, target);
     }).enable();
-    var cb2 = new Callback().enable();
+    var cb2 = Callback().enable();
     var target = {};
 
     ci.add('eve', cb1, target);
@@ -78,8 +73,8 @@ test('remove self with target during invoking', function () {
 
 test('remove previous during invoking', function () {
     var ci = new cc._Test.CallbacksInvoker();
-    var cb1 = new Callback().enable();
-    var cb2 = new Callback(function () {
+    var cb1 = Callback().enable();
+    var cb2 = Callback(function () {
         ci.remove('eve', cb1);
     }).enable();
 
@@ -93,8 +88,8 @@ test('remove previous during invoking', function () {
 
 test('remove previous with target during invoking', function () {
     var ci = new cc._Test.CallbacksInvoker();
-    var cb1 = new Callback().enable();
-    var cb2 = new Callback(function () {
+    var cb1 = Callback().enable();
+    var cb2 = Callback(function () {
         ci.remove('eve', cb1, target);
     }).enable();
     var target = {};
@@ -109,8 +104,8 @@ test('remove previous with target during invoking', function () {
 
 test('remove last during invoking', function () {
     var ci = new cc._Test.CallbacksInvoker();
-    var cb1 = new Callback().enable();
-    var cb2 = new Callback(function () {
+    var cb1 = Callback().enable();
+    var cb2 = Callback(function () {
         ci.remove('eve', cb2);
     }).enable();
 
@@ -124,8 +119,8 @@ test('remove last during invoking', function () {
 
 test('remove last with target during invoking', function () {
     var ci = new cc._Test.CallbacksInvoker();
-    var cb1 = new Callback().enable();
-    var cb2 = new Callback(function () {
+    var cb1 = Callback().enable();
+    var cb2 = Callback(function () {
         ci.remove('eve', cb2, target);
     }).enable();
     var target = {};
@@ -139,12 +134,12 @@ test('remove last with target during invoking', function () {
 
 test('remove multiple callbacks during invoking', function () {
     var ci = new cc._Test.CallbacksInvoker();
-    var cb1 = new Callback().enable();
-    var cb2 = new Callback(function () {
+    var cb1 = Callback().enable();
+    var cb2 = Callback(function () {
         ci.remove('eve', cb1);
         ci.remove('eve', cb3, target);
     }).enable();
-    var cb3 = new Callback(function () {
+    var cb3 = Callback(function () {
         ci.remove('eve', cb2, target);
     }).enable();
     var target = {};
@@ -166,11 +161,11 @@ test('remove multiple callbacks during invoking', function () {
 
 test('remove all callbacks during invoking', function () {
     var ci = new cc._Test.CallbacksInvoker();
-    var cb1 = new Callback().enable();
-    var cb2 = new Callback(function () {
+    var cb1 = Callback().enable();
+    var cb2 = Callback(function () {
         ci.removeAll('eve');
     }).enable();
-    var cb3 = new Callback(function () {
+    var cb3 = Callback(function () {
         ci.remove('eve', cb2, target);
     }).enable();
     var target = {};
@@ -183,7 +178,7 @@ test('remove all callbacks during invoking', function () {
 
     cb1.expect(2, 'first callback should be invoked twice');
     cb2.expect(1, 'second callback should be invoked once');
-    cb3.expect(2, 'third callback should be invoked twice');
+    cb3.expect(0, 'third callback should never invoked');
     strictEqual(ci.has('eve'), false, 'All callbacks should be removed');
 });
 
@@ -239,8 +234,8 @@ test('CallbacksInvoker support target', function () {
             this.count++;
     };
     cb1.count = 0;
-    var cb2 = new Callback();
-    var cb3 = new Callback();
+    var cb2 = Callback();
+    var cb3 = Callback();
 
     var target1 = {
         name: 'CallbackTarget1',
@@ -252,7 +247,7 @@ test('CallbacksInvoker support target', function () {
     };
 
     ci.add('a', cb1);
-    strictEqual(ci.add('a', cb1, target1), false, 'can add callback with target');
+    ci.add('a', cb1, target1);
     ci.add('a', cb1);
     ci.add('a', cb1, target2);
     ci.add('a', cb1, target2);
@@ -260,8 +255,8 @@ test('CallbacksInvoker support target', function () {
     ci.add('a', cb2, target1);
     ci.add('a', cb3);
     ci.add('a', cb3, target1);
+    ci.add('b', cb1, target1);
 
-    strictEqual(ci.add('b', cb1, target1), true, 'can add callback with target for new event key');
     strictEqual(ci.has('a', cb2), false, '`has` should return false if the callback without target not exists');
     strictEqual(ci.has('a', cb2, target1), true, '`has` should return true if the callback with correct target exists');
     strictEqual(ci.has('a', cb3), true, '`has` should return true if the callback without target exists');
@@ -304,9 +299,9 @@ test('CallbacksInvoker support target', function () {
 
 test('CallbacksInvoker remove target', function () {
     var ci = new cc._Test.CallbacksInvoker();
-    var cb1 = new Callback();
-    var cb2 = new Callback();
-    var cb3 = new Callback();
+    var cb1 = Callback();
+    var cb2 = Callback();
+    var cb3 = Callback();
 
     var target1 = {
         name: 'CallbackTarget1',
@@ -357,4 +352,100 @@ test('CallbacksInvoker remove target', function () {
     cb1.expect(2, 'removed two, callback1 should be called twice');
     cb2.expect(0, 'removed one, callback2 should not be called');
     cb3.expect(1, 'callback3 should be called once');
+});
+
+test('event type conflict with object prototype', function () {
+    var ci = new cc._Test.CallbacksInvoker();
+    var cb1 = Callback(function () {
+        ci.remove('toString', cb1);
+    }).enable();
+    var cb2 = Callback().enable();
+
+    ci.add('toString', cb1);
+    ci.add('toString', cb2);
+    ci.invoke('toString');
+    cb2.once('it should be called correctly if previous callback deregistered itself');
+
+    cb1.disable('should not call after removed');
+    ci.invoke('toString');
+});
+
+test('nest invoke', function () {
+    var ci = new cc._Test.CallbacksInvoker();
+
+    var actualSequence = [];
+    var isParentLoop = true;
+
+    var cb1 = function () {
+        actualSequence.push(cb1);
+        if (isParentLoop) {
+            isParentLoop = false;
+            ci.invoke('visit');
+        }
+    };
+    var cb2 = function () {
+        actualSequence.push(cb2);
+    };
+
+    ci.add('visit', cb1);
+    ci.add('visit', cb2);
+    ci.invoke('visit');
+
+    deepEqual(actualSequence, [cb1, cb1, cb2, cb2], 'support nest invoke');
+});
+
+test('remove during nest invoke', function () {
+    var ci = new cc._Test.CallbacksInvoker();
+
+    var actualSequence = [];
+    var isParentLoop = true;
+
+    var cb1 = function () {
+        actualSequence.push(cb1);
+        if (isParentLoop) {
+            isParentLoop = false;
+            ci.invoke('visit');
+        }
+        else {
+            ci.remove('visit', cb1);
+            strictEqual(ci.has('visit'), false, 'all callbacks removed');
+        }
+    };
+
+    ci.add('visit', cb1);
+    ci.invoke('visit');
+
+    deepEqual(actualSequence, [cb1, cb1], 'invoke sequence');
+});
+
+test('remove many during nest invoke', function () {
+    var ci = new cc._Test.CallbacksInvoker();
+
+    var actualSequence = [];
+    var isParentLoop = true;
+
+    var cb1 = function () {
+        actualSequence.push(cb1);
+    };
+    var cb2 = function () {
+        actualSequence.push(cb2);
+        if (isParentLoop) {
+            isParentLoop = false;
+            ci.invoke('visit');
+        }
+        else {
+            ci.remove('visit', cb1);
+            ci.remove('visit', cb2);
+        }
+    };
+    var cb3 = function () {
+        actualSequence.push(cb3);
+    };
+
+    ci.add('visit', cb1);
+    ci.add('visit', cb2);
+    ci.add('visit', cb3);
+    ci.invoke('visit');
+
+    deepEqual(actualSequence, [cb1, cb2, cb1, cb2, cb3, cb3], 'invoke sequence');
 });

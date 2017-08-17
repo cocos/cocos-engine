@@ -728,7 +728,8 @@ proto.itemComplete = function (id) {
         this.onProgress(dep ? dep.completed.length : this.completedCount, dep ? dep.deps.length : this.totalCount, item);
     }
 
-    this.invokeAndRemove(id, item);
+    this.invoke(id, item);
+    this.removeAll(id);
 
     // All completed
     if (!this._appending && this.completedCount >= this.totalCount) {

@@ -631,8 +631,9 @@ js.shiftArguments = function () {
 js.createMap = function (forceDictMode) {
     var map = Object.create(null);
     if (forceDictMode) {
-        map["__"] = undefined;
-        delete map["__"];
+        const INVALID_IDENTIFIER = '.';
+        map[INVALID_IDENTIFIER] = true;
+        delete map[INVALID_IDENTIFIER];
     }
     return map;
 };
@@ -746,20 +747,14 @@ function appendObjectsAt (array, addObjs, index) {
 }
 
 /**
- * Exact same function as Array.prototype.indexOf.
- * HACK: ugliy hack for Baidu mobile browser compatibility,
- * stupid Baidu guys modify Array.prototype.indexOf for all pages loaded,
- * their version changes strict comparison to non-strict comparison,
- * it also ignores the second parameter of the original API,
- * and this will cause event handler enter infinite loop.
- * Baidu developers, if you ever see this documentation,
- * here is the standard: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf
- * Seriously !
+ * Exact same function as Array.prototype.indexOf.<br>
+ * HACK: ugliy hack for Baidu mobile browser compatibility, stupid Baidu guys modify Array.prototype.indexOf for all pages loaded, their version changes strict comparison to non-strict comparison, it also ignores the second parameter of the original API, and this will cause event handler enter infinite loop.<br>
+ * Baidu developers, if you ever see this documentation, here is the standard: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf, Seriously!
  *
  * @method indexOf
- * @param {any} searchElement Element to locate in the array.
- * @param {Number} [fromIndex=0] The index to start the search at
- * @return {Number} returns the first index at which a given element can be found in the array, or -1 if it is not present.
+ * @param {any} searchElement - Element to locate in the array.
+ * @param {Number} [fromIndex=0] - The index to start the search at
+ * @return {Number} - the first index at which a given element can be found in the array, or -1 if it is not present.
  */
 var indexOf = Array.prototype.indexOf;
 
@@ -771,7 +766,7 @@ var indexOf = Array.prototype.indexOf;
  * @return {Boolean}
  */
 function contains (array, value) {
-    return indexOf.call(array, value) >= 0;
+    return array.indexOf(value) >= 0;
 }
 
 /**
@@ -788,16 +783,16 @@ function copy (array) {
 }
 
 js.array = {
-    remove: remove,
-    fastRemove: fastRemove,
-    removeAt: removeAt,
-    fastRemoveAt: fastRemoveAt,
-    contains: contains,
-    verifyType: verifyType,
-    removeArray: removeArray,
-    appendObjectsAt: appendObjectsAt,
-    copy: copy,
-    indexOf: indexOf,
+    remove,
+    fastRemove,
+    removeAt,
+    fastRemoveAt,
+    contains,
+    verifyType,
+    removeArray,
+    appendObjectsAt,
+    copy,
+    indexOf,
     MutableForwardIterator: require('../utils/mutable-forward-iterator')
 };
 
