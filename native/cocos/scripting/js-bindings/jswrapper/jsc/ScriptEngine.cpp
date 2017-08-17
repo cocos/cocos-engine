@@ -5,6 +5,7 @@
 #include "Object.hpp"
 #include "Class.hpp"
 #include "Utils.hpp"
+#include "../MappingUtils.hpp"
 
 extern "C" JS_EXPORT void JSSynchronousGarbageCollectForDebugging(JSContextRef);
 
@@ -29,10 +30,10 @@ namespace se {
         JSValueRef __forceGC(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                              size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception)
         {
-            LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
+            LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
 //            JSGarbageCollect(ctx);
             JSSynchronousGarbageCollectForDebugging(ctx);
-            LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
+            LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
             return JSValueMakeUndefined(ctx);
         }
 
@@ -279,10 +280,10 @@ namespace se {
 
     void ScriptEngine::gc()
     {
-        LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
+        LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
         // JSGarbageCollect(_cx);
         JSSynchronousGarbageCollectForDebugging(_cx);
-        LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
+        LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
     }
 
     bool ScriptEngine::executeScriptBuffer(const char *script, ssize_t length, Value *data, const char *fileName)
@@ -344,14 +345,14 @@ namespace se {
 
     void ScriptEngine::_retainScriptObject(void* owner, void* target)
     {
-        auto iterOwner = __nativePtrToObjectMap.find(owner);
-        if (iterOwner == __nativePtrToObjectMap.end())
+        auto iterOwner = NativePtrToObjectMap::find(owner);
+        if (iterOwner == NativePtrToObjectMap::end())
         {
             return;
         }
 
-        auto iterTarget = __nativePtrToObjectMap.find(target);
-        if (iterTarget == __nativePtrToObjectMap.end())
+        auto iterTarget = NativePtrToObjectMap::find(target);
+        if (iterTarget == NativePtrToObjectMap::end())
         {
             return;
         }
@@ -362,14 +363,14 @@ namespace se {
 
     void ScriptEngine::_releaseScriptObject(void* owner, void* target)
     {
-        auto iterOwner = __nativePtrToObjectMap.find(owner);
-        if (iterOwner == __nativePtrToObjectMap.end())
+        auto iterOwner = NativePtrToObjectMap::find(owner);
+        if (iterOwner == NativePtrToObjectMap::end())
         {
             return;
         }
 
-        auto iterTarget = __nativePtrToObjectMap.find(target);
-        if (iterTarget == __nativePtrToObjectMap.end())
+        auto iterTarget = NativePtrToObjectMap::find(target);
+        if (iterTarget == NativePtrToObjectMap::end())
         {
             return;
         }

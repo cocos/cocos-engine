@@ -12,6 +12,7 @@ LOCAL_SRC_FILES := \
 					../jswrapper/State.cpp \
 					../jswrapper/Value.cpp \
 					../jswrapper/HandleObject.cpp \
+					../jswrapper/MappingUtils.cpp \
 					../jswrapper/sm/Class.cpp \
 					../jswrapper/sm/ScriptEngine.cpp \
 					../jswrapper/sm/Object.cpp \
@@ -42,6 +43,7 @@ LOCAL_SRC_FILES := \
 					../auto/jsb_cocos2dx_spine_auto.cpp \
 					../auto/jsb_cocos2dx_ui_auto.cpp \
 					../auto/jsb_creator_auto.cpp \
+					../manual/BaseJSAction.cpp \
 					../manual/JavaScriptJavaBridge.cpp \
 					../manual/ScriptingCore.cpp \
 					../manual/jsb_helper.cpp \

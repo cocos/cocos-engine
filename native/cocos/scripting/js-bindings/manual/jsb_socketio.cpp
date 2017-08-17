@@ -60,8 +60,8 @@ public:
         if (cocos2d::Director::getInstance() == nullptr || cocos2d::ScriptEngineManager::getInstance() == nullptr)
             return;
 
-        auto iter = se::__nativePtrToObjectMap.find(client); //FIXME: client probably be a new value with the same address as the old one, it may cause undefined result.
-        if (iter == se::__nativePtrToObjectMap.end())
+        auto iter = se::NativePtrToObjectMap::find(client); //FIXME: client probably be a new value with the same address as the old one, it may cause undefined result.
+        if (iter == se::NativePtrToObjectMap::end())
             return;
 
         se::Value dataVal;

@@ -1584,7 +1584,7 @@ static bool js_creator_PhysicsDebugDraw_constructor(se::State& s)
 {
     creator::PhysicsDebugDraw* cobj = new (std::nothrow) creator::PhysicsDebugDraw();
     s.thisObject()->setPrivateData(cobj);
-    se::__nonRefNativeObjectCreatedByCtorMap.emplace(cobj, true);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
 SE_BIND_CTOR(js_creator_PhysicsDebugDraw_constructor, __jsb_creator_PhysicsDebugDraw_class, js_creator_PhysicsDebugDraw_finalize)
@@ -1596,10 +1596,10 @@ extern se::Object* __jsb_b2Draw_proto;
 static bool js_creator_PhysicsDebugDraw_finalize(se::State& s)
 {
     cocos2d::log("jsbindings: finalizing JS object %p (creator::PhysicsDebugDraw)", s.nativeThisObject());
-    auto iter = se::__nonRefNativeObjectCreatedByCtorMap.find(s.nativeThisObject());
-    if (iter != se::__nonRefNativeObjectCreatedByCtorMap.end())
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
-        se::__nonRefNativeObjectCreatedByCtorMap.erase(iter);
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         creator::PhysicsDebugDraw* cobj = (creator::PhysicsDebugDraw*)s.nativeThisObject();
         delete cobj;
     }
@@ -1751,7 +1751,7 @@ static bool js_creator_PhysicsWorldManifoldWrapper_constructor(se::State& s)
 {
     creator::PhysicsWorldManifoldWrapper* cobj = new (std::nothrow) creator::PhysicsWorldManifoldWrapper();
     s.thisObject()->setPrivateData(cobj);
-    se::__nonRefNativeObjectCreatedByCtorMap.emplace(cobj, true);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
 SE_BIND_CTOR(js_creator_PhysicsWorldManifoldWrapper_constructor, __jsb_creator_PhysicsWorldManifoldWrapper_class, js_creator_PhysicsWorldManifoldWrapper_finalize)
@@ -1988,7 +1988,7 @@ static bool js_creator_PhysicsManifoldWrapper_constructor(se::State& s)
 {
     creator::PhysicsManifoldWrapper* cobj = new (std::nothrow) creator::PhysicsManifoldWrapper();
     s.thisObject()->setPrivateData(cobj);
-    se::__nonRefNativeObjectCreatedByCtorMap.emplace(cobj, true);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
 SE_BIND_CTOR(js_creator_PhysicsManifoldWrapper_constructor, __jsb_creator_PhysicsManifoldWrapper_class, js_creator_PhysicsManifoldWrapper_finalize)
@@ -2128,7 +2128,7 @@ static bool js_creator_PhysicsUtils_constructor(se::State& s)
 {
     creator::PhysicsUtils* cobj = new (std::nothrow) creator::PhysicsUtils();
     s.thisObject()->setPrivateData(cobj);
-    se::__nonRefNativeObjectCreatedByCtorMap.emplace(cobj, true);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
 SE_BIND_CTOR(js_creator_PhysicsUtils_constructor, __jsb_creator_PhysicsUtils_class, js_creator_PhysicsUtils_finalize)
@@ -2139,10 +2139,10 @@ SE_BIND_CTOR(js_creator_PhysicsUtils_constructor, __jsb_creator_PhysicsUtils_cla
 static bool js_creator_PhysicsUtils_finalize(se::State& s)
 {
     cocos2d::log("jsbindings: finalizing JS object %p (creator::PhysicsUtils)", s.nativeThisObject());
-    auto iter = se::__nonRefNativeObjectCreatedByCtorMap.find(s.nativeThisObject());
-    if (iter != se::__nonRefNativeObjectCreatedByCtorMap.end())
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
-        se::__nonRefNativeObjectCreatedByCtorMap.erase(iter);
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         creator::PhysicsUtils* cobj = (creator::PhysicsUtils*)s.nativeThisObject();
         delete cobj;
     }
@@ -2239,7 +2239,7 @@ static bool js_creator_PhysicsContactImpulse_constructor(se::State& s)
 {
     creator::PhysicsContactImpulse* cobj = new (std::nothrow) creator::PhysicsContactImpulse();
     s.thisObject()->setPrivateData(cobj);
-    se::__nonRefNativeObjectCreatedByCtorMap.emplace(cobj, true);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
 SE_BIND_CTOR(js_creator_PhysicsContactImpulse_constructor, __jsb_creator_PhysicsContactImpulse_class, js_creator_PhysicsContactImpulse_finalize)
@@ -2319,7 +2319,7 @@ static bool js_creator_PhysicsContactListener_constructor(se::State& s)
 {
     creator::PhysicsContactListener* cobj = new (std::nothrow) creator::PhysicsContactListener();
     s.thisObject()->setPrivateData(cobj);
-    se::__nonRefNativeObjectCreatedByCtorMap.emplace(cobj, true);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
 SE_BIND_CTOR(js_creator_PhysicsContactListener_constructor, __jsb_creator_PhysicsContactListener_class, js_creator_PhysicsContactListener_finalize)
@@ -2331,10 +2331,10 @@ extern se::Object* __jsb_b2ContactListener_proto;
 static bool js_creator_PhysicsContactListener_finalize(se::State& s)
 {
     cocos2d::log("jsbindings: finalizing JS object %p (creator::PhysicsContactListener)", s.nativeThisObject());
-    auto iter = se::__nonRefNativeObjectCreatedByCtorMap.find(s.nativeThisObject());
-    if (iter != se::__nonRefNativeObjectCreatedByCtorMap.end())
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
-        se::__nonRefNativeObjectCreatedByCtorMap.erase(iter);
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         creator::PhysicsContactListener* cobj = (creator::PhysicsContactListener*)s.nativeThisObject();
         delete cobj;
     }
@@ -2415,7 +2415,7 @@ static bool js_creator_PhysicsAABBQueryCallback_constructor(se::State& s)
 {
     creator::PhysicsAABBQueryCallback* cobj = new (std::nothrow) creator::PhysicsAABBQueryCallback();
     s.thisObject()->setPrivateData(cobj);
-    se::__nonRefNativeObjectCreatedByCtorMap.emplace(cobj, true);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
 SE_BIND_CTOR(js_creator_PhysicsAABBQueryCallback_constructor, __jsb_creator_PhysicsAABBQueryCallback_class, js_creator_PhysicsAABBQueryCallback_finalize)
@@ -2427,10 +2427,10 @@ extern se::Object* __jsb_b2QueryCallback_proto;
 static bool js_creator_PhysicsAABBQueryCallback_finalize(se::State& s)
 {
     cocos2d::log("jsbindings: finalizing JS object %p (creator::PhysicsAABBQueryCallback)", s.nativeThisObject());
-    auto iter = se::__nonRefNativeObjectCreatedByCtorMap.find(s.nativeThisObject());
-    if (iter != se::__nonRefNativeObjectCreatedByCtorMap.end())
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
-        se::__nonRefNativeObjectCreatedByCtorMap.erase(iter);
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         creator::PhysicsAABBQueryCallback* cobj = (creator::PhysicsAABBQueryCallback*)s.nativeThisObject();
         delete cobj;
     }
@@ -2519,7 +2519,7 @@ static bool js_creator_PhysicsRayCastCallback_constructor(se::State& s)
 {
     creator::PhysicsRayCastCallback* cobj = new (std::nothrow) creator::PhysicsRayCastCallback();
     s.thisObject()->setPrivateData(cobj);
-    se::__nonRefNativeObjectCreatedByCtorMap.emplace(cobj, true);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
 SE_BIND_CTOR(js_creator_PhysicsRayCastCallback_constructor, __jsb_creator_PhysicsRayCastCallback_class, js_creator_PhysicsRayCastCallback_finalize)
@@ -2531,10 +2531,10 @@ extern se::Object* __jsb_b2RayCastCallback_proto;
 static bool js_creator_PhysicsRayCastCallback_finalize(se::State& s)
 {
     cocos2d::log("jsbindings: finalizing JS object %p (creator::PhysicsRayCastCallback)", s.nativeThisObject());
-    auto iter = se::__nonRefNativeObjectCreatedByCtorMap.find(s.nativeThisObject());
-    if (iter != se::__nonRefNativeObjectCreatedByCtorMap.end())
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
-        se::__nonRefNativeObjectCreatedByCtorMap.erase(iter);
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         creator::PhysicsRayCastCallback* cobj = (creator::PhysicsRayCastCallback*)s.nativeThisObject();
         delete cobj;
     }

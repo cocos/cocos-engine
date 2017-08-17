@@ -57,6 +57,8 @@ namespace se {
 
         void clearException();
 
+        const std::chrono::steady_clock::time_point& getStartTime() const { return _startTime; }
+
         void _retainScriptObject(void* owner, void* target);
         void _releaseScriptObject(void* owner, void* target);
 

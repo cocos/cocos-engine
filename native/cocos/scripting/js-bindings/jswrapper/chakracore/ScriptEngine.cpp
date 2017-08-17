@@ -1,10 +1,11 @@
 #include "ScriptEngine.hpp"
 
+#ifdef SCRIPT_ENGINE_CHAKRACORE
+
 #include "Object.hpp"
 #include "Class.hpp"
 #include "Utils.hpp"
-
-#ifdef SCRIPT_ENGINE_CHAKRACORE
+#include "../MappingUtils.hpp"
 
 namespace se {
 
@@ -256,9 +257,9 @@ namespace se {
 
     void ScriptEngine::gc()
     {
-        LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
+        LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
         _CHECK(JsCollectGarbage(_rt));
-        LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
+        LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
     }
 
     void ScriptEngine::clearException()
@@ -324,14 +325,14 @@ namespace se {
 
     void ScriptEngine::_retainScriptObject(void* owner, void* target)
     {
-        auto iterOwner = __nativePtrToObjectMap.find(owner);
-        if (iterOwner == __nativePtrToObjectMap.end())
+        auto iterOwner = NativePtrToObjectMap::find(owner);
+        if (iterOwner == NativePtrToObjectMap::end())
         {
             return;
         }
 
-        auto iterTarget = __nativePtrToObjectMap.find(target);
-        if (iterTarget == __nativePtrToObjectMap.end())
+        auto iterTarget = NativePtrToObjectMap::find(target);
+        if (iterTarget == NativePtrToObjectMap::end())
         {
             return;
         }
@@ -342,14 +343,14 @@ namespace se {
 
     void ScriptEngine::_releaseScriptObject(void* owner, void* target)
     {
-        auto iterOwner = __nativePtrToObjectMap.find(owner);
-        if (iterOwner == __nativePtrToObjectMap.end())
+        auto iterOwner = NativePtrToObjectMap::find(owner);
+        if (iterOwner == NativePtrToObjectMap::end())
         {
             return;
         }
 
-        auto iterTarget = __nativePtrToObjectMap.find(target);
-        if (iterTarget == __nativePtrToObjectMap.end())
+        auto iterTarget = NativePtrToObjectMap::find(target);
+        if (iterTarget == NativePtrToObjectMap::end())
         {
             return;
         }

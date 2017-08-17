@@ -26,13 +26,6 @@
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \
         se::internal::setReturnValue(_cx, state.rval(), _argv); \
-        for (auto& v : args) \
-        { \
-            if (v.isObject()) \
-            { \
-                v.toObject()->unroot(); \
-            } \
-        } \
         return ret; \
     }
 
@@ -69,13 +62,6 @@
             _found = thisObject->getProperty("_ctor", &_property); \
             if (_found) _property.toObject()->call(args, thisObject); \
         } \
-        for (auto& v : args) \
-        { \
-            if (v.isObject()) \
-            { \
-                v.toObject()->unroot(); \
-            } \
-        } \
         return ret; \
     }
 
@@ -98,13 +84,6 @@
             bool _found = false; \
             _found = thisObject->getProperty("_ctor", &_property); \
             if (_found) _property.toObject()->call(args, thisObject); \
-        } \
-        for (auto& v : args) \
-        { \
-            if (v.isObject()) \
-            { \
-                v.toObject()->unroot(); \
-            } \
         } \
         return ret; \
     }
@@ -139,10 +118,6 @@
         args.push_back(std::move(data)); \
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \
-        if (args[0].isObject() && args[0].toObject()->isRooted()) \
-        { \
-            args[0].toObject()->unroot(); \
-        } \
         return ret; \
     }
 

@@ -33,13 +33,6 @@
             se::State state(nativeThisObject, args); \
             ret = funcName(state); \
             se::internal::seToJsValue(_cx, state.rval(), &_jsRet); \
-            for (auto& v : args) \
-            { \
-                if (v.isObject()) \
-                { \
-                    v.toObject()->unroot(); \
-                } \
-            } \
         } \
         return _jsRet; \
     }
@@ -85,13 +78,6 @@
             _found = thisObject->getProperty("_ctor", &_property); \
             if (_found) _property.toObject()->call(args, thisObject); \
         } \
-        for (auto& v : args) \
-        { \
-            if (v.isObject()) \
-            { \
-                v.toObject()->unroot(); \
-            } \
-        } \
         return JSValueToObject(_cx, _jsRet, nullptr); \
     }
 
@@ -113,13 +99,6 @@
             bool _found = false; \
             _found = thisObject->getProperty("_ctor", &_property); \
             if (_found) _property.toObject()->call(args, thisObject); \
-        } \
-        for (auto& v : args) \
-        { \
-            if (v.isObject()) \
-            { \
-                v.toObject()->unroot(); \
-            } \
         } \
         return _jsRet; \
     }
@@ -158,10 +137,6 @@
             args.push_back(std::move(data)); \
             se::State state(nativeThisObject, args); \
             ret = funcName(state); \
-            if (args[0].isObject() && args[0].toObject()->isRooted()) \
-            { \
-                args[0].toObject()->unroot(); \
-            } \
         } \
         return _jsRet; \
     }

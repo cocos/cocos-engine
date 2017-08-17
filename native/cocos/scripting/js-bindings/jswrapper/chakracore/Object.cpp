@@ -1,17 +1,14 @@
 #include "Object.hpp"
-#include "Utils.hpp"
-#include "Class.hpp"
-#include "ScriptEngine.hpp"
 
 #ifdef SCRIPT_ENGINE_CHAKRACORE
 
+#include "Utils.hpp"
+#include "Class.hpp"
+#include "ScriptEngine.hpp"
+#include "../MappingUtils.hpp"
+
 namespace se {
  
-    // key: native ptr, value: se::Object
-    std::unordered_map<void*, Object*> __nativePtrToObjectMap;
-    // key: native ptr, value: non-ref object created by ctor
-    std::unordered_map<void*, bool> __nonRefNativeObjectCreatedByCtorMap;
-
     Object::Object()
     : _cls(nullptr)
     , _obj(JS_INVALID_REFERENCE)
@@ -105,8 +102,8 @@ namespace se {
     Object* Object::getObjectWithPtr(void* ptr)
     {
         Object* obj = nullptr;
-        auto iter = __nativePtrToObjectMap.find(ptr);
-        if (iter != __nativePtrToObjectMap.end())
+        auto iter = NativePtrToObjectMap::find(ptr);
+        if (iter != NativePtrToObjectMap::end())
         {
             obj = iter->second;
             obj->addRef();
@@ -156,10 +153,10 @@ namespace se {
 
                 if (nativeObject != nullptr)
                 {
-                    auto iter = __nativePtrToObjectMap.find(nativeObject);
-                    if (iter != __nativePtrToObjectMap.end())
+                    auto iter = NativePtrToObjectMap::find(nativeObject);
+                    if (iter != NativePtrToObjectMap::end())
                     {
-                        __nativePtrToObjectMap.erase(iter);
+                        NativePtrToObjectMap::erase(iter);
                     }
                 }
             }
@@ -182,8 +179,8 @@ namespace se {
     void Object::cleanup()
     {
         ScriptEngine::getInstance()->addAfterCleanupHook([](){
-            __nativePtrToObjectMap.clear();
-            __nonRefNativeObjectCreatedByCtorMap.clear();
+            NativePtrToObjectMap::clear();
+            NonRefNativePtrCreatedByCtorMap::clear();
         });
     }
 
@@ -524,9 +521,9 @@ namespace se {
     void Object::setPrivateData(void* data)
     {
         assert(_privateData == nullptr);
-        assert(__nativePtrToObjectMap.find(data) == __nativePtrToObjectMap.end());
+        assert(NativePtrToObjectMap::find(data) == NativePtrToObjectMap::end());
         internal::setPrivate(_obj, data, _finalizeCb);
-        __nativePtrToObjectMap.emplace(data, this);
+        NativePtrToObjectMap::emplace(data, this);
         _privateData = data;
     }
 
@@ -535,7 +532,7 @@ namespace se {
         if (_privateData != nullptr)
         {
             void* data = getPrivateData();
-            __nativePtrToObjectMap.erase(data);
+            NativePtrToObjectMap::erase(data);
             internal::clearPrivate(_obj);
             _privateData = nullptr;
         }
@@ -568,8 +565,12 @@ namespace se {
             --_rootCount;
             if (_rootCount == 0)
             {
-                unsigned int count = 0;
-                _CHECK(JsRelease(_obj, &count));
+                // Don't unprotect if it's in cleanup, otherwise, it will trigger crash.
+                if (!ScriptEngine::getInstance()->_isInCleanup)
+                {
+                    unsigned int count = 0;
+                    _CHECK(JsRelease(_obj, &count));
+                }
             }
         }
     }

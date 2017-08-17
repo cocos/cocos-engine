@@ -159,8 +159,7 @@ namespace se {
                 {
                     obj = Object::_createJSObject(nullptr, jsobj);
                 }
-                obj->root(); // Root it here since it will be unrooted in at the end of SE_BIND_FUNC
-                data->setObject(obj);
+                data->setObject(obj, true);
                 obj->release();
             }
         }

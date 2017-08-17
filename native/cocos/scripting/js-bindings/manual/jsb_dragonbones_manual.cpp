@@ -423,8 +423,8 @@ bool register_all_dragonbones_manual(se::Object* obj)
             se::AutoHandleScope hs;
             se::ScriptEngine::getInstance()->clearException();
 
-            auto iter = se::__nativePtrToObjectMap.find(obj);
-            if (iter != se::__nativePtrToObjectMap.end())
+            auto iter = se::NativePtrToObjectMap::find(obj);
+            if (iter != se::NativePtrToObjectMap::end())
             {
 //                CCLOG("%s: %p was recycled!", typeName.c_str(), obj);
                 se::Object* seObj = iter->second;

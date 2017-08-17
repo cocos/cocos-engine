@@ -1258,8 +1258,8 @@ static void cleanupAllSchedulesForTarget(Node* node, se::Object* jsThis)
 
 static bool onReceiveNodeEvent(void* node, se::ScriptEngine::NodeEventType type)
 {
-    auto iter = se::__nativePtrToObjectMap.find(node);
-    if (iter  == se::__nativePtrToObjectMap.end())
+    auto iter = se::NativePtrToObjectMap::find(node);
+    if (iter  == se::NativePtrToObjectMap::end())
         return false;
 
     se::ScriptEngine::getInstance()->clearException();

@@ -338,7 +338,7 @@ static bool invokeJSMouseCallback(EventListenerMouse* listener, const char* func
     SE_PRECONDITION2(ok, false, "invokeJSMouseCallback convert arg1 failed!");
     argArr.push_back(std::move(arg1Val));
 
-    assert(se::__nativePtrToObjectMap.find(arg1) != se::__nativePtrToObjectMap.end());
+    assert(se::NativePtrToObjectMap::find(arg1) != se::NativePtrToObjectMap::end());
 
     ok = funcVal.toObject()->call(argArr, listenerObj, retVal);
     SE_PRECONDITION2(ok, false, "invokeJSMouseCallback call function failed!");
@@ -447,8 +447,8 @@ static bool invokeJSTouchOneByOneCallback(EventListenerTouchOneByOne* listener, 
         SE_PRECONDITION_ERROR_BREAK(ok, "invokeJSTouchOneByOneCallback convert arg2 failed!");
         argArr.push_back(std::move(arg2Val));
 
-        assert(se::__nativePtrToObjectMap.find(touch) != se::__nativePtrToObjectMap.end());
-        assert(se::__nativePtrToObjectMap.find(event) != se::__nativePtrToObjectMap.end());
+        assert(se::NativePtrToObjectMap::find(touch) != se::NativePtrToObjectMap::end());
+        assert(se::NativePtrToObjectMap::find(event) != se::NativePtrToObjectMap::end());
 
         ok = funcVal.toObject()->call(argArr, listenerObj, retVal);
         SE_PRECONDITION_ERROR_BREAK(ok, "invokeJSTouchOneByOneCallback call function failed!");
@@ -779,7 +779,7 @@ static bool js_EventListenerCustom_create(se::State& s)
 
         ret->init(eventName, [ret, funcVal](EventCustom* event){
 
-            if (se::__nativePtrToObjectMap.find(ret) == se::__nativePtrToObjectMap.end())
+            if (se::NativePtrToObjectMap::find(ret) == se::NativePtrToObjectMap::end())
             {
                 CCLOGERROR("can't find se::Object with native ptr: %p", ret);
                 return;

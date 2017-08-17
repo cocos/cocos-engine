@@ -682,7 +682,7 @@ static bool js_box2dclasses_b2CircleShape_constructor(se::State& s)
 {
     b2CircleShape* cobj = new (std::nothrow) b2CircleShape();
     s.thisObject()->setPrivateData(cobj);
-    se::__nonRefNativeObjectCreatedByCtorMap.emplace(cobj, true);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
 SE_BIND_CTOR(js_box2dclasses_b2CircleShape_constructor, __jsb_b2CircleShape_class, js_b2CircleShape_finalize)
@@ -694,10 +694,10 @@ extern se::Object* __jsb_b2Shape_proto;
 static bool js_b2CircleShape_finalize(se::State& s)
 {
     cocos2d::log("jsbindings: finalizing JS object %p (b2CircleShape)", s.nativeThisObject());
-    auto iter = se::__nonRefNativeObjectCreatedByCtorMap.find(s.nativeThisObject());
-    if (iter != se::__nonRefNativeObjectCreatedByCtorMap.end())
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
-        se::__nonRefNativeObjectCreatedByCtorMap.erase(iter);
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         b2CircleShape* cobj = (b2CircleShape*)s.nativeThisObject();
         delete cobj;
     }
@@ -900,7 +900,7 @@ static bool js_box2dclasses_b2EdgeShape_constructor(se::State& s)
 {
     b2EdgeShape* cobj = new (std::nothrow) b2EdgeShape();
     s.thisObject()->setPrivateData(cobj);
-    se::__nonRefNativeObjectCreatedByCtorMap.emplace(cobj, true);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
 SE_BIND_CTOR(js_box2dclasses_b2EdgeShape_constructor, __jsb_b2EdgeShape_class, js_b2EdgeShape_finalize)
@@ -912,10 +912,10 @@ extern se::Object* __jsb_b2Shape_proto;
 static bool js_b2EdgeShape_finalize(se::State& s)
 {
     cocos2d::log("jsbindings: finalizing JS object %p (b2EdgeShape)", s.nativeThisObject());
-    auto iter = se::__nonRefNativeObjectCreatedByCtorMap.find(s.nativeThisObject());
-    if (iter != se::__nonRefNativeObjectCreatedByCtorMap.end())
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
-        se::__nonRefNativeObjectCreatedByCtorMap.erase(iter);
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         b2EdgeShape* cobj = (b2EdgeShape*)s.nativeThisObject();
         delete cobj;
     }
@@ -1168,7 +1168,7 @@ static bool js_box2dclasses_b2ChainShape_constructor(se::State& s)
 {
     b2ChainShape* cobj = new (std::nothrow) b2ChainShape();
     s.thisObject()->setPrivateData(cobj);
-    se::__nonRefNativeObjectCreatedByCtorMap.emplace(cobj, true);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
 SE_BIND_CTOR(js_box2dclasses_b2ChainShape_constructor, __jsb_b2ChainShape_class, js_b2ChainShape_finalize)
@@ -1180,10 +1180,10 @@ extern se::Object* __jsb_b2Shape_proto;
 static bool js_b2ChainShape_finalize(se::State& s)
 {
     cocos2d::log("jsbindings: finalizing JS object %p (b2ChainShape)", s.nativeThisObject());
-    auto iter = se::__nonRefNativeObjectCreatedByCtorMap.find(s.nativeThisObject());
-    if (iter != se::__nonRefNativeObjectCreatedByCtorMap.end())
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
-        se::__nonRefNativeObjectCreatedByCtorMap.erase(iter);
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         b2ChainShape* cobj = (b2ChainShape*)s.nativeThisObject();
         delete cobj;
     }
@@ -1422,7 +1422,7 @@ static bool js_box2dclasses_b2PolygonShape_constructor(se::State& s)
 {
     b2PolygonShape* cobj = new (std::nothrow) b2PolygonShape();
     s.thisObject()->setPrivateData(cobj);
-    se::__nonRefNativeObjectCreatedByCtorMap.emplace(cobj, true);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
 SE_BIND_CTOR(js_box2dclasses_b2PolygonShape_constructor, __jsb_b2PolygonShape_class, js_b2PolygonShape_finalize)
@@ -1434,10 +1434,10 @@ extern se::Object* __jsb_b2Shape_proto;
 static bool js_b2PolygonShape_finalize(se::State& s)
 {
     cocos2d::log("jsbindings: finalizing JS object %p (b2PolygonShape)", s.nativeThisObject());
-    auto iter = se::__nonRefNativeObjectCreatedByCtorMap.find(s.nativeThisObject());
-    if (iter != se::__nonRefNativeObjectCreatedByCtorMap.end())
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
-        se::__nonRefNativeObjectCreatedByCtorMap.erase(iter);
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         b2PolygonShape* cobj = (b2PolygonShape*)s.nativeThisObject();
         delete cobj;
     }
@@ -3907,7 +3907,7 @@ static bool js_box2dclasses_b2World_constructor(se::State& s)
     SE_PRECONDITION2(ok, false, "js_box2dclasses_b2World_constructor : Error processing arguments");
     b2World* cobj = new (std::nothrow) b2World(arg0);
     s.thisObject()->setPrivateData(cobj);
-    se::__nonRefNativeObjectCreatedByCtorMap.emplace(cobj, true);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
 SE_BIND_CTOR(js_box2dclasses_b2World_constructor, __jsb_b2World_class, js_b2World_finalize)
@@ -3918,10 +3918,10 @@ SE_BIND_CTOR(js_box2dclasses_b2World_constructor, __jsb_b2World_class, js_b2Worl
 static bool js_b2World_finalize(se::State& s)
 {
     cocos2d::log("jsbindings: finalizing JS object %p (b2World)", s.nativeThisObject());
-    auto iter = se::__nonRefNativeObjectCreatedByCtorMap.find(s.nativeThisObject());
-    if (iter != se::__nonRefNativeObjectCreatedByCtorMap.end())
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
-        se::__nonRefNativeObjectCreatedByCtorMap.erase(iter);
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         b2World* cobj = (b2World*)s.nativeThisObject();
         delete cobj;
     }

@@ -4,13 +4,10 @@
 #include "Utils.hpp"
 #include "Class.hpp"
 #include "ScriptEngine.hpp"
+#include "../MappingUtils.hpp"
 
 namespace se {
 
-    // key: native ptr, value: se::Object
-    std::unordered_map<void*, Object*> __nativePtrToObjectMap;
-    // key: native ptr, value: non-ref object created by ctor
-    std::unordered_map<void*, bool> __nonRefNativeObjectCreatedByCtorMap;
     std::unordered_map<Object*, void*> __objectMap; // Currently, the value `void*` is always nullptr
     
     namespace {
@@ -46,8 +43,8 @@ namespace se {
         if (nativeObj == nullptr)
             return;
 
-        auto iter = __nativePtrToObjectMap.find(nativeObj);
-        if (iter != __nativePtrToObjectMap.end())
+        auto iter = NativePtrToObjectMap::find(nativeObj);
+        if (iter != NativePtrToObjectMap::end())
         {
             Object* obj = iter->second;
             if (obj->_finalizeCb != nullptr)
@@ -61,7 +58,7 @@ namespace se {
                     obj->_getClass()->_finalizeFunc(nativeObj);
             }
             obj->release();
-            __nativePtrToObjectMap.erase(iter);
+            NativePtrToObjectMap::erase(iter);
         }
         else
         {
@@ -82,7 +79,8 @@ namespace se {
         Object* obj = nullptr;
         Class* cls = nullptr;
 
-        for (const auto& e : __nativePtrToObjectMap)
+        const auto& nativePtrToObjectMap = NativePtrToObjectMap::instance();
+        for (const auto& e : nativePtrToObjectMap)
         {
             nativeObj = e.first;
             obj = e.second;
@@ -110,8 +108,8 @@ namespace se {
             obj->release();
         }
 
-        __nativePtrToObjectMap.clear();
-        __nonRefNativeObjectCreatedByCtorMap.clear();
+        NativePtrToObjectMap::clear();
+        NonRefNativePtrCreatedByCtorMap::clear();
 
         std::vector<Object*> toReleaseObjects;
         for (const auto& e : __objectMap)
@@ -146,8 +144,8 @@ namespace se {
     Object* Object::getObjectWithPtr(void* ptr)
     {
         Object* obj = nullptr;
-        auto iter = __nativePtrToObjectMap.find(ptr);
-        if (iter != __nativePtrToObjectMap.end())
+        auto iter = NativePtrToObjectMap::find(ptr);
+        if (iter != NativePtrToObjectMap::end())
         {
             obj = iter->second;
             obj->addRef();
@@ -340,9 +338,9 @@ namespace se {
     void Object::setPrivateData(void* data)
     {
         assert(_privateData == nullptr);
-        assert(__nativePtrToObjectMap.find(data) == __nativePtrToObjectMap.end());
+        assert(NativePtrToObjectMap::find(data) == NativePtrToObjectMap::end());
         internal::setPrivate(__isolate, _obj, data, &_internalData);
-        __nativePtrToObjectMap.emplace(data, this);
+        NativePtrToObjectMap::emplace(data, this);
         _privateData = data;
     }
 
@@ -360,7 +358,7 @@ namespace se {
         if (_privateData != nullptr)
         {
             void* data = getPrivateData();
-            __nativePtrToObjectMap.erase(data);
+            NativePtrToObjectMap::erase(data);
             internal::clearPrivate(__isolate, _obj);
             _privateData = nullptr;
         }

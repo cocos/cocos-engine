@@ -1,10 +1,11 @@
 #include "ScriptEngine.hpp"
 
+#ifdef SCRIPT_ENGINE_SM
+
 #include "Object.hpp"
 #include "Class.hpp"
 #include "Utils.hpp"
-
-#ifdef SCRIPT_ENGINE_SM
+#include "../MappingUtils.hpp"
 
 namespace se {
 
@@ -98,11 +99,11 @@ namespace se {
             if (status == JSGC_BEGIN)
             {
                 ScriptEngine::getInstance()->_setInGC(true);
-                LOGD("on_garbage_collect: begin, Native -> JS map count: %d, all objects: %d\n", (int)__nativePtrToObjectMap.size(), (int)__objectMap.size());
+                LOGD("on_garbage_collect: begin, Native -> JS map count: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
             }
             else if (status == JSGC_END)
             {
-                LOGD("on_garbage_collect: end, Native -> JS map count: %d, all objects: %d\n", (int)__nativePtrToObjectMap.size(), (int)__objectMap.size());
+                LOGD("on_garbage_collect: end, Native -> JS map count: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
                 ScriptEngine::getInstance()->_setInGC(false);
             }
         }
@@ -231,8 +232,8 @@ namespace se {
         bool isInCleanup = getInstance()->_isInCleanup;
         bool isIterUpdated = false;
         Object* obj = nullptr;
-        auto iter = __nativePtrToObjectMap.begin();
-        while (iter != __nativePtrToObjectMap.end())
+        auto iter = NativePtrToObjectMap::begin();
+        while (iter != NativePtrToObjectMap::end())
         {
             obj = iter->second;
             isIterUpdated = false;
@@ -241,7 +242,7 @@ namespace se {
                 if (obj->updateAfterGC(data))
                 {
                     obj->release();
-                    iter = __nativePtrToObjectMap.erase(iter);
+                    iter = NativePtrToObjectMap::erase(iter);
                     isIterUpdated = true;
                 }
             }
@@ -249,7 +250,7 @@ namespace se {
             {
                 obj->unprotect();
                 obj->release();
-                iter = __nativePtrToObjectMap.erase(iter);
+                iter = NativePtrToObjectMap::erase(iter);
                 isIterUpdated = true;
             }
 
@@ -483,14 +484,14 @@ namespace se {
 
     void ScriptEngine::_retainScriptObject(void* owner, void* target)
     {
-        auto iterOwner = __nativePtrToObjectMap.find(owner);
-        if (iterOwner == __nativePtrToObjectMap.end())
+        auto iterOwner = NativePtrToObjectMap::find(owner);
+        if (iterOwner == NativePtrToObjectMap::end())
         {
             return;
         }
 
-        auto iterTarget = __nativePtrToObjectMap.find(target);
-        if (iterTarget == __nativePtrToObjectMap.end())
+        auto iterTarget = NativePtrToObjectMap::find(target);
+        if (iterTarget == NativePtrToObjectMap::end())
         {
             return;
         }
@@ -501,14 +502,14 @@ namespace se {
 
     void ScriptEngine::_releaseScriptObject(void* owner, void* target)
     {
-        auto iterOwner = __nativePtrToObjectMap.find(owner);
-        if (iterOwner == __nativePtrToObjectMap.end())
+        auto iterOwner = NativePtrToObjectMap::find(owner);
+        if (iterOwner == NativePtrToObjectMap::end())
         {
             return;
         }
 
-        auto iterTarget = __nativePtrToObjectMap.find(target);
-        if (iterTarget == __nativePtrToObjectMap.end())
+        auto iterTarget = NativePtrToObjectMap::find(target);
+        if (iterTarget == NativePtrToObjectMap::end())
         {
             return;
         }

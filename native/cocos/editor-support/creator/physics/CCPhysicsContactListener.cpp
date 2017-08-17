@@ -4,12 +4,26 @@
 using namespace cocos2d;
 
 namespace creator {
-    
-PhysicsContactListener::PhysicsContactListener() 
+
+std::vector<PhysicsContactListener*> PhysicsContactListener::__allInstances;
+
+const std::vector<PhysicsContactListener*>& PhysicsContactListener::getAllInstances()
 {
+    return __allInstances;
 }
 
-PhysicsContactListener::~PhysicsContactListener() {
+PhysicsContactListener::PhysicsContactListener() 
+{
+    __allInstances.push_back(this);
+}
+
+PhysicsContactListener::~PhysicsContactListener()
+{
+    auto iter = std::find(__allInstances.begin(), __allInstances.end(), this);
+    if (iter != __allInstances.end())
+    {
+        __allInstances.erase(iter);
+    }
 }
 
 void PhysicsContactListener::setBeginContact(const std::function<void(b2Contact* contact)>& callback)
