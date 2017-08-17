@@ -285,7 +285,10 @@ JS_BINDED_FUNC_IMPL(JavaScriptObjCBridge, callStaticMethod){
         args.rval().set(convertReturnValue(cx, call.getReturnValue(), call.getReturnValueType()));
         return ok;
     }
-    return false;
+    else {
+        JS_ReportErrorUTF8(cx, "js_cocos2dx_JSObjCBridge : require at least the class name and the static method name");
+        return false;
+    }
 }
 
 /**

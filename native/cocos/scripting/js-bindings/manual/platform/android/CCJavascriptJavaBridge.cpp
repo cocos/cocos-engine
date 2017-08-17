@@ -377,6 +377,9 @@ JS_BINDED_FUNC_IMPL(JavascriptJavaBridge, callStaticMethod)
             argv.rval().set(ret);
             return success;
         }
+        else {
+            JS_ReportErrorUTF8(cx, "js_cocos2dx_JSJavaBridge : cannot found static method '%s' in class '%s'", arg1.get(), arg0.get());
+        }
     }
     else if(argc > 3){
         JS::RootedString valuestr0(cx, argv.get(0).toString());
@@ -427,7 +430,9 @@ JS_BINDED_FUNC_IMPL(JavascriptJavaBridge, callStaticMethod)
             argv.rval().set(ret);
             return success;
         }
-
+        else {
+            JS_ReportErrorUTF8(cx, "js_cocos2dx_JSJavaBridge : cannot found static method '%s' in class '%s' or arguments count doesn't match", arg1.get(), arg0.get());
+        }
     }else{
         JS_ReportErrorUTF8(cx, "js_cocos2dx_JSJavaBridge : wrong number of arguments: %d, was expecting more than 3", argc);
     }
