@@ -23,6 +23,7 @@
  ****************************************************************************/
 
 var eventRegx = /^(click)(\s)*=/;
+var imageAttrReg = /(\s)*src(\s)*=|(\s)*height(\s)*=|(\s)*width(\s)*=|(\s)*click(\s)*=/;
 /**
  * A utils class for parsing HTML texts. The parsed results will be an object array.
  */
@@ -123,7 +124,6 @@ cc.HtmlTextParser.prototype = {
         if(header && header[0].length > 0) {
             tagName = header[0].trim();
             if(tagName.startsWith("img") && tagName[tagName.length-1] === "/") {
-                var imageAttrReg = /(\s)*src(\s)*=|(\s)*height(\s)*=|(\s)*width(\s)*=|(\s)*click(\s)*=/;
                 header = attribute.match(imageAttrReg);
                 var tagValue;
                 var remainingArgument;

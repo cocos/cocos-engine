@@ -507,22 +507,21 @@ var RichText = cc.Class({
             var scaleFactor = 1;
             var spriteWidth = spriteRect.width;
             var spriteHeight = spriteRect.height;
-            var expectWidht = richTextElement.style.imageWidth;
+            var expectWidth = richTextElement.style.imageWidth;
             var expectHeight = richTextElement.style.imageHeight;
 
-            //follow the original rule, the image height must less then lineHeight
-            if(expectHeight && expectHeight > 0 && expectHeight < this.lineHeight )
-            {
-                scaleFactor = expectHeight / spriteRect.height;
+            //follow the original rule, expectHeight must less then lineHeight
+            if(expectHeight > 0 && expectHeight < this.lineHeight ) {
+                scaleFactor = expectHeight / spriteHeight;
+                spriteWidth = spriteWidth * scaleFactor;
+                spriteHeight = spriteHeight * scaleFactor;
+            } else {
+                scaleFactor = this.lineHeight / spriteHeight;
                 spriteWidth = spriteWidth * scaleFactor;
                 spriteHeight = spriteHeight * scaleFactor;
             }
-            else if(spriteRect.height > this.lineHeight) {
-                scaleFactor = this.lineHeight / spriteRect.height;
-                spriteWidth = spriteWidth * scaleFactor;
-                spriteHeight = spriteHeight * scaleFactor;
-            }
-            if(expectWidht && expectWidht > 0) spriteWidth = expectWidht;
+
+            if(expectWidth > 0) spriteWidth = expectWidth;
 
             if(this.maxWidth > 0) {
                 if(this._lineOffsetX + spriteWidth > this.maxWidth) {
