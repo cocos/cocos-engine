@@ -1864,21 +1864,17 @@ bool ScriptingCore::parseConfig(ConfigType type, const std::string &str)
 bool ScriptingCore::isObjectValid(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    if (argc == 1) {
-        JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-        js_proxy_t *proxy = jsb_get_js_proxy(cx, tmpObj);
-        if (proxy && proxy->ptr) {
-            args.rval().set(JS::TrueHandleValue);
+    args.rval().set(JS::FalseHandleValue);
+    if (argc >= 1) {
+        if (!args.get(0).isNullOrUndefined()) {
+            JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
+            js_proxy_t *proxy = jsb_get_js_proxy(cx, tmpObj);
+            if (proxy && proxy->ptr) {
+                args.rval().set(JS::TrueHandleValue);
+            }
         }
-        else {
-            args.rval().set(JS::FalseHandleValue);
-        }
-        return true;
     }
-    else {
-        JS_ReportErrorUTF8(cx, "Invalid number of arguments: %d. Expecting: 1", argc);
-        return false;
-    }
+    return true;
 }
 
 void ScriptingCore::rootObject(Ref* ref)
