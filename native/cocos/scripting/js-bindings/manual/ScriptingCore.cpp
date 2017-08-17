@@ -1866,7 +1866,7 @@ bool ScriptingCore::isObjectValid(JSContext *cx, uint32_t argc, JS::Value *vp)
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     args.rval().set(JS::FalseHandleValue);
     if (argc >= 1) {
-        if (!args.get(0).isNullOrUndefined()) {
+        if (args.get(0).isObject()) {
             JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
             js_proxy_t *proxy = jsb_get_js_proxy(cx, tmpObj);
             if (proxy && proxy->ptr) {
