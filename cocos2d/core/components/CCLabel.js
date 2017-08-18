@@ -489,16 +489,12 @@ var Label = cc.Class({
     __preload: function () {
         this._super();
 
-        var sgSizeInitialized = this._sgNode._isUseSystemFont;
-        if (sgSizeInitialized) {
-            this._updateNodeSize();
-        }
-
         // node should be resize whenever font changed, needed only on web
         if (!CC_JSB) {
             this._sgNode.on('load', this._updateNodeSize, this);
         }
 
+        this._updateNodeSize();
     },
 
     _createSgNode: function () {

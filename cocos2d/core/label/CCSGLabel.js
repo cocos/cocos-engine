@@ -1307,7 +1307,6 @@ _ccsg.Label.pool.get = function (string, fontAsset) {
         label.enableBold(false);
         label.enableItalics(false);
         label.enableUnderline(false);
-        label.setBlendFunc(cc.macro.SRC_ALPHA, cc.macro.ONE_MINUS_SRC_ALPHA);
 
         return label;
     }

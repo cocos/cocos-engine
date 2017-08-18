@@ -878,9 +878,11 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
     /**
      * !#en
-     * set color for clear screen.<br/>
-     * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js
-     * !#zh 设置场景的默认擦除颜色（支持白色全透明，但不支持透明度为中间值）。
+     * Set color for clear screen.<br/>
+     * (Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js)
+     * !#zh
+     * 设置场景的默认擦除颜色。<br/>
+     * 支持全透明，但不支持透明度为中间值。要支持全透明需手工开启 cc.macro.ENABLE_TRANSPARENT_CANVAS。
      * @method setClearColor
      * @param {Color} clearColor
      */

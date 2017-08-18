@@ -843,4 +843,26 @@ largeModule('Class ES6');
     //     }
     //     expect(0);
     // });
+
+    if (TestEditorExtends) {
+        test('deserialization of child class', function () {
+            @ccclass('cc.Animal')
+            class Animal {}
+
+            @ccclass('cc.Dog')
+            class Dog extends Animal {
+                @property
+                name = '3';
+            }
+
+            var ani = new Animal();
+            cc.deserialize(Editor.serialize(ani));
+            var dog = new Dog();
+            dog.name = 'a';
+            var cloneDog = cc.deserialize(Editor.serialize(dog));
+            strictEqual(dog.name, cloneDog.name, 'property should be deserializable if super class also have been deserialized');
+
+            cc.js.unregisterClass(Animal, Dog);
+        });
+    }
 })();
