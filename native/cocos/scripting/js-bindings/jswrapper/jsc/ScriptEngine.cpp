@@ -123,6 +123,7 @@ namespace se {
 
         _globalObj = Object::_createJSObject(nullptr, globalObj);
         _globalObj->root();
+        _globalObj->setProperty("window", se::Value(_globalObj));
 
         JSStringRef propertyName = JSStringCreateWithUTF8CString("log");
         JSObjectSetProperty(_cx, globalObj, propertyName, JSObjectMakeFunctionWithCallback(_cx, propertyName, __log), kJSPropertyAttributeReadOnly, nullptr);
@@ -188,7 +189,7 @@ namespace se {
 
         NativePtrToObjectMap::destroy();
         NonRefNativePtrCreatedByCtorMap::destroy();
-        LOGD("ScriptEngine::cleanup end ...");
+        LOGD("ScriptEngine::cleanup end ...\n");
     }
 
     std::string ScriptEngine::_formatException(JSValueRef exception)

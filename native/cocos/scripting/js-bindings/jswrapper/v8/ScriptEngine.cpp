@@ -139,6 +139,7 @@ namespace se {
 
     bool ScriptEngine::init()
     {
+        cleanup();
         LOGD("Initializing V8\n");
 
         for (const auto& hook : _beforeInitHookArray)

@@ -256,6 +256,7 @@ namespace se {
 
     bool ScriptEngine::init()
     {
+        cleanup();
         LOGD("Initializing SpiderMonkey \n");
 
         for (const auto& hook : _beforeInitHookArray)

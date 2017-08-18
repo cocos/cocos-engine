@@ -79,6 +79,7 @@ namespace se {
 
     bool ScriptEngine::init()
     {
+        cleanup();
         LOGD("Initializing ChakraCore ... \n");
 
         for (const auto& hook : _beforeInitHookArray)
