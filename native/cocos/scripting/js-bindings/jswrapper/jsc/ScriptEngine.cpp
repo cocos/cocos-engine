@@ -69,11 +69,6 @@ namespace se {
         if (__instance == nullptr)
         {
             __instance = new ScriptEngine();
-            if (!__instance->init())
-            {
-                delete __instance;
-                __instance = nullptr;
-            }
         }
 
         return __instance;
@@ -99,6 +94,12 @@ namespace se {
         cleanup();
         LOGD("Initializing JavaScriptCore \n");
 
+        for (const auto& hook : _beforeInitHookArray)
+        {
+            hook();
+        }
+        _beforeInitHookArray.clear();
+
         _cx = JSGlobalContextCreate(nullptr);
 
         if (nullptr == _cx)
@@ -108,6 +109,9 @@ namespace se {
         JSGlobalContextSetName(_cx, ctxName);
         JSStringRelease(ctxName);
 
+        NativePtrToObjectMap::init();
+        NonRefNativePtrCreatedByCtorMap::init();
+        
         internal::setContext(_cx);
         Class::setContext(_cx);
         Object::setContext(_cx);
@@ -133,6 +137,12 @@ namespace se {
         __jsb_CCPrivateData_class->install();
 
         _isValid = true;
+
+        for (const auto& hook : _afterInitHookArray)
+        {
+            hook();
+        }
+        _afterInitHookArray.clear();
 
         return true;
     }
@@ -175,6 +185,9 @@ namespace se {
         }
         _afterCleanupHookArray.clear();
         _isInCleanup = false;
+
+        NativePtrToObjectMap::destroy();
+        NonRefNativePtrCreatedByCtorMap::destroy();
         LOGD("ScriptEngine::cleanup end ...");
     }
 
@@ -244,6 +257,16 @@ namespace se {
         return _globalObj;
     }
 
+    void ScriptEngine::addBeforeInitHook(const std::function<void()>& hook)
+    {
+        _beforeInitHookArray.push_back(hook);
+    }
+
+    void ScriptEngine::addAfterInitHook(const std::function<void()>& hook)
+    {
+        _afterInitHookArray.push_back(hook);
+    }
+
     void ScriptEngine::addBeforeCleanupHook(const std::function<void()>& hook)
     {
         _beforeCleanupHookArray.push_back(hook);
@@ -262,6 +285,9 @@ namespace se {
 
     bool ScriptEngine::start()
     {
+        if (!init())
+            return false;
+
         bool ok = false;
         _startTime = std::chrono::steady_clock::now();
 

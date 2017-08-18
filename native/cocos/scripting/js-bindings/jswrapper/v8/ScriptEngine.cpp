@@ -96,11 +96,6 @@ namespace se {
         if (__instance == nullptr)
         {
             __instance = new ScriptEngine();
-            if (!__instance->init())
-            {
-                delete __instance;
-                __instance = nullptr;
-            }
         }
 
         return __instance;
@@ -146,6 +141,12 @@ namespace se {
     {
         LOGD("Initializing V8\n");
 
+        for (const auto& hook : _beforeInitHookArray)
+        {
+            hook();
+        }
+        _beforeInitHookArray.clear();
+
         assert(_allocator == nullptr);
         _allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
         // Create a new Isolate and make it the current one.
@@ -162,6 +163,9 @@ namespace se {
 
         _context.Reset(_isolate, v8::Context::New(_isolate));
         _context.Get(_isolate)->Enter();
+
+        NativePtrToObjectMap::init();
+        NonRefNativePtrCreatedByCtorMap::init();
 
         Class::setIsolate(_isolate);
         Object::setIsolate(_isolate);
@@ -193,6 +197,12 @@ namespace se {
 #endif
 
         _isValid = true;
+
+        for (const auto& hook : _afterInitHookArray)
+        {
+            hook();
+        }
+        _afterInitHookArray.clear();
 
         return _isValid;
     }
@@ -243,11 +253,25 @@ namespace se {
             hook();
         }
         _afterCleanupHookArray.clear();
+
+
+        NativePtrToObjectMap::destroy();
+        NonRefNativePtrCreatedByCtorMap::destroy();
     }
 
     Object* ScriptEngine::getGlobalObject() const
     {
         return _globalObj;
+    }
+
+    void ScriptEngine::addBeforeInitHook(const std::function<void()>& hook)
+    {
+        _beforeInitHookArray.push_back(hook);
+    }
+
+    void ScriptEngine::addAfterInitHook(const std::function<void()>& hook)
+    {
+        _afterInitHookArray.push_back(hook);
     }
 
     void ScriptEngine::addBeforeCleanupHook(const std::function<void()>& hook)
@@ -268,6 +292,10 @@ namespace se {
 
     bool ScriptEngine::start()
     {
+        if (!init())
+            return false;
+
+        se::AutoHandleScope hs;
         bool ok = false;
         _startTime = std::chrono::steady_clock::now();
 

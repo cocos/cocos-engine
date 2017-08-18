@@ -12,6 +12,9 @@ namespace se {
         // key: native ptr, value: se::Object
         using Map = std::unordered_map<void*, Object*>;
 
+        static bool init();
+        static void destroy();
+
         static Map::iterator find(void* nativeObj);
         static Map::iterator erase(Map::iterator iter);
         static void erase(void* nativeObj);
@@ -25,7 +28,7 @@ namespace se {
 
     private:
         static void emplace(void* nativeObj, Object* seObj);
-        static Map __nativePtrToObjectMap;
+        static Map* __nativePtrToObjectMap;
 
         friend class Object;
     };
@@ -35,6 +38,9 @@ namespace se {
     public:
         // key: native ptr, value: non-ref object created by ctor
         using Map = std::unordered_map<void*, bool>;
+
+        static bool init();
+        static void destroy();
 
         static void emplace(void* nativeObj);
         static Map::iterator find(void* nativeObj);
@@ -49,7 +55,7 @@ namespace se {
         static Map::iterator end();
 
     private:
-        static Map __nonRefNativeObjectCreatedByCtorMap;
+        static Map* __nonRefNativeObjectCreatedByCtorMap;
     };
 
 } // namespace se {

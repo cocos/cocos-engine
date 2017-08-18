@@ -41,6 +41,20 @@ namespace se {
 
         bool init();
         void cleanup();
+        /**
+         *  @brief Adds a hook function before initializing script engine.
+         *  @param[in] hook A hook function to be invoked before initializing script engine.
+         *  @note Multiple hook functions could be added, they will be invoked by the order of adding.
+         */
+        void addBeforeInitHook(const std::function<void()>& hook);
+
+        /**
+         *  @brief Adds a hook function after initializing script engine.
+         *  @param[in] hook A hook function to be invoked before initializing script engine.
+         *  @note Multiple hook functions could be added, they will be invoked by the order of adding.
+         */
+        void addAfterInitHook(const std::function<void()>& hook);
+
         void addBeforeCleanupHook(const std::function<void()>& hook);
         void addAfterCleanupHook(const std::function<void()>& hook);
 
@@ -91,6 +105,10 @@ namespace se {
 
         std::vector<RegisterCallback> _registerCallbackArray;
         std::chrono::steady_clock::time_point _startTime;
+
+        std::vector<std::function<void()>> _beforeInitHookArray;
+        std::vector<std::function<void()>> _afterInitHookArray;
+
         std::vector<std::function<void()>> _beforeCleanupHookArray;
         std::vector<std::function<void()>> _afterCleanupHookArray;
     };

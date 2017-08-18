@@ -179,6 +179,11 @@ namespace se {
     void Object::cleanup()
     {
         ScriptEngine::getInstance()->addAfterCleanupHook([](){
+            const auto& instance = NativePtrToObjectMap::instance();
+            for (const auto& e : instance)
+            {
+                e.second->release();
+            }
             NativePtrToObjectMap::clear();
             NonRefNativePtrCreatedByCtorMap::clear();
         });

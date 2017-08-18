@@ -1082,7 +1082,11 @@ bool register_all_box2d_manual(se::Object* obj)
     b2SetObjectDestroyNotifier([](void* obj, b2ObjectType type, const char* typeName){
 
         std::string typeNameStr = typeName;
-        auto cleanup = [=](){
+        auto cleanup = [obj, typeNameStr](){
+
+            if (!se::ScriptEngine::getInstance()->isValid())
+                return;
+
             se::AutoHandleScope hs;
             se::ScriptEngine::getInstance()->clearException();
 

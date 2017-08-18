@@ -55,11 +55,6 @@ namespace se {
         if (__instance == nullptr)
         {
             __instance = new ScriptEngine();
-            if (!__instance->init())
-            {
-                delete __instance;
-                __instance = nullptr;
-            }
         }
 
         return __instance;
@@ -86,9 +81,18 @@ namespace se {
     {
         LOGD("Initializing ChakraCore ... \n");
 
+        for (const auto& hook : _beforeInitHookArray)
+        {
+            hook();
+        }
+        _beforeInitHookArray.clear();
+
         _CHECK(JsCreateRuntime(JsRuntimeAttributeNone, nullptr, &_rt));
         _CHECK(JsCreateContext(_rt, &_cx));
         _CHECK(JsSetCurrentContext(_cx));
+
+        NativePtrToObjectMap::init();
+        NonRefNativePtrCreatedByCtorMap::init();
 
         // Set up ES6 Promise
 //        if (JsSetPromiseContinuationCallback(PromiseContinuationCallback, &taskQueue) != JsNoError)
@@ -109,6 +113,12 @@ namespace se {
         __jsb_CCPrivateData_class->install();
 
         _isValid = true;
+
+        for (const auto& hook : _afterInitHookArray)
+        {
+            hook();
+        }
+        _afterInitHookArray.clear();
 
         return true;
     }
@@ -151,6 +161,9 @@ namespace se {
         }
         _afterCleanupHookArray.clear();
         _isInCleanup = false;
+
+        NativePtrToObjectMap::destroy();
+        NonRefNativePtrCreatedByCtorMap::destroy();
     }
 
     std::string ScriptEngine::formatException(JsValueRef exception)
@@ -211,6 +224,16 @@ namespace se {
         return _globalObj;
     }
 
+    void ScriptEngine::addBeforeInitHook(const std::function<void()>& hook)
+    {
+        _beforeInitHookArray.push_back(hook);
+    }
+
+    void ScriptEngine::addAfterInitHook(const std::function<void()>& hook)
+    {
+        _afterInitHookArray.push_back(hook);
+    }
+
     void ScriptEngine::addBeforeCleanupHook(const std::function<void()>& hook)
     {
         _beforeCleanupHookArray.push_back(hook);
@@ -229,6 +252,9 @@ namespace se {
 
     bool ScriptEngine::start()
     {
+        if (!init())
+            return false;
+
         bool ok = false;
         _startTime = std::chrono::steady_clock::now();
 
