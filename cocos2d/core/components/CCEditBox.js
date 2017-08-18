@@ -518,6 +518,11 @@ var EditBox = cc.Class({
         this.node.emit('editing-return', this);
     },
 
+    onDestroy: function () {
+        this._sgNode.setDelegate(null);
+        this._super();
+    },
+
     __preload: function() {
         this._super();
 
