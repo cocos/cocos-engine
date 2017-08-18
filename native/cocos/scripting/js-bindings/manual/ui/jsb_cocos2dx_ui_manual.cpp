@@ -179,7 +179,14 @@ public:
 
     void setJSDelegate(JS::HandleValue pJSDelegate)
     {
-        _JSDelegate = pJSDelegate;
+        if (pJSDelegate.isObject())
+        {
+            _JSDelegate = pJSDelegate;
+        }
+        else
+        {
+            _JSDelegate = JS::NullValue();
+        }
     }
 private:
     JS::Heap<JS::Value> _JSDelegate;
@@ -195,16 +202,24 @@ static bool js_cocos2dx_CCEditBox_setDelegate(JSContext *cx, uint32_t argc, JS::
 
     if (argc == 1)
     {
-        // save the delegate
-        JSB_EditBoxDelegate* nativeDelegate = new (std::nothrow) JSB_EditBoxDelegate();
-        nativeDelegate->setJSDelegate(args.get(0));
-        
-        JS_SetProperty(cx, obj, "_delegate", args.get(0));
-        
-        cobj->setUserObject(nativeDelegate);
-        cobj->setDelegate(nativeDelegate);
-
-        nativeDelegate->release();
+        JSB_EditBoxDelegate* nativeDelegate = (JSB_EditBoxDelegate*)cobj->getDelegate();
+        if (nativeDelegate)
+        {
+            nativeDelegate->setJSDelegate(args.get(0));
+        }
+        else
+        {
+            // save the delegate
+            nativeDelegate = new (std::nothrow) JSB_EditBoxDelegate();
+            nativeDelegate->setJSDelegate(args.get(0));
+            
+            JS_SetProperty(cx, obj, "_delegate", args.get(0));
+            
+            cobj->setUserObject(nativeDelegate);
+            cobj->setDelegate(nativeDelegate);
+            
+            nativeDelegate->release();
+        }
 
         args.rval().setUndefined();
         return true;
