@@ -163,6 +163,7 @@ function testInstantiate (module, match, instantiate) {
         var clone = instantiate(node);
 
         ok(clone.parent === null, 'root of cloned node should not have parent');
+        ok(clone.uuid !== node.uuid, 'should not clone uuid in tests');
         ok(clone.children[0].parent === clone, 'cloned child node should have parent');
     });
 
