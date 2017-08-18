@@ -2218,10 +2218,11 @@ void ScriptingCore::enableDebugger(unsigned int port)
         JS_InitStandardClasses(_cx, debugGlobal);
         registerDefaultClasses(_cx, debugGlobal);
         JS_FireOnNewGlobalObject(_cx, debugGlobal);
+        JS_DefineDebuggerObject(_cx, debugGlobal);
         
         // these are used in the debug program
-        JS_DefineFunction(_cx, debugGlobal, "log", ScriptingCore::log, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-        JS_DefineFunction(_cx, debugGlobal, "require", ScriptingCore::executeScript, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+        JS_DefineFunction(_cx, debugGlobal, "log", ScriptingCore::log, 0, JSPROP_PERMANENT);
+//        JS_DefineFunction(_cx, debugGlobal, "require", ScriptingCore::executeScript, 2, JSPROP_PERMANENT);
         JS_DefineFunction(_cx, debugGlobal, "_bufferWrite", JSBDebug_BufferWrite, 1, JSPROP_READONLY | JSPROP_PERMANENT);
         JS_DefineFunction(_cx, debugGlobal, "_enterNestedEventLoop", JSBDebug_enterNestedEventLoop, 0, JSPROP_READONLY | JSPROP_PERMANENT);
         JS_DefineFunction(_cx, debugGlobal, "_exitNestedEventLoop", JSBDebug_exitNestedEventLoop, 0, JSPROP_READONLY | JSPROP_PERMANENT);

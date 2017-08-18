@@ -39,63 +39,64 @@ var loggingEnabled = true;
 /**
  * Decorate an object with event emitter functionality.
  *
- * @param Object aObjectToDecorate
+ * @param Object objectToDecorate
  *        Bind all public methods of EventEmitter to
- *        the aObjectToDecorate object.
+ *        the objectToDecorate object.
  */
-EventEmitter.decorate = function EventEmitter_decorate (aObjectToDecorate) {
+EventEmitter.decorate = function (objectToDecorate) {
   let emitter = new EventEmitter();
-  aObjectToDecorate.on = emitter.on.bind(emitter);
-  aObjectToDecorate.off = emitter.off.bind(emitter);
-  aObjectToDecorate.once = emitter.once.bind(emitter);
-  aObjectToDecorate.emit = emitter.emit.bind(emitter);
+  objectToDecorate.on = emitter.on.bind(emitter);
+  objectToDecorate.off = emitter.off.bind(emitter);
+  objectToDecorate.once = emitter.once.bind(emitter);
+  objectToDecorate.emit = emitter.emit.bind(emitter);
 };
 
 EventEmitter.prototype = {
   /**
    * Connect a listener.
    *
-   * @param string aEvent
+   * @param string event
    *        The event name to which we're connecting.
-   * @param function aListener
+   * @param function listener
    *        Called when the event is fired.
    */
-  on: function EventEmitter_on(aEvent, aListener) {
-    if (!this._eventEmitterListeners)
+  on(event, listener) {
+    if (!this._eventEmitterListeners) {
       this._eventEmitterListeners = new Map();
-    if (!this._eventEmitterListeners.has(aEvent)) {
-      this._eventEmitterListeners.set(aEvent, []);
     }
-    this._eventEmitterListeners.get(aEvent).push(aListener);
+    if (!this._eventEmitterListeners.has(event)) {
+      this._eventEmitterListeners.set(event, []);
+    }
+    this._eventEmitterListeners.get(event).push(listener);
   },
 
   /**
    * Listen for the next time an event is fired.
    *
-   * @param string aEvent
+   * @param string event
    *        The event name to which we're connecting.
-   * @param function aListener
+   * @param function listener
    *        (Optional) Called when the event is fired. Will be called at most
    *        one time.
    * @return promise
    *        A promise which is resolved when the event next happens. The
    *        resolution value of the promise is the first event argument. If
    *        you need access to second or subsequent event arguments (it's rare
-   *        that this is needed) then use aListener
+   *        that this is needed) then use listener
    */
-  once: function EventEmitter_once(aEvent, aListener) {
+  once(event, listener) {
     let deferred = promise.defer();
 
-    let handler = (aEvent, aFirstArg, ...aRest) => {
-      this.off(aEvent, handler);
-      if (aListener) {
-        aListener.apply(null, [aEvent, aFirstArg, ...aRest]);
+    let handler = (_, first, ...rest) => {
+      this.off(event, handler);
+      if (listener) {
+        listener.apply(null, [event, first, ...rest]);
       }
-      deferred.resolve(aFirstArg);
+      deferred.resolve(first);
     };
 
-    handler._originalListener = aListener;
-    this.on(aEvent, handler);
+    handler._originalListener = listener;
+    this.on(event, handler);
 
     return deferred.promise;
   },
@@ -104,18 +105,19 @@ EventEmitter.prototype = {
    * Remove a previously-registered event listener.  Works for events
    * registered with either on or once.
    *
-   * @param string aEvent
+   * @param string event
    *        The event name whose listener we're disconnecting.
-   * @param function aListener
+   * @param function listener
    *        The listener to remove.
    */
-  off: function EventEmitter_off(aEvent, aListener) {
-    if (!this._eventEmitterListeners)
+  off(event, listener) {
+    if (!this._eventEmitterListeners) {
       return;
-    let listeners = this._eventEmitterListeners.get(aEvent);
+    }
+    let listeners = this._eventEmitterListeners.get(event);
     if (listeners) {
-      this._eventEmitterListeners.set(aEvent, listeners.filter(l => {
-        return l !== aListener && l._originalListener !== aListener;
+      this._eventEmitterListeners.set(event, listeners.filter(l => {
+        return l !== listener && l._originalListener !== listener;
       }));
     }
   },
@@ -124,15 +126,15 @@ EventEmitter.prototype = {
    * Emit an event.  All arguments to this method will
    * be sent to listener functions.
    */
-  emit: function EventEmitter_emit(aEvent) {
-    this.logEvent(aEvent, arguments);
+  emit(event) {
+    this.logEvent(event, arguments);
 
-    if (!this._eventEmitterListeners || !this._eventEmitterListeners.has(aEvent)) {
+    if (!this._eventEmitterListeners || !this._eventEmitterListeners.has(event)) {
       return;
     }
 
-    let originalListeners = this._eventEmitterListeners.get(aEvent);
-    for (let listener of this._eventEmitterListeners.get(aEvent)) {
+    let originalListeners = this._eventEmitterListeners.get(event);
+    for (let listener of this._eventEmitterListeners.get(event)) {
       // If the object was destroyed during event emission, stop
       // emitting.
       if (!this._eventEmitterListeners) {
@@ -141,22 +143,21 @@ EventEmitter.prototype = {
 
       // If listeners were removed during emission, make sure the
       // event handler we're going to fire wasn't removed.
-      if (originalListeners === this._eventEmitterListeners.get(aEvent) ||
-          this._eventEmitterListeners.get(aEvent).some(l => l === listener)) {
+      if (originalListeners === this._eventEmitterListeners.get(event) ||
+          this._eventEmitterListeners.get(event).some(l => l === listener)) {
         try {
           listener.apply(null, arguments);
-        }
-        catch (ex) {
+        } catch (ex) {
           // Prevent a bad listener from interfering with the others.
           let msg = ex + ": " + ex.stack;
-          Cu.reportError(msg);
+          console.error(msg);
           dump(msg + "\n");
         }
       }
     }
   },
 
-  logEvent: function(aEvent, args) {
+  logEvent(event, args) {
     if (!loggingEnabled) {
       return;
     }
@@ -174,7 +175,7 @@ EventEmitter.prototype = {
 
     let argOut = "(";
     if (args.length === 1) {
-      argOut += aEvent;
+      argOut += event;
     }
 
     let out = "EMITTING: ";
@@ -183,7 +184,7 @@ EventEmitter.prototype = {
     try {
       for (let i = 1; i < args.length; i++) {
         if (i === 1) {
-          argOut = "(" + aEvent + ", ";
+          argOut = "(" + event + ", ";
         } else {
           argOut += ", ";
         }

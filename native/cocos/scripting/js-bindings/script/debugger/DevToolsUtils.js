@@ -221,8 +221,19 @@ DevToolsUtils.executeSoon = function executeSoon(aFn) {
   if (isWorker) {
     setImmediate(aFn);
   } else {
+    let executor;
+    // Only enable async stack reporting when DEBUG_JS_MODULES is set
+    // (customized local builds) to avoid a performance penalty.
+    if (AppConstants.DEBUG_JS_MODULES || flags.testing) {
+      let stack = getStack();
+      executor = () => {
+        callFunctionWithAsyncStack(aFn, stack, "DevToolsUtils.executeSoon");
+      };
+    } else {
+      executor = aFn;
+    }
     Services.tm.mainThread.dispatch({
-      run: DevToolsUtils.makeInfallible(aFn)
+      run: DevToolsUtils.makeInfallible(executor)
     }, Ci.nsIThread.DISPATCH_NORMAL);
   }
 };
@@ -375,9 +386,14 @@ DevToolsUtils.getProperty = function getProperty(aObj, aKey) {
 DevToolsUtils.hasSafeGetter = function hasSafeGetter(aDesc) {
   // Scripted functions that are CCWs will not appear scripted until after
   // unwrapping.
-  // let fn = aDesc.get.unwrap();
-  let fn = aDesc.get;
-  return fn && fn.callable && fn.class == "Function" && fn.script === undefined;
+  try {
+    // let fn = aDesc.get.unwrap();
+    let fn = aDesc.get;
+    return fn && fn.callable && fn.class == "Function" && fn.script === undefined;
+  } catch (e) {
+    // Avoid exception 'Object in compartment marked as invisible to Debugger'
+    return false;
+  }
 };
 
 /**
@@ -537,7 +553,7 @@ DevToolsUtils.defineLazyGetter(this, "TextDecoder", () => {
 });
 
 DevToolsUtils.defineLazyGetter(this, "NetworkHelper", () => {
-  return require("devtools/toolkit/webconsole/network-helper");
+  return require("devtools/shared/webconsole/network-helper");
 });
 
 /**
@@ -550,8 +566,15 @@ DevToolsUtils.defineLazyGetter(this, "NetworkHelper", () => {
  *        - loadFromCache: if false, will bypass the cache and
  *          always load fresh from the network (default: true)
  *        - policy: the nsIContentPolicy type to apply when fetching the URL
+ *                  (only works when loading from system principal)
  *        - window: the window to get the loadGroup from
  *        - charset: the charset to use if the channel doesn't provide one
+ *        - principal: the principal to use, if omitted, the request is loaded
+ *                     with a codebase principal corresponding to the url being
+ *                     loaded, using the origin attributes of the window, if any.
+ *        - cacheKey: when loading from cache, use this key to retrieve a cache
+ *                    specific to a given SHEntry. (Allows loading POST
+ *                    requests from cache)
  * @returns Promise that resolves with an object with the following members on
  *          success:
  *           - content: the document at that URL, as a string,
@@ -563,10 +586,12 @@ DevToolsUtils.defineLazyGetter(this, "NetworkHelper", () => {
  * without relying on caching when we can (not for eval, etc.):
  * http://www.softwareishard.com/blog/firebug/nsitraceablechannel-intercept-http-traffic/
  */
-function mainThreadFetch(aURL, aOptions={ loadFromCache: true,
+function mainThreadFetch(aURL, aOptions = { loadFromCache: true,
                                           policy: Ci.nsIContentPolicy.TYPE_OTHER,
                                           window: null,
-                                          charset: null }) {
+                                          charset: null,
+                                          principal: null,
+                                          cacheKey: null }) {
   // Create a channel.
   let url = aURL.split(" -> ").pop();
   let channel;
