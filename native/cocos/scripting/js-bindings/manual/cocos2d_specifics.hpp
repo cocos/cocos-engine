@@ -234,36 +234,6 @@ protected:
 };
 
 /**
- * You don't need to manage the returned pointer. They live for the whole life of
- * the app.
- */
-template <class T>
-inline js_type_class_t *js_get_type_from_native(T* native_obj) {
-    bool found = false;
-    std::string typeName = typeid(*native_obj).name();
-    auto typeProxyIter = _js_global_type_map.find(typeName);
-    if (typeProxyIter == _js_global_type_map.end())
-    {
-        typeName = typeid(T).name();
-        typeProxyIter = _js_global_type_map.find(typeName);
-        if (typeProxyIter != _js_global_type_map.end())
-        {
-            found = true;
-        }
-    }
-    else
-    {
-        found = true;
-    }
-    return found ? typeProxyIter->second : nullptr;
-}
-
-/**
-* get type from a cocos2d::Node, call function(js_get_type_from_native) above.
-*/
-CC_JS_DLL js_type_class_t *js_get_type_from_node(cocos2d::Node* native_obj);
-
-/**
  * Gets or creates a JSObject based on native_obj.
  * If native_obj is subclass of Ref, it will use the jsb_ref functions.
  * Otherwise it will Root the newly created JSObject

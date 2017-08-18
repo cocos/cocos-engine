@@ -430,11 +430,6 @@ bool js_cocos2dx_CCScene_init(JSContext *cx, uint32_t argc, JS::Value *vp)
     return false;
 }
 
-js_type_class_t *js_get_type_from_node(cocos2d::Node* native_obj)
-{
-    return js_get_type_from_native<cocos2d::Node>(native_obj);
-}
-
 void js_add_FinalizeHook(JSContext *cx, JS::HandleObject target, bool isRef)
 {
     JS::RootedObject hook(cx);
