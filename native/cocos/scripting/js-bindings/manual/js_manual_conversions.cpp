@@ -1594,16 +1594,12 @@ bool std_string_to_jsval(JSContext* cx, const std::string& v, JS::MutableHandleV
 
 bool c_string_to_jsval(JSContext* cx, const char* v, JS::MutableHandleValue ret, size_t length)
 {
-    if (v == NULL)
-    {
-        return false;
-    }
-    if (length == -1)
+    if (v != nullptr && length == -1)
     {
         length = strlen(v);
     }
 
-    if (0 == length)
+    if (0 == length || v == nullptr)
     {
         auto emptyStr = JS_NewStringCopyZ(cx, "");
         ret.set(JS::StringValue(emptyStr));
