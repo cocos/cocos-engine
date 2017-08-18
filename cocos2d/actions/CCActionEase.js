@@ -200,7 +200,6 @@ cc.EaseIn = cc.EaseRateAction.extend({
  * @param {Number} rate
  * @return {Object}
  * @example
- * // example
  * action.easing(cc.easeIn(3.0));
  */
 cc.easeIn = function (rate) {
@@ -251,7 +250,6 @@ cc.EaseOut = cc.EaseRateAction.extend({
  * @param {Number} rate
  * @return {Object}
  * @example
- * // example
  * action.easing(cc.easeOut(3.0));
  */
 cc.easeOut = function (rate) {
@@ -307,7 +305,6 @@ cc.EaseInOut = cc.EaseRateAction.extend({
  * @return {Object}
  *
  * @example
- * //The new usage
  * action.easing(cc.easeInOut(3.0));
  */
 cc.easeInOut = function (rate) {
@@ -375,7 +372,6 @@ cc._easeExponentialInObj = {
  * @method easeExponentialIn
  * @return {Object}
  * @example
- * // example
  * action.easing(cc.easeExponentialIn());
  */
 cc.easeExponentialIn = function(){
@@ -431,7 +427,6 @@ cc._easeExponentialOutObj = {
  * @method easeExponentialOut
  * @return {Object}
  * @example
- * // example
  * action.easing(cc.easeExponentialOut());
  */
 cc.easeExponentialOut = function(){
@@ -502,7 +497,6 @@ cc._easeExponentialInOutObj = {
  * @method easeExponentialInOut
  * @return {Object}
  * @example
- * // example
  * action.easing(cc.easeExponentialInOut());
  */
 cc.easeExponentialInOut = function(){
@@ -558,7 +552,6 @@ cc._easeSineInObj = {
  * @method easeSineIn
  * @return {Object}
  * @example
- * // example
  * action.easing(cc.easeSineIn());
  */
 cc.easeSineIn = function(){
@@ -615,7 +608,6 @@ cc._easeSineOutObj = {
  * @method easeSineOut
  * @return {Object}
  * @example
- * // example
  * action.easing(cc.easeSineOut());
  */
 cc.easeSineOut = function(){
@@ -672,7 +664,6 @@ cc._easeSineInOutObj = {
  * @method easeSineInOut
  * @return {Object}
  * @example
- * // example
  * action.easing(cc.easeSineInOut());
  */
 cc.easeSineInOut = function(){

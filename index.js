@@ -83,7 +83,7 @@
  *         "build in release mode":  CC_BUILD && !CC_DEBUG,
  *     }
  *
- * @module GLOBAL MACROS
+ * @module GLOBAL-MACROS
  */
 /**
  * @property {Boolean} CC_EDITOR - Running in the editor.
