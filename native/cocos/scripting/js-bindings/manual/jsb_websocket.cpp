@@ -62,8 +62,8 @@ public:
         if (cocos2d::Director::getInstance() == nullptr || cocos2d::ScriptEngineManager::getInstance() == nullptr)
             return;
 
-        auto iter = se::__nativePtrToObjectMap.find(ws);
-        if (iter == se::__nativePtrToObjectMap.end())
+        auto iter = se::NativePtrToObjectMap::find(ws);
+        if (iter == se::NativePtrToObjectMap::end())
             return;
 
         se::Object* wsObj = iter->second;
@@ -93,8 +93,8 @@ public:
         if (cocos2d::Director::getInstance() == nullptr || cocos2d::ScriptEngineManager::getInstance() == nullptr)
             return;
 
-        auto iter = se::__nativePtrToObjectMap.find(ws);
-        if (iter == se::__nativePtrToObjectMap.end())
+        auto iter = se::NativePtrToObjectMap::find(ws);
+        if (iter == se::NativePtrToObjectMap::end())
             return;
 
         se::Object* wsObj = iter->second;
@@ -152,10 +152,10 @@ public:
         if (cocos2d::Director::getInstance() == nullptr || cocos2d::ScriptEngineManager::getInstance() == nullptr)
             return;
 
-        auto iter = se::__nativePtrToObjectMap.find(ws);
+        auto iter = se::NativePtrToObjectMap::find(ws);
         do
         {
-            if (iter == se::__nativePtrToObjectMap.end())
+            if (iter == se::NativePtrToObjectMap::end())
             {
                 CCLOGINFO("WebSocket js instance was destroyted, don't need to invoke onclose callback!");
                 break;
@@ -192,8 +192,8 @@ public:
         if (cocos2d::Director::getInstance() == nullptr || cocos2d::ScriptEngineManager::getInstance() == nullptr)
             return;
 
-        auto iter = se::__nativePtrToObjectMap.find(ws);
-        if (iter == se::__nativePtrToObjectMap.end())
+        auto iter = se::NativePtrToObjectMap::find(ws);
+        if (iter == se::NativePtrToObjectMap::end())
             return;
 
         se::Object* wsObj = iter->second;

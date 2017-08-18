@@ -38,6 +38,9 @@ namespace creator {
 class CC_DLL PhysicsContactListener : public b2ContactListener
 {
 public:
+
+    static const std::vector<PhysicsContactListener*>& getAllInstances();
+
     PhysicsContactListener();
     virtual ~PhysicsContactListener();
     
@@ -65,6 +68,8 @@ protected:
     PhysicsContactImpulse _impulse;
     
     std::unordered_map<b2Contact*, bool> _contactMap;
+
+    static std::vector<PhysicsContactListener*> __allInstances;
 };
 
 }

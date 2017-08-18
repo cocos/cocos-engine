@@ -136,8 +136,7 @@ namespace se {
             {
                 object = Object::_createJSObject(nullptr, jsval.toObjectOrNull());
             }
-            object->root(); // Root it here since it will be unrooted in at the end of SE_BIND_FUNC
-            v->setObject(object);
+            v->setObject(object, true);
             object->release();
         }
         else if (jsval.isNull())

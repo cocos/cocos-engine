@@ -108,8 +108,7 @@ namespace se {
                     {
                         obj = Object::_createJSObject(nullptr, jsObj.ToLocalChecked());
                     }
-                    obj->root(); // Root it here since it will be unrooted in at the end of SE_BIND_FUNC
-                    v->setObject(obj);
+                    v->setObject(obj, true);
                     obj->release();
                 }
                 else

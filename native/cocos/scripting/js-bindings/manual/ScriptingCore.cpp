@@ -194,6 +194,5 @@ int ScriptingCore::handleNodeEvent(void* data)
 void ScriptingCore::restartVM()
 {
     se::ScriptEngine::getInstance()->cleanup();
-    se::ScriptEngine::getInstance()->init();
     Application::getInstance()->applicationDidFinishLaunching();
 }

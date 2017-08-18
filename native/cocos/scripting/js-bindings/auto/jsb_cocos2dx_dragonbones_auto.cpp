@@ -4860,7 +4860,7 @@ static bool js_cocos2dx_dragonbones_CCFactory_constructor(se::State& s)
 {
     dragonBones::CCFactory* cobj = new (std::nothrow) dragonBones::CCFactory();
     s.thisObject()->setPrivateData(cobj);
-    se::__nonRefNativeObjectCreatedByCtorMap.emplace(cobj, true);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_dragonbones_CCFactory_constructor, __jsb_dragonBones_CCFactory_class, js_dragonBones_CCFactory_finalize)
@@ -4872,10 +4872,10 @@ extern se::Object* __jsb_dragonBones_BaseFactory_proto;
 static bool js_dragonBones_CCFactory_finalize(se::State& s)
 {
     cocos2d::log("jsbindings: finalizing JS object %p (dragonBones::CCFactory)", s.nativeThisObject());
-    auto iter = se::__nonRefNativeObjectCreatedByCtorMap.find(s.nativeThisObject());
-    if (iter != se::__nonRefNativeObjectCreatedByCtorMap.end())
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
-        se::__nonRefNativeObjectCreatedByCtorMap.erase(iter);
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         dragonBones::CCFactory* cobj = (dragonBones::CCFactory*)s.nativeThisObject();
         delete cobj;
     }

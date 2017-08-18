@@ -93,11 +93,6 @@ namespace se {
         friend class ScriptEngine;
     };
 
-
-    // key: native ptr, value: se::Object
-    extern std::unordered_map<void*, Object*> __nativePtrToObjectMap;
-    // key: native ptr, value: non-ref object created by ctor
-    extern std::unordered_map<void*, bool> __nonRefNativeObjectCreatedByCtorMap;
     extern std::unordered_map<Object*, void*> __objectMap; // Currently, the value `void*` is always nullptr
 
 } // namespace se {

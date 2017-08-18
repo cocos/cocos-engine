@@ -48,6 +48,7 @@ using namespace cocos2d;
 
 bool jsb_run_script(const std::string& filePath)
 {
+    se::AutoHandleScope hs;
     Data data = FileUtils::getInstance()->getDataFromFile(filePath);
     if (data.isNull())
         return false;
@@ -70,12 +71,16 @@ static bool run_boot_script(se::Object* global)
 bool jsb_register_all_modules()
 {
     se::ScriptEngine* se = se::ScriptEngine::getInstance();
+
+    se->addBeforeInitHook([](){
+        JSBClassType::init();
+    });
+
     se->addBeforeCleanupHook([se](){
         se->gc();
         PoolManager::getInstance()->getCurrentPool()->clear();
         se->gc();
         PoolManager::getInstance()->getCurrentPool()->clear();
-        CCLOG("test");
     });
 
     se->addRegisterCallback(jsb_register_global_variables);
@@ -128,8 +133,8 @@ bool jsb_register_all_modules()
     se->addRegisterCallback(run_boot_script);
 
     se->addAfterCleanupHook([](){
-        JSBClassType::cleanup();
         PoolManager::getInstance()->getCurrentPool()->clear();
+        JSBClassType::destroy();
     });
     return true;
 }

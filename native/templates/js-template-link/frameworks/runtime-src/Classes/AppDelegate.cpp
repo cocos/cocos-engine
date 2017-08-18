@@ -74,13 +74,7 @@ bool AppDelegate::applicationDidFinishLaunching()
     ScriptEngineManager::getInstance()->setScriptEngine(sc);
 
     se::ScriptEngine* se = se::ScriptEngine::getInstance();
-    if (!se->isValid())
-    {
-        CCLOGERROR("Unable to Initialize se::ScriptEngine.");
-        return false;
-    }
 
-    se::AutoHandleScope hs;
     jsb_register_all_modules();
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && PACKAGE_AS

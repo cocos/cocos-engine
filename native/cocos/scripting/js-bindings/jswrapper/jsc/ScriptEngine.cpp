@@ -5,6 +5,7 @@
 #include "Object.hpp"
 #include "Class.hpp"
 #include "Utils.hpp"
+#include "../MappingUtils.hpp"
 
 extern "C" JS_EXPORT void JSSynchronousGarbageCollectForDebugging(JSContextRef);
 
@@ -29,10 +30,10 @@ namespace se {
         JSValueRef __forceGC(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                              size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception)
         {
-            LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
+            LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
 //            JSGarbageCollect(ctx);
             JSSynchronousGarbageCollectForDebugging(ctx);
-            LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
+            LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
             return JSValueMakeUndefined(ctx);
         }
 
@@ -68,11 +69,6 @@ namespace se {
         if (__instance == nullptr)
         {
             __instance = new ScriptEngine();
-            if (!__instance->init())
-            {
-                delete __instance;
-                __instance = nullptr;
-            }
         }
 
         return __instance;
@@ -98,6 +94,12 @@ namespace se {
         cleanup();
         LOGD("Initializing JavaScriptCore \n");
 
+        for (const auto& hook : _beforeInitHookArray)
+        {
+            hook();
+        }
+        _beforeInitHookArray.clear();
+
         _cx = JSGlobalContextCreate(nullptr);
 
         if (nullptr == _cx)
@@ -107,6 +109,9 @@ namespace se {
         JSGlobalContextSetName(_cx, ctxName);
         JSStringRelease(ctxName);
 
+        NativePtrToObjectMap::init();
+        NonRefNativePtrCreatedByCtorMap::init();
+        
         internal::setContext(_cx);
         Class::setContext(_cx);
         Object::setContext(_cx);
@@ -118,6 +123,7 @@ namespace se {
 
         _globalObj = Object::_createJSObject(nullptr, globalObj);
         _globalObj->root();
+        _globalObj->setProperty("window", se::Value(_globalObj));
 
         JSStringRef propertyName = JSStringCreateWithUTF8CString("log");
         JSObjectSetProperty(_cx, globalObj, propertyName, JSObjectMakeFunctionWithCallback(_cx, propertyName, __log), kJSPropertyAttributeReadOnly, nullptr);
@@ -132,6 +138,12 @@ namespace se {
         __jsb_CCPrivateData_class->install();
 
         _isValid = true;
+
+        for (const auto& hook : _afterInitHookArray)
+        {
+            hook();
+        }
+        _afterInitHookArray.clear();
 
         return true;
     }
@@ -174,7 +186,10 @@ namespace se {
         }
         _afterCleanupHookArray.clear();
         _isInCleanup = false;
-        LOGD("ScriptEngine::cleanup end ...");
+
+        NativePtrToObjectMap::destroy();
+        NonRefNativePtrCreatedByCtorMap::destroy();
+        LOGD("ScriptEngine::cleanup end ...\n");
     }
 
     std::string ScriptEngine::_formatException(JSValueRef exception)
@@ -243,6 +258,16 @@ namespace se {
         return _globalObj;
     }
 
+    void ScriptEngine::addBeforeInitHook(const std::function<void()>& hook)
+    {
+        _beforeInitHookArray.push_back(hook);
+    }
+
+    void ScriptEngine::addAfterInitHook(const std::function<void()>& hook)
+    {
+        _afterInitHookArray.push_back(hook);
+    }
+
     void ScriptEngine::addBeforeCleanupHook(const std::function<void()>& hook)
     {
         _beforeCleanupHookArray.push_back(hook);
@@ -261,6 +286,9 @@ namespace se {
 
     bool ScriptEngine::start()
     {
+        if (!init())
+            return false;
+
         bool ok = false;
         _startTime = std::chrono::steady_clock::now();
 
@@ -279,10 +307,10 @@ namespace se {
 
     void ScriptEngine::gc()
     {
-        LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
+        LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
         // JSGarbageCollect(_cx);
         JSSynchronousGarbageCollectForDebugging(_cx);
-        LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)__nativePtrToObjectMap.size());
+        LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
     }
 
     bool ScriptEngine::executeScriptBuffer(const char *script, ssize_t length, Value *data, const char *fileName)
@@ -344,14 +372,14 @@ namespace se {
 
     void ScriptEngine::_retainScriptObject(void* owner, void* target)
     {
-        auto iterOwner = __nativePtrToObjectMap.find(owner);
-        if (iterOwner == __nativePtrToObjectMap.end())
+        auto iterOwner = NativePtrToObjectMap::find(owner);
+        if (iterOwner == NativePtrToObjectMap::end())
         {
             return;
         }
 
-        auto iterTarget = __nativePtrToObjectMap.find(target);
-        if (iterTarget == __nativePtrToObjectMap.end())
+        auto iterTarget = NativePtrToObjectMap::find(target);
+        if (iterTarget == NativePtrToObjectMap::end())
         {
             return;
         }
@@ -362,14 +390,14 @@ namespace se {
 
     void ScriptEngine::_releaseScriptObject(void* owner, void* target)
     {
-        auto iterOwner = __nativePtrToObjectMap.find(owner);
-        if (iterOwner == __nativePtrToObjectMap.end())
+        auto iterOwner = NativePtrToObjectMap::find(owner);
+        if (iterOwner == NativePtrToObjectMap::end())
         {
             return;
         }
 
-        auto iterTarget = __nativePtrToObjectMap.find(target);
-        if (iterTarget == __nativePtrToObjectMap.end())
+        auto iterTarget = NativePtrToObjectMap::find(target);
+        if (iterTarget == NativePtrToObjectMap::end())
         {
             return;
         }

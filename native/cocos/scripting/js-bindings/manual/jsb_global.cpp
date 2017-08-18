@@ -441,7 +441,7 @@ SE_BIND_FUNC(jsc_garbageCollect)
 
 static bool jsc_dumpNativePtrToSeObjectMap(se::State& s)
 {
-    cocos2d::log(">>> total: %d, Dump (native -> jsobj) map begin", (int)se::__nativePtrToObjectMap.size());
+    cocos2d::log(">>> total: %d, Dump (native -> jsobj) map begin", (int)se::NativePtrToObjectMap::size());
 
     struct NamePtrStruct
     {
@@ -451,7 +451,7 @@ static bool jsc_dumpNativePtrToSeObjectMap(se::State& s)
 
     std::vector<NamePtrStruct> namePtrArray;
 
-    for (const auto& e : se::__nativePtrToObjectMap)
+    for (const auto& e : se::NativePtrToObjectMap::instance())
     {
         se::Object* jsobj = e.second;
         assert(jsobj->_getClass() != nullptr);
@@ -478,7 +478,7 @@ static bool jsc_dumpNativePtrToSeObjectMap(se::State& s)
     {
         cocos2d::log("%s: %p", e.name, e.ptr);
     }
-    cocos2d::log(">>> total: %d, Dump (native -> jsobj) map end", (int)se::__nativePtrToObjectMap.size());
+    cocos2d::log(">>> total: %d, nonRefMap: %d, Dump (native -> jsobj) map end", (int)se::NativePtrToObjectMap::size(), (int)se::NonRefNativePtrCreatedByCtorMap::size());
     return true;
 }
 SE_BIND_FUNC(jsc_dumpNativePtrToSeObjectMap)
@@ -598,7 +598,8 @@ static bool JSB_isObjectValid(se::State& s)
     {
         void* nativePtr = nullptr;
         seval_to_native_ptr(args[0], &nativePtr);
-        return nativePtr != nullptr;
+        s.rval().setBoolean(nativePtr != nullptr);
+        return true;
     }
 
     SE_REPORT_ERROR("Invalid number of arguments: %d. Expecting: 1", argc);
@@ -628,8 +629,9 @@ static bool getOrCreatePlainObject_r(const char* name, se::Object* parent, se::O
 
 static bool js_performance_now(se::State& s)
 {
-    assert(false);
-    //FIXME:
+    auto now = std::chrono::steady_clock::now();
+    auto micro = std::chrono::duration_cast<std::chrono::microseconds>(now - se::ScriptEngine::getInstance()->getStartTime()).count();
+    s.rval().setNumber((double)micro * 0.001);
     return true;
 }
 SE_BIND_FUNC(js_performance_now)

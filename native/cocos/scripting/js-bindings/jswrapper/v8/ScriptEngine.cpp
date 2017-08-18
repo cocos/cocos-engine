@@ -5,6 +5,7 @@
 #include "Object.hpp"
 #include "Class.hpp"
 #include "Utils.hpp"
+#include "../MappingUtils.hpp"
 
 #if SE_ENABLE_INSPECTOR
 #include "inspector_agent.h"
@@ -95,11 +96,6 @@ namespace se {
         if (__instance == nullptr)
         {
             __instance = new ScriptEngine();
-            if (!__instance->init())
-            {
-                delete __instance;
-                __instance = nullptr;
-            }
         }
 
         return __instance;
@@ -143,7 +139,14 @@ namespace se {
 
     bool ScriptEngine::init()
     {
+        cleanup();
         LOGD("Initializing V8\n");
+
+        for (const auto& hook : _beforeInitHookArray)
+        {
+            hook();
+        }
+        _beforeInitHookArray.clear();
 
         assert(_allocator == nullptr);
         _allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
@@ -161,6 +164,9 @@ namespace se {
 
         _context.Reset(_isolate, v8::Context::New(_isolate));
         _context.Get(_isolate)->Enter();
+
+        NativePtrToObjectMap::init();
+        NonRefNativePtrCreatedByCtorMap::init();
 
         Class::setIsolate(_isolate);
         Object::setIsolate(_isolate);
@@ -192,6 +198,12 @@ namespace se {
 #endif
 
         _isValid = true;
+
+        for (const auto& hook : _afterInitHookArray)
+        {
+            hook();
+        }
+        _afterInitHookArray.clear();
 
         return _isValid;
     }
@@ -242,11 +254,25 @@ namespace se {
             hook();
         }
         _afterCleanupHookArray.clear();
+
+
+        NativePtrToObjectMap::destroy();
+        NonRefNativePtrCreatedByCtorMap::destroy();
     }
 
     Object* ScriptEngine::getGlobalObject() const
     {
         return _globalObj;
+    }
+
+    void ScriptEngine::addBeforeInitHook(const std::function<void()>& hook)
+    {
+        _beforeInitHookArray.push_back(hook);
+    }
+
+    void ScriptEngine::addAfterInitHook(const std::function<void()>& hook)
+    {
+        _afterInitHookArray.push_back(hook);
     }
 
     void ScriptEngine::addBeforeCleanupHook(const std::function<void()>& hook)
@@ -267,6 +293,10 @@ namespace se {
 
     bool ScriptEngine::start()
     {
+        if (!init())
+            return false;
+
+        se::AutoHandleScope hs;
         bool ok = false;
         _startTime = std::chrono::steady_clock::now();
 
@@ -286,7 +316,7 @@ namespace se {
 
     void ScriptEngine::gc()
     {
-        LOGD("GC begin ..., (js->native map) size: %d, all objects: %d\n", (int)__nativePtrToObjectMap.size(), (int)__objectMap.size());
+        LOGD("GC begin ..., (js->native map) size: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
         const double kLongIdlePauseInSeconds = 1.0;
         _isolate->ContextDisposedNotification();
         _isolate->IdleNotificationDeadline(_platform->MonotonicallyIncreasingTime() + kLongIdlePauseInSeconds);
@@ -294,7 +324,7 @@ namespace se {
         // garbage and will therefore also invoke all weak callbacks of actually
         // unreachable persistent handles.
         _isolate->LowMemoryNotification();
-        LOGD("GC end ..., (js->native map) size: %d, all objects: %d\n", (int)__nativePtrToObjectMap.size(), (int)__objectMap.size());
+        LOGD("GC end ..., (js->native map) size: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
     }
 
     bool ScriptEngine::isInGC()
@@ -352,20 +382,20 @@ namespace se {
             }
         }
 
-        assert(success);
+//        assert(success);
         return success;
     }
 
     void ScriptEngine::_retainScriptObject(void* owner, void* target)
     {
-        auto iterOwner = __nativePtrToObjectMap.find(owner);
-        if (iterOwner == __nativePtrToObjectMap.end())
+        auto iterOwner = NativePtrToObjectMap::find(owner);
+        if (iterOwner == NativePtrToObjectMap::end())
         {
             return;
         }
 
-        auto iterTarget = __nativePtrToObjectMap.find(target);
-        if (iterTarget == __nativePtrToObjectMap.end())
+        auto iterTarget = NativePtrToObjectMap::find(target);
+        if (iterTarget == NativePtrToObjectMap::end())
         {
             return;
         }
@@ -377,14 +407,14 @@ namespace se {
 
     void ScriptEngine::_releaseScriptObject(void* owner, void* target)
     {
-        auto iterOwner = __nativePtrToObjectMap.find(owner);
-        if (iterOwner == __nativePtrToObjectMap.end())
+        auto iterOwner = NativePtrToObjectMap::find(owner);
+        if (iterOwner == NativePtrToObjectMap::end())
         {
             return;
         }
 
-        auto iterTarget = __nativePtrToObjectMap.find(target);
-        if (iterTarget == __nativePtrToObjectMap.end())
+        auto iterTarget = NativePtrToObjectMap::find(target);
+        if (iterTarget == NativePtrToObjectMap::end())
         {
             return;
         }

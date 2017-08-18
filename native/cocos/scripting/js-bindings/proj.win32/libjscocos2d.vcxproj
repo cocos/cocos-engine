@@ -38,6 +38,7 @@
     <ClCompile Include="..\auto\jsb_cocos2dx_ui_auto.cpp" />
     <ClCompile Include="..\auto\jsb_creator_auto.cpp" />
     <ClCompile Include="..\jswrapper\HandleObject.cpp" />
+    <ClCompile Include="..\jswrapper\MappingUtils.cpp" />
     <ClCompile Include="..\jswrapper\Ref.cpp" />
     <ClCompile Include="..\jswrapper\State.cpp" />
     <ClCompile Include="..\jswrapper\v8\Class.cpp" />
@@ -56,6 +57,7 @@
     <ClCompile Include="..\jswrapper\v8\util.cc" />
     <ClCompile Include="..\jswrapper\v8\Utils.cpp" />
     <ClCompile Include="..\jswrapper\Value.cpp" />
+    <ClCompile Include="..\manual\BaseJSAction.cpp" />
     <ClCompile Include="..\manual\jsb_box2d_manual.cpp" />
     <ClCompile Include="..\manual\jsb_classtype.cpp" />
     <ClCompile Include="..\manual\jsb_cocos2dx_extension_manual.cpp" />
@@ -87,6 +89,7 @@
     <ClInclude Include="..\auto\jsb_creator_auto.hpp" />
     <ClInclude Include="..\jswrapper\config.hpp" />
     <ClInclude Include="..\jswrapper\HandleObject.hpp" />
+    <ClInclude Include="..\jswrapper\MappingUtils.hpp" />
     <ClInclude Include="..\jswrapper\Object.hpp" />
     <ClInclude Include="..\jswrapper\Ref.hpp" />
     <ClInclude Include="..\jswrapper\SeApi.h" />
@@ -114,6 +117,7 @@
     <ClInclude Include="..\jswrapper\v8\Utils.hpp" />
     <ClInclude Include="..\jswrapper\v8\v8_inspector_protocol_json.h" />
     <ClInclude Include="..\jswrapper\Value.hpp" />
+    <ClInclude Include="..\manual\BaseJSAction.h" />
     <ClInclude Include="..\manual\jsb_box2d_manual.hpp" />
     <ClInclude Include="..\manual\jsb_classtype.hpp" />
     <ClInclude Include="..\manual\jsb_cocos2dx_extension_manual.hpp" />

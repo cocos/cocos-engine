@@ -1,10 +1,11 @@
 #include "ScriptEngine.hpp"
 
+#ifdef SCRIPT_ENGINE_SM
+
 #include "Object.hpp"
 #include "Class.hpp"
 #include "Utils.hpp"
-
-#ifdef SCRIPT_ENGINE_SM
+#include "../MappingUtils.hpp"
 
 namespace se {
 
@@ -98,11 +99,11 @@ namespace se {
             if (status == JSGC_BEGIN)
             {
                 ScriptEngine::getInstance()->_setInGC(true);
-                LOGD("on_garbage_collect: begin, Native -> JS map count: %d, all objects: %d\n", (int)__nativePtrToObjectMap.size(), (int)__objectMap.size());
+                LOGD("on_garbage_collect: begin, Native -> JS map count: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
             }
             else if (status == JSGC_END)
             {
-                LOGD("on_garbage_collect: end, Native -> JS map count: %d, all objects: %d\n", (int)__nativePtrToObjectMap.size(), (int)__objectMap.size());
+                LOGD("on_garbage_collect: end, Native -> JS map count: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
                 ScriptEngine::getInstance()->_setInGC(false);
             }
         }
@@ -190,11 +191,6 @@ namespace se {
         if (__instance == nullptr)
         {
             __instance = new ScriptEngine();
-            if (!__instance->init())
-            {
-                delete __instance;
-                __instance = nullptr;
-            }
         }
 
         return __instance;
@@ -231,8 +227,8 @@ namespace se {
         bool isInCleanup = getInstance()->_isInCleanup;
         bool isIterUpdated = false;
         Object* obj = nullptr;
-        auto iter = __nativePtrToObjectMap.begin();
-        while (iter != __nativePtrToObjectMap.end())
+        auto iter = NativePtrToObjectMap::begin();
+        while (iter != NativePtrToObjectMap::end())
         {
             obj = iter->second;
             isIterUpdated = false;
@@ -241,7 +237,7 @@ namespace se {
                 if (obj->updateAfterGC(data))
                 {
                     obj->release();
-                    iter = __nativePtrToObjectMap.erase(iter);
+                    iter = NativePtrToObjectMap::erase(iter);
                     isIterUpdated = true;
                 }
             }
@@ -249,7 +245,7 @@ namespace se {
             {
                 obj->unprotect();
                 obj->release();
-                iter = __nativePtrToObjectMap.erase(iter);
+                iter = NativePtrToObjectMap::erase(iter);
                 isIterUpdated = true;
             }
 
@@ -260,12 +256,22 @@ namespace se {
 
     bool ScriptEngine::init()
     {
+        cleanup();
         LOGD("Initializing SpiderMonkey \n");
+
+        for (const auto& hook : _beforeInitHookArray)
+        {
+            hook();
+        }
+        _beforeInitHookArray.clear();
 
         _cx = JS_NewContext(JS::DefaultHeapMaxBytes);
 
         if (nullptr == _cx)
             return false;
+
+        NativePtrToObjectMap::init();
+        NonRefNativePtrCreatedByCtorMap::init();
 
         Class::setContext(_cx);
         Object::setContext(_cx);
@@ -346,6 +352,12 @@ namespace se {
 
         _isValid = true;
 
+        for (const auto& hook : _afterInitHookArray)
+        {
+            hook();
+        }
+        _afterInitHookArray.clear();
+
         return true;
     }
 
@@ -401,6 +413,10 @@ namespace se {
         }
         _afterCleanupHookArray.clear();
         _isInCleanup = false;
+
+
+        NativePtrToObjectMap::destroy();
+        NonRefNativePtrCreatedByCtorMap::destroy();
     }
 
     void ScriptEngine::addBeforeCleanupHook(const std::function<void()>& hook)
@@ -411,6 +427,16 @@ namespace se {
     void ScriptEngine::addAfterCleanupHook(const std::function<void()>& hook)
     {
         _afterCleanupHookArray.push_back(hook);
+    }
+
+    void ScriptEngine::addBeforeInitHook(const std::function<void()>& hook)
+    {
+        _beforeInitHookArray.push_back(hook);
+    }
+
+    void ScriptEngine::addAfterInitHook(const std::function<void()>& hook)
+    {
+        _afterInitHookArray.push_back(hook);
     }
 
     bool ScriptEngine::isInGC()
@@ -436,6 +462,9 @@ namespace se {
 
     bool ScriptEngine::start()
     {
+        if (!init())
+            return false;
+
         bool ok = false;
         _startTime = std::chrono::steady_clock::now();
 
@@ -483,14 +512,14 @@ namespace se {
 
     void ScriptEngine::_retainScriptObject(void* owner, void* target)
     {
-        auto iterOwner = __nativePtrToObjectMap.find(owner);
-        if (iterOwner == __nativePtrToObjectMap.end())
+        auto iterOwner = NativePtrToObjectMap::find(owner);
+        if (iterOwner == NativePtrToObjectMap::end())
         {
             return;
         }
 
-        auto iterTarget = __nativePtrToObjectMap.find(target);
-        if (iterTarget == __nativePtrToObjectMap.end())
+        auto iterTarget = NativePtrToObjectMap::find(target);
+        if (iterTarget == NativePtrToObjectMap::end())
         {
             return;
         }
@@ -501,14 +530,14 @@ namespace se {
 
     void ScriptEngine::_releaseScriptObject(void* owner, void* target)
     {
-        auto iterOwner = __nativePtrToObjectMap.find(owner);
-        if (iterOwner == __nativePtrToObjectMap.end())
+        auto iterOwner = NativePtrToObjectMap::find(owner);
+        if (iterOwner == NativePtrToObjectMap::end())
         {
             return;
         }
 
-        auto iterTarget = __nativePtrToObjectMap.find(target);
-        if (iterTarget == __nativePtrToObjectMap.end())
+        auto iterTarget = NativePtrToObjectMap::find(target);
+        if (iterTarget == NativePtrToObjectMap::end())
         {
             return;
         }

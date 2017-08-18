@@ -2,7 +2,7 @@
 
 using namespace anysdk::framework;
 
-SDKManager* SDKManager::_pInstance = NULL;
+SDKManager* SDKManager::_pInstance = nullptr;
 
 SDKManager::SDKManager()
 {
@@ -10,12 +10,13 @@ SDKManager::SDKManager()
 
 SDKManager::~SDKManager()
 {
-	_pAgent->unloadAllPlugins();
+    AgentManager::getInstance()->unloadAllPlugins();
+    AgentManager::end();
 }
 
 SDKManager* SDKManager::getInstance()
 {
-    if (_pInstance == NULL) {
+    if (_pInstance == nullptr) {
         _pInstance = new SDKManager();
     }
     return _pInstance;
@@ -23,10 +24,10 @@ SDKManager* SDKManager::getInstance()
 
 void SDKManager::purge()
 {
-    if (_pInstance)
+    if (_pInstance != nullptr)
     {
         delete _pInstance;
-        _pInstance = NULL;
+        _pInstance = nullptr;
     }
 }
 

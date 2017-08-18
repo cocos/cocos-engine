@@ -96,7 +96,7 @@ static bool js_cocos2dx_audioengine_AudioProfile_constructor(se::State& s)
 {
     cocos2d::experimental::AudioProfile* cobj = new (std::nothrow) cocos2d::experimental::AudioProfile();
     s.thisObject()->setPrivateData(cobj);
-    se::__nonRefNativeObjectCreatedByCtorMap.emplace(cobj, true);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_audioengine_AudioProfile_constructor, __jsb_cocos2d_experimental_AudioProfile_class, js_cocos2d_experimental_AudioProfile_finalize)
@@ -107,10 +107,10 @@ SE_BIND_CTOR(js_cocos2dx_audioengine_AudioProfile_constructor, __jsb_cocos2d_exp
 static bool js_cocos2d_experimental_AudioProfile_finalize(se::State& s)
 {
     cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::experimental::AudioProfile)", s.nativeThisObject());
-    auto iter = se::__nonRefNativeObjectCreatedByCtorMap.find(s.nativeThisObject());
-    if (iter != se::__nonRefNativeObjectCreatedByCtorMap.end())
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
-        se::__nonRefNativeObjectCreatedByCtorMap.erase(iter);
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         cocos2d::experimental::AudioProfile* cobj = (cocos2d::experimental::AudioProfile*)s.nativeThisObject();
         delete cobj;
     }

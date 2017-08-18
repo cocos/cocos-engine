@@ -5,6 +5,8 @@
 #include "cocos/scripting/js-bindings/manual/jsb_helper.hpp"
 #include "cocos/scripting/js-bindings/auto/jsb_box2d_auto.hpp"
 
+#include "cocos/editor-support/creator/physics/CCPhysicsContactListener.h"
+
 bool seval_to_b2BodyDef(const se::Value& v, b2BodyDef* ret)
 {
     static b2BodyDef ZERO;
@@ -540,7 +542,7 @@ bool array_of_b2Fixture_to_seval(const std::vector<b2Fixture*>& fixtures, se::Va
 
     se::Value tmp;
     int i = 0;
-    bool ok = false;
+    bool ok = true;
     for (const auto& e : fixtures)
     {
         ok = native_ptr_to_rooted_seval<b2Fixture>(e, &tmp);
@@ -553,11 +555,11 @@ bool array_of_b2Fixture_to_seval(const std::vector<b2Fixture*>& fixtures, se::Va
     }
 
     if (ok)
-        ret->setObject(obj);
+        ret->setObject(obj, true);
     else
         ret->setUndefined();
 
-    return true;
+    return ok;
 }
 
 bool array_of_b2Vec2_to_seval(const std::vector<b2Vec2>& vs, se::Value* ret)
@@ -566,7 +568,7 @@ bool array_of_b2Vec2_to_seval(const std::vector<b2Vec2>& vs, se::Value* ret)
 
     se::Value tmp;
     int i = 0;
-    bool ok = false;
+    bool ok = true;
     for (const auto& e : vs)
     {
         ok = b2Vec2_to_seval(e, &tmp);
@@ -579,11 +581,11 @@ bool array_of_b2Vec2_to_seval(const std::vector<b2Vec2>& vs, se::Value* ret)
     }
 
     if (ok)
-        ret->setObject(obj);
+        ret->setObject(obj, true);
     else
         ret->setUndefined();
 
-    return true;
+    return ok;
 }
 
 static bool js_box2dclasses_b2Shape_SetRadius(se::State& s)
@@ -841,8 +843,8 @@ static bool js_box2dclasses_b2Body_GetUserData(se::State& s)
         b2Body* cobj = (b2Body *)s.nativeThisObject();
         void* data = cobj->GetUserData();
 
-        auto iter = se::__nativePtrToObjectMap.find(data);
-        if (iter != se::__nativePtrToObjectMap.end())
+        auto iter = se::NativePtrToObjectMap::find(data);
+        if (iter != se::NativePtrToObjectMap::end())
         {
             s.rval().setObject(iter->second);
         }
@@ -1077,17 +1079,21 @@ bool register_all_box2d_manual(se::Object* obj)
 
     se::ScriptEngine::getInstance()->clearException();
 
-    b2SetObjectDestroyNotifier([](void* obj, const char* type){
+    b2SetObjectDestroyNotifier([](void* obj, b2ObjectType type, const char* typeName){
 
-        std::string typeName = type;
-        auto cleanup = [=](){
+        std::string typeNameStr = typeName;
+        auto cleanup = [obj, typeNameStr](){
+
+            if (!se::ScriptEngine::getInstance()->isValid())
+                return;
+
             se::AutoHandleScope hs;
             se::ScriptEngine::getInstance()->clearException();
 
-            auto iter = se::__nativePtrToObjectMap.find(obj);
-            if (iter != se::__nativePtrToObjectMap.end())
+            auto iter = se::NativePtrToObjectMap::find(obj);
+            if (iter != se::NativePtrToObjectMap::end())
             {
-//                CCLOG("%s, %p was recycled!", typeName.c_str(), obj);
+//                CCLOG("%s, %p was recycled!", typeNameStr.c_str(), obj);
                 se::Object* seObj = iter->second;
                 seObj->clearPrivateData();
                 seObj->unroot();
@@ -1095,7 +1101,7 @@ bool register_all_box2d_manual(se::Object* obj)
             }
             else
             {
-//                 CCLOG("Didn't find %s, %p in map", typeName.c_str(), obj);
+//                 CCLOG("Didn't find %s, %p in map", typeNameStr.c_str(), obj);
 //                 assert(false);
             }
         };
@@ -1107,6 +1113,15 @@ bool register_all_box2d_manual(se::Object* obj)
         else
         {
             CleanupTask::pushTaskToAutoReleasePool(cleanup);
+        }
+
+        if (type == b2ObjectType::FIXTURE)
+        {
+            const auto& instances = creator::PhysicsContactListener::getAllInstances();
+            for (auto listener : instances)
+            {
+                listener->unregisterContactFixture(reinterpret_cast<b2Fixture*>(obj));
+            }
         }
     });
 

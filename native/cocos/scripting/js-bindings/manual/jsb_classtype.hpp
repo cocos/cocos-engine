@@ -7,12 +7,15 @@
 class JSBClassType
 {
 public:
+    static bool init();
+    static void destroy();
+
     template<typename T>
     static void registerClass(se::Class* cls)
     {
         const char* typeName = typeid(T).name();
-        assert(__jsbClassTypeMap.find(typeName) == __jsbClassTypeMap.end());
-        __jsbClassTypeMap.emplace(typeName, cls);
+        assert(__jsbClassTypeMap->find(typeName) == __jsbClassTypeMap->end());
+        __jsbClassTypeMap->emplace(typeName, cls);
     }
 
     template<typename T>
@@ -20,12 +23,12 @@ public:
     {
         bool found = false;
         std::string typeName = typeid(*nativeObj).name();
-        auto iter = __jsbClassTypeMap.find(typeName);
-        if (iter == __jsbClassTypeMap.end())
+        auto iter = __jsbClassTypeMap->find(typeName);
+        if (iter == __jsbClassTypeMap->end())
         {
             typeName = typeid(T).name();
-            iter = __jsbClassTypeMap.find(typeName);
-            if (iter != __jsbClassTypeMap.end())
+            iter = __jsbClassTypeMap->find(typeName);
+            if (iter != __jsbClassTypeMap->end())
             {
                 found = true;
             }
@@ -40,5 +43,6 @@ public:
     static void cleanup();
 
 private:
-    static std::unordered_map<std::string, se::Class*> __jsbClassTypeMap;
+    using Map = std::unordered_map<std::string, se::Class*>;
+    static Map* __jsbClassTypeMap;
 };
