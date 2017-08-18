@@ -311,7 +311,7 @@ proto.enumerateCCClass = function (codeArray, obj, klass) {
     var attrs = Attr.getClassAttrs(klass);
     for (var p = 0; p < props.length; p++) {
         var key = props[p];
-        if (CC_EDITOR && key === '_id') {
+        if ((CC_EDITOR || CC_TEST) && key === '_id') {
             if (obj instanceof cc._BaseNode || obj instanceof cc.Component) {
                 continue;
             }
