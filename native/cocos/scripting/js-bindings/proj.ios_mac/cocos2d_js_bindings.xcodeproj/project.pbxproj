@@ -23,6 +23,14 @@
 		1A159D511F13216F00558E38 /* jsb_socketio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A159D4E1F13216F00558E38 /* jsb_socketio.cpp */; };
 		1A159D521F13216F00558E38 /* jsb_socketio.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A159D4F1F13216F00558E38 /* jsb_socketio.hpp */; };
 		1A159D531F13216F00558E38 /* jsb_socketio.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A159D4F1F13216F00558E38 /* jsb_socketio.hpp */; };
+		1A210D941F456821006CCBAE /* MappingUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A210D921F456821006CCBAE /* MappingUtils.cpp */; };
+		1A210D951F456821006CCBAE /* MappingUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A210D921F456821006CCBAE /* MappingUtils.cpp */; };
+		1A210D961F456821006CCBAE /* MappingUtils.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A210D931F456821006CCBAE /* MappingUtils.hpp */; };
+		1A210D971F456821006CCBAE /* MappingUtils.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A210D931F456821006CCBAE /* MappingUtils.hpp */; };
+		1A210DE01F46C2D3006CCBAE /* libjs_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A210DDE1F46C2D3006CCBAE /* libjs_static.a */; };
+		1A210DE11F46C2D3006CCBAE /* libmozglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A210DDF1F46C2D3006CCBAE /* libmozglue.a */; };
+		1A210DE41F46C2DF006CCBAE /* libjs_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A210DE21F46C2DF006CCBAE /* libjs_static.a */; };
+		1A210DE51F46C2DF006CCBAE /* libmozglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A210DE31F46C2DF006CCBAE /* libmozglue.a */; };
 		1A5F228A1F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5F22881F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp */; };
 		1A5F228B1F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5F22881F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp */; };
 		1A5F228C1F0DDD6B0008BF09 /* jsb_dragonbones_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A5F22891F0DDD6B0008BF09 /* jsb_dragonbones_manual.hpp */; };
@@ -77,8 +85,6 @@
 		1AB5E62C18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AB5E62918D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp */; };
 		1AB5E62D18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1AB5E62A18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp */; };
 		1AB5E62E18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1AB5E62A18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp */; };
-		1AC0650A1F00A62A009EC214 /* libmozglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AC065091F00A62A009EC214 /* libmozglue.a */; };
-		1AC0650C1F00A926009EC214 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AC0650B1F00A926009EC214 /* JavaScriptCore.framework */; };
 		1AD4AE671F0F920700A823D8 /* jsb_websocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AD4AE651F0F920700A823D8 /* jsb_websocket.cpp */; };
 		1AD4AE681F0F920700A823D8 /* jsb_websocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AD4AE651F0F920700A823D8 /* jsb_websocket.cpp */; };
 		1AD4AE691F0F920700A823D8 /* jsb_websocket.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1AD4AE661F0F920700A823D8 /* jsb_websocket.hpp */; };
@@ -261,9 +267,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		1A1051061F14C0B600D4322C /* libjs_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjs_static.a; path = "../../../../../SpiderMonkey/build-osx/release-dist/sdk/lib/libjs_static.a"; sourceTree = "<group>"; };
-		1A1051071F14C0B600D4322C /* libmozglue.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmozglue.a; path = "../../../../../SpiderMonkey/build-osx/release-dist/sdk/lib/libmozglue.a"; sourceTree = "<group>"; };
-		1A10510D1F14CB4000D4322C /* libjs_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjs_static.a; path = ../../../../external/mac/libs/libjs_static.a; sourceTree = "<group>"; };
 		1A119E2F18BDF19200352BAA /* jsb_cocos2dx_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_cocos2dx_auto.cpp; sourceTree = "<group>"; };
 		1A119E3018BDF19200352BAA /* jsb_cocos2dx_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_auto.hpp; sourceTree = "<group>"; };
 		1A119E3518BDF19200352BAA /* jsb_cocos2dx_extension_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_cocos2dx_extension_auto.cpp; sourceTree = "<group>"; };
@@ -272,8 +275,12 @@
 		1A119E3C18BDF19200352BAA /* jsb_cocos2dx_spine_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_spine_auto.hpp; sourceTree = "<group>"; };
 		1A159D4E1F13216F00558E38 /* jsb_socketio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_socketio.cpp; sourceTree = "<group>"; };
 		1A159D4F1F13216F00558E38 /* jsb_socketio.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_socketio.hpp; sourceTree = "<group>"; };
-		1A4E8E801F00CB0200F30872 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		1A4E8E821F00E84C00F30872 /* libChakraCoreStatic.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libChakraCoreStatic.a; path = ../../../../../ChakraCore/out/Debug/lib/libChakraCoreStatic.a; sourceTree = "<group>"; };
+		1A210D921F456821006CCBAE /* MappingUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MappingUtils.cpp; sourceTree = "<group>"; };
+		1A210D931F456821006CCBAE /* MappingUtils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MappingUtils.hpp; sourceTree = "<group>"; };
+		1A210DDE1F46C2D3006CCBAE /* libjs_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjs_static.a; path = ../../../../external/ios/libs/libjs_static.a; sourceTree = "<group>"; };
+		1A210DDF1F46C2D3006CCBAE /* libmozglue.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmozglue.a; path = ../../../../external/ios/libs/libmozglue.a; sourceTree = "<group>"; };
+		1A210DE21F46C2DF006CCBAE /* libjs_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjs_static.a; path = ../../../../external/mac/libs/libjs_static.a; sourceTree = "<group>"; };
+		1A210DE31F46C2DF006CCBAE /* libmozglue.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmozglue.a; path = ../../../../external/mac/libs/libmozglue.a; sourceTree = "<group>"; };
 		1A5410A418B785A10016A3AF /* libjscocos2d Mac.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libjscocos2d Mac.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A5410A518B785A10016A3AF /* libjscocos2d iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libjscocos2d iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A5F22881F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_dragonbones_manual.cpp; sourceTree = "<group>"; };
@@ -284,14 +291,6 @@
 		1A5F229B1F0E37B20008BF09 /* jsb_creator_manual.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_creator_manual.hpp; sourceTree = "<group>"; };
 		1A6293EE1F44128300A07B77 /* BaseJSAction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BaseJSAction.cpp; sourceTree = "<group>"; };
 		1A6293EF1F44128300A07B77 /* BaseJSAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseJSAction.h; sourceTree = "<group>"; };
-		1A62FCAA1F282DDA0002E38C /* libbmalloc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbmalloc.a; path = "../../../../../JavaScriptCore/build-osx/lib/libbmalloc.a"; sourceTree = "<group>"; };
-		1A62FCAB1F282DDA0002E38C /* libJavaScriptCore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libJavaScriptCore.a; path = "../../../../../JavaScriptCore/build-osx/lib/libJavaScriptCore.a"; sourceTree = "<group>"; };
-		1A62FCAC1F282DDA0002E38C /* libWTF.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWTF.a; path = "../../../../../JavaScriptCore/build-osx/lib/libWTF.a"; sourceTree = "<group>"; };
-		1A62FCAD1F282DDA0002E38C /* libbmalloc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbmalloc.a; path = "../../../../../JavaScriptCore/build-osx/lib/libbmalloc.a"; sourceTree = "<group>"; };
-		1A62FCAE1F282DDA0002E38C /* libJavaScriptCore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libJavaScriptCore.a; path = "../../../../../JavaScriptCore/build-osx/lib/libJavaScriptCore.a"; sourceTree = "<group>"; };
-		1A62FCAF1F282DDA0002E38C /* libWTF.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWTF.a; path = "../../../../../JavaScriptCore/build-osx/lib/libWTF.a"; sourceTree = "<group>"; };
-		1A62FCB01F282DDB0002E38C /* libJavaScriptCore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libJavaScriptCore.a; path = "../../../../../JavaScriptCore/build-osx/lib/libJavaScriptCore.a"; sourceTree = "<group>"; };
-		1A62FCB11F282DDB0002E38C /* libbmalloc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbmalloc.a; path = "../../../../../JavaScriptCore/build-osx/lib/libbmalloc.a"; sourceTree = "<group>"; };
 		1A6B8FB11F3BF7E800BC83DC /* SHA1.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SHA1.cpp; sourceTree = "<group>"; };
 		1A6B8FB21F3BF7E800BC83DC /* SHA1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SHA1.h; sourceTree = "<group>"; };
 		1A7759C11F340FB10012A210 /* inspector_agent.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inspector_agent.cc; sourceTree = "<group>"; };
@@ -314,30 +313,14 @@
 		1A7759F41F3421B90012A210 /* node.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = node.cc; sourceTree = "<group>"; };
 		1A7759F51F3421B90012A210 /* node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = node.h; sourceTree = "<group>"; };
 		1A7759FA1F3460BB0012A210 /* node_mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = node_mutex.h; sourceTree = "<group>"; };
-		1A7759FD1F3467990012A210 /* libuv.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libuv.a; path = ../../../../external/mac/libs/libuv.a; sourceTree = "<group>"; };
-		1A7759FF1F346A090012A210 /* libinspector.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libinspector.a; path = ../../../../external/mac/libs/libinspector.a; sourceTree = "<group>"; };
 		1A81B41C1F137BFE008C38F8 /* JavaScriptObjCBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JavaScriptObjCBridge.h; sourceTree = "<group>"; };
 		1A81B41D1F137BFE008C38F8 /* JavaScriptObjCBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = JavaScriptObjCBridge.mm; sourceTree = "<group>"; };
 		1A81B4221F149E7B008C38F8 /* jsb_module_register.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_module_register.cpp; sourceTree = "<group>"; };
 		1A81B4231F149E7B008C38F8 /* jsb_module_register.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_module_register.hpp; sourceTree = "<group>"; };
-		1A8D25531F3AB432002CC0A8 /* libv8_builtins_generators.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_builtins_generators.a; path = ../../../../external/mac/libs/libv8_builtins_generators.a; sourceTree = "<group>"; };
-		1A8D25541F3AB432002CC0A8 /* libv8_builtins_setup.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_builtins_setup.a; path = ../../../../external/mac/libs/libv8_builtins_setup.a; sourceTree = "<group>"; };
 		1A9F0F9B1F30235C00A499E1 /* jsb_helper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_helper.cpp; sourceTree = "<group>"; };
 		1A9F0F9C1F30235C00A499E1 /* jsb_helper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_helper.hpp; sourceTree = "<group>"; };
-		1AB064771EF9647F0061E1AF /* libbmalloc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbmalloc.a; path = ../../../../../JavaScriptCore/build/lib/libbmalloc.a; sourceTree = "<group>"; };
-		1AB064781EF9647F0061E1AF /* libJavaScriptCore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libJavaScriptCore.a; path = ../../../../../JavaScriptCore/build/lib/libJavaScriptCore.a; sourceTree = "<group>"; };
-		1AB064791EF9647F0061E1AF /* libWTF.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWTF.a; path = ../../../../../JavaScriptCore/build/lib/libWTF.a; sourceTree = "<group>"; };
 		1AB5E62918D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_cocos2dx_ui_auto.cpp; sourceTree = "<group>"; };
 		1AB5E62A18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_ui_auto.hpp; sourceTree = "<group>"; };
-		1AB649FC1F035628000C28A7 /* libv8_base.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_base.a; path = ../../../../external/mac/libs/libv8_base.a; sourceTree = "<group>"; };
-		1AB649FD1F035628000C28A7 /* libv8_libbase.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_libbase.a; path = ../../../../external/mac/libs/libv8_libbase.a; sourceTree = "<group>"; };
-		1AB649FE1F035628000C28A7 /* libv8_libplatform.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_libplatform.a; path = ../../../../external/mac/libs/libv8_libplatform.a; sourceTree = "<group>"; };
-		1AB649FF1F035628000C28A7 /* libv8_libsampler.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_libsampler.a; path = ../../../../external/mac/libs/libv8_libsampler.a; sourceTree = "<group>"; };
-		1AB64A001F035628000C28A7 /* libv8_nosnapshot.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_nosnapshot.a; path = ../../../../external/mac/libs/libv8_nosnapshot.a; sourceTree = "<group>"; };
-		1AC065091F00A62A009EC214 /* libmozglue.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmozglue.a; path = ../../../../external/ios/libs/libmozglue.a; sourceTree = "<group>"; };
-		1AC0650B1F00A926009EC214 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
-		1AD4AE5F1F0F88E400A823D8 /* libicui18n.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libicui18n.a; path = ../../../../../../../../usr/local/Cellar/icu4c/58.2/lib/libicui18n.a; sourceTree = "<group>"; };
-		1AD4AE601F0F88E400A823D8 /* libicuuc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libicuuc.a; path = ../../../../../../../../usr/local/Cellar/icu4c/58.2/lib/libicuuc.a; sourceTree = "<group>"; };
 		1AD4AE651F0F920700A823D8 /* jsb_websocket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_websocket.cpp; sourceTree = "<group>"; };
 		1AD4AE661F0F920700A823D8 /* jsb_websocket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_websocket.hpp; sourceTree = "<group>"; };
 		1AF82D411F2EE1C20002C5A0 /* HandleObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HandleObject.cpp; sourceTree = "<group>"; };
@@ -415,7 +398,6 @@
 		1AFD36BF1EF116190097DBB1 /* jsb_xmlhttprequest.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_xmlhttprequest.hpp; sourceTree = "<group>"; };
 		1AFD36C01EF116190097DBB1 /* ScriptingCore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptingCore.cpp; sourceTree = "<group>"; };
 		1AFD36C11EF116190097DBB1 /* ScriptingCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptingCore.h; sourceTree = "<group>"; };
-		1AFD37031EF116CB0097DBB1 /* libmozglue.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmozglue.a; path = ../../../../external/mac/libs/libmozglue.a; sourceTree = "<group>"; };
 		4BE089E01ADF965E00D65D4B /* jsb_cocos2dx_experimental_webView_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_cocos2dx_experimental_webView_auto.cpp; sourceTree = "<group>"; };
 		4BE089E11ADF965E00D65D4B /* jsb_cocos2dx_experimental_webView_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_experimental_webView_auto.hpp; sourceTree = "<group>"; };
 		4BE089EA1ADF967400D65D4B /* jsb_cocos2dx_experimental_webView_manual.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jsb_cocos2dx_experimental_webView_manual.h; sourceTree = "<group>"; };
@@ -438,6 +420,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A210DE41F46C2DF006CCBAE /* libjs_static.a in Frameworks */,
+				1A210DE51F46C2DF006CCBAE /* libmozglue.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -445,8 +429,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1AC0650C1F00A926009EC214 /* JavaScriptCore.framework in Frameworks */,
-				1AC0650A1F00A62A009EC214 /* libmozglue.a in Frameworks */,
+				1A210DE01F46C2D3006CCBAE /* libjs_static.a in Frameworks */,
+				1A210DE11F46C2D3006CCBAE /* libmozglue.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -557,6 +541,8 @@
 				1AFD36331EF115100097DBB1 /* Value.hpp */,
 				1AF82D411F2EE1C20002C5A0 /* HandleObject.cpp */,
 				1AF82D421F2EE1C20002C5A0 /* HandleObject.hpp */,
+				1A210D921F456821006CCBAE /* MappingUtils.cpp */,
+				1A210D931F456821006CCBAE /* MappingUtils.hpp */,
 			);
 			name = jswrapper;
 			path = ../jswrapper;
@@ -661,36 +647,10 @@
 		1AFD37021EF116CA0097DBB1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				1A8D25531F3AB432002CC0A8 /* libv8_builtins_generators.a */,
-				1A8D25541F3AB432002CC0A8 /* libv8_builtins_setup.a */,
-				1A7759FF1F346A090012A210 /* libinspector.a */,
-				1A7759FD1F3467990012A210 /* libuv.a */,
-				1A62FCB11F282DDB0002E38C /* libbmalloc.a */,
-				1A62FCB01F282DDB0002E38C /* libJavaScriptCore.a */,
-				1A62FCAD1F282DDA0002E38C /* libbmalloc.a */,
-				1A62FCAE1F282DDA0002E38C /* libJavaScriptCore.a */,
-				1A62FCAF1F282DDA0002E38C /* libWTF.a */,
-				1A62FCAA1F282DDA0002E38C /* libbmalloc.a */,
-				1A62FCAB1F282DDA0002E38C /* libJavaScriptCore.a */,
-				1A62FCAC1F282DDA0002E38C /* libWTF.a */,
-				1A10510D1F14CB4000D4322C /* libjs_static.a */,
-				1A1051061F14C0B600D4322C /* libjs_static.a */,
-				1A1051071F14C0B600D4322C /* libmozglue.a */,
-				1AD4AE5F1F0F88E400A823D8 /* libicui18n.a */,
-				1AD4AE601F0F88E400A823D8 /* libicuuc.a */,
-				1AB649FC1F035628000C28A7 /* libv8_base.a */,
-				1AB649FD1F035628000C28A7 /* libv8_libbase.a */,
-				1AB649FE1F035628000C28A7 /* libv8_libplatform.a */,
-				1AB649FF1F035628000C28A7 /* libv8_libsampler.a */,
-				1AB64A001F035628000C28A7 /* libv8_nosnapshot.a */,
-				1A4E8E821F00E84C00F30872 /* libChakraCoreStatic.a */,
-				1A4E8E801F00CB0200F30872 /* JavaScriptCore.framework */,
-				1AC0650B1F00A926009EC214 /* JavaScriptCore.framework */,
-				1AC065091F00A62A009EC214 /* libmozglue.a */,
-				1AB064771EF9647F0061E1AF /* libbmalloc.a */,
-				1AB064781EF9647F0061E1AF /* libJavaScriptCore.a */,
-				1AB064791EF9647F0061E1AF /* libWTF.a */,
-				1AFD37031EF116CB0097DBB1 /* libmozglue.a */,
+				1A210DE21F46C2DF006CCBAE /* libjs_static.a */,
+				1A210DE31F46C2DF006CCBAE /* libmozglue.a */,
+				1A210DDE1F46C2D3006CCBAE /* libjs_static.a */,
+				1A210DDF1F46C2D3006CCBAE /* libmozglue.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -705,6 +665,7 @@
 				4DFA4C121CBCC49000E3B736 /* jsb_creator_auto.hpp in Headers */,
 				1AFD365C1EF115100097DBB1 /* SeApi.h in Headers */,
 				1AFD36961EF115100097DBB1 /* ScriptEngine.hpp in Headers */,
+				1A210D961F456821006CCBAE /* MappingUtils.hpp in Headers */,
 				1AFD36C81EF116190097DBB1 /* jsb_classtype.hpp in Headers */,
 				1AFD36881EF115100097DBB1 /* Class.hpp in Headers */,
 				1AFD36441EF115100097DBB1 /* SeApi.h in Headers */,
@@ -796,6 +757,7 @@
 				1AFD36D51EF116190097DBB1 /* jsb_conversions.hpp in Headers */,
 				1AFD36C91EF116190097DBB1 /* jsb_classtype.hpp in Headers */,
 				1AFD36351EF115100097DBB1 /* Base.h in Headers */,
+				1A210D971F456821006CCBAE /* MappingUtils.hpp in Headers */,
 				1AFD36931EF115100097DBB1 /* ObjectWrap.h in Headers */,
 				1AFD36D11EF116190097DBB1 /* jsb_cocos2dx_manual.hpp in Headers */,
 				1AFD36711EF115100097DBB1 /* HelperMacros.h in Headers */,
@@ -977,6 +939,7 @@
 				BA4F59841E28DCD3003F5096 /* jsb_cocos2dx_network_auto.cpp in Sources */,
 				1A7759DB1F34105B0012A210 /* node_debug_options.cc in Sources */,
 				1AFD36461EF115100097DBB1 /* Utils.cpp in Sources */,
+				1A210D941F456821006CCBAE /* MappingUtils.cpp in Sources */,
 				1A5F22961F0E306C0008BF09 /* jsb_box2d_manual.cpp in Sources */,
 				1A7759F01F341D6E0012A210 /* env.cc in Sources */,
 				1A7759D51F340FB10012A210 /* inspector_socket.cc in Sources */,
@@ -1012,6 +975,7 @@
 				1AB5E62C18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp in Sources */,
 				1AFD36651EF115100097DBB1 /* Ref.cpp in Sources */,
 				BA4F59851E28DCD3003F5096 /* jsb_cocos2dx_network_auto.cpp in Sources */,
+				1A210D951F456821006CCBAE /* MappingUtils.cpp in Sources */,
 				1A119E9C18BDF19200352BAA /* jsb_cocos2dx_spine_auto.cpp in Sources */,
 				1A5F22971F0E306C0008BF09 /* jsb_box2d_manual.cpp in Sources */,
 				1AFD36C71EF116190097DBB1 /* jsb_classtype.cpp in Sources */,
