@@ -489,16 +489,12 @@ var Label = cc.Class({
     __preload: function () {
         this._super();
 
-        var sgSizeInitialized = this._sgNode._isUseSystemFont;
-        if (sgSizeInitialized) {
-            this._updateNodeSize();
-        }
-
         // node should be resize whenever font changed, needed only on web
         if (!CC_JSB) {
             this._sgNode.on('load', this._updateNodeSize, this);
         }
 
+        this._updateNodeSize();
     },
 
     _createSgNode: function () {
@@ -526,7 +522,7 @@ var Label = cc.Class({
                 }
             } else {
                 cc.warnID(4011, font.name);
-                sgNode = this._sgNode = new _ccsg.Label(this.string);
+                sgNode = this._sgNode = _ccsg.Label.pool.get(this.string);
             }
         } else {
             sgNode = this._sgNode = _ccsg.Label.pool.get(this.string, font, null, this._fontSize);

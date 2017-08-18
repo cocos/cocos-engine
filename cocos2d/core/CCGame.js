@@ -293,17 +293,19 @@ var game = {
      * @method restart
      */
     restart: function () {
-        // Clear scene
-        cc.director.getScene().destroy();
-        cc.Object._deferredDestroy();
-        cc.director.purgeDirector();
-        // Clean up audio
-        if (cc.audioEngine) {
-            cc.audioEngine.uncacheAll();
-        }
+        cc.director.once(cc.Director.EVENT_AFTER_DRAW, function () {
+            // Clear scene
+            cc.director.getScene().destroy();
+            cc.Object._deferredDestroy();
+            cc.director.purgeDirector();
+            // Clean up audio
+            if (cc.audioEngine) {
+                cc.audioEngine.uncacheAll();
+            }
 
-        cc.director.reset();
-        game.onStart();
+            cc.director.reset();
+            game.onStart();
+        });
     },
 
     /**

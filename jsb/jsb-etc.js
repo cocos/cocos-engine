@@ -121,7 +121,7 @@ window.setTimeout = function (code, delay, ...args) {
         original.call(this);
         clearTimeout(target._intervalId);
     };
-    cc.director.getScheduler()._schedule(target.fun, target, delay / 1000, 0, 0, false, target._intervalId+'');
+    cc.director.getScheduler().schedule(target.fun, target, delay / 1000, 0, 0, false);
     _windowTimeFunHash[target._intervalId] = target;
     return target._intervalId;
 };
@@ -137,7 +137,7 @@ window.setInterval = function (code, delay, ...args) {
     if (args.length > 0) {
         target._args = args;
     }
-    cc.director.getScheduler()._schedule(target.fun, target, delay / 1000, cc.macro.REPEAT_FOREVER, 0, false, target._intervalId+'');
+    cc.director.getScheduler().schedule(target.fun, target, delay / 1000, cc.macro.REPEAT_FOREVER, 0, false);
     _windowTimeFunHash[target._intervalId] = target;
     return target._intervalId;
 };
@@ -149,7 +149,7 @@ window.setInterval = function (code, delay, ...args) {
 window.clearInterval = function (intervalId) {
     var target = _windowTimeFunHash[intervalId];
     if (target) {
-        cc.director.getScheduler()._unschedule(target._intervalId+'', target);
+        cc.director.getScheduler().unschedule(target.fun, target);
         delete _windowTimeFunHash[intervalId];
     }
 };

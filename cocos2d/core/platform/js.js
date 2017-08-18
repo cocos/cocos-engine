@@ -573,11 +573,13 @@ var REGEXP_STR = /%s/;
 
 /**
  * A string tool to construct a string with format string.
- * for example:
- *      cc.js.formatStr("a: %s, b: %s", a, b);
- *      cc.js.formatStr(a, b, c);
  * @method formatStr
+ * @param {String|any} msg - A JavaScript string containing zero or more substitution strings.
+ * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
  * @returns {String}
+ * @example
+ * cc.js.formatStr("a: %s, b: %s", a, b);
+ * cc.js.formatStr(a, b, c);
  */
 js.formatStr = function () {
     var argLen = arguments.length;

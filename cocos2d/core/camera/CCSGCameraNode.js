@@ -22,22 +22,15 @@ let CameraNode = _ccsg.Node.extend({
     },
 
     addTarget: function (target) {
-        if (target._cameraInfo) return;
-
-        target._cameraInfo = {
-            sgCameraNode: this,
-            originVisit: target.visit
-        };
+        let info = target._cameraInfo;
+        info.sgCameraNode = this;
+        info.originVisit = target.visit;
 
         target.visit = this._visit;
     },
 
     removeTarget: function (target) {
-        let info = target._cameraInfo;
-        if (!info) return;
-        
-        target.visit = info.originVisit;
-        target._cameraInfo = undefined;
+        target.visit = target._cameraInfo.originVisit;
     },
 
     _visit: function (parent) {

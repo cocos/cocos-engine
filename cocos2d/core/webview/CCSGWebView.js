@@ -34,6 +34,7 @@ _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
         }
     },
 
+    setOnJSCallback: function(callback){},
     setJavascriptInterfaceScheme: function(scheme){},
     loadData: function(data, MIMEType, encoding, baseURL){},
     loadHTMLString: function(string, baseURL){},
