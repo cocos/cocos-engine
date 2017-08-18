@@ -79,20 +79,23 @@ using namespace cocos2d;
 //static uint32_t s_nestedLoopLevel = 0;
 
 // server entry point for the bg thread
-//static void serverEntryPoint(unsigned int port);
+static void serverEntryPoint(unsigned int port);
 
-std::unordered_map<std::string, js_type_class_t*> _js_global_type_map;
-static std::unordered_map<void*, js_proxy_t*> _native_js_global_map;
+// global datas
+// type name ~> jsb class type
+std::unordered_map<std::string, js_type_class_t*> *_js_global_type_map = nullptr;
+// native pointer ~> jsb proxy
+static std::unordered_map<void*, js_proxy_t*> *_native_js_global_map = nullptr;
+// filename ~> JSScript
+static std::unordered_map<std::string, JS::PersistentRootedScript*> *_filename_script = nullptr;
+// port ~> socket
+static std::unordered_map<int,int> ports_sockets;
+// callback list for JSB API registration
 static std::vector<sc_register_sth> registrationList;
 
 static char *_js_log_buf = nullptr;
 
 const char *ScriptingCore::EVENT_RESET = "scriptingcore_event_reset";
-
-// name ~> JSScript map
-static std::unordered_map<std::string, JS::PersistentRootedScript*> filename_script;
-// port ~> socket map
-static std::unordered_map<int,int> ports_sockets;
 
 static void cc_closesocket(int fd)
 {
@@ -414,8 +417,8 @@ GetBuildId(JS::BuildIdCharVector* buildId)
 
 void jsbWeakPointerCompartmentCallback(JSContext* cx, JSCompartment* comp, void* data)
 {
-    auto it_js = _native_js_global_map.begin();
-    while (it_js != _native_js_global_map.end())
+    auto it_js = _native_js_global_map->begin();
+    while (it_js != _native_js_global_map->end())
     {
         js_proxy_t *proxy = it_js->second;
         if (proxy->obj)
@@ -435,11 +438,11 @@ on_garbage_collect(JSContext* cx, JSGCStatus status, void* data)
      * garbage collected. */
     if (status == JSGC_BEGIN)
     {
-        printf("on_garbage_collect: begin, Native -> JS map count: %d\n", (int)_native_js_global_map.size());
+        printf("on_garbage_collect: begin, Native -> JS map count: %d\n", (int)_native_js_global_map->size());
     }
     else if (status == JSGC_END)
     {
-        printf("on_garbage_collect: end, Native -> JS map count: %d\n", (int)_native_js_global_map.size());
+        printf("on_garbage_collect: end, Native -> JS map count: %d\n", (int)_native_js_global_map->size());
     }
 }
 
@@ -546,6 +549,11 @@ ScriptingCore::ScriptingCore()
 , _callFromScript(false)
 , _finalizing(nullptr)
 {
+    // Init global datas
+    _js_global_type_map = new (std::nothrow) std::unordered_map<std::string, js_type_class_t*>();
+    _native_js_global_map = new (std::nothrow) std::unordered_map<void*, js_proxy_t*>();
+    _filename_script = new (std::nothrow) std::unordered_map<std::string, JS::PersistentRootedScript*>();
+    
     bool ok = JS_Init();
     if (!ok) {
         CCLOG("System errno : %d", errno);
@@ -629,8 +637,8 @@ void ScriptingCore::addRegisterCallback(sc_register_sth callback) {
 
 void ScriptingCore::removeAllProxys(JSContext *cx)
 {
-    auto it_js = _native_js_global_map.begin();
-    while (it_js != _native_js_global_map.end())
+    auto it_js = _native_js_global_map->begin();
+    while (it_js != _native_js_global_map->end())
     {
         // Erase hook private first in case gc access the proxy again
         auto proxy = it_js->second;
@@ -648,9 +656,9 @@ void ScriptingCore::removeAllProxys(JSContext *cx)
         }
         
         CC_SAFE_DELETE(proxy);
-        it_js = _native_js_global_map.erase(it_js);
+        it_js = _native_js_global_map->erase(it_js);
     }
-    _native_js_global_map.clear();
+    _native_js_global_map->clear();
 }
 
 void ScriptingCore::createGlobalContext() {
@@ -760,17 +768,17 @@ bool ScriptingCore::getScript(const std::string& path, JS::MutableHandleScript s
 {
     // a) check jsc file first
     std::string byteCodePath = RemoveFileExt(std::string(path)) + BYTE_CODE_FILE_EXT;
-    if (filename_script.find(byteCodePath) != filename_script.end())
+    if (_filename_script->find(byteCodePath) != _filename_script->end())
     {
-        script.set(filename_script[byteCodePath]->get());
+        script.set((*_filename_script)[byteCodePath]->get());
         return true;
     }
 
     // b) no jsc file, check js file
     std::string fullPath = cocos2d::FileUtils::getInstance()->fullPathForFilename(path);
-    if (filename_script.find(fullPath) != filename_script.end())
+    if (_filename_script->find(fullPath) != _filename_script->end())
     {
-        script.set(filename_script[fullPath]->get());
+        script.set((*_filename_script)[fullPath]->get());
         return true;
     }
 
@@ -789,6 +797,8 @@ bool ScriptingCore::compileScript(const std::string& path, JS::HandleObject glob
     }
 
     cocos2d::FileUtils *futil = cocos2d::FileUtils::getInstance();
+    bool isPopupNotify = futil->isPopupNotify();
+    futil->setPopupNotify(false);
 
     JS::RootedObject obj(_cx, global);
     bool compileSucceed = false;
@@ -808,10 +818,11 @@ bool ScriptingCore::compileScript(const std::string& path, JS::HandleObject glob
             if (appended && result == JS::TranscodeResult::TranscodeResult_Ok)
             {
                 compileSucceed = true;
-                filename_script[byteCodePath] = new (std::nothrow) JS::PersistentRootedScript(_cx, script.get());
+                (*_filename_script)[byteCodePath] = new (std::nothrow) JS::PersistentRootedScript(_cx, script.get());
             }
         }
     }
+    futil->setPopupNotify(isPopupNotify);
 
     // b) no jsc file, check js file
     if (!compileSucceed)
@@ -836,7 +847,7 @@ bool ScriptingCore::compileScript(const std::string& path, JS::HandleObject glob
         }
         if (ok) {
             compileSucceed = true;
-            filename_script[fullPath] = new (std::nothrow) JS::PersistentRootedScript(_cx, script.get());
+            (*_filename_script)[fullPath] = new (std::nothrow) JS::PersistentRootedScript(_cx, script.get());
         }
     }
     
@@ -847,7 +858,7 @@ bool ScriptingCore::compileScript(const std::string& path, JS::HandleObject glob
     if (compileSucceed) {
         return true;
     } else {
-        LOGD("ScriptingCore:: compileScript fail:%s", path.c_str());
+        LOGD("ScriptingCore::compileScript fail:%s", path.c_str());
         return false;
     }
 }
@@ -855,28 +866,28 @@ bool ScriptingCore::compileScript(const std::string& path, JS::HandleObject glob
 void ScriptingCore::cleanScript(const char *path)
 {
     std::string byteCodePath = RemoveFileExt(std::string(path)) + BYTE_CODE_FILE_EXT;
-    auto it = filename_script.find(byteCodePath);
-    if (it != filename_script.end())
+    auto it = _filename_script->find(byteCodePath);
+    if (it != _filename_script->end())
     {
-        filename_script.erase(it);
+        _filename_script->erase(it);
     }
 
     std::string fullPath = cocos2d::FileUtils::getInstance()->fullPathForFilename(path);
-    it = filename_script.find(fullPath);
-    if (it != filename_script.end())
+    it = _filename_script->find(fullPath);
+    if (it != _filename_script->end())
     {
-        filename_script.erase(it);
+        _filename_script->erase(it);
     }
 }
 
-std::unordered_map<std::string, JS::PersistentRootedScript*>& ScriptingCore::getFileScript()
+std::unordered_map<std::string, JS::PersistentRootedScript*>* ScriptingCore::getFileScript()
 {
-    return filename_script;
+    return _filename_script;
 }
 
 void ScriptingCore::cleanAllScript()
 {
-    filename_script.clear();
+    _filename_script->clear();
 }
 
 bool ScriptingCore::runScript(const std::string& path)
@@ -956,6 +967,11 @@ ScriptingCore::~ScriptingCore()
 {
     cleanup();
     JS_ShutDown();
+    
+    // clear datas
+    CC_SAFE_DELETE(_js_global_type_map);
+    CC_SAFE_DELETE(_native_js_global_map);
+    CC_SAFE_DELETE(_filename_script);
 }
 
 void ScriptingCore::cleanup()
@@ -973,12 +989,17 @@ void ScriptingCore::cleanup()
     cleanAllScript();
     
     // Cleanup jsb type map
-    for (auto iter = _js_global_type_map.begin(); iter != _js_global_type_map.end(); ++iter)
+    for (auto iter = _js_global_type_map->begin(); iter != _js_global_type_map->end(); ++iter)
     {
         CC_SAFE_DELETE(iter->second->proto);
         free(iter->second);
     }
-    _js_global_type_map.clear();
+    _js_global_type_map->clear();
+    
+    // Release promise state
+    auto sc = getPromiseState(_cx);
+    sc->quitting = true;
+    delete sc;
     
     // force gc
     JS_GC(_cx);
@@ -996,11 +1017,6 @@ void ScriptingCore::cleanup()
         free(_js_log_buf);
         _js_log_buf = nullptr;
     }
-    
-    // Release promise state
-    auto sc = getPromiseState(_cx);
-    sc->quitting = true;
-    delete sc;
 
     if (_cx)
     {
@@ -1994,13 +2010,13 @@ js_proxy_t* jsb_new_proxy(JSContext *cx, void* nativeObj, JS::HandleObject jsObj
         // native to JS index
         proxy = new js_proxy_t();
         CC_ASSERT(proxy && "not enough memory");
-        CC_ASSERT(_native_js_global_map.find(nativeObj) == _native_js_global_map.end() && "Native Key should not be present");
+        CC_ASSERT(_native_js_global_map->find(nativeObj) == _native_js_global_map->end() && "Native Key should not be present");
         
         proxy->ptr = nativeObj;
         proxy->obj = jsObj.get();
 
         // One Proxy in two entries
-        _native_js_global_map[nativeObj] = proxy;
+        (*_native_js_global_map)[nativeObj] = proxy;
         JS_SetPrivate(hookObj, proxy);
     }
     else CCLOG("jsb_new_proxy: Invalid keys");
@@ -2018,11 +2034,11 @@ js_proxy_t* jsb_bind_proxy(JSContext *cx, void* nativeObj, JS::HandleObject jsOb
         // native to JS index
         proxy = new js_proxy_t();
         CC_ASSERT(proxy && "not enough memory");
-        CC_ASSERT(_native_js_global_map.find(nativeObj) == _native_js_global_map.end() && "Native Key should not be present");
+        CC_ASSERT(_native_js_global_map->find(nativeObj) == _native_js_global_map->end() && "Native Key should not be present");
         
         proxy->ptr = nativeObj;
         proxy->obj = jsObj;
-        _native_js_global_map[nativeObj] = proxy;
+        (*_native_js_global_map)[nativeObj] = proxy;
     }
     else CCLOG("jsb_bind_proxy: Invalid keys");
     return proxy;
@@ -2030,8 +2046,8 @@ js_proxy_t* jsb_bind_proxy(JSContext *cx, void* nativeObj, JS::HandleObject jsOb
 
 js_proxy_t* jsb_get_native_proxy(void* nativeObj)
 {
-    auto search = _native_js_global_map.find(nativeObj);
-    if(search != _native_js_global_map.end())
+    auto search = _native_js_global_map->find(nativeObj);
+    if(search != _native_js_global_map->end())
         return search->second;
     return nullptr;
 }
@@ -2076,10 +2092,10 @@ bool jsb_unbind_proxy(js_proxy_t* proxy)
 #endif // COCOS2D_DEBUG
     
     // delete entry in native proxy map
-    auto it_nat = _native_js_global_map.find(nativeKey);
-    if (it_nat != _native_js_global_map.end())
+    auto it_nat = _native_js_global_map->find(nativeKey);
+    if (it_nat != _native_js_global_map->end())
     {
-        _native_js_global_map.erase(it_nat);
+        _native_js_global_map->erase(it_nat);
         return true;
     }
     else

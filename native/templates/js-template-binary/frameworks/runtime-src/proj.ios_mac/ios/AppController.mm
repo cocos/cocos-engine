@@ -39,10 +39,14 @@ using namespace cocos2d;
 #pragma mark Application lifecycle
 
 // cocos2d application instance
-static AppDelegate s_sharedApplication;
+static AppDelegate *s_sharedApplication = nullptr;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
+    if (s_sharedApplication == nullptr)
+    {
+        s_sharedApplication = new AppDelegate();
+    }
     cocos2d::Application *app = cocos2d::Application::getInstance();
 
     // Initialize the GLView attributes
@@ -127,6 +131,11 @@ static AppDelegate s_sharedApplication;
       Called when the application is about to terminate.
       See also applicationDidEnterBackground:.
     */
+    if (s_sharedApplication)
+    {
+        delete s_sharedApplication;
+        s_sharedApplication = nullptr;
+    }
 }
 
 

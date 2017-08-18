@@ -45,8 +45,6 @@ typedef struct js_type_class {
     JS::PersistentRootedObject *proto;
 } js_type_class_t;
 
-extern std::unordered_map<std::string, js_type_class_t*> _js_global_type_map;
-
 template< typename DERIVED >
 class TypeTest
 {
