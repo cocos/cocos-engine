@@ -494,10 +494,6 @@ var Label = cc.Class({
             this._sgNode.on('load', this._updateNodeSize, this);
         }
 
-    },
-
-    onEnable: function () {
-        this._super();
         this._updateNodeSize();
     },
 
