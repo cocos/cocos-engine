@@ -170,14 +170,8 @@ public:
                 JS::RootedValue arg(cx, JS::ObjectOrNullValue(jsobj));
                 JS::HandleValueArray args(arg);
                 ScriptingCore::getInstance()->executeFunctionWithOwner(delegate, "onclose", args);
-                
-#if not CC_ENABLE_GC_FOR_NATIVE_OBJECTS
-                auto copy = &p->obj;
-                JS::RemoveObjectRoot(cx, copy);
-#endif
-                JS_SetPrivate(p->obj, nullptr);
-                jsb_remove_proxy(p);
             }
+            JS_SetPrivate(p->obj, nullptr);
         }
         ws->release();
         release(); // Release delegate self at last
@@ -219,6 +213,13 @@ void js_cocos2dx_WebSocket_finalize(JSFreeOp *fop, JSObject *obj) {
     WebSocket *cobj = static_cast<WebSocket *>(JS_GetPrivate(obj));
     if (cobj)
     {
+        js_proxy_t * p = jsb_get_native_proxy(cobj);
+#if not CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+        auto copy = &p->obj;
+        JS::RemoveObjectRoot(cx, copy);
+#endif
+        jsb_remove_proxy(p);
+        
         ScriptingCore::getInstance()->setFinalizing(true);
         // Manually close if WebSocket is not closed
         if (cobj->getReadyState() != WebSocket::State::CLOSED)

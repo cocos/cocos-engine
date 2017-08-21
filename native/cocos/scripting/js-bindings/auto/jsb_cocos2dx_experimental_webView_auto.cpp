@@ -208,6 +208,65 @@ bool js_cocos2dx_experimental_webView_WebView_evaluateJS(JSContext *cx, uint32_t
     JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_webView_WebView_evaluateJS : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
+bool js_cocos2dx_experimental_webView_WebView_setOnJSCallback(JSContext *cx, uint32_t argc, JS::Value *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true; CC_UNUSED_PARAM(ok);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
+    cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_webView_WebView_setOnJSCallback : Invalid Native Object");
+    if (argc == 1) {
+        std::function<void (cocos2d::experimental::ui::WebView *, const std::basic_string<char> &)> arg0;
+        do {
+		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
+		    {
+		        JS::RootedObject jstarget(cx);
+		        if (args.thisv().isObject())
+		        {
+		            jstarget = args.thisv().toObjectOrNull();
+		        }
+		        JS::RootedObject jsfunc(cx, args.get(0).toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, jsfunc, jstarget));
+		        auto lambda = [=](cocos2d::experimental::ui::WebView* larg0, const std::basic_string<char> & larg1) -> void {
+		            bool ok = true;
+		            JS::AutoValueVector valArr(cx);
+		            JS::RootedValue largv(cx);
+		            if (larg0) {
+		            JS::RootedObject largvObj(cx);
+		            js_get_or_create_jsobject<cocos2d::experimental::ui::WebView>(cx, (cocos2d::experimental::ui::WebView*)larg0, &largvObj);
+		            largv = JS::ObjectOrNullValue(largvObj);
+		        } else {
+		            largv = JS::NullHandleValue;
+		        };
+		            valArr.append(largv);
+		            ok &= std_string_to_jsval(cx, larg1, &largv);
+		            valArr.append(largv);
+		            if (!ok) { JS_ReportErrorUTF8(cx, "lambda function : Error parsing arguments"); return; }
+		            JS::RootedValue rval(cx);
+		            JS::HandleValueArray largsv(valArr);
+		            bool succeed = func->invoke(largsv, &rval);
+		            if (!succeed && JS_IsExceptionPending(cx)) {
+		                handlePendingException(cx);
+		            }
+		        };
+		        arg0 = lambda;
+		    }
+		    else
+		    {
+		        arg0 = nullptr;
+		    }
+		} while(0)
+		;
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_experimental_webView_WebView_setOnJSCallback : Error processing arguments");
+        cobj->setOnJSCallback(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportErrorUTF8(cx, "js_cocos2dx_experimental_webView_WebView_setOnJSCallback : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
 bool js_cocos2dx_experimental_webView_WebView_getOnJSCallback(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -405,6 +464,7 @@ void js_register_cocos2dx_experimental_webView_WebView(JSContext *cx, JS::Handle
         JS_FN("loadURL", js_cocos2dx_experimental_webView_WebView_loadURL, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setBounces", js_cocos2dx_experimental_webView_WebView_setBounces, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("evaluateJS", js_cocos2dx_experimental_webView_WebView_evaluateJS, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("setOnJSCallback", js_cocos2dx_experimental_webView_WebView_setOnJSCallback, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getOnJSCallback", js_cocos2dx_experimental_webView_WebView_getOnJSCallback, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("canGoForward", js_cocos2dx_experimental_webView_WebView_canGoForward, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getOnShouldStartLoading", js_cocos2dx_experimental_webView_WebView_getOnShouldStartLoading, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
