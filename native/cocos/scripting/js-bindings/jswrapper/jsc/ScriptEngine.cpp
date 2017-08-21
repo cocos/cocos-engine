@@ -313,13 +313,14 @@ namespace se {
         LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
     }
 
-    bool ScriptEngine::executeScriptBuffer(const char *script, ssize_t length, Value *data, const char *fileName)
+    bool ScriptEngine::executeScriptBuffer(const char* script, ssize_t length/* = -1 */, Value* ret/* = nullptr */, const char* fileName/* = nullptr */)
     {
         assert(script != nullptr);
         if (length < 0)
-        {
             length = strlen(script);
-        }
+
+        if (fileName == nullptr)
+            fileName = "(no filename)";
 
         std::string exceptionStr;
         std::string scriptStr(script, length);
@@ -359,8 +360,8 @@ namespace se {
 
         if (ok)
         {
-            if (data != nullptr)
-                internal::jsToSeValue(_cx, result, data); //FIXME: result is rooted, when to unrooted, it probably cause memory leak
+            if (ret != nullptr)
+                internal::jsToSeValue(_cx, result, ret);
         }
         else if (!exceptionStr.empty())
         {
@@ -368,6 +369,26 @@ namespace se {
         }
 
         return ok;
+    }
+
+    void ScriptEngine::setFileOperationDelegate(const FileOperationDelegate& delegate)
+    {
+        _fileOperationDelegate = delegate;
+    }
+
+    bool ScriptEngine::executeScriptFile(const std::string& path, Value* ret/* = nullptr */)
+    {
+        assert(!path.empty());
+        assert(_fileOperationDelegate.isValid());
+
+        std::string scriptBuffer = _fileOperationDelegate.onGetStringFromFile(path);
+
+        if (!scriptBuffer.empty())
+        {
+            return executeScriptBuffer(scriptBuffer.c_str(), scriptBuffer.length(), ret);
+        }
+
+        return false;
     }
 
     void ScriptEngine::_retainScriptObject(void* owner, void* target)

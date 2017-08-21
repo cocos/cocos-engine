@@ -342,20 +342,22 @@ namespace se {
         return _isValid;
     }
 
-    bool ScriptEngine::executeScriptBuffer(const char* string, Value *data, const char *fileName)
+    bool ScriptEngine::executeScriptBuffer(const char* script, ssize_t length/* = -1 */, Value* ret/* = nullptr */, const char* fileName/* = nullptr */)
     {
-        return executeScriptBuffer(string, strlen(string), data, fileName);
-    }
+        assert(script != nullptr);
+        if (length < 0)
+            length = strlen(script);
 
-    bool ScriptEngine::executeScriptBuffer(const char* script, size_t length, Value *data, const char *fileName)
-    {
+        if (fileName == nullptr)
+            fileName = "(no filename)";
+
         std::string scriptStr(script, length);
 
         v8::MaybeLocal<v8::String> source = v8::String::NewFromUtf8(_isolate, scriptStr.c_str(), v8::NewStringType::kNormal);
         if (source.IsEmpty())
             return false;
 
-        v8::MaybeLocal<v8::String> originStr = v8::String::NewFromUtf8(_isolate, fileName ? fileName : "Unknown", v8::NewStringType::kNormal);
+        v8::MaybeLocal<v8::String> originStr = v8::String::NewFromUtf8(_isolate, fileName, v8::NewStringType::kNormal);
         if (originStr.IsEmpty())
             return false;
 
@@ -373,9 +375,9 @@ namespace se {
             {
                 v8::Local<v8::Value> result = maybeResult.ToLocalChecked();
 
-                if (!result->IsUndefined() && data != nullptr)
+                if (!result->IsUndefined() && ret != nullptr)
                 {
-                    internal::jsToSeValue(_isolate, result, data);
+                    internal::jsToSeValue(_isolate, result, ret);
                 }
 
                 success = true;
@@ -384,6 +386,26 @@ namespace se {
 
 //        assert(success);
         return success;
+    }
+
+    void ScriptEngine::setFileOperationDelegate(const FileOperationDelegate& delegate)
+    {
+        _fileOperationDelegate = delegate;
+    }
+
+    bool ScriptEngine::executeScriptFile(const std::string& path, Value* ret/* = nullptr */)
+    {
+        assert(!path.empty());
+        assert(_fileOperationDelegate.isValid());
+
+        std::string scriptBuffer = _fileOperationDelegate.onGetStringFromFile(path);
+
+        if (!scriptBuffer.empty())
+        {
+            return executeScriptBuffer(scriptBuffer.c_str(), scriptBuffer.length(), ret);
+        }
+
+        return false;
     }
 
     void ScriptEngine::_retainScriptObject(void* owner, void* target)

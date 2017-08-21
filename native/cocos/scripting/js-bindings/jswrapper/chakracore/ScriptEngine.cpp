@@ -305,17 +305,14 @@ namespace se {
         }
     }
 
-    bool ScriptEngine::executeScriptBuffer(const char *string, Value *data, const char *fileName)
+    bool ScriptEngine::executeScriptBuffer(const char* script, ssize_t length/* = -1 */, Value* ret/* = nullptr */, const char* fileName/* = nullptr */)
     {
-        return executeScriptBuffer(string, strlen(string), data, fileName);
-    }
+        assert(script != nullptr);
+        if (length < 0)
+            length = strlen(script);
 
-    bool ScriptEngine::executeScriptBuffer(const char *script, size_t length, Value *data, const char *fileName)
-    {
         if (fileName == nullptr)
-        {
             fileName = "(no filename)";
-        }
 
         JsValueRef fname;
         _CHECK(JsCreateString(fileName, strlen(fileName), &fname));
@@ -333,21 +330,41 @@ namespace se {
             return false;
         }
 
-        if (data != nullptr)
+        if (ret != nullptr)
         {
             JsValueType type;
             JsGetValueType(result, &type);
             if (type != JsUndefined)
             {
-                internal::jsToSeValue(result, data);
+                internal::jsToSeValue(result, ret);
             }
             else
             {
-                data->setUndefined();
+                ret->setUndefined();
             }
         }
 
         return true;
+    }
+
+    void ScriptEngine::setFileOperationDelegate(const FileOperationDelegate& delegate)
+    {
+        _fileOperationDelegate = delegate;
+    }
+
+    bool ScriptEngine::executeScriptFile(const std::string& path, Value* ret/* = nullptr */)
+    {
+        assert(!path.empty());
+        assert(_fileOperationDelegate.isValid());
+
+        std::string scriptBuffer = _fileOperationDelegate.onGetStringFromFile(path);
+
+        if (!scriptBuffer.empty())
+        {
+            return executeScriptBuffer(scriptBuffer.c_str(), scriptBuffer.length(), ret);
+        }
+
+        return false;
     }
 
     void ScriptEngine::_retainScriptObject(void* owner, void* target)

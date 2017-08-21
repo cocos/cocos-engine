@@ -11,6 +11,42 @@ se::Object* __jscObj = nullptr;
 se::Object* __ccObj = nullptr;
 se::Object* __jsbObj = nullptr;
 
+bool jsb_run_script(const std::string& filePath)
+{
+    static se::ScriptEngine::FileOperationDelegate delegate;
+    if (!delegate.isValid())
+    {
+        delegate.onGetDataFromFile = [](const std::string& path, const uint8_t** data, size_t* dataLen) -> void{
+            assert(!path.empty() && data != nullptr && dataLen != nullptr);
+            Data fileData = FileUtils::getInstance()->getDataFromFile(path);
+            *data = fileData.getBytes();
+            *dataLen = fileData.getSize();
+        };
+
+        delegate.onGetStringFromFile = [](const std::string& path) -> std::string{
+            assert(!path.empty());
+            return FileUtils::getInstance()->getStringFromFile(path);
+        };
+
+        delegate.onGetFullPath = [](const std::string& path) -> std::string{
+            assert(!path.empty());
+            return FileUtils::getInstance()->fullPathForFilename(path);
+        };
+
+        delegate.onCheckFileExist = [](const std::string& path) -> bool{
+            assert(!path.empty());
+            return FileUtils::getInstance()->isFileExist(path);
+        };
+
+        assert(delegate.isValid());
+
+        se::ScriptEngine::getInstance()->setFileOperationDelegate(delegate);
+    }
+
+    se::AutoHandleScope hs;
+    return se::ScriptEngine::getInstance()->executeScriptFile(filePath);
+}
+
 namespace {
 
     static bool require(se::State& s)
@@ -20,11 +56,7 @@ namespace {
         assert(argc >= 1);
         assert(args[0].isString());
 
-        Data data = FileUtils::getInstance()->getDataFromFile(args[0].toString());
-        if (data.isNull())
-            return false;
-
-        return se::ScriptEngine::getInstance()->executeScriptBuffer((const char*)data.getBytes(), (size_t)data.getSize(), &s.rval(), args[0].toString().c_str());
+        return jsb_run_script(args[0].toString());
     }
     SE_BIND_FUNC(require)
 

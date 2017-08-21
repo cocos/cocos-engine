@@ -78,8 +78,53 @@ namespace se {
         void addBeforeCleanupHook(const std::function<void()>& hook);
         void addAfterCleanupHook(const std::function<void()>& hook);
 
-        bool executeScriptBuffer(const char *string, Value *data = nullptr, const char *fileName = nullptr);
-        bool executeScriptBuffer(const char *string, size_t length, Value *data = nullptr, const char *fileName = nullptr);
+        bool executeScriptBuffer(const char* script, ssize_t length = -1, Value* ret = nullptr, const char* fileName = nullptr);
+
+        /**
+         *  Delegate class for file operation
+         */
+        class FileOperationDelegate
+        {
+        public:
+            FileOperationDelegate()
+            : onGetDataFromFile(nullptr)
+            , onGetStringFromFile(nullptr)
+            , onCheckFileExist(nullptr)
+            , onGetFullPath(nullptr)
+            {}
+
+            /**
+             *  @brief Tests whether delegate is valid.
+             */
+            bool isValid() {
+                return onGetDataFromFile != nullptr
+                && onGetStringFromFile != nullptr
+                && onCheckFileExist != nullptr
+                && onGetFullPath != nullptr; }
+
+            // path, buffer, buffer size
+            std::function<void(const std::string&, const uint8_t**, size_t*)> onGetDataFromFile;
+            // path, return file string content.
+            std::function<std::string(const std::string&)> onGetStringFromFile;
+            // path
+            std::function<bool(const std::string&)> onCheckFileExist;
+            // path, return full path
+            std::function<std::string(const std::string&)> onGetFullPath;
+        };
+
+        /**
+         *  @brief Sets the delegate for file operation.
+         *  @param delegate[in] The delegate instance for file operation.
+         */
+        void setFileOperationDelegate(const FileOperationDelegate& delegate);
+
+        /**
+         *  @brief Executes a file which contains JavaScript code.
+         *  @param[in] path Script file path.
+         *  @param[in] rval The se::Value that results from evaluating script. Passing nullptr if you don't care about the result.
+         *  @return true if succeed, otherwise false.
+         */
+        bool executeScriptFile(const std::string& path, Value* ret = nullptr);
 
         bool isInGC();
         void _setInGC(bool isInGC);
@@ -125,6 +170,8 @@ namespace se {
         bool _isValid;
         bool _isInGC;
         NodeEventListener _nodeEventListener;
+
+        FileOperationDelegate _fileOperationDelegate;
 
         std::vector<RegisterCallback> _registerCallbackArray;
         std::chrono::steady_clock::time_point _startTime;
