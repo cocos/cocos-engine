@@ -39,77 +39,60 @@ var ItemState = {
 };
 
 var _queueDeps = {};
-var _parseUrl = function (url) {
-    var result = {};
-    if (!url)
-        return result;
-
-    var split = url.split('?');
-    if (!split || !split[0]) {
-        return result;
-    }
-    result.url = split[0];
-    if (!split[1]) {
-        return result;
-    }
-    result.param = {};
-    split = split[1].split('&');
-    split.forEach(function (item) {
-        var itemSplit = item.split('=');
-        result.param[itemSplit[0]] = itemSplit[1];
-    });
-    return result;
-};
 
 function isIdValid (id) {
     var realId = id.url || id;
     return (typeof realId === 'string');
 }
+
+function _parseUrlOn (result, url) {
+    if (!url) return;
+
+    var split = url.split('?');
+    if (!split || !split[0]) {
+        return;
+    }
+    result.url = split[0];
+    if (!split[1]) {
+        return;
+    }
+    result.urlParam = {};
+    split = split[1].split('&');
+    split.forEach(function (item) {
+        var itemSplit = item.split('=');
+        result.urlParam[itemSplit[0]] = itemSplit[1];
+    });
+}
 function createItem (id, queueId) {
-    var result, urlItem;
+    var url = (typeof id === 'object') ? id.url : id;
+    var result = {
+        queueId: queueId,
+        id: url,
+        url: undefined, // real download url, maybe changed
+        rawUrl: undefined, // url used in scripts
+        urlParam: undefined,
+        type: "",
+        error: null,
+        content: null,
+        complete: false,
+        states: {},
+        deps: null
+    };
+    _parseUrlOn(result, url);
+    result.rawUrl = result.url;
+
     if (typeof id === 'object') {
-        if (id.url && !id.type) {
-            id.type = Path.extname(id.url).toLowerCase().substr(1);
-        }
-        urlItem = _parseUrl(id.url);
-        result = {
-            queueId: queueId,
-            id: id.url,
-            url: urlItem.url, // real download url, maybe changed
-            rawUrl: urlItem.url, // url used in scripts
-            urlParam: urlItem.param,
-            error: null,
-            content: null,
-            complete: false,
-            states: {},
-            deps: null
-        };
         JS.mixin(result, id);
-    }
-    else if (typeof id === 'string') {
-        urlItem = _parseUrl(id);
-        result = {
-            queueId: queueId,
-            id: id,
-            url: urlItem.url, // real download url, maybe changed
-            rawUrl: urlItem.url, // url used in scripts
-            urlParam: urlItem.param,
-            type: Path.extname(id).toLowerCase().substr(1),
-            error: null,
-            content: null,
-            complete: false,
-            states: {},
-            deps: null
-        };
-    }
-
-    if (result.skips) {
-        for (var i = 0, l = result.skips.length; i < l; i++) {
-            var skip = result.skips[i];
-            result.states[skip] = ItemState.COMPLETE;
+        if (id.skips) {
+            for (var i = 0; i < id.skips.length; i++) {
+                var skip = id.skips[i];
+                result.states[skip] = ItemState.COMPLETE;
+            }
         }
     }
-
+    if (url && !result.type) {
+        result.type = Path.extname(url).toLowerCase().substr(1);
+    }
     return result;
 }
 
