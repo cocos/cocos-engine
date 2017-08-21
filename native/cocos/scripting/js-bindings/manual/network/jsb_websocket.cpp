@@ -214,11 +214,14 @@ void js_cocos2dx_WebSocket_finalize(JSFreeOp *fop, JSObject *obj) {
     if (cobj)
     {
         js_proxy_t * p = jsb_get_native_proxy(cobj);
+        if (p)
+        {
 #if not CC_ENABLE_GC_FOR_NATIVE_OBJECTS
-        auto copy = &p->obj;
-        JS::RemoveObjectRoot(cx, copy);
+            auto copy = &p->obj;
+            JS::RemoveObjectRoot(cx, copy);
 #endif
-        jsb_remove_proxy(p);
+            jsb_remove_proxy(p);
+        }
         
         ScriptingCore::getInstance()->setFinalizing(true);
         // Manually close if WebSocket is not closed
