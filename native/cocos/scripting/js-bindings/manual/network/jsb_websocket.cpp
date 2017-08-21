@@ -175,6 +175,7 @@ public:
                 auto copy = &p->obj;
                 JS::RemoveObjectRoot(cx, copy);
 #endif
+                JS_SetPrivate(p->obj, nullptr);
                 jsb_remove_proxy(p);
             }
         }
