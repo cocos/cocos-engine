@@ -78,8 +78,10 @@ function createItem (id, queueId) {
         states: {},
         deps: null
     };
+
+    // the changes of result.url in this method will be restored
+    // if id is specified in the form of { url: 'abc' ... } by user
     _parseUrlOn(result, url);
-    result.rawUrl = result.url;
 
     if (typeof id === 'object') {
         JS.mixin(result, id);
@@ -90,6 +92,7 @@ function createItem (id, queueId) {
             }
         }
     }
+    result.rawUrl = result.url;
     if (url && !result.type) {
         result.type = Path.extname(url).toLowerCase().substr(1);
     }

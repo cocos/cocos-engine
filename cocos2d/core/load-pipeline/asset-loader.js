@@ -49,8 +49,7 @@ AssetLoader.prototype.handle = function (item, callback) {
             callback(error);
         }
         else {
-            item.url = url;
-            item.rawUrl && (item.rawUrl = url);
+            item.url = item.rawUrl = url;
             item.isRawAsset = isRawAsset;
             if (isRawAsset) {
                 var ext = Path.extname(url).toLowerCase();
