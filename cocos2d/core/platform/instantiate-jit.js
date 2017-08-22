@@ -43,6 +43,17 @@ const LOCAL_TEMP_OBJ = 't';
 const LOCAL_ARRAY = 'a';
 const LINE_INDEX_OF_NEW_OBJ = 0;
 
+const DEFAULT_MODULE_CACHE = {
+    'cc.Node': 'cc.Node',
+    'cc.Sprite': 'cc.Sprite',
+    'cc.Label': 'cc.Label',
+    'cc.Button': 'cc.Button',
+    'cc.Widget': 'cc.Widget',
+    'cc.Animation': 'cc.Animation',
+    'cc.ClickEvent': false,
+    'cc.PrefabInfo': false
+};
+
 // HELPER CLASSES
 
 // ('foo', 'bar')
@@ -205,6 +216,9 @@ function Parser (obj, parent) {
     this.objs = [];
     this.funcs = [];
 
+    this.funcModuleCache = JS.createMap();
+    JS.mixin(this.funcModuleCache, DEFAULT_MODULE_CACHE);
+
     // {String[]} - variable names for circular references,
     //              not really global, just local variables shared between sub functions
     this.globalVariables = [];
@@ -258,16 +272,25 @@ var proto = Parser.prototype;
 
 proto.getFuncModule = function (func, usedInNew) {
     var clsName = JS.getClassName(func);
-    var clsNameIsModule = clsName.indexOf('.') !== -1;
-    if (clsNameIsModule) {
-        try {
-            // ensure is module
-            clsNameIsModule = (func === Function('return ' + clsName)());
+    if (clsName) {
+        var cache = this.funcModuleCache[clsName];
+        if (cache) {
+            return cache;
+        }
+        else if (cache === undefined) {
+            var clsNameIsModule = clsName.indexOf('.') !== -1;
             if (clsNameIsModule) {
-                return clsName;
+                try {
+                    // ensure is module
+                    clsNameIsModule = (func === Function('return ' + clsName)());
+                    if (clsNameIsModule) {
+                        this.funcModuleCache[clsName] = clsName;
+                        return clsName;
+                    }
+                }
+                catch (e) {}
             }
         }
-        catch (e) {}
     }
     var index = this.funcs.indexOf(func);
     if (index < 0) {
@@ -275,7 +298,11 @@ proto.getFuncModule = function (func, usedInNew) {
         this.funcs.push(func);
     }
     var res = 'F[' + index + ']';
-    return usedInNew ? '(' + res + ')' : res;
+    if (usedInNew) {
+        res = '(' + res + ')';
+    }
+    this.funcModuleCache[clsName] = res;
+    return res;
 };
 
 proto.getObjRef = function (obj) {
