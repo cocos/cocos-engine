@@ -112,7 +112,7 @@ var AssetLibrary = {
         });
     },
 
-    getImportedDir: function (uuid) {
+    getLibUrlNoExt: function (uuid) {
         if (CC_BUILD) {
             uuid = decodeUuid(uuid);
         }
@@ -150,7 +150,7 @@ var AssetLibrary = {
             result.raw = true;
         }
         else {
-            result.url = this.getImportedDir(uuid) + '.json';
+            result.url = this.getLibUrlNoExt(uuid) + '.json';
             result.raw = false;
         }
         return result;

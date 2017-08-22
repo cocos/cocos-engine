@@ -173,3 +173,14 @@ asyncTest('Loading font', function () {
         start();
     });
 });
+
+asyncTest('Loading texture with query', function () {
+    var image1 = assetDir + '/button.png?url=http://.../1';
+    var image2 = assetDir + '/button.png?url=http://.../2';
+    loader.load({url: image1, type: 'png'}, function (error) {
+        loader.load({url: image2, type: 'png'}, function (error) {
+            ok(loader.getItem(image1).content !== loader.getItem(image2).content, 'should split cache if query is different');
+            start();
+        });
+    });
+});
