@@ -137,8 +137,8 @@ bool DBCCSprite::_checkVisibility(const cocos2d::Mat4& transform, const cocos2d:
     creator::CameraNode* camera = creator::CameraNode::getInstance();
     cocos2d::Rect visibleRect;
     if (!camera || camera->visitingIndex <= 0) {
-        visibleRect.origin = cocos2d::Director::getInstance()->getVisibleOrigin();
-        visibleRect.size = cocos2d::Director::getInstance()->getVisibleSize();
+        visibleRect.origin = director->getVisibleOrigin();
+        visibleRect.size = director->getVisibleSize();
     }
     else {
         visibleRect = camera->getVisibleRect();
