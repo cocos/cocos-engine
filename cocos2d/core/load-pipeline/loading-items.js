@@ -45,32 +45,28 @@ function isIdValid (id) {
     return (typeof realId === 'string');
 }
 
-function _parseUrlOn (result, url) {
-    if (!url) return;
-
+function _parseUrlParam (url) {
+    if (!url) return undefined;
     var split = url.split('?');
-    if (!split || !split[0]) {
-        return;
+    if (!split || !split[0] || !split[1]) {
+        return undefined;
     }
-    result.url = split[0];
-    if (!split[1]) {
-        return;
-    }
-    result.urlParam = {};
-    split = split[1].split('&');
-    split.forEach(function (item) {
+    var urlParam = {};
+    var queries = split[1].split('&');
+    queries.forEach(function (item) {
         var itemSplit = item.split('=');
-        result.urlParam[itemSplit[0]] = itemSplit[1];
+        urlParam[itemSplit[0]] = itemSplit[1];
     });
+    return urlParam;
 }
 function createItem (id, queueId) {
     var url = (typeof id === 'object') ? id.url : id;
     var result = {
         queueId: queueId,
         id: url,
-        url: undefined, // real download url, maybe changed
+        url: url, // real download url, maybe changed
         rawUrl: undefined, // url used in scripts
-        urlParam: undefined,
+        urlParam: _parseUrlParam(url),
         type: "",
         error: null,
         content: null,
@@ -78,10 +74,6 @@ function createItem (id, queueId) {
         states: {},
         deps: null
     };
-
-    // the changes of result.url in this method will be restored
-    // if id is specified in the form of { url: 'abc' ... } by user
-    _parseUrlOn(result, url);
 
     if (typeof id === 'object') {
         JS.mixin(result, id);
