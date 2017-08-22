@@ -30,6 +30,7 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
 }
 
 require('../audio/CCAudioEngine');
+var inputManager = require('./platform/CCInputManager');
 
 /**
  * !#en An object to boot the game.
@@ -721,7 +722,7 @@ var game = {
 
         // register system events
         if (this.config[this.CONFIG_KEY.registerSystemEvent])
-            cc.inputManager.registerSystemEvent(this.canvas);
+            inputManager.registerSystemEvent(this.canvas);
 
         if (typeof document.hidden !== 'undefined') {
             hidden = "hidden";
