@@ -264,7 +264,6 @@ this._prepareDebugger = function (global) {
     require('script/debugger/event-emitter.js', 'debug');
     require('script/debugger/actors/utils/ScriptStore.js', 'debug');
     require('script/debugger/actors/common.js', 'debug');
-    require('script/debugger/core/promise.js', 'debug');
     require('script/debugger/transport.js', 'debug');
     require('script/debugger/main.js', 'debug');
     require('script/debugger/actors/object.js', 'debug');
