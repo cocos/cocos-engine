@@ -589,9 +589,9 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             sgScene = scene._sgNode;
 
             // Re-attach or replace persist nodes
+            CC_BUILD && CC_DEBUG && console.time('AttachPersist');
             for (let i = 0; i < persistNodeList.length; i++) {
                 let node = persistNodeList[i];
-                CC_BUILD && CC_DEBUG && console.time('AttachPersist');
                 var existNode = scene.getChildByUuid(node.uuid);
                 if (existNode) {
                     // scene also contains the persist node, select the old one

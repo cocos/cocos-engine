@@ -203,14 +203,14 @@ function enableInEditor (comp) {
     }
 }
 
-function createInvokeImpl (code, useDt) {
+function createInvokeImpl (funcOrCode, useDt) {
     if (CC_EDITOR) {
         if (useDt) {
             return function (iterator, dt) {
                 var array = iterator.array;
                 for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                     var comp = array[iterator.i];
-                    code(comp, dt);
+                    funcOrCode(comp, dt);
                 }
             };
         }
@@ -219,7 +219,7 @@ function createInvokeImpl (code, useDt) {
                 var array = iterator.array;
                 for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                     var comp = array[iterator.i];
-                    code(comp);
+                    funcOrCode(comp);
                 }
             };
         }
@@ -235,7 +235,7 @@ function createInvokeImpl (code, useDt) {
         var body = 'var a=it.array;' +
                    'for(it.i=0;it.i<a.length;++it.i){' +
                    'var c=a[it.i];' +
-                   code +
+                   funcOrCode +
                    '}';
         if (useDt) {
             return Function('it', 'dt', body);
@@ -309,9 +309,10 @@ var ComponentScheduler = cc.Class({
         // schedule
         if (this._updating) {
             this.scheduleInNextFrame.push(comp);
-            return;
         }
-        this._scheduleImmediate(comp);
+        else {
+            this._scheduleImmediate(comp);
+        }
     },
 
     _onDisabled (comp) {
@@ -432,6 +433,21 @@ var ComponentScheduler = cc.Class({
 
         // call start
         this.startInvoker.invoke();
+        // if (CC_PREVIEW) {
+        //     try {
+        //         this.startInvoker.invoke();
+        //     }
+        //     catch (e) {
+        //         // prevent start from getting into infinite loop
+        //         this.startInvoker._neg.array.length = 0;
+        //         this.startInvoker._zero.array.length = 0;
+        //         this.startInvoker._pos.array.length = 0;
+        //         throw e;
+        //     }
+        // }
+        // else {
+        //     this.startInvoker.invoke();
+        // }
     },
 
     updatePhase (dt) {
