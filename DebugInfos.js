@@ -278,7 +278,7 @@ if (CC_DEBUG) {
         "3621": "Unknown type of %s.%s, maybe you want is '%s'.", //CCClass
         "3622": "Unknown type of %s.%s, property should be defined in 'properties' or 'ctor'", //CCClass_2
         "3623": "Can not use 'editor' attribute, '%s' not inherits from Components.", //CCClass_3
-        "3624": "'%s' overrided '%s' but '%s' is defined as 'false' so the super method will not be called. You can set '%s' to null to disable this warning.", //CCClass_4
+        "3624": "'%s' overwrote '%s' but '%s' is defined as 'false' so the super method will not be called. You can set '%s' to null to disable this warning.", //CCClass_4
         "3625": "[isChildClassOf] superclass should be function type, not", //isChildClassOf
         "3626": "Can't remove '%s' because '%s' depends on it.", //destroy
         "3627": "Should not add renderer component (%s) to a Canvas node.", //_registSizeProvider
@@ -290,7 +290,7 @@ if (CC_DEBUG) {
         "3633": "Properties function of '%s' should return an object!", //init
         "3634": "Disallow to use '.' in property name", //appendProp
         "3635": "Default array must be empty, set default value of %s.%s to [], and initialize in 'onLoad' or 'ctor' please. (just like 'this.%s = [...];')", //defineProp
-        "3636": "Do not set default value to non-empty object, unless the object defines its own 'clone' function. Set default value of %s.%s to null or {}, and initialize in 'onLoad' or 'ctor' please. (just like 'this.%s = {foo: bar};')", //defineProp_2
+        "3636": "Can not set default value to non-empty object, unless the object derived from cc.ValueType and overwrite the 'clone' function. Set default value of %s.%s to null or {}, and initialize in 'onLoad' or 'ctor' please. (just like 'this.%s = {foo: bar};')", //defineProp_2
         "3637": "Can not declare %s.%s, it is already defined in the prototype of %s", //defineProp_3
         "3638": "'%s': the getter of '%s' is already defined!", //defineGetSet_2
         "3640": "'%s': the setter of '%s' is already defined!", //defineGetSet_4
@@ -303,8 +303,39 @@ if (CC_DEBUG) {
         "3647": "The length of range array must be equal or greater than 2", //parseAttributes_4
         "3648": "Can not declare %s.%s method, it is already defined in the properties of %s.",
         "3649": "CCClass %s have conflict between its ctor and __ctor__.",
-        "3650": "No need to specifiy '%s' attribute for '%s' in class \"%s\".",
+        "3650": "No need to specifiy \"%s\" attribute for \"%s\" property in \"%s\" class.",    // 已废弃，提示信息仅用于生成 markdown 给旧版本用户查阅
         "3651": "Can not call `_super` or `prototype.ctor` in ES6 Classes \"%s\", use `super` instead please.",
+        "3652": "Failed to construct a dummy instance of the \"%s\" class using `new` behind the scenes. This is for getting default values declared in TypeScript. Please ensure the class will be able to construct during script's initialization. %s",
+        "3653": "Please do not specifiy \"default\" attribute in decorator of \"%s\" property in \"%s\" class.\n" +
+                "  Default value must be initialized at their declaration: \uD83D\uDE02\n" +
+                "    // Before:\n" +
+                "    @property({\n" +
+                "      type: cc.Integer\n" +
+                "      default: 0  // <--\n" +
+                "    })\n" +
+                "    value;\n\n" +
+                "    // After:\n" +
+                "    @property({\n" +
+                "      type: cc.Integer\n" +
+                "    })\n" +
+                "    value = 0;    // <--",
+        "3654": "Please specifiy a default value for \"%s\" property at its declaration: \uD83D\uDE02\n" +
+                "    // Before:\n" +
+                "    @property(...)\n" +
+                "    value;\n\n" +
+                "    // After:\n" +
+                "    @property(...)\n" +
+                "    value = 0;",
+        "3655": "Can not specifiy \"get\" or \"set\"  attribute in decorator for \"%s\" property in \"%s\" class.\n" +
+                "  Please use:\n" +
+                "    @property(...)\n" +
+                "    get %s () {\n" +
+                "      ...\n" +
+                "    }\n" +
+                "    @property\n" +
+                "    set %s (value) {\n" +
+                "      ...\n" +
+                "    }",
         //Prefab: 3700
         "3700": "internal error: _prefab is undefined", //_doInstantiate
         "3701": "Failed to load prefab asset for node '%s'", //syncWithPrefab
@@ -433,7 +464,7 @@ if (CC_DEBUG) {
         "5514": "The 'default' value of '%s.%s' should not be used with a 'set' function.", //default_2
         "5515": "The 'default' value of '%s.%s' can not be an constructor. Set default to null please.", //default_3
         "5516": "Property '%s.%s' must define at least one of 'default', 'get' or 'set'.", //default_4
-        "5517": "'%s.%s' hides inherited property '%s.%s'. To make the current property override that implementation, add the `override: true` attribute please.", //default_5
+        "5517": "'%s.%s' hides inherited property '%s.%s'. To make the current property overwrite that implementation, add the `override: true` attribute please.", //default_5
         //Find: 5600
         "5600": "Argument must be non-nil", //find
         "5601": "Can not get current scene.", //find_2

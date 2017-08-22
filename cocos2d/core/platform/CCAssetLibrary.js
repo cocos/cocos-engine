@@ -280,7 +280,7 @@ var AssetLibrary = {
         // 不使用 url.format 的原因是 windows 不支持 file:// 和 /// 开头的协议，所以只能用 replace 操作直接把路径转成 URL。
         var libraryPath = options.libraryPath;
         libraryPath = libraryPath.replace(/\\/g, '/');
-        _libraryBase = cc.path._setEndWithSep(libraryPath, '/');
+        _libraryBase = cc.path.stripSep(libraryPath) + '/';
 
         _rawAssetsBase = options.rawAssetsBase;
 

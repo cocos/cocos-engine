@@ -164,27 +164,8 @@ cc.path = /** @lends cc.path# */{
     sep: (cc.sys.os === cc.sys.OS_WINDOWS ? '\\' : '/'),
 
     // @param {string} path
-    // @param {boolean|string} [endsWithSep = true]
-    // @returns {string}
-    _setEndWithSep: function (path, endsWithSep) {
-        var sep = cc.path.sep;
-        if (typeof endsWithSep === 'undefined') {
-            endsWithSep = true;
-        }
-        else if (typeof endsWithSep === 'string') {
-            sep = endsWithSep;
-            endsWithSep = !!endsWithSep;
-        }
-
-        var endChar = path[path.length - 1];
-        var oldEndWithSep = (endChar === '\\' || endChar === '/');
-        if (!oldEndWithSep && endsWithSep) {
-            path += sep;
-        }
-        else if (oldEndWithSep && !endsWithSep) {
-            path = path.slice(0, -1);
-        }
-        return path;
+    stripSep (path) {
+        return path.replace(/[\/\\]$/, '');
     }
 };
 

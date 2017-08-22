@@ -262,17 +262,32 @@ exports.preprocessAttrs = function (properties, className, cls, es6) {
     }
 };
 
-module.exports.validateMethod = function (func, funcName, className, cls, base) {
+if (CC_DEV) {
+    const CALL_SUPER_DESTROY_REG_DEV = /\b\._super\b|destroy\s*\.\s*call\s*\(\s*\w+\s*[,|)]/;
+    exports.doValidateMethodWithProps_DEV = function (func, funcName, className, cls, base) {
+        if (cls.__props__ && cls.__props__.indexOf(funcName) >= 0) {
+            // find class that defines this method as a property
+            var baseClassName = cc.js.getClassName(getBaseClassWherePropertyDefined_DEV(funcName, cls));
+            cc.errorID(3648, className, funcName, baseClassName);
+            return false;
+        }
+        if (funcName === 'destroy' &&
+            cc.isChildClassOf(base, cc.Component) &&
+            !CALL_SUPER_DESTROY_REG_DEV.test(func)
+        ) {
+            cc.error(`Overwriting '${funcName}' function in '${className}' class without calling super is not allowed. Call the super function in '${funcName}' please.`);
+        }
+    };
+}
+
+exports.validateMethodWithProps = function (func, funcName, className, cls, base) {
     if (CC_DEV && funcName === 'constructor') {
         cc.errorID(3643, className);
         return false;
     }
     if (typeof func === 'function' || func === null) {
-        if (CC_DEV && cls.__props__ && cls.__props__.indexOf(funcName) >= 0) {
-            // find class that defines this method as a property
-            var baseClassName = cc.js.getClassName(getBaseClassWherePropertyDefined_DEV(funcName, cls));
-            cc.errorID(3648, className, funcName, baseClassName);
-            return false;
+        if (CC_DEV) {
+            this.doValidateMethodWithProps_DEV(func, funcName, className, cls, base);
         }
     }
     else {

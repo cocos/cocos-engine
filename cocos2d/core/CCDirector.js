@@ -544,9 +544,11 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
         // detach persist nodes
         var game = cc.game;
-        var persistNodes = game._persistRootNodes;
-        for (let id in persistNodes) {
-            let node = persistNodes[id];
+        var persistNodeList = Object.keys(game._persistRootNodes).map(function (x) {
+            return game._persistRootNodes[x];
+        });
+        for (let i = 0; i < persistNodeList.length; i++) {
+            let node = persistNodeList[i];
             game._ignoreRemovePersistNode = node;
             node.parent = null;
             game._ignoreRemovePersistNode = null;
@@ -558,7 +560,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             // auto release assets
             CC_DEBUG && console.time('AutoRelease');
             var autoReleaseAssets = oldScene && oldScene.autoReleaseAssets && oldScene.dependAssets;
-            AutoReleaseUtils.autoRelease(cc.loader, autoReleaseAssets, scene.dependAssets);
+            AutoReleaseUtils.autoRelease(autoReleaseAssets, scene.dependAssets, persistNodeList);
             CC_DEBUG && console.timeEnd('AutoRelease');
         }
 
@@ -587,10 +589,10 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             sgScene = scene._sgNode;
 
             // Re-attach or replace persist nodes
-            for (let id in persistNodes) {
-                let node = persistNodes[id];
+            for (let i = 0; i < persistNodeList.length; i++) {
+                let node = persistNodeList[i];
             CC_DEBUG && console.time('AttachPersist');
-                var existNode = scene.getChildByUuid(id);
+                var existNode = scene.getChildByUuid(node.uuid);
                 if (existNode) {
                     // scene also contains the persist node, select the old one
                     var index = existNode.getSiblingIndex();
