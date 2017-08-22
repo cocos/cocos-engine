@@ -625,11 +625,18 @@ static bool XMLHttpRequest_setRequestHeader(se::State& s)
 {
     const auto& args = s.args();
     size_t argc = args.size();
-    XMLHttpRequest* xhr = (XMLHttpRequest*)s.nativeThisObject();
-    assert(argc == 2);
-    assert(args[0].isString() && args[1].isString());
-    xhr->setRequestHeader(args[0].toString(), args[1].toString());
-    return true;
+
+    if (argc >= 2)
+    {
+        XMLHttpRequest* xhr = (XMLHttpRequest*)s.nativeThisObject();
+
+        assert(args[0].isString() && args[1].isString());
+        xhr->setRequestHeader(args[0].toString(), args[1].toString());
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting >=2", (int)argc);
+    return false;
 }
 SE_BIND_FUNC(XMLHttpRequest_setRequestHeader)
 

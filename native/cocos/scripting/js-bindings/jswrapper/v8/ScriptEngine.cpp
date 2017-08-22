@@ -402,7 +402,7 @@ namespace se {
 
         if (!scriptBuffer.empty())
         {
-            return executeScriptBuffer(scriptBuffer.c_str(), scriptBuffer.length(), ret);
+            return executeScriptBuffer(scriptBuffer.c_str(), scriptBuffer.length(), ret, path.c_str());
         }
 
         return false;

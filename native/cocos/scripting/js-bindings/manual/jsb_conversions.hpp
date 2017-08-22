@@ -475,7 +475,7 @@ bool Vector_to_seval(const cocos2d::Vector<T*>& v, se::Value* ret)
         ++i;
     }
 
-    ret->setObject(obj);
+    ret->setObject(obj, true);
 
     return ok;
 }
@@ -494,7 +494,7 @@ bool Map_string_key_to_seval(const cocos2d::Map<std::string, T*>& v, se::Value* 
         obj->setProperty(e.first.c_str(), tmp);
     }
 
-    ret->setObject(obj);
+    ret->setObject(obj, true);
     return false;
 }
 

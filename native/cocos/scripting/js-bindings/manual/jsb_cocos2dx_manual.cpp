@@ -860,60 +860,6 @@ static bool register_eventlistener(se::Object* obj)
     return true;
 }
 
-//
-
-static bool js_cocos2dx_Sequence_or_Spawn_create(se::State& s, se::Class* cls)
-{
-    const auto& args = s.args();
-    int argc = (int)args.size();
-    bool ok = true;
-
-    if (argc > 0)
-    {
-        Vector<FiniteTimeAction*> array;
-
-        if (argc == 1 && args[0].isObject() && args[0].toObject()->isArray())
-        {
-            ok &= seval_to_Vector(args[0], &array);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-        }
-        else
-        {
-            uint32_t i = 0;
-            while (i < argc)
-            {
-                assert(args[i].isObject());
-                FiniteTimeAction* item = (FiniteTimeAction*)args[i].toObject()->getPrivateData();
-
-                array.pushBack(item);
-                i++;
-            }
-        }
-        auto ret = new (std::nothrow) Sequence();
-        ok = ret->init(array);
-        if (ok)
-        {
-            se::Object* obj = se::Object::createObjectWithClass(cls);
-            obj->setPrivateData(ret);
-            s.rval().setObject(obj);
-        }
-        return ok;
-    }
-    SE_REPORT_ERROR("wrong number of arguments");
-    return false;
-}
-
-static bool js_cocos2dx_Sequence_create(se::State& s)
-{
-    return js_cocos2dx_Sequence_or_Spawn_create(s, __jsb_cocos2d_Sequence_class);
-}
-SE_BIND_FUNC(js_cocos2dx_Sequence_create)
-
-static bool js_cocos2dx_Spawn_create(se::State& s)
-{
-    return js_cocos2dx_Sequence_or_Spawn_create(s, __jsb_cocos2d_Spawn_class);
-}
-SE_BIND_FUNC(js_cocos2dx_Spawn_create)
 
 // ActionInterval
 
@@ -1068,12 +1014,15 @@ static bool js_cocos2dx_ActionInterval_easing(se::State& s)
 
     for (uint32_t i = 0; i < argc; i++)
     {
+        bool hasParam = false;
         const auto& vpi = args[i];
         bool ok = vpi.isObject() && vpi.toObject()->getProperty("tag", &jsTag) && seval_to_double(jsTag, &tag);
         if (vpi.toObject()->getProperty("param", &jsParam))
+        {
             seval_to_double(jsParam, &parameter);
+            hasParam = true;
+        }
 
-        bool hasParam = (parameter == parameter);
         if (!ok) continue;
 
         ok = true;
@@ -1678,12 +1627,6 @@ static bool register_actions(se::Object* obj)
         proto->defineFunction(#initFuncName, _SE(js_cocos2dx_##clsName##_##initFuncName));
 
     se::Value v;
-
-    __ccObj->getProperty("Sequence", &v);
-    v.toObject()->defineFunction("create", _SE(js_cocos2dx_Sequence_create));
-
-    __ccObj->getProperty("Spawn", &v);
-    v.toObject()->defineFunction("create", _SE(js_cocos2dx_Spawn_create));
 
     se::Object* proto = __jsb_cocos2d_ActionInterval_proto;
     proto->defineFunction("repeat", _SE(js_cocos2dx_ActionInterval_repeat));

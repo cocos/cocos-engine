@@ -4378,25 +4378,6 @@ static bool js_cocos2dx_Node_convertTouchToNodeSpaceAR(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Node_convertTouchToNodeSpaceAR)
 
-static bool js_cocos2dx_Node_update(se::State& s)
-{
-    cocos2d::Node* cobj = (cocos2d::Node*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Node_update : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        float arg0 = 0;
-        ok &= seval_to_float(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_Node_update : Error processing arguments");
-        cobj->update(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_Node_update)
-
 static bool js_cocos2dx_Node_sortAllChildren(se::State& s)
 {
     cocos2d::Node* cobj = (cocos2d::Node*)s.nativeThisObject();
@@ -4797,7 +4778,6 @@ bool js_register_cocos2dx_Node(se::Object* obj)
     cls->defineFunction("enumerateChildren", _SE(js_cocos2dx_Node_enumerateChildren));
     cls->defineFunction("removeFromParent", _SE(js_cocos2dx_Node_removeFromParentAndCleanup));
     cls->defineFunction("convertTouchToNodeSpaceAR", _SE(js_cocos2dx_Node_convertTouchToNodeSpaceAR));
-    cls->defineFunction("update", _SE(js_cocos2dx_Node_update));
     cls->defineFunction("sortAllChildren", _SE(js_cocos2dx_Node_sortAllChildren));
     cls->defineFunction("getWorldToNodeTransform", _SE(js_cocos2dx_Node_getWorldToNodeAffineTransform));
     cls->defineFunction("getScale", _SE(js_cocos2dx_Node_getScale));
@@ -6918,25 +6898,6 @@ static bool js_cocos2dx_Scheduler_isCurrentTargetSalvaged(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Scheduler_isCurrentTargetSalvaged)
 
-static bool js_cocos2dx_Scheduler_update(se::State& s)
-{
-    cocos2d::Scheduler* cobj = (cocos2d::Scheduler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Scheduler_update : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        float arg0 = 0;
-        ok &= seval_to_float(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_Scheduler_update : Error processing arguments");
-        cobj->update(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_Scheduler_update)
-
 static bool js_cocos2dx_Scheduler_unscheduleScriptEntry(se::State& s)
 {
     cocos2d::Scheduler* cobj = (cocos2d::Scheduler*)s.nativeThisObject();
@@ -7039,7 +7000,6 @@ bool js_register_cocos2dx_Scheduler(se::Object* obj)
 
     cls->defineFunction("setTimeScale", _SE(js_cocos2dx_Scheduler_setTimeScale));
     cls->defineFunction("isCurrentTargetSalvaged", _SE(js_cocos2dx_Scheduler_isCurrentTargetSalvaged));
-    cls->defineFunction("update", _SE(js_cocos2dx_Scheduler_update));
     cls->defineFunction("unscheduleScriptEntry", _SE(js_cocos2dx_Scheduler_unscheduleScriptEntry));
     cls->defineFunction("unscheduleAll", _SE(js_cocos2dx_Scheduler_unscheduleAll));
     cls->defineFunction("getTimeScale", _SE(js_cocos2dx_Scheduler_getTimeScale));
@@ -10100,25 +10060,6 @@ static bool js_cocos2dx_Action_stop(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Action_stop)
 
-static bool js_cocos2dx_Action_update(se::State& s)
-{
-    cocos2d::Action* cobj = (cocos2d::Action*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Action_update : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        float arg0 = 0;
-        ok &= seval_to_float(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_Action_update : Error processing arguments");
-        cobj->update(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_Action_update)
-
 static bool js_cocos2dx_Action_getTarget(se::State& s)
 {
     cocos2d::Action* cobj = (cocos2d::Action*)s.nativeThisObject();
@@ -10297,7 +10238,6 @@ bool js_register_cocos2dx_Action(se::Object* obj)
     cls->defineFunction("clone", _SE(js_cocos2dx_Action_clone));
     cls->defineFunction("getOriginalTarget", _SE(js_cocos2dx_Action_getOriginalTarget));
     cls->defineFunction("stop", _SE(js_cocos2dx_Action_stop));
-    cls->defineFunction("update", _SE(js_cocos2dx_Action_update));
     cls->defineFunction("getTarget", _SE(js_cocos2dx_Action_getTarget));
     cls->defineFunction("getFlags", _SE(js_cocos2dx_Action_getFlags));
     cls->defineFunction("step", _SE(js_cocos2dx_Action_step));
@@ -12604,6 +12544,7 @@ static bool js_cocos2dx_Sequence_constructor(se::State& s)
 {
     cocos2d::Sequence* cobj = new (std::nothrow) cocos2d::Sequence();
     s.thisObject()->setPrivateData(cobj);
+    CCLOG("new cc.Sequence: %p", cobj);
     return true;
 }
 SE_BIND_CTOR(js_cocos2dx_Sequence_constructor, __jsb_cocos2d_Sequence_class, js_cocos2d_Sequence_finalize)
@@ -12637,7 +12578,7 @@ bool js_register_cocos2dx_Sequence(se::Object* obj)
 {
     auto cls = se::Class::create("Sequence", obj, __jsb_cocos2d_ActionInterval_proto, _SE(js_cocos2dx_Sequence_constructor));
 
-    cls->defineFunction("init", _SE(js_cocos2dx_Sequence_init));
+//    cls->defineFunction("init", _SE(js_cocos2dx_Sequence_init));
     cls->defineFunction("initWithTwoActions", _SE(js_cocos2dx_Sequence_initWithTwoActions));
     cls->defineFunction("ctor", _SE(js_cocos2dx_Sequence_ctor));
     cls->defineFinalizeFunction(_SE(js_cocos2d_Sequence_finalize));
@@ -19277,25 +19218,6 @@ static bool js_cocos2dx_ActionManager_resumeTarget(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_ActionManager_resumeTarget)
 
-static bool js_cocos2dx_ActionManager_update(se::State& s)
-{
-    cocos2d::ActionManager* cobj = (cocos2d::ActionManager*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_ActionManager_update : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        float arg0 = 0;
-        ok &= seval_to_float(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_ActionManager_update : Error processing arguments");
-        cobj->update(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_ActionManager_update)
-
 static bool js_cocos2dx_ActionManager_pauseTarget(se::State& s)
 {
     cocos2d::ActionManager* cobj = (cocos2d::ActionManager*)s.nativeThisObject();
@@ -19476,7 +19398,6 @@ bool js_register_cocos2dx_ActionManager(se::Object* obj)
     cls->defineFunction("removeAllActions", _SE(js_cocos2dx_ActionManager_removeAllActions));
     cls->defineFunction("addAction", _SE(js_cocos2dx_ActionManager_addAction));
     cls->defineFunction("resumeTarget", _SE(js_cocos2dx_ActionManager_resumeTarget));
-    cls->defineFunction("update", _SE(js_cocos2dx_ActionManager_update));
     cls->defineFunction("pauseTarget", _SE(js_cocos2dx_ActionManager_pauseTarget));
     cls->defineFunction("getNumberOfRunningActionsInTarget", _SE(js_cocos2dx_ActionManager_getNumberOfRunningActionsInTarget));
     cls->defineFunction("removeAllActionsFromTarget", _SE(js_cocos2dx_ActionManager_removeAllActionsFromTarget));
