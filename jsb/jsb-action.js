@@ -25,141 +25,10 @@
 
 var ENABLE_GC_FOR_NATIVE_OBJECTS = cc.macro.ENABLE_GC_FOR_NATIVE_OBJECTS;
 
-// Independent Action from retain/release
-var actionArr = [
-    'ActionEase',
-    'EaseExponentialIn',
-    'EaseExponentialOut',
-    'EaseExponentialInOut',
-    'EaseSineIn',
-    'EaseSineOut',
-    'EaseSineInOut',
-    'EaseBounce',
-    'EaseBounceIn',
-    'EaseBounceOut',
-    'EaseBounceInOut',
-    'EaseBackIn',
-    'EaseBackOut',
-    'EaseBackInOut',
-    'EaseRateAction',
-    'EaseIn',
-    'EaseElastic',
-    'EaseElasticIn',
-    'EaseElasticOut',
-    'EaseElasticInOut',
-    'RemoveSelf',
-    'FlipX',
-    'FlipY',
-    'Place',
-    'CallFunc',
-    'DelayTime',
-    'Speed',
-    'Repeat',
-    'RepeatForever',
-    'TargetedAction',
-    'ActionInterval',
-    'RotateTo',
-    'RotateBy',
-    'MoveBy',
-    'MoveTo',
-    'SkewTo',
-    'SkewBy',
-    'JumpTo',
-    'JumpBy',
-    'ScaleTo',
-    'ScaleBy',
-    'Blink',
-    'FadeTo',
-    'FadeIn',
-    'FadeOut',
-    'TintTo',
-    'TintBy',
-];
-
 cc.Action.prototype._getSgTarget = cc.Action.prototype.getTarget;
 cc.Action.prototype.getTarget = function () {
     var sgNode = this._getSgTarget();
     return sgNode._owner || sgNode;
-};
-
-function setCtorReplacer (proto) {
-    var ctor = proto._ctor;
-    proto._ctor = function (...args) {
-        ctor.apply(this, args);
-        this.retain();
-        this._retained = true;
-    };
-}
-function setAliasReplacer (name, type) {
-    var aliasName = name[0].toLowerCase() + name.substr(1);
-    cc[aliasName] = function (...args) {
-        var action = type.create.apply(this, args);
-        action.retain();
-        action._retained = true;
-        return action;
-    };
-}
-
-if (!ENABLE_GC_FOR_NATIVE_OBJECTS) {
-    for (var i = 0; i < actionArr.length; ++i) {
-        var name = actionArr[i];
-        var type = cc[name];
-        if (!type) 
-            continue;
-        var proto = type.prototype;
-        setCtorReplacer(proto);
-        if (name.indexOf('Ease') === -1) {
-            setAliasReplacer(name, type);
-        }
-    }
-}
-
-cc.Sequence.prototype._ctor = function (...args) {
-    var paramArray = (args[0] instanceof Array) ? args[0] : args;
-    if (paramArray.length === 1) {
-        cc.errorID(1019);
-        return;
-    }
-    var last = paramArray.length - 1;
-    if ((last >= 0) && (paramArray[last] == null))
-        cc.logID(1015);
-
-    if (last >= 0) {
-        this.init(paramArray);
-    }
-
-    if (!ENABLE_GC_FOR_NATIVE_OBJECTS) {
-        this.retain();
-        this._retained = true;
-    }
-};
-
-cc.sequence = function (...args) {
-    var paramArray = (args[0] instanceof Array) ? args[0] : args;
-    return new cc.Sequence(paramArray);
-};
-
-cc.Spawn.prototype._ctor = function (...args) {
-    var paramArray = (args[0] instanceof Array) ? args[0] : args;
-    if (paramArray.length === 1)
-        cc.errorID(1020);
-    var last = paramArray.length - 1;
-    if ((last >= 0) && (paramArray[last] == null))
-        cc.logID(1015);
-
-    if (last >= 0) {
-        this.init(paramArray);
-    }
-
-    if (!ENABLE_GC_FOR_NATIVE_OBJECTS) {
-        this.retain();
-        this._retained = true;
-    }
-};
-
-cc.spawn = function (...args) {
-    var paramArray = (args[0] instanceof Array) ? args[0] : args;
-    return new cc.Spawn(paramArray);
 };
 
 cc.targetedAction = function (target, action) {
@@ -383,10 +252,6 @@ cc.callFunc = function (selector, selectorTarget, data) {
         selector.call(this, sender, data);
     };
     var action = selectorTarget ? cc.CallFunc.create(callback, selectorTarget) : cc.CallFunc.create(callback);
-    if (!ENABLE_GC_FOR_NATIVE_OBJECTS) {
-        action.retain();
-        action._retained = true;
-    }
     return action;
 };
 
@@ -405,41 +270,7 @@ cc.CallFunc.prototype._ctor = function (selector, selectorTarget, data) {
             this.initWithFunction(callback, selectorTarget);
         }
     }
-    if (!ENABLE_GC_FOR_NATIVE_OBJECTS) {
-        this.retain();
-        this._retained = true;
-    }
 };
-
-function setChainFuncReplacer (proto, name) {
-    var oldFunc = proto[name];
-    proto[name] = function (...args) {
-        if (this._retained) {
-            this.release();
-            this._retained = false;
-        }
-        var newAction = oldFunc.apply(this, args);
-        newAction.retain();
-        newAction._retained = true;
-        return newAction;
-    };
-}
-
-if (!ENABLE_GC_FOR_NATIVE_OBJECTS) {
-    setChainFuncReplacer(cc.ActionInterval.prototype, 'repeat');
-    setChainFuncReplacer(cc.ActionInterval.prototype, 'repeatForever');
-    setChainFuncReplacer(cc.ActionInterval.prototype, 'easing');
-
-    var jsbRunAction = cc.Node.prototype.runAction;
-    cc.Node.prototype.runAction = function (action) {
-        jsbRunAction.call(this, action);
-        if (action._retained) {
-            action.release();
-            action._retained = false;
-        }
-        return action;
-    };
-}
 
 function getSGTarget (target) {
     if (target instanceof cc.Component) {
@@ -458,10 +289,6 @@ cc.ActionManager.prototype.addAction = function (action, target, paused) {
     target = getSGTarget(target);
     if (target) {
         jsbAddAction.call(this, action, target, paused);
-        if (!ENABLE_GC_FOR_NATIVE_OBJECTS && action._retained) {
-            action.release();
-            action._retained = false;
-        }
     }
 };
 
@@ -518,7 +345,6 @@ cc.ActionManager.prototype.pauseTargets = function (targetsToPause) {
 
 
 function syncPositionUpdate (dt) {
-    this._jsbUpdate(dt);
     var target = this._getSgTarget();
     if (target._owner) {
         target._owner.x = target.getPositionX();
@@ -527,7 +353,6 @@ function syncPositionUpdate (dt) {
 }
 
 function syncRotationUpdate (dt) {
-    this._jsbUpdate(dt);
     var target = this._getSgTarget();
     if (target._owner) {
         target._owner.rotationX = target.getRotationX();
@@ -536,7 +361,6 @@ function syncRotationUpdate (dt) {
 }
 
 function syncScaleUpdate (dt) {
-    this._jsbUpdate(dt);
     var target = this._getSgTarget();
     if (target._owner) {
         target._owner.scaleX = target.getScaleX();
@@ -545,7 +369,6 @@ function syncScaleUpdate (dt) {
 }
 
 function syncRemoveSelfUpdate (dt) {
-    this._jsbUpdate(dt);
     var target = this._getSgTarget();
     if (target._owner) {
         target._owner.removeFromParent();
@@ -553,7 +376,6 @@ function syncRemoveSelfUpdate (dt) {
 }
 
 function syncSkewUpdate (dt) {
-    this._jsbUpdate(dt);
     var target = this._getSgTarget();
     if (target._owner) {
         target._owner.skewX = target.getSkewX();
@@ -562,7 +384,6 @@ function syncSkewUpdate (dt) {
 }
 
 function syncOpacityUpdate (dt) {
-    this._jsbUpdate(dt);
     var target = this._getSgTarget();
     if (target._owner) {
         target._owner.opacity = target.getOpacity();
@@ -570,7 +391,6 @@ function syncOpacityUpdate (dt) {
 }
 
 function syncColorUpdate (dt) {
-    this._jsbUpdate(dt);
     var target = this._getSgTarget();
     if (target._owner) {
         var color = target.getColor();
@@ -601,6 +421,5 @@ var actionUpdate = {
 
 for (var key in actionUpdate) {
     var action = cc[key];
-    action.prototype._jsbUpdate = action.prototype.update;
     action.prototype.update = actionUpdate[key];
 }
