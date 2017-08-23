@@ -121,27 +121,25 @@ android.applicationVariants.all { variant ->
     }
 }
 
+def copySo() {
+    copy {
+        from('./obj/local') {
+            include '**/*.so'
+            exclude '**/objs*'
+        }
+        into './libs'
+    }
+}
+
 afterEvaluate {
     externalNativeBuildDebug.doLast {
         println ('Copying debug .so')
-        copy {
-            from('./obj/local') {
-                include '**/*.so'
-                exclude '**/objs*'
-            }
-            into './libs'
-        }
+        copySo()
     }
 
     externalNativeBuildRelease.doLast {
         println ('Copying release .so')
-        copy {
-            from('./obj/local') {
-                include '**/*.so'
-                exclude '**/objs*'
-            }
-            into './libs'
-        }
+        copySo()
     }
 }
 
