@@ -27,6 +27,7 @@ var JS = require('./js');
 var CCObject = require('./CCObject');
 var Attr = require('./attribute');
 var CCClass = require('./CCClass');
+var Misc = require('../utils/misc');
 
 // HELPERS
 
@@ -223,11 +224,11 @@ var _Deserializer = (function () {
         var prop;
         var obj = null;     // the obj to return
         var klass = null;
-        if (serialized.__type__) {
+        var type = serialized.__type__;
+        if (type) {
 
             // Type Object (including CCClass)
 
-            var type = serialized.__type__;
             klass = this._classFinder(type, serialized, owner, propName);
             if (!klass) {
                 var notReported = this._classFinder === JS._getClassById;
@@ -247,10 +248,6 @@ var _Deserializer = (function () {
             else {
                 // instantiate a new object
                 obj = new klass();
-                // Temporary solution
-                if (CC_JSB && klass === cc.SpriteFrame) {
-                    obj.retain();
-                }
             }
 
             if (obj._deserialize) {
@@ -370,6 +367,32 @@ var _Deserializer = (function () {
         }
     };
 
+    // function _compileTypedObject (accessor, klass, ctorCode) {
+    //     if (klass === cc.Vec2) {
+    //         return `{` +
+    //                     `o${accessor}.x=prop.x||0;` +
+    //                     `o${accessor}.y=prop.y||0;` +
+    //                `}`;
+    //     }
+    //     else if (klass === cc.Color) {
+    //         return `{` +
+    //                    `o${accessor}.r=prop.r||0;` +
+    //                    `o${accessor}.g=prop.g||0;` +
+    //                    `o${accessor}.b=prop.b||0;` +
+    //                    `o${accessor}.a=(prop.a===undefined?255:prop.a);` +
+    //                `}`;
+    //     }
+    //     else if (klass === cc.Size) {
+    //         return `{` +
+    //                    `o${accessor}.width=prop.width||0;` +
+    //                    `o${accessor}.height=prop.height||0;` +
+    //                `}`;
+    //     }
+    //     else {
+    //         return `s._deserializeTypedObject(o${accessor},prop,${ctorCode});`;
+    //     }
+    // }
+
     prototype._deserializeTypedObject = function (instance, serialized, klass) {
         if (klass === cc.Vec2) {
             instance.x = serialized.x || 0;
@@ -382,6 +405,11 @@ var _Deserializer = (function () {
             instance.b = serialized.b || 0;
             var a = serialized.a;
             instance.a = (a === undefined ? 255 : a);
+            return;
+        }
+        else if (klass === cc.Size) {
+            instance.width = serialized.width || 0;
+            instance.height = serialized.height || 0;
             return;
         }
 
@@ -467,11 +495,37 @@ var _Deserializer = (function () {
     //         self._deserializePrimitiveObject(obj._$erialized, serialized);
     //     }
     // }
+
+    function compileObjectType (sources, defaultValue, accessor, propNameLiteral, assumeHavePropIfIsValue) {
+        if (defaultValue instanceof cc.ValueType) {
+            // fast case
+            if (!assumeHavePropIfIsValue) {
+                sources.push('if(prop){');
+            }
+            var ctorCode = JS.getClassName(defaultValue);
+            sources.push(`s._deserializeTypedObject(o${accessor},prop,${ctorCode});`);
+            if (!assumeHavePropIfIsValue) {
+                sources.push('}else o' + accessor + '=null;');
+            }
+        }
+        else {
+            sources.push('if(prop){');
+            if (CC_EDITOR || CC_TEST) {
+                sources.push('s._deserializeObjField(o,prop,' + propNameLiteral + ',t&&o);');
+            }
+            else {
+                sources.push('s._deserializeObjField(o,prop,' + propNameLiteral + ');');
+            }
+            sources.push('}else o' + accessor + '=null;');
+        }
+    }
+
     function compileDeserialize (self, klass) {
         var RAW_TYPE = Attr.DELIMETER + 'rawType';
         var EDITOR_ONLY = Attr.DELIMETER + 'editorOnly';
         var SERIALIZABLE = Attr.DELIMETER + 'serializable';
         var DEFAULT = Attr.DELIMETER + 'default';
+        var SAVE_URL_AS_ASSET = Attr.DELIMETER + 'saveUrlAsAsset';
         var attrs = Attr.getClassAttrs(klass);
 
         var props = klass.__props__;
@@ -479,6 +533,7 @@ var _Deserializer = (function () {
         var sources = [
             'var prop;'
         ];
+        var fastMode = Misc.BUILTIN_CLASSID_RE.test(JS._getClassId(klass));
         // sources.push('var vb,vn,vs,vo,vu,vf;');    // boolean, number, string, object, undefined, function
         for (var p = 0; p < props.length; p++) {
             var propName = props[p];
@@ -507,38 +562,29 @@ var _Deserializer = (function () {
 
                 sources.push('prop=d' + accessor + ';');
                 sources.push(`if(typeof ${CC_JSB ? '(prop)' : 'prop'}!=="undefined"){`);
-                sources.push(    `if(typeof ${CC_JSB ? '(prop)' : 'prop'}!=="object"){` +
-                                     'o' + accessor + '=prop;');
-                sources.push(    '}else{' +
-                                     'if(prop){');
 
+                // function undefined object(null) string boolean number
                 var defaultValue = CCClass.getDefault(attrs[propName + DEFAULT]);
-                if (defaultValue instanceof cc.ValueType) {
-                    // fast case
-                    var ctorCode = JS.getClassName(defaultValue);
-                    if (CC_EDITOR || CC_TEST) {
-                        sources.push(    'if(!t)' +    // if has default value
-                                             `s._deserializeTypedObject(o${accessor},prop,${ctorCode});`);
-                        sources.push(    'else ' +     // slow case
-                                             's._deserializeObjField(o,prop,' + propNameLiteral + ',o);');
+                if (fastMode) {
+                    var defaultType = typeof defaultValue;
+                    var isPrimitiveType = (defaultType === 'string' && !attrs[propName + SAVE_URL_AS_ASSET]) ||
+                                          defaultType === 'number' ||
+                                          defaultType === 'boolean';
+                    if (isPrimitiveType) {
+                        sources.push(`o${accessor}=prop;`);
                     }
                     else {
-                        sources.push(    `s._deserializeTypedObject(o${accessor},prop,${ctorCode});`);
+                        compileObjectType(sources, defaultValue, accessor, propNameLiteral, true);
                     }
                 }
                 else {
-                    // slow case
-                    if (CC_EDITOR || CC_TEST) {
-                        sources.push(    's._deserializeObjField(o,prop,' + propNameLiteral + ',t&&o);');
-                    }
-                    else {
-                        sources.push(    's._deserializeObjField(o,prop,' + propNameLiteral + ');');
-                    }
+                    sources.push(`if(typeof ${CC_JSB ? '(prop)' : 'prop'}!=="object"){` +
+                                     'o' + accessor + '=prop;' +
+                                 '}else{');
+                    compileObjectType(sources, defaultValue, accessor, propNameLiteral, false);
+                    sources.push('}');
                 }
-
-                sources.push(        '}else o' + accessor + '=null;' +
-                                 '}' +
-                             '}');
+                sources.push('}');
             }
             else {
                 if (CCClass.IDENTIFIER_RE.test(propName)) {
