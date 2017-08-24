@@ -120,12 +120,15 @@ var WebView = cc.Class({
         var sgNode = this._sgNode;
         if (!sgNode) return;
 
-        if(!CC_JSB) {
+        if (!CC_JSB) {
             sgNode.createDomElementIfNeeded();
         }
-        sgNode.setEventListener(EventType.LOADED , this._onWebViewLoaded.bind(this));
-        sgNode.setEventListener(EventType.LOADING , this._onWebViewLoading.bind(this));
-        sgNode.setEventListener(EventType.ERROR , this._onWebViewLoadError.bind(this));
+
+        if (!CC_EDITOR) {
+            sgNode.setEventListener(EventType.LOADED, this._onWebViewLoaded.bind(this));
+            sgNode.setEventListener(EventType.LOADING, this._onWebViewLoading.bind(this));
+            sgNode.setEventListener(EventType.ERROR, this._onWebViewLoadError.bind(this));
+        }
 
         sgNode.loadURL(this._url);
 

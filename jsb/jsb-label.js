@@ -295,6 +295,7 @@ cc.Label.pool = new cc.js.Pool(0);
 //Note: The pool.get method only used for creating TTF and SystemFont
 cc.Label.pool.get = function (string, fontAsset, spriteFrame, fontSize) {
     this._fontAsset = fontAsset;
+    fontSize = fontSize || 40;
     var isAsset = fontAsset instanceof cc.Font;
     if (!isAsset) {
         return new _ccsg.Label(string, null, null, fontSize);

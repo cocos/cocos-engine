@@ -121,7 +121,6 @@ cc.ActionInterval = cc.FiniteTimeAction.extend({
     /**
      * !#en Implementation of ease motion.
      * !#zh 缓动运动。
-     * @example
      * @method easing
      * @param {Object} easeObj
      * @returns {ActionInterval}

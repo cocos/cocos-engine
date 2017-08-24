@@ -32,7 +32,7 @@ cc._LogInfos = cc._LogInfos || {};
  * @property {String} ENGINE_VERSION
  */
 var engineVersion;
-engineVersion = '1.5.0';
+engineVersion = '1.6.0';
 window['CocosEngine'] = cc.ENGINE_VERSION = engineVersion;
 
 /**

@@ -81,7 +81,7 @@ module.exports = {
 
     _loadNewPack: function (uuid, packUuid, callback) {
         var self = this;
-        var packUrl = cc.AssetLibrary.getImportedDir(packUuid) + '.json';
+        var packUrl = cc.AssetLibrary.getLibUrlNoExt(packUuid) + '.json';
         cc.loader.load({ url: packUrl, ignoreMaxConcurrency: true }, function (err, packJson) {
             if (err) {
                 cc.errorID(4916, uuid);
