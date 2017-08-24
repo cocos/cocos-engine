@@ -24,6 +24,10 @@
 
 var EventTarget = require("../event/event-target");
 
+function sortIndex (a, b) {
+    return a - b;
+};
+
 var dataPool = {
     _pool: {},
     _lengths: [],
@@ -32,9 +36,7 @@ var dataPool = {
         if (!this._pool[length]) {
             this._pool[length] = [data];
             this._lengths.push(length);
-            this._lengths.sort(function(a, b) {
-                return a - b;
-            });
+            this._lengths.sort(sortIndex);
         }
         else {
             this._pool[length].push(data);
