@@ -32,7 +32,9 @@ var dataPool = {
         if (!this._pool[length]) {
             this._pool[length] = [data];
             this._lengths.push(length);
-            this._lengths.sort();
+            this._lengths.sort(function(a, b) {
+                return a - b;
+            });
         }
         else {
             this._pool[length].push(data);
