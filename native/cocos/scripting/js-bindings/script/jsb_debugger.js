@@ -232,7 +232,7 @@ this.processInput = function (inputstr) {
       let packet = inputString.substring(0, count);
       incomingData = inputString.substring(count);
 
-      log(">>>>>>>>>> " + packet);
+//      log(">>>>>>>>>> " + packet);
       return packet;
     }
 
@@ -278,6 +278,8 @@ this._prepareDebugger = function (global) {
     require('script/debugger/actors/root.js', 'debug');
     require('script/debugger/actors/source.js', 'debug');
     require('script/debugger/actors/breakpoint.js', 'debug');
+    require('script/debugger/actors/environment.js', 'debug');
+    require('script/debugger/actors/frame.js', 'debug');
     require('script/debugger/actors/script.js', 'debug');
     require('script/debugger/actors/webconsole.js', 'debug')
     require('script/debugger/actors/utils/TabSources.js', 'debug');

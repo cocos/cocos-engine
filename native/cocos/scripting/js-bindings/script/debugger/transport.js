@@ -146,7 +146,7 @@ function DebuggerTransport(input, output) {
       let data = JSON.stringify(object);
       let data_for_len = DevToolsUtils.utf16to8(data);
       this._outgoing = data_for_len.length + ':' + data;
-      log("<<<<<<<<<< " + this._outgoing);
+//      log("<<<<<<<<<< " + this._outgoing);
       this._flushOutgoing();
     },
 
