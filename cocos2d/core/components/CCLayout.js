@@ -150,7 +150,7 @@ var HorizontalDirection = cc.Enum({
  * !#en
  * The Layout is a container component, use it to arrange child elements easily.
  * But after setting the Layout, the results need to be updated until the next frame,
- * unless you manually call{{#crossLink "Layout/updateLayout:method"}}{{/crossLink}}。
+ * unless you manually call {{#crossLink "Layout/updateLayout:method"}}{{/crossLink}}。
  * !#zh
  * Layout 组件相当于一个容器，能自动对它的所有子节点进行统一排版。
  * 但是对 Layout 设置后结果需要到下一帧才会更新，除非你设置完以后手动调用 {{#crossLink "Layout/updateLayout:method"}}{{/crossLink}}。
@@ -929,7 +929,7 @@ var Layout = cc.Class({
     },
 
     /**
-     * !#en Immediately perform the update layout
+     * !#en Perform the layout update
      * !#zh 立即执行更新布局
      *
      * @method updateLayout
