@@ -622,9 +622,10 @@ if (CC_DEV) {
 
     //ui
     if (cc.Layout) {
+        js.obsolete(cc.Layout, 'cc.Layout.ResizeType', 'ResizeMode');
         js.obsolete(cc.Layout.prototype, 'cc.Layout.layoutType', 'type');
-        js.obsolete(cc.Layout.prototype, 'cc.Layout.ResizeType', 'ResizeMode');
         js.obsolete(cc.Layout.prototype, 'cc.Layout.resize', 'resizeMode');
+        js.obsolete(cc.Layout.prototype, 'cc.Layout._updateLayout', 'updateLayout');
     }
 
     markAsRemoved(cc.Scale9Sprite, [

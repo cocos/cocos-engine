@@ -409,7 +409,7 @@ var PageView = cc.Class({
                     }
                 }
             }
-            layout._updateLayout();
+            layout.updateLayout();
         }
     },
 
@@ -420,7 +420,7 @@ var PageView = cc.Class({
         // 当页面数组变化时修改 content 大小
         var layout = this.content.getComponent(cc.Layout);
         if(layout && layout.enabled) {
-            layout._updateLayout();
+            layout.updateLayout();
         }
         if (this._curPageIdx >= pageCount) {
             this._curPageIdx = pageCount === 0 ? 0 : pageCount - 1;

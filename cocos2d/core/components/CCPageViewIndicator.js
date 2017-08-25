@@ -189,7 +189,7 @@ var PageViewIndicator = cc.Class({
             }
         }
         if(this._layout && this._layout.enabledInHierarchy) {
-            this._layout._updateLayout();
+            this._layout.updateLayout();
         }
         this._changedState();
     }
