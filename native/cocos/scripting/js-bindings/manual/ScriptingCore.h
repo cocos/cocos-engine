@@ -409,7 +409,7 @@ public:
      * @param message @~english The error message
      * @param report @~english The js error report object
      */
-    static void reportError(JSContext *cx, JSErrorReport *report);
+    static void reportError(JSContext *cx, JSErrorReport *report, JS::HandleValue err);
 
     /**@~english
      * Log something to the js context using CCLog.

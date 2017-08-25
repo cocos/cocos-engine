@@ -446,6 +446,20 @@ on_garbage_collect(JSContext* cx, JSGCStatus status, void* data)
     }
 }
 
+static void warningHandler(JSContext *cx, JSErrorReport *report)
+{
+    if (cx && report)
+    {
+        JS::RootedValue err(cx);
+        if (JS_GetPendingException(cx, &err))
+        {
+            // Should clear pending exception, otherwise it will trigger infinite loop
+            JS_ClearPendingException(cx);
+        }
+        ScriptingCore::reportError(cx, report, err);
+    }
+};
+
 // Promise support
 
 using JobQueue = JS::GCVector<JSObject*, 0, js::SystemAllocPolicy>;
@@ -680,7 +694,7 @@ void ScriptingCore::createGlobalContext() {
     // Waiting is allowed on the shell's main thread, for now.
     JS_SetFutexCanWait(_cx);
     JS_SetDefaultLocale(_cx, "UTF-8");
-    JS::SetWarningReporter(_cx, ScriptingCore::reportError);
+    JS::SetWarningReporter(_cx, warningHandler);
 //    JS_SetGCCallback(_cx, on_garbage_collect, nullptr);
     
     if (!JS::InitSelfHostedCode(_cx))
@@ -1033,23 +1047,26 @@ void ScriptingCore::cleanup()
     _needCleanup = false;
 }
 
-void ScriptingCore::reportError(JSContext *cx, JSErrorReport *report)
+void ScriptingCore::reportError(JSContext *cx, JSErrorReport *report, JS::HandleValue err)
 {
     if (cx && report)
     {
-        std::string fileName = report->filename ? report->filename : "<no filename=\"filename\">";
+        std::string fileName = report->filename ? report->filename : "<no filename>";
         int32_t lineno = report->lineno;
         std::string msg = report->message().c_str();
-
-#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
-        __android_log_print(ANDROID_LOG_ERROR, "cocos js error:", "%s line:%u msg:%s",
-                            fileName.c_str(), report->lineno, msg.c_str());
-#else
-        cocos2d::log("%s:%u:%s\n", fileName.c_str(), report->lineno, msg.c_str());
-#endif
-        // Should clear pending exception, otherwise it will trigger infinite loop
-        if (JS_IsExceptionPending(cx)) {
-            JS_ClearPendingException(cx);
+        CCLOGERROR("JS Exception: %s, file: %s, lineno: %u\n", msg.c_str(), fileName.c_str(), lineno);
+        
+        std::string stackStr = "";
+        if (err.isObject())
+        {
+            JS::RootedObject errObj(cx, err.toObjectOrNull());
+            JS::RootedValue stack(cx);
+            if (JS_GetProperty(cx, errObj, "stack", &stack) && stack.isString())
+            {
+                JS::RootedString jsstackStr(cx, stack.toString());
+                stackStr = JS_EncodeStringToUTF8(cx, jsstackStr);
+                CCLOGERROR("Stack: %s\n", stackStr.c_str());
+            }
         }
         
         JS::AutoValueVector valArr(cx);
@@ -1058,6 +1075,8 @@ void ScriptingCore::reportError(JSContext *cx, JSErrorReport *report)
         valArr.append(argv);
         valArr.append(JS::Int32Value(lineno));
         std_string_to_jsval(cx, msg, &argv);
+        valArr.append(argv);
+        std_string_to_jsval(cx, stackStr, &argv);
         valArr.append(argv);
         JS::HandleValueArray args(valArr);
         
@@ -1963,15 +1982,8 @@ void handlePendingException(JSContext *cx)
         
         JS::RootedObject errObj(cx, err.toObjectOrNull());
         JSErrorReport *report = JS_ErrorFromException(cx, errObj);
-        CCLOGERROR("JS Exception: %s, file: %s, lineno: %u\n", report->message().c_str(), report->filename, report->lineno);
         
-        JS::RootedValue stack(cx);
-        if (JS_GetProperty(cx, errObj, "stack", &stack) && stack.isString())
-        {
-            JS::RootedString jsstackStr(cx, stack.toString());
-            char *stackStr = JS_EncodeStringToUTF8(cx, jsstackStr);
-            CCLOGERROR("Stack: %s\n", stackStr);
-        }
+        ScriptingCore::reportError(cx, report, err);
     }
 }
 
