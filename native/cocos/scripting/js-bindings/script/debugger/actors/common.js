@@ -478,7 +478,7 @@ function expectState(expectedState, method, activity) {
       const msg = `Wrong state while ${activity}:` +
                   `Expected '${expectedState}', ` +
                   `but current state is '${this.state}'.`;
-      return promise.reject(new Error(msg));
+      return Promise.reject(new Error(msg));
     }
 
     return method.apply(this, args);

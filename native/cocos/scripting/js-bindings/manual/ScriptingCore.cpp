@@ -2035,6 +2035,7 @@ bool JSBDebug_enterNestedEventLoop(JSContext* cx, unsigned argc, JS::Value* vp)
     uint32_t nestLevel = ++s_nestedLoopLevel;
 
     while (NS_SUCCEEDED(rv) && s_nestedLoopLevel >= nestLevel) {
+        drainJobQueue();
         if (!NS_ProcessNextEvent())
             rv = NS_ERROR_UNEXPECTED;
     }
@@ -2195,7 +2196,8 @@ bool JSBDebug_BufferWrite(JSContext* cx, unsigned argc, JS::Value* vp)
 {
     if (argc == 1) {
         JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-        JSStringWrapper strWrapper(args.get(0));
+        JS::RootedString jsstr(cx, args.get(0).toString());
+        JSStringWrapper strWrapper(jsstr);
         // this is safe because we're already inside a lock (from clearBuffers)
         outData.append(strWrapper.get());
         _clientSocketWriteAndClearString(outData);

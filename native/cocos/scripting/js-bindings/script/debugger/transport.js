@@ -146,6 +146,7 @@ function DebuggerTransport(input, output) {
       let data = JSON.stringify(object);
       let data_for_len = DevToolsUtils.utf16to8(data);
       this._outgoing = data_for_len.length + ':' + data;
+      log("<<<<<<<<<< " + this._outgoing);
       this._flushOutgoing();
     },
 
@@ -602,7 +603,7 @@ function DebuggerTransport(input, output) {
       dumpn("Sent bulk packet " + serial + " for actor " + actor);
       if (!this.other) {
         let error = new Error("startBulkSend: other side of transport missing");
-        return promise.reject(error);
+        return Promise.reject(error);
       }
 
       let pipe = new Pipe(true, true, 0, 0, null);
@@ -614,7 +615,7 @@ function DebuggerTransport(input, output) {
         }
 
         // Receiver
-        let deferred = promise.defer();
+        let deferred = Promise.defer();
         let packet = {
           actor: actor,
           type: type,
@@ -637,12 +638,12 @@ function DebuggerTransport(input, output) {
       }, "LocalDebuggerTransport instance's this.other.hooks.onBulkPacket"));
 
       // Sender
-      let sendDeferred = promise.defer();
+      let sendDeferred = Promise.defer();
 
       // The remote transport is not capable of resolving immediately here, so we
       // shouldn't be able to either.
       DevToolsUtils.executeSoon(() => {
-        let copyDeferred = promise.defer();
+        let copyDeferred = Promise.defer();
 
         sendDeferred.resolve({
           copyFrom: (input) => {

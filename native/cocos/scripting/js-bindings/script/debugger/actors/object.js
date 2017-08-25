@@ -75,7 +75,7 @@ ObjectActor.prototype = {
   /**
    * Returns a grip for this actor for returning in a protocol message.
    */
-  grip: function() {
+  grip: function () {
     this.hooks.incrementGripDepth();
 
     let g = {

@@ -112,7 +112,7 @@ DevToolsUtils.safeErrorString = function safeErrorString(aError) {
  * Report that |aWho| threw an exception, |aException|.
  */
 DevToolsUtils.reportException = function reportException(aWho, aException) {
-  let msg = aWho + " threw an exception: " + DevToolsUtils.safeErrorString(aException);
+  let msg = "" + aWho + " threw an exception: " + DevToolsUtils.safeErrorString(aException);
 
   log(msg + "\n");
 
@@ -245,7 +245,7 @@ DevToolsUtils.executeSoon = function executeSoon(aFn) {
  *         A promise that is resolved after the next tick in the event loop.
  */
 DevToolsUtils.waitForTick = function waitForTick() {
-  let deferred = promise.defer();
+  let deferred = Promise.defer();
   DevToolsUtils.executeSoon(deferred.resolve);
   return deferred.promise;
 };
@@ -259,7 +259,7 @@ DevToolsUtils.waitForTick = function waitForTick() {
  *         A promise that is resolved after the specified amount of time passes.
  */
 DevToolsUtils.waitForTime = function waitForTime(aDelay) {
-  let deferred = promise.defer();
+  let deferred = Promise.defer();
   require("Timer").setTimeout(deferred.resolve, aDelay);
   return deferred.promise;
 };
@@ -280,7 +280,7 @@ DevToolsUtils.waitForTime = function waitForTime(aDelay) {
  *          over, and all promises returned by the aFn callback are resolved.
  */
 DevToolsUtils.yieldingEach = function yieldingEach(aArray, aFn) {
-  const deferred = promise.defer();
+  const deferred = Promise.defer();
 
   let i = 0;
   let len = aArray.length;
@@ -310,7 +310,7 @@ DevToolsUtils.yieldingEach = function yieldingEach(aArray, aFn) {
     deferred.resolve();
   }());
 
-  return promise.all(outstanding);
+  return Promise.all(outstanding);
 }
 
 /**
@@ -452,7 +452,7 @@ DevToolsUtils.dumpv = function(msg) {
 // loader, so define it on dumpn instead.
 DevToolsUtils.dumpv.wantVerbose = false;
 
-DevToolsUtils.dbg_assert = function dbg_assert(cond, e) {
+DevToolsUtils.assert = function assert(cond, e) {
   if (!cond) {
     return e;
   }
@@ -598,7 +598,7 @@ function mainThreadFetch(aURL, aOptions = { loadFromCache: true,
   try {
     channel = newChannelForURL(url, aOptions);
   } catch (ex) {
-    return promise.reject(ex);
+    return Promise.reject(ex);
   }
 
   // Set the channel options.
@@ -614,12 +614,12 @@ function mainThreadFetch(aURL, aOptions = { loadFromCache: true,
                           .loadGroup;
   }
 
-  let deferred = promise.defer();
+  let deferred = Promise.defer();
   let onResponse = (stream, status, request) => {
-    if (!components.isSuccessCode(status)) {
-      deferred.reject(new Error('Failed to fetch ${url}. Code ${status}.'));
-      return;
-    }
+//    if (!components.isSuccessCode(status)) {
+//      deferred.reject(new Error('Failed to fetch ${url}. Code ${status}.'));
+//      return;
+//    }
 
     try {
       // We cannot use NetUtil to do the charset conversion as if charset
@@ -677,7 +677,7 @@ function mainThreadFetch(aURL, aOptions = { loadFromCache: true,
   try {
     NetUtil.asyncFetch(channel, onResponse);
   } catch (ex) {
-    return promise.reject(ex);
+    return Promise.reject(ex);
   }
 
   return deferred.promise;
@@ -745,7 +745,7 @@ DevToolsUtils.settleAll = values => {
     throw new Error("settleAll() expects an iterable.");
   }
 
-  let deferred = promise.defer();
+  let deferred = Promise.defer();
 
   values = Array.isArray(values) ? values : [...values];
   let countdown = values.length;
@@ -822,12 +822,12 @@ DevToolsUtils.openFileStream = function (filePath) {
     NetUtil.asyncFetch(
       { uri, loadUsingSystemPrincipal: true },
       (stream, result) => {
-        if (!components.isSuccessCode(result)) {
-          reject(new Error('Could not open "${filePath}": result = ${result}'));
-          return;
-        }
+//        if (!components.isSuccessCode(result)) {
+//          reject(new Error('Could not open "${filePath}": result = ${result}'));
+//          return;
+//        }
 
-        resolve(stream);
+        Promise.resolve(stream);
       }
     );
   });

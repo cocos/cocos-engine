@@ -557,9 +557,9 @@ WebConsoleActor.prototype =
   onStartListeners: function WCA_onStartListeners(aRequest)
   {
     // XXXworkers: Not handling the Console API yet for workers (Bug 1209353).
-    if (isWorker) {
-      aRequest.listeners = [];
-    }
+//    if (isWorker) {
+//      aRequest.listeners = [];
+//    }
 
     let startedListeners = [];
     let window = !this.parentActor.isRootActor ? this.window : null;
@@ -594,7 +594,7 @@ WebConsoleActor.prototype =
           startedListeners.push(listener);
           break;
         case "NetworkActivity":
-          if (!this.networkMonitor) {
+          // if (!this.networkMonitor) {
             // Create a StackTraceCollector that's going to be shared both by the
             // NetworkMonitorChild (getting messages about requests from parent) and
             // by the NetworkMonitor that directly watches service workers requests.
@@ -771,8 +771,7 @@ WebConsoleActor.prototype =
           }
 
           // See `window` definition. It isn't always a DOM Window.
-          let requestStartTime = this.window && this.window.performance ?
-            this.window.performance.timing.requestStart : 0;
+          let requestStartTime = 0;
 
           let cache = this.consoleAPIListener
                       .getCachedMessages(!this.parentActor.isRootActor);
@@ -1819,7 +1818,7 @@ WebConsoleActor.prototype.requestTypes =
   sendHTTPRequest: WebConsoleActor.prototype.onSendHTTPRequest
 };
 
-exports.WebConsoleActor = WebConsoleActor;
+//exports.WebConsoleActor = WebConsoleActor;
 
 /**
  * Creates an actor for a network event.

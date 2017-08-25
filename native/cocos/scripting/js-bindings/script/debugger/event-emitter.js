@@ -85,7 +85,7 @@ EventEmitter.prototype = {
    *        that this is needed) then use listener
    */
   once(event, listener) {
-    let deferred = promise.defer();
+    let deferred = Promise.defer();
 
     let handler = (_, first, ...rest) => {
       this.off(event, handler);
@@ -150,8 +150,8 @@ EventEmitter.prototype = {
         } catch (ex) {
           // Prevent a bad listener from interfering with the others.
           let msg = ex + ": " + ex.stack;
-          console.error(msg);
-          dump(msg + "\n");
+          log(msg);
+          DevToolsUtils.dumpn(msg + "\n");
         }
       }
     }
@@ -163,15 +163,15 @@ EventEmitter.prototype = {
     }
 
     let caller, func, path;
-    if (!isWorker) {
-      caller = components.stack.caller.caller;
-      func = caller.name;
-      let file = caller.filename;
-      if (file.includes(" -> ")) {
-        file = caller.filename.split(/ -> /)[1];
-      }
-      path = file + ":" + caller.lineNumber;
-    }
+//    if (!isWorker) {
+//      caller = components.stack.caller.caller;
+//      func = caller.name;
+//      let file = caller.filename;
+//      if (file.includes(" -> ")) {
+//        file = caller.filename.split(/ -> /)[1];
+//      }
+//      path = file + ":" + caller.lineNumber;
+//    }
 
     let argOut = "(";
     if (args.length === 1) {
@@ -211,7 +211,7 @@ EventEmitter.prototype = {
     argOut += ")";
     out += "emit" + argOut + " from " + func + "() -> " + path + "\n";
 
-    dump(out);
+    DevToolsUtils.dumpn(out);
   },
 };
 

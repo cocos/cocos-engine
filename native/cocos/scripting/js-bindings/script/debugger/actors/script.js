@@ -192,7 +192,7 @@ BreakpointActorMap.prototype = {
   }
 };
 
-exports.BreakpointActorMap = BreakpointActorMap;
+// exports.BreakpointActorMap = BreakpointActorMap;
 
 /**
  * Keeps track of persistent sources across reloads and ties different
@@ -241,7 +241,7 @@ SourceActorStore.prototype = {
   }
 };
 
-exports.SourceActorStore = SourceActorStore;
+// exports.SourceActorStore = SourceActorStore;
 
 /**
  * Manages pushing event loops and automatically pops and exits them in the
@@ -412,8 +412,7 @@ EventLoop.prototype = {
  *        An optional (for content debugging only) reference to the content
  *        window.
  */
-const ThreadActor = ActorClassWithSpec(threadSpec, {
-  initialize: function (aParent, aGlobal) {
+function ThreadActor (aParent, aGlobal) {
     this._state = "detached";
     this._frameActors = [];
     this._parent = aParent;
@@ -449,12 +448,14 @@ const ThreadActor = ActorClassWithSpec(threadSpec, {
     this.objectGrip = this.objectGrip.bind(this);
     this.pauseObjectGrip = this.pauseObjectGrip.bind(this);
     this._onWindowReady = this._onWindowReady.bind(this);
-    events.on(this._parent, "window-ready", this._onWindowReady);
+    // events.on(this._parent, "window-ready", this._onWindowReady);
     // Set a wrappedJSObject property so |this| can be sent via the observer svc
     // for the xpcshell harness.
     this.wrappedJSObject = this;
-  },
+};
 
+ThreadActor.prototype = {
+  constructor: ThreadActor,
   // Used by the ObjectActor to keep track of the depth of grip() calls.
   _gripDepth: null,
 
@@ -497,6 +498,14 @@ const ThreadActor = ActorClassWithSpec(threadSpec, {
     return this._threadLifetimePool;
   },
 
+  get scripts() {
+    if (!this._scripts) {
+      this._scripts = new ScriptStore();
+      this._scripts.addScripts(this.dbg.findScripts());
+    }
+    return this._scripts;
+  },
+
   get sources() {
     return this._parent.sources;
   },
@@ -514,7 +523,7 @@ const ThreadActor = ActorClassWithSpec(threadSpec, {
       this._prettyPrintWorker = new DevToolsWorker(
         "resource://devtools/server/actors/pretty-print-worker.js",
         { name: "pretty-print",
-          verbose: flags.wantLogging }
+          verbose: dumpn.wantLogging }
       );
     }
     return this._prettyPrintWorker;
@@ -681,7 +690,7 @@ const ThreadActor = ActorClassWithSpec(threadSpec, {
     Object.assign(this._options, options);
 
     // Update the global source store
-    this.sources.setOptions(options);
+//    this.sources.setOptions(options);
 
     return {};
   },
@@ -728,7 +737,7 @@ const ThreadActor = ActorClassWithSpec(threadSpec, {
                       line: originalLocation.originalLine,
                       column: originalLocation.originalColumn
                     };
-                    resolve(onPacket(packet))
+                    Promise.resolve(onPacket(packet))
           .then(null, error => {
             reportError(error);
             return {
@@ -1004,13 +1013,12 @@ const ThreadActor = ActorClassWithSpec(threadSpec, {
         lastPausedUrl: this._nestedEventLoops.lastPausedUrl
       };
     }
-
     let resumeLimitHandled;
     if (aRequest && aRequest.resumeLimit) {
       resumeLimitHandled = this._handleResumeLimit(aRequest);
     } else {
       this._clearSteppingHooks(this.youngestFrame);
-      resumeLimitHandled = resolve(true);
+      resumeLimitHandled = Promise.resolve(true);
     }
 
     return resumeLimitHandled.then(() => {
@@ -1280,7 +1288,7 @@ const ThreadActor = ActorClassWithSpec(threadSpec, {
       promises.push(promise);
     }
 
-    return all(promises).then(function (frames) {
+    return Promise.all(promises).then(function (frames) {
       // Filter null values because sourcemapping may have failed.
       return { frames: frames.filter(x => !!x) };
     });
@@ -1322,7 +1330,7 @@ const ThreadActor = ActorClassWithSpec(threadSpec, {
       }
     }
 
-    return all([...sourcesToScripts.values()].map(script => {
+    return Promise.all([...sourcesToScripts.values()].map(script => {
       return this.sources.createSourceActors(script.source);
     }));
   },
@@ -1848,9 +1856,9 @@ const ThreadActor = ActorClassWithSpec(threadSpec, {
     // NS_ERROR_NO_INTERFACE exceptions are a special case in browser code,
     // since they're almost always thrown by QueryInterface functions, and
     // handled cleanly by native code.
-    if (aValue == Cr.NS_ERROR_NO_INTERFACE) {
-      return undefined;
-    }
+//    if (aValue == Cr.NS_ERROR_NO_INTERFACE) {
+//      return undefined;
+//    }
 
     const generatedLocation = this.sources.getFrameLocation(aFrame);
     const { originalSourceActor } = this.unsafeSynchronize(this.sources.getOriginalLocation(
@@ -1971,7 +1979,7 @@ const ThreadActor = ActorClassWithSpec(threadSpec, {
       }
 
       if (promises.length > 0) {
-        this.unsafeSynchronize(promise.all(promises));
+        this.unsafeSynchronize(Promise.all(promises));
       }
     } else {
       // Bug 1225160: If addSource is called in response to a new script
@@ -2028,9 +2036,9 @@ const ThreadActor = ActorClassWithSpec(threadSpec, {
     return { from: this.actorID,
              actors: result };
   }
-});
+};
 
-ThreadActor.prototype.requestTypes = object.merge(ThreadActor.prototype.requestTypes, {
+ThreadActor.prototype.requestTypes = {
   "attach": ThreadActor.prototype.onAttach,
   "detach": ThreadActor.prototype.onDetach,
   "reconfigure": ThreadActor.prototype.onReconfigure,
@@ -2043,9 +2051,9 @@ ThreadActor.prototype.requestTypes = object.merge(ThreadActor.prototype.requestT
   "sources": ThreadActor.prototype.onSources,
   "threadGrips": ThreadActor.prototype.onThreadGrips,
   "prototypesAndProperties": ThreadActor.prototype.onPrototypesAndProperties
-});
+};
 
-exports.ThreadActor = ThreadActor;
+// exports.ThreadActor = ThreadActor;
 
 /**
  * Creates a PauseActor.
@@ -2262,7 +2270,7 @@ Object.assign(ChromeDebuggerActor.prototype, {
   actorPrefix: "chromeDebugger"
 });
 
-exports.ChromeDebuggerActor = ChromeDebuggerActor;
+// exports.ChromeDebuggerActor = ChromeDebuggerActor;
 
 /**
  * Creates an actor for handling add-on debugging. AddonThreadActor is
@@ -2290,7 +2298,7 @@ Object.assign(AddonThreadActor.prototype, {
   actorPrefix: "addonThread"
 });
 
-exports.AddonThreadActor = AddonThreadActor;
+// exports.AddonThreadActor = AddonThreadActor;
 
 // Utility functions.
 
@@ -2305,7 +2313,7 @@ exports.AddonThreadActor = AddonThreadActor;
 // var oldReportError = reportError;
 function reportError(aError, aPrefix="") {
   // assert(aError instanceof Error, "Must pass Error objects to reportError");
-  let msg = aPrefix + aError.message + ":\n" + aError.stack;
+  let msg = "" + aPrefix + aError.message + ":\n" + aError.stack;
   // oldReportError(msg);
   log(msg);
 }
@@ -2345,7 +2353,7 @@ function findEntryPointsForLine(scripts, line) {
  *          Returns the unwrapped global object or |undefined| if unwrapping
  *          failed.
  */
-exports.unwrapDebuggerObjectGlobal = wrappedGlobal => {
+var unwrapDebuggerObjectGlobal = wrappedGlobal => {
   try {
     // Because of bug 991399 we sometimes get nuked window references here. We
     // just bail out in that case.
