@@ -227,7 +227,7 @@ var Layout = cc.Class({
                 }
 
                 this._resize = value;
-                if (CC_EDITOR && this.type !== Type.NONE && value === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
+                if (CC_EDITOR && value === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
                     var reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
                     if (reLayouted) {
                         return;
