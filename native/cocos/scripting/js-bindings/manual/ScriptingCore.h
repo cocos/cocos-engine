@@ -512,9 +512,6 @@ public:
      * Gets the js object that is being finalizing in the script engine
      */
     bool getFinalizing () {return _finalizing;};
-
-private:
-    void string_report(JS::HandleValue val);
     
 public:
     int handleNodeEvent(void* data);

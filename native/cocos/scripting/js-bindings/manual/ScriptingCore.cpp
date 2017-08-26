@@ -438,11 +438,11 @@ on_garbage_collect(JSContext* cx, JSGCStatus status, void* data)
      * garbage collected. */
     if (status == JSGC_BEGIN)
     {
-        printf("on_garbage_collect: begin, Native -> JS map count: %d\n", (int)_native_js_global_map->size());
+        CCLOG("on_garbage_collect: begin, Native -> JS map count: %d\n", (int)_native_js_global_map->size());
     }
     else if (status == JSGC_END)
     {
-        printf("on_garbage_collect: end, Native -> JS map count: %d\n", (int)_native_js_global_map->size());
+        CCLOG("on_garbage_collect: end, Native -> JS map count: %d\n", (int)_native_js_global_map->size());
     }
 }
 
@@ -575,29 +575,6 @@ ScriptingCore::ScriptingCore()
     }
 }
 
-void ScriptingCore::string_report(JS::HandleValue val)
-{
-    if (val.isNull()) {
-        LOGD("val : (JSVAL_IS_NULL(val)");
-        // return 1;
-    } else if (val.isBoolean() && false == val.toBoolean()) {
-        LOGD("val : (return value is false");
-        // return 1;
-    } else if (val.isString()) {
-        JSContext* cx = this->getGlobalContext();
-        JS::RootedString str(cx, val.toString());
-        if (str.get()) {
-            LOGD("val : return string is NULL");
-        } else {
-            JSStringWrapper wrapper(str);
-            LOGD("val : return string =\n%s\n", wrapper.get());
-        }
-    } else if (val.isNumber()) {
-        double number = val.toNumber();
-        LOGD("val : return number =\n%f", number);
-    }
-}
-
 bool ScriptingCore::evalString(const char *string, JS::MutableHandleValue outVal, const char *filename, JSContext* cx, JS::HandleObject global)
 {
     JS::PersistentRootedScript script(cx);
@@ -689,13 +666,17 @@ void ScriptingCore::createGlobalContext() {
     }
 
     JS_SetGCParameter(_cx, JSGC_MAX_BYTES, 0xffffffff);
+    JS_SetGCParameter(_cx, JSGC_MAX_MALLOC_BYTES, 1024 * 1024);
+    JS_SetGCParameter(_cx, JSGC_COMPACTING_ENABLED, true);
     JS_SetGCParameter(_cx, JSGC_MODE, JSGC_MODE_INCREMENTAL);
     JS_SetNativeStackQuota(_cx, JSB_MAX_STACK_QUOTA);
     // Waiting is allowed on the shell's main thread, for now.
     JS_SetFutexCanWait(_cx);
     JS_SetDefaultLocale(_cx, "UTF-8");
     JS::SetWarningReporter(_cx, warningHandler);
-//    JS_SetGCCallback(_cx, on_garbage_collect, nullptr);
+#if COCOS2D_DEBUG > 1
+    JS_SetGCCallback(_cx, on_garbage_collect, nullptr);
+#endif
     
     if (!JS::InitSelfHostedCode(_cx))
     {
@@ -721,9 +702,10 @@ void ScriptingCore::createGlobalContext() {
 #endif
     
     JS::ContextOptionsRef(_cx)
+        .setExtraWarnings(true)
         .setIon(false)
         .setBaseline(false)
-        .setAsmJS(false)
+        .setAsmJS(true)
         .setNativeRegExp(true);
 #else
     JS::ContextOptionsRef(_cx)
