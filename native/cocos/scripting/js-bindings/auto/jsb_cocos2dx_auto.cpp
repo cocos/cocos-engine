@@ -7008,6 +7008,21 @@ static bool js_cocos2dx_Scheduler_unscheduleAllWithMinPriority(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Scheduler_unscheduleAllWithMinPriority)
 
+static bool js_cocos2dx_Scheduler_removeAllFunctionsToBePerformedInCocosThread(se::State& s)
+{
+    cocos2d::Scheduler* cobj = (cocos2d::Scheduler*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Scheduler_removeAllFunctionsToBePerformedInCocosThread : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->removeAllFunctionsToBePerformedInCocosThread();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Scheduler_removeAllFunctionsToBePerformedInCocosThread)
+
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_Scheduler_finalize)
 
 static bool js_cocos2dx_Scheduler_constructor(se::State& s)
@@ -7044,6 +7059,7 @@ bool js_register_cocos2dx_Scheduler(se::Object* obj)
     cls->defineFunction("unscheduleAll", _SE(js_cocos2dx_Scheduler_unscheduleAll));
     cls->defineFunction("getTimeScale", _SE(js_cocos2dx_Scheduler_getTimeScale));
     cls->defineFunction("unscheduleAllWithMinPriority", _SE(js_cocos2dx_Scheduler_unscheduleAllWithMinPriority));
+    cls->defineFunction("removeAllFunctionsToBePerformedInCocosThread", _SE(js_cocos2dx_Scheduler_removeAllFunctionsToBePerformedInCocosThread));
     cls->defineFinalizeFunction(_SE(js_cocos2d_Scheduler_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::Scheduler>(cls);
