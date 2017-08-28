@@ -406,11 +406,7 @@ var Node = cc.Class({
                         this._sgNode.setPositionX(value);
 
                         // fast check event
-                        var capListeners = this._capturingListeners &&
-                            this._capturingListeners._callbackTable[POSITION_CHANGED];
-                        var bubListeners = this._bubblingListeners &&
-                            this._bubblingListeners._callbackTable[POSITION_CHANGED];
-                        if ((capListeners && capListeners.length > 0) || (bubListeners && bubListeners.length > 0)) {
+                        if (this._eventFlagMap[POSITION_CHANGED]) {
                             // send event
                             if (CC_EDITOR) {
                                 this.emit(POSITION_CHANGED, new cc.Vec2(oldValue, localPosition.y));
@@ -452,11 +448,7 @@ var Node = cc.Class({
                         this._sgNode.setPositionY(value);
 
                         // fast check event
-                        var capListeners = this._capturingListeners &&
-                            this._capturingListeners._callbackTable[POSITION_CHANGED];
-                        var bubListeners = this._bubblingListeners &&
-                            this._bubblingListeners._callbackTable[POSITION_CHANGED];
-                        if ((capListeners && capListeners.length > 0) || (bubListeners && bubListeners.length > 0)) {
+                        if (this._eventFlagMap[POSITION_CHANGED]) {
                             // send event
                             if (CC_EDITOR) {
                                 this.emit(POSITION_CHANGED, new cc.Vec2(localPosition.x, oldValue));
@@ -1597,11 +1589,7 @@ var Node = cc.Class({
         this._sgNode.setPosition(x, y);
 
         // fast check event
-        var capListeners = this._capturingListeners &&
-            this._capturingListeners._callbackTable[POSITION_CHANGED];
-        var bubListeners = this._bubblingListeners &&
-            this._bubblingListeners._callbackTable[POSITION_CHANGED];
-        if ((capListeners && capListeners.length > 0) || (bubListeners && bubListeners.length > 0)) {
+        if (this._eventFlagMap[POSITION_CHANGED]) {
             // send event
             if (CC_EDITOR) {
                 this.emit(POSITION_CHANGED, oldPosition);
