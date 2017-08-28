@@ -47,14 +47,12 @@ NS_CC_BEGIN
 typedef struct _ttfConfig
 {
     std::string fontFilePath;
+    const char* customGlyphs;
     float fontSize;
-
-    GlyphCollection glyphs;
-    const char *customGlyphs;
-
-    bool distanceFieldEnabled;
     int outlineSize;
 
+    GlyphCollection glyphs;
+    bool distanceFieldEnabled;
     bool italics;
     bool bold;
     bool underline;
@@ -64,11 +62,11 @@ typedef struct _ttfConfig
         const char *customGlyphCollection = nullptr, bool useDistanceField = false, int outline = 0,
                bool useItalics = false, bool useBold = false, bool useUnderline = false, bool useStrikethrough = false)
         : fontFilePath(filePath)
-        , fontSize(size)
-        , glyphs(glyphCollection)
         , customGlyphs(customGlyphCollection)
-        , distanceFieldEnabled(useDistanceField)
+        , fontSize(size)
         , outlineSize(outline)
+        , glyphs(glyphCollection)
+        , distanceFieldEnabled(useDistanceField)
         , italics(useItalics)
         , bold(useBold)
         , underline(useUnderline)
@@ -113,7 +111,7 @@ class SpriteFrame;
 class CC_DLL Label : public Node, public LabelProtocol, public BlendProtocol
 {
 public:
-    enum class Overflow
+    enum class Overflow : char
     {
         //In NONE mode, the dimensions is (0,0) and the content size will change dynamically to fit the label.
         NONE,
@@ -647,7 +645,7 @@ protected:
         int lineIndex;
     };
 
-    enum class LabelType {
+    enum class LabelType : char {
         TTF,
         BMFONT,
         CHARMAP,
@@ -701,52 +699,38 @@ protected:
 
     virtual void updateColor() override;
 
-    LabelType _currentLabelType;
-    bool _contentDirty;
-    std::u16string _utf16Text;
-    std::string _utf8Text;
-    int _numberOfLines;
-
-    std::string _bmFontPath;
-    TTFConfig _fontConfig;
-    float _outlineSize;
-
-    bool _systemFontDirty;
-    std::string _systemFont;
-    float _systemFontSize;
-    Sprite* _textSprite;
-    Sprite* _shadowNode;
-
-    FontAtlas* _fontAtlas;
     Vector<SpriteBatchNode*> _batchNodes;
     std::vector<LetterInfo> _lettersInfo;
-
-    //! used for optimization
-    Sprite *_reusedLetter;
-    Rect _reusedRect;
-    int _lengthOfString;
-
-    //layout relevant properties.
-    float _lineHeight;
-    float _lineSpacing;
-    float _additionalKerning;
-    int* _horizontalKernings;
-    bool _lineBreakWithoutSpaces;
-    float _maxLineWidth;
-    Size _labelDimensions;
-    float _labelWidth;
-    float _labelHeight;
-    TextHAlignment _hAlignment;
-    TextVAlignment _vAlignment;
-
-    float _textDesiredHeight;
     std::vector<float> _linesWidth;
     std::vector<float> _linesOffsetX;
-    float _letterOffsetY;
-    float _tailoredTopY;
-    float _tailoredBottomY;
 
-    LabelEffect _currLabelEffect;
+    std::unordered_map<int, Sprite*> _letters;
+
+    std::u16string _utf16Text;
+    std::string _utf8Text;
+    std::string _bmFontPath;
+    std::string _systemFont;
+
+    Sprite* _textSprite;
+    Sprite* _shadowNode;
+    FontAtlas* _fontAtlas;
+    int* _horizontalKernings;
+
+    EventListenerCustom* _purgeTextureListener;
+    EventListenerCustom* _resetTextureListener;
+
+#if CC_LABEL_DEBUG_DRAW
+    DrawNode* _debugDrawNode;
+#endif
+    SpriteFrame* _fntSpriteFrame;
+    DrawNode* _underlineNode;
+    //! used for optimization
+    Sprite* _reusedLetter;
+
+    TTFConfig _fontConfig;
+    Rect _reusedRect;
+    Size _labelDimensions;
+
     Color4F _effectColorF;
     Color4B _textColor;
     Color4F _textColorF;
@@ -756,47 +740,63 @@ protected:
     Mat4  _shadowTransform;
     GLuint _uniformEffectColor;
     GLuint _uniformTextColor;
-    bool _useDistanceField;
-    bool _useA8Shader;
 
-    bool _shadowDirty;
-    bool _shadowEnabled;
     Size _shadowOffset;
 
     Color4F _shadowColor4F;
     Color3B _shadowColor3B;
     GLubyte _shadowOpacity;
-    float _shadowBlurRadius;
 
-    bool _clipEnabled;
-    bool _blendFuncDirty;
     BlendFunc _blendFunc;
 
-    /// whether or not the label was inside bounds the previous frame
-    bool _insideBounds;
+    int _numberOfLines;
+    int _lengthOfString;
 
-    bool _isOpacityModifyRGB;
+    float _outlineSize;
+    float _systemFontSize;
 
-    std::unordered_map<int, Sprite*> _letters;
+    //layout relevant properties.
+    float _lineHeight;
+    float _lineSpacing;
+    float _additionalKerning;
 
-    EventListenerCustom* _purgeTextureListener;
-    EventListenerCustom* _resetTextureListener;
+    float _maxLineWidth;
 
-#if CC_LABEL_DEBUG_DRAW
-    DrawNode* _debugDrawNode;
-#endif
+    float _labelWidth;
+    float _labelHeight;
 
-    bool _enableWrap;
+    float _textDesiredHeight;
+    float _letterOffsetY;
+    float _tailoredTopY;
+    float _tailoredBottomY;
+
+    float _shadowBlurRadius;
     float _bmFontSize;
     float _bmfontScale;
-    Overflow _overflow;
     float _originalFontSize;
-    SpriteFrame* _fntSpriteFrame;
 
+    LabelEffect _currLabelEffect;
+    LabelType _currentLabelType;
+    Overflow _overflow;
+    TextHAlignment _hAlignment;
+    TextVAlignment _vAlignment;
+
+    bool _systemFontDirty;
+    bool _contentDirty;
+    bool _lineBreakWithoutSpaces;
     bool _boldEnabled;
     bool _italicsEnabled;
-    DrawNode* _underlineNode;
     bool _strikethroughEnabled;
+    /// whether or not the label was inside bounds the previous frame
+    bool _insideBounds;
+    bool _isOpacityModifyRGB;
+    bool _enableWrap;
+    bool _clipEnabled;
+    bool _blendFuncDirty;
+    bool _useDistanceField;
+    bool _useA8Shader;
+    bool _shadowDirty;
+    bool _shadowEnabled;
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(Label);
 };

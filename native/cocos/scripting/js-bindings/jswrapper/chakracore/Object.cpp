@@ -165,7 +165,8 @@ namespace se {
         if (_rootCount > 0)
         {
             // Don't unprotect if it's in cleanup, otherwise, it will trigger crash.
-            if (!ScriptEngine::getInstance()->_isInCleanup)
+            auto se = ScriptEngine::getInstance();
+            if (!se->_isInCleanup && !se->isInGC())
             {
                 unsigned int count = 0;
                 _CHECK(JsRelease(_obj, &count));
@@ -571,7 +572,8 @@ namespace se {
             if (_rootCount == 0)
             {
                 // Don't unprotect if it's in cleanup, otherwise, it will trigger crash.
-                if (!ScriptEngine::getInstance()->_isInCleanup)
+                auto se = ScriptEngine::getInstance();
+                if (!se->_isInCleanup && !se->isInGC())
                 {
                     unsigned int count = 0;
                     _CHECK(JsRelease(_obj, &count));

@@ -812,7 +812,6 @@ void Director::replaceScene(Scene *scene)
     if (sEngine)
     {
         sEngine->retainScriptObject(this, scene);
-        sEngine->releaseScriptObject(this, _scenesStack.at(index));
     }
 #endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
     _scenesStack.replace(index, scene);
@@ -1091,6 +1090,13 @@ void Director::setNextScene()
 
     if (_runningScene)
     {
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+        auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+        if (sEngine)
+        {
+            sEngine->releaseScriptObject(this, _runningScene);
+        }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
         _runningScene->release();
     }
     _runningScene = _nextScene;

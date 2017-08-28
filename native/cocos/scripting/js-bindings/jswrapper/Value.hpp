@@ -16,7 +16,7 @@ namespace se {
     class Value final
     {
     public:
-        enum class Type
+        enum class Type : char
         {
             Undefined = 0,
             Null,
@@ -378,8 +378,6 @@ namespace se {
         explicit Value(Type type);
         void reset(Type type);
 
-        Type _type;
-
         union {
             bool _boolean;
             double _number;
@@ -387,6 +385,7 @@ namespace se {
             Object* _object;
         } _u;
 
+        Type _type;
         bool _autoRootUnroot;
     };
 

@@ -1023,7 +1023,7 @@ public:
      * @param handler The key to search lua function.
      * @param priority A given priority value.
      */
-    void scheduleUpdateWithPriorityLua(int handler, int priority);
+//    void scheduleUpdateWithPriorityLua(int handler, int priority);
 
     /// @}  end Script Bindings
 
@@ -1679,66 +1679,88 @@ public:
      * Set the callback of event onEnter.
      * @param callback A std::function<void()> callback.
      */
-    void setOnEnterCallback(const std::function<void()>& callback) { _onEnterCallback = callback; }
-    /**
-     * Get the callback of event onEnter.
-     * @return A std:function<void()> callback.
-     */
-    const std::function<void()>& getOnEnterCallback() const { return _onEnterCallback; }
-    /**
-     * Set the callback of event onExit.
-     * @param callback A std::function<void()> callback.
-     */
-    void setOnExitCallback(const std::function<void()>& callback) { _onExitCallback = callback; }
-    /**
-     * Get the callback of event onExit.
-     * @return A std::function<void()>.
-     */
-    const std::function<void()>& getOnExitCallback() const { return _onExitCallback; }
-    /**
-     * Set the callback of event EnterTransitionDidFinish.
-     * @param callback A std::function<void()> callback.
-     */
-    void setonEnterTransitionDidFinishCallback(const std::function<void()>& callback) { _onEnterTransitionDidFinishCallback = callback; }
-    /**
-     * Get the callback of event EnterTransitionDidFinish.
-     * @return std::function<void()>
-     */
-    const std::function<void()>& getonEnterTransitionDidFinishCallback() const { return _onEnterTransitionDidFinishCallback; }
-    /**
-     * Set the callback of event ExitTransitionDidStart.
-     * @param callback A std::function<void()> callback.
-     */
-    void setonExitTransitionDidStartCallback(const std::function<void()>& callback) { _onExitTransitionDidStartCallback = callback; }
-    /**
-     * Get the callback of event ExitTransitionDidStart.
-     * @return std::function<void()>
-     */
-    const std::function<void()>& getonExitTransitionDidStartCallback() const { return _onExitTransitionDidStartCallback; }
-    
+//    void setOnEnterCallback(const std::function<void()>& callback) { _onEnterCallback = callback; }
+//    /**
+//     * Get the callback of event onEnter.
+//     * @return A std:function<void()> callback.
+//     */
+//    const std::function<void()>& getOnEnterCallback() const { return _onEnterCallback; }
+//    /**
+//     * Set the callback of event onExit.
+//     * @param callback A std::function<void()> callback.
+//     */
+//    void setOnExitCallback(const std::function<void()>& callback) { _onExitCallback = callback; }
+//    /**
+//     * Get the callback of event onExit.
+//     * @return A std::function<void()>.
+//     */
+//    const std::function<void()>& getOnExitCallback() const { return _onExitCallback; }
+//    /**
+//     * Set the callback of event EnterTransitionDidFinish.
+//     * @param callback A std::function<void()> callback.
+//     */
+//    void setonEnterTransitionDidFinishCallback(const std::function<void()>& callback) { _onEnterTransitionDidFinishCallback = callback; }
+//    /**
+//     * Get the callback of event EnterTransitionDidFinish.
+//     * @return std::function<void()>
+//     */
+//    const std::function<void()>& getonEnterTransitionDidFinishCallback() const { return _onEnterTransitionDidFinishCallback; }
+//    /**
+//     * Set the callback of event ExitTransitionDidStart.
+//     * @param callback A std::function<void()> callback.
+//     */
+//    void setonExitTransitionDidStartCallback(const std::function<void()>& callback) { _onExitTransitionDidStartCallback = callback; }
+//    /**
+//     * Get the callback of event ExitTransitionDidStart.
+//     * @return std::function<void()>
+//     */
+//    const std::function<void()>& getonExitTransitionDidStartCallback() const { return _onExitTransitionDidStartCallback; }
+
     /**
      * Set the callback of BeforeVisit.
      * @param callback A std::function<void()> callback.
      */
-    void setBeforeVisitCallback(const std::function<void(Renderer*)>& callback) { _beforeVisitCallback = callback; }
+    void setBeforeVisitCallback(const std::function<void(Renderer*)>& callback) {
+        if (_beforeVisitCallback == nullptr)
+            _beforeVisitCallback = new (std::nothrow) std::function<void(Renderer*)>();
+        *_beforeVisitCallback = callback;
+    }
     
     /**
      * Get the callback of event BeforeVisit.
      * @return std::function<void()>
      */
-    const std::function<void(Renderer*)>& getBeforeVisitCallback() const { return _beforeVisitCallback; }
+    const std::function<void(Renderer*)>& getBeforeVisitCallback() const {
+        if (_beforeVisitCallback == nullptr) {
+            auto cb = new (std::nothrow) std::function<void(Renderer*)>();
+            *cb = nullptr;
+            const_cast<Node*>(this)->_beforeVisitCallback = cb;
+        }
+        return *_beforeVisitCallback;
+    }
     
     /**
      * Set the callback of BeforeVisit.
      * @param callback A std::function<void()> callback.
      */
-    void setAfterVisitCallback(const std::function<void(Renderer*)>& callback) { _afterVisitCallback = callback; }
+    void setAfterVisitCallback(const std::function<void(Renderer*)>& callback) {
+        if (_afterVisitCallback == nullptr)
+            _afterVisitCallback = new (std::nothrow) std::function<void(Renderer*)>();
+        *_afterVisitCallback = callback;
+    }
     
     /**
      * Get the callback of event BeforeVisit.
      * @return std::function<void()>
      */
-    const std::function<void(Renderer*)>& getAfterVisitCallback() const { return _afterVisitCallback; }
+    const std::function<void(Renderer*)>& getAfterVisitCallback() const {
+        if (_afterVisitCallback == nullptr) {
+            auto cb = new (std::nothrow) std::function<void(Renderer*)>();
+            *cb = nullptr;
+            const_cast<Node*>(this)->_afterVisitCallback = cb;
+        }
+        return *_afterVisitCallback;
+    }
     
     /**
      * get & set camera mask, the node is visible by the camera whose camera flag & node's camera mask is true
@@ -1811,6 +1833,31 @@ private:
     void postInsertChild(Node* child);
 
 protected:
+    static unsigned int s_globalOrderOfArrival;
+
+    //    std::function<void()> _onEnterCallback;
+    //    std::function<void()> _onExitCallback;
+    //    std::function<void()> _onEnterTransitionDidFinishCallback;
+    //    std::function<void()> _onExitTransitionDidStartCallback;
+    std::function<void(Renderer*)>* _beforeVisitCallback;
+    std::function<void(Renderer*)>* _afterVisitCallback;
+
+    std::int64_t _localZOrderAndArrival; /// cache, for 64bits compress optimize.
+    mutable Mat4* _additionalTransform; ///< two transforms needed by additional transforms
+    Vector<Node*> _children;        ///< array of children nodes
+    Node* _parent;                  ///< weak reference to parent node
+    Director* _director;            //cached director pointer to improve rendering performance
+    std::string _name;              ///<a string label, an user defined string to identify this node
+    size_t _hashOfName;             ///<hash value of _name, used for speed in getChildByName
+
+    void* _userData;                ///< A user assigned void pointer, Can be point to any cpp object
+    Ref*_userObject;               ///< A user assigned Object
+
+    GLProgramState* _glProgramState; ///< OpenGL Program State
+    Scheduler* _scheduler;          ///< scheduler used to schedule timers and updates
+    ActionManager* _actionManager;  ///< a pointer to ActionManager singleton, which is used to handle all the actions
+    EventDispatcher* _eventDispatcher;  ///< event dispatcher used to dispatch all kinds of events
+    ComponentContainer* _componentContainer; ///< Dictionary of components
 
     float _rotationX;               ///< rotation on the X-axis
     float _rotationY;               ///< rotation on the Y-axis
@@ -1828,8 +1875,7 @@ protected:
     Vec2 _position;                 ///< position of the node
     float _positionZ;               ///< OpenGL real Z position
     Vec2 _normalizedPosition;
-    bool _usingNormalizedPosition;
-    bool _normalizedPositionDirty;
+
 
     float _skewX;                   ///< skew angle on x-axis
     float _skewY;                   ///< skew angle on y-axis
@@ -1838,81 +1884,56 @@ protected:
     Vec2 _anchorPoint;              ///< anchor point normalized (NOT in points)
 
     Size _contentSize;              ///< untransformed size of the node
-    bool _contentSizeDirty;         ///< whether or not the contentSize is dirty
 
     Mat4 _modelViewTransform;       ///< ModelView transform of the Node.
 
     // "cache" variables are allowed to be mutable
     mutable Mat4 _transform;        ///< transform
-    mutable bool _transformDirty;   ///< transform dirty flag
     mutable Mat4 _inverse;          ///< inverse transform
-    mutable bool _inverseDirty;     ///< inverse transform dirty flag
-    mutable Mat4* _additionalTransform; ///< two transforms needed by additional transforms
-    mutable bool _additionalTransformDirty; ///< transform dirty ?
-    bool _transformUpdated;         ///< Whether or not the Transform object was updated since the last frame
-
-    std::int64_t _localZOrderAndArrival; /// cache, for 64bits compress optimize.
-    int _localZOrder; /// < Local order (relative to its siblings) used to sort the node
 
     float _globalZOrder;            ///< Global order used to sort the node
-
-    static unsigned int s_globalOrderOfArrival;
-
-    Vector<Node*> _children;        ///< array of children nodes
-    Node *_parent;                  ///< weak reference to parent node
-    Director* _director;            //cached director pointer to improve rendering performance
+    int _localZOrder; /// < Local order (relative to its siblings) used to sort the node
     int _tag;                       ///< a tag. Can be any number you assigned just to identify this node
-    
-    std::string _name;              ///<a string label, an user defined string to identify this node
-    size_t _hashOfName;             ///<hash value of _name, used for speed in getChildByName
-
-    void *_userData;                ///< A user assigned void pointer, Can be point to any cpp object
-    Ref *_userObject;               ///< A user assigned Object
-
-    GLProgramState *_glProgramState; ///< OpenGL Program State
-
-    Scheduler *_scheduler;          ///< scheduler used to schedule timers and updates
-
-    ActionManager *_actionManager;  ///< a pointer to ActionManager singleton, which is used to handle all the actions
-
-    EventDispatcher* _eventDispatcher;  ///< event dispatcher used to dispatch all kinds of events
-
-    bool _running;                  ///< is running
-
-    bool _visible;                  ///< is this node visible
-
-    bool _ignoreAnchorPointForPosition; ///< true if the Anchor Vec2 will be (0,0) when you position the Node, false otherwise.
-                                          ///< Used by Layer and Scene.
-
-    bool _reorderChildDirty;          ///< children order dirty flag
-    bool _isTransitionFinished;       ///< flag to indicate whether the transition was finished
-
-#if CC_ENABLE_SCRIPT_BINDING
-    int _scriptHandler;               ///< script handler for onEnter() & onExit(), used in Javascript binding and Lua binding.
-    int _updateScriptHandler;         ///< script handler for update() callback per frame, which is invoked from lua & javascript.
-    ccScriptType _scriptType;         ///< type of script binding, lua or javascript
-#endif
-
-    ComponentContainer *_componentContainer;        ///< Dictionary of components
 
     // opacity controls
-    GLubyte     _displayedOpacity;
-    GLubyte     _realOpacity;
     Color3B     _displayedColor;
+    GLubyte     _displayedOpacity;
     Color3B     _realColor;
-    bool        _cascadeColorEnabled;
-    bool        _cascadeOpacityEnabled;
+    GLubyte     _realOpacity;
 
     // camera mask, it is visible only when _cameraMask & current camera' camera flag is true
     unsigned short _cameraMask;
 
-    std::function<void()> _onEnterCallback;
-    std::function<void()> _onExitCallback;
-    std::function<void()> _onEnterTransitionDidFinishCallback;
-    std::function<void()> _onExitTransitionDidStartCallback;
-    std::function<void(Renderer*)> _beforeVisitCallback;
-    std::function<void(Renderer*)> _afterVisitCallback;
+#if CC_ENABLE_SCRIPT_BINDING
+    //    int _scriptHandler;               ///< script handler for onEnter() & onExit(), used in Javascript binding and Lua binding.
+    //    int _updateScriptHandler;         ///< script handler for update() callback per frame, which is invoked from lua & javascript.
+    ccScriptType _scriptType;         ///< type of script binding, lua or javascript
+#endif
 
+#if COCOS2D_DEBUG > 0
+    bool _wasCleanup;
+#endif
+
+    bool _usingNormalizedPosition;
+    bool _normalizedPositionDirty;
+
+    bool _running;                  ///< is running
+    bool _visible;                  ///< is this node visible
+    bool _ignoreAnchorPointForPosition; ///< true if the Anchor Vec2 will be (0,0) when you position the Node, false otherwise. Used by Layer and Scene.
+    bool _reorderChildDirty;          ///< children order dirty flag
+    bool _isTransitionFinished;       ///< flag to indicate whether the transition was finished
+
+    bool _cascadeColorEnabled;
+    bool _cascadeOpacityEnabled;
+
+    bool _contentSizeDirty;         ///< whether or not the contentSize is dirty
+
+    mutable bool _transformDirty;   ///< transform dirty flag
+    mutable bool _inverseDirty;     ///< inverse transform dirty flag
+    mutable bool _additionalTransformDirty; ///< transform dirty ?
+
+    bool _transformUpdated;         ///< Whether or not the Transform object was updated since the last frame
+    char padding[7];
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(Node);
 };

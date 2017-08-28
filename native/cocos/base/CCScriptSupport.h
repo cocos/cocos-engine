@@ -53,7 +53,7 @@ class CallFunc;
 class Acceleration;
 class Action;
 
-enum ccScriptType {
+enum ccScriptType : char{
     kScriptTypeNone = 0,
     kScriptTypeLua,
     kScriptTypeJavascript

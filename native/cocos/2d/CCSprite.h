@@ -562,6 +562,8 @@ protected:
     virtual void setReorderChildDirtyRecursively();
     virtual void setDirtyRecursively(bool value);
 
+    std::string _fileName;
+
     //
     // Data used when the sprite is rendered using a SpriteSheet
     //
@@ -572,6 +574,7 @@ protected:
     bool                _dirty;             /// Whether the sprite needs to be updated
     bool                _recursiveDirty;    /// Whether all of the sprite's children needs to be updated
     bool                _shouldBeHidden;    /// should not be drawn because one of the ancestors is not visible
+    bool   _rectRotated;                    /// Whether the texture is rotated
     Mat4              _transformToBatch;
 
     //
@@ -590,7 +593,7 @@ protected:
 
     // texture
     Rect _rect;                             /// Rectangle of Texture2D
-    bool   _rectRotated;                    /// Whether the texture is rotated
+
 
     // Offset Position (used by Zwoptex)
     Vec2 _offsetPosition;
@@ -609,7 +612,6 @@ protected:
 
     bool _insideBounds;                     /// whether or not the sprite was inside bounds the previous frame
 
-    std::string _fileName;
     int _fileType;
 
 private:

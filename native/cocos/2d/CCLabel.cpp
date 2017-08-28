@@ -429,16 +429,20 @@ Label::Label(TextHAlignment hAlignment /* = TextHAlignment::LEFT */,
 Label::~Label()
 {
     delete [] _horizontalKernings;
+    _horizontalKernings = nullptr;
 
-    if (_fontAtlas)
+    if (_fontAtlas != nullptr)
     {
-        Node::removeAllChildrenWithCleanup(true);
+//        Node::removeAllChildrenWithCleanup(true);
         CC_SAFE_RELEASE_NULL(_reusedLetter);
         _batchNodes.clear();
         FontAtlasCache::releaseFontAtlas(_fontAtlas);
+        _fontAtlas = nullptr;
     }
     _eventDispatcher->removeEventListener(_purgeTextureListener);
+    _purgeTextureListener = nullptr;
     _eventDispatcher->removeEventListener(_resetTextureListener);
+    _resetTextureListener = nullptr;
 
     CC_SAFE_RELEASE_NULL(_textSprite);
     CC_SAFE_RELEASE_NULL(_shadowNode);

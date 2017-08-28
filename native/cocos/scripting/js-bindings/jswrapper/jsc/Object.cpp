@@ -11,15 +11,21 @@ namespace se {
 
     namespace {
         JSContextRef __cx = nullptr;
+#if SE_DEBUG > 0
+        uint32_t __id = 0;
+#endif
     }
 
     Object::Object()
     : _cls(nullptr)
     , _obj(nullptr)
-    , _rootCount(0)
     , _privateData(nullptr)
-    , _isCleanup(false)
     , _finalizeCb(nullptr)
+    , _rootCount(0)
+#if SE_DEBUG > 0
+    , _id(++__id)
+#endif
+    , _isCleanup(false)
     {
     }
 
@@ -170,7 +176,8 @@ namespace se {
         {
 //            printf("Object::_cleanup, (%p) rootCount: %u\n", this, _rootCount);
             // Don't unprotect if it's in cleanup, otherwise, it will trigger crash.
-            if (!ScriptEngine::getInstance()->_isInCleanup)
+            auto se = ScriptEngine::getInstance();
+            if (!se->_isInCleanup && !se->isInGC())
                 JSValueUnprotect(__cx, _obj);
 
             _rootCount = 0;
@@ -181,6 +188,7 @@ namespace se {
 
     void Object::_setFinalizeCallback(JSObjectFinalizeCallback finalizeCb)
     {
+        assert(finalizeCb != nullptr);
         _finalizeCb = finalizeCb;
     }
 
@@ -548,7 +556,8 @@ namespace se {
             if (_rootCount == 0)
             {
                 // Don't unprotect if it's in cleanup, otherwise, it will trigger crash.
-                if (!ScriptEngine::getInstance()->_isInCleanup)
+                auto se = ScriptEngine::getInstance();
+                if (!se->_isInCleanup && !se->isInGC())
                     JSValueUnprotect(__cx, _obj);
             }
         }
