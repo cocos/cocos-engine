@@ -129,9 +129,7 @@ if ((sys.os === sys.OS_WINDOWS || sys.os === sys.OS_LINUX) && sys.browser !== sy
     misc.imagePool.resize(0);
 }
 
-misc.isBuiltinClassId = function (id) {
-    return id.startsWith('cc.') || id.startsWith('dragonBones.') || id.startsWith('sp.') || id.startsWith('ccsg.');
-};
+misc.BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
 
 
 var BASE64_KEYS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
