@@ -4,7 +4,7 @@ var AnimationManager = cc.Class({
     ctor: function () {
         this.__instanceId = cc.ClassManager.getNewInstanceId();
 
-        this._animators = new JS.array.MutableForwardIterator([]);
+        this._anims = new JS.array.MutableForwardIterator([]);
 
         this._delayEvents = [];
     },
@@ -12,12 +12,12 @@ var AnimationManager = cc.Class({
     // for manager
 
     update: function (dt) {
-        var iterator = this._animators;
+        var iterator = this._anims;
         var array = iterator.array;
         for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-            var animator = array[iterator.i];
-            if (animator._isPlaying && !animator._isPaused) {
-                animator.update(dt);
+            var anim = array[iterator.i];
+            if (anim._isPlaying && !anim._isPaused) {
+                anim.update(dt);
             }
         }
 
@@ -31,25 +31,24 @@ var AnimationManager = cc.Class({
 
     destruct: function () {},
 
-    // for animator
 
     /**
-     * @param {Animator} animator
+     * @param {AnimationNode} anim
      */
-    addAnimator: function (animator) {
-        var index = this._animators.array.indexOf(animator);
+    addAnimation: function (anim) {
+        var index = this._anims.array.indexOf(anim);
         if (index === -1) {
-            this._animators.push(animator);
+            this._anims.push(anim);
         }
     },
 
     /**
-     * @param {Animator} animator
+     * @param {AnimationNode} anim
      */
-    removeAnimator: function (animator) {
-        var index = this._animators.array.indexOf(animator);
+    removeAnimation: function (anim) {
+        var index = this._anims.array.indexOf(anim);
         if (index >= 0) {
-            this._animators.fastRemoveAt(index);
+            this._anims.fastRemoveAt(index);
         }
         else {
             cc.errorID(3907);
