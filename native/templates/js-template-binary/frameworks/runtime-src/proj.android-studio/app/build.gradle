@@ -121,17 +121,27 @@ android.applicationVariants.all { variant ->
     }
 }
 
-
-task copyNativeLibs(type: Copy) {  
-    from('./obj/local') {
-        include '**/*.so'
-        exclude '**/objs*'
+def copySo() {
+    copy {
+        from('./obj/local') {
+            include '**/*.so'
+            exclude '**/objs*'
+        }
+        into './libs'
     }
-    into './libs'
-}  
-tasks.withType(JavaCompile) {  
-    compileTask -> compileTask.dependsOn copyNativeLibs  
-} 
+}
+
+afterEvaluate {
+    externalNativeBuildDebug.doLast {
+        println ('Copying debug .so')
+        copySo()
+    }
+
+    externalNativeBuildRelease.doLast {
+        println ('Copying release .so')
+        copySo()
+    }
+}
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
