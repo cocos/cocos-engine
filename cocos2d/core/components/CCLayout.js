@@ -147,8 +147,13 @@ var HorizontalDirection = cc.Enum({
 });
 
 /**
- * !#en The Layout is a container component, use it to arrange child elements easily.
- * !#zh Layout 组件相当于一个容器，能自动对它的所有子节点进行统一排版。
+ * !#en
+ * The Layout is a container component, use it to arrange child elements easily.
+ * But after setting the Layout, the results need to be updated until the next frame,
+ * unless you manually call {{#crossLink "Layout/updateLayout:method"}}{{/crossLink}}。
+ * !#zh
+ * Layout 组件相当于一个容器，能自动对它的所有子节点进行统一排版。
+ * 但是对 Layout 设置后结果需要到下一帧才会更新，除非你设置完以后手动调用 {{#crossLink "Layout/updateLayout:method"}}{{/crossLink}}。
  * @class Layout
  * @extends Component
  */
@@ -222,7 +227,7 @@ var Layout = cc.Class({
                 }
 
                 this._resize = value;
-                if (CC_EDITOR && this.type !== Type.NONE && value === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
+                if (CC_EDITOR && value === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
                     var reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
                     if (reLayouted) {
                         return;
@@ -425,7 +430,7 @@ var Layout = cc.Class({
     },
 
     _addEventListeners: function () {
-        cc.director.on(cc.Director.EVENT_BEFORE_VISIT, this._updateLayout, this);
+        cc.director.on(cc.Director.EVENT_BEFORE_VISIT, this.updateLayout, this);
         this.node.on('size-changed', this._resized, this);
         this.node.on('anchor-changed', this._doLayoutDirty, this);
         this.node.on('child-added', this._childAdded, this);
@@ -435,7 +440,7 @@ var Layout = cc.Class({
     },
 
     _removeEventListeners: function () {
-        cc.director.off(cc.Director.EVENT_BEFORE_VISIT, this._updateLayout, this);
+        cc.director.off(cc.Director.EVENT_BEFORE_VISIT, this.updateLayout, this);
         this.node.off('size-changed', this._resized, this);
         this.node.off('anchor-changed', this._doLayoutDirty, this);
         this.node.off('child-added', this._childAdded, this);
@@ -923,7 +928,20 @@ var Layout = cc.Class({
         }
     },
 
-    _updateLayout: function() {
+    /**
+     * !#en Perform the layout update
+     * !#zh 立即执行更新布局
+     *
+     * @method updateLayout
+     *
+     * @example
+     * layout.type = cc.Layout.HORIZONTAL;
+     * layout.node.addChild(childNode);
+     * cc.log(childNode.x); // not yet changed
+     * layout.updateLayout();
+     * cc.log(childNode.x); // changed
+     */
+    updateLayout: function() {
         if (this._layoutDirty && this.node.children.length > 0) {
             this._doLayout();
             this._layoutDirty = false;

@@ -345,7 +345,7 @@ var ccclass = checkCtorArgument(function (ctor, name) {
  *
  *     &#64;property
  *     set width (value) {
- *         return this._width = value;
+ *         this._width = value;
  *     }
  *
  *     &#64;property

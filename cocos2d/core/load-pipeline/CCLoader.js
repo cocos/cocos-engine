@@ -232,17 +232,16 @@ proto.load = function(resources, progressCallback, completeCallback) {
 
     var queue = LoadingItems.create(this, progressCallback, function (errors, items) {
         callInNextTick(function () {
-            if (!completeCallback)
-                return;
-
-            if (singleRes) {
-                var id = res.url;
-                completeCallback.call(self, items.getError(id), items.getContent(id));
+            if (completeCallback) {
+                if (singleRes) {
+                    var id = res.url;
+                    completeCallback.call(self, items.getError(id), items.getContent(id));
+                }
+                else {
+                    completeCallback.call(self, errors, items);
+                }
+                completeCallback = null;
             }
-            else {
-                completeCallback.call(self, errors, items);
-            }
-            completeCallback = null;
 
             if (CC_EDITOR) {
                 for (var id in self._cache) {
