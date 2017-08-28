@@ -193,8 +193,8 @@ void ClippingNode::visit(Renderer *renderer, const Mat4 &parentTransform, uint32
     if (!_visible || !hasContent())
         return;
 
-    if (_beforeVisitCallback) {
-        _beforeVisitCallback(renderer);
+    if (_beforeVisitCallback && *_beforeVisitCallback) {
+        (*_beforeVisitCallback)(renderer);
     }
     
     uint32_t flags = processParentFlags(parentTransform, parentFlags);
@@ -276,8 +276,8 @@ void ClippingNode::visit(Renderer *renderer, const Mat4 &parentTransform, uint32
 
     _director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
     
-    if (_afterVisitCallback) {
-        _afterVisitCallback(renderer);
+    if (_afterVisitCallback && *_afterVisitCallback) {
+        (*_afterVisitCallback)(renderer);
     }
 }
 
