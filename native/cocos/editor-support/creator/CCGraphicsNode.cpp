@@ -1028,8 +1028,9 @@ void GraphicsNode::allocBuffer()
 {
     if (_buffer) {
         const auto iterator = std::find(_buffers.begin(), _buffers.end(), _buffer);
-        if (iterator != _buffers.end()) {
+        if (iterator != _buffers.end() && (*iterator) != _buffers.back()) {
             _buffer = *(iterator+1);
+            return;
         }
     }
     

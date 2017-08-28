@@ -159,6 +159,10 @@ RuntimeJsImpl* RuntimeJsImpl::create()
 
 bool RuntimeJsImpl::initJsEnv()
 {
+    if (!ScriptingCore::getInstance()->getGlobalContext())
+    {
+        _hasStarted = false;
+    }
     if (_hasStarted)
     {
         return true;
@@ -212,8 +216,8 @@ void RuntimeJsImpl::onClearCompile(const rapidjson::Document& dArgParse, rapidjs
     }
     else
     {
-        std::unordered_map<std::string, JS::PersistentRootedScript*> filenameScript = ScriptingCore::getInstance()->getFileScript();
-        filenameScript.clear();
+        std::unordered_map<std::string, JS::PersistentRootedScript*> *filenameScript = ScriptingCore::getInstance()->getFileScript();
+        filenameScript->clear();
     }
     
     dReplyParse.AddMember("code",0,dReplyParse.GetAllocator());
