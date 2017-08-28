@@ -285,9 +285,10 @@ var audioEngine = {
         var audio = getAudioFromId(audioID);
         if (!audio)
             return;
+        audio.off('ended', audio._finishCallback);
 
-        audio.off('ended');
-        audio.on('ended', callback);
+        audio._finishCallback = callback;
+        audio.on('ended', audio._finishCallback);
     },
 
     /**
