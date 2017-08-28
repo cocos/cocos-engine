@@ -522,8 +522,8 @@
 		1A75DC171DFE3C7700A271DF /* AudioDecoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A5FB7C81DF10E3500C918C1 /* AudioDecoder.h */; };
 		1A75DC181DFE3C7700A271DF /* AudioDecoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A5FB7C71DF10E3500C918C1 /* AudioDecoder.mm */; };
 		1A75DC191DFE3C7700A271DF /* AudioMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A5FB7C91DF10E3500C918C1 /* AudioMacros.h */; };
-		1A8D25511F39C4E3002CC0A8 /* WebSocket-apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF191F20AF94007A1D9D /* WebSocket-apple.mm */; };
-		1A8D25521F39C4E4002CC0A8 /* WebSocket-apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF191F20AF94007A1D9D /* WebSocket-apple.mm */; };
+		1A8D25511F39C4E3002CC0A8 /* WebSocket-apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF191F20AF94007A1D9D /* WebSocket-apple.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A8D25521F39C4E4002CC0A8 /* WebSocket-apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF191F20AF94007A1D9D /* WebSocket-apple.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		1A9DCA27180E6955007A3AD4 /* CCGLBufferedNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A9DCA02180E6955007A3AD4 /* CCGLBufferedNode.cpp */; };
 		1A9DCA28180E6955007A3AD4 /* CCGLBufferedNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A9DCA02180E6955007A3AD4 /* CCGLBufferedNode.cpp */; };
 		1A9DCA29180E6955007A3AD4 /* CCGLBufferedNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A9DCA03180E6955007A3AD4 /* CCGLBufferedNode.h */; };
