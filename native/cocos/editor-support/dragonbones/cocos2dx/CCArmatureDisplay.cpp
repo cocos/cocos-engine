@@ -1,4 +1,5 @@
 #include "CCArmatureDisplay.h"
+#include "editor-support/creator/CCCameraNode.h"
 
 DRAGONBONES_NAMESPACE_BEGIN
 
@@ -131,16 +132,17 @@ cocos2d::Vec2 DBCCSprite::projectGL(const cocos2d::Vec3& src) const
 
 bool DBCCSprite::_checkVisibility(const cocos2d::Mat4& transform, const cocos2d::Size& size, const cocos2d::Rect& rect)
 {
-    ////---- TODO Not support camera in -x-lite now
-//    auto scene = cocos2d::Director::getInstance()->getRunningScene();
-//
-    //If draw to Rendertexture, return true directly.
-    // only cull the default camera. The culling algorithm is valid for default camera.
-//    if (!scene || (scene && scene->getDefaultCamera() != cocos2d::Camera::getVisitingCamera()))
-//        return true;
-
     auto director = cocos2d::Director::getInstance();
-    cocos2d::Rect visiableRect(director->getVisibleOrigin(), director->getVisibleSize());
+    
+    creator::CameraNode* camera = creator::CameraNode::getInstance();
+    cocos2d::Rect visibleRect;
+    if (!camera || camera->visitingIndex <= 0) {
+        visibleRect.origin = director->getVisibleOrigin();
+        visibleRect.size = director->getVisibleSize();
+    }
+    else {
+        visibleRect = camera->getVisibleRect();
+    }
 
     // transform center point to screen space
     float hSizeX = size.width / 2;
@@ -149,8 +151,6 @@ bool DBCCSprite::_checkVisibility(const cocos2d::Mat4& transform, const cocos2d:
     cocos2d::Vec3 v3p(hSizeX + rect.origin.x, hSizeY + rect.origin.y, 0);
 
     transform.transformPoint(&v3p);
-    ////---- TODO Not support camera in -x-lite now
-//    cocos2d::Vec2 v2p = cocos2d::Camera::getVisitingCamera()->projectGL(v3p);
     cocos2d::Vec2 v2p = projectGL(v3p);
 
     // convert content size to world coordinates
@@ -158,11 +158,11 @@ bool DBCCSprite::_checkVisibility(const cocos2d::Mat4& transform, const cocos2d:
     float wshh = std::max(fabsf(hSizeX * transform.m[1] + hSizeY * transform.m[5]), fabsf(hSizeX * transform.m[1] - hSizeY * transform.m[5]));
 
     // enlarge visible rect half size in screen coord
-    visiableRect.origin.x -= wshw;
-    visiableRect.origin.y -= wshh;
-    visiableRect.size.width += wshw * 2;
-    visiableRect.size.height += wshh * 2;
-    bool ret = visiableRect.containsPoint(v2p);
+    visibleRect.origin.x -= wshw;
+    visibleRect.origin.y -= wshh;
+    visibleRect.size.width += wshw * 2;
+    visibleRect.size.height += wshh * 2;
+    bool ret = visibleRect.containsPoint(v2p);
     return ret;
 }
 
@@ -171,18 +171,6 @@ void DBCCSprite::draw(cocos2d::Renderer* renderer, const cocos2d::Mat4& transfor
 #if CC_USE_CULLING
     const auto& rect = this->_polyInfo.rect;
 
-    ////---- TODO Not support camera in -x-lite now
-    // Don't do calculate the culling if the transform was not updated
-//    auto visitingCamera = cocos2d::Camera::getVisitingCamera();
-//    auto defaultCamera = cocos2d::Camera::getDefaultCamera();
-//    if (visitingCamera == defaultCamera) {
-//        _insideBounds = ((flags & FLAGS_TRANSFORM_DIRTY) || visitingCamera->isViewProjectionUpdated()) ? _checkVisibility(transform, _contentSize, rect) : _insideBounds;
-//    }
-//    else
-//    {
-//        _insideBounds = _checkVisibility(transform, _contentSize, rect);
-//    }
-    
     if ((flags & FLAGS_TRANSFORM_DIRTY))
     {
         _insideBounds = _checkVisibility(transform, _contentSize, rect);

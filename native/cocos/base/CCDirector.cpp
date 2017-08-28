@@ -961,6 +961,7 @@ void Director::reset()
 
     // cleanup scheduler
     getScheduler()->unscheduleAll();
+    getScheduler()->removeAllFunctionsToBePerformedInCocosThread();
 
     // Remove all events
     if (_eventDispatcher)
