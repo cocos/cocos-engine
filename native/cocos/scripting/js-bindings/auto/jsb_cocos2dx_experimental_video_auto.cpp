@@ -193,7 +193,7 @@ static bool js_cocos2dx_experimental_video_VideoPlayer_onPlayEvent(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_onPlayEvent : Error processing arguments");
         cobj->onPlayEvent(arg0);
         return true;

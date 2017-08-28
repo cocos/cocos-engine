@@ -894,16 +894,6 @@ str
 },
 
 /**
- * @method updateDisplayedOpacity
- * @param {unsigned char} arg0
- */
-updateDisplayedOpacity : function (
-char 
-)
-{
-},
-
-/**
  * @method init
  * @return {bool}
  */
@@ -1342,14 +1332,6 @@ getNumberOfRunningActions : function (
 },
 
 /**
- * @method updateTransform
- */
-updateTransform : function (
-)
-{
-},
-
-/**
  * @method isVisible
  * @return {bool}
  */
@@ -1406,15 +1388,17 @@ component
 },
 
 /**
- * @method runAction
- * @param {cc.Action} arg0
- * @return {cc.Action}
- */
-runAction : function (
-action 
+ * @method visit
+* @param {cc.Renderer} renderer
+* @param {mat4_object} mat4
+* @param {unsigned int} int
+*/
+visit : function(
+renderer,
+mat4,
+int 
 )
 {
-    return cc.Action;
 },
 
 /**
@@ -1448,17 +1432,15 @@ getAnchorPointInPoints : function (
 },
 
 /**
- * @method visit
-* @param {cc.Renderer} renderer
-* @param {mat4_object} mat4
-* @param {unsigned int} int
-*/
-visit : function(
-renderer,
-mat4,
-int 
+ * @method runAction
+ * @param {cc.Action} arg0
+ * @return {cc.Action}
+ */
+runAction : function (
+action 
 )
 {
+    return cc.Action;
 },
 
 /**
@@ -1721,16 +1703,6 @@ bool
 },
 
 /**
- * @method updateDisplayedColor
- * @param {color3b_object} arg0
- */
-updateDisplayedColor : function (
-color3b 
-)
-{
-},
-
-/**
  * @method setVisible
  * @param {bool} arg0
  */
@@ -1985,16 +1957,6 @@ touch
 },
 
 /**
- * @method update
- * @param {float} arg0
- */
-update : function (
-float 
-)
-{
-},
-
-/**
  * @method sortAllChildren
  */
 sortAllChildren : function (
@@ -2030,14 +1992,6 @@ getOpacity : function (
 )
 {
     return 0;
-},
-
-/**
- * @method updateOrderOfArrival
- */
-updateOrderOfArrival : function (
-)
-{
 },
 
 /**
@@ -4716,16 +4670,6 @@ getOriginalTarget : function (
  * @method stop
  */
 stop : function (
-)
-{
-},
-
-/**
- * @method update
- * @param {float} arg0
- */
-update : function (
-float 
 )
 {
 },

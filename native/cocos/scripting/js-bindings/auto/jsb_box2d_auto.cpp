@@ -14,7 +14,7 @@ static bool js_box2dclasses_b2Draw_AppendFlags(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         unsigned int arg0 = 0;
-        ok &= seval_to_uint32(args[0], &arg0);
+        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2Draw_AppendFlags : Error processing arguments");
         cobj->AppendFlags(arg0);
         return true;
@@ -53,7 +53,7 @@ static bool js_box2dclasses_b2Draw_ClearFlags(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         unsigned int arg0 = 0;
-        ok &= seval_to_uint32(args[0], &arg0);
+        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2Draw_ClearFlags : Error processing arguments");
         cobj->ClearFlags(arg0);
         return true;
@@ -76,7 +76,7 @@ static bool js_box2dclasses_b2Draw_DrawPolygon(se::State& s)
         b2Color arg2;
         #pragma warning NO CONVERSION TO NATIVE FOR b2Vec2*
         ok = false;
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         #pragma warning NO CONVERSION TO NATIVE FOR b2Color
         ok = false;
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2Draw_DrawPolygon : Error processing arguments");
@@ -116,7 +116,7 @@ static bool js_box2dclasses_b2Draw_DrawSolidPolygon(se::State& s)
         b2Color arg2;
         #pragma warning NO CONVERSION TO NATIVE FOR b2Vec2*
         ok = false;
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         #pragma warning NO CONVERSION TO NATIVE FOR b2Color
         ok = false;
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2Draw_DrawSolidPolygon : Error processing arguments");
@@ -161,7 +161,7 @@ static bool js_box2dclasses_b2Draw_SetFlags(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         unsigned int arg0 = 0;
-        ok &= seval_to_uint32(args[0], &arg0);
+        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2Draw_SetFlags : Error processing arguments");
         cobj->SetFlags(arg0);
         return true;
@@ -321,8 +321,8 @@ static bool js_box2dclasses_b2Shape_GetType(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->GetType();
-        ok &= int32_to_seval(result, &s.rval());
+        unsigned int result = (unsigned int)cobj->GetType();
+        ok &= uint32_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2Shape_GetType : Error processing arguments");
         return true;
     }
@@ -349,7 +349,7 @@ static bool js_box2dclasses_b2Shape_RayCast(se::State& s)
         ok = false;
         #pragma warning NO CONVERSION TO NATIVE FOR b2Transform
         ok = false;
-        ok &= seval_to_int32(args[3], (int32_t *)&arg3);
+        ok &= seval_to_int32(args[3], (int32_t*)&arg3);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2Shape_RayCast : Error processing arguments");
         bool result = cobj->RayCast(arg0, arg1, arg2, arg3);
         ok &= boolean_to_seval(result, &s.rval());
@@ -376,7 +376,7 @@ static bool js_box2dclasses_b2Shape_ComputeAABB(se::State& s)
         ok = false;
         #pragma warning NO CONVERSION TO NATIVE FOR b2Transform
         ok = false;
-        ok &= seval_to_int32(args[2], (int32_t *)&arg2);
+        ok &= seval_to_int32(args[2], (int32_t*)&arg2);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2Shape_ComputeAABB : Error processing arguments");
         cobj->ComputeAABB(arg0, arg1, arg2);
         return true;
@@ -486,7 +486,7 @@ static bool js_box2dclasses_b2CircleShape_GetVertex(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2CircleShape_GetVertex : Error processing arguments");
         const b2Vec2& result = cobj->GetVertex(arg0);
         ok &= b2Vec2_to_seval(result, &s.rval());
@@ -537,7 +537,7 @@ static bool js_box2dclasses_b2CircleShape_RayCast(se::State& s)
         ok = false;
         #pragma warning NO CONVERSION TO NATIVE FOR b2Transform
         ok = false;
-        ok &= seval_to_int32(args[3], (int32_t *)&arg3);
+        ok &= seval_to_int32(args[3], (int32_t*)&arg3);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2CircleShape_RayCast : Error processing arguments");
         bool result = cobj->RayCast(arg0, arg1, arg2, arg3);
         ok &= boolean_to_seval(result, &s.rval());
@@ -564,7 +564,7 @@ static bool js_box2dclasses_b2CircleShape_ComputeAABB(se::State& s)
         ok = false;
         #pragma warning NO CONVERSION TO NATIVE FOR b2Transform
         ok = false;
-        ok &= seval_to_int32(args[2], (int32_t *)&arg2);
+        ok &= seval_to_int32(args[2], (int32_t*)&arg2);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2CircleShape_ComputeAABB : Error processing arguments");
         cobj->ComputeAABB(arg0, arg1, arg2);
         return true;
@@ -815,7 +815,7 @@ static bool js_box2dclasses_b2EdgeShape_RayCast(se::State& s)
         ok = false;
         #pragma warning NO CONVERSION TO NATIVE FOR b2Transform
         ok = false;
-        ok &= seval_to_int32(args[3], (int32_t *)&arg3);
+        ok &= seval_to_int32(args[3], (int32_t*)&arg3);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2EdgeShape_RayCast : Error processing arguments");
         bool result = cobj->RayCast(arg0, arg1, arg2, arg3);
         ok &= boolean_to_seval(result, &s.rval());
@@ -842,7 +842,7 @@ static bool js_box2dclasses_b2EdgeShape_ComputeAABB(se::State& s)
         ok = false;
         #pragma warning NO CONVERSION TO NATIVE FOR b2Transform
         ok = false;
-        ok &= seval_to_int32(args[2], (int32_t *)&arg2);
+        ok &= seval_to_int32(args[2], (int32_t*)&arg2);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2EdgeShape_ComputeAABB : Error processing arguments");
         cobj->ComputeAABB(arg0, arg1, arg2);
         return true;
@@ -1020,7 +1020,7 @@ static bool js_box2dclasses_b2ChainShape_GetChildEdge(se::State& s)
         b2EdgeShape* arg0 = nullptr;
         int arg1 = 0;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2ChainShape_GetChildEdge : Error processing arguments");
         cobj->GetChildEdge(arg0, arg1);
         return true;
@@ -1048,7 +1048,7 @@ static bool js_box2dclasses_b2ChainShape_RayCast(se::State& s)
         ok = false;
         #pragma warning NO CONVERSION TO NATIVE FOR b2Transform
         ok = false;
-        ok &= seval_to_int32(args[3], (int32_t *)&arg3);
+        ok &= seval_to_int32(args[3], (int32_t*)&arg3);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2ChainShape_RayCast : Error processing arguments");
         bool result = cobj->RayCast(arg0, arg1, arg2, arg3);
         ok &= boolean_to_seval(result, &s.rval());
@@ -1075,7 +1075,7 @@ static bool js_box2dclasses_b2ChainShape_ComputeAABB(se::State& s)
         ok = false;
         #pragma warning NO CONVERSION TO NATIVE FOR b2Transform
         ok = false;
-        ok &= seval_to_int32(args[2], (int32_t *)&arg2);
+        ok &= seval_to_int32(args[2], (int32_t*)&arg2);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2ChainShape_ComputeAABB : Error processing arguments");
         cobj->ComputeAABB(arg0, arg1, arg2);
         return true;
@@ -1250,7 +1250,7 @@ static bool js_box2dclasses_b2PolygonShape_GetVertex(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2PolygonShape_GetVertex : Error processing arguments");
         const b2Vec2& result = cobj->GetVertex(arg0);
         ok &= b2Vec2_to_seval(result, &s.rval());
@@ -1301,7 +1301,7 @@ static bool js_box2dclasses_b2PolygonShape_RayCast(se::State& s)
         ok = false;
         #pragma warning NO CONVERSION TO NATIVE FOR b2Transform
         ok = false;
-        ok &= seval_to_int32(args[3], (int32_t *)&arg3);
+        ok &= seval_to_int32(args[3], (int32_t*)&arg3);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2PolygonShape_RayCast : Error processing arguments");
         bool result = cobj->RayCast(arg0, arg1, arg2, arg3);
         ok &= boolean_to_seval(result, &s.rval());
@@ -1328,7 +1328,7 @@ static bool js_box2dclasses_b2PolygonShape_ComputeAABB(se::State& s)
         ok = false;
         #pragma warning NO CONVERSION TO NATIVE FOR b2Transform
         ok = false;
-        ok &= seval_to_int32(args[2], (int32_t *)&arg2);
+        ok &= seval_to_int32(args[2], (int32_t*)&arg2);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2PolygonShape_ComputeAABB : Error processing arguments");
         cobj->ComputeAABB(arg0, arg1, arg2);
         return true;
@@ -1926,7 +1926,7 @@ static bool js_box2dclasses_b2Body_SetType(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         b2BodyType arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2Body_SetType : Error processing arguments");
         cobj->SetType(arg0);
         return true;
@@ -2329,8 +2329,8 @@ static bool js_box2dclasses_b2Body_GetType(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->GetType();
-        ok &= int32_to_seval(result, &s.rval());
+        unsigned int result = (unsigned int)cobj->GetType();
+        ok &= uint32_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2Body_GetType : Error processing arguments");
         return true;
     }
@@ -2798,7 +2798,7 @@ static bool js_box2dclasses_b2Fixture_GetAABB(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2Fixture_GetAABB : Error processing arguments");
         const b2AABB& result = cobj->GetAABB(arg0);
         ok &= b2AABB_to_seval(result, &s.rval());
@@ -2846,7 +2846,7 @@ static bool js_box2dclasses_b2Fixture_RayCast(se::State& s)
         ok = false;
         #pragma warning NO CONVERSION TO NATIVE FOR b2RayCastInput
         ok = false;
-        ok &= seval_to_int32(args[2], (int32_t *)&arg2);
+        ok &= seval_to_int32(args[2], (int32_t*)&arg2);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2Fixture_RayCast : Error processing arguments");
         bool result = cobj->RayCast(arg0, arg1, arg2);
         ok &= boolean_to_seval(result, &s.rval());
@@ -2882,7 +2882,7 @@ static bool js_box2dclasses_b2Fixture_Dump(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2Fixture_Dump : Error processing arguments");
         cobj->Dump(arg0);
         return true;
@@ -2936,8 +2936,8 @@ static bool js_box2dclasses_b2Fixture_GetType(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->GetType();
-        ok &= int32_to_seval(result, &s.rval());
+        unsigned int result = (unsigned int)cobj->GetType();
+        ok &= uint32_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2Fixture_GetType : Error processing arguments");
         return true;
     }
@@ -3610,8 +3610,8 @@ static bool js_box2dclasses_b2World_Step(se::State& s)
         int arg1 = 0;
         int arg2 = 0;
         ok &= seval_to_float(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
-        ok &= seval_to_int32(args[2], (int32_t *)&arg2);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
+        ok &= seval_to_int32(args[2], (int32_t*)&arg2);
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2World_Step : Error processing arguments");
         cobj->Step(arg0, arg1, arg2);
         return true;
@@ -4559,8 +4559,8 @@ static bool js_box2dclasses_b2Joint_GetType(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->GetType();
-        ok &= int32_to_seval(result, &s.rval());
+        unsigned int result = (unsigned int)cobj->GetType();
+        ok &= uint32_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2Joint_GetType : Error processing arguments");
         return true;
     }
@@ -7437,8 +7437,8 @@ static bool js_box2dclasses_b2RopeJoint_GetLimitState(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->GetLimitState();
-        ok &= int32_to_seval(result, &s.rval());
+        unsigned int result = (unsigned int)cobj->GetLimitState();
+        ok &= uint32_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_box2dclasses_b2RopeJoint_GetLimitState : Error processing arguments");
         return true;
     }
