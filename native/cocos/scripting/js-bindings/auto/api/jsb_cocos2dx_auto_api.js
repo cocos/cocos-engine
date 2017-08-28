@@ -3255,6 +3255,14 @@ int
 },
 
 /**
+ * @method removeAllFunctionsToBePerformedInCocosThread
+ */
+removeAllFunctionsToBePerformedInCocosThread : function (
+)
+{
+},
+
+/**
  * @method Scheduler
  * @constructor
  */

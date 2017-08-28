@@ -384,6 +384,7 @@ SE_DECLARE_FUNC(js_cocos2dx_Scheduler_unscheduleScriptEntry);
 SE_DECLARE_FUNC(js_cocos2dx_Scheduler_unscheduleAll);
 SE_DECLARE_FUNC(js_cocos2dx_Scheduler_getTimeScale);
 SE_DECLARE_FUNC(js_cocos2dx_Scheduler_unscheduleAllWithMinPriority);
+SE_DECLARE_FUNC(js_cocos2dx_Scheduler_removeAllFunctionsToBePerformedInCocosThread);
 SE_DECLARE_FUNC(js_cocos2dx_Scheduler_Scheduler);
 
 extern se::Object* __jsb_cocos2d_AsyncTaskPool_proto;
