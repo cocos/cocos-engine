@@ -320,6 +320,14 @@ dragonBones.ArmatureDisplay = cc.Class({
         }
     },
 
+    _removeSgNode: function () {
+        var sgNode = this._sgNode;
+        this._super();
+        if (sgNode) {
+            sgNode.armature().dispose();
+        }
+    },
+
     _parseDragonAsset : function() {
         if (this.dragonAsset) {
             var jsonObj = JSON.parse(this.dragonAsset.dragonBonesJson);
