@@ -158,7 +158,7 @@ namespace se {
         if (!_isValid)
             return;
 
-        LOGD("ScriptEngine::cleanup begin ...");
+        LOGD("ScriptEngine::cleanup begin ...\n");
         _isInCleanup = true;
         for (const auto& hook : _beforeCleanupHookArray)
         {
@@ -388,6 +388,7 @@ namespace se {
             return executeScriptBuffer(scriptBuffer.c_str(), scriptBuffer.length(), ret, path.c_str());
         }
 
+        LOGE("ScriptEngine::executeScriptFile script buffer is empty!\n");
         return false;
     }
 

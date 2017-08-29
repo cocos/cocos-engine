@@ -405,6 +405,7 @@ namespace se {
             return executeScriptBuffer(scriptBuffer.c_str(), scriptBuffer.length(), ret, path.c_str());
         }
 
+        LOGE("ScriptEngine::executeScriptFile script buffer is empty!\n");
         return false;
     }
 

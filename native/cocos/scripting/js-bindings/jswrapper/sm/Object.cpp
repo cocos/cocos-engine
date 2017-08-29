@@ -28,8 +28,6 @@ namespace se {
         }
     }
 
-    // ------------------------------------------------------- Object
-
     Object::Object()
     : _rootCount(0)
     , _root(nullptr)
