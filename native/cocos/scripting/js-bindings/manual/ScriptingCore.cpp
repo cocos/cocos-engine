@@ -1911,7 +1911,7 @@ void ScriptingCore::unrootObject(Ref* ref)
     else CCLOG("unrootObject: BUG. native not found: %p (%s)",  ref, typeid(*ref).name());
 }
 
-void ScriptingCore::removeObjectProxy(Ref* obj)
+void ScriptingCore::removeObjectProxy(void* obj)
 {
     auto proxy = jsb_get_native_proxy(obj);
     if (proxy)
@@ -2555,6 +2555,10 @@ void jsb_ref_autoreleased_init(JSContext* cx, JS::HandleObject obj, Ref* ref, co
 // rebind
 void jsb_ref_rebind(JSContext* cx, JS::HandleObject jsobj, js_proxy_t *proxy, cocos2d::Ref* oldRef, cocos2d::Ref* newRef, const char* debug)
 {
+#if COCOS2D_DEBUG > 1
+    CCLOG("------REBOUND------ Cpp(%s): %p - JS: %p", debug, oldRef, jsobj.get());
+    CCLOG("++++++REBOUND++++++ Cpp(%s): %p - JS: %p", debug, newRef, jsobj.get());
+#endif // COCOS2D_DEBUG
 #if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
     // Release the old reference as it have been retained by jsobj previously,
     // and the jsobj won't have any chance to release it in the future

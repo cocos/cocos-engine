@@ -111,10 +111,7 @@ bool js_creator_PhysicsContactListener_setBeginContact(JSContext *cx, uint32_t a
                     JS::RootedValue largv(cx);
                     if (larg0) {
                         // box2d will reuse cached memory, need first remove old proxy when create new jsobject
-                        auto larg0Proxy = jsb_get_native_proxy(larg0);
-                        if (larg0Proxy) {
-                            jsb_remove_proxy(larg0Proxy);
-                        }
+                        ScriptingCore::getInstance()->removeObjectProxy(larg0);
                         JS::RootedObject arg0Obj(cx);
                         js_get_or_create_jsobject<b2Contact>(cx, (b2Contact*)larg0, &arg0Obj);
                         largv = JS::ObjectOrNullValue(arg0Obj);

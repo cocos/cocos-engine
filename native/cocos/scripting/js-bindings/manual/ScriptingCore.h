@@ -508,7 +508,7 @@ public:
     
     /** Remove proxy for a native object
      */
-    virtual void removeObjectProxy(cocos2d::Ref* obj) override;
+    virtual void removeObjectProxy(void* obj) override;
 
     /**
      * Calls the Garbage Collector
