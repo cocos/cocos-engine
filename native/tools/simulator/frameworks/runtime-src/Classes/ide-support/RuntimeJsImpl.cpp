@@ -15,8 +15,12 @@
 #include "runtime/FileServer.h"
 
 // js
+#include "scripting/js-bindings/jswrapper/SeApi.h"
+#include "scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp"
 #include "scripting/js-bindings/manual/ScriptingCore.h"
-#include "js_module_register.h"
+#include "scripting/js-bindings/manual/jsb_conversions.hpp"
+#include "scripting/js-bindings/manual/jsb_module_register.hpp"
+#include "scripting/js-bindings/manual/jsb_global.h"
 
 static const char *RUNTIME_JS_BOOT_SCRIPT = "script/jsb_boot.js";
 
@@ -40,27 +44,25 @@ static bool reloadScript(const string& file)
         modulefile = ConfigParser::getInstance()->getEntryFile().c_str();
     }
     
-    return ScriptingCore::getInstance()->runScript(modulefile.c_str());
+    return jsb_run_script(modulefile.c_str());
 }
 
-bool runtime_FileUtils_addSearchPath(JSContext *cx, uint32_t argc, JS::Value *vp)
+static bool runtime_FileUtils_addSearchPath(se::State& s)
 {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    const auto& args = s.args();
+    int argc = (int)args.size();
     bool ok = true;
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "cocos2dx_FileUtils_addSearchPath : Invalid Native Object");
+    cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)s.nativeThisObject();
     if (argc == 1 || argc == 2) {
         std::string arg0;
         bool arg1 = false;
         
-        ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-        JSB_PRECONDITION2(ok, cx, false, "cocos2dx_FileUtils_addSearchPath : Error processing arguments");
+        ok &= seval_to_std_string(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         
         if (argc == 2)
         {
-            arg1 = args.get(1).isBoolean() ? args.get(1).toBoolean() : false;
+            arg1 = args[1].isBoolean() ? args[1].toBoolean() : false;
         }
         
         if (! cocos2d::FileUtils::getInstance()->isAbsolutePath(arg0))
@@ -79,27 +81,24 @@ bool runtime_FileUtils_addSearchPath(JSContext *cx, uint32_t argc, JS::Value *vp
             cobj->addSearchPath(RuntimeEngine::getInstance()->getRuntime()->getProjectPath() + arg0, arg1);
 #endif
         }
-        
-        args.rval().setUndefined();
         return true;
     }
     
-    JS_ReportErrorUTF8(cx, "cocos2dx_FileUtils_addSearchPath : wrong number of arguments: %d, was expecting %d", argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
+SE_BIND_FUNC(runtime_FileUtils_addSearchPath)
 
-bool runtime_FileUtils_setSearchPaths(JSContext *cx, uint32_t argc, JS::Value *vp)
+static bool runtime_FileUtils_setSearchPaths(se::State& s)
 {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    const auto& args = s.args();
+    int argc = (int)args.size();
     bool ok = true;
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_FileUtils_setSearchPaths : Invalid Native Object");
+    cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)s.nativeThisObject();
     if (argc == 1) {
         std::vector<std::string> vecPaths, writePaths;
-        ok &= jsval_to_std_vector_string(cx, args.get(0), &vecPaths);
-        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_FileUtils_setSearchPaths : Error processing arguments");
+        ok &= seval_to_std_vector_string(args[0], &vecPaths);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         
         std::vector<std::string> originPath; // for IOS platform.
         std::vector<std::string> projPath; // for Desktop platform.
@@ -125,30 +124,19 @@ bool runtime_FileUtils_setSearchPaths(JSContext *cx, uint32_t argc, JS::Value *v
         }
         
         cobj->setSearchPaths(vecPaths);
-        
-        args.rval().setUndefined();
         return true;
     }
     
-    JS_ReportErrorUTF8(cx, "js_cocos2dx_FileUtils_setSearchPaths : wrong number of arguments: %d, was expecting %d", argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
+SE_BIND_FUNC(runtime_FileUtils_setSearchPaths)
 
-void register_FileUtils(JSContext *cx, JS::HandleObject global)
+static bool register_FileUtils(se::Object* obj)
 {
-    JS::RootedValue  nsval(cx);
-    JS::RootedObject ns(cx);
-    JS_GetProperty(cx, global, "cc", &nsval);
-    if (nsval.isNullOrUndefined()) {
-        return;
-    }
-    else {
-        ns.set(nsval.toObjectOrNull());
-    }
-    JS::RootedObject proto(cx);
-    get_jsb_cocos2d_FileUtils_prototype(&proto);
-    JS_DefineFunction(cx, proto, "addSearchPath", runtime_FileUtils_addSearchPath, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE);
-    JS_DefineFunction(cx, proto, "setSearchPaths", runtime_FileUtils_setSearchPaths, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE);
+    __jsb_cocos2d_FileUtils_proto->defineFunction("addSearchPath", _SE(runtime_FileUtils_addSearchPath));
+    __jsb_cocos2d_FileUtils_proto->defineFunction("setSearchPaths", _SE(runtime_FileUtils_setSearchPaths));
+    return true;
 }
 
 RuntimeJsImpl* RuntimeJsImpl::create()
@@ -159,24 +147,18 @@ RuntimeJsImpl* RuntimeJsImpl::create()
 
 bool RuntimeJsImpl::initJsEnv()
 {
-    if (!ScriptingCore::getInstance()->getGlobalContext())
-    {
-        _hasStarted = false;
-    }
-    if (_hasStarted)
+    if (se::ScriptEngine::getInstance()->isValid())
     {
         return true;
     }
-    
-    js_module_register();
-    
-    ScriptingCore::getInstance()->addRegisterCallback(register_FileUtils);
-    ScriptingCore::getInstance()->start();
-    _hasStarted = true;
-    
+
     cocos2d::ScriptEngineProtocol *engine = ScriptingCore::getInstance();
     cocos2d::ScriptEngineManager::getInstance()->setScriptEngine(engine);
+
+    jsb_register_all_modules();
     
+    se::ScriptEngine::getInstance()->addRegisterCallback(register_FileUtils);
+    se::ScriptEngine::getInstance()->start();
     return true;
 }
 
@@ -206,37 +188,37 @@ void RuntimeJsImpl::onStartDebuger(const rapidjson::Document& dArgParse, rapidjs
 
 void RuntimeJsImpl::onClearCompile(const rapidjson::Document& dArgParse, rapidjson::Document& dReplyParse)
 {
-    if (dArgParse.HasMember("modulefiles") && dArgParse["modulefiles"].Size() != 0)
-    {
-        const rapidjson::Value& objectfiles = dArgParse["modulefiles"];
-        for (rapidjson::SizeType i = 0; i < objectfiles.Size(); i++)
-        {
-            ScriptingCore::getInstance()->cleanScript(objectfiles[i].GetString());
-        }
-    }
-    else
-    {
-        std::unordered_map<std::string, JS::PersistentRootedScript*> *filenameScript = ScriptingCore::getInstance()->getFileScript();
-        filenameScript->clear();
-    }
-    
-    dReplyParse.AddMember("code",0,dReplyParse.GetAllocator());
+//TODO    if (dArgParse.HasMember("modulefiles") && dArgParse["modulefiles"].Size() != 0)
+//    {
+//        const rapidjson::Value& objectfiles = dArgParse["modulefiles"];
+//        for (rapidjson::SizeType i = 0; i < objectfiles.Size(); i++)
+//        {
+//            ScriptingCore::getInstance()->cleanScript(objectfiles[i].GetString());
+//        }
+//    }
+//    else
+//    {
+//        std::unordered_map<std::string, JS::PersistentRootedScript*> *filenameScript = ScriptingCore::getInstance()->getFileScript();
+//        filenameScript->clear();
+//    }
+//    
+//    dReplyParse.AddMember("code",0,dReplyParse.GetAllocator());
 }
 
 void RuntimeJsImpl::onPrecompile(const rapidjson::Document& dArgParse, rapidjson::Document& dReplyParse)
 {
-    const rapidjson::Value& objectfiles = dArgParse["modulefiles"];
-    for (rapidjson::SizeType i = 0; i < objectfiles.Size(); i++)
-    {
-        ScriptingCore* sc = ScriptingCore::getInstance();
-        JSContext* gc = sc->getGlobalContext();
-        JS::RootedObject global(gc, sc->getGlobalObject());
-        JS::RootedScript script(gc);
-        
-        sc->compileScript(objectfiles[i].GetString(), global, &script);
-    }
-    
-    dReplyParse.AddMember("code",0,dReplyParse.GetAllocator());
+//    const rapidjson::Value& objectfiles = dArgParse["modulefiles"];
+//    for (rapidjson::SizeType i = 0; i < objectfiles.Size(); i++)
+//    {
+//TODO cjh        ScriptingCore* sc = ScriptingCore::getInstance();
+//        JSContext* gc = sc->getGlobalContext();
+//        JS::RootedObject global(gc, sc->getGlobalObject());
+//        JS::RootedScript script(gc);
+//        
+//        sc->compileScript(objectfiles[i].GetString(), global, &script);
+//    }
+//    
+//    dReplyParse.AddMember("code",0,dReplyParse.GetAllocator());
 }
 
 void RuntimeJsImpl::onReload(const rapidjson::Document &dArgParse, rapidjson::Document &dReplyParse)
@@ -267,7 +249,7 @@ void RuntimeJsImpl::onReload(const rapidjson::Document &dArgParse, rapidjson::Do
 
 void RuntimeJsImpl::onRemove(const std::string &filename)
 {
-    ScriptingCore::getInstance()->cleanScript(filename.c_str());
+//TODO cjh    ScriptingCore::getInstance()->cleanScript(filename.c_str());
 }
 
 void RuntimeJsImpl::end()
@@ -279,7 +261,6 @@ void RuntimeJsImpl::end()
 // private
 
 RuntimeJsImpl::RuntimeJsImpl()
-: _hasStarted(false)
 {
 }
 
@@ -296,15 +277,14 @@ bool RuntimeJsImpl::loadScriptFile(const std::string& path)
     
     initJsEnv();
     auto engine = ScriptingCore::getInstance();
-    engine->runScript(RUNTIME_JS_BOOT_SCRIPT);
-    
+
     // if (RuntimeEngine::getInstance()->getProjectConfig().getDebuggerType() != kCCRuntimeDebuggerNone)
     // {
     this->startWithDebugger();
     // }
     
     cocos2d::ScriptEngineManager::getInstance()->setScriptEngine(engine);
-    return ScriptingCore::getInstance()->runScript(filepath.c_str());
+    return jsb_run_script(filepath);
 }
 
 
