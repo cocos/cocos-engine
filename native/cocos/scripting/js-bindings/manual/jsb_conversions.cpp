@@ -1959,7 +1959,7 @@ bool spanimation_to_seval(const spAnimation& v, se::Value* ret)
 
 bool sptrackentry_to_seval(const spTrackEntry& v, se::Value* ret)
 {
-    return native_ptr_to_seval<spTrackEntry>((spTrackEntry*)&v, ret);
+    return native_ptr_to_rooted_seval<spTrackEntry>((spTrackEntry*)&v, ret);
 }
 
 // Box2d
