@@ -406,7 +406,8 @@ var Node = cc.Class({
                         this._sgNode.setPositionX(value);
 
                         // fast check event
-                        if (this._eventFlagMap[POSITION_CHANGED]) {
+                        var cache = this._hasListenerCache;
+                        if (cache && cache[POSITION_CHANGED]) {
                             // send event
                             if (CC_EDITOR) {
                                 this.emit(POSITION_CHANGED, new cc.Vec2(oldValue, localPosition.y));
@@ -448,7 +449,8 @@ var Node = cc.Class({
                         this._sgNode.setPositionY(value);
 
                         // fast check event
-                        if (this._eventFlagMap[POSITION_CHANGED]) {
+                        var cache = this._hasListenerCache;
+                        if (cache && cache[POSITION_CHANGED]) {
                             // send event
                             if (CC_EDITOR) {
                                 this.emit(POSITION_CHANGED, new cc.Vec2(localPosition.x, oldValue));
@@ -485,7 +487,10 @@ var Node = cc.Class({
                     this._rotationX = this._rotationY = value;
                     this._sgNode.rotation = value;
 
-                    this.emit(ROTATION_CHANGED);
+                    var cache = this._hasListenerCache;
+                    if (cache && cache[ROTATION_CHANGED]) {
+                        this.emit(ROTATION_CHANGED);
+                    }
                 }
             }
         },
@@ -508,7 +513,10 @@ var Node = cc.Class({
                     this._rotationX = value;
                     this._sgNode.rotationX = value;
 
-                    this.emit(ROTATION_CHANGED);
+                    var cache = this._hasListenerCache;
+                    if (cache && cache[ROTATION_CHANGED]) {
+                        this.emit(ROTATION_CHANGED);
+                    }
                 }
             },
         },
@@ -531,7 +539,10 @@ var Node = cc.Class({
                     this._rotationY = value;
                     this._sgNode.rotationY = value;
 
-                    this.emit(ROTATION_CHANGED);
+                    var cache = this._hasListenerCache;
+                    if (cache && cache[ROTATION_CHANGED]) {
+                        this.emit(ROTATION_CHANGED);
+                    }
                 }
             },
         },
@@ -554,7 +565,10 @@ var Node = cc.Class({
                     this._scaleX = value;
                     this._sgNode.scaleX = value;
 
-                    this.emit(SCALE_CHANGED);
+                    var cache = this._hasListenerCache;
+                    if (cache && cache[SCALE_CHANGED]) {
+                        this.emit(SCALE_CHANGED);
+                    }
                 }
             },
         },
@@ -577,7 +591,10 @@ var Node = cc.Class({
                     this._scaleY = value;
                     this._sgNode.scaleY = value;
 
-                    this.emit(SCALE_CHANGED);
+                    var cache = this._hasListenerCache;
+                    if (cache && cache[SCALE_CHANGED]) {
+                        this.emit(SCALE_CHANGED);
+                    }
                 }
             },
         },
@@ -1589,7 +1606,8 @@ var Node = cc.Class({
         this._sgNode.setPosition(x, y);
 
         // fast check event
-        if (this._eventFlagMap[POSITION_CHANGED]) {
+        var cache = this._hasListenerCache;
+        if (cache && cache[POSITION_CHANGED]) {
             // send event
             if (CC_EDITOR) {
                 this.emit(POSITION_CHANGED, oldPosition);
@@ -1639,7 +1657,10 @@ var Node = cc.Class({
             this._scaleY = scaleY;
             this._sgNode.setScale(scaleX, scaleY);
 
-            this.emit(SCALE_CHANGED);
+            var cache = this._hasListenerCache;
+            if (cache && cache[SCALE_CHANGED]) {
+                this.emit(SCALE_CHANGED);
+            }
         }
     },
 
