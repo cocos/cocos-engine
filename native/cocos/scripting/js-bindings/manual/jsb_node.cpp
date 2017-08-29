@@ -1191,8 +1191,21 @@ static bool js_cocos2dx_Scheduler_schedule(se::State& s)
     if (argc >= 2)
     {
         Scheduler* cobj = (Scheduler*)s.nativeThisObject();
-        se::Value jsFunc(args[0]);
-        se::Value jsThis(args[1]);
+
+        se::Value jsFunc;
+        se::Value jsThis;
+
+        if (args[0].isObject() && args[0].toObject()->isFunction())
+        {
+            jsFunc = args[0];
+            jsThis = args[1];
+        }
+        else
+        {
+            jsFunc = args[1];
+            jsThis = args[0];
+        }
+
 
         bool isBindedObject = jsThis.toObject()->getPrivateData() != nullptr;
 //        LOGD("%s, is binded object: %s\n", __FUNCTION__, isBindedObject ? "true" : "false");
@@ -1261,8 +1274,18 @@ static bool js_cocos2dx_Scheduler_unschedule(se::State& s)
 
     if (argc >= 2)
     {
-        se::Value jsFuncOrKey = args[0];
-        se::Value jsTarget = args[1];
+        se::Value jsFuncOrKey;
+        se::Value jsTarget;
+        if (args[0].isString() || (args[0].isObject() && args[0].toObject()->isFunction()))
+        {
+            jsFuncOrKey = args[0];
+            jsTarget = args[1];
+        }
+        else
+        {
+            jsFuncOrKey = args[1];
+            jsTarget = args[0];
+        }
         Scheduler* cobj = (Scheduler*)s.nativeThisObject();
         return Scheduler_unscheduleCommon(cobj, jsTarget, jsFuncOrKey);
     }
