@@ -148,11 +148,11 @@ function EventTarget () {
 var proto = EventTarget.prototype;
 
 proto._addEventFlag = function (type, listeners, useCapture) {
-    if (!this._hasListenerCache) {
-        this._hasListenerCache = cc.js.createMap();
-    }
-
     var cache = this._hasListenerCache;
+    
+    if (!cache) {
+        cache = this._hasListenerCache = cc.js.createMap();
+    }
 
     if (cache[type] === undefined) {
         cache[type] = 0;
@@ -203,11 +203,15 @@ proto._resetFlagForTarget = function (target, listeners, useCapture) {
  * @return {Boolean} True if a callback of the specified type is registered in specified phase; false otherwise.
  */
 proto.hasEventListener = function (type, checkCapture) {
-    var flag = this._hasListenerCache[type];
+    var cache = this._hasListenerCache;
+    if (!cache) return false;
+
+    var flag = cache[type];
     if (checkCapture && (flag & CAPTURING_FLAG))
         return true;
     if (!checkCapture && (flag & BUBBLING_FLAG))
         return true;
+
     return false;
 };
 
@@ -305,7 +309,9 @@ proto.off = function (type, callback, target, useCapture) {
         this._capturingListeners && this._capturingListeners.removeAll(type);
         this._bubblingListeners && this._bubblingListeners.removeAll(type);
 
-        delete this._hasListenerCache[type];
+        if (this._hasListenerCache) {
+            delete this._hasListenerCache[type];
+        }
     }
     else {
         var listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
@@ -412,7 +418,7 @@ proto.emit = function (message, detail) {
     var cache = this._hasListenerCache;
     if (!cache) return;
 
-    var flag = this._hasListenerCache[message];
+    var flag = cache[message];
     if (!flag) return;
 
     var event = cc.Event.EventCustom.get(message);
