@@ -169,10 +169,12 @@ var Animation = cc.Class({
     },
 
     start: function () {
-        var isPlaying = this._animator && this._animator.isPlaying;
-        if (!CC_EDITOR && !isPlaying && this.playOnLoad && this._defaultClip) {
-            var state = this.getAnimationState(this._defaultClip.name);
-            this._animator.playState(state);
+        if (!CC_EDITOR && this.playOnLoad && this._defaultClip) {
+            var isPlaying = this._animator && this._animator.isPlaying;
+            if (!isPlaying) {
+                var state = this.getAnimationState(this._defaultClip.name);
+                this._animator.playState(state);
+            }
         }
     },
 
