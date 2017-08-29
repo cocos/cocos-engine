@@ -1910,10 +1910,6 @@ protected:
     ccScriptType _scriptType;         ///< type of script binding, lua or javascript
 #endif
 
-#if COCOS2D_DEBUG > 0
-    bool _wasCleanup;
-#endif
-
     bool _usingNormalizedPosition;
     bool _normalizedPositionDirty;
 

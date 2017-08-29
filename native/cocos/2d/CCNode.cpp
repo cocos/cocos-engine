@@ -112,9 +112,6 @@ Node::Node()
 , _cascadeColorEnabled(false)
 , _cascadeOpacityEnabled(false)
 , _cameraMask(1)
-#if COCOS2D_DEBUG > 0
-, _wasCleanup(false)
-#endif
 {
     // set default scheduler and actionManager
     _director = Director::getInstance();
@@ -197,15 +194,6 @@ bool Node::init()
 
 void Node::cleanup()
 {
-#if COCOS2D_DEBUG > 0
-//    assert(!_wasCleanup);
-    if (_wasCleanup)
-    {
-        CCLOGERROR("node: %p was cleanup!", this);
-        return;
-    }
-#endif
-
 #if CC_ENABLE_SCRIPT_BINDING
     if (_scriptType == kScriptTypeJavascript)
     {
@@ -227,10 +215,6 @@ void Node::cleanup()
     
     for( const auto &child: _children)
         child->cleanup();
-
-#if COCOS2D_DEBUG > 0
-    _wasCleanup = true;
-#endif
 }
 
 std::string Node::getDescription() const
