@@ -916,10 +916,7 @@ bool js_box2dclasses_b2World_CreateJoint(JSContext *cx, uint32_t argc, JS::Value
         JS::RootedValue jsret(cx);
         if (ret) {
             // box2d will reuse cached memory, need first remove old proxy when create new jsobject
-            auto retProxy = jsb_get_native_proxy(ret);
-            if (retProxy) {
-                jsb_remove_proxy(retProxy);
-            }
+            ScriptingCore::getInstance()->removeObjectProxy(ret);
             JS::RootedObject retObj(cx);
             js_get_or_create_jsobject<b2Joint>(cx, (b2Joint*)ret, &retObj);
             jsret = JS::ObjectOrNullValue(retObj);
@@ -947,10 +944,7 @@ bool js_box2dclasses_b2World_CreateBody(JSContext *cx, uint32_t argc, JS::Value 
         JS::RootedValue jsret(cx);
         if (ret) {
             // box2d will reuse cached memory, need first remove old proxy when create new jsobject
-            auto retProxy = jsb_get_native_proxy(ret);
-            if (retProxy) {
-                jsb_remove_proxy(retProxy);
-            }
+            ScriptingCore::getInstance()->removeObjectProxy(ret);
             JS::RootedObject retObj(cx);
             js_get_or_create_jsobject<b2Body>(cx, (b2Body*)ret, &retObj);
             jsret = JS::ObjectOrNullValue(retObj);
@@ -994,10 +988,7 @@ bool js_box2dclasses_b2Body_CreateFixture(JSContext *cx, uint32_t argc, JS::Valu
             JS::RootedValue jsret(cx);
             if (ret) {
                 // box2d will reuse cached memory, need first remove old proxy when create new jsobject
-                auto retProxy = jsb_get_native_proxy(ret);
-                if (retProxy) {
-                    jsb_remove_proxy(retProxy);
-                }
+                ScriptingCore::getInstance()->removeObjectProxy(ret);
                 JS::RootedObject retObj(cx);
                 js_get_or_create_jsobject<b2Fixture>(cx, (b2Fixture*)ret, &retObj);
                 jsret = JS::ObjectOrNullValue(retObj);
@@ -1017,10 +1008,7 @@ bool js_box2dclasses_b2Body_CreateFixture(JSContext *cx, uint32_t argc, JS::Valu
             JS::RootedValue jsret(cx);
             if (ret) {
                 // box2d will reuse cached memory, need first remove old proxy when create new jsobject
-                auto retProxy = jsb_get_native_proxy(ret);
-                if (retProxy) {
-                    jsb_remove_proxy(retProxy);
-                }
+                ScriptingCore::getInstance()->removeObjectProxy(ret);
                 JS::RootedObject retObj(cx);
                 js_get_or_create_jsobject<b2Fixture>(cx, (b2Fixture*)ret, &retObj);
                 jsret = JS::ObjectOrNullValue(retObj);
