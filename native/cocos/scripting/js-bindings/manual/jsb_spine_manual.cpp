@@ -10,6 +10,7 @@
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
+#include "cocos/scripting/js-bindings/manual/jsb_helper.hpp"
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_spine_auto.hpp"
 
 #include "cocos2d.h"
@@ -276,6 +277,36 @@ static bool js_register_spine_TrackEntry(se::Object* obj)
     JSBClassType::registerClass<spTrackEntry>(cls);
     __jsb_spine_TrackEntry_class = cls;
     __jsb_spine_TrackEntry_proto = cls->getProto();
+
+    spTrackEntry_setDisposeCallback([](spTrackEntry* entry){
+        auto cleanup = [entry](){
+
+            if (!se::ScriptEngine::getInstance()->isValid())
+                return;
+
+            se::AutoHandleScope hs;
+            se::ScriptEngine::getInstance()->clearException();
+
+            auto iter = se::NativePtrToObjectMap::find(entry);
+            if (iter != se::NativePtrToObjectMap::end())
+            {
+                CCLOG("spTrackEntry %p was recycled!", entry);
+                se::Object* seObj = iter->second;
+                seObj->clearPrivateData();
+                seObj->unroot();
+                seObj->release();
+            }
+        };
+
+        if (!se::ScriptEngine::getInstance()->isInGC())
+        {
+            cleanup();
+        }
+        else
+        {
+            CleanupTask::pushTaskToAutoReleasePool(cleanup);
+        }
+    });
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
