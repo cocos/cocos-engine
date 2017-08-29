@@ -76,11 +76,11 @@ namespace jsb
         }
         ~Object()
         {
-#if COCOS2D_DEBUG > 1
-            CCLOG("Release JSBObject %p, with proxy: %p", this, _proxy);
-#endif // COCOS2D_DEBUG
             if (_proxy)
             {
+#if COCOS2D_DEBUG > 1
+                CCLOG("Release JSBObject %p, with proxy: %p", this, _proxy);
+#endif // COCOS2D_DEBUG
                 jsb_remove_proxy(_proxy);
             }
         }
@@ -88,6 +88,9 @@ namespace jsb
         {
             if (_proxy)
             {
+#if COCOS2D_DEBUG > 1
+                CCLOG("Release JSBObject %p, with proxy: %p", this, _proxy);
+#endif // COCOS2D_DEBUG
                 jsb_remove_proxy(_proxy);
             }
             JS::RootedValue val(cx, JS::ObjectOrNullValue(jsobj));
