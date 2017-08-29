@@ -1916,7 +1916,7 @@ void ScriptingCore::unrootObject(Ref* ref)
     else CCLOG("unrootObject: BUG. native not found: %p (%s)",  ref, typeid(*ref).name());
 }
 
-void ScriptingCore::removeObjectProxy(Ref* obj)
+void ScriptingCore::removeObjectProxy(void* obj)
 {
     auto proxy = jsb_get_native_proxy(obj);
     if (proxy)
