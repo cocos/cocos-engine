@@ -11,6 +11,11 @@
 		15427CEE198F24AF00DC375D /* libcocos2d Mac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 15A8A4171834BDA200142BE0 /* libcocos2d Mac.a */; };
 		15A8A4491834C64F00142BE0 /* Icon-114.png in Resources */ = {isa = PBXBuildFile; fileRef = 5023810C17EBBCAC00990C9B /* Icon-114.png */; };
 		15A8A4881834C90F00142BE0 /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 15A8A4871834C90E00142BE0 /* libcurl.dylib */; };
+		1A16779D1F540F7400294BB1 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A16779C1F540F7400294BB1 /* JavaScriptCore.framework */; };
+		1A16779F1F540F7C00294BB1 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A16779E1F540F7C00294BB1 /* JavaScriptCore.framework */; };
+		1A1677BA1F54218200294BB1 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EB51526195187AF006966AA /* CFNetwork.framework */; };
+		1A1677BC1F54218800294BB1 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A1677BB1F54218800294BB1 /* CFNetwork.framework */; };
+		1A1677BE1F54219E00294BB1 /* libicucore.A.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A1677BD1F54219E00294BB1 /* libicucore.A.tbd */; };
 		1AF4C403178663F200122817 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AF4C402178663F200122817 /* libz.dylib */; };
 		3EEEDB61197107C0006A9FF8 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EEEDB60197107C0006A9FF8 /* MediaPlayer.framework */; };
 		5023811817EBBCAC00990C9B /* AppController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5023810817EBBCAC00990C9B /* AppController.mm */; };
@@ -168,6 +173,10 @@
 /* Begin PBXFileReference section */
 		15A8A4031834BDA200142BE0 /* cocos2d_libs.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = cocos2d_libs.xcodeproj; path = ../../../../../build/cocos2d_libs.xcodeproj; sourceTree = "<group>"; };
 		15A8A4871834C90E00142BE0 /* libcurl.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcurl.dylib; path = usr/lib/libcurl.dylib; sourceTree = SDKROOT; };
+		1A16779C1F540F7400294BB1 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
+		1A16779E1F540F7C00294BB1 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		1A1677BB1F54218800294BB1 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/System/Library/Frameworks/CFNetwork.framework; sourceTree = DEVELOPER_DIR; };
+		1A1677BD1F54219E00294BB1 /* libicucore.A.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libicucore.A.tbd; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/usr/lib/libicucore.A.tbd; sourceTree = DEVELOPER_DIR; };
 		1AF4C402178663F200122817 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		3EB51526195187AF006966AA /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		3EEEDB60197107C0006A9FF8 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.1.sdk/System/Library/Frameworks/MediaPlayer.framework; sourceTree = DEVELOPER_DIR; };
@@ -247,6 +256,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A1677BA1F54218200294BB1 /* CFNetwork.framework in Frameworks */,
+				1A16779F1F540F7C00294BB1 /* JavaScriptCore.framework in Frameworks */,
 				ED545A9A1B68A2DA00C3958E /* libiconv.dylib in Frameworks */,
 				87A2EC1E1AB34BEE00513747 /* Security.framework in Frameworks */,
 				9FB5D60E1A691A02002361CA /* libjscocos2d Mac.a in Frameworks */,
@@ -270,6 +281,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A1677BE1F54219E00294BB1 /* libicucore.A.tbd in Frameworks */,
+				1A1677BC1F54218800294BB1 /* CFNetwork.framework in Frameworks */,
+				1A16779D1F540F7400294BB1 /* JavaScriptCore.framework in Frameworks */,
 				FA4634D91D34BD1100C40FDC /* CoreText.framework in Frameworks */,
 				ED545A981B68A2D300C3958E /* libiconv.dylib in Frameworks */,
 				9FB5D60A1A6917D8002361CA /* libsqlite3.dylib in Frameworks */,
@@ -416,6 +430,10 @@
 		F293B3CB15EB7BE500256477 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1A1677BD1F54219E00294BB1 /* libicucore.A.tbd */,
+				1A1677BB1F54218800294BB1 /* CFNetwork.framework */,
+				1A16779E1F540F7C00294BB1 /* JavaScriptCore.framework */,
+				1A16779C1F540F7400294BB1 /* JavaScriptCore.framework */,
 				FA4634D81D34BD1100C40FDC /* CoreText.framework */,
 				ED545A991B68A2DA00C3958E /* libiconv.dylib */,
 				ED545A971B68A2D300C3958E /* libiconv.dylib */,
@@ -514,11 +532,6 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0500;
-				TargetAttributes = {
-					F293B3C715EB7BE500256477 = {
-						DevelopmentTeam = AWRL7A5V7U;
-					};
-				};
 			};
 			buildConfigurationList = F293B3C215EB7BE500256477 /* Build configuration list for PBXProject "simulator" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -864,6 +877,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COMPRESS_PNG_FILES = NO;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -900,6 +914,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COMPRESS_PNG_FILES = NO;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = ios/Prefix.pch;
