@@ -801,6 +801,14 @@ void Director::replaceScene(Scene *scene)
             _nextScene->onExit();
         }
         _nextScene->cleanup();
+
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+        auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+        if (sEngine)
+        {
+            sEngine->releaseScriptObject(this, _nextScene);
+        }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
         _nextScene = nullptr;
     }
 
@@ -1101,7 +1109,7 @@ void Director::setNextScene()
         _runningScene->release();
     }
     _runningScene = _nextScene;
-    _nextScene->retain();
+    _runningScene->retain();
     _nextScene = nullptr;
 
     if ((! runningIsTransition) && _runningScene)
