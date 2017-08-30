@@ -30,6 +30,9 @@ var fastRemove = JS.array.fastRemove;
 var cachedArray = new Array(16);
 cachedArray.length = 0;
 
+var CAPTURING_FLAG = 1 << 1;
+var BUBBLING_FLAG = 1 << 2;
+
 var _doDispatchEvent = function (owner, event) {
     var target, i;
     event.target = owner;
@@ -132,9 +135,65 @@ function EventTarget () {
      * @private
      */
     this._bubblingListeners = null;
+
+    /*
+     * @property _hasListenerCache
+     * @type {Object}
+     * @default null
+     * @private
+     */
+    this._hasListenerCache = null;
 }
 
 var proto = EventTarget.prototype;
+
+proto._addEventFlag = function (type, listeners, useCapture) {
+    var cache = this._hasListenerCache;
+    
+    if (!cache) {
+        cache = this._hasListenerCache = cc.js.createMap();
+    }
+
+    if (cache[type] === undefined) {
+        cache[type] = 0;
+    }
+    
+    var flag = useCapture ? CAPTURING_FLAG : BUBBLING_FLAG;
+    cache[type] |= flag;
+};
+
+proto._removeEventFlag = function (type, listeners, useCapture) {
+    var cache = this._hasListenerCache;
+    
+    if (!cache || listeners.has(type)) {
+        return;
+    }
+
+    var flag = useCapture ? CAPTURING_FLAG : BUBBLING_FLAG;
+    cache[type] &= ~flag;
+
+    if (cache[type] === 0) {
+        delete cache[type];
+    }
+}
+
+proto._resetFlagForTarget = function (target, listeners, useCapture) {
+    var cache = this._hasListenerCache;
+    if (!cache) {
+        return;
+    }
+    
+    var flag = useCapture ? CAPTURING_FLAG : BUBBLING_FLAG;
+    for (var key in cache) {
+        if (!listeners.has(key)) {
+            cache[key] &= ~flag;
+            if (cache[key] === 0) {
+                delete cache[key];
+            }
+        }
+    }
+};
+
 
 /**
  * !#en Checks whether the EventTarget object has any callback registered for a specific type of event.
@@ -144,12 +203,18 @@ var proto = EventTarget.prototype;
  * @return {Boolean} True if a callback of the specified type is registered in specified phase; false otherwise.
  */
 proto.hasEventListener = function (type, checkCapture) {
-    if (checkCapture && this._capturingListeners && this._capturingListeners.has(type))
+    var cache = this._hasListenerCache;
+    if (!cache) return false;
+
+    var flag = cache[type];
+    if (checkCapture && (flag & CAPTURING_FLAG))
         return true;
-    if (!checkCapture && this._bubblingListeners && this._bubblingListeners.has(type))
+    if (!checkCapture && (flag & BUBBLING_FLAG))
         return true;
+
     return false;
 };
+
 
 /**
  * !#en
@@ -187,6 +252,7 @@ proto.on = function (type, callback, target, useCapture) {
         cc.errorID(6800);
         return;
     }
+
     var listeners = null;
     if (useCapture) {
         listeners = this._capturingListeners = this._capturingListeners || new EventListeners();
@@ -194,12 +260,16 @@ proto.on = function (type, callback, target, useCapture) {
     else {
         listeners = this._bubblingListeners = this._bubblingListeners || new EventListeners();
     }
+
     if ( ! listeners.has(type, callback, target) ) {
         listeners.add(type, callback, target);
 
         if (target && target.__eventTargets)
             target.__eventTargets.push(this);
+
+        this._addEventFlag(type, listeners, useCapture);
     }
+
     return callback;
 };
 
@@ -238,6 +308,10 @@ proto.off = function (type, callback, target, useCapture) {
     if (!callback) {
         this._capturingListeners && this._capturingListeners.removeAll(type);
         this._bubblingListeners && this._bubblingListeners.removeAll(type);
+
+        if (this._hasListenerCache) {
+            delete this._hasListenerCache[type];
+        }
     }
     else {
         var listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
@@ -247,7 +321,10 @@ proto.off = function (type, callback, target, useCapture) {
             if (target && target.__eventTargets) {
                 fastRemove(target.__eventTargets, this);
             }
+
+            this._removeEventFlag(type, listeners, useCapture);
         }
+        
     }
 };
 
@@ -265,9 +342,11 @@ proto.off = function (type, callback, target, useCapture) {
 proto.targetOff = function (target) {
     if (this._capturingListeners) {
         this._capturingListeners.removeAll(target);
+        this._resetFlagForTarget(target, this._capturingListeners, true);
     }
     if (this._bubblingListeners) {
         this._bubblingListeners.removeAll(target);
+        this._resetFlagForTarget(target, this._bubblingListeners, false);
     }
 };
 
@@ -335,12 +414,12 @@ proto.emit = function (message, detail) {
         cc.errorID(6801);
         return;
     }
-    //don't emit event when listeners are not exists.
-    var caplisteners = this._capturingListeners && this._capturingListeners._callbackTable[message];
-    var bublisteners = this._bubblingListeners && this._bubblingListeners._callbackTable[message];
-    if ((!caplisteners || caplisteners.length === 0) && (!bublisteners || bublisteners.length === 0)) {
-        return;
-    }
+
+    var cache = this._hasListenerCache;
+    if (!cache) return;
+
+    var flag = cache[message];
+    if (!flag) return;
 
     var event = cc.Event.EventCustom.get(message);
     event.detail = detail;
@@ -348,11 +427,14 @@ proto.emit = function (message, detail) {
     // Event.AT_TARGET
     event.eventPhase = 2;
     event.target = event.currentTarget = this;
-    if (caplisteners) {
-        this._capturingListeners.invoke(event);
+
+    var capturingListeners = this._capturingListeners;
+    if (capturingListeners && (flag & CAPTURING_FLAG)) {
+        capturingListeners.invoke(event);
     }
-    if (bublisteners && !event._propagationImmediateStopped) {
-        this._bubblingListeners.invoke(event);
+    var bubblingListeners = this._bubblingListeners;
+    if (bubblingListeners && (flag & BUBBLING_FLAG) && !event._propagationImmediateStopped) {
+        bubblingListeners.invoke(event);
     }
     cc.Event.EventCustom.put(event);
 };

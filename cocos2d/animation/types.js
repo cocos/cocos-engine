@@ -128,6 +128,7 @@ AnimationNodeBase.prototype.update = function (deltaTime) {};
  */
 function AnimationNode (animator, curves, timingInput) {
     AnimationNodeBase.call(this);
+    cc.EventTarget.call(this);
 
     this._firstFramePlayed = false;
 
