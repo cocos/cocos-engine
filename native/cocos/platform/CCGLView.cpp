@@ -34,6 +34,11 @@ NS_CC_BEGIN
 
 namespace {
 
+    EventTouch* __touchBeganEvent = nullptr;
+    EventTouch* __touchMovedEvent = nullptr;
+    EventTouch* __touchEndedEvent = nullptr;
+    EventTouch* __touchCancelledEvent = nullptr;
+
     static Touch* g_touches[EventTouch::MAX_TOUCHES] = { nullptr };
     static unsigned int g_indexBitsUsed = 0;
     // System touch pointer ID (It may not be ascending order number) <-> Ascending order number from 0
@@ -105,11 +110,18 @@ GLView::GLView()
 , _antiAliasEnabled(true)
 , _resolutionPolicy(ResolutionPolicy::UNKNOWN)
 {
+    __touchBeganEvent = new (std::nothrow) EventTouch();
+    __touchMovedEvent = new (std::nothrow) EventTouch();
+    __touchEndedEvent = new (std::nothrow) EventTouch();
+    __touchCancelledEvent = new (std::nothrow) EventTouch();
 }
 
 GLView::~GLView()
 {
-
+    CC_SAFE_RELEASE_NULL(__touchBeganEvent);
+    CC_SAFE_RELEASE_NULL(__touchMovedEvent);
+    CC_SAFE_RELEASE_NULL(__touchEndedEvent);
+    CC_SAFE_RELEASE_NULL(__touchCancelledEvent);
 }
 
 void GLView::pollEvents()
@@ -269,7 +281,8 @@ void GLView::handleTouchesBegin(int num, intptr_t ids[], float xs[], float ys[])
     float x = 0.0f;
     float y = 0.0f;
     int unusedIndex = 0;
-    EventTouch* touchEvent = new (std::nothrow) EventTouch();
+    EventTouch* touchEvent = __touchBeganEvent;
+    touchEvent->reset();
 
     for (int i = 0; i < num; ++i)
     {
@@ -304,14 +317,12 @@ void GLView::handleTouchesBegin(int num, intptr_t ids[], float xs[], float ys[])
     if (touchEvent->_touches.empty())
     {
         CCLOG("touchesBegan: size = 0");
-        touchEvent->release();
         return;
     }
 
     touchEvent->_eventCode = EventTouch::EventCode::BEGAN;
     auto dispatcher = Director::getInstance()->getEventDispatcher();
     dispatcher->dispatchEvent(touchEvent);
-    touchEvent->release();
 }
 
 void GLView::handleTouchesMove(int num, intptr_t ids[], float xs[], float ys[])
@@ -328,7 +339,8 @@ void GLView::handleTouchesMove(int num, intptr_t ids[], float xs[], float ys[], 
     float tempY = 0.0f;
     float force = 0.0f;
     float maxForce = 0.0f;
-    EventTouch* touchEvent = new (std::nothrow) EventTouch();
+    EventTouch* touchEvent = __touchMovedEvent;
+    touchEvent->reset();
 
     for (int i = 0; i < num; ++i)
     {
@@ -354,7 +366,6 @@ void GLView::handleTouchesMove(int num, intptr_t ids[], float xs[], float ys[], 
             if (tempX < 0 || tempX > _designResolutionSize.width ||
                 tempY < 0 || tempY > _designResolutionSize.height)
             {
-                touchEvent->release();
                 return;
             }
 
@@ -366,7 +377,6 @@ void GLView::handleTouchesMove(int num, intptr_t ids[], float xs[], float ys[], 
         {
             // It is error, should return.
             CCLOG("Moving touches with id: %ld error", (long int)id);
-            touchEvent->release();
             return;
         }
     }
@@ -374,14 +384,12 @@ void GLView::handleTouchesMove(int num, intptr_t ids[], float xs[], float ys[], 
     if (touchEvent->_touches.empty())
     {
         CCLOG("touchesMoved: size = 0");
-        touchEvent->release();
         return;
     }
 
     touchEvent->_eventCode = EventTouch::EventCode::MOVED;
     auto dispatcher = Director::getInstance()->getEventDispatcher();
     dispatcher->dispatchEvent(touchEvent);
-    touchEvent->release();
 }
 
 void GLView::handleTouchesOfEndOrCancel(EventTouch::EventCode eventCode, int num, intptr_t ids[], float xs[], float ys[])
@@ -389,7 +397,8 @@ void GLView::handleTouchesOfEndOrCancel(EventTouch::EventCode eventCode, int num
     intptr_t id = 0;
     float x = 0.0f;
     float y = 0.0f;
-    EventTouch* touchEvent = new (std::nothrow) EventTouch();
+    EventTouch* touchEvent = eventCode == EventTouch::EventCode::ENDED ? __touchEndedEvent : __touchCancelledEvent;
+    touchEvent->reset();
 
     for (int i = 0; i < num; ++i)
     {
@@ -422,7 +431,6 @@ void GLView::handleTouchesOfEndOrCancel(EventTouch::EventCode eventCode, int num
         else
         {
             CCLOG("Ending touches with id: %ld error", static_cast<long>(id));
-            touchEvent->release();
             return;
         }
 
@@ -431,7 +439,6 @@ void GLView::handleTouchesOfEndOrCancel(EventTouch::EventCode eventCode, int num
     if (touchEvent->_touches.empty())
     {
         CCLOG("touchesEnded or touchesCancel: size = 0");
-        touchEvent->release();
         return;
     }
 
@@ -444,8 +451,6 @@ void GLView::handleTouchesOfEndOrCancel(EventTouch::EventCode eventCode, int num
         // release the touch object.
         touch->release();
     }
-
-    touchEvent->release();
 }
 
 void GLView::handleTouchesEnd(int num, intptr_t ids[], float xs[], float ys[])

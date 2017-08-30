@@ -11,6 +11,10 @@
 
 #import "SocketRocket/SocketRocket.h"
 
+#if !__has_feature(objc_arc)
+#error WebSocket must be compiled with ARC enabled
+#endif
+
 @interface WebSocketImpl : NSObject<SRWebSocketDelegate>
 {
 

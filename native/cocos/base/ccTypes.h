@@ -416,7 +416,7 @@ struct CC_DLL BlendFunc
  *
  * @note If any of these enums are edited and/or reordered, update Texture2D.m.
  */
-enum class CC_DLL TextVAlignment
+enum class CC_DLL TextVAlignment : char
 {
     TOP,
     CENTER,
@@ -428,7 +428,7 @@ enum class CC_DLL TextVAlignment
  *
  * @note If any of these enums are edited and/or reordered, update Texture2D.m.
  */
-enum class CC_DLL TextHAlignment
+enum class CC_DLL TextHAlignment : char
 {
     LEFT,
     CENTER,
@@ -441,7 +441,7 @@ enum class CC_DLL TextHAlignment
 * Specify a collections of characters to be load when Label created.
 * Consider using DYNAMIC.
 */
-enum class GlyphCollection {
+enum class GlyphCollection : char {
     DYNAMIC,
     NEHE,
     ASCII,
@@ -512,21 +512,20 @@ public:
 
     // stroke is disabled by default
     FontStroke()
-        : _strokeEnabled(false)
+        : _strokeSize(0.0f)
         , _strokeColor(Color3B::BLACK)
         , _strokeAlpha(255)
-        , _strokeSize(0)
+        , _strokeEnabled(false)
     {}
 
-    /// true if stroke enabled
-    bool      _strokeEnabled;
+    /// stroke size
+    float     _strokeSize;
     /// stroke color
     Color3B   _strokeColor;
     /// stroke alpha
     GLubyte   _strokeAlpha;
-    /// stroke size
-    float     _strokeSize;
-
+    /// true if stroke enabled
+    bool      _strokeEnabled;
 };
 
 /** @struct FontDefinition
@@ -554,10 +553,8 @@ public:
     std::string           _fontName;
     /// font size
     int                   _fontSize;
-    /// horizontal alignment
-    TextHAlignment        _alignment;
-    /// vertical alignment
-    TextVAlignment _vertAlignment;
+    /// enable shrink font size
+    int                  _overflow;
     /// rendering box
     Size                  _dimensions;
     /// font color
@@ -568,10 +565,12 @@ public:
     FontShadow            _shadow;
     /// font stroke
     FontStroke            _stroke;
+    /// horizontal alignment
+    TextHAlignment        _alignment;
+    /// vertical alignment
+    TextVAlignment _vertAlignment;
     /// enable text wrap
     bool                  _enableWrap;
-    /// enable shrink font size
-    int                  _overflow;
     bool                 _enableBold;
 };
 
@@ -579,7 +578,7 @@ public:
  * @brief Effects used by `Label`
  *
  */
-enum class LabelEffect {
+enum class LabelEffect : char {
     // FIXME: Covert them to bitwise. More than one effect should be supported
     NORMAL,
     OUTLINE,

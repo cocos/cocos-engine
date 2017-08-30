@@ -39,9 +39,12 @@ ProtectedNode::ProtectedNode() : _reorderProtectedChildDirty(false)
 
 ProtectedNode::~ProtectedNode()
 {
-
     CCLOGINFO( "deallocing ProtectedNode: %p - tag: %i", this, _tag );
-    removeAllProtectedChildren();
+
+    for (auto& child : _protectedChildren)
+    {
+        child->setParent(nullptr);
+    }
 }
 
 ProtectedNode * ProtectedNode::create(void)

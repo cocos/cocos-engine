@@ -1121,7 +1121,7 @@
 					"\"$(SRCROOT)/../../../../../JavaScriptCore/build-osx/lib\"",
 				);
 				SYSTEM_HEADER_SEARCH_PATHS = "";
-				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../../../external/mac/include $(SRCROOT)/../../../../external/sources $(SRCROOT)/../../../../cocos/platform/mac $(SRCROOT)/../../../../external/mac/include/spidermonkey $(SRCROOT)/../../../../external/mac/include/v8 $(SRCROOT)/../../../../external/mac/include/chakracore $(SRCROOT)/../../../../external/mac/include/uv";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../../../external/mac/include $(SRCROOT)/../../../../external/sources $(SRCROOT)/../../../../cocos/platform/mac $(SRCROOT)/../../../../external/mac/include/spidermonkey $(SRCROOT)/../../../../external/mac/include/v8 $(SRCROOT)/../../../../external/mac/include/chakracore $(SRCROOT)/../../../../external/mac/include/uv \"$(SRCROOT)/../../../../../ChakraCore/out/Debug/include\"";
 			};
 			name = Debug;
 		};
@@ -1145,7 +1145,7 @@
 					"\"$(SRCROOT)/../../../../../JavaScriptCore/build-osx/lib\"",
 				);
 				SYSTEM_HEADER_SEARCH_PATHS = "";
-				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../../../external/mac/include $(SRCROOT)/../../../../external/sources $(SRCROOT)/../../../../cocos/platform/mac $(SRCROOT)/../../../../external/mac/include/spidermonkey $(SRCROOT)/../../../../external/mac/include/v8 $(SRCROOT)/../../../../external/mac/include/chakracore $(SRCROOT)/../../../../external/mac/include/uv";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../../../external/mac/include $(SRCROOT)/../../../../external/sources $(SRCROOT)/../../../../cocos/platform/mac $(SRCROOT)/../../../../external/mac/include/spidermonkey $(SRCROOT)/../../../../external/mac/include/v8 $(SRCROOT)/../../../../external/mac/include/chakracore $(SRCROOT)/../../../../external/mac/include/uv \"$(SRCROOT)/../../../../../ChakraCore/out/Debug/include\"";
 			};
 			name = Release;
 		};

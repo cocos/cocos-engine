@@ -487,7 +487,11 @@ namespace se {
         else if (_type == Type::Number)
         {
             char tmp[350] = {0};
-            snprintf(tmp, sizeof(tmp), "%lf", _u._number);
+            double remainder = fmod(_u._number, 1.0);
+            if (std::abs(remainder) > 0)
+                snprintf(tmp, sizeof(tmp), "%lf", _u._number);
+            else
+                snprintf(tmp, sizeof(tmp), "%d", (int32_t)_u._number);
             ret = tmp;
         }
         else if (_type == Type::Object)

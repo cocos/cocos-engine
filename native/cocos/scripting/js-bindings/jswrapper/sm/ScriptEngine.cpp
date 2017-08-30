@@ -12,6 +12,9 @@ namespace se {
     Class* __jsb_CCPrivateData_class = nullptr;
 
     namespace {
+
+        const char* BYTE_CODE_FILE_EXT = ".jsc";
+
         ScriptEngine* __instance = nullptr;
 
         const JSClassOps sandbox_classOps = {
@@ -174,7 +177,24 @@ namespace se {
 
             return true;
         }
-    }
+
+        std::string removeFileExt(const std::string& filePath)
+        {
+            size_t pos = filePath.rfind('.');
+            if (0 < pos)
+            {
+                return filePath.substr(0, pos);
+            }
+            return filePath;
+        }
+
+        bool getBytecodeBuildId(JS::BuildIdCharVector* buildId)
+        {
+            static const char* buildid = "cocos_xdr";
+            bool ok = buildId->append(buildid, strlen(buildid));
+            return ok;
+        }
+    } // namespace {
 
     AutoHandleScope::AutoHandleScope()
     {
@@ -309,13 +329,13 @@ namespace se {
 
 #ifdef DEBUG
         JS::ContextOptionsRef(_cx)
-                    .setExtraWarnings(true)
+//                    .setExtraWarnings(true)
                     .setIon(false)
                     .setBaseline(false)
                     .setAsmJS(false);
 #else
         JS::ContextOptionsRef(_cx)
-                    .setExtraWarnings(true)
+//                    .setExtraWarnings(true)
                     .setIon(true)
                     .setBaseline(true)
                     .setAsmJS(true)
@@ -341,6 +361,7 @@ namespace se {
         JS_AddWeakPointerCompartmentCallback(_cx, ScriptEngine::myWeakPointerCompartmentCallback, nullptr);
 
         JS_FireOnNewGlobalObject(_cx, rootedGlobalObj);
+        JS::SetBuildIdOp(_cx, getBytecodeBuildId);
 
         sc->jobQueue.init(_cx, JobQueue(js::SystemAllocPolicy()));
         JS::SetEnqueuePromiseJobCallback(_cx, onEnqueuePromiseJobCallback);
@@ -406,6 +427,8 @@ namespace se {
         _nodeEventListener = nullptr;
 
         _registerCallbackArray.clear();
+
+        _filenameScriptMap.clear();
 
         for (const auto& hook : _afterCleanupHookArray)
         {
@@ -481,32 +504,155 @@ namespace se {
         return ok;
     }
 
-    bool ScriptEngine::executeScriptBuffer(const char* string, Value* data, const char* fileName)
+    bool ScriptEngine::getScript(const std::string& path, JS::MutableHandleScript script)
     {
-        return executeScriptBuffer(string, strlen(string), data, fileName);
+        // a) check jsc file first
+        std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
+        if (_filenameScriptMap.find(byteCodePath) != _filenameScriptMap.end())
+        {
+            script.set(_filenameScriptMap[byteCodePath]->get());
+            return true;
+        }
+
+        // b) no jsc file, check js file
+        if (_filenameScriptMap.find(path) != _filenameScriptMap.end())
+        {
+            script.set(_filenameScriptMap[path]->get());
+            return true;
+        }
+        
+        return false;
     }
 
-    bool ScriptEngine::executeScriptBuffer(const char* script, size_t length, Value* data, const char* fileName)
+    bool ScriptEngine::compileScript(const std::string& path, JS::MutableHandleScript script)
     {
+        if (path.empty())
+            return false;
+
+        bool ok = getScript(path, script);
+        if (ok)
+            return true;
+
+        assert(_fileOperationDelegate.isValid());
+
+        bool compileSucceed = false;
+
+        // a) check jsc file first
+        std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
+
+        // Check whether '.jsc' files exist to avoid outputting log which says 'couldn't find .jsc file'.
+        if (_fileOperationDelegate.onCheckFileExist(byteCodePath))
+        {
+            const uint8_t* data = nullptr;
+            size_t dataLen = 0;
+            _fileOperationDelegate.onGetDataFromFile(byteCodePath, &data, &dataLen);
+            if (data != nullptr && dataLen > 0)
+            {
+                JS::TranscodeBuffer buffer;
+                bool appended = buffer.append(data, dataLen);
+                JS::TranscodeResult result = JS::DecodeScript(_cx, buffer, script);
+                if (appended && result == JS::TranscodeResult::TranscodeResult_Ok)
+                {
+                    compileSucceed = true;
+                    _filenameScriptMap[byteCodePath] = new (std::nothrow) JS::PersistentRootedScript(_cx, script.get());
+                }
+                assert(compileSucceed);
+            }
+        }
+
+        // b) no jsc file, check js file
+        if (!compileSucceed)
+        {
+            /* Clear any pending exception from previous failed decoding.  */
+            clearException();
+
+            ok = false;
+            std::string jsFileContent = _fileOperationDelegate.onGetStringFromFile(path);
+            if (!jsFileContent.empty())
+            {
+                JS::CompileOptions op(_cx);
+                op.setUTF8(true);
+                std::string fullPath = _fileOperationDelegate.onGetFullPath(path);
+                op.setFileAndLine(fullPath.c_str(), 1);
+                ok = JS::Compile(_cx, op, jsFileContent.c_str(), jsFileContent.size(), script);
+                if (ok)
+                {
+                    compileSucceed = true;
+                    _filenameScriptMap[fullPath] = new (std::nothrow) JS::PersistentRootedScript(_cx, script.get());
+                }
+                assert(compileSucceed);
+            }
+        }
+        
+        clearException();
+        
+        if (!compileSucceed)
+        {
+            LOGD("ScriptEngine::compileScript fail:%s\n", path.c_str());
+        }
+
+        return compileSucceed;
+    }
+
+    bool ScriptEngine::executeScriptBuffer(const char* script, ssize_t length/* = -1 */, Value* ret/* = nullptr */, const char* fileName/* = nullptr */)
+    {
+        assert(script != nullptr);
+
+        if (length < 0)
+            length = strlen(script);
+
         if (fileName == nullptr)
             fileName = "(no filename)";
+
         JS::CompileOptions options(_cx);
         options.setFile(fileName)
                .setUTF8(true)
                .setVersion(JSVERSION_LATEST);
 
-        JS::RootedValue rcValue(_cx);
-        bool ok = JS::Evaluate(_cx, options, script, length, &rcValue);
+        JS::RootedValue rval(_cx);
+        bool ok = JS::Evaluate(_cx, options, script, length, &rval);
         if (!ok)
         {
             clearException();
         }
         assert(ok);
 
-        if (ok && data && !rcValue.isNullOrUndefined())
+        if (ok && ret != nullptr && !rval.isNullOrUndefined())
         {
-            internal::jsToSeValue(_cx, rcValue, data);
+            internal::jsToSeValue(_cx, rval, ret);
         }
+        return ok;
+    }
+
+    void ScriptEngine::setFileOperationDelegate(const FileOperationDelegate& delegate)
+    {
+        _fileOperationDelegate = delegate;
+    }
+
+    bool ScriptEngine::executeScriptFile(const std::string& path, Value* ret/* = nullptr */)
+    {
+        assert(_fileOperationDelegate.isValid());
+
+        JS::RootedScript script(_cx);
+        bool ok = compileScript(path, &script);
+        if (ok)
+        {
+            JS::RootedValue rval(_cx);
+            ok = JS_ExecuteScript(_cx, script, &rval);
+            if (!ok)
+            {
+                LOGE("Evaluating %s failed (evaluatedOK == JS_FALSE)\n", path.c_str());
+                clearException();
+            }
+
+            assert(ok);
+
+            if (ok && ret != nullptr && !rval.isNullOrUndefined())
+            {
+                internal::jsToSeValue(_cx, rval, ret);
+            }
+        }
+        
         return ok;
     }
 
@@ -568,13 +714,20 @@ namespace se {
             JS::RootedValue exceptionValue(_cx);
             JS_GetPendingException(_cx, &exceptionValue);
             JS_ClearPendingException(_cx);
+
             assert(exceptionValue.isObject());
             JS::RootedObject exceptionObj(_cx, exceptionValue.toObjectOrNull());
             JSErrorReport* report = JS_ErrorFromException(_cx, exceptionObj);
             const char* fileName = report->filename != nullptr ? report->filename : "(no filename)";
-            LOGD("ERROR: %s, file: %s, lineno: %u\n", report->message().c_str(), fileName, report->lineno);
+            LOGE("JS ERROR: %s, file: %s, lineno: %u\n", report->message().c_str(), fileName, report->lineno);
 
-            JS_ClearPendingException(_cx);
+            JS::RootedValue stack(_cx);
+            if (JS_GetProperty(_cx, exceptionObj, "stack", &stack) && stack.isString())
+            {
+                JS::RootedString jsstackStr(_cx, stack.toString());
+                char *stackStr = JS_EncodeStringToUTF8(_cx, jsstackStr);
+                LOGE("Stack: %s\n", stackStr);
+            }
         }
     }
 

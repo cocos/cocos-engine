@@ -33,5 +33,10 @@ EventTouch::EventTouch()
     _touches.reserve(MAX_TOUCHES);
 }
 
+void EventTouch::reset()
+{
+    _touches.clear();
+}
+
 NS_CC_END
 

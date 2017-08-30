@@ -254,7 +254,7 @@ static bool JSB_localStorageSetItem(se::State& s)
         SE_PRECONDITION2(ok, false, "Error processing arguments");
 
         std::string value;
-        ok = seval_to_std_string(args[0], &value);
+        ok = seval_to_std_string(args[1], &value);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
         localStorageSetItem(key, value);
         return true;
@@ -334,8 +334,14 @@ static bool invokeJSMouseCallback(EventListenerMouse* listener, const char* func
     se::ValueArray argArr;
     argArr.reserve(1);
     se::Value arg1Val;
-    ok = native_ptr_to_seval<EventMouse>(arg1, &arg1Val);
+    bool fromCache = true;
+    ok = native_ptr_to_seval<EventMouse>(arg1, &arg1Val, &fromCache);
     SE_PRECONDITION2(ok, false, "invokeJSMouseCallback convert arg1 failed!");
+
+    if (!fromCache)
+    {
+        arg1Val.toObject()->root();
+    }
     argArr.push_back(std::move(arg1Val));
 
     assert(se::NativePtrToObjectMap::find(arg1) != se::NativePtrToObjectMap::end());
@@ -434,7 +440,7 @@ static bool invokeJSTouchOneByOneCallback(EventListenerTouchOneByOne* listener, 
 
         arg1Obj = arg1Val.toObject();
 
-        if (type == TOUCH_ONE_BY_ONE_ON_TOUCH_BEGAN && !arg1Obj->isRooted())
+        if (type == TOUCH_ONE_BY_ONE_ON_TOUCH_BEGAN)
         {
             arg1Obj->root();
         }
@@ -442,9 +448,14 @@ static bool invokeJSTouchOneByOneCallback(EventListenerTouchOneByOne* listener, 
         argArr.push_back(std::move(arg1Val));
 
         se::Value arg2Val;
-        ok = native_ptr_to_seval<Event>(event, &arg2Val);
-
+        bool eventFromCache = true;
+        ok = native_ptr_to_seval<Event>(event, &arg2Val, &eventFromCache);
         SE_PRECONDITION_ERROR_BREAK(ok, "invokeJSTouchOneByOneCallback convert arg2 failed!");
+        if (!eventFromCache)
+        {
+            arg2Val.toObject()->root();
+        }
+
         argArr.push_back(std::move(arg2Val));
 
         assert(se::NativePtrToObjectMap::find(touch) != se::NativePtrToObjectMap::end());
@@ -459,18 +470,12 @@ static bool invokeJSTouchOneByOneCallback(EventListenerTouchOneByOne* listener, 
     {
         if (!(retVal->isBoolean() && retVal->toBoolean()))
         {
-            if (arg1Obj->isRooted())
-            {
-                arg1Obj->unroot();
-            }
-        }
+            arg1Obj->unroot();
+       }
     }
     else if (type == TOUCH_ONE_BY_ONE_ON_TOUCH_ENDED || type == TOUCH_ONE_BY_ONE_ON_TOUCH_CANCELLED)
     {
-        if (arg1Obj->isRooted())
-        {
-            arg1Obj->unroot();
-        }
+        arg1Obj->unroot();
     }
 
     return ok;
@@ -547,8 +552,13 @@ static bool invokeJSTouchAllAtOnceCallback(EventListenerTouchAllAtOnce* listener
     argArr.push_back(std::move(arg1Val));
 
     se::Value arg2Val;
-    ok = native_ptr_to_seval<Event>(event, &arg2Val);
+    bool eventFromCache = true;
+    ok = native_ptr_to_seval<Event>(event, &arg2Val, &eventFromCache);
     SE_PRECONDITION2(ok, false, "invokeJSTouchAllAtOnceCallback convert arg2 failed!");
+    if (!eventFromCache)
+    {
+        arg2Val.toObject()->root();
+    }
     argArr.push_back(std::move(arg2Val));
 
     ok = funcVal.toObject()->call(argArr, listenerObj, retVal);
@@ -860,60 +870,6 @@ static bool register_eventlistener(se::Object* obj)
     return true;
 }
 
-//
-
-static bool js_cocos2dx_Sequence_or_Spawn_create(se::State& s, se::Class* cls)
-{
-    const auto& args = s.args();
-    int argc = (int)args.size();
-    bool ok = true;
-
-    if (argc > 0)
-    {
-        Vector<FiniteTimeAction*> array;
-
-        if (argc == 1 && args[0].isObject() && args[0].toObject()->isArray())
-        {
-            ok &= seval_to_Vector(args[0], &array);
-            SE_PRECONDITION2(ok, false, "Error processing arguments");
-        }
-        else
-        {
-            uint32_t i = 0;
-            while (i < argc)
-            {
-                assert(args[i].isObject());
-                FiniteTimeAction* item = (FiniteTimeAction*)args[i].toObject()->getPrivateData();
-
-                array.pushBack(item);
-                i++;
-            }
-        }
-        auto ret = new (std::nothrow) Sequence();
-        ok = ret->init(array);
-        if (ok)
-        {
-            se::Object* obj = se::Object::createObjectWithClass(cls);
-            obj->setPrivateData(ret);
-            s.rval().setObject(obj);
-        }
-        return ok;
-    }
-    SE_REPORT_ERROR("wrong number of arguments");
-    return false;
-}
-
-static bool js_cocos2dx_Sequence_create(se::State& s)
-{
-    return js_cocos2dx_Sequence_or_Spawn_create(s, __jsb_cocos2d_Sequence_class);
-}
-SE_BIND_FUNC(js_cocos2dx_Sequence_create)
-
-static bool js_cocos2dx_Spawn_create(se::State& s)
-{
-    return js_cocos2dx_Sequence_or_Spawn_create(s, __jsb_cocos2d_Spawn_class);
-}
-SE_BIND_FUNC(js_cocos2dx_Spawn_create)
 
 // ActionInterval
 
@@ -1068,12 +1024,15 @@ static bool js_cocos2dx_ActionInterval_easing(se::State& s)
 
     for (uint32_t i = 0; i < argc; i++)
     {
+        bool hasParam = false;
         const auto& vpi = args[i];
         bool ok = vpi.isObject() && vpi.toObject()->getProperty("tag", &jsTag) && seval_to_double(jsTag, &tag);
         if (vpi.toObject()->getProperty("param", &jsParam))
+        {
             seval_to_double(jsParam, &parameter);
+            hasParam = true;
+        }
 
-        bool hasParam = (parameter == parameter);
         if (!ok) continue;
 
         ok = true;
@@ -1679,12 +1638,6 @@ static bool register_actions(se::Object* obj)
 
     se::Value v;
 
-    __ccObj->getProperty("Sequence", &v);
-    v.toObject()->defineFunction("create", _SE(js_cocos2dx_Sequence_create));
-
-    __ccObj->getProperty("Spawn", &v);
-    v.toObject()->defineFunction("create", _SE(js_cocos2dx_Spawn_create));
-
     se::Object* proto = __jsb_cocos2d_ActionInterval_proto;
     proto->defineFunction("repeat", _SE(js_cocos2dx_ActionInterval_repeat));
     proto->defineFunction("repeatForever", _SE(js_cocos2dx_ActionInterval_repeatForever));
@@ -1780,6 +1733,9 @@ public:
     {
         se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
+        if (!_JSDelegate.isObject())
+            return;
+
         se::Value editBoxVal;
         bool ok = native_ptr_to_seval<ui::EditBox>(editBox, __jsb_cocos2d_ui_EditBox_class, &editBoxVal);
         if (!ok)
@@ -1801,6 +1757,9 @@ public:
     {
         se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
+        if (!_JSDelegate.isObject())
+            return;
+
         se::Value editBoxVal;
         bool ok = native_ptr_to_seval<ui::EditBox>(editBox, __jsb_cocos2d_ui_EditBox_class, &editBoxVal);
         if (!ok)
@@ -1822,6 +1781,9 @@ public:
     {
         se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
+        if (!_JSDelegate.isObject())
+            return;
+
         se::Value editBoxVal;
         bool ok = native_ptr_to_seval<ui::EditBox>(editBox, __jsb_cocos2d_ui_EditBox_class, &editBoxVal);
         if (!ok)
@@ -1847,6 +1809,9 @@ public:
     {
         se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
+        if (!_JSDelegate.isObject())
+            return;
+
         se::Value editBoxVal;
         bool ok = native_ptr_to_seval<ui::EditBox>(editBox, __jsb_cocos2d_ui_EditBox_class, &editBoxVal);
         if (!ok)
@@ -1866,7 +1831,6 @@ public:
 
     void setJSDelegate(const se::Value& jsDelegate)
     {
-        assert(jsDelegate.isObject());
         _JSDelegate = jsDelegate;
     }
 private:

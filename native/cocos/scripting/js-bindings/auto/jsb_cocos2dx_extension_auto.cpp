@@ -250,7 +250,7 @@ static bool js_cocos2dx_extension_EventAssetsManagerEx_constructor(se::State& s)
     cocos2d::extension::EventAssetsManagerEx::EventCode arg2;
     ok &= seval_to_std_string(args[0], &arg0);
     ok &= seval_to_native_ptr(args[1], &arg1);
-    ok &= seval_to_int32(args[2], (int32_t *)&arg2);
+    ok &= seval_to_int32(args[2], (int32_t*)&arg2);
     SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_EventAssetsManagerEx_constructor : Error processing arguments");
     cocos2d::extension::EventAssetsManagerEx* cobj = new (std::nothrow) cocos2d::extension::EventAssetsManagerEx(arg0, arg1, arg2);
     s.thisObject()->setPrivateData(cobj);
@@ -857,7 +857,7 @@ static bool js_cocos2dx_extension_AssetsManagerEx_setVersionCompareHandle(se::St
                         se::ScriptEngine::getInstance()->clearException();
                     }
                     int result;
-                    ok &= seval_to_int32(rval, (int32_t *)&result);
+                    ok &= seval_to_int32(rval, (int32_t*)&result);
                     SE_PRECONDITION2(ok, result, "lambda function : Error processing return value with type int");
                     return result;
                 };
@@ -887,7 +887,7 @@ static bool js_cocos2dx_extension_AssetsManagerEx_setMaxConcurrentTask(se::State
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_AssetsManagerEx_setMaxConcurrentTask : Error processing arguments");
         cobj->setMaxConcurrentTask(arg0);
         return true;
@@ -1100,7 +1100,7 @@ static bool js_cocos2dx_extension_AssetsManagerEx_constructor(se::State& s)
                             se::ScriptEngine::getInstance()->clearException();
                         }
                         int result;
-                        ok &= seval_to_int32(rval, (int32_t *)&result);
+                        ok &= seval_to_int32(rval, (int32_t*)&result);
                         SE_PRECONDITION2(ok, result, "lambda function : Error processing return value with type int");
                         return result;
                     };
@@ -1385,7 +1385,7 @@ static bool js_cocos2dx_extension_Control_sendActionsForControlEvents(se::State&
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::extension::Control::EventType arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_Control_sendActionsForControlEvents : Error processing arguments");
         cobj->sendActionsForControlEvents(arg0);
         return true;
@@ -1666,7 +1666,7 @@ static bool js_cocos2dx_extension_ControlButton_setTitleLabelForState(se::State&
         cocos2d::Node* arg0 = nullptr;
         cocos2d::extension::Control::State arg1;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ControlButton_setTitleLabelForState : Error processing arguments");
         cobj->setTitleLabelForState(arg0, arg1);
         return true;
@@ -1706,7 +1706,7 @@ static bool js_cocos2dx_extension_ControlButton_setTitleForState(se::State& s)
         std::string arg0;
         cocos2d::extension::Control::State arg1;
         ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ControlButton_setTitleForState : Error processing arguments");
         cobj->setTitleForState(arg0, arg1);
         return true;
@@ -1783,7 +1783,7 @@ static bool js_cocos2dx_extension_ControlButton_getTitleTTFSizeForState(se::Stat
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::extension::Control::State arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ControlButton_getTitleTTFSizeForState : Error processing arguments");
         float result = cobj->getTitleTTFSizeForState(arg0);
         ok &= float_to_seval(result, &s.rval());
@@ -1806,7 +1806,7 @@ static bool js_cocos2dx_extension_ControlButton_setTitleTTFForState(se::State& s
         std::string arg0;
         cocos2d::extension::Control::State arg1;
         ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ControlButton_setTitleTTFForState : Error processing arguments");
         cobj->setTitleTTFForState(arg0, arg1);
         return true;
@@ -1827,7 +1827,7 @@ static bool js_cocos2dx_extension_ControlButton_setTitleTTFSizeForState(se::Stat
         float arg0 = 0;
         cocos2d::extension::Control::State arg1;
         ok &= seval_to_float(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ControlButton_setTitleTTFSizeForState : Error processing arguments");
         cobj->setTitleTTFSizeForState(arg0, arg1);
         return true;
@@ -1940,7 +1940,7 @@ static bool js_cocos2dx_extension_ControlButton_getBackgroundSpriteForState(se::
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::extension::Control::State arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ControlButton_getBackgroundSpriteForState : Error processing arguments");
         cocos2d::ui::Scale9Sprite* result = cobj->getBackgroundSpriteForState(arg0);
         ok &= native_ptr_to_seval<cocos2d::ui::Scale9Sprite>((cocos2d::ui::Scale9Sprite*)result, &s.rval());
@@ -2006,7 +2006,7 @@ static bool js_cocos2dx_extension_ControlButton_setTitleBMFontForState(se::State
         std::string arg0;
         cocos2d::extension::Control::State arg1;
         ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ControlButton_setTitleBMFontForState : Error processing arguments");
         cobj->setTitleBMFontForState(arg0, arg1);
         return true;
@@ -2043,7 +2043,7 @@ static bool js_cocos2dx_extension_ControlButton_getTitleTTFForState(se::State& s
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::extension::Control::State arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ControlButton_getTitleTTFForState : Error processing arguments");
         const std::string& result = cobj->getTitleTTFForState(arg0);
         ok &= std_string_to_seval(result, &s.rval());
@@ -2082,7 +2082,7 @@ static bool js_cocos2dx_extension_ControlButton_getTitleColorForState(se::State&
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::extension::Control::State arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ControlButton_getTitleColorForState : Error processing arguments");
         cocos2d::Color3B result = cobj->getTitleColorForState(arg0);
         ok &= Color3B_to_seval(result, &s.rval());
@@ -2105,7 +2105,7 @@ static bool js_cocos2dx_extension_ControlButton_setTitleColorForState(se::State&
         cocos2d::Color3B arg0;
         cocos2d::extension::Control::State arg1;
         ok &= seval_to_Color3B(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ControlButton_setTitleColorForState : Error processing arguments");
         cobj->setTitleColorForState(arg0, arg1);
         return true;
@@ -2144,7 +2144,7 @@ static bool js_cocos2dx_extension_ControlButton_setBackgroundSpriteFrameForState
         cocos2d::SpriteFrame* arg0 = nullptr;
         cocos2d::extension::Control::State arg1;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ControlButton_setBackgroundSpriteFrameForState : Error processing arguments");
         cobj->setBackgroundSpriteFrameForState(arg0, arg1);
         return true;
@@ -2165,7 +2165,7 @@ static bool js_cocos2dx_extension_ControlButton_setBackgroundSpriteForState(se::
         cocos2d::ui::Scale9Sprite* arg0 = nullptr;
         cocos2d::extension::Control::State arg1;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ControlButton_setBackgroundSpriteForState : Error processing arguments");
         cobj->setBackgroundSpriteForState(arg0, arg1);
         return true;
@@ -2203,7 +2203,7 @@ static bool js_cocos2dx_extension_ControlButton_getTitleBMFontForState(se::State
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::extension::Control::State arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ControlButton_getTitleBMFontForState : Error processing arguments");
         const std::string& result = cobj->getTitleBMFontForState(arg0);
         ok &= std_string_to_seval(result, &s.rval());
@@ -2278,7 +2278,7 @@ static bool js_cocos2dx_extension_ControlButton_getTitleLabelForState(se::State&
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::extension::Control::State arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ControlButton_getTitleLabelForState : Error processing arguments");
         cocos2d::Node* result = cobj->getTitleLabelForState(arg0);
         ok &= native_ptr_to_seval<cocos2d::Node>((cocos2d::Node*)result, &s.rval());
@@ -2300,8 +2300,8 @@ static bool js_cocos2dx_extension_ControlButton_setMargins(se::State& s)
     if (argc == 2) {
         int arg0 = 0;
         int arg1 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ControlButton_setMargins : Error processing arguments");
         cobj->setMargins(arg0, arg1);
         return true;
@@ -2393,7 +2393,7 @@ static bool js_cocos2dx_extension_ControlButton_getTitleForState(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::extension::Control::State arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ControlButton_getTitleForState : Error processing arguments");
         std::string result = cobj->getTitleForState(arg0);
         ok &= std_string_to_seval(result, &s.rval());
@@ -3079,7 +3079,7 @@ static bool js_cocos2dx_extension_ControlColourPicker_hueSliderValueChanged(se::
         cocos2d::Ref* arg0 = nullptr;
         cocos2d::extension::Control::EventType arg1;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ControlColourPicker_hueSliderValueChanged : Error processing arguments");
         cobj->hueSliderValueChanged(arg0, arg1);
         return true;
@@ -3174,7 +3174,7 @@ static bool js_cocos2dx_extension_ControlColourPicker_colourSliderValueChanged(s
         cocos2d::Ref* arg0 = nullptr;
         cocos2d::extension::Control::EventType arg1;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ControlColourPicker_colourSliderValueChanged : Error processing arguments");
         cobj->colourSliderValueChanged(arg0, arg1);
         return true;
@@ -5334,7 +5334,7 @@ static bool js_cocos2dx_extension_ScrollView_setDirection(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::extension::ScrollView::Direction arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_ScrollView_setDirection : Error processing arguments");
         cobj->setDirection(arg0);
         return true;
@@ -5958,7 +5958,7 @@ static bool js_cocos2dx_extension_TableView_setVerticalFillOrder(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::extension::TableView::VerticalFillOrder arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_extension_TableView_setVerticalFillOrder : Error processing arguments");
         cobj->setVerticalFillOrder(arg0);
         return true;

@@ -258,6 +258,11 @@ static keyCodeItem g_keyCodeStructArray[] = {
     { GLFW_KEY_LAST            , EventKeyboard::KeyCode::KEY_NONE          }
 };
 
+static EventMouse* __mouseDownEvent = nullptr;
+static EventMouse* __mouseMoveEvent = nullptr;
+static EventMouse* __mouseUpEvent = nullptr;
+static EventMouse* __mouseScrollEvent = nullptr;
+
 //////////////////////////////////////////////////////////////////////////
 // implement GLViewImpl
 //////////////////////////////////////////////////////////////////////////
@@ -281,6 +286,10 @@ GLViewImpl::GLViewImpl(bool initglfw)
     {
         g_keyCodeMap[item.glfwKeyCode] = item.keyCode;
     }
+    __mouseDownEvent = new (std::nothrow) EventMouse(EventMouse::MouseEventType::MOUSE_DOWN);
+    __mouseMoveEvent = new (std::nothrow) EventMouse(EventMouse::MouseEventType::MOUSE_MOVE);
+    __mouseUpEvent = new (std::nothrow) EventMouse(EventMouse::MouseEventType::MOUSE_UP);
+    __mouseScrollEvent = new (std::nothrow) EventMouse(EventMouse::MouseEventType::MOUSE_SCROLL);
 
     GLFWEventHandler::setGLViewImpl(this);
     if (initglfw)
@@ -295,6 +304,11 @@ GLViewImpl::~GLViewImpl()
     CCLOGINFO("deallocing GLViewImpl: %p", this);
     GLFWEventHandler::setGLViewImpl(nullptr);
     glfwTerminate();
+
+    CC_SAFE_RELEASE_NULL(__mouseDownEvent);
+    CC_SAFE_RELEASE_NULL(__mouseMoveEvent);
+    CC_SAFE_RELEASE_NULL(__mouseUpEvent);
+    CC_SAFE_RELEASE_NULL(__mouseScrollEvent);
 }
 
 GLViewImpl* GLViewImpl::create(const std::string& viewName)
@@ -663,19 +677,17 @@ void GLViewImpl::onGLFWMouseCallBack(GLFWwindow* window, int button, int action,
 
     if(GLFW_PRESS == action)
     {
-        EventMouse* event = new (std::nothrow) EventMouse(EventMouse::MouseEventType::MOUSE_DOWN);
+        EventMouse* event = __mouseDownEvent;
         event->setCursorPosition(cursorX, cursorY);
         event->setMouseButton(button);
         Director::getInstance()->getEventDispatcher()->dispatchEvent(event);
-        event->release();
     }
     else if(GLFW_RELEASE == action)
     {
-        EventMouse* event = new (std::nothrow) EventMouse(EventMouse::MouseEventType::MOUSE_UP);
+        EventMouse* event = __mouseUpEvent;
         event->setCursorPosition(cursorX, cursorY);
         event->setMouseButton(button);
         Director::getInstance()->getEventDispatcher()->dispatchEvent(event);
-        event->release();
     }
 }
 
@@ -706,7 +718,7 @@ void GLViewImpl::onGLFWMouseMoveCallBack(GLFWwindow* window, double x, double y)
     float cursorX = (_mouseX - _viewPortRect.origin.x) / _scaleX;
     float cursorY = (_viewPortRect.origin.y + _viewPortRect.size.height - _mouseY) / _scaleY;
 
-    EventMouse* event = new (std::nothrow) EventMouse(EventMouse::MouseEventType::MOUSE_MOVE);
+    EventMouse* event = __mouseMoveEvent;
     // Set current button
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
     {
@@ -722,19 +734,17 @@ void GLViewImpl::onGLFWMouseMoveCallBack(GLFWwindow* window, double x, double y)
     }
     event->setCursorPosition(cursorX, cursorY);
     Director::getInstance()->getEventDispatcher()->dispatchEvent(event);
-    event->release();
 }
 
 void GLViewImpl::onGLFWMouseScrollCallback(GLFWwindow* window, double x, double y)
 {
-    EventMouse* event = new (std::nothrow)EventMouse(EventMouse::MouseEventType::MOUSE_SCROLL);
+    EventMouse* event = __mouseScrollEvent;
     //Because OpenGL and cocos2d-x uses different Y axis, we need to convert the coordinate here
     float cursorX = (_mouseX - _viewPortRect.origin.x) / _scaleX;
     float cursorY = (_viewPortRect.origin.y + _viewPortRect.size.height - _mouseY) / _scaleY;
     event->setScrollData((float)x, -(float)y);
     event->setCursorPosition(cursorX, cursorY);
     Director::getInstance()->getEventDispatcher()->dispatchEvent(event);
-    event->release();
 }
 
 void GLViewImpl::onGLFWKeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)

@@ -114,17 +114,5 @@ void Scene::removeAllChildren()
     Node::removeAllChildren();
 }
 
-void Scene::cleanup()
-{
-    Node::cleanup();
-#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
-    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
-    if (sEngine)
-    {
-        sEngine->releaseAllChildrenRecursive(this);
-    }
-#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
-}
-
 NS_CC_END
 

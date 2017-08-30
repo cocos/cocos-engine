@@ -309,10 +309,16 @@ namespace se {
 
         Class* _cls;
         JSObjectRef _obj;
-        uint32_t _rootCount;
         void* _privateData;
-        bool _isCleanup;
         JSObjectFinalizeCallback _finalizeCb;
+
+        uint32_t _rootCount;
+#if SE_DEBUG > 0
+    public:
+        uint32_t _id;
+    private:
+#endif
+        bool _isCleanup;
 
         friend class ScriptEngine;
         friend class AutoHandleScope;

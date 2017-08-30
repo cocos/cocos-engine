@@ -125,19 +125,21 @@ XMLHttpRequest::XMLHttpRequest()
 , _errorFlag(false)
 , _isAborted(false)
 , _isLoadStart(false)
-, _httpRequest(new HttpRequest())
+, _httpRequest(new (std::nothrow) HttpRequest())
 {
 
 }
 
 XMLHttpRequest::~XMLHttpRequest()
 {
-    // We don't need to release _httpRequest here since it will be released in the http callback.
-//    CC_SAFE_RELEASE(_httpRequest);
+    CC_SAFE_RELEASE(_httpRequest);
 }
 
 bool XMLHttpRequest::open(const std::string& method, const std::string& url)
 {
+    if (_readyState != ReadyState::UNSENT)
+        return false;
+
     _method = method;
     _url = url;
 
@@ -385,7 +387,6 @@ void XMLHttpRequest::sendRequest()
 
     _httpRequest->setResponseCallback(CC_CALLBACK_2(XMLHttpRequest::onResponse, this));
     cocos2d::network::HttpClient::getInstance()->sendImmediate(_httpRequest);
-    _httpRequest->release();
 
     if (onloadstart != nullptr)
     {
@@ -625,11 +626,18 @@ static bool XMLHttpRequest_setRequestHeader(se::State& s)
 {
     const auto& args = s.args();
     size_t argc = args.size();
-    XMLHttpRequest* xhr = (XMLHttpRequest*)s.nativeThisObject();
-    assert(argc == 2);
-    assert(args[0].isString() && args[1].isString());
-    xhr->setRequestHeader(args[0].toString(), args[1].toString());
-    return true;
+
+    if (argc >= 2)
+    {
+        XMLHttpRequest* xhr = (XMLHttpRequest*)s.nativeThisObject();
+
+        assert(args[0].isString() && args[1].isString());
+        xhr->setRequestHeader(args[0].toString(), args[1].toString());
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting >=2", (int)argc);
+    return false;
 }
 SE_BIND_FUNC(XMLHttpRequest_setRequestHeader)
 

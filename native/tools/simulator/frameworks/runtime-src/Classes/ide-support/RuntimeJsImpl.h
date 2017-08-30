@@ -30,7 +30,6 @@ private:
     RuntimeJsImpl();
     bool initJsEnv();
     bool loadScriptFile(const std::string& file);
-    bool _hasStarted;
 };
 
 #endif // (COCOS2D_DEBUG > 0) && (CC_CODE_IDE_DEBUG_SUPPORT > 0)

@@ -58,8 +58,37 @@ namespace se {
         void addBeforeCleanupHook(const std::function<void()>& hook);
         void addAfterCleanupHook(const std::function<void()>& hook);
 
-        bool executeScriptBuffer(const char *string, Value *data = nullptr, const char *fileName = nullptr);
-        bool executeScriptBuffer(const char *string, size_t length, Value *data = nullptr, const char *fileName = nullptr);
+        bool executeScriptBuffer(const char* string, ssize_t length = -1, Value* ret = nullptr, const char* fileName = nullptr);
+
+        class FileOperationDelegate
+        {
+        public:
+            FileOperationDelegate()
+            : onGetDataFromFile(nullptr)
+            , onGetStringFromFile(nullptr)
+            , onCheckFileExist(nullptr)
+            , onGetFullPath(nullptr)
+            {}
+
+            bool isValid() {
+                return onGetDataFromFile != nullptr
+                    && onGetStringFromFile != nullptr
+                    && onCheckFileExist != nullptr
+                    && onGetFullPath != nullptr; }
+
+            // path, buffer, buffer size
+            std::function<void(const std::string&, const uint8_t**, size_t*)> onGetDataFromFile;
+            // path, return file string content.
+            std::function<std::string(const std::string&)> onGetStringFromFile;
+            // path
+            std::function<bool(const std::string&)> onCheckFileExist;
+            // path, return full path
+            std::function<std::string(const std::string&)> onGetFullPath;
+        };
+
+        void setFileOperationDelegate(const FileOperationDelegate& delegate);
+
+        bool executeScriptFile(const std::string& fullPath, Value* ret = nullptr);
 
         JSContext* _getContext() { return _cx; }
 
@@ -93,6 +122,9 @@ namespace se {
         static void myWeakPointerCompartmentCallback(JSContext* cx, JSCompartment* comp, void* data);
         static void myWeakPointerZoneGroupCallback(JSContext* cx, void* data);
 
+        bool getScript(const std::string& path, JS::MutableHandleScript script);
+        bool compileScript(const std::string& path, JS::MutableHandleScript script);
+
         JSContext* _cx;
         JSCompartment* _oldCompartment;
 
@@ -103,6 +135,8 @@ namespace se {
         bool _isInCleanup;
         NodeEventListener _nodeEventListener;
 
+        FileOperationDelegate _fileOperationDelegate;
+
         std::vector<RegisterCallback> _registerCallbackArray;
         std::chrono::steady_clock::time_point _startTime;
 
@@ -111,6 +145,9 @@ namespace se {
 
         std::vector<std::function<void()>> _beforeCleanupHookArray;
         std::vector<std::function<void()>> _afterCleanupHookArray;
+
+        // name ~> JSScript map
+        std::unordered_map<std::string, JS::PersistentRootedScript*> _filenameScriptMap;
     };
 
  } // namespace se {

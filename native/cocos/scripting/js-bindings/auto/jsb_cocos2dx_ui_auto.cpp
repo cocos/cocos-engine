@@ -114,7 +114,7 @@ static bool js_cocos2dx_ui_LinearLayoutParameter_setGravity(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::ui::LinearLayoutParameter::LinearGravity arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_LinearLayoutParameter_setGravity : Error processing arguments");
         cobj->setGravity(arg0);
         return true;
@@ -216,7 +216,7 @@ static bool js_cocos2dx_ui_RelativeLayoutParameter_setAlign(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::ui::RelativeLayoutParameter::RelativeAlign arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RelativeLayoutParameter_setAlign : Error processing arguments");
         cobj->setAlign(arg0);
         return true;
@@ -656,7 +656,7 @@ static bool js_cocos2dx_ui_Widget_setPositionType(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::ui::Widget::PositionType arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Widget_setPositionType : Error processing arguments");
         cobj->setPositionType(arg0);
         return true;
@@ -852,7 +852,7 @@ static bool js_cocos2dx_ui_Widget_findNextFocusedWidget(se::State& s)
     if (argc == 2) {
         cocos2d::ui::Widget::FocusDirection arg0;
         cocos2d::ui::Widget* arg1 = nullptr;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_native_ptr(args[1], &arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Widget_findNextFocusedWidget : Error processing arguments");
         cocos2d::ui::Widget* result = cobj->findNextFocusedWidget(arg0, arg1);
@@ -1037,7 +1037,7 @@ static bool js_cocos2dx_ui_Widget_setActionTag(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Widget_setActionTag : Error processing arguments");
         cobj->setActionTag(arg0);
         return true;
@@ -1149,7 +1149,7 @@ static bool js_cocos2dx_ui_Widget_setBrightStyle(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::ui::Widget::BrightStyle arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Widget_setBrightStyle : Error processing arguments");
         cobj->setBrightStyle(arg0);
         return true;
@@ -1563,7 +1563,7 @@ static bool js_cocos2dx_ui_Widget_propagateTouchEvent(se::State& s)
         cocos2d::ui::Widget::TouchEventType arg0;
         cocos2d::ui::Widget* arg1 = nullptr;
         cocos2d::Touch* arg2 = nullptr;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_native_ptr(args[1], &arg1);
         ok &= seval_to_native_ptr(args[2], &arg2);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Widget_propagateTouchEvent : Error processing arguments");
@@ -1689,7 +1689,7 @@ static bool js_cocos2dx_ui_Widget_setSizeType(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::ui::Widget::SizeType arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Widget_setSizeType : Error processing arguments");
         cobj->setSizeType(arg0);
         return true;
@@ -1710,7 +1710,7 @@ static bool js_cocos2dx_ui_Widget_interceptTouchEvent(se::State& s)
         cocos2d::ui::Widget::TouchEventType arg0;
         cocos2d::ui::Widget* arg1 = nullptr;
         cocos2d::Touch* arg2 = nullptr;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_native_ptr(args[1], &arg1);
         ok &= seval_to_native_ptr(args[2], &arg2);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Widget_interceptTouchEvent : Error processing arguments");
@@ -1984,7 +1984,7 @@ static bool js_cocos2dx_ui_Layout_setClippingType(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::ui::Layout::ClippingType arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Layout_setClippingType : Error processing arguments");
         cobj->setClippingType(arg0);
         return true;
@@ -2003,7 +2003,7 @@ static bool js_cocos2dx_ui_Layout_setBackGroundColorType(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::ui::Layout::BackGroundColorType arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Layout_setBackGroundColorType : Error processing arguments");
         cobj->setBackGroundColorType(arg0);
         return true;
@@ -2183,7 +2183,7 @@ static bool js_cocos2dx_ui_Layout_setBackGroundImageOpacity(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         uint8_t arg0;
-        ok &= seval_to_uint8(args[0], &arg0);
+        ok &= seval_to_uint8(args[0], (uint8_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Layout_setBackGroundImageOpacity : Error processing arguments");
         cobj->setBackGroundImageOpacity(arg0);
         return true;
@@ -2211,7 +2211,7 @@ static bool js_cocos2dx_ui_Layout_setBackGroundImage(se::State& s)
         std::string arg0;
         cocos2d::ui::Widget::TextureResType arg1;
         ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Layout_setBackGroundImage : Error processing arguments");
         cobj->setBackGroundImage(arg0, arg1);
         return true;
@@ -2407,7 +2407,7 @@ static bool js_cocos2dx_ui_Layout_setBackGroundColorOpacity(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         uint8_t arg0;
-        ok &= seval_to_uint8(args[0], &arg0);
+        ok &= seval_to_uint8(args[0], (uint8_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Layout_setBackGroundColorOpacity : Error processing arguments");
         cobj->setBackGroundColorOpacity(arg0);
         return true;
@@ -2588,7 +2588,7 @@ static bool js_cocos2dx_ui_Layout_setLayoutType(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::ui::Layout::Type arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Layout_setLayoutType : Error processing arguments");
         cobj->setLayoutType(arg0);
         return true;
@@ -3026,7 +3026,7 @@ static bool js_cocos2dx_ui_Button_loadTextureDisabled(se::State& s)
         std::string arg0;
         cocos2d::ui::Widget::TextureResType arg1;
         ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Button_loadTextureDisabled : Error processing arguments");
         cobj->loadTextureDisabled(arg0, arg1);
         return true;
@@ -3084,7 +3084,7 @@ static bool js_cocos2dx_ui_Button_init(se::State& s)
         ok &= seval_to_std_string(args[0], &arg0);
         ok &= seval_to_std_string(args[1], &arg1);
         ok &= seval_to_std_string(args[2], &arg2);
-        ok &= seval_to_int32(args[3], (int32_t *)&arg3);
+        ok &= seval_to_int32(args[3], (int32_t*)&arg3);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Button_init : Error processing arguments");
         bool result = cobj->init(arg0, arg1, arg2, arg3);
         ok &= boolean_to_seval(result, &s.rval());
@@ -3152,7 +3152,7 @@ static bool js_cocos2dx_ui_Button_loadTexturePressed(se::State& s)
         std::string arg0;
         cocos2d::ui::Widget::TextureResType arg1;
         ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Button_loadTexturePressed : Error processing arguments");
         cobj->loadTexturePressed(arg0, arg1);
         return true;
@@ -3209,10 +3209,10 @@ static bool js_cocos2dx_ui_Button_setTitleAlignment(se::State& s)
     do {
         if (argc == 2) {
             cocos2d::TextHAlignment arg0;
-            ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+            ok &= seval_to_int8(args[0], (int8_t*)&arg0);
             if (!ok) { ok = true; break; }
             cocos2d::TextVAlignment arg1;
-            ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+            ok &= seval_to_int8(args[1], (int8_t*)&arg1);
             if (!ok) { ok = true; break; }
             cobj->setTitleAlignment(arg0, arg1);
             return true;
@@ -3222,7 +3222,7 @@ static bool js_cocos2dx_ui_Button_setTitleAlignment(se::State& s)
     do {
         if (argc == 1) {
             cocos2d::TextHAlignment arg0;
-            ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+            ok &= seval_to_int8(args[0], (int8_t*)&arg0);
             if (!ok) { ok = true; break; }
             cobj->setTitleAlignment(arg0);
             return true;
@@ -3287,7 +3287,7 @@ static bool js_cocos2dx_ui_Button_loadTextures(se::State& s)
         ok &= seval_to_std_string(args[0], &arg0);
         ok &= seval_to_std_string(args[1], &arg1);
         ok &= seval_to_std_string(args[2], &arg2);
-        ok &= seval_to_int32(args[3], (int32_t *)&arg3);
+        ok &= seval_to_int32(args[3], (int32_t*)&arg3);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Button_loadTextures : Error processing arguments");
         cobj->loadTextures(arg0, arg1, arg2, arg3);
         return true;
@@ -3333,7 +3333,7 @@ static bool js_cocos2dx_ui_Button_loadTextureNormal(se::State& s)
         std::string arg0;
         cocos2d::ui::Widget::TextureResType arg1;
         ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Button_loadTextureNormal : Error processing arguments");
         cobj->loadTextureNormal(arg0, arg1);
         return true;
@@ -3549,7 +3549,7 @@ static bool js_cocos2dx_ui_Button_create(se::State& s)
             ok &= seval_to_std_string(args[2], &arg2);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Widget::TextureResType arg3;
-            ok &= seval_to_int32(args[3], (int32_t *)&arg3);
+            ok &= seval_to_int32(args[3], (int32_t*)&arg3);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Button* result = cocos2d::ui::Button::create(arg0, arg1, arg2, arg3);
             ok &= native_ptr_to_seval<cocos2d::ui::Button>((cocos2d::ui::Button*)result, &s.rval());
@@ -3717,7 +3717,7 @@ static bool js_cocos2dx_ui_AbstractCheckButton_loadTextureBackGroundSelected(se:
         std::string arg0;
         cocos2d::ui::Widget::TextureResType arg1;
         ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_AbstractCheckButton_loadTextureBackGroundSelected : Error processing arguments");
         cobj->loadTextureBackGroundSelected(arg0, arg1);
         return true;
@@ -3745,7 +3745,7 @@ static bool js_cocos2dx_ui_AbstractCheckButton_loadTextureBackGroundDisabled(se:
         std::string arg0;
         cocos2d::ui::Widget::TextureResType arg1;
         ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_AbstractCheckButton_loadTextureBackGroundDisabled : Error processing arguments");
         cobj->loadTextureBackGroundDisabled(arg0, arg1);
         return true;
@@ -3864,7 +3864,7 @@ static bool js_cocos2dx_ui_AbstractCheckButton_loadTextureFrontCross(se::State& 
         std::string arg0;
         cocos2d::ui::Widget::TextureResType arg1;
         ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_AbstractCheckButton_loadTextureFrontCross : Error processing arguments");
         cobj->loadTextureFrontCross(arg0, arg1);
         return true;
@@ -3946,7 +3946,7 @@ static bool js_cocos2dx_ui_AbstractCheckButton_init(se::State& s)
         ok &= seval_to_std_string(args[2], &arg2);
         ok &= seval_to_std_string(args[3], &arg3);
         ok &= seval_to_std_string(args[4], &arg4);
-        ok &= seval_to_int32(args[5], (int32_t *)&arg5);
+        ok &= seval_to_int32(args[5], (int32_t*)&arg5);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_AbstractCheckButton_init : Error processing arguments");
         bool result = cobj->init(arg0, arg1, arg2, arg3, arg4, arg5);
         ok &= boolean_to_seval(result, &s.rval());
@@ -4010,7 +4010,7 @@ static bool js_cocos2dx_ui_AbstractCheckButton_loadTextures(se::State& s)
         ok &= seval_to_std_string(args[2], &arg2);
         ok &= seval_to_std_string(args[3], &arg3);
         ok &= seval_to_std_string(args[4], &arg4);
-        ok &= seval_to_int32(args[5], (int32_t *)&arg5);
+        ok &= seval_to_int32(args[5], (int32_t*)&arg5);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_AbstractCheckButton_loadTextures : Error processing arguments");
         cobj->loadTextures(arg0, arg1, arg2, arg3, arg4, arg5);
         return true;
@@ -4092,7 +4092,7 @@ static bool js_cocos2dx_ui_AbstractCheckButton_loadTextureBackGround(se::State& 
         std::string arg0;
         cocos2d::ui::Widget::TextureResType arg1;
         ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_AbstractCheckButton_loadTextureBackGround : Error processing arguments");
         cobj->loadTextureBackGround(arg0, arg1);
         return true;
@@ -4139,7 +4139,7 @@ static bool js_cocos2dx_ui_AbstractCheckButton_loadTextureFrontCrossDisabled(se:
         std::string arg0;
         cocos2d::ui::Widget::TextureResType arg1;
         ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_AbstractCheckButton_loadTextureFrontCrossDisabled : Error processing arguments");
         cobj->loadTextureFrontCrossDisabled(arg0, arg1);
         return true;
@@ -4286,7 +4286,7 @@ static bool js_cocos2dx_ui_CheckBox_create(se::State& s)
             ok &= seval_to_std_string(args[4], &arg4);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Widget::TextureResType arg5;
-            ok &= seval_to_int32(args[5], (int32_t *)&arg5);
+            ok &= seval_to_int32(args[5], (int32_t*)&arg5);
             if (!ok) { ok = true; break; }
             cocos2d::ui::CheckBox* result = cocos2d::ui::CheckBox::create(arg0, arg1, arg2, arg3, arg4, arg5);
             ok &= native_ptr_to_seval<cocos2d::ui::CheckBox>((cocos2d::ui::CheckBox*)result, &s.rval());
@@ -4325,7 +4325,7 @@ static bool js_cocos2dx_ui_CheckBox_create(se::State& s)
             ok &= seval_to_std_string(args[1], &arg1);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Widget::TextureResType arg2;
-            ok &= seval_to_int32(args[2], (int32_t *)&arg2);
+            ok &= seval_to_int32(args[2], (int32_t*)&arg2);
             if (!ok) { ok = true; break; }
             cocos2d::ui::CheckBox* result = cocos2d::ui::CheckBox::create(arg0, arg1, arg2);
             ok &= native_ptr_to_seval<cocos2d::ui::CheckBox>((cocos2d::ui::CheckBox*)result, &s.rval());
@@ -4490,7 +4490,7 @@ static bool js_cocos2dx_ui_RadioButton_create(se::State& s)
             ok &= seval_to_std_string(args[4], &arg4);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Widget::TextureResType arg5;
-            ok &= seval_to_int32(args[5], (int32_t *)&arg5);
+            ok &= seval_to_int32(args[5], (int32_t*)&arg5);
             if (!ok) { ok = true; break; }
             cocos2d::ui::RadioButton* result = cocos2d::ui::RadioButton::create(arg0, arg1, arg2, arg3, arg4, arg5);
             ok &= native_ptr_to_seval<cocos2d::ui::RadioButton>((cocos2d::ui::RadioButton*)result, &s.rval());
@@ -4529,7 +4529,7 @@ static bool js_cocos2dx_ui_RadioButton_create(se::State& s)
             ok &= seval_to_std_string(args[1], &arg1);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Widget::TextureResType arg2;
-            ok &= seval_to_int32(args[2], (int32_t *)&arg2);
+            ok &= seval_to_int32(args[2], (int32_t*)&arg2);
             if (!ok) { ok = true; break; }
             cocos2d::ui::RadioButton* result = cocos2d::ui::RadioButton::create(arg0, arg1, arg2);
             ok &= native_ptr_to_seval<cocos2d::ui::RadioButton>((cocos2d::ui::RadioButton*)result, &s.rval());
@@ -4693,7 +4693,7 @@ static bool js_cocos2dx_ui_RadioButtonGroup_setSelectedButtonWithoutEvent(se::St
     do {
         if (argc == 1) {
             int arg0 = 0;
-            ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+            ok &= seval_to_int32(args[0], (int32_t*)&arg0);
             if (!ok) { ok = true; break; }
             cobj->setSelectedButtonWithoutEvent(arg0);
             return true;
@@ -4779,7 +4779,7 @@ static bool js_cocos2dx_ui_RadioButtonGroup_getRadioButtonByIndex(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RadioButtonGroup_getRadioButtonByIndex : Error processing arguments");
         cocos2d::ui::RadioButton* result = cobj->getRadioButtonByIndex(arg0);
         ok &= native_ptr_to_seval<cocos2d::ui::RadioButton>((cocos2d::ui::RadioButton*)result, &s.rval());
@@ -4848,7 +4848,7 @@ static bool js_cocos2dx_ui_RadioButtonGroup_setSelectedButton(se::State& s)
     do {
         if (argc == 1) {
             int arg0 = 0;
-            ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+            ok &= seval_to_int32(args[0], (int32_t*)&arg0);
             if (!ok) { ok = true; break; }
             cobj->setSelectedButton(arg0);
             return true;
@@ -4963,7 +4963,7 @@ static bool js_cocos2dx_ui_ImageView_loadTexture(se::State& s)
         std::string arg0;
         cocos2d::ui::Widget::TextureResType arg1;
         ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_ImageView_loadTexture : Error processing arguments");
         cobj->loadTexture(arg0, arg1);
         return true;
@@ -4993,7 +4993,7 @@ static bool js_cocos2dx_ui_ImageView_init(se::State& s)
         std::string arg0;
         cocos2d::ui::Widget::TextureResType arg1;
         ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_ImageView_init : Error processing arguments");
         bool result = cobj->init(arg0, arg1);
         ok &= boolean_to_seval(result, &s.rval());
@@ -5138,7 +5138,7 @@ static bool js_cocos2dx_ui_ImageView_create(se::State& s)
             ok &= seval_to_std_string(args[0], &arg0);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Widget::TextureResType arg1;
-            ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+            ok &= seval_to_int32(args[1], (int32_t*)&arg1);
             if (!ok) { ok = true; break; }
             cocos2d::ui::ImageView* result = cocos2d::ui::ImageView::create(arg0, arg1);
             ok &= native_ptr_to_seval<cocos2d::ui::ImageView>((cocos2d::ui::ImageView*)result, &s.rval());
@@ -5256,7 +5256,7 @@ static bool js_cocos2dx_ui_Text_enableShadow(se::State& s)
         int arg2 = 0;
         ok &= seval_to_Color4B(args[0], &arg0);
         ok &= seval_to_Size(args[1], &arg1);
-        ok &= seval_to_int32(args[2], (int32_t *)&arg2);
+        ok &= seval_to_int32(args[2], (int32_t*)&arg2);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Text_enableShadow : Error processing arguments");
         cobj->enableShadow(arg0, arg1, arg2);
         return true;
@@ -5312,7 +5312,7 @@ static bool js_cocos2dx_ui_Text_disableEffect(se::State& s)
     do {
         if (argc == 1) {
             cocos2d::LabelEffect arg0;
-            ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+            ok &= seval_to_int8(args[0], (int8_t*)&arg0);
             if (!ok) { ok = true; break; }
             cobj->disableEffect(arg0);
             return true;
@@ -5339,8 +5339,8 @@ static bool js_cocos2dx_ui_Text_getLabelEffectType(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->getLabelEffectType();
-        ok &= int32_to_seval(result, &s.rval());
+        char result = (char)cobj->getLabelEffectType();
+        ok &= int8_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Text_getLabelEffectType : Error processing arguments");
         return true;
     }
@@ -5376,7 +5376,7 @@ static bool js_cocos2dx_ui_Text_setTextVerticalAlignment(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::TextVAlignment arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int8(args[0], (int8_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Text_setTextVerticalAlignment : Error processing arguments");
         cobj->setTextVerticalAlignment(arg0);
         return true;
@@ -5631,7 +5631,7 @@ static bool js_cocos2dx_ui_Text_enableOutline(se::State& s)
         cocos2d::Color4B arg0;
         int arg1 = 0;
         ok &= seval_to_Color4B(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Text_enableOutline : Error processing arguments");
         cobj->enableOutline(arg0, arg1);
         return true;
@@ -5685,8 +5685,8 @@ static bool js_cocos2dx_ui_Text_getTextHorizontalAlignment(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->getTextHorizontalAlignment();
-        ok &= int32_to_seval(result, &s.rval());
+        char result = (char)cobj->getTextHorizontalAlignment();
+        ok &= int8_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Text_getTextHorizontalAlignment : Error processing arguments");
         return true;
     }
@@ -5796,8 +5796,8 @@ static bool js_cocos2dx_ui_Text_getTextVerticalAlignment(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->getTextVerticalAlignment();
-        ok &= int32_to_seval(result, &s.rval());
+        char result = (char)cobj->getTextVerticalAlignment();
+        ok &= int8_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Text_getTextVerticalAlignment : Error processing arguments");
         return true;
     }
@@ -5833,7 +5833,7 @@ static bool js_cocos2dx_ui_Text_setTextHorizontalAlignment(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::TextHAlignment arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int8(args[0], (int8_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Text_setTextHorizontalAlignment : Error processing arguments");
         cobj->setTextHorizontalAlignment(arg0);
         return true;
@@ -6053,8 +6053,8 @@ static bool js_cocos2dx_ui_TextAtlas_setProperty(se::State& s)
         std::string arg4;
         ok &= seval_to_std_string(args[0], &arg0);
         ok &= seval_to_std_string(args[1], &arg1);
-        ok &= seval_to_int32(args[2], (int32_t *)&arg2);
-        ok &= seval_to_int32(args[3], (int32_t *)&arg3);
+        ok &= seval_to_int32(args[2], (int32_t*)&arg2);
+        ok &= seval_to_int32(args[3], (int32_t*)&arg3);
         ok &= seval_to_std_string(args[4], &arg4);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_TextAtlas_setProperty : Error processing arguments");
         cobj->setProperty(arg0, arg1, arg2, arg3, arg4);
@@ -6094,10 +6094,10 @@ static bool js_cocos2dx_ui_TextAtlas_create(se::State& s)
             ok &= seval_to_std_string(args[1], &arg1);
             if (!ok) { ok = true; break; }
             int arg2 = 0;
-            ok &= seval_to_int32(args[2], (int32_t *)&arg2);
+            ok &= seval_to_int32(args[2], (int32_t*)&arg2);
             if (!ok) { ok = true; break; }
             int arg3 = 0;
-            ok &= seval_to_int32(args[3], (int32_t *)&arg3);
+            ok &= seval_to_int32(args[3], (int32_t*)&arg3);
             if (!ok) { ok = true; break; }
             std::string arg4;
             ok &= seval_to_std_string(args[4], &arg4);
@@ -6220,7 +6220,7 @@ static bool js_cocos2dx_ui_LoadingBar_loadTexture(se::State& s)
         std::string arg0;
         cocos2d::ui::Widget::TextureResType arg1;
         ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_LoadingBar_loadTexture : Error processing arguments");
         cobj->loadTexture(arg0, arg1);
         return true;
@@ -6239,7 +6239,7 @@ static bool js_cocos2dx_ui_LoadingBar_setDirection(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::ui::LoadingBar::Direction arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_LoadingBar_setDirection : Error processing arguments");
         cobj->setDirection(arg0);
         return true;
@@ -6421,7 +6421,7 @@ static bool js_cocos2dx_ui_LoadingBar_create(se::State& s)
             ok &= seval_to_std_string(args[0], &arg0);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Widget::TextureResType arg1;
-            ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+            ok &= seval_to_int32(args[1], (int32_t*)&arg1);
             if (!ok) { ok = true; break; }
             cocos2d::ui::LoadingBar* result = cocos2d::ui::LoadingBar::create(arg0, arg1);
             ok &= native_ptr_to_seval<cocos2d::ui::LoadingBar>((cocos2d::ui::LoadingBar*)result, &s.rval());
@@ -6435,7 +6435,7 @@ static bool js_cocos2dx_ui_LoadingBar_create(se::State& s)
             ok &= seval_to_std_string(args[0], &arg0);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Widget::TextureResType arg1;
-            ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+            ok &= seval_to_int32(args[1], (int32_t*)&arg1);
             if (!ok) { ok = true; break; }
             float arg2 = 0;
             ok &= seval_to_float(args[2], &arg2);
@@ -6570,7 +6570,7 @@ static bool js_cocos2dx_ui_ScrollView_setScrollBarOpacity(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         uint8_t arg0;
-        ok &= seval_to_uint8(args[0], &arg0);
+        ok &= seval_to_uint8(args[0], (uint8_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_ScrollView_setScrollBarOpacity : Error processing arguments");
         cobj->setScrollBarOpacity(arg0);
         return true;
@@ -6757,7 +6757,7 @@ static bool js_cocos2dx_ui_ScrollView_setDirection(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::ui::ScrollView::Direction arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_ScrollView_setDirection : Error processing arguments");
         cobj->setDirection(arg0);
         return true;
@@ -7687,7 +7687,7 @@ static bool js_cocos2dx_ui_ListView_setGravity(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::ui::ListView::Gravity arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_ListView_setGravity : Error processing arguments");
         cobj->setGravity(arg0);
         return true;
@@ -7816,7 +7816,7 @@ static bool js_cocos2dx_ui_ListView_setMagneticType(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::ui::ListView::MagneticType arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_ListView_setMagneticType : Error processing arguments");
         cobj->setMagneticType(arg0);
         return true;
@@ -7875,7 +7875,7 @@ static bool js_cocos2dx_ui_ListView_setCurSelectedIndex(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_ListView_setCurSelectedIndex : Error processing arguments");
         cobj->setCurSelectedIndex(arg0);
         return true;
@@ -8470,7 +8470,7 @@ static bool js_cocos2dx_ui_Slider_setPercent(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Slider_setPercent : Error processing arguments");
         cobj->setPercent(arg0);
         return true;
@@ -8516,7 +8516,7 @@ static bool js_cocos2dx_ui_Slider_loadSlidBallTextureNormal(se::State& s)
         std::string arg0;
         cocos2d::ui::Widget::TextureResType arg1;
         ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Slider_loadSlidBallTextureNormal : Error processing arguments");
         cobj->loadSlidBallTextureNormal(arg0, arg1);
         return true;
@@ -8544,7 +8544,7 @@ static bool js_cocos2dx_ui_Slider_loadProgressBarTexture(se::State& s)
         std::string arg0;
         cocos2d::ui::Widget::TextureResType arg1;
         ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Slider_loadProgressBarTexture : Error processing arguments");
         cobj->loadProgressBarTexture(arg0, arg1);
         return true;
@@ -8688,7 +8688,7 @@ static bool js_cocos2dx_ui_Slider_loadSlidBallTextures(se::State& s)
         ok &= seval_to_std_string(args[0], &arg0);
         ok &= seval_to_std_string(args[1], &arg1);
         ok &= seval_to_std_string(args[2], &arg2);
-        ok &= seval_to_int32(args[3], (int32_t *)&arg3);
+        ok &= seval_to_int32(args[3], (int32_t*)&arg3);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Slider_loadSlidBallTextures : Error processing arguments");
         cobj->loadSlidBallTextures(arg0, arg1, arg2, arg3);
         return true;
@@ -8756,7 +8756,7 @@ static bool js_cocos2dx_ui_Slider_setMaxPercent(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Slider_setMaxPercent : Error processing arguments");
         cobj->setMaxPercent(arg0);
         return true;
@@ -8784,7 +8784,7 @@ static bool js_cocos2dx_ui_Slider_loadBarTexture(se::State& s)
         std::string arg0;
         cocos2d::ui::Widget::TextureResType arg1;
         ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Slider_loadBarTexture : Error processing arguments");
         cobj->loadBarTexture(arg0, arg1);
         return true;
@@ -8866,7 +8866,7 @@ static bool js_cocos2dx_ui_Slider_loadSlidBallTexturePressed(se::State& s)
         std::string arg0;
         cocos2d::ui::Widget::TextureResType arg1;
         ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Slider_loadSlidBallTexturePressed : Error processing arguments");
         cobj->loadSlidBallTexturePressed(arg0, arg1);
         return true;
@@ -9004,7 +9004,7 @@ static bool js_cocos2dx_ui_Slider_loadSlidBallTextureDisabled(se::State& s)
         std::string arg0;
         cocos2d::ui::Widget::TextureResType arg1;
         ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Slider_loadSlidBallTextureDisabled : Error processing arguments");
         cobj->loadSlidBallTextureDisabled(arg0, arg1);
         return true;
@@ -9061,7 +9061,7 @@ static bool js_cocos2dx_ui_Slider_create(se::State& s)
             ok &= seval_to_std_string(args[1], &arg1);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Widget::TextureResType arg2;
-            ok &= seval_to_int32(args[2], (int32_t *)&arg2);
+            ok &= seval_to_int32(args[2], (int32_t*)&arg2);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Slider* result = cocos2d::ui::Slider::create(arg0, arg1, arg2);
             ok &= native_ptr_to_seval<cocos2d::ui::Slider>((cocos2d::ui::Slider*)result, &s.rval());
@@ -9607,7 +9607,7 @@ static bool js_cocos2dx_ui_UICCTextField_setMaxLength(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_UICCTextField_setMaxLength : Error processing arguments");
         cobj->setMaxLength(arg0);
         return true;
@@ -9979,7 +9979,7 @@ static bool js_cocos2dx_ui_TextField_setTextVerticalAlignment(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::TextVAlignment arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int8(args[0], (int8_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_TextField_setTextVerticalAlignment : Error processing arguments");
         cobj->setTextVerticalAlignment(arg0);
         return true;
@@ -10279,8 +10279,8 @@ static bool js_cocos2dx_ui_TextField_getTextHorizontalAlignment(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->getTextHorizontalAlignment();
-        ok &= int32_to_seval(result, &s.rval());
+        char result = (char)cobj->getTextHorizontalAlignment();
+        ok &= int8_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_TextField_getTextHorizontalAlignment : Error processing arguments");
         return true;
     }
@@ -10298,7 +10298,7 @@ static bool js_cocos2dx_ui_TextField_setFontSize(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_TextField_setFontSize : Error processing arguments");
         cobj->setFontSize(arg0);
         return true;
@@ -10387,7 +10387,7 @@ static bool js_cocos2dx_ui_TextField_setTextHorizontalAlignment(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::TextHAlignment arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int8(args[0], (int8_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_TextField_setTextHorizontalAlignment : Error processing arguments");
         cobj->setTextHorizontalAlignment(arg0);
         return true;
@@ -10425,7 +10425,7 @@ static bool js_cocos2dx_ui_TextField_setCursorChar(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int8_t arg0;
-        ok &= seval_to_int8(args[0], &arg0);
+        ok &= seval_to_int8(args[0], (int8_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_TextField_setCursorChar : Error processing arguments");
         cobj->setCursorChar(arg0);
         return true;
@@ -10498,8 +10498,8 @@ static bool js_cocos2dx_ui_TextField_getTextVerticalAlignment(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->getTextVerticalAlignment();
-        ok &= int32_to_seval(result, &s.rval());
+        char result = (char)cobj->getTextVerticalAlignment();
+        ok &= int8_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_TextField_getTextVerticalAlignment : Error processing arguments");
         return true;
     }
@@ -10536,7 +10536,7 @@ static bool js_cocos2dx_ui_TextField_setMaxLength(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_TextField_setMaxLength : Error processing arguments");
         cobj->setMaxLength(arg0);
         return true;
@@ -10616,7 +10616,7 @@ static bool js_cocos2dx_ui_TextField_create(se::State& s)
             ok &= seval_to_std_string(args[1], &arg1);
             if (!ok) { ok = true; break; }
             int arg2 = 0;
-            ok &= seval_to_int32(args[2], (int32_t *)&arg2);
+            ok &= seval_to_int32(args[2], (int32_t*)&arg2);
             if (!ok) { ok = true; break; }
             cocos2d::ui::TextField* result = cocos2d::ui::TextField::create(arg0, arg1, arg2);
             ok &= native_ptr_to_seval<cocos2d::ui::TextField>((cocos2d::ui::TextField*)result, &s.rval());
@@ -10969,7 +10969,7 @@ static bool js_cocos2dx_ui_PageView_insertPage(se::State& s)
         cocos2d::ui::Widget* arg0 = nullptr;
         int arg1 = 0;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_PageView_insertPage : Error processing arguments");
         cobj->insertPage(arg0, arg1);
         return true;
@@ -11378,7 +11378,7 @@ static bool js_cocos2dx_ui_PageView_setIndicatorIndexNodesTexture(se::State& s)
         std::string arg0;
         cocos2d::ui::Widget::TextureResType arg1;
         ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_PageView_setIndicatorIndexNodesTexture : Error processing arguments");
         cobj->setIndicatorIndexNodesTexture(arg0, arg1);
         return true;
@@ -11630,7 +11630,7 @@ static bool js_cocos2dx_ui_Helper_seekActionWidgetByActionTag(se::State& s)
         cocos2d::ui::Widget* arg0 = nullptr;
         int arg1 = 0;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Helper_seekActionWidgetByActionTag : Error processing arguments");
         cocos2d::ui::Widget* result = cocos2d::ui::Helper::seekActionWidgetByActionTag(arg0, arg1);
         ok &= native_ptr_to_seval<cocos2d::ui::Widget>((cocos2d::ui::Widget*)result, &s.rval());
@@ -11672,7 +11672,7 @@ static bool js_cocos2dx_ui_Helper_seekWidgetByTag(se::State& s)
         cocos2d::ui::Widget* arg0 = nullptr;
         int arg1 = 0;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Helper_seekWidgetByTag : Error processing arguments");
         cocos2d::ui::Widget* result = cocos2d::ui::Helper::seekWidgetByTag(arg0, arg1);
         ok &= native_ptr_to_seval<cocos2d::ui::Widget>((cocos2d::ui::Widget*)result, &s.rval());
@@ -11759,7 +11759,7 @@ static bool js_cocos2dx_ui_RichElement_equalType(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::ui::RichElement::Type arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElement_equalType : Error processing arguments");
         bool result = cobj->equalType(arg0);
         ok &= boolean_to_seval(result, &s.rval());
@@ -11782,9 +11782,9 @@ static bool js_cocos2dx_ui_RichElement_init(se::State& s)
         int arg0 = 0;
         cocos2d::Color3B arg1;
         uint8_t arg2;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElement_init : Error processing arguments");
         bool result = cobj->init(arg0, arg1, arg2);
         ok &= boolean_to_seval(result, &s.rval());
@@ -11888,13 +11888,13 @@ static bool js_cocos2dx_ui_RichElementText_init(se::State& s)
         float arg5 = 0;
         unsigned int arg6 = 0;
         std::string arg7;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         ok &= seval_to_std_string(args[3], &arg3);
         ok &= seval_to_std_string(args[4], &arg4);
         ok &= seval_to_float(args[5], &arg5);
-        ok &= seval_to_uint32(args[6], &arg6);
+        ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
         ok &= seval_to_std_string(args[7], &arg7);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_init : Error processing arguments");
         bool result = cobj->init(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
@@ -11912,13 +11912,13 @@ static bool js_cocos2dx_ui_RichElementText_init(se::State& s)
         unsigned int arg6 = 0;
         std::string arg7;
         cocos2d::Color3B arg8;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         ok &= seval_to_std_string(args[3], &arg3);
         ok &= seval_to_std_string(args[4], &arg4);
         ok &= seval_to_float(args[5], &arg5);
-        ok &= seval_to_uint32(args[6], &arg6);
+        ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
         ok &= seval_to_std_string(args[7], &arg7);
         ok &= seval_to_Color3B(args[8], &arg8);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_init : Error processing arguments");
@@ -11938,16 +11938,16 @@ static bool js_cocos2dx_ui_RichElementText_init(se::State& s)
         std::string arg7;
         cocos2d::Color3B arg8;
         int arg9 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         ok &= seval_to_std_string(args[3], &arg3);
         ok &= seval_to_std_string(args[4], &arg4);
         ok &= seval_to_float(args[5], &arg5);
-        ok &= seval_to_uint32(args[6], &arg6);
+        ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
         ok &= seval_to_std_string(args[7], &arg7);
         ok &= seval_to_Color3B(args[8], &arg8);
-        ok &= seval_to_int32(args[9], (int32_t *)&arg9);
+        ok &= seval_to_int32(args[9], (int32_t*)&arg9);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_init : Error processing arguments");
         bool result = cobj->init(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
         ok &= boolean_to_seval(result, &s.rval());
@@ -11966,16 +11966,16 @@ static bool js_cocos2dx_ui_RichElementText_init(se::State& s)
         cocos2d::Color3B arg8;
         int arg9 = 0;
         cocos2d::Color3B arg10;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         ok &= seval_to_std_string(args[3], &arg3);
         ok &= seval_to_std_string(args[4], &arg4);
         ok &= seval_to_float(args[5], &arg5);
-        ok &= seval_to_uint32(args[6], &arg6);
+        ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
         ok &= seval_to_std_string(args[7], &arg7);
         ok &= seval_to_Color3B(args[8], &arg8);
-        ok &= seval_to_int32(args[9], (int32_t *)&arg9);
+        ok &= seval_to_int32(args[9], (int32_t*)&arg9);
         ok &= seval_to_Color3B(args[10], &arg10);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_init : Error processing arguments");
         bool result = cobj->init(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
@@ -11996,16 +11996,16 @@ static bool js_cocos2dx_ui_RichElementText_init(se::State& s)
         int arg9 = 0;
         cocos2d::Color3B arg10;
         cocos2d::Size arg11;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         ok &= seval_to_std_string(args[3], &arg3);
         ok &= seval_to_std_string(args[4], &arg4);
         ok &= seval_to_float(args[5], &arg5);
-        ok &= seval_to_uint32(args[6], &arg6);
+        ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
         ok &= seval_to_std_string(args[7], &arg7);
         ok &= seval_to_Color3B(args[8], &arg8);
-        ok &= seval_to_int32(args[9], (int32_t *)&arg9);
+        ok &= seval_to_int32(args[9], (int32_t*)&arg9);
         ok &= seval_to_Color3B(args[10], &arg10);
         ok &= seval_to_Size(args[11], &arg11);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_init : Error processing arguments");
@@ -12028,19 +12028,19 @@ static bool js_cocos2dx_ui_RichElementText_init(se::State& s)
         cocos2d::Color3B arg10;
         cocos2d::Size arg11;
         int arg12 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         ok &= seval_to_std_string(args[3], &arg3);
         ok &= seval_to_std_string(args[4], &arg4);
         ok &= seval_to_float(args[5], &arg5);
-        ok &= seval_to_uint32(args[6], &arg6);
+        ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
         ok &= seval_to_std_string(args[7], &arg7);
         ok &= seval_to_Color3B(args[8], &arg8);
-        ok &= seval_to_int32(args[9], (int32_t *)&arg9);
+        ok &= seval_to_int32(args[9], (int32_t*)&arg9);
         ok &= seval_to_Color3B(args[10], &arg10);
         ok &= seval_to_Size(args[11], &arg11);
-        ok &= seval_to_int32(args[12], (int32_t *)&arg12);
+        ok &= seval_to_int32(args[12], (int32_t*)&arg12);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_init : Error processing arguments");
         bool result = cobj->init(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12);
         ok &= boolean_to_seval(result, &s.rval());
@@ -12062,19 +12062,19 @@ static bool js_cocos2dx_ui_RichElementText_init(se::State& s)
         cocos2d::Size arg11;
         int arg12 = 0;
         cocos2d::Color3B arg13;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         ok &= seval_to_std_string(args[3], &arg3);
         ok &= seval_to_std_string(args[4], &arg4);
         ok &= seval_to_float(args[5], &arg5);
-        ok &= seval_to_uint32(args[6], &arg6);
+        ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
         ok &= seval_to_std_string(args[7], &arg7);
         ok &= seval_to_Color3B(args[8], &arg8);
-        ok &= seval_to_int32(args[9], (int32_t *)&arg9);
+        ok &= seval_to_int32(args[9], (int32_t*)&arg9);
         ok &= seval_to_Color3B(args[10], &arg10);
         ok &= seval_to_Size(args[11], &arg11);
-        ok &= seval_to_int32(args[12], (int32_t *)&arg12);
+        ok &= seval_to_int32(args[12], (int32_t*)&arg12);
         ok &= seval_to_Color3B(args[13], &arg13);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_init : Error processing arguments");
         bool result = cobj->init(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13);
@@ -12099,9 +12099,9 @@ static bool js_cocos2dx_ui_RichElementText_create(se::State& s)
         std::string arg3;
         std::string arg4;
         float arg5 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         ok &= seval_to_std_string(args[3], &arg3);
         ok &= seval_to_std_string(args[4], &arg4);
         ok &= seval_to_float(args[5], &arg5);
@@ -12121,13 +12121,13 @@ static bool js_cocos2dx_ui_RichElementText_create(se::State& s)
         std::string arg4;
         float arg5 = 0;
         unsigned int arg6 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         ok &= seval_to_std_string(args[3], &arg3);
         ok &= seval_to_std_string(args[4], &arg4);
         ok &= seval_to_float(args[5], &arg5);
-        ok &= seval_to_uint32(args[6], &arg6);
+        ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
         auto result = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
         result->retain();
@@ -12145,13 +12145,13 @@ static bool js_cocos2dx_ui_RichElementText_create(se::State& s)
         float arg5 = 0;
         unsigned int arg6 = 0;
         std::string arg7;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         ok &= seval_to_std_string(args[3], &arg3);
         ok &= seval_to_std_string(args[4], &arg4);
         ok &= seval_to_float(args[5], &arg5);
-        ok &= seval_to_uint32(args[6], &arg6);
+        ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
         ok &= seval_to_std_string(args[7], &arg7);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
         auto result = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
@@ -12171,13 +12171,13 @@ static bool js_cocos2dx_ui_RichElementText_create(se::State& s)
         unsigned int arg6 = 0;
         std::string arg7;
         cocos2d::Color3B arg8;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         ok &= seval_to_std_string(args[3], &arg3);
         ok &= seval_to_std_string(args[4], &arg4);
         ok &= seval_to_float(args[5], &arg5);
-        ok &= seval_to_uint32(args[6], &arg6);
+        ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
         ok &= seval_to_std_string(args[7], &arg7);
         ok &= seval_to_Color3B(args[8], &arg8);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
@@ -12199,16 +12199,16 @@ static bool js_cocos2dx_ui_RichElementText_create(se::State& s)
         std::string arg7;
         cocos2d::Color3B arg8;
         int arg9 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         ok &= seval_to_std_string(args[3], &arg3);
         ok &= seval_to_std_string(args[4], &arg4);
         ok &= seval_to_float(args[5], &arg5);
-        ok &= seval_to_uint32(args[6], &arg6);
+        ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
         ok &= seval_to_std_string(args[7], &arg7);
         ok &= seval_to_Color3B(args[8], &arg8);
-        ok &= seval_to_int32(args[9], (int32_t *)&arg9);
+        ok &= seval_to_int32(args[9], (int32_t*)&arg9);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
         auto result = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
         result->retain();
@@ -12229,16 +12229,16 @@ static bool js_cocos2dx_ui_RichElementText_create(se::State& s)
         cocos2d::Color3B arg8;
         int arg9 = 0;
         cocos2d::Color3B arg10;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         ok &= seval_to_std_string(args[3], &arg3);
         ok &= seval_to_std_string(args[4], &arg4);
         ok &= seval_to_float(args[5], &arg5);
-        ok &= seval_to_uint32(args[6], &arg6);
+        ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
         ok &= seval_to_std_string(args[7], &arg7);
         ok &= seval_to_Color3B(args[8], &arg8);
-        ok &= seval_to_int32(args[9], (int32_t *)&arg9);
+        ok &= seval_to_int32(args[9], (int32_t*)&arg9);
         ok &= seval_to_Color3B(args[10], &arg10);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
         auto result = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
@@ -12261,16 +12261,16 @@ static bool js_cocos2dx_ui_RichElementText_create(se::State& s)
         int arg9 = 0;
         cocos2d::Color3B arg10;
         cocos2d::Size arg11;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         ok &= seval_to_std_string(args[3], &arg3);
         ok &= seval_to_std_string(args[4], &arg4);
         ok &= seval_to_float(args[5], &arg5);
-        ok &= seval_to_uint32(args[6], &arg6);
+        ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
         ok &= seval_to_std_string(args[7], &arg7);
         ok &= seval_to_Color3B(args[8], &arg8);
-        ok &= seval_to_int32(args[9], (int32_t *)&arg9);
+        ok &= seval_to_int32(args[9], (int32_t*)&arg9);
         ok &= seval_to_Color3B(args[10], &arg10);
         ok &= seval_to_Size(args[11], &arg11);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
@@ -12295,19 +12295,19 @@ static bool js_cocos2dx_ui_RichElementText_create(se::State& s)
         cocos2d::Color3B arg10;
         cocos2d::Size arg11;
         int arg12 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         ok &= seval_to_std_string(args[3], &arg3);
         ok &= seval_to_std_string(args[4], &arg4);
         ok &= seval_to_float(args[5], &arg5);
-        ok &= seval_to_uint32(args[6], &arg6);
+        ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
         ok &= seval_to_std_string(args[7], &arg7);
         ok &= seval_to_Color3B(args[8], &arg8);
-        ok &= seval_to_int32(args[9], (int32_t *)&arg9);
+        ok &= seval_to_int32(args[9], (int32_t*)&arg9);
         ok &= seval_to_Color3B(args[10], &arg10);
         ok &= seval_to_Size(args[11], &arg11);
-        ok &= seval_to_int32(args[12], (int32_t *)&arg12);
+        ok &= seval_to_int32(args[12], (int32_t*)&arg12);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
         auto result = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12);
         result->retain();
@@ -12331,19 +12331,19 @@ static bool js_cocos2dx_ui_RichElementText_create(se::State& s)
         cocos2d::Size arg11;
         int arg12 = 0;
         cocos2d::Color3B arg13;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         ok &= seval_to_std_string(args[3], &arg3);
         ok &= seval_to_std_string(args[4], &arg4);
         ok &= seval_to_float(args[5], &arg5);
-        ok &= seval_to_uint32(args[6], &arg6);
+        ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
         ok &= seval_to_std_string(args[7], &arg7);
         ok &= seval_to_Color3B(args[8], &arg8);
-        ok &= seval_to_int32(args[9], (int32_t *)&arg9);
+        ok &= seval_to_int32(args[9], (int32_t*)&arg9);
         ok &= seval_to_Color3B(args[10], &arg10);
         ok &= seval_to_Size(args[11], &arg11);
-        ok &= seval_to_int32(args[12], (int32_t *)&arg12);
+        ok &= seval_to_int32(args[12], (int32_t*)&arg12);
         ok &= seval_to_Color3B(args[13], &arg13);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementText_create : Error processing arguments");
         auto result = cocos2d::ui::RichElementText::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13);
@@ -12424,7 +12424,7 @@ static bool js_cocos2dx_ui_RichElementImage_setHeight(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementImage_setHeight : Error processing arguments");
         cobj->setHeight(arg0);
         return true;
@@ -12446,9 +12446,9 @@ static bool js_cocos2dx_ui_RichElementImage_init(se::State& s)
         cocos2d::Color3B arg1;
         uint8_t arg2;
         std::string arg3;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         ok &= seval_to_std_string(args[3], &arg3);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementImage_init : Error processing arguments");
         bool result = cobj->init(arg0, arg1, arg2, arg3);
@@ -12462,9 +12462,9 @@ static bool js_cocos2dx_ui_RichElementImage_init(se::State& s)
         uint8_t arg2;
         std::string arg3;
         std::string arg4;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         ok &= seval_to_std_string(args[3], &arg3);
         ok &= seval_to_std_string(args[4], &arg4);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementImage_init : Error processing arguments");
@@ -12487,7 +12487,7 @@ static bool js_cocos2dx_ui_RichElementImage_setWidth(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementImage_setWidth : Error processing arguments");
         cobj->setWidth(arg0);
         return true;
@@ -12526,9 +12526,9 @@ static bool js_cocos2dx_ui_RichElementImage_create(se::State& s)
         cocos2d::Color3B arg1;
         uint8_t arg2;
         std::string arg3;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         ok &= seval_to_std_string(args[3], &arg3);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementImage_create : Error processing arguments");
         auto result = cocos2d::ui::RichElementImage::create(arg0, arg1, arg2, arg3);
@@ -12544,9 +12544,9 @@ static bool js_cocos2dx_ui_RichElementImage_create(se::State& s)
         uint8_t arg2;
         std::string arg3;
         std::string arg4;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         ok &= seval_to_std_string(args[3], &arg3);
         ok &= seval_to_std_string(args[4], &arg4);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementImage_create : Error processing arguments");
@@ -12634,9 +12634,9 @@ static bool js_cocos2dx_ui_RichElementCustomNode_init(se::State& s)
         cocos2d::Color3B arg1;
         uint8_t arg2;
         cocos2d::Node* arg3 = nullptr;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         ok &= seval_to_native_ptr(args[3], &arg3);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementCustomNode_init : Error processing arguments");
         bool result = cobj->init(arg0, arg1, arg2, arg3);
@@ -12659,9 +12659,9 @@ static bool js_cocos2dx_ui_RichElementCustomNode_create(se::State& s)
         cocos2d::Color3B arg1;
         uint8_t arg2;
         cocos2d::Node* arg3 = nullptr;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         ok &= seval_to_native_ptr(args[3], &arg3);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementCustomNode_create : Error processing arguments");
         auto result = cocos2d::ui::RichElementCustomNode::create(arg0, arg1, arg2, arg3);
@@ -12742,9 +12742,9 @@ static bool js_cocos2dx_ui_RichElementNewLine_create(se::State& s)
         int arg0 = 0;
         cocos2d::Color3B arg1;
         uint8_t arg2;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_uint8(args[2], &arg2);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichElementNewLine_create : Error processing arguments");
         auto result = cocos2d::ui::RichElementNewLine::create(arg0, arg1, arg2);
         result->retain();
@@ -12825,7 +12825,7 @@ static bool js_cocos2dx_ui_RichText_insertElement(se::State& s)
         cocos2d::ui::RichElement* arg0 = nullptr;
         int arg1 = 0;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichText_insertElement : Error processing arguments");
         cobj->insertElement(arg0, arg1);
         return true;
@@ -12864,7 +12864,7 @@ static bool js_cocos2dx_ui_RichText_setAnchorTextOutline(se::State& s)
         int arg2 = 0;
         ok &= seval_to_boolean(args[0], &arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
-        ok &= seval_to_int32(args[2], (int32_t *)&arg2);
+        ok &= seval_to_int32(args[2], (int32_t*)&arg2);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichText_setAnchorTextOutline : Error processing arguments");
         cobj->setAnchorTextOutline(arg0, arg1, arg2);
         return true;
@@ -13008,7 +13008,7 @@ static bool js_cocos2dx_ui_RichText_setAnchorTextShadow(se::State& s)
         ok &= seval_to_boolean(args[0], &arg0);
         ok &= seval_to_Color3B(args[1], &arg1);
         ok &= seval_to_Size(args[2], &arg2);
-        ok &= seval_to_int32(args[3], (int32_t *)&arg3);
+        ok &= seval_to_int32(args[3], (int32_t*)&arg3);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichText_setAnchorTextShadow : Error processing arguments");
         cobj->setAnchorTextShadow(arg0, arg1, arg2, arg3);
         return true;
@@ -13505,7 +13505,7 @@ static bool js_cocos2dx_ui_RichText_setWrapMode(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::ui::RichText::WrapMode arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichText_setWrapMode : Error processing arguments");
         cobj->setWrapMode(arg0);
         return true;
@@ -13554,7 +13554,7 @@ static bool js_cocos2dx_ui_RichText_removeElement(se::State& s)
     do {
         if (argc == 1) {
             int arg0 = 0;
-            ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+            ok &= seval_to_int32(args[0], (int32_t*)&arg0);
             if (!ok) { ok = true; break; }
             cobj->removeElement(arg0);
             return true;
@@ -13704,8 +13704,8 @@ static bool js_cocos2dx_ui_RichText_getWrapMode(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->getWrapMode();
-        ok &= int32_to_seval(result, &s.rval());
+        unsigned int result = (unsigned int)cobj->getWrapMode();
+        ok &= uint32_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_RichText_getWrapMode : Error processing arguments");
         return true;
     }
@@ -14472,7 +14472,7 @@ static bool js_cocos2dx_ui_Scale9Sprite_setState(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::ui::Scale9Sprite::State arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Scale9Sprite_setState : Error processing arguments");
         cobj->setState(arg0);
         return true;
@@ -14586,7 +14586,7 @@ static bool js_cocos2dx_ui_Scale9Sprite_setRenderingType(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::ui::Scale9Sprite::RenderingType arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Scale9Sprite_setRenderingType : Error processing arguments");
         cobj->setRenderingType(arg0);
         return true;
@@ -15384,7 +15384,7 @@ static bool js_cocos2dx_ui_EditBox_setFontSize(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_EditBox_setFontSize : Error processing arguments");
         cobj->setFontSize(arg0);
         return true;
@@ -15496,7 +15496,7 @@ static bool js_cocos2dx_ui_EditBox_setPlaceholderFontSize(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_EditBox_setPlaceholderFontSize : Error processing arguments");
         cobj->setPlaceholderFontSize(arg0);
         return true;
@@ -15515,7 +15515,7 @@ static bool js_cocos2dx_ui_EditBox_setInputMode(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::ui::EditBox::InputMode arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_EditBox_setInputMode : Error processing arguments");
         cobj->setInputMode(arg0);
         return true;
@@ -15600,7 +15600,7 @@ static bool js_cocos2dx_ui_EditBox_setPlaceholderFont(se::State& s)
         const char* arg0 = nullptr;
         int arg1 = 0;
         std::string arg0_tmp; ok &= seval_to_std_string(args[0], &arg0_tmp); arg0 = arg0_tmp.c_str();
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_EditBox_setPlaceholderFont : Error processing arguments");
         cobj->setPlaceholderFont(arg0, arg1);
         return true;
@@ -15656,7 +15656,7 @@ static bool js_cocos2dx_ui_EditBox_initWithSizeAndBackgroundSprite(se::State& s)
             ok &= seval_to_std_string(args[1], &arg1);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Widget::TextureResType arg2;
-            ok &= seval_to_int32(args[2], (int32_t *)&arg2);
+            ok &= seval_to_int32(args[2], (int32_t*)&arg2);
             if (!ok) { ok = true; break; }
             bool result = cobj->initWithSizeAndBackgroundSprite(arg0, arg1, arg2);
             ok &= boolean_to_seval(result, &s.rval());
@@ -15698,7 +15698,7 @@ static bool js_cocos2dx_ui_EditBox_setReturnType(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::ui::EditBox::KeyboardReturnType arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_EditBox_setReturnType : Error processing arguments");
         cobj->setReturnType(arg0);
         return true;
@@ -15717,7 +15717,7 @@ static bool js_cocos2dx_ui_EditBox_setInputFlag(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::ui::EditBox::InputFlag arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_EditBox_setInputFlag : Error processing arguments");
         cobj->setInputFlag(arg0);
         return true;
@@ -15754,7 +15754,7 @@ static bool js_cocos2dx_ui_EditBox_setMaxLength(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_EditBox_setMaxLength : Error processing arguments");
         cobj->setMaxLength(arg0);
         return true;
@@ -15775,7 +15775,7 @@ static bool js_cocos2dx_ui_EditBox_setFont(se::State& s)
         const char* arg0 = nullptr;
         int arg1 = 0;
         std::string arg0_tmp; ok &= seval_to_std_string(args[0], &arg0_tmp); arg0 = arg0_tmp.c_str();
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_EditBox_setFont : Error processing arguments");
         cobj->setFont(arg0, arg1);
         return true;
@@ -15813,7 +15813,7 @@ static bool js_cocos2dx_ui_EditBox_create(se::State& s)
             ok &= seval_to_std_string(args[1], &arg1);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Widget::TextureResType arg2;
-            ok &= seval_to_int32(args[2], (int32_t *)&arg2);
+            ok &= seval_to_int32(args[2], (int32_t*)&arg2);
             if (!ok) { ok = true; break; }
             cocos2d::ui::EditBox* result = cocos2d::ui::EditBox::create(arg0, arg1, arg2);
             ok &= native_ptr_to_seval<cocos2d::ui::EditBox>((cocos2d::ui::EditBox*)result, &s.rval());
@@ -16162,7 +16162,7 @@ static bool js_cocos2dx_ui_LayoutComponent_setVerticalEdge(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::ui::LayoutComponent::VerticalEdge arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_LayoutComponent_setVerticalEdge : Error processing arguments");
         cobj->setVerticalEdge(arg0);
         return true;
@@ -16569,7 +16569,7 @@ static bool js_cocos2dx_ui_LayoutComponent_setHorizontalEdge(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::ui::LayoutComponent::HorizontalEdge arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_LayoutComponent_setHorizontalEdge : Error processing arguments");
         cobj->setHorizontalEdge(arg0);
         return true;
@@ -17217,7 +17217,7 @@ static bool js_cocos2dx_ui_TabHeader_create(se::State& s)
             ok &= seval_to_std_string(args[2], &arg2);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Widget::TextureResType arg3;
-            ok &= seval_to_int32(args[3], (int32_t *)&arg3);
+            ok &= seval_to_int32(args[3], (int32_t*)&arg3);
             if (!ok) { ok = true; break; }
             cocos2d::ui::TabHeader* result = cocos2d::ui::TabHeader::create(arg0, arg1, arg2, arg3);
             ok &= native_ptr_to_seval<cocos2d::ui::TabHeader>((cocos2d::ui::TabHeader*)result, &s.rval());
@@ -17280,7 +17280,7 @@ static bool js_cocos2dx_ui_TabHeader_create(se::State& s)
             ok &= seval_to_std_string(args[5], &arg5);
             if (!ok) { ok = true; break; }
             cocos2d::ui::Widget::TextureResType arg6;
-            ok &= seval_to_int32(args[6], (int32_t *)&arg6);
+            ok &= seval_to_int32(args[6], (int32_t*)&arg6);
             if (!ok) { ok = true; break; }
             cocos2d::ui::TabHeader* result = cocos2d::ui::TabHeader::create(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
             ok &= native_ptr_to_seval<cocos2d::ui::TabHeader>((cocos2d::ui::TabHeader*)result, &s.rval());
@@ -17366,7 +17366,7 @@ static bool js_cocos2dx_ui_TabControl_removeTab(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_TabControl_removeTab : Error processing arguments");
         cobj->removeTab(arg0);
         return true;
@@ -17441,7 +17441,7 @@ static bool js_cocos2dx_ui_TabControl_insertTab(se::State& s)
         int arg0 = 0;
         cocos2d::ui::TabHeader* arg1 = nullptr;
         cocos2d::ui::Layout* arg2 = nullptr;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         ok &= seval_to_native_ptr(args[1], &arg1);
         ok &= seval_to_native_ptr(args[2], &arg2);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_TabControl_insertTab : Error processing arguments");
@@ -17499,7 +17499,7 @@ static bool js_cocos2dx_ui_TabControl_setHeaderDockPlace(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::ui::TabControl::Dock arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_TabControl_setHeaderDockPlace : Error processing arguments");
         cobj->setHeaderDockPlace(arg0);
         return true;
@@ -17529,7 +17529,7 @@ static bool js_cocos2dx_ui_TabControl_setSelectTab(se::State& s)
     do {
         if (argc == 1) {
             int arg0 = 0;
-            ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+            ok &= seval_to_int32(args[0], (int32_t*)&arg0);
             if (!ok) { ok = true; break; }
             cobj->setSelectTab(arg0);
             return true;
@@ -17550,7 +17550,7 @@ static bool js_cocos2dx_ui_TabControl_getTabHeader(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_TabControl_getTabHeader : Error processing arguments");
         cocos2d::ui::TabHeader* result = cobj->getTabHeader(arg0);
         ok &= native_ptr_to_seval<cocos2d::ui::TabHeader>((cocos2d::ui::TabHeader*)result, &s.rval());
@@ -17697,7 +17697,7 @@ static bool js_cocos2dx_ui_TabControl_getTabContainer(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_TabControl_getTabContainer : Error processing arguments");
         cocos2d::ui::Layout* result = cobj->getTabContainer(arg0);
         ok &= native_ptr_to_seval<cocos2d::ui::Layout>((cocos2d::ui::Layout*)result, &s.rval());

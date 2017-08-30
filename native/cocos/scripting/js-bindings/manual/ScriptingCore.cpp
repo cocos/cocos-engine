@@ -21,6 +21,7 @@
  */
 
 #include "scripting/js-bindings/manual/ScriptingCore.h"
+#include "scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "scripting/js-bindings/jswrapper/SeApi.h"
 
 #include "cocos2d.h"
@@ -61,6 +62,7 @@ void ScriptingCore::rootScriptObject(Ref* target)
 
 void ScriptingCore::releaseScriptObject(Ref* owner, Ref* target)
 {
+    assert(!se::ScriptEngine::getInstance()->isInGC());
     se::ScriptEngine::getInstance()->_releaseScriptObject(owner, target);
 }
 
@@ -114,11 +116,11 @@ int ScriptingCore::sendEvent(cocos2d::ScriptEvent* evt)
             return handleNodeEvent(evt->data);
         }
             break;
-//        case kScriptActionEvent:
-//        {
-//            return handleActionEvent(evt->data);
-//        }
-//            break;
+        case kScriptActionEvent:
+        {
+            return handleActionEvent(evt->data);
+        }
+            break;
 //        case kMenuClickedEvent:
 //            break;
 //        case kTouchEvent:
@@ -139,7 +141,7 @@ int ScriptingCore::sendEvent(cocos2d::ScriptEvent* evt)
 //        }
 //            break;
         default:
-//            CCASSERT(false, "Invalid script event.");
+            CCASSERT(false, "Invalid script event.");
             break;
     }
 
@@ -153,6 +155,43 @@ bool ScriptingCore::parseConfig(ConfigType type, const std::string& str)
 }
 
 // private methods
+
+int ScriptingCore::handleActionEvent(void* data)
+{
+    if (nullptr == data)
+        return 0;
+
+    ActionObjectScriptData* actionObjectScriptData = static_cast<ActionObjectScriptData*>(data);
+    if (nullptr == actionObjectScriptData->nativeObject || nullptr == actionObjectScriptData->eventType)
+        return 0;
+
+    Action* actionObject = static_cast<Action*>(actionObjectScriptData->nativeObject);
+    int eventType = *((int*)(actionObjectScriptData->eventType));
+
+    auto iter = se::NativePtrToObjectMap::find(actionObject);
+    if (iter == se::NativePtrToObjectMap::end())
+        return 0;
+
+    se::ScriptEngine::getInstance()->clearException();
+    se::AutoHandleScope hs;
+    se::Value seActionVal;
+    seActionVal.setObject(iter->second, true);
+
+    int ret = 0;
+
+    if (eventType == kActionUpdate)
+    {
+        se::Value updateVal;
+        if (seActionVal.toObject()->getProperty("update", &updateVal) && updateVal.isObject() && updateVal.toObject()->isFunction())
+        {
+            se::ValueArray args;
+            args.push_back(se::Value(*((float *)actionObjectScriptData->param)));
+            updateVal.toObject()->call(args, seActionVal.toObject());
+        }
+    }
+
+    return ret;
+}
 
 int ScriptingCore::handleNodeEvent(void* data)
 {

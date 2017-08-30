@@ -113,7 +113,7 @@ static bool js_creator_Scale9SpriteV2_setState(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         creator::Scale9SpriteV2::State arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setState : Error processing arguments");
         cobj->setState(arg0);
         return true;
@@ -225,7 +225,7 @@ static bool js_creator_Scale9SpriteV2_setRenderingType(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         creator::Scale9SpriteV2::RenderingType arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setRenderingType : Error processing arguments");
         cobj->setRenderingType(arg0);
         return true;
@@ -499,10 +499,10 @@ static bool js_creator_Scale9SpriteV2_setBlendFunc(se::State& s)
     do {
         if (argc == 2) {
             unsigned int arg0 = 0;
-            ok &= seval_to_uint32(args[0], &arg0);
+            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
             if (!ok) { ok = true; break; }
             unsigned int arg1 = 0;
-            ok &= seval_to_uint32(args[1], &arg1);
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
             if (!ok) { ok = true; break; }
             cobj->setBlendFunc(arg0, arg1);
             return true;
@@ -624,7 +624,7 @@ static bool js_creator_Scale9SpriteV2_setFillType(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         creator::Scale9SpriteV2::FillType arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_creator_Scale9SpriteV2_setFillType : Error processing arguments");
         cobj->setFillType(arg0);
         return true;
@@ -877,7 +877,7 @@ static bool js_creator_GraphicsNode_setLineJoin(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         creator::LineJoin arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_setLineJoin : Error processing arguments");
         cobj->setLineJoin(arg0);
         return true;
@@ -988,7 +988,7 @@ static bool js_creator_GraphicsNode_setLineCap(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         creator::LineCap arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_setLineCap : Error processing arguments");
         cobj->setLineCap(arg0);
         return true;
@@ -1061,7 +1061,7 @@ static bool js_creator_GraphicsNode_draw(se::State& s)
         unsigned int arg2 = 0;
         ok &= seval_to_native_ptr(args[0], &arg0);
         ok &= seval_to_Mat4(args[1], &arg1);
-        ok &= seval_to_uint32(args[2], &arg2);
+        ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
         SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_draw : Error processing arguments");
         cobj->draw(arg0, arg1, arg2);
         return true;
@@ -1163,7 +1163,7 @@ static bool js_creator_GraphicsNode_onDraw(se::State& s)
         cocos2d::Mat4 arg0;
         unsigned int arg1 = 0;
         ok &= seval_to_Mat4(args[0], &arg0);
-        ok &= seval_to_uint32(args[1], &arg1);
+        ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_onDraw : Error processing arguments");
         cobj->onDraw(arg0, arg1);
         return true;
@@ -1295,8 +1295,8 @@ static bool js_creator_GraphicsNode_getLineJoin(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->getLineJoin();
-        ok &= int32_to_seval(result, &s.rval());
+        unsigned int result = (unsigned int)cobj->getLineJoin();
+        ok &= uint32_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_getLineJoin : Error processing arguments");
         return true;
     }
@@ -1313,8 +1313,8 @@ static bool js_creator_GraphicsNode_getLineCap(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->getLineCap();
-        ok &= int32_to_seval(result, &s.rval());
+        unsigned int result = (unsigned int)cobj->getLineCap();
+        ok &= uint32_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_creator_GraphicsNode_getLineCap : Error processing arguments");
         return true;
     }
@@ -1637,7 +1637,7 @@ static bool js_creator_PhysicsWorldManifoldWrapper_getSeparation(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_creator_PhysicsWorldManifoldWrapper_getSeparation : Error processing arguments");
         float result = cobj->getSeparation(arg0);
         ok &= float_to_seval(result, &s.rval());
@@ -1658,7 +1658,7 @@ static bool js_creator_PhysicsWorldManifoldWrapper_getX(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_creator_PhysicsWorldManifoldWrapper_getX : Error processing arguments");
         float result = cobj->getX(arg0);
         ok &= float_to_seval(result, &s.rval());
@@ -1679,7 +1679,7 @@ static bool js_creator_PhysicsWorldManifoldWrapper_getY(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_creator_PhysicsWorldManifoldWrapper_getY : Error processing arguments");
         float result = cobj->getY(arg0);
         ok &= float_to_seval(result, &s.rval());
@@ -1799,7 +1799,7 @@ static bool js_creator_PhysicsManifoldWrapper_getNormalImpulse(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_creator_PhysicsManifoldWrapper_getNormalImpulse : Error processing arguments");
         float result = cobj->getNormalImpulse(arg0);
         ok &= float_to_seval(result, &s.rval());
@@ -1910,7 +1910,7 @@ static bool js_creator_PhysicsManifoldWrapper_getX(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_creator_PhysicsManifoldWrapper_getX : Error processing arguments");
         float result = cobj->getX(arg0);
         ok &= float_to_seval(result, &s.rval());
@@ -1931,7 +1931,7 @@ static bool js_creator_PhysicsManifoldWrapper_getY(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_creator_PhysicsManifoldWrapper_getY : Error processing arguments");
         float result = cobj->getY(arg0);
         ok &= float_to_seval(result, &s.rval());
@@ -1952,7 +1952,7 @@ static bool js_creator_PhysicsManifoldWrapper_getTangentImpulse(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_creator_PhysicsManifoldWrapper_getTangentImpulse : Error processing arguments");
         float result = cobj->getTangentImpulse(arg0);
         ok &= float_to_seval(result, &s.rval());
@@ -2200,7 +2200,7 @@ static bool js_creator_PhysicsContactImpulse_getNormalImpulse(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_creator_PhysicsContactImpulse_getNormalImpulse : Error processing arguments");
         float result = cobj->getNormalImpulse(arg0);
         ok &= float_to_seval(result, &s.rval());
@@ -2221,7 +2221,7 @@ static bool js_creator_PhysicsContactImpulse_getTangentImpulse(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_creator_PhysicsContactImpulse_getTangentImpulse : Error processing arguments");
         float result = cobj->getTangentImpulse(arg0);
         ok &= float_to_seval(result, &s.rval());
@@ -2485,7 +2485,7 @@ static bool js_creator_PhysicsRayCastCallback_init(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_creator_PhysicsRayCastCallback_init : Error processing arguments");
         cobj->init(arg0);
         return true;

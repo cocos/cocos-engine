@@ -109,8 +109,7 @@ bool ActionInterval::sendUpdateEventToScript(float dt, Action *actionObject)
 #if CC_ENABLE_SCRIPT_BINDING
     if (_scriptType == kScriptTypeJavascript)
     {
-        if (ScriptEngineManager::sendActionEventToJS(actionObject, kActionUpdate, (void *)&dt))
-            return true;
+        ScriptEngineManager::sendActionEventToJS(actionObject, kActionUpdate, (void *)&dt);
     }
 #endif
     return false;
@@ -138,9 +137,8 @@ void ActionInterval::step(float dt)
                            MIN(1, _elapsed / _duration)
                            );
 
-    if (sendUpdateEventToScript(updateDt, this)) return;
-
     this->update(updateDt);
+    sendUpdateEventToScript(updateDt, this);
 }
 
 void ActionInterval::setAmplitudeRate(float amp)
@@ -393,15 +391,16 @@ void Sequence::update(float t)
         {
             // action[0] was skipped, execute it.
             _actions[0]->startWithTarget(_target);
-            if (!(sendUpdateEventToScript(1.0f, _actions[0])))
-                _actions[0]->update(1.0f);
+            _actions[0]->update(1.0f);
+            sendUpdateEventToScript(1.0f, _actions[0]);
+
             _actions[0]->stop();
         }
         else if( _last == 0 )
         {
             // switching to action 1. stop action 0.
-            if (!(sendUpdateEventToScript(1.0f, _actions[0])))
-                _actions[0]->update(1.0f);
+            _actions[0]->update(1.0f);
+            sendUpdateEventToScript(1.0f, _actions[0]);
             _actions[0]->stop();
         }
     }
@@ -411,8 +410,8 @@ void Sequence::update(float t)
         // FIXME: Bug. this case doesn't contemplate when _last==-1, found=0 and in "reverse mode"
         // since it will require a hack to know if an action is on reverse mode or not.
         // "step" should be overridden, and the "reverseMode" value propagated to inner Sequences.
-        if (!(sendUpdateEventToScript(0, _actions[1])))
-            _actions[1]->update(0);
+        _actions[1]->update(0);
+        sendUpdateEventToScript(0, _actions[1]);
         _actions[1]->stop();
     }
     // Last action found and it is done.
@@ -426,8 +425,10 @@ void Sequence::update(float t)
     {
         _actions[found]->startWithTarget(_target);
     }
-    if (!(sendUpdateEventToScript(new_t, _actions[found])))
-        _actions[found]->update(new_t);
+
+    _actions[found]->update(new_t);
+    sendUpdateEventToScript(new_t, _actions[found]);
+
     _last = found;
 }
 
@@ -521,8 +522,9 @@ void Repeat::update(float dt)
     {
         while (dt >= _nextDt && _total < _times)
         {
-            if (!(sendUpdateEventToScript(1.0f, _innerAction)))
-                _innerAction->update(1.0f);
+            _innerAction->update(1.0f);
+            sendUpdateEventToScript(1.0f, _innerAction);
+
             _total++;
 
             _innerAction->stop();
@@ -533,9 +535,9 @@ void Repeat::update(float dt)
         // fix for issue #1288, incorrect end value of repeat
         if (std::abs(dt - 1.0f) < FLT_EPSILON && _total < _times)
         {
-            if (!(sendUpdateEventToScript(1.0f, _innerAction)))
-                _innerAction->update(1.0f);
-            
+            _innerAction->update(1.0f);
+            sendUpdateEventToScript(1.0f, _innerAction);
+
             _total++;
         }
 
@@ -545,22 +547,22 @@ void Repeat::update(float dt)
             if (_total == _times)
             {
                 // minggo: inner action update is invoked above, don't have to invoke it here
-//                if (!(sendUpdateEventToScript(1, _innerAction)))
-//                    _innerAction->update(1);
+//                _innerAction->update(1);
+//                sendUpdateEventToScript(1, _innerAction);
                 _innerAction->stop();
             }
             else
             {
                 // issue #390 prevent jerk, use right update
-                if (!(sendUpdateEventToScript(dt - (_nextDt - _innerAction->getDuration()/_duration), _innerAction)))
-                    _innerAction->update(dt - (_nextDt - _innerAction->getDuration()/_duration));
+                _innerAction->update(dt - (_nextDt - _innerAction->getDuration()/_duration));
+                sendUpdateEventToScript(dt - (_nextDt - _innerAction->getDuration()/_duration), _innerAction);
             }
         }
     }
     else
     {
-        if (!(sendUpdateEventToScript(fmodf(dt * _times,1.0f), _innerAction)))
-            _innerAction->update(fmodf(dt * _times,1.0f));
+        _innerAction->update(fmodf(dt * _times,1.0f));
+        sendUpdateEventToScript(fmodf(dt * _times,1.0f), _innerAction);
     }
 }
 
@@ -869,13 +871,14 @@ void Spawn::update(float time)
 {
     if (_one)
     {
-        if (!(sendUpdateEventToScript(time, _one)))
-            _one->update(time);
+        _one->update(time);
+        sendUpdateEventToScript(time, _one);
+
     }
     if (_two)
     {
-        if (!(sendUpdateEventToScript(time, _two)))
-            _two->update(time);
+        _two->update(time);
+        sendUpdateEventToScript(time, _two);
     }
 }
 
@@ -2280,8 +2283,8 @@ void ReverseTime::update(float time)
 {
     if (_other)
     {
-        if (!(sendUpdateEventToScript(1 - time, _other)))
-            _other->update(1 - time);
+        _other->update(1 - time);
+        sendUpdateEventToScript(1 - time, _other);
     }
 }
 
@@ -2565,8 +2568,8 @@ void TargetedAction::stop()
 
 void TargetedAction::update(float time)
 {
-    if (!(sendUpdateEventToScript(time, _action)))
-        _action->update(time);
+    _action->update(time);
+    sendUpdateEventToScript(time, _action);
 }
 
 void TargetedAction::setForcedTarget(Node* forcedTarget)

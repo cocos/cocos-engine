@@ -135,6 +135,7 @@ public:
 private:
     ScriptingCore();
 
+    int handleActionEvent(void* data);
     int handleNodeEvent(void* data);
 
     bool _callFromScript;

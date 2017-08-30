@@ -165,7 +165,8 @@ namespace se {
         if (_rootCount > 0)
         {
             // Don't unprotect if it's in cleanup, otherwise, it will trigger crash.
-            if (!ScriptEngine::getInstance()->_isInCleanup)
+            auto se = ScriptEngine::getInstance();
+            if (!se->_isInCleanup && !se->isInGC())
             {
                 unsigned int count = 0;
                 _CHECK(JsRelease(_obj, &count));
@@ -180,9 +181,12 @@ namespace se {
     {
         ScriptEngine::getInstance()->addAfterCleanupHook([](){
             const auto& instance = NativePtrToObjectMap::instance();
+            se::Object* obj = nullptr;
             for (const auto& e : instance)
             {
-                e.second->release();
+                obj = e.second;
+                obj->_isCleanup = true; // _cleanup will invoke NativePtrToObjectMap::erase method which will break this for loop. It isn't needed at ScriptEngine::cleanup step.
+                obj->release();
             }
             NativePtrToObjectMap::clear();
             NonRefNativePtrCreatedByCtorMap::clear();
@@ -571,7 +575,8 @@ namespace se {
             if (_rootCount == 0)
             {
                 // Don't unprotect if it's in cleanup, otherwise, it will trigger crash.
-                if (!ScriptEngine::getInstance()->_isInCleanup)
+                auto se = ScriptEngine::getInstance();
+                if (!se->_isInCleanup && !se->isInGC())
                 {
                     unsigned int count = 0;
                     _CHECK(JsRelease(_obj, &count));

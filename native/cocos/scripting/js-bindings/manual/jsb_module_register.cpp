@@ -46,16 +46,6 @@
 
 using namespace cocos2d;
 
-bool jsb_run_script(const std::string& filePath)
-{
-    se::AutoHandleScope hs;
-    Data data = FileUtils::getInstance()->getDataFromFile(filePath);
-    if (data.isNull())
-        return false;
-
-    return se::ScriptEngine::getInstance()->executeScriptBuffer((const char*)data.getBytes(), (size_t)data.getSize(), nullptr, filePath.c_str());
-}
-
 static bool run_prepare_script(se::Object* global)
 {
     jsb_run_script("script/jsb_prepare.js");
