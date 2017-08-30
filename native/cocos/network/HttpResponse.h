@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
- Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2013-2017 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -51,9 +51,9 @@ public:
      * @param request the corresponding HttpRequest which leads to this response.
      */
     HttpResponse(HttpRequest* request)
-    : _pHttpRequest(request)
-    , _succeed(false)
-    , _responseDataString("")
+        : _pHttpRequest(request)
+        , _succeed(false)
+        , _responseDataString("")
     {
         if (_pHttpRequest)
         {
@@ -89,7 +89,7 @@ public:
 
     /**
      * Get the corresponding HttpRequest object which leads to this response.
-     * There's no paired setter for it, because it's already setted in class constructor
+     * There's no paired setter for it, because it's already set in class constructor
      * @return HttpRequest* the corresponding HttpRequest object which leads to this response.
      */
     inline HttpRequest* getHttpRequest() const
@@ -196,7 +196,8 @@ public:
     inline void setErrorBuffer(const char* value)
     {
         _errorBuffer.clear();
-        _errorBuffer.assign(value);
+        if (value != nullptr)
+            _errorBuffer.assign(value);
     }
 
     /**
