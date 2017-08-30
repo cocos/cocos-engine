@@ -4930,6 +4930,7 @@
         "cocos/scripting/js-bindings/script/jsb_cocos2d.js", 
         "cocos/scripting/js-bindings/script/jsb_common.js", 
         "cocos/scripting/js-bindings/script/jsb_create_apis.js", 
+        "cocos/scripting/js-bindings/script/jsb_debugger.js", 
         "cocos/scripting/js-bindings/script/jsb_dragonbones.js", 
         "cocos/scripting/js-bindings/script/jsb_opengl.js", 
         "cocos/scripting/js-bindings/script/jsb_opengl_constants.js", 
