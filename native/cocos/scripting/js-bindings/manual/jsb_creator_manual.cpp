@@ -34,8 +34,7 @@ static bool js_creator_PhysicsContactListener_setPreSolve(se::State& s)
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
-                    bool fromCache = false;
-                    ok &= native_ptr_to_rooted_seval<b2Contact>(larg0, __jsb_b2Contact_class, &args[0], &fromCache);
+                    ok &= native_ptr_to_rooted_seval<b2Contact>(larg0, __jsb_b2Contact_class, &args[0]);
 
                     se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
