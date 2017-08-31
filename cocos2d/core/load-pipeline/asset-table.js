@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var pushToMap = require('../utils/misc').pushToMap;
+
 function Entry (uuid, type) {
     this.uuid = uuid;
     this.type = type;
@@ -133,30 +135,7 @@ proto.add = function (path, uuid, type, isMainAsset) {
     // (can not use path.slice because length of extname maybe 0)
     path = path.substring(0, path.length - cc.path.extname(path).length);
     var newEntry = new Entry(uuid, type);
-    var pathToUuid = this._pathToUuid;
-    var exists = pathToUuid[path];
-    if (exists) {
-        if (Array.isArray(exists)) {
-            if (isMainAsset) {
-                // load main asset first
-                exists.unshift(newEntry);
-            }
-            else {
-                exists.push(newEntry);
-            }
-        }
-        else {
-            if (isMainAsset) {
-                pathToUuid[path] = [newEntry, exists];
-            }
-            else {
-                pathToUuid[path] = [exists, newEntry];
-            }
-        }
-    }
-    else {
-        pathToUuid[path] = newEntry;
-    }
+    pushToMap(this._pathToUuid, path, newEntry, isMainAsset);
 };
 
 proto.reset = function () {

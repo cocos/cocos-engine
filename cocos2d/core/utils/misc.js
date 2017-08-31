@@ -139,3 +139,25 @@ for (let i = 0; i < 64; ++i) BASE64_VALUES[BASE64_KEYS.charCodeAt(i)] = i;
 
 // decoded value indexed by base64 char code
 misc.BASE64_VALUES = BASE64_VALUES;
+
+// set value to map, if key exists, push to array
+misc.pushToMap = function (map, key, value, pushFront) {
+    var exists = map[key];
+    if (exists) {
+        if (Array.isArray(exists)) {
+            if (pushFront) {
+                exists.push(exists[0]);
+                exists[0] = value;
+            }
+            else {
+                exists.push(value);
+            }
+        }
+        else {
+            map[key] = (pushFront ? [value, exists] : [exists, value]);
+        }
+    }
+    else {
+        map[key] = value;
+    }
+};
