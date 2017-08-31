@@ -111,6 +111,7 @@ namespace se {
         void gc();
 
         bool isValid() { return _isValid; }
+        bool isInCleanup() { return _isInCleanup; }
 
         void clearException();
         const std::chrono::steady_clock::time_point& getStartTime() const { return _startTime; }
@@ -155,8 +156,6 @@ namespace se {
 
         std::vector<std::function<void()>> _beforeCleanupHookArray;
         std::vector<std::function<void()>> _afterCleanupHookArray;
-
-        friend class Object;
     };
 
  } // namespace se {

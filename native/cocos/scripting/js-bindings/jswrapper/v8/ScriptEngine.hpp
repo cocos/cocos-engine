@@ -131,6 +131,7 @@ namespace se {
         void gc();
 
         bool isValid() const;
+        bool isInCleanup() { return _isInCleanup; }
 
         void clearException();
 
@@ -169,6 +170,7 @@ namespace se {
 
         bool _isValid;
         bool _isInGC;
+        bool _isInCleanup;
         NodeEventListener _nodeEventListener;
 
         FileOperationDelegate _fileOperationDelegate;

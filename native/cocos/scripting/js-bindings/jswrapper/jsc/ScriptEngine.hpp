@@ -178,6 +178,12 @@ namespace se {
         void gc();
 
         /**
+         *  @brief Tests whether script engine is being cleaned up.
+         *  @return true if it's in cleaning up, otherwise false.
+         */
+        bool isInCleanup() { return _isInCleanup; }
+
+        /**
          *  @brief Tests whether script engine is valid.
          *  @return true if it's valid, otherwise false.
          */
@@ -240,8 +246,6 @@ namespace se {
 
         std::vector<std::function<void()>> _beforeCleanupHookArray;
         std::vector<std::function<void()>> _afterCleanupHookArray;
-
-        friend class Object;
     };
 
  } // namespace se {

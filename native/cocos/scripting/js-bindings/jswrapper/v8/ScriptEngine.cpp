@@ -115,6 +115,7 @@ namespace se {
     , _globalObj(nullptr)
     , _isValid(false)
     , _isInGC(false)
+    , _isInCleanup(false)
     , _nodeEventListener(nullptr)
 #if SE_ENABLE_INSPECTOR
     , _env(nullptr)
@@ -213,6 +214,9 @@ namespace se {
         if (!_isValid)
             return;
 
+        LOGD("ScriptEngine::cleanup begin ...\n");
+        _isInCleanup = true;
+
         {
             AutoHandleScope hs;
             for (const auto& hook : _beforeCleanupHookArray)
@@ -255,9 +259,11 @@ namespace se {
         }
         _afterCleanupHookArray.clear();
 
-
+        _isInCleanup = false;
         NativePtrToObjectMap::destroy();
         NonRefNativePtrCreatedByCtorMap::destroy();
+
+        LOGD("ScriptEngine::cleanup end ...\n");
     }
 
     Object* ScriptEngine::getGlobalObject() const

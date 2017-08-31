@@ -244,7 +244,7 @@ namespace se {
     /* static */
     void ScriptEngine::myWeakPointerZoneGroupCallback(JSContext* cx, void* data)
     {
-        bool isInCleanup = getInstance()->_isInCleanup;
+        bool isInCleanup = getInstance()->isInCleanup();
         bool isIterUpdated = false;
         Object* obj = nullptr;
         auto iter = NativePtrToObjectMap::begin();

@@ -97,6 +97,7 @@ namespace se {
         void gc() { JS_GC( _cx );  }
 
         bool isValid() { return _isValid; }
+        bool isInCleanup() { return _isInCleanup; }
 
         void clearException();
 
