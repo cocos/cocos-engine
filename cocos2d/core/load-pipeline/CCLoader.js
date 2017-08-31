@@ -131,6 +131,15 @@ function CCLoader () {
 JS.extend(CCLoader, Pipeline);
 var proto = CCLoader.prototype;
 
+proto.init = function (director) {
+    if (CC_DEBUG) {
+        var self = this;
+        director.on(cc.Director.EVENT_BEFORE_VISIT, function () {
+            self._releasedAssetChecker_DEBUG.checkCouldRelease(self._cache);
+        });
+    }
+};
+
 /**
  * Gets a new XMLHttpRequest instance.
  * @method getXMLHttpRequest

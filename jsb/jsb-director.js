@@ -73,6 +73,8 @@ cc.js.mixin(cc.director, {
 
         // WidgetManager
         cc._widgetManager.init(this);
+
+        cc.loader.init(this);
     },
 
     purgeDirector: function () {

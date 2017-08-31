@@ -49,7 +49,7 @@ function getItemDesc (item) {
     return desc;
 }
 
-function checkCouldReleased (releasedKey, refOwnerItem, caches) {
+function doCheckCouldRelease (releasedKey, refOwnerItem, caches) {
     var loadedAgain = caches[releasedKey];
     if (!loadedAgain) {
         cc.warn(`${releasedKey} was released but still referenced by ${getItemDesc(refOwnerItem)}`);
@@ -63,7 +63,6 @@ ReleasedAssetChecker.prototype.checkCouldRelease = function (caches) {
     }
     this._dirty = false;
 
-    // var caches = this._cache;
     var released = this._releasedKeys;
 
     // touch dependencies
@@ -77,7 +76,7 @@ ReleasedAssetChecker.prototype.checkCouldRelease = function (caches) {
             for (let i = 0; i < depends.length; ++i) {
                 var depend = depends[i];
                 if (released[depend]) {
-                    checkCouldReleased(depend, item, caches);
+                    doCheckCouldRelease(depend, item, caches);
                     delete released[depend];
                 }
             }
