@@ -227,14 +227,14 @@ namespace se {
          *  @param[in] o The object to be tested with this object.
          *  @return true if the two values are strict equal, otherwise false.
          */
-        bool isSame(Object* o) const;
+        bool strictEquals(Object* o) const;
 
         /**
-         *  @brief Attaches a child object to an object.
-         *  @param[in] child The child object to be attached.
+         *  @brief Attaches an object to current object.
+         *  @param[in] obj The object to be attached.
          *  @return true if succeed, otherwise false.
-         *  @note This method will set child object as a property of this object, therefore the lifecycle of child object will depend on this object,
-         *        which means child may be garbage collected only after this object is garbage collected.
+         *  @note This method will set `obj` as a property of current object, therefore the lifecycle of child object will depend on current object,
+         *        which means `obj` may be garbage collected only after current object is garbage collected.
          *        It's normally used in binding a native callback method. For example:
          
              ```javascript
@@ -256,7 +256,7 @@ namespace se {
                                 se::Value jsThis(args[1]);
                                 se::Value jsFunc(args[0]);
 
-                                jsThis.toObject()->attachChild(jsFunc.toObject());
+                                jsThis.toObject()->attachObject(jsFunc.toObject());
 
                                 auto lambda = [=]() -> void {
                                     ...
@@ -279,14 +279,15 @@ namespace se {
                 }
              ```
          */
-        bool attachChild(Object* child);
+        bool attachObject(Object* obj);
 
         /**
-         *  @brief Detaches a child object from an object.
-         *  @param[in] child The child object ot be detached.
+         *  @brief Detaches an object from current object.
+         *  @param[in] obj The object to be detached.
          *  @return true if succeed, otherwise false.
+         *  @note The attached object will not be released if current object is not garbage collected.
          */
-        bool detachChild(Object* child);
+        bool detachObject(Object* obj);
 
         // Private API used in wrapper
         static Object* _createJSObject(Class* cls, JSObjectRef obj);

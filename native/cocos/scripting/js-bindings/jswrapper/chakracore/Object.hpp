@@ -53,9 +53,9 @@ namespace se {
         void unroot();
         bool isRooted() const;
 
-        bool isSame(Object* o) const;
-        bool attachChild(Object* child);
-        bool detachChild(Object* child);
+        bool strictEquals(Object* obj) const;
+        bool attachObject(Object* obj);
+        bool detachObject(Object* obj);
 
         // Private API used in wrapper
         static Object* _createJSObject(Class* cls, JsValueRef obj);

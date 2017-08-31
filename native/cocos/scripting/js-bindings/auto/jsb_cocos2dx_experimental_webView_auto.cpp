@@ -20,7 +20,7 @@ static bool js_cocos2dx_experimental_webView_WebView_setOnShouldStartLoading(se:
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
-                jsThis.toObject()->attachChild(jsFunc.toObject());
+                jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto lambda = [=](cocos2d::experimental::ui::WebView* larg0, const std::basic_string<char> & larg1) -> bool {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
@@ -73,7 +73,7 @@ static bool js_cocos2dx_experimental_webView_WebView_setOnDidFailLoading(se::Sta
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
-                jsThis.toObject()->attachChild(jsFunc.toObject());
+                jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto lambda = [=](cocos2d::experimental::ui::WebView* larg0, const std::basic_string<char> & larg1) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
@@ -311,7 +311,7 @@ static bool js_cocos2dx_experimental_webView_WebView_setOnJSCallback(se::State& 
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
-                jsThis.toObject()->attachChild(jsFunc.toObject());
+                jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto lambda = [=](cocos2d::experimental::ui::WebView* larg0, const std::basic_string<char> & larg1) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
@@ -488,7 +488,7 @@ static bool js_cocos2dx_experimental_webView_WebView_setOnDidFinishLoading(se::S
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
-                jsThis.toObject()->attachChild(jsFunc.toObject());
+                jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto lambda = [=](cocos2d::experimental::ui::WebView* larg0, const std::basic_string<char> & larg1) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;

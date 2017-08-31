@@ -78,14 +78,6 @@ namespace se {
 
     bool Class::install()
     {
-//        auto iter = __clsMap.find(_name);
-//        if (iter != __clsMap.end())
-//        {
-//            assert(!iter->second->_parent->isSame(_parent));
-//        }
-//
-//        __clsMap.emplace(_name, this);
-
         JsValueRef funcName;
         _CHECK(JsCreateString(_name.c_str(), _name.length(), &funcName));
         JsValueRef jsConstructor;

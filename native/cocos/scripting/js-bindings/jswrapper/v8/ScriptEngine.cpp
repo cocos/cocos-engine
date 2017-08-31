@@ -425,7 +425,7 @@ namespace se {
 
         clearException();
         AutoHandleScope hs;
-        iterOwner->second->attachChild(iterTarget->second);
+        iterOwner->second->attachObject(iterTarget->second);
     }
 
     void ScriptEngine::_releaseScriptObject(void* owner, void* target)
@@ -444,7 +444,7 @@ namespace se {
 
         clearException();
         AutoHandleScope hs;
-        iterOwner->second->detachChild(iterTarget->second);
+        iterOwner->second->detachObject(iterTarget->second);
     }
 
     bool ScriptEngine::_onReceiveNodeEvent(void* node, NodeEventType type)

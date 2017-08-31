@@ -515,7 +515,7 @@ namespace se {
         return _rootCount > 0;
     }
 
-    bool Object::isSame(Object* o) const
+    bool Object::strictEquals(Object* o) const
     {
         JSObject* thisObj = _getJSObject();
         JSObject* oThisObj = o->_getJSObject();
@@ -531,11 +531,11 @@ namespace se {
         return ok && same;
     }
 
-    bool Object::attachChild(Object* child)
+    bool Object::attachObject(Object* obj)
     {
-        assert(child);
+        assert(obj);
         JSObject* ownerObj = _getJSObject();
-        JSObject* targetObj = child->_getJSObject();
+        JSObject* targetObj = obj->_getJSObject();
         if (ownerObj == nullptr || targetObj == nullptr)
             return false;
 
@@ -556,11 +556,11 @@ namespace se {
         return JS_CallFunctionName(__cx, jsbObj, "registerNativeRef", args, &rval);
     }
 
-    bool Object::detachChild(Object* child)
+    bool Object::detachObject(Object* obj)
     {
-        assert(child);
+        assert(obj);
         JSObject* ownerObj = _getJSObject();
-        JSObject* targetObj = child->_getJSObject();
+        JSObject* targetObj = obj->_getJSObject();
         if (ownerObj == nullptr || targetObj == nullptr)
         {
             LOGD("%s: try to detach on invalid object, owner: %p, target: %p\n", __FUNCTION__, ownerObj, targetObj);

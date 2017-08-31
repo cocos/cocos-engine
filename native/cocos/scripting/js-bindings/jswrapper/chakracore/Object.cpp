@@ -590,16 +590,16 @@ namespace se {
         return _rootCount > 0;
     }
 
-    bool Object::isSame(Object* o) const
+    bool Object::strictEquals(Object* o) const
     {
         bool same = false;
         _CHECK(JsStrictEquals(_obj, o->_obj, &same));
         return same;
     }
 
-    bool Object::attachChild(Object* child)
+    bool Object::attachObject(Object* obj)
     {
-        assert(child);
+        assert(obj);
 
         Object* global = ScriptEngine::getInstance()->getGlobalObject();
         Value jsbVal;
@@ -614,14 +614,14 @@ namespace se {
 
         ValueArray args;
         args.push_back(Value(this));
-        args.push_back(Value(child));
+        args.push_back(Value(obj));
         func.toObject()->call(args, global);
         return true;
     }
 
-    bool Object::detachChild(Object* child)
+    bool Object::detachObject(Object* obj)
     {
-        assert(child);
+        assert(obj);
         Object* global = ScriptEngine::getInstance()->getGlobalObject();
         Value jsbVal;
         if (!global->getProperty("jsb", &jsbVal))
@@ -635,7 +635,7 @@ namespace se {
 
         ValueArray args;
         args.push_back(Value(this));
-        args.push_back(Value(child));
+        args.push_back(Value(obj));
         func.toObject()->call(args, global);
         return true;
     }

@@ -26,7 +26,7 @@ static bool js_creator_PhysicsContactListener_setPreSolve(se::State& s)
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
-                jsThis.toObject()->attachChild(jsFunc.toObject());
+                jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto lambda = [=](b2Contact* larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
@@ -34,8 +34,7 @@ static bool js_creator_PhysicsContactListener_setPreSolve(se::State& s)
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
-                    bool fromCache = false;
-                    ok &= native_ptr_to_rooted_seval<b2Contact>(larg0, __jsb_b2Contact_class, &args[0], &fromCache);
+                    ok &= native_ptr_to_rooted_seval<b2Contact>(larg0, __jsb_b2Contact_class, &args[0]);
 
                     se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
@@ -75,7 +74,7 @@ static bool js_creator_PhysicsContactListener_setPostSolve(se::State& s)
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
-                jsThis.toObject()->attachChild(jsFunc.toObject());
+                jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto lambda = [=](b2Contact* larg0, const creator::PhysicsContactImpulse* larg1) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
@@ -89,7 +88,7 @@ static bool js_creator_PhysicsContactListener_setPostSolve(se::State& s)
                     ok &= native_ptr_to_seval<creator::PhysicsContactImpulse>((creator::PhysicsContactImpulse*)larg1, __jsb_creator_PhysicsContactImpulse_class, &args[1], &fromCache);
                     if (!fromCache)
                     {
-                        jsThis.toObject()->attachChild(args[1].toObject());
+                        jsThis.toObject()->attachObject(args[1].toObject());
                     }
                     se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
@@ -130,7 +129,7 @@ static bool js_creator_PhysicsContactListener_setBeginContact(se::State& s)
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
-                jsThis.toObject()->attachChild(jsFunc.toObject());
+                jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto lambda = [=](b2Contact* larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
@@ -185,7 +184,7 @@ static bool js_creator_PhysicsContactListener_setEndContact(se::State& s)
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
-                jsThis.toObject()->attachChild(jsFunc.toObject());
+                jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto lambda = [=](b2Contact* larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;

@@ -753,7 +753,7 @@ static bool js_cocos2dx_extension_AssetsManagerEx_setVerifyCallback(se::State& s
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
-                jsThis.toObject()->attachChild(jsFunc.toObject());
+                jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto lambda = [=](const std::basic_string<char> & larg0, cocos2d::extension::ManifestAsset larg1) -> bool {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
@@ -839,7 +839,7 @@ static bool js_cocos2dx_extension_AssetsManagerEx_setVersionCompareHandle(se::St
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
-                jsThis.toObject()->attachChild(jsFunc.toObject());
+                jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto lambda = [=](const std::basic_string<char> & larg0, const std::basic_string<char> & larg1) -> int {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
@@ -1082,7 +1082,7 @@ static bool js_cocos2dx_extension_AssetsManagerEx_constructor(se::State& s)
                 {
                     se::Value jsThis(s.thisObject());
                     se::Value jsFunc(args[2]);
-                    jsThis.toObject()->attachChild(jsFunc.toObject());
+                    jsThis.toObject()->attachObject(jsFunc.toObject());
                     auto lambda = [=](const std::basic_string<char> & larg0, const std::basic_string<char> & larg1) -> int {
                         se::ScriptEngine::getInstance()->clearException();
                         se::AutoHandleScope hs;
@@ -1205,7 +1205,7 @@ static bool js_cocos2dx_extension_EventListenerAssetsManagerEx_init(se::State& s
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[1]);
-                jsThis.toObject()->attachChild(jsFunc.toObject());
+                jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto lambda = [=](cocos2d::extension::EventAssetsManagerEx* larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;

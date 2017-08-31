@@ -288,7 +288,7 @@ static bool js_cocos2dx_dragonbones_TransformObject_getGlobal(se::State& s)
     SE_PRECONDITION2(ok, false, "Convert dragonBones::Transform to se::Value failed!");
     if (!isReturnCached)
     {
-        s.thisObject()->attachChild(s.rval().toObject());
+        s.thisObject()->attachObject(s.rval().toObject());
     }
     return true;
 }
@@ -302,7 +302,7 @@ static bool js_cocos2dx_dragonbones_TransformObject_getOrigin(se::State& s)
     SE_PRECONDITION2(ok, false, "Convert dragonBones::Transform to se::Value failed!");
     if (!isReturnCached)
     {
-        s.thisObject()->attachChild(s.rval().toObject());
+        s.thisObject()->attachObject(s.rval().toObject());
     }
     return true;
 }
@@ -316,7 +316,7 @@ static bool js_cocos2dx_dragonbones_TransformObject_getOffset(se::State& s)
     SE_PRECONDITION2(ok, false, "Convert dragonBones::Transform to se::Value failed!");
     if (!isReturnCached)
     {
-        s.thisObject()->attachChild(s.rval().toObject());
+        s.thisObject()->attachObject(s.rval().toObject());
     }
     return true;
 }
