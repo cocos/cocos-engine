@@ -198,8 +198,8 @@ if (cc.Image && cc.Image.setPNGPremultipliedAlphaEnabled) {
 }
 
 // __errorHandler
-window.__errorHandler = function (filename, lineno, message) {
-};
+// window.__errorHandler = function (filename, lineno, message, stack) {
+// };
 
 // global cleanup. Dangerous!!! please do not invoke this function, it's used internally by the restart process
 window.__cleanup = function () {
