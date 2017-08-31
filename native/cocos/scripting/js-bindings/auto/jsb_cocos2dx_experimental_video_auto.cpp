@@ -235,7 +235,7 @@ static bool js_cocos2dx_experimental_video_VideoPlayer_addEventListener(se::Stat
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
-                jsThis.toObject()->attachChild(jsFunc.toObject());
+                jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto lambda = [=](cocos2d::Ref* larg0, cocos2d::experimental::ui::VideoPlayer::EventType larg1) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;

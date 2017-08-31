@@ -103,7 +103,7 @@ public:
         _eventRegistry[eventName].clear();
         _eventRegistry[eventName].push_back(callback);
         _eventRegistry[eventName].push_back(target);
-        target.toObject()->attachChild(callback.toObject());
+        target.toObject()->attachObject(callback.toObject());
     }
 
 private:

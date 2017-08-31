@@ -4400,7 +4400,7 @@ static bool js_cocos2dx_dragonbones_CCArmatureDisplay_setEventCallback(se::State
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
-                jsThis.toObject()->attachChild(jsFunc.toObject());
+                jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto lambda = [=](dragonBones::EventObject* larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
@@ -4465,7 +4465,7 @@ static bool js_cocos2dx_dragonbones_CCArmatureDisplay_addEvent(se::State& s)
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[1]);
-                jsThis.toObject()->attachChild(jsFunc.toObject());
+                jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto lambda = [=](dragonBones::EventObject* larg0) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;

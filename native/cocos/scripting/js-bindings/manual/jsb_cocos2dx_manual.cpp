@@ -689,7 +689,7 @@ static bool js_EventListenerAcceleration_create(se::State& s)
             {
                 se::Value jsThis(obj);
                 se::Value jsFunc(args[0]);
-                jsThis.toObject()->attachChild(jsFunc.toObject());
+                jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto lambda = [=](Acceleration* acc, Event* event) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
@@ -824,7 +824,7 @@ static bool js_EventListenerCustom_create(se::State& s)
         obj->setPrivateData(ret);
         s.rval().setObject(obj);
 
-        obj->attachChild(funcVal.toObject());
+        obj->attachObject(funcVal.toObject());
 
         return true;
     }
@@ -1290,7 +1290,7 @@ static bool js_cocos2dx_CallFunc_init(cocos2d::CallFuncN* nativeObj, se::Object*
         SE_PRECONDITION2(false, false, "js_cocos2dx_CallFunc_create, args[0](func) isn't a function object");
     }
 
-    jsobj->attachChild(funcVal.toObject());
+    jsobj->attachObject(funcVal.toObject());
 
     if (argc >= 2)
     {
@@ -1299,14 +1299,14 @@ static bool js_cocos2dx_CallFunc_init(cocos2d::CallFuncN* nativeObj, se::Object*
         {
             SE_PRECONDITION2(false, false, "js_cocos2dx_CallFunc_create, args[1](this) isn't an object");
         }
-        jsobj->attachChild(thisVal.toObject());
+        jsobj->attachObject(thisVal.toObject());
     }
 
     if (argc >= 3)
     {
         dataVal = args[2];
         if (dataVal.isObject())
-            jsobj->attachChild(dataVal.toObject());
+            jsobj->attachObject(dataVal.toObject());
     }
 
     bool ok = nativeObj->initWithFunction([=](Node* sender){

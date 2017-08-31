@@ -249,7 +249,7 @@ static void removeSchedule(uint32_t jsFuncId, uint32_t jsTargetId, bool needDeta
             se::Object* func = iter->second.getFunc();
             if (needDetachChild)
             {
-                target->detachChild(func);
+                target->detachObject(func);
             }
 
             func->release();
@@ -280,7 +280,7 @@ static void removeScheduleForThis(uint32_t jsTargetId, bool needDetachChild)
             func = e.second.getFunc();
             if (needDetachChild)
             {
-                target->detachChild(func);
+                target->detachObject(func);
             }
 
             func->release(); // Release jsFunc
@@ -309,8 +309,8 @@ static void removeAllSchedules(bool needDetachChild)
             func = e.second.getFunc();
             if (needDetachChild)
             {
-                CCLOG("detachChild: owner: %p, target: %p", target, func);
-                target->detachChild(func);
+                CCLOG("detachObject: owner: %p, target: %p", target, func);
+                target->detachObject(func);
             }
             target->release(); // Release jsThis
             func->release(); // Release jsFunc
@@ -447,7 +447,7 @@ static bool Scheduler_scheduleCommon(Scheduler* scheduler, const se::Value& jsTh
     assert(jsThis.isObject());
     assert(jsFunc.isObject());
     assert(jsFunc.toObject()->isFunction());
-    jsThis.toObject()->attachChild(jsFunc.toObject());
+    jsThis.toObject()->attachObject(jsFunc.toObject());
 
     std::string key;
 
