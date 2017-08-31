@@ -110,15 +110,15 @@ proto.getUuidArray = function (path, type, out_urls) {
     return uuids;
 };
 
-/**
- * !#en Returns all asset paths in the table.
- * !#zh 返回表中的所有资源路径。
- * @method getAllPaths
- * @return {string[]}
- */
-proto.getAllPaths = function () {
-    return Object.keys(this._pathToUuid);
-};
+// /**
+//  * !#en Returns all asset paths in the table.
+//  * !#zh 返回表中的所有资源路径。
+//  * @method getAllPaths
+//  * @return {string[]}
+//  */
+// proto.getAllPaths = function () {
+//     return Object.keys(this._pathToUuid);
+// };
 
 /**
  * !#en TODO
@@ -136,6 +136,26 @@ proto.add = function (path, uuid, type, isMainAsset) {
     path = path.substring(0, path.length - cc.path.extname(path).length);
     var newEntry = new Entry(uuid, type);
     pushToMap(this._pathToUuid, path, newEntry, isMainAsset);
+};
+
+proto.getInfo_DEBUG = CC_DEBUG && function (uuid) {
+    var path2uuid = this._pathToUuid;
+    var paths = Object.keys(path2uuid);
+    for (var p = 0; p < paths.length; ++p) {
+        var path = paths[p];
+        var item = path2uuid[path];
+        if (Array.isArray(item)) {
+            for (var i = 0; i < item.length; i++) {
+                var entry = item[i];
+                if (entry.uuid === uuid) {
+                    return { path: path, type: entry.type };
+                }
+            }
+        }
+        else if (item.uuid === uuid) {
+            return { path: path, type: item.type };
+        }
+    }
 };
 
 proto.reset = function () {

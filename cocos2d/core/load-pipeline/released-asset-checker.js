@@ -42,17 +42,25 @@ ReleasedAssetChecker.prototype.setReleased = function (item, releasedKey) {
 };
 
 function getItemDesc (item) {
-    var desc = item.rawUrl;
     if (item.uuid) {
-        desc += `(${item.uuid})`;
+        var info = cc.loader._resources.getInfo_DEBUG(item.uuid);
+        if (info) {
+            info.path = 'resources/' + info.path;
+            return `"${info.path}" (type: ${JS.getClassName(info.type)}, uuid: ${item.uuid})`;
+        }
+        else {
+            return `"${item.rawUrl}" (${item.uuid})`;
+        }
     }
-    return desc;
+    else {
+        return `"${item.rawUrl}"`;
+    }
 }
 
 function doCheckCouldRelease (releasedKey, refOwnerItem, caches) {
     var loadedAgain = caches[releasedKey];
     if (!loadedAgain) {
-        cc.warn(`${releasedKey} was released but still referenced by ${getItemDesc(refOwnerItem)}`);
+        cc.log(`"${releasedKey}" was released but maybe still referenced by ${getItemDesc(refOwnerItem)}`);
     }
 }
 
@@ -65,16 +73,16 @@ ReleasedAssetChecker.prototype.checkCouldRelease = function (caches) {
 
     var released = this._releasedKeys;
 
-    // touch dependencies
+    // check loader cache
     for (let id in caches) {
         var item = caches[id];
         if (item.alias) {
             item = item.alias;
         }
-        var depends = item.dependKeys;
+        let depends = item.dependKeys;
         if (depends) {
             for (let i = 0; i < depends.length; ++i) {
-                var depend = depends[i];
+                let depend = depends[i];
                 if (released[depend]) {
                     doCheckCouldRelease(depend, item, caches);
                     delete released[depend];
@@ -82,6 +90,17 @@ ReleasedAssetChecker.prototype.checkCouldRelease = function (caches) {
             }
         }
     }
+
+    // // check current scene
+    // let depends = cc.director.getScene().dependAssets;
+    // for (let i = 0; i < depends.length; ++i) {
+    //     let depend = depends[i];
+    //     if (released[depend]) {
+    //         doCheckCouldRelease(depend, item, caches);
+    //         delete released[depend];
+    //     }
+    // }
+
     // clear released
     JS.clear(released);
 };
