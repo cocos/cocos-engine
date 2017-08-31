@@ -31,7 +31,7 @@ namespace se {
                 State state(nativeThisObject);
                 Object* _thisObject = state.thisObject();
                 if (_thisObject) _thisObject->_cleanup(nativeThisObject);
-                SAFE_RELEASE(_thisObject);
+                SAFE_DEC_REF(_thisObject);
             }
         }
     }
@@ -66,11 +66,11 @@ namespace se {
         _name = clsName;
         _parent = parent;
         if (_parent != nullptr)
-            _parent->addRef();
+            _parent->incRef();
         _parentProto = parentProto;
 
         if (_parentProto != nullptr)
-            _parentProto->addRef();
+            _parentProto->incRef();
         _ctor = ctor;
 
         return true;
@@ -197,9 +197,9 @@ namespace se {
 
     void Class::destroy()
     {
-        SAFE_RELEASE(_parent);
-        SAFE_RELEASE(_proto);
-        SAFE_RELEASE(_parentProto);
+        SAFE_DEC_REF(_parent);
+        SAFE_DEC_REF(_proto);
+        SAFE_DEC_REF(_parentProto);
     }
 
     void Class::cleanup()

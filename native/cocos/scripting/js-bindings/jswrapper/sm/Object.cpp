@@ -94,7 +94,7 @@ namespace se {
         if (iter != NativePtrToObjectMap::end())
         {
             obj = iter->second;
-            obj->addRef();
+            obj->incRef();
         }
         return obj;
     }
@@ -409,7 +409,7 @@ namespace se {
             const auto& instance = NativePtrToObjectMap::instance();
             for (const auto& e : instance)
             {
-                e.second->release();
+                e.second->decRef();
             }
             NativePtrToObjectMap::clear();
             NonRefNativePtrCreatedByCtorMap::clear();

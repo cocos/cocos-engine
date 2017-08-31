@@ -39,7 +39,7 @@
     <ClCompile Include="..\auto\jsb_creator_auto.cpp" />
     <ClCompile Include="..\jswrapper\HandleObject.cpp" />
     <ClCompile Include="..\jswrapper\MappingUtils.cpp" />
-    <ClCompile Include="..\jswrapper\Ref.cpp" />
+    <ClCompile Include="..\jswrapper\RefCounter.cpp" />
     <ClCompile Include="..\jswrapper\State.cpp" />
     <ClCompile Include="..\jswrapper\v8\Class.cpp" />
     <ClCompile Include="..\jswrapper\v8\env.cc" />
@@ -91,7 +91,7 @@
     <ClInclude Include="..\jswrapper\HandleObject.hpp" />
     <ClInclude Include="..\jswrapper\MappingUtils.hpp" />
     <ClInclude Include="..\jswrapper\Object.hpp" />
-    <ClInclude Include="..\jswrapper\Ref.hpp" />
+    <ClInclude Include="..\jswrapper\RefCounter.hpp" />
     <ClInclude Include="..\jswrapper\SeApi.h" />
     <ClInclude Include="..\jswrapper\State.hpp" />
     <ClInclude Include="..\jswrapper\v8\Base.h" />

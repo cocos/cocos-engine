@@ -648,7 +648,7 @@ static bool getOrCreatePlainObject_r(const char* name, se::Object* parent, se::O
     if (parent->getProperty(name, &tmp) && tmp.isObject())
     {
         *outObj = tmp.toObject();
-        (*outObj)->addRef();
+        (*outObj)->incRef();
     }
     else
     {
@@ -697,9 +697,9 @@ bool jsb_register_global_variables(se::Object* global)
     se::ScriptEngine::getInstance()->clearException();
 
     se::ScriptEngine::getInstance()->addAfterCleanupHook([](){
-        __ccObj->release();
-        __jsbObj->release();
-        __jscObj->release();
+        __ccObj->decRef();
+        __jsbObj->decRef();
+        __jscObj->decRef();
     });
 
     return true;

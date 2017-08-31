@@ -31,7 +31,7 @@ static bool Node_finalized(se::State& s)
     {
         Node* thiz = (Node*) s.nativeThisObject();
         LOGD("Node_finalized %p ...\n", thiz->getUserData());
-        SAFE_RELEASE(thiz);
+        CC_SAFE_RELEASE(thiz);
     }
     return true;
 }
@@ -252,8 +252,8 @@ static void removeSchedule(uint32_t jsFuncId, uint32_t jsTargetId, bool needDeta
                 target->detachObject(func);
             }
 
-            func->release();
-            target->release();
+            func->decRef();
+            target->decRef();
 
             funcMap.erase(iter);
         }
@@ -283,8 +283,8 @@ static void removeScheduleForThis(uint32_t jsTargetId, bool needDetachChild)
                 target->detachObject(func);
             }
 
-            func->release(); // Release jsFunc
-            target->release(); // Release jsThis
+            func->decRef(); // Release jsFunc
+            target->decRef(); // Release jsThis
         }
 
         funcMap.clear();
@@ -312,8 +312,8 @@ static void removeAllSchedules(bool needDetachChild)
                 CCLOG("detachObject: owner: %p, target: %p", target, func);
                 target->detachObject(func);
             }
-            target->release(); // Release jsThis
-            func->release(); // Release jsFunc
+            target->decRef(); // Release jsThis
+            func->decRef(); // Release jsFunc
         }
         funcMap.clear();
     }
@@ -324,7 +324,7 @@ static void removeAllScheduleUpdates()
 {
     for (auto& e2 : __js_target_schedule_update_map)
     {
-        e2.second.second->release();
+        e2.second.second->decRef();
     }
     __js_target_schedule_update_map.clear();
 }
@@ -352,7 +352,7 @@ static void removeScheduleUpdate(uint32_t targetId)
     auto iter =  __js_target_schedule_update_map.find(targetId);
     if (iter != __js_target_schedule_update_map.end())
     {
-        iter->second.second->release();
+        iter->second.second->decRef();
         __js_target_schedule_update_map.erase(iter);
     }
 }
@@ -366,7 +366,7 @@ static void removeScheduleUpdatesForMinPriority(int minPriority)
         foundPriority = iter->second.first;
         if (foundPriority >= minPriority)
         {
-            iter->second.second->release();
+            iter->second.second->decRef();
             iter = __js_target_schedule_update_map.erase(iter);
         }
         else
@@ -380,15 +380,15 @@ static void insertScheduleUpdate(uint32_t targetId, int priority, se::Object* ta
 {
     assert(__js_target_schedule_update_map.find(targetId) == __js_target_schedule_update_map.end());
     __js_target_schedule_update_map[targetId] = std::make_pair(priority, targetObj);
-    targetObj->addRef();
+    targetObj->incRef();
 }
 
 static void insertSchedule(uint32_t funcId, uint32_t targetId, ScheduleElement&& element)
 {
     auto& funcKeyMap = __js_target_schedulekey_map[targetId];
     assert(funcKeyMap.find(funcId) == funcKeyMap.end());
-    element.getTarget()->addRef();
-    element.getFunc()->addRef();
+    element.getTarget()->incRef();
+    element.getFunc()->incRef();
 
     funcKeyMap.emplace(funcId, std::move(element));
 }

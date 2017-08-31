@@ -57,7 +57,7 @@ namespace se {
                 if (obj->_getClass()->_finalizeFunc != nullptr)
                     obj->_getClass()->_finalizeFunc(nativeObj);
             }
-            obj->release();
+            obj->decRef();
             NativePtrToObjectMap::erase(iter);
         }
         else
@@ -105,7 +105,7 @@ namespace se {
                 free(obj->_internalData);
                 obj->_internalData = nullptr;
             }
-            obj->release();
+            obj->decRef();
         }
 
         NativePtrToObjectMap::clear();
@@ -127,7 +127,7 @@ namespace se {
 
         for (auto e : toReleaseObjects)
         {
-            e->release();
+            e->decRef();
         }
 
         __objectMap.clear();
@@ -148,7 +148,7 @@ namespace se {
         if (iter != NativePtrToObjectMap::end())
         {
             obj = iter->second;
-            obj->addRef();
+            obj->incRef();
         }
         return obj;
     }

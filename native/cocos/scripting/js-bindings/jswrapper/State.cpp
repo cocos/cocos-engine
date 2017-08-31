@@ -21,7 +21,7 @@ namespace se {
     
     State::~State()
     {
-        SAFE_RELEASE(_thisObject);
+        SAFE_DEC_REF(_thisObject);
     }
     
     State::State(void* nativeThisObject)
@@ -40,12 +40,12 @@ namespace se {
     
     State::State(Object* thisObject, const ValueArray& args)
     : _nativeThisObject(nullptr)
-    , _thisObject(thisObject) //FIXME: need to retain thisObject, and remove addRef in constructor and ctor bindings code.
+    , _thisObject(thisObject)
     , _args(&args)
     {
         if (_thisObject != nullptr)
         {
-            _thisObject->addRef();
+            _thisObject->incRef();
         }
     }
     

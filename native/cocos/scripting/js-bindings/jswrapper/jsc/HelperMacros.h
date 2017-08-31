@@ -10,8 +10,8 @@
 #define SE_UNUSED
 #endif
 
-#define SAFE_ADD_REF(obj) if (obj != nullptr) obj->addRef()
-#define SAFE_RELEASE(obj) if (obj != nullptr) obj->release()
+#define SAFE_INC_REF(obj) if (obj != nullptr) obj->incRef()
+#define SAFE_DEC_REF(obj) if (obj != nullptr) obj->decRef()
 
 #define _SE(name) name##Registry
 
@@ -51,7 +51,7 @@
             if (_thisObject) _thisObject->_cleanup(nativeThisObject); \
             ret = funcName(state); \
             JSObjectSetPrivate(_obj, nullptr); \
-            SAFE_RELEASE(_thisObject); \
+            SAFE_DEC_REF(_thisObject); \
         } \
         se->_setInGC(false); \
     }

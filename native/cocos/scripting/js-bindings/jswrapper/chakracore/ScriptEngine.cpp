@@ -141,7 +141,7 @@ namespace se {
         }
         _beforeCleanupHookArray.clear();
 
-        SAFE_RELEASE(_globalObj);
+        SAFE_DEC_REF(_globalObj);
         Object::cleanup();
         Class::cleanup();
         gc();

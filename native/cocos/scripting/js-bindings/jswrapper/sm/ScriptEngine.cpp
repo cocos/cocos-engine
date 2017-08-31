@@ -256,7 +256,7 @@ namespace se {
             {
                 if (obj->updateAfterGC(data))
                 {
-                    obj->release();
+                    obj->decRef();
                     iter = NativePtrToObjectMap::erase(iter);
                     isIterUpdated = true;
                 }
@@ -264,7 +264,7 @@ namespace se {
             else if (isInCleanup) // Rooted and in cleanup step
             {
                 obj->unprotect();
-                obj->release();
+                obj->decRef();
                 iter = NativePtrToObjectMap::erase(iter);
                 isIterUpdated = true;
             }
@@ -403,7 +403,7 @@ namespace se {
         auto sc = getPromiseState(_cx);
         sc->quitting = true;
 
-        SAFE_RELEASE(_globalObj);
+        SAFE_DEC_REF(_globalObj);
         Class::cleanup();
         Object::cleanup();
 

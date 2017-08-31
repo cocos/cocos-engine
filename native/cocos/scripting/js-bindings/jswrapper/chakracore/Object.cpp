@@ -106,7 +106,7 @@ namespace se {
         if (iter != NativePtrToObjectMap::end())
         {
             obj = iter->second;
-            obj->addRef();
+            obj->incRef();
         }
         return obj;
     }
@@ -186,7 +186,7 @@ namespace se {
             {
                 obj = e.second;
                 obj->_isCleanup = true; // _cleanup will invoke NativePtrToObjectMap::erase method which will break this for loop. It isn't needed at ScriptEngine::cleanup step.
-                obj->release();
+                obj->decRef();
             }
             NativePtrToObjectMap::clear();
             NonRefNativePtrCreatedByCtorMap::clear();

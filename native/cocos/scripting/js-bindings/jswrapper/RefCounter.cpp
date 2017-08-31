@@ -6,16 +6,16 @@
 //
 //
 
-#include "Ref.hpp"
+#include "RefCounter.hpp"
 
 namespace se {
 
-    void Ref::addRef()
+    void RefCounter::incRef()
     {
         ++_refCount;
     }
 
-    void Ref::release()
+    void RefCounter::decRef()
     {
         --_refCount;
         if (_refCount == 0)
@@ -24,20 +24,18 @@ namespace se {
         }
     }
 
-    unsigned int Ref::getReferenceCount()
+    unsigned int RefCounter::getRefCount()
     {
         return _refCount;
     }
 
-    Ref::Ref()
+    RefCounter::RefCounter()
     : _refCount(1)
     {
-
     }
 
-    Ref::~Ref()
+    RefCounter::~RefCounter()
     {
-
     }
 
 } // namespace se {

@@ -160,7 +160,7 @@ namespace se {
                     obj = Object::_createJSObject(nullptr, jsobj);
                 }
                 data->setObject(obj, true);
-                obj->release();
+                obj->decRef();
             }
         }
         else
