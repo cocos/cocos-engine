@@ -500,4 +500,32 @@
 
         cc.js.unregisterClass(Data);
     });
+
+    test('formerlySerializedAs attribute', function () {
+        var MyAsset = cc.Class({
+            name: 'MyAsset',
+            properties: {
+                newRefSelf: {
+                    default: null,
+                    formerlySerializedAs: 'oldRefSelf'
+                },
+            }
+        });
+        var asset = new MyAsset();
+        asset.newRefSelf = asset;
+
+        var expect = {
+            __type__: 'MyAsset',
+            newRefSelf: {
+                __id__: 0
+            },
+            oldRefSelf: {
+                __id__: 0
+            },
+        };
+
+        match(asset, expect, 'test');
+
+        cc.js.unregisterClass(MyAsset);
+    });
 }

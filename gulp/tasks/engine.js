@@ -151,6 +151,8 @@ exports.buildPreview = function (sourceFile, outputFile, callback) {
 };
 
 exports.buildJsbPreview = function (sourceFile, outputFile, jsbSkipModules, callback) {
+    var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
+
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
@@ -163,6 +165,7 @@ exports.buildJsbPreview = function (sourceFile, outputFile, jsbSkipModules, call
         .pipe(HandleErrors())
         .pipe(Source(outFile))
         .pipe(Buffer())
+        .pipe(FixJavaScriptCore())
         .pipe(Minify(Utils.getUglifyOptions('preview', true, false)))
         .pipe(Optimizejs({
             sourceMap: false

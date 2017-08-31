@@ -496,27 +496,27 @@ var _Deserializer = (function () {
     //     }
     // }
 
-    function compileObjectType (sources, defaultValue, accessor, propNameLiteral, assumeHavePropIfIsValue) {
+    function compileObjectType (sources, defaultValue, accessorToSet, propNameLiteralToSet, assumeHavePropIfIsValue) {
         if (defaultValue instanceof cc.ValueType) {
             // fast case
             if (!assumeHavePropIfIsValue) {
                 sources.push('if(prop){');
             }
             var ctorCode = JS.getClassName(defaultValue);
-            sources.push(`s._deserializeTypedObject(o${accessor},prop,${ctorCode});`);
+            sources.push(`s._deserializeTypedObject(o${accessorToSet},prop,${ctorCode});`);
             if (!assumeHavePropIfIsValue) {
-                sources.push('}else o' + accessor + '=null;');
+                sources.push('}else o' + accessorToSet + '=null;');
             }
         }
         else {
             sources.push('if(prop){');
             if (CC_EDITOR || CC_TEST) {
-                sources.push('s._deserializeObjField(o,prop,' + propNameLiteral + ',t&&o);');
+                sources.push('s._deserializeObjField(o,prop,' + propNameLiteralToSet + ',t&&o);');
             }
             else {
-                sources.push('s._deserializeObjField(o,prop,' + propNameLiteral + ');');
+                sources.push('s._deserializeObjField(o,prop,' + propNameLiteralToSet + ');');
             }
-            sources.push('}else o' + accessor + '=null;');
+            sources.push('}else o' + accessorToSet + '=null;');
         }
     }
 
@@ -526,6 +526,7 @@ var _Deserializer = (function () {
         var SERIALIZABLE = Attr.DELIMETER + 'serializable';
         var DEFAULT = Attr.DELIMETER + 'default';
         var SAVE_URL_AS_ASSET = Attr.DELIMETER + 'saveUrlAsAsset';
+        var FORMERLY_SERIALIZED_AS = Attr.DELIMETER + 'formerlySerializedAs';
         var attrs = Attr.getClassAttrs(klass);
 
         var props = klass.__props__;
@@ -537,7 +538,7 @@ var _Deserializer = (function () {
         // sources.push('var vb,vn,vs,vo,vu,vf;');    // boolean, number, string, object, undefined, function
         for (var p = 0; p < props.length; p++) {
             var propName = props[p];
-            var propNameLiteral;
+            var propNameLiteralToSet;
             var rawType = attrs[propName + RAW_TYPE];
             if (!rawType) {
                 if ((CC_PREVIEW || (CC_EDITOR && self._ignoreEditorOnly)) && attrs[propName + EDITOR_ONLY]) {
@@ -550,17 +551,28 @@ var _Deserializer = (function () {
                     continue;   // skip nonSerialized
                 }
 
-                var accessor;
+                var accessorToSet;
                 if (CCClass.IDENTIFIER_RE.test(propName)) {
-                    propNameLiteral = '"' + propName + '"';
-                    accessor = '.' + propName;
+                    propNameLiteralToSet = '"' + propName + '"';
+                    accessorToSet = '.' + propName;
                 }
                 else {
-                    propNameLiteral = CCClass.escapeForJS(propName);
-                    accessor = '[' + propNameLiteral + ']';
+                    propNameLiteralToSet = CCClass.escapeForJS(propName);
+                    accessorToSet = '[' + propNameLiteralToSet + ']';
                 }
 
-                sources.push('prop=d' + accessor + ';');
+                var accessorToGet = accessorToSet;
+                if (attrs[propName + FORMERLY_SERIALIZED_AS]) {
+                    var propNameToRead = attrs[propName + FORMERLY_SERIALIZED_AS];
+                    if (CCClass.IDENTIFIER_RE.test(propNameToRead)) {
+                        accessorToGet = '.' + propNameToRead;
+                    }
+                    else {
+                        accessorToGet = '[' + CCClass.escapeForJS(propNameToRead) + ']';
+                    }
+                }
+
+                sources.push('prop=d' + accessorToGet + ';');
                 sources.push(`if(typeof ${CC_JSB ? '(prop)' : 'prop'}!=="undefined"){`);
 
                 // function undefined object(null) string boolean number
@@ -571,33 +583,33 @@ var _Deserializer = (function () {
                                           defaultType === 'number' ||
                                           defaultType === 'boolean';
                     if (isPrimitiveType) {
-                        sources.push(`o${accessor}=prop;`);
+                        sources.push(`o${accessorToSet}=prop;`);
                     }
                     else {
-                        compileObjectType(sources, defaultValue, accessor, propNameLiteral, true);
+                        compileObjectType(sources, defaultValue, accessorToSet, propNameLiteralToSet, true);
                     }
                 }
                 else {
                     sources.push(`if(typeof ${CC_JSB ? '(prop)' : 'prop'}!=="object"){` +
-                                     'o' + accessor + '=prop;' +
+                                     'o' + accessorToSet + '=prop;' +
                                  '}else{');
-                    compileObjectType(sources, defaultValue, accessor, propNameLiteral, false);
+                    compileObjectType(sources, defaultValue, accessorToSet, propNameLiteralToSet, false);
                     sources.push('}');
                 }
                 sources.push('}');
             }
             else {
                 if (CCClass.IDENTIFIER_RE.test(propName)) {
-                    propNameLiteral = '"' + propName + '"';
+                    propNameLiteralToSet = '"' + propName + '"';
                 }
                 else {
-                    propNameLiteral = CCClass.escapeForJS(propName);
+                    propNameLiteralToSet = CCClass.escapeForJS(propName);
                 }
                 // always load raw objects even if property not serialized
                 // 这里假定每个asset都有uuid，每个json只能包含一个asset，只能包含一个rawProp
                 sources.push('if(s.result.rawProp)\n' +
                                 'cc.error("not support multi raw object in a file");');
-                sources.push('s.result.rawProp=' + propNameLiteral + ';');
+                sources.push('s.result.rawProp=' + propNameLiteralToSet + ';');
             }
         }
         if (props[props.length - 1] === '_$erialized') {

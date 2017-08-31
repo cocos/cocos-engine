@@ -1110,6 +1110,8 @@ function parseAttributes (cls, attrs, className, propName, usedInGetter) {
             (attrsProto || getAttrsProto())[attrsProtoKey + 'serializable'] = false;
         }
     }
+    parseSimpleAttr('formerlySerializedAs', 'string');
+
     if (CC_EDITOR) {
         if ('animatable' in attrs && !attrs.animatable) {
             (attrsProto || getAttrsProto())[attrsProtoKey + 'animatable'] = false;
