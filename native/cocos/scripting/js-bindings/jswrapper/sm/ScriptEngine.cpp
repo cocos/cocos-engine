@@ -101,13 +101,13 @@ namespace se {
              * garbage collected. */
             if (status == JSGC_BEGIN)
             {
-                ScriptEngine::getInstance()->_setInGC(true);
+                ScriptEngine::getInstance()->_setGarbageCollecting(true);
                 LOGD("on_garbage_collect: begin, Native -> JS map count: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
             }
             else if (status == JSGC_END)
             {
                 LOGD("on_garbage_collect: end, Native -> JS map count: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
-                ScriptEngine::getInstance()->_setInGC(false);
+                ScriptEngine::getInstance()->_setGarbageCollecting(false);
             }
         }
 
@@ -226,7 +226,7 @@ namespace se {
             : _cx(nullptr)
             , _globalObj(nullptr)
             , _oldCompartment(nullptr)
-            , _isInGC(false)
+            , _isGarbageCollecting(false)
             , _isValid(false)
             , _isInCleanup(false)
             , _nodeEventListener(nullptr)
@@ -462,14 +462,14 @@ namespace se {
         _afterInitHookArray.push_back(hook);
     }
 
-    bool ScriptEngine::isInGC()
+    bool ScriptEngine::isGarbageCollecting()
     {
-        return _isInGC;
+        return _isGarbageCollecting;
     }
 
-    void ScriptEngine::_setInGC(bool isInGC)
+    void ScriptEngine::_setGarbageCollecting(bool isGarbageCollecting)
     {
-        _isInGC = isInGC;
+        _isGarbageCollecting = isGarbageCollecting;
     }
 
     Object* ScriptEngine::getGlobalObject()

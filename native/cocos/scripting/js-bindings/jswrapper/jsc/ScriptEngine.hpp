@@ -170,12 +170,12 @@ namespace se {
          *  @brief Tests whether script engine is doing garbage collection.
          *  @return true if it's in garbage collection, otherwise false.
          */
-        bool isInGC();
+        bool isGarbageCollecting();
 
         /**
          *  @brief Performs a JavaScript garbage collection.
          */
-        void gc();
+        void garbageCollect();
 
         /**
          *  @brief Tests whether script engine is being cleaned up.
@@ -220,7 +220,7 @@ namespace se {
 
         JSContextRef _getContext() const { return _cx; }
 
-        void _setInGC(bool isInGC);
+        void _setGarbageCollecting(bool isGarbageCollecting);
         //
     private:
 
@@ -231,7 +231,7 @@ namespace se {
 
         Object* _globalObj;
 
-        bool _isInGC;
+        bool _isGarbageCollecting;
         bool _isValid;
         bool _isInCleanup;
         NodeEventListener _nodeEventListener;

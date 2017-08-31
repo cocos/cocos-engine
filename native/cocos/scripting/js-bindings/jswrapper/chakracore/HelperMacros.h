@@ -41,14 +41,14 @@
         if (nativeThisObject != nullptr) \
         { \
             auto se = se::ScriptEngine::getInstance(); \
-            se->_setInGC(true); \
+            se->_setGarbageCollecting(true); \
             bool ret = false; \
             se::State state(nativeThisObject); \
             se::Object* _thisObject = state.thisObject(); \
             if (_thisObject) _thisObject->_cleanup(nativeThisObject); \
             ret = funcName(state); \
             SAFE_DEC_REF(_thisObject); \
-            se->_setInGC(false); \
+            se->_setGarbageCollecting(false); \
         } \
     }
 

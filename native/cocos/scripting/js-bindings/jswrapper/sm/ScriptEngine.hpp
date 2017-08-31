@@ -92,9 +92,9 @@ namespace se {
 
         JSContext* _getContext() { return _cx; }
 
-        bool isInGC();
-        void _setInGC(bool isInGC);
-        void gc() { JS_GC( _cx );  }
+        bool isGarbageCollecting();
+        void _setGarbageCollecting(bool isGarbageCollecting);
+        void garbageCollect() { JS_GC( _cx );  }
 
         bool isValid() { return _isValid; }
         bool isInCleanup() { return _isInCleanup; }
@@ -131,7 +131,7 @@ namespace se {
 
         Object* _globalObj;
 
-        bool _isInGC;
+        bool _isGarbageCollecting;
         bool _isValid;
         bool _isInCleanup;
         NodeEventListener _nodeEventListener;

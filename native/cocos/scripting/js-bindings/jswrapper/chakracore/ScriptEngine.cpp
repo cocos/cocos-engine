@@ -16,7 +16,7 @@ namespace se {
 
         JsValueRef __forceGC(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
         {
-            ScriptEngine::getInstance()->gc();
+            ScriptEngine::getInstance()->garbageCollect();
             return JS_INVALID_REFERENCE;
         }
 
@@ -72,7 +72,7 @@ namespace se {
             , _globalObj(nullptr)
             , _isValid(false)
             , _isInCleanup(false)
-            , _isInGC(false)
+            , _isGarbageCollecting(false)
             , _currentSourceContext(0)
     {
     }
@@ -144,7 +144,7 @@ namespace se {
         SAFE_DEC_REF(_globalObj);
         Object::cleanup();
         Class::cleanup();
-        gc();
+        garbageCollect();
 
         _CHECK(JsSetCurrentContext(JS_INVALID_REFERENCE));
         _CHECK(JsDisposeRuntime(_rt));
@@ -272,17 +272,17 @@ namespace se {
         return ok;
     }
 
-    bool ScriptEngine::isInGC()
+    bool ScriptEngine::isGarbageCollecting()
     {
-        return _isInGC;
+        return _isGarbageCollecting;
     }
 
-    void ScriptEngine::_setInGC(bool isInGC)
+    void ScriptEngine::_setGarbageCollecting(bool isGarbageCollecting)
     {
-        _isInGC = isInGC;
+        _isGarbageCollecting = isGarbageCollecting;
     }
 
-    void ScriptEngine::gc()
+    void ScriptEngine::garbageCollect()
     {
         LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
         _CHECK(JsCollectGarbage(_rt));

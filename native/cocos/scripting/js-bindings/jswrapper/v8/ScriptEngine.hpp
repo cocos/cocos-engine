@@ -126,9 +126,9 @@ namespace se {
          */
         bool runScript(const std::string& path, Value* ret = nullptr);
 
-        bool isInGC();
-        void _setInGC(bool isInGC);
-        void gc();
+        bool isGarbageCollecting();
+        void _setGarbageCollecting(bool isGarbageCollecting);
+        void garbageCollect();
 
         bool isValid() const;
         bool isInCleanup() { return _isInCleanup; }
@@ -169,7 +169,7 @@ namespace se {
         Object* _globalObj;
 
         bool _isValid;
-        bool _isInGC;
+        bool _isGarbageCollecting;
         bool _isInCleanup;
         NodeEventListener _nodeEventListener;
 

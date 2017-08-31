@@ -40,10 +40,10 @@
         if (nativeThisObject == nullptr) \
             return; \
         auto se = se::ScriptEngine::getInstance(); \
-        se->_setInGC(true); \
+        se->_setGarbageCollecting(true); \
         se::State state(nativeThisObject); \
         SE_UNUSED bool ok = funcName(state); \
-        se->_setInGC(false); \
+        se->_setGarbageCollecting(false); \
     }
 
 #define SE_DECLARE_FINALIZE_FUNC(funcName) \

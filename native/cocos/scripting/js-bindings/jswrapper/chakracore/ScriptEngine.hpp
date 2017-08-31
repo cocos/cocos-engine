@@ -106,9 +106,9 @@ namespace se {
          */
         bool runScript(const std::string& path, Value* ret = nullptr);
 
-        bool isInGC();
-        void _setInGC(bool isInGC);
-        void gc();
+        bool isGarbageCollecting();
+        void _setGarbageCollecting(bool isGarbageCollecting);
+        void garbageCollect();
 
         bool isValid() { return _isValid; }
         bool isInCleanup() { return _isInCleanup; }
@@ -142,7 +142,7 @@ namespace se {
 
         bool _isValid;
         bool _isInCleanup;
-        bool _isInGC;
+        bool _isGarbageCollecting;
         unsigned _currentSourceContext;
         NodeEventListener _nodeEventListener;
 

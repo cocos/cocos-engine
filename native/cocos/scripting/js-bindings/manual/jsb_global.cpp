@@ -466,7 +466,7 @@ namespace {
 
 static bool jsc_garbageCollect(se::State& s)
 {
-    se::ScriptEngine::getInstance()->gc();
+    se::ScriptEngine::getInstance()->garbageCollect();
     return true;
 }
 SE_BIND_FUNC(jsc_garbageCollect)

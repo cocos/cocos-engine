@@ -41,7 +41,7 @@ namespace se {
 
         void __forceGC(const v8::FunctionCallbackInfo<v8::Value>& info)
         {
-            ScriptEngine::getInstance()->gc();
+            ScriptEngine::getInstance()->garbageCollect();
         }
 
         void myFatalErrorCallback(const char* location, const char* message)
@@ -114,7 +114,7 @@ namespace se {
     , _allocator(nullptr)
     , _globalObj(nullptr)
     , _isValid(false)
-    , _isInGC(false)
+    , _isGarbageCollecting(false)
     , _isInCleanup(false)
     , _nodeEventListener(nullptr)
 #if SE_ENABLE_INSPECTOR
@@ -228,7 +228,7 @@ namespace se {
             SAFE_DEC_REF(_globalObj);
             Object::cleanup();
             Class::cleanup();
-            gc();
+            garbageCollect();
 
 #if SE_ENABLE_INSPECTOR
             _env->inspector_agent()->Stop();
@@ -320,7 +320,7 @@ namespace se {
         return ok;
     }
 
-    void ScriptEngine::gc()
+    void ScriptEngine::garbageCollect()
     {
         LOGD("GC begin ..., (js->native map) size: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
         const double kLongIdlePauseInSeconds = 1.0;
@@ -333,14 +333,14 @@ namespace se {
         LOGD("GC end ..., (js->native map) size: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
     }
 
-    bool ScriptEngine::isInGC()
+    bool ScriptEngine::isGarbageCollecting()
     {
-        return _isInGC;
+        return _isGarbageCollecting;
     }
 
-    void ScriptEngine::_setInGC(bool isInGC)
+    void ScriptEngine::_setGarbageCollecting(bool isGarbageCollecting)
     {
-        _isInGC = isInGC;
+        _isGarbageCollecting = isGarbageCollecting;
     }
 
     bool ScriptEngine::isValid() const
@@ -411,7 +411,7 @@ namespace se {
             return evalString(scriptBuffer.c_str(), scriptBuffer.length(), ret, path.c_str());
         }
 
-        LOGE("ScriptEngine::runScript script buffer is empty!\n");
+        LOGE("ScriptEngine::runScript script %s, buffer is empty!\n", path.c_str());
         return false;
     }
 

@@ -67,9 +67,9 @@ bool jsb_register_all_modules()
     });
 
     se->addBeforeCleanupHook([se](){
-        se->gc();
+        se->garbageCollect();
         PoolManager::getInstance()->getCurrentPool()->clear();
-        se->gc();
+        se->garbageCollect();
         PoolManager::getInstance()->getCurrentPool()->clear();
     });
 

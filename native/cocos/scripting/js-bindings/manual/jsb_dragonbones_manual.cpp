@@ -439,7 +439,7 @@ bool register_all_dragonbones_manual(se::Object* obj)
             }
         };
 
-        if (!se::ScriptEngine::getInstance()->isInGC())
+        if (!se::ScriptEngine::getInstance()->isGarbageCollecting())
         {
             cleanup();
         }
