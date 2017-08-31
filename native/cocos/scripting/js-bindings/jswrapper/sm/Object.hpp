@@ -6,13 +6,13 @@
 
 #include "Base.h"
 #include "../Value.hpp"
-#include "../Ref.hpp"
+#include "../RefCounter.hpp"
 
 namespace se {
 
     class Class;
 
-    class Object final : public Ref
+    class Object final : public RefCounter
     {
     public:
         static Object* createPlainObject();

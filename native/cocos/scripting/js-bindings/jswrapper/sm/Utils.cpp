@@ -137,7 +137,7 @@ namespace se {
                 object = Object::_createJSObject(nullptr, jsval.toObjectOrNull());
             }
             v->setObject(object, true);
-            object->release();
+            object->decRef();
         }
         else if (jsval.isNull())
         {
@@ -225,7 +225,7 @@ namespace se {
 
             JS::RootedValue privateVal(cx, JS::ObjectValue(*privateObj->_getJSObject()));
             JS_SetProperty(cx, obj, KEY_PRIVATE_DATA, privateVal);
-            privateObj->release();
+            privateObj->decRef();
         }
     }
 

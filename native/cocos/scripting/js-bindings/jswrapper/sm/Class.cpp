@@ -57,11 +57,11 @@ namespace se {
 
         _parent = parent;
         if (_parent != nullptr)
-            _parent->addRef();
+            _parent->incRef();
 
         _parentProto = parentProto;
         if (_parentProto != nullptr)
-            _parentProto->addRef();
+            _parentProto->incRef();
 
         _ctor = ctor;
         if (_ctor == nullptr)
@@ -75,9 +75,9 @@ namespace se {
 
     void Class::destroy()
     {
-        SAFE_RELEASE(_parent);
-        SAFE_RELEASE(_proto);
-        SAFE_RELEASE(_parentProto);
+        SAFE_DEC_REF(_parent);
+        SAFE_DEC_REF(_proto);
+        SAFE_DEC_REF(_parentProto);
     }
 
     bool Class::install()

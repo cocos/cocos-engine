@@ -211,7 +211,7 @@ namespace se {
                         {
                             _u._object->unroot();
                         }
-                        _u._object->release();
+                        _u._object->decRef();
                     }
                     _u._object = v._u._object;
                     _autoRootUnroot = v._autoRootUnroot;
@@ -370,7 +370,7 @@ namespace se {
         {
             if (object != nullptr)
             {
-                object->addRef();
+                object->incRef();
                 if (autoRootUnroot)
                 {
                     object->root();
@@ -383,7 +383,7 @@ namespace se {
                 {
                     _u._object->unroot();
                 }
-                _u._object->release();
+                _u._object->decRef();
             }
             _u._object = object;
             _autoRootUnroot = autoRootUnroot;
@@ -539,7 +539,7 @@ namespace se {
                         {
                             _u._object->unroot();
                         }
-                        _u._object->release();
+                        _u._object->decRef();
                         _u._object = nullptr;
                     }
 

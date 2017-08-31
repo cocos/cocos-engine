@@ -430,7 +430,7 @@ bool register_all_dragonbones_manual(se::Object* obj)
                 se::Object* seObj = iter->second;
                 seObj->clearPrivateData();
                 seObj->unroot();
-                seObj->release();
+                seObj->decRef();
             }
             else
             {

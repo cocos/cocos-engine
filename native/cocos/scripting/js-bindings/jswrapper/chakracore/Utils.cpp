@@ -127,7 +127,7 @@ namespace se {
                 obj = Object::_createJSObject(nullptr, jsValue);
             }
             data->setObject(obj, true);
-            obj->release();
+            obj->decRef();
         }
         else
         {

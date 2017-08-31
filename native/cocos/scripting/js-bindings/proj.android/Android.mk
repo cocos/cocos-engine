@@ -8,7 +8,7 @@ LOCAL_MODULE_FILENAME := libjscocos2d
 LOCAL_ARM_MODE := arm
 
 LOCAL_SRC_FILES := \
-					../jswrapper/Ref.cpp \
+					../jswrapper/RefCounter.cpp \
 					../jswrapper/State.cpp \
 					../jswrapper/Value.cpp \
 					../jswrapper/HandleObject.cpp \

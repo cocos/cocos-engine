@@ -214,7 +214,7 @@ bool recreate_seval_by_native_ptr(typename std::enable_if<!std::is_base_of<cocos
     {
         se::Object* seObj = iter->second;
         seObj->clearPrivateData();
-        seObj->release();
+        seObj->decRef();
     }
 
     se::Object* obj = se::Object::createObjectWithClass(cls);

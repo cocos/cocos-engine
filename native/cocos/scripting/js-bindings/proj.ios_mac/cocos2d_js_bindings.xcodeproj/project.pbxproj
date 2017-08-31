@@ -141,10 +141,10 @@
 		1AFD36611EF115100097DBB1 /* Utils.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1AFD36111EF115100097DBB1 /* Utils.hpp */; };
 		1AFD36621EF115100097DBB1 /* Object.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1AFD36121EF115100097DBB1 /* Object.hpp */; };
 		1AFD36631EF115100097DBB1 /* Object.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1AFD36121EF115100097DBB1 /* Object.hpp */; };
-		1AFD36641EF115100097DBB1 /* Ref.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AFD36131EF115100097DBB1 /* Ref.cpp */; };
-		1AFD36651EF115100097DBB1 /* Ref.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AFD36131EF115100097DBB1 /* Ref.cpp */; };
-		1AFD36661EF115100097DBB1 /* Ref.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1AFD36141EF115100097DBB1 /* Ref.hpp */; };
-		1AFD36671EF115100097DBB1 /* Ref.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1AFD36141EF115100097DBB1 /* Ref.hpp */; };
+		1AFD36641EF115100097DBB1 /* RefCounter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AFD36131EF115100097DBB1 /* RefCounter.cpp */; };
+		1AFD36651EF115100097DBB1 /* RefCounter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AFD36131EF115100097DBB1 /* RefCounter.cpp */; };
+		1AFD36661EF115100097DBB1 /* RefCounter.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1AFD36141EF115100097DBB1 /* RefCounter.hpp */; };
+		1AFD36671EF115100097DBB1 /* RefCounter.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1AFD36141EF115100097DBB1 /* RefCounter.hpp */; };
 		1AFD36681EF115100097DBB1 /* SeApi.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFD36151EF115100097DBB1 /* SeApi.h */; };
 		1AFD36691EF115100097DBB1 /* SeApi.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFD36151EF115100097DBB1 /* SeApi.h */; };
 		1AFD366A1EF115100097DBB1 /* Base.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFD36171EF115100097DBB1 /* Base.h */; };
@@ -349,8 +349,8 @@
 		1AFD36101EF115100097DBB1 /* Utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Utils.cpp; sourceTree = "<group>"; };
 		1AFD36111EF115100097DBB1 /* Utils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Utils.hpp; sourceTree = "<group>"; };
 		1AFD36121EF115100097DBB1 /* Object.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Object.hpp; sourceTree = "<group>"; };
-		1AFD36131EF115100097DBB1 /* Ref.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Ref.cpp; sourceTree = "<group>"; };
-		1AFD36141EF115100097DBB1 /* Ref.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Ref.hpp; sourceTree = "<group>"; };
+		1AFD36131EF115100097DBB1 /* RefCounter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RefCounter.cpp; sourceTree = "<group>"; };
+		1AFD36141EF115100097DBB1 /* RefCounter.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RefCounter.hpp; sourceTree = "<group>"; };
 		1AFD36151EF115100097DBB1 /* SeApi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SeApi.h; sourceTree = "<group>"; };
 		1AFD36171EF115100097DBB1 /* Base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Base.h; sourceTree = "<group>"; };
 		1AFD36181EF115100097DBB1 /* Class.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Class.cpp; sourceTree = "<group>"; };
@@ -532,8 +532,8 @@
 				1AFD35F91EF115100097DBB1 /* chakracore */,
 				1AFD36051EF115100097DBB1 /* config.hpp */,
 				1AFD36121EF115100097DBB1 /* Object.hpp */,
-				1AFD36131EF115100097DBB1 /* Ref.cpp */,
-				1AFD36141EF115100097DBB1 /* Ref.hpp */,
+				1AFD36131EF115100097DBB1 /* RefCounter.cpp */,
+				1AFD36141EF115100097DBB1 /* RefCounter.hpp */,
 				1AFD36151EF115100097DBB1 /* SeApi.h */,
 				1AFD36221EF115100097DBB1 /* State.cpp */,
 				1AFD36231EF115100097DBB1 /* State.hpp */,
@@ -675,7 +675,7 @@
 				1A7759D31F340FB10012A210 /* inspector_socket_server.h in Headers */,
 				1A5F228C1F0DDD6B0008BF09 /* jsb_dragonbones_manual.hpp in Headers */,
 				1AFD367A1EF115100097DBB1 /* SeApi.h in Headers */,
-				1AFD36661EF115100097DBB1 /* Ref.hpp in Headers */,
+				1AFD36661EF115100097DBB1 /* RefCounter.hpp in Headers */,
 				1AFD36561EF115100097DBB1 /* Object.hpp in Headers */,
 				1AFD36FC1EF116190097DBB1 /* jsb_xmlhttprequest.hpp in Headers */,
 				1AFD36921EF115100097DBB1 /* ObjectWrap.h in Headers */,
@@ -748,7 +748,7 @@
 				1AFD36991EF115100097DBB1 /* SeApi.h in Headers */,
 				1AFD366B1EF115100097DBB1 /* Base.h in Headers */,
 				1AFD36A11EF115100097DBB1 /* Value.hpp in Headers */,
-				1AFD36671EF115100097DBB1 /* Ref.hpp in Headers */,
+				1AFD36671EF115100097DBB1 /* RefCounter.hpp in Headers */,
 				1AFD36571EF115100097DBB1 /* Object.hpp in Headers */,
 				FA6F1BB61D815C2C007DD223 /* jsb_cocos2dx_dragonbones_auto.hpp in Headers */,
 				1AFD36CD1EF116190097DBB1 /* jsb_cocos2dx_extension_manual.hpp in Headers */,
@@ -895,7 +895,7 @@
 				1AFD364E1EF115100097DBB1 /* Class.cpp in Sources */,
 				1AFD365E1EF115100097DBB1 /* Utils.cpp in Sources */,
 				1AFD36C61EF116190097DBB1 /* jsb_classtype.cpp in Sources */,
-				1AFD36641EF115100097DBB1 /* Ref.cpp in Sources */,
+				1AFD36641EF115100097DBB1 /* RefCounter.cpp in Sources */,
 				1A9F0F9D1F30235C00A499E1 /* jsb_helper.cpp in Sources */,
 				1A7759C91F340FB10012A210 /* inspector_agent.cc in Sources */,
 				1AFD36361EF115100097DBB1 /* Class.cpp in Sources */,
@@ -973,7 +973,7 @@
 				BAF638DD1B5F5DC900CDB43A /* jsb_cocos2dx_audioengine_auto.cpp in Sources */,
 				1A5F228B1F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp in Sources */,
 				1AB5E62C18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.cpp in Sources */,
-				1AFD36651EF115100097DBB1 /* Ref.cpp in Sources */,
+				1AFD36651EF115100097DBB1 /* RefCounter.cpp in Sources */,
 				BA4F59851E28DCD3003F5096 /* jsb_cocos2dx_network_auto.cpp in Sources */,
 				1A210D951F456821006CCBAE /* MappingUtils.cpp in Sources */,
 				1A119E9C18BDF19200352BAA /* jsb_cocos2dx_spine_auto.cpp in Sources */,

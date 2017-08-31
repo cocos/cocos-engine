@@ -25,7 +25,7 @@ HandleObject::~HandleObject()
     if (_obj != nullptr)
     {
         _obj->unroot();
-        _obj->release();
+        _obj->decRef();
     }
 }
 

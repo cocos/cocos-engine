@@ -23,7 +23,7 @@ class Object;
         otherObject->setProperty("foo", se::Value(obj));
         
         obj->unroot(); // unroot object after obj is used.
-        obj->release(); // release object to avoid memory leak.
+        obj->decRef(); // Decrement referent count to avoid memory leak.
     }
  
  HandleObject should not be used to create a native binding object since the created binding object

@@ -6,7 +6,7 @@
 
 #include "Base.h"
 #include "../Value.hpp"
-#include "../Ref.hpp"
+#include "../RefCounter.hpp"
 
 namespace se {
 
@@ -15,7 +15,7 @@ namespace se {
     /**
      * se::Object represents JavaScript Object.
      */
-    class Object final : public Ref
+    class Object final : public RefCounter
     {
     public:
         /**

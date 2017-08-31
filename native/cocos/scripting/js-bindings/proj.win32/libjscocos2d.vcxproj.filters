@@ -101,7 +101,7 @@
     <ClCompile Include="..\jswrapper\HandleObject.cpp">
       <Filter>jswrapper</Filter>
     </ClCompile>
-    <ClCompile Include="..\jswrapper\Ref.cpp">
+    <ClCompile Include="..\jswrapper\RefCounter.cpp">
       <Filter>jswrapper</Filter>
     </ClCompile>
     <ClCompile Include="..\jswrapper\State.cpp">
@@ -253,7 +253,7 @@
     <ClInclude Include="..\jswrapper\Object.hpp">
       <Filter>jswrapper</Filter>
     </ClInclude>
-    <ClInclude Include="..\jswrapper\Ref.hpp">
+    <ClInclude Include="..\jswrapper\RefCounter.hpp">
       <Filter>jswrapper</Filter>
     </ClInclude>
     <ClInclude Include="..\jswrapper\SeApi.h">

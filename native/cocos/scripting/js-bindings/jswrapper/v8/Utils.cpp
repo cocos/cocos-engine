@@ -109,7 +109,7 @@ namespace se {
                         obj = Object::_createJSObject(nullptr, jsObj.ToLocalChecked());
                     }
                     v->setObject(obj, true);
-                    obj->release();
+                    obj->decRef();
                 }
                 else
                 {
@@ -192,7 +192,7 @@ namespace se {
                 v8::Maybe<bool> ret = obj->Set(isolate->GetCurrentContext(), key.ToLocalChecked(), privateObj->_getJSObject());
                 assert(!ret.IsNothing());
 //                LOGD("setPrivate: native data: %p\n", privateData);
-//                privateObj->release(); // NOTE: it's released in ScriptEngine::privateDataFinalize
+//                privateObj->decRef(); // NOTE: it's released in ScriptEngine::privateDataFinalize
 
                 if (outInternalData != nullptr)
                     *outInternalData = privateData;

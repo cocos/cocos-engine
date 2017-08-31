@@ -294,7 +294,7 @@ static bool js_register_spine_TrackEntry(se::Object* obj)
                 se::Object* seObj = iter->second;
                 seObj->clearPrivateData();
                 seObj->unroot();
-                seObj->release();
+                seObj->decRef();
             }
         };
 

@@ -28,7 +28,7 @@ namespace se {
                 Object* _thisObject = state.thisObject();
                 if (_thisObject) _thisObject->_cleanup(nativeThisObject);
                 JSObjectSetPrivate(_obj, nullptr);
-                SAFE_RELEASE(_thisObject);
+                SAFE_DEC_REF(_thisObject);
             }
         }
     }
@@ -64,9 +64,9 @@ namespace se {
     {
         _name = clsName;
         _parent = parent;
-        SAFE_ADD_REF(_parent);
+        SAFE_INC_REF(_parent);
         _parentProto = parentProto;
-        SAFE_ADD_REF(_parentProto);
+        SAFE_INC_REF(_parentProto);
         _ctor = ctor;
         return true;
     }
@@ -230,9 +230,9 @@ namespace se {
 
     void Class::destroy()
     {
-        SAFE_RELEASE(_parent);
-        SAFE_RELEASE(_proto);
-        SAFE_RELEASE(_parentProto);
+        SAFE_DEC_REF(_parent);
+        SAFE_DEC_REF(_proto);
+        SAFE_DEC_REF(_parentProto);
 
         JSClassRelease(_jsCls);
     }

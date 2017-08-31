@@ -5,7 +5,7 @@
 #ifdef SCRIPT_ENGINE_V8
 
 #include "Base.h"
-#include "../Ref.hpp"
+#include "../RefCounter.hpp"
 #include "../Value.hpp"
 #include "ObjectWrap.h"
 
@@ -17,7 +17,7 @@ namespace se {
         struct PrivateData;
     }
 
-    class Object final : public Ref
+    class Object final : public RefCounter
     {
     public:
         static Object* createPlainObject();
