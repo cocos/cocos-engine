@@ -62,7 +62,7 @@ void ScriptingCore::rootScriptObject(Ref* target)
 
 void ScriptingCore::releaseScriptObject(Ref* owner, Ref* target)
 {
-    assert(!se::ScriptEngine::getInstance()->isInGC());
+    assert(!se::ScriptEngine::getInstance()->isGarbageCollecting());
     se::ScriptEngine::getInstance()->_releaseScriptObject(owner, target);
 }
 

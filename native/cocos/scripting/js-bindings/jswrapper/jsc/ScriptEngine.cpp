@@ -83,7 +83,7 @@ namespace se {
     ScriptEngine::ScriptEngine()
             : _cx(nullptr)
             , _globalObj(nullptr)
-            , _isInGC(false)
+            , _isGarbageCollecting(false)
             , _isValid(false)
             , _isInCleanup(false)
     {
@@ -169,7 +169,7 @@ namespace se {
         SAFE_DEC_REF(_globalObj);
         Object::cleanup();
         Class::cleanup();
-        gc();
+        garbageCollect();
 
         JSGlobalContextRelease(_cx);
 
@@ -243,14 +243,14 @@ namespace se {
         }
     }
 
-    bool ScriptEngine::isInGC()
+    bool ScriptEngine::isGarbageCollecting()
     {
-        return _isInGC;
+        return _isGarbageCollecting;
     }
 
-    void ScriptEngine::_setInGC(bool isInGC)
+    void ScriptEngine::_setGarbageCollecting(bool isGarbageCollecting)
     {
-        _isInGC = isInGC;
+        _isGarbageCollecting = isGarbageCollecting;
     }
 
     Object* ScriptEngine::getGlobalObject()
@@ -305,7 +305,7 @@ namespace se {
         return ok;
     }
 
-    void ScriptEngine::gc()
+    void ScriptEngine::garbageCollect()
     {
         LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
         // JSGarbageCollect(_cx);
@@ -388,7 +388,7 @@ namespace se {
             return evalString(scriptBuffer.c_str(), scriptBuffer.length(), ret, path.c_str());
         }
 
-        LOGE("ScriptEngine::runScript script buffer is empty!\n");
+        LOGE("ScriptEngine::runScript script %s, buffer is empty!\n", path.c_str());
         return false;
     }
 

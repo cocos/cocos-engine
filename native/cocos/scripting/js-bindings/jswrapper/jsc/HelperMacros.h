@@ -41,7 +41,7 @@
     void funcName##Registry(JSObjectRef _obj) \
     { \
         auto se = se::ScriptEngine::getInstance(); \
-        se->_setInGC(true); \
+        se->_setGarbageCollecting(true); \
         void* nativeThisObject = JSObjectGetPrivate(_obj); \
         if (nativeThisObject != nullptr) \
         { \
@@ -53,7 +53,7 @@
             JSObjectSetPrivate(_obj, nullptr); \
             SAFE_DEC_REF(_thisObject); \
         } \
-        se->_setInGC(false); \
+        se->_setGarbageCollecting(false); \
     }
 
 #define SE_DECLARE_FINALIZE_FUNC(funcName) \

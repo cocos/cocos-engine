@@ -298,7 +298,7 @@ static bool js_register_spine_TrackEntry(se::Object* obj)
             }
         };
 
-        if (!se::ScriptEngine::getInstance()->isInGC())
+        if (!se::ScriptEngine::getInstance()->isGarbageCollecting())
         {
             cleanup();
         }
