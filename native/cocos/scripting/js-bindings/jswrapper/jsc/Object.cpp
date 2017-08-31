@@ -177,7 +177,7 @@ namespace se {
 //            printf("Object::_cleanup, (%p) rootCount: %u\n", this, _rootCount);
             // Don't unprotect if it's in cleanup, otherwise, it will trigger crash.
             auto se = ScriptEngine::getInstance();
-            if (!se->_isInCleanup && !se->isInGC())
+            if (!se->isInCleanup() && !se->isInGC())
                 JSValueUnprotect(__cx, _obj);
 
             _rootCount = 0;
@@ -561,7 +561,7 @@ namespace se {
             {
                 // Don't unprotect if it's in cleanup, otherwise, it will trigger crash.
                 auto se = ScriptEngine::getInstance();
-                if (!se->_isInCleanup && !se->isInGC())
+                if (!se->isInCleanup() && !se->isInGC())
                     JSValueUnprotect(__cx, _obj);
             }
         }

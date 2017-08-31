@@ -44,7 +44,7 @@ bool jsb_run_script(const std::string& filePath)
     }
 
     se::AutoHandleScope hs;
-    return se::ScriptEngine::getInstance()->executeScriptFile(filePath);
+    return se::ScriptEngine::getInstance()->runScript(filePath);
 }
 
 namespace {

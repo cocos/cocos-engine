@@ -749,7 +749,7 @@ bool js_register_creator_Scale9SpriteV2(se::Object* obj)
     __jsb_creator_Scale9SpriteV2_proto = cls->getProto();
     __jsb_creator_Scale9SpriteV2_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { cc.Scale9SpriteV2.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { cc.Scale9SpriteV2.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -1518,7 +1518,7 @@ bool js_register_creator_GraphicsNode(se::Object* obj)
     __jsb_creator_GraphicsNode_proto = cls->getProto();
     __jsb_creator_GraphicsNode_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { cc.GraphicsNode.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { cc.GraphicsNode.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }

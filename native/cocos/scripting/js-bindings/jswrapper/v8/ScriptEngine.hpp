@@ -78,7 +78,7 @@ namespace se {
         void addBeforeCleanupHook(const std::function<void()>& hook);
         void addAfterCleanupHook(const std::function<void()>& hook);
 
-        bool executeScriptBuffer(const char* script, ssize_t length = -1, Value* ret = nullptr, const char* fileName = nullptr);
+        bool evalString(const char* script, ssize_t length = -1, Value* ret = nullptr, const char* fileName = nullptr);
 
         /**
          *  Delegate class for file operation
@@ -124,13 +124,14 @@ namespace se {
          *  @param[in] rval The se::Value that results from evaluating script. Passing nullptr if you don't care about the result.
          *  @return true if succeed, otherwise false.
          */
-        bool executeScriptFile(const std::string& path, Value* ret = nullptr);
+        bool runScript(const std::string& path, Value* ret = nullptr);
 
         bool isInGC();
         void _setInGC(bool isInGC);
         void gc();
 
         bool isValid() const;
+        bool isInCleanup() { return _isInCleanup; }
 
         void clearException();
 
@@ -169,6 +170,7 @@ namespace se {
 
         bool _isValid;
         bool _isInGC;
+        bool _isInCleanup;
         NodeEventListener _nodeEventListener;
 
         FileOperationDelegate _fileOperationDelegate;
