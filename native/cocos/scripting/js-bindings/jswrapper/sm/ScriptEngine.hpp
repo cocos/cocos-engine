@@ -58,7 +58,7 @@ namespace se {
         void addBeforeCleanupHook(const std::function<void()>& hook);
         void addAfterCleanupHook(const std::function<void()>& hook);
 
-        bool executeScriptBuffer(const char* string, ssize_t length = -1, Value* ret = nullptr, const char* fileName = nullptr);
+        bool evalString(const char* string, ssize_t length = -1, Value* ret = nullptr, const char* fileName = nullptr);
 
         class FileOperationDelegate
         {
@@ -88,7 +88,7 @@ namespace se {
 
         void setFileOperationDelegate(const FileOperationDelegate& delegate);
 
-        bool executeScriptFile(const std::string& fullPath, Value* ret = nullptr);
+        bool runScript(const std::string& fullPath, Value* ret = nullptr);
 
         JSContext* _getContext() { return _cx; }
 

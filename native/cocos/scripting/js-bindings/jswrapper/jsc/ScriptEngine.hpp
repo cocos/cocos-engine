@@ -118,7 +118,7 @@ namespace se {
          *  @param[in] fileName A string containing a URL for the script's source file. This is used by debuggers and when reporting exceptions. Pass NULL if you do not care to include source file information.
          *  @return true if succeed, otherwise false.
          */
-        bool executeScriptBuffer(const char* scriptStr, ssize_t length = -1, Value* rval = nullptr, const char* fileName = nullptr);
+        bool evalString(const char* scriptStr, ssize_t length = -1, Value* rval = nullptr, const char* fileName = nullptr);
 
         /**
          *  Delegate class for file operation
@@ -164,7 +164,7 @@ namespace se {
          *  @param[in] rval The se::Value that results from evaluating script. Passing nullptr if you don't care about the result.
          *  @return true if succeed, otherwise false.
          */
-        bool executeScriptFile(const std::string& path, Value* ret = nullptr);
+        bool runScript(const std::string& path, Value* ret = nullptr);
 
         /**
          *  @brief Tests whether script engine is doing garbage collection.

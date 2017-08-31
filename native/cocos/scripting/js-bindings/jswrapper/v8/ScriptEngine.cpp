@@ -342,7 +342,7 @@ namespace se {
         return _isValid;
     }
 
-    bool ScriptEngine::executeScriptBuffer(const char* script, ssize_t length/* = -1 */, Value* ret/* = nullptr */, const char* fileName/* = nullptr */)
+    bool ScriptEngine::evalString(const char* script, ssize_t length/* = -1 */, Value* ret/* = nullptr */, const char* fileName/* = nullptr */)
     {
         assert(script != nullptr);
         if (length < 0)
@@ -393,7 +393,7 @@ namespace se {
         _fileOperationDelegate = delegate;
     }
 
-    bool ScriptEngine::executeScriptFile(const std::string& path, Value* ret/* = nullptr */)
+    bool ScriptEngine::runScript(const std::string& path, Value* ret/* = nullptr */)
     {
         assert(!path.empty());
         assert(_fileOperationDelegate.isValid());
@@ -402,10 +402,10 @@ namespace se {
 
         if (!scriptBuffer.empty())
         {
-            return executeScriptBuffer(scriptBuffer.c_str(), scriptBuffer.length(), ret, path.c_str());
+            return evalString(scriptBuffer.c_str(), scriptBuffer.length(), ret, path.c_str());
         }
 
-        LOGE("ScriptEngine::executeScriptFile script buffer is empty!\n");
+        LOGE("ScriptEngine::runScript script buffer is empty!\n");
         return false;
     }
 

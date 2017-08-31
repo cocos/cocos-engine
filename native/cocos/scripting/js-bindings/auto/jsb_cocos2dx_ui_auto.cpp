@@ -1948,7 +1948,7 @@ bool js_register_cocos2dx_ui_Widget(se::Object* obj)
     __jsb_cocos2d_ui_Widget_proto = cls->getProto();
     __jsb_cocos2d_ui_Widget_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.Widget.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.Widget.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -2698,7 +2698,7 @@ bool js_register_cocos2dx_ui_Layout(se::Object* obj)
     __jsb_cocos2d_ui_Layout_proto = cls->getProto();
     __jsb_cocos2d_ui_Layout_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.Layout.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.Layout.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -3655,7 +3655,7 @@ bool js_register_cocos2dx_ui_Button(se::Object* obj)
     __jsb_cocos2d_ui_Button_proto = cls->getProto();
     __jsb_cocos2d_ui_Button_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.Button.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.Button.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -4387,7 +4387,7 @@ bool js_register_cocos2dx_ui_CheckBox(se::Object* obj)
     __jsb_cocos2d_ui_CheckBox_proto = cls->getProto();
     __jsb_cocos2d_ui_CheckBox_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.CheckBox.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.CheckBox.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -4591,7 +4591,7 @@ bool js_register_cocos2dx_ui_RadioButton(se::Object* obj)
     __jsb_cocos2d_ui_RadioButton_proto = cls->getProto();
     __jsb_cocos2d_ui_RadioButton_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.RadioButton.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.RadioButton.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -4937,7 +4937,7 @@ bool js_register_cocos2dx_ui_RadioButtonGroup(se::Object* obj)
     __jsb_cocos2d_ui_RadioButtonGroup_proto = cls->getProto();
     __jsb_cocos2d_ui_RadioButtonGroup_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.RadioButtonGroup.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.RadioButtonGroup.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -5215,7 +5215,7 @@ bool js_register_cocos2dx_ui_ImageView(se::Object* obj)
     __jsb_cocos2d_ui_ImageView_proto = cls->getProto();
     __jsb_cocos2d_ui_ImageView_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.ImageView.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.ImageView.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -5957,7 +5957,7 @@ bool js_register_cocos2dx_ui_Text(se::Object* obj)
     __jsb_cocos2d_ui_Text_proto = cls->getProto();
     __jsb_cocos2d_ui_Text_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.Text.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.Text.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -6175,7 +6175,7 @@ bool js_register_cocos2dx_ui_TextAtlas(se::Object* obj)
     __jsb_cocos2d_ui_TextAtlas_proto = cls->getProto();
     __jsb_cocos2d_ui_TextAtlas_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.TextAtlas.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.TextAtlas.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -6509,7 +6509,7 @@ bool js_register_cocos2dx_ui_LoadingBar(se::Object* obj)
     __jsb_cocos2d_ui_LoadingBar_proto = cls->getProto();
     __jsb_cocos2d_ui_LoadingBar_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.LoadingBar.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.LoadingBar.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -7670,7 +7670,7 @@ bool js_register_cocos2dx_ui_ScrollView(se::Object* obj)
     __jsb_cocos2d_ui_ScrollView_proto = cls->getProto();
     __jsb_cocos2d_ui_ScrollView_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.ScrollView.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.ScrollView.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -8453,7 +8453,7 @@ bool js_register_cocos2dx_ui_ListView(se::Object* obj)
     __jsb_cocos2d_ui_ListView_proto = cls->getProto();
     __jsb_cocos2d_ui_ListView_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.ListView.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.ListView.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -9155,7 +9155,7 @@ bool js_register_cocos2dx_ui_Slider(se::Object* obj)
     __jsb_cocos2d_ui_Slider_proto = cls->getProto();
     __jsb_cocos2d_ui_Slider_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.Slider.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.Slider.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -10730,7 +10730,7 @@ bool js_register_cocos2dx_ui_TextField(se::Object* obj)
     __jsb_cocos2d_ui_TextField_proto = cls->getProto();
     __jsb_cocos2d_ui_TextField_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.TextField.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.TextField.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -10931,7 +10931,7 @@ bool js_register_cocos2dx_ui_TextBMFont(se::Object* obj)
     __jsb_cocos2d_ui_TextBMFont_proto = cls->getProto();
     __jsb_cocos2d_ui_TextBMFont_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.TextBMFont.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.TextBMFont.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -11554,7 +11554,7 @@ bool js_register_cocos2dx_ui_PageView(se::Object* obj)
     __jsb_cocos2d_ui_PageView_proto = cls->getProto();
     __jsb_cocos2d_ui_PageView_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.PageView.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.PageView.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -11864,7 +11864,7 @@ bool js_register_cocos2dx_ui_RichElement(se::Object* obj)
     __jsb_cocos2d_ui_RichElement_proto = cls->getProto();
     __jsb_cocos2d_ui_RichElement_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.RichElement.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.RichElement.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -12407,7 +12407,7 @@ bool js_register_cocos2dx_ui_RichElementText(se::Object* obj)
     __jsb_cocos2d_ui_RichElementText_proto = cls->getProto();
     __jsb_cocos2d_ui_RichElementText_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.RichElementText.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.RichElementText.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -12614,7 +12614,7 @@ bool js_register_cocos2dx_ui_RichElementImage(se::Object* obj)
     __jsb_cocos2d_ui_RichElementImage_proto = cls->getProto();
     __jsb_cocos2d_ui_RichElementImage_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.RichElementImage.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.RichElementImage.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -12725,7 +12725,7 @@ bool js_register_cocos2dx_ui_RichElementCustomNode(se::Object* obj)
     __jsb_cocos2d_ui_RichElementCustomNode_proto = cls->getProto();
     __jsb_cocos2d_ui_RichElementCustomNode_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.RichElementCustomNode.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.RichElementCustomNode.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -12806,7 +12806,7 @@ bool js_register_cocos2dx_ui_RichElementNewLine(se::Object* obj)
     __jsb_cocos2d_ui_RichElementNewLine_proto = cls->getProto();
     __jsb_cocos2d_ui_RichElementNewLine_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.RichElementNewLine.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.RichElementNewLine.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -13932,7 +13932,7 @@ bool js_register_cocos2dx_ui_RichText(se::Object* obj)
     __jsb_cocos2d_ui_RichText_proto = cls->getProto();
     __jsb_cocos2d_ui_RichText_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.RichText.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.RichText.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -14039,7 +14039,7 @@ bool js_register_cocos2dx_ui_HBox(se::Object* obj)
     __jsb_cocos2d_ui_HBox_proto = cls->getProto();
     __jsb_cocos2d_ui_HBox_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.HBox.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.HBox.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -14146,7 +14146,7 @@ bool js_register_cocos2dx_ui_VBox(se::Object* obj)
     __jsb_cocos2d_ui_VBox_proto = cls->getProto();
     __jsb_cocos2d_ui_VBox_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.VBox.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.VBox.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -14253,7 +14253,7 @@ bool js_register_cocos2dx_ui_RelativeBox(se::Object* obj)
     __jsb_cocos2d_ui_RelativeBox_proto = cls->getProto();
     __jsb_cocos2d_ui_RelativeBox_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.RelativeBox.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.RelativeBox.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -15349,7 +15349,7 @@ bool js_register_cocos2dx_ui_Scale9Sprite(se::Object* obj)
     __jsb_cocos2d_ui_Scale9Sprite_proto = cls->getProto();
     __jsb_cocos2d_ui_Scale9Sprite_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.Scale9Sprite.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.Scale9Sprite.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -15944,7 +15944,7 @@ bool js_register_cocos2dx_ui_EditBox(se::Object* obj)
     __jsb_cocos2d_ui_EditBox_proto = cls->getProto();
     __jsb_cocos2d_ui_EditBox_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.EditBox.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.EditBox.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -16991,7 +16991,7 @@ bool js_register_cocos2dx_ui_LayoutComponent(se::Object* obj)
     __jsb_cocos2d_ui_LayoutComponent_proto = cls->getProto();
     __jsb_cocos2d_ui_LayoutComponent_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.LayoutComponent.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.LayoutComponent.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -17330,7 +17330,7 @@ bool js_register_cocos2dx_ui_TabHeader(se::Object* obj)
     __jsb_cocos2d_ui_TabHeader_proto = cls->getProto();
     __jsb_cocos2d_ui_TabHeader_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.TabHeader.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.TabHeader.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -17809,7 +17809,7 @@ bool js_register_cocos2dx_ui_TabControl(se::Object* obj)
     __jsb_cocos2d_ui_TabControl_proto = cls->getProto();
     __jsb_cocos2d_ui_TabControl_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { ccui.TabControl.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { ccui.TabControl.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }

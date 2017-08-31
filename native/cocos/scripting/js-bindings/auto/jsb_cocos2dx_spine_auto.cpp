@@ -1721,7 +1721,7 @@ bool js_register_cocos2dx_spine_SkeletonAnimation(se::Object* obj)
     __jsb_spine_SkeletonAnimation_proto = cls->getProto();
     __jsb_spine_SkeletonAnimation_class = cls;
 
-    se::ScriptEngine::getInstance()->executeScriptBuffer("(function () { sp.SkeletonAnimation.extend = cc.Class.extend; })()");
+    se::ScriptEngine::getInstance()->evalString("(function () { sp.SkeletonAnimation.extend = cc.Class.extend; })()");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
