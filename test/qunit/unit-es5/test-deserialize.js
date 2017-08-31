@@ -209,6 +209,29 @@ if (TestEditorExtends) {
         //deepEqual(Editor.serialize(deserializedAsset), serializedAsset, 'test deserialize');
     });
 
+    test('reference to main asset with formerlySerializedAs', function () {
+        var MyAsset = cc.Class({
+            name: 'MyAsset',
+            properties: {
+                newRefSelf: {
+                    default: null,
+                    formerlySerializedAs: 'oldRefSelf'
+                },
+            }
+        });
+        var asset = new MyAsset();
+        asset.newRefSelf = asset;
+
+        var serializedAsset = Editor.serialize(asset);
+        serializedAsset = serializedAsset.replace(/newRefSelf/g, 'oldRefSelf');
+        var deserializedAsset = cc.deserialize(serializedAsset);
+
+        ok(deserializedAsset.newRefSelf === deserializedAsset, 'should ref to self');
+        //deepEqual(Editor.serialize(deserializedAsset), serializedAsset, 'test deserialize');
+
+        cc.js.unregisterClass(MyAsset);
+    });
+
     test('reference to main asset with target', function () {
         var asset = {};
         asset.refSelf = asset;
