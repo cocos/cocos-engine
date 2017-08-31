@@ -4,6 +4,7 @@ require('./core/CCGame');
 require('./actions');
 
 require('./core/base-nodes/CCSGNode');
+require('./core/base-nodes/CCSGNodeBaseRenderCmd');
 require('./core/base-nodes/CCSGNodeCanvasRenderCmd');
 require('./core/base-nodes/CCSGNodeWebGLRenderCmd');
 require('./core/scenes/CCSGScene');

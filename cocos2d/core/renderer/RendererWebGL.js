@@ -468,7 +468,7 @@ cc.rendererWebGL = {
 
         // Reset buffer for rendering
         context.bindBuffer(context.ARRAY_BUFFER, null);
-
+        
         for (i = 0, len = locCmds.length; i < len; ++i) {
             cmd = locCmds[i];
             if (!cmd._needDraw) continue;

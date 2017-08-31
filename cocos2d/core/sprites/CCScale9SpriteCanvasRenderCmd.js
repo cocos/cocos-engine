@@ -37,9 +37,18 @@ cc.Scale9Sprite.CanvasRenderCmd = function (renderable) {
 var proto = cc.Scale9Sprite.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
 proto.constructor = cc.Scale9Sprite.CanvasRenderCmd;
 
-proto.transform = function (parentCmd, recursive) {
-    this.originTransform(parentCmd, recursive);
+proto.updateTransform = function (parentCmd) {
+    this.originUpdateTransform(parentCmd);
     this._node._rebuildQuads();
+};
+
+proto._doCulling = function () {
+    var rect = cc.visibleRect,
+        bb = this._currentRegion,
+        l = bb._minX, r = bb._maxX, b = bb._minY, t = bb._maxY,
+        vl = rect.left.x, vr = rect.right.x, vt = rect.top.y, vb = rect.bottom.y;
+        
+    this._needDraw = !(r < vl || l > vr || t < vb || b > vt);
 };
 
 proto._updateDisplayColor = function(parentColor){

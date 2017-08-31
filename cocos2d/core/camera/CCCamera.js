@@ -23,10 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var transformDirtyFlag;
+var cullingDirtyFlag;
 
 if (!CC_JSB) {
-    transformDirtyFlag = _ccsg.Node._dirtyFlags.transformDirty;
+    cullingDirtyFlag = _ccsg.Node._dirtyFlags.cullingDirty;
     require('./CCSGCameraNode');
 }
 
@@ -131,7 +131,7 @@ let Camera = cc.Class({
 
         if (!CC_JSB) {
             var cmd = sgNode._renderCmd;
-            cmd.setDirtyFlag(transformDirtyFlag);
+            cmd.setDirtyFlag(cullingDirtyFlag);
             cmd._cameraFlag = Camera.flags.InCamera;
 
             cc.renderer.childrenOrderDirty = true;
@@ -156,7 +156,7 @@ let Camera = cc.Class({
         
         if (!CC_JSB) {
             var cmd = sgNode._renderCmd;
-            cmd.setDirtyFlag(transformDirtyFlag);
+            cmd.setDirtyFlag(cullingDirtyFlag);
             cmd._cameraFlag = 0;
 
             cc.renderer.childrenOrderDirty = true;
@@ -292,14 +292,14 @@ let Camera = cc.Class({
         return false;
     },
 
-    _setSgNodesTransformDirty: function () {
+    _setSgNodesCullingDirty: function () {
         let sgTarges = this._sgTarges;
         for (let i = 0; i < sgTarges.length; i++) {
             if (CC_JSB) {
                 sgTarges[i].markTransformUpdated();    
             }
             else {
-                sgTarges[i]._renderCmd.setDirtyFlag(transformDirtyFlag);
+                sgTarges[i]._renderCmd.setDirtyFlag(cullingDirtyFlag);
             }
         }
     },
@@ -400,7 +400,7 @@ let Camera = cc.Class({
             lvm.tx !== m.tx ||
             lvm.ty !== m.ty
             ) {
-            this._setSgNodesTransformDirty();
+            this._setSgNodesCullingDirty();
             
             lvm.a = m.a;
             lvm.b = m.b;

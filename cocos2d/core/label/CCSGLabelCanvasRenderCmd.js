@@ -501,19 +501,13 @@
 
     proto.constructor = _ccsg.Label.CanvasRenderCmd;
 
-    proto.transform = function (parentCmd, recursive) {
-        this.originTransform(parentCmd, recursive);
-
-        var bb = this._currentRegion,
+    proto._doCulling = function () {
+        var rect = cc.visibleRect,
+            bb = this._currentRegion,
             l = bb._minX, r = bb._maxX, b = bb._minY, t = bb._maxY,
-            rect = cc.visibleRect,
             vl = rect.left.x, vr = rect.right.x, vt = rect.top.y, vb = rect.bottom.y;
-        if (r < vl || l > vr || t < vb || b > vt) {
-            this._needDraw = false;
-        }
-        else {
-            this._needDraw = true;
-        }
+            
+        this._needDraw = !(r < vl || l > vr || t < vb || b > vt);
     };
 
     proto.rendering = function (ctx, scaleX, scaleY) {

@@ -61,8 +61,8 @@ cc.js.mixin(proto, _ccsg.Label.TTFLabelBaker.prototype);
 
 proto.constructor = _ccsg.Label.WebGLRenderCmd;
 
-proto.transform = function (parentCmd, recursive) {
-    this.originTransform(parentCmd, recursive);
+proto.updateTransform = function (parentCmd) {
+    this.originUpdateTransform(parentCmd);
 
     var node = this._node,
         lx = 0, rx = this._labelCanvas.width,
@@ -78,24 +78,27 @@ proto.transform = function (parentCmd, recursive) {
     vert[2].y = rx * wt.b + ty * wt.d + wt.ty;
     vert[3].x = rx * wt.a + by * wt.c + wt.tx; // br
     vert[3].y = rx * wt.b + by * wt.d + wt.ty;
+};
 
+proto._doCulling = function () {
+    var node = this._node;
     if (!node._string || (node._labelType !== _ccsg.Label.Type.TTF &&
-       node._labelType !== _ccsg.Label.Type.SystemFont)) {
+        node._labelType !== _ccsg.Label.Type.SystemFont)) {
         // No culling for bmfont
         return;
     }
 
-    var vl, vr, vb, vt;
     var rect = cc.visibleRect;
     if (this._cameraFlag > 0) {
         rect = cc.Camera.main.visibleRect;
     }
     
-    vl = rect.left.x;
-    vr = rect.right.x;
-    vt = rect.top.y;
-    vb = rect.bottom.y;
+    var vl = rect.left.x;
+    var vr = rect.right.x;
+    var vt = rect.top.y;
+    var vb = rect.bottom.y;
 
+    var vert = this._vertices;
     if (((vert[0].x-vl) & (vert[1].x-vl) & (vert[2].x-vl) & (vert[3].x-vl)) >> 31 || // All outside left
         ((vr-vert[0].x) & (vr-vert[1].x) & (vr-vert[2].x) & (vr-vert[3].x)) >> 31 || // All outside right
         ((vert[0].y-vb) & (vert[1].y-vb) & (vert[2].y-vb) & (vert[3].y-vb)) >> 31 || // All outside bottom
