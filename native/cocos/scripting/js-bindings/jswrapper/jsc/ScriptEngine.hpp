@@ -194,6 +194,14 @@ namespace se {
          */
         void clearException();
 
+        using ExceptionCallback = std::function<void(const char*)>;
+
+        /**
+         *  @brief Sets the callback function while an exception is fired.
+         *  @param[in] cb The callback function to notify that an exception is fired.
+         */
+        void setExceptionCallback(const ExceptionCallback& cb);
+
         /**
          *  @brief Gets the start time of script engine.
          */
@@ -215,9 +223,7 @@ namespace se {
         using NodeEventListener = bool(*)(void*, NodeEventType);
         bool _setNodeEventListener(NodeEventListener listener);
 
-        std::string _formatException(JSValueRef exception);
         void _clearException(JSValueRef exception);
-
         JSContextRef _getContext() const { return _cx; }
 
         void _setGarbageCollecting(bool isGarbageCollecting);
@@ -226,6 +232,8 @@ namespace se {
 
         ScriptEngine();
         ~ScriptEngine();
+
+        std::string _formatException(JSValueRef exception);
 
         JSGlobalContextRef _cx;
 
@@ -246,6 +254,8 @@ namespace se {
 
         std::vector<std::function<void()>> _beforeCleanupHookArray;
         std::vector<std::function<void()>> _afterCleanupHookArray;
+
+        ExceptionCallback _exceptionCallback;
     };
 
  } // namespace se {

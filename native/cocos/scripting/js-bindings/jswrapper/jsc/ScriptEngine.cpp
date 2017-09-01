@@ -86,6 +86,7 @@ namespace se {
             , _isGarbageCollecting(false)
             , _isValid(false)
             , _isInCleanup(false)
+            , _exceptionCallback(nullptr)
     {
     }
 
@@ -202,8 +203,22 @@ namespace se {
         if (type == kJSTypeObject)
         {
             JSObjectRef obj = JSValueToObject(_cx, exception, nullptr);
-            JSPropertyNameArrayRef nameArr = JSObjectCopyPropertyNames(_cx, obj);
+            std::string strackInfo;
+            JSStringRef stackKey = JSStringCreateWithUTF8CString("stack");
+            JSValueRef stackVal = JSObjectGetProperty(_cx, obj, stackKey, nullptr);
+            if (stackKey != nullptr)
+            {
+                type = JSValueGetType(_cx, stackVal);
+                if (type == kJSTypeString)
+                {
+                    JSStringRef stackStr = JSValueToStringCopy(_cx, stackVal, nullptr);
+                    internal::jsStringToStdString(_cx, stackStr, &strackInfo);
+                    JSStringRelease(stackStr);
+                }
+                JSStringRelease(stackKey);
+            }
 
+            JSPropertyNameArrayRef nameArr = JSObjectCopyPropertyNames(_cx, obj);
             size_t count =JSPropertyNameArrayGetCount(nameArr);
             for (size_t i = 0; i < count; ++i)
             {
@@ -213,7 +228,10 @@ namespace se {
                 std::string name;
                 internal::jsStringToStdString(_cx, jsName, &name);
                 std::string value;
-                internal::forceConvertJsValueToStdString(_cx, jsValue, &value);
+
+                JSStringRef jsstr = JSValueToStringCopy(_cx, jsValue, nullptr);
+                internal::jsStringToStdString(_cx, jsstr, &value);
+                JSStringRelease(jsstr);
 
                 if (name == "line")
                 {
@@ -223,6 +241,11 @@ namespace se {
                 {
                     ret += ", sourceURL: " + value;
                 }
+            }
+
+            if (!strackInfo.empty())
+            {
+                ret += "\nSTACK:\n" + strackInfo;
             }
 
             JSPropertyNameArrayRelease(nameArr);
@@ -239,8 +262,18 @@ namespace se {
             if (!exceptionStr.empty())
             {
                 LOGD("%s\n", exceptionStr.c_str());
+
+                if (_exceptionCallback != nullptr)
+                {
+                    _exceptionCallback(exceptionStr.c_str());
+                }
             }
         }
+    }
+
+    void ScriptEngine::setExceptionCallback(const ExceptionCallback& cb)
+    {
+        _exceptionCallback = cb;
     }
 
     bool ScriptEngine::isGarbageCollecting()
@@ -335,21 +368,14 @@ namespace se {
         {
             result = JSEvaluateScript(_cx, jsScript, nullptr, jsSourceUrl, 1, &exception);
 
-            if (exception)
+            if (exception != nullptr)
             {
-                exceptionStr = _formatException(exception);
-                clearException();
                 ok = false;
             }
         }
         else
         {
-            if (exception)
-            {
-                exceptionStr = _formatException(exception);
-                clearException();
-            }
-            else
+            if (exception == nullptr)
             {
                 LOGD("Unknown syntax error parsing file %s\n", fileName);
             }
@@ -363,10 +389,8 @@ namespace se {
             if (ret != nullptr)
                 internal::jsToSeValue(_cx, result, ret);
         }
-        else if (!exceptionStr.empty())
-        {
-            LOGD("%s\n", exceptionStr.c_str());
-        }
+
+        _clearException(exception);
 
         return ok;
     }
