@@ -1262,6 +1262,13 @@ cc.js.addon(cc.Director.prototype, EventTarget.prototype);
  *      cc.log("Projection changed.");
  *   });
  */
+/**
+ * !#en The event projection changed of cc.Director.
+ * !#zh cc.Director 投影变化的事件。
+ * @property {String} EVENT_PROJECTION_CHANGED
+ * @readonly
+ * @static
+ */
 cc.Director.EVENT_PROJECTION_CHANGED = "director_projection_changed";
 
 /**
@@ -1270,6 +1277,13 @@ cc.Director.EVENT_PROJECTION_CHANGED = "director_projection_changed";
  * @event cc.Director.EVENT_BEFORE_SCENE_LOADING
  * @param {Event.EventCustom} event
  * @param {Vec2} event.detail - The loading scene name
+ */
+/**
+ * !#en The event which will be triggered before loading a new scene.
+ * !#zh 加载新场景之前所触发的事件。
+ * @property {String} EVENT_BEFORE_SCENE_LOADING
+ * @readonly
+ * @static
  */
 cc.Director.EVENT_BEFORE_SCENE_LOADING = "director_before_scene_loading";
 
@@ -1280,6 +1294,13 @@ cc.Director.EVENT_BEFORE_SCENE_LOADING = "director_before_scene_loading";
  * @param {Event.EventCustom} event
  * @param {Vec2} event.detail - New scene which will be launched
  */
+/**
+ * !#en The event which will be triggered before launching a new scene.
+ * !#zh 运行新场景之前所触发的事件。
+ * @property {String} EVENT_BEFORE_SCENE_LAUNCH
+ * @readonly
+ * @static
+ */
 cc.Director.EVENT_BEFORE_SCENE_LAUNCH = "director_before_scene_launch";
 
 /**
@@ -1289,6 +1310,13 @@ cc.Director.EVENT_BEFORE_SCENE_LAUNCH = "director_before_scene_launch";
  * @param {Event.EventCustom} event
  * @param {Vec2} event.detail - New scene which is launched
  */
+/**
+ * !#en The event which will be triggered after launching a new scene.
+ * !#zh 运行新场景之后所触发的事件。
+ * @property {String} EVENT_AFTER_SCENE_LAUNCH
+ * @readonly
+ * @static
+ */
 cc.Director.EVENT_AFTER_SCENE_LAUNCH = "director_after_scene_launch";
 
 /**
@@ -1296,6 +1324,13 @@ cc.Director.EVENT_AFTER_SCENE_LAUNCH = "director_after_scene_launch";
  * !#zh 每个帧的开始时所触发的事件。
  * @event cc.Director.EVENT_BEFORE_UPDATE
  * @param {Event.EventCustom} event
+ */
+/**
+ * !#en The event which will be triggered at the beginning of every frame.
+ * !#zh 每个帧的开始时所触发的事件。
+ * @property {String} EVENT_BEFORE_UPDATE
+ * @readonly
+ * @static
  */
 cc.Director.EVENT_BEFORE_UPDATE = "director_before_update";
 
@@ -1305,6 +1340,13 @@ cc.Director.EVENT_BEFORE_UPDATE = "director_before_update";
  * @event cc.Director.EVENT_AFTER_UPDATE
  * @param {Event.EventCustom} event
  */
+/**
+ * !#en The event which will be triggered after engine and components update logic.
+ * !#zh 将在引擎和组件 “update” 逻辑之后所触发的事件。
+ * @property {String} EVENT_AFTER_UPDATE
+ * @readonly
+ * @static
+ */
 cc.Director.EVENT_AFTER_UPDATE = "director_after_update";
 
 /**
@@ -1313,15 +1355,33 @@ cc.Director.EVENT_AFTER_UPDATE = "director_after_update";
  * @event cc.Director.EVENT_BEFORE_VISIT
  * @param {Event.EventCustom} event
  */
+/**
+ * !#en The event which will be triggered before visiting the rendering scene graph.
+ * !#zh 访问渲染场景树之前所触发的事件。
+ * @property {String} EVENT_BEFORE_VISIT
+ * @readonly
+ * @static
+ */
 cc.Director.EVENT_BEFORE_VISIT = "director_before_visit";
 
 /**
  * !#en
  * The event which will be triggered after visiting the rendering scene graph,
  * the render queue is ready but not rendered at this point.
- * !#zh 访问渲染场景图之后所触发的事件，渲染队列已准备就绪，但在这一时刻还没有呈现在画布上。
+ * !#zh
+ * 访问渲染场景图之后所触发的事件，渲染队列已准备就绪，但在这一时刻还没有呈现在画布上。
  * @event cc.Director.EVENT_AFTER_VISIT
  * @param {Event.EventCustom} event
+ */
+/**
+ * !#en
+ * The event which will be triggered after visiting the rendering scene graph,
+ * the render queue is ready but not rendered at this point.
+ * !#zh
+ * 访问渲染场景图之后所触发的事件，渲染队列已准备就绪，但在这一时刻还没有呈现在画布上。
+ * @property {String} EVENT_AFTER_VISIT
+ * @readonly
+ * @static
  */
 cc.Director.EVENT_AFTER_VISIT = "director_after_visit";
 
@@ -1331,11 +1391,19 @@ cc.Director.EVENT_AFTER_VISIT = "director_after_visit";
  * @event cc.Director.EVENT_AFTER_DRAW
  * @param {Event.EventCustom} event
  */
+/**
+ * !#en The event which will be triggered after the rendering process.
+ * !#zh 渲染过程之后所触发的事件。
+ * @property {String} EVENT_AFTER_DRAW
+ * @readonly
+ * @static
+ */
 cc.Director.EVENT_AFTER_DRAW = "director_after_draw";
 
 /***************************************************
  * implementation of DisplayLinkDirector
  **************************************************/
+
 cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
     invalid: false,
 
@@ -1483,30 +1551,39 @@ cc.Director._getInstance = function () {
 cc.defaultFPS = 60;
 
 //Possible OpenGL projections used by director
+
 /**
  * Constant for 2D projection (orthogonal projection)
- * @constant
- * @type {Number}
+ * @property {Number} PROJECTION_2D
+ * @default 0
+ * @readonly
+ * @static
  */
 cc.Director.PROJECTION_2D = 0;
 
 /**
  * Constant for 3D projection with a fovy=60, znear=0.5f and zfar=1500.
- * @constant
- * @type {Number}
+ * @property {Number} PROJECTION_3D
+ * @default 1
+ * @readonly
+ * @static
  */
 cc.Director.PROJECTION_3D = 1;
 
 /**
  * Constant for custom projection, if cc.Director's projection set to it, it calls "updateProjection" on the projection delegate.
- * @constant
- * @type {Number}
+ * @property {Number} PROJECTION_CUSTOM
+ * @default 3
+ * @readonly
+ * @static
  */
 cc.Director.PROJECTION_CUSTOM = 3;
 
 /**
  * Constant for default projection of cc.Director, default projection is 2D projection
- * @constant
- * @type {Number}
+ * @property {Number} PROJECTION_DEFAULT
+ * @default cc.Director.PROJECTION_2D
+ * @readonly
+ * @static
  */
 cc.Director.PROJECTION_DEFAULT = cc.Director.PROJECTION_2D;
