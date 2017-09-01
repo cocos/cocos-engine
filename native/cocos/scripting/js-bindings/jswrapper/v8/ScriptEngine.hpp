@@ -135,6 +135,9 @@ namespace se {
 
         void clearException();
 
+        using ExceptionCallback = std::function<void(const char*)>;
+        void setExceptionCallback(const ExceptionCallback& cb);
+
         const std::chrono::steady_clock::time_point& getStartTime() const { return _startTime; }
 
         void _retainScriptObject(void* owner, void* target);
@@ -154,8 +157,11 @@ namespace se {
 
         v8::Local<v8::Context> _getContext() const;
     private:
-
         static void privateDataFinalize(void* nativeObj);
+
+        static void myFatalErrorCallback(const char* location, const char* message);
+        static void myOOMErrorCallback(const char* location, bool is_heap_oom);
+        static void myMessageCallback(v8::Local<v8::Message> message, v8::Local<v8::Value> data);
 
         v8::Platform* _platform;
         v8::Isolate* _isolate;
@@ -183,6 +189,8 @@ namespace se {
 
         std::vector<std::function<void()>> _beforeCleanupHookArray;
         std::vector<std::function<void()>> _afterCleanupHookArray;
+
+        ExceptionCallback _exceptionCallback;
 
 #if SE_ENABLE_INSPECTOR
         node::Environment* _env;

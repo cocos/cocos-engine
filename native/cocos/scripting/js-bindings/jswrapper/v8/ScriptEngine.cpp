@@ -44,37 +44,96 @@ namespace se {
             ScriptEngine::getInstance()->garbageCollect();
         }
 
-        void myFatalErrorCallback(const char* location, const char* message)
+        std::string stackTraceToString(v8::Local<v8::StackTrace> stack)
         {
-            LOGD("[FATAL ERROR] location: %s, message: %s\n", location, message);
-        }
-
-        void myOOMErrorCallback(const char* location, bool is_heap_oom)
-        {
-            LOGD("[OOM ERROR] location: %s, is_heap_oom: %d", location, is_heap_oom);
-        }
-
-        void printStackTrace(v8::Local<v8::StackTrace> stack) {
-            LOGD("Stack Trace (length %d):\n", stack->GetFrameCount());
-            for (int i = 0, e = stack->GetFrameCount(); i != e; ++i) {
+            std::string stackStr = "STACK:\n";
+            char tmp[100] = {0};
+            for (int i = 0, e = stack->GetFrameCount(); i < e; ++i)
+            {
                 v8::Local<v8::StackFrame> frame = stack->GetFrame(i);
                 v8::Local<v8::String> script = frame->GetScriptName();
-                v8::Local<v8::String> func = frame->GetFunctionName();
-                LOGD("[%d] (%s) %s:%d:%d\n", i,
-                       script.IsEmpty() ? "<null>" : *v8::String::Utf8Value(script),
-                       func.IsEmpty() ? "<null>" : *v8::String::Utf8Value(func),
-                       frame->GetLineNumber(), frame->GetColumn());
-            }
-        }
+                std::string scriptName;
+                if (!script.IsEmpty())
+                {
+                    scriptName = *v8::String::Utf8Value(script);
+                }
 
-        void myMessageCallback(v8::Local<v8::Message> message, v8::Local<v8::Value> data)
+                v8::Local<v8::String> func = frame->GetFunctionName();
+                std::string funcName;
+                if (!func.IsEmpty())
+                {
+                    funcName = *v8::String::Utf8Value(func);
+                }
+
+                stackStr += "[";
+                snprintf(tmp, sizeof(tmp), "%d", i);
+                stackStr += tmp;
+                stackStr += "]";
+                stackStr += (funcName.empty() ? "anonymous" : funcName.c_str());
+                stackStr += "@";
+                stackStr += (scriptName.empty() ? "(no filename)" : scriptName.c_str());
+                stackStr += ":";
+                snprintf(tmp, sizeof(tmp), "%d", frame->GetLineNumber());
+                stackStr += tmp;
+
+                if (i < (e-1))
+                {
+                    stackStr += "\n";
+                }
+            }
+
+            return stackStr;
+        }
+    } // namespace {
+
+    void ScriptEngine::myFatalErrorCallback(const char* location, const char* message)
+    {
+        std::string errorStr = "[FATAL ERROR] location: ";
+        errorStr += location;
+        errorStr += ", message: ";
+        errorStr += message;
+
+        LOGE("%s\n", errorStr.c_str());
+        if (getInstance()->_exceptionCallback != nullptr)
         {
-            v8::Local<v8::String> msg = message->Get();
-            se::Value msgVal;
-            internal::jsToSeValue(v8::Isolate::GetCurrent(), msg, &msgVal);
-            assert(msgVal.isString());
-            LOGD("ERROR: %s\n", msgVal.toString().c_str());
-            printStackTrace(message->GetStackTrace());
+            getInstance()->_exceptionCallback(errorStr.c_str());
+        }
+    }
+
+    void ScriptEngine::myOOMErrorCallback(const char* location, bool is_heap_oom)
+    {
+        std::string errorStr = "[OOM ERROR] location: ";
+        errorStr += location;
+        errorStr += ", is heap out of memory: ";
+        if (is_heap_oom)
+            errorStr += "true";
+        else
+            errorStr += "false";
+
+        LOGE("%s\n", errorStr.c_str());
+        if (getInstance()->_exceptionCallback != nullptr)
+        {
+            getInstance()->_exceptionCallback(errorStr.c_str());
+        }
+    }
+
+    void ScriptEngine::myMessageCallback(v8::Local<v8::Message> message, v8::Local<v8::Value> data)
+    {
+        v8::Local<v8::String> msg = message->Get();
+        se::Value msgVal;
+        internal::jsToSeValue(v8::Isolate::GetCurrent(), msg, &msgVal);
+        assert(msgVal.isString());
+        std::string errorStr = msgVal.toString();
+        std::string stackStr = stackTraceToString(message->GetStackTrace());
+        if (!stackStr.empty())
+        {
+            errorStr += "\n" + stackStr;
+        }
+        LOGE("ERROR: %s\n", errorStr.c_str());
+
+        if (getInstance()->_exceptionCallback != nullptr)
+        {
+            getInstance()->_exceptionCallback(errorStr.c_str());
         }
     }
 
@@ -84,7 +143,7 @@ namespace se {
 
         Object::nativeObjectFinalizeHook(p->data);
 
-        assert(p->seObj->getReferenceCount() == 1);
+        assert(p->seObj->getRefCount() == 1);
 
         p->seObj->decRef();
 
@@ -117,6 +176,7 @@ namespace se {
     , _isGarbageCollecting(false)
     , _isInCleanup(false)
     , _nodeEventListener(nullptr)
+    , _exceptionCallback(nullptr)
 #if SE_ENABLE_INSPECTOR
     , _env(nullptr)
 #endif
@@ -468,6 +528,11 @@ namespace se {
     void ScriptEngine::clearException()
     {
         //FIXME:
+    }
+
+    void ScriptEngine::setExceptionCallback(const ExceptionCallback& cb)
+    {
+        _exceptionCallback = cb;
     }
 
     v8::Local<v8::Context> ScriptEngine::_getContext() const

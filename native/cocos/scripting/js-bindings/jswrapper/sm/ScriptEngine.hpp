@@ -101,6 +101,9 @@ namespace se {
 
         void clearException();
 
+        using ExceptionCallback = std::function<void(const char*)>;
+        void setExceptionCallback(const ExceptionCallback& cb);
+
         const std::chrono::steady_clock::time_point& getStartTime() const { return _startTime; }
 
         void _retainScriptObject(void* owner, void* target);
@@ -147,6 +150,7 @@ namespace se {
         std::vector<std::function<void()>> _beforeCleanupHookArray;
         std::vector<std::function<void()>> _afterCleanupHookArray;
 
+        ExceptionCallback _exceptionCallback;
         // name ~> JSScript map
         std::unordered_map<std::string, JS::PersistentRootedScript*> _filenameScriptMap;
     };

@@ -114,6 +114,11 @@ namespace se {
         bool isInCleanup() { return _isInCleanup; }
 
         void clearException();
+
+        using ExceptionCallback = std::function<void(const char*)>;
+
+        void setExceptionCallback(const ExceptionCallback& cb);
+
         const std::chrono::steady_clock::time_point& getStartTime() const { return _startTime; }
 
         void _retainScriptObject(void* owner, void* target);
@@ -156,6 +161,8 @@ namespace se {
 
         std::vector<std::function<void()>> _beforeCleanupHookArray;
         std::vector<std::function<void()>> _afterCleanupHookArray;
+
+        ExceptionCallback _exceptionCallback;
     };
 
  } // namespace se {
