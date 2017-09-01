@@ -138,7 +138,7 @@ proto.add = function (path, uuid, type, isMainAsset) {
     pushToMap(this._pathToUuid, path, newEntry, isMainAsset);
 };
 
-proto.getInfo_DEBUG = CC_DEBUG && function (uuid) {
+proto._getInfo_DEBUG = CC_DEBUG && function (uuid, out_info) {
     var path2uuid = this._pathToUuid;
     var paths = Object.keys(path2uuid);
     for (var p = 0; p < paths.length; ++p) {
@@ -148,14 +148,19 @@ proto.getInfo_DEBUG = CC_DEBUG && function (uuid) {
             for (var i = 0; i < item.length; i++) {
                 var entry = item[i];
                 if (entry.uuid === uuid) {
-                    return { path: path, type: entry.type };
+                    out_info.path = path;
+                    out_info.type = entry.type;
+                    return true;
                 }
             }
         }
         else if (item.uuid === uuid) {
-            return { path: path, type: item.type };
+            out_info.path = path;
+            out_info.type = item.type;
+            return true;
         }
     }
+    return false;
 };
 
 proto.reset = function () {

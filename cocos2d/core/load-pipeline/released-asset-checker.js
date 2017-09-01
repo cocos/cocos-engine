@@ -41,12 +41,15 @@ ReleasedAssetChecker.prototype.setReleased = function (item, releasedKey) {
     this._dirty = true;
 };
 
+var tmpInfo = null;
 function getItemDesc (item) {
     if (item.uuid) {
-        var info = cc.loader._resources.getInfo_DEBUG(item.uuid);
-        if (info) {
-            info.path = 'resources/' + info.path;
-            return `"${info.path}" (type: ${JS.getClassName(info.type)}, uuid: ${item.uuid})`;
+        if (!tmpInfo) {
+            tmpInfo = { path: "", type: null };
+        }
+        if (cc.loader._resources._getInfo_DEBUG(item.uuid, tmpInfo)) {
+            tmpInfo.path = 'resources/' + tmpInfo.path;
+            return `"${tmpInfo.path}" (type: ${JS.getClassName(tmpInfo.type)}, uuid: ${item.uuid})`;
         }
         else {
             return `"${item.rawUrl}" (${item.uuid})`;
