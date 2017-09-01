@@ -93,6 +93,9 @@ var SGComponent = cc.Class({
             else {
                 cc.errorID(3628, name);
             }
+            if (CC_EDITOR) {
+                this.destroy();
+            }
         }
     }
 });
