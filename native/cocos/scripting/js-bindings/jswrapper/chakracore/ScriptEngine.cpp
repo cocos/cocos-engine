@@ -74,6 +74,7 @@ namespace se {
             , _isInCleanup(false)
             , _isGarbageCollecting(false)
             , _currentSourceContext(0)
+            , _exceptionCallback(nullptr)
     {
     }
 
@@ -300,9 +301,17 @@ namespace se {
             _CHECK(JsGetAndClearException(&exception));
 
             std::string exceptionMsg = formatException(exception);
-            LOGD("%s\n", exceptionMsg.c_str());
-
+            LOGD("ERROR: %s\n", exceptionMsg.c_str());
+            if (_exceptionCallback != nullptr)
+            {
+                _exceptionCallback(exceptionMsg.c_str());
+            }
         }
+    }
+
+    void ScriptEngine::setExceptionCallback(const ExceptionCallback& cb)
+    {
+        _exceptionCallback = cb;
     }
 
     bool ScriptEngine::evalString(const char* script, ssize_t length/* = -1 */, Value* ret/* = nullptr */, const char* fileName/* = nullptr */)
