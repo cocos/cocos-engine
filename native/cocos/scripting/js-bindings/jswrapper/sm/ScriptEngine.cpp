@@ -66,7 +66,7 @@ namespace se {
 
                     LOGD("JS: %s\n", buffer);
 
-                    JS_free(cx, (void*)buffer);
+                    JS_free(cx, buffer);
                 }
             }
             args.rval().setUndefined();
@@ -230,6 +230,7 @@ namespace se {
             , _isValid(false)
             , _isInCleanup(false)
             , _nodeEventListener(nullptr)
+            , _exceptionCallback(nullptr)
     {
         bool ok = JS_Init();
         assert(ok);
@@ -719,16 +720,34 @@ namespace se {
             JS::RootedObject exceptionObj(_cx, exceptionValue.toObjectOrNull());
             JSErrorReport* report = JS_ErrorFromException(_cx, exceptionObj);
             const char* fileName = report->filename != nullptr ? report->filename : "(no filename)";
-            LOGE("JS ERROR: %s, file: %s, lineno: %u\n", report->message().c_str(), fileName, report->lineno);
+            std::string exceptionStr = report->message().c_str();
+            exceptionStr += ", file: ";
+            exceptionStr += fileName;
+            char lineBuf[50] = {0};
+            snprintf(lineBuf, sizeof(lineBuf), "%u", report->lineno);
+            exceptionStr += lineBuf;
 
             JS::RootedValue stack(_cx);
             if (JS_GetProperty(_cx, exceptionObj, "stack", &stack) && stack.isString())
             {
                 JS::RootedString jsstackStr(_cx, stack.toString());
-                char *stackStr = JS_EncodeStringToUTF8(_cx, jsstackStr);
-                LOGE("Stack: %s\n", stackStr);
+                char* stackStr = JS_EncodeStringToUTF8(_cx, jsstackStr);
+                exceptionStr += "\nSTACK:\n";
+                exceptionStr += stackStr;
+                JS_free(_cx, stackStr);
+            }
+
+            LOGE("ERROR: %s\n", exceptionStr.c_str());
+            if (_exceptionCallback != nullptr)
+            {
+                _exceptionCallback(exceptionStr.c_str());
             }
         }
+    }
+
+    void ScriptEngine::setExceptionCallback(const ExceptionCallback& cb)
+    {
+        _exceptionCallback = cb;
     }
 
 } // namespace se {
