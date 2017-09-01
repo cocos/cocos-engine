@@ -23,48 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-
-cc._logToWebPage = function (msg) {
-    if (!cc._canvas)
-        return;
-
-    var logList = cc._logList;
-    var doc = document;
-    if (!logList) {
-        var logDiv = doc.createElement("Div");
-        var logDivStyle = logDiv.style;
-
-        logDiv.setAttribute("id", "logInfoDiv");
-        cc._canvas.parentNode.appendChild(logDiv);
-        logDiv.setAttribute("width", "200");
-        logDiv.setAttribute("height", cc._canvas.height);
-        logDivStyle.zIndex = "99999";
-        logDivStyle.position = "absolute";
-        logDivStyle.top = "0";
-        logDivStyle.left = "0";
-
-        logList = cc._logList = doc.createElement("textarea");
-        var logListStyle = logList.style;
-
-        logList.setAttribute("rows", "20");
-        logList.setAttribute("cols", "30");
-        logList.setAttribute("disabled", true);
-        logDiv.appendChild(logList);
-        logListStyle.backgroundColor = "transparent";
-        logListStyle.borderBottom = "1px solid #cccccc";
-        logListStyle.borderRightWidth = "0px";
-        logListStyle.borderLeftWidth = "0px";
-        logListStyle.borderTopWidth = "0px";
-        logListStyle.borderTopStyle = "none";
-        logListStyle.borderRightStyle = "none";
-        logListStyle.borderLeftStyle = "none";
-        logListStyle.padding = "0px";
-        logListStyle.margin = 0;
-
-    }
-    logList.value = logList.value + msg + "\r\n";
-    logList.scrollTop = logList.scrollHeight;
-};
+// for cc.DebugMode.INFO_FOR_WEB_PAGE
+var logList;
 
 var Enum = require('./cocos2d/core/platform/CCEnum');
 
@@ -151,28 +111,61 @@ cc._initDebugSetting = function (mode) {
     if (mode === cc.DebugMode.NONE)
         return;
 
-    var locLog;
     if (!CC_JSB && mode > cc.DebugMode.ERROR) {
         //log to web page
-        locLog = cc._logToWebPage.bind(cc);
+
+        function logToWebPage (msg) {
+            if (!cc._canvas)
+                return;
+
+            if (!logList) {
+                var logDiv = document.createElement("Div");
+                logDiv.setAttribute("id", "logInfoDiv");
+                logDiv.setAttribute("width", "200");
+                logDiv.setAttribute("height", cc._canvas.height);
+                var logDivStyle = logDiv.style;
+                logDivStyle.zIndex = "99999";
+                logDivStyle.position = "absolute";
+                logDivStyle.top = logDivStyle.left = "0";
+
+                logList = document.createElement("textarea");
+                logList.setAttribute("rows", "20");
+                logList.setAttribute("cols", "30");
+                logList.setAttribute("disabled", "true");
+                var logListStyle = logList.style;
+                logListStyle.backgroundColor = "transparent";
+                logListStyle.borderBottom = "1px solid #cccccc";
+                logListStyle.borderTopWidth = logListStyle.borderLeftWidth = logListStyle.borderRightWidth = "0px";
+                logListStyle.borderTopStyle = logListStyle.borderLeftStyle = logListStyle.borderRightStyle = "none";
+                logListStyle.padding = "0px";
+                logListStyle.margin = 0;
+
+                logDiv.appendChild(logList);
+                cc._canvas.parentNode.appendChild(logDiv);
+            }
+
+            logList.value = logList.value + msg + "\r\n";
+            logList.scrollTop = logList.scrollHeight;
+        }
+
         cc.error = function () {
-            locLog("ERROR :  " + cc.js.formatStr.apply(null, arguments));
+            logToWebPage("ERROR :  " + cc.js.formatStr.apply(null, arguments));
         };
         cc.assert = function (cond, msg) {
             'use strict';
             if (!cond && msg) {
                 msg = cc.js.formatStr.apply(null, cc.js.shiftArguments.apply(null, arguments));
-                locLog("ASSERT: " + msg);
+                logToWebPage("ASSERT: " + msg);
             }
         };
         if (mode !== cc.DebugMode.ERROR_FOR_WEB_PAGE) {
             cc.warn = function () {
-                locLog("WARN :  " + cc.js.formatStr.apply(null, arguments));
+                logToWebPage("WARN :  " + cc.js.formatStr.apply(null, arguments));
             };
         }
         if (mode === cc.DebugMode.INFO_FOR_WEB_PAGE) {
             cc.log = cc.info = function () {
-                locLog(cc.js.formatStr.apply(null, arguments));
+                logToWebPage(cc.js.formatStr.apply(null, arguments));
             };
         }
     }
