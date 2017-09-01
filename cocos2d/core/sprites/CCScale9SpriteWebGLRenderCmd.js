@@ -84,9 +84,43 @@ proto._uploadSliced = function (vertices, uvs, color, z, f32buffer, ui32buffer, 
     return 36;
 };
 
-proto.transform = function (parentCmd, recursive) {
-    this.originTransform(parentCmd, recursive);
+proto.updateTransform = function (parentCmd) {
+    this.originUpdateTransform(parentCmd);
     this._node._rebuildQuads();
+};
+
+proto._doCulling = function () {
+    var node = this._node;
+    var rect = cc.visibleRect;
+    
+    if (this._cameraFlag > 0) {
+        rect = cc.Camera.main.visibleRect;
+    }
+
+    vl = rect.left.x;
+    vr = rect.right.x;
+    vt = rect.top.y;
+    vb = rect.bottom.y;
+
+    // x1, y1  leftBottom
+    // x2, y2  rightBottom
+    // x3, y3  leftTop
+    // x4, y4  rightTop
+    var vert = node._isTriangle ? node._rawVerts : node._vertices,
+        corner = node._corner,
+        c0 = corner[0], c1 = corner[1], c2 = corner[2], c3 = corner[3],
+        x0 = vert[c0], x1 = vert[c1], x2 = vert[c2], x3 = vert[c3],
+        y0 = vert[c0 + 1], y1 = vert[c1 + 1], y2 = vert[c2 + 1], y3 = vert[c3 + 1];
+    if (((x0-vl) & (x1-vl) & (x2-vl) & (x3-vl)) >> 31 || // All outside left
+        ((vr-x0) & (vr-x1) & (vr-x2) & (vr-x3)) >> 31 || // All outside right
+        ((y0-vb) & (y1-vb) & (y2-vb) & (y3-vb)) >> 31 || // All outside bottom
+        ((vt-y0) & (vt-y1) & (vt-y2) & (vt-y3)) >> 31)   // All outside top
+    {
+        this._needDraw = false;
+    }
+    else {
+        this._needDraw = true;
+    }
 };
 
 proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){

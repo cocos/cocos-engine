@@ -61,8 +61,7 @@ var dataPool = {
 
 var macro = cc.macro,
     webgl,
-    vl, vb, vt, vr,
-    cornerId = [];
+    vl, vb, vt, vr;
 
 /*
  * <p>
@@ -86,10 +85,14 @@ var macro = cc.macro,
  * @property {Number}   insetBottom     - The bottom inset of the 9-slice sprite
  */
 var simpleQuadGenerator = {
-    _rebuildQuads_base: function (sprite, spriteFrame, contentSize, isTrimmedContentSize) {
+    _rebuildQuads_base: function (sprite) {
+        var spriteFrame = sprite._spriteFrame, 
+            contentSize = sprite._contentSize, 
+            isTrimmedContentSize = sprite._isTrimmedContentSize;
+
         //build vertices
         var vertices = sprite._vertices,
-            wt = sprite._renderCmd._worldTransform,
+            corner = sprite._corner,
             l, b, r, t;
         if (isTrimmedContentSize) {
             l = 0;
@@ -100,17 +103,22 @@ var simpleQuadGenerator = {
             var originalSize = spriteFrame._originalSize;
             var rect = spriteFrame._rect;
             var offset = spriteFrame._offset;
-            var scaleX = contentSize.width / originalSize.width;
-            var scaleY = contentSize.height / originalSize.height;
-            var trimmLeft = offset.x + (originalSize.width - rect.width) / 2;
-            var trimmRight = offset.x - (originalSize.width - rect.width) / 2;
-            var trimmedBottom = offset.y + (originalSize.height - rect.height) / 2;
-            var trimmedTop = offset.y - (originalSize.height - rect.height) / 2;
+
+            var cw = contentSize.width, ch = contentSize.height;
+            var ow = originalSize.width, oh = originalSize.height;
+            var rw = rect.width, rh = rect.height;
+
+            var scaleX = cw / ow;
+            var scaleY = ch / oh;
+            var trimmLeft = offset.x + (ow - rw) / 2;
+            var trimmRight = offset.x - (ow - rw) / 2;
+            var trimmedBottom = offset.y + (oh - rh) / 2;
+            var trimmedTop = offset.y - (oh - rh) / 2;
 
             l = trimmLeft * scaleX;
             b = trimmedBottom * scaleY;
-            r = contentSize.width + trimmRight * scaleX;
-            t = contentSize.height + trimmedTop * scaleY;
+            r = cw + trimmRight * scaleX;
+            t = ch + trimmedTop * scaleY;
         }
 
         if (vertices.length < 8) {
@@ -120,9 +128,12 @@ var simpleQuadGenerator = {
         }
         // bl, br, tl, tr
         if (webgl) {
-            var la = l * wt.a, lb = l * wt.b, ra = r * wt.a, rb = r * wt.b,
-                tcx = t * wt.c + wt.tx, tdy = t * wt.d + wt.ty, 
-                bcx = b * wt.c + wt.tx, bdy = b * wt.d + wt.ty;
+            var wt = sprite._renderCmd._worldTransform;
+            var wta = wt.a, wtb = wt.b, wtc = wt.c, wtd = wt.d, wtx = wt.tx, wty = wt.ty;
+            
+            var la = l * wta, lb = l * wtb, ra = r * wta, rb = r * wtb,
+                tcx = t * wtc + wtx, tdy = t * wtd + wty, 
+                bcx = b * wtc + wtx, bdy = b * wtd + wty;
             vertices[0] = la + bcx;
             vertices[1] = lb + bdy;
             vertices[2] = ra + bcx;
@@ -143,10 +154,10 @@ var simpleQuadGenerator = {
             vertices[7] = t;
         }
 
-        cornerId[0] = 0; // bl
-        cornerId[1] = 2; // br
-        cornerId[2] = 4; // tl
-        cornerId[3] = 6; // tr
+        corner[0] = 0; // bl
+        corner[1] = 2; // br
+        corner[2] = 4; // tl
+        corner[3] = 6; // tr
 
         //build uvs
         if (sprite._uvsDirty) {
@@ -198,13 +209,21 @@ var simpleQuadGenerator = {
 var scale9QuadGenerator = {
     x: new Array(4),
     y: new Array(4),
-    _rebuildQuads_base: function (sprite, spriteFrame, contentSize, insetLeft, insetRight, insetTop, insetBottom) {
+    _rebuildQuads_base: function (sprite) {
+        var spriteFrame = sprite._spriteFrame, 
+            contentSize = sprite._contentSize, 
+            insetLeft = sprite._insetLeft, 
+            insetRight = sprite._insetRight, 
+            insetTop = sprite._insetTop, 
+            insetBottom = sprite._insetBottom;
+
         //build vertices
         var vertices = sprite._vertices;
         var wt = sprite._renderCmd._worldTransform;
         var leftWidth, centerWidth, rightWidth;
         var topHeight, centerHeight, bottomHeight;
         var rect = spriteFrame._rect;
+        var corner = sprite._corner;
 
         leftWidth = insetLeft;
         rightWidth = insetRight;
@@ -258,10 +277,10 @@ var scale9QuadGenerator = {
             }
         }
 
-        cornerId[0] = 0;  // bl
-        cornerId[1] = 6;  // br
-        cornerId[2] = 24; // tl
-        cornerId[3] = 30; // tr
+        corner[0] = 0;  // bl
+        corner[1] = 6;  // br
+        corner[2] = 24; // tl
+        corner[3] = 30; // tr
 
         //build uvs
         if (sprite._uvsDirty) {
@@ -342,7 +361,11 @@ var scale9QuadGenerator = {
 
 var tiledQuadGenerator = {
     _rebuildQuads_base: function (sprite, spriteFrame, contentSize) {
-        var vertices = sprite._vertices,
+
+        var spriteFrame = sprite._spriteFrame, 
+            contentSize = sprite._contentSize,
+            vertices = sprite._vertices,
+            corner = sprite._corner,
             wt = sprite._renderCmd._worldTransform,
             uvs = sprite._uvs;
         //build uvs
@@ -446,17 +469,39 @@ var tiledQuadGenerator = {
             }
         }
 
-        cornerId[0] = 0; // bl
-        cornerId[1] = (col-1) * 8 + 2; // br
-        cornerId[2] = (row-1) * col * 8 + 4; // tl
-        cornerId[3] = dataLength - 2; // tr
+        corner[0] = 0; // bl
+        corner[1] = (col-1) * 8 + 2; // br
+        corner[2] = (row-1) * col * 8 + 4; // tl
+        corner[3] = dataLength - 2; // tr
     }
 };
 
 var fillQuadGeneratorBar = {
     //percentage from 0 to 1;
-    _rebuildQuads_base : function (sprite, spriteFrame, contentSize, fillType, fillStart, fillRange) {
+    _rebuildQuads_base : function (sprite) {
+        var spriteFrame = sprite._spriteFrame,
+            contentSize = sprite._contentSize;
+    
+        var fillStart = sprite._fillStart;
+        var fillRange = sprite._fillRange;
+        
+        if (fillRange < 0) {
+            fillStart += fillRange;
+            fillRange = -fillRange;
+        }
+        
+        fillRange = fillStart + fillRange;
+        fillStart = fillStart > 1.0 ? 1.0 : fillStart;
+        fillStart = fillStart < 0.0 ? 0.0 : fillStart;
+
+        fillRange = fillRange > 1.0 ? 1.0 : fillRange;
+        fillRange = fillRange < 0.0 ? 0.0 : fillRange;
+        fillRange = fillRange - fillStart;
+
+        var fillType = sprite._fillType;
+
         var vertices = sprite._vertices,
+            corner = sprite._corner,
             wt = sprite._renderCmd._worldTransform,
             uvs = sprite._uvs;
         var fillEnd;
@@ -583,10 +628,10 @@ var fillQuadGeneratorBar = {
 
         sprite._vertCount = 4;
 
-        cornerId[0] = 0; // bl
-        cornerId[1] = 2; // br
-        cornerId[2] = 4; // tl
-        cornerId[3] = 6; // tr
+        corner[0] = 0; // bl
+        corner[1] = 2; // br
+        corner[2] = 4; // tl
+        corner[3] = 6; // tr
     }
 };
 
@@ -601,8 +646,27 @@ var fillQuadGeneratorRadial = {
     rawVerts: null,
     rawUvs: null,
 
-    _rebuildQuads_base : function (sprite, spriteFrame, contentSize, fillCenter, fillStart, fillRange) {
+    _rebuildQuads_base : function (sprite) {
+        var spriteFrame = sprite._spriteFrame,
+            contentSize = sprite._contentSize;
+        
+        var fillStart = sprite._fillStart;
+        var fillRange = sprite._fillRange;
+        if (fillRange < 0) {
+            fillStart += fillRange;
+            fillRange = -fillRange;
+        }
+        
+        sprite._isTriangle = true;
+        if (!sprite._rawVerts) {
+            sprite._rawVerts = dataPool.get(8) || new Float32Array(8);
+            sprite._rawUvs = dataPool.get(8) || new Float32Array(8);
+        }
+
+        var fillCenter = sprite._fillCenter;
+
         var vertices = sprite._vertices,
+            corner = sprite._corner,
             uvs = sprite._uvs,
             rawVerts = sprite._rawVerts,
             rawUvs = sprite._rawUvs,
@@ -753,10 +817,10 @@ var fillQuadGeneratorRadial = {
         }
         sprite._vertCount = count;
 
-        cornerId[0] = 0; // bl
-        cornerId[1] = 2; // br
-        cornerId[2] = 4; // tl
-        cornerId[3] = 6; // tr
+        corner[0] = 0; // bl
+        corner[1] = 2; // br
+        corner[2] = 4; // tl
+        corner[3] = 6; // tr
     },
 
     _generateTriangle: function(wt, offset, vert0, vert1, vert2) {
@@ -940,6 +1004,9 @@ var meshQuadGenerator = {
             return;
         }
 
+        var spriteFrame = sprite._spriteFrame, 
+            polygonInfo = sprite._meshPolygonInfo
+
         if (!polygonInfo) {
             return;
         }
@@ -949,6 +1016,7 @@ var meshQuadGenerator = {
         var vertices = sprite._vertices;
         var uvs = sprite._uvs;
         var count = srcVerts.length;
+        var corner = sprite._corner;
 
         var dataLength = count * 2;
         if (vertices.length < dataLength) {
@@ -974,22 +1042,22 @@ var meshQuadGenerator = {
 
             if (x < l) {
                 l = x;
-                cornerId[0] = i * 2; // left
+                corner[0] = i * 2; // left
             }
 
             if (x > r) {
                 r = x;
-                cornerId[1] = i * 2; // right
+                corner[1] = i * 2; // right
             }
 
             if (y < b) {
                 b = y;
-                cornerId[2] = i * 2; // bottom
+                corner[2] = i * 2; // bottom
             }
 
             if (y > t) {
                 t = y;
-                cornerId[3] = i * 2; // top
+                corner[3] = i * 2; // top
             }
         }
 
@@ -1055,6 +1123,8 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         if (webgl === undefined) {
             webgl = cc._renderType === cc.game.RENDER_TYPE_WEBGL;
         }
+
+        this._corner = [];
     },
 
     loaded: function () {
@@ -1361,91 +1431,39 @@ cc.Scale9Sprite = _ccsg.Node.extend({
             return;
         }
         this._isTriangle = false;
+
+        var quadGenerator;
         switch (this._renderingType) {
         case RenderingType.SIMPLE:
-            simpleQuadGenerator._rebuildQuads_base(this, this._spriteFrame, this._contentSize, this._isTrimmedContentSize);
+            quadGenerator = simpleQuadGenerator;
             break;
         case RenderingType.SLICED:
-            scale9QuadGenerator._rebuildQuads_base(this, this._spriteFrame, this._contentSize, this._insetLeft, this._insetRight, this._insetTop, this._insetBottom);
+            quadGenerator = scale9QuadGenerator;
             break;
         case RenderingType.TILED:
-            tiledQuadGenerator._rebuildQuads_base(this, this._spriteFrame, this._contentSize);
+            quadGenerator = tiledQuadGenerator;
             break;
         case RenderingType.FILLED:
-            var fillstart = this._fillStart;
-            var fillRange = this._fillRange;
-            if(fillRange < 0) {
-                fillstart += fillRange;
-                fillRange = -fillRange;
+            if (this._fillType === FillType.RADIAL) { 
+                quadGenerator = fillQuadGeneratorRadial;
             }
-            if (this._fillType !== FillType.RADIAL) {
-                fillRange = fillstart + fillRange;
-                fillstart = fillstart > 1.0 ? 1.0 : fillstart;
-                fillstart = fillstart < 0.0 ? 0.0 : fillstart;
-
-                fillRange = fillRange > 1.0 ? 1.0 : fillRange;
-                fillRange = fillRange < 0.0 ? 0.0 : fillRange;
-                fillRange = fillRange - fillstart;
-                fillQuadGeneratorBar._rebuildQuads_base(this, this._spriteFrame, this._contentSize, this._fillType, fillstart, fillRange);
-            } else {
-                this._isTriangle = true;
-                if (!this._rawVerts) {
-                    this._rawVerts = dataPool.get(8) || new Float32Array(8);
-                    this._rawUvs = dataPool.get(8) || new Float32Array(8);
-                }
-                fillQuadGeneratorRadial._rebuildQuads_base(this, this._spriteFrame, this._contentSize, this._fillCenter,fillstart, fillRange);
+            else {
+                quadGenerator = fillQuadGeneratorBar;
             }
             break;
         case RenderingType.MESH:
-            meshQuadGenerator._rebuildQuads_base(this, this._spriteFrame, this._meshPolygonInfo);
+            quadGenerator = meshQuadGenerator;
             break;
-        default:
+        }
+    
+        if (quadGenerator) {
+            quadGenerator._rebuildQuads_base(this);
+        }
+        else {
             this._quadsDirty = false;
             this._uvsDirty = false;
             this._renderCmd._needDraw = false;
             cc.errorID(2627);
-            return;
-        }
-
-        var rect = cc.visibleRect;
-        if (webgl && this._renderCmd._cameraFlag > 0) {
-            rect = cc.Camera.main.visibleRect;
-        }
-
-        vl = rect.left.x;
-        vr = rect.right.x;
-        vt = rect.top.y;
-        vb = rect.bottom.y;
-
-        // Culling
-        if (webgl) {
-            // x1, y1  leftBottom
-            // x2, y2  rightBottom
-            // x3, y3  leftTop
-            // x4, y4  rightTop
-            var vert = this._isTriangle ? this._rawVerts : this._vertices,
-                x0 = vert[cornerId[0]], x1 = vert[cornerId[1]], x2 = vert[cornerId[2]], x3 = vert[cornerId[3]],
-                y0 = vert[cornerId[0] + 1], y1 = vert[cornerId[1] + 1], y2 = vert[cornerId[2] + 1], y3 = vert[cornerId[3] + 1];
-            if (((x0-vl) & (x1-vl) & (x2-vl) & (x3-vl)) >> 31 || // All outside left
-                ((vr-x0) & (vr-x1) & (vr-x2) & (vr-x3)) >> 31 || // All outside right
-                ((y0-vb) & (y1-vb) & (y2-vb) & (y3-vb)) >> 31 || // All outside bottom
-                ((vt-y0) & (vt-y1) & (vt-y2) & (vt-y3)) >> 31)   // All outside top
-            {
-                this._renderCmd._needDraw = false;
-            }
-            else {
-                this._renderCmd._needDraw = true;
-            }
-        }
-        else {
-            var bb = this._renderCmd._currentRegion,
-                l = bb._minX, r = bb._maxX, b = bb._minY, t = bb._maxY;
-            if (r < vl || l > vr || t < vb || b > vt) {
-                this._renderCmd._needDraw = false;
-            }
-            else {
-                this._renderCmd._needDraw = true;
-            }
         }
 
         this._quadsDirty = false;
