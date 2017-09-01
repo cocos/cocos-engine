@@ -237,9 +237,9 @@ namespace se {
                 {
                     ret += ", line: " + value;
                 }
-                else if (name == "sourceURL")
+                else if (name == "file")
                 {
-                    ret += ", sourceURL: " + value;
+                    ret += ", file: " + value;
                 }
             }
 
@@ -261,7 +261,7 @@ namespace se {
             std::string exceptionStr = _formatException(exception);
             if (!exceptionStr.empty())
             {
-                LOGD("%s\n", exceptionStr.c_str());
+                LOGD("ERROR: %s\n", exceptionStr.c_str());
 
                 if (_exceptionCallback != nullptr)
                 {
