@@ -251,9 +251,9 @@ Scale9Sprite.WebGLRenderCmd._grayShaderFragment =
     + "varying vec2 v_texCoord;\n"
     + "void main()\n"
     + "{\n"
-    + "vec4 c = texture2D(CC_Texture0, v_texCoord);\n"
-    + "gl_FragColor.xyz = vec3(0.2126*c.r + 0.7152*c.g + 0.0722*c.b);\n"
-    + "gl_FragColor.w = c.w ;\n"
+    + "vec4 c = v_fragmentColor * texture2D(CC_Texture0, v_texCoord);\n"
+    + "float gray = 0.2126*c.r + 0.7152*c.g + 0.0722*c.b;\n"
+    + "gl_FragColor = vec4(gray, gray, gray, c.a);\n"
     + "}";
 
 Scale9Sprite.WebGLRenderCmd._distortionProgram = null;
