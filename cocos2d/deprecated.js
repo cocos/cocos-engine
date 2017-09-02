@@ -8,6 +8,8 @@ if (CC_DEV) {
         cc.errorID(1404);
     });
 
+    js.obsolete(cc.textureCache, 'cc.textureCache.textureForKey', 'getTextureForKey');
+
     // Label
     if (cc.Label) {
         js.obsolete(cc.Label.prototype,  'cc.Label.file', 'font', true);

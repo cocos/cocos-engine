@@ -63,19 +63,6 @@ var textureCache = /** @lends cc.textureCache# */{
 
     /**
      * Returns an already created texture. Returns null if the texture doesn't exist.
-     * @method textureForKey
-     * @param {String} textureKeyName
-     * @return {Texture2D|Null}
-     * @deprecated
-     * @example {@link utils/api/engine/docs/cocos2d/core/textures/textureForKey.js}
-     */
-    textureForKey: function (textureKeyName) {
-        cc.logID(3002);
-        return this.getTextureForKey(textureKeyName);
-    },
-
-    /**
-     * Returns an already created texture. Returns null if the texture doesn't exist.
      * @method getTextureForKey
      * @param {String} textureKeyName
      * @return {Texture2D|Null}
@@ -229,11 +216,9 @@ var textureCache = /** @lends cc.textureCache# */{
     },
 
     /**
-     * <p>Returns a Texture2D object given an UIImage image<br />
-     * If the image was not previously loaded, it will create a new Texture2D object and it will return it.<br />
-     * Otherwise it will return a reference of a previously loaded image<br />
-     * The "key" parameter will be used as the "key" for the cache.<br />
-     * If "key" is null, then a new texture will be created each time.</p>
+     * Returns a Texture2D object given an UIImage image <br>
+     * If the image was not previously loaded, it will create a new Texture2D object and it will return it. Otherwise it will return a reference of a previously loaded image.<br>
+     * The "key" parameter will be used as the "key" for the cache. If "key" is null, then a new texture will be created each time.
      * @method addUIImage
      * @param {HTMLImageElement|HTMLCanvasElement} image
      * @param {String} key
@@ -257,8 +242,8 @@ var textureCache = /** @lends cc.textureCache# */{
     },
 
     /**
-     * <p>Output to cc.log the current contents of this TextureCache <br />
-     * This will attempt to calculate the size of each texture, and the total texture memory in use. </p>
+     * Output to cc.log the current contents of this TextureCache.<br>
+     * This will attempt to calculate the size of each texture, and the total texture memory in use.
      */
     dumpCachedTextureInfo: function () {
         var count = 0;
@@ -369,6 +354,10 @@ game.once(game.EVENT_RENDERER_INITED, function () {
         };
 
         _p.addImage = function (url, cb, target) {
+            if (CC_DEBUG && url instanceof cc.Texture2D) {
+                cc.warn('textureCache.addImage(url) - The type of the url should be string, not Texture2D. You don\'t need to call addImage if you already have the texture object.');
+            }
+
             cc.assertID(url, 3112);
 
             var locTexs = this._textures;
@@ -382,8 +371,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                     cb && cb.call(target, tex);
                     return tex;
                 }
-                else
-                {
+                else {
                     tex.once("load", function(){
                        cb && cb.call(target, tex);
                     }, target);
