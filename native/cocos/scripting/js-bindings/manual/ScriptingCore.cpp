@@ -1041,8 +1041,13 @@ void ScriptingCore::reportError(JSContext *cx, JSErrorReport *report, JS::Handle
             if (JS_GetProperty(cx, errObj, "stack", &stack) && stack.isString())
             {
                 JS::RootedString jsstackStr(cx, stack.toString());
-                stackStr = JS_EncodeStringToUTF8(cx, jsstackStr);
-                CCLOGERROR("Stack: %s\n", stackStr.c_str());
+                char *rawStr = JS_EncodeStringToUTF8(cx, jsstackStr);
+                if (rawStr != nullptr)
+                {
+                    stackStr = rawStr;
+                    JS_free(cx, rawStr);
+                    CCLOGERROR("Stack: %s\n", stackStr.c_str());
+                }
             }
         }
         

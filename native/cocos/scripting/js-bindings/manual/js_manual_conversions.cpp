@@ -79,13 +79,14 @@ void JSStringWrapper::set(JS::HandleValue val, JSContext* cx)
     }
     else
     {
-        CC_SAFE_DELETE_ARRAY(_buffer);
+        JS_free(cx, (void*)_buffer);
+        _buffer = nullptr;
     }
 }
 
 void JSStringWrapper::set(JS::HandleString str, JSContext* cx)
 {
-    CC_SAFE_DELETE_ARRAY(_buffer);
+    JS_free(cx, (void*)_buffer);
 
     if (!cx)
     {
