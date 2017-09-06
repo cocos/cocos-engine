@@ -186,9 +186,13 @@ void _spAnimationState_disposeTrackEntries (spAnimationState* state, spTrackEntr
 		spTrackEntry* from = entry->mixingFrom;
 		while (from) {
 			spTrackEntry* nextFrom = from->mixingFrom;
+			if (entry->listener) entry->listener(state, SP_ANIMATION_DISPOSE, from, 0);
+			if (state->listener) state->listener(state, SP_ANIMATION_DISPOSE, from, 0);
 			_spAnimationState_disposeTrackEntry(from);
 			from = nextFrom;
 		}
+		if (entry->listener) entry->listener(state, SP_ANIMATION_DISPOSE, entry, 0);
+		if (state->listener) state->listener(state, SP_ANIMATION_DISPOSE, entry, 0);
 		_spAnimationState_disposeTrackEntry(entry);
 		entry = next;
 	}
