@@ -1296,14 +1296,11 @@ var Node = cc.Class({
             h = this.height;
         var rect = cc.rect(0, 0, w, h);
         
-        var trans;
         if (cc.Camera && cc.Camera.main) {
-            trans = cc.Camera.main.getNodeToCameraTransform(this);
+            point = cc.Camera.main.getCameraToWorldPoint(point);
         }
-        else {
-            trans = this.getNodeToWorldTransform();
-        }
-
+        
+        var trans = this.getNodeToWorldTransform();
         cc._rectApplyAffineTransformIn(rect, trans);
         var left = point.x - rect.x,
             right = rect.x + rect.width - point.x,
