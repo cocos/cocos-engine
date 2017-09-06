@@ -46,7 +46,7 @@ namespace se {
 
         std::string stackTraceToString(v8::Local<v8::StackTrace> stack)
         {
-            std::string stackStr = "STACK:\n";
+            std::string stackStr;
             char tmp[100] = {0};
             for (int i = 0, e = stack->GetFrameCount(); i < e; ++i)
             {
@@ -86,7 +86,7 @@ namespace se {
         }
     } // namespace {
 
-    void ScriptEngine::myFatalErrorCallback(const char* location, const char* message)
+    void ScriptEngine::onFatalErrorCallback(const char* location, const char* message)
     {
         std::string errorStr = "[FATAL ERROR] location: ";
         errorStr += location;
@@ -96,44 +96,82 @@ namespace se {
         LOGE("%s\n", errorStr.c_str());
         if (getInstance()->_exceptionCallback != nullptr)
         {
-            getInstance()->_exceptionCallback(errorStr.c_str());
+            getInstance()->_exceptionCallback(location, message, "(no stack information)");
         }
     }
 
-    void ScriptEngine::myOOMErrorCallback(const char* location, bool is_heap_oom)
+    void ScriptEngine::onOOMErrorCallback(const char* location, bool is_heap_oom)
     {
         std::string errorStr = "[OOM ERROR] location: ";
         errorStr += location;
-        errorStr += ", is heap out of memory: ";
+        std::string message;
+        message = "is heap out of memory: ";
         if (is_heap_oom)
-            errorStr += "true";
+            message += "true";
         else
-            errorStr += "false";
+            message += "false";
 
+        errorStr += ", " + message;
         LOGE("%s\n", errorStr.c_str());
         if (getInstance()->_exceptionCallback != nullptr)
         {
-            getInstance()->_exceptionCallback(errorStr.c_str());
+            getInstance()->_exceptionCallback(location, message.c_str(), "(no stack information)");
         }
     }
 
-    void ScriptEngine::myMessageCallback(v8::Local<v8::Message> message, v8::Local<v8::Value> data)
+    void ScriptEngine::onMessageCallback(v8::Local<v8::Message> message, v8::Local<v8::Value> data)
     {
+        ScriptEngine* thiz = getInstance();
         v8::Local<v8::String> msg = message->Get();
-        se::Value msgVal;
+        Value msgVal;
         internal::jsToSeValue(v8::Isolate::GetCurrent(), msg, &msgVal);
         assert(msgVal.isString());
-        std::string errorStr = msgVal.toString();
+        v8::ScriptOrigin origin = message->GetScriptOrigin();
+        Value resouceNameVal;
+        internal::jsToSeValue(v8::Isolate::GetCurrent(), origin.ResourceName(), &resouceNameVal);
+        Value line;
+        internal::jsToSeValue(v8::Isolate::GetCurrent(), origin.ResourceLineOffset(), &line);
+        Value column;
+        internal::jsToSeValue(v8::Isolate::GetCurrent(), origin.ResourceColumnOffset(), &column);
+
+        std::string location = resouceNameVal.toString() + ":" + line.toStringForce() + ":" + column.toStringForce();
+
+        std::string errorStr = msgVal.toString() + ", " + location;
         std::string stackStr = stackTraceToString(message->GetStackTrace());
         if (!stackStr.empty())
         {
-            errorStr += "\n" + stackStr;
+            if (line.toInt32() == 0)
+            {
+                location = "(see stack)";
+            }
+            errorStr += "\nSTACK:\n" + stackStr;
         }
         LOGE("ERROR: %s\n", errorStr.c_str());
 
-        if (getInstance()->_exceptionCallback != nullptr)
+        if (thiz->_exceptionCallback != nullptr)
         {
-            getInstance()->_exceptionCallback(errorStr.c_str());
+            thiz->_exceptionCallback(location.c_str(), msgVal.toString().c_str(), stackStr.c_str());
+        }
+
+        if (!thiz->_isErrorHandleWorking)
+        {
+            thiz->_isErrorHandleWorking = true;
+
+            Value errorHandler;
+            if (thiz->_globalObj->getProperty("__errorHandler", &errorHandler) && errorHandler.isObject() && errorHandler.toObject()->isFunction())
+            {
+                ValueArray args;
+                args.push_back(Value(location));
+                args.push_back(msgVal);
+                args.push_back(Value(stackStr));
+                errorHandler.toObject()->call(args, thiz->_globalObj);
+            }
+
+            thiz->_isErrorHandleWorking = false;
+        }
+        else
+        {
+            LOGE("ERROR: __errorHandler has exception\n");
         }
     }
 
@@ -175,6 +213,7 @@ namespace se {
     , _isValid(false)
     , _isGarbageCollecting(false)
     , _isInCleanup(false)
+    , _isErrorHandleWorking(false)
     , _nodeEventListener(nullptr)
     , _exceptionCallback(nullptr)
 #if SE_ENABLE_INSPECTOR
@@ -219,9 +258,9 @@ namespace se {
 
         _isolate->SetCaptureStackTraceForUncaughtExceptions(true, 20, v8::StackTrace::kOverview);
 
-        _isolate->SetFatalErrorHandler(myFatalErrorCallback);
-        _isolate->SetOOMErrorHandler(myOOMErrorCallback);
-        _isolate->AddMessageListener(myMessageCallback);
+        _isolate->SetFatalErrorHandler(onFatalErrorCallback);
+        _isolate->SetOOMErrorHandler(onOOMErrorCallback);
+        _isolate->AddMessageListener(onMessageCallback);
 
         _context.Reset(_isolate, v8::Context::New(_isolate));
         _context.Get(_isolate)->Enter();

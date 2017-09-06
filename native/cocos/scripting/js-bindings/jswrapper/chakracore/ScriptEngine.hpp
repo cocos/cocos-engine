@@ -115,7 +115,7 @@ namespace se {
 
         void clearException();
 
-        using ExceptionCallback = std::function<void(const char*)>;
+        using ExceptionCallback = std::function<void(const char*, const char*, const char*)>; // location, message, stack
 
         void setExceptionCallback(const ExceptionCallback& cb);
 
@@ -137,8 +137,18 @@ namespace se {
         bool _setNodeEventListener(NodeEventListener listener);
 
     private:
+        struct ExceptionInfo
+        {
+            std::string location;
+            std::string message;
+            std::string stack;
 
-        std::string formatException(JsValueRef exception);
+            bool isValid() const
+            {
+                return !message.empty();
+            }
+        };
+        ExceptionInfo formatException(JsValueRef exception);
 
         JsRuntimeHandle _rt;
         JsContextRef _cx;
@@ -148,6 +158,7 @@ namespace se {
         bool _isValid;
         bool _isInCleanup;
         bool _isGarbageCollecting;
+        bool _isErrorHandleWorking;
         unsigned _currentSourceContext;
         NodeEventListener _nodeEventListener;
 
