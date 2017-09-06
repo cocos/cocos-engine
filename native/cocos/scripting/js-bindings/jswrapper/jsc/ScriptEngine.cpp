@@ -241,6 +241,7 @@ namespace se {
                 if (name == "line")
                 {
                     line = value;
+                    ret.lineno = (uint32_t)JSValueToNumber(_cx, jsValue, nullptr);
                 }
                 else if (name == "column")
                 {
@@ -249,6 +250,7 @@ namespace se {
                 else if (name == "sourceURL")
                 {
                     filePath = value;
+                    ret.filePath = value;
                 }
             }
 
@@ -287,7 +289,8 @@ namespace se {
                     if (_globalObj->getProperty("__errorHandler", &errorHandler) && errorHandler.isObject() && errorHandler.toObject()->isFunction())
                     {
                         ValueArray args;
-                        args.push_back(Value(exceptionInfo.location));
+                        args.push_back(Value(exceptionInfo.filePath));
+                        args.push_back(Value(exceptionInfo.lineno));
                         args.push_back(Value(exceptionInfo.message));
                         args.push_back(Value(exceptionInfo.stack));
                         errorHandler.toObject()->call(args, _globalObj);

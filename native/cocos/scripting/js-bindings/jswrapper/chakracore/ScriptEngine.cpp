@@ -301,6 +301,7 @@ namespace se {
                 {
                     ValueArray args;
                     args.push_back(Value(exceptionInfo.location));
+                    args.push_back(Value(0));
                     args.push_back(Value(exceptionInfo.message));
                     args.push_back(Value(exceptionInfo.stack));
                     errorHandler.toObject()->call(args, _globalObj);

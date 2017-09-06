@@ -239,6 +239,14 @@ namespace se {
             std::string message;
             std::string stack;
 
+            // For compatibility
+            std::string filePath;
+            uint32_t lineno;
+
+            ExceptionInfo()
+            : lineno(0)
+            {}
+
             bool isValid() const
             {
                 return !message.empty();

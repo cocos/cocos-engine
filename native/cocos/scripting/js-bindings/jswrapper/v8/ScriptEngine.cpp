@@ -161,7 +161,8 @@ namespace se {
             if (thiz->_globalObj->getProperty("__errorHandler", &errorHandler) && errorHandler.isObject() && errorHandler.toObject()->isFunction())
             {
                 ValueArray args;
-                args.push_back(Value(location));
+                args.push_back(resouceNameVal);
+                args.push_back(line);
                 args.push_back(msgVal);
                 args.push_back(Value(stackStr));
                 errorHandler.toObject()->call(args, thiz->_globalObj);

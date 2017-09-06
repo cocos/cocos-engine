@@ -352,12 +352,12 @@ namespace se {
         _globalObj = Object::_createJSObject(nullptr, globalObj);
         _globalObj->root();
 
-        _globalObj->setProperty("scriptEngineType", se::Value("SpiderMonkey"));
-
         JS::RootedObject rootedGlobalObj(_cx, _globalObj->_getJSObject());
 
         _oldCompartment = JS_EnterCompartment(_cx, rootedGlobalObj);
         JS_InitStandardClasses(_cx, rootedGlobalObj) ;
+
+        _globalObj->setProperty("scriptEngineType", se::Value("SpiderMonkey"));
 
         JS_DefineFunction(_cx, rootedGlobalObj, "log", __log, 0, JSPROP_PERMANENT);
         JS_DefineFunction(_cx, rootedGlobalObj, "forceGC", __forceGC, 0, JSPROP_READONLY | JSPROP_PERMANENT);
@@ -762,7 +762,8 @@ namespace se {
                 if (_globalObj->getProperty("__errorHandler", &errorHandler) && errorHandler.isObject() && errorHandler.toObject()->isFunction())
                 {
                     ValueArray args;
-                    args.push_back(Value(location));
+                    args.push_back(Value(filePath));
+                    args.push_back(Value(report->lineno));
                     args.push_back(Value(message));
                     args.push_back(Value(stack));
                     errorHandler.toObject()->call(args, _globalObj);
