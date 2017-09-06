@@ -229,6 +229,7 @@ namespace se {
             , _isGarbageCollecting(false)
             , _isValid(false)
             , _isInCleanup(false)
+            , _isErrorHandleWorking(false)
             , _nodeEventListener(nullptr)
             , _exceptionCallback(nullptr)
     {
@@ -237,13 +238,13 @@ namespace se {
     }
 
     /* static */
-    void ScriptEngine::myWeakPointerCompartmentCallback(JSContext* cx, JSCompartment* comp, void* data)
+    void ScriptEngine::onWeakPointerCompartmentCallback(JSContext* cx, JSCompartment* comp, void* data)
     {
-        myWeakPointerZoneGroupCallback(cx, data);
+        onWeakPointerZoneGroupCallback(cx, data);
     }
 
     /* static */
-    void ScriptEngine::myWeakPointerZoneGroupCallback(JSContext* cx, void* data)
+    void ScriptEngine::onWeakPointerZoneGroupCallback(JSContext* cx, void* data)
     {
         bool isInCleanup = getInstance()->isInCleanup();
         bool isIterUpdated = false;
@@ -330,7 +331,7 @@ namespace se {
 
 #ifdef DEBUG
         JS::ContextOptionsRef(_cx)
-//                    .setExtraWarnings(true)
+                    .setExtraWarnings(true)
                     .setIon(false)
                     .setBaseline(false)
                     .setAsmJS(false);
@@ -350,16 +351,19 @@ namespace se {
 
         _globalObj = Object::_createJSObject(nullptr, globalObj);
         _globalObj->root();
+
         JS::RootedObject rootedGlobalObj(_cx, _globalObj->_getJSObject());
 
         _oldCompartment = JS_EnterCompartment(_cx, rootedGlobalObj);
         JS_InitStandardClasses(_cx, rootedGlobalObj) ;
 
+        _globalObj->setProperty("scriptEngineType", se::Value("SpiderMonkey"));
+
         JS_DefineFunction(_cx, rootedGlobalObj, "log", __log, 0, JSPROP_PERMANENT);
         JS_DefineFunction(_cx, rootedGlobalObj, "forceGC", __forceGC, 0, JSPROP_READONLY | JSPROP_PERMANENT);
 
-//        JS_AddWeakPointerZoneGroupCallback(_cx, ScriptEngine::myWeakPointerZoneGroupCallback, nullptr);
-        JS_AddWeakPointerCompartmentCallback(_cx, ScriptEngine::myWeakPointerCompartmentCallback, nullptr);
+//        JS_AddWeakPointerZoneGroupCallback(_cx, ScriptEngine::onWeakPointerZoneGroupCallback, nullptr);
+        JS_AddWeakPointerCompartmentCallback(_cx, ScriptEngine::onWeakPointerCompartmentCallback, nullptr);
 
         JS_FireOnNewGlobalObject(_cx, rootedGlobalObj);
         JS::SetBuildIdOp(_cx, getBytecodeBuildId);
@@ -408,8 +412,8 @@ namespace se {
         Class::cleanup();
         Object::cleanup();
 
-        // JS_RemoveWeakPointerZoneGroupCallback(_cx, ScriptEngine::myWeakPointerZoneGroupCallback);
-//        JS_RemoveWeakPointerCompartmentCallback(_cx, ScriptEngine::myWeakPointerCompartmentCallback);
+        // JS_RemoveWeakPointerZoneGroupCallback(_cx, ScriptEngine::onWeakPointerZoneGroupCallback);
+//        JS_RemoveWeakPointerCompartmentCallback(_cx, ScriptEngine::onWeakPointerCompartmentCallback);
         JS_LeaveCompartment(_cx, _oldCompartment);
 
         JS::SetGetIncumbentGlobalCallback(_cx, nullptr);
@@ -719,28 +723,63 @@ namespace se {
             assert(exceptionValue.isObject());
             JS::RootedObject exceptionObj(_cx, exceptionValue.toObjectOrNull());
             JSErrorReport* report = JS_ErrorFromException(_cx, exceptionObj);
-            const char* fileName = report->filename != nullptr ? report->filename : "(no filename)";
-            std::string exceptionStr = report->message().c_str();
-            exceptionStr += ", file: ";
-            exceptionStr += fileName;
-            char lineBuf[50] = {0};
-            snprintf(lineBuf, sizeof(lineBuf), "%u", report->lineno);
-            exceptionStr += lineBuf;
+            const char* message = report->message().c_str();
+            const std::string filePath = report->filename != nullptr ? report->filename : "(no filename)";
+            char line[50] = {0};
+            snprintf(line, sizeof(line), "%u", report->lineno);
+            char column[50] = {0};
+            snprintf(column, sizeof(column), "%u", report->column);
+            const std::string location = filePath + ":" + line + ":" + column;
 
-            JS::RootedValue stack(_cx);
-            if (JS_GetProperty(_cx, exceptionObj, "stack", &stack) && stack.isString())
+            char* stack = nullptr; // Need to be freed by JS_free
+
+            JS::RootedValue stackVal(_cx);
+            if (JS_GetProperty(_cx, exceptionObj, "stack", &stackVal) && stackVal.isString())
             {
-                JS::RootedString jsstackStr(_cx, stack.toString());
-                char* stackStr = JS_EncodeStringToUTF8(_cx, jsstackStr);
+                JS::RootedString jsstackStr(_cx, stackVal.toString());
+                stack = JS_EncodeStringToUTF8(_cx, jsstackStr);
+            }
+
+            std::string exceptionStr = message;
+            exceptionStr += ", location: " + location;
+            if (stack != nullptr)
+            {
                 exceptionStr += "\nSTACK:\n";
-                exceptionStr += stackStr;
-                JS_free(_cx, stackStr);
+                exceptionStr += stack;
             }
 
             LOGE("ERROR: %s\n", exceptionStr.c_str());
             if (_exceptionCallback != nullptr)
             {
-                _exceptionCallback(exceptionStr.c_str());
+                _exceptionCallback(location.c_str(), message, stack);
+            }
+
+            if (!_isErrorHandleWorking)
+            {
+                _isErrorHandleWorking = true;
+
+                Value errorHandler;
+                if (_globalObj->getProperty("__errorHandler", &errorHandler) && errorHandler.isObject() && errorHandler.toObject()->isFunction())
+                {
+                    ValueArray args;
+                    args.push_back(Value(filePath));
+                    args.push_back(Value(report->lineno));
+                    args.push_back(Value(message));
+                    args.push_back(Value(stack));
+                    errorHandler.toObject()->call(args, _globalObj);
+                }
+
+                _isErrorHandleWorking = false;
+            }
+            else
+            {
+                LOGE("ERROR: __errorHandler has exception\n");
+            }
+
+            if (stack != nullptr)
+            {
+                JS_free(_cx, stack);
+                stack = nullptr;
             }
         }
     }

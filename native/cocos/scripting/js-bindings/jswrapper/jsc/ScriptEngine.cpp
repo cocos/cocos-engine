@@ -86,6 +86,7 @@ namespace se {
             , _isGarbageCollecting(false)
             , _isValid(false)
             , _isInCleanup(false)
+            , _isErrorHandleWorking(false)
             , _exceptionCallback(nullptr)
     {
     }
@@ -125,6 +126,8 @@ namespace se {
         _globalObj = Object::_createJSObject(nullptr, globalObj);
         _globalObj->root();
         _globalObj->setProperty("window", se::Value(_globalObj));
+
+        _globalObj->setProperty("scriptEngineType", se::Value("JavaScriptCore"));
 
         JSStringRef propertyName = JSStringCreateWithUTF8CString("log");
         JSObjectSetProperty(_cx, globalObj, propertyName, JSObjectMakeFunctionWithCallback(_cx, propertyName, __log), kJSPropertyAttributeReadOnly, nullptr);
@@ -193,17 +196,16 @@ namespace se {
         LOGD("ScriptEngine::cleanup end ...\n");
     }
 
-    std::string ScriptEngine::_formatException(JSValueRef exception)
+    ScriptEngine::ExceptionInfo ScriptEngine::_formatException(JSValueRef exception)
     {
-        std::string ret;
-        internal::forceConvertJsValueToStdString(_cx, exception, &ret);
+        ExceptionInfo ret;
+        internal::forceConvertJsValueToStdString(_cx, exception, &ret.message);
 
         JSType type = JSValueGetType(_cx, exception);
 
         if (type == kJSTypeObject)
         {
             JSObjectRef obj = JSValueToObject(_cx, exception, nullptr);
-            std::string strackInfo;
             JSStringRef stackKey = JSStringCreateWithUTF8CString("stack");
             JSValueRef stackVal = JSObjectGetProperty(_cx, obj, stackKey, nullptr);
             if (stackKey != nullptr)
@@ -212,12 +214,15 @@ namespace se {
                 if (type == kJSTypeString)
                 {
                     JSStringRef stackStr = JSValueToStringCopy(_cx, stackVal, nullptr);
-                    internal::jsStringToStdString(_cx, stackStr, &strackInfo);
+                    internal::jsStringToStdString(_cx, stackStr, &ret.stack);
                     JSStringRelease(stackStr);
                 }
                 JSStringRelease(stackKey);
             }
 
+            std::string line;
+            std::string column;
+            std::string filePath;
             JSPropertyNameArrayRef nameArr = JSObjectCopyPropertyNames(_cx, obj);
             size_t count =JSPropertyNameArrayGetCount(nameArr);
             for (size_t i = 0; i < count; ++i)
@@ -235,19 +240,21 @@ namespace se {
 
                 if (name == "line")
                 {
-                    ret += ", line: " + value;
+                    line = value;
+                    ret.lineno = (uint32_t)JSValueToNumber(_cx, jsValue, nullptr);
                 }
-                else if (name == "file")
+                else if (name == "column")
                 {
-                    ret += ", file: " + value;
+                    column = value;
+                }
+                else if (name == "sourceURL")
+                {
+                    filePath = value;
+                    ret.filePath = value;
                 }
             }
 
-            if (!strackInfo.empty())
-            {
-                ret += "\nSTACK:\n" + strackInfo;
-            }
-
+            ret.location = filePath + ":" + line + ":" + column;
             JSPropertyNameArrayRelease(nameArr);
         }
 
@@ -258,14 +265,42 @@ namespace se {
     {
         if (exception != nullptr)
         {
-            std::string exceptionStr = _formatException(exception);
-            if (!exceptionStr.empty())
+            ExceptionInfo exceptionInfo = _formatException(exception);
+            if (exceptionInfo.isValid())
             {
+                std::string exceptionStr = exceptionInfo.message;
+                exceptionStr += ", location: " + exceptionInfo.location;
+                if (!exceptionInfo.stack.empty())
+                {
+                    exceptionStr += "\nSTACK:\n" + exceptionInfo.stack;
+                }
                 LOGD("ERROR: %s\n", exceptionStr.c_str());
 
                 if (_exceptionCallback != nullptr)
                 {
-                    _exceptionCallback(exceptionStr.c_str());
+                    _exceptionCallback(exceptionInfo.location.c_str(), exceptionInfo.message.c_str(), exceptionInfo.stack.c_str());
+                }
+
+                if (!_isErrorHandleWorking)
+                {
+                    _isErrorHandleWorking = true;
+
+                    Value errorHandler;
+                    if (_globalObj->getProperty("__errorHandler", &errorHandler) && errorHandler.isObject() && errorHandler.toObject()->isFunction())
+                    {
+                        ValueArray args;
+                        args.push_back(Value(exceptionInfo.filePath));
+                        args.push_back(Value(exceptionInfo.lineno));
+                        args.push_back(Value(exceptionInfo.message));
+                        args.push_back(Value(exceptionInfo.stack));
+                        errorHandler.toObject()->call(args, _globalObj);
+                    }
+
+                    _isErrorHandleWorking = false;
+                }
+                else
+                {
+                    LOGE("ERROR: __errorHandler has exception\n");
                 }
             }
         }

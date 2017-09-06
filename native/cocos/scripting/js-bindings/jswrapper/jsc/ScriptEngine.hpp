@@ -194,7 +194,7 @@ namespace se {
          */
         void clearException();
 
-        using ExceptionCallback = std::function<void(const char*)>;
+        using ExceptionCallback = std::function<void(const char*, const char*, const char*)>; // location, message, stack
 
         /**
          *  @brief Sets the callback function while an exception is fired.
@@ -233,7 +233,26 @@ namespace se {
         ScriptEngine();
         ~ScriptEngine();
 
-        std::string _formatException(JSValueRef exception);
+        struct ExceptionInfo
+        {
+            std::string location;
+            std::string message;
+            std::string stack;
+
+            // For compatibility
+            std::string filePath;
+            uint32_t lineno;
+
+            ExceptionInfo()
+            : lineno(0)
+            {}
+
+            bool isValid() const
+            {
+                return !message.empty();
+            }
+        };
+        ExceptionInfo _formatException(JSValueRef exception);
 
         JSGlobalContextRef _cx;
 
@@ -242,6 +261,7 @@ namespace se {
         bool _isGarbageCollecting;
         bool _isValid;
         bool _isInCleanup;
+        bool _isErrorHandleWorking;
         NodeEventListener _nodeEventListener;
 
         FileOperationDelegate _fileOperationDelegate;

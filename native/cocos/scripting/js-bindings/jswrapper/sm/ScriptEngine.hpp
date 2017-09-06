@@ -101,7 +101,7 @@ namespace se {
 
         void clearException();
 
-        using ExceptionCallback = std::function<void(const char*)>;
+        using ExceptionCallback = std::function<void(const char*, const char*, const char*)>; // location, message, stack
         void setExceptionCallback(const ExceptionCallback& cb);
 
         const std::chrono::steady_clock::time_point& getStartTime() const { return _startTime; }
@@ -123,8 +123,8 @@ namespace se {
         bool _setNodeEventListener(NodeEventListener listener);
 
     private:
-        static void myWeakPointerCompartmentCallback(JSContext* cx, JSCompartment* comp, void* data);
-        static void myWeakPointerZoneGroupCallback(JSContext* cx, void* data);
+        static void onWeakPointerCompartmentCallback(JSContext* cx, JSCompartment* comp, void* data);
+        static void onWeakPointerZoneGroupCallback(JSContext* cx, void* data);
 
         bool getScript(const std::string& path, JS::MutableHandleScript script);
         bool compileScript(const std::string& path, JS::MutableHandleScript script);
@@ -137,6 +137,7 @@ namespace se {
         bool _isGarbageCollecting;
         bool _isValid;
         bool _isInCleanup;
+        bool _isErrorHandleWorking;
         NodeEventListener _nodeEventListener;
 
         FileOperationDelegate _fileOperationDelegate;

@@ -72,6 +72,7 @@ namespace se {
             , _globalObj(nullptr)
             , _isValid(false)
             , _isInCleanup(false)
+            , _isErrorHandleWorking(false)
             , _isGarbageCollecting(false)
             , _currentSourceContext(0)
             , _exceptionCallback(nullptr)
@@ -106,6 +107,8 @@ namespace se {
 
         _globalObj = Object::_createJSObject(nullptr, globalObj);
         _globalObj->root();
+
+        _globalObj->setProperty("scriptEngineType", se::Value("ChakraCore"));
 
         _globalObj->defineFunction("log", __log);
         _globalObj->defineFunction("forceGC", __forceGC);
@@ -168,55 +171,36 @@ namespace se {
         NonRefNativePtrCreatedByCtorMap::destroy();
     }
 
-    std::string ScriptEngine::formatException(JsValueRef exception)
+    ScriptEngine::ExceptionInfo ScriptEngine::formatException(JsValueRef exception)
     {
-        std::string ret;
-        JsValueRef propertyNames = JS_INVALID_REFERENCE;
-        JsGetOwnPropertyNames(exception, &propertyNames);
-        JsValueType type;
-        _CHECK(JsGetValueType(propertyNames, &type));
-        assert(type == JsArray);
+        ExceptionInfo ret;
+        if (exception == JS_INVALID_REFERENCE)
+            return ret;
 
-        for (int i = 0; ; ++i)
+        std::vector<std::string> allKeys;
+        Object* exceptionObj = Object::_createJSObject(nullptr, exception);
+        exceptionObj->getAllKeys(&allKeys);
+
+        for (const auto& key : allKeys)
         {
-            JsValueRef index = JS_INVALID_REFERENCE;
-            JsValueRef result = JS_INVALID_REFERENCE;
-            _CHECK(JsIntToNumber(i, &index));
-            if (JsNoError != JsGetIndexedProperty(propertyNames, index, &result))
-                break;
-            JsGetValueType(result, &type);
-
-            if (type == JsUndefined)
-                break;
-
-            assert(type == JsString);
-
-            Value key;
-            internal::jsToSeValue(result, &key);
-            std::string keyStr = key.toString();
-
-            if (keyStr == "stack")
+            Value tmp;
+            if (exceptionObj->getProperty(key.c_str(), &tmp))
             {
-                JsPropertyIdRef propertyId = JS_INVALID_REFERENCE;
-
-                if (JsCreatePropertyId(keyStr.c_str(), keyStr.length(), &propertyId) != JsNoError)
+//                LOGD("[%s]=%s\n", key.c_str(), tmp.toStringForce().c_str());
+                if (key == "message")
                 {
-                    return "failed to get and clear exception";
+                    ret.message = tmp.toString();
                 }
-
-                JsValueRef jsValue;
-                if (JsGetProperty(exception, propertyId, &jsValue) != JsNoError)
+                else if (key == "stack")
                 {
-                    return "failed to get error message";
+                    ret.stack = tmp.toString();
                 }
-
-                internal::forceConvertJsValueToStdString(jsValue, &ret);
-
-//                LOGD("[%s]=%s\n", keyStr.c_str(), tmp.c_str());
-
-                break;
             }
         }
+
+        exceptionObj->decRef();
+
+        ret.location = "(see stack)";
 
         return ret;
     }
@@ -300,11 +284,34 @@ namespace se {
             JsValueRef exception;
             _CHECK(JsGetAndClearException(&exception));
 
-            std::string exceptionMsg = formatException(exception);
-            LOGD("ERROR: %s\n", exceptionMsg.c_str());
+            ExceptionInfo exceptionInfo = formatException(exception);
+            LOGD("ERROR: %s, %s, \nSTACK:\n%s\n", exceptionInfo.message.c_str(), exceptionInfo.location.c_str(), exceptionInfo.stack.c_str());
+
             if (_exceptionCallback != nullptr)
             {
-                _exceptionCallback(exceptionMsg.c_str());
+                _exceptionCallback(exceptionInfo.location.c_str(), exceptionInfo.message.c_str(), exceptionInfo.stack.c_str());
+            }
+
+            if (!_isErrorHandleWorking)
+            {
+                _isErrorHandleWorking = true;
+
+                Value errorHandler;
+                if (_globalObj->getProperty("__errorHandler", &errorHandler) && errorHandler.isObject() && errorHandler.toObject()->isFunction())
+                {
+                    ValueArray args;
+                    args.push_back(Value(exceptionInfo.location));
+                    args.push_back(Value(0));
+                    args.push_back(Value(exceptionInfo.message));
+                    args.push_back(Value(exceptionInfo.stack));
+                    errorHandler.toObject()->call(args, _globalObj);
+                }
+
+                _isErrorHandleWorking = false;
+            }
+            else
+            {
+                LOGE("ERROR: __errorHandler has exception\n");
             }
         }
     }
