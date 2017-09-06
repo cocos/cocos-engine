@@ -33,9 +33,6 @@
 #include <limits.h>
 
 static spAnimation* SP_EMPTY_ANIMATION = 0;
-
-static TrackEntryDisposeCallback _trackEntryDisposeCallback = 0;
-
 void spAnimationState_disposeStatics () {
 	if (SP_EMPTY_ANIMATION) spAnimation_dispose(SP_EMPTY_ANIMATION);
 	SP_EMPTY_ANIMATION = 0;
@@ -178,9 +175,6 @@ void _spEventQueue_drain (_spEventQueue* self) {
 }
 
 void _spAnimationState_disposeTrackEntry (spTrackEntry* entry) {
-    if (_trackEntryDisposeCallback)
-        _trackEntryDisposeCallback(entry);
-
 	FREE(entry->timelinesFirst);
 	FREE(entry->timelinesRotation);
 	FREE(entry);
@@ -198,11 +192,6 @@ void _spAnimationState_disposeTrackEntries (spAnimationState* state, spTrackEntr
 		_spAnimationState_disposeTrackEntry(entry);
 		entry = next;
 	}
-}
-
-void spTrackEntry_setDisposeCallback(TrackEntryDisposeCallback cb)
-{
-    _trackEntryDisposeCallback = cb;
 }
 
 spAnimationState* spAnimationState_create (spAnimationStateData* data) {
