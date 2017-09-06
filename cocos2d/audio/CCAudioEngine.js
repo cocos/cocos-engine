@@ -473,9 +473,9 @@ var audioEngine = {
     /**
      * !#en Preload audio file.
      * !#zh 预加载一个音频
-     * @param filePath The file path of an audio.
-     * @param callback The callback of an audio.
      * @method preload
+     * @param {String} filePath - The file path of an audio.
+     * @param {Function} callback - The callback of an audio.
      * @example
      * //example
      * cc.audioEngine.preload(path);

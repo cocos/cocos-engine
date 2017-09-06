@@ -309,13 +309,12 @@ var RichText = cc.Class({
 
     _containsTouchLocation:function (label, point) {
         var myRect = label.getBoundingBoxToWorld();
-
         return cc.rectContainsPoint(myRect, point);
     },
 
     _resetState: function () {
         var sgNode = this._sgNode;
-        if(sgNode) {
+        if (sgNode) {
             sgNode.removeAllChildren();
         }
 
@@ -626,10 +625,9 @@ var RichText = cc.Class({
         if(this.maxWidth > 0) {
             this._labelWidth = this.maxWidth;
         }
-        this._labelHeight =this._lineCount * this.lineHeight;
+        this._labelHeight = this._lineCount * this.lineHeight;
 
-        sgNode._setContentSize(this._labelWidth, this._labelHeight);
-        this.node.emit('size-changed');
+        this.node.setContentSize(this._labelWidth, this._labelHeight);
 
         this._updateRichTextPosition();
         this._layoutDirty = false;

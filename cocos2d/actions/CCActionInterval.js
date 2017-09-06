@@ -214,7 +214,7 @@ cc.ActionInterval = cc.FiniteTimeAction.extend({
      * !#zh
      * 改变一个动作的速度，使它的执行使用更长的时间（speed > 1）<br/>
      * 或更少（speed < 1）可以有效得模拟“慢动作”或“快进”的效果。
-     * @param speed
+     * @param {Number} speed
      * @returns {Action}
      */
     speed: function(speed){
@@ -252,7 +252,7 @@ cc.ActionInterval = cc.FiniteTimeAction.extend({
      * To repeat an action forever use the CCRepeatForever action.
      * !#zh 重复动作可以按一定次数重复一个动作，使用 RepeatForever 动作来永远重复一个动作。
      * @method repeat
-     * @param times
+     * @param {Number} times
      * @returns {ActionInterval}
      */
     repeat: function(times){
