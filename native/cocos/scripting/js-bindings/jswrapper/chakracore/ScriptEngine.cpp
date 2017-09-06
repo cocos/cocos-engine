@@ -108,6 +108,8 @@ namespace se {
         _globalObj = Object::_createJSObject(nullptr, globalObj);
         _globalObj->root();
 
+        _globalObj->setProperty("scriptEngineType", se::Value("ChakraCore"));
+
         _globalObj->defineFunction("log", __log);
         _globalObj->defineFunction("forceGC", __forceGC);
 

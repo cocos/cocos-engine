@@ -127,6 +127,8 @@ namespace se {
         _globalObj->root();
         _globalObj->setProperty("window", se::Value(_globalObj));
 
+        _globalObj->setProperty("scriptEngineType", se::Value("JavaScriptCore"));
+
         JSStringRef propertyName = JSStringCreateWithUTF8CString("log");
         JSObjectSetProperty(_cx, globalObj, propertyName, JSObjectMakeFunctionWithCallback(_cx, propertyName, __log), kJSPropertyAttributeReadOnly, nullptr);
         JSStringRelease(propertyName);

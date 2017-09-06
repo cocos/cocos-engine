@@ -351,6 +351,9 @@ namespace se {
 
         _globalObj = Object::_createJSObject(nullptr, globalObj);
         _globalObj->root();
+
+        _globalObj->setProperty("scriptEngineType", se::Value("SpiderMonkey"));
+
         JS::RootedObject rootedGlobalObj(_cx, _globalObj->_getJSObject());
 
         _oldCompartment = JS_EnterCompartment(_cx, rootedGlobalObj);
