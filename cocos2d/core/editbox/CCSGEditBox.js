@@ -28,8 +28,8 @@
 
 // https://segmentfault.com/q/1010000002914610
 var SCROLLY = 40;
-var TIMER_NAME = 400;
 var LEFT_PADDING = 2;
+var DELAY_TIME = 400;
 var FOCUS_DELAY_UC = 400;
 var FOCUS_DELAY_FIREFOX = 0;
 var Utils = require('../platform/utils');
@@ -49,7 +49,7 @@ function adjustEditBoxPosition (editBox) {
             if (scrollOffset > 320) scrollOffset = 320;
             window.scrollTo(scrollOffset, scrollOffset);
         }
-    }, TIMER_NAME);
+    }, DELAY_TIME);
 }
 
 var capitalize = function(string) {
@@ -1007,7 +1007,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             // Delay end editing adaptation to ensure virtual keyboard is disapeared
             setTimeout(function () {
                 self._endEditingOnMobile();
-            }, TIMER_NAME);
+            }, DELAY_TIME);
         }
         this._editingMode = false;
     };
