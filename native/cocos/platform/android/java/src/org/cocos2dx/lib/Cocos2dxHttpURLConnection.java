@@ -150,6 +150,9 @@ public class Cocos2dxHttpURLConnection
             Log.e("cocos2d-x debug info", "come in connect");
             Log.e("cocos2d-x debug info", e.toString());
             suc = 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+            suc = 1;
         }
 
         return suc;

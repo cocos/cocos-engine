@@ -1,5 +1,7 @@
 /*
- * Copyright (c) 2017 Chukong Technologies Inc.
+ * Created by Rolando Abarca on 3/14/12.
+ * Copyright (c) 2012 Zynga Inc. All rights reserved.
+ * Copyright (c) 2013-2016 Chukong Technologies Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +25,36 @@
 #ifndef __SCRIPTING_CORE_H__
 #define __SCRIPTING_CORE_H__
 
-#include "base/CCScriptSupport.h"
+#include "jsapi.h"
+#include "jsfriendapi.h"
+
+#include "ui/UIWidget.h"
+#include "scripting/js-bindings/manual/js_bindings_config.h"
+#include "scripting/js-bindings/manual/spidermonkey_specifics.h"
+#include "scripting/js-bindings/manual/js_manual_conversions.h"
+#include "mozilla/Maybe.h"
+#include "scripting/js-bindings/manual/js-BindingsExport.h"
+
+#include <assert.h>
+#include <memory>
+#include <chrono>
+
+#define ENGINE_VERSION "Cocos Creator v1.6"
+
+extern std::unordered_map<std::string, js_type_class_t*> *_js_global_type_map;
+
+void js_log(const char *format, ...);
+
+typedef void (*sc_register_sth)(JSContext* cx, JS::HandleObject global);
+
+void registerDefaultClasses(JSContext* cx, JS::HandleObject global);
+
+
+class SimpleRunLoop : public cocos2d::Ref
+{
+public:
+    void update(float d);
+};
 
 /**
  * @addtogroup jsb
@@ -46,23 +77,40 @@
  * - Invoke garbage collection of JavaScript context
  * - etc...
  */
-class ScriptingCore : public cocos2d::ScriptEngineProtocol
+class CC_JS_DLL ScriptingCore : public cocos2d::ScriptEngineProtocol
 {
+private:
+    JSContext *_cx;
+    JS::PersistentRootedObject *_global;
+    JS::PersistentRootedObject *_debugGlobal;
+    SimpleRunLoop *_runLoop;
+    JSCompartment *_oldCompartment;
+    bool _jsInited;
+    bool _needCleanup;
+    bool _callFromScript;
+    bool _finalizing;
+    
+    ScriptingCore();
+
+	std::chrono::steady_clock::time_point _engineStartTime;
 public:
-    virtual ~ScriptingCore();
+    
+    static const char* EVENT_RESET;
+    
+    ~ScriptingCore();
 
     /**@~english
      * ScriptingCore is a singleton class, you can retrieve its instance with this function.
      * @return @~english The ScriptingCore instance.
      */
     static ScriptingCore *getInstance();
-    
+
     /**@~english
      * Gets the script type, for ScriptingCore, it will return `cocos2d::kScriptTypeJavascript`
      * @return `cocos2d::kScriptTypeJavascript`
      */
     virtual cocos2d::ccScriptType getScriptType() override { return cocos2d::kScriptTypeJavascript; };
-    
+
     /**
      * Reflect the retain relationship to script scope
      */
@@ -98,12 +146,28 @@ public:
      * @param obj @~english Object to be removed
      */
     virtual void removeScriptObjectByObject(cocos2d::Ref* obj) override;
-    
+
     /**
      * @brief @~english Useless in ScriptingCore, please use evalString
      * @see evalString
      */
     virtual int executeString(const char* codes) override { return 0; }
+
+    /**
+     * @brief @~english Pause scheduled tasks and actions for an object proxy.
+     * @param p @~english The object proxy
+     */
+    void pauseSchedulesAndActions(js_proxy_t* p);
+    /**
+     * @brief @~english Resume scheduled tasks and actions for an object proxy.
+     * @param p @~english The object proxy
+     */
+    void resumeSchedulesAndActions(js_proxy_t* p);
+    /**
+     * @brief @~english Cleanup scheduled tasks and actions for an object proxy.
+     * @param p @~english The object proxy
+     */
+    void cleanupSchedulesAndActions(js_proxy_t* p);
 
     /**
      @brief Useless in ScriptingCore, please use runScript
@@ -119,7 +183,7 @@ public:
     virtual int executeGlobalFunction(const char* functionName) override;
 
     virtual int sendEvent(cocos2d::ScriptEvent* message) override;
-    
+
     virtual bool parseConfig(ConfigType type, const std::string& str) override;
     /**
      * @brief @~english Useless in ScriptingCore
@@ -130,15 +194,482 @@ public:
     virtual void setCalledFromScript(bool callFromScript) override { _callFromScript = callFromScript; };
     virtual bool isCalledFromScript() override { return _callFromScript; };
 
-    void restartVM();
+    /**
+     * @brief @~english Execute a js function with a JavaScript object as parameter.
+     * By passing a native object, ScriptingCore will found its JavaScript object with the proxy.
+     * Then the function will be invoked with the native object's js proxy as caller.
+     * @param nativeObj @~english The caller object's C++ proxy.
+     * @param name      @~english The function name.
+     * @param obj       @~english The JavaScript object value as parameter.
+     * @return @~english Return the js function's boolean result if successfully invoked, otherwise return false.
+     */
+    bool executeFunctionWithObjectData(void* nativeObj, const char *name, JS::HandleValue data);
 
-private:
-    ScriptingCore();
+    /**
+     * @brief @~english Execute a js function with a JavaScript caller, function name, arguments array.
+     * This is more reliable in js memory management
+     * @param owner     @~english The caller object.
+     * @param name      @~english The function name.
+     * @param args      @~english The arguments array.
+     * @return @~english Return true if successfully invoked, otherwise return false.
+     */
+    bool executeFunctionWithOwner(JS::HandleValue owner, const char *name, const JS::HandleValueArray& args);
 
-    int handleActionEvent(void* data);
+    /**
+     * @brief @~english Execute a js function with a JavaScript caller, function name, arguments array and a return value.
+     * This is more reliable in js memory management
+     * @param owner     @~english The caller object.
+     * @param name      @~english The function name.
+     * @param args      @~english The arguments array.
+     * @param retVal    @~english The js object to save the return value.
+     * @return @~english Return true if successfully invoked, otherwise return false.
+     */
+    bool executeFunctionWithOwner(JS::HandleValue owner, const char *name, const JS::HandleValueArray& args, JS::MutableHandleValue retVal);
+
+    /**
+     * @brief @~english Execute a js function with a js this object and the js function object.
+     * @param thisObj   @~english The js this object.
+     * @param callback  @~english The js function object.
+     * @return @~english Return true if successfully invoked, otherwise return false.
+     */
+    void executeJSFunctionWithThisObj(JS::HandleValue thisObj, JS::HandleValue callback);
+    /**
+     * @brief @~english Execute a js function with a js this object, the js function object, arguments and a return value.
+     * @param thisObj   @~english The js this object.
+     * @param callback  @~english The js function object.
+     * @param vp        @~english The arguments array.
+     * @param retVal    @~english The js object to save the return value.
+     * @return @~english Return true if successfully invoked, otherwise return false.
+     */
+    void executeJSFunctionWithThisObj(JS::HandleValue thisObj, JS::HandleValue callback, const JS::HandleValueArray& vp, JS::MutableHandleValue retVal);
+
+    /**@~english
+     * Evaluate the specified js code string
+     * @param string    @~english The string with the javascript code to be evaluated
+     * @param outVal    @~english The jsval that will hold the return value of the evaluation.
+     * @param filename  @~english The filename
+     * @param cx        @~english The js context
+     * @param global    @~english The js global object
+     * @return @~english Return true if successfully invoked, otherwise return false.
+     */
+    bool evalString(const char *string, JS::MutableHandleValue outVal, const char *filename, JSContext* cx, JS::HandleObject global);
+    
+    /**@~english
+     * Evaluate the specified js code string
+     * @param string    @~english The string with the javascript code to be evaluated
+     * @param outVal    @~english The jsval that will hold the return value of the evaluation.
+     * @return @~english Return true if successfully invoked, otherwise return false.
+     */
+    bool evalString(const char *string, JS::MutableHandleValue outVal);
+    
+    /**@~english
+     * Evaluate the specified js code string
+     * @param string    @~english The string with the javascript code to be evaluated
+     * @return @~english Return true if successfully invoked, otherwise return false.
+     */
+    bool evalString(const char *string);
+    
+    /**
+     @brief @~english Get script object for the given path
+     @param path @~english The script file path
+     @return @~english Script object
+     */
+    bool getScript(const std::string& path, JS::MutableHandleScript script);
+
+    /**@~english
+     * Compile the specified js file
+     * @param path    @~english The path of the script to be compiled
+     * @param global    @~english The js global object
+     * @param cx        @~english The js context
+     */
+    bool compileScript(const std::string& path, JS::HandleObject global, JS::MutableHandleScript script);
+
+    /**@~english
+     * Run the specified js file
+     * @param path @~english The path of the script to be executed
+     * @return @~english Return true if succeed, otherwise return false.
+     */
+    bool runScript(const std::string& path);
+    /**@~english
+     * Run the specified js file
+     * @param path @~english The path of the script to be executed
+     * @param global @~english The global object to execute the script
+     * @param global @~english The context to execute the script
+     * @return @~english Return true if succeed, otherwise return false.
+     */
+    bool runScript(const std::string& path, JS::HandleObject global, JSContext* cx = NULL);
+
+    /**@~english
+     * Require the specified js file
+     * The difference between run and require is that require returns the export object of the script
+     * @param path @~english The path of the script to be executed
+     * @param jsvalRet @~english On success, return the value from the last executed expression statement processed in the script
+     * @return @~english Return true if succeed, otherwise return false.
+     * @see https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/JSAPI_reference/JS_ExecuteScript
+     */
+    bool requireScript(const char *path, JS::MutableHandleValue jsvalRet);
+    /**@~english
+     * Require the specified js file
+     * The difference between run and require is that require returns the export object of the script
+     * @param path @~english The path of the script to be executed
+     * @param global @~english The global object to execute the script
+     * @param global @~english The context to execute the script
+     * @param jsvalRet @~english On success, return the value from the last executed expression statement processed in the script
+     * @return @~english Return true if succeed, otherwise return false.
+     * @see https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/JSAPI_reference/JS_ExecuteScript
+     */
+    bool requireScript(const char *path, JS::HandleObject global, JSContext* cx, JS::MutableHandleValue jsvalRet);
+
+    /**@~english
+     * Clean script object for the specified js file
+     * @param path @~english The path of the js file to be cleaned
+     */
+    void cleanScript(const char *path);
+
+    /**@~english
+     * Gets the cached script objects for all executed js file
+     * @return @~english The cached script object map
+     */
+    std::unordered_map<std::string, JS::PersistentRootedScript*>* getFileScript();
+    /**@~english
+     * Clean all script objects
+     */
+    void cleanAllScript();
+
+    /**@~english
+     * Gets the time that the ScriptingCore was initalized
+     */
+    std::chrono::steady_clock::time_point getEngineStartTime() const;
+    
+    /**@~english
+     * Initialize everything, including the js context, js global object etc.
+     */
+    void start();
+
+    /**@~english
+     * Cleanup everything, including script cache, js context, global object etc.
+     */
+    void cleanup();
+
+    /**@~english
+     * Cleanup everything then initialize everything
+     */
+    void reset();
+
+    /**@~english
+     * Add the register_sth callback to the list of functions that need to be called after the creation of the context.
+     * It's normally used to register script bindings in the js context for bound classes
+     * @param callback @~english The callback to register something to the js context
+     */
+    void addRegisterCallback(sc_register_sth callback);
+
+    /**@~english
+     * Create a new context. If one is already there, it will destroy the old context and create a new one.
+     */
+    void createGlobalContext();
+
+    /**@~english
+     * Removes all rooted object in the given js context, rooted object won't be garbage collected.
+     * @param cx @~english The js context
+     */
+    static void removeAllProxys(JSContext *cx);
+
+    /**@~english
+     * Simulate a touch event and dispatch it to a js object.
+     * @param eventType @~english The touch event type
+     * @param pTouch @~english The touch object
+     * @param obj @~english The js object
+     * @param retval @~english The return value of the touch event callback
+     * @return @~english Return 1 if succeed, otherwise return 0.
+     */
+    int executeCustomTouchEvent(cocos2d::EventTouch::EventCode eventType,
+                                cocos2d::Touch *pTouch, JS::HandleObject obj, JS::MutableHandleValue retval);
+    /**@~english
+     * Simulate a touch event and dispatch it to a js object.
+     * @param eventType @~english The touch event type
+     * @param pTouch @~english The touch object
+     * @param obj @~english The js object
+     * @return @~english Return 1 if succeed, otherwise return 0.
+     */
+    int executeCustomTouchEvent(cocos2d::EventTouch::EventCode eventType,
+                                cocos2d::Touch *pTouch, JS::HandleObject obj);
+    /**@~english
+     * Simulate a multi touch event and dispatch it to a js object.
+     * @param eventType @~english The touch event type
+     * @param touches @~english Touches list for multitouch
+     * @param obj @~english The js object
+     * @return @~english Return 1 if succeed, otherwise return 0.
+     */
+    int executeCustomTouchesEvent(cocos2d::EventTouch::EventCode eventType,
+                                  const std::vector<cocos2d::Touch*>& touches, JS::HandleObject obj);
+    /**@~english
+     * Gets the current global context.
+     * @return @~english the global context
+     */
+    JSContext* getGlobalContext() {
+        return _cx;
+    };
+
+    /**@~english
+     * Report an error in the js context
+     * @param cx @~english The js context
+     * @param message @~english The error message
+     * @param report @~english The js error report object
+     */
+    static void reportError(JSContext *cx, JSErrorReport *report, JS::HandleValue err);
+
+    /**@~english
+     * Log something to the js context using CCLog.
+     * @param cx @~english The js context
+     * @param argc @~english The arguments count
+     * @param vp @~english The arguments
+     * @return @~english Return true if succeed, otherwise return false.
+     */
+    static bool log(JSContext *cx, uint32_t argc, JS::Value *vp);
+
+    /**@~english
+     * Runs a script from script environment, it should be invoked from script environment
+     * Bound to `__jsc__.executeScript` and `window.executeScript`
+     * @param cx @~english The js context
+     * @param argc @~english The arguments count
+     * @param vp @~english The arguments
+     * @return @~english Return true if succeed, otherwise return false.
+     */
+    static bool executeScript(JSContext *cx, uint32_t argc, JS::Value *vp);
+    /**@~english
+     * Forces a cycle of garbage collection, it should be invoked from script environment
+     * Bound to `__jsc__.garbageCollect` and `window.garbageCollect`
+     * @param cx @~english The js context
+     * @param argc @~english The arguments count
+     * @param vp @~english The arguments
+     */
+    static bool forceGC(JSContext *cx, uint32_t argc, JS::Value *vp);
+    /**@~english
+     * Dump all named rooted objects, it should be invoked from script environment
+     * Bound to `__jsc__.dumpRoot`
+     * @param cx @~english The js context
+     * @param argc @~english The arguments count
+     * @param vp @~english The arguments
+     */
+    static bool dumpRoot(JSContext *cx, uint32_t argc, JS::Value *vp);
+    /**@~english
+     * Check whether a js object's C++ proxy is still valid, it should be invoked from script environment
+     * Bound to `window.__isObjectValid`
+     * @param cx @~english The js context
+     * @param argc @~english The arguments count
+     * @param vp @~english The arguments
+     */
+    static bool isObjectValid(JSContext *cx, uint32_t argc, JS::Value *vp);
+
+    /**@~english
+     * Log a string to the debug environment.
+     * Enable the debug environment so that it can be invoked.
+     * @param str @~english The message to log
+     */
+    void debugProcessInput(const std::string& str);
+    /**@~english
+     * Enable the debug environment, mozilla Firefox's remote debugger or Code IDE can connect to it.
+     * @param port @~english The port to connect with the debug environment, default value is 5086
+     */
+    void enableDebugger(unsigned int port = 5086);
+    /**@~english
+     * Gets the debug environment's global object
+     * @return @~english The debug environment's global object
+     */
+    JSObject* getDebugGlobal() { return _debugGlobal->get(); }
+    /**@~english
+     * Gets the global object
+     * @return @~english The global object
+     */
+    JSObject* getGlobalObject() { return _global->get(); }
+    
+    /**@~english
+     * Checks whether a C++ function is overrided in js prototype chain
+     * @param obj @~english The js object
+     * @param name @~english The function name
+     * @param native @~english The native function
+     * @return @~english The global object
+     */
+    bool isFunctionOverridedInJS(JS::HandleObject obj, const std::string& name, JSNative native);
+    
+    /**
+     * Roots the associated JSObj.
+     * The GC won't collected rooted objects. This function is only called
+     * when compiled with CC_ENABLE_GC_FOR_NATIVE_OBJECTS=1
+     */
+    virtual void rootObject(cocos2d::Ref* ref) override;
+    /**
+     * Unroots the associated JSObj.
+     * The GC will collect this object the next time the GC
+     * is called.
+     * This function is only called when compiled with CC_ENABLE_GC_FOR_NATIVE_OBJECTS=1
+     */
+    virtual void unrootObject(cocos2d::Ref* ref) override;
+    
+    /** Remove proxy for a native object
+     */
+    virtual void removeObjectProxy(void* obj) override;
+
+    /**
+     * Calls the Garbage Collector
+     */
+    virtual void garbageCollect() override;
+
+    /**
+     * Sets the js object that is being finalizing in the script engine, internal use only, please do not call this function
+     */
+    void setFinalizing (bool finalizing) {_finalizing = finalizing;};
+
+    /**
+     * Gets the js object that is being finalizing in the script engine
+     */
+    bool getFinalizing () {return _finalizing;};
+    
+public:
     int handleNodeEvent(void* data);
+    int handleActionEvent(void* data);
+    int handleComponentEvent(void* data);
 
-    bool _callFromScript;
+    bool handleTouchesEvent(void* nativeObj, cocos2d::EventTouch::EventCode eventCode, const std::vector<cocos2d::Touch*>& touches, cocos2d::Event* event);
+    bool handleTouchesEvent(void* nativeObj, cocos2d::EventTouch::EventCode eventCode, const std::vector<cocos2d::Touch*>& touches, cocos2d::Event* event, JS::MutableHandleValue jsvalRet);
+
+    bool handleTouchEvent(void* nativeObj, cocos2d::EventTouch::EventCode eventCode, cocos2d::Touch* touch, cocos2d::Event* event);
+    bool handleTouchEvent(void* nativeObj, cocos2d::EventTouch::EventCode eventCode, cocos2d::Touch* touch, cocos2d::Event* event, JS::MutableHandleValue jsvalRet);
+
+    bool handleMouseEvent(void* nativeObj, cocos2d::EventMouse::MouseEventType eventType, cocos2d::Event* event);
+    bool handleMouseEvent(void* nativeObj, cocos2d::EventMouse::MouseEventType eventType, cocos2d::Event* event, JS::MutableHandleValue jsvalRet);
+
+    bool handleKeyboardEvent(void* nativeObj, cocos2d::EventKeyboard::KeyCode keyCode, bool isPressed, cocos2d::Event* event);
+    bool handleFocusEvent(void* nativeObj, cocos2d::ui::Widget* widgetLoseFocus, cocos2d::ui::Widget* widgetGetFocus);
+    
+    void restartVM();
 };
+
+/**
+ * You don't need to manage the returned pointer. They live for the whole life of
+ * the app.
+ */
+template <class T>
+inline js_type_class_t *js_get_type_from_native(T* native_obj)
+{
+    bool found = false;
+    std::string typeName = typeid(*native_obj).name();
+    auto typeProxyIter = _js_global_type_map->find(typeName);
+    if (typeProxyIter == _js_global_type_map->end())
+    {
+        typeName = typeid(T).name();
+        typeProxyIter = _js_global_type_map->find(typeName);
+        if (typeProxyIter != _js_global_type_map->end())
+        {
+            found = true;
+        }
+    }
+    else
+    {
+        found = true;
+    }
+    return found ? typeProxyIter->second : nullptr;
+}
+
+template <class T>
+js_type_class_t *jsb_register_class(JSContext *cx, JSClass *jsClass, JS::HandleObject proto)
+{
+    js_type_class_t *p = nullptr;
+    std::string typeName = TypeTest<T>::s_name();
+    if (_js_global_type_map->find(typeName) == _js_global_type_map->end())
+    {
+        p = (js_type_class_t *)malloc(sizeof(js_type_class_t));
+        memset(p, 0, sizeof(js_type_class_t));
+        p->jsclass = jsClass;
+        p->proto = new JS::PersistentRootedObject(cx, proto);
+        
+        _js_global_type_map->insert(std::make_pair(typeName, p));
+    }
+    return p;
+}
+
+void handlePendingException(JSContext *cx);
+
+void make_class_extend(JSContext *cx, JS::HandleObject proto);
+
+/** creates proxy that associated the nativeObj with the JsObj, add it to the global map and set the proxy to the hook's private slot*/
+js_proxy_t* jsb_new_proxy(JSContext *cx, void* nativeObj, JS::HandleObject jsObj);
+/** Add a new native js proxy to the global map */
+js_proxy_t* jsb_bind_proxy(JSContext *cx, void* nativeObj, JS::HandleObject jsHandle);
+/** returns the proxy associated with the Native* */
+js_proxy_t* jsb_get_native_proxy(void* nativeObj);
+/** returns the proxy associated with the JSObject* */
+js_proxy_t* jsb_get_js_proxy(JSContext *cx, JS::HandleObject jsObj);
+/** removes the native proxy from the global map */
+bool jsb_unbind_proxy(js_proxy_t* proxy);
+/** removes the proxy */
+bool jsb_remove_proxy(js_proxy_t* proxy);
+
+/**
+ * Generic initialization function for subclasses of Ref
+ */
+void jsb_ref_init(JSContext* cx, JS::HandleObject obj, cocos2d::Ref* ref, const char* debug);
+
+/**
+ * Generic initialization function for subclasses of Ref.
+ * Similar to jsb_ref_init(), but call it if you know that Ref has been autoreleased
+ * This function should never be called. It is only added as way to fix
+ * an issue with the static auto-bindings with the "create" function
+ */
+void jsb_ref_autoreleased_init(JSContext* cx, JS::HandleObject obj, cocos2d::Ref* ref, const char* debug);
+
+/**
+ * Disassociates oldRef from jsobj, and associates a new Ref.
+ * Useful for the EaseActions and others
+ */
+void jsb_ref_rebind(JSContext* cx, JS::HandleObject jsobj, js_proxy_t *js2native_proxy, cocos2d::Ref* oldRef, cocos2d::Ref* newRef, const char* debug);
+
+/**
+ * Generic initialization function for non Ref classes
+ */
+void jsb_non_ref_init(JSContext* cx, JS::HandleObject  obj, void* native, const char* debug);
+
+/**
+ * Creates a new JSObject of a certain type (typeClass) and creates a proxy associated with and the Ref
+ */
+bool jsb_ref_create_jsobject(JSContext *cx, cocos2d::Ref *ref, JSClass *jsclass, JS::HandleObject proto, JS::MutableHandleObject jsObj, const char* debug);
+
+/**
+ * Creates a new JSObject of a certain type (typeClass) and creates a proxy associated with and the Ref
+ * Similar to jsb_ref_create_jsobject(), but call it if you know that Ref has been autoreleased
+ * This function should never be called. It is only added as way to fix
+ * an issue with the static auto-bindings with the "create" function
+ */
+bool jsb_ref_autoreleased_create_jsobject(JSContext *cx, cocos2d::Ref *ref, JSClass *jsclass, JS::HandleObject proto, JS::MutableHandleObject jsObj, const char* debug);
+
+/**
+ * It will try to get the associated JSObjct for the native object.
+ * The reference created from JSObject to native object is weak because it won't retain it.
+ * The behavior is exactly the same with 'jsb_ref_create_jsobject' when CC_ENABLE_GC_FOR_NATIVE_OBJECTS deactivated.
+ */
+bool jsb_create_weak_jsobject(JSContext *cx, void *native, JSClass *jsclass, JS::HandleObject proto, JS::MutableHandleObject jsObj, const char* debug);
+
+/**
+ * It will try to get the associated JSObjct for ref.
+ * If it can't find it, it will create a new one associating it to Ref.
+ * Call this function for objects that were already created and initialized, when returning `getChild()`
+ */
+bool jsb_ref_get_or_create_jsobject(JSContext *cx, cocos2d::Ref *ref, JSClass *jsclass, JS::HandleObject proto, JS::MutableHandleObject jsObj, const char* debug=nullptr);
+
+/**
+ * It will try to get the associated JSObjct for ref.
+ * If it can't find it, it will create a new one associating it to Ref
+ * Call this function for objects that might return an already existing copy when you create them. For example, `Animation3D::create()`;
+ */
+bool jsb_ref_autoreleased_get_or_create_jsobject(JSContext *cx, cocos2d::Ref *ref, JSClass *jsclass, JS::HandleObject proto, JS::MutableHandleObject jsObj, const char* debug=nullptr);
+
+/**
+ * It will try to get the associated JSObjct for the native object.
+ * If it can't find it, it will create a new one associating it to the native object.
+ * The reference created from JSObject to native object is weak because it won't retain it.
+ * The behavior is exactly the same with 'jsb_ref_get_or_create_jsobject' when CC_ENABLE_GC_FOR_NATIVE_OBJECTS deactivated.
+ */
+bool jsb_get_or_create_weak_jsobject(JSContext *cx, void *native, JSClass *jsclass, JS::HandleObject proto, JS::MutableHandleObject jsObj, const char* debug=nullptr);
+
 
 #endif /* __SCRIPTING_CORE_H__ */

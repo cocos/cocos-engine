@@ -234,7 +234,6 @@ public class Cocos2dxEditBoxHelper {
                 if (editBox != null) {
                     mEditBoxArray.remove(index);
                     mFrameLayout.removeView(editBox);
-                    Log.e(TAG, "remove EditBox");
                 }
             }
         });

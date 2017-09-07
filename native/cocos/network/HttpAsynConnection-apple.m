@@ -1,18 +1,18 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
-
+ Copyright (c) 2013-2017 Chukong Technologies Inc.
+ 
  http://www.cocos2d-x.org
-
+ 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
-
+ 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
-
+ 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -58,7 +58,7 @@
     [conn release];
     [runLoop release];
     [connError release];
-
+    
     [super dealloc];
 }
 
@@ -67,7 +67,7 @@
 #ifdef COCOS2D_DEBUG
     NSLog(@"Starting to load %@", srcURL);
 #endif
-
+    
     finish = false;
 
     self.responseData = [NSMutableData data];
@@ -75,31 +75,31 @@
 
     self.responseError = nil;
     self.connError = nil;
-
+    
     // create the connection with the target request and this class as the delegate
     self.conn = [[[NSURLConnection alloc] initWithRequest:request
                                                  delegate:self
                                          startImmediately:NO] autorelease];
-
+    
     [self.conn scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-
+    
     // start the connection
     [self.conn start];
 }
 
 #pragma mark NSURLConnectionDelegate methods
 /**
- * This delegate method is called when the NSURLConnection connects to the server.  It contains the
+ * This delegate method is called when the NSURLConnection connects to the server.  It contains the 
  * NSURLResponse object with the headers returned by the server.  This method may be called multiple times.
  * Therefore, it is important to reset the data on each call.  Do not assume that it is the first call
  * of this method.
  **/
-- (void) connection:(NSURLConnection *)connection
+- (void) connection:(NSURLConnection *)connection 
  didReceiveResponse:(NSURLResponse *)response {
 #ifdef COCOS2D_DEBUG
     NSLog(@"Received response from request to url %@", srcURL);
 #endif
-
+    
     NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
     //NSLog(@"All headers = %@", [httpResponse allHeaderFields]);
     self.responseHeader = [httpResponse allHeaderFields];
@@ -108,7 +108,7 @@
     self.statusString = [NSHTTPURLResponse localizedStringForStatusCode:responseCode];
     if(responseCode == 200)
         self.statusString = @"OK";
-
+ 
     /*The individual values of the numeric status codes defined for HTTP/1.1
     | "200"  ; OK
     | "201"  ; Created
@@ -122,17 +122,17 @@
     {// something went wrong, abort the whole thing
         self.responseError = [NSError errorWithDomain:@"CCBackendDomain"
                                             code:responseCode
-                                        userInfo:@{NSLocalizedDescriptionKey: @"Bad HTTP Response Code"}];
+                                        userInfo:@{NSLocalizedDescriptionKey: @"Bad HTTP Response Code"}];        
     }
-
+    
     [responseData setLength:0];
 }
 
 /**
  * This delegate method is called for each chunk of data received from the server.  The chunk size
- * is dependent on the network type and the server configuration.
+ * is dependent on the network type and the server configuration.  
  */
-- (void)connection:(NSURLConnection *)connection
+- (void)connection:(NSURLConnection *)connection 
     didReceiveData:(NSData *)data
 {
     //NSLog(@"get some data");
@@ -141,20 +141,20 @@
 }
 
 /**
- * This delegate methodis called if the connection cannot be established to the server.
+ * This delegate method is called if the connection cannot be established to the server.  
  * The error object will have a description of the error
  **/
-- (void)connection:(NSURLConnection *)connection
+- (void)connection:(NSURLConnection *)connection 
   didFailWithError:(NSError *)error
 {
     //NSLog(@"Load failed with error %@", [error localizedDescription]);
     self.connError = error;
-
+    
     finish = true;
 }
 
 /**
- * This delegate method is called when the data load is complete.  The delegate will be released
+ * This delegate method is called when the data load is complete.  The delegate will be released 
  * following this call
  **/
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
@@ -172,16 +172,16 @@
     NSData *certData = [[NSData alloc] initWithContentsOfFile:certPath];
     CFDataRef certDataRef = (CFDataRef)certData;
     SecCertificateRef cert = SecCertificateCreateWithData(NULL, certDataRef);
-
+    
     //Establish a chain of trust anchored on our bundled certificate
     CFArrayRef certArrayRef = CFArrayCreate(NULL, (void*)&cert, 1, NULL);
     SecTrustRef serverTrust = protectionSpace.serverTrust;
     SecTrustSetAnchorCertificates(serverTrust, certArrayRef);
-
+    
     //Verify that trust
     SecTrustResultType trustResult;
     SecTrustEvaluate(serverTrust, &trustResult);
-
+    
     if(trustResult == kSecTrustResultRecoverableTrustFailure)
     {
         CFDataRef errDataRef = SecTrustCopyExceptions(serverTrust);
@@ -206,14 +206,14 @@
 {
     id <NSURLAuthenticationChallengeSender> sender = challenge.sender;
     NSURLProtectionSpace *protectionSpace = challenge.protectionSpace;
-
+    
     //Should server trust client?
     if([self shouldTrustProtectionSpace:protectionSpace])
     {
         SecTrustRef trust = [protectionSpace serverTrust];
-//
+//        
 //        SecCertificateRef certificate = SecTrustGetCertificateAtIndex(trust, 0);
-//
+//        
 //        NSData *serverCertificateData = (NSData*)SecCertificateCopyData(certificate);
 //        NSString *serverCertificateDataHash = [[serverCertificateData base64EncodedString] ]
         NSURLCredential *credential = [NSURLCredential credentialForTrust:trust];
