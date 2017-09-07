@@ -343,7 +343,7 @@ var WebAudioElement = function (buffer, audio) {
 
         // If the current audio context time stamp is 0 and audio context state is suspended
         // There may be a need to touch events before you can actually start playing audio
-        if (audio.context.state === "suspended" && this._context.currentTime === 0) {
+        if ((!audio.context.state || audio.context.state === "suspended") && this._context.currentTime === 0) {
             var self = this;
             clearTimeout(this._currextTimer);
             this._currextTimer = setTimeout(function () {
