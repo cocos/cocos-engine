@@ -294,10 +294,16 @@ var game = {
      */
     restart: function () {
         cc.director.once(cc.Director.EVENT_AFTER_DRAW, function () {
+            for (var id in game._persistRootNodes) {
+                game.removePersistRootNode(game._persistRootNodes[id]);
+            }
+
             // Clear scene
             cc.director.getScene().destroy();
             cc.Object._deferredDestroy();
+
             cc.director.purgeDirector();
+
             // Clean up audio
             if (cc.audioEngine) {
                 cc.audioEngine.uncacheAll();
