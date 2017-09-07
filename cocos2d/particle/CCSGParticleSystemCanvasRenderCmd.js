@@ -56,12 +56,6 @@ proto.setShapeType = function(shapeType){
     this._shapeType = shapeType;
 };
 
-proto.setBatchNode = function(batchNode){
-    if (this._batchNode !== batchNode) {
-        this._node._batchNode = batchNode;
-    }
-};
-
 proto.updateQuadWithParticle = function (particle, newPosition) {
     //do nothing
 };
