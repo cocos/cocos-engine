@@ -207,6 +207,17 @@ namespace se {
          */
         const std::chrono::steady_clock::time_point& getStartTime() const { return _startTime; }
 
+        /**
+         *  @brief Enables JavaScript debugger
+         *  @param[in] port The port of debugger server will use.
+         */
+        void enableDebugger(unsigned int port = 5086);
+
+        /**
+         *  @brief Main loop update trigger, it's need to invoked in main thread every frame.
+         */
+        void mainLoopUpdate();
+
         // Private API used in wrapper
         void _retainScriptObject(void* owner, void* target);
         void _releaseScriptObject(void* owner, void* target);

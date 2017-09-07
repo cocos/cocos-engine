@@ -504,6 +504,16 @@ namespace se {
         //FIXME:
     }
 
+    void ScriptEngine::enableDebugger(unsigned int port/* = 5086*/)
+    {
+        // empty implementation
+    }
+
+    void ScriptEngine::mainLoopUpdate()
+    {
+        // empty implementation
+    }
+
 } // namespace se {
 
 #endif // SCRIPT_ENGINE_JSC

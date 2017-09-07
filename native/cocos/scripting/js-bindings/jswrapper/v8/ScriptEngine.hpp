@@ -140,6 +140,9 @@ namespace se {
 
         const std::chrono::steady_clock::time_point& getStartTime() const { return _startTime; }
 
+        void enableDebugger(unsigned int port = 5086);
+        void mainLoopUpdate();
+
         void _retainScriptObject(void* owner, void* target);
         void _releaseScriptObject(void* owner, void* target);
 
