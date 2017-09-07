@@ -145,7 +145,6 @@ let BreakpointActor = ActorClassWithSpec(breakpointSpec, {
    *        The stack frame that contained the breakpoint.
    */
   hit: function (frame) {
-                                         log('....');
     // Don't pause if we are currently stepping (in or over) or the frame is
     // black-boxed.
     let generatedLocation = this.threadActor.sources.getFrameLocation(frame);

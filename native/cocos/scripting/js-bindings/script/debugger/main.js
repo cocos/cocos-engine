@@ -1645,7 +1645,6 @@ DebuggerServerConnection.prototype = {
         this.currentPacket = undefined;
       }
     } else {
-        log("...." + actor._originalUrl + ", " + actor.requestTypes);
       ret = { error: "unrecognizedPacketType",
               message: ("Actor " + actor.actorID +
                         " does not recognize the packet type " +
