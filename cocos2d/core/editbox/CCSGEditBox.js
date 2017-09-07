@@ -30,6 +30,8 @@
 var SCROLLY = 40;
 var TIMER_NAME = 400;
 var LEFT_PADDING = 2;
+var FOCUS_DELAY_UC = 400;
+var FOCUS_DELAY_FIREFOX = 0;
 var Utils = require('../platform/utils');
 
 function adjustEditBoxPosition (editBox) {
@@ -688,6 +690,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         tmpEdTxt.style.position = "absolute";
         tmpEdTxt.style.bottom = "0px";
         tmpEdTxt.style.left = LEFT_PADDING + "px";
+        tmpEdTxt.style['-moz-appearance'] = 'textfield';
         tmpEdTxt.style.className = "cocosEditBox";
 
         tmpEdTxt.addEventListener('input', function () {
@@ -965,25 +968,33 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         this._updateLabelStringStyle();
     };
 
-    proto._beginEditing = function() {
-        if (!this._editBox._alwaysOnTop) {
-            if (this._edTxt.style.display === 'none') {
-                this._edTxt.style.display = '';
+    proto._beginEditing = function () {
+        var self = this;
+        if (!self._editBox._alwaysOnTop) {
+            if (self._edTxt.style.display === 'none') {
+                self._edTxt.style.display = '';
+
+                function startFocus () {
+                    self._edTxt.focus();
+                }
+
                 if (cc.sys.browserType === cc.sys.BROWSER_TYPE_UC) {
-                    setTimeout(function () {
-                        this._edTxt.focus();
-                    }.bind(this), TIMER_NAME);
-                } else {
-                    this._edTxt.focus();
+                    setTimeout(startFocus, FOCUS_DELAY_UC);
+                }
+                else if (cc.sys.browserType === cc.sys.BROWSER_TYPE_FIREFOX) {
+                    setTimeout(startFocus, FOCUS_DELAY_FIREFOX);
+                }
+                else {
+                    startFocus();
                 }
             }
         }
 
-        if (cc.sys.isMobile && !this._editingMode) {
+        if (cc.sys.isMobile && !self._editingMode) {
             // Pre adaptation and
-            this._beginEditingOnMobile(this._editBox);
+            self._beginEditingOnMobile(self._editBox);
         }
-        this._editingMode = true;
+        self._editingMode = true;
     };
 
     proto._endEditing = function() {
