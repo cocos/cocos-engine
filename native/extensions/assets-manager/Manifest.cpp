@@ -610,7 +610,8 @@ void Manifest::saveToFile(const std::string &filepath)
     rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
     _json.Accept(writer);
     
-    std::ofstream output(filepath, std::ofstream::out);
+    std::ofstream output(FileUtils::getInstance()->getSuitableFOpen(filepath), std::ofstream::out);
+
     if(!output.bad())
         output << buffer.GetString() << std::endl;
 }
