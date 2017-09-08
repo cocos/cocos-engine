@@ -331,7 +331,6 @@ namespace ui {
                         s_previousFocusWnd = s_hwndCocos;
                     }
                 }
-                this->editBoxEditingReturn();
             }
             break;
         case WM_SETFOCUS:
