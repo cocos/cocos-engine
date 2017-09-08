@@ -1,22 +1,6 @@
 #include "AppDelegate.h"
 
-#include "platform/CCGLView.h"
-
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-#include "platform/ios/CCGLViewImpl-ios.h"
-#endif // CC_TARGET_PLATFORM == CC_PLATFORM_IOS
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-#include "platform/android/CCGLViewImpl-android.h"
-#endif // CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
-#include "platform/desktop/CCGLViewImpl-desktop.h"
-#endif // CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
-#include "platform/desktop/CCGLViewImpl-desktop.h"
-#endif // CC_TARGET_PLATFORM == CC_PLATFORM_MAC
-
-#include "base/CCDirector.h"
-#include "base/CCEventDispatcher.h"
+#include "cocos2d.h"
 
 #include "cocos/scripting/js-bindings/manual/ScriptingCore.h"
 #include "cocos/scripting/js-bindings/manual/jsb_module_register.hpp"
@@ -84,6 +68,22 @@ bool AppDelegate::applicationDidFinishLaunching()
 #endif
 
     se->start();
+
+#if defined(COCOS2D_DEBUG) && (COCOS2D_DEBUG > 0)
+    se->enableDebugger();   // Enable debugger here
+
+    class SimpleRunLoop
+    {
+    public:
+        void update(float dt)
+        {
+            se::ScriptEngine::getInstance()->mainLoopUpdate();
+        }
+    };
+    static SimpleRunLoop runLoop;
+    director->getScheduler()->scheduleUpdate(&runLoop, 0, false);
+
+#endif
 
     jsb_run_script("main.js");
 

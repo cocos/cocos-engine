@@ -432,6 +432,16 @@ namespace se {
         return true;
     }
 
+    void ScriptEngine::enableDebugger(unsigned int port/* = 5086*/)
+    {
+        //FIXME:
+    }
+
+    void ScriptEngine::mainLoopUpdate()
+    {
+        //FIXME:
+    }
+
 } // namespace se {
 
 #endif // SCRIPT_ENGINE_CHAKRACORE

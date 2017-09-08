@@ -285,21 +285,6 @@ namespace se {
         __jsb_CCPrivateData_class->setCreateProto(false);
         __jsb_CCPrivateData_class->install();
 
-#if SE_ENABLE_INSPECTOR
-        // V8 inspector stuff, most code are taken from NodeJS.
-
-        _isolateData = node::CreateIsolateData(_isolate, uv_default_loop());
-        _env = node::CreateEnvironment(_isolateData, _context.Get(_isolate), 0, nullptr, 0, nullptr);
-
-        node::DebugOptions options;
-        options.set_wait_for_connect(true);
-        options.set_inspector_enabled(true);
-//        options.set_host_name("192.168.2.4"); // Change IP while remote debugging on Android device.
-        _env->inspector_agent()->Start(_platform, "", options);
-
-        //
-#endif
-
         _isValid = true;
 
         for (const auto& hook : _afterInitHookArray)
@@ -580,6 +565,31 @@ namespace se {
     v8::Local<v8::Context> ScriptEngine::_getContext() const
     {
         return _context.Get(_isolate);
+    }
+
+    void ScriptEngine::enableDebugger(unsigned int port/* = 5086*/)
+    {
+#if SE_ENABLE_INSPECTOR
+        AutoHandleScope hs;
+        // V8 inspector stuff, most code are taken from NodeJS.
+
+        _isolateData = node::CreateIsolateData(_isolate, uv_default_loop());
+        _env = node::CreateEnvironment(_isolateData, _context.Get(_isolate), 0, nullptr, 0, nullptr);
+
+        node::DebugOptions options;
+        options.set_wait_for_connect(true);
+        options.set_inspector_enabled(true);
+        options.set_port((int)port);
+        //        options.set_host_name("192.168.2.4"); // Change IP while remote debugging on Android device.
+        _env->inspector_agent()->Start(_platform, "", options);
+
+        //
+#endif
+    }
+
+    void ScriptEngine::mainLoopUpdate()
+    {
+        // empty implementation
     }
 
 } // namespace se {

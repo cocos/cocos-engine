@@ -106,6 +106,9 @@ namespace se {
 
         const std::chrono::steady_clock::time_point& getStartTime() const { return _startTime; }
 
+        void enableDebugger(unsigned int port = 5086);
+        void mainLoopUpdate();
+
         void _retainScriptObject(void* owner, void* target);
         void _releaseScriptObject(void* owner, void* target);
 
@@ -122,6 +125,8 @@ namespace se {
         using NodeEventListener = bool(*)(void*, NodeEventType);
         bool _setNodeEventListener(NodeEventListener listener);
 
+        void _debugProcessInput(const std::string& str);
+
     private:
         static void onWeakPointerCompartmentCallback(JSContext* cx, JSCompartment* comp, void* data);
         static void onWeakPointerZoneGroupCallback(JSContext* cx, void* data);
@@ -133,6 +138,7 @@ namespace se {
         JSCompartment* _oldCompartment;
 
         Object* _globalObj;
+        Object* _debugGlobalObj;
 
         bool _isGarbageCollecting;
         bool _isValid;
