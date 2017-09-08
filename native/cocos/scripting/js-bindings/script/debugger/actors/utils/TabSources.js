@@ -185,7 +185,6 @@ TabSources.prototype = {
     let sourceActorStore = this._thread.sourceActorStore;
     var id = sourceActorStore.getReusableActorId(source, originalUrl);
     if (id) {
-        log("++++ source " + originalUrl + ": " + id);
       actor.actorID = id;
     }
 
