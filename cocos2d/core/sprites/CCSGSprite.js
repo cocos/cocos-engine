@@ -256,15 +256,6 @@ _ccsg.Sprite = _ccsg.Node.extend({
     },
 
     /**
-     * Tell the sprite to use batch node render.
-     * @param {cc.SpriteBatchNode} batchNode
-     */
-    useBatchNode:function (batchNode) {
-        this.textureAtlas = batchNode.getTextureAtlas(); // weak ref
-        this._batchNode = batchNode;
-    },
-
-    /**
      * <p>
      *    set the vertex rect.<br/>
      *    It will be called internally by setTextureRect.                           <br/>
