@@ -27,7 +27,7 @@
 /**
  * <p>_ccsg.TMXLayer represents the TMX layer. </p>
  *
- * <p>It is a subclass of cc.SpriteBatchNode. By default the tiles are rendered using a cc.TextureAtlas. <br />
+ * <p>It is a subclass of cc.SpriteBatchNode.<br />
  * If you modify a tile on runtime, then, that tile will become a _ccsg.Sprite, otherwise no _ccsg.Sprite objects are created. <br />
  * The benefits of using _ccsg.Sprite objects as tiles are: <br />
  * - tiles (_ccsg.Sprite) can be rotated/scaled/moved with a nice API </p>
@@ -98,7 +98,6 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
      */
     ctor:function (tilesetInfo, layerInfo, mapInfo) {
         cc.SpriteBatchNode.prototype.ctor.call(this);
-        this._descendants = [];
 
         this._layerSize = cc.size(0, 0);
         this._mapTileSize = cc.size(0, 0);

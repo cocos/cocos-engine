@@ -77,13 +77,11 @@ var Misc = require('../utils/misc');
  * @property {Number}               offsetY             - <@readonly> The offset position on x axis of the sprite in texture. Calculated automatically by editors like Zwoptex.
  * @property {Texture2D}         texture             - Texture used to render the sprite.
  * @property {Boolean}              textureRectRotated  - <@readonly> Indicate whether the texture rectangle is rotated.
- * @property {cc.TextureAtlas}      textureAtlas        - The weak reference of the cc.TextureAtlas when the sprite is rendered using via cc.SpriteBatchNode.
  * @property {cc.SpriteBatchNode}   batchNode           - The batch node object if this sprite is rendered by cc.SpriteBatchNode.
  * @property {cc.V3F_C4B_T2F_Quad}  quad                - <@readonly> The quad (tex coords, vertex coords and color) information.
  */
 _ccsg.Sprite = _ccsg.Node.extend({
     dirty:false,
-    textureAtlas:null,
 
     _recursiveDirty:null, //Whether all of the sprite's children needs to be updated
     _shouldBeHidden:false, //should not be drawn because one of the ancestors is not visible
@@ -177,22 +175,6 @@ _ccsg.Sprite = _ccsg.Node.extend({
      */
     getTextureRect:function () {
         return cc.rect(this._rect);
-    },
-
-    /**
-     * Returns the weak reference of the cc.TextureAtlas when the sprite is rendered using via cc.SpriteBatchNode
-     * @return {cc.TextureAtlas}
-     */
-    getTextureAtlas:function () {
-        return this.textureAtlas;
-    },
-
-    /**
-     * Sets the weak reference of the cc.TextureAtlas when the sprite is rendered using via cc.SpriteBatchNode
-     * @param {cc.TextureAtlas} textureAtlas
-     */
-    setTextureAtlas:function (textureAtlas) {
-        this.textureAtlas = textureAtlas;
     },
 
     /**
