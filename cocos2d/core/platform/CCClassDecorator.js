@@ -214,7 +214,7 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
                 // prop.default = options.default;
             }
             else if (!isDefaultValueSpecified) {
-                cc.warnID(3654, propName);
+                cc.warnID(3654, JS.getClassName(ctor), propName);
                 // prop.default = fullOptions.hasOwnProperty('default') ? fullOptions.default : undefined;
             }
         }

@@ -319,7 +319,7 @@ if (CC_DEBUG) {
                 "      type: cc.Integer\n" +
                 "    })\n" +
                 "    value = 0;    // <--",
-        "3654": "Please specifiy a default value for \"%s\" property at its declaration: \uD83D\uDE02\n" +
+        "3654": "Please specifiy a default value for \"%s.%s\" at its declaration: \uD83D\uDE02\n" +
                 "    // Before:\n" +
                 "    @property(...)\n" +
                 "    value;\n\n" +

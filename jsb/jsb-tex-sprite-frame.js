@@ -74,10 +74,7 @@ cc.textureCache.cacheImage = function (key, texture) {
 };
 cc.textureCache._getTextureForKey = cc.textureCache.getTextureForKey;
 cc.textureCache.getTextureForKey = function (key) {
-    var tex = this._getTextureForKey(key);
-    if (!tex)
-        tex = this._textures[key];
-    return tex || null;
+    return this._getTextureForKey(key) || this._textures[key] || null;
 };
 cc.textureCache._removeTextureForKey = cc.textureCache.removeTextureForKey;
 cc.textureCache.removeTextureForKey = function (key) {
