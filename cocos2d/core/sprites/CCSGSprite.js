@@ -75,7 +75,6 @@ var Misc = require('../utils/misc');
  * @property {Boolean}              flippedY            - Indicates whether or not the sprite is flipped on y axis.
  * @property {Number}               offsetX             - <@readonly> The offset position on x axis of the sprite in texture. Calculated automatically by editors like Zwoptex.
  * @property {Number}               offsetY             - <@readonly> The offset position on x axis of the sprite in texture. Calculated automatically by editors like Zwoptex.
- * @property {Number}               atlasIndex          - The index used on the TextureAtlas.
  * @property {Texture2D}         texture             - Texture used to render the sprite.
  * @property {Boolean}              textureRectRotated  - <@readonly> Indicate whether the texture rectangle is rotated.
  * @property {cc.TextureAtlas}      textureAtlas        - The weak reference of the cc.TextureAtlas when the sprite is rendered using via cc.SpriteBatchNode.
@@ -84,7 +83,6 @@ var Misc = require('../utils/misc');
  */
 _ccsg.Sprite = _ccsg.Node.extend({
     dirty:false,
-    atlasIndex:0,
     textureAtlas:null,
 
     _recursiveDirty:null, //Whether all of the sprite's children needs to be updated
@@ -171,23 +169,6 @@ _ccsg.Sprite = _ccsg.Node.extend({
      */
     isTextureRectRotated:function () {
         return this._rectRotated;
-    },
-
-    /**
-     * Returns the index used on the TextureAtlas.
-     * @return {Number}
-     */
-    getAtlasIndex:function () {
-        return this.atlasIndex;
-    },
-
-    /**
-     * Sets the index used on the TextureAtlas.
-     * @warning Don't modify this value unless you know what you are doing
-     * @param {Number} atlasIndex
-     */
-    setAtlasIndex:function (atlasIndex) {
-        this.atlasIndex = atlasIndex;
     },
 
     /**

@@ -181,43 +181,6 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
         return index;
     },
 
-    /**
-     * Returns highest atlas index in child
-     * @param {_ccsg.Sprite} sprite
-     * @return {Number}
-     * @deprecated since v1.2
-     */
-    highestAtlasIndexInChild: function (sprite) {
-        var children = sprite.children;
-        if (!children || children.length === 0)
-            return sprite.zIndex;
-        else
-            return this.highestAtlasIndexInChild(children[children.length - 1]);
-    },
-
-    /**
-     * Returns lowest atlas index in child
-     * @param {_ccsg.Sprite} sprite
-     * @return {Number}
-     * @deprecated since v1.2
-     */
-    lowestAtlasIndexInChild: function (sprite) {
-        var children = sprite.children;
-        if (!children || children.length === 0)
-            return sprite.zIndex;
-        else
-            return this.lowestAtlasIndexInChild(children[children.length - 1]);
-    },
-
-    /**
-     * Returns index for child
-     * @param {_ccsg.Sprite} sprite
-     * @return {Number}
-     * @deprecated since v1.2
-     */
-    atlasIndexForChild: function (sprite) {
-        return sprite.zIndex;
-    },
 
     /**
      * Sprites use this to start sortChildren, don't call this manually

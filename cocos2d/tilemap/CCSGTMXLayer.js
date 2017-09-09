@@ -79,7 +79,6 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
     _useAutomaticVertexZ: null,
     //used for optimization
     _reusedTile: null,
-    _atlasIndexArray: null,
     //used for retina display
     _contentScaleFactor: null,
 
