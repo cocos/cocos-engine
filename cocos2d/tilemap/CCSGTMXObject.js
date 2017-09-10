@@ -23,6 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+require('../shape-nodes/CCDrawNode');
 
 /**
  * !#en Renders the TMX object.

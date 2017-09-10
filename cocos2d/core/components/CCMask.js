@@ -22,9 +22,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
 require('../../clipping-nodes/CCClippingNode');
 require('../../clipping-nodes/CCClippingNodeCanvasRenderCmd');
 require('../../clipping-nodes/CCClippingNodeWebGLRenderCmd');
+
+require('../../shape-nodes/CCDrawNode');
+
 var Base = cc._RendererInSG;
 
 /**
