@@ -166,7 +166,6 @@ cc.Particle.TemporaryPoints = [
  *
  * @property {Boolean}              opacityModifyRGB    - Indicate whether the alpha value modify color.
  * @property {Boolean}              active              - <@readonly> Indicate whether the particle system is activated.
- * @property {Number}               shapeType           - ShapeType of ParticleSystem : ccsg.ParticleSystem.BALL_SHAPE | ccsg.ParticleSystem.STAR_SHAPE.
  * @property {Number}               atlasIndex          - Index of system in batch node array.
  * @property {Number}               particleCount       - Current quantity of particles that are being simulated.
  * @property {Number}               duration            - How many seconds the emitter wil run. -1 means 'forever'
@@ -337,7 +336,6 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
 
         if (!plistFile || cc.js.isNumber(plistFile)) {
             var ton = plistFile || 100;
-            this.setDrawMode(_ccsg.ParticleSystem.TEXTURE_MODE);
             this.initWithTotalParticles(ton);
         } else if (typeof plistFile === 'string') {
             this.initWithFile(plistFile);
@@ -386,38 +384,6 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
      */
     setAtlasIndex:function (atlasIndex) {
         this.atlasIndex = atlasIndex;
-    },
-
-    /**
-     * Return DrawMode of ParticleSystem   (Canvas Mode only)
-     * @return {Number}
-     */
-    getDrawMode:function () {
-        return this._renderCmd.getDrawMode();
-    },
-
-    /**
-     * DrawMode of ParticleSystem setter   (Canvas Mode only)
-     * @param {Number} drawMode
-     */
-    setDrawMode:function (drawMode) {
-        this._renderCmd.setDrawMode(drawMode);
-    },
-
-    /**
-     * Return ShapeType of ParticleSystem  (Canvas Mode only)
-     * @return {Number}
-     */
-    getShapeType:function () {
-        return this._renderCmd.getShapeType();
-    },
-
-    /**
-     * ShapeType of ParticleSystem setter  (Canvas Mode only)
-     * @param {Number} shapeType
-     */
-    setShapeType:function (shapeType) {
-        this._renderCmd.setShapeType(shapeType);
     },
 
     /**
@@ -1928,12 +1894,6 @@ var _p = _ccsg.ParticleSystem.prototype;
 _p.opacityModifyRGB;
 cc.defineGetterSetter(_p, "opacityModifyRGB", _p.isOpacityModifyRGB, _p.setOpacityModifyRGB);
 /** @expose */
-_p.drawMode;
-cc.defineGetterSetter(_p, "drawMode", _p.getDrawMode, _p.setDrawMode);
-/** @expose */
-_p.shapeType;
-cc.defineGetterSetter(_p, "shapeType", _p.getShapeType, _p.setShapeType);
-/** @expose */
 _p.active;
 cc.defineGetterSetter(_p, "active", _p.isActive);
 /** @expose */
@@ -2062,34 +2022,6 @@ _ccsg.ParticleSystem.ModeB = function (startRadius, startRadiusVar, endRadius, e
     /** Variance in degrees for rotatePerSecond. Only available in 'Radius' mode. */
     this.rotatePerSecondVar = rotatePerSecondVar || 0;
 };
-
-/**
- * Shape Mode of Particle Draw
- * @constant
- * @type Number
- */
-_ccsg.ParticleSystem.SHAPE_MODE = 0;
-
-/**
- * Texture Mode of Particle Draw
- * @constant
- * @type Number
- */
-_ccsg.ParticleSystem.TEXTURE_MODE = 1;
-
-/**
- * Star Shape for ShapeMode of Particle
- * @constant
- * @type Number
- */
-_ccsg.ParticleSystem.STAR_SHAPE = 0;
-
-/**
- * Ball Shape for ShapeMode of Particle
- * @constant
- * @type Number
- */
-_ccsg.ParticleSystem.BALL_SHAPE = 1;
 
 /**
  * The Particle emitter lives forever
