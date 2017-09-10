@@ -9,8 +9,6 @@ require('./core/base-nodes/CCSGNodeCanvasRenderCmd');
 require('./core/base-nodes/CCSGNodeWebGLRenderCmd');
 require('./core/scenes/CCSGScene');
 require('./core/CCConfiguration');
-require('./core/CCDrawingPrimitivesCanvas');
-require('./core/CCDrawingPrimitivesWebGL');
 require('./core/sprites/CCSGSprite');
 require('./core/sprites/CCSGSpriteCanvasRenderCmd');
 require('./core/sprites/CCSGSpriteWebGLRenderCmd');

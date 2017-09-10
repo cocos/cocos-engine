@@ -696,7 +696,6 @@ var game = {
             cc.renderer = cc.rendererWebGL;
             win.gl = this._renderContext; // global variable declared in CCMacro.js
             cc.renderer.init();
-            cc._drawingUtil = new cc.DrawingPrimitiveWebGL(this._renderContext);
             cc.textureCache._initializingRenderer();
             cc.glExt = {};
             cc.glExt.instanced_arrays = win.gl.getExtension("ANGLE_instanced_arrays");
@@ -706,7 +705,6 @@ var game = {
             cc.renderer = cc.rendererCanvas;
             cc.renderer.init();
             this._renderContext = cc._renderContext = new cc.CanvasContextWrapper(localCanvas.getContext("2d"));
-            cc._drawingUtil = cc.DrawingPrimitiveCanvas ? new cc.DrawingPrimitiveCanvas(this._renderContext) : null;
         }
 
         cc._gameDiv = localContainer;
