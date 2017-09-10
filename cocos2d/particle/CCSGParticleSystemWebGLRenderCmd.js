@@ -40,11 +40,6 @@ _ccsg.ParticleSystem.WebGLRenderCmd = function(renderable){
 var proto = _ccsg.ParticleSystem.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
 proto.constructor = _ccsg.ParticleSystem.WebGLRenderCmd;
 
-proto.getDrawMode = function(){};
-proto.setDrawMode = function(drawMode){};
-proto.getShapeType = function(){};
-proto.setShapeType = function(shapeType){};
-
 proto.initIndices = function (totalParticles) {
     var locIndices = this._indices;
     for (var i = 0, len = totalParticles; i < len; ++i) {

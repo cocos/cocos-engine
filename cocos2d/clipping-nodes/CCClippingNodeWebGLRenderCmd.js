@@ -22,6 +22,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+require('../core/CCDrawingPrimitives');
+
 // ------------------------------- ClippingNode's WebGL render cmd ------------------------------
 function setProgram (node, program) {
     node.shaderProgram = program;

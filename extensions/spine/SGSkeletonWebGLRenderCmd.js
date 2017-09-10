@@ -22,6 +22,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+require('../../cocos2d/core/CCDrawingPrimitives');
+
 var spine = sp.spine;
 
 
