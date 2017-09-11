@@ -741,43 +741,37 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
 
             var triangleBytesLen = cc.V2F_C4B_T2F_Triangle.BYTES_PER_ELEMENT, trianglesBuffer = this._trianglesArrayBuffer;
             var locBuffer = this._buffer;
-            var inset = (outline == false ? 0.5 : 0.0);
+
+            var va, vb, vc;
             for (i = 0; i < count - 2; i++) {
-                v0 = cc.pSub(cc.v2(verts[0]), cc.pMult(extrude[0].offset, inset));
-                v1 = cc.pSub(cc.v2(verts[i + 1]), cc.pMult(extrude[i + 1].offset, inset));
-                v2 = cc.pSub(cc.v2(verts[i + 2]), cc.pMult(extrude[i + 2].offset, inset));
-                locBuffer.push(new cc.V2F_C4B_T2F_Triangle({vertices: v0, colors: c4bFillColor, texCoords: __t(cc.v2())},
-                    {vertices: v1, colors: c4bFillColor, texCoords: __t(cc.v2())}, {vertices: v2, colors: c4bFillColor, texCoords: __t(cc.v2())},
-                    trianglesBuffer, locBuffer.length * triangleBytesLen));
+                va = {vertices: verts[0], colors: c4bFillColor, texCoords: __t(cc.v2())};
+                vb = {vertices: verts[i + 1], colors: c4bFillColor, texCoords: __t(cc.v2())};
+                vc = {vertices: verts[i + 2], colors: c4bFillColor, texCoords: __t(cc.v2())};
+                locBuffer.push(new cc.V2F_C4B_T2F_Triangle(va, vb, vc, trianglesBuffer, locBuffer.length * triangleBytesLen));
             }
+            if (outline) {
+                for (i = 0; i < count; i++) {
+                    var j = (i + 1) % count;
+                    v0 = cc.v2(verts[i]);
+                    v1 = cc.v2(verts[j]);
 
-            for (i = 0; i < count; i++) {
-                var j = (i + 1) % count;
-                v0 = cc.v2(verts[i]);
-                v1 = cc.v2(verts[j]);
+                    var n0 = extrude[i].n;
+                    var offset0 = extrude[i].offset;
+                    var offset1 = extrude[j].offset;
+                    var inner0 = cc.pSub(v0, cc.pMult(offset0, borderWidth));
+                    var inner1 = cc.pSub(v1, cc.pMult(offset1, borderWidth));
+                    var outer0 = cc.pAdd(v0, cc.pMult(offset0, borderWidth));
+                    var outer1 = cc.pAdd(v1, cc.pMult(offset1, borderWidth));
 
-                var n0 = extrude[i].n;
-                var offset0 = extrude[i].offset;
-                var offset1 = extrude[j].offset;
-                var inner0 = outline ? cc.pSub(v0, cc.pMult(offset0, borderWidth)) : cc.pSub(v0, cc.pMult(offset0, 0.5));
-                var inner1 = outline ? cc.pSub(v1, cc.pMult(offset1, borderWidth)) : cc.pSub(v1, cc.pMult(offset1, 0.5));
-                var outer0 = outline ? cc.pAdd(v0, cc.pMult(offset0, borderWidth)) : cc.pAdd(v0, cc.pMult(offset0, 0.5));
-                var outer1 = outline ? cc.pAdd(v1, cc.pMult(offset1, borderWidth)) : cc.pAdd(v1, cc.pMult(offset1, 0.5));
+                    va = { vertices: inner0, colors: c4bBorderColor, texCoords: __t(cc.pNeg(n0)) };
+                    vb = { vertices: inner1, colors: c4bBorderColor, texCoords: __t(cc.pNeg(n0)) };
+                    vc = { vertices: outer1, colors: c4bBorderColor, texCoords: __t(n0) };
+                    locBuffer.push(new cc.V2F_C4B_T2F_Triangle(va, vb, vc, trianglesBuffer, locBuffer.length * triangleBytesLen));
 
-                if (outline) {
-                    locBuffer.push(new cc.V2F_C4B_T2F_Triangle({vertices: inner0, colors: c4bBorderColor, texCoords: __t(cc.pNeg(n0))},
-                        {vertices: inner1, colors: c4bBorderColor, texCoords: __t(cc.pNeg(n0))}, {vertices: outer1, colors: c4bBorderColor, texCoords: __t(n0)},
-                        trianglesBuffer, locBuffer.length * triangleBytesLen));
-                    locBuffer.push(new cc.V2F_C4B_T2F_Triangle({vertices: inner0, colors: c4bBorderColor, texCoords: __t(cc.pNeg(n0))},
-                        {vertices: outer0, colors: c4bBorderColor, texCoords: __t(n0)}, {vertices: outer1, colors: c4bBorderColor, texCoords: __t(n0)},
-                        trianglesBuffer, locBuffer.length * triangleBytesLen));
-                } else {
-                    locBuffer.push(new cc.V2F_C4B_T2F_Triangle({vertices: inner0, colors: c4bFillColor, texCoords: __t(cc.v2())},
-                        {vertices: inner1, colors: c4bFillColor, texCoords: __t(cc.v2())}, {vertices: outer1, colors: c4bFillColor, texCoords: __t(n0)},
-                        trianglesBuffer, locBuffer.length * triangleBytesLen));
-                    locBuffer.push(new cc.V2F_C4B_T2F_Triangle({vertices: inner0, colors: c4bFillColor, texCoords: __t(cc.v2())},
-                        {vertices: outer0, colors: c4bFillColor, texCoords: __t(n0)}, {vertices: outer1, colors: c4bFillColor, texCoords: __t(n0)},
-                        trianglesBuffer, locBuffer.length * triangleBytesLen));
+                    va = { vertices: inner0, colors: c4bBorderColor, texCoords: __t(cc.pNeg(n0)) };
+                    vb = { vertices: outer0, colors: c4bBorderColor, texCoords: __t(n0) };
+                    vc = { vertices: outer1, colors: c4bBorderColor, texCoords: __t(n0) };
+                    locBuffer.push(new cc.V2F_C4B_T2F_Triangle(va, vb, vc, trianglesBuffer, locBuffer.length * triangleBytesLen));
                 }
             }
             extrude = null;
