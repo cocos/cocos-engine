@@ -77,7 +77,7 @@ Details.prototype.reset = function () {
     //this.rawObjList.length = 0;
     //this.rawPropList.length = 0;
 };
-if (CC_EDITOR) {
+if (CC_EDITOR || CC_TEST) {
     Details.prototype.assignAssetsBy = function (getter) {
         for (var i = 0, len = this.uuidList.length; i < len; i++) {
             var uuid = this.uuidList[i];

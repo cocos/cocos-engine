@@ -336,6 +336,7 @@ if (CC_DEBUG) {
                 "    set %s (value) {\n" +
                 "      ...\n" +
                 "    }",
+        "3656": "The default value of %s.%s must be an empty string. (changed since 1.7)", //getTypeChecker_4
         //Prefab: 3700
         "3700": "internal error: _prefab is undefined", //_doInstantiate
         "3701": "Failed to load prefab asset for node '%s'", //syncWithPrefab
