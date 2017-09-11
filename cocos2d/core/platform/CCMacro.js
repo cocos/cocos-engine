@@ -1877,9 +1877,9 @@ cc.macro = {
 
     /**
      * !#en 
-     * Whether or not enabled tiled map auto culling.
+     * Whether or not enabled tiled map auto culling. If you set the TiledMap skew or rotation, then need to manually disable this, otherwise, the rendering will be wrong.
      * !#zh
-     * 是否开启瓦片地图的自动裁减功能。
+     * 是否开启瓦片地图的自动裁减功能。瓦片地图如果设置了 skew, rotation 的话，需要手动关闭，否则渲染会出错。
      * @property {Boolean} ENABLE_TILEDMAP_CULLING
      * @default true
      */

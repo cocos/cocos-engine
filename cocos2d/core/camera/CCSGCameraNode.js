@@ -45,7 +45,7 @@ let CameraNode = _ccsg.Node.extend({
     _onBeforeVisit: function () {
         cc.renderer._breakBatch();
 
-        cc.math.glMatrixMode(cc.math.KM_GL_PROJECTION)
+        cc.math.glMatrixMode(cc.math.KM_GL_PROJECTION);
         cc.current_stack.push();
         cc.current_stack.top.multiply(this._mat);
     },
@@ -53,7 +53,7 @@ let CameraNode = _ccsg.Node.extend({
     _onAfterVisit: function () {
         cc.renderer._breakBatch();
         
-        cc.math.glMatrixMode(cc.math.KM_GL_PROJECTION)
+        cc.math.glMatrixMode(cc.math.KM_GL_PROJECTION);
         cc.current_stack.pop();
     },
 

@@ -109,7 +109,11 @@ let Camera = cc.Class({
         }
     },
 
-    _initSgNode: function () {},
+    _initSgNode: function () {
+        // sgNode is the sizeProvider of the node so we should sync its size with the node,
+        // otherwise the node size will become zero.
+        this._sgNode.setContentSize(this.node.getContentSize(true));
+    },
 
     _addSgTargetInSg: function (target) {
         var sgNode;
