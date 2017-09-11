@@ -70,7 +70,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
     // enable Depth Test
     cc.renderer.setDepthTest(true);
 
-    var node = this._node, hasRotation = (node._rotationX || node._rotationY),
+    var node = this._node,
         layerOrientation = node.layerOrientation,
         tiles = node.tiles;
 
@@ -130,7 +130,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
             cullingH = tileh * cullingD;
         }
 
-        if (!hasRotation && layerOrientation === Orientation.ORTHO) {
+        if (layerOrientation === Orientation.ORTHO) {
             startCol = Math.floor(-(cullingMapx - extw * cullingA) / (maptw * cullingA));
             startRow = Math.floor((cullingMapy - exth * cullingD + mapth * rows * cullingD - winh) / (mapth * cullingD));
             maxCol = Math.ceil((winw - cullingMapx + extw * cullingA) / (maptw * cullingA));
@@ -211,7 +211,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
             top = bottom + tileh;
 
             // TMX_ORIENTATION_ISO trim
-            if (enabledCulling && !hasRotation && layerOrientation === Orientation.ISO) {
+            if (enabledCulling && layerOrientation === Orientation.ISO) {
                 gb = cullingMapy + bottom*cullingD;
                 if (gb > winh+cullingH) {
                     col += Math.floor((gb-winh)*2/cullingH) - 1;
