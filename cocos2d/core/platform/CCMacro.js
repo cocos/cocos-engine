@@ -1725,31 +1725,6 @@ cc.macro = {
 
     /**
      * <p>
-     *   Use GL_TRIANGLE_STRIP instead of GL_TRIANGLES when rendering the texture atlas.<br/>
-     *   It seems it is the recommend way, but it is much slower, so, enable it at your own risk<br/>
-     *   <br/>
-     *   To enable set it to a value different than 0. Disabled by default.<br/>
-     *   To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * </p>
-     * @property {Number} TEXTURE_ATLAS_USE_TRIANGLE_STRIP
-     */
-    TEXTURE_ATLAS_USE_TRIANGLE_STRIP: 0,
-
-    /**
-     * <p>
-     *    By default, cc.TextureAtlas (used by many cocos2d classes) will use VAO (Vertex Array Objects).<br/>
-     *    Apple recommends its usage but they might consume a lot of memory, specially if you use many of them.<br/>
-     *    So for certain cases, where you might need hundreds of VAO objects, it might be a good idea to disable it.<br/>
-     *    <br/>
-     *    To disable it set it to 0. disable by default.(Not Supported on WebGL)<br/>
-     *    To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * </p>
-     * @property {Number} TEXTURE_ATLAS_USE_VAO
-     */
-    TEXTURE_ATLAS_USE_VAO: 0,
-
-    /**
-     * <p>
      *  If enabled, NPOT textures will be used where available. Only 3rd gen (and newer) devices support NPOT textures.<br/>
      *  NPOT textures have the following limitations:<br/>
      *     - They can't have mipmaps<br/>

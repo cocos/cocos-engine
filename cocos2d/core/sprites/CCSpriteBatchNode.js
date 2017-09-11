@@ -52,13 +52,9 @@
  * // 2. create a SpriteBatchNode with texture
  * var texture = cc.textureCache.addImage("res/animations/grossini.png");
  * var spriteBatchNode = new cc.SpriteBatchNode(texture,50);
- *
- * @property {cc.TextureAtlas}  textureAtlas    - The texture atlas
- * @property {Array}            descendants     - <@readonly> Descendants of sprite batch node
  */
 cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
     _blendFunc: null,
-    // all descendants: chlidren, gran children, etc...
     _texture: null,
     _className: "SpriteBatchNode",
 
@@ -77,46 +73,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
         texture2D && this.initWithTexture(texture2D);
     },
 
-    /**
-     * <p>
-     *    Same as addChild
-     * </p>
-     * @param {_ccsg.Sprite} child
-     * @param {Number} z zOrder
-     * @param {Number} aTag
-     * @return {cc.SpriteBatchNode}
-     * @deprecated since v1.2
-     */
-    addSpriteWithoutQuad: function (child, z, aTag) {
-        this.addChild(child, z, aTag);
-        return this;
-    },
-
     // property
-    /**
-     * Return null, no texture atlas is used any more
-     * @return {cc.TextureAtlas}
-     * @deprecated since v1.2
-     */
-    getTextureAtlas: function () {
-        return null;
-    },
-
-    /**
-     * TextureAtlas of cc.SpriteBatchNode setter
-     * @param {cc.TextureAtlas} textureAtlas
-     * @deprecated since v1.2
-     */
-    setTextureAtlas: function (textureAtlas) {},
-
-    /**
-     * Return Descendants of cc.SpriteBatchNode
-     * @return {Array}
-     * @deprecated since v1.2
-     */
-    getDescendants: function () {
-        return this._children;
-    },
 
     /**
      * <p>
@@ -126,39 +83,12 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
      *    Please pass parameters to constructor to initialize the sprite batch node, do not call this function yourself.
      * </p>
      * @param {String} fileImage
-     * @param {Number} capacity
      * @return {Boolean}
      */
-    initWithFile: function (fileImage, capacity) {
-        var texture2D = cc.textureCache.getTextureForKey(fileImage);
-        if (!texture2D)
-            texture2D = cc.textureCache.addImage(fileImage);
-        return this.initWithTexture(texture2D, capacity);
+    initWithFile: function (fileImage) {
+        var texture2D = cc.textureCache.getTextureForKey(fileImage) || cc.textureCache.addImage(fileImage);
+        return this.initWithTexture(texture2D);
     },
-
-    /**
-     * <p>
-     *    initializes a cc.SpriteBatchNode with a file image (.png, .jpeg, .pvr, etc) and a capacity of children.<br/>
-     *    The capacity will be increased in 33% in runtime if it run out of space.<br/>
-     *    The file will be loaded using the TextureMgr.<br/>
-     *    Please pass parameters to constructor to initialize the sprite batch node, do not call this function yourself.
-     * </p>
-     * @param {String} fileImage
-     * @param {Number} capacity
-     * @return {Boolean}
-     */
-    init: function (fileImage, capacity) {
-        var texture2D = cc.textureCache.getTextureForKey(fileImage);
-        if (!texture2D)
-            texture2D = cc.textureCache.addImage(fileImage);
-        return this.initWithTexture(texture2D, capacity);
-    },
-
-    /**
-     * Do nothing
-     * @deprecated since v1.2
-     */
-    increaseAtlasCapacity: function () {},
 
     /**
      * Removes a child given a certain index. It will also cleanup the running actions depending on the cleanup parameter.
@@ -168,64 +98,6 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
      */
     removeChildAtIndex: function (index, doCleanup) {
         this.removeChild(this._children[index], doCleanup);
-    },
-
-    /**
-     * Do nothing
-     * @param {_ccsg.Sprite} pobParent
-     * @param {Number} index
-     * @return {Number}
-     * @deprecated since v1.2
-     */
-    rebuildIndexInOrder: function (pobParent, index) {
-        return index;
-    },
-
-    /**
-     * Returns highest atlas index in child
-     * @param {_ccsg.Sprite} sprite
-     * @return {Number}
-     * @deprecated since v1.2
-     */
-    highestAtlasIndexInChild: function (sprite) {
-        var children = sprite.children;
-        if (!children || children.length === 0)
-            return sprite.zIndex;
-        else
-            return this.highestAtlasIndexInChild(children[children.length - 1]);
-    },
-
-    /**
-     * Returns lowest atlas index in child
-     * @param {_ccsg.Sprite} sprite
-     * @return {Number}
-     * @deprecated since v1.2
-     */
-    lowestAtlasIndexInChild: function (sprite) {
-        var children = sprite.children;
-        if (!children || children.length === 0)
-            return sprite.zIndex;
-        else
-            return this.lowestAtlasIndexInChild(children[children.length - 1]);
-    },
-
-    /**
-     * Returns index for child
-     * @param {_ccsg.Sprite} sprite
-     * @return {Number}
-     * @deprecated since v1.2
-     */
-    atlasIndexForChild: function (sprite) {
-        return sprite.zIndex;
-    },
-
-    /**
-     * Sprites use this to start sortChildren, don't call this manually
-     * @param {Boolean} reorder
-     * @deprecated since v1.2
-     */
-    reorderBatch: function (reorder) {
-        this._reorderChildDirty = reorder;
     },
 
     /**
@@ -274,29 +146,6 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
     },
 
     /**
-     * <p>
-     *    Same as addChild(sprite, index)
-     * </p>
-     * @function
-     * @param {_ccsg.Sprite} sprite
-     * @param {Number} index
-     * @deprecated since v1.2
-     */
-    insertQuadFromSprite: function (sprite, index) {
-        this.addChild(sprite, index);
-    },
-
-    /**
-     * Same as addChild(sprite, index)
-     * @param {_ccsg.Sprite} sprite The child sprite
-     * @param {Number} index The insert index
-     * @deprecated since v1.2
-     */
-    insertChild: function (sprite, index) {
-        this.addChild(sprite, index);
-    },
-
-    /**
      * Add child at the end
      * @function
      * @param {_ccsg.Sprite} sprite
@@ -305,17 +154,6 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
         this.sortAllChildren();
         var lastLocalZOrder = this._children[this._children.length-1]._localZOrder;
         this.addChild(sprite. lastLocalZOrder + 1);
-    },
-
-    /**
-     * Same as removeChild
-     * @function
-     * @param {_ccsg.Sprite} sprite
-     * @param {Boolean} [cleanup=true]  true if all running actions and callbacks on the child node will be cleanup, false otherwise.
-     * @deprecated since v1.2
-     */
-    removeSpriteFromAtlas: function (sprite, cleanup) {
-        this.removeChild(sprite, cleanup);
     },
 
     /**

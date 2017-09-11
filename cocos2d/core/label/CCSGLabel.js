@@ -102,7 +102,6 @@ var LetterInfo = function() {
     this._valid = true;
     this._positionX = 0;
     this._positionY = 0;
-    this._atlasIndex = 0;
     this._lineIndex = 0;
 };
 
@@ -732,10 +731,6 @@ _ccsg.Label = _ccsg.Node.extend({
 
                     var letterPositionX = this._lettersInfo[ctr]._positionX + this._linesOffsetX[this._lettersInfo[ctr]._lineIndex];
                     fontChar.setPosition(letterPositionX, py);
-
-                    var index = this._spriteBatchNode.getChildrenCount();
-
-                    this._lettersInfo[ctr]._atlasIndex = index;
 
                     this._updateLetterSpriteScale(fontChar);
 

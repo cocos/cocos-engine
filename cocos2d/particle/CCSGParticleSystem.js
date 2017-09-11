@@ -63,11 +63,10 @@ require('../compression/ZipUtils');
  * @param {Number} [rotation=0]
  * @param {Number} [deltaRotation=0]
  * @param {Number} [timeToLive=0]
- * @param {Number} [atlasIndex=0]
  * @param {cc.Particle.ModeA} [modeA=]
  * @param {cc.Particle.ModeA} [modeB=]
  */
-cc.Particle = function (pos, startPos, color, deltaColor, size, deltaSize, rotation, deltaRotation, timeToLive, atlasIndex, modeA, modeB) {
+cc.Particle = function (pos, startPos, color, deltaColor, size, deltaSize, rotation, deltaRotation, timeToLive, modeA, modeB) {
     this.pos = pos || cc.v2(0, 0);
     this.startPos = startPos || cc.v2(0, 0);
     this.color = color || cc.color(0, 0, 0, 255);
@@ -77,7 +76,6 @@ cc.Particle = function (pos, startPos, color, deltaColor, size, deltaSize, rotat
     this.rotation = rotation || 0;
     this.deltaRotation = deltaRotation || 0;
     this.timeToLive = timeToLive || 0;
-    this.atlasIndex = atlasIndex || 0;
     this.modeA = modeA ? modeA : new cc.Particle.ModeA();
     this.modeB = modeB ? modeB : new cc.Particle.ModeB();
     this.isChangeColor = false;
@@ -166,7 +164,6 @@ cc.Particle.TemporaryPoints = [
  *
  * @property {Boolean}              opacityModifyRGB    - Indicate whether the alpha value modify color.
  * @property {Boolean}              active              - <@readonly> Indicate whether the particle system is activated.
- * @property {Number}               atlasIndex          - Index of system in batch node array.
  * @property {Number}               particleCount       - Current quantity of particles that are being simulated.
  * @property {Number}               duration            - How many seconds the emitter wil run. -1 means 'forever'
  * @property {cc.Vec2}             sourcePos           - Source position of the emitter.
@@ -240,8 +237,6 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
     //!  particle idx
     _particleIdx: 0,
 
-    atlasIndex: 0,
-
     _allocatedParticles: 0,
 
     _isActive: false,
@@ -306,7 +301,6 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
         this._pointZeroForParticle = cc.p(0, 0);
         this._emitCounter = 0;
         this._particleIdx = 0;
-        this.atlasIndex = 0;
 
         this._allocatedParticles = 0;
         this._isActive = false;
@@ -368,22 +362,6 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
      */
     initTexCoordsWithRect:function (pointRect) {
         this._renderCmd.initTexCoordsWithRect(pointRect);
-    },
-
-    /**
-     * return index of system in batch node array
-     * @return {Number}
-     */
-    getAtlasIndex:function () {
-        return this.atlasIndex;
-    },
-
-    /**
-     * set index of system in batch node array
-     * @param {Number} atlasIndex
-     */
-    setAtlasIndex:function (atlasIndex) {
-        this.atlasIndex = atlasIndex;
     },
 
     /**
@@ -1685,7 +1663,6 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
                     ++this._particleIdx;
                 } else {
                     // life < 0
-                    var currentIndex = selParticle.atlasIndex;
                     if (this._particleIdx !== this.particleCount -1){
                          var deadParticle = locParticles[this._particleIdx];
                         locParticles[this._particleIdx] = locParticles[this.particleCount -1];
