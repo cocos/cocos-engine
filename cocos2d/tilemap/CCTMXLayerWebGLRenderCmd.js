@@ -121,7 +121,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
     
     if (enabledCulling) {
         if (this._cameraFlag > 0) {
-            var tmpt = cc.affineTransformConcat(cc.Camera.main.viewMatrix, wt);
+            var tmpt = cc.affineTransformConcat(wt, cc.Camera.main.viewMatrix);
             cullingA = tmpt.a;
             cullingD = tmpt.d;
             cullingMapx = ox * cullingA + oy * tmpt.c + tmpt.tx;
