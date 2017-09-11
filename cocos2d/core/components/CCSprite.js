@@ -520,16 +520,14 @@ var Sprite = cc.Class({
     },
 
     _applySpriteSize: function () {
-        if (SizeMode.CUSTOM === this._sizeMode || !this._spriteFrame) {
-            this.node.setContentSize(this.node.getContentSize(true));
-        } else if (SizeMode.RAW === this._sizeMode) {
-            var size = this._spriteFrame.getOriginalSize();
-            this.node.setContentSize(size);
-        } else if (SizeMode.TRIMMED === this._sizeMode) {
-            var rect = this._spriteFrame.getRect();
-            this.node.setContentSize(cc.size(rect.width, rect.height));
-        } else {
-            this.node.setContentSize(this.node.getContentSize(true));
+        if (this._spriteFrame) {
+            if (SizeMode.RAW === this._sizeMode) {
+                var size = this._spriteFrame.getOriginalSize();
+                this.node.setContentSize(size);
+            } else if (SizeMode.TRIMMED === this._sizeMode) {
+                var rect = this._spriteFrame.getRect();
+                this.node.setContentSize(rect.width, rect.height);
+            }
         }
     },
 
@@ -585,7 +583,7 @@ var Sprite = cc.Class({
                                   sgNode.getInsetTop() !== 0 || sgNode.getInsetBottom() !== 0;
         this._applySpriteFrame(null, insetsChangedViaAPI);
 
-        // should keep the size of the sg node the same as entity,
+        // sgNode is the sizeProvider of the node so we should sync its size with the node,
         // otherwise setContentSize may not take effect
         sgNode.setContentSize(this.node.getContentSize(true));
         this._applySpriteSize();
