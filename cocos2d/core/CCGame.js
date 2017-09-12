@@ -557,14 +557,12 @@ var game = {
 
         callback = function () {
             if (!self._paused) {
+                self._intervalId = window.requestAnimFrame(callback);
                 if (frameRate === 30) {
                     if (skip = !skip) {
-                        self._intervalId = window.requestAnimFrame(callback);
                         return;
                     }
                 }
-
-                self._intervalId = window.requestAnimFrame(callback);
                 director.mainLoop();
             }
         };
