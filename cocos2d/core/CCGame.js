@@ -564,8 +564,8 @@ var game = {
                     }
                 }
 
-                director.mainLoop();
                 self._intervalId = window.requestAnimFrame(callback);
+                director.mainLoop();
             }
         };
 
