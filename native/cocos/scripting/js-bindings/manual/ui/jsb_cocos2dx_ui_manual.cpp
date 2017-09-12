@@ -129,10 +129,13 @@ public:
         if (!p) return;
 
         JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-        JS::RootedValue arg(cx, JS::ObjectOrNullValue(p->obj));
-        JS::HandleValueArray args(arg);
         JS::RootedValue delegateVal(cx, _JSDelegate);
-        ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxEditingDidBegin", args);
+        if (delegateVal.isObject())
+        {
+            JS::RootedValue arg(cx, JS::ObjectOrNullValue(p->obj));
+            JS::HandleValueArray args(arg);
+            ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxEditingDidBegin", args);
+        }
     }
 
     virtual void editBoxEditingDidEnd(EditBox* editBox) override
@@ -141,10 +144,13 @@ public:
         if (!p) return;
         
         JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-        JS::RootedValue arg(cx, JS::ObjectOrNullValue(p->obj));
-        JS::HandleValueArray args(arg);
         JS::RootedValue delegateVal(cx, _JSDelegate);
-        ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxEditingDidEnd", args);
+        if (delegateVal.isObject())
+        {
+            JS::RootedValue arg(cx, JS::ObjectOrNullValue(p->obj));
+            JS::HandleValueArray args(arg);
+            ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxEditingDidEnd", args);
+        }
     }
 
     virtual void editBoxTextChanged(EditBox* editBox, const std::string& text) override
@@ -153,16 +159,18 @@ public:
         if (!p) return;
         
         JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-        
-        JS::AutoValueVector valArr(cx);
-        valArr.append(JS::ObjectOrNullValue(p->obj));
-        JS::RootedValue argv(cx);
-        std_string_to_jsval(cx, text, &argv);
-        valArr.append(argv);
-        JS::HandleValueArray args(valArr);
-        
         JS::RootedValue delegateVal(cx, _JSDelegate);
-        ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxTextChanged", args);
+        if (delegateVal.isObject())
+        {
+            JS::AutoValueVector valArr(cx);
+            valArr.append(JS::ObjectOrNullValue(p->obj));
+            JS::RootedValue argv(cx);
+            std_string_to_jsval(cx, text, &argv);
+            valArr.append(argv);
+            JS::HandleValueArray args(valArr);
+            
+            ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxTextChanged", args);
+        }
     }
 
     virtual void editBoxEditingReturn(EditBox* editBox) override
@@ -172,14 +180,24 @@ public:
         
         JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
         JS::RootedValue delegateVal(cx, _JSDelegate);
-        JS::RootedValue arg(cx, JS::ObjectOrNullValue(p->obj));
-        JS::HandleValueArray args(arg);
-        ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxEditingReturn", args);
+        if (delegateVal.isObject())
+        {
+            JS::RootedValue arg(cx, JS::ObjectOrNullValue(p->obj));
+            JS::HandleValueArray args(arg);
+            ScriptingCore::getInstance()->executeFunctionWithOwner(delegateVal, "editBoxEditingReturn", args);
+        }
     }
 
     void setJSDelegate(JS::HandleValue pJSDelegate)
     {
-        _JSDelegate = pJSDelegate;
+        if (pJSDelegate.isObject())
+        {
+            _JSDelegate = pJSDelegate;
+        }
+        else
+        {
+            _JSDelegate = JS::NullValue();
+        }
     }
 private:
     JS::Heap<JS::Value> _JSDelegate;
@@ -195,16 +213,24 @@ static bool js_cocos2dx_CCEditBox_setDelegate(JSContext *cx, uint32_t argc, JS::
 
     if (argc == 1)
     {
-        // save the delegate
-        JSB_EditBoxDelegate* nativeDelegate = new (std::nothrow) JSB_EditBoxDelegate();
-        nativeDelegate->setJSDelegate(args.get(0));
-        
-        JS_SetProperty(cx, obj, "_delegate", args.get(0));
-        
-        cobj->setUserObject(nativeDelegate);
-        cobj->setDelegate(nativeDelegate);
-
-        nativeDelegate->release();
+        JSB_EditBoxDelegate* nativeDelegate = (JSB_EditBoxDelegate*)cobj->getDelegate();
+        if (nativeDelegate)
+        {
+            nativeDelegate->setJSDelegate(args.get(0));
+        }
+        else
+        {
+            // save the delegate
+            nativeDelegate = new (std::nothrow) JSB_EditBoxDelegate();
+            nativeDelegate->setJSDelegate(args.get(0));
+            
+            JS_SetProperty(cx, obj, "_delegate", args.get(0));
+            
+            cobj->setUserObject(nativeDelegate);
+            cobj->setDelegate(nativeDelegate);
+            
+            nativeDelegate->release();
+        }
 
         args.rval().setUndefined();
         return true;

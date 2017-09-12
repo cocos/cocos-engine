@@ -83,23 +83,25 @@ public:
             return;
 
         JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
-
-        // Set the protocol which server selects.
-        JS::RootedValue jsprotocol(cx);
-        std_string_to_jsval(cx, ws->getProtocol(), &jsprotocol);
-        JS::RootedObject wsObj(cx, p->obj);
-        JS_SetProperty(cx, wsObj, "protocol", jsprotocol);
-
-        JS::RootedObject jsobj(cx, JS_NewPlainObject(cx));
-        JS::RootedValue vp(cx);
-        c_string_to_jsval(cx, "open", &vp);
-        JS_SetProperty(cx, jsobj, "type", vp);
-        
-        JS::RootedValue jsobjVal(cx, JS::ObjectOrNullValue(jsobj));
-        JS::HandleValueArray args(jsobjVal);
         JS::RootedValue owner(cx, JS::ObjectOrNullValue(_JSDelegate));
-
-        ScriptingCore::getInstance()->executeFunctionWithOwner(owner, "onopen", args);
+        if (owner.isObject())
+        {
+            // Set the protocol which server selects.
+            JS::RootedValue jsprotocol(cx);
+            std_string_to_jsval(cx, ws->getProtocol(), &jsprotocol);
+            JS::RootedObject wsObj(cx, p->obj);
+            JS_SetProperty(cx, wsObj, "protocol", jsprotocol);
+            
+            JS::RootedObject jsobj(cx, JS_NewPlainObject(cx));
+            JS::RootedValue vp(cx);
+            c_string_to_jsval(cx, "open", &vp);
+            JS_SetProperty(cx, jsobj, "type", vp);
+            
+            JS::RootedValue jsobjVal(cx, JS::ObjectOrNullValue(jsobj));
+            JS::HandleValueArray args(jsobjVal);
+            
+            ScriptingCore::getInstance()->executeFunctionWithOwner(owner, "onopen", args);
+        }
     }
 
     virtual void onMessage(WebSocket* ws, const WebSocket::Data& data)
@@ -111,46 +113,49 @@ public:
             return;
 
         JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
-        JS::RootedObject jsobj(cx, JS_NewPlainObject(cx));
-        JS::RootedValue vp(cx);
-        c_string_to_jsval(cx, "message", &vp);
-        JS_SetProperty(cx, jsobj, "type", vp);
-
-        JS::RootedValue arg(cx, JS::ObjectOrNullValue(jsobj));
-        bool flag;
-        if (data.isBinary)
-        {// data is binary
-            JS::RootedObject buffer(cx, JS_NewArrayBuffer(cx, static_cast<uint32_t>(data.len)));
-            if (data.len > 0)
-            {
-                uint8_t* bufdata = JS_GetArrayBufferData(buffer, &flag, JS::AutoCheckCannotGC());
-                memcpy((void*)bufdata, (void*)data.bytes, data.len);
-            }
-            JS::RootedValue dataVal(cx, JS::ObjectOrNullValue(buffer));
-            JS_SetProperty(cx, jsobj, "data", dataVal);
-        }
-        else
-        {// data is string
-            JS::RootedValue dataVal(cx);
-            if (strlen(data.bytes) == 0 && data.len > 0)
-            {// String with 0x00 prefix
-                dataVal = JS::StringValue(JS_NewStringCopyN(cx, data.bytes, data.len));
+        JS::RootedValue delegate(cx, JS::ObjectOrNullValue(_JSDelegate));
+        if (delegate.isObject())
+        {
+            JS::RootedObject jsobj(cx, JS_NewPlainObject(cx));
+            JS::RootedValue vp(cx);
+            c_string_to_jsval(cx, "message", &vp);
+            JS_SetProperty(cx, jsobj, "type", vp);
+            
+            JS::RootedValue arg(cx, JS::ObjectOrNullValue(jsobj));
+            bool flag;
+            if (data.isBinary)
+            {// data is binary
+                JS::RootedObject buffer(cx, JS_NewArrayBuffer(cx, static_cast<uint32_t>(data.len)));
+                if (data.len > 0)
+                {
+                    uint8_t* bufdata = JS_GetArrayBufferData(buffer, &flag, JS::AutoCheckCannotGC());
+                    memcpy((void*)bufdata, (void*)data.bytes, data.len);
+                }
+                JS::RootedValue dataVal(cx, JS::ObjectOrNullValue(buffer));
+                JS_SetProperty(cx, jsobj, "data", dataVal);
             }
             else
-            {// Normal string
-                c_string_to_jsval(cx, data.bytes, &dataVal);
+            {// data is string
+                JS::RootedValue dataVal(cx);
+                if (strlen(data.bytes) == 0 && data.len > 0)
+                {// String with 0x00 prefix
+                    dataVal = JS::StringValue(JS_NewStringCopyN(cx, data.bytes, data.len));
+                }
+                else
+                {// Normal string
+                    c_string_to_jsval(cx, data.bytes, &dataVal);
+                }
+                if (dataVal.isNullOrUndefined())
+                {
+                    ws->closeAsync();
+                    return;
+                }
+                JS_SetProperty(cx, jsobj, "data", dataVal);
             }
-            if (dataVal.isNullOrUndefined())
-            {
-                ws->closeAsync();
-                return;
-            }
-            JS_SetProperty(cx, jsobj, "data", dataVal);
-        }
 
-        JS::RootedValue delegate(cx, JS::ObjectOrNullValue(_JSDelegate));
-        JS::HandleValueArray args(arg);
-        ScriptingCore::getInstance()->executeFunctionWithOwner(delegate, "onmessage", args);
+            JS::HandleValueArray args(arg);
+            ScriptingCore::getInstance()->executeFunctionWithOwner(delegate, "onmessage", args);
+        }
     }
 
     virtual void onClose(WebSocket* ws)
@@ -161,22 +166,20 @@ public:
             if (cocos2d::Director::getInstance() != nullptr && cocos2d::Director::getInstance()->getRunningScene() && cocos2d::ScriptEngineManager::getInstance() != nullptr)
             {
                 JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
-                JS::RootedObject jsobj(cx, JS_NewPlainObject(cx));
-                JS::RootedValue vp(cx);
-                c_string_to_jsval(cx, "close", &vp);
-                JS_SetProperty(cx, jsobj, "type", vp);
-                
                 JS::RootedValue delegate(cx, JS::ObjectOrNullValue(_JSDelegate));
-                JS::RootedValue arg(cx, JS::ObjectOrNullValue(jsobj));
-                JS::HandleValueArray args(arg);
-                ScriptingCore::getInstance()->executeFunctionWithOwner(delegate, "onclose", args);
-                
-#if not CC_ENABLE_GC_FOR_NATIVE_OBJECTS
-                auto copy = &p->obj;
-                JS::RemoveObjectRoot(cx, copy);
-#endif
-                jsb_remove_proxy(p);
+                if (delegate.isObject())
+                {
+                    JS::RootedObject jsobj(cx, JS_NewPlainObject(cx));
+                    JS::RootedValue vp(cx);
+                    c_string_to_jsval(cx, "close", &vp);
+                    JS_SetProperty(cx, jsobj, "type", vp);
+                    
+                    JS::RootedValue arg(cx, JS::ObjectOrNullValue(jsobj));
+                    JS::HandleValueArray args(arg);
+                    ScriptingCore::getInstance()->executeFunctionWithOwner(delegate, "onclose", args);
+                }
             }
+            JS_SetPrivate(p->obj, nullptr);
         }
         ws->release();
         release(); // Release delegate self at last
@@ -191,15 +194,18 @@ public:
             return;
 
         JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
-        JS::RootedObject jsobj(cx, JS_NewPlainObject(cx));
-        JS::RootedValue vp(cx);
-        c_string_to_jsval(cx, "error", &vp);
-        JS_SetProperty(cx, jsobj, "type", vp);
-        
         JS::RootedValue delegate(cx, JS::ObjectOrNullValue(_JSDelegate));
-        JS::RootedValue arg(cx, JS::ObjectOrNullValue(jsobj));
-        JS::HandleValueArray args(arg);
-        ScriptingCore::getInstance()->executeFunctionWithOwner(delegate, "onerror", args);
+        if (delegate.isObject())
+        {
+            JS::RootedObject jsobj(cx, JS_NewPlainObject(cx));
+            JS::RootedValue vp(cx);
+            c_string_to_jsval(cx, "error", &vp);
+            JS_SetProperty(cx, jsobj, "type", vp);
+            
+            JS::RootedValue arg(cx, JS::ObjectOrNullValue(jsobj));
+            JS::HandleValueArray args(arg);
+            ScriptingCore::getInstance()->executeFunctionWithOwner(delegate, "onerror", args);
+        }
     }
 
     void setJSDelegate(JS::HandleObject pJSDelegate)
@@ -218,6 +224,16 @@ void js_cocos2dx_WebSocket_finalize(JSFreeOp *fop, JSObject *obj) {
     WebSocket *cobj = static_cast<WebSocket *>(JS_GetPrivate(obj));
     if (cobj)
     {
+        js_proxy_t * p = jsb_get_native_proxy(cobj);
+        if (p)
+        {
+#if not CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+            auto copy = &p->obj;
+            JS::RemoveObjectRoot(cx, copy);
+#endif
+            jsb_remove_proxy(p);
+        }
+        
         ScriptingCore::getInstance()->setFinalizing(true);
         // Manually close if WebSocket is not closed
         if (cobj->getReadyState() != WebSocket::State::CLOSED)

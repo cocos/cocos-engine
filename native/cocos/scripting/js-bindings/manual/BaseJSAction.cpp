@@ -58,7 +58,8 @@ BaseJSAction *BaseJSAction::clone() const
 	JS::RootedValue owner(cx, JS::ObjectOrNullValue(jsObj));
     ScriptingCore::getInstance()->executeFunctionWithOwner(owner, "clone", JS::HandleValueArray::empty(), &retVal);
 
-	auto proxy = jsb_get_js_proxy(cx, jsObj);
+	JS::RootedObject retObj(cx, retVal.toObjectOrNull());
+    auto proxy = jsb_get_js_proxy(cx, retObj);
     BaseJSAction* action = (BaseJSAction *)(proxy ? proxy->ptr : nullptr);
     return action;
 }
@@ -75,7 +76,8 @@ BaseJSAction *BaseJSAction::reverse() const
 	JS::RootedValue owner(cx, JS::ObjectOrNullValue(jsObj));
     ScriptingCore::getInstance()->executeFunctionWithOwner(owner, "reverse", JS::HandleValueArray::empty(), &retVal);
 
-    auto proxy = jsb_get_js_proxy(cx, jsObj);
+    JS::RootedObject retObj(cx, retVal.toObjectOrNull());
+    auto proxy = jsb_get_js_proxy(cx, retObj);
     BaseJSAction* action = (BaseJSAction *)(proxy ? proxy->ptr : nullptr);
     return action;
 }

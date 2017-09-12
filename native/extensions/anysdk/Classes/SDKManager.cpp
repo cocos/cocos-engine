@@ -10,7 +10,10 @@ SDKManager::SDKManager()
 
 SDKManager::~SDKManager()
 {
-	_pAgent->unloadAllPlugins();
+	if (_pAgent)
+    {
+        _pAgent->unloadAllPlugins();
+    }
 }
 
 SDKManager* SDKManager::getInstance()
@@ -43,11 +46,11 @@ void SDKManager::loadAllPlugins()
     std::string appSecret = "APP_SERCRET";
     std::string privateKey = "PRIVATE_KEY";
     
-    AgentManager* pAgent = AgentManager::getInstance();
-    pAgent->init(appKey,appSecret,privateKey,oauthLoginServer);
+    _pAgent = AgentManager::getInstance();
+    _pAgent->init(appKey,appSecret,privateKey,oauthLoginServer);
     
     //Initialize plug-ins, including SDKs.
-    pAgent->loadAllPlugins();
+    _pAgent->loadAllPlugins();
 }
 
 

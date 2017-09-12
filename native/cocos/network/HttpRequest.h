@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
- Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2013-2017 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -78,17 +78,17 @@ public:
 
     /**
      *  Constructor.
-     *   Because HttpRequest object will be used between UI thead and network thread,
+     *   Because HttpRequest object will be used between UI thread and network thread,
          requestObj->autorelease() is forbidden to avoid crashes in AutoreleasePool
          new/retain/release still works, which means you need to release it manually
          Please refer to HttpRequestTest.cpp to find its usage.
      */
     HttpRequest()
-    : _requestType(Type::UNKNOWN)
-    , _pTarget(nullptr)
-    , _pSelector(nullptr)
-    , _pCallback(nullptr)
-    , _pUserData(nullptr)
+        : _requestType(Type::UNKNOWN)
+        , _pTarget(nullptr)
+        , _pSelector(nullptr)
+        , _pCallback(nullptr)
+        , _pUserData(nullptr)
     {
     }
 
@@ -365,7 +365,7 @@ protected:
     SEL_HttpResponse            _pSelector;      /// callback function, e.g. MyLayer::onHttpResponse(HttpClient *sender, HttpResponse * response)
     ccHttpRequestCallback       _pCallback;      /// C++11 style callbacks
     void*                       _pUserData;      /// You can add your customed data here
-    std::vector<std::string>    _headers;              /// custom http headers
+    std::vector<std::string>    _headers;        /// custom http headers
 };
 
 }

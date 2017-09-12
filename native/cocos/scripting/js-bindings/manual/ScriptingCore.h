@@ -25,7 +25,6 @@
 #ifndef __SCRIPTING_CORE_H__
 #define __SCRIPTING_CORE_H__
 
-
 #include "jsapi.h"
 #include "jsfriendapi.h"
 
@@ -42,12 +41,20 @@
 
 #define ENGINE_VERSION "Cocos Creator v1.6"
 
+extern std::unordered_map<std::string, js_type_class_t*> *_js_global_type_map;
+
 void js_log(const char *format, ...);
 
 typedef void (*sc_register_sth)(JSContext* cx, JS::HandleObject global);
 
 void registerDefaultClasses(JSContext* cx, JS::HandleObject global);
 
+
+class SimpleRunLoop : public cocos2d::Ref
+{
+public:
+    void update(float d);
+};
 
 /**
  * @addtogroup jsb
@@ -76,6 +83,7 @@ private:
     JSContext *_cx;
     JS::PersistentRootedObject *_global;
     JS::PersistentRootedObject *_debugGlobal;
+    SimpleRunLoop *_runLoop;
     JSCompartment *_oldCompartment;
     bool _jsInited;
     bool _needCleanup;
@@ -322,7 +330,7 @@ public:
      * Gets the cached script objects for all executed js file
      * @return @~english The cached script object map
      */
-    std::unordered_map<std::string, JS::PersistentRootedScript*>& getFileScript();
+    std::unordered_map<std::string, JS::PersistentRootedScript*>* getFileScript();
     /**@~english
      * Clean all script objects
      */
@@ -408,7 +416,7 @@ public:
      * @param message @~english The error message
      * @param report @~english The js error report object
      */
-    static void reportError(JSContext *cx, JSErrorReport *report);
+    static void reportError(JSContext *cx, JSErrorReport *report, JS::HandleValue err);
 
     /**@~english
      * Log something to the js context using CCLog.
@@ -460,6 +468,11 @@ public:
      */
     void debugProcessInput(const std::string& str);
     /**@~english
+     * Enable the debug environment, mozilla Firefox's remote debugger or Code IDE can connect to it.
+     * @param port @~english The port to connect with the debug environment, default value is 5086
+     */
+    void enableDebugger(unsigned int port = 5086);
+    /**@~english
      * Gets the debug environment's global object
      * @return @~english The debug environment's global object
      */
@@ -495,7 +508,7 @@ public:
     
     /** Remove proxy for a native object
      */
-    virtual void removeObjectProxy(cocos2d::Ref* obj) override;
+    virtual void removeObjectProxy(void* obj) override;
 
     /**
      * Calls the Garbage Collector
@@ -511,10 +524,7 @@ public:
      * Gets the js object that is being finalizing in the script engine
      */
     bool getFinalizing () {return _finalizing;};
-
-private:
-    void string_report(JS::HandleValue val);
-
+    
 public:
     int handleNodeEvent(void* data);
     int handleActionEvent(void* data);
@@ -535,23 +545,48 @@ public:
     void restartVM();
 };
 
+/**
+ * You don't need to manage the returned pointer. They live for the whole life of
+ * the app.
+ */
+template <class T>
+inline js_type_class_t *js_get_type_from_native(T* native_obj)
+{
+    bool found = false;
+    std::string typeName = typeid(*native_obj).name();
+    auto typeProxyIter = _js_global_type_map->find(typeName);
+    if (typeProxyIter == _js_global_type_map->end())
+    {
+        typeName = typeid(T).name();
+        typeProxyIter = _js_global_type_map->find(typeName);
+        if (typeProxyIter != _js_global_type_map->end())
+        {
+            found = true;
+        }
+    }
+    else
+    {
+        found = true;
+    }
+    return found ? typeProxyIter->second : nullptr;
+}
+
 template <class T>
 js_type_class_t *jsb_register_class(JSContext *cx, JSClass *jsClass, JS::HandleObject proto)
 {
     js_type_class_t *p = nullptr;
     std::string typeName = TypeTest<T>::s_name();
-    if (_js_global_type_map.find(typeName) == _js_global_type_map.end())
+    if (_js_global_type_map->find(typeName) == _js_global_type_map->end())
     {
         p = (js_type_class_t *)malloc(sizeof(js_type_class_t));
         memset(p, 0, sizeof(js_type_class_t));
         p->jsclass = jsClass;
         p->proto = new JS::PersistentRootedObject(cx, proto);
         
-        _js_global_type_map.insert(std::make_pair(typeName, p));
+        _js_global_type_map->insert(std::make_pair(typeName, p));
     }
     return p;
 }
-
 
 void handlePendingException(JSContext *cx);
 

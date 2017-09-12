@@ -76,11 +76,11 @@ namespace jsb
         }
         ~Object()
         {
-#if COCOS2D_DEBUG > 1
-            CCLOG("Release JSBObject %p, with proxy: %p", this, _proxy);
-#endif // COCOS2D_DEBUG
             if (_proxy)
             {
+#if COCOS2D_DEBUG > 1
+                CCLOG("Release JSBObject %p, with proxy: %p", this, _proxy);
+#endif // COCOS2D_DEBUG
                 jsb_remove_proxy(_proxy);
             }
         }
@@ -88,6 +88,9 @@ namespace jsb
         {
             if (_proxy)
             {
+#if COCOS2D_DEBUG > 1
+                CCLOG("Release JSBObject %p, with proxy: %p", this, _proxy);
+#endif // COCOS2D_DEBUG
                 jsb_remove_proxy(_proxy);
             }
             JS::RootedValue val(cx, JS::ObjectOrNullValue(jsobj));
@@ -232,36 +235,6 @@ protected:
     int _priority;
     bool _isUpdateSchedule;
 };
-
-/**
- * You don't need to manage the returned pointer. They live for the whole life of
- * the app.
- */
-template <class T>
-inline js_type_class_t *js_get_type_from_native(T* native_obj) {
-    bool found = false;
-    std::string typeName = typeid(*native_obj).name();
-    auto typeProxyIter = _js_global_type_map.find(typeName);
-    if (typeProxyIter == _js_global_type_map.end())
-    {
-        typeName = typeid(T).name();
-        typeProxyIter = _js_global_type_map.find(typeName);
-        if (typeProxyIter != _js_global_type_map.end())
-        {
-            found = true;
-        }
-    }
-    else
-    {
-        found = true;
-    }
-    return found ? typeProxyIter->second : nullptr;
-}
-
-/**
-* get type from a cocos2d::Node, call function(js_get_type_from_native) above.
-*/
-CC_JS_DLL js_type_class_t *js_get_type_from_node(cocos2d::Node* native_obj);
 
 /**
  * Gets or creates a JSObject based on native_obj.

@@ -68,7 +68,7 @@ function TestTabList(aConnection) {
 TestTabList.prototype = {
   constructor: TestTabList,
   getList: function () {
-    return resolve([...this._tabActors]);
+    return Promise.resolve([...this._tabActors]);
   }
 };
 
@@ -200,7 +200,7 @@ this.processInput = function (inputstr) {
 
     if (inputstr === "connected")
     {
-    	DebuggerServer.init();
+      DebuggerServer.init();
       DebuggerServer.setRootActor(createRootActor);
       conn = DebuggerServer._onConnection(transport);
         
@@ -232,6 +232,7 @@ this.processInput = function (inputstr) {
       let packet = inputString.substring(0, count);
       incomingData = inputString.substring(count);
 
+//      log(">>>>>>>>>> " + packet);
       return packet;
     }
 
@@ -257,18 +258,28 @@ this._prepareDebugger = function (global) {
 
     this.globalDebuggee = global;
     cc = global.cc;
+    // load all functions exported in DevToolsUtils to global(exports)
     // exports = global;
 
-    // load all functions exported in DevToolsUtils to global(exports)
+    // SDK cods from https://hg.mozilla.org/mozilla-central/file/d1c70c20e7b5/addon-sdk/source/lib/sdk/
+    require('script/debugger/sdk/heritage.js', 'debug');
+    require('script/debugger/sdk/object.js', 'debug');
+    require('script/debugger/sdk/event-core.js', 'debug');
+    require('script/debugger/sdk/target.js', 'debug');
+    
     require('script/debugger/DevToolsUtils.js', 'debug');
     require('script/debugger/event-emitter.js', 'debug');
     require('script/debugger/actors/utils/ScriptStore.js', 'debug');
     require('script/debugger/actors/common.js', 'debug');
-    require('script/debugger/core/promise.js', 'debug');
     require('script/debugger/transport.js', 'debug');
     require('script/debugger/main.js', 'debug');
+    require('script/debugger/protocol.js', 'debug');
     require('script/debugger/actors/object.js', 'debug');
     require('script/debugger/actors/root.js', 'debug');
+    require('script/debugger/actors/source.js', 'debug');
+    require('script/debugger/actors/breakpoint.js', 'debug');
+    require('script/debugger/actors/environment.js', 'debug');
+    require('script/debugger/actors/frame.js', 'debug');
     require('script/debugger/actors/script.js', 'debug');
     require('script/debugger/actors/webconsole.js', 'debug')
     require('script/debugger/actors/utils/TabSources.js', 'debug');
