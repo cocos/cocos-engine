@@ -729,7 +729,7 @@ var ScrollView = cc.Class({
     /**
      * !#en Query whether the user is currently dragging the ScrollView to scroll it
      * !#zh 用户是否在拖拽当前滚动视图
-     * @method getContentPosition
+     * @method isScrolling
      * @returns {Boolean} - Whether the user is currently dragging the ScrollView to scroll it
      */
     isScrolling: function () {
