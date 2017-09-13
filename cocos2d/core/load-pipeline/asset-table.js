@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var pushToMap = require('../utils/misc').pushToMap;
+
 function Entry (uuid, type) {
     this.uuid = uuid;
     this.type = type;
@@ -108,15 +110,15 @@ proto.getUuidArray = function (path, type, out_urls) {
     return uuids;
 };
 
-/**
- * !#en Returns all asset paths in the table.
- * !#zh 返回表中的所有资源路径。
- * @method getAllPaths
- * @return {string[]}
- */
-proto.getAllPaths = function () {
-    return Object.keys(this._pathToUuid);
-};
+// /**
+//  * !#en Returns all asset paths in the table.
+//  * !#zh 返回表中的所有资源路径。
+//  * @method getAllPaths
+//  * @return {string[]}
+//  */
+// proto.getAllPaths = function () {
+//     return Object.keys(this._pathToUuid);
+// };
 
 /**
  * !#en TODO
@@ -133,30 +135,32 @@ proto.add = function (path, uuid, type, isMainAsset) {
     // (can not use path.slice because length of extname maybe 0)
     path = path.substring(0, path.length - cc.path.extname(path).length);
     var newEntry = new Entry(uuid, type);
-    var pathToUuid = this._pathToUuid;
-    var exists = pathToUuid[path];
-    if (exists) {
-        if (Array.isArray(exists)) {
-            if (isMainAsset) {
-                // load main asset first
-                exists.unshift(newEntry);
-            }
-            else {
-                exists.push(newEntry);
+    pushToMap(this._pathToUuid, path, newEntry, isMainAsset);
+};
+
+proto._getInfo_DEBUG = CC_DEBUG && function (uuid, out_info) {
+    var path2uuid = this._pathToUuid;
+    var paths = Object.keys(path2uuid);
+    for (var p = 0; p < paths.length; ++p) {
+        var path = paths[p];
+        var item = path2uuid[path];
+        if (Array.isArray(item)) {
+            for (var i = 0; i < item.length; i++) {
+                var entry = item[i];
+                if (entry.uuid === uuid) {
+                    out_info.path = path;
+                    out_info.type = entry.type;
+                    return true;
+                }
             }
         }
-        else {
-            if (isMainAsset) {
-                pathToUuid[path] = [newEntry, exists];
-            }
-            else {
-                pathToUuid[path] = [exists, newEntry];
-            }
+        else if (item.uuid === uuid) {
+            out_info.path = path;
+            out_info.type = item.type;
+            return true;
         }
     }
-    else {
-        pathToUuid[path] = newEntry;
-    }
+    return false;
 };
 
 proto.reset = function () {

@@ -221,6 +221,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         if (cc._widgetManager) {
             cc._widgetManager.init(this);
         }
+
+        cc.loader.init(this);
     },
 
     /**
@@ -537,9 +539,9 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      */
     runSceneImmediate: function (scene, onBeforeLoadScene, onLaunched) {
         if (scene instanceof cc.Scene) {
-            CC_DEBUG && console.time('InitScene');
+            CC_BUILD && CC_DEBUG && console.time('InitScene');
             scene._load();  // ensure scene initialized
-            CC_DEBUG && console.timeEnd('InitScene');
+            CC_BUILD && CC_DEBUG && console.timeEnd('InitScene');
         }
 
         // detach persist nodes
@@ -558,14 +560,14 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
         if (!CC_EDITOR) {
             // auto release assets
-            CC_DEBUG && console.time('AutoRelease');
+            CC_BUILD && CC_DEBUG && console.time('AutoRelease');
             var autoReleaseAssets = oldScene && oldScene.autoReleaseAssets && oldScene.dependAssets;
             AutoReleaseUtils.autoRelease(autoReleaseAssets, scene.dependAssets, persistNodeList);
-            CC_DEBUG && console.timeEnd('AutoRelease');
+            CC_BUILD && CC_DEBUG && console.timeEnd('AutoRelease');
         }
 
         // unload scene
-        CC_DEBUG && console.time('Destroy');
+        CC_BUILD && CC_DEBUG && console.time('Destroy');
         if (cc.isValid(oldScene)) {
             oldScene.destroy();
         }
@@ -574,7 +576,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
         // purge destroyed nodes belongs to old scene
         cc.Object._deferredDestroy();
-        CC_DEBUG && console.timeEnd('Destroy');
+        CC_BUILD && CC_DEBUG && console.timeEnd('Destroy');
 
         if (onBeforeLoadScene) {
             onBeforeLoadScene();
@@ -589,9 +591,9 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             sgScene = scene._sgNode;
 
             // Re-attach or replace persist nodes
+            CC_BUILD && CC_DEBUG && console.time('AttachPersist');
             for (let i = 0; i < persistNodeList.length; i++) {
                 let node = persistNodeList[i];
-            CC_DEBUG && console.time('AttachPersist');
                 var existNode = scene.getChildByUuid(node.uuid);
                 if (existNode) {
                     // scene also contains the persist node, select the old one
@@ -603,10 +605,10 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
                     node.parent = scene;
                 }
             }
-            CC_DEBUG && console.timeEnd('AttachPersist');
-            CC_DEBUG && console.time('Activate');
+            CC_BUILD && CC_DEBUG && console.timeEnd('AttachPersist');
+            CC_BUILD && CC_DEBUG && console.time('Activate');
             scene._activate();
-            CC_DEBUG && console.timeEnd('Activate');
+            CC_BUILD && CC_DEBUG && console.timeEnd('Activate');
         }
 
         // Run or replace rendering scene

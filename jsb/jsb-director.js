@@ -73,6 +73,8 @@ cc.js.mixin(cc.director, {
 
         // WidgetManager
         cc._widgetManager.init(this);
+
+        cc.loader.init(this);
     },
 
     purgeDirector: function () {
@@ -483,7 +485,7 @@ cc.Director._EVENT_NEXT_TICK = '_director_next_tick';
 
 // Register listener objects in cc.Director to avoid possible crash caused by cc.eventManager.addCustomListener.
 // For reasons that we don't understand yet, JSFunctionWrapper couldn't very well hold function reference in cc.eventManager.
-cc.Director._beforeUpdateListener = {
+cc.Director._beforeUpdateListener = cc.EventListener.create({
     event: cc.EventListener.CUSTOM,
     eventName: cc.Director.EVENT_BEFORE_UPDATE,
     callback: function () {
@@ -497,8 +499,8 @@ cc.Director._beforeUpdateListener = {
         var dt = cc.director.getDeltaTime();
         cc.director._compScheduler.updatePhase(dt);
     }
-};
-cc.Director._afterUpdateListener = {
+});
+cc.Director._afterUpdateListener = cc.EventListener.create({
     event: cc.EventListener.CUSTOM,
     eventName: cc.Director.EVENT_AFTER_UPDATE,
     callback: function () {
@@ -512,23 +514,23 @@ cc.Director._afterUpdateListener = {
 
         cc.director.emit(cc.Director.EVENT_BEFORE_VISIT, this);
     }
-};
-cc.Director._afterVisitListener = {
+});
+cc.Director._afterVisitListener = cc.EventListener.create({
     event: cc.EventListener.CUSTOM,
     eventName: cc.Director.EVENT_AFTER_VISIT,
     callback: function () {
         cc.director.emit(cc.Director.EVENT_AFTER_VISIT, this);
     }
-};
-cc.Director._afterDrawListener = {
+});
+cc.Director._afterDrawListener = cc.EventListener.create({
     event: cc.EventListener.CUSTOM,
     eventName: cc.Director.EVENT_AFTER_DRAW,
     callback: function () {
         cc.director.emit(cc.Director.EVENT_AFTER_DRAW, this);
     }
-};
+});
 
-cc.eventManager.addEventListenerWithFixedPriority(cc.EventListener.create(cc.Director._beforeUpdateListener), 1);
-cc.eventManager.addEventListenerWithFixedPriority(cc.EventListener.create(cc.Director._afterUpdateListener), 1);
-cc.eventManager.addEventListenerWithFixedPriority(cc.EventListener.create(cc.Director._afterVisitListener), 1);
-cc.eventManager.addEventListenerWithFixedPriority(cc.EventListener.create(cc.Director._afterDrawListener), 1);
+cc.eventManager.addEventListenerWithFixedPriority(cc.Director._beforeUpdateListener, 1);
+cc.eventManager.addEventListenerWithFixedPriority(cc.Director._afterUpdateListener, 1);
+cc.eventManager.addEventListenerWithFixedPriority(cc.Director._afterVisitListener, 1);
+cc.eventManager.addEventListenerWithFixedPriority(cc.Director._afterDrawListener, 1);

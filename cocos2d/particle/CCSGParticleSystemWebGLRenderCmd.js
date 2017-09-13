@@ -40,41 +40,6 @@ _ccsg.ParticleSystem.WebGLRenderCmd = function(renderable){
 var proto = _ccsg.ParticleSystem.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
 proto.constructor = _ccsg.ParticleSystem.WebGLRenderCmd;
 
-proto.getDrawMode = function(){};
-proto.setDrawMode = function(drawMode){};
-proto.getShapeType = function(){};
-proto.setShapeType = function(shapeType){};
-
-proto.setBatchNode = function(batchNode){
-    var node = this._node;
-    if (node._batchNode !== batchNode) {
-        var oldBatch = node._batchNode;
-        node._batchNode = batchNode; //weak reference
-
-        if (batchNode) {
-            var locParticles = node._particles;
-            for (var i = 0; i < node._totalParticles; i++)
-                locParticles[i].atlasIndex = i;
-        }
-
-        // NEW: is self render ?
-        if (!batchNode) {
-            this._allocMemory();
-            this.initIndices(node._totalParticles);
-            node.setTexture(oldBatch.getTexture());
-            this._setupVBO();
-
-        } else if (!oldBatch) {
-            // OLD: was it self render cleanup  ?
-            // copy current state to batch
-            node._batchNode.textureAtlas._copyQuadsToTextureAtlas(this._quads, node.atlasIndex);
-
-            //delete buffer
-            cc._renderContext.deleteBuffer(this._buffersVBO[1]);     //where is re-bindBuffer code?
-        }
-    }
-};
-
 proto.initIndices = function (totalParticles) {
     var locIndices = this._indices;
     for (var i = 0, len = totalParticles; i < len; ++i) {
@@ -103,12 +68,8 @@ proto.updateParticlePosition = function(particle, position){
 
 proto.updateQuadWithParticle = function (particle, newPosition) {
     var quad = null, node = this._node;
-    if (node._batchNode) {
-        var batchQuads = node._batchNode.textureAtlas.quads;
-        quad = batchQuads[node.atlasIndex + particle.atlasIndex];
-        node._batchNode.textureAtlas.dirty = true;
-    } else
-        quad = this._quads[node._particleIdx];
+
+    quad = this._quads[node._particleIdx];
 
     var r, g, b, a;
     if (node._opacityModifyRGB) {
@@ -248,17 +209,9 @@ proto.initTexCoordsWithRect = function(pointRect){
     top = bottom;
     bottom = temp;
 
-    var quads;
-    var start = 0, end = 0;
-    if (node._batchNode) {
-        quads = node._batchNode.textureAtlas.quads;
-        start = node.atlasIndex;
-        end = node.atlasIndex + node._totalParticles;
-    } else {
-        quads = this._quads;
-        start = 0;
-        end = node._totalParticles;
-    }
+    var quads = this._quads;
+    var start = 0;
+    var end = node._totalParticles;
 
     for (var i = start; i < end; i++) {
         if (!quads[i])
@@ -302,12 +255,6 @@ proto.setTotalParticles = function(tp){
         node._allocatedParticles = tp;
         node._totalParticles = tp;
 
-        // Init particles
-        if (node._batchNode) {
-            for (var i = 0; i < tp; i++)
-                locParticles[i].atlasIndex = i;
-        }
-
         this._quadsArrayBuffer = locQuadsArrayBuffer;
         this.initIndices(tp);
         this._setupVBO();
@@ -346,10 +293,6 @@ proto._setupVBO = function(){
 proto._allocMemory = function(){
     var node  = this._node;
     //cc.assert((!this._quads && !this._indices), "Memory already allocated");
-    if(node._batchNode){
-        cc.logID(6016);
-        return false;
-    }
 
     var quadSize = cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT;
     var totalParticles = node._totalParticles;

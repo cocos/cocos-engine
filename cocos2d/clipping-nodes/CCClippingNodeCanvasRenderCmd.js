@@ -22,6 +22,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+require('../shape-nodes/CCDrawNode');
+
 //-------------------------- ClippingNode's canvas render cmd --------------------------------
 cc.ClippingNode.CanvasRenderCmd = function(renderable){
     this._rootCtor(renderable);

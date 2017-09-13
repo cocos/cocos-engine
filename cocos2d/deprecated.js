@@ -62,12 +62,6 @@ if (CC_DEV) {
             return typeof obj === 'function';
         };
     });
-    js.get(cc.js, "isFunction", function () {
-        cc.warnID(1400, 'cc.js.isFunction', '"typeof obj === \'function\'"');
-        return function(obj) {
-            return typeof obj === 'function';
-        };
-    });
 
     /**
      * Check the obj whether is number or not
@@ -101,21 +95,9 @@ if (CC_DEV) {
             return Array.isArray(obj);
         };
     });
-    js.get(cc.js, "isArray", function () {
-        cc.warnID(1400, 'cc.js.isArray', '"Array.isArray(obj)"');
-        return function(obj) {
-            return Array.isArray(obj);
-        };
-    });
 
     js.get(cc, "isUndefined", function () {
         cc.warnID(1400, 'cc.isUndefined', '"typeof obj === \'undefined\'"');
-        return function(obj) {
-            return typeof obj === 'undefined';
-        };
-    });
-    js.get(cc.js, "isUndefined", function () {
-        cc.warnID(1400, 'cc.js.isUndefined', '"typeof obj === \'undefined\'"');
         return function(obj) {
             return typeof obj === 'undefined';
         };
@@ -125,13 +107,6 @@ if (CC_DEV) {
         cc.warnID(1400, 'cc.isObject', '"typeof obj === \'object\'"');
         return function(obj) {
             return typeof obj === 'object';
-        };
-    });
-
-    js.get(cc.js, "isObject", function () {
-        cc.warnID(1400, 'cc.js.isObject', '"typeof obj === \'object\'"');
-        return function(obj) {
-            return typeof obj === "object";
         };
     });
 
@@ -698,6 +673,3 @@ if (CC_DEV) {
     });
 
 }
-
-// remove after 1.6
-js.obsolete(cc.loader, 'cc.loader.loadResAll', 'loadResDir');

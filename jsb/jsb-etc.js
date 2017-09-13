@@ -54,30 +54,6 @@ cc.js.mixin(cc.path, {
     }
 });
 
-// cc.Scheduler
-cc.Scheduler.prototype.schedule = function (callback, target, interval, repeat, delay, paused) {
-    if (delay === undefined || paused === undefined) {
-        paused = !!repeat;
-        repeat = cc.macro.REPEAT_FOREVER;
-    }
-    else {
-        paused = !!paused;
-        repeat = isFinite(repeat) ? repeat : cc.macro.REPEAT_FOREVER;
-    }
-    delay = delay || 0;
-    this.scheduleCallbackForTarget(target, callback, interval, repeat, delay, paused);
-};
-cc.Scheduler.prototype.scheduleUpdate = cc.Scheduler.prototype.scheduleUpdateForTarget;
-cc.Scheduler.prototype._unschedule = cc.Scheduler.prototype.unschedule;
-cc.Scheduler.prototype.unschedule = function (callback, target) {
-    if (typeof target === 'function') {
-        var tmp = target;
-        target = callback;
-        callback = tmp;
-    }
-    this._unschedule(target, callback);
-};
-
 // Node
 var nodeProto = cc.Node.prototype;
 cc.defineGetterSetter(nodeProto, "_parent", nodeProto.getParent, nodeProto.setParent);

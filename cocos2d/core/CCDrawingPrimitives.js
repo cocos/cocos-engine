@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2013-2017 Chukong Technologies Inc.
 
  http://www.cocos.com
 
@@ -23,45 +23,19 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = cc.js;
-var CallbacksHandler = require('../platform/callbacks-invoker').CallbacksHandler;
+var game = require('./CCGame');
 
-// Extends CallbacksHandler to handle and invoke event callbacks.
-function EventListeners () {
-    CallbacksHandler.call(this);
-}
-JS.extend(EventListeners, CallbacksHandler);
+/**
+ * @property {DrawingPrimitive} _drawingUtil - drawing primitive of game engine
+ * @private
+ */
+cc._drawingUtil = null;
 
-EventListeners.prototype.invoke = function (event, captureListeners) {
-    var key = event.type;
-    var list = this._callbackTable[key];
-    if (list) {
-        var rootInvoker = !list.isInvoking;
-        list.isInvoking = true;
-
-        var callbacks = list.callbacks;
-        var targets = list.targets;
-        for (var i = 0, len = callbacks.length; i < len; ++i) {
-            var callback = callbacks[i];
-            if (callback) {
-                var target = targets[i] || event.currentTarget;
-                callback.call(target, event, captureListeners);
-                if (event._propagationImmediateStopped) {
-                    break;
-                }
-            }
-        }
-
-        if (rootInvoker) {
-            list.isInvoking = false;
-            if (list.containCanceled) {
-                list.purgeCanceled();
-            }
-        }
+game.once(game.EVENT_RENDERER_INITED, function () {
+    if (cc._renderType === game.RENDER_TYPE_WEBGL) {
+        cc._drawingUtil = new (require('./CCDrawingPrimitivesWebGL'))(cc._renderContext);
     }
-};
-
-module.exports = EventListeners;
-if (CC_TEST) {
-    cc._Test.EventListeners = EventListeners;
-}
+    else {
+        cc._drawingUtil = new (require('./CCDrawingPrimitivesCanvas'))(cc._renderContext);
+    }
+});

@@ -30,11 +30,11 @@
  * @extends cc._Class
  * @param {CanvasRenderingContext2D} renderContext
  */
-cc.DrawingPrimitiveCanvas = cc._Class.extend(/** @lends cc.DrawingPrimitiveCanvas# */{
+var DrawingPrimitiveCanvas = cc._Class.extend({
     _cacheArray:[],
 
     /**
-     * Constructor of cc.DrawingPrimitiveCanvas
+     * Constructor of DrawingPrimitiveCanvas
      * @param {cc.CanvasContextWrapper} renderContext
      */
     ctor:function (renderContext) {
@@ -431,3 +431,5 @@ cc.DrawingPrimitiveCanvas = cc._Class.extend(/** @lends cc.DrawingPrimitiveCanva
         this._renderContext.getContext().lineWidth = width * cc.view.getScaleX();
     }
 });
+
+module.exports = DrawingPrimitiveCanvas;

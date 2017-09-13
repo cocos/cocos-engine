@@ -1725,31 +1725,6 @@ cc.macro = {
 
     /**
      * <p>
-     *   Use GL_TRIANGLE_STRIP instead of GL_TRIANGLES when rendering the texture atlas.<br/>
-     *   It seems it is the recommend way, but it is much slower, so, enable it at your own risk<br/>
-     *   <br/>
-     *   To enable set it to a value different than 0. Disabled by default.<br/>
-     *   To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * </p>
-     * @property {Number} TEXTURE_ATLAS_USE_TRIANGLE_STRIP
-     */
-    TEXTURE_ATLAS_USE_TRIANGLE_STRIP: 0,
-
-    /**
-     * <p>
-     *    By default, cc.TextureAtlas (used by many cocos2d classes) will use VAO (Vertex Array Objects).<br/>
-     *    Apple recommends its usage but they might consume a lot of memory, specially if you use many of them.<br/>
-     *    So for certain cases, where you might need hundreds of VAO objects, it might be a good idea to disable it.<br/>
-     *    <br/>
-     *    To disable it set it to 0. disable by default.(Not Supported on WebGL)<br/>
-     *    To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * </p>
-     * @property {Number} TEXTURE_ATLAS_USE_VAO
-     */
-    TEXTURE_ATLAS_USE_VAO: 0,
-
-    /**
-     * <p>
      *  If enabled, NPOT textures will be used where available. Only 3rd gen (and newer) devices support NPOT textures.<br/>
      *  NPOT textures have the following limitations:<br/>
      *     - They can't have mipmaps<br/>
@@ -1885,11 +1860,26 @@ cc.macro = {
      */
     ENABLE_GC_FOR_NATIVE_OBJECTS: true,
 
+
+    /**
+     * !#en
+     * Whether or not enable auto culling.
+     * If your game have more dynamic objects, we suggest to disable auto culling.
+     * If your game have more static objects, we suggest to enable auto culling.
+     * !#zh
+     * 是否开启自动裁减功能，开启裁减功能将会把在屏幕外的物体从渲染队列中去除掉。
+     * 如果游戏中的动态物体比较多的话，建议将此选项关闭。
+     * 如果游戏中的静态物体比较多的话，建议将此选项打开。
+     * @property {Boolean} ENABLE_CULLING
+     * @default true
+     */
+    ENABLE_CULLING: true,
+
     /**
      * !#en 
-     * Whether or not enabled tiled map auto culling.
+     * Whether or not enabled tiled map auto culling. If you set the TiledMap skew or rotation, then need to manually disable this, otherwise, the rendering will be wrong.
      * !#zh
-     * 是否开启瓦片地图的自动裁减功能。
+     * 是否开启瓦片地图的自动裁减功能。瓦片地图如果设置了 skew, rotation 的话，需要手动关闭，否则渲染会出错。
      * @property {Boolean} ENABLE_TILEDMAP_CULLING
      * @default true
      */

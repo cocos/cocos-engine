@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2013-2017 Chukong Technologies Inc.
 
  http://www.cocos.com
 
@@ -23,45 +23,28 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = cc.js;
-var CallbacksHandler = require('../platform/callbacks-invoker').CallbacksHandler;
-
-// Extends CallbacksHandler to handle and invoke event callbacks.
-function EventListeners () {
-    CallbacksHandler.call(this);
-}
-JS.extend(EventListeners, CallbacksHandler);
-
-EventListeners.prototype.invoke = function (event, captureListeners) {
-    var key = event.type;
-    var list = this._callbackTable[key];
-    if (list) {
-        var rootInvoker = !list.isInvoking;
-        list.isInvoking = true;
-
-        var callbacks = list.callbacks;
-        var targets = list.targets;
-        for (var i = 0, len = callbacks.length; i < len; ++i) {
-            var callback = callbacks[i];
-            if (callback) {
-                var target = targets[i] || event.currentTarget;
-                callback.call(target, event, captureListeners);
-                if (event._propagationImmediateStopped) {
-                    break;
-                }
-            }
+function deepFlatten (strList, array) {
+    for (var i = 0; i < array.length; i++) {
+        var item = array[i];
+        if (Array.isArray(item)) {
+            deepFlatten(strList, item);
         }
-
-        if (rootInvoker) {
-            list.isInvoking = false;
-            if (list.containCanceled) {
-                list.purgeCanceled();
-            }
+        // else if (item instanceof Declaration) {
+        //     strList.push(item.toString());
+        // }
+        else {
+            strList.push(item);
         }
     }
-};
-
-module.exports = EventListeners;
-if (CC_TEST) {
-    cc._Test.EventListeners = EventListeners;
 }
+
+function flattenCodeArray (array) {
+    var separator = CC_DEV ? '\n' : '';
+    var strList = [];
+    deepFlatten(strList, array);
+    return strList.join(separator);
+}
+
+module.exports = {
+    flattenCodeArray
+};

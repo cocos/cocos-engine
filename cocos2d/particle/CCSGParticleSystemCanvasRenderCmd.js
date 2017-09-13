@@ -29,9 +29,6 @@ _ccsg.ParticleSystem.CanvasRenderCmd = function(renderable){
     this._rootCtor(renderable);
     this._needDraw = true;
 
-    this._drawMode = _ccsg.ParticleSystem.TEXTURE_MODE;
-    this._shapeType = _ccsg.ParticleSystem.BALL_SHAPE;
-
     this._pointRect = cc.rect(0, 0, 0, 0);
     //region for local bb
     this._localRegion = new cc.Region();
@@ -39,28 +36,6 @@ _ccsg.ParticleSystem.CanvasRenderCmd = function(renderable){
 };
 var proto = _ccsg.ParticleSystem.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
 proto.constructor = _ccsg.ParticleSystem.CanvasRenderCmd;
-
-proto.getDrawMode = function(){
-    return this._drawMode;
-};
-
-proto.setDrawMode = function(drawMode){
-    this._drawMode = drawMode;
-};
-
-proto.getShapeType = function(){
-    return this._shapeType;
-};
-
-proto.setShapeType = function(shapeType){
-    this._shapeType = shapeType;
-};
-
-proto.setBatchNode = function(batchNode){
-    if (this._batchNode !== batchNode) {
-        this._node._batchNode = batchNode;
-    }
-};
 
 proto.updateQuadWithParticle = function (particle, newPosition) {
     //do nothing
@@ -114,7 +89,7 @@ proto.rendering = function (ctx, scaleX, scaleY) {
 
     var i, particle, lpx, alpha;
     var particleCount = this._node.particleCount, particles = this._node._particles;
-    if (node.drawMode !== _ccsg.ParticleSystem.SHAPE_MODE && node._texture) {
+    if (node._texture) {
         // Delay drawing until the texture is fully loaded by the browser
         if (!node._texture._textureLoaded) {
             wrapper.restore();
@@ -150,28 +125,9 @@ proto.rendering = function (ctx, scaleX, scaleY) {
             context.drawImage(drawElement, -(0 | (w / 2)), -(0 | (h / 2)));
             context.restore();
         }
-    } else {
-        var drawTool = cc._drawingUtil;
-        for (i = 0; i < particleCount; i++) {
-            particle = particles[i];
-            lpx = (0 | (particle.size * 0.5));
-            alpha = particle.color.a / 255;
-            if (alpha === 0) continue;
-            context.globalAlpha = alpha;
-
-            context.save();
-            context.translate(0 | particle.drawPos.x, -(0 | particle.drawPos.y));
-            if (node.shapeType === _ccsg.ParticleSystem.STAR_SHAPE) {
-                if (particle.rotation)
-                    context.rotate(cc.degreesToRadians(particle.rotation));
-                drawTool.drawStar(wrapper, lpx, particle.color);
-            } else
-                drawTool.drawColorBall(wrapper, lpx, particle.color);
-            context.restore();
-        }
+        cc.g_NumberOfDraws++;
     }
     wrapper.restore();
-    cc.g_NumberOfDraws++;
 };
 
 proto._changeTextureColor = function (texture, color, rect) {

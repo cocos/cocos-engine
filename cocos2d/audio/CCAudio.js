@@ -341,9 +341,9 @@ var WebAudioElement = function (buffer, audio) {
 
         audio.onended = this._endCallback;
 
-        // If the current audio context time stamp is 0
+        // If the current audio context time stamp is 0 and audio context state is suspended
         // There may be a need to touch events before you can actually start playing audio
-        if (this._context.currentTime === 0) {
+        if ((!audio.context.state || audio.context.state === "suspended") && this._context.currentTime === 0) {
             var self = this;
             clearTimeout(this._currextTimer);
             this._currextTimer = setTimeout(function () {

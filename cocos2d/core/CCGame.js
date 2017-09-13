@@ -30,6 +30,7 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
 }
 
 require('../audio/CCAudioEngine');
+var inputManager = require('./platform/CCInputManager');
 
 /**
  * !#en An object to boot the game.
@@ -642,8 +643,8 @@ var game = {
 
         var el = this.config[game.CONFIG_KEY.id],
             win = window,
-            element = cc.$(el) || cc.$('#' + el),
-            localCanvas, localContainer, localConStyle;
+            element = (el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el)),
+            localCanvas, localContainer;
 
         if (element.tagName === "CANVAS") {
             width = width || element.width;
@@ -669,7 +670,16 @@ var game = {
         localContainer.appendChild(localCanvas);
         this.frame = (localContainer.parentNode === document.body) ? document.documentElement : localContainer.parentNode;
 
-        localCanvas.addClass("gameCanvas");
+        function addClass (element, name) {
+            var hasClass = (' ' + element.className + ' ').indexOf(' ' + name + ' ') > -1;
+            if (!hasClass) {
+                if (element.className) {
+                    element.className += " ";
+                }
+                element.className += name;
+            }
+        }
+        addClass(localCanvas, "gameCanvas");
         localCanvas.setAttribute("width", width || 480);
         localCanvas.setAttribute("height", height || 320);
         localCanvas.setAttribute("tabindex", 99);
@@ -679,7 +689,6 @@ var game = {
              = cc.create3DContext(localCanvas, {
                 'stencil': true,
                 'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS,
-                'antialias': cc.sys.isMobile
             });
         }
         // WebGL context created successfully
@@ -687,7 +696,6 @@ var game = {
             cc.renderer = cc.rendererWebGL;
             win.gl = this._renderContext; // global variable declared in CCMacro.js
             cc.renderer.init();
-            cc._drawingUtil = new cc.DrawingPrimitiveWebGL(this._renderContext);
             cc.textureCache._initializingRenderer();
             cc.glExt = {};
             cc.glExt.instanced_arrays = win.gl.getExtension("ANGLE_instanced_arrays");
@@ -697,7 +705,6 @@ var game = {
             cc.renderer = cc.rendererCanvas;
             cc.renderer.init();
             this._renderContext = cc._renderContext = new cc.CanvasContextWrapper(localCanvas.getContext("2d"));
-            cc._drawingUtil = cc.DrawingPrimitiveCanvas ? new cc.DrawingPrimitiveCanvas(this._renderContext) : null;
         }
 
         cc._gameDiv = localContainer;
@@ -715,7 +722,7 @@ var game = {
 
         // register system events
         if (this.config[this.CONFIG_KEY.registerSystemEvent])
-            cc.inputManager.registerSystemEvent(this.canvas);
+            inputManager.registerSystemEvent(this.canvas);
 
         if (typeof document.hidden !== 'undefined') {
             hidden = "hidden";

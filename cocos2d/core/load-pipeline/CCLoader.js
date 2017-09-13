@@ -32,6 +32,8 @@ var Loader = require('./loader');
 var AssetTable = require('./asset-table');
 var callInNextTick = require('../platform/utils').callInNextTick;
 var AutoReleaseUtils = require('./auto-release-utils');
+// var pushToMap = require('../utils/misc').pushToMap;
+var ReleasedAssetChecker = CC_DEBUG && require('./released-asset-checker');
 
 var resources = new AssetTable();
 
@@ -121,9 +123,22 @@ function CCLoader () {
 
     // assets to release automatically
     this._autoReleaseSetting = {};
+
+    if (CC_DEBUG) {
+        this._releasedAssetChecker_DEBUG = new ReleasedAssetChecker();
+    }
 }
 JS.extend(CCLoader, Pipeline);
 var proto = CCLoader.prototype;
+
+proto.init = function (director) {
+    if (CC_DEBUG) {
+        var self = this;
+        director.on(cc.Director.EVENT_BEFORE_VISIT, function () {
+            self._releasedAssetChecker_DEBUG.checkCouldRelease(self._cache);
+        });
+    }
+};
 
 /**
  * Gets a new XMLHttpRequest instance.
@@ -234,7 +249,7 @@ proto.load = function(resources, progressCallback, completeCallback) {
         callInNextTick(function () {
             if (completeCallback) {
                 if (singleRes) {
-                    var id = res.url;
+                    let id = res.url;
                     completeCallback.call(self, items.getError(id), items.getContent(id));
                 }
                 else {
@@ -244,7 +259,7 @@ proto.load = function(resources, progressCallback, completeCallback) {
             }
 
             if (CC_EDITOR) {
-                for (var id in self._cache) {
+                for (let id in self._cache) {
                     if (self._cache[id].complete) {
                         self.removeItem(id);
                     }
@@ -762,6 +777,9 @@ proto.release = function (asset) {
             }
             else if (asset instanceof cc.Texture2D) {
                 cc.textureCache.removeTextureForKey(item.url);
+            }
+            if (CC_DEBUG && removed) {
+                this._releasedAssetChecker_DEBUG.setReleased(item, id);
             }
         }
     }

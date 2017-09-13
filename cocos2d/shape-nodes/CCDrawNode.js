@@ -448,7 +448,9 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
             this._buffer.length = 0;
         };
 
-        proto._createRenderCmd = function(){
+        require('./CCDrawNodeCanvasRenderCmd');
+
+        proto._createRenderCmd = function () {
             return new cc.DrawNode.CanvasRenderCmd(this);
         };
     }
@@ -838,6 +840,8 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
             this._buffer.length = 0;
             this._dirty = true;
         };
+
+        require('./CCDrawNodeWebGLRenderCmd');
 
         proto._createRenderCmd = function () {
             return new cc.DrawNode.WebGLRenderCmd(this);

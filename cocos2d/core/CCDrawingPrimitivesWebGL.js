@@ -31,7 +31,7 @@ var macro = cc.macro;
  * @class
  * @extends cc._Class
  */
-cc.DrawingPrimitiveWebGL = cc._Class.extend(/** @lends cc.DrawingPrimitiveWebGL# */{
+var DrawingPrimitiveWebGL = cc._Class.extend({
 
     _initialized:false,
     _shader: null,
@@ -39,14 +39,11 @@ cc.DrawingPrimitiveWebGL = cc._Class.extend(/** @lends cc.DrawingPrimitiveWebGL#
     _pointSizeLocation: "u_pointSize",
     _pointSize:-1,
     /**
-     * contructor of cc.DrawingPrimitiveWebGL
+     * contructor of DrawingPrimitiveWebGL
      * @param ctx rendercontext
      */
     ctor:function (ctx) {
-        if (ctx == null)
-            ctx = cc._renderContext;
-
-        if (!ctx instanceof  WebGLRenderingContext)
+        if (!ctx instanceof WebGLRenderingContext)
             throw new Error("Can't initialise DrawingPrimitiveWebGL. context need is WebGLRenderingContext");
 
         this._renderContext = ctx;
@@ -463,3 +460,5 @@ cc.DrawingPrimitiveWebGL = cc._Class.extend(/** @lends cc.DrawingPrimitiveWebGL#
             this._renderContext.lineWidth(width);
     }
 });
+
+module.exports = DrawingPrimitiveWebGL;

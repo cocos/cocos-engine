@@ -134,13 +134,16 @@ function doInstantiate (obj, parent) {
 
     var clone;
     if (obj._iN$t) {
-        clone = obj._iN$t;
+        // User can specify an existing object by assigning the "_iN$t" property.
         // enumerateObject will always push obj to objsToClearTmpVar
+        clone = obj._iN$t;
     }
-    else {
-        // User can specify an existing object by assigning the "_iN$t" property
+    else if (obj.constructor) {
         var klass = obj.constructor;
         clone = new klass();
+    }
+    else {
+        clone = Object.create(null);
     }
 
     enumerateObject(obj, clone, parent);
@@ -268,12 +271,18 @@ function instantiateObj (obj, parent) {
                 }
             }
         }
+        clone = new ctor();
     }
-    else if (ctor !== Object) {
+    else if (ctor === Object) {
+        clone = {};
+    }
+    else if (!ctor) {
+        clone = Object.create(null);
+    }
+    else {
         // unknown type
         return obj;
     }
-    clone = new ctor();
     enumerateObject(obj, clone, parent);
     return clone;
 }
