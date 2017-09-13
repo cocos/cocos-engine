@@ -169,6 +169,7 @@ function _resetGame (w, h) {
             id: 'test-canvas',
             debugMode: cc.DebugMode.INFO
         });
+        cc.director.setDisplayStats(false);
     }
     else {
         var view = cc.view;

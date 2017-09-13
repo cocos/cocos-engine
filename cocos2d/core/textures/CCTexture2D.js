@@ -76,7 +76,9 @@ var Texture2D = cc.Class({
     mixins: [EventTarget],
 
     statics: {
-        WrapMode: WrapMode
+        WrapMode: WrapMode,
+        // predefined most common extnames
+        extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp']
     },
 
     ctor: function () {
@@ -86,7 +88,7 @@ var Texture2D = cc.Class({
          * @type {String}
          * @readonly
          */
-        this.url = null;
+        this.url = "";
 
         this._textureLoaded = false;
         this._htmlElementObj = null;
@@ -393,6 +395,44 @@ var Texture2D = cc.Class({
     bitsPerPixelForFormat: function (format) {
         //support only in WebGl rendering mode
         return -1;
+    },
+
+    // SERIALIZATION
+
+    // extname,
+    _serialize: (CC_EDITOR || CC_TEST) && function () {
+        var extId = "";
+        if (this._rawFiles) {
+            // encode extname
+            var ext = cc.path.extname(this._rawFiles[0]);
+            if (ext) {
+                extId = Texture2D.extnames.indexOf(ext);
+                if (extId < 0) {
+                    extId = ext;
+                }
+            }
+        }
+        return "" + extId;
+    },
+
+    _deserialize: function (data, handle) {
+        var fields = data.split(',');
+        // decode extname
+        var extIdStr = fields[0];
+        if (extIdStr) {
+            const CHAR_CODE_0 = 48;    // '0'
+            var extId = extIdStr.charCodeAt(0) - CHAR_CODE_0;
+            var ext = Texture2D.extnames[extId];
+            this._setRawFiles([ext || extIdStr]);
+
+            // preset uuid to get correct rawUrl
+            var loadingItem = handle.customEnv;
+            var uuid = loadingItem && loadingItem.uuid;
+            if (uuid) {
+                this._uuid = uuid;
+                this.url = this.rawUrl;
+            }
+        }
     }
 });
 

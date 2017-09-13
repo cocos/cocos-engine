@@ -188,9 +188,7 @@ function downloadUuid (item, callback) {
     if (result === undefined) {
         return this.extMap['json'](item, callback);
     }
-    else if (!!result) {
-        return result;
-    }
+    return result || undefined;
 }
 
 

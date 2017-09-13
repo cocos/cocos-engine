@@ -2,10 +2,10 @@
 
     largeModule('Serialize');
 
-    var match = function (obj, expect, info) {
+    function match (obj, expect, info) {
         deepEqual(JSON.parse(Editor.serialize(obj)), expect, info);
         //deepEqual(Editor.serialize(obj, {stringify: false}), expect, info);
-    };
+    }
 
     test('basic test', function() {
         match({}, {}, 'smoke test1');

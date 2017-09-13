@@ -24,6 +24,18 @@
  ****************************************************************************/
 
 var RawAsset = require('./CCRawAsset');
+
+function joinRawUrl (base, filename) {
+    if (filename.charCodeAt(0) === 46) {  // '.'
+        // imported in dir where json exist
+        return base + filename;
+    }
+    else {
+        // imported in an independent dir
+        return base + '/' + filename;
+    }
+}
+
 /**
  * !#en
  * Base class for handling assets used in Fireball. This class can be instantiate.
@@ -60,7 +72,8 @@ cc.Asset = cc.Class({
             get: function () {
                 if (this._rawFiles) {
                     if (cc.AssetLibrary) {
-                        return cc.AssetLibrary.getLibUrlNoExt(this._uuid) + '/' + this._rawFiles[0];
+                        var base = cc.AssetLibrary.getLibUrlNoExt(this._uuid);
+                        return joinRawUrl(base, this._rawFiles[0]);
                     }
                     else {
                         cc.errorID(6400);
@@ -84,9 +97,9 @@ cc.Asset = cc.Class({
             get: function () {
                 if (this._rawFiles) {
                     if (cc.AssetLibrary) {
-                        var dir = cc.AssetLibrary.getLibUrlNoExt(this._uuid) + '/';
+                        var base = cc.AssetLibrary.getLibUrlNoExt(this._uuid);
                         return this._rawFiles.map(function (filename) {
-                            return dir + filename;
+                            return joinRawUrl(base, filename);
                         });
                     }
                     else {
@@ -169,7 +182,7 @@ cc.Asset = cc.Class({
      * @param {String[]} rawFiles
      * @private
      */
-    _setRawFiles: CC_EDITOR && function (rawFiles) {
+    _setRawFiles: (CC_EDITOR || CC_TEST) && function (rawFiles) {
         this._rawFiles = rawFiles.length > 0 ? rawFiles : null;
     },
 
