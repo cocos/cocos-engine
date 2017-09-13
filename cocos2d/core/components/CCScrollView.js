@@ -1655,7 +1655,7 @@ cc.ScrollView = module.exports = ScrollView;
  * Note: This event is emitted from the node to which the component belongs.
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
- * @event scroll-ended
+ * @event auto-scroll-ended
  * @param {Event.EventCustom} event
  * @param {ScrollView} event.detail - The ScrollView component.
  */
@@ -1666,6 +1666,26 @@ cc.ScrollView = module.exports = ScrollView;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event touch-up
+ * @param {Event.EventCustom} event
+ * @param {ScrollView} event.detail - The ScrollView component.
+ */
+
+ /**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event scroll-began
+ * @param {Event.EventCustom} event
+ * @param {ScrollView} event.detail - The ScrollView component.
+ */
+
+ /**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event scroll-ended
  * @param {Event.EventCustom} event
  * @param {ScrollView} event.detail - The ScrollView component.
  */
