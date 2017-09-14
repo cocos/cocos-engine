@@ -97,7 +97,7 @@ var textureCache = /** @lends cc.textureCache# */{
      * @example {@link utils/api/engine/docs/cocos2d/core/textures/getTextureColors.js}
      */
     getTextureColors: function (texture) {
-        var image = texture._htmlElementObj;
+        var image = texture._image;
         var key = this.getKeyByTexture(image);
         if (!key) {
             if (image instanceof HTMLImageElement)

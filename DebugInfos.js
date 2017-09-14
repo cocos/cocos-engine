@@ -230,7 +230,6 @@ if (CC_DEBUG) {
         "3107": "initWithETCFile does not support on HTML5", //initWithETCFile_2
         "3108": "initWithPVRFile does not support on HTML5", //initWithPVRFile_2
         "3109": "initWithPVRTCData does not support on HTML5", //initWithPVRTCData_2
-        "3110": "bitsPerPixelForFormat: %s, cannot give useful result, it's a illegal pixel format", //bitsPerPixelForFormat
         "3111": "cocos2d: cc.Texture2D: Using RGB565 texture since image has no alpha", //_initPremultipliedATextureWithImage
         "3112": "cc.Texture.addImage(): path should be non-null", //addImage_2
         "3113": "NSInternalInconsistencyException", //initWithData

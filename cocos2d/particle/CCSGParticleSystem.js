@@ -970,7 +970,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
         if(!texture)
             return;
 
-        if(texture.isLoaded()){
+        if(texture.loaded){
             this.setTextureWithRect(texture, cc.rect(0, 0, texture.width, texture.height));
         } else {
             this._textureLoaded = false;

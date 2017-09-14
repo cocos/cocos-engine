@@ -445,9 +445,9 @@
             }
         }
 
-        this._texture._textureLoaded = false;
-        // Hack. because we delete _htmlElementObj after usage in WEBGL mode
-        this._texture._htmlElementObj = this._labelCanvas;
+        this._texture.loaded = false;
+        // Hack. because we delete _image after usage in WEBGL mode
+        this._texture._image = this._labelCanvas;
         this._texture.handleLoadedTexture(true);
     };
 
@@ -545,7 +545,7 @@
                 sw = textureWidth;
                 sh = textureHeight;
 
-                var image = this._texture._htmlElementObj;
+                var image = this._texture._image;
                 if (this._texture._pattern !== '') {
                     wrapper.setFillStyle(context.createPattern(image, this._texture._pattern));
                     context.fillRect(x, y, w, h);

@@ -185,7 +185,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
     setTexture: function(texture){
         this._texture = texture;
 
-        if (texture._textureLoaded) {
+        if (texture.loaded) {
             var children = this._children, i, len = children.length;
             for (i = 0; i < len; ++i) {
                 children[i].setTexture(texture);

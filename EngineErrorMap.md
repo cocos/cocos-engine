@@ -816,10 +816,6 @@ initWithPVRFile does not support on HTML5
 
 initWithPVRTCData does not support on HTML5
 
-### 3110
-
-bitsPerPixelForFormat: %s, cannot give useful result, it's a illegal pixel format
-
 ### 3111
 
 cocos2d: cc.Texture2D: Using RGB565 texture since image has no alpha
