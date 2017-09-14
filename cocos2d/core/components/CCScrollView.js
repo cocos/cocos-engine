@@ -101,10 +101,10 @@ var EventType = cc.Enum({
     BOUNCE_RIGHT : 8,
     /**
      * !#en The event emmitted when ScrollView auto scroll ended
-     * !#zh 滚动视图自动滚动结束的时候发出的事件
-     * @property {Number} AUTOSCROLL_ENDED
+     * !#zh 滚动视图滚动结束的时候发出的事件
+     * @property {Number} SCROLL_ENDED
      */
-    AUTOSCROLL_ENDED : 9,
+    SCROLL_ENDED : 9,
     /**
      * !#en The event emmitted when user release the touch
      * !#zh 当用户松手的时候会发出一个事件
@@ -120,15 +120,9 @@ var EventType = cc.Enum({
     /**
      * !#en The event emmitted when ScrollView scroll began
      * !#zh 滚动视图滚动开始时发出的事件
-     * @property {Number} SCROLLING_BEGAN
+     * @property {Number} SCROLL_BEGAN
      */
-    SCROLLING_BEGAN: 12,
-    /**
-     * !#en The event emmitted when ScrollView scroll ended
-     * !#zh 滚动视图滚动结束的时候发出的事件
-     * @property {Number} SCROLLING_ENDED
-     */
-	SCROLLING_ENDED: 13
+    SCROLL_BEGAN: 12
 });
 
 var eventMap = {
@@ -141,11 +135,10 @@ var eventMap = {
     'bounce-left' : EventType.BOUNCE_LEFT,
     'bounce-right' : EventType.BOUNCE_RIGHT,
     'bounce-top' : EventType.BOUNCE_TOP,
-    'auto-scroll-ended' : EventType.AUTOSCROLL_ENDED,
+    'scroll-ended': EventType.SCROLL_ENDED,
     'touch-up' : EventType.TOUCH_UP,
     'scroll-ended-with-threshold' : EventType.AUTOSCROLL_ENDED_WITH_THRESHOLD,
-    'scroll-began': EventType.SCROLLING_BEGAN,
-    'scroll-ended': EventType.SCROLLING_ENDED
+    'scroll-began': EventType.SCROLL_BEGAN
 };
 
 /**
@@ -1093,7 +1086,7 @@ var ScrollView = cc.Class({
 
     _handlePressLogic: function() {
         if (this._autoScrolling) {
-            this._dispatchEvent('auto-scroll-ended');
+            this._dispatchEvent('scroll-ended');
         }
         this._autoScrolling = false;
         this._isBouncing = false;
@@ -1178,7 +1171,9 @@ var ScrollView = cc.Class({
 
         if (this._scrolling) {
             this._scrolling = false;
-            this._dispatchEvent('scroll-ended');
+            if (!this._autoScrolling) {
+                this._dispatchEvent('scroll-ended');
+            }
         }
     },
 
@@ -1256,7 +1251,7 @@ var ScrollView = cc.Class({
 
         if (!this._autoScrolling) {
             this._isBouncing = false;
-            this._dispatchEvent('auto-scroll-ended');
+            this._dispatchEvent('scroll-ended');
         }
     },
 
@@ -1467,7 +1462,7 @@ var ScrollView = cc.Class({
     },
 
     _dispatchEvent: function(event) {
-        if (event === 'auto-scroll-ended') {
+        if (event === 'scroll-ended') {
             this._scrollEventEmitMask = 0;
 
         } else if (event === 'scroll-to-top'
@@ -1655,7 +1650,7 @@ cc.ScrollView = module.exports = ScrollView;
  * Note: This event is emitted from the node to which the component belongs.
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
- * @event auto-scroll-ended
+ * @event scroll-ended
  * @param {Event.EventCustom} event
  * @param {ScrollView} event.detail - The ScrollView component.
  */
@@ -1676,16 +1671,6 @@ cc.ScrollView = module.exports = ScrollView;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event scroll-began
- * @param {Event.EventCustom} event
- * @param {ScrollView} event.detail - The ScrollView component.
- */
-
- /**
- * !#en
- * Note: This event is emitted from the node to which the component belongs.
- * !#zh
- * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
- * @event scroll-ended
  * @param {Event.EventCustom} event
  * @param {ScrollView} event.detail - The ScrollView component.
  */
