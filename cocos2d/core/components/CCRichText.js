@@ -559,7 +559,6 @@ var RichText = cc.Class({
         }
 
         this._textArray = newTextArray;
-        var sgNode = this._sgNode;
         this._resetState();
 
         var lastEmptyLine = false;
@@ -627,7 +626,10 @@ var RichText = cc.Class({
         }
         this._labelHeight = this._lineCount * this.lineHeight;
 
+        // trigger "size-changed" event
         this.node.setContentSize(this._labelWidth, this._labelHeight);
+        // use _setContentSize because sgNode.setContentSize is banned.
+        this._sgNode._setContentSize(this._labelWidth, this._labelHeight);
 
         this._updateRichTextPosition();
         this._layoutDirty = false;
