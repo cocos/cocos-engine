@@ -315,13 +315,6 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
         return cc.size(this.width, this.height);
     },
 
-    _getWidth: function () {
-        return this.width;
-    },
-    _getHeight: function () {
-        return this.height;
-    },
-
     /**
      * Get content size in pixels.
      * @method getContentSizeInPixels
@@ -431,7 +424,7 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
      * @method releaseTexture
      */
     releaseTexture: function () {
-        if (this._glID !== null) {
+        if (this._gl && this._glID !== null) {
             this._gl.deleteTexture(this._glID);
         }
     },

@@ -135,7 +135,7 @@ proto.updateClearColor = function(clearColor){ };
 
 proto.initWithWidthAndHeight = function(width, height, format, depthStencilFormat){
     var node = this._node;
-    if(format === cc.Texture2D.PIXEL_FORMAT_A8)
+    if(format === cc.Texture2D.PixelFormat.A8)
         cc.log( "cc.RenderTexture._initWithWidthAndHeightForWebGL() : only RGB and RGBA formats are valid for a render texture;");
 
     var gl = cc._renderContext;
