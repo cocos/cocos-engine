@@ -67,12 +67,12 @@
 
     var tex1 = new cc.Texture2D();
     tex1._uuid = '555AC';
-    tex1._setRawFiles(['.png']);
+    tex1._setRawAsset('.png');
     var tex1Json = Editor.serialize(tex1, { stringify: false });
 
     var tex2 = new cc.Texture2D();
     tex2._uuid = '08T18';
-    tex2._setRawFiles(['.jare']);
+    tex2._setRawAsset('.jare');
     var tex2Json = Editor.serialize(tex2, { stringify: false });
 
     test('pack and unpack something', function () {

@@ -85,21 +85,14 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
             };
         }
     }
-    // declare raw
-    if (tdInfo.rawProp) {
-        objList.push(asset);
-        propList.push(tdInfo.rawProp);
-        depends.push(item.url);
-    }
-    // preload raw files
-    if (asset._preloadRawFiles) {
-        var finalCallback = callback;
-        callback = function () {
-            asset._preloadRawFiles(function (err) {
-                finalCallback(err || null, asset);
-            });
-        };
-    }
+
+    // // declare raw
+    // if (tdInfo.rawProp) {
+    //     objList.push(asset);
+    //     propList.push(tdInfo.rawProp);
+    //     depends.push(item.url);
+    // }
+
     // fast path
     if (depends.length === 0) {
         cc.deserialize.Details.pool.put(tdInfo);

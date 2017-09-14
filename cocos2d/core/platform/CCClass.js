@@ -1065,21 +1065,6 @@ function parseAttributes (cls, attrs, className, propName, usedInGetter) {
         }
     }
 
-    // if (attrs.rawType) {
-    //     if (CC_DEV && usedInGetter) {
-    //         cc.errorID(3613, "rawType", name, propName);
-    //     }
-    //     else {
-    //         var val = attrs.rawType;
-    //         if (typeof val === 'string') {
-    //             result.push(Attr.RawType(val));
-    //         }
-    //         else if (CC_DEV) {
-    //             cc.error(ERR_Type, "rawType", className, propName, 'string');
-    //         }
-    //     }
-    // }
-    
     if (attrs.editorOnly) {
         if (CC_DEV && usedInGetter) {
             cc.errorID(3613, "editorOnly", name, propName);

@@ -247,7 +247,7 @@ var RichText = cc.Class({
 
     _getFontRawUrl: function() {
         var isAsset = this.font instanceof cc.TTFFont;
-        var fntRawUrl = isAsset ? this.font.rawUrl : '';
+        var fntRawUrl = isAsset ? this.font.nativeUrl : '';
         return fntRawUrl;
     },
 

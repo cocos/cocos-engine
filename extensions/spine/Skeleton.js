@@ -409,7 +409,7 @@ sp.Skeleton = cc.Class({
                     cc.errorID(7504);
                     return null;
                 }
-                var jsonFile = this.skeletonData.rawUrl;
+                var jsonFile = this.skeletonData.nativeUrl;
                 var atlasFile = this.skeletonData.atlasUrl;
                 if (atlasFile) {
                     if (typeof atlasFile !== 'string') {

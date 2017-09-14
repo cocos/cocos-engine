@@ -508,8 +508,8 @@ if (CC_DEBUG) {
         "6301": "Stencil buffer is not enabled.", //initStencilBits
         "6302": "Nesting more than %d stencils is not supported. Everything will be drawn without stencil for this node and its children.", //visit
         //CCAsset: 6400
-        "6400": "asset.url is not usable in core process", //rawUrl
-        "6401": "asset.urls is not usable in core process", //rawUrls
+        "6400": "asset.rawUrl is not usable in core process", //rawUrl
+        "6401": "asset.rawUrls is not usable in core process", //rawUrls
         "6402": "AssetLibrary has already been initialized!", //AssetLibrary.init
         //Widget: 6500
         "6500": "Widget target must be one of the parent nodes of it", //visitNode

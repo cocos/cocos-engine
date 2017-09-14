@@ -8,11 +8,11 @@
             deepEqual(JSON.parse(Editor.serialize(obj)), expect, info);
         }
 
-        test('rawUrl', function () {
+        test('nativeUrl', function () {
             var tex = new cc.Texture2D();
             tex._uuid = '555AC';
-            tex._setRawFiles(['.png']);
-            ok(tex.rawUrl.endsWith('.png'), 'rawUrl should contains extname');
+            tex._setRawAsset('.png');
+            ok(tex.nativeUrl.endsWith('.png'), 'nativeUrl should contains extname');
         });
 
         test('(de)serialize empty texture', function () {
@@ -24,7 +24,7 @@
             serializedAs(tex, expected, 'should be serialized');
 
             var deserialized = cc.deserialize(expected);
-            strictEqual(deserialized.rawUrl, '', 'rawUrl should be empty string by default');
+            strictEqual(deserialized.nativeUrl, '', 'nativeUrl should be empty string by default');
             strictEqual(deserialized.url, '', 'url should be empty string by default');
         });
 
@@ -33,8 +33,8 @@
                 var tex = new cc.Texture2D();
 
                 tex._uuid = '555AC';
-                tex._setRawFiles(['.png']);
-                tex.url = tex.rawUrl;
+                tex._setRawAsset('.png');
+                tex.url = tex.nativeUrl;
                 ok(tex.url.endsWith('.png'), 'url should contains extname');
 
                 var expected = {
@@ -47,7 +47,7 @@
                     customEnv: { uuid: tex._uuid }
                 });
                 deserialized._uuid = tex._uuid;
-                strictEqual(deserialized.rawUrl, tex.rawUrl, 'rawUrl should be deserialized');
+                strictEqual(deserialized.nativeUrl, tex.nativeUrl, 'nativeUrl should be deserialized');
                 strictEqual(deserialized.url, tex.url, 'url should be deserialized');
             });
         }

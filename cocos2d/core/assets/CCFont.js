@@ -31,12 +31,10 @@
  * !#zh 字体资源类。
  * @class Font
  * @extends Asset
- *
  */
 var Font = cc.Class({
     name: 'cc.Font',
     extends: cc.Asset
 });
 
-cc.Font = Font;
-module.exports = Font;
+cc.Font = module.exports = Font;

@@ -402,9 +402,9 @@ var Texture2D = cc.Class({
     // extname,
     _serialize: (CC_EDITOR || CC_TEST) && function () {
         var extId = "";
-        if (this._rawFiles) {
+        if (this._native) {
             // encode extname
-            var ext = cc.path.extname(this._rawFiles[0]);
+            var ext = cc.path.extname(this._native);
             if (ext) {
                 extId = Texture2D.extnames.indexOf(ext);
                 if (extId < 0) {
@@ -423,17 +423,17 @@ var Texture2D = cc.Class({
             const CHAR_CODE_0 = 48;    // '0'
             var extId = extIdStr.charCodeAt(0) - CHAR_CODE_0;
             var ext = Texture2D.extnames[extId];
-            this._setRawFiles([ext || extIdStr]);
+            this._setRawAsset(ext || extIdStr);
 
-            // preset uuid to get correct rawUrl
+            // preset uuid to get correct nativeUrl
             var loadingItem = handle.customEnv;
             var uuid = loadingItem && loadingItem.uuid;
             if (uuid) {
                 this._uuid = uuid;
-                this.url = this.rawUrl;
+                this.url = this.nativeUrl;
             }
         }
-    }
+    },
 });
 
 /**

@@ -59,12 +59,6 @@ var Details = function () {
      * @property {String[]} uuidPropList
      */
     this.uuidPropList = [];
-
-    /**
-     * the corresponding field name which referenced to the raw object
-     * @property {String} rawProp
-     */
-    this.rawProp = '';
 };
 /**
  * @method reset
@@ -73,9 +67,6 @@ Details.prototype.reset = function () {
     this.uuidList.length = 0;
     this.uuidObjList.length = 0;
     this.uuidPropList.length = 0;
-    this.rawProp = '';
-    //this.rawObjList.length = 0;
-    //this.rawPropList.length = 0;
 };
 if (CC_EDITOR || CC_TEST) {
     Details.prototype.assignAssetsBy = function (getter) {
@@ -521,7 +512,6 @@ var _Deserializer = (function () {
     }
 
     function compileDeserialize (self, klass) {
-        var RAW_TYPE = Attr.DELIMETER + 'rawType';
         var EDITOR_ONLY = Attr.DELIMETER + 'editorOnly';
         var SERIALIZABLE = Attr.DELIMETER + 'serializable';
         var DEFAULT = Attr.DELIMETER + 'default';
@@ -538,79 +528,62 @@ var _Deserializer = (function () {
         // sources.push('var vb,vn,vs,vo,vu,vf;');    // boolean, number, string, object, undefined, function
         for (var p = 0; p < props.length; p++) {
             var propName = props[p];
-            var propNameLiteralToSet;
-            var rawType = attrs[propName + RAW_TYPE];
-            if (!rawType) {
-                if ((CC_PREVIEW || (CC_EDITOR && self._ignoreEditorOnly)) && attrs[propName + EDITOR_ONLY]) {
-                    var mayUsedInPersistRoot = (propName === '_id' && cc.isChildClassOf(klass, cc.Node));
-                    if (!mayUsedInPersistRoot) {
-                        continue;   // skip editor only if in preview
-                    }
+            if ((CC_PREVIEW || (CC_EDITOR && self._ignoreEditorOnly)) && attrs[propName + EDITOR_ONLY]) {
+                var mayUsedInPersistRoot = (propName === '_id' && cc.isChildClassOf(klass, cc.Node));
+                if (!mayUsedInPersistRoot) {
+                    continue;   // skip editor only if in preview
                 }
-                if (attrs[propName + SERIALIZABLE] === false) {
-                    continue;   // skip nonSerialized
-                }
+            }
+            if (attrs[propName + SERIALIZABLE] === false) {
+                continue;   // skip nonSerialized
+            }
 
-                var accessorToSet;
-                if (CCClass.IDENTIFIER_RE.test(propName)) {
-                    propNameLiteralToSet = '"' + propName + '"';
-                    accessorToSet = '.' + propName;
-                }
-                else {
-                    propNameLiteralToSet = CCClass.escapeForJS(propName);
-                    accessorToSet = '[' + propNameLiteralToSet + ']';
-                }
-
-                var accessorToGet = accessorToSet;
-                if (attrs[propName + FORMERLY_SERIALIZED_AS]) {
-                    var propNameToRead = attrs[propName + FORMERLY_SERIALIZED_AS];
-                    if (CCClass.IDENTIFIER_RE.test(propNameToRead)) {
-                        accessorToGet = '.' + propNameToRead;
-                    }
-                    else {
-                        accessorToGet = '[' + CCClass.escapeForJS(propNameToRead) + ']';
-                    }
-                }
-
-                sources.push('prop=d' + accessorToGet + ';');
-                sources.push(`if(typeof ${CC_JSB ? '(prop)' : 'prop'}!=="undefined"){`);
-
-                // function undefined object(null) string boolean number
-                var defaultValue = CCClass.getDefault(attrs[propName + DEFAULT]);
-                if (fastMode) {
-                    var defaultType = typeof defaultValue;
-                    var isPrimitiveType = (defaultType === 'string' && !attrs[propName + SAVE_URL_AS_ASSET]) ||
-                                          defaultType === 'number' ||
-                                          defaultType === 'boolean';
-                    if (isPrimitiveType) {
-                        sources.push(`o${accessorToSet}=prop;`);
-                    }
-                    else {
-                        compileObjectType(sources, defaultValue, accessorToSet, propNameLiteralToSet, true);
-                    }
-                }
-                else {
-                    sources.push(`if(typeof ${CC_JSB ? '(prop)' : 'prop'}!=="object"){` +
-                                     'o' + accessorToSet + '=prop;' +
-                                 '}else{');
-                    compileObjectType(sources, defaultValue, accessorToSet, propNameLiteralToSet, false);
-                    sources.push('}');
-                }
-                sources.push('}');
+            var accessorToSet, propNameLiteralToSet;
+            if (CCClass.IDENTIFIER_RE.test(propName)) {
+                propNameLiteralToSet = '"' + propName + '"';
+                accessorToSet = '.' + propName;
             }
             else {
-                if (CCClass.IDENTIFIER_RE.test(propName)) {
-                    propNameLiteralToSet = '"' + propName + '"';
+                propNameLiteralToSet = CCClass.escapeForJS(propName);
+                accessorToSet = '[' + propNameLiteralToSet + ']';
+            }
+
+            var accessorToGet = accessorToSet;
+            if (attrs[propName + FORMERLY_SERIALIZED_AS]) {
+                var propNameToRead = attrs[propName + FORMERLY_SERIALIZED_AS];
+                if (CCClass.IDENTIFIER_RE.test(propNameToRead)) {
+                    accessorToGet = '.' + propNameToRead;
                 }
                 else {
-                    propNameLiteralToSet = CCClass.escapeForJS(propName);
+                    accessorToGet = '[' + CCClass.escapeForJS(propNameToRead) + ']';
                 }
-                // always load raw objects even if property not serialized
-                // 这里假定每个asset都有uuid，每个json只能包含一个asset，只能包含一个rawProp
-                sources.push('if(s.result.rawProp)\n' +
-                                'cc.error("not support multi raw object in a file");');
-                sources.push('s.result.rawProp=' + propNameLiteralToSet + ';');
             }
+
+            sources.push('prop=d' + accessorToGet + ';');
+            sources.push(`if(typeof ${CC_JSB ? '(prop)' : 'prop'}!=="undefined"){`);
+
+            // function undefined object(null) string boolean number
+            var defaultValue = CCClass.getDefault(attrs[propName + DEFAULT]);
+            if (fastMode) {
+                var defaultType = typeof defaultValue;
+                var isPrimitiveType = (defaultType === 'string' && !attrs[propName + SAVE_URL_AS_ASSET]) ||
+                                      defaultType === 'number' ||
+                                      defaultType === 'boolean';
+                if (isPrimitiveType) {
+                    sources.push(`o${accessorToSet}=prop;`);
+                }
+                else {
+                    compileObjectType(sources, defaultValue, accessorToSet, propNameLiteralToSet, true);
+                }
+            }
+            else {
+                sources.push(`if(typeof ${CC_JSB ? '(prop)' : 'prop'}!=="object"){` +
+                                 'o' + accessorToSet + '=prop;' +
+                             '}else{');
+                compileObjectType(sources, defaultValue, accessorToSet, propNameLiteralToSet, false);
+                sources.push('}');
+            }
+            sources.push('}');
         }
         if (props[props.length - 1] === '_$erialized') {
             // deep copy original serialized data
