@@ -264,7 +264,8 @@ function process () {
     // sample
     var info = this.sample();
 
-    if (this._eventFlagMap['lastframe']) {
+    var cache = this._hasListenerCache;
+    if (cache && cache['lastframe']) {
         var lastInfo;
         if (!lastInfo) {
             lastInfo = this._lastWrappedInfo = new WrappedInfo(info);
@@ -315,7 +316,8 @@ function simpleProcess () {
         curve.sample(time, ratio, this);
     }
 
-    if (this._eventFlagMap['lastframe']) {
+    var cache = this._hasListenerCache;
+    if (cache && cache['lastframe']) {
         var currentIterations = time > 0 ? (time / duration) : -(time / duration);
         
         var lastIterations = this._lastIterations;

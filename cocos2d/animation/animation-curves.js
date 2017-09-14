@@ -120,9 +120,7 @@ var DynamicAnimCurve = cc.Class({
         subProps: null
     },
 
-    _findFrameIndex: function () { 
-        return 0; 
-    },
+    _findFrameIndex: binarySearch,
 
     sample: function (time, ratio, animationNode) {
         var values = this.values;
