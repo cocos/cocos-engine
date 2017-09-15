@@ -1234,7 +1234,7 @@ _ccsg.Label = _ccsg.Node.extend({
 
                 var createLabelSprites = function () {
                     var texture = spriteFrame.getTexture();
-                    self._textureLoaded = texture.isLoaded();
+                    self._textureLoaded = texture.loaded;
                     self._createSpriteBatchNode(texture);
                     self.emit("load");
                 };

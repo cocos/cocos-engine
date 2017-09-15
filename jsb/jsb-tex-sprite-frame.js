@@ -91,14 +91,68 @@ cc.textureCache.removeTextureForKey = function (key) {
 cc.Class._fastDefine('cc.Texture2D', cc.Texture2D, []);
 cc.js.value(cc.Texture2D, '$super', cc.RawAsset);   // not inheritable in JSB and TypeScript
 
+const GL_NEAREST = 9728;                // gl.NEAREST
+const GL_LINEAR = 9729;                 // gl.LINEAR
+const GL_REPEAT = 10497;                // gl.REPEAT
+const GL_CLAMP_TO_EDGE = 33071;         // gl.CLAMP_TO_EDGE
+const GL_MIRRORED_REPEAT = 33648;       // gl.MIRRORED_REPEAT
+
+cc.Texture2D.PixelFormat = cc.Enum({
+    RGB565: cc.Texture2D.PIXEL_FORMAT_RGB565,
+    RGB5A1: cc.Texture2D.PIXEL_FORMAT_RGB5A1,
+    RGBA4444: cc.Texture2D.PIXEL_FORMAT_RGBA4444,
+    RGB888: cc.Texture2D.PIXEL_FORMAT_RGB888,
+    RGBA8888: cc.Texture2D.PIXEL_FORMAT_RGBA8888,
+    A8: cc.Texture2D.PIXEL_FORMAT_A8,
+    I8: cc.Texture2D.PIXEL_FORMAT_I8,
+    AI8: cc.Texture2D.PIXEL_FORMAT_AI8
+});
+
 cc.Texture2D.WrapMode = cc.Enum({
-    REPEAT: 0x2901,
-    CLAMP_TO_EDGE: 0x812f,
-    MIRRORED_REPEAT: 0x8370
+    REPEAT: GL_REPEAT,
+    CLAMP_TO_EDGE: GL_CLAMP_TO_EDGE,
+    MIRRORED_REPEAT: GL_MIRRORED_REPEAT
+});
+
+cc.Texture2D.Filter = cc.Enum({
+    LINEAR: GL_LINEAR,
+    NEAREST: GL_NEAREST
 });
 
 var prototype = cc.Texture2D.prototype;
 
+prototype.loaded = true;
+prototype.update = function (options) {
+    var updateTexParam = false;
+    var genMipmap = false;
+    if (options) {
+        if (options.minFilter !== undefined) {
+            this._minFilter = options.minFilter;
+            updateTexParam = true;
+        }
+        if (options.magFilter !== undefined) {
+            this._magFilter = options.magFilter;
+            updateTexParam = true;
+        }
+        if (options.wrapS !== undefined) {
+            this._wrapS = options.wrapS;
+            updateTexParam = true;
+        }
+        if (options.wrapT !== undefined) {
+            this._wrapT = options.wrapT;
+            updateTexParam = true;
+        }
+        if (options.mipmap !== undefined) {
+            genMipmap = this._hasMipmap = options.mipmap;
+        }
+    }
+    if (updateTexParam) {
+        this.setTexParameters(options);
+    }
+    if (genMipmap) {
+        this.generateMipmap();
+    }
+}
 prototype.isLoaded = function () {
     return true;
 };

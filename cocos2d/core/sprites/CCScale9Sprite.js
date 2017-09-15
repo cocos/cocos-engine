@@ -169,8 +169,8 @@ var simpleQuadGenerator = {
 
     _calculateUVs: function (sprite, spriteFrame) {
         var uvs = sprite._uvs;
-        var atlasWidth = spriteFrame._texture._pixelWidth;
-        var atlasHeight = spriteFrame._texture._pixelHeight;
+        var atlasWidth = spriteFrame._texture.width;
+        var atlasHeight = spriteFrame._texture.height;
         var textureRect = spriteFrame._rect;
 
         if (uvs.length < 8) {
@@ -291,8 +291,8 @@ var scale9QuadGenerator = {
     _calculateUVs: function (sprite, spriteFrame, insetLeft, insetRight, insetTop, insetBottom) {
         var uvs = sprite._uvs;
         var rect = spriteFrame._rect;
-        var atlasWidth = spriteFrame._texture._pixelWidth;
-        var atlasHeight = spriteFrame._texture._pixelHeight;
+        var atlasWidth = spriteFrame._texture.width;
+        var atlasHeight = spriteFrame._texture.height;
 
         //caculate texture coordinate
         var leftWidth, centerWidth, rightWidth;
@@ -369,8 +369,8 @@ var tiledQuadGenerator = {
             wt = sprite._renderCmd._worldTransform,
             uvs = sprite._uvs;
         //build uvs
-        var atlasWidth = spriteFrame._texture._pixelWidth;
-        var atlasHeight = spriteFrame._texture._pixelHeight;
+        var atlasWidth = spriteFrame._texture.width;
+        var atlasHeight = spriteFrame._texture.height;
         var textureRect = spriteFrame._rect;
 
         //uv computation should take spritesheet into account.
@@ -509,8 +509,8 @@ var fillQuadGeneratorBar = {
         var l = 0, b = 0,
             r = contentSize.width, t = contentSize.height;
         //build uvs
-        var atlasWidth = spriteFrame._texture._pixelWidth;
-        var atlasHeight = spriteFrame._texture._pixelHeight;
+        var atlasWidth = spriteFrame._texture.width;
+        var atlasHeight = spriteFrame._texture.height;
         var textureRect = spriteFrame._rect;
         //uv computation should take spritesheet into account.
         var ul, vb, ur, vt;
@@ -968,8 +968,8 @@ var fillQuadGeneratorRadial = {
     },
 
     _calculateUVs : function (spriteFrame) {
-        var atlasWidth = spriteFrame._texture._pixelWidth;
-        var atlasHeight = spriteFrame._texture._pixelHeight;
+        var atlasWidth = spriteFrame._texture.width;
+        var atlasHeight = spriteFrame._texture.height;
         var textureRect = spriteFrame._rect;
 
         //uv computation should take spritesheet into account.
