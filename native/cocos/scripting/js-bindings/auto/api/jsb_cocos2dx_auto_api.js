@@ -55,16 +55,6 @@ texture2d
 },
 
 /**
- * @method getStringForFormat
- * @return {char}
- */
-getStringForFormat : function (
-)
-{
-    return 0;
-},
-
-/**
  * @method initWithImage
 * @param {cc.Image|cc.Image} image
 * @param {cc.Texture2D::PixelFormat} pixelformat
@@ -123,28 +113,6 @@ getPixelsHigh : function (
  * @return {unsigned int}
  */
 getAlphaTextureName : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method getBitsPerPixelForFormat
-* @param {cc.Texture2D::PixelFormat} pixelformat
-* @return {unsigned int|unsigned int}
-*/
-getBitsPerPixelForFormat : function(
-pixelformat 
-)
-{
-    return 0;
-},
-
-/**
- * @method getName
- * @return {unsigned int}
- */
-getName : function (
 )
 {
     return 0;

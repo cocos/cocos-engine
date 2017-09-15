@@ -220,24 +220,6 @@ static bool js_cocos2dx_Texture2D_setAlphaTexture(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Texture2D_setAlphaTexture)
 
-static bool js_cocos2dx_Texture2D_getStringForFormat(se::State& s)
-{
-    cocos2d::Texture2D* cobj = (cocos2d::Texture2D*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Texture2D_getStringForFormat : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const char* result = cobj->getStringForFormat();
-        ok &= std_string_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_Texture2D_getStringForFormat : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_Texture2D_getStringForFormat)
-
 static bool js_cocos2dx_Texture2D_initWithImage(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -367,57 +349,6 @@ static bool js_cocos2dx_Texture2D_getAlphaTextureName(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_Texture2D_getAlphaTextureName)
-
-static bool js_cocos2dx_Texture2D_getBitsPerPixelForFormat(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cocos2d::Texture2D* cobj = (cocos2d::Texture2D*)s.nativeThisObject();
-    SE_PRECONDITION2( cobj, false, "js_cocos2dx_Texture2D_getBitsPerPixelForFormat : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    do {
-        if (argc == 1) {
-            cocos2d::Texture2D::PixelFormat arg0;
-            ok &= seval_to_int32(args[0], (int32_t*)&arg0);
-            if (!ok) { ok = true; break; }
-            unsigned int result = cobj->getBitsPerPixelForFormat(arg0);
-            ok &= uint32_to_seval(result, &s.rval());
-            SE_PRECONDITION2(ok, false, "js_cocos2dx_Texture2D_getBitsPerPixelForFormat : Error processing arguments");
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 0) {
-            unsigned int result = cobj->getBitsPerPixelForFormat();
-            ok &= uint32_to_seval(result, &s.rval());
-            SE_PRECONDITION2(ok, false, "js_cocos2dx_Texture2D_getBitsPerPixelForFormat : Error processing arguments");
-            return true;
-        }
-    } while(false);
-
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_Texture2D_getBitsPerPixelForFormat)
-
-static bool js_cocos2dx_Texture2D_getName(se::State& s)
-{
-    cocos2d::Texture2D* cobj = (cocos2d::Texture2D*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Texture2D_getName : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getName();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_Texture2D_getName : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_Texture2D_getName)
 
 static bool js_cocos2dx_Texture2D_initWithString(se::State& s)
 {
@@ -924,15 +855,12 @@ bool js_register_cocos2dx_Texture2D(se::Object* obj)
     cls->defineFunction("getShaderProgram", _SE(js_cocos2dx_Texture2D_getGLProgram));
     cls->defineFunction("getMaxT", _SE(js_cocos2dx_Texture2D_getMaxT));
     cls->defineFunction("setAlphaTexture", _SE(js_cocos2dx_Texture2D_setAlphaTexture));
-    cls->defineFunction("getStringForFormat", _SE(js_cocos2dx_Texture2D_getStringForFormat));
     cls->defineFunction("initWithImage", _SE(js_cocos2dx_Texture2D_initWithImage));
     cls->defineFunction("setShaderProgram", _SE(js_cocos2dx_Texture2D_setGLProgram));
     cls->defineFunction("getMaxS", _SE(js_cocos2dx_Texture2D_getMaxS));
     cls->defineFunction("hasPremultipliedAlpha", _SE(js_cocos2dx_Texture2D_hasPremultipliedAlpha));
     cls->defineFunction("getPixelsHigh", _SE(js_cocos2dx_Texture2D_getPixelsHigh));
     cls->defineFunction("getAlphaTextureName", _SE(js_cocos2dx_Texture2D_getAlphaTextureName));
-    cls->defineFunction("getBitsPerPixelForFormat", _SE(js_cocos2dx_Texture2D_getBitsPerPixelForFormat));
-    cls->defineFunction("getName", _SE(js_cocos2dx_Texture2D_getName));
     cls->defineFunction("initWithString", _SE(js_cocos2dx_Texture2D_initWithString));
     cls->defineFunction("setMaxT", _SE(js_cocos2dx_Texture2D_setMaxT));
     cls->defineFunction("getPath", _SE(js_cocos2dx_Texture2D_getPath));
