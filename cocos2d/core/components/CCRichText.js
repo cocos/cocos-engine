@@ -58,7 +58,7 @@ var RichText = cc.Class({
     name: 'cc.RichText',
     extends: cc._RendererUnderSG,
 
-    ctor: function() {
+    ctor: function () {
         this._textArray = null;
         this._labelSegments = [];
         this._labelSegmentsCache = [];
@@ -66,9 +66,10 @@ var RichText = cc.Class({
 
         this._resetState();
 
-        if(CC_EDITOR) {
+        if (CC_EDITOR) {
             this._updateRichTextStatus = debounce(this._updateRichText, 200);
-        } else {
+        }
+        else {
             this._updateRichTextStatus = this._updateRichText;
         }
     },
@@ -105,7 +106,7 @@ var RichText = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.richtext.horizontal_align',
             animatable: false,
             notify: function (oldValue) {
-                if(this.horizontalAlign === oldValue) return;
+                if (this.horizontalAlign === oldValue) return;
 
                 this._layoutDirty = true;
                 this._updateRichTextStatus();
@@ -121,7 +122,7 @@ var RichText = cc.Class({
             default: 40,
             tooltip: CC_DEV && 'i18n:COMPONENT.richtext.font_size',
             notify: function (oldValue) {
-                if(this.fontSize === oldValue) return;
+                if (this.fontSize === oldValue) return;
 
                 this._layoutDirty = true;
                 this._updateRichTextStatus();
@@ -138,10 +139,10 @@ var RichText = cc.Class({
             type: cc.TTFFont,
             tooltip: CC_DEV && 'i18n:COMPONENT.richtext.font',
             notify: function (oldValue) {
-                if(this.font === oldValue) return;
+                if (this.font === oldValue) return;
 
                 this._layoutDirty = true;
-                if(!CC_JSB && this.font) {
+                if (!CC_JSB && this.font) {
                     this._onTTFLoaded();
                 }
                 this._updateRichTextStatus();
@@ -157,7 +158,7 @@ var RichText = cc.Class({
             default: 0,
             tooltip: CC_DEV && 'i18n:COMPONENT.richtext.max_width',
             notify: function (oldValue) {
-                if(this.maxWidth === oldValue) return;
+                if (this.maxWidth === oldValue) return;
 
                 this._layoutDirty = true;
                 this._updateRichTextStatus();
@@ -173,7 +174,7 @@ var RichText = cc.Class({
             default: 40,
             tooltip: CC_DEV && 'i18n:COMPONENT.richtext.line_height',
             notify: function (oldValue) {
-                if(this.lineHeight === oldValue) return;
+                if (this.lineHeight === oldValue) return;
 
                 this._layoutDirty = true;
                 this._updateRichTextStatus();
@@ -189,11 +190,31 @@ var RichText = cc.Class({
             default: null,
             type: cc.SpriteAtlas,
             tooltip: CC_DEV && 'i18n:COMPONENT.richtext.image_atlas',
-            notify: function(oldValue) {
-                if(this.imageAtlas === oldValue) return;
+            notify: function (oldValue) {
+                if (this.imageAtlas === oldValue) return;
 
                 this._layoutDirty = true;
                 this._updateRichTextStatus();
+            }
+        },
+
+        /**
+         * !#en
+         * Once checked, the RichText will block all input events (mouse and touch) within
+         * the bounding box of the node, preventing the input from penetrating into the underlying node.
+         * !#zh
+         * 选中此选项后，RichText 将阻止节点边界框中的所有输入事件（鼠标和触摸），从而防止输入事件穿透到底层节点。
+         * @property {Boolean} handleTouchEvent
+         * @default true
+         */
+        handleTouchEvent: {
+            default: true,
+            tooltip: CC_DEV && 'i18n:COMPONENT.richtext.handleTouchEvent',
+            notify: function (oldValue) {
+                if (this.handleTouchEvent === oldValue) return;
+                if (this.enabledInHierarchy) {
+                    this.handleTouchEvent ? this._addEventListeners() : this._removeEventListeners();
+                }
             }
         }
     },
@@ -205,11 +226,23 @@ var RichText = cc.Class({
 
     onEnable: function () {
         this._super();
-        this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+        if (this.handleTouchEvent) {
+            this._addEventListeners();
+        }
     },
 
     onDisable: function () {
         this._super();
+        if (this.handleTouchEvent) {
+            this._removeEventListeners();
+        }
+    },
+
+    _addEventListeners: function () {
+        this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+    },
+
+    _removeEventListeners: function () {
         this.node.off(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
     },
 
@@ -228,24 +261,24 @@ var RichText = cc.Class({
         return sgNode;
     },
 
-    _updateLabelSegmentTextAttributes: function() {
-        this._labelSegments.forEach(function(item) {
+    _updateLabelSegmentTextAttributes: function () {
+        this._labelSegments.forEach(function (item) {
             this._applyTextAttribute(item);
         }.bind(this));
     },
 
     _initSgNode: function () {
         this._updateRichText();
-        if(!CC_JSB) {
+        if (!CC_JSB) {
             this._onTTFLoaded();
         }
     },
 
     _createFontLabel: function (string) {
-        return  _ccsg.Label.pool.get(string, this.font, null, this.fontSize);
+        return _ccsg.Label.pool.get(string, this.font, null, this.fontSize);
     },
 
-    _getFontRawUrl: function() {
+    _getFontRawUrl: function () {
         var isAsset = this.font instanceof cc.TTFFont;
         var fntRawUrl = isAsset ? this.font.rawUrl : '';
         return fntRawUrl;
@@ -253,7 +286,7 @@ var RichText = cc.Class({
 
     _onTTFLoaded: function () {
         var rawUrl = this._getFontRawUrl();
-        if(!rawUrl) return;
+        if (!rawUrl) return;
 
         var self = this;
 
@@ -269,10 +302,11 @@ var RichText = cc.Class({
         var self = this;
         var func = function (string) {
             var label;
-            if(self._labelSegmentsCache.length === 0) {
+            if (self._labelSegmentsCache.length === 0) {
                 label = self._createFontLabel(string);
                 self._labelSegmentsCache.push(label);
-            } else {
+            }
+            else {
                 label = self._labelSegmentsCache[0];
                 label.setString(string);
             }
@@ -281,33 +315,33 @@ var RichText = cc.Class({
             var labelSize = label.getContentSize();
             return labelSize.width;
         };
-        if(string) {
+        if (string) {
             return func(string);
-        } else {
+        }
+        else {
             return func;
         }
     },
 
 
     _onTouchEnded: function (event) {
-        if(!this.enabledInHierarchy) return;
-
         var components = this.node.getComponents(cc.Component);
 
-        for (var i = 0; i < this._labelSegments.length; ++i ) {
+        for (var i = 0; i < this._labelSegments.length; ++i) {
             var labelSegment = this._labelSegments[i];
             var clickHandler = labelSegment._clickHandler;
             if (clickHandler && this._containsTouchLocation(labelSegment, event.touch.getLocation())) {
-                components.forEach(function(component) {
-                    if(component.enabledInHierarchy && component[clickHandler]) {
+                components.forEach(function (component) {
+                    if (component.enabledInHierarchy && component[clickHandler]) {
                         component[clickHandler](event);
                     }
                 });
+                event.stopPropagation();
             }
         }
     },
 
-    _containsTouchLocation:function (label, point) {
+    _containsTouchLocation: function (label, point) {
         var myRect = label.getBoundingBoxToWorld();
         return cc.rectContainsPoint(myRect, point);
     },
@@ -328,11 +362,12 @@ var RichText = cc.Class({
         this._layoutDirty = true;
     },
 
-    _addLabelSegment: function(stringToken, styleIndex) {
+    _addLabelSegment: function (stringToken, styleIndex) {
         var labelSegment;
-        if(this._labelSegmentsCache.length === 0) {
+        if (this._labelSegmentsCache.length === 0) {
             labelSegment = this._createFontLabel(stringToken);
-        } else {
+        }
+        else {
             labelSegment = this._labelSegmentsCache.pop();
             labelSegment.setString(stringToken);
         }
@@ -349,7 +384,7 @@ var RichText = cc.Class({
         //in Web platform, the extra pixels will be trimed.
         //so we need to set the overflow to clamp in JSB
         //FIXME: label in jsb should be refactored to keep the behavior the same as web platform.
-        if(CC_JSB) {
+        if (CC_JSB) {
             labelSegment.setOverflow(1);
             var size = labelSegment.getContentSize();
             labelSegment.enableWrap(false);
@@ -368,17 +403,18 @@ var RichText = cc.Class({
             var checkStartIndex = 0;
             while (this._lineOffsetX <= this.maxWidth) {
                 var checkEndIndex = this._getFirstWordLen(labelString,
-                                                          checkStartIndex,
-                                                          labelString.length);
+                    checkStartIndex,
+                    labelString.length);
                 var checkString = labelString.substr(checkStartIndex, checkEndIndex);
                 var checkStringWidth = this._measureText(styleIndex, checkString);
 
-                if(this._lineOffsetX + checkStringWidth <= this.maxWidth) {
+                if (this._lineOffsetX + checkStringWidth <= this.maxWidth) {
                     this._lineOffsetX += checkStringWidth;
                     checkStartIndex += checkEndIndex;
-                } else {
+                }
+                else {
 
-                    if(checkStartIndex > 0) {
+                    if (checkStartIndex > 0) {
                         var remainingString = labelString.substr(0, checkStartIndex);
 
                         this._addLabelSegment(remainingString, styleIndex);
@@ -391,33 +427,34 @@ var RichText = cc.Class({
                 }
             }
         }
-        if(fragmentWidth > this.maxWidth) {
+        if (fragmentWidth > this.maxWidth) {
             var fragments = cc.TextUtils.fragmentText(labelString,
-                                                      fragmentWidth,
-                                                      this.maxWidth,
-                                                      this._measureText(styleIndex));
-            for(var k = 0; k < fragments.length; ++k) {
+                fragmentWidth,
+                this.maxWidth,
+                this._measureText(styleIndex));
+            for (var k = 0; k < fragments.length; ++k) {
                 var splitString = fragments[k];
 
-                labelSegment =  this._addLabelSegment(splitString, styleIndex);
+                labelSegment = this._addLabelSegment(splitString, styleIndex);
 
                 var labelSize = labelSegment.getContentSize();
 
                 this._lineOffsetX += labelSize.width;
 
-                if(fragments.length > 1 && k < fragments.length - 1) {
+                if (fragments.length > 1 && k < fragments.length - 1) {
                     this._updateLineInfo();
                 }
             }
-        } else {
+        }
+        else {
             this._lineOffsetX += fragmentWidth;
 
             this._addLabelSegment(labelString, styleIndex);
         }
     },
 
-    _isLastComponentCR: function(stringToken) {
-        return stringToken.length -1 === stringToken.lastIndexOf("\n");
+    _isLastComponentCR: function (stringToken) {
+        return stringToken.length - 1 === stringToken.lastIndexOf("\n");
     },
 
     _updateLineInfo: function () {
@@ -427,40 +464,43 @@ var RichText = cc.Class({
     },
 
     _needsUpdateTextLayout: function (newTextArray) {
-        if(this._layoutDirty || !this._textArray || !newTextArray) {
+        if (this._layoutDirty || !this._textArray || !newTextArray) {
             return true;
         }
 
-        if(this._textArray.length !== newTextArray.length) {
+        if (this._textArray.length !== newTextArray.length) {
             return true;
         }
 
-        for(var i = 0; i < this._textArray.length; ++i) {
+        for (var i = 0; i < this._textArray.length; ++i) {
             var oldItem = this._textArray[i];
             var newItem = newTextArray[i];
-            if(oldItem.text != newItem.text) {
+            if (oldItem.text != newItem.text) {
                 return true;
-            } else {
+            }
+            else {
                 if (oldItem.style) {
                     if (newItem.style) {
-                        if(oldItem.style.size !== newItem.style.size
-                           || oldItem.style.italic !== newItem.style.italic
-                           || oldItem.style.isImage !== newItem.style.isImage) {
+                        if (oldItem.style.size !== newItem.style.size
+                            || oldItem.style.italic !== newItem.style.italic
+                            || oldItem.style.isImage !== newItem.style.isImage) {
                             return true;
                         }
-                        if(oldItem.style.isImage === newItem.style.isImage) {
-                            if(oldItem.style.src !== newItem.style.src) {
+                        if (oldItem.style.isImage === newItem.style.isImage) {
+                            if (oldItem.style.src !== newItem.style.src) {
                                 return true;
                             }
                         }
-                    } else {
-                        if(oldItem.style.size || oldItem.style.italic || oldItem.style.isImage) {
+                    }
+                    else {
+                        if (oldItem.style.size || oldItem.style.italic || oldItem.style.isImage) {
                             return true;
                         }
                     }
-                } else {
+                }
+                else {
                     if (newItem.style) {
-                        if(newItem.style.size || newItem.style.italic || newItem.style.isImage) {
+                        if (newItem.style.size || newItem.style.italic || newItem.style.isImage) {
                             return true;
                         }
                     }
@@ -472,9 +512,10 @@ var RichText = cc.Class({
 
     _onSpriteFrameLoaded: function (event, spriteFrame) {
         var newSpriteFrame;
-        if(spriteFrame) {
+        if (spriteFrame) {
             newSpriteFrame = spriteFrame;
-        } else {
+        }
+        else {
             newSpriteFrame = event.target;
         }
         var sprite = newSpriteFrame.__sprite;
@@ -482,10 +523,11 @@ var RichText = cc.Class({
     },
 
     _applySpriteFrame: function (spriteFrame) {
-        if(spriteFrame) {
-            if(spriteFrame.textureLoaded()) {
+        if (spriteFrame) {
+            if (spriteFrame.textureLoaded()) {
                 this._onSpriteFrameLoaded(null, spriteFrame);
-            } else {
+            }
+            else {
                 spriteFrame.once('load', this._onSpriteFrameLoaded, this);
                 spriteFrame.ensureLoadTexture();
             }
@@ -495,7 +537,7 @@ var RichText = cc.Class({
     _addRichTextImageElement: function (richTextElement) {
         var spriteFrameName = richTextElement.style.src;
         var spriteFrame = this.imageAtlas.getSpriteFrame(spriteFrameName);
-        if(spriteFrame) {
+        if (spriteFrame) {
             var sprite = new cc.Scale9Sprite();
             sprite.setAnchorPoint(0, 0);
             spriteFrame.__sprite = sprite;
@@ -510,27 +552,29 @@ var RichText = cc.Class({
             var expectHeight = richTextElement.style.imageHeight;
 
             //follow the original rule, expectHeight must less then lineHeight
-            if(expectHeight > 0 && expectHeight < this.lineHeight ) {
+            if (expectHeight > 0 && expectHeight < this.lineHeight) {
                 scaleFactor = expectHeight / spriteHeight;
                 spriteWidth = spriteWidth * scaleFactor;
                 spriteHeight = spriteHeight * scaleFactor;
-            } else {
+            }
+            else {
                 scaleFactor = this.lineHeight / spriteHeight;
                 spriteWidth = spriteWidth * scaleFactor;
                 spriteHeight = spriteHeight * scaleFactor;
             }
 
-            if(expectWidth > 0) spriteWidth = expectWidth;
+            if (expectWidth > 0) spriteWidth = expectWidth;
 
-            if(this.maxWidth > 0) {
-                if(this._lineOffsetX + spriteWidth > this.maxWidth) {
+            if (this.maxWidth > 0) {
+                if (this._lineOffsetX + spriteWidth > this.maxWidth) {
                     this._updateLineInfo();
                 }
                 this._lineOffsetX += spriteWidth;
 
-            } else {
+            }
+            else {
                 this._lineOffsetX += spriteWidth;
-                if(this._lineOffsetX > this._labelWidth) {
+                if (this._lineOffsetX > this._labelWidth) {
                     this._labelWidth = this._lineOffsetX;
                 }
             }
@@ -538,12 +582,13 @@ var RichText = cc.Class({
             sprite.setContentSize(spriteWidth, spriteHeight);
             sprite._lineCount = this._lineCount;
 
-            if(richTextElement.style.event) {
-                if(richTextElement.style.event.click) {
+            if (richTextElement.style.event) {
+                if (richTextElement.style.event.click) {
                     sprite._clickHandler = richTextElement.style.event.click;
                 }
             }
-        } else {
+        }
+        else {
             cc.warnID(4400);
         }
     },
@@ -552,7 +597,7 @@ var RichText = cc.Class({
         if (!this.enabled) return;
 
         var newTextArray = cc.htmlTextParser.parse(this.string);
-        if(!this._needsUpdateTextLayout(newTextArray)) {
+        if (!this._needsUpdateTextLayout(newTextArray)) {
             this._textArray = newTextArray;
             this._updateLabelSegmentTextAttributes();
             return;
@@ -569,12 +614,12 @@ var RichText = cc.Class({
             var richTextElement = this._textArray[i];
             var text = richTextElement.text;
             //handle <br/> <img /> tag
-            if(text === "") {
-                if(richTextElement.style && richTextElement.style.newline) {
+            if (text === "") {
+                if (richTextElement.style && richTextElement.style.newline) {
                     this._updateLineInfo();
                     continue;
                 }
-                if(richTextElement.style && richTextElement.style.isImage && this.imageAtlas) {
+                if (richTextElement.style && richTextElement.style.isImage && this.imageAtlas) {
                     this._addRichTextImageElement(richTextElement);
                     continue;
                 }
@@ -583,10 +628,10 @@ var RichText = cc.Class({
 
             for (var j = 0; j < multilineTexts.length; ++j) {
                 var labelString = multilineTexts[j];
-                if(labelString === "") {
+                if (labelString === "") {
                     //for continues \n
-                    if(this._isLastComponentCR(text)
-                       && j == multilineTexts.length - 1) {
+                    if (this._isLastComponentCR(text)
+                        && j == multilineTexts.length - 1) {
                         continue;
                     }
                     this._updateLineInfo();
@@ -595,33 +640,34 @@ var RichText = cc.Class({
                 }
                 lastEmptyLine = false;
 
-                if(this.maxWidth > 0) {
+                if (this.maxWidth > 0) {
                     var labelWidth = this._measureText(i, labelString);
                     this._updateRichTextWithMaxWidth(labelString, labelWidth, i);
 
-                    if(multilineTexts.length > 1 && j < multilineTexts.length - 1) {
+                    if (multilineTexts.length > 1 && j < multilineTexts.length - 1) {
                         this._updateLineInfo();
                     }
-                } else {
+                }
+                else {
                     label = this._addLabelSegment(labelString, i);
                     labelSize = label.getContentSize();
 
                     this._lineOffsetX += labelSize.width;
-                    if(this._lineOffsetX > this._labelWidth) {
+                    if (this._lineOffsetX > this._labelWidth) {
                         this._labelWidth = this._lineOffsetX;
                     }
 
-                    if(multilineTexts.length > 1 && j < multilineTexts.length - 1) {
+                    if (multilineTexts.length > 1 && j < multilineTexts.length - 1) {
                         this._updateLineInfo();
                     }
                 }
             }
         }
-        if(!lastEmptyLine) {
+        if (!lastEmptyLine) {
             this._linesWidth.push(this._lineOffsetX);
         }
 
-        if(this.maxWidth > 0) {
+        if (this.maxWidth > 0) {
             this._labelWidth = this.maxWidth;
         }
         this._labelHeight = this._lineCount * this.lineHeight;
@@ -636,7 +682,7 @@ var RichText = cc.Class({
     },
 
 
-    _getFirstWordLen: function(text, startIndex, textLen) {
+    _getFirstWordLen: function (text, startIndex, textLen) {
         var character = text.charAt(startIndex);
         if (cc.TextUtils.isUnicodeCJK(character)
             || cc.TextUtils.isUnicodeSpace(character)) {
@@ -661,7 +707,7 @@ var RichText = cc.Class({
         var nextTokenX = 0;
         var nextLineIndex = 1;
         var totalLineCount = this._lineCount;
-        for(var i = 0; i < this._labelSegments.length; ++i) {
+        for (var i = 0; i < this._labelSegments.length; ++i) {
             var label = this._labelSegments[i];
             var lineCount = label._lineCount;
             if (lineCount > nextLineIndex) {
@@ -670,17 +716,17 @@ var RichText = cc.Class({
             }
             var lineOffsetX = 0;
             switch (this.horizontalAlign) {
-              case cc.TextAlignment.LEFT:
-                  lineOffsetX = 0;
-                  break;
-              case cc.TextAlignment.CENTER:
-                  lineOffsetX = (this._labelWidth - this._linesWidth[lineCount - 1]) / 2;
-                  break;
-              case cc.TextAlignment.RIGHT:
-                  lineOffsetX = this._labelWidth - this._linesWidth[lineCount - 1];
-                  break;
-              default:
-                  break;
+                case cc.TextAlignment.LEFT:
+                    lineOffsetX = 0;
+                    break;
+                case cc.TextAlignment.CENTER:
+                    lineOffsetX = (this._labelWidth - this._linesWidth[lineCount - 1]) / 2;
+                    break;
+                case cc.TextAlignment.RIGHT:
+                    lineOffsetX = this._labelWidth - this._linesWidth[lineCount - 1];
+                    break;
+                default:
+                    break;
             }
             label.setPositionX(nextTokenX + lineOffsetX);
 
@@ -688,7 +734,7 @@ var RichText = cc.Class({
 
             var positionY = (totalLineCount - lineCount) * this.lineHeight;
 
-            if(label instanceof cc.Scale9Sprite) {
+            if (label instanceof cc.Scale9Sprite) {
                 positionY += (this.lineHeight - label.getContentSize().height) / 2;
             }
 
@@ -705,13 +751,14 @@ var RichText = cc.Class({
         var colorValue = color.toUpperCase();
         if (cc.Color[colorValue]) {
             return cc.Color[colorValue];
-        } else {
+        }
+        else {
             return cc.hexToColor(color);
         }
     },
 
     _applyTextAttribute: function (label) {
-        if(label instanceof cc.Scale9Sprite) return;
+        if (label instanceof cc.Scale9Sprite) return;
 
         var index = label._styleIndex;
         label.setLineHeight(this.lineHeight);
@@ -723,25 +770,29 @@ var RichText = cc.Class({
         }
         if (textStyle && textStyle.color) {
             label.setColor(this._convertLiteralColorValue(textStyle.color));
-        } else {
+        }
+        else {
             label.setColor(this.node.color);
         }
 
         if (textStyle && textStyle.bold) {
             label.enableBold(true);
-        } else {
+        }
+        else {
             label.enableBold(false);
         }
 
         if (textStyle && textStyle.italic) {
             label.enableItalics(true);
-        } else {
+        }
+        else {
             label.enableItalics(false);
         }
 
         if (textStyle && textStyle.underline) {
             label.enableUnderline(true);
-        } else {
+        }
+        else {
             label.enableUnderline(false);
         }
 
@@ -750,14 +801,16 @@ var RichText = cc.Class({
             label.setOutlineColor(this._convertLiteralColorValue(textStyle.outline.color));
             label.setOutlineWidth(textStyle.outline.width);
             label.setMargin(textStyle.outline.width);
-        } else {
+        }
+        else {
             label.setOutlined(false);
             label.setMargin(0);
         }
 
         if (textStyle && textStyle.size) {
             label.setFontSize(textStyle.size);
-        } else {
+        }
+        else {
             label.setFontSize(this.fontSize);
         }
 
@@ -776,6 +829,6 @@ var RichText = cc.Class({
         }
         this._resetState();
     }
- });
+});
 
  cc.RichText = module.exports = RichText;
