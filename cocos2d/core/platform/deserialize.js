@@ -38,12 +38,6 @@ var Misc = require('../utils/misc');
  *
  */
 var Details = function () {
-
-    //this.urlList = [];
-    //this.callbackList = [];
-
-    // uuids(assets) need to load
-
     /**
      * list of the depends assets' uuid
      * @property {String[]} uuidList
@@ -59,6 +53,9 @@ var Details = function () {
      * @property {String[]} uuidPropList
      */
     this.uuidPropList = [];
+
+    // TODO - DELME
+    this._stillUseUrl = JS.createMap(true);
 };
 /**
  * @method reset
@@ -67,6 +64,7 @@ Details.prototype.reset = function () {
     this.uuidList.length = 0;
     this.uuidObjList.length = 0;
     this.uuidPropList.length = 0;
+    JS.clear(this._stillUseUrl);
 };
 if (CC_EDITOR || CC_TEST) {
     Details.prototype.assignAssetsBy = function (getter) {
@@ -78,27 +76,30 @@ if (CC_EDITOR || CC_TEST) {
         }
     };
 }
-/**
- * @method getUuidOf
- * @param {Object} obj
- * @param {String} propName
- * @return {String}
- */
-Details.prototype.getUuidOf = function (obj, propName) {
-    for (var i = 0; i < this.uuidObjList.length; i++) {
-        if (this.uuidObjList[i] === obj && this.uuidPropList[i] === propName) {
-            return this.uuidList[i];
-        }
-    }
-    return "";
-};
+// /**
+//  * @method getUuidOf
+//  * @param {Object} obj
+//  * @param {String} propName
+//  * @return {String}
+//  */
+// Details.prototype.getUuidOf = function (obj, propName) {
+//     for (var i = 0; i < this.uuidObjList.length; i++) {
+//         if (this.uuidObjList[i] === obj && this.uuidPropList[i] === propName) {
+//             return this.uuidList[i];
+//         }
+//     }
+//     return "";
+// };
 /**
  * @method push
  * @param {Object} obj
  * @param {String} propName
  * @param {String} uuid
  */
-Details.prototype.push = function (obj, propName, uuid) {
+Details.prototype.push = function (obj, propName, uuid, _stillUseUrl) {
+    if (_stillUseUrl) {
+        this._stillUseUrl[this.uuidList.length] = true;
+    }
     this.uuidList.push(uuid);
     this.uuidObjList.push(obj);
     this.uuidPropList.push(propName);
@@ -290,7 +291,7 @@ var _Deserializer = (function () {
     };
 
     // 和 _deserializeObject 不同的地方在于会判断 id 和 uuid
-    prototype._deserializeObjField = function (obj, jsonObj, propName, target) {
+    prototype._deserializeObjField = function (obj, jsonObj, propName, target, _stillUseUrl) {
         var id = jsonObj.__id__;
         if (typeof id === 'undefined') {
             var uuid = jsonObj.__uuid__;
@@ -304,9 +305,7 @@ var _Deserializer = (function () {
                 //        return;
                 //    }
                 // }
-                this.result.uuidList.push(uuid);
-                this.result.uuidObjList.push(obj);
-                this.result.uuidPropList.push(propName);
+                this.result.push(obj, propName, uuid, _stillUseUrl);
             }
             else {
                 if (CC_EDITOR || CC_TEST) {
@@ -487,7 +486,7 @@ var _Deserializer = (function () {
     //     }
     // }
 
-    function compileObjectType (sources, defaultValue, accessorToSet, propNameLiteralToSet, assumeHavePropIfIsValue) {
+    function compileObjectType (sources, defaultValue, accessorToSet, propNameLiteralToSet, assumeHavePropIfIsValue, stillUseUrl) {
         if (defaultValue instanceof cc.ValueType) {
             // fast case
             if (!assumeHavePropIfIsValue) {
@@ -502,10 +501,10 @@ var _Deserializer = (function () {
         else {
             sources.push('if(prop){');
             if (CC_EDITOR || CC_TEST) {
-                sources.push('s._deserializeObjField(o,prop,' + propNameLiteralToSet + ',t&&o);');
+                sources.push('s._deserializeObjField(o,prop,' + propNameLiteralToSet + ',t&&o,' + !!stillUseUrl + ');');
             }
             else {
-                sources.push('s._deserializeObjField(o,prop,' + propNameLiteralToSet + ');');
+                sources.push('s._deserializeObjField(o,prop,' + propNameLiteralToSet + ',null,' + !!stillUseUrl + ');');
             }
             sources.push('}else o' + accessorToSet + '=null;');
         }
@@ -562,25 +561,26 @@ var _Deserializer = (function () {
             sources.push('prop=d' + accessorToGet + ';');
             sources.push(`if(typeof ${CC_JSB ? '(prop)' : 'prop'}!=="undefined"){`);
 
+            var stillUseUrl = attrs[propName + SAVE_URL_AS_ASSET];
             // function undefined object(null) string boolean number
             var defaultValue = CCClass.getDefault(attrs[propName + DEFAULT]);
             if (fastMode) {
                 var defaultType = typeof defaultValue;
-                var isPrimitiveType = (defaultType === 'string' && !attrs[propName + SAVE_URL_AS_ASSET]) ||
+                var isPrimitiveType = (defaultType === 'string' && !stillUseUrl) ||
                                       defaultType === 'number' ||
                                       defaultType === 'boolean';
                 if (isPrimitiveType) {
                     sources.push(`o${accessorToSet}=prop;`);
                 }
                 else {
-                    compileObjectType(sources, defaultValue, accessorToSet, propNameLiteralToSet, true);
+                    compileObjectType(sources, defaultValue, accessorToSet, propNameLiteralToSet, true, stillUseUrl);
                 }
             }
             else {
                 sources.push(`if(typeof ${CC_JSB ? '(prop)' : 'prop'}!=="object"){` +
                                  'o' + accessorToSet + '=prop;' +
                              '}else{');
-                compileObjectType(sources, defaultValue, accessorToSet, propNameLiteralToSet, false);
+                compileObjectType(sources, defaultValue, accessorToSet, propNameLiteralToSet, false, stillUseUrl);
                 sources.push('}');
             }
             sources.push('}');

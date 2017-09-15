@@ -31,6 +31,7 @@ var RawAsset = require('./CCRawAsset');
  *
  * You may want to override:<br/>
  * - createNode<br/>
+ * - getset functions of _nativeAsset<br/>
  * - cc.Object._serialize<br/>
  * - cc.Object._deserialize<br/>
  * !#zh
@@ -38,6 +39,7 @@ var RawAsset = require('./CCRawAsset');
  *
  * 您可能需要重写：<br/>
  * - createNode <br/>
+ * - _nativeAsset 的 getset 方法<br/>
  * - cc.Object._serialize<br/>
  * - cc.Object._deserialize<br/>
  *
@@ -94,17 +96,32 @@ cc.Asset = cc.Class({
          */
         _native: "",
 
+        // __nativeAsset: {
+        //     default: null,
+        //     serializable: false
+        // },
+
         /**
-         * The underlying native object of this asset if one is available.
-         * The object can be used to access additional details or functionality releated to the asset.
-         * The object will be initialized by the loader if `_native` is available.
-         * @property {Object} _nativeObject
+         * The underlying native asset of this asset if one is available.
+         * This property can be used to access additional details or functionality releated to the asset.
+         * This property will be initialized by the loader if `_native` is available.
+         * @property {Object} _nativeAsset
          * @default null
          * @private
          */
-        _nativeObject: {
-            default: null,
-            serializable: false
+        _nativeAsset: {
+            get () {
+                if (CC_EDITOR) {
+                    cc.errorID('0100', 'getter of ' + JS.getClassName(this) + '._nativeAsset');
+                }
+                // return this.__nativeAsset;
+            },
+            set (obj) {
+                if (CC_EDITOR) {
+                    cc.errorID('0100', 'setter of ' + JS.getClassName(this) + '._nativeAsset');
+                }
+                // this.__nativeAsset = obj;
+            }
         },
     },
 
@@ -176,7 +193,7 @@ cc.Asset = cc.Class({
      * @param {String} filename
      * @private
      */
-    _setRawAsset: (CC_EDITOR || CC_TEST) && function (filename) {
+    _setRawAsset: function (filename) {
         this._native = filename || "";
     }
 });

@@ -68,6 +68,7 @@ cc.TextureCache.prototype.addImage = function (url, cb, target) {
 
 cc.textureCache._textures = {};
 cc.textureCache.cacheImage = function (key, texture) {
+    cc.log('cacheImage ' + texture.url);
     if (texture instanceof cc.Texture2D) {
         this._textures[key] = texture;
     }
@@ -149,16 +150,13 @@ prototype.setTexture = function (textureOrTextureFile, rect, rotated, offset, or
 
     this.setRotated(rotated || false);
 
+    // loading texture
     var texture = textureOrTextureFile;
-    if (cc.js.isString(textureOrTextureFile)) {
-        this._textureFilename = textureOrTextureFile;
-        this._loadTexture();
+    if (typeof texture === 'string' && texture) {
+        texture = cc.textureCache.addImage(texture);
     }
-    else if (texture instanceof cc.Texture2D) {
+    if (texture instanceof cc.Texture2D) {
         this._refreshTexture(texture);
-    }
-    else {
-        //todo log error
     }
 
     return true;
@@ -176,6 +174,9 @@ prototype._loadTexture = function () {
 prototype.ensureLoadTexture = function () {
     if (!this._texture) {
         this._loadTexture();
+    }
+    else {
+        // TODO - load native texture
     }
 };
 
@@ -234,12 +235,10 @@ prototype._deserialize = function (data, handle) {
         this.insetBottom = capInsets[3];
     }
 
-    // load texture via _textureFilenameSetter
+    // load texture via _textureSetter
     var textureUuid = data.texture;
     if (textureUuid) {
-        var dontLoadTexture = (handle.customEnv && handle.customEnv.deferredLoadRaw);
-        var receiver = dontLoadTexture ? '_textureFilename' : '_textureFilenameSetter';
-        handle.result.push(this, receiver, textureUuid);
+        handle.result.push(this, '_textureSetter', textureUuid);
     }
 };
 prototype._checkRect = function (texture) {
@@ -279,10 +278,15 @@ prototype.clone = function () {
     return cloned;
 };
 
-cc.js.set(prototype, '_textureFilenameSetter', function (url) {
-    this._textureFilename = url;
-    if (url) {
-        this._loadTexture();
+cc.js.set(prototype, '_textureSetter', function (texture) {
+    if (texture) {
+        if (CC_EDITOR && !(texture instanceof cc.Texture2D)) {
+            // just building
+            this._texture = texture;
+            return;
+        }
+        this._refreshTexture(texture);
+        this._textureFilename = texture.url;
     }
 });
 

@@ -1423,7 +1423,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     },
 
     _rebuildQuads: function () {
-        if (!this._spriteFrame || !this._spriteFrame._textureLoaded) {
+        if (!this._spriteFrame || !this._spriteFrame.textureLoaded()) {
             this._renderCmd._needDraw = false;
             return;
         }

@@ -65,15 +65,10 @@
     asyncTest('load main asset and sub asset by loadResDir', function () {
         cc.loader.loadResDir('grossini', function (err, results) {
             ok(Array.isArray(results), 'result should be an array');
-            ['123200', '1232218', '123201'].forEach(function (uuid) {
+            ['123200', '1232218', '123201', '0000000', '0000001'].forEach(function (uuid) {
                 ok(results.some(function (item) {
                     return item._uuid === uuid;
                 }), 'checking uuid ' + uuid);
-            });
-            ['resources/grossini/grossini.png', 'resources/grossini.png',].forEach(function (url) {
-                ok(results.some(function (item) {
-                    return item.url && item.url.endsWith(url);
-                }), 'checking url ' + url);
             });
             start();
         });

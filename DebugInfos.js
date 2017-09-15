@@ -1,5 +1,7 @@
 if (CC_DEBUG) {
     var logs = {
+        // Common
+        "0100": "%s not yet implemented.",
         //ActionManager: 1000
         "1000": "cc.ActionManager.addAction(): action must be non-null", //addAction
         "1001": "cocos2d: removeAction: Target not found", //removeAction

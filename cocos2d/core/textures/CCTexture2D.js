@@ -132,7 +132,22 @@ var Texture2D = cc.Class({
             get () {
                 return this._contentSize.height;
             }
-        }
+        },
+
+        _nativeAsset: {
+            get () {
+                return this._htmlElementObj;
+            },
+            set (image) {
+                this.initWithElement(image);
+                this.handleLoadedTexture();
+                if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
+                    // Image element no longer needed
+                    misc.imagePool.put(image);
+                }
+            },
+            override: true
+        },
     },
 
     /**
@@ -285,7 +300,7 @@ var Texture2D = cc.Class({
         }
     },
 
-    getName: function () {
+    getWebGLTexture: function () {
         return this._webTextureObj || null;
     },
 
@@ -430,7 +445,10 @@ var Texture2D = cc.Class({
             var uuid = loadingItem && loadingItem.uuid;
             if (uuid) {
                 this._uuid = uuid;
-                this.url = this.nativeUrl;
+                this.nativeUrl;
+                var url = this.nativeUrl;
+                this.url = url;
+                cc.textureCache.cacheImage(url, this);
             }
         }
     },
@@ -548,13 +566,6 @@ var _p = Texture2D.prototype;
 
 // Extended properties
 
-/**
- * WebGLTexture Object.
- * @property name
- * @type {WebGLTexture}
- * @readonly
- */
-JS.get(_p, "name", _p.getName);
 /**
  * Pixel format of the texture.
  * @property pixelFormat

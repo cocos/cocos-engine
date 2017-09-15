@@ -68,8 +68,9 @@ proto._handleTextureForRotatedTexture = function (texture) {
 
 proto.isFrameDisplayed = function (frame) {
     var node = this._node;
-    return (cc.rectEqualToRect(frame.getRect(), node._rect) && frame.getTexture().getName() === node._texture.getName()
-        && cc.pointEqualToPoint(frame.getOffset(), node._unflippedOffsetPositionFromCenter));
+    return (cc.rectEqualToRect(frame.getRect(), node._rect) &&
+            frame.getTexture().getWebGLTexture() === node._texture.getWebGLTexture() &&
+            cc.pointEqualToPoint(frame.getOffset(), node._unflippedOffsetPositionFromCenter));
 };
 
 proto._updateForSetSpriteFrame = function () {};
