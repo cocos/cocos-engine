@@ -129,6 +129,7 @@ const PixelFormat = cc.Enum({
      * @readonly
      * @type {Number}
      */
+    AI8: 7
 });
 
 /**
@@ -269,7 +270,8 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
     },
 
     /**
-     * Update texture options, only available in WebGL render mode
+     * Update texture options, not available in Canvas render mode. 
+     * image, format, premultiplyAlpha can not be updated in native.
      * @method update
      * @param {Object} options
      * @param {DOMImageElement} options.image
@@ -277,7 +279,6 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
      * @param {PixelFormat} options.format
      * @param {Filter} options.minFilter
      * @param {Filter} options.magFilter
-     * @param {Filter} options.mipFilter
      * @param {WrapMode} options.wrapS
      * @param {WrapMode} options.wrapT
      * @param {Boolean} options.premultiplyAlpha
