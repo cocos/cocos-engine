@@ -74,7 +74,7 @@ SE_BIND_CTOR(js_cocos2dx_ui_LayoutParameter_constructor, __jsb_cocos2d_ui_Layout
 
 static bool js_cocos2d_ui_LayoutParameter_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::LayoutParameter)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::LayoutParameter)", s.nativeThisObject());
     cocos2d::ui::LayoutParameter* cobj = (cocos2d::ui::LayoutParameter*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -176,7 +176,7 @@ extern se::Object* __jsb_cocos2d_ui_LayoutParameter_proto;
 
 static bool js_cocos2d_ui_LinearLayoutParameter_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::LinearLayoutParameter)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::LinearLayoutParameter)", s.nativeThisObject());
     cocos2d::ui::LinearLayoutParameter* cobj = (cocos2d::ui::LinearLayoutParameter*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -352,7 +352,7 @@ extern se::Object* __jsb_cocos2d_ui_LayoutParameter_proto;
 
 static bool js_cocos2d_ui_RelativeLayoutParameter_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RelativeLayoutParameter)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::RelativeLayoutParameter)", s.nativeThisObject());
     cocos2d::ui::RelativeLayoutParameter* cobj = (cocos2d::ui::RelativeLayoutParameter*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -1854,7 +1854,7 @@ extern se::Object* __jsb_cocos2d_ProtectedNode_proto;
 
 static bool js_cocos2d_ui_Widget_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::Widget)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::Widget)", s.nativeThisObject());
     cocos2d::ui::Widget* cobj = (cocos2d::ui::Widget*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -2641,7 +2641,7 @@ extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
 static bool js_cocos2d_ui_Layout_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::Layout)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::Layout)", s.nativeThisObject());
     cocos2d::ui::Layout* cobj = (cocos2d::ui::Layout*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -3595,7 +3595,7 @@ extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
 static bool js_cocos2d_ui_Button_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::Button)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::Button)", s.nativeThisObject());
     cocos2d::ui::Button* cobj = (cocos2d::ui::Button*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -4363,7 +4363,7 @@ extern se::Object* __jsb_cocos2d_ui_AbstractCheckButton_proto;
 
 static bool js_cocos2d_ui_CheckBox_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::CheckBox)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::CheckBox)", s.nativeThisObject());
     cocos2d::ui::CheckBox* cobj = (cocos2d::ui::CheckBox*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -4567,7 +4567,7 @@ extern se::Object* __jsb_cocos2d_ui_AbstractCheckButton_proto;
 
 static bool js_cocos2d_ui_RadioButton_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RadioButton)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::RadioButton)", s.nativeThisObject());
     cocos2d::ui::RadioButton* cobj = (cocos2d::ui::RadioButton*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -4903,7 +4903,7 @@ extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
 static bool js_cocos2d_ui_RadioButtonGroup_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RadioButtonGroup)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::RadioButtonGroup)", s.nativeThisObject());
     cocos2d::ui::RadioButtonGroup* cobj = (cocos2d::ui::RadioButtonGroup*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -5184,7 +5184,7 @@ extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
 static bool js_cocos2d_ui_ImageView_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::ImageView)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::ImageView)", s.nativeThisObject());
     cocos2d::ui::ImageView* cobj = (cocos2d::ui::ImageView*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -5903,7 +5903,7 @@ extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
 static bool js_cocos2d_ui_Text_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::Text)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::Text)", s.nativeThisObject());
     cocos2d::ui::Text* cobj = (cocos2d::ui::Text*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -6146,7 +6146,7 @@ extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
 static bool js_cocos2d_ui_TextAtlas_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::TextAtlas)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::TextAtlas)", s.nativeThisObject());
     cocos2d::ui::TextAtlas* cobj = (cocos2d::ui::TextAtlas*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -6476,7 +6476,7 @@ extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
 static bool js_cocos2d_ui_LoadingBar_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::LoadingBar)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::LoadingBar)", s.nativeThisObject());
     cocos2d::ui::LoadingBar* cobj = (cocos2d::ui::LoadingBar*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -7593,7 +7593,7 @@ extern se::Object* __jsb_cocos2d_ui_Layout_proto;
 
 static bool js_cocos2d_ui_ScrollView_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::ScrollView)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::ScrollView)", s.nativeThisObject());
     cocos2d::ui::ScrollView* cobj = (cocos2d::ui::ScrollView*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -8397,7 +8397,7 @@ extern se::Object* __jsb_cocos2d_ui_ScrollView_proto;
 
 static bool js_cocos2d_ui_ListView_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::ListView)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::ListView)", s.nativeThisObject());
     cocos2d::ui::ListView* cobj = (cocos2d::ui::ListView*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -9107,7 +9107,7 @@ extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
 static bool js_cocos2d_ui_Slider_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::Slider)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::Slider)", s.nativeThisObject());
     cocos2d::ui::Slider* cobj = (cocos2d::ui::Slider*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -9677,7 +9677,7 @@ extern se::Object* __jsb_cocos2d_TextFieldTTF_proto;
 
 static bool js_cocos2d_ui_UICCTextField_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::UICCTextField)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::UICCTextField)", s.nativeThisObject());
     cocos2d::ui::UICCTextField* cobj = (cocos2d::ui::UICCTextField*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -10662,7 +10662,7 @@ extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
 static bool js_cocos2d_ui_TextField_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::TextField)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::TextField)", s.nativeThisObject());
     cocos2d::ui::TextField* cobj = (cocos2d::ui::TextField*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -10902,7 +10902,7 @@ extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
 static bool js_cocos2d_ui_TextBMFont_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::TextBMFont)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::TextBMFont)", s.nativeThisObject());
     cocos2d::ui::TextBMFont* cobj = (cocos2d::ui::TextBMFont*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -11505,7 +11505,7 @@ extern se::Object* __jsb_cocos2d_ui_ListView_proto;
 
 static bool js_cocos2d_ui_PageView_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::PageView)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::PageView)", s.nativeThisObject());
     cocos2d::ui::PageView* cobj = (cocos2d::ui::PageView*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -11839,7 +11839,7 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ui_RichElement_ctor, __jsb_cocos2d_ui_RichEleme
 
 static bool js_cocos2d_ui_RichElement_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RichElement)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::RichElement)", s.nativeThisObject());
     cocos2d::ui::RichElement* cobj = (cocos2d::ui::RichElement*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -12383,7 +12383,7 @@ extern se::Object* __jsb_cocos2d_ui_RichElement_proto;
 
 static bool js_cocos2d_ui_RichElementText_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RichElementText)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::RichElementText)", s.nativeThisObject());
     cocos2d::ui::RichElementText* cobj = (cocos2d::ui::RichElementText*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -12587,7 +12587,7 @@ extern se::Object* __jsb_cocos2d_ui_RichElement_proto;
 
 static bool js_cocos2d_ui_RichElementImage_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RichElementImage)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::RichElementImage)", s.nativeThisObject());
     cocos2d::ui::RichElementImage* cobj = (cocos2d::ui::RichElementImage*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -12701,7 +12701,7 @@ extern se::Object* __jsb_cocos2d_ui_RichElement_proto;
 
 static bool js_cocos2d_ui_RichElementCustomNode_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RichElementCustomNode)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::RichElementCustomNode)", s.nativeThisObject());
     cocos2d::ui::RichElementCustomNode* cobj = (cocos2d::ui::RichElementCustomNode*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -12783,7 +12783,7 @@ extern se::Object* __jsb_cocos2d_ui_RichElement_proto;
 
 static bool js_cocos2d_ui_RichElementNewLine_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RichElementNewLine)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::RichElementNewLine)", s.nativeThisObject());
     cocos2d::ui::RichElementNewLine* cobj = (cocos2d::ui::RichElementNewLine*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -13864,7 +13864,7 @@ extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
 static bool js_cocos2d_ui_RichText_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RichText)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::RichText)", s.nativeThisObject());
     cocos2d::ui::RichText* cobj = (cocos2d::ui::RichText*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -14015,7 +14015,7 @@ extern se::Object* __jsb_cocos2d_ui_Layout_proto;
 
 static bool js_cocos2d_ui_HBox_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::HBox)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::HBox)", s.nativeThisObject());
     cocos2d::ui::HBox* cobj = (cocos2d::ui::HBox*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -14122,7 +14122,7 @@ extern se::Object* __jsb_cocos2d_ui_Layout_proto;
 
 static bool js_cocos2d_ui_VBox_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::VBox)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::VBox)", s.nativeThisObject());
     cocos2d::ui::VBox* cobj = (cocos2d::ui::VBox*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -14229,7 +14229,7 @@ extern se::Object* __jsb_cocos2d_ui_Layout_proto;
 
 static bool js_cocos2d_ui_RelativeBox_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::RelativeBox)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::RelativeBox)", s.nativeThisObject());
     cocos2d::ui::RelativeBox* cobj = (cocos2d::ui::RelativeBox*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -15288,7 +15288,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_cocos2d_ui_Scale9Sprite_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::Scale9Sprite)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::Scale9Sprite)", s.nativeThisObject());
     cocos2d::ui::Scale9Sprite* cobj = (cocos2d::ui::Scale9Sprite*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -15902,7 +15902,7 @@ extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
 static bool js_cocos2d_ui_EditBox_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::EditBox)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::EditBox)", s.nativeThisObject());
     cocos2d::ui::EditBox* cobj = (cocos2d::ui::EditBox*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -16918,7 +16918,7 @@ extern se::Object* __jsb_cocos2d_Component_proto;
 
 static bool js_cocos2d_ui_LayoutComponent_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::LayoutComponent)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::LayoutComponent)", s.nativeThisObject());
     cocos2d::ui::LayoutComponent* cobj = (cocos2d::ui::LayoutComponent*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -17298,7 +17298,7 @@ extern se::Object* __jsb_cocos2d_ui_AbstractCheckButton_proto;
 
 static bool js_cocos2d_ui_TabHeader_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::TabHeader)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::TabHeader)", s.nativeThisObject());
     cocos2d::ui::TabHeader* cobj = (cocos2d::ui::TabHeader*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -17768,7 +17768,7 @@ extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
 static bool js_cocos2d_ui_TabControl_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ui::TabControl)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::TabControl)", s.nativeThisObject());
     cocos2d::ui::TabControl* cobj = (cocos2d::ui::TabControl*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();

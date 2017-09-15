@@ -748,7 +748,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_spine_SkeletonRenderer_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (spine::SkeletonRenderer)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (spine::SkeletonRenderer)", s.nativeThisObject());
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -1681,7 +1681,7 @@ extern se::Object* __jsb_spine_SkeletonRenderer_proto;
 
 static bool js_spine_SkeletonAnimation_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (spine::SkeletonAnimation)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (spine::SkeletonAnimation)", s.nativeThisObject());
     spine::SkeletonAnimation* cobj = (spine::SkeletonAnimation*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();

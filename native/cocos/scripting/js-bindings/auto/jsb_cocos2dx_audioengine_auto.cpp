@@ -106,7 +106,7 @@ SE_BIND_CTOR(js_cocos2dx_audioengine_AudioProfile_constructor, __jsb_cocos2d_exp
 
 static bool js_cocos2d_experimental_AudioProfile_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::experimental::AudioProfile)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::experimental::AudioProfile)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {

@@ -133,7 +133,7 @@ SE_BIND_CTOR(js_cocos2dx_Acceleration_constructor, __jsb_cocos2d_Acceleration_cl
 
 static bool js_cocos2d_Acceleration_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Acceleration)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::Acceleration)", s.nativeThisObject());
     cocos2d::Acceleration* cobj = (cocos2d::Acceleration*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -838,7 +838,7 @@ SE_BIND_CTOR(js_cocos2dx_Texture2D_constructor, __jsb_cocos2d_Texture2D_class, j
 
 static bool js_cocos2d_Texture2D_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Texture2D)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::Texture2D)", s.nativeThisObject());
     cocos2d::Texture2D* cobj = (cocos2d::Texture2D*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -1138,7 +1138,7 @@ SE_BIND_CTOR(js_cocos2dx_Touch_constructor, __jsb_cocos2d_Touch_class, js_cocos2
 
 static bool js_cocos2d_Touch_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Touch)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::Touch)", s.nativeThisObject());
     cocos2d::Touch* cobj = (cocos2d::Touch*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -1266,7 +1266,7 @@ SE_BIND_CTOR(js_cocos2dx_Event_constructor, __jsb_cocos2d_Event_class, js_cocos2
 
 static bool js_cocos2d_Event_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Event)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::Event)", s.nativeThisObject());
     cocos2d::Event* cobj = (cocos2d::Event*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -1388,7 +1388,7 @@ extern se::Object* __jsb_cocos2d_Event_proto;
 
 static bool js_cocos2d_EventTouch_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EventTouch)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EventTouch)", s.nativeThisObject());
     cocos2d::EventTouch* cobj = (cocos2d::EventTouch*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -1747,7 +1747,7 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_Component_ctor, __jsb_cocos2d_Component_class, 
 
 static bool js_cocos2d_Component_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Component)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::Component)", s.nativeThisObject());
     cocos2d::Component* cobj = (cocos2d::Component*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -4507,7 +4507,7 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_Node_ctor, __jsb_cocos2d_Node_class, js_cocos2d
 
 static bool js_cocos2d_Node_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Node)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::Node)", s.nativeThisObject());
     cocos2d::Node* cobj = (cocos2d::Node*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -4780,7 +4780,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_cocos2d_Scene_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Scene)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::Scene)", s.nativeThisObject());
     cocos2d::Scene* cobj = (cocos2d::Scene*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -6874,7 +6874,7 @@ SE_BIND_CTOR(js_cocos2dx_Scheduler_constructor, __jsb_cocos2d_Scheduler_class, j
 
 static bool js_cocos2d_Scheduler_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Scheduler)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::Scheduler)", s.nativeThisObject());
     cocos2d::Scheduler* cobj = (cocos2d::Scheduler*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -8382,7 +8382,7 @@ extern se::Object* __jsb_cocos2d_Event_proto;
 
 static bool js_cocos2d_EventAcceleration_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EventAcceleration)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EventAcceleration)", s.nativeThisObject());
     cocos2d::EventAcceleration* cobj = (cocos2d::EventAcceleration*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -8449,7 +8449,7 @@ extern se::Object* __jsb_cocos2d_Event_proto;
 
 static bool js_cocos2d_EventCustom_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EventCustom)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EventCustom)", s.nativeThisObject());
     cocos2d::EventCustom* cobj = (cocos2d::EventCustom*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -8935,7 +8935,7 @@ SE_BIND_CTOR(js_cocos2dx_EventDispatcher_constructor, __jsb_cocos2d_EventDispatc
 
 static bool js_cocos2d_EventDispatcher_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EventDispatcher)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EventDispatcher)", s.nativeThisObject());
     cocos2d::EventDispatcher* cobj = (cocos2d::EventDispatcher*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -9000,7 +9000,7 @@ extern se::Object* __jsb_cocos2d_Event_proto;
 
 static bool js_cocos2d_EventFocus_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EventFocus)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EventFocus)", s.nativeThisObject());
     cocos2d::EventFocus* cobj = (cocos2d::EventFocus*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -9095,7 +9095,7 @@ extern se::Object* __jsb_cocos2d_EventListener_proto;
 
 static bool js_cocos2d_EventListenerAcceleration_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EventListenerAcceleration)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EventListenerAcceleration)", s.nativeThisObject());
     cocos2d::EventListenerAcceleration* cobj = (cocos2d::EventListenerAcceleration*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -9140,7 +9140,7 @@ extern se::Object* __jsb_cocos2d_EventListener_proto;
 
 static bool js_cocos2d_EventListenerCustom_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EventListenerCustom)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EventListenerCustom)", s.nativeThisObject());
     cocos2d::EventListenerCustom* cobj = (cocos2d::EventListenerCustom*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -9202,7 +9202,7 @@ extern se::Object* __jsb_cocos2d_EventListener_proto;
 
 static bool js_cocos2d_EventListenerFocus_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EventListenerFocus)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EventListenerFocus)", s.nativeThisObject());
     cocos2d::EventListenerFocus* cobj = (cocos2d::EventListenerFocus*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -9265,7 +9265,7 @@ extern se::Object* __jsb_cocos2d_EventListener_proto;
 
 static bool js_cocos2d_EventListenerKeyboard_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EventListenerKeyboard)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EventListenerKeyboard)", s.nativeThisObject());
     cocos2d::EventListenerKeyboard* cobj = (cocos2d::EventListenerKeyboard*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -9592,7 +9592,7 @@ extern se::Object* __jsb_cocos2d_Event_proto;
 
 static bool js_cocos2d_EventMouse_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EventMouse)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EventMouse)", s.nativeThisObject());
     cocos2d::EventMouse* cobj = (cocos2d::EventMouse*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -9669,7 +9669,7 @@ extern se::Object* __jsb_cocos2d_EventListener_proto;
 
 static bool js_cocos2d_EventListenerMouse_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EventListenerMouse)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EventListenerMouse)", s.nativeThisObject());
     cocos2d::EventListenerMouse* cobj = (cocos2d::EventListenerMouse*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -9769,7 +9769,7 @@ extern se::Object* __jsb_cocos2d_EventListener_proto;
 
 static bool js_cocos2d_EventListenerTouchOneByOne_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EventListenerTouchOneByOne)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EventListenerTouchOneByOne)", s.nativeThisObject());
     cocos2d::EventListenerTouchOneByOne* cobj = (cocos2d::EventListenerTouchOneByOne*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -9834,7 +9834,7 @@ extern se::Object* __jsb_cocos2d_EventListener_proto;
 
 static bool js_cocos2d_EventListenerTouchAllAtOnce_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EventListenerTouchAllAtOnce)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EventListenerTouchAllAtOnce)", s.nativeThisObject());
     cocos2d::EventListenerTouchAllAtOnce* cobj = (cocos2d::EventListenerTouchAllAtOnce*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -10325,7 +10325,7 @@ extern se::Object* __jsb_cocos2d_Action_proto;
 
 static bool js_cocos2d_Speed_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Speed)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::Speed)", s.nativeThisObject());
     cocos2d::Speed* cobj = (cocos2d::Speed*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -10658,7 +10658,7 @@ SE_BIND_CTOR(js_cocos2dx_Image_constructor, __jsb_cocos2d_Image_class, js_cocos2
 
 static bool js_cocos2d_Image_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Image)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::Image)", s.nativeThisObject());
     cocos2d::Image* cobj = (cocos2d::Image*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -11587,7 +11587,7 @@ SE_BIND_FUNC(js_cocos2dx_GLProgramState_getOrCreateWithShaders)
 
 static bool js_cocos2d_GLProgramState_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::GLProgramState)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::GLProgramState)", s.nativeThisObject());
     cocos2d::GLProgramState* cobj = (cocos2d::GLProgramState*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -12231,7 +12231,7 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_SpriteFrame_ctor, __jsb_cocos2d_SpriteFrame_cla
 
 static bool js_cocos2d_SpriteFrame_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::SpriteFrame)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::SpriteFrame)", s.nativeThisObject());
     cocos2d::SpriteFrame* cobj = (cocos2d::SpriteFrame*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -12455,7 +12455,7 @@ extern se::Object* __jsb_cocos2d_ActionInterval_proto;
 
 static bool js_cocos2d_Sequence_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Sequence)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::Sequence)", s.nativeThisObject());
     cocos2d::Sequence* cobj = (cocos2d::Sequence*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -12572,7 +12572,7 @@ extern se::Object* __jsb_cocos2d_ActionInterval_proto;
 
 static bool js_cocos2d_Repeat_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Repeat)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::Repeat)", s.nativeThisObject());
     cocos2d::Repeat* cobj = (cocos2d::Repeat*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -12688,7 +12688,7 @@ extern se::Object* __jsb_cocos2d_ActionInterval_proto;
 
 static bool js_cocos2d_RepeatForever_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::RepeatForever)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::RepeatForever)", s.nativeThisObject());
     cocos2d::RepeatForever* cobj = (cocos2d::RepeatForever*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -12790,7 +12790,7 @@ extern se::Object* __jsb_cocos2d_ActionInterval_proto;
 
 static bool js_cocos2d_Spawn_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Spawn)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::Spawn)", s.nativeThisObject());
     cocos2d::Spawn* cobj = (cocos2d::Spawn*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -12913,7 +12913,7 @@ extern se::Object* __jsb_cocos2d_ActionInterval_proto;
 
 static bool js_cocos2d_RotateTo_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::RotateTo)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::RotateTo)", s.nativeThisObject());
     cocos2d::RotateTo* cobj = (cocos2d::RotateTo*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -13056,7 +13056,7 @@ extern se::Object* __jsb_cocos2d_ActionInterval_proto;
 
 static bool js_cocos2d_RotateBy_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::RotateBy)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::RotateBy)", s.nativeThisObject());
     cocos2d::RotateBy* cobj = (cocos2d::RotateBy*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -13159,7 +13159,7 @@ extern se::Object* __jsb_cocos2d_ActionInterval_proto;
 
 static bool js_cocos2d_MoveBy_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::MoveBy)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::MoveBy)", s.nativeThisObject());
     cocos2d::MoveBy* cobj = (cocos2d::MoveBy*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -13262,7 +13262,7 @@ extern se::Object* __jsb_cocos2d_MoveBy_proto;
 
 static bool js_cocos2d_MoveTo_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::MoveTo)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::MoveTo)", s.nativeThisObject());
     cocos2d::MoveTo* cobj = (cocos2d::MoveTo*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -13369,7 +13369,7 @@ extern se::Object* __jsb_cocos2d_ActionInterval_proto;
 
 static bool js_cocos2d_SkewTo_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::SkewTo)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::SkewTo)", s.nativeThisObject());
     cocos2d::SkewTo* cobj = (cocos2d::SkewTo*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -13476,7 +13476,7 @@ extern se::Object* __jsb_cocos2d_SkewTo_proto;
 
 static bool js_cocos2d_SkewBy_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::SkewBy)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::SkewBy)", s.nativeThisObject());
     cocos2d::SkewBy* cobj = (cocos2d::SkewBy*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -13587,7 +13587,7 @@ extern se::Object* __jsb_cocos2d_ActionInterval_proto;
 
 static bool js_cocos2d_JumpBy_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::JumpBy)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::JumpBy)", s.nativeThisObject());
     cocos2d::JumpBy* cobj = (cocos2d::JumpBy*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -13698,7 +13698,7 @@ extern se::Object* __jsb_cocos2d_JumpBy_proto;
 
 static bool js_cocos2d_JumpTo_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::JumpTo)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::JumpTo)", s.nativeThisObject());
     cocos2d::JumpTo* cobj = (cocos2d::JumpTo*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -13755,7 +13755,7 @@ extern se::Object* __jsb_cocos2d_ActionInterval_proto;
 
 static bool js_cocos2d_BezierBy_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::BezierBy)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::BezierBy)", s.nativeThisObject());
     cocos2d::BezierBy* cobj = (cocos2d::BezierBy*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -13810,7 +13810,7 @@ extern se::Object* __jsb_cocos2d_BezierBy_proto;
 
 static bool js_cocos2d_BezierTo_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::BezierTo)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::BezierTo)", s.nativeThisObject());
     cocos2d::BezierTo* cobj = (cocos2d::BezierTo*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -13992,7 +13992,7 @@ extern se::Object* __jsb_cocos2d_ActionInterval_proto;
 
 static bool js_cocos2d_ScaleTo_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ScaleTo)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ScaleTo)", s.nativeThisObject());
     cocos2d::ScaleTo* cobj = (cocos2d::ScaleTo*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -14110,7 +14110,7 @@ extern se::Object* __jsb_cocos2d_ScaleTo_proto;
 
 static bool js_cocos2d_ScaleBy_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ScaleBy)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ScaleBy)", s.nativeThisObject());
     cocos2d::ScaleBy* cobj = (cocos2d::ScaleBy*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -14212,7 +14212,7 @@ extern se::Object* __jsb_cocos2d_ActionInterval_proto;
 
 static bool js_cocos2d_Blink_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Blink)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::Blink)", s.nativeThisObject());
     cocos2d::Blink* cobj = (cocos2d::Blink*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -14315,7 +14315,7 @@ extern se::Object* __jsb_cocos2d_ActionInterval_proto;
 
 static bool js_cocos2d_FadeTo_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::FadeTo)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::FadeTo)", s.nativeThisObject());
     cocos2d::FadeTo* cobj = (cocos2d::FadeTo*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -14412,7 +14412,7 @@ extern se::Object* __jsb_cocos2d_FadeTo_proto;
 
 static bool js_cocos2d_FadeIn_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::FadeIn)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::FadeIn)", s.nativeThisObject());
     cocos2d::FadeIn* cobj = (cocos2d::FadeIn*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -14509,7 +14509,7 @@ extern se::Object* __jsb_cocos2d_FadeTo_proto;
 
 static bool js_cocos2d_FadeOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::FadeOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::FadeOut)", s.nativeThisObject());
     cocos2d::FadeOut* cobj = (cocos2d::FadeOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -14637,7 +14637,7 @@ extern se::Object* __jsb_cocos2d_ActionInterval_proto;
 
 static bool js_cocos2d_TintTo_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::TintTo)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::TintTo)", s.nativeThisObject());
     cocos2d::TintTo* cobj = (cocos2d::TintTo*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -14748,7 +14748,7 @@ extern se::Object* __jsb_cocos2d_ActionInterval_proto;
 
 static bool js_cocos2d_TintBy_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::TintBy)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::TintBy)", s.nativeThisObject());
     cocos2d::TintBy* cobj = (cocos2d::TintBy*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -14826,7 +14826,7 @@ extern se::Object* __jsb_cocos2d_ActionInterval_proto;
 
 static bool js_cocos2d_DelayTime_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::DelayTime)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::DelayTime)", s.nativeThisObject());
     cocos2d::DelayTime* cobj = (cocos2d::DelayTime*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -14924,7 +14924,7 @@ extern se::Object* __jsb_cocos2d_ActionInterval_proto;
 
 static bool js_cocos2d_ReverseTime_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ReverseTime)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ReverseTime)", s.nativeThisObject());
     cocos2d::ReverseTime* cobj = (cocos2d::ReverseTime*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -15053,7 +15053,7 @@ extern se::Object* __jsb_cocos2d_ActionInterval_proto;
 
 static bool js_cocos2d_TargetedAction_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::TargetedAction)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::TargetedAction)", s.nativeThisObject());
     cocos2d::TargetedAction* cobj = (cocos2d::TargetedAction*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -15121,7 +15121,7 @@ extern se::Object* __jsb_cocos2d_ActionInterval_proto;
 
 static bool js_cocos2d_CardinalSplineTo_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::CardinalSplineTo)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::CardinalSplineTo)", s.nativeThisObject());
     cocos2d::CardinalSplineTo* cobj = (cocos2d::CardinalSplineTo*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -15166,7 +15166,7 @@ extern se::Object* __jsb_cocos2d_CardinalSplineTo_proto;
 
 static bool js_cocos2d_CardinalSplineBy_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::CardinalSplineBy)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::CardinalSplineBy)", s.nativeThisObject());
     cocos2d::CardinalSplineBy* cobj = (cocos2d::CardinalSplineBy*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -15199,7 +15199,7 @@ extern se::Object* __jsb_cocos2d_CardinalSplineTo_proto;
 
 static bool js_cocos2d_CatmullRomTo_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::CatmullRomTo)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::CatmullRomTo)", s.nativeThisObject());
     cocos2d::CatmullRomTo* cobj = (cocos2d::CatmullRomTo*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -15232,7 +15232,7 @@ extern se::Object* __jsb_cocos2d_CardinalSplineBy_proto;
 
 static bool js_cocos2d_CatmullRomBy_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::CatmullRomBy)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::CatmullRomBy)", s.nativeThisObject());
     cocos2d::CatmullRomBy* cobj = (cocos2d::CatmullRomBy*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -15478,7 +15478,7 @@ extern se::Object* __jsb_cocos2d_EaseRateAction_proto;
 
 static bool js_cocos2d_EaseIn_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseIn)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseIn)", s.nativeThisObject());
     cocos2d::EaseIn* cobj = (cocos2d::EaseIn*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -15557,7 +15557,7 @@ extern se::Object* __jsb_cocos2d_EaseRateAction_proto;
 
 static bool js_cocos2d_EaseOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseOut)", s.nativeThisObject());
     cocos2d::EaseOut* cobj = (cocos2d::EaseOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -15636,7 +15636,7 @@ extern se::Object* __jsb_cocos2d_EaseRateAction_proto;
 
 static bool js_cocos2d_EaseInOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseInOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseInOut)", s.nativeThisObject());
     cocos2d::EaseInOut* cobj = (cocos2d::EaseInOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -15713,7 +15713,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseExponentialIn_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseExponentialIn)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseExponentialIn)", s.nativeThisObject());
     cocos2d::EaseExponentialIn* cobj = (cocos2d::EaseExponentialIn*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -15790,7 +15790,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseExponentialOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseExponentialOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseExponentialOut)", s.nativeThisObject());
     cocos2d::EaseExponentialOut* cobj = (cocos2d::EaseExponentialOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -15867,7 +15867,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseExponentialInOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseExponentialInOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseExponentialInOut)", s.nativeThisObject());
     cocos2d::EaseExponentialInOut* cobj = (cocos2d::EaseExponentialInOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -15944,7 +15944,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseSineIn_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseSineIn)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseSineIn)", s.nativeThisObject());
     cocos2d::EaseSineIn* cobj = (cocos2d::EaseSineIn*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -16021,7 +16021,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseSineOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseSineOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseSineOut)", s.nativeThisObject());
     cocos2d::EaseSineOut* cobj = (cocos2d::EaseSineOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -16098,7 +16098,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseSineInOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseSineInOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseSineInOut)", s.nativeThisObject());
     cocos2d::EaseSineInOut* cobj = (cocos2d::EaseSineInOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -16282,7 +16282,7 @@ extern se::Object* __jsb_cocos2d_EaseElastic_proto;
 
 static bool js_cocos2d_EaseElasticIn_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseElasticIn)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseElasticIn)", s.nativeThisObject());
     cocos2d::EaseElasticIn* cobj = (cocos2d::EaseElasticIn*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -16373,7 +16373,7 @@ extern se::Object* __jsb_cocos2d_EaseElastic_proto;
 
 static bool js_cocos2d_EaseElasticOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseElasticOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseElasticOut)", s.nativeThisObject());
     cocos2d::EaseElasticOut* cobj = (cocos2d::EaseElasticOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -16464,7 +16464,7 @@ extern se::Object* __jsb_cocos2d_EaseElastic_proto;
 
 static bool js_cocos2d_EaseElasticInOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseElasticInOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseElasticInOut)", s.nativeThisObject());
     cocos2d::EaseElasticInOut* cobj = (cocos2d::EaseElasticInOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -16562,7 +16562,7 @@ extern se::Object* __jsb_cocos2d_EaseBounce_proto;
 
 static bool js_cocos2d_EaseBounceIn_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseBounceIn)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseBounceIn)", s.nativeThisObject());
     cocos2d::EaseBounceIn* cobj = (cocos2d::EaseBounceIn*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -16639,7 +16639,7 @@ extern se::Object* __jsb_cocos2d_EaseBounce_proto;
 
 static bool js_cocos2d_EaseBounceOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseBounceOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseBounceOut)", s.nativeThisObject());
     cocos2d::EaseBounceOut* cobj = (cocos2d::EaseBounceOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -16716,7 +16716,7 @@ extern se::Object* __jsb_cocos2d_EaseBounce_proto;
 
 static bool js_cocos2d_EaseBounceInOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseBounceInOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseBounceInOut)", s.nativeThisObject());
     cocos2d::EaseBounceInOut* cobj = (cocos2d::EaseBounceInOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -16793,7 +16793,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseBackIn_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseBackIn)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseBackIn)", s.nativeThisObject());
     cocos2d::EaseBackIn* cobj = (cocos2d::EaseBackIn*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -16870,7 +16870,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseBackOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseBackOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseBackOut)", s.nativeThisObject());
     cocos2d::EaseBackOut* cobj = (cocos2d::EaseBackOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -16947,7 +16947,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseBackInOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseBackInOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseBackInOut)", s.nativeThisObject());
     cocos2d::EaseBackInOut* cobj = (cocos2d::EaseBackInOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -17049,7 +17049,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseBezierAction_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseBezierAction)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseBezierAction)", s.nativeThisObject());
     cocos2d::EaseBezierAction* cobj = (cocos2d::EaseBezierAction*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -17127,7 +17127,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseQuadraticActionIn_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseQuadraticActionIn)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseQuadraticActionIn)", s.nativeThisObject());
     cocos2d::EaseQuadraticActionIn* cobj = (cocos2d::EaseQuadraticActionIn*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -17204,7 +17204,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseQuadraticActionOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseQuadraticActionOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseQuadraticActionOut)", s.nativeThisObject());
     cocos2d::EaseQuadraticActionOut* cobj = (cocos2d::EaseQuadraticActionOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -17281,7 +17281,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseQuadraticActionInOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseQuadraticActionInOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseQuadraticActionInOut)", s.nativeThisObject());
     cocos2d::EaseQuadraticActionInOut* cobj = (cocos2d::EaseQuadraticActionInOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -17358,7 +17358,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseQuarticActionIn_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseQuarticActionIn)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseQuarticActionIn)", s.nativeThisObject());
     cocos2d::EaseQuarticActionIn* cobj = (cocos2d::EaseQuarticActionIn*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -17435,7 +17435,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseQuarticActionOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseQuarticActionOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseQuarticActionOut)", s.nativeThisObject());
     cocos2d::EaseQuarticActionOut* cobj = (cocos2d::EaseQuarticActionOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -17512,7 +17512,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseQuarticActionInOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseQuarticActionInOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseQuarticActionInOut)", s.nativeThisObject());
     cocos2d::EaseQuarticActionInOut* cobj = (cocos2d::EaseQuarticActionInOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -17589,7 +17589,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseQuinticActionIn_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseQuinticActionIn)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseQuinticActionIn)", s.nativeThisObject());
     cocos2d::EaseQuinticActionIn* cobj = (cocos2d::EaseQuinticActionIn*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -17666,7 +17666,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseQuinticActionOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseQuinticActionOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseQuinticActionOut)", s.nativeThisObject());
     cocos2d::EaseQuinticActionOut* cobj = (cocos2d::EaseQuinticActionOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -17743,7 +17743,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseQuinticActionInOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseQuinticActionInOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseQuinticActionInOut)", s.nativeThisObject());
     cocos2d::EaseQuinticActionInOut* cobj = (cocos2d::EaseQuinticActionInOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -17820,7 +17820,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseCircleActionIn_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseCircleActionIn)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseCircleActionIn)", s.nativeThisObject());
     cocos2d::EaseCircleActionIn* cobj = (cocos2d::EaseCircleActionIn*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -17897,7 +17897,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseCircleActionOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseCircleActionOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseCircleActionOut)", s.nativeThisObject());
     cocos2d::EaseCircleActionOut* cobj = (cocos2d::EaseCircleActionOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -17974,7 +17974,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseCircleActionInOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseCircleActionInOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseCircleActionInOut)", s.nativeThisObject());
     cocos2d::EaseCircleActionInOut* cobj = (cocos2d::EaseCircleActionInOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -18051,7 +18051,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseCubicActionIn_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseCubicActionIn)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseCubicActionIn)", s.nativeThisObject());
     cocos2d::EaseCubicActionIn* cobj = (cocos2d::EaseCubicActionIn*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -18128,7 +18128,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseCubicActionOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseCubicActionOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseCubicActionOut)", s.nativeThisObject());
     cocos2d::EaseCubicActionOut* cobj = (cocos2d::EaseCubicActionOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -18205,7 +18205,7 @@ extern se::Object* __jsb_cocos2d_ActionEase_proto;
 
 static bool js_cocos2d_EaseCubicActionInOut_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::EaseCubicActionInOut)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::EaseCubicActionInOut)", s.nativeThisObject());
     cocos2d::EaseCubicActionInOut* cobj = (cocos2d::EaseCubicActionInOut*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -18300,7 +18300,7 @@ extern se::Object* __jsb_cocos2d_ActionInstant_proto;
 
 static bool js_cocos2d_Show_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Show)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::Show)", s.nativeThisObject());
     cocos2d::Show* cobj = (cocos2d::Show*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -18374,7 +18374,7 @@ extern se::Object* __jsb_cocos2d_ActionInstant_proto;
 
 static bool js_cocos2d_Hide_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Hide)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::Hide)", s.nativeThisObject());
     cocos2d::Hide* cobj = (cocos2d::Hide*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -18439,7 +18439,7 @@ extern se::Object* __jsb_cocos2d_ActionInstant_proto;
 
 static bool js_cocos2d_ToggleVisibility_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ToggleVisibility)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ToggleVisibility)", s.nativeThisObject());
     cocos2d::ToggleVisibility* cobj = (cocos2d::ToggleVisibility*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -18534,7 +18534,7 @@ extern se::Object* __jsb_cocos2d_ActionInstant_proto;
 
 static bool js_cocos2d_RemoveSelf_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::RemoveSelf)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::RemoveSelf)", s.nativeThisObject());
     cocos2d::RemoveSelf* cobj = (cocos2d::RemoveSelf*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -18631,7 +18631,7 @@ extern se::Object* __jsb_cocos2d_ActionInstant_proto;
 
 static bool js_cocos2d_FlipX_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::FlipX)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::FlipX)", s.nativeThisObject());
     cocos2d::FlipX* cobj = (cocos2d::FlipX*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -18730,7 +18730,7 @@ extern se::Object* __jsb_cocos2d_ActionInstant_proto;
 
 static bool js_cocos2d_FlipY_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::FlipY)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::FlipY)", s.nativeThisObject());
     cocos2d::FlipY* cobj = (cocos2d::FlipY*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -18829,7 +18829,7 @@ extern se::Object* __jsb_cocos2d_ActionInstant_proto;
 
 static bool js_cocos2d_Place_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Place)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::Place)", s.nativeThisObject());
     cocos2d::Place* cobj = (cocos2d::Place*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -18901,7 +18901,7 @@ extern se::Object* __jsb_cocos2d_ActionInstant_proto;
 
 static bool js_cocos2d_CallFunc_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::CallFunc)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::CallFunc)", s.nativeThisObject());
     cocos2d::CallFunc* cobj = (cocos2d::CallFunc*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -18957,7 +18957,7 @@ extern se::Object* __jsb_cocos2d_CallFunc_proto;
 
 static bool js_cocos2d_CallFuncN_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::CallFuncN)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::CallFuncN)", s.nativeThisObject());
     cocos2d::CallFuncN* cobj = (cocos2d::CallFuncN*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -19288,7 +19288,7 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_ActionManager_ctor, __jsb_cocos2d_ActionManager
 
 static bool js_cocos2d_ActionManager_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ActionManager)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ActionManager)", s.nativeThisObject());
     cocos2d::ActionManager* cobj = (cocos2d::ActionManager*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -19574,7 +19574,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_cocos2d_AtlasNode_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::AtlasNode)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::AtlasNode)", s.nativeThisObject());
     cocos2d::AtlasNode* cobj = (cocos2d::AtlasNode*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -19787,7 +19787,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_cocos2d_ClippingNode_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ClippingNode)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ClippingNode)", s.nativeThisObject());
     cocos2d::ClippingNode* cobj = (cocos2d::ClippingNode*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -20550,7 +20550,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_cocos2d_DrawNode_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::DrawNode)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::DrawNode)", s.nativeThisObject());
     cocos2d::DrawNode* cobj = (cocos2d::DrawNode*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -22370,7 +22370,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_cocos2d_Label_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Label)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::Label)", s.nativeThisObject());
     cocos2d::Label* cobj = (cocos2d::Label*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -22514,7 +22514,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_cocos2d_LabelTTF_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::LabelTTF)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::LabelTTF)", s.nativeThisObject());
     cocos2d::LabelTTF* cobj = (cocos2d::LabelTTF*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -22588,7 +22588,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_cocos2d_Layer_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Layer)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::Layer)", s.nativeThisObject());
     cocos2d::Layer* cobj = (cocos2d::Layer*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -22828,7 +22828,7 @@ extern se::Object* __jsb_cocos2d_Layer_proto;
 
 static bool js_cocos2d_LayerColor_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::LayerColor)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::LayerColor)", s.nativeThisObject());
     cocos2d::LayerColor* cobj = (cocos2d::LayerColor*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -23206,7 +23206,7 @@ extern se::Object* __jsb_cocos2d_LayerColor_proto;
 
 static bool js_cocos2d_LayerGradient_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::LayerGradient)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::LayerGradient)", s.nativeThisObject());
     cocos2d::LayerGradient* cobj = (cocos2d::LayerGradient*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -23353,7 +23353,7 @@ extern se::Object* __jsb_cocos2d_Layer_proto;
 
 static bool js_cocos2d_LayerMultiplex_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::LayerMultiplex)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::LayerMultiplex)", s.nativeThisObject());
     cocos2d::LayerMultiplex* cobj = (cocos2d::LayerMultiplex*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -23628,7 +23628,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_cocos2d_MenuItem_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::MenuItem)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::MenuItem)", s.nativeThisObject());
     cocos2d::MenuItem* cobj = (cocos2d::MenuItem*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -23855,7 +23855,7 @@ extern se::Object* __jsb_cocos2d_MenuItem_proto;
 
 static bool js_cocos2d_MenuItemLabel_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::MenuItemLabel)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::MenuItemLabel)", s.nativeThisObject());
     cocos2d::MenuItemLabel* cobj = (cocos2d::MenuItemLabel*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -23977,7 +23977,7 @@ extern se::Object* __jsb_cocos2d_MenuItemLabel_proto;
 
 static bool js_cocos2d_MenuItemAtlasFont_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::MenuItemAtlasFont)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::MenuItemAtlasFont)", s.nativeThisObject());
     cocos2d::MenuItemAtlasFont* cobj = (cocos2d::MenuItemAtlasFont*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -24225,7 +24225,7 @@ extern se::Object* __jsb_cocos2d_MenuItemLabel_proto;
 
 static bool js_cocos2d_MenuItemFont_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::MenuItemFont)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::MenuItemFont)", s.nativeThisObject());
     cocos2d::MenuItemFont* cobj = (cocos2d::MenuItemFont*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -24505,7 +24505,7 @@ extern se::Object* __jsb_cocos2d_MenuItem_proto;
 
 static bool js_cocos2d_MenuItemSprite_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::MenuItemSprite)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::MenuItemSprite)", s.nativeThisObject());
     cocos2d::MenuItemSprite* cobj = (cocos2d::MenuItemSprite*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -24701,7 +24701,7 @@ extern se::Object* __jsb_cocos2d_MenuItemSprite_proto;
 
 static bool js_cocos2d_MenuItemImage_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::MenuItemImage)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::MenuItemImage)", s.nativeThisObject());
     cocos2d::MenuItemImage* cobj = (cocos2d::MenuItemImage*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -24905,7 +24905,7 @@ extern se::Object* __jsb_cocos2d_MenuItem_proto;
 
 static bool js_cocos2d_MenuItemToggle_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::MenuItemToggle)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::MenuItemToggle)", s.nativeThisObject());
     cocos2d::MenuItemToggle* cobj = (cocos2d::MenuItemToggle*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -25131,7 +25131,7 @@ extern se::Object* __jsb_cocos2d_Layer_proto;
 
 static bool js_cocos2d_Menu_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Menu)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::Menu)", s.nativeThisObject());
     cocos2d::Menu* cobj = (cocos2d::Menu*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -25604,7 +25604,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_cocos2d_MotionStreak_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::MotionStreak)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::MotionStreak)", s.nativeThisObject());
     cocos2d::MotionStreak* cobj = (cocos2d::MotionStreak*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -25964,7 +25964,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_cocos2d_ParticleBatchNode_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ParticleBatchNode)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ParticleBatchNode)", s.nativeThisObject());
     cocos2d::ParticleBatchNode* cobj = (cocos2d::ParticleBatchNode*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -27990,7 +27990,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_cocos2d_ParticleSystem_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ParticleSystem)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ParticleSystem)", s.nativeThisObject());
     cocos2d::ParticleSystem* cobj = (cocos2d::ParticleSystem*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -28262,7 +28262,7 @@ extern se::Object* __jsb_cocos2d_ParticleSystem_proto;
 
 static bool js_cocos2d_ParticleSystemQuad_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ParticleSystemQuad)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ParticleSystemQuad)", s.nativeThisObject());
     cocos2d::ParticleSystemQuad* cobj = (cocos2d::ParticleSystemQuad*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -28350,7 +28350,7 @@ extern se::Object* __jsb_cocos2d_ParticleSystemQuad_proto;
 
 static bool js_cocos2d_ParticleFire_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ParticleFire)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ParticleFire)", s.nativeThisObject());
     cocos2d::ParticleFire* cobj = (cocos2d::ParticleFire*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -28474,7 +28474,7 @@ extern se::Object* __jsb_cocos2d_ParticleSystemQuad_proto;
 
 static bool js_cocos2d_ParticleFireworks_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ParticleFireworks)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ParticleFireworks)", s.nativeThisObject());
     cocos2d::ParticleFireworks* cobj = (cocos2d::ParticleFireworks*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -28600,7 +28600,7 @@ extern se::Object* __jsb_cocos2d_ParticleSystemQuad_proto;
 
 static bool js_cocos2d_ParticleSun_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ParticleSun)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ParticleSun)", s.nativeThisObject());
     cocos2d::ParticleSun* cobj = (cocos2d::ParticleSun*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -28726,7 +28726,7 @@ extern se::Object* __jsb_cocos2d_ParticleSystemQuad_proto;
 
 static bool js_cocos2d_ParticleGalaxy_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ParticleGalaxy)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ParticleGalaxy)", s.nativeThisObject());
     cocos2d::ParticleGalaxy* cobj = (cocos2d::ParticleGalaxy*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -28852,7 +28852,7 @@ extern se::Object* __jsb_cocos2d_ParticleSystemQuad_proto;
 
 static bool js_cocos2d_ParticleFlower_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ParticleFlower)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ParticleFlower)", s.nativeThisObject());
     cocos2d::ParticleFlower* cobj = (cocos2d::ParticleFlower*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -28978,7 +28978,7 @@ extern se::Object* __jsb_cocos2d_ParticleSystemQuad_proto;
 
 static bool js_cocos2d_ParticleMeteor_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ParticleMeteor)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ParticleMeteor)", s.nativeThisObject());
     cocos2d::ParticleMeteor* cobj = (cocos2d::ParticleMeteor*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -29104,7 +29104,7 @@ extern se::Object* __jsb_cocos2d_ParticleSystemQuad_proto;
 
 static bool js_cocos2d_ParticleSpiral_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ParticleSpiral)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ParticleSpiral)", s.nativeThisObject());
     cocos2d::ParticleSpiral* cobj = (cocos2d::ParticleSpiral*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -29230,7 +29230,7 @@ extern se::Object* __jsb_cocos2d_ParticleSystemQuad_proto;
 
 static bool js_cocos2d_ParticleExplosion_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ParticleExplosion)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ParticleExplosion)", s.nativeThisObject());
     cocos2d::ParticleExplosion* cobj = (cocos2d::ParticleExplosion*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -29356,7 +29356,7 @@ extern se::Object* __jsb_cocos2d_ParticleSystemQuad_proto;
 
 static bool js_cocos2d_ParticleSmoke_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ParticleSmoke)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ParticleSmoke)", s.nativeThisObject());
     cocos2d::ParticleSmoke* cobj = (cocos2d::ParticleSmoke*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -29482,7 +29482,7 @@ extern se::Object* __jsb_cocos2d_ParticleSystemQuad_proto;
 
 static bool js_cocos2d_ParticleSnow_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ParticleSnow)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ParticleSnow)", s.nativeThisObject());
     cocos2d::ParticleSnow* cobj = (cocos2d::ParticleSnow*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -29608,7 +29608,7 @@ extern se::Object* __jsb_cocos2d_ParticleSystemQuad_proto;
 
 static bool js_cocos2d_ParticleRain_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ParticleRain)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ParticleRain)", s.nativeThisObject());
     cocos2d::ParticleRain* cobj = (cocos2d::ParticleRain*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -29902,7 +29902,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_cocos2d_ProtectedNode_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ProtectedNode)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ProtectedNode)", s.nativeThisObject());
     cocos2d::ProtectedNode* cobj = (cocos2d::ProtectedNode*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -30707,7 +30707,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_cocos2d_Sprite_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::Sprite)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::Sprite)", s.nativeThisObject());
     cocos2d::Sprite* cobj = (cocos2d::Sprite*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -31370,7 +31370,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_cocos2d_RenderTexture_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::RenderTexture)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::RenderTexture)", s.nativeThisObject());
     cocos2d::RenderTexture* cobj = (cocos2d::RenderTexture*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -32044,7 +32044,7 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_GLProgram_ctor, __jsb_cocos2d_GLProgram_class, 
 
 static bool js_cocos2d_GLProgram_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::GLProgram)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::GLProgram)", s.nativeThisObject());
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -32231,7 +32231,7 @@ SE_BIND_CTOR(js_cocos2dx_GLProgramCache_constructor, __jsb_cocos2d_GLProgramCach
 
 static bool js_cocos2d_GLProgramCache_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::GLProgramCache)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::GLProgramCache)", s.nativeThisObject());
     cocos2d::GLProgramCache* cobj = (cocos2d::GLProgramCache*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -32625,7 +32625,7 @@ SE_BIND_CTOR(js_cocos2dx_TextureCache_constructor, __jsb_cocos2d_TextureCache_cl
 
 static bool js_cocos2d_TextureCache_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::TextureCache)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::TextureCache)", s.nativeThisObject());
     cocos2d::TextureCache* cobj = (cocos2d::TextureCache*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -33427,7 +33427,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_cocos2d_SpriteBatchNode_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::SpriteBatchNode)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::SpriteBatchNode)", s.nativeThisObject());
     cocos2d::SpriteBatchNode* cobj = (cocos2d::SpriteBatchNode*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -34259,7 +34259,7 @@ extern se::Object* __jsb_cocos2d_Label_proto;
 
 static bool js_cocos2d_TextFieldTTF_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::TextFieldTTF)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::TextFieldTTF)", s.nativeThisObject());
     cocos2d::TextFieldTTF* cobj = (cocos2d::TextFieldTTF*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -34394,7 +34394,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_cocos2d_ParallaxNode_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::ParallaxNode)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ParallaxNode)", s.nativeThisObject());
     cocos2d::ParallaxNode* cobj = (cocos2d::ParallaxNode*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -34692,7 +34692,7 @@ SE_BIND_CTOR(js_cocos2dx_TMXObject_constructor, __jsb_cocos2d_TMXObject_class, j
 
 static bool js_cocos2d_TMXObject_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::TMXObject)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::TMXObject)", s.nativeThisObject());
     cocos2d::TMXObject* cobj = (cocos2d::TMXObject*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -34756,7 +34756,7 @@ extern se::Object* __jsb_cocos2d_Sprite_proto;
 
 static bool js_cocos2d_TMXObjectImage_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::TMXObjectImage)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::TMXObjectImage)", s.nativeThisObject());
     cocos2d::TMXObjectImage* cobj = (cocos2d::TMXObjectImage*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -34809,7 +34809,7 @@ extern se::Object* __jsb_cocos2d_DrawNode_proto;
 
 static bool js_cocos2d_TMXObjectShape_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::TMXObjectShape)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::TMXObjectShape)", s.nativeThisObject());
     cocos2d::TMXObjectShape* cobj = (cocos2d::TMXObjectShape*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -35043,7 +35043,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_cocos2d_TMXObjectGroup_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::TMXObjectGroup)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::TMXObjectGroup)", s.nativeThisObject());
     cocos2d::TMXObjectGroup* cobj = (cocos2d::TMXObjectGroup*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -35132,7 +35132,7 @@ SE_BIND_CTOR(js_cocos2dx_TMXLayerInfo_constructor, __jsb_cocos2d_TMXLayerInfo_cl
 
 static bool js_cocos2d_TMXLayerInfo_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::TMXLayerInfo)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::TMXLayerInfo)", s.nativeThisObject());
     cocos2d::TMXLayerInfo* cobj = (cocos2d::TMXLayerInfo*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -35214,7 +35214,7 @@ SE_BIND_CTOR(js_cocos2dx_TMXObjectGroupInfo_constructor, __jsb_cocos2d_TMXObject
 
 static bool js_cocos2d_TMXObjectGroupInfo_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::TMXObjectGroupInfo)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::TMXObjectGroupInfo)", s.nativeThisObject());
     cocos2d::TMXObjectGroupInfo* cobj = (cocos2d::TMXObjectGroupInfo*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -35280,7 +35280,7 @@ SE_BIND_CTOR(js_cocos2dx_TMXTilesetInfo_constructor, __jsb_cocos2d_TMXTilesetInf
 
 static bool js_cocos2d_TMXTilesetInfo_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::TMXTilesetInfo)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::TMXTilesetInfo)", s.nativeThisObject());
     cocos2d::TMXTilesetInfo* cobj = (cocos2d::TMXTilesetInfo*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -36207,7 +36207,7 @@ SE_BIND_SUB_CLS_CTOR(js_cocos2dx_TMXMapInfo_ctor, __jsb_cocos2d_TMXMapInfo_class
 
 static bool js_cocos2d_TMXMapInfo_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::TMXMapInfo)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::TMXMapInfo)", s.nativeThisObject());
     cocos2d::TMXMapInfo* cobj = (cocos2d::TMXMapInfo*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -36793,7 +36793,7 @@ extern se::Object* __jsb_cocos2d_SpriteBatchNode_proto;
 
 static bool js_cocos2d_TMXLayer_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::TMXLayer)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::TMXLayer)", s.nativeThisObject());
     cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -37263,7 +37263,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_cocos2d_TMXTiledMap_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::TMXTiledMap)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::TMXTiledMap)", s.nativeThisObject());
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -37448,7 +37448,7 @@ extern se::Object* __jsb_cocos2d_AtlasNode_proto;
 
 static bool js_cocos2d_TileMapAtlas_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::TileMapAtlas)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::TileMapAtlas)", s.nativeThisObject());
     cocos2d::TileMapAtlas* cobj = (cocos2d::TileMapAtlas*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -37508,7 +37508,7 @@ extern se::Object* __jsb_cocos2d_Action_proto;
 
 static bool js_cocos2d_BaseJSAction_finalize(se::State& s)
 {
-    cocos2d::log("jsbindings: finalizing JS object %p (cocos2d::BaseJSAction)", s.nativeThisObject());
+    CCLOG("jsbindings: finalizing JS object %p (cocos2d::BaseJSAction)", s.nativeThisObject());
     cocos2d::BaseJSAction* cobj = (cocos2d::BaseJSAction*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
