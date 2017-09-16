@@ -776,7 +776,7 @@ proto.release = function (asset) {
                 }
             }
             else if (asset instanceof cc.Texture2D) {
-                cc.textureCache.removeTextureForKey(item.url);
+                asset.releaseTexture();
             }
             if (CC_DEBUG && removed) {
                 this._releasedAssetChecker_DEBUG.setReleased(item, id);

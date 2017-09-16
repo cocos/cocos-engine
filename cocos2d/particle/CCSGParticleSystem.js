@@ -1279,7 +1279,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
             // Try to get the texture from the cache
             var textureName = locValueForKey("textureFileName", dictionary);
             var imgPath = cc.path.changeBasename(this._plistFile, textureName);
-            var tex = cc.textureCache.getTextureForKey(imgPath);
+            var tex = cc.loader.getRes(imgPath);
 
             if (tex) {
                 this.setTexture(tex);
@@ -1287,7 +1287,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
                 var textureData = locValueForKey("textureImageData", dictionary);
 
                 if (!textureData || textureData.length === 0) {
-                    tex = cc.textureCache.addImage(imgPath);
+                    tex = cc.textureUtil.loadImage(imgPath);
                     if (!tex)
                         return false;
                     this.setTexture(tex);
@@ -1313,12 +1313,10 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
                         tiffReader.parseTIFF(buffer,canvasObj);
                     }
 
-                    cc.textureCache.cacheImage(imgPath, canvasObj);
-
-                    var addTexture = cc.textureCache.getTextureForKey(imgPath);
-                    if(!addTexture)
+                    var tex = cc.textureUtil.cacheImage(imgPath, canvasObj);
+                    if(!tex)
                         cc.logID(6012);
-                    this.setTexture(addTexture);
+                    this.setTexture(tex);
                 }
             }
             ret = true;

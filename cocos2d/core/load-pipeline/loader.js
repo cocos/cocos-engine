@@ -52,7 +52,8 @@ function loadImage (item, callback) {
         return new Error('Image Loader: Input item doesn\'t contain Image content');
     }
     var rawUrl = item.rawUrl;
-    var tex = cc.textureCache.getTextureForKey(rawUrl) || new Texture2D();
+    var tex = item.texture || new Texture2D();
+    tex._uuid = item.uuid;
     tex.url = rawUrl;
     tex.initWithElement(item.content);
     tex.handleLoadedTexture();
@@ -60,7 +61,6 @@ function loadImage (item, callback) {
         // Image element no longer needed
         misc.imagePool.put(item.content);
     }
-    cc.textureCache.cacheImage(rawUrl, tex);
     return tex;
 }
 

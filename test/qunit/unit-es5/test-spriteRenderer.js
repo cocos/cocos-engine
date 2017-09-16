@@ -12,7 +12,7 @@ test('basic test', function () {
     deepEqual(render._sgNode.color, Color.RED, 'color set success');
 
     var newSprite = new cc.SpriteFrame();
-    var texture = cc.textureCache.addImage(url);
+    var texture = cc.textureUtil.loadImage(url);
     newSprite.setTexture(texture);
     render.spriteFrame = newSprite;
 
@@ -21,7 +21,7 @@ test('basic test', function () {
 
 var generateSpriteFrame = function () {
     var url = assetDir + '/button.png';
-    var texture = cc.textureCache.addImage(url);
+    var texture = cc.textureUtil.loadImage(url);
     var spriteFrame = new cc.SpriteFrame();
     var rect = cc.rect(10, 10, 40, 60);
     var offset = cc.v2(-20, 10);

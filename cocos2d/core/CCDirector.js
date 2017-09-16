@@ -423,10 +423,9 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * Removes cached all cocos2d cached data. It will purge the cc.textureCache
+     * Removes cached all cocos2d cached data.
      */
     purgeCachedData: function () {
-        cc.textureCache._clear();
         cc.loader.releaseAll();
     },
 

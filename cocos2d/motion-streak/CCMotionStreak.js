@@ -165,7 +165,7 @@ var MotionStreak = cc.Class({
                 this._texture = value;
                 if (this._motionStreak) {
                     if (value && cc.js.isString(value))
-                        value = cc.textureCache.addImage(value);
+                        value = cc.textureUtil.loadImage(value);
 
                     this._motionStreak.setTexture(value);
                 }

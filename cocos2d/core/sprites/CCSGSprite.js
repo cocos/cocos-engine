@@ -66,7 +66,7 @@ var Misc = require('../utils/misc');
  *
  * 3.Create a sprite with an existing texture contained in a CCTexture2D object
  *      After creation, the rect will be the size of the texture, and the offset will be (0,0).
- * var texture = cc.textureCache.addImage("HelloHTML5World.png");
+ * var texture = cc.textureUtils.addImage("HelloHTML5World.png");
  * var sprite1 = new _ccsg.Sprite(texture);
  * var sprite2 = new _ccsg.Sprite(texture, cc.rect(0,0,480,320));
  *
@@ -468,16 +468,15 @@ _ccsg.Sprite = _ccsg.Node.extend({
      */
     initWithFile:function (filename, rect) {
         cc.assertID(filename, 2609);
+        if (!rect) {
+            rect = cc.rect(0, 0, tex.width, tex.height);
+        }
 
-        var tex = cc.textureCache.getTextureForKey(filename);
+        var tex = cc.loader.getRes(filename);
         if (!tex) {
-            tex = cc.textureCache.addImage(filename);
-            return this.initWithTexture(tex, rect || cc.rect(0, 0, tex._contentSize.width, tex._contentSize.height));
+            tex = cc.textureUtil.addImage(filename);
+            return this.initWithTexture(tex, rect);
         } else {
-            if (!rect) {
-                var size = tex.getContentSize();
-                rect = cc.rect(0, 0, size.width, size.height);
-            }
             return this.initWithTexture(tex, rect);
         }
     },
@@ -669,7 +668,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
         var isFileName = cc.js.isString(texture);
 
         if(isFileName)
-            texture = cc.textureCache.addImage(texture);
+            texture = cc.textureUtil.loadImage(texture);
 
         if(texture.loaded){
             this._setTexture(texture, isFileName);

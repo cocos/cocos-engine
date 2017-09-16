@@ -407,7 +407,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
     _loadTexture: function () {
         if (this._textureFilename) {
-            var texture = cc.textureCache.addImage(this._textureFilename);
+            var texture = cc.textureUtil.loadImage(this._textureFilename);
             this._refreshTexture(texture);
         }
     },

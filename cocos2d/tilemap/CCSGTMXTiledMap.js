@@ -43,7 +43,7 @@ require('./CCTMXXMLParser');
  * - The anchorPoint of the TMXTileMap is (0,0) <br />
  * - The TMX layers will be added as a child <br />
  * - The TMX layers will be aliased by default <br />
- * - The tileset image will be loaded using the cc.TextureCache <br />
+ * - The tileset image will be loaded using the cc.textureUtil <br />
  * - Each tile will have a unique tag<br />
  * - Each tile will have a unique z value. top-left: z=1, bottom-right: z=max z<br />
  * - Each object group will be treated as an cc.MutableArray <br />

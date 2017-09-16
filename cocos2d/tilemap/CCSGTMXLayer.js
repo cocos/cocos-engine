@@ -209,7 +209,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
             this._texGrids = [];
             for (i = 0; i < len; ++i) {
                 tileset = tilesets[i];
-                tex = cc.textureCache.addImage(tileset.sourceImage);
+                tex = cc.textureUtil.loadImage(tileset.sourceImage);
                 tex.setAliasTexParameters();
                 this._textures[i] = tex;
                 this._fillTextureGrids(tileset, i);

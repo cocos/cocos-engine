@@ -193,7 +193,7 @@ var properties = {
         },
         set: function (value) {
             this._texture = value;
-            this._sgNode.texture = value ? cc.textureCache.addImage( value ) : null;
+            this._sgNode.texture = value ? cc.textureUtil.loadImage(value) : null;
             if (!value && this._file) {
                 // fallback to plist
                 this._applyFile();
@@ -978,7 +978,7 @@ var ParticleSystem = cc.Class({
         sgNode.setBlendFunc(this._blendFunc);
 
         if (this._texture) {
-            sgNode.texture = cc.textureCache.addImage(this._texture);
+            sgNode.texture = cc.textureUtil.loadImage(this._texture);
         }
 
         // recover sgNode properties

@@ -24,4 +24,4 @@
  ****************************************************************************/
 
 require('./CCTexture2D');
-require('./CCTextureCache');
+require('./CCTextureUtil');

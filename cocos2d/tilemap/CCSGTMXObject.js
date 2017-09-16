@@ -147,7 +147,7 @@ _ccsg.TMXObjectImage = _ccsg.Sprite.extend(/** @lends cc.TMXObjectImage# */{
         this.setVisible(this._container.objectVisible);
 
         // init the image
-        var texture = cc.textureCache.addImage(cc.path._normalize(tileset.sourceImage));
+        var texture = cc.textureUtil.loadImage(cc.path._normalize(tileset.sourceImage));
         this._initWithTileset(texture, useTileset);
 
         // init the position & anchor point with map info

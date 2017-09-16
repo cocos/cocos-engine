@@ -874,8 +874,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             return true;
         };
 
-        // [premultiplied=false]
-        _p.handleLoadedTexture = function (premultiplied) {
+        _p.handleLoadedTexture = function () {
             if (!this._image || !this._image.width || !this._image.height) {
                 return;
             }
