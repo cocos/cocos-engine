@@ -23,6 +23,52 @@
  THE SOFTWARE.
  ****************************************************************************/
  
+const renderEngine = require('./render-engine');
 require('./RendererCanvas');
 require('./RendererWebGL');
 require('./DirtyRegion');
+
+function _initBuiltins(device) {
+    let canvas = document.createElement('canvas');
+    let context = canvas.getContext('2d');
+  
+    // default texture
+    canvas.width = canvas.height = 128;
+    context.fillStyle = '#ddd';
+    context.fillRect(0, 0, 128, 128);
+    context.fillStyle = '#555';
+    context.fillRect(0, 0, 64, 64);
+    context.fillStyle = '#555';
+    context.fillRect(64, 64, 64, 64);
+  
+    let defaultTexture = new renderEngine.Texture2D(device, {
+        images: [canvas],
+        width: 128,
+        height: 128,
+        wrapS: renderEngine.gfx.WRAP_REPEAT,
+        wrapT: renderEngine.gfx.WRAP_REPEAT,
+        format: renderEngine.gfx.TEXTURE_FMT_RGB8,
+        mipmap: true,
+    });
+  
+    return {
+        defaultTexture
+    };
+}
+
+module.exports = {
+    canvas: null,
+    device: null,
+
+    init (canvas, opts) {
+        this.canvas = canvas;
+        this.device = new renderEngine.Device(canvas, opts);
+
+        let builtins = _initBuiltins(this._device);
+        this._forward = new renderEngine.ForwardRenderer(this._device, {
+            defaultTexture: builtins.defaultTexture,
+            programTemplates: renderEngine.shaders.templates,
+            programChunks: renderEngine.shaders.chunks,
+        });
+    }
+};
