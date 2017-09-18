@@ -36,21 +36,7 @@ var textureCache = /** @lends cc.textureCache# */{
     _textureColorsCache: {},
     _textureKeySeq: (0 | Math.random() * 1000),
 
-    _loadedTexturesBefore: {},
-
     handleLoadedTexture: null,
-
-    _initializingRenderer: function () {
-        var selPath;
-        //init texture from _loadedTexturesBefore
-        var locLoadedTexturesBefore = this._loadedTexturesBefore, locTextures = this._textures;
-        for (selPath in locLoadedTexturesBefore) {
-            var tex2d = locLoadedTexturesBefore[selPath];
-            tex2d.handleLoadedTexture();
-            locTextures[selPath] = tex2d;
-        }
-        this._loadedTexturesBefore = {};
-    },
 
     /**
      * Description
@@ -111,7 +97,7 @@ var textureCache = /** @lends cc.textureCache# */{
      * @example {@link utils/api/engine/docs/cocos2d/core/textures/getTextureColors.js}
      */
     getTextureColors: function (texture) {
-        var image = texture._htmlElementObj;
+        var image = texture._image;
         var key = this.getKeyByTexture(image);
         if (!key) {
             if (image instanceof HTMLImageElement)
@@ -229,34 +215,6 @@ var textureCache = /** @lends cc.textureCache# */{
     },
 
     /**
-     * <p>Returns a Texture2D object given an UIImage image<br />
-     * If the image was not previously loaded, it will create a new Texture2D object and it will return it.<br />
-     * Otherwise it will return a reference of a previously loaded image<br />
-     * The "key" parameter will be used as the "key" for the cache.<br />
-     * If "key" is null, then a new texture will be created each time.</p>
-     * @method addUIImage
-     * @param {HTMLImageElement|HTMLCanvasElement} image
-     * @param {String} key
-     * @return {Texture2D}
-     */
-    addUIImage: function (image, key) {
-        cc.assertID(image, 3008);
-
-        if (key && this._textures[key]) {
-            return this._textures[key];
-        }
-
-        // prevents overloading the autorelease pool
-        var texture = new Texture2D();
-        texture.initWithImage(image);
-        if (key != null)
-            this._textures[key] = texture;
-        else
-            cc.logID(3004);
-        return texture;
-    },
-
-    /**
      * <p>Output to cc.log the current contents of this TextureCache <br />
      * This will attempt to calculate the size of each texture, and the total texture memory in use. </p>
      */
@@ -293,7 +251,6 @@ var textureCache = /** @lends cc.textureCache# */{
         this._textures = {};
         this._textureColorsCache = {};
         this._textureKeySeq = (0 | Math.random() * 1000);
-        this._loadedTexturesBefore = {};
     }
 };
 
@@ -354,10 +311,6 @@ game.once(game.EVENT_RENDERER_INITED, function () {
         
         _p.handleLoadedTexture = function (url) {
             var locTexs = this._textures, tex, premultiplied;
-            //remove judge(webgl)
-            if (!cc.game._rendererInitialized) {
-                locTexs = this._loadedTexturesBefore;
-            }
             tex = locTexs[url];
             if (!tex) {
                 cc.assertID(url, 3009);
@@ -372,10 +325,6 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             cc.assertID(url, 3112);
 
             var locTexs = this._textures;
-            //remove judge(webgl)
-            if (!cc.game._rendererInitialized) {
-                locTexs = this._loadedTexturesBefore;
-            }
             var tex = locTexs[url];
             if (tex) {
                 if(tex.isLoaded()) {
