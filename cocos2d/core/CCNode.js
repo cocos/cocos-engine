@@ -1296,8 +1296,9 @@ var Node = cc.Class({
             h = this.height;
         var rect = cc.rect(0, 0, w, h);
         
-        if (cc.Camera && cc.Camera.main) {
-            point = cc.Camera.main.getCameraToWorldPoint(point);
+        var Camera = cc.Camera;
+        if (Camera && Camera.main && Camera.main.containsNode(this)) {
+            point = Camera.main.getCameraToWorldPoint(point);
         }
         
         var trans = this.getNodeToWorldTransform();
