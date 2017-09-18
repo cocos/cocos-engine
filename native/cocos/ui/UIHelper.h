@@ -90,14 +90,6 @@ public:
                                    std::string::size_type length);
 
     /**
-     * Refresh object and it's children layout state
-     *
-     *@param rootNode   A Node* or Node* descendant instance pointer.
-     *
-     */
-    static void doLayout(Node *rootNode);
-
-    /**
      *  Change the active property of Layout's @see `LayoutComponent`
      *@param active A boolean value.
      */
