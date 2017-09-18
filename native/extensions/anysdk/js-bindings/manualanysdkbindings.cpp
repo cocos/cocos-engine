@@ -333,7 +333,7 @@ public:
         assert(_jsThis.isObject());
         assert(_jsFunc.isObject() && _jsFunc.toObject()->isFunction());
 
-        _jsThis.toObject()->attachChild(_jsFunc.toObject());
+        _jsThis.toObject()->attachObject(_jsFunc.toObject());
     }
 
     virtual ~ProtocolShareResultListener()
@@ -609,7 +609,7 @@ public:
         assert(_jsThis.isObject());
         assert(_jsFunc.isObject() && _jsFunc.toObject()->isFunction());
 
-        _jsThis.toObject()->attachChild(_jsFunc.toObject());
+        _jsThis.toObject()->attachObject(_jsFunc.toObject());
     }
     
     virtual ~ProtocolAdsResultListener()
@@ -760,7 +760,7 @@ public:
         assert(_jsThis.isObject());
         assert(_jsFunc.isObject() && _jsFunc.toObject()->isFunction());
 
-        _jsThis.toObject()->attachChild(_jsFunc.toObject());
+        _jsThis.toObject()->attachObject(_jsFunc.toObject());
     }
     virtual ~ProtocolIAPResultListener()
     {
@@ -957,7 +957,7 @@ public:
         assert(_jsThis.isObject());
         assert(_jsFunc.isObject() && _jsFunc.toObject()->isFunction());
 
-        _jsThis.toObject()->attachChild(_jsFunc.toObject());
+        _jsThis.toObject()->attachObject(_jsFunc.toObject());
     }
 
     virtual ~ProtocolPushActionListener()
@@ -1147,7 +1147,7 @@ public:
         assert(_jsThis.isObject());
         assert(_jsFunc.isObject() && _jsFunc.toObject()->isFunction());
 
-        _jsThis.toObject()->attachChild(_jsFunc.toObject());
+        _jsThis.toObject()->attachObject(_jsFunc.toObject());
     }
 
     virtual ~ProtocolUserActionListener()
@@ -1246,7 +1246,7 @@ public:
         assert(_jsThis.isObject());
         assert(_jsFunc.isObject() && _jsFunc.toObject()->isFunction());
 
-        _jsThis.toObject()->attachChild(_jsFunc.toObject());
+        _jsThis.toObject()->attachObject(_jsFunc.toObject());
     }
 
     virtual ~ProtocolSocialListener()
@@ -1361,7 +1361,7 @@ public:
         assert(_jsThis.isObject());
         assert(_jsFunc.isObject() && _jsFunc.toObject()->isFunction());
 
-        _jsThis.toObject()->attachChild(_jsFunc.toObject());
+        _jsThis.toObject()->attachObject(_jsFunc.toObject());
     }
 
     virtual ~ProtocolRECListener()
@@ -1449,7 +1449,7 @@ public:
         assert(_jsThis.isObject());
         assert(_jsFunc.isObject() && _jsFunc.toObject()->isFunction());
 
-        _jsThis.toObject()->attachChild(_jsFunc.toObject());
+        _jsThis.toObject()->attachObject(_jsFunc.toObject());
     }
 
     virtual ~ProtocolCustomListener()
