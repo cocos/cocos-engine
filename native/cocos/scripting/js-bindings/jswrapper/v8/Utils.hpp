@@ -2,7 +2,7 @@
 
 #include "../config.hpp"
 
-#ifdef SCRIPT_ENGINE_V8
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
 #include "Base.h"
 #include "../Value.hpp"
@@ -34,4 +34,4 @@ namespace se {
     } // namespace internal {
 } // namespace se {
 
-#endif // #ifdef SCRIPT_ENGINE_V8
+#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8

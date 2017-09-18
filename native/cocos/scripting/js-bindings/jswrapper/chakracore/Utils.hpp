@@ -2,7 +2,7 @@
 
 #include "../config.hpp"
 
-#ifdef SCRIPT_ENGINE_CHAKRACORE
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
 
 #include "Base.h"
 
@@ -36,4 +36,4 @@ namespace se {
     } // namespace internal {
 } // namespace se {
 
-#endif // #ifdef SCRIPT_ENGINE_CHAKRACORE
+#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE

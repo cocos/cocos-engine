@@ -2,7 +2,7 @@
 
 #include "../config.hpp"
 
-#ifdef SCRIPT_ENGINE_CHAKRACORE
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
 
 #include "Base.h"
 #include <chrono>
@@ -180,6 +180,6 @@ namespace se {
 
  } // namespace se {
 
-#endif // SCRIPT_ENGINE_CHAKRACORE
+#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
 
 

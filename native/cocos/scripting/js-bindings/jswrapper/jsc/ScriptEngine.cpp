@@ -1,6 +1,6 @@
 #include "ScriptEngine.hpp"
 
-#ifdef SCRIPT_ENGINE_JSC
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC
 
 #include "Object.hpp"
 #include "Class.hpp"
@@ -516,4 +516,4 @@ namespace se {
 
 } // namespace se {
 
-#endif // SCRIPT_ENGINE_JSC
+#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC

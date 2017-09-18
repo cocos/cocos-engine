@@ -2,7 +2,7 @@
 
 #include "../config.hpp"
 
-#ifdef SCRIPT_ENGINE_JSC
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC
 
 #ifdef __GNUC__
 #define SE_UNUSED __attribute__ ((unused))
@@ -169,4 +169,4 @@
 
 #endif // #if COCOS2D_DEBUG > 0
 
-#endif // #ifdef SCRIPT_ENGINE_JSC
+#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC

@@ -1,9 +1,18 @@
 #pragma once
 
-//#define SCRIPT_ENGINE_SM
-//#define SCRIPT_ENGINE_V8
-#define SCRIPT_ENGINE_JSC
-//#define SCRIPT_ENGINE_CHAKRACORE
+#define SCRIPT_ENGINE_NONE           0
+#define SCRIPT_ENGINE_SM             1
+#define SCRIPT_ENGINE_V8             2
+#define SCRIPT_ENGINE_JSC            3
+#define SCRIPT_ENGINE_CHAKRACORE     4
+
+#if defined(__APPLE__) // macOS and iOS use JavaScriptCore
+    #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_JSC
+#elif defined(ANDROID) || (defined(_WIN32) && defined(_WINDOWS)) // Windows and Android use V8
+    #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
+#else
+    #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_NONE
+#endif
 
 #define SE_ENABLE_INSPECTOR 0
 
