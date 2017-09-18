@@ -2,7 +2,7 @@
 
 #include "../config.hpp"
 
-#ifdef SCRIPT_ENGINE_SM
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
 
 #define SAFE_INC_REF(obj) if (obj != nullptr) obj->incRef()
 #define SAFE_DEC_REF(obj) if (obj != nullptr) obj->decRef()
@@ -149,4 +149,4 @@
 
 #endif // #if COCOS2D_DEBUG > 0
 
-#endif // #ifdef SCRIPT_ENGINE_SM
+#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM

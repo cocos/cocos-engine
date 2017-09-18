@@ -8,7 +8,7 @@
 
 #include "Utils.hpp"
 
-#ifdef SCRIPT_ENGINE_CHAKRACORE
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
 
 #include "Object.hpp"
 #include "ScriptEngine.hpp"
@@ -312,4 +312,4 @@ namespace se {
 
 }} // namespace se { namespace internal {
 
-#endif // #ifdef SCRIPT_ENGINE_CHAKRACORE
+#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE

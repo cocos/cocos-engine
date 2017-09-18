@@ -2,7 +2,7 @@
 
 #include "../config.hpp"
 
-#ifdef SCRIPT_ENGINE_V8
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
 #ifdef __GNUC__
 #define SE_UNUSED __attribute__ ((unused))
@@ -128,4 +128,4 @@
 #endif // #if COCOS2D_DEBUG > 0
 
 
-#endif // #ifdef SCRIPT_ENGINE_V8
+#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8

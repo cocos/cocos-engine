@@ -8,7 +8,7 @@
 
 #include "Utils.hpp"
 
-#ifdef SCRIPT_ENGINE_SM
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
 
 #include "Class.hpp"
 #include "Object.hpp"
@@ -254,4 +254,4 @@ namespace se {
 
 }} // namespace se { namespace internal {
 
-#endif // #ifdef SCRIPT_ENGINE_SM
+#endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM

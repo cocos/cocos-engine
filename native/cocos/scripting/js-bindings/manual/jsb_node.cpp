@@ -427,7 +427,7 @@ public:
     }
     ~UnscheduleNotifier()
     {
-        LOGD("~UnscheduleNotifier, targetId: %u, funcId: %u\n", _targetId, _funcId);
+//        LOGD("~UnscheduleNotifier, targetId: %u, funcId: %u\n", _targetId, _funcId);
 
         se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
@@ -1456,41 +1456,41 @@ static bool onReceiveNodeEvent(void* node, se::ScriptEngine::NodeEventType type)
     const char* funcName = nullptr;
     bool ret = false;
 
-#ifdef SCRIPT_ENGINE_SM
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
     JSNative func = nullptr;
 #endif
     if (type == se::ScriptEngine::NodeEventType::ENTER)
     {
         funcName = "onEnter";
-#ifdef SCRIPT_ENGINE_SM
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
         func = _SE(Node_onEnter);
 #endif
     }
     else if (type == se::ScriptEngine::NodeEventType::EXIT)
     {
         funcName = "onExit";
-#ifdef SCRIPT_ENGINE_SM
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
         func = _SE(Node_onExit);
 #endif
     }
     else if (type == se::ScriptEngine::NodeEventType::ENTER_TRANSITION_DID_FINISH)
     {
         funcName = "onEnterTransitionDidFinish";
-#ifdef SCRIPT_ENGINE_SM
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
         func = _SE(Node_onEnterTransitionDidFinish);
 #endif
     }
     else if (type == se::ScriptEngine::NodeEventType::EXIT_TRANSITION_DID_START)
     {
         funcName = "onExitTransitionDidStart";
-#ifdef SCRIPT_ENGINE_SM
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
         func = _SE(Node_onExitTransitionDidStart);
 #endif
     }
     else if (type == se::ScriptEngine::NodeEventType::CLEANUP)
     {
         funcName = "cleanup";
-#ifdef SCRIPT_ENGINE_SM
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
         func = _SE(Node_cleanup);
 #endif
     }
@@ -1501,7 +1501,7 @@ static bool onReceiveNodeEvent(void* node, se::ScriptEngine::NodeEventType type)
 
     se::Value funcVal;
     bool ok = target->getProperty(funcName, &funcVal);
-#ifdef SCRIPT_ENGINE_SM
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
     bool isNativeFunc = funcVal.toObject()->_isNativeFunction(func);
 #else
     bool isNativeFunc = funcVal.toObject()->_isNativeFunction();
