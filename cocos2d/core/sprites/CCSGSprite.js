@@ -497,7 +497,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
         _t._offsetPosition.x = 0;
         _t._offsetPosition.y = 0;
 
-        var locTextureLoaded = texture.isLoaded();
+        var locTextureLoaded = texture.loaded;
         _t._textureLoaded = locTextureLoaded;
 
         if (!locTextureLoaded) {
@@ -652,7 +652,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
         if(isFileName)
             texture = cc.textureCache.addImage(texture);
 
-        if(texture._textureLoaded){
+        if(texture.loaded){
             this._setTexture(texture, isFileName);
             this.setColor(this._realColor);
             this._textureLoaded = true;

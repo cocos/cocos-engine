@@ -148,7 +148,7 @@ proto.rendering = function (ctx, scaleX, scaleY) {
                 continue;
             }
             tex = node._textures[grid.texId];
-            if (!tex || !tex._htmlElementObj) {
+            if (!tex || !tex._image) {
                 continue;
             }
 
@@ -205,7 +205,7 @@ proto.rendering = function (ctx, scaleX, scaleY) {
                 context.scale(1, -1);
             }
 
-            context.drawImage(tex._htmlElementObj,
+            context.drawImage(tex._image,
                 grid.x, grid.y, grid.width, grid.height,
                 left, top, dw, dh);
             // Revert flip
