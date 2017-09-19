@@ -27,8 +27,8 @@
 #define __UIEDITTEXT_H__
 
 #include "base/CCIMEDelegate.h"
-#include "ui/GUIDefine.h"
-#include "ui/UIButton.h"
+#include "2d/CCLabel.h"
+#include "ui/UIWidget.h"
 #include "ui/UIScale9Sprite.h"
 
 NS_CC_BEGIN

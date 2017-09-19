@@ -26,7 +26,6 @@ THE SOFTWARE.
 #define __UIWIDGET_H__
 
 #include "2d/CCProtectedNode.h"
-#include "ui/UILayoutParameter.h"
 #include "ui/GUIDefine.h"
 #include "ui/GUIExport.h"
 #include "ui/UIWidget.h"
@@ -41,7 +40,6 @@ NS_CC_BEGIN
 class EventListenerTouchOneByOne;
 
 namespace ui {
-    class LayoutComponent;
 
 /**
  * Touch event type.
@@ -71,10 +69,10 @@ typedef void (Ref::*SEL_TouchEvent)(Ref*,TouchEventType);
 
 /**
  *@brief Base class for all ui widgets.
- * This class inherent from `ProtectedNode` and `LayoutParameterProtocol`.
+ * This class inherent from `ProtectedNode`.
  * If you want to implements your own ui widget, you should subclass it.
  */
-class CC_GUI_DLL Widget : public ProtectedNode, public LayoutParameterProtocol
+class CC_GUI_DLL Widget : public ProtectedNode
 {
 public:
     /**
@@ -391,14 +389,6 @@ public:
     using Node::getScaleZ;
 
     /**
-     * Checks a point if in parent's area.
-     *
-     * @param pt A point in `Vec2`.
-     * @return true if the point is in parent's area, false otherwise.
-     */
-    bool isClippingParentContainsPoint(const Vec2& pt);
-
-    /**
      * Gets the touch began point of widget when widget is selected.
      * @return the touch began point.
      */
@@ -502,22 +492,6 @@ public:
      *@param unusedEvent The touch event info.
      */
     virtual void onTouchCancelled(Touch *touch, Event *unusedEvent);
-
-    /**
-     * Sets a LayoutParameter to widget.
-     *
-     * @see LayoutParameter
-     * @param parameter LayoutParameter pointer
-     */
-    void setLayoutParameter(LayoutParameter* parameter);
-
-    /**
-     * Gets LayoutParameter of widget.
-     *
-     * @see LayoutParameter
-     * @return LayoutParameter
-     */
-    LayoutParameter* getLayoutParameter()const override;
 
 
     /**
@@ -661,15 +635,6 @@ public:
     void setFocusEnabled(bool enable);
 
     /**
-     *  When a widget is in a layout, you could call this method to get the next focused widget within a specified direction.
-     *  If the widget is not in a layout, it will return itself
-     *@param direction the direction to look for the next focused widget in a layout
-     *@param current  the current focused widget
-     *@return the next focused widget in a layout
-     */
-    virtual Widget* findNextFocusedWidget(FocusDirection direction, Widget* current);
-
-    /**
      * when a widget calls this method, it will get focus immediately.
      */
     void requestFocus();
@@ -679,12 +644,6 @@ public:
      * No matter what widget object you call this method on , it will return you the exact one focused widget.
      */
     static Widget* getCurrentFocusedWidget();
-
-    /*
-     *  Call this method with parameter true to enable the Android Dpad focus navigation feature
-     *@param enable  set true to enable dpad focus navigation, otherwise disenable dpad focus navigation
-     */
-    static void enableDpadNavigation(bool enable);
 
     /**
      * When a widget lose/get focus, this method will be called. Be Caution when you provide your own version,
@@ -734,19 +693,6 @@ public:
      *@return Callback type string.
      */
     const std::string& getCallbackType() const{ return _callbackType; }
-
-    /**
-     * Toggle layout component enable.
-     *@param enable Layout Component of a widget
-     *@return void
-     */
-    void setLayoutComponentEnabled(bool enable);
-
-    /**
-     * Query whether layout component is enabled or not.
-     *@return true represent the widget use Layout Component, false represent the widget couldn't use Layout Component.
-     */
-    bool isLayoutComponentEnabled()const;
 
 CC_CONSTRUCTOR_ACCESS:
 
@@ -833,10 +779,8 @@ protected:
     bool isAncestorsVisible(Node* node);
 
     void cleanupWidget();
-    LayoutComponent* getOrCreateLayoutComponent();
 
 protected:
-    bool _usingLayoutComponent;
     bool _unifySize;
     bool _enabled;
     bool _bright;
@@ -866,10 +810,6 @@ protected:
 
     bool _flippedX;
     bool _flippedY;
-
-    //use map to enable switch back and forth for user layout parameters
-    Map<int,LayoutParameter*> _layoutParameterDictionary;
-    LayoutParameter::Type _layoutParameterType;
 
     bool _focused;
     bool _focusEnabled;

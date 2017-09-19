@@ -27,25 +27,7 @@ THE SOFTWARE.
 
 
 #include "ui/UIWidget.h"
-#include "ui/UILayout.h"
-#include "ui/UIButton.h"
-#include "ui/UICheckBox.h"
-#include "ui/UIRadioButton.h"
-#include "ui/UIImageView.h"
-#include "ui/UIText.h"
-#include "ui/UITextAtlas.h"
-#include "ui/UILoadingBar.h"
-#include "ui/UIScrollView.h"
-#include "ui/UIListView.h"
-#include "ui/UISlider.h"
-#include "ui/UITextField.h"
-#include "ui/UITextBMFont.h"
-#include "ui/UIPageView.h"
 #include "ui/UIHelper.h"
-#include "ui/UIRichText.h"
-#include "ui/UIHBox.h"
-#include "ui/UIVBox.h"
-#include "ui/UIRelativeBox.h"
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
 #include "ui/UIVideoPlayer.h"
 #endif
@@ -56,8 +38,6 @@ THE SOFTWARE.
 #include "ui/GUIExport.h"
 #include "ui/UIScale9Sprite.h"
 #include "ui/UIEditBox/UIEditBox.h"
-#include "ui/UILayoutComponent.h"
-#include "ui/UITabControl.h"
 
 /**
  * @addtogroup ui
