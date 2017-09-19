@@ -115,6 +115,14 @@ public:
     */
     virtual void addImageAsync(const std::string &filepath, const std::function<void(Texture2D*)>& callback);
 
+    /** Init a given Texture2D object with a file image.
+    * It is much the same as addImageAsync, except an existing texture is provided.
+     @param texture An existing texture.
+     @param filepath A null terminated string.
+     @param callback A callback function would be invoked after the image is loaded.
+    */
+    virtual void initImageAsync(Texture2D* texture, const std::string& filepath, const std::function<void(Texture2D*)>& callback);
+
     /** Unbind a specified bound image asynchronous callback.
      * In the case an object who was bound to an image asynchronous callback was destroyed before the callback is invoked,
      * the object always need to unbind this callback manually.
@@ -214,13 +222,13 @@ public:
 
 
 private:
+    struct AsyncStruct;
+    void enqueueAsyncStruct(AsyncStruct* data);
     void addImageAsyncCallBack(float dt);
     void loadImage();
     void parseNinePatchImage(Image* image, Texture2D* texture, const std::string& path);
 public:
 protected:
-    struct AsyncStruct;
-
     std::thread* _loadingThread;
 
     std::deque<AsyncStruct*> _asyncStructQueue;

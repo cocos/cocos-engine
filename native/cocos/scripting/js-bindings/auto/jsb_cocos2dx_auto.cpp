@@ -32540,6 +32540,21 @@ static bool js_cocos2dx_TextureCache_getTextureFilePath(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_TextureCache_getTextureFilePath)
 
+static bool js_cocos2dx_TextureCache_waitForQuit(se::State& s)
+{
+    cocos2d::TextureCache* cobj = (cocos2d::TextureCache*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_TextureCache_waitForQuit : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->waitForQuit();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_TextureCache_waitForQuit)
+
 static bool js_cocos2dx_TextureCache_renameTextureWithKey(se::State& s)
 {
     cocos2d::TextureCache* cobj = (cocos2d::TextureCache*)s.nativeThisObject();
@@ -32595,20 +32610,57 @@ static bool js_cocos2dx_TextureCache_removeTexture(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_TextureCache_removeTexture)
 
-static bool js_cocos2dx_TextureCache_waitForQuit(se::State& s)
+static bool js_cocos2dx_TextureCache_initImageAsync(se::State& s)
 {
     cocos2d::TextureCache* cobj = (cocos2d::TextureCache*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_TextureCache_waitForQuit : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_TextureCache_initImageAsync : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    if (argc == 0) {
-        cobj->waitForQuit();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        cocos2d::Texture2D* arg0 = nullptr;
+        std::string arg1;
+        std::function<void (cocos2d::Texture2D *)> arg2;
+        ok &= seval_to_native_ptr(args[0], &arg0);
+        ok &= seval_to_std_string(args[1], &arg1);
+        do {
+            if (args[2].isObject() && args[2].toObject()->isFunction())
+            {
+                se::Value jsThis(s.thisObject());
+                se::Value jsFunc(args[2]);
+                jsFunc.toObject()->root();
+                auto lambda = [=](cocos2d::Texture2D* larg0) -> void {
+                    se::ScriptEngine::getInstance()->clearException();
+                    se::AutoHandleScope hs;
+        
+                    CC_UNUSED bool ok = true;
+                    se::ValueArray args;
+                    args.resize(1);
+                    ok &= native_ptr_to_seval<cocos2d::Texture2D>((cocos2d::Texture2D*)larg0, &args[0]);
+                    se::Value rval;
+                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
+                    se::Object* funcObj = jsFunc.toObject();
+                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    if (!succeed) {
+                        se::ScriptEngine::getInstance()->clearException();
+                    }
+                };
+                arg2 = lambda;
+            }
+            else
+            {
+                arg2 = nullptr;
+            }
+        } while(false)
+        ;
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_TextureCache_initImageAsync : Error processing arguments");
+        cobj->initImageAsync(arg0, arg1, arg2);
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
     return false;
 }
-SE_BIND_FUNC(js_cocos2dx_TextureCache_waitForQuit)
+SE_BIND_FUNC(js_cocos2dx_TextureCache_initImageAsync)
 
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_TextureCache_finalize)
 
@@ -32651,10 +32703,11 @@ bool js_register_cocos2dx_TextureCache(se::Object* obj)
     cls->defineFunction("unbindImageAsync", _SE(js_cocos2dx_TextureCache_unbindImageAsync));
     cls->defineFunction("getTextureForKey", _SE(js_cocos2dx_TextureCache_getTextureForKey));
     cls->defineFunction("getTextureFilePath", _SE(js_cocos2dx_TextureCache_getTextureFilePath));
+    cls->defineFunction("waitForQuit", _SE(js_cocos2dx_TextureCache_waitForQuit));
     cls->defineFunction("renameTextureWithKey", _SE(js_cocos2dx_TextureCache_renameTextureWithKey));
     cls->defineFunction("removeUnusedTextures", _SE(js_cocos2dx_TextureCache_removeUnusedTextures));
     cls->defineFunction("removeTexture", _SE(js_cocos2dx_TextureCache_removeTexture));
-    cls->defineFunction("waitForQuit", _SE(js_cocos2dx_TextureCache_waitForQuit));
+    cls->defineFunction("initImageAsync", _SE(js_cocos2dx_TextureCache_initImageAsync));
     cls->defineFinalizeFunction(_SE(js_cocos2d_TextureCache_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::TextureCache>(cls);

@@ -14378,6 +14378,14 @@ texture2d
 },
 
 /**
+ * @method waitForQuit
+ */
+waitForQuit : function (
+)
+{
+},
+
+/**
  * @method renameTextureWithKey
  * @param {String} arg0
  * @param {String} arg1
@@ -14408,9 +14416,15 @@ texture2d
 },
 
 /**
- * @method waitForQuit
+ * @method initImageAsync
+ * @param {cc.Texture2D} arg0
+ * @param {String} arg1
+ * @param {function} arg2
  */
-waitForQuit : function (
+initImageAsync : function (
+texture2d, 
+str, 
+func 
 )
 {
 },

@@ -2148,10 +2148,11 @@ SE_DECLARE_FUNC(js_cocos2dx_TextureCache_addImage);
 SE_DECLARE_FUNC(js_cocos2dx_TextureCache_unbindImageAsync);
 SE_DECLARE_FUNC(js_cocos2dx_TextureCache_getTextureForKey);
 SE_DECLARE_FUNC(js_cocos2dx_TextureCache_getTextureFilePath);
+SE_DECLARE_FUNC(js_cocos2dx_TextureCache_waitForQuit);
 SE_DECLARE_FUNC(js_cocos2dx_TextureCache_renameTextureWithKey);
 SE_DECLARE_FUNC(js_cocos2dx_TextureCache_removeUnusedTextures);
 SE_DECLARE_FUNC(js_cocos2dx_TextureCache_removeTexture);
-SE_DECLARE_FUNC(js_cocos2dx_TextureCache_waitForQuit);
+SE_DECLARE_FUNC(js_cocos2dx_TextureCache_initImageAsync);
 SE_DECLARE_FUNC(js_cocos2dx_TextureCache_TextureCache);
 
 extern se::Object* __jsb_cocos2d_Device_proto;
