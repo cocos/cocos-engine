@@ -121,7 +121,6 @@ namespace jsb
             }
             else
             {
-                obj.set(JS::UndefinedValue().toObjectOrNull());
                 return false;
             }
         }
