@@ -77,7 +77,7 @@ bool AppDelegate::applicationDidFinishLaunching()
     public:
         void update(float dt)
         {
-            se::ScriptEngine::getInstance()->update();
+            se::ScriptEngine::getInstance()->mainLoopUpdate();
         }
     };
     static SimpleRunLoop runLoop;

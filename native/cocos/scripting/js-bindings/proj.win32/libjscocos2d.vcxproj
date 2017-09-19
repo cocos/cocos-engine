@@ -37,6 +37,7 @@
     <ClCompile Include="..\auto\jsb_cocos2dx_spine_auto.cpp" />
     <ClCompile Include="..\auto\jsb_cocos2dx_ui_auto.cpp" />
     <ClCompile Include="..\auto\jsb_creator_auto.cpp" />
+    <ClCompile Include="..\jswrapper\config.cpp" />
     <ClCompile Include="..\jswrapper\HandleObject.cpp" />
     <ClCompile Include="..\jswrapper\MappingUtils.cpp" />
     <ClCompile Include="..\jswrapper\RefCounter.cpp" />

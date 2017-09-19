@@ -34,7 +34,7 @@ ccui.Widget.prototype.init = ccui.Widget.prototype._init;
 ccui.Widget.prototype._ctor
     // = ccui.RichText.prototype._ctor
     // = ccui.Slider.prototype._ctor
-    = ccui.Layout.prototype._ctor
+    // = ccui.Layout.prototype._ctor
     // = ccui.ListView.prototype._ctor
     // = ccui.PageView.prototype._ctor
     // = ccui.ScrollView.prototype._ctor

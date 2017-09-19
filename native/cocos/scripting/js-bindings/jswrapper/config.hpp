@@ -26,6 +26,22 @@
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
+#elif defined(_WIN32) && defined(_WINDOWS)
+
+#ifndef QUOTEME_
+#define QUOTEME_(x) #x
+#endif
+
+#ifndef QUOTEME
+#define QUOTEME(x) QUOTEME_(x)
+#endif
+
+void seLog(const char * format, ...);
+
+#define LOG_TAG    "jswrapper"
+#define LOGD(fmt, ...) seLog("D/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
+#define LOGE(fmt, ...) seLog("E/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
+
 #else
 
 #define LOGD printf
@@ -38,3 +54,14 @@
 #define __POSIX__
 
 #endif
+
+#if defined(_WIN32) && defined(_WINDOWS)
+#include <BaseTsd.h>
+
+#ifndef __SSIZE_T
+#define __SSIZE_T
+typedef SSIZE_T ssize_t;
+#endif // __SSIZE_T
+
+#endif
+
