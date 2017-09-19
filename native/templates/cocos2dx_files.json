@@ -4628,6 +4628,7 @@
         "cocos/scripting/js-bindings/jswrapper/chakracore/SeApi.h", 
         "cocos/scripting/js-bindings/jswrapper/chakracore/Utils.cpp", 
         "cocos/scripting/js-bindings/jswrapper/chakracore/Utils.hpp", 
+        "cocos/scripting/js-bindings/jswrapper/config.cpp", 
         "cocos/scripting/js-bindings/jswrapper/config.hpp", 
         "cocos/scripting/js-bindings/jswrapper/jsc/Base.h", 
         "cocos/scripting/js-bindings/jswrapper/jsc/Class.cpp", 
