@@ -574,14 +574,12 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClInclude Include="..\storage\local-storage\LocalStorage.h" />
     <ClInclude Include="..\ui\CocosGUI.h" />
     <ClInclude Include="..\ui\GUIExport.h" />
-    <ClInclude Include="..\ui\UIAbstractCheckButton.h" />
     <ClInclude Include="..\ui\UIEditBox\UIEditBox.h" />
     <ClInclude Include="..\ui\UIEditBox\UIEditBoxImpl-common.h" />
     <ClInclude Include="..\ui\UIEditBox\UIEditBoxImpl-win32.h" />
     <ClInclude Include="..\ui\UIEditBox\UIEditBoxImpl.h" />
     <ClInclude Include="..\ui\UIHelper.h" />
     <ClInclude Include="..\ui\UIScale9Sprite.h" />
-    <ClInclude Include="..\ui\UITabControl.h" />
     <ClInclude Include="..\ui\UIWebView-inl.h" />
     <ClInclude Include="..\ui\UIWebView.h" />
     <ClInclude Include="..\ui\UIWidget.h" />
