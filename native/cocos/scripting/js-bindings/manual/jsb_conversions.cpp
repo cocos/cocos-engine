@@ -1058,29 +1058,6 @@ bool seval_to_DownloaderHints(const se::Value& v, cocos2d::network::DownloaderHi
     return ok;
 }
 
-bool seval_to_ResourceData(const se::Value& v, cocos2d::ResourceData* ret)
-{
-    static cocos2d::ResourceData ZERO;
-    assert(ret != nullptr);
-    assert(v.isObject());
-    se::Value tmp;
-    se::Object* obj = v.toObject();
-    bool ok = false;
-
-    ok = obj->getProperty("type", &tmp);
-    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
-    ret->type = tmp.toInt32();
-
-    ok = obj->getProperty("name", &tmp);
-    SE_PRECONDITION3(ok && tmp.isString(), false, *ret = ZERO);
-    ret->file = tmp.toString();
-
-    ok = obj->getProperty("plist", &tmp);
-    SE_PRECONDITION3(ok && tmp.isString(), false, *ret = ZERO);
-    ret->plist = tmp.toString();
-
-    return ok;
-}
 
 bool seval_to_TTFConfig(const se::Value& v, cocos2d::TTFConfig* ret)
 {
@@ -1714,19 +1691,6 @@ bool DownloadTask_to_seval(const cocos2d::network::DownloadTask& v, se::Value* r
     obj->setProperty("identifier", se::Value(v.identifier));
     obj->setProperty("requestURL", se::Value(v.requestURL));
     obj->setProperty("storagePath", se::Value(v.storagePath));
-    ret->setObject(obj);
-
-    return true;
-}
-
-bool ResourceData_to_seval(const cocos2d::ResourceData& v, se::Value* ret)
-{
-    assert(ret != nullptr);
-
-    se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("type", se::Value(v.type));
-    obj->setProperty("file", se::Value(v.file));
-    obj->setProperty("plist", se::Value(v.plist));
     ret->setObject(obj);
 
     return true;

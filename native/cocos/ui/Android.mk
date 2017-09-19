@@ -21,7 +21,7 @@ UIEditBox/UIEditBoxImpl-common.cpp \
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/../editor-support
 
-LOCAL_C_INCLUDES := $(LqOCAL_PATH)/../editor-support
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/../editor-support
 
 LOCAL_STATIC_LIBRARIES := cocos_extension_static
 
