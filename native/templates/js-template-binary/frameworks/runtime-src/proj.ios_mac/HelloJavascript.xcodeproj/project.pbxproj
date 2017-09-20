@@ -67,6 +67,9 @@
 		AB2EB9D61D34F4D700695C92 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2EB9D51D34F4D700695C92 /* SystemConfiguration.framework */; };
 		AB2EB9D81D34F4ED00695C92 /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2EB9D71D34F4ED00695C92 /* GameController.framework */; };
 		ABE456E71D34F87F00F1F400 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2EB9D31D34F4C400695C92 /* MobileCoreServices.framework */; };
+		BA03E6CE1F725FBE00968C88 /* Default-667h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BA03E6CB1F725FBE00968C88 /* Default-667h@2x.png */; };
+		BA03E6CF1F725FBE00968C88 /* Default-736h@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = BA03E6CC1F725FBE00968C88 /* Default-736h@3x.png */; };
+		BA03E6D01F725FBE00968C88 /* Default-Landscape~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = BA03E6CD1F725FBE00968C88 /* Default-Landscape~ipad.png */; };
 		BA4E718719EB6E7900932425 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA4E718619EB6E7900932425 /* MediaPlayer.framework */; };
 		C03780EB18BEE0E400FE4F13 /* src in Resources */ = {isa = PBXBuildFile; fileRef = C03780EA18BEE0E400FE4F13 /* src */; };
 		C03780EC18BEE0E400FE4F13 /* src in Resources */ = {isa = PBXBuildFile; fileRef = C03780EA18BEE0E400FE4F13 /* src */; };
@@ -142,6 +145,9 @@
 		AB2EB9D31D34F4C400695C92 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/System/Library/Frameworks/MobileCoreServices.framework; sourceTree = DEVELOPER_DIR; };
 		AB2EB9D51D34F4D700695C92 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
 		AB2EB9D71D34F4ED00695C92 /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/System/Library/Frameworks/GameController.framework; sourceTree = DEVELOPER_DIR; };
+		BA03E6CB1F725FBE00968C88 /* Default-667h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-667h@2x.png"; path = "ios/Default-667h@2x.png"; sourceTree = "<group>"; };
+		BA03E6CC1F725FBE00968C88 /* Default-736h@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-736h@3x.png"; path = "ios/Default-736h@3x.png"; sourceTree = "<group>"; };
+		BA03E6CD1F725FBE00968C88 /* Default-Landscape~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-Landscape~ipad.png"; path = "ios/Default-Landscape~ipad.png"; sourceTree = "<group>"; };
 		BA4E718619EB6E7900932425 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.0.sdk/System/Library/Frameworks/MediaPlayer.framework; sourceTree = DEVELOPER_DIR; };
 		C03780EA18BEE0E400FE4F13 /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = src; path = ../../../src; sourceTree = "<group>"; };
 		C03C8B4818A770DD00723415 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
@@ -347,6 +353,9 @@
 				509D4AAB17EBB2AB00697056 /* AppController.h */,
 				509D4AAC17EBB2AB00697056 /* AppController.mm */,
 				509D4AAD17EBB2AB00697056 /* Default-568h@2x.png */,
+				BA03E6CB1F725FBE00968C88 /* Default-667h@2x.png */,
+				BA03E6CC1F725FBE00968C88 /* Default-736h@3x.png */,
+				BA03E6CD1F725FBE00968C88 /* Default-Landscape~ipad.png */,
 				509D4AAE17EBB2AB00697056 /* Default.png */,
 				509D4AAF17EBB2AB00697056 /* Default@2x.png */,
 				5091732E17ECDF8A00D62437 /* Icons */,
@@ -465,14 +474,17 @@
 				5091731A17ECDF7A00D62437 /* Icon-29.png in Resources */,
 				C03780EB18BEE0E400FE4F13 /* src in Resources */,
 				509D4AC617EBB2AB00697056 /* Icon-152.png in Resources */,
+				BA03E6CF1F725FBE00968C88 /* Default-736h@3x.png in Resources */,
 				C0799CB918BAE62000E9C828 /* res in Resources */,
 				509D4AC517EBB2AB00697056 /* Icon-144.png in Resources */,
+				BA03E6D01F725FBE00968C88 /* Default-Landscape~ipad.png in Resources */,
 				509D4AC317EBB2AB00697056 /* Icon-114.png in Resources */,
 				509D4ABD17EBB2AB00697056 /* Default-568h@2x.png in Resources */,
 				509D4ABF17EBB2AB00697056 /* Default@2x.png in Resources */,
 				509D4AC217EBB2AB00697056 /* Icon-76.png in Resources */,
 				5091731B17ECDF7A00D62437 /* Icon-40.png in Resources */,
 				5091731C17ECDF7A00D62437 /* Icon-50.png in Resources */,
+				BA03E6CE1F725FBE00968C88 /* Default-667h@2x.png in Resources */,
 				509D4AC417EBB2AB00697056 /* Icon-120.png in Resources */,
 				5091731D17ECDF7A00D62437 /* Icon-58.png in Resources */,
 				9BC548CABC4F606F82D43E76 /* script in Resources */,
