@@ -11,6 +11,8 @@
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "cocos/network/HttpClient.h"
 #include "cocos/base/CCData.h"
+#include "cocos/base/CCEventDispatcher.h"
+#include "cocos/base/CCEventListenerCustom.h"
 
 #include <unordered_map>
 #include <string>
@@ -21,12 +23,12 @@
 using namespace cocos2d;
 using namespace cocos2d::network;
 
-class XMLHttpRequest
+class XMLHttpRequest : public Ref
 {
 public:
 
     // Ready States: https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/readyState
-    enum class ReadyState
+    enum class ReadyState : char
     {
         UNSENT = 0, // Client has been created. open() not called yet.
         OPENED = 1, // open() has been called.
@@ -35,7 +37,7 @@ public:
         DONE = 4 // The operation is complete.
     };
 
-    enum class ResponseType
+    enum class ResponseType : char
     {
         STRING,
         ARRAY_BUFFER,
@@ -53,7 +55,7 @@ public:
     std::function<void()> ontimeout;
 
     XMLHttpRequest();
-    ~XMLHttpRequest();
+
 
     bool open(const std::string& method, const std::string& url);
     void send();
@@ -77,7 +79,11 @@ public:
 
     void abort();
 
+    bool isDiscardedByReset() const { return _isDiscardedByReset; }
+
 private:
+    virtual ~XMLHttpRequest();
+
     void setReadyState(ReadyState readyState);
     void getHeader(const std::string& header);
     void onResponse(cocos2d::network::HttpClient* client, cocos2d::network::HttpResponse* response);
@@ -86,27 +92,31 @@ private:
     void sendRequest();
     void setHttpRequestHeader();
 
+    std::unordered_map<std::string, std::string> _httpHeader;
+    std::unordered_map<std::string, std::string> _requestHeader;
+
     std::string _url;
     std::string _method;
-
-    ResponseType _responseType;
     std::string _responseText;
     std::string _responseXML;
+    std::string _statusText;
+
     cocos2d::Data _responseData;
 
-    ReadyState _readyState;
+    cocos2d::network::HttpRequest*  _httpRequest;
+    cocos2d::EventListenerCustom* _resetDirectorListener;
+
     uint16_t _status;
-    std::string _statusText;
+
+    ResponseType _responseType;
+    ReadyState _readyState;
 
     bool _withCredentialsValue;
     bool _errorFlag;
     bool _isAborted;
     bool _isLoadStart;
-
-    std::unordered_map<std::string, std::string> _httpHeader;
-    std::unordered_map<std::string, std::string> _requestHeader;
-    
-    cocos2d::network::HttpRequest*  _httpRequest;
+    bool _isLoadEnd;
+    bool _isDiscardedByReset;
 };
 
 XMLHttpRequest::XMLHttpRequest()
@@ -117,21 +127,30 @@ XMLHttpRequest::XMLHttpRequest()
 , onabort(nullptr)
 , onerror(nullptr)
 , ontimeout(nullptr)
+, _httpRequest(new (std::nothrow) HttpRequest())
+, _status(0)
 , _responseType(ResponseType:: STRING)
 , _readyState(ReadyState::UNSENT)
-, _status(0)
-, _statusText()
 , _withCredentialsValue(false)
 , _errorFlag(false)
 , _isAborted(false)
 , _isLoadStart(false)
-, _httpRequest(new (std::nothrow) HttpRequest())
+, _isLoadEnd(false)
+, _isDiscardedByReset(false)
 {
-
+    _resetDirectorListener = cocos2d::Director::getInstance()->getEventDispatcher()->addCustomEventListener(cocos2d::Director::EVENT_RESET, [this](cocos2d::EventCustom*){
+        _isDiscardedByReset = true;
+        if (!_isLoadEnd)
+        {
+            LOGD("XMLHttpRequest (%p) receives DIRECTOR::EVENT_RESET, retain self.\n", this);
+            retain();
+        }
+    });
 }
 
 XMLHttpRequest::~XMLHttpRequest()
 {
+    cocos2d::Director::getInstance()->getEventDispatcher()->removeEventListener(_resetDirectorListener);
     CC_SAFE_RELEASE(_httpRequest);
 }
 
@@ -208,6 +227,7 @@ void XMLHttpRequest::abort()
         onabort();
     }
 
+    _isLoadEnd = true;
     if (onloadend != nullptr)
     {
         onloadend();
@@ -302,7 +322,7 @@ void XMLHttpRequest::getHeader(const std::string& header)
 
 void XMLHttpRequest::onResponse(HttpClient* client, HttpResponse* response)
 {
-    if(_isAborted || _readyState == ReadyState::UNSENT)
+    if (_isAborted || _readyState == ReadyState::UNSENT)
     {
         return;
     }
@@ -323,7 +343,7 @@ void XMLHttpRequest::onResponse(HttpClient* client, HttpResponse* response)
     if (!response->isSucceed())
     {
         std::string errorBuffer = response->getErrorBuffer();
-        CCLOG("Response failed, error buffer: %s", errorBuffer.c_str());
+        LOGD("Response failed, error buffer: %s", errorBuffer.c_str());
         if (statusCode == 0 || statusCode == -1)
         {
             _errorFlag = true;
@@ -334,6 +354,7 @@ void XMLHttpRequest::onResponse(HttpClient* client, HttpResponse* response)
                 onerror();
             }
 
+            _isLoadEnd = true;
             if (onloadend != nullptr)
             {
                 onloadend();
@@ -375,6 +396,7 @@ void XMLHttpRequest::onResponse(HttpClient* client, HttpResponse* response)
         onload();
     }
 
+    _isLoadEnd = true;
     if (onloadend != nullptr)
     {
         onloadend();
@@ -488,9 +510,16 @@ se::Class* __jsb_XMLHttpRequest_class = nullptr;
 
 static bool XMLHttpRequest_finalize(se::State& s)
 {
-    printf("XMLHttpRequest_finalize ... \n");
     XMLHttpRequest* request = (XMLHttpRequest*)s.nativeThisObject();
-    delete request;
+    LOGD("XMLHttpRequest_finalize, %p ... \n", request);
+    if (request->getReferenceCount() == 1)
+    {
+        request->autorelease();
+    }
+    else
+    {
+        request->release();
+    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(XMLHttpRequest_finalize)
@@ -516,28 +545,55 @@ static bool XMLHttpRequest_constructor(se::State& s)
         }
     };
 
-    request->onloadstart = [cb, thiz](){
-        thiz.toObject()->root();
-        cb("onloadstart");
+    request->onloadstart = [=](){
+        if (!request->isDiscardedByReset())
+        {
+            thiz.toObject()->root();
+            cb("onloadstart");
+        }
     };
-    request->onload = [cb](){
-        cb("onload");
+    request->onload = [=](){
+        if (!request->isDiscardedByReset())
+        {
+            cb("onload");
+        }
     };
-    request->onloadend = [cb, thiz](){
-        cb("onloadend");
-        thiz.toObject()->unroot();
+    request->onloadend = [=](){
+        if (!request->isDiscardedByReset())
+        {
+//            LOGD("XMLHttpRequest (%p) onloadend ...\n", request);
+            cb("onloadend");
+            thiz.toObject()->unroot();
+        }
+        else
+        {
+            LOGD("XMLHttpRequest (%p) onloadend after restart ScriptEngine.\n", request);
+            request->release();
+        }
     };
-    request->onreadystatechange = [cb](){
-        cb("onreadystatechange");
+    request->onreadystatechange = [=](){
+        if (!request->isDiscardedByReset())
+        {
+            cb("onreadystatechange");
+        }
     };
-    request->onabort = [cb](){
-        cb("onabort");
+    request->onabort = [=](){
+        if (!request->isDiscardedByReset())
+        {
+            cb("onabort");
+        }
     };
-    request->onerror = [cb](){
-        cb("onerror");
+    request->onerror = [=](){
+        if (!request->isDiscardedByReset())
+        {
+            cb("onerror");
+        }
     };
-    request->ontimeout = [cb](){
-        cb("ontimeout");
+    request->ontimeout = [=](){
+        if (!request->isDiscardedByReset())
+        {
+            cb("ontimeout");
+        }
     };
     return true;
 }

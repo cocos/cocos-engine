@@ -12,11 +12,12 @@ namespace se {
     Object::Object()
     : _cls(nullptr)
     , _obj(JS_INVALID_REFERENCE)
-    , _rootCount(0)
     , _privateData(nullptr)
-    , _isCleanup(false)
     , _finalizeCb(nullptr)
+    , _rootCount(0)
+    , _isCleanup(false)
     {
+        _currentVMId = ScriptEngine::getInstance()->getVMId();
     }
 
     Object::~Object()
@@ -142,36 +143,43 @@ namespace se {
         if (_isCleanup)
             return;
 
-        if (_privateData != nullptr)
+        auto se = ScriptEngine::getInstance();
+        if (_currentVMId == se->getVMId())
         {
-            if (_obj != nullptr)
+            if (_privateData != nullptr)
             {
-                if (nativeObject == nullptr)
+                if (_obj != nullptr)
                 {
-                    nativeObject = internal::getPrivate(_obj);
-                }
-
-                if (nativeObject != nullptr)
-                {
-                    auto iter = NativePtrToObjectMap::find(nativeObject);
-                    if (iter != NativePtrToObjectMap::end())
+                    if (nativeObject == nullptr)
                     {
-                        NativePtrToObjectMap::erase(iter);
+                        nativeObject = internal::getPrivate(_obj);
+                    }
+
+                    if (nativeObject != nullptr)
+                    {
+                        auto iter = NativePtrToObjectMap::find(nativeObject);
+                        if (iter != NativePtrToObjectMap::end())
+                        {
+                            NativePtrToObjectMap::erase(iter);
+                        }
                     }
                 }
             }
-        }
 
-        if (_rootCount > 0)
-        {
-            // Don't unprotect if it's in cleanup, otherwise, it will trigger crash.
-            auto se = ScriptEngine::getInstance();
-            if (!se->isInCleanup() && !se->isGarbageCollecting())
+            if (_rootCount > 0)
             {
-                unsigned int count = 0;
-                _CHECK(JsRelease(_obj, &count));
+                // Don't unprotect if it's in cleanup, otherwise, it will trigger crash.
+                if (!se->isInCleanup() && !se->isGarbageCollecting())
+                {
+                    unsigned int count = 0;
+                    _CHECK(JsRelease(_obj, &count));
+                }
+                _rootCount = 0;
             }
-            _rootCount = 0;
+        }
+        else
+        {
+            LOGD("Object::_cleanup, ScriptEngine was initialized again, ignore cleanup work, oldVMId: %u, newVMId: %u\n", _currentVMId, se->getVMId());
         }
 
         _isCleanup = true;
@@ -576,10 +584,17 @@ namespace se {
             {
                 // Don't unprotect if it's in cleanup, otherwise, it will trigger crash.
                 auto se = ScriptEngine::getInstance();
-                if (!se->isInCleanup() && !se->isGarbageCollecting())
+                if (_currentVMId == se->getVMId())
                 {
-                    unsigned int count = 0;
-                    _CHECK(JsRelease(_obj, &count));
+                    if (!se->isInCleanup() && !se->isGarbageCollecting())
+                    {
+                        unsigned int count = 0;
+                        _CHECK(JsRelease(_obj, &count));
+                    }
+                }
+                else
+                {
+                    LOGD("Object::unroot, ScriptEngine was initialized again, ignore cleanup work, oldVMId: %u, newVMId: %u\n", _currentVMId, se->getVMId());
                 }
             }
         }

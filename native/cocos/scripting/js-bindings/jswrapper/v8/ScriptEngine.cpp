@@ -13,13 +13,6 @@
 #include "node.h"
 #endif
 
-//#include "cocos2d.h"
-
-//#undef LOGD
-
-//#define LOGD cocos2d::log
-
-
 #define RETRUN_VAL_IF_FAIL(cond, val) \
     if (!(cond)) return val
 
@@ -211,15 +204,16 @@ namespace se {
     , _handleScope(nullptr)
     , _allocator(nullptr)
     , _globalObj(nullptr)
-    , _isValid(false)
-    , _isGarbageCollecting(false)
-    , _isInCleanup(false)
-    , _isErrorHandleWorking(false)
     , _nodeEventListener(nullptr)
     , _exceptionCallback(nullptr)
 #if SE_ENABLE_INSPECTOR
     , _env(nullptr)
 #endif
+    , _vmId(0)
+    , _isValid(false)
+    , _isGarbageCollecting(false)
+    , _isInCleanup(false)
+    , _isErrorHandleWorking(false)
     {
         //        RETRUN_VAL_IF_FAIL(v8::V8::InitializeICUDefaultLocation(nullptr, "/Users/james/Project/v8/out.gn/x64.debug/icudtl.dat"), false);
         //        v8::V8::InitializeExternalStartupData("/Users/james/Project/v8/out.gn/x64.debug/natives_blob.bin", "/Users/james/Project/v8/out.gn/x64.debug/snapshot_blob.bin"); //TODO
@@ -242,6 +236,7 @@ namespace se {
     {
         cleanup();
         LOGD("Initializing V8\n");
+        ++_vmId;
 
         for (const auto& hook : _beforeInitHookArray)
         {

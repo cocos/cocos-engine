@@ -123,6 +123,8 @@ namespace se {
         void enableDebugger(unsigned int port = 5086);
         void mainLoopUpdate();
 
+        uint32_t getVMId() const { return _vmId; }
+
         void _retainScriptObject(void* owner, void* target);
         void _releaseScriptObject(void* owner, void* target);
 
@@ -152,30 +154,28 @@ namespace se {
         };
         ExceptionInfo formatException(JsValueRef exception);
 
+        std::chrono::steady_clock::time_point _startTime;
+        std::vector<RegisterCallback> _registerCallbackArray;
+        std::vector<std::function<void()>> _beforeInitHookArray;
+        std::vector<std::function<void()>> _afterInitHookArray;
+        std::vector<std::function<void()>> _beforeCleanupHookArray;
+        std::vector<std::function<void()>> _afterCleanupHookArray;
+
         JsRuntimeHandle _rt;
         JsContextRef _cx;
-
         Object* _globalObj;
+
+        NodeEventListener _nodeEventListener;
+        FileOperationDelegate _fileOperationDelegate;
+        ExceptionCallback _exceptionCallback;
+
+        uint32_t _currentSourceContext;
+        uint32_t _vmId;
 
         bool _isValid;
         bool _isInCleanup;
         bool _isGarbageCollecting;
         bool _isErrorHandleWorking;
-        unsigned _currentSourceContext;
-        NodeEventListener _nodeEventListener;
-
-        FileOperationDelegate _fileOperationDelegate;
-
-        std::vector<RegisterCallback> _registerCallbackArray;
-        std::chrono::steady_clock::time_point _startTime;
-
-        std::vector<std::function<void()>> _beforeInitHookArray;
-        std::vector<std::function<void()>> _afterInitHookArray;
-
-        std::vector<std::function<void()>> _beforeCleanupHookArray;
-        std::vector<std::function<void()>> _afterCleanupHookArray;
-
-        ExceptionCallback _exceptionCallback;
     };
 
  } // namespace se {

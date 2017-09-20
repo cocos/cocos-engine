@@ -83,11 +83,13 @@ namespace se {
     ScriptEngine::ScriptEngine()
             : _cx(nullptr)
             , _globalObj(nullptr)
+            , _nodeEventListener(nullptr)
+            , _exceptionCallback(nullptr)
+            , _vmId(0)
             , _isGarbageCollecting(false)
             , _isValid(false)
             , _isInCleanup(false)
             , _isErrorHandleWorking(false)
-            , _exceptionCallback(nullptr)
     {
     }
 
@@ -95,6 +97,7 @@ namespace se {
     {
         cleanup();
         LOGD("Initializing JavaScriptCore \n");
+        ++_vmId;
 
         for (const auto& hook : _beforeInitHookArray)
         {

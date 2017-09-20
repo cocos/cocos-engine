@@ -29,12 +29,13 @@ namespace se {
     }
 
     Object::Object()
-    : _rootCount(0)
-    , _root(nullptr)
+    : _root(nullptr)
     , _privateData(nullptr)
     , _cls(nullptr)
     , _finalizeCb(nullptr)
+    , _rootCount(0)
     {
+        _currentVMId = ScriptEngine::getInstance()->getVMId();
     }
 
     Object::~Object()
@@ -457,6 +458,7 @@ namespace se {
         if (_root == nullptr)
             return;
 
+        assert(_currentVMId == ScriptEngine::getInstance()->getVMId());
         assert(_heap == JS::GCPolicy<JSObject*>::initial());
         _heap = *_root;
         delete _root;

@@ -143,6 +143,8 @@ namespace se {
         void enableDebugger(unsigned int port = 5086);
         void mainLoopUpdate();
 
+        uint32_t getVMId() const { return _vmId; }
+
         void _retainScriptObject(void* owner, void* target);
         void _releaseScriptObject(void* owner, void* target);
 
@@ -166,40 +168,37 @@ namespace se {
         static void onOOMErrorCallback(const char* location, bool is_heap_oom);
         static void onMessageCallback(v8::Local<v8::Message> message, v8::Local<v8::Value> data);
 
-        v8::Platform* _platform;
-        v8::Isolate* _isolate;
-
-        v8::Persistent<v8::Context> _context;
-
-        v8::HandleScope* _handleScope;
-
-        v8::ArrayBuffer::Allocator* _allocator;
-        v8::Isolate::CreateParams _createParams;
-        Object* _globalObj;
-
-        bool _isValid;
-        bool _isGarbageCollecting;
-        bool _isInCleanup;
-        bool _isErrorHandleWorking;
-        NodeEventListener _nodeEventListener;
-
-        FileOperationDelegate _fileOperationDelegate;
-
-        std::vector<RegisterCallback> _registerCallbackArray;
         std::chrono::steady_clock::time_point _startTime;
-
+        std::vector<RegisterCallback> _registerCallbackArray;
         std::vector<std::function<void()>> _beforeInitHookArray;
         std::vector<std::function<void()>> _afterInitHookArray;
-
         std::vector<std::function<void()>> _beforeCleanupHookArray;
         std::vector<std::function<void()>> _afterCleanupHookArray;
 
+        v8::Persistent<v8::Context> _context;
+        v8::Isolate::CreateParams _createParams;
+
+        v8::Platform* _platform;
+        v8::Isolate* _isolate;
+        v8::HandleScope* _handleScope;
+        v8::ArrayBuffer::Allocator* _allocator;
+        Object* _globalObj;
+
+        NodeEventListener _nodeEventListener;
+        FileOperationDelegate _fileOperationDelegate;
         ExceptionCallback _exceptionCallback;
 
 #if SE_ENABLE_INSPECTOR
         node::Environment* _env;
         node::IsolateData* _isolateData;
 #endif
+
+        uint32_t _vmId;
+
+        bool _isValid;
+        bool _isGarbageCollecting;
+        bool _isInCleanup;
+        bool _isErrorHandleWorking;
     };
 
 } // namespace se {

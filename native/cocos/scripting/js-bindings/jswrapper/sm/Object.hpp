@@ -80,8 +80,6 @@ namespace se {
         void unprotect();
         void reset();
 
-        uint32_t _rootCount;
-
         JS::Heap<JSObject*> _heap;  /* should be untouched if in rooted mode */
         JS::PersistentRootedObject* _root;  /* should be null if not in rooted mode */
 
@@ -89,6 +87,9 @@ namespace se {
 
         Class* _cls;
         JSFinalizeOp _finalizeCb;
+
+        uint32_t _rootCount;
+        uint32_t _currentVMId;
 
         friend class ScriptEngine;
     };

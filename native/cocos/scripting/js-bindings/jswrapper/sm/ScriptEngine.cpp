@@ -248,12 +248,13 @@ namespace se {
             , _globalObj(nullptr)
             , _debugGlobalObj(nullptr)
             , _oldCompartment(nullptr)
+            , _nodeEventListener(nullptr)
+            , _exceptionCallback(nullptr)
+            , _vmId(0)
             , _isGarbageCollecting(false)
             , _isValid(false)
             , _isInCleanup(false)
             , _isErrorHandleWorking(false)
-            , _nodeEventListener(nullptr)
-            , _exceptionCallback(nullptr)
     {
         bool ok = JS_Init();
         assert(ok);
@@ -302,6 +303,7 @@ namespace se {
     {
         cleanup();
         LOGD("Initializing SpiderMonkey \n");
+        ++_vmId;
 
         for (const auto& hook : _beforeInitHookArray)
         {

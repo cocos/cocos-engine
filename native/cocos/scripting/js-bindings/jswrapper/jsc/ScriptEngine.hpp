@@ -218,6 +218,11 @@ namespace se {
          */
         void mainLoopUpdate();
 
+        /**
+         *  @brief Gets script virtual machine instance ID. Default value is 1, increase by 1 if `init` is invoked.
+         */
+        uint32_t getVMId() const { return _vmId; }
+
         // Private API used in wrapper
         void _retainScriptObject(void* owner, void* target);
         void _releaseScriptObject(void* owner, void* target);
@@ -265,28 +270,27 @@ namespace se {
         };
         ExceptionInfo _formatException(JSValueRef exception);
 
-        JSGlobalContextRef _cx;
-
-        Object* _globalObj;
-
-        bool _isGarbageCollecting;
-        bool _isValid;
-        bool _isInCleanup;
-        bool _isErrorHandleWorking;
-        NodeEventListener _nodeEventListener;
-
-        FileOperationDelegate _fileOperationDelegate;
-
-        std::vector<RegisterCallback> _registerCallbackArray;
         std::chrono::steady_clock::time_point _startTime;
-
+        std::vector<RegisterCallback> _registerCallbackArray;
         std::vector<std::function<void()>> _beforeInitHookArray;
         std::vector<std::function<void()>> _afterInitHookArray;
 
         std::vector<std::function<void()>> _beforeCleanupHookArray;
         std::vector<std::function<void()>> _afterCleanupHookArray;
 
+        JSGlobalContextRef _cx;
+
+        Object* _globalObj;
+        NodeEventListener _nodeEventListener;
+        FileOperationDelegate _fileOperationDelegate;
         ExceptionCallback _exceptionCallback;
+
+        uint32_t _vmId;
+
+        bool _isGarbageCollecting;
+        bool _isValid;
+        bool _isInCleanup;
+        bool _isErrorHandleWorking;
     };
 
  } // namespace se {

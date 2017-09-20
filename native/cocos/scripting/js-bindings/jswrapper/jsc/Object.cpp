@@ -27,6 +27,7 @@ namespace se {
 #endif
     , _isCleanup(false)
     {
+        _currentVMId = ScriptEngine::getInstance()->getVMId();
     }
 
     Object::~Object()
@@ -151,36 +152,43 @@ namespace se {
         if (_isCleanup)
             return;
 
-        if (_privateData != nullptr)
+        auto se = ScriptEngine::getInstance();
+        if (_currentVMId == se->getVMId())
         {
-            if (nativeObj == nullptr)
+            if (_privateData != nullptr)
             {
-                nativeObj = internal::getPrivate(_obj);
-            }
-
-            if (nativeObj != nullptr)
-            {
-                auto iter = NativePtrToObjectMap::find(nativeObj);
-                if (iter != NativePtrToObjectMap::end())
+                if (nativeObj == nullptr)
                 {
-                    NativePtrToObjectMap::erase(iter);
+                    nativeObj = internal::getPrivate(_obj);
+                }
+
+                if (nativeObj != nullptr)
+                {
+                    auto iter = NativePtrToObjectMap::find(nativeObj);
+                    if (iter != NativePtrToObjectMap::end())
+                    {
+                        NativePtrToObjectMap::erase(iter);
+                    }
+                }
+                else
+                {
+                    assert(false);
                 }
             }
-            else
+
+            if (_rootCount > 0)
             {
-                assert(false);
+    //            LOGD("Object::_cleanup, (%p) rootCount: %u\n", this, _rootCount);
+                // Don't unprotect if it's in cleanup, otherwise, it will trigger crash.
+                if (!se->isInCleanup() && !se->isGarbageCollecting())
+                    JSValueUnprotect(__cx, _obj);
+
+                _rootCount = 0;
             }
         }
-
-        if (_rootCount > 0)
+        else
         {
-//            printf("Object::_cleanup, (%p) rootCount: %u\n", this, _rootCount);
-            // Don't unprotect if it's in cleanup, otherwise, it will trigger crash.
-            auto se = ScriptEngine::getInstance();
-            if (!se->isInCleanup() && !se->isGarbageCollecting())
-                JSValueUnprotect(__cx, _obj);
-
-            _rootCount = 0;
+            LOGD("Object::_cleanup, ScriptEngine was initialized again, ignore cleanup work, oldVMId: %u, newVMId: %u\n", _currentVMId, se->getVMId());
         }
 
         _isCleanup = true;
@@ -561,8 +569,15 @@ namespace se {
             {
                 // Don't unprotect if it's in cleanup, otherwise, it will trigger crash.
                 auto se = ScriptEngine::getInstance();
-                if (!se->isInCleanup() && !se->isGarbageCollecting())
-                    JSValueUnprotect(__cx, _obj);
+                if (_currentVMId == se->getVMId())
+                {
+                    if (!se->isInCleanup() && !se->isGarbageCollecting())
+                        JSValueUnprotect(__cx, _obj);
+                }
+                else
+                {
+                    LOGD("Object::unroot, ScriptEngine was initialized again, ignore cleanup work, oldVMId: %u, newVMId: %u\n", _currentVMId, se->getVMId());
+                }
             }
         }
     }

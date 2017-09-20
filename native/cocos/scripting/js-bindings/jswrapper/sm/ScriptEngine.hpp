@@ -109,6 +109,8 @@ namespace se {
         void enableDebugger(unsigned int port = 5086);
         void mainLoopUpdate();
 
+        uint32_t getVMId() const { return _vmId; }
+
         void _retainScriptObject(void* owner, void* target);
         void _releaseScriptObject(void* owner, void* target);
 
@@ -139,11 +141,6 @@ namespace se {
 
         Object* _globalObj;
         Object* _debugGlobalObj;
-
-        bool _isGarbageCollecting;
-        bool _isValid;
-        bool _isInCleanup;
-        bool _isErrorHandleWorking;
         NodeEventListener _nodeEventListener;
 
         FileOperationDelegate _fileOperationDelegate;
@@ -160,6 +157,13 @@ namespace se {
         ExceptionCallback _exceptionCallback;
         // name ~> JSScript map
         std::unordered_map<std::string, JS::PersistentRootedScript*> _filenameScriptMap;
+
+        uint32_t _vmId;
+
+        bool _isGarbageCollecting;
+        bool _isValid;
+        bool _isInCleanup;
+        bool _isErrorHandleWorking;
     };
 
  } // namespace se {

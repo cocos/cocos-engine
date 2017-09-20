@@ -70,12 +70,14 @@ namespace se {
             : _rt(JS_INVALID_RUNTIME_HANDLE)
             , _cx(JS_INVALID_REFERENCE)
             , _globalObj(nullptr)
+            , _nodeEventListener(nullptr)
+            , _exceptionCallback(nullptr)
+            , _currentSourceContext(0)
+            , _vmId(0)
             , _isValid(false)
             , _isInCleanup(false)
             , _isErrorHandleWorking(false)
             , _isGarbageCollecting(false)
-            , _currentSourceContext(0)
-            , _exceptionCallback(nullptr)
     {
     }
 
@@ -84,6 +86,7 @@ namespace se {
         cleanup();
         LOGD("Initializing ChakraCore ... \n");
 
+        ++_vmId;
         for (const auto& hook : _beforeInitHookArray)
         {
             hook();

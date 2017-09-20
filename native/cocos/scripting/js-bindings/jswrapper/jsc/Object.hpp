@@ -314,6 +314,7 @@ namespace se {
         JSObjectFinalizeCallback _finalizeCb;
 
         uint32_t _rootCount;
+        uint32_t _currentVMId;
 #if SE_DEBUG > 0
     public:
         uint32_t _id;

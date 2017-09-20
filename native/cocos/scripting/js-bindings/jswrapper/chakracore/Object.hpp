@@ -75,10 +75,12 @@ namespace se {
 
         Class* _cls;
         JsValueRef _obj;
-        uint32_t _rootCount;
         void* _privateData;
-        bool _isCleanup;
         JsFinalizeCallback _finalizeCb;
+
+        uint32_t _rootCount;
+        uint32_t _currentVMId;
+        bool _isCleanup;
 
         friend class ScriptEngine;
     };
