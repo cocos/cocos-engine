@@ -185,12 +185,10 @@ if exist "$(ProjectDir)..\..\..\..\..\simulator\win32\config.json" copy "$(Proje
       </DllDataFileName>
     </Midl>
     <PreBuildEvent>
-      <Command>
-        <Command>if not exist "$(OutDir)" mkdir "$(OutDir)"
+      <Command>if not exist "$(OutDir)" mkdir "$(OutDir)"
 
 xcopy /Y /Q "$(ProjectDir)..\Classes\ide-support\lang" "$(OutDir)"
 </Command>
-      </Command>
       <Message>
       </Message>
     </PreBuildEvent>

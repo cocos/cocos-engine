@@ -24,21 +24,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-package org.cocos2dx.lua;
-
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.Enumeration;
-import java.util.ArrayList;
-
-import org.cocos2dx.lib.Cocos2dxActivity;
+package org.cocos2dx.javascript;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.ActivityInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -46,10 +37,11 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.text.format.Formatter;
-import android.util.Log;
 import android.view.WindowManager;
-import android.widget.Toast;
+
+import org.cocos2dx.lib.Cocos2dxActivity;
+
+import java.util.ArrayList;
 
 
 public class AppActivity extends Cocos2dxActivity{
@@ -123,7 +115,7 @@ public class AppActivity extends Cocos2dxActivity{
 	    } 
 	 
 	public String getHostIpAddress() {
-		WifiManager wifiMgr = (WifiManager) getSystemService(WIFI_SERVICE);
+		WifiManager wifiMgr = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
 		WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
 		int ip = wifiInfo.getIpAddress();
 		return ((ip & 0xFF) + "." + ((ip >>>= 8) & 0xFF) + "." + ((ip >>>= 8) & 0xFF) + "." + ((ip >>>= 8) & 0xFF));
