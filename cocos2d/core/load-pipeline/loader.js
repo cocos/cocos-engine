@@ -51,20 +51,14 @@ function loadImage (item, callback) {
     if (!(image instanceof Image)) {
         return new Error('Image Loader: Input item doesn\'t contain Image content');
     }
-    var loadNativeImageByTexture = item._owner instanceof cc.Texture2D;
-    if (loadNativeImageByTexture) {
-        // load Image
-        return image;
-    }
-    else {
-        // load cc.Texture2D
-        var rawUrl = item.rawUrl;
-        var tex = cc.textureCache.getTextureForKey(rawUrl) || new Texture2D();
-        tex.url = rawUrl;
-        tex._nativeAsset = image;
-        cc.textureCache.cacheImage(rawUrl, tex);
-        return tex;
-    }
+
+    // load cc.Texture2D
+    var rawUrl = item.rawUrl;
+    var tex = cc.textureCache.getTextureForKey(rawUrl) || new Texture2D();
+    tex.url = rawUrl;
+    tex._nativeAsset = image;
+    cc.textureCache.cacheImage(rawUrl, tex);
+    return tex;
 }
 
 function loadPlist (item, callback) {

@@ -581,26 +581,9 @@ var Texture2D = cc.Class({
 
 var _p = Texture2D.prototype;
 
-// Extended properties
-
-/**
- * Pixel format of the texture.
- * @property pixelFormat
- * @type {Number}
- * @readonly
- */
+// deprecated properties
 JS.get(_p, "pixelFormat", _p.getPixelFormat);
-/**
- * Width in pixels.
- * @property {Number} pixelWidth
- * @deprecated use width or height property instead
- */
 JS.get(_p, "pixelWidth", _p.getPixelWidth);
-/**
- * Height in pixels.
- * @property {Number} pixelHeight
- * @deprecated use width or height property instead
- */
 JS.get(_p, "pixelHeight", _p.getPixelHeight);
 
 game.once(game.EVENT_RENDERER_INITED, function () {

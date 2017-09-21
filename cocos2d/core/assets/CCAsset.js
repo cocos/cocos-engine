@@ -52,9 +52,9 @@ cc.Asset = cc.Class({
     properties: {
         /**
          * !#en
-         * Returns the url of this asset's first raw file, if none of rawFile exists,
-         * it will returns an empty string.
-         * !#zh 返回该资源的原始文件的 URL，如果不支持 RAW 文件，它将返回一个空字符串。
+         * Returns the url of this asset's native object, if none it will returns an empty string.
+         * !#zh
+         * 返回该资源对应的目标平台资源的 URL，如果没有将返回一个空字符串。
          * @property nativeUrl
          * @type {String}
          * @readOnly
@@ -84,17 +84,12 @@ cc.Asset = cc.Class({
         },
 
         /**
-         * 在 lite 版的 Fireball 里，raw asset 并不仅仅是在 properties 里声明了 rawType 才有，
-         * 而是每个 asset 都能指定自己的 raw file url。这些 url 就存在 _rawFiles 字段中。
-         * AssetLibrary 并不会帮你加载这些 url，除非你声明了 rawType。
-         * 在 Creator 里，_rawFiles 保留了下来，为了复用 cocos 引擎原有实现，直接用 _rawFiles 来加载 Asset 在 import 之前的源文件。
-         *
-         * @property _native
-         * @type {String}
-         * @default ""
+         * Serializable url for native asset.
+         * @property {String} _native
+         * @default undefined
          * @private
          */
-        _native: "",
+        _native: undefined,
 
         // __nativeAsset: {
         //     default: null,
@@ -194,7 +189,7 @@ cc.Asset = cc.Class({
      * @private
      */
     _setRawAsset: function (filename) {
-        this._native = filename || "";
+        this._native = filename || undefined;
     }
 });
 
