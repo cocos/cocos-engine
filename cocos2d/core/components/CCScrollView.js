@@ -100,11 +100,11 @@ var EventType = cc.Enum({
      */
     BOUNCE_RIGHT : 8,
     /**
-     * !#en The event emmitted when ScrollView scroll ended
-     * !#zh 滚动视图滚动滚动结束的时候发出的事件
-     * @property {Number} AUTOSCROLL_ENDED
+     * !#en The event emmitted when ScrollView auto scroll ended
+     * !#zh 滚动视图滚动结束的时候发出的事件
+     * @property {Number} SCROLL_ENDED
      */
-    AUTOSCROLL_ENDED : 9,
+    SCROLL_ENDED : 9,
     /**
      * !#en The event emmitted when user release the touch
      * !#zh 当用户松手的时候会发出一个事件
@@ -112,11 +112,17 @@ var EventType = cc.Enum({
      */
     TOUCH_UP : 10,
     /**
-     * !#en The event emmitted when ScrollView scroll ended with a threshold
-     * !#zh 滚动视图滚动快要结束的时候发出的事件
+     * !#en The event emmitted when ScrollView auto scroll ended with a threshold
+     * !#zh 滚动视图自动滚动快要结束的时候发出的事件
      * @property {Number} AUTOSCROLL_ENDED_WITH_THRESHOLD
      */
-    AUTOSCROLL_ENDED_WITH_THRESHOLD: 11
+    AUTOSCROLL_ENDED_WITH_THRESHOLD: 11,
+    /**
+     * !#en The event emmitted when ScrollView scroll began
+     * !#zh 滚动视图滚动开始时发出的事件
+     * @property {Number} SCROLL_BEGAN
+     */
+    SCROLL_BEGAN: 12
 });
 
 var eventMap = {
@@ -129,9 +135,10 @@ var eventMap = {
     'bounce-left' : EventType.BOUNCE_LEFT,
     'bounce-right' : EventType.BOUNCE_RIGHT,
     'bounce-top' : EventType.BOUNCE_TOP,
-    'scroll-ended' : EventType.AUTOSCROLL_ENDED,
+    'scroll-ended': EventType.SCROLL_ENDED,
     'touch-up' : EventType.TOUCH_UP,
-    'scroll-ended-with-threshold' : EventType.AUTOSCROLL_ENDED_WITH_THRESHOLD
+    'scroll-ended-with-threshold' : EventType.AUTOSCROLL_ENDED_WITH_THRESHOLD,
+    'scroll-began': EventType.SCROLL_BEGAN
 };
 
 /**
@@ -183,6 +190,7 @@ var ScrollView = cc.Class({
         //use bit wise operations to indicate the direction
         this._scrollEventEmitMask = 0;
         this._isBouncing = false;
+        this._scrolling = false;
     },
 
     properties: {
@@ -593,7 +601,6 @@ var ScrollView = cc.Class({
         horizontalMaximizeOffset = horizontalMaximizeOffset >= 0 ? horizontalMaximizeOffset : 0;
         verticalMaximizeOffset = verticalMaximizeOffset >=0 ? verticalMaximizeOffset : 0;
 
-
         return cc.p(horizontalMaximizeOffset, verticalMaximizeOffset);
     },
 
@@ -699,9 +706,7 @@ var ScrollView = cc.Class({
         }
 
         this.content.setPosition(position);
-
         this._outOfBoundaryAmountDirty = true;
-
     },
 
     /**
@@ -713,7 +718,27 @@ var ScrollView = cc.Class({
     getContentPosition: function () {
         return this.content.getPosition();
     },
+    
+    /**
+     * !#en Query whether the user is currently dragging the ScrollView to scroll it
+     * !#zh 用户是否在拖拽当前滚动视图
+     * @method isScrolling
+     * @returns {Boolean} - Whether the user is currently dragging the ScrollView to scroll it
+     */
+    isScrolling: function () {
+        return this._scrolling;
+    },
 
+    /**
+     * !#en Query whether the ScrollView is currently scrolling because of a bounceback or inertia slowdown.
+     * !#zh 当前滚动视图是否在惯性滚动
+     * @method isAutoScrolling
+     * @returns {Boolean} - Whether the ScrollView is currently scrolling because of a bounceback or inertia slowdown.
+     */
+    isAutoScrolling: function () {
+        return this._autoScrolling;
+    },
+    
     //private methods
     _registerEvent: function () {
         this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this, true);
@@ -972,6 +997,7 @@ var ScrollView = cc.Class({
             this._stopPropagationIfTargetIsMe(event);
         }
     },
+    
     _onTouchCancelled: function(event, captureListeners) {
         if (!this.enabledInHierarchy) return;
         if (this._hasNestedViewGroup(event, captureListeners)) return;
@@ -1045,6 +1071,10 @@ var ScrollView = cc.Class({
 
         if(realMove.x !== 0 || realMove.y !== 0)
         {
+            if (!this._scrolling) {
+                this._scrolling = true;
+                this._dispatchEvent('scroll-began');
+            }
             this._dispatchEvent('scrolling');
         }
 
@@ -1138,6 +1168,13 @@ var ScrollView = cc.Class({
         var delta = touch.getDelta();
         this._gatherTouchMove(delta);
         this._processInertiaScroll();
+
+        if (this._scrolling) {
+            this._scrolling = false;
+            if (!this._autoScrolling) {
+                this._dispatchEvent('scroll-ended');
+            }
+        }
     },
 
     _isOutOfBoundary: function() {
@@ -1624,6 +1661,16 @@ cc.ScrollView = module.exports = ScrollView;
  * !#zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event touch-up
+ * @param {Event.EventCustom} event
+ * @param {ScrollView} event.detail - The ScrollView component.
+ */
+
+ /**
+ * !#en
+ * Note: This event is emitted from the node to which the component belongs.
+ * !#zh
+ * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ * @event scroll-began
  * @param {Event.EventCustom} event
  * @param {ScrollView} event.detail - The ScrollView component.
  */

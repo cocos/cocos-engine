@@ -264,7 +264,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     _refreshTexture: function (texture) {
         var self = this;
         if (self._texture !== texture) {
-            var locLoaded = texture.isLoaded();
+            var locLoaded = texture.loaded;
             this._textureLoaded = locLoaded;
             this._texture = texture;
             function textureLoadedCallback () {

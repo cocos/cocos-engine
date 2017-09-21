@@ -48,7 +48,7 @@ proto.setDirtyRecursively = function (value) {};
 proto._setTexture = function (texture) {
     var node = this._node;
     if (node._texture !== texture) {
-        node._textureLoaded = texture ? texture._textureLoaded : false;
+        node._textureLoaded = texture ? texture.loaded : false;
         node._texture = texture;
         var texSize = texture._contentSize;
         var rect = cc.rect(0, 0, texSize.width, texSize.height);
@@ -102,7 +102,7 @@ proto.rendering = function (ctx, scaleX, scaleY) {
 
     var texture = this._textureToRender || node._texture;
 
-    if ((texture && (locTextureCoord.width === 0 || locTextureCoord.height === 0|| !texture._textureLoaded)) || alpha === 0)
+    if ((texture && (locTextureCoord.width === 0 || locTextureCoord.height === 0|| !texture.loaded)) || alpha === 0)
         return;
 
     var wrapper = ctx || cc._renderContext, context = wrapper.getContext();
@@ -140,8 +140,8 @@ proto.rendering = function (ctx, scaleX, scaleY) {
     w = locWidth;
     h = locHeight;
 
-    if (texture&& texture._htmlElementObj) {
-        image = texture._htmlElementObj;
+    if (texture&& texture._image) {
+        image = texture._image;
         if (texture._pattern !== "") {
             wrapper.setFillStyle(context.createPattern(image, texture._pattern));
             context.fillRect(x, y, w, h);
@@ -184,7 +184,7 @@ proto._updateForSetSpriteFrame = function (pNewTexture, textureLoaded){
     this._colorized = false;
     this._textureCoord.renderX = this._textureCoord.x;
     this._textureCoord.renderY = this._textureCoord.y;
-    textureLoaded = textureLoaded || pNewTexture._textureLoaded;
+    textureLoaded = textureLoaded || pNewTexture.loaded;
     if (textureLoaded) {
         var curColor = this._node.getColor();
         if (curColor.r !== 255 || curColor.g !== 255 || curColor.b !== 255)

@@ -135,7 +135,7 @@ proto.updateClearColor = function(clearColor){ };
 
 proto.initWithWidthAndHeight = function(width, height, format, depthStencilFormat){
     var node = this._node;
-    if(format === cc.Texture2D.PIXEL_FORMAT_A8)
+    if(format === cc.Texture2D.PixelFormat.A8)
         cc.log( "cc.RenderTexture._initWithWidthAndHeightForWebGL() : only RGB and RGBA formats are valid for a render texture;");
 
     var gl = cc._renderContext;
@@ -188,7 +188,7 @@ proto.initWithWidthAndHeight = function(width, height, format, depthStencilForma
     gl.bindFramebuffer(gl.FRAMEBUFFER, this._fBO);
 
     // associate texture with FBO
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, locTexture._webTextureObj, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, locTexture._glID, 0);
 
     if (depthStencilFormat !== 0) {
         //create and attach depth buffer
@@ -237,12 +237,10 @@ proto.begin = function(){
     var director = cc.director;
     director.setProjection(director.getProjection());
 
-    var texSize = node._texture.getContentSizeInPixels();
-
     // Calculate the adjustment ratios based on the old and new projections
     var size = cc.director.getWinSizeInPixels();
-    var widthRatio = size.width / texSize.width;
-    var heightRatio = size.height / texSize.height;
+    var widthRatio = size.width / node._texture.width;
+    var heightRatio = size.height / node._texture.height;
 
     var orthoMatrix = cc.math.Matrix4.createOrthographicProjection(-1.0 / widthRatio, 1.0 / widthRatio,
         -1.0 / heightRatio, 1.0 / heightRatio, -1, 1);
@@ -268,10 +266,10 @@ proto.begin = function(){
      */
     if (cc.configuration.checkForGLExtension("GL_QCOM")) {
         // -- bind a temporary texture so we can clear the render buffer without losing our texture
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this._textureCopy._webTextureObj, 0);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this._textureCopy._glID, 0);
         //cc.checkGLErrorDebug();
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, node._texture._webTextureObj, 0);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, node._texture._glID, 0);
     }
 };
 
