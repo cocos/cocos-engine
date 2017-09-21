@@ -79,6 +79,10 @@ p.removeAnimation = function (anim) {
     if (index >= 0) {
         this._anims.fastRemoveAt(index);
         cc.director.getAnimationManager().removeAnimation(anim);
+
+        if (this._anims.array.length === 0) {
+            this.stop();
+        }
     }
     else {
         cc.errorID(3908);
