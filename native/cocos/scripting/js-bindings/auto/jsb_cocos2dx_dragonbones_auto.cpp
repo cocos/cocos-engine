@@ -5588,7 +5588,7 @@ bool js_cocos2dx_dragonbones_AnimationState_getName(JSContext *cx, uint32_t argc
     dragonBones::AnimationState* cobj = (dragonBones::AnimationState *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationState_getName : Invalid Native Object");
     if (argc == 0) {
-        const std::string& ret = cobj->getName();
+        const std::string ret = cobj->getName();
         JS::RootedValue jsret(cx);
         ok &= std_string_to_jsval(cx, ret, &jsret);
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_dragonbones_AnimationState_getName : error parsing return value");
