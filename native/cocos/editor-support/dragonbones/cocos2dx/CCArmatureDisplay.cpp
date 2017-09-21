@@ -30,12 +30,12 @@ CCArmatureDisplay::CCArmatureDisplay() :
 }
 CCArmatureDisplay::~CCArmatureDisplay() {}
 
+// cleared by armature
 void CCArmatureDisplay::_onClear()
 {
     this->setEventDispatcher(cocos2d::Director::getInstance()->getEventDispatcher());
-
+    clearEventCallback();
     _armature = nullptr;
-    CC_SAFE_RELEASE(_dispatcher);
     this->release();
 }
 
