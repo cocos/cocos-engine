@@ -1,5 +1,4 @@
 #include "jsb_anysdk_protocols_auto.hpp"
-#include "jsb_anysdk_basic_conversions.h"
 #include "scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "PluginManager.h"
 #include "ProtocolAnalytics.h"
@@ -158,7 +157,7 @@ static bool js_anysdk_framework_PluginFactory_getInstance(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         anysdk::framework::PluginFactory* result = anysdk::framework::PluginFactory::getInstance();
-        ok &= native_ptr_to_seval<anysdk::framework::PluginFactory>((anysdk::framework::PluginFactory*)result, &s.rval());
+        ok &= native_ptr_to_rooted_seval<anysdk::framework::PluginFactory>((anysdk::framework::PluginFactory*)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_PluginFactory_getInstance : Error processing arguments");
         return true;
     }
@@ -207,7 +206,7 @@ static bool js_anysdk_framework_PluginManager_unloadPlugin(se::State& s)
         const char* arg0 = nullptr;
         int arg1 = 0;
         std::string arg0_tmp; ok &= seval_to_std_string(args[0], &arg0_tmp); arg0 = arg0_tmp.c_str();
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_PluginManager_unloadPlugin : Error processing arguments");
         cobj->unloadPlugin(arg0, arg1);
         return true;
@@ -228,10 +227,10 @@ static bool js_anysdk_framework_PluginManager_loadPlugin(se::State& s)
         const char* arg0 = nullptr;
         int arg1 = 0;
         std::string arg0_tmp; ok &= seval_to_std_string(args[0], &arg0_tmp); arg0 = arg0_tmp.c_str();
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_PluginManager_loadPlugin : Error processing arguments");
         anysdk::framework::PluginProtocol* result = cobj->loadPlugin(arg0, arg1);
-        ok &= native_ptr_to_seval<anysdk::framework::PluginProtocol>((anysdk::framework::PluginProtocol*)result, &s.rval());
+        ok &= native_ptr_to_rooted_seval<anysdk::framework::PluginProtocol>((anysdk::framework::PluginProtocol*)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_PluginManager_loadPlugin : Error processing arguments");
         return true;
     }
@@ -260,7 +259,7 @@ static bool js_anysdk_framework_PluginManager_getInstance(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         anysdk::framework::PluginManager* result = anysdk::framework::PluginManager::getInstance();
-        ok &= native_ptr_to_seval<anysdk::framework::PluginManager>((anysdk::framework::PluginManager*)result, &s.rval());
+        ok &= native_ptr_to_rooted_seval<anysdk::framework::PluginManager>((anysdk::framework::PluginManager*)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_PluginManager_getInstance : Error processing arguments");
         return true;
     }
@@ -530,7 +529,7 @@ static bool js_anysdk_framework_ProtocolAds_showAds(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         anysdk::framework::AdsType arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_ProtocolAds_showAds : Error processing arguments");
         cobj->showAds(arg0);
         return true;
@@ -538,8 +537,8 @@ static bool js_anysdk_framework_ProtocolAds_showAds(se::State& s)
     if (argc == 2) {
         anysdk::framework::AdsType arg0;
         int arg1 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_ProtocolAds_showAds : Error processing arguments");
         cobj->showAds(arg0, arg1);
         return true;
@@ -558,7 +557,7 @@ static bool js_anysdk_framework_ProtocolAds_hideAds(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         anysdk::framework::AdsType arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_ProtocolAds_hideAds : Error processing arguments");
         cobj->hideAds(arg0);
         return true;
@@ -566,8 +565,8 @@ static bool js_anysdk_framework_ProtocolAds_hideAds(se::State& s)
     if (argc == 2) {
         anysdk::framework::AdsType arg0;
         int arg1 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_ProtocolAds_hideAds : Error processing arguments");
         cobj->hideAds(arg0, arg1);
         return true;
@@ -604,7 +603,7 @@ static bool js_anysdk_framework_ProtocolAds_isAdTypeSupported(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         anysdk::framework::AdsType arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_ProtocolAds_isAdTypeSupported : Error processing arguments");
         bool result = cobj->isAdTypeSupported(arg0);
         ok &= boolean_to_seval(result, &s.rval());
@@ -625,7 +624,7 @@ static bool js_anysdk_framework_ProtocolAds_preloadAds(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         anysdk::framework::AdsType arg0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_ProtocolAds_preloadAds : Error processing arguments");
         cobj->preloadAds(arg0);
         return true;
@@ -633,8 +632,8 @@ static bool js_anysdk_framework_ProtocolAds_preloadAds(se::State& s)
     if (argc == 2) {
         anysdk::framework::AdsType arg0;
         int arg1 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
-        ok &= seval_to_int32(args[1], (int32_t *)&arg1);
+        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_ProtocolAds_preloadAds : Error processing arguments");
         cobj->preloadAds(arg0, arg1);
         return true;
@@ -653,7 +652,7 @@ static bool js_anysdk_framework_ProtocolAds_spendPoints(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t *)&arg0);
+        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_ProtocolAds_spendPoints : Error processing arguments");
         cobj->spendPoints(arg0);
         return true;
@@ -1094,7 +1093,7 @@ static bool js_anysdk_framework_ProtocolREC_share(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         std::map<std::string, std::string> arg0;
-        ok &= seval_to_TVideoInfo(args[0], &arg0);
+        ok &= seval_to_std_map_string_string(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_ProtocolREC_share : Error processing arguments");
         cobj->share(arg0);
         return true;
@@ -1284,7 +1283,7 @@ static bool js_anysdk_framework_AgentManager_getSocialPlugin(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         anysdk::framework::ProtocolSocial* result = cobj->getSocialPlugin();
-        ok &= native_ptr_to_seval<anysdk::framework::ProtocolSocial>((anysdk::framework::ProtocolSocial*)result, &s.rval());
+        ok &= native_ptr_to_rooted_seval<anysdk::framework::ProtocolSocial>((anysdk::framework::ProtocolSocial*)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_AgentManager_getSocialPlugin : Error processing arguments");
         return true;
     }
@@ -1302,7 +1301,7 @@ static bool js_anysdk_framework_AgentManager_getPushPlugin(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         anysdk::framework::ProtocolPush* result = cobj->getPushPlugin();
-        ok &= native_ptr_to_seval<anysdk::framework::ProtocolPush>((anysdk::framework::ProtocolPush*)result, &s.rval());
+        ok &= native_ptr_to_rooted_seval<anysdk::framework::ProtocolPush>((anysdk::framework::ProtocolPush*)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_AgentManager_getPushPlugin : Error processing arguments");
         return true;
     }
@@ -1320,7 +1319,7 @@ static bool js_anysdk_framework_AgentManager_getUserPlugin(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         anysdk::framework::ProtocolUser* result = cobj->getUserPlugin();
-        ok &= native_ptr_to_seval<anysdk::framework::ProtocolUser>((anysdk::framework::ProtocolUser*)result, &s.rval());
+        ok &= native_ptr_to_rooted_seval<anysdk::framework::ProtocolUser>((anysdk::framework::ProtocolUser*)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_AgentManager_getUserPlugin : Error processing arguments");
         return true;
     }
@@ -1338,7 +1337,7 @@ static bool js_anysdk_framework_AgentManager_getAdTrackingPlugin(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         anysdk::framework::ProtocolAdTracking* result = cobj->getAdTrackingPlugin();
-        ok &= native_ptr_to_seval<anysdk::framework::ProtocolAdTracking>((anysdk::framework::ProtocolAdTracking*)result, &s.rval());
+        ok &= native_ptr_to_rooted_seval<anysdk::framework::ProtocolAdTracking>((anysdk::framework::ProtocolAdTracking*)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_AgentManager_getAdTrackingPlugin : Error processing arguments");
         return true;
     }
@@ -1356,7 +1355,7 @@ static bool js_anysdk_framework_AgentManager_getCustomPlugin(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         anysdk::framework::ProtocolCustom* result = cobj->getCustomPlugin();
-        ok &= native_ptr_to_seval<anysdk::framework::ProtocolCustom>((anysdk::framework::ProtocolCustom*)result, &s.rval());
+        ok &= native_ptr_to_rooted_seval<anysdk::framework::ProtocolCustom>((anysdk::framework::ProtocolCustom*)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_AgentManager_getCustomPlugin : Error processing arguments");
         return true;
     }
@@ -1468,7 +1467,7 @@ static bool js_anysdk_framework_AgentManager_getAdsPlugin(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         anysdk::framework::ProtocolAds* result = cobj->getAdsPlugin();
-        ok &= native_ptr_to_seval<anysdk::framework::ProtocolAds>((anysdk::framework::ProtocolAds*)result, &s.rval());
+        ok &= native_ptr_to_rooted_seval<anysdk::framework::ProtocolAds>((anysdk::framework::ProtocolAds*)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_AgentManager_getAdsPlugin : Error processing arguments");
         return true;
     }
@@ -1523,7 +1522,7 @@ static bool js_anysdk_framework_AgentManager_getAnalyticsPlugin(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         anysdk::framework::ProtocolAnalytics* result = cobj->getAnalyticsPlugin();
-        ok &= native_ptr_to_seval<anysdk::framework::ProtocolAnalytics>((anysdk::framework::ProtocolAnalytics*)result, &s.rval());
+        ok &= native_ptr_to_rooted_seval<anysdk::framework::ProtocolAnalytics>((anysdk::framework::ProtocolAnalytics*)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_AgentManager_getAnalyticsPlugin : Error processing arguments");
         return true;
     }
@@ -1541,7 +1540,7 @@ static bool js_anysdk_framework_AgentManager_getRECPlugin(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         anysdk::framework::ProtocolREC* result = cobj->getRECPlugin();
-        ok &= native_ptr_to_seval<anysdk::framework::ProtocolREC>((anysdk::framework::ProtocolREC*)result, &s.rval());
+        ok &= native_ptr_to_rooted_seval<anysdk::framework::ProtocolREC>((anysdk::framework::ProtocolREC*)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_AgentManager_getRECPlugin : Error processing arguments");
         return true;
     }
@@ -1559,7 +1558,7 @@ static bool js_anysdk_framework_AgentManager_getCrashPlugin(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         anysdk::framework::ProtocolCrash* result = cobj->getCrashPlugin();
-        ok &= native_ptr_to_seval<anysdk::framework::ProtocolCrash>((anysdk::framework::ProtocolCrash*)result, &s.rval());
+        ok &= native_ptr_to_rooted_seval<anysdk::framework::ProtocolCrash>((anysdk::framework::ProtocolCrash*)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_AgentManager_getCrashPlugin : Error processing arguments");
         return true;
     }
@@ -1588,7 +1587,7 @@ static bool js_anysdk_framework_AgentManager_getInstance(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         anysdk::framework::AgentManager* result = anysdk::framework::AgentManager::getInstance();
-        ok &= native_ptr_to_seval<anysdk::framework::AgentManager>((anysdk::framework::AgentManager*)result, &s.rval());
+        ok &= native_ptr_to_rooted_seval<anysdk::framework::AgentManager>((anysdk::framework::AgentManager*)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_anysdk_framework_AgentManager_getInstance : Error processing arguments");
         return true;
     }

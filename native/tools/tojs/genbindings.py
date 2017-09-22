@@ -55,6 +55,18 @@ def _run_cmd(command):
         message = "Error running command"
         raise CmdError(message)
 
+def _replace_file_content(file_path, old_str, new_str):
+    # Read in the file
+    with open(file_path, 'r') as file :
+      filedata = file.read()
+
+    # Replace the target string
+    filedata = filedata.replace(old_str, new_str)
+
+    # Write the file out again
+    with open(file_path, 'w') as file:
+      file.write(filedata)
+
 def main():
 
     cur_platform= '??'
@@ -108,6 +120,8 @@ def main():
     creator_root = os.path.abspath(os.path.join(cocos_root, 'cocos/editor-support/creator'))
     jsb_root = os.path.abspath(os.path.join(project_root, 'cocos/scripting/js-bindings'))
     cxx_generator_root = os.path.abspath(os.path.join(project_root, 'tools/bindings-generator'))
+    anysdk_common_dir = os.path.abspath(os.path.join(project_root, 'external/ios/include/anysdk/common'))
+    anysdk_appstore_dir = os.path.abspath(os.path.join(project_root, 'external/ios/include/anysdk/appstore'))
 
     # save config to file
     config = ConfigParser.ConfigParser()
@@ -115,6 +129,8 @@ def main():
     config.set('DEFAULT', 'clangllvmdir', llvm_path)
     config.set('DEFAULT', 'creatordir', creator_root)
     config.set('DEFAULT', 'cocosdir', cocos_root)
+    config.set('DEFAULT', 'anysdk_common_dir', anysdk_common_dir)
+    config.set('DEFAULT', 'anysdk_appstore_dir', anysdk_appstore_dir)
     config.set('DEFAULT', 'jsbdir', jsb_root)
     config.set('DEFAULT', 'cxxgeneratordir', cxx_generator_root)
     config.set('DEFAULT', 'extra_flags', '')
@@ -162,15 +178,29 @@ def main():
                     'cocos2dx_experimental_video.ini' : ('cocos2dx_experimental_video', 'jsb_cocos2dx_experimental_video_auto'), \
                     'creator.ini': ('creator', 'jsb_creator_auto'),
                     'box2d.ini' : ('box2d', 'jsb_box2d_auto'),
+                    'anysdk-common.ini': ('protocols', 'jsb_anysdk_protocols_auto'),
+                    'anysdk-appstore.ini': ('protocols', 'jsb_anysdk_protocols_auto'),
                     }
         target = 'spidermonkey'
         generator_py = '%s/generator.py' % cxx_generator_root
         for key in cmd_args.keys():
+            if key == 'anysdk-common.ini':
+                new_output_dir = '%s/extensions/anysdk/js-bindings' % project_root
+            elif key == 'anysdk-appstore.ini':
+                new_output_dir = '%s/extensions/anysdk/platform/ios/appstore/js-bindings' % project_root
+            else:
+                new_output_dir = output_dir
+
             args = cmd_args[key]
             cfg = '%s/%s' % (tojs_root, key)
             print 'Generating bindings for %s...' % (key[:-4])
-            command = '%s %s %s -s %s -t %s -o %s -n %s' % (python_bin, generator_py, cfg, args[0], target, output_dir, args[1])
+            command = '%s %s %s -s %s -t %s -o %s -n %s' % (python_bin, generator_py, cfg, args[0], target, new_output_dir, args[1])
             _run_cmd(command)
+
+            if key.startswith('anysdk-'):
+                anysdk_auto_filepath = os.path.join(new_output_dir, 'jsb_anysdk_protocols_auto.cpp')
+                if os.path.exists(anysdk_auto_filepath):
+                    _replace_file_content(anysdk_auto_filepath, "scripting/js-bindings/auto/", "")
 
         # if platform == 'win32':
         #     with _pushd(output_dir):
