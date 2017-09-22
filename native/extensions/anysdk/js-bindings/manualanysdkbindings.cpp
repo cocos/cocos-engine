@@ -1,4 +1,7 @@
 #include "manualanysdkbindings.hpp"
+
+//#define ANYSDK_FOR_APPSTORE
+
 #include "jsb_anysdk_protocols_auto.hpp"
 
 #include "scripting/js-bindings/manual/jsb_classtype.hpp"
@@ -12,12 +15,30 @@
 #include "PluginManager.h"
 #include "ProtocolAnalytics.h"
 #include "ProtocolSocial.h"
+#ifdef ANYSDK_FOR_APPSTORE
+#include "ProtocolYAP.h"
+#else
 #include "ProtocolIAP.h"
+#endif
 #include "ProtocolUser.h"
 #include "ProtocolREC.h"
 #include "ProtocolAdTracking.h"
 #include "ProtocolCustom.h"
 #include "JSBRelation.h"
+
+#ifdef ANYSDK_FOR_APPSTORE
+#define jsb_funcName_getIAPPlugin "getYAPPlugin"
+#else
+#define jsb_funcName_getIAPPlugin "getIAPPlugin"
+#define ProtocolYAP        ProtocolIAP
+#define getYAPPlugin       getIAPPlugin
+#define YapResultCode      PayResultCode
+#define YapResultListener  PayResultListener
+#define onYapResult        onPayResult
+#define yapForProduct      payForProduct
+#define __jsb_anysdk_framework_ProtocolYAP_class   __jsb_anysdk_framework_ProtocolIAP_class
+#define __jsb_anysdk_framework_ProtocolYAP_proto   __jsb_anysdk_framework_ProtocolIAP_proto
+#endif
 
 using namespace anysdk::framework;
 
@@ -548,7 +569,7 @@ static bool jsb_anysdk_framework_PluginProtocol_callFloatFuncWithParam(se::State
 }
 SE_BIND_FUNC(jsb_anysdk_framework_PluginProtocol_callFloatFuncWithParam)
 
-static bool jsb_anysdk_framework_AgentManager_getIAPPlugin(se::State& s)
+static bool jsb_anysdk_framework_AgentManager_getYAPPlugin(se::State& s)
 {
     const auto& args = s.args();
     int argc = (int)args.size();
@@ -556,10 +577,10 @@ static bool jsb_anysdk_framework_AgentManager_getIAPPlugin(se::State& s)
 
     if (argc != 0)
     {
-		SE_REPORT_ERROR("AgentManager_getIAPPlugin param number is wrong.");
+		SE_REPORT_ERROR("AgentManager_getYAPPlugin param number is wrong.");
 		return false;
     }
-    std::map<std::string , ProtocolIAP*>* plugins = cobj->getIAPPlugin();
+    std::map<std::string , ProtocolYAP*>* plugins = cobj->getYAPPlugin();
     if (plugins == nullptr)
     {
         s.rval().setNull();
@@ -571,7 +592,7 @@ static bool jsb_anysdk_framework_AgentManager_getIAPPlugin(se::State& s)
     for (const auto& e : (*plugins))
     {
         se::Value iapVal;
-        if (native_ptr_to_seval<ProtocolIAP>(e.second, __jsb_anysdk_framework_ProtocolIAP_class, &iapVal))
+        if (native_ptr_to_seval<ProtocolYAP>(e.second, __jsb_anysdk_framework_ProtocolYAP_class, &iapVal))
         {
             jsretArr->setProperty(e.first.c_str(), iapVal);
         }
@@ -580,7 +601,7 @@ static bool jsb_anysdk_framework_AgentManager_getIAPPlugin(se::State& s)
     s.rval().setObject(jsretArr);
 	return true;
 }
-SE_BIND_FUNC(jsb_anysdk_framework_AgentManager_getIAPPlugin)
+SE_BIND_FUNC(jsb_anysdk_framework_AgentManager_getYAPPlugin)
 
 static bool jsb_anysdk_framework_AgentManager_getFrameworkVersion(se::State& s)
 {
@@ -750,10 +771,10 @@ static bool jsb_anysdk_framework_ProtocolAnalytics_logEvent(se::State& s)
 }
 SE_BIND_FUNC(jsb_anysdk_framework_ProtocolAnalytics_logEvent)
 
-class ProtocolIAPResultListener : public PayResultListener
+class ProtocolYAPResultListener : public YapResultListener
 {
 public:
-    ProtocolIAPResultListener(const se::Value& jsThis, const se::Value& jsFunc)
+    ProtocolYAPResultListener(const se::Value& jsThis, const se::Value& jsFunc)
     : _jsThis(jsThis)
     , _jsFunc(jsFunc)
     {
@@ -762,17 +783,17 @@ public:
 
         _jsThis.toObject()->attachObject(_jsFunc.toObject());
     }
-    virtual ~ProtocolIAPResultListener()
+    virtual ~ProtocolYAPResultListener()
     {
-        CCLOG("on IAP result ~listener");
+        CCLOG("~ProtocolYAPResultListener");
     }
 
-    virtual void onPayResult(PayResultCode code, const char* msg, TProductInfo info) override
+    virtual void onYapResult(YapResultCode code, const char* msg, TProductInfo info) override
     {
         se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
 
-        CCLOG("on pay result: %d, msg: %s.", code, msg);
+        CCLOG("on yap result: %d, msg: %s.", code, msg);
         
         std::string vec="{";
         for (auto iter = info.begin(); iter != info.end(); ++iter)
@@ -836,16 +857,16 @@ public:
         _jsFunc.toObject()->call(args, _jsThis.toObject());
     }
 
-	typedef std::map<std::string, ProtocolIAPResultListener*> STD_MAP;
+	typedef std::map<std::string, ProtocolYAPResultListener*> STD_MAP;
     static STD_MAP std_map;
 
-    static ProtocolIAPResultListener* getListenerByKey(std::string key, const se::Value& jsThis, const se::Value& jsFunc)
+    static ProtocolYAPResultListener* getListenerByKey(std::string key, const se::Value& jsThis, const se::Value& jsFunc)
     {
-        ProtocolIAPResultListener* ret = nullptr;
+        ProtocolYAPResultListener* ret = nullptr;
         auto iter = std_map.find(key);
         if (iter == std_map.end())
         {
-            ret = new ProtocolIAPResultListener(jsThis, jsFunc);
+            ret = new ProtocolYAPResultListener(jsThis, jsFunc);
             std_map.emplace(key, ret);
         }
         return ret;
@@ -864,13 +885,13 @@ private:
     se::Value _jsThis;
     se::Value _jsFunc;
 };
-ProtocolIAPResultListener::STD_MAP ProtocolIAPResultListener::std_map;
+ProtocolYAPResultListener::STD_MAP ProtocolYAPResultListener::std_map;
 
-static bool jsb_anysdk_framework_ProtocolIAP_setResultListener(se::State& s)
+static bool jsb_anysdk_framework_ProtocolYAP_setResultListener(se::State& s)
 {
     const auto& args = s.args();
     int argc = (int)args.size();
-    ProtocolIAP* cobj = (ProtocolIAP*)s.nativeThisObject();
+    ProtocolYAP* cobj = (ProtocolYAP*)s.nativeThisObject();
 
     if (argc != 2)
     {
@@ -884,47 +905,47 @@ static bool jsb_anysdk_framework_ProtocolIAP_setResultListener(se::State& s)
         p_id = "no_plugin";
     }
 
-    auto iter = ProtocolIAPResultListener::std_map.find(p_id);
-    if (iter == ProtocolIAPResultListener::std_map.end())
+    auto iter = ProtocolYAPResultListener::std_map.find(p_id);
+    if (iter == ProtocolYAPResultListener::std_map.end())
     {
         CCLOG("will set listener:");
         
-        ProtocolIAPResultListener* listener = ProtocolIAPResultListener::getListenerByKey(p_id, args[1], args[0]);
+        ProtocolYAPResultListener* listener = ProtocolYAPResultListener::getListenerByKey(p_id, args[1], args[0]);
 	    cobj->setResultListener(listener);
     }
 
 	return true;
 }
-SE_BIND_FUNC(jsb_anysdk_framework_ProtocolIAP_setResultListener)
+SE_BIND_FUNC(jsb_anysdk_framework_ProtocolYAP_setResultListener)
 
-static bool jsb_anysdk_framework_ProtocolIAP_removeListener(se::State& s)
+static bool jsb_anysdk_framework_ProtocolYAP_removeListener(se::State& s)
 {
     const auto& args = s.args();
     int argc = (int)args.size();
     if(argc != 0)
     {
-        SE_REPORT_ERROR("ProtocolIAP_removeListener has wrong number of arguments.");
+        SE_REPORT_ERROR("ProtocolYAP_removeListener has wrong number of arguments.");
         return false;
     }
 
-    ProtocolIAP* cobj = (ProtocolIAP*)s.nativeThisObject();
-    CCLOG("in ProtocolIAP_removeListener, argc:%d.", argc);
+    ProtocolYAP* cobj = (ProtocolYAP*)s.nativeThisObject();
+    CCLOG("in ProtocolYAP_removeListener, argc:%d.", argc);
     std::string p_id = cobj->getPluginId();
     if (p_id.length() < 1)
     {
         p_id = "no_plugin";
     }
 
-    ProtocolIAPResultListener::purge(p_id);
+    ProtocolYAPResultListener::purge(p_id);
 	return true;
 }
-SE_BIND_FUNC(jsb_anysdk_framework_ProtocolIAP_removeListener)
+SE_BIND_FUNC(jsb_anysdk_framework_ProtocolYAP_removeListener)
 
-static bool jsb_anysdk_framework_ProtocolIAP_payForProduct(se::State& s)
+static bool jsb_anysdk_framework_ProtocolYAP_yapForProduct(se::State& s)
 {
     const auto& args = s.args();
     int argc = (int)args.size();
-    CCLOG("in ProtocolIAP_payForProduct, argc:%d.", argc);
+    CCLOG("in ProtocolYAP_yapForProduct, argc:%d.", argc);
 
     if (argc != 1)
     {
@@ -934,18 +955,18 @@ static bool jsb_anysdk_framework_ProtocolIAP_payForProduct(se::State& s)
 
     if (args[0].isObject())
     {
-        ProtocolIAP* cobj = (ProtocolIAP*)s.nativeThisObject();
+        ProtocolYAP* cobj = (ProtocolYAP*)s.nativeThisObject();
         TProductInfo arg;
         bool ok = seval_to_std_map_string_string(args[0], &arg);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
-	    cobj->payForProduct(arg);
+	    cobj->yapForProduct(arg);
         return true;
 	}
 
     SE_REPORT_ERROR("args[0] isn't an object!");
 	return false;
 }
-SE_BIND_FUNC(jsb_anysdk_framework_ProtocolIAP_payForProduct)
+SE_BIND_FUNC(jsb_anysdk_framework_ProtocolYAP_yapForProduct)
 
 class ProtocolPushActionListener : public PushActionListener
 {
@@ -1552,7 +1573,7 @@ bool register_all_anysdk_manual(se::Object* obj)
     __jsb_anysdk_framework_PluginProtocol_proto->defineFunction("callFloatFuncWithParam", _SE(jsb_anysdk_framework_PluginProtocol_callFloatFuncWithParam));
 
     //AgentManager
-    __jsb_anysdk_framework_AgentManager_proto->defineFunction("getIAPPlugin", _SE(jsb_anysdk_framework_AgentManager_getIAPPlugin));
+    __jsb_anysdk_framework_AgentManager_proto->defineFunction(jsb_funcName_getIAPPlugin, _SE(jsb_anysdk_framework_AgentManager_getYAPPlugin));
     __jsb_anysdk_framework_AgentManager_proto->defineFunction("getFrameworkVersion", _SE(jsb_anysdk_framework_AgentManager_getFrameworkVersion));
 
     //ProtocolAds
@@ -1562,10 +1583,10 @@ bool register_all_anysdk_manual(se::Object* obj)
     //ProtocolAnalytics
     __jsb_anysdk_framework_ProtocolAnalytics_proto->defineFunction("logEvent", _SE(jsb_anysdk_framework_ProtocolAnalytics_logEvent));
 
-    //ProtocolIAP
-    __jsb_anysdk_framework_ProtocolIAP_proto->defineFunction("setResultListener", _SE(jsb_anysdk_framework_ProtocolIAP_setResultListener));
-    __jsb_anysdk_framework_ProtocolIAP_proto->defineFunction("removeListener", _SE(jsb_anysdk_framework_ProtocolIAP_removeListener));
-    __jsb_anysdk_framework_ProtocolIAP_proto->defineFunction("payForProduct", _SE(jsb_anysdk_framework_ProtocolIAP_payForProduct));
+    //ProtocolYAP
+    __jsb_anysdk_framework_ProtocolYAP_proto->defineFunction("setResultListener", _SE(jsb_anysdk_framework_ProtocolYAP_setResultListener));
+    __jsb_anysdk_framework_ProtocolYAP_proto->defineFunction("removeListener", _SE(jsb_anysdk_framework_ProtocolYAP_removeListener));
+    __jsb_anysdk_framework_ProtocolYAP_proto->defineFunction("yapForProduct", _SE(jsb_anysdk_framework_ProtocolYAP_yapForProduct));
 
     //ProtocolSocial
     __jsb_anysdk_framework_ProtocolSocial_proto->defineFunction("setListener", _SE(jsb_anysdk_framework_ProtocolSocial_setListener));

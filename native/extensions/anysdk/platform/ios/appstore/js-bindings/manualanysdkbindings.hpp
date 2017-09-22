@@ -1,10 +1,7 @@
-#ifndef __manualanysdkbindings_h__
-#define __manualanysdkbindings_h__
+#pragma once
 
-#include "jsapi.h"
-#include "jsfriendapi.h"
+namespace se {
+    class Object;
+}
 
-void register_all_anysdk_manual(JSContext* cx, JS::HandleObject obj);
-
-#endif
-
+bool register_all_anysdk_manual(se::Object* obj);
