@@ -3760,7 +3760,7 @@ static bool js_cocos2dx_dragonbones_AnimationState_getName(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const std::string& result = cobj->getName();
+        const std::string result = cobj->getName();
         ok &= std_string_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_AnimationState_getName : Error processing arguments");
         return true;
