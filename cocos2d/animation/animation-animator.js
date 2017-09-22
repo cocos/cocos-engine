@@ -1,7 +1,7 @@
 var JS = cc.js;
-var Animator = require('./animators').Animator;
+var Playable = require('./playable');
 var DynamicAnimCurve = require('./animation-curves').DynamicAnimCurve;
-var SampledAnimCurve = require('./animation-curves').SampledAnimCurve;
+var quickFindIndex = require('./animation-curves').quickFindIndex;
 var sampleMotionPaths = require('./motion-path-helper').sampleMotionPaths;
 var EventAnimCurve = require('./animation-curves').EventAnimCurve;
 var EventInfo = require('./animation-curves').EventInfo;
@@ -11,10 +11,13 @@ var binarySearch = require('../core/utils/binary-search').binarySearchEpsilon;
 // The actual animator for Animation Component
 
 function AnimationAnimator (target, animation) {
-    Animator.call(this, target);
+    Playable.call(this);
+    this.target = target;
     this.animation = animation;
+
+    this._anims = new JS.array.MutableForwardIterator([]);
 }
-JS.extend(AnimationAnimator, Animator);
+JS.extend(AnimationAnimator, Playable);
 var p = AnimationAnimator.prototype;
 
 p.playState = function (state, startTime) {
@@ -37,8 +40,32 @@ p.playState = function (state, startTime) {
     this.play();
 };
 
+p.stopStatesExcept = function (state) {
+    var iterator = this._anims;
+    var array = iterator.array;
+    for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+        var anim = array[iterator.i];
+        if (anim === state) {
+            continue;
+        }
+
+        this.stopState(anim);
+    }
+};
+
+p.on = function (type, callback, target, useCapture) {
+    var array = this._anims.array;
+    for (var i = 0; i < array.length; ++i) {
+        array[i].on(type, callback, target, useCapture);
+    }
+}
+
 p.addAnimation = function (anim) {
-    Animator.prototype.addAnimation.call(this, anim);
+    var index = this._anims.array.indexOf(anim);
+    if (index === -1) {
+        this._anims.push(anim);
+        cc.director.getAnimationManager().addAnimation(anim);
+    }
 
     var listeners = this.animation._listeners;
     for (var i = 0, l = listeners.length; i < l; i++) {
@@ -48,7 +75,18 @@ p.addAnimation = function (anim) {
 };
 
 p.removeAnimation = function (anim) {
-    Animator.prototype.removeAnimation.call(this, anim);
+    var index = this._anims.array.indexOf(anim);
+    if (index >= 0) {
+        this._anims.fastRemoveAt(index);
+        cc.director.getAnimationManager().removeAnimation(anim);
+
+        if (this._anims.array.length === 0) {
+            this.stop();
+        }
+    }
+    else {
+        cc.errorID(3908);
+    }
 
     anim.animator = null;
 };
@@ -94,10 +132,9 @@ p.setStateTime = function (state, time) {
     else {
         time = state;
 
-        var iterator = this._anims;
-        var array = iterator.array;
-        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-            var anim = array[iterator.i];
+        var array = this._anims.array;
+        for (var i = 0; i < array.length; ++i) {
+            var anim = array[i];
             anim.setTime(time);
             anim.sample();
         }
@@ -111,8 +148,6 @@ p.onStop = function () {
         var anim = array[iterator.i];
         anim.stop();
     }
-
-    Animator.prototype.onStop.call(this);
 };
 
 p.onPause = function () {
@@ -120,26 +155,24 @@ p.onPause = function () {
     for (var i = 0; i < array.length; ++i) {
         var anim = array[i];
         anim.pause();
+        cc.director.getAnimationManager().removeAnimation(anim);
 
         // need to unbind animator to anim, or it maybe cannot be gc.
         anim.animator = null;
     }
-
-    Animator.prototype.onPause.call(this);
 };
 
 p.onResume = function () {
     var array = this._anims.array;
     for (var i = 0; i < array.length; ++i) {
         var anim = array[i];
+        cc.director.getAnimationManager().addAnimation(anim);
         
         // rebind animator to anim
         anim.animator = this;
 
         anim.resume();
     }
-
-    Animator.prototype.onResume.call(this);
 };
 
 p._reloadClip = function (state) {
@@ -201,7 +234,7 @@ function initClipData (root, state) {
     function checkMotionPath(motionPath) {
         if (!Array.isArray(motionPath)) return false;
 
-        for (var i = 0, l = motionPath.length; i < l; i++) {
+        for (let i = 0, l = motionPath.length; i < l; i++) {
             var controls = motionPath[i];
 
             if (!Array.isArray(controls) || controls.length !== 6) return false;
@@ -213,12 +246,8 @@ function initClipData (root, state) {
     function createPropCurve (target, propPath, keyframes) {
         var isMotionPathProp = (target instanceof cc.Node) && (propPath === 'position');
         var motionPaths = [];
-        var curve;
-
-        if (isMotionPathProp)
-            curve = new SampledAnimCurve();
-        else
-            curve = new DynamicAnimCurve();
+        
+        var curve = new DynamicAnimCurve();
 
         // 缓存目标对象，所以 Component 必须一开始都创建好并且不能运行时动态替换……
         curve.target = target;
@@ -244,8 +273,8 @@ function initClipData (root, state) {
         curve.subProps = splitPropPath(propPath);
 
         // for each keyframes
-        for (var j = 0, l = keyframes.length; j < l; j++) {
-            var keyframe = keyframes[j];
+        for (let i = 0, l = keyframes.length; i < l; i++) {
+            var keyframe = keyframes[i];
             var ratio = keyframe.frame / state.duration;
             curve.ratios.push(ratio);
 
@@ -253,7 +282,7 @@ function initClipData (root, state) {
                 var motionPath = keyframe.motionPath;
 
                 if (motionPath && !checkMotionPath(motionPath)) {
-                    cc.errorID(3904, target.name, propPath, j);
+                    cc.errorID(3904, target.name, propPath, i);
                     motionPath = null;
                 }
 
@@ -289,6 +318,24 @@ function initClipData (root, state) {
         if (isMotionPathProp) {
             sampleMotionPaths(motionPaths, curve, clip.duration, clip.sample);
         }
+
+        // if every piece of ratios are the same, we can use the quick function to find frame index.
+        var ratios = curve.ratios;
+        var currRatioDif, lastRatioDif;
+        var canOptimize = true;
+        var EPSILON = 1e-6;
+        for (let i = 1, l = ratios.length; i < l; i++) {
+            currRatioDif = ratios[i] - ratios[i-1];
+            if (i === 1) {
+                lastRatioDif = currRatioDif;
+            }
+            else if (Math.abs(currRatioDif - lastRatioDif) > Math.EPSILON) {
+                canOptimize = false;                
+                break;
+            }
+        }
+
+        curve._findFrameIndex = canOptimize ? quickFindIndex : binarySearch;
 
         return curve;
     }
@@ -350,7 +397,7 @@ function initClipData (root, state) {
     if (!CC_EDITOR && events) {
         var curve;
 
-        for (var i = 0, l = events.length; i < l; i++) {
+        for (let i = 0, l = events.length; i < l; i++) {
             if (!curve) {
                 curve = new EventAnimCurve();
                 curve.target = root;
