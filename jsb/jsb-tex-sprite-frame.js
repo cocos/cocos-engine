@@ -27,9 +27,10 @@
 
 require('../cocos2d/core/platform/CCClass');
 require('../cocos2d/core/assets/CCAsset');
+var WebTexture = require('../cocos2d/core/textures/CCTexture2D');
+var WebSpriteFrame = require('../cocos2d/core/sprites/CCSpriteFrame');
 
-// cc.spriteFrameAnimationCache = cc.animationCache;
-// cc.SpriteFrameAnimation = cc.Animation;
+cc.js.unregisterClass(WebTexture, WebSpriteFrame);
 
 // TextureCache addImage
 
@@ -51,6 +52,10 @@ if (!cc.TextureCache.prototype._addImage) {
     cc.TextureCache.prototype._addImage = cc.TextureCache.prototype.addImage;
 }
 cc.TextureCache.prototype.addImage = function (url, cb, target) {
+    if (CC_DEBUG && url instanceof cc.Texture2D) {
+        cc.warn('textureCache.addImage(url) - The type of the url should be string, not Texture2D. You don\'t need to call addImage if you already have the texture object.');
+        url = url.url;
+    }
     if (typeof cb === "function") {
         return this.addImageAsync(url, cb, target);
     }
@@ -64,7 +69,7 @@ cc.TextureCache.prototype.addImage = function (url, cb, target) {
     }
 };
 
-// cc.textureCache.cacheImage
+// cc.textureCache
 
 cc.textureCache._textures = {};
 cc.textureCache.cacheImage = function (key, texture) {
@@ -87,41 +92,40 @@ cc.textureCache.removeTextureForKey = function (key) {
 // cc.Texture2D
 
 cc.Class._fastDefine('cc.Texture2D', cc.Texture2D, []);
-cc.js.value(cc.Texture2D, '$super', cc.Asset);   // not inheritable in JSB and TypeScript
+cc.Texture2D.$super = cc.Asset;
 
-const GL_NEAREST = 9728;                // gl.NEAREST
-const GL_LINEAR = 9729;                 // gl.LINEAR
-const GL_REPEAT = 10497;                // gl.REPEAT
-const GL_CLAMP_TO_EDGE = 33071;         // gl.CLAMP_TO_EDGE
-const GL_MIRRORED_REPEAT = 33648;       // gl.MIRRORED_REPEAT
-
-cc.Texture2D.PixelFormat = cc.Enum({
-    RGB565: cc.Texture2D.PIXEL_FORMAT_RGB565,
-    RGB5A1: cc.Texture2D.PIXEL_FORMAT_RGB5A1,
-    RGBA4444: cc.Texture2D.PIXEL_FORMAT_RGBA4444,
-    RGB888: cc.Texture2D.PIXEL_FORMAT_RGB888,
-    RGBA8888: cc.Texture2D.PIXEL_FORMAT_RGBA8888,
-    A8: cc.Texture2D.PIXEL_FORMAT_A8,
-    I8: cc.Texture2D.PIXEL_FORMAT_I8,
-    AI8: cc.Texture2D.PIXEL_FORMAT_AI8
-});
-
-cc.Texture2D.WrapMode = cc.Enum({
-    REPEAT: GL_REPEAT,
-    CLAMP_TO_EDGE: GL_CLAMP_TO_EDGE,
-    MIRRORED_REPEAT: GL_MIRRORED_REPEAT
-});
-
-cc.Texture2D.Filter = cc.Enum({
-    LINEAR: GL_LINEAR,
-    NEAREST: GL_NEAREST
+[
+    'WrapMode',
+    'PixelFormat',
+    'Filter',
+    'extnames',
+    'preventDeferredLoadDependents',
+    'preventPreloadNativeObject',
+].forEach(function (key) {
+    cc.Texture2D[key] = WebTexture[key];
 });
 
 var prototype = cc.Texture2D.prototype;
 
-prototype.toString = function () {
-    return this.url || '';
+cc.js.addon(prototype, WebTexture.prototype);
+// [
+//     'toString',
+//     '_deserialize',
+//     '_setRawAsset',
+//     'nativeUrl',
+//     'name',
+//     'isValid',
+//     'destroy',
+//     '_destruct',
+//     '_destroyImmediate',
+// ].forEach(function (key) {
+//     Object.defineProperty(prototype, key, cc.js.getPropertyDescriptor(WebTexture.prototype, key));
+// });
+
+prototype._ctor = function () {
+    cc.Asset.call(this);
 };
+
 prototype.loaded = true;
 prototype.update = function (options) {
     var updateTexParam = false;
@@ -153,10 +157,39 @@ prototype.update = function (options) {
     if (genMipmap) {
         this.generateMipmap();
     }
-}
+};
 prototype.isLoaded = function () {
     return true;
 };
+cc.js.getset(prototype, '_nativeAsset',
+    function () {
+        return this;
+    },
+    function (item) {
+        // var actualUrl = item.url;
+        // if (actualUrl.match(jsb.urlRegExp)) {
+        //     jsb.initRemoteImg(this, actualUrl, function(succeed) {
+        //         if (succeed) {
+        //             callback && callback(null, true);
+        //         }
+        //         else {
+        //             callback && callback(new Error('Load image failed: ' + actualUrl));
+        //         }
+        //     });
+        // }
+        // else {
+        //     cc.textureCache._addImageAsync(actualUrl, function (tex) {
+        //         if (tex instanceof cc.Texture2D) {
+        //             callback && callback(null, tex);
+        //         }
+        //         else {
+        //             callback && callback(new Error('Load image failed: ' + actualUrl));
+        //         }
+        //     });
+        // }
+    }
+);
+
 prototype.getPixelWidth = prototype.getPixelsWide;
 prototype.getPixelHeight = prototype.getPixelsHigh;
 prototype.description = prototype.getDescription;
@@ -166,7 +199,7 @@ cc.js.get(prototype, 'pixelHeight', prototype.getPixelHeight);
 // cc.SpriteFrame
 
 cc.Class._fastDefine('cc.SpriteFrame', cc.SpriteFrame, []);
-cc.js.value(cc.SpriteFrame, '$super', cc.Asset);    // not inheritable in JSB and TypeScript
+cc.SpriteFrame.$super = cc.Asset;
 
 prototype = cc.SpriteFrame.prototype;
 prototype._setTexture = prototype.setTexture;
@@ -332,23 +365,4 @@ prototype.clone = function () {
     return cloned;
 };
 
-cc.js.set(prototype, '_textureSetter', function (texture) {
-    if (texture) {
-        if (CC_EDITOR && !(texture instanceof cc.Texture2D)) {
-            // just building
-            this._texture = texture;
-            return;
-        }
-        this._refreshTexture(texture);
-        this._textureFilename = texture.url;
-    }
-});
-
-cc.js.getset(prototype, 'name',
-    function () {
-        return this._name;
-    },
-    function (value) {
-        this._name = value;
-    }
-);
+cc.js.addon(prototype, WebSpriteFrame.prototype);

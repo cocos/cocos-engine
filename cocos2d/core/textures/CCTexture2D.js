@@ -586,7 +586,7 @@ JS.get(_p, "pixelFormat", _p.getPixelFormat);
 JS.get(_p, "pixelWidth", _p.getPixelWidth);
 JS.get(_p, "pixelHeight", _p.getPixelHeight);
 
-game.once(game.EVENT_RENDERER_INITED, function () {
+!CC_JSB && game.once(game.EVENT_RENDERER_INITED, function () {
     if (cc._renderType === game.RENDER_TYPE_CANVAS) {
 
         function renderToCache (image, cache) {
@@ -1000,4 +1000,8 @@ game.once(game.EVENT_RENDERER_INITED, function () {
  * @deprecated please use height instead
  */
 
-cc.Texture2D = module.exports = Texture2D;
+if (!CC_JSB) {
+    cc.Texture2D = Texture2D;
+}
+
+module.exports = Texture2D;

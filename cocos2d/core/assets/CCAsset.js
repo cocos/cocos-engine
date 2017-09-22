@@ -89,7 +89,7 @@ cc.Asset = cc.Class({
          * @default undefined
          * @private
          */
-        _native: undefined,
+        _native: "",
 
         // __nativeAsset: {
         //     default: null,

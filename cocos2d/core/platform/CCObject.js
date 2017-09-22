@@ -216,7 +216,8 @@ JS.getset(prototype, 'name',
     },
     function (value) {
         this._name = value;
-    }
+    },
+    true
 );
 
 /**
@@ -230,7 +231,7 @@ JS.getset(prototype, 'name',
  */
 JS.get(prototype, 'isValid', function () {
     return !(this._objFlags & Destroyed);
-});
+}, true);
 
 if (CC_EDITOR || CC_TEST) {
     JS.get(prototype, 'isRealValid', function () {

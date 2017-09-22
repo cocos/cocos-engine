@@ -51,7 +51,7 @@ var EventTarget = require("../event/event-target");
  *  node.parent = self.node
  * });
  */
-cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
+var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     name: 'cc.SpriteFrame',
     extends: require('../assets/CCAsset'),
     mixins: [EventTarget],
@@ -354,7 +354,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {SpriteFrame}
      */
     clone: function () {
-        return new cc.SpriteFrame(this._texture || this._textureFilename, this._rect, this._rotated, this._offset, this._originalSize);
+        return new SpriteFrame(this._texture || this._textureFilename, this._rect, this._rotated, this._offset, this._originalSize);
     },
 
     /**
@@ -474,10 +474,6 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
     },
 
-    // _instantiate () {
-    //     var clone = new cc.SpriteFrame();
-    // },
-
     // SERIALIZATION
 
     _serialize: CC_EDITOR && function (exporting) {
@@ -549,8 +545,14 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     }
 });
 
-var proto = cc.SpriteFrame.prototype;
+var proto = SpriteFrame.prototype;
 
 proto.copyWithZone = proto.clone;
 proto.copy = proto.clone;
 proto.initWithTexture = proto.setTexture;
+
+if (!CC_JSB) {
+    cc.SpriteFrame = SpriteFrame;
+}
+
+module.exports = SpriteFrame;
