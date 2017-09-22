@@ -160,7 +160,7 @@ namespace experimental{
         void WebView::cleanup()
         {
             ProtectedNode::cleanup();
-            _impl->loadURL("about:blank");
+            CC_SAFE_DELETE(_impl);
         }
 
         void WebView::setBounces(bool bounces)
