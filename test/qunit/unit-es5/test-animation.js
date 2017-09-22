@@ -1358,3 +1358,35 @@ test('animation pause/resume should remove animation-actor from animation manage
 
     strictEqual(manager._anims.array.length, 0, 'should remove animation from animation manager');
 });
+
+
+test('animation play on load', function () {
+    var entity = new cc.Node();
+
+    var animation = entity.addComponent(cc.Animation);
+    animation.playOnLoad = true;
+
+    var clip1 = new cc.AnimationClip();
+    clip1._name = 'clip1';
+    clip1._duration = 1;
+
+    var clip2 = new cc.AnimationClip();
+    clip2._name = 'clip2';
+    clip2._duration = 1;
+
+
+    animation.addClip(clip1);
+    animation.addClip(clip2);
+
+    animation._defaultClip = clip1;
+
+    animation.play('clip2');
+    
+    entity.parent = cc.director.getScene();
+    animation.start();
+
+    strictEqual(animation.getAnimationState('clip1').isPlaying, false, 'default clip should not be played if there is playing animation');
+    strictEqual(animation.getAnimationState('clip2').isPlaying, true, 'should play the specified animation');
+
+    entity.parent = null;
+});

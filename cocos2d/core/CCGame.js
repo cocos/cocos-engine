@@ -295,10 +295,16 @@ var game = {
      */
     restart: function () {
         cc.director.once(cc.Director.EVENT_AFTER_DRAW, function () {
+            for (var id in game._persistRootNodes) {
+                game.removePersistRootNode(game._persistRootNodes[id]);
+            }
+
             // Clear scene
             cc.director.getScene().destroy();
             cc.Object._deferredDestroy();
+
             cc.director.purgeDirector();
+
             // Clean up audio
             if (cc.audioEngine) {
                 cc.audioEngine.uncacheAll();
@@ -558,15 +564,13 @@ var game = {
 
         callback = function () {
             if (!self._paused) {
+                self._intervalId = window.requestAnimFrame(callback);
                 if (frameRate === 30) {
                     if (skip = !skip) {
-                        self._intervalId = window.requestAnimFrame(callback);
                         return;
                     }
                 }
-
                 director.mainLoop();
-                self._intervalId = window.requestAnimFrame(callback);
             }
         };
 
