@@ -1,6 +1,6 @@
 {
   "name": "cocos2d-x-lite",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "Cocos2d-x, compact version ==========================",
   "main": "gulpfile.js",
   "scripts": {

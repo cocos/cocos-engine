@@ -113,7 +113,7 @@ public:
         return _layer;
     }
 
-    inline const std::string& getName() const
+    inline const std::string getName() const
     {
         return _name;
     }
