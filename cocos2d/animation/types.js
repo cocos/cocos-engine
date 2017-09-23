@@ -138,6 +138,8 @@ function AnimationNode (animator, curves, timingInput) {
     this._wrappedInfo = new WrappedInfo();
     this._lastWrappedInfo = null;
 
+    this._process = process;
+
     this.animator = animator;
 
     /**
@@ -258,8 +260,80 @@ JS.extend(AnimationNode, AnimationNodeBase);
 
 var proto = AnimationNode.prototype;
 
-proto.update = function (delta) {
+function process () {
+    // sample
+    var info = this.sample();
 
+    var cache = this._hasListenerCache;
+    if (cache && cache['lastframe']) {
+        var lastInfo;
+        if (!lastInfo) {
+            lastInfo = this._lastWrappedInfo = new WrappedInfo(info);
+        }
+
+        if (this.repeatCount > 1 && 
+            ((info.iterations | 0) > (lastInfo.iterations | 0)) // another iterations
+            ) {
+            if ((this.wrapMode & WrapModeMask.Reverse) === WrapModeMask.Reverse) {
+                if (lastInfo.direction < 0) {
+                    this.emit('lastframe', this);
+                }
+            }
+            else {
+                if (lastInfo.direction > 0) {
+                    this.emit('lastframe', this);
+                }
+            }
+        }
+
+        lastInfo.set(info);
+    }
+
+    if (info.stopped) {
+        this.stop();
+        this.emit('finished', this);
+    }
+};
+
+function simpleProcess () {
+    var time = this.time;
+    var duration = this.duration;
+
+    if (time > duration) {
+        time = time % duration;
+        if (time === 0) time = duration;
+    }
+    else if (time < 0) {
+        time = time % duration;
+        if (time !== 0 ) time += duration;
+    }
+
+    var ratio = time / duration;
+
+    var curves = this.curves;
+    for (var i = 0, len = curves.length; i < len; i++) {
+        var curve = curves[i];
+        curve.sample(time, ratio, this);
+    }
+
+    var cache = this._hasListenerCache;
+    if (cache && cache['lastframe']) {
+        var currentIterations = time > 0 ? (time / duration) : -(time / duration);
+        
+        var lastIterations = this._lastIterations;
+        if (lastIterations === undefined) {
+            lastIterations = this._lastIterations = currentIterations;
+        }
+
+        if ((currentIterations | 0) > (lastIterations | 0)) {
+            this.emit('lastframe', this);
+        }
+
+        this._lastIterations = currentIterations;
+    }
+}
+
+proto.update = function (delta) {
     // calculate delay time
 
     if (this._delayTime > 0) {
@@ -280,33 +354,7 @@ proto.update = function (delta) {
         this._firstFramePlayed = true;
     }
 
-    // sample
-    var info = this.sample();
-
-    if (!this._lastWrappedInfo) {
-        this._lastWrappedInfo = new WrappedInfo(info);
-    }
-
-    var anotherIteration = (info.iterations | 0) > (this._lastWrappedInfo.iterations | 0);
-    if (this.repeatCount > 1 && anotherIteration) {
-        if ((this.wrapMode & WrapModeMask.Reverse) === WrapModeMask.Reverse) {
-            if (this._lastWrappedInfo.direction < 0) {
-                this.emit('lastframe', this);
-            }
-        }
-        else {
-            if (this._lastWrappedInfo.direction > 0) {
-                this.emit('lastframe', this);
-            }
-        }
-    }
-
-    if (info.stopped) {
-        this.stop();
-        this.emit('finished', this);
-    }
-
-    this._lastWrappedInfo.set(info);
+    this._process();
 };
 
 proto._needRevers = function (currentIterations) {
@@ -332,26 +380,17 @@ proto._needRevers = function (currentIterations) {
 
 proto.getWrappedInfo = function (time, info) {
     info = info || new WrappedInfo();
-
+    
     var stopped = false;
     var duration = this.duration;
-    var ratio = 0;
-    var wrapMode = this.wrapMode;
+    var repeatCount = this.repeatCount;
 
-    var currentIterations = Math.abs(time / duration);
-    if (currentIterations > this.repeatCount) currentIterations = this.repeatCount;
+    var currentIterations = time > 0 ? (time / duration) : -(time / duration);
+    if (currentIterations >= repeatCount) {
+        currentIterations = repeatCount;
 
-    var needRevers = false;
-    if (wrapMode & WrapModeMask.ShouldWrap) {
-        needRevers = this._needRevers(currentIterations);
-    }
-
-    var direction = needRevers ? -1 : 1;
-    if (this.speed < 0) direction *= -1;
-
-    if (currentIterations >= this.repeatCount) {
         stopped = true;
-        var tempRatio = this.repeatCount - (this.repeatCount | 0);
+        var tempRatio = repeatCount - (repeatCount | 0);
         if (tempRatio === 0) {
             tempRatio = 1;  // 如果播放过，动画不复位
         }
@@ -367,14 +406,23 @@ proto.getWrappedInfo = function (time, info) {
         if (time !== 0 ) time += duration;
     }
 
-    // calculate wrapped time
-    if (wrapMode & WrapModeMask.ShouldWrap) {
-        if (needRevers) time = duration - time;
+    var needRevers = false;
+    var shouldWrap = this._wrapMode & WrapModeMask.ShouldWrap;
+    if (shouldWrap) {
+        needRevers = this._needRevers(currentIterations);
     }
 
-    ratio = time / duration;
+    var direction = needRevers ? -1 : 1;
+    if (this.speed < 0) {
+        direction *= -1;
+    }
 
-    info.ratio = ratio;
+    // calculate wrapped time
+    if (shouldWrap && needRevers) {
+        time = duration - time;
+    }
+
+    info.ratio = time / duration;
     info.time = time;
     info.direction = direction;
     info.stopped = stopped;
@@ -428,6 +476,25 @@ JS.getset(proto, 'wrapMode',
         }
         else {
             this.repeatCount = 1;
+        }
+        
+    }
+);
+
+JS.getset(proto, 'repeatCount',
+    function () {
+        return this._repeatCount;
+    },
+    function (value) {
+        this._repeatCount = value;
+        
+        var shouldWrap = this._wrapMode & WrapModeMask.ShouldWrap;
+        var reverse = (this.wrapMode & WrapModeMask.Reverse) === WrapModeMask.Reverse;
+        if (value === Infinity && !shouldWrap && !reverse) {
+            this._process = simpleProcess;
+        }
+        else {
+            this._process = process;
         }
     }
 );

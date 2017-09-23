@@ -97,10 +97,10 @@ proto._doCulling = function () {
         rect = cc.Camera.main.visibleRect;
     }
 
-    vl = rect.left.x;
-    vr = rect.right.x;
-    vt = rect.top.y;
-    vb = rect.bottom.y;
+    var vl = rect.left.x;
+    var vr = rect.right.x;
+    var vt = rect.top.y;
+    var vb = rect.bottom.y;
 
     // x1, y1  leftBottom
     // x2, y2  rightBottom
