@@ -20770,6 +20770,27 @@ static bool js_cocos2dx_Label_disableEffect(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Label_disableEffect)
 
+static bool js_cocos2dx_Label_setTTFConfig(se::State& s)
+{
+    cocos2d::Label* cobj = (cocos2d::Label*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Label_setTTFConfig : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        cocos2d::TTFConfig arg0;
+        ok &= seval_to_TTFConfig(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_Label_setTTFConfig : Error processing arguments");
+        bool result = cobj->setTTFConfig(arg0);
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_Label_setTTFConfig : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Label_setTTFConfig)
+
 static bool js_cocos2dx_Label_getTextColor(se::State& s)
 {
     cocos2d::Label* cobj = (cocos2d::Label*)s.nativeThisObject();
@@ -22345,6 +22366,153 @@ static bool js_cocos2dx_Label_createWithSystemFont(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Label_createWithSystemFont)
 
+static bool js_cocos2dx_Label_createWithTTF(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    do {
+        if (argc == 2) {
+            cocos2d::TTFConfig arg0;
+            ok &= seval_to_TTFConfig(args[0], &arg0);
+            if (!ok) { ok = true; break; }
+            std::string arg1;
+            ok &= seval_to_std_string(args[1], &arg1);
+            if (!ok) { ok = true; break; }
+            cocos2d::Label* result = cocos2d::Label::createWithTTF(arg0, arg1);
+            ok &= native_ptr_to_seval<cocos2d::Label>((cocos2d::Label*)result, &s.rval());
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_Label_createWithTTF : Error processing arguments");
+            return true;
+        }
+    } while (false);
+    do {
+        if (argc == 3) {
+            cocos2d::TTFConfig arg0;
+            ok &= seval_to_TTFConfig(args[0], &arg0);
+            if (!ok) { ok = true; break; }
+            std::string arg1;
+            ok &= seval_to_std_string(args[1], &arg1);
+            if (!ok) { ok = true; break; }
+            cocos2d::TextHAlignment arg2;
+            ok &= seval_to_int8(args[2], (int8_t*)&arg2);
+            if (!ok) { ok = true; break; }
+            cocos2d::Label* result = cocos2d::Label::createWithTTF(arg0, arg1, arg2);
+            ok &= native_ptr_to_seval<cocos2d::Label>((cocos2d::Label*)result, &s.rval());
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_Label_createWithTTF : Error processing arguments");
+            return true;
+        }
+    } while (false);
+    do {
+        if (argc == 4) {
+            cocos2d::TTFConfig arg0;
+            ok &= seval_to_TTFConfig(args[0], &arg0);
+            if (!ok) { ok = true; break; }
+            std::string arg1;
+            ok &= seval_to_std_string(args[1], &arg1);
+            if (!ok) { ok = true; break; }
+            cocos2d::TextHAlignment arg2;
+            ok &= seval_to_int8(args[2], (int8_t*)&arg2);
+            if (!ok) { ok = true; break; }
+            int arg3 = 0;
+            ok &= seval_to_int32(args[3], (int32_t*)&arg3);
+            if (!ok) { ok = true; break; }
+            cocos2d::Label* result = cocos2d::Label::createWithTTF(arg0, arg1, arg2, arg3);
+            ok &= native_ptr_to_seval<cocos2d::Label>((cocos2d::Label*)result, &s.rval());
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_Label_createWithTTF : Error processing arguments");
+            return true;
+        }
+    } while (false);
+    do {
+        if (argc == 3) {
+            std::string arg0;
+            ok &= seval_to_std_string(args[0], &arg0);
+            if (!ok) { ok = true; break; }
+            std::string arg1;
+            ok &= seval_to_std_string(args[1], &arg1);
+            if (!ok) { ok = true; break; }
+            float arg2 = 0;
+            ok &= seval_to_float(args[2], &arg2);
+            if (!ok) { ok = true; break; }
+            cocos2d::Label* result = cocos2d::Label::createWithTTF(arg0, arg1, arg2);
+            ok &= native_ptr_to_seval<cocos2d::Label>((cocos2d::Label*)result, &s.rval());
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_Label_createWithTTF : Error processing arguments");
+            return true;
+        }
+    } while (false);
+    do {
+        if (argc == 4) {
+            std::string arg0;
+            ok &= seval_to_std_string(args[0], &arg0);
+            if (!ok) { ok = true; break; }
+            std::string arg1;
+            ok &= seval_to_std_string(args[1], &arg1);
+            if (!ok) { ok = true; break; }
+            float arg2 = 0;
+            ok &= seval_to_float(args[2], &arg2);
+            if (!ok) { ok = true; break; }
+            cocos2d::Size arg3;
+            ok &= seval_to_Size(args[3], &arg3);
+            if (!ok) { ok = true; break; }
+            cocos2d::Label* result = cocos2d::Label::createWithTTF(arg0, arg1, arg2, arg3);
+            ok &= native_ptr_to_seval<cocos2d::Label>((cocos2d::Label*)result, &s.rval());
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_Label_createWithTTF : Error processing arguments");
+            return true;
+        }
+    } while (false);
+    do {
+        if (argc == 5) {
+            std::string arg0;
+            ok &= seval_to_std_string(args[0], &arg0);
+            if (!ok) { ok = true; break; }
+            std::string arg1;
+            ok &= seval_to_std_string(args[1], &arg1);
+            if (!ok) { ok = true; break; }
+            float arg2 = 0;
+            ok &= seval_to_float(args[2], &arg2);
+            if (!ok) { ok = true; break; }
+            cocos2d::Size arg3;
+            ok &= seval_to_Size(args[3], &arg3);
+            if (!ok) { ok = true; break; }
+            cocos2d::TextHAlignment arg4;
+            ok &= seval_to_int8(args[4], (int8_t*)&arg4);
+            if (!ok) { ok = true; break; }
+            cocos2d::Label* result = cocos2d::Label::createWithTTF(arg0, arg1, arg2, arg3, arg4);
+            ok &= native_ptr_to_seval<cocos2d::Label>((cocos2d::Label*)result, &s.rval());
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_Label_createWithTTF : Error processing arguments");
+            return true;
+        }
+    } while (false);
+    do {
+        if (argc == 6) {
+            std::string arg0;
+            ok &= seval_to_std_string(args[0], &arg0);
+            if (!ok) { ok = true; break; }
+            std::string arg1;
+            ok &= seval_to_std_string(args[1], &arg1);
+            if (!ok) { ok = true; break; }
+            float arg2 = 0;
+            ok &= seval_to_float(args[2], &arg2);
+            if (!ok) { ok = true; break; }
+            cocos2d::Size arg3;
+            ok &= seval_to_Size(args[3], &arg3);
+            if (!ok) { ok = true; break; }
+            cocos2d::TextHAlignment arg4;
+            ok &= seval_to_int8(args[4], (int8_t*)&arg4);
+            if (!ok) { ok = true; break; }
+            cocos2d::TextVAlignment arg5;
+            ok &= seval_to_int8(args[5], (int8_t*)&arg5);
+            if (!ok) { ok = true; break; }
+            cocos2d::Label* result = cocos2d::Label::createWithTTF(arg0, arg1, arg2, arg3, arg4, arg5);
+            ok &= native_ptr_to_seval<cocos2d::Label>((cocos2d::Label*)result, &s.rval());
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_Label_createWithTTF : Error processing arguments");
+            return true;
+        }
+    } while (false);
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Label_createWithTTF)
+
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_Label_finalize)
 
 static bool js_cocos2dx_Label_constructor(se::State& s)
@@ -22391,6 +22559,7 @@ bool js_register_cocos2dx_Label(se::Object* obj)
     cls->defineFunction("getString", _SE(js_cocos2dx_Label_getString));
     cls->defineFunction("getHeight", _SE(js_cocos2dx_Label_getHeight));
     cls->defineFunction("disableEffect", _SE(js_cocos2dx_Label_disableEffect));
+    cls->defineFunction("setTTFConfig", _SE(js_cocos2dx_Label_setTTFConfig));
     cls->defineFunction("getTextColor", _SE(js_cocos2dx_Label_getTextColor));
     cls->defineFunction("getBlendFunc", _SE(js_cocos2dx_Label_getBlendFunc));
     cls->defineFunction("enableWrap", _SE(js_cocos2dx_Label_enableWrap));
@@ -22456,6 +22625,7 @@ bool js_register_cocos2dx_Label(se::Object* obj)
     cls->defineStaticFunction("create", _SE(js_cocos2dx_Label_create));
     cls->defineStaticFunction("createWithCharMap", _SE(js_cocos2dx_Label_createWithCharMap));
     cls->defineStaticFunction("createWithSystemFont", _SE(js_cocos2dx_Label_createWithSystemFont));
+    cls->defineStaticFunction("createWithTTF", _SE(js_cocos2dx_Label_createWithTTF));
     cls->defineFinalizeFunction(_SE(js_cocos2d_Label_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::Label>(cls);
