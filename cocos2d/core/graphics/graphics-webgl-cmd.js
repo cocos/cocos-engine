@@ -743,9 +743,9 @@ _p._expandFill = function () {
         if (path.complex) {
             var data = [];
             var start = offset*VERTS_FLOAT_LENGTH, end = buffer.vertsOffset*VERTS_FLOAT_LENGTH; 
-            for (var i = start; i < end; i+=VERTS_FLOAT_LENGTH) {
-                data.push(buffer.vertsBuffer[i]);
-                data.push(buffer.vertsBuffer[i+1]);
+            for (var j = start; j < end; j+=VERTS_FLOAT_LENGTH) {
+                data.push(buffer.vertsBuffer[j]);
+                data.push(buffer.vertsBuffer[j+1]);
             }
 
             var newIndices = Earcut(data, null, 2);

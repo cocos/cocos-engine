@@ -168,7 +168,6 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
 require('./cocos2d/kazmath');
 require('./cocos2d/core/predefine');
 
-ccui = {};
 ccs = {};
 cp = {};
 
