@@ -255,7 +255,7 @@ var Texture2D = cc.Class({
     properties: {
         _nativeAsset: {
             get () {
-                return this._image;
+                // returned to pool
             },
             set (image) {
                 this.initWithElement(image);

@@ -74,36 +74,26 @@ cc.loader.addDownloadHandlers({
 
 function loadImage (item, callback) {
     var url = item.url;
+    var isRemote = jsb.urlRegExp.test(url);
     var loadByDeserializedTexture = item._owner instanceof cc.Texture2D;
     if (loadByDeserializedTexture) {
         // load Image
-        if (url.match(jsb.urlRegExp)) {
-            jsb.initRemoteImg(item._owner, url, function(succeed) {
-                if (succeed) {
-                    callback && callback(null);
-                }
-                else {
-                    callback && callback(new Error('Load image failed: ' + url));
-                }
-            });
-        }
-        else {
-            cc.textureCache.initImageAsync(item._owner, url, function (tex) {
-                if (tex) {
-                    callback && callback(null);
-                }
-                else {
-                    callback && callback(new Error('Load image failed: ' + url));
-                }
-            });
-        }
+        var loader = isRemote ? jsb.initRemoteImg : jsb.initTextureAsync;
+        loader(item._owner, url, function(succeed) {
+            if (succeed) {
+                callback && callback(null);
+            }
+            else {
+                callback && callback(new Error('Load image failed: ' + url));
+            }
+        });
     }
     else {
         var cachedTex = cc.textureCache.getTextureForKey(url);
         if (cachedTex) {
             return cachedTex;
         }
-        else if (url.match(jsb.urlRegExp)) {
+        else if (isRemote) {
             jsb.loadRemoteImg(url, function(succeed, tex) {
                 if (succeed) {
                     callback && callback(null, tex);
