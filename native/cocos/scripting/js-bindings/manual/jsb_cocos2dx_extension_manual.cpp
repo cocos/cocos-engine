@@ -104,6 +104,9 @@ static bool js_cocos2dx_extension_loadRemoteImage(se::State& s)
                 {
                     onError();
                 }
+
+                // Downloader may use its member variables after this callback,
+                // therefore, we need to execute `delete` operation asynchronously, otherwise crash will be triggered.
                 Director::getInstance()->getScheduler()->performFunctionInCocosThread([downloader](){
                     delete downloader;
                 });
@@ -112,6 +115,9 @@ static bool js_cocos2dx_extension_loadRemoteImage(se::State& s)
             downloader->onTaskError = [downloader, onError](const cocos2d::network::DownloadTask& task, int errorCode, int errorCodeInternal, const std::string& errorStr)
             {
                 onError();
+
+                // Downloader may use its member variables after this callback,
+                // therefore, we need to execute `delete` operation asynchronously, otherwise crash will be triggered.
                 Director::getInstance()->getScheduler()->performFunctionInCocosThread([downloader](){
                     delete downloader;
                 });
