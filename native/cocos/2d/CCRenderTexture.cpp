@@ -85,7 +85,7 @@ RenderTexture::~RenderTexture()
     {
         glDeleteRenderbuffers(1, &_stencilRenderBufffer);
     }
-    CC_SAFE_DELETE(_UITextureImage);
+    CC_SAFE_RELEASE_NULL(_UITextureImage);
 }
 
 void RenderTexture::listenToBackground(EventCustom *event)
@@ -510,7 +510,7 @@ void RenderTexture::onSaveToFile(const std::string& filename, bool isRGBA)
     {
         _saveFileCallback(this, filename);
     }
-    CC_SAFE_DELETE(image);
+    CC_SAFE_RELEASE_NULL(image);
 }
 
 /* get buffer as Image */

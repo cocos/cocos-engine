@@ -58,16 +58,10 @@ typedef struct _MipmapInfo
 class CC_DLL Image : public Ref
 {
 public:
-    friend class TextureCache;
     /**
      * @js ctor
      */
     Image();
-    /**
-     * @js NA
-     * @lua NA
-     */
-    virtual ~Image();
 
     /** Supported formats for Image */
     enum class Format
@@ -200,14 +194,14 @@ protected:
     Image(const Image& rImg);
     Image& operator=(const Image&);
 
-    /*
-     @brief The same result as with initWithImageFile, but thread safe. It is caused by
-     loadImage() in TextureCache.cpp.
-     @param fullpath  full path of the file.
-     @param imageType the type of image, currently only supporting two types.
-     @return  true if loaded correctly.
+    Image(Image&& rImg);
+    Image& operator=(Image&&);
+
+    /**
+     * @js NA
+     * @lua NA
      */
-    bool initWithImageFileThreadSafe(const std::string& fullpath);
+    virtual ~Image();
 
     Format detectFormat(const unsigned char * data, ssize_t dataLen);
     bool isPng(const unsigned char * data, ssize_t dataLen);

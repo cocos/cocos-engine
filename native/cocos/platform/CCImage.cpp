@@ -374,21 +374,6 @@ bool Image::initWithImageFile(const std::string& path)
     return ret;
 }
 
-bool Image::initWithImageFileThreadSafe(const std::string& fullpath)
-{
-    bool ret = false;
-    _filePath = fullpath;
-
-    Data data = FileUtils::getInstance()->getDataFromFile(fullpath);
-
-    if (!data.isNull())
-    {
-        ret = initWithImageData(data.getBytes(), data.getSize());
-    }
-
-    return ret;
-}
-
 bool Image::initWithImageData(const unsigned char * data, ssize_t dataLen)
 {
     bool ret = false;
