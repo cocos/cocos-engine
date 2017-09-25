@@ -602,10 +602,19 @@ SE_BIND_CTOR(XMLHttpRequest_constructor, __jsb_XMLHttpRequest_class, XMLHttpRequ
 static bool XMLHttpRequest_open(se::State& s)
 {
     const auto& args = s.args();
-    XMLHttpRequest* request = (XMLHttpRequest*)s.nativeThisObject();
-    const std::string& method = args[0].toString();
-    const std::string& url = args[1].toString();
-    return request->open(method, url);
+    int argc = (int)args.size();
+    if (argc >= 2)
+    {
+        XMLHttpRequest* request = (XMLHttpRequest*)s.nativeThisObject();
+        const std::string& method = args[0].toString();
+        const std::string& url = args[1].toString();
+        bool ret = request->open(method, url);
+        s.rval().setBoolean(ret);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting >=2", (int)argc);
+    return false;
 }
 SE_BIND_FUNC(XMLHttpRequest_open)
 
