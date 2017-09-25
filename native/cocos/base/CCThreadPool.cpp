@@ -25,7 +25,7 @@
  
  ****************************************************************************/
 
-#include "audio/android/CCThreadPool.h"
+#include "base/CCThreadPool.h"
 #include <sys/time.h>
 
 

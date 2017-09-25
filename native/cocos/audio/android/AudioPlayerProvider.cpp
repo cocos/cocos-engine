@@ -24,6 +24,7 @@ THE SOFTWARE.
 
 #define LOG_TAG "AudioPlayerProvider"
 
+#include "base/CCThreadPool.h"
 #include "audio/android/AudioPlayerProvider.h"
 #include "audio/android/UrlAudioPlayer.h"
 #include "audio/android/PcmAudioPlayer.h"
@@ -31,7 +32,6 @@ THE SOFTWARE.
 #include "audio/android/AudioDecoderProvider.h"
 #include "audio/android/AudioMixerController.h"
 #include "audio/android/PcmAudioService.h"
-#include "audio/android/CCThreadPool.h"
 #include "audio/android/ICallerThreadUtils.h"
 #include "audio/android/utils/Utils.h"
 

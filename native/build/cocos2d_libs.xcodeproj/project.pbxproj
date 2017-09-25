@@ -1155,6 +1155,8 @@
 		826294331AAF001C00CB7CF7 /* HttpAsynConnection-apple.m in Sources */ = {isa = PBXBuildFile; fileRef = 52B47A2A1A5349A3004E4C60 /* HttpAsynConnection-apple.m */; };
 		826294341AAF003E00CB7CF7 /* HttpClient-apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 52B47A2B1A5349A3004E4C60 /* HttpClient-apple.mm */; };
 		826294351AAF004C00CB7CF7 /* HttpCookie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52B47A2C1A5349A3004E4C60 /* HttpCookie.cpp */; };
+		844EB11F1F78D4CB00EFE4CD /* CCThreadPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 844EB11D1F78D4CA00EFE4CD /* CCThreadPool.cpp */; };
+		844EB1201F78D4CB00EFE4CD /* CCThreadPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 844EB11E1F78D4CA00EFE4CD /* CCThreadPool.h */; };
 		A0534A651B872FFD006B03E5 /* CCDownloader-apple.h in Headers */ = {isa = PBXBuildFile; fileRef = A0534A631B872FFD006B03E5 /* CCDownloader-apple.h */; };
 		A0534A661B872FFD006B03E5 /* CCDownloader-apple.h in Headers */ = {isa = PBXBuildFile; fileRef = A0534A631B872FFD006B03E5 /* CCDownloader-apple.h */; };
 		A0534A671B872FFD006B03E5 /* CCDownloader-apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = A0534A641B872FFD006B03E5 /* CCDownloader-apple.mm */; };
@@ -2229,6 +2231,8 @@
 		52B47A2B1A5349A3004E4C60 /* HttpClient-apple.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "HttpClient-apple.mm"; sourceTree = "<group>"; };
 		52B47A2C1A5349A3004E4C60 /* HttpCookie.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HttpCookie.cpp; sourceTree = "<group>"; };
 		52B47A2D1A5349A3004E4C60 /* HttpCookie.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HttpCookie.h; sourceTree = "<group>"; };
+		844EB11D1F78D4CA00EFE4CD /* CCThreadPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CCThreadPool.cpp; path = ../base/CCThreadPool.cpp; sourceTree = "<group>"; };
+		844EB11E1F78D4CA00EFE4CD /* CCThreadPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCThreadPool.h; path = ../base/CCThreadPool.h; sourceTree = "<group>"; };
 		A0534A631B872FFD006B03E5 /* CCDownloader-apple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CCDownloader-apple.h"; sourceTree = "<group>"; };
 		A0534A641B872FFD006B03E5 /* CCDownloader-apple.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCDownloader-apple.mm"; sourceTree = "<group>"; };
 		A0534A691B87306E006B03E5 /* CCIDownloaderImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCIDownloaderImpl.h; sourceTree = "<group>"; };
@@ -2734,6 +2738,8 @@
 		1A5700A2180BC5E60088DEC7 /* base */ = {
 			isa = PBXGroup;
 			children = (
+				844EB11D1F78D4CA00EFE4CD /* CCThreadPool.cpp */,
+				844EB11E1F78D4CA00EFE4CD /* CCThreadPool.h */,
 				A6F0D79F1C2796020029CC44 /* CCStencilStateManager.cpp */,
 				A6F0D7A01C2796020029CC44 /* CCStencilStateManager.hpp */,
 				291901411B05895600F8B4BA /* CCNinePatchImageParser.h */,
@@ -4529,6 +4535,7 @@
 				50ABBEBD1925AB6F00A911A9 /* ccUtils.h in Headers */,
 				4DED486E1DFFA4AF0070C5C4 /* b2MouseJoint.h in Headers */,
 				A0534A651B872FFD006B03E5 /* CCDownloader-apple.h in Headers */,
+				844EB1201F78D4CB00EFE4CD /* CCThreadPool.h in Headers */,
 				BA679B361CEC373000F875FA /* CCEventAssetsManagerEx.h in Headers */,
 				50ABC0231926664800A911A9 /* CCGLViewImpl-desktop.h in Headers */,
 				A63CF0081CD9CF3500A6971D /* CCUIPasswordTextField.h in Headers */,
@@ -5164,6 +5171,7 @@
 				1A570081180BC5A10088DEC7 /* CCActionManager.cpp in Sources */,
 				1A570085180BC5A10088DEC7 /* CCActionPageTurn3D.cpp in Sources */,
 				FAC8F66A1E1DF15D002B17E8 /* SkeletonBinary.c in Sources */,
+				844EB11F1F78D4CB00EFE4CD /* CCThreadPool.cpp in Sources */,
 				1A570089180BC5A10088DEC7 /* CCActionProgressTimer.cpp in Sources */,
 				1A57008D180BC5A10088DEC7 /* CCActionTiledGrid.cpp in Sources */,
 				1A570091180BC5A10088DEC7 /* CCActionTween.cpp in Sources */,
