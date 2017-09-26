@@ -1,9 +1,11 @@
 
 var JS = cc.js;
 var Playable = require('./playable');
-var WrappedInfo = require('./types').WrappedInfo;
-var WrapMode = require('./types').WrapMode;
-var WrapModeMask = require('./types').WrapModeMask;
+
+var Types = require('./types');
+var WrappedInfo = Types.WrappedInfo;
+var WrapMode = Types.WrapMode;
+var WrapModeMask = Types.WrapModeMask;
 
 /**
  * !#en
