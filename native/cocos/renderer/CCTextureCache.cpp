@@ -236,7 +236,7 @@ void TextureCache::loadImage()
         }
 
         // load image
-        asyncStruct->loadSuccess = asyncStruct->image->initWithImageFileThreadSafe(asyncStruct->filename);
+        asyncStruct->loadSuccess = asyncStruct->image->initWithImageFile(asyncStruct->filename);
 
         // push the asyncStruct to response queue
         _responseMutex.lock();
