@@ -80,7 +80,7 @@ public:
     bool hasAnimation(const std::string& animationName) const;
     bool isPlaying() const;
     bool isCompleted() const;
-    const std::string& getLastAnimationName() const;
+    std::string getLastAnimationName() const;
     void setAnimations(const std::map<std::string, AnimationData*>& value);
 
     inline AnimationState* getLastAnimationState() const

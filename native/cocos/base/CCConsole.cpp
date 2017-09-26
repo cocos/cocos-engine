@@ -39,10 +39,15 @@
 #include <io.h>
 #include <WS2tcpip.h>
 #include <Winsock2.h>
+
 #if defined(__MINGW32__)
 #include "platform/win32/inet_pton_mingw.h"
 #endif
+
+#ifndef bzero
 #define bzero(a, b) memset(a, 0, b);
+#endif
+
 #else
 #include <netdb.h>
 #include <unistd.h>
@@ -54,7 +59,11 @@
 #endif
 
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+
+#ifndef bzero
 #define bzero(a, b) memset(a, 0, b);
+#endif
+
 #endif
 
 #include "base/CCDirector.h"
