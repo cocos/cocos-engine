@@ -64,7 +64,6 @@ p.addAnimation = function (anim) {
     var index = this._anims.array.indexOf(anim);
     if (index === -1) {
         this._anims.push(anim);
-        cc.director.getAnimationManager().addAnimation(anim);
     }
 
     var listeners = this.animation._listeners;
@@ -78,7 +77,6 @@ p.removeAnimation = function (anim) {
     var index = this._anims.array.indexOf(anim);
     if (index >= 0) {
         this._anims.fastRemoveAt(index);
-        cc.director.getAnimationManager().removeAnimation(anim);
 
         if (this._anims.array.length === 0) {
             this.stop();
@@ -155,7 +153,6 @@ p.onPause = function () {
     for (var i = 0; i < array.length; ++i) {
         var anim = array[i];
         anim.pause();
-        cc.director.getAnimationManager().removeAnimation(anim);
 
         // need to unbind animator to anim, or it maybe cannot be gc.
         anim.animator = null;
@@ -166,7 +163,6 @@ p.onResume = function () {
     var array = this._anims.array;
     for (var i = 0; i < array.length; ++i) {
         var anim = array[i];
-        cc.director.getAnimationManager().addAnimation(anim);
         
         // rebind animator to anim
         anim.animator = this;

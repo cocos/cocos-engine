@@ -33,7 +33,7 @@ var AnimationManager = cc.Class({
 
 
     /**
-     * @param {AnimationNode} anim
+     * @param {AnimationState} anim
      */
     addAnimation: function (anim) {
         var index = this._anims.array.indexOf(anim);
@@ -43,7 +43,7 @@ var AnimationManager = cc.Class({
     },
 
     /**
-     * @param {AnimationNode} anim
+     * @param {AnimationState} anim
      */
     removeAnimation: function (anim) {
         var index = this._anims.array.indexOf(anim);

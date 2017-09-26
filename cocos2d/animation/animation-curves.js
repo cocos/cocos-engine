@@ -42,11 +42,11 @@ var AnimCurve = cc.Class({
     // @method sample
     // @param {number} time
     // @param {number} ratio - The normalized time specified as a number between 0.0 and 1.0 inclusive.
-    // @param {AnimationNode} animationNode
+    // @param {AnimationState} state
     //
-    sample: function (time, ratio, animationNode) {},
+    sample: function (time, ratio, state) {},
 
-    onTimeChangedManually: function () {}
+    onTimeChangedManually: undefined
 });
 
 /**
@@ -122,7 +122,7 @@ var DynamicAnimCurve = cc.Class({
 
     _findFrameIndex: binarySearch,
 
-    sample: function (time, ratio, animationNode) {
+    sample: function (time, ratio, state) {
         var values = this.values;
         var ratios = this.ratios;
         var frameCount = ratios.length;
@@ -287,10 +287,10 @@ var EventAnimCurve = cc.Class({
         return iterations | 0;
     },
 
-    sample: function (time, ratio, animationNode) {
+    sample: function (time, ratio, state) {
         var length = this.ratios.length;
 
-        var currentWrappedInfo = animationNode.getWrappedInfo(animationNode.time, this._wrappedInfo);
+        var currentWrappedInfo = state.getWrappedInfo(state.time, this._wrappedInfo);
         var direction = currentWrappedInfo.direction;
         var currentIndex = binarySearch(this.ratios, currentWrappedInfo.ratio);
         if (currentIndex < 0) {
@@ -312,7 +312,7 @@ var EventAnimCurve = cc.Class({
             return;
         }
 
-        var wrapMode = animationNode.wrapMode;
+        var wrapMode = state.wrapMode;
         var currentIterations = this._wrapIterations(currentWrappedInfo.iterations);
 
         var lastWrappedInfo = this._lastWrappedInfo;
@@ -389,11 +389,11 @@ var EventAnimCurve = cc.Class({
         }
     },
 
-    onTimeChangedManually: function (time, animationNode) {
+    onTimeChangedManually: function (time, state) {
         this._lastWrappedInfo = null;
         this._ignoreIndex = NaN;
 
-        var info = animationNode.getWrappedInfo(time, this._wrappedInfo);
+        var info = state.getWrappedInfo(time, this._wrappedInfo);
         var direction = info.direction;
         var frameIndex = binarySearch(this.ratios, info.ratio);
 
