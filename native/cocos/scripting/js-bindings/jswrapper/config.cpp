@@ -30,8 +30,6 @@ static void _winLog(const char *format, va_list args)
 
     } while (true);
 
-    strcat(buf, "\n");
-
     int pos = 0;
     int len = strlen(buf);
     char tempBuf[MAX_LOG_LENGTH + 1] = { 0 };
