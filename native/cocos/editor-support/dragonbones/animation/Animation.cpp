@@ -482,7 +482,7 @@ bool Animation::isCompleted() const
     return false;
 }
 
-const std::string& Animation::getLastAnimationName() const
+std::string Animation::getLastAnimationName() const
 {
     if (_lastAnimationState)
     {
