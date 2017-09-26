@@ -446,6 +446,8 @@
 		1AD473AD1EAD9A5300202582 /* Uri.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AD473AB1EAD9A5200202582 /* Uri.h */; };
 		1AD473AE1EAD9A5600202582 /* Uri.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AD473AA1EAD9A5200202582 /* Uri.cpp */; };
 		1AD473AF1EAD9A5900202582 /* Uri.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AD473AB1EAD9A5200202582 /* Uri.h */; };
+		1AFFCD771F7A59B200628F2C /* CCThreadPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 844EB11D1F78D4CA00EFE4CD /* CCThreadPool.cpp */; };
+		1AFFCD781F7A59B200628F2C /* CCThreadPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 844EB11E1F78D4CA00EFE4CD /* CCThreadPool.h */; };
 		291901431B05895600F8B4BA /* CCNinePatchImageParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 291901411B05895600F8B4BA /* CCNinePatchImageParser.h */; };
 		291901441B05895600F8B4BA /* CCNinePatchImageParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 291901411B05895600F8B4BA /* CCNinePatchImageParser.h */; };
 		291901451B05895600F8B4BA /* CCNinePatchImageParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 291901421B05895600F8B4BA /* CCNinePatchImageParser.cpp */; };
@@ -4913,6 +4915,7 @@
 				1A570313180BCF190088DEC7 /* CCComponentContainer.h in Headers */,
 				15AE1BC419AADFFB00C27E9E /* ExtensionMacros.h in Headers */,
 				15AE1BFE19AAE01E00C27E9E /* CCInvocation.h in Headers */,
+				1AFFCD781F7A59B200628F2C /* CCThreadPool.h in Headers */,
 				4DC06BF01E8B604B00CA08B1 /* CCPhysicsManifoldWrapper.h in Headers */,
 				50ABBD4B1925AB0000A911A9 /* Mat4.h in Headers */,
 				15AE1BBE19AADFF000C27E9E /* SocketIO.h in Headers */,
@@ -5731,6 +5734,7 @@
 				1A28FF8C1F20AFAB007A1D9D /* SRURLUtilities.m in Sources */,
 				1A570301180BCE890088DEC7 /* CCParallaxNode.cpp in Sources */,
 				1A57030D180BCF190088DEC7 /* CCComponent.cpp in Sources */,
+				1AFFCD771F7A59B200628F2C /* CCThreadPool.cpp in Sources */,
 				464AD6E6197EBB1400E502D8 /* pvr.cpp in Sources */,
 				1A28FF541F20AFAB007A1D9D /* SRIOConsumer.m in Sources */,
 				1A570311180BCF190088DEC7 /* CCComponentContainer.cpp in Sources */,
