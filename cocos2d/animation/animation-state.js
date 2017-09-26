@@ -144,10 +144,14 @@ cc.js.mixin(proto, cc.EventTarget.prototype);
 proto.onPlay = function () {
     // replay
     this.setTime(0);
-
+    this._delayTime = this._delay;
+    
     cc.director.getAnimationManager().addAnimation(this);
 
-    this._delayTime = this._delay;
+    if (this.animator) {
+        this.animator.addAnimation(this);
+    }
+    
     this.emit('play', this);
 };
 

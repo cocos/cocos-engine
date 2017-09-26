@@ -29,7 +29,6 @@ p.playState = function (state, startTime) {
         initClipData(this.target, state);
     }
 
-    this.addAnimation(state);
     state.animator = this;
     state.play();
 
