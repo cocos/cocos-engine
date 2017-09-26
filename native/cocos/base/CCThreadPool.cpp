@@ -25,8 +25,7 @@
  
  ****************************************************************************/
 
-#include "audio/android/CCThreadPool.h"
-#include <sys/time.h>
+#include "base/CCThreadPool.h"
 
 
 #ifdef __ANDROID__
@@ -165,7 +164,7 @@ bool ThreadPool::tryShrinkPool()
 
     for (int i = 0; i < _maxThreadNum; ++i)
     {
-        if (threadIDsToJoin.size() >= maxThreadNumToJoin)
+        if ((int)threadIDsToJoin.size() >= maxThreadNumToJoin)
         {
             break;
         }
@@ -330,7 +329,7 @@ void ThreadPool::stopTasksByType(TaskType type)
 
 void ThreadPool::joinThread(int tid)
 {
-    if (tid < 0 || tid >= _threads.size())
+    if (tid < 0 || tid >= (int)_threads.size())
     {
         LOGD("Invalid thread id %d\n", tid);
         return;
