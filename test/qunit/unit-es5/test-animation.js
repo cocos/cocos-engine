@@ -75,9 +75,9 @@ test('DynamicAnimCurve', function () {
     deepEqual(target.foo, { bar: color(128, 128, 128, 140) }, 'The composed color should animated');
 });
 
-test('AnimationNode.getWrappedInfo', function () {
+test('AnimationState.getWrappedInfo', function () {
     var info;
-    var animation = new cc.AnimationNode();
+    var animation = new cc.AnimationState();
 
     animation.duration = 2;
     animation.wrapMode = cc.WrapMode.PingPong;
