@@ -191,11 +191,12 @@ protected:
 
 protected:
     // noncopyable
-    Image(const Image& rImg);
-    Image& operator=(const Image&);
+    Image(const Image&) = delete;
+    Image& operator=(const Image&) = delete;
 
-    Image(Image&& rImg);
-    Image& operator=(Image&&);
+    // nonmoveable
+    Image(Image&&) = delete;
+    Image& operator=(Image&&) = delete;
 
     /**
      * @js NA
