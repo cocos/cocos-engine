@@ -689,9 +689,6 @@
     <ClCompile Include="..\base\CCStencilStateManager.cpp">
       <Filter>base</Filter>
     </ClCompile>
-    <ClCompile Include="..\ui\UIPageViewIndicator.cpp">
-      <Filter>ui\UIWidgets\ScrollWidget</Filter>
-    </ClCompile>
     <ClCompile Include="..\editor-support\creator\CCScale9Sprite.cpp">
       <Filter>creator</Filter>
     </ClCompile>
@@ -785,6 +782,9 @@
     </ClCompile>
     <ClCompile Include="..\network\WebSocket-libwebsockets.cpp">
       <Filter>network\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\base\CCThreadPool.cpp">
+      <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1480,8 +1480,6 @@
     <ClInclude Include="..\..\external\sources\poly2tri\sweep\cdt.h" />
     <ClInclude Include="..\..\external\sources\poly2tri\sweep\sweep.h" />
     <ClInclude Include="..\..\external\sources\poly2tri\sweep\sweep_context.h" />
-    <ClInclude Include="..\ui\UIAbstractCheckButton.h" />
-    <ClInclude Include="..\ui\UITabControl.h" />
     <ClInclude Include="..\editor-support\creator\CCCameraNode.h">
       <Filter>creator</Filter>
     </ClInclude>
@@ -1544,6 +1542,9 @@
     </ClInclude>
     <ClInclude Include="..\ui\UIEditBox\UIEditBoxImpl-common.h">
       <Filter>ui\UIWidgets\EditBox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\base\CCThreadPool.h">
+      <Filter>base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
