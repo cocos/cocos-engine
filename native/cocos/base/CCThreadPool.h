@@ -26,7 +26,7 @@
  ****************************************************************************/
 #pragma once
 
-//#include "platform/CCPlatformMacros.h"
+#include "platform/CCStdC.h"
 
 #include <functional>
 #include <memory>
@@ -44,7 +44,7 @@ namespace cocos2d { namespace experimental {
  * @{
  */
 
-class ThreadPool
+class CC_DLL ThreadPool
 {
 public:
 
