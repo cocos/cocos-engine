@@ -1467,6 +1467,7 @@ SE_DECLARE_FUNC(js_cocos2dx_Label_getWidth);
 SE_DECLARE_FUNC(js_cocos2dx_Label_getString);
 SE_DECLARE_FUNC(js_cocos2dx_Label_getHeight);
 SE_DECLARE_FUNC(js_cocos2dx_Label_disableEffect);
+SE_DECLARE_FUNC(js_cocos2dx_Label_setTTFConfig);
 SE_DECLARE_FUNC(js_cocos2dx_Label_getTextColor);
 SE_DECLARE_FUNC(js_cocos2dx_Label_getBlendFunc);
 SE_DECLARE_FUNC(js_cocos2dx_Label_enableWrap);
@@ -1531,6 +1532,7 @@ SE_DECLARE_FUNC(js_cocos2dx_Label_createWithBMFont);
 SE_DECLARE_FUNC(js_cocos2dx_Label_create);
 SE_DECLARE_FUNC(js_cocos2dx_Label_createWithCharMap);
 SE_DECLARE_FUNC(js_cocos2dx_Label_createWithSystemFont);
+SE_DECLARE_FUNC(js_cocos2dx_Label_createWithTTF);
 SE_DECLARE_FUNC(js_cocos2dx_Label_Label);
 
 extern se::Object* __jsb_cocos2d_LabelTTF_proto;

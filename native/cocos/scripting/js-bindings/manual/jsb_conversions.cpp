@@ -1058,10 +1058,58 @@ bool seval_to_DownloaderHints(const se::Value& v, cocos2d::network::DownloaderHi
     return ok;
 }
 
-
 bool seval_to_TTFConfig(const se::Value& v, cocos2d::TTFConfig* ret)
 {
-    assert(false); //FIXME:
+    se::Value js_fontFilePath;
+    se::Value js_fontSize;
+    se::Value js_outlineSize;
+    se::Value js_glyphs;
+    se::Value js_customGlyphs;
+    se::Value js_distanceFieldEnable;
+
+    std::string fontFilePath,customGlyphs;
+
+    bool ok = v.isObject();
+    if (ok)
+    {
+        se::Object* obj = v.toObject();
+        if (obj->getProperty("fontFilePath", &js_fontFilePath) && js_fontFilePath.isString())
+        {
+            ok &= seval_to_std_string(js_fontFilePath, &ret->fontFilePath);
+        }
+
+        if (obj->getProperty("fontSize", &js_fontSize) && js_fontSize.isNumber())
+        {
+            ret->fontSize = (float)js_fontSize.toNumber();
+        }
+
+        if (obj->getProperty("outlineSize", &js_outlineSize) && js_outlineSize.isNumber())
+        {
+            ret->outlineSize = (int)js_outlineSize.toNumber();
+        }
+
+        if (obj->getProperty("glyphs", &js_glyphs) && js_glyphs.isNumber())
+        {
+            ret->glyphs = (cocos2d::GlyphCollection)(js_glyphs.toInt32());
+        }
+
+        if (obj->getProperty("customGlyphs", &js_customGlyphs) && js_customGlyphs.isString())
+        {
+            ok &= seval_to_std_string(js_customGlyphs,&customGlyphs);
+        }
+        if(ret->glyphs == cocos2d::GlyphCollection::CUSTOM && !customGlyphs.empty())
+            ret->customGlyphs = customGlyphs.c_str();
+        else
+            ret->customGlyphs = "";
+
+        if (obj->getProperty("distanceFieldEnable", &js_distanceFieldEnable) && js_distanceFieldEnable.isBoolean())
+        {
+            ret->distanceFieldEnabled = js_distanceFieldEnable.toBoolean();
+        }
+    }
+
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+
     return true;
 }
 

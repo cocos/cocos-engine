@@ -68,8 +68,12 @@ public:
 
         se::Object* wsObj = iter->second;
         wsObj->setProperty("protocol", se::Value(ws->getProtocol()));
+
         se::HandleObject jsObj(se::Object::createPlainObject());
         jsObj->setProperty("type", se::Value("open"));
+        se::Value target;
+        native_ptr_to_seval<WebSocket>(ws, &target);
+        jsObj->setProperty("target", target);
 
         se::Value func;
         bool ok = _JSDelegate.toObject()->getProperty("onopen", &func);
@@ -100,6 +104,9 @@ public:
         se::Object* wsObj = iter->second;
         se::HandleObject jsObj(se::Object::createPlainObject());
         jsObj->setProperty("type", se::Value("message"));
+        se::Value target;
+        native_ptr_to_seval<WebSocket>(ws, &target);
+        jsObj->setProperty("target", target);
 
         se::Value func;
         bool ok = _JSDelegate.toObject()->getProperty("onmessage", &func);
@@ -164,6 +171,9 @@ public:
             se::Object* wsObj = iter->second;
             se::HandleObject jsObj(se::Object::createPlainObject());
             jsObj->setProperty("type", se::Value("close"));
+            se::Value target;
+            native_ptr_to_seval<WebSocket>(ws, &target);
+            jsObj->setProperty("target", target);
 
             se::Value func;
             bool ok = _JSDelegate.toObject()->getProperty("onclose", &func);
@@ -199,6 +209,9 @@ public:
         se::Object* wsObj = iter->second;
         se::HandleObject jsObj(se::Object::createPlainObject());
         jsObj->setProperty("type", se::Value("error"));
+        se::Value target;
+        native_ptr_to_seval<WebSocket>(ws, &target);
+        jsObj->setProperty("target", target);
 
         se::Value func;
         bool ok = _JSDelegate.toObject()->getProperty("onerror", &func);

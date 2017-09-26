@@ -9084,6 +9084,18 @@ labeleffect
 },
 
 /**
+ * @method setTTFConfig
+ * @param {cc._ttfConfig} arg0
+ * @return {bool}
+ */
+setTTFConfig : function (
+_ttfconfig 
+)
+{
+    return false;
+},
+
+/**
  * @method getTextColor
  * @return {color4b_object}
  */
@@ -9771,6 +9783,28 @@ str,
 float, 
 size, 
 texthalignment, 
+textvalignment 
+)
+{
+    return cc.Label;
+},
+
+/**
+ * @method createWithTTF
+* @param {cc._ttfConfig|String} _ttfconfig
+* @param {String|String} str
+* @param {cc.TextHAlignment|float} texthalignment
+* @param {int|size_object} int
+* @param {cc.TextHAlignment} texthalignment
+* @param {cc.TextVAlignment} textvalignment
+* @return {cc.Label|cc.Label}
+*/
+createWithTTF : function(
+str,
+str,
+float,
+size,
+texthalignment,
 textvalignment 
 )
 {

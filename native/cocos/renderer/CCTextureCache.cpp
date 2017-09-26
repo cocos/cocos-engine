@@ -83,12 +83,25 @@ std::string TextureCache::getDescription() const
 struct TextureCache::AsyncStruct
 {
 public:
-    AsyncStruct(const std::string& fn, std::function<void(Texture2D*)> f) : filename(fn), callback(f), pixelFormat(Texture2D::getDefaultAlphaPixelFormat()), loadSuccess(false) {}
+    AsyncStruct(const std::string& fn, std::function<void(Texture2D*)> f)
+    : filename(fn)
+    , callback(f)
+    , image(new (std::nothrow) Image())
+    , imageAlpha(new (std::nothrow) Image())
+    , pixelFormat(Texture2D::getDefaultAlphaPixelFormat())
+    , loadSuccess(false)
+    {}
+
+    ~AsyncStruct()
+    {
+        CC_SAFE_RELEASE(image);
+        CC_SAFE_RELEASE(imageAlpha);
+    }
 
     std::string filename;
     std::function<void(Texture2D*)> callback;
-    Image image;
-    Image imageAlpha;
+    Image* image;
+    Image* imageAlpha;
     Texture2D::PixelFormat pixelFormat;
     bool loadSuccess;
 };
@@ -223,7 +236,7 @@ void TextureCache::loadImage()
         }
 
         // load image
-        asyncStruct->loadSuccess = asyncStruct->image.initWithImageFileThreadSafe(asyncStruct->filename);
+        asyncStruct->loadSuccess = asyncStruct->image->initWithImageFile(asyncStruct->filename);
 
         // push the asyncStruct to response queue
         _responseMutex.lock();
@@ -270,7 +283,7 @@ void TextureCache::addImageAsyncCallBack(float dt)
             // convert image to texture
             if (asyncStruct->loadSuccess)
             {
-                Image* image = &(asyncStruct->image);
+                Image* image = asyncStruct->image;
                 // generate texture in render thread
                 texture = new (std::nothrow) Texture2D();
 
@@ -638,7 +651,7 @@ void TextureCache::renameTextureWithKey(const std::string& srcName, const std::s
                 _textures.insert(std::make_pair(fullpath, tex));
                 _textures.erase(it);
             }
-            CC_SAFE_DELETE(image);
+            CC_SAFE_RELEASE(image);
         }
     }
 }

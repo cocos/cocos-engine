@@ -293,7 +293,7 @@ void SpriteFrameCache::addSpriteFramesWithDictionary(ValueMap& dictionary, Textu
         // add sprite frame
         _spriteFrames.insert(spriteFrameName, spriteFrame);
     }
-    CC_SAFE_DELETE(image);
+    CC_SAFE_RELEASE(image);
 }
 
 void SpriteFrameCache::addSpriteFramesWithDictionary(ValueMap& dict, const std::string &texturePath)
