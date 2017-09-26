@@ -169,7 +169,7 @@ AutoPolygon::AutoPolygon(const std::string &filename)
 
 AutoPolygon::~AutoPolygon()
 {
-    CC_SAFE_DELETE(_image);
+    CC_SAFE_RELEASE(_image);
 }
 
 std::vector<Vec2> AutoPolygon::trace(const Rect& rect, const float& threshold)
