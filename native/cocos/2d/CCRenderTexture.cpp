@@ -93,7 +93,7 @@ void RenderTexture::listenToBackground(EventCustom *event)
     // We have not found a way to dispatch the enter background message before the texture data are destroyed.
     // So we disable this pair of message handler at present.
 #if CC_ENABLE_CACHE_TEXTURE_DATA
-    CC_SAFE_DELETE(_UITextureImage);
+    CC_SAFE_RELEASE(_UITextureImage);
 
     // to get the rendered texture data
     _UITextureImage = newImage(false);
