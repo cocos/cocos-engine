@@ -275,10 +275,9 @@ static bool js_cocos2dx_extension_initTextureAsync(se::State& s)
             Image* image = new (std::nothrow) Image();
             if (image->initWithImageData(data.getBytes(), data.getSize()))
             {
-                Director::getInstance()->getScheduler()->performFunctionInCocosThread([=]() mutable {
+                Director::getInstance()->getScheduler()->performFunctionInCocosThread([=]() {
                     if (texture->initWithImage(image))
                     {
-                        // Director::getInstance()->getTextureCache()->parseNinePatchImage(image, texture, url);
                         onCallback(true);
                     }
                     else
@@ -286,14 +285,14 @@ static bool js_cocos2dx_extension_initTextureAsync(se::State& s)
                         CCLOGERROR("js_cocos2dx_extension_initTextureAsync: Failed to init texture with image.");
                         onCallback(false);
                     }
-                    CC_SAFE_RELEASE_NULL(image);
+                    CC_SAFE_RELEASE(image);
                 });
                 return;
             }
             else
             {
                 CCLOGERROR("js_cocos2dx_extension_initTextureAsync: Failed to load image.");
-                CC_SAFE_RELEASE_NULL(image);
+                CC_SAFE_RELEASE(image);
             }
         }
         else
