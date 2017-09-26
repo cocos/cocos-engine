@@ -177,10 +177,10 @@ static bool js_cocos2dx_extension_initRemoteImage(se::State& s)
     {
         bool success = false;
 
-        Image image;
-        if (image.initWithImageData(data.data(), data.size()))
+        Image* image = new (std::nothrow) Image();
+        if (image->initWithImageData(data.data(), data.size()))
         {
-            if (texture->initWithImage(&image))
+            if (texture->initWithImage(image))
             {
                 success = true;
             }
@@ -189,6 +189,7 @@ static bool js_cocos2dx_extension_initRemoteImage(se::State& s)
                 CCLOGERROR("js_cocos2dx_extension_loadRemoteImageOn: Failed to initWithImage.");
             }
         }
+        CC_SAFE_RELEASE_NULL(image);
 
         onCallback(success);
         Director::getInstance()->getScheduler()->performFunctionInCocosThread([downloader](){
@@ -283,14 +284,14 @@ static bool js_cocos2dx_extension_initTextureAsync(se::State& s)
                         CCLOGERROR("js_cocos2dx_extension_initTextureAsync: Failed to init texture with image.");
                         onCallback(false);
                     }
-                    CC_SAFE_DELETE(image);
+                    CC_SAFE_RELEASE_NULL(image);
                 });
                 return;
             }
             else
             {
                 CCLOGERROR("js_cocos2dx_extension_initTextureAsync: Failed to load image.");
-                CC_SAFE_DELETE(image);
+                CC_SAFE_RELEASE_NULL(image);
             }
         }
         else
