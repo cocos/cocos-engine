@@ -264,11 +264,13 @@ static bool js_cocos2dx_extension_initTextureAsync(se::State& s)
         func.toObject()->call(args, nullptr);
     };
 
-    getThreadPool()->pushTask([=](int tid){
-        bool success = false;
+    // getDataFromFile isn't thread safe since fullPathForFilename usage in getDataFromFile isn't.
+    // So we should pass full path to getDataFromFile to avoid multi-thread issues.
+    std::string fullPath = FileUtils::getInstance()->fullPathForFilename(url);
 
-        Data data = FileUtils::getInstance()->getDataFromFile(url);
-        if (data.isNull() == false)
+    getThreadPool()->pushTask([texture, onCallback, fullPath](int tid){
+        Data data = FileUtils::getInstance()->getDataFromFile(fullPath);
+        if (!data.isNull())
         {
             Image* image = new (std::nothrow) Image();
             if (image->initWithImageData(data.getBytes(), data.getSize()))
