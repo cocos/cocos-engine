@@ -85,6 +85,7 @@ bool AppDelegate::applicationDidFinishLaunching()
 
 #endif
 
+    jsb_set_xxtea_key("");
     jsb_run_script("main.js");
 
     return true;
