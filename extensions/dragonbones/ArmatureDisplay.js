@@ -333,7 +333,20 @@ dragonBones.ArmatureDisplay = cc.Class({
             var jsonObj = JSON.parse(this.dragonAsset.dragonBonesJson);
             var data = this._factory.getDragonBonesData(jsonObj.name);
             if (data) {
-                // already added asset
+                var armature,dragonBonesData;
+                for (var i=0,length = jsonObj.armature.length;i<length;i++) {
+                    armature = jsonObj.armature[i];
+                    if (!data.armatures[armature.name]) {
+                        if (!dragonBonesData) {//add new armature
+                            if (CC_JSB) {
+                                dragonBonesData = this._factory._dataParser.parseDragonBonesData(this.dragonAsset.dragonBonesJson);
+                            } else {
+                                dragonBonesData = this._factory._dataParser.parseDragonBonesData(jsonObj);
+                            }
+                        }
+                        data.addArmature(dragonBonesData.armatures[armature.name]);
+                    }
+                }
                 this._dragonBonesData = data;
                 return;
             }
