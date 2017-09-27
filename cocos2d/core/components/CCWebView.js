@@ -47,6 +47,9 @@ var EventType = _ccsg.WebView.EventType;
  * @property {String} ERROR
  */
 
+//
+function emptyCallback () { }
+
 /**
  * !#en cc.WebView is a component for display web pages in the game
  * !#zh WebView 组件，用于在游戏中显示网页
@@ -124,12 +127,6 @@ var WebView = cc.Class({
             sgNode.createDomElementIfNeeded();
         }
 
-        if (!CC_EDITOR) {
-            sgNode.setEventListener(EventType.LOADED, this._onWebViewLoaded.bind(this));
-            sgNode.setEventListener(EventType.LOADING, this._onWebViewLoading.bind(this));
-            sgNode.setEventListener(EventType.ERROR, this._onWebViewLoadError.bind(this));
-        }
-
         sgNode.loadURL(this._url);
 
         if (CC_EDITOR && this._useOriginalSize) {
@@ -137,6 +134,26 @@ var WebView = cc.Class({
             this._useOriginalSize = false;
         } else {
             sgNode.setContentSize(this.node.getContentSize());
+        }
+    },
+
+    onEnable: function () {
+        this._super();
+        if (!CC_EDITOR) {
+            var sgNode = this._sgNode;
+            sgNode.setEventListener(EventType.LOADED, this._onWebViewLoaded.bind(this));
+            sgNode.setEventListener(EventType.LOADING, this._onWebViewLoading.bind(this));
+            sgNode.setEventListener(EventType.ERROR, this._onWebViewLoadError.bind(this));
+        }
+    },
+
+    onDisable: function () {
+        this._super();
+        if (!CC_EDITOR) {
+            var sgNode = this._sgNode;
+            sgNode.setEventListener(EventType.LOADED, emptyCallback);
+            sgNode.setEventListener(EventType.LOADING, emptyCallback);
+            sgNode.setEventListener(EventType.ERROR, emptyCallback);
         }
     },
 

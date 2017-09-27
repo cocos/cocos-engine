@@ -110,10 +110,10 @@ anysdk.AgentManager = {
      * !#zh
      * 获取支付系统插件
      * @method getIAPPlugins
-     * @return {anysdk.ProtocolIAP}
+     * @return {anysdk.ProtocolIAP[]}
      */
     getIAPPlugins: function(){
-        return {anysdk.ProtocolIAP};
+        return [anysdk.ProtocolIAP];
     },
 
     /**
