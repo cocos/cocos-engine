@@ -446,14 +446,27 @@ var Texture2D = cc.Class({
         return "<cc.Texture2D | Name = " + this.url + " | Dimensions = " + this.width + " x " + this.height + ">";
     },
 
-    /**
-     * Release texture.
-     * @method releaseTexture
-     */
-    releaseTexture: function () {
+    _releaseTexture () {
         if (this._gl && this._glID !== null) {
             this._gl.deleteTexture(this._glID);
+            this._glID = null;
         }
+    },
+
+    /**
+     * !#en
+     * Destory this texture and immediately release its video memory. (Inherit from cc.Object.destroy)<br>
+     * After destroy, this object is not usable any more.
+     * You can use cc.isValid(obj) to check whether the object is destroyed before accessing it.
+     * !#zh
+     * 销毁该贴图，并立即释放它对应的显存。（继承自 cc.Object.destroy）<br/>
+     * 销毁后，该对象不再可用。您可以在访问对象之前使用 cc.isValid(obj) 来检查对象是否已被销毁。
+     * @method destroy
+     */
+    destroy () {
+        this._releaseTexture();
+        cc.textureCache.removeTextureForKey(this.url);
+        this._super();
     },
 
     /**
@@ -839,7 +852,7 @@ JS.get(_p, "pixelHeight", _p.getPixelHeight);
             if (this._image) {
                 if (updateImage) {
                     // Release previous gl texture if existed
-                    this.releaseTexture();
+                    this._releaseTexture();
                     this._glID = gl.createTexture();
                     gl.activeTexture(gl.TEXTURE0);
                     gl.bindTexture(gl.TEXTURE_2D, this._glID);

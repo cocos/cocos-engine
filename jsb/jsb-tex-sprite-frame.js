@@ -32,12 +32,14 @@ var WebSpriteFrame = require('../cocos2d/core/sprites/CCSpriteFrame');
 
 cc.js.unregisterClass(WebTexture, WebSpriteFrame);
 
-// TextureCache addImage
+// TextureCache addImage/addImageAsync
 
-if (!cc.TextureCache.prototype._addImageAsync) {
-    cc.TextureCache.prototype._addImageAsync = cc.TextureCache.prototype.addImageAsync;
+var prototype = cc.TextureCache.prototype;
+
+if (!prototype._addImageAsync) {
+    prototype._addImageAsync = prototype.addImageAsync;
 }
-cc.TextureCache.prototype.addImageAsync = function (url, cb, target) {
+prototype.addImageAsync = function (url, cb, target) {
     var localTex = null;
     cc.loader.load(url, function(err, tex) {
         if (err) tex = null;
@@ -48,10 +50,10 @@ cc.TextureCache.prototype.addImageAsync = function (url, cb, target) {
     });
     return localTex;
 };
-if (!cc.TextureCache.prototype._addImage) {
-    cc.TextureCache.prototype._addImage = cc.TextureCache.prototype.addImage;
+if (!prototype._addImage) {
+    prototype._addImage = prototype.addImage;
 }
-cc.TextureCache.prototype.addImage = function (url, cb, target) {
+prototype.addImage = function (url, cb, target) {
     if (CC_DEBUG && url instanceof cc.Texture2D) {
         cc.warn('textureCache.addImage(url) - The type of the url should be string, not Texture2D. You don\'t need to call addImage if you already have the texture object.');
         url = url.url;
@@ -73,7 +75,6 @@ cc.TextureCache.prototype.addImage = function (url, cb, target) {
 
 cc.textureCache._textures = {};
 cc.textureCache.cacheImage = function (key, texture) {
-    cc.log('cacheImage ' + texture.url);
     if (texture instanceof cc.Texture2D) {
         this._textures[key] = texture;
     }
@@ -84,8 +85,12 @@ cc.textureCache.getTextureForKey = function (key) {
 };
 cc.textureCache._removeTextureForKey = cc.textureCache.removeTextureForKey;
 cc.textureCache.removeTextureForKey = function (key) {
-    if (this._textures[key])
-        delete this._textures[key];
+    if (CC_DEBUG && key instanceof cc.Texture2D) {
+        cc.warn('textureCache.removeTextureForKey(key) - The type of the key should be string, not Texture2D. You should call texture.destroy() if you already have the texture object.');
+        key = key.url;
+    }
+
+    delete this._textures[key];
     this._removeTextureForKey(key);
 };
 
@@ -105,7 +110,8 @@ cc.Texture2D.$super = cc.Asset;
     cc.Texture2D[key] = WebTexture[key];
 });
 
-var prototype = cc.Texture2D.prototype;
+prototype = cc.Texture2D.prototype;
+prototype._releaseTexture = prototype.releaseTexture;
 
 cc.js.addon(prototype, WebTexture.prototype);
 // [
@@ -124,6 +130,7 @@ cc.js.addon(prototype, WebTexture.prototype);
 
 prototype._ctor = function () {
     cc.Asset.call(this);
+    this.url = "";
 };
 
 prototype.loaded = true;

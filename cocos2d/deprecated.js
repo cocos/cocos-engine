@@ -10,6 +10,9 @@ if (CC_DEV) {
 
     js.obsolete(cc.textureCache, 'cc.textureCache.textureForKey', 'getTextureForKey');
 
+    // Texture
+    js.obsolete(cc.Texture2D.prototype, 'texture.releaseTexture', 'texture.destroy');
+
     js.get(cc.SpriteFrame.prototype, '_textureLoaded', function () {
         cc.errorID(1400, 'spriteFrame._textureLoaded', 'spriteFrame.textureLoaded()');
         return this.textureLoaded();

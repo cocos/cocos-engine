@@ -126,7 +126,7 @@ var textureCache = /** @lends cc.textureCache# */{
         var locTextures = this._textures;
         for (var selKey in locTextures) {
             if (locTextures[selKey])
-                locTextures[selKey].releaseTexture();
+                locTextures[selKey]._releaseTexture();
         }
         this._textures = {};
     },
@@ -144,7 +144,7 @@ var textureCache = /** @lends cc.textureCache# */{
         var locTextures = this._textures;
         for (var selKey in locTextures) {
             if (locTextures[selKey] === texture) {
-                locTextures[selKey].releaseTexture();
+                locTextures[selKey]._releaseTexture();
                 delete(locTextures[selKey]);
             }
         }
@@ -157,12 +157,17 @@ var textureCache = /** @lends cc.textureCache# */{
      * @example {@link utils/api/engine/docs/cocos2d/core/textures/removeTextureForKey.js}
      */
     removeTextureForKey: function (textureKeyName) {
+        if (CC_DEBUG && textureKeyName instanceof cc.Texture2D) {
+            cc.warn('textureCache.removeTextureForKey(key) - The type of the key should be string, not Texture2D. You should call texture.destroy() if you already have the texture object.');
+        }
+
         if (typeof textureKeyName !== 'string')
             return;
-        var locTextures = this._textures;
-        if (locTextures[textureKeyName]) {
-            locTextures[textureKeyName].releaseTexture();
-            delete(locTextures[textureKeyName]);
+
+        var texture = this._textures[textureKeyName];
+        if (texture) {
+            texture._releaseTexture();
+            delete this._textures[textureKeyName];
         }
     },
     

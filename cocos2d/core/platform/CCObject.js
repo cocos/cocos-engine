@@ -246,11 +246,11 @@ var deferredDestroyTimer = null;
  * Destroy this Object, and release all its own references to other objects.<br/>
  * Actual object destruction will delayed until before rendering.
  * <br/>
- * After destroy, this CCObject is not usable any more.
+ * After destroy, this object is not usable any more.
  * You can use cc.isValid(obj) to check whether the object is destroyed before accessing it.
  * !#zh
  * 销毁该对象，并释放所有它对其它对象的引用。<br/>
- * 销毁后，CCObject 不再可用。您可以在访问对象之前使用 cc.isValid(obj) 来检查对象是否已被销毁。
+ * 销毁后，该对象不再可用。您可以在访问对象之前使用 cc.isValid(obj) 来检查对象是否已被销毁。
  * 实际销毁操作会延迟到当前帧渲染前执行。
  * @method destroy
  * @return {Boolean} whether it is the first time the destroy being called

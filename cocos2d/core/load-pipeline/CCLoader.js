@@ -766,7 +766,7 @@ proto.release = function (asset) {
             asset = item.content;
             // TODO: AUDIO
             if (asset instanceof cc.Texture2D) {
-                cc.textureCache.removeTextureForKey(item.url);
+                asset.destroy();
             }
             else if (asset instanceof cc.Asset && asset.nativeUrl) {
                 this.release(asset.nativeUrl);
