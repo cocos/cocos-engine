@@ -109,6 +109,9 @@
     <Filter Include="creator\physics">
       <UniqueIdentifier>{7ea5175c-acae-4b2f-ae6e-50daf6131b12}</UniqueIdentifier>
     </Filter>
+    <Filter Include="external\xxtea">
+      <UniqueIdentifier>{e4b632da-e1a4-4f13-bed5-31b9742d3029}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\external\sources\xxhash\xxhash.c">
@@ -785,6 +788,9 @@
     </ClCompile>
     <ClCompile Include="..\base\CCThreadPool.cpp">
       <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\sources\xxtea\xxtea.cpp">
+      <Filter>external\xxtea</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1545,6 +1551,9 @@
     </ClInclude>
     <ClInclude Include="..\base\CCThreadPool.h">
       <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\sources\xxtea\xxtea.h">
+      <Filter>external\xxtea</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
