@@ -61,7 +61,8 @@ var ToggleGroup = cc.Class({
          * @property {Array} toggleItems
          */
         toggleItems: {
-            get: function (){
+            get: function () {
+                cc.warn("The ToggleGroup.toggleItems api will be removed in v2.0, please obtain toggles in other ways. \uD83D\uDE30");
                 return this._toggleItems;
             }
         }
