@@ -21,7 +21,7 @@ void jsb_set_xxtea_key(const std::string& key)
     xxteaKey = key;
 }
 
-std::string removeFileExt(const std::string& filePath)
+static std::string removeFileExt(const std::string& filePath)
 {
     size_t pos = filePath.rfind('.');
     if (0 < pos)
