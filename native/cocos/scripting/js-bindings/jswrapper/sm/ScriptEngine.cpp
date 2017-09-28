@@ -572,21 +572,21 @@ namespace se {
         // Check whether '.jsc' files exist to avoid outputting log which says 'couldn't find .jsc file'.
         if (_fileOperationDelegate.onCheckFileExist(byteCodePath))
         {
-            const uint8_t* data = nullptr;
-            size_t dataLen = 0;
-            _fileOperationDelegate.onGetDataFromFile(byteCodePath, &data, &dataLen);
-            if (data != nullptr && dataLen > 0)
-            {
-                JS::TranscodeBuffer buffer;
-                bool appended = buffer.append(data, dataLen);
-                JS::TranscodeResult result = JS::DecodeScript(_cx, buffer, script);
-                if (appended && result == JS::TranscodeResult::TranscodeResult_Ok)
+            _fileOperationDelegate.onGetDataFromFile(byteCodePath, [&](cosnt uint8_t* data, size_t dataLen) {
+                if (data != nullptr && dataLen > 0)
                 {
-                    compileSucceed = true;
-                    _filenameScriptMap[byteCodePath] = new (std::nothrow) JS::PersistentRootedScript(_cx, script.get());
+                    JS::TranscodeBuffer buffer;
+                    bool appended = buffer.append(data, dataLen);
+                    JS::TranscodeResult result = JS::DecodeScript(_cx, buffer, script);
+                    if (appended && result == JS::TranscodeResult::TranscodeResult_Ok)
+                    {
+                        compileSucceed = true;
+                        _filenameScriptMap[byteCodePath] = new (std::nothrow) JS::PersistentRootedScript(_cx, script.get());
+                    }
+                    assert(compileSucceed);
                 }
-                assert(compileSucceed);
-            }
+            });
+            
         }
 
         // b) no jsc file, check js file

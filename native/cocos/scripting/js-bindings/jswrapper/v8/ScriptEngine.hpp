@@ -103,7 +103,7 @@ namespace se {
                 && onGetFullPath != nullptr; }
 
             // path, buffer, buffer size
-            std::function<void(const std::string&, const uint8_t**, size_t*)> onGetDataFromFile;
+            std::function<void(const std::string&, const std::function<void(const uint8_t*, size_t)>& )> onGetDataFromFile;
             // path, return file string content.
             std::function<std::string(const std::string&)> onGetStringFromFile;
             // path
