@@ -264,7 +264,7 @@ cc.Label = function (string, fontHandle, spriteFrame, fontSize) {
             customGlyphs: "",
             distanceFieldEnable: false
         };
-        label = jsbLabel.createWithTTF(ttfConfig, string, this._fontSize);
+        label = jsbLabel.createWithTTF(ttfConfig, string);
         label._ttfConfig = ttfConfig;
     }
     else if (spriteFrame) {
