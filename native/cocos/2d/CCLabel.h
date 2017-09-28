@@ -617,8 +617,7 @@ CC_CONSTRUCTOR_ACCESS:
      * Constructor of Label.
      * @js NA
      */
-    Label(TextHAlignment hAlignment = TextHAlignment::LEFT,
-      TextVAlignment vAlignment = TextVAlignment::TOP);
+    Label();
 
     /**
      * Destructor of Label.
