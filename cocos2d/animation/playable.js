@@ -110,7 +110,7 @@ prototype.stop = function () {
  * @method pause
  */
 prototype.pause = function () {
-    if (this._isPlaying) {
+    if (this._isPlaying && !this._isPaused) {
         this._isPaused = true;
         this.onPause();
     }
