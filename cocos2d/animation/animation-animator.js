@@ -324,7 +324,7 @@ function initClipData (root, state) {
             if (i === 1) {
                 lastRatioDif = currRatioDif;
             }
-            else if (Math.abs(currRatioDif - lastRatioDif) > Math.EPSILON) {
+            else if (Math.abs(currRatioDif - lastRatioDif) > EPSILON) {
                 canOptimize = false;                
                 break;
             }
