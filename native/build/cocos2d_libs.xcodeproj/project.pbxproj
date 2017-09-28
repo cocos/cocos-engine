@@ -546,6 +546,8 @@
 		4DC06BEE1E8B604B00CA08B1 /* CCPhysicsManifoldWrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DC06BEB1E8B604B00CA08B1 /* CCPhysicsManifoldWrapper.cpp */; };
 		4DC06BEF1E8B604B00CA08B1 /* CCPhysicsManifoldWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DC06BEC1E8B604B00CA08B1 /* CCPhysicsManifoldWrapper.h */; };
 		4DC06BF01E8B604B00CA08B1 /* CCPhysicsManifoldWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DC06BEC1E8B604B00CA08B1 /* CCPhysicsManifoldWrapper.h */; };
+		4DC57D211F7A58B5005B6546 /* xxtea.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DC57D1F1F7A58B5005B6546 /* xxtea.cpp */; };
+		4DC57D331F7B840E005B6546 /* xxtea.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DC57D1F1F7A58B5005B6546 /* xxtea.cpp */; };
 		4DED47D21DFFA4AF0070C5C4 /* Box2D.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DED476B1DFFA4AF0070C5C4 /* Box2D.h */; };
 		4DED47D31DFFA4AF0070C5C4 /* Box2D.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DED476B1DFFA4AF0070C5C4 /* Box2D.h */; };
 		4DED47D41DFFA4AF0070C5C4 /* b2BroadPhase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DED476F1DFFA4AF0070C5C4 /* b2BroadPhase.cpp */; };
@@ -1896,6 +1898,8 @@
 		4DC06BEB1E8B604B00CA08B1 /* CCPhysicsManifoldWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCPhysicsManifoldWrapper.cpp; sourceTree = "<group>"; };
 		4DC06BEC1E8B604B00CA08B1 /* CCPhysicsManifoldWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCPhysicsManifoldWrapper.h; sourceTree = "<group>"; };
 		4DC06BF11E8B8D1300CA08B1 /* CCPhysicsDefine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CCPhysicsDefine.h; sourceTree = "<group>"; };
+		4DC57D1F1F7A58B5005B6546 /* xxtea.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xxtea.cpp; sourceTree = "<group>"; };
+		4DC57D201F7A58B5005B6546 /* xxtea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xxtea.h; sourceTree = "<group>"; };
 		4DED476B1DFFA4AF0070C5C4 /* Box2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Box2D.h; sourceTree = "<group>"; };
 		4DED476C1DFFA4AF0070C5C4 /* Box2DConfig.cmake.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Box2DConfig.cmake.in; sourceTree = "<group>"; };
 		4DED476D1DFFA4AF0070C5C4 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
@@ -3025,6 +3029,7 @@
 		1A57033E180BD0490088DEC7 /* external */ = {
 			isa = PBXGroup;
 			children = (
+				4DC57D1E1F7A58B5005B6546 /* xxtea */,
 				1A28FF1C1F20AFAB007A1D9D /* SocketRocket */,
 				4DED476A1DFFA4AF0070C5C4 /* Box2D */,
 				BAEA45511E279D5C00FA219F /* tinydir */,
@@ -3417,6 +3422,16 @@
 			);
 			name = physics;
 			path = creator/physics;
+			sourceTree = "<group>";
+		};
+		4DC57D1E1F7A58B5005B6546 /* xxtea */ = {
+			isa = PBXGroup;
+			children = (
+				4DC57D1F1F7A58B5005B6546 /* xxtea.cpp */,
+				4DC57D201F7A58B5005B6546 /* xxtea.h */,
+			);
+			name = xxtea;
+			path = ../external/sources/xxtea;
 			sourceTree = "<group>";
 		};
 		4DED476A1DFFA4AF0070C5C4 /* Box2D */ = {
@@ -5195,6 +5210,7 @@
 				4DED47EE1DFFA4AF0070C5C4 /* b2ChainShape.cpp in Sources */,
 				50ABBE651925AB6F00A911A9 /* CCEventListenerCustom.cpp in Sources */,
 				50ABBE391925AB6F00A911A9 /* CCData.cpp in Sources */,
+				4DC57D211F7A58B5005B6546 /* xxtea.cpp in Sources */,
 				4DC06BE71E8A68D400CA08B1 /* CCPhysicsWorldManifoldWrapper.cpp in Sources */,
 				1A57010E180BC8EE0088DEC7 /* CCDrawingPrimitives.cpp in Sources */,
 				50ABBED71925AB6F00A911A9 /* ZipUtils.cpp in Sources */,
@@ -5814,6 +5830,7 @@
 				50ABBEB81925AB6F00A911A9 /* ccUTF8.cpp in Sources */,
 				50ABBE841925AB6F00A911A9 /* ccFPSImages.c in Sources */,
 				4DED481F1DFFA4AF0070C5C4 /* b2ContactManager.cpp in Sources */,
+				4DC57D331F7B840E005B6546 /* xxtea.cpp in Sources */,
 				4DED48231DFFA4AF0070C5C4 /* b2Fixture.cpp in Sources */,
 				50ABBE4A1925AB6F00A911A9 /* CCEventAcceleration.cpp in Sources */,
 				2980F0231BA9A5550059E678 /* CCUIEditBoxIOS.mm in Sources */,

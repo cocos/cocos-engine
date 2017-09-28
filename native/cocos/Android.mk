@@ -224,7 +224,8 @@ storage/local-storage/LocalStorage-android.cpp \
 ../external/sources/Box2D/Dynamics/b2World.cpp \
 ../external/sources/Box2D/Dynamics/b2WorldCallbacks.cpp \
 ../external/sources/Box2D/Rope/b2Rope.cpp \
-../external/sources/Box2D/b2ObjectDestroyNotifier.cpp
+../external/sources/Box2D/b2ObjectDestroyNotifier.cpp \
+../external/sources/xxtea/xxtea.cpp \
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH) \
                     $(LOCAL_PATH)/platform \

@@ -4,6 +4,7 @@
 
 #include "jsb_global.h"
 #include "jsb_conversions.hpp"
+#include "xxtea/xxtea.h"
 
 using namespace cocos2d;
 
@@ -11,20 +12,80 @@ se::Object* __jscObj = nullptr;
 se::Object* __ccObj = nullptr;
 se::Object* __jsbObj = nullptr;
 
+static const char* BYTE_CODE_FILE_EXT = ".jsc";
+static std::string xxteaKey = "";
+
+void jsb_set_xxtea_key(const std::string& key)
+{
+    xxteaKey = key;
+}
+
+static std::string removeFileExt(const std::string& filePath)
+{
+    size_t pos = filePath.rfind('.');
+    if (0 < pos)
+    {
+        return filePath.substr(0, pos);
+    }
+    return filePath;
+}
+
 bool jsb_run_script(const std::string& filePath)
 {
     static se::ScriptEngine::FileOperationDelegate delegate;
     if (!delegate.isValid())
     {
-        delegate.onGetDataFromFile = [](const std::string& path, const uint8_t** data, size_t* dataLen) -> void{
-            assert(!path.empty() && data != nullptr && dataLen != nullptr);
-            Data fileData = FileUtils::getInstance()->getDataFromFile(path);
-            *data = fileData.getBytes();
-            *dataLen = fileData.getSize();
+        delegate.onGetDataFromFile = [](const std::string& path, const std::function<void(const uint8_t*, size_t)>& readCallback) -> void{
+            assert(!path.empty());
+            
+            Data fileData;
+            
+#if SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_SM
+            std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
+            if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
+                fileData = FileUtils::getInstance()->getDataFromFile(byteCodePath);
+                
+                size_t dataLen = 0;
+                uint8_t* data = xxtea_decrypt((unsigned char*)fileData.getBytes(), (uint32_t)fileData.getSize(), (unsigned char*)xxteaKey.c_str(), (uint32_t)xxteaKey.size(), (uint32_t*)&dataLen);
+                
+                if (data == nullptr) {
+                    SE_REPORT_ERROR("Can't decrypt code for %s", byteCodePath.c_str());
+                }
+                
+                readCallback(data, dataLen);
+                free(data);
+                
+                return;
+            }
+            
+#endif
+            fileData = FileUtils::getInstance()->getDataFromFile(path);
+            readCallback(fileData.getBytes(), fileData.getSize());
         };
 
         delegate.onGetStringFromFile = [](const std::string& path) -> std::string{
             assert(!path.empty());
+            
+#if SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_SM
+            std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
+            if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
+                Data fileData = FileUtils::getInstance()->getDataFromFile(byteCodePath);
+                
+                uint32_t retLength;
+                uint8_t* data = xxtea_decrypt((uint8_t*)fileData.getBytes(), (uint32_t)fileData.getSize(), (uint8_t*)xxteaKey.c_str(), (uint32_t)xxteaKey.size(), &retLength);
+                
+                if (data == nullptr) {
+                    SE_REPORT_ERROR("Can't decrypt code for %s", byteCodePath.c_str());
+                    return "";
+                }
+                
+                std::string ret(reinterpret_cast<const char*>(data), retLength);
+                free(data);
+                
+                return ret;
+            }
+#endif
+            
             return FileUtils::getInstance()->getStringFromFile(path);
         };
 
