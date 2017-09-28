@@ -192,6 +192,7 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClCompile Include="..\..\external\sources\unzip\ioapi.cpp" />
     <ClCompile Include="..\..\external\sources\unzip\unzip.cpp" />
     <ClCompile Include="..\..\external\sources\xxhash\xxhash.c" />
+    <ClCompile Include="..\..\external\sources\xxtea\xxtea.cpp" />
     <ClCompile Include="..\audio\AudioEngine.cpp" />
     <ClCompile Include="..\audio\win32\AudioCache.cpp" />
     <ClCompile Include="..\audio\win32\AudioDecoder.cpp" />
@@ -433,6 +434,7 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClInclude Include="..\..\external\sources\unzip\ioapi_mem.h" />
     <ClInclude Include="..\..\external\sources\unzip\unzip.h" />
     <ClInclude Include="..\..\external\sources\xxhash\xxhash.h" />
+    <ClInclude Include="..\..\external\sources\xxtea\xxtea.h" />
     <ClInclude Include="..\audio\include\AudioEngine.h" />
     <ClInclude Include="..\audio\win32\AudioCache.h" />
     <ClInclude Include="..\audio\win32\AudioDecoder.h" />
