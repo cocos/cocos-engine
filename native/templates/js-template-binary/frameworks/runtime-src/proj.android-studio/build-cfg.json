@@ -4,32 +4,5 @@
         "${COCOS_X_ROOT}/cocos",
         "${COCOS_X_ROOT}/external"
     ],
-    "copy_resources": [
-        {
-            "from": "../../../src",
-            "to": "src"
-        },
-        {
-            "from": "../../../res",
-            "to": "res"
-        },
-        {
-            "from": "../../../main.js",
-            "to": ""
-        }
-    ],
-    "must_copy_resources": [
-        {
-            "from": "../../../script",
-            "to": "script"
-        },
-        {
-            "from": "../../../config.json",
-            "to": ""
-        },
-        {
-            "from": "../../../project.json",
-            "to": ""
-        }
-    ]
+    "copy_resources": []
 }
