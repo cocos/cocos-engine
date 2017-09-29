@@ -347,17 +347,18 @@ dragonBones.ArmatureDisplay = cc.Class({
     },
 
     _parseDragonAtlasAsset : function() {
-        if (this.dragonAtlasAsset) {
+        var asset = this.dragonAtlasAsset;
+        if (asset) {
             if (CC_JSB) {
                 // TODO parse the texture atlas data from json string & texture path
-                this._factory.parseTextureAtlasData(this.dragonAtlasAsset.atlasJson, this.dragonAtlasAsset.texture);
+                this._factory.parseTextureAtlasData(asset.atlasJson, asset.texture && asset.texture.url);
             } else {
-                var atlasJsonObj = JSON.parse(this.dragonAtlasAsset.atlasJson);
+                var atlasJsonObj = JSON.parse(asset.atlasJson);
                 var atlasName = atlasJsonObj.name;
                 var existedAtlasData = null;
                 var atlasDataList = this._factory.getTextureAtlasData(atlasName);
-                var texturePath = this.dragonAtlasAsset.texture;
                 if (atlasDataList && atlasDataList.length > 0) {
+                    var texturePath = asset.texture && asset.texture.url;
                     for (var idx in atlasDataList) {
                         var data = atlasDataList[idx];
                         if (data && data.texture && data.texture.url === texturePath) {
@@ -367,11 +368,10 @@ dragonBones.ArmatureDisplay = cc.Class({
                     }
                 }
 
-                var texture = cc.textureCache.getTextureForKey(texturePath);
                 if (existedAtlasData) {
-                    existedAtlasData.texture = texture;
+                    existedAtlasData.texture = asset.texture;
                 } else {
-                    this._factory.parseTextureAtlasData(atlasJsonObj, texture);
+                    this._factory.parseTextureAtlasData(atlasJsonObj, asset.texture);
                 }
             }
         }

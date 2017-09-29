@@ -258,14 +258,10 @@ _ccsg.MotionStreak = _ccsg.Node.extend({
      * @param {Number} minSeg minimum segment size
      * @param {Number} stroke stroke's width
      * @param {Number} color
-     * @param {string|cc.Texture2D} texture texture filename or texture
+     * @param {cc.Texture2D} texture
      * @return {Boolean}
      */
     initWithFade:function (fade, minSeg, stroke, color, texture) {
-
-        if (cc.js.isString(texture))
-            texture = cc.textureCache.addImage(texture);
-
         this.anchorX = 0;
         this.anchorY = 0;
         this.ignoreAnchor = true;

@@ -158,6 +158,7 @@ var textureCache = /** @lends cc.textureCache# */{
      */
     removeTextureForKey: function (textureKeyName) {
         if (CC_DEBUG && textureKeyName instanceof cc.Texture2D) {
+            // TODO - remove at 2.0
             cc.warn('textureCache.removeTextureForKey(key) - The type of the key should be string, not Texture2D. You should call texture.destroy() if you already have the texture object.');
         }
 
@@ -315,6 +316,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
 
         _p.addImage = function (url, cb, target) {
             if (CC_DEBUG && url instanceof cc.Texture2D) {
+                // TODO - remove at 2.0
                 cc.warn('textureCache.addImage(url) - The type of the url should be string, not Texture2D. You don\'t need to call addImage if you already have the texture object.');
             }
 

@@ -184,22 +184,29 @@ var properties = {
      * @property {Texture2D} texture.
      */
     _texture: {
-        default: '',
-        url: cc.Texture2D
+        default: null,
+        type: cc.Texture2D
     },
     texture: {
         get: function () {
             return this._texture;
         },
         set: function (value) {
+            if (CC_DEBUG && typeof value === 'string') {
+                // TODO - remove at 2.0
+                cc.warnID(3657, 'particleSystem.texture');
+                if (value) {
+                    value = cc.textureCache.addImage(value);
+                }
+            }
             this._texture = value;
-            this._sgNode.texture = value ? cc.textureCache.addImage( value ) : null;
+            this._sgNode.texture = value;
             if (!value && this._file) {
                 // fallback to plist
                 this._applyFile();
             }
         },
-        url: cc.Texture2D,
+        type: cc.Texture2D,
         tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.texture'
     },
 
@@ -882,7 +889,7 @@ var ParticleSystem = cc.Class({
 
         var texture = spriteFrame.getTexture();
         if (texture) {
-            this._texture = texture.url;
+            this._texture = texture;
         }
         this._sgNode.setDisplayFrame(spriteFrame);
     },
@@ -895,9 +902,7 @@ var ParticleSystem = cc.Class({
      * @param {Rect} rect
      */
     setTextureWithRect: function (texture, rect) {
-        if (texture instanceof cc.Texture2D) {
-            this._texture = texture.url;
-        }
+        this._texture = texture;
         this._sgNode.setTextureWithRect(texture, rect);
     },
 
@@ -931,12 +936,12 @@ var ParticleSystem = cc.Class({
                 // To avoid it export custom particle data textureImageData too large,
                 // so use the texutreUuid instead of textureImageData
                 if (content.textureUuid) {
-                    cc.AssetLibrary.queryAssetInfo(content.textureUuid, function (err, url, raw) {
+                    cc.loader.load({ uuid: content.textureUuid, type: 'uuid' }, function (err, texture) {
                         if (err) {
                             cc.error(err);
                             return;
                         }
-                        self.texture = url;
+                        self.texture = texture;
                     });
                 }
 
@@ -977,9 +982,7 @@ var ParticleSystem = cc.Class({
         this._blendFunc.dst = this._dstBlendFactor;
         sgNode.setBlendFunc(this._blendFunc);
 
-        if (this._texture) {
-            sgNode.texture = cc.textureCache.addImage(this._texture);
-        }
+        sgNode.texture = this._texture;
 
         // recover sgNode properties
         if (!active) {

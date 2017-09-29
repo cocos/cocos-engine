@@ -42,11 +42,11 @@ var TextureLoader = !CC_JSB && cc.Class({
         //        return tex;
         //    }
         //}
-        var urls = this.asset.textures;
-        for (var i = 0; i < urls.length; i++) {
-            var url = urls[i];
+        var textures = this.asset.textures;
+        for (var i = 0; i < textures.length; i++) {
+            var texture = textures[i];
+            var url = texture && texture.url;
             if (url.endsWith(line)) {
-                var texture = cc.textureCache.addImage(url);
                 var tex = new sp.SkeletonTexture({ width: texture.getPixelWidth(), height: texture.getPixelHeight() });
                 tex.setRealTexture(texture);
                 return tex;
@@ -129,7 +129,7 @@ var SkeletonData = cc.Class({
          */
         textures: {
             default: [],
-            url: [cc.Texture2D]
+            type: [cc.Texture2D]
         },
 
         /**

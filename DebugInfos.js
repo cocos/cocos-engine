@@ -339,6 +339,12 @@ if (CC_DEBUG) {
                 "      ...\n" +
                 "    }",
         "3656": "The default value of %s.%s must be an empty string. (changed since 1.7)", //getTypeChecker_4
+        "3657": "The value assigned to %s should be Texture2D type, not url. Since 1.7,\n" +
+                "you can declare a texture directly in properties by using:\n" +
+                "{\n" +
+                "  default: null,\n" +
+                "  type: cc.Texture2D  // use 'type:' instead of 'url:'\n" +
+                "}",
         //Prefab: 3700
         "3700": "internal error: _prefab is undefined", //_doInstantiate
         "3701": "Failed to load prefab asset for node '%s'", //syncWithPrefab

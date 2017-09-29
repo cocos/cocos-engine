@@ -55,6 +55,7 @@ if (!prototype._addImage) {
 }
 prototype.addImage = function (url, cb, target) {
     if (CC_DEBUG && url instanceof cc.Texture2D) {
+        // TODO - remove at 2.0
         cc.warn('textureCache.addImage(url) - The type of the url should be string, not Texture2D. You don\'t need to call addImage if you already have the texture object.');
         url = url.url;
     }
@@ -86,6 +87,7 @@ cc.textureCache.getTextureForKey = function (key) {
 cc.textureCache._removeTextureForKey = cc.textureCache.removeTextureForKey;
 cc.textureCache.removeTextureForKey = function (key) {
     if (CC_DEBUG && key instanceof cc.Texture2D) {
+        // TODO - remove at 2.0
         cc.warn('textureCache.removeTextureForKey(key) - The type of the key should be string, not Texture2D. You should call texture.destroy() if you already have the texture object.');
         key = key.url;
     }
