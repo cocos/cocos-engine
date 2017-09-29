@@ -255,7 +255,8 @@ var Texture2D = cc.Class({
     properties: {
         _nativeAsset: {
             get () {
-                // returned to pool
+                // maybe returned to pool in webgl
+                return this._image;
             },
             set (image) {
                 this.initWithElement(image);
@@ -583,7 +584,6 @@ var Texture2D = cc.Class({
             var uuid = loadingItem && loadingItem.uuid;
             if (uuid) {
                 this._uuid = uuid;
-                this.nativeUrl;
                 var url = this.nativeUrl;
                 this.url = url;
                 cc.textureCache.cacheImage(url, this);

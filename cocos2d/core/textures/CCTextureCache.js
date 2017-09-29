@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var game = require('../CCGame');
 var Texture2D = require('./CCTexture2D');
 
 /**
@@ -173,11 +172,11 @@ var textureCache = /** @lends cc.textureCache# */{
     },
     
     /**
-     * <p>Returns a Texture2D object given an file image <br />
-     * If the file image was not previously loaded, it will create a new Texture2D <br />
-     *  object and it will return it. It will use the filename as a key.<br />
+     * Returns a Texture2D object given an file image <br />
+     * If the file image was not previously loaded, it will create a new Texture2D
+     * object and it will return it. It will use the filename as a key.
      * Otherwise it will return a reference of a previously loaded image. <br />
-     * Supported image extensions: .png, .jpg, .gif</p>
+     * Supported image extensions: .png, .jpg, .gif
      * @method addImage
      * @param {String} url
      * @param {Function} cb
@@ -185,7 +184,43 @@ var textureCache = /** @lends cc.textureCache# */{
      * @return {Texture2D}
      * @example {@link utils/api/engine/docs/cocos2d/core/textures/addImage.js}
      */
-    addImage: null,
+    addImage (url, cb, target) {
+        if (CC_DEBUG && url instanceof cc.Texture2D) {
+            // TODO - remove at 2.0
+            cc.warn('textureCache.addImage(url) - The type of the url should be string, not Texture2D. You don\'t need to call addImage if you already have the texture object.');
+        }
+
+        cc.assertID(url, 3103);
+
+        var locTexs = this._textures;
+        var tex = locTexs[url];
+        if (tex) {
+            if(tex.isLoaded()) {
+                cb && cb.call(target, tex);
+                return tex;
+            }
+            else {
+                tex.once("load", function(){
+                    cb && cb.call(target, tex);
+                }, target);
+                return tex;
+            }
+        }
+
+        tex = locTexs[url] = new Texture2D();
+        tex.url = url;
+        cc.loader.load(url, function (err, texture) {
+            if (err) {
+                return cb && cb.call(target, err || new Error('Unknown error'));
+            }
+
+            textureCache.handleLoadedTexture(url);
+
+            cb && cb.call(target, tex);
+        });
+
+        return tex;
+    },
     addImageAsync: null,
 
     /**
@@ -244,116 +279,20 @@ var textureCache = /** @lends cc.textureCache# */{
         this._textures = {};
         this._textureColorsCache = {};
         this._textureKeySeq = (0 | Math.random() * 1000);
+    },
+
+    handleLoadedTexture (url) {
+        var locTexs = this._textures;
+        var tex = locTexs[url];
+        if (!tex) {
+            cc.assertID(url, 3009);
+            tex = locTexs[url] = new Texture2D();
+            tex.url = url;
+        }
+        tex.handleLoadedTexture();
     }
 };
 
-game.once(game.EVENT_RENDERER_INITED, function () {
-    var _p = textureCache;
-    if (cc._renderType === game.RENDER_TYPE_CANVAS) {
-        _p.handleLoadedTexture = function (url) {
-            var locTexs = this._textures;
-            //remove judge
-            var tex = locTexs[url];
-            if (!tex) {
-                cc.assertID(url, 3009);
-                tex = locTexs[url] = new Texture2D();
-                tex.url = url;
-            }
-            tex.handleLoadedTexture();
-        };
-
-        _p.addImage = function (url, cb, target) {
-
-            cc.assertID(url, 3103);
-
-            var locTexs = this._textures;
-            //remove judge
-            var tex = locTexs[url];
-            if (tex) {
-                if(tex.isLoaded()) {
-                    cb && cb.call(target, tex);
-                    return tex;
-                }
-                else
-                {
-                    tex.once("load", function(){
-                        cb && cb.call(target, tex);
-                    }, target);
-                    return tex;
-                }
-            }
-
-            tex = locTexs[url] = new Texture2D();
-            tex.url = url;
-            cc.loader.load(url, function (err, texture) {
-                if (err) {
-                    return cb && cb.call(target, err || new Error('Unknown error'));
-                }
-
-                textureCache.handleLoadedTexture(url);
-
-                cb && cb.call(target, tex);
-            });
-
-            return tex;
-        };
-
-        _p.addImageAsync = _p.addImage;
-
-    } else if (cc._renderType === game.RENDER_TYPE_WEBGL) {
-        
-        _p.handleLoadedTexture = function (url) {
-            var locTexs = this._textures, tex, premultiplied;
-            tex = locTexs[url];
-            if (!tex) {
-                cc.assertID(url, 3009);
-                tex = locTexs[url] = new Texture2D();
-                tex.url = url;
-            }
-            premultiplied = cc.macro.AUTO_PREMULTIPLIED_ALPHA_FOR_PNG && (cc.path.extname(url) === ".png");
-            tex.handleLoadedTexture(premultiplied);
-        };
-
-        _p.addImage = function (url, cb, target) {
-            if (CC_DEBUG && url instanceof cc.Texture2D) {
-                // TODO - remove at 2.0
-                cc.warn('textureCache.addImage(url) - The type of the url should be string, not Texture2D. You don\'t need to call addImage if you already have the texture object.');
-            }
-
-            cc.assertID(url, 3112);
-
-            var locTexs = this._textures;
-            var tex = locTexs[url];
-            if (tex) {
-                if(tex.isLoaded()) {
-                    cb && cb.call(target, tex);
-                    return tex;
-                }
-                else {
-                    tex.once("load", function(){
-                       cb && cb.call(target, tex);
-                    }, target);
-                    return tex;
-                }
-            }
-
-            tex = locTexs[url] = new Texture2D();
-            tex.url = url;
-            cc.loader.load(url, function (err, texture) {
-                if (err) {
-                    return cb && cb.call(target, err || new Error('Unknown error'));
-                }
-
-                textureCache.handleLoadedTexture(url);
-
-                cb && cb.call(target, tex);
-            });
-
-            return tex;
-        };
-
-        _p.addImageAsync = _p.addImage;
-    }
-});
+textureCache.addImageAsync = textureCache.addImage;
 
 cc.textureCache = module.exports = textureCache;

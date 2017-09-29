@@ -279,12 +279,7 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                 var w = texture.width, h = texture.height;
 
                 if (self._rotated && cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
-                    var tempElement = texture.getHtmlElementObj();
-                    tempElement = _ccsg.Sprite.CanvasRenderCmd._cutRotateImageToCanvas(tempElement, self.getRect());
-                    var tempTexture = new cc.Texture2D();
-                    tempTexture.initWithElement(tempElement);
-                    tempTexture.handleLoadedTexture();
-                    self._texture = tempTexture;
+                    self._texture = _ccsg.Sprite.CanvasRenderCmd._createRotatedTexture(texture, self.getRect());
                     self._rotated = false;
                     w = self._texture.width;
                     h = self._texture.height;
