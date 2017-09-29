@@ -7,8 +7,6 @@
 #include "Base.h"
 #include "../Value.hpp"
 
-#include <chrono>
-
 #if SE_ENABLE_INSPECTOR
 namespace node {
     namespace inspector {

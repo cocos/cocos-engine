@@ -6,8 +6,6 @@
 
 #include "Base.h"
 
-#include <chrono>
-
 namespace se {
 
     class Object;

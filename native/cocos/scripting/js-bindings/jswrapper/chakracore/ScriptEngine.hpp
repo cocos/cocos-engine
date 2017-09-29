@@ -5,7 +5,6 @@
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
 
 #include "Base.h"
-#include <chrono>
 
 namespace se {
 
