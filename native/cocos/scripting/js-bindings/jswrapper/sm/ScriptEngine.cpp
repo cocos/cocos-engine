@@ -572,7 +572,7 @@ namespace se {
         // Check whether '.jsc' files exist to avoid outputting log which says 'couldn't find .jsc file'.
         if (_fileOperationDelegate.onCheckFileExist(byteCodePath))
         {
-            _fileOperationDelegate.onGetDataFromFile(byteCodePath, [&](cosnt uint8_t* data, size_t dataLen) {
+            _fileOperationDelegate.onGetDataFromFile(byteCodePath, [&](const uint8_t* data, size_t dataLen) {
                 if (data != nullptr && dataLen > 0)
                 {
                     JS::TranscodeBuffer buffer;
