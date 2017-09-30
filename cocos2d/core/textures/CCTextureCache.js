@@ -197,27 +197,26 @@ var textureCache = /** @lends cc.textureCache# */{
         if (tex) {
             if(tex.isLoaded()) {
                 cb && cb.call(target, tex);
-                return tex;
             }
             else {
                 tex.once("load", function(){
                     cb && cb.call(target, tex);
                 }, target);
-                return tex;
             }
         }
+        else {
+            tex = locTexs[url] = new Texture2D();
+            tex.url = url;
+            cc.loader.load(url, function (err, texture) {
+                if (err) {
+                    return cb && cb.call(target, err || new Error('Unknown error'));
+                }
 
-        tex = locTexs[url] = new Texture2D();
-        tex.url = url;
-        cc.loader.load(url, function (err, texture) {
-            if (err) {
-                return cb && cb.call(target, err || new Error('Unknown error'));
-            }
+                textureCache.handleLoadedTexture(url);
 
-            textureCache.handleLoadedTexture(url);
-
-            cb && cb.call(target, tex);
-        });
+                cb && cb.call(target, tex);
+            });
+        }
 
         return tex;
     },

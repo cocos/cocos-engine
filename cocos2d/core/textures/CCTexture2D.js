@@ -410,6 +410,35 @@ var Texture2D = cc.Class({
         return this._image;
     },
 
+    // load a texture
+    load (callback) {
+        if (this.loaded) {
+            callback && callback();
+            return;
+        }
+        if (!this.url) {
+            callback && callback();
+            return;
+        }
+        // load image
+        var self = this;
+        cc.loader.load({
+            url: this.url,
+            // For image, we should skip loader otherwise it will load a new texture
+            skips: [ 'Loader' ],
+        }, function (err, image) {
+            if (image) {
+                if (CC_DEBUG && image instanceof cc.Texture2D) {
+                    return cc.error('internal error: loader handle pipe must be skipped');
+                }
+                if (!self.loaded) {
+                    self._nativeAsset = image;
+                }
+            }
+            callback && callback(err);
+        });
+    },
+
     /**
      * Check whether texture is loaded.
      * @method isLoaded
@@ -423,7 +452,6 @@ var Texture2D = cc.Class({
     /**
      * Handler of texture loaded event.
      * @method handleLoadedTexture
-     * @param {Boolean} [premultiplied]
      */
     handleLoadedTexture: function () {
         if (!this._image || !this._image.width || !this._image.height)
@@ -948,8 +976,12 @@ JS.get(_p, "pixelHeight", _p.getPixelHeight);
             return true;
         };
 
-        // [premultiplied=false]
-        _p.handleLoadedTexture = function (premultiplied) {
+        _p.handleLoadedTexture = function () {
+            // TODO: remove AUTO_PREMULTIPLIED_ALPHA_FOR_PNG
+            // if (this.premultiplied === undefined) {
+            //     this.premultiplied = cc.macro.AUTO_PREMULTIPLIED_ALPHA_FOR_PNG &&
+            //                          (this.url && this.url.endsWith(".png"));
+            // }
             if (!this._image || !this._image.width || !this._image.height) {
                 return;
             }
@@ -959,7 +991,6 @@ JS.get(_p, "pixelHeight", _p.getPixelHeight);
             opts.format = PixelFormat.RGBA8888;
             opts.width = this._image.width;
             opts.height = this._image.height;
-            opts.premultiplyAlpha = !!premultiplied;
             opts.minFilter = cc.view._antiAliasEnabled ? Filter.LINEAR : Filter.NEAREST;
             this.update(opts);
 

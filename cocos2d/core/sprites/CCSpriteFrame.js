@@ -66,7 +66,9 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                         this._texture = texture;
                         return;
                     }
-                    this._refreshTexture(texture);
+                    if (this._texture !== texture) {
+                        this._refreshTexture(texture);
+                    }
                     this._textureFilename = texture.url;
                 }
             }
@@ -261,65 +263,55 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /*
-     * !#en Sets the texture of the frame, the texture is retained automatically.
-     * !#zh 设置使用的纹理实例，会被 retain。
+     * !#en Sets the texture of the frame.
+     * !#zh 设置使用的纹理实例。
      * @method _refreshTexture
      * @param {Texture2D} texture
      */
     _refreshTexture: function (texture) {
         var self = this;
-        if (self._texture !== texture) {
-            var locLoaded = texture.loaded;
-            this._texture = texture;
-            function textureLoadedCallback () {
-                if (!self._texture) {
-                    // clearTexture called while loading texture...
-                    return;
-                }
-                var w = texture.width, h = texture.height;
+        this._texture = texture;
 
-                if (self._rotated && cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
-                    self._texture = _ccsg.Sprite.CanvasRenderCmd._createRotatedTexture(texture, self.getRect());
-                    self._rotated = false;
-                    w = self._texture.width;
-                    h = self._texture.height;
-                    self.setRect(cc.rect(0, 0, w, h));
-                }
+        function textureLoadedCallback () {
+            if (!self._texture) {
+                // clearTexture called while loading texture...
+                return;
+            }
+            var w = texture.width, h = texture.height;
 
-                if (self._rect) {
-                    self._checkRect(self._texture);
-                }
-                else {
-                    self.setRect(cc.rect(0, 0, w, h));
-                }
-
-                if (!self._originalSize) {
-                    self.setOriginalSize(cc.size(w, h));
-                }
-
-                if (!self._offset) {
-                    self.setOffset(cc.v2(0, 0));
-                }
-
-                // dispatch 'load' event of cc.SpriteFrame
-                self.emit("load");
+            if (self._rotated && cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+                self._texture = _ccsg.Sprite.CanvasRenderCmd._createRotatedTexture(texture, self.getRect());
+                self._rotated = false;
+                w = self._texture.width;
+                h = self._texture.height;
+                self.setRect(cc.rect(0, 0, w, h));
             }
 
-            if (locLoaded) {
-                textureLoadedCallback();
+            if (self._rect) {
+                self._checkRect(self._texture);
             }
             else {
-                texture.once("load", textureLoadedCallback);
+                self.setRect(cc.rect(0, 0, w, h));
             }
+
+            if (!self._originalSize) {
+                self.setOriginalSize(cc.size(w, h));
+            }
+
+            if (!self._offset) {
+                self.setOffset(cc.v2(0, 0));
+            }
+
+            // dispatch 'load' event of cc.SpriteFrame
+            self.emit("load");
         }
-        //if (texture && texture.url && texture.isLoaded()) {
-        //    if (self._rect) {
-        //        self._checkRect(texture);
-        //    }
-        //    else {
-        //        self.setRect(cc.rect(0, 0, texture.width, texture.height));
-        //    }
-        //}
+
+        if (texture.loaded) {
+            textureLoadedCallback();
+        }
+        else {
+            texture.once("load", textureLoadedCallback);
+        }
     },
 
     /**
@@ -392,18 +384,11 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         if (typeof texture === 'string' && texture) {
             texture = cc.textureCache.addImage(texture);
         }
-        if (texture instanceof cc.Texture2D) {
+        if (texture instanceof cc.Texture2D && this._texture !== texture) {
             this._refreshTexture(texture);
         }
 
         return true;
-    },
-
-    _loadTexture: function () {
-        if (this._textureFilename) {
-            var texture = cc.textureCache.addImage(this._textureFilename);
-            this._refreshTexture(texture);
-        }
     },
 
     /**
@@ -425,11 +410,17 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * }
      */
     ensureLoadTexture: function () {
-        if (!this._texture) {
-            this._loadTexture();
+        if (this._texture) {
+            if (!this._texture.isLoaded()) {
+                // load exists texture
+                this._refreshTexture(this._texture);
+                this._texture.load();
+            }
         }
-        else {
-            // TODO - load native texture
+        else if (this._textureFilename) {
+            // load new texture
+            var texture = cc.textureCache.addImage(this._textureFilename);
+            this._refreshTexture(texture);
         }
     },
 

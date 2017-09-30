@@ -37,7 +37,7 @@ function isSceneObj (json) {
            );
 }
 
-function parseDepends (loader, item, asset, tdInfo, deferredLoadRawAssetsInRuntime) {
+function parseDepends (item, asset, tdInfo, deferredLoadRawAssetsInRuntime) {
     var uuidList = tdInfo.uuidList;
     var objList = tdInfo.uuidObjList;
     var propList = tdInfo.uuidPropList;
@@ -77,6 +77,7 @@ function parseDepends (loader, item, asset, tdInfo, deferredLoadRawAssetsInRunti
     }
     else {
         depends = new Array(uuidList.length);
+
         // declare depends assets
         for (i = 0; i < uuidList.length; i++) {
             dependUuid = uuidList[i];
@@ -88,17 +89,17 @@ function parseDepends (loader, item, asset, tdInfo, deferredLoadRawAssetsInRunti
                 _stillUseUrl: stillUseUrl[i]
             };
         }
-    }
 
-    // parse native
-    if (asset._native && !asset.constructor.preventPreloadNativeObject) {
-        depends.push({
-            url: asset.nativeUrl,
-            // For image, we should skip loader otherwise it will load a new texture
-            skips: [ loader.id ],
-            _owner: asset,
-            _ownerProp: '_nativeAsset',
-        });
+        // parse native
+        if (asset._native && !asset.constructor.preventPreloadNativeObject) {
+            depends.push({
+                url: asset.nativeUrl,
+                // For image, we should skip loader otherwise it will load a new texture
+                skips: [ 'Loader' ],
+                _owner: asset,
+                _ownerProp: '_nativeAsset',
+            });
+        }
     }
 
     return depends;
@@ -268,7 +269,7 @@ function loadUuid (item, callback) {
     }
 
     var deferredLoad = canDeferredLoad(asset, item, isScene);
-    var depends = parseDepends(this, item, asset, tdInfo, deferredLoad);
+    var depends = parseDepends(item, asset, tdInfo, deferredLoad);
 
     cc.deserialize.Details.pool.put(tdInfo);
 
