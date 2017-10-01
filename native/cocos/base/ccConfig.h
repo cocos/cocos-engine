@@ -77,17 +77,37 @@ THE SOFTWARE.
  * The "correct" way to prevent artifacts is by using the spritesheet-artifact-fixer.py or a similar tool.
 
  * Affected nodes:
- * - Sprite / SpriteBatchNode and subclasses: LabelBMFont, TMXTiledMap.
+ * - Sprite / SpriteBatchNode and subclasses: LabelBMFont.
  * - LabelAtlas.
  * - QuadParticleSystem.
- * - TileMap.
 
  * To enabled set it to 1. Disabled by default.
 
  * @since v0.99.5
  */
 #ifndef CC_FIX_ARTIFACTS_BY_STRECHING_TEXEL
-#define CC_FIX_ARTIFACTS_BY_STRECHING_TEXEL 1
+#define CC_FIX_ARTIFACTS_BY_STRECHING_TEXEL 0
+#endif
+
+/** @def CC_FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX
+ * If enabled, the texture coordinates will be calculated by using this formula:
+ * - texCoord.left = (rect.origin.x*2+1) / (texture.wide*2);
+ * - texCoord.right = texCoord.left + (rect.size.width*2-2)/(texture.wide*2);
+
+ * The same for bottom and top.
+
+ * This formula prevents artifacts by using 99% of the texture.
+ * The "correct" way to prevent artifacts is by using the spritesheet-artifact-fixer.py or a similar tool.
+
+ * Affected nodes:
+ * - TMXLayer
+
+ * To enabled set it to 1. Enabled by default.
+
+ * @since Cocos Creator v1.7
+ */
+#ifndef CC_FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX
+#define CC_FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX 1
 #endif
 
 /** @def CC_DIRECTOR_STATS_INTERVAL

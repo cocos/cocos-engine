@@ -177,7 +177,7 @@ void TileMapAtlas::updateAtlasValueAt(const Vec2& pos, const Color3B& value, int
     float itemWidthInPixels = _itemWidth * CC_CONTENT_SCALE_FACTOR();
     float itemHeightInPixels = _itemHeight * CC_CONTENT_SCALE_FACTOR();
 
-#if CC_FIX_ARTIFACTS_BY_STRECHING_TEXEL
+#if CC_FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX
     float left        = (2 * row * itemWidthInPixels + 1) / (2 * textureWide);
     float right       = left + (itemWidthInPixels * 2 - 2) / (2 * textureWide);
     float top         = (2 * col * itemHeightInPixels + 1) / (2 * textureHigh);
