@@ -886,7 +886,8 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             opts.width = this._image.width;
             opts.height = this._image.height;
             opts.premultiplyAlpha = !!premultiplied;
-            opts.minFilter = cc.view._antiAliasEnabled ? Filter.LINEAR : Filter.NEAREST;
+            var filter = cc.view._antiAliasEnabled ? Filter.LINEAR : Filter.NEAREST;
+            opts.minFilter = opts.magFilter = filter;
             this.update(opts);
 
             this._image = null;
