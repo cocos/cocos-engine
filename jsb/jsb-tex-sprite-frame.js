@@ -114,19 +114,6 @@ prototype = cc.Texture2D.prototype;
 prototype._releaseTexture = prototype.releaseTexture;
 
 cc.js.addon(prototype, WebTexture.prototype);
-// [
-//     'toString',
-//     '_deserialize',
-//     '_setRawAsset',
-//     'nativeUrl',
-//     'name',
-//     'isValid',
-//     'destroy',
-//     '_destruct',
-//     '_destroyImmediate',
-// ].forEach(function (key) {
-//     Object.defineProperty(prototype, key, cc.js.getPropertyDescriptor(WebTexture.prototype, key));
-// });
 
 prototype._ctor = function () {
     cc.Asset.call(this);
@@ -173,27 +160,6 @@ cc.js.getset(prototype, '_nativeAsset',
         return this;
     },
     function (item) {
-        // var actualUrl = item.url;
-        // if (actualUrl.match(jsb.urlRegExp)) {
-        //     jsb.initRemoteImg(this, actualUrl, function(succeed) {
-        //         if (succeed) {
-        //             callback && callback(null, true);
-        //         }
-        //         else {
-        //             callback && callback(new Error('Load image failed: ' + actualUrl));
-        //         }
-        //     });
-        // }
-        // else {
-        //     cc.textureCache._addImageAsync(actualUrl, function (tex) {
-        //         if (tex instanceof cc.Texture2D) {
-        //             callback && callback(null, tex);
-        //         }
-        //         else {
-        //             callback && callback(new Error('Load image failed: ' + actualUrl));
-        //         }
-        //     });
-        // }
     }
 );
 
