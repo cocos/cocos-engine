@@ -194,11 +194,11 @@ var _mouseDownHandler = function (event) {
     var node = this.owner;
 
     if (node._hitTest(pos, this)) {
-        event.stopPropagation();
         if (CC_JSB) {
             event = Event.EventMouse.pool.get(event);
         }
         event.type = EventType.MOUSE_DOWN;
+        event.bubbles = true;
         node.dispatchEvent(event);
     }
 };
@@ -206,7 +206,6 @@ var _mouseMoveHandler = function (event) {
     var pos = event.getLocation();
     var node = this.owner;
     if (node._hitTest(pos, this)) {
-        event.stopPropagation();
         if (CC_JSB) {
             event = Event.EventMouse.pool.get(event);
         }
@@ -223,6 +222,7 @@ var _mouseMoveHandler = function (event) {
             this._previousIn = true;
         }
         event.type = EventType.MOUSE_MOVE;
+        event.bubbles = true;
         node.dispatchEvent(event);
     }
     else if (this._previousIn) {
@@ -239,14 +239,12 @@ var _mouseUpHandler = function (event) {
     var pos = event.getLocation();
     var node = this.owner;
 
-    if (node._hitTest(pos, this)) {
-        event.stopPropagation();
-        if (CC_JSB) {
-            event = Event.EventMouse.pool.get(event);
-        }
-        event.type = EventType.MOUSE_UP;
-        node.dispatchEvent(event);
+    if (CC_JSB) {
+        event = Event.EventMouse.pool.get(event);
     }
+    event.type = EventType.MOUSE_UP;
+    event.bubbles = true;
+    node.dispatchEvent(event);
 };
 var _mouseWheelHandler = function (event) {
     var pos = event.getLocation();
@@ -254,11 +252,11 @@ var _mouseWheelHandler = function (event) {
 
     if (node._hitTest(pos, this)) {
         //FIXME: separate wheel event and other mouse event.
-        // event.stopPropagation();
         if (CC_JSB) {
             event = Event.EventMouse.pool.get(event);
         }
         event.type = EventType.MOUSE_WHEEL;
+        event.bubbles = true;
         node.dispatchEvent(event);
     }
 };
