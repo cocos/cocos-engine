@@ -38,11 +38,11 @@ if (!CC_JSB) {
  * !#zh
  * 摄像机在制作卷轴或是其他需要移动屏幕的游戏时比较有用，使用摄像机将会比移动节点来移动屏幕更加高效。
  * @class Camera
- * @extends _RendererUnderSG
+ * @extends Component
  */
 let Camera = cc.Class({
     name: 'cc.Camera',
-    extends: cc._RendererUnderSG,
+    extends: cc.Component,
     
     ctor: function () {
         this.viewMatrix = cc.affineTransformMake();

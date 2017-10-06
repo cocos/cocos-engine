@@ -52,11 +52,11 @@ function setEnumAttr (obj, propName, enumDef) {
  * 多个 Armature Display 可以使用相同的骨骼数据，其中包括所有的动画，皮肤和 attachments。)<br/>
  *
  * @class ArmatureDisplay
- * @extends _RendererUnderSG
+ * @extends Component
  */
 dragonBones.ArmatureDisplay = cc.Class({
     name: 'dragonBones.ArmatureDisplay',
-    extends: cc._RendererUnderSG,
+    extends: cc.Component,
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/DragonBones',
         //help: 'app://docs/html/components/spine.html', // TODO help document of dragonBones

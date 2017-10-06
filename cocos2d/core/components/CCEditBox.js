@@ -156,11 +156,11 @@ var InputFlag = _ccsg.EditBox.InputFlag;
  * !#en cc.EditBox is a component for inputing text, you can use it to gather small amounts of text from users.
  * !#zh EditBox 组件，用于获取用户的输入文本。
  * @class EditBox
- * @extends _RendererUnderSG
+ * @extends Component
  */
 var EditBox = cc.Class({
     name: 'cc.EditBox',
-    extends: cc._RendererUnderSG,
+    extends: cc.Component,
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/EditBox',

@@ -29,14 +29,14 @@ require('./CCTMXLayerWebGLRenderCmd');
  * !#en Render the TMX layer.
  * !#zh 渲染 TMX layer。
  * @class TiledLayer
- * @extends _SGComponent
+ * @extends Component
  */
 var TiledLayer = cc.Class({
     name: 'cc.TiledLayer',
 
     // Inherits from the abstract class directly,
     // because TiledLayer not create or maintains the sgNode by itself.
-    extends: cc._SGComponent,
+    extends: cc.Component,
 
     onEnable: function() {
         if (this._sgNode) {

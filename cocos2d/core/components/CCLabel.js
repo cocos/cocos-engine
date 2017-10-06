@@ -142,11 +142,11 @@ function debounce (func, wait, immediate) {
  * !#en The Label Component.
  * !#zh 文字标签组件
  * @class Label
- * @extends _RendererUnderSG
+ * @extends Component
  */
 var Label = cc.Class({
     name: 'cc.Label',
-    extends: cc._RendererUnderSG,
+    extends: cc.Component,
 
     ctor: function() {
         if(CC_EDITOR) {

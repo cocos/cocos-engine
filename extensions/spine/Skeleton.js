@@ -52,14 +52,14 @@ function setEnumAttr (obj, propName, enumDef) {
  * 多个 Skeleton 可以使用相同的骨骼数据，其中包括所有的动画，皮肤和 attachments。
  *
  * @class Skeleton
- * @extends _RendererUnderSG
+ * @extends Component
  */
 
 // 由于 Spine 的 _sgNode 需要参数才能初始化, 所以这里的 _sgNode 不在构造函数中赋值, 每次访问前都要先判断一次是否初始化了
 
 sp.Skeleton = cc.Class({
     name: 'sp.Skeleton',
-    extends: cc._RendererUnderSG,
+    extends: cc.Component,
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Spine Skeleton',
         help: 'app://docs/html/components/spine.html',

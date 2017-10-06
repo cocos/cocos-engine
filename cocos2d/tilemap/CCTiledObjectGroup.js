@@ -27,14 +27,14 @@ require('./CCSGTMXObjectGroup');
  * !#en Renders the TMX object group.
  * !#zh 渲染 tmx object group。
  * @class TiledObjectGroup
- * @extends _SGComponent
+ * @extends Component
  */
 var TiledObjectGroup = cc.Class({
     name: 'cc.TiledObjectGroup',
 
     // Inherits from the abstract class directly,
     // because TiledLayer not create or maintains the sgNode by itself.
-    extends: cc._SGComponent,
+    extends: cc.Component,
 
     onEnable: function() {
         if (this._sgNode) {

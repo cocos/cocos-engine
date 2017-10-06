@@ -214,7 +214,7 @@ var TMXObjectType = cc.Enum ({
  */
 var TiledMap = cc.Class({
     name: 'cc.TiledMap',
-    extends: cc._RendererInSG,
+    extends: cc.Component,
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/TiledMap',

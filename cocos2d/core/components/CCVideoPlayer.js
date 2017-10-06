@@ -74,11 +74,11 @@ var ResourceType = cc.Enum({
  * !#en cc.VideoPlayer is a component for playing videos, you can use it for showing videos in your game.
  * !#zh Video 组件，用于在游戏中播放视频
  * @class VideoPlayer
- * @extends _RendererUnderSG
+ * @extends Component
  */
 var VideoPlayer = cc.Class({
     name: 'cc.VideoPlayer',
-    extends: cc._RendererUnderSG,
+    extends: cc.Component,
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/VideoPlayer',

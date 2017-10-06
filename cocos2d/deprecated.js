@@ -215,17 +215,6 @@ if (CC_DEV) {
         js.obsolete(cc.TiledLayer.prototype, 'cc.TiledLayer.setTileset', 'setTileSet');
     }
 
-    Object.defineProperty(cc._SGComponent.prototype, 'visible', {
-        get: function () {
-            cc.warnID(1402, cc.js.getClassName(this));
-            return this.enabled;
-        },
-        set: function (value) {
-            var printWarning = this.visible;
-            this.enabled = value;
-        }
-    });
-
     function deprecateEnum (obj, oldPath, newPath, hasTypePrefixBefore) {
         hasTypePrefixBefore = hasTypePrefixBefore !== false;
         var enumDef = Function('return ' + newPath)();
@@ -441,28 +430,6 @@ if (CC_DEV) {
         removeAllComponents: 'removeComponent',
         getNodeToParentAffineTransform: 'getNodeToParentTransform',
     });
-
-    // RENDERERS
-
-    function shouldNotUseNodeProp (component) {
-        var compProto = component.prototype;
-        for (var prop in cc.Node.prototype) {
-            (function (prop) {
-                if (!(prop in compProto) && prop[0] !== '_') {
-                    Object.defineProperty(compProto, prop, {
-                        get: function () {
-                            var compName = cc.js.getClassName(this);    // 允许继承
-                            var Info = 'Sorry, ' + compName + '.%s is undefined, please use cc.Node.%s instead.';
-                            cc.error(Info, prop, prop);
-                        },
-                        enumerable: false,
-                        configurable: true,   // 允许继承
-                    });
-                }
-            })(prop);
-        }
-    }
-    shouldNotUseNodeProp(cc._SGComponent);
 
 
     // cc.Sprite

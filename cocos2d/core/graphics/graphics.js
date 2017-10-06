@@ -29,11 +29,11 @@ var LineJoin     = require('./types').LineJoin;
 
 /**
  * @class Graphics
- * @extends _RendererUnderSG
+ * @extends Component
  */
 var Graphics = cc.Class({
     name: 'cc.Graphics',
-    extends: cc._RendererUnderSG,
+    extends: cc.Component,
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Graphics',

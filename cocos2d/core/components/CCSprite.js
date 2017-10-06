@@ -23,8 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Base = require('./CCRendererUnderSG');
-
 /**
  * !#en Enum for sprite type.
  * !#zh Sprite 类型
@@ -106,7 +104,7 @@ var SizeMode = cc.Enum({
  * !#en Renders a sprite in the scene.
  * !#zh 该组件用于在场景中渲染精灵。
  * @class Sprite
- * @extends _RendererUnderSG
+ * @extends Component
  * @example
  *  // Create a new node and add sprite components.
  *  var node = new cc.Node("New Sprite");
@@ -115,7 +113,7 @@ var SizeMode = cc.Enum({
  */
 var Sprite = cc.Class({
     name: 'cc.Sprite',
-    extends: Base,
+    extends: cc.Component,
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Sprite',

@@ -29,8 +29,6 @@ require('../../clipping-nodes/CCClippingNodeWebGLRenderCmd');
 
 require('../../shape-nodes/CCDrawNode');
 
-var Base = cc._RendererInSG;
-
 /**
  * !#en the type for mask.
  * !#zh 遮罩组件类型
@@ -64,11 +62,11 @@ const SEGEMENTS_MAX = 10000;
  * !#en The Mask Component
  * !#zh 遮罩组件
  * @class Mask
- * @extends _RendererInSG
+ * @extends Component
  */
 var Mask = cc.Class({
     name: 'cc.Mask',
-    extends: Base,
+    extends: cc.Component,
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Mask',

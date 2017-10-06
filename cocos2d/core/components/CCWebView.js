@@ -54,11 +54,11 @@ function emptyCallback () { }
  * !#en cc.WebView is a component for display web pages in the game
  * !#zh WebView 组件，用于在游戏中显示网页
  * @class WebView
- * @extends _RendererUnderSG
+ * @extends Component
  */
 var WebView = cc.Class({
     name: 'cc.WebView',
-    extends: cc._RendererUnderSG,
+    extends: cc.Component,
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/WebView'

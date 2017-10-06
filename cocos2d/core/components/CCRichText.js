@@ -56,7 +56,7 @@ function debounce (func, wait, immediate) {
  */
 var RichText = cc.Class({
     name: 'cc.RichText',
-    extends: cc._RendererUnderSG,
+    extends: cc.Component,
 
     ctor: function () {
         this._textArray = null;

@@ -24,8 +24,6 @@
  ****************************************************************************/
 
 require('./CCComponent');
-require('./CCRendererInSG');
-require('./CCRendererUnderSG');
 require('./CCComponentEventHandler');
 require('./missing-script');
 
