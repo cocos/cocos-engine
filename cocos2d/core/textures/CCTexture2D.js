@@ -991,7 +991,8 @@ JS.get(_p, "pixelHeight", _p.getPixelHeight);
             opts.format = PixelFormat.RGBA8888;
             opts.width = this._image.width;
             opts.height = this._image.height;
-            opts.minFilter = cc.view._antiAliasEnabled ? Filter.LINEAR : Filter.NEAREST;
+            var filter = cc.view._antiAliasEnabled ? Filter.LINEAR : Filter.NEAREST;
+            opts.minFilter = opts.magFilter = filter;
             this.update(opts);
 
             this._image = null;
