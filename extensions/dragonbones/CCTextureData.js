@@ -23,38 +23,48 @@
  ****************************************************************************/
 
 dragonBones.CCTextureAtlasData = cc.Class({
-    name: 'dragonBones.CCTextureAtlasData',
     extends: dragonBones.TextureAtlasData,
-    texture : null,
 
-    statics : {
-        toString : function() {
+    properties: {
+        texture: {
+            default: null,
+            serializable: false
+        },
+    },
+
+    statics: {
+        toString: function () {
             return "[class dragonBones.CCTextureAtlasData]";
         }
     },
 
-    _onClear : function() {
+    _onClear: function () {
         dragonBones.TextureAtlasData.prototype._onClear.call(this);
         this.texture = null;
     },
 
-    generateTextureData : function() {
+    generateTextureData: function () {
         return dragonBones.BaseObject.borrowObject(dragonBones.CCTextureData);
     }
 });
 
 dragonBones.CCTextureData = cc.Class({
-    name: 'dragonBones.CCTextureData',
     extends: dragonBones.TextureData,
-    texture: null,
 
-    statics : {
-        toString : function() {
+    properties: {
+        texture: {
+            default: null,
+            serializable: false
+        },
+    },
+
+    statics: {
+        toString: function () {
             return "[class dragonBones.CCTextureData]";
         }
     },
 
-    _onClear : function() {
+    _onClear: function () {
         dragonBones.TextureData.prototype._onClear.call(this);
         if (this.texture) {
             this.texture.dispose();

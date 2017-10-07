@@ -20,7 +20,7 @@ asyncTest('Load', function () {
             strictEqual(item.content.width, 89, 'should give correct js object as result of JSON');
         }
         else if (item.id === json2) {
-            strictEqual(item.content._rawFiles[0], 'YouKnowEverything', 'should give correct js object as result of JSON');
+            strictEqual(item.content._native, 'YouKnowEverything', 'should give correct js object as result of JSON');
         }
         else {
             ok(false, 'should not load an unknown url');
@@ -108,7 +108,7 @@ asyncTest('Load with dependencies', function () {
             strictEqual(item.content.__type__, 'TestTexture', 'should give correct js object as result of deps type');
         }
         else if (item.id === json2) {
-            strictEqual(item.content._rawFiles[0], 'YouKnowEverything', 'should give correct js object as result of JSON');
+            strictEqual(item.content._native, 'YouKnowEverything', 'should give correct js object as result of JSON');
         }
         else if (item.id === audio) {
             // Test environment doesn't support audio

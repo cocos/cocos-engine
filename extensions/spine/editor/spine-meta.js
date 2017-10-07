@@ -104,7 +104,7 @@ class SpineMeta extends CustomAssetMeta {
         //this.textures[0] = value;
     }
 
-    static version () { return '1.0.2'; }
+    static version () { return '1.1.0'; }
     static defaultType () {
         return 'spine';
     }
@@ -197,7 +197,7 @@ class SpineMeta extends CustomAssetMeta {
                 db.mkdirForAsset(this.uuid);
                 var rawJsonPath = Path.join(db._uuidToImportPathNoExt(this.uuid), RAW_SKELETON_FILE);
                 Fs.copySync(fspath, rawJsonPath);
-                asset._setRawFiles([RAW_SKELETON_FILE]);
+                asset._setRawAsset(RAW_SKELETON_FILE);
                 
                 this.atlas = atlasUuid;     // save for dest()
                 

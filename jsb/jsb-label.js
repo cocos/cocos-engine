@@ -157,7 +157,7 @@ jsbLabel.prototype.setFontAsset = function (fontAsset) {
         this.setFontFamily('Arial');
         return;
     }
-    var fontHandle =  isAsset ? fontAsset.rawUrl : '';
+    var fontHandle =  isAsset ? fontAsset.nativeUrl : '';
     var extName = cc.path.extname(fontHandle);
 
     if (extName === '.ttf') {
@@ -300,6 +300,6 @@ cc.Label.pool.get = function (string, fontAsset, spriteFrame, fontSize) {
     if (!isAsset) {
         return new _ccsg.Label(string, null, null, fontSize);
     }
-    var fontHandle =  isAsset ? fontAsset.rawUrl : '';
+    var fontHandle =  isAsset ? fontAsset.nativeUrl : '';
     return new _ccsg.Label(string, fontHandle, spriteFrame, fontSize);
 };

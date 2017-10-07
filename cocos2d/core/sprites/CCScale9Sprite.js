@@ -1101,7 +1101,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     _distortionTiling: null,
     _meshPolygonInfo: null,
 
-    ctor: function (textureOrSpriteFrame) {
+    ctor: function (spiteFrame) {
         _ccsg.Node.prototype.ctor.call(this);
         this._renderCmd.setState(this._brightState);
         this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
@@ -1113,11 +1113,8 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         this._vertices = dataPool.get(8) || new Float32Array(8);
         this._uvs = dataPool.get(8) || new Float32Array(8);
         // Init sprite frame
-        if (typeof textureOrSpriteFrame === 'string' || textureOrSpriteFrame instanceof cc.Texture2D) {
-            this.initWithTexture(textureOrSpriteFrame);
-        }
-        else if (textureOrSpriteFrame instanceof cc.SpriteFrame) {
-            this.initWithSpriteFrame(textureOrSpriteFrame);
+        if (spiteFrame) {
+            this.initWithSpriteFrame(spiteFrame);
         }
 
         if (webgl === undefined) {
@@ -1426,7 +1423,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     },
 
     _rebuildQuads: function () {
-        if (!this._spriteFrame || !this._spriteFrame._textureLoaded) {
+        if (!this._spriteFrame || !this._spriteFrame.textureLoaded()) {
             this._renderCmd._needDraw = false;
             return;
         }

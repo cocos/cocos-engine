@@ -148,7 +148,8 @@ var SkeletonData = cc.Class({
     },
 
     statics: {
-        preventDeferredLoadDependents: true
+        preventDeferredLoadDependents: true,
+        preventPreloadNativeObject: true,
     },
 
     // PUBLIC

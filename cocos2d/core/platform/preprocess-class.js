@@ -32,7 +32,6 @@ var SerializableAttrs = {
     default: {},
     serializable: {},
     editorOnly: {},
-    rawType: {},
 };
 
 var TYPO_TO_CORRECT_DEV = CC_DEV && {
@@ -98,7 +97,7 @@ function checkUrl (val, className, propName, url) {
         if (typeof url !== 'function' || !cc.isChildClassOf(url, cc.RawAsset)) {
             return cc.errorID(5504, className, propName);
         }
-        if (cc.isChildClassOf(url, cc.Asset)) {
+        if (cc.isChildClassOf(url, cc.Asset) && !cc.RawAsset.wasRawAssetType(url)) {
             return cc.errorID(5505, className, propName, cc.js.getClassName(url));
         }
         if (val.type) {
@@ -168,6 +167,7 @@ function getBaseClassWherePropertyDefined_DEV (propName, cls) {
 }
 
 exports.getFullFormOfProperty = function (options) {
+    // TODO - deprecate `variable: cc.Texture2D,` from 1.7
     var isLiteral = options && options.constructor === Object;
     if ( !isLiteral ) {
         if (Array.isArray(options) && options.length > 0) {
@@ -179,7 +179,7 @@ exports.getFullFormOfProperty = function (options) {
         }
         else if (typeof options === 'function') {
             var type = options;
-            if (cc.RawAsset.isRawAssetType(type)) {
+            if (cc.RawAsset.isRawAssetType(type) || cc.RawAsset.wasRawAssetType(type)) {
                 return {
                     default: '',
                     url: type,

@@ -49,13 +49,15 @@ cc.url = {
     _builtinRawAssets: '',
     
     normalize: function (url) {
-        if (url.charCodeAt(0) === 46 && url.charCodeAt(1) === 47) {
-            // strip './'
-            url = url.slice(2);
-        }
-        else if (url.charCodeAt(0) === 47) {
-            // strip '/'
-            url = url.slice(1);
+        if (url) {
+            if (url.charCodeAt(0) === 46 && url.charCodeAt(1) === 47) {
+                // strip './'
+                url = url.slice(2);
+            }
+            else if (url.charCodeAt(0) === 47) {
+                // strip '/'
+                url = url.slice(1);
+            }
         }
         return url;
     },

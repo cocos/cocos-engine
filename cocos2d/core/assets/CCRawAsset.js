@@ -88,4 +88,11 @@ Object.defineProperty(cc.RawAsset, 'isRawAssetType', {
     // enumerable is false by default
 });
 
+// TODO - DELME after 2.0
+Object.defineProperty(cc.RawAsset, 'wasRawAssetType', {
+    value: function (ctor) {
+        return ctor === cc.Texture2D;
+    }
+});
+
 module.exports = cc.RawAsset;

@@ -130,8 +130,8 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
         }
         var tw = tileset._tileSize.width,
             th = tileset._tileSize.height,
-            imageW = tex._contentSize.width,
-            imageH = tex._contentSize.height,
+            imageW = tex.width,
+            imageH = tex.height,
             spacing = tileset.spacing,
             margin = tileset.margin,
 

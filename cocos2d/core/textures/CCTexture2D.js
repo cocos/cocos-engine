@@ -28,7 +28,6 @@ const sys = require('../platform/CCSys');
 const JS = require('../platform/js');
 const misc = require('../utils/misc');
 const game = require('../CCGame');
-require('../platform/_CCClass');
 require('../platform/CCClass');
 
 const GL_ALPHA = 6406;            // gl.ALPHA
@@ -182,50 +181,34 @@ const Filter = cc.Enum({
 });
 
 /**
- * <p>
- * This class allows to easily create OpenGL or Canvas 2D textures from images, text or raw data.                                    <br/>
- * The created cc.Texture2D object will always have power-of-two dimensions.                                                <br/>
+ * This class allows to easily create OpenGL or Canvas 2D textures from images, text or raw data.<br/>
+ * The created cc.Texture2D object will always have power-of-two dimensions.<br/>
  * Depending on how you create the cc.Texture2D object, the actual image area of the texture might be smaller than the texture dimensions <br/>
- *  i.e. "contentSize" != (pixelsWide, pixelsHigh) and (maxS, maxT) != (1.0, 1.0).                                           <br/>
- * Be aware that the content of the generated textures will be upside-down! </p>
-
+ * i.e. "contentSize" != (pixelsWidth, pixelsHight) and (maxS, maxT) != (1.0, 1.0).<br/>
+ * Be aware that the content of the generated textures will be upside-down!
+ *
  * @class Texture2D
  * @uses EventTarget
- * @extends RawAsset
+ * @extends Asset
  */
-var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
+var Texture2D = cc.Class({
 
     name: 'cc.Texture2D',
-    extends: require('../assets/CCRawAsset'),
+    extends: require('../assets/CCAsset'),
     mixins: [EventTarget],
-
-    properties: {
-        _hasMipmap: false,
-        _format: PixelFormat.RGBA8888,
-        _compressed: false,
-        _premultiplyAlpha: false,
-        _minFilter: Filter.LINEAR,
-        _magFilter: Filter.LINEAR,
-        _wrapS: WrapMode.CLAMP_TO_EDGE,
-        _wrapT: WrapMode.CLAMP_TO_EDGE
-    },
-
-    statics: {
-        PixelFormat: PixelFormat,
-        WrapMode: WrapMode,
-        Filter: Filter
-    },
 
     ctor: function (gl) {
         /**
          * !#en
-         * The url of the texture, this coule be empty if the texture wasn't created via a file.
+         * The url of the texture, this could be empty if the texture wasn't created via a file.
          * !#zh
          * 贴图文件的 url，当贴图不是由文件创建时值可能为空
          * @property url
          * @type {String}
+         * @readonly
          */
-        this.url = null;
+        this.url = "";
+
         /**
          * !#en
          * Whether the texture is loaded or not
@@ -269,8 +252,41 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
         }
     },
 
+    properties: {
+        _nativeAsset: {
+            get () {
+                // returned to pool
+            },
+            set (image) {
+                this.initWithElement(image);
+                this.handleLoadedTexture();
+                if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
+                    // Image element no longer needed
+                    misc.imagePool.put(image);
+                }
+            },
+            override: true
+        },
+        _hasMipmap: false,
+        _format: PixelFormat.RGBA8888,
+        _compressed: false,
+        _premultiplyAlpha: false,
+        _minFilter: Filter.LINEAR,
+        _magFilter: Filter.LINEAR,
+        _wrapS: WrapMode.CLAMP_TO_EDGE,
+        _wrapT: WrapMode.CLAMP_TO_EDGE
+    },
+
+    statics: {
+        WrapMode: WrapMode,
+        PixelFormat: PixelFormat,
+        Filter: Filter,
+        // predefined most common extnames
+        extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp']
+    },
+
     /**
-     * Update texture options, not available in Canvas render mode. 
+     * Update texture options, not available in Canvas render mode.
      * image, format, premultiplyAlpha can not be updated in native.
      * @method update
      * @param {Object} options
@@ -284,6 +300,16 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
      * @param {Boolean} options.premultiplyAlpha
      */
     update(options) {
+    },
+
+    /**
+     * Returns the texture's url.<br>
+     * The Texture object overrides the toString() method of the Object object; it does not inherit Object.prototype.toString(). For Texture objects, the toString() method returns a string representation of the object. JavaScript calls the toString() method automatically when a texture is to be represented as a text value or when a texture is referred to in a string concatenation.
+     * @method toString
+     * @return {String}
+     */
+    toString () {
+        return this.url || '';
     },
 
     /**
@@ -420,14 +446,27 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
         return "<cc.Texture2D | Name = " + this.url + " | Dimensions = " + this.width + " x " + this.height + ">";
     },
 
-    /**
-     * Release texture.
-     * @method releaseTexture
-     */
-    releaseTexture: function () {
+    _releaseTexture () {
         if (this._gl && this._glID !== null) {
             this._gl.deleteTexture(this._glID);
+            this._glID = null;
         }
+    },
+
+    /**
+     * !#en
+     * Destory this texture and immediately release its video memory. (Inherit from cc.Object.destroy)<br>
+     * After destroy, this object is not usable any more.
+     * You can use cc.isValid(obj) to check whether the object is destroyed before accessing it.
+     * !#zh
+     * 销毁该贴图，并立即释放它对应的显存。（继承自 cc.Object.destroy）<br/>
+     * 销毁后，该对象不再可用。您可以在访问对象之前使用 cc.isValid(obj) 来检查对象是否已被销毁。
+     * @method destroy
+     */
+    destroy () {
+        this._releaseTexture();
+        cc.textureCache.removeTextureForKey(this.url);
+        this._super();
     },
 
     /**
@@ -510,25 +549,60 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
      */
     setAliasTexParameters: function () {
         //support only in WebGl rendering mode
-    }
+    },
+
+    // SERIALIZATION
+
+    _serialize: (CC_EDITOR || CC_TEST) && function () {
+        var extId = "";
+        if (this._native) {
+            // encode extname
+            var ext = cc.path.extname(this._native);
+            if (ext) {
+                extId = Texture2D.extnames.indexOf(ext);
+                if (extId < 0) {
+                    extId = ext;
+                }
+            }
+        }
+        return "" + extId;
+    },
+
+    _deserialize: function (data, handle) {
+        var fields = data.split(',');
+        // decode extname
+        var extIdStr = fields[0];
+        if (extIdStr) {
+            const CHAR_CODE_0 = 48;    // '0'
+            var extId = extIdStr.charCodeAt(0) - CHAR_CODE_0;
+            var ext = Texture2D.extnames[extId];
+            this._setRawAsset(ext || extIdStr);
+
+            // preset uuid to get correct nativeUrl
+            var loadingItem = handle.customEnv;
+            var uuid = loadingItem && loadingItem.uuid;
+            if (uuid) {
+                this._uuid = uuid;
+                this.nativeUrl;
+                var url = this.nativeUrl;
+                this.url = url;
+                cc.textureCache.cacheImage(url, this);
+            }
+        }
+    },
 });
 
 var _p = Texture2D.prototype;
 
-// Extended properties
-/** @expose */
-_p.pixelFormat;
-cc.defineGetterSetter(_p, "pixelFormat", _p.getPixelFormat);
-/** @expose */
-_p.pixelWidth;
-cc.defineGetterSetter(_p, "pixelWidth", _p.getPixelWidth);
-/** @expose */
-_p.pixelHeight;
-cc.defineGetterSetter(_p, "pixelHeight", _p.getPixelHeight);
+// deprecated properties
+JS.get(_p, "pixelFormat", _p.getPixelFormat);
+JS.get(_p, "pixelWidth", _p.getPixelWidth);
+JS.get(_p, "pixelHeight", _p.getPixelHeight);
 
-game.once(game.EVENT_RENDERER_INITED, function () {
+!CC_JSB && game.once(game.EVENT_RENDERER_INITED, function () {
     if (cc._renderType === game.RENDER_TYPE_CANVAS) {
-        var renderToCache = function(image, cache){
+
+        function renderToCache (image, cache) {
             var w = image.width;
             var h = image.height;
 
@@ -560,9 +634,9 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 ctx.putImageData(to, 0, 0);
             }
             image.onload = null;
-        };
+        }
 
-        var generateGrayTexture = function(texture, rect, renderCanvas){
+        function generateGrayTexture (texture, rect, renderCanvas){
             if (texture === null)
                 return null;
             renderCanvas = renderCanvas || document.createElement("canvas");
@@ -579,7 +653,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             }
             context.putImageData(imgData, 0, 0);
             return renderCanvas;
-        };
+        }
 
         _p._generateTextureCacheForColor = function(){
             if (this.channelCache)
@@ -614,7 +688,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
         _p._generateGrayTexture = function() {
             if(!this.loaded)
                 return null;
-            var grayElement = generateGrayTexture(this._image);;
+            var grayElement = generateGrayTexture(this._image);
             var newTexture = new Texture2D();
             newTexture.initWithElement(grayElement);
             newTexture.handleLoadedTexture();
@@ -702,8 +776,8 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             newTexture.handleLoadedTexture();
             return newTexture;
         };
-
-    } else if (cc._renderType === game.RENDER_TYPE_WEBGL) {
+    }
+    else if (cc._renderType === game.RENDER_TYPE_WEBGL) {
 
         function _glTextureFmt (pixelFormat) {
             var glFmt = _textureFmtGL[pixelFormat];
@@ -726,7 +800,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             mipmap: undefined,
             image: undefined,
             premultiplyAlpha: undefined
-        }
+        };
         function _getSharedOptions () {
             for (var key in _sharedOpts) {
                 _sharedOpts[key] = undefined;
@@ -778,7 +852,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             if (this._image) {
                 if (updateImage) {
                     // Release previous gl texture if existed
-                    this.releaseTexture();
+                    this._releaseTexture();
                     this._glID = gl.createTexture();
                     gl.activeTexture(gl.TEXTURE0);
                     gl.bindTexture(gl.TEXTURE_2D, this._glID);
@@ -829,18 +903,18 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 );
             }
         };
-        
+
         _p._setTexInfo = function () {
             var gl = this._gl;
             var pot = _isPow2(this.width) && _isPow2(this.height);
-        
+
             // WebGL1 doesn't support all wrap modes with NPOT textures
             if (!pot && (this._wrapS !== WrapMode.CLAMP_TO_EDGE || this._wrapT !== WrapMode.CLAMP_TO_EDGE)) {
                 cc.warnID(3116);
                 this._wrapS = WrapMode.CLAMP_TO_EDGE;
                 this._wrapT = WrapMode.CLAMP_TO_EDGE;
             }
-        
+
             if (this._minFilter === Filter.LINEAR) {
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, this._hasMipmap ? gl.LINEAR_MIPMAP_NEAREST : gl.LINEAR);
             }
@@ -869,7 +943,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
         _p.initWithElement = function (element) {
             if (!element || element.width === 0 || element.height === 0)
                 return;
-            
+
             this._image = element;
             return true;
         };
@@ -939,4 +1013,8 @@ game.once(game.EVENT_RENDERER_INITED, function () {
  * @deprecated please use height instead
  */
 
-cc.Texture2D = module.exports = Texture2D;
+if (!CC_JSB) {
+    cc.Texture2D = Texture2D;
+}
+
+module.exports = Texture2D;

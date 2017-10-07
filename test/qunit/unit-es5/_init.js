@@ -65,8 +65,8 @@ var TestSprite = cc.Class({
         width: 0,
         height: 0,
         texture: {
-            default: '',
-            url: TestTexture,
+            default: null,
+            type: TestTexture,
         },
         rotated: false,
         trimLeft: 0,
@@ -169,6 +169,7 @@ function _resetGame (w, h) {
             id: 'test-canvas',
             debugMode: cc.DebugMode.INFO
         });
+        cc.director.setDisplayStats(false);
     }
     else {
         var view = cc.view;

@@ -49,19 +49,6 @@ var textureCache = /** @lends cc.textureCache# */{
 
     /**
      * Returns an already created texture. Returns null if the texture doesn't exist.
-     * @method textureForKey
-     * @param {String} textureKeyName
-     * @return {Texture2D|Null}
-     * @deprecated
-     * @example {@link utils/api/engine/docs/cocos2d/core/textures/textureForKey.js}
-     */
-    textureForKey: function (textureKeyName) {
-        cc.logID(3002);
-        return this.getTextureForKey(textureKeyName);
-    },
-
-    /**
-     * Returns an already created texture. Returns null if the texture doesn't exist.
      * @method getTextureForKey
      * @param {String} textureKeyName
      * @return {Texture2D|Null}
@@ -139,7 +126,7 @@ var textureCache = /** @lends cc.textureCache# */{
         var locTextures = this._textures;
         for (var selKey in locTextures) {
             if (locTextures[selKey])
-                locTextures[selKey].releaseTexture();
+                locTextures[selKey]._releaseTexture();
         }
         this._textures = {};
     },
@@ -157,7 +144,7 @@ var textureCache = /** @lends cc.textureCache# */{
         var locTextures = this._textures;
         for (var selKey in locTextures) {
             if (locTextures[selKey] === texture) {
-                locTextures[selKey].releaseTexture();
+                locTextures[selKey]._releaseTexture();
                 delete(locTextures[selKey]);
             }
         }
@@ -170,12 +157,17 @@ var textureCache = /** @lends cc.textureCache# */{
      * @example {@link utils/api/engine/docs/cocos2d/core/textures/removeTextureForKey.js}
      */
     removeTextureForKey: function (textureKeyName) {
+        if (CC_DEBUG && textureKeyName instanceof cc.Texture2D) {
+            cc.warn('textureCache.removeTextureForKey(key) - The type of the key should be string, not Texture2D. You should call texture.destroy() if you already have the texture object.');
+        }
+
         if (typeof textureKeyName !== 'string')
             return;
-        var locTextures = this._textures;
-        if (locTextures[textureKeyName]) {
-            locTextures[textureKeyName].releaseTexture();
-            delete(locTextures[textureKeyName]);
+
+        var texture = this._textures[textureKeyName];
+        if (texture) {
+            texture._releaseTexture();
+            delete this._textures[textureKeyName];
         }
     },
     
@@ -215,8 +207,8 @@ var textureCache = /** @lends cc.textureCache# */{
     },
 
     /**
-     * <p>Output to cc.log the current contents of this TextureCache <br />
-     * This will attempt to calculate the size of each texture, and the total texture memory in use. </p>
+     * Output to cc.log the current contents of this TextureCache.<br>
+     * This will attempt to calculate the size of each texture, and the total texture memory in use.
      */
     dumpCachedTextureInfo: function () {
         var count = 0;
@@ -322,6 +314,10 @@ game.once(game.EVENT_RENDERER_INITED, function () {
         };
 
         _p.addImage = function (url, cb, target) {
+            if (CC_DEBUG && url instanceof cc.Texture2D) {
+                cc.warn('textureCache.addImage(url) - The type of the url should be string, not Texture2D. You don\'t need to call addImage if you already have the texture object.');
+            }
+
             cc.assertID(url, 3112);
 
             var locTexs = this._textures;
@@ -331,8 +327,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                     cb && cb.call(target, tex);
                     return tex;
                 }
-                else
-                {
+                else {
                     tex.once("load", function(){
                        cb && cb.call(target, tex);
                     }, target);

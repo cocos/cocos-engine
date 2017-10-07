@@ -8,6 +8,16 @@ if (CC_DEV) {
         cc.errorID(1404);
     });
 
+    js.obsolete(cc.textureCache, 'cc.textureCache.textureForKey', 'getTextureForKey');
+
+    // Texture
+    js.obsolete(cc.Texture2D.prototype, 'texture.releaseTexture', 'texture.destroy');
+
+    js.get(cc.SpriteFrame.prototype, '_textureLoaded', function () {
+        cc.errorID(1400, 'spriteFrame._textureLoaded', 'spriteFrame.textureLoaded()');
+        return this.textureLoaded();
+    });
+
     // Label
     if (cc.Label) {
         js.obsolete(cc.Label.prototype,  'cc.Label.file', 'font', true);
@@ -23,7 +33,7 @@ if (CC_DEV) {
      * @returns {object}
      */
     js.get(cc, "inject", function () {
-        cc.warnID(1400, 'cc.inject', 'cc.js.mixin');
+        cc.errorID(1400, 'cc.inject', 'cc.js.mixin');
         cc.warnID(1401);
         return function (lhs, rhs) {
             return js.mixin(rhs, lhs);
@@ -40,7 +50,7 @@ if (CC_DEV) {
      * @returns {object}
      */
     js.get(cc, "extend", function () {
-        cc.warnID(1400, 'cc.extend', 'cc.js.mixin');
+        cc.errorID(1400, 'cc.extend', 'cc.js.mixin');
         return js.mixin;
     });
 
@@ -52,12 +62,12 @@ if (CC_DEV) {
      * @returns {object}
      */
     js.get(cc, "newElement", function () {
-        cc.warnID(1400, 'cc.newElement', 'document.createElement');
+        cc.errorID(1400, 'cc.newElement', 'document.createElement');
         return document.createElement;
     });
 
     js.get(cc, "isFunction", function () {
-        cc.warnID(1400, 'cc.isFunction', '"typeof obj === \'function\'"');
+        cc.errorID(1400, 'cc.isFunction', '"typeof obj === \'function\'"');
         return function(obj) {
             return typeof obj === 'function';
         };
@@ -72,7 +82,7 @@ if (CC_DEV) {
      * @returns {boolean}
      */
     js.get(cc, "isNumber", function () {
-        cc.warnID(1400, 'cc.isNumber', 'cc.js.isNumber');
+        cc.errorID(1400, 'cc.isNumber', 'cc.js.isNumber');
         return js.isNumber;
     });
 
@@ -85,26 +95,26 @@ if (CC_DEV) {
      * @returns {boolean}
      */
     js.get(cc, "isString", function () {
-        cc.warnID(1400, 'cc.isString', 'cc.js.isString');
+        cc.errorID(1400, 'cc.isString', 'cc.js.isString');
         return js.isString;
     });
 
     js.get(cc, "isArray", function () {
-        cc.warnID(1400, 'cc.isArray', 'cc.js.isArray');
+        cc.errorID(1400, 'cc.isArray', 'cc.js.isArray');
         return function(obj) {
             return Array.isArray(obj);
         };
     });
 
     js.get(cc, "isUndefined", function () {
-        cc.warnID(1400, 'cc.isUndefined', '"typeof obj === \'undefined\'"');
+        cc.errorID(1400, 'cc.isUndefined', '"typeof obj === \'undefined\'"');
         return function(obj) {
             return typeof obj === 'undefined';
         };
     });
 
     js.get(cc, "isObject", function () {
-        cc.warnID(1400, 'cc.isObject', '"typeof obj === \'object\'"');
+        cc.errorID(1400, 'cc.isObject', '"typeof obj === \'object\'"');
         return function(obj) {
             return typeof obj === 'object';
         };
@@ -133,7 +143,7 @@ if (CC_DEV) {
      * @function
      */
     js.get(cc, 'arrayVerifyType', function () {
-        cc.warnID(1400, 'cc.arrayVerifyType', 'cc.js.array.verifyType');
+        cc.errorID(1400, 'cc.arrayVerifyType', 'cc.js.array.verifyType');
         return cc.js.array.verifyType;
     });
 
@@ -146,7 +156,7 @@ if (CC_DEV) {
      * @param {*} delObj  remove object
      */
     js.get(cc, 'arrayRemoveObject', function () {
-        cc.warnID(1400, 'cc.arrayRemoveObject', 'cc.js.array.remove');
+        cc.errorID(1400, 'cc.arrayRemoveObject', 'cc.js.array.remove');
         return cc.js.array.remove;
     });
 
@@ -159,7 +169,7 @@ if (CC_DEV) {
      * @param {Array} minusArr minus Array
      */
     js.get(cc, 'arrayRemoveArray', function () {
-        cc.warnID(1400, 'cc.arrayRemoveArray', 'cc.js.array.removeArray');
+        cc.errorID(1400, 'cc.arrayRemoveArray', 'cc.js.array.removeArray');
         return cc.js.array.removeArray;
     });
 
@@ -174,7 +184,7 @@ if (CC_DEV) {
      * @return {Array}
      */
     js.get(cc, 'arrayAppendObjectsToIndex', function() {
-        cc.warnID(1400, 'cc.arrayAppendObjectsToIndex', 'cc.js.array.appendObjectsAt');
+        cc.errorID(1400, 'cc.arrayAppendObjectsToIndex', 'cc.js.array.appendObjectsAt');
         return cc.js.array.appendObjectsAt;
     });
 
@@ -186,12 +196,12 @@ if (CC_DEV) {
      * @return {Array}
      */
     js.get(cc, 'copyArray', function() {
-        cc.warnID(1400, 'cc.copyArray', 'cc.js.array.copy');
+        cc.errorID(1400, 'cc.copyArray', 'cc.js.array.copy');
         return cc.js.array.copy;
     });
 
     js.get(cc, 'PI', function () {
-        cc.warnID(1400, 'cc.PI', 'Math.PI');
+        cc.errorID(1400, 'cc.PI', 'Math.PI');
         return Math.PI;
     });
 
@@ -242,7 +252,7 @@ if (CC_DEV) {
                 oldPropName = entry;
             }
             js.get(obj, oldPropName, function (entry) {
-                cc.warnID(1400, oldPath + delimiter + entry, newPath + '.' + entry);
+                cc.errorID(1400, oldPath + delimiter + entry, newPath + '.' + entry);
                 return enumDef[entry];
             }.bind(null, entry));
         }
