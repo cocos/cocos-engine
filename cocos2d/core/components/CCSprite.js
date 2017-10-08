@@ -23,6 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const renderEngine = require('../renderer/render-engine');
+const SpriteModel = renderEngine.SpriteModel;
+
 /**
  * !#en Enum for sprite type.
  * !#zh Sprite 类型
@@ -123,6 +126,7 @@ var Sprite = cc.Class({
 
     ctor: function() {
         this._blendFunc = new cc.BlendFunc(this._srcBlendFactor, this._dstBlendFactor);
+        this._model = null;
     },
 
     properties: {
@@ -489,11 +493,56 @@ var Sprite = cc.Class({
     },
 
     onEnable: function () {
-        if (this._sgNode) {
-            if (this._spriteFrame && this._spriteFrame.textureLoaded()) {
-                this._sgNode.setVisible(true);
-            }
+        // var insetsChangedViaAPI = sgNode.getInsetLeft() !== 0 || sgNode.getInsetRight() !== 0 ||
+        // sgNode.getInsetTop() !== 0 || sgNode.getInsetBottom() !== 0;
+        // this._applySpriteFrame(null, insetsChangedViaAPI);
+
+        // this._applySpriteSize();
+
+        switch (this.type) {
+        case SpriteType.SIMPLE:
+            this._model = SpriteModel.alloc();
+            this._model.setSpriteFrame(this._spriteFrame._rect);
+            // this._model.setEffect();
+            break;
+        case SpriteType.SLICED:
+            break;
+        case SpriteType.TILED:
+            break;
+        case SpriteType.FILLED:
+            // sgNode.setFillType(this._fillType);
+            // sgNode.setFillCenter(this._fillCenter);
+            // sgNode.setFillStart(this._fillStart);
+            // sgNode.setFillRange(this._fillRange);
+            break;
         }
+        // sgNode.enableTrimmedContentSize(this._isTrimmedMode);
+        // this._blendFunc.src = this._srcBlendFactor;
+        // this._blendFunc.dst = this._dstBlendFactor;
+        // sgNode.setBlendFunc(this._blendFunc);
+        this._model.setNode(this.node);
+
+        // Add to rendering scene
+    },
+
+    onDisable: function () {
+        if (!this._model) {
+            return;
+        }
+        switch (this.type) {
+        case SpriteType.SIMPLE:
+            SpriteModel.free(this._model);
+            break;
+        case SpriteType.SLICED:
+            break;
+        case SpriteType.TILED:
+            break;
+        case SpriteType.FILLED:
+            break;
+        }
+        this._model = null;
+        
+        // Remove from rendering scene
     },
 
     _applyAtlas: CC_EDITOR && function (spriteFrame) {
@@ -530,16 +579,15 @@ var Sprite = cc.Class({
     },
 
     _onTextureLoaded: function (event) {
-        var self = this;
-        if (!self.isValid) {
+        if (!this.isValid || !this._model) {
             return;
         }
-        var sgNode = self._sgNode;
-        sgNode.setSpriteFrame(self._spriteFrame);
-        self._applySpriteSize();
-        if (self.enabledInHierarchy && !sgNode.isVisible()) {
-            sgNode.setVisible(true);
-        }
+        this._model.setSpriteFrame(self._spriteFrame);
+        // this._model.setEffect();
+        this._applySpriteSize();
+        // if (this.enabledInHierarchy && !sgNode.isVisible()) {
+        //     sgNode.setVisible(true);
+        // }
     },
 
     _applySpriteFrame: function (oldFrame, keepInsets) {
@@ -569,32 +617,6 @@ var Sprite = cc.Class({
             // Set atlas
             this._applyAtlas(spriteFrame);
         }
-    },
-
-    _createSgNode: function () {
-        return new cc.Scale9Sprite();
-    },
-
-    _initSgNode: function () {
-        var sgNode = this._sgNode;
-        var insetsChangedViaAPI = sgNode.getInsetLeft() !== 0 || sgNode.getInsetRight() !== 0 ||
-                                  sgNode.getInsetTop() !== 0 || sgNode.getInsetBottom() !== 0;
-        this._applySpriteFrame(null, insetsChangedViaAPI);
-
-        // sgNode is the sizeProvider of the node so we should sync its size with the node,
-        // otherwise setContentSize may not take effect
-        sgNode.setContentSize(this.node.getContentSize(true));
-        this._applySpriteSize();
-
-        sgNode.setRenderingType(this._type);
-        sgNode.setFillType(this._fillType);
-        sgNode.setFillCenter(this._fillCenter);
-        sgNode.setFillStart(this._fillStart);
-        sgNode.setFillRange(this._fillRange);
-        sgNode.enableTrimmedContentSize(this._isTrimmedMode);
-        this._blendFunc.src = this._srcBlendFactor;
-        this._blendFunc.dst = this._dstBlendFactor;
-        sgNode.setBlendFunc(this._blendFunc);
     },
 
     _resized: CC_EDITOR && function () {
