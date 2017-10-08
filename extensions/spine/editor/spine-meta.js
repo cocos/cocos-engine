@@ -64,8 +64,7 @@ class TextureParser {
         var uuid = Editor.assetdb.fspathToUuid(path);
         if (uuid) {
             console.log('UUID is initialized for "%s".', path);
-            var url = Editor.assetdb.uuidToUrl(uuid);
-            this.textures.push(url);
+            this.textures.push(uuid);
             var tex = new Spine.Texture({});
             tex.setFilters = function() {};
             tex.setWraps = function() {};
@@ -179,12 +178,9 @@ class SpineMeta extends CustomAssetMeta {
                     return cb(new Error(`Failed to load atlas file: "${res.atlasPath}". ${err.stack || err}`));
                 }
                 if (textureParser.textures.length > 0) {
-                    asset.textures = textureParser.textures;
-                    this.textures = textureParser.textures.map(url => Editor.assetdb.urlToUuid(url));
+                    this.textures = textureParser.textures;
                 }
-                else {
-                    asset.textures = this.textures.map(uuid => Editor.assetdb.uuidToUrl(uuid));
-                }
+                asset.textures = this.textures.map(Editor.serialize.asAsset);
 
                 //
                 asset.atlasText = res.data;

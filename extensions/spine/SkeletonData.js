@@ -277,7 +277,7 @@ var SkeletonData = cc.Class({
             return null;
         }
 
-        var loader =  new TextureLoader(this);
+        var loader = new TextureLoader(this);
         return this._atlasCache = new sp.spine.TextureAtlas(this.atlasText, loader.load.bind(loader));
     }
 });
