@@ -420,6 +420,9 @@ bool register_all_dragonbones_manual(se::Object* obj)
 
 //        std::string typeName = typeid(*obj).name();
         auto cleanup = [=](){
+            if (!se::ScriptEngine::getInstance()->isValid())
+                return;
+
             se::AutoHandleScope hs;
             se::ScriptEngine::getInstance()->clearException();
 
