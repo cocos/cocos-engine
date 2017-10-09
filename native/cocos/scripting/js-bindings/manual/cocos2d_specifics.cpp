@@ -1578,85 +1578,6 @@ bool js_CCScheduler_unscheduleUpdateForTarget(JSContext *cx, uint32_t argc, JS::
     return false;
 }
 
-bool js_CCScheduler_scheduleCallbackForTarget(JSContext *cx, uint32_t argc, JS::Value *vp)
-{
-    if (argc >= 2) {
-        JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-
-        JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-        js_proxy_t *proxy = jsb_get_js_proxy(cx, obj);
-        cocos2d::Scheduler *sched = (cocos2d::Scheduler *)(proxy ? proxy->ptr : nullptr);
-
-        JSScheduleWrapper *tmpCObj = nullptr;
-
-        JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-        proxy = jsb_get_js_proxy(cx, tmpObj);
-        
-        JS::RootedObject jsFunc(cx, args.get(1).toObjectOrNull());
-
-        double interval = 0;
-        if( argc >= 3 && args.get(2).isNumber() ) {
-            interval = args.get(2).toNumber();
-        }
-
-        //
-        // repeat
-        //
-        double repeat = kRepeatForever;
-        if( argc >= 4 && args.get(3).isNumber() ) {
-            repeat = args.get(3).toNumber();
-        }
-
-        //
-        // delay
-        //
-        double delay = 0;
-        if( argc >= 5 && args.get(4).isNumber() ) {
-            delay = args.get(4).toNumber();
-        }
-
-        bool paused = false;
-
-        if( argc >= 6 && args.get(5).isBoolean() ) {
-            paused = args.get(5).toBoolean();
-        }
-
-        bool bFound = false;
-        auto pTargetArr = JSScheduleWrapper::getTargetForJSObject(cx, tmpObj);
-        if (pTargetArr)
-        {
-            JS::RootedObject wrapperFunc(cx);
-            for (auto&& pObj : *pTargetArr)
-            {
-                JSScheduleWrapper* pTarget = pObj;
-                pTarget->getJSCallback(cx, &wrapperFunc);
-                if (jsFunc.get() == wrapperFunc.get())
-                {
-                    tmpCObj = pTarget;
-                    bFound = true;
-                    break;
-                }
-            }
-        }
-
-        if (!bFound)
-        {
-            tmpCObj = new (std::nothrow) JSScheduleWrapper(cx, tmpObj, jsFunc, obj);
-            tmpCObj->autorelease();
-
-            JSScheduleWrapper::setTargetForSchedule(cx, args.get(1), tmpCObj);
-            JSScheduleWrapper::setTargetForJSObject(cx, tmpObj, tmpCObj);
-        }
-
-        sched->schedule(schedule_selector(JSScheduleWrapper::scheduleFunc), tmpCObj, interval, repeat, delay, paused);
-
-        args.rval().setUndefined();
-        return true;
-    }
-    JS_ReportErrorUTF8(cx, "wrong number of arguments");
-    return false;
-}
-
 bool js_CCScheduler_schedule(JSContext *cx, uint32_t argc, JS::Value *vp)
 {
     if (argc >= 2) {
@@ -1756,29 +1677,6 @@ bool js_CCScheduler_unscheduleCallbackForTarget(JSContext *cx, uint32_t argc, JS
 
                 JS::RootedObject tmpObj(cx, args.get(1).toObjectOrNull());
                 cobj->unschedule(key, tmpObj);
-            }
-            else {
-                JS::RootedObject tmpObj(cx, args.get(0).toObjectOrNull());
-
-                auto arr = JSScheduleWrapper::getTargetForJSObject(cx, tmpObj);
-                // If there aren't any targets, just return true.
-                // Otherwise, the for loop will break immediately.
-                // It will lead to logic errors.
-                // For details to reproduce it, please refer to SchedulerTest/SchedulerUpdate.
-                if(! arr) return true;
-
-                JS::RootedObject tmpFunc(cx, args.get(1).toObjectOrNull());
-                JSScheduleWrapper* wrapper = nullptr;
-                for(ssize_t i = 0; i < arr->size(); ++i) {
-                    wrapper = (JSScheduleWrapper*)arr->at(i);
-                    JS::RootedObject wrapperFunc(cx);
-                    wrapper->getJSCallback(cx, &wrapperFunc);
-                    if(wrapperFunc.get() == tmpFunc.get()) {
-                        cobj->unschedule(schedule_selector(JSScheduleWrapper::scheduleFunc), wrapper);
-                        JSScheduleWrapper::removeTargetForJSObject(cx, tmpObj, wrapper);
-                        break;
-                    }
-                }
             }
         } while (0);
 
@@ -4922,9 +4820,7 @@ void register_cocos2dx_js_core(JSContext* cx, JS::HandleObject global)
     JS_DefineFunction(cx, tmpObj, "scheduleUpdateForTarget", js_CCScheduler_scheduleUpdateForTarget, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "unscheduleUpdate", js_CCScheduler_unscheduleUpdateForTarget, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "schedule", js_CCScheduler_schedule, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-    JS_DefineFunction(cx, tmpObj, "scheduleCallbackForTarget", js_CCScheduler_scheduleCallbackForTarget, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "unschedule", js_CCScheduler_unscheduleCallbackForTarget, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-    JS_DefineFunction(cx, tmpObj, "unscheduleCallbackForTarget", js_CCScheduler_unscheduleCallbackForTarget, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "unscheduleAllForTarget", js_cocos2dx_CCScheduler_unscheduleAllSelectorsForTarget, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "unscheduleAllCallbacks", js_cocos2dx_CCScheduler_unscheduleAll, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "unscheduleAllCallbacksWithMinPriority", js_cocos2dx_CCScheduler_unscheduleAllCallbacksWithMinPriority, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
