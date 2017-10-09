@@ -55,7 +55,7 @@ cc.js.mixin(cc.path, {
 });
 
 // cc.Scheduler
-var _callbackId = 0 | 998 * Math.random();
+var _callbackId = 0;
 cc.Scheduler.prototype.schedule = function (callback, target, interval, repeat, delay, paused) {
     if (delay === undefined || paused === undefined) {
         paused = !!repeat;
