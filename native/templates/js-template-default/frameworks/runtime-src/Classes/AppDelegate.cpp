@@ -60,6 +60,20 @@ bool AppDelegate::applicationDidFinishLaunching()
 
     se::ScriptEngine* se = se::ScriptEngine::getInstance();
 
+    jsb_set_xxtea_key("");
+    jsb_init_file_operation_delegate();
+
+#if defined(COCOS2D_DEBUG) && (COCOS2D_DEBUG > 0)
+    // Enable debugger here
+    // Change IP while remote debugging on Android device.
+    jsb_enable_debugger("127.0.0.1", 5086);
+#endif
+
+    se->setExceptionCallback([](const char* location, const char* message, const char* stack){
+        // Send exception information to server like Tencent Bugly.
+
+    });
+
     jsb_register_all_modules();
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && PACKAGE_AS
@@ -69,23 +83,6 @@ bool AppDelegate::applicationDidFinishLaunching()
 
     se->start();
 
-#if defined(COCOS2D_DEBUG) && (COCOS2D_DEBUG > 0)
-    se->enableDebugger();   // Enable debugger here
-
-    class SimpleRunLoop
-    {
-    public:
-        void update(float dt)
-        {
-            se::ScriptEngine::getInstance()->mainLoopUpdate();
-        }
-    };
-    static SimpleRunLoop runLoop;
-    director->getScheduler()->scheduleUpdate(&runLoop, 0, false);
-
-#endif
-
-    jsb_set_xxtea_key("");
     jsb_run_script("main.js");
 
     return true;
