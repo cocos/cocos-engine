@@ -256,9 +256,9 @@ bool foo()
 
 * JS引擎在se::Object::createXXX后，如果由于某种原因JS引擎做了GC操作，导致后续使用的se::Object内部引用了一个非法指针，引发程序崩溃
 
-为了解决上述两个问题，抽象层定义了一个辅助管理**手动创建对象**的类型，即se::handleObject。
+为了解决上述两个问题，抽象层定义了一个辅助管理**手动创建对象**的类型，即`se::HandleObject`。
 
-se::HandleObject是一个辅助类，用于更加简单地管理手动创建的se::Object对象的释放、root和unroot操作。
+`se::HandleObject`是一个辅助类，用于更加简单地管理手动创建的se::Object对象的释放、root和unroot操作。
 以下两种代码写法是等价的，使用se::HandleObject的代码量明显少很多，而且更加安全。
 
 ```c++
@@ -809,20 +809,44 @@ classes_owned_by_cpp =
 
 ### Chrome远程调试V8
 
-TBD
+#### Windows
 
-Windows:
+* 运行游戏
+* 用Chrome浏览器打开[chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=127.0.0.1:5086/00010002-0003-4004-8005-000600070008](chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=127.0.0.1:5086/00010002-0003-4004-8005-000600070008)
 
-Android:
+断点调试：
+![](v8-win32-debug.jpg)
+
+抓取JS Heap
+![](v8-win32-memory.jpg)
+
+Profile
+![](v8-win32-profile.jpg)
+
+#### Android
+
+* 运行游戏
+* 用Chrome浏览器打开[chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=xxx.xxx.xxx.xxx:5086/00010002-0003-4004-8005-000600070008](chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=xxx.xxx.xxx.xxx:5086/00010002-0003-4004-8005-000600070008), 其中`xxx.xxx.xxx.xxx`为局域网中Android设备的IP地址
+* 调试界面与Windows相同
+
 
 ### Safari远程调试JavaScriptCore
 
-TBD
+#### macOS
 
-Mac:
+1. 打开Mac上的Safari，偏好设置 -> 高级 -> 显示开发者选项
+2. 为Xcode工程添加entitlements文件，如果entitlements存在则跳过此步骤。如果不存在，则到工程的Capabilities设置中打开App Sandbox，然后再关闭，这时.entitlements文件会自动被添加进工程。![](jsc-entitlements.png)
+3. 打开entitlements文件，添加com.apple.security.get-task-allow，值类型为Boolean，值为true. ![](jsc-security-key.png)
+4. 运行游戏
+5. Safari菜单中选择Develop -> 你的Mac设备名称 -> Cocos2d-x JSB 会自动打开Web Inspector页面，然后即可进行设置断点、Timeline profile、console等操作。![](jsc-mac-debug.png) ![](jsc-breakpoint.png) ![](jsc-timeline.png)
 
-iOS:
+#### iOS
 
+1. 先打开iPhone的设置 -> Safari -> 高级 -> Web检查器
+2. 为Xcode工程添加entitlements文件，如果entitlements存在则跳过此步骤。如果不存在，则到工程的Capabilities设置中打开App Sandbox，然后再关闭，这时.entitlements文件会自动被添加进工程。 (图示与macOS的第2步类似)
+3. 打开entitlements文件，添加com.apple.security.get-task-allow，值类型为Boolean，值为true。(图示与macOS的第3步类似)
+4. 运行游戏
+5. Safari菜单中选择Develop -> 你的iPhone设备名称 -> Cocos2d-x JSB 会自动打开Web Inspector页面，然后即可进行设置断点、Timeline profile、console等操作。(图示与macOS的第5步类似)
 
 ## Q & A
 
