@@ -1,5 +1,6 @@
 #include "scripting/js-bindings/auto/jsb_box2d_auto.hpp"
 #include "scripting/js-bindings/manual/jsb_conversions.hpp"
+#include "scripting/js-bindings/manual/jsb_global.h"
 #include "Box2D/Box2D.h"
 
 se::Object* __jsb_b2Draw_proto = nullptr;

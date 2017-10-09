@@ -1,5 +1,6 @@
 #include "scripting/js-bindings/auto/jsb_cocos2dx_dragonbones_auto.hpp"
 #include "scripting/js-bindings/manual/jsb_conversions.hpp"
+#include "scripting/js-bindings/manual/jsb_global.h"
 #include "editor-support/dragonbones/cocos2dx/CCDragonBonesHeaders.h"
 
 se::Object* __jsb_dragonBones_BaseObject_proto = nullptr;

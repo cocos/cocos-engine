@@ -1,5 +1,6 @@
 #include "scripting/js-bindings/auto/jsb_cocos2dx_spine_auto.hpp"
 #include "scripting/js-bindings/manual/jsb_conversions.hpp"
+#include "scripting/js-bindings/manual/jsb_global.h"
 #include "spine/spine-cocos2dx.h"
 
 se::Object* __jsb_spine_SkeletonRenderer_proto = nullptr;
@@ -1721,7 +1722,7 @@ bool js_register_cocos2dx_spine_SkeletonAnimation(se::Object* obj)
     __jsb_spine_SkeletonAnimation_proto = cls->getProto();
     __jsb_spine_SkeletonAnimation_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { sp.SkeletonAnimation.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("sp", "SkeletonAnimation");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }

@@ -1,5 +1,6 @@
 #include "scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.hpp"
 #include "scripting/js-bindings/manual/jsb_conversions.hpp"
+#include "scripting/js-bindings/manual/jsb_global.h"
 #include "extensions/cocos-ext.h"
 
 se::Object* __jsb_cocos2d_extension_EventAssetsManagerEx_proto = nullptr;
@@ -2568,7 +2569,7 @@ bool js_register_cocos2dx_extension_ControlButton(se::Object* obj)
     __jsb_cocos2d_extension_ControlButton_proto = cls->getProto();
     __jsb_cocos2d_extension_ControlButton_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.ControlButton.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "ControlButton");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -3295,7 +3296,7 @@ bool js_register_cocos2dx_extension_ControlColourPicker(se::Object* obj)
     __jsb_cocos2d_extension_ControlColourPicker_proto = cls->getProto();
     __jsb_cocos2d_extension_ControlColourPicker_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.ControlColourPicker.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "ControlColourPicker");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -3748,7 +3749,7 @@ bool js_register_cocos2dx_extension_ControlPotentiometer(se::Object* obj)
     __jsb_cocos2d_extension_ControlPotentiometer_proto = cls->getProto();
     __jsb_cocos2d_extension_ControlPotentiometer_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.ControlPotentiometer.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "ControlPotentiometer");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -4313,7 +4314,7 @@ bool js_register_cocos2dx_extension_ControlSlider(se::Object* obj)
     __jsb_cocos2d_extension_ControlSlider_proto = cls->getProto();
     __jsb_cocos2d_extension_ControlSlider_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.ControlSlider.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "ControlSlider");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -4784,7 +4785,7 @@ bool js_register_cocos2dx_extension_ControlStepper(se::Object* obj)
     __jsb_cocos2d_extension_ControlStepper_proto = cls->getProto();
     __jsb_cocos2d_extension_ControlStepper_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.ControlStepper.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "ControlStepper");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -5050,7 +5051,7 @@ bool js_register_cocos2dx_extension_ControlSwitch(se::Object* obj)
     __jsb_cocos2d_extension_ControlSwitch_proto = cls->getProto();
     __jsb_cocos2d_extension_ControlSwitch_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.ControlSwitch.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "ControlSwitch");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -5793,7 +5794,7 @@ bool js_register_cocos2dx_extension_ScrollView(se::Object* obj)
     __jsb_cocos2d_extension_ScrollView_proto = cls->getProto();
     __jsb_cocos2d_extension_ScrollView_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.ScrollView.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "ScrollView");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -5922,7 +5923,7 @@ bool js_register_cocos2dx_extension_TableViewCell(se::Object* obj)
     __jsb_cocos2d_extension_TableViewCell_proto = cls->getProto();
     __jsb_cocos2d_extension_TableViewCell_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.TableViewCell.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "TableViewCell");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -6213,7 +6214,7 @@ bool js_register_cocos2dx_extension_TableView(se::Object* obj)
     __jsb_cocos2d_extension_TableView_proto = cls->getProto();
     __jsb_cocos2d_extension_TableView_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.TableView.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "TableView");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }

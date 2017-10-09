@@ -1,5 +1,6 @@
 #include "scripting/js-bindings/auto/jsb_creator_auto.hpp"
 #include "scripting/js-bindings/manual/jsb_conversions.hpp"
+#include "scripting/js-bindings/manual/jsb_global.h"
 #include "creator/CCScale9Sprite.h"
 #include "creator/CCGraphicsNode.h"
 #include "editor-support/creator/physics/CCPhysicsDebugDraw.h"
@@ -749,7 +750,7 @@ bool js_register_creator_Scale9SpriteV2(se::Object* obj)
     __jsb_creator_Scale9SpriteV2_proto = cls->getProto();
     __jsb_creator_Scale9SpriteV2_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.Scale9SpriteV2.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "Scale9SpriteV2");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -1518,7 +1519,7 @@ bool js_register_creator_GraphicsNode(se::Object* obj)
     __jsb_creator_GraphicsNode_proto = cls->getProto();
     __jsb_creator_GraphicsNode_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.GraphicsNode.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "GraphicsNode");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
