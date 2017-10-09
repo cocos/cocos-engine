@@ -14,9 +14,13 @@
     #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_NONE
 #endif
 
-#define SE_ENABLE_INSPECTOR 0
-
+#if defined(COCOS2D_DEBUG) && COCOS2D_DEBUG > 0
+#define SE_ENABLE_INSPECTOR 1
 #define SE_DEBUG 2
+#else
+#define SE_ENABLE_INSPECTOR 0
+#define SE_DEBUG 0
+#endif
 
 #ifdef ANDROID
 
