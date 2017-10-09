@@ -54,8 +54,10 @@ function loadAtlasText (skeletonPath, callback) {
 class TextureParser {
     constructor (atlasPath) {
         this.atlasPath = atlasPath;
-        // the loaded texture array
+        // array of loaded texture uuid
         this.textures = [];
+        // array of corresponding line
+        this.textureNames = [];
     }
     load (line) {
         var name = Path.basename(line);
@@ -65,6 +67,7 @@ class TextureParser {
         if (uuid) {
             console.log('UUID is initialized for "%s".', path);
             this.textures.push(uuid);
+            this.textureNames.push(line);
             var tex = new Spine.Texture({});
             tex.setFilters = function() {};
             tex.setWraps = function() {};
@@ -80,7 +83,6 @@ class TextureParser {
 
         return null;
     }
-    unload () {}
 }
 
 const RAW_SKELETON_FILE = 'raw-skeleton.json';
@@ -103,7 +105,7 @@ class SpineMeta extends CustomAssetMeta {
         //this.textures[0] = value;
     }
 
-    static version () { return '1.1.0'; }
+    static version () { return '1.2.0'; }
     static defaultType () {
         return 'spine';
     }
@@ -171,30 +173,28 @@ class SpineMeta extends CustomAssetMeta {
 
                 // parse atlas textures
                 var textureParser = new TextureParser(res.atlasPath);
+
                 try {
                     new Spine.TextureAtlas(res.data, textureParser.load.bind(textureParser));
                 }
                 catch (err) {
                     return cb(new Error(`Failed to load atlas file: "${res.atlasPath}". ${err.stack || err}`));
                 }
-                if (textureParser.textures.length > 0) {
-                    this.textures = textureParser.textures;
-                }
-                asset.textures = this.textures.map(Editor.serialize.asAsset);
 
+                this.textures = textureParser.textures;
+                asset.textures = textureParser.textures.map(Editor.serialize.asAsset);
+                asset.textureNames = textureParser.textureNames;
                 //
                 asset.atlasText = res.data;
                 
                 // save raw assets for JSB..
                 
-                var atlasUuid = db.fspathToUuid(res.atlasPath);
-                asset.atlasUrl = db.uuidToUrl(atlasUuid);
-                
                 db.mkdirForAsset(this.uuid);
                 var rawJsonPath = Path.join(db._uuidToImportPathNoExt(this.uuid), RAW_SKELETON_FILE);
                 Fs.copySync(fspath, rawJsonPath);
                 asset._setRawAsset(RAW_SKELETON_FILE);
-                
+
+                var atlasUuid = db.fspathToUuid(res.atlasPath);
                 this.atlas = atlasUuid;     // save for dest()
                 
                 //
