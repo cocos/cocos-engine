@@ -262,6 +262,42 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         return this._texture;
     },
 
+    _textureLoadedCallback () {
+        var self = this;
+        var texture = this._texture;
+        if (!texture) {
+            // clearTexture called while loading texture...
+            return;
+        }
+        var w = texture.width, h = texture.height;
+
+        if (self._rotated && cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            self._texture = _ccsg.Sprite.CanvasRenderCmd._createRotatedTexture(texture, self.getRect());
+            self._rotated = false;
+            w = self._texture.width;
+            h = self._texture.height;
+            self.setRect(cc.rect(0, 0, w, h));
+        }
+
+        if (self._rect) {
+            self._checkRect(self._texture);
+        }
+        else {
+            self.setRect(cc.rect(0, 0, w, h));
+        }
+
+        if (!self._originalSize) {
+            self.setOriginalSize(cc.size(w, h));
+        }
+
+        if (!self._offset) {
+            self.setOffset(cc.v2(0, 0));
+        }
+
+        // dispatch 'load' event of cc.SpriteFrame
+        self.emit("load");
+    },
+
     /*
      * !#en Sets the texture of the frame.
      * !#zh 设置使用的纹理实例。
@@ -269,48 +305,12 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @param {Texture2D} texture
      */
     _refreshTexture: function (texture) {
-        var self = this;
         this._texture = texture;
-
-        function textureLoadedCallback () {
-            if (!self._texture) {
-                // clearTexture called while loading texture...
-                return;
-            }
-            var w = texture.width, h = texture.height;
-
-            if (self._rotated && cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
-                self._texture = _ccsg.Sprite.CanvasRenderCmd._createRotatedTexture(texture, self.getRect());
-                self._rotated = false;
-                w = self._texture.width;
-                h = self._texture.height;
-                self.setRect(cc.rect(0, 0, w, h));
-            }
-
-            if (self._rect) {
-                self._checkRect(self._texture);
-            }
-            else {
-                self.setRect(cc.rect(0, 0, w, h));
-            }
-
-            if (!self._originalSize) {
-                self.setOriginalSize(cc.size(w, h));
-            }
-
-            if (!self._offset) {
-                self.setOffset(cc.v2(0, 0));
-            }
-
-            // dispatch 'load' event of cc.SpriteFrame
-            self.emit("load");
-        }
-
         if (texture.loaded) {
-            textureLoadedCallback();
+            this._textureLoadedCallback();
         }
         else {
-            texture.once("load", textureLoadedCallback);
+            texture.once('load', this._textureLoadedCallback, this);
         }
     },
 
