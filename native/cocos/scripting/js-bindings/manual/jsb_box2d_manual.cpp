@@ -870,7 +870,7 @@ static bool js_box2dclasses_b2Body_GetJointList(se::State& s)
         b2Body* cobj = (b2Body *)s.nativeThisObject();
 
         b2JointEdge* list = cobj->GetJointList();
-        se::HandleObject arr = (se::Object::createArrayObject(0));
+        se::HandleObject arr(se::Object::createArrayObject(0));
 
         do
         {
