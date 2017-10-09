@@ -753,10 +753,29 @@ var fillQuadGeneratorRadial = {
         }
         sprite._vertCount = count;
 
-        cornerId[0] = 0; // bl
-        cornerId[1] = 2; // br
-        cornerId[2] = 4; // tl
-        cornerId[3] = 6; // tr
+        var minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
+        var x, y;
+        for (var i = 0, l = offset; i < l; i+=2) {
+            x = vertices[i];
+            y = vertices[i+1];
+            if (x <= minx) {
+                minx = x; 
+                cornerId[0] = i;
+            }
+            else if (x >= maxx) {
+                maxx = x;
+                cornerId[1] = i;
+            }
+            
+            if (y <= miny) {
+                miny = y;
+                cornerId[2] = i;
+            }
+            else if (y >= maxy) {
+                maxy = y;
+                cornerId[3] = i;
+            }
+        }
     },
 
     _generateTriangle: function(wt, offset, vert0, vert1, vert2) {
@@ -1423,7 +1442,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
             // x2, y2  rightBottom
             // x3, y3  leftTop
             // x4, y4  rightTop
-            var vert = this._isTriangle ? this._rawVerts : this._vertices,
+            var vert = this._vertices,
                 x0 = vert[cornerId[0]], x1 = vert[cornerId[1]], x2 = vert[cornerId[2]], x3 = vert[cornerId[3]],
                 y0 = vert[cornerId[0] + 1], y1 = vert[cornerId[1] + 1], y2 = vert[cornerId[2] + 1], y3 = vert[cornerId[3] + 1];
             if (((x0-vl) & (x1-vl) & (x2-vl) & (x3-vl)) >> 31 || // All outside left
