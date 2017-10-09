@@ -104,7 +104,8 @@ namespace se {
 
         const std::chrono::steady_clock::time_point& getStartTime() const { return _startTime; }
 
-        void enableDebugger(unsigned int port = 5086);
+        void enableDebugger(const std::string& serverAddr, uint32_t port);
+        bool isDebuggerEnabled() const;
         void mainLoopUpdate();
 
         uint32_t getVMId() const { return _vmId; }
@@ -155,6 +156,9 @@ namespace se {
         ExceptionCallback _exceptionCallback;
         // name ~> JSScript map
         std::unordered_map<std::string, JS::PersistentRootedScript*> _filenameScriptMap;
+
+        std::string _debuggerServerAddr;
+        uint32_t _debuggerServerPort;
 
         uint32_t _vmId;
 

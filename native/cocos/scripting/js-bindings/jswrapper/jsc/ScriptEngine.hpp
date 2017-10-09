@@ -202,6 +202,7 @@ namespace se {
 
         /**
          *  @brief Gets the start time of script engine.
+         *  @return The start time of script engine.
          */
         const std::chrono::steady_clock::time_point& getStartTime() const { return _startTime; }
 
@@ -209,7 +210,13 @@ namespace se {
          *  @brief Enables JavaScript debugger
          *  @param[in] port The port of debugger server will use.
          */
-        void enableDebugger(unsigned int port = 5086);
+        void enableDebugger(const std::string& serverAddr, uint32_t port);
+
+        /**
+         *  @brief Tests whether JavaScript debugger is enabled
+         *  @return true if JavaScript debugger is enabled, otherwise false.
+         */
+        bool isDebuggerEnabled() const;
 
         /**
          *  @brief Main loop update trigger, it's need to invoked in main thread every frame.
@@ -289,6 +296,7 @@ namespace se {
         bool _isValid;
         bool _isInCleanup;
         bool _isErrorHandleWorking;
+        bool _isDebuggerEnabled;
     };
 
  } // namespace se {

@@ -90,6 +90,7 @@ namespace se {
             , _isValid(false)
             , _isInCleanup(false)
             , _isErrorHandleWorking(false)
+            , _isDebuggerEnabled(false)
     {
     }
 
@@ -507,9 +508,15 @@ namespace se {
         //FIXME:
     }
 
-    void ScriptEngine::enableDebugger(unsigned int port/* = 5086*/)
+    void ScriptEngine::enableDebugger(const std::string& serverAddr, uint32_t port)
     {
         // empty implementation
+        _isDebuggerEnabled = true;
+    }
+
+    bool ScriptEngine::isDebuggerEnabled() const
+    {
+        return _isDebuggerEnabled;
     }
 
     void ScriptEngine::mainLoopUpdate()

@@ -209,6 +209,7 @@ namespace se {
 #if SE_ENABLE_INSPECTOR
     , _env(nullptr)
 #endif
+    , _debuggerServerPort(0)
     , _vmId(0)
     , _isValid(false)
     , _isGarbageCollecting(false)
@@ -385,6 +386,24 @@ namespace se {
             return false;
 
         se::AutoHandleScope hs;
+
+        // debugger
+        if (isDebuggerEnabled())
+        {
+#if SE_ENABLE_INSPECTOR
+            // V8 inspector stuff, most code are taken from NodeJS.
+            _isolateData = node::CreateIsolateData(_isolate, uv_default_loop());
+            _env = node::CreateEnvironment(_isolateData, _context.Get(_isolate), 0, nullptr, 0, nullptr);
+
+            node::DebugOptions options;
+            options.set_wait_for_connect(true);
+            options.set_inspector_enabled(true);
+            options.set_port((int)_debuggerServerPort);
+            options.set_host_name(_debuggerServerAddr.c_str());
+            _env->inspector_agent()->Start(_platform, "", options);
+#endif
+        }
+        //
         bool ok = false;
         _startTime = std::chrono::steady_clock::now();
 
@@ -562,24 +581,15 @@ namespace se {
         return _context.Get(_isolate);
     }
 
-    void ScriptEngine::enableDebugger(unsigned int port/* = 5086*/)
+    void ScriptEngine::enableDebugger(const std::string& serverAddr, uint32_t port)
     {
-#if SE_ENABLE_INSPECTOR
-        AutoHandleScope hs;
-        // V8 inspector stuff, most code are taken from NodeJS.
+        _debuggerServerAddr = serverAddr;
+        _debuggerServerPort = port;
+    }
 
-        _isolateData = node::CreateIsolateData(_isolate, uv_default_loop());
-        _env = node::CreateEnvironment(_isolateData, _context.Get(_isolate), 0, nullptr, 0, nullptr);
-
-        node::DebugOptions options;
-        options.set_wait_for_connect(true);
-        options.set_inspector_enabled(true);
-        options.set_port((int)port);
-        //        options.set_host_name("192.168.2.4"); // Change IP while remote debugging on Android device.
-        _env->inspector_agent()->Start(_platform, "", options);
-
-        //
-#endif
+    bool ScriptEngine::isDebuggerEnabled() const
+    {
+        return !_debuggerServerAddr.empty() && _debuggerServerPort > 0;
     }
 
     void ScriptEngine::mainLoopUpdate()

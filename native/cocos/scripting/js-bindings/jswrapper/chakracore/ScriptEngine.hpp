@@ -119,7 +119,8 @@ namespace se {
         void setExceptionCallback(const ExceptionCallback& cb);
 
         const std::chrono::steady_clock::time_point& getStartTime() const { return _startTime; }
-        void enableDebugger(unsigned int port = 5086);
+        void enableDebugger(const std::string& serverAddr, uint32_t port);
+        bool isDebuggerEnabled() const;
         void mainLoopUpdate();
 
         uint32_t getVMId() const { return _vmId; }

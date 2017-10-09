@@ -435,9 +435,15 @@ namespace se {
         return true;
     }
 
-    void ScriptEngine::enableDebugger(unsigned int port/* = 5086*/)
+    void ScriptEngine::enableDebugger(const std::string& serverAddr, uint32_t port)
     {
         //FIXME:
+    }
+
+    bool ScriptEngine::isDebuggerEnabled() const
+    {
+        //FIXME:
+        return false;
     }
 
     void ScriptEngine::mainLoopUpdate()
