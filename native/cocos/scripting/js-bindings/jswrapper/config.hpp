@@ -65,6 +65,7 @@ void seLog(const char * format, ...);
 #ifndef __SSIZE_T
 #define __SSIZE_T
 typedef SSIZE_T ssize_t;
+#define _SSIZE_T_DEFINED // libuv also defines ssize_t, use the one defined here.
 #endif // __SSIZE_T
 
 #endif
