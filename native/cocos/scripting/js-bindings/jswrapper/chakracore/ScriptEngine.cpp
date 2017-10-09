@@ -70,7 +70,6 @@ namespace se {
             : _rt(JS_INVALID_RUNTIME_HANDLE)
             , _cx(JS_INVALID_REFERENCE)
             , _globalObj(nullptr)
-            , _nodeEventListener(nullptr)
             , _exceptionCallback(nullptr)
             , _currentSourceContext(0)
             , _vmId(0)
@@ -159,7 +158,6 @@ namespace se {
         _cx = nullptr;
         _globalObj = nullptr;
         _isValid = false;
-        _nodeEventListener = nullptr;
 
         _registerCallbackArray.clear();
 
@@ -421,18 +419,6 @@ namespace se {
 
         clearException();
         iterOwner->second->detachObject(iterTarget->second);
-    }
-
-    bool ScriptEngine::_onReceiveNodeEvent(void* node, NodeEventType type)
-    {
-        assert(_nodeEventListener != nullptr);
-        return _nodeEventListener(node, type);
-    }
-
-    bool ScriptEngine::_setNodeEventListener(NodeEventListener listener)
-    {
-        _nodeEventListener = listener;
-        return true;
     }
 
     void ScriptEngine::enableDebugger(const std::string& serverAddr, uint32_t port)

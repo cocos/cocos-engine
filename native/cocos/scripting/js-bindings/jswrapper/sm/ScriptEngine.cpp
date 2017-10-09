@@ -248,7 +248,6 @@ namespace se {
             , _globalObj(nullptr)
             , _debugGlobalObj(nullptr)
             , _oldCompartment(nullptr)
-            , _nodeEventListener(nullptr)
             , _exceptionCallback(nullptr)
             , _debuggerServerPort(0)
             , _vmId(0)
@@ -454,7 +453,6 @@ namespace se {
         _globalObj = nullptr;
         _oldCompartment = nullptr;
         _isValid = false;
-        _nodeEventListener = nullptr;
 
         _registerCallbackArray.clear();
 
@@ -1026,18 +1024,6 @@ namespace se {
 
         clearException();
         iterOwner->second->detachObject(iterTarget->second);
-    }
-
-    bool ScriptEngine::_onReceiveNodeEvent(void* node, NodeEventType type)
-    {
-        assert(_nodeEventListener != nullptr);
-        return _nodeEventListener(node, type);
-    }
-
-    bool ScriptEngine::_setNodeEventListener(NodeEventListener listener)
-    {
-        _nodeEventListener = listener;
-        return true;
     }
 
     void ScriptEngine::clearException()

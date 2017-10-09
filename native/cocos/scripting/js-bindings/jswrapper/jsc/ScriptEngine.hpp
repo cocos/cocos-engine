@@ -232,18 +232,6 @@ namespace se {
         void _retainScriptObject(void* owner, void* target);
         void _releaseScriptObject(void* owner, void* target);
 
-        enum class NodeEventType
-        {
-            ENTER,
-            EXIT,
-            ENTER_TRANSITION_DID_FINISH,
-            EXIT_TRANSITION_DID_START,
-            CLEANUP
-        };
-        bool _onReceiveNodeEvent(void* node, NodeEventType type);
-        using NodeEventListener = bool(*)(void*, NodeEventType);
-        bool _setNodeEventListener(NodeEventListener listener);
-
         void _clearException(JSValueRef exception);
         JSContextRef _getContext() const { return _cx; }
 
@@ -286,7 +274,6 @@ namespace se {
         JSGlobalContextRef _cx;
 
         Object* _globalObj;
-        NodeEventListener _nodeEventListener;
         FileOperationDelegate _fileOperationDelegate;
         ExceptionCallback _exceptionCallback;
 

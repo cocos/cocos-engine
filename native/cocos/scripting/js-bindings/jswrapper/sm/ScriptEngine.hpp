@@ -113,19 +113,6 @@ namespace se {
         void _retainScriptObject(void* owner, void* target);
         void _releaseScriptObject(void* owner, void* target);
 
-        enum class NodeEventType
-        {
-            ENTER,
-            EXIT,
-            ENTER_TRANSITION_DID_FINISH,
-            EXIT_TRANSITION_DID_START,
-            CLEANUP
-        };
-        bool _onReceiveNodeEvent(void* node, NodeEventType type);
-
-        using NodeEventListener = bool(*)(void*, NodeEventType);
-        bool _setNodeEventListener(NodeEventListener listener);
-
         void _debugProcessInput(const std::string& str);
 
     private:
@@ -140,7 +127,6 @@ namespace se {
 
         Object* _globalObj;
         Object* _debugGlobalObj;
-        NodeEventListener _nodeEventListener;
 
         FileOperationDelegate _fileOperationDelegate;
 

@@ -204,7 +204,6 @@ namespace se {
     , _handleScope(nullptr)
     , _allocator(nullptr)
     , _globalObj(nullptr)
-    , _nodeEventListener(nullptr)
     , _exceptionCallback(nullptr)
 #if SE_ENABLE_INSPECTOR
     , _env(nullptr)
@@ -332,7 +331,6 @@ namespace se {
         _isolate = nullptr;
         _globalObj = nullptr;
         _isValid = false;
-        _nodeEventListener = nullptr;
 
         _registerCallbackArray.clear();
 
@@ -396,7 +394,7 @@ namespace se {
             _env = node::CreateEnvironment(_isolateData, _context.Get(_isolate), 0, nullptr, 0, nullptr);
 
             node::DebugOptions options;
-            options.set_wait_for_connect(true);
+            options.set_wait_for_connect(false); // Don't wait for connect, otherwise, the program will be hung up.
             options.set_inspector_enabled(true);
             options.set_port((int)_debuggerServerPort);
             options.set_host_name(_debuggerServerAddr.c_str());
@@ -552,18 +550,6 @@ namespace se {
         clearException();
         AutoHandleScope hs;
         iterOwner->second->detachObject(iterTarget->second);
-    }
-
-    bool ScriptEngine::_onReceiveNodeEvent(void* node, NodeEventType type)
-    {
-        assert(_nodeEventListener != nullptr);
-        return _nodeEventListener(node, type);
-    }
-
-    bool ScriptEngine::_setNodeEventListener(NodeEventListener listener)
-    {
-        _nodeEventListener = listener;
-        return true;
     }
 
     void ScriptEngine::clearException()

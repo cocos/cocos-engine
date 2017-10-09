@@ -83,7 +83,6 @@ namespace se {
     ScriptEngine::ScriptEngine()
             : _cx(nullptr)
             , _globalObj(nullptr)
-            , _nodeEventListener(nullptr)
             , _exceptionCallback(nullptr)
             , _vmId(0)
             , _isGarbageCollecting(false)
@@ -184,7 +183,6 @@ namespace se {
         _cx = nullptr;
         _globalObj = nullptr;
         _isValid = false;
-        _nodeEventListener = nullptr;
 
         _registerCallbackArray.clear();
 
@@ -489,18 +487,6 @@ namespace se {
 
         clearException();
         iterOwner->second->detachObject(iterTarget->second);
-    }
-
-    bool ScriptEngine::_onReceiveNodeEvent(void* node, NodeEventType type)
-    {
-        assert(_nodeEventListener != nullptr);
-        return _nodeEventListener(node, type);
-    }
-
-    bool ScriptEngine::_setNodeEventListener(NodeEventListener listener)
-    {
-        _nodeEventListener = listener;
-        return true;
     }
 
     void ScriptEngine::clearException()

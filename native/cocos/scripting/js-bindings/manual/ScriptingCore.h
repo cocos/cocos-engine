@@ -132,12 +132,25 @@ public:
 
     void restartVM();
 
+    enum class NodeEventType
+    {
+        ENTER,
+        EXIT,
+        ENTER_TRANSITION_DID_FINISH,
+        EXIT_TRANSITION_DID_START,
+        CLEANUP
+    };
+
+    using NodeEventListener = bool(*)(void*, NodeEventType);
+    bool setNodeEventListener(NodeEventListener listener);
+
 private:
     ScriptingCore();
 
     int handleActionEvent(void* data);
     int handleNodeEvent(void* data);
 
+    NodeEventListener _nodeEventListener;
     bool _callFromScript;
 };
 
