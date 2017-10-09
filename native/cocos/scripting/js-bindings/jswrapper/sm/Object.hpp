@@ -24,7 +24,7 @@ namespace se {
         static Object* getObjectWithPtr(void* ptr);
 
         bool getProperty(const char* name, Value* data);
-        void setProperty(const char* name, const Value& v);
+        bool setProperty(const char* name, const Value& v);
         bool defineProperty(const char *name, JSNative getter, JSNative setter);
 
         bool isFunction() const;

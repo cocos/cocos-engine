@@ -87,8 +87,9 @@ namespace se {
          *  @brief Sets a property to an object.
          *  @param[in] name A utf-8 string containing the property's name.
          *  @param[in] value A value to be used as the property's value.
+         *  @return true if the property is set successfully, otherwise false.
          */
-        void setProperty(const char* name, const Value& value);
+        bool setProperty(const char* name, const Value& value);
 
         /**
          *  @brief Defines a property with native accessor callbacks for an object.

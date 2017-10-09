@@ -24,7 +24,7 @@ namespace se {
         static Object* createObjectWithClass(Class* cls);
 
         bool getProperty(const char* name, Value* data);
-        void setProperty(const char* name, const Value& v);
+        bool setProperty(const char* name, const Value& v);
         bool defineProperty(const char *name, JsNativeFunction getter, JsNativeFunction setter);
 
         bool isFunction() const;

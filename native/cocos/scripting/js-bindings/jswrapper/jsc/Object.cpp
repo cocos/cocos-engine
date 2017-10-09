@@ -227,8 +227,9 @@ namespace se {
         return exist;
     }
 
-    void Object::setProperty(const char* name, const Value& v)
+    bool Object::setProperty(const char* name, const Value& v)
     {
+        bool ret = true;
         JSStringRef jsName = JSStringCreateWithUTF8CString(name);
         JSValueRef jsValue = nullptr;
         JSObjectRef obj = _obj;
@@ -265,9 +266,12 @@ namespace se {
         if (exception != nullptr)
         {
             ScriptEngine::getInstance()->_clearException(exception);
+            ret = false;
         }
 
         JSStringRelease(jsName);
+
+        return ret;
     }
 
     bool Object::defineProperty(const char *name, JSObjectCallAsFunctionCallback getter, JSObjectCallAsFunctionCallback setter)
