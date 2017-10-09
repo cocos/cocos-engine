@@ -811,9 +811,17 @@ classes_owned_by_cpp =
 
 TBD
 
+Windows:
+
+Android:
+
 ### Safari远程调试JavaScriptCore
 
 TBD
+
+Mac:
+
+iOS:
 
 
 ## Q & A
@@ -879,6 +887,31 @@ static bool js_cocos2d_Sprite_finalize(se::State& s)
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_Sprite_finalize)
+```
+
+### 如何监听脚本错误
+
+在AppDelegate.cpp中通过se::ScriptEngine::getInstance()->setExceptionCallback(...)设置JS层异常回调。
+
+```c++
+bool AppDelegate::applicationDidFinishLaunching()
+{
+	...
+	...
+	se::ScriptEngine* se = se::ScriptEngine::getInstance();
+
+    se->setExceptionCallback([](const char* location, const char* message, const char* stack){
+        // Send exception information to server like Tencent Bugly.
+        // ...
+        // ...
+    });
+
+    jsb_register_all_modules();
+	...
+	...
+	return true;
+}
+
 ```
 
 
