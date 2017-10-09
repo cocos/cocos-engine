@@ -67,7 +67,7 @@ cc.Scheduler.prototype.schedule = function (callback, target, interval, repeat, 
     }
     delay = delay || 0;
     var instanceId = target.__instanceId || target.uuid;
-    cc.assertID(!isNaN(instanceId), 1510);
+    cc.assertID(instanceId !== undefined, 1510);
     if (!callback.__callbackId) {
         callback.__callbackId = _callbackId++;
     }
@@ -83,7 +83,7 @@ cc.Scheduler.prototype.unschedule = function (callback, target) {
         callback = tmp;
     }
     var instanceId = target.__instanceId || target.uuid;
-    cc.assertID(!isNaN(instanceId) && !isNaN(callback.__callbackId), 1510);
+    cc.assertID(instanceId !== undefined && callback.__callbackId !== undefined, 1510);
     var key = instanceId + '_' + callback.__callbackId;
     this._unschedule(key, target);
 };
