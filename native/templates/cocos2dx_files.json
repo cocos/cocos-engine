@@ -4663,6 +4663,8 @@
         "cocos/scripting/js-bindings/auto/jsb_cocos2dx_ui_auto.hpp", 
         "cocos/scripting/js-bindings/auto/jsb_creator_auto.cpp", 
         "cocos/scripting/js-bindings/auto/jsb_creator_auto.hpp", 
+        "cocos/scripting/js-bindings/docs/JSB2.0-Architecture.png", 
+        "cocos/scripting/js-bindings/docs/JSB2.0-learning.md", 
         "cocos/scripting/js-bindings/jswrapper/HandleObject.cpp", 
         "cocos/scripting/js-bindings/jswrapper/HandleObject.hpp", 
         "cocos/scripting/js-bindings/jswrapper/MappingUtils.cpp", 
