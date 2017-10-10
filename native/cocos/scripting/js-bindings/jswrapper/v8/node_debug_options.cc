@@ -1,6 +1,6 @@
 #include "node_debug_options.h"
 
-#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #include <errno.h>
 #include <stdlib.h>
@@ -138,4 +138,4 @@ int DebugOptions::port() const {
 
 }  // namespace node
 
-#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
