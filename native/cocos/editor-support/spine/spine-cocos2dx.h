@@ -31,11 +31,19 @@
 #ifndef SPINE_COCOS2DX_H_
 #define SPINE_COCOS2DX_H_
 
+#include <string>
+#include <vector>
+
 #include <spine/spine.h>
 #include "cocos2d.h"
 #include <spine/Cocos2dAttachmentLoader.h>
 #include <spine/SkeletonRenderer.h>
 #include <spine/SkeletonAnimation.h>
 #include <spine/SkeletonBatch.h>
+
+namespace spine {
+extern cocos2d::Vector<cocos2d::Texture2D *>* spAtlas_create_preloadedTextures;
+extern std::vector<std::string>* spAtlas_create_preloadedTextureNames;
+}
 
 #endif /* SPINE_COCOS2DX_H_ */

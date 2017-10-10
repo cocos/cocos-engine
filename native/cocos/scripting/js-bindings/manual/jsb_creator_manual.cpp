@@ -12,6 +12,8 @@
 #include "editor-support/creator/physics/CCPhysicsRayCastCallback.h"
 #include "editor-support/creator/physics/CCPhysicsContactImpulse.h"
 
+#include "editor-support/spine/spine-cocos2dx.h"
+
 static bool js_creator_PhysicsContactListener_setPreSolve(se::State& s)
 {
     creator::PhysicsContactListener* cobj = (creator::PhysicsContactListener*)s.nativeThisObject();
@@ -253,8 +255,65 @@ static bool js_creator_PhysicsRayCastCallback_getNormals(se::State& s)
 }
 SE_BIND_FUNC(js_creator_PhysicsRayCastCallback_getNormals)
 
+
+
+static bool js_creator_sp_initSkeletonRenderer(se::State& s)
+{
+    // renderer, jsonPath, atlasText, textures, textureNames, scale
+    const auto& args = s.args();
+    int argc = (int)args.size();
+    if (argc != 6) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 6);
+        return false;
+    }
+    bool ok = false;
+
+    spine::SkeletonRenderer* node = nullptr;
+    ok = seval_to_native_ptr(args[0], &node);
+    SE_PRECONDITION2(ok, false, "js_creator_sp_initSkeletonRenderer: Converting 'sgNode' failed!");
+
+    std::string jsonPath;
+    ok = seval_to_std_string(args[1], &jsonPath);
+    SE_PRECONDITION2(ok, false, "js_creator_sp_initSkeletonRenderer: Invalid json path!");
+
+    std::string atlasText;
+    ok = seval_to_std_string(args[2], &atlasText);
+    SE_PRECONDITION2(ok, false, "js_creator_sp_initSkeletonRenderer: Invalid atlas content!");
+
+    cocos2d::Vector<cocos2d::Texture2D *> textures;
+    ok = seval_to_Vector(args[3], &textures);
+    SE_PRECONDITION2(ok, false, "js_creator_sp_initSkeletonRenderer: Invalid textures!");
+
+    std::vector<std::string> textureNames;
+    ok = seval_to_std_vector_string(args[4], &textureNames);
+    SE_PRECONDITION2(ok, false, "js_creator_sp_initSkeletonRenderer: Invalid textures names!");
+
+    float scale = 1.0f;
+    ok = seval_to_float(args[5], &scale);
+    SE_PRECONDITION2(ok, false, "js_creator_sp_initSkeletonRenderer: Invalid scale!");
+
+    // create atlas from preloaded texture
+    std::string emptyDir = "";
+    spine::spAtlas_create_preloadedTextures = &textures;
+    spine::spAtlas_create_preloadedTextureNames = &textureNames;
+    spAtlas* atlas = spAtlas_create(atlasText.c_str(), (int)atlasText.size(), emptyDir.c_str(), nullptr);
+    spine::spAtlas_create_preloadedTextures = nullptr;
+    spine::spAtlas_create_preloadedTextureNames = nullptr;
+    CCASSERT(atlas, "Error creating atlas.");
+
+    // init node
+    node->initWithJsonFile(jsonPath, atlas, scale);
+
+    return true;
+}
+SE_BIND_FUNC(js_creator_sp_initSkeletonRenderer)
+
+
 bool register_all_creator_manual(se::Object* obj)
 {
+
+    // Physics
+
     __jsb_creator_PhysicsContactListener_proto->defineFunction("setPreSolve", _SE(js_creator_PhysicsContactListener_setPreSolve));
     __jsb_creator_PhysicsContactListener_proto->defineFunction("setPostSolve", _SE(js_creator_PhysicsContactListener_setPostSolve));
     __jsb_creator_PhysicsContactListener_proto->defineFunction("setBeginContact", _SE(js_creator_PhysicsContactListener_setBeginContact));
@@ -265,6 +324,15 @@ bool register_all_creator_manual(se::Object* obj)
     __jsb_creator_PhysicsRayCastCallback_proto->defineFunction("getFixtures", _SE(js_creator_PhysicsRayCastCallback_getFixtures));
     __jsb_creator_PhysicsRayCastCallback_proto->defineFunction("getPoints", _SE(js_creator_PhysicsRayCastCallback_getPoints));
     __jsb_creator_PhysicsRayCastCallback_proto->defineFunction("getNormals", _SE(js_creator_PhysicsRayCastCallback_getNormals));
+
+    // Spine
+
+    se::Value nsVal;
+    assert(obj->getProperty("sp", &nsVal));
+    se::Object* ns = nsVal.toObject();
+
+    ns->defineFunction("_initSkeletonRenderer", _SE(js_creator_sp_initSkeletonRenderer));
+
 
     se::ScriptEngine::getInstance()->clearException();
 
