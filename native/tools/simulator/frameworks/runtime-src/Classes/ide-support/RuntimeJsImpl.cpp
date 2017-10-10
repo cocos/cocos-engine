@@ -155,6 +155,20 @@ bool RuntimeJsImpl::initJsEnv()
     cocos2d::ScriptEngineProtocol *engine = ScriptingCore::getInstance();
     cocos2d::ScriptEngineManager::getInstance()->setScriptEngine(engine);
 
+    jsb_set_xxtea_key("");
+    jsb_init_file_operation_delegate();
+
+#if defined(COCOS2D_DEBUG) && (COCOS2D_DEBUG > 0)
+    // Enable debugger here
+    // Change IP while remote debugging on Android device.
+    jsb_enable_debugger("127.0.0.1", 5086);
+#endif
+
+    se->setExceptionCallback([](const char* location, const char* message, const char* stack){
+        // Send exception information to server like Tencent Bugly.
+
+    });
+
     jsb_register_all_modules();
     
     se::ScriptEngine::getInstance()->addRegisterCallback(register_FileUtils);
