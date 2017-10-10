@@ -1,6 +1,6 @@
 #include "env.h"
 
-#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #include "uv.h"
 
@@ -119,4 +119,4 @@ namespace node {
 
 } // namespace node {
 
-#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
