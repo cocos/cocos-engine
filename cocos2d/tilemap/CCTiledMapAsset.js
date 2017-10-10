@@ -44,7 +44,7 @@ var TiledMapAsset = cc.Class({
 
         textures: {
             default: [],
-            url: [cc.Texture2D]
+            type: [cc.Texture2D]
         },
 
         tsxFiles: {

@@ -55,6 +55,7 @@ if (!prototype._addImage) {
 }
 prototype.addImage = function (url, cb, target) {
     if (CC_DEBUG && url instanceof cc.Texture2D) {
+        // TODO - remove at 2.0
         cc.warn('textureCache.addImage(url) - The type of the url should be string, not Texture2D. You don\'t need to call addImage if you already have the texture object.');
         url = url.url;
     }
@@ -86,6 +87,7 @@ cc.textureCache.getTextureForKey = function (key) {
 cc.textureCache._removeTextureForKey = cc.textureCache.removeTextureForKey;
 cc.textureCache.removeTextureForKey = function (key) {
     if (CC_DEBUG && key instanceof cc.Texture2D) {
+        // TODO - remove at 2.0
         cc.warn('textureCache.removeTextureForKey(key) - The type of the key should be string, not Texture2D. You should call texture.destroy() if you already have the texture object.');
         key = key.url;
     }
@@ -176,20 +178,18 @@ cc.SpriteFrame.$super = cc.Asset;
 
 prototype = cc.SpriteFrame.prototype;
 prototype._setTexture = prototype.setTexture;
-prototype._initWithTexture = prototype.initWithTexture;
 
 cc.js.mixin(prototype, cc.EventTarget.prototype);
 
 prototype._ctor = function (filename, rect, rotated, offset, originalSize) {
-    this._name = '';
     this.insetTop = 0;
     this.insetBottom = 0;
     this.insetLeft = 0;
     this.insetRight = 0;
+    this._name = '';
+    this._texture = null;
     if (filename !== undefined) {
         this.initWithTexture(filename, rect, rotated, offset, originalSize);
-    } else {
-        //todo log Error
     }
 };
 
@@ -215,7 +215,7 @@ prototype.setTexture = function (textureOrTextureFile, rect, rotated, offset, or
     if (typeof texture === 'string' && texture) {
         texture = cc.textureCache.addImage(texture);
     }
-    if (texture instanceof cc.Texture2D) {
+    if (texture instanceof cc.Texture2D && this.getTexture() !== texture) {
         this._refreshTexture(texture);
     }
 
@@ -224,19 +224,18 @@ prototype.setTexture = function (textureOrTextureFile, rect, rotated, offset, or
 
 prototype.initWithTexture = prototype.setTexture;
 
-prototype._loadTexture = function () {
-    if (this._textureFilename) {
+prototype.ensureLoadTexture = function () {
+    if (this._texture) {
+        if (!this._texture.isLoaded()) {
+            // load exists texture
+            this._refreshTexture(this._texture);
+            this._texture.load();
+        }
+    }
+    else if (this._textureFilename) {
+        // load new texture
         var texture = cc.textureCache.addImage(this._textureFilename);
         this._refreshTexture(texture);
-    }
-};
-
-prototype.ensureLoadTexture = function () {
-    if (!this._texture) {
-        this._loadTexture();
-    }
-    else {
-        // TODO - load native texture
     }
 };
 
@@ -245,31 +244,25 @@ prototype.clearTexture = function () {
 };
 
 prototype._refreshTexture = function (texture) {
+    var w = texture.width, h = texture.height;
 
-    if (this.getTexture() !== texture) {
-
-        var w = texture.width, h = texture.height;
-
-        var rect = this.getRect();
-        if (rect.width === 0 || rect.height === 0) {
-            rect = cc.rect(0, 0, w, h);
-        }
-        else {
-            this._checkRect(texture);
-        }
-
-        var originalSize = this.getOriginalSize();
-        if (originalSize.width === 0 || originalSize.height === 0) {
-            originalSize = cc.size(w, h);
-        }
-        var offset = this.getOffset();
-        var rotated = this.isRotated();
-
-        this._initWithTexture(texture, rect, rotated, offset, originalSize);
-
-        //dispatch 'load' event of cc.SpriteFrame
-        this.emit("load");
+    var rect = this.getRect();
+    if (rect.width === 0 || rect.height === 0) {
+        this.setRect(cc.rect(0, 0, w, h));
     }
+    else {
+        this._checkRect(texture);
+    }
+
+    var originalSize = this.getOriginalSize();
+    if (originalSize.width === 0 || originalSize.height === 0) {
+        this.setOriginalSize(cc.size(w, h));
+    }
+
+    this._setTexture(texture);
+
+    //dispatch 'load' event of cc.SpriteFrame
+    this.emit("load");
 };
 
 prototype._deserialize = function (data, handle) {

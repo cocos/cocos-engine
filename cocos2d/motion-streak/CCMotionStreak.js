@@ -154,8 +154,8 @@ var MotionStreak = cc.Class({
          * motionStreak.texture = newTexture;
          */
         _texture: {
-            default: '',
-            url: cc.Texture2D
+            default: null,
+            type: cc.Texture2D
         },
         texture: {
             get: function () {
@@ -164,13 +164,17 @@ var MotionStreak = cc.Class({
             set: function (value) {
                 this._texture = value;
                 if (this._motionStreak) {
-                    if (value && cc.js.isString(value))
-                        value = cc.textureCache.addImage(value);
-
+                    if (CC_DEBUG && typeof value === 'string') {
+                        // TODO - remove at 2.0
+                        cc.warnID(3657, 'motionStreak.texture');
+                        if (value) {
+                            value = cc.textureCache.addImage(value);
+                        }
+                    }
                     this._motionStreak.setTexture(value);
                 }
             },
-            url: cc.Texture2D,
+            type: cc.Texture2D,
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.texture'
         },
@@ -256,7 +260,7 @@ var MotionStreak = cc.Class({
         }
         this._root = new _ccsg.Node();
         var motionStreak = new _ccsg.MotionStreak();
-        motionStreak.initWithFade(this._fadeTime, this._minSeg, this._stroke, this.node.color, this._texture || null);
+        motionStreak.initWithFade(this._fadeTime, this._minSeg, this._stroke, this.node.color, this._texture);
         motionStreak.setFastMode(this._fastMode);
         this._root.addChild(motionStreak);
         var sgNode = this.node._sgNode;

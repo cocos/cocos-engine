@@ -376,14 +376,6 @@ _ccsg.Sprite = _ccsg.Node.extend({
     },
 
     /**
-     * Returns the quad (tex coords, vertex coords and color) information.
-     * @return {cc.V3F_C4B_T2F_Quad|null} Returns a cc.V3F_C4B_T2F_Quad object when render mode is WebGL, returns null when render mode is Canvas.
-     */
-    getQuad:function () {
-        return null;
-    },
-
-    /**
      * conforms to cc.TextureProtocol protocol
      * @function
      * @param {Number|cc.BlendFunc} src
@@ -693,7 +685,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
 
 cc.js.addon(_ccsg.Sprite.prototype, EventTarget.prototype);
 
-var SameNameGetSets = ['opacity', 'color', 'texture', 'quad'];
+var SameNameGetSets = ['opacity', 'color', 'texture'];
 var DiffNameGetSets = {
     opacityModifyRGB: ['isOpacityModifyRGB', 'setOpacityModifyRGB'],
     flippedX: ['isFlippedX', 'setFlippedX'],
