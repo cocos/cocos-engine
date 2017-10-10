@@ -23,6 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const renderer = require('../renderer');
 const renderEngine = require('../renderer/render-engine');
 const gfx = renderEngine.gfx;
 const SpriteModel = renderEngine.SpriteMaterial;
@@ -479,17 +480,24 @@ var Sprite = cc.Class({
         this._model.setNode(this.node);
 
         // Add to rendering scene
+        renderer.scene.addModel(this._model);
     },
 
     _removeModel: function () {
         if (!this._model) {
             return;
         }
+
+        // Remove from rendering scene
+        renderer.scene.removeModel(this._model);
+
+        // Recycle model
         switch (this.type) {
         case SpriteType.SIMPLE:
             SpriteModel.free(this._model);
             break;
         case SpriteType.SLICED:
+            SlicedModel.free(this._model);
             break;
         case SpriteType.TILED:
             break;
@@ -497,8 +505,6 @@ var Sprite = cc.Class({
             break;
         }
         this._model = null;
-        
-        // Remove from rendering scene
     },
     
     _updateBlendFunc: function () {

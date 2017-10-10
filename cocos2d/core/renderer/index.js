@@ -24,9 +24,7 @@
  ****************************************************************************/
  
 const renderEngine = require('./render-engine');
-require('./RendererCanvas');
 require('./RendererWebGL');
-require('./DirtyRegion');
 
 function _initBuiltins(device) {
     let canvas = document.createElement('canvas');
@@ -59,6 +57,7 @@ function _initBuiltins(device) {
 module.exports = {
     canvas: null,
     device: null,
+    scene: null,
 
     init (canvas, opts) {
         this.canvas = canvas;
@@ -70,5 +69,7 @@ module.exports = {
             programTemplates: renderEngine.shaders.templates,
             programChunks: renderEngine.shaders.chunks,
         });
+
+        this.scene = new renderEngine.Scene();
     }
 };
