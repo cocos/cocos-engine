@@ -22,8 +22,6 @@
 #include "scripting/js-bindings/manual/jsb_module_register.hpp"
 #include "scripting/js-bindings/manual/jsb_global.h"
 
-static const char *RUNTIME_JS_BOOT_SCRIPT = "script/jsb_boot.js";
-
 static bool reloadScript(const string& file)
 {
     auto director = cocos2d::Director::getInstance();
