@@ -1,6 +1,6 @@
 #include "jsb_anysdk_protocols_auto.hpp"
 #include "scripting/js-bindings/manual/jsb_conversions.hpp"
-#include "scripting/js-bindings/manual/jsb_global.hpp"
+#include "scripting/js-bindings/manual/jsb_global.h"
 #include "PluginManager.h"
 #include "ProtocolAnalytics.h"
 #include "ProtocolYAP.h"
