@@ -155,6 +155,7 @@ bool RuntimeJsImpl::initJsEnv()
     cocos2d::ScriptEngineProtocol *engine = ScriptingCore::getInstance();
     cocos2d::ScriptEngineManager::getInstance()->setScriptEngine(engine);
 
+    auto se = se::ScriptEngine::getInstance();
     jsb_set_xxtea_key("");
     jsb_init_file_operation_delegate();
 
@@ -171,8 +172,8 @@ bool RuntimeJsImpl::initJsEnv()
 
     jsb_register_all_modules();
     
-    se::ScriptEngine::getInstance()->addRegisterCallback(register_FileUtils);
-    se::ScriptEngine::getInstance()->start();
+    se->addRegisterCallback(register_FileUtils);
+    se->start();
     return true;
 }
 
