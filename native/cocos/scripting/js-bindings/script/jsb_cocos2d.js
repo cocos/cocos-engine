@@ -1112,18 +1112,18 @@ cc.defineGetterSetter(cc.BlendFunc, "ADDITIVE", cc.BlendFunc._additive);
 
 cc.GLProgram.prototype.setUniformLocationWithMatrix2fv = function(){
     var tempArray = Array.prototype.slice.call(arguments);
-    tempArray = Array.prototype.concat.call(tempArray, 2);
+    tempArray.push(2);
     this.setUniformLocationWithMatrixfvUnion.apply(this, tempArray);
 };
 
 cc.GLProgram.prototype.setUniformLocationWithMatrix3fv = function(){
     var tempArray = Array.prototype.slice.call(arguments);
-    tempArray = Array.prototype.concat.call(tempArray, 3);
+    tempArray.push(3);
     this.setUniformLocationWithMatrixfvUnion.apply(this, tempArray);
 };
 cc.GLProgram.prototype.setUniformLocationWithMatrix4fv = function(){
     var tempArray = Array.prototype.slice.call(arguments);
-    tempArray = Array.prototype.concat.call(tempArray, 4);
+    tempArray.push(4);
     this.setUniformLocationWithMatrixfvUnion.apply(this, tempArray);
 };
 
