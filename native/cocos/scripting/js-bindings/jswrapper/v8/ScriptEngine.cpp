@@ -456,13 +456,22 @@ namespace se {
         if (fileName == nullptr)
             fileName = "(no filename)";
 
+        // Fix the source url is too long displayed in Chrome debugger.
+        std::string sourceUrl = fileName;
+        static const std::string prefixKey = "/temp/quick-scripts/";
+        size_t prefixPos = sourceUrl.find(prefixKey);
+        if (prefixPos != std::string::npos)
+        {
+            sourceUrl = sourceUrl.substr(prefixPos + prefixKey.length());
+        }
+
         std::string scriptStr(script, length);
 
         v8::MaybeLocal<v8::String> source = v8::String::NewFromUtf8(_isolate, scriptStr.c_str(), v8::NewStringType::kNormal);
         if (source.IsEmpty())
             return false;
 
-        v8::MaybeLocal<v8::String> originStr = v8::String::NewFromUtf8(_isolate, fileName, v8::NewStringType::kNormal);
+        v8::MaybeLocal<v8::String> originStr = v8::String::NewFromUtf8(_isolate, sourceUrl.c_str(), v8::NewStringType::kNormal);
         if (originStr.IsEmpty())
             return false;
 

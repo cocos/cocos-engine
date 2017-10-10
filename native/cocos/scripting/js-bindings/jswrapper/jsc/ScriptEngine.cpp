@@ -392,11 +392,20 @@ namespace se {
         if (fileName == nullptr)
             fileName = "(no filename)";
 
+        // Fix the source url is too long displayed in Safari debugger.
+        std::string sourceUrl = fileName;
+        static const std::string prefixKey = "/temp/quick-scripts/";
+        size_t prefixPos = sourceUrl.find(prefixKey);
+        if (prefixPos != std::string::npos)
+        {
+            sourceUrl = sourceUrl.substr(prefixPos + prefixKey.length());
+        }
+
         std::string exceptionStr;
         std::string scriptStr(script, length);
 
         JSValueRef exception = nullptr;
-        JSStringRef jsSourceUrl = JSStringCreateWithUTF8CString(fileName);
+        JSStringRef jsSourceUrl = JSStringCreateWithUTF8CString(sourceUrl.c_str());
         JSStringRef jsScript = JSStringCreateWithUTF8CString(scriptStr.c_str());
         JSValueRef result = nullptr;
 
