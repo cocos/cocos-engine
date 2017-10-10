@@ -82,8 +82,12 @@ cc.Scheduler.prototype.unschedule = function (callback, target) {
         target = callback;
         callback = tmp;
     }
+    if (callback.__callbackId === undefined) {
+        return;
+    }
+
     var instanceId = target.__instanceId || target.uuid;
-    cc.assertID(instanceId !== undefined && callback.__callbackId !== undefined, 1510);
+    cc.assertID(instanceId !== undefined, 1510);
     var key = instanceId + '_' + callback.__callbackId;
     this._unschedule(key, target);
 };
