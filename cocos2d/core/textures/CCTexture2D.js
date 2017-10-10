@@ -283,6 +283,10 @@ var Texture2D = cc.Class({
         this._texture = new TextureImpl(renderer.device);
     },
 
+    getImpl () {
+        return this._texture;
+    },
+
     /**
      * Update texture options, not available in Canvas render mode. 
      * image, format, premultiplyAlpha can not be updated in native.

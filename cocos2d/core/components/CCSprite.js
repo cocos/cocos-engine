@@ -24,7 +24,10 @@
  ****************************************************************************/
 
 const renderEngine = require('../renderer/render-engine');
+const SpriteModel = renderEngine.SpriteMaterial;
 const SpriteModel = renderEngine.SpriteModel;
+const SlicedModel = renderEngine.SlicedModel;
+const MaterialUtil = renderEngine.MaterialUtil;
 
 /**
  * !#en Enum for sprite type.
@@ -126,6 +129,7 @@ var Sprite = cc.Class({
 
     ctor: function() {
         this._blendFunc = new cc.BlendFunc(this._srcBlendFactor, this._dstBlendFactor);
+        this._material = null;
         this._model = null;
     },
 
@@ -492,20 +496,38 @@ var Sprite = cc.Class({
         return this._sgNode.getInsetBottom();
     },
 
-    onEnable: function () {
-        // var insetsChangedViaAPI = sgNode.getInsetLeft() !== 0 || sgNode.getInsetRight() !== 0 ||
-        // sgNode.getInsetTop() !== 0 || sgNode.getInsetBottom() !== 0;
-        // this._applySpriteFrame(null, insetsChangedViaAPI);
+    _activateModel: function () {
+        // model cannot be activated if already exists or if texture not loaded yet
+        if (this._model) {
+            return;
+        }
+        else if (!this._spriteFrame.textureLoaded) {
+            return;
+        }
 
-        // this._applySpriteSize();
+        // Get material
+        if (!this._material) {
+            var texture = this._spriteFrame.getTexture();
+            var url = texture.url;
+            this._material = MaterialUtil.get(url);
+            if (!this._material) {
+                this._material = new SpriteMaterial();
+                this._material.mainTexture = texture.getImpl();
+                MaterialUtil.register(url, this._material);
+            }
+        }
 
+        // Generate model
         switch (this.type) {
         case SpriteType.SIMPLE:
             this._model = SpriteModel.alloc();
-            this._model.setSpriteFrame(this._spriteFrame._rect);
-            // this._model.setEffect();
+            this._model.spriteFrame = this._spriteFrame;
             break;
         case SpriteType.SLICED:
+            this._model = SlicedModel.alloc();
+            this._model.width = this.node.width;
+            this._model.height = this.node.height;
+            this._model.spriteFrame = this._spriteFrame;
             break;
         case SpriteType.TILED:
             break;
@@ -516,13 +538,20 @@ var Sprite = cc.Class({
             // sgNode.setFillRange(this._fillRange);
             break;
         }
-        // sgNode.enableTrimmedContentSize(this._isTrimmedMode);
-        // this._blendFunc.src = this._srcBlendFactor;
-        // this._blendFunc.dst = this._dstBlendFactor;
-        // sgNode.setBlendFunc(this._blendFunc);
+        this._model.setEffect(this._material.effect);
         this._model.setNode(this.node);
 
         // Add to rendering scene
+    },
+
+    onEnable: function () {
+        // var insetsChangedViaAPI = sgNode.getInsetLeft() !== 0 || sgNode.getInsetRight() !== 0 ||
+        // sgNode.getInsetTop() !== 0 || sgNode.getInsetBottom() !== 0;
+        // this._applySpriteFrame(null, insetsChangedViaAPI);
+
+        // this._applySpriteSize();
+
+        this._activateModel();
     },
 
     onDisable: function () {
@@ -557,15 +586,6 @@ var Sprite = cc.Class({
         }
     },
 
-    _applySpriteFrameInsets: function () {
-        var spriteFrame = this._spriteFrame;
-        var sgNode = this._sgNode;
-        sgNode.setInsetTop(spriteFrame.insetTop);
-        sgNode.setInsetBottom(spriteFrame.insetBottom);
-        sgNode.setInsetRight(spriteFrame.insetRight);
-        sgNode.setInsetLeft(spriteFrame.insetLeft);
-    },
-
     _applySpriteSize: function () {
         if (this._spriteFrame) {
             if (SizeMode.RAW === this._sizeMode) {
@@ -579,18 +599,14 @@ var Sprite = cc.Class({
     },
 
     _onTextureLoaded: function (event) {
-        if (!this.isValid || !this._model) {
+        if (!this.isValid) {
             return;
         }
-        this._model.setSpriteFrame(self._spriteFrame);
-        // this._model.setEffect();
+        this._activateModel();
         this._applySpriteSize();
-        // if (this.enabledInHierarchy && !sgNode.isVisible()) {
-        //     sgNode.setVisible(true);
-        // }
     },
 
-    _applySpriteFrame: function (oldFrame, keepInsets) {
+    _applySpriteFrame: function (oldFrame) {
         var sgNode = this._sgNode;
         if (oldFrame && oldFrame.off) {
             oldFrame.off('load', this._onTextureLoaded, this);
@@ -598,9 +614,6 @@ var Sprite = cc.Class({
 
         var spriteFrame = this._spriteFrame;
         if (spriteFrame) {
-            if (!keepInsets) {
-                this._applySpriteFrameInsets();
-            }
             if (spriteFrame.textureLoaded()) {
                 this._onTextureLoaded(null);
             }
@@ -608,9 +621,6 @@ var Sprite = cc.Class({
                 spriteFrame.once('load', this._onTextureLoaded, this);
                 spriteFrame.ensureLoadTexture();
             }
-        }
-        else {
-            sgNode.setVisible(false);
         }
 
         if (CC_EDITOR) {
