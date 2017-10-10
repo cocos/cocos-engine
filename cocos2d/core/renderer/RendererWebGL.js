@@ -134,12 +134,31 @@ cc.rendererWebGL = {
         var gl = cc._renderContext;
         gl.disable(gl.CULL_FACE);
         gl.disable(gl.DEPTH_TEST);
+        this._initExtensions([
+            'OES_element_index_uint'
+        ]);
 
         this.mat4Identity = new cc.math.Matrix4();
         this.mat4Identity.identity();
         initQuadBuffer(cc.macro.BATCH_VERTEX_COUNT);
         if (cc.sys.os === cc.sys.OS_IOS) {
             _IS_IOS = true;
+        }
+    },
+
+    _initExtensions: function (extensions) {
+        this._extensions = this._extensions || {};
+        for (var i = 0; i < extensions.length; ++i) {
+            var name = extensions[i];
+      
+            try {
+                var ext = gl.getExtension(name);
+                if (ext) {
+                    this._extensions[name] = ext;
+                }
+            } catch (e) {
+                cc.error(e);
+            }
         }
     },
 

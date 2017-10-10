@@ -195,7 +195,7 @@ Audio.State = {
         } catch (error) {}
         this._element.pause();
         // remove touchPlayList
-        for (var i=0; i<touchPlayList; i++) {
+        for (var i=0; i<touchPlayList.length; i++) {
             if (touchPlayList[i].instance === this) {
                 touchPlayList.splice(i, 1);
                 break;

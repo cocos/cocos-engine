@@ -214,7 +214,7 @@ cc.ActionInterval = cc.FiniteTimeAction.extend({
      * !#zh
      * 改变一个动作的速度，使它的执行使用更长的时间（speed > 1）<br/>
      * 或更少（speed < 1）可以有效得模拟“慢动作”或“快进”的效果。
-     * @param speed
+     * @param {Number} speed
      * @returns {Action}
      */
     speed: function(speed){
@@ -252,7 +252,7 @@ cc.ActionInterval = cc.FiniteTimeAction.extend({
      * To repeat an action forever use the CCRepeatForever action.
      * !#zh 重复动作可以按一定次数重复一个动作，使用 RepeatForever 动作来永远重复一个动作。
      * @method repeat
-     * @param times
+     * @param {Number} times
      * @returns {ActionInterval}
      */
     repeat: function(times){
@@ -306,6 +306,7 @@ cc.Sequence = cc.ActionInterval.extend({
     _actions:null,
     _split:null,
     _last:0,
+    _reversed:false,
 
     ctor:function (tempArray) {
         cc.ActionInterval.prototype.ctor.call(this);
@@ -379,7 +380,7 @@ cc.Sequence = cc.ActionInterval.extend({
             // action[0]
             new_t = (locSplit !== 0) ? dt / locSplit : 1;
 
-            if (found === 0 && locLast === 1) {
+            if (found === 0 && locLast === 1 && this._reversed) {
                 // Reverse mode ?
                 // XXX: Bug. this case doesn't contemplate when _last==-1, found=0 and in "reverse mode"
                 // since it will require a hack to know if an action is on reverse mode or not.
@@ -398,7 +399,7 @@ cc.Sequence = cc.ActionInterval.extend({
                 locActions[0].update(1);
                 locActions[0].stop();
             }
-            if (!locLast) {
+            if (locLast === 0) {
                 // switching to action 1. stop action 0.
                 locActions[0].update(1);
                 locActions[0].stop();
@@ -410,7 +411,7 @@ cc.Sequence = cc.ActionInterval.extend({
         if (locLast === found && actionFound.isDone())
             return;
 
-        // Last action found and it is done
+        // Last action not found
         if (locLast !== found)
             actionFound.startWithTarget(this.target);
 
@@ -423,6 +424,7 @@ cc.Sequence = cc.ActionInterval.extend({
         var action = cc.Sequence._actionOneTwo(this._actions[1].reverse(), this._actions[0].reverse());
         this._cloneDecoration(action);
         this._reverseEaseList(action);
+        action._reversed = true;
         return action;
     }
 });

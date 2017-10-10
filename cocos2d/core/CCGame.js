@@ -295,10 +295,16 @@ var game = {
      */
     restart: function () {
         cc.director.once(cc.Director.EVENT_AFTER_DRAW, function () {
+            for (var id in game._persistRootNodes) {
+                game.removePersistRootNode(game._persistRootNodes[id]);
+            }
+
             // Clear scene
             cc.director.getScene().destroy();
             cc.Object._deferredDestroy();
+
             cc.director.purgeDirector();
+
             // Clean up audio
             if (cc.audioEngine) {
                 cc.audioEngine.uncacheAll();
@@ -558,15 +564,13 @@ var game = {
 
         callback = function () {
             if (!self._paused) {
+                self._intervalId = window.requestAnimFrame(callback);
                 if (frameRate === 30) {
                     if (skip = !skip) {
-                        self._intervalId = window.requestAnimFrame(callback);
                         return;
                     }
                 }
-
                 director.mainLoop();
-                self._intervalId = window.requestAnimFrame(callback);
             }
         };
 
@@ -696,10 +700,6 @@ var game = {
             cc.renderer = cc.rendererWebGL;
             win.gl = this._renderContext; // global variable declared in CCMacro.js
             cc.renderer.init();
-            cc.textureCache._initializingRenderer();
-            cc.glExt = {};
-            cc.glExt.instanced_arrays = win.gl.getExtension("ANGLE_instanced_arrays");
-            cc.glExt.element_uint = win.gl.getExtension("OES_element_index_uint");
         } else {
             cc._renderType = game.RENDER_TYPE_CANVAS;
             cc.renderer = cc.rendererCanvas;

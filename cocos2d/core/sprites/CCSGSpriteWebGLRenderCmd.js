@@ -68,7 +68,7 @@ proto._handleTextureForRotatedTexture = function (texture) {
 
 proto.isFrameDisplayed = function (frame) {
     var node = this._node;
-    return (cc.rectEqualToRect(frame.getRect(), node._rect) && frame.getTexture().getName() === node._texture.getName()
+    return (cc.rectEqualToRect(frame.getRect(), node._rect) && frame.getTexture().url === node._texture.url
         && cc.pointEqualToPoint(frame.getOffset(), node._unflippedOffsetPositionFromCenter));
 };
 
@@ -204,7 +204,7 @@ proto._setTexture = function (texture) {
     var node = this._node;
 
     if(node._texture !== texture){
-        node._textureLoaded = texture ? texture._textureLoaded : false;
+        node._textureLoaded = texture ? texture.loaded : false;
         node._texture = texture;
         this._updateBlendFunc();
 
@@ -260,7 +260,7 @@ proto.needDraw = function () {
 
 proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
     var node = this._node, locTexture = node._texture;
-    if (!(locTexture && locTexture._textureLoaded && node._rect.width && node._rect.height) || !this._displayedOpacity)
+    if (!(locTexture && locTexture.loaded && node._rect.width && node._rect.height) || !this._displayedOpacity)
         return 0;
 
     // Fill in vertex data with quad information (4 vertices for sprite)

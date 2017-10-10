@@ -45,7 +45,7 @@ var proto = _ccsg.TMXLayer.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.
 proto.constructor = _ccsg.TMXLayer.CanvasRenderCmd;
 
 proto.rendering = function (ctx, scaleX, scaleY) {
-    var node = this._node, hasRotation = (node._rotationX || node._rotationY),
+    var node = this._node,
         layerOrientation = node.layerOrientation,
         tiles = node.tiles,
         alpha = node._opacity / 255;
@@ -80,7 +80,7 @@ proto.rendering = function (ctx, scaleX, scaleY) {
         maxCol = cols, maxRow = rows;
 
     if (cc.macro.ENABLE_TILEDMAP_CULLING) {
-        if (!hasRotation && layerOrientation === Orientation.ORTHO) {
+        if (layerOrientation === Orientation.ORTHO) {
             startCol = Math.floor(-(mapx - extw * a) / (maptw * a));
             startRow = Math.floor((mapy - exth * d + mapth * rows * d - winh) / (mapth * d));
             maxCol = Math.ceil((winw - mapx + extw * a) / (maptw * a));
@@ -148,7 +148,7 @@ proto.rendering = function (ctx, scaleX, scaleY) {
                 continue;
             }
             tex = node._textures[grid.texId];
-            if (!tex || !tex._htmlElementObj) {
+            if (!tex || !tex._image) {
                 continue;
             }
 
@@ -171,7 +171,7 @@ proto.rendering = function (ctx, scaleX, scaleY) {
             right = left + tilew;
             top = bottom - tileh;
             // TMX_ORIENTATION_ISO trim
-            if (!hasRotation && layerOrientation === Orientation.ISO) {
+            if (layerOrientation === Orientation.ISO) {
                 gb = -mapy + bottom*d;
                 if (gb < -winh-h) {
                     col += Math.floor((-winh - gb)*2/h) - 1;
@@ -205,7 +205,7 @@ proto.rendering = function (ctx, scaleX, scaleY) {
                 context.scale(1, -1);
             }
 
-            context.drawImage(tex._htmlElementObj,
+            context.drawImage(tex._image,
                 grid.x, grid.y, grid.width, grid.height,
                 left, top, dw, dh);
             // Revert flip
