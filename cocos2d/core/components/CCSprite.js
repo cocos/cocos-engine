@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 const renderEngine = require('../renderer/render-engine');
+const gfx = renderEngine.gfx;
 const SpriteModel = renderEngine.SpriteMaterial;
 const SpriteModel = renderEngine.SpriteModel;
 const SlicedModel = renderEngine.SlicedModel;
@@ -34,27 +35,38 @@ const MaterialUtil = renderEngine.MaterialUtil;
  * !#zh Sprite 类型
  * @enum Sprite.SpriteType
  */
-/**
- * !#en The simple type.
- * !#zh 普通类型
- * @property {Number} SIMPLE
- */
-/**
- * !#en The sliced type.
- * !#zh 切片（九宫格）类型
- * @property {Number} SLICED
- */
-/**
- * !#en The tiled type.
- * !#zh 平铺类型
- * @property {Number} TILED
- */
-/**
- * !#en The filled type.
- * !#zh 填充类型
- * @property {Number} FILLED
- */
-var SpriteType = cc.Scale9Sprite.RenderingType;
+var SpriteType = cc.Enum({
+    /**
+     * !#en The simple type.
+     * !#zh 普通类型
+     * @property {Number} SIMPLE
+     */
+    SIMPLE: 0,
+    /**
+     * !#en The sliced type.
+     * !#zh 切片（九宫格）类型
+     * @property {Number} SLICED
+     */
+    SLICED: 1,
+    /*
+     * !#en The tiled type.
+     * !#zh 平铺类型
+     * @property {Number} TILED
+     */
+    TILED: 2,
+    /*
+     * !#en The filled type.
+     * !#zh 填充类型
+     * @property {Number} FILLED
+     */
+    FILLED: 3,
+    /*
+     * !#en The mesh type.
+     * !#zh 以 Mesh 三角形组成的类型
+     * @property {Number} MESH
+     */
+    MESH: 4
+});
 
 /**
  * !#en Enum for fill type.
@@ -128,8 +140,8 @@ var Sprite = cc.Class({
     },
 
     ctor: function() {
-        this._blendFunc = new cc.BlendFunc(this._srcBlendFactor, this._dstBlendFactor);
         this._material = null;
+        this._customMaterial = false;
         this._model = null;
     },
 
@@ -202,8 +214,11 @@ var Sprite = cc.Class({
                 return this._type;
             },
             set: function (value) {
-                this._type = value;
-                this._sgNode.setRenderingType(value);
+                if (this._type !== value) {
+                    this._removeModel();
+                    this._type = value;
+                    this._activateModel();
+                }
             },
             type: SpriteType,
             animatable: false,
@@ -226,7 +241,9 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._fillType = value;
-                this._sgNode && this._sgNode.setFillType(value);
+                if (this._type === SpriteType.FILLED && this._model) {
+                    this._model.setFillType(value);
+                }
             },
             type: FillType,
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_type'
@@ -248,7 +265,9 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._fillCenter = cc.v2(value);
-                this._sgNode && this._sgNode.setFillCenter(this._fillCenter);
+                if (this._type === SpriteType.FILLED && this._model) {
+                    this._model.setFillCenter(this._fillCenter);
+                }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_center',
         },
@@ -270,7 +289,9 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._fillStart = cc.clampf(value, -1, 1);
-                this._sgNode && this._sgNode.setFillStart(value);
+                if (this._type === SpriteType.FILLED && this._model) {
+                    this._model.setFillStart(this._fillStart);
+                }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_start'
         },
@@ -292,7 +313,9 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._fillRange = cc.clampf(value, -1, 1);
-                this._sgNode && this._sgNode.setFillRange(value);
+                if (this._type === SpriteType.FILLED && this._model) {
+                    this._model.setFillRange(this._fillRange);
+                }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_range'
         },
@@ -311,7 +334,9 @@ var Sprite = cc.Class({
             set: function (value) {
                 if (this._isTrimmedMode !== value) {
                     this._isTrimmedMode = value;
-                    this._sgNode.enableTrimmedContentSize(value);
+                    if (this._type === SpriteType.SIMPLE && this._model) {
+                        this._model.trimmed = value;
+                    }
                 }
             },
             animatable: false,
@@ -319,8 +344,8 @@ var Sprite = cc.Class({
         },
 
         /**
-         * !#en specify the source Blend Factor.
-         * !#zh 指定原图的混合模式
+         * !#en specify the source Blend Factor, this will generate a custom material object, please pay attention to the memory cost.
+         * !#zh 指定原图的混合模式，这会克隆一个新的材质对象，注意这带来的
          * @property srcBlendFactor
          * @type {BlendFactor}
          * @example
@@ -332,8 +357,7 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._srcBlendFactor = value;
-                this._blendFunc.src = value;
-                this._sgNode.setBlendFunc(this._blendFunc);
+                this._updateBlendFunc();
             },
             animatable: false,
             type:BlendFactor,
@@ -354,8 +378,7 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._dstBlendFactor = value;
-                this._blendFunc.dst = value;
-                this._sgNode.setBlendFunc(this._blendFunc);
+                this._updateBlendFunc();
             },
             animatable: false,
             type: BlendFactor,
@@ -396,111 +419,20 @@ var Sprite = cc.Class({
         this.enabled = visible;
     },
 
-    /**
-     * !#en Change the left sprite's cap inset.
-     * !#zh 设置精灵左边框-用于九宫格。
-     * @method setInsetLeft
-     * @param {Number} insetLeft - The values to use for the cap inset.
-     * @example
-     * sprite.setInsetLeft(5);
-     */
-    setInsetLeft: function (insetLeft) {
-        this._sgNode.setInsetLeft(insetLeft);
+    onEnable: function () {
+        this._activateModel();
     },
 
-    /**
-     * !#en Query the left sprite's cap inset.
-     * !#zh 获取精灵左边框
-     * @method getInsetLeft
-     * @return {Number} The left sprite's cap inset.
-     * @example
-     * var insetLeft = sprite.getInsetLeft();
-     * cc.log("Inset Left:" + insetLeft);
-     */
-    getInsetLeft: function () {
-        return this._sgNode.getInsetLeft();
+    onDisable: function () {
+        this._removeModel();
     },
-
-    /**
-     * !#en Change the top sprite's cap inset.
-     * !#zh 设置精灵上边框-用于九宫格。
-     * @method setInsetTop
-     * @param {Number} insetTop - The values to use for the cap inset.
-     * @example
-     * sprite.setInsetTop(5);
-     */
-    setInsetTop: function (insetTop) {
-        this._sgNode.setInsetTop(insetTop);
-    },
-
-    /**
-     * !#en Query the top sprite's cap inset.
-     * !#zh 获取精灵上边框。
-     * @method getInsetTop
-     * @return {Number} The top sprite's cap inset.
-     * @example
-     * var insetTop = sprite.getInsetTop();
-     * cc.log("Inset Top:" + insetTop);
-     */
-    getInsetTop: function () {
-        return this._sgNode.getInsetTop();
-    },
-
-    /**
-     * !#en Change the right sprite's cap inset.
-     * !#zh 设置精灵右边框-用于九宫格。
-     * @method setInsetRight
-     * @param {Number} insetRight - The values to use for the cap inset.
-     * @example
-     * sprite.setInsetRight(5);
-     */
-    setInsetRight: function (insetRight) {
-        this._sgNode.setInsetRight(insetRight);
-    },
-
-    /**
-     * !#en Query the right sprite's cap inset.
-     * !#zh 获取精灵右边框。
-     * @method getInsetRight
-     * @return {Number} The right sprite's cap inset.
-     * @example
-     * var insetRight = sprite.getInsetRight();
-     * cc.log("Inset Right:" + insetRight);
-     */
-    getInsetRight: function () {
-        return this._sgNode.getInsetRight();
-    },
-
-    /**
-     * !#en Change the bottom sprite's cap inset.
-     * !#zh 设置精灵下边框-用于九宫格。
-     * @method setInsetBottom
-     * @param {Number} bottomInset - The values to use for the cap inset.
-     * @example
-     * sprite.setInsetBottom(5);
-     */
-    setInsetBottom: function (insetBottom) {
-        this._sgNode.setInsetBottom(insetBottom);
-    },
-
-    /**
-     * !#en Query the bottom sprite's cap inset.
-     * !#zh 获取精灵下边框。
-     * @method getInsetBottom
-     * @return {Number} The bottom sprite's cap inset.
-     * @example
-     * var insetBottom = sprite.getInsetBottom();
-     * cc.log("Inset Bottom:" + insetBottom);
-     */
-    getInsetBottom: function () {
-        return this._sgNode.getInsetBottom();
-    },
-
+    
     _activateModel: function () {
-        // model cannot be activated if already exists or if texture not loaded yet
-        if (this._model) {
+        // model cannot be activated if already exists or component not enabled
+        if (this._model || !this.enabledInHierarchy) {
             return;
         }
+        // model cannot be activated if texture not loaded yet
         else if (!this._spriteFrame.textureLoaded) {
             return;
         }
@@ -538,23 +470,18 @@ var Sprite = cc.Class({
             // sgNode.setFillRange(this._fillRange);
             break;
         }
+
+        if (this.srcBlendFactor !== gfx.BLEND_SRC_ALPHA || this.dstBlendFactor !== gfx.BLEND_ONE_MINUS_SRC_ALPHA) {
+            this._updateBlendFunc();
+        }
+
         this._model.setEffect(this._material.effect);
         this._model.setNode(this.node);
 
         // Add to rendering scene
     },
 
-    onEnable: function () {
-        // var insetsChangedViaAPI = sgNode.getInsetLeft() !== 0 || sgNode.getInsetRight() !== 0 ||
-        // sgNode.getInsetTop() !== 0 || sgNode.getInsetBottom() !== 0;
-        // this._applySpriteFrame(null, insetsChangedViaAPI);
-
-        // this._applySpriteSize();
-
-        this._activateModel();
-    },
-
-    onDisable: function () {
+    _removeModel: function () {
         if (!this._model) {
             return;
         }
@@ -572,6 +499,24 @@ var Sprite = cc.Class({
         this._model = null;
         
         // Remove from rendering scene
+    },
+    
+    _updateBlendFunc: function () {
+        if (!this._material) {
+            return;
+        }
+
+        if (!this._customMaterial) {
+            this._material = this._material.clone();
+            this._customMaterial = true;
+        }
+        var pass = this._material._mainTech.passes[0];
+        pass.setBlend(
+            gfx.BLEND_FUNC_ADD,
+            this._srcBlendFactor, this._dstBlendFactor,
+            gfx.BLEND_FUNC_ADD,
+            this._srcBlendFactor, this._dstBlendFactor,
+        );
     },
 
     _applyAtlas: CC_EDITOR && function (spriteFrame) {
