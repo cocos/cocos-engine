@@ -302,7 +302,7 @@ namespace se {
     bool ScriptEngine::init()
     {
         cleanup();
-        LOGD("Initializing SpiderMonkey \n");
+        LOGD("Initializing SpiderMonkey, version: %s\n", JS_GetImplementationVersion());
         ++_vmId;
 
         for (const auto& hook : _beforeInitHookArray)

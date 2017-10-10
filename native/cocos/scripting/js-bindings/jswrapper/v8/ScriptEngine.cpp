@@ -235,7 +235,7 @@ namespace se {
     bool ScriptEngine::init()
     {
         cleanup();
-        LOGD("Initializing V8\n");
+        LOGD("Initializing V8, version: %s\n", v8::V8::GetVersion());
         ++_vmId;
 
         for (const auto& hook : _beforeInitHookArray)

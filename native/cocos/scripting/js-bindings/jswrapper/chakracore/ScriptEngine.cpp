@@ -83,7 +83,7 @@ namespace se {
     bool ScriptEngine::init()
     {
         cleanup();
-        LOGD("Initializing ChakraCore ... \n");
+        LOGD("Initializing ChakraCore, version: %d.%d.%d\n", CHAKRA_CORE_MAJOR_VERSION, CHAKRA_CORE_MINOR_VERSION, CHAKRA_CORE_PATCH_VERSION);
 
         ++_vmId;
         for (const auto& hook : _beforeInitHookArray)
