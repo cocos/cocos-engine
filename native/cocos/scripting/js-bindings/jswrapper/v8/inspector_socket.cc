@@ -1,6 +1,6 @@
 #include "inspector_socket.h"
 
-#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #include "util.h"
 
@@ -637,4 +637,4 @@ void InspectorSocket::reinit() {
 }  // namespace inspector
 }  // namespace node
 
-#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR

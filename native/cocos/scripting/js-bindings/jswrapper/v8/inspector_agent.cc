@@ -1,6 +1,6 @@
 #include "inspector_agent.h"
 
-#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #include "inspector_io.h"
 #include "env.h"
@@ -812,4 +812,4 @@ void Agent::RequestIoThreadStart() {
 //cjh NODE_MODULE_CONTEXT_AWARE_BUILTIN(inspector,
 //                                  node::inspector::Agent::InitInspector);
 
-#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
