@@ -52,12 +52,6 @@
     <Filter Include="extension">
       <UniqueIdentifier>{976bf662-699e-482e-b5db-a20d4abab137}</UniqueIdentifier>
     </Filter>
-    <Filter Include="extension\GUI">
-      <UniqueIdentifier>{b27aba95-51a2-413c-8570-0aff9adf2b6b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="extension\GUI\CCScrollView">
-      <UniqueIdentifier>{a1f539bc-d5be-4224-a4d2-01c0b6f17d6e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="network">
       <UniqueIdentifier>{31338a7d-ebe1-4867-9c17-d3645122a864}</UniqueIdentifier>
     </Filter>
@@ -79,9 +73,6 @@
     <Filter Include="ui\UIWidgets\EditBox">
       <UniqueIdentifier>{89eb6312-dc7f-4fda-b9b2-ab67c31ddd55}</UniqueIdentifier>
     </Filter>
-    <Filter Include="extension\GUI\CCControlExtensions">
-      <UniqueIdentifier>{118d80ca-ccf2-480c-b87d-25220af23440}</UniqueIdentifier>
-    </Filter>
     <Filter Include="audioengine">
       <UniqueIdentifier>{e916e2b4-0a6e-4d25-8b36-66fa03719f48}</UniqueIdentifier>
     </Filter>
@@ -99,9 +90,6 @@
     </Filter>
     <Filter Include="creator">
       <UniqueIdentifier>{691a1234-91c6-4c12-992d-3973f4da830f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="extension\PhysicsSprite">
-      <UniqueIdentifier>{87ddafca-e85f-430b-bfa1-b6e09279138f}</UniqueIdentifier>
     </Filter>
     <Filter Include="extension\AssetManager">
       <UniqueIdentifier>{c1b7ac70-432f-4d5b-bd3b-5ff5fce3436b}</UniqueIdentifier>
@@ -565,15 +553,6 @@
     <ClCompile Include="..\base\ccRandom.cpp">
       <Filter>base</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\extensions\GUI\CCScrollView\CCScrollView.cpp">
-      <Filter>extension\GUI\CCScrollView</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\extensions\GUI\CCScrollView\CCTableView.cpp">
-      <Filter>extension\GUI\CCScrollView</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\extensions\GUI\CCScrollView\CCTableViewCell.cpp">
-      <Filter>extension\GUI\CCScrollView</Filter>
-    </ClCompile>
     <ClCompile Include="..\network\HttpClient.cpp">
       <Filter>network\Source Files</Filter>
     </ClCompile>
@@ -594,39 +573,6 @@
     </ClCompile>
     <ClCompile Include="..\ui\UIEditBox\UIEditBox.cpp">
       <Filter>ui\UIWidgets\EditBox</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\extensions\GUI\CCControlExtension\CCControl.cpp">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\extensions\GUI\CCControlExtension\CCControlButton.cpp">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\extensions\GUI\CCControlExtension\CCControlColourPicker.cpp">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\extensions\GUI\CCControlExtension\CCControlHuePicker.cpp">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\extensions\GUI\CCControlExtension\CCControlPotentiometer.cpp">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\extensions\GUI\CCControlExtension\CCControlSaturationBrightnessPicker.cpp">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\extensions\GUI\CCControlExtension\CCControlSlider.cpp">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\extensions\GUI\CCControlExtension\CCControlStepper.cpp">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\extensions\GUI\CCControlExtension\CCControlSwitch.cpp">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\extensions\GUI\CCControlExtension\CCControlUtils.cpp">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\extensions\GUI\CCControlExtension\CCInvocation.cpp">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
     </ClCompile>
     <ClCompile Include="..\platform\win32\CCApplication-win32.cpp">
       <Filter>platform\win32</Filter>
@@ -694,12 +640,6 @@
     </ClCompile>
     <ClCompile Include="..\editor-support\creator\CCScale9Sprite.cpp">
       <Filter>creator</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\extensions\physics-nodes\CCPhysicsDebugNode.cpp">
-      <Filter>extension\PhysicsSprite</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\extensions\physics-nodes\CCPhysicsSprite.cpp">
-      <Filter>extension\PhysicsSprite</Filter>
     </ClCompile>
     <ClCompile Include="..\..\extensions\assets-manager\AssetsManagerEx.cpp">
       <Filter>extension\AssetManager</Filter>
@@ -1272,15 +1212,6 @@
     <ClInclude Include="..\base\ccRandom.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\extensions\GUI\CCScrollView\CCScrollView.h">
-      <Filter>extension\GUI\CCScrollView</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\extensions\GUI\CCScrollView\CCTableView.h">
-      <Filter>extension\GUI\CCScrollView</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\extensions\GUI\CCScrollView\CCTableViewCell.h">
-      <Filter>extension\GUI\CCScrollView</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\extensions\cocos-ext.h">
       <Filter>extension</Filter>
     </ClInclude>
@@ -1325,42 +1256,6 @@
     </ClInclude>
     <ClInclude Include="..\ui\UIEditBox\UIEditBoxImpl.h">
       <Filter>ui\UIWidgets\EditBox</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\extensions\GUI\CCControlExtension\CCControl.h">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\extensions\GUI\CCControlExtension\CCControlButton.h">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\extensions\GUI\CCControlExtension\CCControlColourPicker.h">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\extensions\GUI\CCControlExtension\CCControlExtensions.h">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\extensions\GUI\CCControlExtension\CCControlHuePicker.h">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\extensions\GUI\CCControlExtension\CCControlPotentiometer.h">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\extensions\GUI\CCControlExtension\CCControlSaturationBrightnessPicker.h">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\extensions\GUI\CCControlExtension\CCControlSlider.h">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\extensions\GUI\CCControlExtension\CCControlStepper.h">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\extensions\GUI\CCControlExtension\CCControlSwitch.h">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\extensions\GUI\CCControlExtension\CCControlUtils.h">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\extensions\GUI\CCControlExtension\CCInvocation.h">
-      <Filter>extension\GUI\CCControlExtensions</Filter>
     </ClInclude>
     <ClInclude Include="..\platform\win32\CCApplication-win32.h">
       <Filter>platform\win32</Filter>
@@ -1452,12 +1347,6 @@
     </ClInclude>
     <ClInclude Include="..\editor-support\creator\CCScale9Sprite.h">
       <Filter>creator</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\extensions\physics-nodes\CCPhysicsDebugNode.h">
-      <Filter>extension\PhysicsSprite</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\extensions\physics-nodes\CCPhysicsSprite.h">
-      <Filter>extension\PhysicsSprite</Filter>
     </ClInclude>
     <ClInclude Include="..\editor-support\creator\CCGraphicsNode.h">
       <Filter>creator</Filter>
