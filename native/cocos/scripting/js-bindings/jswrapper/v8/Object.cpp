@@ -256,11 +256,11 @@ namespace se {
         return true;
     }
 
-    void Object::setProperty(const char *name, const Value& data)
+    bool Object::setProperty(const char *name, const Value& data)
     {
         v8::MaybeLocal<v8::String> nameValue = v8::String::NewFromUtf8(__isolate, name, v8::NewStringType::kNormal);
         if (nameValue.IsEmpty())
-            return;
+            return false;
 
         v8::Local<v8::Value> value;
         internal::seToJsValue(__isolate, data, &value);
@@ -268,7 +268,9 @@ namespace se {
         if (ret.IsNothing())
         {
             LOGD("ERROR: %s, Set return nothing ...\n", __FUNCTION__);
+            return false;
         }
+        return true;
     }
 
     bool Object::defineProperty(const char *name, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter)

@@ -1,6 +1,7 @@
 #include "scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.hpp"
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
 #include "scripting/js-bindings/manual/jsb_conversions.hpp"
+#include "scripting/js-bindings/manual/jsb_global.h"
 #include "audio/include/AudioEngine.h"
 
 se::Object* __jsb_cocos2d_experimental_AudioProfile_proto = nullptr;

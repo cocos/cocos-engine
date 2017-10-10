@@ -21,7 +21,7 @@
 
 #include "util.h"
 
-#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 //cjh #include "string_bytes.h"
 //#include "node_buffer.h"
@@ -114,4 +114,4 @@ void DumpBacktrace(FILE* fp) {
 
 }  // namespace node
 
-#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR

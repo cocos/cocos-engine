@@ -1,6 +1,6 @@
 #include "inspector_socket_server.h"
 
-#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #include "node.h"
 #include "uv.h"
@@ -643,4 +643,4 @@ void ServerSocket::SocketClosedCallback(uv_handle_t* tcp_socket) {
 }  // namespace inspector
 }  // namespace node
 
-#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../config.hpp"
-#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #include "inspector_agent.h"
 
@@ -295,7 +295,7 @@ v8::Eternal<TypeName> PropertyName ## _;
         uv_loop_t* const event_loop_;
         uint32_t* const zero_fill_field_;
         
-        DISALLOW_COPY_AND_ASSIGN(IsolateData);
+        NODE_DISALLOW_COPY_AND_ASSIGN(IsolateData);
     };
 
     class Environment
@@ -396,7 +396,7 @@ v8::Eternal<TypeName> PropertyName ## _;
         private:
             Environment* env_;
 
-            DISALLOW_COPY_AND_ASSIGN(AsyncCallbackScope);
+            NODE_DISALLOW_COPY_AND_ASSIGN(AsyncCallbackScope);
         };
 
     private:
@@ -625,5 +625,5 @@ Environment::NewFunctionTemplate(v8::FunctionCallback callback,
 
 } // namespace node {
 
-#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 

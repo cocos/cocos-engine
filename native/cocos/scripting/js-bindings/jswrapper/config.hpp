@@ -14,9 +14,13 @@
     #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_NONE
 #endif
 
-#define SE_ENABLE_INSPECTOR 0
-
+#if defined(COCOS2D_DEBUG) && COCOS2D_DEBUG > 0
+#define SE_ENABLE_INSPECTOR 1
 #define SE_DEBUG 2
+#else
+#define SE_ENABLE_INSPECTOR 0
+#define SE_DEBUG 0
+#endif
 
 #ifdef ANDROID
 
@@ -61,6 +65,7 @@ void seLog(const char * format, ...);
 #ifndef __SSIZE_T
 #define __SSIZE_T
 typedef SSIZE_T ssize_t;
+#define _SSIZE_T_DEFINED // libuv also defines ssize_t, use the one defined here.
 #endif // __SSIZE_T
 
 #endif

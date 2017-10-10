@@ -22,7 +22,7 @@
 #define http_parser_h
 
 #include "../config.hpp"
-#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #ifdef __cplusplus
 extern "C" {
@@ -364,6 +364,6 @@ int http_body_is_final(const http_parser *parser);
 }
 #endif
 
-#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #endif

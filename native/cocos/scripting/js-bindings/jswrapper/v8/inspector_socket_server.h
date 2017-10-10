@@ -2,7 +2,7 @@
 #define SRC_INSPECTOR_SOCKET_SERVER_H_
 
 #include "../config.hpp"
-#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #include "inspector_agent.h"
 #include "inspector_socket.h"
@@ -99,6 +99,6 @@ class InspectorSocketServer {
 }  // namespace inspector
 }  // namespace node
 
-#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #endif  // SRC_INSPECTOR_SOCKET_SERVER_H_

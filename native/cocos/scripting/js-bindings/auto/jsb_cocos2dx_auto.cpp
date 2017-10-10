@@ -1,5 +1,6 @@
 #include "scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp"
 #include "scripting/js-bindings/manual/jsb_conversions.hpp"
+#include "scripting/js-bindings/manual/jsb_global.h"
 #include "cocos2d.h"
 #include "scripting/js-bindings/manual/BaseJSAction.h"
 
@@ -1777,7 +1778,7 @@ bool js_register_cocos2dx_Component(se::Object* obj)
     __jsb_cocos2d_Component_proto = cls->getProto();
     __jsb_cocos2d_Component_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.Component.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "Component");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -4655,7 +4656,7 @@ bool js_register_cocos2dx_Node(se::Object* obj)
     __jsb_cocos2d_Node_proto = cls->getProto();
     __jsb_cocos2d_Node_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.Node.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "Node");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -4806,7 +4807,7 @@ bool js_register_cocos2dx_Scene(se::Object* obj)
     __jsb_cocos2d_Scene_proto = cls->getProto();
     __jsb_cocos2d_Scene_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.Scene.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "Scene");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -12277,7 +12278,7 @@ bool js_register_cocos2dx_SpriteFrame(se::Object* obj)
     __jsb_cocos2d_SpriteFrame_proto = cls->getProto();
     __jsb_cocos2d_SpriteFrame_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.SpriteFrame.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "SpriteFrame");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -12479,7 +12480,7 @@ bool js_register_cocos2dx_Sequence(se::Object* obj)
     __jsb_cocos2d_Sequence_proto = cls->getProto();
     __jsb_cocos2d_Sequence_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.Sequence.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "Sequence");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -12597,7 +12598,7 @@ bool js_register_cocos2dx_Repeat(se::Object* obj)
     __jsb_cocos2d_Repeat_proto = cls->getProto();
     __jsb_cocos2d_Repeat_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.Repeat.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "Repeat");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -12713,7 +12714,7 @@ bool js_register_cocos2dx_RepeatForever(se::Object* obj)
     __jsb_cocos2d_RepeatForever_proto = cls->getProto();
     __jsb_cocos2d_RepeatForever_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.RepeatForever.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "RepeatForever");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -12814,7 +12815,7 @@ bool js_register_cocos2dx_Spawn(se::Object* obj)
     __jsb_cocos2d_Spawn_proto = cls->getProto();
     __jsb_cocos2d_Spawn_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.Spawn.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "Spawn");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -12937,7 +12938,7 @@ bool js_register_cocos2dx_RotateTo(se::Object* obj)
     __jsb_cocos2d_RotateTo_proto = cls->getProto();
     __jsb_cocos2d_RotateTo_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.RotateTo.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "RotateTo");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -13080,7 +13081,7 @@ bool js_register_cocos2dx_RotateBy(se::Object* obj)
     __jsb_cocos2d_RotateBy_proto = cls->getProto();
     __jsb_cocos2d_RotateBy_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.RotateBy.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "RotateBy");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -13183,7 +13184,7 @@ bool js_register_cocos2dx_MoveBy(se::Object* obj)
     __jsb_cocos2d_MoveBy_proto = cls->getProto();
     __jsb_cocos2d_MoveBy_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.MoveBy.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "MoveBy");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -13286,7 +13287,7 @@ bool js_register_cocos2dx_MoveTo(se::Object* obj)
     __jsb_cocos2d_MoveTo_proto = cls->getProto();
     __jsb_cocos2d_MoveTo_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.MoveTo.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "MoveTo");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -13393,7 +13394,7 @@ bool js_register_cocos2dx_SkewTo(se::Object* obj)
     __jsb_cocos2d_SkewTo_proto = cls->getProto();
     __jsb_cocos2d_SkewTo_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.SkewTo.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "SkewTo");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -13500,7 +13501,7 @@ bool js_register_cocos2dx_SkewBy(se::Object* obj)
     __jsb_cocos2d_SkewBy_proto = cls->getProto();
     __jsb_cocos2d_SkewBy_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.SkewBy.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "SkewBy");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -13611,7 +13612,7 @@ bool js_register_cocos2dx_JumpBy(se::Object* obj)
     __jsb_cocos2d_JumpBy_proto = cls->getProto();
     __jsb_cocos2d_JumpBy_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.JumpBy.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "JumpBy");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -13722,7 +13723,7 @@ bool js_register_cocos2dx_JumpTo(se::Object* obj)
     __jsb_cocos2d_JumpTo_proto = cls->getProto();
     __jsb_cocos2d_JumpTo_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.JumpTo.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "JumpTo");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -13777,7 +13778,7 @@ bool js_register_cocos2dx_BezierBy(se::Object* obj)
     __jsb_cocos2d_BezierBy_proto = cls->getProto();
     __jsb_cocos2d_BezierBy_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.BezierBy.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "BezierBy");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -13832,7 +13833,7 @@ bool js_register_cocos2dx_BezierTo(se::Object* obj)
     __jsb_cocos2d_BezierTo_proto = cls->getProto();
     __jsb_cocos2d_BezierTo_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.BezierTo.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "BezierTo");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -14016,7 +14017,7 @@ bool js_register_cocos2dx_ScaleTo(se::Object* obj)
     __jsb_cocos2d_ScaleTo_proto = cls->getProto();
     __jsb_cocos2d_ScaleTo_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.ScaleTo.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "ScaleTo");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -14133,7 +14134,7 @@ bool js_register_cocos2dx_ScaleBy(se::Object* obj)
     __jsb_cocos2d_ScaleBy_proto = cls->getProto();
     __jsb_cocos2d_ScaleBy_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.ScaleBy.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "ScaleBy");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -14236,7 +14237,7 @@ bool js_register_cocos2dx_Blink(se::Object* obj)
     __jsb_cocos2d_Blink_proto = cls->getProto();
     __jsb_cocos2d_Blink_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.Blink.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "Blink");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -14339,7 +14340,7 @@ bool js_register_cocos2dx_FadeTo(se::Object* obj)
     __jsb_cocos2d_FadeTo_proto = cls->getProto();
     __jsb_cocos2d_FadeTo_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.FadeTo.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "FadeTo");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -14436,7 +14437,7 @@ bool js_register_cocos2dx_FadeIn(se::Object* obj)
     __jsb_cocos2d_FadeIn_proto = cls->getProto();
     __jsb_cocos2d_FadeIn_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.FadeIn.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "FadeIn");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -14533,7 +14534,7 @@ bool js_register_cocos2dx_FadeOut(se::Object* obj)
     __jsb_cocos2d_FadeOut_proto = cls->getProto();
     __jsb_cocos2d_FadeOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.FadeOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "FadeOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -14661,7 +14662,7 @@ bool js_register_cocos2dx_TintTo(se::Object* obj)
     __jsb_cocos2d_TintTo_proto = cls->getProto();
     __jsb_cocos2d_TintTo_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.TintTo.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "TintTo");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -14772,7 +14773,7 @@ bool js_register_cocos2dx_TintBy(se::Object* obj)
     __jsb_cocos2d_TintBy_proto = cls->getProto();
     __jsb_cocos2d_TintBy_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.TintBy.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "TintBy");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -14849,7 +14850,7 @@ bool js_register_cocos2dx_DelayTime(se::Object* obj)
     __jsb_cocos2d_DelayTime_proto = cls->getProto();
     __jsb_cocos2d_DelayTime_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.DelayTime.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "DelayTime");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -14948,7 +14949,7 @@ bool js_register_cocos2dx_ReverseTime(se::Object* obj)
     __jsb_cocos2d_ReverseTime_proto = cls->getProto();
     __jsb_cocos2d_ReverseTime_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.ReverseTime.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "ReverseTime");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -15078,7 +15079,7 @@ bool js_register_cocos2dx_TargetedAction(se::Object* obj)
     __jsb_cocos2d_TargetedAction_proto = cls->getProto();
     __jsb_cocos2d_TargetedAction_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.TargetedAction.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "TargetedAction");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -15501,7 +15502,7 @@ bool js_register_cocos2dx_EaseIn(se::Object* obj)
     __jsb_cocos2d_EaseIn_proto = cls->getProto();
     __jsb_cocos2d_EaseIn_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseIn.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseIn");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -15580,7 +15581,7 @@ bool js_register_cocos2dx_EaseOut(se::Object* obj)
     __jsb_cocos2d_EaseOut_proto = cls->getProto();
     __jsb_cocos2d_EaseOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -15659,7 +15660,7 @@ bool js_register_cocos2dx_EaseInOut(se::Object* obj)
     __jsb_cocos2d_EaseInOut_proto = cls->getProto();
     __jsb_cocos2d_EaseInOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseInOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseInOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -15736,7 +15737,7 @@ bool js_register_cocos2dx_EaseExponentialIn(se::Object* obj)
     __jsb_cocos2d_EaseExponentialIn_proto = cls->getProto();
     __jsb_cocos2d_EaseExponentialIn_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseExponentialIn.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseExponentialIn");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -15813,7 +15814,7 @@ bool js_register_cocos2dx_EaseExponentialOut(se::Object* obj)
     __jsb_cocos2d_EaseExponentialOut_proto = cls->getProto();
     __jsb_cocos2d_EaseExponentialOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseExponentialOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseExponentialOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -15890,7 +15891,7 @@ bool js_register_cocos2dx_EaseExponentialInOut(se::Object* obj)
     __jsb_cocos2d_EaseExponentialInOut_proto = cls->getProto();
     __jsb_cocos2d_EaseExponentialInOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseExponentialInOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseExponentialInOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -15967,7 +15968,7 @@ bool js_register_cocos2dx_EaseSineIn(se::Object* obj)
     __jsb_cocos2d_EaseSineIn_proto = cls->getProto();
     __jsb_cocos2d_EaseSineIn_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseSineIn.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseSineIn");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -16044,7 +16045,7 @@ bool js_register_cocos2dx_EaseSineOut(se::Object* obj)
     __jsb_cocos2d_EaseSineOut_proto = cls->getProto();
     __jsb_cocos2d_EaseSineOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseSineOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseSineOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -16121,7 +16122,7 @@ bool js_register_cocos2dx_EaseSineInOut(se::Object* obj)
     __jsb_cocos2d_EaseSineInOut_proto = cls->getProto();
     __jsb_cocos2d_EaseSineInOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseSineInOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseSineInOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -16305,7 +16306,7 @@ bool js_register_cocos2dx_EaseElasticIn(se::Object* obj)
     __jsb_cocos2d_EaseElasticIn_proto = cls->getProto();
     __jsb_cocos2d_EaseElasticIn_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseElasticIn.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseElasticIn");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -16396,7 +16397,7 @@ bool js_register_cocos2dx_EaseElasticOut(se::Object* obj)
     __jsb_cocos2d_EaseElasticOut_proto = cls->getProto();
     __jsb_cocos2d_EaseElasticOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseElasticOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseElasticOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -16487,7 +16488,7 @@ bool js_register_cocos2dx_EaseElasticInOut(se::Object* obj)
     __jsb_cocos2d_EaseElasticInOut_proto = cls->getProto();
     __jsb_cocos2d_EaseElasticInOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseElasticInOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseElasticInOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -16585,7 +16586,7 @@ bool js_register_cocos2dx_EaseBounceIn(se::Object* obj)
     __jsb_cocos2d_EaseBounceIn_proto = cls->getProto();
     __jsb_cocos2d_EaseBounceIn_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseBounceIn.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseBounceIn");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -16662,7 +16663,7 @@ bool js_register_cocos2dx_EaseBounceOut(se::Object* obj)
     __jsb_cocos2d_EaseBounceOut_proto = cls->getProto();
     __jsb_cocos2d_EaseBounceOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseBounceOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseBounceOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -16739,7 +16740,7 @@ bool js_register_cocos2dx_EaseBounceInOut(se::Object* obj)
     __jsb_cocos2d_EaseBounceInOut_proto = cls->getProto();
     __jsb_cocos2d_EaseBounceInOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseBounceInOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseBounceInOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -16816,7 +16817,7 @@ bool js_register_cocos2dx_EaseBackIn(se::Object* obj)
     __jsb_cocos2d_EaseBackIn_proto = cls->getProto();
     __jsb_cocos2d_EaseBackIn_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseBackIn.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseBackIn");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -16893,7 +16894,7 @@ bool js_register_cocos2dx_EaseBackOut(se::Object* obj)
     __jsb_cocos2d_EaseBackOut_proto = cls->getProto();
     __jsb_cocos2d_EaseBackOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseBackOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseBackOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -16970,7 +16971,7 @@ bool js_register_cocos2dx_EaseBackInOut(se::Object* obj)
     __jsb_cocos2d_EaseBackInOut_proto = cls->getProto();
     __jsb_cocos2d_EaseBackInOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseBackInOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseBackInOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -17073,7 +17074,7 @@ bool js_register_cocos2dx_EaseBezierAction(se::Object* obj)
     __jsb_cocos2d_EaseBezierAction_proto = cls->getProto();
     __jsb_cocos2d_EaseBezierAction_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseBezierAction.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseBezierAction");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -17150,7 +17151,7 @@ bool js_register_cocos2dx_EaseQuadraticActionIn(se::Object* obj)
     __jsb_cocos2d_EaseQuadraticActionIn_proto = cls->getProto();
     __jsb_cocos2d_EaseQuadraticActionIn_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseQuadraticActionIn.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseQuadraticActionIn");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -17227,7 +17228,7 @@ bool js_register_cocos2dx_EaseQuadraticActionOut(se::Object* obj)
     __jsb_cocos2d_EaseQuadraticActionOut_proto = cls->getProto();
     __jsb_cocos2d_EaseQuadraticActionOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseQuadraticActionOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseQuadraticActionOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -17304,7 +17305,7 @@ bool js_register_cocos2dx_EaseQuadraticActionInOut(se::Object* obj)
     __jsb_cocos2d_EaseQuadraticActionInOut_proto = cls->getProto();
     __jsb_cocos2d_EaseQuadraticActionInOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseQuadraticActionInOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseQuadraticActionInOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -17381,7 +17382,7 @@ bool js_register_cocos2dx_EaseQuarticActionIn(se::Object* obj)
     __jsb_cocos2d_EaseQuarticActionIn_proto = cls->getProto();
     __jsb_cocos2d_EaseQuarticActionIn_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseQuarticActionIn.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseQuarticActionIn");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -17458,7 +17459,7 @@ bool js_register_cocos2dx_EaseQuarticActionOut(se::Object* obj)
     __jsb_cocos2d_EaseQuarticActionOut_proto = cls->getProto();
     __jsb_cocos2d_EaseQuarticActionOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseQuarticActionOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseQuarticActionOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -17535,7 +17536,7 @@ bool js_register_cocos2dx_EaseQuarticActionInOut(se::Object* obj)
     __jsb_cocos2d_EaseQuarticActionInOut_proto = cls->getProto();
     __jsb_cocos2d_EaseQuarticActionInOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseQuarticActionInOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseQuarticActionInOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -17612,7 +17613,7 @@ bool js_register_cocos2dx_EaseQuinticActionIn(se::Object* obj)
     __jsb_cocos2d_EaseQuinticActionIn_proto = cls->getProto();
     __jsb_cocos2d_EaseQuinticActionIn_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseQuinticActionIn.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseQuinticActionIn");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -17689,7 +17690,7 @@ bool js_register_cocos2dx_EaseQuinticActionOut(se::Object* obj)
     __jsb_cocos2d_EaseQuinticActionOut_proto = cls->getProto();
     __jsb_cocos2d_EaseQuinticActionOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseQuinticActionOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseQuinticActionOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -17766,7 +17767,7 @@ bool js_register_cocos2dx_EaseQuinticActionInOut(se::Object* obj)
     __jsb_cocos2d_EaseQuinticActionInOut_proto = cls->getProto();
     __jsb_cocos2d_EaseQuinticActionInOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseQuinticActionInOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseQuinticActionInOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -17843,7 +17844,7 @@ bool js_register_cocos2dx_EaseCircleActionIn(se::Object* obj)
     __jsb_cocos2d_EaseCircleActionIn_proto = cls->getProto();
     __jsb_cocos2d_EaseCircleActionIn_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseCircleActionIn.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseCircleActionIn");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -17920,7 +17921,7 @@ bool js_register_cocos2dx_EaseCircleActionOut(se::Object* obj)
     __jsb_cocos2d_EaseCircleActionOut_proto = cls->getProto();
     __jsb_cocos2d_EaseCircleActionOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseCircleActionOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseCircleActionOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -17997,7 +17998,7 @@ bool js_register_cocos2dx_EaseCircleActionInOut(se::Object* obj)
     __jsb_cocos2d_EaseCircleActionInOut_proto = cls->getProto();
     __jsb_cocos2d_EaseCircleActionInOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseCircleActionInOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseCircleActionInOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -18074,7 +18075,7 @@ bool js_register_cocos2dx_EaseCubicActionIn(se::Object* obj)
     __jsb_cocos2d_EaseCubicActionIn_proto = cls->getProto();
     __jsb_cocos2d_EaseCubicActionIn_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseCubicActionIn.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseCubicActionIn");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -18151,7 +18152,7 @@ bool js_register_cocos2dx_EaseCubicActionOut(se::Object* obj)
     __jsb_cocos2d_EaseCubicActionOut_proto = cls->getProto();
     __jsb_cocos2d_EaseCubicActionOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseCubicActionOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseCubicActionOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -18228,7 +18229,7 @@ bool js_register_cocos2dx_EaseCubicActionInOut(se::Object* obj)
     __jsb_cocos2d_EaseCubicActionInOut_proto = cls->getProto();
     __jsb_cocos2d_EaseCubicActionInOut_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.EaseCubicActionInOut.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "EaseCubicActionInOut");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -18323,7 +18324,7 @@ bool js_register_cocos2dx_Show(se::Object* obj)
     __jsb_cocos2d_Show_proto = cls->getProto();
     __jsb_cocos2d_Show_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.Show.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "Show");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -18397,7 +18398,7 @@ bool js_register_cocos2dx_Hide(se::Object* obj)
     __jsb_cocos2d_Hide_proto = cls->getProto();
     __jsb_cocos2d_Hide_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.Hide.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "Hide");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -18655,7 +18656,7 @@ bool js_register_cocos2dx_FlipX(se::Object* obj)
     __jsb_cocos2d_FlipX_proto = cls->getProto();
     __jsb_cocos2d_FlipX_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.FlipX.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "FlipX");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -18754,7 +18755,7 @@ bool js_register_cocos2dx_FlipY(se::Object* obj)
     __jsb_cocos2d_FlipY_proto = cls->getProto();
     __jsb_cocos2d_FlipY_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.FlipY.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "FlipY");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -18853,7 +18854,7 @@ bool js_register_cocos2dx_Place(se::Object* obj)
     __jsb_cocos2d_Place_proto = cls->getProto();
     __jsb_cocos2d_Place_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.Place.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "Place");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -18924,7 +18925,7 @@ bool js_register_cocos2dx_CallFunc(se::Object* obj)
     __jsb_cocos2d_CallFunc_proto = cls->getProto();
     __jsb_cocos2d_CallFunc_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc._CallFunc.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "_CallFunc");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -18979,7 +18980,7 @@ bool js_register_cocos2dx_CallFuncN(se::Object* obj)
     __jsb_cocos2d_CallFuncN_proto = cls->getProto();
     __jsb_cocos2d_CallFuncN_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.CallFunc.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "CallFunc");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -19324,7 +19325,7 @@ bool js_register_cocos2dx_ActionManager(se::Object* obj)
     __jsb_cocos2d_ActionManager_proto = cls->getProto();
     __jsb_cocos2d_ActionManager_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.ActionManager.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "ActionManager");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -20597,7 +20598,7 @@ bool js_register_cocos2dx_DrawNode(se::Object* obj)
     __jsb_cocos2d_DrawNode_proto = cls->getProto();
     __jsb_cocos2d_DrawNode_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.DrawNode.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "DrawNode");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -22633,7 +22634,7 @@ bool js_register_cocos2dx_Label(se::Object* obj)
     __jsb_cocos2d_Label_proto = cls->getProto();
     __jsb_cocos2d_Label_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.Label.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "Label");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -22707,7 +22708,7 @@ bool js_register_cocos2dx_LabelTTF(se::Object* obj)
     __jsb_cocos2d_LabelTTF_proto = cls->getProto();
     __jsb_cocos2d_LabelTTF_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.LabelTTF.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "LabelTTF");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -22781,7 +22782,7 @@ bool js_register_cocos2dx_Layer(se::Object* obj)
     __jsb_cocos2d_Layer_proto = cls->getProto();
     __jsb_cocos2d_Layer_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.Layer.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "Layer");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -23027,7 +23028,7 @@ bool js_register_cocos2dx_LayerColor(se::Object* obj)
     __jsb_cocos2d_LayerColor_proto = cls->getProto();
     __jsb_cocos2d_LayerColor_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.LayerColor.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "LayerColor");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -23412,7 +23413,7 @@ bool js_register_cocos2dx_LayerGradient(se::Object* obj)
     __jsb_cocos2d_LayerGradient_proto = cls->getProto();
     __jsb_cocos2d_LayerGradient_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.LayerGradient.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "LayerGradient");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -23549,7 +23550,7 @@ bool js_register_cocos2dx_LayerMultiplex(se::Object* obj)
     __jsb_cocos2d_LayerMultiplex_proto = cls->getProto();
     __jsb_cocos2d_LayerMultiplex_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.LayerMultiplex.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "LayerMultiplex");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -23829,7 +23830,7 @@ bool js_register_cocos2dx_MenuItem(se::Object* obj)
     __jsb_cocos2d_MenuItem_proto = cls->getProto();
     __jsb_cocos2d_MenuItem_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.MenuItem.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "MenuItem");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -24054,7 +24055,7 @@ bool js_register_cocos2dx_MenuItemLabel(se::Object* obj)
     __jsb_cocos2d_MenuItemLabel_proto = cls->getProto();
     __jsb_cocos2d_MenuItemLabel_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.MenuItemLabel.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "MenuItemLabel");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -24170,7 +24171,7 @@ bool js_register_cocos2dx_MenuItemAtlasFont(se::Object* obj)
     __jsb_cocos2d_MenuItemAtlasFont_proto = cls->getProto();
     __jsb_cocos2d_MenuItemAtlasFont_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.MenuItemAtlasFont.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "MenuItemAtlasFont");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -24426,7 +24427,7 @@ bool js_register_cocos2dx_MenuItemFont(se::Object* obj)
     __jsb_cocos2d_MenuItemFont_proto = cls->getProto();
     __jsb_cocos2d_MenuItemFont_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.MenuItemFont.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "MenuItemFont");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -24707,7 +24708,7 @@ bool js_register_cocos2dx_MenuItemSprite(se::Object* obj)
     __jsb_cocos2d_MenuItemSprite_proto = cls->getProto();
     __jsb_cocos2d_MenuItemSprite_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.MenuItemSprite.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "MenuItemSprite");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -24898,7 +24899,7 @@ bool js_register_cocos2dx_MenuItemImage(se::Object* obj)
     __jsb_cocos2d_MenuItemImage_proto = cls->getProto();
     __jsb_cocos2d_MenuItemImage_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.MenuItemImage.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "MenuItemImage");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -25104,7 +25105,7 @@ bool js_register_cocos2dx_MenuItemToggle(se::Object* obj)
     __jsb_cocos2d_MenuItemToggle_proto = cls->getProto();
     __jsb_cocos2d_MenuItemToggle_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.MenuItemToggle.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "MenuItemToggle");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -25332,7 +25333,7 @@ bool js_register_cocos2dx_Menu(se::Object* obj)
     __jsb_cocos2d_Menu_proto = cls->getProto();
     __jsb_cocos2d_Menu_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.Menu.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "Menu");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -25814,7 +25815,7 @@ bool js_register_cocos2dx_MotionStreak(se::Object* obj)
     __jsb_cocos2d_MotionStreak_proto = cls->getProto();
     __jsb_cocos2d_MotionStreak_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.MotionStreak.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "MotionStreak");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -26169,7 +26170,7 @@ bool js_register_cocos2dx_ParticleBatchNode(se::Object* obj)
     __jsb_cocos2d_ParticleBatchNode_proto = cls->getProto();
     __jsb_cocos2d_ParticleBatchNode_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.ParticleBatchNode.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "ParticleBatchNode");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -28288,7 +28289,7 @@ bool js_register_cocos2dx_ParticleSystem(se::Object* obj)
     __jsb_cocos2d_ParticleSystem_proto = cls->getProto();
     __jsb_cocos2d_ParticleSystem_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc._ParticleSystem.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "_ParticleSystem");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -30933,7 +30934,7 @@ bool js_register_cocos2dx_Sprite(se::Object* obj)
     __jsb_cocos2d_Sprite_proto = cls->getProto();
     __jsb_cocos2d_Sprite_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.Sprite.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "Sprite");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -31585,7 +31586,7 @@ bool js_register_cocos2dx_RenderTexture(se::Object* obj)
     __jsb_cocos2d_RenderTexture_proto = cls->getProto();
     __jsb_cocos2d_RenderTexture_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.RenderTexture.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "RenderTexture");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -32260,7 +32261,7 @@ bool js_register_cocos2dx_GLProgram(se::Object* obj)
     __jsb_cocos2d_GLProgram_proto = cls->getProto();
     __jsb_cocos2d_GLProgram_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.GLProgram.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "GLProgram");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -33639,7 +33640,7 @@ bool js_register_cocos2dx_SpriteBatchNode(se::Object* obj)
     __jsb_cocos2d_SpriteBatchNode_proto = cls->getProto();
     __jsb_cocos2d_SpriteBatchNode_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.SpriteBatchNode.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "SpriteBatchNode");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -34469,7 +34470,7 @@ bool js_register_cocos2dx_TextFieldTTF(se::Object* obj)
     __jsb_cocos2d_TextFieldTTF_proto = cls->getProto();
     __jsb_cocos2d_TextFieldTTF_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.TextFieldTTF.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "TextFieldTTF");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -34589,7 +34590,7 @@ bool js_register_cocos2dx_ParallaxNode(se::Object* obj)
     __jsb_cocos2d_ParallaxNode_proto = cls->getProto();
     __jsb_cocos2d_ParallaxNode_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.ParallaxNode.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "ParallaxNode");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -36442,7 +36443,7 @@ bool js_register_cocos2dx_TMXMapInfo(se::Object* obj)
     __jsb_cocos2d_TMXMapInfo_proto = cls->getProto();
     __jsb_cocos2d_TMXMapInfo_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.TMXMapInfo.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "TMXMapInfo");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -37008,7 +37009,7 @@ bool js_register_cocos2dx_TMXLayer(se::Object* obj)
     __jsb_cocos2d_TMXLayer_proto = cls->getProto();
     __jsb_cocos2d_TMXLayer_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.TMXLayer.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "TMXLayer");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -37474,7 +37475,7 @@ bool js_register_cocos2dx_TMXTiledMap(se::Object* obj)
     __jsb_cocos2d_TMXTiledMap_proto = cls->getProto();
     __jsb_cocos2d_TMXTiledMap_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.TMXTiledMap.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "TMXTiledMap");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -37645,7 +37646,7 @@ bool js_register_cocos2dx_TileMapAtlas(se::Object* obj)
     __jsb_cocos2d_TileMapAtlas_proto = cls->getProto();
     __jsb_cocos2d_TileMapAtlas_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.TileMapAtlas.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "TileMapAtlas");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -37700,7 +37701,7 @@ bool js_register_cocos2dx_BaseJSAction(se::Object* obj)
     __jsb_cocos2d_BaseJSAction_proto = cls->getProto();
     __jsb_cocos2d_BaseJSAction_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { cc.BaseJSAction.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("cc", "BaseJSAction");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }

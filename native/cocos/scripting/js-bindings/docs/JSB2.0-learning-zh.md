@@ -256,9 +256,9 @@ bool foo()
 
 * JS引擎在se::Object::createXXX后，如果由于某种原因JS引擎做了GC操作，导致后续使用的se::Object内部引用了一个非法指针，引发程序崩溃
 
-为了解决上述两个问题，抽象层定义了一个辅助管理**手动创建对象**的类型，即se::handleObject。
+为了解决上述两个问题，抽象层定义了一个辅助管理**手动创建对象**的类型，即`se::HandleObject`。
 
-se::HandleObject是一个辅助类，用于更加简单地管理手动创建的se::Object对象的释放、root和unroot操作。
+`se::HandleObject`是一个辅助类，用于更加简单地管理手动创建的se::Object对象的释放、root和unroot操作。
 以下两种代码写法是等价的，使用se::HandleObject的代码量明显少很多，而且更加安全。
 
 ```c++
@@ -805,24 +805,72 @@ persistent_classes = TextureCache SpriteFrameCache FileUtils EventDispatcher Act
 classes_owned_by_cpp = 
 ```
 
-## 远程调试
+## 远程调试与Profile
+
+默认远程调试和Profile是在debug模式中生效的，如果需要在release模式下也启用，需要手动修改cocos/scripting/js-bindings/jswrapper/config.hpp中的宏开关。
+
+```c++
+#if defined(COCOS2D_DEBUG) && COCOS2D_DEBUG > 0
+#define SE_ENABLE_INSPECTOR 1
+#define SE_DEBUG 2
+#else
+#define SE_ENABLE_INSPECTOR 0
+#define SE_DEBUG 0
+#endif
+```
+
+改为：
+
+```c++
+#if 1 // 这里改为1，强制启用调试
+#define SE_ENABLE_INSPECTOR 1
+#define SE_DEBUG 2
+#else
+#define SE_ENABLE_INSPECTOR 0
+#define SE_DEBUG 0
+#endif
+```
 
 ### Chrome远程调试V8
 
-TBD
+#### Windows
 
-Windows:
+* 运行游戏
+* 用Chrome浏览器打开[chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=127.0.0.1:5086/00010002-0003-4004-8005-000600070008](chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=127.0.0.1:5086/00010002-0003-4004-8005-000600070008)
 
-Android:
+断点调试：
+![](v8-win32-debug.jpg)
+
+抓取JS Heap
+![](v8-win32-memory.jpg)
+
+Profile
+![](v8-win32-profile.jpg)
+
+#### Android
+
+* 运行游戏
+* 用Chrome浏览器打开[chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=xxx.xxx.xxx.xxx:5086/00010002-0003-4004-8005-000600070008](chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=xxx.xxx.xxx.xxx:5086/00010002-0003-4004-8005-000600070008), 其中`xxx.xxx.xxx.xxx`为局域网中Android设备的IP地址
+* 调试界面与Windows相同
+
 
 ### Safari远程调试JavaScriptCore
 
-TBD
+#### macOS
 
-Mac:
+1. 打开Mac上的Safari，偏好设置 -> 高级 -> 显示开发者选项
+2. 为Xcode工程添加entitlements文件，如果entitlements存在则跳过此步骤。如果不存在，则到工程的Capabilities设置中打开App Sandbox，然后再关闭，这时.entitlements文件会自动被添加进工程。![](jsc-entitlements.png)
+3. 打开entitlements文件，添加com.apple.security.get-task-allow，值类型为Boolean，值为true. ![](jsc-security-key.png)
+4. 运行游戏
+5. Safari菜单中选择Develop -> 你的Mac设备名称 -> Cocos2d-x JSB 会自动打开Web Inspector页面，然后即可进行设置断点、Timeline profile、console等操作。![](jsc-mac-debug.png) ![](jsc-breakpoint.png) ![](jsc-timeline.png)
 
-iOS:
+#### iOS
 
+1. 先打开iPhone的设置 -> Safari -> 高级 -> Web检查器
+2. 为Xcode工程添加entitlements文件，如果entitlements存在则跳过此步骤。如果不存在，则到工程的Capabilities设置中打开App Sandbox，然后再关闭，这时.entitlements文件会自动被添加进工程。 (图示与macOS的第2步类似)
+3. 打开entitlements文件，添加com.apple.security.get-task-allow，值类型为Boolean，值为true。(图示与macOS的第3步类似)
+4. 运行游戏
+5. Safari菜单中选择Develop -> 你的iPhone设备名称 -> Cocos2d-x JSB 会自动打开Web Inspector页面，然后即可进行设置断点、Timeline profile、console等操作。(图示与macOS的第5步类似)
 
 ## Q & A
 
@@ -851,7 +899,10 @@ bool AppDelegate::applicationDidFinishLaunching()
 ```
 ### se::Object::root/unroot 与 se::Object::incRef/decRef的区别?
 
-TBD
+root/unroot用于控制JS对象是否受GC控制，root表示不受GC控制，unroot则相反，表示交由GC控制，对一个se::Object来说，root和unroot可以被调用多次，se::Object内部有_rootCount变量用于表示root的次数。当unroot被调用，且_rootCount为0时，se::Object关联的JS对象将交由GC管理。还有一种情况，即如果se::Object的析构被触发了，如果_rootCount > 0，则强制把JS对象交由GC控制。
+
+incRef/decRef用于控制se::Object这个`cpp`对象的生命周期，前面章节已经提及，建议用户使用se::HandleObject来控制`手动创建非绑定对象`的方式控制se::Object的生命周期。因此，一般情况下，开发者不需要接触到incRef/decRef。
+
 
 ### 对象生命周期的关联与解除关联
 

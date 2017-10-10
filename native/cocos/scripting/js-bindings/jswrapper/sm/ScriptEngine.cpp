@@ -248,8 +248,8 @@ namespace se {
             , _globalObj(nullptr)
             , _debugGlobalObj(nullptr)
             , _oldCompartment(nullptr)
-            , _nodeEventListener(nullptr)
             , _exceptionCallback(nullptr)
+            , _debuggerServerPort(0)
             , _vmId(0)
             , _isGarbageCollecting(false)
             , _isValid(false)
@@ -302,7 +302,7 @@ namespace se {
     bool ScriptEngine::init()
     {
         cleanup();
-        LOGD("Initializing SpiderMonkey \n");
+        LOGD("Initializing SpiderMonkey, version: %s\n", JS_GetImplementationVersion());
         ++_vmId;
 
         for (const auto& hook : _beforeInitHookArray)
@@ -453,7 +453,6 @@ namespace se {
         _globalObj = nullptr;
         _oldCompartment = nullptr;
         _isValid = false;
-        _nodeEventListener = nullptr;
 
         _registerCallbackArray.clear();
 
@@ -512,10 +511,316 @@ namespace se {
         _registerCallbackArray.push_back(cb);
     }
 
+#pragma mark - Debug
+
+    static std::string inData;
+    static std::string outData;
+    static std::vector<std::string> g_queue;
+    static std::mutex g_qMutex;
+    static std::mutex g_rwMutex;
+    static int clientSocket = -1;
+    static uint32_t s_nestedLoopLevel = 0;
+
+    static void cc_closesocket(int fd)
+    {
+#ifdef _WIN32
+        closesocket(fd);
+#else
+        close(fd);
+#endif
+    }
+
+    void ScriptEngine::_debugProcessInput(const std::string& str)
+    {
+        JS::RootedObject debugGlobal(_cx, _debugGlobalObj->_getJSObject());
+        JSCompartment *globalCpt = JS_EnterCompartment(_cx, debugGlobal);
+
+        Value func;
+        if (_debugGlobalObj->getProperty("processInput", &func) && func.isObject() && func.toObject()->isFunction())
+        {
+            ValueArray args;
+            args.push_back(Value(str));
+            func.toObject()->call(args, _debugGlobalObj);
+        }
+
+        JS_LeaveCompartment(_cx, globalCpt);
+    }
+
+    static bool NS_ProcessNextEvent()
+    {
+        std::string message;
+        size_t messageCount = 0;
+        while (true)
+        {
+            g_qMutex.lock();
+            messageCount = g_queue.size();
+            if (messageCount > 0)
+            {
+                auto first = g_queue.begin();
+                message = *first;
+                g_queue.erase(first);
+                --messageCount;
+            }
+            g_qMutex.unlock();
+
+            if (!message.empty())
+            {
+                ScriptEngine::getInstance()->_debugProcessInput(message);
+            }
+
+            if (messageCount == 0)
+                break;
+        }
+        //    std::this_thread::yield();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+        return true;
+    }
+
+    static bool JSBDebug_enterNestedEventLoop(State& s)
+    {
+        enum {
+            NS_OK = 0,
+            NS_ERROR_UNEXPECTED
+        };
+
+#define NS_SUCCEEDED(v) ((v) == NS_OK)
+
+        int rv = NS_OK;
+
+        uint32_t nestLevel = ++s_nestedLoopLevel;
+
+        while (NS_SUCCEEDED(rv) && s_nestedLoopLevel >= nestLevel) {
+            drainJobQueue();
+            if (!NS_ProcessNextEvent())
+                rv = NS_ERROR_UNEXPECTED;
+        }
+
+        assert(s_nestedLoopLevel <= nestLevel);
+
+        s.rval().setInt32(s_nestedLoopLevel);
+        return true;
+    }
+    SE_BIND_FUNC(JSBDebug_enterNestedEventLoop)
+
+    static bool JSBDebug_exitNestedEventLoop(State& s)
+    {
+        if (s_nestedLoopLevel > 0) {
+            --s_nestedLoopLevel;
+        } else {
+            s.rval().setInt32(0);
+            return true;
+        }
+        return true;
+    }
+    SE_BIND_FUNC(JSBDebug_exitNestedEventLoop)
+
+    static bool JSBDebug_getEventLoopNestLevel(State& s)
+    {
+        s.rval().setInt32(s_nestedLoopLevel);
+        return true;
+    }
+    SE_BIND_FUNC(JSBDebug_getEventLoopNestLevel)
+
+    static void _clientSocketWriteAndClearString(std::string& s)
+    {
+        ::send(clientSocket, s.c_str(), s.length(), 0);
+        s.clear();
+    }
+
+    static void processInput(const std::string& data) {
+        std::lock_guard<std::mutex> lk(g_qMutex);
+        g_queue.push_back(data);
+    }
+
+    static void clearBuffers() {
+        std::lock_guard<std::mutex> lk(g_rwMutex);
+        // only process input if there's something and we're not locked
+        if (!inData.empty()) {
+            processInput(inData);
+            inData.clear();
+        }
+        if (!outData.empty()) {
+            _clientSocketWriteAndClearString(outData);
+        }
+    }
+
+    static void serverEntryPoint(uint32_t port)
+    {
+        // start a server, accept the connection and keep reading data from it
+        struct addrinfo hints, *result = nullptr, *rp = nullptr;
+        int s = 0;
+        memset(&hints, 0, sizeof(struct addrinfo));
+        hints.ai_family = AF_UNSPEC;
+        hints.ai_socktype = SOCK_STREAM; // TCP stream sockets
+        hints.ai_flags = AI_PASSIVE;     // fill in my IP for me
+
+        std::stringstream portstr;
+        portstr << port;
+
+        int err = 0;
+
+#ifdef _WIN32
+        WSADATA wsaData;
+        err = WSAStartup(MAKEWORD(2, 2),&wsaData);
+#endif
+
+        if ((err = getaddrinfo(NULL, portstr.str().c_str(), &hints, &result)) != 0) {
+            LOGD("getaddrinfo error : %s\n", gai_strerror(err));
+        }
+
+        for (rp = result; rp != NULL; rp = rp->ai_next) {
+            if ((s = socket(rp->ai_family, rp->ai_socktype, 0)) < 0) {
+                continue;
+            }
+            int optval = 1;
+            if ((setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char*)&optval, sizeof(optval))) < 0) {
+                cc_closesocket(s);
+                TRACE_DEBUGGER_SERVER("debug server : error setting socket option SO_REUSEADDR\n");
+                return;
+            }
+
+#ifdef __APPLE__
+            if ((setsockopt(s, SOL_SOCKET, SO_NOSIGPIPE, &optval, sizeof(optval))) < 0) {
+                close(s);
+                TRACE_DEBUGGER_SERVER("debug server : error setting socket option SO_NOSIGPIPE\n");
+                return;
+            }
+#endif
+
+            if ((::bind(s, rp->ai_addr, rp->ai_addrlen)) == 0) {
+                break;
+            }
+            cc_closesocket(s);
+            s = -1;
+        }
+        if (s < 0 || rp == NULL) {
+            TRACE_DEBUGGER_SERVER("debug server : error creating/binding socket\n");
+            return;
+        }
+
+        freeaddrinfo(result);
+
+        listen(s, 1);
+
+#define MAX_RECEIVED_SIZE 1024
+#define BUF_SIZE MAX_RECEIVED_SIZE + 1
+
+        char buf[BUF_SIZE] = {0};
+        int readBytes = 0;
+        while (true) {
+            clientSocket = accept(s, NULL, NULL);
+
+            if (clientSocket < 0)
+            {
+                TRACE_DEBUGGER_SERVER("debug server : error on accept\n");
+                return;
+            }
+            else
+            {
+                // read/write data
+                TRACE_DEBUGGER_SERVER("debug server : client connected\n");
+
+                inData = "connected";
+                // process any input, send any output
+                clearBuffers();
+
+                while ((readBytes = (int)::recv(clientSocket, buf, MAX_RECEIVED_SIZE, 0)) > 0)
+                {
+                    buf[readBytes] = '\0';
+                    // TRACE_DEBUGGER_SERVER("debug server : received command >%s", buf);
+
+                    // no other thread is using this
+                    inData.append(buf);
+                    // process any input, send any output
+                    clearBuffers();
+                } // while(read)
+
+                cc_closesocket(clientSocket);
+            }
+        } // while(true)
+
+#undef BUF_SIZE
+#undef MAX_RECEIVED_SIZE
+    }
+
+    static bool JSBDebug_require(State& s)
+    {
+        const auto& args = s.args();
+        int argc = (int)args.size();
+
+        if (argc >= 1)
+        {
+            ScriptEngine::getInstance()->runScript(args[0].toString());
+            return true;
+        }
+
+        SE_REPORT_ERROR("Wrong number of arguments: %d, expected: %d", argc, 1);
+        return false;
+    }
+    SE_BIND_FUNC(JSBDebug_require)
+
+    static bool JSBDebug_BufferWrite(State& s)
+    {
+        const auto& args = s.args();
+        int argc = (int)args.size();
+        if (argc == 1)
+        {
+            // this is safe because we're already inside a lock (from clearBuffers)
+            outData.append(args[0].toString());
+            _clientSocketWriteAndClearString(outData);
+        }
+        return true;
+    }
+    SE_BIND_FUNC(JSBDebug_BufferWrite)
+
     bool ScriptEngine::start()
     {
         if (!init())
             return false;
+
+        if (_debugGlobalObj == nullptr)
+        {
+            JS::CompartmentOptions options;
+            options.behaviors().setVersion(JSVERSION_LATEST);
+            options.creationOptions().setSharedMemoryAndAtomicsEnabled(true);
+
+            JS::RootedObject debugGlobal(_cx, JS_NewGlobalObject(_cx, &__globalClass, nullptr, JS::DontFireOnNewGlobalHook, options));
+            _debugGlobalObj = Object::_createJSObject(nullptr, debugGlobal);
+            _debugGlobalObj->root();
+
+            JSCompartment *globalCpt = JS_EnterCompartment(_cx, debugGlobal);
+            JS_InitStandardClasses(_cx, debugGlobal);
+            JS_FireOnNewGlobalObject(_cx, debugGlobal);
+            JS_DefineDebuggerObject(_cx, debugGlobal);
+
+            // these are used in the debug program
+            JS_DefineFunction(_cx, debugGlobal, "log", __log, 0, JSPROP_PERMANENT);
+            _debugGlobalObj->defineFunction("require", _SE(JSBDebug_require));
+            _debugGlobalObj->defineFunction("_bufferWrite", _SE(JSBDebug_BufferWrite));
+            _debugGlobalObj->defineFunction("_enterNestedEventLoop", _SE(JSBDebug_enterNestedEventLoop));
+            _debugGlobalObj->defineFunction("_exitNestedEventLoop", _SE(JSBDebug_exitNestedEventLoop));
+            _debugGlobalObj->defineFunction("_getEventLoopNestLevel", _SE(JSBDebug_getEventLoopNestLevel));
+
+            JS::RootedObject globalObj(_cx, _globalObj->_getJSObject());
+            JS_WrapObject(_cx, &globalObj);
+
+            runScript("script/jsb_debugger.js");
+
+            // prepare the debugger
+            Value prepareDebuggerFunc;
+            assert(_debugGlobalObj->getProperty("_prepareDebugger", &prepareDebuggerFunc) && prepareDebuggerFunc.isObject() && prepareDebuggerFunc.toObject()->isFunction());
+
+            ValueArray args;
+            args.push_back(Value(_globalObj));
+            prepareDebuggerFunc.toObject()->call(args, _debugGlobalObj);
+
+            // start bg thread
+            auto t = std::thread(&serverEntryPoint, _debuggerServerPort);
+            t.detach();
+
+            JS_LeaveCompartment(_cx, globalCpt);
+        }
 
         bool ok = false;
         _startTime = std::chrono::steady_clock::now();
@@ -721,18 +1026,6 @@ namespace se {
         iterOwner->second->detachObject(iterTarget->second);
     }
 
-    bool ScriptEngine::_onReceiveNodeEvent(void* node, NodeEventType type)
-    {
-        assert(_nodeEventListener != nullptr);
-        return _nodeEventListener(node, type);
-    }
-
-    bool ScriptEngine::_setNodeEventListener(NodeEventListener listener)
-    {
-        _nodeEventListener = listener;
-        return true;
-    }
-
     void ScriptEngine::clearException()
     {
         if (_cx == nullptr)
@@ -813,317 +1106,15 @@ namespace se {
         _exceptionCallback = cb;
     }
 
-#pragma mark - Debug
-
-    static std::string inData;
-    static std::string outData;
-    static std::vector<std::string> g_queue;
-    static std::mutex g_qMutex;
-    static std::mutex g_rwMutex;
-    static int clientSocket = -1;
-    static uint32_t s_nestedLoopLevel = 0;
-
-    static void cc_closesocket(int fd)
+    void ScriptEngine::enableDebugger(const std::string& serverAddr, uint32_t port)
     {
-#ifdef _WIN32
-        closesocket(fd);
-#else
-        close(fd);
-#endif
+        _debuggerServerAddr = serverAddr;
+        _debuggerServerPort = port;
     }
 
-    void ScriptEngine::_debugProcessInput(const std::string& str)
+    bool ScriptEngine::isDebuggerEnabled() const
     {
-        JS::RootedObject debugGlobal(_cx, _debugGlobalObj->_getJSObject());
-        JSCompartment *globalCpt = JS_EnterCompartment(_cx, debugGlobal);
-
-        Value func;
-        if (_debugGlobalObj->getProperty("processInput", &func) && func.isObject() && func.toObject()->isFunction())
-        {
-            ValueArray args;
-            args.push_back(Value(str));
-            func.toObject()->call(args, _debugGlobalObj);
-        }
-
-        JS_LeaveCompartment(_cx, globalCpt);
-    }
-
-    static bool NS_ProcessNextEvent()
-    {
-        std::string message;
-        size_t messageCount = 0;
-        while (true)
-        {
-            g_qMutex.lock();
-            messageCount = g_queue.size();
-            if (messageCount > 0)
-            {
-                auto first = g_queue.begin();
-                message = *first;
-                g_queue.erase(first);
-                --messageCount;
-            }
-            g_qMutex.unlock();
-
-            if (!message.empty())
-            {
-                ScriptEngine::getInstance()->_debugProcessInput(message);
-            }
-
-            if (messageCount == 0)
-                break;
-        }
-        //    std::this_thread::yield();
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-        return true;
-    }
-
-    static bool JSBDebug_enterNestedEventLoop(State& s)
-    {
-        enum {
-            NS_OK = 0,
-            NS_ERROR_UNEXPECTED
-        };
-
-#define NS_SUCCEEDED(v) ((v) == NS_OK)
-
-        int rv = NS_OK;
-
-        uint32_t nestLevel = ++s_nestedLoopLevel;
-
-        while (NS_SUCCEEDED(rv) && s_nestedLoopLevel >= nestLevel) {
-            drainJobQueue();
-            if (!NS_ProcessNextEvent())
-                rv = NS_ERROR_UNEXPECTED;
-        }
-
-        assert(s_nestedLoopLevel <= nestLevel);
-
-        s.rval().setInt32(s_nestedLoopLevel);
-        return true;
-    }
-    SE_BIND_FUNC(JSBDebug_enterNestedEventLoop)
-
-    static bool JSBDebug_exitNestedEventLoop(State& s)
-    {
-        if (s_nestedLoopLevel > 0) {
-            --s_nestedLoopLevel;
-        } else {
-            s.rval().setInt32(0);
-            return true;
-        }
-        return true;
-    }
-    SE_BIND_FUNC(JSBDebug_exitNestedEventLoop)
-
-    static bool JSBDebug_getEventLoopNestLevel(State& s)
-    {
-        s.rval().setInt32(s_nestedLoopLevel);
-        return true;
-    }
-    SE_BIND_FUNC(JSBDebug_getEventLoopNestLevel)
-
-    static void _clientSocketWriteAndClearString(std::string& s)
-    {
-        ::send(clientSocket, s.c_str(), s.length(), 0);
-        s.clear();
-    }
-
-    static void processInput(const std::string& data) {
-        std::lock_guard<std::mutex> lk(g_qMutex);
-        g_queue.push_back(data);
-    }
-
-    static void clearBuffers() {
-        std::lock_guard<std::mutex> lk(g_rwMutex);
-        // only process input if there's something and we're not locked
-        if (!inData.empty()) {
-            processInput(inData);
-            inData.clear();
-        }
-        if (!outData.empty()) {
-            _clientSocketWriteAndClearString(outData);
-        }
-    }
-
-    static void serverEntryPoint(unsigned int port)
-    {
-        // start a server, accept the connection and keep reading data from it
-        struct addrinfo hints, *result = nullptr, *rp = nullptr;
-        int s = 0;
-        memset(&hints, 0, sizeof(struct addrinfo));
-        hints.ai_family = AF_UNSPEC;
-        hints.ai_socktype = SOCK_STREAM; // TCP stream sockets
-        hints.ai_flags = AI_PASSIVE;     // fill in my IP for me
-
-        std::stringstream portstr;
-        portstr << port;
-
-        int err = 0;
-
-#ifdef _WIN32
-        WSADATA wsaData;
-        err = WSAStartup(MAKEWORD(2, 2),&wsaData);
-#endif
-
-        if ((err = getaddrinfo(NULL, portstr.str().c_str(), &hints, &result)) != 0) {
-            LOGD("getaddrinfo error : %s\n", gai_strerror(err));
-        }
-
-        for (rp = result; rp != NULL; rp = rp->ai_next) {
-            if ((s = socket(rp->ai_family, rp->ai_socktype, 0)) < 0) {
-                continue;
-            }
-            int optval = 1;
-            if ((setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char*)&optval, sizeof(optval))) < 0) {
-                cc_closesocket(s);
-                TRACE_DEBUGGER_SERVER("debug server : error setting socket option SO_REUSEADDR");
-                return;
-            }
-
-#ifdef __APPLE__
-            if ((setsockopt(s, SOL_SOCKET, SO_NOSIGPIPE, &optval, sizeof(optval))) < 0) {
-                close(s);
-                TRACE_DEBUGGER_SERVER("debug server : error setting socket option SO_NOSIGPIPE");
-                return;
-            }
-#endif
-
-            if ((::bind(s, rp->ai_addr, rp->ai_addrlen)) == 0) {
-                break;
-            }
-            cc_closesocket(s);
-            s = -1;
-        }
-        if (s < 0 || rp == NULL) {
-            TRACE_DEBUGGER_SERVER("debug server : error creating/binding socket");
-            return;
-        }
-
-        freeaddrinfo(result);
-
-        listen(s, 1);
-
-#define MAX_RECEIVED_SIZE 1024
-#define BUF_SIZE MAX_RECEIVED_SIZE + 1
-
-        char buf[BUF_SIZE] = {0};
-        int readBytes = 0;
-        while (true) {
-            clientSocket = accept(s, NULL, NULL);
-
-            if (clientSocket < 0)
-            {
-                TRACE_DEBUGGER_SERVER("debug server : error on accept");
-                return;
-            }
-            else
-            {
-                // read/write data
-                TRACE_DEBUGGER_SERVER("debug server : client connected");
-
-                inData = "connected";
-                // process any input, send any output
-                clearBuffers();
-
-                while ((readBytes = (int)::recv(clientSocket, buf, MAX_RECEIVED_SIZE, 0)) > 0)
-                {
-                    buf[readBytes] = '\0';
-                    // TRACE_DEBUGGER_SERVER("debug server : received command >%s", buf);
-
-                    // no other thread is using this
-                    inData.append(buf);
-                    // process any input, send any output
-                    clearBuffers();
-                } // while(read)
-
-                cc_closesocket(clientSocket);
-            }
-        } // while(true)
-
-#undef BUF_SIZE
-#undef MAX_RECEIVED_SIZE
-    }
-
-    static bool JSBDebug_require(State& s)
-    {
-        const auto& args = s.args();
-        int argc = (int)args.size();
-
-        if (argc >= 1)
-        {
-            ScriptEngine::getInstance()->runScript(args[0].toString());
-            return true;
-        }
-
-        SE_REPORT_ERROR("Wrong number of arguments: %d, expected: %d", argc, 1);
-        return false;
-    }
-    SE_BIND_FUNC(JSBDebug_require)
-
-    static bool JSBDebug_BufferWrite(State& s)
-    {
-        const auto& args = s.args();
-        int argc = (int)args.size();
-        if (argc == 1)
-        {
-            // this is safe because we're already inside a lock (from clearBuffers)
-            outData.append(args[0].toString());
-            _clientSocketWriteAndClearString(outData);
-        }
-        return true;
-    }
-    SE_BIND_FUNC(JSBDebug_BufferWrite)
-
-    void ScriptEngine::enableDebugger(unsigned int port)
-    {
-        if (_debugGlobalObj != nullptr)
-        {
-            LOGD("Debugger was enabled!");
-            return;
-        }
-
-        JS::CompartmentOptions options;
-        options.behaviors().setVersion(JSVERSION_LATEST);
-        options.creationOptions().setSharedMemoryAndAtomicsEnabled(true);
-
-        JS::RootedObject debugGlobal(_cx, JS_NewGlobalObject(_cx, &__globalClass, nullptr, JS::DontFireOnNewGlobalHook, options));
-        _debugGlobalObj = Object::_createJSObject(nullptr, debugGlobal);
-        _debugGlobalObj->root();
-
-        JSCompartment *globalCpt = JS_EnterCompartment(_cx, debugGlobal);
-        JS_InitStandardClasses(_cx, debugGlobal);
-        //cjh        registerDefaultClasses(_cx, debugGlobal);
-        JS_FireOnNewGlobalObject(_cx, debugGlobal);
-        JS_DefineDebuggerObject(_cx, debugGlobal);
-
-        // these are used in the debug program
-        JS_DefineFunction(_cx, debugGlobal, "log", __log, 0, JSPROP_PERMANENT);
-        _debugGlobalObj->defineFunction("require", _SE(JSBDebug_require));
-        _debugGlobalObj->defineFunction("_bufferWrite", _SE(JSBDebug_BufferWrite));
-        _debugGlobalObj->defineFunction("_enterNestedEventLoop", _SE(JSBDebug_enterNestedEventLoop));
-        _debugGlobalObj->defineFunction("_exitNestedEventLoop", _SE(JSBDebug_exitNestedEventLoop));
-        _debugGlobalObj->defineFunction("_getEventLoopNestLevel", _SE(JSBDebug_getEventLoopNestLevel));
-
-        JS::RootedObject globalObj(_cx, _globalObj->_getJSObject());
-        JS_WrapObject(_cx, &globalObj);
-
-        runScript("script/jsb_debugger.js");
-
-        // prepare the debugger
-        Value prepareDebuggerFunc;
-        assert(_debugGlobalObj->getProperty("_prepareDebugger", &prepareDebuggerFunc) && prepareDebuggerFunc.isObject() && prepareDebuggerFunc.toObject()->isFunction());
-
-        ValueArray args;
-        args.push_back(Value(_globalObj));
-        prepareDebuggerFunc.toObject()->call(args, _debugGlobalObj);
-
-        // start bg thread
-        auto t = std::thread(&serverEntryPoint, port);
-        t.detach();
-        
-        JS_LeaveCompartment(_cx, globalCpt);
+        return !_debuggerServerAddr.empty() && _debuggerServerPort > 0;
     }
 
     void ScriptEngine::mainLoopUpdate()

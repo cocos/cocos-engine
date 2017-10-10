@@ -119,25 +119,14 @@ namespace se {
         void setExceptionCallback(const ExceptionCallback& cb);
 
         const std::chrono::steady_clock::time_point& getStartTime() const { return _startTime; }
-        void enableDebugger(unsigned int port = 5086);
+        void enableDebugger(const std::string& serverAddr, uint32_t port);
+        bool isDebuggerEnabled() const;
         void mainLoopUpdate();
 
         uint32_t getVMId() const { return _vmId; }
 
         void _retainScriptObject(void* owner, void* target);
         void _releaseScriptObject(void* owner, void* target);
-
-        enum class NodeEventType
-        {
-            ENTER,
-            EXIT,
-            ENTER_TRANSITION_DID_FINISH,
-            EXIT_TRANSITION_DID_START,
-            CLEANUP
-        };
-        bool _onReceiveNodeEvent(void* node, NodeEventType type);
-        using NodeEventListener = bool(*)(void*, NodeEventType);
-        bool _setNodeEventListener(NodeEventListener listener);
 
     private:
         struct ExceptionInfo
@@ -164,7 +153,6 @@ namespace se {
         JsContextRef _cx;
         Object* _globalObj;
 
-        NodeEventListener _nodeEventListener;
         FileOperationDelegate _fileOperationDelegate;
         ExceptionCallback _exceptionCallback;
 

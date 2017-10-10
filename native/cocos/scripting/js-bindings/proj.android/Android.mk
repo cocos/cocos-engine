@@ -92,6 +92,7 @@ LOCAL_EXPORT_LDLIBS := -lz
 
 LOCAL_STATIC_LIBRARIES := cocos2dx_static
 # LOCAL_STATIC_LIBRARIES += spidermonkey_static
+LOCAL_STATIC_LIBRARIES += uv_static
 LOCAL_STATIC_LIBRARIES += v8_static
 
 include $(BUILD_STATIC_LIBRARY)

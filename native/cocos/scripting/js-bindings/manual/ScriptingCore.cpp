@@ -38,7 +38,8 @@ ScriptingCore* ScriptingCore::getInstance()
 }
 
 ScriptingCore::ScriptingCore()
-: _callFromScript(false)
+: _nodeEventListener(nullptr)
+, _callFromScript(false)
 {
 
 }
@@ -193,6 +194,12 @@ int ScriptingCore::handleActionEvent(void* data)
     return ret;
 }
 
+bool ScriptingCore::setNodeEventListener(NodeEventListener listener)
+{
+    _nodeEventListener = listener;
+    return true;
+}
+
 int ScriptingCore::handleNodeEvent(void* data)
 {
     if (nullptr == data)
@@ -208,23 +215,23 @@ int ScriptingCore::handleNodeEvent(void* data)
     bool ret = false;
     if (action == kNodeOnEnter)
     {
-        ret = se::ScriptEngine::getInstance()->_onReceiveNodeEvent(node, se::ScriptEngine::NodeEventType::ENTER);
+        ret = _nodeEventListener(node, NodeEventType::ENTER);
     }
     else if (action == kNodeOnExit)
     {
-        ret = se::ScriptEngine::getInstance()->_onReceiveNodeEvent(node, se::ScriptEngine::NodeEventType::EXIT);
+        ret = _nodeEventListener(node, NodeEventType::EXIT);
     }
     else if (action == kNodeOnEnterTransitionDidFinish)
     {
-        ret = se::ScriptEngine::getInstance()->_onReceiveNodeEvent(node, se::ScriptEngine::NodeEventType::ENTER_TRANSITION_DID_FINISH);
+        ret = _nodeEventListener(node, NodeEventType::ENTER_TRANSITION_DID_FINISH);
     }
     else if (action == kNodeOnExitTransitionDidStart)
     {
-        ret = se::ScriptEngine::getInstance()->_onReceiveNodeEvent(node, se::ScriptEngine::NodeEventType::EXIT_TRANSITION_DID_START);
+        ret = _nodeEventListener(node, NodeEventType::EXIT_TRANSITION_DID_START);
     }
     else if (action == kNodeOnCleanup)
     {
-        ret = se::ScriptEngine::getInstance()->_onReceiveNodeEvent(node, se::ScriptEngine::NodeEventType::CLEANUP);
+        ret = _nodeEventListener(node, NodeEventType::CLEANUP);
     }
     
     return ret ? 1 : 0;

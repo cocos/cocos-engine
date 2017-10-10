@@ -22,8 +22,6 @@
 #include "scripting/js-bindings/manual/jsb_module_register.hpp"
 #include "scripting/js-bindings/manual/jsb_global.h"
 
-static const char *RUNTIME_JS_BOOT_SCRIPT = "script/jsb_boot.js";
-
 static bool reloadScript(const string& file)
 {
     auto director = cocos2d::Director::getInstance();
@@ -155,10 +153,25 @@ bool RuntimeJsImpl::initJsEnv()
     cocos2d::ScriptEngineProtocol *engine = ScriptingCore::getInstance();
     cocos2d::ScriptEngineManager::getInstance()->setScriptEngine(engine);
 
+    auto se = se::ScriptEngine::getInstance();
+    jsb_set_xxtea_key("");
+    jsb_init_file_operation_delegate();
+
+#if defined(COCOS2D_DEBUG) && (COCOS2D_DEBUG > 0)
+    // Enable debugger here
+    // Change IP while remote debugging on Android device.
+    jsb_enable_debugger("127.0.0.1", 5086);
+#endif
+
+    se->setExceptionCallback([](const char* location, const char* message, const char* stack){
+        // Send exception information to server like Tencent Bugly.
+
+    });
+
     jsb_register_all_modules();
     
-    se::ScriptEngine::getInstance()->addRegisterCallback(register_FileUtils);
-    se::ScriptEngine::getInstance()->start();
+    se->addRegisterCallback(register_FileUtils);
+    se->start();
     return true;
 }
 

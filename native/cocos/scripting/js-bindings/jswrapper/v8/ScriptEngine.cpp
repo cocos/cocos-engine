@@ -204,11 +204,11 @@ namespace se {
     , _handleScope(nullptr)
     , _allocator(nullptr)
     , _globalObj(nullptr)
-    , _nodeEventListener(nullptr)
     , _exceptionCallback(nullptr)
 #if SE_ENABLE_INSPECTOR
     , _env(nullptr)
 #endif
+    , _debuggerServerPort(0)
     , _vmId(0)
     , _isValid(false)
     , _isGarbageCollecting(false)
@@ -235,7 +235,7 @@ namespace se {
     bool ScriptEngine::init()
     {
         cleanup();
-        LOGD("Initializing V8\n");
+        LOGD("Initializing V8, version: %s\n", v8::V8::GetVersion());
         ++_vmId;
 
         for (const auto& hook : _beforeInitHookArray)
@@ -331,7 +331,6 @@ namespace se {
         _isolate = nullptr;
         _globalObj = nullptr;
         _isValid = false;
-        _nodeEventListener = nullptr;
 
         _registerCallbackArray.clear();
 
@@ -385,6 +384,24 @@ namespace se {
             return false;
 
         se::AutoHandleScope hs;
+
+        // debugger
+        if (isDebuggerEnabled())
+        {
+#if SE_ENABLE_INSPECTOR
+            // V8 inspector stuff, most code are taken from NodeJS.
+            _isolateData = node::CreateIsolateData(_isolate, uv_default_loop());
+            _env = node::CreateEnvironment(_isolateData, _context.Get(_isolate), 0, nullptr, 0, nullptr);
+
+            node::DebugOptions options;
+            options.set_wait_for_connect(false); // Don't wait for connect, otherwise, the program will be hung up.
+            options.set_inspector_enabled(true);
+            options.set_port((int)_debuggerServerPort);
+            options.set_host_name(_debuggerServerAddr.c_str());
+            _env->inspector_agent()->Start(_platform, "", options);
+#endif
+        }
+        //
         bool ok = false;
         _startTime = std::chrono::steady_clock::now();
 
@@ -439,13 +456,22 @@ namespace se {
         if (fileName == nullptr)
             fileName = "(no filename)";
 
+        // Fix the source url is too long displayed in Chrome debugger.
+        std::string sourceUrl = fileName;
+        static const std::string prefixKey = "/temp/quick-scripts/";
+        size_t prefixPos = sourceUrl.find(prefixKey);
+        if (prefixPos != std::string::npos)
+        {
+            sourceUrl = sourceUrl.substr(prefixPos + prefixKey.length());
+        }
+
         std::string scriptStr(script, length);
 
         v8::MaybeLocal<v8::String> source = v8::String::NewFromUtf8(_isolate, scriptStr.c_str(), v8::NewStringType::kNormal);
         if (source.IsEmpty())
             return false;
 
-        v8::MaybeLocal<v8::String> originStr = v8::String::NewFromUtf8(_isolate, fileName, v8::NewStringType::kNormal);
+        v8::MaybeLocal<v8::String> originStr = v8::String::NewFromUtf8(_isolate, sourceUrl.c_str(), v8::NewStringType::kNormal);
         if (originStr.IsEmpty())
             return false;
 
@@ -535,18 +561,6 @@ namespace se {
         iterOwner->second->detachObject(iterTarget->second);
     }
 
-    bool ScriptEngine::_onReceiveNodeEvent(void* node, NodeEventType type)
-    {
-        assert(_nodeEventListener != nullptr);
-        return _nodeEventListener(node, type);
-    }
-
-    bool ScriptEngine::_setNodeEventListener(NodeEventListener listener)
-    {
-        _nodeEventListener = listener;
-        return true;
-    }
-
     void ScriptEngine::clearException()
     {
         //FIXME:
@@ -562,24 +576,15 @@ namespace se {
         return _context.Get(_isolate);
     }
 
-    void ScriptEngine::enableDebugger(unsigned int port/* = 5086*/)
+    void ScriptEngine::enableDebugger(const std::string& serverAddr, uint32_t port)
     {
-#if SE_ENABLE_INSPECTOR
-        AutoHandleScope hs;
-        // V8 inspector stuff, most code are taken from NodeJS.
+        _debuggerServerAddr = serverAddr;
+        _debuggerServerPort = port;
+    }
 
-        _isolateData = node::CreateIsolateData(_isolate, uv_default_loop());
-        _env = node::CreateEnvironment(_isolateData, _context.Get(_isolate), 0, nullptr, 0, nullptr);
-
-        node::DebugOptions options;
-        options.set_wait_for_connect(true);
-        options.set_inspector_enabled(true);
-        options.set_port((int)port);
-        //        options.set_host_name("192.168.2.4"); // Change IP while remote debugging on Android device.
-        _env->inspector_agent()->Start(_platform, "", options);
-
-        //
-#endif
+    bool ScriptEngine::isDebuggerEnabled() const
+    {
+        return !_debuggerServerAddr.empty() && _debuggerServerPort > 0;
     }
 
     void ScriptEngine::mainLoopUpdate()

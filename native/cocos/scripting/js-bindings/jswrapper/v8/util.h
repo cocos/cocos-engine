@@ -23,7 +23,7 @@
 #define SRC_UTIL_H_
 
 #include "../config.hpp"
-#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #define NODE_WANT_INTERNALS 1 //cjh added
 
@@ -92,7 +92,7 @@ template <typename T> using remove_reference = std::remove_reference<T>;
 #define FIXED_ONE_BYTE_STRING(isolate, string)                                \
   (node::OneByteString((isolate), (string), sizeof(string) - 1))
 
-#define DISALLOW_COPY_AND_ASSIGN(TypeName)                                    \
+#define NODE_DISALLOW_COPY_AND_ASSIGN(TypeName)                                    \
   void operator=(const TypeName&) = delete;                                   \
   void operator=(TypeName&&) = delete;                                        \
   TypeName(const TypeName&) = delete;                                         \
@@ -166,7 +166,7 @@ class ListNode {
   template <typename U, ListNode<U> (U::*M)> friend class ListHead;
   ListNode* prev_;
   ListNode* next_;
-  DISALLOW_COPY_AND_ASSIGN(ListNode);
+  NODE_DISALLOW_COPY_AND_ASSIGN(ListNode);
 };
 
 template <typename T, ListNode<T> (T::*M)>
@@ -196,7 +196,7 @@ class ListHead {
 
  private:
   ListNode<T> head_;
-  DISALLOW_COPY_AND_ASSIGN(ListHead);
+  NODE_DISALLOW_COPY_AND_ASSIGN(ListHead);
 };
 
 // The helper is for doing safe downcasts from base types to derived types.
@@ -441,6 +441,6 @@ class BufferValue : public MaybeStackBuffer<char> {
 #define NODE_UTIL_H_INCLUDE
 #include "util-inl.h"
 
-#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #endif  // SRC_UTIL_H_

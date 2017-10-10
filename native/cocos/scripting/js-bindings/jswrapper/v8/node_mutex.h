@@ -2,7 +2,7 @@
 #define SRC_NODE_MUTEX_H_
 
 #include "../config.hpp"
-#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #include "util.h"
 #include "uv.h"
@@ -37,7 +37,7 @@ class MutexBase {
     template <typename> friend class ConditionVariableBase;
     friend class ScopedUnlock;
     const MutexBase& mutex_;
-    DISALLOW_COPY_AND_ASSIGN(ScopedLock);
+    NODE_DISALLOW_COPY_AND_ASSIGN(ScopedLock);
   };
 
   class ScopedUnlock {
@@ -48,13 +48,13 @@ class MutexBase {
    private:
     friend class ScopedLock;
     const MutexBase& mutex_;
-    DISALLOW_COPY_AND_ASSIGN(ScopedUnlock);
+    NODE_DISALLOW_COPY_AND_ASSIGN(ScopedUnlock);
   };
 
  private:
   template <typename> friend class ConditionVariableBase;
   mutable typename Traits::MutexT mutex_;
-  DISALLOW_COPY_AND_ASSIGN(MutexBase);
+  NODE_DISALLOW_COPY_AND_ASSIGN(MutexBase);
 };
 
 template <typename Traits>
@@ -70,7 +70,7 @@ class ConditionVariableBase {
 
  private:
   typename Traits::CondT cond_;
-  DISALLOW_COPY_AND_ASSIGN(ConditionVariableBase);
+  NODE_DISALLOW_COPY_AND_ASSIGN(ConditionVariableBase);
 };
 
 struct LibuvMutexTraits {
@@ -187,6 +187,6 @@ MutexBase<Traits>::ScopedUnlock::~ScopedUnlock() {
 
 }  // namespace node
 
-#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #endif  // SRC_NODE_MUTEX_H_

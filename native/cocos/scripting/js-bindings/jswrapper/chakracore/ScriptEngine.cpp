@@ -70,7 +70,6 @@ namespace se {
             : _rt(JS_INVALID_RUNTIME_HANDLE)
             , _cx(JS_INVALID_REFERENCE)
             , _globalObj(nullptr)
-            , _nodeEventListener(nullptr)
             , _exceptionCallback(nullptr)
             , _currentSourceContext(0)
             , _vmId(0)
@@ -84,7 +83,7 @@ namespace se {
     bool ScriptEngine::init()
     {
         cleanup();
-        LOGD("Initializing ChakraCore ... \n");
+        LOGD("Initializing ChakraCore, version: %d.%d.%d\n", CHAKRA_CORE_MAJOR_VERSION, CHAKRA_CORE_MINOR_VERSION, CHAKRA_CORE_PATCH_VERSION);
 
         ++_vmId;
         for (const auto& hook : _beforeInitHookArray)
@@ -159,7 +158,6 @@ namespace se {
         _cx = nullptr;
         _globalObj = nullptr;
         _isValid = false;
-        _nodeEventListener = nullptr;
 
         _registerCallbackArray.clear();
 
@@ -423,21 +421,15 @@ namespace se {
         iterOwner->second->detachObject(iterTarget->second);
     }
 
-    bool ScriptEngine::_onReceiveNodeEvent(void* node, NodeEventType type)
-    {
-        assert(_nodeEventListener != nullptr);
-        return _nodeEventListener(node, type);
-    }
-
-    bool ScriptEngine::_setNodeEventListener(NodeEventListener listener)
-    {
-        _nodeEventListener = listener;
-        return true;
-    }
-
-    void ScriptEngine::enableDebugger(unsigned int port/* = 5086*/)
+    void ScriptEngine::enableDebugger(const std::string& serverAddr, uint32_t port)
     {
         //FIXME:
+    }
+
+    bool ScriptEngine::isDebuggerEnabled() const
+    {
+        //FIXME:
+        return false;
     }
 
     void ScriptEngine::mainLoopUpdate()

@@ -2,6 +2,7 @@
 
 
 #include "ChakraCore.h"
+#include "ChakraCoreVersion.h"
 
 #include <string>
 #include <vector>

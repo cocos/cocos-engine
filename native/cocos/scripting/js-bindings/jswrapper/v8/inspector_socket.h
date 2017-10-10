@@ -2,7 +2,7 @@
 #define SRC_INSPECTOR_SOCKET_H_
 
 #include "../config.hpp"
-#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #include "http_parser.h"
 #include "util.h"
@@ -67,7 +67,7 @@ class InspectorSocket {
   bool connection_eof;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(InspectorSocket);
+  NODE_DISALLOW_COPY_AND_ASSIGN(InspectorSocket);
 };
 
 int inspector_accept(uv_stream_t* server, InspectorSocket* inspector,
@@ -100,6 +100,6 @@ inline InspectorSocket* inspector_from_stream(uv_handle_t* stream) {
 }  // namespace inspector
 }  // namespace node
 
-#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #endif  // SRC_INSPECTOR_SOCKET_H_

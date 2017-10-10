@@ -1,6 +1,6 @@
 #include "node.h"
 
-#if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
 #include "util.h"
 #include "env.h"
@@ -809,6 +809,8 @@ void SetupProcessObject(Environment* env,
     READONLY_PROPERTY(versions,
                       "uv",
                       OneByteString(env->isolate(), uv_version_string()));
+
+    LOGD("libuv version: %s\n", uv_version_string());
 //    READONLY_PROPERTY(versions,
 //                      "zlib",
 //                      FIXED_ONE_BYTE_STRING(env->isolate(), ZLIB_VERSION));
@@ -1133,4 +1135,4 @@ void SetupProcessObject(Environment* env,
 
 } // namespace node {
 
-#endif // #if defined(SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+#endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR

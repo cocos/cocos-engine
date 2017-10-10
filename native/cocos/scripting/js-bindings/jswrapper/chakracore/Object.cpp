@@ -225,13 +225,14 @@ namespace se {
         return exist;
     }
 
-    void Object::setProperty(const char* name, const Value& v)
+    bool Object::setProperty(const char* name, const Value& v)
     {
         JsValueRef jsValue = JS_INVALID_REFERENCE;
         internal::seToJsValue(v, &jsValue);
         JsPropertyIdRef propertyId;
         _CHECK(JsCreatePropertyId(name, strlen(name), &propertyId));
         _CHECK(JsSetProperty(_obj, propertyId, jsValue, true));
+        return true;
     }
 
     bool Object::defineProperty(const char *name, JsNativeFunction getter, JsNativeFunction setter)

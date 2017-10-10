@@ -83,13 +83,13 @@ namespace se {
     ScriptEngine::ScriptEngine()
             : _cx(nullptr)
             , _globalObj(nullptr)
-            , _nodeEventListener(nullptr)
             , _exceptionCallback(nullptr)
             , _vmId(0)
             , _isGarbageCollecting(false)
             , _isValid(false)
             , _isInCleanup(false)
             , _isErrorHandleWorking(false)
+            , _isDebuggerEnabled(false)
     {
     }
 
@@ -183,7 +183,6 @@ namespace se {
         _cx = nullptr;
         _globalObj = nullptr;
         _isValid = false;
-        _nodeEventListener = nullptr;
 
         _registerCallbackArray.clear();
 
@@ -393,11 +392,20 @@ namespace se {
         if (fileName == nullptr)
             fileName = "(no filename)";
 
+        // Fix the source url is too long displayed in Safari debugger.
+        std::string sourceUrl = fileName;
+        static const std::string prefixKey = "/temp/quick-scripts/";
+        size_t prefixPos = sourceUrl.find(prefixKey);
+        if (prefixPos != std::string::npos)
+        {
+            sourceUrl = sourceUrl.substr(prefixPos + prefixKey.length());
+        }
+
         std::string exceptionStr;
         std::string scriptStr(script, length);
 
         JSValueRef exception = nullptr;
-        JSStringRef jsSourceUrl = JSStringCreateWithUTF8CString(fileName);
+        JSStringRef jsSourceUrl = JSStringCreateWithUTF8CString(sourceUrl.c_str());
         JSStringRef jsScript = JSStringCreateWithUTF8CString(scriptStr.c_str());
         JSValueRef result = nullptr;
 
@@ -490,26 +498,20 @@ namespace se {
         iterOwner->second->detachObject(iterTarget->second);
     }
 
-    bool ScriptEngine::_onReceiveNodeEvent(void* node, NodeEventType type)
-    {
-        assert(_nodeEventListener != nullptr);
-        return _nodeEventListener(node, type);
-    }
-
-    bool ScriptEngine::_setNodeEventListener(NodeEventListener listener)
-    {
-        _nodeEventListener = listener;
-        return true;
-    }
-
     void ScriptEngine::clearException()
     {
         //FIXME:
     }
 
-    void ScriptEngine::enableDebugger(unsigned int port/* = 5086*/)
+    void ScriptEngine::enableDebugger(const std::string& serverAddr, uint32_t port)
     {
         // empty implementation
+        _isDebuggerEnabled = true;
+    }
+
+    bool ScriptEngine::isDebuggerEnabled() const
+    {
+        return _isDebuggerEnabled;
     }
 
     void ScriptEngine::mainLoopUpdate()

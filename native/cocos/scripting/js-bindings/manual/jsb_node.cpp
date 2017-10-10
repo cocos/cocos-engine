@@ -1443,7 +1443,7 @@ static void cleanupAllSchedulesForTarget(Node* node, se::Object* jsThis)
     node->getScheduler()->unscheduleAllForTarget(jsThis);
 }
 
-static bool onReceiveNodeEvent(void* node, se::ScriptEngine::NodeEventType type)
+static bool onReceiveNodeEvent(void* node, ScriptingCore::NodeEventType type)
 {
     auto iter = se::NativePtrToObjectMap::find(node);
     if (iter  == se::NativePtrToObjectMap::end())
@@ -1459,35 +1459,35 @@ static bool onReceiveNodeEvent(void* node, se::ScriptEngine::NodeEventType type)
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
     JSNative func = nullptr;
 #endif
-    if (type == se::ScriptEngine::NodeEventType::ENTER)
+    if (type == ScriptingCore::NodeEventType::ENTER)
     {
         funcName = "onEnter";
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
         func = _SE(Node_onEnter);
 #endif
     }
-    else if (type == se::ScriptEngine::NodeEventType::EXIT)
+    else if (type == ScriptingCore::NodeEventType::EXIT)
     {
         funcName = "onExit";
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
         func = _SE(Node_onExit);
 #endif
     }
-    else if (type == se::ScriptEngine::NodeEventType::ENTER_TRANSITION_DID_FINISH)
+    else if (type == ScriptingCore::NodeEventType::ENTER_TRANSITION_DID_FINISH)
     {
         funcName = "onEnterTransitionDidFinish";
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
         func = _SE(Node_onEnterTransitionDidFinish);
 #endif
     }
-    else if (type == se::ScriptEngine::NodeEventType::EXIT_TRANSITION_DID_START)
+    else if (type == ScriptingCore::NodeEventType::EXIT_TRANSITION_DID_START)
     {
         funcName = "onExitTransitionDidStart";
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
         func = _SE(Node_onExitTransitionDidStart);
 #endif
     }
-    else if (type == se::ScriptEngine::NodeEventType::CLEANUP)
+    else if (type == ScriptingCore::NodeEventType::CLEANUP)
     {
         funcName = "cleanup";
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
@@ -1513,15 +1513,15 @@ static bool onReceiveNodeEvent(void* node, se::ScriptEngine::NodeEventType type)
     }
 
     // Handle schedule stuff
-    if (type == se::ScriptEngine::NodeEventType::ENTER)
+    if (type == ScriptingCore::NodeEventType::ENTER)
     {
         resumeAllSchedulesForTarget((Node*)node, target);
     }
-    else if (type == se::ScriptEngine::NodeEventType::EXIT)
+    else if (type == ScriptingCore::NodeEventType::EXIT)
     {
         pauseAllSchedulesForTarget((Node*)node, target);
     }
-    else if (type == se::ScriptEngine::NodeEventType::CLEANUP)
+    else if (type == ScriptingCore::NodeEventType::CLEANUP)
     {
         cleanupAllSchedulesForTarget((Node*)node, target);
     }
@@ -1588,7 +1588,7 @@ bool jsb_register_Node_manual(se::Object* global)
     __jsb_Node_proto->setProperty("var2", se::Value(10000.323));
 #endif
 
-    se::ScriptEngine::getInstance()->_setNodeEventListener(onReceiveNodeEvent);
+    ScriptingCore::getInstance()->setNodeEventListener(onReceiveNodeEvent);
     se::ScriptEngine::getInstance()->clearException();
 
     return true;

@@ -104,26 +104,14 @@ namespace se {
 
         const std::chrono::steady_clock::time_point& getStartTime() const { return _startTime; }
 
-        void enableDebugger(unsigned int port = 5086);
+        void enableDebugger(const std::string& serverAddr, uint32_t port);
+        bool isDebuggerEnabled() const;
         void mainLoopUpdate();
 
         uint32_t getVMId() const { return _vmId; }
 
         void _retainScriptObject(void* owner, void* target);
         void _releaseScriptObject(void* owner, void* target);
-
-        enum class NodeEventType
-        {
-            ENTER,
-            EXIT,
-            ENTER_TRANSITION_DID_FINISH,
-            EXIT_TRANSITION_DID_START,
-            CLEANUP
-        };
-        bool _onReceiveNodeEvent(void* node, NodeEventType type);
-
-        using NodeEventListener = bool(*)(void*, NodeEventType);
-        bool _setNodeEventListener(NodeEventListener listener);
 
         void _debugProcessInput(const std::string& str);
 
@@ -139,7 +127,6 @@ namespace se {
 
         Object* _globalObj;
         Object* _debugGlobalObj;
-        NodeEventListener _nodeEventListener;
 
         FileOperationDelegate _fileOperationDelegate;
 
@@ -155,6 +142,9 @@ namespace se {
         ExceptionCallback _exceptionCallback;
         // name ~> JSScript map
         std::unordered_map<std::string, JS::PersistentRootedScript*> _filenameScriptMap;
+
+        std::string _debuggerServerAddr;
+        uint32_t _debuggerServerPort;
 
         uint32_t _vmId;
 

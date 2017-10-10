@@ -1,5 +1,6 @@
 #include "scripting/js-bindings/auto/jsb_cocos2dx_ui_auto.hpp"
 #include "scripting/js-bindings/manual/jsb_conversions.hpp"
+#include "scripting/js-bindings/manual/jsb_global.h"
 #include "ui/CocosGUI.h"
 
 se::Object* __jsb_cocos2d_ui_Widget_proto = nullptr;
@@ -1424,7 +1425,7 @@ bool js_register_cocos2dx_ui_Widget(se::Object* obj)
     __jsb_cocos2d_ui_Widget_proto = cls->getProto();
     __jsb_cocos2d_ui_Widget_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { ccui.Widget.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("ccui", "Widget");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -2690,7 +2691,7 @@ bool js_register_cocos2dx_ui_Scale9Sprite(se::Object* obj)
     __jsb_cocos2d_ui_Scale9Sprite_proto = cls->getProto();
     __jsb_cocos2d_ui_Scale9Sprite_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { ccui.Scale9Sprite.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("ccui", "Scale9Sprite");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -3285,7 +3286,7 @@ bool js_register_cocos2dx_ui_EditBox(se::Object* obj)
     __jsb_cocos2d_ui_EditBox_proto = cls->getProto();
     __jsb_cocos2d_ui_EditBox_class = cls;
 
-    se::ScriptEngine::getInstance()->evalString("(function () { ccui.EditBox.extend = cc.Class.extend; })()");
+    jsb_set_extend_property("ccui", "EditBox");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }

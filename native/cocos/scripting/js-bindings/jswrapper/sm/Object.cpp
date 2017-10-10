@@ -176,13 +176,13 @@ namespace se {
         return ok;
     }
 
-    void Object::setProperty(const char* name, const Value& v)
+    bool Object::setProperty(const char* name, const Value& v)
     {
         JS::RootedObject object(__cx, _getJSObject());
 
         JS::RootedValue value(__cx);
         internal::seToJsValue(__cx, v, &value);
-        JS_SetProperty(__cx, object, name, value);
+        return JS_SetProperty(__cx, object, name, value);
     }
 
     bool Object::defineProperty(const char *name, JSNative getter, JSNative setter)
