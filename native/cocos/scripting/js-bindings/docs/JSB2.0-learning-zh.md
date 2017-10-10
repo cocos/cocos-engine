@@ -805,7 +805,31 @@ persistent_classes = TextureCache SpriteFrameCache FileUtils EventDispatcher Act
 classes_owned_by_cpp = 
 ```
 
-## 远程调试
+## 远程调试与Profile
+
+默认远程调试和Profile是在debug模式中生效的，如果需要在release模式下也启用，需要手动修改cocos/scripting/js-bindings/jswrapper/config.hpp中的宏开关。
+
+```c++
+#if defined(COCOS2D_DEBUG) && COCOS2D_DEBUG > 0
+#define SE_ENABLE_INSPECTOR 1
+#define SE_DEBUG 2
+#else
+#define SE_ENABLE_INSPECTOR 0
+#define SE_DEBUG 0
+#endif
+```
+
+改为：
+
+```c++
+#if 1 // 这里改为1，强制启用调试
+#define SE_ENABLE_INSPECTOR 1
+#define SE_DEBUG 2
+#else
+#define SE_ENABLE_INSPECTOR 0
+#define SE_DEBUG 0
+#endif
+```
 
 ### Chrome远程调试V8
 
@@ -875,7 +899,10 @@ bool AppDelegate::applicationDidFinishLaunching()
 ```
 ### se::Object::root/unroot 与 se::Object::incRef/decRef的区别?
 
-TBD
+root/unroot用于控制JS对象是否受GC控制，root表示不受GC控制，unroot则相反，表示交由GC控制，对一个se::Object来说，root和unroot可以被调用多次，se::Object内部有_rootCount变量用于表示root的次数。当unroot被调用，且_rootCount为0时，se::Object关联的JS对象将交由GC管理。还有一种情况，即如果se::Object的析构被触发了，如果_rootCount > 0，则强制把JS对象交由GC控制。
+
+incRef/decRef用于控制se::Object这个`cpp`对象的生命周期，前面章节已经提及，建议用户使用se::HandleObject来控制`手动创建非绑定对象`的方式控制se::Object的生命周期。因此，一般情况下，开发者不需要接触到incRef/decRef。
+
 
 ### 对象生命周期的关联与解除关联
 
