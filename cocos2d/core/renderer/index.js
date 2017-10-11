@@ -66,11 +66,21 @@ module.exports = {
         this.scene = new renderEngine.Scene();
         this.materialUtil = new renderEngine.MaterialUtil();
 
+        this._camera = new renderEngine.Camera({
+            x: 0, y: 0, w: canvas.width, h: canvas.height
+        });
+
         let builtins = _initBuiltins(this.device);
         this._forward = new renderEngine.ForwardRenderer(this.device, {
             defaultTexture: builtins.defaultTexture,
             programTemplates: renderEngine.shaders.templates,
             programChunks: renderEngine.shaders.chunks,
         });
+    },
+
+    render () {
+        this._camera._rect.w = this.canvas.width;
+        this._camera._rect.h = this.canvas.height;
+        this._forward.render(this._camera, this.scene);
     }
 };

@@ -24,12 +24,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var EventTarget = require('./event/event-target');
-var Class = require('./platform/_CCClass');
-var AutoReleaseUtils = require('./load-pipeline/auto-release-utils');
-var ComponentScheduler = require('./component-scheduler');
-var NodeActivator = require('./node-activator');
-var EventListeners = require('./event/event-listeners');
+const EventTarget = require('./event/event-target');
+const Class = require('./platform/_CCClass');
+const AutoReleaseUtils = require('./load-pipeline/auto-release-utils');
+const ComponentScheduler = require('./component-scheduler');
+const NodeActivator = require('./node-activator');
+const EventListeners = require('./event/event-listeners');
+const renderer = require('./renderer');
 
 cc.g_NumberOfDraws = 0;
 
@@ -1437,14 +1438,14 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
 
         this.emit(cc.Director.EVENT_BEFORE_VISIT);
         // update the scene
-        this._visitScene();
+        // this._visitScene();
         this.emit(cc.Director.EVENT_AFTER_VISIT);
 
         // Render
         cc.g_NumberOfDraws = 0;
-        cc.renderer.clear();
-
-        cc.renderer.rendering(cc._renderContext);
+        // cc.renderer.clear();
+        // cc.renderer.rendering(cc._renderContext);
+        renderer.render();
         this._totalFrames++;
 
         this.emit(cc.Director.EVENT_AFTER_DRAW);
@@ -1482,14 +1483,14 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
 
             this.emit(cc.Director.EVENT_BEFORE_VISIT);
             // update the scene
-            this._visitScene();
+            // this._visitScene();
             this.emit(cc.Director.EVENT_AFTER_VISIT);
 
             // Render
             cc.g_NumberOfDraws = 0;
-            cc.renderer.clear();
-
-            cc.renderer.rendering(cc._renderContext);
+            // cc.renderer.clear();
+            // cc.renderer.rendering(cc._renderContext);
+            renderer.render();
             this._totalFrames++;
 
             this.emit(cc.Director.EVENT_AFTER_DRAW);
