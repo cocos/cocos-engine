@@ -1338,7 +1338,7 @@ extern se::Object* __jsb_cocos2d_ProtectedNode_proto;
 
 static bool js_cocos2d_ui_Widget_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::Widget)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::ui::Widget)", s.nativeThisObject());
     cocos2d::ui::Widget* cobj = (cocos2d::ui::Widget*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -2630,7 +2630,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_cocos2d_ui_Scale9Sprite_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::Scale9Sprite)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::ui::Scale9Sprite)", s.nativeThisObject());
     cocos2d::ui::Scale9Sprite* cobj = (cocos2d::ui::Scale9Sprite*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -3244,7 +3244,7 @@ extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
 static bool js_cocos2d_ui_EditBox_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (cocos2d::ui::EditBox)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::ui::EditBox)", s.nativeThisObject());
     cocos2d::ui::EditBox* cobj = (cocos2d::ui::EditBox*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
