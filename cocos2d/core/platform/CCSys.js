@@ -722,12 +722,6 @@ else {
         if (cc.create3DContext(document.createElement("CANVAS"))) {
             _supportWebGL = true;
         }
-        if (_supportWebGL && sys.os === sys.OS_IOS && sys.osMainVersion === 9) {
-            // Not activating WebGL in iOS 9 UIWebView because it may crash when entering background
-            if (!win.indexedDB) {
-                _supportWebGL = false;
-            }
-        }
         if (_supportWebGL && sys.os === sys.OS_ANDROID) {
             var browserVer = parseFloat(sys.browserVersion);
             switch (sys.browserType) {
