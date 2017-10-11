@@ -30,8 +30,6 @@ _ccsg.ParticleSystem.CanvasRenderCmd = function(renderable){
     this._needDraw = true;
 
     this._pointRect = cc.rect(0, 0, 0, 0);
-    //region for local bb
-    this._localRegion = new cc.Region();
     this._tintCache = null;
 };
 var proto = _ccsg.ParticleSystem.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
@@ -43,29 +41,6 @@ proto.updateQuadWithParticle = function (particle, newPosition) {
 
 proto.updateParticlePosition = function(particle, position){
     cc.pIn(particle.drawPos, position);
-};
-
-var particleRegion = new cc.Region();
-var localBB = new cc.Rect();
-proto.updateLocalBB = function() {
-    var region = this._localRegion;
-    var particles = this._node._particles;
-    region.setEmpty();
-    for(var index = particles.length - 1; index >=0; --index) {
-        var particle = particles[index];
-        var pos = particle.drawPos;
-        var size = particle.size * 1.415 /*a little bigger than sqrt(2)*/;
-        particleRegion.setTo(pos.x - size, pos.y - size, pos.x + size, pos.y + size);
-        region.union(particleRegion);
-    }
-
-    localBB.x = region._minX; localBB.y = region._minY;
-    localBB.width = region._maxX - region._minX;
-    localBB.height = region._maxY - region._minY;
-};
-
-proto.getLocalBB = function() {
-    return localBB;
 };
 
 proto.updateStatus = function() {

@@ -460,13 +460,6 @@ var View = cc._Class.extend({
             var ctx = cc._canvas.getContext('2d');
             ctx.imageSmoothingEnabled = enabled;
             ctx.mozImageSmoothingEnabled = enabled;
-            // refresh canvas
-            var dirtyRegion = cc.rendererCanvas._dirtyRegion;
-            if (dirtyRegion) {
-                var oldRegion = new cc.Region();
-                oldRegion.setTo(0, 0, cc.visibleRect.width, cc.visibleRect.height);
-                dirtyRegion.addRegion(oldRegion);
-            }
         }
     },
 
