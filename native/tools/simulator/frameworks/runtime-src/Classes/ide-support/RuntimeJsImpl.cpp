@@ -8,7 +8,7 @@
 
 #include "cocos/base/CCDirector.h"        // 2dx engine
 
-#if (COCOS2D_DEBUG > 0) && (CC_CODE_IDE_DEBUG_SUPPORT > 0)
+#if (CC_CODE_IDE_DEBUG_SUPPORT > 0)
 
 #include "runtime/ConfigParser.h"   // config
 #include "runtime/Runtime.h"
@@ -159,8 +159,7 @@ bool RuntimeJsImpl::initJsEnv()
 
 #if defined(COCOS2D_DEBUG) && (COCOS2D_DEBUG > 0)
     // Enable debugger here
-    // Change IP while remote debugging on Android device.
-    jsb_enable_debugger("127.0.0.1", 5086);
+    jsb_enable_debugger("0.0.0.0", 5086);
 #endif
 
     se->setExceptionCallback([](const char* location, const char* message, const char* stack){

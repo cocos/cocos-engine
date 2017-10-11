@@ -129,7 +129,7 @@ cc.Class.extend = function (prop) {
         prototype[name] = typeof prop[name] == "function" &&
             typeof _super[name] == "function" && fnTest.test(prop[name]) ?
             (function (name, fn) {
-                return function (...args) {
+                return function () {
                     var tmp = this._super;
 
                     // Add a new ._super() method that is the same method
@@ -138,7 +138,7 @@ cc.Class.extend = function (prop) {
 
                     // The method only need to be bound temporarily, so we
                     // remove it when we're done executing
-                    var ret = fn.apply(this, args);
+                    var ret = fn.apply(this, arguments);
                     this._super = tmp;
 
                     return ret;
@@ -147,18 +147,18 @@ cc.Class.extend = function (prop) {
             prop[name];
     }
 
-    Class = function (...args) {
+    Class = function () {
         if (!initializing) {
             this.__instanceId = ClassManager.getNewInstanceId();
             if (this.ctor) {
-                switch (args.length) {
+                switch (arguments.length) {
                     case 0: this.ctor(); break;
-                    case 1: this.ctor(args[0]); break;
-                    case 2: this.ctor(args[0], args[1]); break;
-                    case 3: this.ctor(args[0], args[1], args[2]); break;
-                    case 4: this.ctor(args[0], args[1], args[2], args[3]); break;
-                    case 5: this.ctor(args[0], args[1], args[2], args[3], args[4]); break;
-                    default: this.ctor.apply(this, args);
+                    case 1: this.ctor(arguments[0]); break;
+                    case 2: this.ctor(arguments[0], arguments[1]); break;
+                    case 3: this.ctor(arguments[0], arguments[1], arguments[2]); break;
+                    case 4: this.ctor(arguments[0], arguments[1], arguments[2], arguments[3]); break;
+                    case 5: this.ctor(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4]); break;
+                    default: this.ctor.apply(this, arguments);
                 }
             }
         }

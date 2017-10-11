@@ -11,7 +11,7 @@
 #elif defined(ANDROID) || (defined(_WIN32) && defined(_WINDOWS)) // Windows and Android use V8
     #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
 #else
-    #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_NONE
+    #error "Unknown Script Engine"
 #endif
 
 #if defined(COCOS2D_DEBUG) && COCOS2D_DEBUG > 0

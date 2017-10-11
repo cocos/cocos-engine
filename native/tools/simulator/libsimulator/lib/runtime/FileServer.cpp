@@ -35,7 +35,9 @@ THE SOFTWARE.
 #endif
 
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
-#define bzero(a, b) memset(a, 0, b);
+    #ifndef bzero
+        #define bzero(a, b) memset(a, 0, b);
+    #endif
 #endif
 
 //1M size

@@ -119,6 +119,10 @@ gulp.task('gen-simulator', function(cb) {
     var cocosConsoleBin;
     if (process.platform === 'darwin') {
         cocosConsoleBin = Path.join(cocosConsoleRoot, 'cocos');
+        // copy mac xcode project with signing info
+        if (fs.existsSync('simulator.xcodeproj')) {
+            fs.copySync('./simulator.xcodeproj', './tools/simulator/frameworks/runtime-src/proj.ios_mac/simulator.xcodeproj');
+        }
     } else {
         cocosConsoleBin = Path.join(cocosConsoleRoot, 'cocos.bat');
     }
@@ -140,6 +144,8 @@ gulp.task('gen-simulator', function(cb) {
             if (code !== 0) {
                 console.error('Generate simulator failed');
             }
+            //reset project file to hide code sign information.
+            ExecSync('git checkout -- ./tools/simulator/frameworks/runtime-src/proj.ios_mac/simulator.xcodeproj');
             cb();
             return;
         });
