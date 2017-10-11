@@ -38,7 +38,9 @@ THE SOFTWARE.
 #include <io.h>
 #include <WS2tcpip.h>
 
+#ifndef bzero
 #define bzero(a, b) memset(a, 0, b);
+#endif
 
 #else
 #include <netdb.h>
