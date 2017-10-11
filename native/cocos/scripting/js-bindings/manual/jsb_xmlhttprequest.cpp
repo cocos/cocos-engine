@@ -330,7 +330,7 @@ void XMLHttpRequest::onResponse(HttpClient* client, HttpResponse* response)
     std::string tag = response->getHttpRequest()->getTag();
     if (!tag.empty())
     {
-        CCLOG("%s completed", tag.c_str());
+        LOGD("XMLHttpRequest::onResponse, %s completed\n", tag.c_str());
     }
 
     long statusCode = response->getResponseCode();
@@ -343,7 +343,7 @@ void XMLHttpRequest::onResponse(HttpClient* client, HttpResponse* response)
     if (!response->isSucceed())
     {
         std::string errorBuffer = response->getErrorBuffer();
-        LOGD("Response failed, error buffer: %s", errorBuffer.c_str());
+        LOGD("Response failed, error buffer: %s\n", errorBuffer.c_str());
         if (statusCode == 0 || statusCode == -1)
         {
             _errorFlag = true;
