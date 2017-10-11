@@ -112,7 +112,7 @@ cc.eventManager = {
     _priorityDirtyFlagMap: {},
     _nodeListenersMap: {},
     _nodePriorityMap: {},
-    _globalZOrderNodeMap: {},
+    _globalZOrderNodeMap: [],
     _toAddedListeners: [],
     _toRemovedListeners: [],
     _dirtyNodes: [],
@@ -672,9 +672,9 @@ cc.eventManager = {
             }
 
             if (locNodeListenersMap[node.__instanceId] !== undefined) {
-                if (!locGlobalZOrderNodeMap[node.getGlobalZOrder()])
-                    locGlobalZOrderNodeMap[node.getGlobalZOrder()] = [];
-                locGlobalZOrderNodeMap[node.getGlobalZOrder()].push(node.__instanceId);
+                if (!locGlobalZOrderNodeMap)
+                    locGlobalZOrderNodeMap = [];
+                locGlobalZOrderNodeMap.push(node.__instanceId);
             }
 
             for (; i < childrenCount; i++) {
@@ -684,9 +684,9 @@ cc.eventManager = {
             }
         } else {
             if (locNodeListenersMap[node.__instanceId] !== undefined) {
-                if (!locGlobalZOrderNodeMap[node.getGlobalZOrder()])
-                    locGlobalZOrderNodeMap[node.getGlobalZOrder()] = [];
-                locGlobalZOrderNodeMap[node.getGlobalZOrder()].push(node.__instanceId);
+                if (!locGlobalZOrderNodeMap)
+                    locGlobalZOrderNodeMap = [];
+                locGlobalZOrderNodeMap.push(node.__instanceId);
             }
         }
 
@@ -703,7 +703,7 @@ cc.eventManager = {
                 for (j = 0; j < selZOrders.length; j++)
                     locNodePriorityMap[selZOrders[j]] = ++this._nodePriorityIndex;
             }
-            this._globalZOrderNodeMap = {};
+            this._globalZOrderNodeMap.length = 0;
         }
     },
 
