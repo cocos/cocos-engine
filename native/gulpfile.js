@@ -144,6 +144,7 @@ gulp.task('gen-simulator', function(cb) {
             if (code !== 0) {
                 console.error('Generate simulator failed');
             }
+            //reset project file to hide code sign information.
             ExecSync('git checkout -- ./tools/simulator/frameworks/runtime-src/proj.ios_mac/simulator.xcodeproj');
             cb();
             return;
