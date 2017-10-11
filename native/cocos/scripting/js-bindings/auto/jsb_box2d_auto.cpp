@@ -694,7 +694,7 @@ extern se::Object* __jsb_b2Shape_proto;
 
 static bool js_b2CircleShape_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (b2CircleShape)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (b2CircleShape)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -912,7 +912,7 @@ extern se::Object* __jsb_b2Shape_proto;
 
 static bool js_b2EdgeShape_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (b2EdgeShape)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (b2EdgeShape)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -1180,7 +1180,7 @@ extern se::Object* __jsb_b2Shape_proto;
 
 static bool js_b2ChainShape_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (b2ChainShape)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (b2ChainShape)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -1434,7 +1434,7 @@ extern se::Object* __jsb_b2Shape_proto;
 
 static bool js_b2PolygonShape_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (b2PolygonShape)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (b2PolygonShape)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -2475,7 +2475,7 @@ SE_BIND_FUNC(js_box2dclasses_b2Body_GetPosition)
 
 static bool js_b2Body_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (b2Body)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (b2Body)", s.nativeThisObject());
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_b2Body_finalize)
@@ -2969,7 +2969,7 @@ SE_BIND_FUNC(js_box2dclasses_b2Fixture_GetDensity)
 
 static bool js_b2Fixture_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (b2Fixture)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (b2Fixture)", s.nativeThisObject());
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_b2Fixture_finalize)
@@ -3918,7 +3918,7 @@ SE_BIND_CTOR(js_box2dclasses_b2World_constructor, __jsb_b2World_class, js_b2Worl
 
 static bool js_b2World_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (b2World)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (b2World)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -4386,7 +4386,7 @@ SE_BIND_FUNC(js_box2dclasses_b2Contact_ResetRestitution)
 
 static bool js_b2Contact_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (b2Contact)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (b2Contact)", s.nativeThisObject());
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_b2Contact_finalize)
@@ -4664,7 +4664,7 @@ SE_BIND_FUNC(js_box2dclasses_b2Joint_IsActive)
 
 static bool js_b2Joint_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (b2Joint)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (b2Joint)", s.nativeThisObject());
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_b2Joint_finalize)
@@ -4944,7 +4944,7 @@ extern se::Object* __jsb_b2Joint_proto;
 
 static bool js_b2DistanceJoint_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (b2DistanceJoint)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (b2DistanceJoint)", s.nativeThisObject());
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_b2DistanceJoint_finalize)
@@ -5188,7 +5188,7 @@ extern se::Object* __jsb_b2Joint_proto;
 
 static bool js_b2FrictionJoint_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (b2FrictionJoint)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (b2FrictionJoint)", s.nativeThisObject());
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_b2FrictionJoint_finalize)
@@ -5393,7 +5393,7 @@ extern se::Object* __jsb_b2Joint_proto;
 
 static bool js_b2GearJoint_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (b2GearJoint)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (b2GearJoint)", s.nativeThisObject());
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_b2GearJoint_finalize)
@@ -5708,7 +5708,7 @@ extern se::Object* __jsb_b2Joint_proto;
 
 static bool js_b2MotorJoint_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (b2MotorJoint)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (b2MotorJoint)", s.nativeThisObject());
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_b2MotorJoint_finalize)
@@ -6011,7 +6011,7 @@ extern se::Object* __jsb_b2Joint_proto;
 
 static bool js_b2MouseJoint_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (b2MouseJoint)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (b2MouseJoint)", s.nativeThisObject());
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_b2MouseJoint_finalize)
@@ -6480,7 +6480,7 @@ extern se::Object* __jsb_b2Joint_proto;
 
 static bool js_b2PrismaticJoint_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (b2PrismaticJoint)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (b2PrismaticJoint)", s.nativeThisObject());
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_b2PrismaticJoint_finalize)
@@ -6769,7 +6769,7 @@ extern se::Object* __jsb_b2Joint_proto;
 
 static bool js_b2PulleyJoint_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (b2PulleyJoint)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (b2PulleyJoint)", s.nativeThisObject());
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_b2PulleyJoint_finalize)
@@ -7219,7 +7219,7 @@ extern se::Object* __jsb_b2Joint_proto;
 
 static bool js_b2RevoluteJoint_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (b2RevoluteJoint)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (b2RevoluteJoint)", s.nativeThisObject());
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_b2RevoluteJoint_finalize)
@@ -7453,7 +7453,7 @@ extern se::Object* __jsb_b2Joint_proto;
 
 static bool js_b2RopeJoint_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (b2RopeJoint)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (b2RopeJoint)", s.nativeThisObject());
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_b2RopeJoint_finalize)
@@ -7712,7 +7712,7 @@ extern se::Object* __jsb_b2Joint_proto;
 
 static bool js_b2WeldJoint_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (b2WeldJoint)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (b2WeldJoint)", s.nativeThisObject());
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_b2WeldJoint_finalize)
@@ -8141,7 +8141,7 @@ extern se::Object* __jsb_b2Joint_proto;
 
 static bool js_b2WheelJoint_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (b2WheelJoint)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (b2WheelJoint)", s.nativeThisObject());
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_b2WheelJoint_finalize)

@@ -228,7 +228,7 @@ SE_BIND_CTOR(js_cocos2dx_network_Downloader_constructor, __jsb_cocos2d_network_D
 
 static bool js_cocos2d_network_Downloader_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (cocos2d::network::Downloader)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::network::Downloader)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
