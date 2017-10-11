@@ -119,6 +119,27 @@ var SizeMode = cc.Enum({
     RAW: 2
 });
 
+var State = cc.Enum({
+    /**
+     * !#en The normal state
+     * !#zh 正常状态
+     * @property {Number} NORMAL
+     */
+    NORMAL: 0,
+    /**
+     * !#en The gray state, all color will be modified to grayscale value.
+     * !#zh 灰色状态，所有颜色会被转换成灰度值
+     * @property {Number} GRAY
+     */
+    GRAY: 1,
+    /**
+     * !#en The distortion state
+     * !#zh 畸变状态
+     * @property {Number} DISTORTION
+     */
+    DISTORTION: 2
+});
+
 /**
  * !#en Renders a sprite in the scene.
  * !#zh 该组件用于在场景中渲染精灵。
@@ -158,6 +179,7 @@ var Sprite = cc.Class({
         _fillStart: 0,
         _fillRange: 0,
         _isTrimmedMode: true,
+        _state: 0,
         _srcBlendFactor: BlendFactor.SRC_ALPHA,
         _dstBlendFactor: BlendFactor.ONE_MINUS_SRC_ALPHA,
         _atlas: {
@@ -414,10 +436,30 @@ var Sprite = cc.Class({
         FillType: FillType,
         Type: SpriteType,
         SizeMode: SizeMode,
+        State: State,
     },
 
     setVisible: function (visible) {
         this.enabled = visible;
+    },
+
+    /**
+     * Change the state of sprite.
+     * @see `Sprite.State`
+     * @param state {Sprite.State} NORMAL, GRAY or DISTORTION State.
+     */
+    setState: function (state) {
+        this._state = state;
+        // TODO: change the state
+    },
+
+    /**
+     * Gets the current state.
+     * @see `Sprite.State`
+     * @return {Sprite.State}
+     */
+    getState: function () {
+        return this._state;
     },
 
     onEnable: function () {

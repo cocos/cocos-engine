@@ -643,12 +643,12 @@ var Button = cc.Class({
 
     _updateDisabledState: function () {
         if(this._sprite) {
-            this._sprite._sgNode.setState(0);
+            this._sprite.setState(cc.Sprite.State.NORMAL);
         }
         if(this.enableAutoGrayEffect && this.transition !== Transition.COLOR) {
             if(!(this.transition === Transition.SPRITE && this.disabledSprite)) {
                 if(this._sprite && !this.interactable) {
-                    this._sprite._sgNode.setState(1);
+                    this._sprite.setState(cc.Sprite.State.GRAY);
                 }
             }
         }
