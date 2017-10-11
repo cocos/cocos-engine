@@ -850,7 +850,6 @@ Profile
 #### Android
 
 * 保证Android设备与PC或者Mac在同一个局域网中
-* 修改AppDelegate.cpp, 把`jsb_enable_debugger(ip, port)`那行的IP改为Android设备的IP
 * 编译，运行游戏
 * 用Chrome浏览器打开[chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=xxx.xxx.xxx.xxx:5086/00010002-0003-4004-8005-000600070008](chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=xxx.xxx.xxx.xxx:5086/00010002-0003-4004-8005-000600070008), 其中`xxx.xxx.xxx.xxx`为局域网中Android设备的IP地址
 * 调试界面与Windows相同

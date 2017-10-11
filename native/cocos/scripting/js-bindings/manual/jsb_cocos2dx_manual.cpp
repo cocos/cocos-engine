@@ -62,7 +62,7 @@ static bool js_PlistParser_getInstance(se::State& s)
     SAXParser* parser = delegator->getParser();
 
     if (parser) {
-        native_ptr_to_seval<SAXParser>(parser, __jsb_cocos2d_SAXParser_class, &s.rval());
+        native_ptr_to_rooted_seval<SAXParser>(parser, __jsb_cocos2d_SAXParser_class, &s.rval());
         return true;
     }
     return false;
