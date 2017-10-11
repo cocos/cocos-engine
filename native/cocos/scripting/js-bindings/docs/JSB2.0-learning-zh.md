@@ -835,7 +835,7 @@ classes_owned_by_cpp =
 
 #### Windows
 
-* 运行游戏
+* 编译、运行游戏(或在Creator中直接使用模拟器运行)
 * 用Chrome浏览器打开[chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=127.0.0.1:5086/00010002-0003-4004-8005-000600070008](chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=127.0.0.1:5086/00010002-0003-4004-8005-000600070008)
 
 断点调试：
@@ -849,7 +849,9 @@ Profile
 
 #### Android
 
-* 运行游戏
+* 保证Android设备与PC或者Mac在同一个局域网中
+* 修改AppDelegate.cpp, 把`jsb_enable_debugger(ip, port)`那行的IP改为Android设备的IP
+* 编译，运行游戏
 * 用Chrome浏览器打开[chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=xxx.xxx.xxx.xxx:5086/00010002-0003-4004-8005-000600070008](chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=xxx.xxx.xxx.xxx:5086/00010002-0003-4004-8005-000600070008), 其中`xxx.xxx.xxx.xxx`为局域网中Android设备的IP地址
 * 调试界面与Windows相同
 
@@ -861,16 +863,25 @@ Profile
 1. 打开Mac上的Safari，偏好设置 -> 高级 -> 显示开发者选项
 2. 为Xcode工程添加entitlements文件，如果entitlements存在则跳过此步骤。如果不存在，则到工程的Capabilities设置中打开App Sandbox，然后再关闭，这时.entitlements文件会自动被添加进工程。![](jsc-entitlements.png)
 3. 打开entitlements文件，添加com.apple.security.get-task-allow，值类型为Boolean，值为true. ![](jsc-security-key.png)
-4. 运行游戏
-5. Safari菜单中选择Develop -> 你的Mac设备名称 -> Cocos2d-x JSB 会自动打开Web Inspector页面，然后即可进行设置断点、Timeline profile、console等操作。![](jsc-mac-debug.png) ![](jsc-breakpoint.png) ![](jsc-timeline.png)
+4. 编译、运行游戏
+5. 如果是直接在Creator的模拟器中运行，则可以跳过第2，3，4步骤
+6. Safari菜单中选择Develop -> 你的Mac设备名称 -> Cocos2d-x JSB 会自动打开Web Inspector页面，然后即可进行设置断点、Timeline profile、console等操作。![](jsc-mac-debug.png) ![](jsc-breakpoint.png) ![](jsc-timeline.png)
+
+**注意**
+
+如果开发者有修改引擎源码或者自己合并了一些Patch，需要重新编译模拟器，记得在自己设置一下模拟器工程的证书，
+
+![](jsc-mac-simulator-sign.png)
+
+然后再调用`gulp gen-simulator`生成模拟器。
 
 #### iOS
 
 1. 先打开iPhone的设置 -> Safari -> 高级 -> Web检查器
 2. 为Xcode工程添加entitlements文件，如果entitlements存在则跳过此步骤。如果不存在，则到工程的Capabilities设置中打开App Sandbox，然后再关闭，这时.entitlements文件会自动被添加进工程。 (图示与macOS的第2步类似)
 3. 打开entitlements文件，添加com.apple.security.get-task-allow，值类型为Boolean，值为true。(图示与macOS的第3步类似)
-4. 运行游戏
-5. Safari菜单中选择Develop -> 你的iPhone设备名称 -> Cocos2d-x JSB 会自动打开Web Inspector页面，然后即可进行设置断点、Timeline profile、console等操作。(图示与macOS的第5步类似)
+4. 编译、运行游戏
+5. Safari菜单中选择Develop -> 你的iPhone设备名称 -> Cocos2d-x JSB 会自动打开Web Inspector页面，然后即可进行设置断点、Timeline profile、console等操作。(图示与macOS的第6步类似)
 
 ## Q & A
 
@@ -947,9 +958,9 @@ SE_BIND_FINALIZE_FUNC(js_cocos2d_Sprite_finalize)
 ```c++
 bool AppDelegate::applicationDidFinishLaunching()
 {
-	...
-	...
-	se::ScriptEngine* se = se::ScriptEngine::getInstance();
+    ...
+    ...
+    se::ScriptEngine* se = se::ScriptEngine::getInstance();
 
     se->setExceptionCallback([](const char* location, const char* message, const char* stack){
         // Send exception information to server like Tencent Bugly.
@@ -958,9 +969,9 @@ bool AppDelegate::applicationDidFinishLaunching()
     });
 
     jsb_register_all_modules();
-	...
-	...
-	return true;
+    ...
+    ...
+    return true;
 }
 
 ```
