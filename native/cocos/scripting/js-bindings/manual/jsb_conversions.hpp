@@ -136,7 +136,7 @@ bool seval_to_Vector(const se::Value& v, cocos2d::Vector<T>* ret)
     for (uint32_t i = 0; i < len; ++i)
     {
         ok = obj->getArrayElement(i, &tmp);
-        if (!ok && tmp.isObject())
+        if (!ok || !tmp.isObject())
         {
             ret->clear();
             return false;
@@ -145,6 +145,39 @@ bool seval_to_Vector(const se::Value& v, cocos2d::Vector<T>* ret)
         T nativeObj = (T)tmp.toObject()->getPrivateData();
 
         ret->pushBack(nativeObj);
+    }
+
+    return true;
+}
+
+template<typename T>
+bool seval_to_Map_string_key(const se::Value& v, cocos2d::Map<std::string, T>* ret)
+{
+    assert(ret != nullptr);
+    assert(v.isObject());
+    se::Object* obj = v.toObject();
+
+    std::vector<std::string> allKeys;
+    bool ok = obj->getAllKeys(&allKeys);
+    if (!ok)
+    {
+        ret->clear();
+        return false;
+    }
+
+    se::Value tmp;
+    for (const auto& key : allKeys)
+    {
+        ok = obj->getProperty(key.c_str(), &tmp);
+        if (!ok || !tmp.isObject())
+        {
+            ret->clear();
+            return false;
+        }
+
+        T nativeObj = (T)tmp.toObject()->getPrivateData();
+
+        ret->insert(key, nativeObj);
     }
 
     return true;
