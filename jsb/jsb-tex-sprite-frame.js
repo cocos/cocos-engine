@@ -156,11 +156,9 @@ prototype.update = function (options) {
 prototype.isLoaded = function () {
     return true;
 };
-prototype.getPixelWidth = prototype.getPixelsWide;
-prototype.getPixelHeight = prototype.getPixelsHigh;
 prototype.description = prototype.getDescription;
-cc.js.get(prototype, 'pixelWidth', prototype.getPixelWidth);
-cc.js.get(prototype, 'pixelHeight', prototype.getPixelHeight);
+cc.js.get(prototype, 'width', prototype.getPixelsWide);
+cc.js.get(prototype, 'height', prototype.getPixelsHigh);
 
 // cc.SpriteFrame
 
@@ -307,10 +305,10 @@ prototype._checkRect = function (texture) {
         maxX += rect.width;
         maxY += rect.height;
     }
-    if (maxX > texture.getPixelWidth()) {
+    if (maxX > texture.width) {
         cc.errorID(3300, texture.url);
     }
-    if (maxY > texture.getPixelHeight()) {
+    if (maxY > texture.height) {
         cc.errorID(3400, texture.url);
     }
 };

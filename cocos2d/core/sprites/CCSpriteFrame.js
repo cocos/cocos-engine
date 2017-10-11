@@ -465,10 +465,10 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             maxX += rect.width;
             maxY += rect.height;
         }
-        if (maxX > texture.getPixelWidth()) {
+        if (maxX > texture.width) {
             cc.errorID(3300, texture.url + '/' + this.name);
         }
-        if (maxY > texture.getPixelHeight()) {
+        if (maxY > texture.height) {
             cc.errorID(3400, texture.url + '/' + this.name);
         }
     },

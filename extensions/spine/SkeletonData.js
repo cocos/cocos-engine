@@ -47,7 +47,7 @@ var TextureLoader = !CC_JSB && cc.Class({
             var url = urls[i];
             if (url.endsWith(line)) {
                 var texture = cc.textureCache.addImage(url);
-                var tex = new sp.SkeletonTexture({ width: texture.getPixelWidth(), height: texture.getPixelHeight() });
+                var tex = new sp.SkeletonTexture({ width: texture.width, height: texture.height });
                 tex.setRealTexture(texture);
                 return tex;
             }

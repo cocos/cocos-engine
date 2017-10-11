@@ -36,7 +36,7 @@ sp._atlasLoader = {
     load:function(line){
         var texturePath = cc.path.join(cc.path.dirname(this.spAtlasFile), line);
         var texture = cc.textureCache.addImage(texturePath);
-        var tex = new sp.SkeletonTexture({ width: texture.getPixelWidth(), height: texture.getPixelHeight() });
+        var tex = new sp.SkeletonTexture({ width: texture.width, height: texture.height });
         tex.setRealTexture(texture);
         return tex;
     },

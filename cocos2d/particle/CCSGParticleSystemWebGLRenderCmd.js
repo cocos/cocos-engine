@@ -187,8 +187,8 @@ proto.initTexCoordsWithRect = function(pointRect){
     var high = pointRect.height;
 
     if (texture) {
-        wide = texture.getPixelWidth();
-        high = texture.getPixelHeight();
+        wide = texture.width;
+        high = texture.height;
     }
 
     var left, bottom, right, top;

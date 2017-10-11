@@ -537,8 +537,8 @@
                 h = this._node._contentSize.height;
 
 
-                var textureWidth = this._texture.getPixelWidth();
-                var textureHeight = this._texture.getPixelHeight();
+                var textureWidth = this._texture.width;
+                var textureHeight = this._texture.height;
 
                 sx = 0;
                 sy = 0;
