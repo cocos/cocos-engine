@@ -616,7 +616,7 @@ WebSocketImpl::WebSocketImpl(cocos2d::network::WebSocket* ws)
 
 // NOTE: !!! Be careful while merging cocos2d-x-lite back to cocos2d-x. !!!
 // 'close' is a synchronous operation which may wait some seconds to make sure connection is closed.
-// But JSB doesn't need to listen on EVENT_RESET event to close connection.
+// But JSB doesn't need to listen on EVENT_RESET event to close connection,
 // since finalize callback (refer to 'WebSocket_finalize' function in jsb_websocket.cpp) will invoke 'closeAsync'.
 //
 //    std::shared_ptr<std::atomic<bool>> isDestroyed = _isDestroyed;
