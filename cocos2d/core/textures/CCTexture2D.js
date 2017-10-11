@@ -200,6 +200,13 @@ const Filter = cc.Enum({
     NEAREST: GL_NEAREST
 });
 
+const FilterIndex = {
+    GL_NEAREST: 0,
+    GL_LINEAR: 1,
+};
+
+let _emptyOpts = {};
+
 let _sharedOpts = {
     width: undefined,
     height: undefined,
@@ -280,7 +287,7 @@ var Texture2D = cc.Class({
          */
         this.height = 0;
 
-        this._texture = new TextureImpl(renderer.device);
+        this._texture = new TextureImpl(renderer.device, _emptyOpts);
     },
 
     getImpl () {
@@ -311,9 +318,11 @@ var Texture2D = cc.Class({
             }
             if (options.minFilter !== undefined) {
                 this._minFilter = options.minFilter;
+                options.minFilter = FilterIndex[options.minFilter];
             }
             if (options.magFilter !== undefined) {
                 this._magFilter = options.magFilter;
+                options.magFilter = FilterIndex[options.magFilter];
             }
             if (options.wrapS !== undefined) {
                 this._wrapS = options.wrapS;
@@ -450,8 +459,8 @@ var Texture2D = cc.Class({
         opts.hasMipmap = this._hasMipmap;
         opts.format = this._format;
         opts.premultiplyAlpha = this._premultiplyAlpha;
-        opts.minFilter = this._minFilter;
-        opts.magFilter = this._magFilter;
+        opts.minFilter = FilterIndex[this._minFilter];
+        opts.magFilter = FilterIndex[this._magFilter];
         opts.wrapS = this._wrapS;
         opts.wrapT = this._wrapT;
         this._texture.update(opts);
