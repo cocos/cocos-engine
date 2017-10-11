@@ -164,6 +164,7 @@ var Label = cc.Class({
     },
 
     _updateSgNodeString: function() {
+        return;
         this._sgNode.setString(this.string);
         this._updateNodeSize();
     },
@@ -487,8 +488,7 @@ var Label = cc.Class({
     },
 
     __preload: function () {
-        this._super();
-
+        return;
         // node should be resize whenever font changed, needed only on web
         if (!CC_JSB) {
             this._sgNode.on('load', this._updateNodeSize, this);
@@ -502,6 +502,7 @@ var Label = cc.Class({
     },
 
     _initSgNode: function () {
+        return;
         var font = this.font;
         if (typeof font === 'string' ) {
             cc.warnID(4000);
@@ -568,6 +569,7 @@ var Label = cc.Class({
 
     // update node size (this will also invoke the size-changed event)
     _updateNodeSize: function () {
+        return;
         var initialized = this._sgNode && this._sgNode.parent;
         if (initialized) {
             if (this.overflow === Overflow.NONE || this.overflow === Overflow.RESIZE_HEIGHT) {
@@ -577,6 +579,8 @@ var Label = cc.Class({
     },
 
     onDestroy: function () {
+        this._super();
+        return;
         var sgNodeBeforeDestroy = this._sgNode;
         this._super();
         if (sgNodeBeforeDestroy) {
