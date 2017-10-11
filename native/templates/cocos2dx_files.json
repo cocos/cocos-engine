@@ -4726,6 +4726,7 @@
         "cocos/scripting/js-bindings/docs/jsc-breakpoint.png", 
         "cocos/scripting/js-bindings/docs/jsc-entitlements.png", 
         "cocos/scripting/js-bindings/docs/jsc-mac-debug.png", 
+        "cocos/scripting/js-bindings/docs/jsc-mac-simulator-sign.png", 
         "cocos/scripting/js-bindings/docs/jsc-security-key.png", 
         "cocos/scripting/js-bindings/docs/jsc-timeline.png", 
         "cocos/scripting/js-bindings/docs/v8-win32-debug.jpg", 
