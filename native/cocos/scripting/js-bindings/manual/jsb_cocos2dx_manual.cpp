@@ -214,6 +214,8 @@ static bool JSB_localStorageGetItem(se::State& s)
         ok = localStorageGetItem(key, &value);
         if (ok)
             s.rval().setString(value);
+        else
+            s.rval().setNull(); // Should return null to make JSB behavior same as Browser since returning undefined will make JSON.parse(undefined) trigger exception.
 
         return true;
     }
