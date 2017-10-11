@@ -58,18 +58,19 @@ module.exports = {
     canvas: null,
     device: null,
     scene: null,
+    materialUtil: null,
 
     init (canvas, opts) {
         this.canvas = canvas;
         this.device = new renderEngine.Device(canvas, opts);
+        this.scene = new renderEngine.Scene();
+        this.materialUtil = new renderEngine.MaterialUtil();
 
-        let builtins = _initBuiltins(this._device);
-        this._forward = new renderEngine.ForwardRenderer(this._device, {
+        let builtins = _initBuiltins(this.device);
+        this._forward = new renderEngine.ForwardRenderer(this.device, {
             defaultTexture: builtins.defaultTexture,
             programTemplates: renderEngine.shaders.templates,
             programChunks: renderEngine.shaders.chunks,
         });
-
-        this.scene = new renderEngine.Scene();
     }
 };

@@ -26,10 +26,9 @@
 const renderer = require('../renderer');
 const renderEngine = require('../renderer/render-engine');
 const gfx = renderEngine.gfx;
-const SpriteModel = renderEngine.SpriteMaterial;
+const SpriteMaterial = renderEngine.SpriteMaterial;
 const SpriteModel = renderEngine.SpriteModel;
 const SlicedModel = renderEngine.SlicedModel;
-const MaterialUtil = renderEngine.MaterialUtil;
 
 /**
  * !#en Enum for sprite type.
@@ -472,7 +471,7 @@ var Sprite = cc.Class({
     
     _activateModel: function () {
         // model cannot be activated if already exists or component not enabled
-        if (this._model || !this.enabledInHierarchy) {
+        if (!this.enabledInHierarchy) {
             return;
         }
         // model cannot be activated if texture not loaded yet
@@ -484,42 +483,43 @@ var Sprite = cc.Class({
         if (!this._material) {
             var texture = this._spriteFrame.getTexture();
             var url = texture.url;
-            this._material = MaterialUtil.get(url);
+            this._material = renderer.materialUtil.get(url);
             if (!this._material) {
                 this._material = new SpriteMaterial();
                 this._material.mainTexture = texture.getImpl();
-                MaterialUtil.register(url, this._material);
+                renderer.materialUtil.register(url, this._material);
             }
         }
 
-        // Generate model
-        switch (this.type) {
-        case SpriteType.SIMPLE:
-            this._model = SpriteModel.alloc();
-            this._model.spriteFrame = this._spriteFrame;
-            break;
-        case SpriteType.SLICED:
-            this._model = SlicedModel.alloc();
-            this._model.width = this.node.width;
-            this._model.height = this.node.height;
-            this._model.spriteFrame = this._spriteFrame;
-            break;
-        case SpriteType.TILED:
-            break;
-        case SpriteType.FILLED:
-            // sgNode.setFillType(this._fillType);
-            // sgNode.setFillCenter(this._fillCenter);
-            // sgNode.setFillStart(this._fillStart);
-            // sgNode.setFillRange(this._fillRange);
-            break;
+        if (!this._model) {
+            // Generate model
+            switch (this.type) {
+            case SpriteType.SIMPLE:
+                this._model = SpriteModel.alloc();
+                break;
+            case SpriteType.SLICED:
+                this._model = SlicedModel.alloc();
+                this._model.width = this.node.width;
+                this._model.height = this.node.height;
+                break;
+            case SpriteType.TILED:
+                break;
+            case SpriteType.FILLED:
+                // sgNode.setFillType(this._fillType);
+                // sgNode.setFillCenter(this._fillCenter);
+                // sgNode.setFillStart(this._fillStart);
+                // sgNode.setFillRange(this._fillRange);
+                break;
+            }
+            this._model.setNode(this.node);
         }
+
+        this._model.spriteFrame = this._spriteFrame;
 
         if (this.srcBlendFactor !== gfx.BLEND_SRC_ALPHA || this.dstBlendFactor !== gfx.BLEND_ONE_MINUS_SRC_ALPHA) {
             this._updateBlendFunc();
         }
-
         this._model.setEffect(this._material.effect);
-        this._model.setNode(this.node);
 
         // Add to rendering scene
         renderer.scene.addModel(this._model);
@@ -595,6 +595,10 @@ var Sprite = cc.Class({
         if (!this.isValid) {
             return;
         }
+        // Drop previous material, because texture have changed
+        this._material = null;
+        this._customMaterial = false;
+        // Reattach material to model
         this._activateModel();
         this._applySpriteSize();
     },

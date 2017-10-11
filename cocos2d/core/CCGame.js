@@ -30,6 +30,7 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
 }
 
 require('../audio/CCAudioEngine');
+var renderer = require('./renderer');
 var inputManager = require('./platform/CCInputManager');
 
 /**
@@ -699,11 +700,11 @@ var game = {
         if (this._renderContext) {
             cc.renderer = cc.rendererWebGL;
             win.gl = this._renderContext; // global variable declared in CCMacro.js
-            cc.renderer.init();
+            renderer.init(localCanvas);
         } else {
             cc._renderType = game.RENDER_TYPE_CANVAS;
             cc.renderer = cc.rendererCanvas;
-            cc.renderer.init();
+            renderer.init(localCanvas);
             this._renderContext = cc._renderContext = new cc.CanvasContextWrapper(localCanvas.getContext("2d"));
         }
 
