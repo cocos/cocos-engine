@@ -150,7 +150,17 @@ cc.Class.extend = function (prop) {
     Class = function () {
         if (!initializing) {
             this.__instanceId = ClassManager.getNewInstanceId();
-            this.ctor && this.ctor.apply(this, arguments);
+            if (this.ctor) {
+                switch (arguments.length) {
+                    case 0: this.ctor(); break;
+                    case 1: this.ctor(arguments[0]); break;
+                    case 2: this.ctor(arguments[0], arguments[1]); break;
+                    case 3: this.ctor(arguments[0], arguments[1], arguments[2]); break;
+                    case 4: this.ctor(arguments[0], arguments[1], arguments[2], arguments[3]); break;
+                    case 5: this.ctor(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4]); break;
+                    default: this.ctor.apply(this, arguments);
+                }
+            }
         }
     };
     // Populate our constructed prototype object
