@@ -28,16 +28,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-#include <algorithm>
-
 #include <spine/spine-cocos2dx.h>
 #include <spine/extension.h>
 
 namespace spine {
-cocos2d::Vector<cocos2d::Texture2D *>* spAtlas_create_preloadedTextures = nullptr;
-std::vector<std::string>* spAtlas_create_preloadedTextureNames = nullptr;
+	static CustomTextureLoader _customTextureLoader = nullptr;
+	void spAtlasPage_setCustomTextureLoader (CustomTextureLoader texLoader) {
+		_customTextureLoader = texLoader;
+	}
 }
-using namespace spine;
 
 USING_NS_CC;
 
@@ -69,21 +68,12 @@ GLuint filter (spAtlasFilter filter) {
 
 void _spAtlasPage_createTexture (spAtlasPage* self, const char* path) {
 	Texture2D* texture = nullptr;
-	if (spAtlas_create_preloadedTextures && spAtlas_create_preloadedTextureNames) {
-		auto found = std::find(spAtlas_create_preloadedTextureNames->begin(),
-							   spAtlas_create_preloadedTextureNames->end(),
-							   path);
-		if (found != spAtlas_create_preloadedTextureNames->end()) {
-			auto foundIndex = found - spAtlas_create_preloadedTextureNames->begin();
-			if (foundIndex < spAtlas_create_preloadedTextures->size()) {
-				texture = spAtlas_create_preloadedTextures->at(foundIndex);
-			}
-		}
+	if (spine::_customTextureLoader) {
+		texture = spine::_customTextureLoader(path);
 	}
 	if (!texture) {
 		texture = Director::getInstance()->getTextureCache()->addImage(path);
 	}
-
 	CCASSERT(texture != nullptr, "Invalid image");
 	texture->retain();
 

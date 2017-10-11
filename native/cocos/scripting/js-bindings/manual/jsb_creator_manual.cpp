@@ -256,14 +256,21 @@ static bool js_creator_PhysicsRayCastCallback_getNormals(se::State& s)
 SE_BIND_FUNC(js_creator_PhysicsRayCastCallback_getNormals)
 
 
+static cocos2d::Map<std::string, cocos2d::Texture2D*>* _preloadedAtlasTextures = nullptr;
+static cocos2d::Texture2D* _getPreloadedAtlasTexture(const char* path)
+{
+    assert(_preloadedAtlasTextures);
+    auto it = _preloadedAtlasTextures->find(path);
+    return it != _preloadedAtlasTextures->end() ? it->second : nullptr;
+}
 
 static bool js_creator_sp_initSkeletonRenderer(se::State& s)
 {
-    // renderer, jsonPath, atlasText, textures, textureNames, scale
+    // renderer, jsonPath, atlasText, textures, scale
     const auto& args = s.args();
     int argc = (int)args.size();
-    if (argc != 6) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 6);
+    if (argc != 5) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 5);
         return false;
     }
     bool ok = false;
@@ -280,26 +287,24 @@ static bool js_creator_sp_initSkeletonRenderer(se::State& s)
     ok = seval_to_std_string(args[2], &atlasText);
     SE_PRECONDITION2(ok, false, "js_creator_sp_initSkeletonRenderer: Invalid atlas content!");
 
-    cocos2d::Vector<cocos2d::Texture2D *> textures;
-    ok = seval_to_Vector(args[3], &textures);
+    cocos2d::Map<std::string, cocos2d::Texture2D*> textures;
+    ok = seval_to_Map_string_key(args[3], &textures);
     SE_PRECONDITION2(ok, false, "js_creator_sp_initSkeletonRenderer: Invalid textures!");
 
-    std::vector<std::string> textureNames;
-    ok = seval_to_std_vector_string(args[4], &textureNames);
-    SE_PRECONDITION2(ok, false, "js_creator_sp_initSkeletonRenderer: Invalid textures names!");
-
     float scale = 1.0f;
-    ok = seval_to_float(args[5], &scale);
+    ok = seval_to_float(args[4], &scale);
     SE_PRECONDITION2(ok, false, "js_creator_sp_initSkeletonRenderer: Invalid scale!");
 
     // create atlas from preloaded texture
-    std::string emptyDir = "";
-    spine::spAtlas_create_preloadedTextures = &textures;
-    spine::spAtlas_create_preloadedTextureNames = &textureNames;
-    spAtlas* atlas = spAtlas_create(atlasText.c_str(), (int)atlasText.size(), emptyDir.c_str(), nullptr);
-    spine::spAtlas_create_preloadedTextures = nullptr;
-    spine::spAtlas_create_preloadedTextureNames = nullptr;
+
+    _preloadedAtlasTextures = &textures;
+    spine::spAtlasPage_setCustomTextureLoader(_getPreloadedAtlasTexture);
+
+    spAtlas* atlas = spAtlas_create(atlasText.c_str(), (int)atlasText.size(), "", nullptr);
     CCASSERT(atlas, "Error creating atlas.");
+
+    _preloadedAtlasTextures = nullptr;
+    spine::spAtlasPage_setCustomTextureLoader(nullptr);
 
     // init node
     node->initWithJsonFile(jsonPath, atlas, scale);
