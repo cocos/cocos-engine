@@ -10,6 +10,9 @@ Thumbs.db
 /prebuilt_mk*.zip
 /simulator.json
 
+# Ignore xcodeproj for backup
+/simulator.xcodeproj
+
 # Ignore files build by Visual Studio
 *.obj
 *.exe
