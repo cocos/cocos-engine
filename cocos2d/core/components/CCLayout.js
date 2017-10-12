@@ -591,7 +591,7 @@ var Layout = cc.Class({
             var topMarign = (tempMaxHeight === 0) ? child.height : tempMaxHeight;
 
             if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
-                containerResizeBoundary = containerResizeBoundary || this.node._contentSize.height;
+                containerResizeBoundary = containerResizeBoundary || this.node._contentSize.y;
                 signX = -1;
                 tempFinalPositionY  = finalPositionY +  signX * (topMarign * maxHeightChildAnchorY + this.paddingBottom);
                 if (tempFinalPositionY < containerResizeBoundary) {
@@ -599,7 +599,7 @@ var Layout = cc.Class({
                 }
             }
             else {
-                containerResizeBoundary = containerResizeBoundary || -this.node._contentSize.height;
+                containerResizeBoundary = containerResizeBoundary || -this.node._contentSize.y;
                 tempFinalPositionY  = finalPositionY +  signX * (topMarign * maxHeightChildAnchorY + this.paddingTop);
                 if (tempFinalPositionY > containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionY;
@@ -726,14 +726,14 @@ var Layout = cc.Class({
 
             if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
                 signX = -1;
-                containerResizeBoundary = containerResizeBoundary || this.node._contentSize.width;
+                containerResizeBoundary = containerResizeBoundary || this.node._contentSize.x;
                 tempFinalPositionX = finalPositionX + signX * (rightMarign * maxWidthChildAnchorX + this.paddingLeft);
                 if (tempFinalPositionX < containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionX;
                 }
             }
             else {
-                containerResizeBoundary = containerResizeBoundary || -this.node._contentSize.width;
+                containerResizeBoundary = containerResizeBoundary || -this.node._contentSize.x;
                 tempFinalPositionX = finalPositionX + signX * (rightMarign * maxWidthChildAnchorX + this.paddingRight);
                 if (tempFinalPositionX > containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionX;

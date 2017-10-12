@@ -24,16 +24,20 @@
 
 'use strict';
 
-var PrefabHelper = require('./utils/prefab-helper');
+const PrefabHelper = require('./utils/prefab-helper');
+const mathPools = require('./utils/math-pools');
+const renderEngine = require('./renderer/render-engine');
+const math = renderEngine.math;
 
-var Flags = cc.Object.Flags;
-var Destroying = Flags.Destroying;
+const Flags = cc.Object.Flags;
+const Destroying = Flags.Destroying;
 
-var POSITION_CHANGED = 'position-changed';
-var SIZE_CHANGED = 'size-changed';
-var ANCHOR_CHANGED = 'anchor-changed';
-var ROTATION_CHANGED = 'rotation-changed';
-var SCALE_CHANGED = 'scale-changed';
+const POSITION_CHANGED = 'position-changed';
+const SIZE_CHANGED = 'size-changed';
+const ANCHOR_CHANGED = 'anchor-changed';
+const ROTATION_CHANGED = 'rotation-changed';
+const SCALE_CHANGED = 'scale-changed';
+const CHILD_REORDER = 'child-reorder';
 
 var CHILD_REORDER = 'child-reorder';
 
@@ -305,17 +309,16 @@ var Node = cc.Class({
         _opacity: 255,
         _color: cc.Color.WHITE,
         _cascadeOpacityEnabled: true,
-        _anchorPoint: cc.p(0.5, 0.5),
-        _contentSize: cc.size(0, 0),
-        _rotationX: 0,
+        _contentSize: null,
+        _anchorPoint: null,
+        _position: null,
+        _scale: null,
+        _rotationX: 0.0,
         _rotationY: 0.0,
-        _scaleX: 1.0,
-        _scaleY: 1.0,
-        _position: cc.p(0, 0),
-        _skewX: 0,
-        _skewY: 0,
+        _skewX: 0.0,
+        _skewY: 0.0,
         _localZOrder: 0,
-        _globalZOrder: 0,
+        // _globalZOrder: 0,
         _opacityModifyRGB: false,
 
         // internal properties
@@ -539,11 +542,11 @@ var Node = cc.Class({
          */
         scaleX: {
             get () {
-                return this._scaleX;
+                return this._scale.x;
             },
             set (value) {
-                if (this._scaleX !== value) {
-                    this._scaleX = value;
+                if (this._scale.x !== value) {
+                    this._scale.x = value;
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[SCALE_CHANGED]) {
@@ -564,11 +567,11 @@ var Node = cc.Class({
          */
         scaleY: {
             get () {
-                return this._scaleY;
+                return this._scale.y;
             },
             set (value) {
-                if (this._scaleY !== value) {
-                    this._scaleY = value;
+                if (this._scale.y !== value) {
+                    this._scale.y = value;
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[SCALE_CHANGED]) {
@@ -727,14 +730,14 @@ var Node = cc.Class({
          */
         width: {
             get () {
-                return this._contentSize.width;
+                return this._contentSize.x;
             },
             set (value) {
-                if (value !== this._contentSize.width) {
+                if (value !== this._contentSize.x) {
                     if (CC_EDITOR) {
-                        var clone = cc.size(this._contentSize);
+                        var clone = cc.size(this._contentSize.x, this._contentSize.y);
                     }
-                    this._contentSize.width = value;
+                    this._contentSize.x = value;
                     if (CC_EDITOR) {
                         this.emit(SIZE_CHANGED, clone);
                     }
@@ -755,14 +758,14 @@ var Node = cc.Class({
          */
         height: {
             get () {
-                return this._contentSize.height;
+                return this._contentSize.y;
             },
             set (value) {
-                if (value !== this._contentSize.height) {
+                if (value !== this._contentSize.y) {
                     if (CC_EDITOR) {
-                        var clone = cc.size(this._contentSize);
+                        var clone = cc.size(this._contentSize.x, this._contentSize.y);
                     }
-                    this._contentSize.height = value;
+                    this._contentSize.y = value;
                     if (CC_EDITOR) {
                         this.emit(SIZE_CHANGED, clone);
                     }
@@ -808,15 +811,20 @@ var Node = cc.Class({
      */
     ctor (name) {
         this._reorderChildDirty = false;
-
+        
         // cache component
         this._widget = null;
-
         // Touch event listener
         this._touchListener = null;
-
         // Mouse event listener
         this._mouseListener = null;
+
+        this._contentSize = mathPools.vec2.get();
+        this._anchorPoint = mathPools.vec2.get();
+        this._anchorPoint.x = this._anchorPoint.y = 0.5;
+        this._position = mathPools.vec2.get();
+        this._scale = mathPools.vec2.get();
+        this._scale.x = this._scale.y = 1;
     },
 
     statics: {
@@ -866,6 +874,12 @@ var Node = cc.Class({
             this._mouseListener = null;
         }
         cc.eventManager.removeListeners(this);
+
+        // Recycle math objects
+        mathPools.vec2.put(this._contentSize);
+        mathPools.vec2.put(this._anchorPoint);
+        mathPools.vec2.put(this._position);
+        mathPools.vec2.put(this._scale);
 
         if (this._reorderChildDirty) {
             cc.director.__fastOff(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
@@ -1427,7 +1441,7 @@ var Node = cc.Class({
     /**
      * !#en
      * Returns the scale factor of the node.
-     * Assertion will fail when _scaleX != _scaleY.
+     * Assertion will fail when scale x != scale y.
      * !#zh 获取节点的缩放。当 X 轴和 Y 轴有相同的缩放数值时。
      * @method getScale
      * @return {Number} The scale factor
@@ -1435,9 +1449,9 @@ var Node = cc.Class({
      * cc.log("Node Scale: " + node.getScale());
      */
     getScale () {
-        if (this._scaleX !== this._scaleY)
+        if (this._scale.x !== this._scale.y)
             cc.logID(1603);
-        return this._scaleX;
+        return this._scale.x;
     },
 
     /**
@@ -1458,9 +1472,9 @@ var Node = cc.Class({
         else {
             scaleY = (scaleY || scaleY === 0) ? scaleY : scaleX;
         }
-        if (this._scaleX !== scaleX || this._scaleY !== scaleY) {
-            this._scaleX = scaleX;
-            this._scaleY = scaleY;
+        if (this._scale.x !== scaleX || this._scale.y !== scaleY) {
+            this._scale.x = scaleX;
+            this._scale.y = scaleY;
 
             var cache = this._hasListenerCache;
             if (cache && cache[SCALE_CHANGED]) {
@@ -1481,7 +1495,7 @@ var Node = cc.Class({
      * cc.log("Content Size: " + node.getContentSize());
      */
     getContentSize () {
-        return cc.size(this._contentSize);
+        return cc.size(this._contentSize.x, this._contentSize.y);
     },
 
     /**
@@ -1501,21 +1515,21 @@ var Node = cc.Class({
         var locContentSize = this._contentSize;
         var clone;
         if (height === undefined) {
-            if ((size.width === locContentSize.width) && (size.height === locContentSize.height))
+            if ((size.width === locContentSize.x) && (size.height === locContentSize.y))
                 return;
             if (CC_EDITOR) {
-                clone = cc.size(locContentSize);
+                clone = cc.size(locContentSize.x, locContentSize.y);
             }
-            locContentSize.width = size.width;
-            locContentSize.height = size.height;
+            locContentSize.x = size.width;
+            locContentSize.y = size.height;
         } else {
-            if ((size === locContentSize.width) && (height === locContentSize.height))
+            if ((size === locContentSize.x) && (height === locContentSize.y))
                 return;
             if (CC_EDITOR) {
-                clone = cc.size(locContentSize);
+                clone = cc.size(locContentSize.x, locContentSize.y);
             }
-            locContentSize.width = size;
-            locContentSize.height = height;
+            locContentSize.x = size;
+            locContentSize.y = height;
         }
         if (CC_EDITOR) {
             this.emit(SIZE_CHANGED, clone);
