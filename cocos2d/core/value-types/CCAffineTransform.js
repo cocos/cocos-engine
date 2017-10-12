@@ -66,6 +66,23 @@ cc.affineTransformMake = function (a, b, c, d, tx, ty) {
 };
 
 /**
+ * !#en
+ * Create a identity transformation matrix: <br/>
+ * [ 1, 0, 0, <br/>
+ *   0, 1, 0 ]
+ * !#zh
+ * 单位矩阵：<br/>
+ * [ 1, 0, 0, <br/>
+ *   0, 1, 0 ]
+ *
+ * @method affineTransformMakeIdentity
+ * @return {AffineTransform}
+ */
+cc.affineTransformMakeIdentity = function () {
+    return {a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 0.0, ty: 0.0};
+};
+
+/**
  * !#en Clone a cc.AffineTransform object from the specified transform.
  * !#zh 克隆指定的 cc.AffineTransform 对象。
  * @method affineTransformClone
@@ -98,7 +115,7 @@ cc.pointApplyAffineTransform = function (point, transOrY, t) {
     return {x: t.a * x + t.c * y + t.tx, y: t.b * x + t.d * y + t.ty};
 };
 
-cc._pointApplyAffineTransformIn = function (point, transOrY, transOrOut, out) {
+cc._pointApplyAffineTransformOut = function (point, transOrY, transOrOut, out) {
     var x, y, t;
     if (out === undefined) {
         t = transOrY;
@@ -114,10 +131,6 @@ cc._pointApplyAffineTransformIn = function (point, transOrY, transOrOut, out) {
     out.y = t.b * x + t.d * y + t.ty;
 };
 
-cc._pointApplyAffineTransform = function (x, y, t) {   //it will remove.
-    return cc.pointApplyAffineTransform(x, y, t);
-};
-
 /**
  * !#en Apply the affine transformation on a size.
  * !#zh 应用 Size 到仿射变换矩阵上。
@@ -128,38 +141,6 @@ cc._pointApplyAffineTransform = function (x, y, t) {   //it will remove.
  */
 cc.sizeApplyAffineTransform = function (size, t) {
     return {width: t.a * size.width + t.c * size.height, height: t.b * size.width + t.d * size.height};
-};
-
-/**
- * !#en
- * Create a identity transformation matrix: <br/>
- * [ 1, 0, 0, <br/>
- *   0, 1, 0 ]
- * !#zh
- * 单位矩阵：<br/>
- * [ 1, 0, 0, <br/>
- *   0, 1, 0 ]
- *
- * @method affineTransformMakeIdentity
- * @return {AffineTransform}
- */
-cc.affineTransformMakeIdentity = function () {
-    return {a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 0.0, ty: 0.0};
-};
-
-/*
- * Create a identity transformation matrix: <br/>
- * [ 1, 0, 0, <br/>
- *   0, 1, 0 ]
- *
- *
- * @method affineTransformIdentity
- * @return {AffineTransform}
- * @deprecated since v3.0, please use cc.affineTransformMakeIdentity() instead
- * @see cc.affineTransformMakeIdentity
- */
-cc.affineTransformIdentity = function () {
-    return {a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 0.0, ty: 0.0};
 };
 
 /**
@@ -189,6 +170,32 @@ cc.rectApplyAffineTransform = function (rect, t) {
     var minY = Math.min(lby, rby, lty, rty);
     var maxY = Math.max(lby, rby, lty, rty);
     return cc.rect(minX, minY, (maxX - minX), (maxY - minY));
+};
+
+function rectApplyMat4Out (rect, mat, out){
+    var ol = rect.x;
+    var ob = rect.y;
+    var or = ol + rect.width;
+    var ot = ob + rect.height;
+    var lbx = mat.m00 * ol + mat.m04 * ob + mat.m12;
+    var lby = mat.m01 * ol + mat.m05 * ob + mat.m13;
+    var rbx = mat.m00 * or + mat.m04 * ob + mat.m12;
+    var rby = mat.m01 * or + mat.m05 * ob + mat.m13;
+    var ltx = mat.m00 * ol + mat.m04 * ot + mat.m12;
+    var lty = mat.m01 * ol + mat.m05 * ot + mat.m13;
+    var rtx = mat.m00 * or + mat.m04 * ot + mat.m12;
+    var rty = mat.m01 * or + mat.m05 * ot + mat.m13;
+
+    var minX = Math.min(lbx, rbx, ltx, rtx);
+    var maxX = Math.max(lbx, rbx, ltx, rtx);
+    var minY = Math.min(lby, rby, lty, rty);
+    var maxY = Math.max(lby, rby, lty, rty);
+
+    out.x = minX;
+    out.y = minY;
+    out.width = maxX - minX;
+    out.height = maxY - minY;
+    return out;
 };
 
 cc._rectApplyAffineTransformIn = function(rect, t){
@@ -252,59 +259,6 @@ cc.obbApplyAffineTransform = function (rect, anAffineTransform, out_bl, out_tl, 
 };
 
 /**
- * !#en Create a new affine transformation with a base transformation matrix and a translation based on it.
- * !#zh 基于一个基础矩阵加上一个平移操作来创建一个新的矩阵。
- * @method affineTransformTranslate
- * @param {AffineTransform} t - The base affine transform object.
- * @param {Number} tx - The translation on x axis.
- * @param {Number} ty - The translation on y axis.
- * @return {AffineTransform}
- */
-cc.affineTransformTranslate = function (t, tx, ty) {
-    return {
-        a: t.a,
-        b: t.b,
-        c: t.c,
-        d: t.d,
-        tx: t.tx + t.a * tx + t.c * ty,
-        ty: t.ty + t.b * tx + t.d * ty
-    };
-};
-
-/**
- * !#en Create a new affine transformation with a base transformation matrix and a scale based on it.
- * !#zh 创建一个基础变换矩阵，并在此基础上进行了 Scale 仿射变换。
- * @method affineTransformScale
- * @param {AffineTransform} t - The base affine transform object.
- * @param {Number} sx - The scale on x axis.
- * @param {Number} sy - The scale on y axis.
- * @return {AffineTransform}
- */
-cc.affineTransformScale = function (t, sx, sy) {
-    return {a: t.a * sx, b: t.b * sx, c: t.c * sy, d: t.d * sy, tx: t.tx, ty: t.ty};
-};
-
-/**
- * !#en Create a new affine transformation with a base transformation matrix and a rotation based on it.
- * !#zh 创建一个基础变换矩阵，并在此基础上进行了 Rotation 仿射变换。
- * @method affineTransformRotate
- * @param {AffineTransform} aTransform - The base affine transform object.
- * @param {Number} anAngle - The angle to rotate.
- * @return {AffineTransform}
- */
-cc.affineTransformRotate = function (aTransform, anAngle) {
-    var fSin = Math.sin(anAngle);
-    var fCos = Math.cos(anAngle);
-
-    return {a: aTransform.a * fCos + aTransform.c * fSin,
-        b: aTransform.b * fCos + aTransform.d * fSin,
-        c: aTransform.c * fCos - aTransform.a * fSin,
-        d: aTransform.d * fCos - aTransform.b * fSin,
-        tx: aTransform.tx,
-        ty: aTransform.ty};
-};
-
-/**
  * !#en
  * Concatenate a transform matrix to another and return the result:<br/>
  * t' = t1 * t2
@@ -350,18 +304,6 @@ cc.affineTransformConcatIn = function (t1, t2) {
 };
 
 /**
- * !#en Return true if an affine transform equals to another, false otherwise.
- * !#zh 判断两个矩阵是否相等。
- * @method affineTransformEqualToTransform
- * @param {AffineTransform} t1
- * @param {AffineTransform} t2
- * @return {Boolean}
- */
-cc.affineTransformEqualToTransform = function (t1, t2) {
-    return ((t1.a === t2.a) && (t1.b === t2.b) && (t1.c === t2.c) && (t1.d === t2.d) && (t1.tx === t2.tx) && (t1.ty === t2.ty));
-};
-
-/**
  * !#en Get the invert transform of an AffineTransform object.
  * !#zh 求逆矩阵。
  * @method affineTransformInvert
@@ -390,4 +332,28 @@ cc.affineTransformInvertOut = function (t, out) {
     out.d = determinant * a;
     out.tx = determinant * (c * t.ty - d * t.tx);
     out.ty = determinant * (b * t.tx - a * t.ty);
+};
+
+function affineTransformFromMatrixOut (mat, out) {
+    out.a = mat.m00;
+    out.b = mat.m01;
+    out.c = mat.m04;
+    out.d = mat.m05;
+    out.tx = mat.m12;
+    out.ty = mat.m13;
+    return out;
+};
+
+module.exports = {
+    make: cc.affineTransformMake,
+    makeIdentity: cc.affineTransformMakeIdentity,
+    fromMatrix: affineTransformFromMatrixOut,
+    clone: cc.affineTransformClone,
+    pointApply: cc._pointApplyAffineTransformOut,
+    sizeApply: cc.sizeApplyAffineTransform,
+    rectApplyIn: cc._rectApplyAffineTransformIn,
+    rectApplyMat4: rectApplyMat4Out,
+    concatIn: cc.affineTransformConcatIn,
+    equal: cc.affineTransformEqualToTransform,
+    invert: cc.affineTransformInvertOut,
 };

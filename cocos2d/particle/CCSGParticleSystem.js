@@ -1644,9 +1644,9 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
                     if (this.positionType === _ccsg.ParticleSystem.Type.FREE || this.positionType === _ccsg.ParticleSystem.Type.RELATIVE) {
                         var diff = tpb, localStartPos = tpc;
                         // current Position convert To Node Space
-                        cc._pointApplyAffineTransformIn(currentPosition, worldToNodeTransform, diff);
+                        cc._pointApplyAffineTransformOut(currentPosition, worldToNodeTransform, diff);
                         // start Position convert To Node Space
-                        cc._pointApplyAffineTransformIn(selParticle.startPos, worldToNodeTransform, localStartPos);
+                        cc._pointApplyAffineTransformOut(selParticle.startPos, worldToNodeTransform, localStartPos);
                         cc.pSubIn(diff, localStartPos);
 
                         cc.pIn(newPos, selParticle.pos);
