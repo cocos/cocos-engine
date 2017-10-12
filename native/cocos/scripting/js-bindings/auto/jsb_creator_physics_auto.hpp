@@ -1,0 +1,95 @@
+#pragma once
+#include "base/ccConfig.h"
+
+#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
+
+extern se::Object* __jsb_creator_PhysicsDebugDraw_proto;
+extern se::Class* __jsb_creator_PhysicsDebugDraw_class;
+
+bool js_register_creator_PhysicsDebugDraw(se::Object* obj);
+bool register_all_creator_physics(se::Object* obj);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsDebugDraw_getDrawer);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsDebugDraw_ClearDraw);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsDebugDraw_AddDrawerToNode);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsDebugDraw_PhysicsDebugDraw);
+
+extern se::Object* __jsb_creator_PhysicsWorldManifoldWrapper_proto;
+extern se::Class* __jsb_creator_PhysicsWorldManifoldWrapper_class;
+
+bool js_register_creator_PhysicsWorldManifoldWrapper(se::Object* obj);
+bool register_all_creator_physics(se::Object* obj);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsWorldManifoldWrapper_getSeparation);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsWorldManifoldWrapper_getX);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsWorldManifoldWrapper_getY);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsWorldManifoldWrapper_getCount);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsWorldManifoldWrapper_getNormalY);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsWorldManifoldWrapper_getNormalX);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsWorldManifoldWrapper_PhysicsWorldManifoldWrapper);
+
+extern se::Object* __jsb_creator_PhysicsManifoldWrapper_proto;
+extern se::Class* __jsb_creator_PhysicsManifoldWrapper_class;
+
+bool js_register_creator_PhysicsManifoldWrapper(se::Object* obj);
+bool register_all_creator_physics(se::Object* obj);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsManifoldWrapper_getNormalImpulse);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsManifoldWrapper_getLocalNormalY);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsManifoldWrapper_getLocalNormalX);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsManifoldWrapper_getLocalPointY);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsManifoldWrapper_getLocalPointX);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsManifoldWrapper_getType);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsManifoldWrapper_getX);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsManifoldWrapper_getY);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsManifoldWrapper_getTangentImpulse);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsManifoldWrapper_getCount);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsManifoldWrapper_PhysicsManifoldWrapper);
+
+extern se::Object* __jsb_creator_PhysicsUtils_proto;
+extern se::Class* __jsb_creator_PhysicsUtils_class;
+
+bool js_register_creator_PhysicsUtils(se::Object* obj);
+bool register_all_creator_physics(se::Object* obj);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsUtils_addB2Body);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsUtils_syncNode);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsUtils_removeB2Body);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsUtils_getContactManifoldWrapper);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsUtils_getContactWorldManifoldWrapper);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsUtils_PhysicsUtils);
+
+extern se::Object* __jsb_creator_PhysicsContactImpulse_proto;
+extern se::Class* __jsb_creator_PhysicsContactImpulse_class;
+
+bool js_register_creator_PhysicsContactImpulse(se::Object* obj);
+bool register_all_creator_physics(se::Object* obj);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsContactImpulse_getCount);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsContactImpulse_getNormalImpulse);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsContactImpulse_getTangentImpulse);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsContactImpulse_PhysicsContactImpulse);
+
+extern se::Object* __jsb_creator_PhysicsContactListener_proto;
+extern se::Class* __jsb_creator_PhysicsContactListener_class;
+
+bool js_register_creator_PhysicsContactListener(se::Object* obj);
+bool register_all_creator_physics(se::Object* obj);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsContactListener_unregisterContactFixture);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsContactListener_registerContactFixture);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsContactListener_PhysicsContactListener);
+
+extern se::Object* __jsb_creator_PhysicsAABBQueryCallback_proto;
+extern se::Class* __jsb_creator_PhysicsAABBQueryCallback_class;
+
+bool js_register_creator_PhysicsAABBQueryCallback(se::Object* obj);
+bool register_all_creator_physics(se::Object* obj);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsAABBQueryCallback_init);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsAABBQueryCallback_getFixture);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsAABBQueryCallback_PhysicsAABBQueryCallback);
+
+extern se::Object* __jsb_creator_PhysicsRayCastCallback_proto;
+extern se::Class* __jsb_creator_PhysicsRayCastCallback_class;
+
+bool js_register_creator_PhysicsRayCastCallback(se::Object* obj);
+bool register_all_creator_physics(se::Object* obj);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsRayCastCallback_getType);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsRayCastCallback_init);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsRayCastCallback_getFractions);
+SE_DECLARE_FUNC(js_creator_physics_PhysicsRayCastCallback_PhysicsRayCastCallback);
+

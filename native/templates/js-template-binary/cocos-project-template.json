@@ -51,6 +51,12 @@
         "to":"frameworks/runtime-src/proj.android-studio/app/src"
       }
     ],
+    "append_file": [
+      {
+        "from": "cocos/scripting/js-bindings/manual/jsb_module_register.cpp",
+        "to": "frameworks/runtime-src/Classes/jsb_module_register.cpp"
+      }
+    ],
     "project_rename": {
       "src_project_name": "HelloJavascript",
       "files": [

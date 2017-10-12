@@ -1,9 +1,9 @@
-#include "jsb_creator_manual.hpp"
+#include "jsb_creator_physics_manual.hpp"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 #include "cocos/scripting/js-bindings/manual/jsb_box2d_manual.hpp"
-#include "cocos/scripting/js-bindings/auto/jsb_creator_auto.hpp"
+#include "cocos/scripting/js-bindings/auto/jsb_creator_physics_auto.hpp"
 #include "cocos/scripting/js-bindings/auto/jsb_box2d_auto.hpp"
 
 #include "editor-support/creator/physics/CCPhysicsContactListener.h"
@@ -253,7 +253,7 @@ static bool js_creator_PhysicsRayCastCallback_getNormals(se::State& s)
 }
 SE_BIND_FUNC(js_creator_PhysicsRayCastCallback_getNormals)
 
-bool register_all_creator_manual(se::Object* obj)
+bool register_all_creator_physics_manual(se::Object* obj)
 {
     __jsb_creator_PhysicsContactListener_proto->defineFunction("setPreSolve", _SE(js_creator_PhysicsContactListener_setPreSolve));
     __jsb_creator_PhysicsContactListener_proto->defineFunction("setPostSolve", _SE(js_creator_PhysicsContactListener_setPostSolve));
