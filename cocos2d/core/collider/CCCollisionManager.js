@@ -1,5 +1,6 @@
-var Contact = require('./CCContact');
-var CollisionType = Contact.CollisionType;
+const Contact = require('./CCContact');
+const affineTrans = require('../value-types/CCAffineTransform');
+const CollisionType = Contact.CollisionType;
 
 var tempRect = cc.rect();
 var tempVec2 = cc.v2();
@@ -172,6 +173,7 @@ var CollisionManager = cc.Class({
             var world = collider.world = {};
             world.aabb = cc.rect();
             world.preAabb = cc.rect();
+            world.transform = affineTrans.make();
 
             world.radius = 0;
 
@@ -196,7 +198,7 @@ var CollisionManager = cc.Class({
         var offset = collider.offset;
         var world = collider.world;
         var aabb = world.aabb;
-        var t = world.transform = collider.node.getNodeToWorldTransformAR();
+        var t = collider.node.getNodeToWorldTransformAR(world.transform);
 
         var preAabb = world.preAabb;
         preAabb.x = aabb.x;

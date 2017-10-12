@@ -27,6 +27,7 @@
 const PrefabHelper = require('./utils/prefab-helper');
 const mathPools = require('./utils/math-pools');
 const renderEngine = require('./renderer/render-engine');
+const affineTrans = require('./value-types/CCAffineTransform');
 const math = renderEngine.math;
 
 const Flags = cc.Object.Flags;
@@ -39,9 +40,8 @@ const ROTATION_CHANGED = 'rotation-changed';
 const SCALE_CHANGED = 'scale-changed';
 const CHILD_REORDER = 'child-reorder';
 
-var CHILD_REORDER = 'child-reorder';
-
-var ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
+const ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
+const ONE_DEGREE = Math.PI / 180;
 
 var Misc = require('./utils/misc');
 var Event = require('./event/event');
@@ -49,6 +49,8 @@ var Event = require('./event/event');
 
 var ActionManagerExist = !!cc.ActionManager;
 var emptyFunc = function () {};
+var _mat4_temp = math.mat4.create();
+var _trans = affineTrans.make();
 var _globalOrderOfArrival = 1;
 
 /**
@@ -392,6 +394,7 @@ var Node = cc.Class({
                         }
 
                         localPosition.x = value;
+                        this._localMatDirty = true;
                         
                         // fast check event
                         var cache = this._hasListenerCache;
@@ -434,6 +437,7 @@ var Node = cc.Class({
                         }
 
                         localPosition.y = value;
+                        this._localMatDirty = true;
 
                         // fast check event
                         var cache = this._hasListenerCache;
@@ -472,6 +476,7 @@ var Node = cc.Class({
             set (value) {
                 if (this._rotationX !== value || this._rotationY !== value) {
                     this._rotationX = this._rotationY = value;
+                    this._localMatDirty = true;
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[ROTATION_CHANGED]) {
@@ -497,6 +502,7 @@ var Node = cc.Class({
             set (value) {
                 if (this._rotationX !== value) {
                     this._rotationX = value;
+                    this._localMatDirty = true;
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[ROTATION_CHANGED]) {
@@ -522,6 +528,7 @@ var Node = cc.Class({
             set (value) {
                 if (this._rotationY !== value) {
                     this._rotationY = value;
+                    this._localMatDirty = true;
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[ROTATION_CHANGED]) {
@@ -547,6 +554,7 @@ var Node = cc.Class({
             set (value) {
                 if (this._scale.x !== value) {
                     this._scale.x = value;
+                    this._localMatDirty = true;
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[SCALE_CHANGED]) {
@@ -572,6 +580,7 @@ var Node = cc.Class({
             set (value) {
                 if (this._scale.y !== value) {
                     this._scale.y = value;
+                    this._localMatDirty = true;
 
                     var cache = this._hasListenerCache;
                     if (cache && cache[SCALE_CHANGED]) {
@@ -596,6 +605,7 @@ var Node = cc.Class({
             },
             set (value) {
                 this._skewX = value;
+                this._localMatDirty = true;
             }
         },
 
@@ -614,6 +624,7 @@ var Node = cc.Class({
             },
             set (value) {
                 this._skewY = value;
+                this._localMatDirty = true;
             }
         },
 
@@ -825,6 +836,11 @@ var Node = cc.Class({
         this._position = mathPools.vec2.get();
         this._scale = mathPools.vec2.get();
         this._scale.x = this._scale.y = 1;
+
+        this._matrix = mathPools.mat4.get();
+        this._worldMatrix = mathPools.mat4.get();
+        this._localMatDirty = true;
+        this._worldMatDirty = true;
     },
 
     statics: {
@@ -880,6 +896,8 @@ var Node = cc.Class({
         mathPools.vec2.put(this._anchorPoint);
         mathPools.vec2.put(this._position);
         mathPools.vec2.put(this._scale);
+        mathPools.mat4.put(this._matrix);
+        mathPools.mat4.put(this._worldMatrix);
 
         if (this._reorderChildDirty) {
             cc.director.__fastOff(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
@@ -1171,8 +1189,8 @@ var Node = cc.Class({
             point = Camera.main.getCameraToWorldPoint(point);
         }
         
-        var trans = this.getNodeToWorldTransform();
-        cc._rectApplyAffineTransformIn(rect, trans);
+        this.getNodeToWorldTransform(_trans);
+        cc._rectApplyAffineTransformIn(rect, _trans);
         var left = point.x - rect.x,
             right = rect.x + rect.width - point.x,
             bottom = point.y - rect.y,
@@ -1424,6 +1442,7 @@ var Node = cc.Class({
         else {
             return cc.error(ERR_INVALID_NUMBER, 'y of new position');
         }
+        this._localMatDirty = true;
 
         // fast check event
         var cache = this._hasListenerCache;
@@ -1475,6 +1494,7 @@ var Node = cc.Class({
         if (this._scale.x !== scaleX || this._scale.y !== scaleY) {
             this._scale.x = scaleX;
             this._scale.y = scaleY;
+            this._localMatDirty = true;
 
             var cache = this._hasListenerCache;
             if (cache && cache[SCALE_CHANGED]) {
@@ -1711,6 +1731,137 @@ var Node = cc.Class({
         return this._sgNode.getDisplayedColor();
     },
 
+    _updateLocalMatrix () {
+        if (this._localMatDirty) {
+            // Update transform
+            let t = this._matrix;
+            let hasRotation = this._rotationX || this._rotationY;
+            let hasSkew = this._skewX || this._skewY;
+            // position
+            t.m12 = this._position.x;
+            t.m13 = this._position.y;
+
+            // rotation
+            let a = 1, b = 0, c = 0, d = 1;
+            if (hasRotation) {
+                let rotationRadiansX = this._rotationX * ONE_DEGREE;
+                c = Math.sin(rotationRadiansX);
+                d = Math.cos(rotationRadiansX);
+                if (this._rotationY === this._rotationX) {
+                    a = d;
+                    b = -c;
+                }
+                else {
+                    let rotationRadiansY = this._rotationY * ONE_DEGREE;
+                    a = Math.cos(rotationRadiansY);
+                    b = -Math.sin(rotationRadiansY);
+                }
+            }
+
+            // scale
+            t.m01 = a *= this._scale.x;
+            t.m02 = b *= this._scale.x;
+            t.m04 = c *= this._scale.y;
+            t.m05 = d *= this._scale.y;
+
+            // skew
+            if (hasSkew) {
+                let skx = Math.tan(this._skewX * ONE_DEGREE);
+                let sky = Math.tan(this._skewY * ONE_DEGREE);
+                if (skx === Infinity)
+                    skx = 99999999;
+                if (sky === Infinity)
+                    sky = 99999999;
+                t.m01 = a + c * sky;
+                t.m02 = b + d * sky;
+                t.m04 = c + a * skx;
+                t.m05 = d + b * skx;
+            }
+            this._localMatDirty = false;
+            // Register dirty status of world matrix so that it can be recalculated
+            this._worldMatDirty = true;
+        }
+    },
+
+    _calculWorldMatrix () {
+        // Avoid as much function call as possible
+        if (this._localMatDirty) {
+            this._updateLocalMatrix();
+        }
+        // Assume parent world matrix is correct
+        let parentMat = this._parent._worldMatrix;
+        math.mat4.mul(this._worldMatrix, parentMat, this._matrix);
+        this._worldMatDirty = false;
+
+        for (let i = 0, len = this._children.length; i < len; ++i) {
+            let child = this._children[i];
+            child._calculWorldMatrix();
+        }
+    },
+
+    _updateWorldMatrix () {
+        let curr = this;
+        let changedRoot = null;
+        while (curr) {
+            if (curr._localMatDirty || curr._worldMatDirty) {
+                changedRoot = curr;
+            }
+            curr = curr._parent;
+        }
+        if (changedRoot) {
+            changedRoot._calculWorldMatrix();
+        }
+    },
+
+    /**
+     * !#en
+     * Get the local transform matrix (4x4), based on parent node coordinates
+     * !#zh 返回局部空间坐标系的矩阵，基于父节点坐标系。
+     * @method getLocalMatrix
+     * @param {vmath.mat4} out The matrix object to be filled with data
+     * @return {vmath.mat4} Same as the out matrix object
+     * @example
+     * let mat4 = vmath.mat4.create();
+     * node.getLocalMatrix(mat4);
+     */
+    getLocalMatrix (out) {
+        this._updateLocalMatrix();
+        math.mat4.copy(out, this._matrix);
+    },
+    
+    /**
+     * !#en
+     * Get the local transform matrix (4x4), based on parent node coordinates
+     * !#zh 返回局部空间坐标系的矩阵，基于父节点坐标系。
+     * @method getLocalMatrix
+     * @param {vmath.mat4} out The matrix object to be filled with data
+     * @return {vmath.mat4} Same as the out matrix object
+     * @example
+     * let mat4 = vmath.mat4.create();
+     * node.getLocalMatrix(mat4);
+     */
+    getWorldMatrix (out) {
+        this._updateWorldMatrix();
+        math.mat4.copy(out, this._worldMatrix);
+    },
+    
+    /**
+     * !#en
+     * Returns the matrix that transform the node's (local) space coordinates into the parent's space coordinates.<br/>
+     * The matrix is in Pixels.
+     * !#zh 返回这个将节点（局部）的空间坐标系转换成父节点的空间坐标系的矩阵。这个矩阵以像素为单位。
+     * @method getNodeToParentTransform
+     * @param {AffineTransform} out The affine transform object to be filled with data
+     * @return {AffineTransform} Same as the out affine transform object
+     * @example
+     * let affineTransform = cc.affineTransformMake();
+     * node.getNodeToParentTransform(affineTransform);
+     */
+    getNodeToParentTransform (out) {
+        this._updateLocalMatrix();
+        return affineTrans.fromMatrix(this._matrix, out);
+    },
+
     /**
      * !#en
      * Returns the matrix that transform the node's (local) space coordinates into the parent's space coordinates.<br/>
@@ -1721,134 +1872,38 @@ var Node = cc.Class({
      * 这个矩阵以像素为单位。<br/>
      * 该方法基于节点坐标。
      * @method getNodeToParentTransformAR
-     * @return {AffineTransform} The affine transform object
+     * @param {AffineTransform} out The affine transform object to be filled with data
+     * @return {AffineTransform} Same as the out affine transform object
      * @example
-     * var affineTransform = node.getNodeToParentTransformAR();
+     * let affineTransform = cc.affineTransformMake();
+     * node.getNodeToParentTransformAR(affineTransform);
      */
-    getNodeToParentTransformAR () {
-        var contentSize = this.getContentSize();
-        var mat = this._sgNode.getNodeToParentTransform();
-        if (!this._isSgTransformArToMe(contentSize)) {
-            // see getNodeToWorldTransform
-            var tx = this._anchorPoint.x * contentSize.width;
-            var ty = this._anchorPoint.y * contentSize.height;
-            var offset = cc.affineTransformMake(1, 0, 0, 1, tx, ty);
-            mat = cc.affineTransformConcatIn(offset, mat);
-        }
-        return mat;
-    },
+    getNodeToParentTransformAR (out) {
+        this._updateLocalMatrix();
+        
+        var contentSize = this._contentSize;
+        // see getNodeToWorldTransform
+        var tx = this._anchorPoint.x * contentSize.x;
+        var ty = this._anchorPoint.y * contentSize.y;
 
-    /**
-     * !#en
-     * Returns a "local" axis aligned bounding box of the node. <br/>
-     * The returned box is relative only to its parent.
-     * !#zh 返回父节坐标系下的轴向对齐的包围盒。
-     * @method getBoundingBox
-     * @return {Rect} The calculated bounding box of the node
-     * @example
-     * var boundingBox = node.getBoundingBox();
-     */
-    getBoundingBox () {
-        var size = this.getContentSize();
-        var rect = cc.rect(0, 0, size.width, size.height);
-        return cc._rectApplyAffineTransformIn(rect, this.getNodeToParentTransform());
-    },
-
-    /**
-     * !#en
-     * Returns a "world" axis aligned bounding box of the node.<br/>
-     * The bounding box contains self and active children's world bounding box.
-     * !#zh
-     * 返回节点在世界坐标系下的对齐轴向的包围盒（AABB）。<br/>
-     * 该边框包含自身和已激活的子节点的世界边框。
-     * @method getBoundingBoxToWorld
-     * @return {Rect}
-     * @example
-     * var newRect = node.getBoundingBoxToWorld();
-     */
-    getBoundingBoxToWorld () {
-        var trans;
-        if (this.parent) {
-            trans = this.parent.getNodeToWorldTransformAR();
-        }
-        return this._getBoundingBoxTo(trans);
-    },
-
-    _getBoundingBoxTo (parentTransformAR) {
-        var size = this.getContentSize();
-        var width = size.width;
-        var height = size.height;
-        var rect = cc.rect(-this._anchorPoint.x * width, -this._anchorPoint.y * height, width, height);
-
-        var transAR = cc.affineTransformConcat(this.getNodeToParentTransformAR(), parentTransformAR);
-        cc._rectApplyAffineTransformIn(rect, transAR);
-
-        //query child's BoundingBox
-        if (!this._children)
-            return rect;
-
-        var locChildren = this._children;
-        for (var i = 0; i < locChildren.length; i++) {
-            var child = locChildren[i];
-            if (child && child.active) {
-                var childRect = child._getBoundingBoxTo(transAR);
-                if (childRect)
-                    rect = cc.rectUnion(rect, childRect);
-            }
-        }
-        return rect;
-    },
-
-    /**
-     * !#en
-     * Returns the matrix that transform the node's (local) space coordinates into the parent's space coordinates.<br/>
-     * The matrix is in Pixels.
-     * !#zh 返回这个将节点（局部）的空间坐标系转换成父节点的空间坐标系的矩阵。这个矩阵以像素为单位。
-     * @method getNodeToParentTransform
-     * @return {AffineTransform} The affine transform object
-     * @example
-     * var affineTransform = node.getNodeToParentTransform();
-     */
-    getNodeToParentTransform () {
-        var contentSize = this.getContentSize();
-        var mat = this._sgNode.getNodeToParentTransform();
-        if (this._isSgTransformArToMe(contentSize)) {
-            // see getNodeToWorldTransform
-            var tx = -this._anchorPoint.x * contentSize.width;
-            var ty = -this._anchorPoint.y * contentSize.height;
-            var offset = cc.affineTransformMake(1, 0, 0, 1, tx, ty);
-            mat = cc.affineTransformConcatIn(offset, mat);
-        }
-        return mat;
+        math.mat4.copy(_mat4_temp, this._matrix);
+        math.mat4.translate(_mat4_temp, tx, ty);
+        return affineTrans.fromMatrix(_mat4_temp, out);
     },
 
     /**
      * !#en Returns the world affine transform matrix. The matrix is in Pixels.
      * !#zh 返回节点到世界坐标系的仿射变换矩阵。矩阵单位是像素。
      * @method getNodeToWorldTransform
-     * @return {AffineTransform}
+     * @param {AffineTransform} out The affine transform object to be filled with data
+     * @return {AffineTransform} Same as the out affine transform object
      * @example
-     * var affineTransform = node.getNodeToWorldTransform();
+     * let affineTransform = cc.affineTransformMake();
+     * node.getNodeToWorldTransform(affineTransform);
      */
-    getNodeToWorldTransform () {
-        var contentSize = this.getContentSize();
-
-        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
-            // ensure transform computed
-            cc.director._visitScene();
-        }
-        var mat = this._sgNode.getNodeToWorldTransform();
-
-        if (this._isSgTransformArToMe(contentSize)) {
-            // _sgNode.getNodeToWorldTransform is not anchor relative (AR), in this case,
-            // we should translate to bottem left to consistent with it
-            // see https://github.com/cocos-creator/engine/pull/391
-            var tx = -this._anchorPoint.x * contentSize.width;
-            var ty = -this._anchorPoint.y * contentSize.height;
-            var offset = cc.affineTransformMake(1, 0, 0, 1, tx, ty);
-            mat = cc.affineTransformConcatIn(offset, mat);
-        }
-        return mat;
+    getNodeToWorldTransform (out) {
+        this._updateWorldMatrix();
+        return affineTrans.fromMatrix(this._worldMatrix, out);
     },
 
     /**
@@ -1859,27 +1914,23 @@ var Node = cc.Class({
      * 返回节点到世界坐标仿射变换矩阵。矩阵单位是像素。<br/>
      * 该方法基于节点坐标。
      * @method getNodeToWorldTransformAR
-     * @return {AffineTransform}
+     * @param {AffineTransform} out The affine transform object to be filled with data
+     * @return {AffineTransform} Same as the out affine transform object
      * @example
-     * var mat = node.getNodeToWorldTransformAR();
+     * let affineTransform = cc.affineTransformMake();
+     * node.getNodeToWorldTransformAR(affineTransform);
      */
-    getNodeToWorldTransformAR () {
-        var contentSize = this.getContentSize();
+    getNodeToWorldTransformAR (out) {
+        this._updateWorldMatrix();
 
-        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
-            // ensure transform computed
-            cc.director._visitScene();
-        }
-        var mat = this._sgNode.getNodeToWorldTransform();
+        var contentSize = this._contentSize;
+        // see getNodeToWorldTransform
+        var tx = this._anchorPoint.x * contentSize.x;
+        var ty = this._anchorPoint.y * contentSize.y;
 
-        if (!this._isSgTransformArToMe(contentSize)) {
-            // see getNodeToWorldTransform
-            var tx = this._anchorPoint.x * contentSize.width;
-            var ty = this._anchorPoint.y * contentSize.height;
-            var offset = cc.affineTransformMake(1, 0, 0, 1, tx, ty);
-            mat = cc.affineTransformConcatIn(offset, mat);
-        }
-        return mat;
+        math.mat4.copy(_mat4_temp, this._worldMatrix);
+        math.mat4.translate(_mat4_temp, tx, ty);
+        return affineTrans.fromMatrix(_mat4_temp, out);
     },
 
     /**
@@ -1890,28 +1941,32 @@ var Node = cc.Class({
      * 返回将父节点的坐标系转换成节点（局部）的空间坐标系的矩阵。<br/>
      * 该矩阵以像素为单位。返回的矩阵是只读的，不能更改。
      * @method getParentToNodeTransform
-     * @return {AffineTransform}
+     * @param {AffineTransform} out The affine transform object to be filled with data
+     * @return {AffineTransform} Same as the out affine transform object
      * @example
-     * var affineTransform = node.getParentToNodeTransform();
+     * let affineTransform = cc.affineTransformMake();
+     * node.getParentToNodeTransform(affineTransform);
      */
-    getParentToNodeTransform () {
-        return this._sgNode.getParentToNodeTransform();
+    getParentToNodeTransform (out) {
+        this._updateLocalMatrix();
+        math.mat4.invert(_mat4_temp, this._matrix);
+        return affineTrans.fromMatrix(_mat4_temp, out);
     },
 
     /**
      * !#en Returns the inverse world affine transform matrix. The matrix is in Pixels.
      * !#en 返回世界坐标系到节点坐标系的逆矩阵。
      * @method getWorldToNodeTransform
-     * @return {AffineTransform}
+     * @param {AffineTransform} out The affine transform object to be filled with data
+     * @return {AffineTransform} Same as the out affine transform object
      * @example
-     * var affineTransform = node.getWorldToNodeTransform();
+     * let affineTransform = cc.affineTransformMake();
+     * node.getWorldToNodeTransform(affineTransform);
      */
-    getWorldToNodeTransform () {
-        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
-            // ensure transform computed
-            cc.director._visitScene();
-        }
-        return this._sgNode.getWorldToNodeTransform();
+    getWorldToNodeTransform (out) {
+        this._updateWorldMatrix();
+        math.mat4.invert(_mat4_temp, this._worldMatrix);
+        return affineTrans.fromMatrix(_mat4_temp, out);
     },
 
     /**
@@ -1924,12 +1979,13 @@ var Node = cc.Class({
      * var newVec2 = node.convertToNodeSpace(cc.v2(100, 100));
      */
     convertToNodeSpace (worldPoint) {
-        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
-            // ensure transform computed
-            cc.director._visitScene();
-        }
-        var nodePositionIgnoreAnchorPoint = this._sgNode.convertToNodeSpace(worldPoint);
-        return cc.pAdd(nodePositionIgnoreAnchorPoint, cc.p(this._anchorPoint.x * this._contentSize.width, this._anchorPoint.y * this._contentSize.height));
+        this._updateWorldMatrix();
+        math.mat4.invert(_mat4_temp, this._worldMatrix);
+        let out = cc.Vec2();
+        math.vec2.transformMat4(out, worldPoint, _mat4_temp);
+        out.x -= this._anchorPoint.x * this._contentSize.x;
+        out.y -= this._anchorPoint.y * this._contentSize.y;
+        return out;
     },
 
     /**
@@ -1942,13 +1998,12 @@ var Node = cc.Class({
      * var newVec2 = node.convertToWorldSpace(cc.v2(100, 100));
      */
     convertToWorldSpace (nodePoint) {
-        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
-            // ensure transform computed
-            cc.director._visitScene();
-        }
-        var x = nodePoint.x - this._anchorPoint.x * this._contentSize.width;
-        var y = nodePoint.y - this._anchorPoint.y * this._contentSize.height;
-        return cc.v2(this._sgNode.convertToWorldSpace(cc.v2(x, y)));
+        this._updateWorldMatrix();
+        let out = cc.Vec2(
+            nodePoint.x - this._anchorPoint.x * this._contentSize.x,
+            nodePoint.y - this._anchorPoint.y * this._contentSize.y
+        );
+        return math.vec2.transformMat4(out, out, this._worldMatrix);
     },
 
     /**
@@ -1965,17 +2020,10 @@ var Node = cc.Class({
      * var newVec2 = node.convertToNodeSpaceAR(cc.v2(100, 100));
      */
     convertToNodeSpaceAR (worldPoint) {
-        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
-            // ensure transform computed
-            cc.director._visitScene();
-        }
-        if (this._sgNode.isIgnoreAnchorPointForPosition()) {
-            // see https://github.com/cocos-creator/engine/pull/391
-            return cc.v2(this._sgNode.convertToNodeSpace(worldPoint));
-        }
-        else {
-            return this._sgNode.convertToNodeSpaceAR(worldPoint);
-        }
+        this._updateWorldMatrix();
+        math.mat4.invert(_mat4_temp, this._worldMatrix);
+        let out = cc.Vec2();
+        return math.vec2.transformMat4(out, worldPoint, _mat4_temp);
     },
 
     /**
@@ -1992,17 +2040,9 @@ var Node = cc.Class({
      * var newVec2 = node.convertToWorldSpaceAR(cc.v2(100, 100));
      */
     convertToWorldSpaceAR (nodePoint) {
-        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
-            // ensure transform computed
-            cc.director._visitScene();
-        }
-        if (this._sgNode.isIgnoreAnchorPointForPosition()) {
-            // see https://github.com/cocos-creator/engine/pull/391
-            return cc.v2(this._sgNode.convertToWorldSpace(nodePoint));
-        }
-        else {
-            return cc.v2(this._sgNode.convertToWorldSpaceAR(nodePoint));
-        }
+        this._updateWorldMatrix();
+        let out = cc.Vec2();
+        return math.vec2.transformMat4(out, nodePoint, this._worldMatrix);
     },
 
     /**
@@ -2029,6 +2069,74 @@ var Node = cc.Class({
      */
     convertTouchToNodeSpaceAR (touch) {
         return this.convertToNodeSpaceAR(touch.getLocation());
+    },
+    
+    /**
+     * !#en
+     * Returns a "local" axis aligned bounding box of the node. <br/>
+     * The returned box is relative only to its parent.
+     * !#zh 返回父节坐标系下的轴向对齐的包围盒。
+     * @method getBoundingBox
+     * @return {Rect} The calculated bounding box of the node
+     * @example
+     * var boundingBox = node.getBoundingBox();
+     */
+    getBoundingBox () {
+        this._updateLocalMatrix();
+        let width = this._contentSize.x;
+        let height = this._contentSize.y;
+        let rect = cc.rect(
+            -this._anchorPoint.x * width, 
+            -this._anchorPoint.y * height, 
+            width, 
+            height);
+        return affineTrans.rectApplyMat4(rect, this._matrix, rect);
+    },
+
+    /**
+     * !#en
+     * Returns a "world" axis aligned bounding box of the node.<br/>
+     * The bounding box contains self and active children's world bounding box.
+     * !#zh
+     * 返回节点在世界坐标系下的对齐轴向的包围盒（AABB）。<br/>
+     * 该边框包含自身和已激活的子节点的世界边框。
+     * @method getBoundingBoxToWorld
+     * @return {Rect}
+     * @example
+     * var newRect = node.getBoundingBoxToWorld();
+     */
+    getBoundingBoxToWorld () {
+        this.parent._updateWorldMatrix();
+        return this._getBoundingBoxTo(this._parent._worldMatrix);
+    },
+
+    _getBoundingBoxTo (parentMat) {
+        this._updateLocalMatrix();
+        let width = this._contentSize.x;
+        let height = this._contentSize.y;
+        let rect = cc.rect(
+            -this._anchorPoint.x * width, 
+            -this._anchorPoint.y * height, 
+            width, 
+            height);
+
+        var parentMat = math.mat4.mul(this._worldMatrix, parentMat, this._matrix);
+        affineTrans.rectApplyMat4(rect, parentMat, rect);
+
+        //query child's BoundingBox
+        if (!this._children)
+            return rect;
+
+        var locChildren = this._children;
+        for (var i = 0; i < locChildren.length; i++) {
+            var child = locChildren[i];
+            if (child && child.active) {
+                var childRect = child._getBoundingBoxTo(parentMat);
+                if (childRect)
+                    rect = cc.rectUnion(rect, childRect);
+            }
+        }
+        return rect;
     },
 
     _updateOrderOfArrival () {

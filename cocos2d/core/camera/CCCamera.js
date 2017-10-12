@@ -23,7 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const affineTrans = require('../value-types/CCAffineTransform');
+
 var cullingDirtyFlag;
+var _wt = affineTrans.make();
 
 if (!CC_JSB) {
     cullingDirtyFlag = _ccsg.Node._dirtyFlags.cullingDirty;
@@ -251,9 +254,10 @@ let Camera = cc.Class({
      * @return {AffineTransform}
      */
     getNodeToCameraTransform (node) {
-        var t = node.getNodeToWorldTransform();
+        let t = affineTrans.make();
+        node.getNodeToWorldTransform(t);
         if (this.containsNode(node)) {
-            t = cc.affineTransformConcatIn(t, cc.Camera.main.viewMatrix);
+            t = affineTrans.concatIn(t, cc.Camera.main.viewMatrix);
         }
         return t;
     },
@@ -351,9 +355,9 @@ let Camera = cc.Class({
         let selfVisibleRect = this.visibleRect;
         let node = this.node;
         
-        let wt = node.getNodeToWorldTransformAR();
+        node.getNodeToWorldTransformAR(_wt);
 
-        let rotation = -(Math.atan2(wt.b, wt.a) + Math.atan2(-wt.c, wt.d)) * 0.5;
+        let rotation = -(Math.atan2(_wt.b, _wt.a) + Math.atan2(-_wt.c, _wt.d)) * 0.5;
         let a = 1, b = 0, c = 0, d = 1, tx = 0, ty = 0;
 
         // rotation
@@ -378,8 +382,8 @@ let Camera = cc.Class({
 
         // move camera to center
         let center = visibleRect.center;
-        m.tx = center.x - (a * wt.tx + c * wt.ty);
-        m.ty = center.y - (b * wt.tx + d * wt.ty);
+        m.tx = center.x - (a * _wt.tx + c * _wt.ty);
+        m.ty = center.y - (b * _wt.tx + d * _wt.ty);
 
         // calculate ivert view matrix
         cc.affineTransformInvertOut(m, im);

@@ -24,6 +24,10 @@
  ****************************************************************************/
 require('./CCSGMotionStreak');
 require('./CCSGMotionStreakWebGLRenderCmd');
+
+const affineTrans = require('../core/value-types/CCAffineTransform');
+var _worldTrans = affineTrans.make();
+
 /**
  * !#en
  * cc.MotionStreak manages a Ribbon based on it's motion in absolute space.                 <br/>
@@ -282,10 +286,10 @@ var MotionStreak = cc.Class({
         if (this._motionStreak) {
             // add root for let the global coordinates effective
             var node = this.node;
-            var worldMt = node.getNodeToWorldTransform();
+            node.getNodeToWorldTransform(_worldTrans);
             // calculation anchor coordinates
-            var tx = worldMt.tx - (node.width / 2 + node.anchorX * node.width);
-            var ty = worldMt.ty - (node.height / 2 + node.anchorY * node.height);
+            var tx = _worldTrans.tx - (node.width / 2 + node.anchorX * node.width);
+            var ty = _worldTrans.ty - (node.height / 2 + node.anchorY * node.height);
             this._root.setPosition(-tx, -ty);
             this._motionStreak.setPosition(tx, ty);
         }

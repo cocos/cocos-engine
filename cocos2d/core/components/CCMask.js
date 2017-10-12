@@ -29,6 +29,9 @@ require('../../clipping-nodes/CCClippingNodeWebGLRenderCmd');
 
 require('../../shape-nodes/CCDrawNode');
 
+const affineTrans = require('../value-types/CCAffineTransform');
+var _trans = affineTrans.make();
+
 /**
  * !#en the type for mask.
  * !#zh 遮罩组件类型
@@ -217,12 +220,12 @@ var Mask = cc.Class({
     _hitTest: function (point) {
         var size = this.node.getContentSize(),
             w = size.width,
-            h = size.height,
-            trans = this.node.getNodeToWorldTransform();
+            h = size.height;
+        this.node.getNodeToWorldTransform(_trans);
 
         if (this.type === MaskType.RECT || this.type === MaskType.IMAGE_STENCIL) {
             var rect = cc.rect(0, 0, w, h);
-            cc._rectApplyAffineTransformIn(rect, trans);
+            cc._rectApplyAffineTransformIn(rect, _trans);
             var left = point.x - rect.x,
                 right = rect.x + rect.width - point.x,
                 bottom = point.y - rect.y,
@@ -232,8 +235,8 @@ var Mask = cc.Class({
         }
         else if (this.type === MaskType.ELLIPSE) {
             var a = w / 2, b = h / 2;
-            var cx = trans.a * a + trans.c * b + trans.tx;
-            var cy = trans.b * a + trans.d * b + trans.ty;
+            var cx = _trans.a * a + _trans.c * b + _trans.tx;
+            var cy = _trans.b * a + _trans.d * b + _trans.ty;
             var px = point.x - cx, py = point.y - cy;
 
             return px * px / (a * a) + py * py / (b * b) < 1;
