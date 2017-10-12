@@ -55,6 +55,7 @@ import javax.net.ssl.TrustManagerFactory;
 
 public class Cocos2dxHttpURLConnection
 {
+    private static String TAG = "Cocos2dxHttpURLConnection";
     private static final String POST_METHOD = "POST" ;
     private static final String PUT_METHOD = "PUT" ;
 
@@ -68,7 +69,8 @@ public class Cocos2dxHttpURLConnection
             urlConnection.setRequestProperty("Accept-Encoding", "identity");
             urlConnection.setDoInput(true);
         } catch (Exception e) {
-            Log.e("URLConnection exception", e.toString());
+            e.printStackTrace();
+            Log.e(TAG, "createHttpURLConnection:" + e.toString());
             return null;
         }
 
@@ -87,7 +89,7 @@ public class Cocos2dxHttpURLConnection
                 urlConnection.setDoOutput(true);
             }
         } catch (ProtocolException e) {
-            Log.e("URLConnection exception", e.toString());
+            Log.e(TAG, "setRequestMethod:" + e.toString());
         }
 
     }
@@ -132,7 +134,8 @@ public class Cocos2dxHttpURLConnection
 
             httpsURLConnection.setSSLSocketFactory(context.getSocketFactory());
         } catch (Exception e) {
-            Log.e("URLConnection exception", e.toString());
+            e.printStackTrace();
+            Log.e(TAG, "setVerifySSL:" + e.toString());
         }
     }
 
@@ -146,12 +149,9 @@ public class Cocos2dxHttpURLConnection
 
         try {
             http.connect();
-        } catch (IOException e) {
-            Log.e("cocos2d-x debug info", "come in connect");
-            Log.e("cocos2d-x debug info", e.toString());
-            suc = 1;
         } catch (Exception e) {
             e.printStackTrace();
+            Log.e(TAG, "connect" + e.toString());
             suc = 1;
         }
 
@@ -170,8 +170,9 @@ public class Cocos2dxHttpURLConnection
                 out.flush();
             }
             out.close();
-        } catch (IOException e) {
-            Log.e("URLConnection exception", e.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "sendRequest:" + e.toString());
         }
     }
 
@@ -272,7 +273,8 @@ public class Cocos2dxHttpURLConnection
         } catch (IOException e) {
             in = http.getErrorStream();
         } catch (Exception e) {
-            Log.e("URLConnection exception", e.toString());
+            e.printStackTrace();
+            Log.e(TAG, "1 getResponseContent: " + e.toString());
             return null;
         }
 
@@ -288,7 +290,8 @@ public class Cocos2dxHttpURLConnection
             bytestream.close();
             return retbuffer;
         } catch (Exception e) {
-            Log.e("URLConnection exception", e.toString());
+            e.printStackTrace();
+            Log.e(TAG, "2 getResponseContent:" + e.toString());
         }
 
         return null;
@@ -298,8 +301,9 @@ public class Cocos2dxHttpURLConnection
         int code = 0;
         try {
             code = http.getResponseCode();
-        } catch (IOException e) {
-            Log.e("URLConnection exception", e.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "getResponseCode:" + e.toString());
         }
         return code;
     }
@@ -308,9 +312,10 @@ public class Cocos2dxHttpURLConnection
         String msg;
         try {
             msg = http.getResponseMessage();
-        } catch (IOException e) {
+        } catch (Exception e) {
+            e.printStackTrace();
             msg = e.toString();
-            Log.e("URLConnection exception", msg);
+            Log.e(TAG, "getResponseMessage: " + msg);
         }
 
         return msg;
@@ -399,7 +404,7 @@ public class Cocos2dxHttpURLConnection
             c.setTime(new SimpleDateFormat("EEE, dd-MMM-yy hh:mm:ss zzz", Locale.US).parse(strTime));
             milliseconds = c.getTimeInMillis() / 1000;
         } catch (ParseException e) {
-            Log.e("URLConnection exception", e.toString());
+            Log.e(TAG, "str2Seconds: " + e.toString());
         }
 
         return Long.toString(milliseconds);
