@@ -25,6 +25,7 @@
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.hpp"
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.hpp"
 #include "cocos/scripting/js-bindings/auto/jsb_creator_auto.hpp"
+#include "cocos/scripting/js-bindings/auto/jsb_creator_manual.hpp"
 
 #include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_extension_manual.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
@@ -170,6 +171,7 @@ bool jsb_register_all_modules()
 #endif
 
     se->addRegisterCallback(register_all_creator);
+    se->addRegisterCallback(register_all_creator_manual);
 
     se->addRegisterCallback(register_all_cocos2dx_network);
     se->addRegisterCallback(register_all_xmlhttprequest);

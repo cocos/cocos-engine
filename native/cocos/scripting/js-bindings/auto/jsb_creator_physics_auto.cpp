@@ -81,7 +81,7 @@ extern se::Object* __jsb_b2Draw_proto;
 
 static bool js_creator_PhysicsDebugDraw_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (creator::PhysicsDebugDraw)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (creator::PhysicsDebugDraw)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -247,7 +247,7 @@ SE_BIND_CTOR(js_creator_physics_PhysicsWorldManifoldWrapper_constructor, __jsb_c
 
 static bool js_creator_PhysicsWorldManifoldWrapper_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (creator::PhysicsWorldManifoldWrapper)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (creator::PhysicsWorldManifoldWrapper)", s.nativeThisObject());
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_creator_PhysicsWorldManifoldWrapper_finalize)
@@ -484,7 +484,7 @@ SE_BIND_CTOR(js_creator_physics_PhysicsManifoldWrapper_constructor, __jsb_creato
 
 static bool js_creator_PhysicsManifoldWrapper_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (creator::PhysicsManifoldWrapper)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (creator::PhysicsManifoldWrapper)", s.nativeThisObject());
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_creator_PhysicsManifoldWrapper_finalize)
@@ -624,7 +624,7 @@ SE_BIND_CTOR(js_creator_physics_PhysicsUtils_constructor, __jsb_creator_PhysicsU
 
 static bool js_creator_PhysicsUtils_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (creator::PhysicsUtils)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (creator::PhysicsUtils)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -735,7 +735,7 @@ SE_BIND_CTOR(js_creator_physics_PhysicsContactImpulse_constructor, __jsb_creator
 
 static bool js_creator_PhysicsContactImpulse_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (creator::PhysicsContactImpulse)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (creator::PhysicsContactImpulse)", s.nativeThisObject());
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_creator_PhysicsContactImpulse_finalize)
@@ -816,7 +816,7 @@ extern se::Object* __jsb_b2ContactListener_proto;
 
 static bool js_creator_PhysicsContactListener_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (creator::PhysicsContactListener)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (creator::PhysicsContactListener)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -912,7 +912,7 @@ extern se::Object* __jsb_b2QueryCallback_proto;
 
 static bool js_creator_PhysicsAABBQueryCallback_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (creator::PhysicsAABBQueryCallback)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (creator::PhysicsAABBQueryCallback)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
@@ -1016,7 +1016,7 @@ extern se::Object* __jsb_b2RayCastCallback_proto;
 
 static bool js_creator_PhysicsRayCastCallback_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (creator::PhysicsRayCastCallback)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (creator::PhysicsRayCastCallback)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {

@@ -712,7 +712,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_creator_GraphicsNode_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (creator::GraphicsNode)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (creator::GraphicsNode)", s.nativeThisObject());
     creator::GraphicsNode* cobj = (creator::GraphicsNode*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();

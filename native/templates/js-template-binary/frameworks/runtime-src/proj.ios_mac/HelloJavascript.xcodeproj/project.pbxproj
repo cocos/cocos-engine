@@ -22,6 +22,7 @@
 		294D7D781D0D6667002CE7B7 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 294D7D771D0D6667002CE7B7 /* CoreText.framework */; };
 		3B67481F942374033A420049 /* libjscocos2d iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DCAA4417880B45A57D3DBA4A /* libjscocos2d iOS.a */; };
 		4D3EB25A1F8F4A85007DA644 /* jsb_module_register.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D3EB2591F8F4A85007DA644 /* jsb_module_register.cpp */; };
+		4D3EB2681F8F77BB007DA644 /* jsb_module_register.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D3EB2591F8F4A85007DA644 /* jsb_module_register.cpp */; };
 		4EF7467CB50B6A7F2A970566 /* libcocos2d iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 403C4AA98CE6BA7FB917B960 /* libcocos2d iOS.a */; };
 		502380DC17EBB88200990C9B /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 502380DB17EBB88200990C9B /* libcurl.dylib */; };
 		509D4A8117EBB24E00697056 /* AppDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D4545215156E28EF00887EB5 /* AppDelegate.cpp */; };
@@ -464,6 +465,7 @@
 			files = (
 				509D4A8117EBB24E00697056 /* AppDelegate.cpp in Sources */,
 				C03C8B4B18A770DD00723415 /* main.mm in Sources */,
+				4D3EB2681F8F77BB007DA644 /* jsb_module_register.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

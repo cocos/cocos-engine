@@ -689,7 +689,7 @@ extern se::Object* __jsb_cocos2d_Node_proto;
 
 static bool js_creator_Scale9SpriteV2_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (creator::Scale9SpriteV2)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (creator::Scale9SpriteV2)", s.nativeThisObject());
     creator::Scale9SpriteV2* cobj = (creator::Scale9SpriteV2*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
