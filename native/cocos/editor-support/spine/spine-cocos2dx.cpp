@@ -31,6 +31,13 @@
 #include <spine/spine-cocos2dx.h>
 #include <spine/extension.h>
 
+namespace spine {
+	static CustomTextureLoader _customTextureLoader = nullptr;
+	void spAtlasPage_setCustomTextureLoader (CustomTextureLoader texLoader) {
+		_customTextureLoader = texLoader;
+	}
+}
+
 USING_NS_CC;
 
 GLuint wrap (spAtlasWrap wrap) {
@@ -60,7 +67,13 @@ GLuint filter (spAtlasFilter filter) {
 }
 
 void _spAtlasPage_createTexture (spAtlasPage* self, const char* path) {
-	Texture2D* texture = Director::getInstance()->getTextureCache()->addImage(path);
+	Texture2D* texture = nullptr;
+	if (spine::_customTextureLoader) {
+		texture = spine::_customTextureLoader(path);
+	}
+	if (!texture) {
+		texture = Director::getInstance()->getTextureCache()->addImage(path);
+	}
 	CCASSERT(texture != nullptr, "Invalid image");
 	texture->retain();
 

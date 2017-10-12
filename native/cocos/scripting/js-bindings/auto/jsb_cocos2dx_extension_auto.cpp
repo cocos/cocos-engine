@@ -265,7 +265,7 @@ extern se::Object* __jsb_cocos2d_EventCustom_proto;
 
 static bool js_cocos2d_extension_EventAssetsManagerEx_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (cocos2d::extension::EventAssetsManagerEx)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::extension::EventAssetsManagerEx)", s.nativeThisObject());
     cocos2d::extension::EventAssetsManagerEx* cobj = (cocos2d::extension::EventAssetsManagerEx*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -574,7 +574,7 @@ SE_BIND_CTOR(js_cocos2dx_extension_Manifest_constructor, __jsb_cocos2d_extension
 
 static bool js_cocos2d_extension_Manifest_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (cocos2d::extension::Manifest)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::extension::Manifest)", s.nativeThisObject());
     cocos2d::extension::Manifest* cobj = (cocos2d::extension::Manifest*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -1142,7 +1142,7 @@ SE_BIND_CTOR(js_cocos2dx_extension_AssetsManagerEx_constructor, __jsb_cocos2d_ex
 
 static bool js_cocos2d_extension_AssetsManagerEx_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (cocos2d::extension::AssetsManagerEx)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::extension::AssetsManagerEx)", s.nativeThisObject());
     cocos2d::extension::AssetsManagerEx* cobj = (cocos2d::extension::AssetsManagerEx*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();
@@ -1310,7 +1310,7 @@ extern se::Object* __jsb_cocos2d_EventListenerCustom_proto;
 
 static bool js_cocos2d_extension_EventListenerAssetsManagerEx_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (cocos2d::extension::EventListenerAssetsManagerEx)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::extension::EventListenerAssetsManagerEx)", s.nativeThisObject());
     cocos2d::extension::EventListenerAssetsManagerEx* cobj = (cocos2d::extension::EventListenerAssetsManagerEx*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();

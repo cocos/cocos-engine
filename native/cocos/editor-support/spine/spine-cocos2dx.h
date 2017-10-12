@@ -38,4 +38,10 @@
 #include <spine/SkeletonAnimation.h>
 #include <spine/SkeletonBatch.h>
 
+namespace spine {
+	typedef cocos2d::Texture2D* (*CustomTextureLoader)(const char* path);
+	// set custom texture loader for _spAtlasPage_createTexture
+	void spAtlasPage_setCustomTextureLoader(CustomTextureLoader texLoader);
+}
+
 #endif /* SPINE_COCOS2DX_H_ */

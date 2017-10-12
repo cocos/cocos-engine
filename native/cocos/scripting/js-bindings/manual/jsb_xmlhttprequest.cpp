@@ -330,7 +330,7 @@ void XMLHttpRequest::onResponse(HttpClient* client, HttpResponse* response)
     std::string tag = response->getHttpRequest()->getTag();
     if (!tag.empty())
     {
-        CCLOG("%s completed", tag.c_str());
+        LOGD("XMLHttpRequest::onResponse, %s completed\n", tag.c_str());
     }
 
     long statusCode = response->getResponseCode();
@@ -343,7 +343,7 @@ void XMLHttpRequest::onResponse(HttpClient* client, HttpResponse* response)
     if (!response->isSucceed())
     {
         std::string errorBuffer = response->getErrorBuffer();
-        LOGD("Response failed, error buffer: %s", errorBuffer.c_str());
+        LOGD("Response failed, error buffer: %s\n", errorBuffer.c_str());
         if (statusCode == 0 || statusCode == -1)
         {
             _errorFlag = true;
@@ -606,8 +606,13 @@ static bool XMLHttpRequest_open(se::State& s)
     if (argc >= 2)
     {
         XMLHttpRequest* request = (XMLHttpRequest*)s.nativeThisObject();
-        const std::string& method = args[0].toString();
-        const std::string& url = args[1].toString();
+        bool ok = false;
+        std::string method;
+        ok = seval_to_std_string(args[0], &method);
+        SE_PRECONDITION2(ok, false, "args[0] isn't a string.");
+        std::string url;
+        ok = seval_to_std_string(args[1], &url);
+        SE_PRECONDITION2(ok, false, "args[1] isn't a string.");
         bool ret = request->open(method, url);
         s.rval().setBoolean(ret);
         return true;
@@ -658,7 +663,7 @@ static bool XMLHttpRequest_send(se::State& s)
                 }
                 else
                 {
-                    assert(false);
+                    SE_PRECONDITION2(false, false, "args[0] isn't a typed array");
                 }
             }
             else if (obj->isArrayBuffer())
@@ -673,12 +678,12 @@ static bool XMLHttpRequest_send(se::State& s)
                 }
                 else
                 {
-                    assert(false);
+                    SE_PRECONDITION2(false, false, "args[0] isn't an array buffer");
                 }
             }
             else
             {
-                assert(false);
+                SE_PRECONDITION2(false, false, "args[0] isn't a typed array or an array buffer");
             }
         }
     }
@@ -695,9 +700,13 @@ static bool XMLHttpRequest_setRequestHeader(se::State& s)
     if (argc >= 2)
     {
         XMLHttpRequest* xhr = (XMLHttpRequest*)s.nativeThisObject();
-
-        assert(args[0].isString() && args[1].isString());
-        xhr->setRequestHeader(args[0].toString(), args[1].toString());
+        std::string key;
+        bool ok = seval_to_std_string(args[0], &key);
+        SE_PRECONDITION2(ok, false, "args[0] couldn't be converted to string.");
+        std::string value;
+        ok = seval_to_std_string(args[1], &value);
+        SE_PRECONDITION2(ok, false, "args[1] couldn't be converted to string.");
+        xhr->setRequestHeader(key, value);
         return true;
     }
 
@@ -719,18 +728,25 @@ static bool XMLHttpRequest_getResonpseHeader(se::State& s)
 {
     const auto& args = s.args();
     size_t argc = args.size();
-    XMLHttpRequest* xhr = (XMLHttpRequest*)s.nativeThisObject();
-    assert(argc > 0);
-    assert(args[0].isString());
-    std::string header = xhr->getResonpseHeader(args[0].toString());
-    s.rval().setString(header);
-    return true;
+    if (argc > 0)
+    {
+        XMLHttpRequest* xhr = (XMLHttpRequest*)s.nativeThisObject();
+        std::string key;
+        bool ok = seval_to_std_string(args[0], &key);
+        SE_PRECONDITION2(ok, false, "args[0] couldn't be converted to string.");
+        std::string header = xhr->getResonpseHeader(key);
+        s.rval().setString(header);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting > 0", (int)argc);
+    return false;
 }
 SE_BIND_FUNC(XMLHttpRequest_getResonpseHeader)
 
 static bool XMLHttpRequest_overrideMimeType(se::State& s)
 {
-    assert(false); //FIXME:
+    LOGD("XMLHttpRequest.overrideMimeType isn't implemented on JSB!");
     return true;
 }
 SE_BIND_FUNC(XMLHttpRequest_overrideMimeType)
@@ -768,7 +784,6 @@ static bool XMLHttpRequest_getResponseText(se::State& s)
     return true;
 }
 SE_BIND_PROP_GET(XMLHttpRequest_getResponseText)
-
 
 static bool XMLHttpRequest_getResponseXML(se::State& s)
 {
@@ -821,7 +836,7 @@ static bool XMLHttpRequest_getResponse(se::State& s)
             }
             else
             {
-                assert(false); // FIXME:
+                SE_PRECONDITION2(false, false, "Invalid response type: %d", (int)xhr->getResponseType());
             }
         }
     }
@@ -839,9 +854,24 @@ SE_BIND_PROP_GET(XMLHttpRequest_getTimeout)
 
 static bool XMLHttpRequest_setTimeout(se::State& s)
 {
-    XMLHttpRequest* cobj = (XMLHttpRequest*)s.nativeThisObject();
-    cobj->setTimeout(s.args()[0].toUlong());
-    return true;
+    const auto& args = s.args();
+    int argc = (int)args.size();
+    if (argc > 0)
+    {
+        XMLHttpRequest* cobj = (XMLHttpRequest*)s.nativeThisObject();
+        unsigned long timeoutInMilliseconds = 0;
+        bool ok = seval_to_ulong(args[0], &timeoutInMilliseconds);
+        SE_PRECONDITION2(ok, false, "args[0] isn't a number");
+        if (timeoutInMilliseconds < 50)
+        {
+            LOGE("The timeout value (%lu ms) is too small, please note that timeout unit is milliseconds!", timeoutInMilliseconds);
+        }
+        cobj->setTimeout(timeoutInMilliseconds);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting > 0", argc);
+    return false;
 }
 SE_BIND_PROP_SET(XMLHttpRequest_setTimeout)
 
@@ -871,13 +901,13 @@ static bool XMLHttpRequest_setResponseType(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
 
-    if (argc == 1)
+    if (argc > 0)
     {
-        assert(args[0].isString());
+        std::string type;
+        bool ok = seval_to_std_string(args[0], &type);
+        SE_PRECONDITION2(ok, false, "args[0] couldn't be converted to string!");
 
         XMLHttpRequest* xhr = (XMLHttpRequest*)s.nativeThisObject();
-
-        const std::string& type = args[0].toString();
         if (type == "text")
         {
             xhr->setResponseType(XMLHttpRequest::ResponseType::STRING);
@@ -892,23 +922,22 @@ static bool XMLHttpRequest_setResponseType(se::State& s)
         }
         else
         {
-            assert(false);
+            SE_PRECONDITION2(false, false, "The response type (%s) isn't supported!", type.c_str());
         }
         return true;
     }
 
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting > 0", (int)argc);
     return false;
 }
 SE_BIND_PROP_SET(XMLHttpRequest_setResponseType)
 
 static bool XMLHttpRequest_getWithCredentials(se::State& s)
 {
-    assert(false);
+    LOGD("XMLHttpRequest.withCredentials isn't implemented on JSB!");
     return true;
 }
 SE_BIND_PROP_GET(XMLHttpRequest_getWithCredentials)
-
 
 bool register_all_xmlhttprequest(se::Object* global)
 {

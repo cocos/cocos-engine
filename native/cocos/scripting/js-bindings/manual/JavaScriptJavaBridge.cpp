@@ -62,6 +62,7 @@ JNIEXPORT jint JNICALL Java_org_cocos2dx_lib_Cocos2dxJavascriptJavaBridge_evalSt
 #define JSJ_ERR_EXCEPTION_OCCURRED (-4)
 #define JSJ_ERR_VM_THREAD_DETACHED (-5)
 #define JSJ_ERR_VM_FAILURE         (-6)
+#define JSJ_ERR_CLASS_NOT_FOUND    (-7)
 
 class JavaScriptJavaBridge
 {
@@ -374,6 +375,9 @@ bool JavaScriptJavaBridge::CallInfo::getMethodInfo()
 
     if (NULL == m_classID) {
         LOGD("Classloader failed to find class of %s", m_className.c_str());
+        m_env->ExceptionClear();
+        m_error = JSJ_ERR_CLASS_NOT_FOUND;
+        return false;
     }
 
     m_env->DeleteLocalRef(_jstrClassName);

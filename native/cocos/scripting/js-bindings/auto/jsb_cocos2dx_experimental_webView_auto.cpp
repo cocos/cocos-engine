@@ -576,7 +576,7 @@ extern se::Object* __jsb_cocos2d_ui_Widget_proto;
 
 static bool js_cocos2d_experimental_ui_WebView_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (cocos2d::experimental::ui::WebView)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::experimental::ui::WebView)", s.nativeThisObject());
     cocos2d::experimental::ui::WebView* cobj = (cocos2d::experimental::ui::WebView*)s.nativeThisObject();
     if (cobj->getReferenceCount() == 1)
         cobj->autorelease();

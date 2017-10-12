@@ -77,7 +77,7 @@ public:
 
         se::Value func;
         bool ok = _JSDelegate.toObject()->getProperty("onopen", &func);
-        if (ok)
+        if (ok && func.isObject() && func.toObject()->isFunction())
         {
             se::ValueArray args;
             args.push_back(se::Value(jsObj));
@@ -110,7 +110,7 @@ public:
 
         se::Value func;
         bool ok = _JSDelegate.toObject()->getProperty("onmessage", &func);
-        if (ok)
+        if (ok && func.isObject() && func.toObject()->isFunction())
         {
             se::ValueArray args;
             args.push_back(se::Value(jsObj));
@@ -177,7 +177,7 @@ public:
 
             se::Value func;
             bool ok = _JSDelegate.toObject()->getProperty("onclose", &func);
-            if (ok)
+            if (ok && func.isObject() && func.toObject()->isFunction())
             {
                 se::ValueArray args;
                 args.push_back(se::Value(jsObj));
@@ -215,7 +215,7 @@ public:
 
         se::Value func;
         bool ok = _JSDelegate.toObject()->getProperty("onerror", &func);
-        if (ok)
+        if (ok && func.isObject() && func.toObject()->isFunction())
         {
             se::ValueArray args;
             args.push_back(se::Value(jsObj));
