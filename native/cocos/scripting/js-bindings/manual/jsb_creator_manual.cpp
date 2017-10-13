@@ -316,7 +316,6 @@ SE_BIND_FUNC(js_creator_sp_initSkeletonRenderer)
 
 bool register_all_creator_manual(se::Object* obj)
 {
-
     // Physics
 
     __jsb_creator_PhysicsContactListener_proto->defineFunction("setPreSolve", _SE(js_creator_PhysicsContactListener_setPreSolve));
@@ -333,11 +332,14 @@ bool register_all_creator_manual(se::Object* obj)
     // Spine
 
     se::Value nsVal;
-    assert(obj->getProperty("sp", &nsVal));
-    se::Object* ns = nsVal.toObject();
-
-    ns->defineFunction("_initSkeletonRenderer", _SE(js_creator_sp_initSkeletonRenderer));
-
+    if (obj->getProperty("sp", &nsVal) && nsVal.isObject())
+    {
+        nsVal.toObject()->defineFunction("_initSkeletonRenderer", _SE(js_creator_sp_initSkeletonRenderer));
+    }
+    else
+    {
+        CCLOGERROR("Couldn't get window.sp varible, was sp module registered?");
+    }
 
     se::ScriptEngine::getInstance()->clearException();
 
