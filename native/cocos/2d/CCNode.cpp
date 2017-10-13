@@ -667,6 +667,17 @@ void Node::setGLProgramState(cocos2d::GLProgramState* glProgramState)
 {
     if (glProgramState != _glProgramState)
     {
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+        auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+        if (sEngine)
+        {
+            if (glProgramState)
+                sEngine->retainScriptObject(this, glProgramState);
+            if (_glProgramState)
+                sEngine->releaseScriptObject(this, _glProgramState);
+        }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+
         CC_SAFE_RELEASE(_glProgramState);
         _glProgramState = glProgramState;
         CC_SAFE_RETAIN(_glProgramState);
