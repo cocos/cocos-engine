@@ -1128,6 +1128,36 @@ static bool js_cocos2d_Sprite_finalize(se::State& s)
 SE_BIND_FINALIZE_FUNC(js_cocos2d_Sprite_finalize)
 ```
 
+### 请不要在栈(Stack)上分配cocos2d::Ref的子类对象
+
+Ref的子类必须在堆(Heap)上分配，即通过`new`，然后通过`release`来释放。当JS对象的finalize回调函数中统一使用`autorelease`或`release`来释放。如果是在栈上的对象，reference count很有可能为0，而这时调用`release`，其内部会调用`delete`，从而导致程序崩溃。所以为了防止这个行为的出现，开发者可以在继承于cocos2d::Ref的绑定类中，标识析构函数为`protected`或者`private`，保证在编译阶段就能发现这个问题。
+
+例如：
+
+```c++
+class CC_EX_DLL EventAssetsManagerEx : public cocos2d::EventCustom
+{
+public:
+    ...
+    ...
+private:
+    virtual ~EventAssetsManagerEx() {}
+    ...
+    ...
+};
+
+EventAssetsManagerEx event(...); // 编译阶段报错
+dispatcher->dispatchEvent(&event);
+
+// 必须改为
+
+EventAssetsManagerEx* event = new EventAssetsManagerEx(...);
+dispatcher->dispatchEvent(event);
+event->release();
+```
+
+
+
 ### 如何监听脚本错误
 
 在AppDelegate.cpp中通过se::ScriptEngine::getInstance()->setExceptionCallback(...)设置JS层异常回调。
