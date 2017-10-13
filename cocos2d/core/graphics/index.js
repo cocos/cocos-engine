@@ -26,7 +26,7 @@
 'use strict';
 
 var GraphicsNode;
-if (!cc.sys.isNative) {
+if (!CC_JSB) {
     GraphicsNode = _ccsg.GraphicsNode = require('./graphics-node');
 }
 else {
