@@ -37,9 +37,6 @@ class AssetsManagerEx;
 class CC_EX_DLL EventAssetsManagerEx : public cocos2d::EventCustom
 {
 public:
-    
-    friend class AssetsManagerEx;
-    
     //! Update events code
     enum class EventCode
     {
@@ -87,6 +84,8 @@ CC_CONSTRUCTOR_ACCESS:
     EventAssetsManagerEx(const std::string& eventName, cocos2d::extension::AssetsManagerEx *manager, const EventCode &code, const std::string& assetId = "", const std::string& message = "", int curle_code = 0, int curlm_code = 0);
     
 private:
+    virtual ~EventAssetsManagerEx() {}
+
     EventCode _code;
     
     cocos2d::extension::AssetsManagerEx *_manager;
