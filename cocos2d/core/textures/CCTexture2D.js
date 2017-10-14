@@ -218,17 +218,18 @@ let _sharedOpts = {
     mipmap: undefined,
     images: undefined,
     image: undefined,
+    flipY: undefined,
     premultiplyAlpha: undefined
 };
 function _getSharedOptions () {
     for (var key in _sharedOpts) {
         _sharedOpts[key] = undefined;
     }
+    _sharedOpts.flipY = false;
     return _sharedOpts;
 }
 
 var Texture2D = cc.Class({
-
     name: 'cc.Texture2D',
     extends: require('../assets/CCRawAsset'),
     mixins: [EventTarget],
@@ -287,7 +288,7 @@ var Texture2D = cc.Class({
          */
         this.height = 0;
 
-        this._texture = new TextureImpl(renderer.device, _emptyOpts);
+        this._texture = null;
     },
 
     getImpl () {
@@ -454,6 +455,11 @@ var Texture2D = cc.Class({
         this.height = this._image.height;
         let opts = _getSharedOptions();
         opts.image = this._image;
+        if (renderMode.supportWebGL) {
+            // webgl texture 2d uses images
+            opts.images = [opts.image];
+        }
+        opts.flipY = false;
         opts.width = this.width;
         opts.height = this.height;
         opts.hasMipmap = this._hasMipmap;
@@ -463,7 +469,13 @@ var Texture2D = cc.Class({
         opts.magFilter = FilterIndex[this._magFilter];
         opts.wrapS = this._wrapS;
         opts.wrapT = this._wrapT;
-        this._texture.update(opts);
+        
+        if (!this._texture) {
+            this._texture = new TextureImpl(renderer.device, opts);
+        }
+        else {
+            this._texture.update(opts);
+        }
 
         //dispatch load event to listener.
         this.loaded = true;

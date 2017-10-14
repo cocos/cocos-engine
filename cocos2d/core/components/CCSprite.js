@@ -215,6 +215,11 @@ var Sprite = cc.Class({
                     }
                 }
                 this._spriteFrame = value;
+                if (lastSprite && lastSprite.getTexture() !== value.getTexture()) {
+                    // Drop previous material, because texture have changed
+                    this._material = null;
+                    this._customMaterial = false;
+                }
                 this._applySpriteFrame(lastSprite);
                 if (CC_EDITOR) {
                     this.node.emit('spriteframe-changed', this);
@@ -496,6 +501,7 @@ var Sprite = cc.Class({
             switch (this.type) {
             case SpriteType.SIMPLE:
                 this._model = SpriteModel.alloc();
+                this._model.trimmed = this._isTrimmedMode;
                 break;
             case SpriteType.SLICED:
                 this._model = SlicedModel.alloc();
@@ -595,9 +601,6 @@ var Sprite = cc.Class({
         if (!this.isValid) {
             return;
         }
-        // Drop previous material, because texture have changed
-        this._material = null;
-        this._customMaterial = false;
         // Reattach material to model
         this._activateModel();
         this._applySpriteSize();
@@ -611,7 +614,7 @@ var Sprite = cc.Class({
 
         var spriteFrame = this._spriteFrame;
         if (spriteFrame) {
-            if (spriteFrame.textureLoaded()) {
+            if (spriteFrame.textureLoaded) {
                 this._onTextureLoaded(null);
             }
             else {
