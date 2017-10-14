@@ -1765,8 +1765,8 @@ var Node = cc.Class({
             }
 
             // scale
-            t.m01 = a *= this._scale.x;
-            t.m02 = b *= this._scale.x;
+            t.m00 = a *= this._scale.x;
+            t.m01 = b *= this._scale.x;
             t.m04 = c *= this._scale.y;
             t.m05 = d *= this._scale.y;
 
@@ -1778,8 +1778,8 @@ var Node = cc.Class({
                     skx = 99999999;
                 if (sky === Infinity)
                     sky = 99999999;
-                t.m01 = a + c * sky;
-                t.m02 = b + d * sky;
+                t.m00 = a + c * sky;
+                t.m01 = b + d * sky;
                 t.m04 = c + a * skx;
                 t.m05 = d + b * skx;
             }
@@ -1795,8 +1795,13 @@ var Node = cc.Class({
             this._updateLocalMatrix();
         }
         // Assume parent world matrix is correct
-        let parentMat = this._parent._worldMatrix;
-        math.mat4.mul(this._worldMatrix, parentMat, this._matrix);
+        if (this._parent) {
+            let parentMat = this._parent._worldMatrix;
+            math.mat4.mul(this._worldMatrix, parentMat, this._matrix);
+        }
+        else {
+            math.mat4.copy(this._worldMatrix, this._matrix);
+        }
         this._worldMatDirty = false;
 
         for (let i = 0, len = this._children.length; i < len; ++i) {
@@ -2112,8 +2117,13 @@ var Node = cc.Class({
      * var newRect = node.getBoundingBoxToWorld();
      */
     getBoundingBoxToWorld () {
-        this.parent._updateWorldMatrix();
-        return this._getBoundingBoxTo(this._parent._worldMatrix);
+        if (this._parent) {
+            this._parent._updateWorldMatrix();
+            return this._getBoundingBoxTo(this._parent._worldMatrix);
+        }
+        else {
+            return this.getBoundingBox();
+        }
     },
 
     _getBoundingBoxTo (parentMat) {
