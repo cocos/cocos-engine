@@ -24,6 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const renderer = require('../renderer');
+
 var __BrowserGetter = {
     init: function(){
         this.html = document.getElementsByTagName("html")[0];
@@ -764,13 +766,7 @@ var View = cc._Class.extend({
         cc.winSize.width = director._winSizeInPoints.width;
         cc.winSize.height = director._winSizeInPoints.height;
 
-        if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
-            // reset director's member variables to fit visible rect
-            director.setGLDefaultValues();
-        }
-        else if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
-            cc.renderer._allNeedDraw = true;
-        }
+        renderer.updateCameraViewport();
 
         this._originalScaleX = this._scaleX;
         this._originalScaleY = this._scaleY;

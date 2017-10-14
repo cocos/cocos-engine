@@ -78,9 +78,13 @@ module.exports = {
         });
     },
 
-    render () {
+    updateCameraViewport () {
         this._camera._rect.w = this.canvas.width;
         this._camera._rect.h = this.canvas.height;
+        this._camera.setViewport();
+    },
+
+    render () {
         this._forward.render(this._camera, this.scene);
     }
 };
