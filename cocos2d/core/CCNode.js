@@ -311,10 +311,10 @@ var Node = cc.Class({
         _opacity: 255,
         _color: cc.Color.WHITE,
         _cascadeOpacityEnabled: true,
-        _contentSize: null,
-        _anchorPoint: null,
-        _position: null,
-        _scale: null,
+        _contentSize: cc.Vec2,
+        _anchorPoint: cc.Vec2,
+        _position: cc.Vec2,
+        _scale: cc.Vec2,
         _rotationX: 0.0,
         _rotationY: 0.0,
         _skewX: 0.0,
@@ -456,6 +456,12 @@ var Node = cc.Class({
                     }
                 }
             },
+        },
+        
+        z: {
+            get () {
+                return this._position.z;
+            }
         },
 
         /**
@@ -833,9 +839,9 @@ var Node = cc.Class({
         this._contentSize = mathPools.vec2.get();
         this._anchorPoint = mathPools.vec2.get();
         this._anchorPoint.x = this._anchorPoint.y = 0.5;
-        this._position = mathPools.vec2.get();
         this._scale = mathPools.vec2.get();
         this._scale.x = this._scale.y = 1;
+        this._position = mathPools.vec3.get();
 
         this._matrix = mathPools.mat4.get();
         this._worldMatrix = mathPools.mat4.get();
@@ -894,8 +900,8 @@ var Node = cc.Class({
         // Recycle math objects
         mathPools.vec2.put(this._contentSize);
         mathPools.vec2.put(this._anchorPoint);
-        mathPools.vec2.put(this._position);
         mathPools.vec2.put(this._scale);
+        mathPools.vec3.put(this._position);
         mathPools.mat4.put(this._matrix);
         mathPools.mat4.put(this._worldMatrix);
 

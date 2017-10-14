@@ -1,6 +1,6 @@
 
 /*
- * engine-next.js v0.0.1
+ * engine-next.js v0.3.1
  * (c) 2017 @pandamicro
  * Released under the MIT License.
  */
@@ -12866,9 +12866,9 @@ module.exports = (function () {
   }
   
   if (window.WebGLRenderingContext) {
-    if (create3DContext(canvas$1)) {
+    // if (create3DContext(canvas)) {
       supportWebGL = true;
-    }
+    // }
     if (supportWebGL && sys && sys.os === sys.OS_ANDROID) {
       var browserVer = parseFloat(sys.browserVersion);
       switch (sys.browserType) {
@@ -13035,9 +13035,9 @@ module.exports = (function () {
   
         if (this._trimmed) {
           l = rect.x;
-          b = rect.y;
+          t = rect.y;
           r = rect.x + rect.width;
-          t = rect.y + rect.height;
+          b = rect.y + rect.height;
         } else {
           let originalSize = frame._originalSize;
           let offset = frame._offset;
@@ -13049,9 +13049,9 @@ module.exports = (function () {
           let oy = rect.y + (rh - oh) / 2 - offset.y;
   
           l = ox;
-          b = oy;
+          t = oy;
           r = ox + ow;
-          t = oy + oh;
+          b = oy + oh;
         }
         
         this._uv.l = texw === 0 ? 0 : l / texw;
@@ -13117,7 +13117,7 @@ module.exports = (function () {
         this._texture = texture;
       }
   
-      let off = index * _vertexFormat._bytes;
+      let off = index * _vertexFormat._bytes / 4;
       let node = this._node;
       let uv = this._uv;
       // for position
@@ -13147,31 +13147,32 @@ module.exports = (function () {
           right = width / 2,
           bottom = -top,
           left = -right;
+      let z = node.lpos === undefined ? node.z : node.lpos.z;
       // bl
       vbuf[off++] = left * a + bottom * c + tx;
       vbuf[off++] = left * b + bottom * d + ty;
-      vbuf[off++] = node.lpos.z;
+      vbuf[off++] = z;
       uintbuf[off++] = color;
       vbuf[off++] = uv.l;
       vbuf[off++] = uv.b;
       // br
       vbuf[off++] = right * a + bottom * c + tx;
       vbuf[off++] = right * b + bottom * d + ty;
-      vbuf[off++] = node.lpos.z;
+      vbuf[off++] = z;
       uintbuf[off++] = color;
       vbuf[off++] = uv.r;
       vbuf[off++] = uv.b;
       // tl
       vbuf[off++] = left * a + top * c + tx;
       vbuf[off++] = left * b + top * d + ty;
-      vbuf[off++] = node.lpos.z;
+      vbuf[off++] = z;
       uintbuf[off++] = color;
       vbuf[off++] = uv.l;
       vbuf[off++] = uv.t;
       // tr
       vbuf[off++] = right * a + top * c + tx;
       vbuf[off++] = right * b + top * d + ty;
-      vbuf[off++] = node.lpos.z;
+      vbuf[off++] = z;
       uintbuf[off++] = color;
       vbuf[off++] = uv.r;
       vbuf[off++] = uv.t;
@@ -13409,7 +13410,7 @@ module.exports = (function () {
           this._texture = texture;
         }
     
-        let offset = index * _vertexFormat._bytes;
+        let offset = index * _vertexFormat._bytes / 4;
         let node = this._node;
         let frame = this._frame;
     
@@ -13420,7 +13421,7 @@ module.exports = (function () {
         this._updateVertex(node);
         let x = _vertex.x;
         let y = _vertex.y;
-        let z = node.lpos.z;
+        let z = node.lpos === undefined ? node.z : node.lpos.z;
         let u = this._uv.u;
         let v = this._uv.v;
         for (let r = 0; r < 3; ++r) {
@@ -13627,7 +13628,6 @@ module.exports = (function () {
   }
   
   // intenral
-  // deps
   const ForwardRenderer = renderMode.supportWebGL ? ForwardRenderer$1 : ForwardRenderer$2;
   const Texture2D = renderMode.supportWebGL ? gfx.Texture2D : canvas.Texture2D;
   const Device = renderMode.supportWebGL ? gfx.Device : canvas.Device;

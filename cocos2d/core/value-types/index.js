@@ -25,6 +25,7 @@
 
 require('./CCValueType');
 require('./CCVec2');
+require('./CCVec3');
 require('./CCPointExtension');
 require('./CCSize');
 require('./CCRect');
