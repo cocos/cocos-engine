@@ -59,6 +59,9 @@ module.exports = {
     device: null,
     scene: null,
     materialUtil: null,
+    _cameraNode: null,
+    _camera: null,
+    _forward: null,
 
     init (canvas, opts) {
         this.canvas = canvas;
@@ -66,6 +69,7 @@ module.exports = {
         this.scene = new renderEngine.Scene();
         this.materialUtil = new renderEngine.MaterialUtil();
 
+        this._cameraNode = new cc.Node();
         this._camera = new renderEngine.Camera({
             x: 0, y: 0, w: canvas.width, h: canvas.height
         });
@@ -79,9 +83,12 @@ module.exports = {
     },
 
     updateCameraViewport () {
+        this._cameraNode.scaleX = 1 / cc.view.getScaleX();
+        this._cameraNode.scaleY = 1 / cc.view.getScaleY();
         this._camera._rect.w = this.canvas.width;
         this._camera._rect.h = this.canvas.height;
         this._camera.setViewport();
+        this._camera.setNode(this._cameraNode);
     },
 
     render () {
