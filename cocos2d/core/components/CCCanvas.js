@@ -164,7 +164,9 @@ var Canvas = cc.Class({
         Canvas.instance = this;
 
         if ( !this.node._sizeProvider ) {
-            this.node._sizeProvider = designResolutionWrapper;
+            // this.node._sizeProvider = designResolutionWrapper;
+            this.node.width = cc.visibleRect.width;
+            this.node.height = cc.visibleRect.height;
         }
         else if (CC_DEV) {
             var renderer = this.node.getComponent(cc._RendererUnderSG);
@@ -246,6 +248,8 @@ var Canvas = cc.Class({
             }
             this.node.setPosition(canvasSize.width * 0.5 + offsetX, canvasSize.height * 0.5 + offsetY);
         }
+        this.node.width = cc.visibleRect.width;
+        this.node.height = cc.visibleRect.height;
     },
 
     onResized: function () {

@@ -476,7 +476,8 @@ var Sprite = cc.Class({
     
     _activateModel: function () {
         // model cannot be activated if already exists or component not enabled
-        if (!this.enabledInHierarchy) {
+        // TODO: Should use enabledInHierarchy
+        if (!this.enabled) {
             return;
         }
         // model cannot be activated if texture not loaded yet
