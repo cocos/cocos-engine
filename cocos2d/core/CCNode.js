@@ -1913,6 +1913,9 @@ var Node = cc.Class({
      * node.getNodeToWorldTransform(affineTransform);
      */
     getNodeToWorldTransform (out) {
+        if (!out) {
+            out = affineTrans.make();
+        }
         this._updateWorldMatrix();
         return affineTrans.fromMatrix(this._worldMatrix, out);
     },
@@ -1992,7 +1995,7 @@ var Node = cc.Class({
     convertToNodeSpace (worldPoint) {
         this._updateWorldMatrix();
         math.mat4.invert(_mat4_temp, this._worldMatrix);
-        let out = cc.Vec2();
+        let out = new cc.Vec2();
         math.vec2.transformMat4(out, worldPoint, _mat4_temp);
         out.x -= this._anchorPoint.x * this._contentSize.x;
         out.y -= this._anchorPoint.y * this._contentSize.y;
@@ -2010,7 +2013,7 @@ var Node = cc.Class({
      */
     convertToWorldSpace (nodePoint) {
         this._updateWorldMatrix();
-        let out = cc.Vec2(
+        let out = new cc.Vec2(
             nodePoint.x - this._anchorPoint.x * this._contentSize.x,
             nodePoint.y - this._anchorPoint.y * this._contentSize.y
         );
@@ -2033,7 +2036,7 @@ var Node = cc.Class({
     convertToNodeSpaceAR (worldPoint) {
         this._updateWorldMatrix();
         math.mat4.invert(_mat4_temp, this._worldMatrix);
-        let out = cc.Vec2();
+        let out = new cc.Vec2();
         return math.vec2.transformMat4(out, worldPoint, _mat4_temp);
     },
 
@@ -2052,7 +2055,7 @@ var Node = cc.Class({
      */
     convertToWorldSpaceAR (nodePoint) {
         this._updateWorldMatrix();
-        let out = cc.Vec2();
+        let out = new cc.Vec2();
         return math.vec2.transformMat4(out, nodePoint, this._worldMatrix);
     },
 

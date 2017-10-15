@@ -37,6 +37,7 @@ require('./textures');
 require('./CCDirector');
 require('./CCDirectorWebGL');
 require('./CCDirectorCanvas');
+require('./renderer');
 
 if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('./platform/CCSAXParser');
@@ -44,5 +45,4 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('./platform/CCScreen');
     require('./CCScheduler');
     require('./event-manager');
-    require('./renderer');
 }

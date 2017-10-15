@@ -73,22 +73,26 @@ var SpriteType = cc.Enum({
  * !#zh 填充类型
  * @enum Sprite.FillType
  */
-/**
- * !#en The horizontal fill.
- * !#zh 水平方向填充
- * @property {Number} HORIZONTAL
- */
-/**
- * !#en The vertical fill.
- * !#zh 垂直方向填充
- * @property {Number} VERTICAL
- */
-/**
- * !#en The radial fill.
- * !#zh 径向填充
- * @property {Number} RADIAL
- */
-var FillType = cc.Scale9Sprite.FillType;
+var FillType = cc.Enum({
+    /**
+     * !#en The horizontal fill.
+     * !#zh 水平方向填充
+     * @property {Number} HORIZONTAL
+     */
+    HORIZONTAL: 0,
+    /**
+     * !#en The vertical fill.
+     * !#zh 垂直方向填充
+     * @property {Number} VERTICAL
+     */
+    VERTICAL: 1,
+    /**
+     * !#en The radial fill.
+     * !#zh 径向填充
+     * @property {Number} RADIAL
+     */
+    RADIAL:2,
+});
 
 var BlendFactor = cc.BlendFunc.BlendFactor;
 
@@ -232,7 +236,7 @@ var Sprite = cc.Class({
          * !#en The sprite render type.
          * !#zh 精灵渲染类型
          * @property type
-         * @type {Sprite.SpriteType}
+         * @type {Sprite.Type}
          * @example
          * sprite.type = cc.Sprite.Type.SIMPLE;
          */
@@ -256,7 +260,7 @@ var Sprite = cc.Class({
          * !#en
          * The fill type, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
          * !#zh
-         * 精灵填充类型，仅渲染类型设置为 cc.Sprite.SpriteType.FILLED 时有效。
+         * 精灵填充类型，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
          * @property fillType
          * @type {Sprite.FillType}
          * @example
@@ -280,7 +284,7 @@ var Sprite = cc.Class({
          * !#en
          * The fill Center, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
          * !#zh
-         * 填充中心点，仅渲染类型设置为 cc.Sprite.SpriteType.FILLED 时有效。
+         * 填充中心点，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
          * @property fillCenter
          * @type {Vec2}
          * @example
@@ -303,7 +307,7 @@ var Sprite = cc.Class({
          * !#en
          * The fill Start, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
          * !#zh
-         * 填充起始点，仅渲染类型设置为 cc.Sprite.SpriteType.FILLED 时有效。
+         * 填充起始点，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
          * @property fillStart
          * @type {Number}
          * @example
@@ -327,7 +331,7 @@ var Sprite = cc.Class({
          * !#en
          * The fill Range, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
          * !#zh
-         * 填充范围，仅渲染类型设置为 cc.Sprite.SpriteType.FILLED 时有效。
+         * 填充范围，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
          * @property fillRange
          * @type {Number}
          * @example
@@ -570,7 +574,7 @@ var Sprite = cc.Class({
             gfx.BLEND_FUNC_ADD,
             this._srcBlendFactor, this._dstBlendFactor,
             gfx.BLEND_FUNC_ADD,
-            this._srcBlendFactor, this._dstBlendFactor,
+            this._srcBlendFactor, this._dstBlendFactor
         );
     },
 
@@ -655,13 +659,13 @@ var Sprite = cc.Class({
 
 if (CC_EDITOR) {
     // override __preload
-    Sprite.prototype.__superPreload = Base.prototype.__preload;
+    Sprite.prototype.__superPreload = cc.Component.prototype.__preload;
     Sprite.prototype.__preload = function () {
         this.__superPreload();
         this.node.on('size-changed', this._resized, this);
     };
     // override onDestroy
-    Sprite.prototype.__superOnDestroy = Base.prototype.onDestroy;
+    Sprite.prototype.__superOnDestroy = cc.Component.prototype.onDestroy;
     Sprite.prototype.onDestroy = function () {
         this.__superOnDestroy();
         this.node.off('size-changed', this._resized, this);
