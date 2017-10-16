@@ -55,6 +55,7 @@ LOCAL_SRC_FILES := \
 					../manual/jsb_cocos2dx_extension_manual.cpp \
 					../manual/jsb_cocos2dx_manual.cpp \
 					../manual/jsb_conversions.cpp \
+					../manual/jsb_creator_manual.cpp \
 					../manual/jsb_creator_physics_manual.cpp \
 					../manual/jsb_dragonbones_manual.cpp \
 					../manual/jsb_global.cpp \
