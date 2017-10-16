@@ -246,5 +246,8 @@
     "entries": [
       "./cocos2d/core/collider/CCIntersection.js"
     ]
+  },
+  {
+    "name": "Native NetWork"
   }
 ]
