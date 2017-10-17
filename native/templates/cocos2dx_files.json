@@ -875,6 +875,7 @@
         "extensions/anysdk/platform/android/res/layout/plugin_ads.xml", 
         "extensions/anysdk/platform/android/res/layout/plugin_login.xml", 
         "extensions/anysdk/platform/android/res/mipmap-layout/plugin_ads.xml", 
+        "extensions/anysdk/platform/android/res/mipmap-layout/plugin_login.xml", 
         "extensions/anysdk/platform/android/res/mipmap/plugin_btn_close.png", 
         "extensions/anysdk/platform/android/res/mipmap/plugin_ui_ad.png", 
         "extensions/anysdk/platform/android/res/values-en/plugin_string.xml", 
