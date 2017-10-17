@@ -154,7 +154,7 @@ namespace se {
                 if (args[0].isBoolean() && !args[0].toBoolean())
                 {
                     JSB_console_format_log(s, "[ASSERT]: ", 1);
-                    __oldConsoleError.toObject()->call(s.args(), s.thisObject());
+                    __oldConsoleAssert.toObject()->call(s.args(), s.thisObject());
                 }
             }
             return true;
