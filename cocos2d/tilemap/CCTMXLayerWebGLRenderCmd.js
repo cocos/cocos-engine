@@ -131,7 +131,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
         }
 
         if (layerOrientation === Orientation.ORTHO) {
-            startCol = Math.floor(-(cullingMapx - extw * cullingA) / (maptw * cullingA));
+            startCol = Math.floor(-(cullingMapx + extw * cullingA) / (maptw * cullingA));
             startRow = Math.floor((cullingMapy - exth * cullingD + mapth * rows * cullingD - winh) / (mapth * cullingD));
             maxCol = Math.ceil((winw - cullingMapx + extw * cullingA) / (maptw * cullingA));
             maxRow = rows - Math.floor(-(cullingMapy + exth * cullingD) / (mapth * cullingD));
