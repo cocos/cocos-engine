@@ -106,7 +106,7 @@ namespace se {
             internal::defineProperty(prototype, property.name, property.getter, property.setter, true, true);
         }
 
-        prototypeObj->setProperty("constructor", se::Value(ctorObj));
+        prototypeObj->setProperty("constructor", Value(ctorObj));
 
         ctorObj->setProperty("prototype", Value(prototypeObj));
 

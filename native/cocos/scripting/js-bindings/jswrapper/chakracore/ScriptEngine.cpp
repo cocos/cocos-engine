@@ -5,6 +5,7 @@
 #include "Object.hpp"
 #include "Class.hpp"
 #include "Utils.hpp"
+#include "../State.hpp"
 #include "../MappingUtils.hpp"
 
 namespace se {
@@ -48,7 +49,93 @@ namespace se {
                 p->finalizeCb(p->data);
             free(p);
         }
-    }
+
+        // For console stuff
+        bool JSB_console_format_log(State& s, const char* prefix, int msgIndex = 0)
+        {
+            if (msgIndex < 0)
+                return false;
+
+            const auto& args = s.args();
+            int argc = (int)args.size();
+            if ((argc - msgIndex) == 1)
+            {
+                std::string msg = args[msgIndex].toStringForce();
+                LOGD("JS: %s%s\n", prefix, msg.c_str());
+            }
+            else if (argc > 1)
+            {
+                std::string msg = args[msgIndex].toStringForce();
+                size_t pos;
+                for (int i = (msgIndex+1); i < argc; ++i)
+                {
+                    pos = msg.find("%");
+                    if (pos != std::string::npos && pos != (msg.length()-1) && (msg[pos+1] == 'd' || msg[pos+1] == 's' || msg[pos+1] == 'f'))
+                    {
+                        msg.replace(pos, 2, args[i].toStringForce());
+                    }
+                    else
+                    {
+                        msg += " " + args[i].toStringForce();
+                    }
+                }
+
+                LOGD("JS: %s%s\n", prefix, msg.c_str());
+            }
+
+            return true;
+        }
+
+        bool JSB_console_log(State& s)
+        {
+            JSB_console_format_log(s, "");
+            return true;
+        }
+        SE_BIND_FUNC(JSB_console_log)
+
+        bool JSB_console_debug(State& s)
+        {
+            JSB_console_format_log(s, "[DEBUG]: ");
+            return true;
+        }
+        SE_BIND_FUNC(JSB_console_debug)
+
+        bool JSB_console_info(State& s)
+        {
+            JSB_console_format_log(s, "[INFO]: ");
+            return true;
+        }
+        SE_BIND_FUNC(JSB_console_info)
+
+        bool JSB_console_warn(State& s)
+        {
+            JSB_console_format_log(s, "[WARN]: ");
+            return true;
+        }
+        SE_BIND_FUNC(JSB_console_warn)
+
+        bool JSB_console_error(State& s)
+        {
+            JSB_console_format_log(s, "[ERROR]: ");
+            return true;
+        }
+        SE_BIND_FUNC(JSB_console_error)
+
+        bool JSB_console_assert(State& s)
+        {
+            const auto& args = s.args();
+            if (!args.empty())
+            {
+                if (args[0].isBoolean() && !args[0].toBoolean())
+                {
+                    JSB_console_format_log(s, "[ASSERT]: ", 1);
+                }
+            }
+            return true;
+        }
+        SE_BIND_FUNC(JSB_console_assert)
+
+    } // namespace {
 
     ScriptEngine *ScriptEngine::getInstance()
     {
@@ -110,7 +197,22 @@ namespace se {
         _globalObj = Object::_createJSObject(nullptr, globalObj);
         _globalObj->root();
 
-        _globalObj->setProperty("scriptEngineType", se::Value("ChakraCore"));
+        // ChakraCore isn't shipped with a console variable. Make a fake one.
+        Value consoleVal;
+        bool hasConsole = _globalObj->getProperty("console", &consoleVal) && consoleVal.isObject();
+        assert(!hasConsole);
+
+        HandleObject consoleObj(Object::createPlainObject());
+        consoleObj->defineFunction("log", _SE(JSB_console_log));
+        consoleObj->defineFunction("debug", _SE(JSB_console_debug));
+        consoleObj->defineFunction("info", _SE(JSB_console_info));
+        consoleObj->defineFunction("warn", _SE(JSB_console_warn));
+        consoleObj->defineFunction("error", _SE(JSB_console_error));
+        consoleObj->defineFunction("assert", _SE(JSB_console_assert));
+
+        _globalObj->setProperty("console", Value(consoleObj));
+
+        _globalObj->setProperty("scriptEngineType", Value("ChakraCore"));
 
         _globalObj->defineFunction("log", __log);
         _globalObj->defineFunction("forceGC", __forceGC);

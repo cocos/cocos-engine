@@ -215,6 +215,91 @@ namespace se {
             bool ok = buildId->append(buildid, strlen(buildid));
             return ok;
         }
+
+        // For console stuff
+        bool JSB_console_format_log(State& s, const char* prefix, int msgIndex = 0)
+        {
+            if (msgIndex < 0)
+                return false;
+
+            const auto& args = s.args();
+            int argc = (int)args.size();
+            if ((argc - msgIndex) == 1)
+            {
+                std::string msg = args[msgIndex].toStringForce();
+                LOGD("JS: %s%s\n", prefix, msg.c_str());
+            }
+            else if (argc > 1)
+            {
+                std::string msg = args[msgIndex].toStringForce();
+                size_t pos;
+                for (int i = (msgIndex+1); i < argc; ++i)
+                {
+                    pos = msg.find("%");
+                    if (pos != std::string::npos && pos != (msg.length()-1) && (msg[pos+1] == 'd' || msg[pos+1] == 's' || msg[pos+1] == 'f'))
+                    {
+                        msg.replace(pos, 2, args[i].toStringForce());
+                    }
+                    else
+                    {
+                        msg += " " + args[i].toStringForce();
+                    }
+                }
+
+                LOGD("JS: %s%s\n", prefix, msg.c_str());
+            }
+
+            return true;
+        }
+
+        bool JSB_console_log(State& s)
+        {
+            JSB_console_format_log(s, "");
+            return true;
+        }
+        SE_BIND_FUNC(JSB_console_log)
+
+        bool JSB_console_debug(State& s)
+        {
+            JSB_console_format_log(s, "[DEBUG]: ");
+            return true;
+        }
+        SE_BIND_FUNC(JSB_console_debug)
+
+        bool JSB_console_info(State& s)
+        {
+            JSB_console_format_log(s, "[INFO]: ");
+            return true;
+        }
+        SE_BIND_FUNC(JSB_console_info)
+
+        bool JSB_console_warn(State& s)
+        {
+            JSB_console_format_log(s, "[WARN]: ");
+            return true;
+        }
+        SE_BIND_FUNC(JSB_console_warn)
+
+        bool JSB_console_error(State& s)
+        {
+            JSB_console_format_log(s, "[ERROR]: ");
+            return true;
+        }
+        SE_BIND_FUNC(JSB_console_error)
+
+        bool JSB_console_assert(State& s)
+        {
+            const auto& args = s.args();
+            if (!args.empty())
+            {
+                if (args[0].isBoolean() && !args[0].toBoolean())
+                {
+                    JSB_console_format_log(s, "[ASSERT]: ", 1);
+                }
+            }
+            return true;
+        }
+        SE_BIND_FUNC(JSB_console_assert)
     } // namespace {
 
     AutoHandleScope::AutoHandleScope()
@@ -381,7 +466,22 @@ namespace se {
         _oldCompartment = JS_EnterCompartment(_cx, rootedGlobalObj);
         JS_InitStandardClasses(_cx, rootedGlobalObj) ;
 
-        _globalObj->setProperty("scriptEngineType", se::Value("SpiderMonkey"));
+        // SpiderMonkey isn't shipped with a console variable. Make a fake one.
+        Value consoleVal;
+        bool hasConsole = _globalObj->getProperty("console", &consoleVal) && consoleVal.isObject();
+        assert(!hasConsole);
+
+        HandleObject consoleObj(Object::createPlainObject());
+        consoleObj->defineFunction("log", _SE(JSB_console_log));
+        consoleObj->defineFunction("debug", _SE(JSB_console_debug));
+        consoleObj->defineFunction("info", _SE(JSB_console_info));
+        consoleObj->defineFunction("warn", _SE(JSB_console_warn));
+        consoleObj->defineFunction("error", _SE(JSB_console_error));
+        consoleObj->defineFunction("assert", _SE(JSB_console_assert));
+
+        _globalObj->setProperty("console", Value(consoleObj));
+
+        _globalObj->setProperty("scriptEngineType", Value("SpiderMonkey"));
 
         JS_DefineFunction(_cx, rootedGlobalObj, "log", __log, 0, JSPROP_PERMANENT);
         JS_DefineFunction(_cx, rootedGlobalObj, "forceGC", __forceGC, 0, JSPROP_READONLY | JSPROP_PERMANENT);
@@ -779,7 +879,7 @@ namespace se {
         if (!init())
             return false;
 
-        if (_debugGlobalObj == nullptr)
+        if (isDebuggerEnabled() && _debugGlobalObj == nullptr)
         {
             JS::CompartmentOptions options;
             options.behaviors().setVersion(JSVERSION_LATEST);

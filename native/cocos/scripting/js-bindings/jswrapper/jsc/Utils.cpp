@@ -71,13 +71,13 @@ namespace se {
         if (getter != nullptr)
         {
             HandleObject getterObj(Object::_createJSObject(nullptr, getter));
-            desc->setProperty("get", se::Value(getterObj));
+            desc->setProperty("get", Value(getterObj));
         }
 
         if (setter != nullptr)
         {
             HandleObject setterObj(Object::_createJSObject(nullptr, setter));
-            desc->setProperty("set", se::Value(setterObj));
+            desc->setProperty("set", Value(setterObj));
         }
 
         args.push_back(Value(desc));

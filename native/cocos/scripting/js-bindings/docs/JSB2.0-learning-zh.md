@@ -17,7 +17,7 @@ JS绑定的大部分工作其实就是设定JS相关操作的CPP回调，在回�
 
 如何做到抽象层开销最小而且暴露统一的API供上层使用？
 
-以注册JS函数的回调定义为例，JavaScriptCore, SpiderMoneky, V8, ChakraCore的定义各不相同，具体如下：
+以注册JS函数的回调定义为例，JavaScriptCore, SpiderMonkey, V8, ChakraCore的定义各不相同，具体如下：
 
 **JavaScriptCore:**
 
