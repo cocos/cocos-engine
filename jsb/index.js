@@ -25,17 +25,6 @@
 
 'use strict';
 
-var originLog = console.log;
-
-// overwrite original console.log
-try {
-    console.log = function () {
-        originLog.call(console, cc.js.formatStr.apply(null, arguments));
-    };
-}
-catch (e) {
-}
-
 function defineMacro (name, defaultValue) {
     // if "global_defs" not preprocessed by uglify, just declare them globally,
     // this may happened in release version's preview page.
