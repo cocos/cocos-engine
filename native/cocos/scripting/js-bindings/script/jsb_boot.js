@@ -721,9 +721,6 @@ jsb.urlRegExp = new RegExp("^(?:https?|ftp)://\\S*$", "i");
 
 cc._engineLoaded = false;
 
-var console = console || {}
-console.log = log;
-
 (function (config) {
     require("script/jsb.js");
     cc._engineLoaded = true;

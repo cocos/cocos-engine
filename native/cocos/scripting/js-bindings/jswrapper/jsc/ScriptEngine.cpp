@@ -5,6 +5,7 @@
 #include "Object.hpp"
 #include "Class.hpp"
 #include "Utils.hpp"
+#include "../State.hpp"
 #include "../MappingUtils.hpp"
 
 extern "C" JS_EXPORT void JSSynchronousGarbageCollectForDebugging(JSContextRef);
@@ -44,7 +45,7 @@ namespace se {
             {
                 std::string ret;
                 internal::forceConvertJsValueToStdString(ctx, arguments[0], &ret);
-                LOGD("%s\n", ret.c_str());
+                LOGD("JS: %s\n", ret.c_str());
             }
             return JSValueMakeUndefined(ctx);
         }
@@ -62,6 +63,103 @@ namespace se {
                 p->finalizeCb(obj);
             free(p);
         }
+
+        Value __oldConsoleLog;
+        Value __oldConsoleDebug;
+        Value __oldConsoleInfo;
+        Value __oldConsoleWarn;
+        Value __oldConsoleError;
+        Value __oldConsoleAssert;
+
+        bool JSB_console_format_log(State& s, const char* prefix, int msgIndex = 0)
+        {
+            if (msgIndex < 0)
+                return false;
+
+            const auto& args = s.args();
+            int argc = (int)args.size();
+            if ((argc - msgIndex) == 1)
+            {
+                std::string msg = args[msgIndex].toStringForce();
+                LOGD("JS: %s%s\n", prefix, msg.c_str());
+            }
+            else if (argc > 1)
+            {
+                std::string msg = args[msgIndex].toStringForce();
+                size_t pos;
+                for (int i = (msgIndex+1); i < argc; ++i)
+                {
+                    pos = msg.find("%");
+                    if (pos != std::string::npos && pos != (msg.length()-1) && (msg[pos+1] == 'd' || msg[pos+1] == 's' || msg[pos+1] == 'f'))
+                    {
+                        msg.replace(pos, 2, args[i].toStringForce());
+                    }
+                    else
+                    {
+                        msg += " " + args[i].toStringForce();
+                    }
+                }
+
+                LOGD("JS: %s%s\n", prefix, msg.c_str());
+            }
+
+            return true;
+        }
+
+        bool JSB_console_log(State& s)
+        {
+            JSB_console_format_log(s, "");
+            __oldConsoleDebug.toObject()->call(s.args(), s.thisObject());
+            return true;
+        }
+        SE_BIND_FUNC(JSB_console_log)
+
+        bool JSB_console_debug(State& s)
+        {
+            JSB_console_format_log(s, "[DEBUG]: ");
+            __oldConsoleDebug.toObject()->call(s.args(), s.thisObject());
+            return true;
+        }
+        SE_BIND_FUNC(JSB_console_debug)
+
+        bool JSB_console_info(State& s)
+        {
+            JSB_console_format_log(s, "[INFO]: ");
+            __oldConsoleInfo.toObject()->call(s.args(), s.thisObject());
+            return true;
+        }
+        SE_BIND_FUNC(JSB_console_info)
+
+        bool JSB_console_warn(State& s)
+        {
+            JSB_console_format_log(s, "[WARN]: ");
+            __oldConsoleWarn.toObject()->call(s.args(), s.thisObject());
+            return true;
+        }
+        SE_BIND_FUNC(JSB_console_warn)
+
+        bool JSB_console_error(State& s)
+        {
+            JSB_console_format_log(s, "[ERROR]: ");
+            __oldConsoleError.toObject()->call(s.args(), s.thisObject());
+            return true;
+        }
+        SE_BIND_FUNC(JSB_console_error)
+
+        bool JSB_console_assert(State& s)
+        {
+            const auto& args = s.args();
+            if (!args.empty())
+            {
+                if (args[0].isBoolean() && !args[0].toBoolean())
+                {
+                    JSB_console_format_log(s, "[ASSERT]: ", 1);
+                    __oldConsoleError.toObject()->call(s.args(), s.thisObject());
+                }
+            }
+            return true;
+        }
+        SE_BIND_FUNC(JSB_console_assert)
     }
 
     ScriptEngine *ScriptEngine::getInstance()
@@ -128,9 +226,31 @@ namespace se {
 
         _globalObj = Object::_createJSObject(nullptr, globalObj);
         _globalObj->root();
-        _globalObj->setProperty("window", se::Value(_globalObj));
+        _globalObj->setProperty("window", Value(_globalObj));
 
-        _globalObj->setProperty("scriptEngineType", se::Value("JavaScriptCore"));
+        Value consoleVal;
+        if (_globalObj->getProperty("console", &consoleVal) && consoleVal.isObject())
+        {
+            consoleVal.toObject()->getProperty("log", &__oldConsoleLog);
+            consoleVal.toObject()->defineFunction("log", _SE(JSB_console_log));
+
+            consoleVal.toObject()->getProperty("debug", &__oldConsoleDebug);
+            consoleVal.toObject()->defineFunction("debug", _SE(JSB_console_debug));
+
+            consoleVal.toObject()->getProperty("info", &__oldConsoleInfo);
+            consoleVal.toObject()->defineFunction("info", _SE(JSB_console_info));
+
+            consoleVal.toObject()->getProperty("warn", &__oldConsoleWarn);
+            consoleVal.toObject()->defineFunction("warn", _SE(JSB_console_warn));
+
+            consoleVal.toObject()->getProperty("error", &__oldConsoleError);
+            consoleVal.toObject()->defineFunction("error", _SE(JSB_console_error));
+
+            consoleVal.toObject()->getProperty("assert", &__oldConsoleAssert);
+            consoleVal.toObject()->defineFunction("assert", _SE(JSB_console_assert));
+        }
+
+        _globalObj->setProperty("scriptEngineType", Value("JavaScriptCore"));
 
         JSStringRef propertyName = JSStringCreateWithUTF8CString("log");
         JSObjectSetProperty(_cx, globalObj, propertyName, JSObjectMakeFunctionWithCallback(_cx, propertyName, __log), kJSPropertyAttributeReadOnly, nullptr);
@@ -177,6 +297,13 @@ namespace se {
         Object::cleanup();
         Class::cleanup();
         garbageCollect();
+
+        __oldConsoleLog.setUndefined();
+        __oldConsoleDebug.setUndefined();
+        __oldConsoleInfo.setUndefined();
+        __oldConsoleWarn.setUndefined();
+        __oldConsoleError.setUndefined();
+        __oldConsoleAssert.setUndefined();
 
         JSGlobalContextRelease(_cx);
 
