@@ -37,6 +37,9 @@
     <ClCompile Include="..\auto\jsb_cocos2dx_spine_auto.cpp" />
     <ClCompile Include="..\auto\jsb_cocos2dx_ui_auto.cpp" />
     <ClCompile Include="..\auto\jsb_creator_auto.cpp" />
+    <ClCompile Include="..\auto\jsb_creator_camera_auto.cpp" />
+    <ClCompile Include="..\auto\jsb_creator_graphics_auto.cpp" />
+    <ClCompile Include="..\auto\jsb_creator_physics_auto.cpp" />
     <ClCompile Include="..\jswrapper\config.cpp" />
     <ClCompile Include="..\jswrapper\HandleObject.cpp" />
     <ClCompile Include="..\jswrapper\MappingUtils.cpp" />
@@ -65,6 +68,7 @@
     <ClCompile Include="..\manual\jsb_cocos2dx_manual.cpp" />
     <ClCompile Include="..\manual\jsb_conversions.cpp" />
     <ClCompile Include="..\manual\jsb_creator_manual.cpp" />
+    <ClCompile Include="..\manual\jsb_creator_physics_manual.cpp" />
     <ClCompile Include="..\manual\jsb_dragonbones_manual.cpp" />
     <ClCompile Include="..\manual\jsb_global.cpp" />
     <ClCompile Include="..\manual\jsb_helper.cpp" />
@@ -88,6 +92,9 @@
     <ClInclude Include="..\auto\jsb_cocos2dx_spine_auto.hpp" />
     <ClInclude Include="..\auto\jsb_cocos2dx_ui_auto.hpp" />
     <ClInclude Include="..\auto\jsb_creator_auto.hpp" />
+    <ClInclude Include="..\auto\jsb_creator_camera_auto.hpp" />
+    <ClInclude Include="..\auto\jsb_creator_graphics_auto.hpp" />
+    <ClInclude Include="..\auto\jsb_creator_physics_auto.hpp" />
     <ClInclude Include="..\jswrapper\config.hpp" />
     <ClInclude Include="..\jswrapper\HandleObject.hpp" />
     <ClInclude Include="..\jswrapper\MappingUtils.hpp" />
@@ -125,6 +132,7 @@
     <ClInclude Include="..\manual\jsb_cocos2dx_manual.hpp" />
     <ClInclude Include="..\manual\jsb_conversions.hpp" />
     <ClInclude Include="..\manual\jsb_creator_manual.hpp" />
+    <ClInclude Include="..\manual\jsb_creator_physics_manual.hpp" />
     <ClInclude Include="..\manual\jsb_dragonbones_manual.hpp" />
     <ClInclude Include="..\manual\jsb_global.h" />
     <ClInclude Include="..\manual\jsb_helper.hpp" />
