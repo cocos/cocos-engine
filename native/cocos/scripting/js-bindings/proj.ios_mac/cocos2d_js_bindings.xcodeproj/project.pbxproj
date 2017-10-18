@@ -242,6 +242,9 @@
 		4D3EB2651F8F7358007DA644 /* jsb_creator_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4D3EB2631F8F7358007DA644 /* jsb_creator_manual.hpp */; };
 		4D3EB2661F8F779B007DA644 /* jsb_creator_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4D3EB2631F8F7358007DA644 /* jsb_creator_manual.hpp */; };
 		4D3EB2671F8F779E007DA644 /* jsb_creator_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D3EB2621F8F7358007DA644 /* jsb_creator_manual.cpp */; };
+		4D558C8D1F9700740083B43B /* jsb_creator_physics_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D672A851F8E0EE30073B9A4 /* jsb_creator_physics_auto.cpp */; };
+		4D558C8E1F9700770083B43B /* jsb_creator_graphics_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D672A831F8E0EE30073B9A4 /* jsb_creator_graphics_auto.cpp */; };
+		4D558C8F1F9700790083B43B /* jsb_creator_camera_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D672A811F8E0EE30073B9A4 /* jsb_creator_camera_auto.cpp */; };
 		4D672A871F8E0EE30073B9A4 /* jsb_creator_camera_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D672A811F8E0EE30073B9A4 /* jsb_creator_camera_auto.cpp */; };
 		4D672A881F8E0EE30073B9A4 /* jsb_creator_camera_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4D672A821F8E0EE30073B9A4 /* jsb_creator_camera_auto.hpp */; };
 		4D672A891F8E0EE30073B9A4 /* jsb_creator_graphics_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D672A831F8E0EE30073B9A4 /* jsb_creator_graphics_auto.cpp */; };
@@ -979,6 +982,7 @@
 				1AFD36411EF115100097DBB1 /* ScriptEngine.cpp in Sources */,
 				1AFD36CF1EF116190097DBB1 /* jsb_cocos2dx_manual.cpp in Sources */,
 				1AFD364F1EF115100097DBB1 /* Class.cpp in Sources */,
+				4D558C8D1F9700740083B43B /* jsb_creator_physics_auto.cpp in Sources */,
 				1AFD363D1EF115100097DBB1 /* Object.cpp in Sources */,
 				1AFD367D1EF115100097DBB1 /* Utils.cpp in Sources */,
 				1AFD36371EF115100097DBB1 /* Class.cpp in Sources */,
@@ -986,6 +990,7 @@
 				1AFD36FB1EF116190097DBB1 /* jsb_xmlhttprequest.cpp in Sources */,
 				1AFD36471EF115100097DBB1 /* Utils.cpp in Sources */,
 				4D3EB2671F8F779E007DA644 /* jsb_creator_manual.cpp in Sources */,
+				4D558C8E1F9700770083B43B /* jsb_creator_graphics_auto.cpp in Sources */,
 				1A5F229D1F0E37B20008BF09 /* jsb_creator_physics_manual.cpp in Sources */,
 				FA6F1BB41D815C2C007DD223 /* jsb_cocos2dx_dragonbones_auto.cpp in Sources */,
 				1AFD36CB1EF116190097DBB1 /* jsb_cocos2dx_extension_manual.cpp in Sources */,
@@ -1024,6 +1029,7 @@
 				1AFD36DB1EF116190097DBB1 /* jsb_global.cpp in Sources */,
 				1A9F0F9E1F30235C00A499E1 /* jsb_helper.cpp in Sources */,
 				1AFD36911EF115100097DBB1 /* ObjectWrap.cpp in Sources */,
+				4D558C8F1F9700790083B43B /* jsb_creator_camera_auto.cpp in Sources */,
 				1AD4AE681F0F920700A823D8 /* jsb_websocket.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
