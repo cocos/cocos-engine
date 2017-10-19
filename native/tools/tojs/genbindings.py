@@ -177,6 +177,9 @@ def main():
                     'cocos2dx_experimental_webView.ini' : ('cocos2dx_experimental_webView', 'jsb_cocos2dx_experimental_webView_auto'), \
                     'cocos2dx_experimental_video.ini' : ('cocos2dx_experimental_video', 'jsb_cocos2dx_experimental_video_auto'), \
                     'creator.ini': ('creator', 'jsb_creator_auto'),
+                    'creator_camera.ini': ('creator', 'jsb_creator_camera_auto'),
+                    'creator_graphics.ini': ('creator', 'jsb_creator_graphics_auto'),
+                    'creator_physics.ini': ('creator', 'jsb_creator_physics_auto'),
                     'box2d.ini' : ('box2d', 'jsb_box2d_auto'),
                     'anysdk-common.ini': ('protocols', 'jsb_anysdk_protocols_auto'),
                     'anysdk-appstore.ini': ('protocols', 'jsb_anysdk_protocols_auto'),

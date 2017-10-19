@@ -10,11 +10,10 @@ ifeq ($(COCOS_SIMULATOR_BUILD),1)
 LOCAL_ARM_MODE := arm
 endif
 
-FILE_LIST := hellolua/main.cpp
-FILE_LIST += $(wildcard $(LOCAL_PATH)/../../Classes/*.cpp)
-FILE_LIST += $(wildcard $(LOCAL_PATH)/../../Classes/ide-support/*.cpp)
-
-LOCAL_SRC_FILES := $(FILE_LIST:$(LOCAL_PATH)/%=%)
+LOCAL_SRC_FILES := hellojavascript/main.cpp \
+				   ../../Classes/AppDelegate.cpp \
+				   ../../Classes/ide-support/RuntimeJsImpl.cpp \
+				   ../../../../../../cocos/scripting/js-bindings/manual/jsb_module_register.cpp
 
 LOCAL_C_INCLUDES := \
 $(LOCAL_PATH)/../../Classes \

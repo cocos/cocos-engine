@@ -28,6 +28,12 @@
         "to": "frameworks/runtime-src/proj.android-studio/app/src"
       }
     ],
+    "append_file": [
+      {
+        "from": "cocos/scripting/js-bindings/manual/jsb_module_register.cpp",
+        "to": "frameworks/runtime-src/Classes/jsb_module_register.cpp"
+      }
+    ],
     "append_x_engine": {
       "from": ".",
       "to": "frameworks/cocos2d-x"
