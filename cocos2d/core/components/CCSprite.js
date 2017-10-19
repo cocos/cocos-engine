@@ -510,8 +510,6 @@ var Sprite = cc.Class({
                 break;
             case SpriteType.SLICED:
                 this._model = SlicedModel.alloc();
-                this._model.width = this.node.width;
-                this._model.height = this.node.height;
                 break;
             case SpriteType.TILED:
                 break;

@@ -12472,7 +12472,7 @@ module.exports = (function () {
     batchItem (items, start, end, vbuf, ibuf) {
       let uintbuf = new Uint32Array(vbuf.buffer, vbuf.byteOffset, vbuf.length);
       let stageItem = this._batchedItems.add();
-      let item0 = items.data[0];
+      let item0 = items.data[start];
       let vformat = item0.model.vertexFormat;
       stageItem.model = null;
       stageItem.node = item0.node;
@@ -13274,9 +13274,6 @@ module.exports = (function () {
           u: [0, 0, 0, 0],
           v: [0, 0, 0, 0]
         };
-  
-        this.width = 0;
-        this.height = 0;
       }
       
       _updateUV () {
@@ -13379,10 +13376,10 @@ module.exports = (function () {
         let topHeight = frame.insetTop;
         let bottomHeight = frame.insetBottom;
   
-        let sizableWidth = this.width - leftWidth - rightWidth;
-        let sizableHeight = this.height - topHeight - bottomHeight;
-        let xScale = this.width / (leftWidth + rightWidth);
-        let yScale = this.height / (topHeight + bottomHeight);
+        let sizableWidth = node.width - leftWidth - rightWidth;
+        let sizableHeight = node.height - topHeight - bottomHeight;
+        let xScale = node.width / (leftWidth + rightWidth);
+        let yScale = node.height / (topHeight + bottomHeight);
         xScale = (isNaN(xScale) || xScale > 1) ? 1 : xScale;
         yScale = (isNaN(yScale) || yScale > 1) ? 1 : yScale;
         sizableWidth = sizableWidth < 0 ? 0 : sizableWidth;
@@ -13392,11 +13389,11 @@ module.exports = (function () {
         x[0] = 0;
         x[1] = leftWidth * xScale;
         x[2] = x[1] + sizableWidth;
-        x[3] = this.width;
+        x[3] = node.width;
         y[0] = 0;
         y[1] = bottomHeight * yScale;
         y[2] = y[1] + sizableHeight;
-        y[3] = this.height;
+        y[3] = node.height;
   
         let vx = _vertex.x;
         let vy = _vertex.y;
@@ -13497,8 +13494,6 @@ module.exports = (function () {
           model._frame = null;
           model._effect = null;
           model._texture = null;
-          model.width = 0;
-          model.height = 0;
           _pool$1.free(model);
         }
       }
