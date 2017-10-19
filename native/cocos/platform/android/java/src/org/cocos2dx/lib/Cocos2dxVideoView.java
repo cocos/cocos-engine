@@ -422,7 +422,6 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
             mCurrentState = STATE_PLAYBACK_COMPLETED;
             mTargetState = STATE_PLAYBACK_COMPLETED;
 
-            release(true);
             if (mOnVideoEventListener != null) {
                 mOnVideoEventListener.onVideoEvent(mViewTag,EVENT_COMPLETED);
             }
