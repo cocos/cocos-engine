@@ -51,3 +51,5 @@ if (window.dragonBones) {
 }
 
 require("script/jsb_audioengine.js");
+require("script/jsb_cocosanalytics.js");
+

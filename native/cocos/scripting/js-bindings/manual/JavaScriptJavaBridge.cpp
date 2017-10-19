@@ -67,23 +67,25 @@ JNIEXPORT jint JNICALL Java_org_cocos2dx_lib_Cocos2dxJavascriptJavaBridge_evalSt
 class JavaScriptJavaBridge
 {
 public:
-    typedef enum : char
+    enum class ValueType: char
     {
-        TypeInvalid = -1,
-        TypeVoid    = 0,
-        TypeInteger = 1,
-        TypeFloat   = 2,
-        TypeBoolean = 3,
-        TypeString  = 4,
-        TypeVector  = 5,
-        TypeFunction= 6,
-    } ValueType;
+        INVALID,
+        VOID,
+        INTEGER,
+        LONG,
+        FLOAT,
+        BOOLEAN,
+        STRING,
+        VECTOR,
+        FUNCTION
+    };
 
     typedef std::vector<ValueType> ValueTypes;
 
     typedef union
     {
         int     intValue;
+        long    longValue;
         float   floatValue;
         int     boolValue;
         std::string *stringValue;
@@ -98,7 +100,7 @@ public:
         , m_className(className)
         , m_methodName(methodName)
         , m_methodSig(methodSig)
-        , m_returnType(TypeVoid)
+        , m_returnType(ValueType::VOID)
         , m_argumentsCount(0)
         , m_retjstring(NULL)
         , m_env(NULL)
@@ -122,7 +124,7 @@ public:
             return m_env;
         }
 
-        int argumentTypeAtIndex(size_t index) {
+        ValueType argumentTypeAtIndex(size_t index) {
             return m_argumentsType.at(index);
         }
 
@@ -170,7 +172,7 @@ public:
 
 JavaScriptJavaBridge::CallInfo::~CallInfo()
 {
-    if (m_returnType == TypeString && m_ret.stringValue)
+    if (m_returnType == ValueType::STRING && m_ret.stringValue)
     {
         delete m_ret.stringValue;
     }
@@ -180,23 +182,27 @@ bool JavaScriptJavaBridge::CallInfo::execute()
 {
     switch (m_returnType)
     {
-        case JavaScriptJavaBridge::TypeVoid:
+        case JavaScriptJavaBridge::ValueType::VOID:
             m_env->CallStaticVoidMethod(m_classID, m_methodID);
             break;
 
-        case JavaScriptJavaBridge::TypeInteger:
+        case JavaScriptJavaBridge::ValueType::INTEGER:
             m_ret.intValue = m_env->CallStaticIntMethod(m_classID, m_methodID);
             break;
 
-        case JavaScriptJavaBridge::TypeFloat:
+        case JavaScriptJavaBridge::ValueType::LONG:
+            m_ret.longValue = m_env->CallStaticLongMethod(m_classID, m_methodID);
+            break;
+
+        case JavaScriptJavaBridge::ValueType::FLOAT:
             m_ret.floatValue = m_env->CallStaticFloatMethod(m_classID, m_methodID);
             break;
 
-        case JavaScriptJavaBridge::TypeBoolean:
+        case JavaScriptJavaBridge::ValueType::BOOLEAN:
             m_ret.boolValue = m_env->CallStaticBooleanMethod(m_classID, m_methodID);
             break;
 
-        case JavaScriptJavaBridge::TypeString:
+        case JavaScriptJavaBridge::ValueType::STRING:
         {
             m_retjstring = (jstring)m_env->CallStaticObjectMethod(m_classID, m_methodID);
             std::string strValue = cocos2d::StringUtils::getStringUTFCharsJNI(m_env, m_retjstring);
@@ -227,23 +233,27 @@ bool JavaScriptJavaBridge::CallInfo::executeWithArgs(jvalue *args)
 {
     switch (m_returnType)
     {
-        case JavaScriptJavaBridge::TypeVoid:
+        case JavaScriptJavaBridge::ValueType::VOID:
             m_env->CallStaticVoidMethodA(m_classID, m_methodID, args);
             break;
 
-        case JavaScriptJavaBridge::TypeInteger:
+        case JavaScriptJavaBridge::ValueType::INTEGER:
             m_ret.intValue = m_env->CallStaticIntMethodA(m_classID, m_methodID, args);
             break;
 
-        case JavaScriptJavaBridge::TypeFloat:
+        case JavaScriptJavaBridge::ValueType::LONG:
+            m_ret.longValue = m_env->CallStaticIntMethodA(m_classID, m_methodID, args);
+            break;
+
+        case JavaScriptJavaBridge::ValueType::FLOAT:
             m_ret.floatValue = m_env->CallStaticFloatMethodA(m_classID, m_methodID, args);
             break;
 
-        case JavaScriptJavaBridge::TypeBoolean:
+        case JavaScriptJavaBridge::ValueType::BOOLEAN:
             m_ret.boolValue = m_env->CallStaticBooleanMethodA(m_classID, m_methodID, args);
             break;
 
-        case JavaScriptJavaBridge::TypeString:
+        case JavaScriptJavaBridge::ValueType::STRING:
         {
             m_retjstring = (jstring)m_env->CallStaticObjectMethodA(m_classID, m_methodID, args);
             std::string strValue = cocos2d::StringUtils::getStringUTFCharsJNI(m_env, m_retjstring);
@@ -281,7 +291,7 @@ bool JavaScriptJavaBridge::CallInfo::validateMethodSig()
     while (pos < len && m_methodSig[pos] != ')')
     {
         JavaScriptJavaBridge::ValueType type = checkType(m_methodSig, &pos);
-        if (type == TypeInvalid) return false;
+        if (type == ValueType::INVALID) return false;
 
         m_argumentsCount++;
         m_argumentsType.push_back(type);
@@ -304,41 +314,43 @@ JavaScriptJavaBridge::ValueType JavaScriptJavaBridge::CallInfo::checkType(const 
     switch (sig[*pos])
     {
         case 'I':
-            return JavaScriptJavaBridge::TypeInteger;
+            return JavaScriptJavaBridge::ValueType::INTEGER;
+        case 'J':
+            return JavaScriptJavaBridge::ValueType::LONG;
         case 'F':
-            return JavaScriptJavaBridge::TypeFloat;
+            return JavaScriptJavaBridge::ValueType::FLOAT;
         case 'Z':
-            return JavaScriptJavaBridge::TypeBoolean;
+            return JavaScriptJavaBridge::ValueType::BOOLEAN;
         case 'V':
-            return JavaScriptJavaBridge::TypeVoid;
+            return JavaScriptJavaBridge::ValueType::VOID;
         case 'L':
             size_t pos2 = sig.find_first_of(';', *pos + 1);
             if (pos2 == std::string::npos)
             {
                 m_error = JSJ_ERR_INVALID_SIGNATURES;
-                return TypeInvalid;
+                return ValueType::INVALID;
             }
 
             const std::string t = sig.substr(*pos, pos2 - *pos + 1);
             if (t.compare("Ljava/lang/String;") == 0)
             {
                 *pos = pos2;
-                return TypeString;
+                return ValueType::STRING;
             }
             else if (t.compare("Ljava/util/Vector;") == 0)
             {
                 *pos = pos2;
-                return TypeVector;
+                return ValueType::VECTOR;
             }
             else
             {
                 m_error = JSJ_ERR_TYPE_NOT_SUPPORT;
-                return TypeInvalid;
+                return ValueType::INVALID;
             }
     }
 
     m_error = JSJ_ERR_TYPE_NOT_SUPPORT;
-    return TypeInvalid;
+    return ValueType::INVALID;
 }
 
 
@@ -403,16 +415,19 @@ bool JavaScriptJavaBridge::convertReturnValue(ReturnValue retValue, ValueType ty
 
     switch (type)
     {
-        case JavaScriptJavaBridge::TypeInteger:
+        case JavaScriptJavaBridge::ValueType::INTEGER:
             ret->setInt32(retValue.intValue);
             break;
-        case JavaScriptJavaBridge::TypeFloat:
+        case JavaScriptJavaBridge::ValueType::LONG:
+            ret->setLong(retValue.longValue);
+            break;
+        case JavaScriptJavaBridge::ValueType::FLOAT:
             ret->setFloat(retValue.floatValue);
             break;
-        case JavaScriptJavaBridge::TypeBoolean:
+        case JavaScriptJavaBridge::ValueType::BOOLEAN:
             ret->setBoolean(retValue.boolValue);
             break;
-        case JavaScriptJavaBridge::TypeString:
+        case JavaScriptJavaBridge::ValueType::STRING:
             ret->setString(*retValue.stringValue);
             break;
         default:
@@ -497,26 +512,33 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State& s)
                 int index = i + 3;
                 switch (call.argumentTypeAtIndex(i))
                 {
-                    case JavaScriptJavaBridge::TypeInteger:
+                    case JavaScriptJavaBridge::ValueType::INTEGER:
                     {
                         int integer = 0;
                         seval_to_int32(args[index], &integer);
                         jargs[i].i = integer;
                         break;
                     }
-                    case JavaScriptJavaBridge::TypeFloat:
+                    case JavaScriptJavaBridge::ValueType::LONG:
+                    {
+                        long longVal = 0L;
+                        seval_to_long(args[index], &longVal);
+                        jargs[i].j = longVal;
+                        break;
+                    }
+                    case JavaScriptJavaBridge::ValueType::FLOAT:
                     {
                         float floatNumber = 0.0f;
                         seval_to_float(args[index], &floatNumber);
                         jargs[i].f = floatNumber;
                         break;
                     }
-                    case JavaScriptJavaBridge::TypeBoolean:
+                    case JavaScriptJavaBridge::ValueType::BOOLEAN:
                     {
                         jargs[i].z = args[index].isBoolean() && args[index].toBoolean() ? JNI_TRUE : JNI_FALSE;
                         break;
                     }
-                    case JavaScriptJavaBridge::TypeString:
+                    case JavaScriptJavaBridge::ValueType::STRING:
                     default:
                         std::string str;
                         seval_to_std_string(args[index], &str);
