@@ -366,6 +366,7 @@
 		1A75DC191DFE3C7700A271DF /* AudioMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A5FB7C91DF10E3500C918C1 /* AudioMacros.h */; };
 		1A8D25511F39C4E3002CC0A8 /* WebSocket-apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF191F20AF94007A1D9D /* WebSocket-apple.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		1A8D25521F39C4E4002CC0A8 /* WebSocket-apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF191F20AF94007A1D9D /* WebSocket-apple.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A9A4C6E1F98B1C000C14552 /* libcocosanalytics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A9A4C6D1F98B1C000C14552 /* libcocosanalytics.a */; };
 		1A9DCA27180E6955007A3AD4 /* CCGLBufferedNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A9DCA02180E6955007A3AD4 /* CCGLBufferedNode.cpp */; };
 		1A9DCA28180E6955007A3AD4 /* CCGLBufferedNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A9DCA02180E6955007A3AD4 /* CCGLBufferedNode.cpp */; };
 		1A9DCA29180E6955007A3AD4 /* CCGLBufferedNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A9DCA03180E6955007A3AD4 /* CCGLBufferedNode.h */; };
@@ -1710,6 +1711,7 @@
 		1A8D254E1F399C61002CC0A8 /* WebSocket-libwebsockets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "WebSocket-libwebsockets.cpp"; sourceTree = "<group>"; };
 		1A97ABFC1A1D962A0076D9CC /* MathUtilNeon64.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MathUtilNeon64.inl; sourceTree = "<group>"; };
 		1A97ABFD1A1D962A0076D9CC /* MathUtilSSE.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MathUtilSSE.inl; sourceTree = "<group>"; };
+		1A9A4C6D1F98B1C000C14552 /* libcocosanalytics.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcocosanalytics.a; path = ../external/ios/libs/libcocosanalytics.a; sourceTree = "<group>"; };
 		1A9DCA02180E6955007A3AD4 /* CCGLBufferedNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCGLBufferedNode.cpp; sourceTree = "<group>"; };
 		1A9DCA03180E6955007A3AD4 /* CCGLBufferedNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCGLBufferedNode.h; sourceTree = "<group>"; };
 		1A9F0F951F301DE200A499E1 /* b2ObjectDestroyNotifier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = b2ObjectDestroyNotifier.cpp; sourceTree = "<group>"; };
@@ -2425,6 +2427,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A9A4C6E1F98B1C000C14552 /* libcocosanalytics.a in Frameworks */,
 				A60A9D661C200E5A0070800A /* libchipmunk.a in Frameworks */,
 				EDE5DFF81C0D6B3F0014147A /* libwebsockets.a in Frameworks */,
 				1ACF6A3C1E4AFDC80033C137 /* libcrypto.a in Frameworks */,
@@ -2476,6 +2479,7 @@
 		1551A341158F2AB200E66CFE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1A9A4C6D1F98B1C000C14552 /* libcocosanalytics.a */,
 				1ACF6A3A1E4AFDC80033C137 /* libcrypto.a */,
 				1ACF6A3B1E4AFDC80033C137 /* libssl.a */,
 				B291B5161D4A0FEA00BBB345 /* ios */,

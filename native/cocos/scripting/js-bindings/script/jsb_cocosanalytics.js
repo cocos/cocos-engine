@@ -297,7 +297,7 @@ if (platform === sys.ANDROID) {
     var cls_CAEvent = "CAEvent";
     var cls_CAItem = "CAItem";
     var cls_CALevels = "CALevels";
-    var cls_CAPayment = "CAPayment";
+    var cls_CAPayment = "CAPeiment";
     var cls_CATask = "CATask";
     var cls_CAVirtual = "CAVirtual";
 
@@ -416,7 +416,7 @@ if (platform === sys.ANDROID) {
         payBegin: function(info) {
             if (info && info.amount && info.orderID && info.payType && info.iapID && info.currencyType) {
                 jsb.reflection.callStaticMethod(cls_CAPayment,
-                    "payBegin:orderID:payType:iapID:currencyType:",
+                    "peiBegin:orderID:peiType:pppID:currencyType:",
                     info.amount, info.orderID, info.payType, info.iapID, info.currencyType);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CAPayment.payBegin are wrong!");
@@ -426,7 +426,7 @@ if (platform === sys.ANDROID) {
         paySuccess: function(info) {
             if (info && info.amount && info.orderID && info.payType && info.iapID && info.currencyType) {
                 jsb.reflection.callStaticMethod(cls_CAPayment,
-                    "paySuccess:orderID:payType:iapID:currencyType:",
+                    "peiSuccess:orderID:peiType:pppID:currencyType:",
                     info.amount, info.orderID, info.payType, info.iapID, info.currencyType);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CAPayment.paySuccess are wrong!");
@@ -436,7 +436,7 @@ if (platform === sys.ANDROID) {
         payFailed: function(info) {
             if (info && info.amount && info.orderID && info.payType && info.iapID && info.currencyType) {
                 jsb.reflection.callStaticMethod(cls_CAPayment,
-                    "payFailure:orderID:payType:iapID:currencyType:",
+                    "peiFailed:orderID:peiType:pppID:currencyType:",
                     info.amount, info.orderID, info.payType, info.iapID, info.currencyType);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CAPayment.payFailed are wrong!");
@@ -446,7 +446,7 @@ if (platform === sys.ANDROID) {
         payCanceled: function(info) {
             if (info && info.amount && info.orderID && info.payType && info.iapID && info.currencyType) {
                 jsb.reflection.callStaticMethod(cls_CAPayment,
-                    "payCanceled:orderID:payType:iapID:currencyType:",
+                    "peiCanceled:orderID:peiType:pppID:currencyType:",
                     info.amount, info.orderID, info.payType, info.iapID, info.currencyType);
             } else {
                 console.error("The arguments passed to cocosAnalytics.CAPayment.payCanceled are wrong!");

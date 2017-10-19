@@ -381,7 +381,7 @@ static bool JavaScriptObjCBridge_callStaticMethod(se::State& s)
         if(!ok)
         {
             s.rval().setUndefined();
-            SE_REPORT_ERROR("call result code: %d", call.getErrorCode());
+            SE_REPORT_ERROR("call (%s.%s) failed, result code: %d", clsName.c_str(), methodName.c_str(), call.getErrorCode());
             return false;
         }
 
