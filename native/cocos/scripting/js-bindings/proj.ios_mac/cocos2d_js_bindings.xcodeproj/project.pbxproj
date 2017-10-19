@@ -27,8 +27,6 @@
 		1A210D951F456821006CCBAE /* MappingUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A210D921F456821006CCBAE /* MappingUtils.cpp */; };
 		1A210D961F456821006CCBAE /* MappingUtils.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A210D931F456821006CCBAE /* MappingUtils.hpp */; };
 		1A210D971F456821006CCBAE /* MappingUtils.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A210D931F456821006CCBAE /* MappingUtils.hpp */; };
-		1A210DE01F46C2D3006CCBAE /* libjs_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A210DDE1F46C2D3006CCBAE /* libjs_static.a */; };
-		1A210DE11F46C2D3006CCBAE /* libmozglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A210DDF1F46C2D3006CCBAE /* libmozglue.a */; };
 		1A210DE41F46C2DF006CCBAE /* libjs_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A210DE21F46C2DF006CCBAE /* libjs_static.a */; };
 		1A210DE51F46C2DF006CCBAE /* libmozglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A210DE31F46C2DF006CCBAE /* libmozglue.a */; };
 		1A5F228A1F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5F22881F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp */; };
@@ -241,7 +239,6 @@
 		1AFD37011EF116190097DBB1 /* ScriptingCore.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFD36C11EF116190097DBB1 /* ScriptingCore.h */; };
 		4BE089E41ADF965E00D65D4B /* jsb_cocos2dx_experimental_webView_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BE089E01ADF965E00D65D4B /* jsb_cocos2dx_experimental_webView_auto.cpp */; };
 		4BE089E51ADF965E00D65D4B /* jsb_cocos2dx_experimental_webView_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4BE089E11ADF965E00D65D4B /* jsb_cocos2dx_experimental_webView_auto.hpp */; };
-		4BE089EC1ADF967400D65D4B /* jsb_cocos2dx_experimental_webView_manual.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BE089EA1ADF967400D65D4B /* jsb_cocos2dx_experimental_webView_manual.h */; };
 		4D6E0D5F1E0384CC00DA5DB6 /* jsb_box2d_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4D9BB1F71DFAB8B300B58565 /* jsb_box2d_auto.hpp */; };
 		4D6E0D601E0384CF00DA5DB6 /* jsb_box2d_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D9BB1F61DFAB8B300B58565 /* jsb_box2d_auto.cpp */; };
 		4D9BB1F81DFAB8B300B58565 /* jsb_box2d_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D9BB1F61DFAB8B300B58565 /* jsb_box2d_auto.cpp */; };
@@ -400,7 +397,6 @@
 		1AFD36C11EF116190097DBB1 /* ScriptingCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptingCore.h; sourceTree = "<group>"; };
 		4BE089E01ADF965E00D65D4B /* jsb_cocos2dx_experimental_webView_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_cocos2dx_experimental_webView_auto.cpp; sourceTree = "<group>"; };
 		4BE089E11ADF965E00D65D4B /* jsb_cocos2dx_experimental_webView_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_experimental_webView_auto.hpp; sourceTree = "<group>"; };
-		4BE089EA1ADF967400D65D4B /* jsb_cocos2dx_experimental_webView_manual.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jsb_cocos2dx_experimental_webView_manual.h; sourceTree = "<group>"; };
 		4D9BB1F61DFAB8B300B58565 /* jsb_box2d_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_box2d_auto.cpp; sourceTree = "<group>"; };
 		4D9BB1F71DFAB8B300B58565 /* jsb_box2d_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_box2d_auto.hpp; sourceTree = "<group>"; };
 		4DFA4C0E1CBCC49000E3B736 /* jsb_creator_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_creator_auto.cpp; sourceTree = "<group>"; };
@@ -429,8 +425,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1A210DE01F46C2D3006CCBAE /* libjs_static.a in Frameworks */,
-				1A210DE11F46C2D3006CCBAE /* libmozglue.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -808,7 +802,6 @@
 				1AFD37011EF116190097DBB1 /* ScriptingCore.h in Headers */,
 				1AB5E62E18D05BC80088DAA4 /* jsb_cocos2dx_ui_auto.hpp in Headers */,
 				1AFD36791EF115100097DBB1 /* ScriptEngine.hpp in Headers */,
-				4BE089EC1ADF967400D65D4B /* jsb_cocos2dx_experimental_webView_manual.h in Headers */,
 				1A119E8618BDF19200352BAA /* jsb_cocos2dx_auto.hpp in Headers */,
 				1AFD36971EF115100097DBB1 /* ScriptEngine.hpp in Headers */,
 				B38AD56F1B1D38700057DD7F /* jsb_cocos2dx_experimental_video_auto.hpp in Headers */,
