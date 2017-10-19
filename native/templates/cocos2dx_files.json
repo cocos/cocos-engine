@@ -4903,6 +4903,7 @@
         "cocos/scripting/js-bindings/script/jsb_audioengine.js", 
         "cocos/scripting/js-bindings/script/jsb_boot.js", 
         "cocos/scripting/js-bindings/script/jsb_cocos2d.js", 
+        "cocos/scripting/js-bindings/script/jsb_cocosanalytics.js", 
         "cocos/scripting/js-bindings/script/jsb_common.js", 
         "cocos/scripting/js-bindings/script/jsb_create_apis.js", 
         "cocos/scripting/js-bindings/script/jsb_debugger.js", 
