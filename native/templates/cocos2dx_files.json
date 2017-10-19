@@ -625,6 +625,7 @@
         "cocos/platform/android/java/libs/android-async-http-1.4.9.jar", 
         "cocos/platform/android/java/libs/com.android.vending.expansion.zipfile.jar", 
         "cocos/platform/android/java/libs/httpclient-4.4.1.1.jar", 
+        "cocos/platform/android/java/libs/libcocosanalytics.jar", 
         "cocos/platform/android/java/proguard-project.txt", 
         "cocos/platform/android/java/project.properties", 
         "cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxAccelerometer.java", 
