@@ -311,7 +311,7 @@ var Node = cc.Class({
         _opacity: 255,
         _color: cc.Color.WHITE,
         _cascadeOpacityEnabled: true,
-        _contentSize: cc.Vec2,
+        _contentSize: cc.Size,
         _anchorPoint: cc.Vec2,
         _position: cc.Vec2,
         _scale: cc.Vec2,
@@ -747,14 +747,14 @@ var Node = cc.Class({
          */
         width: {
             get () {
-                return this._contentSize.x;
+                return this._contentSize.width;
             },
             set (value) {
-                if (value !== this._contentSize.x) {
+                if (value !== this._contentSize.width) {
                     if (CC_EDITOR) {
-                        var clone = cc.size(this._contentSize.x, this._contentSize.y);
+                        var clone = cc.size(this._contentSize.width, this._contentSize.height);
                     }
-                    this._contentSize.x = value;
+                    this._contentSize.width = value;
                     if (CC_EDITOR) {
                         this.emit(SIZE_CHANGED, clone);
                     }
@@ -775,14 +775,14 @@ var Node = cc.Class({
          */
         height: {
             get () {
-                return this._contentSize.y;
+                return this._contentSize.height;
             },
             set (value) {
-                if (value !== this._contentSize.y) {
+                if (value !== this._contentSize.height) {
                     if (CC_EDITOR) {
-                        var clone = cc.size(this._contentSize.x, this._contentSize.y);
+                        var clone = cc.size(this._contentSize.width, this._contentSize.height);
                     }
-                    this._contentSize.y = value;
+                    this._contentSize.height = value;
                     if (CC_EDITOR) {
                         this.emit(SIZE_CHANGED, clone);
                     }
@@ -1521,7 +1521,7 @@ var Node = cc.Class({
      * cc.log("Content Size: " + node.getContentSize());
      */
     getContentSize () {
-        return cc.size(this._contentSize.x, this._contentSize.y);
+        return cc.size(this._contentSize.width, this._contentSize.height);
     },
 
     /**
@@ -1997,8 +1997,8 @@ var Node = cc.Class({
         math.mat4.invert(_mat4_temp, this._worldMatrix);
         let out = new cc.Vec2();
         math.vec2.transformMat4(out, worldPoint, _mat4_temp);
-        out.x -= this._anchorPoint.x * this._contentSize.x;
-        out.y -= this._anchorPoint.y * this._contentSize.y;
+        out.x -= this._anchorPoint.x * this._contentSize.width;
+        out.y -= this._anchorPoint.y * this._contentSize.height;
         return out;
     },
 
@@ -2014,8 +2014,8 @@ var Node = cc.Class({
     convertToWorldSpace (nodePoint) {
         this._updateWorldMatrix();
         let out = new cc.Vec2(
-            nodePoint.x - this._anchorPoint.x * this._contentSize.x,
-            nodePoint.y - this._anchorPoint.y * this._contentSize.y
+            nodePoint.x - this._anchorPoint.x * this._contentSize.width,
+            nodePoint.y - this._anchorPoint.y * this._contentSize.height
         );
         return math.vec2.transformMat4(out, out, this._worldMatrix);
     },
@@ -2097,8 +2097,8 @@ var Node = cc.Class({
      */
     getBoundingBox () {
         this._updateLocalMatrix();
-        let width = this._contentSize.x;
-        let height = this._contentSize.y;
+        let width = this._contentSize.width;
+        let height = this._contentSize.height;
         let rect = cc.rect(
             -this._anchorPoint.x * width, 
             -this._anchorPoint.y * height, 
@@ -2131,8 +2131,8 @@ var Node = cc.Class({
 
     _getBoundingBoxTo (parentMat) {
         this._updateLocalMatrix();
-        let width = this._contentSize.x;
-        let height = this._contentSize.y;
+        let width = this._contentSize.width;
+        let height = this._contentSize.height;
         let rect = cc.rect(
             -this._anchorPoint.x * width, 
             -this._anchorPoint.y * height, 

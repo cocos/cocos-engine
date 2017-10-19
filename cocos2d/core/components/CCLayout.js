@@ -591,7 +591,7 @@ var Layout = cc.Class({
             var topMarign = (tempMaxHeight === 0) ? child.height : tempMaxHeight;
 
             if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
-                containerResizeBoundary = containerResizeBoundary || this.node._contentSize.y;
+                containerResizeBoundary = containerResizeBoundary || this.node._contentSize.height;
                 signX = -1;
                 tempFinalPositionY  = finalPositionY +  signX * (topMarign * maxHeightChildAnchorY + this.paddingBottom);
                 if (tempFinalPositionY < containerResizeBoundary) {
@@ -599,7 +599,7 @@ var Layout = cc.Class({
                 }
             }
             else {
-                containerResizeBoundary = containerResizeBoundary || -this.node._contentSize.y;
+                containerResizeBoundary = containerResizeBoundary || -this.node._contentSize.height;
                 tempFinalPositionY  = finalPositionY +  signX * (topMarign * maxHeightChildAnchorY + this.paddingTop);
                 if (tempFinalPositionY > containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionY;
@@ -726,14 +726,14 @@ var Layout = cc.Class({
 
             if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
                 signX = -1;
-                containerResizeBoundary = containerResizeBoundary || this.node._contentSize.x;
+                containerResizeBoundary = containerResizeBoundary || this.node._contentSize.width;
                 tempFinalPositionX = finalPositionX + signX * (rightMarign * maxWidthChildAnchorX + this.paddingLeft);
                 if (tempFinalPositionX < containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionX;
                 }
             }
             else {
-                containerResizeBoundary = containerResizeBoundary || -this.node._contentSize.x;
+                containerResizeBoundary = containerResizeBoundary || -this.node._contentSize.width;
                 tempFinalPositionX = finalPositionX + signX * (rightMarign * maxWidthChildAnchorX + this.paddingRight);
                 if (tempFinalPositionX > containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionX;
@@ -765,10 +765,10 @@ var Layout = cc.Class({
         });
 
         if (allChildrenBoundingBox) {
-            var leftBottomInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x, allChildrenBoundingBox.y));
+            var leftBottomInParentSpace = this.node.parent.convertToNodeSpace(cc.p(allChildrenBoundingBox.x, allChildrenBoundingBox.y));
             leftBottomInParentSpace = cc.pAdd(leftBottomInParentSpace, cc.p(-this.paddingLeft, -this.paddingBottom));
 
-            var rightTopInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x + allChildrenBoundingBox.width,
+            var rightTopInParentSpace = this.node.parent.convertToNodeSpace(cc.p(allChildrenBoundingBox.x + allChildrenBoundingBox.width,
                                                                                    allChildrenBoundingBox.y + allChildrenBoundingBox.height));
             rightTopInParentSpace = cc.pAdd(rightTopInParentSpace, cc.p(this.paddingRight, this.paddingTop));
 
