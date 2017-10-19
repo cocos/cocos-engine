@@ -29,6 +29,12 @@ if (platform === sys.ANDROID) {
         }
     };
 
+    cocosAnalytics.enableDebug = function(enabled) {
+        jsb.reflection.callStaticMethod(cls_CAAgent,
+                "enableDebug", "(Z)V",
+                enabled);
+    };
+
     cocosAnalytics.CAAccount = {
         loginStart: function() {
             jsb.reflection.callStaticMethod(cls_CAAccount, "loginStart", "()V");
@@ -284,7 +290,291 @@ if (platform === sys.ANDROID) {
     };
 
 } else if (platform === sys.IPAD || platform === sys.IPHONE) {
+   cocosAnalytics = {};
 
+    var cls_CAAccount = "CAAccount";
+    var cls_CAAgent = "CAAgent";
+    var cls_CAEvent = "CAEvent";
+    var cls_CAItem = "CAItem";
+    var cls_CALevels = "CALevels";
+    var cls_CAPayment = "CAPayment";
+    var cls_CATask = "CATask";
+    var cls_CAVirtual = "CAVirtual";
+
+    cocosAnalytics.init = function(info) {
+        if (info && info.appID && info.appSecret && info.channel) {
+            jsb.reflection.callStaticMethod(cls_CAAgent,
+                "init:appID:appSecret:",
+                info.channel, info.appID, info.appSecret);
+        } else {
+            console.error("The arguments passed to cocosAnalytics.init are wrong!");
+        }
+    };
+
+    cocosAnalytics.enableDebug = function(enabled) {
+        jsb.reflection.callStaticMethod(cls_CAAgent,
+                "enableDebug:",
+                enabled);
+    };
+
+    cocosAnalytics.CAAccount = {
+
+        testbool: function(v, boolean, integer, longtype, shorttype, uinttype, ulongtype, ushorttype, floattype, doubletype, chartype, uchartype) {
+            return jsb.reflection.callStaticMethod(cls_CAAccount, "testbool:boolean:integer:longtype:shorttype:uinttype:ulongtype:ushorttype:floattype:doubletype:chartype:uchartype:", v, boolean, integer, longtype, shorttype, uinttype, ulongtype, ushorttype, floattype, doubletype, chartype, uchartype);
+        },
+
+        loginStart: function() {
+            jsb.reflection.callStaticMethod(cls_CAAccount, "loginStart");
+        },
+
+        loginSuccess: function(info) {
+            if (info && info.userID) {
+                jsb.reflection.callStaticMethod(cls_CAAccount, "loginSuccess:", info.userID);
+            } else {
+                console.error("The arguments passed to cocosAnalytics.CAAccount.loginSuccess are wrong!");
+            }
+        },
+
+        loginFailed: function() {
+            jsb.reflection.callStaticMethod(cls_CAAccount, "loginFailed");
+        },
+
+        logout: function(info) {
+            jsb.reflection.callStaticMethod(cls_CAAccount, "logout");
+        },
+
+        setAccountType: function(type) {
+            if (type) {
+                jsb.reflection.callStaticMethod(cls_CAAccount, "setAccountType:", type);
+            } else {
+                console.error("The arguments passed to cocosAnalytics.CAAccount.setAccountType are wrong!");
+            }
+        },
+
+        setAge: function(age) {
+            if (age) {
+                jsb.reflection.callStaticMethod(cls_CAAccount, "setAge:", age);
+            } else {
+                console.error("The argument passed to cocosAnalytics.CAAccount.setAge is wrong!");
+            }
+        },
+
+        setGender: function(gender) {
+            if (gender) {
+                jsb.reflection.callStaticMethod(cls_CAAccount, "setGender:", gender);
+            } else {
+                console.error("The argument passed to cocosAnalytics.CAAccount.setGender is wrong!");
+            }
+        },
+
+        setLevel: function(level) {
+            if (level) {
+                jsb.reflection.callStaticMethod(cls_CAAccount, "setLevel:", level);
+            } else {
+                console.error("The argument passed to cocosAnalytics.CAAccount.setLevel is wrong!");
+            }
+        },
+
+        createRole: function(info) {
+            if (info && info.roleID && info.userName && info.race && info['class'] && info.gameServer) {
+                jsb.reflection.callStaticMethod(cls_CAAccount,
+                    "createRole:userName:race:roleClass:gameServer:",
+                    info.roleID, info.userName, info.race, info['class'], info.gameServer);
+            } else {
+                console.error("The arguments passed to cocosAnalytics.CAAccount.createRole are wrong!");
+            }
+        }
+    };
+
+    cocosAnalytics.CAEvent = {
+        onEvent: function(info) {
+            if (info && info.eventName) {
+                jsb.reflection.callStaticMethod(cls_CAEvent, "onEvent:", info.eventName);
+            } else {
+                console.error("The argument passed to cocosAnalytics.CAEvent.onEvent is wrong!");
+            }
+        },
+
+        onEventStart: function(info) {
+            if (info && info.eventName) {
+                jsb.reflection.callStaticMethod(cls_CAEvent, "onEventStart:", info.eventName);
+            } else {
+                console.error("The argument passed to cocosAnalytics.CAEvent.onEventStart is wrong!");
+            }
+        },
+
+        onEventEnd: function(info) {
+            if (info && info.eventName) {
+                jsb.reflection.callStaticMethod(cls_CAEvent, "onEventEnd:", info.eventName);
+            } else {
+                console.error("The argument passed to cocosAnalytics.CAEvent.onEventEnd is wrong!");
+            }
+        }
+    };
+
+    cocosAnalytics.CAPayment = {
+        payBegin: function(info) {
+            if (info && info.amount && info.orderID && info.payType && info.iapID && info.currencyType) {
+                jsb.reflection.callStaticMethod(cls_CAPayment,
+                    "payBegin:orderID:payType:iapID:currencyType:",
+                    info.amount, info.orderID, info.payType, info.iapID, info.currencyType);
+            } else {
+                console.error("The arguments passed to cocosAnalytics.CAPayment.payBegin are wrong!");
+            }
+        },
+
+        paySuccess: function(info) {
+            if (info && info.amount && info.orderID && info.payType && info.iapID && info.currencyType) {
+                jsb.reflection.callStaticMethod(cls_CAPayment,
+                    "paySuccess:orderID:payType:iapID:currencyType:",
+                    info.amount, info.orderID, info.payType, info.iapID, info.currencyType);
+            } else {
+                console.error("The arguments passed to cocosAnalytics.CAPayment.paySuccess are wrong!");
+            }
+        },
+
+        payFailed: function(info) {
+            if (info && info.amount && info.orderID && info.payType && info.iapID && info.currencyType) {
+                jsb.reflection.callStaticMethod(cls_CAPayment,
+                    "payFailure:orderID:payType:iapID:currencyType:",
+                    info.amount, info.orderID, info.payType, info.iapID, info.currencyType);
+            } else {
+                console.error("The arguments passed to cocosAnalytics.CAPayment.payFailed are wrong!");
+            }
+        },
+
+        payCanceled: function(info) {
+            if (info && info.amount && info.orderID && info.payType && info.iapID && info.currencyType) {
+                jsb.reflection.callStaticMethod(cls_CAPayment,
+                    "payCanceled:orderID:payType:iapID:currencyType:",
+                    info.amount, info.orderID, info.payType, info.iapID, info.currencyType);
+            } else {
+                console.error("The arguments passed to cocosAnalytics.CAPayment.payCanceled are wrong!");
+            }
+        }
+    };
+
+    cocosAnalytics.CALevels = {
+        begin: function(info) {
+            if (info && info.level) {
+                jsb.reflection.callStaticMethod(cls_CALevels, "begin:", info.level);
+            } else {
+                console.error("The argument passed to cocosAnalytics.CALevels.begin is wrong!");
+            }
+        },
+
+        complete: function(info) {
+            if (info && info.level) {
+                jsb.reflection.callStaticMethod(cls_CALevels, "complete:", info.level);
+            } else {
+                console.error("The argument passed to cocosAnalytics.CALevels.complete is wrong!");
+            }
+        },
+
+        failed: function(info) {
+            if (info && info.level) {
+                info.reason = info.reason || "";
+                jsb.reflection.callStaticMethod(cls_CALevels, "failed:reason:", info.level, info.reason);
+            } else {
+                console.error("The arguments passed to cocosAnalytics.CALevels.failed are wrong!");
+            }
+        }
+    };
+
+    cocosAnalytics.CATaskType = {
+        GuideLine: 1,
+        MainLine: 2,
+        BranchLine: 3,
+        Daily: 4,
+        Activity: 5,
+        Other: 100
+    };
+
+    cocosAnalytics.CATask = {
+
+        begin: function(info) {
+            if (info && info.taskID && info.type) {
+                jsb.reflection.callStaticMethod(cls_CATask, "begin:taskType:", info.taskID, info.type);
+            } else {
+                console.error("The arguments passed to cocosAnalytics.CATask.begin are wrong!");
+            }
+        },
+
+        complete: function(info) {
+            if (info && info.taskID) {
+                jsb.reflection.callStaticMethod(cls_CATask, "complete:", info.taskID);
+            } else {
+                console.error("The argument passed to cocosAnalytics.CATask.complete is wrong!");
+            }
+        },
+
+        failed: function(info) {
+            if (info && info.taskID) {
+                info.reason = info.reason || "";
+                jsb.reflection.callStaticMethod(cls_CATask, "failed:reason:", info.taskID, info.reason);
+            } else {
+                console.error("The arguments passed to cocosAnalytics.CATask.failed are wrong!");
+            }
+        }
+    };
+
+    cocosAnalytics.CAItem = {
+        buy: function(info) {
+            if (info && info.itemID && info.itemType && info.itemCount && info.virtualCoin && info.virtualType && info.consumePoint) {
+                jsb.reflection.callStaticMethod(cls_CAItem, "buy:type:count:virtualCoin:virtualType:consumePoint:",
+                    info.itemID, info.itemType, info.itemCount, info.virtualCoin, info.virtualType, info.consumePoint);
+            } else {
+                console.error("The arguments passed to cocosAnalytics.CAItem.buy are wrong!");
+            }
+        },
+
+        get: function(info) {
+            if (info && info.itemID && info.itemType && info.itemCount && info.reason) {
+                jsb.reflection.callStaticMethod(cls_CAItem, "get:type:count:reason:",
+                    info.itemID, info.itemType, info.itemCount, info.reason);
+            } else {
+                console.error("The arguments passed to cocosAnalytics.CAItem.get are wrong!");
+            }
+        },
+
+        consume: function(info) {
+            if (info && info.itemID && info.itemType && info.itemCount && info.reason) {
+                jsb.reflection.callStaticMethod(cls_CAItem, "consume:type:count:reason:",
+                    info.itemID, info.itemType, info.itemCount, info.reason);
+            } else {
+                console.error("The arguments passed to cocosAnalytics.CAItem.consume are wrong!");
+            }
+        }
+    };
+
+    cocosAnalytics.CAVirtual = {
+        setVirtualNum: function(info) {
+            if (info && info.type && info.count) {
+                jsb.reflection.callStaticMethod(cls_CAVirtual, "setVirtualNum:count:",
+                    info.type, info.count);
+            } else {
+                console.error("The arguments passed to cocosAnalytics.CAVirtual.setVirtualNum are wrong!");
+            }
+        },
+
+        get: function(info) {
+            if (info && info.type && info.count && info.reason) {
+                jsb.reflection.callStaticMethod(cls_CAVirtual, "get:count:reason:",
+                    info.type, info.count, info.reason);
+            } else {
+                console.error("The arguments passed to cocosAnalytics.CAVirtual.get are wrong!");
+            }
+        },
+
+        consume: function(info) {
+            if (info && info.type && info.count && info.reason) {
+                jsb.reflection.callStaticMethod(cls_CAVirtual, "consume:count:reason:",
+                    info.type, info.count, info.reason);
+            } else {
+                console.error("The arguments passed to cocosAnalytics.CAVirtual.consume are wrong!");
+            }
+        }
+    };
 } else {
 
 }
