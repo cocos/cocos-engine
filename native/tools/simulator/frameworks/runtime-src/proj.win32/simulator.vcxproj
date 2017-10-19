@@ -222,6 +222,7 @@ xcopy /Y /Q "$(OutDir)lang" "$(ProjectDir)..\..\..\runtime\win32"
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\cocos\scripting\js-bindings\manual\jsb_module_register.cpp" />
     <ClCompile Include="..\Classes\AppDelegate.cpp" />
     <ClCompile Include="..\Classes\ide-support\RuntimeJsImpl.cpp" />
     <ClCompile Include="main.cpp" />
