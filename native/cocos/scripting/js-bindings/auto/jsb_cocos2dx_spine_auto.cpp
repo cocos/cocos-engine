@@ -340,7 +340,7 @@ static bool js_cocos2dx_spine_SkeletonRenderer_getAttachment(se::State& s)
         ok &= seval_to_std_string(args[1], &arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_getAttachment : Error processing arguments");
         spAttachment* result = cobj->getAttachment(arg0, arg1);
-        ok &= spattachment_to_seval(*result, &s.rval());
+        ok &= spattachment_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_getAttachment : Error processing arguments");
         return true;
     }
@@ -486,7 +486,7 @@ static bool js_cocos2dx_spine_SkeletonRenderer_findSlot(se::State& s)
         ok &= seval_to_std_string(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_findSlot : Error processing arguments");
         spSlot* result = cobj->findSlot(arg0);
-        ok &= spslot_to_seval(*result, &s.rval());
+        ok &= spslot_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_findSlot : Error processing arguments");
         return true;
     }
@@ -504,7 +504,7 @@ static bool js_cocos2dx_spine_SkeletonRenderer_getSkeleton(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         spSkeleton* result = cobj->getSkeleton();
-        ok &= spskeleton_to_seval(*result, &s.rval());
+        ok &= spskeleton_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_getSkeleton : Error processing arguments");
         return true;
     }
@@ -525,7 +525,7 @@ static bool js_cocos2dx_spine_SkeletonRenderer_findBone(se::State& s)
         ok &= seval_to_std_string(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_findBone : Error processing arguments");
         spBone* result = cobj->findBone(arg0);
-        ok &= spbone_to_seval(*result, &s.rval());
+        ok &= spbone_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_findBone : Error processing arguments");
         return true;
     }
@@ -816,7 +816,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_setAnimation(se::State& s)
         ok &= seval_to_boolean(args[2], &arg2);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_setAnimation : Error processing arguments");
         spTrackEntry* result = cobj->setAnimation(arg0, arg1, arg2);
-        ok &= sptrackentry_to_seval(*result, &s.rval());
+        ok &= sptrackentry_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_setAnimation : Error processing arguments");
         return true;
     }
@@ -837,7 +837,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_findAnimation(se::State& s)
         ok &= seval_to_std_string(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_findAnimation : Error processing arguments");
         spAnimation* result = cobj->findAnimation(arg0);
-        ok &= spanimation_to_seval(*result, &s.rval());
+        ok &= spanimation_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_findAnimation : Error processing arguments");
         return true;
     }
@@ -891,7 +891,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_setDisposeListener(se::State& s)
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
-                    ok &= sptrackentry_to_seval(*larg0, &args[0]);
+                    ok &= sptrackentry_to_seval(larg0, &args[0]);
                     se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
@@ -959,7 +959,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_setEndListener(se::State& s)
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
-                    ok &= sptrackentry_to_seval(*larg0, &args[0]);
+                    ok &= sptrackentry_to_seval(larg0, &args[0]);
                     se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
@@ -994,7 +994,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_getState(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         spAnimationState* result = cobj->getState();
-        ok &= spanimationstate_to_seval(*result, &s.rval());
+        ok &= spanimationstate_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_getState : Error processing arguments");
         return true;
     }
@@ -1025,7 +1025,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_setCompleteListener(se::State& s
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
-                    ok &= sptrackentry_to_seval(*larg0, &args[0]);
+                    ok &= sptrackentry_to_seval(larg0, &args[0]);
                     se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
@@ -1060,7 +1060,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_getCurrent(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         spTrackEntry* result = cobj->getCurrent();
-        ok &= sptrackentry_to_seval(*result, &s.rval());
+        ok &= sptrackentry_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_getCurrent : Error processing arguments");
         return true;
     }
@@ -1069,7 +1069,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_getCurrent(se::State& s)
         ok &= seval_to_int32(args[0], (int32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_getCurrent : Error processing arguments");
         spTrackEntry* result = cobj->getCurrent(arg0);
-        ok &= sptrackentry_to_seval(*result, &s.rval());
+        ok &= sptrackentry_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_getCurrent : Error processing arguments");
         return true;
     }
@@ -1100,8 +1100,8 @@ static bool js_cocos2dx_spine_SkeletonAnimation_setEventListener(se::State& s)
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(2);
-                    ok &= sptrackentry_to_seval(*larg0, &args[0]);
-                    ok &= spevent_to_seval(*larg1, &args[1]);
+                    ok &= sptrackentry_to_seval(larg0, &args[0]);
+                    ok &= spevent_to_seval(larg1, &args[1]);
                     se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
@@ -1172,7 +1172,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_setInterruptListener(se::State& 
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
-                    ok &= sptrackentry_to_seval(*larg0, &args[0]);
+                    ok &= sptrackentry_to_seval(larg0, &args[0]);
                     se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
@@ -1214,7 +1214,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_addAnimation(se::State& s)
         ok &= seval_to_boolean(args[2], &arg2);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_addAnimation : Error processing arguments");
         spTrackEntry* result = cobj->addAnimation(arg0, arg1, arg2);
-        ok &= sptrackentry_to_seval(*result, &s.rval());
+        ok &= sptrackentry_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_addAnimation : Error processing arguments");
         return true;
     }
@@ -1229,7 +1229,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_addAnimation(se::State& s)
         ok &= seval_to_float(args[3], &arg3);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_addAnimation : Error processing arguments");
         spTrackEntry* result = cobj->addAnimation(arg0, arg1, arg2, arg3);
-        ok &= sptrackentry_to_seval(*result, &s.rval());
+        ok &= sptrackentry_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonAnimation_addAnimation : Error processing arguments");
         return true;
     }
@@ -1275,7 +1275,7 @@ static bool js_cocos2dx_spine_SkeletonAnimation_setStartListener(se::State& s)
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
-                    ok &= sptrackentry_to_seval(*larg0, &args[0]);
+                    ok &= sptrackentry_to_seval(larg0, &args[0]);
                     se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
