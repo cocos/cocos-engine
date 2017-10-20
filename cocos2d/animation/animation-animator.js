@@ -52,24 +52,13 @@ p.stopStatesExcept = function (state) {
     }
 };
 
-p.on = function (type, callback, target, useCapture) {
-    var array = this._anims.array;
-    for (var i = 0; i < array.length; ++i) {
-        array[i].on(type, callback, target, useCapture);
-    }
-}
-
 p.addAnimation = function (anim) {
     var index = this._anims.array.indexOf(anim);
     if (index === -1) {
         this._anims.push(anim);
     }
 
-    var listeners = this.animation._listeners;
-    for (var i = 0, l = listeners.length; i < l; i++) {
-        var listener = listeners[i];
-        anim.on(listener[0], listener[1], listener[2], listener[3]);
-    }
+    anim._setListeners(this.animation);
 };
 
 p.removeAnimation = function (anim) {
