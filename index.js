@@ -106,16 +106,17 @@
 /**
  * @property {Boolean} CC_TEST - Running in the engine's unit test.
  */
+var _global = typeof window === 'undefined' ? global : window;
 function defineMacro (name, defaultValue) {
     // if "global_defs" not preprocessed by uglify, just declare them globally,
     // this may happened in release version's preview page.
     // (use evaled code to prevent mangle by uglify)
-    if (typeof window[name] == 'undefined') {
-        window[name] = defaultValue;
+    if (typeof _global[name] == 'undefined') {
+        _global[name] = defaultValue;
     }
 }
 function defined (name) {
-    return typeof window[name] == 'object';
+    return typeof _global[name] == 'object';
 }
 
 defineMacro('CC_TEST', defined('tap') || defined('QUnit'));
