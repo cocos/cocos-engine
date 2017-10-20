@@ -622,34 +622,35 @@ var _createCtor = cc.supportJit ? function (ctors, baseClass, className, options
 
         this.__initProps__(CCClass);
 
-        var args = arguments;
-        var self = this;
-        function init () {
-            if (ctorLen === 1) {
-                CCClass.__ctors__[0].apply(self, args);
-            }
-            else {
-                var cs = CCClass.__ctors__;
-                for (var i = 0; i < ctorLen; i++) {
-                    cs[i].apply(self, args);;
-                }
-            }
-        }
-
         // call user constructors
         var ctorLen = ctors.length;
+        var cs = CCClass.__ctors__;
         if (ctorLen > 0) {
             var useTryCatch = ! (className && className.startsWith('cc.'));
             if (useTryCatch) {
                 try {
-                    init();
+                    if (ctorLen === 1) {
+                        cs[0].apply(this, arguments);
+                    }
+                    else {
+                        for (var i = 0; i < ctorLen; i++) {
+                            cs[i].apply(this, arguments);;
+                        }
+                    }
                 }
                 catch(e) {
                     cc._throw(e);
                 }
             }
             else {
-                init();
+                if (ctorLen === 1) {
+                    cs[0].apply(this, arguments);
+                }
+                else {
+                    for (var i = 0; i < ctorLen; i++) {
+                        cs[i].apply(this, arguments);;
+                    }
+                }
             }
         }
     };

@@ -47,7 +47,7 @@ var supportJit = cc.supportJit;
 var callPreload = supportJit ? 'c.__preload();' : function (c) { c.__preload(); }
 var callOnLoad = supportJit ? ('c.onLoad();c._objFlags|=' + IsOnLoadCalled) : function (c) {
     c.onLoad();
-    c._objFlags|= IsOnLoadCalled;
+    c._objFlags |= IsOnLoadCalled;
 }
 
 // for __preload: use internally, no sort

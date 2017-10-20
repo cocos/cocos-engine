@@ -139,7 +139,7 @@ defineMacro('CC_BUILD', false);
 cc = {};
 
 // check whether support jit
-cc.supportJit = Function('') !== undefined;
+cc.supportJit = typeof Function('') === 'function';
 
 // The namespace for original nodes rendering in scene graph.
 _ccsg = {};

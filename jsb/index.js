@@ -26,7 +26,7 @@
 'use strict';
 
 // check whether support jit
-cc.supportJit = Function('') !== undefined;
+cc.supportJit = typeof Function('') === 'function';
 
 function defineMacro (name, defaultValue) {
     // if "global_defs" not preprocessed by uglify, just declare them globally,
