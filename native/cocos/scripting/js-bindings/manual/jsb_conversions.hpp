@@ -529,18 +529,18 @@ bool Map_string_key_to_seval(const cocos2d::Map<std::string, T*>& v, se::Value* 
 }
 
 // Spine conversions
-bool speventdata_to_seval(const spEventData& v, se::Value* ret);
-bool spevent_to_seval(const spEvent& v, se::Value* ret);
-bool spbonedata_to_seval(const spBoneData& v, se::Value* ret);
-bool spbone_to_seval(const spBone& v, se::Value* ret);
-bool spskeleton_to_seval(const spSkeleton& v, se::Value* ret);
-bool spattachment_to_seval(const spAttachment& v, se::Value* ret);
-bool spslotdata_to_seval(const spSlotData& v, se::Value* ret);
-bool spslot_to_seval(const spSlot& v, se::Value* ret);
-bool sptimeline_to_seval(const spTimeline& v, se::Value* ret);
-bool spanimationstate_to_seval(const spAnimationState& v, se::Value* ret);
-bool spanimation_to_seval(const spAnimation& v, se::Value* ret);
-bool sptrackentry_to_seval(const spTrackEntry& v, se::Value* ret);
+bool speventdata_to_seval(const spEventData* v, se::Value* ret);
+bool spevent_to_seval(const spEvent* v, se::Value* ret);
+bool spbonedata_to_seval(const spBoneData* v, se::Value* ret);
+bool spbone_to_seval(const spBone* v, se::Value* ret);
+bool spskeleton_to_seval(const spSkeleton* v, se::Value* ret);
+bool spattachment_to_seval(const spAttachment* v, se::Value* ret);
+bool spslotdata_to_seval(const spSlotData* v, se::Value* ret);
+bool spslot_to_seval(const spSlot* v, se::Value* ret);
+bool sptimeline_to_seval(const spTimeline* v, se::Value* ret);
+bool spanimationstate_to_seval(const spAnimationState* v, se::Value* ret);
+bool spanimation_to_seval(const spAnimation* v, se::Value* ret);
+bool sptrackentry_to_seval(const spTrackEntry* v, se::Value* ret);
 
 // Box2d
 bool b2Vec2_to_seval(const b2Vec2& v, se::Value* ret);
