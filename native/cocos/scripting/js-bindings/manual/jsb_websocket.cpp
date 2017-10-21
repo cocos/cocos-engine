@@ -249,7 +249,10 @@ static bool WebSocket_finalize(se::State& s)
     }
 
     static_cast<JSB_WebSocketDelegate*>(cobj->getDelegate())->release();
-    cobj->release();
+    if (cobj->getReferenceCount() == 1)
+        cobj->autorelease();
+    else
+        cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(WebSocket_finalize)
