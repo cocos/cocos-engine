@@ -2,19 +2,22 @@ const ES = require('event-stream');
 const Path = require('path');
 
 const getRealTypeOfObj = (function __realTypeOfObj (obj) {
-    try {
-        if ('' + obj === '[object CallbackConstructor]') return 'function';
-    }
-    catch (e) {
-        // "Cannot convert object to primitive value"
+    if (obj) {
+        if (obj.toString) {
+            if (obj.toString() === '[object CallbackConstructor]')
+                return 'function';
+        }
+        else {
+            // "Cannot convert object to primitive value"
+        }
     }
     return 'object';
 }).toString();
 
-const TYPEOF_SHIM = `\n${getRealTypeOfObj};\nvar __typeofVal = "";`;
+const TYPEOF_SHIM = `\n${getRealTypeOfObj}\nvar __typeofVal = "";`;
 
-const TYPEOF_REG = /typeof\s+([$A-Za-z_][0-9A-Za-z_\$\.\[\]]*)/g;
-const TYPEOF_REPLACEMENT = '(__typeofVal = typeof $1, __typeofVal === "object" ? __realTypeOfObj($1) : __typeofVal)';
+const TYPEOF_REG = /typeof\s+([$A-Za-z_][0-9A-Za-z_$\.\[\]]*)([\s!=;\)])/g;
+const TYPEOF_REPLACEMENT = '(__typeofVal = typeof $1, __typeofVal === "object" ? __realTypeOfObj($1) : __typeofVal)$2';
 
 module.exports = function () {
     return ES.through(function (file) {
