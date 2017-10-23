@@ -94,10 +94,18 @@ var Prefab = cc.Class({
     },
 
     _instantiate: function () {
-        // instantiate node
-        var node = this._doInstantiate();
-        // initialize node
-        this.data._instantiate(node);
+        var node;
+        if (cc.supportJit) {
+          // instantiate node
+          node = this._doInstantiate();
+          // initialize node
+          this.data._instantiate(node);
+        }
+        else {
+          // instantiate node
+          node = this.data._instantiate();
+        }
+        
         // link prefab in editor
         if (CC_EDITOR || CC_TEST) {
             // This operation is not necessary, but some old prefab asset may not contain complete data.

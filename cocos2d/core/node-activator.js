@@ -43,6 +43,13 @@ var callResetInTryCatch = CC_EDITOR && callerFunctor('resetInEditor');
 var callOnFocusInTryCatch = CC_EDITOR && callerFunctor('onFocusInEditor');
 var callOnLostFocusInTryCatch = CC_EDITOR && callerFunctor('onLostFocusInEditor');
 
+var supportJit = cc.supportJit;
+var callPreload = supportJit ? 'c.__preload();' : function (c) { c.__preload(); }
+var callOnLoad = supportJit ? ('c.onLoad();c._objFlags|=' + IsOnLoadCalled) : function (c) {
+    c.onLoad();
+    c._objFlags |= IsOnLoadCalled;
+}
+
 // for __preload: use internally, no sort
 var UnsortedInvoker = cc.Class({
     extends: CompScheduler.LifeCycleInvoker,
@@ -62,10 +69,10 @@ var UnsortedInvoker = cc.Class({
 });
 
 var invokePreload = CompScheduler.createInvokeImpl(
-    CC_EDITOR ? callPreloadInTryCatch : 'c.__preload();'
+    CC_EDITOR ? callPreloadInTryCatch : callPreload
 );
 var invokeOnLoad = CompScheduler.createInvokeImpl(
-    CC_EDITOR ? callOnLoadInTryCatch : ('c.onLoad();c._objFlags|=' + IsOnLoadCalled)
+    CC_EDITOR ? callOnLoadInTryCatch : callOnLoad
 );
 
 var activateTasksPool = new JS.Pool(MAX_POOL_SIZE);
