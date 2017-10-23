@@ -331,4 +331,5 @@ prototype.clone = function () {
     return cloned;
 };
 
+cc.js.getset(prototype, 'texture', prototype.getTexture, prototype.setTexture);
 cc.js.addon(prototype, WebSpriteFrame.prototype);

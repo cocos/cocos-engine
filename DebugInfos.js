@@ -241,9 +241,9 @@ if (CC_DEBUG) {
         "3116": "WebGLRenderingContext.CLAMP_TO_EDGE should be used in NPOT textures", //setTexParameters
         "3117": "Mimpap texture only works in POT textures", //generateMipmap
         //RectWidth: 3300
-        "3300": "Rect width exceeds maximum margin: %s", //RectWidth
+        "3300": "Rect width exceeds maximum margin: %s, max x: %s, texture width: %s", //RectWidth
         //RectHeight: 3400
-        "3400": "Rect height exceeds maximum margin: %s", //RectHeight
+        "3400": "Rect height exceeds maximum margin: %s, max y: %s, texture height: %s", //RectHeight
         //EventManager: 3500
         "3500": "0 priority is forbidden for fixed priority since it's used for scene graph based priority.", //addListener
         "3501": "Invalid listener type!", //removeListeners
