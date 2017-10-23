@@ -12,7 +12,8 @@ endif
 
 LOCAL_SRC_FILES := hellojavascript/main.cpp \
 				   ../../../Classes/AppDelegate.cpp \
-				   ../../../Classes/ide-support/RuntimeJsImpl.cpp
+				   ../../../Classes/ide-support/RuntimeJsImpl.cpp \
+				   ../../../../../../../cocos/scripting/js-bindings/manual/jsb_module_register.cpp
 
 LOCAL_C_INCLUDES := \
 $(LOCAL_PATH)/../../../Classes \

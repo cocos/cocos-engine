@@ -43,6 +43,9 @@ LOCAL_SRC_FILES := \
 					../auto/jsb_cocos2dx_spine_auto.cpp \
 					../auto/jsb_cocos2dx_ui_auto.cpp \
 					../auto/jsb_creator_auto.cpp \
+					../auto/jsb_creator_camera_auto.cpp \
+					../auto/jsb_creator_graphics_auto.cpp \
+					../auto/jsb_creator_physics_auto.cpp \
 					../manual/BaseJSAction.cpp \
 					../manual/JavaScriptJavaBridge.cpp \
 					../manual/ScriptingCore.cpp \
@@ -53,9 +56,9 @@ LOCAL_SRC_FILES := \
 					../manual/jsb_cocos2dx_manual.cpp \
 					../manual/jsb_conversions.cpp \
 					../manual/jsb_creator_manual.cpp \
+					../manual/jsb_creator_physics_manual.cpp \
 					../manual/jsb_dragonbones_manual.cpp \
 					../manual/jsb_global.cpp \
-					../manual/jsb_module_register.cpp \
 					../manual/jsb_node.cpp \
 					../manual/jsb_socketio.cpp \
 					../manual/jsb_spine_manual.cpp \
