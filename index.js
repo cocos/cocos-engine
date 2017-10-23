@@ -106,6 +106,8 @@
 /**
  * @property {Boolean} CC_TEST - Running in the engine's unit test.
  */
+
+// window may be undefined when first load engine from editor
 var _global = typeof window === 'undefined' ? global : window;
 function defineMacro (name, defaultValue) {
     // if "global_defs" not preprocessed by uglify, just declare them globally,
