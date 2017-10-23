@@ -19688,6 +19688,39 @@ static bool js_cocos2dx_ClippingNode_getAlphaThreshold(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_ClippingNode_getAlphaThreshold)
 
+static bool js_cocos2dx_ClippingNode_init(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cocos2d::ClippingNode* cobj = (cocos2d::ClippingNode*)s.nativeThisObject();
+    SE_PRECONDITION2( cobj, false, "js_cocos2dx_ClippingNode_init : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    do {
+        if (argc == 1) {
+            cocos2d::Node* arg0 = nullptr;
+            ok &= seval_to_native_ptr(args[0], &arg0);
+            if (!ok) { ok = true; break; }
+            bool result = cobj->init(arg0);
+            ok &= boolean_to_seval(result, &s.rval());
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_ClippingNode_init : Error processing arguments");
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 0) {
+            bool result = cobj->init();
+            ok &= boolean_to_seval(result, &s.rval());
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_ClippingNode_init : Error processing arguments");
+            return true;
+        }
+    } while(false);
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_ClippingNode_init)
+
 static bool js_cocos2dx_ClippingNode_getStencil(se::State& s)
 {
     cocos2d::ClippingNode* cobj = (cocos2d::ClippingNode*)s.nativeThisObject();
@@ -19806,6 +19839,7 @@ bool js_register_cocos2dx_ClippingNode(se::Object* obj)
     cls->defineFunction("setInverted", _SE(js_cocos2dx_ClippingNode_setInverted));
     cls->defineFunction("setStencil", _SE(js_cocos2dx_ClippingNode_setStencil));
     cls->defineFunction("getAlphaThreshold", _SE(js_cocos2dx_ClippingNode_getAlphaThreshold));
+    cls->defineFunction("init", _SE(js_cocos2dx_ClippingNode_init));
     cls->defineFunction("getStencil", _SE(js_cocos2dx_ClippingNode_getStencil));
     cls->defineFunction("setAlphaThreshold", _SE(js_cocos2dx_ClippingNode_setAlphaThreshold));
     cls->defineFunction("isInverted", _SE(js_cocos2dx_ClippingNode_isInverted));
@@ -22875,18 +22909,6 @@ static bool js_cocos2dx_LayerColor_initWithColor(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     do {
-        if (argc == 1) {
-            cocos2d::Color4B arg0;
-            ok &= seval_to_Color4B(args[0], &arg0);
-            if (!ok) { ok = true; break; }
-            bool result = cobj->initWithColor(arg0);
-            ok &= boolean_to_seval(result, &s.rval());
-            SE_PRECONDITION2(ok, false, "js_cocos2dx_LayerColor_initWithColor : Error processing arguments");
-            return true;
-        }
-    } while(false);
-
-    do {
         if (argc == 3) {
             cocos2d::Color4B arg0;
             ok &= seval_to_Color4B(args[0], &arg0);
@@ -22898,6 +22920,27 @@ static bool js_cocos2dx_LayerColor_initWithColor(se::State& s)
             ok &= seval_to_float(args[2], &arg2);
             if (!ok) { ok = true; break; }
             bool result = cobj->initWithColor(arg0, arg1, arg2);
+            ok &= boolean_to_seval(result, &s.rval());
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_LayerColor_initWithColor : Error processing arguments");
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 0) {
+            bool result = cobj->init();
+            ok &= boolean_to_seval(result, &s.rval());
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_LayerColor_initWithColor : Error processing arguments");
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 1) {
+            cocos2d::Color4B arg0;
+            ok &= seval_to_Color4B(args[0], &arg0);
+            if (!ok) { ok = true; break; }
+            bool result = cobj->initWithColor(arg0);
             ok &= boolean_to_seval(result, &s.rval());
             SE_PRECONDITION2(ok, false, "js_cocos2dx_LayerColor_initWithColor : Error processing arguments");
             return true;
@@ -34480,25 +34523,63 @@ se::Class* __jsb_cocos2d_ParallaxNode_class = nullptr;
 
 static bool js_cocos2dx_ParallaxNode_addChild(se::State& s)
 {
+    CC_UNUSED bool ok = true;
     cocos2d::ParallaxNode* cobj = (cocos2d::ParallaxNode*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_ParallaxNode_addChild : Invalid Native Object");
+    SE_PRECONDITION2( cobj, false, "js_cocos2dx_ParallaxNode_addChild : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 4) {
-        cocos2d::Node* arg0 = nullptr;
-        int arg1 = 0;
-        cocos2d::Vec2 arg2;
-        cocos2d::Vec2 arg3;
-        ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
-        ok &= seval_to_Vec2(args[2], &arg2);
-        ok &= seval_to_Vec2(args[3], &arg3);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_ParallaxNode_addChild : Error processing arguments");
-        cobj->addChild(arg0, arg1, arg2, arg3);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    do {
+        if (argc == 4) {
+            cocos2d::Node* arg0 = nullptr;
+            ok &= seval_to_native_ptr(args[0], &arg0);
+            if (!ok) { ok = true; break; }
+            int arg1 = 0;
+            ok &= seval_to_int32(args[1], (int32_t*)&arg1);
+            if (!ok) { ok = true; break; }
+            cocos2d::Vec2 arg2;
+            ok &= seval_to_Vec2(args[2], &arg2);
+            if (!ok) { ok = true; break; }
+            cocos2d::Vec2 arg3;
+            ok &= seval_to_Vec2(args[3], &arg3);
+            if (!ok) { ok = true; break; }
+            cobj->addChild(arg0, arg1, arg2, arg3);
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 3) {
+            cocos2d::Node* arg0 = nullptr;
+            ok &= seval_to_native_ptr(args[0], &arg0);
+            if (!ok) { ok = true; break; }
+            int arg1 = 0;
+            ok &= seval_to_int32(args[1], (int32_t*)&arg1);
+            if (!ok) { ok = true; break; }
+            int arg2 = 0;
+            ok &= seval_to_int32(args[2], (int32_t*)&arg2);
+            if (!ok) { ok = true; break; }
+            cobj->addChild(arg0, arg1, arg2);
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 3) {
+            cocos2d::Node* arg0 = nullptr;
+            ok &= seval_to_native_ptr(args[0], &arg0);
+            if (!ok) { ok = true; break; }
+            int arg1 = 0;
+            ok &= seval_to_int32(args[1], (int32_t*)&arg1);
+            if (!ok) { ok = true; break; }
+            std::string arg2;
+            ok &= seval_to_std_string(args[2], &arg2);
+            if (!ok) { ok = true; break; }
+            cobj->addChild(arg0, arg1, arg2);
+            return true;
+        }
+    } while(false);
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_ParallaxNode_addChild)

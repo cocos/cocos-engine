@@ -1417,6 +1417,7 @@ SE_DECLARE_FUNC(js_cocos2dx_ClippingNode_hasContent);
 SE_DECLARE_FUNC(js_cocos2dx_ClippingNode_setInverted);
 SE_DECLARE_FUNC(js_cocos2dx_ClippingNode_setStencil);
 SE_DECLARE_FUNC(js_cocos2dx_ClippingNode_getAlphaThreshold);
+SE_DECLARE_FUNC(js_cocos2dx_ClippingNode_init);
 SE_DECLARE_FUNC(js_cocos2dx_ClippingNode_getStencil);
 SE_DECLARE_FUNC(js_cocos2dx_ClippingNode_setAlphaThreshold);
 SE_DECLARE_FUNC(js_cocos2dx_ClippingNode_isInverted);

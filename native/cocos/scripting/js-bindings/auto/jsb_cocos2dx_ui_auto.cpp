@@ -1946,24 +1946,6 @@ static bool js_cocos2dx_ui_Scale9Sprite_init(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     do {
-        if (argc == 3) {
-            cocos2d::Sprite* arg0 = nullptr;
-            ok &= seval_to_native_ptr(args[0], &arg0);
-            if (!ok) { ok = true; break; }
-            cocos2d::Rect arg1;
-            ok &= seval_to_Rect(args[1], &arg1);
-            if (!ok) { ok = true; break; }
-            cocos2d::Rect arg2;
-            ok &= seval_to_Rect(args[2], &arg2);
-            if (!ok) { ok = true; break; }
-            bool result = cobj->init(arg0, arg1, arg2);
-            ok &= boolean_to_seval(result, &s.rval());
-            SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Scale9Sprite_init : Error processing arguments");
-            return true;
-        }
-    } while(false);
-
-    do {
         if (argc == 4) {
             cocos2d::Sprite* arg0 = nullptr;
             ok &= seval_to_native_ptr(args[0], &arg0);
@@ -1977,6 +1959,33 @@ static bool js_cocos2dx_ui_Scale9Sprite_init(se::State& s)
             ok &= seval_to_Rect(args[3], &arg3);
             if (!ok) { ok = true; break; }
             bool result = cobj->init(arg0, arg1, arg2, arg3);
+            ok &= boolean_to_seval(result, &s.rval());
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Scale9Sprite_init : Error processing arguments");
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 0) {
+            bool result = cobj->init();
+            ok &= boolean_to_seval(result, &s.rval());
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Scale9Sprite_init : Error processing arguments");
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 3) {
+            cocos2d::Sprite* arg0 = nullptr;
+            ok &= seval_to_native_ptr(args[0], &arg0);
+            if (!ok) { ok = true; break; }
+            cocos2d::Rect arg1;
+            ok &= seval_to_Rect(args[1], &arg1);
+            if (!ok) { ok = true; break; }
+            cocos2d::Rect arg2;
+            ok &= seval_to_Rect(args[2], &arg2);
+            if (!ok) { ok = true; break; }
+            bool result = cobj->init(arg0, arg1, arg2);
             ok &= boolean_to_seval(result, &s.rval());
             SE_PRECONDITION2(ok, false, "js_cocos2dx_ui_Scale9Sprite_init : Error processing arguments");
             return true;
