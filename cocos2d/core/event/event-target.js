@@ -162,7 +162,7 @@ proto._addEventFlag = function (type, listeners, useCapture) {
     cache[type] |= flag;
 };
 
-proto._removeEventFlag = function (type, listeners, useCapture) {
+proto._purgeEventFlag = function (type, listeners, useCapture) {
     var cache = this._hasListenerCache;
     
     if (!cache || listeners.has(type)) {
@@ -175,7 +175,7 @@ proto._removeEventFlag = function (type, listeners, useCapture) {
     if (cache[type] === 0) {
         delete cache[type];
     }
-}
+};
 
 proto._resetFlagForTarget = function (target, listeners, useCapture) {
     var cache = this._hasListenerCache;
@@ -206,13 +206,8 @@ proto.hasEventListener = function (type, checkCapture) {
     var cache = this._hasListenerCache;
     if (!cache) return false;
 
-    var flag = cache[type];
-    if (checkCapture && (flag & CAPTURING_FLAG))
-        return true;
-    if (!checkCapture && (flag & BUBBLING_FLAG))
-        return true;
-
-    return false;
+    var flag = checkCapture ? CAPTURING_FLAG : BUBBLING_FLAG;
+    return (cache[type] & flag) > 0;
 };
 
 
@@ -322,7 +317,7 @@ proto.off = function (type, callback, target, useCapture) {
                 fastRemove(target.__eventTargets, this);
             }
 
-            this._removeEventFlag(type, listeners, useCapture);
+            this._purgeEventFlag(type, listeners, useCapture);
         }
         
     }
@@ -376,12 +371,23 @@ proto.targetOff = function (target) {
  * }, node);
  */
 proto.once = function (type, callback, target, useCapture) {
-    var self = this;
-    var cb = function (event) {
-        self.off(type, cb, target, useCapture);
-        callback.call(this, event);
-    };
-    this.on(type, cb, target, useCapture);
+    var eventType_hasOnceListener = '__ONCE_FLAG:' + type;
+    var listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
+    var hasOnceListener = listeners && listeners.has(eventType_hasOnceListener, callback, target);
+    if (!hasOnceListener) {
+        var self = this;
+        var onceWrapper = function (event) {
+            self.off(type, onceWrapper, target, useCapture);
+            listeners.remove(eventType_hasOnceListener, callback, target);
+            callback.call(this, event);
+        };
+        this.on(type, onceWrapper, target, useCapture);
+        if (!listeners) {
+            // obtain new created listeners
+            listeners = useCapture ? this._capturingListeners : this._bubblingListeners;
+        }
+        listeners.add(eventType_hasOnceListener, callback, target);
+    }
 };
 
 /**

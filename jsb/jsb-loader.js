@@ -96,6 +96,7 @@ function loadImage (item, callback) {
         else if (isRemote) {
             jsb.loadRemoteImg(url, function(succeed, tex) {
                 if (succeed) {
+                    tex.url = url;
                     callback && callback(null, tex);
                 }
                 else {
@@ -106,6 +107,7 @@ function loadImage (item, callback) {
         else {
             cc.textureCache._addImageAsync(url, function (tex) {
                 if (tex instanceof cc.Texture2D) {
+                    tex.url = url;
                     callback && callback(null, tex);
                 }
                 else {

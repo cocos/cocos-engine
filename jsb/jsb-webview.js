@@ -24,3 +24,15 @@
  ****************************************************************************/
 
 cc.WebView = ccui.WebView;
+
+//FIXME: should delete this line after implementing the VideoPlayer on Mac and Windows
+if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
+    cc.WebView = {};
+}
+
+cc.WebView.EventType = {
+    LOADING: 0,
+    LOADED: 1,
+    ERROR: 2,
+    JS_EVALUATED: 3
+};

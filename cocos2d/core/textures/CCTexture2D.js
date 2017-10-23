@@ -494,7 +494,7 @@ var Texture2D = cc.Class({
      */
     destroy () {
         this._releaseTexture();
-        cc.textureCache.removeTextureForKey(this.url);
+        cc.textureCache.removeTextureForKey(this.url);  // item.rawUrl || item.url
         this._super();
     },
 

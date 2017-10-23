@@ -71,8 +71,7 @@ if (_IEFilter) {
         var byteMapping = {};
         for (var i = 0; i < 256; i++) {
             for (var j = 0; j < 256; j++) {
-                byteMapping[ String.fromCharCode(i + j * 256) ] =
-                    String.fromCharCode(i) + String.fromCharCode(j);
+                byteMapping[ String.fromCharCode(i + j * 256) ] = String.fromCharCode(i, j);
             }
         }
         var rawBytes = IEBinaryToArray_ByteStr(binary);

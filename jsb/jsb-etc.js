@@ -87,14 +87,13 @@ WindowTimeFun.prototype.fun = function () {
  @param {number} delay
  @return {number}
  */
-window.setTimeout = function (code, delay, ...args) {
+window.setTimeout = function (code, delay) {
     var target = new WindowTimeFun(code);
-    if (args.length > 0) {
-        target._args = args;
-    }
+    if (arguments.length > 2)
+        target._args = Array.prototype.slice.call(arguments, 2);
     var original = target.fun;
     target.fun = function () {
-        original.call(this);
+        original.apply(this, arguments);
         clearTimeout(target._intervalId);
     };
     cc.director.getScheduler().schedule(target.fun, target, delay / 1000, 0, 0, false);
@@ -108,11 +107,11 @@ window.setTimeout = function (code, delay, ...args) {
  @param {number} delay
  @return {number}
  */
-window.setInterval = function (code, delay, ...args) {
+window.setInterval = function (code, delay) {
     var target = new WindowTimeFun(code);
-    if (args.length > 0) {
-        target._args = args;
-    }
+    if (arguments.length > 2)
+        target._args = Array.prototype.slice.call(arguments, 2);
+
     cc.director.getScheduler().schedule(target.fun, target, delay / 1000, cc.macro.REPEAT_FOREVER, 0, false);
     _windowTimeFunHash[target._intervalId] = target;
     return target._intervalId;

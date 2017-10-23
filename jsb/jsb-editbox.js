@@ -59,3 +59,98 @@ _p.getTabIndex = function () { return -1; };
 _p.setFocus = function () {};
 _p.isFocused = function () { return false; };
 _p.stayOnTop = function () {};
+
+
+
+cc.EditBox.InputMode = cc.Enum({
+    
+    ANY: 0,
+
+    /**
+     * The user is allowed to enter an e-mail address.
+     */
+    EMAIL_ADDR: 1,
+
+    /**
+     * The user is allowed to enter an integer value.
+     */
+    NUMERIC: 2,
+
+    /**
+     * The user is allowed to enter a phone number.
+     */
+    PHONE_NUMBER: 3,
+
+    /**
+     * The user is allowed to enter a URL.
+     */
+    URL: 4,
+
+    /**
+     * The user is allowed to enter a real number value.
+     * This extends kEditBoxInputModeNumeric by allowing a decimal point.
+     */
+    DECIMAL: 5,
+
+    /**
+     * The user is allowed to enter any text, except for line breaks.
+     */
+    SINGLE_LINE: 6
+});
+
+/**
+ * Enum for the EditBox's input flags
+ * @readonly
+ * @enum {number}
+ * @memberof cc.EditBox
+ */
+cc.EditBox.InputFlag = cc.Enum({
+    /**
+     * Indicates that the text entered is confidential data that should be
+     * obscured whenever possible. This implies EDIT_BOX_INPUT_FLAG_SENSITIVE.
+     */
+    PASSWORD: 0,
+
+    /**
+     * Indicates that the text entered is sensitive data that the
+     * implementation must never store into a dictionary or table for use
+     * in predictive, auto-completing, or other accelerated input schemes.
+     * A credit card number is an example of sensitive data.
+     */
+    SENSITIVE: 1,
+
+    /**
+     * This flag is a hint to the implementation that during text editing,
+     * the initial letter of each word should be capitalized.
+     */
+    INITIAL_CAPS_WORD: 2,
+
+    /**
+     * This flag is a hint to the implementation that during text editing,
+     * the initial letter of each sentence should be capitalized.
+     */
+    INITIAL_CAPS_SENTENCE: 3,
+
+    /**
+     * Capitalize all characters automatically.
+     */
+    INITIAL_CAPS_ALL_CHARACTERS: 4,
+
+    /**
+     * Don't do anything with the input text.
+     */
+    DEFAULT: 5
+});
+
+/**
+ * Enum for keyboard return types
+ * @readonly
+ * @enum {number}
+ */
+cc.EditBox.KeyboardReturnType = cc.Enum({
+    DEFAULT: 0,
+    DONE: 1,
+    SEND: 2,
+    SEARCH: 3,
+    GO: 4
+});

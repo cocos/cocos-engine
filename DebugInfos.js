@@ -626,7 +626,9 @@ if (CC_DEBUG) {
         "8300": "Should only one camera exists, please check your project.", //cc.Camera.enabled
         "8301": "Camera does not support Canvas Mode.", //cc.Camera.enabled
         // AudioEngine: 8400
-        "8400": "Wrong type arguments, 'filePath' must be a String." // cc.audioEngine.play
+        "8400": "Wrong type arguments, 'filePath' must be a String.", // cc.audioEngine.play
+        // ToggleGroup: 8500
+        "8500": "The ToggleGroup.toggleItems api will be removed in v2.0, please obtain toggles in other ways. \uD83D\uDE30",
     };
     cc._LogInfos = logs;
 }

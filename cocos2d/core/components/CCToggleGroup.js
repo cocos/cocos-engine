@@ -61,7 +61,8 @@ var ToggleGroup = cc.Class({
          * @property {Array} toggleItems
          */
         toggleItems: {
-            get: function (){
+            get: function () {
+                cc.warnID(8500);
                 return this._toggleItems;
             }
         }
