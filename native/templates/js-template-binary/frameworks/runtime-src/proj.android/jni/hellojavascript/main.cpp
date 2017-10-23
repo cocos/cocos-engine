@@ -12,6 +12,9 @@
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
 
 using namespace cocos2d;
+#if PACKAGE_AS
+using namespace anysdk::framework;
+#endif
 
 void cocos_android_app_init (JNIEnv* env) {
     LOGD("cocos_android_app_init");
