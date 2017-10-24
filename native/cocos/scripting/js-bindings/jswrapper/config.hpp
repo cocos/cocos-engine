@@ -48,8 +48,8 @@ void seLog(const char * format, ...);
 
 #else
 
-#define LOGD printf
-#define LOGE printf
+#define LOGD(...) do { printf(__VA_ARGS__); fflush(stdout); } while (false)
+#define LOGE(...) do { printf(__VA_ARGS__); fflush(stdout); } while (false)
 
 #endif
 
