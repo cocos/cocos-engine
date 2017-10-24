@@ -23,6 +23,46 @@
 // Prepare JSB environment
 
 var window = window || this;
+
+// Hack JavaScriptCore begin
+
+if (window.scriptEngineType == "JavaScriptCore") {
+    window.__jsc_createArrayBufferObject = function(arr) {
+        var len = arr.length;
+        var buffer = new ArrayBuffer(len);
+        var typedArr = new Uint8Array(buffer);
+        for (var i = 0; i < len; ++i) {
+            typedArr[i] = arr[i];
+        }
+        return buffer;
+    }
+
+    window.__jsc_createUint8TypedArray = function(arr) {
+        return new Uint8Array(arr);
+    }
+
+    window.__jsc_getArrayBufferData = function(arrBuf) {
+        var typedArr = new Uint8Array(arrBuf);
+        var len = typedArr.length;
+        var arr = new Array(len);
+        for (var i = 0; i < len; ++i) {
+            arr[i] = typedArr[i];
+        }
+        return arr;
+    }
+
+    window.__jsc_getUint8ArrayData = function(typedArr) {
+        var len = typedArr.length;
+        var arr = new Array(len);
+        for (var i = 0; i < len; ++i) {
+            arr[i] = typedArr[i];
+        }
+        return arr;
+    }
+}
+
+// Hack JavaScriptCore end
+
 var cc = cc || {};
 /**
  * @namespace jsb

@@ -5,6 +5,7 @@
 #include "Utils.hpp"
 #include "Class.hpp"
 #include "ScriptEngine.hpp"
+#include "PlatformUtils.h"
 #include "../MappingUtils.hpp"
 
 namespace se {
@@ -21,11 +22,14 @@ namespace se {
     , _obj(nullptr)
     , _privateData(nullptr)
     , _finalizeCb(nullptr)
+    , _arrayBuffer(nullptr)
+    , _arrayBufferSize(0)
     , _rootCount(0)
 #if SE_DEBUG > 0
     , _id(++__id)
 #endif
     , _isCleanup(false)
+    , _type(Type::UNKNOWN)
     {
         _currentVMId = ScriptEngine::getInstance()->getVMId();
     }
@@ -33,11 +37,17 @@ namespace se {
     Object::~Object()
     {
         _cleanup();
+        if (_arrayBuffer != nullptr)
+        {
+            free(_arrayBuffer);
+        }
     }
 
     Object* Object::createPlainObject()
     {
         Object* obj = _createJSObject(nullptr, JSObjectMake(__cx, nullptr, nullptr));
+        if (obj != nullptr)
+            obj->_type = Type::PLAIN;
         return obj;
     }
 
@@ -51,42 +61,120 @@ namespace se {
             return nullptr;
         }
         Object* obj = _createJSObject(nullptr, jsObj);
+        if (obj != nullptr)
+            obj->_type = Type::ARRAY;
         return obj;
     }
 
+#if (__MAC_OS_X_VERSION_MAX_ALLOWED >= 101200 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000)
     static void myJSTypedArrayBytesDeallocator(void* bytes, void* deallocatorContext)
     {
         free(bytes);
     }
+#endif
 
     Object* Object::createArrayBufferObject(void* data, size_t byteLength)
     {
-        void* copiedData = malloc(byteLength);
-        memcpy(copiedData, data, byteLength);
-        JSValueRef exception = nullptr;
-        JSObjectRef jsobj = JSObjectMakeArrayBufferWithBytesNoCopy(__cx, copiedData, byteLength, myJSTypedArrayBytesDeallocator, nullptr, &exception);
-        if (exception != nullptr)
+#if (__MAC_OS_X_VERSION_MAX_ALLOWED >= 101200 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000)
+        if (isSupportTypedArrayAPI())
         {
-            ScriptEngine::getInstance()->_clearException(exception);
-            return nullptr;
+            void* copiedData = malloc(byteLength);
+            memcpy(copiedData, data, byteLength);
+            JSValueRef exception = nullptr;
+            JSObjectRef jsobj = JSObjectMakeArrayBufferWithBytesNoCopy(__cx, copiedData, byteLength, myJSTypedArrayBytesDeallocator, nullptr, &exception);
+            if (exception != nullptr)
+            {
+                ScriptEngine::getInstance()->_clearException(exception);
+                return nullptr;
+            }
+
+            Object* obj = Object::_createJSObject(nullptr, jsobj);
+            return obj;
         }
-        Object* obj = Object::_createJSObject(nullptr, jsobj);
-        return obj;
+        else
+#endif
+        {
+            HandleObject arr(Object::createArrayObject(byteLength));
+            if (!arr.isEmpty())
+            {
+                uint8_t* p = (uint8_t*)data;
+                for (size_t i = 0; i < byteLength; ++i)
+                {
+                    arr->setArrayElement((uint32_t)i, se::Value(p[i]));
+                }
+
+                ValueArray args;
+                args.push_back(Value(arr));
+                Value func;
+                bool ok = ScriptEngine::getInstance()->getGlobalObject()->getProperty("__jsc_createArrayBufferObject", &func);
+                if (ok && func.isObject() && func.toObject()->isFunction())
+                {
+                    Value ret;
+                    ok = func.toObject()->call(args, nullptr, &ret);
+                    if (ok && ret.isObject())
+                    {
+                        Object* obj = Object::_createJSObject(nullptr, ret.toObject()->_obj);
+                        if (obj != nullptr)
+                            obj->_type = Type::ARRAY_BUFFER;
+                        return obj;
+                    }
+                }
+            }
+        }
+
+        return nullptr;
     }
 
     Object* Object::createUint8TypedArray(uint8_t* data, size_t byteLength)
     {
-        void* copiedData = malloc(byteLength);
-        memcpy(copiedData, data, byteLength);
-        JSValueRef exception = nullptr;
-        JSObjectRef jsobj = JSObjectMakeTypedArrayWithBytesNoCopy(__cx, kJSTypedArrayTypeUint8Array, copiedData, byteLength, myJSTypedArrayBytesDeallocator, nullptr, &exception);
-        if (exception != nullptr)
+#if (__MAC_OS_X_VERSION_MAX_ALLOWED >= 101200 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000)
+        if (isSupportTypedArrayAPI())
         {
-            ScriptEngine::getInstance()->_clearException(exception);
-            return nullptr;
+            void* copiedData = malloc(byteLength);
+            memcpy(copiedData, data, byteLength);
+            JSValueRef exception = nullptr;
+            JSObjectRef jsobj = JSObjectMakeTypedArrayWithBytesNoCopy(__cx, kJSTypedArrayTypeUint8Array, copiedData, byteLength, myJSTypedArrayBytesDeallocator, nullptr, &exception);
+            if (exception != nullptr)
+            {
+                ScriptEngine::getInstance()->_clearException(exception);
+                return nullptr;
+            }
+            Object* obj = Object::_createJSObject(nullptr, jsobj);
+            return obj;
         }
-        Object* obj = Object::_createJSObject(nullptr, jsobj);
-        return obj;
+        else
+#endif
+        {
+            HandleObject arr(Object::createArrayObject(byteLength));
+            if (!arr.isEmpty())
+            {
+                uint8_t* p = (uint8_t*)data;
+                for (size_t i = 0; i < byteLength; ++i)
+                {
+                    arr->setArrayElement((uint32_t)i, se::Value(p[i]));
+                }
+
+                ValueArray args;
+                args.push_back(Value(arr));
+                Value func;
+                bool ok = ScriptEngine::getInstance()->getGlobalObject()->getProperty("__jsc_createUint8TypedArray", &func);
+                if (ok && func.isObject() && func.toObject()->isFunction())
+                {
+                    Value ret;
+                    ok = func.toObject()->call(args, nullptr, &ret);
+                    if (ok && ret.isObject())
+                    {
+                        Object* obj = Object::_createJSObject(nullptr, ret.toObject()->_obj);
+                        if (obj != nullptr)
+                            obj->_type = Type::TYPED_ARRAY;
+
+                        return obj;
+                    }
+                }
+            }
+        }
+
+        return nullptr;
     }
 
     Object* Object::createJSONObject(const std::string& jsonStr)
@@ -105,6 +193,8 @@ namespace se {
                 return nullptr;
             }
             obj = Object::_createJSObject(nullptr, jsobj);
+            if (obj != nullptr)
+                obj->_type = Type::PLAIN;
         }
         return obj;
     }
@@ -415,29 +505,87 @@ namespace se {
 
     bool Object::isTypedArray() const
     {
-        JSTypedArrayType type = JSValueGetTypedArrayType(__cx, _obj, nullptr);
-        return type != kJSTypedArrayTypeNone && type != kJSTypedArrayTypeArrayBuffer;
+#if (__MAC_OS_X_VERSION_MAX_ALLOWED >= 101200 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000)
+        if (isSupportTypedArrayAPI())
+        {
+            JSTypedArrayType type = JSValueGetTypedArrayType(__cx, _obj, nullptr);
+            return type != kJSTypedArrayTypeNone && type != kJSTypedArrayTypeArrayBuffer;
+        }
+#endif
+
+        return _type == Type::TYPED_ARRAY;
     }
 
     bool Object::getTypedArrayData(uint8_t** ptr, size_t* length) const
     {
         assert(isTypedArray());
-        JSValueRef exception = nullptr;
-        *length = JSObjectGetTypedArrayByteLength(__cx, _obj, &exception);
-        if (exception != nullptr)
+#if (__MAC_OS_X_VERSION_MAX_ALLOWED >= 101200 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000)
+        if (isSupportTypedArrayAPI())
         {
-            ScriptEngine::getInstance()->_clearException(exception);
-            return false;
+            JSValueRef exception = nullptr;
+            *length = JSObjectGetTypedArrayByteLength(__cx, _obj, &exception);
+            if (exception != nullptr)
+            {
+                ScriptEngine::getInstance()->_clearException(exception);
+                return false;
+            }
+
+            *ptr = (uint8_t*)JSObjectGetTypedArrayBytesPtr(__cx, _obj, &exception);
+            if (exception != nullptr)
+            {
+                ScriptEngine::getInstance()->_clearException(exception);
+                return false;
+            }
+
+            return (*ptr != nullptr);
+        }
+        else
+#endif
+        {
+            Value func;
+            bool ok = ScriptEngine::getInstance()->getGlobalObject()->getProperty("__jsc_getUint8ArrayData", &func);
+            if (ok && func.isObject() && func.toObject()->isFunction())
+            {
+                ValueArray args;
+                args.push_back(Value((Object*)this));
+
+                Value rval;
+                ok = func.toObject()->call(args, nullptr, &rval);
+                if (ok && rval.isObject() && rval.toObject()->isArray())
+                {
+                    uint32_t len = 0;
+                    Object* arrObj = rval.toObject();
+                    if (arrObj->getArrayLength(&len))
+                    {
+                        if (len > 0)
+                        {
+                            Value tmp;
+                            if (_arrayBuffer == nullptr)
+                            {
+                                _arrayBuffer = (uint8_t*)malloc(len);
+                            }
+                            else if (_arrayBufferSize != len)
+                            {
+                                _arrayBuffer = (uint8_t*)realloc(_arrayBuffer, len);
+                            }
+
+                            *length = _arrayBufferSize = len;
+                            *ptr = _arrayBuffer;
+                            for (uint32_t i = 0; i < len; ++i)
+                            {
+                                if (arrObj->getArrayElement(i, &tmp) && tmp.isNumber())
+                                {
+                                    _arrayBuffer[i] = tmp.toUint8();
+                                }
+                            }
+                            return true;
+                        }
+                    }
+                }
+            }
         }
 
-        *ptr = (uint8_t*)JSObjectGetTypedArrayBytesPtr(__cx, _obj, &exception);
-        if (exception != nullptr)
-        {
-            ScriptEngine::getInstance()->_clearException(exception);
-            return false;
-        }
-
-        return (*ptr != nullptr);
+        return false;
     }
 
     bool Object::_isNativeFunction() const
@@ -461,36 +609,94 @@ namespace se {
 
     bool Object::isArrayBuffer() const
     {
-        JSValueRef exception = nullptr;
-        JSTypedArrayType type = JSValueGetTypedArrayType(__cx, _obj, &exception);
-        if (exception != nullptr)
+#if (__MAC_OS_X_VERSION_MAX_ALLOWED >= 101200 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000)
+        if (isSupportTypedArrayAPI())
         {
-            ScriptEngine::getInstance()->_clearException(exception);
-            return false;
+            JSValueRef exception = nullptr;
+            JSTypedArrayType type = JSValueGetTypedArrayType(__cx, _obj, &exception);
+            if (exception != nullptr)
+            {
+                ScriptEngine::getInstance()->_clearException(exception);
+                return false;
+            }
+            return type == kJSTypedArrayTypeArrayBuffer;
         }
-        return type == kJSTypedArrayTypeArrayBuffer;
+#endif
+
+        return _type == Type::ARRAY_BUFFER;
     }
 
     bool Object::getArrayBufferData(uint8_t** ptr, size_t* length) const
     {
         assert(ptr && length);
         assert(isArrayBuffer());
-        JSValueRef exception = nullptr;
-        *length = JSObjectGetArrayBufferByteLength(__cx, _obj, &exception);
-        if (exception != nullptr)
-        {
-            ScriptEngine::getInstance()->_clearException(exception);
-            return false;
-        }
 
-        *ptr = (uint8_t*)JSObjectGetArrayBufferBytesPtr(__cx, _obj, &exception);
-        if (exception != nullptr)
+#if (__MAC_OS_X_VERSION_MAX_ALLOWED >= 101200 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000)
+        if (isSupportTypedArrayAPI())
         {
-            ScriptEngine::getInstance()->_clearException(exception);
-            return false;
-        }
+            JSValueRef exception = nullptr;
+            *length = JSObjectGetArrayBufferByteLength(__cx, _obj, &exception);
+            if (exception != nullptr)
+            {
+                ScriptEngine::getInstance()->_clearException(exception);
+                return false;
+            }
 
-        return (*ptr != nullptr);
+            *ptr = (uint8_t*)JSObjectGetArrayBufferBytesPtr(__cx, _obj, &exception);
+            if (exception != nullptr)
+            {
+                ScriptEngine::getInstance()->_clearException(exception);
+                return false;
+            }
+
+            return (*ptr != nullptr);
+        }
+        else
+#endif
+        {
+            Value func;
+            bool ok = ScriptEngine::getInstance()->getGlobalObject()->getProperty("__jsc_getArrayBufferData", &func);
+            if (ok && func.isObject() && func.toObject()->isFunction())
+            {
+                ValueArray args;
+                args.push_back(Value((Object*)this));
+
+                Value rval;
+                ok = func.toObject()->call(args, nullptr, &rval);
+                if (ok && rval.isObject() && rval.toObject()->isArray())
+                {
+                    uint32_t len = 0;
+                    Object* arrObj = rval.toObject();
+                    if (arrObj->getArrayLength(&len))
+                    {
+                        if (len > 0)
+                        {
+                            Value tmp;
+                            if (_arrayBuffer == nullptr)
+                            {
+                                _arrayBuffer = (uint8_t*)malloc(len);
+                            }
+                            else if (_arrayBufferSize != len)
+                            {
+                                _arrayBuffer = (uint8_t*)realloc(_arrayBuffer, len);
+                            }
+
+                            *length = _arrayBufferSize = len;
+                            *ptr = _arrayBuffer;
+                            for (uint32_t i = 0; i < len; ++i)
+                            {
+                                if (arrObj->getArrayElement(i, &tmp) && tmp.isNumber())
+                                {
+                                    _arrayBuffer[i] = tmp.toUint8();
+                                }
+                            }
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     void* Object::getPrivateData() const
