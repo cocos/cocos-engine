@@ -107,6 +107,7 @@ namespace se {
          *  @return true if succeed, otherwise false.
          */
         bool defineFunction(const char *funcName, JSObjectCallAsFunctionCallback func);
+
         /**
          *  @brief Tests whether an object can be called as a function.
          *  @return true if object can be called as a function, otherwise false.
