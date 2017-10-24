@@ -41,7 +41,6 @@ namespace se {
 
         /**
          *  @brief Destroys the instance of script engine.
-         *  @return
          */
         static void destroyInstance();
 
