@@ -309,10 +309,23 @@ namespace se {
 
         bool init(Class* cls, JSObjectRef obj);
 
+        enum class Type : char
+        {
+            UNKNOWN,
+            PLAIN,
+            ARRAY,
+            ARRAY_BUFFER,
+            TYPED_ARRAY,
+            FUNCTION
+        };
+
         Class* _cls;
         JSObjectRef _obj;
         void* _privateData;
         JSObjectFinalizeCallback _finalizeCb;
+
+        mutable uint8_t* _arrayBuffer;
+        mutable size_t _arrayBufferSize;
 
         uint32_t _rootCount;
         uint32_t _currentVMId;
@@ -322,6 +335,8 @@ namespace se {
     private:
 #endif
         bool _isCleanup;
+
+        mutable Type _type;
 
         friend class ScriptEngine;
         friend class AutoHandleScope;

@@ -235,7 +235,9 @@ void ClippingNode::visit(Renderer *renderer, const Mat4 &parentTransform, uint32
 #endif
 
     }
-    _stencil->visit(renderer, _modelViewTransform, flags);
+
+    if (_stencil != nullptr)
+        _stencil->visit(renderer, _modelViewTransform, flags);
 
     _afterDrawStencilCmd.init(_globalZOrder);
     _afterDrawStencilCmd.func = CC_CALLBACK_0(StencilStateManager::onAfterDrawStencil, _stencilStateManager);
