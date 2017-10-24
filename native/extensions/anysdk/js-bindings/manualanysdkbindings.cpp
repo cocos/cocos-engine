@@ -312,7 +312,7 @@ bool js_cocos2dx_PluginParam_create(se::State& s)
         return false;
     }
 
-    se::HandleObject jsret(se::Object::createObjectWithClass(__jsb_anysdk_framework_PluginParam_class));
+    se::Object* jsret = se::Object::createObjectWithClass(__jsb_anysdk_framework_PluginParam_class);
     jsret->setPrivateData(ret);
     s.rval().setObject(jsret);
 
