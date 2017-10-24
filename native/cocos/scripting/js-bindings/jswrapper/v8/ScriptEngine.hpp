@@ -134,7 +134,7 @@ namespace se {
          *  @param[in] fileName A string containing a URL for the script's source file. This is used by debuggers and when reporting exceptions. Pass NULL if you do not care to include source file information.
          *  @return true if succeed, otherwise false.
          */
-        bool evalString(const char* script, ssize_t length = -1, Value* ret = nullptr, const char* fileName = nullptr);
+        bool evalString(const char* scriptStr, ssize_t length = -1, Value* rval = nullptr, const char* fileName = nullptr);
 
         /**
          *  Delegate class for file operation
@@ -180,7 +180,7 @@ namespace se {
          *  @param[in] rval The se::Value that results from evaluating script. Passing nullptr if you don't care about the result.
          *  @return true if succeed, otherwise false.
          */
-        bool runScript(const std::string& path, Value* ret = nullptr);
+        bool runScript(const std::string& path, Value* rval = nullptr);
 
         /**
          *  @brief Tests whether script engine is doing garbage collection.
@@ -226,6 +226,7 @@ namespace se {
 
         /**
          *  @brief Enables JavaScript debugger
+         *  @param[in] serverAddr The address of debugger server.
          *  @param[in] port The port of debugger server will use.
          */
         void enableDebugger(const std::string& serverAddr, uint32_t port);
@@ -249,9 +250,7 @@ namespace se {
         // Private API used in wrapper
         void _retainScriptObject(void* owner, void* target);
         void _releaseScriptObject(void* owner, void* target);
-
         v8::Local<v8::Context> _getContext() const;
-
         void _setGarbageCollecting(bool isGarbageCollecting);
         //
     private:

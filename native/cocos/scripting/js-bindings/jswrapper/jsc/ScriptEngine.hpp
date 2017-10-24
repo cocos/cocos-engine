@@ -161,7 +161,7 @@ namespace se {
          *  @param[in] rval The se::Value that results from evaluating script. Passing nullptr if you don't care about the result.
          *  @return true if succeed, otherwise false.
          */
-        bool runScript(const std::string& path, Value* ret = nullptr);
+        bool runScript(const std::string& path, Value* rval = nullptr);
 
         /**
          *  @brief Tests whether script engine is doing garbage collection.
@@ -207,6 +207,7 @@ namespace se {
 
         /**
          *  @brief Enables JavaScript debugger
+         *  @param[in] serverAddr The address of debugger server.
          *  @param[in] port The port of debugger server will use.
          */
         void enableDebugger(const std::string& serverAddr, uint32_t port);
@@ -230,10 +231,8 @@ namespace se {
         // Private API used in wrapper
         void _retainScriptObject(void* owner, void* target);
         void _releaseScriptObject(void* owner, void* target);
-
         void _clearException(JSValueRef exception);
         JSContextRef _getContext() const { return _cx; }
-
         void _setGarbageCollecting(bool isGarbageCollecting);
         //
     private:
