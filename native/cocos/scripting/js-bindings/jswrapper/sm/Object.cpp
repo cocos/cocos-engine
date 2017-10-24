@@ -247,7 +247,7 @@ namespace se {
         return ok;
     }
 
-    bool Object::defineFunction(const char *funcName, JSNative func, int minArgs)
+    bool Object::defineFunction(const char *funcName, JSNative func)
     {
         JS::RootedObject object(__cx, _getJSObject());
         bool ok = JS_DefineFunction(__cx, object, funcName, func, minArgs, 0);
