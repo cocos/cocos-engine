@@ -505,15 +505,38 @@ namespace se {
 
     bool Object::isTypedArray() const
     {
+        if (_type == Type::TYPED_ARRAY)
+            return true;
+
 #if (__MAC_OS_X_VERSION_MAX_ALLOWED >= 101200 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000)
         if (isSupportTypedArrayAPI())
         {
             JSTypedArrayType type = JSValueGetTypedArrayType(__cx, _obj, nullptr);
-            return type != kJSTypedArrayTypeNone && type != kJSTypedArrayTypeArrayBuffer;
+            bool ret = (type != kJSTypedArrayTypeNone && type != kJSTypedArrayTypeArrayBuffer);
+            if (ret)
+                _type = Type::TYPED_ARRAY;
+            return ret;
         }
 #endif
+        Value func;
+        bool ok = ScriptEngine::getInstance()->getGlobalObject()->getProperty("__jsc_isTypedArray", &func);
+        if (ok && func.isObject() && func.toObject()->isFunction())
+        {
+            ValueArray args;
+            args.push_back(Value((Object*)this));
 
-        return _type == Type::TYPED_ARRAY;
+            Value rval;
+            ok = func.toObject()->call(args, nullptr, &rval);
+            if (ok && rval.isBoolean())
+            {
+                bool ret = rval.toBoolean();
+                if (ret)
+                    _type = Type::TYPED_ARRAY;
+                return ret;
+            }
+        }
+
+        return false;
     }
 
     bool Object::getTypedArrayData(uint8_t** ptr, size_t* length) const
@@ -609,6 +632,9 @@ namespace se {
 
     bool Object::isArrayBuffer() const
     {
+        if (_type == Type::ARRAY_BUFFER)
+            return true;
+
 #if (__MAC_OS_X_VERSION_MAX_ALLOWED >= 101200 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000)
         if (isSupportTypedArrayAPI())
         {
@@ -619,11 +645,33 @@ namespace se {
                 ScriptEngine::getInstance()->_clearException(exception);
                 return false;
             }
-            return type == kJSTypedArrayTypeArrayBuffer;
+
+            bool ret = type == kJSTypedArrayTypeArrayBuffer;
+            if (ret)
+                _type = Type::ARRAY_BUFFER;
+            return ret;
         }
 #endif
 
-        return _type == Type::ARRAY_BUFFER;
+        Value func;
+        bool ok = ScriptEngine::getInstance()->getGlobalObject()->getProperty("__jsc_isArrayBuffer", &func);
+        if (ok && func.isObject() && func.toObject()->isFunction())
+        {
+            ValueArray args;
+            args.push_back(Value((Object*)this));
+
+            Value rval;
+            ok = func.toObject()->call(args, nullptr, &rval);
+            if (ok && rval.isBoolean())
+            {
+                bool ret = rval.toBoolean();
+                if (ret)
+                    _type = Type::ARRAY_BUFFER;
+                return ret;
+            }
+        }
+
+        return false;
     }
 
     bool Object::getArrayBufferData(uint8_t** ptr, size_t* length) const

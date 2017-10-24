@@ -336,7 +336,7 @@ namespace se {
 #endif
         bool _isCleanup;
 
-        Type _type;
+        mutable Type _type;
 
         friend class ScriptEngine;
         friend class AutoHandleScope;
