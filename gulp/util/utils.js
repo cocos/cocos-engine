@@ -43,6 +43,9 @@ exports.getUglifyOptions = function (platform, isJSB, isDebugBuild) {
         return {
             compress: {
                 global_defs: global_defs,
+            },
+            output: {
+                ascii_only: true,
             }
         };
     }
@@ -54,6 +57,7 @@ exports.getUglifyOptions = function (platform, isJSB, isDebugBuild) {
                 // http://lisperator.net/uglifyjs/codegen
                 beautify: true,
                 indent_level: 2,
+                ascii_only: true,
             },
             compress: {
                 // https://github.com/mishoo/UglifyJS2#compressor-options
