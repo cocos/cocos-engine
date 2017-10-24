@@ -109,7 +109,7 @@ namespace se {
         bool JSB_console_log(State& s)
         {
             JSB_console_format_log(s, "");
-            __oldConsoleDebug.toObject()->call(s.args(), s.thisObject());
+            __oldConsoleLog.toObject()->call(s.args(), s.thisObject());
             return true;
         }
         SE_BIND_FUNC(JSB_console_log)
