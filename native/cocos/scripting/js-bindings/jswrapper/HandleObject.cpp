@@ -31,6 +31,8 @@ HandleObject::HandleObject(Object* obj)
 {
     if (_obj != nullptr)
     {
+        // se::HandleObject could not be used for native binding object.
+        assert(!_obj->_getClass());
         _obj->root();
     }
 }
