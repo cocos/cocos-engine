@@ -239,7 +239,9 @@ namespace se {
         }
 
         assert(finalizeCb);
-        HandleObject privateObj(Object::createObjectWithClass(__jsb_CCPrivateData_class));
+        Object* privateObj = Object::createObjectWithClass(__jsb_CCPrivateData_class);
+        privateObj->root();
+
         internal::PrivateData* privateData = (internal::PrivateData*)malloc(sizeof(internal::PrivateData));
         privateData->data = data;
         privateData->finalizeCb = finalizeCb;
@@ -249,6 +251,9 @@ namespace se {
         JsPropertyIdRef propertyId = JS_INVALID_REFERENCE;
         JsCreatePropertyId(KEY_PRIVATE_DATA, strlen(KEY_PRIVATE_DATA), &propertyId);
         _CHECK(JsSetProperty(obj, propertyId, privateObj->_getJSObject(), true));
+
+        privateObj->unroot();
+        privateObj->decRef();
     }
 
     void* getPrivate(JsValueRef obj)
