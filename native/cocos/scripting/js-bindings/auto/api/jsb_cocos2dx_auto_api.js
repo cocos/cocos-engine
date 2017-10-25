@@ -119,6 +119,16 @@ getAlphaTextureName : function (
 },
 
 /**
+ * @method getName
+ * @return {unsigned int}
+ */
+getName : function (
+)
+{
+    return 0;
+},
+
+/**
  * @method initWithString
 * @param {String|String} str
 * @param {cc.FontDefinition|String} fontdefinition

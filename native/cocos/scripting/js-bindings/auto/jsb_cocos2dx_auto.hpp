@@ -24,6 +24,7 @@ SE_DECLARE_FUNC(js_cocos2dx_Texture2D_getMaxS);
 SE_DECLARE_FUNC(js_cocos2dx_Texture2D_hasPremultipliedAlpha);
 SE_DECLARE_FUNC(js_cocos2dx_Texture2D_getPixelsHigh);
 SE_DECLARE_FUNC(js_cocos2dx_Texture2D_getAlphaTextureName);
+SE_DECLARE_FUNC(js_cocos2dx_Texture2D_getName);
 SE_DECLARE_FUNC(js_cocos2dx_Texture2D_initWithString);
 SE_DECLARE_FUNC(js_cocos2dx_Texture2D_setMaxT);
 SE_DECLARE_FUNC(js_cocos2dx_Texture2D_getPath);
