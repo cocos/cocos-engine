@@ -27,15 +27,23 @@
 
 var SceneGraphUtils = {
     removeSgNode: function () {
-        var node = this._sgNode;
-        if (node) {
-            var parent = node._parent;
+        var sgNode = this._sgNode;
+        if (sgNode) {
+            var parent = sgNode._parent;
             if (parent) {
-                parent.removeChild(node);
+                parent.removeChild(sgNode);
             }
-            node.release();
-            if (this._sgNode._entity) {
-                this._sgNode._entity = null;
+            else {
+                // cleanup was skipped when its node was detaching
+                if (CC_JSB) {
+                    sgNode.cleanup();
+                }
+                else {
+                    sgNode.performRecursive(_ccsg.Node.performType.cleanup);
+                }
+            }
+            if (sgNode._entity) {
+                sgNode._entity = null;
             }
         }
     },
