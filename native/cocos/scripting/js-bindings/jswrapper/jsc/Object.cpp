@@ -653,7 +653,7 @@ namespace se {
             return true;
 
 #if (__MAC_OS_X_VERSION_MAX_ALLOWED >= 101100 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 90000)
-        if (isSupportIsArrayTestAPI())
+        if (isSupportArrayTestAPI())
         {
             return JSValueIsArray(__cx, _obj);
         }
