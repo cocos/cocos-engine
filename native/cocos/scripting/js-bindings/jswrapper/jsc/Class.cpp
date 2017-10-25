@@ -126,7 +126,7 @@ namespace se {
         _jsCls = JSClassCreate(&_jsClsDef);
 
         JSObjectRef jsCtor = JSObjectMakeConstructor(__cx, _jsCls, _ctor);
-        HandleObject ctorObj(Object::_createJSObject(this, jsCtor));
+        HandleObject ctorObj(Object::_createJSObject(nullptr, jsCtor));
 
         Value functionCtor;
         ScriptEngine::getInstance()->getGlobalObject()->getProperty("Function", &functionCtor);
