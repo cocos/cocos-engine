@@ -28,64 +28,40 @@ var window = window || this;
 
 
 if (window.scriptEngineType == "JavaScriptCore") {
-    (function(){
-        window.__jsc_createArrayBufferObject = function(arr) {
-            var len = arr.length;
-            var buffer = new ArrayBuffer(len);
-            var typedArr = new Uint8Array(buffer);
-            for (var i = 0; i < len; ++i) {
-                typedArr[i] = arr[i];
-            }
-            return buffer;
-        };
+    window.__jsc_createArrayBufferObject = function(arr) {
+        var len = arr.length;
+        var buffer = new ArrayBuffer(len);
+        var typedArr = new Uint8Array(buffer);
+        for (var i = 0; i < len; ++i) {
+            typedArr[i] = arr[i];
+        }
+        return buffer;
+    };
 
-        window.__jsc_createUint8TypedArray = function(arr) {
-            return new Uint8Array(arr);
-        };
+    window.__jsc_createUint8TypedArray = function(arr) {
+        return new Uint8Array(arr);
+    };
 
-        window.__jsc_getArrayBufferData = function(arrBuf) {
-            var typedArr = new Uint8Array(arrBuf);
-            var len = typedArr.length;
-            var arr = new Array(len);
-            for (var i = 0; i < len; ++i) {
-                arr[i] = typedArr[i];
-            }
-            return arr;
-        };
+    window.__jsc_getArrayBufferData = function(arrBuf) {
+        var typedArr = new Uint8Array(arrBuf);
+        var len = typedArr.length;
+        var arr = new Array(len);
+        for (var i = 0; i < len; ++i) {
+            arr[i] = typedArr[i];
+        }
+        return arr;
+    };
 
-        window.__jsc_getUint8ArrayData = function(typedArr) {
-            var len = typedArr.length;
-            var arr = new Array(len);
-            for (var i = 0; i < len; ++i) {
-                arr[i] = typedArr[i];
-            }
-            return arr;
-        };
+    window.__jsc_getUint8ArrayData = function(typedArr) {
+        var len = typedArr.length;
+        var arr = new Array(len);
+        for (var i = 0; i < len; ++i) {
+            arr[i] = typedArr[i];
+        }
+        return arr;
+    };
 
-        window.__jsc_isArray = function(obj) {
-            if (!obj)
-                return false;
-            log("__jsc_isArray: " + (obj instanceof Array) + ", obj:" + obj);
-            return obj instanceof Array;
-        };
-
-        window.__jsc_isArrayBuffer = function(obj) {
-            if (!obj)
-                return false;
-
-            return obj instanceof ArrayBuffer;
-        };
-
-        var typedArrayConstructor = Object.getPrototypeOf(Uint16Array.prototype).constructor;
-
-        window.__jsc_isTypedArray = function(obj) {
-            if (!obj)
-                return false;
-
-            return obj instanceof typedArrayConstructor;
-        };
-
-    })();
+    window.__jscTypedArrayConstructor = Object.getPrototypeOf(Uint16Array.prototype).constructor;
 }
 
 

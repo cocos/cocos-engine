@@ -39,28 +39,18 @@ namespace se {
         uint32_t __id = 0;
 #endif
 
-        bool callBoolFunctionWithObject(const char* funcName, const Object* obj)
+        bool isInstanceOfConstructor(JSContextRef ctx, JSValueRef value, const char* ctorName)
         {
-            if (funcName == nullptr)
+            if (ctorName == nullptr)
                 return false;
-            Value func;
-            bool ok = ScriptEngine::getInstance()->getGlobalObject()->getProperty(funcName, &func);
-            if (ok && func.isObject() && func.toObject()->isFunction())
+            Object* global = ScriptEngine::getInstance()->getGlobalObject();
+            Value ctorVal;
+            bool ret = false;
+            if (global->getProperty(ctorName, &ctorVal), ctorVal.isObject())
             {
-                ValueArray args;
-                // se::Value doesn't have a constructor with `const Object*`, so cast it to Object*.
-                // Otherwise, it will call the Value(bool) constructor.
-                args.push_back(Value((Object*)obj));
-
-                Value rval;
-                ok = func.toObject()->call(args, nullptr, &rval);
-                if (ok && rval.isBoolean())
-                {
-                    return rval.toBoolean();
-                }
+                ret = JSValueIsInstanceOfConstructor(ctx, value, ctorVal.toObject()->_getJSObject(), nullptr);
             }
-
-            return false;
+            return ret;
         }
     }
 
@@ -565,7 +555,7 @@ namespace se {
             return ret;
         }
 #endif
-        bool ret = callBoolFunctionWithObject("__jsc_isTypedArray", this);
+        bool ret = isInstanceOfConstructor(__cx, _obj, "__jscTypedArrayConstructor");
         if (ret)
             _type = Type::TYPED_ARRAY;
         return ret;
@@ -661,15 +651,15 @@ namespace se {
     {
         if (_type == Type::ARRAY)
             return true;
+
 #if (__MAC_OS_X_VERSION_MAX_ALLOWED >= 101100 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 90000)
         if (isSupportIsArrayTestAPI())
         {
             return JSValueIsArray(__cx, _obj);
         }
 #endif
-
-        bool ret = callBoolFunctionWithObject("__jsc_isArray", this);
-        if (ret)
+        bool ret = isInstanceOfConstructor(__cx, _obj, "Array");
+          if (ret)
             _type = Type::ARRAY;
         return ret;
     }
@@ -697,7 +687,7 @@ namespace se {
         }
 #endif
 
-        bool ret = callBoolFunctionWithObject("__jsc_isArrayBuffer", this);
+        bool ret = isInstanceOfConstructor(__cx, _obj, "ArrayBuffer");
         if (ret)
             _type = Type::ARRAY_BUFFER;
         return ret;
