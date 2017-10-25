@@ -52,4 +52,20 @@ namespace se {
         return false;
     }
 
+    bool isSupportIsArrayTestAPI()
+    {
+#if TARGET_OS_IPHONE
+        float version = [[UIDevice currentDevice].systemVersion floatValue];
+        if (version >= 9.0)
+            return true;
+#elif TARGET_OS_MAC
+        NSOperatingSystemVersion minimumSupportedOSVersion = { .majorVersion = 10, .minorVersion = 11, .patchVersion = 0 };
+        return [NSProcessInfo.processInfo isOperatingSystemAtLeastVersion:minimumSupportedOSVersion] ? true : false;
+#else
+        LOGE("isSupportIsArrayTestAPI: Unknown system!");
+#endif
+
+        return false;
+    }
+
 } // namespace se

@@ -26,62 +26,68 @@ var window = window || this;
 
 // Hack JavaScriptCore begin
 
+
 if (window.scriptEngineType == "JavaScriptCore") {
-    window.__jsc_createArrayBufferObject = function(arr) {
-        var len = arr.length;
-        var buffer = new ArrayBuffer(len);
-        var typedArr = new Uint8Array(buffer);
-        for (var i = 0; i < len; ++i) {
-            typedArr[i] = arr[i];
-        }
-        return buffer;
-    };
-
-    window.__jsc_createUint8TypedArray = function(arr) {
-        return new Uint8Array(arr);
-    };
-
-    window.__jsc_getArrayBufferData = function(arrBuf) {
-        var typedArr = new Uint8Array(arrBuf);
-        var len = typedArr.length;
-        var arr = new Array(len);
-        for (var i = 0; i < len; ++i) {
-            arr[i] = typedArr[i];
-        }
-        return arr;
-    };
-
-    window.__jsc_getUint8ArrayData = function(typedArr) {
-        var len = typedArr.length;
-        var arr = new Array(len);
-        for (var i = 0; i < len; ++i) {
-            arr[i] = typedArr[i];
-        }
-        return arr;
-    };
-
-    window.__jsc_isArrayBuffer = function(arrBuf) {
-        if (!arrBuf)
-            return false;
-
-        return arrBuf instanceof ArrayBuffer;
-    };
-
-    window.__jsc_isTypedArray = function(typedArr) {
-        if (!typedArr)
-            return false;
-
-        var typedArrayTypes = [Int8Array, Uint8Array, Uint8ClampedArray, Int16Array, Uint16Array, Int32Array, Uint32Array, Float32Array, Float64Array];
-
-        for (var i = 0, len = typedArrayTypes.length; i < len; ++i) {
-            if (typedArr instanceof typedArrayTypes[i]) {
-                return true;
+    (function(){
+        window.__jsc_createArrayBufferObject = function(arr) {
+            var len = arr.length;
+            var buffer = new ArrayBuffer(len);
+            var typedArr = new Uint8Array(buffer);
+            for (var i = 0; i < len; ++i) {
+                typedArr[i] = arr[i];
             }
-        }
+            return buffer;
+        };
 
-        return false;
-    };
+        window.__jsc_createUint8TypedArray = function(arr) {
+            return new Uint8Array(arr);
+        };
+
+        window.__jsc_getArrayBufferData = function(arrBuf) {
+            var typedArr = new Uint8Array(arrBuf);
+            var len = typedArr.length;
+            var arr = new Array(len);
+            for (var i = 0; i < len; ++i) {
+                arr[i] = typedArr[i];
+            }
+            return arr;
+        };
+
+        window.__jsc_getUint8ArrayData = function(typedArr) {
+            var len = typedArr.length;
+            var arr = new Array(len);
+            for (var i = 0; i < len; ++i) {
+                arr[i] = typedArr[i];
+            }
+            return arr;
+        };
+
+        window.__jsc_isArray = function(obj) {
+            if (!obj)
+                return false;
+            log("__jsc_isArray: " + (obj instanceof Array) + ", obj:" + obj);
+            return obj instanceof Array;
+        };
+
+        window.__jsc_isArrayBuffer = function(obj) {
+            if (!obj)
+                return false;
+
+            return obj instanceof ArrayBuffer;
+        };
+
+        var typedArrayConstructor = Object.getPrototypeOf(Uint16Array.prototype).constructor;
+
+        window.__jsc_isTypedArray = function(obj) {
+            if (!obj)
+                return false;
+
+            return obj instanceof typedArrayConstructor;
+        };
+
+    })();
 }
+
 
 // Hack JavaScriptCore end
 

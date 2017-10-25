@@ -38,6 +38,30 @@ namespace se {
 #if SE_DEBUG > 0
         uint32_t __id = 0;
 #endif
+
+        bool callBoolFunctionWithObject(const char* funcName, const Object* obj)
+        {
+            if (funcName == nullptr)
+                return false;
+            Value func;
+            bool ok = ScriptEngine::getInstance()->getGlobalObject()->getProperty(funcName, &func);
+            if (ok && func.isObject() && func.toObject()->isFunction())
+            {
+                ValueArray args;
+                // se::Value doesn't have a constructor with `const Object*`, so cast it to Object*.
+                // Otherwise, it will call the Value(bool) constructor.
+                args.push_back(Value((Object*)obj));
+
+                Value rval;
+                ok = func.toObject()->call(args, nullptr, &rval);
+                if (ok && rval.isBoolean())
+                {
+                    return rval.toBoolean();
+                }
+            }
+
+            return false;
+        }
     }
 
     Object::Object()
@@ -541,25 +565,10 @@ namespace se {
             return ret;
         }
 #endif
-        Value func;
-        bool ok = ScriptEngine::getInstance()->getGlobalObject()->getProperty("__jsc_isTypedArray", &func);
-        if (ok && func.isObject() && func.toObject()->isFunction())
-        {
-            ValueArray args;
-            args.push_back(Value((Object*)this));
-
-            Value rval;
-            ok = func.toObject()->call(args, nullptr, &rval);
-            if (ok && rval.isBoolean())
-            {
-                bool ret = rval.toBoolean();
-                if (ret)
-                    _type = Type::TYPED_ARRAY;
-                return ret;
-            }
-        }
-
-        return false;
+        bool ret = callBoolFunctionWithObject("__jsc_isTypedArray", this);
+        if (ret)
+            _type = Type::TYPED_ARRAY;
+        return ret;
     }
 
     bool Object::getTypedArrayData(uint8_t** ptr, size_t* length) const
@@ -650,7 +659,19 @@ namespace se {
 
     bool Object::isArray() const
     {
-        return JSValueIsArray(__cx, _obj);
+        if (_type == Type::ARRAY)
+            return true;
+#if (__MAC_OS_X_VERSION_MAX_ALLOWED >= 101100 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 90000)
+        if (isSupportIsArrayTestAPI())
+        {
+            return JSValueIsArray(__cx, _obj);
+        }
+#endif
+
+        bool ret = callBoolFunctionWithObject("__jsc_isArray", this);
+        if (ret)
+            _type = Type::ARRAY;
+        return ret;
     }
 
     bool Object::isArrayBuffer() const
@@ -676,25 +697,10 @@ namespace se {
         }
 #endif
 
-        Value func;
-        bool ok = ScriptEngine::getInstance()->getGlobalObject()->getProperty("__jsc_isArrayBuffer", &func);
-        if (ok && func.isObject() && func.toObject()->isFunction())
-        {
-            ValueArray args;
-            args.push_back(Value((Object*)this));
-
-            Value rval;
-            ok = func.toObject()->call(args, nullptr, &rval);
-            if (ok && rval.isBoolean())
-            {
-                bool ret = rval.toBoolean();
-                if (ret)
-                    _type = Type::ARRAY_BUFFER;
-                return ret;
-            }
-        }
-
-        return false;
+        bool ret = callBoolFunctionWithObject("__jsc_isArrayBuffer", this);
+        if (ret)
+            _type = Type::ARRAY_BUFFER;
+        return ret;
     }
 
     bool Object::getArrayBufferData(uint8_t** ptr, size_t* length) const
