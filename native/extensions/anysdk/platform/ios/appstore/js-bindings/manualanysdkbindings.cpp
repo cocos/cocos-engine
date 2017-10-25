@@ -28,8 +28,10 @@
 
 #ifdef ANYSDK_FOR_APPSTORE
 #define jsb_funcName_getIAPPlugin "getYAPPlugin"
+#define jsb_funcName_payForProduct "yapForProduct"
 #else
 #define jsb_funcName_getIAPPlugin "getIAPPlugin"
+#define jsb_funcName_payForProduct "payForProduct"
 #define ProtocolYAP        ProtocolIAP
 #define getYAPPlugin       getIAPPlugin
 #define YapResultCode      PayResultCode
@@ -312,7 +314,7 @@ bool js_cocos2dx_PluginParam_create(se::State& s)
         return false;
     }
 
-    se::HandleObject jsret(se::Object::createObjectWithClass(__jsb_anysdk_framework_PluginParam_class));
+    se::Object* jsret = se::Object::createObjectWithClass(__jsb_anysdk_framework_PluginParam_class);
     jsret->setPrivateData(ret);
     s.rval().setObject(jsret);
 
@@ -430,7 +432,8 @@ se::Object* __jsb_anysdk_framework_ProtocolShare_proto = nullptr;
 
 static bool js_anysdk_framework_ProtocolShare_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (ProtocolShare)", obj);
+    ProtocolShare* cobj = (ProtocolShare*)s.nativeThisObject();
+    CCLOGINFO("jsbindings: finalizing JS object %p (ProtocolShare)", cobj);
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_anysdk_framework_ProtocolShare_finalize)
@@ -1586,7 +1589,7 @@ bool register_all_anysdk_manual(se::Object* obj)
     //ProtocolYAP
     __jsb_anysdk_framework_ProtocolYAP_proto->defineFunction("setResultListener", _SE(jsb_anysdk_framework_ProtocolYAP_setResultListener));
     __jsb_anysdk_framework_ProtocolYAP_proto->defineFunction("removeListener", _SE(jsb_anysdk_framework_ProtocolYAP_removeListener));
-    __jsb_anysdk_framework_ProtocolYAP_proto->defineFunction("yapForProduct", _SE(jsb_anysdk_framework_ProtocolYAP_yapForProduct));
+    __jsb_anysdk_framework_ProtocolYAP_proto->defineFunction(jsb_funcName_payForProduct, _SE(jsb_anysdk_framework_ProtocolYAP_yapForProduct));
 
     //ProtocolSocial
     __jsb_anysdk_framework_ProtocolSocial_proto->defineFunction("setListener", _SE(jsb_anysdk_framework_ProtocolSocial_setListener));

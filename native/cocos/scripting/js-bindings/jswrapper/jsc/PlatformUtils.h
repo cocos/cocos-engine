@@ -26,5 +26,6 @@
 namespace se {
 
     bool isSupportTypedArrayAPI();
+    bool isSupportArrayTestAPI();
 
 } // namespace se

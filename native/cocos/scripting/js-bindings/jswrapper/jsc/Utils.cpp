@@ -268,7 +268,9 @@ namespace se {
         }
 
         assert(finalizeCb);
-        HandleObject privateObj(Object::createObjectWithClass(__jsb_CCPrivateData_class));
+        Object* privateObj = Object::createObjectWithClass(__jsb_CCPrivateData_class);
+        privateObj->root();
+
         internal::PrivateData* privateData = (internal::PrivateData*)malloc(sizeof(internal::PrivateData));
         privateData->data = data;
         privateData->finalizeCb = finalizeCb;
@@ -283,6 +285,9 @@ namespace se {
             ScriptEngine::getInstance()->_clearException(exception);
         }
         JSStringRelease(key);
+
+        privateObj->unroot();
+        privateObj->decRef();
     }
 
     void* getPrivate(JSObjectRef obj)

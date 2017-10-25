@@ -26,6 +26,7 @@ var window = window || this;
 
 // Hack JavaScriptCore begin
 
+
 if (window.scriptEngineType == "JavaScriptCore") {
     window.__jsc_createArrayBufferObject = function(arr) {
         var len = arr.length;
@@ -60,28 +61,9 @@ if (window.scriptEngineType == "JavaScriptCore") {
         return arr;
     };
 
-    window.__jsc_isArrayBuffer = function(arrBuf) {
-        if (!arrBuf)
-            return false;
-
-        return arrBuf instanceof ArrayBuffer;
-    };
-
-    window.__jsc_isTypedArray = function(typedArr) {
-        if (!typedArr)
-            return false;
-
-        var typedArrayTypes = [Int8Array, Uint8Array, Uint8ClampedArray, Int16Array, Uint16Array, Int32Array, Uint32Array, Float32Array, Float64Array];
-
-        for (var i = 0, len = typedArrayTypes.length; i < len; ++i) {
-            if (typedArr instanceof typedArrayTypes[i]) {
-                return true;
-            }
-        }
-
-        return false;
-    };
+    window.__jscTypedArrayConstructor = Object.getPrototypeOf(Uint16Array.prototype).constructor;
 }
+
 
 // Hack JavaScriptCore end
 
