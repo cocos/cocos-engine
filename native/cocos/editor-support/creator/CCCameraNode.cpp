@@ -84,6 +84,7 @@ namespace creator {
         }
         
         _nodes.push_back(target);
+        target->setCameraMask(1, false);
         
         CustomCommand* beforeVisitCommand = new CustomCommand();
         CustomCommand* afterVisitCommand = new CustomCommand();
@@ -107,6 +108,7 @@ namespace creator {
     {
         target->setBeforeVisitCallback(nullptr);
         target->setAfterVisitCallback(nullptr);
+        target->setCameraMask(0, false);
         
         for (auto i = _commands.begin(); i != _commands.end(); i++)
         {
