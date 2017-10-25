@@ -87,6 +87,7 @@ namespace se {
             free(p);
         }
 
+        Value __consoleVal;
         Value __oldConsoleLog;
         Value __oldConsoleDebug;
         Value __oldConsoleInfo;
@@ -132,7 +133,8 @@ namespace se {
         bool JSB_console_log(State& s)
         {
             JSB_console_format_log(s, "");
-            __oldConsoleLog.toObject()->call(s.args(), s.thisObject());
+            ValueArray args;
+            __oldConsoleLog.toObject()->call(args, __consoleVal.toObject());
             return true;
         }
         SE_BIND_FUNC(JSB_console_log)
@@ -140,7 +142,7 @@ namespace se {
         bool JSB_console_debug(State& s)
         {
             JSB_console_format_log(s, "[DEBUG]: ");
-            __oldConsoleDebug.toObject()->call(s.args(), s.thisObject());
+            __oldConsoleDebug.toObject()->call(s.args(), __consoleVal.toObject());
             return true;
         }
         SE_BIND_FUNC(JSB_console_debug)
@@ -148,7 +150,7 @@ namespace se {
         bool JSB_console_info(State& s)
         {
             JSB_console_format_log(s, "[INFO]: ");
-            __oldConsoleInfo.toObject()->call(s.args(), s.thisObject());
+            __oldConsoleInfo.toObject()->call(s.args(), __consoleVal.toObject());
             return true;
         }
         SE_BIND_FUNC(JSB_console_info)
@@ -156,7 +158,7 @@ namespace se {
         bool JSB_console_warn(State& s)
         {
             JSB_console_format_log(s, "[WARN]: ");
-            __oldConsoleWarn.toObject()->call(s.args(), s.thisObject());
+            __oldConsoleWarn.toObject()->call(s.args(), __consoleVal.toObject());
             return true;
         }
         SE_BIND_FUNC(JSB_console_warn)
@@ -164,7 +166,7 @@ namespace se {
         bool JSB_console_error(State& s)
         {
             JSB_console_format_log(s, "[ERROR]: ");
-            __oldConsoleError.toObject()->call(s.args(), s.thisObject());
+            __oldConsoleError.toObject()->call(s.args(), __consoleVal.toObject());
             return true;
         }
         SE_BIND_FUNC(JSB_console_error)
@@ -177,7 +179,7 @@ namespace se {
                 if (args[0].isBoolean() && !args[0].toBoolean())
                 {
                     JSB_console_format_log(s, "[ASSERT]: ", 1);
-                    __oldConsoleAssert.toObject()->call(s.args(), s.thisObject());
+                    __oldConsoleAssert.toObject()->call(s.args(), __consoleVal.toObject());
                 }
             }
             return true;
@@ -251,26 +253,25 @@ namespace se {
         _globalObj->root();
         _globalObj->setProperty("window", Value(_globalObj));
 
-        Value consoleVal;
-        if (_globalObj->getProperty("console", &consoleVal) && consoleVal.isObject())
+        if (_globalObj->getProperty("console", &__consoleVal) && __consoleVal.isObject())
         {
-            consoleVal.toObject()->getProperty("log", &__oldConsoleLog);
-            consoleVal.toObject()->defineFunction("log", _SE(JSB_console_log));
+            __consoleVal.toObject()->getProperty("log", &__oldConsoleLog);
+            __consoleVal.toObject()->defineFunction("log", _SE(JSB_console_log));
 
-            consoleVal.toObject()->getProperty("debug", &__oldConsoleDebug);
-            consoleVal.toObject()->defineFunction("debug", _SE(JSB_console_debug));
+            __consoleVal.toObject()->getProperty("debug", &__oldConsoleDebug);
+            __consoleVal.toObject()->defineFunction("debug", _SE(JSB_console_debug));
 
-            consoleVal.toObject()->getProperty("info", &__oldConsoleInfo);
-            consoleVal.toObject()->defineFunction("info", _SE(JSB_console_info));
+            __consoleVal.toObject()->getProperty("info", &__oldConsoleInfo);
+            __consoleVal.toObject()->defineFunction("info", _SE(JSB_console_info));
 
-            consoleVal.toObject()->getProperty("warn", &__oldConsoleWarn);
-            consoleVal.toObject()->defineFunction("warn", _SE(JSB_console_warn));
+            __consoleVal.toObject()->getProperty("warn", &__oldConsoleWarn);
+            __consoleVal.toObject()->defineFunction("warn", _SE(JSB_console_warn));
 
-            consoleVal.toObject()->getProperty("error", &__oldConsoleError);
-            consoleVal.toObject()->defineFunction("error", _SE(JSB_console_error));
+            __consoleVal.toObject()->getProperty("error", &__oldConsoleError);
+            __consoleVal.toObject()->defineFunction("error", _SE(JSB_console_error));
 
-            consoleVal.toObject()->getProperty("assert", &__oldConsoleAssert);
-            consoleVal.toObject()->defineFunction("assert", _SE(JSB_console_assert));
+            __consoleVal.toObject()->getProperty("assert", &__oldConsoleAssert);
+            __consoleVal.toObject()->defineFunction("assert", _SE(JSB_console_assert));
         }
 
         _globalObj->setProperty("scriptEngineType", Value("JavaScriptCore"));
@@ -321,6 +322,7 @@ namespace se {
         Class::cleanup();
         garbageCollect();
 
+        __consoleVal.setUndefined();
         __oldConsoleLog.setUndefined();
         __oldConsoleDebug.setUndefined();
         __oldConsoleInfo.setUndefined();
