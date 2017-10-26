@@ -670,11 +670,4 @@ if (CC_EDITOR) {
     };
 }
 
-var misc = require('../utils/misc');
-var SameNameGetSets = ['insetLeft', 'insetTop', 'insetRight', 'insetBottom'];
-var DiffNameGetSets = {
-    type: [null, 'setRenderingType']
-};
-misc.propertyDefine(Sprite, SameNameGetSets, DiffNameGetSets);
-
 cc.Sprite = module.exports = Sprite;
