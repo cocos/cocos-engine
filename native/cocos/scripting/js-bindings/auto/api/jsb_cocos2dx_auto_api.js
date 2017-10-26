@@ -13742,6 +13742,24 @@ begin : function (
 },
 
 /**
+ * @method saveToFile
+* @param {String|String} str
+* @param {cc.Image::Format|bool} format
+* @param {bool|function} bool
+* @param {function} func
+* @return {bool|bool}
+*/
+saveToFile : function(
+str,
+format,
+bool,
+func 
+)
+{
+    return false;
+},
+
+/**
  * @method setAutoDraw
  * @param {bool} arg0
  */

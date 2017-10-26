@@ -2077,6 +2077,7 @@ SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_isAutoDraw);
 SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_setKeepMatrix);
 SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_setClearFlags);
 SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_begin);
+SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_saveToFile);
 SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_setAutoDraw);
 SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_setClearColor);
 SE_DECLARE_FUNC(js_cocos2dx_RenderTexture_beginWithClear);
