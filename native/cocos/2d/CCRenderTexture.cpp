@@ -744,6 +744,11 @@ void RenderTexture::draw(Renderer *renderer, const Mat4 &transform, uint32_t fla
     }
 }
 
+void RenderTexture::cleanup()
+{
+    _saveFileCallback = nullptr;
+}
+
 void RenderTexture::begin()
 {
     Director* director = Director::getInstance();
