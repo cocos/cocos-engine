@@ -111,7 +111,7 @@ Node::Node()
 , _realColor(Color3B::WHITE)
 , _cascadeColorEnabled(false)
 , _cascadeOpacityEnabled(false)
-, _cameraMask(1)
+, _cameraMask(0)
 {
     // set default scheduler and actionManager
     _director = Director::getInstance();
@@ -1255,14 +1255,13 @@ void Node::visit(Renderer* renderer, const Mat4 &parentTransform, uint32_t paren
     auto camera = creator::CameraNode::getInstance();
     if (camera) {
         if (camera->visitingIndex <= 0) {
-            if (camera->containsNode(this)) {
+            if (_cameraMask > 0) {
                 camera->visitingIndex ++;
             }
         }
         else {
             camera->visitingIndex ++;
         }
-        
     }
     
     if(!_children.empty())
