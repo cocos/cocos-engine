@@ -322,7 +322,6 @@ dragonBones.ArmatureDisplay = cc.Class({
 
     _removeSgNode: function () {
         var sgNode = this._sgNode;
-        this._super();
         if (sgNode) {
             sgNode.armature().dispose();
         }

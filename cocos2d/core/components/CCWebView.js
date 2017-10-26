@@ -138,7 +138,6 @@ var WebView = cc.Class({
     },
 
     onEnable: function () {
-        this._super();
         if (!CC_EDITOR) {
             var sgNode = this._sgNode;
             sgNode.setEventListener(EventType.LOADED, this._onWebViewLoaded.bind(this));
@@ -148,7 +147,6 @@ var WebView = cc.Class({
     },
 
     onDisable: function () {
-        this._super();
         if (!CC_EDITOR) {
             var sgNode = this._sgNode;
             sgNode.setEventListener(EventType.LOADED, emptyCallback);

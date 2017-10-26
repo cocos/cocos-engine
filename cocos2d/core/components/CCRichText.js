@@ -225,14 +225,12 @@ var RichText = cc.Class({
     },
 
     onEnable: function () {
-        this._super();
         if (this.handleTouchEvent) {
             this._addEventListeners();
         }
     },
 
     onDisable: function () {
-        this._super();
         if (this.handleTouchEvent) {
             this._removeEventListeners();
         }
@@ -822,7 +820,6 @@ var RichText = cc.Class({
     },
 
     onDestroy: function () {
-        this._super();
         for (var i = 0; i < this._labelSegments.length; ++i) {
             this._labelSegments[i].removeFromParent(true);
             _ccsg.Label.pool.put(this._labelSegments[i]);

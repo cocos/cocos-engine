@@ -501,8 +501,6 @@ var TiledMap = cc.Class({
             this._moveLayersInSgNode(this._sgNode);
         }
 
-        this._super();
-
         if (this._tmxFile) {
             // refresh layer entities
             this._refreshLayerEntities();
@@ -514,8 +512,6 @@ var TiledMap = cc.Class({
     },
 
     onDisable: function () {
-        this._super();
-
         // disable the TiledLayer component in logic children
         this._setLayersEnabled(false);
 
@@ -529,8 +525,6 @@ var TiledMap = cc.Class({
     },
 
     onDestroy: function() {
-        this._super();
-
         // remove the TiledLayer entities
         this._removeLayerEntities();
     },

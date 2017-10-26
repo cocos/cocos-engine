@@ -684,6 +684,7 @@ var ParticleSystem = cc.Class({
         menu: 'i18n:MAIN_MENU.component.renderers/ParticleSystem',
         inspector: 'packages://inspector/inspectors/comps/particle-system.js',
         playOnFocus: true,
+        executeInEditMode: true
     },
 
     ctor: function () {
@@ -736,7 +737,6 @@ var ParticleSystem = cc.Class({
     // LIFE-CYCLE METHODS
 
     __preload: function () {
-        this._super();
         // auto play
         if (!CC_EDITOR || cc.engine.isPlaying) {
             if (this.playOnLoad) {
@@ -750,7 +750,6 @@ var ParticleSystem = cc.Class({
         if (this._autoRemoveOnFinish) {
             this.autoRemoveOnFinish = false;    // already removed
         }
-        this._super();
     },
 
     onFocusInEditor: CC_EDITOR && function () {

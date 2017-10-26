@@ -579,10 +579,8 @@ var Label = cc.Class({
     },
 
     onDestroy: function () {
-        this._super();
         return;
         var sgNodeBeforeDestroy = this._sgNode;
-        this._super();
         if (sgNodeBeforeDestroy) {
             sgNodeBeforeDestroy.removeFromParent(true);
             _ccsg.Label.pool.put(sgNodeBeforeDestroy);

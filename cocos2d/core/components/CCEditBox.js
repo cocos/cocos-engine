@@ -519,13 +519,11 @@ var EditBox = cc.Class({
     },
 
     onDestroy: function () {
+        return;
         this._sgNode.setDelegate(null);
-        this._super();
     },
 
     __preload: function() {
-        this._super();
-
         if (!CC_EDITOR) {
             this._registerEvent();
         }
