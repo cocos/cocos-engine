@@ -183,6 +183,7 @@ cc.Asset = cc.Class({
 
     /**
      * Set native file name for this asset.
+     * @seealso nativeUrl
      *
      * @method _setRawAsset
      * @param {String} filename

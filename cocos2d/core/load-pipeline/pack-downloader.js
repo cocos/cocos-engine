@@ -100,7 +100,7 @@ module.exports = {
             if (Array.isArray(packedJson)) {
                 unpackerData.unpacker = new Unpackers.JsonUnpacker();
             }
-            else if (packedJson.type === TextureUnpacker.ID) {
+            else if (packedJson.type === Unpackers.TextureUnpacker.ID) {
                 unpackerData.unpacker = new Unpackers.TextureUnpacker();
             }
             unpackerData.unpacker.load(packIndices[packUuid], packedJson);
