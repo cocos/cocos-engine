@@ -746,6 +746,7 @@ void RenderTexture::draw(Renderer *renderer, const Mat4 &transform, uint32_t fla
 
 void RenderTexture::cleanup()
 {
+    Node::cleanup();
     _saveFileCallback = nullptr;
 }
 
