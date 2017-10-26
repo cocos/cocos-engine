@@ -249,7 +249,7 @@ jsb.unregisterNativeRef = function (owner, target) {
     if (owner && target && owner !== target) {
         var targetID = target.__jsb_ref_id;
         if (!targetID)
-            targetID = target.__jsb_ref_id = jsb.__obj_ref_id++;
+            return;
 
         var refs = owner.__nativeRefs;
         if (!refs) {
