@@ -239,9 +239,7 @@ jsb.registerNativeRef = function (owner, target) {
             refs = owner.__nativeRefs = {};
         }
 
-        if (!refs[targetID]) {
-            refs[targetID] = target;
-        }
+        refs[targetID] = target;
     }
 };
 
