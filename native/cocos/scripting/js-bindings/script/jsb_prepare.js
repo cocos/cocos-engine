@@ -231,7 +231,7 @@ jsb.__obj_ref_id = 0;
 jsb.registerNativeRef = function (owner, target) {
     if (owner && target && owner !== target) {
         var targetID = target.__jsb_ref_id;
-        if (!targetID)
+        if (targetID === undefined)
             targetID = target.__jsb_ref_id = jsb.__obj_ref_id++;
 
         var refs = owner.__nativeRefs;
