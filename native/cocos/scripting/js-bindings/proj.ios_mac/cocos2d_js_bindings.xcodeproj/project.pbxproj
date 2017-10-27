@@ -27,8 +27,6 @@
 		1A210D951F456821006CCBAE /* MappingUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A210D921F456821006CCBAE /* MappingUtils.cpp */; };
 		1A210D961F456821006CCBAE /* MappingUtils.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A210D931F456821006CCBAE /* MappingUtils.hpp */; };
 		1A210D971F456821006CCBAE /* MappingUtils.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A210D931F456821006CCBAE /* MappingUtils.hpp */; };
-		1A210DE41F46C2DF006CCBAE /* libjs_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A210DE21F46C2DF006CCBAE /* libjs_static.a */; };
-		1A210DE51F46C2DF006CCBAE /* libmozglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A210DE31F46C2DF006CCBAE /* libmozglue.a */; };
 		1A5F228A1F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5F22881F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp */; };
 		1A5F228B1F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5F22881F0DDD6B0008BF09 /* jsb_dragonbones_manual.cpp */; };
 		1A5F228C1F0DDD6B0008BF09 /* jsb_dragonbones_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A5F22891F0DDD6B0008BF09 /* jsb_dragonbones_manual.hpp */; };
@@ -437,8 +435,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1A210DE41F46C2DF006CCBAE /* libjs_static.a in Frameworks */,
-				1A210DE51F46C2DF006CCBAE /* libmozglue.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
