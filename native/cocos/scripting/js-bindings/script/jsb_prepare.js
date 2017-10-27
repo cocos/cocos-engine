@@ -256,9 +256,7 @@ jsb.unregisterNativeRef = function (owner, target) {
             return;
         }
 
-        if (refs[targetID]) {
-            delete refs[targetID];
-        }
+        delete refs[targetID];
     }
 };
 
