@@ -226,35 +226,41 @@ cc.Class.extend = function (prop) {
     return Class;
 };
 
+jsb.__obj_ref_id = 0;
+
 jsb.registerNativeRef = function (owner, target) {
     if (owner && target && owner !== target) {
+        var targetID = target.__jsb_ref_id;
+        if (targetID === undefined)
+            targetID = target.__jsb_ref_id = jsb.__obj_ref_id++;
+
         var refs = owner.__nativeRefs;
         if (!refs) {
-            refs = owner.__nativeRefs = [];
+            refs = owner.__nativeRefs = {};
         }
-        var index = refs.indexOf(target);
-        if (index === -1) {
-            owner.__nativeRefs.push(target);
-        }
+
+        refs[targetID] = target;
     }
 };
 
 jsb.unregisterNativeRef = function (owner, target) {
     if (owner && target && owner !== target) {
+        var targetID = target.__jsb_ref_id;
+        if (targetID === undefined)
+            return;
+
         var refs = owner.__nativeRefs;
         if (!refs) {
             return;
         }
-        var index = refs.indexOf(target);
-        if (index !== -1) {
-            owner.__nativeRefs.splice(index, 1);
-        }
+
+        delete refs[targetID];
     }
 };
 
 jsb.unregisterAllNativeRefs = function (owner) {
     if (!owner) return;
-    owner.__nativeRefs.length = 0;
+    delete owner.__nativeRefs;
 };
 
 jsb.unregisterChildRefsForNode = function (node, recursive) {
