@@ -13,6 +13,9 @@ gulp.task('make-cocos2d-x', gulpSequence('gen-cocos2d-x', 'upload-cocos2d-x'));
 gulp.task('make-prebuilt', gulpSequence('gen-libs', 'collect-prebuilt-mk', 'archive-prebuilt-mk', 'archive-prebuilt', 'upload-prebuilt', 'upload-prebuilt-mk'));
 gulp.task('make-simulator', gulpSequence('gen-simulator', 'update-simulator-config', 'update-simulator-dll', 'archive-simulator', 'upload-simulator'));
 
+gulp.task('publish-source', gulpSequence('init', 'make-cocos2d-x'));
+gulp.task('publish-prebuilt', gulpSequence('init', 'make-simulator', 'make-prebuilt'));
+
 function execSync(cmd, workPath) {
     var execOptions = {
         cwd: workPath,
@@ -94,6 +97,7 @@ function getCurrentBranch() {
 gulp.task('init', function(cb) {
     execSync('python download-deps.py', '.');
     execSync('git submodule update --init', '.');
+    execSync('python download-bin.py', './tools/cocos2d-console');
     cb();
 });
 
