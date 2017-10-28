@@ -66,6 +66,7 @@ cc.view.setOrientation = function () {};
 var _windowTimeIntervalId = 0;
 var _windowTimeFunHash = {};
 var WindowTimeFun = function (code) {
+    this.__instanceId = cc.ClassManager.getNewInstanceId();
     this._intervalId = _windowTimeIntervalId++;
     this._code = code;
 };

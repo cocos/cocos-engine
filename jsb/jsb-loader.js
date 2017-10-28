@@ -99,7 +99,6 @@ function loadImage (item, callback) {
             else {
                 callback && callback(new Error('Load image failed: ' + url));
             }
-            jsb.unregisterNativeRef(cc.textureCache, addImageCallback);
         };
         cc.textureCache._addImageAsync(url, addImageCallback);
     }

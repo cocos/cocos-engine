@@ -43,13 +43,9 @@ proto.removeEvent = function(type, listener, target) {
 
 var armatureProto = dragonBones.Armature.prototype;
 armatureProto.addEventListener = function (type, listener, target) {
-    var display = this.display;
-    jsb.registerNativeRef(this, display);
-    display.addEvent(type, listener, target);
+    this.display.addEvent(type, listener, target);
 };
 
 armatureProto.removeEventListener = function (type, listener, target) {
-    var display = this.display;
-    jsb.unregisterNativeRef(this, display);
-    display.removeEvent(type, listener, target);
+    this.display.removeEvent(type, listener, target);
 };
