@@ -63,6 +63,8 @@ if (CC_DEV) {
 
 // polyfills
 require('../polyfill/misc');
+// str.startswith isn't supported in JavaScriptCore which is shipped with iOS8.
+require('../polyfill/string');
 if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('../polyfill/typescript');
 }

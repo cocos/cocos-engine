@@ -34,15 +34,15 @@ _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
         }
     },
 
-    setOnJSCallback: function(callback){},
-    setJavascriptInterfaceScheme: function(scheme){},
-    loadData: function(data, MIMEType, encoding, baseURL){},
-    loadHTMLString: function(string, baseURL){},
+    setOnJSCallback: function (callback) {},
+    setJavascriptInterfaceScheme: function (scheme) {},
+    loadData: function (data, MIMEType, encoding, baseURL) {},
+    loadHTMLString: function (string, baseURL) {},
     /**
      * Load an URL
      * @param {String} url
      */
-    loadURL: function(url){
+    loadURL: function (url) {
         this._renderCmd.updateURL(url);
         this._dispatchEvent(_ccsg.WebView.EventType.LOADING);
     },
@@ -50,18 +50,18 @@ _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
     /**
      * Stop loading
      */
-    stopLoading: function(){
+    stopLoading: function () {
         cc.logID(7800);
     },
 
     /**
      * Reload the WebView
      */
-    reload: function(){
+    reload: function () {
         var iframe = this._renderCmd._iframe;
-        if(iframe){
+        if (iframe) {
             var win = iframe.contentWindow;
-            if(win && win.location)
+            if (win && win.location)
                 win.location.reload();
         }
     },
@@ -69,7 +69,7 @@ _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
     /**
      * Determine whether to go back
      */
-    canGoBack: function(){
+    canGoBack: function () {
         cc.logID(7801);
         return true;
     },
@@ -77,7 +77,7 @@ _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
     /**
      * Determine whether to go forward
      */
-    canGoForward: function(){
+    canGoForward: function () {
         cc.logID(7802);
         return true;
     },
@@ -85,17 +85,17 @@ _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
     /**
      * go back
      */
-    goBack: function(){
-        try{
-            if(_ccsg.WebView._polyfill.closeHistory)
+    goBack: function () {
+        try {
+            if (_ccsg.WebView._polyfill.closeHistory)
                 return cc.logID(7803);
             var iframe = this._renderCmd._iframe;
-            if(iframe){
+            if (iframe) {
                 var win = iframe.contentWindow;
-                if(win && win.location)
+                if (win && win.location)
                     win.history.back.call(win);
             }
-        }catch(err){
+        } catch (err) {
             cc.log(err);
         }
     },
@@ -103,17 +103,17 @@ _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
     /**
      * go forward
      */
-    goForward: function(){
-        try{
-            if(_ccsg.WebView._polyfill.closeHistory)
+    goForward: function () {
+        try {
+            if (_ccsg.WebView._polyfill.closeHistory)
                 return cc.logID(7804);
             var iframe = this._renderCmd._iframe;
-            if(iframe){
+            if (iframe) {
                 var win = iframe.contentWindow;
-                if(win && win.location)
+                if (win && win.location)
                     win.history.forward.call(win);
             }
-        }catch(err){
+        } catch (err) {
             cc.log(err);
         }
     },
@@ -122,14 +122,14 @@ _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
      * In the webview execution within a period of js string
      * @param {String} str
      */
-    evaluateJS: function(str){
+    evaluateJS: function (str) {
         var iframe = this._renderCmd._iframe;
-        if(iframe){
+        if (iframe) {
             var win = iframe.contentWindow;
-            try{
+            try {
                 win.eval(str);
                 this._dispatchEvent(_ccsg.WebView.EventType.JS_EVALUATED);
-            }catch(err){
+            } catch (err) {
                 console.error(err);
             }
         }
@@ -138,7 +138,7 @@ _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
     /**
      * Limited scale
      */
-    setScalesPageToFit: function(){
+    setScalesPageToFit: function () {
         cc.logID(7805);
     },
 
@@ -147,7 +147,7 @@ _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
      * @param {_ccsg.WebView.EventType} event
      * @param {Function} callback
      */
-    setEventListener: function(event, callback){
+    setEventListener: function (event, callback) {
         this._EventList[event] = callback;
     },
 
@@ -155,17 +155,17 @@ _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
      * Delete events
      * @param {_ccsg.WebView.EventType} event
      */
-    removeEventListener: function(event){
+    removeEventListener: function (event) {
         this._EventList[event] = null;
     },
 
-    _dispatchEvent: function(event) {
+    _dispatchEvent: function (event) {
         var callback = this._EventList[event];
         if (callback)
             callback.call(this, this, this._renderCmd._iframe.src);
     },
 
-    _createRenderCmd: function(){
+    _createRenderCmd: function () {
         return new _ccsg.WebView.RenderCmd(this);
     },
 
@@ -174,7 +174,7 @@ _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
      * @param {Number} width
      * @param {Number} height
      */
-    setContentSize: function(width, height){
+    setContentSize: function (width, height) {
         if (width.width !== undefined && width.height !== undefined) {
             height = width.height;
             width = width.width;
@@ -188,7 +188,7 @@ _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
         this._renderCmd.removeDom();
     },
 
-    setVisible: function ( visible ) {
+    setVisible: function (visible) {
         _ccsg.Node.prototype.setVisible.call(this, visible);
         this._renderCmd.updateVisibility();
     }
@@ -201,22 +201,23 @@ _ccsg.WebView.EventType = {
     JS_EVALUATED: 3
 };
 
-(function(){
+(function() {
 
     var polyfill = _ccsg.WebView._polyfill = {
         devicePixelRatio: false,
         enableDiv: false
     };
 
-    if(cc.sys.os === cc.sys.OS_IOS)
+    if (cc.sys.os === cc.sys.OS_IOS)
         polyfill.enableDiv = true;
 
-    if(cc.sys.isMobile){
-        if(cc.sys.browserType === cc.sys.BROWSER_TYPE_FIREFOX){
+    if (cc.sys.isMobile) {
+        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_FIREFOX) {
             polyfill.enableBG = true;
         }
-    }else{
-        if(cc.sys.browserType === cc.sys.BROWSER_TYPE_IE){
+    }
+    else {
+        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_IE) {
             polyfill.closeHistory = true;
         }
     }
@@ -224,16 +225,17 @@ _ccsg.WebView.EventType = {
 
 })();
 
-(function(polyfill){
+(function(polyfill) {
 
     var RenderCmd;
     if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
         RenderCmd = _ccsg.Node.CanvasRenderCmd;
-    } else {
+    }
+    else {
         RenderCmd = _ccsg.Node.WebGLRenderCmd;
     }
 
-    _ccsg.WebView.RenderCmd = function(node){
+    _ccsg.WebView.RenderCmd = function (node) {
         this._rootCtor(node);
 
         this._parent = null;
@@ -250,10 +252,10 @@ _ccsg.WebView.EventType = {
         this.updateMatrix();
     };
 
-    proto.updateStatus = function(){
+    proto.updateStatus = function () {
         polyfill.devicePixelRatio = cc.view.isRetinaEnabled();
         var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
-        if(locFlag & flags.transformDirty){
+        if (locFlag & flags.transformDirty) {
             //update the transform
             this.transform(this.getParentRenderCmd(), true);
             this.updateMatrix();
@@ -263,28 +265,28 @@ _ccsg.WebView.EventType = {
 
     proto.initEvent = function () {
         var node = this._node;
-        this._iframe.addEventListener("load", function(){
+        this._iframe.addEventListener("load", function () {
             node._dispatchEvent(_ccsg.WebView.EventType.LOADED);
         });
-        this._iframe.addEventListener("error", function(){
+        this._iframe.addEventListener("error", function () {
             node._dispatchEvent(_ccsg.WebView.EventType.ERROR);
         });
     };
 
-    proto.resize = function(view){
+    proto.resize = function (view) {
         view = view || cc.view;
         var node = this._node,
             eventManager = cc.eventManager;
-        if(node._parent && node._visible)
+        if (node._parent && node._visible)
             this.updateMatrix();
-        else{
+        else {
             var list = eventManager._listenersMap[cc.game.EVENT_RESIZE].getFixedPriorityListeners();
             eventManager._removeListenerInVector(list, this._listener);
             this._listener = null;
         }
     };
 
-    proto.updateMatrix = function(){
+    proto.updateMatrix = function () {
         if (!this._div) return;
 
         var node = this._node, scaleX = cc.view._scaleX, scaleY = cc.view._scaleY;
@@ -297,7 +299,7 @@ _ccsg.WebView.EventType = {
         var container = cc.game.container;
         var a = t.a * scaleX, b = t.b, c = t.c, d = t.d * scaleY;
 
-        var offsetX = container && container.style.paddingLeft &&  parseInt(container.style.paddingLeft);
+        var offsetX = container && container.style.paddingLeft && parseInt(container.style.paddingLeft);
         var offsetY = container && container.style.paddingBottom && parseInt(container.style.paddingBottom);
         var tx = t.tx * scaleX + offsetX, ty = t.ty * scaleY + offsetY;
 
@@ -308,19 +310,19 @@ _ccsg.WebView.EventType = {
         this._div.style['-webkit-transform-origin'] = '0px 100% 0px';
     };
 
-    proto.initStyle = function(){
-        if(!this._div)  return;
+    proto.initStyle = function () {
+        if (!this._div) return;
         var div = this._div;
         div.style.position = "absolute";
         div.style.bottom = "0px";
         div.style.left = "0px";
     };
 
-    proto.updateURL = function(url){
+    proto.updateURL = function (url) {
         var iframe = this._iframe;
         iframe.src = url;
         var self = this;
-        var cb = function(){
+        var cb = function () {
             self._loaded = true;
             self.updateVisibility();
             iframe.removeEventListener("load", cb);
@@ -328,16 +330,16 @@ _ccsg.WebView.EventType = {
         iframe.addEventListener("load", cb);
     };
 
-    proto.updateSize = function(w, h){
+    proto.updateSize = function (w, h) {
         var div = this._div;
-        if(div){
-            div.style["width"] = w+"px";
-            div.style["height"] = h+"px";
+        if (div) {
+            div.style["width"] = w + "px";
+            div.style["height"] = h + "px";
         }
     };
 
     proto.createDom = function () {
-        if(polyfill.enableDiv){
+        if (polyfill.enableDiv) {
             this._div = document.createElement("div");
             this._div.style["-webkit-overflow"] = "auto";
             this._div.style["-webkit-overflow-scrolling"] = "touch";
@@ -345,11 +347,12 @@ _ccsg.WebView.EventType = {
             this._div.appendChild(this._iframe);
             this._iframe.style.width = "100%";
             this._iframe.style.height = "100%";
-        }else{
+        }
+        else {
             this._div = this._iframe = document.createElement("iframe");
         }
 
-        if(polyfill.enableBG)
+        if (polyfill.enableBG)
             this._div.style["background"] = "#FFF";
 
         this._div.style["background"] = "#FFF";
@@ -368,11 +371,11 @@ _ccsg.WebView.EventType = {
         this.initEvent();
     };
 
-    proto.removeDom = function(){
+    proto.removeDom = function () {
         var div = this._div;
-        if(div){
+        if (div) {
             var hasChild = Utils.contains(cc.game.container, div);
-            if(hasChild)
+            if (hasChild)
                 cc.game.container.removeChild(div);
         }
         this._div = null;
@@ -384,7 +387,8 @@ _ccsg.WebView.EventType = {
         var div = this._div;
         if (node.visible) {
             div.style.visibility = 'visible';
-        } else {
+        }
+        else {
             div.style.visibility = 'hidden';
         }
     };

@@ -28,7 +28,7 @@ var Base = require('./CCRendererUnderSG');
 /**
  * !#en Enum for sprite type.
  * !#zh Sprite 类型
- * @enum Sprite.SpriteType
+ * @enum Sprite.Type
  */
 /**
  * !#en The simple type.

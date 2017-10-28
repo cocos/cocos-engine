@@ -96,8 +96,6 @@ cc.DebugMode = Enum({
  * @module cc
  */
 
-var jsbLog = cc.log || console.log;
-
 /**
  * !#en Init Debug setting.
  * !#zh 设置调试模式。
@@ -259,7 +257,14 @@ cc._initDebugSetting = function (mode) {
          * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
          */
         if (CC_JSB) {
-            cc.log = jsbLog;
+            if (scriptEngineType === "JavaScriptCore") {
+                // console.log has to use `console` as its context for iOS 8~9. Therefore, apply it.
+                cc.log = function () {
+                    return console.log.apply(console, arguments);
+                };
+            } else {
+                cc.log = console.log;
+            }
         }
         else if (console.log.bind) {
             // use bind to avoid pollute call stacks
@@ -283,9 +288,16 @@ cc._initDebugSetting = function (mode) {
          * @param {any} msg - A JavaScript string containing zero or more substitution strings.
          * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
          */
-        cc.info = CC_JSB ? jsbLog : function () {
-            (console.info || console.log).apply(console, arguments);
-        };
+        if (CC_JSB) {
+            cc.info = (scriptEngineType === "JavaScriptCore") ? function () {
+                (console.info || console.log).apply(console, arguments);
+            } : (console.info || console.log);
+        } else {
+            cc.info = function () {
+                (console.info || console.log).apply(console, arguments);
+            };
+        }
+
     }
 
     cc.warnID = genLogFunc(cc.warn, 'Warning');

@@ -395,7 +395,7 @@ var EditBox = cc.Class({
         /**
          * !#en The event handler to be called when EditBox began to edit text.
          * !#zh 开始编辑文本输入框触发的事件回调。
-         * @property {Component.EventHandler} editingDidBegan
+         * @property {Component.EventHandler[]} editingDidBegan
          */
         editingDidBegan: {
             default: [],
@@ -405,7 +405,7 @@ var EditBox = cc.Class({
         /**
          * !#en The event handler to be called when EditBox text changes.
          * !#zh 编辑文本输入框时触发的事件回调。
-         * @property {Component.EventHandler} textChanged
+         * @property {Component.EventHandler[]} textChanged
          */
         textChanged: {
             default: [],
@@ -415,7 +415,7 @@ var EditBox = cc.Class({
         /**
          * !#en The event handler to be called when EditBox edit ends.
          * !#zh 结束编辑文本输入框时触发的事件回调。
-         * @property {Component.EventHandler} editingDidEnded
+         * @property {Component.EventHandler[]} editingDidEnded
          */
         editingDidEnded: {
             default: [],
@@ -425,7 +425,7 @@ var EditBox = cc.Class({
         /**
          * !#en The event handler to be called when return key is pressed. Windows is not supported.
          * !#zh 当用户按下回车按键时的事件回调，目前不支持 windows 平台
-         * @property {Component.EventHandler} editingReturn
+         * @property {Component.EventHandler[]} editingReturn
          */
         editingReturn: {
             default: [],
@@ -644,4 +644,5 @@ cc.EditBox = module.exports = EditBox;
  * // when you don't need editbox anymore
  * editbox.node.destroy();
  * @method destroy
+ * @return {Boolean} whether it is the first time the destroy being called
  */
