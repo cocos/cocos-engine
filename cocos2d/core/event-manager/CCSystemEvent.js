@@ -28,7 +28,7 @@ var EventTarget = require('../event/event-target');
 /**
  * !#en The event type supported by SystemEvent
  * !#zh SystemEvent 支持的事件类型
- * @enum SystemEvent.EventType
+ * @class SystemEvent.EventType
  * @static
  * @namespace SystemEvent
  */

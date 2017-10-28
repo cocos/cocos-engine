@@ -486,7 +486,7 @@ var _Deserializer = (function () {
     //     }
     // }
 
-    function compileObjectType (sources, defaultValue, accessorToSet, propNameLiteralToSet, assumeHavePropIfIsValue, stillUseUrl) {
+    var compileObjectType = cc.supportJit ? function (sources, defaultValue, accessorToSet, propNameLiteralToSet, assumeHavePropIfIsValue, stillUseUrl) {
         if (defaultValue instanceof cc.ValueType) {
             // fast case
             if (!assumeHavePropIfIsValue) {
@@ -508,9 +508,38 @@ var _Deserializer = (function () {
             }
             sources.push('}else o' + accessorToSet + '=null;');
         }
-    }
+    } : function (s, o, t, prop, defaultValue, propName, assumeHavePropIfIsValue, stillUseUrl) {
+        if (defaultValue instanceof cc.ValueType) {
+            var ctor = defaultValue.constructor;
 
-    function compileDeserialize (self, klass) {
+            if (assumeHavePropIfIsValue) {
+                s._deserializeTypedObject(o[propName], prop, ctor);
+            }
+            else {
+                if (prop) {
+                    s._deserializeTypedObject(o[propName], prop, ctor);
+                }
+                else {
+                    o[propName] = null;
+                }
+            }
+        }
+        else {
+            if (prop) {
+                if (CC_EDITOR || CC_TEST) {
+                    s._deserializeObjField(o, prop, propName, t&&o, stillUseUrl);
+                }
+                else {
+                    s._deserializeObjField(o, prop, propName, null, stillUseUrl);
+                }
+            }
+            else {
+                o[propName] = null;
+            }
+        }
+    };
+
+    var compileDeserialize = cc.supportJit ? function (self, klass) {
         var EDITOR_ONLY = Attr.DELIMETER + 'editorOnly';
         var SERIALIZABLE = Attr.DELIMETER + 'serializable';
         var DEFAULT = Attr.DELIMETER + 'default';
@@ -592,7 +621,72 @@ var _Deserializer = (function () {
             sources.push('s._deserializePrimitiveObject(o._$erialized,d);');
         }
         return Function('s', 'o', 'd', 'k', 't', sources.join(''));
-    }
+    } : function (self, klass) {
+        var EDITOR_ONLY = Attr.DELIMETER + 'editorOnly';
+        var SERIALIZABLE = Attr.DELIMETER + 'serializable';
+        var DEFAULT = Attr.DELIMETER + 'default';
+        var SAVE_URL_AS_ASSET = Attr.DELIMETER + 'saveUrlAsAsset';
+        var FORMERLY_SERIALIZED_AS = Attr.DELIMETER + 'formerlySerializedAs';
+        var attrs = Attr.getClassAttrs(klass);
+
+        var props = klass.__props__;
+        var fastMode = Misc.BUILTIN_CLASSID_RE.test(JS._getClassId(klass));
+
+        return function (s, o, d, k, t) {
+            var prop;
+            for (var p = 0; p < props.length; p++) {
+                var propName = props[p];
+                if ((CC_PREVIEW || (CC_EDITOR && self._ignoreEditorOnly)) && attrs[propName + EDITOR_ONLY]) {
+                    var mayUsedInPersistRoot = (propName === '_id' && cc.isChildClassOf(klass, cc.Node));
+                    if (!mayUsedInPersistRoot) {
+                        continue;   // skip editor only if in preview
+                    }
+                }
+                if (attrs[propName + SERIALIZABLE] === false) {
+                    continue;   // skip nonSerialized
+                }
+
+                var propNameToRead = propName;
+                if (attrs[propName + FORMERLY_SERIALIZED_AS]) {
+                    propNameToRead = attrs[propName + FORMERLY_SERIALIZED_AS];
+                }
+
+                prop = d[propNameToRead];
+
+                if (typeof prop !== 'undefined') {
+                    var stillUseUrl = attrs[propName + SAVE_URL_AS_ASSET];
+                    // function undefined object(null) string boolean number
+                    var defaultValue = CCClass.getDefault(attrs[propName + DEFAULT]);
+                    if (fastMode) {
+                        var defaultType = typeof defaultValue;
+                        var isPrimitiveType = (defaultType === 'string' && !stillUseUrl) ||
+                                                defaultType === 'number' ||
+                                                defaultType === 'boolean';
+                        if (isPrimitiveType) {
+                            o[propName] = prop;
+                        }
+                        else {
+                            compileObjectType(s, o, t, prop, defaultValue, propName, true, stillUseUrl);
+                        }
+                    }
+                    else {
+                        if (typeof prop !== 'object') {
+                            o[propName] = prop;
+                        }
+                        else {
+                            compileObjectType(s, o, t, prop, defaultValue, propName, false, stillUseUrl);
+                        }
+                    }
+                }
+            }
+            if (props[props.length - 1] === '_$erialized') {
+                // deep copy original serialized data
+                o._$erialized=JSON.parse(JSON.stringify(d));
+                // parse the serialized data as primitive javascript object, so its __id__ will be dereferenced
+                s._deserializePrimitiveObject(o._$erialized,d);
+            }
+        }
+    };
 
     function unlinkUnusedPrefab (self, serialized, obj) {
         var uuid = serialized['asset'] && serialized['asset'].__uuid__;

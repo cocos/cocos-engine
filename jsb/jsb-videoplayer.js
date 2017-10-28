@@ -24,3 +24,18 @@
  ****************************************************************************/
 
 cc.VideoPlayer = ccui.VideoPlayer;
+
+//FIXME: should delete this line after implementing the VideoPlayer on Mac and Windows
+if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
+    cc.VideoPlayer = {};
+}
+
+cc.VideoPlayer.EventType = {
+    PLAYING: 0,
+    PAUSED: 1,
+    STOPPED: 2,
+    COMPLETED: 3,
+    META_LOADED: 4,
+    CLICKED: 5,
+    READY_TO_PLAY: 6
+};

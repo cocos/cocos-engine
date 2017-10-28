@@ -1018,8 +1018,7 @@ var Node = cc.Class({
                 this._parent = null;
             }
         }
-        else if (CC_TEST ? (/* make CC_JSB mockable*/ Function('return CC_JSB'))() : CC_JSB) {
-            this._sgNode.release();
+        else if (CC_JSB) {
             this._sgNode._entity = null;
             this._sgNode = null;
         }

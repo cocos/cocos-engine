@@ -589,7 +589,7 @@ else {
     /* Determine the browser type */
     (function(){
         var typeReg1 = /mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|ucbrowser|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
-        var typeReg2 = /qqbrowser|chrome|safari|firefox|trident|opera|opr|oupeng/i;
+        var typeReg2 = /qqbrowser|chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
         var browserTypes = typeReg1.exec(ua);
         if(!browserTypes) browserTypes = typeReg2.exec(ua);
         var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
@@ -598,14 +598,14 @@ else {
         else if (browserType === "safari" && isAndroid)
             browserType = sys.BROWSER_TYPE_ANDROID;
         else if (browserType === "qq" && ua.match(/android.*applewebkit/i))
-            brwoserType = sys.BROWSER_TYPE_ANDROID;
+            browserType = sys.BROWSER_TYPE_ANDROID;
         else if (browserType === "trident")
             browserType = sys.BROWSER_TYPE_IE;
         else if (browserType === "360 aphone")
             browserType = sys.BROWSER_TYPE_360;
         else if (browserType === "mxbrowser")
             browserType = sys.BROWSER_TYPE_MAXTHON;
-        else if (browserType === "opr")
+        else if (browserType === "opr/")
             browserType = sys.BROWSER_TYPE_OPERA;
 
         sys.browserType = browserType;
@@ -619,7 +619,7 @@ else {
     /* Determine the browser version number */
     (function(){
         var versionReg1 = /(mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|uc|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui)(mobile)?(browser)?\/?([\d.]+)/i;
-        var versionReg2 = /(qqbrowser|chrome|safari|firefox|trident|opera|opr|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
+        var versionReg2 = /(qqbrowser|chrome|safari|firefox|trident|opera|opr\/|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
         var tmp = ua.match(versionReg1);
         if(!tmp) tmp = ua.match(versionReg2);
         sys.browserVersion = tmp ? tmp[4] : "";
@@ -721,12 +721,6 @@ else {
     if (win.WebGLRenderingContext) {
         if (cc.create3DContext(document.createElement("CANVAS"))) {
             _supportWebGL = true;
-        }
-        if (_supportWebGL && sys.os === sys.OS_IOS && sys.osMainVersion === 9) {
-            // Not activating WebGL in iOS 9 UIWebView because it may crash when entering background
-            if (!win.indexedDB) {
-                _supportWebGL = false;
-            }
         }
         if (_supportWebGL && sys.os === sys.OS_ANDROID) {
             var browserVer = parseFloat(sys.browserVersion);

@@ -170,6 +170,7 @@ prototype.getPixelHeight = prototype.getPixelsHigh;
 prototype.description = prototype.getDescription;
 cc.js.get(prototype, 'pixelWidth', prototype.getPixelWidth);
 cc.js.get(prototype, 'pixelHeight', prototype.getPixelHeight);
+cc.js.get(prototype, '_glID', prototype.getName);
 
 // cc.SpriteFrame
 
@@ -331,4 +332,5 @@ prototype.clone = function () {
     return cloned;
 };
 
+cc.js.getset(prototype, 'texture', prototype.getTexture, prototype.setTexture);
 cc.js.addon(prototype, WebSpriteFrame.prototype);

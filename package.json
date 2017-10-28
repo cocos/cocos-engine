@@ -44,7 +44,6 @@
     "jshint-stylish": "2.1.0",
     "multipipe": "0.3.0",
     "persistify": "^1.1.1",
-    "require-dir": "0.3.0",
     "uglify-es": "^3.0.26",
     "vinyl": "1.1.0",
     "vinyl-buffer": "1.0.0",
