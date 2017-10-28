@@ -817,29 +817,10 @@ var fillQuadGeneratorRadial = {
         }
         sprite._vertCount = count;
 
-        var minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
-        var x, y;
-        for (var i = 0, l = offset; i < l; i+=2) {
-            x = vertices[i];
-            y = vertices[i+1];
-            if (x <= minx) {
-                minx = x;
-                corner[0] = i;
-            }
-            else if (x >= maxx) {
-                maxx = x;
-                corner[1] = i;
-            }
-
-            if (y <= miny) {
-                miny = y;
-                corner[2] = i;
-            }
-            else if (y >= maxy) {
-                maxy = y;
-                corner[3] = i;
-            }
-        }
+        corner[0] = 0; // bl
+        corner[1] = 2; // br
+        corner[2] = 4; // tl
+        corner[3] = 6; // tr
     },
 
     _generateTriangle: function(wt, offset, vert0, vert1, vert2) {
@@ -1483,50 +1464,8 @@ cc.Scale9Sprite = _ccsg.Node.extend({
             this._uvsDirty = false;
             this._renderCmd._needDraw = false;
             cc.errorID(2627);
-            return;
         }
-
-        var rect = cc.visibleRect;
-        if (webgl && this._renderCmd._cameraFlag > 0) {
-            rect = cc.Camera.main.visibleRect;
-        }
-
-        vl = rect.left.x;
-        vr = rect.right.x;
-        vt = rect.top.y;
-        vb = rect.bottom.y;
-
-        // Culling
-        if (webgl) {
-            // x1, y1  leftBottom
-            // x2, y2  rightBottom
-            // x3, y3  leftTop
-            // x4, y4  rightTop
-            var vert = this._isTriangle ? this._rawVerts : this._vertices,
-                x0 = vert[cornerId[0]], x1 = vert[cornerId[1]], x2 = vert[cornerId[2]], x3 = vert[cornerId[3]],
-                y0 = vert[cornerId[0] + 1], y1 = vert[cornerId[1] + 1], y2 = vert[cornerId[2] + 1], y3 = vert[cornerId[3] + 1];
-            if (((x0-vl) & (x1-vl) & (x2-vl) & (x3-vl)) >> 31 || // All outside left
-                ((vr-x0) & (vr-x1) & (vr-x2) & (vr-x3)) >> 31 || // All outside right
-                ((y0-vb) & (y1-vb) & (y2-vb) & (y3-vb)) >> 31 || // All outside bottom
-                ((vt-y0) & (vt-y1) & (vt-y2) & (vt-y3)) >> 31)   // All outside top
-            {
-                this._renderCmd._needDraw = false;
-            }
-            else {
-                this._renderCmd._needDraw = true;
-            }
-        }
-        else {
-            var bb = this._renderCmd._currentRegion,
-                l = bb._minX, r = bb._maxX, b = bb._minY, t = bb._maxY;
-            if (r < vl || l > vr || t < vb || b > vt) {
-                this._renderCmd._needDraw = false;
-            }
-            else {
-                this._renderCmd._needDraw = true;
-            }
-        }
-
+        
         this._quadsDirty = false;
         this._uvsDirty = false;
     },
