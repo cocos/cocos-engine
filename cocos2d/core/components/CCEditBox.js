@@ -644,4 +644,5 @@ cc.EditBox = module.exports = EditBox;
  * // when you don't need editbox anymore
  * editbox.node.destroy();
  * @method destroy
+ * @return {Boolean} whether it is the first time the destroy being called
  */
