@@ -333,7 +333,6 @@ dragonBones.ArmatureDisplay = cc.Class({
             var jsonObj = JSON.parse(this.dragonAsset.dragonBonesJson);
             var data = this._factory.getDragonBonesData(jsonObj.name);
             if (data) {
-				// already added asset
                 this._dragonBonesData = data;
                 return;
             }
@@ -381,7 +380,7 @@ dragonBones.ArmatureDisplay = cc.Class({
         var self = this;
 
         // discard exists sgNode
-        var listenersBefore = null,listenerCacheBefore = null;
+        var listenersBefore = null, listenerCacheBefore = null;
         if (self._sgNode) {
             listenersBefore = self._sgNode._bubblingListeners; // get the listeners added before
             listenerCacheBefore = self._sgNode._hasListenerCache;
