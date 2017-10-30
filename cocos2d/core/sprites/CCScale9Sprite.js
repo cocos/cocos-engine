@@ -817,10 +817,29 @@ var fillQuadGeneratorRadial = {
         }
         sprite._vertCount = count;
 
-        corner[0] = 0; // bl
-        corner[1] = 2; // br
-        corner[2] = 4; // tl
-        corner[3] = 6; // tr
+        var minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
+        var x, y;
+        for (var i = 0, l = offset; i < l; i+=2) {
+            x = vertices[i];
+            y = vertices[i+1];
+            if (x <= minx) {
+                minx = x; 
+                corner[0] = i;
+            }
+            else if (x >= maxx) {
+                maxx = x;
+                corner[1] = i;
+            }
+            
+            if (y <= miny) {
+                miny = y;
+                corner[2] = i;
+            }
+            else if (y >= maxy) {
+                maxy = y;
+                corner[3] = i;
+            }
+        }
     },
 
     _generateTriangle: function(wt, offset, vert0, vert1, vert2) {
