@@ -333,6 +333,7 @@ dragonBones.ArmatureDisplay = cc.Class({
             var jsonObj = JSON.parse(this.dragonAsset.dragonBonesJson);
             var data = this._factory.getDragonBonesData(jsonObj.name);
             if (data) {
+                // already added asset
                 this._dragonBonesData = data;
                 return;
             }
