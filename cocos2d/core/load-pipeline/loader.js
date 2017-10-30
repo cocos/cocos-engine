@@ -27,7 +27,6 @@ var JS = require('../platform/js');
 var Pipeline = require('./pipeline');
 var Texture2D = require('../textures/CCTexture2D');
 var loadUuid = require('./uuid-loader');
-var misc = require('../utils/misc');
 
 function loadNothing (item, callback) {
     return null;
@@ -48,18 +47,16 @@ function loadJSON (item, callback) {
 }
 
 function loadImage (item, callback) {
-    if (!(item.content instanceof Image)) {
+    var image = item.content;
+    if (!(image instanceof Image)) {
         return new Error('Image Loader: Input item doesn\'t contain Image content');
     }
+
+    // load cc.Texture2D
     var rawUrl = item.rawUrl;
     var tex = cc.textureCache.getTextureForKey(rawUrl) || new Texture2D();
     tex.url = rawUrl;
-    tex.initWithElement(item.content);
-    tex.handleLoadedTexture();
-    if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
-        // Image element no longer needed
-        misc.imagePool.put(item.content);
-    }
+    tex._nativeAsset = image;
     cc.textureCache.cacheImage(rawUrl, tex);
     return tex;
 }

@@ -151,23 +151,23 @@ function vertexLineIntersect (Ax, Ay, Bx, By, Cx, Cy, Dx, Dy) {
     return {isSuccess:true, value:t};
 }
 
-/**
- * returns wheter or not polygon defined by vertex list is clockwise
- * @param {Array} verts
- * @return {Boolean}
- */
-function vertexListIsClockwise (verts) {
-    for (var i = 0, len = verts.length; i < len; i++) {
-        var a = verts[i];
-        var b = verts[(i + 1) % len];
-        var c = verts[(i + 2) % len];
-
-        if (cc.pCross(cc.pSub(b, a), cc.pSub(c, b)) > 0)
-            return false;
-    }
-
-    return true;
-}
+// /**
+//  * returns wheter or not polygon defined by vertex list is clockwise
+//  * @param {Array} verts
+//  * @return {Boolean}
+//  */
+// function vertexListIsClockwise (verts) {
+//     for (var i = 0, len = verts.length; i < len; i++) {
+//         var a = verts[i];
+//         var b = verts[(i + 1) % len];
+//         var c = verts[(i + 2) % len];
+//
+//         if (cc.pCross(cc.pSub(b, a), cc.pSub(c, b)) > 0)
+//             return false;
+//     }
+//
+//     return true;
+// }
 
 /**
  * cc.MotionStreak manages a Ribbon based on it's motion in absolute space.                 <br/>
@@ -219,13 +219,8 @@ _ccsg.MotionStreak = _ccsg.Node.extend({
     /**
      * creates and initializes a motion streak with fade in seconds, minimum segments, stroke's width, color, texture filename or texture   <br/>
      * Constructor of cc.MotionStreak
-     * @param {Number} fade time to fade
-     * @param {Number} minSeg minimum segment size
-     * @param {Number} stroke stroke's width
-     * @param {Number} color
-     * @param {string|cc.Texture2D} texture texture filename or texture
      */
-    ctor: function (fade, minSeg, stroke, color, texture) {
+    ctor: function () {
         _ccsg.Node.prototype.ctor.call(this);
         this._positionR = cc.p(0, 0);
         this._blendFunc = new cc.BlendFunc(cc.SRC_ALPHA, cc.ONE_MINUS_SRC_ALPHA);
@@ -255,9 +250,6 @@ _ccsg.MotionStreak = _ccsg.Node.extend({
         this._verticesBuffer = null;
         this._colorPointerBuffer = null;
         this._texCoordsBuffer = null;
-
-        if(texture !== undefined)
-            this.initWithFade(fade, minSeg, stroke, color, texture);
     },
 
     /**
@@ -266,14 +258,10 @@ _ccsg.MotionStreak = _ccsg.Node.extend({
      * @param {Number} minSeg minimum segment size
      * @param {Number} stroke stroke's width
      * @param {Number} color
-     * @param {string|cc.Texture2D} texture texture filename or texture
+     * @param {cc.Texture2D} texture
      * @return {Boolean}
      */
     initWithFade:function (fade, minSeg, stroke, color, texture) {
-
-        if (cc.js.isString(texture))
-            texture = cc.textureCache.addImage(texture);
-
         this.anchorX = 0;
         this.anchorY = 0;
         this.ignoreAnchor = true;

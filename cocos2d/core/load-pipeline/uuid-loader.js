@@ -37,77 +37,78 @@ function isSceneObj (json) {
            );
 }
 
-function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRuntime, callback) {
+function parseDepends (item, asset, tdInfo, deferredLoadRawAssetsInRuntime) {
     var uuidList = tdInfo.uuidList;
-    var objList, propList, depends;
+    var objList = tdInfo.uuidObjList;
+    var propList = tdInfo.uuidPropList;
+    var stillUseUrl = tdInfo._stillUseUrl;
+    var depends;
     var i, dependUuid;
     // cache dependencies for auto release
     var dependKeys = item.dependKeys = [];
 
     if (deferredLoadRawAssetsInRuntime) {
-        objList = [];
-        propList = [];
         depends = [];
         // parse depends assets
         for (i = 0; i < uuidList.length; i++) {
             dependUuid = uuidList[i];
-            var obj = tdInfo.uuidObjList[i];
-            var prop = tdInfo.uuidPropList[i];
+            var obj = objList[i];
+            var prop = propList[i];
             var info = cc.AssetLibrary._getAssetInfoInRuntime(dependUuid);
             if (info.raw) {
                 // skip preloading raw assets
+                // TODO - skip preloading native texture
                 var url = info.url;
                 obj[prop] = url;
                 dependKeys.push(url);
             }
             else {
-                objList.push(obj);
-                propList.push(prop);
                 // declare depends assets
                 depends.push({
                     type: 'uuid',
                     uuid: dependUuid,
                     deferredLoadRaw: true,
+                    _owner: obj,
+                    _ownerProp: prop,
+                    _stillUseUrl: stillUseUrl[i]
                 });
             }
         }
     }
     else {
-        objList = tdInfo.uuidObjList;
-        propList = tdInfo.uuidPropList;
         depends = new Array(uuidList.length);
+
         // declare depends assets
         for (i = 0; i < uuidList.length; i++) {
             dependUuid = uuidList[i];
             depends[i] = {
                 type: 'uuid',
-                uuid: dependUuid
+                uuid: dependUuid,
+                _owner: objList[i],
+                _ownerProp: propList[i],
+                _stillUseUrl: stillUseUrl[i]
             };
         }
-    }
-    // declare raw
-    if (tdInfo.rawProp) {
-        objList.push(asset);
-        propList.push(tdInfo.rawProp);
-        depends.push(item.url);
-    }
-    // preload raw files
-    if (asset._preloadRawFiles) {
-        var finalCallback = callback;
-        callback = function () {
-            asset._preloadRawFiles(function (err) {
-                finalCallback(err || null, asset);
+
+        // parse native
+        if (asset._native && !asset.constructor.preventPreloadNativeObject) {
+            depends.push({
+                url: asset.nativeUrl,
+                // For image, we should skip loader otherwise it will load a new texture
+                skips: [ 'Loader' ],
+                _owner: asset,
+                _ownerProp: '_nativeAsset',
             });
-        };
-    }
-    // fast path
-    if (depends.length === 0) {
-        cc.deserialize.Details.pool.put(tdInfo);
-        return callback(null, asset);
+        }
     }
 
+    return depends;
+}
+
+function loadDepends (pipeline, item, asset, depends, callback) {
     // Predefine content for dependencies usage
     item.content = asset;
+    var dependKeys = item.dependKeys;
     pipeline.flowInDeps(item, depends, function (errors, items) {
         var item, missingAssetReporter;
         for (var src in items.map) {
@@ -117,19 +118,17 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
             }
         }
         for (var i = 0; i < depends.length; i++) {
-            var dependSrc = depends[i].uuid;
-            var dependUrl = depends[i].url;
-            var dependObj = objList[i];
-            var dependProp = propList[i];
+            var dep = depends[i];
+            var dependSrc = dep.uuid;
+            var dependUrl = dep.url;
+            var dependObj = dep._owner;
+            var dependProp = dep._ownerProp;
             item = items.map[dependUrl];
             if (item) {
-                var thisOfLoadCallback = {
-                    obj: dependObj,
-                    prop: dependProp
-                };
+                var thisOfLoadCallback = dep;
                 function loadCallback (item) {
-                    var value = item.isRawAsset ? item.rawUrl : item.content;
-                    this.obj[this.prop] = value;
+                    var value = this._stillUseUrl ? item.rawUrl : item.content;
+                    this._owner[this._ownerProp] = value;
                     if (item.uuid !== asset._uuid && dependKeys.indexOf(item.id) < 0) {
                         dependKeys.push(item.id);
                     }
@@ -168,7 +167,6 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
         if (CC_EDITOR && missingAssetReporter) {
             missingAssetReporter.reportByOwner();
         }
-        cc.deserialize.Details.pool.put(tdInfo);
         callback(null, asset);
     });
 }
@@ -271,7 +269,14 @@ function loadUuid (item, callback) {
     }
 
     var deferredLoad = canDeferredLoad(asset, item, isScene);
-    loadDepends(this.pipeline, item, asset, tdInfo, deferredLoad, callback);
+    var depends = parseDepends(item, asset, tdInfo, deferredLoad);
+
+    cc.deserialize.Details.pool.put(tdInfo);
+
+    if (depends.length === 0) {
+        return callback(null, asset);
+    }
+    loadDepends(this.pipeline, item, asset, depends, callback);
 }
 
 module.exports = loadUuid;

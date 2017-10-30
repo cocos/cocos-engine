@@ -1,5 +1,7 @@
 if (CC_DEBUG) {
     var logs = {
+        // Common
+        "0100": "%s not yet implemented.",
         //ActionManager: 1000
         "1000": "cc.ActionManager.addAction(): action must be non-null", //addAction
         "1001": "cocos2d: removeAction: Target not found", //removeAction
@@ -239,9 +241,9 @@ if (CC_DEBUG) {
         "3116": "WebGLRenderingContext.CLAMP_TO_EDGE should be used in NPOT textures", //setTexParameters
         "3117": "Mimpap texture only works in POT textures", //generateMipmap
         //RectWidth: 3300
-        "3300": "Rect width exceeds maximum margin: %s", //RectWidth
+        "3300": "Rect width exceeds maximum margin: %s, max x: %s, texture width: %s", //RectWidth
         //RectHeight: 3400
-        "3400": "Rect height exceeds maximum margin: %s", //RectHeight
+        "3400": "Rect height exceeds maximum margin: %s, max y: %s, texture height: %s", //RectHeight
         //EventManager: 3500
         "3500": "0 priority is forbidden for fixed priority since it's used for scene graph based priority.", //addListener
         "3501": "Invalid listener type!", //removeListeners
@@ -319,7 +321,7 @@ if (CC_DEBUG) {
                 "      type: cc.Integer\n" +
                 "    })\n" +
                 "    value = 0;    // <--",
-        "3654": "Please specifiy a default value for \"%s\" property at its declaration: \uD83D\uDE02\n" +
+        "3654": "Please specifiy a default value for \"%s.%s\" at its declaration: \uD83D\uDE02\n" +
                 "    // Before:\n" +
                 "    @property(...)\n" +
                 "    value;\n\n" +
@@ -336,6 +338,13 @@ if (CC_DEBUG) {
                 "    set %s (value) {\n" +
                 "      ...\n" +
                 "    }",
+        "3656": "The default value of %s.%s must be an empty string. (changed since 1.7)", //getTypeChecker_4
+        "3657": "The value assigned to %s should be Texture2D type, not url. Since 1.7,\n" +
+                "you can declare a texture directly in properties by using:\n" +
+                "{\n" +
+                "  default: null,\n" +
+                "  type: cc.Texture2D  // use 'type:' instead of 'url:'\n" +
+                "}",
         //Prefab: 3700
         "3700": "internal error: _prefab is undefined", //_doInstantiate
         "3701": "Failed to load prefab asset for node '%s'", //syncWithPrefab
@@ -507,8 +516,8 @@ if (CC_DEBUG) {
         "6301": "Stencil buffer is not enabled.", //initStencilBits
         "6302": "Nesting more than %d stencils is not supported. Everything will be drawn without stencil for this node and its children.", //visit
         //CCAsset: 6400
-        "6400": "asset.url is not usable in core process", //rawUrl
-        "6401": "asset.urls is not usable in core process", //rawUrls
+        "6400": "asset.rawUrl is not usable in core process", //rawUrl
+        "6401": "asset.rawUrls is not usable in core process", //rawUrls
         "6402": "AssetLibrary has already been initialized!", //AssetLibrary.init
         //Widget: 6500
         "6500": "Widget target must be one of the parent nodes of it", //visitNode

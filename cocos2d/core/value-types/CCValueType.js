@@ -44,7 +44,7 @@ if (CC_EDITOR) {
      * @return {ValueType}
      */
     proto.clone = function () {
-        cc.errorID(5801, JS.getClassName(this));
+        cc.errorID('0100', JS.getClassName(this) + '.clone');
         return null;
     };
 
@@ -56,7 +56,7 @@ if (CC_EDITOR) {
      * @return {Boolean}
      */
     proto.equals = function (other) {
-        cc.errorID(5802, JS.getClassName(this));
+        cc.errorID('0100', JS.getClassName(this) + '.equals');
         return false;
     };
 
@@ -73,7 +73,7 @@ if (CC_EDITOR) {
      * @return {ValueType}
      */
     proto.lerp = function (to, ratio) {
-        cc.warnID(5800, JS.getClassName(this));
+        cc.errorID('0100', JS.getClassName(this) + '.lerp');
         return this.clone();
     };
 }
@@ -88,5 +88,4 @@ proto.toString = function () {
     return '' + {};
 };
 
-cc.ValueType = ValueType;
-module.exports = ValueType;
+cc.ValueType = module.exports = ValueType;

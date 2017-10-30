@@ -146,7 +146,7 @@ _ccsg.Label = _ccsg.Node.extend({
     ctor: function(string, fontAsset) {
         EventTarget.call(this);
         var isAsset = fontAsset instanceof cc.Font;
-        var fontHandle =  isAsset ? fontAsset.rawUrl : '';
+        var fontHandle =  isAsset ? fontAsset.nativeUrl : '';
 
         this._fontHandle = fontHandle;
         if (typeof string !== 'string') {
@@ -468,7 +468,7 @@ _ccsg.Label = _ccsg.Node.extend({
             this.setFontFamily('');
             return;
         }
-        var fontHandle =  isAsset ? fontAsset.rawUrl : '';
+        var fontHandle =  isAsset ? fontAsset.nativeUrl : '';
         var extName = cc.path.extname(fontHandle);
 
         this._resetBMFont();
@@ -1272,7 +1272,7 @@ _ccsg.Label.pool.get = function (string, fontAsset) {
     var label = this._get();
     if (label) {
         var isAsset = fontAsset instanceof cc.Font;
-        var fontHandle =  isAsset ? fontAsset.rawUrl : '';
+        var fontHandle =  isAsset ? fontAsset.nativeUrl : '';
         label._fontHandle = fontHandle;
         if (typeof string !== 'string') {
             string = '' + string;

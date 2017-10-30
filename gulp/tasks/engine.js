@@ -44,8 +44,8 @@ const Optimizejs = require('gulp-optimize-js');
 var jsbSkipModules = [
     '../../cocos2d/core/CCGame',
     '../../cocos2d/core/CCDrawingPrimitives.js',
-    '../../cocos2d/core/textures/CCTexture2D',
-    '../../cocos2d/core/sprites/CCSpriteFrame',
+    // '../../cocos2d/core/textures/CCTexture2D',
+    // '../../cocos2d/core/sprites/CCSpriteFrame',
     '../../cocos2d/core/load-pipeline/audio-downloader',
     '../../cocos2d/core/physics/platform/CCPhysicsDebugDraw.js',
     '../../cocos2d/core/physics/platform/CCPhysicsUtils.js',

@@ -35,42 +35,49 @@ var macro = cc.macro;
 cc.shaderCache = /** @lends cc.shaderCache# */{
 
     /**
+     * Position Texture Color shader
      * @public
      * @constant
      * @type {Number}
      */
     TYPE_POSITION_TEXTURECOLOR: 0,
     /**
+     * Position Texture Color alpha test
      * @public
      * @constant
      * @type {Number}
      */
     TYPE_POSITION_TEXTURECOLOR_ALPHATEST: 1,
     /**
+     * Position, Color shader
      * @public
      * @constant
      * @type {Number}
      */
     TYPE_POSITION_COLOR: 2,
     /**
+     * Position Texture shader
      * @public
      * @constant
      * @type {Number}
      */
     TYPE_POSITION_TEXTURE: 3,
     /**
+     * Position, Texture attribs, 1 Color as uniform shader
      * @public
      * @constant
      * @type {Number}
      */
     TYPE_POSITION_TEXTURE_UCOLOR: 4,
     /**
+     * Position Texture A8 Color shader
      * @public
      * @constant
      * @type {Number}
      */
     TYPE_POSITION_TEXTURE_A8COLOR: 5,
     /**
+     * Position and 1 color passed as a uniform (to similate glColor4ub )
      * @public
      * @constant
      * @type {Number}
@@ -83,12 +90,14 @@ cc.shaderCache = /** @lends cc.shaderCache# */{
      */
     TYPE_POSITION_LENGTH_TEXTURECOLOR: 7,
     /**
+     * Sprite Position Texture Color shader
      * @public
      * @constant
      * @type {Number}
      */
     TYPE_SPRITE_POSITION_TEXTURECOLOR: 8,
     /**
+     * Sprite Position Texture Color alpha shader
      * @public
      * @constant
      * @type {Number}
@@ -211,31 +220,14 @@ cc.shaderCache = /** @lends cc.shaderCache# */{
      */
     reloadDefaultShaders: function () {
         // reset all default programs and reload them
-        // Position Texture Color shader
         this._reloadShader(macro.SHADER_POSITION_TEXTURECOLOR);
-
-        // Sprite Position Texture Color shader
         this._reloadShader(macro.SHADER_SPRITE_POSITION_TEXTURECOLOR);
-
-        // Position Texture Color alpha test
         this._reloadShader(macro.SHADER_POSITION_TEXTURECOLORALPHATEST);
-
-        // Sprite Position Texture Color alpha shader
         this._reloadShader(macro.SHADER_SPRITE_POSITION_TEXTURECOLORALPHATEST);
-
-        // Position, Color shader
         this._reloadShader(macro.SHADER_POSITION_COLOR);
-
-        // Position Texture shader
         this._reloadShader(macro.SHADER_POSITION_TEXTURE);
-
-        // Position, Texture attribs, 1 Color as uniform shader
         this._reloadShader(macro.SHADER_POSITION_TEXTURE_UCOLOR);
-
-        // Position Texture A8 Color shader
         this._reloadShader(macro.SHADER_POSITION_TEXTUREA8COLOR);
-
-        // Position and 1 color passed as a uniform (to similate glColor4ub )
         this._reloadShader(macro.SHADER_POSITION_UCOLOR);
     },
 

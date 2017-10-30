@@ -766,17 +766,12 @@ proto.release = function (asset) {
             asset = item.content;
             // TODO: AUDIO
             if (asset instanceof cc.Asset) {
-                if (CC_JSB && asset instanceof cc.SpriteFrame && removed) {
-                    // for the "Temporary solution" in deserialize.js
-                    asset.release();
+                if (asset instanceof cc.Texture2D) {
+                    asset.destroy();
                 }
-                var urls = asset.rawUrls;
-                for (let i = 0; i < urls.length; i++) {
-                    this.release(urls[i]);
+                if (asset.nativeUrl) {
+                    this.release(asset.nativeUrl);
                 }
-            }
-            else if (asset instanceof cc.Texture2D) {
-                cc.textureCache.removeTextureForKey(item.rawUrl || item.url);
             }
             if (CC_DEBUG && removed) {
                 this._releasedAssetChecker_DEBUG.setReleased(item, id);

@@ -1725,10 +1725,9 @@ cc.macro = {
     SPRITEBATCHNODE_RENDER_SUBPIXEL: 1,
 
     /**
-     * <p>
-     *     Automatically premultiply alpha for PNG resources
-     * </p>
-     * @property {Number} AUTO_PREMULTIPLIED_ALPHA_FOR_PNG
+     * Automatically premultiply alpha for remote PNG resources.
+     * @property {Boolean} AUTO_PREMULTIPLIED_ALPHA_FOR_PNG
+     * @default false
      */
     AUTO_PREMULTIPLIED_ALPHA_FOR_PNG: 0,
 
