@@ -472,7 +472,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
         var tex = cc.textureCache.getTextureForKey(filename);
         if (!tex) {
             tex = cc.textureCache.addImage(filename);
-            return this.initWithTexture(tex, rect || cc.rect(0, 0, tex._contentSize.width, tex._contentSize.height));
+            return this.initWithTexture(tex, rect || cc.rect(0, 0, tex.width, tex.height));
         } else {
             if (!rect) {
                 var size = tex.getContentSize();
@@ -693,12 +693,8 @@ _ccsg.Sprite = _ccsg.Node.extend({
             this._changeRectWithTexture(texture);
     },
 
-    _changeRectWithTexture: function(texture){
-        var contentSize = texture._contentSize;
-        var rect = cc.rect(
-                0, 0,
-                contentSize.width, contentSize.height
-            );
+    _changeRectWithTexture: function(texture) {
+        var rect = cc.rect(0, 0, texture.width, texture.height);
         this.setTextureRect(rect);
     },
 
