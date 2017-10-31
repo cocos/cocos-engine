@@ -822,14 +822,6 @@ getChildren : function(
 },
 
 /**
- * @method markTransformUpdated
- */
-markTransformUpdated : function (
-)
-{
-},
-
-/**
  * @method pause
  */
 pause : function (
@@ -2025,6 +2017,14 @@ isCascadeColorEnabled : function (
 },
 
 /**
+ * @method markCullingDirty
+ */
+markCullingDirty : function (
+)
+{
+},
+
+/**
  * @method stopAction
  * @param {cc.Action} arg0
  */
@@ -2520,6 +2520,16 @@ getContentScaleFactor : function (
 },
 
 /**
+ * @method isEnableCulling
+ * @return {bool}
+ */
+isEnableCulling : function (
+)
+{
+    return false;
+},
+
+/**
  * @method getWinSizeInPixels
  * @return {size_object}
  */
@@ -2537,6 +2547,16 @@ getDeltaTime : function (
 )
 {
     return 0;
+},
+
+/**
+ * @method setEnableCulling
+ * @param {bool} arg0
+ */
+setEnableCulling : function (
+bool 
+)
+{
 },
 
 /**
@@ -2705,10 +2725,12 @@ vec2
 
 /**
  * @method pushMatrix
- * @param {cc.MATRIX_STACK_TYPE} arg0
- */
-pushMatrix : function (
-matrix_stack_type 
+* @param {cc.MATRIX_STACK_TYPE|cc.MATRIX_STACK_TYPE} matrix_stack_type
+* @param {mat4_object} mat4
+*/
+pushMatrix : function(
+matrix_stack_type,
+mat4 
 )
 {
 },

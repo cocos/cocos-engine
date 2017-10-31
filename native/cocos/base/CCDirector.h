@@ -504,6 +504,9 @@ public:
     bool isPurgeDirectorInNextLoop() const { return _purgeDirectorInNextLoop; }
     
     bool isValid() const { return !_invalid; }
+    
+    void setEnableCulling (bool enable) { _enableCulling = enable; }
+    bool isEnableCulling () const { return _enableCulling; }
 
 protected:
     void reset();
@@ -632,6 +635,8 @@ protected:
 
     // GLView will recreate stats labels to fit visible rect
     friend class GLView;
+    
+    bool _enableCulling;
 };
 
 // end of base group

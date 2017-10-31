@@ -82,6 +82,7 @@ Node::Node()
 , _additionalTransform(nullptr)
 , _additionalTransformDirty(false)
 , _transformUpdated(true)
+, _cullingDirty(true)
 // children (lazy allocs)
 // lazy alloc
 , _localZOrderAndArrival(0)
@@ -1216,6 +1217,7 @@ uint32_t Node::processParentFlags(const Mat4& parentTransform, uint32_t parentFl
     uint32_t flags = parentFlags;
     flags |= (_transformUpdated ? FLAGS_TRANSFORM_DIRTY : 0);
     flags |= (_contentSizeDirty ? FLAGS_CONTENT_SIZE_DIRTY : 0);
+    flags |= (_cullingDirty ? FLAGS_CULLING_DIRTY : 0);
 
 
     if(flags & FLAGS_DIRTY_MASK)
@@ -1223,6 +1225,7 @@ uint32_t Node::processParentFlags(const Mat4& parentTransform, uint32_t parentFl
 
     _transformUpdated = false;
     _contentSizeDirty = false;
+    _cullingDirty = false;
 
     return flags;
 }
@@ -2146,9 +2149,9 @@ void Node::setCameraMask(unsigned short mask, bool applyChildren)
     }
 }
 
-void Node::markTransformUpdated()
+void Node::markCullingDirty()
 {
-    _transformUpdated = true;
+    _cullingDirty = true;
 }
 
 NS_CC_END
