@@ -1942,7 +1942,7 @@ cc.defineGetterSetter(cc.macro, 'ENABLE_CULLING',
 
         if (CC_JSB) {
             scene._sgNode.markCullingDirty();
-            cc.director.setEnableCulling(val);
+            cc.director.setCullingEnabled(val);
         }
         else {
             scene._sgNode._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.cullingDirty);
