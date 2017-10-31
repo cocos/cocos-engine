@@ -1103,7 +1103,7 @@ void Scale9SpriteV2::draw(cocos2d::Renderer *renderer, const cocos2d::Mat4 &tran
         return;
     }
 
-    if (_director->isEnableCulling()) {
+    if (_director->isCullingEnabled()) {
         // Don't calculate the culling if the transform was not updated
         if (flags & FLAGS_TRANSFORM_DIRTY || flags & FLAGS_CULLING_DIRTY) {
             _insideBounds = renderer->checkVisibility(transform, _contentSize);

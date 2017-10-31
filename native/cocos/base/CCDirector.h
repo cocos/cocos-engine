@@ -523,8 +523,8 @@ public:
     
     bool isValid() const { return !_invalid; }
     
-    void setEnableCulling (bool enable) { _enableCulling = enable; }
-    bool isEnableCulling () const { return _enableCulling; }
+    void setCullingEnabled (bool enable) { _isCullingEnabled = enable; }
+    bool isCullingEnabled () const { return _isCullingEnabled; }
 
 protected:
     void reset();
@@ -651,7 +651,7 @@ protected:
     // GLView will recreate stats labels to fit visible rect
     friend class GLView;
     
-    bool _enableCulling;
+    bool _isCullingEnabled;
 };
 
 // end of base group

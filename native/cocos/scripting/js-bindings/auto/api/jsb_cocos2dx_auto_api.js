@@ -2520,16 +2520,6 @@ getContentScaleFactor : function (
 },
 
 /**
- * @method isEnableCulling
- * @return {bool}
- */
-isEnableCulling : function (
-)
-{
-    return false;
-},
-
-/**
  * @method getWinSizeInPixels
  * @return {size_object}
  */
@@ -2550,13 +2540,13 @@ getDeltaTime : function (
 },
 
 /**
- * @method setEnableCulling
- * @param {bool} arg0
+ * @method isCullingEnabled
+ * @return {bool}
  */
-setEnableCulling : function (
-bool 
+isCullingEnabled : function (
 )
 {
+    return false;
 },
 
 /**
@@ -2603,6 +2593,16 @@ popToRootScene : function (
 loadMatrix : function (
 matrix_stack_type, 
 mat4 
+)
+{
+},
+
+/**
+ * @method setCullingEnabled
+ * @param {bool} arg0
+ */
+setCullingEnabled : function (
+bool 
 )
 {
 },

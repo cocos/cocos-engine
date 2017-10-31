@@ -1673,7 +1673,7 @@ void Label::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
         return;
     }
 
-    if (_director->isEnableCulling()) {
+    if (_director->isCullingEnabled()) {
         // Don't calculate the culling if the transform was not updated
         if (flags & FLAGS_TRANSFORM_DIRTY || flags & FLAGS_CULLING_DIRTY) {
             _insideBounds = renderer->checkVisibility(transform, _contentSize);

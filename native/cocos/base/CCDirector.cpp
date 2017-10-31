@@ -150,7 +150,7 @@ Director* Director::getInstance()
 Director::Director()
 : _isStatusLabelUpdated(true),
 _invalid(true),
-_enableCulling(true)
+_isCullingEnabled(true)
 {
 }
 

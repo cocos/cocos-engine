@@ -5562,24 +5562,6 @@ static bool js_cocos2dx_Director_getContentScaleFactor(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Director_getContentScaleFactor)
 
-static bool js_cocos2dx_Director_isEnableCulling(se::State& s)
-{
-    cocos2d::Director* cobj = (cocos2d::Director*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Director_isEnableCulling : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        bool result = cobj->isEnableCulling();
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_Director_isEnableCulling : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_Director_isEnableCulling)
-
 static bool js_cocos2dx_Director_getWinSizeInPixels(se::State& s)
 {
     cocos2d::Director* cobj = (cocos2d::Director*)s.nativeThisObject();
@@ -5616,24 +5598,23 @@ static bool js_cocos2dx_Director_getDeltaTime(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Director_getDeltaTime)
 
-static bool js_cocos2dx_Director_setEnableCulling(se::State& s)
+static bool js_cocos2dx_Director_isCullingEnabled(se::State& s)
 {
     cocos2d::Director* cobj = (cocos2d::Director*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Director_setEnableCulling : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Director_isCullingEnabled : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        bool arg0;
-        ok &= seval_to_boolean(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_Director_setEnableCulling : Error processing arguments");
-        cobj->setEnableCulling(arg0);
+    if (argc == 0) {
+        bool result = cobj->isCullingEnabled();
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_Director_isCullingEnabled : Error processing arguments");
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_cocos2dx_Director_setEnableCulling)
+SE_BIND_FUNC(js_cocos2dx_Director_isCullingEnabled)
 
 static bool js_cocos2dx_Director_setGLDefaultValues(se::State& s)
 {
@@ -5723,6 +5704,25 @@ static bool js_cocos2dx_Director_loadMatrix(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_Director_loadMatrix)
+
+static bool js_cocos2dx_Director_setCullingEnabled(se::State& s)
+{
+    cocos2d::Director* cobj = (cocos2d::Director*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Director_setCullingEnabled : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        bool arg0;
+        ok &= seval_to_boolean(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_Director_setCullingEnabled : Error processing arguments");
+        cobj->setCullingEnabled(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Director_setCullingEnabled)
 
 static bool js_cocos2dx_Director_getNotificationNode(se::State& s)
 {
@@ -6716,15 +6716,15 @@ bool js_register_cocos2dx_Director(se::Object* obj)
     cls->defineFunction("setEventDispatcher", _SE(js_cocos2dx_Director_setEventDispatcher));
     cls->defineFunction("setContentScaleFactor", _SE(js_cocos2dx_Director_setContentScaleFactor));
     cls->defineFunction("getContentScaleFactor", _SE(js_cocos2dx_Director_getContentScaleFactor));
-    cls->defineFunction("isEnableCulling", _SE(js_cocos2dx_Director_isEnableCulling));
     cls->defineFunction("getWinSizeInPixels", _SE(js_cocos2dx_Director_getWinSizeInPixels));
     cls->defineFunction("getDeltaTime", _SE(js_cocos2dx_Director_getDeltaTime));
-    cls->defineFunction("setEnableCulling", _SE(js_cocos2dx_Director_setEnableCulling));
+    cls->defineFunction("isCullingEnabled", _SE(js_cocos2dx_Director_isCullingEnabled));
     cls->defineFunction("setGLDefaultValues", _SE(js_cocos2dx_Director_setGLDefaultValues));
     cls->defineFunction("setActionManager", _SE(js_cocos2dx_Director_setActionManager));
     cls->defineFunction("setAlphaBlending", _SE(js_cocos2dx_Director_setAlphaBlending));
     cls->defineFunction("popToRootScene", _SE(js_cocos2dx_Director_popToRootScene));
     cls->defineFunction("loadMatrix", _SE(js_cocos2dx_Director_loadMatrix));
+    cls->defineFunction("setCullingEnabled", _SE(js_cocos2dx_Director_setCullingEnabled));
     cls->defineFunction("getNotificationNode", _SE(js_cocos2dx_Director_getNotificationNode));
     cls->defineFunction("getWinSize", _SE(js_cocos2dx_Director_getWinSize));
     cls->defineFunction("end", _SE(js_cocos2dx_Director_end));

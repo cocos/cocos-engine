@@ -168,7 +168,7 @@ bool DBCCSprite::_checkVisibility(const cocos2d::Mat4& transform, const cocos2d:
 
 void DBCCSprite::draw(cocos2d::Renderer* renderer, const cocos2d::Mat4& transform, uint32_t flags)
 {
-    if (_director->isEnableCulling()) {
+    if (_director->isCullingEnabled()) {
         // Don't calculate the culling if the transform was not updated
         if (flags & FLAGS_TRANSFORM_DIRTY || flags & FLAGS_CULLING_DIRTY)
         {
