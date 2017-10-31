@@ -689,23 +689,21 @@ var game = {
         localCanvas.setAttribute("height", height || 320);
         localCanvas.setAttribute("tabindex", 99);
 
+        // WebGL context created successfully
         if (cc._renderType === game.RENDER_TYPE_WEBGL) {
-            this._renderContext = cc._renderContext = cc.webglContext
-             = cc.create3DContext(localCanvas, {
+            cc.renderer = cc.rendererWebGL;
+            win.gl = this._renderContext; // global variable declared in CCMacro.js
+            renderer.init(localCanvas, {
                 'stencil': true,
                 'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS,
             });
+            this._renderContext = cc._renderContext = renderer.device._gl;
         }
-        // WebGL context created successfully
-        if (this._renderContext) {
-            cc.renderer = cc.rendererWebGL;
-            win.gl = this._renderContext; // global variable declared in CCMacro.js
-            renderer.init(localCanvas);
-        } else {
+        if (!this._renderContext) {
             cc._renderType = game.RENDER_TYPE_CANVAS;
             cc.renderer = cc.rendererCanvas;
             renderer.init(localCanvas);
-            this._renderContext = cc._renderContext = new cc.CanvasContextWrapper(localCanvas.getContext("2d"));
+            this._renderContext = cc._renderContext = renderer.device._ctx;
         }
 
         cc._gameDiv = localContainer;
