@@ -559,54 +559,44 @@ namespace se {
     bool Object::attachObject(Object* obj)
     {
         assert(obj);
-        JSObject* ownerObj = _getJSObject();
-        JSObject* targetObj = obj->_getJSObject();
-        if (ownerObj == nullptr || targetObj == nullptr)
+
+        Object* global = ScriptEngine::getInstance()->getGlobalObject();
+        Value jsbVal;
+        if (!global->getProperty("jsb", &jsbVal))
+            return false;
+        Object* jsbObj = jsbVal.toObject();
+
+        Value func;
+
+        if (!jsbObj->getProperty("registerNativeRef", &func))
             return false;
 
-        JS::RootedValue valOwner(__cx, JS::ObjectValue(*ownerObj));
-        JS::RootedValue valTarget(__cx, JS::ObjectValue(*targetObj));
-
-        JS::RootedObject jsbObj(__cx);
-        JS::RootedObject globalObj(__cx, ScriptEngine::getInstance()->getGlobalObject()->_getJSObject());
-        get_or_create_js_obj(__cx, globalObj, "jsb", &jsbObj);
-
-        JS::AutoValueVector args(__cx);
-        args.resize(2);
-        args[0].set(valOwner);
-        args[1].set(valTarget);
-
-        JS::RootedValue rval(__cx);
-
-        return JS_CallFunctionName(__cx, jsbObj, "registerNativeRef", args, &rval);
+        ValueArray args;
+        args.push_back(Value(this));
+        args.push_back(Value(obj));
+        func.toObject()->call(args, global);
+        return true;
     }
 
     bool Object::detachObject(Object* obj)
     {
         assert(obj);
-        JSObject* ownerObj = _getJSObject();
-        JSObject* targetObj = obj->_getJSObject();
-        if (ownerObj == nullptr || targetObj == nullptr)
-        {
-            SE_LOGD("%s: try to detach on invalid object, owner: %p, target: %p\n", __FUNCTION__, ownerObj, targetObj);
+        Object* global = ScriptEngine::getInstance()->getGlobalObject();
+        Value jsbVal;
+        if (!global->getProperty("jsb", &jsbVal))
             return false;
-        }
+        Object* jsbObj = jsbVal.toObject();
 
-        JS::RootedValue valOwner(__cx, JS::ObjectValue(*ownerObj));
-        JS::RootedValue valTarget(__cx, JS::ObjectValue(*targetObj));
+        Value func;
 
-        JS::RootedObject jsbObj(__cx);
-        JS::RootedObject globalObj(__cx, ScriptEngine::getInstance()->getGlobalObject()->_getJSObject());
-        get_or_create_js_obj(__cx, globalObj, "jsb", &jsbObj);
+        if (!jsbObj->getProperty("unregisterNativeRef", &func))
+            return false;
 
-        JS::AutoValueVector args(__cx);
-        args.resize(2);
-        args[0].set(valOwner);
-        args[1].set(valTarget);
-
-        JS::RootedValue rval(__cx);
-
-        return JS_CallFunctionName(__cx, jsbObj, "unregisterNativeRef", args, &rval);
+        ValueArray args;
+        args.push_back(Value(this));
+        args.push_back(Value(obj));
+        func.toObject()->call(args, global);
+        return true;
     }
 
 } // namespace se {

@@ -252,8 +252,6 @@ namespace se {
         uint32_t getVMId() const { return _vmId; }
 
         // Private API used in wrapper
-        void _retainScriptObject(void* owner, void* target);
-        void _releaseScriptObject(void* owner, void* target);
         void _clearException(JSValueRef exception);
         JSContextRef _getContext() const { return _cx; }
         void _setGarbageCollecting(bool isGarbageCollecting);
