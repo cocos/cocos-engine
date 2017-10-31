@@ -82,6 +82,24 @@ enum class MATRIX_STACK_TYPE
 };
 
 /**
+ Use std::vector to implement a quick matrix stack.
+ */
+class MatrixStack
+{
+public:
+    MatrixStack();
+    void init();
+    void pop();
+    void push(const Mat4& m);
+    Mat4& top();
+    const Mat4& top() const;
+    bool empty () const;
+protected:
+    std::vector<Mat4> _stack;
+    int _stackTop;
+};
+
+/**
  @brief Class that creates and handles the main Window and manages how
  and when to execute the Scenes.
 
@@ -533,13 +551,10 @@ protected:
 
     void initMatrixStack();
 
-    std::vector<Mat4> _modelViewMatrixStack;
-    std::vector<Mat4> _projectionMatrixStack;
-    std::vector<Mat4> _textureMatrixStack;
+    MatrixStack _modelViewMatrixStack;
+    MatrixStack _projectionMatrixStack;
+    MatrixStack _textureMatrixStack;
     
-    int _modelViewMatrixTop;
-    int _projectionViewMatrixTop;
-    int _textureViewMatrixTop;
 
     /** Scheduler associated with this director
      @since v2.0
