@@ -452,6 +452,11 @@ public:
      * @js NA
      */
     void pushMatrix(MATRIX_STACK_TYPE type);
+    /**
+     * Put a specified type matrix to the top of specified type of matrix stack.
+     * @js NA
+     */
+    void pushMatrix(MATRIX_STACK_TYPE type, const Mat4& mat);
     /** Pops the top matrix of the specified type of matrix stack.
      * @js NA
      */
@@ -525,9 +530,13 @@ protected:
 
     void initMatrixStack();
 
-    std::stack<Mat4> _modelViewMatrixStack;
-    std::stack<Mat4> _projectionMatrixStack;
-    std::stack<Mat4> _textureMatrixStack;
+    std::vector<Mat4> _modelViewMatrixStack;
+    std::vector<Mat4> _projectionMatrixStack;
+    std::vector<Mat4> _textureMatrixStack;
+    
+    int _modelViewMatrixTop;
+    int _projectionViewMatrixTop;
+    int _textureViewMatrixTop;
 
     /** Scheduler associated with this director
      @since v2.0
