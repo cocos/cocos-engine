@@ -115,7 +115,7 @@ void MatrixStack::push(const Mat4& m) {
 }
 
 void MatrixStack::pop() {
-    if (_stackTop >= 0) {
+    if (_stackTop > 0) {
         _stackTop--;
     }
 }
