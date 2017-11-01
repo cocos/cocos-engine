@@ -92,11 +92,11 @@ const char *Director::EVENT_AFTER_UPDATE = "director_after_update";
 const char *Director::EVENT_RESET = "director_reset";
 
 
-MatrixStack::MatrixStack()
+Director::MatrixStack::MatrixStack()
 {
 }
 
-void MatrixStack::init() {
+void Director::MatrixStack::init() {
     _stack.clear();
     _stack.reserve(16);
     
@@ -104,7 +104,7 @@ void MatrixStack::init() {
     _stackTop = 0;
 }
 
-void MatrixStack::push(const Mat4& m) {
+void Director::MatrixStack::push(const Mat4& m) {
     if (_stackTop >= _stack.size() - 1) {
         _stack.push_back(m);
     }
@@ -114,17 +114,17 @@ void MatrixStack::push(const Mat4& m) {
     ++_stackTop;
 }
 
-void MatrixStack::pop() {
+void Director::MatrixStack::pop() {
     if (_stackTop > 0) {
         --_stackTop;
     }
 }
 
-Mat4& MatrixStack::top() {
+Mat4& Director::MatrixStack::top() {
     return _stack[_stackTop];
 }
 
-const Mat4& MatrixStack::top() const {
+const Mat4& Director::MatrixStack::top() const {
     return _stack[_stackTop];
 }
 

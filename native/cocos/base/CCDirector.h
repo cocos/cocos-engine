@@ -81,22 +81,6 @@ enum class MATRIX_STACK_TYPE
     MATRIX_STACK_TEXTURE
 };
 
-/**
- Use std::vector to implement a quick matrix stack.
- */
-class MatrixStack
-{
-public:
-    MatrixStack();
-    void init();
-    void pop();
-    void push(const Mat4& m);
-    Mat4& top();
-    const Mat4& top() const;
-protected:
-    std::vector<Mat4> _stack;
-    int _stackTop;
-};
 
 /**
  @brief Class that creates and handles the main Window and manages how
@@ -549,10 +533,6 @@ protected:
     void destroyTextureCache();
 
     void initMatrixStack();
-
-    MatrixStack _modelViewMatrixStack;
-    MatrixStack _projectionMatrixStack;
-    MatrixStack _textureMatrixStack;
     
 
     /** Scheduler associated with this director
@@ -651,6 +631,29 @@ protected:
     friend class GLView;
     
     bool _isCullingEnabled;
+    
+private:
+    /**
+     Use std::vector to implement a quick matrix stack.
+     */
+    class MatrixStack
+    {
+    public:
+        MatrixStack();
+        void init();
+        void pop();
+        void push(const Mat4& m);
+        Mat4& top();
+        const Mat4& top() const;
+    protected:
+        std::vector<Mat4> _stack;
+        int _stackTop;
+    };
+    
+    
+    MatrixStack _modelViewMatrixStack;
+    MatrixStack _projectionMatrixStack;
+    MatrixStack _textureMatrixStack;
 };
 
 // end of base group
