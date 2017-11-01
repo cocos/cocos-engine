@@ -93,7 +93,6 @@ public:
     void push(const Mat4& m);
     Mat4& top();
     const Mat4& top() const;
-    bool empty () const;
 protected:
     std::vector<Mat4> _stack;
     int _stackTop;

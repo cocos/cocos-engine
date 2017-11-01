@@ -111,12 +111,12 @@ void MatrixStack::push(const Mat4& m) {
     else {
         _stack[_stackTop + 1] = m;
     }
-    _stackTop++;
+    ++_stackTop;
 }
 
 void MatrixStack::pop() {
     if (_stackTop > 0) {
-        _stackTop--;
+        --_stackTop;
     }
 }
 
@@ -127,12 +127,6 @@ Mat4& MatrixStack::top() {
 const Mat4& MatrixStack::top() const {
     return _stack[_stackTop];
 }
-
-bool MatrixStack::empty() const {
-    return _stack.empty();
-}
-
-
 
 
 Director* Director::getInstance()
@@ -569,15 +563,15 @@ void Director::pushMatrix(MATRIX_STACK_TYPE type)
 {
     if(type == MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW)
     {
-        pushMatrix(type, _modelViewMatrixStack.empty() ? Mat4::IDENTITY : _modelViewMatrixStack.top());
+        pushMatrix(type, _modelViewMatrixStack.top());
     }
     else if(type == MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION)
     {
-        pushMatrix(type, _projectionMatrixStack.empty() ? Mat4::IDENTITY : _projectionMatrixStack.top());
+        pushMatrix(type,  _projectionMatrixStack.top());
     }
     else if(type == MATRIX_STACK_TYPE::MATRIX_STACK_TEXTURE)
     {
-        pushMatrix(type, _textureMatrixStack.empty() ? Mat4::IDENTITY : _textureMatrixStack.top());
+        pushMatrix(type, _textureMatrixStack.top());
     }
     else
     {
