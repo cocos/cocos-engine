@@ -341,7 +341,7 @@ if (CC_DEBUG) {
         "3700": "internal error: _prefab is undefined", //_doInstantiate
         "3701": "Failed to load prefab asset for node '%s'", //syncWithPrefab
         //Game: 3800
-        "3800": "The target can not be made persist because it\'s not a cc.Node or it doesn\'t have _id property.", //addPersistRootNode
+        "3800": "The target can not be made persist because it\'s invalid or it doesn\'t have _id property.", //addPersistRootNode
         "3801": "The node can not be made persist because it\'s not under root node.", //addPersistRootNode_2
         "3802": "The node can not be made persist because it\'s not in current scene.", //addPersistRootNode_3
         "3803": "The target can not be made persist because it\'s not a cc.Node or it doesn\'t have _id property.", //addPersistRootNode_4

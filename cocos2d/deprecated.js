@@ -216,6 +216,9 @@ if (CC_DEV) {
     }
 
     function deprecateEnum (obj, oldPath, newPath, hasTypePrefixBefore) {
+        if (!cc.supportJit) {
+            return;
+        }
         hasTypePrefixBefore = hasTypePrefixBefore !== false;
         var enumDef = Function('return ' + newPath)();
         var entries = cc.Enum.getList(enumDef);
