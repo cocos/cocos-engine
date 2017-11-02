@@ -48,6 +48,9 @@
         void* nativeThisObject = se::internal::getPrivate(_cx, _thizObj); \
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \
+        if (!ret) { \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+        } \
         se::internal::setReturnValue(_cx, state.rval(), _argv); \
         return ret; \
     }
@@ -59,11 +62,14 @@
     void funcName##Registry(JSFreeOp* _fop, JSObject* _obj) \
     { \
         void* nativeThisObject = JS_GetPrivate(_obj); \
-        bool ok = false; \
+        bool ret = false; \
         if (nativeThisObject == nullptr) \
             return;\
         se::State state(nativeThisObject); \
-        ok = funcName(state); \
+        ret = funcName(state); \
+        if (!ret) { \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+        } \
     }
 
 
@@ -84,6 +90,10 @@
             bool _found = false; \
             _found = thisObject->getProperty("_ctor", &_property); \
             if (_found) _property.toObject()->call(args, thisObject); \
+        } \
+        else \
+        { \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
         } \
         return ret; \
     }
@@ -108,6 +118,10 @@
             _found = thisObject->getProperty("_ctor", &_property); \
             if (_found) _property.toObject()->call(args, thisObject); \
         } \
+        else \
+        { \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+        } \
         return ret; \
     }
 
@@ -122,6 +136,9 @@
         void* nativeThisObject = se::internal::getPrivate(_cx, _thizObj); \
         se::State state(nativeThisObject); \
         ret = funcName(state); \
+        if (!ret) { \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+        } \
         se::internal::setReturnValue(_cx, state.rval(), _argv); \
         return ret; \
     }
@@ -141,6 +158,9 @@
         args.push_back(std::move(data)); \
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \
+        if (!ret) { \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+        } \
         return ret; \
     }
 

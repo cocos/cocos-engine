@@ -55,6 +55,9 @@
             se::internal::jsToSeArgs(_cx, argc, _argv, &args); \
             se::State state(nativeThisObject, args); \
             ret = funcName(state); \
+            if (!ret) { \
+                LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            } \
             se::internal::seToJsValue(_cx, state.rval(), &_jsRet); \
         } \
         return _jsRet; \
@@ -73,6 +76,9 @@
             se::Object* _thisObject = state.thisObject(); \
             if (_thisObject) _thisObject->_cleanup(nativeThisObject); \
             ret = funcName(state); \
+            if (!ret) { \
+                LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            } \
             JSObjectSetPrivate(_obj, nullptr); \
             SAFE_DEC_REF(_thisObject); \
         } \
@@ -101,6 +107,10 @@
             _found = thisObject->getProperty("_ctor", &_property); \
             if (_found) _property.toObject()->call(args, thisObject); \
         } \
+        else \
+        { \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+        } \
         return JSValueToObject(_cx, _jsRet, nullptr); \
     }
 
@@ -108,7 +118,7 @@
 #define SE_BIND_SUB_CLS_CTOR(funcName, cls, finalizeCb) \
     JSValueRef funcName##Registry(JSContextRef _cx, JSObjectRef _function, JSObjectRef _thisObject, size_t argc, const JSValueRef _argv[], JSValueRef* _exception) \
     { \
-        SE_UNUSED bool ret = true; \
+        bool ret = true; \
         JSValueRef _jsRet = JSValueMakeUndefined(_cx); \
         se::ValueArray args; \
         se::internal::jsToSeArgs(_cx, argc, _argv, &args); \
@@ -122,6 +132,10 @@
             bool _found = false; \
             _found = thisObject->getProperty("_ctor", &_property); \
             if (_found) _property.toObject()->call(args, thisObject); \
+        } \
+        else \
+        { \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
         } \
         return _jsRet; \
     }
@@ -139,6 +153,10 @@
             if (funcName(state)) \
             { \
                 se::internal::seToJsValue(_cx, state.rval(), &_jsRet); \
+            } \
+            else \
+            { \
+                LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
             } \
         } \
         return _jsRet; \
@@ -160,6 +178,9 @@
             args.push_back(std::move(data)); \
             se::State state(nativeThisObject, args); \
             ret = funcName(state); \
+            if (!ret) { \
+                LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            } \
         } \
         return _jsRet; \
     }

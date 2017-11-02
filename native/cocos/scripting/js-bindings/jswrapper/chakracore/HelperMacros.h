@@ -54,6 +54,9 @@
         void* nativeThisObject = se::internal::getPrivate(_argv[0]); \
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \
+        if (!ret) { \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+        } \
         se::internal::seToJsValue(state.rval(), &_jsRet); \
         return _jsRet; \
     }
@@ -70,6 +73,9 @@
             se::Object* _thisObject = state.thisObject(); \
             if (_thisObject) _thisObject->_cleanup(nativeThisObject); \
             ret = funcName(state); \
+            if (!ret) { \
+                LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            } \
             SAFE_DEC_REF(_thisObject); \
             se->_setGarbageCollecting(false); \
         } \
@@ -98,6 +104,10 @@
             _found = thisObject->getProperty("_ctor", &_property); \
             if (_found) _property.toObject()->call(args, thisObject); \
         } \
+        else \
+        { \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+        } \
         return _jsRet; \
     }
 
@@ -121,6 +131,10 @@
             _found = thisObject->getProperty("_ctor", &_property); \
             if (_found) _property.toObject()->call(args, thisObject); \
         } \
+        else \
+        { \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+        } \
         return _jsRet; \
     }
 
@@ -130,10 +144,13 @@
     { \
         assert(_argc == 1); \
         JsValueRef _jsRet = JS_INVALID_REFERENCE; \
-        SE_UNUSED bool ret = true; \
+        bool ret = true; \
         void* nativeThisObject = se::internal::getPrivate(_argv[0]); \
         se::State state(nativeThisObject); \
         ret = funcName(state); \
+        if (!ret) { \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+        } \
         se::internal::seToJsValue(state.rval(), &_jsRet); \
         return _jsRet; \
     }
@@ -143,7 +160,7 @@
     JsValueRef funcName##Registry(JsValueRef _callee, bool _isConstructCall, JsValueRef* _argv, unsigned short _argc, void* _callbackState) \
     { \
         assert(_argc == 2); \
-        SE_UNUSED bool ret = true; \
+        bool ret = true; \
         void* nativeThisObject = se::internal::getPrivate(_argv[0]); \
         se::Value data; \
         se::internal::jsToSeValue(_argv[1], &data); \
@@ -151,6 +168,9 @@
         args.push_back(std::move(data)); \
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \
+        if (!ret) { \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+        } \
         return JS_INVALID_REFERENCE; \
     }
 
