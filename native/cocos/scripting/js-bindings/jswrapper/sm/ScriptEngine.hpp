@@ -251,8 +251,6 @@ namespace se {
         // Private API used in wrapper
         JSContext* _getContext() { return _cx; }
         void _setGarbageCollecting(bool isGarbageCollecting);
-        void _retainScriptObject(void* owner, void* target);
-        void _releaseScriptObject(void* owner, void* target);
         void _debugProcessInput(const std::string& str);
         //
     private:

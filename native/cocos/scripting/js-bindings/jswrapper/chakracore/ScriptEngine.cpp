@@ -510,42 +510,6 @@ namespace se {
         return false;
     }
 
-    void ScriptEngine::_retainScriptObject(void* owner, void* target)
-    {
-        auto iterOwner = NativePtrToObjectMap::find(owner);
-        if (iterOwner == NativePtrToObjectMap::end())
-        {
-            return;
-        }
-
-        auto iterTarget = NativePtrToObjectMap::find(target);
-        if (iterTarget == NativePtrToObjectMap::end())
-        {
-            return;
-        }
-
-        clearException();
-        iterOwner->second->attachObject(iterTarget->second);
-    }
-
-    void ScriptEngine::_releaseScriptObject(void* owner, void* target)
-    {
-        auto iterOwner = NativePtrToObjectMap::find(owner);
-        if (iterOwner == NativePtrToObjectMap::end())
-        {
-            return;
-        }
-
-        auto iterTarget = NativePtrToObjectMap::find(target);
-        if (iterTarget == NativePtrToObjectMap::end())
-        {
-            return;
-        }
-
-        clearException();
-        iterOwner->second->detachObject(iterTarget->second);
-    }
-
     void ScriptEngine::enableDebugger(const std::string& serverAddr, uint32_t port)
     {
         //FIXME:
