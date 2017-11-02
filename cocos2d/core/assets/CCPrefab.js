@@ -96,14 +96,16 @@ var Prefab = cc.Class({
     _instantiate: function () {
         var node;
         if (cc.supportJit) {
-          // instantiate node
-          node = this._doInstantiate();
-          // initialize node
-          this.data._instantiate(node);
+            // instantiate node
+            node = this._doInstantiate();
+            // initialize node
+            this.data._instantiate(node);
         }
         else {
-          // instantiate node
-          node = this.data._instantiate();
+            // prefab asset is always synced
+            this.data._prefab._synced = true;
+            // instantiate node
+            node = this.data._instantiate();
         }
         
         // link prefab in editor
