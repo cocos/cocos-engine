@@ -645,11 +645,16 @@ void Sprite::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
         return;
     }
     
-#if CC_USE_CULLING
-    // Don't calculate the culling if the transform was not updated
-    _insideBounds = (flags & FLAGS_TRANSFORM_DIRTY) ? renderer->checkVisibility(transform, _contentSize) : _insideBounds;
+    if (_director->isCullingEnabled()) {
+        if (flags & FLAGS_TRANSFORM_DIRTY || flags & FLAGS_CULLING_DIRTY) {
+            _insideBounds = renderer->checkVisibility(transform, _contentSize);
+        }
+    }
+    else {
+        _insideBounds = true;
+    }
+    
     if(_insideBounds)
-#endif
     {
         _trianglesCommand.init(_globalZOrder, 
             _texture, 

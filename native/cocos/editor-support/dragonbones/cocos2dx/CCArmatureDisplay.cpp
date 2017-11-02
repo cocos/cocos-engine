@@ -168,16 +168,18 @@ bool DBCCSprite::_checkVisibility(const cocos2d::Mat4& transform, const cocos2d:
 
 void DBCCSprite::draw(cocos2d::Renderer* renderer, const cocos2d::Mat4& transform, uint32_t flags)
 {
-#if CC_USE_CULLING
-    const auto& rect = this->_polyInfo.rect;
-
-    if ((flags & FLAGS_TRANSFORM_DIRTY))
-    {
-        _insideBounds = _checkVisibility(transform, _contentSize, rect);
+    if (_director->isCullingEnabled()) {
+        // Don't calculate the culling if the transform was not updated
+        if (flags & FLAGS_TRANSFORM_DIRTY || flags & FLAGS_CULLING_DIRTY)
+        {
+            _insideBounds = _checkVisibility(transform, _contentSize, this->_polyInfo.rect);
+        }
+    }
+    else {
+        _insideBounds = true;
     }
 
     if (_insideBounds)
-#endif
     {
         _trianglesCommand.init(_globalZOrder, _texture->getName(), getGLProgramState(), _blendFunc, _polyInfo.triangles, transform, flags);
         renderer->addCommand(&_trianglesCommand);

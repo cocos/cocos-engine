@@ -670,12 +670,17 @@ namespace ui {
     void Scale9Sprite::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
     {
         if (_scale9Image && _scale9Enabled) {
-#if CC_USE_CULLING
-            // Don't do calculate the culling if the transform was not updated
-            _insideBounds = (flags & FLAGS_TRANSFORM_DIRTY) ? renderer->checkVisibility(transform, _contentSize) : _insideBounds;
+            if (_director->isCullingEnabled()) {
+                // Don't do calculate the culling if the transform was not updated
+                if (flags & FLAGS_TRANSFORM_DIRTY || flags & FLAGS_CULLING_DIRTY) {
+                    _insideBounds = renderer->checkVisibility(transform, _contentSize);
+                }
+            }
+            else {
+                _insideBounds = true;
+            }
 
             if(_insideBounds)
-#endif
             {
                 auto texture = _scale9Image->getTexture();
                 auto programState = _scale9Image->getGLProgramState();

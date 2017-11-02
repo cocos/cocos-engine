@@ -278,11 +278,6 @@ THE SOFTWARE.
 #define CC_LUA_ENGINE_DEBUG 0
 #endif
 
-/** Use culling or not. */
-#ifndef CC_USE_CULLING
-#define CC_USE_CULLING 1
-#endif
-
 /** Support PNG or not. If your application don't use png format picture, you can undefine this macro to save package size.
 */
 #ifndef CC_USE_PNG

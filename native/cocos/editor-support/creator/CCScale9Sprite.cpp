@@ -1102,11 +1102,18 @@ void Scale9SpriteV2::draw(cocos2d::Renderer *renderer, const cocos2d::Mat4 &tran
     if (!this->_spriteFrame || !this->_spriteFrame->getTexture()) {
         return;
     }
-#if CC_USE_CULLING
-    // Don't calculate the culling if the transform was not updated
-    _insideBounds = (flags & FLAGS_TRANSFORM_DIRTY) ? renderer->checkVisibility(transform, _contentSize) : _insideBounds;
+
+    if (_director->isCullingEnabled()) {
+        // Don't calculate the culling if the transform was not updated
+        if (flags & FLAGS_TRANSFORM_DIRTY || flags & FLAGS_CULLING_DIRTY) {
+            _insideBounds = renderer->checkVisibility(transform, _contentSize);
+        }
+    }
+    else {
+        _insideBounds = true;
+    }
+    
     if (_insideBounds)
-#endif
     {
         if (this->_quadsDirty) {
             //rebuild quads

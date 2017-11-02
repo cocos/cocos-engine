@@ -2012,21 +2012,6 @@ static bool js_cocos2dx_Node_getChildren(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Node_getChildren)
 
-static bool js_cocos2dx_Node_markTransformUpdated(se::State& s)
-{
-    cocos2d::Node* cobj = (cocos2d::Node*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Node_markTransformUpdated : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->markTransformUpdated();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_Node_markTransformUpdated)
-
 static bool js_cocos2dx_Node_pause(se::State& s)
 {
     cocos2d::Node* cobj = (cocos2d::Node*)s.nativeThisObject();
@@ -4436,6 +4421,21 @@ static bool js_cocos2dx_Node_isCascadeColorEnabled(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Node_isCascadeColorEnabled)
 
+static bool js_cocos2dx_Node_markCullingDirty(se::State& s)
+{
+    cocos2d::Node* cobj = (cocos2d::Node*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Node_markCullingDirty : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->markCullingDirty();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Node_markCullingDirty)
+
 static bool js_cocos2dx_Node_stopAction(se::State& s)
 {
     cocos2d::Node* cobj = (cocos2d::Node*)s.nativeThisObject();
@@ -4548,7 +4548,6 @@ bool js_register_cocos2dx_Node(se::Object* obj)
     cls->defineFunction("setOpacityModifyRGB", _SE(js_cocos2dx_Node_setOpacityModifyRGB));
     cls->defineFunction("setCascadeOpacityEnabled", _SE(js_cocos2dx_Node_setCascadeOpacityEnabled));
     cls->defineFunction("getChildren", _SE(js_cocos2dx_Node_getChildren));
-    cls->defineFunction("markTransformUpdated", _SE(js_cocos2dx_Node_markTransformUpdated));
     cls->defineFunction("pause", _SE(js_cocos2dx_Node_pause));
     cls->defineFunction("convertToWorldSpaceAR", _SE(js_cocos2dx_Node_convertToWorldSpaceAR));
     cls->defineFunction("isIgnoreAnchorPointForPosition", _SE(js_cocos2dx_Node_isIgnoreAnchorPointForPosition));
@@ -4664,6 +4663,7 @@ bool js_register_cocos2dx_Node(se::Object* obj)
     cls->defineFunction("convertToNodeSpace", _SE(js_cocos2dx_Node_convertToNodeSpace));
     cls->defineFunction("setTag", _SE(js_cocos2dx_Node_setTag));
     cls->defineFunction("isCascadeColorEnabled", _SE(js_cocos2dx_Node_isCascadeColorEnabled));
+    cls->defineFunction("markCullingDirty", _SE(js_cocos2dx_Node_markCullingDirty));
     cls->defineFunction("stopAction", _SE(js_cocos2dx_Node_stopAction));
     cls->defineFunction("getActionManager", _SE(js_cocos2dx_Node_getActionManager));
     cls->defineFunction("ctor", _SE(js_cocos2dx_Node_ctor));
@@ -5598,6 +5598,24 @@ static bool js_cocos2dx_Director_getDeltaTime(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Director_getDeltaTime)
 
+static bool js_cocos2dx_Director_isCullingEnabled(se::State& s)
+{
+    cocos2d::Director* cobj = (cocos2d::Director*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Director_isCullingEnabled : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isCullingEnabled();
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_Director_isCullingEnabled : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Director_isCullingEnabled)
+
 static bool js_cocos2dx_Director_setGLDefaultValues(se::State& s)
 {
     cocos2d::Director* cobj = (cocos2d::Director*)s.nativeThisObject();
@@ -5686,6 +5704,25 @@ static bool js_cocos2dx_Director_loadMatrix(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_Director_loadMatrix)
+
+static bool js_cocos2dx_Director_setCullingEnabled(se::State& s)
+{
+    cocos2d::Director* cobj = (cocos2d::Director*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Director_setCullingEnabled : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        bool arg0;
+        ok &= seval_to_boolean(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_Director_setCullingEnabled : Error processing arguments");
+        cobj->setCullingEnabled(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Director_setCullingEnabled)
 
 static bool js_cocos2dx_Director_getNotificationNode(se::State& s)
 {
@@ -5900,19 +5937,35 @@ SE_BIND_FUNC(js_cocos2dx_Director_convertToUI)
 
 static bool js_cocos2dx_Director_pushMatrix(se::State& s)
 {
+    CC_UNUSED bool ok = true;
     cocos2d::Director* cobj = (cocos2d::Director*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Director_pushMatrix : Invalid Native Object");
+    SE_PRECONDITION2( cobj, false, "js_cocos2dx_Director_pushMatrix : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        cocos2d::MATRIX_STACK_TYPE arg0;
-        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_Director_pushMatrix : Error processing arguments");
-        cobj->pushMatrix(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    do {
+        if (argc == 2) {
+            cocos2d::MATRIX_STACK_TYPE arg0;
+            ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+            if (!ok) { ok = true; break; }
+            cocos2d::Mat4 arg1;
+            ok &= seval_to_Mat4(args[1], &arg1);
+            if (!ok) { ok = true; break; }
+            cobj->pushMatrix(arg0, arg1);
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 1) {
+            cocos2d::MATRIX_STACK_TYPE arg0;
+            ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+            if (!ok) { ok = true; break; }
+            cobj->pushMatrix(arg0);
+            return true;
+        }
+    } while(false);
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_Director_pushMatrix)
@@ -6665,11 +6718,13 @@ bool js_register_cocos2dx_Director(se::Object* obj)
     cls->defineFunction("getContentScaleFactor", _SE(js_cocos2dx_Director_getContentScaleFactor));
     cls->defineFunction("getWinSizeInPixels", _SE(js_cocos2dx_Director_getWinSizeInPixels));
     cls->defineFunction("getDeltaTime", _SE(js_cocos2dx_Director_getDeltaTime));
+    cls->defineFunction("isCullingEnabled", _SE(js_cocos2dx_Director_isCullingEnabled));
     cls->defineFunction("setGLDefaultValues", _SE(js_cocos2dx_Director_setGLDefaultValues));
     cls->defineFunction("setActionManager", _SE(js_cocos2dx_Director_setActionManager));
     cls->defineFunction("setAlphaBlending", _SE(js_cocos2dx_Director_setAlphaBlending));
     cls->defineFunction("popToRootScene", _SE(js_cocos2dx_Director_popToRootScene));
     cls->defineFunction("loadMatrix", _SE(js_cocos2dx_Director_loadMatrix));
+    cls->defineFunction("setCullingEnabled", _SE(js_cocos2dx_Director_setCullingEnabled));
     cls->defineFunction("getNotificationNode", _SE(js_cocos2dx_Director_getNotificationNode));
     cls->defineFunction("getWinSize", _SE(js_cocos2dx_Director_getWinSize));
     cls->defineFunction("end", _SE(js_cocos2dx_Director_end));
