@@ -50,8 +50,8 @@
 #include <android/log.h>
 
 #define  LOG_TAG    "jswrapper"
-#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
-#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define  SE_LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
+#define  SE_LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
 #elif defined(_WIN32) && defined(_WINDOWS)
 
@@ -66,13 +66,13 @@
 void seLog(const char * format, ...);
 
 #define LOG_TAG    "jswrapper"
-#define LOGD(fmt, ...) seLog("D/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
-#define LOGE(fmt, ...) seLog("E/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
+#define SE_LOGD(fmt, ...) seLog("D/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
+#define SE_LOGE(fmt, ...) seLog("E/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
 
 #else
 
-#define LOGD(...) do { printf(__VA_ARGS__); fflush(stdout); } while (false)
-#define LOGE(...) do { printf(__VA_ARGS__); fflush(stdout); } while (false)
+#define SE_LOGD(...) do { printf(__VA_ARGS__); fflush(stdout); } while (false)
+#define SE_LOGE(...) do { printf(__VA_ARGS__); fflush(stdout); } while (false)
 
 #endif
 
