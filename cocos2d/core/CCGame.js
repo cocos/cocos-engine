@@ -647,52 +647,62 @@ var game = {
 
         var el = this.config[game.CONFIG_KEY.id],
             win = window,
-            element = (el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el)),
-            localCanvas, localContainer;
-
-        if (element.tagName === "CANVAS") {
-            width = width || element.width;
-            height = height || element.height;
-
-            //it is already a canvas, we wrap it around with a div
-            this.canvas = cc._canvas = localCanvas = element;
+            localCanvas, localContainer,
+            isWeChatGame = cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME;
+        
+        if (isWeChatGame) {
             this.container = cc.container = localContainer = document.createElement("DIV");
-            if (localCanvas.parentNode)
-                localCanvas.parentNode.insertBefore(localContainer, localCanvas);
-        } else {
-            //we must make a new canvas and place into this element
-            if (element.tagName !== "DIV") {
-                cc.warnID(3819);
-            }
-            width = width || element.clientWidth;
-            height = height || element.clientHeight;
-            this.canvas = cc._canvas = localCanvas = document.createElement("CANVAS");
-            this.container = cc.container = localContainer = document.createElement("DIV");
-            element.appendChild(localContainer);
+            this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
+            this.canvas = cc._canvas = localCanvas = window['canvas'];
         }
-        localContainer.setAttribute('id', 'Cocos2dGameContainer');
-        localContainer.appendChild(localCanvas);
-        this.frame = (localContainer.parentNode === document.body) ? document.documentElement : localContainer.parentNode;
+        else {
+            var element = (el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el));
 
-        function addClass (element, name) {
-            var hasClass = (' ' + element.className + ' ').indexOf(' ' + name + ' ') > -1;
-            if (!hasClass) {
-                if (element.className) {
-                    element.className += " ";
+            if (element.tagName === "CANVAS") {
+                width = width || element.width;
+                height = height || element.height;
+
+                //it is already a canvas, we wrap it around with a div
+                this.canvas = cc._canvas = localCanvas = element;
+                this.container = cc.container = localContainer = document.createElement("DIV");
+                if (localCanvas.parentNode)
+                    localCanvas.parentNode.insertBefore(localContainer, localCanvas);
+            } else {
+                //we must make a new canvas and place into this element
+                if (element.tagName !== "DIV") {
+                    cc.warnID(3819);
                 }
-                element.className += name;
+                width = width || element.clientWidth;
+                height = height || element.clientHeight;
+                this.canvas = cc._canvas = localCanvas = document.createElement("CANVAS");
+                this.container = cc.container = localContainer = document.createElement("DIV");
+                element.appendChild(localContainer);
             }
+            localContainer.setAttribute('id', 'Cocos2dGameContainer');
+            localContainer.appendChild(localCanvas);
+            this.frame = (localContainer.parentNode === document.body) ? document.documentElement : localContainer.parentNode;
+
+            function addClass (element, name) {
+                var hasClass = (' ' + element.className + ' ').indexOf(' ' + name + ' ') > -1;
+                if (!hasClass) {
+                    if (element.className) {
+                        element.className += " ";
+                    }
+                    element.className += name;
+                }
+            }
+            addClass(localCanvas, "gameCanvas");
+            localCanvas.setAttribute("width", width || 480);
+            localCanvas.setAttribute("height", height || 320);
+            localCanvas.setAttribute("tabindex", 99);
         }
-        addClass(localCanvas, "gameCanvas");
-        localCanvas.setAttribute("width", width || 480);
-        localCanvas.setAttribute("height", height || 320);
-        localCanvas.setAttribute("tabindex", 99);
 
         if (cc._renderType === game.RENDER_TYPE_WEBGL) {
             this._renderContext = cc._renderContext = cc.webglContext
              = cc.create3DContext(localCanvas, {
                 'stencil': true,
                 'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS,
+                'preserveDrawingBuffer': isWeChatGame
             });
         }
         // WebGL context created successfully

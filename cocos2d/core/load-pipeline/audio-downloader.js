@@ -24,17 +24,24 @@
  ****************************************************************************/
 
 var Path = require('../utils/CCPath');
-var Sys = require('../platform/CCSys');
+var sys = require('../platform/CCSys');
 var Pipeline = require('./pipeline');
 var audioEngine = require('../../audio/CCAudioEngine');
 
-var __audioSupport = Sys.__audioSupport;
+var __audioSupport = sys.__audioSupport;
 var formatSupport = __audioSupport.format;
 var context = __audioSupport.context;
 
 function loadDomAudio (item, callback) {
     var dom = document.createElement('audio');
     dom.src = item.url;
+
+    if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+        item.element = dom;
+        callback(null, item.url);
+        return;
+    }
+
     var clearEvent = function () {
         clearTimeout(timer);
         dom.removeEventListener("canplaythrough", success, false);
