@@ -329,6 +329,7 @@ namespace se {
     , _exceptionCallback(nullptr)
 #if SE_ENABLE_INSPECTOR
     , _env(nullptr)
+    , _isolateData(nullptr)
 #endif
     , _debuggerServerPort(0)
     , _vmId(0)
@@ -464,11 +465,19 @@ namespace se {
             __oldConsoleAssert.setUndefined();
 
 #if SE_ENABLE_INSPECTOR
-            _env->inspector_agent()->Stop();
+            if (_isolateData != nullptr)
+            {
+                node::FreeIsolateData(_isolateData);
+                _isolateData = nullptr;
+            }
 
-            node::FreeIsolateData(_isolateData);
-            _env->CleanupHandles();
-            node::FreeEnvironment(_env);
+            if (_env != nullptr)
+            {
+                _env->inspector_agent()->Stop();
+                _env->CleanupHandles();
+                node::FreeEnvironment(_env);
+                _env = nullptr;
+            }
 #endif
 
             _context.Get(_isolate)->Exit();
