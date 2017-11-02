@@ -49,7 +49,7 @@
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \
         if (!ret) { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         se::internal::setReturnValue(_cx, state.rval(), _argv); \
         return ret; \
@@ -68,7 +68,7 @@
         se::State state(nativeThisObject); \
         ret = funcName(state); \
         if (!ret) { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
     }
 
@@ -93,7 +93,7 @@
         } \
         else \
         { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         return ret; \
     }
@@ -120,7 +120,7 @@
         } \
         else \
         { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         return ret; \
     }
@@ -137,7 +137,7 @@
         se::State state(nativeThisObject); \
         ret = funcName(state); \
         if (!ret) { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         se::internal::setReturnValue(_cx, state.rval(), _argv); \
         return ret; \
@@ -159,7 +159,7 @@
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \
         if (!ret) { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         return ret; \
     }

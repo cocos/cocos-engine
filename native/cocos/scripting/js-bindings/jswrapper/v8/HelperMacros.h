@@ -55,7 +55,7 @@
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \
         if (!ret) { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         se::internal::setReturnValue(state.rval(), _v8args); \
     }
@@ -70,7 +70,7 @@
         se::State state(nativeThisObject); \
         bool ret = funcName(state); \
         if (!ret) { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         se->_setGarbageCollecting(false); \
     }
@@ -92,7 +92,7 @@
         se::State state(thisObject, args); \
         ret = funcName(state); \
         if (!ret) { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         se::Value _property; \
         bool _found = false; \
@@ -113,7 +113,7 @@
         se::State state(nativeThisObject); \
         ret = funcName(state); \
         if (!ret) { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         se::internal::setReturnValue(state.rval(), _v8args); \
     }
@@ -133,7 +133,7 @@
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \
         if (!ret) { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
     }
 

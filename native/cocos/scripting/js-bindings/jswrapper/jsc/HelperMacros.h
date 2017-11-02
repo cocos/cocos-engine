@@ -56,7 +56,7 @@
             se::State state(nativeThisObject, args); \
             ret = funcName(state); \
             if (!ret) { \
-                LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+                LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
             } \
             se::internal::seToJsValue(_cx, state.rval(), &_jsRet); \
         } \
@@ -77,7 +77,7 @@
             if (_thisObject) _thisObject->_cleanup(nativeThisObject); \
             ret = funcName(state); \
             if (!ret) { \
-                LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+                LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
             } \
             JSObjectSetPrivate(_obj, nullptr); \
             SAFE_DEC_REF(_thisObject); \
@@ -109,7 +109,7 @@
         } \
         else \
         { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         return JSValueToObject(_cx, _jsRet, nullptr); \
     }
@@ -135,7 +135,7 @@
         } \
         else \
         { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         return _jsRet; \
     }
@@ -156,7 +156,7 @@
             } \
             else \
             { \
-                LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+                LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
             } \
         } \
         return _jsRet; \
@@ -179,7 +179,7 @@
             se::State state(nativeThisObject, args); \
             ret = funcName(state); \
             if (!ret) { \
-                LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+                LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
             } \
         } \
         return _jsRet; \

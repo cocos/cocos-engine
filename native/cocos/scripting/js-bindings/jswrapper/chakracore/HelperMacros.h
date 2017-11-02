@@ -55,7 +55,7 @@
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \
         if (!ret) { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         se::internal::seToJsValue(state.rval(), &_jsRet); \
         return _jsRet; \
@@ -74,7 +74,7 @@
             if (_thisObject) _thisObject->_cleanup(nativeThisObject); \
             ret = funcName(state); \
             if (!ret) { \
-                LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+                LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
             } \
             SAFE_DEC_REF(_thisObject); \
             se->_setGarbageCollecting(false); \
@@ -106,7 +106,7 @@
         } \
         else \
         { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         return _jsRet; \
     }
@@ -133,7 +133,7 @@
         } \
         else \
         { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         return _jsRet; \
     }
@@ -149,7 +149,7 @@
         se::State state(nativeThisObject); \
         ret = funcName(state); \
         if (!ret) { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         se::internal::seToJsValue(state.rval(), &_jsRet); \
         return _jsRet; \
@@ -169,7 +169,7 @@
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \
         if (!ret) { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         return JS_INVALID_REFERENCE; \
     }
