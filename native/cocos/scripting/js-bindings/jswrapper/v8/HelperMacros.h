@@ -54,6 +54,9 @@
         void* nativeThisObject = se::internal::getPrivate(_isolate, _v8args.This()); \
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \
+        if (!ret) { \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+        } \
         se::internal::setReturnValue(state.rval(), _v8args); \
     }
 
@@ -65,7 +68,10 @@
         auto se = se::ScriptEngine::getInstance(); \
         se->_setGarbageCollecting(true); \
         se::State state(nativeThisObject); \
-        SE_UNUSED bool ok = funcName(state); \
+        bool ret = funcName(state); \
+        if (!ret) { \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+        } \
         se->_setGarbageCollecting(false); \
     }
 
@@ -78,13 +84,16 @@
     { \
         v8::Isolate* _isolate = _v8args.GetIsolate(); \
         v8::HandleScope _hs(_isolate); \
-        SE_UNUSED bool ret = true; \
+        bool ret = true; \
         se::ValueArray args; \
         se::internal::jsToSeArgs(_v8args, &args); \
         se::Object* thisObject = se::Object::_createJSObject(cls, _v8args.This()); \
         thisObject->_setFinalizeCallback(_SE(finalizeCb)); \
         se::State state(thisObject, args); \
         ret = funcName(state); \
+        if (!ret) { \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+        } \
         se::Value _property; \
         bool _found = false; \
         _found = thisObject->getProperty("_ctor", &_property); \
@@ -103,6 +112,9 @@
         void* nativeThisObject = se::internal::getPrivate(_isolate, _v8args.This()); \
         se::State state(nativeThisObject); \
         ret = funcName(state); \
+        if (!ret) { \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+        } \
         se::internal::setReturnValue(state.rval(), _v8args); \
     }
 
@@ -120,6 +132,9 @@
         args.push_back(std::move(data)); \
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \
+        if (!ret) { \
+            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+        } \
     }
 
 
