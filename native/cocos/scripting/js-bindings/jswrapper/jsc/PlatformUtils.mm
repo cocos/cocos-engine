@@ -49,7 +49,7 @@ namespace se {
             NSOperatingSystemVersion minimumSupportedOSVersion = { .majorVersion = 10, .minorVersion = 12, .patchVersion = 0 };
             isSupported = [NSProcessInfo.processInfo isOperatingSystemAtLeastVersion:minimumSupportedOSVersion] ? true : false;
 #else
-            LOGE("isSupportTypedArrayAPI: Unknown system!");
+            SE_LOGE("isSupportTypedArrayAPI: Unknown system!");
 #endif
             isInited = true;
         }
@@ -69,7 +69,7 @@ namespace se {
             NSOperatingSystemVersion minimumSupportedOSVersion = { .majorVersion = 10, .minorVersion = 11, .patchVersion = 0 };
             isSupported = [NSProcessInfo.processInfo isOperatingSystemAtLeastVersion:minimumSupportedOSVersion] ? true : false;
 #else
-            LOGE("isSupportArrayTestAPI: Unknown system!");
+            SE_LOGE("isSupportArrayTestAPI: Unknown system!");
 #endif
             isInited = true;
         }

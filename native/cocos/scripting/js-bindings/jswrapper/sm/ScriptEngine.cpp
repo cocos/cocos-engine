@@ -46,7 +46,7 @@
 #include <sstream>
 
 #if SE_DEBUG
-#define TRACE_DEBUGGER_SERVER(...) LOGD(__VA_ARGS__)
+#define TRACE_DEBUGGER_SERVER(...) SE_LOGD(__VA_ARGS__)
 #else
 #define TRACE_DEBUGGER_SERVER(...)
 #endif // #if COCOS2D_DEBUG
@@ -80,7 +80,7 @@ namespace se {
             MOZ_RELEASE_ASSERT(report);
             MOZ_RELEASE_ASSERT(JSREPORT_IS_WARNING(report->flags));
 
-            LOGE("%s:%u:%s\n", report->filename ? report->filename : "<no filename>",
+            SE_LOGE("%s:%u:%s\n", report->filename ? report->filename : "<no filename>",
                     (unsigned int) report->lineno,
                     report->message().c_str());
         }
@@ -108,7 +108,7 @@ namespace se {
                     JS::RootedString jsstr(cx, string);
                     char* buffer = JS_EncodeStringToUTF8(cx, jsstr);
 
-                    LOGD("JS: %s\n", buffer);
+                    SE_LOGD("JS: %s\n", buffer);
 
                     JS_free(cx, buffer);
                 }
@@ -146,11 +146,11 @@ namespace se {
             if (status == JSGC_BEGIN)
             {
                 ScriptEngine::getInstance()->_setGarbageCollecting(true);
-                LOGD("on_garbage_collect: begin, Native -> JS map count: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
+                SE_LOGD("on_garbage_collect: begin, Native -> JS map count: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
             }
             else if (status == JSGC_END)
             {
-                LOGD("on_garbage_collect: end, Native -> JS map count: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
+                SE_LOGD("on_garbage_collect: end, Native -> JS map count: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
                 ScriptEngine::getInstance()->_setGarbageCollecting(false);
             }
         }
@@ -250,7 +250,7 @@ namespace se {
             if ((argc - msgIndex) == 1)
             {
                 std::string msg = args[msgIndex].toStringForce();
-                LOGD("JS: %s%s\n", prefix, msg.c_str());
+                SE_LOGD("JS: %s%s\n", prefix, msg.c_str());
             }
             else if (argc > 1)
             {
@@ -269,7 +269,7 @@ namespace se {
                     }
                 }
 
-                LOGD("JS: %s%s\n", prefix, msg.c_str());
+                SE_LOGD("JS: %s%s\n", prefix, msg.c_str());
             }
 
             return true;
@@ -410,7 +410,7 @@ namespace se {
     bool ScriptEngine::init()
     {
         cleanup();
-        LOGD("Initializing SpiderMonkey, version: %s\n", JS_GetImplementationVersion());
+        SE_LOGD("Initializing SpiderMonkey, version: %s\n", JS_GetImplementationVersion());
         ++_vmId;
 
         for (const auto& hook : _beforeInitHookArray)
@@ -789,7 +789,7 @@ namespace se {
 #endif
 
         if ((err = getaddrinfo(NULL, portstr.str().c_str(), &hints, &result)) != 0) {
-            LOGD("getaddrinfo error : %s\n", gai_strerror(err));
+            SE_LOGD("getaddrinfo error : %s\n", gai_strerror(err));
         }
 
         for (rp = result; rp != NULL; rp = rp->ai_next) {
@@ -1057,7 +1057,7 @@ namespace se {
         
         if (!compileSucceed)
         {
-            LOGD("ScriptEngine::compileScript fail:%s\n", path.c_str());
+            SE_LOGD("ScriptEngine::compileScript fail:%s\n", path.c_str());
         }
 
         return compileSucceed;
@@ -1110,7 +1110,7 @@ namespace se {
             ok = JS_ExecuteScript(_cx, script, &rval);
             if (!ok)
             {
-                LOGE("Evaluating %s failed (evaluatedOK == JS_FALSE)\n", path.c_str());
+                SE_LOGE("Evaluating %s failed (evaluatedOK == JS_FALSE)\n", path.c_str());
                 clearException();
             }
 
@@ -1200,7 +1200,7 @@ namespace se {
                 exceptionStr += stack;
             }
 
-            LOGE("ERROR: %s\n", exceptionStr.c_str());
+            SE_LOGE("ERROR: %s\n", exceptionStr.c_str());
             if (_exceptionCallback != nullptr)
             {
                 _exceptionCallback(location.c_str(), message, stack);
@@ -1225,7 +1225,7 @@ namespace se {
             }
             else
             {
-                LOGE("ERROR: __errorHandler has exception\n");
+                SE_LOGE("ERROR: __errorHandler has exception\n");
             }
 
             if (stack != nullptr)

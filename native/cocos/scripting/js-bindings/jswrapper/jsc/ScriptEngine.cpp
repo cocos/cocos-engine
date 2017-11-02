@@ -54,10 +54,10 @@ namespace se {
         JSValueRef __forceGC(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                              size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception)
         {
-            LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
+            SE_LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
 //            JSGarbageCollect(ctx);
             JSSynchronousGarbageCollectForDebugging(ctx);
-            LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
+            SE_LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
             return JSValueMakeUndefined(ctx);
         }
 
@@ -68,7 +68,7 @@ namespace se {
             {
                 std::string ret;
                 internal::forceConvertJsValueToStdString(ctx, arguments[0], &ret);
-                LOGD("JS: %s\n", ret.c_str());
+                SE_LOGD("JS: %s\n", ret.c_str());
             }
             return JSValueMakeUndefined(ctx);
         }
@@ -105,7 +105,7 @@ namespace se {
             if ((argc - msgIndex) == 1)
             {
                 std::string msg = args[msgIndex].toStringForce();
-                LOGD("JS: %s%s\n", prefix, msg.c_str());
+                SE_LOGD("JS: %s%s\n", prefix, msg.c_str());
             }
             else if (argc > 1)
             {
@@ -124,7 +124,7 @@ namespace se {
                     }
                 }
 
-                LOGD("JS: %s%s\n", prefix, msg.c_str());
+                SE_LOGD("JS: %s%s\n", prefix, msg.c_str());
             }
 
             return true;
@@ -218,7 +218,7 @@ namespace se {
     bool ScriptEngine::init()
     {
         cleanup();
-        LOGD("Initializing JavaScriptCore \n");
+        SE_LOGD("Initializing JavaScriptCore \n");
         ++_vmId;
 
         for (const auto& hook : _beforeInitHookArray)
@@ -308,7 +308,7 @@ namespace se {
         if (!_isValid)
             return;
 
-        LOGD("ScriptEngine::cleanup begin ...\n");
+        SE_LOGD("ScriptEngine::cleanup begin ...\n");
         _isInCleanup = true;
         for (const auto& hook : _beforeCleanupHookArray)
         {
@@ -346,7 +346,7 @@ namespace se {
 
         NativePtrToObjectMap::destroy();
         NonRefNativePtrCreatedByCtorMap::destroy();
-        LOGD("ScriptEngine::cleanup end ...\n");
+        SE_LOGD("ScriptEngine::cleanup end ...\n");
     }
 
     ScriptEngine::ExceptionInfo ScriptEngine::_formatException(JSValueRef exception)
@@ -427,7 +427,7 @@ namespace se {
                 {
                     exceptionStr += "\nSTACK:\n" + exceptionInfo.stack;
                 }
-                LOGD("ERROR: %s\n", exceptionStr.c_str());
+                SE_LOGD("ERROR: %s\n", exceptionStr.c_str());
 
                 if (_exceptionCallback != nullptr)
                 {
@@ -453,7 +453,7 @@ namespace se {
                 }
                 else
                 {
-                    LOGE("ERROR: __errorHandler has exception\n");
+                    SE_LOGE("ERROR: __errorHandler has exception\n");
                 }
             }
         }
@@ -528,10 +528,10 @@ namespace se {
 
     void ScriptEngine::garbageCollect()
     {
-        LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
+        SE_LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
         // JSGarbageCollect(_cx);
         JSSynchronousGarbageCollectForDebugging(_cx);
-        LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
+        SE_LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
     }
 
     bool ScriptEngine::evalString(const char* script, ssize_t length/* = -1 */, Value* ret/* = nullptr */, const char* fileName/* = nullptr */)
@@ -574,7 +574,7 @@ namespace se {
         {
             if (exception == nullptr)
             {
-                LOGD("Unknown syntax error parsing file %s\n", fileName);
+                SE_LOGD("Unknown syntax error parsing file %s\n", fileName);
             }
         }
 
@@ -609,7 +609,7 @@ namespace se {
             return evalString(scriptBuffer.c_str(), scriptBuffer.length(), ret, path.c_str());
         }
 
-        LOGE("ScriptEngine::runScript script %s, buffer is empty!\n", path.c_str());
+        SE_LOGE("ScriptEngine::runScript script %s, buffer is empty!\n", path.c_str());
         return false;
     }
 

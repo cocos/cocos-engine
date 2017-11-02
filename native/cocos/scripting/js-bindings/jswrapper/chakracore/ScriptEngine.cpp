@@ -50,14 +50,14 @@ namespace se {
             {
                 std::string str;
                 internal::forceConvertJsValueToStdString(arguments[1], &str);
-                LOGD("JS: %s\n", str.c_str());
+                SE_LOGD("JS: %s\n", str.c_str());
             }
             return JS_INVALID_REFERENCE;
         }
 
         void myJsBeforeCollectCallback(void *callbackState)
         {
-            LOGD("GC start ...\n");
+            SE_LOGD("GC start ...\n");
         }
 
         JsValueRef privateDataContructor(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
@@ -84,7 +84,7 @@ namespace se {
             if ((argc - msgIndex) == 1)
             {
                 std::string msg = args[msgIndex].toStringForce();
-                LOGD("JS: %s%s\n", prefix, msg.c_str());
+                SE_LOGD("JS: %s%s\n", prefix, msg.c_str());
             }
             else if (argc > 1)
             {
@@ -103,7 +103,7 @@ namespace se {
                     }
                 }
 
-                LOGD("JS: %s%s\n", prefix, msg.c_str());
+                SE_LOGD("JS: %s%s\n", prefix, msg.c_str());
             }
 
             return true;
@@ -193,7 +193,7 @@ namespace se {
     bool ScriptEngine::init()
     {
         cleanup();
-        LOGD("Initializing ChakraCore, version: %d.%d.%d\n", CHAKRA_CORE_MAJOR_VERSION, CHAKRA_CORE_MINOR_VERSION, CHAKRA_CORE_PATCH_VERSION);
+        SE_LOGD("Initializing ChakraCore, version: %d.%d.%d\n", CHAKRA_CORE_MAJOR_VERSION, CHAKRA_CORE_MINOR_VERSION, CHAKRA_CORE_PATCH_VERSION);
 
         ++_vmId;
         for (const auto& hook : _beforeInitHookArray)
@@ -312,7 +312,7 @@ namespace se {
             Value tmp;
             if (exceptionObj->getProperty(key.c_str(), &tmp))
             {
-//                LOGD("[%s]=%s\n", key.c_str(), tmp.toStringForce().c_str());
+//                SE_LOGD("[%s]=%s\n", key.c_str(), tmp.toStringForce().c_str());
                 if (key == "message")
                 {
                     ret.message = tmp.toString();
@@ -395,9 +395,9 @@ namespace se {
 
     void ScriptEngine::garbageCollect()
     {
-        LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
+        SE_LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
         _CHECK(JsCollectGarbage(_rt));
-        LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
+        SE_LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
     }
 
     void ScriptEngine::clearException()
@@ -411,7 +411,7 @@ namespace se {
             _CHECK(JsGetAndClearException(&exception));
 
             ExceptionInfo exceptionInfo = formatException(exception);
-            LOGD("ERROR: %s, %s, \nSTACK:\n%s\n", exceptionInfo.message.c_str(), exceptionInfo.location.c_str(), exceptionInfo.stack.c_str());
+            SE_LOGD("ERROR: %s, %s, \nSTACK:\n%s\n", exceptionInfo.message.c_str(), exceptionInfo.location.c_str(), exceptionInfo.stack.c_str());
 
             if (_exceptionCallback != nullptr)
             {
@@ -437,7 +437,7 @@ namespace se {
             }
             else
             {
-                LOGE("ERROR: __errorHandler has exception\n");
+                SE_LOGE("ERROR: __errorHandler has exception\n");
             }
         }
     }
@@ -506,7 +506,7 @@ namespace se {
             return evalString(scriptBuffer.c_str(), scriptBuffer.length(), ret, path.c_str());
         }
 
-        LOGE("ScriptEngine::runScript script buffer is empty!\n");
+        SE_LOGE("ScriptEngine::runScript script buffer is empty!\n");
         return false;
     }
 

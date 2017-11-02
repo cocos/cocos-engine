@@ -92,7 +92,7 @@ namespace se {
             _ctor = empty_constructor;
         }
 
-//        LOGD("Class init ( %s ) ...\n", clsName);
+//        SE_LOGD("Class init ( %s ) ...\n", clsName);
         return true;
     }
 
@@ -135,7 +135,7 @@ namespace se {
         if (jsobj != nullptr)
         {
             _proto = Object::_createJSObject(nullptr, jsobj);
-//            LOGD("_proto: %p, name: %s\n", _proto, _name);
+//            SE_LOGD("_proto: %p, name: %s\n", _proto, _name);
             _proto->root();
             return true;
         }

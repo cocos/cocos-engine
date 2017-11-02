@@ -52,7 +52,7 @@ namespace se {
             if (info[0]->IsString())
             {
                 v8::String::Utf8Value utf8(info[0]);
-                LOGD("JS: %s\n", *utf8);
+                SE_LOGD("JS: %s\n", *utf8);
             }
         }
 
@@ -119,7 +119,7 @@ namespace se {
             if ((argc - msgIndex) == 1)
             {
                 std::string msg = args[msgIndex].toStringForce();
-                LOGD("JS: %s%s\n", prefix, msg.c_str());
+                SE_LOGD("JS: %s%s\n", prefix, msg.c_str());
             }
             else if (argc > 1)
             {
@@ -138,7 +138,7 @@ namespace se {
                     }
                 }
 
-                LOGD("JS: %s%s\n", prefix, msg.c_str());
+                SE_LOGD("JS: %s%s\n", prefix, msg.c_str());
             }
 
             return true;
@@ -208,7 +208,7 @@ namespace se {
         errorStr += ", message: ";
         errorStr += message;
 
-        LOGE("%s\n", errorStr.c_str());
+        SE_LOGE("%s\n", errorStr.c_str());
         if (getInstance()->_exceptionCallback != nullptr)
         {
             getInstance()->_exceptionCallback(location, message, "(no stack information)");
@@ -227,7 +227,7 @@ namespace se {
             message += "false";
 
         errorStr += ", " + message;
-        LOGE("%s\n", errorStr.c_str());
+        SE_LOGE("%s\n", errorStr.c_str());
         if (getInstance()->_exceptionCallback != nullptr)
         {
             getInstance()->_exceptionCallback(location, message.c_str(), "(no stack information)");
@@ -261,7 +261,7 @@ namespace se {
             }
             errorStr += "\nSTACK:\n" + stackStr;
         }
-        LOGE("ERROR: %s\n", errorStr.c_str());
+        SE_LOGE("ERROR: %s\n", errorStr.c_str());
 
         if (thiz->_exceptionCallback != nullptr)
         {
@@ -287,7 +287,7 @@ namespace se {
         }
         else
         {
-            LOGE("ERROR: __errorHandler has exception\n");
+            SE_LOGE("ERROR: __errorHandler has exception\n");
         }
     }
 
@@ -358,7 +358,7 @@ namespace se {
     bool ScriptEngine::init()
     {
         cleanup();
-        LOGD("Initializing V8, version: %s\n", v8::V8::GetVersion());
+        SE_LOGD("Initializing V8, version: %s\n", v8::V8::GetVersion());
         ++_vmId;
 
         for (const auto& hook : _beforeInitHookArray)
@@ -441,7 +441,7 @@ namespace se {
         if (!_isValid)
             return;
 
-        LOGD("ScriptEngine::cleanup begin ...\n");
+        SE_LOGD("ScriptEngine::cleanup begin ...\n");
         _isInCleanup = true;
 
         {
@@ -504,7 +504,7 @@ namespace se {
         NativePtrToObjectMap::destroy();
         NonRefNativePtrCreatedByCtorMap::destroy();
 
-        LOGD("ScriptEngine::cleanup end ...\n");
+        SE_LOGD("ScriptEngine::cleanup end ...\n");
     }
 
     Object* ScriptEngine::getGlobalObject() const
@@ -581,7 +581,7 @@ namespace se {
 
     void ScriptEngine::garbageCollect()
     {
-        LOGD("GC begin ..., (js->native map) size: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
+        SE_LOGD("GC begin ..., (js->native map) size: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
         const double kLongIdlePauseInSeconds = 1.0;
         _isolate->ContextDisposedNotification();
         _isolate->IdleNotificationDeadline(_platform->MonotonicallyIncreasingTime() + kLongIdlePauseInSeconds);
@@ -589,7 +589,7 @@ namespace se {
         // garbage and will therefore also invoke all weak callbacks of actually
         // unreachable persistent handles.
         _isolate->LowMemoryNotification();
-        LOGD("GC end ..., (js->native map) size: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
+        SE_LOGD("GC end ..., (js->native map) size: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
     }
 
     bool ScriptEngine::isGarbageCollecting()
@@ -679,7 +679,7 @@ namespace se {
             return evalString(scriptBuffer.c_str(), scriptBuffer.length(), ret, path.c_str());
         }
 
-        LOGE("ScriptEngine::runScript script %s, buffer is empty!\n", path.c_str());
+        SE_LOGE("ScriptEngine::runScript script %s, buffer is empty!\n", path.c_str());
         return false;
     }
 

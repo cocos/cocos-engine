@@ -50,7 +50,7 @@ namespace se {
         ok = globalObject->getProperty("Object", &v);
         if (!ok || !v.isObject())
         {
-            LOGD("ERROR: couldn't find Object\n");
+            SE_LOGD("ERROR: couldn't find Object\n");
             return false;
         }
 
@@ -58,7 +58,7 @@ namespace se {
         ok = v.toObject()->getProperty("defineProperty", &definePropertyFunc);
         if (!ok || !v.isObject())
         {
-            LOGD("ERROR: couldn't find Object.defineProperty\n");
+            SE_LOGD("ERROR: couldn't find Object.defineProperty\n");
             return false;
         }
 

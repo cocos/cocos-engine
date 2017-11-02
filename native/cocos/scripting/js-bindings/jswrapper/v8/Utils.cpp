@@ -196,7 +196,7 @@ namespace se {
             if (c > 0)
             {
                 wrap.wrap(data);
-//                LOGD("setPrivate1: %p\n", data);
+//                SE_LOGD("setPrivate1: %p\n", data);
                 if (outInternalData != nullptr)
                     *outInternalData = nullptr;
             }
@@ -214,7 +214,7 @@ namespace se {
                 assert(!key.IsEmpty());
                 v8::Maybe<bool> ret = obj->Set(isolate->GetCurrentContext(), key.ToLocalChecked(), privateObj->_getJSObject());
                 assert(!ret.IsNothing());
-//                LOGD("setPrivate: native data: %p\n", privateData);
+//                SE_LOGD("setPrivate: native data: %p\n", privateData);
 //                privateObj->decRef(); // NOTE: it's released in ScriptEngine::privateDataFinalize
 
                 if (outInternalData != nullptr)
@@ -234,7 +234,7 @@ namespace se {
             if (c > 0)
             {
                 void* nativeObj = ObjectWrap::unwrap(objChecked);
-//                LOGD("getPrivate1: %p\n", nativeObj);
+//                SE_LOGD("getPrivate1: %p\n", nativeObj);
                 return nativeObj;
             }
 
@@ -256,7 +256,7 @@ namespace se {
             if (privateObj.IsEmpty())
                 return nullptr;
             PrivateData* privateData =  (PrivateData*)ObjectWrap::unwrap(privateObj.ToLocalChecked());
-//                LOGD("getPrivate: native data: %p\n", privateData);
+//                SE_LOGD("getPrivate: native data: %p\n", privateData);
             return privateData->data;
         }
 

@@ -55,7 +55,7 @@
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \
         if (!ret) { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
+            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         se::internal::setReturnValue(state.rval(), _v8args); \
     }
@@ -70,7 +70,7 @@
         se::State state(nativeThisObject); \
         bool ret = funcName(state); \
         if (!ret) { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
+            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         se->_setGarbageCollecting(false); \
     }
@@ -92,7 +92,7 @@
         se::State state(thisObject, args); \
         ret = funcName(state); \
         if (!ret) { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
+            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         se::Value _property; \
         bool _found = false; \
@@ -113,7 +113,7 @@
         se::State state(nativeThisObject); \
         ret = funcName(state); \
         if (!ret) { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
+            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         se::internal::setReturnValue(state.rval(), _v8args); \
     }
@@ -133,7 +133,7 @@
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \
         if (!ret) { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
+            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
     }
 
@@ -145,7 +145,7 @@
 #define SE_QUOTEME(x) SE_QUOTEME_(x)
 
 //FIXME: implement this macro
-#define SE_REPORT_ERROR(fmt, ...) LOGD("ERROR (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__)
+#define SE_REPORT_ERROR(fmt, ...) SE_LOGE("[ERROR] (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__)
 
 #if COCOS2D_DEBUG > 0
 
@@ -154,7 +154,7 @@
     { \
         if (!(cond)) \
         { \
-            LOGD("ASSERT (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__); \
+            SE_LOGE("ASSERT (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__); \
             assert(false); \
         } \
     } while(false)
