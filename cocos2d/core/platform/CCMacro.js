@@ -1881,21 +1881,6 @@ cc.macro = {
      */
     ENABLE_GC_FOR_NATIVE_OBJECTS: true,
 
-
-    /**
-     * !#en
-     * Whether or not enable auto culling.
-     * If your game have more dynamic objects, we suggest to disable auto culling.
-     * If your game have more static objects, we suggest to enable auto culling.
-     * !#zh
-     * 是否开启自动裁减功能，开启裁减功能将会把在屏幕外的物体从渲染队列中去除掉。
-     * 如果游戏中的动态物体比较多的话，建议将此选项关闭。
-     * 如果游戏中的静态物体比较多的话，建议将此选项打开。
-     * @property {Boolean} ENABLE_CULLING
-     * @default true
-     */
-    ENABLE_CULLING: true,
-
     /**
      * !#en 
      * Whether or not enabled tiled map auto culling. If you set the TiledMap skew or rotation, then need to manually disable this, otherwise, the rendering will be wrong.
@@ -1931,6 +1916,40 @@ cc.macro = {
      */
     ENABLE_TRANSPARENT_CANVAS: false,
 };
+
+/**
+ * !#en
+ * Whether or not enable auto culling.
+ * If your game have more dynamic objects, we suggest to disable auto culling.
+ * If your game have more static objects, we suggest to enable auto culling.
+ * !#zh
+ * 是否开启自动裁减功能，开启裁减功能将会把在屏幕外的物体从渲染队列中去除掉。
+ * 如果游戏中的动态物体比较多的话，建议将此选项关闭。
+ * 如果游戏中的静态物体比较多的话，建议将此选项打开。
+ * @property {Boolean} ENABLE_CULLING
+ * @default true
+ */
+var ENABLE_CULLING = true;
+cc.defineGetterSetter(cc.macro, 'ENABLE_CULLING', 
+    function () {
+        return ENABLE_CULLING;
+    },
+    function (val) {
+        ENABLE_CULLING = val;
+
+        var scene = cc.director.getScene();
+        if (!scene) return;
+
+        if (CC_JSB) {
+            scene._sgNode.markCullingDirty();
+            cc.director.setCullingEnabled(val);
+        }
+        else {
+            scene._sgNode._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.cullingDirty);
+            cc.renderer.childrenOrderDirty = true;
+        }
+    }
+)
 
 /**
  * !#en

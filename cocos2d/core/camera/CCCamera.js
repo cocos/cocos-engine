@@ -303,7 +303,7 @@ let Camera = cc.Class({
         let sgTarges = this._sgTarges;
         for (let i = 0; i < sgTarges.length; i++) {
             if (CC_JSB) {
-                sgTarges[i].markTransformUpdated();    
+                sgTarges[i].markCullingDirty();
             }
             else {
                 sgTarges[i]._renderCmd.setDirtyFlag(cullingDirtyFlag);
