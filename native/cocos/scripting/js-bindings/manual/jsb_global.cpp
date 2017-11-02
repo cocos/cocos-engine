@@ -18,7 +18,6 @@ void jsb_set_xxtea_key(const std::string& key)
     xxteaKey = key;
 }
 
-#if SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_SM
 static const char* BYTE_CODE_FILE_EXT = ".jsc";
 
 static std::string removeFileExt(const std::string& filePath)
@@ -30,7 +29,6 @@ static std::string removeFileExt(const std::string& filePath)
     }
     return filePath;
 }
-#endif
 
 void jsb_init_file_operation_delegate()
 {
@@ -42,7 +40,6 @@ void jsb_init_file_operation_delegate()
 
             Data fileData;
 
-#if SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_SM
             std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
             if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
                 fileData = FileUtils::getInstance()->getDataFromFile(byteCodePath);
@@ -60,7 +57,6 @@ void jsb_init_file_operation_delegate()
                 return;
             }
 
-#endif
             fileData = FileUtils::getInstance()->getDataFromFile(path);
             readCallback(fileData.getBytes(), fileData.getSize());
         };
@@ -68,7 +64,6 @@ void jsb_init_file_operation_delegate()
         delegate.onGetStringFromFile = [](const std::string& path) -> std::string{
             assert(!path.empty());
 
-#if SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_SM
             std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
             if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
                 Data fileData = FileUtils::getInstance()->getDataFromFile(byteCodePath);
@@ -86,13 +81,16 @@ void jsb_init_file_operation_delegate()
 
                 return ret;
             }
-#endif
 
             return FileUtils::getInstance()->getStringFromFile(path);
         };
 
         delegate.onGetFullPath = [](const std::string& path) -> std::string{
             assert(!path.empty());
+            std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
+            if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
+                return FileUtils::getInstance()->fullPathForFilename(byteCodePath);
+            }
             return FileUtils::getInstance()->fullPathForFilename(path);
         };
 

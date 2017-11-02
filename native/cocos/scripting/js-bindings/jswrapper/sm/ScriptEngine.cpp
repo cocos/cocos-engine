@@ -963,21 +963,30 @@ namespace se {
 
     bool ScriptEngine::getScript(const std::string& path, JS::MutableHandleScript script)
     {
-        // a) check jsc file first
-        std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
-        if (_filenameScriptMap.find(byteCodePath) != _filenameScriptMap.end())
+        std::string fullPath = _fileOperationDelegate.onGetFullPath(path);
+        auto iter = _filenameScriptMap.find(fullPath);
+        if (iter != _filenameScriptMap.end())
         {
-            script.set(_filenameScriptMap[byteCodePath]->get());
+            JS::PersistentRootedScript* rootedScript = iter->second;
+            script.set(rootedScript->get());
             return true;
         }
 
-        // b) no jsc file, check js file
-        if (_filenameScriptMap.find(path) != _filenameScriptMap.end())
-        {
-            script.set(_filenameScriptMap[path]->get());
-            return true;
-        }
-        
+//        // a) check jsc file first
+//        std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
+//        if (_filenameScriptMap.find(byteCodePath) != _filenameScriptMap.end())
+//        {
+//            script.set(_filenameScriptMap[byteCodePath]->get());
+//            return true;
+//        }
+//
+//        // b) no jsc file, check js file
+//        if (_filenameScriptMap.find(path) != _filenameScriptMap.end())
+//        {
+//            script.set(_filenameScriptMap[path]->get());
+//            return true;
+//        }
+
         return false;
     }
 
@@ -994,28 +1003,31 @@ namespace se {
 
         bool compileSucceed = false;
 
-        // a) check jsc file first
-        std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
-
-        // Check whether '.jsc' files exist to avoid outputting log which says 'couldn't find .jsc file'.
-        if (_fileOperationDelegate.onCheckFileExist(byteCodePath))
-        {
-            _fileOperationDelegate.onGetDataFromFile(byteCodePath, [&](const uint8_t* data, size_t dataLen) {
-                if (data != nullptr && dataLen > 0)
-                {
-                    JS::TranscodeBuffer buffer;
-                    bool appended = buffer.append(data, dataLen);
-                    JS::TranscodeResult result = JS::DecodeScript(_cx, buffer, script);
-                    if (appended && result == JS::TranscodeResult::TranscodeResult_Ok)
-                    {
-                        compileSucceed = true;
-                        _filenameScriptMap[byteCodePath] = new (std::nothrow) JS::PersistentRootedScript(_cx, script.get());
-                    }
-                    assert(compileSucceed);
-                }
-            });
-            
-        }
+        // Creator v1.7 supports v8, spidermonkey, javascriptcore and chakracore as its script engine,
+        // jsc file isn't bytecode format anymore, it's a xxtea encrpted binary format instead.
+        // Therefore, for unifying the flow, ScriptEngine class will not support spidermonkey bytecode.
+//        // a) check jsc file first
+//        std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
+//
+//        // Check whether '.jsc' files exist to avoid outputting log which says 'couldn't find .jsc file'.
+//        if (_fileOperationDelegate.onCheckFileExist(byteCodePath))
+//        {
+//            _fileOperationDelegate.onGetDataFromFile(byteCodePath, [&](const uint8_t* data, size_t dataLen) {
+//                if (data != nullptr && dataLen > 0)
+//                {
+//                    JS::TranscodeBuffer buffer;
+//                    bool appended = buffer.append(data, dataLen);
+//                    JS::TranscodeResult result = JS::DecodeScript(_cx, buffer, script);
+//                    if (appended && result == JS::TranscodeResult::TranscodeResult_Ok)
+//                    {
+//                        compileSucceed = true;
+//                        _filenameScriptMap[byteCodePath] = new (std::nothrow) JS::PersistentRootedScript(_cx, script.get());
+//                    }
+//                    assert(compileSucceed);
+//                }
+//            });
+//
+//        }
 
         // b) no jsc file, check js file
         if (!compileSucceed)
@@ -1029,12 +1041,12 @@ namespace se {
             {
                 JS::CompileOptions op(_cx);
                 op.setUTF8(true);
-                std::string fullPath = _fileOperationDelegate.onGetFullPath(path);
-                op.setFileAndLine(fullPath.c_str(), 1);
+                op.setFileAndLine(path.c_str(), 1);
                 ok = JS::Compile(_cx, op, jsFileContent.c_str(), jsFileContent.size(), script);
                 if (ok)
                 {
                     compileSucceed = true;
+                    std::string fullPath = _fileOperationDelegate.onGetFullPath(path);
                     _filenameScriptMap[fullPath] = new (std::nothrow) JS::PersistentRootedScript(_cx, script.get());
                 }
                 assert(compileSucceed);
