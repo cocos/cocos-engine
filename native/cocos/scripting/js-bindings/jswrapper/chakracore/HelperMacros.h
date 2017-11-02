@@ -55,7 +55,7 @@
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \
         if (!ret) { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         se::internal::seToJsValue(state.rval(), &_jsRet); \
         return _jsRet; \
@@ -74,7 +74,7 @@
             if (_thisObject) _thisObject->_cleanup(nativeThisObject); \
             ret = funcName(state); \
             if (!ret) { \
-                LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+                SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
             } \
             SAFE_DEC_REF(_thisObject); \
             se->_setGarbageCollecting(false); \
@@ -106,7 +106,7 @@
         } \
         else \
         { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         return _jsRet; \
     }
@@ -133,7 +133,7 @@
         } \
         else \
         { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         return _jsRet; \
     }
@@ -149,7 +149,7 @@
         se::State state(nativeThisObject); \
         ret = funcName(state); \
         if (!ret) { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         se::internal::seToJsValue(state.rval(), &_jsRet); \
         return _jsRet; \
@@ -169,7 +169,7 @@
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \
         if (!ret) { \
-            LOGE("[ERROR] Failed to invoke %s, location: %s:%d", #funcName, __FILE__, __LINE__); \
+            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         return JS_INVALID_REFERENCE; \
     }
@@ -181,7 +181,7 @@
 #define SE_QUOTEME(x) SE_QUOTEME_(x)
 
 //FIXME: implement this macro
-#define SE_REPORT_ERROR(fmt, ...) LOGD("ERROR (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__)
+#define SE_REPORT_ERROR(fmt, ...) SE_LOGE("[ERROR] (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__)
 
 #if COCOS2D_DEBUG > 0
 
@@ -190,7 +190,7 @@
     { \
         if (!(cond)) \
         { \
-            LOGD("ASSERT (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__); \
+            SE_LOGE("ASSERT (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__); \
             assert(false); \
         } \
     } while(false)
@@ -207,7 +207,7 @@
         JsErrorCode _errCode = cmd;          \
         if (_errCode != JsNoError)           \
         {                                   \
-            LOGD("Error 0x%x at '%s, %s, %d'\n",    \
+            SE_LOGE("Error 0x%x at '%s, %s, %d'\n",    \
                 _errCode, #cmd, __FILE__, __LINE__); \
             assert(false); \
         }                                   \

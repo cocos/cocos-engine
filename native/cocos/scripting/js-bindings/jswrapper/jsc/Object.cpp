@@ -305,7 +305,7 @@ namespace se {
 
             if (_rootCount > 0)
             {
-    //            LOGD("Object::_cleanup, (%p) rootCount: %u\n", this, _rootCount);
+    //            SE_LOGD("Object::_cleanup, (%p) rootCount: %u\n", this, _rootCount);
                 // Don't unprotect if it's in cleanup, otherwise, it will trigger crash.
                 if (!se->isInCleanup() && !se->isGarbageCollecting())
                     JSValueUnprotect(__cx, _obj);
@@ -315,7 +315,7 @@ namespace se {
         }
         else
         {
-            LOGD("Object::_cleanup, ScriptEngine was initialized again, ignore cleanup work, oldVMId: %u, newVMId: %u\n", _currentVMId, se->getVMId());
+            SE_LOGD("Object::_cleanup, ScriptEngine was initialized again, ignore cleanup work, oldVMId: %u, newVMId: %u\n", _currentVMId, se->getVMId());
         }
 
         _isCleanup = true;
@@ -853,7 +853,7 @@ namespace se {
                 }
                 else
                 {
-                    LOGD("Object::unroot, ScriptEngine was initialized again, ignore cleanup work, oldVMId: %u, newVMId: %u\n", _currentVMId, se->getVMId());
+                    SE_LOGD("Object::unroot, ScriptEngine was initialized again, ignore cleanup work, oldVMId: %u, newVMId: %u\n", _currentVMId, se->getVMId());
                 }
             }
         }

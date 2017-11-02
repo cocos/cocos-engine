@@ -588,7 +588,7 @@ namespace se {
         JSObject* targetObj = obj->_getJSObject();
         if (ownerObj == nullptr || targetObj == nullptr)
         {
-            LOGD("%s: try to detach on invalid object, owner: %p, target: %p\n", __FUNCTION__, ownerObj, targetObj);
+            SE_LOGD("%s: try to detach on invalid object, owner: %p, target: %p\n", __FUNCTION__, ownerObj, targetObj);
             return false;
         }
 

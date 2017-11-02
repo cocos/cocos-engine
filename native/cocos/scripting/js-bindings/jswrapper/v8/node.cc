@@ -711,7 +711,7 @@ NO_RETURN void Assert(const char* const (*args)[4]) {
     snprintf(pid, sizeof(pid), "[%u]", getpid());
 #endif
 
-    LOGE("%s%s: %s:%s:%s%s Assertion `%s' failed.\n",
+    SE_LOGE("%s%s: %s:%s:%s%s Assertion `%s' failed.\n",
             exepath, pid, filename, linenum,
             function, *function ? ":" : "", message);
     
@@ -810,7 +810,7 @@ void SetupProcessObject(Environment* env,
                       "uv",
                       OneByteString(env->isolate(), uv_version_string()));
 
-    LOGD("libuv version: %s\n", uv_version_string());
+    SE_LOGD("libuv version: %s\n", uv_version_string());
 //    READONLY_PROPERTY(versions,
 //                      "zlib",
 //                      FIXED_ONE_BYTE_STRING(env->isolate(), ZLIB_VERSION));

@@ -108,10 +108,10 @@ void PrintDebuggerReadyMessage(const std::string& host,
     return;
   }
   for (const std::string& id : ids) {
-    LOGD("Debugger listening..., visit [ chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=%s ] in chrome browser to debug!\n",
+    SE_LOGD("Debugger listening..., visit [ chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=%s ] in chrome browser to debug!\n",
             FormatWsAddress(host, port, id, false).c_str());
   }
-  LOGD("For help see %s\n",
+  SE_LOGD("For help see %s\n",
           "https://nodejs.org/en/docs/inspector");
 }
 
@@ -407,7 +407,7 @@ bool InspectorSocketServer::Start() {
   int err = uv_getaddrinfo(loop_, &req, nullptr, host_.c_str(),
                            port_string.c_str(), &hints);
   if (err < 0) {
-      LOGE("Unable to resolve \"%s\": %s\n", host_.c_str(),
+      SE_LOGE("Unable to resolve \"%s\": %s\n", host_.c_str(),
               uv_strerror(err));
     return false;
   }
@@ -423,7 +423,7 @@ bool InspectorSocketServer::Start() {
   // We only show error if we failed to start server on all addresses. We only
   // show one error, for the last address.
   if (server_sockets_.empty()) {
-      LOGE("Starting inspector on %s:%d failed: %s\n",
+      SE_LOGE("Starting inspector on %s:%d failed: %s\n",
               host_.c_str(), port_, uv_strerror(err));
     return false;
   }
