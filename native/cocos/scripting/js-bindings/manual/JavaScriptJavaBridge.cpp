@@ -213,7 +213,7 @@ bool JavaScriptJavaBridge::CallInfo::execute()
 
         default:
             m_error = JSJ_ERR_TYPE_NOT_SUPPORT;
-            LOGD("Return type '%d' is not supported", static_cast<int>(m_returnType));
+            SE_LOGD("Return type '%d' is not supported", static_cast<int>(m_returnType));
             return false;
     }
 
@@ -263,7 +263,7 @@ bool JavaScriptJavaBridge::CallInfo::executeWithArgs(jvalue *args)
 
         default:
             m_error = JSJ_ERR_TYPE_NOT_SUPPORT;
-            LOGD("Return type '%d' is not supported", static_cast<int>(m_returnType));
+            SE_LOGD("Return type '%d' is not supported", static_cast<int>(m_returnType));
             return false;
     }
 
@@ -368,7 +368,7 @@ bool JavaScriptJavaBridge::CallInfo::getMethodInfo()
         case JNI_EDETACHED :
             if (jvm->AttachCurrentThread(&m_env, NULL) < 0)
             {
-                LOGD("%s", "Failed to get the environment using AttachCurrentThread()");
+                SE_LOGD("%s", "Failed to get the environment using AttachCurrentThread()");
                 m_error = JSJ_ERR_VM_THREAD_DETACHED;
                 return false;
             }
@@ -376,7 +376,7 @@ bool JavaScriptJavaBridge::CallInfo::getMethodInfo()
 
         case JNI_EVERSION :
         default :
-            LOGD("%s", "Failed to get the environment using GetEnv()");
+            SE_LOGD("%s", "Failed to get the environment using GetEnv()");
             m_error = JSJ_ERR_VM_FAILURE;
             return false;
     }
@@ -386,7 +386,7 @@ bool JavaScriptJavaBridge::CallInfo::getMethodInfo()
                                                  _jstrClassName);
 
     if (NULL == m_classID) {
-        LOGD("Classloader failed to find class of %s", m_className.c_str());
+        SE_LOGD("Classloader failed to find class of %s", m_className.c_str());
         m_env->ExceptionClear();
         m_error = JSJ_ERR_CLASS_NOT_FOUND;
         return false;
@@ -397,7 +397,7 @@ bool JavaScriptJavaBridge::CallInfo::getMethodInfo()
     if (!m_methodID)
     {
         m_env->ExceptionClear();
-        LOGD("Failed to find method id of %s.%s %s",
+        SE_LOGD("Failed to find method id of %s.%s %s",
              m_className.c_str(),
              m_methodName.c_str(),
              m_methodSig.c_str());
@@ -410,9 +410,7 @@ bool JavaScriptJavaBridge::CallInfo::getMethodInfo()
 
 bool JavaScriptJavaBridge::convertReturnValue(ReturnValue retValue, ValueType type, se::Value* ret)
 {
-    if (ret == nullptr)
-        return false;
-
+    assert(ret != nullptr);
     switch (type)
     {
         case JavaScriptJavaBridge::ValueType::INTEGER:
@@ -431,7 +429,8 @@ bool JavaScriptJavaBridge::convertReturnValue(ReturnValue retValue, ValueType ty
             ret->setString(*retValue.stringValue);
             break;
         default:
-            return false;
+            ret->setUndefined();
+            break;
     }
 
     return true;
@@ -483,8 +482,8 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State& s)
                 SE_REPORT_ERROR("call result code: %d", call.getErrorCode());
                 return false;
             }
-            ok = JavaScriptJavaBridge::convertReturnValue(call.getReturnValue(), call.getReturnValueType(), &s.rval());
-            return ok;
+            JavaScriptJavaBridge::convertReturnValue(call.getReturnValue(), call.getReturnValueType(), &s.rval());
+            return true;
         }
         SE_REPORT_ERROR("JavaScriptJavaBridge::CallInfo isn't valid!");
         return false;
@@ -556,8 +555,8 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State& s)
                 return false;
             }
 
-            ok = JavaScriptJavaBridge::convertReturnValue(call.getReturnValue(), call.getReturnValueType(), &s.rval());
-            return ok;
+            JavaScriptJavaBridge::convertReturnValue(call.getReturnValue(), call.getReturnValueType(), &s.rval());
+            return true;
         }
         SE_REPORT_ERROR("call valid: %d, call.getArgumentsCount()= %d", call.isValid(), call.getArgumentsCount());
         return false;
