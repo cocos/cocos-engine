@@ -482,6 +482,10 @@ sys.BROWSER_TYPE_SOUGOU = "sogou";
  */
 sys.BROWSER_TYPE_UNKNOWN = "unknown";
 
+function isWeChatGame () {
+    return window['wx'];
+}
+
 /**
  * Is native ? This is set to be true in jsb auto.
  * @property {Boolean} isNative
@@ -493,10 +497,6 @@ sys.isNative = false;
  * @property {Boolean} isBrowser
  */
 sys.isBrowser = typeof window === 'object' && typeof document === 'object';
-
-function isWeChatGame () {
-    return window['wx'];
-}
 
 if (CC_EDITOR && Editor.isMainProcess) {
     sys.isMobile = false;
@@ -731,7 +731,10 @@ else {
     var _supportWebp = _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
     var _supportCanvas = !!_tmpCanvas1.getContext("2d");
     var _supportWebGL = false;
-    if (win.WebGLRenderingContext) {
+    if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+        _supportWebGL = true;
+    }
+    else if (win.WebGLRenderingContext) {
         if (cc.create3DContext(document.createElement("CANVAS"))) {
             _supportWebGL = true;
         }
@@ -773,9 +776,6 @@ else {
                 _supportWebGL = false;
             }
         }
-    }
-    else if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
-        _supportWebGL = true;
     }
 
     /**
