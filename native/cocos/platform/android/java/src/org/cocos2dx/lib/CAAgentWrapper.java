@@ -24,11 +24,42 @@
 
 package org.cocos2dx.lib;
 
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.util.Log;
+
 import com.cocos.analytics.CAAgent;
 
 public class CAAgentWrapper {
 
+    private static final String TAG = "CAAgentWrapper";
+
     public static void init(String channelID, String appID, String appSecret) {
         CAAgent.init(Cocos2dxActivity.getContext(), channelID, appID, appSecret);
+    }
+
+    public static String getChannelID() {
+        try {
+            ApplicationInfo applicationInfo = Cocos2dxActivity.getContext().getPackageManager()
+                    .getApplicationInfo(Cocos2dxActivity.getContext().getPackageName(),
+                            PackageManager.GET_META_DATA);
+            if (applicationInfo != null) {
+                if (applicationInfo.metaData != null) {
+                    if (applicationInfo.metaData.containsKey("ASC_ChannelID"))
+                    {
+                        String channelID = applicationInfo.metaData.get("ASC_ChannelID") + "";
+                        if (channelID.startsWith("A")) {
+                            channelID = channelID.substring(1);
+                        }
+                        return channelID;
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG,"Could not get channel ID", e);
+        }
+
+        return "";
     }
 }
