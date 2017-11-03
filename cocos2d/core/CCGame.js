@@ -653,7 +653,7 @@ var game = {
         if (isWeChatGame) {
             this.container = cc.container = localContainer = document.createElement("DIV");
             this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
-            this.canvas = cc._canvas = localCanvas = window['canvas'];
+            this.canvas = cc._canvas = localCanvas = canvas;
         }
         else {
             var element = (el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el));

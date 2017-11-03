@@ -543,8 +543,8 @@ var inputManager = {
 
                     var pos = selfPointer.getHTMLElementPosition(element);
                     var body = document.body;
-                    pos.left -= body.scrollLeft;
-                    pos.top -= body.scrollTop;
+                    pos.left -= body.scrollLeft || 0;
+                    pos.top -= body.scrollTop || 0;
 
                     handler(selfPointer.getTouchesByEvent(event, pos));
 

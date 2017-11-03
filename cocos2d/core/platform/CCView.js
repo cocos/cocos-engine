@@ -101,11 +101,11 @@ switch (__BrowserGetter.adaptationType) {
         };
         break;
     case cc.sys.BROWSER_TYPE_WECHAT_GAME:
-        __BrowserGetter.availWidth = function(frame){
-            return frame.innerWidth;
+        __BrowserGetter.availWidth = function(){
+            return window.innerWidth;
         };
-        __BrowserGetter.availHeight = function(frame){
-            return frame.innerHeight;
+        __BrowserGetter.availHeight = function(){
+            return window.innerHeight;
         };
         break;
 }
