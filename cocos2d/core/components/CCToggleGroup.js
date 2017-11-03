@@ -54,6 +54,17 @@ var ToggleGroup = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.toggle_group.allowSwitchOff',
             default: false
         },
+
+        /**
+         * !#en Read only property, return the toggle items array reference managed by toggleGroup.
+         * !#zh 只读属性，返回 toggleGroup 管理的 toggle 数组引用
+         * @property {Array} toggleItems
+         */
+        toggleItems: {
+            get: function () {
+                return this._toggleItems;
+            }
+        }
     },
 
     updateToggles: function (toggle) {
@@ -112,14 +123,6 @@ var ToggleGroup = cc.Class({
     start: function () {
         this._makeAtLeastOneToggleChecked();
     }
-
-});
-
-var JS = require('../platform/js');
-
-JS.get(ToggleGroup.prototype, 'toggleItems', function () {
-    cc.warnID(8500);
-    return this._toggleItems;
 });
 
 cc.ToggleGroup = module.exports = ToggleGroup;
