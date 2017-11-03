@@ -81,7 +81,20 @@ module.exports = {
 
         // instantiate prefab
         cc.game._isCloning = true;
-        _prefab.asset._doInstantiate(node);
+        if (cc.supportJit) {
+            _prefab.asset._doInstantiate(node);
+        }
+        else {
+            // root in prefab asset is always synced
+            var prefabRoot = _prefab.asset.data;
+            prefabRoot._prefab._synced = true;
+
+            // use node as the instantiated prefabRoot to make references to prefabRoot in prefab redirect to node
+            prefabRoot._iN$t = node;
+
+            // instantiate prefab and apply to node
+            cc.instantiate._clone(prefabRoot, prefabRoot);
+        }
         cc.game._isCloning = false;
 
         // restore preserved props
