@@ -54,39 +54,21 @@ var ToggleContainer = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.toggle_group.allowSwitchOff',
             default: false
         },
-
-        /**
-         * !#en Read only property, return the toggle items array reference managed by ToggleContainer.
-         * !#zh 只读属性，返回 ToggleContainer 管理的 toggle 数组引用
-         * @property {Array} toggleItems
-         */
-        toggleItems: {
-            get: function () {
-                return this.node.getComponentsInChildren(cc.Toggle);
-            }
-        }
     },
 
     updateToggles: function (toggle) {
-        if(!this.enabledInHierarchy) return;
-
-        this.toggleItems.forEach(function (item){
-            if(toggle.isChecked) {
-                if (item !== toggle && item.isChecked && item.enabled) {
-                    item.isChecked = false;
-                }
-            }
+        this.toggleItems.forEach(function (item) {
+            item.isChecked = (item === toggle);
         });
     },
 
     _allowOnlyOneToggleChecked: function () {
         var isChecked = false;
         this.toggleItems.forEach(function (item) {
-            if(isChecked && item.enabled) {
+            if (isChecked) {
                 item.isChecked = false;
             }
-
-            if (item.isChecked && item.enabled) {
+            else if (item.isChecked) {
                 isChecked = true;
             }
         });
@@ -97,50 +79,39 @@ var ToggleContainer = cc.Class({
     _makeAtLeastOneToggleChecked: function () {
         var isChecked = this._allowOnlyOneToggleChecked();
 
-        if(!isChecked && !this.allowSwitchOff) {
-            if(this.toggleItems.length > 0) {
-                this.toggleItems[0].check();
+        if (!isChecked && !this.allowSwitchOff) {
+            var toggleItems = this.toggleItems;
+            if (toggleItems.length > 0) {
+                toggleItems[0].check();
             }
         }
     },
 
-    _childAdded: function (event) {
-        var toggle = event.detail.getComponent(cc.Toggle);
-        if (!toggle) {
-            return;
-        }
-        var index = this.toggleItems.indexOf(toggle);
-        if (index === -1) {
-            this.toggleItems.push(toggle);
-        }
-        this._allowOnlyOneToggleChecked();
-    },
-
-    _childRemoved: function (event) {
-        var toggle = event.detail.getComponent(cc.Toggle);
-        if (!toggle) {
-            return;
-        }
-        var index = this.toggleItems.indexOf(toggle);
-        if(index > -1) {
-            this.toggleItems.splice(index, 1);
-        }
-        this._makeAtLeastOneToggleChecked();
-    },
-
     onEnable: function () {
-        this.node.on('child-added', this._childAdded, this);
-        this.node.on('child-removed', this._childRemoved, this);
+        this.node.on('child-added', this._allowOnlyOneToggleChecked, this);
+        this.node.on('child-removed', this._makeAtLeastOneToggleChecked, this);
     },
 
     onDisable: function () {
-        this.node.off('child-added', this._childAdded, this);
-        this.node.off('child-removed', this._childRemoved, this);
+        this.node.off('child-added', this._allowOnlyOneToggleChecked, this);
+        this.node.off('child-removed', this._makeAtLeastOneToggleChecked, this);
     },
 
     start: function () {
         this._makeAtLeastOneToggleChecked();
     }
 });
+
+/**
+ * !#en Read only property, return the toggle items array reference managed by ToggleContainer.
+ * !#zh 只读属性，返回 ToggleContainer 管理的 toggle 数组引用
+ * @property {Toggle[]} toggleItems
+ */
+var JS = require('../platform/js');
+JS.get(ToggleContainer.prototype, 'toggleItems',
+    function () {
+        return this.node.getComponentsInChildren(cc.Toggle);
+    }
+);
 
 cc.ToggleContainer = module.exports = ToggleContainer;
