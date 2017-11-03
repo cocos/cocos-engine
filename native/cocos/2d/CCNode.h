@@ -1931,7 +1931,7 @@ protected:
 
     bool _transformUpdated;         ///< Whether or not the Transform object was updated since the last frame
     bool _cullingDirty;  ///< Whether culling is dirty
-    char padding[7];
+
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(Node);
 };
