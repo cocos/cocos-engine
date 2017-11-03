@@ -29,6 +29,8 @@
 #import "RootViewController.h"
 #import "platform/ios/CCEAGLView-ios.h"
 
+#import "cocos-analytics/CAAgent.h"
+
 using namespace cocos2d;
 
 @implementation AppController
@@ -42,6 +44,8 @@ using namespace cocos2d;
 static AppDelegate* s_sharedApplication = nullptr;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+
+    [CAAgent enableDebug:NO];
 
     if (s_sharedApplication == nullptr)
     {
@@ -113,6 +117,7 @@ static AppDelegate* s_sharedApplication = nullptr;
       If your application supports background execution, called instead of applicationWillTerminate: when the user quits.
     */
     cocos2d::Application::getInstance()->applicationDidEnterBackground();
+    [CAAgent onPause];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
@@ -124,6 +129,7 @@ static AppDelegate* s_sharedApplication = nullptr;
     if (glview == currentView) {
         cocos2d::Application::getInstance()->applicationWillEnterForeground();
     }
+    [CAAgent onResume];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
@@ -136,6 +142,7 @@ static AppDelegate* s_sharedApplication = nullptr;
         delete s_sharedApplication;
         s_sharedApplication = nullptr;
     }
+    [CAAgent onDestroy];
 }
 
 

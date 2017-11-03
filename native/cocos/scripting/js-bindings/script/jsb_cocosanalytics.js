@@ -20,6 +20,13 @@ if (platform === sys.ANDROID) {
     var cls_CAAgentWrapper = "org/cocos2dx/lib/CAAgentWrapper";
     
     cocosAnalytics.init = function(info) {
+
+        if (!info.channel) {
+            var anysdkChannelID = jsb.reflection.callStaticMethod(cls_CAAgentWrapper, "getChannelID", "()Ljava/lang/String;");
+            console.log("Found AnySDK channel ID: " + anysdkChannelID);
+            info.channel = anysdkChannelID;
+        }
+
         if (info && info.appID && info.appSecret && info.channel) {
             jsb.reflection.callStaticMethod(cls_CAAgentWrapper,
                 "init", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
@@ -300,8 +307,16 @@ if (platform === sys.ANDROID) {
     var cls_CAPayment = "CAPeiment";
     var cls_CATask = "CATask";
     var cls_CAVirtual = "CAVirtual";
+    var cls_JSB_PlatformIOS = "JSB_PlatformIOS";
 
     cocosAnalytics.init = function(info) {
+
+        if (!info.channel) {
+            var anysdkChannelID = jsb.reflection.callStaticMethod(cls_JSB_PlatformIOS, "getChannelID");
+            console.log("Found AnySDK channel ID: " + anysdkChannelID);
+            info.channel = anysdkChannelID;
+        }
+
         if (info && info.appID && info.appSecret && info.channel) {
             jsb.reflection.callStaticMethod(cls_CAAgent,
                 "init:appID:appSecret:",
