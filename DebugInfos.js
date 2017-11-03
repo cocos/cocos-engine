@@ -50,6 +50,7 @@ if (CC_DEBUG) {
         "1402": "The 'visible' property of %s is deprecated, use 'enabled' instead please.", //visible
         "1403": "Sorry, cc.audioEngine.willPlayMusic is removed.", //willPlayMusicError
         "1404": "cc.spriteFrameCache is removed, please use cc.loader to load and cache sprite frames of atlas format.",
+        "1405": "The '%s' will be removed in v2.0, please use '%s' instead. \uD83D\uDE30",
         //Scheduler: 1500
         "1500": "cc.Scheduler#schedule: Callback already scheduled. Updating interval from:%s to %s", //scheduleCallbackForTarget
         "1501": "cc.Scheduler#scheduleCallbackForTarget(): callback_fn should be non-null.", //scheduleCallbackForTarget_2
@@ -340,7 +341,7 @@ if (CC_DEBUG) {
         "3700": "internal error: _prefab is undefined", //_doInstantiate
         "3701": "Failed to load prefab asset for node '%s'", //syncWithPrefab
         //Game: 3800
-        "3800": "The target can not be made persist because it\'s not a cc.Node or it doesn\'t have _id property.", //addPersistRootNode
+        "3800": "The target can not be made persist because it\'s invalid or it doesn\'t have _id property.", //addPersistRootNode
         "3801": "The node can not be made persist because it\'s not under root node.", //addPersistRootNode_2
         "3802": "The node can not be made persist because it\'s not in current scene.", //addPersistRootNode_3
         "3803": "The target can not be made persist because it\'s not a cc.Node or it doesn\'t have _id property.", //addPersistRootNode_4
@@ -618,8 +619,6 @@ if (CC_DEBUG) {
         "8301": "Camera does not support Canvas Mode.", //cc.Camera.enabled
         // AudioEngine: 8400
         "8400": "Wrong type arguments, 'filePath' must be a String.", // cc.audioEngine.play
-        // ToggleGroup: 8500
-        "8500": "The ToggleGroup.toggleItems api will be removed in v2.0, please obtain toggles in other ways. \uD83D\uDE30",
     };
     cc._LogInfos = logs;
 }
