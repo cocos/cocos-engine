@@ -4869,6 +4869,8 @@
         "cocos/scripting/js-bindings/manual/jsb_module_register.hpp", 
         "cocos/scripting/js-bindings/manual/jsb_node.cpp", 
         "cocos/scripting/js-bindings/manual/jsb_node.hpp", 
+        "cocos/scripting/js-bindings/manual/jsb_platform_ios.h", 
+        "cocos/scripting/js-bindings/manual/jsb_platfrom_ios.m", 
         "cocos/scripting/js-bindings/manual/jsb_socketio.cpp", 
         "cocos/scripting/js-bindings/manual/jsb_socketio.hpp", 
         "cocos/scripting/js-bindings/manual/jsb_spine_manual.cpp", 
