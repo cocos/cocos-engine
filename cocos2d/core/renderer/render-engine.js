@@ -8301,6 +8301,7 @@ module.exports = (function () {
       let img = options.image;
   
       if (
+        window.wx ||
         img instanceof HTMLCanvasElement ||
         img instanceof HTMLImageElement ||
         img instanceof HTMLVideoElement
