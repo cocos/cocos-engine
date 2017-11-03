@@ -8401,10 +8401,10 @@ module.exports = (function () {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, this._wrapS);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, this._wrapT);
   
-      let ext = this._device.ext('EXT_texture_filter_anisotropic');
-      if (ext) {
-        gl.texParameteri(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, this._anisotropy);
-      }
+      // let ext = this._device.ext('EXT_texture_filter_anisotropic');
+      // if (ext) {
+      //   gl.texParameteri(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, this._anisotropy);
+      // }
     }
   }
   
@@ -12870,7 +12870,10 @@ module.exports = (function () {
     const sys = window.cc && window.cc.sys;
     let canvas = document.createElement("canvas");
     
-    if (window.WebGLRenderingContext) {
+    if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+      supportWebGL = true;
+    }
+    else if (window.WebGLRenderingContext) {
       // if (create3DContext(canvas)) {
         supportWebGL = true;
       // }
