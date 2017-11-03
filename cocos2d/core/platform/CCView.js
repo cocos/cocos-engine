@@ -26,18 +26,24 @@
 
 const renderer = require('../renderer');
 
+function isWeChatGame () {
+    return window['wx'];
+}
+
 var __BrowserGetter = {
     init: function(){
-        this.html = document.getElementsByTagName("html")[0];
+        if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME) {
+            this.html = document.getElementsByTagName("html")[0];
+        }
     },
     availWidth: function(frame){
-        if(!frame || frame === this.html)
+        if (!frame || frame === this.html)
             return window.innerWidth;
         else
             return frame.clientWidth;
     },
     availHeight: function(frame){
-        if(!frame || frame === this.html)
+        if (!frame || frame === this.html)
             return window.innerHeight;
         else
             return frame.clientHeight;
@@ -48,13 +54,17 @@ var __BrowserGetter = {
     adaptationType: cc.sys.browserType
 };
 
-if(window.navigator.userAgent.indexOf("OS 8_1_") > -1) //this mistake like MIUI, so use of MIUI treatment method
+if (window.navigator.userAgent.indexOf("OS 8_1_") > -1) //this mistake like MIUI, so use of MIUI treatment method
     __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_MIUI;
 
-if(cc.sys.os === cc.sys.OS_IOS) // All browsers are WebView
+if (cc.sys.os === cc.sys.OS_IOS) // All browsers are WebView
     __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_SAFARI;
 
-switch(__BrowserGetter.adaptationType){
+if (isWeChatGame()) {
+    __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_WECHAT_GAME;
+}
+
+switch (__BrowserGetter.adaptationType) {
     case cc.sys.BROWSER_TYPE_SAFARI:
         __BrowserGetter.meta["minimal-ui"] = "true";
         __BrowserGetter.availWidth = function(frame){
@@ -90,6 +100,14 @@ switch(__BrowserGetter.adaptationType){
                 window.removeEventListener("resize", resize, false);
             };
             window.addEventListener("resize", resize, false);
+        };
+        break;
+    case cc.sys.BROWSER_TYPE_WECHAT_GAME:
+        __BrowserGetter.availWidth = function(frame){
+            return frame.innerWidth;
+        };
+        __BrowserGetter.availHeight = function(frame){
+            return frame.innerHeight;
         };
         break;
 }
@@ -379,7 +397,7 @@ var View = cc._Class.extend({
     },
 
     _adjustViewportMeta: function () {
-        if (this._isAdjustViewPort) {
+        if (this._isAdjustViewPort && cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME) {
             this._setViewportMeta(__BrowserGetter.meta, false);
             this._isAdjustViewPort = false;
         }
@@ -799,14 +817,16 @@ var View = cc._Class.extend({
      * @param {ResolutionPolicy|Number} resolutionPolicy The resolution policy desired
      */
     setRealPixelResolution: function (width, height, resolutionPolicy) {
-        // Set viewport's width
-        this._setViewportMeta({"width": width}, true);
+        if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME) {
+            // Set viewport's width
+            this._setViewportMeta({"width": width}, true);
 
-        // Set body width to the exact pixel resolution
-        document.documentElement.style.width = width + "px";
-        document.body.style.width = width + "px";
-        document.body.style.left = "0px";
-        document.body.style.top = "0px";
+            // Set body width to the exact pixel resolution
+            document.documentElement.style.width = width + "px";
+            document.body.style.width = width + "px";
+            document.body.style.left = "0px";
+            document.body.style.top = "0px";
+        }
 
         // Reset the resolution size and policy
         this.setDesignResolutionSize(width, height, resolutionPolicy);
@@ -1032,14 +1052,16 @@ cc.ContainerStrategy = cc._Class.extend(/** @lends cc.ContainerStrategy# */{
 
     _setupContainer: function (view, w, h) {
         var locCanvas = cc.game.canvas, locContainer = cc.game.container;
-        if (cc.sys.os === cc.sys.OS_ANDROID) {
-            document.body.style.width = (view._isRotated ? h : w) + 'px';
-            document.body.style.height = (view._isRotated ? w : h) + 'px';
-        }
 
-        // Setup style
-        locContainer.style.width = locCanvas.style.width = w + 'px';
-        locContainer.style.height = locCanvas.style.height = h + 'px';
+        if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME) {
+            if (cc.sys.os === cc.sys.OS_ANDROID) {
+                document.body.style.width = (view._isRotated ? h : w) + 'px';
+                document.body.style.height = (view._isRotated ? w : h) + 'px';
+            }
+            // Setup style
+            locContainer.style.width = locCanvas.style.width = w + 'px';
+            locContainer.style.height = locCanvas.style.height = h + 'px';
+        }
         // Setup pixel ratio for retina display
         var devicePixelRatio = view._devicePixelRatio = 1;
         if (view.isRetinaEnabled())

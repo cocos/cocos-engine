@@ -342,6 +342,13 @@ sys.EDITOR_CORE = 103;
  */
 sys.BROWSER_TYPE_WECHAT = "wechat";
 /**
+ * BROWSER_TYPE_WECHAT_GAME
+ * @property {String} BROWSER_TYPE_WECHAT_GAME
+ * @readOnly
+ * @default "wechatgame"
+ */
+sys.BROWSER_TYPE_WECHAT_GAME = "wechatgame";
+/**
  *
  * @property {String} BROWSER_TYPE_ANDROID
  * @readOnly
@@ -487,6 +494,10 @@ sys.isNative = false;
  */
 sys.isBrowser = typeof window === 'object' && typeof document === 'object';
 
+function isWeChatGame () {
+    return window['wx'];
+}
+
 if (CC_EDITOR && Editor.isMainProcess) {
     sys.isMobile = false;
     sys.platform = sys.EDITOR_CORE;
@@ -593,7 +604,9 @@ else {
         var browserTypes = typeReg1.exec(ua);
         if(!browserTypes) browserTypes = typeReg2.exec(ua);
         var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
-        if (browserType === 'micromessenger')
+        if (isWeChatGame())
+            browserType = sys.BROWSER_TYPE_WECHAT_GAME;
+        else if (browserType === 'micromessenger')
             browserType = sys.BROWSER_TYPE_WECHAT;
         else if (browserType === "safari" && isAndroid)
             browserType = sys.BROWSER_TYPE_ANDROID;
@@ -761,6 +774,9 @@ else {
             }
         }
     }
+    else if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+        _supportWebGL = true;
+    }
 
     /**
      * The capabilities of the current platform
@@ -803,7 +819,8 @@ else {
 
         // check if browser supports Web Audio
         // check Web Audio's context
-        var supportWebAudio = !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
+        var supportWebAudio = sys.browserType !== sys.BROWSER_TYPE_WECHAT_GAME && 
+                              !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 
         __audioSupport = { ONLY_ONE: false, WEB_AUDIO: supportWebAudio, DELAY_CREATE_CTX: false };
 
