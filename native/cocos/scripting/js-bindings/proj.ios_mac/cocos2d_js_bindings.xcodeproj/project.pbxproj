@@ -43,6 +43,8 @@
 		1A6293F11F44128300A07B77 /* BaseJSAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A6293EE1F44128300A07B77 /* BaseJSAction.cpp */; };
 		1A6293F21F44128300A07B77 /* BaseJSAction.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A6293EF1F44128300A07B77 /* BaseJSAction.h */; };
 		1A6293F31F44128300A07B77 /* BaseJSAction.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A6293EF1F44128300A07B77 /* BaseJSAction.h */; };
+		1A6821401FAC206300C18C60 /* jsb_platfrom_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A68213F1FAC206300C18C60 /* jsb_platfrom_ios.m */; };
+		1A6821421FAC20B300C18C60 /* jsb_platform_ios.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A6821411FAC20B300C18C60 /* jsb_platform_ios.h */; };
 		1A6B8FB31F3BF7E800BC83DC /* SHA1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A6B8FB11F3BF7E800BC83DC /* SHA1.cpp */; };
 		1A6B8FB41F3BF7E800BC83DC /* SHA1.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A6B8FB21F3BF7E800BC83DC /* SHA1.h */; };
 		1A7759C91F340FB10012A210 /* inspector_agent.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A7759C11F340FB10012A210 /* inspector_agent.cc */; };
@@ -299,6 +301,8 @@
 		1A5F229B1F0E37B20008BF09 /* jsb_creator_physics_manual.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_creator_physics_manual.hpp; sourceTree = "<group>"; };
 		1A6293EE1F44128300A07B77 /* BaseJSAction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BaseJSAction.cpp; sourceTree = "<group>"; };
 		1A6293EF1F44128300A07B77 /* BaseJSAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseJSAction.h; sourceTree = "<group>"; };
+		1A68213F1FAC206300C18C60 /* jsb_platfrom_ios.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = jsb_platfrom_ios.m; sourceTree = "<group>"; };
+		1A6821411FAC20B300C18C60 /* jsb_platform_ios.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = jsb_platform_ios.h; sourceTree = "<group>"; };
 		1A6B8FB11F3BF7E800BC83DC /* SHA1.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SHA1.cpp; sourceTree = "<group>"; };
 		1A6B8FB21F3BF7E800BC83DC /* SHA1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SHA1.h; sourceTree = "<group>"; };
 		1A7759C11F340FB10012A210 /* inspector_agent.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = inspector_agent.cc; sourceTree = "<group>"; };
@@ -535,6 +539,8 @@
 				1AFD36C11EF116190097DBB1 /* ScriptingCore.h */,
 				1A9F0F9B1F30235C00A499E1 /* jsb_helper.cpp */,
 				1A9F0F9C1F30235C00A499E1 /* jsb_helper.hpp */,
+				1A68213F1FAC206300C18C60 /* jsb_platfrom_ios.m */,
+				1A6821411FAC20B300C18C60 /* jsb_platform_ios.h */,
 			);
 			name = manual;
 			path = ../manual;
@@ -813,6 +819,7 @@
 				1A9F0FA01F30235C00A499E1 /* jsb_helper.hpp in Headers */,
 				1AF82D461F2EE1C40002C5A0 /* HandleObject.hpp in Headers */,
 				1AFD36511EF115100097DBB1 /* Class.hpp in Headers */,
+				1A6821421FAC20B300C18C60 /* jsb_platform_ios.h in Headers */,
 				1AFD36491EF115100097DBB1 /* Utils.hpp in Headers */,
 				1A159D531F13216F00558E38 /* jsb_socketio.hpp in Headers */,
 				1AFD36691EF115100097DBB1 /* SeApi.h in Headers */,
@@ -988,6 +995,7 @@
 				1AFD36371EF115100097DBB1 /* Class.cpp in Sources */,
 				1AFD36811EF115100097DBB1 /* State.cpp in Sources */,
 				1AFD36FB1EF116190097DBB1 /* jsb_xmlhttprequest.cpp in Sources */,
+				1A6821401FAC206300C18C60 /* jsb_platfrom_ios.m in Sources */,
 				1AFD36471EF115100097DBB1 /* Utils.cpp in Sources */,
 				4D3EB2671F8F779E007DA644 /* jsb_creator_manual.cpp in Sources */,
 				4D558C8E1F9700770083B43B /* jsb_creator_graphics_auto.cpp in Sources */,

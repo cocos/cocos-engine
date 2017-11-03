@@ -45,6 +45,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
+import com.cocos.analytics.CAAgent;
+
 import org.cocos2dx.lib.Cocos2dxHelper.Cocos2dxHelperListener;
 
 import javax.microedition.khronos.egl.EGL10;
@@ -272,6 +274,8 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
 
         this.hideVirtualButton();
 
+        CAAgent.enableDebug(false);
+
         onLoadNativeLibraries();
 
         sContext = this;
@@ -348,6 +352,7 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
     @Override
     protected void onDestroy() {
         Cocos2dxAudioFocusManager.unregisterAudioFocusListener(this);
+        CAAgent.onDestroy();
         super.onDestroy();
     }
 

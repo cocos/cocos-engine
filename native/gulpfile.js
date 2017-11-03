@@ -27,17 +27,13 @@ function execSync(cmd, workPath) {
 function downloadSimulatorDLL(callback) {
     var Download = require('download');
     var destPath = Path.join('simulator', 'win32');
-    new Download({
-            mode: '755',
-            extract: true,
-            strip: 0
-        })
-        .get('http://192.168.52.109/TestBuilds/Fireball/simulator/dlls/dll.zip')
-        .dest(destPath)
-        .run(function(err, files) {
-            if (err) throw err;
-            else callback();
-        });
+    Download('http://192.168.52.109/TestBuilds/Fireball/simulator/dlls/dll.zip', destPath, {
+        mode: '755',
+        extract: true,
+        strip: 0
+    }).then(function(res) {
+        callback();
+    }).catch(callback);
 }
 
 function upload2Ftp(localPath, ftpPath, config, cb) {
