@@ -91,9 +91,9 @@ function getCurrentBranch() {
 }
 
 gulp.task('init', function(cb) {
-    execSync('python download-deps.py', '.');
+    execSync('python download-deps.py --remove-download no', '.');
     execSync('git submodule update --init', '.');
-    execSync('python download-bin.py', './tools/cocos2d-console');
+    execSync('python download-bin.py --remove-download no', './tools/cocos2d-console');
     cb();
 });
 
