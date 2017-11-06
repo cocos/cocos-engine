@@ -77,17 +77,20 @@ math.glFreeAll = function () {
 
 math.glPushMatrix = function () {
     cc.current_stack.push(cc.current_stack.top);
+    cc.current_stack.update();
 };
 
 math.glPushMatrixWitMat4 = function (saveMat) {
     cc.current_stack.stack.push(cc.current_stack.top);
     saveMat.assignFrom(cc.current_stack.top);
     cc.current_stack.top = saveMat;
+    cc.current_stack.update();
 };
 
 math.glPopMatrix = function () {
     //No need to lazy initialize, you shouldnt be popping first anyway!
     cc.current_stack.top = cc.current_stack.stack.pop();
+    cc.current_stack.update();
 };
 
 math.glMatrixMode = function (mode) {
