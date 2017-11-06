@@ -133,7 +133,7 @@ var inputManager = {
         var selTouch, index, touchID, 
             handleTouches = [], locTouches = this._touches,
             now = sys.now();
-        for(var i = 0, len = touches.length; i< len; i ++){
+        for(var i = 0, len = touches.length; i < len; i++){
             selTouch = touches[i];
             touchID = selTouch.getID();
             index = this._touchesIntegerDict[touchID];
