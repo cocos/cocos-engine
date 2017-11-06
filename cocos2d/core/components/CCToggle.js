@@ -99,10 +99,6 @@ var Toggle = cc.Class({
 
     },
 
-    onLoad: function () {
-        this._toggleContainer = this.node.parent.getComponent(cc.ToggleContainer);
-    },
-
     onEnable: function () {
         this._super();
         if (!CC_EDITOR) {
@@ -221,6 +217,19 @@ var Toggle = cc.Class({
 });
 
 cc.Toggle = module.exports = Toggle;
+
+
+var JS = require('../platform/js');
+
+JS.get(Toggle.prototype, '_toggleContainer',
+    function () {
+        var parent = this.node.parent;
+        if (cc.Node.isNode(parent)) {
+            return parent.getComponent(cc.ToggleContainer);
+        }
+        return null;
+    }
+);
 
 /**
  * !#en
