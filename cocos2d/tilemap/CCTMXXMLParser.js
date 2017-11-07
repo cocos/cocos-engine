@@ -566,7 +566,9 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
     parseXMLFile:function (tmxFile, isXmlString, tilesetFirstGid) {
         isXmlString = isXmlString || false;
 	    var xmlStr = isXmlString ? tmxFile : cc.loader.getRes(tmxFile);
-        if(!xmlStr) throw new Error("Please load the resource first : " + tmxFile);
+        if (!xmlStr) {
+            cc.errorID(7220, tmxFile);
+        }
 
         var mapXML = this._parseXML(xmlStr);
         var i, j;
