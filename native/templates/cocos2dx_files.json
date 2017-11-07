@@ -4461,6 +4461,7 @@
         "tools/simulator/frameworks/runtime-src/Classes/ide-support/lang", 
         "tools/simulator/frameworks/runtime-src/proj.android-studio/app/AndroidManifest.xml", 
         "tools/simulator/frameworks/runtime-src/proj.android-studio/app/build.gradle", 
+        "tools/simulator/frameworks/runtime-src/proj.android-studio/app/debug.keystore", 
         "tools/simulator/frameworks/runtime-src/proj.android-studio/app/jni/Android.mk", 
         "tools/simulator/frameworks/runtime-src/proj.android-studio/app/jni/Application.mk", 
         "tools/simulator/frameworks/runtime-src/proj.android-studio/app/jni/hellojavascript/main.cpp", 
