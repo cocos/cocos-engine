@@ -72,6 +72,25 @@ static bool js_creator_camera_CameraNode_getVisibleRect(se::State& s)
 }
 SE_BIND_FUNC(js_creator_camera_CameraNode_getVisibleRect)
 
+static bool js_creator_camera_CameraNode_setEnable(se::State& s)
+{
+    creator::CameraNode* cobj = (creator::CameraNode*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_creator_camera_CameraNode_setEnable : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        bool arg0;
+        ok &= seval_to_boolean(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_creator_camera_CameraNode_setEnable : Error processing arguments");
+        cobj->setEnable(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_creator_camera_CameraNode_setEnable)
+
 static bool js_creator_camera_CameraNode_containsNode(se::State& s)
 {
     creator::CameraNode* cobj = (creator::CameraNode*)s.nativeThisObject();
@@ -163,6 +182,7 @@ bool js_register_creator_camera_CameraNode(se::Object* obj)
     cls->defineFunction("removeTarget", _SE(js_creator_camera_CameraNode_removeTarget));
     cls->defineFunction("setTransform", _SE(js_creator_camera_CameraNode_setTransform));
     cls->defineFunction("getVisibleRect", _SE(js_creator_camera_CameraNode_getVisibleRect));
+    cls->defineFunction("setEnable", _SE(js_creator_camera_CameraNode_setEnable));
     cls->defineFunction("containsNode", _SE(js_creator_camera_CameraNode_containsNode));
     cls->defineFunction("addTarget", _SE(js_creator_camera_CameraNode_addTarget));
     cls->defineStaticFunction("getInstance", _SE(js_creator_camera_CameraNode_getInstance));
