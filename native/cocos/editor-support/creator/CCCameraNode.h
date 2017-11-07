@@ -47,6 +47,8 @@ namespace creator {
         
         static CameraNode* getInstance();
         
+        void setEnable(bool enable);
+        
         void setTransform(float a, float b, float c, float d, float tx, float ty);
         
         bool containsNode(cocos2d::Node* node);
