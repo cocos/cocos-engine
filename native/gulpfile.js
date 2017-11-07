@@ -18,7 +18,7 @@ gulp.task('publish-prebuilt', gulpSequence('init', 'make-simulator', 'make-prebu
 
 function execSync(cmd, workPath) {
     var execOptions = {
-        cwd: workPath,
+        cwd: workPath || '.',
         stdio: 'inherit'
     };
     ExecSync(cmd, execOptions);
@@ -91,9 +91,9 @@ function getCurrentBranch() {
 }
 
 gulp.task('init', function(cb) {
-    execSync('python download-deps.py', '.');
-    execSync('git submodule update --init', '.');
-    execSync('python download-bin.py', './tools/cocos2d-console');
+    execSync('python download-deps.py --remove-download no');
+    execSync('git submodule update --init');
+    execSync('python download-bin.py --remove-download no', './tools/cocos2d-console');
     cb();
 });
 
@@ -105,7 +105,7 @@ gulp.task('gen-libs', function(cb) {
     } else {
         cocosConsoleBin = Path.join(cocosConsoleRoot, 'cocos.bat');
     }
-    execSync(cocosConsoleBin + ' gen-libs -m release --vs 2015 --android-studio --app-abi armeabi:arm64-v8a:armeabi-v7a:x86', '.');
+    execSync(cocosConsoleBin + ' gen-libs -m release --vs 2015 --android-studio --app-abi armeabi:arm64-v8a:armeabi-v7a:x86');
     cb();
 });
 
@@ -119,11 +119,15 @@ gulp.task('gen-simulator', function(cb) {
     var cocosConsoleBin;
     if (process.platform === 'darwin') {
         cocosConsoleBin = Path.join(cocosConsoleRoot, 'cocos');
-        // copy mac xcode project with signing info
-        if (fs.existsSync('simulator.xcodeproj')) {
+        if (fs.existsSync('./simulator.xcodeproj')) {
+            // copy mac xcode project with signing info
             fs.copySync('./simulator.xcodeproj', './tools/simulator/frameworks/runtime-src/proj.ios_mac/simulator.xcodeproj');
         }
-    } else {
+        else {
+            return cb('Failed to generate simulator, xcode project not signed. Run "gulp sign-simulator" please.');
+        }
+    }
+    else {
         cocosConsoleBin = Path.join(cocosConsoleRoot, 'cocos.bat');
     }
     var args;
@@ -142,21 +146,26 @@ gulp.task('gen-simulator', function(cb) {
         });
         child.on('close', (code) => {
             if (code !== 0) {
-                console.error('Generate simulator failed');
+                cb('Generate simulator failed');
+                return;
             }
-            //reset project file to hide code sign information.
-            ExecSync('git checkout -- ./tools/simulator/frameworks/runtime-src/proj.ios_mac/simulator.xcodeproj');
-            cb();
-            return;
+            if (process.platform === 'darwin') {
+                //reset project file to hide code sign information.
+                ExecSync('git checkout -- ./tools/simulator/frameworks/runtime-src/proj.ios_mac/simulator.xcodeproj');
+            }
         });
         child.on('error', function() {
-            console.error('Generate simulator failed');
-            cb();
+            cb('Generate simulator failed');
         });
     } catch (err) {
-        console.error(err);
-        cb();
-        return;
+        cb(err);
+    }
+});
+
+gulp.task('sign-simulator', function () {
+    if (process.platform === 'darwin') {
+        execSync('/Applications/Xcode.app/Contents/MacOS/Xcode ./tools/simulator/frameworks/runtime-src/proj.ios_mac/simulator.xcodeproj');
+        fs.copySync('./tools/simulator/frameworks/runtime-src/proj.ios_mac/simulator.xcodeproj', './simulator.xcodeproj');
     }
 });
 
