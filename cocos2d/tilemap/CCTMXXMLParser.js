@@ -189,6 +189,18 @@ cc.TMXTilesetInfo = cc._Class.extend(/** @lends cc.TMXTilesetInfo# */{
     }
 });
 
+function getPropertyList (node) {
+    let res = [];
+    let properties = node.getElementsByTagName("properties");
+    for (let i = 0; i < properties.length; ++i) {
+        let property = properties[i].getElementsByTagName("property");
+        for (let j = 0; j < property.length; ++j) {
+            res.push(property[j]);
+        }
+    }
+    return res.length ? res : null;
+}
+
 /**
  * <p>cc.TMXMapInfo contains the information about the map like: <br/>
  *- Map orientation (hexagonal, isometric or orthogonal)<br/>
@@ -624,7 +636,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
             this.setTileSize(mapSize);
 
             // The parent element is the map
-            var propertyArr = map.querySelectorAll("map > properties >  property");
+            var propertyArr = getPropertyList(map);
             if (propertyArr) {
                 var aPropertyDict = {};
                 for (i = 0; i < propertyArr.length; i++) {
@@ -694,7 +706,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                     for (var tIdx = 0; tIdx < tiles.length; tIdx++) {
                         var t = tiles[tIdx];
                         this.parentGID = parseInt(tileset.firstGid) + parseInt(t.getAttribute('id') || 0);
-                        var tp = t.querySelectorAll("properties > property");
+                        var tp = getPropertyList(t);
                         if (tp) {
                             var dict = {};
                             for (j = 0; j < tp.length; j++) {
@@ -807,7 +819,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
         }
 
         // The parent element is the last layer
-        var layerProps = selLayer.querySelectorAll("properties > property");
+        var layerProps = getPropertyList(selLayer);
         if (layerProps) {
             var layerProp = {};
             for (let j = 0; j < layerProps.length; j++) {
@@ -841,7 +853,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
         if (draworder)
             objectGroup._draworder = draworder;
 
-        var groupProps = selGroup.querySelectorAll("objectgroup > properties > property");
+        var groupProps = getPropertyList(selGroup);
         if (groupProps) {
             var parsedProps = {};
             for (let j = 0; j < groupProps.length; j++) {
@@ -851,7 +863,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
             objectGroup.setProperties(parsedProps);
         }
 
-        var objects = selGroup.querySelectorAll('object');
+        var objects = selGroup.getElementsByTagName('object');
         var getContentScaleFactor = cc.director.getContentScaleFactor();
         if (objects) {
             for (let j = 0; j < objects.length; j++) {
@@ -875,7 +887,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
 
                 objectProp["rotation"] = parseFloat(selObj.getAttribute('rotation')) || 0;
 
-                var docObjProps = selObj.querySelectorAll("properties > property");
+                var docObjProps = getPropertyList(selObj);
                 if (docObjProps) {
                     for (var k = 0; k < docObjProps.length; k++)
                         objectProp[docObjProps[k].getAttribute('name')] = docObjProps[k].getAttribute('value');
@@ -893,13 +905,13 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                 }
 
                 // ellipse
-                var ellipse = selObj.querySelectorAll('ellipse');
+                var ellipse = selObj.getElementsByTagName('ellipse');
                 if (ellipse && ellipse.length > 0) {
                     objectProp['type'] = cc.TiledMap.TMXObjectType.ELLIPSE;
                 }
 
                 //polygon
-                var polygonProps = selObj.querySelectorAll("polygon");
+                var polygonProps = selObj.getElementsByTagName("polygon");
                 if(polygonProps && polygonProps.length > 0) {
                     objectProp['type'] = cc.TiledMap.TMXObjectType.POLYGON;
                     var selPgPointStr = polygonProps[0].getAttribute('points');
@@ -908,7 +920,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                 }
 
                 //polyline
-                var polylineProps = selObj.querySelectorAll("polyline");
+                var polylineProps = selObj.getElementsByTagName("polyline");
                 if(polylineProps && polylineProps.length > 0) {
                     objectProp['type'] = cc.TiledMap.TMXObjectType.POLYLINE;
                     var selPlPointStr = polylineProps[0].getAttribute('points');
