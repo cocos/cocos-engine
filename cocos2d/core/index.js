@@ -33,6 +33,7 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
     require('./components');
     require('./graphics');
     require('./collider');
+    require('./collider/CCIntersection');
     require('./physics');
     require('./camera/CCCamera');
 }
