@@ -209,13 +209,60 @@ namespace se {
         return obj;
     }
     
-    Object* Object::createUint8TypedArray(uint8_t* data, size_t byteLength)
+    Object* Object::createTypedArray(TypedArrayType type, void* data, size_t byteLength)
     {
+        if (type == TypedArrayType::NONE)
+        {
+            SE_LOGE("Don't pass se::Object::TypedArrayType::NONE to createTypedArray API!");
+            return nullptr;
+        }
+
+        if (type == TypedArrayType::UINT8_CLAMPED)
+        {
+            SE_LOGE("Doesn't support to create Uint8ClampedArray with Object::createTypedArray API!");
+            return nullptr;
+        }
+
         v8::Local<v8::ArrayBuffer> jsobj = v8::ArrayBuffer::New(__isolate, byteLength);
         memcpy(jsobj->GetContents().Data(), data, byteLength);
-        v8::Local<v8::Uint8Array> arr = v8::Uint8Array::New(jsobj, 0, byteLength);
+        v8::Local<v8::Object> arr;
+        switch (type) {
+            case TypedArrayType::INT8:
+                arr = v8::Int8Array::New(jsobj, 0, byteLength);
+                break;
+            case TypedArrayType::INT16:
+                arr = v8::Int16Array::New(jsobj, 0, byteLength / 2);
+                break;
+            case TypedArrayType::INT32:
+                arr = v8::Int32Array::New(jsobj, 0, byteLength / 4);
+                break;
+            case TypedArrayType::UINT8:
+                arr = v8::Uint8Array::New(jsobj, 0, byteLength);
+                break;
+            case TypedArrayType::UINT16:
+                arr = v8::Uint16Array::New(jsobj, 0, byteLength / 2);
+                break;
+            case TypedArrayType::UINT32:
+                arr = v8::Uint32Array::New(jsobj, 0, byteLength / 4);
+                break;
+            case TypedArrayType::FLOAT32:
+                arr = v8::Float32Array::New(jsobj, 0, byteLength / 4);
+                break;
+            case TypedArrayType::FLOAT64:
+                arr = v8::Float64Array::New(jsobj, 0, byteLength / 8);
+                break;
+            default:
+                assert(false); // Should never go here.
+                break;
+        }
+
         Object* obj = Object::_createJSObject(nullptr, arr);
         return obj;
+    }
+
+    Object* Object::createUint8TypedArray(uint8_t* data, size_t dataCount)
+    {
+        return createTypedArray(TypedArrayType::UINT8, data, dataCount);
     }
 
     Object* Object::createJSONObject(const std::string& jsonStr)
@@ -330,6 +377,32 @@ namespace se {
     bool Object::isTypedArray() const
     {
         return const_cast<Object*>(this)->_obj.handle(__isolate)->IsTypedArray();
+    }
+
+    Object::TypedArrayType Object::getTypedArrayType() const
+    {
+        v8::Local<v8::Value> value = const_cast<Object*>(this)->_obj.handle(__isolate);
+        TypedArrayType ret = TypedArrayType::NONE;
+        if (value->IsInt8Array())
+            ret = TypedArrayType::INT8;
+        else if (value->IsInt16Array())
+            ret = TypedArrayType::INT16;
+        else if (value->IsInt32Array())
+            ret = TypedArrayType::INT32;
+        else if (value->IsUint8Array())
+            ret = TypedArrayType::UINT8;
+        else if (value->IsUint8ClampedArray())
+            ret = TypedArrayType::UINT8_CLAMPED;
+        else if (value->IsUint16Array())
+            ret = TypedArrayType::UINT16;
+        else if (value->IsUint32Array())
+            ret = TypedArrayType::UINT32;
+        else if (value->IsFloat32Array())
+            ret = TypedArrayType::FLOAT32;
+        else if (value->IsFloat64Array())
+            ret = TypedArrayType::FLOAT64;
+
+        return ret;
     }
 
     bool Object::getTypedArrayData(uint8_t** ptr, size_t* length) const
