@@ -26,7 +26,7 @@ else {
             var filePath = url;
             // var localPath = wx.env.USER_DATA_PATH + '/' + filePath;
             // Read from package
-            fs.accessSync(filePath);
+            // fs.accessSync(filePath);
             fs.readFile({
                 filePath: filePath,
                 encoding: 'utf8',
