@@ -748,15 +748,19 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 }
                 if (options.minFilter !== undefined) {
                     this._minFilter = options.minFilter;
+                    updateImage = true;
                 }
                 if (options.magFilter !== undefined) {
                     this._magFilter = options.magFilter;
+                    updateImage = true;
                 }
                 if (options.wrapS !== undefined) {
                     this._wrapS = options.wrapS;
+                    updateImage = true;
                 }
                 if (options.wrapT !== undefined) {
                     this._wrapT = options.wrapT;
+                    updateImage = true;
                 }
                 if (options.format !== undefined) {
                     this._format = options.format;
@@ -890,7 +894,6 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             opts.minFilter = opts.magFilter = filter;
             this.update(opts);
 
-            this._image = null;
             this.loaded = true;
             this.emit("load");
         };
