@@ -25,7 +25,7 @@ se::Object* __jsb_spine_TrackEntry_proto = nullptr;
 
 static bool jsb_spine_TrackEntry_finalize(se::State& s)
 {
-    CCLOG("jsbindings: finalizing JS object %p (spTrackEntry)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (spTrackEntry)", s.nativeThisObject());
     return true;
 }
 SE_BIND_FINALIZE_FUNC(jsb_spine_TrackEntry_finalize)
@@ -290,7 +290,7 @@ static bool js_register_spine_TrackEntry(se::Object* obj)
             auto iter = se::NativePtrToObjectMap::find(entry);
             if (iter != se::NativePtrToObjectMap::end())
             {
-                CCLOG("spTrackEntry %p was recycled!", entry);
+                CCLOGINFO("spTrackEntry %p was recycled!", entry);
                 se::Object* seObj = iter->second;
                 seObj->clearPrivateData();
                 seObj->unroot();
