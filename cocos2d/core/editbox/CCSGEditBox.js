@@ -284,8 +284,8 @@ _ccsg.EditBox = _ccsg.Node.extend({
     },
 
     createDomElementIfNeeded: function () {
-        if(!this._renderCmd._edTxt) {
-            this._renderCmd._createDomTextArea();
+        if (!this._renderCmd._edTxt) {
+            this._renderCmd.setInputMode(this._editBoxInputMode);
         }
     },
 
@@ -856,24 +856,8 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     proto._createWXInput = function (multiline) {
         this.removeDom();
         var thisPointer = this;
-        var tmpEdTxt = this._edTxt = document.createElement(multiline ? "textarea" : "input");
+        var tmpEdTxt = this._edTxt = document.createElement("input");
         tmpEdTxt.type = "text";
-        tmpEdTxt.style.fontSize = this._edFontSize + "px";
-        tmpEdTxt.style.color = "#000000";
-        tmpEdTxt.style.border = 0;
-        tmpEdTxt.style.background = "transparent";
-        tmpEdTxt.style.width = "100%";
-        tmpEdTxt.style.height = "100%";
-        tmpEdTxt.style.active = 0;
-        tmpEdTxt.style.outline = "medium";
-        tmpEdTxt.style.padding = "0";
-        tmpEdTxt.style.textTransform = "uppercase";
-        tmpEdTxt.style.display = "none";
-        tmpEdTxt.style.position = "absolute";
-        tmpEdTxt.style.bottom = "0px";
-        tmpEdTxt.style.left = LEFT_PADDING + "px";
-        tmpEdTxt.style["-moz-appearance"] = "textfield";
-        tmpEdTxt.style.className = "cocosEditBox";
 
         tmpEdTxt.focus = function() {
             var editBox = thisPointer._editBox;
@@ -1038,7 +1022,10 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
     proto._beginEditing = function () {
         var self = this;
-        if (!self._editBox._alwaysOnTop) {
+        if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+            this._edTxt.focus();
+        }
+        else if (!self._editBox._alwaysOnTop) {
             if (self._edTxt.style.display === 'none') {
                 self._edTxt.style.display = '';
 
@@ -1153,7 +1140,6 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
                 this._edTxt.type = 'search';
             }
         }
-
 
         if (this._editBox._editBoxInputFlag === InputFlag.PASSWORD) {
             this._edTxt.type = 'password';
