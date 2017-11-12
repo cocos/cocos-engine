@@ -31,7 +31,9 @@
 #include "../State.hpp"
 #include "../MappingUtils.hpp"
 
+#if SE_DEBUG > 0
 extern "C" JS_EXPORT void JSSynchronousGarbageCollectForDebugging(JSContextRef);
+#endif
 
 namespace se {
 
@@ -54,10 +56,10 @@ namespace se {
         JSValueRef __forceGC(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                              size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception)
         {
-            SE_LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
-//            JSGarbageCollect(ctx);
-            JSSynchronousGarbageCollectForDebugging(ctx);
-            SE_LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
+            if (__instance != nullptr)
+            {
+                __instance->garbageCollect();
+            }
             return JSValueMakeUndefined(ctx);
         }
 
@@ -528,10 +530,18 @@ namespace se {
 
     void ScriptEngine::garbageCollect()
     {
+        // JSSynchronousGarbageCollectForDebugging is private API in JavaScriptCore framework.
+        // AppStore will reject the apps reference non-public symbols.
+        // Therefore, we use JSSynchronousGarbageCollectForDebugging for easily debugging memory
+        // problems in debug mode, and use public API JSGarbageCollect in release mode to pass
+        // the AppStore's verify check.
+#if SE_DEBUG > 0
         SE_LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
-        // JSGarbageCollect(_cx);
         JSSynchronousGarbageCollectForDebugging(_cx);
         SE_LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
+#else
+        JSGarbageCollect(_cx);
+#endif
     }
 
     bool ScriptEngine::evalString(const char* script, ssize_t length/* = -1 */, Value* ret/* = nullptr */, const char* fileName/* = nullptr */)
