@@ -1584,8 +1584,8 @@ cc.Director.PROJECTION_CUSTOM = 3;
 /**
  * Constant for default projection of cc.Director, default projection is 2D projection
  * @property {Number} PROJECTION_DEFAULT
- * @default cc.Director.PROJECTION_3D
+ * @default cc.Director.PROJECTION_2D
  * @readonly
  * @static
  */
-cc.Director.PROJECTION_DEFAULT = cc.Director.PROJECTION_3D;
+cc.Director.PROJECTION_DEFAULT = cc.Director.PROJECTION_2D;
