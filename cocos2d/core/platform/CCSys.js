@@ -504,24 +504,6 @@ sys.isNative = false;
  */
 sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !isWeChatGame();
 
-function detectAudioFormat () {
-    var formatSupport = [];
-    var audio = document.createElement('audio');
-    if(audio.canPlayType) {
-        var ogg = audio.canPlayType('audio/ogg; codecs="vorbis"');
-        if (ogg) formatSupport.push('.ogg');
-        var mp3 = audio.canPlayType('audio/mpeg');
-        if (mp3) formatSupport.push('.mp3');
-        var wav = audio.canPlayType('audio/wav; codecs="1"');
-        if (wav) formatSupport.push('.wav');
-        var mp4 = audio.canPlayType('audio/mp4');
-        if (mp4) formatSupport.push('.mp4');
-        var m4a = audio.canPlayType('audio/x-m4a');
-        if (m4a) formatSupport.push('.m4a');
-    }
-    return formatSupport;
-}
-
 if (CC_EDITOR && Editor.isMainProcess) {
     sys.isMobile = false;
     sys.platform = sys.EDITOR_CORE;
@@ -575,8 +557,7 @@ else if (isWeChatGame()) {
     sys.__audioSupport = { 
         ONLY_ONE: false, 
         WEB_AUDIO: false, 
-        DELAY_CREATE_CTX: false,
-        format: detectAudioFormat()
+        DELAY_CREATE_CTX: false
     };
 }
 else {
@@ -923,6 +904,24 @@ else {
     } catch(error) {
         __audioSupport.WEB_AUDIO = false;
         cc.logID(5201);
+    }
+
+    function detectAudioFormat () {
+        var formatSupport = [];
+        var audio = document.createElement('audio');
+        if(audio.canPlayType) {
+            var ogg = audio.canPlayType('audio/ogg; codecs="vorbis"');
+            if (ogg) formatSupport.push('.ogg');
+            var mp3 = audio.canPlayType('audio/mpeg');
+            if (mp3) formatSupport.push('.mp3');
+            var wav = audio.canPlayType('audio/wav; codecs="1"');
+            if (wav) formatSupport.push('.wav');
+            var mp4 = audio.canPlayType('audio/mp4');
+            if (mp4) formatSupport.push('.mp4');
+            var m4a = audio.canPlayType('audio/x-m4a');
+            if (m4a) formatSupport.push('.m4a');
+        }
+        return formatSupport;
     }
     __audioSupport.format = detectAudioFormat();
     sys.__audioSupport = __audioSupport;
