@@ -319,6 +319,12 @@ sys.MOBILE_BROWSER = 100;
  * @default 101
  */
 sys.DESKTOP_BROWSER = 101;
+/**
+ * @property {Number} WECHAT_GAME
+ * @readOnly
+ * @default 102
+ */
+sys.WECHAT_GAME = 102;
 
 /**
  * Indicates whether executes in editor's window process (Electron's renderer context)
@@ -496,7 +502,25 @@ sys.isNative = false;
  * Is web browser ?
  * @property {Boolean} isBrowser
  */
-sys.isBrowser = typeof window === 'object' && typeof document === 'object';
+sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !isWeChatGame();
+
+function detectAudioFormat () {
+    var formatSupport = [];
+    var audio = document.createElement('audio');
+    if(audio.canPlayType) {
+        var ogg = audio.canPlayType('audio/ogg; codecs="vorbis"');
+        if (ogg) formatSupport.push('.ogg');
+        var mp3 = audio.canPlayType('audio/mpeg');
+        if (mp3) formatSupport.push('.mp3');
+        var wav = audio.canPlayType('audio/wav; codecs="1"');
+        if (wav) formatSupport.push('.wav');
+        var mp4 = audio.canPlayType('audio/mp4');
+        if (mp4) formatSupport.push('.mp4');
+        var m4a = audio.canPlayType('audio/x-m4a');
+        if (m4a) formatSupport.push('.m4a');
+    }
+    return formatSupport;
+}
 
 if (CC_EDITOR && Editor.isMainProcess) {
     sys.isMobile = false;
@@ -514,6 +538,46 @@ if (CC_EDITOR && Editor.isMainProcess) {
         height: 0
     };
     sys.__audioSupport = {};
+}
+else if (isWeChatGame()) {
+    var env = wx.getSystemInfoSync();
+    sys.isMobile = true;
+    sys.platform = sys.WECHAT_GAME;
+    sys.language = env.language.substr(0, 2);
+    if (env.platform === "android") {
+        sys.os = sys.OS_ANDROID;
+    }
+    else if (env.platform === "ios") {
+        sys.os = sys.OS_IOS;
+    }
+
+    var version = /[\d\.]+/.exec(env.system);
+    sys.osVersion = version[0];
+    sys.osMainVersion = parseInt(sys.osVersion);
+    sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME;
+    sys.browserVersion = env.version;
+
+    var w = env.windowWidth;
+    var h = env.windowHeight;
+    var ratio = env.pixelRatio || 1;
+    sys.windowPixelResolution = {
+        width: ratio * w,
+        height: ratio * h
+    };
+
+    sys.localStorage = win.localStorage;
+
+    sys.capabilities = {
+        "canvas": true,
+        "opengl": true,
+        "webp": false
+    };
+    sys.__audioSupport = { 
+        ONLY_ONE: false, 
+        WEB_AUDIO: false, 
+        DELAY_CREATE_CTX: false,
+        format: detectAudioFormat()
+    };
 }
 else {
     // browser or runtime
@@ -731,10 +795,7 @@ else {
     var _supportWebp = _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
     var _supportCanvas = !!_tmpCanvas1.getContext("2d");
     var _supportWebGL = false;
-    if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
-        _supportWebGL = true;
-    }
-    else if (win.WebGLRenderingContext) {
+    if (win.WebGLRenderingContext) {
         if (cc.create3DContext(document.createElement("CANVAS"))) {
             _supportWebGL = true;
         }
@@ -819,8 +880,7 @@ else {
 
         // check if browser supports Web Audio
         // check Web Audio's context
-        var supportWebAudio = sys.browserType !== sys.BROWSER_TYPE_WECHAT_GAME && 
-                              !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
+        var supportWebAudio = !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 
         __audioSupport = { ONLY_ONE: false, WEB_AUDIO: supportWebAudio, DELAY_CREATE_CTX: false };
 
@@ -864,26 +924,7 @@ else {
         __audioSupport.WEB_AUDIO = false;
         cc.logID(5201);
     }
-
-    var formatSupport = [];
-
-    (function(){
-        var audio = document.createElement('audio');
-        if(audio.canPlayType) {
-            var ogg = audio.canPlayType('audio/ogg; codecs="vorbis"');
-            if (ogg) formatSupport.push('.ogg');
-            var mp3 = audio.canPlayType('audio/mpeg');
-            if (mp3) formatSupport.push('.mp3');
-            var wav = audio.canPlayType('audio/wav; codecs="1"');
-            if (wav) formatSupport.push('.wav');
-            var mp4 = audio.canPlayType('audio/mp4');
-            if (mp4) formatSupport.push('.mp4');
-            var m4a = audio.canPlayType('audio/x-m4a');
-            if (m4a) formatSupport.push('.m4a');
-        }
-    })();
-    __audioSupport.format = formatSupport;
-
+    __audioSupport.format = detectAudioFormat();
     sys.__audioSupport = __audioSupport;
 }
 
