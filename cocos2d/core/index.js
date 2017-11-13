@@ -33,6 +33,8 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
     require('./components');
     require('./graphics');
     require('./collider');
+    // CCIntersection can be used separately.
+    require('./collider/CCIntersection');
     require('./physics');
     require('./camera/CCCamera');
 }

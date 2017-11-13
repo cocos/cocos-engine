@@ -239,12 +239,14 @@ var _mouseUpHandler = function (event) {
     var pos = event.getLocation();
     var node = this.owner;
 
-    if (CC_JSB) {
-        event = Event.EventMouse.pool.get(event);
+    if (node._hitTest(pos, this)) {
+        if (CC_JSB) {
+            event = Event.EventMouse.pool.get(event);
+        }
+        event.type = EventType.MOUSE_UP;
+        event.bubbles = true;
+        node.dispatchEvent(event);
     }
-    event.type = EventType.MOUSE_UP;
-    event.bubbles = true;
-    node.dispatchEvent(event);
 };
 var _mouseWheelHandler = function (event) {
     var pos = event.getLocation();

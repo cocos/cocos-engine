@@ -174,6 +174,9 @@ let Camera = cc.Class({
         }
 
         Camera.main = this;
+        if (CC_JSB) {
+            this._sgNode.setEnable(true);
+        }
 
         let targets = this._targets;
         for (let i = 0, l = targets.length; i < l; i++) {
@@ -187,6 +190,9 @@ let Camera = cc.Class({
         }
         
         Camera.main = null;
+        if (CC_JSB) {
+            this._sgNode.setEnable(false);
+        }
 
         // target sgNode may changed, so directly remove sgTargets here.
         let sgTargets = this._sgTarges;
@@ -303,7 +309,7 @@ let Camera = cc.Class({
         let sgTarges = this._sgTarges;
         for (let i = 0; i < sgTarges.length; i++) {
             if (CC_JSB) {
-                sgTarges[i].markTransformUpdated();    
+                sgTarges[i].markCullingDirty();
             }
             else {
                 sgTarges[i]._renderCmd.setDirtyFlag(cullingDirtyFlag);

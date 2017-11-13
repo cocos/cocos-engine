@@ -51,6 +51,7 @@ module.exports = [
     require('./CCSpriteDistortion'),
     require('./CCLabelOutline'),
     require('./CCRichText'),
+    require('./CCToggleContainer'),
     require('./CCToggleGroup'),
     require('./CCToggle'),
     require('./CCBlockInputEvents'),

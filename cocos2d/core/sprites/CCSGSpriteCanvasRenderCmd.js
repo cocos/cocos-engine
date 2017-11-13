@@ -50,8 +50,7 @@ proto._setTexture = function (texture) {
     if (node._texture !== texture) {
         node._textureLoaded = texture ? texture.loaded : false;
         node._texture = texture;
-        var texSize = texture._contentSize;
-        var rect = cc.rect(0, 0, texSize.width, texSize.height);
+        var rect = cc.rect(0, 0, texture.width, texture.height);
         node.setTextureRect(rect);
         this._updateColor();
     }
