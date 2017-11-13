@@ -319,12 +319,6 @@ sys.MOBILE_BROWSER = 100;
  * @default 101
  */
 sys.DESKTOP_BROWSER = 101;
-/**
- * @property {Number} WECHAT_GAME
- * @readOnly
- * @default 102
- */
-sys.WECHAT_GAME = 102;
 
 /**
  * Indicates whether executes in editor's window process (Electron's renderer context)
@@ -340,6 +334,13 @@ sys.EDITOR_PAGE = 102;
  * @default 103
  */
 sys.EDITOR_CORE = 103;
+/**
+ * @property {Number} WECHAT_GAME
+ * @readOnly
+ * @default 104
+ */
+sys.WECHAT_GAME = 104;
+
 /**
  * BROWSER_TYPE_WECHAT
  * @property {String} BROWSER_TYPE_WECHAT
@@ -504,6 +505,23 @@ sys.isNative = false;
  */
 sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !isWeChatGame();
 
+cc.create3DContext = function (canvas, opt_attribs, opt_contextType) {
+    if (opt_contextType) {
+        try {
+            return canvas.getContext(opt_contextType, opt_attribs);
+        } catch (e) {
+            return null;
+        }
+    }
+    else {
+        return cc.create3DContext(canvas, opt_attribs, "webgl") || 
+               cc.create3DContext(canvas, opt_attribs, "experimental-webgl") ||
+               cc.create3DContext(canvas, opt_attribs, "webkit-3d") ||
+               cc.create3DContext(canvas, opt_attribs, "moz-webgl") ||
+               null;
+    }
+};
+
 if (CC_EDITOR && Editor.isMainProcess) {
     sys.isMobile = false;
     sys.platform = sys.EDITOR_CORE;
@@ -547,7 +565,7 @@ else if (isWeChatGame()) {
         height: ratio * h
     };
 
-    sys.localStorage = win.localStorage;
+    sys.localStorage = window.localStorage;
 
     sys.capabilities = {
         "canvas": true,
@@ -703,23 +721,6 @@ else {
 
     var _tmpCanvas1 = document.createElement("canvas"),
         _tmpCanvas2 = document.createElement("canvas");
-
-    cc.create3DContext = function (canvas, opt_attribs, opt_contextType) {
-        if (opt_contextType) {
-            try {
-                return canvas.getContext(opt_contextType, opt_attribs);
-            } catch (e) {
-                return null;
-            }
-        }
-        else {
-            return cc.create3DContext(canvas, opt_attribs, "webgl") || 
-                   cc.create3DContext(canvas, opt_attribs, "experimental-webgl") ||
-                   cc.create3DContext(canvas, opt_attribs, "webkit-3d") ||
-                   cc.create3DContext(canvas, opt_attribs, "moz-webgl") ||
-                   null;
-        }
-    };
 
     //Whether or not the Canvas BlendModes are supported.
     sys._supportCanvasNewBlendModes = (function(){
