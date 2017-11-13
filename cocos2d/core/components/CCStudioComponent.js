@@ -263,56 +263,31 @@ var StudioComponent = cc.Class({
     },
 });
 
-cc.StudioComponent = module.exports = StudioComponent;
-
-cc.PlaceHolder = cc.Class({
-    name: 'cc.PlaceHolder',
+var PrefabHelper = require('../utils/prefab-helper');
+StudioComponent.PlaceHolder = cc.Class({
+    name: 'cc.StudioComponent.PlaceHolder',
     extends: cc.Component,
-    editor: CC_EDITOR && {
-        executeInEditMode: true,
-    },
-
     properties: {
-        basePrefab: cc.Prefab,
-
         _baseUrl: '',
+        nestedPrefab: cc.Prefab,
     },
-
     onLoad: function () {
-        this._replace();
+        if (!this.nestedPrefab) {
+            if (CC_DEV) {
+                cc.warn('Unable to find %s resource.', this._baseUrl);
+            }
+            return;
+        }
+        this._replaceWithNestedPrefab();
     },
-
-    _replace: !CC_EDITOR && function () {
-        var prefab = this.basePrefab;
+    _replaceWithNestedPrefab: function () {
         var node = this.node;
-        var _objFlags = node._objFlags;
-        var _parent = node._parent;
-        var _id = node._id;
-        var _name = node._name;
-        var _active = node._active;
-        var x = node._position.x;
-        var y = node._position.y;
-        var _rotationX = node._rotationX;
-        var _rotationY = node._rotationY;
-        var _localZOrder = node._localZOrder;
-        var _globalZOrder = node._globalZOrder;
-
-        var data = prefab.data;
-        data._iN$t = node;
-
-        cc.instantiate._clone(data, data);
-
-        node._objFlags = _objFlags;
-        node._parent = _parent;
-        node._id = _id;
-        node._prefab.asset = prefab;
-        node._name = _name;
-        node._active = _active;
-        node._position.x = x;
-        node._position.y = y;
-        node._rotationX = _rotationX;
-        node._rotationY = _rotationY;
-        node._localZOrder = _localZOrder;
-        node._globalZOrder = _globalZOrder;
+        var _prefab = node._prefab;
+        _prefab.root = node;
+        _prefab.asset = this.nestedPrefab;
+        PrefabHelper.syncWithPrefab(node);
     }
 });
+
+cc.StudioComponent = module.exports = StudioComponent;
+
