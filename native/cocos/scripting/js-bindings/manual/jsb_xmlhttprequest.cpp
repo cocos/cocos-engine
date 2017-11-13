@@ -643,13 +643,18 @@ static bool XMLHttpRequest_send(se::State& s)
     }
     else if (argc > 0)
     {
-        if (args[0].isString())
+        const auto& arg0 = args[0];
+        if (arg0.isNullOrUndefined())
         {
-            request->sendString(args[0].toString());
+            request->send();
         }
-        else if (args[0].isObject())
+        else if (arg0.isString())
         {
-            se::Object* obj = args[0].toObject();
+            request->sendString(arg0.toString());
+        }
+        else if (arg0.isObject())
+        {
+            se::Object* obj = arg0.toObject();
 
             if (obj->isTypedArray())
             {
@@ -663,7 +668,8 @@ static bool XMLHttpRequest_send(se::State& s)
                 }
                 else
                 {
-                    SE_PRECONDITION2(false, false, "args[0] isn't a typed array");
+                    SE_REPORT_ERROR("Failed to get data of TypedArray!");
+                    return false;
                 }
             }
             else if (obj->isArrayBuffer())
@@ -678,13 +684,26 @@ static bool XMLHttpRequest_send(se::State& s)
                 }
                 else
                 {
-                    SE_PRECONDITION2(false, false, "args[0] isn't an array buffer");
+                    SE_REPORT_ERROR("Failed to get data of ArrayBufferObject!");
+                    return false;
                 }
             }
             else
             {
-                SE_PRECONDITION2(false, false, "args[0] isn't a typed array or an array buffer");
+                SE_REPORT_ERROR("args[0] isn't a typed array or an array buffer");
+                return false;
             }
+        }
+        else
+        {
+            const char* typeName = "UNKNOWN";
+            if (arg0.isBoolean())
+                typeName = "boolean";
+            else if (arg0.isNumber())
+                typeName = "number";
+
+            SE_REPORT_ERROR("args[0] type: %s isn't supported!", typeName);
+            return false;
         }
     }
 
