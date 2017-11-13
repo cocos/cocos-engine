@@ -648,7 +648,7 @@ var game = {
         var el = this.config[game.CONFIG_KEY.id],
             win = window,
             localCanvas, localContainer,
-            isWeChatGame = cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME;
+            isWeChatGame = cc.sys.platform === cc.sys.WECHAT_GAME;
         
         if (isWeChatGame) {
             this.container = cc.container = localContainer = document.createElement("DIV");

@@ -803,7 +803,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             var gl = this._gl;
             gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha);
             if (
-                sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME ||
+                sys.platform === sys.WECHAT_GAME ||
                 img instanceof HTMLCanvasElement ||
                 img instanceof HTMLImageElement ||
                 img instanceof HTMLVideoElement

@@ -49,7 +49,7 @@ function loadJSON (item, callback) {
 }
 
 function loadImage (item, callback) {
-    if (sys.browserType !== sys.BROWSER_TYPE_WECHAT_GAME && !(item.content instanceof Image)) {
+    if (sys.platform !== sys.WECHAT_GAME && !(item.content instanceof Image)) {
         return new Error('Image Loader: Input item doesn\'t contain Image content');
     }
     var rawUrl = item.rawUrl;

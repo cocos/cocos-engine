@@ -43,7 +43,7 @@ var DrawingPrimitiveWebGL = cc._Class.extend({
      * @param ctx rendercontext
      */
     ctor:function (ctx) {
-        if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME && !ctx instanceof WebGLRenderingContext)
+        if (cc.sys.platform !== cc.sys.WECHAT_GAME && !ctx instanceof WebGLRenderingContext)
             throw new Error("Can't initialise DrawingPrimitiveWebGL. context need is WebGLRenderingContext");
 
         this._renderContext = ctx;

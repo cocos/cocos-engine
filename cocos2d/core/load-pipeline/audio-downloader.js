@@ -36,7 +36,7 @@ function loadDomAudio (item, callback) {
     var dom = document.createElement('audio');
     dom.src = item.url;
 
-    if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+    if (sys.platform === sys.WECHAT_GAME) {
         item.element = dom;
         callback(null, item.url);
         return;

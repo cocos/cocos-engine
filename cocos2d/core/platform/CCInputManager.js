@@ -217,7 +217,7 @@ var inputManager = {
      * @return {Object}
      */
     getHTMLElementPosition: function (element) {
-        if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+        if (sys.platform === sys.WECHAT_GAME) {
             return {
                 left: 0,
                 top: 0,
@@ -348,7 +348,7 @@ var inputManager = {
         if (event.pageX != null)  //not avalable in <= IE8
             return {x: event.pageX, y: event.pageY};
 
-        if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+        if (sys.platform === sys.WECHAT_GAME) {
             pos.left = 0;
             pos.top = 0;
         }
@@ -411,7 +411,7 @@ var inputManager = {
         var supportMouse = ('mouse' in sys.capabilities);
         var supportTouches = ('touches' in sys.capabilities);
 
-        if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+        if (sys.platform === sys.WECHAT_GAME) {
             prohibition = false;
             supportTouches = true;
             supportMouse = false;
@@ -521,7 +521,7 @@ var inputManager = {
             var _touchEventsMap = {
                 "touchstart": function (touchesToHandle) {
                     selfPointer.handleTouchesBegin(touchesToHandle);
-                    if (sys.browserType !== sys.BROWSER_TYPE_WECHAT_GAME) {
+                    if (sys.platform !== sys.WECHAT_GAME) {
                         element.focus();
                     }
                 },

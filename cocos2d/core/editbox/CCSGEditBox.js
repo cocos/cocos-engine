@@ -1004,7 +1004,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
     proto._showLabels = function () {
         this._hiddenLabels();
-        var text = sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME ? this._editBox._text : this._edTxt.value;
+        var text = sys.platform === sys.WECHAT_GAME ? this._editBox._text : this._edTxt.value;
         if (text === '') {
             if(this._placeholderLabel) {
                 this._placeholderLabel.setVisible(true);
@@ -1022,7 +1022,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
     proto._beginEditing = function () {
         var self = this;
-        if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+        if (sys.platform === sys.WECHAT_GAME) {
             this._edTxt.focus();
         }
         else if (!self._editBox._alwaysOnTop) {
@@ -1057,7 +1057,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             this._edTxt.style.display = 'none';
         }
         this._showLabels();
-        if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME && sys.isMobile && this._editingMode) {
+        if (sys.platform !== sys.WECHAT_GAME && sys.isMobile && this._editingMode) {
             var self = this;
             // Delay end editing adaptation to ensure virtual keyboard is disapeared
             setTimeout(function () {
@@ -1163,7 +1163,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto.setInputMode = function (inputMode) {
-        if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+        if (sys.platform === sys.WECHAT_GAME) {
             this._createWXInput(inputMode === InputMode.ANY);
         }
         else if (inputMode === InputMode.ANY) {

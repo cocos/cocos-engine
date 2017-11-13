@@ -42,7 +42,7 @@ else {
 }
 
 function downloadScript (item, callback, isAsync) {
-    if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+    if (sys.platform === sys.WECHAT_GAME) {
         require(item.url);
         callback(null, item.url);
         return;

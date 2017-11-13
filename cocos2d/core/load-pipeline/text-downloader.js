@@ -21,7 +21,7 @@ else {
 
         url = urlAppendTimestamp(url);
 
-        if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+        if (sys.platform === sys.WECHAT_GAME) {
             var fs = wx.getFileSystemManager();
             var filePath = url;
             // var localPath = wx.env.USER_DATA_PATH + '/' + filePath;
