@@ -388,6 +388,7 @@ if (CC_DEBUG) {
         "4010": "cc.LabelBMFont.setFntFile() : Impossible to create font. Please check file", //BMFont.setFntFile
         "4011": "Property spriteFrame of Font '%s' is invalid. Using system font instead.", // BMFont spriteFrame is invalid.
         "4012": "The texture of Font '%s' must be already loaded on JSB. Using system font instead.",
+        "4013": "Sorry, lineHeight of system font not supported on JSB.",
         //Layout: 4100
         "4100": "Property padding is deprecated, please use paddingLeft, paddingRight, paddingTop and paddingBottom instead", //padding
         //Mask: 4200
