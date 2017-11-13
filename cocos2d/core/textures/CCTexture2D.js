@@ -890,7 +890,6 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             opts.minFilter = opts.magFilter = filter;
             this.update(opts);
 
-            this._image = null;
             this.loaded = true;
             this.emit("load");
         };

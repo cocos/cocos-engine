@@ -693,6 +693,7 @@ var game = {
              = cc.create3DContext(localCanvas, {
                 'stencil': true,
                 'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS,
+                'antialias': cc.macro.ENABLE_WEBGL_ANTIALIAS
             });
         }
         // WebGL context created successfully
