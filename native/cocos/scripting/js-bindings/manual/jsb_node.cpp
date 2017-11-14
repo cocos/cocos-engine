@@ -754,7 +754,7 @@ static bool Scheduler_scheduleUpdateCommon(Scheduler* scheduler, const se::Value
 
 static bool Node_scheduleUpdate(se::State& s)
 {
-#if COCOS2D_DEBUG > 0
+#if COCOS2D_DEBUG > 1
     SE_LOGD("--------------------------\nscheduleUpdate target count: %d\n", (int)__js_target_schedule_update_map.size());
     for (const auto& e1 : __js_target_schedule_update_map)
     {
@@ -774,7 +774,7 @@ static bool Node_scheduleUpdateWithPriority(se::State& s)
 {
     const auto& args = s.args();
     int argc = (int)args.size();
-#if COCOS2D_DEBUG > 0
+#if COCOS2D_DEBUG > 1
     SE_LOGD("--------------------------\nscheduleUpdate target count: %d\n", (int)__js_target_schedule_update_map.size());
     for (const auto& e1 : __js_target_schedule_update_map)
     {

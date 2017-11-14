@@ -14020,12 +14020,28 @@ str
 },
 
 /**
- * @method setUniformLocationWith1f
- * @param {int} arg0
- * @param {float} arg1
+ * @method getProgram
+ * @return {unsigned int}
  */
-setUniformLocationWith1f : function (
-int, 
+getProgram : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method setUniformLocationWith2f
+* @param {int|int|int|int} int
+* @param {float|float|float|float} float
+* @param {float|float|float} float
+* @param {float|float} float
+* @param {float} float
+*/
+setUniformLocationWith2f : function(
+int,
+float,
+float,
+float,
 float 
 )
 {
@@ -14048,22 +14064,6 @@ str
 },
 
 /**
- * @method setUniformLocationWith3f
- * @param {int} arg0
- * @param {float} arg1
- * @param {float} arg2
- * @param {float} arg3
- */
-setUniformLocationWith3f : function (
-int, 
-float, 
-float, 
-float 
-)
-{
-},
-
-/**
  * @method setUniformsForBuiltins
 * @param {mat4_object} mat4
 */
@@ -14074,57 +14074,11 @@ mat4
 },
 
 /**
- * @method setUniformLocationWith3i
- * @param {int} arg0
- * @param {int} arg1
- * @param {int} arg2
- * @param {int} arg3
- */
-setUniformLocationWith3i : function (
-int, 
-int, 
-int, 
-int 
-)
-{
-},
-
-/**
- * @method setUniformLocationWith4f
- * @param {int} arg0
- * @param {float} arg1
- * @param {float} arg2
- * @param {float} arg3
- * @param {float} arg4
- */
-setUniformLocationWith4f : function (
-int, 
-float, 
-float, 
-float, 
-float 
-)
-{
-},
-
-/**
  * @method updateUniforms
  */
 updateUniforms : function (
 )
 {
-},
-
-/**
- * @method getUniformLocation
- * @param {String} arg0
- * @return {int}
- */
-getUniformLocation : function (
-str 
-)
-{
-    return 0;
 },
 
 /**
@@ -14146,6 +14100,16 @@ reset : function (
 },
 
 /**
+ * @method getProgramLog
+ * @return {String}
+ */
+getProgramLog : function (
+)
+{
+    return ;
+},
+
+/**
  * @method getAttribLocation
  * @param {String} arg0
  * @return {int}
@@ -14158,58 +14122,30 @@ str
 },
 
 /**
- * @method setUniformLocationWith2f
- * @param {int} arg0
- * @param {float} arg1
- * @param {float} arg2
+ * @method getUniformLocation
+ * @param {String} arg0
+ * @return {int}
  */
-setUniformLocationWith2f : function (
-int, 
-float, 
-float 
+getUniformLocation : function (
+str 
 )
 {
-},
-
-/**
- * @method setUniformLocationWith4i
- * @param {int} arg0
- * @param {int} arg1
- * @param {int} arg2
- * @param {int} arg3
- * @param {int} arg4
- */
-setUniformLocationWith4i : function (
-int, 
-int, 
-int, 
-int, 
-int 
-)
-{
-},
-
-/**
- * @method setUniformLocationWith1i
- * @param {int} arg0
- * @param {int} arg1
- */
-setUniformLocationWith1i : function (
-int, 
-int 
-)
-{
+    return 0;
 },
 
 /**
  * @method setUniformLocationWith2i
- * @param {int} arg0
- * @param {int} arg1
- * @param {int} arg2
- */
-setUniformLocationWith2i : function (
-int, 
-int, 
+* @param {int|int|int|int} int
+* @param {int|int|int|int} int
+* @param {int|int|int} int
+* @param {int|int} int
+* @param {int} int
+*/
+setUniformLocationWith2i : function(
+int,
+int,
+int,
+int,
 int 
 )
 {

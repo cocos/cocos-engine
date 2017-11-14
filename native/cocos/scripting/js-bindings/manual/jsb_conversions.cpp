@@ -18,6 +18,11 @@ bool seval_to_int32(const se::Value& v, int32_t* ret)
         *ret = v.toInt32(); //FIXME: need to check isNan?
         return true;
     }
+    else if (v.isBoolean())
+    {
+        *ret = v.toBoolean() ? 1 : 0;
+        return true;
+    }
     *ret = 0;
     return false;
 }
@@ -28,6 +33,11 @@ bool seval_to_uint32(const se::Value& v, uint32_t* ret)
     if (v.isNumber())
     {
         *ret = v.toUint32();
+        return true;
+    }
+    else if (v.isBoolean())
+    {
+        *ret = v.toBoolean() ? 1 : 0;
         return true;
     }
     *ret = 0;
@@ -42,6 +52,11 @@ bool seval_to_int8(const se::Value& v, int8_t* ret)
         *ret = v.toInt8();
         return true;
     }
+    else if (v.isBoolean())
+    {
+        *ret = v.toBoolean() ? 1 : 0;
+        return true;
+    }
     *ret = 0;
     return false;
 }
@@ -52,6 +67,11 @@ bool seval_to_uint8(const se::Value& v, uint8_t* ret)
     if (v.isNumber())
     {
         *ret = v.toUint8();
+        return true;
+    }
+    else if (v.isBoolean())
+    {
+        *ret = v.toBoolean() ? 1 : 0;
         return true;
     }
     *ret = 0;
@@ -66,6 +86,11 @@ bool seval_to_int16(const se::Value& v, int16_t* ret)
         *ret = v.toInt16();
         return true;
     }
+    else if (v.isBoolean())
+    {
+        *ret = v.toBoolean() ? 1 : 0;
+        return true;
+    }
     *ret = 0;
     return false;
 }
@@ -76,6 +101,11 @@ bool seval_to_uint16(const se::Value& v, uint16_t* ret)
     if (v.isNumber())
     {
         *ret = v.toUint16();
+        return true;
+    }
+    else if (v.isBoolean())
+    {
+        *ret = v.toBoolean() ? 1 : 0;
         return true;
     }
     *ret = 0;

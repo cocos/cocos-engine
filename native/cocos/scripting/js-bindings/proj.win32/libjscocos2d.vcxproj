@@ -74,6 +74,10 @@
     <ClCompile Include="..\manual\jsb_helper.cpp" />
     <ClCompile Include="..\manual\jsb_module_register.cpp" />
     <ClCompile Include="..\manual\jsb_node.cpp" />
+    <ClCompile Include="..\manual\jsb_opengl_functions.cpp" />
+    <ClCompile Include="..\manual\jsb_opengl_manual.cpp" />
+    <ClCompile Include="..\manual\jsb_opengl_node.cpp" />
+    <ClCompile Include="..\manual\jsb_opengl_registration.cpp" />
     <ClCompile Include="..\manual\jsb_socketio.cpp" />
     <ClCompile Include="..\manual\jsb_spine_manual.cpp" />
     <ClCompile Include="..\manual\jsb_websocket.cpp" />
@@ -138,6 +142,10 @@
     <ClInclude Include="..\manual\jsb_helper.hpp" />
     <ClInclude Include="..\manual\jsb_module_register.hpp" />
     <ClInclude Include="..\manual\jsb_node.hpp" />
+    <ClInclude Include="..\manual\jsb_opengl_functions.hpp" />
+    <ClInclude Include="..\manual\jsb_opengl_manual.hpp" />
+    <ClInclude Include="..\manual\jsb_opengl_node.hpp" />
+    <ClInclude Include="..\manual\jsb_opengl_registration.hpp" />
     <ClInclude Include="..\manual\jsb_socketio.hpp" />
     <ClInclude Include="..\manual\jsb_spine_manual.hpp" />
     <ClInclude Include="..\manual\jsb_websocket.hpp" />

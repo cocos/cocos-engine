@@ -32038,26 +32038,105 @@ static bool js_cocos2dx_GLProgram_initWithByteArrays(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_GLProgram_initWithByteArrays)
 
-static bool js_cocos2dx_GLProgram_setUniformLocationWith1f(se::State& s)
+static bool js_cocos2dx_GLProgram_getProgram(se::State& s)
 {
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_GLProgram_setUniformLocationWith1f : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_GLProgram_getProgram : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        int arg0 = 0;
-        float arg1 = 0;
-        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
-        ok &= seval_to_float(args[1], &arg1);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_GLProgram_setUniformLocationWith1f : Error processing arguments");
-        cobj->setUniformLocationWith1f(arg0, arg1);
+    if (argc == 0) {
+        unsigned int result = cobj->getProgram();
+        ok &= uint32_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_GLProgram_getProgram : Error processing arguments");
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_cocos2dx_GLProgram_setUniformLocationWith1f)
+SE_BIND_FUNC(js_cocos2dx_GLProgram_getProgram)
+
+static bool js_cocos2dx_GLProgram_setUniformLocationWith2f(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cocos2d::GLProgram* cobj = (cocos2d::GLProgram*)s.nativeThisObject();
+    SE_PRECONDITION2( cobj, false, "js_cocos2dx_GLProgram_setUniformLocationWith2f : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    do {
+        if (argc == 3) {
+            int arg0 = 0;
+            ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+            if (!ok) { ok = true; break; }
+            float arg1 = 0;
+            ok &= seval_to_float(args[1], &arg1);
+            if (!ok) { ok = true; break; }
+            float arg2 = 0;
+            ok &= seval_to_float(args[2], &arg2);
+            if (!ok) { ok = true; break; }
+            cobj->setUniformLocationWith2f(arg0, arg1, arg2);
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 2) {
+            int arg0 = 0;
+            ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+            if (!ok) { ok = true; break; }
+            float arg1 = 0;
+            ok &= seval_to_float(args[1], &arg1);
+            if (!ok) { ok = true; break; }
+            cobj->setUniformLocationWith1f(arg0, arg1);
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 4) {
+            int arg0 = 0;
+            ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+            if (!ok) { ok = true; break; }
+            float arg1 = 0;
+            ok &= seval_to_float(args[1], &arg1);
+            if (!ok) { ok = true; break; }
+            float arg2 = 0;
+            ok &= seval_to_float(args[2], &arg2);
+            if (!ok) { ok = true; break; }
+            float arg3 = 0;
+            ok &= seval_to_float(args[3], &arg3);
+            if (!ok) { ok = true; break; }
+            cobj->setUniformLocationWith3f(arg0, arg1, arg2, arg3);
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 5) {
+            int arg0 = 0;
+            ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+            if (!ok) { ok = true; break; }
+            float arg1 = 0;
+            ok &= seval_to_float(args[1], &arg1);
+            if (!ok) { ok = true; break; }
+            float arg2 = 0;
+            ok &= seval_to_float(args[2], &arg2);
+            if (!ok) { ok = true; break; }
+            float arg3 = 0;
+            ok &= seval_to_float(args[3], &arg3);
+            if (!ok) { ok = true; break; }
+            float arg4 = 0;
+            ok &= seval_to_float(args[4], &arg4);
+            if (!ok) { ok = true; break; }
+            cobj->setUniformLocationWith4f(arg0, arg1, arg2, arg3, arg4);
+            return true;
+        }
+    } while(false);
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_GLProgram_setUniformLocationWith2f)
 
 static bool js_cocos2dx_GLProgram_initWithFilenames(se::State& s)
 {
@@ -32104,31 +32183,6 @@ static bool js_cocos2dx_GLProgram_initWithFilenames(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_GLProgram_initWithFilenames)
 
-static bool js_cocos2dx_GLProgram_setUniformLocationWith3f(se::State& s)
-{
-    cocos2d::GLProgram* cobj = (cocos2d::GLProgram*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_GLProgram_setUniformLocationWith3f : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 4) {
-        int arg0 = 0;
-        float arg1 = 0;
-        float arg2 = 0;
-        float arg3 = 0;
-        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
-        ok &= seval_to_float(args[1], &arg1);
-        ok &= seval_to_float(args[2], &arg2);
-        ok &= seval_to_float(args[3], &arg3);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_GLProgram_setUniformLocationWith3f : Error processing arguments");
-        cobj->setUniformLocationWith3f(arg0, arg1, arg2, arg3);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_GLProgram_setUniformLocationWith3f)
-
 static bool js_cocos2dx_GLProgram_setUniformsForBuiltins(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -32158,58 +32212,6 @@ static bool js_cocos2dx_GLProgram_setUniformsForBuiltins(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_GLProgram_setUniformsForBuiltins)
 
-static bool js_cocos2dx_GLProgram_setUniformLocationWith3i(se::State& s)
-{
-    cocos2d::GLProgram* cobj = (cocos2d::GLProgram*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_GLProgram_setUniformLocationWith3i : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 4) {
-        int arg0 = 0;
-        int arg1 = 0;
-        int arg2 = 0;
-        int arg3 = 0;
-        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
-        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
-        ok &= seval_to_int32(args[2], (int32_t*)&arg2);
-        ok &= seval_to_int32(args[3], (int32_t*)&arg3);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_GLProgram_setUniformLocationWith3i : Error processing arguments");
-        cobj->setUniformLocationWith3i(arg0, arg1, arg2, arg3);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_GLProgram_setUniformLocationWith3i)
-
-static bool js_cocos2dx_GLProgram_setUniformLocationWith4f(se::State& s)
-{
-    cocos2d::GLProgram* cobj = (cocos2d::GLProgram*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_GLProgram_setUniformLocationWith4f : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 5) {
-        int arg0 = 0;
-        float arg1 = 0;
-        float arg2 = 0;
-        float arg3 = 0;
-        float arg4 = 0;
-        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
-        ok &= seval_to_float(args[1], &arg1);
-        ok &= seval_to_float(args[2], &arg2);
-        ok &= seval_to_float(args[3], &arg3);
-        ok &= seval_to_float(args[4], &arg4);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_GLProgram_setUniformLocationWith4f : Error processing arguments");
-        cobj->setUniformLocationWith4f(arg0, arg1, arg2, arg3, arg4);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 5);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_GLProgram_setUniformLocationWith4f)
-
 static bool js_cocos2dx_GLProgram_updateUniforms(se::State& s)
 {
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram*)s.nativeThisObject();
@@ -32224,27 +32226,6 @@ static bool js_cocos2dx_GLProgram_updateUniforms(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_GLProgram_updateUniforms)
-
-static bool js_cocos2dx_GLProgram_getUniformLocation(se::State& s)
-{
-    cocos2d::GLProgram* cobj = (cocos2d::GLProgram*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_GLProgram_getUniformLocation : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        std::string arg0;
-        ok &= seval_to_std_string(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_GLProgram_getUniformLocation : Error processing arguments");
-        int result = cobj->getUniformLocation(arg0);
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_GLProgram_getUniformLocation : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_GLProgram_getUniformLocation)
 
 static bool js_cocos2dx_GLProgram_link(se::State& s)
 {
@@ -32279,6 +32260,24 @@ static bool js_cocos2dx_GLProgram_reset(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_GLProgram_reset)
 
+static bool js_cocos2dx_GLProgram_getProgramLog(se::State& s)
+{
+    cocos2d::GLProgram* cobj = (cocos2d::GLProgram*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_GLProgram_getProgramLog : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        std::string result = cobj->getProgramLog();
+        ok &= std_string_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_GLProgram_getProgramLog : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_GLProgram_getProgramLog)
+
 static bool js_cocos2dx_GLProgram_getAttribLocation(se::State& s)
 {
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram*)s.nativeThisObject();
@@ -32300,96 +32299,105 @@ static bool js_cocos2dx_GLProgram_getAttribLocation(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_GLProgram_getAttribLocation)
 
-static bool js_cocos2dx_GLProgram_setUniformLocationWith2f(se::State& s)
+static bool js_cocos2dx_GLProgram_getUniformLocation(se::State& s)
 {
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_GLProgram_setUniformLocationWith2f : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_GLProgram_getUniformLocation : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 3) {
-        int arg0 = 0;
-        float arg1 = 0;
-        float arg2 = 0;
-        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
-        ok &= seval_to_float(args[1], &arg1);
-        ok &= seval_to_float(args[2], &arg2);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_GLProgram_setUniformLocationWith2f : Error processing arguments");
-        cobj->setUniformLocationWith2f(arg0, arg1, arg2);
+    if (argc == 1) {
+        std::string arg0;
+        ok &= seval_to_std_string(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_GLProgram_getUniformLocation : Error processing arguments");
+        int result = cobj->getUniformLocation(arg0);
+        ok &= int32_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_GLProgram_getUniformLocation : Error processing arguments");
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_cocos2dx_GLProgram_setUniformLocationWith2f)
-
-static bool js_cocos2dx_GLProgram_setUniformLocationWith4i(se::State& s)
-{
-    cocos2d::GLProgram* cobj = (cocos2d::GLProgram*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_GLProgram_setUniformLocationWith4i : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 5) {
-        int arg0 = 0;
-        int arg1 = 0;
-        int arg2 = 0;
-        int arg3 = 0;
-        int arg4 = 0;
-        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
-        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
-        ok &= seval_to_int32(args[2], (int32_t*)&arg2);
-        ok &= seval_to_int32(args[3], (int32_t*)&arg3);
-        ok &= seval_to_int32(args[4], (int32_t*)&arg4);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_GLProgram_setUniformLocationWith4i : Error processing arguments");
-        cobj->setUniformLocationWith4i(arg0, arg1, arg2, arg3, arg4);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 5);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_GLProgram_setUniformLocationWith4i)
-
-static bool js_cocos2dx_GLProgram_setUniformLocationWith1i(se::State& s)
-{
-    cocos2d::GLProgram* cobj = (cocos2d::GLProgram*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_GLProgram_setUniformLocationWith1i : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        int arg0 = 0;
-        int arg1 = 0;
-        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
-        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_GLProgram_setUniformLocationWith1i : Error processing arguments");
-        cobj->setUniformLocationWith1i(arg0, arg1);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_GLProgram_setUniformLocationWith1i)
+SE_BIND_FUNC(js_cocos2dx_GLProgram_getUniformLocation)
 
 static bool js_cocos2dx_GLProgram_setUniformLocationWith2i(se::State& s)
 {
+    CC_UNUSED bool ok = true;
     cocos2d::GLProgram* cobj = (cocos2d::GLProgram*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_GLProgram_setUniformLocationWith2i : Invalid Native Object");
+    SE_PRECONDITION2( cobj, false, "js_cocos2dx_GLProgram_setUniformLocationWith2i : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 3) {
-        int arg0 = 0;
-        int arg1 = 0;
-        int arg2 = 0;
-        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
-        ok &= seval_to_int32(args[1], (int32_t*)&arg1);
-        ok &= seval_to_int32(args[2], (int32_t*)&arg2);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_GLProgram_setUniformLocationWith2i : Error processing arguments");
-        cobj->setUniformLocationWith2i(arg0, arg1, arg2);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    do {
+        if (argc == 3) {
+            int arg0 = 0;
+            ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+            if (!ok) { ok = true; break; }
+            int arg1 = 0;
+            ok &= seval_to_int32(args[1], (int32_t*)&arg1);
+            if (!ok) { ok = true; break; }
+            int arg2 = 0;
+            ok &= seval_to_int32(args[2], (int32_t*)&arg2);
+            if (!ok) { ok = true; break; }
+            cobj->setUniformLocationWith2i(arg0, arg1, arg2);
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 2) {
+            int arg0 = 0;
+            ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+            if (!ok) { ok = true; break; }
+            int arg1 = 0;
+            ok &= seval_to_int32(args[1], (int32_t*)&arg1);
+            if (!ok) { ok = true; break; }
+            cobj->setUniformLocationWith1i(arg0, arg1);
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 4) {
+            int arg0 = 0;
+            ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+            if (!ok) { ok = true; break; }
+            int arg1 = 0;
+            ok &= seval_to_int32(args[1], (int32_t*)&arg1);
+            if (!ok) { ok = true; break; }
+            int arg2 = 0;
+            ok &= seval_to_int32(args[2], (int32_t*)&arg2);
+            if (!ok) { ok = true; break; }
+            int arg3 = 0;
+            ok &= seval_to_int32(args[3], (int32_t*)&arg3);
+            if (!ok) { ok = true; break; }
+            cobj->setUniformLocationWith3i(arg0, arg1, arg2, arg3);
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 5) {
+            int arg0 = 0;
+            ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+            if (!ok) { ok = true; break; }
+            int arg1 = 0;
+            ok &= seval_to_int32(args[1], (int32_t*)&arg1);
+            if (!ok) { ok = true; break; }
+            int arg2 = 0;
+            ok &= seval_to_int32(args[2], (int32_t*)&arg2);
+            if (!ok) { ok = true; break; }
+            int arg3 = 0;
+            ok &= seval_to_int32(args[3], (int32_t*)&arg3);
+            if (!ok) { ok = true; break; }
+            int arg4 = 0;
+            ok &= seval_to_int32(args[4], (int32_t*)&arg4);
+            if (!ok) { ok = true; break; }
+            cobj->setUniformLocationWith4i(arg0, arg1, arg2, arg3, arg4);
+            return true;
+        }
+    } while(false);
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_GLProgram_setUniformLocationWith2i)
@@ -32521,21 +32529,17 @@ bool js_register_cocos2dx_GLProgram(se::Object* obj)
     cls->defineFunction("getVertexShaderLog", _SE(js_cocos2dx_GLProgram_getVertexShaderLog));
     cls->defineFunction("getUniform", _SE(js_cocos2dx_GLProgram_getUniform));
     cls->defineFunction("initWithString", _SE(js_cocos2dx_GLProgram_initWithByteArrays));
-    cls->defineFunction("setUniformLocationWith1f", _SE(js_cocos2dx_GLProgram_setUniformLocationWith1f));
+    cls->defineFunction("getProgram", _SE(js_cocos2dx_GLProgram_getProgram));
+    cls->defineFunction("setUniformLocationF32", _SE(js_cocos2dx_GLProgram_setUniformLocationWith2f));
     cls->defineFunction("init", _SE(js_cocos2dx_GLProgram_initWithFilenames));
-    cls->defineFunction("setUniformLocationWith3f", _SE(js_cocos2dx_GLProgram_setUniformLocationWith3f));
     cls->defineFunction("setUniformsForBuiltins", _SE(js_cocos2dx_GLProgram_setUniformsForBuiltins));
-    cls->defineFunction("setUniformLocationWith3i", _SE(js_cocos2dx_GLProgram_setUniformLocationWith3i));
-    cls->defineFunction("setUniformLocationWith4f", _SE(js_cocos2dx_GLProgram_setUniformLocationWith4f));
     cls->defineFunction("updateUniforms", _SE(js_cocos2dx_GLProgram_updateUniforms));
-    cls->defineFunction("getUniformLocation", _SE(js_cocos2dx_GLProgram_getUniformLocation));
     cls->defineFunction("link", _SE(js_cocos2dx_GLProgram_link));
     cls->defineFunction("reset", _SE(js_cocos2dx_GLProgram_reset));
+    cls->defineFunction("getProgramLog", _SE(js_cocos2dx_GLProgram_getProgramLog));
     cls->defineFunction("getAttribLocation", _SE(js_cocos2dx_GLProgram_getAttribLocation));
-    cls->defineFunction("setUniformLocationWith2f", _SE(js_cocos2dx_GLProgram_setUniformLocationWith2f));
-    cls->defineFunction("setUniformLocationWith4i", _SE(js_cocos2dx_GLProgram_setUniformLocationWith4i));
-    cls->defineFunction("setUniformLocationI32", _SE(js_cocos2dx_GLProgram_setUniformLocationWith1i));
-    cls->defineFunction("setUniformLocationWith2i", _SE(js_cocos2dx_GLProgram_setUniformLocationWith2i));
+    cls->defineFunction("getUniformLocation", _SE(js_cocos2dx_GLProgram_getUniformLocation));
+    cls->defineFunction("setUniformLocationI32", _SE(js_cocos2dx_GLProgram_setUniformLocationWith2i));
     cls->defineFunction("ctor", _SE(js_cocos2dx_GLProgram_ctor));
     cls->defineStaticFunction("createWithByteArrays", _SE(js_cocos2dx_GLProgram_createWithByteArrays));
     cls->defineStaticFunction("createWithFilenames", _SE(js_cocos2dx_GLProgram_createWithFilenames));

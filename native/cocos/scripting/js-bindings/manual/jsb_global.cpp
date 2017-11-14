@@ -11,6 +11,7 @@ using namespace cocos2d;
 se::Object* __jscObj = nullptr;
 se::Object* __ccObj = nullptr;
 se::Object* __jsbObj = nullptr;
+se::Object* __glObj = nullptr;
 
 static std::string xxteaKey = "";
 void jsb_set_xxtea_key(const std::string& key)
@@ -791,6 +792,7 @@ bool jsb_register_global_variables(se::Object* global)
 
     getOrCreatePlainObject_r("jsb", global, &__jsbObj);
     getOrCreatePlainObject_r("__jsc__", global, &__jscObj);
+    getOrCreatePlainObject_r("gl", global, &__glObj);
 
     __jscObj->defineFunction("garbageCollect", _SE(jsc_garbageCollect));
     __jscObj->defineFunction("dumpNativePtrToSeObjectMap", _SE(jsc_dumpNativePtrToSeObjectMap));
@@ -813,6 +815,7 @@ bool jsb_register_global_variables(se::Object* global)
         __ccObj->decRef();
         __jsbObj->decRef();
         __jscObj->decRef();
+        __glObj->decRef();
     });
 
     return true;

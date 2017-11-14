@@ -60,6 +60,10 @@ LOCAL_SRC_FILES := \
 					../manual/jsb_dragonbones_manual.cpp \
 					../manual/jsb_global.cpp \
 					../manual/jsb_node.cpp \
+					../manual/jsb_opengl_functions.cpp \
+					../manual/jsb_opengl_manual.cpp \
+					../manual/jsb_opengl_node.cpp \
+					../manual/jsb_opengl_registration.cpp \
 					../manual/jsb_socketio.cpp \
 					../manual/jsb_spine_manual.cpp \
 					../manual/jsb_websocket.cpp \

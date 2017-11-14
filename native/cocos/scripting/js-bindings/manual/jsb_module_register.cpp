@@ -26,6 +26,7 @@
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.hpp"
 #include "cocos/scripting/js-bindings/auto/jsb_creator_auto.hpp"
 
+#include "cocos/scripting/js-bindings/manual/jsb_opengl_registration.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_creator_manual.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_extension_manual.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
@@ -124,6 +125,7 @@ bool jsb_register_all_modules()
     se->addRegisterCallback(register_all_cocos2dx);
     se->addRegisterCallback(jsb_register_Node_manual);
     se->addRegisterCallback(register_all_cocos2dx_manual);
+    se->addRegisterCallback(JSB_register_opengl);
 
 #if USE_AUDIO
     se->addRegisterCallback(register_all_cocos2dx_audioengine);
