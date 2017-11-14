@@ -411,7 +411,7 @@ namespace se {
             _CHECK(JsGetAndClearException(&exception));
 
             ExceptionInfo exceptionInfo = formatException(exception);
-            SE_LOGD("ERROR: %s, %s, \nSTACK:\n%s\n", exceptionInfo.message.c_str(), exceptionInfo.location.c_str(), exceptionInfo.stack.c_str());
+            SE_LOGD("ERROR: %s, location: %s, \nSTACK:\n%s\n", exceptionInfo.message.c_str(), exceptionInfo.location.c_str(), exceptionInfo.stack.c_str());
 
             if (_exceptionCallback != nullptr)
             {
