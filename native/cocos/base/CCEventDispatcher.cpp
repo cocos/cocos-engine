@@ -690,7 +690,10 @@ void EventDispatcher::removeEventListener(EventListener* listener)
 
     if (isFound)
     {
-        releaseListener(listener);
+        if (_inDispatch > 0)
+            CC_SAFE_RELEASE(listener);
+        else
+            releaseListener(listener);
     }
     else
     {
