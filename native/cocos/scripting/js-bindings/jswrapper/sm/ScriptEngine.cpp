@@ -1114,8 +1114,6 @@ namespace se {
                 clearException();
             }
 
-            assert(ok);
-
             if (ok && ret != nullptr && !rval.isNullOrUndefined())
             {
                 internal::jsToSeValue(_cx, rval, ret);

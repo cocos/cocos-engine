@@ -64,6 +64,9 @@ namespace se {
         std::string stackTraceToString(v8::Local<v8::StackTrace> stack)
         {
             std::string stackStr;
+            if (stack.IsEmpty())
+                return stackStr;
+
             char tmp[100] = {0};
             for (int i = 0, e = stack->GetFrameCount(); i < e; ++i)
             {
@@ -249,9 +252,9 @@ namespace se {
         Value column;
         internal::jsToSeValue(v8::Isolate::GetCurrent(), origin.ResourceColumnOffset(), &column);
 
-        std::string location = resouceNameVal.toString() + ":" + line.toStringForce() + ":" + column.toStringForce();
+        std::string location = resouceNameVal.toStringForce() + ":" + line.toStringForce() + ":" + column.toStringForce();
 
-        std::string errorStr = msgVal.toString() + ", " + location;
+        std::string errorStr = msgVal.toString() + ", location: " + location;
         std::string stackStr = stackTraceToString(message->GetStackTrace());
         if (!stackStr.empty())
         {
