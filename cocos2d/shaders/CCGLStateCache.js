@@ -38,7 +38,7 @@ var MAX_ACTIVETEXTURE = 0,
 if (ENABLE_GL_STATE_CACHE) {
     MAX_ACTIVETEXTURE = 16;
     _currentShaderProgram = -1;
-    _currentBoundTexture = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
+    _currentBoundTexture = new Array(MAX_ACTIVETEXTURE);
     _blendingSource = -1;
     _blendingDest = -1;
     _GLServerState = 0;
@@ -59,7 +59,7 @@ cc.gl.invalidateStateCache = function () {
     if (ENABLE_GL_STATE_CACHE) {
         _currentShaderProgram = -1;
         for (var i = 0; i < MAX_ACTIVETEXTURE; i++) {
-            _currentBoundTexture[i] = -1;
+            _currentBoundTexture[i] = null;
         }
         _blendingSource = -1;
         _blendingDest = -1;
@@ -228,7 +228,7 @@ cc.gl.deleteTexture2D = function (texture) {
 cc.gl.deleteTexture2DN = function (textureUnit, texture) {
     if (ENABLE_GL_STATE_CACHE) {
         if (texture === _currentBoundTexture[ textureUnit ])
-            _currentBoundTexture[ textureUnit ] = -1;
+            _currentBoundTexture[ textureUnit ] = null;
     }
     cc._renderContext.deleteTexture(texture._glID);
 };
