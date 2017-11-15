@@ -575,7 +575,8 @@ else if (isWeChatGame()) {
     sys.__audioSupport = { 
         ONLY_ONE: false, 
         WEB_AUDIO: false, 
-        DELAY_CREATE_CTX: false
+        DELAY_CREATE_CTX: false,
+        format: ['.mp3']
     };
 }
 else {
