@@ -561,7 +561,8 @@ namespace se {
             options.set_inspector_enabled(true);
             options.set_port((int)_debuggerServerPort);
             options.set_host_name(_debuggerServerAddr.c_str());
-            _env->inspector_agent()->Start(_platform, "", options);
+            bool ok = _env->inspector_agent()->Start(_platform, "", options);
+            assert(ok);
 #endif
         }
         //
