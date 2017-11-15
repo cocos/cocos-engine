@@ -77,7 +77,6 @@ void ScriptingCore::rootScriptObject(Ref* target)
 
 void ScriptingCore::releaseScriptObject(Ref* owner, Ref* target)
 {
-    assert(!se::ScriptEngine::getInstance()->isGarbageCollecting());
     auto iterOwner = se::NativePtrToObjectMap::find(owner);
     if (iterOwner == se::NativePtrToObjectMap::end())
     {
@@ -90,6 +89,7 @@ void ScriptingCore::releaseScriptObject(Ref* owner, Ref* target)
         return;
     }
 
+    assert(!se::ScriptEngine::getInstance()->isGarbageCollecting());
     se::ScriptEngine::getInstance()->clearException();
     se::AutoHandleScope hs;
     iterOwner->second->detachObject(iterTarget->second);
