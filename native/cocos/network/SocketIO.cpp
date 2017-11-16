@@ -813,7 +813,9 @@ void SIOClientImpl::onMessage(WebSocket* /*ws*/, const WebSocket::Data& data)
             case 0:
                 CCLOGINFO("Received Disconnect Signal for Endpoint: %s\n", endpoint.c_str());
                 disconnectFromEndpoint(endpoint);
-                c->fireEvent("disconnect", payload);
+                if (c) {
+                    c->fireEvent("disconnect", payload);
+                }
                 break;
             case 1:
                 CCLOGINFO("Connected to endpoint: %s \n", endpoint.c_str());

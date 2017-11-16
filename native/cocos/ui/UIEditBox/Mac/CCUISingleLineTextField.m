@@ -109,7 +109,8 @@
 
 -(id) initWithFrame:(NSRect)frameRect
 {
-    if ([super initWithFrame:frameRect]) {
+    self = [super initWithFrame:frameRect];
+    if (self) {
         [self setLineBreakMode:NSLineBreakByTruncatingTail];
     }
 
@@ -122,7 +123,8 @@
 }
 
 - (void)dealloc
-{    
+{
+    self.placeholderAttributes = nil;
     [super dealloc];
 }
 
