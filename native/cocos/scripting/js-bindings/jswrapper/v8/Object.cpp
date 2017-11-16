@@ -409,10 +409,10 @@ namespace se {
     {
         assert(isTypedArray());
         v8::Local<v8::Object> obj = const_cast<Object*>(this)->_obj.handle(__isolate);
-        v8::Local<v8::Uint8Array> arr = v8::Local<v8::Uint8Array>::Cast(obj);
+        v8::Local<v8::TypedArray> arr = v8::Local<v8::TypedArray>::Cast(obj);
         v8::ArrayBuffer::Contents content = arr->Buffer()->GetContents();
-        *ptr = (uint8_t*)content.Data();
-        *length = content.ByteLength();
+        *ptr = (uint8_t*)content.Data() + arr->ByteOffset();
+        *length = arr->ByteLength();
         return true;
     }
 

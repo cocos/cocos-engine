@@ -836,22 +836,38 @@ namespace se {
 #if (__MAC_OS_X_VERSION_MAX_ALLOWED >= 101200 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000)
         if (isSupportTypedArrayAPI())
         {
+            bool succeed = false;
             JSValueRef exception = nullptr;
-            *length = JSObjectGetTypedArrayByteLength(__cx, _obj, &exception);
-            if (exception != nullptr)
+            do
             {
+                *length = JSObjectGetTypedArrayByteLength(__cx, _obj, &exception);
+                if (exception != nullptr)
+                    break;
+
+                size_t offset = JSObjectGetTypedArrayByteOffset(__cx, _obj, &exception);
+                if (exception != nullptr)
+                    break;
+
+                uint8_t* buf = (uint8_t*)JSObjectGetTypedArrayBytesPtr(__cx, _obj, &exception);
+                if (exception != nullptr)
+                    break;
+
+                if (buf == nullptr)
+                    break;
+
+                *ptr = buf + offset;
+                succeed = true;
+            } while (false);
+
+            if (!succeed)
+            {
+                *ptr = nullptr;
+                *length = 0;
                 ScriptEngine::getInstance()->_clearException(exception);
                 return false;
             }
 
-            *ptr = (uint8_t*)JSObjectGetTypedArrayBytesPtr(__cx, _obj, &exception);
-            if (exception != nullptr)
-            {
-                ScriptEngine::getInstance()->_clearException(exception);
-                return false;
-            }
-
-            return (*ptr != nullptr);
+            return true;
         }
         else
 #endif

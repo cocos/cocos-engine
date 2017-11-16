@@ -49,13 +49,18 @@ if (window.scriptEngineType == "JavaScriptCore") {
     };
 
     window.__jsc_getTypedArrayData = function(typedArr) {
-        var uint8Array = new Uint8Array(typedArr.buffer);
-        var len = uint8Array.length;
-        var arr = new Array(len);
-        for (var i = 0; i < len; ++i) {
-            arr[i] = uint8Array[i];
+        var length = typedArr.byteLength;
+        var offset = typedArr.byteOffset;
+        var buf = typedArr.buffer;
+        var uint8Arr = new Uint8Array(buf);
+        var retArr = new Array(length);
+        var arrIndex = 0;
+        var bufIndex = offset;
+        var bufEnd = offset + length;
+        for (; bufIndex < bufEnd; ++bufIndex, ++arrIndex) {
+            retArr[arrIndex] = uint8Arr[bufIndex];
         }
-        return arr;
+        return retArr;
     };
 
     window.__jscTypedArrayConstructor = Object.getPrototypeOf(Uint16Array.prototype).constructor;
