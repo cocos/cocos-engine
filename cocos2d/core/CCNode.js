@@ -1061,11 +1061,12 @@ var Node = cc.Class({
      */
     _onBatchCreated () {
         var prefabInfo = this._prefab;
-        if (prefabInfo && prefabInfo.sync && !prefabInfo._synced) {
-            // checks to ensure no recursion, recursion will caused only on old data.
-            if (prefabInfo.root === this) {
-                PrefabHelper.syncWithPrefab(this);
+        if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
+            if (CC_DEV) {
+                // TODO - remove all usage of _synced
+                cc.assert(!prefabInfo._synced, 'prefab should not synced');
             }
+            PrefabHelper.syncWithPrefab(this);
         }
 
         this._updateDummySgNode();
@@ -1085,6 +1086,28 @@ var Node = cc.Class({
         var children = this._children;
         for (var i = 0, len = children.length; i < len; i++) {
             children[i]._onBatchCreated();
+        }
+    },
+
+    // the same as _onBatchCreated but untouch prefab
+    _onBatchRestored () {
+        this._updateDummySgNode();
+
+        if (this._parent) {
+            this._parent._sgNode.addChild(this._sgNode);
+        }
+
+        if (!this._activeInHierarchy) {
+            // deactivate ActionManager and EventManager by default
+            if (ActionManagerExist) {
+                cc.director.getActionManager().pauseTarget(this);
+            }
+            cc.eventManager.pauseTarget(this);
+        }
+
+        var children = this._children;
+        for (var i = 0, len = children.length; i < len; i++) {
+            children[i]._onBatchRestored();
         }
     },
 
