@@ -74,7 +74,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
         layerOrientation = node.layerOrientation,
         tiles = node.tiles;
 
-    if (!tiles) {
+    if (!tiles || !node.tileset) {
         return 0;
     }
 
