@@ -529,6 +529,10 @@ namespace se {
         {
             ret = "undefined";
         }
+        else
+        {
+            assert(false);
+        }
 
         return ret;
     }

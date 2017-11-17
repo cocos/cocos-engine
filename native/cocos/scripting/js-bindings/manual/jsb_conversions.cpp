@@ -218,13 +218,8 @@ bool seval_to_ssize(const se::Value& v, ssize_t* ret)
 bool seval_to_std_string(const se::Value& v, std::string* ret)
 {
     assert(ret != nullptr);
-    if (v.isString() || v.isNumber())
-    {
-        *ret = v.toStringForce();
-        return true;
-    }
-    ret->clear();
-    return false;
+    *ret = v.toStringForce();
+    return true;
 }
 
 bool seval_to_Vec2(const se::Value& v, cocos2d::Vec2* pt)
