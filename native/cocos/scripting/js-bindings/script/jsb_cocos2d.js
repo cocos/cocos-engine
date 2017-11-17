@@ -1126,23 +1126,3 @@ cc.GLProgram.prototype.setUniformLocationWithMatrix4fv = function(){
     tempArray.push(4);
     this.setUniformLocationWithMatrixfvUnion.apply(this, tempArray);
 };
-
-//
-// LocalStorage
-//
-sys.localStorage._setItem = sys.localStorage.setItem;
-sys.localStorage.setItem = function(itemKey,itemValue) {
-    if (typeof itemKey === 'string') {
-        if(itemValue !== undefined && itemValue !== null)
-        {
-            if (typeof itemValue !== 'string') {
-                cc.log("sys.localStorage.setItem Warning: itemValue[" + itemValue + "] is not string!");
-                itemValue = '' + itemValue;
-            }
-            sys.localStorage._setItem(itemKey, itemValue);
-        }
-    }
-    else
-        cc.log("sys.localStorage.setItem Warning: itemKey[" + itemKey + "] is not string!");
-}
-
