@@ -1040,9 +1040,10 @@ Profile
 1. 打开Mac上的Safari，偏好设置 -> 高级 -> 显示开发者选项
 2. 为Xcode工程添加entitlements文件，如果entitlements存在则跳过此步骤。如果不存在，则到工程的Capabilities设置中打开App Sandbox，然后再关闭，这时.entitlements文件会自动被添加进工程。![](jsc-entitlements.png)，还需要确保Build Setting里面Code Signing Entitlemenets选项中包含entitlements文件。 ![](jsc-entitlements-check.png)
 3. 打开entitlements文件，添加com.apple.security.get-task-allow，值类型为Boolean，值为YES. ![](jsc-security-key.png)
-4. 编译、运行游戏
-5. 如果是直接在Creator的模拟器中运行，则可以跳过第2，3，4步骤
-6. Safari菜单中选择Develop -> 你的Mac设备名称 -> Cocos2d-x JSB 会自动打开Web Inspector页面，然后即可进行设置断点、Timeline profile、console等操作。![](jsc-mac-debug.png) ![](jsc-breakpoint.png) ![](jsc-timeline.png)
+4. 签名: General -> 选择你的Mac工程 -> Signing -> 选择你的开发者证书
+5. 编译、运行游戏
+6. 如果是直接在Creator的模拟器中运行，则可以跳过第2，3，4，5步骤
+7. Safari菜单中选择Develop -> 你的Mac设备名称 -> Cocos2d-x JSB 会自动打开Web Inspector页面，然后即可进行设置断点、Timeline profile、console等操作。![](jsc-mac-debug.png) ![](jsc-breakpoint.png) ![](jsc-timeline.png)
 
 **注意**
 
@@ -1057,8 +1058,9 @@ Profile
 1. 先打开iPhone的设置 -> Safari -> 高级 -> Web检查器
 2. 为Xcode工程添加entitlements文件，如果entitlements存在则跳过此步骤。如果不存在，则到工程的Capabilities设置中打开App Sandbox，然后再关闭，这时.entitlements文件会自动被添加进工程。 (图示与macOS的第2步类似)
 3. 打开entitlements文件，添加com.apple.security.get-task-allow，值类型为Boolean，值为YES。(图示与macOS的第3步类似)
-4. 编译、运行游戏
-5. Safari菜单中选择Develop -> 你的iPhone设备名称 -> Cocos2d-x JSB 会自动打开Web Inspector页面，然后即可进行设置断点、Timeline profile、console等操作。(图示与macOS的第6步类似)
+4. 签名: General -> 选择你的iOS工程 -> Signing -> 选择你的开发者证书
+5. 编译、运行游戏
+6. Safari菜单中选择Develop -> 你的iPhone设备名称 -> Cocos2d-x JSB 会自动打开Web Inspector页面，然后即可进行设置断点、Timeline profile、console等操作。(图示与macOS的第6步类似)
 
 ## Q & A
 
