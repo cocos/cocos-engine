@@ -72,9 +72,10 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
 
     var node = this._node,
         layerOrientation = node.layerOrientation,
-        tiles = node.tiles;
+        tiles = node.tiles,
+        alpha = node._opacity / 255;
 
-    if (!tiles || !node.tileset) {
+    if (!tiles || alpha <= 0 || !node.tileset) {
         return 0;
     }
 
