@@ -682,6 +682,25 @@ namespace se {
         return true;
     }
 
+    std::string Object::toString() const
+    {
+        std::string ret;
+        if (isFunction() || isArray() || isTypedArray())
+        {
+            JS::RootedValue val(__cx, JS::ObjectOrNullValue(_getJSObject()));
+            internal::forceConvertJsValueToStdString(__cx, val, &ret);
+        }
+        else if (isArrayBuffer())
+        {
+            ret = "[object ArrayBuffer]";
+        }
+        else
+        {
+            ret = "[object Object]";
+        }
+        return ret;
+    }
+
 } // namespace se {
 
 #endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM

@@ -43,6 +43,7 @@ namespace se {
             JSFinalizeOp finalizeCb;
         };
 
+        void forceConvertJsValueToStdString(JSContext* cx, JS::HandleValue jsval, std::string* ret);
         std::string jsToStdString(JSContext* cx, JS::HandleString jsStr);
 
         void jsToSeArgs(JSContext* cx, int argc, const JS::CallArgs& argv, ValueArray* outArr);

@@ -350,6 +350,12 @@ namespace se {
          */
         bool detachObject(Object* obj);
 
+        /**
+         *  @brief Returns the string for describing current object.
+         *  @return The string for describing current object.
+         */
+        std::string toString() const;
+
         // Private API used in wrapper
         static Object* _createJSObject(Class* cls, v8::Local<v8::Object> obj);
         v8::Local<v8::Object> _getJSObject() const;

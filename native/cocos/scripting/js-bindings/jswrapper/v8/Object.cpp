@@ -364,8 +364,7 @@ namespace se {
     {
         if (isFunction())
         {
-            v8::String::Utf8Value utf8(const_cast<Object*>(this)->_obj.handle(__isolate));
-            std::string info = *utf8;
+            std::string info = toString();
             if (info.find("[native code]") != std::string::npos)
             {
                 return true;
@@ -790,6 +789,24 @@ namespace se {
         return true;
     }
 
+    std::string Object::toString() const
+    {
+        std::string ret;
+        if (isFunction() || isArray() || isTypedArray())
+        {
+            v8::String::Utf8Value utf8(const_cast<Object*>(this)->_obj.handle(__isolate));
+            ret = *utf8;
+        }
+        else if (isArrayBuffer())
+        {
+            ret = "[object ArrayBuffer]";
+        }
+        else
+        {
+            ret = "[object Object]";
+        }
+        return ret;
+    }
 
 } // namespace se {
 

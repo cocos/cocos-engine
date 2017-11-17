@@ -922,8 +922,7 @@ namespace se {
     {
         if (isFunction())
         {
-            std::string info;
-            internal::forceConvertJsValueToStdString(__cx, _obj, &info);
+            std::string info = toString();
             if (info.find("[native code]") != std::string::npos)
             {
                 return true;
@@ -1195,6 +1194,24 @@ namespace se {
         args.push_back(Value(obj));
         func.toObject()->call(args, global);
         return true;
+    }
+
+    std::string Object::toString() const
+    {
+        std::string ret;
+        if (isFunction() || isArray() || isTypedArray())
+        {
+            internal::forceConvertJsValueToStdString(__cx, _obj, &ret);
+        }
+        else if (isArrayBuffer())
+        {
+            ret = "[object ArrayBuffer]";
+        }
+        else
+        {
+            ret = "[object Object]";
+        }
+        return ret;
     }
 
 } // namespace se {
