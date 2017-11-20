@@ -150,7 +150,8 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
         colOffset = startRow * cols, z, gid, grid,
         i, top, left, bottom, right, 
         gt, gl, gb, gr,
-        wa = a, wb = b, wc = c, wd = d, wtx = tx, wty = ty, // world
+        wa = a, wb = b, wc = c, wd = d, 
+        wtx = Math.floor(tx) + 0.5, wty = Math.floor(ty) + 0.5, // world
         flagged = false, flippedX = false, flippedY = false,
         vertices = this._vertices,
         axis, tileOffset, diffX1, diffY1, odd_even;
