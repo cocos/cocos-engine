@@ -4740,6 +4740,7 @@
         "cocos/scripting/js-bindings/auto/jsb_creator_physics_auto.cpp", 
         "cocos/scripting/js-bindings/auto/jsb_creator_physics_auto.hpp", 
         "cocos/scripting/js-bindings/docs/JSB2.0-Architecture.png", 
+        "cocos/scripting/js-bindings/docs/JSB2.0-learning-en.md", 
         "cocos/scripting/js-bindings/docs/JSB2.0-learning-zh.md", 
         "cocos/scripting/js-bindings/docs/jsc-breakpoint.png", 
         "cocos/scripting/js-bindings/docs/jsc-entitlements-check.png", 
