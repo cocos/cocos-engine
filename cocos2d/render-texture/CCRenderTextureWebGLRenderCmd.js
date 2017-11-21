@@ -140,7 +140,6 @@ proto.initWithWidthAndHeight = function(width, height, format, depthStencilForma
 
     var gl = cc._renderContext;
     this._fullRect = new cc.Rect(0,0, width, height);
-    this._fullViewport = new cc.Rect(0,0, width, height);
 
     width = 0 | width;
     height = 0 | height;
@@ -157,6 +156,8 @@ proto.initWithWidthAndHeight = function(width, height, format, depthStencilForma
         powW = misc.NextPOT(width);
         powH = misc.NextPOT(height);
     }
+
+    this._fullViewport = new cc.Rect(0,0, powW, powH);
 
     //void *data = malloc(powW * powH * 4);
     var dataLen = powW * powH * 4;
@@ -244,6 +245,7 @@ proto.begin = function(){
 
     var orthoMatrix = cc.math.Matrix4.createOrthographicProjection(-1.0 / widthRatio, 1.0 / widthRatio,
         -1.0 / heightRatio, 1.0 / heightRatio, -1, 1);
+    cc.math.glMatrixMode(cc.math.KM_GL_PROJECTION);
     cc.math.glMultMatrix(orthoMatrix);
 
     //calculate viewport

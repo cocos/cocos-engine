@@ -50,6 +50,7 @@ if (CC_DEBUG) {
         "1402": "The 'visible' property of %s is deprecated, use 'enabled' instead please.", //visible
         "1403": "Sorry, cc.audioEngine.willPlayMusic is removed.", //willPlayMusicError
         "1404": "cc.spriteFrameCache is removed, please use cc.loader to load and cache sprite frames of atlas format.",
+        "1405": "The '%s' will be removed in v2.0, please use '%s' instead. \uD83D\uDE30",
         //Scheduler: 1500
         "1500": "cc.Scheduler#schedule: Callback already scheduled. Updating interval from:%s to %s", //scheduleCallbackForTarget
         "1501": "cc.Scheduler#scheduleCallbackForTarget(): callback_fn should be non-null.", //scheduleCallbackForTarget_2
@@ -387,6 +388,7 @@ if (CC_DEBUG) {
         "4010": "cc.LabelBMFont.setFntFile() : Impossible to create font. Please check file", //BMFont.setFntFile
         "4011": "Property spriteFrame of Font '%s' is invalid. Using system font instead.", // BMFont spriteFrame is invalid.
         "4012": "The texture of Font '%s' must be already loaded on JSB. Using system font instead.",
+        "4013": "Sorry, lineHeight of system font not supported on JSB.",
         //Layout: 4100
         "4100": "Property padding is deprecated, please use paddingLeft, paddingRight, paddingTop and paddingBottom instead", //padding
         //Mask: 4200

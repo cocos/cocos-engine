@@ -24,21 +24,22 @@
  ****************************************************************************/
 
 /**
- * !#en ToggleGroup is not a visiable UI component but a way to modify the behavior of a set of Toggles.
- * Toggles that belong to the same group could only have one of them to be switched on at a time.
- * !#zh ToggleGroup 不是一个可见的 UI 组件，它可以用来修改一组 Toggle  组件的行为。当一组 Toggle 属于同一个 ToggleGroup 的时候，
- * 任何时候只能有一个 Toggle 处于选中状态。
- * @class ToggleGroup
+ * !#en ToggleContainer is not a visiable UI component but a way to modify the behavior of a set of Toggles. </br>
+ * Toggles that belong to the same group could only have one of them to be switched on at a time.</br>
+ * Note: All the first layer child node containing the toggle component will auto be added to the container
+ * !#zh ToggleContainer 不是一个可见的 UI 组件，它可以用来修改一组 Toggle 组件的行为。</br>
+ * 当一组 Toggle 属于同一个 ToggleContainer 的时候，任何时候只能有一个 Toggle 处于选中状态。</br>
+ * 注意：所有包含 Toggle 组件的一级子节点都会自动被添加到该容器中
+ * @class ToggleContainer
  * @extends Component
  */
-var ToggleGroup = cc.Class({
-    name: 'cc.ToggleGroup',
+var ToggleContainer = cc.Class({
+    name: 'cc.ToggleContainer',
     extends: cc.Component,
-    ctor: function () {
-        this._toggleItems = [];
-    },
     editor: CC_EDITOR && {
-        help: 'i18n:COMPONENT.help_url.toggleGroup'
+        menu: 'i18n:MAIN_MENU.component.ui/ToggleContainer',
+        help: 'i18n:COMPONENT.help_url.toggleContainer',
+        executeInEditMode: true
     },
 
     properties: {
@@ -53,55 +54,21 @@ var ToggleGroup = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.toggle_group.allowSwitchOff',
             default: false
         },
-
-        /**
-         * !#en Read only property, return the toggle items array reference managed by toggleGroup.
-         * !#zh 只读属性，返回 toggleGroup 管理的 toggle 数组引用
-         * @property {Array} toggleItems
-         */
-        toggleItems: {
-            get: function () {
-                return this._toggleItems;
-            }
-        }
     },
 
     updateToggles: function (toggle) {
-        if(!this.enabledInHierarchy) return;
-
-        this._toggleItems.forEach(function (item){
-            if(toggle.isChecked) {
-                if (item !== toggle && item.isChecked && item.enabled) {
-                    item.isChecked = false;
-                }
-            }
+        this.toggleItems.forEach(function (item) {
+            item.isChecked = (item === toggle);
         });
-    },
-
-    addToggle: function (toggle) {
-        var index = this._toggleItems.indexOf(toggle);
-        if (index === -1) {
-            this._toggleItems.push(toggle);
-        }
-        this._allowOnlyOneToggleChecked();
-    },
-
-    removeToggle: function (toggle) {
-        var index = this._toggleItems.indexOf(toggle);
-        if(index > -1) {
-            this._toggleItems.splice(index, 1);
-        }
-        this._makeAtLeastOneToggleChecked();
     },
 
     _allowOnlyOneToggleChecked: function () {
         var isChecked = false;
-        this._toggleItems.forEach(function (item) {
-            if(isChecked && item.enabled) {
+        this.toggleItems.forEach(function (item) {
+            if (isChecked) {
                 item.isChecked = false;
             }
-
-            if (item.isChecked && item.enabled) {
+            else if (item.isChecked) {
                 isChecked = true;
             }
         });
@@ -112,11 +79,22 @@ var ToggleGroup = cc.Class({
     _makeAtLeastOneToggleChecked: function () {
         var isChecked = this._allowOnlyOneToggleChecked();
 
-        if(!isChecked && !this.allowSwitchOff) {
-            if(this._toggleItems.length > 0) {
-                this._toggleItems[0].isChecked = true;
+        if (!isChecked && !this.allowSwitchOff) {
+            var toggleItems = this.toggleItems;
+            if (toggleItems.length > 0) {
+                toggleItems[0].check();
             }
         }
+    },
+
+    onEnable: function () {
+        this.node.on('child-added', this._allowOnlyOneToggleChecked, this);
+        this.node.on('child-removed', this._makeAtLeastOneToggleChecked, this);
+    },
+
+    onDisable: function () {
+        this.node.off('child-added', this._allowOnlyOneToggleChecked, this);
+        this.node.off('child-removed', this._makeAtLeastOneToggleChecked, this);
     },
 
     start: function () {
@@ -124,14 +102,16 @@ var ToggleGroup = cc.Class({
     }
 });
 
+/**
+ * !#en Read only property, return the toggle items array reference managed by ToggleContainer.
+ * !#zh 只读属性，返回 ToggleContainer 管理的 toggle 数组引用
+ * @property {Toggle[]} toggleItems
+ */
 var JS = require('../platform/js');
-var showed = false;
-cc.js.get(cc, 'ToggleGroup', function () {
-    if (!showed) {
-        cc.logID(1405, 'cc.ToggleGroup', 'cc.ToggleContainer');
-        showed = true;
+JS.get(ToggleContainer.prototype, 'toggleItems',
+    function () {
+        return this.node.getComponentsInChildren(cc.Toggle);
     }
-    return ToggleGroup;
-});
+);
 
-cc.ToggleGroup = module.exports = ToggleGroup;
+cc.ToggleContainer = module.exports = ToggleContainer;

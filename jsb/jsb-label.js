@@ -112,6 +112,9 @@ jsbLabel.prototype.setLineHeight = function (height) {
     if (this._labelType !== _ccsg.Label.Type.SystemFont) {
         this._setLineHeight(height);
     }
+    else {
+        cc.warnID(4013);
+    }
 };
 
 jsbLabel.prototype._setColor = jsbLabel.prototype.setColor;
