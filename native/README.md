@@ -42,26 +42,31 @@ Git user attention
 
 1. Clone the repo from GitHub.
 
-         $ git clone https://github.com/cocos-creator/cocos2d-x-lite.git
+       $ git clone https://github.com/cocos-creator/cocos2d-x-lite.git
 
 2. After cloning the repo, please execute `download-deps.py` to download and install dependencies.
 
-         $ cd cocos2d-x-lite
-         $ python download-deps.py
+       $ cd cocos2d-x-lite
+       $ python download-deps.py
 
 3. After running `download-deps.py`.
 
-         $ git submodule update --init
+       $ git submodule update --init
 
 4. Build simulator
 
-         $ npm install
-         $ gulp gen-simulator
-         $ gulp update-simulator-config
+       $ npm install
+       $ gulp sign-simulator
+       $ gulp gen-simulator
+       $ gulp update-simulator-config
+
+    `gulp sign-simulator` only need to run on Mac. It can help you to sign the simulator project in "tools/simulator/frameworks/runtime-src/proj.ios_mac/simulator.xcodeproj", so you can debug the simulator on Mac. This command will open the XCode project in the background. Then you should set the signing manually, and close XCode to make it finished. If you don't want to sign it, just close XCode directly. You need to rerun this command once the project is changed.
+    ![](https://user-images.githubusercontent.com/1503156/32046986-3ab1f0b6-ba0a-11e7-9c7f-7fe0a385d338.png)
+
 
 5. Build prebuilt library
 
-         $ gulp gen-libs
+       $ gulp gen-libs
 
 Contributing to the Project
 --------------------------------
