@@ -1,3 +1,26 @@
+/****************************************************************************
+ Copyright (c) 2017 Chukong Technologies Inc.
+
+ http://www.cocos2d-x.org
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
 #include "Object.hpp"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
@@ -186,13 +209,60 @@ namespace se {
         return obj;
     }
     
-    Object* Object::createUint8TypedArray(uint8_t* data, size_t byteLength)
+    Object* Object::createTypedArray(TypedArrayType type, void* data, size_t byteLength)
     {
+        if (type == TypedArrayType::NONE)
+        {
+            SE_LOGE("Don't pass se::Object::TypedArrayType::NONE to createTypedArray API!");
+            return nullptr;
+        }
+
+        if (type == TypedArrayType::UINT8_CLAMPED)
+        {
+            SE_LOGE("Doesn't support to create Uint8ClampedArray with Object::createTypedArray API!");
+            return nullptr;
+        }
+
         v8::Local<v8::ArrayBuffer> jsobj = v8::ArrayBuffer::New(__isolate, byteLength);
         memcpy(jsobj->GetContents().Data(), data, byteLength);
-        v8::Local<v8::Uint8Array> arr = v8::Uint8Array::New(jsobj, 0, byteLength);
+        v8::Local<v8::Object> arr;
+        switch (type) {
+            case TypedArrayType::INT8:
+                arr = v8::Int8Array::New(jsobj, 0, byteLength);
+                break;
+            case TypedArrayType::INT16:
+                arr = v8::Int16Array::New(jsobj, 0, byteLength / 2);
+                break;
+            case TypedArrayType::INT32:
+                arr = v8::Int32Array::New(jsobj, 0, byteLength / 4);
+                break;
+            case TypedArrayType::UINT8:
+                arr = v8::Uint8Array::New(jsobj, 0, byteLength);
+                break;
+            case TypedArrayType::UINT16:
+                arr = v8::Uint16Array::New(jsobj, 0, byteLength / 2);
+                break;
+            case TypedArrayType::UINT32:
+                arr = v8::Uint32Array::New(jsobj, 0, byteLength / 4);
+                break;
+            case TypedArrayType::FLOAT32:
+                arr = v8::Float32Array::New(jsobj, 0, byteLength / 4);
+                break;
+            case TypedArrayType::FLOAT64:
+                arr = v8::Float64Array::New(jsobj, 0, byteLength / 8);
+                break;
+            default:
+                assert(false); // Should never go here.
+                break;
+        }
+
         Object* obj = Object::_createJSObject(nullptr, arr);
         return obj;
+    }
+
+    Object* Object::createUint8TypedArray(uint8_t* data, size_t dataCount)
+    {
+        return createTypedArray(TypedArrayType::UINT8, data, dataCount);
     }
 
     Object* Object::createJSONObject(const std::string& jsonStr)
@@ -267,7 +337,7 @@ namespace se {
         v8::Maybe<bool> ret = _obj.handle(__isolate)->Set(__isolate->GetCurrentContext(), nameValue.ToLocalChecked(), value);
         if (ret.IsNothing())
         {
-            LOGD("ERROR: %s, Set return nothing ...\n", __FUNCTION__);
+            SE_LOGD("ERROR: %s, Set return nothing ...\n", __FUNCTION__);
             return false;
         }
         return true;
@@ -294,8 +364,7 @@ namespace se {
     {
         if (isFunction())
         {
-            v8::String::Utf8Value utf8(const_cast<Object*>(this)->_obj.handle(__isolate));
-            std::string info = *utf8;
+            std::string info = toString();
             if (info.find("[native code]") != std::string::npos)
             {
                 return true;
@@ -309,14 +378,40 @@ namespace se {
         return const_cast<Object*>(this)->_obj.handle(__isolate)->IsTypedArray();
     }
 
+    Object::TypedArrayType Object::getTypedArrayType() const
+    {
+        v8::Local<v8::Value> value = const_cast<Object*>(this)->_obj.handle(__isolate);
+        TypedArrayType ret = TypedArrayType::NONE;
+        if (value->IsInt8Array())
+            ret = TypedArrayType::INT8;
+        else if (value->IsInt16Array())
+            ret = TypedArrayType::INT16;
+        else if (value->IsInt32Array())
+            ret = TypedArrayType::INT32;
+        else if (value->IsUint8Array())
+            ret = TypedArrayType::UINT8;
+        else if (value->IsUint8ClampedArray())
+            ret = TypedArrayType::UINT8_CLAMPED;
+        else if (value->IsUint16Array())
+            ret = TypedArrayType::UINT16;
+        else if (value->IsUint32Array())
+            ret = TypedArrayType::UINT32;
+        else if (value->IsFloat32Array())
+            ret = TypedArrayType::FLOAT32;
+        else if (value->IsFloat64Array())
+            ret = TypedArrayType::FLOAT64;
+
+        return ret;
+    }
+
     bool Object::getTypedArrayData(uint8_t** ptr, size_t* length) const
     {
         assert(isTypedArray());
         v8::Local<v8::Object> obj = const_cast<Object*>(this)->_obj.handle(__isolate);
-        v8::Local<v8::Uint8Array> arr = v8::Local<v8::Uint8Array>::Cast(obj);
+        v8::Local<v8::TypedArray> arr = v8::Local<v8::TypedArray>::Cast(obj);
         v8::ArrayBuffer::Contents content = arr->Buffer()->GetContents();
-        *ptr = (uint8_t*)content.Data();
-        *length = content.ByteLength();
+        *ptr = (uint8_t*)content.Data() + arr->ByteOffset();
+        *length = arr->ByteLength();
         return true;
     }
 
@@ -380,7 +475,7 @@ namespace se {
     {
         if (_obj.persistent().IsEmpty())
         {
-            LOGD("Function object is released!\n");
+            SE_LOGD("Function object is released!\n");
             return false;
         }
         size_t argc = 0;
@@ -393,7 +488,7 @@ namespace se {
         {
             if (thisObject->_obj.persistent().IsEmpty())
             {
-                LOGD("This object is released!\n");
+                SE_LOGD("This object is released!\n");
                 return false;
             }
             thiz = thisObject->_obj.handle(__isolate);
@@ -403,7 +498,7 @@ namespace se {
         {
             if (argv[i].IsEmpty())
             {
-                LOGD("%s argv[%d] is released!\n", __FUNCTION__, (int)i);
+                SE_LOGD("%s argv[%d] is released!\n", __FUNCTION__, (int)i);
                 return false;
             }
         }
@@ -694,6 +789,24 @@ namespace se {
         return true;
     }
 
+    std::string Object::toString() const
+    {
+        std::string ret;
+        if (isFunction() || isArray() || isTypedArray())
+        {
+            v8::String::Utf8Value utf8(const_cast<Object*>(this)->_obj.handle(__isolate));
+            ret = *utf8;
+        }
+        else if (isArrayBuffer())
+        {
+            ret = "[object ArrayBuffer]";
+        }
+        else
+        {
+            ret = "[object Object]";
+        }
+        return ret;
+    }
 
 } // namespace se {
 

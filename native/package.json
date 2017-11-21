@@ -7,7 +7,7 @@
     "update-version": "node utils/update-version.js"
   },
   "devDependencies": {
-    "download": "4.4.3",
+    "download": "^6.2.5",
     "fs-extra": "0.30.0",
     "ftp": "0.3.10",
     "gulp": "3.9.1",

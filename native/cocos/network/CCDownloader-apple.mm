@@ -338,6 +338,7 @@ namespace cocos2d { namespace network {
 {
     DLLOG("Destruct DownloaderAppleImpl %p", self);
     self.downloadSession = nil;
+    self.taskDict = nil;
     [super dealloc];
 }
 #pragma mark - NSURLSessionTaskDelegate methods

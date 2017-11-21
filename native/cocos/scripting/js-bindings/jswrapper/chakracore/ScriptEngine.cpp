@@ -1,3 +1,26 @@
+/****************************************************************************
+ Copyright (c) 2017 Chukong Technologies Inc.
+
+ http://www.cocos2d-x.org
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
 #include "ScriptEngine.hpp"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
@@ -27,14 +50,14 @@ namespace se {
             {
                 std::string str;
                 internal::forceConvertJsValueToStdString(arguments[1], &str);
-                LOGD("JS: %s\n", str.c_str());
+                SE_LOGD("JS: %s\n", str.c_str());
             }
             return JS_INVALID_REFERENCE;
         }
 
         void myJsBeforeCollectCallback(void *callbackState)
         {
-            LOGD("GC start ...\n");
+            SE_LOGD("GC start ...\n");
         }
 
         JsValueRef privateDataContructor(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
@@ -61,7 +84,7 @@ namespace se {
             if ((argc - msgIndex) == 1)
             {
                 std::string msg = args[msgIndex].toStringForce();
-                LOGD("JS: %s%s\n", prefix, msg.c_str());
+                SE_LOGD("JS: %s%s\n", prefix, msg.c_str());
             }
             else if (argc > 1)
             {
@@ -80,7 +103,7 @@ namespace se {
                     }
                 }
 
-                LOGD("JS: %s%s\n", prefix, msg.c_str());
+                SE_LOGD("JS: %s%s\n", prefix, msg.c_str());
             }
 
             return true;
@@ -170,7 +193,7 @@ namespace se {
     bool ScriptEngine::init()
     {
         cleanup();
-        LOGD("Initializing ChakraCore, version: %d.%d.%d\n", CHAKRA_CORE_MAJOR_VERSION, CHAKRA_CORE_MINOR_VERSION, CHAKRA_CORE_PATCH_VERSION);
+        SE_LOGD("Initializing ChakraCore, version: %d.%d.%d\n", CHAKRA_CORE_MAJOR_VERSION, CHAKRA_CORE_MINOR_VERSION, CHAKRA_CORE_PATCH_VERSION);
 
         ++_vmId;
         for (const auto& hook : _beforeInitHookArray)
@@ -289,7 +312,7 @@ namespace se {
             Value tmp;
             if (exceptionObj->getProperty(key.c_str(), &tmp))
             {
-//                LOGD("[%s]=%s\n", key.c_str(), tmp.toStringForce().c_str());
+//                SE_LOGD("[%s]=%s\n", key.c_str(), tmp.toStringForce().c_str());
                 if (key == "message")
                 {
                     ret.message = tmp.toString();
@@ -372,9 +395,9 @@ namespace se {
 
     void ScriptEngine::garbageCollect()
     {
-        LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
+        SE_LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
         _CHECK(JsCollectGarbage(_rt));
-        LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
+        SE_LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
     }
 
     void ScriptEngine::clearException()
@@ -388,7 +411,7 @@ namespace se {
             _CHECK(JsGetAndClearException(&exception));
 
             ExceptionInfo exceptionInfo = formatException(exception);
-            LOGD("ERROR: %s, %s, \nSTACK:\n%s\n", exceptionInfo.message.c_str(), exceptionInfo.location.c_str(), exceptionInfo.stack.c_str());
+            SE_LOGD("ERROR: %s, location: %s, \nSTACK:\n%s\n", exceptionInfo.message.c_str(), exceptionInfo.location.c_str(), exceptionInfo.stack.c_str());
 
             if (_exceptionCallback != nullptr)
             {
@@ -414,7 +437,7 @@ namespace se {
             }
             else
             {
-                LOGE("ERROR: __errorHandler has exception\n");
+                SE_LOGE("ERROR: __errorHandler has exception\n");
             }
         }
     }
@@ -483,44 +506,8 @@ namespace se {
             return evalString(scriptBuffer.c_str(), scriptBuffer.length(), ret, path.c_str());
         }
 
-        LOGE("ScriptEngine::runScript script buffer is empty!\n");
+        SE_LOGE("ScriptEngine::runScript script buffer is empty!\n");
         return false;
-    }
-
-    void ScriptEngine::_retainScriptObject(void* owner, void* target)
-    {
-        auto iterOwner = NativePtrToObjectMap::find(owner);
-        if (iterOwner == NativePtrToObjectMap::end())
-        {
-            return;
-        }
-
-        auto iterTarget = NativePtrToObjectMap::find(target);
-        if (iterTarget == NativePtrToObjectMap::end())
-        {
-            return;
-        }
-
-        clearException();
-        iterOwner->second->attachObject(iterTarget->second);
-    }
-
-    void ScriptEngine::_releaseScriptObject(void* owner, void* target)
-    {
-        auto iterOwner = NativePtrToObjectMap::find(owner);
-        if (iterOwner == NativePtrToObjectMap::end())
-        {
-            return;
-        }
-
-        auto iterTarget = NativePtrToObjectMap::find(target);
-        if (iterTarget == NativePtrToObjectMap::end())
-        {
-            return;
-        }
-
-        clearException();
-        iterOwner->second->detachObject(iterTarget->second);
     }
 
     void ScriptEngine::enableDebugger(const std::string& serverAddr, uint32_t port)

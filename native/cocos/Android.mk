@@ -2,7 +2,9 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := cocos2dx_internal_static
+# cis is short name for cocos2dx_internal_static
+# Shorter name could avoid compilation errors on Windows system which has a limitation of 260 bytes for build path.
+LOCAL_MODULE := cis
 LOCAL_MODULE_FILENAME := libcocos2dxinternal
 
 LOCAL_ARM_MODE := arm
@@ -283,7 +285,7 @@ LOCAL_STATIC_LIBRARIES += cocos_ui_static
 LOCAL_STATIC_LIBRARIES += spine_static
 LOCAL_STATIC_LIBRARIES += dragonbones_static
 LOCAL_STATIC_LIBRARIES += creator_static
-LOCAL_STATIC_LIBRARIES += cocos2dx_internal_static
+LOCAL_STATIC_LIBRARIES += cis
 
 include $(BUILD_STATIC_LIBRARY)
 

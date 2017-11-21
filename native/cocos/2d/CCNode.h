@@ -109,6 +109,7 @@ public:
         FLAGS_TRANSFORM_DIRTY = (1 << 0),
         FLAGS_CONTENT_SIZE_DIRTY = (1 << 1),
         FLAGS_RENDER_AS_3D = (1 << 3),
+        FLAGS_CULLING_DIRTY = (1 << 4),
 
         FLAGS_DIRTY_MASK = (FLAGS_TRANSFORM_DIRTY | FLAGS_CONTENT_SIZE_DIRTY),
     };
@@ -1775,9 +1776,9 @@ public:
     virtual void setCameraMask(unsigned short mask, bool applyChildren = true);
     
     /**
-     * Mark transformUpdated as true, this will make flags contains FLAGS_TRANSFORM_DIRTY flag.
+     * Mark cullingDirty as true, this will make flags contains FLAGS_CULLING_DIRTY flag.
      */
-    void markTransformUpdated();
+    void markCullingDirty();
 
 CC_CONSTRUCTOR_ACCESS:
     // Nodes should be created using create();
@@ -1929,7 +1930,8 @@ protected:
     mutable bool _additionalTransformDirty; ///< transform dirty ?
 
     bool _transformUpdated;         ///< Whether or not the Transform object was updated since the last frame
-    char padding[7];
+    bool _cullingDirty;  ///< Whether culling is dirty
+
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(Node);
 };

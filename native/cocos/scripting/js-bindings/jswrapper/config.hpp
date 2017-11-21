@@ -1,3 +1,26 @@
+/****************************************************************************
+ Copyright (c) 2017 Chukong Technologies Inc.
+
+ http://www.cocos2d-x.org
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
 #pragma once
 
 #define SCRIPT_ENGINE_NONE           0
@@ -27,8 +50,8 @@
 #include <android/log.h>
 
 #define  LOG_TAG    "jswrapper"
-#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
-#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define  SE_LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
+#define  SE_LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
 #elif defined(_WIN32) && defined(_WINDOWS)
 
@@ -43,13 +66,13 @@
 void seLog(const char * format, ...);
 
 #define LOG_TAG    "jswrapper"
-#define LOGD(fmt, ...) seLog("D/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
-#define LOGE(fmt, ...) seLog("E/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
+#define SE_LOGD(fmt, ...) seLog("D/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
+#define SE_LOGE(fmt, ...) seLog("E/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
 
 #else
 
-#define LOGD(...) do { printf(__VA_ARGS__); fflush(stdout); } while (false)
-#define LOGE(...) do { printf(__VA_ARGS__); fflush(stdout); } while (false)
+#define SE_LOGD(...) do { printf(__VA_ARGS__); fflush(stdout); } while (false)
+#define SE_LOGE(...) do { printf(__VA_ARGS__); fflush(stdout); } while (false)
 
 #endif
 
@@ -68,5 +91,16 @@ typedef SSIZE_T ssize_t;
 #define _SSIZE_T_DEFINED // libuv also defines ssize_t, use the one defined here.
 #endif // __SSIZE_T
 
-#endif
+#endif // #if defined(_WIN32) && defined(_WINDOWS)
+
+/** @def SE_DEPRECATED_ATTRIBUTE
+ * Only certain compilers support __attribute__((deprecated)).
+ */
+#if defined(__GNUC__) && ((__GNUC__ >= 4) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
+#define SE_DEPRECATED_ATTRIBUTE __attribute__((deprecated))
+#elif _MSC_VER >= 1400 //vs 2005 or higher
+#define SE_DEPRECATED_ATTRIBUTE __declspec(deprecated)
+#else
+#define SE_DEPRECATED_ATTRIBUTE
+#endif // SE_DEPRECATED_ATTRIBUTE
 

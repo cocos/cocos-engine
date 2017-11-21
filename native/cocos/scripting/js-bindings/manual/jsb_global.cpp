@@ -11,6 +11,7 @@ using namespace cocos2d;
 se::Object* __jscObj = nullptr;
 se::Object* __ccObj = nullptr;
 se::Object* __jsbObj = nullptr;
+se::Object* __glObj = nullptr;
 
 static std::string xxteaKey = "";
 void jsb_set_xxtea_key(const std::string& key)
@@ -18,7 +19,6 @@ void jsb_set_xxtea_key(const std::string& key)
     xxteaKey = key;
 }
 
-#if SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_SM
 static const char* BYTE_CODE_FILE_EXT = ".jsc";
 
 static std::string removeFileExt(const std::string& filePath)
@@ -30,7 +30,6 @@ static std::string removeFileExt(const std::string& filePath)
     }
     return filePath;
 }
-#endif
 
 void jsb_init_file_operation_delegate()
 {
@@ -42,7 +41,6 @@ void jsb_init_file_operation_delegate()
 
             Data fileData;
 
-#if SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_SM
             std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
             if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
                 fileData = FileUtils::getInstance()->getDataFromFile(byteCodePath);
@@ -52,15 +50,32 @@ void jsb_init_file_operation_delegate()
 
                 if (data == nullptr) {
                     SE_REPORT_ERROR("Can't decrypt code for %s", byteCodePath.c_str());
+                    return;
                 }
-
-                readCallback(data, dataLen);
-                free(data);
+                
+                ZipFile* zip = ZipFile::createWithBuffer(data, dataLen);
+                if (zip) {
+                    ssize_t unpackedLen = 0;
+                    uint8_t* unpackedData = zip->getFileData("encrypt.js", &unpackedLen);
+                    
+                    if (unpackedData == nullptr) {
+                        SE_REPORT_ERROR("Can't decrypt code for %s", byteCodePath.c_str());
+                        return;
+                    }
+                    
+                    readCallback(unpackedData, unpackedLen);
+                    free(data);
+                    free(unpackedData);
+                    delete zip;
+                }
+                else {
+                    readCallback(data, dataLen);
+                    free(data);
+                }
 
                 return;
             }
 
-#endif
             fileData = FileUtils::getInstance()->getDataFromFile(path);
             readCallback(fileData.getBytes(), fileData.getSize());
         };
@@ -68,31 +83,51 @@ void jsb_init_file_operation_delegate()
         delegate.onGetStringFromFile = [](const std::string& path) -> std::string{
             assert(!path.empty());
 
-#if SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_SM
             std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
             if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
                 Data fileData = FileUtils::getInstance()->getDataFromFile(byteCodePath);
 
-                uint32_t retLength;
-                uint8_t* data = xxtea_decrypt((uint8_t*)fileData.getBytes(), (uint32_t)fileData.getSize(), (uint8_t*)xxteaKey.c_str(), (uint32_t)xxteaKey.size(), &retLength);
-
+                uint32_t dataLen;
+                uint8_t* data = xxtea_decrypt((uint8_t*)fileData.getBytes(), (uint32_t)fileData.getSize(), (uint8_t*)xxteaKey.c_str(), (uint32_t)xxteaKey.size(), &dataLen);
+                
                 if (data == nullptr) {
                     SE_REPORT_ERROR("Can't decrypt code for %s", byteCodePath.c_str());
                     return "";
                 }
-
-                std::string ret(reinterpret_cast<const char*>(data), retLength);
-                free(data);
-
-                return ret;
+                
+                ZipFile* zip = ZipFile::createWithBuffer(data, dataLen);
+                if (zip) {
+                    ssize_t unpackedLen = 0;
+                    uint8_t* unpackedData = zip->getFileData("encrypt.js", &unpackedLen);
+                    
+                    if (unpackedData == nullptr) {
+                        SE_REPORT_ERROR("Can't decrypt code for %s", byteCodePath.c_str());
+                        return "";
+                    }
+                    
+                    std::string ret(reinterpret_cast<const char*>(unpackedData), unpackedLen);
+                    free(unpackedData);
+                    free(data);
+                    delete zip;
+                    
+                    return ret;
+                }
+                else {
+                    std::string ret(reinterpret_cast<const char*>(data), dataLen);
+                    free(data);
+                    return ret;
+                }
             }
-#endif
 
             return FileUtils::getInstance()->getStringFromFile(path);
         };
 
         delegate.onGetFullPath = [](const std::string& path) -> std::string{
             assert(!path.empty());
+            std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
+            if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
+                return FileUtils::getInstance()->fullPathForFilename(byteCodePath);
+            }
             return FileUtils::getInstance()->fullPathForFilename(path);
         };
 
@@ -793,6 +828,7 @@ bool jsb_register_global_variables(se::Object* global)
 
     getOrCreatePlainObject_r("jsb", global, &__jsbObj);
     getOrCreatePlainObject_r("__jsc__", global, &__jscObj);
+    getOrCreatePlainObject_r("gl", global, &__glObj);
 
     __jscObj->defineFunction("garbageCollect", _SE(jsc_garbageCollect));
     __jscObj->defineFunction("dumpNativePtrToSeObjectMap", _SE(jsc_dumpNativePtrToSeObjectMap));
@@ -815,6 +851,7 @@ bool jsb_register_global_variables(se::Object* global)
         __ccObj->decRef();
         __jsbObj->decRef();
         __jscObj->decRef();
+        __glObj->decRef();
     });
 
     return true;

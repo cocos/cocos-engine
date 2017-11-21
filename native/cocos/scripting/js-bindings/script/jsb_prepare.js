@@ -26,6 +26,7 @@ var window = window || this;
 
 // Hack JavaScriptCore begin
 
+
 if (window.scriptEngineType == "JavaScriptCore") {
     window.__jsc_createArrayBufferObject = function(arr) {
         var len = arr.length;
@@ -35,10 +36,6 @@ if (window.scriptEngineType == "JavaScriptCore") {
             typedArr[i] = arr[i];
         }
         return buffer;
-    };
-
-    window.__jsc_createUint8TypedArray = function(arr) {
-        return new Uint8Array(arr);
     };
 
     window.__jsc_getArrayBufferData = function(arrBuf) {
@@ -51,37 +48,24 @@ if (window.scriptEngineType == "JavaScriptCore") {
         return arr;
     };
 
-    window.__jsc_getUint8ArrayData = function(typedArr) {
-        var len = typedArr.length;
-        var arr = new Array(len);
-        for (var i = 0; i < len; ++i) {
-            arr[i] = typedArr[i];
+    window.__jsc_getTypedArrayData = function(typedArr) {
+        var length = typedArr.byteLength;
+        var offset = typedArr.byteOffset;
+        var buf = typedArr.buffer;
+        var uint8Arr = new Uint8Array(buf);
+        var retArr = new Array(length);
+        var arrIndex = 0;
+        var bufIndex = offset;
+        var bufEnd = offset + length;
+        for (; bufIndex < bufEnd; ++bufIndex, ++arrIndex) {
+            retArr[arrIndex] = uint8Arr[bufIndex];
         }
-        return arr;
+        return retArr;
     };
 
-    window.__jsc_isArrayBuffer = function(arrBuf) {
-        if (!arrBuf)
-            return false;
-
-        return arrBuf instanceof ArrayBuffer;
-    };
-
-    window.__jsc_isTypedArray = function(typedArr) {
-        if (!typedArr)
-            return false;
-
-        var typedArrayTypes = [Int8Array, Uint8Array, Uint8ClampedArray, Int16Array, Uint16Array, Int32Array, Uint32Array, Float32Array, Float64Array];
-
-        for (var i = 0, len = typedArrayTypes.length; i < len; ++i) {
-            if (typedArr instanceof typedArrayTypes[i]) {
-                return true;
-            }
-        }
-
-        return false;
-    };
+    window.__jscTypedArrayConstructor = Object.getPrototypeOf(Uint16Array.prototype).constructor;
 }
+
 
 // Hack JavaScriptCore end
 
@@ -244,35 +228,41 @@ cc.Class.extend = function (prop) {
     return Class;
 };
 
+jsb.__obj_ref_id = 0;
+
 jsb.registerNativeRef = function (owner, target) {
     if (owner && target && owner !== target) {
+        var targetID = target.__jsb_ref_id;
+        if (targetID === undefined)
+            targetID = target.__jsb_ref_id = jsb.__obj_ref_id++;
+
         var refs = owner.__nativeRefs;
         if (!refs) {
-            refs = owner.__nativeRefs = [];
+            refs = owner.__nativeRefs = {};
         }
-        var index = refs.indexOf(target);
-        if (index === -1) {
-            owner.__nativeRefs.push(target);
-        }
+
+        refs[targetID] = target;
     }
 };
 
 jsb.unregisterNativeRef = function (owner, target) {
     if (owner && target && owner !== target) {
+        var targetID = target.__jsb_ref_id;
+        if (targetID === undefined)
+            return;
+
         var refs = owner.__nativeRefs;
         if (!refs) {
             return;
         }
-        var index = refs.indexOf(target);
-        if (index !== -1) {
-            owner.__nativeRefs.splice(index, 1);
-        }
+
+        delete refs[targetID];
     }
 };
 
 jsb.unregisterAllNativeRefs = function (owner) {
     if (!owner) return;
-    owner.__nativeRefs.length = 0;
+    delete owner.__nativeRefs;
 };
 
 jsb.unregisterChildRefsForNode = function (node, recursive) {

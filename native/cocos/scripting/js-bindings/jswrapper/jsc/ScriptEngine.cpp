@@ -1,3 +1,26 @@
+/****************************************************************************
+ Copyright (c) 2017 Chukong Technologies Inc.
+
+ http://www.cocos2d-x.org
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
 #include "ScriptEngine.hpp"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC
@@ -8,7 +31,9 @@
 #include "../State.hpp"
 #include "../MappingUtils.hpp"
 
+#if SE_DEBUG > 0
 extern "C" JS_EXPORT void JSSynchronousGarbageCollectForDebugging(JSContextRef);
+#endif
 
 namespace se {
 
@@ -31,10 +56,10 @@ namespace se {
         JSValueRef __forceGC(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                              size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception)
         {
-            LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
-//            JSGarbageCollect(ctx);
-            JSSynchronousGarbageCollectForDebugging(ctx);
-            LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
+            if (__instance != nullptr)
+            {
+                __instance->garbageCollect();
+            }
             return JSValueMakeUndefined(ctx);
         }
 
@@ -45,7 +70,7 @@ namespace se {
             {
                 std::string ret;
                 internal::forceConvertJsValueToStdString(ctx, arguments[0], &ret);
-                LOGD("JS: %s\n", ret.c_str());
+                SE_LOGD("JS: %s\n", ret.c_str());
             }
             return JSValueMakeUndefined(ctx);
         }
@@ -64,6 +89,7 @@ namespace se {
             free(p);
         }
 
+        Value __consoleVal;
         Value __oldConsoleLog;
         Value __oldConsoleDebug;
         Value __oldConsoleInfo;
@@ -81,7 +107,7 @@ namespace se {
             if ((argc - msgIndex) == 1)
             {
                 std::string msg = args[msgIndex].toStringForce();
-                LOGD("JS: %s%s\n", prefix, msg.c_str());
+                SE_LOGD("JS: %s%s\n", prefix, msg.c_str());
             }
             else if (argc > 1)
             {
@@ -100,7 +126,7 @@ namespace se {
                     }
                 }
 
-                LOGD("JS: %s%s\n", prefix, msg.c_str());
+                SE_LOGD("JS: %s%s\n", prefix, msg.c_str());
             }
 
             return true;
@@ -109,7 +135,7 @@ namespace se {
         bool JSB_console_log(State& s)
         {
             JSB_console_format_log(s, "");
-            __oldConsoleLog.toObject()->call(s.args(), s.thisObject());
+            __oldConsoleLog.toObject()->call(s.args(), __consoleVal.toObject());
             return true;
         }
         SE_BIND_FUNC(JSB_console_log)
@@ -117,7 +143,7 @@ namespace se {
         bool JSB_console_debug(State& s)
         {
             JSB_console_format_log(s, "[DEBUG]: ");
-            __oldConsoleDebug.toObject()->call(s.args(), s.thisObject());
+            __oldConsoleDebug.toObject()->call(s.args(), __consoleVal.toObject());
             return true;
         }
         SE_BIND_FUNC(JSB_console_debug)
@@ -125,7 +151,7 @@ namespace se {
         bool JSB_console_info(State& s)
         {
             JSB_console_format_log(s, "[INFO]: ");
-            __oldConsoleInfo.toObject()->call(s.args(), s.thisObject());
+            __oldConsoleInfo.toObject()->call(s.args(), __consoleVal.toObject());
             return true;
         }
         SE_BIND_FUNC(JSB_console_info)
@@ -133,7 +159,7 @@ namespace se {
         bool JSB_console_warn(State& s)
         {
             JSB_console_format_log(s, "[WARN]: ");
-            __oldConsoleWarn.toObject()->call(s.args(), s.thisObject());
+            __oldConsoleWarn.toObject()->call(s.args(), __consoleVal.toObject());
             return true;
         }
         SE_BIND_FUNC(JSB_console_warn)
@@ -141,7 +167,7 @@ namespace se {
         bool JSB_console_error(State& s)
         {
             JSB_console_format_log(s, "[ERROR]: ");
-            __oldConsoleError.toObject()->call(s.args(), s.thisObject());
+            __oldConsoleError.toObject()->call(s.args(), __consoleVal.toObject());
             return true;
         }
         SE_BIND_FUNC(JSB_console_error)
@@ -154,7 +180,7 @@ namespace se {
                 if (args[0].isBoolean() && !args[0].toBoolean())
                 {
                     JSB_console_format_log(s, "[ASSERT]: ", 1);
-                    __oldConsoleAssert.toObject()->call(s.args(), s.thisObject());
+                    __oldConsoleAssert.toObject()->call(s.args(), __consoleVal.toObject());
                 }
             }
             return true;
@@ -194,7 +220,7 @@ namespace se {
     bool ScriptEngine::init()
     {
         cleanup();
-        LOGD("Initializing JavaScriptCore \n");
+        SE_LOGD("Initializing JavaScriptCore \n");
         ++_vmId;
 
         for (const auto& hook : _beforeInitHookArray)
@@ -228,26 +254,25 @@ namespace se {
         _globalObj->root();
         _globalObj->setProperty("window", Value(_globalObj));
 
-        Value consoleVal;
-        if (_globalObj->getProperty("console", &consoleVal) && consoleVal.isObject())
+        if (_globalObj->getProperty("console", &__consoleVal) && __consoleVal.isObject())
         {
-            consoleVal.toObject()->getProperty("log", &__oldConsoleLog);
-            consoleVal.toObject()->defineFunction("log", _SE(JSB_console_log));
+            __consoleVal.toObject()->getProperty("log", &__oldConsoleLog);
+            __consoleVal.toObject()->defineFunction("log", _SE(JSB_console_log));
 
-            consoleVal.toObject()->getProperty("debug", &__oldConsoleDebug);
-            consoleVal.toObject()->defineFunction("debug", _SE(JSB_console_debug));
+            __consoleVal.toObject()->getProperty("debug", &__oldConsoleDebug);
+            __consoleVal.toObject()->defineFunction("debug", _SE(JSB_console_debug));
 
-            consoleVal.toObject()->getProperty("info", &__oldConsoleInfo);
-            consoleVal.toObject()->defineFunction("info", _SE(JSB_console_info));
+            __consoleVal.toObject()->getProperty("info", &__oldConsoleInfo);
+            __consoleVal.toObject()->defineFunction("info", _SE(JSB_console_info));
 
-            consoleVal.toObject()->getProperty("warn", &__oldConsoleWarn);
-            consoleVal.toObject()->defineFunction("warn", _SE(JSB_console_warn));
+            __consoleVal.toObject()->getProperty("warn", &__oldConsoleWarn);
+            __consoleVal.toObject()->defineFunction("warn", _SE(JSB_console_warn));
 
-            consoleVal.toObject()->getProperty("error", &__oldConsoleError);
-            consoleVal.toObject()->defineFunction("error", _SE(JSB_console_error));
+            __consoleVal.toObject()->getProperty("error", &__oldConsoleError);
+            __consoleVal.toObject()->defineFunction("error", _SE(JSB_console_error));
 
-            consoleVal.toObject()->getProperty("assert", &__oldConsoleAssert);
-            consoleVal.toObject()->defineFunction("assert", _SE(JSB_console_assert));
+            __consoleVal.toObject()->getProperty("assert", &__oldConsoleAssert);
+            __consoleVal.toObject()->defineFunction("assert", _SE(JSB_console_assert));
         }
 
         _globalObj->setProperty("scriptEngineType", Value("JavaScriptCore"));
@@ -285,7 +310,7 @@ namespace se {
         if (!_isValid)
             return;
 
-        LOGD("ScriptEngine::cleanup begin ...\n");
+        SE_LOGD("ScriptEngine::cleanup begin ...\n");
         _isInCleanup = true;
         for (const auto& hook : _beforeCleanupHookArray)
         {
@@ -298,6 +323,7 @@ namespace se {
         Class::cleanup();
         garbageCollect();
 
+        __consoleVal.setUndefined();
         __oldConsoleLog.setUndefined();
         __oldConsoleDebug.setUndefined();
         __oldConsoleInfo.setUndefined();
@@ -322,7 +348,7 @@ namespace se {
 
         NativePtrToObjectMap::destroy();
         NonRefNativePtrCreatedByCtorMap::destroy();
-        LOGD("ScriptEngine::cleanup end ...\n");
+        SE_LOGD("ScriptEngine::cleanup end ...\n");
     }
 
     ScriptEngine::ExceptionInfo ScriptEngine::_formatException(JSValueRef exception)
@@ -403,7 +429,7 @@ namespace se {
                 {
                     exceptionStr += "\nSTACK:\n" + exceptionInfo.stack;
                 }
-                LOGD("ERROR: %s\n", exceptionStr.c_str());
+                SE_LOGD("ERROR: %s\n", exceptionStr.c_str());
 
                 if (_exceptionCallback != nullptr)
                 {
@@ -429,7 +455,7 @@ namespace se {
                 }
                 else
                 {
-                    LOGE("ERROR: __errorHandler has exception\n");
+                    SE_LOGE("ERROR: __errorHandler has exception\n");
                 }
             }
         }
@@ -504,10 +530,18 @@ namespace se {
 
     void ScriptEngine::garbageCollect()
     {
-        LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
-        // JSGarbageCollect(_cx);
+        // JSSynchronousGarbageCollectForDebugging is private API in JavaScriptCore framework.
+        // AppStore will reject the apps reference non-public symbols.
+        // Therefore, we use JSSynchronousGarbageCollectForDebugging for easily debugging memory
+        // problems in debug mode, and use public API JSGarbageCollect in release mode to pass
+        // the AppStore's verify check.
+#if SE_DEBUG > 0
+        SE_LOGD("GC begin ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
         JSSynchronousGarbageCollectForDebugging(_cx);
-        LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
+        SE_LOGD("GC end ..., (Native -> JS map) count: %d\n", (int)NativePtrToObjectMap::size());
+#else
+        JSGarbageCollect(_cx);
+#endif
     }
 
     bool ScriptEngine::evalString(const char* script, ssize_t length/* = -1 */, Value* ret/* = nullptr */, const char* fileName/* = nullptr */)
@@ -550,7 +584,7 @@ namespace se {
         {
             if (exception == nullptr)
             {
-                LOGD("Unknown syntax error parsing file %s\n", fileName);
+                SE_LOGD("Unknown syntax error parsing file %s\n", fileName);
             }
         }
 
@@ -585,44 +619,8 @@ namespace se {
             return evalString(scriptBuffer.c_str(), scriptBuffer.length(), ret, path.c_str());
         }
 
-        LOGE("ScriptEngine::runScript script %s, buffer is empty!\n", path.c_str());
+        SE_LOGE("ScriptEngine::runScript script %s, buffer is empty!\n", path.c_str());
         return false;
-    }
-
-    void ScriptEngine::_retainScriptObject(void* owner, void* target)
-    {
-        auto iterOwner = NativePtrToObjectMap::find(owner);
-        if (iterOwner == NativePtrToObjectMap::end())
-        {
-            return;
-        }
-
-        auto iterTarget = NativePtrToObjectMap::find(target);
-        if (iterTarget == NativePtrToObjectMap::end())
-        {
-            return;
-        }
-
-        clearException();
-        iterOwner->second->attachObject(iterTarget->second);
-    }
-
-    void ScriptEngine::_releaseScriptObject(void* owner, void* target)
-    {
-        auto iterOwner = NativePtrToObjectMap::find(owner);
-        if (iterOwner == NativePtrToObjectMap::end())
-        {
-            return;
-        }
-
-        auto iterTarget = NativePtrToObjectMap::find(target);
-        if (iterTarget == NativePtrToObjectMap::end())
-        {
-            return;
-        }
-
-        clearException();
-        iterOwner->second->detachObject(iterTarget->second);
     }
 
     void ScriptEngine::clearException()

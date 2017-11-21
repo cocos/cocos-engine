@@ -142,7 +142,7 @@ XMLHttpRequest::XMLHttpRequest()
         _isDiscardedByReset = true;
         if (!_isLoadEnd)
         {
-            LOGD("XMLHttpRequest (%p) receives DIRECTOR::EVENT_RESET, retain self.\n", this);
+            SE_LOGD("XMLHttpRequest (%p) receives DIRECTOR::EVENT_RESET, retain self.\n", this);
             retain();
         }
     });
@@ -330,7 +330,7 @@ void XMLHttpRequest::onResponse(HttpClient* client, HttpResponse* response)
     std::string tag = response->getHttpRequest()->getTag();
     if (!tag.empty())
     {
-        LOGD("XMLHttpRequest::onResponse, %s completed\n", tag.c_str());
+        SE_LOGD("XMLHttpRequest::onResponse, %s completed\n", tag.c_str());
     }
 
     long statusCode = response->getResponseCode();
@@ -343,7 +343,7 @@ void XMLHttpRequest::onResponse(HttpClient* client, HttpResponse* response)
     if (!response->isSucceed())
     {
         std::string errorBuffer = response->getErrorBuffer();
-        LOGD("Response failed, error buffer: %s\n", errorBuffer.c_str());
+        SE_LOGD("Response failed, error buffer: %s\n", errorBuffer.c_str());
         if (statusCode == 0 || statusCode == -1)
         {
             _errorFlag = true;
@@ -511,7 +511,7 @@ se::Class* __jsb_XMLHttpRequest_class = nullptr;
 static bool XMLHttpRequest_finalize(se::State& s)
 {
     XMLHttpRequest* request = (XMLHttpRequest*)s.nativeThisObject();
-    LOGD("XMLHttpRequest_finalize, %p ... \n", request);
+    SE_LOGD("XMLHttpRequest_finalize, %p ... \n", request);
     if (request->getReferenceCount() == 1)
     {
         request->autorelease();
@@ -561,13 +561,13 @@ static bool XMLHttpRequest_constructor(se::State& s)
     request->onloadend = [=](){
         if (!request->isDiscardedByReset())
         {
-//            LOGD("XMLHttpRequest (%p) onloadend ...\n", request);
+//            SE_LOGD("XMLHttpRequest (%p) onloadend ...\n", request);
             cb("onloadend");
             thiz.toObject()->unroot();
         }
         else
         {
-            LOGD("XMLHttpRequest (%p) onloadend after restart ScriptEngine.\n", request);
+            SE_LOGD("XMLHttpRequest (%p) onloadend after restart ScriptEngine.\n", request);
             request->release();
         }
     };
@@ -643,13 +643,18 @@ static bool XMLHttpRequest_send(se::State& s)
     }
     else if (argc > 0)
     {
-        if (args[0].isString())
+        const auto& arg0 = args[0];
+        if (arg0.isNullOrUndefined())
         {
-            request->sendString(args[0].toString());
+            request->send();
         }
-        else if (args[0].isObject())
+        else if (arg0.isString())
         {
-            se::Object* obj = args[0].toObject();
+            request->sendString(arg0.toString());
+        }
+        else if (arg0.isObject())
+        {
+            se::Object* obj = arg0.toObject();
 
             if (obj->isTypedArray())
             {
@@ -663,7 +668,8 @@ static bool XMLHttpRequest_send(se::State& s)
                 }
                 else
                 {
-                    SE_PRECONDITION2(false, false, "args[0] isn't a typed array");
+                    SE_REPORT_ERROR("Failed to get data of TypedArray!");
+                    return false;
                 }
             }
             else if (obj->isArrayBuffer())
@@ -678,13 +684,26 @@ static bool XMLHttpRequest_send(se::State& s)
                 }
                 else
                 {
-                    SE_PRECONDITION2(false, false, "args[0] isn't an array buffer");
+                    SE_REPORT_ERROR("Failed to get data of ArrayBufferObject!");
+                    return false;
                 }
             }
             else
             {
-                SE_PRECONDITION2(false, false, "args[0] isn't a typed array or an array buffer");
+                SE_REPORT_ERROR("args[0] isn't a typed array or an array buffer");
+                return false;
             }
+        }
+        else
+        {
+            const char* typeName = "UNKNOWN";
+            if (arg0.isBoolean())
+                typeName = "boolean";
+            else if (arg0.isNumber())
+                typeName = "number";
+
+            SE_REPORT_ERROR("args[0] type: %s isn't supported!", typeName);
+            return false;
         }
     }
 
@@ -746,7 +765,7 @@ SE_BIND_FUNC(XMLHttpRequest_getResonpseHeader)
 
 static bool XMLHttpRequest_overrideMimeType(se::State& s)
 {
-    LOGD("XMLHttpRequest.overrideMimeType isn't implemented on JSB!");
+    SE_LOGD("XMLHttpRequest.overrideMimeType isn't implemented on JSB!");
     return true;
 }
 SE_BIND_FUNC(XMLHttpRequest_overrideMimeType)
@@ -864,7 +883,7 @@ static bool XMLHttpRequest_setTimeout(se::State& s)
         SE_PRECONDITION2(ok, false, "args[0] isn't a number");
         if (timeoutInMilliseconds < 50)
         {
-            LOGE("The timeout value (%lu ms) is too small, please note that timeout unit is milliseconds!", timeoutInMilliseconds);
+            SE_LOGE("The timeout value (%lu ms) is too small, please note that timeout unit is milliseconds!", timeoutInMilliseconds);
         }
         cobj->setTimeout(timeoutInMilliseconds);
         return true;
@@ -934,7 +953,7 @@ SE_BIND_PROP_SET(XMLHttpRequest_setResponseType)
 
 static bool XMLHttpRequest_getWithCredentials(se::State& s)
 {
-    LOGD("XMLHttpRequest.withCredentials isn't implemented on JSB!");
+    SE_LOGD("XMLHttpRequest.withCredentials isn't implemented on JSB!");
     return true;
 }
 SE_BIND_PROP_GET(XMLHttpRequest_getWithCredentials)

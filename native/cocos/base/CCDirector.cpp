@@ -91,6 +91,44 @@ const char *Director::EVENT_BEFORE_UPDATE = "director_before_update";
 const char *Director::EVENT_AFTER_UPDATE = "director_after_update";
 const char *Director::EVENT_RESET = "director_reset";
 
+
+Director::MatrixStack::MatrixStack()
+{
+}
+
+void Director::MatrixStack::init() {
+    _stack.clear();
+    _stack.reserve(16);
+    
+    _stack.push_back(Mat4::IDENTITY);
+    _stackTop = 0;
+}
+
+void Director::MatrixStack::push(const Mat4& m) {
+    if (_stackTop >= _stack.size() - 1) {
+        _stack.push_back(m);
+    }
+    else {
+        _stack[_stackTop + 1] = m;
+    }
+    ++_stackTop;
+}
+
+void Director::MatrixStack::pop() {
+    if (_stackTop > 0) {
+        --_stackTop;
+    }
+}
+
+Mat4& Director::MatrixStack::top() {
+    return _stack[_stackTop];
+}
+
+const Mat4& Director::MatrixStack::top() const {
+    return _stack[_stackTop];
+}
+
+
 Director* Director::getInstance()
 {
     if (!s_SharedDirector)
@@ -105,7 +143,8 @@ Director* Director::getInstance()
 
 Director::Director()
 : _isStatusLabelUpdated(true),
-_invalid(true)
+_invalid(true),
+_isCullingEnabled(true)
 {
 }
 
@@ -430,24 +469,9 @@ void Director::setNextDeltaTimeZero(bool nextDeltaTimeZero)
 //
 void Director::initMatrixStack()
 {
-    while (!_modelViewMatrixStack.empty())
-    {
-        _modelViewMatrixStack.pop();
-    }
-
-    while (!_projectionMatrixStack.empty())
-    {
-        _projectionMatrixStack.pop();
-    }
-
-    while (!_textureMatrixStack.empty())
-    {
-        _textureMatrixStack.pop();
-    }
-
-    _modelViewMatrixStack.push(Mat4::IDENTITY);
-    _projectionMatrixStack.push(Mat4::IDENTITY);
-    _textureMatrixStack.push(Mat4::IDENTITY);
+    _modelViewMatrixStack.init();
+    _projectionMatrixStack.init();
+    _textureMatrixStack.init();
 }
 
 void Director::resetMatrixStack()
@@ -539,15 +563,35 @@ void Director::pushMatrix(MATRIX_STACK_TYPE type)
 {
     if(type == MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW)
     {
-        _modelViewMatrixStack.push(_modelViewMatrixStack.top());
+        pushMatrix(type, _modelViewMatrixStack.top());
     }
     else if(type == MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION)
     {
-        _projectionMatrixStack.push(_projectionMatrixStack.top());
+        pushMatrix(type,  _projectionMatrixStack.top());
     }
     else if(type == MATRIX_STACK_TYPE::MATRIX_STACK_TEXTURE)
     {
-        _textureMatrixStack.push(_textureMatrixStack.top());
+        pushMatrix(type, _textureMatrixStack.top());
+    }
+    else
+    {
+        CCASSERT(false, "unknown matrix stack type");
+    }
+}
+
+void Director::pushMatrix(MATRIX_STACK_TYPE type, const Mat4& mat)
+{
+    if(type == MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW)
+    {
+        _modelViewMatrixStack.push(mat);
+    }
+    else if(type == MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION)
+    {
+        _projectionMatrixStack.push(mat);
+    }
+    else if(type == MATRIX_STACK_TYPE::MATRIX_STACK_TEXTURE)
+    {
+        _textureMatrixStack.push(mat);
     }
     else
     {

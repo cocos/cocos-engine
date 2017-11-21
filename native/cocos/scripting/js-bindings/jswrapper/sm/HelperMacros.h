@@ -1,3 +1,26 @@
+/****************************************************************************
+ Copyright (c) 2017 Chukong Technologies Inc.
+
+ http://www.cocos2d-x.org
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
 #pragma once
 
 #include "../config.hpp"
@@ -25,6 +48,9 @@
         void* nativeThisObject = se::internal::getPrivate(_cx, _thizObj); \
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \
+        if (!ret) { \
+            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
+        } \
         se::internal::setReturnValue(_cx, state.rval(), _argv); \
         return ret; \
     }
@@ -36,11 +62,14 @@
     void funcName##Registry(JSFreeOp* _fop, JSObject* _obj) \
     { \
         void* nativeThisObject = JS_GetPrivate(_obj); \
-        bool ok = false; \
+        bool ret = false; \
         if (nativeThisObject == nullptr) \
             return;\
         se::State state(nativeThisObject); \
-        ok = funcName(state); \
+        ret = funcName(state); \
+        if (!ret) { \
+            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
+        } \
     }
 
 
@@ -61,6 +90,10 @@
             bool _found = false; \
             _found = thisObject->getProperty("_ctor", &_property); \
             if (_found) _property.toObject()->call(args, thisObject); \
+        } \
+        else \
+        { \
+            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
         } \
         return ret; \
     }
@@ -85,6 +118,10 @@
             _found = thisObject->getProperty("_ctor", &_property); \
             if (_found) _property.toObject()->call(args, thisObject); \
         } \
+        else \
+        { \
+            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
+        } \
         return ret; \
     }
 
@@ -99,6 +136,9 @@
         void* nativeThisObject = se::internal::getPrivate(_cx, _thizObj); \
         se::State state(nativeThisObject); \
         ret = funcName(state); \
+        if (!ret) { \
+            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
+        } \
         se::internal::setReturnValue(_cx, state.rval(), _argv); \
         return ret; \
     }
@@ -118,6 +158,9 @@
         args.push_back(std::move(data)); \
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \
+        if (!ret) { \
+            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
+        } \
         return ret; \
     }
 
@@ -128,7 +171,7 @@
 #define SE_QUOTEME(x) SE_QUOTEME_(x)
 
 #define SE_REPORT_ERROR(fmt, ...)  \
-    LOGD("ERROR (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__); \
+    SE_LOGD("ERROR (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__); \
     JS_ReportErrorUTF8(se::ScriptEngine::getInstance()->_getContext(), fmt, ##__VA_ARGS__)
 
 #if COCOS2D_DEBUG > 0
@@ -138,7 +181,7 @@
     { \
         if (!(cond)) \
         { \
-            LOGD("ASSERT (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__); \
+            SE_LOGE("ASSERT (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__); \
             assert(false); \
         } \
     } while(false)

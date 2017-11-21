@@ -1,3 +1,26 @@
+/****************************************************************************
+ Copyright (c) 2017 Chukong Technologies Inc.
+
+ http://www.cocos2d-x.org
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
 #include "Object.hpp"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
@@ -57,11 +80,64 @@ namespace se {
         return obj;
     }
 
-    Object* Object::createUint8TypedArray(uint8_t* data, size_t byteLength)
+    Object* Object::createTypedArray(TypedArrayType type, void* data, size_t byteLength)
     {
+        if (type == TypedArrayType::NONE)
+        {
+            SE_LOGE("Don't pass se::Object::TypedArrayType::NONE to createTypedArray API!");
+            return nullptr;
+        }
+
+        if (type == TypedArrayType::UINT8_CLAMPED)
+        {
+            SE_LOGE("Doesn't support to create Uint8ClampedArray with Object::createTypedArray API!");
+            return nullptr;
+        }
+
+        JsTypedArrayType typedArrayType;
+        size_t elementLength = 0;
+
+        switch (type) {
+            case TypedArrayType::INT8:
+                typedArrayType = JsArrayTypeInt8;
+                elementLength = byteLength;
+                break;
+            case TypedArrayType::INT16:
+                typedArrayType = JsArrayTypeInt16;
+                elementLength = byteLength / 2;
+                break;
+            case TypedArrayType::INT32:
+                typedArrayType = JsArrayTypeInt32;
+                elementLength = byteLength / 4;
+                break;
+            case TypedArrayType::UINT8:
+                typedArrayType = JsArrayTypeUint8;
+                elementLength = byteLength;
+                break;
+            case TypedArrayType::UINT16:
+                typedArrayType = JsArrayTypeUint16;
+                elementLength = byteLength / 2;
+                break;
+            case TypedArrayType::UINT32:
+                typedArrayType = JsArrayTypeUint32;
+                elementLength = byteLength / 4;
+                break;
+            case TypedArrayType::FLOAT32:
+                typedArrayType = JsArrayTypeFloat32;
+                elementLength = byteLength / 4;
+                break;
+            case TypedArrayType::FLOAT64:
+                typedArrayType = JsArrayTypeFloat64;
+                elementLength = byteLength / 8;
+                break;
+            default:
+                assert(false); // Should never go here.
+                break;
+        }
+
         Object* obj = nullptr;
         JsValueRef jsobj;
-        _CHECK(JsCreateTypedArray(JsArrayTypeUint8, JS_INVALID_REFERENCE, 0, (unsigned int)byteLength, &jsobj));
+        _CHECK(JsCreateTypedArray(typedArrayType, JS_INVALID_REFERENCE, 0, (unsigned int)elementLength, &jsobj));
         ChakraBytePtr buffer = nullptr;
         unsigned int bufferLength = 0;
         JsTypedArrayType arrType;
@@ -73,6 +149,11 @@ namespace se {
         }
 
         return obj;
+    }
+
+    Object* Object::createUint8TypedArray(uint8_t* data, size_t dataCount)
+    {
+        return createTypedArray(TypedArrayType::UINT8, data, dataCount);
     }
 
     Object* Object::createJSONObject(const std::string& jsonStr)
@@ -179,7 +260,7 @@ namespace se {
         }
         else
         {
-            LOGD("Object::_cleanup, ScriptEngine was initialized again, ignore cleanup work, oldVMId: %u, newVMId: %u\n", _currentVMId, se->getVMId());
+            SE_LOGD("Object::_cleanup, ScriptEngine was initialized again, ignore cleanup work, oldVMId: %u, newVMId: %u\n", _currentVMId, se->getVMId());
         }
 
         _isCleanup = true;
@@ -455,8 +536,7 @@ namespace se {
     {
         if (isFunction())
         {
-            std::string info;
-            internal::forceConvertJsValueToStdString(_obj, &info);
+            std::string info = toString();
             if (info.find("[native code]") != std::string::npos)
             {
                 return true;
@@ -473,6 +553,42 @@ namespace se {
             return type == JsTypedArray;
         }
         return false;
+    }
+
+    Object::TypedArrayType Object::getTypedArrayType() const
+    {
+        TypedArrayType ret = TypedArrayType::NONE;
+        if (!isTypedArray())
+            return ret;
+
+        JsTypedArrayType type;
+        JsValueRef arrayBuffer = JS_INVALID_REFERENCE;
+        unsigned int byteOffset = 0;
+        unsigned int byteLength = 0;
+
+        if (JsNoError == JsGetTypedArrayInfo(_obj, &type, &arrayBuffer, &byteOffset, &byteLength))
+        {
+            if (type == JsArrayTypeInt8)
+                ret = TypedArrayType::INT8;
+            else if (type == JsArrayTypeInt16)
+                ret = TypedArrayType::INT16;
+            else if (type == JsArrayTypeInt32)
+                ret = TypedArrayType::INT32;
+            else if (type == JsArrayTypeUint8)
+                ret = TypedArrayType::UINT8;
+            else if (type == JsArrayTypeUint8Clamped)
+                ret = TypedArrayType::UINT8_CLAMPED;
+            else if (type == JsArrayTypeUint16)
+                ret = TypedArrayType::UINT16;
+            else if (type == JsArrayTypeUint32)
+                ret = TypedArrayType::UINT32;
+            else if (type == JsArrayTypeFloat32)
+                ret = TypedArrayType::FLOAT32;
+            else if (type == JsArrayTypeFloat64)
+                ret = TypedArrayType::FLOAT64;
+        }
+
+        return ret;
     }
 
     bool Object::getTypedArrayData(uint8_t** ptr, size_t* length) const
@@ -595,7 +711,7 @@ namespace se {
                 }
                 else
                 {
-                    LOGD("Object::unroot, ScriptEngine was initialized again, ignore cleanup work, oldVMId: %u, newVMId: %u\n", _currentVMId, se->getVMId());
+                    SE_LOGD("Object::unroot, ScriptEngine was initialized again, ignore cleanup work, oldVMId: %u, newVMId: %u\n", _currentVMId, se->getVMId());
                 }
             }
         }
@@ -654,6 +770,24 @@ namespace se {
         args.push_back(Value(obj));
         func.toObject()->call(args, global);
         return true;
+    }
+
+    std::string Object::toString() const
+    {
+        std::string ret;
+        if (isFunction() || isArray() || isTypedArray())
+        {
+            internal::forceConvertJsValueToStdString(_obj, &ret);
+        }
+        else if (isArrayBuffer())
+        {
+            ret = "[object ArrayBuffer]";
+        }
+        else
+        {
+            ret = "[object Object]";
+        }
+        return ret;
     }
 
 } // namespace se {

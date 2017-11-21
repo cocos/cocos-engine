@@ -20,6 +20,13 @@ if (platform === sys.ANDROID) {
     var cls_CAAgentWrapper = "org/cocos2dx/lib/CAAgentWrapper";
     
     cocosAnalytics.init = function(info) {
+
+        if (!info.channel) {
+            var anysdkChannelID = jsb.reflection.callStaticMethod(cls_CAAgentWrapper, "getChannelID", "()Ljava/lang/String;");
+            console.log("Found AnySDK channel ID: " + anysdkChannelID);
+            info.channel = anysdkChannelID;
+        }
+
         if (info && info.appID && info.appSecret && info.channel) {
             jsb.reflection.callStaticMethod(cls_CAAgentWrapper,
                 "init", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
@@ -300,8 +307,16 @@ if (platform === sys.ANDROID) {
     var cls_CAPayment = "CAPeiment";
     var cls_CATask = "CATask";
     var cls_CAVirtual = "CAVirtual";
+    var cls_JSB_PlatformIOS = "JSB_PlatformIOS";
 
     cocosAnalytics.init = function(info) {
+
+        if (!info.channel) {
+            var anysdkChannelID = jsb.reflection.callStaticMethod(cls_JSB_PlatformIOS, "getChannelID");
+            console.log("Found AnySDK channel ID: " + anysdkChannelID);
+            info.channel = anysdkChannelID;
+        }
+
         if (info && info.appID && info.appSecret && info.channel) {
             jsb.reflection.callStaticMethod(cls_CAAgent,
                 "init:appID:appSecret:",
@@ -318,10 +333,6 @@ if (platform === sys.ANDROID) {
     };
 
     cocosAnalytics.CAAccount = {
-
-        testbool: function(v, boolean, integer, longtype, shorttype, uinttype, ulongtype, ushorttype, floattype, doubletype, chartype, uchartype) {
-            return jsb.reflection.callStaticMethod(cls_CAAccount, "testbool:boolean:integer:longtype:shorttype:uinttype:ulongtype:ushorttype:floattype:doubletype:chartype:uchartype:", v, boolean, integer, longtype, shorttype, uinttype, ulongtype, ushorttype, floattype, doubletype, chartype, uchartype);
-        },
 
         loginStart: function() {
             jsb.reflection.callStaticMethod(cls_CAAccount, "loginStart");
@@ -576,7 +587,123 @@ if (platform === sys.ANDROID) {
         }
     };
 } else {
+    // Empty implementation for other platforms
+    cocosAnalytics = {};
 
+    cocosAnalytics.init = function(info) {
+        console.log("Cocos Analytics module isn't available on this platform!");
+    };
+
+    cocosAnalytics.enableDebug = function(enabled) {
+    };
+
+    cocosAnalytics.CAAccount = {
+        loginStart: function() {
+        },
+
+        loginSuccess: function(info) {
+        },
+
+        loginFailed: function() {
+        },
+
+        logout: function(info) {
+        },
+
+        setAccountType: function(type) {
+        },
+
+        setAge: function(age) {
+        },
+
+        setGender: function(gender) {
+        },
+
+        setLevel: function(level) {
+        },
+
+        createRole: function(info) {
+        }
+    };
+
+    cocosAnalytics.CAEvent = {
+        onEvent: function(info) {
+        },
+
+        onEventStart: function(info) {
+        },
+
+        onEventEnd: function(info) {
+        }
+    };
+
+    cocosAnalytics.CAPayment = {
+        payBegin: function(info) {
+        },
+
+        paySuccess: function(info) {
+        },
+
+        payFailed: function(info) {
+        },
+
+        payCanceled: function(info) {
+        }
+    };
+
+    cocosAnalytics.CALevels = {
+        begin: function(info) {
+        },
+
+        complete: function(info) {
+        },
+
+        failed: function(info) {
+        }
+    };
+
+    cocosAnalytics.CATaskType = {
+        GuideLine: 1,
+        MainLine: 2,
+        BranchLine: 3,
+        Daily: 4,
+        Activity: 5,
+        Other: 100
+    };
+
+    cocosAnalytics.CATask = {
+
+        begin: function(info) {
+        },
+
+        complete: function(info) {
+        },
+
+        failed: function(info) {
+        }
+    };
+
+    cocosAnalytics.CAItem = {
+        buy: function(info) {
+        },
+
+        get: function(info) {
+        },
+
+        consume: function(info) {
+        }
+    };
+
+    cocosAnalytics.CAVirtual = {
+        setVirtualNum: function(info) {
+        },
+
+        get: function(info) {
+        },
+
+        consume: function(info) {
+        }
+    };
 }
 
 })();

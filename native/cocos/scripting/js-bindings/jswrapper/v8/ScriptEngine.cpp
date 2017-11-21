@@ -1,3 +1,26 @@
+/****************************************************************************
+ Copyright (c) 2017 Chukong Technologies Inc.
+
+ http://www.cocos2d-x.org
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
 #include "ScriptEngine.hpp"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
@@ -29,7 +52,7 @@ namespace se {
             if (info[0]->IsString())
             {
                 v8::String::Utf8Value utf8(info[0]);
-                LOGD("JS: %s\n", *utf8);
+                SE_LOGD("JS: %s\n", *utf8);
             }
         }
 
@@ -41,6 +64,9 @@ namespace se {
         std::string stackTraceToString(v8::Local<v8::StackTrace> stack)
         {
             std::string stackStr;
+            if (stack.IsEmpty())
+                return stackStr;
+
             char tmp[100] = {0};
             for (int i = 0, e = stack->GetFrameCount(); i < e; ++i)
             {
@@ -96,7 +122,7 @@ namespace se {
             if ((argc - msgIndex) == 1)
             {
                 std::string msg = args[msgIndex].toStringForce();
-                LOGD("JS: %s%s\n", prefix, msg.c_str());
+                SE_LOGD("JS: %s%s\n", prefix, msg.c_str());
             }
             else if (argc > 1)
             {
@@ -115,7 +141,7 @@ namespace se {
                     }
                 }
 
-                LOGD("JS: %s%s\n", prefix, msg.c_str());
+                SE_LOGD("JS: %s%s\n", prefix, msg.c_str());
             }
 
             return true;
@@ -185,7 +211,7 @@ namespace se {
         errorStr += ", message: ";
         errorStr += message;
 
-        LOGE("%s\n", errorStr.c_str());
+        SE_LOGE("%s\n", errorStr.c_str());
         if (getInstance()->_exceptionCallback != nullptr)
         {
             getInstance()->_exceptionCallback(location, message, "(no stack information)");
@@ -204,7 +230,7 @@ namespace se {
             message += "false";
 
         errorStr += ", " + message;
-        LOGE("%s\n", errorStr.c_str());
+        SE_LOGE("%s\n", errorStr.c_str());
         if (getInstance()->_exceptionCallback != nullptr)
         {
             getInstance()->_exceptionCallback(location, message.c_str(), "(no stack information)");
@@ -226,9 +252,9 @@ namespace se {
         Value column;
         internal::jsToSeValue(v8::Isolate::GetCurrent(), origin.ResourceColumnOffset(), &column);
 
-        std::string location = resouceNameVal.toString() + ":" + line.toStringForce() + ":" + column.toStringForce();
+        std::string location = resouceNameVal.toStringForce() + ":" + line.toStringForce() + ":" + column.toStringForce();
 
-        std::string errorStr = msgVal.toString() + ", " + location;
+        std::string errorStr = msgVal.toString() + ", location: " + location;
         std::string stackStr = stackTraceToString(message->GetStackTrace());
         if (!stackStr.empty())
         {
@@ -238,7 +264,7 @@ namespace se {
             }
             errorStr += "\nSTACK:\n" + stackStr;
         }
-        LOGE("ERROR: %s\n", errorStr.c_str());
+        SE_LOGE("ERROR: %s\n", errorStr.c_str());
 
         if (thiz->_exceptionCallback != nullptr)
         {
@@ -264,7 +290,7 @@ namespace se {
         }
         else
         {
-            LOGE("ERROR: __errorHandler has exception\n");
+            SE_LOGE("ERROR: __errorHandler has exception\n");
         }
     }
 
@@ -306,6 +332,7 @@ namespace se {
     , _exceptionCallback(nullptr)
 #if SE_ENABLE_INSPECTOR
     , _env(nullptr)
+    , _isolateData(nullptr)
 #endif
     , _debuggerServerPort(0)
     , _vmId(0)
@@ -334,7 +361,7 @@ namespace se {
     bool ScriptEngine::init()
     {
         cleanup();
-        LOGD("Initializing V8, version: %s\n", v8::V8::GetVersion());
+        SE_LOGD("Initializing V8, version: %s\n", v8::V8::GetVersion());
         ++_vmId;
 
         for (const auto& hook : _beforeInitHookArray)
@@ -417,7 +444,7 @@ namespace se {
         if (!_isValid)
             return;
 
-        LOGD("ScriptEngine::cleanup begin ...\n");
+        SE_LOGD("ScriptEngine::cleanup begin ...\n");
         _isInCleanup = true;
 
         {
@@ -441,11 +468,19 @@ namespace se {
             __oldConsoleAssert.setUndefined();
 
 #if SE_ENABLE_INSPECTOR
-            _env->inspector_agent()->Stop();
+            if (_isolateData != nullptr)
+            {
+                node::FreeIsolateData(_isolateData);
+                _isolateData = nullptr;
+            }
 
-            node::FreeIsolateData(_isolateData);
-            _env->CleanupHandles();
-            node::FreeEnvironment(_env);
+            if (_env != nullptr)
+            {
+                _env->inspector_agent()->Stop();
+                _env->CleanupHandles();
+                node::FreeEnvironment(_env);
+                _env = nullptr;
+            }
 #endif
 
             _context.Get(_isolate)->Exit();
@@ -472,7 +507,7 @@ namespace se {
         NativePtrToObjectMap::destroy();
         NonRefNativePtrCreatedByCtorMap::destroy();
 
-        LOGD("ScriptEngine::cleanup end ...\n");
+        SE_LOGD("ScriptEngine::cleanup end ...\n");
     }
 
     Object* ScriptEngine::getGlobalObject() const
@@ -526,7 +561,8 @@ namespace se {
             options.set_inspector_enabled(true);
             options.set_port((int)_debuggerServerPort);
             options.set_host_name(_debuggerServerAddr.c_str());
-            _env->inspector_agent()->Start(_platform, "", options);
+            bool ok = _env->inspector_agent()->Start(_platform, "", options);
+            assert(ok);
 #endif
         }
         //
@@ -549,7 +585,7 @@ namespace se {
 
     void ScriptEngine::garbageCollect()
     {
-        LOGD("GC begin ..., (js->native map) size: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
+        SE_LOGD("GC begin ..., (js->native map) size: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
         const double kLongIdlePauseInSeconds = 1.0;
         _isolate->ContextDisposedNotification();
         _isolate->IdleNotificationDeadline(_platform->MonotonicallyIncreasingTime() + kLongIdlePauseInSeconds);
@@ -557,7 +593,7 @@ namespace se {
         // garbage and will therefore also invoke all weak callbacks of actually
         // unreachable persistent handles.
         _isolate->LowMemoryNotification();
-        LOGD("GC end ..., (js->native map) size: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
+        SE_LOGD("GC end ..., (js->native map) size: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), (int)__objectMap.size());
     }
 
     bool ScriptEngine::isGarbageCollecting()
@@ -647,46 +683,8 @@ namespace se {
             return evalString(scriptBuffer.c_str(), scriptBuffer.length(), ret, path.c_str());
         }
 
-        LOGE("ScriptEngine::runScript script %s, buffer is empty!\n", path.c_str());
+        SE_LOGE("ScriptEngine::runScript script %s, buffer is empty!\n", path.c_str());
         return false;
-    }
-
-    void ScriptEngine::_retainScriptObject(void* owner, void* target)
-    {
-        auto iterOwner = NativePtrToObjectMap::find(owner);
-        if (iterOwner == NativePtrToObjectMap::end())
-        {
-            return;
-        }
-
-        auto iterTarget = NativePtrToObjectMap::find(target);
-        if (iterTarget == NativePtrToObjectMap::end())
-        {
-            return;
-        }
-
-        clearException();
-        AutoHandleScope hs;
-        iterOwner->second->attachObject(iterTarget->second);
-    }
-
-    void ScriptEngine::_releaseScriptObject(void* owner, void* target)
-    {
-        auto iterOwner = NativePtrToObjectMap::find(owner);
-        if (iterOwner == NativePtrToObjectMap::end())
-        {
-            return;
-        }
-
-        auto iterTarget = NativePtrToObjectMap::find(target);
-        if (iterTarget == NativePtrToObjectMap::end())
-        {
-            return;
-        }
-
-        clearException();
-        AutoHandleScope hs;
-        iterOwner->second->detachObject(iterTarget->second);
     }
 
     void ScriptEngine::clearException()

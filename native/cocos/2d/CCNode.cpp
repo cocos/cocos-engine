@@ -82,6 +82,7 @@ Node::Node()
 , _additionalTransform(nullptr)
 , _additionalTransformDirty(false)
 , _transformUpdated(true)
+, _cullingDirty(true)
 // children (lazy allocs)
 // lazy alloc
 , _localZOrderAndArrival(0)
@@ -1216,6 +1217,7 @@ uint32_t Node::processParentFlags(const Mat4& parentTransform, uint32_t parentFl
     uint32_t flags = parentFlags;
     flags |= (_transformUpdated ? FLAGS_TRANSFORM_DIRTY : 0);
     flags |= (_contentSizeDirty ? FLAGS_CONTENT_SIZE_DIRTY : 0);
+    flags |= (_cullingDirty ? FLAGS_CULLING_DIRTY : 0);
 
 
     if(flags & FLAGS_DIRTY_MASK)
@@ -1223,6 +1225,7 @@ uint32_t Node::processParentFlags(const Mat4& parentTransform, uint32_t parentFl
 
     _transformUpdated = false;
     _contentSizeDirty = false;
+    _cullingDirty = false;
 
     return flags;
 }
@@ -1249,8 +1252,7 @@ void Node::visit(Renderer* renderer, const Mat4 &parentTransform, uint32_t paren
     // IMPORTANT:
     // To ease the migration to v3.0, we still support the Mat4 stack,
     // but it is deprecated and your code should not rely on it
-    _director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
-    _director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
+    _director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
 
     auto camera = creator::CameraNode::getInstance();
     if (camera) {
@@ -2147,9 +2149,9 @@ void Node::setCameraMask(unsigned short mask, bool applyChildren)
     }
 }
 
-void Node::markTransformUpdated()
+void Node::markCullingDirty()
 {
-    _transformUpdated = true;
+    _cullingDirty = true;
 }
 
 NS_CC_END

@@ -1,3 +1,26 @@
+/****************************************************************************
+ Copyright (c) 2017 Chukong Technologies Inc.
+
+ http://www.cocos2d-x.org
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
 #pragma once
 
 #include "../config.hpp"
@@ -31,6 +54,9 @@
         void* nativeThisObject = se::internal::getPrivate(_argv[0]); \
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \
+        if (!ret) { \
+            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
+        } \
         se::internal::seToJsValue(state.rval(), &_jsRet); \
         return _jsRet; \
     }
@@ -47,6 +73,9 @@
             se::Object* _thisObject = state.thisObject(); \
             if (_thisObject) _thisObject->_cleanup(nativeThisObject); \
             ret = funcName(state); \
+            if (!ret) { \
+                SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
+            } \
             SAFE_DEC_REF(_thisObject); \
             se->_setGarbageCollecting(false); \
         } \
@@ -75,6 +104,10 @@
             _found = thisObject->getProperty("_ctor", &_property); \
             if (_found) _property.toObject()->call(args, thisObject); \
         } \
+        else \
+        { \
+            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
+        } \
         return _jsRet; \
     }
 
@@ -98,6 +131,10 @@
             _found = thisObject->getProperty("_ctor", &_property); \
             if (_found) _property.toObject()->call(args, thisObject); \
         } \
+        else \
+        { \
+            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
+        } \
         return _jsRet; \
     }
 
@@ -107,10 +144,13 @@
     { \
         assert(_argc == 1); \
         JsValueRef _jsRet = JS_INVALID_REFERENCE; \
-        SE_UNUSED bool ret = true; \
+        bool ret = true; \
         void* nativeThisObject = se::internal::getPrivate(_argv[0]); \
         se::State state(nativeThisObject); \
         ret = funcName(state); \
+        if (!ret) { \
+            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
+        } \
         se::internal::seToJsValue(state.rval(), &_jsRet); \
         return _jsRet; \
     }
@@ -120,7 +160,7 @@
     JsValueRef funcName##Registry(JsValueRef _callee, bool _isConstructCall, JsValueRef* _argv, unsigned short _argc, void* _callbackState) \
     { \
         assert(_argc == 2); \
-        SE_UNUSED bool ret = true; \
+        bool ret = true; \
         void* nativeThisObject = se::internal::getPrivate(_argv[0]); \
         se::Value data; \
         se::internal::jsToSeValue(_argv[1], &data); \
@@ -128,6 +168,9 @@
         args.push_back(std::move(data)); \
         se::State state(nativeThisObject, args); \
         ret = funcName(state); \
+        if (!ret) { \
+            SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
+        } \
         return JS_INVALID_REFERENCE; \
     }
 
@@ -138,7 +181,7 @@
 #define SE_QUOTEME(x) SE_QUOTEME_(x)
 
 //FIXME: implement this macro
-#define SE_REPORT_ERROR(fmt, ...) LOGD("ERROR (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__)
+#define SE_REPORT_ERROR(fmt, ...) SE_LOGE("[ERROR] (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__)
 
 #if COCOS2D_DEBUG > 0
 
@@ -147,7 +190,7 @@
     { \
         if (!(cond)) \
         { \
-            LOGD("ASSERT (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__); \
+            SE_LOGE("ASSERT (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__); \
             assert(false); \
         } \
     } while(false)
@@ -164,7 +207,7 @@
         JsErrorCode _errCode = cmd;          \
         if (_errCode != JsNoError)           \
         {                                   \
-            LOGD("Error 0x%x at '%s, %s, %d'\n",    \
+            SE_LOGE("Error 0x%x at '%s, %s, %d'\n",    \
                 _errCode, #cmd, __FILE__, __LINE__); \
             assert(false); \
         }                                   \

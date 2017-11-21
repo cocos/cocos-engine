@@ -4,7 +4,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 22
-    buildToolsVersion "25.0.0"
+    buildToolsVersion '26.0.2'
 
     defaultConfig {
         applicationId "org.cocos2d.helloworld"
@@ -30,8 +30,6 @@ android {
                     else {
                         arguments 'NDK_MODULE_PATH=' + module_paths.join(':')
                     }
-
-                    arguments 'NDK_OUT=./obj'
                     
                     arguments '-j' + Runtime.runtime.availableProcessors()
                     abiFilters.addAll(PROP_APP_ABI.split(':').collect{it as String})
@@ -118,28 +116,6 @@ android.applicationVariants.all { variant ->
             from "../../../cocos2d-x/cocos/scripting/js-bindings/script"
             into "${buildDir}/intermediates/assets/${variant.dirName}/script"
         }
-    }
-}
-
-def copySo() {
-    copy {
-        from('./obj/local') {
-            include '**/*.so'
-            exclude '**/objs*'
-        }
-        into './libs'
-    }
-}
-
-afterEvaluate {
-    tasks.findByName('externalNativeBuildDebug')?.doLast {
-        println ('Copying debug .so')
-        copySo()
-    }
-
-    tasks.findByName('externalNativeBuildRelease')?.doLast {
-        println ('Copying release .so')
-        copySo()
     }
 }
 

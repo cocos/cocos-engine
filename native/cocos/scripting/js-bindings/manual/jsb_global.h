@@ -9,6 +9,7 @@ namespace se {
 
 extern se::Object* __ccObj;
 extern se::Object* __jsbObj;
+extern se::Object* __glObj;
 
 bool jsb_register_global_variables(se::Object* global);
 

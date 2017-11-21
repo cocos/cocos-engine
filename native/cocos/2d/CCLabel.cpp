@@ -1672,13 +1672,18 @@ void Label::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
     {
         return;
     }
-    // Don't do calculate the culling if the transform was not updated
-    bool transformUpdated = flags & FLAGS_TRANSFORM_DIRTY;
-#if CC_USE_CULLING
-    _insideBounds = transformUpdated ? renderer->checkVisibility(transform, _contentSize) : _insideBounds;
+
+    if (_director->isCullingEnabled()) {
+        // Don't calculate the culling if the transform was not updated
+        if (flags & FLAGS_TRANSFORM_DIRTY || flags & FLAGS_CULLING_DIRTY) {
+            _insideBounds = renderer->checkVisibility(transform, _contentSize);
+        }
+    }
+    else {
+        _insideBounds = true;
+    }
 
     if (_insideBounds)
-#endif
     {
         if (!_shadowEnabled && (_currentLabelType == LabelType::BMFONT || _currentLabelType == LabelType::CHARMAP))
         {
@@ -1696,7 +1701,7 @@ void Label::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
         else
         {
             _customCommand.init(_globalZOrder, transform, flags);
-            _customCommand.func = CC_CALLBACK_0(Label::onDraw, this, transform, transformUpdated);
+            _customCommand.func = CC_CALLBACK_0(Label::onDraw, this, transform, flags & FLAGS_TRANSFORM_DIRTY);
 
             renderer->addCommand(&_customCommand);
         }
@@ -1735,8 +1740,7 @@ void Label::visit(Renderer *renderer, const Mat4 &parentTransform, uint32_t pare
     // IMPORTANT:
     // To ease the migration to v3.0, we still support the Mat4 stack,
     // but it is deprecated and your code should not rely on it
-    _director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
-    _director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
+    _director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
 
     if (!_children.empty())
     {

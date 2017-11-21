@@ -4,7 +4,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 22
-    buildToolsVersion "25.0.0"
+    buildToolsVersion '26.0.2'
 
     defaultConfig {
         applicationId "org.cocos2d.helloworld"
@@ -41,6 +41,7 @@ android {
     sourceSets.main {
         java.srcDir "src"
         res.srcDir "res"
+        jniLibs.srcDir "libs"
         manifest.srcFile "AndroidManifest.xml"
     }
 
@@ -56,10 +57,10 @@ android {
     signingConfigs {
        release {
             if (project.hasProperty("RELEASE_STORE_FILE")) {
-                storeFile file('/Users/jryin/.android/debug.keystore')
-                storePassword 'android'
-                keyAlias 'androiddebugkey'
-                keyPassword 'android'
+                storeFile file(RELEASE_STORE_FILE)
+                storePassword RELEASE_STORE_PASSWORD
+                keyAlias RELEASE_KEY_ALIAS
+                keyPassword RELEASE_KEY_PASSWORD
             }
         }
     }

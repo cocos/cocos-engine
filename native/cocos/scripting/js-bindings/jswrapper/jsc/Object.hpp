@@ -1,3 +1,26 @@
+/****************************************************************************
+ Copyright (c) 2017 Chukong Technologies Inc.
+
+ http://www.cocos2d-x.org
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
 #pragma once
 
 #include "../config.hpp"
@@ -39,8 +62,33 @@ namespace se {
          *  @param[in] byteLength The number of bytes pointed to by the parameter bytes.
          *  @return A JavaScript Typed Array Object whose backing store is the same as the one pointed data, or nullptr if there is an error.
          *  @note The return value (non-null) has to be released manually.
+         *  @deprecated This method is deprecated, please use `se::Object::createTypedArray` instead.
          */
-        static Object* createUint8TypedArray(uint8_t* bytes, size_t byteLength);
+        SE_DEPRECATED_ATTRIBUTE static Object* createUint8TypedArray(uint8_t* bytes, size_t byteLength);
+
+        enum class TypedArrayType
+        {
+            NONE,
+            INT8,
+            INT16,
+            INT32,
+            UINT8,
+            UINT8_CLAMPED,
+            UINT16,
+            UINT32,
+            FLOAT32,
+            FLOAT64
+        };
+
+        /**
+         *  @brief Creates a JavaScript Typed Array Object with specified format from an existing pointer.
+         *  @param[in] type The format of typed array.
+         *  @param[in] data A pointer to the byte buffer to be used as the backing store of the Typed Array object.
+         *  @param[in] byteLength The number of bytes pointed to by the parameter bytes.
+         *  @return A JavaScript Typed Array Object whose backing store is the same as the one pointed data, or nullptr if there is an error.
+         *  @note The return value (non-null) has to be released manually.
+         */
+        static Object* createTypedArray(TypedArrayType type, void* data, size_t byteLength);
 
         /**
          *  @brief Creates a JavaScript Array Buffer object from an existing pointer.
@@ -107,6 +155,7 @@ namespace se {
          *  @return true if succeed, otherwise false.
          */
         bool defineFunction(const char *funcName, JSObjectCallAsFunctionCallback func);
+
         /**
          *  @brief Tests whether an object can be called as a function.
          *  @return true if object can be called as a function, otherwise false.
@@ -155,6 +204,12 @@ namespace se {
          *  @return true if object is a typed array, otherwise false.
          */
         bool isTypedArray() const;
+
+        /**
+         *  @brief Gets the type of a typed array object.
+         *  @return The type of a typed array object.
+         */
+        TypedArrayType getTypedArrayType() const;
 
         /**
          *  @brief Gets backing store of a typed array object.
@@ -290,6 +345,12 @@ namespace se {
          */
         bool detachObject(Object* obj);
 
+        /**
+         *  @brief Returns the string for describing current object.
+         *  @return The string for describing current object.
+         */
+        std::string toString() const;
+
         // Private API used in wrapper
         static Object* _createJSObject(Class* cls, JSObjectRef obj);
         JSObjectRef _getJSObject() const;
@@ -315,7 +376,15 @@ namespace se {
             PLAIN,
             ARRAY,
             ARRAY_BUFFER,
-            TYPED_ARRAY,
+            TYPED_ARRAY_INT8,
+            TYPED_ARRAY_INT16,
+            TYPED_ARRAY_INT32,
+            TYPED_ARRAY_UINT8,
+            TYPED_ARRAY_UINT8_CLAMPED,
+            TYPED_ARRAY_UINT16,
+            TYPED_ARRAY_UINT32,
+            TYPED_ARRAY_FLOAT32,
+            TYPED_ARRAY_FLOAT64,
             FUNCTION
         };
 

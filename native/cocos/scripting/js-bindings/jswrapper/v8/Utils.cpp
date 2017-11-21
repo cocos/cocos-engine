@@ -1,3 +1,26 @@
+/****************************************************************************
+ Copyright (c) 2017 Chukong Technologies Inc.
+
+ http://www.cocos2d-x.org
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
 #include "Utils.hpp"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
@@ -173,7 +196,7 @@ namespace se {
             if (c > 0)
             {
                 wrap.wrap(data);
-//                LOGD("setPrivate1: %p\n", data);
+//                SE_LOGD("setPrivate1: %p\n", data);
                 if (outInternalData != nullptr)
                     *outInternalData = nullptr;
             }
@@ -191,7 +214,7 @@ namespace se {
                 assert(!key.IsEmpty());
                 v8::Maybe<bool> ret = obj->Set(isolate->GetCurrentContext(), key.ToLocalChecked(), privateObj->_getJSObject());
                 assert(!ret.IsNothing());
-//                LOGD("setPrivate: native data: %p\n", privateData);
+//                SE_LOGD("setPrivate: native data: %p\n", privateData);
 //                privateObj->decRef(); // NOTE: it's released in ScriptEngine::privateDataFinalize
 
                 if (outInternalData != nullptr)
@@ -211,7 +234,7 @@ namespace se {
             if (c > 0)
             {
                 void* nativeObj = ObjectWrap::unwrap(objChecked);
-//                LOGD("getPrivate1: %p\n", nativeObj);
+//                SE_LOGD("getPrivate1: %p\n", nativeObj);
                 return nativeObj;
             }
 
@@ -233,7 +256,7 @@ namespace se {
             if (privateObj.IsEmpty())
                 return nullptr;
             PrivateData* privateData =  (PrivateData*)ObjectWrap::unwrap(privateObj.ToLocalChecked());
-//                LOGD("getPrivate: native data: %p\n", privateData);
+//                SE_LOGD("getPrivate: native data: %p\n", privateData);
             return privateData->data;
         }
 

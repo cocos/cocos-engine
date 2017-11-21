@@ -98,21 +98,32 @@ template<typename T>
 bool seval_to_native_ptr(const se::Value& v, T* ret)
 {
     assert(ret != nullptr);
-    if (!v.isObject())
+
+    if (v.isObject())
     {
+        T ptr = (T)v.toObject()->getPrivateData();
+        if (ptr == nullptr)
+        {
+            // This should never happen, return 'false' to mark the conversion fails.
+            *ret = nullptr;
+            return false;
+        }
+
+        *ret = ptr;
+        return true;
+    }
+    else if (v.isNullOrUndefined())
+    {
+        // If js value is null or undefined, the convertion should be successful.
+        // So we should return 'true' to indicate the convertion succeeds and mark
+        // the out value to 'nullptr'.
         *ret = nullptr;
-        return false;
+        return true;
     }
 
-    T ptr = (T)v.toObject()->getPrivateData();
-    if (ptr == nullptr)
-    {
-        *ret = nullptr;
-        return false;
-    }
-
-    *ret = ptr;
-    return true;
+    // If js value isn't null, undefined and Object, mark the convertion fails.
+    *ret = nullptr;
+    return false;
 }
 
 template<typename T>

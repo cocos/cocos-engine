@@ -1,3 +1,26 @@
+/****************************************************************************
+ Copyright (c) 2017 Chukong Technologies Inc.
+
+ http://www.cocos2d-x.org
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
 #pragma once
 
 #include "../config.hpp"
@@ -41,7 +64,6 @@ namespace se {
 
         /**
          *  @brief Destroys the instance of script engine.
-         *  @return
          */
         static void destroyInstance();
 
@@ -162,7 +184,7 @@ namespace se {
          *  @param[in] rval The se::Value that results from evaluating script. Passing nullptr if you don't care about the result.
          *  @return true if succeed, otherwise false.
          */
-        bool runScript(const std::string& path, Value* ret = nullptr);
+        bool runScript(const std::string& path, Value* rval = nullptr);
 
         /**
          *  @brief Tests whether script engine is doing garbage collection.
@@ -208,6 +230,7 @@ namespace se {
 
         /**
          *  @brief Enables JavaScript debugger
+         *  @param[in] serverAddr The address of debugger server.
          *  @param[in] port The port of debugger server will use.
          */
         void enableDebugger(const std::string& serverAddr, uint32_t port);
@@ -229,12 +252,8 @@ namespace se {
         uint32_t getVMId() const { return _vmId; }
 
         // Private API used in wrapper
-        void _retainScriptObject(void* owner, void* target);
-        void _releaseScriptObject(void* owner, void* target);
-
         void _clearException(JSValueRef exception);
         JSContextRef _getContext() const { return _cx; }
-
         void _setGarbageCollecting(bool isGarbageCollecting);
         //
     private:

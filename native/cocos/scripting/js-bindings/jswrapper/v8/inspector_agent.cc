@@ -115,7 +115,7 @@ static int StartDebugSignalHandler() {
   CHECK_EQ(0, pthread_sigmask(SIG_SETMASK, &sigmask, nullptr));
   CHECK_EQ(0, pthread_attr_destroy(&attr));
   if (err != 0) {
-    LOGE("node[%d]: pthread_create: %s\n", getpid(), strerror(err));
+    SE_LOGE("node[%d]: pthread_create: %s\n", getpid(), strerror(err));
 
     // Leave SIGUSR1 blocked.  We don't install a signal handler,
     // receiving the signal would terminate the process.

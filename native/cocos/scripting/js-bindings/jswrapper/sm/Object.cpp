@@ -1,3 +1,26 @@
+/****************************************************************************
+ Copyright (c) 2017 Chukong Technologies Inc.
+
+ http://www.cocos2d-x.org
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
 #include "Object.hpp"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
@@ -118,15 +141,72 @@ namespace se {
         return obj;
     }
 
-    Object* Object::createUint8TypedArray(uint8_t* data, size_t byteLength)
+    Object* Object::createTypedArray(TypedArrayType type, void* data, size_t byteLength)
     {
-        JS::RootedObject jsobj(__cx, JS_NewUint8Array(__cx, (uint32_t)byteLength));
+        if (type == TypedArrayType::NONE)
+        {
+            SE_LOGE("Don't pass se::Object::TypedArrayType::NONE to createTypedArray API!");
+            return nullptr;
+        }
+
+        if (type == TypedArrayType::UINT8_CLAMPED)
+        {
+            SE_LOGE("Doesn't support to create Uint8ClampedArray with Object::createTypedArray API!");
+            return nullptr;
+        }
+
+        JSObject* arr = nullptr;
+        void* tmpData = nullptr;
         bool isShared = false;
         JS::AutoCheckCannotGC nogc;
-        uint8_t* tmpData = JS_GetUint8ArrayData(jsobj, &isShared, nogc);
-        memcpy((void*)tmpData, (const void*)data, byteLength);
-        Object* obj = Object::_createJSObject(nullptr, jsobj);
+
+        switch (type) {
+            case TypedArrayType::INT8:
+                arr = JS_NewInt8Array(__cx, (uint32_t)byteLength);
+                tmpData = JS_GetInt8ArrayData(arr, &isShared, nogc);
+                break;
+            case TypedArrayType::INT16:
+                arr = JS_NewInt16Array(__cx, (uint32_t)byteLength/2);
+                tmpData = JS_GetInt16ArrayData(arr, &isShared, nogc);
+                break;
+            case TypedArrayType::INT32:
+                arr = JS_NewInt32Array(__cx, (uint32_t)byteLength/4);
+                tmpData = JS_GetInt32ArrayData(arr, &isShared, nogc);
+                break;
+            case TypedArrayType::UINT8:
+                arr = JS_NewUint8Array(__cx, (uint32_t)byteLength);
+                tmpData = JS_GetUint8ArrayData(arr, &isShared, nogc);
+                break;
+            case TypedArrayType::UINT16:
+                arr = JS_NewUint16Array(__cx, (uint32_t)byteLength/2);
+                tmpData = JS_GetUint16ArrayData(arr, &isShared, nogc);
+                break;
+            case TypedArrayType::UINT32:
+                arr = JS_NewUint32Array(__cx, (uint32_t)byteLength/4);
+                tmpData = JS_GetUint32ArrayData(arr, &isShared, nogc);
+                break;
+            case TypedArrayType::FLOAT32:
+                arr = JS_NewFloat32Array(__cx, (uint32_t)byteLength/4);
+                tmpData = JS_GetFloat32ArrayData(arr, &isShared, nogc);
+                break;
+            case TypedArrayType::FLOAT64:
+                arr = JS_NewFloat64Array(__cx, (uint32_t)byteLength/8);
+                tmpData = JS_GetFloat64ArrayData(arr, &isShared, nogc);
+                break;
+            default:
+                assert(false); // Should never go here.
+                break;
+        }
+
+        memcpy(tmpData, (const void*)data, byteLength);
+
+        Object* obj = Object::_createJSObject(nullptr, arr);
         return obj;
+    }
+
+    Object* Object::createUint8TypedArray(uint8_t* data, size_t dataCount)
+    {
+        return createTypedArray(TypedArrayType::UINT8, data, dataCount);
     }
 
     Object* Object::createJSONObject(const std::string& jsonStr)
@@ -224,10 +304,10 @@ namespace se {
         return ok;
     }
 
-    bool Object::defineFunction(const char *funcName, JSNative func, int minArgs)
+    bool Object::defineFunction(const char *funcName, JSNative func)
     {
         JS::RootedObject object(__cx, _getJSObject());
-        bool ok = JS_DefineFunction(__cx, object, funcName, func, minArgs, 0);
+        bool ok = JS_DefineFunction(__cx, object, funcName, func, 0, 0);
         return ok;
     }
 
@@ -287,7 +367,33 @@ namespace se {
 
     bool Object::isTypedArray() const
     {
-        return JS_IsTypedArrayObject( _getJSObject());
+        return JS_IsTypedArrayObject(_getJSObject());
+    }
+
+    Object::TypedArrayType Object::getTypedArrayType() const
+    {
+        TypedArrayType ret = TypedArrayType::NONE;
+        JSObject* obj = _getJSObject();
+        if (JS_IsInt8Array(obj))
+            ret = TypedArrayType::INT8;
+        else if (JS_IsInt16Array(obj))
+            ret = TypedArrayType::INT16;
+        else if (JS_IsInt32Array(obj))
+            ret = TypedArrayType::INT32;
+        else if (JS_IsUint8Array(obj))
+            ret = TypedArrayType::UINT8;
+        else if (JS_IsUint8ClampedArray(obj))
+            ret = TypedArrayType::UINT8_CLAMPED;
+        else if (JS_IsUint16Array(obj))
+            ret = TypedArrayType::UINT16;
+        else if (JS_IsUint32Array(obj))
+            ret = TypedArrayType::UINT32;
+        else if (JS_IsFloat32Array(obj))
+            ret = TypedArrayType::FLOAT32;
+        else if (JS_IsFloat64Array(obj))
+            ret = TypedArrayType::FLOAT64;
+
+        return ret;
     }
 
     bool Object::getTypedArrayData(uint8_t** ptr, size_t* length) const
@@ -536,54 +642,63 @@ namespace se {
     bool Object::attachObject(Object* obj)
     {
         assert(obj);
-        JSObject* ownerObj = _getJSObject();
-        JSObject* targetObj = obj->_getJSObject();
-        if (ownerObj == nullptr || targetObj == nullptr)
+
+        Object* global = ScriptEngine::getInstance()->getGlobalObject();
+        Value jsbVal;
+        if (!global->getProperty("jsb", &jsbVal))
+            return false;
+        Object* jsbObj = jsbVal.toObject();
+
+        Value func;
+
+        if (!jsbObj->getProperty("registerNativeRef", &func))
             return false;
 
-        JS::RootedValue valOwner(__cx, JS::ObjectValue(*ownerObj));
-        JS::RootedValue valTarget(__cx, JS::ObjectValue(*targetObj));
-
-        JS::RootedObject jsbObj(__cx);
-        JS::RootedObject globalObj(__cx, ScriptEngine::getInstance()->getGlobalObject()->_getJSObject());
-        get_or_create_js_obj(__cx, globalObj, "jsb", &jsbObj);
-
-        JS::AutoValueVector args(__cx);
-        args.resize(2);
-        args[0].set(valOwner);
-        args[1].set(valTarget);
-
-        JS::RootedValue rval(__cx);
-
-        return JS_CallFunctionName(__cx, jsbObj, "registerNativeRef", args, &rval);
+        ValueArray args;
+        args.push_back(Value(this));
+        args.push_back(Value(obj));
+        func.toObject()->call(args, global);
+        return true;
     }
 
     bool Object::detachObject(Object* obj)
     {
         assert(obj);
-        JSObject* ownerObj = _getJSObject();
-        JSObject* targetObj = obj->_getJSObject();
-        if (ownerObj == nullptr || targetObj == nullptr)
-        {
-            LOGD("%s: try to detach on invalid object, owner: %p, target: %p\n", __FUNCTION__, ownerObj, targetObj);
+        Object* global = ScriptEngine::getInstance()->getGlobalObject();
+        Value jsbVal;
+        if (!global->getProperty("jsb", &jsbVal))
             return false;
+        Object* jsbObj = jsbVal.toObject();
+
+        Value func;
+
+        if (!jsbObj->getProperty("unregisterNativeRef", &func))
+            return false;
+
+        ValueArray args;
+        args.push_back(Value(this));
+        args.push_back(Value(obj));
+        func.toObject()->call(args, global);
+        return true;
+    }
+
+    std::string Object::toString() const
+    {
+        std::string ret;
+        if (isFunction() || isArray() || isTypedArray())
+        {
+            JS::RootedValue val(__cx, JS::ObjectOrNullValue(_getJSObject()));
+            internal::forceConvertJsValueToStdString(__cx, val, &ret);
         }
-
-        JS::RootedValue valOwner(__cx, JS::ObjectValue(*ownerObj));
-        JS::RootedValue valTarget(__cx, JS::ObjectValue(*targetObj));
-
-        JS::RootedObject jsbObj(__cx);
-        JS::RootedObject globalObj(__cx, ScriptEngine::getInstance()->getGlobalObject()->_getJSObject());
-        get_or_create_js_obj(__cx, globalObj, "jsb", &jsbObj);
-
-        JS::AutoValueVector args(__cx);
-        args.resize(2);
-        args[0].set(valOwner);
-        args[1].set(valTarget);
-
-        JS::RootedValue rval(__cx);
-
-        return JS_CallFunctionName(__cx, jsbObj, "unregisterNativeRef", args, &rval);
+        else if (isArrayBuffer())
+        {
+            ret = "[object ArrayBuffer]";
+        }
+        else
+        {
+            ret = "[object Object]";
+        }
+        return ret;
     }
 
 } // namespace se {
