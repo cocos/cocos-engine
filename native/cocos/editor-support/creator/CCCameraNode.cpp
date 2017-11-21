@@ -19,7 +19,6 @@ namespace creator {
     CameraNode::CameraNode()
     {
         _mat.setIdentity();
-        _cameraInstance = this;
         visitingIndex = 0;
     }
     
@@ -34,7 +33,16 @@ namespace creator {
             }
             _commands.clear();
         }
-        _cameraInstance = nullptr;
+    }
+    
+    void CameraNode::setEnable(bool enable)
+    {
+        if (enable) {
+            _cameraInstance = this;
+        }
+        else {
+            _cameraInstance = nullptr;
+        }
     }
     
     CameraNode* CameraNode::getInstance() {

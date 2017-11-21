@@ -405,6 +405,8 @@ Data UserDefault::getDataForKey(const char* pKey, const Data& defaultValue)
             // delete xmle node
             deleteNode(doc, node);
         }
+    } else {
+        delete doc;
     }
 #endif
 

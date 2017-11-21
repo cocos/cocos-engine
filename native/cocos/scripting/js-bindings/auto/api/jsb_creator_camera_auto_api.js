@@ -49,6 +49,16 @@ getVisibleRect : function (
 },
 
 /**
+ * @method setEnable
+ * @param {bool} arg0
+ */
+setEnable : function (
+bool 
+)
+{
+},
+
+/**
  * @method containsNode
  * @param {cc.Node} arg0
  * @return {bool}

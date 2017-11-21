@@ -38,10 +38,6 @@ if (window.scriptEngineType == "JavaScriptCore") {
         return buffer;
     };
 
-    window.__jsc_createUint8TypedArray = function(arr) {
-        return new Uint8Array(arr);
-    };
-
     window.__jsc_getArrayBufferData = function(arrBuf) {
         var typedArr = new Uint8Array(arrBuf);
         var len = typedArr.length;
@@ -52,13 +48,19 @@ if (window.scriptEngineType == "JavaScriptCore") {
         return arr;
     };
 
-    window.__jsc_getUint8ArrayData = function(typedArr) {
-        var len = typedArr.length;
-        var arr = new Array(len);
-        for (var i = 0; i < len; ++i) {
-            arr[i] = typedArr[i];
+    window.__jsc_getTypedArrayData = function(typedArr) {
+        var length = typedArr.byteLength;
+        var offset = typedArr.byteOffset;
+        var buf = typedArr.buffer;
+        var uint8Arr = new Uint8Array(buf);
+        var retArr = new Array(length);
+        var arrIndex = 0;
+        var bufIndex = offset;
+        var bufEnd = offset + length;
+        for (; bufIndex < bufEnd; ++bufIndex, ++arrIndex) {
+            retArr[arrIndex] = uint8Arr[bufIndex];
         }
-        return arr;
+        return retArr;
     };
 
     window.__jscTypedArrayConstructor = Object.getPrototypeOf(Uint16Array.prototype).constructor;

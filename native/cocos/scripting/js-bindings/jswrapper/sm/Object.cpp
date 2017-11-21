@@ -141,15 +141,72 @@ namespace se {
         return obj;
     }
 
-    Object* Object::createUint8TypedArray(uint8_t* data, size_t byteLength)
+    Object* Object::createTypedArray(TypedArrayType type, void* data, size_t byteLength)
     {
-        JS::RootedObject jsobj(__cx, JS_NewUint8Array(__cx, (uint32_t)byteLength));
+        if (type == TypedArrayType::NONE)
+        {
+            SE_LOGE("Don't pass se::Object::TypedArrayType::NONE to createTypedArray API!");
+            return nullptr;
+        }
+
+        if (type == TypedArrayType::UINT8_CLAMPED)
+        {
+            SE_LOGE("Doesn't support to create Uint8ClampedArray with Object::createTypedArray API!");
+            return nullptr;
+        }
+
+        JSObject* arr = nullptr;
+        void* tmpData = nullptr;
         bool isShared = false;
         JS::AutoCheckCannotGC nogc;
-        uint8_t* tmpData = JS_GetUint8ArrayData(jsobj, &isShared, nogc);
-        memcpy((void*)tmpData, (const void*)data, byteLength);
-        Object* obj = Object::_createJSObject(nullptr, jsobj);
+
+        switch (type) {
+            case TypedArrayType::INT8:
+                arr = JS_NewInt8Array(__cx, (uint32_t)byteLength);
+                tmpData = JS_GetInt8ArrayData(arr, &isShared, nogc);
+                break;
+            case TypedArrayType::INT16:
+                arr = JS_NewInt16Array(__cx, (uint32_t)byteLength/2);
+                tmpData = JS_GetInt16ArrayData(arr, &isShared, nogc);
+                break;
+            case TypedArrayType::INT32:
+                arr = JS_NewInt32Array(__cx, (uint32_t)byteLength/4);
+                tmpData = JS_GetInt32ArrayData(arr, &isShared, nogc);
+                break;
+            case TypedArrayType::UINT8:
+                arr = JS_NewUint8Array(__cx, (uint32_t)byteLength);
+                tmpData = JS_GetUint8ArrayData(arr, &isShared, nogc);
+                break;
+            case TypedArrayType::UINT16:
+                arr = JS_NewUint16Array(__cx, (uint32_t)byteLength/2);
+                tmpData = JS_GetUint16ArrayData(arr, &isShared, nogc);
+                break;
+            case TypedArrayType::UINT32:
+                arr = JS_NewUint32Array(__cx, (uint32_t)byteLength/4);
+                tmpData = JS_GetUint32ArrayData(arr, &isShared, nogc);
+                break;
+            case TypedArrayType::FLOAT32:
+                arr = JS_NewFloat32Array(__cx, (uint32_t)byteLength/4);
+                tmpData = JS_GetFloat32ArrayData(arr, &isShared, nogc);
+                break;
+            case TypedArrayType::FLOAT64:
+                arr = JS_NewFloat64Array(__cx, (uint32_t)byteLength/8);
+                tmpData = JS_GetFloat64ArrayData(arr, &isShared, nogc);
+                break;
+            default:
+                assert(false); // Should never go here.
+                break;
+        }
+
+        memcpy(tmpData, (const void*)data, byteLength);
+
+        Object* obj = Object::_createJSObject(nullptr, arr);
         return obj;
+    }
+
+    Object* Object::createUint8TypedArray(uint8_t* data, size_t dataCount)
+    {
+        return createTypedArray(TypedArrayType::UINT8, data, dataCount);
     }
 
     Object* Object::createJSONObject(const std::string& jsonStr)
@@ -310,7 +367,33 @@ namespace se {
 
     bool Object::isTypedArray() const
     {
-        return JS_IsTypedArrayObject( _getJSObject());
+        return JS_IsTypedArrayObject(_getJSObject());
+    }
+
+    Object::TypedArrayType Object::getTypedArrayType() const
+    {
+        TypedArrayType ret = TypedArrayType::NONE;
+        JSObject* obj = _getJSObject();
+        if (JS_IsInt8Array(obj))
+            ret = TypedArrayType::INT8;
+        else if (JS_IsInt16Array(obj))
+            ret = TypedArrayType::INT16;
+        else if (JS_IsInt32Array(obj))
+            ret = TypedArrayType::INT32;
+        else if (JS_IsUint8Array(obj))
+            ret = TypedArrayType::UINT8;
+        else if (JS_IsUint8ClampedArray(obj))
+            ret = TypedArrayType::UINT8_CLAMPED;
+        else if (JS_IsUint16Array(obj))
+            ret = TypedArrayType::UINT16;
+        else if (JS_IsUint32Array(obj))
+            ret = TypedArrayType::UINT32;
+        else if (JS_IsFloat32Array(obj))
+            ret = TypedArrayType::FLOAT32;
+        else if (JS_IsFloat64Array(obj))
+            ret = TypedArrayType::FLOAT64;
+
+        return ret;
     }
 
     bool Object::getTypedArrayData(uint8_t** ptr, size_t* length) const
@@ -597,6 +680,25 @@ namespace se {
         args.push_back(Value(obj));
         func.toObject()->call(args, global);
         return true;
+    }
+
+    std::string Object::toString() const
+    {
+        std::string ret;
+        if (isFunction() || isArray() || isTypedArray())
+        {
+            JS::RootedValue val(__cx, JS::ObjectOrNullValue(_getJSObject()));
+            internal::forceConvertJsValueToStdString(__cx, val, &ret);
+        }
+        else if (isArrayBuffer())
+        {
+            ret = "[object ArrayBuffer]";
+        }
+        else
+        {
+            ret = "[object Object]";
+        }
+        return ret;
     }
 
 } // namespace se {

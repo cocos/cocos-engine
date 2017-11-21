@@ -111,14 +111,14 @@
 
 -(id) initWithFrame:(NSRect)frameRect
 {
-    if ([super initWithFrame:frameRect]) {
+    self = [super initWithFrame:frameRect];
+    if (self) {
         NSFont* font = [NSFont systemFontOfSize:frameRect.size.height * 3 /2];
         self.placeholderAttributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                       font, NSFontAttributeName,
                                       [NSColor grayColor], NSForegroundColorAttributeName,
                                       nil];
         [self setLineBreakMode:NSLineBreakByTruncatingTail];
-
     }
 
     return self;

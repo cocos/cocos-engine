@@ -519,14 +519,7 @@ namespace se {
         }
         else if (_type == Type::Object)
         {
-            if (toObject()->isFunction())
-            {
-                ret = "[Object function]";
-            }
-            else
-            {
-                ret = "[Object object]";
-            }
+            ret = toObject()->toString();
         }
         else if (_type == Type::Null)
         {
@@ -535,6 +528,10 @@ namespace se {
         else if (_type == Type::Undefined)
         {
             ret = "undefined";
+        }
+        else
+        {
+            assert(false);
         }
 
         return ret;

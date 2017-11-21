@@ -33,6 +33,13 @@ namespace se {
 
     namespace internal {
 
+    void forceConvertJsValueToStdString(JSContext* cx, JS::HandleValue jsval, std::string* ret)
+    {
+        assert(ret != nullptr);
+        JS::RootedString jsStr(cx, JS::ToString(cx, jsval));
+        *ret = jsToStdString(cx, jsStr);
+    }
+
     std::string jsToStdString(JSContext* cx, JS::HandleString jsStr)
     {
         char* str = JS_EncodeStringToUTF8(cx, jsStr);

@@ -62,8 +62,33 @@ namespace se {
          *  @param[in] byteLength The number of bytes pointed to by the parameter bytes.
          *  @return A JavaScript Typed Array Object whose backing store is the same as the one pointed data, or nullptr if there is an error.
          *  @note The return value (non-null) has to be released manually.
+         *  @deprecated This method is deprecated, please use `se::Object::createTypedArray` instead.
          */
-        static Object* createUint8TypedArray(uint8_t* bytes, size_t byteLength);
+        SE_DEPRECATED_ATTRIBUTE static Object* createUint8TypedArray(uint8_t* bytes, size_t byteLength);
+
+        enum class TypedArrayType
+        {
+            NONE,
+            INT8,
+            INT16,
+            INT32,
+            UINT8,
+            UINT8_CLAMPED,
+            UINT16,
+            UINT32,
+            FLOAT32,
+            FLOAT64
+        };
+
+        /**
+         *  @brief Creates a JavaScript Typed Array Object with specified format from an existing pointer.
+         *  @param[in] type The format of typed array.
+         *  @param[in] data A pointer to the byte buffer to be used as the backing store of the Typed Array object.
+         *  @param[in] byteLength The number of bytes pointed to by the parameter bytes.
+         *  @return A JavaScript Typed Array Object whose backing store is the same as the one pointed data, or nullptr if there is an error.
+         *  @note The return value (non-null) has to be released manually.
+         */
+        static Object* createTypedArray(TypedArrayType type, void* data, size_t byteLength);
 
         /**
          *  @brief Creates a JavaScript Array Buffer object from an existing pointer.
@@ -179,6 +204,12 @@ namespace se {
          *  @return true if object is a typed array, otherwise false.
          */
         bool isTypedArray() const;
+
+        /**
+         *  @brief Gets the type of a typed array object.
+         *  @return The type of a typed array object.
+         */
+        TypedArrayType getTypedArrayType() const;
 
         /**
          *  @brief Gets backing store of a typed array object.
@@ -314,6 +345,12 @@ namespace se {
          */
         bool detachObject(Object* obj);
 
+        /**
+         *  @brief Returns the string for describing current object.
+         *  @return The string for describing current object.
+         */
+        std::string toString() const;
+
         // Private API used in wrapper
         static Object* _createJSObject(Class* cls, JSObjectRef obj);
         JSObjectRef _getJSObject() const;
@@ -339,7 +376,15 @@ namespace se {
             PLAIN,
             ARRAY,
             ARRAY_BUFFER,
-            TYPED_ARRAY,
+            TYPED_ARRAY_INT8,
+            TYPED_ARRAY_INT16,
+            TYPED_ARRAY_INT32,
+            TYPED_ARRAY_UINT8,
+            TYPED_ARRAY_UINT8_CLAMPED,
+            TYPED_ARRAY_UINT16,
+            TYPED_ARRAY_UINT32,
+            TYPED_ARRAY_FLOAT32,
+            TYPED_ARRAY_FLOAT64,
             FUNCTION
         };
 
