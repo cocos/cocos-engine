@@ -261,10 +261,6 @@ var Texture2D = cc.Class({
             set (image) {
                 this.initWithElement(image);
                 this.handleLoadedTexture();
-                if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
-                    // Image element no longer needed
-                    misc.imagePool.put(image);
-                }
             },
             override: true
         },
@@ -995,7 +991,6 @@ JS.get(_p, "pixelHeight", _p.getPixelHeight);
             opts.minFilter = opts.magFilter = filter;
             this.update(opts);
 
-            this._image = null;
             this.loaded = true;
             this.emit("load");
         };
