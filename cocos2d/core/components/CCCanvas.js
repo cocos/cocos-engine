@@ -222,11 +222,11 @@ var Canvas = cc.Class({
         }
         else {
             var canvasSize = cc.visibleRect;
+            designSize = cc.view.getDesignResolutionSize();
             var clipTopRight = !this.fitHeight && !this.fitWidth;
             var offsetX = 0;
             var offsetY = 0;
             if (clipTopRight) {
-                designSize = cc.view.getDesignResolutionSize();
                 // offset the canvas to make it in the center of screen
                 offsetX = (designSize.width - canvasSize.width) * 0.5;
                 offsetY = (designSize.height - canvasSize.height) * 0.5;
