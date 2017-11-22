@@ -544,8 +544,8 @@ var Component = cc.Class({
      * 如果回调函数已调度，那么将不会重复调度它，只会更新时间间隔参数。
      * @method schedule
      * @param {function} callback The callback function
-     * @param {Number} [interval=0]  Tick interval in seconds. 0 means tick every frame. If interval = 0, it's recommended to use scheduleUpdate() instead.
-     * @param {Number} [repeat=cc.macro.REPEAT_FOREVER]    The selector will be executed (repeat + 1) times, you can use kCCRepeatForever for tick infinitely.
+     * @param {Number} [interval=0]  Tick interval in seconds. 0 means tick every frame.
+     * @param {Number} [repeat=cc.macro.REPEAT_FOREVER]    The selector will be executed (repeat + 1) times, you can use cc.macro.REPEAT_FOREVER for tick infinitely.
      * @param {Number} [delay=0]     The amount of time that the first tick will wait before execution.
      * @example
      * var timeCallback = function (dt) {
@@ -561,7 +561,15 @@ var Component = cc.Class({
         repeat = isNaN(repeat) ? cc.macro.REPEAT_FOREVER : repeat;
         delay = delay || 0;
 
-        cc.director.getScheduler().schedule(callback, this, interval, repeat, delay, !this.enabledInHierarchy);
+        var scheduler = cc.director.getScheduler();
+
+        // should not use enabledInHierarchy to judge whether paused,
+        // because enabledInHierarchy is assigned after onEnable.
+        // Actually, if not yet scheduled, resumeTarget/pauseTarget has no effect on component,
+        // therefore there is no way to guarantee the paused state other than isTargetPaused.
+        var paused = scheduler.isTargetPaused();
+
+        scheduler.schedule(callback, this, interval, repeat, delay, paused);
     },
 
     /**
