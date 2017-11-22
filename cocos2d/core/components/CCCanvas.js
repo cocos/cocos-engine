@@ -163,21 +163,6 @@ var Canvas = cc.Class({
         }
         Canvas.instance = this;
 
-        if ( !this.node._sizeProvider ) {
-            // this.node._sizeProvider = designResolutionWrapper;
-            this.node.width = cc.visibleRect.width;
-            this.node.height = cc.visibleRect.height;
-        }
-        else if (CC_DEV) {
-            var renderer = this.node.getComponent(cc._RendererUnderSG);
-            if (renderer) {
-                cc.errorID(6701, cc.js.getClassName(renderer));
-            }
-            else {
-                cc.errorID(6702);
-            }
-        }
-
         cc.director.on(cc.Director.EVENT_BEFORE_VISIT, this.alignWithScreen, this);
 
         if (CC_EDITOR) {
@@ -248,8 +233,8 @@ var Canvas = cc.Class({
             }
             this.node.setPosition(canvasSize.width * 0.5 + offsetX, canvasSize.height * 0.5 + offsetY);
         }
-        this.node.width = cc.visibleRect.width;
-        this.node.height = cc.visibleRect.height;
+        this.node.width = designSize.width;
+        this.node.height = designSize.height;
     },
 
     onResized: function () {
