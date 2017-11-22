@@ -565,6 +565,13 @@ if (CC_DEV) {
         });
     }
 
+    cc.js.get(cc.Texture2D.prototype, 'getName', function () {
+        cc.warnID(1400, 'texture.getName()', 'texture._glID');
+        return function () {
+            return this._glID || null;
+        };
+    });
+
     //ui
     if (cc.Layout) {
         js.obsolete(cc.Layout, 'cc.Layout.ResizeType', 'ResizeMode');

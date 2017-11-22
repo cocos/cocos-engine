@@ -58,7 +58,7 @@ sp.SkeletonTexture = cc.Class({
 
     bind: function() {
         if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
-            cc.gl.bindTexture2D(this._texture);
+            cc.gl.bindTexture2DN(0, this._texture);
         }
     }
 });

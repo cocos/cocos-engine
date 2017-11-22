@@ -365,33 +365,6 @@ test('attach events', function () {
     cc.engine.off('node-detach-from-scene', onDetach);
 });
 
-test('release sg node', function () {
-    var isJSB = CC_JSB;
-    CC_JSB = true;
-
-    var parent = new cc.Node();
-    var child = new cc.Node();
-    child.parent = parent;
-
-    var childReleased = false;
-    var parentReleased = false;
-
-    child._sgNode.release = function () {
-        childReleased = true;
-    };
-    parent._sgNode.release = function () {
-        parentReleased = true;
-    };
-
-    parent.destroy();
-    cc.Object._deferredDestroy();
-
-    strictEqual(parentReleased, true, 'should release parent sg node');
-    strictEqual(childReleased, true, 'should release child sg node');
-
-    CC_JSB = isJSB;
-});
-
 test('getBoundingBox', function () {
     var node = new cc.Node();
     node.anchorX = 0.5;

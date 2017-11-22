@@ -295,10 +295,13 @@ cc.ActionManager.prototype.addAction = function (action, target, paused) {
 function actionMgrFuncReplacer (funcName, targetPos) {
     var proto = cc.ActionManager.prototype;
     var oldFunc = proto[funcName];
-    proto[funcName] = function (...args) {
-        for (var i = 0; i < args.length; i++) {
+    proto[funcName] = function () {
+        var args = [];
+        for (var i = 0; i < arguments.length; i++) {
             if (i === targetPos)
-                args[i] = getSGTarget(args[i]);
+                args[i] = getSGTarget(arguments[i]);
+            else
+                args[i] = arguments[i];
         }
         if (!args[targetPos]) {
             return;

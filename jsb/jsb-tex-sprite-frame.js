@@ -152,13 +152,14 @@ prototype.update = function (options) {
     if (genMipmap) {
         this.generateMipmap();
     }
-}
+};
 prototype.isLoaded = function () {
     return true;
 };
 prototype.description = prototype.getDescription;
 cc.js.get(prototype, 'width', prototype.getPixelsWide);
 cc.js.get(prototype, 'height', prototype.getPixelsHigh);
+cc.js.get(prototype, '_glID', prototype.getName);
 
 // cc.SpriteFrame
 

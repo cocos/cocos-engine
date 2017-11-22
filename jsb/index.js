@@ -28,17 +28,6 @@
 // check whether support jit
 cc.supportJit = typeof Function('') === 'function';
 
-var originLog = console.log;
-
-// overwrite original console.log
-try {
-    console.log = function (...args) {
-        originLog(cc.js.formatStr.apply(null, args));
-    };
-}
-catch (e) {
-}
-
 function defineMacro (name, defaultValue) {
     // if "global_defs" not preprocessed by uglify, just declare them globally,
     // this may happened in release version's preview page.
@@ -74,6 +63,8 @@ if (CC_DEV) {
 
 // polyfills
 require('../polyfill/misc');
+// str.startswith isn't supported in JavaScriptCore which is shipped with iOS8.
+require('../polyfill/string');
 if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('../polyfill/typescript');
 }

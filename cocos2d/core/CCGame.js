@@ -705,7 +705,7 @@ var game = {
             renderer.init(localCanvas, {
                 'stencil': true,
                 'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS,
-                'preserveDrawingBuffer': isWeChatGame
+                'antialias': cc.macro.ENABLE_WEBGL_ANTIALIAS
             });
             this._renderContext = cc._renderContext = renderer.device._gl;
         }

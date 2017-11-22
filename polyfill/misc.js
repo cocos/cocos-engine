@@ -14,7 +14,7 @@ if (!Number.isInteger) {
     };
 }
 
-if (!console.time) {
+if (CC_JSB || !console.time) {
     var Timer = window.performance || Date;
     var _timerTable = Object.create(null);
     console.time = function (label) {

@@ -580,4 +580,5 @@ var inputManager = {
     }
 };
 
+cc.inputManager = inputManager;
 module.exports = inputManager;

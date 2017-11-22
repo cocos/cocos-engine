@@ -71,6 +71,8 @@ var Animation = cc.Class({
     },
 
     ctor: function () {
+        cc.EventTarget.call(this);
+
         // The actual implement for Animation
         this._animator = null;
 
@@ -78,8 +80,6 @@ var Animation = cc.Class({
         this._didInit = false;
 
         this._currentClip = null;
-
-        this._listeners = [];
     },
 
     properties: {
@@ -532,22 +532,15 @@ var Animation = cc.Class({
      */
     on: function (type, callback, target, useCapture) {
         this._init();
-        var listeners = this._listeners;
 
-        for (var i = 0, l = listeners.length; i < l; i++) {
-            var listener = listeners[i];
-            if (listener[0] === type &&
-                listener[1] === callback &&
-                listener[2] === target &&
-                listener[3] === useCapture) {
-                return;
-            }
+        var ret = cc.EventTarget.prototype.on.call(this, type, callback, target, useCapture);
+
+        var array = this._animator._anims.array;
+        for (var i = 0; i < array.length; ++i) {
+            array[i]._setListeners(this);
         }
 
-        this._animator.on(type, callback, target, useCapture);
-        listeners.push([type, callback, target, useCapture]);
-
-        return callback;
+        return ret;
     },
 
 
@@ -571,23 +564,13 @@ var Animation = cc.Class({
      */
     off: function (type, callback, target, useCapture) {
         this._init();
-        var listeners = this._listeners;
+
+        cc.EventTarget.prototype.off.call(this, type, callback, target, useCapture);
+
         var nameToState = this._nameToState;
-
-        for (var i = listeners.length - 1; i >= 0; i--) {
-            var listener = listeners[i];
-            if (listener[0] === type &&
-                listener[1] === callback &&
-                listener[2] === target &&
-                listener[3] === useCapture) {
-
-                for (var name in nameToState) {
-                    var state = nameToState[name];
-                    state.off(type, callback, target, useCapture);
-                }
-
-                listeners.splice(i, 1);
-            }
+        for (var name in nameToState) {
+            var state = nameToState[name];
+            state._setListeners(null);
         }
     },
 

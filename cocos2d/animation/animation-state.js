@@ -143,6 +143,12 @@ var proto = AnimationState.prototype;
 
 cc.js.mixin(proto, cc.EventTarget.prototype);
 
+proto._setListeners = function (target) {
+    this._capturingListeners = target ? target._capturingListeners : null;
+    this._bubblingListeners = target ? target._bubblingListeners : null;
+    this._hasListenerCache = target ? target._hasListenerCache : null;
+};
+
 proto.onPlay = function () {
     // replay
     this.setTime(0);

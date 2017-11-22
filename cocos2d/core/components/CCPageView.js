@@ -369,7 +369,7 @@ var PageView = cc.Class({
      * @param {Number} timeInSecond scrolling time
      */
     scrollToPage: function (idx, timeInSecond) {
-        if (idx < 0 || idx > this._pages.length)
+        if (idx < 0 || idx >= this._pages.length)
             return;
         timeInSecond = timeInSecond !== undefined ? timeInSecond : 0.3;
         this._curPageIdx = idx;
@@ -417,11 +417,6 @@ var PageView = cc.Class({
     _updatePageView: function () {
         var pageCount = this._pages.length;
 
-        // 当页面数组变化时修改 content 大小
-        var layout = this.content.getComponent(cc.Layout);
-        if(layout && layout.enabled) {
-            layout.updateLayout();
-        }
         if (this._curPageIdx >= pageCount) {
             this._curPageIdx = pageCount === 0 ? 0 : pageCount - 1;
             this._lastPageIdx = this._curPageIdx;
@@ -436,6 +431,13 @@ var PageView = cc.Class({
                 this._scrollCenterOffsetY[i] = Math.abs(this.content.y + this._pages[i].y);
             }
         }
+
+        // 当页面数组变化时修改 content 大小
+        var layout = this.content.getComponent(cc.Layout);
+        if (layout && layout.enabled) {
+            layout.updateLayout();
+        }
+        
         // 刷新 indicator 信息与状态
         if (this.indicator) {
             this.indicator._refresh();

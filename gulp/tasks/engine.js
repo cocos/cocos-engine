@@ -41,6 +41,62 @@ const Chalk = require('chalk');
 const HandleErrors = require('../util/handleErrors');
 const Optimizejs = require('gulp-optimize-js');
 
+var jsbSkipModules = [
+    '../../cocos2d/core/CCGame',
+    '../../cocos2d/core/CCDrawingPrimitives.js',
+    '../../cocos2d/core/textures/CCTexture2D',
+    '../../cocos2d/core/sprites/CCSpriteFrame',
+    '../../cocos2d/core/load-pipeline/audio-downloader',
+    '../../cocos2d/core/physics/platform/CCPhysicsDebugDraw.js',
+    '../../cocos2d/core/physics/platform/CCPhysicsUtils.js',
+    '../../cocos2d/core/physics/platform/CCPhysicsAABBQueryCallback.js',
+    '../../cocos2d/core/physics/platform/CCPhysicsRayCastCallback.js',
+    '../../cocos2d/core/physics/platform/CCPhysicsContactListner.js',
+    '../../cocos2d/core/camera/CCSGCameraNode.js',
+    '../../cocos2d/core/label/CCSGLabel.js',
+    '../../cocos2d/core/label/CCSGLabelCanvasRenderCmd.js',
+    '../../cocos2d/core/label/CCSGLabelWebGLRenderCmd.js',
+    '../../cocos2d/core/videoplayer/CCSGVideoPlayer.js',
+    '../../cocos2d/core/webview/CCSGWebView.js',
+    '../../cocos2d/core/editbox/CCSGEditBox.js',
+    '../../cocos2d/core/graphics/graphics-node.js',
+    '../../cocos2d/core/graphics/graphics-webgl-cmd.js',
+    '../../cocos2d/core/graphics/graphics-canvas-cmd.js',
+    '../../cocos2d/core/graphics/earcut.js',
+    '../../cocos2d/core/graphics/helper.js',
+    '../../cocos2d/audio/CCAudio',
+    '../../cocos2d/shape-nodes/CCDrawNode.js',
+    '../../cocos2d/clipping-nodes/CCClippingNode.js',
+    '../../cocos2d/clipping-nodes/CCClippingNodeCanvasRenderCmd.js',
+    '../../cocos2d/clipping-nodes/CCClippingNodeWebGLRenderCmd.js',
+    '../../cocos2d/particle/CCSGParticleSystem.js',
+    '../../cocos2d/particle/CCSGParticleSystemCanvasRenderCmd.js',
+    '../../cocos2d/particle/CCSGParticleSystemWebGLRenderCmd.js',
+    '../../cocos2d/tilemap/CCSGTMXTiledMap.js',
+    '../../cocos2d/tilemap/CCTMXXMLParser.js',
+    '../../cocos2d/tilemap/CCSGTMXObjectGroup.js',
+    '../../cocos2d/tilemap/CCSGTMXObject.js',
+    '../../cocos2d/tilemap/CCSGTMXLayer.js',
+    '../../cocos2d/tilemap/CCTMXLayerCanvasRenderCmd.js',
+    '../../cocos2d/tilemap/CCTMXLayerWebGLRenderCmd.js',
+    '../../cocos2d/motion-streak/CCSGMotionStreak.js',
+    '../../cocos2d/motion-streak/CCSGMotionStreakWebGLRenderCmd.js',
+    '../../cocos2d/render-texture/CCRenderTexture.js',
+    '../../cocos2d/render-texture/CCRenderTextureCanvasRenderCmd.js',
+    '../../cocos2d/render-texture/CCRenderTextureWebGLRenderCmd.js',
+    '../../extensions/spine/SGSkeleton',
+    '../../extensions/spine/SGSkeletonAnimation',
+    '../../extensions/spine/SGSkeletonCanvasRenderCmd',
+    '../../extensions/spine/SGSkeletonWebGLRenderCmd',
+    '../../extensions/spine/lib/spine',
+    '../../extensions/dragonbones/lib/dragonBones',
+    '../../extensions/dragonbones/CCFactory',
+    '../../extensions/dragonbones/CCArmatureDisplay',
+    '../../extensions/dragonbones/CCSlot',
+    '../../extensions/dragonbones/CCTextureData',
+    '../../external/box2d/box2d.js',
+];
+
 exports.buildCocosJs = function (sourceFile, outputFile, excludes, callback) {
     var outDir = Path.dirname(outputFile);
     var outFile = Path.basename(outputFile);
@@ -150,14 +206,16 @@ exports.buildPreview = function (sourceFile, outputFile, callback) {
         .on('end', callback);
 };
 
-exports.buildJsbPreview = function (sourceFile, outputFile, jsbSkipModules, callback) {
+exports.buildJsbPreview = function (sourceFile, outputFile, excludes, callback) {
     var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
 
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
+    excludes = excludes.concat(jsbSkipModules);
+
     var bundler = createBundler(sourceFile);
-    jsbSkipModules.forEach(function (module) {
+    excludes.forEach(function (module) {
         bundler.ignore(require.resolve(module));
     });
     bundler.bundle()
@@ -174,14 +232,16 @@ exports.buildJsbPreview = function (sourceFile, outputFile, jsbSkipModules, call
         .on('end', callback);
 };
 
-exports.buildJsb = function (sourceFile, outputFile, jsbSkipModules, callback) {
+exports.buildJsb = function (sourceFile, outputFile, excludes, callback) {
     var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
 
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
+    excludes = excludes.concat(jsbSkipModules);
+
     var bundler = createBundler(sourceFile);
-    jsbSkipModules.forEach(function (module) {
+    excludes.forEach(function (module) {
         bundler.ignore(require.resolve(module));
     });
     bundler.bundle()
@@ -198,14 +258,16 @@ exports.buildJsb = function (sourceFile, outputFile, jsbSkipModules, callback) {
         .on('end', callback);
 };
 
-exports.buildJsbMin = function (sourceFile, outputFile, jsbSkipModules, callback) {
+exports.buildJsbMin = function (sourceFile, outputFile, excludes, callback) {
     var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
 
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
+    excludes = excludes.concat(jsbSkipModules);
+
     var bundler = createBundler(sourceFile);
-    jsbSkipModules.forEach(function (module) {
+    excludes.forEach(function (module) {
         bundler.ignore(require.resolve(module));
     });
     bundler.bundle()
@@ -221,3 +283,5 @@ exports.buildJsbMin = function (sourceFile, outputFile, jsbSkipModules, callback
         .pipe(Gulp.dest(outDir))
         .on('end', callback);
 };
+
+exports.jsbSkipModules = jsbSkipModules;

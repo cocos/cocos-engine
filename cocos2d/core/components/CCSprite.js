@@ -33,7 +33,7 @@ const SlicedModel = renderEngine.SlicedModel;
 /**
  * !#en Enum for sprite type.
  * !#zh Sprite 类型
- * @enum Sprite.SpriteType
+ * @enum Sprite.Type
  */
 var SpriteType = cc.Enum({
     /**

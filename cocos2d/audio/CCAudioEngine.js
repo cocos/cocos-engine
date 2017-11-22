@@ -178,7 +178,7 @@ var audioEngine = {
      * !#zh 获取音量（0.0 ~ 1.0）。
      * @method getVolume
      * @param {Number} audioID - audio id.
-     * @return {Boolean}
+     * @return {Number}
      * @example
      * var volume = cc.audioEngine.getVolume(id);
      */
