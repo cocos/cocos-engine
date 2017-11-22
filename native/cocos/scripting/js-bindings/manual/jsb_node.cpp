@@ -1427,6 +1427,35 @@ static bool js_cocos2dx_Scheduler_resumeTarget(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Scheduler_resumeTarget)
 
+static bool js_cocos2dx_Scheduler_isTargetPaused(se::State& s)
+{
+    const auto& args = s.args();
+    int argc = (int)args.size();
+
+    if (argc == 1)
+    {
+        Scheduler* cobj = (Scheduler*)s.nativeThisObject();
+        se::Value targetIdVal;
+        if (args[0].toObject()->getProperty(SCHEDULE_TARGET_ID_KEY, &targetIdVal) && targetIdVal.isNumber())
+        {
+            uint32_t targetId = targetIdVal.toUint32();
+            if (isTargetExistInScheduler(targetId))
+            {
+                bool isPaused = cobj->isTargetPaused(reinterpret_cast<void*>(targetId));
+                s.rval().setBoolean(isPaused);
+                return true;
+            }
+        }
+
+        s.rval().setBoolean(false);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Scheduler_isTargetPaused)
+
 static void resumeAllSchedulesForTarget(Node* node, se::Object* jsThis)
 {
     node->getScheduler()->resumeTarget(jsThis);
@@ -1572,6 +1601,7 @@ bool jsb_register_Node_manual(se::Object* global)
     schedulerProto->defineFunction("isScheduled", _SE(js_cocos2dx_Scheduler_isScheduled));
     schedulerProto->defineFunction("pauseTarget", _SE(js_cocos2dx_Scheduler_pauseTarget));
     schedulerProto->defineFunction("resumeTarget", _SE(js_cocos2dx_Scheduler_resumeTarget));
+    schedulerProto->defineFunction("isTargetPaused", _SE(js_cocos2dx_Scheduler_isTargetPaused));
 
 #if STANDALONE_TEST
     cls->defineFunction("addChild", _SE(Node_addChild));
