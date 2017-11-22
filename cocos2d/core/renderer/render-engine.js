@@ -121,7 +121,7 @@ module.exports = (function () {
    * @return {number} the random integer
    */
   function randomRangeInt(min, max) {
-    return Math.floor(this.randomRange(min, max));
+    return Math.floor(randomRange(min, max));
   }
   
   /**
@@ -152,6 +152,7 @@ module.exports = (function () {
    *    http://graphics.stanford.edu/~seander/bithacks.html
    */
   
+  // Number of bits in an integer
   const INT_BITS = 32;
   const INT_MAX =  0x7fffffff;
   const INT_MIN = -1<<(INT_BITS-1);
@@ -4679,7 +4680,7 @@ module.exports = (function () {
    */
   mat23.multiply = function (out, a, b) {
     let a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05,
-        b0 = b.m00, b1 = b.m01, b2 = b.m02, b3 = b.m03, b4 = b.m04, b5 = b.m05;
+      b0 = b.m00, b1 = b.m01, b2 = b.m02, b3 = b.m03, b4 = b.m04, b5 = b.m05;
     out.m00 = a0 * b0 + a2 * b1;
     out.m01 = a1 * b0 + a3 * b1;
     out.m02 = a0 * b2 + a2 * b3;
@@ -4705,8 +4706,8 @@ module.exports = (function () {
    */
   mat23.rotate = function (out, a, rad) {
     let a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05,
-        s = Math.sin(rad),
-        c = Math.cos(rad);
+      s = Math.sin(rad),
+      c = Math.cos(rad);
     out.m00 = a0 * c + a2 * s;
     out.m01 = a1 * c + a3 * s;
     out.m02 = a0 * -s + a2 * c;
@@ -4726,7 +4727,7 @@ module.exports = (function () {
    **/
   mat23.scale = function (out, a, v) {
     let a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05,
-        v0 = v.x, v1 = v.y;
+      v0 = v.x, v1 = v.y;
     out.m00 = a0 * v0;
     out.m01 = a1 * v0;
     out.m02 = a2 * v1;
@@ -4746,7 +4747,7 @@ module.exports = (function () {
    **/
   mat23.translate = function (out, a, v) {
     let a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05,
-        v0 = v.x, v1 = v.y;
+      v0 = v.x, v1 = v.y;
     out.m00 = a0;
     out.m01 = a1;
     out.m02 = a2;
@@ -4844,6 +4845,34 @@ module.exports = (function () {
     out[3] = m.m03;
     out[4] = m.m04;
     out[5] = m.m05;
+  
+    return out;
+  };
+  
+  /**
+   * Returns typed array to 16 float array
+   *
+   * @param {array} out
+   * @param {mat23} m
+   * @returns {array}
+   */
+  mat23.array4x4 = function (out, m) {
+    out[0] = m.m00;
+    out[1] = m.m01;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = m.m02;
+    out[5] = m.m03;
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = 0;
+    out[9] = 0;
+    out[10] = 1;
+    out[11] = 0;
+    out[12] = m.m04;
+    out[13] = m.m05;
+    out[14] = 0;
+    out[15] = 1;
   
     return out;
   };
@@ -7244,6 +7273,7 @@ module.exports = (function () {
     return ((a.r * 255) << 24 | (a.g * 255) << 16 | (a.b * 255) << 8 | a.a * 255) >>> 0;
   };
   
+  // NOTE: there is no syntax for: export {* as bits} from './lib/bits';
   let bits = bits_;
   
   
@@ -7279,10 +7309,10 @@ module.exports = (function () {
     PROJ_PERSPECTIVE: 0,
     PROJ_ORTHO: 1,
   
-    // stages
-    STAGE_OPAQUE:       0x00000001,
-    STAGE_TRANSPARENT:  0x00000002,
-    STAGE_SHADOWCAST:   0x00000004,
+    // lights
+    LIGHT_DIRECTIONAL: 0,
+    LIGHT_POINT: 1,
+    LIGHT_SPOT: 2,
   
     // parameter type
     PARAM_INT:             0,
@@ -7300,6 +7330,11 @@ module.exports = (function () {
     PARAM_MAT4:           12,
     PARAM_TEXTURE_2D:     13,
     PARAM_TEXTURE_CUBE:   14,
+  
+    // clear flags
+    CLEAR_COLOR: 1,
+    CLEAR_DEPTH: 2,
+    CLEAR_STENCIL: 4,
   };
   
   const GL_NEAREST = 9728;                // gl.NEAREST
@@ -7639,6 +7674,10 @@ module.exports = (function () {
     return result;
   }
   
+  // ====================
+  // exports
+  // ====================
+  
   class VertexFormat {
     /**
      * @constructor
@@ -7706,17 +7745,17 @@ module.exports = (function () {
       this._format = format;
       this._usage = usage;
       this._numIndices = numIndices;
-  
+      this._bytesPerIndex = 0;
       // calculate bytes
       let bytes = 0;
       if (format === enums$1.INDEX_FMT_UINT8) {
-        bytes = numIndices;
+        this._bytesPerIndex = 1;
       } else if (format === enums$1.INDEX_FMT_UINT16) {
-        bytes = 2 * numIndices;
+        this._bytesPerIndex = 2;
       } else if (format === enums$1.INDEX_FMT_UINT32) {
-        bytes = 4 * numIndices;
+        this._bytesPerIndex = 4;
       }
-      this._bytes = bytes;
+      this._bytes = this._bytesPerIndex * numIndices;
   
       // update
       this._glID = device._gl.createBuffer();
@@ -7845,7 +7884,7 @@ module.exports = (function () {
         gl.bufferData(gl.ARRAY_BUFFER, this._bytes, glUsage);
       } else {
         if (offset) {
-          gl.bufferSubData(gl.ARRAY_BUFFER, data, glUsage);
+          gl.bufferSubData(gl.ARRAY_BUFFER, offset, data);
         } else {
           gl.bufferData(gl.ARRAY_BUFFER, data, glUsage);
         }
@@ -8076,7 +8115,7 @@ module.exports = (function () {
     }
   }
   
-  function _isPow2(v) {
+  function isPow2$1(v) {
     return !(v & (v - 1)) && (!!v);
   }
   
@@ -8101,8 +8140,13 @@ module.exports = (function () {
      */
     constructor(device, options) {
       super(device);
-      this._target = this._device._gl.TEXTURE_2D;
   
+      let gl = this._device._gl;
+      this._target = gl.TEXTURE_2D;
+      this._glID = gl.createTexture();
+  
+      // always alloc texture in GPU when we create it.
+      options.images = options.images || [null];
       this.update(options);
     }
   
@@ -8169,17 +8213,26 @@ module.exports = (function () {
         if (options.images !== undefined) {
           if (options.images.length > 1) {
             genMipmap = false;
+            let maxLength = options.width > options.height ? options.width : options.height;
+            if (maxLength >> (options.images.length - 1) !== 1) {
+              console.error('texture-2d mipmap is invalid, should have a 1x1 mipmap.');
+            }
           }
         }
       }
   
-      this._glID = gl.createTexture();
+      // NOTE: get pot after this._width, this._height has been assigned.
+      let pot = isPow2$1(this._width) && isPow2$1(this._height);
+      if (!pot) {
+        genMipmap = false;
+      }
   
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this._glID);
-      // always alloc texture in GPU when we create it.
-      let images = options.images || [null];
-      this._setMipmap(images, options.flipY, options.premultiplyAlpha);
+      if (options.images !== undefined) {
+        this._setMipmap(options.images, options.flipY, options.premultiplyAlpha);
+      }
+  
       this._setTexInfo();
   
       if (genMipmap) {
@@ -8301,7 +8354,6 @@ module.exports = (function () {
       let img = options.image;
   
       if (
-        window.wx ||
         img instanceof HTMLCanvasElement ||
         img instanceof HTMLImageElement ||
         img instanceof HTMLVideoElement
@@ -8387,7 +8439,7 @@ module.exports = (function () {
   
     _setTexInfo() {
       let gl = this._device._gl;
-      let pot = _isPow2(this._width) && _isPow2(this._height);
+      let pot = isPow2$1(this._width) && isPow2$1(this._height);
   
       // WebGL1 doesn't support all wrap modes with NPOT textures
       if (!pot && (this._wrapS !== enums$1.WRAP_CLAMP || this._wrapT !== enums$1.WRAP_CLAMP)) {
@@ -8396,15 +8448,21 @@ module.exports = (function () {
         this._wrapT = enums$1.WRAP_CLAMP;
       }
   
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, glFilter(gl, this._minFilter, this._hasMipmap ? this._mipFilter : -1));
+      let mipFilter = this._hasMipmap ? this._mipFilter : -1;
+      if (!pot && mipFilter !== -1) {
+        console.warn('NPOT textures do not support mipmap filter');
+        mipFilter = -1;
+      }
+  
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, glFilter(gl, this._minFilter, mipFilter));
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, glFilter(gl, this._magFilter, -1));
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, this._wrapS);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, this._wrapT);
   
-      // let ext = this._device.ext('EXT_texture_filter_anisotropic');
-      // if (ext) {
-      //   gl.texParameteri(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, this._anisotropy);
-      // }
+      let ext = this._device.ext('EXT_texture_filter_anisotropic');
+      if (ext) {
+        gl.texParameteri(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, this._anisotropy);
+      }
     }
   }
   
@@ -8430,8 +8488,9 @@ module.exports = (function () {
      */
     constructor(device, options) {
       super(device);
-      this._target = this._device._gl.TEXTURE_CUBE_MAP;
-  
+      let gl = this._device._gl;
+      this._target = gl.TEXTURE_CUBE_MAP;
+      this._glID = gl.createTexture();
       this.update(options);
     }
   
@@ -8503,24 +8562,34 @@ module.exports = (function () {
         if (options.images !== undefined) {
           if (options.images.length > 1) {
             genMipmap = false;
+            if (options.width !== options.height) {
+              console.warn('texture-cube width and height should be identical.');
+            }
+            if (options.width >> (options.images.length - 1) !== 1) {
+              console.error('texture-cube mipmap is invalid. please set mipmap as 1x1, 2x2, 4x4 ... nxn');
+            }
           }
         }
       }
   
-      this._glID = gl.createTexture();
+      // NOTE: get pot after this._width, this._height has been assigned.
+      let pot = isPow2$1(this._width) && isPow2$1(this._height);
+      if (!pot) {
+        genMipmap = false;
+      }
   
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_CUBE_MAP, this._glID);
-        if (options.images !== undefined) {
-          this._setMipmap(options.images, options.flipY, options.premultiplyAlpha);
-        }
+      if (options.images !== undefined) {
+        this._setMipmap(options.images, options.flipY, options.premultiplyAlpha);
+      }
   
-        this._setTexInfo();
+      this._setTexInfo();
   
-        if (genMipmap) {
-          gl.hint(gl.GENERATE_MIPMAP_HINT, gl.NICEST);
-          gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
-        }
+      if (genMipmap) {
+        gl.hint(gl.GENERATE_MIPMAP_HINT, gl.NICEST);
+        gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+      }
       this._device._restoreTexture(0);
     }
   
@@ -8544,6 +8613,7 @@ module.exports = (function () {
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_CUBE_MAP, this._glID);
       this._setSubImage(glFmt, options);
+  
       this._device._restoreTexture(0);
     }
   
@@ -8685,7 +8755,7 @@ module.exports = (function () {
       let options = {
         width: this._width,
         height: this._height,
-        faceIndex : 0,
+        faceIndex: 0,
         flipY: flipY,
         premultiplyAlpha: premultiplyAlpha,
         level: 0,
@@ -8708,8 +8778,22 @@ module.exports = (function () {
   
     _setTexInfo() {
       let gl = this._device._gl;
+      let pot = isPow2$1(this._width) && isPow2$1(this._height);
   
-      gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, glFilter(gl, this._minFilter, this._hasMipmap ? this._mipFilter : -1));
+      // WebGL1 doesn't support all wrap modes with NPOT textures
+      if (!pot && (this._wrapS !== enums$1.WRAP_CLAMP || this._wrapT !== enums$1.WRAP_CLAMP)) {
+        console.warn('WebGL1 doesn\'t support all wrap modes with NPOT textures');
+        this._wrapS = enums$1.WRAP_CLAMP;
+        this._wrapT = enums$1.WRAP_CLAMP;
+      }
+  
+      let mipFilter = this._hasMipmap ? this._mipFilter : -1;
+      if (!pot && mipFilter !== -1) {
+        console.warn('NPOT textures do not support mipmap filter');
+        mipFilter = -1;
+      }
+  
+      gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, glFilter(gl, this._minFilter, mipFilter));
       gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, glFilter(gl, this._magFilter, -1));
       gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, this._wrapS);
       gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, this._wrapT);
@@ -9506,7 +9590,6 @@ module.exports = (function () {
         opts.preserveDrawingBuffer = false;
       }
   
-  
       try {
         gl = canvasEL.getContext('webgl', opts);
       } catch (err) {
@@ -9535,6 +9618,7 @@ module.exports = (function () {
   
       this._initExtensions([
         'EXT_texture_filter_anisotropic',
+        'EXT_shader_texture_lod',
         'OES_standard_derivatives',
         'OES_texture_float',
         'OES_texture_float_linear',
@@ -9629,7 +9713,7 @@ module.exports = (function () {
       gl.disable(gl.SCISSOR_TEST);
     }
   
-    _restoreTexture (unit) {
+    _restoreTexture(unit) {
       const gl = this._gl;
   
       let texture = this._current.textureUnits[unit];
@@ -10163,7 +10247,7 @@ module.exports = (function () {
           this._next.primitiveType,
           count,
           next.indexBuffer._format,
-          base * next.indexBuffer._bytes
+          base * next.indexBuffer._bytesPerIndex
         );
       } else {
         gl.drawArrays(
@@ -10208,68 +10292,29 @@ module.exports = (function () {
   };
   Object.assign(gfx, enums$1);
   
-  class Mesh$1 {
+  class InputAssembler$1 {
     constructor(vb, ib, pt = gfx.PT_TRIANGLES) {
       this._vertexBuffer = vb;
       this._indexBuffer = ib;
       this._primitiveType = pt;
+      this._start = 0;
+      this._count = -1;
   
-      // TODO
-      // stream
-      // instancing
-    }
-  }
-  
-  function createMesh(device, data) {
-    if (!data.positions) {
-      console.error('The data must have positions field');
-      return null;
+      // TODO: instancing data
+      // this._stream = 0;
     }
   
-    let verts = [];
-    let vcount = data.positions.length / 3;
-  
-    for (let i = 0; i < vcount; ++i) {
-      verts.push(data.positions[3 * i], data.positions[3 * i + 1], data.positions[3 * i + 2]);
-  
-      if (data.normals) {
-        verts.push(data.normals[3 * i], data.normals[3 * i + 1], data.normals[3 * i + 2]);
+    getPrimitiveCount () {
+      if (this._count !== -1) {
+        return this._count;
       }
   
-      if (data.uvs) {
-        verts.push(data.uvs[2 * i], data.uvs[2 * i + 1]);
+      if (this._indexBuffer) {
+        return this._indexBuffer.count;
       }
-    }
   
-    let vfmt = [];
-    vfmt.push({ name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 3 });
-    if (data.normals) {
-      vfmt.push({ name: gfx.ATTR_NORMAL, type: gfx.ATTR_TYPE_FLOAT32, num: 3 });
+      return this._vertexBuffer.count;
     }
-    if (data.uvs) {
-      vfmt.push({ name: gfx.ATTR_UV0, type: gfx.ATTR_TYPE_FLOAT32, num: 2 });
-    }
-  
-    let vb = new gfx.VertexBuffer(
-      device,
-      new gfx.VertexFormat(vfmt),
-      gfx.USAGE_STATIC,
-      new Float32Array(verts),
-      vcount
-    );
-  
-    let ib = null;
-    if (data.indices) {
-      ib = new gfx.IndexBuffer(
-        device,
-        gfx.INDEX_FMT_UINT16,
-        gfx.USAGE_STATIC,
-        new Uint16Array(data.indices),
-        data.indices.length
-      );
-    }
-  
-    return new Mesh$1(vb, ib);
   }
   
   class Pass {
@@ -10386,33 +10431,70 @@ module.exports = (function () {
     }
   }
   
+  let _stageOffset = 0;
+  let _name2stageID = {};
+  
+  var config = {
+    addStage: function (name) {
+      // already added
+      if (_name2stageID[name] !== undefined) {
+        return;
+      }
+  
+      let stageID = 1 << _stageOffset;
+      _name2stageID[name] = stageID;
+  
+      _stageOffset += 1;
+    },
+  
+    stageID: function (name) {
+      let id = _name2stageID[name];
+      if (id === undefined) {
+        return -1;
+      }
+      return id;
+    },
+  
+    stageIDs: function (nameList) {
+      let key = 0;
+      for (let i = 0; i < nameList.length; ++i) {
+        let id = _name2stageID[nameList[i]];
+        if (id !== undefined) {
+          key |= id;
+        }
+      }
+      return key;
+    }
+  };
+  
   let _genID$1 = 0;
   
   class Technique {
     /**
-     * @param {STAGE_*} stages
+     * @param {Array} stages
      * @param {Array} parameters
      * @param {Array} passes
      * @param {Number} layer
      */
     constructor(stages, parameters, passes, layer = 0) {
       this._id = _genID$1++;
-      this._stages = stages;
+      this._stageIDs = config.stageIDs(stages);
       this._parameters = parameters; // {name, type, size, val}
       this._passes = passes;
       this._layer = layer;
       // TODO: this._version = 'webgl' or 'webgl2' // ????
     }
   
+    setStages(stages) {
+      this._stageIDs = config.stageIDs(stages);
+    }
+  
     get passes() {
       return this._passes;
     }
   
-    get stages() {
-      return this._stages;
-    }
-    set stages(stages) {
-      this._stages = stages;
+    get stageIDs() {
+      return this._stageIDs;
     }
   }
   
@@ -10420,7 +10502,7 @@ module.exports = (function () {
     /**
      * @param {Array} techniques
      */
-    constructor(techniques, values = {}, opts = {}) {
+    constructor(techniques, values = {}, opts = []) {
       this._techniques = techniques;
       this._values = values;
       this._options = opts;
@@ -10429,9 +10511,10 @@ module.exports = (function () {
     }
   
     getTechnique(stage) {
+      let stageID = config.stageID(stage);
       for (let i = 0; i < this._techniques.length; ++i) {
         let tech = this._techniques[i];
-        if (tech._stages & stage) {
+        if (tech.stageIDs & stageID) {
           return tech;
         }
       }
@@ -10445,77 +10528,343 @@ module.exports = (function () {
   
     setValue(name, value) {
       // TODO: check if params is valid for current technique???
-  
       this._values[name] = value;
     }
   
     getOption(name) {
-      return this._options[name];
+      for (let i = 0; i < this._options.length; ++i) {
+        let opt = this._options[i];
+        if ( opt.name === name ) {
+          return opt.value;
+        }
+      }
+  
+      console.warn(`Failed to get option ${name}, option not found.`);
+      return null;
     }
   
     setOption(name, value) {
-      this._options[name] = value;
+      for (let i = 0; i < this._options.length; ++i) {
+        let opt = this._options[i];
+        if ( opt.name === name ) {
+          opt.value = value;
+          return;
+        }
+      }
+  
+      console.warn(`Failed to set option ${name}, option not found.`);
+    }
+  
+    extractOptions(out = {}) {
+      for (let i = 0; i < this._options.length; ++i) {
+        let opt = this._options[i];
+        out[opt.name] = opt.value;
+      }
+  
+      return out;
     }
   }
   
+  /**
+   * @param {object} json
+   */
+  
+  
+  /**
+   * @param {gfx.Device} device
+   * @param {Object} data
+   */
+  function createIA(device, data) {
+    if (!data.positions) {
+      console.error('The data must have positions field');
+      return null;
+    }
+  
+    let verts = [];
+    let vcount = data.positions.length / 3;
+  
+    for (let i = 0; i < vcount; ++i) {
+      verts.push(data.positions[3 * i], data.positions[3 * i + 1], data.positions[3 * i + 2]);
+  
+      if (data.normals) {
+        verts.push(data.normals[3 * i], data.normals[3 * i + 1], data.normals[3 * i + 2]);
+      }
+  
+      if (data.uvs) {
+        verts.push(data.uvs[2 * i], data.uvs[2 * i + 1]);
+      }
+    }
+  
+    let vfmt = [];
+    vfmt.push({ name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 3 });
+    if (data.normals) {
+      vfmt.push({ name: gfx.ATTR_NORMAL, type: gfx.ATTR_TYPE_FLOAT32, num: 3 });
+    }
+    if (data.uvs) {
+      vfmt.push({ name: gfx.ATTR_UV0, type: gfx.ATTR_TYPE_FLOAT32, num: 2 });
+    }
+  
+    let vb = new gfx.VertexBuffer(
+      device,
+      new gfx.VertexFormat(vfmt),
+      gfx.USAGE_STATIC,
+      new Float32Array(verts),
+      vcount
+    );
+  
+    let ib = null;
+    if (data.indices) {
+      ib = new gfx.IndexBuffer(
+        device,
+        gfx.INDEX_FMT_UINT16,
+        gfx.USAGE_STATIC,
+        new Uint16Array(data.indices),
+        data.indices.length
+      );
+    }
+  
+    return new InputAssembler$1(vb, ib);
+  }
+  
+  let _m4_tmp = mat4.create();
+  let _genID$2 = 0;
+  
+  class View {
+    constructor() {
+      this._id = _genID$2++;
+  
+      // viewport
+      this._rect = {
+        x: 0, y: 0, w: 1, h: 1
+      };
+  
+      // TODO:
+      // this._scissor = {
+      //   x: 0, y: 0, w: 1, h: 1
+      // };
+  
+      // clear options
+      this._color = color4.new(0.3, 0.3, 0.3, 1);
+      this._depth = 1;
+      this._stencil = 1;
+      this._clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;
+  
+      // matrix
+      this._matView = mat4.create();
+      this._matProj = mat4.create();
+      this._matViewProj = mat4.create();
+      this._matInvViewProj = mat4.create();
+  
+      // stages
+      this._stages = [];
+      this._cullingByID = false;
+    }
+  
+    getForward(out) {
+      return vec3.set(
+        out,
+        -this._matView.m02,
+        -this._matView.m06,
+        -this._matView.m10
+      );
+    }
+  
+    getPosition(out) {
+      mat4.invert(_m4_tmp, this._matView);
+      return mat4.getTranslation(out, _m4_tmp);
+    }
+  }
+  
+  let _m4_tmp$1 = mat4.create();
+  let _m3_tmp = mat3.create();
+  const _forward = vec3.new(0, 0, -1);
+  let _transformedLightDirection = vec3.create();
+  
   class Light {
     constructor() {
+      this._poolID = -1;
       this._node = null;
-      this._color = color3.create();
+  
+      this._type = enums.LIGHT_DIRECTIONAL;
+  
+      this._color = color3.new(1, 1, 1);
+      this._intensity = 1;
+  
+      // used for spot and point light
+      this._range = 1;
+      // used for spot light, default to 60 degrees
+      this._spotAngle = toRadian(60);
+      this._spotExp = 1;
+      // cached for uniform
+      this._directionUniform = new Float32Array(3);
+      this._positionUniform = new Float32Array(3);
+      this._colorUniform = new Float32Array([this._color.r * this._intensity, this._color.g * this._intensity, this._color.b * this._intensity]);
+      this._spotUniform = new Float32Array([Math.cos(this._spotAngle * 0.5), this._spotExp]);
     }
   
     setNode(node) {
       this._node = node;
     }
+  
+    set color(val) {
+      color3.copy(this._color, val);
+      this._colorUniform[0] = val.r * this._intensity;
+      this._colorUniform[1] = val.g * this._intensity;
+      this._colorUniform[2] = val.b * this._intensity;
+    }
+    get color() {
+      return this._color;
+    }
+  
+    set intensity(val) {
+      this._intensity = val;
+      this._colorUniform[0] = val * this._color.r;
+      this._colorUniform[1] = val * this._color.g;
+      this._colorUniform[2] = val * this._color.b;
+    }
+    get intensity() {
+      return this._intensity;
+    }
+  
+    set type(tpe) {
+      this._type = tpe;
+    }
+    get type() {
+      return this._type;
+    }
+  
+    set spotAngle(val) {
+      this._spotAngle = val;
+      this._spotUniform[0] = Math.cos(this._spotAngle * 0.5);
+    }
+    get spotAngle() {
+      return this._spotAngle;
+    }
+  
+    set spotExp(val) {
+      this._spotExp = val;
+      this._spotUniform[1] = val;
+    }
+    get spotExp() {
+      return this._spotExp;
+    }
+  
+    set range(tpe) {
+      this._range = tpe;
+    }
+    get range() {
+      return this._range;
+    }
+  
+    _updateLightPositionAndDirection() {
+      this._node.getWorldMatrix(_m4_tmp$1);
+      mat3.fromMat4(_m3_tmp, _m4_tmp$1);
+      vec3.transformMat3(_transformedLightDirection, _forward, _m3_tmp);
+      vec3.array(this._directionUniform, _transformedLightDirection);
+      let pos = this._positionUniform;
+      pos[0] = _m4_tmp$1.m12;
+      pos[1] = _m4_tmp$1.m13;
+      pos[2] = _m4_tmp$1.m14;
+    }
+  
+    update() {
+      this._updateLightPositionAndDirection();
+    }
   }
+  
+  let _matView = mat4.create();
+  let _matProj = mat4.create();
+  let _matViewProj = mat4.create();
+  let _matInvViewProj = mat4.create();
+  let _tmp_v3 = vec3.create();
   
   class Camera {
     constructor() {
+      this._poolID = -1;
       this._node = null;
+  
+      //
       this._projection = enums.PROJ_PERSPECTIVE;
+  
+      // clear options
+      this._color = color4.new(0.2, 0.3, 0.47, 1);
+      this._depth = 1;
+      this._stencil = 1;
+      this._clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;
   
       // projection properties
       this._near = 0.01;
       this._far = 1000.0;
       this._fov = Math.PI/4.0; // vertical fov
       // this._aspect = 16.0/9.0; // DISABLE: use _rect.w/_rect.h
-  
-      // ortho properties
-      this._orthoHeight = 10;
-  
-      // view properties
       this._rect = {
         x: 0, y: 0, w: 1, h: 1
       };
-      this._scissor = {
-        x: 0, y: 0, w: 1, h: 1
-      };
   
-      // clear options
-      this._color = color4.create();
-      // TODO: this._clearFlags
+      // ortho properties
+      this._orthoHeight = 10;
+      this._stages = [];
+    }
   
-      // matrix
-      this._view = mat4.create();
-      this._proj = mat4.create();
-      this._viewProj = mat4.create();
-      this._invViewProj = mat4.create();
+    setColor(r, g, b, a) {
+      color4.set(this._color, r, g, b, a);
+    }
+  
+    setDepth(depth) {
+      this._depth = depth;
+    }
+  
+    setStencil(stencil) {
+      this._stencil = stencil;
+    }
+  
+    setClearFlags(flags) {
+      this._clearFlags = flags;
     }
   
     setNode(node) {
       this._node = node;
     }
   
-    updateMatrix() {
+    /**
+     * @param {Number} x - [0,1]
+     * @param {Number} y - [0,1]
+     * @param {Number} w - [0,1]
+     * @param {Number} h - [0,1]
+     */
+    setRect(x, y, w, h) {
+      this._rect.x = x;
+      this._rect.y = y;
+      this._rect.w = w;
+      this._rect.h = h;
+    }
+  
+    setStages(stages) {
+      this._stages = stages;
+    }
+  
+    extractView(out, width, height) {
+      // rect
+      out._rect.x = this._rect.x * width;
+      out._rect.y = this._rect.y * height;
+      out._rect.w = this._rect.w * width;
+      out._rect.h = this._rect.h * height;
+  
+      // clear opts
+      out._color = this._color;
+      out._depth = this._depth;
+      out._stencil = this._stencil;
+      out._clearFlags = this._clearFlags;
+  
       // view matrix
-      this._node.getWorldMatrix(this._view);
-      mat4.invert(this._view, this._view);
+      this._node.getWorldRT(out._matView);
+      mat4.invert(out._matView, out._matView);
   
       // projection matrix
       // TODO: if this._projDirty
-      let aspect = this._rect.w / this._rect.h;
+      let aspect = width / height;
       if (this._projection === enums.PROJ_PERSPECTIVE) {
-        mat4.perspective(this._proj,
+        mat4.perspective(out._matProj,
           this._fov,
           aspect,
           this._near,
@@ -10524,36 +10873,170 @@ module.exports = (function () {
       } else {
         let x = this._orthoHeight * aspect;
         let y = this._orthoHeight;
-        mat4.ortho(this._proj,
+        mat4.ortho(out._matProj,
           -x, x, -y, y, this._near, this._far
         );
       }
   
       // view-projection
-      mat4.mul(this._viewProj, this._proj, this._view);
-      mat4.invert(this._invViewProj, this._viewProj);
+      mat4.mul(out._matViewProj, out._matProj, out._matView);
+      mat4.invert(out._matInvViewProj, out._matViewProj);
+  
+      // stages
+      out._stages = this._stages;
+    }
+  
+    screenToWorld(out, screenPos, width, height) {
+      let aspect = width / height;
+      let cx = this._rect.x * width;
+      let cy = this._rect.y * height;
+      let cw = this._rect.w * width;
+      let ch = this._rect.h * height;
+  
+      // view matrix
+      this._node.getWorldRT(_matView);
+      mat4.invert(_matView, _matView);
+  
+      // projection matrix
+      if (this._projection === enums.PROJ_PERSPECTIVE) {
+        mat4.perspective(_matProj,
+          this._fov,
+          aspect,
+          this._near,
+          this._far
+        );
+      } else {
+        let x = this._orthoHeight * aspect;
+        let y = this._orthoHeight;
+        mat4.ortho(_matProj,
+          -x, x, -y, y, this._near, this._far
+        );
+      }
+  
+      // view-projection
+      mat4.mul(_matViewProj, _matProj, _matView);
+  
+      // inv view-projection
+      mat4.invert(_matInvViewProj, _matViewProj);
+  
+      //
+      if (this._projection === enums.PROJ_PERSPECTIVE) {
+        // calculate screen pos in far clip plane
+        vec3.set(out,
+          (screenPos.x - cx) * 2.0 / cw - 1.0,
+          (screenPos.y - cy) * 2.0 / ch - 1.0, // DISABLE: (ch - (screenPos.y - cy)) * 2.0 / ch - 1.0,
+          1.0
+        );
+  
+        // transform to world
+        vec3.transformMat4(out, out, _matInvViewProj);
+  
+        //
+        this._node.getWorldPos(_tmp_v3);
+        vec3.lerp(out, _tmp_v3, out, screenPos.z / this._far);
+      } else {
+        let range = this._farClip - this._nearClip;
+        vec3.set(out,
+          (screenPos.x - cx) * 2.0 / cw - 1.0,
+          (screenPos.y - cy) * 2.0 / ch - 1.0, // DISABLE: (ch - (screenPos.y - cy)) * 2.0 / ch - 1.0,
+          (this._far - screenPos.z) / range * 2.0 - 1.0
+        );
+  
+        // transform to world
+        vec3.transformMat4(out, out, _matInvViewProj);
+      }
+  
+      return out;
+    }
+  
+    worldToScreen(out, worldPos, width, height) {
+      let aspect = width / height;
+      let cx = this._rect.x * width;
+      let cy = this._rect.y * height;
+      let cw = this._rect.w * width;
+      let ch = this._rect.h * height;
+  
+      // view matrix
+      this._node.getWorldRT(_matView);
+      mat4.invert(_matView, _matView);
+  
+      // projection matrix
+      if (this._projection === enums.PROJ_PERSPECTIVE) {
+        mat4.perspective(_matProj,
+          this._fov,
+          aspect,
+          this._near,
+          this._far
+        );
+      } else {
+        let x = this._orthoHeight * aspect;
+        let y = this._orthoHeight;
+        mat4.ortho(_matProj,
+          -x, x, -y, y, this._near, this._far
+        );
+      }
+  
+      // view-projection
+      mat4.mul(_matViewProj, _matProj, _matView);
+  
+      // calculate w
+      let w =
+        worldPos.x * _matViewProj.m03 +
+        worldPos.y * _matViewProj.m07 +
+        worldPos.z * _matViewProj.m11 +
+        _matViewProj.m15;
+  
+      vec3.transformMat4(out, worldPos, _matViewProj);
+      out.x = cx + (out.x / w + 1) * 0.5 * cw;
+      out.y = cy + (out.y / w + 1) * 0.5 * ch;
+  
+      return out;
     }
   }
   
   class Model {
     constructor() {
+      this._poolID = -1;
       this._node = null;
-      this._meshes = [];
+      this._inputAssemblers = [];
       this._effects = [];
+      this._options = [];
+      this._dynamicIA = false;
+      this._viewID = -1;
   
-      // TODO: we calculate aabb based on mesh vertices
+      // TODO: we calculate aabb based on vertices
       // this._aabb
+    }
+  
+    get inputAssemblerCount() {
+      return this._inputAssemblers.length;
+    }
+  
+    get dynamicIA() {
+      return this._dynamicIA;
+    }
+  
+    get drawItemCount() {
+      return this._dynamicIA ? 1 : this._inputAssemblers.length;
     }
   
     setNode(node) {
       this._node = node;
     }
   
-    addMesh(mesh) {
-      if (this._meshes.indexOf(mesh) !== -1) {
+    setDynamicIA(enabled) {
+      this._dynamicIA = enabled;
+    }
+  
+    addInputAssembler(ia) {
+      if (this._inputAssemblers.indexOf(ia) !== -1) {
         return;
       }
-      this._meshes.push(mesh);
+      this._inputAssemblers.push(ia);
+    }
+  
+    clearInputAssemblers() {
+      this._inputAssemblers.length = 0;
     }
   
     addEffect(effect) {
@@ -10561,121 +11044,1022 @@ module.exports = (function () {
         return;
       }
       this._effects.push(effect);
+  
+      //
+      let opts = Object.create(null);
+      effect.extractOptions(opts);
+      this._options.push(opts);
     }
   
-    get meshCount() {
-      return this._meshes.length;
+    clearEffects() {
+      this._effects.length = 0;
+      this._options.length = 0;
     }
   
-    getDrawItem(out, index) {
-      if (index >= this._meshes.length ) {
+    extractDrawItem(out, index) {
+      if (this._dynamicIA) {
+        out.model = this;
+        out.node = this._node;
+        out.ia = null;
+        out.effect = this._effects[0];
+        out.options = out.effect.extractOptions(this._options[0]);
+  
+        return;
+      }
+  
+      if (index >= this._inputAssemblers.length ) {
         out.model = null;
         out.node = null;
-        out.mesh = null;
+        out.ia = null;
         out.effect = null;
+        out.options = null;
   
         return;
       }
   
       out.model = this;
       out.node = this._node;
-      out.mesh = this._meshes[index];
+      out.ia = this._inputAssemblers[index];
+  
+      let effect, options;
       if (index < this._effects.length) {
-        out.effect = this._effects[index];
+        effect = this._effects[index];
+        options = this._options[index];
       } else {
-        out.effect = this._effects[this._effects.length-1];
+        effect = this._effects[this._effects.length-1];
+        options = this._options[this._effects.length-1];
+      }
+      out.effect = effect;
+      out.options = effect.extractOptions(options);
+    }
+  }
+  
+  // reference: https://github.com/mziccard/node-timsort
+  
+  /**
+   * Default minimum size of a run.
+   */
+  const DEFAULT_MIN_MERGE = 32;
+  
+  /**
+   * Minimum ordered subsequece required to do galloping.
+   */
+  const DEFAULT_MIN_GALLOPING = 7;
+  
+  /**
+   * Default tmp storage length. Can increase depending on the size of the
+   * smallest run to merge.
+   */
+  const DEFAULT_TMP_STORAGE_LENGTH = 256;
+  
+  /**
+   * Pre-computed powers of 10 for efficient lexicographic comparison of
+   * small integers.
+   */
+  const POWERS_OF_TEN = [1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9];
+  
+  /**
+   * Estimate the logarithm base 10 of a small integer.
+   *
+   * @param {number} x - The integer to estimate the logarithm of.
+   * @return {number} - The estimated logarithm of the integer.
+   */
+  function log10$1(x) {
+    if (x < 1e5) {
+      if (x < 1e2) {
+        return x < 1e1 ? 0 : 1;
+      }
+  
+      if (x < 1e4) {
+        return x < 1e3 ? 2 : 3;
+      }
+  
+      return 4;
+    }
+  
+    if (x < 1e7) {
+      return x < 1e6 ? 5 : 6;
+    }
+  
+    if (x < 1e9) {
+      return x < 1e8 ? 7 : 8;
+    }
+  
+    return 9;
+  }
+  
+  /**
+   * Default alphabetical comparison of items.
+   *
+   * @param {string|object|number} a - First element to compare.
+   * @param {string|object|number} b - Second element to compare.
+   * @return {number} - A positive number if a.toString() > b.toString(), a
+   * negative number if .toString() < b.toString(), 0 otherwise.
+   */
+  function alphabeticalCompare(a, b) {
+    if (a === b) {
+      return 0;
+    }
+  
+    if (~~a === a && ~~b === b) {
+      if (a === 0 || b === 0) {
+        return a < b ? -1 : 1;
+      }
+  
+      if (a < 0 || b < 0) {
+        if (b >= 0) {
+          return -1;
+        }
+  
+        if (a >= 0) {
+          return 1;
+        }
+  
+        a = -a;
+        b = -b;
+      }
+  
+      const al = log10$1(a);
+      const bl = log10$1(b);
+  
+      let t = 0;
+  
+      if (al < bl) {
+        a *= POWERS_OF_TEN[bl - al - 1];
+        b /= 10;
+        t = -1;
+      } else if (al > bl) {
+        b *= POWERS_OF_TEN[al - bl - 1];
+        a /= 10;
+        t = 1;
+      }
+  
+      if (a === b) {
+        return t;
+      }
+  
+      return a < b ? -1 : 1;
+    }
+  
+    let aStr = String(a);
+    let bStr = String(b);
+  
+    if (aStr === bStr) {
+      return 0;
+    }
+  
+    return aStr < bStr ? -1 : 1;
+  }
+  
+  /**
+   * Compute minimum run length for TimSort
+   *
+   * @param {number} n - The size of the array to sort.
+   */
+  function minRunLength(n) {
+    let r = 0;
+  
+    while (n >= DEFAULT_MIN_MERGE) {
+      r |= (n & 1);
+      n >>= 1;
+    }
+  
+    return n + r;
+  }
+  
+  /**
+   * Counts the length of a monotonically ascending or strictly monotonically
+   * descending sequence (run) starting at array[lo] in the range [lo, hi). If
+   * the run is descending it is made ascending.
+   *
+   * @param {array} array - The array to reverse.
+   * @param {number} lo - First element in the range (inclusive).
+   * @param {number} hi - Last element in the range.
+   * @param {function} compare - Item comparison function.
+   * @return {number} - The length of the run.
+   */
+  function makeAscendingRun(array, lo, hi, compare) {
+    let runHi = lo + 1;
+  
+    if (runHi === hi) {
+      return 1;
+    }
+  
+    // Descending
+    if (compare(array[runHi++], array[lo]) < 0) {
+      while (runHi < hi && compare(array[runHi], array[runHi - 1]) < 0) {
+        runHi++;
+      }
+  
+      reverseRun(array, lo, runHi);
+      // Ascending
+    } else {
+      while (runHi < hi && compare(array[runHi], array[runHi - 1]) >= 0) {
+        runHi++;
+      }
+    }
+  
+    return runHi - lo;
+  }
+  
+  /**
+   * Reverse an array in the range [lo, hi).
+   *
+   * @param {array} array - The array to reverse.
+   * @param {number} lo - First element in the range (inclusive).
+   * @param {number} hi - Last element in the range.
+   */
+  function reverseRun(array, lo, hi) {
+    hi--;
+  
+    while (lo < hi) {
+      let t = array[lo];
+      array[lo++] = array[hi];
+      array[hi--] = t;
+    }
+  }
+  
+  /**
+   * Perform the binary sort of the array in the range [lo, hi) where start is
+   * the first element possibly out of order.
+   *
+   * @param {array} array - The array to sort.
+   * @param {number} lo - First element in the range (inclusive).
+   * @param {number} hi - Last element in the range.
+   * @param {number} start - First element possibly out of order.
+   * @param {function} compare - Item comparison function.
+   */
+  function binaryInsertionSort(array, lo, hi, start, compare) {
+    if (start === lo) {
+      start++;
+    }
+  
+    for (; start < hi; start++) {
+      let pivot = array[start];
+  
+      // Ranges of the array where pivot belongs
+      let left = lo;
+      let right = start;
+  
+      /*
+       *   pivot >= array[i] for i in [lo, left)
+       *   pivot <  array[i] for i in  in [right, start)
+       */
+      while (left < right) {
+        let mid = (left + right) >>> 1;
+  
+        if (compare(pivot, array[mid]) < 0) {
+          right = mid;
+        } else {
+          left = mid + 1;
+        }
+      }
+  
+      /*
+       * Move elements right to make room for the pivot. If there are elements
+       * equal to pivot, left points to the first slot after them: this is also
+       * a reason for which TimSort is stable
+       */
+      let n = start - left;
+      // Switch is just an optimization for small arrays
+      switch (n) {
+        case 3:
+          array[left + 3] = array[left + 2];
+        /* falls through */
+        case 2:
+          array[left + 2] = array[left + 1];
+        /* falls through */
+        case 1:
+          array[left + 1] = array[left];
+          break;
+        default:
+          while (n > 0) {
+            array[left + n] = array[left + n - 1];
+            n--;
+          }
+      }
+  
+      array[left] = pivot;
+    }
+  }
+  
+  /**
+   * Find the position at which to insert a value in a sorted range. If the range
+   * contains elements equal to the value the leftmost element index is returned
+   * (for stability).
+   *
+   * @param {number} value - Value to insert.
+   * @param {array} array - The array in which to insert value.
+   * @param {number} start - First element in the range.
+   * @param {number} length - Length of the range.
+   * @param {number} hint - The index at which to begin the search.
+   * @param {function} compare - Item comparison function.
+   * @return {number} - The index where to insert value.
+   */
+  function gallopLeft(value, array, start, length, hint, compare) {
+    let lastOffset = 0;
+    let maxOffset = 0;
+    let offset = 1;
+  
+    if (compare(value, array[start + hint]) > 0) {
+      maxOffset = length - hint;
+  
+      while (offset < maxOffset && compare(value, array[start + hint + offset]) > 0) {
+        lastOffset = offset;
+        offset = (offset << 1) + 1;
+  
+        if (offset <= 0) {
+          offset = maxOffset;
+        }
+      }
+  
+      if (offset > maxOffset) {
+        offset = maxOffset;
+      }
+  
+      // Make offsets relative to start
+      lastOffset += hint;
+      offset += hint;
+  
+      // value <= array[start + hint]
+    } else {
+      maxOffset = hint + 1;
+      while (offset < maxOffset && compare(value, array[start + hint - offset]) <= 0) {
+        lastOffset = offset;
+        offset = (offset << 1) + 1;
+  
+        if (offset <= 0) {
+          offset = maxOffset;
+        }
+      }
+      if (offset > maxOffset) {
+        offset = maxOffset;
+      }
+  
+      // Make offsets relative to start
+      let tmp = lastOffset;
+      lastOffset = hint - offset;
+      offset = hint - tmp;
+    }
+  
+    /*
+     * Now array[start+lastOffset] < value <= array[start+offset], so value
+     * belongs somewhere in the range (start + lastOffset, start + offset]. Do a
+     * binary search, with invariant array[start + lastOffset - 1] < value <=
+     * array[start + offset].
+     */
+    lastOffset++;
+    while (lastOffset < offset) {
+      let m = lastOffset + ((offset - lastOffset) >>> 1);
+  
+      if (compare(value, array[start + m]) > 0) {
+        lastOffset = m + 1;
+  
+      } else {
+        offset = m;
+      }
+    }
+    return offset;
+  }
+  
+  /**
+   * Find the position at which to insert a value in a sorted range. If the range
+   * contains elements equal to the value the rightmost element index is returned
+   * (for stability).
+   *
+   * @param {number} value - Value to insert.
+   * @param {array} array - The array in which to insert value.
+   * @param {number} start - First element in the range.
+   * @param {number} length - Length of the range.
+   * @param {number} hint - The index at which to begin the search.
+   * @param {function} compare - Item comparison function.
+   * @return {number} - The index where to insert value.
+   */
+  function gallopRight(value, array, start, length, hint, compare) {
+    let lastOffset = 0;
+    let maxOffset = 0;
+    let offset = 1;
+  
+    if (compare(value, array[start + hint]) < 0) {
+      maxOffset = hint + 1;
+  
+      while (offset < maxOffset && compare(value, array[start + hint - offset]) < 0) {
+        lastOffset = offset;
+        offset = (offset << 1) + 1;
+  
+        if (offset <= 0) {
+          offset = maxOffset;
+        }
+      }
+  
+      if (offset > maxOffset) {
+        offset = maxOffset;
+      }
+  
+      // Make offsets relative to start
+      let tmp = lastOffset;
+      lastOffset = hint - offset;
+      offset = hint - tmp;
+  
+      // value >= array[start + hint]
+    } else {
+      maxOffset = length - hint;
+  
+      while (offset < maxOffset && compare(value, array[start + hint + offset]) >= 0) {
+        lastOffset = offset;
+        offset = (offset << 1) + 1;
+  
+        if (offset <= 0) {
+          offset = maxOffset;
+        }
+      }
+  
+      if (offset > maxOffset) {
+        offset = maxOffset;
+      }
+  
+      // Make offsets relative to start
+      lastOffset += hint;
+      offset += hint;
+    }
+  
+    /*
+     * Now array[start+lastOffset] < value <= array[start+offset], so value
+     * belongs somewhere in the range (start + lastOffset, start + offset]. Do a
+     * binary search, with invariant array[start + lastOffset - 1] < value <=
+     * array[start + offset].
+     */
+    lastOffset++;
+  
+    while (lastOffset < offset) {
+      let m = lastOffset + ((offset - lastOffset) >>> 1);
+  
+      if (compare(value, array[start + m]) < 0) {
+        offset = m;
+  
+      } else {
+        lastOffset = m + 1;
+      }
+    }
+  
+    return offset;
+  }
+  
+  class TimSort {
+  
+    constructor(array, compare) {
+      this.array = array;
+      this.compare = compare;
+      this.minGallop = DEFAULT_MIN_GALLOPING;
+      this.length = array.length;
+  
+      this.tmpStorageLength = DEFAULT_TMP_STORAGE_LENGTH;
+      if (this.length < 2 * DEFAULT_TMP_STORAGE_LENGTH) {
+        this.tmpStorageLength = this.length >>> 1;
+      }
+  
+      this.tmp = new Array(this.tmpStorageLength);
+  
+      this.stackLength =
+        (this.length < 120 ? 5 :
+          this.length < 1542 ? 10 :
+            this.length < 119151 ? 19 : 40);
+  
+      this.runStart = new Array(this.stackLength);
+      this.runLength = new Array(this.stackLength);
+      this.stackSize = 0;
+    }
+  
+    /**
+     * Push a new run on TimSort's stack.
+     *
+     * @param {number} runStart - Start index of the run in the original array.
+     * @param {number} runLength - Length of the run;
+     */
+    pushRun(runStart, runLength) {
+      this.runStart[this.stackSize] = runStart;
+      this.runLength[this.stackSize] = runLength;
+      this.stackSize += 1;
+    }
+  
+    /**
+     * Merge runs on TimSort's stack so that the following holds for all i:
+     * 1) runLength[i - 3] > runLength[i - 2] + runLength[i - 1]
+     * 2) runLength[i - 2] > runLength[i - 1]
+     */
+    mergeRuns() {
+      while (this.stackSize > 1) {
+        let n = this.stackSize - 2;
+  
+        if ((n >= 1 &&
+          this.runLength[n - 1] <= this.runLength[n] + this.runLength[n + 1]) ||
+          (n >= 2 &&
+          this.runLength[n - 2] <= this.runLength[n] + this.runLength[n - 1])) {
+  
+          if (this.runLength[n - 1] < this.runLength[n + 1]) {
+            n--;
+          }
+  
+        } else if (this.runLength[n] > this.runLength[n + 1]) {
+          break;
+        }
+        this.mergeAt(n);
+      }
+    }
+  
+    /**
+     * Merge all runs on TimSort's stack until only one remains.
+     */
+    forceMergeRuns() {
+      while (this.stackSize > 1) {
+        let n = this.stackSize - 2;
+  
+        if (n > 0 && this.runLength[n - 1] < this.runLength[n + 1]) {
+          n--;
+        }
+  
+        this.mergeAt(n);
+      }
+    }
+  
+    /**
+     * Merge the runs on the stack at positions i and i+1. Must be always be called
+     * with i=stackSize-2 or i=stackSize-3 (that is, we merge on top of the stack).
+     *
+     * @param {number} i - Index of the run to merge in TimSort's stack.
+     */
+    mergeAt(i) {
+      let compare = this.compare;
+      let array = this.array;
+  
+      let start1 = this.runStart[i];
+      let length1 = this.runLength[i];
+      let start2 = this.runStart[i + 1];
+      let length2 = this.runLength[i + 1];
+  
+      this.runLength[i] = length1 + length2;
+  
+      if (i === this.stackSize - 3) {
+        this.runStart[i + 1] = this.runStart[i + 2];
+        this.runLength[i + 1] = this.runLength[i + 2];
+      }
+  
+      this.stackSize--;
+  
+      /*
+       * Find where the first element in the second run goes in run1. Previous
+       * elements in run1 are already in place
+       */
+      let k = gallopRight(array[start2], array, start1, length1, 0, compare);
+      start1 += k;
+      length1 -= k;
+  
+      if (length1 === 0) {
+        return;
+      }
+  
+      /*
+       * Find where the last element in the first run goes in run2. Next elements
+       * in run2 are already in place
+       */
+      length2 = gallopLeft(array[start1 + length1 - 1], array, start2, length2, length2 - 1, compare);
+  
+      if (length2 === 0) {
+        return;
+      }
+  
+      /*
+       * Merge remaining runs. A tmp array with length = min(length1, length2) is
+       * used
+       */
+      if (length1 <= length2) {
+        this.mergeLow(start1, length1, start2, length2);
+  
+      } else {
+        this.mergeHigh(start1, length1, start2, length2);
+      }
+    }
+  
+    /**
+     * Merge two adjacent runs in a stable way. The runs must be such that the
+     * first element of run1 is bigger than the first element in run2 and the
+     * last element of run1 is greater than all the elements in run2.
+     * The method should be called when run1.length <= run2.length as it uses
+     * TimSort temporary array to store run1. Use mergeHigh if run1.length >
+     * run2.length.
+     *
+     * @param {number} start1 - First element in run1.
+     * @param {number} length1 - Length of run1.
+     * @param {number} start2 - First element in run2.
+     * @param {number} length2 - Length of run2.
+     */
+    mergeLow(start1, length1, start2, length2) {
+  
+      let compare = this.compare;
+      let array = this.array;
+      let tmp = this.tmp;
+      let i = 0;
+  
+      for (i = 0; i < length1; i++) {
+        tmp[i] = array[start1 + i];
+      }
+  
+      let cursor1 = 0;
+      let cursor2 = start2;
+      let dest = start1;
+  
+      array[dest++] = array[cursor2++];
+  
+      if (--length2 === 0) {
+        for (i = 0; i < length1; i++) {
+          array[dest + i] = tmp[cursor1 + i];
+        }
+        return;
+      }
+  
+      if (length1 === 1) {
+        for (i = 0; i < length2; i++) {
+          array[dest + i] = array[cursor2 + i];
+        }
+        array[dest + length2] = tmp[cursor1];
+        return;
+      }
+  
+      let minGallop = this.minGallop;
+  
+      while (true) {
+        let count1 = 0;
+        let count2 = 0;
+        let exit = false;
+  
+        do {
+          if (compare(array[cursor2], tmp[cursor1]) < 0) {
+            array[dest++] = array[cursor2++];
+            count2++;
+            count1 = 0;
+  
+            if (--length2 === 0) {
+              exit = true;
+              break;
+            }
+  
+          } else {
+            array[dest++] = tmp[cursor1++];
+            count1++;
+            count2 = 0;
+            if (--length1 === 1) {
+              exit = true;
+              break;
+            }
+          }
+        } while ((count1 | count2) < minGallop);
+  
+        if (exit) {
+          break;
+        }
+  
+        do {
+          count1 = gallopRight(array[cursor2], tmp, cursor1, length1, 0, compare);
+  
+          if (count1 !== 0) {
+            for (i = 0; i < count1; i++) {
+              array[dest + i] = tmp[cursor1 + i];
+            }
+  
+            dest += count1;
+            cursor1 += count1;
+            length1 -= count1;
+            if (length1 <= 1) {
+              exit = true;
+              break;
+            }
+          }
+  
+          array[dest++] = array[cursor2++];
+  
+          if (--length2 === 0) {
+            exit = true;
+            break;
+          }
+  
+          count2 = gallopLeft(tmp[cursor1], array, cursor2, length2, 0, compare);
+  
+          if (count2 !== 0) {
+            for (i = 0; i < count2; i++) {
+              array[dest + i] = array[cursor2 + i];
+            }
+  
+            dest += count2;
+            cursor2 += count2;
+            length2 -= count2;
+  
+            if (length2 === 0) {
+              exit = true;
+              break;
+            }
+          }
+          array[dest++] = tmp[cursor1++];
+  
+          if (--length1 === 1) {
+            exit = true;
+            break;
+          }
+  
+          minGallop--;
+  
+        } while (count1 >= DEFAULT_MIN_GALLOPING || count2 >= DEFAULT_MIN_GALLOPING);
+  
+        if (exit) {
+          break;
+        }
+  
+        if (minGallop < 0) {
+          minGallop = 0;
+        }
+  
+        minGallop += 2;
+      }
+  
+      this.minGallop = minGallop;
+  
+      if (minGallop < 1) {
+        this.minGallop = 1;
+      }
+  
+      if (length1 === 1) {
+        for (i = 0; i < length2; i++) {
+          array[dest + i] = array[cursor2 + i];
+        }
+        array[dest + length2] = tmp[cursor1];
+  
+      } else if (length1 === 0) {
+        throw new Error('mergeLow preconditions were not respected');
+  
+      } else {
+        for (i = 0; i < length1; i++) {
+          array[dest + i] = tmp[cursor1 + i];
+        }
+      }
+    }
+  
+    /**
+     * Merge two adjacent runs in a stable way. The runs must be such that the
+     * first element of run1 is bigger than the first element in run2 and the
+     * last element of run1 is greater than all the elements in run2.
+     * The method should be called when run1.length > run2.length as it uses
+     * TimSort temporary array to store run2. Use mergeLow if run1.length <=
+     * run2.length.
+     *
+     * @param {number} start1 - First element in run1.
+     * @param {number} length1 - Length of run1.
+     * @param {number} start2 - First element in run2.
+     * @param {number} length2 - Length of run2.
+     */
+    mergeHigh(start1, length1, start2, length2) {
+      let compare = this.compare;
+      let array = this.array;
+      let tmp = this.tmp;
+      let i = 0;
+  
+      for (i = 0; i < length2; i++) {
+        tmp[i] = array[start2 + i];
+      }
+  
+      let cursor1 = start1 + length1 - 1;
+      let cursor2 = length2 - 1;
+      let dest = start2 + length2 - 1;
+      let customCursor = 0;
+      let customDest = 0;
+  
+      array[dest--] = array[cursor1--];
+  
+      if (--length1 === 0) {
+        customCursor = dest - (length2 - 1);
+  
+        for (i = 0; i < length2; i++) {
+          array[customCursor + i] = tmp[i];
+        }
+  
+        return;
+      }
+  
+      if (length2 === 1) {
+        dest -= length1;
+        cursor1 -= length1;
+        customDest = dest + 1;
+        customCursor = cursor1 + 1;
+  
+        for (i = length1 - 1; i >= 0; i--) {
+          array[customDest + i] = array[customCursor + i];
+        }
+  
+        array[dest] = tmp[cursor2];
+        return;
+      }
+  
+      let minGallop = this.minGallop;
+  
+      while (true) {
+        let count1 = 0;
+        let count2 = 0;
+        let exit = false;
+  
+        do {
+          if (compare(tmp[cursor2], array[cursor1]) < 0) {
+            array[dest--] = array[cursor1--];
+            count1++;
+            count2 = 0;
+            if (--length1 === 0) {
+              exit = true;
+              break;
+            }
+  
+          } else {
+            array[dest--] = tmp[cursor2--];
+            count2++;
+            count1 = 0;
+            if (--length2 === 1) {
+              exit = true;
+              break;
+            }
+          }
+  
+        } while ((count1 | count2) < minGallop);
+  
+        if (exit) {
+          break;
+        }
+  
+        do {
+          count1 = length1 - gallopRight(tmp[cursor2], array, start1, length1, length1 - 1, compare);
+  
+          if (count1 !== 0) {
+            dest -= count1;
+            cursor1 -= count1;
+            length1 -= count1;
+            customDest = dest + 1;
+            customCursor = cursor1 + 1;
+  
+            for (i = count1 - 1; i >= 0; i--) {
+              array[customDest + i] = array[customCursor + i];
+            }
+  
+            if (length1 === 0) {
+              exit = true;
+              break;
+            }
+          }
+  
+          array[dest--] = tmp[cursor2--];
+  
+          if (--length2 === 1) {
+            exit = true;
+            break;
+          }
+  
+          count2 = length2 - gallopLeft(array[cursor1], tmp, 0, length2, length2 - 1, compare);
+  
+          if (count2 !== 0) {
+            dest -= count2;
+            cursor2 -= count2;
+            length2 -= count2;
+            customDest = dest + 1;
+            customCursor = cursor2 + 1;
+  
+            for (i = 0; i < count2; i++) {
+              array[customDest + i] = tmp[customCursor + i];
+            }
+  
+            if (length2 <= 1) {
+              exit = true;
+              break;
+            }
+          }
+  
+          array[dest--] = array[cursor1--];
+  
+          if (--length1 === 0) {
+            exit = true;
+            break;
+          }
+  
+          minGallop--;
+  
+        } while (count1 >= DEFAULT_MIN_GALLOPING || count2 >= DEFAULT_MIN_GALLOPING);
+  
+        if (exit) {
+          break;
+        }
+  
+        if (minGallop < 0) {
+          minGallop = 0;
+        }
+  
+        minGallop += 2;
+      }
+  
+      this.minGallop = minGallop;
+  
+      if (minGallop < 1) {
+        this.minGallop = 1;
+      }
+  
+      if (length2 === 1) {
+        dest -= length1;
+        cursor1 -= length1;
+        customDest = dest + 1;
+        customCursor = cursor1 + 1;
+  
+        for (i = length1 - 1; i >= 0; i--) {
+          array[customDest + i] = array[customCursor + i];
+        }
+  
+        array[dest] = tmp[cursor2];
+  
+      } else if (length2 === 0) {
+        throw new Error('mergeHigh preconditions were not respected');
+  
+      } else {
+        customCursor = dest - (length2 - 1);
+        for (i = 0; i < length2; i++) {
+          array[customCursor + i] = tmp[i];
+        }
       }
     }
   }
   
-  function _compare(a, b) {
-    return a - b;
-  }
-  
   /**
-   * _swap the places of two elements
+   * Sort an array in the range [lo, hi) using TimSort.
    *
-   * @private
-   * @param {array} array The array which contains the elements
-   * @param {number} i The index of the first element
-   * @param {number} j The index of the second element
-   * @returns {array} array The array with swaped elements
+   * @param {array} array - The array to sort.
+   * @param {number} lo - First element in the range (inclusive).
+   * @param {number} hi - Last element in the range.
+   * @param {function=} compare - Item comparison function. Default is alphabetical.
    */
-  function _swap(array, i, j) {
-    let temp = array[i];
-    array[i] = array[j];
-    array[j] = temp;
+  var sort = function (array, lo, hi, compare) {
+    if (!Array.isArray(array)) {
+      throw new TypeError('Can only sort arrays');
+    }
   
-    return array;
-  }
+    /*
+     * Handle the case where a comparison function is not provided. We do
+     * lexicographic sorting
+     */
   
-  /**
-   * Partitions given subarray using Lomuto's partitioning algorithm.
-   *
-   * @private
-   * @param {array} array Input array
-   * @param {number} left The start of the subarray
-   * @param {number} right The end of the subarray
-   */
-  function _partition(array, left, right, cmp) {
-    let cmpVal = array[right - 1];
-    let minEnd = left;
-    let maxEnd;
+    if (lo === undefined) {
+      lo = 0;
+    }
   
-    for (maxEnd = left; maxEnd < right - 1; maxEnd += 1) {
-      if (cmp(array[maxEnd], cmpVal) < 0) {
-        _swap(array, maxEnd, minEnd);
-        minEnd += 1;
+    if (hi === undefined) {
+      hi = array.length;
+    }
+  
+    if (compare === undefined) {
+      compare = alphabeticalCompare;
+    }
+  
+    let remaining = hi - lo;
+  
+    // The array is already sorted
+    if (remaining < 2) {
+      return;
+    }
+  
+    let runLength = 0;
+    // On small arrays binary sort can be used directly
+    if (remaining < DEFAULT_MIN_MERGE) {
+      runLength = makeAscendingRun(array, lo, hi, compare);
+      binaryInsertionSort(array, lo, hi, lo + runLength, compare);
+      return;
+    }
+  
+    let ts = new TimSort(array, compare);
+  
+    let minRun = minRunLength(remaining);
+  
+    do {
+      runLength = makeAscendingRun(array, lo, hi, compare);
+      if (runLength < minRun) {
+        let force = remaining;
+        if (force > minRun) {
+          force = minRun;
+        }
+  
+        binaryInsertionSort(array, lo, lo + force, lo + runLength, compare);
+        runLength = force;
       }
-    }
-    _swap(array, minEnd, right - 1);
+      // Push new run and merge if necessary
+      ts.pushRun(lo, runLength);
+      ts.mergeRuns();
   
-    return minEnd;
-  }
+      // Go find next run
+      remaining -= runLength;
+      lo += runLength;
   
-  /**
-   * Sorts given array.
-   *
-   * @private
-   * @param {array} array Array which should be sorted
-   * @param {number} left The start of the subarray which should be handled
-   * @param {number} right The end of the subarray which should be handled
-   * @returns {array} array Sorted array
-   */
-  function _quickSort(array, left, right, cmp) {
-    if (left < right) {
-      let p = _partition(array, left, right, cmp);
-      _quickSort(array, left, p, cmp);
-      _quickSort(array, p + 1, right, cmp);
-    }
+    } while (remaining !== 0);
   
-    return array;
-  }
-  
-  /**
-   * Calls the _quickSort function with it's initial values.
-   *
-   * @public
-   * @param {array} array The input array which should be sorted
-   * @param {Number} from
-   * @param {Number} to
-   * @param {Function} cmp
-   * @returns {array} array Sorted array
-   */
-  var quickSort = function (array, from, to, cmp) {
-    if (from === undefined) {
-      from = 0;
-    }
-  
-    if (to === undefined) {
-      to = array.length;
-    }
-  
-    if (cmp === undefined) {
-      cmp = _compare;
-    }
-  
-    return _quickSort(array, from, to, cmp);
+    // Force merging of remaining runs
+    ts.forceMergeRuns();
   };
   
   class FixedArray {
@@ -10751,7 +12135,7 @@ module.exports = (function () {
     }
   
     sort(cmp) {
-      return quickSort(this._data, 0, this._count, cmp);
+      return sort(this._data, 0, this._count, cmp);
     }
   }
   
@@ -10801,45 +12185,6 @@ module.exports = (function () {
     }
   }
   
-  class FramePool {
-    constructor(fn, size) {
-      this._fn = fn;
-      this._count = 0;
-      this._data = new Array(size);
-  
-      for (let i = 0; i < size; ++i) {
-        this._data[i] = fn();
-      }
-    }
-  
-    _resize(size) {
-      if (size > this._data.length) {
-        for (let i = this._data.length; i < size; ++i) {
-          this._data[i] = this._fn();
-        }
-      }
-    }
-  
-    alloc() {
-      if (this._count >= this._data.length) {
-        this._resize(this._data.length * 2);
-      }
-      return this._data[this._count++];
-    }
-  
-    reset() {
-      this._count = 0;
-    }
-  
-    get length() {
-      return this._count;
-    }
-  
-    get data() {
-      return this._data;
-    }
-  }
-  
   class RecyclePool {
     constructor(fn, size) {
       this._fn = fn;
@@ -10876,10 +12221,7 @@ module.exports = (function () {
         this.resize(this._data.length * 2);
       }
   
-      let ret = this._data[this._count];
-      ++this._count;
-  
-      return ret;
+      return this._data[this._count++];
     }
   
     remove(idx) {
@@ -10895,7 +12237,7 @@ module.exports = (function () {
     }
   
     sort(cmp) {
-      return quickSort(this._data, 0, this._count, cmp);
+      return sort(this._data, 0, this._count, cmp);
     }
   }
   
@@ -10904,23 +12246,113 @@ module.exports = (function () {
     _bufferPools[i] = [];
   }
   
-  class Scene {
+  class Scene$1 {
     constructor() {
       this._lights = new FixedArray(16);
       this._models = new FixedArray(16);
+      this._cameras = new FixedArray(16);
+      this._debugCamera = null;
+  
+      // NOTE: we don't use pool for views (because it's less changed and it doesn't have poolID)
+      this._views = [];
     }
   
-    addModel(model) {
-      let idx = this._models.indexOf(model);
-      if (idx === -1) {
-        this._models.push(model);
+    _add(pool, item) {
+      if (item._poolID !== -1) {
+        return;
+      }
+  
+      pool.push(item);
+      item._poolID = pool.length - 1;
+    }
+  
+    _remove(pool, item) {
+      if (item._poolID === -1) {
+        return;
+      }
+  
+      pool.data[pool.length-1]._poolID = item._poolID;
+      pool.fastRemove(item._poolID);
+      item._poolID = -1;
+    }
+  
+    reset() {
+      for (let i = 0; i < this._models.length; ++i) {
+        let model = this._models.data[i];
+        model._viewID = -1;
       }
     }
   
+    setDebugCamera(cam) {
+      this._debugCamera = cam;
+    }
+  
+    // camera
+  
+    getCameraCount() {
+      return this._cameras.length;
+    }
+  
+    getCamera(idx) {
+      return this._cameras.data[idx];
+    }
+  
+    addCamera(camera) {
+      this._add(this._cameras, camera);
+    }
+  
+    removeCamera(camera) {
+      this._remove(this._cameras, camera);
+    }
+  
+    // model
+  
+    getModelCount() {
+      return this._models.length;
+    }
+  
+    getModel(idx) {
+      return this._models.data[idx];
+    }
+  
+    addModel(model) {
+      this._add(this._models, model);
+    }
+  
     removeModel(model) {
-      let idx = this._models.indexOf(model);
+      this._remove(this._models, model);
+    }
+  
+    // light
+  
+    getLightCount() {
+      return this._lights.length;
+    }
+  
+    getLight(idx) {
+      return this._lights.data[idx];
+    }
+  
+    addLight(light) {
+      this._add(this._lights, light);
+    }
+  
+    removeLight(light) {
+      this._remove(this._lights, light);
+    }
+  
+    // view
+  
+    addView(view) {
+      if (this._views.indexOf(view) === -1) {
+        this._views.push(view);
+      }
+    }
+  
+    removeView(view) {
+      let idx = this._views.indexOf(view);
       if (idx !== -1) {
-        this._models.fastRemove(idx);
+        this._views.splice(idx, 1);
       }
     }
   }
@@ -11559,6 +12991,8 @@ module.exports = (function () {
     },
   ];
   
+  let _shdID = 0;
+  
   class ProgramLib {
     /**
      * @param {gfx.Device} device
@@ -11605,6 +13039,8 @@ module.exports = (function () {
         return;
       }
   
+      let id = ++_shdID;
+  
       // calculate option mask offset
       let offset = 0;
       for (let i = 0; i < options.length; ++i) {
@@ -11642,6 +13078,7 @@ module.exports = (function () {
   
       // store it
       this._templates[name] = {
+        id,
         name,
         vert,
         frag,
@@ -11654,8 +13091,8 @@ module.exports = (function () {
      * @param {Object} options
      */
     getKey(name, options) {
-      let key = 0;
       let tmpl = this._templates[name];
+      let key = 0;
       for (let i = 0; i < tmpl.options.length; ++i) {
         let tmplOpts = tmpl.options[i];
         let value = options[tmplOpts.name];
@@ -11666,7 +13103,7 @@ module.exports = (function () {
         key |= tmplOpts._map(value);
       }
   
-      return key;
+      return key << 8 | tmpl.id;
     }
   
     /**
@@ -11696,53 +13133,53 @@ module.exports = (function () {
     }
   }
   
-  let _m3_tmp = mat3.create();
-  let _m4_tmp = mat4.create();
+  let _m3_tmp$1 = mat3.create();
+  let _m4_tmp$2 = mat4.create();
   
-  let _stageInfos = new FramePool(() => {
+  let _stageInfos = new RecyclePool(() => {
     return {
       stage: null,
       items: null,
     };
   }, 8);
   
-  let _float2_pool = new FramePool(() => {
+  let _float2_pool = new RecyclePool(() => {
     return new Float32Array(2);
   }, 8);
   
-  let _float3_pool = new FramePool(() => {
+  let _float3_pool = new RecyclePool(() => {
     return new Float32Array(3);
   }, 8);
   
-  let _float4_pool = new FramePool(() => {
+  let _float4_pool = new RecyclePool(() => {
     return new Float32Array(4);
   }, 8);
   
-  let _float9_pool = new FramePool(() => {
+  let _float9_pool = new RecyclePool(() => {
     return new Float32Array(9);
   }, 8);
   
-  let _float16_pool = new FramePool(() => {
+  let _float16_pool = new RecyclePool(() => {
     return new Float32Array(16);
   }, 8);
   
-  let _float64_pool = new FramePool(() => {
+  let _float64_pool = new RecyclePool(() => {
     return new Float32Array(64);
   }, 8);
   
-  let _int2_pool = new FramePool(() => {
+  let _int2_pool = new RecyclePool(() => {
     return new Int32Array(2);
   }, 8);
   
-  let _int3_pool = new FramePool(() => {
+  let _int3_pool = new RecyclePool(() => {
     return new Int32Array(3);
   }, 8);
   
-  let _int4_pool = new FramePool(() => {
+  let _int4_pool = new RecyclePool(() => {
     return new Int32Array(4);
   }, 8);
   
-  let _int64_pool = new FramePool(() => {
+  let _int64_pool = new RecyclePool(() => {
     return new Int32Array(64);
   }, 8);
   
@@ -11752,15 +13189,15 @@ module.exports = (function () {
     },
   
     [enums.PARAM_INT2]: function (value) {
-      return vec2.array(_int2_pool.alloc(), value);
+      return vec2.array(_int2_pool.add(), value);
     },
   
     [enums.PARAM_INT3]: function (value) {
-      return vec3.array(_int3_pool.alloc(), value);
+      return vec3.array(_int3_pool.add(), value);
     },
   
     [enums.PARAM_INT4]: function (value) {
-      return vec4.array(_int4_pool.alloc(), value);
+      return vec4.array(_int4_pool.add(), value);
     },
   
     [enums.PARAM_FLOAT]: function (value) {
@@ -11768,35 +13205,35 @@ module.exports = (function () {
     },
   
     [enums.PARAM_FLOAT2]: function (value) {
-      return vec2.array(_float2_pool.alloc(), value);
+      return vec2.array(_float2_pool.add(), value);
     },
   
     [enums.PARAM_FLOAT3]: function (value) {
-      return vec3.array(_float3_pool.alloc(), value);
+      return vec3.array(_float3_pool.add(), value);
     },
   
     [enums.PARAM_FLOAT4]: function (value) {
-      return vec4.array(_float4_pool.alloc(), value);
+      return vec4.array(_float4_pool.add(), value);
     },
   
     [enums.PARAM_COLOR3]: function (value) {
-      return color3.array(_float3_pool.alloc(), value);
+      return color3.array(_float3_pool.add(), value);
     },
   
     [enums.PARAM_COLOR4]: function (value) {
-      return color4.array(_float4_pool.alloc(), value);
+      return color4.array(_float4_pool.add(), value);
     },
   
     [enums.PARAM_MAT2]: function (value) {
-      return mat2.array(_float4_pool.alloc(), value);
+      return mat2.array(_float4_pool.add(), value);
     },
   
     [enums.PARAM_MAT3]: function (value) {
-      return mat3.array(_float9_pool.alloc(), value);
+      return mat3.array(_float9_pool.add(), value);
     },
   
     [enums.PARAM_MAT4]: function (value) {
-      return mat4.array(_float16_pool.alloc(), value);
+      return mat4.array(_float16_pool.add(), value);
     },
   
     // [enums.PARAM_TEXTURE_2D]: function (value) {
@@ -11809,7 +13246,7 @@ module.exports = (function () {
   let _type2uniformArrayValue = {
     [enums.PARAM_INT]: {
       func (values) {
-        let result = _int64_pool.alloc();
+        let result = _int64_pool.add();
         for (let i = 0; i < values.length; ++i) {
           result[i] = values[i];
         }
@@ -11820,7 +13257,7 @@ module.exports = (function () {
   
     [enums.PARAM_INT2]: {
       func (values) {
-        let result = _int64_pool.alloc();
+        let result = _int64_pool.add();
         for (let i = 0; i < values.length; ++i) {
           result[2 * i] = values[i].x;
           result[2 * i + 1] = values[i].y;
@@ -11837,7 +13274,7 @@ module.exports = (function () {
   
     [enums.PARAM_INT4]: {
       func (values) {
-        let result = _int64_pool.alloc();
+        let result = _int64_pool.add();
         for (let i = 0; i < values.length; ++i) {
           let v = values[i];
           result[4 * i] = v.x;
@@ -11852,7 +13289,7 @@ module.exports = (function () {
   
     [enums.PARAM_FLOAT]: {
       func (values) {
-        let result = _float64_pool.alloc();
+        let result = _float64_pool.add();
         for (let i = 0; i < values.length; ++i) {
           result[i] = values[i];
         }
@@ -11863,7 +13300,7 @@ module.exports = (function () {
   
     [enums.PARAM_FLOAT2]: {
       func (values) {
-        let result = _float64_pool.alloc();
+        let result = _float64_pool.add();
         for (let i = 0; i < values.length; ++i) {
           result[2 * i] = values[i].x;
           result[2 * i + 1] = values[i].y;
@@ -11880,7 +13317,7 @@ module.exports = (function () {
   
     [enums.PARAM_FLOAT4]: {
       func (values) {
-        let result = _float64_pool.alloc();
+        let result = _float64_pool.add();
         for (let i = 0; i < values.length; ++i) {
           let v = values[i];
           result[4 * i] = v.x;
@@ -11900,7 +13337,7 @@ module.exports = (function () {
   
     [enums.PARAM_COLOR4]: {
       func (values) {
-        let result = _float64_pool.alloc();
+        let result = _float64_pool.add();
         for (let i = 0; i < values.length; ++i) {
           let v = values[i];
           result[4 * i] = v.r;
@@ -11915,7 +13352,7 @@ module.exports = (function () {
   
     [enums.PARAM_MAT2]: {
       func (values) {
-        let result = _float64_pool.alloc();
+        let result = _float64_pool.add();
         for (let i = 0; i < values.length; ++i) {
           let v = values[i];
           result[4 * i] = v.m00;
@@ -11936,7 +13373,7 @@ module.exports = (function () {
   
     [enums.PARAM_MAT4]: {
       func (values) {
-        let result = _float64_pool.alloc();
+        let result = _float64_pool.add();
         for (let i = 0; i < values.length; ++i) {
           let v = values[i];
           result[16 * i] = v.m00;
@@ -12000,87 +13437,129 @@ module.exports = (function () {
       };
       this._stage2fn = {};
   
-      this._drawItemsPools = new FramePool(() => {
-        return new RecyclePool(() => {
-          return {
-            model: null,
-            node: null,
-            mesh: null,
-            effect: null,
-          };
-        }, 100);
-      }, 16);
+      this._viewPools = new RecyclePool(() => {
+        return new View();
+      }, 8);
   
-      this._stageItemsPools = new FramePool(() => {
+      this._drawItemsPools = new RecyclePool(() => {
+        return {
+          model: null,
+          node: null,
+          ia: null,
+          effect: null,
+          options: null,
+        };
+      }, 100);
+  
+      this._stageItemsPools = new RecyclePool(() => {
         return new RecyclePool(() => {
           return {
             model: null,
             node: null,
-            mesh: null,
+            ia: null,
             effect: null,
+            options: null,
             technique: null,
-            zdist: -1,
+            sortKey: -1,
           };
         }, 100);
       }, 16);
+    }
+  
+    _registerStage(name, fn) {
+      this._stage2fn[name] = fn;
     }
   
     _reset() {
-      this._drawItemsPools.reset();
+      this._viewPools.reset();
       this._stageItemsPools.reset();
     }
   
-    _render(camera, scene, stages) {
+    _requestView() {
+      return this._viewPools.add();
+    }
+  
+    _render(view, scene) {
       const device = this._device;
   
-      // TODO: use camera's clearFalgs
-      device.setViewport(0, 0, camera._rect.w, camera._rect.h);
-      device.clear({
-        color: [0.3, 0.3, 0.3, 1],
-        depth: 1
-      });
+      // setup viewport
+      device.setViewport(
+        view._rect.x,
+        view._rect.y,
+        view._rect.w,
+        view._rect.h
+      );
+  
+      // setup clear
+      let clearOpts = {};
+      if (view._clearFlags & enums.CLEAR_COLOR) {
+        clearOpts.color = [
+          view._color.r,
+          view._color.g,
+          view._color.b,
+          view._color.a
+        ];
+      }
+      if (view._clearFlags & enums.CLEAR_DEPTH) {
+        clearOpts.depth = view._depth;
+      }
+      if (view._clearFlags & enums.CLEAR_STENCIL) {
+        clearOpts.stencil = view._stencil;
+      }
+      device.clear(clearOpts);
   
       // get all draw items
-      let allDrawItems = this._drawItemsPools.alloc();
-      allDrawItems.reset();
+      this._drawItemsPools.reset();
   
       for (let i = 0; i < scene._models.length; ++i) {
         let model = scene._models.data[i];
   
-        for (let m = 0; m < model.meshCount; ++m) {
-          let drawItem = allDrawItems.add();
-          model.getDrawItem(drawItem, m);
+        // TODO: HACK: filter model by view
+        if (view._cullingByID) {
+          if (model._viewID !== view._id) {
+            continue;
+          }
+        } else {
+          if (model._viewID !== -1) {
+            continue;
+          }
+        }
+  
+        for (let m = 0; m < model.drawItemCount; ++m) {
+          let drawItem = this._drawItemsPools.add();
+          model.extractDrawItem(drawItem, m);
         }
       }
   
       // TODO: update frustum
       // TODO: visbility test
-      // frustum.update(camera._viewProj);
+      // frustum.update(view._viewProj);
   
       // dispatch draw items to different stage
       _stageInfos.reset();
   
-      for (let i = 0; i < stages.length; ++i) {
-        let stage = stages[i];
-        let stageItems = this._stageItemsPools.alloc();
+      for (let i = 0; i < view._stages.length; ++i) {
+        let stage = view._stages[i];
+        let stageItems = this._stageItemsPools.add();
         stageItems.reset();
   
-        for (let j = 0; j < allDrawItems.length; ++j) {
-          let drawItem = allDrawItems.data[j];
+        for (let j = 0; j < this._drawItemsPools.length; ++j) {
+          let drawItem = this._drawItemsPools.data[j];
           let tech = drawItem.effect.getTechnique(stage);
   
           if (tech) {
             let stageItem = stageItems.add();
             stageItem.model = drawItem.model;
             stageItem.node = drawItem.node;
-            stageItem.mesh = drawItem.mesh;
+            stageItem.ia = drawItem.ia;
             stageItem.effect = drawItem.effect;
+            stageItem.options = drawItem.options;
             stageItem.technique = tech;
-            stageItem.zdist = -1;
+            stageItem.sortKey = -1;
           }
         }
   
-        let stageInfo = _stageInfos.alloc();
+        let stageInfo = _stageInfos.add();
         stageInfo.stage = stage;
         stageInfo.items = stageItems;
       }
@@ -12090,17 +13569,14 @@ module.exports = (function () {
         let info = _stageInfos.data[i];
         let fn = this._stage2fn[info.stage];
   
-        fn(camera, info.items);
+        fn(view, info.items);
       }
     }
   
     _draw(item) {
       const device = this._device;
       const programLib = this._programLib;
-      const node = item.node;
-      const mesh = item.mesh;
-      const effect = item.effect;
-      const technique = item.technique;
+      const { node, ia, effect, technique, options } = item;
   
       // reset the pool
       // NOTE: we can use drawCounter optimize this
@@ -12119,11 +13595,11 @@ module.exports = (function () {
       // set common uniforms
       // TODO: try commit this depends on effect
       // {
-      node.getWorldMatrix(_m4_tmp);
-      device.setUniform('model', mat4.array(_float16_pool.alloc(), _m4_tmp));
+      node.getWorldMatrix(_m4_tmp$2);
+      device.setUniform('model', mat4.array(_float16_pool.add(), _m4_tmp$2));
   
-      mat3.transpose(_m3_tmp, mat3.invert(_m3_tmp, mat3.fromMat4(_m3_tmp, _m4_tmp)));
-      device.setUniform('normalMatrix', mat3.array(_float9_pool.alloc(), _m3_tmp));
+      mat3.transpose(_m3_tmp$1, mat3.invert(_m3_tmp$1, mat3.fromMat4(_m3_tmp$1, _m4_tmp$2)));
+      device.setUniform('normalMatrix', mat3.array(_float9_pool.add(), _m3_tmp$1));
       // }
   
       // set technique uniforms
@@ -12154,7 +13630,7 @@ module.exports = (function () {
               console.error(`The length of texture array (${param.length}) is not corrent(expect ${prop.size}).`);
               continue;
             }
-            let slots = _int64_pool.alloc();
+            let slots = _int64_pool.add();
             for (let index = 0; index < param.length; ++index) {
               slots[index] = slot + index;
             }
@@ -12188,22 +13664,21 @@ module.exports = (function () {
       // for each pass
       for (let i = 0; i < technique._passes.length; ++i) {
         let pass = technique._passes[i];
-        let count = mesh._vertexBuffer.count;
+        let count = ia.getPrimitiveCount();
   
         // set vertex buffer
-        device.setVertexBuffer(0, mesh._vertexBuffer);
+        device.setVertexBuffer(0, ia._vertexBuffer);
   
         // set index buffer
-        if (mesh._indexBuffer) {
-          device.setIndexBuffer(mesh._indexBuffer);
-          count = mesh._indexBuffer.count;
+        if (ia._indexBuffer) {
+          device.setIndexBuffer(ia._indexBuffer);
         }
   
         // set primitive type
-        device.setPrimitiveType(mesh._primitiveType);
+        device.setPrimitiveType(ia._primitiveType);
   
         // set program
-        let program = programLib.getProgram(pass._programName, effect._options);
+        let program = programLib.getProgram(pass._programName, options);
         device.setProgram(program);
   
         // cull mode
@@ -12266,25 +13741,29 @@ module.exports = (function () {
         }
   
         // draw pass
-        device.draw(0, count);
+        device.draw(ia._start, count);
       }
     }
   }
   
   let renderer = {
-    // functions
-    createMesh,
+    // config
+    addStage: config.addStage,
+  
+    // utils
+    createIA,
   
     // classes
     Pass,
     Technique,
     Effect,
-    Mesh: Mesh$1,
+    InputAssembler: InputAssembler$1,
+    View,
   
     Light,
     Camera,
     Model,
-    Scene,
+    Scene: Scene$1,
   
     Base,
     ProgramLib,
@@ -12362,7 +13841,7 @@ module.exports = (function () {
     }
   }
   
-  let Mesh = renderer.Mesh;
+  let InputAssembler = renderer.InputAssembler;
   
   let _camPos = vec3.create();
   let _camFwd = vec3.create();
@@ -12382,6 +13861,9 @@ module.exports = (function () {
     buffer: null,
     offset: -1
   };
+  
+  // Add stage to renderer
+  renderer.addStage('transparent');
   
   function _createNewBuffer (bytes) {
     // Allocate buffer
@@ -12433,13 +13915,13 @@ module.exports = (function () {
           0
         );
       }, 16);
-      this._meshPool = new RecyclePool(function () {
-        return new Mesh();
+      this._iaPool = new RecyclePool(function () {
+        return new InputAssembler();
       }, 16);
   
       this._batchedItems = null;
       
-      this._stage2fn[renderer.STAGE_TRANSPARENT] = this._transparentStage.bind(this);
+      this._registerStage('transparent', this._transparentStage.bind(this));
     }
   
     reset () {
@@ -12449,25 +13931,26 @@ module.exports = (function () {
       }
       this._vbPool.reset();
       this._ibPool.reset();
-      this._meshPool.reset();
+      this._iaPool.reset();
       this._batchedItems = null;
       // Reset renderer internal datas
       this._reset();
     }
   
-    render (camera, scene) {
+    render (scene) {
       this.reset();
   
       // visit logic node tree to get zorders
       // scene.visit();
   
       // batched stage items, will be released every frame by _reset function
-      this._batchedItems = this._stageItemsPools.alloc();
+      this._batchedItems = this._stageItemsPools.add();
       this._batchedItems.reset();
   
-      this._render(camera, scene, [
-        renderer.STAGE_TRANSPARENT,
-      ]);
+      for (let i = 0; i < scene._cameras.length; ++i) {
+        let view = scene._cameras.data[i].getView();
+        this._render(view, scene);
+      }
     }
   
     batchItem (items, start, end, vbuf, ibuf) {
@@ -12478,8 +13961,9 @@ module.exports = (function () {
       stageItem.model = null;
       stageItem.node = item0.node;
       stageItem.effect = item0.effect;
+      stageItem.options = item0.options;
       stageItem.technique = item0.technique;
-      stageItem.key = -1;
+      stageItem.sortKey = -1;
   
       let numIndices = 0;
       let numVertices = 0;
@@ -12508,18 +13992,18 @@ module.exports = (function () {
       ib.update(0, ibuf);
       device._stats.ib += ib._bytes;
   
-      let mesh = this._meshPool.add();
-      mesh._vertexBuffer = vb;
-      mesh._indexBuffer = ib;
-      stageItem.mesh = mesh;
+      let ia = this._iaPool.add();
+      ia._vertexBuffer = vb;
+      ia._indexBuffer = ib;
+      stageItem.ia = ia;
       return stageItem;
     }
   
-    _transparentStage (camera, items) {
+    _transparentStage (view, items) {
       // update uniforms
-      this._device.setUniform('view', mat4.array(_a16_view, camera._view));
-      this._device.setUniform('proj', mat4.array(_a16_proj, camera._proj));
-      this._device.setUniform('viewProj', mat4.array(_a16_viewProj, camera._viewProj));
+      this._device.setUniform('view', mat4.array(_a16_view, view._matView));
+      this._device.setUniform('proj', mat4.array(_a16_proj, view._matProj));
+      this._device.setUniform('viewProj', mat4.array(_a16_viewProj, view._matViewProj));
   
       // Culling and batch stage items
       let currEffect = null;
@@ -12666,22 +14150,25 @@ module.exports = (function () {
       this._opts = opts;
       this._stage2fn = {};
   
-      this._drawItemsPools = new FramePool(() => {
-        return new RecyclePool(() => {
-          return {
-            model: null,
-            node: null,
-          };
-        }, 100);
-      }, 16);
+      this._drawItemsPools = new RecyclePool(() => {
+        return {
+          model: null,
+          node: null,
+        };
+      }, 100);
+    }
+  
+    _registerStage(name, fn) {
+      this._stage2fn[name] = fn;
     }
   
     _reset() {
       this._drawItemsPools.reset();
     }
   
-    _render(camera, scene, stages) {
+    _render(view, scene) {
       const device = this._device;
+      let stage = view._stages[0];
   
       // reset transform to camera
       let ctx = device._ctx;
@@ -12697,12 +14184,12 @@ module.exports = (function () {
       for (let i = 0; i < scene._models.length; ++i) {
         let model = scene._models.data[i];
         let drawItem = allDrawItems.add();
-        model.getDrawItem(drawItem);
+        model.extractDrawItem(drawItem);
       }
   
-      // render stages
+      // render only the default stage
       let fn = this._stage2fn[stages[0]];
-      fn(camera, allDrawItems);
+      fn(view, allDrawItems);
     }
   
     _draw(item) {
@@ -12774,13 +14261,12 @@ module.exports = (function () {
   };
   
   const renderer$2 = canvas.renderer;
-  const STAGE_TRANSPARENT = renderer.STAGE_TRANSPARENT;
   
   class ForwardRenderer$2 extends renderer$2.Base {
     constructor (device, builtin) {
       super(device, builtin);
       
-      this._stage2fn[STAGE_TRANSPARENT] = this._transparentStage.bind(this);
+      this._registerStage('transparent', this._transparentStage.bind(this));
     }
   
     reset () {
@@ -12794,9 +14280,7 @@ module.exports = (function () {
       // visit logic node tree to get zorders
       // scene.visit();
   
-      this._render(camera, scene, [
-        STAGE_TRANSPARENT,
-      ]);
+      this._render(camera, scene);
     }
   
     _transparentStage (camera, items) {
@@ -12818,8 +14302,8 @@ module.exports = (function () {
   var templates = [
     {
       name: 'sprite',
-      vert: 'uniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying lowp vec4 v_fragmentColor;\n{{#useModel}}\nuniform mat4 model;\n{{/useModel}}\n{{#useTexture}}\nattribute vec2 a_uv0;\nvarying vec2 uv0;\n{{/useTexture}}\nvoid main () {\n  vec4 pos = vec4(a_position, 1);\n  pos = viewProj{{#useModel}} * model{{/useModel}} * pos;\n  {{#useTexture}}\n  uv0 = a_uv0;\n  {{/useTexture}}\n  gl_Position = pos;\n  v_fragmentColor = a_color;\n}',
-      frag: '{{#useTexture}}\nuniform sampler2D mainTexture;\nvarying vec2 uv0;\n{{/useTexture}}\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 o = v_fragmentColor;;\n  {{#useTexture}}\n  o *= texture2D(mainTexture, uv0);\n  {{/useTexture}}\n  gl_FragColor = o;\n}',
+      vert: 'uniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying lowp vec4 v_fragmentColor;\n{{#useModel}}\nuniform mat4 model;\n{{/useModel}}\n{{#useTexture}}\nattribute vec2 a_uv0;\nvarying vec2 uv0;\n{{/useTexture}}\nvoid main () {\n  vec4 pos = viewProj{{#useModel}} * model{{/useModel}} * vec4(a_position, 1);\n  v_fragmentColor = a_color;\n  \n  {{#useTexture}}\n  uv0 = a_uv0;\n  {{/useTexture}}\n  gl_Position = pos;\n}',
+      frag: '{{#useTexture}}\nuniform sampler2D texture;\nvarying vec2 uv0;\n{{/useTexture}}\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 o = v_fragmentColor;\n  {{#useTexture}}\n  o *= texture2D(texture, uv0);\n  {{/useTexture}}\n  gl_FragColor = o;\n}',
       options: [
         { name: 'useTexture', },
         { name: 'useModel', },
@@ -12832,27 +14316,6 @@ module.exports = (function () {
       templates
   };
   
-  class Scene$1 {
-    constructor() {
-      this._lights = new FixedArray(16);
-      this._models = new FixedArray(16);
-    }
-  
-    addModel(model) {
-      let idx = this._models.indexOf(model);
-      if (idx === -1) {
-        this._models.push(model);
-      }
-    }
-  
-    removeModel(model) {
-      let idx = this._models.indexOf(model);
-      if (idx !== -1) {
-        this._models.fastRemove(idx);
-      }
-    }
-  }
-  
   function create3DContext (canvas, opt_attribs) {
     try {
       return canvas.getContext('webgl', opt_attribs) || canvas.getContext('experimental-webgl', opt_attribs);
@@ -12863,17 +14326,15 @@ module.exports = (function () {
   
   let supportWebGL = false;
   
-  if (CC_EDITOR && Editor.isMainProcess) {
+  // In editor main process
+  if (typeof window === 'undefined') {
     supportWebGL = true;
   }
   else {
     const sys = window.cc && window.cc.sys;
     let canvas = document.createElement("canvas");
     
-    if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
-      supportWebGL = true;
-    }
-    else if (window.WebGLRenderingContext) {
+    if (window.WebGLRenderingContext) {
       // if (create3DContext(canvas)) {
         supportWebGL = true;
       // }
@@ -12925,8 +14386,17 @@ module.exports = (function () {
   
   class Camera$1 {
     constructor(viewport, node) {
+      this.view = null;
+  
       this._node = null;
+      this._poolID = -1;
       this._projection = Camera$1.PROJECTION.PERSPECTIVE;
+  
+      // clear options
+      this._color = color4.new(0, 0, 0, 1);
+      this._depth = 1;
+      this._stencil = 1;
+      this._clearFlags = gfx.CLEAR_COLOR | gfx.CLEAR_DEPTH;
   
       // projection properties
       this._near = 0.1;
@@ -12937,33 +14407,48 @@ module.exports = (function () {
       this._rect = {
         x: 0, y: 0, w: 1, h: 1
       };
-      this._scissor = {
-        x: 0, y: 0, w: 1, h: 1
-      };
-  
-      // clear options
-      this._color = color4.create();
-      // TODO: this._clearFlags
+      this._stages = [];
   
       // matrix
-      this._view = mat4.create();
-      this._proj = mat4.create();
-      this._viewProj = mat4.create();
+      this._matView = mat4.create();
+      this._matProj = mat4.create();
+      this._matViewProj = mat4.create();
+      this._matInvViewProj = mat4.create();
   
       this.setViewport(viewport);
       if (node) {
         this.setNode(node);
       }
     }
+    
+    setColor(r, g, b, a) {
+      color4.set(this._color, r, g, b, a);
+    }
+  
+    setDepth(depth) {
+      this._depth = depth;
+    }
+  
+    setStencil(stencil) {
+      this._stencil = stencil;
+    }
+  
+    setClearFlags(flags) {
+      this._clearFlags = flags;
+    }
+  
+    setStages(stages) {
+      this._stages = stages;
+    }
   
     setNode (node) {
       this._node = node;
       // view matrix
-      this._node.getWorldMatrix(this._view);
-      mat4.invert(this._view, this._view);
+      this._node.getWorldMatrix(this._matView);
+      mat4.invert(this._matView, this._matView);
   
       // view-projection
-      mat4.mul(this._viewProj, this._proj, this._view);
+      mat4.mul(this._matViewProj, this._matProj, this._matView);
     }
   
     setViewport (viewport) {
@@ -12985,22 +14470,27 @@ module.exports = (function () {
           let up = vec3.new(0.0, 1.0, 0.0);
           let lookup = mat4.create();
           mat4.lookAt(lookup, eye, center, up);
-          mat4.mul(this._proj, proj, lookup);
+          mat4.mul(this._matProj, proj, lookup);
         } else {
-          mat4.ortho(this._proj,
+          mat4.ortho(this._matProj,
             0, this._rect.w, 0, this._rect.h, this._near, this._far
           );
         }
       }
       else {
-        mat4.identity(this._proj);
-        this._proj.m12 = this._rect.x;
-        this._proj.m13 = this._rect.y + this._rect.h;
-        this._proj.m05 = -1;
+        mat4.identity(this._matProj);
+        this._matProj.m12 = this._rect.x;
+        this._matProj.m13 = this._rect.y + this._rect.h;
+        this._matProj.m05 = -1;
       }
       
       // view-projection
-      mat4.mul(this._viewProj, this._proj, this._view);
+      mat4.mul(this._matViewProj, this._matProj, this._matView);
+      mat4.invert(this._matInvViewProj, this._matViewProj);
+    }
+  
+    getView() {
+      return this;
     }
   }
   Camera$1.PROJECTION = {
@@ -13021,8 +14511,11 @@ module.exports = (function () {
   class SpriteModel {
     constructor () {
       this._node = null;
+      this._viewID = -1;
+      this._poolID = -1;
       this._frame = null;
       this._effect = null;
+      this._option = null;
       this._texture = null;
       this._trimmed = true;
       this._uv = {
@@ -13036,7 +14529,7 @@ module.exports = (function () {
     _updateUV () {
       let frame = this._frame;
       if (this._effect) {
-        let texture = this._effect.getValue('mainTexture');
+        let texture = this._effect.getValue('texture');
         let texw = texture._width,
             texh = texture._height;
         let rect = frame._rect;
@@ -13076,6 +14569,14 @@ module.exports = (function () {
   
     setEffect (effect) {
       this._effect = effect;
+      if (effect) {
+        let opt = Object.create(null);
+        effect.extractOptions(opt);
+        this._option = opt;
+      }
+      else {
+        this._option = null;
+      }
     }
     
     get spriteFrame () {
@@ -13096,7 +14597,7 @@ module.exports = (function () {
       this._updateUV();
     }
   
-    get meshCount () {
+    get drawItemCount () {
       return 1;
     }
   
@@ -13112,15 +14613,16 @@ module.exports = (function () {
       return 6;
     }
   
-    getDrawItem (out, index) {
+    extractDrawItem (out, index) {
       out.model = this;
       out.node = this._node;
-      out.mesh = null;
+      out.ia = null;
       out.effect = this._effect;
+      out.options = out.effect.extractOptions(this._option);
     }
   
     fillVertexBuffer (index, vbuf, uintbuf) {
-      let texture = this._effect.getValue('mainTexture');
+      let texture = this._effect.getValue('texture');
       if (texture !== this._texture) {
         this._updateUV();
         this._texture = texture;
@@ -13152,10 +14654,17 @@ module.exports = (function () {
         width = frame._originalSize.width;
         height = frame._originalSize.height;
       }
-      let top = height / 2,
-          right = width / 2,
-          bottom = -top,
-          left = -right;
+          
+      let appx = node._anchorPoint.x*width, appy = node._anchorPoint.y*height;
+      if (appx || appy) {
+          tx -= a * appx + c * appy;
+          ty -= b * appx + d * appy;
+      }
+  
+      let top = height,
+          right = width,
+          bottom = 0,
+          left = 0;
       let z = node.lpos === undefined ? node.z : node.lpos.z;
       // bl
       vbuf[off++] = left * a + bottom * c + tx;
@@ -13201,7 +14710,7 @@ module.exports = (function () {
   
     // Canvas draw
     draw (ctx) {
-      let texture = this._effect.getValue('mainTexture');
+      let texture = this._effect.getValue('texture');
       if (texture !== this._texture) {
         this._texture = texture;
       }
@@ -13269,243 +14778,261 @@ module.exports = (function () {
   var _pool$1;
   
   class SlicedModel {
-      constructor() {
-        this._node = null;
-        this._frame = null;
-        this._effect = null;
-        this._texture = null;
-        this._uv = {
-          u: [0, 0, 0, 0],
-          v: [0, 0, 0, 0]
-        };
-      }
-      
-      _updateUV () {
-        let frame = this._frame;
-        if (this._effect) {
-          let texture = this._effect.getValue('mainTexture');
-          let rect = frame._rect;
-          let atlasWidth = texture._width;
-          let atlasHeight = texture._height;
-  
-          // caculate texture coordinate
-          let leftWidth = frame.insetLeft;
-          let rightWidth = frame.insetRight;
-          let centerWidth = rect.width - leftWidth - rightWidth;
-          let topHeight = frame.insetTop;
-          let bottomHeight = frame.insetBottom;
-          let centerHeight = rect.height - topHeight - bottomHeight;
-  
-          // uv computation should take spritesheet into account.
-          let u = this._uv.u;
-          let v = this._uv.v;
-          if (frame._rotated) {
-            u[0] = (rect.x) / atlasWidth;
-            u[1] = (bottomHeight + rect.x) / atlasWidth;
-            u[2] = (bottomHeight + centerHeight + rect.x) / atlasWidth;
-            u[3] = (rect.x + rect.height) / atlasWidth;
-  
-            v[0] = (rect.y) / atlasHeight;
-            v[1] = (leftWidth + rect.y) / atlasHeight;
-            v[2] = (leftWidth + centerWidth + rect.y) / atlasHeight;
-            v[3] = (rect.y + rect.width) / atlasHeight;
-          }
-          else {
-            u[0] = (rect.x) / atlasWidth;
-            u[1] = (leftWidth + rect.x) / atlasWidth;
-            u[2] = (leftWidth + centerWidth + rect.x) / atlasWidth;
-            u[3] = (rect.x + rect.width) / atlasWidth;
-  
-            v[3] = (rect.y) / atlasHeight;
-            v[2] = (topHeight + rect.y) / atlasHeight;
-            v[1] = (topHeight + centerHeight + rect.y) / atlasHeight;
-            v[0] = (rect.y + rect.height) / atlasHeight;
-          }
-        }
-      }
+    constructor() {
+      this._node = null;
+      this._viewID = -1;
+      this._poolID = -1;
+      this._frame = null;
+      this._effect = null;
+      this._option = null;
+      this._texture = null;
+      this._uv = {
+        u: [0, 0, 0, 0],
+        v: [0, 0, 0, 0]
+      };
+    }
     
-      setNode(node) {
-        this._node = node;
-      }
-    
-      setEffect(effect) {
-        this._effect = effect;
-      }
-      
-      get spriteFrame () {
-        return this._frame;
-      }
-    
-      set spriteFrame (frame) {
-        this._frame = frame;
-        this._updateUV();
-      }
-    
-      get meshCount() {
-        return 1;
-      }
-    
-      get vertexFormat () {
-        return _vertexFormat;
-      }
-    
-      get vertexCount () {
-        return 36;
-      }
-    
-      get indexCount () {
-        return 54;
-      }
-    
-      getDrawItem(out, index) {
-        out.model = this;
-        out.node = this._node;
-        out.mesh = null;
-        out.effect = this._effect;
-      }
-      
-      _updateVertex (node) {
-        node.getWorldMatrix(_matrix$1);
-        let a = _matrix$1.m00,
-            b = _matrix$1.m01,
-            c = _matrix$1.m04,
-            d = _matrix$1.m05,
-            tx = _matrix$1.m12,
-            ty = _matrix$1.m13;
-  
-        let frame = this._frame;
+    _updateUV () {
+      let frame = this._frame;
+      if (this._effect) {
+        let texture = this._effect.getValue('texture');
         let rect = frame._rect;
+        let atlasWidth = texture._width;
+        let atlasHeight = texture._height;
+  
+        // caculate texture coordinate
         let leftWidth = frame.insetLeft;
         let rightWidth = frame.insetRight;
+        let centerWidth = rect.width - leftWidth - rightWidth;
         let topHeight = frame.insetTop;
         let bottomHeight = frame.insetBottom;
+        let centerHeight = rect.height - topHeight - bottomHeight;
   
-        let sizableWidth = node.width - leftWidth - rightWidth;
-        let sizableHeight = node.height - topHeight - bottomHeight;
-        let xScale = node.width / (leftWidth + rightWidth);
-        let yScale = node.height / (topHeight + bottomHeight);
-        xScale = (isNaN(xScale) || xScale > 1) ? 1 : xScale;
-        yScale = (isNaN(yScale) || yScale > 1) ? 1 : yScale;
-        sizableWidth = sizableWidth < 0 ? 0 : sizableWidth;
-        sizableHeight = sizableHeight < 0 ? 0 : sizableHeight;
-        let x = _x;
-        let y = _y;
-        x[0] = 0;
-        x[1] = leftWidth * xScale;
-        x[2] = x[1] + sizableWidth;
-        x[3] = node.width;
-        y[0] = 0;
-        y[1] = bottomHeight * yScale;
-        y[2] = y[1] + sizableHeight;
-        y[3] = node.height;
-  
-        let vx = _vertex.x;
-        let vy = _vertex.y;
-        for (let row = 0; row < 4; row++) {
-          for (let col = 0; col < 4; col++) {
-            vx[row][col] = x[col] * a + y[row] * c + tx;
-            vy[row][col] = x[col] * b + y[row] * d + ty;
-          }
-        }
-      }
-    
-      fillVertexBuffer (index, vbuf, uintbuf) {
-        let texture = this._effect.getValue('mainTexture');
-        if (texture !== this._texture) {
-          this._updateUV();
-          this._texture = texture;
-        }
-    
-        let offset = index * _vertexFormat._bytes / 4;
-        let node = this._node;
-        let frame = this._frame;
-    
-        // for color
-        let color = ((255<<24) >>> 0) + (255<<16) + (255<<8) + 255;
-    
-        // Assign vertex data
-        this._updateVertex(node);
-        let x = _vertex.x;
-        let y = _vertex.y;
-        let z = node.lpos === undefined ? node.z : node.lpos.z;
+        // uv computation should take spritesheet into account.
         let u = this._uv.u;
         let v = this._uv.v;
-        for (let r = 0; r < 3; ++r) {
-          for (let c = 0; c < 3; ++c) {
-            // lb
-            vbuf[offset] = x[r][c];
-            vbuf[offset + 1] = y[r][c];
-            vbuf[offset + 2] = z;
-            uintbuf[offset + 3] = color;
-            vbuf[offset + 4] = u[c];
-            vbuf[offset + 5] = v[r];
-            offset += 6;
-            // rb
-            vbuf[offset] = x[r][c+1];
-            vbuf[offset + 1] = y[r][c+1];
-            vbuf[offset + 2] = z;
-            uintbuf[offset + 3] = color;
-            vbuf[offset + 4] = u[c+1];
-            vbuf[offset + 5] = v[r];
-            offset += 6;
-            // lt
-            vbuf[offset] = x[r+1][c];
-            vbuf[offset + 1] = y[r+1][c];
-            vbuf[offset + 2] = z;
-            uintbuf[offset + 3] = color;
-            vbuf[offset + 4] = u[c];
-            vbuf[offset + 5] = v[r+1];
-            offset += 6;
-            // rt
-            vbuf[offset] = x[r+1][c+1];
-            vbuf[offset + 1] = y[r+1][c+1];
-            vbuf[offset + 2] = z;
-            uintbuf[offset + 3] = color;
-            vbuf[offset + 4] = u[c+1];
-            vbuf[offset + 5] = v[r+1];
-            offset += 6;
-          }
-        }
-        return 36;
-      }
-    
-      fillIndexBuffer (offset, vertexId, ibuf) {
-        for (let r = 0; r < 3; ++r) {
-          for (let c = 0; c < 3; ++c) {
-            ibuf[offset++] = vertexId;
-            ibuf[offset++] = vertexId + 1;
-            ibuf[offset++] = vertexId + 2;
-            ibuf[offset++] = vertexId + 1;
-            ibuf[offset++] = vertexId + 3;
-            ibuf[offset++] = vertexId + 2;
-            vertexId += 4;
-          }
-        }
-        return 54;
-      }
+        if (frame._rotated) {
+          u[0] = (rect.x) / atlasWidth;
+          u[1] = (bottomHeight + rect.x) / atlasWidth;
+          u[2] = (bottomHeight + centerHeight + rect.x) / atlasWidth;
+          u[3] = (rect.x + rect.height) / atlasWidth;
   
-      draw () {
+          v[0] = (rect.y) / atlasHeight;
+          v[1] = (leftWidth + rect.y) / atlasHeight;
+          v[2] = (leftWidth + centerWidth + rect.y) / atlasHeight;
+          v[3] = (rect.y + rect.width) / atlasHeight;
+        }
+        else {
+          u[0] = (rect.x) / atlasWidth;
+          u[1] = (leftWidth + rect.x) / atlasWidth;
+          u[2] = (leftWidth + centerWidth + rect.x) / atlasWidth;
+          u[3] = (rect.x + rect.width) / atlasWidth;
   
-      }
-      
-      static alloc () {
-        return _pool$1.alloc();
-      }
-    
-      static free (model) {
-        if (model instanceof SlicedModel) {
-          model._node = null;
-          model._frame = null;
-          model._effect = null;
-          model._texture = null;
-          _pool$1.free(model);
+          v[3] = (rect.y) / atlasHeight;
+          v[2] = (topHeight + rect.y) / atlasHeight;
+          v[1] = (topHeight + centerHeight + rect.y) / atlasHeight;
+          v[0] = (rect.y + rect.height) / atlasHeight;
         }
       }
     }
+  
+    setNode(node) {
+      this._node = node;
+    }
+  
+    setEffect(effect) {
+      this._effect = effect;
+      if (effect) {
+        let opt = Object.create(null);
+        effect.extractOptions(opt);
+        this._option = opt;
+      }
+      else {
+        this._option = null;
+      }
+    }
     
-    _pool$1 = new Pool(() => {
-      return new SlicedModel();
-    }, 8);
+    get spriteFrame () {
+      return this._frame;
+    }
+  
+    set spriteFrame (frame) {
+      this._frame = frame;
+      this._updateUV();
+    }
+  
+    get drawItemCount() {
+      return 1;
+    }
+  
+    get vertexFormat () {
+      return _vertexFormat;
+    }
+  
+    get vertexCount () {
+      return 36;
+    }
+  
+    get indexCount () {
+      return 54;
+    }
+  
+    extractDrawItem(out, index) {
+      out.model = this;
+      out.node = this._node;
+      out.ia = null;
+      out.effect = this._effect;
+      out.options = out.effect.extractOptions(this._option);
+    }
+    
+    _updateVertex (node) {
+      node.getWorldMatrix(_matrix$1);
+      let a = _matrix$1.m00,
+          b = _matrix$1.m01,
+          c = _matrix$1.m04,
+          d = _matrix$1.m05,
+          tx = _matrix$1.m12,
+          ty = _matrix$1.m13;
+  
+      let appx = node._anchorPoint.x * node.width, appy = node._anchorPoint.y * node.height;
+      if (appx || appy) {
+          tx -= a * appx + c * appy;
+          ty -= b * appx + d * appy;
+      }
+  
+      let frame = this._frame;
+      let rect = frame._rect;
+      let leftWidth = frame.insetLeft;
+      let rightWidth = frame.insetRight;
+      let topHeight = frame.insetTop;
+      let bottomHeight = frame.insetBottom;
+  
+      let sizableWidth = node.width - leftWidth - rightWidth;
+      let sizableHeight = node.height - topHeight - bottomHeight;
+      let xScale = node.width / (leftWidth + rightWidth);
+      let yScale = node.height / (topHeight + bottomHeight);
+      xScale = (isNaN(xScale) || xScale > 1) ? 1 : xScale;
+      yScale = (isNaN(yScale) || yScale > 1) ? 1 : yScale;
+      sizableWidth = sizableWidth < 0 ? 0 : sizableWidth;
+      sizableHeight = sizableHeight < 0 ? 0 : sizableHeight;
+      let x = _x;
+      let y = _y;
+      x[0] = 0;
+      x[1] = leftWidth * xScale;
+      x[2] = x[1] + sizableWidth;
+      x[3] = node.width;
+      y[0] = 0;
+      y[1] = bottomHeight * yScale;
+      y[2] = y[1] + sizableHeight;
+      y[3] = node.height;
+  
+      let vx = _vertex.x;
+      let vy = _vertex.y;
+      for (let row = 0; row < 4; row++) {
+        for (let col = 0; col < 4; col++) {
+          vx[row][col] = x[col] * a + y[row] * c + tx;
+          vy[row][col] = x[col] * b + y[row] * d + ty;
+        }
+      }
+    }
+  
+    fillVertexBuffer (index, vbuf, uintbuf) {
+      let texture = this._effect.getValue('texture');
+      if (texture !== this._texture) {
+        this._updateUV();
+        this._texture = texture;
+      }
+  
+      let offset = index * _vertexFormat._bytes / 4;
+      let node = this._node;
+      let frame = this._frame;
+  
+      // for color
+      let color = ((255<<24) >>> 0) + (255<<16) + (255<<8) + 255;
+  
+      // Assign vertex data
+      this._updateVertex(node);
+      let x = _vertex.x;
+      let y = _vertex.y;
+      let z = node.lpos === undefined ? node.z : node.lpos.z;
+      let u = this._uv.u;
+      let v = this._uv.v;
+      for (let r = 0; r < 3; ++r) {
+        for (let c = 0; c < 3; ++c) {
+          // lb
+          vbuf[offset] = x[r][c];
+          vbuf[offset + 1] = y[r][c];
+          vbuf[offset + 2] = z;
+          uintbuf[offset + 3] = color;
+          vbuf[offset + 4] = u[c];
+          vbuf[offset + 5] = v[r];
+          offset += 6;
+          // rb
+          vbuf[offset] = x[r][c+1];
+          vbuf[offset + 1] = y[r][c+1];
+          vbuf[offset + 2] = z;
+          uintbuf[offset + 3] = color;
+          vbuf[offset + 4] = u[c+1];
+          vbuf[offset + 5] = v[r];
+          offset += 6;
+          // lt
+          vbuf[offset] = x[r+1][c];
+          vbuf[offset + 1] = y[r+1][c];
+          vbuf[offset + 2] = z;
+          uintbuf[offset + 3] = color;
+          vbuf[offset + 4] = u[c];
+          vbuf[offset + 5] = v[r+1];
+          offset += 6;
+          // rt
+          vbuf[offset] = x[r+1][c+1];
+          vbuf[offset + 1] = y[r+1][c+1];
+          vbuf[offset + 2] = z;
+          uintbuf[offset + 3] = color;
+          vbuf[offset + 4] = u[c+1];
+          vbuf[offset + 5] = v[r+1];
+          offset += 6;
+        }
+      }
+      return 36;
+    }
+  
+    fillIndexBuffer (offset, vertexId, ibuf) {
+      for (let r = 0; r < 3; ++r) {
+        for (let c = 0; c < 3; ++c) {
+          ibuf[offset++] = vertexId;
+          ibuf[offset++] = vertexId + 1;
+          ibuf[offset++] = vertexId + 2;
+          ibuf[offset++] = vertexId + 1;
+          ibuf[offset++] = vertexId + 3;
+          ibuf[offset++] = vertexId + 2;
+          vertexId += 4;
+        }
+      }
+      return 54;
+    }
+  
+    draw () {
+  
+    }
+    
+    static alloc () {
+      return _pool$1.alloc();
+    }
+  
+    static free (model) {
+      if (model instanceof SlicedModel) {
+        model._node = null;
+        model._frame = null;
+        model._effect = null;
+        model._texture = null;
+        _pool$1.free(model);
+      }
+    }
+  }
+  
+  _pool$1 = new Pool(() => {
+    return new SlicedModel();
+  }, 8);
   
   class Asset {
     constructor(persist = true) {
@@ -13531,33 +15058,10 @@ module.exports = (function () {
   }
   
   class SpriteMaterial extends Material {
-    constructor(values = {}) {
+    constructor() {
       super(false);
   
-      let mainTech = new renderer.Technique(
-        renderer.STAGE_TRANSPARENT,
-        [
-          { name: 'mainTexture', type: renderer.PARAM_TEXTURE_2D },
-        ],
-        [
-          new renderer.Pass('sprite')
-        ]
-      );
-  
-      this._effect = new renderer.Effect(
-        [
-          mainTech,
-          // shadowTech
-        ],
-        values,
-        {
-          useTexture: true,
-          useModel: false,
-        }
-      );
-      
-      let pass = mainTech.passes[0];
-      mainTech.stages = renderer.STAGE_TRANSPARENT;
+      var pass = new renderer.Pass('sprite');
       pass.setDepth(true, false);
       pass.setCullMode(gfx.CULL_NONE);
       pass.setBlend(
@@ -13567,6 +15071,27 @@ module.exports = (function () {
         gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA
       );
   
+      let mainTech = new renderer.Technique(
+        ['transparent'],
+        [
+          { name: 'texture', type: renderer.PARAM_TEXTURE_2D },
+        ],
+        [
+          pass
+        ]
+      );
+  
+      this._effect = new renderer.Effect(
+        [
+          mainTech,
+        ],
+        {},
+        [
+          { name: 'useTexture', value: true },
+          { name: 'useModel', value: false },
+        ]
+      );
+      
       this._mainTech = mainTech;
     }
   
@@ -13582,12 +15107,12 @@ module.exports = (function () {
       this._effect.setOption('useModel', val);
     }
   
-    get mainTexture () {
-      return this._effect.getValue('mainTexture');
+    get texture () {
+      return this._effect.getValue('texture');
     }
   
-    set mainTexture(val) {
-      this._effect.setValue('mainTexture', val);
+    set texture(val) {
+      this._effect.setValue('texture', val);
     }
   
     clone () {
@@ -13598,7 +15123,7 @@ module.exports = (function () {
         values[name] = value[name];
       }
       let copy = new SpriteMaterial(values);
-      copy.mainTexture = this.mainTexture;
+      copy.texture = this.texture;
       return copy;
     }
   }
@@ -13632,6 +15157,8 @@ module.exports = (function () {
   }
   
   // intenral
+  // deps
+  const Scene = renderer.Scene;
   const ForwardRenderer = renderMode.supportWebGL ? ForwardRenderer$1 : ForwardRenderer$2;
   const Texture2D = renderMode.supportWebGL ? gfx.Texture2D : canvas.Texture2D;
   const Device = renderMode.supportWebGL ? gfx.Device : canvas.Device;
@@ -13643,7 +15170,7 @@ module.exports = (function () {
     Texture2D,
   
     // render scene
-    Scene: Scene$1,
+    Scene,
     Camera: Camera$1,
   
     // models
