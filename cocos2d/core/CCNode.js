@@ -1836,9 +1836,6 @@ var Node = cc.Class({
      * node.getLocalMatrix(mat4);
      */
     getLocalMatrix (out) {
-        if (!out) {
-            out = affineTrans.makeIdentity();
-        }
         this._updateLocalMatrix();
         math.mat4.copy(out, this._matrix);
     },
@@ -1855,9 +1852,6 @@ var Node = cc.Class({
      * node.getLocalMatrix(mat4);
      */
     getWorldMatrix (out) {
-        if (!out) {
-            out = affineTrans.makeIdentity();
-        }
         this._updateWorldMatrix();
         math.mat4.copy(out, this._worldMatrix);
     },
