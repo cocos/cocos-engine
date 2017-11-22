@@ -1543,21 +1543,21 @@ var Node = cc.Class({
         var locContentSize = this._contentSize;
         var clone;
         if (height === undefined) {
-            if ((size.width === locContentSize.x) && (size.height === locContentSize.y))
+            if ((size.width === locContentSize.width) && (size.height === locContentSize.height))
                 return;
             if (CC_EDITOR) {
-                clone = cc.size(locContentSize.x, locContentSize.y);
+                clone = cc.size(locContentSize.width, locContentSize.height);
             }
-            locContentSize.x = size.width;
-            locContentSize.y = size.height;
+            locContentSize.width = size.width;
+            locContentSize.height = size.height;
         } else {
-            if ((size === locContentSize.x) && (height === locContentSize.y))
+            if ((size === locContentSize.width) && (height === locContentSize.height))
                 return;
             if (CC_EDITOR) {
-                clone = cc.size(locContentSize.x, locContentSize.y);
+                clone = cc.size(locContentSize.width, locContentSize.height);
             }
-            locContentSize.x = size;
-            locContentSize.y = height;
+            locContentSize.width = size;
+            locContentSize.height = height;
         }
         if (CC_EDITOR) {
             this.emit(SIZE_CHANGED, clone);
@@ -1871,6 +1871,9 @@ var Node = cc.Class({
      * node.getNodeToParentTransform(affineTransform);
      */
     getNodeToParentTransform (out) {
+        if (!out) {
+            out = affineTrans.makeIdentity();
+        }
         this._updateLocalMatrix();
         return affineTrans.fromMatrix(this._matrix, out);
     },
@@ -1892,6 +1895,9 @@ var Node = cc.Class({
      * node.getNodeToParentTransformAR(affineTransform);
      */
     getNodeToParentTransformAR (out) {
+        if (!out) {
+            out = affineTrans.makeIdentity();
+        }
         this._updateLocalMatrix();
         
         var contentSize = this._contentSize;
@@ -1916,7 +1922,7 @@ var Node = cc.Class({
      */
     getNodeToWorldTransform (out) {
         if (!out) {
-            out = affineTrans.make();
+            out = affineTrans.makeIdentity();
         }
         this._updateWorldMatrix();
         return affineTrans.fromMatrix(this._worldMatrix, out);
@@ -1937,12 +1943,15 @@ var Node = cc.Class({
      * node.getNodeToWorldTransformAR(affineTransform);
      */
     getNodeToWorldTransformAR (out) {
+        if (!out) {
+            out = affineTrans.makeIdentity();
+        }
         this._updateWorldMatrix();
 
         var contentSize = this._contentSize;
         // see getNodeToWorldTransform
-        var tx = this._anchorPoint.x * contentSize.x;
-        var ty = this._anchorPoint.y * contentSize.y;
+        var tx = this._anchorPoint.x * contentSize.width;
+        var ty = this._anchorPoint.y * contentSize.height;
 
         math.mat4.copy(_mat4_temp, this._worldMatrix);
         math.mat4.translate(_mat4_temp, tx, ty);
@@ -1964,6 +1973,9 @@ var Node = cc.Class({
      * node.getParentToNodeTransform(affineTransform);
      */
     getParentToNodeTransform (out) {
+        if (!out) {
+            out = affineTrans.makeIdentity();
+        }
         this._updateLocalMatrix();
         math.mat4.invert(_mat4_temp, this._matrix);
         return affineTrans.fromMatrix(_mat4_temp, out);
@@ -1980,6 +1992,9 @@ var Node = cc.Class({
      * node.getWorldToNodeTransform(affineTransform);
      */
     getWorldToNodeTransform (out) {
+        if (!out) {
+            out = affineTrans.makeIdentity();
+        }
         this._updateWorldMatrix();
         math.mat4.invert(_mat4_temp, this._worldMatrix);
         return affineTrans.fromMatrix(_mat4_temp, out);
