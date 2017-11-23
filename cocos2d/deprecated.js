@@ -314,6 +314,25 @@ if (CC_DEV) {
         }
     }
 
+    function markFunctionWarning (ownerCtor, removedFuncs, ownerName) {
+        if (!ownerCtor) {
+            // 可能被裁剪了
+            return;
+        }
+        ownerName = ownerName || js.getClassName(ownerCtor);
+        removedFuncs.forEach(function (prop) {
+            var originFunc = ownerCtor[prop];
+            if (!originFunc) return;
+
+            function warn () {
+                cc.warn('Sorry, %s.%s is deprecated.', ownerName, prop);
+                return originFunc.apply(this, arguments);
+            }
+            
+            ownerCtor[prop] = warn;
+        });
+    }
+
     // cc.director
 
     provideClearError(cc.Director.prototype, {
@@ -406,8 +425,18 @@ if (CC_DEV) {
         'setCascadeColorEnabled',
         'ignoreAnchor',
         'isIgnoreAnchorPointForPosition',
-        'ignoreAnchorPointForPosition'
+        'ignoreAnchorPointForPosition',
     ]);
+
+    markFunctionWarning(cc.Node.prototype, [
+        'getNodeToParentTransform',
+        'getNodeToParentTransformAR',
+        'getNodeToWorldTransform',
+        'getNodeToWorldTransformAR',
+        'getParentToNodeTransform',
+        'getWorldToNodeTransform',
+    ]);
+
     provideClearError(cc.Node.prototype, {
         arrivalOrder: 'getSiblingIndex, setSiblingIndex',
         _visible: '_activeInHierarchy, active',
@@ -428,7 +457,7 @@ if (CC_DEV) {
         worldToNodeTransform: 'getWorldToNodeTransform',
         nodeToParentTransform: 'getNodeToParentTransform',
         removeAllComponents: 'removeComponent',
-        getNodeToParentAffineTransform: 'getNodeToParentTransform',
+        getNodeToParentAffineTransform: 'getNodeToParentTransform'
     });
 
 
