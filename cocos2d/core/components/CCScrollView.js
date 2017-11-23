@@ -1527,8 +1527,10 @@ var ScrollView = cc.Class({
         if (!CC_EDITOR) {
             this._unregisterEvent();
             this.node.off('size-changed', this._calculateBoundary, this);
+            this.node.off('scale-changed', this._calculateBoundary, this);
             if(this.content) {
                 this.content.off('size-changed', this._calculateBoundary, this);
+                this.content.off('scale-changed', this._calculateBoundary, this);
             }
         }
         this._hideScrollbar();
@@ -1539,8 +1541,10 @@ var ScrollView = cc.Class({
         if (!CC_EDITOR) {
             this._registerEvent();
             this.node.on('size-changed', this._calculateBoundary, this);
+            this.node.on('scale-changed', this._calculateBoundary, this);
             if(this.content) {
                 this.content.on('size-changed', this._calculateBoundary, this);
+                this.content.on('scale-changed', this._calculateBoundary, this);
             }
         }
         this._showScrollbar();

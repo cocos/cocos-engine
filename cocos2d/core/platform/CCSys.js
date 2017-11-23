@@ -342,6 +342,13 @@ sys.EDITOR_CORE = 103;
  */
 sys.BROWSER_TYPE_WECHAT = "wechat";
 /**
+ * BROWSER_TYPE_WECHAT_GAME
+ * @property {String} BROWSER_TYPE_WECHAT_GAME
+ * @readOnly
+ * @default "wechatgame"
+ */
+sys.BROWSER_TYPE_WECHAT_GAME = "wechatgame";
+/**
  *
  * @property {String} BROWSER_TYPE_ANDROID
  * @readOnly
@@ -475,6 +482,10 @@ sys.BROWSER_TYPE_SOUGOU = "sogou";
  */
 sys.BROWSER_TYPE_UNKNOWN = "unknown";
 
+function isWeChatGame () {
+    return window['wx'];
+}
+
 /**
  * Is native ? This is set to be true in jsb auto.
  * @property {Boolean} isNative
@@ -589,23 +600,25 @@ else {
     /* Determine the browser type */
     (function(){
         var typeReg1 = /mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|ucbrowser|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
-        var typeReg2 = /qqbrowser|chrome|safari|firefox|trident|opera|opr|oupeng/i;
+        var typeReg2 = /qqbrowser|chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
         var browserTypes = typeReg1.exec(ua);
         if(!browserTypes) browserTypes = typeReg2.exec(ua);
         var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
-        if (browserType === 'micromessenger')
+        if (isWeChatGame())
+            browserType = sys.BROWSER_TYPE_WECHAT_GAME;
+        else if (browserType === 'micromessenger')
             browserType = sys.BROWSER_TYPE_WECHAT;
         else if (browserType === "safari" && isAndroid)
             browserType = sys.BROWSER_TYPE_ANDROID;
         else if (browserType === "qq" && ua.match(/android.*applewebkit/i))
-            brwoserType = sys.BROWSER_TYPE_ANDROID;
+            browserType = sys.BROWSER_TYPE_ANDROID;
         else if (browserType === "trident")
             browserType = sys.BROWSER_TYPE_IE;
         else if (browserType === "360 aphone")
             browserType = sys.BROWSER_TYPE_360;
         else if (browserType === "mxbrowser")
             browserType = sys.BROWSER_TYPE_MAXTHON;
-        else if (browserType === "opr")
+        else if (browserType === "opr/")
             browserType = sys.BROWSER_TYPE_OPERA;
 
         sys.browserType = browserType;
@@ -619,7 +632,7 @@ else {
     /* Determine the browser version number */
     (function(){
         var versionReg1 = /(mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|uc|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui)(mobile)?(browser)?\/?([\d.]+)/i;
-        var versionReg2 = /(qqbrowser|chrome|safari|firefox|trident|opera|opr|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
+        var versionReg2 = /(qqbrowser|chrome|safari|firefox|trident|opera|opr\/|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
         var tmp = ua.match(versionReg1);
         if(!tmp) tmp = ua.match(versionReg2);
         sys.browserVersion = tmp ? tmp[4] : "";
@@ -718,7 +731,10 @@ else {
     var _supportWebp = _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
     var _supportCanvas = !!_tmpCanvas1.getContext("2d");
     var _supportWebGL = false;
-    if (win.WebGLRenderingContext) {
+    if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+        _supportWebGL = true;
+    }
+    else if (win.WebGLRenderingContext) {
         if (cc.create3DContext(document.createElement("CANVAS"))) {
             _supportWebGL = true;
         }
@@ -803,7 +819,8 @@ else {
 
         // check if browser supports Web Audio
         // check Web Audio's context
-        var supportWebAudio = !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
+        var supportWebAudio = sys.browserType !== sys.BROWSER_TYPE_WECHAT_GAME && 
+                              !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 
         __audioSupport = { ONLY_ONE: false, WEB_AUDIO: supportWebAudio, DELAY_CREATE_CTX: false };
 

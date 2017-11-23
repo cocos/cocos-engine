@@ -59,7 +59,8 @@
   {
     "name": "Spine Skeleton",
     "entries": [
-      "./extensions/spine/index.js"
+      "./extensions/spine/index.js",
+      "./jsb/jsb-spine.js"
     ]
   },
   {
@@ -131,19 +132,22 @@
   {
     "name": "EditorBox",
     "entries": [
-      "./cocos2d/core/components/CCEditBox.js"
+      "./cocos2d/core/components/CCEditBox.js",
+      "./jsb/jsb-editbox.js"
     ]
   },
   {
     "name": "VideoPlayer",
     "entries": [
-      "./cocos2d/core/components/CCVideoPlayer.js"
+      "./cocos2d/core/components/CCVideoPlayer.js",
+      "./jsb/jsb-videoplayer.js"
     ]
   },
   {
     "name": "WebView",
     "entries": [
-      "./cocos2d/core/components/CCWebView.js"
+      "./cocos2d/core/components/CCWebView.js",
+      "./jsb/jsb-webview.js"
     ]
   },
   {
@@ -155,7 +159,8 @@
   {
     "name": "AudioSource",
     "entries": [
-      "./cocos2d/core/components/CCAudioSource.js"
+      "./cocos2d/core/components/CCAudioSource.js",
+      "./jsb/jsb-audio.js"
     ]
   },
   {
@@ -198,13 +203,15 @@
   {
     "name": "DragonBones",
     "entries": [
-      "./extensions/dragonbones/index.js"
+      "./extensions/dragonbones/index.js",
+      "./jsb/jsb-dragonbones.js"
     ]
   },
   {
     "name": "Physics",
     "entries": [
-      "./cocos2d/core/physics/index.js"
+      "./cocos2d/core/physics/index.js",
+      "./jsb/jsb-box2d.js"
     ],
     "dependencies": ["Collider"]
   },
@@ -239,5 +246,8 @@
     "entries": [
       "./cocos2d/core/collider/CCIntersection.js"
     ]
+  },
+  {
+    "name": "Native NetWork"
   }
 ]

@@ -33,7 +33,7 @@ const SlicedModel = renderEngine.SlicedModel;
 /**
  * !#en Enum for sprite type.
  * !#zh Sprite 类型
- * @enum Sprite.SpriteType
+ * @enum Sprite.Type
  */
 var SpriteType = cc.Enum({
     /**
@@ -496,7 +496,7 @@ var Sprite = cc.Class({
             this._material = renderer.materialUtil.get(url);
             if (!this._material) {
                 this._material = new SpriteMaterial();
-                this._material.mainTexture = texture.getImpl();
+                this._material.texture = texture.getImpl();
                 renderer.materialUtil.register(url, this._material);
             }
         }

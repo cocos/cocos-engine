@@ -50,7 +50,7 @@ proto.rendering = function (ctx, scaleX, scaleY) {
         tiles = node.tiles,
         alpha = node._opacity / 255;
 
-    if (!tiles || alpha <= 0) {
+    if (!tiles || alpha <= 0 || !node.tileset) {
         return;
     }
 

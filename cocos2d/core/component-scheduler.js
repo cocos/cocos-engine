@@ -38,6 +38,18 @@ var callUpdateInTryCatch = CC_EDITOR && callerFunctor('update', 'dt');
 var callLateUpdateInTryCatch = CC_EDITOR && callerFunctor('lateUpdate', 'dt');
 var callOnDisableInTryCatch = CC_EDITOR && callerFunctor('onDisable');
 
+var supportJit = cc.supportJit;
+var callStart = supportJit ? 'c.start();c._objFlags|=' + IsStartCalled : function (c) {
+    c.start();
+    c._objFlags |= IsStartCalled;
+};
+var callUpdate = supportJit ? 'c.update(dt)' : function (c, dt) {
+    c.update(dt);
+};
+var callLateUpdate = supportJit ? 'c.lateUpdate(dt)' : function (c, dt) {
+    c.lateUpdate(dt);
+};
+
 function sortedIndex (array, comp) {
     var order = comp.constructor._executionOrder;
     var id = comp.__instanceId;
@@ -204,7 +216,7 @@ function enableInEditor (comp) {
 }
 
 function createInvokeImpl (funcOrCode, useDt) {
-    if (CC_EDITOR) {
+    if (typeof funcOrCode === 'function') {
         if (useDt) {
             return function (iterator, dt) {
                 var array = iterator.array;
@@ -253,11 +265,11 @@ function createInvokeImpl (funcOrCode, useDt) {
 function ctor () {
     // invokers
     this.startInvoker = new OneOffInvoker(createInvokeImpl(
-        CC_EDITOR ? callStartInTryCatch : 'c.start();c._objFlags|=' + IsStartCalled));
+        CC_EDITOR ? callStartInTryCatch : callStart));
     this.updateInvoker = new ReusableInvoker(createInvokeImpl(
-        CC_EDITOR ? callUpdateInTryCatch : 'c.update(dt)', true));
+        CC_EDITOR ? callUpdateInTryCatch : callUpdate, true));
     this.lateUpdateInvoker = new ReusableInvoker(createInvokeImpl(
-        CC_EDITOR ? callLateUpdateInTryCatch : 'c.lateUpdate(dt)', true));
+        CC_EDITOR ? callLateUpdateInTryCatch : callLateUpdate, true));
 
     // components deferred to next frame
     this.scheduleInNextFrame = [];

@@ -137,7 +137,7 @@ Audio.State = {
     };
 
     proto.mount = function (elem) {
-        if (elem instanceof HTMLElement) {
+        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME || elem instanceof HTMLElement) {
             this._element = document.createElement('audio');
             this._element.src = elem.src;
             this._audioType = Audio.Type.DOM;
@@ -156,7 +156,9 @@ Audio.State = {
         this.emit('play');
         this._state = Audio.State.PLAYING;
 
-        if (this._audioType === Audio.Type.DOM && this._element.paused) {
+        if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME && 
+            this._audioType === Audio.Type.DOM && 
+            this._element.paused) {
             touchPlayList.push({ instance: this, offset: 0, audio: this._element });
         }
 
@@ -225,9 +227,11 @@ Audio.State = {
     proto.setCurrentTime = function (num) {
         if (!this._element) return;
         this._unbindEnded();
-        this._bindEnded(function () {
-            this._bindEnded();
-        }.bind(this));
+        if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME) {
+            this._bindEnded(function () {
+                this._bindEnded();
+            }.bind(this));
+        }
         try {
             this._element.currentTime = num;
         } catch (err) {
@@ -347,7 +351,7 @@ var WebAudioElement = function (buffer, audio) {
             var self = this;
             clearTimeout(this._currextTimer);
             this._currextTimer = setTimeout(function () {
-                if (self._context.currentTime === 0) {
+                if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME && self._context.currentTime === 0) {
                     touchPlayList.push({
                         instance: self._audio,
                         offset: offset,

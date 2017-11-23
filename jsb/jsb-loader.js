@@ -82,6 +82,7 @@ function loadImage (item, callback) {
     else if (url.match(jsb.urlRegExp)) {
         jsb.loadRemoteImg(url, function(succeed, tex) {
             if (succeed) {
+                tex.url = url;
                 callback && callback(null, tex);
             }
             else {
@@ -92,12 +93,12 @@ function loadImage (item, callback) {
     else {
         var addImageCallback = function (tex) {
             if (tex instanceof cc.Texture2D) {
+                tex.url = url;
                 callback && callback(null, tex);
             }
             else {
                 callback && callback(new Error('Load image failed: ' + url));
             }
-            jsb.unregisterNativeRef(cc.textureCache, addImageCallback);
         };
         cc.textureCache._addImageAsync(url, addImageCallback);
     }

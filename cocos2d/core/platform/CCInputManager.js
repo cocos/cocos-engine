@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 var macro = require('./CCMacro');
+var sys = require('./CCSys');
 
 var TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
 
@@ -96,7 +97,7 @@ var inputManager = {
     handleTouchesBegin: function (touches) {
         var selTouch, index, curTouch, touchID, 
             handleTouches = [], locTouchIntDict = this._touchesIntegerDict,
-            now = cc.sys.now();
+            now = sys.now();
         for(var i = 0, len = touches.length; i< len; i ++){
             selTouch = touches[i];
             touchID = selTouch.getID();
@@ -131,7 +132,7 @@ var inputManager = {
     handleTouchesMove: function(touches){
         var selTouch, index, touchID, 
             handleTouches = [], locTouches = this._touches,
-            now = cc.sys.now();
+            now = sys.now();
         for(var i = 0, len = touches.length; i< len; i ++){
             selTouch = touches[i];
             touchID = selTouch.getID();
@@ -216,6 +217,15 @@ var inputManager = {
      * @return {Object}
      */
     getHTMLElementPosition: function (element) {
+        if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+            return {
+                left: 0,
+                top: 0,
+                width: window.innerWidth,
+                height: window.innerHeight
+            };
+        }
+
         var docElem = document.documentElement;
         var leftOffset = window.pageXOffset - docElem.clientLeft;
         var topOffset = window.pageYOffset - docElem.clientTop;
@@ -338,8 +348,14 @@ var inputManager = {
         if (event.pageX != null)  //not avalable in <= IE8
             return {x: event.pageX, y: event.pageY};
 
-        pos.left -= document.body.scrollLeft;
-        pos.top -= document.body.scrollTop;
+        if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+            pos.left = 0;
+            pos.top = 0;
+        }
+        else {
+            pos.left -= document.body.scrollLeft;
+            pos.top -= document.body.scrollTop;
+        }
         return {x: event.clientX, y: event.clientY};
     },
 
@@ -359,7 +375,7 @@ var inputManager = {
             touch_event = event.changedTouches[i];
             if (touch_event) {
                 var location;
-                if (cc.sys.BROWSER_TYPE_FIREFOX === cc.sys.browserType)
+                if (sys.BROWSER_TYPE_FIREFOX === sys.browserType)
                     location = locView.convertToLocationInView(touch_event.pageX, touch_event.pageY, pos);
                 else
                     location = locView.convertToLocationInView(touch_event.clientX, touch_event.clientY, pos);
@@ -391,7 +407,16 @@ var inputManager = {
         this._glView = cc.view;
         var selfPointer = this;
 
-        var supportMouse = ('mouse' in cc.sys.capabilities);
+        var prohibition = sys.isMobile;
+        var supportMouse = ('mouse' in sys.capabilities);
+        var supportTouches = ('touches' in sys.capabilities);
+
+        if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+            prohibition = false;
+            supportTouches = true;
+            supportMouse = false;
+        }
+
         if (supportMouse) {
             //HACK
             //  - At the same time to trigger the ontouch event and onmouse event
@@ -400,7 +425,6 @@ var inputManager = {
             //  liebiao
             //  miui
             //  WECHAT
-            var prohibition = cc.sys.isMobile;
             if (!prohibition) {
                 window.addEventListener('mousedown', function () {
                     selfPointer._mousePressed = true;
@@ -493,12 +517,13 @@ var inputManager = {
         }
 
         //register touch event
-        var supportTouches = ('touches' in cc.sys.capabilities);
         if (supportTouches) {
             var _touchEventsMap = {
                 "touchstart": function (touchesToHandle) {
                     selfPointer.handleTouchesBegin(touchesToHandle);
-                    element.focus();
+                    if (sys.browserType !== sys.BROWSER_TYPE_WECHAT_GAME) {
+                        element.focus();
+                    }
                 },
                 "touchmove": function (touchesToHandle) {
                     selfPointer.handleTouchesMove(touchesToHandle);
@@ -518,8 +543,8 @@ var inputManager = {
 
                     var pos = selfPointer.getHTMLElementPosition(element);
                     var body = document.body;
-                    pos.left -= body.scrollLeft;
-                    pos.top -= body.scrollTop;
+                    pos.left -= body.scrollLeft || 0;
+                    pos.top -= body.scrollTop || 0;
 
                     handler(selfPointer.getTouchesByEvent(event, pos));
 
@@ -555,4 +580,5 @@ var inputManager = {
     }
 };
 
+cc.inputManager = inputManager;
 module.exports = inputManager;

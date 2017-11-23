@@ -50,7 +50,9 @@ function _initBuiltins(device) {
     });
   
     return {
-        defaultTexture
+        defaultTexture: defaultTexture,
+        programTemplates: renderEngine.shaders.templates,
+        programChunks: renderEngine.shaders.chunks,
     };
 }
 
@@ -73,13 +75,13 @@ module.exports = {
         this._camera = new renderEngine.Camera({
             x: 0, y: 0, w: canvas.width, h: canvas.height
         });
+        this._camera.setStages([
+            'transparent'
+        ]);
+        this.scene.addCamera(this._camera);
 
         let builtins = _initBuiltins(this.device);
-        this._forward = new renderEngine.ForwardRenderer(this.device, {
-            defaultTexture: builtins.defaultTexture,
-            programTemplates: renderEngine.shaders.templates,
-            programChunks: renderEngine.shaders.chunks,
-        });
+        this._forward = new renderEngine.ForwardRenderer(this.device, builtins);
     },
 
     updateCameraViewport () {
@@ -92,6 +94,6 @@ module.exports = {
     },
 
     render () {
-        this._forward.render(this._camera, this.scene);
+        this._forward.render(this.scene);
     }
 };

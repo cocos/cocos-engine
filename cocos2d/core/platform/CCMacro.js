@@ -1881,21 +1881,6 @@ cc.macro = {
      */
     ENABLE_GC_FOR_NATIVE_OBJECTS: true,
 
-
-    /**
-     * !#en
-     * Whether or not enable auto culling.
-     * If your game have more dynamic objects, we suggest to disable auto culling.
-     * If your game have more static objects, we suggest to enable auto culling.
-     * !#zh
-     * 是否开启自动裁减功能，开启裁减功能将会把在屏幕外的物体从渲染队列中去除掉。
-     * 如果游戏中的动态物体比较多的话，建议将此选项关闭。
-     * 如果游戏中的静态物体比较多的话，建议将此选项打开。
-     * @property {Boolean} ENABLE_CULLING
-     * @default true
-     */
-    ENABLE_CULLING: true,
-
     /**
      * !#en 
      * Whether or not enabled tiled map auto culling. If you set the TiledMap skew or rotation, then need to manually disable this, otherwise, the rendering will be wrong.
@@ -1930,7 +1915,57 @@ cc.macro = {
      * @default false
      */
     ENABLE_TRANSPARENT_CANVAS: false,
+
+    /**
+     * !#en 
+     * Boolean that indicates if the WebGL context is created with `antialias` option turned on, 
+     * default value is true, most game need it for the picture to eliminate the hard edges,
+     * but in some case, if you are trying to apply pixel art or using tilemaps, then you may need to turn it off.
+     * You can set it to false before `cc.game.run`.
+     * Web only.
+     * !#zh
+     * 用于设置在创建 WebGL Context 时是否开启 `antialias` 选项，默认值是 true，大多数游戏都更适合这样的效果，
+     * 但是如果你需要实现像素风格，或是使用 Tiledmap，那么你可能需要手动设置这个值为 false，你可以在 `cc.game.run` 之前设置这个值，否则它不会生效。
+     * 仅支持 Web
+     * @property {Boolean} ENABLE_WEBGL_ANTIALIAS
+     * @default true
+     */
+    ENABLE_WEBGL_ANTIALIAS: true
 };
+
+/**
+ * !#en
+ * Whether or not enable auto culling.
+ * If your game have more dynamic objects, we suggest to disable auto culling.
+ * If your game have more static objects, we suggest to enable auto culling.
+ * !#zh
+ * 是否开启自动裁减功能，开启裁减功能将会把在屏幕外的物体从渲染队列中去除掉。
+ * 如果游戏中的动态物体比较多的话，建议将此选项关闭。
+ * 如果游戏中的静态物体比较多的话，建议将此选项打开。
+ * @property {Boolean} ENABLE_CULLING
+ * @default true
+ */
+var ENABLE_CULLING = true;
+cc.defineGetterSetter(cc.macro, 'ENABLE_CULLING', 
+    function () {
+        return ENABLE_CULLING;
+    },
+    function (val) {
+        ENABLE_CULLING = val;
+
+        var scene = cc.director.getScene();
+        if (!scene) return;
+
+        if (CC_JSB) {
+            scene._sgNode.markCullingDirty();
+            cc.director.setCullingEnabled(val);
+        }
+        else {
+            scene._sgNode._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.cullingDirty);
+            cc.renderer.childrenOrderDirty = true;
+        }
+    }
+)
 
 /**
  * !#en

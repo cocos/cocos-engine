@@ -23,6 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 var JS = require('../platform/js');
+var sys = require('../platform/CCSys');
 var Path = require('../utils/CCPath');
 var misc = require('../utils/misc');
 var Pipeline = require('./pipeline');
@@ -41,6 +42,12 @@ else {
 }
 
 function downloadScript (item, callback, isAsync) {
+    if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+        require(item.url);
+        callback(null, item.url);
+        return;
+    }
+
     var url = item.url,
         d = document,
         s = document.createElement('script');

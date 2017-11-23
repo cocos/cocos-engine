@@ -386,7 +386,6 @@ _ccsg.Node.RenderCmd.prototype = {
     visit: function (parentCmd) {
         var node = this._node, renderer = cc.renderer;
 
-        parentCmd = parentCmd || this.getParentRenderCmd();
         if (parentCmd) {
             this._curLevel = parentCmd._curLevel + 1;
         }
