@@ -118,24 +118,45 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
     var cullingA = a, cullingD = d, 
         cullingMapx = mapx, cullingMapy = mapy,
         cullingW = w, cullingH = h;
-    var enabledCulling = cc.macro.ENABLE_TILEDMAP_CULLING;
+    var enabledCulling = cc.macro.ENABLE_TILEDMAP_CULLING,
+        vertices = this._vertices;
     
     if (enabledCulling) {
+        var trans;
         if (this._cameraFlag > 0) {
-            var tmpt = cc.affineTransformConcat(wt, cc.Camera.main.viewMatrix);
-            cullingA = tmpt.a;
-            cullingD = tmpt.d;
-            cullingMapx = ox * cullingA + oy * tmpt.c + tmpt.tx;
-            cullingMapy = ox * tmpt.b + oy * cullingD + tmpt.ty;
+            trans = cc.affineTransformConcat(wt, cc.Camera.main.viewMatrix);
+            cullingA = trans.a;
+            cullingD = trans.d;
+            cullingMapx = ox * cullingA + oy * trans.c + trans.tx;
+            cullingMapy = ox * trans.b + oy * cullingD + trans.ty;
             cullingW = tilew * cullingA;
             cullingH = tileh * cullingD;
         }
 
         if (layerOrientation === Orientation.ORTHO) {
-            startCol = Math.floor(-(cullingMapx - extw * cullingA) / (maptw * cullingA));
-            startRow = Math.floor((cullingMapy - exth * cullingD + mapth * rows * cullingD - winh) / (mapth * cullingD));
-            maxCol = Math.ceil((winw - cullingMapx + extw * cullingA) / (maptw * cullingA));
-            maxRow = rows - Math.floor(-(cullingMapy + exth * cullingD) / (mapth * cullingD));
+            // In case trans is not created yet
+            if (this._cameraFlag <= 0) {
+                trans = cc.affineTransformClone(wt);
+            }
+            cc.affineTransformInvertOut(trans, trans);
+            var world = cc.visibleRect;
+            vertices[0].x = world.topLeft.x * trans.a + world.topLeft.y * trans.c + trans.tx;
+            vertices[0].y = world.topLeft.x * trans.b + world.topLeft.y * trans.d + trans.ty;
+            vertices[1].x = world.bottomLeft.x * trans.a + world.bottomLeft.y * trans.c + trans.tx;
+            vertices[1].y = world.bottomLeft.x * trans.b + world.bottomLeft.y * trans.d + trans.ty;
+            vertices[2].x = world.topRight.x * trans.a + world.topRight.y * trans.c + trans.tx;
+            vertices[2].y = world.topRight.x * trans.b + world.topRight.y * trans.d + trans.ty;
+            vertices[3].x = world.bottomRight.x * trans.a + world.bottomRight.y * trans.c + trans.tx;
+            vertices[3].y = world.bottomRight.x * trans.b + world.bottomRight.y * trans.d + trans.ty;
+            var minx = Math.min(vertices[0].x, vertices[1].x, vertices[2].x, vertices[3].x),
+                maxx = Math.max(vertices[0].x, vertices[1].x, vertices[2].x, vertices[3].x),
+                miny = Math.min(vertices[0].y, vertices[1].y, vertices[2].y, vertices[3].y),
+                maxy = Math.max(vertices[0].y, vertices[1].y, vertices[2].y, vertices[3].y);
+
+            startCol = Math.floor(minx / maptw);
+            startRow = rows - Math.ceil(maxy / mapth);
+            maxCol = Math.ceil((maxx + extw) / maptw);
+            maxRow = rows - Math.floor((miny - exth) / mapth);
 
             // Adjustment
             if (startCol < 0) startCol = 0;
@@ -150,9 +171,9 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
         colOffset = startRow * cols, z, gid, grid,
         i, top, left, bottom, right, 
         gt, gl, gb, gr,
-        wa = a, wb = b, wc = c, wd = d, wtx = tx, wty = ty, // world
+        wa = a, wb = b, wc = c, wd = d, 
+        wtx = Math.floor(tx) + 0.5, wty = Math.floor(ty) + 0.5, // world
         flagged = false, flippedX = false, flippedY = false,
-        vertices = this._vertices,
         axis, tileOffset, diffX1, diffY1, odd_even;
 
     if (layerOrientation === Orientation.HEX) {

@@ -1695,9 +1695,9 @@ _ccsg.Node = cc.Class({
      * @return {cc.AffineTransform}
      */
     getNodeToWorldTransform: function () {
-        var t = this.getNodeToParentTransform();
+        var t = cc.affineTransformClone(this.getNodeToParentTransform());
         for (var p = this._parent; p !== null; p = p.parent)
-            t = cc.affineTransformConcat(t, p.getNodeToParentTransform());
+            t = cc.affineTransformConcatIn(t, p.getNodeToParentTransform());
         return t;
     },
 
@@ -1715,7 +1715,9 @@ _ccsg.Node = cc.Class({
      * @return {cc.AffineTransform}
      */
     getWorldToNodeTransform: function () {
-        return cc.affineTransformInvert(this.getNodeToWorldTransform());
+        var trans = this.getNodeToWorldTransform();
+        cc.affineTransformInvertOut(trans, trans);
+        return trans;
     },
 
     /**
