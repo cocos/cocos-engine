@@ -212,7 +212,7 @@ var _mouseDownHandler = function (event) {
         event.bubbles = true;
         node.dispatchEvent(event);
         if (CC_JSB) {
-            Event.EventTouch.pool.put(event);
+            Event.EventMouse.pool.put(event);
         }
         else {
             event.stopPropagation();
@@ -258,7 +258,7 @@ var _mouseMoveHandler = function (event) {
 
     // Event processed, cleanup
     if (CC_JSB) {
-        Event.EventTouch.pool.put(event);
+        Event.EventMouse.pool.put(event);
     }
     else {
         event.stopPropagation();
@@ -278,7 +278,7 @@ var _mouseUpHandler = function (event) {
         event.bubbles = true;
         node.dispatchEvent(event);
         if (CC_JSB) {
-            Event.EventTouch.pool.put(event);
+            Event.EventMouse.pool.put(event);
         }
         else {
             event.stopPropagation();
@@ -300,7 +300,7 @@ var _mouseWheelHandler = function (event) {
         event.bubbles = true;
         node.dispatchEvent(event);
         if (CC_JSB) {
-            Event.EventTouch.pool.put(event);
+            Event.EventMouse.pool.put(event);
         }
         else {
             event.stopPropagation();
