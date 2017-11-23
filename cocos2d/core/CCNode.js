@@ -50,6 +50,7 @@ var Event = require('./event/event');
 var ActionManagerExist = !!cc.ActionManager;
 var emptyFunc = function () {};
 var _mat4_temp = math.mat4.create();
+var _vec3_temp = math.vec3.create();
 var _trans = affineTrans.make();
 var _globalOrderOfArrival = 1;
 
@@ -1873,7 +1874,14 @@ var Node = cc.Class({
             out = affineTrans.makeIdentity();
         }
         this._updateLocalMatrix();
-        return affineTrans.fromMatrix(this._matrix, out);
+               
+        var contentSize = this._contentSize;
+        _vec3_temp.x = -this._anchorPoint.x * contentSize.width;
+        _vec3_temp.y = -this._anchorPoint.y * contentSize.height;
+
+        math.mat4.copy(_mat4_temp, this._matrix);
+        math.mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
+        return affineTrans.fromMatrix(_mat4_temp, out);
     },
 
     /**
@@ -1897,15 +1905,7 @@ var Node = cc.Class({
             out = affineTrans.makeIdentity();
         }
         this._updateLocalMatrix();
-        
-        var contentSize = this._contentSize;
-        // see getNodeToWorldTransform
-        var tx = this._anchorPoint.x * contentSize.x;
-        var ty = this._anchorPoint.y * contentSize.y;
-
-        math.mat4.copy(_mat4_temp, this._matrix);
-        math.mat4.translate(_mat4_temp, tx, ty);
-        return affineTrans.fromMatrix(_mat4_temp, out);
+        return affineTrans.fromMatrix(this._matrix, out);
     },
 
     /**
@@ -1923,7 +1923,15 @@ var Node = cc.Class({
             out = affineTrans.makeIdentity();
         }
         this._updateWorldMatrix();
-        return affineTrans.fromMatrix(this._worldMatrix, out);
+        
+        var contentSize = this._contentSize;
+        _vec3_temp.x = -this._anchorPoint.x * contentSize.width;
+        _vec3_temp.y = -this._anchorPoint.y * contentSize.height;
+
+        math.mat4.copy(_mat4_temp, this._worldMatrix);
+        math.mat4.translate(_mat4_temp, _mat4_temp, _vec2_temp);
+
+        return affineTrans.fromMatrix(_mat4_temp, out);
     },
 
     /**
@@ -1945,15 +1953,7 @@ var Node = cc.Class({
             out = affineTrans.makeIdentity();
         }
         this._updateWorldMatrix();
-
-        var contentSize = this._contentSize;
-        // see getNodeToWorldTransform
-        var tx = this._anchorPoint.x * contentSize.width;
-        var ty = this._anchorPoint.y * contentSize.height;
-
-        math.mat4.copy(_mat4_temp, this._worldMatrix);
-        math.mat4.translate(_mat4_temp, tx, ty);
-        return affineTrans.fromMatrix(_mat4_temp, out);
+        return affineTrans.fromMatrix(this._matrix, out);
     },
 
     /**
