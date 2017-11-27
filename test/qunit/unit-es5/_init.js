@@ -225,7 +225,7 @@ var SetupEngine = {
 
         cc.game.pause();
         // check error
-        cc._Test.SceneGraphUtils.checkMatchCurrentScene();
+        // cc._Test.SceneGraphUtils.checkMatchCurrentScene();
     }
 };
 

@@ -7774,9 +7774,9 @@ module.exports = (function () {
         return;
       }
   
-      let gl = this.device.gl;
+      let gl = this._device._gl;
       gl.deleteBuffer(this._glID);
-      this.device._stats.ib -= this.bytes;
+      this._device._stats.ib -= this.bytes;
   
       this._glID = -1;
     }
@@ -7853,9 +7853,9 @@ module.exports = (function () {
         return;
       }
   
-      let gl = this.device.gl;
+      let gl = this._device._gl;
       gl.deleteBuffer(this._glID);
-      this.device._stats.vb -= this.bytes;
+      this._device._stats.vb -= this.bytes;
   
       this._glID = -1;
     }
@@ -8107,10 +8107,10 @@ module.exports = (function () {
         return;
       }
   
-      let gl = this.device.gl;
+      let gl = this._device._gl;
       gl.deleteTexture(this._glID);
   
-      this.device._stats.tex -= this.bytes;
+      this._device._stats.tex -= this.bytes;
       this._glID = -1;
     }
   }

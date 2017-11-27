@@ -95,6 +95,97 @@ function findChildComponents(children, constructor, components) {
     }
 }
 
+var _stacks = [[]];
+var _stackId = 0;
+// Walk
+function _walk (root, prefunc, postfunc) {
+    var index = 1;
+    var children, child, curr, i, afterChildren;
+    var stack = _stacks[_stackId];
+    if (!stack) {
+        stack = [];
+        _stacks.push(stack);
+    }
+    _stackId++;
+
+    stack.length = 0;
+    stack[0] = root;
+    parent = null;
+    afterChildren = false;
+    while (index) {
+        index--;
+        curr = stack[index];
+        if (!curr) {
+            continue;
+        }
+        if (afterChildren) {
+            // post call
+            postfunc(curr);
+        }
+        else {
+            // pre call
+            prefunc(curr);
+        }
+        
+        // Avoid memory leak
+        stack[index] = null;
+        // Do not repeatly visit child tree, just do post call and continue walk
+        if (afterChildren) {
+            afterChildren = false;
+        }
+        else {
+            // Children not proceeded and has children, proceed to child tree
+            if (curr._children.length > 0) {
+                parent = curr;
+                children = curr._children;
+                i = 0;
+                stack[index] = children[i];
+                index++;
+            }
+            // No children, then repush curr to be walked for post func
+            else {
+                stack[index] = curr;
+                index++;
+                afterChildren = true;
+            }
+            continue;
+        }
+        // curr has no sub tree, so look into the siblings in parent children
+        if (children) {
+            i++;
+            // Proceed to next sibling in parent children
+            if (children[i]) {
+                stack[index] = children[i];
+                index++;
+            }
+            // No children any more in this sub tree, go upward
+            else if (parent) {
+                stack[index] = parent;
+                index++;
+                // Setup parent walk env
+                afterChildren = true;
+                if (parent._parent) {
+                    children = parent._parent._children;
+                    i = children.indexOf(parent);
+                    parent = parent._parent;
+                }
+                else {
+                    // At root
+                    parent = null;
+                    children = null;
+                }
+
+                // ERROR
+                if (i < 0) {
+                    break;
+                }
+            }
+        }
+    }
+    stack.length = 0;
+    _stackId--;
+}
+
 /**
  * A base node for CCNode, it will:
  * - maintain scene hierarchy and active logic
@@ -561,6 +652,31 @@ var BaseNode = cc.Class({
             }
             this._onSiblingIndexChanged && this._onSiblingIndexChanged(index);
         }
+    },
+
+    /**
+     * !#en Walk though the sub children tree of the current node.
+     * Each node, including the current node, in the sub tree will be visited two times, before all children and after all children.
+     * This function call is not recursive, it's based on stack.
+     * Please don't walk any other node inside the walk process.
+     * !#zh 遍历该节点的子树里的所有节点并按规则执行回调函数。
+     * 对子树中的所有节点，包含当前节点，会执行两次回调，prefunc 会在访问它的子节点之前调用，postfunc 会在访问所有子节点之后调用。
+     * 这个函数的实现不是基于递归的，而是基于栈展开递归的方式。
+     * 请不要在 walk 过程中对任何其他的节点嵌套执行 walk。
+     * @method Walk the child tree
+     * @param {Function} prefunc The callback to process node when reach the node for the first time
+     * @param {_BaseNode} prefunc.target The current visiting node
+     * @param {Function} postfunc The callback to process node when re-visit the node after walked all children in its sub tree
+     * @param {_BaseNode} prefunc.target The current visiting node
+     * @example
+     * node.walk(function (target) {
+     *     console.log('Walked through node ' + target.name + ' for the first time');
+     * }, function (target) {
+     *     console.log('Walked through node ' + target.name + ' after walked all children in its sub tree');
+     * });
+     */
+    walk (prefunc, postfunc) {
+        _walk(this, prefunc, postfunc);
     },
 
     cleanup () {

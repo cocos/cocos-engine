@@ -48,6 +48,42 @@ test('test hierarchy', function () {
     strictEqual(parent.childrenCount, 1, 'child2 attached by using addChild');
 });
 
+test('test walk', function () {
+    var A = new cc.Node('A');
+    var B = new cc.Node('B');
+    var C = new cc.Node('C');
+    var D = new cc.Node('D');
+    var E = new cc.Node('E');
+    var F = new cc.Node('F');
+    var G = new cc.Node('G');
+    var H = new cc.Node('H');
+    var I = new cc.Node('I');
+    // A
+    // |
+    // B-C
+    // |
+    // D-E-F
+    //  /  |
+    // G-H I
+    B.parent = A;
+    C.parent = A;
+    D.parent = B;
+    E.parent = B;
+    F.parent = B;
+    G.parent = E;
+    H.parent = E;
+    I.parent = F;
+    
+    var walkHistory = '';
+    A.walk(function (node) {
+        walkHistory += node.name;
+    }, function (node) {
+        walkHistory += node.name + '*';
+    });
+
+    strictEqual(walkHistory, 'ABDD*EGG*HH*E*FII*F*B*CC*A*', 'walk history should be the same as predicted');
+});
+
 test('activeInHierarchy', function () {
     var parent = new cc.Node();
     var child = new cc.Node();
