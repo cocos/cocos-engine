@@ -113,22 +113,6 @@ if (CC_EDITOR) {
     };
 }
 
-misc.imagePool = new JS.Pool(function (img) {
-                            if (img instanceof HTMLImageElement) {
-                                img.src = this._smallImg;
-                                return true;
-                            }
-                            return false;
-                       }, 10);
-misc.imagePool.get = function () {
-    return this._get() || new Image();
-};
-misc.imagePool._smallImg = "data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=";
-// Avoid problems on windows IE kernels, Edge, Firefox and Linux Firefox
-if ((sys.os === sys.OS_WINDOWS || sys.os === sys.OS_LINUX) && sys.browserType !== sys.BROWSER_TYPE_CHROME) {
-    misc.imagePool.resize(0);
-}
-
 misc.BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
 
 

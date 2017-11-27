@@ -25,7 +25,6 @@
 var JS = require('../platform/js');
 var sys = require('../platform/CCSys');
 var Path = require('../utils/CCPath');
-var misc = require('../utils/misc');
 var Pipeline = require('./pipeline');
 var PackDownloader = require('./pack-downloader');
 // var downloadBinary = require('./binary-downloader');
@@ -83,7 +82,7 @@ function downloadImage (item, callback, isCrossOrigin, img) {
     }
 
     var url = urlAppendTimestamp(item.url);
-    img = img || misc.imagePool.get();
+    img = img || new Image();
     if (isCrossOrigin && window.location.protocol !== 'file:') {
         img.crossOrigin = 'anonymous';
     }
