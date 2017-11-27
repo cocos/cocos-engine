@@ -839,7 +839,6 @@ var Node = cc.Class({
         // Mouse event listener
         this._mouseListener = null;
 
-        this._contentSize = mathPools.vec2.get();
         this._anchorPoint = mathPools.vec2.get();
         this._anchorPoint.x = this._anchorPoint.y = 0.5;
         this._scale = mathPools.vec2.get();
@@ -901,7 +900,6 @@ var Node = cc.Class({
         cc.eventManager.removeListeners(this);
 
         // Recycle math objects
-        mathPools.vec2.put(this._contentSize);
         mathPools.vec2.put(this._anchorPoint);
         mathPools.vec2.put(this._scale);
         mathPools.vec3.put(this._position);
