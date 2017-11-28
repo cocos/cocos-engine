@@ -567,7 +567,7 @@ var Component = cc.Class({
         // because enabledInHierarchy is assigned after onEnable.
         // Actually, if not yet scheduled, resumeTarget/pauseTarget has no effect on component,
         // therefore there is no way to guarantee the paused state other than isTargetPaused.
-        var paused = scheduler.isTargetPaused();
+        var paused = scheduler.isTargetPaused(this);
 
         scheduler.schedule(callback, this, interval, repeat, delay, paused);
     },
