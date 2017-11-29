@@ -982,7 +982,9 @@ var ParticleSystem = cc.Class({
         this._blendFunc.dst = this._dstBlendFactor;
         sgNode.setBlendFunc(this._blendFunc);
 
-        sgNode.texture = this._texture;
+        if (this._texture) {
+            sgNode.texture = this._texture;
+        }
 
         // recover sgNode properties
         if (!active) {
