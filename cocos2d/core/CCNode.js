@@ -51,7 +51,6 @@ var ActionManagerExist = !!cc.ActionManager;
 var emptyFunc = function () {};
 var _mat4_temp = math.mat4.create();
 var _vec3_temp = math.vec3.create();
-var _vec2_temp = math.vec2.create();
 var _trans = affineTrans.make();
 var _globalOrderOfArrival = 1;
 
@@ -1930,7 +1929,7 @@ var Node = cc.Class({
         _vec3_temp.y = -this._anchorPoint.y * contentSize.height;
 
         math.mat4.copy(_mat4_temp, this._worldMatrix);
-        math.mat4.translate(_mat4_temp, _mat4_temp, _vec2_temp);
+        math.mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
 
         return affineTrans.fromMatrix(_mat4_temp, out);
     },
