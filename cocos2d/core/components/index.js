@@ -58,4 +58,4 @@ var components = [
 // Delay require render components assemblers
 require('../renderer/assemblers');
 
-module.exports = components
+module.exports = components;

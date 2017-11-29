@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const RenderComponent = require('../components/CCRenderComponent');
 const renderer = require('./index');
 const renderEngine = require('./render-engine');
 const SharedArrayBuffer = require('./shared-array-buffer');
@@ -134,7 +133,7 @@ RenderComponentWalker.prototype = {
         if (node instanceof cc.Scene) {
             return;
         }
-        let comp = node.getComponent(RenderComponent);
+        let comp = node.getComponent(cc.RenderComponent);
         if (comp) {
             _queue.push(comp);
         }

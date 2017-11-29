@@ -45,8 +45,12 @@ var _defaultVertexFormat = new gfx.VertexFormat([
 var RenderComponent = cc.Class({
     name: 'RenderComponent',
     extends: Component,
+
+    editor: CC_EDITOR && {
+        executeInEditMode: true
+    },
     
-    ctor: function() {
+    ctor: function () {
         this._material = null;
         this._customMaterial = false;
         this._renderData = null;
@@ -64,4 +68,4 @@ var RenderComponent = cc.Class({
 });
 RenderComponent._assembler = null;
 
-module.exports = RenderComponent;
+cc.RenderComponent = module.exports = RenderComponent;
