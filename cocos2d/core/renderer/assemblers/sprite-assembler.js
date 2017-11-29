@@ -37,7 +37,7 @@ var simpleRenderData = {
         renderData.xysLength = 4;
         renderData.uvsLength = 4;
         renderData.vertexCount = 4;
-        renderData.indexCount = 6;
+        renderData.indiceCount = 6;
         return renderData;
     },
 
@@ -170,7 +170,7 @@ var slicedRenderData = {
         renderData.xysLength = 4;
         renderData.uvsLength = 4;
         renderData.vertexCount = 36;
-        renderData.indexCount = 54;
+        renderData.indiceCount = 54;
         return renderData;
     },
 

@@ -14276,7 +14276,7 @@ module.exports = (function () {
       this._height = 0;
   
       this.vertexCount = 0;
-      this.indexCount = 0;
+      this.indiceCount = 0;
   
       this.uvDirty = true;
       this.vertDirty = true;
