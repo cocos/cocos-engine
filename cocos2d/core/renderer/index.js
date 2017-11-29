@@ -80,7 +80,7 @@ module.exports = {
             x: 0, y: 0, w: canvas.width, h: canvas.height
         });
         if (CC_EDITOR) {
-            this._camera.setColor(1, 1, 1, 0);
+            this._camera.setColor(0, 0, 0, 0);
         }
         this._camera.setStages([
             'transparent'
