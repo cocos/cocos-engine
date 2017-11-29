@@ -79,6 +79,9 @@ module.exports = {
         this._camera = new renderEngine.Camera({
             x: 0, y: 0, w: canvas.width, h: canvas.height
         });
+        if (CC_EDITOR) {
+            this._camera.setColor(1, 1, 1, 0);
+        }
         this._camera.setStages([
             'transparent'
         ]);
@@ -89,8 +92,10 @@ module.exports = {
     },
 
     updateCameraViewport () {
-        var scene = cc.director.getScene();
-        scene.scaleX = scene.scaleY = 1;
+        if (!CC_EDITOR) {
+            var scene = cc.director.getScene();
+            scene.scaleX = scene.scaleY = 1;
+        }
         this._cameraNode.scaleX = 1 / cc.view.getScaleX();
         this._cameraNode.scaleY = 1 / cc.view.getScaleY();
         this._camera._rect.w = this.canvas.width;
