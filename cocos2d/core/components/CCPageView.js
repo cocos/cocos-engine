@@ -369,7 +369,7 @@ var PageView = cc.Class({
      * @param {Number} timeInSecond scrolling time
      */
     scrollToPage: function (idx, timeInSecond) {
-        if (idx < 0 || idx > this._pages.length)
+        if (idx < 0 || idx >= this._pages.length)
             return;
         timeInSecond = timeInSecond !== undefined ? timeInSecond : 0.3;
         this._curPageIdx = idx;

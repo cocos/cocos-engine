@@ -485,8 +485,9 @@ cc.rendererWebGL = {
             i, len, cmd,
             context = ctx || cc._renderContext;
 
-        // Reset buffer for rendering
+        // Reset buffer and texture for rendering
         context.bindBuffer(context.ARRAY_BUFFER, null);
+        cc.gl.bindTexture2DN(0, null);
         
         for (i = 0, len = locCmds.length; i < len; ++i) {
             cmd = locCmds[i];

@@ -23,6 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var PrefabHelper = require('./prefab-helper');
 var Flags = require('../platform/CCObject').Flags;
 var Misc = require('./misc');
 var IdGenerater = require('../platform/id-generater');
@@ -1055,6 +1056,12 @@ var BaseNode = cc.Class({
 
     _onSetParent (value) {},
     _onPostActivated () {},
+    _onBatchRestored () {
+        var children = this._children;
+        for (var i = 0, len = children.length; i < len; i++) {
+            children[i]._onBatchRestored();
+        }
+    },
 
     _onHierarchyChanged (oldParent) {
         var newParent = this._parent;
@@ -1107,11 +1114,11 @@ var BaseNode = cc.Class({
 
     _onBatchCreated () {
         var prefabInfo = this._prefab;
-        if (prefabInfo && prefabInfo.sync && !prefabInfo._synced) {
-            // checks to ensure no recursion, recursion will caused only on old data.
-            if (prefabInfo.root === this) {
-                PrefabHelper.syncWithPrefab(this);
+        if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
+            if (CC_DEV && prefabInfo._synced) {
+                cc.error('Internal error: prefab already synced');
             }
+            PrefabHelper.syncWithPrefab(this);
         }
 
         var children = this._children;
@@ -1133,8 +1140,6 @@ var BaseNode = cc.Class({
         }
         var syncing = thisPrefabInfo && this === thisPrefabInfo.root && thisPrefabInfo.sync;
         if (syncing) {
-            // copy non-serialized property
-            cloned._prefab._synced = thisPrefabInfo._synced;
             //if (thisPrefabInfo._synced) {
             //    return clone;
             //}
@@ -1145,7 +1150,7 @@ var BaseNode = cc.Class({
 
         // reset and init
         cloned._parent = null;
-        cloned._onBatchCreated();
+        cloned._onBatchRestored();
 
         return cloned;
     },
