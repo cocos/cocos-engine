@@ -23,42 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Component = require('./CCComponent');
-const defaultVertexFormat = require('../renderer/vertex-format');
+const renderEngine = require('./render-engine');
+const gfx = renderEngine.gfx;
 
-/**
- * !#en
- * Base class for components which supports rendering features.
- * !#zh
- * 所有支持渲染的组件的基类
- *
- * @class RenderComponent
- * @extends Component
- */
-var RenderComponent = cc.Class({
-    name: 'RenderComponent',
-    extends: Component,
+var defaultVertexFormat = new gfx.VertexFormat([
+    { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 3 },
+    { name: gfx.ATTR_COLOR, type: gfx.ATTR_TYPE_UINT8, num: 4, normalize: true },
+    { name: gfx.ATTR_UV0, type: gfx.ATTR_TYPE_FLOAT32, num: 2 }
+]);
 
-    editor: CC_EDITOR && {
-        executeInEditMode: true
-    },
-    
-    ctor () {
-        this._material = null;
-        this._customMaterial = false;
-        this._renderData = null;
-        this._vertexFormat = defaultVertexFormat;
-    },
-
-    getEffect () {
-        if (this._material) {
-            return this._material.effect;
-        }
-        else {
-            return null;
-        }
-    },
-});
-RenderComponent._assembler = null;
-
-cc.RenderComponent = module.exports = RenderComponent;
+module.exports = defaultVertexFormat;
