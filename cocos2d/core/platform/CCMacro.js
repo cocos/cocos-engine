@@ -1867,7 +1867,7 @@ cc.macro = {
      * 最大可以被单次批处理渲染的顶点数量。
      * @property {Number} BATCH_VERTEX_COUNT
      */
-    BATCH_VERTEX_COUNT: 20000,
+    BATCH_VERTEX_COUNT: 2000,
 
     /**
      * !#en 

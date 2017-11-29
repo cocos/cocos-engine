@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2013-2017 Chukong Technologies Inc.
 
  http://www.cocos.com
 
@@ -24,6 +24,7 @@
  ****************************************************************************/
  
 const renderEngine = require('./render-engine');
+const RenderComponentWalker = require('./render-component-walker');
 require('./RendererWebGL');
 
 function _initBuiltins(device) {
@@ -61,6 +62,7 @@ module.exports = {
     device: null,
     scene: null,
     materialUtil: null,
+    _walker: null,
     _cameraNode: null,
     _camera: null,
     _forward: null,
@@ -70,6 +72,8 @@ module.exports = {
         this.device = new renderEngine.Device(canvas, opts);
         this.scene = new renderEngine.Scene();
         this.materialUtil = new renderEngine.MaterialUtil();
+
+        this._walker = new RenderComponentWalker(this.device, this.scene);
 
         this._cameraNode = new cc.Node();
         this._camera = new renderEngine.Camera({
@@ -85,6 +89,8 @@ module.exports = {
     },
 
     updateCameraViewport () {
+        var scene = cc.director.getScene();
+        scene.scaleX = scene.scaleY = 1;
         this._cameraNode.scaleX = 1 / cc.view.getScaleX();
         this._cameraNode.scaleY = 1 / cc.view.getScaleY();
         this._camera._rect.w = this.canvas.width;
@@ -94,6 +100,10 @@ module.exports = {
     },
 
     render () {
-        this._forward.render(this.scene);
+        var scene = cc.director.getScene();
+        if (scene) {
+            this._walker.visit(scene);
+            this._forward.render(this.scene);
+        }
     }
 };

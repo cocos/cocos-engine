@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Chukong Technologies Inc.
 
  http://www.cocos.com
 
@@ -23,39 +23,45 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./CCComponent');
-require('./CCComponentEventHandler');
-require('./missing-script');
+const Component = require('./CCComponent');
+const renderEngine = require('../renderer/render-engine');
+const gfx = renderEngine.gfx;
 
-var components = [
-    require('./CCSprite'),
-    require('./CCWidget'),
-    require('./CCCanvas'),
-    require('./CCAudioSource'),
-    require('./CCAnimation'),
-    require('./CCButton'),
-    require('./CCLabel'),
-    require('./CCProgressBar'),
-    require('./CCMask'),
-    require('./CCScrollBar'),
-    require('./CCScrollView'),
-    require('./CCPageViewIndicator'),
-    require('./CCPageView'),
-    require('./CCSlider'),
-    require('./CCLayout'),
-    require('./CCEditBox'),
-    require('./CCVideoPlayer'),
-    require('./CCWebView'),
-    require('./CCSpriteDistortion'),
-    require('./CCLabelOutline'),
-    require('./CCRichText'),
-    require('./CCToggleContainer'),
-    require('./CCToggleGroup'),
-    require('./CCToggle'),
-    require('./CCBlockInputEvents'),
-];
+var _defaultVertexFormat = new gfx.VertexFormat([
+    { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 3 },
+    { name: gfx.ATTR_COLOR, type: gfx.ATTR_TYPE_UINT8, num: 4, normalize: true },
+    { name: gfx.ATTR_UV0, type: gfx.ATTR_TYPE_FLOAT32, num: 2 }
+]);
 
-// Delay require render components assemblers
-require('../renderer/assemblers');
+/**
+ * !#en
+ * Base class for components which supports rendering features.
+ * !#zh
+ * 所有支持渲染的组件的基类
+ *
+ * @class RenderComponent
+ * @extends Component
+ */
+var RenderComponent = cc.Class({
+    name: 'RenderComponent',
+    extends: Component,
+    
+    ctor: function() {
+        this._material = null;
+        this._customMaterial = false;
+        this._renderData = null;
+        this._vertexFormat = _defaultVertexFormat;
+    },
 
-module.exports = components
+    getEffect () {
+        if (this._material) {
+            return this._material.effect;
+        }
+        else {
+            return null;
+        }
+    },
+});
+RenderComponent._assembler = null;
+
+module.exports = RenderComponent;
