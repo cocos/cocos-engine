@@ -50,7 +50,7 @@ var RenderComponent = cc.Class({
         executeInEditMode: true
     },
     
-    ctor: function () {
+    ctor () {
         this._material = null;
         this._customMaterial = false;
         this._renderData = null;

@@ -237,6 +237,8 @@ RenderComponentWalker.prototype = {
                 // breaking batch
                 if (vertexCount > 0 && indexCount > 0) {
                     this._genModel(vertexCount, vertexFormat, indexCount, _queue, start, i);
+                    vertexCount = 0; 
+                    indexCount = 0;
                 }
                 start = i;
                 currEffect = effect;
