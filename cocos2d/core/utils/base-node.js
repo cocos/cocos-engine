@@ -120,11 +120,11 @@ function _walk (root, prefunc, postfunc) {
         }
         if (afterChildren) {
             // post call
-            postfunc(curr);
+            postfunc && postfunc(curr);
         }
         else {
             // pre call
-            prefunc(curr);
+            prefunc && prefunc(curr);
         }
         
         // Avoid memory leak
@@ -667,7 +667,7 @@ var BaseNode = cc.Class({
      * @param {Function} prefunc The callback to process node when reach the node for the first time
      * @param {_BaseNode} prefunc.target The current visiting node
      * @param {Function} postfunc The callback to process node when re-visit the node after walked all children in its sub tree
-     * @param {_BaseNode} prefunc.target The current visiting node
+     * @param {_BaseNode} postfunc.target The current visiting node
      * @example
      * node.walk(function (target) {
      *     console.log('Walked through node ' + target.name + ' for the first time');

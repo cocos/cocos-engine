@@ -51,6 +51,7 @@ var ActionManagerExist = !!cc.ActionManager;
 var emptyFunc = function () {};
 var _mat4_temp = math.mat4.create();
 var _vec3_temp = math.vec3.create();
+var _vec2_temp = math.vec2.create();
 var _trans = affineTrans.make();
 var _globalOrderOfArrival = 1;
 

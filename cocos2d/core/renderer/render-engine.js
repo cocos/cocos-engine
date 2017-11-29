@@ -7774,9 +7774,9 @@ module.exports = (function () {
         return;
       }
   
-      let gl = this._device._gl;
+      let gl = this.device.gl;
       gl.deleteBuffer(this._glID);
-      this._device._stats.ib -= this.bytes;
+      this.device._stats.ib -= this.bytes;
   
       this._glID = -1;
     }
@@ -7853,9 +7853,9 @@ module.exports = (function () {
         return;
       }
   
-      let gl = this._device._gl;
+      let gl = this.device.gl;
       gl.deleteBuffer(this._glID);
-      this._device._stats.vb -= this.bytes;
+      this.device._stats.vb -= this.bytes;
   
       this._glID = -1;
     }
@@ -8107,10 +8107,10 @@ module.exports = (function () {
         return;
       }
   
-      let gl = this._device._gl;
+      let gl = this.device.gl;
       gl.deleteTexture(this._glID);
   
-      this._device._stats.tex -= this.bytes;
+      this.device._stats.tex -= this.bytes;
       this._glID = -1;
     }
   }
@@ -10994,7 +10994,7 @@ module.exports = (function () {
     }
   }
   
-  class Model {
+  class Model$1 {
     constructor() {
       this._poolID = -1;
       this._node = null;
@@ -13762,86 +13762,13 @@ module.exports = (function () {
   
     Light,
     Camera,
-    Model,
+    Model: Model$1,
     Scene: Scene$1,
   
     Base,
     ProgramLib,
   };
   Object.assign(renderer, enums);
-  
-  class SharedArrayBuffer {
-      
-    constructor (byteLength) {
-      this.byteLength = byteLength;
-      this.data = new ArrayBuffer(this.byteLength);
-      this._spaces = {
-        0: this.byteLength
-      };
-    }
-  
-    _alloc (offset, size) {
-      var space = this._spaces[offset];
-      if (space && space >= size) {
-        // Remove the space
-        delete this._spaces[offset];
-        if (space > size) {
-          var newOffset = offset + size;
-          this._spaces[newOffset] = space - size;
-        }
-        return true;
-      }
-      else {
-        return false;
-      }
-    }
-  
-    request (size) {
-      var key, offset, available;
-      for (key in this._spaces) {
-        offset = parseInt(key);
-        available = this._spaces[key];
-        if (available >= size && this._alloc(offset, size)) {
-          return offset;
-        }
-      }
-      return -1;
-    }
-  
-    free (offset, size) {
-      var spaces = this._spaces;
-      var i, key, end;
-      // Merge with previous space
-      for (key in spaces) {
-        i = parseInt(key);
-        if (i > offset) {
-          break;
-        }
-        if (i + spaces[key] >= offset) {
-          size = size + offset - i;
-          offset = i;
-          break;
-        }
-      }
-  
-      end = offset + size;
-      // Merge with next space 
-      if (this._spaces[end]) {
-        size += this._spaces[end];
-        delete this._spaces[end];
-      }
-  
-      this._spaces[offset] = size;
-    }
-  
-    reset () {
-      this._spaces = {
-        0: this.byteLength
-      };
-    }
-  }
-  
-  let InputAssembler = renderer.InputAssembler;
   
   let _camPos = vec3.create();
   let _camFwd = vec3.create();
@@ -13851,152 +13778,22 @@ module.exports = (function () {
   let _a16_proj = new Float32Array(16);
   let _a16_viewProj = new Float32Array(16);
   
-  const PER_INDEX_BYTE = 2;
-  // 500 Quad + 750 Index
-  const MIN_SHARED_BUFFER_SIZE = 54000;
-  // 2000 Quad + 3000 Index
-  const MAX_SHARED_BUFFER_SIZE = 216000;
-  var _buffers = [];
-  var _newBuffer = {
-    buffer: null,
-    offset: -1
-  };
-  
   // Add stage to renderer
   renderer.addStage('transparent');
-  
-  function _createNewBuffer (bytes) {
-    // Allocate buffer
-    let buffer = null, offset = -1;
-    for (let i = 0, l = _buffers.length; i < l; i++) {
-      buffer = _buffers[i];
-      offset = buffer.request(bytes);
-      if (offset !== -1) {
-        break;
-      }
-    }
-    if (offset === -1) {
-      let bufferSize = 0;
-      if (bytes > MAX_SHARED_BUFFER_SIZE) {
-        bufferSize = bytes;
-      }
-      else {
-        bufferSize = Math.max(bytes * 2, MIN_SHARED_BUFFER_SIZE);
-      }
-      buffer = new SharedArrayBuffer(bufferSize);
-      _buffers.push(buffer);
-      offset = buffer.request(bytes);
-    }
-    _newBuffer.buffer = buffer.data;
-    _newBuffer.offset = offset;
-    return _newBuffer;
-  }
   
   class ForwardRenderer$1 extends renderer.Base {
     constructor (device, builtin) {
       super(device, builtin);
-  
-      let defaultFormat = new gfx.VertexFormat([]);
-      this._vbPool = new RecyclePool(function () {
-        return new gfx.VertexBuffer(
-          device,
-          defaultFormat,
-          gfx.USAGE_DYNAMIC,
-          null,
-          0
-        );
-      }, 16);
-      this._ibPool = new RecyclePool(function () {
-        return new gfx.IndexBuffer(
-          device,
-          gfx.INDEX_FMT_UINT16,
-          gfx.USAGE_STATIC,
-          null,
-          0
-        );
-      }, 16);
-      this._iaPool = new RecyclePool(function () {
-        return new InputAssembler();
-      }, 16);
-  
-      this._batchedItems = null;
-      
       this._registerStage('transparent', this._transparentStage.bind(this));
     }
   
-    reset () {
-      // Reset intermediate datas
-      for (let i = 0; i < _buffers.length; i++) {
-        _buffers[i].reset();
-      }
-      this._vbPool.reset();
-      this._ibPool.reset();
-      this._iaPool.reset();
-      this._batchedItems = null;
-      // Reset renderer internal datas
-      this._reset();
-    }
-  
     render (scene) {
-      this.reset();
-  
-      // visit logic node tree to get zorders
-      // scene.visit();
-  
-      // batched stage items, will be released every frame by _reset function
-      this._batchedItems = this._stageItemsPools.add();
-      this._batchedItems.reset();
+      this._reset();
   
       for (let i = 0; i < scene._cameras.length; ++i) {
         let view = scene._cameras.data[i].getView();
         this._render(view, scene);
       }
-    }
-  
-    batchItem (items, start, end, vbuf, ibuf) {
-      let uintbuf = new Uint32Array(vbuf.buffer, vbuf.byteOffset, vbuf.length);
-      let stageItem = this._batchedItems.add();
-      let item0 = items.data[start];
-      let vformat = item0.model.vertexFormat;
-      stageItem.model = null;
-      stageItem.node = item0.node;
-      stageItem.effect = item0.effect;
-      stageItem.options = item0.options;
-      stageItem.technique = item0.technique;
-      stageItem.sortKey = -1;
-  
-      let numIndices = 0;
-      let numVertices = 0;
-      for (let i = start; i < end; i++) {
-        let item = items.data[i];
-        let vertexId = numVertices;
-        numVertices += item.model.fillVertexBuffer(vertexId, vbuf, uintbuf);
-        numIndices += item.model.fillIndexBuffer(numIndices, vertexId, ibuf);
-      }
-      
-      let count = end - start;
-  
-      let device = this._device;
-      let vb = this._vbPool.add();
-      device._stats.vb -= vb._bytes;
-      vb._format = item0.model.vertexFormat;
-      vb._numVertices = numVertices;
-      vb._bytes = vformat._bytes * numVertices;
-      vb.update(0, vbuf);
-      device._stats.vb += vb._bytes;
-  
-      let ib = this._ibPool.add();
-      device._stats.ib -= ib._bytes;
-      ib._numIndices = numIndices;
-      ib._bytes = 2 * numIndices;
-      ib.update(0, ibuf);
-      device._stats.ib += ib._bytes;
-  
-      let ia = this._iaPool.add();
-      ia._vertexBuffer = vb;
-      ia._indexBuffer = ib;
-      stageItem.ia = ia;
-      return stageItem;
     }
   
     _transparentStage (view, items) {
@@ -14005,47 +13802,9 @@ module.exports = (function () {
       this._device.setUniform('proj', mat4.array(_a16_proj, view._matProj));
       this._device.setUniform('viewProj', mat4.array(_a16_viewProj, view._matViewProj));
   
-      // Culling and batch stage items
-      let currEffect = null;
-      let vertexFormat = null;
-      let vertexCount = 0;
-      let indexCount = 0;
-      let start = 0;
-      for (let i = 0, l = items.length; i < l; ++i) {
-        let item = items.data[i];
-        if (currEffect != item.effect) {
-          // breaking batch
-          if (vertexCount > 0 && indexCount > 0) {
-            let vertexBytes = vertexCount * vertexFormat._bytes;
-            let buf = _createNewBuffer(vertexBytes);
-            let vbuf = new Float32Array(buf.buffer, buf.offset, vertexBytes / 4);
-            buf = _createNewBuffer(indexCount * PER_INDEX_BYTE);
-            let ibuf = new Uint16Array(buf.buffer, buf.offset, indexCount);
-            this.batchItem(items, start, i, vbuf, ibuf);
-            vertexCount = 0;
-            indexCount = 0;
-          }
-          start = i;
-          currEffect = item.effect;
-          vertexFormat = item.model.vertexFormat;
-        }
-  
-        vertexCount += item.model.vertexCount;
-        indexCount += item.model.indexCount;
-      }
-  
-      if (vertexCount > 0 && indexCount > 0) {
-        let vertexBytes = vertexCount * vertexFormat._bytes;
-        let buf = _createNewBuffer(vertexBytes);
-        let vbuf = new Float32Array(buf.buffer, buf.offset, vertexBytes / 4);
-        buf = _createNewBuffer(indexCount * PER_INDEX_BYTE);
-        let ibuf = new Uint16Array(buf.buffer, buf.offset, indexCount);
-        this.batchItem(items, start, items.length, vbuf, ibuf);
-      }
-      
       // draw it
-      for (let i = 0; i < this._batchedItems.length; ++i) {
-        let item = this._batchedItems.data[i];
+      for (let i = 0; i < items.length; ++i) {
+        let item = items.data[i];
         this._draw(item);
       }
     }
@@ -14396,7 +14155,7 @@ module.exports = (function () {
       this._color = color4.new(0, 0, 0, 1);
       this._depth = 1;
       this._stencil = 1;
-      this._clearFlags = gfx.CLEAR_COLOR | gfx.CLEAR_DEPTH;
+      this._clearFlags = renderer.CLEAR_COLOR | renderer.CLEAR_DEPTH;
   
       // projection properties
       this._near = 0.1;
@@ -14498,541 +14257,81 @@ module.exports = (function () {
     ORTHO: 1
   };
   
-  var _vertexFormat = new gfx.VertexFormat([
-    { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 3 },
-    { name: gfx.ATTR_COLOR, type: gfx.ATTR_TYPE_UINT8, num: 4, normalize: true },
-    { name: gfx.ATTR_UV0, type: gfx.ATTR_TYPE_FLOAT32, num: 2 }
-  ]);
-  
-  var _matrix = mat4.create();
-  
   var _pool;
   
-  class SpriteModel {
+  class RenderData {
     constructor () {
-      this._node = null;
-      this._viewID = -1;
-      this._poolID = -1;
-      this._frame = null;
-      this._effect = null;
-      this._option = null;
-      this._texture = null;
-      this._trimmed = true;
-      this._uv = {
-        l: 0,
-        r: 1,
-        b: 0,
-        t: 1
+      this._verts = {
+        x: [],
+        y: []
       };
+      this._uvs = {
+        u: [],
+        v: []
+      };
+  
+      this._pivotX = 0;
+      this._pivotY = 0;
+      this._width = 0;
+      this._height = 0;
+  
+      this.vertexCount = 0;
+      this.indexCount = 0;
+  
+      this.uvDirty = true;
+      this.vertDirty = true;
+    }
+  
+    get xysLength () {
+      return this._verts.x.length;
+    }
+  
+    set xysLength (length) {
+      this._verts.x.length = length;
+      this._verts.y.length = length;
     }
     
-    _updateUV () {
-      let frame = this._frame;
-      if (this._effect) {
-        let texture = this._effect.getValue('texture');
-        let texw = texture._width,
-            texh = texture._height;
-        let rect = frame._rect;
-        let l, b, r, t;
-  
-        if (this._trimmed) {
-          l = rect.x;
-          t = rect.y;
-          r = rect.x + rect.width;
-          b = rect.y + rect.height;
-        } else {
-          let originalSize = frame._originalSize;
-          let offset = frame._offset;
-          let ow = originalSize.width,
-              oh = originalSize.height,
-              rw = rect.width,
-              rh = rect.height;
-          let ox = rect.x + (rw - ow) / 2 - offset.x;
-          let oy = rect.y + (rh - oh) / 2 - offset.y;
-  
-          l = ox;
-          t = oy;
-          r = ox + ow;
-          b = oy + oh;
-        }
-        
-        this._uv.l = texw === 0 ? 0 : l / texw;
-        this._uv.r = texw === 0 ? 0 : r / texw;
-        this._uv.b = texh === 0 ? 0 : b / texh;
-        this._uv.t = texh === 0 ? 0 : t / texh;
-      }
+    get uvsLength () {
+      return this._uvs.u.length;
     }
   
-    setNode (node) {
-      this._node = node;
+    set uvsLength (length) {
+      this._uvs.u.length = length;
+      this._uvs.v.length = length;
     }
   
-    setEffect (effect) {
-      this._effect = effect;
-      if (effect) {
-        let opt = Object.create(null);
-        effect.extractOptions(opt);
-        this._option = opt;
-      }
-      else {
-        this._option = null;
+    updateSizeNPivot (width, height, pivotX, pivotY) {
+      if (width !== this._width || 
+          height !== this._height ||
+          pivotX !== this._pivotX ||
+          pivotY !== this._pivotY) 
+      {
+        this._width = width;
+        this._height = height;
+        this._pivotX = pivotX;
+        this._pivotY = pivotY;
+        this.vertDirty = true;
       }
     }
     
-    get spriteFrame () {
-      return this._frame;
-    }
-  
-    set spriteFrame (frame) {
-      this._frame = frame;
-      this._updateUV();
-    }
-  
-    get trimmed () {
-      return this._trimmed;
-    }
-  
-    set trimmed (trimmed) {
-      this._trimmed = !!trimmed;
-      this._updateUV();
-    }
-  
-    get drawItemCount () {
-      return 1;
-    }
-  
-    get vertexFormat () {
-      return _vertexFormat;
-    }
-  
-    get vertexCount () {
-      return 4;
-    }
-  
-    get indexCount () {
-      return 6;
-    }
-  
-    extractDrawItem (out, index) {
-      out.model = this;
-      out.node = this._node;
-      out.ia = null;
-      out.effect = this._effect;
-      out.options = out.effect.extractOptions(this._option);
-    }
-  
-    fillVertexBuffer (index, vbuf, uintbuf) {
-      let texture = this._effect.getValue('texture');
-      if (texture !== this._texture) {
-        this._updateUV();
-        this._texture = texture;
-      }
-  
-      let off = index * _vertexFormat._bytes / 4;
-      let node = this._node;
-      let uv = this._uv;
-      // for position
-      node.getWorldMatrix(_matrix);
-      let a = _matrix.m00,
-          b = _matrix.m01,
-          c = _matrix.m04,
-          d = _matrix.m05,
-          tx = _matrix.m12,
-          ty = _matrix.m13;
-  
-      // for color
-      let color = ((255<<24) >>> 0) + (255<<16) + (255<<8) + 255;
-  
-      // Assign vertex data
-      let frame = this._frame,
-          width, height;
-      if (this._trimmed) {
-        width = frame._rect.width;
-        height = frame._rect.height;
-      }
-      else {
-        width = frame._originalSize.width;
-        height = frame._originalSize.height;
-      }
-          
-      let appx = node._anchorPoint.x*width, appy = node._anchorPoint.y*height;
-      if (appx || appy) {
-          tx -= a * appx + c * appy;
-          ty -= b * appx + d * appy;
-      }
-  
-      let top = height,
-          right = width,
-          bottom = 0,
-          left = 0;
-      let z = node.lpos === undefined ? node.z : node.lpos.z;
-      // bl
-      vbuf[off++] = left * a + bottom * c + tx;
-      vbuf[off++] = left * b + bottom * d + ty;
-      vbuf[off++] = z;
-      uintbuf[off++] = color;
-      vbuf[off++] = uv.l;
-      vbuf[off++] = uv.b;
-      // br
-      vbuf[off++] = right * a + bottom * c + tx;
-      vbuf[off++] = right * b + bottom * d + ty;
-      vbuf[off++] = z;
-      uintbuf[off++] = color;
-      vbuf[off++] = uv.r;
-      vbuf[off++] = uv.b;
-      // tl
-      vbuf[off++] = left * a + top * c + tx;
-      vbuf[off++] = left * b + top * d + ty;
-      vbuf[off++] = z;
-      uintbuf[off++] = color;
-      vbuf[off++] = uv.l;
-      vbuf[off++] = uv.t;
-      // tr
-      vbuf[off++] = right * a + top * c + tx;
-      vbuf[off++] = right * b + top * d + ty;
-      vbuf[off++] = z;
-      uintbuf[off++] = color;
-      vbuf[off++] = uv.r;
-      vbuf[off++] = uv.t;
-  
-      return 4;
-    }
-  
-    fillIndexBuffer (offset, vertexId, ibuf) {
-      ibuf[offset + 0] = vertexId;
-      ibuf[offset + 1] = vertexId + 1;
-      ibuf[offset + 2] = vertexId + 2;
-      ibuf[offset + 3] = vertexId + 1;
-      ibuf[offset + 4] = vertexId + 3;
-      ibuf[offset + 5] = vertexId + 2;
-      return 6;
-    }
-  
-    // Canvas draw
-    draw (ctx) {
-      let texture = this._effect.getValue('texture');
-      if (texture !== this._texture) {
-        this._texture = texture;
-      }
-  
-      this._node.getWorldMatrix(_matrix);
-      let a = _matrix.m00,
-          b = _matrix.m01,
-          c = _matrix.m04,
-          d = _matrix.m05,
-          tx = _matrix.m12,
-          ty = _matrix.m13;
-  
-      ctx.transform(a, b, c, d, tx, ty);
-  
-      let frame = this._frame;
-      let dx = -frame.width/2,
-          dy = -frame.height/2,
-          dw = frame.width,
-          dh = frame.height,
-          sx = frame.x,
-          sy = frame.y,
-          sw = frame.width,
-          sh = frame.height;
-      ctx.drawImage(texture._image, sx, sy, sw, sh, dx, dy, dw, dh);
-    }
-  
     static alloc () {
       return _pool.alloc();
     }
   
-    static free (model) {
-      if (model instanceof SpriteModel) {
-        model._node = null;
-        model._frame = null;
-        model._effect = null;
-        model._texture = null;
-        model._trimmed = true;
+    static free (data) {
+      if (data instanceof RenderData) {
+        data._verts.x.length = 0;
+        data._verts.y.length = 0;
+        data._uvs.u.length = 0;
+        data._uvs.v.length = 0;
         _pool.free(model);
       }
     }
   }
   
   _pool = new Pool(() => {
-    return new SpriteModel();
-  }, 8);
-  
-  var _matrix$1 = mat4.create();
-  var _x = [0, 0, 0, 0];
-  var _y = [0, 0, 0, 0];
-  var _vertex = {
-    x: [
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0]
-    ],
-    y: [
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0]
-    ]
-  };
-  
-  var _pool$1;
-  
-  class SlicedModel {
-    constructor() {
-      this._node = null;
-      this._viewID = -1;
-      this._poolID = -1;
-      this._frame = null;
-      this._effect = null;
-      this._option = null;
-      this._texture = null;
-      this._uv = {
-        u: [0, 0, 0, 0],
-        v: [0, 0, 0, 0]
-      };
-    }
-    
-    _updateUV () {
-      let frame = this._frame;
-      if (this._effect) {
-        let texture = this._effect.getValue('texture');
-        let rect = frame._rect;
-        let atlasWidth = texture._width;
-        let atlasHeight = texture._height;
-  
-        // caculate texture coordinate
-        let leftWidth = frame.insetLeft;
-        let rightWidth = frame.insetRight;
-        let centerWidth = rect.width - leftWidth - rightWidth;
-        let topHeight = frame.insetTop;
-        let bottomHeight = frame.insetBottom;
-        let centerHeight = rect.height - topHeight - bottomHeight;
-  
-        // uv computation should take spritesheet into account.
-        let u = this._uv.u;
-        let v = this._uv.v;
-        if (frame._rotated) {
-          u[0] = (rect.x) / atlasWidth;
-          u[1] = (bottomHeight + rect.x) / atlasWidth;
-          u[2] = (bottomHeight + centerHeight + rect.x) / atlasWidth;
-          u[3] = (rect.x + rect.height) / atlasWidth;
-  
-          v[0] = (rect.y) / atlasHeight;
-          v[1] = (leftWidth + rect.y) / atlasHeight;
-          v[2] = (leftWidth + centerWidth + rect.y) / atlasHeight;
-          v[3] = (rect.y + rect.width) / atlasHeight;
-        }
-        else {
-          u[0] = (rect.x) / atlasWidth;
-          u[1] = (leftWidth + rect.x) / atlasWidth;
-          u[2] = (leftWidth + centerWidth + rect.x) / atlasWidth;
-          u[3] = (rect.x + rect.width) / atlasWidth;
-  
-          v[3] = (rect.y) / atlasHeight;
-          v[2] = (topHeight + rect.y) / atlasHeight;
-          v[1] = (topHeight + centerHeight + rect.y) / atlasHeight;
-          v[0] = (rect.y + rect.height) / atlasHeight;
-        }
-      }
-    }
-  
-    setNode(node) {
-      this._node = node;
-    }
-  
-    setEffect(effect) {
-      this._effect = effect;
-      if (effect) {
-        let opt = Object.create(null);
-        effect.extractOptions(opt);
-        this._option = opt;
-      }
-      else {
-        this._option = null;
-      }
-    }
-    
-    get spriteFrame () {
-      return this._frame;
-    }
-  
-    set spriteFrame (frame) {
-      this._frame = frame;
-      this._updateUV();
-    }
-  
-    get drawItemCount() {
-      return 1;
-    }
-  
-    get vertexFormat () {
-      return _vertexFormat;
-    }
-  
-    get vertexCount () {
-      return 36;
-    }
-  
-    get indexCount () {
-      return 54;
-    }
-  
-    extractDrawItem(out, index) {
-      out.model = this;
-      out.node = this._node;
-      out.ia = null;
-      out.effect = this._effect;
-      out.options = out.effect.extractOptions(this._option);
-    }
-    
-    _updateVertex (node) {
-      node.getWorldMatrix(_matrix$1);
-      let a = _matrix$1.m00,
-          b = _matrix$1.m01,
-          c = _matrix$1.m04,
-          d = _matrix$1.m05,
-          tx = _matrix$1.m12,
-          ty = _matrix$1.m13;
-  
-      let appx = node._anchorPoint.x * node.width, appy = node._anchorPoint.y * node.height;
-      if (appx || appy) {
-          tx -= a * appx + c * appy;
-          ty -= b * appx + d * appy;
-      }
-  
-      let frame = this._frame;
-      let rect = frame._rect;
-      let leftWidth = frame.insetLeft;
-      let rightWidth = frame.insetRight;
-      let topHeight = frame.insetTop;
-      let bottomHeight = frame.insetBottom;
-  
-      let sizableWidth = node.width - leftWidth - rightWidth;
-      let sizableHeight = node.height - topHeight - bottomHeight;
-      let xScale = node.width / (leftWidth + rightWidth);
-      let yScale = node.height / (topHeight + bottomHeight);
-      xScale = (isNaN(xScale) || xScale > 1) ? 1 : xScale;
-      yScale = (isNaN(yScale) || yScale > 1) ? 1 : yScale;
-      sizableWidth = sizableWidth < 0 ? 0 : sizableWidth;
-      sizableHeight = sizableHeight < 0 ? 0 : sizableHeight;
-      let x = _x;
-      let y = _y;
-      x[0] = 0;
-      x[1] = leftWidth * xScale;
-      x[2] = x[1] + sizableWidth;
-      x[3] = node.width;
-      y[0] = 0;
-      y[1] = bottomHeight * yScale;
-      y[2] = y[1] + sizableHeight;
-      y[3] = node.height;
-  
-      let vx = _vertex.x;
-      let vy = _vertex.y;
-      for (let row = 0; row < 4; row++) {
-        for (let col = 0; col < 4; col++) {
-          vx[row][col] = x[col] * a + y[row] * c + tx;
-          vy[row][col] = x[col] * b + y[row] * d + ty;
-        }
-      }
-    }
-  
-    fillVertexBuffer (index, vbuf, uintbuf) {
-      let texture = this._effect.getValue('texture');
-      if (texture !== this._texture) {
-        this._updateUV();
-        this._texture = texture;
-      }
-  
-      let offset = index * _vertexFormat._bytes / 4;
-      let node = this._node;
-      let frame = this._frame;
-  
-      // for color
-      let color = ((255<<24) >>> 0) + (255<<16) + (255<<8) + 255;
-  
-      // Assign vertex data
-      this._updateVertex(node);
-      let x = _vertex.x;
-      let y = _vertex.y;
-      let z = node.lpos === undefined ? node.z : node.lpos.z;
-      let u = this._uv.u;
-      let v = this._uv.v;
-      for (let r = 0; r < 3; ++r) {
-        for (let c = 0; c < 3; ++c) {
-          // lb
-          vbuf[offset] = x[r][c];
-          vbuf[offset + 1] = y[r][c];
-          vbuf[offset + 2] = z;
-          uintbuf[offset + 3] = color;
-          vbuf[offset + 4] = u[c];
-          vbuf[offset + 5] = v[r];
-          offset += 6;
-          // rb
-          vbuf[offset] = x[r][c+1];
-          vbuf[offset + 1] = y[r][c+1];
-          vbuf[offset + 2] = z;
-          uintbuf[offset + 3] = color;
-          vbuf[offset + 4] = u[c+1];
-          vbuf[offset + 5] = v[r];
-          offset += 6;
-          // lt
-          vbuf[offset] = x[r+1][c];
-          vbuf[offset + 1] = y[r+1][c];
-          vbuf[offset + 2] = z;
-          uintbuf[offset + 3] = color;
-          vbuf[offset + 4] = u[c];
-          vbuf[offset + 5] = v[r+1];
-          offset += 6;
-          // rt
-          vbuf[offset] = x[r+1][c+1];
-          vbuf[offset + 1] = y[r+1][c+1];
-          vbuf[offset + 2] = z;
-          uintbuf[offset + 3] = color;
-          vbuf[offset + 4] = u[c+1];
-          vbuf[offset + 5] = v[r+1];
-          offset += 6;
-        }
-      }
-      return 36;
-    }
-  
-    fillIndexBuffer (offset, vertexId, ibuf) {
-      for (let r = 0; r < 3; ++r) {
-        for (let c = 0; c < 3; ++c) {
-          ibuf[offset++] = vertexId;
-          ibuf[offset++] = vertexId + 1;
-          ibuf[offset++] = vertexId + 2;
-          ibuf[offset++] = vertexId + 1;
-          ibuf[offset++] = vertexId + 3;
-          ibuf[offset++] = vertexId + 2;
-          vertexId += 4;
-        }
-      }
-      return 54;
-    }
-  
-    draw () {
-  
-    }
-    
-    static alloc () {
-      return _pool$1.alloc();
-    }
-  
-    static free (model) {
-      if (model instanceof SlicedModel) {
-        model._node = null;
-        model._frame = null;
-        model._effect = null;
-        model._texture = null;
-        _pool$1.free(model);
-      }
-    }
-  }
-  
-  _pool$1 = new Pool(() => {
-    return new SlicedModel();
-  }, 8);
+    return new RenderData();
+  }, 32);
   
   class Asset {
     constructor(persist = true) {
@@ -15062,7 +14361,7 @@ module.exports = (function () {
       super(false);
   
       var pass = new renderer.Pass('sprite');
-      pass.setDepth(true, false);
+      pass.setDepth(false, false);
       pass.setCullMode(gfx.CULL_NONE);
       pass.setBlend(
         gfx.BLEND_FUNC_ADD,
@@ -15162,6 +14461,8 @@ module.exports = (function () {
   const ForwardRenderer = renderMode.supportWebGL ? ForwardRenderer$1 : ForwardRenderer$2;
   const Texture2D = renderMode.supportWebGL ? gfx.Texture2D : canvas.Texture2D;
   const Device = renderMode.supportWebGL ? gfx.Device : canvas.Device;
+  const Model = renderer.Model;
+  const InputAssembler = renderer.InputAssembler;
   
   let renderEngine = {
     // core classes
@@ -15172,10 +14473,9 @@ module.exports = (function () {
     // render scene
     Scene,
     Camera: Camera$1,
-  
-    // models
-    SpriteModel,
-    SlicedModel,
+    Model,
+    RenderData,
+    InputAssembler,
     
     // assets
     Asset,
@@ -15188,9 +14488,11 @@ module.exports = (function () {
     shaders,
   
     // utils
-    SharedArrayBuffer,
     renderMode,
     MaterialUtil,
+  
+    // memop
+    RecyclePool,
   
     // modules
     math,

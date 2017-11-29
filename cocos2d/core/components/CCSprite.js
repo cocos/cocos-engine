@@ -23,12 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const RenderComponent = require('./CCRenderComponent');
 const renderer = require('../renderer');
 const renderEngine = require('../renderer/render-engine');
 const gfx = renderEngine.gfx;
 const SpriteMaterial = renderEngine.SpriteMaterial;
-const SpriteModel = renderEngine.SpriteModel;
-const SlicedModel = renderEngine.SlicedModel;
+const RenderData = renderEngine.RenderData;
 
 /**
  * !#en Enum for sprite type.
@@ -156,18 +156,12 @@ var State = cc.Enum({
  */
 var Sprite = cc.Class({
     name: 'cc.Sprite',
-    extends: cc.Component,
+    extends: RenderComponent,
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Sprite',
         help: 'i18n:COMPONENT.help_url.sprite',
         inspector: 'packages://inspector/inspectors/comps/sprite.js',
-    },
-
-    ctor: function() {
-        this._material = null;
-        this._customMaterial = false;
-        this._model = null;
     },
 
     properties: {
@@ -246,9 +240,8 @@ var Sprite = cc.Class({
             },
             set: function (value) {
                 if (this._type !== value) {
-                    this._removeModel();
+                    RenderData.free(this._renderData);
                     this._type = value;
-                    this._activateModel();
                 }
             },
             type: SpriteType,
@@ -272,8 +265,8 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._fillType = value;
-                if (this._type === SpriteType.FILLED && this._model) {
-                    this._model.setFillType(value);
+                if (this._type === SpriteType.FILLED && this._renderData) {
+                    this._renderData.vertDirty = true;
                 }
             },
             type: FillType,
@@ -296,8 +289,8 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._fillCenter = cc.v2(value);
-                if (this._type === SpriteType.FILLED && this._model) {
-                    this._model.setFillCenter(this._fillCenter);
+                if (this._type === SpriteType.FILLED && this._renderData) {
+                    this._renderData.vertDirty = true;
                 }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_center',
@@ -320,8 +313,8 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._fillStart = cc.clampf(value, -1, 1);
-                if (this._type === SpriteType.FILLED && this._model) {
-                    this._model.setFillStart(this._fillStart);
+                if (this._type === SpriteType.FILLED && this._renderData) {
+                    this._renderData.vertDirty = true;
                 }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_start'
@@ -344,8 +337,8 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._fillRange = cc.clampf(value, -1, 1);
-                if (this._type === SpriteType.FILLED && this._model) {
-                    this._model.setFillRange(this._fillRange);
+                if (this._type === SpriteType.FILLED && this._renderData) {
+                    this._renderData.vertDirty = true;
                 }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_range'
@@ -365,8 +358,8 @@ var Sprite = cc.Class({
             set: function (value) {
                 if (this._isTrimmedMode !== value) {
                     this._isTrimmedMode = value;
-                    if (this._type === SpriteType.SIMPLE && this._model) {
-                        this._model.trimmed = value;
+                    if (this._type === SpriteType.SIMPLE && this._renderData) {
+                        this._renderData.uvDirty = true;
                     }
                 }
             },
@@ -471,21 +464,22 @@ var Sprite = cc.Class({
     },
 
     onEnable: function () {
-        this._activateModel();
+        this._activateMaterial();
     },
 
     onDisable: function () {
-        this._removeModel();
+        RenderData.free(this._renderData);
+    },
+
+    _sizeChanged: function () {
+        if (this._renderData) {
+            this._renderData.vertDirty = true;
+        }
     },
     
-    _activateModel: function () {
-        // model cannot be activated if already exists or component not enabled
-        // TODO: Should use enabledInHierarchy
-        if (!this.enabled) {
-            return;
-        }
-        // model cannot be activated if texture not loaded yet
-        else if (!this._spriteFrame.textureLoaded) {
+    _activateMaterial: function () {
+        // cannot be activated if texture not loaded yet
+        if (!this._spriteFrame.textureLoaded) {
             return;
         }
 
@@ -501,61 +495,9 @@ var Sprite = cc.Class({
             }
         }
 
-        if (!this._model) {
-            // Generate model
-            switch (this.type) {
-            case SpriteType.SIMPLE:
-                this._model = SpriteModel.alloc();
-                this._model.trimmed = this._isTrimmedMode;
-                break;
-            case SpriteType.SLICED:
-                this._model = SlicedModel.alloc();
-                break;
-            case SpriteType.TILED:
-                break;
-            case SpriteType.FILLED:
-                // sgNode.setFillType(this._fillType);
-                // sgNode.setFillCenter(this._fillCenter);
-                // sgNode.setFillStart(this._fillStart);
-                // sgNode.setFillRange(this._fillRange);
-                break;
-            }
-            this._model.setNode(this.node);
-        }
-
-        this._model.spriteFrame = this._spriteFrame;
-
         if (this.srcBlendFactor !== gfx.BLEND_SRC_ALPHA || this.dstBlendFactor !== gfx.BLEND_ONE_MINUS_SRC_ALPHA) {
             this._updateBlendFunc();
         }
-        this._model.setEffect(this._material.effect);
-
-        // Add to rendering scene
-        renderer.scene.addModel(this._model);
-    },
-
-    _removeModel: function () {
-        if (!this._model) {
-            return;
-        }
-
-        // Remove from rendering scene
-        renderer.scene.removeModel(this._model);
-
-        // Recycle model
-        switch (this.type) {
-        case SpriteType.SIMPLE:
-            SpriteModel.free(this._model);
-            break;
-        case SpriteType.SLICED:
-            SlicedModel.free(this._model);
-            break;
-        case SpriteType.TILED:
-            break;
-        case SpriteType.FILLED:
-            break;
-        }
-        this._model = null;
     },
     
     _updateBlendFunc: function () {
@@ -604,8 +546,14 @@ var Sprite = cc.Class({
         if (!this.isValid) {
             return;
         }
-        // Reattach material to model
-        this._activateModel();
+        // Mark render data dirty
+        if (this._renderData) {
+            this._renderData.uvDirty = true;
+        }
+        // Reactivate material
+        if (this.enabledInHierarchy) {
+            this._activateMaterial();
+        }
         this._applySpriteSize();
     },
 
