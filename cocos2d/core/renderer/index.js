@@ -89,8 +89,10 @@ module.exports = {
     },
 
     updateCameraViewport () {
-        var scene = cc.director.getScene();
-        scene.scaleX = scene.scaleY = 1;
+        if (!CC_EDITOR) {
+            var scene = cc.director.getScene();
+            scene.scaleX = scene.scaleY = 1;
+        }
         this._cameraNode.scaleX = 1 / cc.view.getScaleX();
         this._cameraNode.scaleY = 1 / cc.view.getScaleY();
         this._camera._rect.w = this.canvas.width;
