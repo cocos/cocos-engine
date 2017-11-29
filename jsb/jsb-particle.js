@@ -82,6 +82,15 @@ function getReplacer (oldFunc, mode) {
 
 var proto = cc.ParticleSystem.prototype;
 
+proto._initWithFile = proto.initWithFile;
+proto.initWithFile = function (plistFile) {
+    var md5Pipe = cc.loader.md5Pipe;
+    if (md5Pipe) {
+        plistFile = md5Pipe.transformURL(plistFile);
+    }
+    this._initWithFile(plistFile);
+};
+
 for (var mode = 0; mode < funcNames.length; mode++) {
     var modeFuncs = funcNames[mode];
     for (var propName in modeFuncs) {
