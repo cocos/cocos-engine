@@ -23,7 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var js = require('../platform/js');
 var macro = require('./CCMacro');
+var eventManager = require('../event-manager');
 
 var TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
 
@@ -120,7 +122,7 @@ var inputManager = {
             this._glView._convertTouchesWithScale(handleTouches);
             var touchEvent = new cc.Event.EventTouch(handleTouches);
             touchEvent._eventCode = cc.Event.EventTouch.BEGAN;
-            cc.eventManager.dispatchEvent(touchEvent);
+            eventManager.dispatchEvent(touchEvent);
         }
     },
 
@@ -152,7 +154,7 @@ var inputManager = {
             this._glView._convertTouchesWithScale(handleTouches);
             var touchEvent = new cc.Event.EventTouch(handleTouches);
             touchEvent._eventCode = cc.Event.EventTouch.MOVED;
-            cc.eventManager.dispatchEvent(touchEvent);
+            eventManager.dispatchEvent(touchEvent);
         }
     },
 
@@ -166,7 +168,7 @@ var inputManager = {
             this._glView._convertTouchesWithScale(handleTouches);
             var touchEvent = new cc.Event.EventTouch(handleTouches);
             touchEvent._eventCode = cc.Event.EventTouch.ENDED;
-            cc.eventManager.dispatchEvent(touchEvent);
+            eventManager.dispatchEvent(touchEvent);
         }
     },
 
@@ -180,7 +182,7 @@ var inputManager = {
             this._glView._convertTouchesWithScale(handleTouches);
             var touchEvent = new cc.Event.EventTouch(handleTouches);
             touchEvent._eventCode = cc.Event.EventTouch.CANCELLED;
-            cc.eventManager.dispatchEvent(touchEvent);
+            eventManager.dispatchEvent(touchEvent);
         }
     },
 
@@ -419,7 +421,7 @@ var inputManager = {
 
                         var mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.UP);
                         mouseEvent.setButton(event.button);
-                        cc.eventManager.dispatchEvent(mouseEvent);
+                        eventManager.dispatchEvent(mouseEvent);
                     }
                 }, false);
             }
@@ -464,7 +466,7 @@ var inputManager = {
 
                         handler(event, mouseEvent, location, pos);
 
-                        cc.eventManager.dispatchEvent(mouseEvent);
+                        eventManager.dispatchEvent(mouseEvent);
                         event.stopPropagation();
                         event.preventDefault();
                     }, false);
@@ -549,11 +551,15 @@ var inputManager = {
     update:function(dt){
         if(this._accelCurTime > this._accelInterval){
             this._accelCurTime -= this._accelInterval;
-            cc.eventManager.dispatchEvent(new cc.Event.EventAcceleration(this._acceleration));
+            eventManager.dispatchEvent(new cc.Event.EventAcceleration(this._acceleration));
         }
         this._accelCurTime += dt;
     }
 };
 
-cc.inputManager = inputManager;
+js.get(cc, 'inputManager', function () {
+    cc.warnID(1405, 'cc.inputManager', 'cc.systemEvent');
+    return inputManager;
+});
+
 module.exports = inputManager;

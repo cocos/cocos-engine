@@ -30,6 +30,7 @@ var AutoReleaseUtils = require('./load-pipeline/auto-release-utils');
 var ComponentScheduler = require('./component-scheduler');
 var NodeActivator = require('./node-activator');
 var EventListeners = require('./event/event-listeners');
+var eventManager = require('./event-manager');
 
 cc.g_NumberOfDraws = 0;
 
@@ -441,8 +442,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         this._nodeActivator.reset();
 
         // Disable event dispatching
-        if (cc.eventManager)
-            cc.eventManager.setEnabled(false);
+        if (eventManager)
+            eventManager.setEnabled(false);
 
         // don't release the event handlers
         // They are needed in case the director is run again
@@ -477,8 +478,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     reset: function () {
         this.purgeDirector();
 
-        if (cc.eventManager)
-            cc.eventManager.setEnabled(true);
+        if (eventManager)
+            eventManager.setEnabled(true);
 
         // Action manager
         if (this._actionManager){
@@ -1494,7 +1495,7 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
             this._totalFrames++;
 
             this.emit(cc.Director.EVENT_AFTER_DRAW);
-            cc.eventManager.frameUpdateListeners();
+            eventManager.frameUpdateListeners();
         }
     },
 
