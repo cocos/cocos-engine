@@ -1001,7 +1001,11 @@ var Node = cc.Class({
                 parent._sgNode.removeChild(this._sgNode, false);
                 if (index + 1 < siblings.length) {
                     var nextSibling = siblings[index + 1];
+                    var oldZOrder = this._sgNode.getLocalZOrder();
                     parent._sgNode.insertChildBefore(this._sgNode, nextSibling._sgNode);
+                    if (oldZOrder !== this._sgNode.getLocalZOrder()) {
+                        this._sgNode.setLocalZOrder(oldZOrder);
+                    }
                 }
                 else {
                     parent._sgNode.addChild(this._sgNode);
