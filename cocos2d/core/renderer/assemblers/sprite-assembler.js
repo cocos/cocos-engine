@@ -169,7 +169,7 @@ var slicedRenderData = {
         let renderData = RenderData.alloc();
         renderData.xysLength = 4;
         renderData.uvsLength = 4;
-        renderData.vertexCount = 36;
+        renderData.vertexCount = 16;
         renderData.indiceCount = 54;
         return renderData;
     },
@@ -247,11 +247,11 @@ var slicedRenderData = {
         let y = data._verts.y;
         x[0] = -appx;
         x[1] = leftWidth * xScale - appx;
-        x[2] = x[1] + sizableWidth - appx;
+        x[2] = x[1] + sizableWidth;
         x[3] = width - appx;
         y[0] = -appy;
         y[1] = bottomHeight * yScale - appy;
-        y[2] = y[1] + sizableHeight - appy;
+        y[2] = y[1] + sizableHeight;
         y[3] = height - appy;
 
         data.vertDirty = false;
@@ -280,39 +280,14 @@ var slicedRenderData = {
             tx = _matrix.m12,
             ty = _matrix.m13;
 
-        for (let r = 0; r < 3; ++r) {
-            for (let c = 0; c < 3; ++c) {
-                // lb
-                vbuf[offset] = x[r][c];
-                vbuf[offset + 1] = y[r][c];
+        for (let row = 0; row < 4; ++row) {
+            for (let col = 0; col < 4; ++col) {
+                vbuf[offset] = x[col]*a + y[row]*c + tx;
+                vbuf[offset + 1] = x[col]*b + y[row]*d + ty;
                 vbuf[offset + 2] = z;
-                uintbuf[offset + 3] = color;
-                vbuf[offset + 4] = u[c];
-                vbuf[offset + 5] = v[r];
-                offset += 6;
-                // rb
-                vbuf[offset] = x[r][c+1];
-                vbuf[offset + 1] = y[r][c+1];
-                vbuf[offset + 2] = z;
-                uintbuf[offset + 3] = color;
-                vbuf[offset + 4] = u[c+1];
-                vbuf[offset + 5] = v[r];
-                offset += 6;
-                // lt
-                vbuf[offset] = x[r+1][c];
-                vbuf[offset + 1] = y[r+1][c];
-                vbuf[offset + 2] = z;
-                uintbuf[offset + 3] = color;
-                vbuf[offset + 4] = u[c];
-                vbuf[offset + 5] = v[r+1];
-                offset += 6;
-                // rt
-                vbuf[offset] = x[r+1][c+1];
-                vbuf[offset + 1] = y[r+1][c+1];
-                vbuf[offset + 2] = z;
-                uintbuf[offset + 3] = color;
-                vbuf[offset + 4] = u[c+1];
-                vbuf[offset + 5] = v[r+1];
+                uintbuf[offset + 3] = uintColor;
+                vbuf[offset + 4] = u[col];
+                vbuf[offset + 5] = v[row];
                 offset += 6;
             }
         }
@@ -321,13 +296,13 @@ var slicedRenderData = {
     fillIndexBuffer (sprite, offset, vertexId, ibuf) {
         for (let r = 0; r < 3; ++r) {
             for (let c = 0; c < 3; ++c) {
-                ibuf[offset++] = vertexId;
-                ibuf[offset++] = vertexId + 1;
-                ibuf[offset++] = vertexId + 2;
-                ibuf[offset++] = vertexId + 1;
-                ibuf[offset++] = vertexId + 3;
-                ibuf[offset++] = vertexId + 2;
-                vertexId += 4;
+                var start = vertexId + r*4 + c;
+                ibuf[offset++] = start;
+                ibuf[offset++] = start + 1;
+                ibuf[offset++] = start + 4;
+                ibuf[offset++] = start + 1;
+                ibuf[offset++] = start + 5;
+                ibuf[offset++] = start + 4;
             }
         }
     }

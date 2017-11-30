@@ -14324,7 +14324,9 @@ module.exports = (function () {
         data._verts.y.length = 0;
         data._uvs.u.length = 0;
         data._uvs.v.length = 0;
-        _pool.free(model);
+        data.uvDirty = true;
+        data.vertDirty = true;
+        _pool.free(data);
       }
     }
   }
