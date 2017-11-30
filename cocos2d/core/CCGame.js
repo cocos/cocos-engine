@@ -698,13 +698,16 @@ var game = {
         }
 
         if (cc._renderType === game.RENDER_TYPE_WEBGL) {
-            this._renderContext = cc._renderContext = cc.webglContext
-             = cc.create3DContext(localCanvas, {
+            var opts = {
                 'stencil': true,
                 'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS,
                 'antialias': cc.macro.ENABLE_WEBGL_ANTIALIAS
-                'preserveDrawingBuffer': isWeChatGame
-            });
+            };
+            if (isWeChatGame) {
+                opts['preserveDrawingBuffer'] = true;
+            }
+            this._renderContext = cc._renderContext = cc.webglContext
+             = cc.create3DContext(localCanvas, opts);
         }
         // WebGL context created successfully
         if (this._renderContext) {
