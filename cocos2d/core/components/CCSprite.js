@@ -241,6 +241,7 @@ var Sprite = cc.Class({
             set: function (value) {
                 if (this._type !== value) {
                     RenderData.free(this._renderData);
+                    this._renderData = null;
                     this._type = value;
                 }
             },
@@ -469,6 +470,7 @@ var Sprite = cc.Class({
 
     onDisable: function () {
         RenderData.free(this._renderData);
+        this._renderData = null;
     },
 
     _sizeChanged: function () {
