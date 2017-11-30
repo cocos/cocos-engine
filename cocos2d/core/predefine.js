@@ -44,5 +44,6 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('./platform/CCScreen');
     require('./CCScheduler');
     require('./event-manager');
+    require('./event-manager/CCSystemEvent');
     require('./renderer');
 }

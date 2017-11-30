@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+require('./CCEvent');
+
 var eventManager;
 if (CC_JSB) {
     eventManager = cc.eventManager;
@@ -32,8 +34,5 @@ else {
     require('./CCEventListener');
     eventManager = require('./CCEventManager');
 }
+
 module.exports = eventManager;
-
-require('./CCEvent');
-require('./CCSystemEvent');
-
