@@ -22,9 +22,18 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
- 
-require('./CCTouch');
-require('./CCEventListener');
-require('./CCEventManager');
+
+var eventManager;
+if (CC_JSB) {
+    eventManager = cc.eventManager;
+}
+else {
+    require('./CCTouch');
+    require('./CCEventListener');
+    eventManager = require('./CCEventManager');
+}
+module.exports = eventManager;
+
 require('./CCEvent');
 require('./CCSystemEvent');
+

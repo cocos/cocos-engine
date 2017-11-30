@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 var Misc = require('../utils/misc');
+var eventManager = require('../event-manager');
 
 var ActionManagerExist = !!cc.ActionManager;
 var emptyFunc = function () {};
@@ -274,7 +275,7 @@ _ccsg.Node = cc.Class({
             this._parent.reorderChild(this, localZOrder);
         else
             this._localZOrder = localZOrder;
-        cc.eventManager._setDirtyForNode(this);
+        eventManager._setDirtyForNode(this);
     },
 
     //Helper function used by `setLocalZOrder`. Don't use it unless you know what you are doing.
@@ -339,7 +340,7 @@ _ccsg.Node = cc.Class({
     setGlobalZOrder: function (globalZOrder) {
         if (this._globalZOrder !== globalZOrder) {
             this._globalZOrder = globalZOrder;
-            cc.eventManager._setDirtyForNode(this);
+            eventManager._setDirtyForNode(this);
         }
     },
 
@@ -964,7 +965,7 @@ _ccsg.Node = cc.Class({
         this.unscheduleAllCallbacks();
 
         // event
-        cc.eventManager.removeListeners(this);
+        eventManager.removeListeners(this);
     },
 
     // composition: GET
@@ -1646,7 +1647,7 @@ _ccsg.Node = cc.Class({
     resume: function () {
         this.scheduler.resumeTarget(this);
         ActionManagerExist && cc.director.getActionManager().resumeTarget(this);
-        cc.eventManager.resumeTarget(this);
+        eventManager.resumeTarget(this);
     },
 
     /**
@@ -1668,7 +1669,7 @@ _ccsg.Node = cc.Class({
     pause: function () {
         this.scheduler.pauseTarget(this);
         ActionManagerExist && cc.director.getActionManager().pauseTarget(this);
-        cc.eventManager.pauseTarget(this);
+        eventManager.pauseTarget(this);
     },
 
     /**

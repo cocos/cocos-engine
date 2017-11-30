@@ -20,6 +20,8 @@
  ****************************************************************************/
 
 var Utils = require('../platform/utils');
+var eventManager = require('../event-manager');
+
 /**
  * @class
  * @extends _ccsg.Node
@@ -170,7 +172,7 @@ _ccsg.VideoPlayer.elements = [];
 // video 在 game_hide 事件中被自动暂停的队列，用于回复的时候重新开始播放
 _ccsg.VideoPlayer.pauseElements = [];
 
-cc.eventManager.addCustomListener(cc.game.EVENT_HIDE, function () {
+eventManager.addCustomListener(cc.game.EVENT_HIDE, function () {
     var list = _ccsg.VideoPlayer.elements;
     for(var node, i=0; i<list.length; i++){
         node = list[i];
