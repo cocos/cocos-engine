@@ -134,7 +134,6 @@ var simpleRenderData = {
             z = node.z;
         
         let color = node._color._val;
-        let uintColor = ((color&0xff<<24) >>> 0) + ((color&0xff00)<<8) + ((color&0xff0000)>>8) + (color>>>24);
         
         node.getWorldMatrix(_matrix);
         let a = _matrix.m00,
@@ -269,8 +268,7 @@ var slicedRenderData = {
             v = data._uvs.v,
             z = node.z;
         
-        let color = node._color;
-        let uintColor = ((color.a<<24) >>> 0) + (color.b<<16) + (color.g<<8) + color.r;
+        let color = node._color._val;
         
         node.getWorldMatrix(_matrix);
         let a = _matrix.m00,
