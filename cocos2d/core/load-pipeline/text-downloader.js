@@ -1,3 +1,5 @@
+var sys = require('../platform/CCSys');
+
 if (CC_JSB) {
     module.exports = function (item, callback) {
         var url = item.url;
@@ -15,13 +17,12 @@ else {
     var urlAppendTimestamp = require('./utils').urlAppendTimestamp;
 
     module.exports = function (item, callback) {
-        var url = item.url,
-            xhr = cc.loader.getXMLHttpRequest(),
-            errInfo = 'Load ' + url + ' failed!',
-            navigator = window.navigator;
-
+        var url = item.url;
         url = urlAppendTimestamp(url);
 
+        var xhr = cc.loader.getXMLHttpRequest(),
+            errInfo = 'Load ' + url + ' failed!',
+            navigator = window.navigator;
         xhr.open('GET', url, true);
         if (/msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent)) {
             // IE-specific logic here

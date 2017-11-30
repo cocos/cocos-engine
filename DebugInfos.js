@@ -558,6 +558,7 @@ if (CC_DEBUG) {
         "7217": "cocos2d: TMXFomat: Unsupported orientation: %s", //parseXMLFile
         "7218": "cc.TMXMapInfo.parseXMLFile(): unsupported compression method", //_parseLayer
         "7219": "cc.TMXMapInfo.parseXMLFile(): Only base64 and/or gzip/zlib maps are supported", //_parseLayer
+        "7220": "TMX Parser: please load the xml resource first: %s", // parseXMLFile
         //Wrapper: 7300
         "7300": "The new selected must be number", //CheckBox.selected
         "7301": "The new bake must be boolean", //layer
