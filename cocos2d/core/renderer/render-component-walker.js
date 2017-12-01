@@ -42,9 +42,16 @@ var RenderComponentWalker = function (device, renderScene) {
     this._device = device;
 
     // Buffers
-    this._sharedVertexs = new Float32Array(MAX_VERTEX * FLOATS_PER_VERT);
-    this._sharedUintVertexs = new Uint32Array(this._sharedVertexs.buffer);
-    this._sharedIndices = new Uint16Array(MAX_INDICE);
+    this._bufId = 0;
+    this._sharedBufs = [];
+    for (let i = 0; i < 2; i++) {
+        let vertexs = new Float32Array(MAX_VERTEX * FLOATS_PER_VERT);
+        this._sharedBufs.push({
+            vertexs: vertexs,
+            uintVertexs: new Uint32Array(vertexs.buffer),
+            indices: new Uint16Array(MAX_INDICE)
+        });
+    }
     
     let defaultFormat = new gfx.VertexFormat([]);
     this._vbPool = new RecyclePool(function () {
@@ -114,13 +121,15 @@ RenderComponentWalker.prototype = {
     },
 
     _flush (vertexFormat, effect, vertexCount, indiceCount) {
+        let bufs = this._sharedBufs[this._bufId];
+
         let device = this._device;
         let vb = this._vbPool.add();
         device._stats.vb -= vb._bytes;
         vb._format = vertexFormat;
         vb._numVertices = vertexCount;
         vb._bytes = vertexFormat._bytes * vertexCount;
-        let vertexsData = new Float32Array(this._sharedVertexs.buffer, 0, vb._bytes / 4);
+        let vertexsData = new Float32Array(bufs.vertexs.buffer, 0, vb._bytes / 4);
         vb.update(0, vertexsData);
         device._stats.vb += vb._bytes;
     
@@ -128,7 +137,7 @@ RenderComponentWalker.prototype = {
         device._stats.ib -= ib._bytes;
         ib._numIndices = indiceCount;
         ib._bytes = 2 * indiceCount;
-        let indicesData = new Uint16Array(this._sharedIndices.buffer, 0, indiceCount);
+        let indicesData = new Uint16Array(bufs.indices.buffer, 0, indiceCount);
         ib.update(0, indicesData);
         device._stats.ib += ib._bytes;
     
@@ -155,9 +164,10 @@ RenderComponentWalker.prototype = {
         // Store all render components to _queue
         scene.walk(this._handleRender);
 
-        let verts = this._sharedVertexs;
-        let uintVerts = this._sharedUintVertexs;
-        let indices = this._sharedIndices;
+        let bufs = this._sharedBufs[this._bufId];
+        let verts = bufs.vertexs;
+        let uintVerts = bufs.uintVertexs;
+        let indices = bufs.indices;
         let comp, effect, assembler, data;
         let currEffect = null;
         let vertexFormat = null;
@@ -185,7 +195,17 @@ RenderComponentWalker.prototype = {
                 vertexFormat = comp._vertexFormat;
                 if (vertexCount > 0 && indiceCount > 0) {
                     this._flush(vertexFormat, effect, vertexCount, indiceCount);
-                    vertexCount = 0; 
+                    // Switch to another buf
+                    this._bufId++;
+                    if (this._bufId >= this._sharedBufs.length) {
+                        this._bufId = 0;
+                    }
+                    bufs = this._sharedBufs[this._bufId];
+                    verts = bufs.vertexs;
+                    uintVerts = bufs.uintVertexs;
+                    indices = bufs.indices;
+
+                    vertexCount = 0;
                     indiceCount = 0;
                 }
                 start = i;
@@ -204,6 +224,7 @@ RenderComponentWalker.prototype = {
             vertexFormat = _queue[start]._vertexFormat;
             this._flush(vertexFormat, effect, vertexCount, indiceCount);
         }
+        _queue.length = 0;
     }
 }
 
