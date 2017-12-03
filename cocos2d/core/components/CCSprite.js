@@ -475,11 +475,13 @@ var Sprite = cc.Class({
 
     onEnable: function () {
         this._activateMaterial();
+        this.node._renderComponent = this;
     },
 
     onDisable: function () {
         RenderData.free(this._renderData);
         this._renderData = null;
+        this.node._renderComponent = null;
     },
 
     _activateMaterial: function () {
