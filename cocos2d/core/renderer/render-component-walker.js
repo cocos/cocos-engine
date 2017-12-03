@@ -36,14 +36,7 @@ const PER_INDEX_BYTE = 2;
 const MAX_VERTEX = macro.BATCH_VERTEX_COUNT;
 const MAX_INDICE = MAX_VERTEX * 2;
 
-var _currWalker = null;
-var _verts = null;
-var _uintVerts = null;
-var _indices = null;
-var _currEffect = null;
-var _vertexFormat = null;
-var _vertexCount = 0;
-var _indiceCount = 0;
+var _queue = null;
 
 var RenderComponentWalker = function (device, renderScene) {
     this._renderScene = renderScene;
@@ -88,6 +81,7 @@ var RenderComponentWalker = function (device, renderScene) {
         return new renderEngine.Model();
     }, 16);
     
+    this._queue = [];
     this._batchedModels = [];
     this._dummyNode = new cc.Node();
     this._sortKey = 0;
@@ -154,39 +148,7 @@ RenderComponentWalker.prototype = {
     _handleRender (node) {
         let comp = node._renderComponent;
         if (comp) {
-            let effect = comp.getEffect();
-            let assembler = comp.constructor._assembler;
-            if (!assembler || !effect) {
-                return;
-            }
-            
-            // Update render data
-            assembler.updateRenderData(comp);
-            let data = comp._renderData;
-
-            // breaking batch
-            if (_currEffect != effect || 
-                _vertexCount + data.vertexCount > MAX_VERTEX ||
-                _indiceCount + data.indiceCount > MAX_INDICE) 
-            {
-                _vertexFormat = comp._vertexFormat;
-                if (_vertexCount > 0 && _indiceCount > 0) {
-                    _currWalker._flush(_vertexFormat, effect, _vertexCount, _indiceCount);
-                    // Switch to another buf
-                    _currWalker._switchBuffer();
-
-                    _vertexCount = 0;
-                    _indiceCount = 0;
-                }
-                _currEffect = effect;
-                _vertexFormat = comp._vertexFormat;
-            }
-
-            assembler.fillVertexBuffer(comp, _vertexCount, _verts, _uintVerts);
-            assembler.fillIndexBuffer(comp, _indiceCount, _vertexCount, _indices);
-    
-            _vertexCount += data.vertexCount;
-            _indiceCount += data.indiceCount;
+            _queue.push(comp);
         }
     },
 
@@ -205,27 +167,70 @@ RenderComponentWalker.prototype = {
         _indices = bufs.indices;
     },
 
-    visit (scene) {
-        this.reset();
-
+    batchQueue () {
         // reset caches for handle render components
-        _currWalker = this;
         let bufs = this._sharedBufs[this._bufId];
-        _verts = bufs.vertexs;
-        _uintVerts = bufs.uintVertexs;
-        _indices = bufs.indices;
-        _currEffect = null;
-        _vertexFormat = null;
-        _vertexCount = 0;
-        _indiceCount = 0;
+        let verts = bufs.vertexs;
+        let uintVerts = bufs.uintVertexs;
+        let indices = bufs.indices;
+        let currEffect = null;
+        let vertexFormat = null;
+        let vertexCount = 0;
+        let indiceCount = 0;
+        let comp, effect, assembler, data;
 
-        // Store all render components to _queue
-        scene.walk(this._handleRender);
+        for (let i = 0, len = this._queue.length; i < len; i++) {
+            comp = this._queue[i];
+            effect = comp.getEffect();
+            assembler = comp.constructor._assembler;
+            if (!assembler || !effect) {
+                continue;
+            }
+            
+            // Update render data
+            assembler.updateRenderData(comp);
+            data = comp._renderData;
+
+            // breaking batch
+            if (currEffect != effect || 
+                vertexCount + data.vertexCount > MAX_VERTEX ||
+                indiceCount + data.indiceCount > MAX_INDICE) 
+            {
+                vertexFormat = comp._vertexFormat;
+                if (vertexCount > 0 && indiceCount > 0) {
+                    this._flush(vertexFormat, currEffect, vertexCount, indiceCount);
+                    // Switch to another buf
+                    this._switchBuffer();
+
+                    vertexCount = 0;
+                    indiceCount = 0;
+                }
+                currEffect = effect;
+            }
+
+            assembler.fillVertexBuffer(comp, vertexCount, verts, uintVerts);
+            assembler.fillIndexBuffer(comp, indiceCount, vertexCount, indices);
+    
+            vertexCount += data.vertexCount;
+            indiceCount += data.indiceCount;
+        }
 
         // last batch
-        if (_currEffect && _vertexFormat && _vertexCount > 0 && _indiceCount > 0) {
-            this._flush(_vertexFormat, _currEffect, _vertexCount, _indiceCount);
+        if (currEffect && comp && vertexCount > 0 && indiceCount > 0) {
+            vertexFormat = comp._vertexFormat;
+            this._flush(vertexFormat, currEffect, vertexCount, indiceCount);
         }
+        this._queue.length = 0;
+    },
+
+    visit (scene) {
+        this.reset();
+        
+        // Store all render components to _queue
+        _queue = this._queue;
+        scene.walk(this._handleRender);
+
+        this.batchQueue();
     }
 }
 

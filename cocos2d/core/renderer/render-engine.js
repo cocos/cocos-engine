@@ -14320,7 +14320,9 @@ module.exports = (function () {
           _dataPool.free(data._data[i]);
         }
         data._data.length = 0;
-        _pool.free(model);
+        data.uvDirty = true;
+        data.vertDirty = true;
+        _pool.free(data);
       }
     }
   }

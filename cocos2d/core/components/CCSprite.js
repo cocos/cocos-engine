@@ -480,6 +480,7 @@ var Sprite = cc.Class({
 
     onDisable: function () {
         RenderData.free(this._renderData);
+        this._material = null;
         this._renderData = null;
         this.node._renderComponent = null;
     },
