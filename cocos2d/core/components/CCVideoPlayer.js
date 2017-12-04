@@ -46,6 +46,21 @@ require('../videoplayer/CCSGVideoPlayer');
  * !#zh 播放结束
  * @property {Number} COMPLETED
  */
+/**
+ * !#en meta data is loaded
+ * !#zh 视频的元信息已加载完成，你可以调用 getDuration 来获取视频总时长
+ * @property {Number} META_LOADED
+ */
+/**
+ * !#en clicked by the user
+ * !#zh 视频被用户点击了
+ * @property {Number} CLICKED
+ */
+/**
+ * !#en ready to play
+ * !#zh 视频准备好了，可以开始播放了
+ * @property {Number} READY_TO_PLAY
+ */
 var EventType = _ccsg.VideoPlayer.EventType;
 
 
