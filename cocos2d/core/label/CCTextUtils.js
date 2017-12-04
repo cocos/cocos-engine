@@ -296,12 +296,14 @@ var TextUtils = {
                     sText = text.substr(0, fuzzyLen);
                 }
             }
-            if (sText.trim().length > 0) {
+            sText = sText.trim();
+            if (sText.length > 0) {
                 wrappedWords.push(sText);
             }
             text = sLine || tmpText;
             allWidth = measureText(text);
         }
+        text = text.trim();
         if (text.length > 0) {
             wrappedWords.push(text);
         }
