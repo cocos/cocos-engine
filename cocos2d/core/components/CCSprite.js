@@ -472,12 +472,6 @@ var Sprite = cc.Class({
         RenderData.free(this._renderData);
         this._renderData = null;
     },
-
-    _sizeChanged: function () {
-        if (this._renderData) {
-            this._renderData.vertDirty = true;
-        }
-    },
     
     _activateMaterial: function () {
         // cannot be activated if texture not loaded yet
