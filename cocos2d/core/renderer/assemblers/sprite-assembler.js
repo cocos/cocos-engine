@@ -26,8 +26,11 @@
 const Sprite = require('../../components/CCSprite');
 const renderEngine = require('../render-engine');
 const SpriteType = Sprite.Type;
+const FillType = Sprite.FillType;
 const RenderData = renderEngine.RenderData;
 const math = renderEngine.math;
+
+const PI_2 = Math.PI * 2;
 
 let _matrix = math.mat4.create();
 
@@ -166,7 +169,7 @@ let simpleRenderData = {
             tx = _matrix.m12,
             ty = _matrix.m13;
     
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0, l = x.length; i < l; i++) {
             vbuf[off++] = x[i] * a + y[i] * c + tx;
             vbuf[off++] = x[i] * b + y[i] * d + ty;
             vbuf[off++] = z;
@@ -521,14 +524,501 @@ let tiledRenderData = {
     }
 };
 
+
+let radialFilledRenderData = {
+    _vertPos: [cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)],
+    _vertices: [0, 0, 0, 0],
+    _uvs: [0, 0, 0, 0, 0, 0, 0, 0],
+    _intersectPoint_1: [cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)],
+    _intersectPoint_2: [cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)],
+    _center: cc.v2(0, 0),
+    _triangles: [],
+
+    createData (sprite) {
+        return RenderData.alloc();
+    },
+
+    update (sprite) {
+        let data = sprite._renderData;
+        if (!data.vertDirty && !data.uvDirty) return;
+
+        let spriteFrame = sprite._spriteFrame;
+
+        let fillStart = sprite._fillStart;
+        let fillRange = sprite._fillRange;
+        if (fillRange < 0) {
+            fillStart += fillRange;
+            fillRange = -fillRange;
+        }
+
+        //do round fill start [0,1), include 0, exclude 1
+        while (fillStart >= 1.0) fillStart -= 1.0;
+        while (fillStart < 0.0) fillStart += 1.0;
+
+        fillStart *= PI_2;
+        fillRange *= PI_2;
+        let fillEnd = fillStart + fillRange;
+
+        //build vertices
+        this._calculateVertices(sprite);
+        //build uvs
+        this._calculateUVs(spriteFrame);
+
+        let center = this._center;
+
+        var vertPos = this._vertPos,
+            vertices = this._vertices;
+
+        var triangles = this._triangles;
+
+        this._calcInsectedPoints(vertices[0], vertices[2], vertices[1], vertices[3], center, fillStart, this._intersectPoint_1);
+        this._calcInsectedPoints(vertices[0], vertices[2], vertices[1], vertices[3], center, fillStart + fillRange, this._intersectPoint_2);
+
+        var offset = 0;
+        for(var triangleIndex = 0; triangleIndex < 4; ++triangleIndex) {
+            var triangle = triangles[triangleIndex];
+            if(triangle === null) {
+                continue;
+            }
+            //all in
+            if(fillRange >= PI_2) {
+                this._generateTriangle(data, offset, center, vertPos[triangle[0]], vertPos[triangle[1]]);
+                offset += 3;
+                continue;
+            }
+            //test against
+            var startAngle = this._getVertAngle(center, vertPos[triangle[0]]);
+            var endAngle = this._getVertAngle(center, vertPos[triangle[1]]);
+            if(endAngle < startAngle) endAngle += PI_2;
+            startAngle -= PI_2;
+            endAngle -= PI_2;
+            //testing
+            for(var testIndex = 0; testIndex < 3; ++testIndex) {
+                if(startAngle >= fillEnd) {
+                    //all out
+                } else if (startAngle >= fillStart) {
+                    if(endAngle >= fillEnd) {
+                        //startAngle to fillEnd
+                        this._generateTriangle(data, offset, center, vertPos[triangle[0]], this._intersectPoint_2[triangleIndex]);
+                    } else {
+                        //startAngle to endAngle
+                        this._generateTriangle(data, offset, center, vertPos[triangle[0]], vertPos[triangle[1]]);
+                    }
+                    offset += 3;
+                } else {
+                    //startAngle < fillStart
+                    if(endAngle <= fillStart) {
+                        //all out
+                    } else if(endAngle <= fillEnd) {
+                        //fillStart to endAngle
+                        this._generateTriangle(data, offset, center, this._intersectPoint_1[triangleIndex], vertPos[triangle[1]]);
+                        offset += 3;
+                    } else {
+                        //fillStart to fillEnd
+                        this._generateTriangle(data, offset, center, this._intersectPoint_1[triangleIndex], this._intersectPoint_2[triangleIndex]);
+                        offset += 3;
+                    }
+                }
+                //add 2 * PI
+                startAngle += PI_2;
+                endAngle += PI_2;
+            }
+        }
+
+        data.xysLength = data.uvsLength = offset;
+        data.indiceCount = data.vertexCount = offset;
+        data.vertDirty = data.uvDirty = false;
+    },
+
+    _getVertAngle: function(start, end) {
+        var placementX, placementY;
+        placementX = end.x - start.x;
+        placementY = end.y - start.y;
+
+        if(placementX === 0 && placementY === 0) {
+            return undefined;
+        } else if(placementX === 0) {
+            if(placementY > 0) {
+                return Math.PI * 0.5;
+            } else {
+                return Math.PI * 1.5;
+            }
+        } else {
+            var angle = Math.atan(placementY / placementX);
+            if(placementX < 0) {
+                angle += Math.PI;
+            }
+
+            return angle;
+        }
+    },
+
+    _generateTriangle: function(data, offset, vert0, vert1, vert2) {
+        let vertices = this._vertices;
+        let v0x = vertices[0];
+        let v0y = vertices[1];
+        let v1x = vertices[2];
+        let v1y = vertices[3];
+
+        let x = data._verts.x;
+        let y = data._verts.y;
+
+        x[offset]    = vert0.x;
+        y[offset]    = vert0.y;
+        x[offset+1]  = vert1.x;
+        y[offset+1]  = vert1.y;
+        x[offset+2]  = vert2.x;
+        y[offset+2]  = vert2.y;
+
+        let u = data._uvs.u;
+        let v = data._uvs.v;
+
+        let progressX, progressY;
+        progressX = (vert0.x - v0x) / (v1x - v0x);
+        progressY = (vert0.y - v0y) / (v1y - v0y);
+        this._generateUV(progressX, progressY, u, v, offset);
+
+        progressX = (vert1.x - v0x) / (v1x - v0x);
+        progressY = (vert1.y - v0y) / (v1y - v0y);
+        this._generateUV(progressX, progressY, u, v, offset + 1);
+
+        progressX = (vert2.x - v0x) / (v1x - v0x);
+        progressY = (vert2.y - v0y) / (v1y - v0y);
+        this._generateUV(progressX, progressY, u, v, offset + 2);
+    },
+
+    _generateUV : function(progressX, progressY, u, v, offset) {
+        let uvs = this._uvs;
+        let px1 = uvs[0] + (uvs[2] - uvs[0]) * progressX;
+        let px2 = uvs[4] + (uvs[6] - uvs[4]) * progressX;
+        let py1 = uvs[1] + (uvs[3] - uvs[1]) * progressX;
+        let py2 = uvs[5] + (uvs[7] - uvs[5]) * progressX;
+        u[offset] = px1 + (px2 - px1) * progressY;
+        v[offset] = py1 + (py2 - py1) * progressY;
+    },
+
+    _calcInsectedPoints: function(left, right, bottom, top, center, angle, intersectPoints) {
+        //left bottom, right, top
+        var sinAngle = Math.sin(angle);
+        var cosAngle = Math.cos(angle);
+        var tanAngle,cotAngle;
+        if(Math.cos(angle) !== 0) {
+            tanAngle = sinAngle / cosAngle;
+            //calculate right and left
+            if((left - center.x) * cosAngle > 0) {
+                var yleft = center.y + tanAngle * (left - center.x);
+                intersectPoints[0].x = left;
+                intersectPoints[0].y = yleft;
+            }
+            if((right - center.x) * cosAngle > 0) {
+                var yright = center.y + tanAngle * (right - center.x);
+
+                intersectPoints[2].x = right;
+                intersectPoints[2].y = yright;
+            }
+
+        }
+
+        if(Math.sin(angle) !== 0) {
+            cotAngle = cosAngle / sinAngle;
+            //calculate  top and bottom
+            if((top - center.y) * sinAngle > 0) {
+                var xtop = center.x  + cotAngle * (top-center.y);
+                intersectPoints[3].x = xtop;
+                intersectPoints[3].y = top;
+            }
+            if((bottom - center.y) * sinAngle > 0) {
+                var xbottom = center.x  + cotAngle * (bottom-center.y);
+                intersectPoints[1].x = xbottom;
+                intersectPoints[1].y = bottom;
+            }
+
+        }
+    },
+
+    _calculateVertices : function (sprite) {
+        let data = sprite._renderData,
+            width = data._width,
+            height = data._height,
+            appx = data._pivotX * width,
+            appy = data._pivotY * height;
+
+        let l = -appx, b = -appy,
+            r = width-appx, t = height-appy;
+
+        let vertices = this._vertices;
+        vertices[0] = l;
+        vertices[1] = b;
+        vertices[2] = r;
+        vertices[3] = t;
+
+        let center = this._center,
+            fillCenter = sprite._fillCenter,
+            cx = center.x = Math.min(Math.max(0, fillCenter.x), 1) * (r-l) + l,
+            cy = center.y = Math.min(Math.max(0, fillCenter.y), 1) * (t-b) + b;
+
+        let vertPos = this._vertPos;
+        vertPos[0].x = vertPos[3].x = l;
+        vertPos[1].x = vertPos[2].x = r;
+        vertPos[0].y = vertPos[1].y = b;
+        vertPos[2].y = vertPos[3].y = t;
+
+        let triangles = this._triangles;
+        triangles.length = 0;
+        if(cx !== vertices[0]) {
+            triangles[0] = [3, 0];
+        }
+        if(cx !== vertices[2]) {
+            triangles[2] = [1, 2];
+        }
+        if(cy !== vertices[1]) {
+            triangles[1] = [0, 1];
+        }
+        if(cy !== vertices[3]) {
+            triangles[3] = [2, 3];
+        }
+    },
+
+    _calculateUVs : function (spriteFrame) {
+        let atlasWidth = spriteFrame._texture.width;
+        let atlasHeight = spriteFrame._texture.height;
+        let textureRect = spriteFrame._rect;
+
+        let u0, u1, v0, v1;
+        let uvs = this._uvs;
+        
+        if (spriteFrame._rotated) {
+            u0 = (textureRect.x) / atlasWidth;
+            u1 = (textureRect.x + textureRect.height) / atlasWidth;
+
+            v0 = (textureRect.y) / atlasHeight;
+            v1 = (textureRect.y + textureRect.width) / atlasHeight;
+
+            uvs[0] = uvs[2] = u0;
+            uvs[4] = uvs[6] = u1;
+            uvs[3] = uvs[7] = v1;
+            uvs[1] = uvs[5] = v0;
+        }
+        else {
+            u0 = (textureRect.x) / atlasWidth;
+            u1 = (textureRect.x + textureRect.width) / atlasWidth;
+
+            v0 = (textureRect.y) / atlasHeight;
+            v1 = (textureRect.y + textureRect.height) / atlasHeight;
+
+            uvs[0] = uvs[4] = u0;
+            uvs[2] = uvs[6] = u1;
+            uvs[1] = uvs[3] = v1;
+            uvs[5] = uvs[7] = v0;
+        }
+    },
+
+    fillVertexBuffer: simpleRenderData.fillVertexBuffer,
+
+    fillIndexBuffer (sprite, offset, vertexId, ibuf) {
+        let data = sprite._renderData;
+        for (let i = 0, l = data.vertexCount; i < l; i++) {
+            ibuf[offset+i] = vertexId+i;
+        }
+    }
+};
+
+let barFilledRenderData = {
+    createData (sprite) {
+        var data = RenderData.alloc();
+        data.xysLength = 4;
+        data.uvsLength = 4;
+        data.vertexCount = 4;
+        data.indiceCount = 6;
+        return data;
+    },
+    
+    update (sprite) {
+        let data = sprite._renderData;
+        let uvDirty = data.uvDirty, 
+            vertDirty = data.vertDirty;
+
+        if (!uvDirty && !vertDirty) return;
+
+        let fillStart = sprite._fillStart;
+        let fillRange = sprite._fillRange;
+
+        if (fillRange < 0) {
+            fillStart += fillRange;
+            fillRange = -fillRange;
+        }
+
+        fillRange = fillStart + fillRange;
+
+        fillStart = fillStart > 1.0 ? 1.0 : fillStart;
+        fillStart = fillStart < 0.0 ? 0.0 : fillStart;
+
+        fillRange = fillRange > 1.0 ? 1.0 : fillRange;
+        fillRange = fillRange < 0.0 ? 0.0 : fillRange;
+        fillRange = fillRange - fillStart;
+        fillRange = fillRange < 0 ? 0 : fillRange;
+        
+        let fillEnd = fillStart + fillRange;
+        fillEnd = fillEnd > 1 ? 1 : fillEnd;
+
+        if (uvDirty) {
+            this.updateUVs(sprite, fillStart, fillEnd);
+        }
+        if (vertDirty) {
+            this.updateVerts(sprite, fillStart, fillEnd);
+        }
+    },
+
+    updateUVs (sprite, fillStart, fillEnd) {
+        let spriteFrame = sprite._spriteFrame,
+            data = sprite._renderData;
+
+        //build uvs
+        let atlasWidth = spriteFrame._texture.width;
+        let atlasHeight = spriteFrame._texture.height;
+        let textureRect = spriteFrame._rect;
+        //uv computation should take spritesheet into account.
+        let ul, vb, ur, vt;
+        let quadUV0, quadUV1, quadUV2, quadUV3, quadUV4, quadUV5, quadUV6, quadUV7;
+        if (spriteFrame._rotated) {
+            ul = (textureRect.x) / atlasWidth;
+            vb = (textureRect.y + textureRect.width) / atlasHeight;
+            ur = (textureRect.x + textureRect.height) / atlasWidth;
+            vt = (textureRect.y) / atlasHeight;
+
+            quadUV0 = quadUV2 = ul;
+            quadUV4 = quadUV6 = ur;
+            quadUV3 = quadUV7 = vb;
+            quadUV1 = quadUV5 = vt;
+        }
+        else {
+            ul = (textureRect.x) / atlasWidth;
+            vb = (textureRect.y + textureRect.height) / atlasHeight;
+            ur = (textureRect.x + textureRect.width) / atlasWidth;
+            vt = (textureRect.y) / atlasHeight;
+
+            quadUV0 = quadUV4 = ul;
+            quadUV2 = quadUV6 = ur;
+            quadUV1 = quadUV3 = vb;
+            quadUV5 = quadUV7 = vt;
+        }
+
+        let u = data._uvs.u;
+        let v = data._uvs.v;
+        switch (sprite._fillType) {
+            case FillType.HORIZONTAL:
+                u[0] = quadUV0 + (quadUV2 - quadUV0) * fillStart;
+                v[0] = quadUV1;
+                u[1] = quadUV0 + (quadUV2 - quadUV0) * fillEnd;
+                v[1] = quadUV3;
+                u[2] = quadUV4 + (quadUV6 - quadUV4) * fillStart;
+                v[2] = quadUV5;
+                u[3] = quadUV4 + (quadUV6 - quadUV4) * fillEnd;
+                v[3] = quadUV7;
+                break;
+            case FillType.VERTICAL:
+                u[0] = quadUV0;
+                v[0] = quadUV1 + (quadUV5 - quadUV1) * fillStart;
+                u[1] = quadUV2;
+                v[1] = quadUV3 + (quadUV7 - quadUV3) * fillStart;
+                u[2] = quadUV4;
+                v[2] = quadUV1 + (quadUV5 - quadUV1) * fillEnd;
+                u[3] = quadUV6;
+                v[3] = quadUV3 + (quadUV7 - quadUV3) * fillEnd;
+                break;
+            default:
+                cc.errorID(2626);
+                break;
+        }
+
+        data.uvDirty = false;
+    },
+    updateVerts (sprite, fillStart, fillEnd) {
+        var data = sprite._renderData,
+            width = data._width,
+            height = data._height,
+            appx = data._pivotX * width,
+            appy = data._pivotY * height;
+
+        var l = -appx, b = -appy,
+            r = width-appx, t = height-appy;
+
+        var progressStart, progressEnd;
+        switch (sprite._fillType) {
+            case FillType.HORIZONTAL:
+                progressStart = l + (r - l) * fillStart;
+                progressEnd = l + (r - l) * fillEnd;
+
+                l = progressStart;
+                r = progressEnd;
+                break;
+            case FillType.VERTICAL:
+                progressStart = b + (t - b) * fillStart;
+                progressEnd = b + (t - b) * fillEnd;
+
+                b = progressStart;
+                t = progressEnd;
+                break;
+            default:
+                cc.errorID(2626);
+                break;
+        }
+
+        let x = data._verts.x;
+        let y = data._verts.y;
+        x[0] = l;
+        y[0] = b;
+        x[1] = r;
+        y[1] = b;
+        x[2] = l;
+        y[2] = t;
+        x[3] = r;
+        y[3] = t;
+
+        data.vertDirty = false;
+    },
+
+    fillVertexBuffer: simpleRenderData.fillVertexBuffer,
+    fillIndexBuffer: simpleRenderData.fillIndexBuffer
+};
+
+let filledRenderData = {
+    createData (sprite) {
+        if (sprite._fillType === FillType.RADIAL) {
+            return radialFilledRenderData.createData(sprite);
+        }
+        return barFilledRenderData.createData(sprite);
+    },
+    update (sprite) {
+        if (sprite._fillType === FillType.RADIAL) {
+            return radialFilledRenderData.update(sprite);
+        }
+        return barFilledRenderData.update(sprite);
+    },
+    fillVertexBuffer (sprite, index, vbuf, uintbuf) {
+        if (sprite._fillType === FillType.RADIAL) {
+            return radialFilledRenderData.fillVertexBuffer(sprite, index, vbuf, uintbuf);
+        }
+        return barFilledRenderData.fillVertexBuffer(sprite, index, vbuf, uintbuf);
+    },
+    fillIndexBuffer (sprite, offset, vertexId, ibuf) {
+        if (sprite._fillType === FillType.RADIAL) {
+            return radialFilledRenderData.fillIndexBuffer(sprite, offset, vertexId, ibuf);
+        }
+        return barFilledRenderData.fillIndexBuffer(sprite, offset, vertexId, ibuf);
+    }
+};
+
 let dataUpdater = {};
 dataUpdater[SpriteType.SIMPLE] = simpleRenderData;
 dataUpdater[SpriteType.SLICED] = slicedRenderData;
 dataUpdater[SpriteType.TILED]  = tiledRenderData;
+dataUpdater[SpriteType.FILLED] = filledRenderData;
 
 let spriteAssembler = {
     updateRenderData (sprite) {
         let updater = dataUpdater[sprite.type];
+
         // Create render data if needed
         if (!sprite._renderData) {
             sprite._renderData = updater.createData(sprite);

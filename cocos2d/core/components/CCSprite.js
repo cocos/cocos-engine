@@ -265,9 +265,16 @@ var Sprite = cc.Class({
                 return this._fillType;
             },
             set: function(value) {
-                this._fillType = value;
-                if (this._type === SpriteType.FILLED && this._renderData) {
-                    this._renderData.vertDirty = true;
+                if (value !== this._fillType) {
+                    if (value === FillType.RADIAL || this._fillType === FillType.RADIAL) {
+                        RenderData.free(this._renderData);
+                        this._renderData = null;    
+                    }
+                    else if (this._renderData) {
+                        this._renderData.uvDirty = true;
+                        this._renderData.vertDirty = true;
+                    }
+                    this._fillType = value;
                 }
             },
             type: FillType,
@@ -315,6 +322,7 @@ var Sprite = cc.Class({
             set: function(value) {
                 this._fillStart = cc.clampf(value, -1, 1);
                 if (this._type === SpriteType.FILLED && this._renderData) {
+                    this._renderData.uvDirty = true;
                     this._renderData.vertDirty = true;
                 }
             },
@@ -339,6 +347,7 @@ var Sprite = cc.Class({
             set: function(value) {
                 this._fillRange = cc.clampf(value, -1, 1);
                 if (this._type === SpriteType.FILLED && this._renderData) {
+                    this._renderData.uvDirty = true;
                     this._renderData.vertDirty = true;
                 }
             },
@@ -472,7 +481,7 @@ var Sprite = cc.Class({
         RenderData.free(this._renderData);
         this._renderData = null;
     },
-    
+
     _activateMaterial: function () {
         // cannot be activated if texture not loaded yet
         if (!this._spriteFrame.textureLoaded) {
