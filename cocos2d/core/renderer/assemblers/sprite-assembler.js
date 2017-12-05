@@ -41,11 +41,21 @@ let simpleRenderData = {
         return renderData;
     },
 
+    update (sprite) {
+        let data = sprite._renderData;
+        if (data.uvDirty) {
+            this.updateUVs(sprite);
+        }
+        if (data.vertDirty) {
+            this.updateVerts(sprite);
+        }
+    },
+
     updateUVs (sprite) {
         let effect = sprite.getEffect();
-        let data = sprite._renderData;
-        if (!effect || !data) return;
+        if (!effect) return;
 
+        let data = sprite._renderData;
         let texture = effect.getValue('texture');
         let texw = texture._width,
             texh = texture._height;
@@ -185,12 +195,22 @@ let slicedRenderData = {
         renderData.indiceCount = 54;
         return renderData;
     },
+    
+    update (sprite) {
+        let data = sprite._renderData;
+        if (data.uvDirty) {
+            this.updateUVs(sprite);
+        }
+        if (data.vertDirty) {
+            this.updateVerts(sprite);
+        }
+    },
 
     updateUVs (sprite) {
         let effect = sprite.getEffect();
-        let data = sprite._renderData;
-        if (!effect || !data) return;
+        if (!effect) return;
 
+        let data = sprite._renderData;
         let texture = effect.getValue('texture');
         let frame = sprite.spriteFrame;
         let rect = frame._rect;
@@ -325,10 +345,12 @@ let tiledRenderData = {
         return RenderData.alloc();
     },
 
-    updateUVs (sprite) {
-        let effect = sprite.getEffect();
+    update (sprite) {
         let data = sprite._renderData;
-        if (!effect || !data) return;
+        if (!data.uvDirty && !data.vertDirty) return;
+
+        let effect = sprite.getEffect();
+        if (!effect) return;
 
         let texture = effect.getValue('texture');
         let texw = texture._width,
@@ -336,11 +358,13 @@ let tiledRenderData = {
         let frame = sprite.spriteFrame;
         let rect = frame._rect;
         let contentSize = sprite.node._contentSize;
+        let contentWidth = Math.abs(contentSize.width);
+        let contentHeight = Math.abs(contentSize.height);
 
         let rectWidth = rect.width;
         let rectHeight = rect.height;
-        let hRepeat = contentSize.width / rectWidth;
-        let vRepeat = contentSize.height / rectHeight;
+        let hRepeat = contentWidth / rectWidth;
+        let vRepeat = contentHeight / rectHeight;
         let row = Math.ceil(vRepeat), 
             col = Math.ceil(hRepeat);
 
@@ -397,36 +421,28 @@ let tiledRenderData = {
             v[7] = v[6];
         }
 
-        data._verts.x.length = col + 1;
-        data._verts.y.length = row + 1;
-        data.vertexCount = row * col * 4;
-        data.indiceCount = row * col * 6;
-        
-        data.uvDirty = false;
-    },
-
-    updateVerts (sprite) {
-        let data = sprite._renderData,
-            frame = sprite.spriteFrame,
-            rect = frame._rect,
-            rectWidth = rect.width,
-            rectHeight = rect.height,
-            width = data._width,
-            height = data._height,
-            appx = data._pivotX * width, 
-            appy = data._pivotY * height;
-        
-        let l, b, r, t;
+        // update x, y
         let x = data._verts.x;
         let y = data._verts.y;
-        for (let i = 0; i < x.length; ++i) {
-            x[i] = Math.min(rectWidth * i, width) - appx;
+
+        x.length = col + 1;
+        y.length = row + 1;
+
+        let appx = data._pivotX * contentWidth,
+            appy = data._pivotY * contentHeight;
+
+        for (let i = 0, l = x.length; i < l; ++i) {
+            x[i] = Math.min(rectWidth * i, contentWidth) - appx;
         }
 
-        for (let i = 0; i < y.length; ++i) {
-            y[i] = Math.min(rectHeight * i, height) - appy;
+        for (let i = 0, l = y.length; i < l; ++i) {
+            y[i] = Math.min(rectHeight * i, contentHeight) - appy;
         }
-
+        
+        // update data property
+        data.vertexCount = row * col * 4;
+        data.indiceCount = row * col * 6;
+        data.uvDirty = false;
         data.vertDirty = false;
     },
 
@@ -522,13 +538,8 @@ let spriteAssembler = {
         let size = sprite.node._contentSize;
         let anchor = sprite.node._anchorPoint;
         renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
-
-        if (renderData.uvDirty) {
-            updater.updateUVs(sprite);
-        }
-        if (renderData.vertDirty) {
-            updater.updateVerts(sprite);
-        }
+        
+        updater.update(sprite);
     },
 
     fillVertexBuffer (sprite, index, vbuf, uintbuf) {
