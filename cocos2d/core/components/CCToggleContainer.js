@@ -58,7 +58,9 @@ var ToggleContainer = cc.Class({
 
     updateToggles: function (toggle) {
         this.toggleItems.forEach(function (item) {
-            item.isChecked = (item === toggle);
+            if (toggle.isChecked && item !== toggle) {
+                item.isChecked = false;
+            }
         });
     },
 
