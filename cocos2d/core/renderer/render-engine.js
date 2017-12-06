@@ -13805,6 +13805,11 @@ module.exports = (function () {
       // draw it
       for (let i = 0; i < items.length; ++i) {
         let item = items.data[i];
+        let ia = item.ia;
+        let vb = ia._vertexBuffer;
+        let ib = ia._indexBuffer;
+        vb.update(0, vb._data);
+        ib.update(0, ib._data);
         this._draw(item);
       }
     }
@@ -14491,6 +14496,7 @@ module.exports = (function () {
   
     // memop
     RecyclePool,
+    Pool,
   
     // modules
     math,

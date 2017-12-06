@@ -29,12 +29,9 @@ const SpriteType = Sprite.Type;
 const FillType = Sprite.FillType;
 const RenderData = renderEngine.RenderData;
 const math = renderEngine.math;
-const vec2 = math.vec2;
 const PI_2 = Math.PI * 2;
 
-var _pos = vec2.create();
-
-let simpleRenderData = {
+let simpleRenderUtil = {
     createData (sprite) {
         let renderData = RenderData.alloc();
         renderData.dataLength = 4;
@@ -150,37 +147,44 @@ let simpleRenderData = {
         let node = sprite.node;
         let renderData = sprite._renderData;
         let data = renderData._data;
-        let z = node.z;
+        let z = node._position.z;
         let color = node._color._val;
         
         node._updateWorldMatrix();
         let matrix = node._worldMatrix;
+        let a = matrix.m00,
+            b = matrix.m01,
+            c = matrix.m04,
+            d = matrix.m05,
+            tx = matrix.m12,
+            ty = matrix.m13;
     
         let vert;
         for (let i = 0; i < 4; i++) {
             vert = data[i];
-            vec2.transformMat4(_pos, vert, matrix);
-            vbuf[off] = _pos.x;
-            vbuf[off+1] = _pos.y;
-            vbuf[off+2] = z;
-            vbuf[off+4] = vert.u;
-            vbuf[off+5] = vert.v;
-            uintbuf[off+3] = color;
+            vbuf[off + 0] = vert.x * a + vert.y * c + tx;
+            vbuf[off + 1] = vert.x * b + vert.y * d + ty;
+            vbuf[off + 2] = z;
+            vbuf[off + 4] = vert.u;
+            vbuf[off + 5] = vert.v;
+            uintbuf[off + 3] = color;
             off += 6;
         }
+        return this.vertexCount;
     },
     
-    fillIndexBuffer (comp, offset, vertexId, ibuf) {
+    fillIndexBuffer (sprite, offset, vertexId, ibuf) {
         ibuf[offset + 0] = vertexId;
         ibuf[offset + 1] = vertexId + 1;
         ibuf[offset + 2] = vertexId + 2;
         ibuf[offset + 3] = vertexId + 1;
         ibuf[offset + 4] = vertexId + 3;
         ibuf[offset + 5] = vertexId + 2;
+        return this.indiceCount;
     }
 };
 
-let slicedRenderData = {
+let slicedRenderUtil = {
     createData (sprite) {
         let renderData = RenderData.alloc();
         renderData.dataLength = 4;
@@ -310,6 +314,7 @@ let slicedRenderData = {
                 offset += 6;
             }
         }
+        return this.vertexCount;
     },
     
     fillIndexBuffer (sprite, offset, vertexId, ibuf) {
@@ -324,11 +329,11 @@ let slicedRenderData = {
                 ibuf[offset++] = start + 4;
             }
         }
+        return this.indiceCount;
     }
 };
 
-
-let tiledRenderData = {
+let tiledRenderUtil = {
     createData (sprite) {
         return RenderData.alloc();
     },
@@ -511,7 +516,7 @@ let tiledRenderData = {
 };
 
 
-let radialFilledRenderData = {
+let radialFilledRenderUtil = {
     _vertPos: [cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)],
     _vertices: [0, 0, 0, 0],
     _uvs: [0, 0, 0, 0, 0, 0, 0, 0],
@@ -809,7 +814,7 @@ let radialFilledRenderData = {
     }
 };
 
-let barFilledRenderData = {
+let barFilledRenderUtil = {
     createData (sprite) {
         let data = RenderData.alloc();
         data.xysLength = 4;
@@ -968,56 +973,53 @@ let barFilledRenderData = {
     fillIndexBuffer: simpleRenderData.fillIndexBuffer
 };
 
-let filledRenderData = {
+let filledRenderUtil = {
     createData (sprite) {
         if (sprite._fillType === FillType.RADIAL) {
-            return radialFilledRenderData.createData(sprite);
+            return radialFilledRenderUtil.createData(sprite);
         }
-        return barFilledRenderData.createData(sprite);
+        return barFilledRenderUtil.createData(sprite);
     },
     update (sprite) {
         if (sprite._fillType === FillType.RADIAL) {
-            return radialFilledRenderData.update(sprite);
+            return radialFilledRenderUtil.update(sprite);
         }
-        return barFilledRenderData.update(sprite);
+        return barFilledRenderUtil.update(sprite);
     },
     fillVertexBuffer (sprite, index, vbuf, uintbuf) {
         if (sprite._fillType === FillType.RADIAL) {
-            return radialFilledRenderData.fillVertexBuffer(sprite, index, vbuf, uintbuf);
+            return radialFilledRenderUtil.fillVertexBuffer(sprite, index, vbuf, uintbuf);
         }
-        return barFilledRenderData.fillVertexBuffer(sprite, index, vbuf, uintbuf);
+        return barFilledRenderUtil.fillVertexBuffer(sprite, index, vbuf, uintbuf);
     },
     fillIndexBuffer (sprite, offset, vertexId, ibuf) {
         if (sprite._fillType === FillType.RADIAL) {
-            return radialFilledRenderData.fillIndexBuffer(sprite, offset, vertexId, ibuf);
+            return radialFilledRenderUtil.fillIndexBuffer(sprite, offset, vertexId, ibuf);
         }
-        return barFilledRenderData.fillIndexBuffer(sprite, offset, vertexId, ibuf);
+        return barFilledRenderUtil.fillIndexBuffer(sprite, offset, vertexId, ibuf);
     }
 };
 
+// Inline all type switch to avoid jit deoptimization during inlined function change
 var spriteAssembler = {
-    findUpdater (type) {
-        switch (type) {
-        case SpriteType.SIMPLE:
-            return simpleRenderData;
-            break;
-        case SpriteType.SLICED:
-            return slicedRenderData;
-            break;
-        case SpriteType.TILED:
-            return tiledRenderData;
-            break;
-        case SpriteType.FILLED:
-            return filledRenderData;
-            break;
-        }
-    },
-
     updateRenderData (sprite) {
         let updater = this.findUpdater(sprite.type);
         // Create render data if needed
         if (!sprite._renderData) {
-            sprite._renderData = updater.createData(sprite);
+            switch (type) {
+                case SpriteType.SIMPLE:
+                    return simpleRenderUtil.createData(sprite);
+                    break;
+                case SpriteType.SLICED:
+                    return slicedRenderUtil.createData(sprite);
+                    break;
+                case SpriteType.TILED:
+                    return tiledRenderUtil.createData(sprite);
+                    break;
+                case SpriteType.FILLED:
+                    return filledRenderUtil.createData(sprite);
+                    break;
+            }
         }
 
         let renderData = sprite._renderData;
@@ -1025,17 +1027,54 @@ var spriteAssembler = {
         let anchor = sprite.node._anchorPoint;
         renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
         
-        updater.update(sprite);
+        switch (type) {
+            case SpriteType.SIMPLE:
+                return simpleRenderUtil.update(sprite);
+                break;
+            case SpriteType.SLICED:
+                return slicedRenderUtil.update(sprite);
+                break;
+            case SpriteType.TILED:
+                return tiledRenderUtil.update(sprite);
+                break;
+            case SpriteType.FILLED:
+                return filledRenderUtil.update(sprite);
+                break;
+        }
     },
 
     fillVertexBuffer (sprite, index, vbuf, uintbuf) {
-        let updater = this.findUpdater(sprite.type);
-        updater.fillVertexBuffer(sprite, index, vbuf, uintbuf);
+        switch (type) {
+            case SpriteType.SIMPLE:
+                return simpleRenderUtil.fillVertexBuffer(sprite, index, vbuf, uintbuf);
+                break;
+            case SpriteType.SLICED:
+                return slicedRenderUtil.fillVertexBuffer(sprite, index, vbuf, uintbuf);
+                break;
+            case SpriteType.TILED:
+                return tiledRenderUtil.fillVertexBuffer(sprite, index, vbuf, uintbuf);
+                break;
+            case SpriteType.FILLED:
+                return filledRenderUtil.fillVertexBuffer(sprite, index, vbuf, uintbuf);
+                break;
+        }
     },
 
     fillIndexBuffer (sprite, offset, vertexId, ibuf) {
-        let updater = this.findUpdater(sprite.type);
-        updater.fillIndexBuffer(sprite, offset, vertexId, ibuf);
+        switch (type) {
+            case SpriteType.SIMPLE:
+                return simpleRenderUtil.fillIndexBuffer(sprite, offset, vertexId, ibuf);
+                break;
+            case SpriteType.SLICED:
+                return slicedRenderUtil.fillIndexBuffer(sprite, offset, vertexId, ibuf);
+                break;
+            case SpriteType.TILED:
+                return tiledRenderUtil.fillIndexBuffer(sprite, offset, vertexId, ibuf);
+                break;
+            case SpriteType.FILLED:
+                return filledRenderUtil.fillIndexBuffer(sprite, offset, vertexId, ibuf);
+                break;
+        }
     }
 }
 
