@@ -566,34 +566,34 @@ let radialFilledRenderData = {
 
         let center = this._center;
 
-        var vertPos = this._vertPos,
+        let vertPos = this._vertPos,
             vertices = this._vertices;
 
-        var triangles = this._triangles;
+        let triangles = this._triangles;
 
         this._calcInsectedPoints(vertices[0], vertices[2], vertices[1], vertices[3], center, fillStart, this._intersectPoint_1);
         this._calcInsectedPoints(vertices[0], vertices[2], vertices[1], vertices[3], center, fillStart + fillRange, this._intersectPoint_2);
 
-        var offset = 0;
-        for(var triangleIndex = 0; triangleIndex < 4; ++triangleIndex) {
-            var triangle = triangles[triangleIndex];
-            if(triangle === null) {
+        let offset = 0;
+        for (let triangleIndex = 0; triangleIndex < 4; ++triangleIndex) {
+            let triangle = triangles[triangleIndex];
+            if (!triangle) {
                 continue;
             }
             //all in
-            if(fillRange >= PI_2) {
+            if (fillRange >= PI_2) {
                 this._generateTriangle(data, offset, center, vertPos[triangle[0]], vertPos[triangle[1]]);
                 offset += 3;
                 continue;
             }
             //test against
-            var startAngle = this._getVertAngle(center, vertPos[triangle[0]]);
-            var endAngle = this._getVertAngle(center, vertPos[triangle[1]]);
+            let startAngle = this._getVertAngle(center, vertPos[triangle[0]]);
+            let endAngle = this._getVertAngle(center, vertPos[triangle[1]]);
             if(endAngle < startAngle) endAngle += PI_2;
             startAngle -= PI_2;
             endAngle -= PI_2;
             //testing
-            for(var testIndex = 0; testIndex < 3; ++testIndex) {
+            for(let testIndex = 0; testIndex < 3; ++testIndex) {
                 if(startAngle >= fillEnd) {
                     //all out
                 } else if (startAngle >= fillStart) {
@@ -631,7 +631,7 @@ let radialFilledRenderData = {
     },
 
     _getVertAngle: function(start, end) {
-        var placementX, placementY;
+        let placementX, placementY;
         placementX = end.x - start.x;
         placementY = end.y - start.y;
 
@@ -644,7 +644,7 @@ let radialFilledRenderData = {
                 return Math.PI * 1.5;
             }
         } else {
-            var angle = Math.atan(placementY / placementX);
+            let angle = Math.atan(placementY / placementX);
             if(placementX < 0) {
                 angle += Math.PI;
             }
@@ -699,19 +699,19 @@ let radialFilledRenderData = {
 
     _calcInsectedPoints: function(left, right, bottom, top, center, angle, intersectPoints) {
         //left bottom, right, top
-        var sinAngle = Math.sin(angle);
-        var cosAngle = Math.cos(angle);
-        var tanAngle,cotAngle;
+        let sinAngle = Math.sin(angle);
+        let cosAngle = Math.cos(angle);
+        let tanAngle,cotAngle;
         if(Math.cos(angle) !== 0) {
             tanAngle = sinAngle / cosAngle;
             //calculate right and left
             if((left - center.x) * cosAngle > 0) {
-                var yleft = center.y + tanAngle * (left - center.x);
+                let yleft = center.y + tanAngle * (left - center.x);
                 intersectPoints[0].x = left;
                 intersectPoints[0].y = yleft;
             }
             if((right - center.x) * cosAngle > 0) {
-                var yright = center.y + tanAngle * (right - center.x);
+                let yright = center.y + tanAngle * (right - center.x);
 
                 intersectPoints[2].x = right;
                 intersectPoints[2].y = yright;
@@ -723,12 +723,12 @@ let radialFilledRenderData = {
             cotAngle = cosAngle / sinAngle;
             //calculate  top and bottom
             if((top - center.y) * sinAngle > 0) {
-                var xtop = center.x  + cotAngle * (top-center.y);
+                let xtop = center.x  + cotAngle * (top-center.y);
                 intersectPoints[3].x = xtop;
                 intersectPoints[3].y = top;
             }
             if((bottom - center.y) * sinAngle > 0) {
-                var xbottom = center.x  + cotAngle * (bottom-center.y);
+                let xbottom = center.x  + cotAngle * (bottom-center.y);
                 intersectPoints[1].x = xbottom;
                 intersectPoints[1].y = bottom;
             }
@@ -825,7 +825,7 @@ let radialFilledRenderData = {
 
 let barFilledRenderData = {
     createData (sprite) {
-        var data = RenderData.alloc();
+        let data = RenderData.alloc();
         data.xysLength = 4;
         data.uvsLength = 4;
         data.vertexCount = 4;
@@ -934,16 +934,16 @@ let barFilledRenderData = {
         data.uvDirty = false;
     },
     updateVerts (sprite, fillStart, fillEnd) {
-        var data = sprite._renderData,
+        let data = sprite._renderData,
             width = data._width,
             height = data._height,
             appx = data._pivotX * width,
             appy = data._pivotY * height;
 
-        var l = -appx, b = -appy,
+        let l = -appx, b = -appy,
             r = width-appx, t = height-appy;
 
-        var progressStart, progressEnd;
+        let progressStart, progressEnd;
         switch (sprite._fillType) {
             case FillType.HORIZONTAL:
                 progressStart = l + (r - l) * fillStart;
