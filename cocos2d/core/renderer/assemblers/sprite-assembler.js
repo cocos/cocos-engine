@@ -41,11 +41,11 @@ let simpleRenderUtil = {
     },
 
     update (sprite) {
-        let data = sprite._renderData;
-        if (data.uvDirty) {
+        let renderData = sprite._renderData;
+        if (renderData.uvDirty) {
             this.updateUVs(sprite);
         }
-        if (data.vertDirty) {
+        if (renderData.vertDirty) {
             this.updateVerts(sprite);
         }
     },
@@ -160,7 +160,8 @@ let simpleRenderUtil = {
             ty = matrix.m13;
     
         let vert;
-        for (let i = 0; i < 4; i++) {
+        let length = renderData.dataLength;
+        for (let i = 0; i < length; i++) {
             vert = data[i];
             vbuf[off + 0] = vert.x * a + vert.y * c + tx;
             vbuf[off + 1] = vert.x * b + vert.y * d + ty;
@@ -170,7 +171,7 @@ let simpleRenderUtil = {
             uintbuf[off + 3] = color;
             off += 6;
         }
-        return 4;
+        return length;
     },
     
     fillIndexBuffer (sprite, offset, vertexId, ibuf) {
@@ -194,11 +195,11 @@ let slicedRenderUtil = {
     },
     
     update (sprite) {
-        let data = sprite._renderData;
-        if (data.uvDirty) {
+        let renderData = sprite._renderData;
+        if (renderData.uvDirty) {
             this.updateUVs(sprite);
         }
-        if (data.vertDirty) {
+        if (renderData.vertDirty) {
             this.updateVerts(sprite);
         }
     },
@@ -339,20 +340,19 @@ let tiledRenderUtil = {
     },
 
     update (sprite) {
-        let data = sprite._renderData;
-        if (!data.uvDirty && !data.vertDirty) return;
+        let renderData = sprite._renderData;
+        if (!renderData.uvDirty && !renderData.vertDirty) return;
 
         let effect = sprite.getEffect();
-        if (!effect) return;
+        if (!effect || !renderData) return;
 
         let texture = effect.getValue('texture');
         let texw = texture._width,
             texh = texture._height;
         let frame = sprite.spriteFrame;
         let rect = frame._rect;
-        let contentSize = sprite.node._contentSize;
-        let contentWidth = Math.abs(contentSize.width);
-        let contentHeight = Math.abs(contentSize.height);
+        let contentWidth = Math.abs(renderData._width);
+        let contentHeight = Math.abs(renderData._height);
 
         let rectWidth = rect.width;
         let rectHeight = rect.height;
@@ -361,9 +361,8 @@ let tiledRenderUtil = {
         let row = Math.ceil(vRepeat), 
             col = Math.ceil(hRepeat);
 
-        let u = data._uvs.u;
-        let v = data._uvs.v;
-        u.length = v.length = 8;
+        let data = renderData._data;
+        renderData.dataLength = Math.max(8, row+1, col+1);
 
         let l, b, r, t;
         if (!frame._rotated) {
@@ -372,84 +371,81 @@ let tiledRenderUtil = {
             b = (rect.y + rectHeight) / texh;
             t = (rect.y) / texh;
 
-            u[0] = l;
-            v[0] = b;
-            u[1] = r;
-            v[1] = b;
-            u[2] = l;
-            v[2] = t;
-            u[3] = r;
-            v[3] = t;
+            data[0].u = l;
+            data[0].v = b;
+            data[1].u = r;
+            data[1].v = b;
+            data[2].u = l;
+            data[2].v = t;
+            data[3].u = r;
+            data[3].v = t;
             
-            u[4] = l;
-            v[4] = b;
-            u[5] = l + (r-l) * Math.min(1, hRepeat - col + 1);
-            v[5] = b;
-            u[6] = l;
-            v[6] = b + (t-b) * Math.min(1, vRepeat - row + 1);
-            u[7] = u[5];
-            v[7] = v[6];
+            data[4].u = l;
+            data[4].v = b;
+            data[5].u = l + (r-l) * Math.min(1, hRepeat - col + 1);
+            data[5].v = b;
+            data[6].u = l;
+            data[6].v = b + (t-b) * Math.min(1, vRepeat - row + 1);
+            data[7].u = data[5].u;
+            data[7].v = data[6].v;
         } else {
             l = (rect.x) / texw;
             r = (rect.x + rectHeight) / texw;
             b = (rect.y + rectWidth) / texh;
             t = (rect.y) / texh;
 
-            u[0] = l;
-            v[0] = t;
-            u[1] = l;
-            v[1] = b;
-            u[2] = r;
-            v[2] = t;
-            u[3] = r;
-            v[3] = b;
+            data[0].u = l;
+            data[0].v = t;
+            data[1].u = l;
+            data[1].v = b;
+            data[2].u = r;
+            data[2].v = t;
+            data[3].u = r;
+            data[3].v = b;
 
-            u[4] = l;
-            v[4] = t;
-            u[5] = l;
-            v[5] = t + (b - t) * Math.min(1, vRepeat - cow + 1);
-            u[6] = l + (r - l) * Math.min(1, hRepeat - row + 1);
-            v[6] = t;
-            u[7] = u[5];
-            v[7] = v[6];
+            data[4].u = l;
+            data[4].v = t;
+            data[5].u = l;
+            data[5].v = t + (b - t) * Math.min(1, vRepeat - col + 1);
+            data[6].u = l + (r - l) * Math.min(1, hRepeat - row + 1);
+            data[6].v = t;
+            data[7].u = data[5].u;
+            data[7].v = data[6].v;
         }
 
-        // update x, y
-        let x = data._verts.x;
-        let y = data._verts.y;
+        let appx = renderData._pivotX * contentWidth,
+            appy = renderData._pivotY * contentHeight;
 
-        x.length = col + 1;
-        y.length = row + 1;
-
-        let appx = data._pivotX * contentWidth,
-            appy = data._pivotY * contentHeight;
-
-        for (let i = 0, l = x.length; i < l; ++i) {
-            x[i] = Math.min(rectWidth * i, contentWidth) - appx;
+        for (let i = 0; i <= col; ++i) {
+            data[i].x = Math.min(rectWidth * i, contentWidth) - appx;
         }
 
-        for (let i = 0, l = y.length; i < l; ++i) {
-            y[i] = Math.min(rectHeight * i, contentHeight) - appy;
+        for (let i = 0; i <= row; ++i) {
+            data[i].y = Math.min(rectHeight * i, contentHeight) - appy;
         }
         
         // update data property
-        data.vertexCount = row * col * 4;
-        data.indiceCount = row * col * 6;
-        data.uvDirty = false;
-        data.vertDirty = false;
+        renderData.vertexCount = row * col * 4;
+        renderData.indiceCount = row * col * 6;
+        renderData.uvDirty = false;
+        renderData.vertDirty = false;
     },
 
     fillVertexBuffer (sprite, index, vbuf, uintbuf) {
         let off = index * sprite._vertexFormat._bytes / 4;
         let node = sprite.node;
-        let data = sprite._renderData;
-        let x = data._verts.x,
-            y = data._verts.y,
-            u = data._uvs.u,
-            v = data._uvs.v,
-            z = node.z;
-        
+        let renderData = sprite._renderData;
+        let data = renderData._data;
+        let z = node._position.z;
         let color = node._color._val;
+
+        let rect = sprite.spriteFrame._rect;
+        let contentWidth = Math.abs(renderData._width);
+        let contentHeight = Math.abs(renderData._height);
+        let hRepeat = contentWidth / rect.width;
+        let vRepeat = contentHeight / rect.height;
+        let row = Math.ceil(vRepeat), 
+            col = Math.ceil(hRepeat);
         
         node._updateWorldMatrix();
         let matrix = node._worldMatrix;
@@ -460,50 +456,55 @@ let tiledRenderUtil = {
             tx = matrix.m12,
             ty = matrix.m13;
 
-        for (let yindex = 0, ylength = y.length - 1; yindex < ylength; ++yindex) {
-            for (let xindex = 0, xlength = x.length - 1; xindex < xlength; ++xindex) {
-                let lasty = yindex + 1 === ylength;
-                let lastx = xindex + 1 === xlength;
+        let x, x1, y, y1, lastx, lasty;
+        for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {
+            y = data[yindex].y;
+            y1 = data[yindex+1].y;
+            for (let xindex = 0, xlength = col; xindex < xlength; ++xindex) {
+                lasty = yindex + 1 === ylength;
+                lastx = xindex + 1 === xlength;
+                x = data[xindex].x;
+                x1 = data[xindex+1].x;
 
                 // lb
-                vbuf[off++] = x[xindex] * a + y[yindex] * c + tx;
-                vbuf[off++] = x[xindex] * b + y[yindex] * d + ty;
+                vbuf[off++] = x * a + y * c + tx;
+                vbuf[off++] = x * b + y * d + ty;
                 vbuf[off++] = z;
                 uintbuf[off++] = color;
-                vbuf[off++] = lastx ? u[4] : u[0];
-                vbuf[off++] = lasty ? v[4] : v[0];
+                vbuf[off++] = lastx ? data[4].u : data[0].u;
+                vbuf[off++] = lasty ? data[4].v : data[0].v;
 
                 // rb
-                vbuf[off++] = x[xindex+1] * a + y[yindex] * c + tx;
-                vbuf[off++] = x[xindex+1] * b + y[yindex] * d + ty;
+                vbuf[off++] = x1 * a + y * c + tx;
+                vbuf[off++] = x1 * b + y * d + ty;
                 vbuf[off++] = z;
                 uintbuf[off++] = color;
-                vbuf[off++] = lastx ? u[5] : u[1];
-                vbuf[off++] = lasty ? v[5] : v[1];
+                vbuf[off++] = lastx ? data[5].u : data[1].u;
+                vbuf[off++] = lasty ? data[5].v : data[1].v;
 
                 // lt
-                vbuf[off++] = x[xindex] * a + y[yindex+1] * c + tx;
-                vbuf[off++] = x[xindex] * b + y[yindex+1] * d + ty;
+                vbuf[off++] = x * a + y1 * c + tx;
+                vbuf[off++] = x * b + y1 * d + ty;
                 vbuf[off++] = z;
                 uintbuf[off++] = color;
-                vbuf[off++] = lastx ? u[6] : u[2];
-                vbuf[off++] = lasty ? v[6] : v[2];
+                vbuf[off++] = lastx ? data[6].u : data[2].u;
+                vbuf[off++] = lasty ? data[6].v : data[2].v;
 
                 // rt
-                vbuf[off++] = x[xindex+1] * a + y[yindex+1] * c + tx;
-                vbuf[off++] = x[xindex+1] * b + y[yindex+1] * d + ty;
+                vbuf[off++] = x1 * a + y1 * c + tx;
+                vbuf[off++] = x1 * b + y1 * d + ty;
                 vbuf[off++] = z;
                 uintbuf[off++] = color;
-                vbuf[off++] = lastx ? u[7] : u[3];
-                vbuf[off++] = lasty ? v[7] : v[3];
+                vbuf[off++] = lastx ? data[7].u : data[3].u;
+                vbuf[off++] = lasty ? data[7].v : data[3].v;
             }
         }
-        return data.vertexCount;
+        return renderData.vertexCount;
     },
     
     fillIndexBuffer (sprite, offset, vertexId, ibuf) {
-        let data = sprite._renderData;
-        let length = data.indiceCount;
+        let renderData = sprite._renderData;
+        let length = renderData.indiceCount;
         for (let i = 0; i < length; i+=6) {
             ibuf[offset++] = vertexId;
             ibuf[offset++] = vertexId+1;
@@ -513,7 +514,7 @@ let tiledRenderUtil = {
             ibuf[offset++] = vertexId+2;
             vertexId += 4;
         }
-        return data.indiceCount;
+        return length;
     }
 };
 
@@ -532,9 +533,10 @@ let radialFilledRenderUtil = {
     },
 
     update (sprite) {
-        let data = sprite._renderData;
-        if (!data.vertDirty && !data.uvDirty) return;
+        let renderData = sprite._renderData;
+        if (!renderData.vertDirty && !renderData.uvDirty) return;
 
+        let data = renderData._data;
         let spriteFrame = sprite._spriteFrame;
 
         let fillStart = sprite._fillStart;
@@ -575,6 +577,7 @@ let radialFilledRenderUtil = {
             }
             //all in
             if (fillRange >= PI_2) {
+                renderData.dataLength = offset + 3;
                 this._generateTriangle(data, offset, center, vertPos[triangle[0]], vertPos[triangle[1]]);
                 offset += 3;
                 continue;
@@ -590,6 +593,7 @@ let radialFilledRenderUtil = {
                 if(startAngle >= fillEnd) {
                     //all out
                 } else if (startAngle >= fillStart) {
+                    renderData.dataLength = offset + 3;
                     if(endAngle >= fillEnd) {
                         //startAngle to fillEnd
                         this._generateTriangle(data, offset, center, vertPos[triangle[0]], this._intersectPoint_2[triangleIndex]);
@@ -603,10 +607,12 @@ let radialFilledRenderUtil = {
                     if(endAngle <= fillStart) {
                         //all out
                     } else if(endAngle <= fillEnd) {
+                        renderData.dataLength = offset + 3;
                         //fillStart to endAngle
                         this._generateTriangle(data, offset, center, this._intersectPoint_1[triangleIndex], vertPos[triangle[1]]);
                         offset += 3;
                     } else {
+                        renderData.dataLength = offset + 3;
                         //fillStart to fillEnd
                         this._generateTriangle(data, offset, center, this._intersectPoint_1[triangleIndex], this._intersectPoint_2[triangleIndex]);
                         offset += 3;
@@ -618,9 +624,8 @@ let radialFilledRenderUtil = {
             }
         }
 
-        data.xysLength = data.uvsLength = offset;
-        data.indiceCount = data.vertexCount = offset;
-        data.vertDirty = data.uvDirty = false;
+        renderData.indiceCount = renderData.vertexCount = offset;
+        renderData.vertDirty = renderData.uvDirty = false;
     },
 
     _getVertAngle: function(start, end) {
@@ -653,41 +658,36 @@ let radialFilledRenderUtil = {
         let v1x = vertices[2];
         let v1y = vertices[3];
 
-        let x = data._verts.x;
-        let y = data._verts.y;
-
-        x[offset]    = vert0.x;
-        y[offset]    = vert0.y;
-        x[offset+1]  = vert1.x;
-        y[offset+1]  = vert1.y;
-        x[offset+2]  = vert2.x;
-        y[offset+2]  = vert2.y;
-
-        let u = data._uvs.u;
-        let v = data._uvs.v;
+        data[offset].x    = vert0.x;
+        data[offset].y    = vert0.y;
+        data[offset+1].x  = vert1.x;
+        data[offset+1].y  = vert1.y;
+        data[offset+2].x  = vert2.x;
+        data[offset+2].y  = vert2.y;
 
         let progressX, progressY;
         progressX = (vert0.x - v0x) / (v1x - v0x);
         progressY = (vert0.y - v0y) / (v1y - v0y);
-        this._generateUV(progressX, progressY, u, v, offset);
+        this._generateUV(progressX, progressY, data, offset);
 
         progressX = (vert1.x - v0x) / (v1x - v0x);
         progressY = (vert1.y - v0y) / (v1y - v0y);
-        this._generateUV(progressX, progressY, u, v, offset + 1);
+        this._generateUV(progressX, progressY, data, offset + 1);
 
         progressX = (vert2.x - v0x) / (v1x - v0x);
         progressY = (vert2.y - v0y) / (v1y - v0y);
-        this._generateUV(progressX, progressY, u, v, offset + 2);
+        this._generateUV(progressX, progressY, data, offset + 2);
     },
 
-    _generateUV : function(progressX, progressY, u, v, offset) {
+    _generateUV : function(progressX, progressY, data, offset) {
         let uvs = this._uvs;
         let px1 = uvs[0] + (uvs[2] - uvs[0]) * progressX;
         let px2 = uvs[4] + (uvs[6] - uvs[4]) * progressX;
         let py1 = uvs[1] + (uvs[3] - uvs[1]) * progressX;
         let py2 = uvs[5] + (uvs[7] - uvs[5]) * progressX;
-        u[offset] = px1 + (px2 - px1) * progressY;
-        v[offset] = py1 + (py2 - py1) * progressY;
+        let uv = data[offset];
+        uv.u = px1 + (px2 - px1) * progressY;
+        uv.v = py1 + (py2 - py1) * progressY;
     },
 
     _calcInsectedPoints: function(left, right, bottom, top, center, angle, intersectPoints) {
@@ -730,11 +730,11 @@ let radialFilledRenderUtil = {
     },
 
     _calculateVertices : function (sprite) {
-        let data = sprite._renderData,
-            width = data._width,
-            height = data._height,
-            appx = data._pivotX * width,
-            appy = data._pivotY * height;
+        let renderData = sprite._renderData,
+            width = renderData._width,
+            height = renderData._height,
+            appx = renderData._pivotX * width,
+            appy = renderData._pivotY * height;
 
         let l = -appx, b = -appy,
             r = width-appx, t = height-appy;
@@ -809,28 +809,27 @@ let radialFilledRenderUtil = {
     fillVertexBuffer: simpleRenderUtil.fillVertexBuffer,
 
     fillIndexBuffer (sprite, offset, vertexId, ibuf) {
-        let data = sprite._renderData;
-        for (let i = 0, l = data.vertexCount; i < l; i++) {
+        let renderData = sprite._renderData;
+        for (let i = 0, l = renderData.vertexCount; i < l; i++) {
             ibuf[offset+i] = vertexId+i;
         }
-        return data.indiceCount;
+        return renderData.indiceCount;
     }
 };
 
 let barFilledRenderUtil = {
     createData (sprite) {
-        let data = RenderData.alloc();
-        data.xysLength = 4;
-        data.uvsLength = 4;
-        data.vertexCount = 4;
-        data.indiceCount = 6;
-        return data;
+        let renderData = RenderData.alloc();
+        renderData.dataLength = 4;
+        renderData.vertexCount = 4;
+        renderData.indiceCount = 6;
+        return renderData;
     },
     
     update (sprite) {
-        let data = sprite._renderData;
-        let uvDirty = data.uvDirty, 
-            vertDirty = data.vertDirty;
+        let renderData = sprite._renderData;
+        let uvDirty = renderData.uvDirty,
+            vertDirty = renderData.vertDirty;
 
         if (!uvDirty && !vertDirty) return;
 
@@ -865,7 +864,8 @@ let barFilledRenderUtil = {
 
     updateUVs (sprite, fillStart, fillEnd) {
         let spriteFrame = sprite._spriteFrame,
-            data = sprite._renderData;
+            renderData = sprite._renderData,
+            data = renderData._data;
 
         //build uvs
         let atlasWidth = spriteFrame._texture.width;
@@ -897,42 +897,41 @@ let barFilledRenderUtil = {
             quadUV5 = quadUV7 = vt;
         }
 
-        let u = data._uvs.u;
-        let v = data._uvs.v;
         switch (sprite._fillType) {
             case FillType.HORIZONTAL:
-                u[0] = quadUV0 + (quadUV2 - quadUV0) * fillStart;
-                v[0] = quadUV1;
-                u[1] = quadUV0 + (quadUV2 - quadUV0) * fillEnd;
-                v[1] = quadUV3;
-                u[2] = quadUV4 + (quadUV6 - quadUV4) * fillStart;
-                v[2] = quadUV5;
-                u[3] = quadUV4 + (quadUV6 - quadUV4) * fillEnd;
-                v[3] = quadUV7;
+                data[0].u = quadUV0 + (quadUV2 - quadUV0) * fillStart;
+                data[0].v = quadUV1;
+                data[1].u = quadUV0 + (quadUV2 - quadUV0) * fillEnd;
+                data[1].v = quadUV3;
+                data[2].u = quadUV4 + (quadUV6 - quadUV4) * fillStart;
+                data[2].v = quadUV5;
+                data[3].u = quadUV4 + (quadUV6 - quadUV4) * fillEnd;
+                data[3].v = quadUV7;
                 break;
             case FillType.VERTICAL:
-                u[0] = quadUV0;
-                v[0] = quadUV1 + (quadUV5 - quadUV1) * fillStart;
-                u[1] = quadUV2;
-                v[1] = quadUV3 + (quadUV7 - quadUV3) * fillStart;
-                u[2] = quadUV4;
-                v[2] = quadUV1 + (quadUV5 - quadUV1) * fillEnd;
-                u[3] = quadUV6;
-                v[3] = quadUV3 + (quadUV7 - quadUV3) * fillEnd;
+                data[0].u = quadUV0;
+                data[0].v = quadUV1 + (quadUV5 - quadUV1) * fillStart;
+                data[1].u = quadUV2;
+                data[1].v = quadUV3 + (quadUV7 - quadUV3) * fillStart;
+                data[2].u = quadUV4;
+                data[2].v = quadUV1 + (quadUV5 - quadUV1) * fillEnd;
+                data[3].u = quadUV6;
+                data[3].v = quadUV3 + (quadUV7 - quadUV3) * fillEnd;
                 break;
             default:
                 cc.errorID(2626);
                 break;
         }
 
-        data.uvDirty = false;
+        renderData.uvDirty = false;
     },
     updateVerts (sprite, fillStart, fillEnd) {
-        let data = sprite._renderData,
-            width = data._width,
-            height = data._height,
-            appx = data._pivotX * width,
-            appy = data._pivotY * height;
+        let renderData = sprite._renderData,
+            data = renderData._data,
+            width = renderData._width,
+            height = renderData._height,
+            appx = renderData._pivotX * width,
+            appy = renderData._pivotY * height;
 
         let l = -appx, b = -appy,
             r = width-appx, t = height-appy;
@@ -958,18 +957,16 @@ let barFilledRenderUtil = {
                 break;
         }
 
-        let x = data._verts.x;
-        let y = data._verts.y;
-        x[0] = l;
-        y[0] = b;
-        x[1] = r;
-        y[1] = b;
-        x[2] = l;
-        y[2] = t;
-        x[3] = r;
-        y[3] = t;
+        data[0].x = l;
+        data[0].y = b;
+        data[1].x = r;
+        data[1].y = b;
+        data[2].x = l;
+        data[2].y = t;
+        data[3].x = r;
+        data[3].y = t;
 
-        data.vertDirty = false;
+        renderData.vertDirty = false;
     },
 
     fillVertexBuffer: simpleRenderUtil.fillVertexBuffer,

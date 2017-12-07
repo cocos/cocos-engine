@@ -13805,9 +13805,9 @@ module.exports = (function () {
       // draw it
       for (let i = 0; i < items.length; ++i) {
         let item = items.data[i];
-        let ia = item.ia;
-        let vb = ia._vertexBuffer;
-        let ib = ia._indexBuffer;
+        var ia = item.ia;
+        var vb = ia._vertexBuffer;
+        var ib = ia._indexBuffer;
         vb.update(0, vb._data);
         ib.update(0, ib._data);
         this._draw(item);
@@ -14293,12 +14293,16 @@ module.exports = (function () {
     }
   
     set dataLength (length) {
-      this._data.length = length;
-      for (let i = 0; i < length; i++) {
-        if (!this._data[i]) {
-          this._data[i] = _dataPool.alloc();
-        }
+      let data = this._data;
+      // Free extra data
+      for (let i = length; i < data.length; i++) {
+        _dataPool.free(data[i]);
       }
+      // Alloc needed data
+      for (let i = data.length; i < length; i++) {
+        data[i] = _dataPool.alloc();
+      }
+      data.length = length;
     }
   
     updateSizeNPivot (width, height, pivotX, pivotY) {
