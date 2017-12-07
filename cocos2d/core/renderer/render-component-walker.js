@@ -27,7 +27,6 @@ const renderer = require('./index');
 const renderEngine = require('./render-engine');
 const defaultVertexFormat = require('./vertex-format');
 const macro = require('../platform/CCMacro');
-const SharedArrayBuffer = require('./shared-array-buffer');
 const gfx = renderEngine.gfx;
 const RecyclePool = renderEngine.RecyclePool;
 const InputAssembler = renderEngine.InputAssembler;

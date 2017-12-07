@@ -170,7 +170,7 @@ let simpleRenderUtil = {
             uintbuf[off + 3] = color;
             off += 6;
         }
-        return this.vertexCount;
+        return 4;
     },
     
     fillIndexBuffer (sprite, offset, vertexId, ibuf) {
@@ -180,7 +180,7 @@ let simpleRenderUtil = {
         ibuf[offset + 3] = vertexId + 1;
         ibuf[offset + 4] = vertexId + 3;
         ibuf[offset + 5] = vertexId + 2;
-        return this.indiceCount;
+        return 6;
     }
 };
 
@@ -314,7 +314,7 @@ let slicedRenderUtil = {
                 offset += 6;
             }
         }
-        return this.vertexCount;
+        return 16;
     },
     
     fillIndexBuffer (sprite, offset, vertexId, ibuf) {
@@ -329,7 +329,7 @@ let slicedRenderUtil = {
                 ibuf[offset++] = start + 4;
             }
         }
-        return this.indiceCount;
+        return 54;
     }
 };
 
@@ -498,6 +498,7 @@ let tiledRenderUtil = {
                 vbuf[off++] = lasty ? v[7] : v[3];
             }
         }
+        return data.vertexCount;
     },
     
     fillIndexBuffer (sprite, offset, vertexId, ibuf) {
@@ -512,6 +513,7 @@ let tiledRenderUtil = {
             ibuf[offset++] = vertexId+2;
             vertexId += 4;
         }
+        return data.indiceCount;
     }
 };
 
@@ -804,13 +806,14 @@ let radialFilledRenderUtil = {
         }
     },
 
-    fillVertexBuffer: simpleRenderData.fillVertexBuffer,
+    fillVertexBuffer: simpleRenderUtil.fillVertexBuffer,
 
     fillIndexBuffer (sprite, offset, vertexId, ibuf) {
         let data = sprite._renderData;
         for (let i = 0, l = data.vertexCount; i < l; i++) {
             ibuf[offset+i] = vertexId+i;
         }
+        return data.indiceCount;
     }
 };
 
@@ -969,8 +972,8 @@ let barFilledRenderUtil = {
         data.vertDirty = false;
     },
 
-    fillVertexBuffer: simpleRenderData.fillVertexBuffer,
-    fillIndexBuffer: simpleRenderData.fillIndexBuffer
+    fillVertexBuffer: simpleRenderUtil.fillVertexBuffer,
+    fillIndexBuffer: simpleRenderUtil.fillIndexBuffer
 };
 
 let filledRenderUtil = {
@@ -1003,21 +1006,20 @@ let filledRenderUtil = {
 // Inline all type switch to avoid jit deoptimization during inlined function change
 var spriteAssembler = {
     updateRenderData (sprite) {
-        let updater = this.findUpdater(sprite.type);
         // Create render data if needed
         if (!sprite._renderData) {
-            switch (type) {
+            switch (sprite.type) {
                 case SpriteType.SIMPLE:
-                    return simpleRenderUtil.createData(sprite);
+                    sprite._renderData = simpleRenderUtil.createData(sprite);
                     break;
                 case SpriteType.SLICED:
-                    return slicedRenderUtil.createData(sprite);
+                    sprite._renderData = slicedRenderUtil.createData(sprite);
                     break;
                 case SpriteType.TILED:
-                    return tiledRenderUtil.createData(sprite);
+                    sprite._renderData = tiledRenderUtil.createData(sprite);
                     break;
                 case SpriteType.FILLED:
-                    return filledRenderUtil.createData(sprite);
+                    sprite._renderData = filledRenderUtil.createData(sprite);
                     break;
             }
         }
@@ -1027,24 +1029,24 @@ var spriteAssembler = {
         let anchor = sprite.node._anchorPoint;
         renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
         
-        switch (type) {
+        switch (sprite.type) {
             case SpriteType.SIMPLE:
-                return simpleRenderUtil.update(sprite);
+                simpleRenderUtil.update(sprite);
                 break;
             case SpriteType.SLICED:
-                return slicedRenderUtil.update(sprite);
+                slicedRenderUtil.update(sprite);
                 break;
             case SpriteType.TILED:
-                return tiledRenderUtil.update(sprite);
+                tiledRenderUtil.update(sprite);
                 break;
             case SpriteType.FILLED:
-                return filledRenderUtil.update(sprite);
+                filledRenderUtil.update(sprite);
                 break;
         }
     },
 
     fillVertexBuffer (sprite, index, vbuf, uintbuf) {
-        switch (type) {
+        switch (sprite.type) {
             case SpriteType.SIMPLE:
                 return simpleRenderUtil.fillVertexBuffer(sprite, index, vbuf, uintbuf);
                 break;
@@ -1061,7 +1063,7 @@ var spriteAssembler = {
     },
 
     fillIndexBuffer (sprite, offset, vertexId, ibuf) {
-        switch (type) {
+        switch (sprite.type) {
             case SpriteType.SIMPLE:
                 return simpleRenderUtil.fillIndexBuffer(sprite, offset, vertexId, ibuf);
                 break;
