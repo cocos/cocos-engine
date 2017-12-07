@@ -106,6 +106,7 @@ private:
     cocos2d::network::HttpRequest*  _httpRequest;
     cocos2d::EventListenerCustom* _resetDirectorListener;
 
+    unsigned long _timeoutInMilliseconds;
     uint16_t _status;
 
     ResponseType _responseType;
@@ -128,6 +129,7 @@ XMLHttpRequest::XMLHttpRequest()
 , onerror(nullptr)
 , ontimeout(nullptr)
 , _httpRequest(new (std::nothrow) HttpRequest())
+, _timeoutInMilliseconds(0UL)
 , _status(0)
 , _responseType(ResponseType:: STRING)
 , _readyState(ReadyState::UNSENT)
@@ -150,7 +152,9 @@ XMLHttpRequest::XMLHttpRequest()
 
 XMLHttpRequest::~XMLHttpRequest()
 {
-    cocos2d::Director::getInstance()->getEventDispatcher()->removeEventListener(_resetDirectorListener);
+    Director::getInstance()->getEventDispatcher()->removeEventListener(_resetDirectorListener);
+    Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
+
     CC_SAFE_RELEASE(_httpRequest);
 }
 
@@ -205,7 +209,8 @@ void XMLHttpRequest::sendBinary(const Data& data)
 
 void XMLHttpRequest::setTimeout(unsigned long timeoutInMilliseconds)
 {
-    _httpRequest->setTimeout(timeoutInMilliseconds / 1000.0f);
+    _timeoutInMilliseconds = timeoutInMilliseconds;
+    _httpRequest->setTimeout(timeoutInMilliseconds / 1000.0f + 2.0f); // Add 2 seconds more to ensure the timeout scheduler is invoked before http response.
 }
 
 unsigned long XMLHttpRequest::getTimeout() const
@@ -322,6 +327,8 @@ void XMLHttpRequest::getHeader(const std::string& header)
 
 void XMLHttpRequest::onResponse(HttpClient* client, HttpResponse* response)
 {
+    Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
+
     if (_isAborted || _readyState == ReadyState::UNSENT)
     {
         return;
@@ -405,6 +412,20 @@ void XMLHttpRequest::onResponse(HttpClient* client, HttpResponse* response)
 
 void XMLHttpRequest::sendRequest()
 {
+    if (_timeoutInMilliseconds > 0)
+    {
+        Director::getInstance()->getScheduler()->schedule([this](float dt){
+            if (ontimeout != nullptr)
+                ontimeout();
+
+            _readyState = ReadyState::UNSENT;
+
+            _isLoadEnd = true;
+            if (onloadend != nullptr)
+                onloadend();
+
+        }, this, _timeoutInMilliseconds / 1000.0f, 0, 0.0f, false, "XMLHttpRequest");
+    }
     setHttpRequestHeader();
 
     _httpRequest->setResponseCallback(CC_CALLBACK_2(XMLHttpRequest::onResponse, this));
