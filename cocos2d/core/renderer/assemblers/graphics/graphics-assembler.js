@@ -51,12 +51,9 @@ let graphicsAssembler = {
     fillVertexBuffer (graphics, index, vbuf, uintbuf) {
         let off = index * graphics._vertexFormat._bytes / 4;
         let node = graphics.node;
-        let data = graphics._renderData;
-        let x = data._verts.x,
-            y = data._verts.y,
-            u = data._uvs.u,
-            v = data._uvs.v,
-            z = node.z;
+        let renderData = graphics._renderData;
+        let data = renderData._data;
+        let z = node._position.z;
         
         let color = node._color._val;
         
@@ -69,13 +66,12 @@ let graphicsAssembler = {
             ty = _matrix.m13;
 
         let colorBuffer = graphics._colorBuffer;
-        for (let i = 0, l = x.length; i < l; i++) {
-            vbuf[off++] = x[i] * a + y[i] * c + tx;
-            vbuf[off++] = x[i] * b + y[i] * d + ty;
+        for (let i = 0, l = data.length; i < l; i++) {
+            vbuf[off++] = data[i].x * a + data[i].y * c + tx;
+            vbuf[off++] = data[i].x * b + data[i].y * d + ty;
             vbuf[off++] = z;
             uintbuf[off++] = colorBuffer[i];
-            vbuf[off++] = 0;
-            vbuf[off++] = 0;
+            off+=2;
         }
     },
 
@@ -121,9 +117,8 @@ let graphicsAssembler = {
         this._calculateJoins(graphics, w, lineJoin, miterLimit);
     
         let paths = graphics._paths,
-            data = graphics._renderData,
-            _x = this._x = data._verts.x,
-            _y = this._y = data._verts.y,
+            renderData = this._renderData = graphics._renderData,
+            data = renderData._data,
             indicesBuffer = graphics._indicesBuffer;
 
         this._color = graphics._colorBuffer;
@@ -132,7 +127,7 @@ let graphicsAssembler = {
             var path = paths[i];
             var pts = path.points;
             var pointsLength = pts.length;
-            var offset = _x.length;
+            var offset = data.length;
 
             var p0, p1;
             var start, end, loop;
@@ -185,8 +180,8 @@ let graphicsAssembler = {
     
             if (loop) {
                 // Loop it
-                this._vset(_x[offset], _y[offset]);
-                this._vset(_x[offset+1], _y[offset+1]);
+                this._vset(data[offset].x,   data[offset].y);
+                this._vset(data[offset+1].x, data[offset+1].y);
             } else {
                 // Add cap
                 var dPos = p1.sub(p0);
@@ -205,22 +200,21 @@ let graphicsAssembler = {
 
             // stroke indices
             var indicesOffset = indicesBuffer.length;
-            for (var start = offset+2, end = _x.length; start < end; start++) {
+            for (var start = offset+2, end = data.length; start < end; start++) {
                 indicesBuffer[indicesOffset++] = start - 2;
                 indicesBuffer[indicesOffset++] = start - 1;
                 indicesBuffer[indicesOffset++] = start;
             }
         }
 
-        data.vertexCount = _x.length;
-        data.indiceCount = indicesBuffer.length;
+        renderData.vertexCount = data.length;
+        renderData.indiceCount = indicesBuffer.length;
     },
     
     _expandFill (graphics) {
         let paths = graphics._paths,
-            data = graphics._renderData,
-            _x = this._x = data._verts.x,
-            _y = this._y = data._verts.y,
+            renderData = this._renderData = graphics._renderData,
+            data = renderData._data,
             indicesBuffer = graphics._indicesBuffer;
         this._color = graphics._colorBuffer;
 
@@ -234,7 +228,7 @@ let graphicsAssembler = {
             }
     
             // Calculate shape vertices.
-            var offset = _x.length;
+            var offset = data.length;
     
             for (var j = 0; j < pointsLength; ++j) {
                 this._vset(pts[j].x, pts[j].y);
@@ -244,9 +238,9 @@ let graphicsAssembler = {
     
             if (path.complex) {
                 var earcutData = [];
-                for (var j = offset, end = _x.length; j < end; j++) {
-                    earcutData.push(_x[j]);
-                    earcutData.push(_y[j]);
+                for (var j = offset, end = data.length; j < end; j++) {
+                    earcutData.push(data[j].x);
+                    earcutData.push(data[j].y);
                 }
     
                 var newIndices = Earcut(earcutData, null, 2);
@@ -261,7 +255,7 @@ let graphicsAssembler = {
             }
             else {
                 var first = offset;
-                for (var start = offset+2, end = _x.length; start < end; start++) {
+                for (var start = offset+2, end = data.length; start < end; start++) {
                     indicesBuffer[indicesOffset++] = first;
                     indicesBuffer[indicesOffset++] = start - 1;
                     indicesBuffer[indicesOffset++] = start;
@@ -269,8 +263,8 @@ let graphicsAssembler = {
             }
         }
 
-        data.vertexCount = _x.length;
-        data.indiceCount = indicesBuffer.length;
+        renderData.vertexCount = data.length;
+        renderData.indiceCount = indicesBuffer.length;
     },
 
     _calculateJoins (graphics, w, lineJoin, miterLimit) {
@@ -537,13 +531,15 @@ let graphicsAssembler = {
     },
     
     _vset (x, y) {
-        let _x = this._x;
-        let _y = this._y;
+        let renderData = this._renderData;
+        let data = renderData._data;
         let _color = this._color;
-        
-        let offset = _x.length;
-        _x[offset] = x;
-        _y[offset] = y;
+
+        let offset = data.length;
+        renderData.dataLength = offset + 1;
+
+        data[offset].x = x;
+        data[offset].y = y;
         _color[offset] = this._curColor;
     }
 }

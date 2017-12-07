@@ -224,10 +224,12 @@ var Graphics = cc.Class({
 
     onEnable: function () {
         this._activateMaterial();
+        this.node._renderComponent = this;
     },
 
     onDisable: function () {
         this.clear(true);
+        this.node._renderComponent = null;
     },
 
     _activateMaterial: function () {
@@ -430,7 +432,7 @@ var Graphics = cc.Class({
             this._renderData = null;
         }
         else if (this._renderData) {
-            this._renderData.xysLength = 0;
+            this._renderData.dataLength = 0;
         }
     },
 
