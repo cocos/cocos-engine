@@ -233,6 +233,11 @@ Vec2 GLView::getVisibleOrigin() const
     }
 }
 
+Rect GLView::getSafeAreaRect() const
+{
+    return getVisibleRect();
+}
+
 void GLView::setViewPortInPoints(float x , float y , float w , float h)
 {
     glViewport((GLint)(x * _scaleX + _viewPortRect.origin.x),

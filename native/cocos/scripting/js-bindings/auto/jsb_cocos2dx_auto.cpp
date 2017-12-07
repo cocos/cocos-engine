@@ -4931,23 +4931,23 @@ static bool js_cocos2dx_GLView_setIMEKeyboardState(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_GLView_setIMEKeyboardState)
 
-static bool js_cocos2dx_GLView_isAntiAliasEnabled(se::State& s)
+static bool js_cocos2dx_GLView_getSafeAreaRect(se::State& s)
 {
     cocos2d::GLView* cobj = (cocos2d::GLView*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_GLView_isAntiAliasEnabled : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_GLView_getSafeAreaRect : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        bool result = cobj->isAntiAliasEnabled();
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_GLView_isAntiAliasEnabled : Error processing arguments");
+        cocos2d::Rect result = cobj->getSafeAreaRect();
+        ok &= Rect_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_GLView_getSafeAreaRect : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_cocos2dx_GLView_isAntiAliasEnabled)
+SE_BIND_FUNC(js_cocos2dx_GLView_getSafeAreaRect)
 
 static bool js_cocos2dx_GLView_setScissorInPoints(se::State& s)
 {
@@ -5422,6 +5422,24 @@ static bool js_cocos2dx_GLView_pollEvents(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_GLView_pollEvents)
 
+static bool js_cocos2dx_GLView_isAntiAliasEnabled(se::State& s)
+{
+    cocos2d::GLView* cobj = (cocos2d::GLView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_GLView_isAntiAliasEnabled : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isAntiAliasEnabled();
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_GLView_isAntiAliasEnabled : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_GLView_isAntiAliasEnabled)
+
 
 
 
@@ -5434,7 +5452,7 @@ bool js_register_cocos2dx_GLView(se::Object* obj)
     cls->defineFunction("setContentScaleFactor", _SE(js_cocos2dx_GLView_setContentScaleFactor));
     cls->defineFunction("getContentScaleFactor", _SE(js_cocos2dx_GLView_getContentScaleFactor));
     cls->defineFunction("setIMEKeyboardState", _SE(js_cocos2dx_GLView_setIMEKeyboardState));
-    cls->defineFunction("isAntiAliasEnabled", _SE(js_cocos2dx_GLView_isAntiAliasEnabled));
+    cls->defineFunction("getSafeAreaRect", _SE(js_cocos2dx_GLView_getSafeAreaRect));
     cls->defineFunction("setScissorInPoints", _SE(js_cocos2dx_GLView_setScissorInPoints));
     cls->defineFunction("getViewName", _SE(js_cocos2dx_GLView_getViewName));
     cls->defineFunction("isOpenGLReady", _SE(js_cocos2dx_GLView_isOpenGLReady));
@@ -5460,6 +5478,7 @@ bool js_register_cocos2dx_GLView(se::Object* obj)
     cls->defineFunction("getVisibleSize", _SE(js_cocos2dx_GLView_getVisibleSize));
     cls->defineFunction("isScissorEnabled", _SE(js_cocos2dx_GLView_isScissorEnabled));
     cls->defineFunction("pollEvents", _SE(js_cocos2dx_GLView_pollEvents));
+    cls->defineFunction("isAntiAliasEnabled", _SE(js_cocos2dx_GLView_isAntiAliasEnabled));
     cls->install();
     JSBClassType::registerClass<cocos2d::GLView>(cls);
 
@@ -5544,6 +5563,24 @@ static bool js_cocos2dx_Director_setContentScaleFactor(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Director_setContentScaleFactor)
 
+static bool js_cocos2dx_Director_getDeltaTime(se::State& s)
+{
+    cocos2d::Director* cobj = (cocos2d::Director*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Director_getDeltaTime : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cobj->getDeltaTime();
+        ok &= float_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_Director_getDeltaTime : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Director_getDeltaTime)
+
 static bool js_cocos2dx_Director_getContentScaleFactor(se::State& s)
 {
     cocos2d::Director* cobj = (cocos2d::Director*)s.nativeThisObject();
@@ -5580,23 +5617,23 @@ static bool js_cocos2dx_Director_getWinSizeInPixels(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Director_getWinSizeInPixels)
 
-static bool js_cocos2dx_Director_getDeltaTime(se::State& s)
+static bool js_cocos2dx_Director_getSafeAreaRect(se::State& s)
 {
     cocos2d::Director* cobj = (cocos2d::Director*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Director_getDeltaTime : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Director_getSafeAreaRect : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        float result = cobj->getDeltaTime();
-        ok &= float_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_Director_getDeltaTime : Error processing arguments");
+        cocos2d::Rect result = cobj->getSafeAreaRect();
+        ok &= Rect_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_Director_getSafeAreaRect : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_cocos2dx_Director_getDeltaTime)
+SE_BIND_FUNC(js_cocos2dx_Director_getSafeAreaRect)
 
 static bool js_cocos2dx_Director_isCullingEnabled(se::State& s)
 {
@@ -6715,9 +6752,10 @@ bool js_register_cocos2dx_Director(se::Object* obj)
     cls->defineFunction("isPurgeDirectorInNextLoop", _SE(js_cocos2dx_Director_isPurgeDirectorInNextLoop));
     cls->defineFunction("setEventDispatcher", _SE(js_cocos2dx_Director_setEventDispatcher));
     cls->defineFunction("setContentScaleFactor", _SE(js_cocos2dx_Director_setContentScaleFactor));
+    cls->defineFunction("getDeltaTime", _SE(js_cocos2dx_Director_getDeltaTime));
     cls->defineFunction("getContentScaleFactor", _SE(js_cocos2dx_Director_getContentScaleFactor));
     cls->defineFunction("getWinSizeInPixels", _SE(js_cocos2dx_Director_getWinSizeInPixels));
-    cls->defineFunction("getDeltaTime", _SE(js_cocos2dx_Director_getDeltaTime));
+    cls->defineFunction("getSafeAreaRect", _SE(js_cocos2dx_Director_getSafeAreaRect));
     cls->defineFunction("isCullingEnabled", _SE(js_cocos2dx_Director_isCullingEnabled));
     cls->defineFunction("setGLDefaultValues", _SE(js_cocos2dx_Director_setGLDefaultValues));
     cls->defineFunction("setActionManager", _SE(js_cocos2dx_Director_setActionManager));

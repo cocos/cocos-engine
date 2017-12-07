@@ -2189,13 +2189,13 @@ bool
 },
 
 /**
- * @method isAntiAliasEnabled
- * @return {bool}
+ * @method getSafeAreaRect
+ * @return {rect_object}
  */
-isAntiAliasEnabled : function (
+getSafeAreaRect : function (
 )
 {
-    return false;
+    return cc.Rect;
 },
 
 /**
@@ -2464,6 +2464,16 @@ pollEvents : function (
 {
 },
 
+/**
+ * @method isAntiAliasEnabled
+ * @return {bool}
+ */
+isAntiAliasEnabled : function (
+)
+{
+    return false;
+},
+
 };
 
 /**
@@ -2510,6 +2520,16 @@ float
 },
 
 /**
+ * @method getDeltaTime
+ * @return {float}
+ */
+getDeltaTime : function (
+)
+{
+    return 0;
+},
+
+/**
  * @method getContentScaleFactor
  * @return {float}
  */
@@ -2530,13 +2550,13 @@ getWinSizeInPixels : function (
 },
 
 /**
- * @method getDeltaTime
- * @return {float}
+ * @method getSafeAreaRect
+ * @return {rect_object}
  */
-getDeltaTime : function (
+getSafeAreaRect : function (
 )
 {
-    return 0;
+    return cc.Rect;
 },
 
 /**

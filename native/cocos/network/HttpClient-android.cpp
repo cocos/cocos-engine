@@ -128,7 +128,7 @@ public:
     bool init(HttpRequest* request)
     {
         createHttpURLConnection(request->getUrl());
-        if(!configure())
+        if(!configure(request))
         {
             return false;
         }
@@ -613,7 +613,7 @@ private:
         }
     }
 
-    bool configure()
+    bool configure(HttpRequest* request)
     {   
         if(nullptr == _httpURLConnection)
         {
@@ -625,7 +625,7 @@ private:
             return false;
         }
 
-        setReadAndConnectTimeout(_client->getTimeoutForRead() * 1000, _client->getTimeoutForConnect() * 1000);
+        setReadAndConnectTimeout(request->getTimeout() * 1000, request->getTimeout() * 1000);
 
         setVerifySSL();
 

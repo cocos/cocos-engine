@@ -163,6 +163,11 @@ bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray& argv, se::Val
                     unsigned char val = arg.toUint8();
                     [invocation setArgument:&val atIndex:i];
                 }
+                else if (argumentType == "@")
+                { // NSNumber*
+                    NSNumber* number = [NSNumber numberWithDouble:arg.toNumber()];
+                    [invocation setArgument:&number atIndex:i];
+                }
                 else
                 {
                     NSLog(@"Unsupported argument type: %s", argumentType.c_str());
@@ -188,6 +193,10 @@ bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray& argv, se::Val
                     _error = JSO_ERR_TYPE_NOT_SUPPORT;
                     return false;
                 }
+            }
+            else if (arg.isNullOrUndefined())
+            {
+                // Don't call [invocation setArgument] will pass nil to relevant Objective-C argument.
             }
             else
             {
