@@ -834,6 +834,7 @@ var Node = cc.Class({
         
         // cache component
         this._widget = null;
+        this._renderComponent = null;
         // Touch event listener
         this._touchListener = null;
         // Mouse event listener
