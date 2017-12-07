@@ -13805,6 +13805,11 @@ module.exports = (function () {
       // draw it
       for (let i = 0; i < items.length; ++i) {
         let item = items.data[i];
+        var ia = item.ia;
+        var vb = ia._vertexBuffer;
+        var ib = ia._indexBuffer;
+        vb.update(0, vb._data);
+        ib.update(0, ib._data);
         this._draw(item);
       }
     }
@@ -14258,17 +14263,18 @@ module.exports = (function () {
   };
   
   var _pool;
+  var _dataPool = new Pool(() => {
+    return {
+      x: 0.0,
+      y: 0.0,
+      u: 0.0,
+      v: 0.0
+    };
+  }, 128);
   
   class RenderData {
     constructor () {
-      this._verts = {
-        x: [],
-        y: []
-      };
-      this._uvs = {
-        u: [],
-        v: []
-      };
+      this._data = [];
   
       this._pivotX = 0;
       this._pivotY = 0;
@@ -14282,22 +14288,21 @@ module.exports = (function () {
       this.vertDirty = true;
     }
   
-    get xysLength () {
-      return this._verts.x.length;
+    get dataLength () {
+      return this._data.length;
     }
   
-    set xysLength (length) {
-      this._verts.x.length = length;
-      this._verts.y.length = length;
-    }
-    
-    get uvsLength () {
-      return this._uvs.u.length;
-    }
-  
-    set uvsLength (length) {
-      this._uvs.u.length = length;
-      this._uvs.v.length = length;
+    set dataLength (length) {
+      let data = this._data;
+      // Free extra data
+      for (let i = length; i < data.length; i++) {
+        _dataPool.free(data[i]);
+      }
+      // Alloc needed data
+      for (let i = data.length; i < length; i++) {
+        data[i] = _dataPool.alloc();
+      }
+      data.length = length;
     }
   
     updateSizeNPivot (width, height, pivotX, pivotY) {
@@ -14320,10 +14325,10 @@ module.exports = (function () {
   
     static free (data) {
       if (data instanceof RenderData) {
-        data._verts.x.length = 0;
-        data._verts.y.length = 0;
-        data._uvs.u.length = 0;
-        data._uvs.v.length = 0;
+        for (let i = data.length-1; i > 0; i--) {
+          _dataPool.free(data._data[i]);
+        }
+        data._data.length = 0;
         data.uvDirty = true;
         data.vertDirty = true;
         _pool.free(data);
@@ -14495,6 +14500,7 @@ module.exports = (function () {
   
     // memop
     RecyclePool,
+    Pool,
   
     // modules
     math,

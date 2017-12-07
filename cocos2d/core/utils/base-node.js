@@ -95,97 +95,6 @@ function findChildComponents(children, constructor, components) {
     }
 }
 
-var _stacks = [[]];
-var _stackId = 0;
-// Walk
-function _walk (root, prefunc, postfunc) {
-    var index = 1;
-    var children, child, curr, i, afterChildren;
-    var stack = _stacks[_stackId];
-    if (!stack) {
-        stack = [];
-        _stacks.push(stack);
-    }
-    _stackId++;
-
-    stack.length = 0;
-    stack[0] = root;
-    parent = null;
-    afterChildren = false;
-    while (index) {
-        index--;
-        curr = stack[index];
-        if (!curr) {
-            continue;
-        }
-        if (afterChildren) {
-            // post call
-            postfunc && postfunc(curr);
-        }
-        else {
-            // pre call
-            prefunc && prefunc(curr);
-        }
-        
-        // Avoid memory leak
-        stack[index] = null;
-        // Do not repeatly visit child tree, just do post call and continue walk
-        if (afterChildren) {
-            afterChildren = false;
-        }
-        else {
-            // Children not proceeded and has children, proceed to child tree
-            if (curr._children.length > 0) {
-                parent = curr;
-                children = curr._children;
-                i = 0;
-                stack[index] = children[i];
-                index++;
-            }
-            // No children, then repush curr to be walked for post func
-            else {
-                stack[index] = curr;
-                index++;
-                afterChildren = true;
-            }
-            continue;
-        }
-        // curr has no sub tree, so look into the siblings in parent children
-        if (children) {
-            i++;
-            // Proceed to next sibling in parent children
-            if (children[i]) {
-                stack[index] = children[i];
-                index++;
-            }
-            // No children any more in this sub tree, go upward
-            else if (parent) {
-                stack[index] = parent;
-                index++;
-                // Setup parent walk env
-                afterChildren = true;
-                if (parent._parent) {
-                    children = parent._parent._children;
-                    i = children.indexOf(parent);
-                    parent = parent._parent;
-                }
-                else {
-                    // At root
-                    parent = null;
-                    children = null;
-                }
-
-                // ERROR
-                if (i < 0) {
-                    break;
-                }
-            }
-        }
-    }
-    stack.length = 0;
-    _stackId--;
-}
-
 /**
  * A base node for CCNode, it will:
  * - maintain scene hierarchy and active logic
@@ -676,7 +585,92 @@ var BaseNode = cc.Class({
      * });
      */
     walk (prefunc, postfunc) {
-        _walk(this, prefunc, postfunc);
+        var BaseNode = cc._BaseNode;
+        var index = 1;
+        var children, child, curr, i, afterChildren;
+        var stack = BaseNode._stacks[BaseNode._stackId];
+        if (!stack) {
+            stack = [];
+            BaseNode._stacks.push(stack);
+        }
+        BaseNode._stackId++;
+
+        stack.length = 0;
+        stack[0] = this;
+        parent = null;
+        afterChildren = false;
+        while (index) {
+            index--;
+            curr = stack[index];
+            if (!curr) {
+                continue;
+            }
+            if (!afterChildren && prefunc) {
+                // pre call
+                prefunc(curr);
+            }
+            else if (afterChildren && postfunc) {
+                // post call
+                postfunc(curr);
+            }
+            
+            // Avoid memory leak
+            stack[index] = null;
+            // Do not repeatly visit child tree, just do post call and continue walk
+            if (afterChildren) {
+                afterChildren = false;
+            }
+            else {
+                // Children not proceeded and has children, proceed to child tree
+                if (curr._children.length > 0) {
+                    parent = curr;
+                    children = curr._children;
+                    i = 0;
+                    stack[index] = children[i];
+                    index++;
+                }
+                // No children, then repush curr to be walked for post func
+                else {
+                    stack[index] = curr;
+                    index++;
+                    afterChildren = true;
+                }
+                continue;
+            }
+            // curr has no sub tree, so look into the siblings in parent children
+            if (children) {
+                i++;
+                // Proceed to next sibling in parent children
+                if (children[i]) {
+                    stack[index] = children[i];
+                    index++;
+                }
+                // No children any more in this sub tree, go upward
+                else if (parent) {
+                    stack[index] = parent;
+                    index++;
+                    // Setup parent walk env
+                    afterChildren = true;
+                    if (parent._parent) {
+                        children = parent._parent._children;
+                        i = children.indexOf(parent);
+                        parent = parent._parent;
+                    }
+                    else {
+                        // At root
+                        parent = null;
+                        children = null;
+                    }
+
+                    // ERROR
+                    if (i < 0) {
+                        break;
+                    }
+                }
+            }
+        }
+        stack.length = 0;
+        BaseNode._stackId--;
     },
 
     cleanup () {
@@ -1342,6 +1336,10 @@ var BaseNode = cc.Class({
         }
     },
 });
+
+// For walk
+BaseNode._stacks = [[]];
+BaseNode._stackId = 0;
 
 BaseNode.prototype._onPreDestroyBase = BaseNode.prototype._onPreDestroy;
 if (CC_EDITOR) {
