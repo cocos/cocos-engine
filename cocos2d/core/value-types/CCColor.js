@@ -64,7 +64,7 @@ var Color = (function () {
         g = g || 0;
         b = b || 0;
         a = typeof a === 'number' ? a : 255;
-        this._val = ((~~r << 24) >>> 0) + (~~g << 16) + (~~b << 8) + ~~a;
+        this._val = ((a<<24) >>> 0) + (b<<16) + (g<<8) + r;
     }
     JS.extend(Color, ValueType);
     require('../platform/CCClass').fastDefine('cc.Color', Color, {r: 0, g: 0, b: 0, a: 255});
