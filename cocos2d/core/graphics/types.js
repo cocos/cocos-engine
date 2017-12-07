@@ -81,7 +81,17 @@ var LineJoin = cc.Enum({
     MITER: 2
 });
 
+
+// PointFlags
+var PointFlags =  cc.Enum({
+    PT_CORNER: 0x01,
+    PT_LEFT: 0x02,
+    PT_BEVEL: 0x04,
+    PT_INNERBEVEL: 0x08,
+});
+
 module.exports = {
     LineCap:    LineCap,
-    LineJoin:   LineJoin
+    LineJoin:   LineJoin,
+    PointFlags: PointFlags
 };

@@ -105,7 +105,7 @@ function align (node, widget) {
 
     if (widget._alignFlags & HORIZONTAL) {
 
-        var localLeft, localRight, targetWidth = targetSize.x;
+        var localLeft, localRight, targetWidth = targetSize.width;
         if (isRoot) {
             localLeft = cc.visibleRect.left.x;
             localRight = cc.visibleRect.right.x;
@@ -142,7 +142,7 @@ function align (node, widget) {
             width = node.width * scaleX;
             if (widget.isAlignHorizontalCenter) {
                 var localHorizontalCenter = widget._isAbsHorizontalCenter ? widget._horizontalCenter : widget._horizontalCenter * targetWidth;
-                var targetCenter = (0.5 - targetAnchor.x) * targetSize.x;
+                var targetCenter = (0.5 - targetAnchor.x) * targetSize.width;
                 if (hasTarget) {
                     localHorizontalCenter *= inverseScale.x;
                     targetCenter += inverseTranslate.x;
@@ -161,7 +161,7 @@ function align (node, widget) {
 
     if (widget._alignFlags & VERTICAL) {
 
-        var localTop, localBottom, targetHeight = targetSize.y;
+        var localTop, localBottom, targetHeight = targetSize.height;
         if (isRoot) {
             localBottom = cc.visibleRect.bottom.y;
             localTop = cc.visibleRect.top.y;
@@ -199,7 +199,7 @@ function align (node, widget) {
             height = node.height * scaleY;
             if (widget.isAlignVerticalCenter) {
                 var localVerticalCenter = widget._isAbsVerticalCenter ? widget._verticalCenter : widget._verticalCenter * targetHeight;
-                var targetMiddle = (0.5 - targetAnchor.y) * targetSize.y;
+                var targetMiddle = (0.5 - targetAnchor.y) * targetSize.height;
                 if (hasTarget) {
                     localVerticalCenter *= inverseScale.y;
                     targetMiddle += inverseTranslate.y;
@@ -337,8 +337,8 @@ var adjustWidgetToAllowMovingInEditor = CC_EDITOR && function (event) {
 
     var targetSize = getReadonlyNodeSize(target);
     var deltaInPercent;
-    if (targetSize.x !== 0 && targetSize.y !== 0) {
-        deltaInPercent = new cc.Vec2(delta.x / targetSize.x, delta.y / targetSize.y);
+    if (targetSize.width !== 0 && targetSize.height !== 0) {
+        deltaInPercent = new cc.Vec2(delta.x / targetSize.width, delta.y / targetSize.height);
     }
     else {
         deltaInPercent = cc.Vec2.ZERO;
@@ -381,8 +381,8 @@ var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (event) {
 
     var targetSize = getReadonlyNodeSize(target);
     var deltaInPercent;
-    if (targetSize.x !== 0 && targetSize.y !== 0) {
-        deltaInPercent = new cc.Vec2(delta.x / targetSize.x, delta.y / targetSize.y);
+    if (targetSize.width !== 0 && targetSize.height !== 0) {
+        deltaInPercent = new cc.Vec2(delta.x / targetSize.width, delta.y / targetSize.height);
     }
     else {
         deltaInPercent = cc.Vec2.ZERO;

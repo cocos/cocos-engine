@@ -23,8 +23,50 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var LineCap      = require('./types').LineCap;
-var LineJoin     = require('./types').LineJoin;
+const RenderComponent = require('../components/CCRenderComponent');
+const Helper = require('./helper');
+
+const renderer = require('../renderer');
+const renderEngine = require('../renderer/render-engine');
+const SpriteMaterial = renderEngine.SpriteMaterial;
+
+const Types = require('./types');
+const LineCap = Types.LineCap;
+const LineJoin = Types.LineJoin;
+const PointFlags = Types.PointFlags;
+
+// Point
+function Point (x, y) {
+    cc.Vec2.call(this, x, y);
+    this.reset();
+}
+cc.js.extend(Point, cc.Vec2);
+
+Point.prototype.reset = function () {
+    this.dx = 0;
+    this.dy = 0;
+    this.dmx = 0;
+    this.dmy = 0;
+    this.flags = 0;
+    this.len = 0;
+};
+
+// Path
+function Path () {
+    this.reset();
+}
+Path.prototype.reset = function () {
+    this.closed = false;
+    this.nbevel = 0;
+    this.complex = true;
+
+    if (this.points) {
+        this.points.length = 0;
+    }
+    else {
+        this.points = [];
+    }
+};
 
 
 /**
@@ -33,10 +75,33 @@ var LineJoin     = require('./types').LineJoin;
  */
 var Graphics = cc.Class({
     name: 'cc.Graphics',
-    extends: cc.Component,
+    extends: RenderComponent,
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Graphics',
+    },
+
+    ctor: function () {
+        // inner properties
+        this._tessTol = 0.25;
+        this._distTol = 0.01;
+        this._updatePathOffset = false;
+        
+        this._paths = null;
+        this._pathLength = 0;
+        this._pathOffset = 0;
+        
+        this._points = null;
+        this._pointsOffset = 0;
+        
+        this._commandx = 0;
+        this._commandy = 0;
+
+        this._indicesBuffer = [];
+        this._colorBuffer = [];
+
+        this._paths = [];
+        this._points = [];
     },
 
     properties: {
@@ -46,7 +111,7 @@ var Graphics = cc.Class({
         _lineCap: LineCap.BUTT,
         _fillColor: cc.Color.WHITE,
         _miterLimit: 10,
-
+        
         /**
          * !#en
          * Current line width.
@@ -60,7 +125,7 @@ var Graphics = cc.Class({
                 return this._lineWidth;
             },
             set: function (value) {
-                this._sgNode.lineWidth = this._lineWidth = value;
+                this._lineWidth = value;
             }
         },
 
@@ -77,7 +142,7 @@ var Graphics = cc.Class({
                 return this._lineJoin;
             },
             set: function (value) {
-                this._sgNode.lineJoin = this._lineJoin = value;
+                this._lineJoin = value;
             },
             type: LineJoin
         },
@@ -95,7 +160,7 @@ var Graphics = cc.Class({
                 return this._lineCap;
             },
             set: function (value) {
-                this._sgNode.lineCap = this._lineCap = value;
+                this._lineCap = value;
             },
             type: LineCap
         },
@@ -113,7 +178,7 @@ var Graphics = cc.Class({
                 return this._strokeColor;
             },
             set: function (value) {
-                this._sgNode.strokeColor = this._strokeColor = value;
+                this._strokeColor = value;
             }
         },
 
@@ -130,7 +195,7 @@ var Graphics = cc.Class({
                 return this._fillColor;
             },
             set: function (value) {
-                this._sgNode.fillColor = this._fillColor = value;
+                this._fillColor = value;
             }
         },
 
@@ -147,7 +212,7 @@ var Graphics = cc.Class({
                 return this._miterLimit;
             },
             set: function (value) {
-                this._sgNode.miterLimit = this._miterLimit = value;
+                this._miterLimit = value;
             }
         }
     },
@@ -157,29 +222,26 @@ var Graphics = cc.Class({
         LineCap: LineCap
     },
 
-    _createSgNode: function () {
-        if (CC_JSB && !_ccsg.GraphicsNode) {
-            var sgNode = new _ccsg.Node();
-            var func = function () {};
-            ['moveTo', 'lineTo', 'bezierCurveTo', 'quadraticCurveTo', 'arc', 'ellipse', 'circle', 'rect', 'roundRect', 'fillRect', 'clear', 'close', 'stroke', 'fill'].forEach(function (funcName) {
-                sgNode[funcName] = func;
-            });
-            return sgNode;
-        }
-
-        return new _ccsg.GraphicsNode();
+    onEnable: function () {
+        this._activateMaterial();
+        this.node._renderComponent = this;
     },
 
-    _initSgNode: function () {
-        var sgNode = this._sgNode;
-        sgNode.lineWidth = this._lineWidth;
-        sgNode.lineJoin = this._lineJoin;
-        sgNode.lineCap = this._lineCap;
-        sgNode.strokeColor = this._strokeColor;
-        sgNode.fillColor = this._fillColor;
-        sgNode.miterLimit = this._miterLimit;
+    onDisable: function () {
+        this.clear(true);
+        this.node._renderComponent = null;
+    },
 
-        sgNode.setContentSize(this.node.getContentSize(true));
+    _activateMaterial: function () {
+        if (this._material) return;
+        
+        let key = 'graphics-material';
+        this._material = renderer.materialUtil.get(key);
+        if (!this._material) {
+            this._material = new SpriteMaterial();
+            this._material.useTexture = false;
+            renderer.materialUtil.register(key, this._material);
+        }
     },
 
     /**
@@ -190,7 +252,16 @@ var Graphics = cc.Class({
      * @param {Number} [y] The y axis of the coordinate for the end point.
      */
     moveTo: function (x, y) {
-        this._sgNode.moveTo(x, y);
+        if (this._updatePathOffset) {
+            this._pathOffset = this._pathLength;
+            this._updatePathOffset = false;
+        }
+    
+        this._addPath();
+        this._addPoint(x, y, PointFlags.PT_CORNER);
+    
+        this._commandx = x;
+        this._commandy = y;
     },
 
     /**
@@ -201,7 +272,10 @@ var Graphics = cc.Class({
      * @param {Number} [y] The y axis of the coordinate for the end point.
      */
     lineTo: function (x, y) {
-        this._sgNode.lineTo(x, y);
+        this._addPoint(x, y, PointFlags.PT_CORNER);
+        
+        this._commandx = x;
+        this._commandy = y;
     },
 
     /**
@@ -216,7 +290,18 @@ var Graphics = cc.Class({
      * @param {Number} [y] The y axis of the coordinate for the end point.
      */
     bezierCurveTo: function (c1x, c1y, c2x, c2y, x, y) {
-        this._sgNode.bezierCurveTo(c1x, c1y, c2x, c2y, x, y);
+        var path = this._curPath;
+        var last = path.points[path.points.length - 1];
+    
+        if (last.x === c1x && last.y === c1y && c2x === x && c2y === y) {
+            this.lineTo(x, y);
+            return;
+        }
+    
+        Helper.tesselateBezier(this, last.x, last.y, c1x, c1y, c2x, c2y, x, y, 0, PointFlags.PT_CORNER);
+    
+        this._commandx = x;
+        this._commandy = y;
     },
 
     /**
@@ -229,7 +314,9 @@ var Graphics = cc.Class({
      * @param {Number} [y] The y axis of the coordinate for the end point.
      */
     quadraticCurveTo: function (cx, cy, x, y) {
-        this._sgNode.quadraticCurveTo(cx, cy, x, y);
+        var x0 = this._commandx;
+        var y0 = this._commandy;
+        this.bezierCurveTo(x0 + 2.0 / 3.0 * (cx - x0), y0 + 2.0 / 3.0 * (cy - y0), x + 2.0 / 3.0 * (cx - x), y + 2.0 / 3.0 * (cy - y), x, y);
     },
 
     /**
@@ -244,8 +331,7 @@ var Graphics = cc.Class({
      * @param {Number} [counterclockwise] An optional Boolean which, if true, causes the arc to be drawn counter-clockwise between the two angles. By default it is drawn clockwise.
      */
     arc: function (cx, cy, r, startAngle, endAngle, counterclockwise) {
-        counterclockwise = counterclockwise || false;
-        this._sgNode.arc(cx, cy, r, startAngle, endAngle, counterclockwise);
+        Helper.arc(this, cx, cy, r, startAngle, endAngle, counterclockwise);
     },
 
     /**
@@ -258,7 +344,8 @@ var Graphics = cc.Class({
      * @param {Number} [ry] The ellipse's y-axis radius.
      */
     ellipse: function (cx, cy, rx, ry) {
-        this._sgNode.ellipse(cx, cy, rx, ry);
+        Helper.ellipse(this, cx, cy, rx, ry);
+        this._curPath.complex = false;
     },
 
     /**
@@ -270,7 +357,8 @@ var Graphics = cc.Class({
      * @param {Number} [r] The circle's radius.
      */
     circle: function (cx, cy, r) {
-        this._sgNode.circle(cx, cy, r);
+        Helper.ellipse(this, cx, cy, r, r);
+        this._curPath.complex = false;
     },
 
     /**
@@ -283,7 +371,12 @@ var Graphics = cc.Class({
      * @param {Number} [h] The rectangle's height.
      */
     rect: function (x, y, w, h) {
-        this._sgNode.rect(x, y, w, h);
+        this.moveTo(x, y);
+        this.lineTo(x, y + h);
+        this.lineTo(x + w, y + h);
+        this.lineTo(x + w, y);
+        this.close();
+        this._curPath.complex = false;
     },
 
     /**
@@ -297,7 +390,8 @@ var Graphics = cc.Class({
      * @param {Number} [r] The radius of the rectangle.
      */
     roundRect: function (x, y, w, h, r) {
-        this._sgNode.roundRect(x, y, w, h, r);
+        Helper.roundRect(this, x, y, w, h, r);
+        this._curPath.complex = false;
     },
 
     /**
@@ -310,7 +404,8 @@ var Graphics = cc.Class({
      * @param {Number} [h] The rectangle's height.
      */
     fillRect: function (x, y, w, h) {
-        this._sgNode.fillRect(x, y, w, h);
+        this.rect(x, y, w, h);
+        this.fill();
     },
 
     /**
@@ -320,7 +415,25 @@ var Graphics = cc.Class({
      * @param {Boolean} [clean] Whether to clean the graphics inner cache.
      */
     clear: function (clean) {
-        this._sgNode.clear(!!clean);
+        this._pathLength = 0;
+        this._pathOffset = 0;
+        this._pointsOffset = 0;
+
+        this._indicesBuffer.length = 0;
+        this._colorBuffer.length = 0;
+        
+        this._curPath = null;
+    
+        if (clean) {
+            this._paths.length = 0;
+            this._points.length = 0;
+
+            RenderData.free(this._renderData);
+            this._renderData = null;
+        }
+        else if (this._renderData) {
+            this._renderData.dataLength = 0;
+        }
     },
 
     /**
@@ -329,7 +442,7 @@ var Graphics = cc.Class({
      * @method close
      */
     close: function () {
-        this._sgNode.close();
+        this._curPath.closed = true;
     },
 
     /**
@@ -338,7 +451,7 @@ var Graphics = cc.Class({
      * @method stroke
      */
     stroke: function () {
-        this._sgNode.stroke();
+        Graphics._assembler.stroke(this);
     },
 
     /**
@@ -347,7 +460,48 @@ var Graphics = cc.Class({
      * @method fill
      */
     fill: function () {
-        this._sgNode.fill();
+        Graphics._assembler.fill(this);
+    },
+
+    _addPath: function () {
+        var offset = this._pathLength;
+        var path = this._paths[offset];
+    
+        if (!path) {
+            path = new Path();
+    
+            this._paths.push(path);
+        } else {
+            path.reset();
+        }
+    
+        this._pathLength++;
+        this._curPath = path;
+    
+        return path;
+    },
+    
+    _addPoint: function (x, y, flags) {
+        var path = this._curPath;
+        if (!path) return;
+    
+        var pt;
+        var points = this._points;
+        var pathPoints = path.points;
+    
+        var offset = this._pointsOffset++;
+        pt = points[offset];
+    
+        if (!pt) {
+            pt = new Point(x, y);
+            points.push(pt);
+        } else {
+            pt.x = x;
+            pt.y = y;
+        }
+    
+        pt.flags = flags;
+        pathPoints.push(pt);
     }
 });
 
