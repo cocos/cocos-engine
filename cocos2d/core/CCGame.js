@@ -704,8 +704,7 @@ var game = {
             win.gl = this._renderContext; // global variable declared in CCMacro.js
             renderer.init(localCanvas, {
                 'stencil': true,
-                'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS,
-                'antialias': cc.macro.ENABLE_WEBGL_ANTIALIAS
+                'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS
             });
             this._renderContext = cc._renderContext = renderer.device._gl;
         }
