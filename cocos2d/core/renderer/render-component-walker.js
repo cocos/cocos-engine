@@ -84,7 +84,6 @@ var RenderComponentWalker = function (device, renderScene) {
     }, 16);
     
     this._queue = [];
-    this._compList = [];
     this._batchedModels = [];
     this._dummyNode = new cc.Node();
     this._sortKey = 0;
@@ -130,12 +129,7 @@ RenderComponentWalker.prototype = {
 
     _flush (vertexFormat, effect, vertexCount, indiceCount) {
         let verts = this._verts,
-            indices = this._indices,
-            batchedComps = this._compList,
-            comp = null,
-            assembler = null,
-            vertexId = 0,
-            indiceId = 0;
+            indices = this._indices;
 
         let vertexByte = vertexCount * vertexFormat._bytes;
         let byteOffset = this._vOffset * vertexFormat._bytes;
@@ -143,14 +137,6 @@ RenderComponentWalker.prototype = {
         let vertexsUint = new Uint32Array(verts.buffer, byteOffset, vertexByte / 4);
         byteOffset = 2 * this._iOffset;
         let indicesData = new Uint16Array(indices.buffer, byteOffset, indiceCount);
-
-        for (let i = 0; i < batchedComps.length; i++) {
-            comp = batchedComps[i];
-            assembler = comp.constructor._assembler;
-
-            indiceId += assembler.fillIndexBuffer(comp, indiceId, vertexId, indicesData);
-            vertexId += assembler.fillVertexBuffer(comp, vertexId, vertexsFloat, vertexsUint);
-        }
 
         // Generate vb, ib, ia
         let device = this._device;
@@ -227,12 +213,14 @@ RenderComponentWalker.prototype = {
 
     batchQueue () {
         // reset caches for handle render components
-        let currEffect = null,
+        let verts = this._verts,
+            uintVerts = this._uintVerts,
+            indices = this._indices,
+            currEffect = null,
             vertexFormat = null,
             vertexOffset = this._vOffset,
             indiceOffset = this._iOffset,
             vertexId = 0,
-            batchedComps = this._compList,
             needNewBuf = false,
             broken = false;
             comp = null, 
@@ -262,10 +250,11 @@ RenderComponentWalker.prototype = {
                     indiceOffset = this._iOffset;
                 }
                 currEffect = effect;
-                batchedComps.length = 0;
             }
 
-            batchedComps.push(comp);
+            vertexId = vertexOffset - this._vOffset;
+            assembler.fillVertexBuffer(comp, vertexOffset, verts, uintVerts);
+            assembler.fillIndexBuffer(comp, indiceOffset, vertexId, indices);
     
             vertexOffset += data.vertexCount;
             indiceOffset += data.indiceCount;
@@ -273,7 +262,6 @@ RenderComponentWalker.prototype = {
 
         // last batch
         this._checkBatchBroken(comp && comp._vertexFormat, currEffect, vertexOffset, indiceOffset, false);
-        this._compList.length = 0;
         this._queue.length = 0;
     },
 
