@@ -249,6 +249,11 @@ RenderComponentWalker.prototype = {
                     vertexOffset = this._vOffset;
                     indiceOffset = this._iOffset;
                 }
+                if (needNewBuf) {
+                    verts = this._verts;
+                    uintVerts = this._uintVerts;
+                    indices = this._indices;
+                }
                 currEffect = effect;
             }
 
