@@ -700,8 +700,7 @@ var game = {
         if (cc._renderType === game.RENDER_TYPE_WEBGL) {
             var opts = {
                 'stencil': true,
-                'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS,
-                'antialias': cc.macro.ENABLE_WEBGL_ANTIALIAS
+                'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS
             };
             if (isWeChatGame) {
                 opts['preserveDrawingBuffer'] = true;

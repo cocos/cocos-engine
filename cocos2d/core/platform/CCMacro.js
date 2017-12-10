@@ -1914,23 +1914,7 @@ cc.macro = {
      * @property {Boolean} ENABLE_TRANSPARENT_CANVAS
      * @default false
      */
-    ENABLE_TRANSPARENT_CANVAS: false,
-
-    /**
-     * !#en 
-     * Boolean that indicates if the WebGL context is created with `antialias` option turned on, 
-     * default value is true, most game need it for the picture to eliminate the hard edges,
-     * but in some case, if you are trying to apply pixel art or using tilemaps, then you may need to turn it off.
-     * You can set it to false before `cc.game.run`.
-     * Web only.
-     * !#zh
-     * 用于设置在创建 WebGL Context 时是否开启 `antialias` 选项，默认值是 true，大多数游戏都更适合这样的效果，
-     * 但是如果你需要实现像素风格，或是使用 Tiledmap，那么你可能需要手动设置这个值为 false，你可以在 `cc.game.run` 之前设置这个值，否则它不会生效。
-     * 仅支持 Web
-     * @property {Boolean} ENABLE_WEBGL_ANTIALIAS
-     * @default true
-     */
-    ENABLE_WEBGL_ANTIALIAS: true
+    ENABLE_TRANSPARENT_CANVAS: false
 };
 
 /**
