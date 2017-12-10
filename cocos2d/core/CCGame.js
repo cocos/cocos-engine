@@ -41,8 +41,12 @@ var inputManager = require('./platform/CCInputManager');
 var game = {
 
     /**
-     * Event triggered when game hide to background.
-     * Please note that this event is not 100% guaranteed to be fired.
+     * !#en Event triggered when game hide to background.
+     * Please note that this event is not 100% guaranteed to be fired on Web platform,
+     * on native platforms, it corresponds to enter background event, os status bar or notification center may not trigger this event.
+     * !#zh 游戏进入后台时触发的事件。
+     * 请注意，在 WEB 平台，这个事件不一定会 100% 触发，这完全取决于浏览器的回调行为。
+     * 在原生平台，它对应的是应用被切换到后台事件，下拉菜单和上拉状态栏等不一定会触发这个事件，这取决于系统行为。
      * @property EVENT_HIDE
      * @type {String}
      * @example
@@ -55,7 +59,11 @@ var game = {
 
     /**
      * Event triggered when game back to foreground
-     * Please note that this event is not 100% guaranteed to be fired.
+     * Please note that this event is not 100% guaranteed to be fired on Web platform,
+     * on native platforms, it corresponds to enter foreground event.
+     * !#zh 游戏进入前台运行时触发的事件。
+     * 请注意，在 WEB 平台，这个事件不一定会 100% 触发，这完全取决于浏览器的回调行为。
+     * 在原生平台，它对应的是应用被切换到前台事件。
      * @property EVENT_SHOW
      * @type {String}
      */
