@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const renderer = require('./index');
 const renderEngine = require('./render-engine');
 const defaultVertexFormat = require('./vertex-format');
 const macro = require('../platform/CCMacro');
@@ -124,19 +123,27 @@ RenderComponentWalker.prototype = {
     },
 
     _postHandleRender (node) {
-
+        let comp = node._renderComponent;
+        if (comp && comp.constructor._postAssembler) {
+            _queue.push(comp);
+        }
     },
 
     _flush (vertexFormat, effect, vertexCount, indiceCount) {
         let verts = this._verts,
             indices = this._indices;
-
-        let vertexByte = vertexCount * vertexFormat._bytes;
-        let byteOffset = this._vOffset * vertexFormat._bytes;
-        let vertexsFloat = new Float32Array(verts.buffer, byteOffset, vertexByte / 4);
-        let vertexsUint = new Uint32Array(verts.buffer, byteOffset, vertexByte / 4);
-        byteOffset = 2 * this._iOffset;
-        let indicesData = new Uint16Array(indices.buffer, byteOffset, indiceCount);
+        let vertexByte = vertexCount * vertexFormat._bytes,
+            byteOffset = 0,
+            vertexsData = null,
+            indicesData = null;
+            
+        // Prepare data view for vb ib
+        if (vertexCount > 0 && indiceCount > 0) {
+            byteOffset = this._vOffset * vertexFormat._bytes;
+            vertexsData = new Float32Array(verts.buffer, byteOffset, vertexByte / 4);
+            byteOffset = 2 * this._iOffset;
+            indicesData = new Uint16Array(indices.buffer, byteOffset, indiceCount);
+        }
 
         // Generate vb, ib, ia
         let device = this._device;
@@ -145,7 +152,7 @@ RenderComponentWalker.prototype = {
         vb._format = vertexFormat;
         vb._numVertices = vertexCount;
         vb._bytes = vertexByte;
-        vb._data = vertexsFloat;
+        vb._data = vertexsData;
         device._stats.vb += vb._bytes;
     
         let ib = this._ibPool.add();
@@ -194,7 +201,7 @@ RenderComponentWalker.prototype = {
     _checkBatchBroken (vertexFormat, currEffect, vertexOffset, indiceOffset, needNewBuf) {
         let vertexCount = vertexOffset - this._vOffset,
             indiceCount = indiceOffset - this._iOffset;
-        if (vertexFormat && currEffect && vertexCount > 0 && indiceCount > 0) {
+        if (vertexFormat && currEffect) {
             this._flush(vertexFormat, currEffect, vertexCount, indiceCount);
             if (needNewBuf) {
                 this._switchBuffer();
@@ -230,8 +237,17 @@ RenderComponentWalker.prototype = {
 
         for (let i = 0, len = this._queue.length; i < len; i++) {
             comp = this._queue[i];
+            if (comp._toPostHandle) {
+                assembler = comp.constructor._postAssembler;
+                comp._toPostHandle = false;
+            }
+            else {
+                assembler = comp.constructor._assembler;
+                if (comp.constructor._postAssembler) {
+                    comp._toPostHandle = true;
+                }
+            }
             effect = comp.getEffect();
-            assembler = comp.constructor._assembler;
             if (!assembler || !effect) {
                 continue;
             }
@@ -275,7 +291,7 @@ RenderComponentWalker.prototype = {
         
         // Store all render components to _queue
         _queue = this._queue;
-        scene.walk(this._handleRender);
+        scene.walk(this._handleRender, this._postHandleRender);
 
         this.batchQueue();
     }
