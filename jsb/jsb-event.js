@@ -56,11 +56,11 @@ Event.EventTouch.pool = new Pool(5);
 Event.EventTouch.pool.get = function (fromEvt) {
     var touchArr = fromEvt.getTouches();
     var event = this._get() || new Event.EventTouch(touchArr, true);
+    event.eventPhase = cc.Event.NONE;
     event._eventCode = fromEvt.getEventCode();
-
+    event._touches = touchArr;
     event._target = null;
     event._currentTarget = null;
-    event.eventPhase = cc.Event.NONE;
     event._propagationStopped = false;
     event._propagationImmediateStopped = false;
     return event;

@@ -158,6 +158,8 @@ var _touchStartHandler = function (touch, event) {
         event.bubbles = true;
         node.dispatchEvent(event);
         if (CC_JSB) {
+            event.touch = null;
+            event._touches = null;
             Event.EventTouch.pool.put(event);
         }
         return true;
@@ -174,6 +176,8 @@ var _touchMoveHandler = function (touch, event) {
     event.bubbles = true;
     node.dispatchEvent(event);
     if (CC_JSB) {
+        event.touch = null;
+        event._touches = null;
         Event.EventTouch.pool.put(event);
     }
 };
@@ -194,6 +198,8 @@ var _touchEndHandler = function (touch, event) {
     event.bubbles = true;
     node.dispatchEvent(event);
     if (CC_JSB) {
+        event.touch = null;
+        event._touches = null;
         Event.EventTouch.pool.put(event);
     }
 };
