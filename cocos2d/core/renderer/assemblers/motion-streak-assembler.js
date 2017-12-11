@@ -1,7 +1,6 @@
 
 const MotionStreak = require('../../../motion-streak/CCMotionStreak');
 
-// Inline all type switch to avoid jit deoptimization during inlined function change
 var motionStreakAssembler = {
     updateRenderData (comp) {
         let renderData = comp._renderData;
