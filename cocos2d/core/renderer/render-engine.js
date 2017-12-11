@@ -13808,8 +13808,10 @@ module.exports = (function () {
         var ia = item.ia;
         var vb = ia._vertexBuffer;
         var ib = ia._indexBuffer;
-        vb.update(0, vb._data);
-        ib.update(0, ib._data);
+        if (vb && ib) {
+          vb.update(0, vb._data);
+          ib.update(0, ib._data);
+        }
         this._draw(item);
       }
     }

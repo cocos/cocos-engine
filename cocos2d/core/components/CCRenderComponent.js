@@ -48,6 +48,7 @@ var RenderComponent = cc.Class({
         this._customMaterial = false;
         this._renderData = null;
         this._vertexFormat = defaultVertexFormat;
+        this._toPostHandle = false;
     },
 
     getEffect () {
@@ -60,5 +61,6 @@ var RenderComponent = cc.Class({
     },
 });
 RenderComponent._assembler = null;
+RenderComponent._postAssembler = null;
 
 cc.RenderComponent = module.exports = RenderComponent;
