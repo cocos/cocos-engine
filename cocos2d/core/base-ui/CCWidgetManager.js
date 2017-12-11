@@ -46,8 +46,8 @@ function getReadonlyNodeSize (parent) {
 }
 
 function computeInverseTransForTarget (widgetNode, target, out_inverseTranslate, out_inverseScale) {
-    var scaleX = widgetNode._parent._scale.x;
-    var scaleY = widgetNode._parent._scale.y;
+    var scaleX = widgetNode._parent._scaleX;
+    var scaleY = widgetNode._parent._scaleY;
     var translateX = 0;
     var translateY = 0;
     for (var node = widgetNode._parent;;) {
@@ -62,8 +62,8 @@ function computeInverseTransForTarget (widgetNode, target, out_inverseTranslate,
             return;
         }
         if (node !== target) {
-            var sx = node._scale.x;
-            var sy = node._scale.y;
+            var sx = node._scaleX;
+            var sy = node._scaleY;
             translateX *= sx;
             translateY *= sy;
             scaleX *= sx;
@@ -126,7 +126,7 @@ function align (node, widget) {
             localRight *= inverseScale.x;
         }
 
-        var width, anchorX = anchor.x, scaleX = node._scale.x;
+        var width, anchorX = anchor.x, scaleX = node._scaleX;
         if (scaleX < 0) {
             anchorX = 1.0 - anchorX;
             scaleX = -scaleX;
@@ -183,7 +183,7 @@ function align (node, widget) {
             localTop *= inverseScale.y;
         }
 
-        var height, anchorY = anchor.y, scaleY = node._scale.y;
+        var height, anchorY = anchor.y, scaleY = node._scaleY;
         if (scaleY < 0) {
             anchorY = 1.0 - anchorY;
             scaleY = -scaleY;
