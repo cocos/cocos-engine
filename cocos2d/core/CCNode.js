@@ -317,7 +317,8 @@ var Node = cc.Class({
         _contentSize: cc.Size,
         _anchorPoint: cc.Vec2,
         _position: cc.Vec2,
-        _scale: cc.Vec2,
+        _scaleX: 0.0,
+        _scaleY: 0.0,
         _rotationX: 0.0,
         _rotationY: 0.0,
         _skewX: 0.0,
@@ -558,11 +559,11 @@ var Node = cc.Class({
          */
         scaleX: {
             get () {
-                return this._scale.x;
+                return this._scaleX;
             },
             set (value) {
-                if (this._scale.x !== value) {
-                    this._scale.x = value;
+                if (this._scaleX !== value) {
+                    this._scaleX = value;
                     this._localMatDirty = true;
 
                     var cache = this._hasListenerCache;
@@ -584,11 +585,11 @@ var Node = cc.Class({
          */
         scaleY: {
             get () {
-                return this._scale.y;
+                return this._scaleY;
             },
             set (value) {
-                if (this._scale.y !== value) {
-                    this._scale.y = value;
+                if (this._scaleY !== value) {
+                    this._scaleY = value;
                     this._localMatDirty = true;
 
                     var cache = this._hasListenerCache;
@@ -842,8 +843,7 @@ var Node = cc.Class({
 
         this._anchorPoint = mathPools.vec2.get();
         this._anchorPoint.x = this._anchorPoint.y = 0.5;
-        this._scale = mathPools.vec2.get();
-        this._scale.x = this._scale.y = 1;
+        this._scaleX = this._scaleY = 1.0;
         this._position = mathPools.vec3.get();
 
         this._matrix = mathPools.mat4.get();
@@ -902,7 +902,6 @@ var Node = cc.Class({
 
         // Recycle math objects
         mathPools.vec2.put(this._anchorPoint);
-        mathPools.vec2.put(this._scale);
         mathPools.vec3.put(this._position);
         mathPools.mat4.put(this._matrix);
         mathPools.mat4.put(this._worldMatrix);
@@ -1478,9 +1477,9 @@ var Node = cc.Class({
      * cc.log("Node Scale: " + node.getScale());
      */
     getScale () {
-        if (this._scale.x !== this._scale.y)
+        if (this._scaleX !== this._scaleY)
             cc.logID(1603);
-        return this._scale.x;
+        return this._scaleX;
     },
 
     /**
@@ -1501,9 +1500,9 @@ var Node = cc.Class({
         else {
             scaleY = (scaleY || scaleY === 0) ? scaleY : scaleX;
         }
-        if (this._scale.x !== scaleX || this._scale.y !== scaleY) {
-            this._scale.x = scaleX;
-            this._scale.y = scaleY;
+        if (this._scaleX !== scaleX || this._scaleY !== scaleY) {
+            this._scaleX = scaleX;
+            this._scaleY = scaleY;
             this._localMatDirty = true;
 
             var cache = this._hasListenerCache;
@@ -1769,10 +1768,10 @@ var Node = cc.Class({
             }
 
             // scale
-            t.m00 = a *= this._scale.x;
-            t.m01 = b *= this._scale.x;
-            t.m04 = c *= this._scale.y;
-            t.m05 = d *= this._scale.y;
+            t.m00 = a *= this._scaleX;
+            t.m01 = b *= this._scaleX;
+            t.m04 = c *= this._scaleY;
+            t.m05 = d *= this._scaleY;
 
             // skew
             if (hasSkew) {
