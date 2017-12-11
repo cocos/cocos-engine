@@ -244,14 +244,12 @@ var MotionStreak = cc.Class({
     onFocusInEditor: CC_EDITOR && function () {
         if (this.preview) {
             this.reset();
-            cc.engine.repaintInEditMode();
         }
     },
 
     onLostFocusInEditor: CC_EDITOR && function () {
         if (this.preview) {
             this.reset();
-            cc.engine.repaintInEditMode();
         }
     },
 
@@ -271,6 +269,9 @@ var MotionStreak = cc.Class({
             renderData.dataLength = 0;
             renderData.vertexCount = 0;
             renderData.indiceCount = 0;
+        }
+        if (CC_EDITOR) {
+            cc.engine.repaintInEditMode();
         }
     },
 
