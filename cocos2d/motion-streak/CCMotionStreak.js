@@ -22,11 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-require('./CCSGMotionStreak');
-require('./CCSGMotionStreakWebGLRenderCmd');
 
-const affineTrans = require('../core/value-types/CCAffineTransform');
-var _worldTrans = affineTrans.make();
+const RenderComponent = require('../core/components/CCRenderComponent');
+const renderer = require('../core/renderer');
+const renderEngine = require('../core/renderer/render-engine');
+const SpriteMaterial = renderEngine.SpriteMaterial;
+const RenderData = renderEngine.RenderData;
 
 /**
  * !#en
@@ -49,7 +50,7 @@ var MotionStreak = cc.Class({
     //   1.Needed a parent node to make motion streak's position global related.
     //   2.Need to update the position in each frame by itself because we don't know
     //     whether the global position have changed
-    extends: cc.Component,
+    extends: RenderComponent,
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.others/MotionStreak',
@@ -74,8 +75,7 @@ var MotionStreak = cc.Class({
             default: false,
             editorOnly: true,
             notify: CC_EDITOR && function () {
-                this._motionStreak.reset();
-                cc.engine.repaintInEditMode();
+                this.reset();
             },
             animatable: false
         },
@@ -95,9 +95,7 @@ var MotionStreak = cc.Class({
             },
             set: function (value) {
                 this._fadeTime = value;
-                if (this._motionStreak) {
-                    this._motionStreak.setFadeTime(value);
-                }
+                this._applyFadeTime();
             },
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.fadeTime'
@@ -118,9 +116,6 @@ var MotionStreak = cc.Class({
             },
             set: function (value) {
                 this._minSeg = value;
-                if (this._motionStreak) {
-                    this._motionStreak.setMinSeg(value);
-                }
             },
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.minSeg'
@@ -141,9 +136,6 @@ var MotionStreak = cc.Class({
             },
             set: function (value) {
                 this._stroke = value;
-                if (this._motionStreak) {
-                    this._motionStreak.setStroke(value);
-                }
             },
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.stroke'
@@ -167,12 +159,6 @@ var MotionStreak = cc.Class({
             },
             set: function (value) {
                 this._texture = value;
-                if (this._motionStreak) {
-                    if (value && cc.js.isString(value))
-                        value = cc.textureUtil.loadImage(value);
-
-                    this._motionStreak.setTexture(value);
-                }
             },
             url: cc.Texture2D,
             animatable: false,
@@ -195,9 +181,6 @@ var MotionStreak = cc.Class({
             },
             set: function (value) {
                 this._color = value;
-                if (this._motionStreak) {
-                    this._motionStreak.tintWithColor(value);
-                }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.color'
         },
@@ -218,26 +201,55 @@ var MotionStreak = cc.Class({
             },
             set: function (value) {
                 this._fastMode = value;
-                if (this._motionStreak) {
-                    this._motionStreak.setFastMode(value);
-                }
             },
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.fastMode'
         }
     },
 
+    onEnable: function () {
+        this._activateMaterial();
+        this.node._renderComponent = this;
+        this._applyFadeTime();
+    },
+
+    onDisable: function () {
+        RenderData.free(this._renderData);
+        this._material = null;
+        this._renderData = null;
+        this.node._renderComponent = null;
+    },
+
+    _activateMaterial: function () {
+        let url = this._texture;
+        let texture = cc.textureUtil.loadImage(url);
+        let material = renderer.materialUtil.get(url);
+        
+        // Get material
+        if (!material) {
+            material = new SpriteMaterial();
+            material.texture = texture.getImpl();
+            renderer.materialUtil.register(url, this._material);
+        }
+
+        this._material = material;
+    },
+
+    _applyFadeTime: function () {
+        this._fadeDelta = 1/60;
+        this._maxPoints = (0 | (this._fadeTime * 60));
+        this._numPoints = 0;
+    },
+
     onFocusInEditor: CC_EDITOR && function () {
         if (this.preview) {
-            this._motionStreak.reset();
+            this.reset();
         }
     },
 
     onLostFocusInEditor: CC_EDITOR && function () {
         if (this.preview) {
-            this._motionStreak.reset();
-            this._motionStreak.update();
-            cc.engine.repaintInEditMode();
+            this.reset();
         }
     },
 
@@ -250,49 +262,112 @@ var MotionStreak = cc.Class({
      * myParticleSystem.stopSystem();
      */
     reset: function () {
-        this._motionStreak.reset();
+        this._numPoints = 0;
+        this._lastPoint = null;
+        let renderData = this._renderData;
+        if (renderData) {
+            renderData.dataLength = 0;
+            renderData.vertexCount = 0;
+            renderData.indiceCount = 0;
+        }
+        if (CC_EDITOR) {
+            cc.engine.repaintInEditMode();
+        }
     },
 
-    __preload: function () {
-        if (cc._renderType !== cc.game.RENDER_TYPE_WEBGL && !CC_JSB) {
-            cc.warnID(5900);
+    update: function (dt) {
+        let renderData = this._renderData;
+        if (!renderData) {
+            renderData = this._renderData = RenderData.alloc();
+        }
+
+        if (CC_EDITOR && !this.preview) return;
+        
+        let data = renderData._data;
+        
+        let node = this.node;
+        node._updateWorldMatrix();
+        let matrix = node._worldMatrix;
+        let a = matrix.m00,
+            b = matrix.m01,
+            c = matrix.m04,
+            d = matrix.m05,
+            tx = matrix.m12,
+            ty = matrix.m13;
+
+        let stroke = this._stroke / 2;
+        let lastPoint = this._lastPoint;
+        if (!lastPoint) {
+            lastPoint = this._lastPoint = cc.v2();
+            lastPoint.x = tx;
+            lastPoint.y = ty;
+            this._numPoints = 1;
+            renderData.dataLength = 2;
+            data[0].x = tx;
+            data[0].y = ty+stroke;
+            data[1].x = tx;
+            data[1].y = ty-stroke;
             return;
         }
-        this._root = new _ccsg.Node();
-        var motionStreak = new _ccsg.MotionStreak();
-        motionStreak.initWithFade(this._fadeTime, this._minSeg, this._stroke, this.node.color, this._texture || null);
-        motionStreak.setFastMode(this._fastMode);
-        this._root.addChild(motionStreak);
-        var sgNode = this.node._sgNode;
-        if (sgNode) {
-            sgNode.addChild(this._root, -10);
-        }
-        this._motionStreak = motionStreak;
 
-    },
+        let maxPoints = this._maxPoints;
+        let numPoints = this._numPoints;
 
-    onEnable: function () {
-        this.node.on('position-changed', this._onNodePositionChanged, this);
-    },
+        let seg = Math.min(dt/this._fadeDelta, maxPoints) | 0;
 
-    onDisable: function () {
-        this.node.off('position-changed', this._onNodePositionChanged, this);
-    },
-
-    _onNodePositionChanged: function () {
-        if (CC_EDITOR && !this.preview) {
+        if (seg === 0) {
             return;
         }
-        if (this._motionStreak) {
-            // add root for let the global coordinates effective
-            var node = this.node;
-            node.getNodeToWorldTransform(_worldTrans);
-            // calculation anchor coordinates
-            var tx = _worldTrans.tx - (node.width / 2 + node.anchorX * node.width);
-            var ty = _worldTrans.ty - (node.height / 2 + node.anchorY * node.height);
-            this._root.setPosition(-tx, -ty);
-            this._motionStreak.setPosition(tx, ty);
+
+        let curLength = Math.min(numPoints + seg, maxPoints);
+        renderData.dataLength = renderData.vertexCount = curLength * 2;
+        renderData.indiceCount = (curLength - 1) * 6;
+
+        for (let i = numPoints * 2 - 1; i >= 0; i--) {
+            let dest = i + seg*2;
+            if (dest >= maxPoints*2) continue;
+            data[dest].x   = data[i].x;
+            data[dest].y   = data[i].y;
         }
+        
+        let lastx = lastPoint.x, lasty = lastPoint.y;
+        let angle = Math.PI - Math.atan2(ty - lasty, tx - lastx);
+        let difx = Math.sin(angle) * stroke,
+            dify = Math.cos(angle) * stroke;
+        let lasttdx = data[seg*2].x;
+        let lastbdx = data[seg*2+1].x;
+        let lasttdy = data[seg*2].y;
+        let lastbdy = data[seg*2+1].y;
+        for (let i = 0; i < seg; i++) {
+            let cur = i*2;
+            let step = 1 - 1 / seg * i;
+            data[cur].x = lasttdx + (tx + difx - lasttdx) * step;
+            data[cur].y = lasttdy + (ty + dify - lasttdy) * step;
+            data[cur+1].x = lastbdx + (tx - difx - lastbdx) * step;
+            data[cur+1].y = lastbdy + (ty - dify - lastbdy) * step;
+        }
+
+        let color = this._color,
+            cr = color.r,
+            cg = color.g,
+            cb = color.b,
+            ca = color.a;
+
+        for (let i = 0; i < curLength; i++) {
+            let u = 1/(curLength-1)*i;
+            let dest = i*2;
+            data[dest].u = u;
+            data[dest].v = 0;
+            data[dest+1].u = u;
+            data[dest+1].v = 1;
+
+            let da = (1-1/(maxPoints-1)*i)*ca;
+            data[dest].color = data[dest+1].color = ((da<<24) >>> 0) + (cb<<16) + (cg<<8) + cr;
+        }
+
+        this._numPoints = curLength;
+        lastPoint.x = tx;
+        lastPoint.y = ty;
     }
 });
 

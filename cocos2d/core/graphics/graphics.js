@@ -24,12 +24,11 @@
  ****************************************************************************/
 
 const RenderComponent = require('../components/CCRenderComponent');
-const Helper = require('./helper');
-
 const renderer = require('../renderer');
 const renderEngine = require('../renderer/render-engine');
 const SpriteMaterial = renderEngine.SpriteMaterial;
 
+const Helper = require('./helper');
 const Types = require('./types');
 const LineCap = Types.LineCap;
 const LineJoin = Types.LineJoin;
