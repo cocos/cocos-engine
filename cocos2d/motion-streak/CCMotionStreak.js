@@ -75,8 +75,7 @@ var MotionStreak = cc.Class({
             default: false,
             editorOnly: true,
             notify: CC_EDITOR && function () {
-                this._motionStreak.reset();
-                cc.engine.repaintInEditMode();
+                this.reset();
             },
             animatable: false
         },
@@ -266,8 +265,12 @@ var MotionStreak = cc.Class({
      */
     reset: function () {
         this._numPoints = 0;
-        if (this._renderData) {
-            this._renderData.dataLength = 0;
+        this._lastPoint = null;
+        let renderData = this._renderData;
+        if (renderData) {
+            renderData.dataLength = 0;
+            renderData.vertexCount = 0;
+            renderData.indiceCount = 0;
         }
     },
 
@@ -276,6 +279,9 @@ var MotionStreak = cc.Class({
         if (!renderData) {
             renderData = this._renderData = RenderData.alloc();
         }
+
+        if (CC_EDITOR && !this.preview) return;
+        
         let data = renderData._data;
         
         let node = this.node;
