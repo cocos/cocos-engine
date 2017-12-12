@@ -260,6 +260,7 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
+        Log.d(TAG, "Cocos2dxActivity onCreate: " + this + ", savedInstanceState: " + savedInstanceState);
         super.onCreate(savedInstanceState);
 
         // Workaround in https://stackoverflow.com/questions/16283079/re-launch-of-activity-on-home-button-but-only-the-first-time/16447508
@@ -354,6 +355,11 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
         Cocos2dxAudioFocusManager.unregisterAudioFocusListener(this);
         CAAgent.onDestroy();
         super.onDestroy();
+
+        Log.d(TAG, "Cocos2dxActivity onDestroy: " + this + ", mGLSurfaceView" + mGLSurfaceView);
+        if (mGLSurfaceView != null) {
+            Cocos2dxHelper.terminateProcess();
+        }
     }
 
     @Override
