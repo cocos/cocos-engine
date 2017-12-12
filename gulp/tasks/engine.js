@@ -75,8 +75,6 @@ var jsbSkipModules = [
     '../../cocos2d/tilemap/CCSGTMXLayer.js',
     '../../cocos2d/tilemap/CCTMXLayerCanvasRenderCmd.js',
     '../../cocos2d/tilemap/CCTMXLayerWebGLRenderCmd.js',
-    '../../cocos2d/motion-streak/CCSGMotionStreak.js',
-    '../../cocos2d/motion-streak/CCSGMotionStreakWebGLRenderCmd.js',
     '../../cocos2d/render-texture/CCRenderTexture.js',
     '../../cocos2d/render-texture/CCRenderTextureCanvasRenderCmd.js',
     '../../cocos2d/render-texture/CCRenderTextureWebGLRenderCmd.js',
