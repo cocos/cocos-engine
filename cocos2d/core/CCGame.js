@@ -709,7 +709,7 @@ var game = {
             var opts = {
                 'stencil': true,
                 'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS
-            });
+            };
             if (isWeChatGame) {
                 opts['preserveDrawingBuffer'] = true;
             }
