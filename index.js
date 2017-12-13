@@ -142,7 +142,7 @@ defineMacro('CC_BUILD', false);
 cc = {};
 
 // check whether support jit
-cc.supportJit = typeof Function('') === 'function';
+cc.supportJit = !defined('wx') && typeof Function('') === 'function';
 
 // The namespace for original nodes rendering in scene graph.
 _ccsg = {};

@@ -20,6 +20,8 @@
  ****************************************************************************/
 
 var Utils = require('../platform/utils');
+var sys = require('../platform/CCSys');
+
 /**
  * @class
  * @extends _ccsg.Node
@@ -219,14 +221,16 @@ _ccsg.VideoPlayer.EventType = {
          * so it is best to provide mp4 and webm or ogv file
          */
         var dom = document.createElement("video");
-        if(dom.canPlayType("video/ogg")){
-            video._polyfill.canPlayType.push(".ogg");
-            video._polyfill.canPlayType.push(".ogv");
+        if (sys.platform !== sys.WECHAT_GAME) {
+            if(dom.canPlayType("video/ogg")){
+                video._polyfill.canPlayType.push(".ogg");
+                video._polyfill.canPlayType.push(".ogv");
+            }
+            if(dom.canPlayType("video/mp4"))
+                video._polyfill.canPlayType.push(".mp4");
+            if(dom.canPlayType("video/webm"))
+                video._polyfill.canPlayType.push(".webm");
         }
-        if(dom.canPlayType("video/mp4"))
-            video._polyfill.canPlayType.push(".mp4");
-        if(dom.canPlayType("video/webm"))
-            video._polyfill.canPlayType.push(".webm");
     })();
 
     if(cc.sys.browserType === cc.sys.BROWSER_TYPE_FIREFOX){

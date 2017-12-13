@@ -41,8 +41,12 @@ var inputManager = require('./platform/CCInputManager');
 var game = {
 
     /**
-     * Event triggered when game hide to background.
-     * Please note that this event is not 100% guaranteed to be fired.
+     * !#en Event triggered when game hide to background.
+     * Please note that this event is not 100% guaranteed to be fired on Web platform,
+     * on native platforms, it corresponds to enter background event, os status bar or notification center may not trigger this event.
+     * !#zh 游戏进入后台时触发的事件。
+     * 请注意，在 WEB 平台，这个事件不一定会 100% 触发，这完全取决于浏览器的回调行为。
+     * 在原生平台，它对应的是应用被切换到后台事件，下拉菜单和上拉状态栏等不一定会触发这个事件，这取决于系统行为。
      * @property EVENT_HIDE
      * @type {String}
      * @example
@@ -55,7 +59,11 @@ var game = {
 
     /**
      * Event triggered when game back to foreground
-     * Please note that this event is not 100% guaranteed to be fired.
+     * Please note that this event is not 100% guaranteed to be fired on Web platform,
+     * on native platforms, it corresponds to enter foreground event.
+     * !#zh 游戏进入前台运行时触发的事件。
+     * 请注意，在 WEB 平台，这个事件不一定会 100% 触发，这完全取决于浏览器的回调行为。
+     * 在原生平台，它对应的是应用被切换到前台事件。
      * @property EVENT_SHOW
      * @type {String}
      */
@@ -647,53 +655,66 @@ var game = {
 
         var el = this.config[game.CONFIG_KEY.id],
             win = window,
-            element = (el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el)),
-            localCanvas, localContainer;
+            localCanvas, localContainer,
+            isWeChatGame = cc.sys.platform === cc.sys.WECHAT_GAME;
 
-        if (element.tagName === "CANVAS") {
-            width = width || element.width;
-            height = height || element.height;
-
-            //it is already a canvas, we wrap it around with a div
-            this.canvas = cc._canvas = localCanvas = element;
+        if (isWeChatGame) {
             this.container = cc.container = localContainer = document.createElement("DIV");
-            if (localCanvas.parentNode)
-                localCanvas.parentNode.insertBefore(localContainer, localCanvas);
-        } else {
-            //we must make a new canvas and place into this element
-            if (element.tagName !== "DIV") {
-                cc.warnID(3819);
-            }
-            width = width || element.clientWidth;
-            height = height || element.clientHeight;
-            this.canvas = cc._canvas = localCanvas = document.createElement("CANVAS");
-            this.container = cc.container = localContainer = document.createElement("DIV");
-            element.appendChild(localContainer);
+            this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
+            this.canvas = cc._canvas = localCanvas = canvas;
         }
-        localContainer.setAttribute('id', 'Cocos2dGameContainer');
-        localContainer.appendChild(localCanvas);
-        this.frame = (localContainer.parentNode === document.body) ? document.documentElement : localContainer.parentNode;
+        else {
+            var element = (el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el));
 
-        function addClass (element, name) {
-            var hasClass = (' ' + element.className + ' ').indexOf(' ' + name + ' ') > -1;
-            if (!hasClass) {
-                if (element.className) {
-                    element.className += " ";
+            if (element.tagName === "CANVAS") {
+                width = width || element.width;
+                height = height || element.height;
+
+                //it is already a canvas, we wrap it around with a div
+                this.canvas = cc._canvas = localCanvas = element;
+                this.container = cc.container = localContainer = document.createElement("DIV");
+                if (localCanvas.parentNode)
+                    localCanvas.parentNode.insertBefore(localContainer, localCanvas);
+            } else {
+                //we must make a new canvas and place into this element
+                if (element.tagName !== "DIV") {
+                    cc.warnID(3819);
                 }
-                element.className += name;
+                width = width || element.clientWidth;
+                height = height || element.clientHeight;
+                this.canvas = cc._canvas = localCanvas = document.createElement("CANVAS");
+                this.container = cc.container = localContainer = document.createElement("DIV");
+                element.appendChild(localContainer);
             }
+            localContainer.setAttribute('id', 'Cocos2dGameContainer');
+            localContainer.appendChild(localCanvas);
+            this.frame = (localContainer.parentNode === document.body) ? document.documentElement : localContainer.parentNode;
+
+            function addClass (element, name) {
+                var hasClass = (' ' + element.className + ' ').indexOf(' ' + name + ' ') > -1;
+                if (!hasClass) {
+                    if (element.className) {
+                        element.className += " ";
+                    }
+                    element.className += name;
+                }
+            }
+            addClass(localCanvas, "gameCanvas");
+            localCanvas.setAttribute("width", width || 480);
+            localCanvas.setAttribute("height", height || 320);
+            localCanvas.setAttribute("tabindex", 99);
         }
-        addClass(localCanvas, "gameCanvas");
-        localCanvas.setAttribute("width", width || 480);
-        localCanvas.setAttribute("height", height || 320);
-        localCanvas.setAttribute("tabindex", 99);
 
         if (cc._renderType === game.RENDER_TYPE_WEBGL) {
-            this._renderContext = cc._renderContext = cc.webglContext
-             = cc.create3DContext(localCanvas, {
+            var opts = {
                 'stencil': true,
                 'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS
             });
+            if (isWeChatGame) {
+                opts['preserveDrawingBuffer'] = true;
+            }
+            this._renderContext = cc._renderContext = cc.webglContext
+             = cc.create3DContext(localCanvas, opts);
         }
         // WebGL context created successfully
         if (this._renderContext) {
