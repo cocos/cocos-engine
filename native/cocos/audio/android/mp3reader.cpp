@@ -31,14 +31,12 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdint.h>
-#include <string>
+#include <string.h> // Resolves that memset, memcpy aren't found while APP_PLATFORM >= 22 on Android
 #include <vector>
 #include "audio/android/cutils/log.h"
 
 #include "pvmp3decoder_api.h"
 #include "audio/android/mp3reader.h"
-
-using namespace std;
 
 static uint32_t U32_AT(const uint8_t *ptr) {
     return ptr[0] << 24 | ptr[1] << 16 | ptr[2] << 8 | ptr[3];

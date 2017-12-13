@@ -180,7 +180,7 @@ static bool SocketIO_emit(se::State& s)
     int argc = (int)args.size();
     SIOClient* cobj = (SIOClient*)s.nativeThisObject();
 
-    if (argc == 2)
+    if (argc >= 1)
     {
         bool ok = false;
         std::string eventName;
@@ -188,10 +188,19 @@ static bool SocketIO_emit(se::State& s)
         SE_PRECONDITION2(ok, false, "Converting eventName failed!");
 
         std::string payload;
-        ok = seval_to_std_string(args[1], &payload);
-        SE_PRECONDITION2(ok, false, "Converting payload failed!");
-
-        CCLOG("JSB SocketIO emit event '%s' with payload: %s", eventName.c_str(), payload.c_str());
+        if (argc >= 2)
+        {
+            const auto& arg1 = args[1];
+            // Add this check to make it compatible with old version.
+            // jsval_to_std_string in v1.6 returns empty string if arg1 is null or undefined
+            // while seval_to_std_string since 1.7.2 follows JS standard to return "null" or "undefined".
+            // Therefore, we need a workaround to make it be compatible with versions lower than v1.7.
+            if (!arg1.isNullOrUndefined())
+            {
+                ok = seval_to_std_string(arg1, &payload);
+                SE_PRECONDITION2(ok, false, "Converting payload failed!");
+            }
+        }
 
         cobj->emit(eventName, payload);
         return true;

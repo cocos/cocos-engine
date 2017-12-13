@@ -442,7 +442,7 @@ private:
 
 static uint32_t __idx = 0;
 
-static bool Scheduler_scheduleCommon(Scheduler* scheduler, const se::Value& jsThis, const se::Value& jsFunc, float interval, unsigned int repeat, float delay, bool isPaused, const std::string& aKey, bool toRootTarget, const std::string& callFromDebug)
+static bool Scheduler_scheduleCommon(Scheduler* scheduler, const se::Value& jsThis, const se::Value& jsFunc, float interval, unsigned int repeat, float delay, bool isPaused, bool toRootTarget, const std::string& callFromDebug)
 {
     assert(jsThis.isObject());
     assert(jsFunc.isObject());
@@ -469,24 +469,10 @@ static bool Scheduler_scheduleCommon(Scheduler* scheduler, const se::Value& jsTh
 
     if (targetIdVal.isNumber() && funcIdVal.isNumber())
     {
-        bool found = false;
-        if (!aKey.empty())
-        {
-            key = aKey;
-            const ScheduleElement* scheduleElem = nullptr;
-            found = isScheduleExist(key, targetId, &scheduleElem);
-            if (found)
-            {
-                assert(scheduleElem->getFuncId() == funcId);
-            }
-        }
-        else
-        {
-            const ScheduleElement* scheduleElem = nullptr;
-            found = isScheduleExist(funcId, targetId, &scheduleElem);
-            if (found)
-                key = scheduleElem->getKey();
-        }
+        const ScheduleElement* scheduleElem = nullptr;
+        bool found = isScheduleExist(funcId, targetId, &scheduleElem);
+        if (found)
+            key = scheduleElem->getKey();
 
         if (found && !key.empty())
         {
@@ -519,10 +505,7 @@ static bool Scheduler_scheduleCommon(Scheduler* scheduler, const se::Value& jsTh
         }
     }
 
-    if (!aKey.empty())
-        key = aKey;
-    else
-        key = StringUtils::format("__node_schedule_key:%u", __idx++);
+    key = StringUtils::format("__node_schedule_key:%u", __idx++);
 
     se::Object* target = jsThis.toObject();
     insertSchedule(funcId, targetId, ScheduleElement(target, jsFunc.toObject(), key, targetId, funcId));
@@ -579,7 +562,6 @@ static bool Node_schedule(se::State& s)
         unsigned int repeat = CC_REPEAT_FOREVER;
         float delay = 0.0f;
         bool ok = false;
-        std::string key;
 
         if (argc >= 2)
         {
@@ -599,21 +581,7 @@ static bool Node_schedule(se::State& s)
             SE_PRECONDITION2(ok, false, "Converting 'delay' argument failed");
         }
 
-        if (argc >= 5 && !args[4].isNullOrUndefined())
-        {
-            if (args[4].isString() || args[4].isNumber())
-            {
-                key = args[4].toStringForce();
-                ok = true;
-            }
-            else
-            {
-                ok = false;
-            }
-            SE_PRECONDITION2(ok, false, "Converting 'key' argument failed");
-        }
-
-        return Scheduler_scheduleCommon(thiz->getScheduler(), jsThis, jsFunc, interval, repeat, delay, !thiz->isRunning(), key, false, "cc.Node.schedule");
+        return Scheduler_scheduleCommon(thiz->getScheduler(), jsThis, jsFunc, interval, repeat, delay, !thiz->isRunning(), false, "cc.Node.schedule");
     }
 
     SE_REPORT_ERROR("wrong number of arguments: %d, expected: %s", argc, ">=1");
@@ -639,7 +607,6 @@ static bool Node_scheduleOnce(se::State& s)
     se::Value jsFunc(args[0]);
 
     float delay = 0.0f;
-    std::string key;
     bool ok = false;
 
     if (argc >= 2)
@@ -648,21 +615,7 @@ static bool Node_scheduleOnce(se::State& s)
         SE_PRECONDITION2(ok, false, "Converting 'delay' argument failed");
     }
 
-    if (argc >= 3 && !args[2].isNullOrUndefined())
-    {
-        if (args[2].isString() || args[2].isNumber())
-        {
-            key = args[2].toStringForce();
-            ok = true;
-        }
-        else
-        {
-            ok = false;
-        }
-        SE_PRECONDITION2(ok, false, "Converting 'key' argument failed");
-    }
-
-    return Scheduler_scheduleCommon(thiz->getScheduler(), jsThis, jsFunc, 0.0f, 0, delay, !thiz->isRunning(), key, false, "cc.Node.scheduleOnce");
+    return Scheduler_scheduleCommon(thiz->getScheduler(), jsThis, jsFunc, 0.0f, 0, delay, !thiz->isRunning(), false, "cc.Node.scheduleOnce");
 }
 SE_BIND_FUNC(Node_scheduleOnce)
 
@@ -1112,7 +1065,7 @@ static bool Node_setPosition(se::State& s)
         float y = 0.0f;
         ok &= seval_to_float(args[0], &x);
         ok &= seval_to_float(args[1], &y);
-        cobj->setPosition(cocos2d::Vec2(x, y));
+        cobj->setPosition(x, y);
         return true;
     }
 
@@ -1188,7 +1141,8 @@ static bool js_cocos2dx_Scheduler_schedule(se::State& s)
     SE_LOGD("-------------------------- \n");
 #endif
 
-    if (argc >= 2)
+    //
+    if (argc >= 4)
     {
         Scheduler* cobj = (Scheduler*)s.nativeThisObject();
 
@@ -1218,47 +1172,33 @@ static bool js_cocos2dx_Scheduler_schedule(se::State& s)
         unsigned int repeat = CC_REPEAT_FOREVER;
         float delay = 0.0f;
         bool isPaused = false;
-        std::string key;
 
-        if (argc >= 3)
+        ok = seval_to_float(args[2], &interval);
+        SE_PRECONDITION2(ok, false, "Converting 'interval' argument failed");
+
+        if (argc == 4)
         {
-            ok = seval_to_float(args[2], &interval);
-//            SE_PRECONDITION2(ok, false, "Converting 'interval' argument failed");
+            // callback, target, interval, paused
+            ok = seval_to_boolean(args[3], &isPaused);
+            SE_PRECONDITION2(ok, false, "Converting 'isPaused' argument failed");
         }
-
-        if (argc >= 4)
+        else if (argc >= 6)
         {
+            // callback, target, interval, repeat, delay, paused
+            // repeat
             ok = seval_to_uint32(args[3], &repeat);
-//            SE_PRECONDITION2(ok, false, "Converting 'interval' argument failed");
-        }
+            SE_PRECONDITION2(ok, false, "Converting 'interval' argument failed");
 
-        if (argc >= 5)
-        {
+            // delay
             ok = seval_to_float(args[4], &delay);
-//            SE_PRECONDITION2(ok, false, "Converting 'delay' argument failed");
-        }
+            SE_PRECONDITION2(ok, false, "Converting 'delay' argument failed");
 
-        if (argc >= 6)
-        {
+            // isPaused
             ok = seval_to_boolean(args[5], &isPaused);
-//            SE_PRECONDITION2(ok, false, "Converting 'isPaused' argument failed");
+            SE_PRECONDITION2(ok, false, "Converting 'isPaused' argument failed");
         }
 
-        if (argc >= 7 && !args[6].isNullOrUndefined())
-        {
-            if (args[6].isString() || args[6].isNumber())
-            {
-                key = args[6].toStringForce();
-                ok = true;
-            }
-            else
-            {
-                ok = false;
-            }
-            SE_PRECONDITION2(ok, false, "Converting 'key' argument failed");
-        }
-
-        return Scheduler_scheduleCommon(cobj, jsThis, jsFunc, interval, repeat, delay, isPaused, key, !isBindedObject, "cc.Scheduler.schedule");
+        return Scheduler_scheduleCommon(cobj, jsThis, jsFunc, interval, repeat, delay, isPaused, !isBindedObject, "cc.Scheduler.schedule");
     }
 
     SE_REPORT_ERROR("wrong number of arguments: %d, expected: %s", argc, ">=2");
@@ -1427,6 +1367,35 @@ static bool js_cocos2dx_Scheduler_resumeTarget(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Scheduler_resumeTarget)
 
+static bool js_cocos2dx_Scheduler_isTargetPaused(se::State& s)
+{
+    const auto& args = s.args();
+    int argc = (int)args.size();
+
+    if (argc == 1)
+    {
+        Scheduler* cobj = (Scheduler*)s.nativeThisObject();
+        se::Value targetIdVal;
+        if (args[0].toObject()->getProperty(SCHEDULE_TARGET_ID_KEY, &targetIdVal) && targetIdVal.isNumber())
+        {
+            uint32_t targetId = targetIdVal.toUint32();
+            if (isTargetExistInScheduler(targetId))
+            {
+                bool isPaused = cobj->isTargetPaused(reinterpret_cast<void*>(targetId));
+                s.rval().setBoolean(isPaused);
+                return true;
+            }
+        }
+
+        s.rval().setBoolean(false);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Scheduler_isTargetPaused)
+
 static void resumeAllSchedulesForTarget(Node* node, se::Object* jsThis)
 {
     node->getScheduler()->resumeTarget(jsThis);
@@ -1572,6 +1541,7 @@ bool jsb_register_Node_manual(se::Object* global)
     schedulerProto->defineFunction("isScheduled", _SE(js_cocos2dx_Scheduler_isScheduled));
     schedulerProto->defineFunction("pauseTarget", _SE(js_cocos2dx_Scheduler_pauseTarget));
     schedulerProto->defineFunction("resumeTarget", _SE(js_cocos2dx_Scheduler_resumeTarget));
+    schedulerProto->defineFunction("isTargetPaused", _SE(js_cocos2dx_Scheduler_isTargetPaused));
 
 #if STANDALONE_TEST
     cls->defineFunction("addChild", _SE(Node_addChild));

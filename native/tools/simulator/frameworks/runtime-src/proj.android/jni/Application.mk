@@ -18,3 +18,6 @@ endif
 
 COCOS_SIMULATOR_BUILD := 1
 USE_ARM_MODE := 1
+
+# Some Android Simulators don't support SSE instruction, so disable it for x86 arch.
+APP_CPPFLAGS += -U__SSE__

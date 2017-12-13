@@ -387,6 +387,7 @@ bool JavaScriptJavaBridge::CallInfo::getMethodInfo()
 
     if (NULL == m_classID) {
         SE_LOGD("Classloader failed to find class of %s", m_className.c_str());
+        m_env->DeleteLocalRef(_jstrClassName);
         m_env->ExceptionClear();
         m_error = JSJ_ERR_CLASS_NOT_FOUND;
         return false;
