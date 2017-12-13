@@ -547,9 +547,8 @@ var eventManager = {
         if (oneByOneListeners) {
             for (var i = 0; i < originalTouches.length; i++) {
                 event.currentTouch = originalTouches[i];
+                event._propagationStopped = event._propagationImmediateStopped = false;
                 this._dispatchEventToListeners(oneByOneListeners, this._onTouchEventCallback, oneByOneArgsObj);
-                if (event.isStopped())
-                    return;
             }
         }
 

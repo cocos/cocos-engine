@@ -64,7 +64,7 @@ var Toggle = cc.Class({
         toggleGroup: {
             default: null,
             tooltip: CC_DEV && 'i18n:COMPONENT.toggle.toggleGroup',
-            type: cc.ToggleGroup
+            type: require('./CCToggleGroup')
         },
 
         /**

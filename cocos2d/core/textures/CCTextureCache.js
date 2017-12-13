@@ -112,8 +112,8 @@ var textureCache = /** @lends cc.textureCache# */{
     },
 
     /**
-     * #en get all textures
-     * #zh 获取所有贴图
+     * !#en get all textures
+     * !#zh 获取所有贴图
      * @method getAllTextures
      * @return {Texture2D[]}
      */
