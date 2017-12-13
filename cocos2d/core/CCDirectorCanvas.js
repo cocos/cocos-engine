@@ -26,6 +26,7 @@
 
 require('./CCDirector');
 require('./CCGame');
+var eventManager = require('./event-manager');
 
 cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
 
@@ -54,8 +55,8 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
             this._winSizeInPoints.width = cc._canvas.width;      //this._openGLView.getDesignResolutionSize();
             this._winSizeInPoints.height = cc._canvas.height;
             this._openGLView = openGLView || cc.view;
-            if (cc.eventManager)
-                cc.eventManager.setEnabled(true);
+            if (eventManager)
+                eventManager.setEnabled(true);
         };
 
         _p.getVisibleSize = function () {

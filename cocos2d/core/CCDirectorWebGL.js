@@ -27,6 +27,7 @@
 require('./CCDirector');
 require('./CCGame');
 require('../kazmath');
+var eventManager = require('./event-manager');
 
 var math = cc.math;
 
@@ -164,8 +165,8 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
          }*/
 
         //}
-        if (cc.eventManager)
-            cc.eventManager.setEnabled(true);
+        if (eventManager)
+            eventManager.setEnabled(true);
     };
 
     _p.getVisibleSize = function () {

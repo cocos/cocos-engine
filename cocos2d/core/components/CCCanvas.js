@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+var eventManager = require('../event-manager');
 
 var designResolutionWrapper = {
     getContentSize: function () {
@@ -186,11 +187,11 @@ var Canvas = cc.Class({
                 window.addEventListener('resize', this._thisOnResized);
             }
             else {
-                cc.eventManager.addCustomListener('canvas-resize', this._thisOnResized);
+                eventManager.addCustomListener('canvas-resize', this._thisOnResized);
             }
         }
         else {
-            cc.eventManager.addListener(this._thisOnResized, 1);
+            eventManager.addListener(this._thisOnResized, 1);
         }
 
         this.applySettings();
@@ -212,11 +213,11 @@ var Canvas = cc.Class({
                 window.removeEventListener('resize', this._thisOnResized);
             }
             else {
-                cc.eventManager.removeCustomListeners('canvas-resize', this._thisOnResized);
+                eventManager.removeCustomListeners('canvas-resize', this._thisOnResized);
             }
         }
         else {
-            cc.eventManager.removeListener(this._thisOnResized);
+            eventManager.removeListener(this._thisOnResized);
             this._thisOnResized.release();
         }
 

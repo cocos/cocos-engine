@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 var JS = require('../platform/js');
+var sys = require('../platform/CCSys');
 var Pipeline = require('./pipeline');
 var Texture2D = require('../textures/CCTexture2D');
 var loadUuid = require('./uuid-loader');
@@ -48,7 +49,7 @@ function loadJSON (item, callback) {
 
 function loadImage (item, callback) {
     var image = item.content;
-    if (!(image instanceof Image)) {
+    if (sys.platform !== sys.WECHAT_GAME && !(image instanceof Image)) {
         return new Error('Image Loader: Input item doesn\'t contain Image content');
     }
 

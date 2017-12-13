@@ -345,8 +345,8 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * #en Set SpriteFrame with Texture, rect, rotated, offset and originalSize.<br/>
-     * #zh 通过 Texture，rect，rotated，offset 和 originalSize 设置 SpriteFrame
+     * !#en Set SpriteFrame with Texture, rect, rotated, offset and originalSize.<br/>
+     * !#zh 通过 Texture，rect，rotated，offset 和 originalSize 设置 SpriteFrame
      * @method setTexture
      * @param {String|Texture2D} textureOrTextureFile
      * @param {Rect} [rect=null]

@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 var EventTarget = require('../core/event/event-target');
+var sys = require('../core/platform/CCSys');
 
 var touchBinded = false;
 var touchPlayList = [
@@ -137,7 +138,7 @@ Audio.State = {
     };
 
     proto.mount = function (elem) {
-        if (elem instanceof HTMLElement) {
+        if (sys.platform === sys.WECHAT_GAME || elem instanceof HTMLElement) {
             this._element = document.createElement('audio');
             this._element.src = elem.src;
             this._audioType = Audio.Type.DOM;
@@ -156,7 +157,9 @@ Audio.State = {
         this.emit('play');
         this._state = Audio.State.PLAYING;
 
-        if (this._audioType === Audio.Type.DOM && this._element.paused) {
+        if (sys.platform !== sys.WECHAT_GAME && 
+            this._audioType === Audio.Type.DOM && 
+            this._element.paused) {
             touchPlayList.push({ instance: this, offset: 0, audio: this._element });
         }
 
@@ -225,9 +228,11 @@ Audio.State = {
     proto.setCurrentTime = function (num) {
         if (!this._element) return;
         this._unbindEnded();
-        this._bindEnded(function () {
-            this._bindEnded();
-        }.bind(this));
+        if (sys.platform !== sys.WECHAT_GAME) {
+            this._bindEnded(function () {
+                this._bindEnded();
+            }.bind(this));
+        }
         try {
             this._element.currentTime = num;
         } catch (err) {
@@ -275,7 +280,7 @@ Audio.State = {
 // Encapsulated WebAudio interface
 var WebAudioElement = function (buffer, audio) {
     this._audio = audio;
-    this._context = cc.sys.__audioSupport.context;
+    this._context = sys.__audioSupport.context;
     this._buffer = buffer;
     this._volume = this._context['createGain']();
     this._volume['gain'].value = 1;
@@ -347,7 +352,7 @@ var WebAudioElement = function (buffer, audio) {
             var self = this;
             clearTimeout(this._currextTimer);
             this._currextTimer = setTimeout(function () {
-                if (self._context.currentTime === 0) {
+                if (sys.platform === sys.WECHAT_GAME && self._context.currentTime === 0) {
                     touchPlayList.push({
                         instance: self._audio,
                         offset: offset,
@@ -396,7 +401,7 @@ var WebAudioElement = function (buffer, audio) {
     proto.__defineGetter__('volume', function () { return this._volume['gain'].value; });
     proto.__defineSetter__('volume', function (num) {
         this._volume['gain'].value = num;
-        if (cc.sys.os === cc.sys.OS_IOS && !this.paused && this._currentSource) {
+        if (sys.os === sys.OS_IOS && !this.paused && this._currentSource) {
             // IOS must be stop webAudio
             this._currentSource.onended = null;
             this.pause();
