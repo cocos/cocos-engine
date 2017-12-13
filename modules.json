@@ -96,13 +96,9 @@
   {
     "name": "Toggle",
     "entries": [
-      "./cocos2d/core/components/CCToggle.js"
-    ]
-  },
-  {
-    "name": "ToggleGroup",
-    "entries": [
-      "./cocos2d/core/components/CCToggleGroup.js"
+      "./cocos2d/core/components/CCToggle.js",
+      "./cocos2d/core/components/CCToggleGroup.js",
+      "./cocos2d/core/components/CCToggleContainer.js"
     ]
   },
   {
