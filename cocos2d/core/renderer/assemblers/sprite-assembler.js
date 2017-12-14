@@ -116,28 +116,44 @@ let simpleRenderUtil = {
     updateVerts (sprite) {
         let renderData = sprite._renderData,
             data = renderData._data,
-            frame = sprite.spriteFrame,
-            width, height;
+            cw = renderData._width,
+            ch = renderData._height,
+            appx = renderData._pivotX * cw,
+            appy = renderData._pivotY * ch,
+            l, b, r, t;
         if (sprite.trim) {
-            width = frame._rect.width;
-            height = frame._rect.height;
+            l = -appx;
+            b = -appy;
+            r = cw - appx;
+            t = ch - appy;
         }
         else {
-            width = frame._originalSize.width;
-            height = frame._originalSize.height;
+            let frame = sprite.spriteFrame,
+                ow = frame._originalSize.width,
+                oh = frame._originalSize.height,
+                rw = frame._rect.width,
+                rh = frame._rect.height,
+                offset = frame._offset,
+                scaleX = cw / ow,
+                scaleY = ch / oh;
+            let trimLeft = offset.x + (ow - rw) / 2;
+            let trimRight = offset.x - (ow - rw) / 2;
+            let trimBottom = offset.y + (oh - rh) / 2;
+            let trimTop = offset.y - (oh - rh) / 2;
+            l = trimLeft * scaleX - appx;
+            b = trimBottom * scaleY - appy;
+            r = cw + trimRight * scaleX - appx;
+            t = ch + trimTop * scaleY - appy;
         }
-            
-        let appx = renderData._pivotX * width,
-            appy = renderData._pivotY * height;
         
-        data[0].x = -appx;
-        data[0].y = -appy;
-        data[1].x = width - appx;
-        data[1].y = -appy;
-        data[2].x = -appx;
-        data[2].y = height - appy;
-        data[3].x = width - appx;
-        data[3].y = height - appy;
+        data[0].x = l;
+        data[0].y = b;
+        data[1].x = r;
+        data[1].y = b;
+        data[2].x = l;
+        data[2].y = t;
+        data[3].x = r;
+        data[3].y = t;
 
         renderData.vertDirty = false;
     },

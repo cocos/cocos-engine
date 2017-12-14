@@ -268,7 +268,7 @@ var Sprite = cc.Class({
                 if (value !== this._fillType) {
                     if (value === FillType.RADIAL || this._fillType === FillType.RADIAL) {
                         RenderData.free(this._renderData);
-                        this._renderData = null;    
+                        this._renderData = null;
                     }
                     else if (this._renderData) {
                         this._renderData.uvDirty = true;
@@ -557,6 +557,7 @@ var Sprite = cc.Class({
         // Mark render data dirty
         if (this._renderData) {
             this._renderData.uvDirty = true;
+            this._renderData.vertDirty = true;
         }
         // Reactivate material
         if (this.enabledInHierarchy) {
@@ -566,7 +567,6 @@ var Sprite = cc.Class({
     },
 
     _applySpriteFrame: function (oldFrame) {
-        var sgNode = this._sgNode;
         if (oldFrame && oldFrame.off) {
             oldFrame.off('load', this._onTextureLoaded, this);
         }
