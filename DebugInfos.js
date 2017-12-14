@@ -621,6 +621,10 @@ if (CC_DEBUG) {
         "8301": "Camera does not support Canvas Mode.", //cc.Camera.enabled
         // AudioEngine: 8400
         "8400": "Wrong type arguments, 'filePath' must be a String.", // cc.audioEngine.play
+
+        // New Renderer 10000
+        "9000": "Stencil manager does not support level bigger than %d in this device.",
+        "9001": "Stencil manager is already empty, cannot pop any mask",
     };
     cc._LogInfos = logs;
 }
