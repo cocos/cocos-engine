@@ -39,7 +39,7 @@ let graphicsAssembler = {
     updateRenderData (graphics) {
         // Create render data if needed
         if (!graphics._renderData) {
-            graphics._renderData = new RenderData();
+            graphics._renderData = RenderData.alloc();
         }
 
         let renderData = graphics._renderData;
@@ -84,7 +84,7 @@ let graphicsAssembler = {
 
     stroke (graphics) {
         if (!graphics._renderData) {
-            graphics._renderData = new RenderData();
+            graphics._renderData = RenderData.alloc();
         }
 
         this._curColor = graphics._strokeColor._val;
@@ -97,7 +97,7 @@ let graphicsAssembler = {
 
     fill (graphics) {
         if (!graphics._renderData) {
-            graphics._renderData = new RenderData();
+            graphics._renderData = RenderData.alloc();
         }
 
         this._curColor = graphics._fillColor._val;
