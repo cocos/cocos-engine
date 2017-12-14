@@ -209,13 +209,14 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
             this._texGrids = [];
             for (i = 0; i < len; ++i) {
                 tileset = tilesets[i];
-                tex = cc.textureCache.addImage(tileset.sourceImage, function (tex) {
+                tex = tileset.sourceImage;
+                if (tex) {
                     tex.setAliasTexParameters();
-                });
-                this._textures[i] = tex;
-                this._fillTextureGrids(tileset, i);
-                if (tileset === tilesetInfo) {
-                    this._texture = tex;
+                    this._textures[i] = tex;
+                    this._fillTextureGrids(tileset, i);
+                    if (tileset === tilesetInfo) {
+                        this._texture = tex;
+                    }
                 }
             }
         }

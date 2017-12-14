@@ -65,7 +65,7 @@ class TiledMapMeta extends CustomAssetMeta {
     this._tsxFiles = [];
   }
 
-  static version () { return '1.0.4'; }
+  static version () { return '2.0.0'; }
   static defaultType() { return 'tiled-map'; }
 
   import (fspath, cb) {
@@ -99,6 +99,7 @@ class TiledMapMeta extends CustomAssetMeta {
       var uuid = db.fspathToUuid(p);
       return uuid ? Editor.serialize.asAsset(uuid) : null;
     });
+    asset.textureNames = this._textures.map(p => Path.basename(p));
     asset.tsxFiles = this._tsxFiles.map(p => db.fspathToUrl(p));
     db.saveAssetToLibrary(this.uuid, asset);
     cb();

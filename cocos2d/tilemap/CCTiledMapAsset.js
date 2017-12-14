@@ -34,23 +34,20 @@ var TiledMapAsset = cc.Class({
     extends: cc.Asset,
 
     properties: {
-        tmxXmlStr: {
-            default: ''
-        },
+        tmxXmlStr: '',
+        tmxFolderPath: '',
 
-        tmxFolderPath : {
-            default: ''
-        },
+        /**
+         * @property {Texture2D[]} textures
+         */
+        textures: [cc.Texture2D],
 
-        textures: {
-            default: [],
-            type: [cc.Texture2D]
-        },
+        /**
+         * @property {String[]} textureNames
+         */
+        textureNames: [cc.String],
 
-        tsxFiles: {
-            default: [],
-            url: [cc.RawAsset]
-        }
+        tsxFiles: [cc.RawAsset]
     },
 
     statics: {

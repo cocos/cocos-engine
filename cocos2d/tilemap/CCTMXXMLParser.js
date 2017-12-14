@@ -147,7 +147,7 @@ cc.TMXObjectGroupInfo = cc._Class.extend(/** @lends cc.TMXObjectGroupInfo# */{
  * @property {number} firstGid - First grid
  * @property {number} spacing - Spacing
  * @property {number} margin - Margin
- * @property {string} sourceImage - Filename containing the tiles (should be sprite sheet / texture atlas)
+ * @property {null} sourceImage - Texture containing the tiles (should be sprite sheet / texture atlas)
  * @property {cc.Size} imageSize - Size in pixels of the image
  */
 cc.TMXTilesetInfo = cc._Class.extend(/** @lends cc.TMXTilesetInfo# */{
@@ -161,8 +161,8 @@ cc.TMXTilesetInfo = cc._Class.extend(/** @lends cc.TMXTilesetInfo# */{
         this.spacing = 0;
         // Margin
         this.margin = 0;
-        // Filename containing the tiles (should be sprite sheet / texture atlas)
-        this.sourceImage = "";
+        // Texture containing the tiles (should be sprite sheet / texture atlas)
+        this.sourceImage = null;
         // Size in pixels of the image
         this.imageSize = cc.size(0, 0);
 
@@ -258,7 +258,10 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
     _tilesets:null,
     // tile properties
     _tileProperties:null,
-    _resources:"",
+    _resources: "",  // used to load relative tsx
+
+    // map of textures indexed by name
+    _textures: null,
 
     // hex map values
     _staggerAxis: null,
@@ -270,8 +273,9 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * Constructor of cc.TMXMapInfo
      * @param {String} tmxFile content string
      * @param {String} resourcePath
+     * @param {Object} textures
      */
-    ctor:function (tmxFile, resourcePath) {
+    ctor: function (tmxFile, resourcePath, textures) {
         cc.SAXParser.prototype.ctor.apply(this);
         this._mapSize = cc.size(0, 0);
         this._tileSize = cc.size(0, 0);
@@ -282,7 +286,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
         this.properties = [];
         this._tileProperties = {};
 
-        this.initWithXML(tmxFile,resourcePath);
+        this.initWithXML(tmxFile, resourcePath, textures);
     },
     /**
      * Gets Map orientation.
@@ -546,10 +550,29 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      * initializes a TMX format with an XML string and a TMX resource path
      * @param {String} tmxString
      * @param {String} resourcePath
+     * @param {Object} textures
      * @return {Boolean}
      */
-    initWithXML:function (tmxString, resourcePath) {
-        this._internalInit(null, resourcePath);
+    initWithXML:function (tmxString, resourcePath, textures) {
+
+        this._tilesets.length = 0;
+        this._layers.length = 0;
+
+        if (resourcePath)
+            this._resources = resourcePath;
+        this._textures = textures;
+
+        this._objectGroups.length = 0;
+        this._allChildren.length = 0;
+        this.properties.length = 0;
+        this._tileProperties.length = 0;
+
+        // tmp vars
+        this.currentString = "";
+        this.storingCharacters = false;
+        this.layerAttrs = cc.TMXLayerInfo.ATTRIB_NONE;
+        this.parentElement = cc.TiledMap.NONE;
+
         return this.parseXMLString(tmxString);
     },
 
@@ -664,7 +687,10 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
 
                 var image = selTileset.getElementsByTagName('image')[0];
                 var imagename = image.getAttribute('source');
-                tileset.sourceImage = this._resources + (this._resources ? "/" : "") + imagename;
+                tileset.sourceImage = this._textures[imagename];
+                if (!tileset.sourceImage) {
+                    cc.errorID(7221, imagename);
+                }
 
                 this.setTilesets(tileset);
 
@@ -967,26 +993,6 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      */
     setCurrentString:function (currentString) {
         this.currentString = currentString;
-    },
-
-    _internalInit:function (tmxFileName, resourcePath) {
-        this._tilesets.length = 0;
-        this._layers.length = 0;
-
-        this.tmxFileName = tmxFileName;
-        if (resourcePath)
-            this._resources = resourcePath;
-
-        this._objectGroups.length = 0;
-        this._allChildren.length = 0;
-        this.properties.length = 0;
-        this._tileProperties.length = 0;
-
-        // tmp vars
-        this.currentString = "";
-        this.storingCharacters = false;
-        this.layerAttrs = cc.TMXLayerInfo.ATTRIB_NONE;
-        this.parentElement = cc.TiledMap.NONE;
     }
 });
 

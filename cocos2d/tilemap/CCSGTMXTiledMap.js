@@ -231,13 +231,14 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
      * Initializes the instance of _ccsg.TMXTiledMap with tmxString
      * @param {String} tmxString
      * @param {String} resourcePath
+     * @param {Object} textures
      * @return {Boolean} Whether the initialization was successful.
      */
-    initWithXML:function(tmxString, resourcePath){
+    initWithXML: function(tmxString, resourcePath, textures){
         this.width = 0;
 	    this.height = 0;
 
-        var mapInfo = new cc.TMXMapInfo(tmxString, resourcePath);
+        var mapInfo = new cc.TMXMapInfo(tmxString, resourcePath, textures);
         var locTilesets = mapInfo.getTilesets();
         if(!locTilesets || locTilesets.length === 0)
             cc.logID(7213);
