@@ -89,7 +89,7 @@ StencilManager.prototype = {
 
     pushMask (mask) {
         if (this._maskStack.length + 1 > this._maxLevel) {
-            console.error(`Stencil manager does not support level bigger than ${this._maxLevel} in this device.`);
+            cc.errorID(9000, this._maxLevel);
         }
         this._maskStack.push(mask);
         this.stage = Stage.ENTER_LEVEL;
@@ -97,7 +97,7 @@ StencilManager.prototype = {
 
     popMask () {
         if (this._maskStack.length === 0) {
-            console.error(`Stencil manager is already empty, cannot pop any mask`);
+            cc.errorID(9001);
         }
         this._maskStack.pop();
         this.stage = Stage.EXIT_LEVEL;
