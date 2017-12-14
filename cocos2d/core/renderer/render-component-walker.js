@@ -23,9 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const macro = require('../platform/CCMacro');
 const renderEngine = require('./render-engine');
 const defaultVertexFormat = require('./vertex-format');
-const macro = require('../platform/CCMacro');
+const StencilManager = require('./stencil-manager');
 const gfx = renderEngine.gfx;
 const RecyclePool = renderEngine.RecyclePool;
 const InputAssembler = renderEngine.InputAssembler;
@@ -40,6 +41,7 @@ var _queue = null;
 var RenderComponentWalker = function (device, renderScene) {
     this._renderScene = renderScene;
     this._device = device;
+    this._stencilMgr = StencilManager.sharedManager;
 
     // Buffers
     let verts = new Float32Array(MAX_VERTEX * FLOATS_PER_VERT);
@@ -167,6 +169,9 @@ RenderComponentWalker.prototype = {
         ia._indexBuffer = ib;
         ia._start = 0;
         ia._count = indiceCount;
+
+        // Check stencil state and modify pass
+        this._stencilMgr.handleEffect(effect);
         
         // Generate model
         let model = this._modelPool.add();
@@ -201,7 +206,7 @@ RenderComponentWalker.prototype = {
     _checkBatchBroken (vertexFormat, currEffect, vertexOffset, indiceOffset, needNewBuf) {
         let vertexCount = vertexOffset - this._vOffset,
             indiceCount = indiceOffset - this._iOffset;
-        if (vertexFormat && currEffect) {
+        if (vertexFormat && currEffect && vertexCount > 0 && indiceCount > 0) {
             this._flush(vertexFormat, currEffect, vertexCount, indiceCount);
             if (needNewBuf) {
                 this._switchBuffer();
@@ -224,13 +229,13 @@ RenderComponentWalker.prototype = {
             uintVerts = this._uintVerts,
             indices = this._indices,
             currEffect = null,
-            vertexFormat = null,
             vertexOffset = this._vOffset,
             indiceOffset = this._iOffset,
             vertexId = 0,
             needNewBuf = false,
-            broken = false;
-            comp = null, 
+            broken = false,
+            comp = this._queue[0],
+            prevComp = null,
             effect = null, 
             assembler = null, 
             data = null;
@@ -247,8 +252,7 @@ RenderComponentWalker.prototype = {
                     comp._toPostHandle = true;
                 }
             }
-            effect = comp.getEffect();
-            if (!assembler || !effect) {
+            if (!assembler) {
                 continue;
             }
             
@@ -256,11 +260,12 @@ RenderComponentWalker.prototype = {
             assembler.updateRenderData(comp);
             data = comp._renderData;
 
+            // Must get effect after updateRenderData, material maybe modified during updateRenderData
+            effect = comp.getEffect();
             // breaking batch
             needNewBuf = (vertexOffset + data.vertexCount > MAX_VERTEX) || (indiceOffset + data.indiceCount > MAX_INDICE);
-            if (currEffect != effect || needNewBuf) {
-                vertexFormat = comp._vertexFormat;
-                broken = this._checkBatchBroken(vertexFormat, currEffect, vertexOffset, indiceOffset, needNewBuf);
+            if (prevComp && currEffect != effect || needNewBuf) {
+                broken = this._checkBatchBroken(prevComp._vertexFormat, currEffect, vertexOffset, indiceOffset, needNewBuf);
                 if (broken) {
                     vertexOffset = this._vOffset;
                     indiceOffset = this._iOffset;
@@ -272,17 +277,22 @@ RenderComponentWalker.prototype = {
                 }
                 currEffect = effect;
             }
+            // Init effect
+            else if (!currEffect) {
+                currEffect = effect;
+            }
 
             vertexId = vertexOffset - this._vOffset;
             assembler.fillVertexBuffer(comp, vertexOffset, verts, uintVerts);
             assembler.fillIndexBuffer(comp, indiceOffset, vertexId, indices);
-    
+
             vertexOffset += data.vertexCount;
             indiceOffset += data.indiceCount;
+            prevComp = comp;
         }
 
         // last batch
-        this._checkBatchBroken(comp && comp._vertexFormat, currEffect, vertexOffset, indiceOffset, false);
+        this._checkBatchBroken(prevComp && prevComp._vertexFormat, currEffect, vertexOffset, indiceOffset, false);
         this._queue.length = 0;
     },
 

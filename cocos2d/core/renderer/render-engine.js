@@ -13488,13 +13488,14 @@ module.exports = (function () {
       // draw it
       for (let i = 0; i < items.length; ++i) {
         let item = items.data[i];
-        var ia = item.ia;
-        var vb = ia._vertexBuffer;
-        var ib = ia._indexBuffer;
-        if (vb && ib) {
-          vb.update(0, vb._data);
-          ib.update(0, ib._data);
-        }
+  
+        // Update vertex buffer and index buffer
+        let ia = item.ia;
+        let vb = ia._vertexBuffer;
+        let ib = ia._indexBuffer;
+        vb.update(0, vb._data);
+        ib.update(0, ib._data);
+  
         this._draw(item);
       }
     }
@@ -14054,6 +14055,34 @@ module.exports = (function () {
     }
   }
   
+  class MaterialUtil {
+    constructor () {
+        this._cache = {};
+    }
+  
+    get (key) {
+      return this._cache[key];
+    }
+  
+    register (key, material) {
+      if (key === undefined || this._cache[key]) {
+          console.warn("Material key is invalid or already exists");
+      }
+      else if (!material instanceof Material) {
+          console.warn("Invalid Material");
+      }
+      else {
+          this._cache[key] = material;
+      }
+    }
+  
+    unregister (key) {
+      if (key !== undefined) {
+          delete this._cache[key];
+      }
+    }
+  }
+  
   class SpriteMaterial extends Material {
     constructor() {
       super(false);
@@ -14126,31 +14155,86 @@ module.exports = (function () {
     }
   }
   
-  class MaterialUtil {
-    constructor () {
-        this._cache = {};
+  class StencilMaterial extends Material {
+    constructor() {
+      super(false);
+  
+      this._pass = new renderer.Pass('sprite');
+      this._pass.setDepth(false, false);
+      this._pass.setCullMode(gfx.CULL_NONE);
+      this._pass.setBlend(
+        gfx.BLEND_FUNC_ADD,
+        gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA,
+        gfx.BLEND_FUNC_ADD,
+        gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA
+      );
+  
+      let mainTech = new renderer.Technique(
+        ['transparent'],
+        [
+          { name: 'texture', type: renderer.PARAM_TEXTURE_2D },
+          { name: 'alphaThreshold', type: renderer.PARAM_FLOAT },
+        ],
+        [
+          this._pass
+        ]
+      );
+  
+      this._effect = new renderer.Effect(
+        [
+          mainTech,
+        ],
+        {},
+        [
+          { name: 'useTexture', value: true },
+          { name: 'useModel', value: false },
+          { name: 'alphaTest', value: true },
+        ]
+      );
+      
+      this._mainTech = mainTech;
     }
   
-    get (key) {
-      return this._cache[key];
+    get effect () {
+      return this._effect;
+    }
+    
+    get useTexture () {
+      this._effect.getOption('useTexture', val);
     }
   
-    register (key, material) {
-      if (key === undefined || this._cache[key]) {
-          console.warn("Material key is invalid or already exists");
-      }
-      else if (!material instanceof Material) {
-          console.warn("Invalid Material");
-      }
-      else {
-          this._cache[key] = material;
-      }
+    set useTexture (val) {
+      this._effect.setOption('useTexture', val);
     }
   
-    unregister (key) {
-      if (key !== undefined) {
-          delete this._cache[key];
+    get texture () {
+      return this._effect.getValue('texture');
+    }
+  
+    set texture (val) {
+      this._effect.setValue('texture', val);
+    }
+    
+    get alphaThreshold () {
+      return this._effect.getValue('alphaThreshold');
+    }
+  
+    set alphaThreshold (val) {
+      this._effect.setValue('alphaThreshold', val);
+    }
+  
+    clone () {
+      let originValues = this._effect._values,
+          values = {};
+      for (let name in originValues) {
+        let value = originValues[name];
+        values[name] = value[name];
       }
+      let copy = new StencilMaterial(values);
+      copy.useTexture = this.useTexture;
+      copy.texture = this.texture;
+      copy.alphaThreshold = this.alphaThreshold;
+      return copy;
     }
   }
   
@@ -14182,6 +14266,7 @@ module.exports = (function () {
     
     // materials
     SpriteMaterial,
+    StencilMaterial,
   
     // shaders
     shaders,
