@@ -1011,6 +1011,11 @@ let filledRenderUtil = {
 
 // Inline all type switch to avoid jit deoptimization during inlined function change
 var spriteAssembler = {
+    simpleRenderUtil: simpleRenderUtil,
+    slicedRenderUtil: slicedRenderUtil,
+    tiledRenderUtil: tiledRenderUtil,
+    filledRenderUtil: filledRenderUtil,
+
     updateRenderData (sprite) {
         // Create render data if needed
         if (!sprite._renderData) {
