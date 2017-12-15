@@ -341,7 +341,7 @@ cc.Sequence = cc.ActionInterval.extend({
      */
     initWithTwoActions:function (actionOne, actionTwo) {
         if(!actionOne || !actionTwo)
-            throw new Error("cc.Sequence.initWithTwoActions(): arguments must all be non nil");
+            throw new Error(cc._LogInfos.format(1025));
 
         var d = actionOne._duration + actionTwo._duration;
         this.initWithDuration(d);
@@ -649,7 +649,7 @@ cc.RepeatForever = cc.ActionInterval.extend({
      */
     initWithAction:function (action) {
         if(!action)
-            throw new Error("cc.RepeatForever.initWithAction(): action must be non null");
+            throw new Error(cc._LogInfos.format(1026));
 
         this._innerAction = action;
         return true;
@@ -767,7 +767,7 @@ cc.Spawn = cc.ActionInterval.extend({
      */
     initWithTwoActions:function (action1, action2) {
         if(!action1 || !action2)
-            throw new Error("cc.Spawn.initWithTwoActions(): arguments must all be non null");
+            throw new Error(cc._LogInfos.format(1027));
 
         var ret = false;
 
@@ -2473,9 +2473,9 @@ cc.ReverseTime = cc.ActionInterval.extend({
      */
     initWithAction:function (action) {
         if(!action)
-            throw new Error("cc.ReverseTime.initWithAction(): action must be non null");
+            throw new Error(cc._LogInfos.format(1028));
         if(action === this._other)
-            throw new Error("cc.ReverseTime.initWithAction(): the action was already passed in.");
+            throw new Error(cc._LogInfos.format(1029));
 
         if (cc.ActionInterval.prototype.initWithDuration.call(this, action._duration)) {
             // Don't leak if action is reused
@@ -2580,7 +2580,7 @@ cc.Animate = cc.ActionInterval.extend({
      */
     initWithAnimation:function (animation) {
         if(!animation)
-            throw new Error("cc.Animate.initWithAnimation(): animation must be non-NULL");
+            throw new Error(cc._LogInfos.format(1030));
         var singleDuration = animation.getDuration();
         if (this.initWithDuration(singleDuration * animation.getLoops())) {
             this._nextFrame = 0;

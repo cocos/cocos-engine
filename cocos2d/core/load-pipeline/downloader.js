@@ -63,7 +63,7 @@ function downloadScript (item, callback, isAsync) {
         s.parentNode.removeChild(s);
         s.removeEventListener('load', loadHandler, false);
         s.removeEventListener('error', errorHandler, false);
-        callback(new Error('Load ' + url + ' failed!'), url);
+        callback(new Error(cc._LogInfos.format(4928, url)));
     }
     s.addEventListener('load', loadHandler, false);
     s.addEventListener('error', errorHandler, false);
@@ -72,7 +72,7 @@ function downloadScript (item, callback, isAsync) {
 
 function downloadWebp (item, callback, isCrossOrigin, img) {
     if (!cc.sys.capabilities.webp) {
-        return new Error('Load Webp ( ' + item.url + ' ) failed');
+        return new Error(cc._LogInfos.format(4929, item.url));
     }
     return downloadImage(item, callback, isCrossOrigin, img);
 }
@@ -111,7 +111,7 @@ function downloadImage (item, callback, isCrossOrigin, img) {
                 downloadImage(item, callback, false, img);
             }
             else {
-                callback(new Error('Load image (' + url + ') failed'));
+                callback(new Error(cc._LogInfos.format(4930, url)));
             }
         }
 

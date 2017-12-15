@@ -95,5 +95,5 @@ proto.clearRect = function(x, y, width, height){
 };
 
 proto.clearDepth = function(depthValue){
-    cc.log("clearDepth isn't supported on Cocos2d-Html5");
+    cc.logID(7603);
 };

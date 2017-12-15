@@ -96,7 +96,7 @@ var RendererInSG = cc.Class({
 
     _replaceSgNode: function (sgNode) {
         if (CC_EDITOR && !(sgNode instanceof _ccsg.Node)) {
-            throw new Error("Invalid sgNode. It must be an instance of _ccsg.Node");
+            throw new Error(cc._LogInfos.format(1636));
         }
 
         var node = this.node;

@@ -343,7 +343,7 @@ cc.RenderTexture = _ccsg.Node.extend(/** @lends cc.RenderTexture# */{
      * @param {Number} format
      */
     saveToFile: function (filePath, format) {
-        cc.log("saveToFile isn't supported on Cocos2d-Html5");
+        cc.logID(7604);
     },
 
     /**
@@ -351,7 +351,7 @@ cc.RenderTexture = _ccsg.Node.extend(/** @lends cc.RenderTexture# */{
      * @return {*}
      */
     newCCImage: function (flipImage) {
-        cc.log("saveToFile isn't supported on cocos2d-html5");
+        cc.logID(7605);
         return null;
     },
 

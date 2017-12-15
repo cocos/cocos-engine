@@ -174,7 +174,7 @@ cc.defineGetterSetter = function (proto, prop, getter, setter, getterName, sette
         setter && (desc.set = setter);
         Object.defineProperty(proto, prop, desc);
     } else {
-        throw new Error("browser does not support getters");
+        throw new Error(cc._LogInfos.format(3658));
     }
 };
 
