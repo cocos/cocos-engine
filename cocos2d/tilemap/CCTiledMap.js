@@ -853,7 +853,14 @@ var TiledMap = cc.Class({
                 resPath = resPath.replace(/\\/g, '/');
             }
 
-            var ret = sgNode.initWithXML(file.tmxXmlStr, resPath);
+            var texValues = file.textures;
+            var texKeys = file.textureNames;
+            var textures = {};
+            for (let i = 0; i < texValues.length; ++i) {
+                textures[texKeys[i]] = texValues[i];
+            }
+
+            var ret = sgNode.initWithXML(file.tmxXmlStr, resPath, textures);
             if (ret) {
                 // Asset is changed, the layers are recreated.
                 // The layers of pre asset should be cleaned.
@@ -864,11 +871,11 @@ var TiledMap = cc.Class({
             // tmx file is cleared
             // 1. hide the tmx layers & groups in _sgNode
             var layers = sgNode.allLayers();
-            for (var i = 0, n = layers.length; i < n; i++) {
+            for (let i = 0, n = layers.length; i < n; i++) {
                 sgNode.removeChild(layers[i]);
             }
             var groups = sgNode.getObjectGroups();
-            for (i = 0, n = groups.length; i < n; i++) {
+            for (let i = 0, n = groups.length; i < n; i++) {
                 sgNode.removeChild(groups[i]);
             }
 

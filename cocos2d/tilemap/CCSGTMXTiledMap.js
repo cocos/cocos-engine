@@ -114,19 +114,11 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
     /**
      * Creates a TMX Tiled Map with a TMX file  or content string. <br/>
      * Constructor of _ccsg.TMXTiledMap
-     * @param {String} tmxFile tmxFile fileName or content string
-     * @param {String} resourcePath   If tmxFile is a file name ,it is not required.If tmxFile is content string ,it is must required.
      */
-    ctor:function(tmxFile,resourcePath){
+    ctor:function(){
         _ccsg.Node.prototype.ctor.call(this);
         this._mapSize = cc.size(0, 0);
         this._tileSize = cc.size(0, 0);
-
-        if(resourcePath !== undefined){
-            this.initWithXML(tmxFile,resourcePath);
-        }else if(tmxFile !== undefined){
-            this.initWithTMXFile(tmxFile);
-        }
     },
 
     /**
@@ -236,42 +228,17 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
     },
 
     /**
-     * Initializes the instance of _ccsg.TMXTiledMap with tmxFile
-     * @param {String} tmxFile
-     * @return {Boolean} Whether the initialization was successful.
-     * @example
-     * //example
-     * var map = new _ccsg.TMXTiledMap()
-     * map.initWithTMXFile("hello.tmx");
-     */
-    initWithTMXFile:function (tmxFile) {
-        if(!tmxFile || tmxFile.length === 0) {
-            return false;
-        }
-	    this.width = 0;
-	    this.height = 0;
-        var mapInfo = new cc.TMXMapInfo(tmxFile);
-        if (!mapInfo)
-            return false;
-
-        var locTilesets = mapInfo.getTilesets();
-        if(!locTilesets || locTilesets.length === 0)
-            cc.logID(7212);
-        this._buildWithMapInfo(mapInfo);
-        return true;
-    },
-
-    /**
      * Initializes the instance of _ccsg.TMXTiledMap with tmxString
      * @param {String} tmxString
      * @param {String} resourcePath
+     * @param {Object} textures
      * @return {Boolean} Whether the initialization was successful.
      */
-    initWithXML:function(tmxString, resourcePath){
+    initWithXML: function(tmxString, resourcePath, textures){
         this.width = 0;
 	    this.height = 0;
 
-        var mapInfo = new cc.TMXMapInfo(tmxString, resourcePath);
+        var mapInfo = new cc.TMXMapInfo(tmxString, resourcePath, textures);
         var locTilesets = mapInfo.getTilesets();
         if(!locTilesets || locTilesets.length === 0)
             cc.logID(7213);
