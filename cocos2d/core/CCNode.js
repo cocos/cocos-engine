@@ -1158,7 +1158,7 @@ var Node = cc.Class({
             if (ActionManagerExist) {
                 cc.director.getActionManager().pauseTarget(this);
             }
-            cc.eventManager.pauseTarget(this);
+            eventManager.pauseTarget(this);
         }
 
         var children = this._children;
