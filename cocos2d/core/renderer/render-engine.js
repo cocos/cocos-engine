@@ -7314,6 +7314,11 @@ module.exports = (function () {
     LIGHT_POINT: 1,
     LIGHT_SPOT: 2,
   
+    // shadows
+    SHADOW_NONE: 0,
+    SHADOW_HARD: 1,
+    SHADOW_SOFT: 2,
+  
     // parameter type
     PARAM_INT:             0,
     PARAM_INT2:            1,
@@ -7774,9 +7779,9 @@ module.exports = (function () {
         return;
       }
   
-      let gl = this.device.gl;
+      let gl = this._device._gl;
       gl.deleteBuffer(this._glID);
-      this.device._stats.ib -= this.bytes;
+      this._device._stats.ib -= this.bytes;
   
       this._glID = -1;
     }
@@ -7853,9 +7858,9 @@ module.exports = (function () {
         return;
       }
   
-      let gl = this.device.gl;
+      let gl = this._device._gl;
       gl.deleteBuffer(this._glID);
-      this.device._stats.vb -= this.bytes;
+      this._device._stats.vb -= this.bytes;
   
       this._glID = -1;
     }
@@ -8107,10 +8112,10 @@ module.exports = (function () {
         return;
       }
   
-      let gl = this.device.gl;
+      let gl = this._device._gl;
       gl.deleteTexture(this._glID);
   
-      this.device._stats.tex -= this.bytes;
+      this._device._stats.tex -= this.bytes;
       this._glID = -1;
     }
   }
@@ -10655,9 +10660,12 @@ module.exports = (function () {
       this._matViewProj = mat4.create();
       this._matInvViewProj = mat4.create();
   
-      // stages
+      // stages & framebuffer
       this._stages = [];
       this._cullingByID = false;
+      this._framebuffer = null;
+  
+      this._shadowLight = null; // TODO: should not refer light in view.
     }
   
     getForward(out) {
@@ -10675,10 +10683,36 @@ module.exports = (function () {
     }
   }
   
+  const _forward = vec3.new(0, 0, -1);
+  
   let _m4_tmp$1 = mat4.create();
   let _m3_tmp = mat3.create();
-  const _forward = vec3.new(0, 0, -1);
   let _transformedLightDirection = vec3.create();
+  
+  // compute light viewProjMat for shadow.
+  function _computeSpotLightViewProjMatrix(light, outView, outProj) {
+    // view matrix
+    light._node.getWorldRT(outView);
+    mat4.invert(outView, outView);
+  
+    // proj matrix
+    mat4.perspective(outProj, light._spotAngle * light._spotAngleScale, 1, light._shadowMinDepth, light._shadowMaxDepth);
+  }
+  
+  function _computeDirectionalLightViewProjMatrix(light, outView, outProj) {
+    // view matrix
+    light._node.getWorldRT(outView);
+    mat4.invert(outView, outView);
+  
+    // TODO: should compute directional light frustum based on rendered meshes in scene.
+    // proj matrix
+    let halfSize = light._shadowFustumSize / 2;
+    mat4.ortho(outProj, -halfSize, halfSize, -halfSize, halfSize, light._shadowMinDepth, light._shadowMaxDepth);
+  }
+  
+  function _computePointLightViewProjMatrix(light, outView, outProj) {
+    // TODO:
+  }
   
   class Light {
     constructor() {
@@ -10700,23 +10734,40 @@ module.exports = (function () {
       this._positionUniform = new Float32Array(3);
       this._colorUniform = new Float32Array([this._color.r * this._intensity, this._color.g * this._intensity, this._color.b * this._intensity]);
       this._spotUniform = new Float32Array([Math.cos(this._spotAngle * 0.5), this._spotExp]);
+  
+      // shadow params
+      this._shadowType = enums.SHADOW_NONE;
+      this._shadowFrameBuffer = null;
+      this._shadowMap = null;
+      this._shadowMapDirty = false;
+      this._shadowDepthBuffer = null;
+      this._shadowResolution = 1024;
+      this._shadowBias = 0.00005;
+      this._shadowDarkness = 1;
+      this._shadowMinDepth = 1;
+      this._shadowMaxDepth = 1000;
+      this._shadowDepthScale = 50; // maybe need to change it if the distance between shadowMaxDepth and shadowMinDepth is small.
+      this._frustumEdgeFalloff = 0; // used by directional and spot light.
+      this._viewProjMatrix = mat4.create();
+      this._spotAngleScale = 1; // used for spot light.
+      this._shadowFustumSize = 80; // used for directional light.
     }
   
     setNode(node) {
       this._node = node;
     }
   
-    set color(val) {
-      color3.copy(this._color, val);
-      this._colorUniform[0] = val.r * this._intensity;
-      this._colorUniform[1] = val.g * this._intensity;
-      this._colorUniform[2] = val.b * this._intensity;
+    setColor(r, g, b) {
+      color3.set(this._color, r, g, b);
+      this._colorUniform[0] = r * this._intensity;
+      this._colorUniform[1] = g * this._intensity;
+      this._colorUniform[2] = b * this._intensity;
     }
     get color() {
       return this._color;
     }
   
-    set intensity(val) {
+    setIntensity(val) {
       this._intensity = val;
       this._colorUniform[0] = val * this._color.r;
       this._colorUniform[1] = val * this._color.g;
@@ -10726,14 +10777,14 @@ module.exports = (function () {
       return this._intensity;
     }
   
-    set type(tpe) {
+    setType(tpe) {
       this._type = tpe;
     }
     get type() {
       return this._type;
     }
   
-    set spotAngle(val) {
+    setSpotAngle(val) {
       this._spotAngle = val;
       this._spotUniform[0] = Math.cos(this._spotAngle * 0.5);
     }
@@ -10741,7 +10792,7 @@ module.exports = (function () {
       return this._spotAngle;
     }
   
-    set spotExp(val) {
+    setSpotExp(val) {
       this._spotExp = val;
       this._spotUniform[1] = val;
     }
@@ -10749,11 +10800,131 @@ module.exports = (function () {
       return this._spotExp;
     }
   
-    set range(tpe) {
+    setRange(tpe) {
       this._range = tpe;
     }
     get range() {
       return this._range;
+    }
+  
+    setShadowType(type) {
+      if (this._shadowType === enums.SHADOW_NONE && type !== enums.SHADOW_NONE) {
+        this._shadowMapDirty = true;
+      }
+      this._shadowType = type;
+    }
+    get shadowType() {
+      return this._shadowType;
+    }
+  
+    get shadowMap() {
+      return this._shadowMap;
+    }
+  
+    get viewProjMatrix() {
+      return this._viewProjMatrix;
+    }
+  
+    setShadowResolution(val) {
+      if (this._shadowResolution !== val) {
+        this._shadowMapDirty = true;
+      }
+      this._shadowResolution = val;
+    }
+    get shadowResolution() {
+      return this._shadowResolution;
+    }
+  
+    setShadowBias(val) {
+      this._shadowBias = val;
+    }
+    get shadowBias() {
+      return this._shadowBias;
+    }
+  
+    setShadowDarkness(val) {
+      this._shadowDarkness = val;
+    }
+    get shadowDarkness() {
+      return this._shadowDarkness;
+    }
+  
+    setShadowMinDepth(val) {
+      this._shadowMinDepth = val;
+    }
+    get shadowMinDepth() {
+      if (this._type === enums.LIGHT_DIRECTIONAL) {
+        return 1.0;
+      }
+      return this._shadowMinDepth;
+    }
+  
+    setShadowMaxDepth(val) {
+      this._shadowMaxDepth = val;
+    }
+    get shadowMaxDepth() {
+      if (this._type === enums.LIGHT_DIRECTIONAL) {
+        return 1.0;
+      }
+      return this._shadowMaxDepth;
+    }
+  
+    setShadowDepthScale(val) {
+      this._shadowDepthScale = val;
+    }
+    get shadowDepthScale() {
+      return this._shadowDepthScale;
+    }
+  
+    setFrustumEdgeFalloff(val) {
+      this._frustumEdgeFalloff = val;
+    }
+    get frustumEdgeFalloff() {
+      return this._frustumEdgeFalloff;
+    }
+  
+    extractView(out, stages) {
+      // TODO: view should not handle light.
+      out._shadowLight = this;
+  
+      // rect
+      out._rect.x = 0;
+      out._rect.y = 0;
+      out._rect.w = this._shadowResolution;
+      out._rect.h = this._shadowResolution;
+  
+      // clear opts
+      color4.set(out._color, 1, 1, 1, 1);
+      out._depth = 1;
+      out._stencil = 1;
+      out._clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;
+  
+      // stages & framebuffer
+      out._stages = stages;
+      out._framebuffer = this._shadowFrameBuffer;
+  
+      // view projection matrix
+      switch(this._type) {
+        case enums.LIGHT_SPOT:
+          _computeSpotLightViewProjMatrix(this, out._matView, out._matProj);
+          break;
+  
+        case enums.LIGHT_DIRECTIONAL:
+          _computeDirectionalLightViewProjMatrix(this, out._matView, out._matProj);
+          break;
+  
+        case enums.LIGHT_POINT:
+          _computePointLightViewProjMatrix(this, out._matView, out._matProj);
+          break;
+  
+        default:
+          console.warn('shadow of this light type is not supported');
+      }
+  
+      // view-projection
+      mat4.mul(out._matViewProj, out._matProj, out._matView);
+      this._viewProjMatrix = out._matViewProj;
+      mat4.invert(out._matInvViewProj, out._matViewProj);
     }
   
     _updateLightPositionAndDirection() {
@@ -10767,8 +10938,47 @@ module.exports = (function () {
       pos[2] = _m4_tmp$1.m14;
     }
   
-    update() {
+    _generateShadowMap(device) {
+      this._shadowMap = new gfx.Texture2D(device, {
+        width: this._shadowResolution,
+        height: this._shadowResolution,
+        format: gfx.TEXTURE_FMT_RGBA8,
+        wrapS: gfx.WRAP_CLAMP,
+        wrapT: gfx.WRAP_CLAMP,
+      });
+      this._shadowDepthBuffer = new gfx.RenderBuffer(device,
+        gfx.RB_FMT_D16,
+        this._shadowResolution,
+        this._shadowResolution
+      );
+      this._shadowFrameBuffer = new gfx.FrameBuffer(device, this._shadowResolution, this._shadowResolution, {
+        colors: [this._shadowMap],
+        depth: this._shadowDepthBuffer,
+      });
+    }
+  
+    _destroyShadowMap() {
+      if (this._shadowMap) {
+        this._shadowMap.destroy();
+        this._shadowDepthBuffer.destroy();
+        this._shadowFrameBuffer.destroy();
+        this._shadowMap = null;
+        this._shadowDepthBuffer = null;
+        this._shadowFrameBuffer = null;
+      }
+    }
+  
+    update(device) {
       this._updateLightPositionAndDirection();
+  
+      if (this._shadowType === enums.SHADOW_NONE) {
+        this._destroyShadowMap();
+      } else if (this._shadowMapDirty) {
+        this._destroyShadowMap();
+        this._generateShadowMap(device);
+        this._shadowMapDirty = false;
+      }
+  
     }
   }
   
@@ -10792,6 +11002,10 @@ module.exports = (function () {
       this._stencil = 1;
       this._clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;
   
+      // stages & framebuffer
+      this._stages = [];
+      this._framebuffer = null;
+  
       // projection properties
       this._near = 0.01;
       this._far = 1000.0;
@@ -10803,7 +11017,32 @@ module.exports = (function () {
   
       // ortho properties
       this._orthoHeight = 10;
-      this._stages = [];
+    }
+  
+    setNode(node) {
+      this._node = node;
+    }
+  
+    setType(type) {
+      this._projection = type;
+    }
+  
+    setFov(fov) {
+      this._fov = fov;
+    }
+  
+    setNear(near) {
+      this._near = near;
+    }
+    getNear() {
+      return this._near;
+    }
+  
+    setFar(far) {
+      this._far = far;
+    }
+    getFar() {
+      return this._far;
     }
   
     setColor(r, g, b, a) {
@@ -10820,10 +11059,6 @@ module.exports = (function () {
   
     setClearFlags(flags) {
       this._clearFlags = flags;
-    }
-  
-    setNode(node) {
-      this._node = node;
     }
   
     /**
@@ -10843,6 +11078,10 @@ module.exports = (function () {
       this._stages = stages;
     }
   
+    setFramebuffer(framebuffer) {
+      this._framebuffer = framebuffer;
+    }
+  
     extractView(out, width, height) {
       // rect
       out._rect.x = this._rect.x * width;
@@ -10855,6 +11094,10 @@ module.exports = (function () {
       out._depth = this._depth;
       out._stencil = this._stencil;
       out._clearFlags = this._clearFlags;
+  
+      // stages & framebuffer
+      out._stages = this._stages;
+      out._framebuffer = this._framebuffer;
   
       // view matrix
       this._node.getWorldRT(out._matView);
@@ -10881,9 +11124,6 @@ module.exports = (function () {
       // view-projection
       mat4.mul(out._matViewProj, out._matProj, out._matView);
       mat4.invert(out._matInvViewProj, out._matViewProj);
-  
-      // stages
-      out._stages = this._stages;
     }
   
     screenToWorld(out, screenPos, width, height) {
@@ -12357,623 +12597,6 @@ module.exports = (function () {
     }
   }
   
-  /*!
-   * mustache.js - Logic-less {{mustache}} templates with JavaScript
-   * http://github.com/janl/mustache.js
-   */
-  
-  let mustache = {};
-  
-  var objectToString = Object.prototype.toString;
-  var isArray = Array.isArray || function isArrayPolyfill(object) {
-    return objectToString.call(object) === '[object Array]';
-  };
-  
-  function isFunction(object) {
-    return typeof object === 'function';
-  }
-  
-  /**
-   * More correct typeof string handling array
-   * which normally returns typeof 'object'
-   */
-  function typeStr(obj) {
-    return isArray(obj) ? 'array' : typeof obj;
-  }
-  
-  function escapeRegExp(string) {
-    return string.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
-  }
-  
-  /**
-   * Null safe way of checking whether or not an object,
-   * including its prototype, has a given property
-   */
-  function hasProperty(obj, propName) {
-    return obj != null && typeof obj === 'object' && (propName in obj);
-  }
-  
-  // Workaround for https://issues.apache.org/jira/browse/COUCHDB-577
-  // See https://github.com/janl/mustache.js/issues/189
-  var regExpTest = RegExp.prototype.test;
-  function testRegExp(re, string) {
-    return regExpTest.call(re, string);
-  }
-  
-  var nonSpaceRe = /\S/;
-  function isWhitespace(string) {
-    return !testRegExp(nonSpaceRe, string);
-  }
-  
-  var entityMap = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;',
-    '/': '&#x2F;',
-    '`': '&#x60;',
-    '=': '&#x3D;'
-  };
-  
-  function escapeHtml(string) {
-    return String(string).replace(/[&<>"'`=\/]/g, function fromEntityMap(s) {
-      return entityMap[s];
-    });
-  }
-  
-  var whiteRe = /\s*/;
-  var spaceRe = /\s+/;
-  var equalsRe = /\s*=/;
-  var curlyRe = /\s*\}/;
-  var tagRe = /#|\^|\/|>|\{|&|=|!/;
-  
-  /**
-   * Breaks up the given `template` string into a tree of tokens. If the `tags`
-   * argument is given here it must be an array with two string values: the
-   * opening and closing tags used in the template (e.g. [ "<%", "%>" ]). Of
-   * course, the default is to use mustaches (i.e. mustache.tags).
-   *
-   * A token is an array with at least 4 elements. The first element is the
-   * mustache symbol that was used inside the tag, e.g. "#" or "&". If the tag
-   * did not contain a symbol (i.e. {{myValue}}) this element is "name". For
-   * all text that appears outside a symbol this element is "text".
-   *
-   * The second element of a token is its "value". For mustache tags this is
-   * whatever else was inside the tag besides the opening symbol. For text tokens
-   * this is the text itself.
-   *
-   * The third and fourth elements of the token are the start and end indices,
-   * respectively, of the token in the original template.
-   *
-   * Tokens that are the root node of a subtree contain two more elements: 1) an
-   * array of tokens in the subtree and 2) the index in the original template at
-   * which the closing tag for that section begins.
-   */
-  function parseTemplate(template, tags) {
-    if (!template)
-      return [];
-  
-    var sections = [];     // Stack to hold section tokens
-    var tokens = [];       // Buffer to hold the tokens
-    var spaces = [];       // Indices of whitespace tokens on the current line
-    var hasTag = false;    // Is there a {{tag}} on the current line?
-    var nonSpace = false;  // Is there a non-space char on the current line?
-  
-    // Strips all whitespace tokens array for the current line
-    // if there was a {{#tag}} on it and otherwise only space.
-    function stripSpace() {
-      if (hasTag && !nonSpace) {
-        while (spaces.length)
-          delete tokens[spaces.pop()];
-      } else {
-        spaces = [];
-      }
-  
-      hasTag = false;
-      nonSpace = false;
-    }
-  
-    var openingTagRe, closingTagRe, closingCurlyRe;
-    function compileTags(tagsToCompile) {
-      if (typeof tagsToCompile === 'string')
-        tagsToCompile = tagsToCompile.split(spaceRe, 2);
-  
-      if (!isArray(tagsToCompile) || tagsToCompile.length !== 2)
-        throw new Error('Invalid tags: ' + tagsToCompile);
-  
-      openingTagRe = new RegExp(escapeRegExp(tagsToCompile[0]) + '\\s*');
-      closingTagRe = new RegExp('\\s*' + escapeRegExp(tagsToCompile[1]));
-      closingCurlyRe = new RegExp('\\s*' + escapeRegExp('}' + tagsToCompile[1]));
-    }
-  
-    compileTags(tags || mustache.tags);
-  
-    var scanner = new Scanner(template);
-  
-    var start, type, value, chr, token, openSection;
-    while (!scanner.eos()) {
-      start = scanner.pos;
-  
-      // Match any text between tags.
-      value = scanner.scanUntil(openingTagRe);
-  
-      if (value) {
-        for (var i = 0, valueLength = value.length; i < valueLength; ++i) {
-          chr = value.charAt(i);
-  
-          if (isWhitespace(chr)) {
-            spaces.push(tokens.length);
-          } else {
-            nonSpace = true;
-          }
-  
-          tokens.push(['text', chr, start, start + 1]);
-          start += 1;
-  
-          // Check for whitespace on the current line.
-          if (chr === '\n')
-            stripSpace();
-        }
-      }
-  
-      // Match the opening tag.
-      if (!scanner.scan(openingTagRe))
-        break;
-  
-      hasTag = true;
-  
-      // Get the tag type.
-      type = scanner.scan(tagRe) || 'name';
-      scanner.scan(whiteRe);
-  
-      // Get the tag value.
-      if (type === '=') {
-        value = scanner.scanUntil(equalsRe);
-        scanner.scan(equalsRe);
-        scanner.scanUntil(closingTagRe);
-      } else if (type === '{') {
-        value = scanner.scanUntil(closingCurlyRe);
-        scanner.scan(curlyRe);
-        scanner.scanUntil(closingTagRe);
-        type = '&';
-      } else {
-        value = scanner.scanUntil(closingTagRe);
-      }
-  
-      // Match the closing tag.
-      if (!scanner.scan(closingTagRe))
-        throw new Error('Unclosed tag at ' + scanner.pos);
-  
-      token = [type, value, start, scanner.pos];
-      tokens.push(token);
-  
-      if (type === '#' || type === '^') {
-        sections.push(token);
-      } else if (type === '/') {
-        // Check section nesting.
-        openSection = sections.pop();
-  
-        if (!openSection)
-          throw new Error('Unopened section "' + value + '" at ' + start);
-  
-        if (openSection[1] !== value)
-          throw new Error('Unclosed section "' + openSection[1] + '" at ' + start);
-      } else if (type === 'name' || type === '{' || type === '&') {
-        nonSpace = true;
-      } else if (type === '=') {
-        // Set the tags for the next time around.
-        compileTags(value);
-      }
-    }
-  
-    // Make sure there are no open sections when we're done.
-    openSection = sections.pop();
-  
-    if (openSection)
-      throw new Error('Unclosed section "' + openSection[1] + '" at ' + scanner.pos);
-  
-    return nestTokens(squashTokens(tokens));
-  }
-  
-  /**
-   * Combines the values of consecutive text tokens in the given `tokens` array
-   * to a single token.
-   */
-  function squashTokens(tokens) {
-    var squashedTokens = [];
-  
-    var token, lastToken;
-    for (var i = 0, numTokens = tokens.length; i < numTokens; ++i) {
-      token = tokens[i];
-  
-      if (token) {
-        if (token[0] === 'text' && lastToken && lastToken[0] === 'text') {
-          lastToken[1] += token[1];
-          lastToken[3] = token[3];
-        } else {
-          squashedTokens.push(token);
-          lastToken = token;
-        }
-      }
-    }
-  
-    return squashedTokens;
-  }
-  
-  /**
-   * Forms the given array of `tokens` into a nested tree structure where
-   * tokens that represent a section have two additional items: 1) an array of
-   * all tokens that appear in that section and 2) the index in the original
-   * template that represents the end of that section.
-   */
-  function nestTokens(tokens) {
-    var nestedTokens = [];
-    var collector = nestedTokens;
-    var sections = [];
-  
-    var token, section;
-    for (var i = 0, numTokens = tokens.length; i < numTokens; ++i) {
-      token = tokens[i];
-  
-      switch (token[0]) {
-        case '#':
-        case '^':
-          collector.push(token);
-          sections.push(token);
-          collector = token[4] = [];
-          break;
-        case '/':
-          section = sections.pop();
-          section[5] = token[2];
-          collector = sections.length > 0 ? sections[sections.length - 1][4] : nestedTokens;
-          break;
-        default:
-          collector.push(token);
-      }
-    }
-  
-    return nestedTokens;
-  }
-  
-  /**
-   * A simple string scanner that is used by the template parser to find
-   * tokens in template strings.
-   */
-  function Scanner(string) {
-    this.string = string;
-    this.tail = string;
-    this.pos = 0;
-  }
-  
-  /**
-   * Returns `true` if the tail is empty (end of string).
-   */
-  Scanner.prototype.eos = function eos() {
-    return this.tail === '';
-  };
-  
-  /**
-   * Tries to match the given regular expression at the current position.
-   * Returns the matched text if it can match, the empty string otherwise.
-   */
-  Scanner.prototype.scan = function scan(re) {
-    var match = this.tail.match(re);
-  
-    if (!match || match.index !== 0)
-      return '';
-  
-    var string = match[0];
-  
-    this.tail = this.tail.substring(string.length);
-    this.pos += string.length;
-  
-    return string;
-  };
-  
-  /**
-   * Skips all text until the given regular expression can be matched. Returns
-   * the skipped string, which is the entire tail if no match can be made.
-   */
-  Scanner.prototype.scanUntil = function scanUntil(re) {
-    var index = this.tail.search(re), match;
-  
-    switch (index) {
-      case -1:
-        match = this.tail;
-        this.tail = '';
-        break;
-      case 0:
-        match = '';
-        break;
-      default:
-        match = this.tail.substring(0, index);
-        this.tail = this.tail.substring(index);
-    }
-  
-    this.pos += match.length;
-  
-    return match;
-  };
-  
-  /**
-   * Represents a rendering context by wrapping a view object and
-   * maintaining a reference to the parent context.
-   */
-  function Context(view, parentContext) {
-    this.view = view;
-    this.cache = { '.': this.view };
-    this.parent = parentContext;
-  }
-  
-  /**
-   * Creates a new context using the given view with this context
-   * as the parent.
-   */
-  Context.prototype.push = function push(view) {
-    return new Context(view, this);
-  };
-  
-  /**
-   * Returns the value of the given name in this context, traversing
-   * up the context hierarchy if the value is absent in this context's view.
-   */
-  Context.prototype.lookup = function lookup(name) {
-    var cache = this.cache;
-  
-    var value;
-    if (cache.hasOwnProperty(name)) {
-      value = cache[name];
-    } else {
-      var context = this, names, index, lookupHit = false;
-  
-      while (context) {
-        if (name.indexOf('.') > 0) {
-          value = context.view;
-          names = name.split('.');
-          index = 0;
-  
-          /**
-           * Using the dot notion path in `name`, we descend through the
-           * nested objects.
-           *
-           * To be certain that the lookup has been successful, we have to
-           * check if the last object in the path actually has the property
-           * we are looking for. We store the result in `lookupHit`.
-           *
-           * This is specially necessary for when the value has been set to
-           * `undefined` and we want to avoid looking up parent contexts.
-           **/
-          while (value != null && index < names.length) {
-            if (index === names.length - 1)
-              lookupHit = hasProperty(value, names[index]);
-  
-            value = value[names[index++]];
-          }
-        } else {
-          value = context.view[name];
-          lookupHit = hasProperty(context.view, name);
-        }
-  
-        if (lookupHit)
-          break;
-  
-        context = context.parent;
-      }
-  
-      cache[name] = value;
-    }
-  
-    if (isFunction(value))
-      value = value.call(this.view);
-  
-    return value;
-  };
-  
-  /**
-   * A Writer knows how to take a stream of tokens and render them to a
-   * string, given a context. It also maintains a cache of templates to
-   * avoid the need to parse the same template twice.
-   */
-  function Writer() {
-    this.cache = {};
-  }
-  
-  /**
-   * Clears all cached templates in this writer.
-   */
-  Writer.prototype.clearCache = function clearCache() {
-    this.cache = {};
-  };
-  
-  /**
-   * Parses and caches the given `template` and returns the array of tokens
-   * that is generated from the parse.
-   */
-  Writer.prototype.parse = function parse(template, tags) {
-    var cache = this.cache;
-    var tokens = cache[template];
-  
-    if (tokens == null)
-      tokens = cache[template] = parseTemplate(template, tags);
-  
-    return tokens;
-  };
-  
-  /**
-   * High-level method that is used to render the given `template` with
-   * the given `view`.
-   *
-   * The optional `partials` argument may be an object that contains the
-   * names and templates of partials that are used in the template. It may
-   * also be a function that is used to load partial templates on the fly
-   * that takes a single argument: the name of the partial.
-   */
-  Writer.prototype.render = function render(template, view, partials) {
-    var tokens = this.parse(template);
-    var context = (view instanceof Context) ? view : new Context(view);
-    return this.renderTokens(tokens, context, partials, template);
-  };
-  
-  /**
-   * Low-level method that renders the given array of `tokens` using
-   * the given `context` and `partials`.
-   *
-   * Note: The `originalTemplate` is only ever used to extract the portion
-   * of the original template that was contained in a higher-order section.
-   * If the template doesn't use higher-order sections, this argument may
-   * be omitted.
-   */
-  Writer.prototype.renderTokens = function renderTokens(tokens, context, partials, originalTemplate) {
-    var buffer = '';
-  
-    var token, symbol, value;
-    for (var i = 0, numTokens = tokens.length; i < numTokens; ++i) {
-      value = undefined;
-      token = tokens[i];
-      symbol = token[0];
-  
-      if (symbol === '#') value = this.renderSection(token, context, partials, originalTemplate);
-      else if (symbol === '^') value = this.renderInverted(token, context, partials, originalTemplate);
-      else if (symbol === '>') value = this.renderPartial(token, context, partials, originalTemplate);
-      else if (symbol === '&') value = this.unescapedValue(token, context);
-      else if (symbol === 'name') value = this.escapedValue(token, context);
-      else if (symbol === 'text') value = this.rawValue(token);
-  
-      if (value !== undefined)
-        buffer += value;
-    }
-  
-    return buffer;
-  };
-  
-  Writer.prototype.renderSection = function renderSection(token, context, partials, originalTemplate) {
-    var self = this;
-    var buffer = '';
-    var value = context.lookup(token[1]);
-  
-    // This function is used to render an arbitrary template
-    // in the current context by higher-order sections.
-    function subRender(template) {
-      return self.render(template, context, partials);
-    }
-  
-    if (!value) return;
-  
-    if (isArray(value)) {
-      for (var j = 0, valueLength = value.length; j < valueLength; ++j) {
-        buffer += this.renderTokens(token[4], context.push(value[j]), partials, originalTemplate);
-      }
-    } else if (typeof value === 'object' || typeof value === 'string' || typeof value === 'number') {
-      buffer += this.renderTokens(token[4], context.push(value), partials, originalTemplate);
-    } else if (isFunction(value)) {
-      if (typeof originalTemplate !== 'string')
-        throw new Error('Cannot use higher-order sections without the original template');
-  
-      // Extract the portion of the original template that the section contains.
-      value = value.call(context.view, originalTemplate.slice(token[3], token[5]), subRender);
-  
-      if (value != null)
-        buffer += value;
-    } else {
-      buffer += this.renderTokens(token[4], context, partials, originalTemplate);
-    }
-    return buffer;
-  };
-  
-  Writer.prototype.renderInverted = function renderInverted(token, context, partials, originalTemplate) {
-    var value = context.lookup(token[1]);
-  
-    // Use JavaScript's definition of falsy. Include empty arrays.
-    // See https://github.com/janl/mustache.js/issues/186
-    if (!value || (isArray(value) && value.length === 0))
-      return this.renderTokens(token[4], context, partials, originalTemplate);
-  };
-  
-  Writer.prototype.renderPartial = function renderPartial(token, context, partials) {
-    if (!partials) return;
-  
-    var value = isFunction(partials) ? partials(token[1]) : partials[token[1]];
-    if (value != null)
-      return this.renderTokens(this.parse(value), context, partials, value);
-  };
-  
-  Writer.prototype.unescapedValue = function unescapedValue(token, context) {
-    var value = context.lookup(token[1]);
-    if (value != null)
-      return value;
-  };
-  
-  Writer.prototype.escapedValue = function escapedValue(token, context) {
-    var value = context.lookup(token[1]);
-    if (value != null)
-      return mustache.escape(value);
-  };
-  
-  Writer.prototype.rawValue = function rawValue(token) {
-    return token[1];
-  };
-  
-  mustache.name = 'mustache.js';
-  mustache.version = '2.3.0';
-  mustache.tags = ['{{', '}}'];
-  
-  // All high-level mustache.* functions use this writer.
-  var defaultWriter = new Writer();
-  
-  /**
-   * Clears all cached templates in the default writer.
-   */
-  mustache.clearCache = function clearCache() {
-    return defaultWriter.clearCache();
-  };
-  
-  /**
-   * Parses and caches the given template in the default writer and returns the
-   * array of tokens it contains. Doing this ahead of time avoids the need to
-   * parse templates on the fly as they are rendered.
-   */
-  mustache.parse = function parse(template, tags) {
-    return defaultWriter.parse(template, tags);
-  };
-  
-  /**
-   * Renders the `template` with the given `view` and `partials` using the
-   * default writer.
-   */
-  mustache.render = function render(template, view, partials) {
-    if (typeof template !== 'string') {
-      throw new TypeError('Invalid template! Template should be a "string" ' +
-        'but "' + typeStr(template) + '" was given as the first ' +
-        'argument for mustache#render(template, view, partials)');
-    }
-  
-    return defaultWriter.render(template, view, partials);
-  };
-  
-  // This is here for backwards compatibility with 0.4.x.,
-  /*eslint-disable */ // eslint wants camel cased function name
-  mustache.to_html = function to_html(template, view, partials, send) {
-    /*eslint-enable*/
-  
-    var result = mustache.render(template, view, partials);
-  
-    if (isFunction(send)) {
-      send(result);
-    } else {
-      return result;
-    }
-  };
-  
-  // Export the escaping function so that the user may override it.
-  // See https://github.com/janl/mustache.js/issues/244
-  mustache.escape = escapeHtml;
-  
-  // Export these mainly for testing, but also for advanced usage.
-  mustache.Scanner = Scanner;
-  mustache.Context = Context;
-  mustache.Writer = Writer;
-  
   var builtinChunks = {
     'skinning.vert': 'attribute vec4 a_weights;\nattribute vec4 a_joints;\nuniform sampler2D u_jointsTexture;\nuniform float u_jointsTextureSize;\nmat4 getBoneMatrix(const in float i) {\n  float size = u_jointsTextureSize;\n  float j = i * 4.0;\n  float x = mod(j, size);\n  float y = floor(j / size);\n  float dx = 1.0 / size;\n  float dy = 1.0 / size;\n  y = dy * (y + 0.5);\n  vec4 v1 = texture2D(u_jointsTexture, vec2(dx * (x + 0.5), y));\n  vec4 v2 = texture2D(u_jointsTexture, vec2(dx * (x + 1.5), y));\n  vec4 v3 = texture2D(u_jointsTexture, vec2(dx * (x + 2.5), y));\n  vec4 v4 = texture2D(u_jointsTexture, vec2(dx * (x + 3.5), y));\n  return mat4(v1, v2, v3, v4);\n}\nmat4 skinMatrix() {\n  return\n    getBoneMatrix(a_joints.x) * a_weights.x +\n    getBoneMatrix(a_joints.y) * a_weights.y +\n    getBoneMatrix(a_joints.z) * a_weights.z +\n    getBoneMatrix(a_joints.w) * a_weights.w\n    ;\n}',
     'unpack-normal.frag': 'vec3 unpackNormal(vec4 nmap) {\n  return nmap.xyz * 2.0 - 1.0;\n}',
@@ -12982,8 +12605,8 @@ module.exports = (function () {
   var builtinTemplates = [
     {
       name: 'simple',
-      vert: '\nattribute vec3 a_position;\nuniform mat4 model;\nuniform mat4 viewProj;\n{{#useTexture}}\n  attribute vec2 a_uv0;\n  varying vec2 uv0;\n{{/useTexture}}\nvoid main () {\n  vec4 pos = viewProj * model * vec4(a_position, 1);\n  {{#useTexture}}\n    uv0 = a_uv0;\n  {{/useTexture}}\n  gl_Position = pos;\n}',
-      frag: '\n{{#useTexture}}\n  uniform sampler2D texture;\n  varying vec2 uv0;\n{{/useTexture}}\n{{#useColor}}\n  uniform vec4 color;\n{{/useColor}}\nvoid main () {\n  vec4 o = vec4(1, 1, 1, 1);\n  {{#useTexture}}\n    o *= texture2D(texture, uv0);\n  {{/useTexture}}\n  {{#useColor}}\n    o *= color;\n  {{/useColor}}\n  if (!gl_FrontFacing) {\n    o.rgb *= 0.5;\n  }\n  gl_FragColor = o;\n}',
+      vert: '\nattribute vec3 a_position;\nuniform mat4 model;\nuniform mat4 viewProj;\n#ifdef useTexture\n  attribute vec2 a_uv0;\n  varying vec2 uv0;\n#endif\nvoid main () {\n  vec4 pos = viewProj * model * vec4(a_position, 1);\n  #ifdef useTexture\n    uv0 = a_uv0;\n  #endif\n  gl_Position = pos;\n}',
+      frag: '\n#ifdef useTexture\n  uniform sampler2D texture;\n  varying vec2 uv0;\n#endif\n#ifdef useColor\n  uniform vec4 color;\n#endif\nvoid main () {\n  vec4 o = vec4(1, 1, 1, 1);\n  #ifdef useTexture\n    o *= texture2D(texture, uv0);\n  #endif\n  #ifdef useColor\n    o *= color;\n  #endif\n  if (!gl_FrontFacing) {\n    o.rgb *= 0.5;\n  }\n  gl_FragColor = o;\n}',
       options: [
         { name: 'useTexture', },
         { name: 'useColor', },
@@ -12992,6 +12615,48 @@ module.exports = (function () {
   ];
   
   let _shdID = 0;
+  
+  function _generateDefines(options) {
+    let defines = [];
+    for (let opt in options) {
+      if (options[opt] === true) {
+        defines.push(`#define ${opt}`);
+      }
+    }
+    return defines.join('\n');
+  }
+  
+  function _replaceMacroNums(string, options) {
+    let cache = {};
+    let tmp = string;
+    for (let opt in options) {
+      if (Number.isInteger(options[opt])) {
+        cache[opt] = options[opt];
+      }
+    }
+    for (let opt in cache) {
+      let reg = new RegExp(opt, 'g');
+      tmp = tmp.replace(reg, cache[opt]);
+    }
+    return tmp;
+  }
+  
+  function _unrollLoops(string) {
+    let pattern = /#pragma for (\w+) in range\(\s*(\d+)\s*,\s*(\d+)\s*\)([\s\S]+?)#pragma endFor/g;
+    function replace(match, index, begin, end, snippet) {
+      let unroll = '';
+      let parsedBegin = parseInt(begin);
+      let parsedEnd = parseInt(end);
+      if (parsedBegin.isNaN || parsedEnd.isNaN) {
+        console.error('Unroll For Loops Error: begin and end of range must be an int num.');
+      }
+      for (let i = parsedBegin; i < parsedEnd; ++i) {
+        unroll += snippet.replace(new RegExp(`{${index}}`, 'g'), i);
+      }
+      return unroll;
+    }
+    return string.replace(pattern, replace);
+  }
   
   class ProgramLib {
     /**
@@ -13072,10 +12737,6 @@ module.exports = (function () {
       vert = this._precision + vert;
       frag = this._precision + frag;
   
-      // pre-parse the vs and fs template to speed up `mustache.render()` method
-      mustache.parse(vert);
-      mustache.parse(frag);
-  
       // store it
       this._templates[name] = {
         id,
@@ -13119,8 +12780,11 @@ module.exports = (function () {
   
       // get template
       let tmpl = this._templates[name];
-      let vert = mustache.render(tmpl.vert, options, this._chunks);
-      let frag = mustache.render(tmpl.frag, options, this._chunks);
+      let customDef = _generateDefines(options) + '\n';
+      let vert = _replaceMacroNums(tmpl.vert, options);
+      vert = customDef + _unrollLoops(vert);
+      let frag = _replaceMacroNums(tmpl.frag, options);
+      frag = customDef + _unrollLoops(frag);
   
       program = new gfx.Program(this._device, {
         vert,
@@ -13436,6 +13100,7 @@ module.exports = (function () {
         [enums.PARAM_TEXTURE_CUBE]: opts.defaultTextureCube,
       };
       this._stage2fn = {};
+      this._usedTextureUnits = 0;
   
       this._viewPools = new RecyclePool(() => {
         return new View();
@@ -13466,6 +13131,22 @@ module.exports = (function () {
       }, 16);
     }
   
+    _resetTextuerUnit() {
+      this._usedTextureUnits = 0;
+    }
+  
+    _allocTextuerUnit() {
+      const device = this._device;
+  
+      let unit = this._usedTextureUnits;
+      if (unit >= device._caps.maxTextureUnits) {
+        console.warn(`Trying to use ${unit} texture units while this GPU supports only ${device._caps.maxTextureUnits}`);
+      }
+  
+      this._usedTextureUnits += 1;
+      return unit;
+    }
+  
     _registerStage(name, fn) {
       this._stage2fn[name] = fn;
     }
@@ -13481,6 +13162,9 @@ module.exports = (function () {
   
     _render(view, scene) {
       const device = this._device;
+  
+      // setup framebuffer
+      device.setFrameBuffer(view._framebuffer);
   
       // setup viewport
       device.setViewport(
@@ -13603,7 +13287,6 @@ module.exports = (function () {
       // }
   
       // set technique uniforms
-      let slot = 0;
       for (let i = 0; i < technique._parameters.length; ++i) {
         let prop = technique._parameters[i];
         let param = effect.getValue(prop.name);
@@ -13632,13 +13315,11 @@ module.exports = (function () {
             }
             let slots = _int64_pool.add();
             for (let index = 0; index < param.length; ++index) {
-              slots[index] = slot + index;
+              slots[index] = this._allocTextuerUnit();
             }
             device.setTextureArray(prop.name, param, slots);
-            slot = slot + prop.size;
           } else {
-            device.setTexture(prop.name, param, slot);
-            ++slot;
+            device.setTexture(prop.name, param, this._allocTextuerUnit());
           }
         } else {
           let convertedValue;
@@ -13742,6 +13423,8 @@ module.exports = (function () {
   
         // draw pass
         device.draw(ia._start, count);
+  
+        this._resetTextuerUnit();
       }
     }
   }
@@ -13805,13 +13488,14 @@ module.exports = (function () {
       // draw it
       for (let i = 0; i < items.length; ++i) {
         let item = items.data[i];
-        var ia = item.ia;
-        var vb = ia._vertexBuffer;
-        var ib = ia._indexBuffer;
-        if (vb && ib) {
-          vb.update(0, vb._data);
-          ib.update(0, ib._data);
-        }
+  
+        // Update vertex buffer and index buffer
+        let ia = item.ia;
+        let vb = ia._vertexBuffer;
+        let ib = ia._indexBuffer;
+        vb.update(0, vb._data);
+        ib.update(0, ib._data);
+  
         this._draw(item);
       }
     }
@@ -14068,11 +13752,12 @@ module.exports = (function () {
   var templates = [
     {
       name: 'sprite',
-      vert: 'uniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying lowp vec4 v_fragmentColor;\n{{#useModel}}\nuniform mat4 model;\n{{/useModel}}\n{{#useTexture}}\nattribute vec2 a_uv0;\nvarying vec2 uv0;\n{{/useTexture}}\nvoid main () {\n  vec4 pos = viewProj{{#useModel}} * model{{/useModel}} * vec4(a_position, 1);\n  v_fragmentColor = a_color;\n  \n  {{#useTexture}}\n  uv0 = a_uv0;\n  {{/useTexture}}\n  gl_Position = pos;\n}',
-      frag: '{{#useTexture}}\nuniform sampler2D texture;\nvarying vec2 uv0;\n{{/useTexture}}\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 o = v_fragmentColor;\n  {{#useTexture}}\n  o *= texture2D(texture, uv0);\n  {{/useTexture}}\n  gl_FragColor = o;\n}',
+      vert: 'uniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying lowp vec4 v_fragmentColor;\n#ifdef useModel\n  uniform mat4 model;\n#endif\n#ifdef useTexture\n  attribute vec2 a_uv0;\n  varying vec2 uv0;\n#endif\nvoid main () {\n  vec4 pos;\n  #ifdef useModel\n    pos = model * vec4(a_position, 1);\n  #else\n    pos = vec4(a_position, 1);\n  #endif\n  pos = viewProj * pos;\n  v_fragmentColor = a_color;\n  \n  #ifdef useTexture\n    uv0 = a_uv0;\n  #endif\n  gl_Position = pos;\n}',
+      frag: '#ifdef useTexture\n  uniform sampler2D texture;\n  varying vec2 uv0;\n#endif\n#ifdef alphaTest\n  uniform float alphaThreshold;\n#endif\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 o = v_fragmentColor;\n  #ifdef useTexture\n    o *= texture2D(texture, uv0);\n  #endif\n  #ifdef alphaTest\n    if (o.a <= alphaThreshold)\n      discard;\n  #endif\n  gl_FragColor = o;\n}',
       options: [
         { name: 'useTexture', },
         { name: 'useModel', },
+        { name: 'alphaTest', },
       ],
     },
   ];
@@ -14174,6 +13859,7 @@ module.exports = (function () {
         x: 0, y: 0, w: 1, h: 1
       };
       this._stages = [];
+      this._framebuffer = null;
   
       // matrix
       this._matView = mat4.create();
@@ -14205,6 +13891,10 @@ module.exports = (function () {
   
     setStages(stages) {
       this._stages = stages;
+    }
+  
+    setFramebuffer(framebuffer) {
+      this._framebuffer = framebuffer;
     }
   
     setNode (node) {
@@ -14270,8 +13960,7 @@ module.exports = (function () {
       x: 0.0,
       y: 0.0,
       u: 0.0,
-      v: 0.0,
-      color: 0
+      v: 0.0
     };
   }, 128);
   
@@ -14366,6 +14055,34 @@ module.exports = (function () {
     }
   }
   
+  class MaterialUtil {
+    constructor () {
+        this._cache = {};
+    }
+  
+    get (key) {
+      return this._cache[key];
+    }
+  
+    register (key, material) {
+      if (key === undefined || this._cache[key]) {
+          console.warn("Material key is invalid or already exists");
+      }
+      else if (!material instanceof Material) {
+          console.warn("Invalid Material");
+      }
+      else {
+          this._cache[key] = material;
+      }
+    }
+  
+    unregister (key) {
+      if (key !== undefined) {
+          delete this._cache[key];
+      }
+    }
+  }
+  
   class SpriteMaterial extends Material {
     constructor() {
       super(false);
@@ -14398,6 +14115,7 @@ module.exports = (function () {
         [
           { name: 'useTexture', value: true },
           { name: 'useModel', value: false },
+          { name: 'alphaTest', value: false },
         ]
       );
       
@@ -14437,31 +14155,86 @@ module.exports = (function () {
     }
   }
   
-  class MaterialUtil {
-    constructor () {
-        this._cache = {};
+  class StencilMaterial extends Material {
+    constructor() {
+      super(false);
+  
+      this._pass = new renderer.Pass('sprite');
+      this._pass.setDepth(false, false);
+      this._pass.setCullMode(gfx.CULL_NONE);
+      this._pass.setBlend(
+        gfx.BLEND_FUNC_ADD,
+        gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA,
+        gfx.BLEND_FUNC_ADD,
+        gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA
+      );
+  
+      let mainTech = new renderer.Technique(
+        ['transparent'],
+        [
+          { name: 'texture', type: renderer.PARAM_TEXTURE_2D },
+          { name: 'alphaThreshold', type: renderer.PARAM_FLOAT },
+        ],
+        [
+          this._pass
+        ]
+      );
+  
+      this._effect = new renderer.Effect(
+        [
+          mainTech,
+        ],
+        {},
+        [
+          { name: 'useTexture', value: true },
+          { name: 'useModel', value: false },
+          { name: 'alphaTest', value: true },
+        ]
+      );
+      
+      this._mainTech = mainTech;
     }
   
-    get (key) {
-      return this._cache[key];
+    get effect () {
+      return this._effect;
+    }
+    
+    get useTexture () {
+      this._effect.getOption('useTexture', val);
     }
   
-    register (key, material) {
-      if (key === undefined || this._cache[key]) {
-          console.warn("Material key is invalid or already exists");
-      }
-      else if (!material instanceof Material) {
-          console.warn("Invalid Material");
-      }
-      else {
-          this._cache[key] = material;
-      }
+    set useTexture (val) {
+      this._effect.setOption('useTexture', val);
     }
   
-    unregister (key) {
-      if (key !== undefined) {
-          delete this._cache[key];
+    get texture () {
+      return this._effect.getValue('texture');
+    }
+  
+    set texture (val) {
+      this._effect.setValue('texture', val);
+    }
+    
+    get alphaThreshold () {
+      return this._effect.getValue('alphaThreshold');
+    }
+  
+    set alphaThreshold (val) {
+      this._effect.setValue('alphaThreshold', val);
+    }
+  
+    clone () {
+      let originValues = this._effect._values,
+          values = {};
+      for (let name in originValues) {
+        let value = originValues[name];
+        values[name] = value[name];
       }
+      let copy = new StencilMaterial(values);
+      copy.useTexture = this.useTexture;
+      copy.texture = this.texture;
+      copy.alphaThreshold = this.alphaThreshold;
+      return copy;
     }
   }
   
@@ -14493,6 +14266,7 @@ module.exports = (function () {
     
     // materials
     SpriteMaterial,
+    StencilMaterial,
   
     // shaders
     shaders,

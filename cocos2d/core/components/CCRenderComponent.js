@@ -25,6 +25,8 @@
 
 const Component = require('./CCComponent');
 const defaultVertexFormat = require('../renderer/vertex-format');
+const renderEngine = require('../renderer/render-engine');
+const RenderData = renderEngine.RenderData;
 
 /**
  * !#en
@@ -49,6 +51,19 @@ var RenderComponent = cc.Class({
         this._renderData = null;
         this._vertexFormat = defaultVertexFormat;
         this._toPostHandle = false;
+    },
+
+    onEnable () {
+        this.node._renderComponent = this;
+    },
+
+    onDisable () {
+        this.node._renderComponent = null;
+        this._material = null;
+        if (this._renderData) {
+            RenderData.free(this._renderData);
+            this._renderData = null;
+        }
     },
 
     getEffect () {

@@ -249,7 +249,7 @@ var Color = (function () {
      * @return {Number} red value.
      */
     proto.getR = function () {
-        return (this._val & 0xff000000) >>> 24;
+        return this._val & 0x000000ff;
     };
     /**
      * !#en Sets red value and return the current color object
@@ -272,7 +272,7 @@ var Color = (function () {
      * @return {Number} green value.
      */
     proto.getG = function () {
-        return (this._val & 0x00ff0000) >> 16;
+        return (this._val & 0x0000ff00) >> 8;
     };
     /**
      * !#en Sets green value and return the current color object
@@ -295,7 +295,7 @@ var Color = (function () {
      * @return {Number} blue value.
      */
     proto.getB = function () {
-        return (this._val & 0x0000ff00) >> 8;
+        return (this._val & 0x00ff0000) >> 16;
     };
     /**
      * !#en Sets blue value and return the current color object
@@ -318,7 +318,7 @@ var Color = (function () {
      * @return {Number} alpha value.
      */
     proto.getA = function () {
-        return this._val & 0x000000ff;
+        return (this._val & 0xff000000) >>> 24;
     };
     /**
      * !#en Sets alpha value and return the current color object
@@ -331,7 +331,7 @@ var Color = (function () {
      * color.setA(0); // Color {r: 0, g: 0, b: 0, a: 0}
      */
     proto.setA = function (alpha) {
-        this._val = ((this._val & 0x00ffffff) | (~~alpha<<24) >>> 0) >>> 0;
+        this._val = ((this._val & 0x00ffffff) | ((~~alpha << 24) >>> 0)) >>> 0;
         return this;
     };
 
