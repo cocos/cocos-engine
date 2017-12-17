@@ -33,7 +33,7 @@ var CustomFontDescriptor = function() {
 CustomFontDescriptor.prototype.onLoaded = function () {
     this._status = 'loaded';
     this._observers.forEach(function(item) {
-        item();
+        if (item) item();
     });
 };
 
@@ -112,6 +112,7 @@ var CustomFontLoader = {
             fontDescriptor.addHandler(callback);
             this._fontCache[fontFamilyName] = fontDescriptor;
 
+            fontFace.load();
             fontFace.loaded.then(function() {
                 fontDescriptor.onLoaded();
             });
