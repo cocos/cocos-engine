@@ -262,7 +262,7 @@ var Color = (function () {
      * color.setR(255); // Color {r: 255, g: 0, b: 0, a: 255}
      */
     proto.setR = function (red) {
-        this._val = ((this._val & 0x00ffffff) | ((~~red << 24) >>> 0)) >>> 0;
+        this._val = ((this._val & 0xffffff00) | ~~red) >>> 0;
         return this;
     };
     /**
@@ -285,7 +285,7 @@ var Color = (function () {
      * color.setG(255); // Color {r: 0, g: 255, b: 0, a: 255}
      */
     proto.setG = function (green) {
-        this._val = ((this._val & 0xff00ffff) | (~~green << 16)) >>> 0;
+        this._val = ((this._val & 0xffff00ff) | (~~green << 8)) >>> 0;
         return this;
     };
     /**
@@ -308,7 +308,7 @@ var Color = (function () {
      * color.setB(255); // Color {r: 0, g: 0, b: 255, a: 255}
      */
     proto.setB = function (blue) {
-        this._val = ((this._val & 0xffff00ff) | (~~blue << 8)) >>> 0;
+        this._val = ((this._val & 0xff00ffff) | (~~blue << 16)) >>> 0;
         return this;
     };
     /**
@@ -331,7 +331,7 @@ var Color = (function () {
      * color.setA(0); // Color {r: 0, g: 0, b: 0, a: 0}
      */
     proto.setA = function (alpha) {
-        this._val = ((this._val & 0xffffff00) | ~~alpha) >>> 0;
+        this._val = ((this._val & 0x00ffffff) | (~~alpha<<24) >>> 0) >>> 0;
         return this;
     };
 
