@@ -26,8 +26,8 @@
 const Texture2D = require('./CCTexture2D');
 
 /**
- * cc.textureUtils is a singleton object, it can load cc.Texture2D asynchronously
- * @class textureUtils
+ * cc.textureUtil is a singleton object, it can load cc.Texture2D asynchronously
+ * @class textureUtil
  * @static
  */
 let textureUtil = {

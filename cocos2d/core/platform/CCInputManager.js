@@ -46,7 +46,7 @@ var inputManager = {
     _touchesIntegerDict:{},
 
     _indexBitsUsed: 0,
-    _maxTouches: 5,
+    _maxTouches: 8,
 
     _accelEnabled: false,
     _accelInterval: 1/30,
