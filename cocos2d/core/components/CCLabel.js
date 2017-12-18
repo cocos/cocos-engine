@@ -325,6 +325,8 @@ var Label = cc.Class({
                 return this._N$file;
             },
             set: function (value) {
+                if (this.font === value) return;
+                
                 //if delete the font, we should change isSystemFontUsed to true
                 if(!value) {
                     this._isSystemFontUsed = true;
@@ -348,6 +350,7 @@ var Label = cc.Class({
                     this._bmFontOriginalSize = value.fontSize;
                 }
 
+                this._material = null;
                 this._clearData();
                 this._activateMaterial();
                 this._updateRenderData();
@@ -427,8 +430,6 @@ var Label = cc.Class({
 
     onDisable: function () {
         this._clearData();
-        
-        this._material = null;
         this.node._renderComponent = null;
     },
 
@@ -439,8 +440,9 @@ var Label = cc.Class({
     },
 
     _activateMaterial: function () {
-        let material;
+        if (this._material) return;
 
+        let material;
         let font = this.font;
         if (font instanceof cc.BitmapFont) {
             let spriteFrame = this.font.spriteFrame;

@@ -201,18 +201,18 @@ module.exports = {
                 _fontAtlas.addLetterDefinitions(fontDef, letterDefinition);
             }
 
-            comp._fontAtlas = _fontAtlas;
+            _comp._fontAtlas = _fontAtlas;
         }
 
-        _string = comp.string;
-        _fontSize = comp.fontSize;
+        _string = _comp.string;
+        _fontSize = _comp.fontSize;
         _originFontSize = _fntConfig.fontSize;
-        _contentSize = comp.node._contentSize;
-        _hAlign = comp.horizontalAlign;
-        _vAlign = comp.verticalAlign;
-        _spacingX = comp.spacingX;
-        _overflow = comp.overflow;
-        _lineHeight = comp._lineHeight;
+        _contentSize = _comp.node._contentSize;
+        _hAlign = _comp.horizontalAlign;
+        _vAlign = _comp.verticalAlign;
+        _spacingX = _comp.spacingX;
+        _overflow = _comp.overflow;
+        _lineHeight = _comp._lineHeight;
                 
         // should wrap text
         if (_overflow === Overflow.NONE) {
@@ -222,7 +222,7 @@ module.exports = {
             _isWrapText = true;
         }
         else {
-            _isWrapText = comp.enableWrapText;
+            _isWrapText = _comp.enableWrapText;
         }
 
         this._setupBMFontOverflowMetrics();
@@ -274,7 +274,7 @@ module.exports = {
         let letterDef = null;
         let letterPosition = cc.p(0, 0);
 
-        this._updateFontScale(comp);
+        this._updateFontScale();
 
         let letterDefinitions = _fontAtlas._letterDefinitions;
 
