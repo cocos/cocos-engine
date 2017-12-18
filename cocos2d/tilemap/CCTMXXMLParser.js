@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('../compression/ZipUtils');
+var codec = require('../compression/ZipUtils');
 var Zlib = require('../compression/zlib.min');
 
 function uint8ArrayToUint32Array (uint8Arr) {
@@ -771,17 +771,17 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
         var tiles;
         switch (compression) {
             case 'gzip':
-                tiles = cc.Codec.unzipBase64AsArray(nodeValue, 4);
+                tiles = codec.unzipBase64AsArray(nodeValue, 4);
                 break;
             case 'zlib':
-                var inflator = new Zlib.Inflate(cc.Codec.Base64.decodeAsArray(nodeValue, 1));
+                var inflator = new Zlib.Inflate(codec.Base64.decodeAsArray(nodeValue, 1));
                 tiles = uint8ArrayToUint32Array(inflator.decompress());
                 break;
             case null:
             case '':
                 // Uncompressed
                 if (encoding === "base64")
-                    tiles = cc.Codec.Base64.decodeAsArray(nodeValue, 4);
+                    tiles = codec.Base64.decodeAsArray(nodeValue, 4);
                 else if (encoding === "csv") {
                     tiles = [];
                     var csvTiles = nodeValue.split(',');
