@@ -73,7 +73,7 @@ function loadDomAudio (item, callback) {
 }
 
 function loadWebAudio (item, callback) {
-    if (!context) callback(new Error(cc._LogInfos.format(4926)));
+    if (!context) callback(new Error(cc._LogInfos.e(4926)));
 
     var request = cc.loader.getXMLHttpRequest();
     request.open("GET", item.url, true);
@@ -100,7 +100,7 @@ function loadWebAudio (item, callback) {
 
 function downloadAudio (item, callback) {
     if (formatSupport.length === 0) {
-        return new Error(cc._LogInfos.format(4927));
+        return new Error(cc._LogInfos.e(4927));
     }
 
     item.content = item.url;

@@ -114,9 +114,9 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
      */
     addAction:function (action, target, paused) {
         if(!action)
-            throw new Error(cc._LogInfos.format(1000));
+            throw new Error(cc._LogInfos.e(1000));
         if(!target)
-            throw new Error(cc._LogInfos.format(1000));
+            throw new Error(cc._LogInfos.e(1000));
 
         //check if the action target already exists
         var element = this._hashTargets[target.__instanceId];

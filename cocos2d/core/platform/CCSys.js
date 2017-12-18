@@ -716,7 +716,7 @@ else {
 
     sys._checkWebGLRenderMode = function () {
         if (cc._renderType !== cc.game.RENDER_TYPE_WEBGL)
-            throw new Error(cc._LogInfos.format(5202));
+            throw new Error(cc._LogInfos.e(5202));
     };
 
     var _tmpCanvas1 = document.createElement("canvas"),

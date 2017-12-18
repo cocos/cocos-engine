@@ -37,7 +37,6 @@ if (CC_DEBUG) {
         //configuration: 1100
         "1100": "Expected 'data' dict, but not found. Config file: %s", //loadConfigFile
         "1101": "Please load the resource first : %s", //loadConfigFile_2
-        "1102": "Please load the resource first : %s", // loadConfigFile
         //Director: 1200
         "1200": "cocos2d: Director: Error in gettimeofday", //resume
         "1201": "cocos2d: Director: unrecognized projection", //setProjection
@@ -627,9 +626,6 @@ if (CC_DEBUG) {
         "7233": "_ccsg.TMXLayer.getTileFlagsAt(): invalid position",//CCSGTMXLayer getTileFlagsAt
         "7234": "_ccsg.TMXLayer.removeTileAt(): pos should be non-null",//CCSGTMXLayer removeTileAt
         "7235": "_ccsg.TMXLayer.removeTileAt(): invalid position",//CCSGTMXLayer removeTileAt
-        "7236": "_ccsg.TMXLayer.getTileAt(): pos should be non-null",//CCSGTMXLayer getTileAt
-        "7237": "_ccsg.TMXLayer.getTileAt(): pos should be non-null",//CCSGTMXLayer getTileAt
-
         //Wrapper: 7300
         "7300": "The new selected must be number", //CheckBox.selected
         "7301": "The new bake must be boolean", //layer
@@ -707,24 +703,25 @@ if (CC_DEBUG) {
 
     var errorMapUrl = 'https://github.com/cocos-creator/engine/blob/master/EngineErrorMap.md';
 
-    cc._LogInfos.format = function (id) {
-        var type = 'error';
+    function raw (id, type) {
+        return CC_DEBUG ? cc._LogInfos[id] : `${type} ${id}, please go to ${errorMapUrl}#${id} to see details.`;
+    }
+
+    function format (msg, argsArray) {
+        return CC_DEBUG ? cc.js.formatStr.apply(null, [msg].concat(argsArray)) : msg + ' Arguments: ' + argsArray.join(', ');
+    }
+
+    cc._LogInfos.e = function () {
+        var msg = raw(arguments[0], 'ERROR');
         if (arguments.length === 1) {
-            return CC_DEBUG ? cc._LogInfos[id] : type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details.'
+            return msg;
         }
-        if (CC_DEBUG) {
-            let argsArr = cc.js.shiftArguments.apply(null, arguments);
-            return cc._LogInfos[id].concat(argsArr);
-        } else {
-            var msg = '';
-            if (arguments.length === 2) {
-                msg = 'Arguments: ' + arguments[1];
-            } else if (arguments.length > 2) {
-                msg = 'Arguments: ' + cc.js.shiftArguments.apply(null, arguments).join(', ');
-            }
-            return type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + msg;
+        else {
+            return format(msg, cc.js.shiftArguments.apply(null, arguments));
         }
     };
+    cc._LogInfos.raw = raw;
+    cc._LogInfos.format = format;
 }
 
 // module.exports = false;

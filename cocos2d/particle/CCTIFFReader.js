@@ -65,7 +65,7 @@ var tiffReader = /** @lends tiffReader# */{
             this.littleEndian = false;
         } else {
             console.log(BOM);
-            throw TypeError(cc._LogInfos.format(6019));
+            throw TypeError(cc._LogInfos.e(6019));
         }
 
         return this.littleEndian;
@@ -74,7 +74,7 @@ var tiffReader = /** @lends tiffReader# */{
     hasTowel: function () {
         // Check for towel.
         if (this.getUint16(2) !== 42) {
-            throw RangeError(cc._LogInfos.format(6020));
+            throw RangeError(cc._LogInfos.e(6020));
             return false;
         }
 
@@ -302,7 +302,7 @@ var tiffReader = /** @lends tiffReader# */{
             if (numStripOffsetValues === 1) {
                 var stripByteCountValues = [Math.ceil((imageWidth * imageLength * bitsPerPixel) / 8)];
             } else {
-                throw Error(cc._LogInfos.format(6024));
+                throw Error(cc._LogInfos.e(6024));
             }
         }
 
@@ -332,7 +332,7 @@ var tiffReader = /** @lends tiffReader# */{
                                 byteOffset = sampleInfo.byteOffset - stripOffset;
                                 bitOffset = sampleInfo.bitOffset;
 
-                                throw RangeError(cc._LogInfos.format(6025));
+                                throw RangeError(cc._LogInfos.e(6025));
                             }
                         }
 
@@ -342,7 +342,7 @@ var tiffReader = /** @lends tiffReader# */{
                             jIncrement = bytesPerPixel;
                         } else {
                             jIncrement = 0;
-                            throw RangeError(cc._LogInfos.format(6026));
+                            throw RangeError(cc._LogInfos.e(6026));
                         }
                         break;
 
@@ -412,7 +412,7 @@ var tiffReader = /** @lends tiffReader# */{
                                         sample++;
                                     }
                                 } else {
-                                    throw RangeError(cc._LogInfos.format(6025));
+                                    throw RangeError(cc._LogInfos.e(6025));
                                 }
 
                                 // Is our pixel complete?
@@ -535,7 +535,7 @@ var tiffReader = /** @lends tiffReader# */{
                             // RGB Color Palette
                             case 3:
                                 if (colorMapValues === undefined) {
-                                    throw Error(cc._LogInfos.format(6027));
+                                    throw Error(cc._LogInfos.e(6027));
                                 }
 
                                 var colorMapIndex = pixelSamples[0];
@@ -547,7 +547,7 @@ var tiffReader = /** @lends tiffReader# */{
 
                             // Unknown Photometric Interpretation
                             default:
-                                throw RangeError(cc._LogInfos.format(6028, photometricInterpretation));
+                                throw RangeError(cc._LogInfos.e(6028, photometricInterpretation));
                                 break;
                         }
 

@@ -194,9 +194,9 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
      */
     initWithVertexShaderFilename: function (vShaderFilename, fShaderFileName) {
         var vertexSource = cc.loader.getRes(vShaderFilename);
-        if (!vertexSource) throw new Error(cc._LogInfos.format(8106, vShaderFilename));
+        if (!vertexSource) throw new Error(cc._LogInfos.e(8106, vShaderFilename));
         var fragmentSource = cc.loader.getRes(fShaderFileName);
-        if (!fragmentSource) throw new Error(cc._LogInfos.format(8106, fShaderFileName));
+        if (!fragmentSource) throw new Error(cc._LogInfos.e(8106, fShaderFileName));
         return this.initWithVertexShaderByteArray(vertexSource, fragmentSource);
     },
 
@@ -296,9 +296,9 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
      */
     getUniformLocationForName: function (name) {
         if (!name)
-            throw new Error(cc._LogInfos.format(8107));
+            throw new Error(cc._LogInfos.e(8107));
         if (!this._programObj)
-            throw new Error(cc._LogInfos.format(8108));
+            throw new Error(cc._LogInfos.e(8108));
 
         var location = this._uniforms[name] || this._glContext.getUniformLocation(this._programObj, name);
         return location;
@@ -682,7 +682,7 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
 
     _setUniformForMVPMatrixWithMat4: function(modelViewMatrix){
         if(!modelViewMatrix)
-            throw new Error(cc._LogInfos.format(8109));
+            throw new Error(cc._LogInfos.e(8109));
         this._glContext.uniformMatrix4fv(this._uniforms[macro.UNIFORM_MVMATRIX], false, modelViewMatrix.mat);
         this._glContext.uniformMatrix4fv(this._uniforms[macro.UNIFORM_PMATRIX], false, math.projection_matrix_stack.top.mat);
     },
