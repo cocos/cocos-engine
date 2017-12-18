@@ -23,11 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var ParticleAsset = require('./CCParticleAsset');
-var RenderComponent = require('../core/components/CCRenderComponent');
-var codec = require('../compression/ZipUtils');
-var PNGReader = require('./CCPNGReader');
-var tiffReader = require('./CCTIFFReader');
+const ParticleAsset = require('./CCParticleAsset');
+const RenderComponent = require('../core/components/CCRenderComponent');
+const codec = require('../compression/ZipUtils');
+const PNGReader = require('./CCPNGReader');
+const tiffReader = require('./CCTIFFReader');
+const renderEngine = require('../core/renderer/render-engine');
+const gfx = renderEngine.gfx;
+const SpriteMaterial = renderEngine.SpriteMaterial;
 
 var BlendFactor = cc.BlendFunc.BlendFactor;
 /**
@@ -129,10 +132,7 @@ var properties = {
             }
             if (this._custom !== value) {
                 this._custom = value;
-                if (value) {
-                    this._applyCustoms();
-                }
-                else {
+                if (!value) {
                     this._applyFile();
                 }
                 if (CC_EDITOR) {
@@ -206,7 +206,7 @@ var properties = {
                 }
             }
             this._spriteFrame = value;
-            if (lastSprite && lastSprite.getTexture() !== value.getTexture()) {
+            if ((lastSprite && lastSprite.getTexture()) !== (value && value.getTexture())) {
                 this._texture = null;
                 this._applySpriteFrame(lastSprite);
             }
@@ -215,29 +215,27 @@ var properties = {
             }
         },
         type: cc.SpriteFrame,
+        tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.spriteFrame'
     },
 
     /**
      * !#en Texture of Particle System, readonly, please use spriteFrame to setup new texture。
      * !#zh 粒子贴图，只读属性，请使用 spriteFrame 属性来替换贴图。
      * @property texture
-     * @type {Texture2D}
+     * @type {String}
      * @readonly
      */
-    _texture: {
-        default: '',
-        url: cc.Texture2D
-    },
     texture: {
         get: function () {
-            return this._texture;
+            return this._texture ? this._texture.url : "";
         },
         set: function (value) {
             cc.warnID(6017);
         },
         url: cc.Texture2D,
         readonly: true,
-        tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.texture'
+        visible: false,
+        animatable: false
     },
 
     /**
@@ -717,6 +715,7 @@ var ParticleSystem = cc.Class({
         this._previewTimer = null;
         this._focused = false;
         this._willStart = false;
+        this._texture = null;
     },
 
     properties: properties,
@@ -891,7 +890,7 @@ var ParticleSystem = cc.Class({
                 }
 
                 self._plistFile = file;
-                self.initWithDictionary(content);
+                self._initWithDictionary(content);
 
                 // To avoid it export custom particle data textureImageData too large,
                 // so use the texutreUuid instead of textureImageData
@@ -908,16 +907,12 @@ var ParticleSystem = cc.Class({
                 if (!CC_EDITOR || cc.engine.isPlaying) {
                     self._applyAutoRemove();
                 }
-
-                // if become custom after loading
-                if (self._custom) {
-                    self._applyCustoms();
-                }
             });
         }
     },
 
-    initWithDictionary: function (dict) {
+    // parsing process
+    _initWithDictionary: function (dict) {
         var locValueForKey = this._valueForKey;
 
         this._totalParticles = parseInt(dict["maxParticles"] || 0);
@@ -1030,7 +1025,8 @@ var ParticleSystem = cc.Class({
         if (dict["textureFileName"]) {
             // Try to get the texture from the cache
             var tex = cc.textureUtil.loadImage(imgPath);
-            this.texture = tex;
+            // TODO: Use cc.loader to load asynchronously the SpriteFrame object, avoid using textureUtil
+            this.spriteFrame = new cc.SpriteFrame(tex);
         } else if (dict["textureImageData"]) {
             var textureData = dict["textureImageData"];
 
@@ -1057,9 +1053,10 @@ var ParticleSystem = cc.Class({
                 }
 
                 var tex = cc.textureUtil.cacheImage(imgPath, canvasObj);
-                if(!tex)
+                if (!tex)
                     cc.logID(6012);
-                this.texture = tex;
+                // TODO: Use cc.loader to load asynchronously the SpriteFrame object, avoid using textureUtil
+                this.spriteFrame = new cc.SpriteFrame(tex);
             }
             else {
                 return false;
@@ -1076,7 +1073,7 @@ var ParticleSystem = cc.Class({
         }
         // Reactivate material
         if (this.enabledInHierarchy) {
-            this._activateMaterial();
+            this._updateMaterial();
         }
     },
 
@@ -1099,7 +1096,7 @@ var ParticleSystem = cc.Class({
 
     _updateMaterial: function () {
         // cannot be activated if texture not loaded yet
-        if (!this._texture && this._texture.loaded) {
+        if (!this._texture || !this._texture.loaded) {
             return;
         }
 
