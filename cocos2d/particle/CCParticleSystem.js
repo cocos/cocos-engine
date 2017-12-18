@@ -23,10 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./CCParticleAsset');
-require('./CCSGParticleSystem');
-require('./CCSGParticleSystemCanvasRenderCmd');
-require('./CCSGParticleSystemWebGLRenderCmd');
+var ParticleAsset = require('./CCParticleAsset');
+var RenderComponent = require('../core/components/CCRenderComponent');
+var codec = require('../compression/ZipUtils');
+var PNGReader = require('./CCPNGReader');
+var tiffReader = require('./CCTIFFReader');
 
 var BlendFactor = cc.BlendFunc.BlendFactor;
 /**
@@ -100,9 +101,9 @@ var properties = {
         default: true,
         editorOnly: true,
         notify: CC_EDITOR && function () {
-            this._sgNode.resetSystem();
+            this.resetSystem();
             if ( !this.preview ) {
-                this._sgNode.stopSystem();
+                this.stopSystem();
             }
             cc.engine.repaintInEditMode();
         },
@@ -152,7 +153,7 @@ var properties = {
      */
     _file: {
         default: '',
-        url: cc.ParticleAsset
+        url: ParticleAsset
     },
     file: {
         get: function () {
@@ -174,14 +175,54 @@ var properties = {
             }
         },
         animatable: false,
-        url: cc.ParticleAsset,
+        url: ParticleAsset,
         tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.file'
     },
 
     /**
-     * !#en Texture of Particle System。
-     * !#zh 粒子贴图。
-     * @property {Texture2D} texture.
+     * !#en SpriteFrame used for particles display
+     * !#zh 用于粒子呈现的 SpriteFrame
+     * @property spriteFrame
+     * @type {SpriteFrame}
+     */
+    _spriteFrame: {
+        default: null,
+        type: cc.SpriteFrame
+    },
+    spriteFrame: {
+        get: function () {
+            return this._spriteFrame;
+        },
+        set: function (value, force) {
+            var lastSprite = this._spriteFrame;
+            if (CC_EDITOR) {
+                if (!force && ((lastSprite && lastSprite._uuid) === (value && value._uuid))) {
+                    return;
+                }
+            }
+            else {
+                if (lastSprite === value) {
+                    return;
+                }
+            }
+            this._spriteFrame = value;
+            if (lastSprite && lastSprite.getTexture() !== value.getTexture()) {
+                this._texture = null;
+                this._applySpriteFrame(lastSprite);
+            }
+            if (CC_EDITOR) {
+                this.node.emit('spriteframe-changed', this);
+            }
+        },
+        type: cc.SpriteFrame,
+    },
+
+    /**
+     * !#en Texture of Particle System, readonly, please use spriteFrame to setup new texture。
+     * !#zh 粒子贴图，只读属性，请使用 spriteFrame 属性来替换贴图。
+     * @property texture
+     * @type {Texture2D}
+     * @readonly
      */
     _texture: {
         default: '',
@@ -192,14 +233,10 @@ var properties = {
             return this._texture;
         },
         set: function (value) {
-            this._texture = value;
-            this._sgNode.texture = value ? cc.textureUtil.loadImage(value) : null;
-            if (!value && this._file) {
-                // fallback to plist
-                this._applyFile();
-            }
+            cc.warnID(6017);
         },
         url: cc.Texture2D,
+        readonly: true,
         tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.texture'
     },
 
@@ -209,12 +246,7 @@ var properties = {
      * @property {Number} particleCount
      */
     particleCount: {
-        get: function () {
-            return this._sgNode.particleCount;
-        },
-        set: function (value) {
-            this._sgNode.particleCount = value;
-        },
+        default: 0,
         visible: false,
         tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.particleCount'
     },
@@ -232,8 +264,7 @@ var properties = {
         },
         set: function(value) {
             this._srcBlendFactor = value;
-            this._blendFunc.src = value;
-            this._sgNode.setBlendFunc(this._blendFunc);
+            this._updateBlendFunc();
         },
         animatable: false,
         type:BlendFactor,
@@ -253,8 +284,7 @@ var properties = {
         },
         set: function(value) {
             this._dstBlendFactor = value;
-            this._blendFunc.dst = value;
-            this._sgNode.setBlendFunc(this._blendFunc);
+            this._updateBlendFunc();
         },
         animatable: false,
         type: BlendFactor,
@@ -300,7 +330,7 @@ var properties = {
      */
     active: {
         get: function () {
-            return this._sgNode ? this._sgNode.isActive() : false;
+            return this.enabledInHierarchy;
         },
         visible: false
     }
@@ -467,6 +497,7 @@ var CustomProps = (function () {
          * @default ParticleSystem.PositionType.FREE
          */
         positionType: PositionType.FREE,
+
         /**
          * !#en Particles emitter modes.
          * !#zh 发射器类型。
@@ -606,16 +637,12 @@ var CustomProps = (function () {
             if (cc.isChildClassOf(type, cc.ValueType)) {
                 propDef.set = function (value) {
                     this[internalProp] = new type(value);
-                    this._sgNode[prop] = value;
                 };
             }
             else if (CC_EDITOR && typeof defaultValue === "number") {
                 propDef.set = function (value) {
                     this[internalProp] = value;
-                    if (!isNaN(value)) {
-                        this._sgNode[prop] = value;
-                    }
-                    else {
+                    if (isNaN(value)) {
                         cc.errorID(6001, prop);
                     }
                 };
@@ -623,7 +650,6 @@ var CustomProps = (function () {
             else {
                 propDef.set = function (value) {
                     this[internalProp] = value;
-                    this._sgNode[prop] = value;
                 };
             }
         })(prop, DefaultValues[prop]);
@@ -679,7 +705,7 @@ properties.emitterMode.type = EmitterMode;
  */
 var ParticleSystem = cc.Class({
     name: 'cc.ParticleSystem',
-    extends: cc.Component,
+    extends: RenderComponent,
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/ParticleSystem',
         inspector: 'packages://inspector/inspectors/comps/particle-system.js',
@@ -691,9 +717,6 @@ var ParticleSystem = cc.Class({
         this._previewTimer = null;
         this._focused = false;
         this._willStart = false;
-        this._blendFunc = new cc.BlendFunc(0, 0);
-        // prevent repeated rewriting 'onExit'
-        this._originOnExit = null;
     },
 
     properties: properties,
@@ -746,6 +769,12 @@ var ParticleSystem = cc.Class({
         }
     },
 
+    onEnable: function () {
+        this._super();
+        this._updateMaterial();
+        this._updateBlendFunc();
+    },
+
     onDestroy: function () {
         if (this._autoRemoveOnFinish) {
             this.autoRemoveOnFinish = false;    // already removed
@@ -755,7 +784,7 @@ var ParticleSystem = cc.Class({
     onFocusInEditor: CC_EDITOR && function () {
         this._focused = true;
         if (this.preview) {
-            this._sgNode.resetSystem();
+            this.resetSystem();
 
             var self = this;
             this._previewTimer = setInterval(function () {
@@ -776,45 +805,13 @@ var ParticleSystem = cc.Class({
     onLostFocusInEditor: CC_EDITOR && function () {
         this._focused = false;
         if (this.preview) {
-            this._sgNode.resetSystem();
-            this._sgNode.stopSystem();
-            this._sgNode.update();
+            this.resetSystem();
+            this.stopSystem();
             cc.engine.repaintInEditMode();
         }
         if (this._previewTimer) {
             clearInterval(this._previewTimer);
         }
-    },
-
-    // OVERRIDE METHODS
-
-    _createSgNode: function () {
-        return new _ccsg.ParticleSystem();
-    },
-
-    _initSgNode: function () {
-        var sgNode = this._sgNode;
-
-        if (this._file) {
-            if (this._custom) {
-                var missCustomTexture = !this._texture;
-                if (missCustomTexture) {
-                    this._applyFile();
-                }
-                else {
-                    this._applyCustoms();
-                }
-            }
-            else {
-                this._applyFile();
-            }
-        }
-        else if (this._custom) {
-            this._applyCustoms();
-        }
-
-        // stop by default
-        sgNode.stopSystem();
     },
 
     // APIS
@@ -826,7 +823,7 @@ var ParticleSystem = cc.Class({
      * @return {Boolean}
      */
     addParticle: function () {
-        return this._sgNode.addParticle();
+        // return this._sgNode.addParticle();
     },
 
     /**
@@ -838,7 +835,7 @@ var ParticleSystem = cc.Class({
      * myParticleSystem.stopSystem();
      */
     stopSystem: function () {
-        this._sgNode.stopSystem();
+        // this._sgNode.stopSystem();
     },
 
     /**
@@ -850,7 +847,7 @@ var ParticleSystem = cc.Class({
      * myParticleSystem.resetSystem();
      */
     resetSystem: function () {
-        this._sgNode.resetSystem();
+        // this._sgNode.resetSystem();
     },
 
     /**
@@ -864,40 +861,19 @@ var ParticleSystem = cc.Class({
     },
 
     /**
-     * !#en
-     * <p> Sets a new CCSpriteFrame as particle.</br>
-     * WARNING: this method is experimental. Use setTextureWithRect instead.
-     * </p>
-     * !#zh
-     * <p> 设置一个新的精灵帧为粒子。</br>
-     * 警告：这个函数只是试验，请使用 setTextureWithRect 实现。
-     * </p>
-     * @method setDisplayFrame
-     * @param {SpriteFrame} spriteFrame
-     */
-    setDisplayFrame: function (spriteFrame) {
-        if (!spriteFrame)
-            return;
-
-        var texture = spriteFrame.getTexture();
-        if (texture) {
-            this._texture = texture.url;
-        }
-        this._sgNode.setDisplayFrame(spriteFrame);
-    },
-
-    /**
      * !#en Sets a new texture with a rect. The rect is in texture position and size.
+     * Please use spriteFrame property instead, this function is deprecated since v1.9
      * !#zh 设置一张新贴图和关联的矩形。
+     * 请直接设置 spriteFrame 属性，这个函数从 v1.9 版本开始已经被废弃
      * @method setTextureWithRect
      * @param {Texture2D} texture
      * @param {Rect} rect
+     * @deprecated
      */
     setTextureWithRect: function (texture, rect) {
         if (texture instanceof cc.Texture2D) {
-            this._texture = texture.url;
+            this.spriteFrame = new cc.SpriteFrame(texture, rect);
         }
-        this._sgNode.setTextureWithRect(texture, rect);
     },
 
     // PRIVATE METHODS
@@ -914,18 +890,8 @@ var ParticleSystem = cc.Class({
                     return;
                 }
 
-                var sgNode = self._sgNode;
-                sgNode.particleCount = 0;
-
-                var active = sgNode.isActive();
-
-                if (CC_EDITOR) {
-                    sgNode._plistFile = file;
-                    sgNode.initWithDictionary(content, '');
-                }
-                else {
-                    sgNode.initWithFile(file);
-                }
+                self._plistFile = file;
+                self.initWithDictionary(content);
 
                 // To avoid it export custom particle data textureImageData too large,
                 // so use the texutreUuid instead of textureImageData
@@ -937,19 +903,6 @@ var ParticleSystem = cc.Class({
                         }
                         self.texture = url;
                     });
-                }
-
-                // For custom data export
-                if (content.emissionRate) {
-                    self.emissionRate = content.emissionRate;
-                }
-
-                // recover sgNode properties
-
-                sgNode.setPosition(0, 0);
-
-                if (!active) {
-                    sgNode.stopSystem();
                 }
 
                 if (!CC_EDITOR || cc.engine.isPlaying) {
@@ -964,51 +917,213 @@ var ParticleSystem = cc.Class({
         }
     },
 
-    _applyCustoms: function () {
-        var sgNode = this._sgNode;
-        var active = sgNode.isActive();
+    initWithDictionary: function (dict) {
+        var locValueForKey = this._valueForKey;
 
-        for (var i = 0; i < CustomProps.length; i++) {
-            var prop = CustomProps[i];
-            sgNode[prop] = this['_' + prop];
+        this._totalParticles = parseInt(dict["maxParticles"] || 0);
+
+        // life span
+        this._life = parseFloat(dict["particleLifespan"] || 0);
+        this._lifeVar = parseFloat(dict["particleLifespanVariance"] || 0);
+
+        // emission Rate
+        this._emissionRate = this._totalParticles / this._life;
+
+        // duration
+        this._duration = parseFloat(dict["duration"] || 0);
+
+        // blend function
+        this._srcBlendFactor = parseInt(dict["blendFuncSource"] || cc.macro.SRC_ALPHA);
+        this._dstBlendFactor = parseInt(dict["blendFuncDestination"] || cc.macro.ONE_MINUS_SRC_ALPHA);
+
+        // color
+        var locStartColor = this._startColor;
+        locStartColor.r = parseFloat(dict["startColorRed"] || 1) * 255;
+        locStartColor.g = parseFloat(dict["startColorGreen"] || 1) * 255;
+        locStartColor.b = parseFloat(dict["startColorBlue"] || 1) * 255;
+        locStartColor.a = parseFloat(dict["startColorAlpha"] || 1) * 255;
+
+        var locStartColorVar = this._startColorVar;
+        locStartColorVar.r = parseFloat(dict["startColorVarianceRed"] || 1) * 255;
+        locStartColorVar.g = parseFloat(dict["startColorVarianceGreen"] || 1) * 255;
+        locStartColorVar.b = parseFloat(dict["startColorVarianceBlue"] || 1) * 255;
+        locStartColorVar.a = parseFloat(dict["startColorVarianceAlpha"] || 1) * 255;
+
+        var locEndColor = this._endColor;
+        locEndColor.r = parseFloat(dict["finishColorRed"] || 1) * 255;
+        locEndColor.g = parseFloat(dict["finishColorGreen"] || 1) * 255;
+        locEndColor.b = parseFloat(dict["finishColorBlue"] || 1) * 255;
+        locEndColor.a = parseFloat(dict["finishColorAlpha"] || 1) * 255;
+
+        var locEndColorVar = this._endColorVar;
+        locEndColorVar.r = parseFloat(dict["finishColorVarianceRed"] || 1) * 255;
+        locEndColorVar.g = parseFloat(dict["finishColorVarianceGreen"] || 1) * 255;
+        locEndColorVar.b = parseFloat(dict["finishColorVarianceBlue"] || 1) * 255;
+        locEndColorVar.a = parseFloat(dict["finishColorVarianceAlpha"] || 1) * 255;
+
+        // particle size
+        this._startSize = parseFloat(dict["startParticleSize"] || 0);
+        this._startSizeVar = parseFloat(dict["startParticleSizeVariance"] || 0);
+        this._endSize = parseFloat(dict["finishParticleSize"] || 0);
+        this._endSizeVar = parseFloat(dict["finishParticleSizeVariance"] || 0);
+
+        // position
+        this._sourcePos.x = parseFloat(dict["sourcePositionx"] || 0);
+        this._sourcePos.y = parseFloat(dict["sourcePositiony"] || 0);
+        this._posVar.x = parseFloat(dict["sourcePositionVariancex"] || 0);
+        this._posVar.y = parseFloat(dict["sourcePositionVariancey"] || 0);
+        
+        // angle
+        this._angle = parseFloat(dict["angle"] || 0);
+        this._angleVar = parseFloat(dict["angleVariance"] || 0);
+
+        // Spinning
+        this._startSpin = parseFloat(dict["rotationStart"] || 0);
+        this._startSpinVar = parseFloat(dict["rotationStartVariance"] || 0);
+        this._endSpin = parseFloat(dict["rotationEnd"] || 0);
+        this._endSpinVar = parseFloat(dict["rotationEndVariance"] || 0);
+
+        this._emitterMode = parseInt(dict["emitterType"] || EmitterMode.GRAVITY);
+
+        // Mode A: Gravity + tangential accel + radial accel
+        if (this._emitterMode === EmitterMode.GRAVITY) {
+            // gravity
+            this._gravity.x = parseFloat(dict["gravityx"] || 0);
+            this._gravity.y = parseFloat(dict["gravityy"] || 0);
+
+            // speed
+            this._speed = parseFloat(dict["speed"] || 0);
+            this._speedVar = parseFloat(dict["speedVariance"] || 0);
+
+            // radial acceleration
+            this._radialAccel = parseFloat(dict["radialAcceleration"] || 0);
+            this._radialAccelVar = parseFloat(dict["radialAccelVariance"] || 0);
+
+            // tangential acceleration
+            this._tangentialAccel = parseFloat(dict["tangentialAcceleration"] || 0);
+            this._tangentialAccelVar = parseFloat(dict["tangentialAccelVariance"] || 0);
+
+            // rotation is dir
+            var locRotationIsDir = dict["rotationIsDir"] || "";
+            if (locRotationIsDir !== null) {
+                locRotationIsDir = locRotationIsDir.toString().toLowerCase();
+                this._rotationIsDir = (locRotationIsDir === "true" || locRotationIsDir === "1");
+            }
+            else {
+                this._rotationIsDir = false;
+            }
+        } else if (this._emitterMode === _ccsg.ParticleSystem.Mode.RADIUS) {
+            // or Mode B: radius movement
+            this._startRadius = parseFloat(dict["maxRadius"] || 0);
+            this._startRadiusVar = parseFloat(dict["maxRadiusVariance"] || 0);
+            this._endRadius = parseFloat(dict["minRadius"] || 0);
+            this._endRadiusVar = 0;
+            this._rotatePerS = parseFloat(dict["rotatePerSecond"] || 0);
+            this._rotatePerSVar = parseFloat(dict["rotatePerSecondVariance"] || 0);
+        } else {
+            cc.warnID(6009);
+            return false;
         }
-        this._blendFunc.src = this._srcBlendFactor;
-        this._blendFunc.dst = this._dstBlendFactor;
-        sgNode.setBlendFunc(this._blendFunc);
 
-        if (this._texture) {
-            sgNode.texture = cc.textureUtil.loadImage(this._texture);
+        var imgPath = cc.path.changeBasename(this._plistFile, dict["textureFileName"]);
+        // texture
+        if (dict["textureFileName"]) {
+            // Try to get the texture from the cache
+            var tex = cc.textureUtil.loadImage(imgPath);
+            this.texture = tex;
+        } else if (dict["textureImageData"]) {
+            var textureData = dict["textureImageData"];
+
+            if (textureData && textureData.length > 0) {
+                var buffer = codec.unzipBase64AsArray(textureData, 1);
+                if (!buffer) {
+                    cc.logID(6010);
+                    return false;
+                }
+
+                var imageFormat = cc.getImageFormatByData(buffer);
+
+                if (imageFormat !== cc.ImageFormat.TIFF && imageFormat !== cc.ImageFormat.PNG) {
+                    cc.logID(6011);
+                    return false;
+                }
+
+                var canvasObj = document.createElement("canvas");
+                if(imageFormat === cc.ImageFormat.PNG){
+                    var myPngObj = new PNGReader(buffer);
+                    myPngObj.render(canvasObj);
+                } else {
+                    tiffReader.parseTIFF(buffer,canvasObj);
+                }
+
+                var tex = cc.textureUtil.cacheImage(imgPath, canvasObj);
+                if(!tex)
+                    cc.logID(6012);
+                this.texture = tex;
+            }
+            else {
+                return false;
+            }
         }
+        return true;
+    },
 
-        // recover sgNode properties
-        if (!active) {
-            sgNode.stopSystem();
+    _onTextureLoaded: function (event) {
+        this._texture = this._spriteFrame.getTexture();
+        // Mark render data dirty
+        if (this._renderData) {
+            this._renderData.uvDirty = true;
         }
-
-        if (!CC_EDITOR || cc.engine.isPlaying) {
-            this._applyAutoRemove();
+        // Reactivate material
+        if (this.enabledInHierarchy) {
+            this._activateMaterial();
         }
     },
 
-    _applyAutoRemove: function () {
-        var sgNode = this._sgNode;
-        var autoRemove = this._autoRemoveOnFinish;
-        sgNode.autoRemoveOnFinish = autoRemove;
-        if (autoRemove) {
-            if (this._originOnExit) {
-                return;
+    _applySpriteFrame: function (oldFrame) {
+        if (oldFrame && oldFrame.off) {
+            oldFrame.off('load', this._onTextureLoaded, this);
+        }
+
+        var spriteFrame = this._spriteFrame;
+        if (spriteFrame) {
+            if (spriteFrame.textureLoaded) {
+                this._onTextureLoaded(null);
             }
-            this._originOnExit = sgNode.onExit;
-            var self = this;
-            sgNode.onExit = function () {
-                self._originOnExit.call(this);
-                self.node.destroy();
-            };
+            else {
+                spriteFrame.once('load', this._onTextureLoaded, this);
+                spriteFrame.ensureLoadTexture();
+            }
         }
-        else if (this._originOnExit) {
-            sgNode.onExit = this._originOnExit;
-            this._originOnExit = null;
+    },
+
+    _updateMaterial: function () {
+        // cannot be activated if texture not loaded yet
+        if (!this._texture && this._texture.loaded) {
+            return;
         }
+
+        // Get material
+        if (!this._material) {
+            this._material = new SpriteMaterial();
+            this._material.useModel = true;
+        }
+
+        this._material.texture = this._texture.getImpl();
+    },
+    
+    _updateBlendFunc: function () {
+        if (!this._material) {
+            return;
+        }
+
+        var pass = this._material._mainTech.passes[0];
+        pass.setBlend(
+            gfx.BLEND_FUNC_ADD,
+            this._srcBlendFactor, this._dstBlendFactor,
+            gfx.BLEND_FUNC_ADD,
+            this._srcBlendFactor, this._dstBlendFactor
+        );
     }
 });
 
