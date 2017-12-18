@@ -113,7 +113,6 @@ if (CC_DEBUG) {
         "1633": "Internal error, should not remove unknown node from parent.", //parent
         "1634": "addChild: The child to add must be instance of cc.Node, not %s.", //addChild
         "1635": "reorderChild: this child is not in children list", // reorderChild
-        "1636": "Invalid sgNode. It must be an instance of _ccsg.Node", // RendererInSG
         //AtlasNode: 1700
         "1700": "cc.AtlasNode.updateAtlasValues(): Shall be overridden in subclasses", //_updateAtlasValues
         "1701": "", //_initWithTileFile
