@@ -380,24 +380,23 @@ var Texture2D = cc.Class({
     },
 
     /**
-     * Intializes with a texture2d with data.
+     * Intializes with a texture2d with data in Uint8Array.
      * @method initWithData
      * @param {TypedArray} data
      * @param {Number} pixelFormat
      * @param {Number} pixelsWidth
      * @param {Number} pixelsHeight
-     * @param {Size} contentSize
      * @return {Boolean}
      */
-    initWithData (data, pixelFormat, pixelsWidth, pixelsHeight, contentSize) {
+    initWithData (data, pixelFormat, pixelsWidth, pixelsHeight) {
         var opts = _getSharedOptions();
         opts.image = data;
         opts.format = pixelFormat;
         opts.width = pixelsWidth;
         opts.height = pixelsHeight;
         this.update(opts);
-        this.width = contentSize.width;
-        this.height = contentSize.height;
+        this.width = pixelsWidth;
+        this.height = pixelsHeight;
         this.loaded = true;
         this.emit("load");
         return true;
