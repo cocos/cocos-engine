@@ -112,10 +112,14 @@ bool TMXObjectImage::_initWithMapInfo(TMXMapInfo* mapInfo)
     }
     
     setVisible(_container->getObjectVisible());
-    auto texture = Director::getInstance()->getTextureCache()->addImage(useTileset->_sourceImage);
+    auto texture = useTileset->_preloadedTexture;
     if (texture == nullptr)
     {
-        return false;
+        texture = Director::getInstance()->getTextureCache()->addImage(useTileset->_sourceImage);
+        if (texture == nullptr)
+        {
+            return false;
+        }
     }
     useTileset->_imageSize = texture->getContentSizeInPixels();
     auto rect = useTileset->getRectForGID(_container->getGid());

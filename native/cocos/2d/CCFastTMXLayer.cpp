@@ -66,7 +66,14 @@ bool TMXLayer::initWithTilesetInfo(TMXTilesetInfo *tilesetInfo, TMXLayerInfo *la
 {
     if( tilesetInfo )
     {
-        _texture = Director::getInstance()->getTextureCache()->addImage(tilesetInfo->_sourceImage);
+        if (nullptr != tilesetInfo->_preloadedTexture)
+        {
+            _texture = tilesetInfo->_preloadedTexture;
+        }
+        else
+        {
+            _texture = Director::getInstance()->getTextureCache()->addImage(tilesetInfo->_sourceImage);
+        }
         _texture->retain();
     }
 

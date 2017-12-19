@@ -81,10 +81,25 @@ bool TMXTiledMap::initWithTMXFile(const std::string& tmxFile)
 bool TMXTiledMap::initWithXML(const std::string& tmxString, const std::string& resourcePath)
 {
     _tmxFile = tmxString;
+    
+    setContentSize(Size::ZERO);
+    
+    TMXMapInfo *mapInfo = TMXMapInfo::createWithXML(tmxString, resourcePath);
+    
+    CCASSERT( !mapInfo->getTilesets().empty(), "TMXTiledMap: Map not found. Please check the filename.");
+    buildWithMapInfo(mapInfo);
+    
+    return true;
+}
+
+bool TMXTiledMap::initWithXML(const std::string& tmxString, const std::string& resourcePath,
+                              const cocos2d::Map<std::string, Texture2D*>& textures)
+{
+    _tmxFile = tmxString;
 
     setContentSize(Size::ZERO);
 
-    TMXMapInfo *mapInfo = TMXMapInfo::createWithXML(tmxString, resourcePath);
+    TMXMapInfo *mapInfo = TMXMapInfo::createWithXML(tmxString, resourcePath, &textures);
 
     CCASSERT( !mapInfo->getTilesets().empty(), "TMXTiledMap: Map not found. Please check the filename.");
     buildWithMapInfo(mapInfo);

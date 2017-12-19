@@ -36220,7 +36220,20 @@ static bool js_cocos2dx_TMXMapInfo_initWithXML(se::State& s)
         SE_PRECONDITION2(ok, false, "js_cocos2dx_TMXMapInfo_initWithXML : Error processing arguments");
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    if (argc == 3) {
+        std::string arg0;
+        std::string arg1;
+        const cocos2d::Map<std::basic_string<char>, cocos2d::Texture2D *>* arg2 = nullptr;
+        ok &= seval_to_std_string(args[0], &arg0);
+        ok &= seval_to_std_string(args[1], &arg1);
+        ok &= seval_to_native_ptr(args[2], &arg2);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_TMXMapInfo_initWithXML : Error processing arguments");
+        bool result = cobj->initWithXML(arg0, arg1, arg2);
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_TMXMapInfo_initWithXML : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_TMXMapInfo_initWithXML)
@@ -36714,7 +36727,22 @@ static bool js_cocos2dx_TMXMapInfo_createWithXML(se::State& s)
         s.rval().setObject(obj);
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    if (argc == 3) {
+        std::string arg0;
+        std::string arg1;
+        const cocos2d::Map<std::basic_string<char>, cocos2d::Texture2D *>* arg2 = nullptr;
+        ok &= seval_to_std_string(args[0], &arg0);
+        ok &= seval_to_std_string(args[1], &arg1);
+        ok &= seval_to_native_ptr(args[2], &arg2);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_TMXMapInfo_createWithXML : Error processing arguments");
+        auto result = cocos2d::TMXMapInfo::createWithXML(arg0, arg1, arg2);
+        result->retain();
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_TMXMapInfo_class);
+        obj->setPrivateData(result);
+        s.rval().setObject(obj);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_TMXMapInfo_createWithXML)
@@ -37556,23 +37584,45 @@ SE_BIND_FUNC(js_cocos2dx_TMXTiledMap_getMapSize)
 
 static bool js_cocos2dx_TMXTiledMap_initWithXML(se::State& s)
 {
+    CC_UNUSED bool ok = true;
     cocos2d::TMXTiledMap* cobj = (cocos2d::TMXTiledMap*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_TMXTiledMap_initWithXML : Invalid Native Object");
+    SE_PRECONDITION2( cobj, false, "js_cocos2dx_TMXTiledMap_initWithXML : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        std::string arg0;
-        std::string arg1;
-        ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_std_string(args[1], &arg1);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_TMXTiledMap_initWithXML : Error processing arguments");
-        bool result = cobj->initWithXML(arg0, arg1);
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_TMXTiledMap_initWithXML : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    do {
+        if (argc == 3) {
+            std::string arg0;
+            ok &= seval_to_std_string(args[0], &arg0);
+            if (!ok) { ok = true; break; }
+            std::string arg1;
+            ok &= seval_to_std_string(args[1], &arg1);
+            if (!ok) { ok = true; break; }
+            cocos2d::Map<std::basic_string<char>, cocos2d::Texture2D *> arg2;
+            ok &= seval_to_Map_string_key(args[2], &arg2);
+            if (!ok) { ok = true; break; }
+            bool result = cobj->initWithXML(arg0, arg1, arg2);
+            ok &= boolean_to_seval(result, &s.rval());
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_TMXTiledMap_initWithXML : Error processing arguments");
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 2) {
+            std::string arg0;
+            ok &= seval_to_std_string(args[0], &arg0);
+            if (!ok) { ok = true; break; }
+            std::string arg1;
+            ok &= seval_to_std_string(args[1], &arg1);
+            if (!ok) { ok = true; break; }
+            bool result = cobj->initWithXML(arg0, arg1);
+            ok &= boolean_to_seval(result, &s.rval());
+            SE_PRECONDITION2(ok, false, "js_cocos2dx_TMXTiledMap_initWithXML : Error processing arguments");
+            return true;
+        }
+    } while(false);
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_TMXTiledMap_initWithXML)
