@@ -101,7 +101,7 @@ let _contentSize = cc.size();
 
 module.exports = {
     createData (comp) {
-        return new RenderData();
+        return RenderData.alloc();
     },
 
     update (comp) {
@@ -515,7 +515,6 @@ module.exports = {
     },
 
     _shrinkLabelToContentSize (lambda) {
-        let fontData = comp._fontData;
         let fontSize = _fontSize;
         let originalLineHeight = _lineHeight;
         let fontAtlas = _fontAtlas;
@@ -524,7 +523,7 @@ module.exports = {
         let tempLetterDefinition = fontAtlas.cloneLetterDefinition();
         let flag = true;
 
-        while (lambda(fontData)) {
+        while (lambda()) {
             ++i;
 
             let newFontSize = fontSize - i;
@@ -542,7 +541,7 @@ module.exports = {
             } else {
                 this._multilineTextWrapByChar();
             }
-            this._computeAlignmentOffset(fontData);
+            this._computeAlignmentOffset();
         }
 
         _lineHeight = originalLineHeight;

@@ -42,7 +42,7 @@ let _isUnderline = false;
 
 module.exports = {
     createData (comp) {
-        let renderData = new RenderData();
+        let renderData = RenderData.alloc();
 
         renderData.dataLength = 4;
         renderData.vertexCount = 4;

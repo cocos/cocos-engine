@@ -59,6 +59,9 @@ var RenderComponent = cc.Class({
 
     onDisable () {
         this.node._renderComponent = null;
+    },
+
+    onDestroy () {
         if (this._renderData) {
             RenderData.free(this._renderData);
             this._renderData = null;

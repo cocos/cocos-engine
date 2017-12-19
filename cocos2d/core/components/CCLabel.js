@@ -350,8 +350,12 @@ var Label = cc.Class({
                     this._bmFontOriginalSize = value.fontSize;
                 }
 
+                if (this._renderData) {
+                    RenderData.free(this._renderData);
+                    this._renderData = null;    
+                }
+                this._fontAtlas = null;
                 this._material = null;
-                this._clearData();
                 this._activateMaterial();
                 this._updateRenderData();
             },
@@ -424,19 +428,8 @@ var Label = cc.Class({
     },
 
     onEnable: function () {
+        this._super();
         this._activateMaterial();
-        this.node._renderComponent = this;
-    },
-
-    onDisable: function () {
-        this._clearData();
-        this.node._renderComponent = null;
-    },
-
-    _clearData: function () {
-        RenderData.free(this._renderData);
-        this._renderData = null;
-        this._fontData = null;
     },
 
     _activateMaterial: function () {
