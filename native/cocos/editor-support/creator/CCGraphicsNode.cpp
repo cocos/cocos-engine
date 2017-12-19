@@ -70,8 +70,8 @@ GraphicsBuffer::GraphicsBuffer()
     
 GraphicsBuffer::~GraphicsBuffer()
 {
-    CC_SAFE_DELETE(verts);
-    CC_SAFE_DELETE(indices);
+    CC_SAFE_FREE(verts);
+    CC_SAFE_FREE(indices);
 }
     
 bool GraphicsBuffer::allocVerts(int vertsCount)
