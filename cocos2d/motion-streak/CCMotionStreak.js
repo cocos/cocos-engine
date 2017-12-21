@@ -224,7 +224,7 @@ var MotionStreak = cc.Class({
         if (!material) {
             material = new SpriteMaterial();
             material.texture = texture.getImpl();
-            renderer.materialUtil.register(url, this._material);
+            renderer.materialUtil.register(url, material);
         }
 
         this._material = material;
