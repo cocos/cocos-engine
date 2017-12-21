@@ -5,11 +5,11 @@ const renderEngine = require('../render-engine');
 const RenderData = renderEngine.RenderData;
 const math = renderEngine.math;
 
-Orientation = TiledMap.Orientation;
-TileFlag = TiledMap.TileFlag;
-FLIPPED_MASK = TileFlag.FLIPPED_MASK;
-StaggerAxis = TiledMap.StaggerAxis;
-StaggerIndex = TiledMap.StaggerIndex;
+const Orientation = TiledMap.Orientation;
+const TileFlag = TiledMap.TileFlag;
+const FLIPPED_MASK = TileFlag.FLIPPED_MASK;
+const StaggerAxis = TiledMap.StaggerAxis;
+const StaggerIndex = TiledMap.StaggerIndex;
 
 let _matrix = math.mat4.create();
 let _v3 = cc.v3();
