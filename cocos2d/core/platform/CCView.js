@@ -1182,6 +1182,7 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
             else {
                 containerStyle.margin = '0px';
             }
+            containerStyle.padding = "0px";
         }
     });
 

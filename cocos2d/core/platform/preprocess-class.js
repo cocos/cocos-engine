@@ -33,6 +33,7 @@ var SerializableAttrs = {
     serializable: {},
     editorOnly: {},
     rawType: {},
+    formerlySerializedAs: {}
 };
 
 var TYPO_TO_CORRECT_DEV = CC_DEV && {
