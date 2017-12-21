@@ -22,74 +22,35 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-require('./CCSGTMXLayer');
-require('./CCTMXLayerCanvasRenderCmd');
-require('./CCTMXLayerWebGLRenderCmd');
+const RenderComponent = require('../core/components/CCRenderComponent');
+const renderer = require('../core/renderer');
+const renderEngine = require('../core/renderer/render-engine');
+const SpriteMaterial = renderEngine.SpriteMaterial;
+const RenderData = renderEngine.RenderData;
+
 /**
  * !#en Render the TMX layer.
  * !#zh 渲染 TMX layer。
  * @class TiledLayer
  * @extends Component
  */
-var TiledLayer = cc.Class({
+let TiledLayer = cc.Class({
     name: 'cc.TiledLayer',
 
     // Inherits from the abstract class directly,
     // because TiledLayer not create or maintains the sgNode by itself.
-    extends: cc.Component,
+    extends: RenderComponent,
 
-    onEnable: function() {
-        if (this._sgNode) {
-            this._sgNode.setVisible(true);
-        }
-    },
-    onDisable: function() {
-        if (this._sgNode) {
-            this._sgNode.setVisible(false);
-        }
-    },
+    ctor () {
+        this._tiles = [];
+        this._texGrids = [];
+        this._textures = [];
+        this._spriteTiles = {};
 
-    onDestroy: function () {
-        if ( this.node._sizeProvider === this._sgNode ) {
-            this.node._sizeProvider = null;
-        }
-    },
+        this._tiledTiles = [];
 
-    _initSgNode: function() {
-        var sgNode = this._sgNode;
-        if ( !sgNode ) {
-            return;
-        }
-        if ( !this.enabledInHierarchy ) {
-            sgNode.setVisible(false);
-        }
-        this._registSizeProvider();
-        var node = this.node;
-        sgNode.setAnchorPoint(node.getAnchorPoint());
-    },
-
-    _replaceSgNode: function(sgNode) {
-        if (sgNode === this._sgNode) {
-            return;
-        }
-
-        // Remove the sgNode before
-        this._removeSgNode();
-        if ( this.node._sizeProvider === this._sgNode ) {
-            this.node._sizeProvider = null;
-        }
-
-        if (sgNode && sgNode instanceof _ccsg.TMXLayer) {
-            this._sgNode = sgNode;
-            if (CC_JSB) {
-                // retain the new sgNode, it will be released in _removeSgNode
-                sgNode.retain();
-            }
-
-            this._initSgNode();
-        } else {
-            this._sgNode = null;
-        }
+        this._layerName = '';
+        this._layerOrientation = null;
     },
 
     /**
@@ -98,14 +59,11 @@ var TiledLayer = cc.Class({
      * @method getLayerName
      * @return {String}
      * @example
-     * var layerName = tiledLayer.getLayerName();
+     * let layerName = tiledLayer.getLayerName();
      * cc.log(layerName);
      */
-    getLayerName: function() {
-        if (this._sgNode) {
-            return this._sgNode.getLayerName();
-        }
-        return '';
+    getLayerName () {
+        return this._layerName;
     },
 
     /**
@@ -116,10 +74,8 @@ var TiledLayer = cc.Class({
      * @example
      * tiledLayer.setLayerName("New Layer");
      */
-    setLayerName:function (layerName) {
-        if (this._sgNode) {
-            this._sgNode.setLayerName(layerName);
-        }
+    setLayerName (layerName) {
+        this._layerName = layerName;
     },
 
     /**
@@ -129,16 +85,13 @@ var TiledLayer = cc.Class({
      * @param {String} propertyName
      * @return {*}
      * @example
-     * var property = tiledLayer.getProperty("info");
+     * let property = tiledLayer.getProperty("info");
      * cc.log(property);
      */
-    getProperty:function (propertyName) {
-        if (this._sgNode) {
-            return this._sgNode.getProperty(propertyName);
-        }
-
-        return null;
+    getProperty (propertyName) {
+        return this._properties[propertyName];
     },
+
 
     /**
      * !#en Returns the position in pixels of a given tile coordinate.
@@ -148,37 +101,81 @@ var TiledLayer = cc.Class({
      * @param {Number} [y]
      * @return {Vec2}
      * @example
-     * var pos = tiledLayer.getPositionAt(cc.v2(0, 0));
+     * let pos = tiledLayer.getPositionAt(cc.v2(0, 0));
      * cc.log("Pos: " + pos);
-     * var pos = tiledLayer.getPositionAt(0, 0);
+     * let pos = tiledLayer.getPositionAt(0, 0);
      * cc.log("Pos: " + pos);
      */
-    getPositionAt:function (pos, y) {
-        if (this._sgNode) {
-            if (y !== undefined)
-                pos = cc.p(pos, y);
-            return this._sgNode.getPositionAt(pos);
+    getPositionAt (pos, y) {
+        let x;
+        if (y !== undefined) {
+            x = Math.floor(pos);
+            y = Math.floor(y);
         }
-
-        return null;
+        else {
+            x = Math.floor(pos.x);
+            y = Math.floor(pos.y);
+        }
+        
+        let ret;
+        switch (this._layerOrientation) {
+            case cc.TiledMap.Orientation.ORTHO:
+                ret = this._positionForOrthoAt(x, y);
+                break;
+            case cc.TiledMap.Orientation.ISO:
+                ret = this._positionForIsoAt(x, y);
+                break;
+            case cc.TiledMap.Orientation.HEX:
+                ret = this._positionForHexAt(x, y);
+                break;
+        }
+        return ret;
     },
 
-    /**
-     * !#en Removes a tile at given tile coordinate.
-     * !#zh 删除指定坐标上的 tile。
-     * @method removeTileAt
-     * @param {Vec2|Number} pos position or x
-     * @param {Number} [y]
-     * @example
-     * tiledLayer.removeTileAt(cc.v2(0, 0));
-     * tiledLayer.removeTileAt(0, 0);
-     */
-    removeTileAt:function (pos, y) {
-        if (this._sgNode) {
-            if (y !== undefined)
-                pos = cc.p(pos, y);
-            this._sgNode.removeTileAt(pos);
+    _positionForIsoAt (x, y) {
+        return cc.p(
+            this._mapTileSize.width / 2 * ( this._layerSize.width + x - y - 1),
+            this._mapTileSize.height / 2 * (( this._layerSize.height * 2 - x - y) - 2)
+        );
+    },
+
+    _positionForOrthoAt (x, y) {
+        return cc.p(
+            x * this._mapTileSize.width,
+            (this._layerSize.height - y - 1) * this._mapTileSize.height
+        );
+    },
+
+    _positionForHexAt (x, y) {
+        let xy;
+        let offset = this._tileset.tileOffset;
+
+        let odd_even = (this._staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
+        switch (this._staggerAxis) {
+            case cc.TiledMap.StaggerAxis.STAGGERAXIS_Y:
+                let diffX = 0;
+                if (y % 2 === 1)
+                {
+                    diffX = this._mapTileSize.width/2 * odd_even;
+                }
+                xy = cc.p(x * this._mapTileSize.width+diffX+offset.x,
+                    (this._layerSize.height - y - 1) * (this._mapTileSize.height-(this._mapTileSize.height-this._hexSideLength)/2)-offset.y);
+                break;
+            case cc.TiledMap.StaggerAxis.STAGGERAXIS_X:
+                let diffY = 0;
+                if (x % 2 === 1)
+                {
+                    diffY = this._mapTileSize.height/2 * -odd_even;
+                }
+
+                xy = cc.p(x * (this._mapTileSize.width-(this._mapTileSize.width-this._hexSideLength)/2)+offset.x,
+                    (this._layerSize.height - y - 1) * this._mapTileSize.height + diffY-offset.y);
+                break;
+            default: 
+                xy = cc.p(0, 0);
+                break;
         }
+        return xy;
     },
 
     /**
@@ -198,61 +195,109 @@ var TiledLayer = cc.Class({
      * @example
      * tiledLayer.setTileGID(1001, 10, 10, 1)
      */
-    setTileGID: function(gid, posOrX, flagsOrY, flags) {
-        if (this._sgNode) {
-            if(posOrX === undefined)
-                throw new Error("_ccsg.TMXLayer.setTileGID(): pos should be non-null");
-            var pos;
-            if (flags !== undefined || !(posOrX instanceof cc.Vec2)) {
-                // four parameters or posOrX is not a Vec2 object
-                pos = cc.p(posOrX, flagsOrY);
-            } else {
-                pos = posOrX;
-                flags = flagsOrY;
-            }
-            this._sgNode.setTileGID(gid, pos, flags);
+    setTileGIDAt (gid, posOrX, flagsOrY, flags) {
+        if (posOrX === undefined) {
+            throw new Error("_ccsg.TMXLayer.setTileGID(): pos should be non-null");
         }
+        let pos;
+        if (flags !== undefined || !(posOrX instanceof cc.Vec2)) {
+            // four parameters or posOrX is not a Vec2 object
+            pos = cc.p(posOrX, flagsOrY);
+        } else {
+            pos = posOrX;
+            flags = flagsOrY;
+        }
+
+        pos.x = Math.floor(pos.x);
+        pos.y = Math.floor(pos.y);
+        if(pos.x >= this._layerSize.width || pos.y >= this._layerSize.height || pos.x < 0 || pos.y < 0) {
+            throw new Error("CCTiledLayer.setTileGID(): invalid position");
+        }
+        if (!this._tiles) {
+            cc.logID(7206);
+            return;
+        }
+        if (gid !== 0 && gid < this._tileset.firstGid) {
+            cc.logID(7207, gid);
+            return;
+        }
+
+        flags = flags || 0;
+        let currentFlags = this.getTileFlagsAt(pos);
+        let currentGID = this.getTileGIDAt(pos);
+
+        if (currentGID === gid && currentFlags === flags) return;
+
+        let gidAndFlags = (gid | flags) >>> 0;
+        this._updateTileForGID(gidAndFlags, pos);
     },
 
-    // TODO Add this method if necessary
-    // This method is removed because it's not existed in native.
-    /*
-     *  lipped tiles can be changed dynamically
-     * @method getTileFlagsAt
-     * @param {Vec2|Number} pos or x
-     * @param {Number} [y]
-     * @return {Number}
-     */
-    //getTileFlagsAt:function (pos, y) {
-    //    if (this._sgNode) {
-    //        return this._sgNode.getTileFlagsAt(pos, y);
-    //    }
-    //    return 0;
-    //},
+    _updateTileForGID (gid, pos) {
+        if (!this._texGrids[gid]) {
+            return;
+        }
+
+        let idx = 0 | (pos.x + pos.y * this._layerSize.width);
+        if (idx < this._tiles.length) {
+            this._tiles[idx] = gid;
+        }
+    },
 
     /**
      * !#en
      * Returns the tile gid at a given tile coordinate. <br />
      * if it returns 0, it means that the tile is empty. <br />
-     * This method requires the the tile map has not been previously released (eg. don't call layer.releaseMap())<br />
      * !#zh
      * 通过给定的 tile 坐标、flags（可选）返回 tile 的 GID. <br />
      * 如果它返回 0，则表示该 tile 为空。<br />
-     * 该方法要求 tile 地图之前没有被释放过(如：没有调用过layer.releaseMap()).
      * @method getTileGIDAt
      * @param {Vec2|Number} pos or x
      * @param {Number} [y]
      * @return {Number}
      * @example
-     * var tileGid = tiledLayer.getTileGIDAt(0, 0);
+     * let tileGid = tiledLayer.getTileGIDAt(0, 0);
      */
-    getTileGIDAt:function (pos, y) {
-        if (this._sgNode) {
-            if (y !== undefined)
-                pos = cc.p(pos, y);
-            return this._sgNode.getTileGIDAt(pos);
+    getTileGIDAt (pos, y) {
+        if (pos === undefined) {
+            throw new Error("_ccsg.TMXLayer.getTileGIDAt(): pos should be non-null");
         }
-        return 0;
+        let x = pos;
+        if (y === undefined) {
+            x = pos.x;
+            y = pos.y;
+        }
+        if (x >= this._layerSize.width || y >= this._layerSize.height || x < 0 || y < 0) {
+            throw new Error("_ccsg.TMXLayer.getTileGIDAt(): invalid position");
+        }
+        if (!this._tiles) {
+            cc.logID(7205);
+            return null;
+        }
+
+        let index = Math.floor(x) + Math.floor(y) * this._layerSize.width;
+        // Bits on the far end of the 32-bit global tile ID are used for tile flags
+        let tile = this._tiles[index];
+
+        return (tile & cc.TiledMap.TileFlag.FLIPPED_MASK) >>> 0;
+    },
+
+    getTileFlagsAt (pos, y) {
+        if(!pos)
+            throw new Error("_ccsg.TMXLayer.getTileFlagsAt(): pos should be non-null");
+        if(y !== undefined)
+            pos = cc.p(pos, y);
+        if(pos.x >= this._layerSize.width || pos.y >= this._layerSize.height || pos.x < 0 || pos.y < 0)
+            throw new Error("_ccsg.TMXLayer.getTileFlagsAt(): invalid position");
+        if(!this._tiles){
+            cc.logID(7208);
+            return null;
+        }
+
+        let idx = Math.floor(pos.x) + Math.floor(pos.y) * this._layerSize.width;
+        // Bits on the far end of the 32-bit global tile ID are used for tile flags
+        let tile = this._tiles[idx];
+
+        return (tile & cc.TiledMap.TileFlag.FLIPPED_ALL) >>> 0;
     },
 
     /**
@@ -272,54 +317,51 @@ var TiledLayer = cc.Class({
      * @method getTileAt
      * @param {Vec2|Number} pos or x
      * @param {Number} [y]
-     * @return {_ccsg.Sprite}
+     * @return {cc.TiledTile}
      * @example
-     * var title = tiledLayer.getTileAt(100, 100);
+     * let title = tiledLayer.getTileAt(100, 100);
      * cc.log(title);
      */
-    getTileAt: function (pos, y) {
-        if (this._sgNode) {
-            if (y !== undefined)
-                pos = cc.p(pos, y);
-            return this._sgNode.getTileAt(pos);
+    getTiledTileAt (pos, y) {
+        if (pos === undefined) {
+            throw new Error("_ccsg.TMXLayer.getTileAt(): pos should be non-null");
         }
-        return null;
+        let x = pos;
+        if (y === undefined) {
+            x = pos.x;
+            y = pos.y;
+        }
+        if (x >= this._layerSize.width || y >= this._layerSize.height || x < 0 || y < 0) {
+            throw new Error("_ccsg.TMXLayer.getTileAt(): invalid position");
+        }
+        if (!this._tiles) {
+            cc.logID(7204);
+            return null;
+        }
+
+        let index = Math.floor(x) + Math.floor(y) * this._layerSize.width;
+        return this._tiledTiles[index];
     },
 
-    /**
-     * !#en
-     * Dealloc the map that contains the tile position from memory. <br />
-     * Unless you want to know at runtime the tiles positions, you can safely call this method. <br />
-     * If you are going to call layer.getTileGIDAt() then, don't release the map.
-     * !#zh
-     * 从内存中释放包含 tile 位置信息的地图。<br />
-     * 除了在运行时想要知道 tiles 的位置信息外，你都可安全的调用此方法。<br />
-     * 如果你之后还要调用 layer.tileGIDAt(), 请不要释放地图.
-     * @method releaseMap
-     * @example
-     * tiledLayer.releaseMap();
-     */
-    releaseMap:function () {
-        if (this._sgNode) {
-            this._sgNode.releaseMap();
+    setTiledTileAt (pos, y, tiledTile) {
+        if (pos === undefined) {
+            throw new Error("_ccsg.TMXLayer.getTileAt(): pos should be non-null");
         }
-    },
+        let x = pos;
+        if (y === undefined) {
+            x = pos.x;
+            y = pos.y;
+        }
+        if (x >= this._layerSize.width || y >= this._layerSize.height || x < 0 || y < 0) {
+            throw new Error("_ccsg.TMXLayer.getTileAt(): invalid position");
+        }
+        if (!this._tiles) {
+            cc.logID(7204);
+            return null;
+        }
 
-    /**
-     * !#en Sets the untransformed size of the _ccsg.TMXLayer.
-     * !#zh 设置未转换的 layer 大小。
-     * @method setContentSize
-     * @param {Size|Number} size The untransformed size of the _ccsg.TMXLayer or The untransformed size's width of the TMXLayer.
-     * @param {Number} [height] The untransformed size's height of the _ccsg.TMXLayer.
-     * @example
-     * tiledLayer.setContentSize(100, 100);
-     */
-    setContentSize:function (size, height) {
-        if (this._sgNode) {
-            if (height !== undefined)
-                size = cc.size(size, height);
-            this._sgNode.setContentSize(size);
-        }
+        let index = Math.floor(x) + Math.floor(y) * this._layerSize.width;
+        return this._tiledTiles[index] = tiledTile;
     },
 
     /**
@@ -328,14 +370,11 @@ var TiledLayer = cc.Class({
      * @method getTexture
      * @return {Texture2D}
      * @example
-     * var texture = tiledLayer.getTexture();
+     * let texture = tiledLayer.getTexture();
      * cc.log("Texture: " + texture);
      */
-    getTexture: function(){
-        if (this._sgNode) {
-            return this._sgNode.getTexture();
-        }
-        return null;
+    getTexture () {
+        return this._texture;
     },
 
     /**
@@ -346,28 +385,9 @@ var TiledLayer = cc.Class({
      * @example
      * tiledLayer.setTexture(texture);
      */
-    setTexture: function(texture){
-        if (this._sgNode) {
-            this._sgNode.setTexture(texture);
-        }
-    },
-
-    /**
-     * !#en Set the opacity of all tiles
-     * !#zh 设置所有 Tile 的透明度
-     * @method setTileOpacity
-     * @param {Number} opacity
-     * @example
-     * tiledLayer.setTileOpacity(128);
-     */
-    setTileOpacity: function(opacity) {
-        if (this._sgNode) {
-            if (CC_JSB) {
-                this._sgNode.setTileOpacity(opacity);
-            } else {
-                this._sgNode._opacity = opacity;
-            }
-        }
+    setTexture (texture){
+        this._texture = texture;
+        this._activateMaterial();
     },
 
     /**
@@ -376,28 +396,11 @@ var TiledLayer = cc.Class({
      * @method getLayerSize
      * @return {Size}
      * @example
-     * var size = tiledLayer.getLayerSize();
+     * let size = tiledLayer.getLayerSize();
      * cc.log("layer size: " + size);
      */
-    getLayerSize:function () {
-        if (this._sgNode) {
-            return this._sgNode.getLayerSize();
-        }
-        return cc.size(0, 0);
-    },
-
-    /**
-     * !#en Set layer size.
-     * !#zh 设置层大小。
-     * @method setLayerSize
-     * @param {Size} layerSize
-     * @example
-     * tiledLayer.setLayerSize(new cc.size(5, 5));
-     */
-    setLayerSize:function (layerSize) {
-        if (this._sgNode) {
-            this._sgNode.setLayerSize(layerSize);
-        }
+    getLayerSize () {
+        return this._layerSize;
     },
 
     /**
@@ -406,57 +409,11 @@ var TiledLayer = cc.Class({
      * @method getMapTileSize
      * @return {Size}
      * @example
-     * var mapTileSize = tiledLayer.getMapTileSize();
+     * let mapTileSize = tiledLayer.getMapTileSize();
      * cc.log("MapTile size: " + mapTileSize);
      */
-    getMapTileSize:function () {
-        if (this._sgNode) {
-            return this._sgNode.getMapTileSize();
-        }
-        return cc.size(0, 0);
-    },
-
-    /**
-     * !#en Set the map tile size.
-     * !#zh 设置 tile 的大小。
-     * @method setMapTileSize
-     * @param {Size} tileSize
-     * @example
-     * tiledLayer.setMapTileSize(new cc.size(10, 10));
-     */
-    setMapTileSize:function (tileSize) {
-        if (this._sgNode) {
-            this._sgNode.setMapTileSize(tileSize);
-        }
-    },
-
-    /**
-     * !#en Pointer to the map of tiles.
-     * !#zh 获取地图 tiles。
-     * @method getTiles
-     * @return {Array}
-     * @example
-     * var tiles = tiledLayer.getTiles();
-     */
-    getTiles:function () {
-        if (this._sgNode) {
-            return this._sgNode.getTiles();
-        }
-        return null;
-    },
-
-    /**
-     * !#en Pointer to the map of tiles.
-     * !#zh 设置地图 tiles
-     * @method setTiles
-     * @param {Array} tiles
-     * @example
-     * tiledLayer.setTiles(tiles);
-     */
-    setTiles:function (tiles) {
-        if (this._sgNode) {
-            this._sgNode.setTiles(tiles);
-        }
+    getMapTileSize () {
+        return this._mapTileSize;
     },
 
     /**
@@ -465,13 +422,10 @@ var TiledLayer = cc.Class({
      * @method getTileSet
      * @return {TMXTilesetInfo}
      * @example
-     * var tileset = tiledLayer.getTileSet();
+     * let tileset = tiledLayer.getTileSet();
      */
-    getTileSet:function () {
-        if (this._sgNode) {
-            return this._sgNode.getTileSet();
-        }
-        return null;
+    getTileSet () {
+        return this._tileset;
     },
 
     /**
@@ -482,10 +436,8 @@ var TiledLayer = cc.Class({
      * @example
      * tiledLayer.setTileSet(tileset);
      */
-    setTileSet:function (tileset) {
-        if (this._sgNode) {
-            this._sgNode.setTileSet(tileset);
-        }
+    setTileSet (tileset) {
+        this._tileset = tileset;
     },
 
     /**
@@ -494,29 +446,13 @@ var TiledLayer = cc.Class({
      * @method getLayerOrientation
      * @return {Number}
      * @example
-     * var orientation = tiledLayer.getLayerOrientation();
+     * let orientation = tiledLayer.getLayerOrientation();
      * cc.log("Layer Orientation: " + orientation);
      */
-    getLayerOrientation:function () {
-        if (this._sgNode) {
-            return this._sgNode.getLayerOrientation();
-        }
-        return 0;
+    getLayerOrientation () {
+        return this._layerOrientation;
     },
 
-    /**
-     * !#en Layer orientation, which is the same as the map orientation.
-     * !#zh 设置 Layer 方向(同地图方向)。
-     * @method setLayerOrientation
-     * @param {TiledMap.Orientation} orientation
-     * @example
-     * tiledLayer.setLayerOrientation(TiledMap.Orientation.ORTHO);
-     */
-    setLayerOrientation:function (orientation) {
-        if (this._sgNode) {
-            this._sgNode.setLayerOrientation(orientation);
-        }
-    },
 
     /**
      * !#en properties from the layer. They can be added using Tiled.
@@ -524,41 +460,172 @@ var TiledLayer = cc.Class({
      * @method getProperties
      * @return {Array}
      * @example
-     * var properties = tiledLayer.getProperties();
+     * let properties = tiledLayer.getProperties();
      * cc.log("Properties: " + properties);
      */
-    getProperties:function () {
-        if (this._sgNode) {
-            return this._sgNode.getProperties();
-        }
-        return null;
+    getProperties () {
+        return this._properties;
     },
 
-    /**
-     * !#en properties from the layer. They can be added using Tiled.
-     * !#zh 设置层属性。
-     * @method setProperties
-     * @param {Array} properties
-     * @example
-     * tiledLayer.setLayerOrientation(properties);
-     */
-    setProperties:function (properties) {
-        if (this._sgNode) {
-            this._sgNode.setProperties(properties);
+    _init (tileset, layerInfo, mapInfo) {
+        let size = layerInfo._layerSize;
+        
+        // layerInfo
+        this._layerName = layerInfo.name;
+        this._tiles = layerInfo._tiles;
+        this._properties = layerInfo.properties;
+        this._layerSize = size;
+        this._minGID = layerInfo._minGID;
+        this._maxGID = layerInfo._maxGID;
+        this._opacity = layerInfo._opacity;
+        this._staggerAxis = mapInfo.getStaggerAxis();
+        this._staggerIndex = mapInfo.getStaggerIndex();
+        this._hexSideLength = mapInfo.getHexSideLength();
+
+        // tilesetInfo
+        this._tileset = tileset;
+
+        // mapInfo
+        this._layerOrientation = mapInfo.orientation;
+        this._mapTileSize = mapInfo.getTileSize();
+
+        let tilesets = mapInfo._tilesets;
+        if (tilesets) {
+            this._textures.length = tilesets.length;
+            this._texGrids.length = 0;
+            for (let i = 0, l = tilesets.length; i < l; ++i) {
+                let tilesetInfo = tilesets[i];
+                let tex = cc.textureUtil.loadImage(tilesetInfo.sourceImage);
+                this._textures[i] = tex;
+                this._fillTextureGrids(tilesetInfo, i);
+                if (tileset === tilesetInfo) {
+                    this.setTexture(tex);
+                }
+            }
+        }
+
+        // offset (after layer orientation is set);
+        this._offset = this._calculateLayerOffset(layerInfo.offset);
+
+        if (this.layerOrientation === cc.TiledMap.Orientation.HEX) {
+            let width = 0, height = 0;
+            if (this._staggerAxis === cc.TiledMap.StaggerAxis.STAGGERAXIS_X) {
+                height = mapInfo._tileSize.height * (this._layerSize.height + 0.5);
+                width = (mapInfo._tileSize.width + this._hexSideLength) * Math.floor(this._layerSize.width / 2) + mapInfo._tileSize.width * (this._layerSize.width % 2);
+            } else {
+                width = mapInfo._tileSize.width * (this._layerSize.width + 0.5);
+                height = (mapInfo._tileSize.height + this._hexSideLength) * Math.floor(this._layerSize.height / 2) + mapInfo._tileSize.height * (this._layerSize.height % 2);
+            }
+            this.node.setContentSize(width, height);
+        } else {
+            this.node.setContentSize(this._layerSize.width * this._mapTileSize.width,
+                this._layerSize.height * this._mapTileSize.height);
+        }
+        this._useAutomaticVertexZ = false;
+        this._vertexZvalue = 0;
+    },
+
+    _calculateLayerOffset (pos) {
+        let ret = cc.p(0,0);
+        switch (this.layerOrientation) {
+            case cc.TiledMap.Orientation.ORTHO:
+                ret = cc.p(pos.x * this._mapTileSize.width, -pos.y * this._mapTileSize.height);
+                break;
+            case cc.TiledMap.Orientation.ISO:
+                ret = cc.p((this._mapTileSize.width / 2) * (pos.x - pos.y),
+                    (this._mapTileSize.height / 2 ) * (-pos.x - pos.y));
+                break;
+            case cc.TiledMap.Orientation.HEX:
+                if(this._staggerAxis === cc.TiledMap.StaggerAxis.STAGGERAXIS_Y)
+                {
+                    let diffX = (this._staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_EVEN) ? this._mapTileSize.width/2 : 0;
+                    ret = cc.p(pos.x * this._mapTileSize.width + diffX,
+                               -pos.y * (this._mapTileSize.height - (this._mapTileSize.width - this._hexSideLength) / 2));
+                }
+                else if(this._staggerAxis === cc.TiledMap.StaggerAxis.STAGGERAXIS_X)
+                {
+                    let diffY = (this._staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD) ? this._mapTileSize.height/2 : 0;
+                    ret = cc.p(pos.x * (this._mapTileSize.width - (this._mapTileSize.width - this._hexSideLength) / 2),
+                               -pos.y * this._mapTileSize.height + diffY);
+                }
+                break;
+        }
+        return ret;
+    },
+
+    _fillTextureGrids (tileset, texId) {
+        let tex = this._textures[texId];
+        if (!tex.loaded) {
+            tex.once('load', function () {
+                this._fillTextureGrids(tileset, texId);
+            }, this);
+            return;
+        }
+        if (!tileset.imageSize.width || !tileset.imageSize.height) {
+            tileset.imageSize.width = tex.width;
+            tileset.imageSize.height = tex.height;
+        }
+        let tw = tileset._tileSize.width,
+            th = tileset._tileSize.height,
+            imageW = tex.width,
+            imageH = tex.height,
+            spacing = tileset.spacing,
+            margin = tileset.margin,
+
+            cols = Math.floor((imageW - margin*2 + spacing) / (tw + spacing)),
+            rows = Math.floor((imageH - margin*2 + spacing) / (th + spacing)),
+            count = rows * cols,
+
+            gid = tileset.firstGid,
+            maxGid = tileset.firstGid + count,
+            grids = this._texGrids,
+            grid = null,
+            override = grids[gid] ? true : false,
+            texelCorrect = cc.macro.FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX ? 0.5 : 0;
+
+        for (; gid < maxGid; ++gid) {
+            // Avoid overlapping
+            if (override && !grids[gid]) {
+                override = false;
+            }
+            if (!override && grids[gid]) {
+                break;
+            }
+
+            grid = {
+                texId: texId,
+                x: 0, y: 0, width: tw, height: th,
+                t: 0, l: 0, r: 0, b: 0
+            };
+            tileset.rectForGID(gid, grid);
+            grid.x += texelCorrect;
+            grid.y += texelCorrect;
+            grid.width -= texelCorrect*2;
+            grid.height -= texelCorrect*2;
+            grid.t = (grid.y) / imageH;
+            grid.l = (grid.x) / imageW;
+            grid.r = (grid.x + grid.width) / imageW;
+            grid.b = (grid.y + grid.height) / imageH;
+            grids[gid] = grid;
         }
     },
 
-    // The method will remove self component from the node,
-    // and try to remove the node from scene graph.
-    // It should only be invoked by cc.TiledMap
-    // DO NOT use it manually.
-    _tryRemoveNode: function() {
-        this.node.removeComponent(cc.TiledLayer);
-        if (this.node._components.length === 1 &&
-            this.node.getChildren().length === 0) {
-            this.node.removeFromParent();
+    _activateMaterial () {
+        if (this._material) return;
+        
+        let texture = this._texture;
+        let url = texture.url;
+        let material = renderer.materialUtil.get(url);
+        
+        // Get material
+        if (!material) {
+            material = new SpriteMaterial();
+            material.texture = texture.getImpl();
+            renderer.materialUtil.register(url, material);
         }
-    }
+
+        this._material = material;
+    },
 });
 
 cc.TiledLayer = module.exports = TiledLayer;
