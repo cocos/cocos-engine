@@ -329,26 +329,18 @@ cc._throw = CC_EDITOR ? Editor.error : function (error) {
     }
 };
 
-var errorMapUrl = 'https://github.com/cocos-creator/engine/blob/master/EngineErrorMap.md';
-
 function genLogFunc(func, type) {
     return function (id) {
         'use strict';
+        var msg = cc._LogInfos.raw(id, type);
         if (arguments.length === 1) {
-            CC_DEBUG ? func(cc._LogInfos[id]) : func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details.');
-            return;
+            func(msg);
         }
-        if (CC_DEBUG) {
-            let argsArr = cc.js.shiftArguments.apply(null, arguments);
-            func.apply(cc, [cc._LogInfos[id]].concat(argsArr));
-        } else {
-            var msg = '';
-            if (arguments.length === 2) {
-                msg = 'Arguments: ' + arguments[1];
-            } else if (arguments.length > 2) {
-                msg = 'Arguments: ' + cc.js.shiftArguments.apply(null, arguments).join(', ');
-            }
-            func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + msg);
+        else if (arguments.length === 2) {
+            func(CC_DEBUG ? cc.js.formatStr(msg, arguments[1]) : msg + ' Arguments: ' + arguments[1]);
+        }
+        else {
+            func(cc._LogInfos.e(msg, cc.js.shiftArguments.apply(null, arguments)));
         }
     };
 }

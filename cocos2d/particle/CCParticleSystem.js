@@ -914,7 +914,7 @@ var ParticleSystem = cc.Class({
             var self = this;
             cc.loader.load(file, function (err, content) {
                 if (err || !content) {
-                    throw err || new Error('Unkown error');
+                    throw err || new Error(cc._LogInfos.e(6029));
                 }
                 if (!self.isValid) {
                     return;

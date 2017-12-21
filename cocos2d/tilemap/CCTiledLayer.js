@@ -201,7 +201,7 @@ var TiledLayer = cc.Class({
     setTileGID: function(gid, posOrX, flagsOrY, flags) {
         if (this._sgNode) {
             if(posOrX === undefined)
-                throw new Error("_ccsg.TMXLayer.setTileGID(): pos should be non-null");
+                throw new Error(cc._LogInfos.e(7223));
             var pos;
             if (flags !== undefined || !(posOrX instanceof cc.Vec2)) {
                 // four parameters or posOrX is not a Vec2 object

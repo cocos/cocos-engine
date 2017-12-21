@@ -54,7 +54,7 @@ AssetLoader.prototype.handle = function (item, callback) {
             if (isRawAsset) {
                 var ext = Path.extname(url).toLowerCase();
                 if (!ext) {
-                    callback(new Error('Download Uuid: can not find type of raw asset[' + uuid + ']: ' + url));
+                    callback(new Error(cc._LogInfos.e(4931, uuid, url)));
                     return;
                 }
                 ext = ext.substr(1);

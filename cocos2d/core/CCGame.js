@@ -650,7 +650,7 @@ var game = {
         if (this._rendererInitialized) return;
 
         if (!cc._supportRender) {
-            throw new Error("The renderer doesn't support the renderMode " + this.config[this.CONFIG_KEY.renderMode]);
+            throw new Error(cc._LogInfos.e(3820, this.config[this.CONFIG_KEY.renderMode]));
         }
 
         var el = this.config[game.CONFIG_KEY.id],

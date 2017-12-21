@@ -1053,7 +1053,7 @@ var eventManager = {
         this._updateDirtyFlagForSceneGraph();
         this._inDispatch++;
         if(!event || !event.getType)
-            throw new Error("event is undefined");
+            throw new Error(cc._LogInfos.e(3511));
         if (event.getType().startsWith(cc.Event.TOUCH)) {
             this._dispatchTouchEvent(event);
             this._inDispatch--;

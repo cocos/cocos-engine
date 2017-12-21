@@ -44,7 +44,7 @@ var DrawingPrimitiveWebGL = cc._Class.extend({
      */
     ctor:function (ctx) {
         if (cc.sys.platform !== cc.sys.WECHAT_GAME && !ctx instanceof WebGLRenderingContext)
-            throw new Error("Can't initialise DrawingPrimitiveWebGL. context need is WebGLRenderingContext");
+            throw new Error(cc._LogInfos.e(6703));
 
         this._renderContext = ctx;
         this._colorArray = new Float32Array([1.0, 1.0, 1.0, 1.0]);
