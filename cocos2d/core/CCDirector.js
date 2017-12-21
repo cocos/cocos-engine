@@ -352,6 +352,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * 如果要获取屏幕物理分辨率，需要用 cc.view.getFrameSize()）
      * @method getWinSizeInPixels
      * @return {Size}
+     * @deprecated
      */
     getWinSizeInPixels: function () {
         return cc.size(this._winSizeInPoints.width * this._contentScaleFactor, this._winSizeInPoints.height * this._contentScaleFactor);
