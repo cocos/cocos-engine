@@ -346,9 +346,13 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * Returns the size of the OpenGL view in pixels.<br/>
      * It takes into account any possible rotation (device orientation) of the window.<br/>
      * On Mac winSize and winSizeInPixels return the same value.
-     * !#zh 获取视图大小，以像素为单位。
+     * (The pixel here refers to the resource resolution. If you want to get the physics resolution of device, you need to use cc.view.getFrameSize())
+     * !#zh
+     * 获取视图大小，以像素为单位（这里的像素指的是资源分辨率。
+     * 如果要获取屏幕物理分辨率，需要用 cc.view.getFrameSize()）
      * @method getWinSizeInPixels
      * @return {Size}
+     * @deprecated
      */
     getWinSizeInPixels: function () {
         return cc.size(this._winSizeInPoints.width * this._contentScaleFactor, this._winSizeInPoints.height * this._contentScaleFactor);
