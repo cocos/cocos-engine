@@ -1998,8 +1998,10 @@ var Node = cc.Class({
      * Returns the displayed color of Node,
      * the difference between displayed color and color is that displayed color is calculated based on color and parent node's color when cascade color enabled.
      * !#zh
-     * 获取节点的显示透明度，
-     * 显示透明度和透明度之间的不同之处在于显示透明度是基于透明度和父节点透明度启用级连透明度时计算的。
+     * 获取节点的显示颜色，
+     * 显示颜色和颜色之间的不同之处在于当启用级连颜色时，
+     * 显示颜色是基于自身颜色和父节点颜色计算的。
+     *
      * @method getDisplayedColor
      * @returns {Color}
      * @example
