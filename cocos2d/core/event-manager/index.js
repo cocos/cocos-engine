@@ -36,3 +36,8 @@ else {
 }
 
 module.exports = eventManager;
+
+if (CC_TEST) {
+    cc._Test.eventManager = eventManager;
+}
+

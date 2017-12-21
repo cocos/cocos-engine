@@ -201,7 +201,7 @@ function _resetGame (w, h) {
         var size = view.getDesignResolutionSize();
         view.setDesignResolutionSize(size.width, size.height, cc.ResolutionPolicy.SHOW_ALL);
 
-        cc.eventManager.dispatchCustomEvent('canvas-resize');
+        cc._Test.eventManager.dispatchCustomEvent('canvas-resize');
     }
     cc.director.purgeDirector();
     cc.loader.releaseAll();
