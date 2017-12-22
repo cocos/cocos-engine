@@ -182,26 +182,35 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, callback, 
     return bundler.on('end', callback);
 };
 
-exports.buildPreview = function (sourceFile, outputFile, callback) {
+exports.buildPreview = function (sourceFile, outputFile, callback, devMode) {
+    var cacheDir = devMode && Path.resolve(Path.dirname(outputFile), '.cache/preview-compile-cache');
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
-    var bundler = createBundler(sourceFile);
-    bundler.bundle()
+    var bundler = createBundler(sourceFile, {
+        cacheDir: cacheDir,
+        sourcemaps: !devMode
+    });
+    var bundler = bundler
+        .bundle()
         .on('error', HandleErrors.handler)
         .pipe(HandleErrors())
         .pipe(Source(outFile))
-        .pipe(Buffer())
-        .pipe(Sourcemaps.init({loadMaps: true}))
-        .pipe(Minify(Utils.getUglifyOptions('preview', false, false)))
-        .pipe(Optimizejs({
-            sourceMap: false
-        }))
-        .pipe(Sourcemaps.write('./', {
-            sourceRoot: '../',
-            includeContent: false,
-            addComment: true
-        }))
+        .pipe(Buffer());
+    if (!devMode) {
+        bundler = bundler
+            .pipe(Sourcemaps.init({loadMaps: true}))
+            .pipe(Minify(Utils.getUglifyOptions('preview', false, false)))
+            .pipe(Optimizejs({
+                sourceMap: false
+            }))
+            .pipe(Sourcemaps.write('./', {
+                sourceRoot: '../',
+                includeContent: false,
+                addComment: true
+            }));
+    }
+    bundler
         .pipe(Gulp.dest(outDir))
         .on('end', callback);
 };
