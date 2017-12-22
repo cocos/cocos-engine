@@ -1,9 +1,36 @@
+/****************************************************************************
+ Copyright (c) 2017-2018 Chukong Technologies Inc.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Chukong Aipu reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
+
 const renderEngine = require('../../render-engine');
 const RenderData = renderEngine.RenderData;
 
 const Label = require('../../../components/CCLabel');
 const LabelOutline = require('../../../components/CCLabelOutline');
 const Overflow = Label.Overflow;
+
+const spriteAssembler = require('../sprite/simple');
 
 let _comp = null;
 
@@ -60,36 +87,7 @@ module.exports = {
         return renderData;
     },
 
-    fillVertexBuffer (comp, index, vbuf, uintbuf) {
-        let off = index * comp._vertexFormat._bytes / 4;
-        let node = comp.node;
-        let renderData = comp._renderData;
-        let data = renderData._data;
-        let z = node._position.z;
-        let color = node._color._val;
-        
-        node._updateWorldMatrix();
-        let matrix = node._worldMatrix;
-        let a = matrix.m00,
-            b = matrix.m01,
-            c = matrix.m04,
-            d = matrix.m05,
-            tx = matrix.m12,
-            ty = matrix.m13;
-    
-        let vert;
-        let length = renderData.dataLength;
-        for (let i = 0; i < length; i++) {
-            vert = data[i];
-            vbuf[off + 0] = vert.x * a + vert.y * c + tx;
-            vbuf[off + 1] = vert.x * b + vert.y * d + ty;
-            vbuf[off + 2] = z;
-            vbuf[off + 4] = vert.u;
-            vbuf[off + 5] = vert.v;
-            uintbuf[off + 3] = color;
-            off += 6;
-        }
-    },
+    fillVertexBuffer: spriteAssembler.fillVertexBuffer,
     
     fillIndexBuffer (comp, offset, vertexId, ibuf) {
         ibuf[offset + 0] = vertexId;

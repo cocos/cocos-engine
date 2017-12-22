@@ -1,10 +1,37 @@
+/****************************************************************************
+ Copyright (c) 2017-2018 Chukong Technologies Inc.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Chukong Aipu reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
+
 const StencilManager = require('../stencil-manager');
-const spriteUtil = require('./sprite-assembler').simpleRenderUtil;
 const Node = require('../../CCNode');
-const Graphics = require('../../graphics/graphics');
 const Mask = require('../../components/CCMask');
 const renderEngine = require('../render-engine');
 const RenderData = renderEngine.RenderData;
+
+const spriteAssembler = require('./sprite/simple');
+const Graphics = require('../../graphics/graphics');
+const graphicsAssembler = require('./graphics/graphics-assembler');
 
 let _stencilMgr = StencilManager.sharedManager;
 let _color = cc.color(255, 255, 255, 0);
@@ -40,7 +67,7 @@ let maskFrontAssembler = {
     updateRenderData (mask) {
         if (!mask._renderData) {
             if (mask._type === Mask.Type.IMAGE_STENCIL) {
-                mask._renderData = spriteUtil.createData(mask);
+                mask._renderData = spriteAssembler.createData(mask);
             }
             else {
                 mask._renderData = RenderData.alloc();
@@ -55,7 +82,7 @@ let maskFrontAssembler = {
         if (mask._type === Mask.Type.IMAGE_STENCIL) {
             if (mask.spriteFrame) {
                 renderData.dataLength = 4;
-                spriteUtil.update(mask);
+                spriteAssembler.update(mask);
             }
             else {
                 mask._material = null;
@@ -75,23 +102,23 @@ let maskFrontAssembler = {
         _stencilMgr.pushMask(mask);
 
         if (mask._type === Mask.Type.IMAGE_STENCIL) {
-            spriteUtil.fillVertexBuffer(mask, index, vbuf, uintbuf);
+            spriteAssembler.fillVertexBuffer(mask, index, vbuf, uintbuf);
         }
         else {
             // Share node for correct global matrix
             _graphics.node = mask.node;
             _graphics._renderData = mask._renderData;
-            Graphics._assembler.fillVertexBuffer(_graphics, index, vbuf, uintbuf);
+            graphicsAssembler.fillVertexBuffer(_graphics, index, vbuf, uintbuf);
         }
     },
     fillIndexBuffer (mask, offset, vertexId, ibuf) {
         if (mask._type === Mask.Type.IMAGE_STENCIL) {
             if (mask.spriteFrame) {
-                spriteUtil.fillIndexBuffer(mask, offset, vertexId, ibuf);
+                spriteAssembler.fillIndexBuffer(mask, offset, vertexId, ibuf);
             }
         }
         else {
-            Graphics._assembler.fillIndexBuffer(_graphics, offset, vertexId, ibuf);
+            graphicsAssembler.fillIndexBuffer(_graphics, offset, vertexId, ibuf);
         }
     }
 }
@@ -115,13 +142,13 @@ let maskEndAssembler = {
         _stencilMgr.popMask();
 
         if (mask._type === Mask.Type.IMAGE_STENCIL) {
-            spriteUtil.fillVertexBuffer(mask, index, vbuf, uintbuf);
+            spriteAssembler.fillVertexBuffer(mask, index, vbuf, uintbuf);
         }
         else {
             // Share node for correct global matrix
             _graphics.node = mask.node;
             _graphics._renderData = mask._renderData;
-            Graphics._assembler.fillVertexBuffer(_graphics, index, vbuf, uintbuf);
+            graphicsAssembler.fillVertexBuffer(_graphics, index, vbuf, uintbuf);
         }
     },
     fillIndexBuffer: maskFrontAssembler.fillIndexBuffer
