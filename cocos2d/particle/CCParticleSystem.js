@@ -411,28 +411,64 @@ var properties = {
      * @property {Color} startColor
      * @default cc.Color.WHITE
      */
-    startColor: cc.Color.WHITE,
+    _startColor: cc.Color.WHITE,
+    startColor: {
+        get () {
+            return this._startColor;
+        },
+        set (val) {
+            this._startColor.fromColor(val);
+            this._vfx.startColor = val;
+        }
+    },
     /**
      * !#en Variation of the start color.
      * !#zh 粒子初始颜色变化范围。
      * @property {Color} startColorVar
      * @default cc.Color.BLACK
      */
-    startColorVar: cc.Color.BLACK,
+    _startColorVar: cc.Color.BLACK,
+    startColorVar: {
+        get () {
+            return this._startColorVar;
+        },
+        set (val) {
+            this._startColorVar.fromColor(val);
+            this._vfx.startColorVar = val;
+        }
+    },
     /**
      * !#en Ending color of each particle.
      * !#zh 粒子结束颜色。
      * @property {Color} endColor
      * @default new cc.Color(255, 255, 255, 0)
      */
-    endColor: cc.color(255, 255, 255, 0),
+    _endColor: cc.color(255, 255, 255, 0),
+    endColor: {
+        get () {
+            return this._endColor;
+        },
+        set (val) {
+            this._endColor.fromColor(val);
+            this._vfx.endColor = val;
+        }
+    },
     /**
      * !#en Variation of the end color.
      * !#zh 粒子结束颜色变化范围。
      * @property {Color} endColorVar -
      * @default Color.TRANSPARENT
      */
-    endColorVar: cc.color(0, 0, 0, 0),
+    _endColorVar: cc.color(0, 0, 0, 0),
+    endColorVar: {
+        get () {
+            return this._endColorVar;
+        },
+        set (val) {
+            this._endColorVar.fromColor(val);
+            this._vfx.endColorVar = val;
+        }
+    },
 
     /**
      * !#en Angle of each particle setter.
@@ -885,18 +921,16 @@ var ParticleSystem = cc.Class({
             if (this._custom) { 
                 var missCustomTexture = !this._texture; 
                 if (missCustomTexture) { 
-                    this._applyFile(); 
+                    this._applyFile();
                 } 
-                else { 
-                    // this._applyCustoms(); 
-                } 
+                this._applyCustoms(); 
             } 
             else { 
                 this._applyFile(); 
             } 
         } 
         else if (this._custom) { 
-            // this._applyCustoms(); 
+            this._applyCustoms(); 
         } 
         // auto play
         if (!CC_EDITOR || cc.engine.isPlaying) {
@@ -1044,6 +1078,19 @@ var ParticleSystem = cc.Class({
                 }
             });
         }
+    },
+
+    _applyCustoms: function () {
+        // trigger vfx config update after deserialize
+        this._particleCountDirty = true;
+        this._sizeScaleDirty = true;
+        this._radiusScaleDirty = true;
+        this._accelScaleDirty = true;
+        let vfx = this._vfx;
+        vfx.startColor = this.startColor;
+        vfx.startColorVar = this.startColorVar;
+        vfx.endColor = this.endColor;
+        vfx.endColorVar = this.endColorVar;
     },
 
     _initTextureWithDictionary: function (dict) {
@@ -1232,13 +1279,15 @@ var ParticleSystem = cc.Class({
     },
 
     _updateMaterialSize: function () {
-        let vfx = this._vfx;
-        this._statesize.x = vfx.statesize[0];
-        this._statesize.y = vfx.statesize[1];
-        this._quadsize.x = vfx.quadsize[0];
-        this._quadsize.y = vfx.quadsize[1];
-        this._material.stateSize = this._statesize;
-        this._material.quadSize = this._quadsize;
+        if (this._material) {
+            let vfx = this._vfx;
+            this._statesize.x = vfx.statesize[0];
+            this._statesize.y = vfx.statesize[1];
+            this._quadsize.x = vfx.quadsize[0];
+            this._quadsize.y = vfx.quadsize[1];
+            this._material.stateSize = this._statesize;
+            this._material.quadSize = this._quadsize;
+        }
     },
 
     _updateMaterial: function () {
