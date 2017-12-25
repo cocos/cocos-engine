@@ -76,15 +76,19 @@ var particleSystemAssembler = {
 
     fillIndexBuffer (comp, offset, vertexId, ibuf) {
         let quads = comp._vfx.buffers.indexes.length / 4;
-        for (let i = 0; i < quads; i++) {
-            ibuf[offset + 0] = vertexId;
-            ibuf[offset + 1] = vertexId + 1;
-            ibuf[offset + 2] = vertexId + 2;
-            ibuf[offset + 3] = vertexId + 1;
-            ibuf[offset + 4] = vertexId + 3;
-            ibuf[offset + 5] = vertexId + 2;
-            offset += 6;
-            vertexId += 4;
+        let quadsize = comp._vfx.quadsize;
+        let w = quadsize[0], h = quadsize[1];
+        for (let y = 0; y < h; y+=2) {
+            for (let x = 0; x < w; x+=2) {
+                let i = vertexId + y * w + x;
+                ibuf[offset + 0] = i;
+                ibuf[offset + 1] = i + 1;
+                ibuf[offset + 2] = i + w;
+                ibuf[offset + 3] = i + 1;
+                ibuf[offset + 4] = i + w + 1;
+                ibuf[offset + 5] = i + w;
+                offset += 6;
+            }
         }
     }
 }
