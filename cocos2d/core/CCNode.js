@@ -315,10 +315,10 @@ var Node = cc.Class({
         _color: cc.Color.WHITE,
         _cascadeOpacityEnabled: true,
         _contentSize: cc.Size,
-        _anchorPoint: cc.Vec2,
-        _position: cc.Vec2,
-        _scaleX: 0.0,
-        _scaleY: 0.0,
+        _anchorPoint: cc.v2(0.5, 0.5),
+        _position: cc.Vec3,
+        _scaleX: 1.0,
+        _scaleY: 1.0,
         _rotationX: 0.0,
         _rotationY: 0.0,
         _skewX: 0.0,
@@ -841,11 +841,6 @@ var Node = cc.Class({
         // Mouse event listener
         this._mouseListener = null;
 
-        this._anchorPoint = mathPools.vec2.get();
-        this._anchorPoint.x = this._anchorPoint.y = 0.5;
-        this._scaleX = this._scaleY = 1.0;
-        this._position = mathPools.vec3.get();
-
         this._matrix = mathPools.mat4.get();
         this._worldMatrix = mathPools.mat4.get();
         this._localMatDirty = true;
@@ -901,8 +896,6 @@ var Node = cc.Class({
         cc.eventManager.removeListeners(this);
 
         // Recycle math objects
-        mathPools.vec2.put(this._anchorPoint);
-        mathPools.vec3.put(this._position);
         mathPools.mat4.put(this._matrix);
         mathPools.mat4.put(this._worldMatrix);
 
