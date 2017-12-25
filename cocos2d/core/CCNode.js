@@ -51,7 +51,6 @@ var ActionManagerExist = !!cc.ActionManager;
 var emptyFunc = function () {};
 var _mat4_temp = math.mat4.create();
 var _vec3_temp = math.vec3.create();
-var _trans = affineTrans.make();
 var _globalOrderOfArrival = 1;
 
 /**
@@ -1193,9 +1192,10 @@ var Node = cc.Class({
         }
 
         this._updateWorldMatrix();
-        math.vec2.transformMat4(testPt, testPt, this._worldMatrix);
-        testPt.x -= this._anchorPoint.x * this._contentSize.width;
-        testPt.y -= this._anchorPoint.y * this._contentSize.height;
+        math.mat4.invert(_mat4_temp, this._worldMatrix);
+        math.vec2.transformMat4(testPt, testPt, _mat4_temp);
+        testPt.x += this._anchorPoint.x * this._contentSize.width;
+        testPt.y += this._anchorPoint.y * this._contentSize.height;
 
         if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
             if (listener && listener.mask) {
