@@ -1032,18 +1032,11 @@ var ParticleSystem = cc.Class({
                 }
 
                 self._plistFile = file;
-                self._initWithDictionary(content);
-
-                // To avoid it export custom particle data textureImageData too large,
-                // so use the texutreUuid instead of textureImageData
-                if (content.textureUuid) {
-                    cc.AssetLibrary.queryAssetInfo(content.textureUuid, function (err, url, raw) {
-                        if (err) {
-                            cc.error(err);
-                            return;
-                        }
-                        self.texture = url;
-                    });
+                if (self._custom) {
+                    self._initTextureWithDictionary(content);
+                }
+                else {
+                    self._initWithDictionary(content);
                 }
 
                 if (!CC_EDITOR || cc.engine.isPlaying) {
@@ -1051,6 +1044,51 @@ var ParticleSystem = cc.Class({
                 }
             });
         }
+    },
+
+    _initTextureWithDictionary: function (dict) {
+        var imgPath = cc.path.changeBasename(this._plistFile, dict["textureFileName"]);
+        // texture
+        if (dict["textureFileName"]) {
+            // Try to get the texture from the cache
+            var tex = cc.textureUtil.loadImage(imgPath);
+            // TODO: Use cc.loader to load asynchronously the SpriteFrame object, avoid using textureUtil
+            this.spriteFrame = new cc.SpriteFrame(tex);
+        } else if (dict["textureImageData"]) {
+            var textureData = dict["textureImageData"];
+
+            if (textureData && textureData.length > 0) {
+                var buffer = codec.unzipBase64AsArray(textureData, 1);
+                if (!buffer) {
+                    cc.logID(6010);
+                    return false;
+                }
+
+                var imageFormat = cc.getImageFormatByData(buffer);
+                if (imageFormat !== cc.ImageFormat.TIFF && imageFormat !== cc.ImageFormat.PNG) {
+                    cc.logID(6011);
+                    return false;
+                }
+
+                var canvasObj = document.createElement("canvas");
+                if(imageFormat === cc.ImageFormat.PNG){
+                    var myPngObj = new PNGReader(buffer);
+                    myPngObj.render(canvasObj);
+                } else {
+                    tiffReader.parseTIFF(buffer,canvasObj);
+                }
+
+                var tex = cc.textureUtil.cacheImage(imgPath, canvasObj);
+                if (!tex)
+                    cc.logID(6012);
+                // TODO: Use cc.loader to load asynchronously the SpriteFrame object, avoid using textureUtil
+                this.spriteFrame = new cc.SpriteFrame(tex);
+            }
+            else {
+                return false;
+            }
+        }
+        return true;
     },
 
     // parsing process
@@ -1160,48 +1198,7 @@ var ParticleSystem = cc.Class({
             return false;
         }
 
-        var imgPath = cc.path.changeBasename(this._plistFile, dict["textureFileName"]);
-        // texture
-        if (dict["textureFileName"]) {
-            // Try to get the texture from the cache
-            var tex = cc.textureUtil.loadImage(imgPath);
-            // TODO: Use cc.loader to load asynchronously the SpriteFrame object, avoid using textureUtil
-            this.spriteFrame = new cc.SpriteFrame(tex);
-        } else if (dict["textureImageData"]) {
-            var textureData = dict["textureImageData"];
-
-            if (textureData && textureData.length > 0) {
-                var buffer = codec.unzipBase64AsArray(textureData, 1);
-                if (!buffer) {
-                    cc.logID(6010);
-                    return false;
-                }
-
-                var imageFormat = cc.getImageFormatByData(buffer);
-
-                if (imageFormat !== cc.ImageFormat.TIFF && imageFormat !== cc.ImageFormat.PNG) {
-                    cc.logID(6011);
-                    return false;
-                }
-
-                var canvasObj = document.createElement("canvas");
-                if(imageFormat === cc.ImageFormat.PNG){
-                    var myPngObj = new PNGReader(buffer);
-                    myPngObj.render(canvasObj);
-                } else {
-                    tiffReader.parseTIFF(buffer,canvasObj);
-                }
-
-                var tex = cc.textureUtil.cacheImage(imgPath, canvasObj);
-                if (!tex)
-                    cc.logID(6012);
-                // TODO: Use cc.loader to load asynchronously the SpriteFrame object, avoid using textureUtil
-                this.spriteFrame = new cc.SpriteFrame(tex);
-            }
-            else {
-                return false;
-            }
-        }
+        this._initTextureWithDictionary(dict);
         return true;
     },
 
