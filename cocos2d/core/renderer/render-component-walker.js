@@ -111,6 +111,7 @@ RenderComponentWalker.prototype = {
         }
         this._modelPool.reset();
         models.length = 0;
+        this._node = this._dummyNode;
         this._sortKey = 0;
 
         // Reset buffer
