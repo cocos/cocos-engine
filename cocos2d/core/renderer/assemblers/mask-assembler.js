@@ -40,6 +40,8 @@ let _graphics = _graphicsNode.addComponent(Graphics);
 _graphics.lineWidth = 0;
 
 let maskFrontAssembler = {
+    useModel: false,
+
     update (mask) {
         let renderData = mask._renderData;
         if (renderData.vertDirty) {

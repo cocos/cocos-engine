@@ -3,6 +3,8 @@ const renderEngine = require('../render-engine');
 const RenderData = renderEngine.RenderData;
 
 var particleSystemAssembler = {
+    useModel: true,
+
     updateUVs (comp) {
         let effect = comp.getEffect();
         let renderData = comp._renderData;

@@ -63,6 +63,8 @@ let filledRenderUtil = {
 
 // Inline all type switch to avoid jit deoptimization during inlined function change
 let spriteAssembler = {
+    useModel: false,
+
     updateRenderData (sprite) {
         // Create render data if needed
         if (!sprite._renderData) {

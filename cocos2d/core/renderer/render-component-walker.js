@@ -87,6 +87,7 @@ var RenderComponentWalker = function (device, renderScene) {
     this._queue = [];
     this._batchedModels = [];
     this._dummyNode = new cc.Node();
+    this._node = this._dummyNode;
     this._sortKey = 0;
 };
 
@@ -178,7 +179,7 @@ RenderComponentWalker.prototype = {
         this._batchedModels.push(model);
         model.sortKey = this._sortKey++;
         model._viewID = -1;
-        model.setNode(this._dummyNode);
+        model.setNode(this._node);
         model.addEffect(effect);
         model.addInputAssembler(ia);
         
@@ -275,11 +276,17 @@ RenderComponentWalker.prototype = {
                     uintVerts = this._uintVerts;
                     indices = this._indices;
                 }
+                this._node = this._dummyNode;
                 currEffect = effect;
             }
             // Init effect
             else if (!currEffect) {
                 currEffect = effect;
+            }
+
+            // Set model
+            if (assembler.useModel) {
+                this._node = comp.node;
             }
 
             vertexId = vertexOffset - this._vOffset;

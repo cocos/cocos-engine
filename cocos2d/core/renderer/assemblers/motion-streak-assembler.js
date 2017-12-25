@@ -26,6 +26,8 @@
 const MotionStreak = require('../../../motion-streak/CCMotionStreak');
 
 var motionStreakAssembler = {
+    useModel: false,
+
     updateRenderData (comp) {
         let renderData = comp._renderData;
         let size = comp.node._contentSize;
