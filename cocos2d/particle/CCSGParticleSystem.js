@@ -1300,7 +1300,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
 
                     var imageFormat = cc.getImageFormatByData(buffer);
 
-                    if(imageFormat !== cc.ImageFormat.TIFF && imageFormat !== cc.ImageFormat.PNG){
+                    if (imageFormat !== cc.ImageFormat.TIFF && imageFormat !== cc.ImageFormat.PNG) {
                         cc.logID(6011);
                         return false;
                     }
@@ -1612,7 +1612,6 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
                         cc.pMultIn(tmp, dt);
                         cc.pAddIn(selParticle.modeA.dir, tmp);
 
-
                         cc.pIn(tmp, selParticle.modeA.dir);
                         cc.pMultIn(tmp, dt);
                         cc.pAddIn(selParticle.pos, tmp);
@@ -1671,12 +1670,10 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
                     if (this.particleCount === 0 && this.autoRemoveOnFinish) {
                         this.unscheduleUpdate();
                         this._parent.removeChild(this, true);
-                        this._renderCmd.updateLocalBB && this._renderCmd.updateLocalBB();
                         return;
                     }
                 }
             }
-            this._renderCmd.updateLocalBB && this._renderCmd.updateLocalBB();
         }
 
         this.postStep();

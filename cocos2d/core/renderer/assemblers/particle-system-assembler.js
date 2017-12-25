@@ -14,59 +14,76 @@ var particleSystemAssembler = {
             let frame = comp.spriteFrame;
             let rect = frame._rect;
             
-            let l = texw === 0 ? 0 : (rect.x / texw);
-            let t = texh === 0 ? 0 : (rect.y / texh);
-            let r = texw === 0 ? 0 : (rect.x + rect.width / texw);
-            let b = texh === 0 ? 0 : (rect.y + rect.height / texh);
+            comp._uv.l = texw === 0 ? 0 : (rect.x / texw);
+            comp._uv.t = texh === 0 ? 0 : (rect.y / texh);
+            comp._uv.r = texw === 0 ? 0 : (rect.x + rect.width / texw);
+            comp._uv.b = texh === 0 ? 0 : (rect.y + rect.height / texh);
             
-            if (frame._rotated) {
-                data[0].u = l;
-                data[0].v = t;
-                data[1].u = l;
-                data[1].v = b;
-                data[2].u = r;
-                data[2].v = t;
-                data[3].u = r;
-                data[3].v = b;
-            }
-            else {
-                data[0].u = l;
-                data[0].v = b;
-                data[1].u = r;
-                data[1].v = b;
-                data[2].u = l;
-                data[2].v = t;
-                data[3].u = r;
-                data[3].v = t;
-            }
-            
+            comp._material.uv = comp._uv;
             renderData.uvDirty = false;
         }
     },
 
     updateRenderData (comp) {
         if (!comp._renderData) {
-            comp._renderData = new RenderData();
-            comp._renderData.dataLength = 4;
-            // renderData.vertexCount = 4;
-            // renderData.indiceCount = 6;
+            comp._renderData = RenderData.alloc();
+            comp._renderData.dataLength = 0;
         }
-        let renderData = comp._renderData;
-        let size = comp.node._contentSize;
-        let anchor = comp.node._anchorPoint;
-        renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
 
+        let renderData = comp._renderData;
         if (renderData.uvDirty) {
             this.updateUVs(comp);
         }
 
+        let vfx = comp._vfx;
+        // Update particle configs
+        if (comp._particleCountDirty) {
+            vfx.updateParticleCount(comp);
+            comp._updateMaterialSize();
+            comp._particleCountDirty = false;
+        }
+        if (comp._sizeScaleDirty) {
+            vfx.updateSizeScale(comp);
+            comp._sizeScaleDirty = false;
+        }
+        if (comp._accelScaleDirty) {
+            vfx.updateAccelScale(comp);
+            comp._accelScaleDirty = false;
+        }
+        if (comp._radiusScaleDirty) {
+            vfx.updateRadiusScale(comp);
+            comp._radiusScaleDirty = false;
+        }
+
         // Process to generate vertex buffer and index buffer
+        // TODO: Update vfx parameters, check whether to update other material configs, z etc
+        vfx.step(cc.director.getDeltaTime());
+
+        renderData.vertexCount = vfx.buffers.indexes.length;
+        renderData.indiceCount = renderData.vertexCount / 2 * 3;
     },
 
     fillVertexBuffer (comp, index, vbuf, uintbuf) {
+        let off = index * comp._vertexFormat._bytes / 4;
+        let verts = comp._vfx.buffers.indexes;
+        for (let i = 0; i < verts.length; i++) {
+            vbuf[off] = verts[i];
+            off++;
+        }
     },
 
     fillIndexBuffer (comp, offset, vertexId, ibuf) {
+        let quads = comp._vfx.buffers.indexes.length / 4;
+        for (let i = 0; i < quads; i++) {
+            ibuf[offset + 0] = vertexId;
+            ibuf[offset + 1] = vertexId + 1;
+            ibuf[offset + 2] = vertexId + 2;
+            ibuf[offset + 3] = vertexId + 1;
+            ibuf[offset + 4] = vertexId + 3;
+            ibuf[offset + 5] = vertexId + 2;
+            offset += 6;
+            vertexId += 4;
+        }
     }
 }
 
