@@ -295,11 +295,11 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
     _visitScene: function () {
         if (this._runningScene) {
-            var renderer = cc.renderer;
+            var renderer = cc.rendererWebGL;
             if (renderer.childrenOrderDirty) {
                 // update the whole scene
                 renderer.clearRenderCommands();
-                cc.renderer.assignedZ = 0;
+                cc.rendererWebGL.assignedZ = 0;
                 this._runningScene._renderCmd._curLevel = 0; //level start from 0;
                 this._runningScene.visit();
                 renderer.resetFlag();
@@ -452,7 +452,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             this._runningScene.performRecursive(_ccsg.Node.performType.onExit);
             this._runningScene.performRecursive(_ccsg.Node.performType.cleanup);
 
-            cc.renderer.clearRenderCommands();
+            cc.rendererWebGL.clearRenderCommands();
         }
 
         this._runningScene = null;
@@ -877,6 +877,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * !#zh 启用/禁用深度测试（在 Canvas 渲染模式下不会生效）。
      * @method setDepthTest
      * @param {Boolean} on
+     * @deprecated
      */
     setDepthTest: null,
 
@@ -889,6 +890,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * 支持全透明，但不支持透明度为中间值。要支持全透明需手工开启 cc.macro.ENABLE_TRANSPARENT_CANVAS。
      * @method setClearColor
      * @param {Color} clearColor
+     * @deprecated
      */
     setClearColor: null,
     /**
@@ -931,7 +933,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
 
         this._runningScene = this._nextScene;
-        cc.renderer.childrenOrderDirty = true;
+        cc.rendererWebGL.childrenOrderDirty = true;
 
         this._nextScene = null;
         if ((!runningIsTransition) && (this._runningScene !== null)) {
@@ -1443,8 +1445,8 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
 
         // Render
         cc.g_NumberOfDraws = 0;
-        // cc.renderer.clear();
-        // cc.renderer.rendering(cc._renderContext);
+        // cc.rendererWebGL.clear();
+        // cc.rendererWebGL.rendering(cc._renderContext);
         renderer.render();
         this._totalFrames++;
 
@@ -1488,8 +1490,8 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
 
             // Render
             cc.g_NumberOfDraws = 0;
-            // cc.renderer.clear();
-            // cc.renderer.rendering(cc._renderContext);
+            // cc.rendererWebGL.clear();
+            // cc.rendererWebGL.rendering(cc._renderContext);
             renderer.render();
             this._totalFrames++;
 

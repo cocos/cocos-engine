@@ -45,8 +45,8 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
         };
 
         _p.setClearColor = function (clearColor) {
-            cc.renderer._clearColor = clearColor;
-            cc.renderer._clearFillStyle = 'rgb(' + clearColor.r + ',' + clearColor.g + ',' + clearColor.b +')' ;
+            cc.rendererWebGL._clearColor = clearColor;
+            cc.rendererWebGL._clearFillStyle = 'rgb(' + clearColor.r + ',' + clearColor.g + ',' + clearColor.b +')' ;
         };
 
         _p.setOpenGLView = function (openGLView) {

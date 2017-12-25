@@ -708,7 +708,6 @@ var game = {
 
         // WebGL context created successfully
         if (cc._renderType === game.RENDER_TYPE_WEBGL) {
-            cc.renderer = cc.rendererWebGL;
             win.gl = this._renderContext; // global variable declared in CCMacro.js
             renderer.init(localCanvas, {
                 'stencil': true,
@@ -718,12 +717,11 @@ var game = {
         }
         if (!this._renderContext) {
             cc._renderType = game.RENDER_TYPE_CANVAS;
-            cc.renderer = cc.rendererCanvas;
             renderer.init(localCanvas);
             this._renderContext = cc._renderContext = renderer.device._ctx;
         }
+        cc.renderer = renderer;
 
-        cc._gameDiv = localContainer;
         game.canvas.oncontextmenu = function () {
             if (!cc._isContextMenuEnable) return false;
         };

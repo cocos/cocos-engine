@@ -33,7 +33,7 @@ cc.Scale9Sprite.WebGLRenderCmd = function (renderable) {
         this._needDraw = false;
     }
 
-    this.vertexType = cc.renderer.VertexType.QUAD;
+    this.vertexType = cc.rendererWebGL.VertexType.QUAD;
     this._dirty = false;
     this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_SPRITE_POSITION_TEXTURECOLOR);
 };
@@ -144,7 +144,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
             Scale9Sprite.WebGLRenderCmd._distortionTiling,
             node._distortionTiling.x, node._distortionTiling.y
         );
-        cc.renderer._breakBatch();
+        cc.rendererWebGL._breakBatch();
     }
 
     // Color & z
@@ -191,13 +191,13 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
     }
 
     if (node._renderingType === types.MESH ) {
-        this.vertexType = cc.renderer.VertexType.CUSTOM;
+        this.vertexType = cc.rendererWebGL.VertexType.CUSTOM;
     }
     else if (node._renderingType === types.FILLED && node._fillType === Scale9Sprite.FillType.RADIAL) {
-        this.vertexType = cc.renderer.VertexType.TRIANGLE;
+        this.vertexType = cc.rendererWebGL.VertexType.TRIANGLE;
     }
     else {
-        this.vertexType = cc.renderer.VertexType.QUAD;
+        this.vertexType = cc.rendererWebGL.VertexType.QUAD;
     }
     return len;
 };

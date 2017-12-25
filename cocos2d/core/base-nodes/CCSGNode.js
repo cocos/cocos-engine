@@ -645,7 +645,7 @@ _ccsg.Node = cc.Class({
         if (this._visible !== visible) {
             this._visible = visible;
             this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
-            cc.renderer.childrenOrderDirty = true;
+            cc.rendererWebGL.childrenOrderDirty = true;
         }
     },
 
@@ -1109,7 +1109,7 @@ _ccsg.Node = cc.Class({
             this._detachChild(child, cleanup);
 
         //this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.visibleDirty);
-        cc.renderer.childrenOrderDirty = true;
+        cc.rendererWebGL.childrenOrderDirty = true;
     },
 
     /**
@@ -1169,7 +1169,7 @@ _ccsg.Node = cc.Class({
                 }
             }
             this._children.length = 0;
-            cc.renderer.childrenOrderDirty = true;
+            cc.rendererWebGL.childrenOrderDirty = true;
         }
     },
 

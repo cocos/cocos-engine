@@ -871,7 +871,6 @@ var Node = cc.Class({
             sibling._updateOrderOfArrival();
             cc.eventManager._setDirtyForNode(sibling);
         }
-        cc.renderer.childrenOrderDirty = true;
         parent._delaySort();
     },
 
