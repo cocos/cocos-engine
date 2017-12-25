@@ -691,18 +691,9 @@ cc.eventManager = {
         }
 
         if (isRootNode) {
-            var globalZOrders = [];
-            for (var selKey in locGlobalZOrderNodeMap)
-                globalZOrders.push(selKey);
-
-            globalZOrders.sort(this._sortNumberAsc);
-
-            var zOrdersLen = globalZOrders.length, selZOrders, j, locNodePriorityMap = this._nodePriorityMap;
-            for (i = 0; i < zOrdersLen; i++) {
-                selZOrders = locGlobalZOrderNodeMap[globalZOrders[i]];
-                for (j = 0; j < selZOrders.length; j++)
-                    locNodePriorityMap[selZOrders[j]] = ++this._nodePriorityIndex;
-            }
+            let locNodePriorityMap = this._nodePriorityMap;
+            for (let j = 0; j < locGlobalZOrderNodeMap.length; j++)
+                locNodePriorityMap[locGlobalZOrderNodeMap[j]] = ++this._nodePriorityIndex;
             this._globalZOrderNodeMap.length = 0;
         }
     },
