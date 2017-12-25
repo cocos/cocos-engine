@@ -2276,6 +2276,9 @@ var Node = cc.Class({
     },
 
     onRestore: CC_EDITOR && function () {
+        this._localMatDirty = true;
+        this._worldMatDirty = true;
+
         this._onRestoreBase();
 
         var actionManager = cc.director.getActionManager();

@@ -222,13 +222,8 @@ var Graphics = cc.Class({
     },
 
     onEnable: function () {
+        this._super();
         this._activateMaterial();
-        this.node._renderComponent = this;
-    },
-
-    onDisable: function () {
-        this.clear(true);
-        this.node._renderComponent = null;
     },
 
     _activateMaterial: function () {

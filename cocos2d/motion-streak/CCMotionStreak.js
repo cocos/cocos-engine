@@ -208,19 +208,14 @@ var MotionStreak = cc.Class({
     },
 
     onEnable: function () {
+        this._super();
         this._activateMaterial();
-        this.node._renderComponent = this;
         this._applyFadeTime();
     },
 
-    onDisable: function () {
-        RenderData.free(this._renderData);
-        this._material = null;
-        this._renderData = null;
-        this.node._renderComponent = null;
-    },
-
     _activateMaterial: function () {
+        if (this._material) return;
+
         let url = this._texture;
         let texture = cc.textureUtil.loadImage(url);
         let material = renderer.materialUtil.get(url);
@@ -229,7 +224,7 @@ var MotionStreak = cc.Class({
         if (!material) {
             material = new SpriteMaterial();
             material.texture = texture.getImpl();
-            renderer.materialUtil.register(url, this._material);
+            renderer.materialUtil.register(url, material);
         }
 
         this._material = material;

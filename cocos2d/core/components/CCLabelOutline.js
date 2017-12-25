@@ -49,6 +49,9 @@ var LabelOutline = cc.Class({
     },
 
     properties: {
+        _color: cc.color(255,255,255,255),
+        _width: 1,
+
         /**
          * !#en Change the outline color
          * !#zh 改变描边的颜色
@@ -57,19 +60,15 @@ var LabelOutline = cc.Class({
          * @example
          * outline.color = new cc.Color(0.5, 0.3, 0.7, 1.0);;
          */
-        _color: cc.color(255,255,255,255),
-        _width: 1,
         color: {
-            get: function() {
+            get: function () {
                 return this._color;
             },
-            set:function(value) {
+            set: function (value) {
                 this._color = cc.color(value);
-                if(this._labelSGNode) {
-                    this._labelSGNode.setOutlineColor(cc.color(this._color));
-                }
             }
         },
+
         /**
          * !#en Change the outline width
          * !#zh 改变描边的宽度
@@ -79,39 +78,14 @@ var LabelOutline = cc.Class({
          * outline.width = 3;
          */
         width: {
-            get: function() {
+            get: function () {
                 return this._width;
             },
-            set: function(value) {
+            set: function (value) {
                 this._width = value;
-                if(this._labelSGNode) {
-                    this._labelSGNode.setOutlineWidth(value);
-                    this._labelSGNode.setMargin(value);
-                }
             }
-        },
-    },
-
-    onEnable: function () {
-        var label = this.node.getComponent('cc.Label');
-        var sgNode = this._labelSGNode = label && label._sgNode;
-        if(this._labelSGNode) {
-            sgNode.setOutlined(true);
-            sgNode.setOutlineColor(cc.color(this._color));
-            sgNode.setOutlineWidth(this._width);
-            sgNode.setMargin(this._width);
         }
-    },
-
-    onDisable: function () {
-        if(this._labelSGNode) {
-            this._labelSGNode.setOutlined(false);
-            this._labelSGNode.setMargin(0);
-        }
-
-        this._labelSGNode = null;
-    },
-
+    }
 });
 
 cc.LabelOutline = module.exports = LabelOutline;

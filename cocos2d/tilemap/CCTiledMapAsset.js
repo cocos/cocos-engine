@@ -29,7 +29,7 @@
  * @extends Asset
  *
  */
-var TiledMapAsset = cc.Class({
+let TiledMapAsset = cc.Class({
     name: 'cc.TiledMapAsset',
     extends: cc.Asset,
 
@@ -58,8 +58,9 @@ var TiledMapAsset = cc.Class({
     },
 
     createNode: CC_EDITOR && function (callback) {
-        var node = new cc.Node(this.name);
-        var tiledMap = node.addComponent(cc.TiledMap);
+        let node = new cc.Node(this.name);
+        node.setAnchorPoint(0,0);
+        let tiledMap = node.addComponent(cc.TiledMap);
         tiledMap.tmxAsset = this;
 
         return callback(null, node);
