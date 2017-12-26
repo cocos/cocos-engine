@@ -35,8 +35,6 @@ require('./platform/CCMacro');
 require('./load-pipeline');
 require('./textures');
 require('./CCDirector');
-require('./CCDirectorWebGL');
-require('./CCDirectorCanvas');
 require('./renderer');
 
 if (!(CC_EDITOR && Editor.isMainProcess)) {

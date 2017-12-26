@@ -608,13 +608,13 @@ if (CC_EDITOR) {
     // override __preload
     Sprite.prototype.__superPreload = cc.Component.prototype.__preload;
     Sprite.prototype.__preload = function () {
-        this.__superPreload();
+        if (this.__superPreload) this.__superPreload();
         this.node.on('size-changed', this._resized, this);
     };
     // override onDestroy
     Sprite.prototype.__superOnDestroy = cc.Component.prototype.onDestroy;
     Sprite.prototype.onDestroy = function () {
-        this.__superOnDestroy();
+        if (this.__superOnDestroy) this.__superOnDestroy();
         this.node.off('size-changed', this._resized, this);
     };
 }

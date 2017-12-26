@@ -44,10 +44,6 @@ var LabelOutline = cc.Class({
         requireComponent: cc.Label,
     },
 
-    ctor: function() {
-        this._labelSGNode = null;
-    },
-
     properties: {
         _color: cc.color(255,255,255,255),
         _width: 1,

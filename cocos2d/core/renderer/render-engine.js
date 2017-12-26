@@ -13960,7 +13960,8 @@ module.exports = (function () {
       x: 0.0,
       y: 0.0,
       u: 0.0,
-      v: 0.0
+      v: 0.0,
+      color: 0
     };
   }, 128);
   
@@ -14023,6 +14024,8 @@ module.exports = (function () {
         data._data.length = 0;
         data.uvDirty = true;
         data.vertDirty = true;
+        data.vertexCount = 0;
+        data.indiceCount = 0;
         _pool.free(data);
       }
     }

@@ -114,10 +114,10 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
         sp.spine = require('./lib/spine');
 
         require('./SGSkeletonTexture');
-        require('./SGSkeleton');
-        require('./SGSkeletonCanvasRenderCmd');
-        require('./SGSkeletonWebGLRenderCmd');
-        require('./SGSkeletonAnimation');
+        // require('./SGSkeleton');
+        // require('./SGSkeletonCanvasRenderCmd');
+        // require('./SGSkeletonWebGLRenderCmd');
+        // require('./SGSkeletonAnimation');
     }
     
     require('./SkeletonData');
