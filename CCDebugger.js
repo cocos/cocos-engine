@@ -340,7 +340,7 @@ function genLogFunc(func, type) {
             func(CC_DEBUG ? cc.js.formatStr(msg, arguments[1]) : msg + ' Arguments: ' + arguments[1]);
         }
         else {
-            func(cc._LogInfos.e(msg, cc.js.shiftArguments.apply(null, arguments)));
+            func(cc._LogInfos.format(msg, cc.js.shiftArguments.apply(null, arguments)));
         }
     };
 }
