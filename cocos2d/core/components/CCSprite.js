@@ -480,7 +480,7 @@ var Sprite = cc.Class({
 
     _activateMaterial: function () {
         // cannot be activated if texture not loaded yet
-        if (!this._spriteFrame.textureLoaded) {
+        if (!this._spriteFrame.textureLoaded()) {
             return;
         }
 
@@ -491,9 +491,10 @@ var Sprite = cc.Class({
             this._material = renderer.materialUtil.get(url);
             if (!this._material) {
                 this._material = new SpriteMaterial();
-                this._material.texture = texture.getImpl();
                 renderer.materialUtil.register(url, this._material);
             }
+            // TODO: old texture in material have been released by loader
+            this._material.texture = texture.getImpl();
         }
 
         if (this.srcBlendFactor !== gfx.BLEND_SRC_ALPHA || this.dstBlendFactor !== gfx.BLEND_ONE_MINUS_SRC_ALPHA) {
