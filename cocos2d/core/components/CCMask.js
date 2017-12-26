@@ -27,15 +27,17 @@ const renderEngine = require('../renderer/render-engine');
 const gfx = renderEngine.gfx;
 const StencilMaterial = renderEngine.StencilMaterial;
 const RenderComponent = require('./CCRenderComponent');
-const affineTrans = require('../value-types/CCAffineTransform');
-var _trans = affineTrans.make();
+
+const math = require('../renderer/render-engine').math;
+let _mat4_temp = math.mat4.create();
+let _rect_temp = cc.rect();
 
 /**
  * !#en the type for mask.
  * !#zh 遮罩组件类型
  * @enum Mask.Type
  */
-var MaskType = cc.Enum({
+let MaskType = cc.Enum({
     /**
      * !#en Rect mask.
      * !#zh 使用矩形作为遮罩
@@ -65,7 +67,7 @@ const SEGEMENTS_MAX = 10000;
  * @class Mask
  * @extends Component
  */
-var Mask = cc.Class({
+let Mask = cc.Class({
     name: 'cc.Mask',
     extends: RenderComponent,
 
@@ -126,7 +128,7 @@ var Mask = cc.Class({
                 return this._spriteFrame;
             },
             set: function (value) {
-                var lastSprite = this._spriteFrame;
+                let lastSprite = this._spriteFrame;
                 if (CC_EDITOR) {
                     if ((lastSprite && lastSprite._uuid) === (value && value._uuid)) {
                         return;
@@ -231,7 +233,7 @@ var Mask = cc.Class({
 
     _resizeNodeToTargetNode: CC_EDITOR && function () {
         if(this.spriteFrame) {
-            var rect = this.spriteFrame.getRect();
+            let rect = this.spriteFrame.getRect();
             this.node.setContentSize(rect.width, rect.height);
         }
     },
@@ -252,7 +254,7 @@ var Mask = cc.Class({
         if (oldFrame && oldFrame.off) {
             oldFrame.off('load', this._onTextureLoaded, this);
         }
-        var spriteFrame = this._spriteFrame;
+        let spriteFrame = this._spriteFrame;
         if (spriteFrame) {
             if (spriteFrame.textureLoaded) {
                 this._onTextureLoaded(null);
@@ -279,7 +281,7 @@ var Mask = cc.Class({
 
         // Reset material
         if (this._type === MaskType.IMAGE_STENCIL) {
-            var texture = this.spriteFrame.getTexture();
+            let texture = this.spriteFrame.getTexture();
             this._frontMaterial.useTexture = true;
             this._frontMaterial.texture = texture.getImpl();
             this._frontMaterial.alphaThreshold = this.alphaThreshold;
@@ -294,27 +296,29 @@ var Mask = cc.Class({
     },
 
     _hitTest: function (point) {
-        var size = this.node.getContentSize(),
-            w = size.width,
-            h = size.height;
-        this.node.getNodeToWorldTransform(_trans);
+        let node = this.node;
+        node.getWorldMatrix(_mat4_temp);
 
         if (this.type === MaskType.RECT || this.type === MaskType.IMAGE_STENCIL) {
-            var rect = cc.rect(0, 0, w, h);
-            cc._rectApplyAffineTransformIn(rect, _trans);
-            var left = point.x - rect.x,
-                right = rect.x + rect.width - point.x,
-                bottom = point.y - rect.y,
-                top = rect.y + rect.height - point.y;
+            let size = node.getContentSize(),
+                w = size.width,
+                h = size.height;
+
+            _rect_temp.x = -node.anchorX * w,
+            _rect_temp.y = -node.anchorX * h;
+            _rect_temp.width = w; 
+            _rect_temp.height = h;
+            cc.Rect.transformMat4(_rect_temp, _rect_temp, _mat4_temp);
+
+            let left = point.x - _rect_temp.x,
+                right = _rect_temp.x + _rect_temp.width - point.x,
+                bottom = point.y - _rect_temp.y,
+                top = _rect_temp.y + _rect_temp.height - point.y;
 
             return left >= 0 && right >= 0 && top >= 0 && bottom >= 0;
         }
         else if (this.type === MaskType.ELLIPSE) {
-            var a = w / 2, b = h / 2;
-            var cx = _trans.a * a + _trans.c * b + _trans.tx;
-            var cy = _trans.b * a + _trans.d * b + _trans.ty;
-            var px = point.x - cx, py = point.y - cy;
-
+            let px = point.x - _mat4_temp.m12, py = point.y - _mat4_temp.m13;
             return px * px / (a * a) + py * py / (b * b) < 1;
         }
     },
@@ -324,7 +328,7 @@ var Mask = cc.Class({
         this._updateMaterial();
     },
 
-    onDisable () {
+    onDestroy () {
         this._super();
         this._frontMaterial = null;
         this._endMaterial = null;

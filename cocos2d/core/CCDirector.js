@@ -448,9 +448,9 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         // They are needed in case the director is run again
 
         if (this._runningScene) {
-            this._runningScene.performRecursive(_ccsg.Node.performType.onExitTransitionDidStart);
-            this._runningScene.performRecursive(_ccsg.Node.performType.onExit);
-            this._runningScene.performRecursive(_ccsg.Node.performType.cleanup);
+            // this._runningScene.performRecursive(_ccsg.Node.performType.onExitTransitionDidStart);
+            // this._runningScene.performRecursive(_ccsg.Node.performType.onExit);
+            // this._runningScene.performRecursive(_ccsg.Node.performType.cleanup);
 
             cc.rendererWebGL.clearRenderCommands();
         }
@@ -583,12 +583,9 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
         this.emit(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
 
-        var sgScene = scene;
-
         // Run an Entity Scene
         if (scene instanceof cc.Scene) {
             this._scene = scene;
-            sgScene = scene._sgNode;
 
             // Re-attach or replace persist nodes
             CC_BUILD && CC_DEBUG && console.time('AttachPersist');
@@ -614,15 +611,15 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         // Run or replace rendering scene
         if ( !this._runningScene ) {
             //start scene
-            this.pushScene(sgScene);
+            this.pushScene(scene);
             this.startAnimation();
         }
         else {
             //replace scene
             var i = this._scenesStack.length;
-            this._scenesStack[Math.max(i - 1, 0)] = sgScene;
+            this._scenesStack[Math.max(i - 1, 0)] = scene;
             this._sendCleanupToScene = true;
-            this._nextScene = sgScene;
+            this._nextScene = scene;
         }
 
         if (this._nextScene) {
@@ -892,7 +889,14 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * @param {Color} clearColor
      * @deprecated
      */
-    setClearColor: null,
+    setClearColor: function (clearColor) {
+        renderer._camera.setColor(
+            clearColor.r / 255,
+            clearColor.g / 255,
+            clearColor.b / 255,
+            clearColor.a / 255
+        );
+    },
     /**
      * Sets the default values based on the CCConfiguration info
      */
@@ -912,34 +916,34 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * Starts the registered next scene
      */
     setNextScene: function () {
-        var runningIsTransition = false, newIsTransition = false;
-        if (cc.TransitionScene) {
-            runningIsTransition = this._runningScene ? this._runningScene instanceof cc.TransitionScene : false;
-            newIsTransition = this._nextScene ? this._nextScene instanceof cc.TransitionScene : false;
-        }
+        // var runningIsTransition = false, newIsTransition = false;
+        // if (cc.TransitionScene) {
+        //     runningIsTransition = this._runningScene ? this._runningScene instanceof cc.TransitionScene : false;
+        //     newIsTransition = this._nextScene ? this._nextScene instanceof cc.TransitionScene : false;
+        // }
 
-        // If it is not a transition, call onExit/cleanup
-        if (!newIsTransition) {
-            var locRunningScene = this._runningScene;
-            if (locRunningScene) {
-                locRunningScene.performRecursive(_ccsg.Node.performType.onExitTransitionDidStart);
-                locRunningScene.performRecursive(_ccsg.Node.performType.onExit);
-            }
+        // // If it is not a transition, call onExit/cleanup
+        // if (!newIsTransition) {
+        //     var locRunningScene = this._runningScene;
+        //     if (locRunningScene) {
+        //         locRunningScene.performRecursive(_ccsg.Node.performType.onExitTransitionDidStart);
+        //         locRunningScene.performRecursive(_ccsg.Node.performType.onExit);
+        //     }
 
-            // issue #709. the root node (scene) should receive the cleanup message too
-            // otherwise it might be leaked.
-            if (this._sendCleanupToScene && locRunningScene)
-                locRunningScene.performRecursive(_ccsg.Node.performType.cleanup);
-        }
+        //     // issue #709. the root node (scene) should receive the cleanup message too
+        //     // otherwise it might be leaked.
+        //     if (this._sendCleanupToScene && locRunningScene)
+        //         locRunningScene.performRecursive(_ccsg.Node.performType.cleanup);
+        // }
 
         this._runningScene = this._nextScene;
         cc.rendererWebGL.childrenOrderDirty = true;
 
         this._nextScene = null;
-        if ((!runningIsTransition) && (this._runningScene !== null)) {
-            this._runningScene.performRecursive(_ccsg.Node.performType.onEnter);
-            this._runningScene.performRecursive(_ccsg.Node.performType.onEnterTransitionDidFinish);
-        }
+        // if ((!runningIsTransition) && (this._runningScene !== null)) {
+        //     this._runningScene.performRecursive(_ccsg.Node.performType.onEnter);
+        //     this._runningScene.performRecursive(_ccsg.Node.performType.onEnterTransitionDidFinish);
+        // }
     },
 
     /**
@@ -1156,11 +1160,11 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         // pop stack until reaching desired level
         while (c > level) {
             var current = locScenesStack.pop();
-            if (current.running) {
-                current.performRecursive(_ccsg.Node.performType.onExitTransitionDidStart);
-                current.performRecursive(_ccsg.Node.performType.onExit);
-            }
-            current.performRecursive(_ccsg.Node.performType.cleanup);
+            // if (current.running) {
+            //     current.performRecursive(_ccsg.Node.performType.onExitTransitionDidStart);
+            //     current.performRecursive(_ccsg.Node.performType.onExit);
+            // }
+            // current.performRecursive(_ccsg.Node.performType.cleanup);
             c--;
         }
         this._nextScene = locScenesStack[locScenesStack.length - 1];

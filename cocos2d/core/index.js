@@ -36,7 +36,7 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
     // CCIntersection can be used separately.
     require('./collider/CCIntersection');
     require('./physics');
-    require('./camera/CCCamera');
+    // require('./camera/CCCamera');
 }
 
 require('./base-ui/CCWidgetManager');

@@ -223,9 +223,10 @@ var MotionStreak = cc.Class({
         // Get material
         if (!material) {
             material = new SpriteMaterial();
-            material.texture = texture.getImpl();
             renderer.materialUtil.register(url, material);
         }
+        // TODO: old texture in material have been released by loader
+        material.texture = texture.getImpl();
 
         this._material = material;
     },

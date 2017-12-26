@@ -480,7 +480,7 @@ var Sprite = cc.Class({
 
     _activateMaterial: function () {
         // cannot be activated if texture not loaded yet
-        if (!this._spriteFrame.textureLoaded) {
+        if (!this._spriteFrame.textureLoaded()) {
             return;
         }
 
@@ -491,9 +491,10 @@ var Sprite = cc.Class({
             this._material = renderer.materialUtil.get(url);
             if (!this._material) {
                 this._material = new SpriteMaterial();
-                this._material.texture = texture.getImpl();
                 renderer.materialUtil.register(url, this._material);
             }
+            // TODO: old texture in material have been released by loader
+            this._material.texture = texture.getImpl();
         }
 
         if (this.srcBlendFactor !== gfx.BLEND_SRC_ALPHA || this.dstBlendFactor !== gfx.BLEND_ONE_MINUS_SRC_ALPHA) {
@@ -608,13 +609,13 @@ if (CC_EDITOR) {
     // override __preload
     Sprite.prototype.__superPreload = cc.Component.prototype.__preload;
     Sprite.prototype.__preload = function () {
-        this.__superPreload();
+        if (this.__superPreload) this.__superPreload();
         this.node.on('size-changed', this._resized, this);
     };
     // override onDestroy
     Sprite.prototype.__superOnDestroy = cc.Component.prototype.onDestroy;
     Sprite.prototype.onDestroy = function () {
-        this.__superOnDestroy();
+        if (this.__superOnDestroy) this.__superOnDestroy();
         this.node.off('size-changed', this._resized, this);
     };
 }

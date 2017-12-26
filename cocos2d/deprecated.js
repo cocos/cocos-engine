@@ -324,15 +324,17 @@ if (CC_DEV) {
         }
         ownerName = ownerName || js.getClassName(ownerCtor);
         for (var prop in obj) {
-            var originFunc = ownerCtor[prop];
-            if (!originFunc) return;
+            (function(){
+                var originFunc = ownerCtor[prop];
+                if (!originFunc) return;
 
-            function warn () {
-                cc.warn('Sorry, %s.%s is deprecated. Please use %s instead', ownerName, prop, obj[prop]);
-                return originFunc.apply(this, arguments);
-            }
-            
-            ownerCtor[prop] = warn;
+                function warn () {
+                    cc.warn('Sorry, %s.%s is deprecated. Please use %s instead', ownerName, prop, obj[prop]);
+                    return originFunc.apply(this, arguments);
+                }
+                
+                ownerCtor[prop] = warn;
+            })();
         }
     }
 
@@ -470,8 +472,6 @@ if (CC_DEV) {
         'textureLoaded',
         'setBlendFunc',
         'getBlendFunc',
-        'setState',
-        'getState',
         'resizableSpriteWithCapInsets',
         'flippedX',
         'flippedY',
@@ -551,42 +551,6 @@ if (CC_DEV) {
             Mode: 'EmitterMode'
         });
     }
-
-    if (!CC_JSB) {
-        // _ccsg.Node
-        markAsRemoved(_ccsg.Node, [
-            '_normalizedPositionDirty',
-            '_normalizedPosition',
-            '_usingNormalizedPosition',
-            'grid',
-            'userData',
-            'userObject',
-            'actionManager',
-            'getActionManager',
-            'setActionManager',
-            'getNormalizedPosition',
-            'setNormalizedPosition',
-            'getCamera',
-            'getUserData',
-            'setUserData',
-            'getUserObject',
-            'setUserObject',
-            'getComponent',
-            'addComponent',
-            'removeComponent',
-            'removeAllComponents',
-            'enumerateChildren',
-            'setCameraMask',
-            'getCameraMask'
-        ], '_ccsg.Node');
-    }
-
-    js.obsolete(_ccsg.Node.prototype, '_ccsg.Node.ignoreAnchorPointForPosition', 'setIgnoreAnchorPointForPosition');
-
-    js.obsoletes(cc.Scale9Sprite.prototype, 'cc.Scale9Sprite', {
-        setPreferredSize: 'setContentSize',
-        getPreferredSize: 'getContentSize',
-    });
 
     if (cc.ActionManager) {
         js.obsoletes(cc.ActionManager.prototype, 'cc.ActionManager', {

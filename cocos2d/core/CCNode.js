@@ -51,7 +51,6 @@ var ActionManagerExist = !!cc.ActionManager;
 var emptyFunc = function () {};
 var _mat4_temp = math.mat4.create();
 var _vec3_temp = math.vec3.create();
-var _trans = affineTrans.make();
 var _globalOrderOfArrival = 1;
 
 /**
@@ -153,17 +152,20 @@ var _mouseEvents = [
 var _currentHovered = null;
 
 var _touchStartHandler = function (touch, event) {
-    if (CC_JSB) {
-        event = Event.EventTouch.pool.get(event);
-    }
     var pos = touch.getLocation();
     var node = this.owner;
 
     if (node._hitTest(pos, this)) {
+        if (CC_JSB) {
+            event = Event.EventTouch.pool.get(event);
+        }
         event.type = EventType.TOUCH_START;
         event.touch = touch;
         event.bubbles = true;
         node.dispatchEvent(event);
+        if (CC_JSB) {
+            Event.EventTouch.pool.put(event);
+        }
         return true;
     }
     return false;
@@ -177,6 +179,9 @@ var _touchMoveHandler = function (touch, event) {
     event.touch = touch;
     event.bubbles = true;
     node.dispatchEvent(event);
+    if (CC_JSB) {
+        Event.EventTouch.pool.put(event);
+    }
 };
 var _touchEndHandler = function (touch, event) {
     if (CC_JSB) {
@@ -194,6 +199,9 @@ var _touchEndHandler = function (touch, event) {
     event.touch = touch;
     event.bubbles = true;
     node.dispatchEvent(event);
+    if (CC_JSB) {
+        Event.EventTouch.pool.put(event);
+    }
 };
 
 var _mouseDownHandler = function (event) {
@@ -202,20 +210,30 @@ var _mouseDownHandler = function (event) {
 
     if (node._hitTest(pos, this)) {
         if (CC_JSB) {
+            // jsb event will be replaced so can be stopped immediately
+            event.stopPropagation();
             event = Event.EventMouse.pool.get(event);
         }
         event.type = EventType.MOUSE_DOWN;
         event.bubbles = true;
         node.dispatchEvent(event);
+        if (CC_JSB) {
+            Event.EventTouch.pool.put(event);
+        }
+        else {
+            event.stopPropagation();
+        }
     }
 };
 var _mouseMoveHandler = function (event) {
     var pos = event.getLocation();
     var node = this.owner;
-    if (node._hitTest(pos, this)) {
-        if (CC_JSB) {
-            event = Event.EventMouse.pool.get(event);
-        }
+    var hit = node._hitTest(pos, this);
+    if (CC_JSB && (hit || this._previousIn)) {
+        event.stopPropagation();
+        event = Event.EventMouse.pool.get(event);
+    }
+    if (hit) {
         if (!this._previousIn) {
             // Fix issue when hover node switched, previous hovered node won't get MOUSE_LEAVE notification
             if (_currentHovered) {
@@ -233,13 +251,22 @@ var _mouseMoveHandler = function (event) {
         node.dispatchEvent(event);
     }
     else if (this._previousIn) {
-        if (CC_JSB) {
-            event = Event.EventMouse.pool.get(event);
-        }
         event.type = EventType.MOUSE_LEAVE;
         node.dispatchEvent(event);
         this._previousIn = false;
         _currentHovered = null;
+    }
+    else {
+        // continue dispatching
+        return;
+    }
+
+    // Event processed, cleanup
+    if (CC_JSB) {
+        Event.EventMouse.pool.put(event);
+    }
+    else {
+        event.stopPropagation();
     }
 };
 var _mouseUpHandler = function (event) {
@@ -248,11 +275,19 @@ var _mouseUpHandler = function (event) {
 
     if (node._hitTest(pos, this)) {
         if (CC_JSB) {
+            // jsb event will be replaced so can be stopped immediately
+            event.stopPropagation();
             event = Event.EventMouse.pool.get(event);
         }
         event.type = EventType.MOUSE_UP;
         event.bubbles = true;
         node.dispatchEvent(event);
+        if (CC_JSB) {
+            Event.EventTouch.pool.put(event);
+        }
+        else {
+            event.stopPropagation();
+        }
     }
 };
 var _mouseWheelHandler = function (event) {
@@ -262,11 +297,19 @@ var _mouseWheelHandler = function (event) {
     if (node._hitTest(pos, this)) {
         //FIXME: separate wheel event and other mouse event.
         if (CC_JSB) {
+            // jsb event will be replaced so can be stopped immediately
+            event.stopPropagation();
             event = Event.EventMouse.pool.get(event);
         }
         event.type = EventType.MOUSE_WHEEL;
         event.bubbles = true;
         node.dispatchEvent(event);
+        if (CC_JSB) {
+            Event.EventTouch.pool.put(event);
+        }
+        else {
+            event.stopPropagation();
+        }
     }
 };
 
@@ -315,10 +358,10 @@ var Node = cc.Class({
         _color: cc.Color.WHITE,
         _cascadeOpacityEnabled: true,
         _contentSize: cc.Size,
-        _anchorPoint: cc.Vec2,
-        _position: cc.Vec2,
-        _scaleX: 0.0,
-        _scaleY: 0.0,
+        _anchorPoint: cc.v2(0.5, 0.5),
+        _position: cc.Vec3,
+        _scaleX: 1.0,
+        _scaleY: 1.0,
         _rotationX: 0.0,
         _rotationY: 0.0,
         _skewX: 0.0,
@@ -841,11 +884,6 @@ var Node = cc.Class({
         // Mouse event listener
         this._mouseListener = null;
 
-        this._anchorPoint = mathPools.vec2.get();
-        this._anchorPoint.x = this._anchorPoint.y = 0.5;
-        this._scaleX = this._scaleY = 1.0;
-        this._position = mathPools.vec3.get();
-
         this._matrix = mathPools.mat4.get();
         this._worldMatrix = mathPools.mat4.get();
         this._localMatDirty = true;
@@ -900,8 +938,6 @@ var Node = cc.Class({
         cc.eventManager.removeListeners(this);
 
         // Recycle math objects
-        mathPools.vec2.put(this._anchorPoint);
-        mathPools.vec3.put(this._position);
         mathPools.mat4.put(this._matrix);
         mathPools.mat4.put(this._worldMatrix);
 
@@ -1199,9 +1235,10 @@ var Node = cc.Class({
         }
 
         this._updateWorldMatrix();
-        math.vec2.transformMat4(testPt, testPt, this._worldMatrix);
-        testPt.x -= this._anchorPoint.x * this._contentSize.width;
-        testPt.y -= this._anchorPoint.y * this._contentSize.height;
+        math.mat4.invert(_mat4_temp, this._worldMatrix);
+        math.vec2.transformMat4(testPt, testPt, _mat4_temp);
+        testPt.x += this._anchorPoint.x * this._contentSize.width;
+        testPt.y += this._anchorPoint.y * this._contentSize.height;
 
         if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
             if (listener && listener.mask) {

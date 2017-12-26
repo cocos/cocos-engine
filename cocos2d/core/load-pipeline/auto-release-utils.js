@@ -71,7 +71,7 @@ function visitComponent (comp, excludeMap) {
                     }
                 }
             }
-            else if (value instanceof cc.RawAsset) {
+            else if (value instanceof cc.RawAsset && value._uuid) {
                 visitAsset(value, excludeMap);
             }
         }
