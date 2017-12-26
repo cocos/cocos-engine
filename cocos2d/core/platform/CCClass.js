@@ -864,6 +864,7 @@ function declareProperties (cls, className, properties, baseClass, mixins, es6) 
  * @return {Function} - the created class
  *
  * @example
+
  // define base class
  var Node = cc.Class();
 
@@ -871,6 +872,7 @@ function declareProperties (cls, className, properties, baseClass, mixins, es6) 
  var Sprite = cc.Class({
      name: 'Sprite',
      extends: Node,
+
      ctor: function () {
          this.url = "";
          this.id = 0;
