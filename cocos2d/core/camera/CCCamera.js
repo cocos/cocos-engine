@@ -141,7 +141,7 @@ let Camera = cc.Class({
             cmd.setDirtyFlag(cullingDirtyFlag);
             cmd._cameraFlag = Camera.flags.InCamera;
 
-            cc.renderer.childrenOrderDirty = true;
+            cc.rendererWebGL.childrenOrderDirty = true;
         }
     },
 
@@ -166,7 +166,7 @@ let Camera = cc.Class({
             cmd.setDirtyFlag(cullingDirtyFlag);
             cmd._cameraFlag = 0;
 
-            cc.renderer.childrenOrderDirty = true;
+            cc.rendererWebGL.childrenOrderDirty = true;
         }
     },
 

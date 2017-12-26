@@ -28,6 +28,8 @@ const ttfAssembler = require('./ttf-assembler');
 const bmfontAssembler = require('./bmfont-assembler');
 
 var labelAssembler = {
+    useModel: false,
+
     updateRenderData (comp) {
         let assembler;
         if (comp.font instanceof cc.BitmapFont) {

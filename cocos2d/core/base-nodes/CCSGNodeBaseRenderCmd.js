@@ -119,7 +119,7 @@ _ccsg.Node.RenderCmd = function (renderable) {
     this._inverse = {a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0};
     this._transformUpdated = false;
     
-    cc.renderer.pushDirtyNode(this);
+    cc.rendererWebGL.pushDirtyNode(this);
 };
 
 _ccsg.Node.RenderCmd.prototype = {
@@ -168,7 +168,7 @@ _ccsg.Node.RenderCmd.prototype = {
 
     setDirtyFlag: function(dirtyFlag){
         if (this._dirtyFlag === 0 && dirtyFlag !== 0)
-            cc.renderer.pushDirtyNode(this);
+            cc.rendererWebGL.pushDirtyNode(this);
         this._dirtyFlag |= dirtyFlag;
     },
 
@@ -384,7 +384,7 @@ _ccsg.Node.RenderCmd.prototype = {
     },
 
     visit: function (parentCmd) {
-        var node = this._node, renderer = cc.renderer;
+        var node = this._node, renderer = cc.rendererWebGL;
 
         if (parentCmd) {
             this._curLevel = parentCmd._curLevel + 1;

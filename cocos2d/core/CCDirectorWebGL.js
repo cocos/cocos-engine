@@ -27,6 +27,7 @@
 require('./CCDirector');
 require('./CCGame');
 require('../kazmath');
+const renderer = require('./renderer');
 
 var math = cc.math;
 
@@ -123,19 +124,18 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
         _t._projection = projection;
         _t.emit(cc.Director.EVENT_PROJECTION_CHANGED, _t);
         cc.gl.setProjectionMatrixDirty();
-        cc.renderer.childrenOrderDirty = true;
     };
 
     _p.setDepthTest = function (on) {
-        cc.renderer.setDepthTest(on);
     };
 
     _p.setClearColor = function (clearColor) {
-        var locClearColor = cc.renderer._clearColor;
-        locClearColor.r = clearColor.r / 255;
-        locClearColor.g = clearColor.g / 255;
-        locClearColor.b = clearColor.b / 255;
-        locClearColor.a = clearColor.a / 255;
+        renderer._camera.setColor(
+            clearColor.r / 255,
+            clearColor.g / 255,
+            clearColor.b / 255,
+            clearColor.a / 255
+        );
     };
 
     _p.setOpenGLView = function (openGLView) {

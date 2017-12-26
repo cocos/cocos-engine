@@ -52,7 +52,6 @@ cc._canvas = null;
  * @property {HTMLDivElement} container - The element contains the game canvas
  */
 cc.container = null;
-cc._gameDiv = null;
 
 require('./cocos2d/core/utils');
 require('./cocos2d/core/platform/CCSys');

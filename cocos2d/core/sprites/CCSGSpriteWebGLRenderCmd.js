@@ -100,7 +100,7 @@ proto._textureLoadedCallback = function (event) {
     node.emit("load");
 
     // Force refresh the render command list
-    cc.renderer.childrenOrderDirty = true;
+    cc.rendererWebGL.childrenOrderDirty = true;
 };
 
 proto._setTextureCoords = function (rect) {
@@ -210,7 +210,7 @@ proto._setTexture = function (texture) {
 
         if (node._textureLoaded) {
             // Force refresh the render command list
-            cc.renderer.childrenOrderDirty = true;
+            cc.rendererWebGL.childrenOrderDirty = true;
         }
     }
 };

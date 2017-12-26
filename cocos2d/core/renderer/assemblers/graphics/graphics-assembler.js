@@ -61,6 +61,8 @@ function clamp (v, min, max) {
 }
 
 let graphicsAssembler = {
+    useModel: false,
+
     updateRenderData (graphics) {
         // Create render data if needed
         if (!graphics._renderData) {

@@ -38,13 +38,13 @@ let CameraNode = _ccsg.Node.extend({
         let info = this._cameraInfo;
         let sgCameraNode = info.sgCameraNode;
 
-        cc.renderer.pushRenderCommand(sgCameraNode._beforeVisitCmd);
+        cc.rendererWebGL.pushRenderCommand(sgCameraNode._beforeVisitCmd);
         info.originVisit.call(this, parent);
-        cc.renderer.pushRenderCommand(sgCameraNode._afterVisitCmd);
+        cc.rendererWebGL.pushRenderCommand(sgCameraNode._afterVisitCmd);
     },
 
     _onBeforeVisit: function () {
-        cc.renderer._breakBatch();
+        cc.rendererWebGL._breakBatch();
 
         cc.math.glMatrixMode(cc.math.KM_GL_PROJECTION);
         
@@ -54,7 +54,7 @@ let CameraNode = _ccsg.Node.extend({
     },
 
     _onAfterVisit: function () {
-        cc.renderer._breakBatch();
+        cc.rendererWebGL._breakBatch();
         
         cc.math.glMatrixMode(cc.math.KM_GL_PROJECTION);
         cc.current_stack.pop();

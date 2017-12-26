@@ -213,7 +213,7 @@ var Sprite = cc.Class({
                     }
                 }
                 this._spriteFrame = value;
-                if (lastSprite && lastSprite.getTexture() !== value.getTexture()) {
+                if ((lastSprite && lastSprite.getTexture()) !== (value && value.getTexture())) {
                     // Drop previous material, because texture have changed
                     this._material = null;
                     this._customMaterial = false;
