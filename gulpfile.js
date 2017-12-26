@@ -50,6 +50,10 @@ gulp.task('build-html5-preview',  function (done) {
     Engine.buildPreview('./index.js', './bin/cocos2d-js-for-preview.js', done);
 });
 
+gulp.task('build-html5-preview-dev', function (done) {
+    Engine.buildPreview('./index.js', './bin/cocos2d-js-for-preview.js', done, true);
+});
+
 gulp.task('build-html5', ['build-html5-preview', 'build-html5-dev', 'build-html5-min']);
 
 gulp.task('build-jsb-dev', function (done) {

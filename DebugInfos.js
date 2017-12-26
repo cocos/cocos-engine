@@ -500,7 +500,8 @@ if (CC_DEBUG) {
         "6013": "Particle system: not enough memory", //initWithTotalParticles
         "6014": "Can't change blending functions when the particle is being batched", //_updateBlendFunc
         "6015": "_ccsg.ParticleSystem.setDisplayFrame(): QuadParticle only supports SpriteFrames with no offsets", //setDisplayFrame
-        "6016": "_ccsg.ParticleSystem._allocMemory(): Memory should not be allocated when not using batchNode", //WebGLRenderCmd._allocMemory
+        "6016": "_ccsg.ParticleSystem._allocMemory(): Memory should not be allocated when not using batchNode", //WebGLRenderCmd.
+        "6017": "Please use spriteFrame property to set new texture, texture property is readonly from v1.9",
         //Compatible: 6100
         "6100": "Not supported file types, Please try use the ccs.load", //widgetFromJsonFile
         //CCFactory: 6200

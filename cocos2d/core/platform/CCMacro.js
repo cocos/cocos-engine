@@ -1946,7 +1946,7 @@ cc.defineGetterSetter(cc.macro, 'ENABLE_CULLING',
         }
         else {
             scene._sgNode._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.cullingDirty);
-            cc.renderer.childrenOrderDirty = true;
+            cc.rendererWebGL.childrenOrderDirty = true;
         }
     }
 )

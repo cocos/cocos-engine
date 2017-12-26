@@ -85,7 +85,7 @@ proto._beginWithClear = function(r, g, b, a, depthValue, stencilValue, flags){
 proto.end = function(){
     var node = this._node;
 
-    cc.renderer._renderingToCacheCanvas(this._cacheContext, node.__instanceId);
+    cc.rendererWebGL._renderingToCacheCanvas(this._cacheContext, node.__instanceId);
     var spriteRenderCmd = node.sprite._renderCmd;
     spriteRenderCmd._notifyRegionStatus && spriteRenderCmd._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.Dirty);
 };

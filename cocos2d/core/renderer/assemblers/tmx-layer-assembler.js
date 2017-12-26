@@ -40,6 +40,8 @@ let _matrix = math.mat4.create();
 let _v3 = cc.v3();
 
 let assembler = {
+    useModel: false,
+
     createData (comp) {
         return RenderData.alloc();
     },

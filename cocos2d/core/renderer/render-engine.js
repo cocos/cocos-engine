@@ -16,7 +16,7 @@ module.exports = (function () {
    */
   const EPSILON = 0.000001;
   
-  /**
+  /** 
    * Tests whether or not the arguments have approximately the same value, within an absolute
    * or relative tolerance of glMatrix.EPSILON (an absolute tolerance is used for values less
    * than or equal to 1.0, and a relative tolerance is used for larger values)
@@ -13752,12 +13752,40 @@ module.exports = (function () {
   var templates = [
     {
       name: 'sprite',
-      vert: 'uniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying lowp vec4 v_fragmentColor;\n#ifdef useModel\n  uniform mat4 model;\n#endif\n#ifdef useTexture\n  attribute vec2 a_uv0;\n  varying vec2 uv0;\n#endif\nvoid main () {\n  vec4 pos;\n  #ifdef useModel\n    pos = model * vec4(a_position, 1);\n  #else\n    pos = vec4(a_position, 1);\n  #endif\n  pos = viewProj * pos;\n  v_fragmentColor = a_color;\n  \n  #ifdef useTexture\n    uv0 = a_uv0;\n  #endif\n  gl_Position = pos;\n}',
+      vert: 'uniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying lowp vec4 v_fragmentColor;\n#ifdef useModel\n  uniform mat4 model;\n#endif\n#ifdef useTexture\n  attribute vec2 a_uv0;\n  varying vec2 uv0;\n#endif\nvoid main () {\n  mat4 mvp;\n  #ifdef useModel\n    mvp = viewProj * model;\n  #else\n    mvp = viewProj;\n  #endif\n  vec4 pos = mvp * vec4(a_position, 1);\n  v_fragmentColor = a_color;\n  \n  #ifdef useTexture\n    uv0 = a_uv0;\n  #endif\n  gl_Position = pos;\n}',
       frag: '#ifdef useTexture\n  uniform sampler2D texture;\n  varying vec2 uv0;\n#endif\n#ifdef alphaTest\n  uniform float alphaThreshold;\n#endif\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 o = v_fragmentColor;\n  #ifdef useTexture\n    o *= texture2D(texture, uv0);\n  #endif\n  #ifdef alphaTest\n    if (o.a <= alphaThreshold)\n      discard;\n  #endif\n  gl_FragColor = o;\n}',
       options: [
         { name: 'useTexture', },
         { name: 'useModel', },
         { name: 'alphaTest', },
+      ],
+    },
+    {
+      name: 'vfx_emitter',
+      vert: '#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nvarying vec2 index;\nvoid main() {\n    index = (a_quad + 1.0) / 2.0;\n    gl_Position = vec4(a_quad, 0, 1);\n}\n',
+      frag: 'uniform sampler2D noise;\nuniform sampler2D state;\nuniform vec2 statesize;\nuniform vec2 noisesize;\nuniform float dt;\nuniform float mode;\nuniform float noiseId;\nuniform float emitVar;\nuniform float life;\nuniform float lifeVar;\nuniform vec2 pos;\nuniform vec2 posVar;\nuniform vec4 color;\nuniform vec4 colorVar;\nuniform vec4 endColor;\nuniform vec4 endColorVar;\nuniform float size;\nuniform float sizeVar;\nuniform float endSize;\nuniform float endSizeVar;\nuniform float rot;\nuniform float rotVar;\nuniform float endRot;\nuniform float endRotVar;\nuniform float angle;\nuniform float angleVar;\nuniform float speed;\nuniform float speedVar;\nuniform float radial;\nuniform float radialVar;\nuniform float tangent;\nuniform float tangentVar;\nuniform float radius;\nuniform float radiusVar;\nuniform float endRadius;\nuniform float endRadiusVar;\nuniform float rotatePS;\nuniform float rotatePSVar;\nuniform float sizeScale;\nuniform float accelScale;\nuniform float radiusScale;\nvarying vec2 index;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float NOISE_SCALE = 10000.0;\nconst float POSITION_SCALE = 1.0;\nconst float ROTATION_SCALE = 1.0;\nconst float COLOR_SCALE = 1.0;\nconst float LIFE_SCALE = 60.0;\nconst float START_SIZE_EQUAL_TO_END_SIZE = -1.0;\nconst float START_RADIUS_EQUAL_TO_END_RADIUS = -1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvec2 encode(float value, float scale) {\n    value = value * scale + OFFSET;\n    float x = mod(value, BASE);\n    float y = floor(value / BASE);\n    return vec2(x, y) / BASE;\n}\nfloat randomMinus1To1(vec2 randomD) {\n    float random = decode(randomD, NOISE_SCALE);\n    return (random - 0.5) * 2.0;\n}\nbool doEmit (vec4 randomD) {\n    float random1 = decode(randomD.rg, NOISE_SCALE);\n    if ((life + lifeVar) * random1 < life) {\n        return true;\n    }\n    else {\n        return false;\n    }\n}\nvec4 initLife (vec4 data, vec4 randomD) {\n    \n    if (doEmit(randomD)) {\n        float random2 = randomMinus1To1(randomD.ba);\n        float plife = life + lifeVar * random2;\n        vec2 l = encode(plife, LIFE_SCALE);\n        return vec4(l, l);\n    }\n    else {\n        return data;\n    }\n}\nvec4 initColor (float randr, float randg, float randb, float randa) {\n    vec4 random = vec4(randr, randg, randb, randa);\n    vec4 result = clamp(color + colorVar * random, 0.0, 255.0);\n    return result / 255.0;\n}\nvec4 initDeltaRG (vec2 startR, vec2 random) {\n    vec2 start = clamp(color.rg + colorVar.rg * startR, 0.0, 255.0);\n    vec2 end = clamp(endColor.rg + endColorVar.rg * random, 0.0, 255.0);\n    vec2 delta = end - start;\n    return vec4(encode(delta.x, COLOR_SCALE), encode(delta.y, COLOR_SCALE));\n}\nvec4 initDeltaBA (vec2 startR, vec2 random) {\n    vec2 start = clamp(color.ba + colorVar.ba * startR, 0.0, 255.0);\n    vec2 end = clamp(endColor.ba + endColorVar.ba * random, 0.0, 255.0);\n    vec2 delta = end - start;\n    return vec4(encode(delta.x, COLOR_SCALE), encode(delta.y, COLOR_SCALE));\n}\nvec4 initSize (float rand1, float rand2) {\n    float start = max(0.0, size + sizeVar * rand1);\n    if (endSize == START_SIZE_EQUAL_TO_END_SIZE) {\n        float delta = 0.0;\n        return vec4(encode(start, sizeScale), encode(delta, sizeScale));\n    }\n    else {\n        float end = max(0.0, endSize + endSizeVar * rand2);\n        float delta = end - start;\n        return vec4(encode(start, sizeScale), encode(delta, sizeScale));\n    }\n}\nvec4 initRotation (float rand1, float rand2) {\n    float start = rot + rotVar * rand1;\n    float end = endRot + endRotVar * rand2;\n    float delta = end - start;\n    return vec4(encode(start, ROTATION_SCALE), encode(delta, ROTATION_SCALE));\n}\nvec4 initControl1 (float rand1, float rand2) {\n    \n    if (mode == 0.0) {\n        float pAngle = angle + angleVar * rand1;\n        float dirX = cos(pAngle);\n        float dirY = sin(pAngle);\n        float pSpeed = speed + speedVar * rand2;\n        return vec4(encode(dirX * pSpeed, POSITION_SCALE), encode(dirY * pSpeed, POSITION_SCALE));\n    }\n    \n    else {\n        float pAngle = angle + angleVar * rand1;\n        float pRadius = radius + radiusVar * rand2;\n        return vec4(encode(pAngle, ROTATION_SCALE), encode(pRadius, radiusScale));\n    }\n}\nvec4 initControl2 (float startR1, float rand1, float rand2) {\n    \n    if (mode == 0.0) {\n        float pRadial = radial + radialVar * rand1;\n        float pTangent = tangent + tangentVar * rand2;\n        return vec4(encode(pRadial, accelScale), encode(pTangent, accelScale));\n    }\n    \n    else {\n        float degreesPerSecond = rotatePS + rotatePSVar * rand1;\n        float pDeltaRadius;\n        if (endRadius == START_RADIUS_EQUAL_TO_END_RADIUS) {\n            pDeltaRadius = 0.0;\n        }\n        else {\n            float pRadius = radius + radiusVar * startR1;\n            pDeltaRadius = (endRadius + endRadiusVar * rand2 - pRadius);\n        }\n        return vec4(encode(degreesPerSecond, ROTATION_SCALE), encode(pDeltaRadius, radiusScale));\n    }\n}\nvec4 initPos (float rand1, float rand2) {\n    vec2 result = pos + posVar * vec2(rand1, rand2);\n    return vec4(encode(result.x, POSITION_SCALE), encode(result.y, POSITION_SCALE));\n}\nvoid main() {\n    vec2 pixel = floor(index * statesize);\n    vec2 pindex = floor(pixel / 3.0);\n    vec2 temp = mod(pixel, vec2(3.0, 3.0));\n    float id = floor(temp.y * 3.0 + temp.x);\n    vec2 noffset = vec2(floor(noiseId / 4.0), mod(noiseId, 4.0));\n    vec2 nid = pixel + noffset;\n    vec4 randomD = texture2D(noise, nid / noisesize);\n    \n    vec4 lifeData = texture2D(state, pindex * 3.0 / statesize);\n    float rest = decode(lifeData.rg, LIFE_SCALE);\n    float life = decode(lifeData.ba, LIFE_SCALE);\n    \n    if (id == 0.0) {\n        vec4 data = texture2D(state, index);\n        if (rest <= 0.0) {\n            gl_FragColor = initLife(data, randomD);\n        }\n        else {\n            gl_FragColor = data;\n        }\n        return;\n    }\n    \n    if (rest > 0.0) {\n        vec4 data = texture2D(state, index);\n        gl_FragColor = data;\n        return;\n    }\n    vec2 lifeNid = pindex * 3.0 + noffset;\n    vec4 lifeRandomD = texture2D(noise, lifeNid / noisesize);\n    bool emitting = doEmit(lifeRandomD);\n    if (!emitting) {\n        vec4 data = texture2D(state, index);\n        gl_FragColor = data;\n        return;\n    }\n    \n    float random1 = randomMinus1To1(randomD.rg);\n    float random2 = randomMinus1To1(randomD.ba);\n    \n    if (id == 1.0) {\n        vec4 randomD3 = texture2D(noise, vec2(nid.x - 1.0, nid.y + 1.0) / noisesize);\n        float random3 = randomMinus1To1(randomD3.rg);\n        float random4 = randomMinus1To1(randomD3.ba);\n        gl_FragColor = initColor(random1, random2, random3, random4);\n        return;\n    }\n    \n    if (id == 2.0) {\n        vec4 randomD1 = texture2D(noise, vec2(nid.x - 1.0, nid.y) / noisesize);\n        float startR1 = randomMinus1To1(randomD1.rg);\n        float startR2 = randomMinus1To1(randomD1.ba);\n        vec2 startR = vec2(startR1, startR2);\n        gl_FragColor = initDeltaRG(startR, vec2(random1, random2));\n        return;\n    }\n    \n    if (id == 3.0) {\n        vec2 startR = vec2(random1, random2);\n        gl_FragColor = initDeltaBA(startR, vec2(random1, random2));\n        return;\n    }\n    \n    if (id == 4.0) {\n        gl_FragColor = initSize(random1, random2);\n        return;\n    }\n    \n    if (id == 5.0) {\n        gl_FragColor = initRotation(random1, random2);\n        return;\n    }\n    \n    if (id == 6.0) {\n        gl_FragColor = initControl1(random1, random2);\n        return;\n    }\n    \n    if (id == 7.0) {\n        vec4 randomD6 = texture2D(noise, vec2(nid.x - 1.0, nid.y) / noisesize);\n        float startR1 = randomMinus1To1(randomD6.rg);\n        gl_FragColor = initControl2(startR1, random1, random2);\n        return;\n    }\n    \n    if (id == 8.0) {\n        gl_FragColor = initPos(random1, random2);\n        return;\n    }\n}',
+      options: [
+      ],
+    },
+    {
+      name: 'vfx_particle',
+      vert: '#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nuniform mat4 model;\nuniform mat4 viewProj;\nuniform sampler2D state;\nuniform sampler2D quad;\nuniform vec2 statesize;\nuniform vec2 quadsize;\nuniform float z;\nuniform vec2 lb;\nuniform vec2 rt;\nvarying lowp vec4 v_fragmentColor;\nvarying vec2 uv0;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float LIFE_SCALE = 60.0;\nconst float POSITION_SCALE = 1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvoid main() {\n    vec2 sIndex = floor(a_quad / 2.0) * 3.0;\n    vec4 lifeData = texture2D(state, sIndex / statesize);\n    float life = decode(lifeData.rg, LIFE_SCALE);\n    if (life <= 0.0) {\n        v_fragmentColor = vec4(0.0, 0.0, 0.0, 0.0);\n        uv0 = vec2(0.0, 0.0);\n        gl_Position = vec4(0.0, 0.0, 0.0, 1.0);\n    }\n    else {\n        vec2 posIndex = a_quad / quadsize;\n        vec4 posData = texture2D(quad, posIndex);\n        vec2 pos = vec2(decode(posData.rg, POSITION_SCALE), decode(posData.ba, POSITION_SCALE));\n        vec2 cIndex = vec2(sIndex.x + 1.0, sIndex.y) / statesize;\n        vec4 color = texture2D(state, cIndex);\n        v_fragmentColor = color;\n        float u, v;\n        vec2 uvId = mod(a_quad, vec2(2.0));\n        if (uvId.x == 0.0) {\n            u = lb.x;\n        }\n        else {\n            u = rt.x;\n        }\n        if (uvId.y == 0.0) {\n            v = lb.y;\n        }\n        else {\n            v = rt.y;\n        }\n        uv0 = vec2(u, v);\n        gl_Position = viewProj * model * vec4(pos, z, 1.0);\n    }    \n}\n',
+      frag: 'uniform sampler2D texture;\nvarying vec2 uv0;\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 o = v_fragmentColor;\n  o *= texture2D(texture, uv0);\n  gl_FragColor = o;\n}',
+      options: [
+      ],
+    },
+    {
+      name: 'vfx_quad',
+      vert: '#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nvarying vec2 index;\nvoid main() {\n    index = (a_quad + 1.0) / 2.0;\n    gl_Position = vec4(a_quad, 0, 1);\n}\n',
+      frag: 'uniform sampler2D state;\nuniform vec2 quadsize;\nuniform vec2 statesize;\nuniform float sizeScale;\nvarying vec2 index;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float POSITION_SCALE = 1.0;\nconst float ROTATION_SCALE = 1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvec2 encode(float value, float scale) {\n    value = value * scale + OFFSET;\n    float x = mod(value, BASE);\n    float y = floor(value / BASE);\n    return vec2(x, y) / BASE;\n}\nvoid main() {\n    vec2 pIndex = floor(index * quadsize / 2.0) * 3.0;\n    vec2 dataIndex = (pIndex + 2.0) / statesize;\n    vec4 posData = texture2D(state, dataIndex);\n    vec2 pos = vec2(decode(posData.rg, POSITION_SCALE), decode(posData.ba, POSITION_SCALE));\n    dataIndex = (pIndex + 1.0) / statesize;\n    vec4 sizeData = texture2D(state, dataIndex);\n    float size = decode(sizeData.rg, sizeScale);\n    dataIndex.x = (pIndex.x + 2.0) / statesize.x;\n    dataIndex.y = (pIndex.y + 1.0) / statesize.y;\n    vec4 rotData = texture2D(state, dataIndex);\n    float rot = radians(floor(decode(rotData.rg, ROTATION_SCALE)));\n    float a = cos(rot);\n    float b = -sin(rot);\n    float c = -b;\n    float d = a;\n    vec2 vert = (mod(floor(index * quadsize), vec2(2.0)) - 0.5) * size;\n    float x = vert.x * a + vert.y * c + pos.x;\n    float y = vert.x * b + vert.y * d + pos.y;\n    gl_FragColor = vec4(encode(x, POSITION_SCALE), encode(y, POSITION_SCALE));\n}\n',
+      options: [
+      ],
+    },
+    {
+      name: 'vfx_update',
+      vert: '#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nvarying vec2 index;\nvoid main() {\n    index = (a_quad + 1.0) / 2.0;\n    gl_Position = vec4(a_quad, 0, 1);\n}\n',
+      frag: 'uniform sampler2D state;\nuniform vec2 statesize;\nuniform float dt;\nuniform float mode;\nuniform vec2 gravity;\nuniform float sizeScale;\nuniform float accelScale;\nuniform float radiusScale;\nvarying vec2 index;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float MAX_VALUE = BASE * BASE;\nconst float LIFE_SCALE = 60.0;\nconst float POSITION_SCALE = 1.0;\nconst float ROTATION_SCALE = 1.0;\nconst float COLOR_SCALE = 1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvec2 encode(float value, float scale) {\n    value = value * scale + OFFSET;\n    float x = mod(value, BASE);\n    float y = floor(value / BASE);\n    return vec2(x, y) / BASE;\n}\nvec4 updateLife (vec4 data) {\n    float rest = decode(data.rg, LIFE_SCALE);\n    rest -= dt;\n    return vec4(encode(rest, LIFE_SCALE), data.ba);\n}\nvec4 updateColor (vec4 color, vec4 deltaRG, vec4 deltaBA, float life) {\n    float r = decode(deltaRG.rg, COLOR_SCALE);\n    float g = decode(deltaRG.ba, COLOR_SCALE);\n    float b = decode(deltaBA.rg, COLOR_SCALE);\n    float a = decode(deltaBA.ba, COLOR_SCALE);\n    vec4 deltaColor = vec4(r, g, b, a) / 255.0;\n    \n    color = clamp(color + deltaColor * dt / life, 0.0, 1.0);\n    return color;\n}\nvec4 updateSize (vec4 data, float life) {\n    float size = decode(data.rg, sizeScale);\n    float deltaSize = decode(data.ba, sizeScale);\n    size = clamp(size + deltaSize * dt / life, 0.0, MAX_VALUE);\n    return vec4(encode(size, sizeScale), data.ba);\n}\nvec4 updateRotation (vec4 data, float life) {\n    float rotation = decode(data.rg, ROTATION_SCALE);\n    float deltaRotation = decode(data.ba, ROTATION_SCALE);\n    rotation += deltaRotation * dt / life;\n    return vec4(encode(rotation, ROTATION_SCALE), data.ba);\n}\nvec4 updateControl (vec4 control1, vec4 control2, vec4 posData, float life) {\n    \n    if (mode == 0.0) {\n        vec2 dir = vec2(decode(control1.rg, POSITION_SCALE), decode(control1.ba, POSITION_SCALE));\n        float radialAccel = decode(control2.rg, accelScale);\n        float tangentialAccel = decode(control2.ba, accelScale);\n        vec2 pos = vec2(decode(posData.rg, POSITION_SCALE), decode(posData.ba, POSITION_SCALE));\n        vec2 radial = normalize(pos);\n        vec2 tangential = vec2(-radial.y, radial.x);\n        radial = radial * radialAccel;\n        tangential = tangential * tangentialAccel;\n        vec2 result = dir + (radial + tangentialAccel + gravity) * dt;\n        return vec4(encode(result.x, POSITION_SCALE), encode(result.y, POSITION_SCALE));\n    }\n    \n    else {\n        float angle = mod(decode(control1.rg, ROTATION_SCALE), 360.0);\n        float radius = decode(control1.ba, radiusScale);\n        float degreesPerSecond = decode(control2.rg, ROTATION_SCALE);\n        float deltaRadius = decode(control2.ba, radiusScale);\n        angle += degreesPerSecond * dt;\n        radius += deltaRadius * dt / life;\n        return vec4(encode(angle, ROTATION_SCALE), encode(radius, radiusScale));\n    }\n}\nvec4 updatePos (vec4 posData, vec4 control) {\n    vec2 result;\n    \n    if (mode == 0.0) {\n        vec2 dir = vec2(decode(control.rg, POSITION_SCALE), decode(control.ba, POSITION_SCALE));\n        vec2 pos = vec2(decode(posData.rg, POSITION_SCALE), decode(posData.ba, POSITION_SCALE));\n        result = pos + dir * dt;\n    }\n    \n    else {\n        float angle = radians(decode(control.rg, ROTATION_SCALE));\n        float radius = decode(control.ba, radiusScale);\n        result.x = -cos(angle) * radius;\n        result.y = -sin(angle) * radius;\n    }\n    return vec4(encode(result.x, POSITION_SCALE), encode(result.y, POSITION_SCALE));\n}\nvoid main() {\n    vec2 pixel = floor(index * statesize);\n    vec2 pindex = floor(pixel / 3.0);\n    vec2 temp = mod(pixel, vec2(3.0));\n    float id = floor(temp.y * 3.0 + temp.x);\n    \n    vec4 data = texture2D(state, index);\n    vec4 lifeData = texture2D(state, pindex * 3.0 / statesize);\n    float rest = decode(lifeData.rg, LIFE_SCALE);\n    if (rest <= 0.0) {\n        gl_FragColor = data;\n        return;\n    }\n    \n    if (id == 2.0 || id == 3.0 || id == 7.0) {\n        gl_FragColor = data;\n        return;\n    }\n    float life = decode(lifeData.ba, LIFE_SCALE);\n    \n    if (id == 0.0) {\n        gl_FragColor = updateLife(data);\n        return;\n    }\n    \n    if (id == 1.0) {\n        vec2 rgIndex = vec2(pixel.x + 1.0, pixel.y) / statesize;\n        vec4 deltaRG = texture2D(state, rgIndex);\n        vec2 baIndex = vec2(pixel.x - 1.0, pixel.y + 1.0) / statesize;\n        vec4 deltaBA = texture2D(state, baIndex);\n        gl_FragColor = updateColor(data, deltaRG, deltaBA, life);\n        return;\n    }\n    \n    if (id == 4.0) {\n        gl_FragColor = updateSize(data, life);\n        return;\n    }\n    \n    if (id == 5.0) {\n        gl_FragColor = updateRotation(data, life);\n        return;\n    }\n    \n    if (id == 6.0) {\n        vec2 ctrlIndex = vec2(pixel.x + 1.0, pixel.y) / statesize;\n        vec4 control2 = texture2D(state, ctrlIndex);\n        vec2 posIndex = vec2(pixel.x + 2.0, pixel.y) / statesize;\n        vec4 pos = texture2D(state, posIndex);\n        gl_FragColor = updateControl(data, control2, pos, life);\n        return;\n    }\n    \n    if (id == 8.0) {\n        vec2 ctrlIndex = vec2(pixel.x - 2.0, pixel.y) / statesize;\n        vec4 control1 = texture2D(state, ctrlIndex);\n        gl_FragColor = updatePos(data, control1);\n        return;\n    }\n}\n',
+      options: [
       ],
     },
   ];
@@ -14035,6 +14063,473 @@ module.exports = (function () {
     return new RenderData();
   }, 32);
   
+  const BASE = 255;
+  const NOISE_SCALE = 10000;
+  const POS_SCALE = 1;
+  const LIFE_SCALE = 60;
+  const COLOR_SCALE = 1;
+  const ROTATION_SCALE = 1;
+  const MAX_SCALE = 500;
+  let _vertexFmt = new gfx.VertexFormat([
+    { name: 'a_quad', type: gfx.ATTR_TYPE_FLOAT32, num: 2 }
+  ]);
+  
+  let _dataOpts = {
+    width: 0,
+    height: 0,
+    minFilter: gfx.FILTER_NEAREST,
+    magFilter: gfx.FILTER_NEAREST,
+    wrapS: gfx.WRAP_CLAMP,
+    wrapT: gfx.WRAP_CLAMP,
+    format: gfx.TEXTURE_FMT_RGBA8,
+    images: []
+  };
+  
+  function encode (value, scale, outArr, offset) {
+    value = value * scale + BASE * BASE / 2;
+    outArr[offset] = Math.floor((value % BASE) / BASE * 255);
+    outArr[offset+1] = Math.floor(Math.floor(value / BASE) / BASE * 255);
+  }
+  
+  function decode (arr, offset, scale) {
+    return (((arr[offset] / 255) * BASE +
+             (arr[offset+1] / 255) * BASE * BASE) - BASE * BASE / 2) / scale;
+  }
+  
+  function clampf (value, min_inclusive, max_inclusive) {
+    return value < min_inclusive ? min_inclusive : value < max_inclusive ? value : max_inclusive;
+  }
+  
+  class Particles {
+    constructor (device, renderer$$1, config) {
+      this._device = device;
+      this._config = config;
+      this._sizeScale = 1;
+      this._accelScale = 1;
+      this._radiusScale = 1;
+      
+      let opts = {};
+      let programLib = renderer$$1._programLib;
+      this.programs = {
+        emitter: programLib.getProgram('vfx_emitter', opts),
+        update: programLib.getProgram('vfx_update', opts),
+        quad: programLib.getProgram('vfx_quad', opts),
+      };
+  
+      this.textures = {
+        // need swap
+        state0: new gfx.Texture2D(device, opts),
+        state1: new gfx.Texture2D(device, opts),
+        // no swap needed
+        noise: new gfx.Texture2D(device, opts),
+        quads: new gfx.Texture2D(device, opts),
+      };
+  
+      this.framebuffers = {
+        state0: new gfx.FrameBuffer(device, 0, 0, {
+          colors: [this.textures.state0]
+        }),
+        state1: new gfx.FrameBuffer(device, 0, 0, {
+          colors: [this.textures.state1]
+        }),
+        quads: new gfx.FrameBuffer(device, 0, 0, {
+          colors: [this.textures.quads]
+        })
+      };
+  
+      let verts = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
+      let indices = new Uint8Array([ 0, 1, 2, 1, 3, 2]);
+      this.buffers = {
+        updateVB: new gfx.VertexBuffer(device, _vertexFmt, gfx.USAGE_STATIC, verts, 4),
+        updateIB: new gfx.IndexBuffer(device, gfx.INDEX_FMT_UINT8, gfx.USAGE_STATIC, indices, 6),
+        indexes: null
+      };
+  
+      this._elapsed = 0;
+  
+      this.updateParticleCount(config);
+      this.updateSizeScale(config);
+      this.updateRadiusScale(config);
+      this.updateAccelScale(config);
+  
+      // Vector uniforms
+      this._pos = new Float32Array([config.sourcePos.x, config.sourcePos.y]);
+      this._posVar = new Float32Array([config.posVar.x, config.posVar.y]);
+      this._gravity = new Float32Array([config.gravity.x, config.gravity.y]);
+      this._color = new Float32Array([config.startColor.r, config.startColor.g, config.startColor.b, config.startColor.a]);
+      this._colorVar = new Float32Array([config.startColorVar.r, config.startColorVar.g, config.startColorVar.b, config.startColorVar.a]);
+      this._endColor = new Float32Array([config.endColor.r, config.endColor.g, config.endColor.b, config.endColor.a]);
+      this._endColorVar = new Float32Array([config.endColorVar.r, config.endColorVar.g, config.endColorVar.b, config.endColorVar.a]);
+    }
+  
+    get vertexFormat () {
+      return _vertexFmt;
+    }
+  
+    get particleCount () {
+      return this._particleCount;
+    }
+  
+    updateParticleCount (config) {
+      let emissionMax = Math.floor(config.emissionRate * (config.life + config.lifeVar));
+      let particleCount;
+      if (config.totalParticles > emissionMax) {
+        particleCount = emissionMax;
+        this._emitVar = config.lifeVar;
+      }
+      else {
+        particleCount = config.totalParticles;
+        this._emitVar = 0;
+      }
+      if (particleCount !== this._particleCount) {
+        this._particleCount = particleCount;
+        this._tw = Math.ceil(Math.sqrt(particleCount));
+        this._th = Math.floor(Math.sqrt(particleCount));
+        this.initTextures();
+        this.initBuffers();
+      }
+    }
+  
+    set pos (pos) {
+      this._pos[0] = pos.x;
+      this._pos[1] = pos.y;
+    }
+  
+    set posVar (posVar) {
+      this._posVar[0] = posVar.x;
+      this._posVar[1] = posVar.y;
+    }
+  
+    set gravity (gravity) {
+      this._gravity[0] = gravity.x;
+      this._gravity[1] = gravity.y;
+    }
+  
+    set startColor (color) {
+      this._color[0] = color.r;
+      this._color[1] = color.g;
+      this._color[2] = color.b;
+      this._color[3] = color.a;
+    }
+  
+    set startColorVar (color) {
+      this._colorVar[0] = color.r;
+      this._colorVar[1] = color.g;
+      this._colorVar[2] = color.b;
+      this._colorVar[3] = color.a;
+    }
+  
+    set endColor (color) {
+      this._endColor[0] = color.r;
+      this._endColor[1] = color.g;
+      this._endColor[2] = color.b;
+      this._endColor[3] = color.a;
+    }
+  
+    set endColorVar (color) {
+      this._endColorVar[0] = color.r;
+      this._endColorVar[1] = color.g;
+      this._endColorVar[2] = color.b;
+      this._endColorVar[3] = color.a;
+    }
+  
+    _updateTex (tex, data, width, height) {
+      _dataOpts.images.length = 1;
+      _dataOpts.images[0] = data;
+      _dataOpts.width = width;
+      _dataOpts.height = height;
+      tex.update(_dataOpts);
+    }
+  
+    _initNoise () {
+      let tw = this._tw, th = this._th;
+      let w = (tw + 1) * 3, h = (th + 1) * 3;
+      let data = new Uint8Array(w * h * 4);
+      let offset = 0;
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          encode(Math.random(), NOISE_SCALE, data, offset);
+          encode(Math.random(), NOISE_SCALE, data, offset + 2);
+          offset += 4;
+        }
+      }
+      this._noisesize = new Float32Array([w, h]);
+      this._updateTex(this.textures.noise, data, w, h);
+    }
+  
+    initTextures () {
+      let tw = this._tw, th = this._th;
+      this.statesize = new Float32Array([tw * 3, th * 3]);
+      this.quadsize = new Float32Array([tw * 2, th * 2]);
+      let data = new Uint8Array(tw * 3 * th * 3 * 4);
+      // decode([97, 97], 0, LIFE_SCALE); equals to -128, just for initalize a negative value in life
+      data.fill(97);
+      this._updateTex(this.textures.state0, data, tw * 3, th * 3);
+      this._updateTex(this.textures.state1, data, tw * 3, th * 3);
+      this._updateTex(this.textures.quads, null, tw * 2, th * 2);
+      this._initNoise();
+    }
+  
+    initBuffers () {
+      var w = this.quadsize[0], h = this.quadsize[1],
+          indexes = new Float32Array(w * h * 2),
+          i = 0;
+      for (var y = 0; y < h; y++) {
+        for (var x = 0; x < w; x++) {
+          indexes[i + 0] = x;
+          indexes[i + 1] = y;
+          i += 2;
+        }
+      }
+      this.buffers.indexes = indexes;
+    }
+  
+    updateSizeScale (config) {
+      let size = config.startSize,
+          sizeVar = config.startSizeVar,
+          endSize = config.endSize,
+          endSizeVar = config.endSizeVar;
+      let scale = Math.floor(Math.pow(BASE, 2) / Math.max(size + sizeVar, endSize + endSizeVar));
+      this._sizeScale = clampf(scale, 1, MAX_SCALE);
+    }
+  
+    updateAccelScale (config) {
+      let radial = config.radialAccel,
+          radialVar = config.radialAccelVar,
+          tangential = config.tangentialAccel,
+          tangentialVar = config.tangentialAccelVar;
+      let accelScale = Math.floor(Math.pow(BASE, 2) / Math.max(Math.abs(radial) + radialVar, Math.abs(tangential) + tangentialVar) / 2);
+      this._accelScale = clampf(accelScale, 1, MAX_SCALE);
+    }
+  
+    updateRadiusScale (config) {
+      let radius = config.startRadius,
+          radiusVar = config.startRadiusVar,
+          endRadius = config.endRadius,
+          endRadiusVar = config.endRadiusVar;
+      let scale = Math.floor(Math.pow(BASE, 2) / Math.max(Math.abs(radius) + radiusVar, Math.abs(endRadius) + endRadiusVar));
+      this._radiusScale = clampf(scale, 1, MAX_SCALE);
+    }
+  
+    stopSystem (searchIndex) {
+    }
+  
+    getState (framebuffer) {
+      let device = this._device;
+      device.setFrameBuffer(framebuffer);
+      let w = this.statesize[0], h = this.statesize[1],
+          tw = this._tw, th = this._th,
+          rgba = new Uint8Array(w * h * 4);
+      device._gl.readPixels(0, 0, w, h, device._gl.RGBA, device._gl.UNSIGNED_BYTE, rgba);
+      let particles = [];
+      for (let y = 0; y < th; y++) {
+        for (let x = 0; x < tw; x++) {
+          let offset = y * 3 * tw * 12 + x * 12;
+          let colorI = offset + 1 * 4;
+          let deltaRGI = offset + 2 * 4;
+          let deltaBAI = offset + tw * 12;
+          let sizeI = offset + tw * 12 + 1 * 4;
+          let rotI = offset + tw * 12 + 2 * 4;
+          let control1I = offset + 2 * tw * 12;
+          let control2I = offset + 2 * tw * 12 + 1 * 4;
+          let posI = offset + 2 * tw * 12 + 2 * 4;
+          
+          let rest = decode(rgba, offset, LIFE_SCALE);
+          let life = decode(rgba, offset + 2, LIFE_SCALE);
+          let color = {
+            r: rgba[colorI],
+            g: rgba[colorI+1],
+            b: rgba[colorI+2],
+            a: rgba[colorI+3]
+          };
+          let deltaColor = {
+            r: decode(rgba, deltaRGI, COLOR_SCALE),
+            g: decode(rgba, deltaRGI + 2, COLOR_SCALE),
+            b: decode(rgba, deltaBAI, COLOR_SCALE),
+            a: decode(rgba, deltaBAI + 2, COLOR_SCALE)
+          };
+          let size = decode(rgba, sizeI, this._sizeScale);
+          let deltaSize = decode(rgba, sizeI + 2, this._sizeScale);
+          let rot = decode(rgba, rotI, ROTATION_SCALE);
+          let deltaRot = decode(rgba, rotI + 2, ROTATION_SCALE);
+          let control;
+          if (this._config.emitterMode === 0) {
+            control = [
+              decode(rgba, control1I, POS_SCALE),
+              decode(rgba, control1I + 2, POS_SCALE),
+              decode(rgba, control2I, this._accelScale),
+              decode(rgba, control2I + 2, this._accelScale)
+            ];
+          }
+          else {
+            control = [
+              decode(rgba, control1I, ROTATION_SCALE),
+              decode(rgba, control1I + 2, this._radiusScale),
+              decode(rgba, control2I, ROTATION_SCALE),
+              decode(rgba, control2I + 2, this._radiusScale)
+            ];
+          }
+          let pos = {
+            x: decode(rgba, posI, POS_SCALE),
+            y: decode(rgba, posI + 2, POS_SCALE)
+          };
+          particles.push({
+            rest,
+            life,
+            color,
+            deltaColor,
+            size,
+            deltaSize,
+            rot,
+            deltaRot,
+            control: control,
+            pos: pos
+          });
+        }
+      }
+      return particles;
+    }
+  
+    getNoise () {
+      let device = this._device;
+      let framebuffer = new gfx.FrameBuffer(device, 0, 0, {
+          colors: [this.textures.noise]
+        });
+      device.setFrameBuffer(framebuffer);
+      let w = this._noisesize[0], h = this._noisesize[1],
+          rgba = new Uint8Array(w * h * 4);
+      device._gl.readPixels(0, 0, w, h, device._gl.RGBA, device._gl.UNSIGNED_BYTE, rgba);
+      let noises = [];
+      let offset = 0;
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          noises.push(decode(rgba, offset, 10000));
+          noises.push(decode(rgba, offset+2, 10000));
+          offset += 4;
+        }
+      }
+      return noises;
+    }
+  
+    getQuads () {
+      let device = this._device;
+      let framebuffer = new gfx.FrameBuffer(device, 0, 0, {
+          colors: [this.textures.quads]
+        });
+      device.setFrameBuffer(framebuffer);
+      let w = this.quadsize[0], h = this.quadsize[1],
+          rgba = new Uint8Array(w * h * 4);
+      device._gl.readPixels(0, 0, w, h, device._gl.RGBA, device._gl.UNSIGNED_BYTE, rgba);
+      let quads = [];
+      let off1 = 0, off2 = 0;
+      for (let y = 0; y < h; y += 2) {
+        for (let x = 0; x < w; x += 2) {
+          off1 = (y * w + x) * 4;
+          off2 = ((y + 1) * w + x) * 4;
+          quads.push([
+            decode(rgba, off1, POS_SCALE),
+            decode(rgba, off1+2, POS_SCALE),
+            decode(rgba, off1+4, POS_SCALE),
+            decode(rgba, off1+6, POS_SCALE),
+            decode(rgba, off2, POS_SCALE),
+            decode(rgba, off2+2, POS_SCALE),
+            decode(rgba, off2+4, POS_SCALE),
+            decode(rgba, off2+6, POS_SCALE)
+          ]);
+        }
+      }
+      return quads;
+    }
+  
+    step (dt) {
+      let config = this._config;
+      let device = this._device;
+  
+      // setup
+      device.setViewport(0, 0, this.statesize[0], this.statesize[1]);
+  
+      // Emitter
+      device.setFrameBuffer(this.framebuffers.state1);
+      device.setTexture('noise', this.textures.noise, 0);
+      device.setTexture('state', this.textures.state0, 1);
+      device.setUniform('statesize', this.statesize);
+      device.setUniform('noisesize', this._noisesize);
+      device.setUniform('dt', dt);
+      device.setUniform('mode', config.emitterMode);
+      device.setUniform('noiseId', Math.floor(Math.random() * 16));
+      device.setUniform('emitVar', this._emitVar);
+      device.setUniform('life', config.life);
+      device.setUniform('lifeVar', config.lifeVar);
+      device.setUniform('pos', this._pos);
+      device.setUniform('posVar', this._posVar);
+      device.setUniform('color', this._color);
+      device.setUniform('colorVar', this._colorVar);
+      device.setUniform('endColor', this._endColor);
+      device.setUniform('endColorVar', this._endColorVar);
+      device.setUniform('size', config.startSize);
+      device.setUniform('sizeVar', config.startSizeVar);
+      device.setUniform('endSize', config.endSize);
+      device.setUniform('endSizeVar', config.endSizeVar);
+      device.setUniform('rot', config.startSpin);
+      device.setUniform('rotVar', config.startSpinVar);
+      device.setUniform('endRot', config.endSpin);
+      device.setUniform('endRotVar', config.endSpinVar);
+      device.setUniform('angle', config.angle);
+      device.setUniform('angleVar', config.angleVar);
+      device.setUniform('speed', config.speed);
+      device.setUniform('speedVar', config.speedVar);
+      device.setUniform('radial', config.radialAccel);
+      device.setUniform('radialVar', config.radialAccelVar);
+      device.setUniform('tangent', config.tangentialAccel);
+      device.setUniform('tangentVar', config.tangentialAccelVar);
+      device.setUniform('radius', config.startRadius);
+      device.setUniform('radiusVar', config.startRadiusVar);
+      device.setUniform('endRadius', config.endRadius);
+      device.setUniform('endRadiusVar', config.endRadiusVar);
+      device.setUniform('rotatePS', config.rotatePerS);
+      device.setUniform('rotatePSVar', config.rotatePerSVar);
+      device.setUniform('sizeScale', this._sizeScale);
+      device.setUniform('accelScale', this._accelScale);
+      device.setUniform('radiusScale', this._radiusScale);
+      device.setVertexBuffer(0, this.buffers.updateVB);
+      device.setIndexBuffer(this.buffers.updateIB);
+      device.setProgram(this.programs.emitter);
+      device.draw(0, this.buffers.updateIB.count);
+  
+      // Update
+      device.setFrameBuffer(this.framebuffers.state0);
+      device.setTexture('state', this.textures.state1, 0);
+      device.setUniform('statesize', this.statesize);
+      device.setUniform('dt', dt);
+      device.setUniform('mode', config.emitterMode);
+      device.setUniform('gravity', this._gravity);
+      device.setUniform('sizeScale', this._sizeScale);
+      device.setUniform('accelScale', this._accelScale);
+      device.setUniform('radiusScale', this._radiusScale);
+      device.setVertexBuffer(0, this.buffers.updateVB);
+      device.setIndexBuffer(this.buffers.updateIB);
+      device.setProgram(this.programs.update);
+      device.draw(0, this.buffers.updateIB.count);
+  
+      // Draw quad
+      device.setViewport(0, 0, this._tw * 2, this._th * 2);
+      device.setFrameBuffer(this.framebuffers.quads);
+      device.setTexture('state', this.textures.state0, 0);
+      device.setUniform('quadsize', this.quadsize);
+      device.setUniform('statesize', this.statesize);
+      device.setUniform('sizeScale', this._sizeScale);
+      device.setVertexBuffer(0, this.buffers.updateVB);
+      device.setIndexBuffer(this.buffers.updateIB);
+      device.setProgram(this.programs.quad);
+      device.draw(0, this.buffers.updateIB.count);
+  
+      this._elapsed += dt;
+      if (config.duration !== -1 && config.duration < this._elapsed) {
+        this.stopSystem();
+      }
+    }
+  }
+  
   class Asset {
     constructor(persist = true) {
       this._loaded = false;
@@ -14241,6 +14736,141 @@ module.exports = (function () {
     }
   }
   
+  class ParticleMaterial extends Material {
+    constructor() {
+      super(false);
+  
+      var pass = new renderer.Pass('vfx_particle');
+      pass.setDepth(false, false);
+      pass.setCullMode(gfx.CULL_NONE);
+      pass.setBlend(
+        gfx.BLEND_FUNC_ADD,
+        gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA,
+        gfx.BLEND_FUNC_ADD,
+        gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA
+      );
+  
+      let mainTech = new renderer.Technique(
+        ['transparent'],
+        [
+          { name: 'texture', type: renderer.PARAM_TEXTURE_2D },
+          { name: 'state', type: renderer.PARAM_TEXTURE_2D },
+          { name: 'quad', type: renderer.PARAM_TEXTURE_2D },
+          { name: 'z', type: renderer.PARAM_FLOAT },
+          { name: 'statesize', type: renderer.PARAM_FLOAT2 },
+          { name: 'quadsize', type: renderer.PARAM_FLOAT2 },
+          { name: 'lb', type: renderer.PARAM_FLOAT2 },
+          { name: 'rt', type: renderer.PARAM_FLOAT2 },
+        ],
+        [
+          pass
+        ]
+      );
+  
+      this._effect = new renderer.Effect(
+        [
+          mainTech,
+        ],
+        {},
+        []
+      );
+      
+      this._mainTech = mainTech;
+      this._lb = vec2.create();
+      this._rt = vec2.create();
+    }
+  
+    get effect () {
+      return this._effect;
+    }
+  
+    get texture () {
+      return this._effect.getValue('texture');
+    }
+  
+    set texture (val) {
+      this._effect.setValue('texture', val);
+    }
+  
+    get stateMap () {
+      return this._effect.getValue('state');
+    }
+  
+    set stateMap (val) {
+      this._effect.setValue('state', val);
+    }
+  
+    get quadMap () {
+      return this._effect.getValue('quad');
+    }
+  
+    set quadMap (val) {
+      this._effect.setValue('quad', val);
+    }
+  
+    get stateSize () {
+      return this._effect.getValue('statesize');
+    }
+  
+    set stateSize (val) {
+      this._effect.setValue('statesize', val);
+    }
+  
+    get quadSize () {
+      return this._effect.getValue('quadsize');
+    }
+  
+    set quadSize (val) {
+      this._effect.setValue('quadsize', val);
+    }
+  
+    get z () {
+      return this._effect.getValue('z');
+    }
+  
+    set z (val) {
+      this._effect.setValue('z', val);
+    }
+  
+    get uv () {
+      let lb = this._effect.getValue('lb');
+      let rt = this._effect.getValue('rt');
+      return {
+        l: lb.x,
+        r: rt.x,
+        b: lb.y,
+        t: rt.y
+      }
+    }
+  
+    set uv (val) {
+      this._lb.x = val.l;
+      this._lb.y = val.b;
+      this._rt.x = val.r;
+      this._rt.y = val.t;
+      this._effect.setValue('lb', this._lb);
+      this._effect.setValue('rt', this._rt);
+    }
+  
+    clone () {
+      let originValues = this._effect._values,
+          values = {};
+      for (let name in originValues) {
+        let value = originValues[name];
+        values[name] = value[name];
+      }
+      let copy = new ParticleMaterial(values);
+      copy.texture = this.texture;
+      copy.stateMap = this.stateMap;
+      copy.quadMap = this.quadMap;
+      copy.stateSize = this.stateSize;
+      copy.quadSize = this.quadSize;
+      copy.z = this.z;
+      copy.uv = this.uv;
+      return copy;
+    }
+  }
+  
   // intenral
   // deps
   const Scene = renderer.Scene;
@@ -14262,6 +14892,9 @@ module.exports = (function () {
     Model,
     RenderData,
     InputAssembler,
+  
+    // vfx
+    Particles,
     
     // assets
     Asset,
@@ -14270,6 +14903,7 @@ module.exports = (function () {
     // materials
     SpriteMaterial,
     StencilMaterial,
+    ParticleMaterial,
   
     // shaders
     shaders,

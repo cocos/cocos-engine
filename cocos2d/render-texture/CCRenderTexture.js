@@ -107,7 +107,7 @@ cc.RenderTexture = _ccsg.Node.extend(/** @lends cc.RenderTexture# */{
             return;
         }
 
-        var renderer = cc.renderer;
+        var renderer = cc.rendererWebGL;
 
         cmd.visit(parentCmd);
         renderer.pushRenderCommand(cmd);
@@ -168,7 +168,7 @@ cc.RenderTexture = _ccsg.Node.extend(/** @lends cc.RenderTexture# */{
      * @function
      */
     begin: function () {
-        cc.renderer._turnToCacheMode(this.__instanceId);
+        cc.rendererWebGL._turnToCacheMode(this.__instanceId);
         this._renderCmd.begin();
     },
     /**

@@ -318,7 +318,7 @@ proto._beginWithClear = function(r, g, b, a, depthValue, stencilValue, flags){
 
 proto.end = function(){
     var node = this._node;
-    cc.renderer._renderingToBuffer(node.__instanceId);
+    cc.rendererWebGL._renderingToBuffer(node.__instanceId);
 
     var gl = cc._renderContext;
     var director = cc.director;

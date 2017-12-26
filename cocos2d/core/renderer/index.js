@@ -93,8 +93,8 @@ module.exports = {
 
     updateCameraViewport () {
         if (!CC_EDITOR) {
-            var scene = cc.director.getScene();
-            scene.scaleX = scene.scaleY = 1;
+            var ecScene = cc.director.getScene();
+            ecScene.scaleX = ecScene.scaleY = 1;
         }
         this._cameraNode.scaleX = 1 / cc.view.getScaleX();
         this._cameraNode.scaleY = 1 / cc.view.getScaleY();
@@ -105,9 +105,11 @@ module.exports = {
     },
 
     render () {
-        var scene = cc.director.getScene();
-        if (scene) {
-            this._walker.visit(scene);
+        var ecScene = cc.director.getScene();
+        if (ecScene) {
+            // walk entity component scene to generate models
+            this._walker.visit(ecScene);
+            // Render models in renderer scene
             this._forward.render(this.scene);
         }
     }
