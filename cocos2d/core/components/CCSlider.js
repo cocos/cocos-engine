@@ -206,7 +206,7 @@ var Slider = cc.Class({
         if (!this.handle) { return; }
         var handlelocalPos;
         if (this.direction === Direction.Horizontal) {
-            handlelocalPos = cc.p((this.progress - this.node.anchorX) * this._maxRange * 2, 0)
+            handlelocalPos = cc.p((this.progress - this.node.anchorX) * this._maxRange * 2, 0);
         }
         else {
             handlelocalPos = cc.p(0, (this.progress - this.node.anchorY) * this._maxRange * 2);
@@ -224,6 +224,7 @@ var Slider = cc.Class({
                 this._maxRange = this.node.height / 2 - this.handle.node.height * this.handle.node.anchorY;
             }
         }
+    }
 
 });
 
