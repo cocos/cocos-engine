@@ -130,6 +130,42 @@ Rect.contain = function _Contain (a, b) {
     return 0;
 };
 
+
+/**
+ * !#en Apply a matrix4 to a rect.
+ * !#zh 将矩阵应用到一个矩形上。
+ * @static
+ * @method transformMat4
+ * @param out {Rect} The output rect
+ * @param rect {Rect} The input rect
+ * @param mat {vmath.mat4} The matrix4
+ */
+Rect.transformMat4 = function (out, rect, mat) {
+    let ol = rect.x;
+    let ob = rect.y;
+    let or = ol + rect.width;
+    let ot = ob + rect.height;
+    let lbx = mat.m00 * ol + mat.m04 * ob + mat.m12;
+    let lby = mat.m01 * ol + mat.m05 * ob + mat.m13;
+    let rbx = mat.m00 * or + mat.m04 * ob + mat.m12;
+    let rby = mat.m01 * or + mat.m05 * ob + mat.m13;
+    let ltx = mat.m00 * ol + mat.m04 * ot + mat.m12;
+    let lty = mat.m01 * ol + mat.m05 * ot + mat.m13;
+    let rtx = mat.m00 * or + mat.m04 * ot + mat.m12;
+    let rty = mat.m01 * or + mat.m05 * ot + mat.m13;
+
+    let minX = Math.min(lbx, rbx, ltx, rtx);
+    let maxX = Math.max(lbx, rbx, ltx, rtx);
+    let minY = Math.min(lby, rby, lty, rty);
+    let maxY = Math.max(lby, rby, lty, rty);
+
+    out.x = minX;
+    out.y = minY;
+    out.width = maxX - minX;
+    out.height = maxY - minY;
+    return out;
+}
+
 var proto = Rect.prototype;
 
 /**
