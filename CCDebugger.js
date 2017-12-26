@@ -24,9 +24,11 @@
  ****************************************************************************/
 
 // for cc.DebugMode.INFO_FOR_WEB_PAGE
-var logList;
 
 var Enum = require('./cocos2d/core/platform/CCEnum');
+var getTypedFormatter = require('./DebugInfos').getTypedFormatter;
+
+var logList;
 
 /**
  * !#en Enum for debug modes.
@@ -330,17 +332,8 @@ cc._throw = CC_EDITOR ? Editor.error : function (error) {
 };
 
 function genLogFunc(func, type) {
-    return function (id) {
-        'use strict';
-        var msg = cc._LogInfos.raw(id, type);
-        if (arguments.length === 1) {
-            func(msg);
-        }
-        else if (arguments.length === 2) {
-            func(CC_DEBUG ? cc.js.formatStr(msg, arguments[1]) : msg + ' Arguments: ' + arguments[1]);
-        }
-        else {
-            func(cc._LogInfos.format(msg, cc.js.shiftArguments.apply(null, arguments)));
-        }
+    var formatter = getTypedFormatter(type);
+    return function () {
+        func(formatter.apply(null, arguments));
     };
 }

@@ -156,11 +156,9 @@ if (CC_DEV) {
 }
 
 // output all info before initialized
+require('./DebugInfos');
 require('./CCDebugger');
 cc._initDebugSetting(cc.DebugMode.INFO);
-if (CC_DEBUG) {
-    require('./DebugInfos');
-}
 
 // polyfills
 /* require('./polyfill/bind'); */
