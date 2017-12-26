@@ -224,7 +224,7 @@ var Slider = cc.Class({
                 this._maxRange = this.node.height / 2 - this.handle.node.height * this.handle.node.anchorY;
             }
         }
-    }
+    },
 
 });
 
