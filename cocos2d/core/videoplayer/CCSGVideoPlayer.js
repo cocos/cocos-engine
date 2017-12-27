@@ -174,21 +174,21 @@ _ccsg.VideoPlayer.pauseElements = [];
 
 cc.game.on(cc.game.EVENT_HIDE, function () {
     var list = _ccsg.VideoPlayer.elements;
-    for (var node, i = 0; i < list.length; i++) {
-        node = list[i];
-        if (node.isPlaying()) {
-            node.pause();
-            _ccsg.VideoPlayer.pauseElements.push(node);
+    for (var element, i = 0; i < list.length; i++) {
+        element = list[i];
+        if (element.isPlaying()) {
+            element.pause();
+            _ccsg.VideoPlayer.pauseElements.push(element);
         }
     }
 });
 
 cc.game.on(cc.game.EVENT_SHOW, function () {
     var list = _ccsg.VideoPlayer.pauseElements;
-    var node = list.pop();
-    while (node) {
-        node.play();
-        node = list.pop();
+    var element = list.pop();
+    while (element) {
+        element.play();
+        element = list.pop();
     }
 });
 
