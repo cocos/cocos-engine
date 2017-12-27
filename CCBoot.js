@@ -23,8 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-cc._LogInfos = cc._LogInfos || {};
-
 /**
  * The current version of Cocos2d being used.<br/>
  * Please DO NOT remove this String, it is an important flag for bug tracking.<br/>

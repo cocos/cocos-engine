@@ -473,7 +473,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
      */
     getTileAt: function (pos, y) {
         if (pos === undefined) {
-            throw new Error(cc._LogInfos.e(7226));
+            throw new Error(cc._getError(7226));
         }
         var x = pos;
         if (y === undefined) {
@@ -481,7 +481,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
             y = pos.y;
         }
         if (x >= this._layerSize.width || y >= this._layerSize.height || x < 0 || y < 0) {
-            throw new Error(cc._LogInfos.e(7227));
+            throw new Error(cc._getError(7227));
         }
         if (!this.tiles) {
             cc.logID(7204);
@@ -523,7 +523,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
      */
     getTileGIDAt:function (pos, y) {
         if (pos === undefined) {
-            throw new Error(cc._LogInfos.e(7228));
+            throw new Error(cc._getError(7228));
         }
         var x = pos;
         if (y === undefined) {
@@ -531,7 +531,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
             y = pos.y;
         }
         if (x >= this._layerSize.width || y >= this._layerSize.height || x < 0 || y < 0) {
-            throw new Error(cc._LogInfos.e(7229));
+            throw new Error(cc._getError(7229));
         }
         if (!this.tiles) {
             cc.logID(7205);
@@ -558,7 +558,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
      */
     setTileGID: function(gid, posOrX, flagsOrY, flags) {
         if (posOrX === undefined) {
-            throw new Error(cc._LogInfos.e(7230));
+            throw new Error(cc._getError(7230));
         }
         var pos;
         if (flags !== undefined || !(posOrX instanceof cc.Vec2)) {
@@ -572,7 +572,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
         pos.x = Math.floor(pos.x);
         pos.y = Math.floor(pos.y);
         if(pos.x >= this._layerSize.width || pos.y >= this._layerSize.height || pos.x < 0 || pos.y < 0) {
-            throw new Error(cc._LogInfos.e(7231));
+            throw new Error(cc._getError(7231));
         }
         if (!this.tiles) {
             cc.logID(7206);
@@ -638,11 +638,11 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
      */
     getTileFlagsAt:function (pos, y) {
         if(!pos)
-            throw new Error(cc._LogInfos.e(7232));
+            throw new Error(cc._getError(7232));
         if(y !== undefined)
             pos = cc.p(pos, y);
         if(pos.x >= this._layerSize.width || pos.y >= this._layerSize.height || pos.x < 0 || pos.y < 0)
-            throw new Error(cc._LogInfos.e(7233));
+            throw new Error(cc._getError(7233));
         if(!this.tiles){
             cc.logID(7208);
             return null;
@@ -664,13 +664,13 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
      */
     removeTileAt:function (pos, y) {
         if (!pos) {
-            throw new Error(cc._LogInfos.e(7234));
+            throw new Error(cc._getError(7234));
         }
         if (y !== undefined) {
             pos = cc.p(pos, y);
         }
         if (pos.x >= this._layerSize.width || pos.y >= this._layerSize.height || pos.x < 0 || pos.y < 0) {
-            throw new Error(cc._LogInfos.e(7235));
+            throw new Error(cc._getError(7235));
         }
         if (!this.tiles) {
             cc.logID(7209);

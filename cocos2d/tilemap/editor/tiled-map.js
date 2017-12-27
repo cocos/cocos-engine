@@ -12,7 +12,7 @@ const TMX_ENCODING = { encoding: 'utf-8' };
 function searchDependFiles(tmxFile, tmxFileData, cb) {
   var doc = new DOMParser().parseFromString(tmxFileData);
   if (!doc) {
-    return cb(new Error(cc._LogInfos.e(7222, tmxFile)));
+    return cb(new Error(cc._getError(7222, tmxFile)));
   }
 
   var textures = [];

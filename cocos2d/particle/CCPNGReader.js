@@ -161,7 +161,7 @@ var PNGReader = cc._Class.extend({
             }
             this.pos += 4;
             if (this.pos > this.data.length) {
-                throw new Error(cc._LogInfos.e(6017));
+                throw new Error(cc._getError(6017));
             }
         }
     },
@@ -262,7 +262,7 @@ var PNGReader = cc._Class.extend({
                     }
                     break;
                 default:
-                    throw new Error(cc._LogInfos.e(6018, data[pos - 1]));
+                    throw new Error(cc._getError(6018, data[pos - 1]));
             }
             row++;
         }

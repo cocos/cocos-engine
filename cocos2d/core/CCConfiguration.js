@@ -267,7 +267,7 @@ cc.configuration = /** @lends cc.configuration# */{
         if(!this._inited)
             this._init();
         var dict = cc.loader.getRes(url);
-        if(!dict) throw new Error(cc._LogInfos.e(1102, url));
+        if(!dict) throw new Error(cc._getError(1102, url));
         cc.assertID(dict, 1101, url);
 
         var getDatas = dict["data"];

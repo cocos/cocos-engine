@@ -1,5 +1,5 @@
 if (CC_DEBUG) {
-    var logs = {
+    module.exports = {
         // Common
         "0100": "%s not yet implemented.",
         //ActionManager: 1000
@@ -698,38 +698,4 @@ if (CC_DEBUG) {
         // AudioEngine: 8400
         "8400": "Wrong type arguments, 'filePath' must be a String.", // cc.audioEngine.play
     };
-    cc._LogInfos = logs;
-
-    var errorMapUrl = 'https://github.com/cocos-creator/engine/blob/master/EngineErrorMap.md';
-
-    function raw (id, type) {
-        return CC_DEBUG ? cc._LogInfos[id] : `${type} ${id}, please go to ${errorMapUrl}#${id} to see details.`;
-    }
-
-    function format (msg, argsArray) {
-        return CC_DEBUG ? cc.js.formatStr.apply(null, [msg].concat(argsArray)) : msg + ' Arguments: ' + argsArray.join(', ');
-    }
-
-    cc._LogInfos.e = function () {
-        var msg = raw(arguments[0], 'ERROR');
-        if (arguments.length === 1) {
-            return msg;
-        }
-        else {
-            return format(msg, cc.js.shiftArguments.apply(null, arguments));
-        }
-    };
-    cc._LogInfos.raw = raw;
-    cc._LogInfos.format = format;
 }
-
-// module.exports = false;
-
-// // Only Node.JS has a process variable that is of [[Class]] process
-// try {
-//     module.exports = Object.prototype.toString.call(global.process) === '[object process]';
-//     module.exports = logs;
-// } catch (e) {
-
-//     cc._LogInfos = logs;
-// }

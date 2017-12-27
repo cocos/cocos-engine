@@ -155,12 +155,7 @@ if (CC_DEV) {
     cc._Test = {};
 }
 
-// output all info before initialized
 require('./CCDebugger');
-cc._initDebugSetting(cc.DebugMode.INFO);
-if (CC_DEBUG) {
-    require('./DebugInfos');
-}
 
 // polyfills
 /* require('./polyfill/bind'); */
@@ -179,10 +174,7 @@ cp = {};
 
 // LOAD COCOS2D ENGINE CODE
 
-if (CC_EDITOR && Editor.isMainProcess) {
-    cc._initDebugSetting(1);    // DEBUG_MODE_INFO
-}
-else {
+if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('./cocos2d/shaders');
     require('./CCBoot');
     require('./cocos2d');

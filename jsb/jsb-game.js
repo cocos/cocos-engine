@@ -28,14 +28,6 @@
 // cc.game
 cc.game = {
 
-    DEBUG_MODE_NONE: 0,
-    DEBUG_MODE_INFO: 1,
-    DEBUG_MODE_WARN: 2,
-    DEBUG_MODE_ERROR: 3,
-    DEBUG_MODE_INFO_FOR_WEB_PAGE: 4,
-    DEBUG_MODE_WARN_FOR_WEB_PAGE: 5,
-    DEBUG_MODE_ERROR_FOR_WEB_PAGE: 6,
-
     EVENT_HIDE: "game_on_hide",
     EVENT_SHOW: "game_on_show",
     EVENT_RESIZE: "game_on_resize",
@@ -328,5 +320,3 @@ cc.game._onHideListener = cc.eventManager.addCustomListener(cc.game.EVENT_HIDE, 
 cc.game._onShowListener = cc.eventManager.addCustomListener(cc.game.EVENT_SHOW, function () {
     cc.game.emit(cc.game.EVENT_SHOW, cc.game);
 });
-
-cc._initDebugSetting(cc.game.DEBUG_MODE_INFO);
