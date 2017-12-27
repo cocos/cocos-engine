@@ -21,7 +21,6 @@
 
 var Utils = require('../platform/utils');
 var sys = require('../platform/CCSys');
-var eventManager = require('../event-manager');
 
 /**
  * @class
@@ -173,23 +172,23 @@ _ccsg.VideoPlayer.elements = [];
 // video 在 game_hide 事件中被自动暂停的队列，用于回复的时候重新开始播放
 _ccsg.VideoPlayer.pauseElements = [];
 
-eventManager.addCustomListener(cc.game.EVENT_HIDE, function () {
+cc.game.on(cc.game.EVENT_HIDE, function () {
     var list = _ccsg.VideoPlayer.elements;
-    for(var node, i=0; i<list.length; i++){
-        node = list[i];
-        if(list[i]._playing){
-            node.pause();
-            _ccsg.VideoPlayer.pauseElements.push(node);
+    for (var element, i = 0; i < list.length; i++) {
+        element = list[i];
+        if (element.isPlaying()) {
+            element.pause();
+            _ccsg.VideoPlayer.pauseElements.push(element);
         }
     }
 });
 
 cc.game.on(cc.game.EVENT_SHOW, function () {
     var list = _ccsg.VideoPlayer.pauseElements;
-    var node = list.pop();
-    while(node){
-        node.play();
-        node = list.pop();
+    var element = list.pop();
+    while (element) {
+        element.play();
+        element = list.pop();
     }
 });
 
@@ -215,7 +214,7 @@ _ccsg.VideoPlayer.EventType = {
         canPlayType: []
     };
 
-    (function(){
+    (function () {
         /**
          * Some old browser only supports Theora encode video
          * But native does not support this encode,
@@ -223,18 +222,18 @@ _ccsg.VideoPlayer.EventType = {
          */
         var dom = document.createElement("video");
         if (sys.platform !== sys.WECHAT_GAME) {
-            if(dom.canPlayType("video/ogg")){
+            if (dom.canPlayType("video/ogg")) {
                 video._polyfill.canPlayType.push(".ogg");
                 video._polyfill.canPlayType.push(".ogv");
             }
-            if(dom.canPlayType("video/mp4"))
+            if (dom.canPlayType("video/mp4"))
                 video._polyfill.canPlayType.push(".mp4");
-            if(dom.canPlayType("video/webm"))
+            if (dom.canPlayType("video/webm"))
                 video._polyfill.canPlayType.push(".webm");
         }
     })();
 
-    if(cc.sys.browserType === cc.sys.BROWSER_TYPE_FIREFOX){
+    if (cc.sys.browserType === cc.sys.BROWSER_TYPE_FIREFOX) {
         video._polyfill.autoplayAfterOperation = true;
     }
 
@@ -289,7 +288,7 @@ _ccsg.VideoPlayer.EventType = {
         var container = cc.game.container;
         var a = t.a * scaleX, b = t.b, c = t.c, d = t.d * scaleY;
 
-        var offsetX = container && container.style.paddingLeft &&  parseInt(container.style.paddingLeft);
+        var offsetX = container && container.style.paddingLeft && parseInt(container.style.paddingLeft);
         var offsetY = container && container.style.paddingBottom && parseInt(container.style.paddingBottom);
         var tx = t.tx * scaleX + offsetX, ty = t.ty * scaleY + offsetY;
 
@@ -314,13 +313,13 @@ _ccsg.VideoPlayer.EventType = {
         var node = this._node;
 
 
-        if (this._url == path) {
+        if (this._url === path) {
             return;
         }
 
         this._url = path;
 
-        if(cc.loader.resPath && !/^http/.test(path))
+        if (cc.loader.resPath && !/^http/.test(path))
             path = cc.path.join(cc.loader.resPath, path);
 
         this.removeDom();
@@ -330,8 +329,8 @@ _ccsg.VideoPlayer.EventType = {
 
         video = this._video;
 
-        var cb = function(){
-            if(this._loaded == true)
+        video.oncanplay = function () {
+            if (this._loaded)
                 return;
             this._loaded = true;
             node.setContentSize(node._contentSize.width, node._contentSize.height);
@@ -340,7 +339,6 @@ _ccsg.VideoPlayer.EventType = {
             this.updateVisibility();
             this.updateMatrix();
         }.bind(this);
-        video.oncanplay = cb;
 
         //video.controls = "controls";
         // if preload set to metadata, the canplay event can't be fired on safari
@@ -355,8 +353,8 @@ _ccsg.VideoPlayer.EventType = {
         video.appendChild(source);
 
         extname = cc.path.extname(path);
-        for(var i=0; i<polyfill.canPlayType.length; i++){
-            if(extname !== polyfill.canPlayType[i]){
+        for (var i = 0; i < polyfill.canPlayType.length; i++) {
+            if (extname !== polyfill.canPlayType[i]) {
                 source = document.createElement("source");
                 source.src = path.replace(extname, polyfill.canPlayType[i]);
                 video.appendChild(source);
@@ -370,16 +368,16 @@ _ccsg.VideoPlayer.EventType = {
         video.onloadedmetadata = function () {
             node._dispatchEvent(_ccsg.VideoPlayer.EventType.META_LOADED);
         };
-        video.addEventListener("ended", function(){
+        video.addEventListener("ended", function () {
             if (self._video !== video) return;
             this._playing = false;
             node._dispatchEvent(_ccsg.VideoPlayer.EventType.COMPLETED);
         }.bind(this));
-        video.addEventListener("play", function(){
+        video.addEventListener("play", function () {
             if (self._video !== video) return;
             node._dispatchEvent(_ccsg.VideoPlayer.EventType.PLAYING);
         });
-        video.addEventListener("pause", function(){
+        video.addEventListener("pause", function () {
             if (self._ignorePause || self._video !== video) return;
             node._dispatchEvent(_ccsg.VideoPlayer.EventType.PAUSED);
         });
@@ -394,7 +392,8 @@ _ccsg.VideoPlayer.EventType = {
         var video = this._video;
         if (node.visible) {
             video.style.visibility = 'visible';
-        } else {
+        }
+        else {
             video.style.visibility = 'hidden';
             video.pause();
             this._playing = false;
@@ -416,9 +415,9 @@ _ccsg.VideoPlayer.EventType = {
 
     proto.removeDom = function () {
         var video = this._video;
-        if(video){
+        if (video) {
             var hasChild = Utils.contains(cc.game.container, video);
-            if(hasChild)
+            if (hasChild)
                 cc.game.container.removeChild(video);
         }
         this._video = null;
@@ -443,13 +442,14 @@ _ccsg.VideoPlayer.EventType = {
             return;
         }
 
-        if(_ccsg.VideoPlayer._polyfill.autoplayAfterOperation){
+        if (_ccsg.VideoPlayer._polyfill.autoplayAfterOperation) {
             var self = this;
-            setTimeout(function(){
+            setTimeout(function () {
                 video.play();
                 self._playing = true;
             }, 20);
-        }else{
+        }
+        else {
             video.play();
             this._playing = true;
         }
@@ -457,7 +457,7 @@ _ccsg.VideoPlayer.EventType = {
 
     proto.pause = function () {
         var video = this._video;
-        if(!this._playing) return;
+        if (!this._playing) return;
 
         this._playing = false;
         if (!video) {
@@ -472,7 +472,7 @@ _ccsg.VideoPlayer.EventType = {
         this._ignorePause = true;
         video.pause();
         var node = this._node;
-        setTimeout(function(){
+        setTimeout(function () {
             node._dispatchEvent(_ccsg.VideoPlayer.EventType.STOPPED);
             this._ignorePause = false;
         }.bind(this), 0);
@@ -487,15 +487,16 @@ _ccsg.VideoPlayer.EventType = {
 
         if (this._loaded) {
             video.currentTime = sec;
-        } else {
+        }
+        else {
             var cb = function () {
                 video.currentTime = sec;
                 video.removeEventListener(polyfill.event, cb);
             };
             video.addEventListener(polyfill.event, cb);
         }
-        if(_ccsg.VideoPlayer._polyfill.autoplayAfterOperation && this.isPlaying()){
-            setTimeout(function(){
+        if (_ccsg.VideoPlayer._polyfill.autoplayAfterOperation && this.isPlaying()) {
+            setTimeout(function () {
                 video.play();
             }, 20);
         }
@@ -503,8 +504,8 @@ _ccsg.VideoPlayer.EventType = {
 
     proto.isPlaying = function () {
         var video = this._video;
-        if(_ccsg.VideoPlayer._polyfill.autoplayAfterOperation && this._playing){
-            setTimeout(function(){
+        if (_ccsg.VideoPlayer._polyfill.autoplayAfterOperation && this._playing) {
+            setTimeout(function () {
                 video.play();
             }, 20);
         }
@@ -514,10 +515,10 @@ _ccsg.VideoPlayer.EventType = {
     proto.duration = function () {
         var video = this._video;
         var duration = -1;
-        if(!video) return duration;
+        if (!video) return duration;
 
         duration = video.duration;
-        if(duration <= 0) {
+        if (duration <= 0) {
             cc.logID(7702);
         }
 
@@ -526,7 +527,7 @@ _ccsg.VideoPlayer.EventType = {
 
     proto.currentTime = function () {
         var video = this._video;
-        if(!video) return -1;
+        if (!video) return -1;
 
         return video.currentTime;
     };
