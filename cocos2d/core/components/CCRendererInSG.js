@@ -46,17 +46,9 @@ var RendererInSG = cc.Class({
         if (CC_EDITOR && !sgNode) {
             cc.errorID(1627);
         }
-        if (CC_JSB) {
-            // retain immediately
-            // will be released in onDestroy
-            sgNode.retain();
-        }
 
         // The replacement node used when this component disabled
         this._plainNode = new _ccsg.Node();
-        if (CC_JSB) {
-            this._plainNode.retain();
-        }
     },
 
     __preload: function () {
@@ -88,7 +80,6 @@ var RendererInSG = cc.Class({
         if (CC_JSB) {
             var releasedByNode = this.node._sgNode;
             if (this._plainNode !== releasedByNode) {
-                this._plainNode.release();
                 this._plainNode = null;
             }
         }

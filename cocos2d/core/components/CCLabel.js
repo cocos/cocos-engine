@@ -528,10 +528,6 @@ var Label = cc.Class({
             sgNode = this._sgNode = _ccsg.Label.pool.get(this.string, font, null, this._fontSize);
         }
 
-        if (CC_JSB) {
-            sgNode.retain();
-        }
-
         if (font instanceof cc.BitmapFont) {
             this._bmFontOriginalSize = font.fontSize;
         }

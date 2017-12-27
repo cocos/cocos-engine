@@ -295,9 +295,6 @@ var Mask = cc.Class({
             var isDrawNode = stencil instanceof cc.DrawNode;
             if (!isDrawNode) {
                 stencil = new cc.DrawNode();
-                if (CC_JSB) {
-                    stencil.retain();
-                }
                 this._sgNode.setStencil(stencil);
             }
             var width = contentSize.width;
@@ -336,7 +333,6 @@ if (CC_JSB) {
     Mask.prototype.onDestroy = function () {
         this.__superOnDestroy();
         if (this._clippingStencil) {
-            this._clippingStencil.release();
             this._clippingStencil = null;
         }
     };

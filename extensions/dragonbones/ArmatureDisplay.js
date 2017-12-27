@@ -412,9 +412,6 @@ dragonBones.ArmatureDisplay = cc.Class({
         // recreate sgNode...
         var sgNode = self._sgNode = self._createSgNode();
         if (sgNode) {
-            if (CC_JSB) {
-                sgNode.retain();
-            }
             if (!self.enabledInHierarchy) {
                 sgNode.setVisible(false);
             }
