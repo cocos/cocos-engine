@@ -216,13 +216,11 @@ var Slider = cc.Class({
     },
     
     _setMaxRange: function() {
-        if (!this._maxRange) {
-            if (this.direction === Direction.Horizontal) {
-                this._maxRange = this.node.width / 2 - this.handle.node.width * this.handle.node.anchorX;
-            }
-            else if (this.direction === Direction.Vertical) {
-                this._maxRange = this.node.height / 2 - this.handle.node.height * this.handle.node.anchorY;
-            }
+        if (this.direction === Direction.Horizontal) {
+            this._maxRange = this.node.width / 2 - this.handle.node.width * this.handle.node.anchorX;
+        }
+        else if (this.direction === Direction.Vertical) {
+            this._maxRange = this.node.height / 2 - this.handle.node.height * this.handle.node.anchorY;
         }
     },
 
