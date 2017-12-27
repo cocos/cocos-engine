@@ -300,7 +300,7 @@ cc.Speed = cc.Action.extend({
      */
     initWithAction:function (action, speed) {
         if(!action)
-            throw new Error(cc._LogInfos.e(1021));
+            throw new Error(cc._getError(1021));
 
         this._innerAction = action;
         this._speed = speed;
@@ -489,7 +489,7 @@ cc.Follow = cc.Action.extend({
      */
     initWithTarget:function (followedNode, rect) {
         if(!followedNode)
-            throw new Error(cc._LogInfos.e(1022));
+            throw new Error(cc._getError(1022));
 
         var _this = this;
         rect = rect || cc.rect(0, 0, 0, 0);

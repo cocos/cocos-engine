@@ -80,7 +80,7 @@ prototype.play = function () {
             this.onResume();
         }
         else {
-            this.onError(cc._LogInfos.e(3912));
+            this.onError(cc._getError(3912));
         }
     }
     else {

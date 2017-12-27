@@ -143,7 +143,7 @@ var DrawingPrimitiveCanvas = cc._Class.extend({
             return;
 
         if (vertices.length < 3)
-            throw new Error(cc._LogInfos.e(6704));
+            throw new Error(cc._getError(6704));
 
         var firstPoint = vertices[0], locContext = this._renderContext.getContext();
         var locScaleX = cc.view.getScaleX(), locScaleY = cc.view.getScaleY();
@@ -319,7 +319,7 @@ var DrawingPrimitiveCanvas = cc._Class.extend({
                     destSize.width, destSize.height);
                 break;
             default:
-                throw new Error(cc._LogInfos.e(6705));
+                throw new Error(cc._getError(6705));
                 break;
         }
     },

@@ -307,7 +307,7 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
      */
     getLayer:function (layerName) {
         if(!layerName || layerName.length === 0)
-            throw new Error(cc._LogInfos.e(7224));
+            throw new Error(cc._getError(7224));
         var locChildren = this._children;
         for (var i = 0; i < locChildren.length; i++) {
             var layer = locChildren[i];
@@ -325,7 +325,7 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
      */
     getObjectGroup:function (groupName) {
         if(!groupName || groupName.length === 0)
-            throw new Error(cc._LogInfos.e(7225));
+            throw new Error(cc._getError(7225));
         var locChildren = this._children;
         for (var i = 0; i < locChildren.length; i++) {
             var group = locChildren[i];
