@@ -76,13 +76,11 @@ var js = {
     },
 
     /**
-     * This method is deprecated, use cc.js.mixin please.<br>
      * Copy all properties not defined in obj from arguments[1...n]
      * @method addon
      * @param {Object} obj object to extend its properties
      * @param {Object} ...sourceObj source object to copy properties from
      * @return {Object} the result obj
-     * @deprecated
      */
     addon: function (obj) {
         'use strict';

@@ -29,6 +29,8 @@ const Mask = require('../../components/CCMask');
 const renderEngine = require('../render-engine');
 const RenderData = renderEngine.RenderData;
 
+const js = require('../../platform/js');
+const assembler = require('./assembler');
 const spriteAssembler = require('./sprite/simple');
 const Graphics = require('../../graphics/graphics');
 const graphicsAssembler = require('./graphics/graphics-assembler');
@@ -39,9 +41,7 @@ let _graphicsNode = new Node();
 let _graphics = _graphicsNode.addComponent(Graphics);
 _graphics.lineWidth = 0;
 
-let maskFrontAssembler = {
-    useModel: false,
-
+let maskFrontAssembler = js.addon({
     update (mask) {
         let renderData = mask._renderData;
         if (renderData.vertDirty) {
@@ -93,39 +93,48 @@ let maskFrontAssembler = {
         else {
             this.update(mask);
         }
+
+        renderData.effect = mask.getEffect();
+        this.datas.length = 0;
+        this.datas.push(renderData);
+        return this.datas;
     },
 
-    fillVertexBuffer (mask, index, vbuf, uintbuf) {
+    fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let mask = batchData.comp,
+            vertexOffset = batchData.vertexOffset,
+            indiceOffset = batchData.indiceOffset;
+        
         // Invalid state
-        if (mask._type === Mask.Type.IMAGE_STENCIL && !mask.spriteFrame) {
-            return;
-        }
-        // HACK: Must push mask after batch, so we can only put this logic in fillVertexBuffer or fillIndexBuffer
-        _stencilMgr.pushMask(mask);
+        if (mask._type !== Mask.Type.IMAGE_STENCIL || mask.spriteFrame) {
+            // HACK: Must push mask after batch, so we can only put this logic in fillVertexBuffer or fillIndexBuffer
+            _stencilMgr.pushMask(mask);
 
-        if (mask._type === Mask.Type.IMAGE_STENCIL) {
-            spriteAssembler.fillVertexBuffer(mask, index, vbuf, uintbuf);
-        }
-        else {
-            // Share node for correct global matrix
-            _graphics.node = mask.node;
-            _graphics._renderData = mask._renderData;
-            graphicsAssembler.fillVertexBuffer(_graphics, index, vbuf, uintbuf);
-        }
-    },
-    fillIndexBuffer (mask, offset, vertexId, ibuf) {
-        if (mask._type === Mask.Type.IMAGE_STENCIL) {
-            if (mask.spriteFrame) {
-                spriteAssembler.fillIndexBuffer(mask, offset, vertexId, ibuf);
+            // vertex buffer
+            if (mask._type === Mask.Type.IMAGE_STENCIL) {
+                spriteAssembler.fillVertexBuffer(mask, vertexOffset, vbuf, uintbuf);
+            }
+            else {
+                // Share node for correct global matrix
+                _graphics.node = mask.node;
+                _graphics._renderData = mask._renderData;
+                graphicsAssembler.fillVertexBuffer(_graphics, vertexOffset, vbuf, uintbuf);
+            }
+
+            // index buffer
+            if (mask._type === Mask.Type.IMAGE_STENCIL) {
+                if (mask.spriteFrame) {
+                    spriteAssembler.fillIndexBuffer(mask, indiceOffset, vertexId, ibuf);
+                }
+            }
+            else {
+                graphicsAssembler.fillIndexBuffer(_graphics, indiceOffset, vertexId, ibuf);
             }
         }
-        else {
-            graphicsAssembler.fillIndexBuffer(_graphics, offset, vertexId, ibuf);
-        }
     }
-}
+}, assembler);
 
-let maskEndAssembler = {
+let maskEndAssembler = js.addon({
     updateRenderData (mask) {
         if (mask._type === Mask.Type.IMAGE_STENCIL && !mask.spriteFrame) {
             mask._material = null;
@@ -133,28 +142,47 @@ let maskEndAssembler = {
         else {
             mask._material = mask._endMaterial;
         }
+
+        let renderData = mask._renderData;
+        renderData.effect = mask.getEffect();
+        this.datas.length = 0;
+        this.datas.push(renderData);
+        return this.datas;
     },
 
-    fillVertexBuffer (mask, index, vbuf, uintbuf) {
+    fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let mask = batchData.comp,
+            vertexOffset = batchData.vertexOffset,
+            indiceOffset = batchData.indiceOffset;
+        
         // Invalid state
-        if (mask._type === Mask.Type.IMAGE_STENCIL && !mask.spriteFrame) {
-            return;
-        }
-        // HACK: Must pop mask after batch, so we can only put this logic in fillVertexBuffer or fillIndexBuffer
-        _stencilMgr.popMask();
+        if (mask._type !== Mask.Type.IMAGE_STENCIL || mask.spriteFrame) {
+            // HACK: Must pop mask after batch, so we can only put this logic in fillVertexBuffer or fillIndexBuffer
+            _stencilMgr.popMask();
 
-        if (mask._type === Mask.Type.IMAGE_STENCIL) {
-            spriteAssembler.fillVertexBuffer(mask, index, vbuf, uintbuf);
+            // vertex buffer
+            if (mask._type === Mask.Type.IMAGE_STENCIL) {
+                spriteAssembler.fillVertexBuffer(mask, vertexOffset, vbuf, uintbuf);
+            }
+            else {
+                // Share node for correct global matrix
+                _graphics.node = mask.node;
+                _graphics._renderData = mask._renderData;
+                graphicsAssembler.fillVertexBuffer(_graphics, vertexOffset, vbuf, uintbuf);
+            }
+
+            // index buffer
+            if (mask._type === Mask.Type.IMAGE_STENCIL) {
+                if (mask.spriteFrame) {
+                    spriteAssembler.fillIndexBuffer(mask, indiceOffset, vertexId, ibuf);
+                }
+            }
+            else {
+                graphicsAssembler.fillIndexBuffer(_graphics, indiceOffset, vertexId, ibuf);
+            }
         }
-        else {
-            // Share node for correct global matrix
-            _graphics.node = mask.node;
-            _graphics._renderData = mask._renderData;
-            graphicsAssembler.fillVertexBuffer(_graphics, index, vbuf, uintbuf);
-        }
-    },
-    fillIndexBuffer: maskFrontAssembler.fillIndexBuffer
-}
+    }
+}, assembler);
 
 Mask._assembler = maskFrontAssembler;
 Mask._postAssembler = maskEndAssembler;
