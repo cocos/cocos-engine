@@ -242,10 +242,6 @@ if (CC_DEV) {
 
     deprecateEnum(cc, 'cc.TEXT_ALIGNMENT', 'cc.TextAlignment');
     deprecateEnum(cc, 'cc.VERTICAL_TEXT_ALIGNMENT', 'cc.VerticalTextAlignment');
-    if (_ccsg.ParticleSystem) {
-        deprecateEnum(_ccsg.ParticleSystem, '_ccsg.ParticleSystem.TYPE', '_ccsg.ParticleSystem.Type');
-        deprecateEnum(_ccsg.ParticleSystem, '_ccsg.ParticleSystem.MODE', '_ccsg.ParticleSystem.Mode');
-    }
     if (cc.ParticleSystem) {
         deprecateEnum(cc.ParticleSystem, 'cc.ParticleSystem.TYPE', 'cc.ParticleSystem.PositionType');
         deprecateEnum(cc.ParticleSystem, 'cc.ParticleSystem.MODE', 'cc.ParticleSystem.EmitterMode');
@@ -254,11 +250,6 @@ if (CC_DEV) {
     deprecateEnum(cc.game, 'cc.game.DEBUG_MODE', 'cc.DebugMode');
     if (!CC_JSB) {
         deprecateEnum(cc, 'cc', 'cc.Texture2D.WrapMode', false);
-    }
-    if (_ccsg.EditBox) {
-        deprecateEnum(cc, 'cc.KEYBOARD_RETURNTYPE', '_ccsg.EditBox.KeyboardReturnType');
-        deprecateEnum(cc, 'cc.EDITBOX_INPUT_MODE', '_ccsg.EditBox.InputMode');
-        deprecateEnum(cc, 'cc.EDITBOX_INPUT_FLAG', '_ccsg.EditBox.InputFlag');
     }
 
     function markAsRemoved (ownerCtor, removedProps, ownerName) {
@@ -269,9 +260,22 @@ if (CC_DEV) {
         ownerName = ownerName || js.getClassName(ownerCtor);
         removedProps.forEach(function (prop) {
             function error () {
-                cc.error('Sorry, %s.%s is removed.', ownerName, prop);
+                cc.errorID(1406, ownerName, prop);
             }
             js.getset(ownerCtor.prototype, prop, error, error);
+        });
+    }
+
+    function markAsRemovedInObject (ownerObj, removedProps, ownerName) {
+        if (!ownerObj) {
+            // 可能被裁剪了
+            return;
+        }
+        removedProps.forEach(function (prop) {
+            function error () {
+                cc.errorID(1406, ownerName, prop);
+            }
+            js.getset(ownerObj, prop, error);
         });
     }
 
@@ -345,7 +349,6 @@ if (CC_DEV) {
     });
 
     // cc.loader
-
     markAsRemoved(cc.Pipeline, [
         'loadJsWithImg',
         'loadCsb',
@@ -552,6 +555,31 @@ if (CC_DEV) {
         });
     }
 
+    var _ccsg = window._ccsg || {};
+
+    // _ccsg
+    markAsRemovedInObject(_ccsg, [
+        'Node',
+        'Sprite',
+        'Label',
+        'LabelTTF',
+        'LabelBMFont',
+        'LabelAtlas',
+        'ParticleSystem',
+        'EditBox',
+        'ClippingNode',
+        'RenderTexture',
+        'DrawNode',
+        'TMXTiledMap',
+        'TMXLayer',
+        'MotionStreak',
+        'WebView',
+        'VideoPlayer'
+    ], '_ccsg');
+
+    // cc
+    markAsRemovedInObject(cc, ['Scale9Sprite'], 'cc');
+
     if (cc.ActionManager) {
         js.obsoletes(cc.ActionManager.prototype, 'cc.ActionManager', {
             'numberOfRunningActionsInTarget' : 'getNumberOfRunningActionsInTarget'
@@ -572,21 +600,6 @@ if (CC_DEV) {
         js.obsolete(cc.Layout.prototype, 'cc.Layout.resize', 'resizeMode');
         js.obsolete(cc.Layout.prototype, 'cc.Layout._updateLayout', 'updateLayout');
     }
-
-    markAsRemoved(cc.Scale9Sprite, [
-        'resizableSpriteWithCapInsets',
-        'updateWithSprite',
-        'getOriginalSize',
-        'setCapInsets',
-        'getCapInsets',
-        'setScale9Enabled',
-        'isScale9Enabled',
-        'getSprite',
-        'setFlippedX',
-        'isFlippedX',
-        'setFlippedY',
-        'isFlippedY'
-    ]);
 
     // SPINE
 

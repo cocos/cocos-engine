@@ -23,9 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const js = require('../../../platform/js');
+const assembler = require('../assembler');
 const Sprite = require('../../../components/CCSprite');
 const renderEngine = require('../../render-engine');
 const SpriteType = Sprite.Type;
+const FillType = Sprite.FillType;
 const RenderData = renderEngine.RenderData;
 
 const simpleRenderUtil = require('./simple');
@@ -51,18 +54,22 @@ let filledRenderUtil = {
         if (sprite._fillType === FillType.RADIAL) {
             radialFilledRenderUtil.fillVertexBuffer(sprite, index, vbuf, uintbuf);
         }
-        barFilledRenderUtil.fillVertexBuffer(sprite, index, vbuf, uintbuf);
+        else {
+            barFilledRenderUtil.fillVertexBuffer(sprite, index, vbuf, uintbuf);
+        }
     },
     fillIndexBuffer (sprite, offset, vertexId, ibuf) {
         if (sprite._fillType === FillType.RADIAL) {
             radialFilledRenderUtil.fillIndexBuffer(sprite, offset, vertexId, ibuf);
         }
-        barFilledRenderUtil.fillIndexBuffer(sprite, offset, vertexId, ibuf);
+        else {
+            barFilledRenderUtil.fillIndexBuffer(sprite, offset, vertexId, ibuf);
+        }
     }
 };
 
 // Inline all type switch to avoid jit deoptimization during inlined function change
-let spriteAssembler = {
+let spriteAssembler = js.addon({
     useModel: false,
 
     updateRenderData (sprite) {
@@ -103,41 +110,49 @@ let spriteAssembler = {
                 filledRenderUtil.update(sprite);
                 break;
         }
+        renderData.effect = sprite.getEffect();
+        this.datas.length = 0;
+        this.datas.push(renderData);
+        return this.datas;
     },
 
-    fillVertexBuffer (sprite, index, vbuf, uintbuf) {
+    fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let sprite = batchData.comp,
+            vertexOffset = batchData.vertexOffset,
+            indiceOffset = batchData.indiceOffset;
+
+        // vertex buffer
         switch (sprite.type) {
             case SpriteType.SIMPLE:
-                simpleRenderUtil.fillVertexBuffer(sprite, index, vbuf, uintbuf);
+                simpleRenderUtil.fillVertexBuffer(sprite, vertexOffset, vbuf, uintbuf);
                 break;
             case SpriteType.SLICED:
-                slicedRenderUtil.fillVertexBuffer(sprite, index, vbuf, uintbuf);
+                slicedRenderUtil.fillVertexBuffer(sprite, vertexOffset, vbuf, uintbuf);
                 break;
             case SpriteType.TILED:
-                tiledRenderUtil.fillVertexBuffer(sprite, index, vbuf, uintbuf);
+                tiledRenderUtil.fillVertexBuffer(sprite, vertexOffset, vbuf, uintbuf);
                 break;
             case SpriteType.FILLED:
-                filledRenderUtil.fillVertexBuffer(sprite, index, vbuf, uintbuf);
+                filledRenderUtil.fillVertexBuffer(sprite, vertexOffset, vbuf, uintbuf);
                 break;
         }
-    },
-
-    fillIndexBuffer (sprite, offset, vertexId, ibuf) {
+        
+        // index buffer
         switch (sprite.type) {
             case SpriteType.SIMPLE:
-                simpleRenderUtil.fillIndexBuffer(sprite, offset, vertexId, ibuf);
+                simpleRenderUtil.fillIndexBuffer(sprite, indiceOffset, vertexId, ibuf);
                 break;
             case SpriteType.SLICED:
-                slicedRenderUtil.fillIndexBuffer(sprite, offset, vertexId, ibuf);
+                slicedRenderUtil.fillIndexBuffer(sprite, indiceOffset, vertexId, ibuf);
                 break;
             case SpriteType.TILED:
-                tiledRenderUtil.fillIndexBuffer(sprite, offset, vertexId, ibuf);
+                tiledRenderUtil.fillIndexBuffer(sprite, indiceOffset, vertexId, ibuf);
                 break;
             case SpriteType.FILLED:
-                filledRenderUtil.fillIndexBuffer(sprite, offset, vertexId, ibuf);
+                filledRenderUtil.fillIndexBuffer(sprite, indiceOffset, vertexId, ibuf);
                 break;
         }
     }
-}
+}, assembler);
 
 module.exports = Sprite._assembler = spriteAssembler;

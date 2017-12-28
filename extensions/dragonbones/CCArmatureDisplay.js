@@ -23,7 +23,6 @@
  ****************************************************************************/
 
 var EventTarget = require('../../cocos2d/core/event/event-target');
-// require('../../cocos2d/shape-nodes/CCDrawNode');
 
 dragonBones.CCArmatureDisplay = cc.Class({
     name: 'dragonBones.CCArmatureDisplay',

@@ -16,7 +16,7 @@ module.exports = (function () {
    */
   const EPSILON = 0.000001;
   
-  /** 
+  /**
    * Tests whether or not the arguments have approximately the same value, within an absolute
    * or relative tolerance of glMatrix.EPSILON (an absolute tolerance is used for values less
    * than or equal to 1.0, and a relative tolerance is used for larger values)
@@ -13997,6 +13997,8 @@ module.exports = (function () {
     constructor () {
       this._data = [];
   
+      this.effect = null;
+  
       this._pivotX = 0;
       this._pivotY = 0;
       this._width = 0;
@@ -14050,6 +14052,7 @@ module.exports = (function () {
           _dataPool.free(data._data[i]);
         }
         data._data.length = 0;
+        data.effect = null;
         data.uvDirty = true;
         data.vertDirty = true;
         data.vertexCount = 0;

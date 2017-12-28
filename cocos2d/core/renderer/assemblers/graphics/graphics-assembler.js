@@ -29,6 +29,8 @@ const LineJoin = Graphics.LineJoin;
 const LineCap = Graphics.LineCap;
 const Earcut = require('./earcut');
 
+const js = require('../../../platform/js');
+const assembler = require('../assembler');
 const renderEngine = require('../../render-engine');
 const RenderData = renderEngine.RenderData;
 const math = renderEngine.math;
@@ -60,9 +62,7 @@ function clamp (v, min, max) {
     return v;
 }
 
-let graphicsAssembler = {
-    useModel: false,
-
+let graphicsAssembler = js.addon({
     updateRenderData (graphics) {
         // Create render data if needed
         if (!graphics._renderData) {
@@ -73,17 +73,24 @@ let graphicsAssembler = {
         let size = graphics.node._contentSize;
         let anchor = graphics.node._anchorPoint;
         renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
+        renderData.effect = graphics.getEffect();
+
+        this.datas.length = 0;
+        this.datas.push(renderData);
+        return this.datas;
     },
 
-    fillVertexBuffer (graphics, index, vbuf, uintbuf) {
-        let off = index * graphics._vertexFormat._bytes / 4;
-        let node = graphics.node;
-        let renderData = graphics._renderData;
-        let data = renderData._data;
-        let z = node._position.z;
+    fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let graphics = batchData.comp,
+            vertexOffset = batchData.vertexOffset,
+            offset = vertexOffset * graphics._vertexFormat._bytes / 4,
+            node = graphics.node,
+            renderData = graphics._renderData,
+            data = renderData._data,
+            z = node._position.z,
+            color = node._color._val;
         
-        let color = node._color._val;
-        
+        // vertex buffer
         node.getWorldMatrix(_matrix);
         let a = _matrix.m00,
             b = _matrix.m01,
@@ -94,16 +101,16 @@ let graphicsAssembler = {
 
         let colorBuffer = graphics._colorBuffer;
         for (let i = 0, l = data.length; i < l; i++) {
-            vbuf[off++] = data[i].x * a + data[i].y * c + tx;
-            vbuf[off++] = data[i].x * b + data[i].y * d + ty;
-            vbuf[off++] = z;
-            uintbuf[off++] = colorBuffer[i];
-            off+=2;
+            vbuf[offset++] = data[i].x * a + data[i].y * c + tx;
+            vbuf[offset++] = data[i].x * b + data[i].y * d + ty;
+            vbuf[offset++] = z;
+            uintbuf[offset++] = colorBuffer[i];
+            offset+=2;
         }
-    },
 
-    fillIndexBuffer (graphics, offset, vertexId, ibuf) {
+        // index buffer
         let indicesBuffer = graphics._indicesBuffer;
+        offset = batchData.indiceOffset;
         for (let i = 0, l = indicesBuffer.length; i < l; i++) {
             ibuf[offset + i] = vertexId + indicesBuffer[i];
         }
@@ -569,7 +576,7 @@ let graphicsAssembler = {
         data[offset].y = y;
         _color[offset] = this._curColor;
     }
-}
+}, assembler);
 
 Graphics._assembler = graphicsAssembler;
 
