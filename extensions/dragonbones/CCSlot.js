@@ -25,7 +25,10 @@
 dragonBones.CCSlot = cc.Class({
     name: 'dragonBones.CCSlot',
     extends: dragonBones.Slot,
-    _renderDisplay : null,
+
+    ctor () {
+        this._renderDisplay = null;
+    },
 
     statics : {
         toString: function () {
