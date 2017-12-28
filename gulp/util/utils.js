@@ -79,7 +79,6 @@ exports.getUglifyOptions = function (platform, isJSB, isDebugBuild) {
                 if_return: false,  // optimize if-s followed by return/continue
                 inline: false,  // embed simple functions
                 join_vars: false,  // join var declarations
-                cascade: false,  // try to cascade `right` into `left` in sequences
                 collapse_vars: false,   // Collapse single-use non-constant variables - side effects permitting.
                 reduce_vars: false, // Improve optimization on variables assigned with and used as constant values.
                 //warnings: true,
