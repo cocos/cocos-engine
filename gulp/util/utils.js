@@ -19,6 +19,7 @@ exports.getMacros = function (platform, isJSB, isDebugBuild) {
     return res;
 };
 
+// see https://github.com/mishoo/UglifyJS2/tree/harmony#compress-options
 exports.getUglifyOptions = function (platform, isJSB, isDebugBuild) {
     var global_defs = exports.getMacros(platform, isJSB, isDebugBuild);
     var releaseMode = !global_defs['CC_DEBUG'];
@@ -62,7 +63,6 @@ exports.getUglifyOptions = function (platform, isJSB, isDebugBuild) {
                 ascii_only: true,
             },
             compress: {
-                // https://github.com/mishoo/UglifyJS2/tree/harmony#compress-options
                 global_defs: global_defs,
                 sequences: false,  // join consecutive statements with the “comma operator”
                 properties: false,  // optimize property access: a["foo"] → a.foo
@@ -100,4 +100,11 @@ exports.getUglifyOptions = function (platform, isJSB, isDebugBuild) {
             }
         };
     }
+};
+
+exports.uglify = function (platform, isJSB, isDebugBuild) {
+    const Composer = require('gulp-uglify/composer');
+    const Uglify = require('uglify-es');
+    const minify = Composer(Uglify);
+    return minify(exports.getUglifyOptions(platform, isJSB, isDebugBuild));
 };
