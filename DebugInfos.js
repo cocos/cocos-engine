@@ -350,9 +350,9 @@ if (CC_DEBUG) {
                 "    set %s (value) {\n" +
                 "      ...\n" +
                 "    }",
-        "3656": "The default value of %s.%s must be an empty string. (changed since 1.7)", //getTypeChecker_4
-        "3657": "The value assigned to %s should be Texture2D type, not url. Since 1.7,\n" +
-                "you can declare a texture directly in properties by using:\n" +
+        "3656": "The default value of %s.%s must be an empty string. (changed since 1.8)",
+        "3657": "The value assigned to %s should be Texture2D object, not url string. Since 1.8,\n" +
+                "you can declare a texture object directly in properties by using:\n" +
                 "{\n" +
                 "  default: null,\n" +
                 "  type: cc.Texture2D  // use 'type:' instead of 'url:'\n" +

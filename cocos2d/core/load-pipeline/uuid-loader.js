@@ -127,7 +127,13 @@ function loadDepends (pipeline, item, asset, depends, callback) {
             if (item) {
                 var thisOfLoadCallback = dep;
                 function loadCallback (item) {
-                    var value = this._stillUseUrl ? item.rawUrl : item.content;
+                    var value;
+                    if (this._stillUseUrl) {
+                        value = (item.content instanceof cc.Texture2D) ? item.content.nativeUrl : item.rawUrl
+                    }
+                    else {
+                        value = item.content;
+                    }
                     this._owner[this._ownerProp] = value;
                     if (item.uuid !== asset._uuid && dependKeys.indexOf(item.id) < 0) {
                         dependKeys.push(item.id);
