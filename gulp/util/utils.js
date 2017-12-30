@@ -36,7 +36,6 @@ exports.getUglifyOptions = function (platform, isJSB, isDebugBuild) {
                 sequences: false,
                 keep_infinity: true,    // reduce jsc file size
                 typeofs: false,
-                inline: false,          // embed simple functions, disable temporarily due to https://github.com/mishoo/UglifyJS2/issues/2683
             }
         };
     }
@@ -45,7 +44,6 @@ exports.getUglifyOptions = function (platform, isJSB, isDebugBuild) {
         return {
             compress: {
                 global_defs: global_defs,
-                inline: false           // embed simple functions, disable temporarily due to https://github.com/mishoo/UglifyJS2/issues/2683
             },
             output: {
                 ascii_only: true,
@@ -82,7 +80,7 @@ exports.getUglifyOptions = function (platform, isJSB, isDebugBuild) {
                 hoist_props: false,
                 hoist_vars: false, // hoist variable declarations
                 if_return: false,  // optimize if-s followed by return/continue
-                inline: false,  // embed simple functions, disable temporarily due to https://github.com/mishoo/UglifyJS2/issues/2683
+                inline: false,  // embed simple functions
                 join_vars: false,  // join var declarations
                 collapse_vars: false,   // Collapse single-use non-constant variables - side effects permitting.
                 reduce_funcs: false,
