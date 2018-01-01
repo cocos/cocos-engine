@@ -22,10 +22,24 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const renderEngine = require('../../cocos2d/core/renderer/render-engine');
+const math = renderEngine.math;
+
+let _matrix = math.mat4.create();
+
 dragonBones.CCSlot = cc.Class({
     name: 'dragonBones.CCSlot',
     extends: dragonBones.Slot,
-    _renderDisplay : null,
+
+    ctor: function () {
+        this._vertices = [];
+        this._localVertices = [];
+        this._indices = [];
+        this._matrix = math.mat4.create();
+        this._worldMatrix = math.mat4.create();
+        this._boundsRect = cc.rect();
+        this._visible = false;
+    },
 
     statics : {
         toString: function () {
@@ -35,35 +49,26 @@ dragonBones.CCSlot = cc.Class({
 
     _onClear : function () {
         dragonBones.Slot.prototype._onClear.call(this);
-        this._renderDisplay = null;
     },
 
     _onUpdateDisplay : function () {
-        if (!this._rawDisplay) {
-            this._rawDisplay = new cc.Scale9Sprite();
+        if (this._display instanceof dragonBones.CCArmatureDisplay) {
+            this._display._armature._parentSlot = this;
         }
-
-        this._renderDisplay = this._display || this._rawDisplay;
     },
 
     _initDisplay : function (value) {
-
     },
 
     _addDisplay : function () {
-        var container = this._armature._display;
-        container.addChild(this._renderDisplay);
+        this._visible = true;
     },
 
     _replaceDisplay : function (value) {
-        var container = this._armature._display;
-        var prevDisplay = value;
-        container.addChild(this._renderDisplay, prevDisplay.getLocalZOrder());
-        container.removeChild(prevDisplay);
     },
 
     _removeDisplay : function () {
-        this._renderDisplay.removeFromParent();
+        this._visible = false;
     },
 
     _disposeDisplay : function (object) {
@@ -71,25 +76,19 @@ dragonBones.CCSlot = cc.Class({
     },
 
     _updateVisible : function () {
-        this._renderDisplay.setVisible(this._parent.visible);
     },
 
     _updateZOrder: function() {
-        if (!this._renderDisplay._parent) {
-            var container = this._armature._display;
-            container.addChild(this._renderDisplay, this._zOrder);
-        } else {
-            this._renderDisplay.setLocalZOrder(this._zOrder);
-        }
     },
 
     _updateBlendMode : function () {
+        return;
         if (this._renderDisplay instanceof cc.Scale9Sprite) {
             switch (this._blendMode) {
             case 0: // BlendMode Normal
                 break;
             case 1: // BlendMode Add
-                var texture = this._renderDisplay._spriteFrame.getTexture();
+                let texture = this._renderDisplay._spriteFrame.getTexture();
                 if (texture && texture.hasPremultipliedAlpha()) {
                     this._renderDisplay.setBlendFunc(cc.BlendFunc.BlendFactor.ONE, cc.BlendFunc.BlendFactor.ONE);
                 }
@@ -102,9 +101,9 @@ dragonBones.CCSlot = cc.Class({
             }
         }
         else if (this._childArmature) {
-            var childSlots = this._childArmature.getSlots();
-            for (var i = 0, l = childSlots.length; i < l; i++) {
-                var slot = childSlots[i];
+            let childSlots = this._childArmature.getSlots();
+            for (let i = 0, l = childSlots.length; i < l; i++) {
+                let slot = childSlots[i];
                 slot._blendMode = this._blendMode;
                 slot._updateBlendMode();
             }
@@ -112,11 +111,11 @@ dragonBones.CCSlot = cc.Class({
     },
 
     _updateColor : function() {
-        this._renderDisplay.setOpacity(this._colorTransform.alphaMultiplier * 255);
-        var r = this._colorTransform.redMultiplier * 255;
-        var g = this._colorTransform.greenMultiplier * 255;
-        var b = this._colorTransform.blueMultiplier * 255;
-        this._renderDisplay.setColor(cc.color(r, g, b));
+        let r = this._colorTransform.redMultiplier * 255;
+        let g = this._colorTransform.greenMultiplier * 255;
+        let b = this._colorTransform.blueMultiplier * 255;
+        let a = this._colorTransform.alphaMultiplier * 255;
+        this._color = ((a<<24) >>> 0) + (b<<16) + (g<<8) + r;
     },
 
     _updateFilters : function () {
@@ -124,69 +123,76 @@ dragonBones.CCSlot = cc.Class({
     },
 
     _updateFrame : function () {
+        this._vertices.length = 0;
+        this._indices.length = 0;
+        let vertices = this._vertices,
+            indices = this._indices,
+            localVertices = this._localVertices;
+
+        vertices.length = 0;
+        indices.length = 0;
+        localVertices.length = 0;
+
         // update the frame
         if (this._display && this._displayIndex >= 0) {
-            var rawDisplayData = this._displayIndex < this._displayDataSet.displays.length ? this._displayDataSet.displays[this._displayIndex] : null;
-            var replacedDisplayData = this._displayIndex < this._replacedDisplayDataSet.length ? this._replacedDisplayDataSet[this._displayIndex] : null;
-            var currentDisplayData = replacedDisplayData || rawDisplayData;
-            var currentTextureData = currentDisplayData.texture;
+            let rawDisplayData = this._displayIndex < this._displayDataSet.displays.length ? this._displayDataSet.displays[this._displayIndex] : null;
+            let replacedDisplayData = this._displayIndex < this._replacedDisplayDataSet.length ? this._replacedDisplayDataSet[this._displayIndex] : null;
+            let currentDisplayData = replacedDisplayData || rawDisplayData;
+            let currentTextureData = currentDisplayData.texture;
 
             if (currentTextureData) {
-                var textureAtlasTexture = currentTextureData.parent.texture;
-                if (textureAtlasTexture && (!currentTextureData.texture || currentTextureData.texture.getTexture() !== textureAtlasTexture)) {
+                let boundsRect = this._boundsRect;
+                let textureAtlas = this._armature._replacedTexture || currentTextureData.parent.texture;
+                if (textureAtlas && (!currentTextureData.texture || currentTextureData.texture.getTexture() !== textureAtlas)) {
                     // Create and cache texture
-                    var rect = cc.rect(currentTextureData.region.x, currentTextureData.region.y,
+                    let rect = cc.rect(currentTextureData.region.x, currentTextureData.region.y,
                                        currentTextureData.region.width, currentTextureData.region.height);
-                    var offset = cc.p(0, 0);
-                    var size = cc.size(currentTextureData.region.width, currentTextureData.region.height);
+                    let offset = cc.p(0, 0);
+                    let size = cc.size(currentTextureData.region.width, currentTextureData.region.height);
 
                     currentTextureData.texture = new cc.SpriteFrame();
-                    currentTextureData.texture.setTexture(textureAtlasTexture, rect, false, offset, size);
+                    currentTextureData.texture.setTexture(textureAtlas, rect, false, offset, size);
                 }
 
-                var texture = this._armature._replacedTexture || (currentTextureData.texture ? currentTextureData.texture.getTexture() : null);
+                let textureAtlasWidth = textureAtlas.width;
+                let textureAtlasHeight = textureAtlas.height;
+                let region = currentTextureData.region;
+                
                 if (this._meshData && this._display === this._meshDisplay) {
-                    var region = currentTextureData.region;
-                    var textureAtlasSize = currentTextureData.texture.getTexture().getContentSize();
-                    var displayVertices = [], vertexIndices = [];
-                    var boundsRect = cc.rect(999999, 999999, -999999, -999999);
+                    boundsRect.x = boundsRect.y = 9999999;
+                    boundsRect.width = boundsRect.height = -999999;
 
-                    if (this._meshData !== rawDisplayData.mesh && rawDisplayData && rawDisplayData !== currentDisplayData)
-                    {
+                    if (this._meshData !== rawDisplayData.mesh && rawDisplayData && 
+                        rawDisplayData !== currentDisplayData) {
                         this._pivotX = rawDisplayData.transform.x - currentDisplayData.transform.x;
                         this._pivotY = rawDisplayData.transform.y - currentDisplayData.transform.y;
                     }
-                    else
-                    {
+                    else {
                         this._pivotX = 0;
                         this._pivotY = 0;
                     }
 
-                    var i, n;
-                    for (i = 0, n = this._meshData.uvs.length; i < n; i +=2) {
-                        var x = this._meshData.vertices[i];
-                        var y = this._meshData.vertices[i + 1];
-                        var u = (region.x + this._meshData.uvs[i] * region.width) / textureAtlasSize.width;
-                        var v = (region.y + this._meshData.uvs[i + 1] * region.height) / textureAtlasSize.height;
-                        displayVertices.push({ x: x, y: -y, u: u, v: v });
+                    for (let i = 0, n = this._meshData.uvs.length; i < n; i +=2) {
+                        let x = this._meshData.vertices[i];
+                        let y = this._meshData.vertices[i + 1];
+                        let u = (region.x + this._meshData.uvs[i] * region.width) / textureAtlasWidth;
+                        let v = (region.y + this._meshData.uvs[i + 1] * region.height) / textureAtlasHeight;
+                        vertices.push({ x: x, y: -y, u: u, v: v });
+                        localVertices.push({ x: x, y: -y});
 
-                        if (boundsRect.x > x)
-                        {
+                        if (boundsRect.x > x) {
                             boundsRect.x = x;
                         }
 
-                        if (boundsRect.width < x)
-                        {
+                        if (boundsRect.width < x) {
                             boundsRect.width = x;
                         }
 
-                        if (boundsRect.y > -y)
-                        {
+                        if (boundsRect.y > -y) {
                             boundsRect.y = -y;
                         }
 
-                        if (boundsRect.height < -y)
-                        {
+                        if (boundsRect.height < -y) {
                             boundsRect.height = -y;
                         }
                     }
@@ -194,42 +200,19 @@ dragonBones.CCSlot = cc.Class({
                     boundsRect.width -= boundsRect.x;
                     boundsRect.height -= boundsRect.y;
 
-                    for (i = 0, n = this._meshData.vertexIndices.length; i < n; ++i)
-                    {
-                        vertexIndices.push(this._meshData.vertexIndices[i]);
+                    for (let i = 0, n = this._meshData.vertexIndices.length; i < n; ++i) {
+                        indices.push(this._meshData.vertexIndices[i]);
                     }
-                    var polygonInfo = {
-                        triangles: {
-                            verts: displayVertices,
-                            indices: vertexIndices
-                        },
-                        rect: boundsRect
-                    };
-                    this._meshDisplay.setSpriteFrame(currentTextureData.texture);
-                    if (texture != currentTextureData.texture.getTexture())
-                    {
-                        this._meshDisplay.setTexture(texture);
-                    }
-                    this._meshDisplay.setMeshPolygonInfo(polygonInfo);
-                    this._meshDisplay.setContentSize(cc.size(boundsRect.width, boundsRect.height));
-
-                    if (this._meshData.skinned) {
-                        this._meshDisplay.setScale(1, 1);
-                        this._meshDisplay.setRotationX(0);
-                        this._meshDisplay.setRotationY(0);
-                        this._meshDisplay.setPosition(0, 0);
-                    }
-                    this._meshDisplay.setAnchorPoint(cc.p(0, 0));
                 }
                 else {
-                    var scale = this._armature.armatureData.scale;
+                    let scale = this._armature.armatureData.scale;
                     this._pivotX = currentDisplayData.pivot.x;
                     this._pivotY = currentDisplayData.pivot.y;
 
                     if (currentDisplayData.isRelativePivot) {
-                        var rectData = currentTextureData.frame || currentTextureData.region;
-                        var width = rectData.width * scale;
-                        var height = rectData.height * scale;
+                        let rectData = currentTextureData.frame || currentTextureData.region;
+                        let width = rectData.width * scale;
+                        let height = rectData.height * scale;
                         if (!currentTextureData.frame && currentTextureData.rotated) {
                             width = rectData.height;
                             height = rectData.width;
@@ -248,59 +231,70 @@ dragonBones.CCSlot = cc.Class({
                         this._pivotX += rawDisplayData.transform.x - currentDisplayData.transform.x;
                         this._pivotY += rawDisplayData.transform.y - currentDisplayData.transform.y;
                     }
-                    this._pivotY -= currentTextureData.region.height * scale;
+                    this._pivotY -= region.height * scale;
 
-                    this._rawDisplay.setSpriteFrame(currentTextureData.texture);
-                    this._rawDisplay.setContentSize(currentTextureData.texture.getOriginalSize());
-                    if (texture !== currentTextureData.texture.getTexture()) {
-                        this._rawDisplay.setTexture(texture);
+                    
+                    for (let i = 0; i < 4; i++) {
+                        vertices.push({});
+                        localVertices.push({});
                     }
+
+                    let l = region.x / textureAtlasWidth;
+                    let b = (region.y + region.height) / textureAtlasHeight;
+                    let r = (region.x + region.width) / textureAtlasWidth;
+                    let t = region.y / textureAtlasHeight;
+                    vertices[0].u = l; vertices[0].v = b;
+                    vertices[1].u = r; vertices[1].v = b;
+                    vertices[2].u = l; vertices[2].v = t;
+                    vertices[3].u = r; vertices[3].v = t;
+
+                    localVertices[0].x = localVertices[2].x = vertices[0].x = vertices[2].x = 0;
+                    localVertices[1].x = localVertices[3].x = vertices[1].x = vertices[3].x = region.width;
+                    localVertices[0].y = localVertices[1].y = vertices[0].y = vertices[1].y = 0;
+                    localVertices[2].y = localVertices[3].y = vertices[2].y = vertices[3].y = region.height;
+
+                    boundsRect.x = boundsRect.y = 0;
+                    boundsRect.width = currentTextureData.texture.getOriginalSize().width;
+                    boundsRect.height = currentTextureData.texture.getOriginalSize().height;
+
+                    indices[0] = 0;
+                    indices[1] = 1;
+                    indices[2] = 2;
+                    indices[3] = 1;
+                    indices[4] = 3;
+                    indices[5] = 2;
+
                     this._blendModeDirty = true;
                 }
-
-                this._updateVisible();
-                return;
             }
         }
-
-        this._pivotX = 0;
-        this._pivotY = 0;
-        this._rawDisplay.setTexture(null);
-        this._rawDisplay.setVisible(false);
-        this._rawDisplay.setPosition(this.origin.x, this.origin.y);
     },
 
     _updateMesh : function() {
-        var meshDisplay = this._meshDisplay;
-        var polygonInfo = meshDisplay.getMeshPolygonInfo();
-        if (!meshDisplay || !polygonInfo)
-        {
-            return;
-        }
+        let hasFFD = this._ffdVertices.length > 0;
+        let localVertices = this._localVertices;
 
-        var hasFFD = this._ffdVertices.length > 0;
-        var displayVertices = polygonInfo.triangles.verts;
-        var boundsRect = cc.rect(999999, 999999, -999999, -999999);
+        let boundsRect = this._boundsRect;
+        boundsRect.x = boundsRect.y = 9999999;
+        boundsRect.width = boundsRect.height = -999999;
 
-        var iH = 0, xG = 0, yG = 0, i, l;
-        if (this._meshData.skinned)
-        {
-            var iF = 0;
-            for (i = 0, l = this._meshData.vertices.length; i < l; i += 2)
-            {
+        let iH = 0, xG = 0, yG = 0, i, l;
+        if (this._meshData.skinned) {
+            let iF = 0;
+            for (i = 0, l = this._meshData.vertices.length; i < l; i += 2) {
                 iH = Math.floor(i / 2);
-                var boneIndices = this._meshData.boneIndices[iH];
-                var boneVertices = this._meshData.boneVertices[iH];
-                var weights = this._meshData.weights[iH];
+                let boneIndices = this._meshData.boneIndices[iH];
+                let boneVertices = this._meshData.boneVertices[iH];
+                let weights = this._meshData.weights[iH];
 
                 xG = 0; yG = 0;
-                for (var iB = 0, lB = boneIndices.length; iB < lB; ++iB)
+                for (let iB = 0, lB = boneIndices.length; iB < lB; ++iB)
                 {
-                    var bone = this._meshBones[boneIndices[iB]];
-                    var matrix = bone.globalTransformMatrix;
-                    var weight = weights[iB];
+                    let bone = this._meshBones[boneIndices[iB]];
+                    let matrix = bone.globalTransformMatrix;
+                    let weight = weights[iB];
 
-                    var xL = 0, yL = 0;
+                    let xL = 0, yL = 0;
                     if (hasFFD)
                     {
                         xL = boneVertices[iB * 2] + this._ffdVertices[iF];
@@ -318,57 +312,47 @@ dragonBones.CCSlot = cc.Class({
                     iF += 2;
                 }
 
-                displayVertices[iH].x = xG;
-                displayVertices[iH].y = -yG;
-                if (boundsRect.x > xG)
-                {
+                localVertices[iH].x = xG;
+                localVertices[iH].y = -yG;
+                if (boundsRect.x > xG) {
                     boundsRect.x = xG;
                 }
 
-                if (boundsRect.width < xG)
-                {
+                if (boundsRect.width < xG) {
                     boundsRect.width = xG;
                 }
 
-                if (boundsRect.y > -yG)
-                {
+                if (boundsRect.y > -yG) {
                     boundsRect.y = -yG;
                 }
 
-                if (boundsRect.height < -yG)
-                {
+                if (boundsRect.height < -yG) {
                     boundsRect.height = -yG;
                 }
             }
         }
-        else if (hasFFD)
-        {
-            var vertices = this._meshData.vertices;
-            for (i = 0, l = this._meshData.vertices.length; i < l; i += 2)
-            {
+        else if (hasFFD) {
+            let vertices = this._meshData.vertices;
+            for (i = 0, l = this._meshData.vertices.length; i < l; i += 2) {
                 iH = Math.floor(i / 2);
                 xG = vertices[i] + this._ffdVertices[i];
                 yG = vertices[i + 1] + this._ffdVertices[i + 1];
 
-                displayVertices[iH].x = xG;
-                displayVertices[iH].y = -yG;
-                if (boundsRect.x > xG)
-                {
+                localVertices[iH].x = xG;
+                localVertices[iH].y = -yG;
+                if (boundsRect.x > xG) {
                     boundsRect.x = xG;
                 }
 
-                if (boundsRect.width < xG)
-                {
+                if (boundsRect.width < xG) {
                     boundsRect.width = xG;
                 }
 
-                if (boundsRect.y > -yG)
-                {
+                if (boundsRect.y > -yG) {
                     boundsRect.y = -yG;
                 }
 
-                if (boundsRect.height < -yG)
-                {
+                if (boundsRect.height < -yG) {
                     boundsRect.height = -yG;
                 }
             }
@@ -377,23 +361,27 @@ dragonBones.CCSlot = cc.Class({
         boundsRect.width -= boundsRect.x;
         boundsRect.height -= boundsRect.y;
 
-        polygonInfo.rect = boundsRect;
-        var transform = meshDisplay.getNodeToParentTransform();
-        meshDisplay.setContentSize(cc.size(boundsRect.width, boundsRect.height));
-        meshDisplay.setMeshPolygonInfo(polygonInfo);
-        this._renderDisplay._renderCmd.setNodeToParentTransform(transform);
+        this._updateTransform();
     },
 
     _updateTransform : function () {
         // update the transform
-        var transform = {
-            a: this.globalTransformMatrix.a,
-            b: -this.globalTransformMatrix.b,
-            c: -this.globalTransformMatrix.c,
-            d: this.globalTransformMatrix.d,
-            tx: this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY),
-            ty: -(this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY))
-        };
-        this._renderDisplay._renderCmd.setNodeToParentTransform(transform);
+        let t = this._matrix;
+        let a = t.m00 = this.globalTransformMatrix.a;
+        let b = t.m01 = -this.globalTransformMatrix.b;
+        let c = t.m04 = -this.globalTransformMatrix.c;
+        let d = t.m05 = this.globalTransformMatrix.d;
+        let tx = t.m12 = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
+        let ty = t.m13 = -(this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY));
+
+        let vertices = this._vertices;
+        let localVertices = this._localVertices;
+        for (let i = 0, l = vertices.length; i < l; i++) {
+            let x = localVertices[i].x;
+            let y = localVertices[i].y;
+
+            vertices[i].x = a * x + c * y + tx;
+            vertices[i].y = b * x + d * y + ty;
+        }
     }
 });

@@ -23,12 +23,20 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent');
+const renderer = require('../../cocos2d/core/renderer');
+const renderEngine = require('../../cocos2d/core/renderer/render-engine');
+const RenderData = renderEngine.RenderData;
+const SpriteMaterial = renderEngine.SpriteMaterial;
+
+let EventTarget = require('../../cocos2d/core/event/event-target');
+
 /**
  * @module dragonBones
  */
 
-var DefaultArmaturesEnum = cc.Enum({ 'default': -1 });
-var DefaultAnimsEnum = cc.Enum({ '<None>': 0 });
+let DefaultArmaturesEnum = cc.Enum({ 'default': -1 });
+let DefaultAnimsEnum = cc.Enum({ '<None>': 0 });
 
 function setEnumAttr (obj, propName, enumDef) {
     cc.Class.attr(obj, propName, {
@@ -54,21 +62,17 @@ function setEnumAttr (obj, propName, enumDef) {
  * @class ArmatureDisplay
  * @extends Component
  */
-dragonBones.ArmatureDisplay = cc.Class({
+let ArmatureDisplay = cc.Class({
     name: 'dragonBones.ArmatureDisplay',
-    extends: cc.Component,
+    extends: RenderComponent,
+    mixins: [EventTarget],
+
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/DragonBones',
         //help: 'app://docs/html/components/spine.html', // TODO help document of dragonBones
     },
-
+    
     properties: {
-        _factory: {
-            default: null,
-            type: dragonBones.CCFactory,
-            serializable: false,
-        },
-
         _dragonBonesData: {
             default: null,
             type: dragonBones.DragonBonesData,
@@ -92,7 +96,6 @@ dragonBones.ArmatureDisplay = cc.Class({
             notify: function () {
                 // parse the asset data
                 this._parseDragonAsset();
-
                 this._refresh();
                 if (CC_EDITOR) {
                     this._defaultArmatureIndex = 0;
@@ -115,8 +118,7 @@ dragonBones.ArmatureDisplay = cc.Class({
             notify: function () {
                 // parse the atlas asset data
                 this._parseDragonAtlasAsset();
-
-                this._refreshSgNode();
+                this._buildArmature();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.dragon_bones_atlas_asset'
         },
@@ -133,7 +135,7 @@ dragonBones.ArmatureDisplay = cc.Class({
             },
             set: function (value) {
                 this._armatureName = value;
-                var animNames = this.getAnimationNames(this._armatureName);
+                let animNames = this.getAnimationNames(this._armatureName);
 
                 if (!this.animationName || animNames.indexOf(this.animationName) < 0) {
                     if (CC_EDITOR) {
@@ -171,9 +173,9 @@ dragonBones.ArmatureDisplay = cc.Class({
         _defaultArmatureIndex: {
             default: 0,
             notify: function () {
-                var armatureName = '';
+                let armatureName = '';
                 if (this.dragonAsset) {
-                    var armaturesEnum;
+                    let armaturesEnum;
                     if (this.dragonAsset) {
                         armaturesEnum = this.dragonAsset.getArmatureEnum();
                     }
@@ -207,7 +209,7 @@ dragonBones.ArmatureDisplay = cc.Class({
                     return;
                 }
 
-                var animsEnum;
+                let animsEnum;
                 if (this.dragonAsset) {
                     animsEnum = this.dragonAsset.getAnimsEnum(this.armatureName);
                 }
@@ -216,7 +218,7 @@ dragonBones.ArmatureDisplay = cc.Class({
                     return;
                 }
 
-                var animName = animsEnum[this._animationIndex];
+                let animName = animsEnum[this._animationIndex];
                 if (animName !== undefined) {
                     this.animationName = animName;
                 }
@@ -282,160 +284,113 @@ dragonBones.ArmatureDisplay = cc.Class({
         },
     },
 
-    // IMPLEMENT
     ctor: function () {
-        if (CC_JSB) {
-            // TODO Fix me
-            // If using the getFactory in JSB.
-            // There may be throw errors when close the application.
-            this._factory = new dragonBones.CCFactory();
-        }
-        else {
-            this._factory = dragonBones.CCFactory.getFactory();
-        }
+        this._armatures = [];
+        this._inited = false;
     },
 
     __preload: function () {
+        this._init();
+    },
+
+    _init: function () {
+        if (this._inited) return;
+        this._inited = true;
+
         this._parseDragonAsset();
         this._parseDragonAtlasAsset();
         this._refresh();
+        this._activateMaterial();
     },
 
-    _createSgNode: function () {
-        if (this.dragonAsset && this.dragonAtlasAsset && this.armatureName) {
-            return this._factory.buildArmatureDisplay(this.armatureName, this._dragonBonesData.name);
+    _onDestroy: function () {
+        this._armature.dispose();
+    },
+
+    _activateMaterial: function () {
+        if (this._material) return;
+
+        let url = this.dragonAtlasAsset.texture;
+        let material = renderer.materialUtil.get(url);
+
+        // Get material
+        if (!material) {
+            material = new SpriteMaterial();
+            renderer.materialUtil.register(url, material);
         }
-        return null;
+        let texture = cc.loader.getRes(url);
+        // TODO: old texture in material have been released by loader
+        material.texture = texture ? texture.getImpl() : undefined;
+
+        this._material = material;
     },
 
-    _initSgNode: function () {
-        // set the time scale
-        var sgNode = this._sgNode;
-        sgNode.animation().timeScale = this.timeScale;
+    _buildArmature: function () {
+        if (!this.dragonAsset || !this.dragonAtlasAsset || !this.armatureName) return;
 
+        let factory = dragonBones.CCFactory.getFactory();
+        this._armature = factory.buildArmature(this.armatureName, this._dragonBonesData.name, this);
+        
         if (this.animationName) {
             this.playAnimation(this.animationName, this.playTimes);
-        }
-
-        if (CC_EDITOR) {
-            sgNode.setDebugBones(this.debugBones);
-        }
-    },
-
-    _removeSgNode: function () {
-        var sgNode = this._sgNode;
-        if (sgNode) {
-            sgNode.armature().dispose();
         }
     },
 
     _parseDragonAsset: function () {
-        if (this.dragonAsset) {
-            if (CC_JSB) {
-                // The '_factory' create a new one every time in JSB, they can't use getDragonBonesData
-                // to get cached data, and only parse data every time
-                this._dragonBonesData = this._factory.parseDragonBonesData(this.dragonAsset.dragonBonesJson);
-            }
-            else {
-                var jsonObj = JSON.parse(this.dragonAsset.dragonBonesJson);
-                var data = this._factory.getDragonBonesData(jsonObj.name);
-                if (data) {
-                    // already added asset
-                    var armature, dragonBonesData;
-                    for (var i = 0, len = jsonObj.armature.length; i < len; i++) {
-                        armature = jsonObj.armature[i];
-                        if (!data.armatures[armature.name]) {
-                            //add new armature
-                            if (!dragonBonesData) {
-                                dragonBonesData = this._factory._dataParser.parseDragonBonesData(jsonObj);
-                            }
-                            data.addArmature(dragonBonesData.armatures[armature.name]);
-                        }
+        if (!this.dragonAsset) return;
+        
+        let factory = dragonBones.CCFactory.getFactory();
+        let jsonObj = JSON.parse(this.dragonAsset.dragonBonesJson);
+        let data = factory.getDragonBonesData(jsonObj.name);
+        if (data) {
+            // already added asset
+            let armature, dragonBonesData;
+            for (let i = 0, len = jsonObj.armature.length; i < len; i++) {
+                armature = jsonObj.armature[i];
+                if (!data.armatures[armature.name]) {
+                    //add new armature
+                    if (!dragonBonesData) {
+                        dragonBonesData = factory._dataParser.parseDragonBonesData(jsonObj);
                     }
-                    this._dragonBonesData = data;
-                    return;
+                    data.addArmature(dragonBonesData.armatures[armature.name]);
                 }
-                this._dragonBonesData = this._factory.parseDragonBonesData(jsonObj);
             }
+            this._dragonBonesData = data;
+            return;
         }
+        this._dragonBonesData = factory.parseDragonBonesData(jsonObj);
     },
 
     _parseDragonAtlasAsset: function () {
-        if (this.dragonAtlasAsset) {
-            if (CC_JSB) {
-                // TODO parse the texture atlas data from json string & texture path
-                this._factory.parseTextureAtlasData(this.dragonAtlasAsset.atlasJson, this.dragonAtlasAsset.texture);
-            }
-            else {
-                var atlasJsonObj = JSON.parse(this.dragonAtlasAsset.atlasJson);
-                var atlasName = atlasJsonObj.name;
-                var existedAtlasData = null;
-                var atlasDataList = this._factory.getTextureAtlasData(atlasName);
-                var texturePath = this.dragonAtlasAsset.texture;
-                if (atlasDataList && atlasDataList.length > 0) {
-                    for (var idx in atlasDataList) {
-                        var data = atlasDataList[idx];
-                        if (data && data.texture && data.texture.url === texturePath) {
-                            existedAtlasData = data;
-                            break;
-                        }
-                    }
-                }
+        if (!this.dragonAtlasAsset) return;
 
-                var texture = cc.textureCache.getTextureForKey(texturePath);
-                if (existedAtlasData) {
-                    existedAtlasData.texture = texture;
-                }
-                else {
-                    this._factory.parseTextureAtlasData(atlasJsonObj, texture);
+        let factory = dragonBones.CCFactory.getFactory();
+        let atlasJsonObj = JSON.parse(this.dragonAtlasAsset.atlasJson);
+        let atlasName = atlasJsonObj.name;
+        let existedAtlasData = null;
+        let atlasDataList = factory.getTextureAtlasData(atlasName);
+        let texturePath = this.dragonAtlasAsset.texture;
+        if (atlasDataList && atlasDataList.length > 0) {
+            for (let idx in atlasDataList) {
+                let data = atlasDataList[idx];
+                if (data && data.texture && data.texture.url === texturePath) {
+                    existedAtlasData = data;
+                    break;
                 }
             }
         }
-    },
 
-    _refreshSgNode: function () {
-        var self = this;
-
-        // discard exists sgNode
-        var listenersBefore = null;
-        if (self._sgNode) {
-            listenersBefore = self._sgNode._bubblingListeners; // get the listeners added before
-            if (self.node._sizeProvider === self._sgNode) {
-                self.node._sizeProvider = null;
-            }
-            self._removeSgNode();
-            self._sgNode = null;
+        let texture = cc.loader.getRes(texturePath);                
+        if (existedAtlasData) {
+            existedAtlasData.texture = texture;
         }
-
-        // recreate sgNode...
-        var sgNode = self._sgNode = self._createSgNode();
-        if (sgNode) {
-            if (CC_JSB) {
-                sgNode.retain();
-            }
-            if (!self.enabledInHierarchy) {
-                sgNode.setVisible(false);
-            }
-
-            if (listenersBefore) {
-                sgNode._bubblingListeners = listenersBefore; // using the listeners added before
-                if (CC_JSB && !sgNode.hasEventCallback()) {
-                    // In JSB, should set event callback of the new sgNode
-                    // to make the listeners work well.
-                    sgNode.setEventCallback(function (eventObject) {
-                        sgNode.emit(eventObject.type, eventObject);
-                    });
-                }
-            }
-
-            self._initSgNode();
-            self._appendSgNode(sgNode);
-            self._registSizeProvider();
+        else {
+            factory.parseTextureAtlasData(atlasJsonObj, texture);
         }
     },
 
     _refresh: function () {
-        this._refreshSgNode();
+        this._buildArmature();
 
         if (CC_EDITOR) {
             // update inspector
@@ -447,7 +402,7 @@ dragonBones.ArmatureDisplay = cc.Class({
 
     // update animation list for editor
     _updateAnimEnum: CC_EDITOR && function () {
-        var animEnum;
+        let animEnum;
         if (this.dragonAsset) {
             animEnum = this.dragonAsset.getAnimsEnum(this.armatureName);
         }
@@ -457,12 +412,24 @@ dragonBones.ArmatureDisplay = cc.Class({
 
     // update armature list for editor
     _updateArmatureEnum: CC_EDITOR && function () {
-        var armatureEnum;
+        let armatureEnum;
         if (this.dragonAsset) {
             armatureEnum = this.dragonAsset.getArmatureEnum();
         }
         // change enum
         setEnumAttr(this, '_defaultArmatureIndex', armatureEnum || DefaultArmaturesEnum);
+    },
+
+    update (passedTime) {
+        if (CC_EDITOR) return;
+        
+        let armatures = this._armatures;
+        for (let i = 0, l = armatures.length; i < l; i++) {
+            let armature = armatures[i];
+            if (armature._display && armature._display.shouldAdvanced) {
+                armature.advanceTime(passedTime);
+            }
+        }
     },
 
     /**
@@ -486,10 +453,10 @@ dragonBones.ArmatureDisplay = cc.Class({
      * @return {dragonBones.AnimationState}
      */
     playAnimation: function (animName, playTimes) {
-        if (this._sgNode) {
+        if (this._armature) {
             this.playTimes = (playTimes === undefined) ? -1 : playTimes;
             this.animationName = animName;
-            return this._sgNode.animation().play(animName, this.playTimes);
+            return this._armature.animation.play(animName, this.playTimes);
         }
 
         return null;
@@ -521,11 +488,11 @@ dragonBones.ArmatureDisplay = cc.Class({
      * @returns {Array}
      */
     getAnimationNames: function (armatureName) {
-        var ret = [];
+        let ret = [];
         if (this._dragonBonesData) {
-            var armatureData = this._dragonBonesData.getArmature(armatureName);
+            let armatureData = this._dragonBonesData.getArmature(armatureName);
             if (armatureData) {
-                for (var animName in armatureData.animations) {
+                for (let animName in armatureData.animations) {
                     if (armatureData.animations.hasOwnProperty(animName)) {
                         ret.push(animName);
                     }
@@ -547,9 +514,8 @@ dragonBones.ArmatureDisplay = cc.Class({
      * @param {Object} target
      */
     addEventListener: function (eventType, listener, target) {
-        if (this._sgNode) {
-            this._sgNode.addEvent(eventType, listener, target);
-        }
+        if (!this._armature) return;
+        this._armature._display.addEvent(eventType, listener, target);
     },
 
     /**
@@ -563,9 +529,8 @@ dragonBones.ArmatureDisplay = cc.Class({
      * @param {Object} target
      */
     removeEventListener: function (eventType, listener, target) {
-        if (this._sgNode) {
-            this._sgNode.removeEvent(eventType, listener, target);
-        }
+        if (!this._armature) return;
+        this._armature._display.removeEvent(eventType, listener, target);
     },
 
     /**
@@ -575,14 +540,23 @@ dragonBones.ArmatureDisplay = cc.Class({
      * 构建指定名称的 armature 对象
      * @method buildArmature
      * @param {String} armatureName
+     * @param {Node} node
      * @return {dragonBones.Armature}
      */
     buildArmature: function (armatureName) {
-        if (this._factory) {
-            return this._factory.buildArmature(armatureName);
-        }
+        return dragonBones.CCFactory.getFactory().buildArmature(armatureName, this._dragonBonesData.name, this);
+    },
 
-        return null;
+    buildArmatureDisplay (armatureName, node) {
+        node = node || new cc.Node();
+        let display = node.addComponent(dragonBones.ArmatureDisplay);
+        
+        display.armatureName = armatureName;
+        display._N$dragonAsset = this.dragonAsset;
+        display._N$dragonAtlasAsset = this.dragonAtlasAsset;
+        display._init();
+
+        return display;
     },
 
     /**
@@ -594,10 +568,8 @@ dragonBones.ArmatureDisplay = cc.Class({
      * @returns {Object}
      */
     armature: function () {
-        if (this._sgNode) {
-            return this._sgNode.armature();
-        }
-
-        return null;
+        return this._armature;
     }
 });
+
+module.exports = dragonBones.ArmatureDisplay = ArmatureDisplay;

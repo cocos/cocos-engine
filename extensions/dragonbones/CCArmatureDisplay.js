@@ -25,13 +25,19 @@
 var EventTarget = require('../../cocos2d/core/event/event-target');
 // require('../../cocos2d/shape-nodes/CCDrawNode');
 
+const math = cc.vmath;
+
+let _matrix = math.mat4.create();
+
 dragonBones.CCArmatureDisplay = cc.Class({
     name: 'dragonBones.CCArmatureDisplay',
-    extends: _ccsg.Node,
     mixins: [EventTarget],
 
-    _armature : null,
-    _debugDrawer : null,
+    ctor () {
+        this._armature = null;
+        this._debugDrawer = null;
+        this.shouldAdvanced = false;
+    },
 
     _onClear : function () {
         this._armature = null;
@@ -67,18 +73,8 @@ dragonBones.CCArmatureDisplay = cc.Class({
         }
     },
 
-    update : function (passedTime) {
-        if (this._armature) {
-            this._armature.advanceTime(passedTime);
-        }
-    },
-
     advanceTimeBySelf : function (on) {
-        if (on) {
-            this.scheduleUpdate();
-        } else {
-            this.unscheduleUpdate();
-        }
+        this.shouldAdvanced = !!on;
     },
 
     hasEvent : function(type) {
@@ -118,5 +114,24 @@ dragonBones.CCArmatureDisplay = cc.Class({
                 this._debugDrawer.clear();
             }
         }
+    },
+
+    convertToWorldSpace (point) {
+        if (this.component) {
+            let node = this.component.node;
+            let mat = node._worldMatrix;
+
+            if (this._armature._parentSlot) {
+                math.mat4.mul(_matrix, mat, this._armature._parentSlot._matrix);
+                mat = _matrix;
+            }
+
+            let out = new cc.Vec2(
+                point.x - node._anchorPoint.x * node._contentSize.width,
+                point.y - node._anchorPoint.y * node._contentSize.height
+            );
+            return math.vec2.transformMat4(out, out, _matrix);
+        }
+        return point;
     }
 });

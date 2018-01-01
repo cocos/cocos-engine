@@ -98,6 +98,10 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
     require('./DragonBonesAsset');
     require('./DragonBonesAtlasAsset');
     require('./ArmatureDisplay')
+
+    if (!CC_JSB) {
+        require('./dragonblones-assembler');
+    }
 } else {
     require('./DragonBonesAsset');
     require('./DragonBonesAtlasAsset');
