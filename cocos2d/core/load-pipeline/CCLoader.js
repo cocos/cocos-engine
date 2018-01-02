@@ -765,7 +765,7 @@ proto.release = function (asset) {
             var removed = this.removeItem(id);
             asset = item.content;
             // TODO: AUDIO
-            if (asset instanceof cc.Asset) {
+            if (cc.Class.isInstanceOf(asset, cc.Asset)) {
                 if (asset.nativeUrl) {
                     this.release(asset.nativeUrl);
                 }

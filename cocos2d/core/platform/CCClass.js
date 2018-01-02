@@ -1060,7 +1060,7 @@ cc.isChildClassOf = function (subclass, superclass) {
     return false;
 };
 
-/**
+/*
  * Return all super classes
  * @method getInheritanceChain
  * @param {Function} constructor
@@ -1078,6 +1078,21 @@ CCClass.getInheritanceChain = function (klass) {
         }
     }
     return chain;
+};
+
+/*
+ * Is instance of for JSB.
+ * `obj` can be native object such as cc.Texture2D or cc.SpriteFrame.
+ * `klass` can be base class of native object such as cc.Asset, cc.RawAsset or cc.Object.
+ * @method isInstanceOf
+ * @param {Object} obj
+ * @param {Function} klass
+ * @returns {Boolean}
+ */
+CCClass.isInstanceOf = CC_JSB ? function (obj, klass) {
+    return obj && cc.isChildClassOf(obj.constructor, klass);
+} : function (obj__skip_jsb_warning, klass) {
+    return obj__skip_jsb_warning instanceof klass;
 };
 
 var PrimitiveTypes = {
