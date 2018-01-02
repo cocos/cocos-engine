@@ -25,19 +25,21 @@
 const renderEngine = require('../../cocos2d/core/renderer/render-engine');
 const math = renderEngine.math;
 
+const BinaryOffset = dragonBones.BinaryOffset;
+const BoneType  = dragonBones.BoneType;
+
 let _matrix = math.mat4.create();
 
 dragonBones.CCSlot = cc.Class({
     name: 'dragonBones.CCSlot',
     extends: dragonBones.Slot,
 
-    ctor: function () {
+    ctor () {
         this._vertices = [];
         this._localVertices = [];
         this._indices = [];
         this._matrix = math.mat4.create();
         this._worldMatrix = math.mat4.create();
-        this._boundsRect = cc.rect();
         this._visible = false;
     },
 
@@ -47,41 +49,41 @@ dragonBones.CCSlot = cc.Class({
         }
     },
 
-    _onClear : function () {
+    _onClear () {
         dragonBones.Slot.prototype._onClear.call(this);
     },
 
-    _onUpdateDisplay : function () {
+    _onUpdateDisplay () {
         if (this._display instanceof dragonBones.CCArmatureDisplay) {
             this._display._armature._parentSlot = this;
         }
     },
 
-    _initDisplay : function (value) {
+    _initDisplay (value) {
     },
 
-    _addDisplay : function () {
+    _addDisplay () {
         this._visible = true;
     },
 
-    _replaceDisplay : function (value) {
+    _replaceDisplay (value) {
     },
 
-    _removeDisplay : function () {
+    _removeDisplay () {
         this._visible = false;
     },
 
-    _disposeDisplay : function (object) {
+    _disposeDisplay (object) {
 
     },
 
-    _updateVisible : function () {
+    _updateVisible () {
     },
 
     _updateZOrder: function() {
     },
 
-    _updateBlendMode : function () {
+    _updateBlendMode () {
         return;
         if (this._renderDisplay instanceof cc.Scale9Sprite) {
             switch (this._blendMode) {
@@ -110,7 +112,7 @@ dragonBones.CCSlot = cc.Class({
         }
     },
 
-    _updateColor : function() {
+    _updateColor () {
         let r = this._colorTransform.redMultiplier * 255;
         let g = this._colorTransform.greenMultiplier * 255;
         let b = this._colorTransform.blueMultiplier * 255;
@@ -118,11 +120,11 @@ dragonBones.CCSlot = cc.Class({
         this._color = ((a<<24) >>> 0) + (b<<16) + (g<<8) + r;
     },
 
-    _updateFilters : function () {
+    _updateFilters () {
 
     },
 
-    _updateFrame : function () {
+    _updateFrame () {
         this._vertices.length = 0;
         this._indices.length = 0;
         let vertices = this._vertices,
@@ -133,238 +135,246 @@ dragonBones.CCSlot = cc.Class({
         indices.length = 0;
         localVertices.length = 0;
 
+        let currentTextureData = this._textureData;
+
         // update the frame
-        if (this._display && this._displayIndex >= 0) {
-            let rawDisplayData = this._displayIndex < this._displayDataSet.displays.length ? this._displayDataSet.displays[this._displayIndex] : null;
-            let replacedDisplayData = this._displayIndex < this._replacedDisplayDataSet.length ? this._replacedDisplayDataSet[this._displayIndex] : null;
-            let currentDisplayData = replacedDisplayData || rawDisplayData;
-            let currentTextureData = currentDisplayData.texture;
+        if (!this._display || this._displayIndex < 0 || !currentTextureData) return;
+        let currentDisplayData = this._displayIndex < this.rawDisplayDatas.length ? this.rawDisplayDatas[this._displayIndex] : null;;
 
-            if (currentTextureData) {
-                let boundsRect = this._boundsRect;
-                let textureAtlas = this._armature._replacedTexture || currentTextureData.parent.texture;
-                if (textureAtlas && (!currentTextureData.texture || currentTextureData.texture.getTexture() !== textureAtlas)) {
-                    // Create and cache texture
-                    let rect = cc.rect(currentTextureData.region.x, currentTextureData.region.y,
-                                       currentTextureData.region.width, currentTextureData.region.height);
-                    let offset = cc.p(0, 0);
-                    let size = cc.size(currentTextureData.region.width, currentTextureData.region.height);
+        let textureAtlas = this._armature._replacedTexture || currentTextureData.parent.renderTexture;
+        if (textureAtlas && (!currentTextureData.spriteFrame || currentTextureData.spriteFrame.getTexture() !== textureAtlas)) {
+            // Create and cache texture
+            let rect = cc.rect(currentTextureData.region.x, currentTextureData.region.y,
+                                currentTextureData.region.width, currentTextureData.region.height);
+            let offset = cc.p(0, 0);
+            let size = cc.size(currentTextureData.region.width, currentTextureData.region.height);
 
-                    currentTextureData.texture = new cc.SpriteFrame();
-                    currentTextureData.texture.setTexture(textureAtlas, rect, false, offset, size);
-                }
+            currentTextureData.spriteFrame = new cc.SpriteFrame();
+            currentTextureData.spriteFrame.setTexture(textureAtlas, rect, false, offset, size);
+        }
 
-                let textureAtlasWidth = textureAtlas.width;
-                let textureAtlasHeight = textureAtlas.height;
-                let region = currentTextureData.region;
-                
-                if (this._meshData && this._display === this._meshDisplay) {
-                    boundsRect.x = boundsRect.y = 9999999;
-                    boundsRect.width = boundsRect.height = -999999;
+        let textureAtlasWidth = textureAtlas.width;
+        let textureAtlasHeight = textureAtlas.height;
+        let region = currentTextureData.region;
 
-                    if (this._meshData !== rawDisplayData.mesh && rawDisplayData && 
-                        rawDisplayData !== currentDisplayData) {
-                        this._pivotX = rawDisplayData.transform.x - currentDisplayData.transform.x;
-                        this._pivotY = rawDisplayData.transform.y - currentDisplayData.transform.y;
-                    }
-                    else {
-                        this._pivotX = 0;
-                        this._pivotY = 0;
-                    }
+        let meshData = this._meshData;
+        if (meshData) {
+            const scale = this._armature._armatureData.scale;
+            const data = meshData.parent.parent.parent;
+            const intArray = data.intArray;
+            const floatArray = data.floatArray;
+            const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
+            const triangleCount = intArray[meshData.offset + BinaryOffset.MeshTriangleCount];
+            let vertexOffset = intArray[meshData.offset + BinaryOffset.MeshFloatOffset];
 
-                    for (let i = 0, n = this._meshData.uvs.length; i < n; i +=2) {
-                        let x = this._meshData.vertices[i];
-                        let y = this._meshData.vertices[i + 1];
-                        let u = (region.x + this._meshData.uvs[i] * region.width) / textureAtlasWidth;
-                        let v = (region.y + this._meshData.uvs[i + 1] * region.height) / textureAtlasHeight;
-                        vertices.push({ x: x, y: -y, u: u, v: v });
-                        localVertices.push({ x: x, y: -y});
-
-                        if (boundsRect.x > x) {
-                            boundsRect.x = x;
-                        }
-
-                        if (boundsRect.width < x) {
-                            boundsRect.width = x;
-                        }
-
-                        if (boundsRect.y > -y) {
-                            boundsRect.y = -y;
-                        }
-
-                        if (boundsRect.height < -y) {
-                            boundsRect.height = -y;
-                        }
-                    }
-
-                    boundsRect.width -= boundsRect.x;
-                    boundsRect.height -= boundsRect.y;
-
-                    for (let i = 0, n = this._meshData.vertexIndices.length; i < n; ++i) {
-                        indices.push(this._meshData.vertexIndices[i]);
-                    }
-                }
-                else {
-                    let scale = this._armature.armatureData.scale;
-                    this._pivotX = currentDisplayData.pivot.x;
-                    this._pivotY = currentDisplayData.pivot.y;
-
-                    if (currentDisplayData.isRelativePivot) {
-                        let rectData = currentTextureData.frame || currentTextureData.region;
-                        let width = rectData.width * scale;
-                        let height = rectData.height * scale;
-                        if (!currentTextureData.frame && currentTextureData.rotated) {
-                            width = rectData.height;
-                            height = rectData.width;
-                        }
-
-                        this._pivotX *= width;
-                        this._pivotY *= height;
-                    }
-
-                    if (currentTextureData.frame) {
-                        this._pivotX += currentTextureData.frame.x * scale;
-                        this._pivotY += currentTextureData.frame.y * scale;
-                    }
-
-                    if (rawDisplayData && rawDisplayData !== currentDisplayData) {
-                        this._pivotX += rawDisplayData.transform.x - currentDisplayData.transform.x;
-                        this._pivotY += rawDisplayData.transform.y - currentDisplayData.transform.y;
-                    }
-                    this._pivotY -= region.height * scale;
-
-                    
-                    for (let i = 0; i < 4; i++) {
-                        vertices.push({});
-                        localVertices.push({});
-                    }
-
-                    let l = region.x / textureAtlasWidth;
-                    let b = (region.y + region.height) / textureAtlasHeight;
-                    let r = (region.x + region.width) / textureAtlasWidth;
-                    let t = region.y / textureAtlasHeight;
-                    vertices[0].u = l; vertices[0].v = b;
-                    vertices[1].u = r; vertices[1].v = b;
-                    vertices[2].u = l; vertices[2].v = t;
-                    vertices[3].u = r; vertices[3].v = t;
-
-                    localVertices[0].x = localVertices[2].x = vertices[0].x = vertices[2].x = 0;
-                    localVertices[1].x = localVertices[3].x = vertices[1].x = vertices[3].x = region.width;
-                    localVertices[0].y = localVertices[1].y = vertices[0].y = vertices[1].y = 0;
-                    localVertices[2].y = localVertices[3].y = vertices[2].y = vertices[3].y = region.height;
-
-                    boundsRect.x = boundsRect.y = 0;
-                    boundsRect.width = currentTextureData.texture.getOriginalSize().width;
-                    boundsRect.height = currentTextureData.texture.getOriginalSize().height;
-
-                    indices[0] = 0;
-                    indices[1] = 1;
-                    indices[2] = 2;
-                    indices[3] = 1;
-                    indices[4] = 3;
-                    indices[5] = 2;
-
-                    this._blendModeDirty = true;
-                }
+            if (vertexOffset < 0) {
+                vertexOffset += 65536; // Fixed out of bouds bug. 
             }
+
+            const uvOffset = vertexOffset + vertexCount * 2;
+
+            for (let i = 0, l = vertexCount; i < l; i++) {
+                let x = floatArray[vertexOffset + i*2];
+                let y = -floatArray[vertexOffset + i*2 + 1]; 
+
+                let u = (region.x + floatArray[uvOffset + i*2] * region.width) / textureAtlasWidth;
+                let v = (region.y + floatArray[uvOffset + i*2 + 1] * region.height) / textureAtlasHeight;
+
+                vertices.push({ x, y, u, v});
+                localVertices.push({ x, y});
+            }
+
+            for (let i = 0; i < triangleCount * 3; ++i) {
+                indices.push(intArray[meshData.offset + BinaryOffset.MeshVertexIndices + i]);
+            }
+
+            this._pivotX = 0;
+            this._pivotY = 0;
+        }
+        else {
+            let scale = this._armature.armatureData.scale;
+            this._pivotX = currentDisplayData.pivot.x;
+            this._pivotY = currentDisplayData.pivot.y;
+
+            let rectData = currentTextureData.frame || currentTextureData.region;
+            let width = rectData.width * scale;
+            let height = rectData.height * scale;
+            if (!currentTextureData.frame && currentTextureData.rotated) {
+                width = rectData.height;
+                height = rectData.width;
+            }
+
+            this._pivotX *= width;
+            this._pivotY *= height;
+
+            if (currentTextureData.frame) {
+                this._pivotX += currentTextureData.frame.x * scale;
+                this._pivotY += currentTextureData.frame.y * scale;
+            }
+
+            this._pivotY -= region.height * scale;
+            
+            for (let i = 0; i < 4; i++) {
+                vertices.push({});
+                localVertices.push({});
+            }
+
+            let l = region.x / textureAtlasWidth;
+            let b = (region.y + region.height) / textureAtlasHeight;
+            let r = (region.x + region.width) / textureAtlasWidth;
+            let t = region.y / textureAtlasHeight;
+            vertices[0].u = l; vertices[0].v = b;
+            vertices[1].u = r; vertices[1].v = b;
+            vertices[2].u = l; vertices[2].v = t;
+            vertices[3].u = r; vertices[3].v = t;
+
+            localVertices[0].x = localVertices[2].x = vertices[0].x = vertices[2].x = 0;
+            localVertices[1].x = localVertices[3].x = vertices[1].x = vertices[3].x = region.width;
+            localVertices[0].y = localVertices[1].y = vertices[0].y = vertices[1].y = 0;
+            localVertices[2].y = localVertices[3].y = vertices[2].y = vertices[3].y = region.height;
+
+            indices[0] = 0;
+            indices[1] = 1;
+            indices[2] = 2;
+            indices[3] = 1;
+            indices[4] = 3;
+            indices[5] = 2;
+
+            this._blendModeDirty = true;
         }
     },
 
     _updateMesh : function() {
-        let hasFFD = this._ffdVertices.length > 0;
         let localVertices = this._localVertices;
 
-        let boundsRect = this._boundsRect;
-        boundsRect.x = boundsRect.y = 9999999;
-        boundsRect.width = boundsRect.height = -999999;
+        // let iH = 0, xG = 0, yG = 0, i, l;
+        // if (this._meshData.skinned) {
+        //     let iF = 0;
+        //     for (i = 0, l = this._meshData.vertices.length; i < l; i += 2) {
+        //         iH = Math.floor(i / 2);
+        //         let boneIndices = this._meshData.boneIndices[iH];
+        //         let boneVertices = this._meshData.boneVertices[iH];
+        //         let weights = this._meshData.weights[iH];
 
-        let iH = 0, xG = 0, yG = 0, i, l;
-        if (this._meshData.skinned) {
-            let iF = 0;
-            for (i = 0, l = this._meshData.vertices.length; i < l; i += 2) {
-                iH = Math.floor(i / 2);
-                let boneIndices = this._meshData.boneIndices[iH];
-                let boneVertices = this._meshData.boneVertices[iH];
-                let weights = this._meshData.weights[iH];
+        //         xG = 0; yG = 0;
+        //         for (let iB = 0, lB = boneIndices.length; iB < lB; ++iB) {
+        //             let bone = this._meshBones[boneIndices[iB]];
+        //             let matrix = bone.globalTransformMatrix;
+        //             let weight = weights[iB];
 
-                xG = 0; yG = 0;
-                for (let iB = 0, lB = boneIndices.length; iB < lB; ++iB)
-                {
-                    let bone = this._meshBones[boneIndices[iB]];
-                    let matrix = bone.globalTransformMatrix;
-                    let weight = weights[iB];
+        //             let xL = 0, yL = 0;
+        //             if (hasFFD) {
+        //                 xL = boneVertices[iB * 2] + this._ffdVertices[iF];
+        //                 yL = boneVertices[iB * 2 + 1] + this._ffdVertices[iF + 1];
+        //             }
+        //             else {
+        //                 xL = boneVertices[iB * 2];
+        //                 yL = boneVertices[iB * 2 + 1];
+        //             }
 
-                    let xL = 0, yL = 0;
-                    if (hasFFD)
-                    {
-                        xL = boneVertices[iB * 2] + this._ffdVertices[iF];
-                        yL = boneVertices[iB * 2 + 1] + this._ffdVertices[iF + 1];
+        //             xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight;
+        //             yG += (matrix.b * xL + matrix.d * yL + matrix.ty) * weight;
+
+        //             iF += 2;
+        //         }
+
+        //         localVertices[iH].x = xG;
+        //         localVertices[iH].y = -yG;
+        //     }
+        // }
+        // else if (hasFFD) {
+        //     let vertices = this._meshData.vertices;
+        //     for (i = 0, l = this._meshData.vertices.length; i < l; i += 2) {
+        //         iH = Math.floor(i / 2);
+        //         xG = vertices[i] + this._ffdVertices[i];
+        //         yG = vertices[i + 1] + this._ffdVertices[i + 1];
+
+        //         localVertices[iH].x = xG;
+        //         localVertices[iH].y = -yG;
+        //     }
+        // }
+
+        const scale = this._armature._armatureData.scale;
+        const meshData = this._meshData;
+        const hasDeform = this._deformVertices.length > 0 && meshData.inheritDeform;
+        const weight = meshData.weight;
+
+        if (weight !== null) {
+            const data = meshData.parent.parent.parent;
+            const intArray = data.intArray;
+            const floatArray = data.floatArray;
+            const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
+            let weightFloatOffset = intArray[weight.offset + BinaryOffset.WeigthFloatOffset];
+
+            if (weightFloatOffset < 0) {
+                weightFloatOffset += 65536; // Fixed out of bouds bug. 
+            }
+
+            for (
+                let i = 0, iB = weight.offset + BinaryOffset.WeigthBoneIndices + weight.bones.length, iV = weightFloatOffset, iF = 0;
+                i < vertexCount;
+                ++i
+            ) {
+                const boneCount = intArray[iB++];
+                let xG = 0.0, yG = 0.0;
+
+                for (let j = 0; j < boneCount; ++j) {
+                    const boneIndex = intArray[iB++];
+                    const bone = this._meshBones[boneIndex];
+
+                    if (bone !== null) {
+                        const matrix = bone.globalTransformMatrix;
+                        const weight = floatArray[iV++];
+                        let xL = floatArray[iV++] * scale;
+                        let yL = floatArray[iV++] * scale;
+
+                        if (hasDeform) {
+                            xL += this._deformVertices[iF++];
+                            yL += this._deformVertices[iF++];
+                        }
+
+                        xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight;
+                        yG += (matrix.b * xL + matrix.d * yL + matrix.ty) * weight;
                     }
-                    else
-                    {
-                        xL = boneVertices[iB * 2];
-                        yL = boneVertices[iB * 2 + 1];
-                    }
-
-                    xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight;
-                    yG += (matrix.b * xL + matrix.d * yL + matrix.ty) * weight;
-
-                    iF += 2;
                 }
 
-                localVertices[iH].x = xG;
-                localVertices[iH].y = -yG;
-                if (boundsRect.x > xG) {
-                    boundsRect.x = xG;
-                }
+                localVertices[i].x = xG;
+                localVertices[i].y = -yG;
+            }
+        }
+        else if (hasDeform) {
+            const isSurface = this._parent._boneData.type !== BoneType.Bone;
+            // const isGlue = meshData.glue !== null; TODO
+            const data = meshData.parent.parent.parent;
+            const intArray = data.intArray;
+            const floatArray = data.floatArray;
+            const vertexCount = intArray[meshData.offset + BinaryOffset.MeshVertexCount];
+            let vertexOffset = intArray[meshData.offset + BinaryOffset.MeshFloatOffset];
 
-                if (boundsRect.width < xG) {
-                    boundsRect.width = xG;
-                }
+            if (vertexOffset < 0) {
+                vertexOffset += 65536; // Fixed out of bouds bug. 
+            }
 
-                if (boundsRect.y > -yG) {
-                    boundsRect.y = -yG;
-                }
+            for (let i = 0, l = vertexCount; i < l; i ++) {
+                const x = floatArray[vertexOffset + i*2] * scale + this._deformVertices[i*2];
+                const y = floatArray[vertexOffset + i*2 + 1] * scale + this._deformVertices[i*2 + 1];
 
-                if (boundsRect.height < -yG) {
-                    boundsRect.height = -yG;
+                if (isSurface) {
+                    const matrix = this._parent._getGlobalTransformMatrix(x, y);
+                    localVertices[i].x = matrix.a * x + matrix.c * y + matrix.tx;
+                    localVertices[i].y = -matrix.b * x + matrix.d * y + matrix.ty;
+                }
+                else {
+                    localVertices[i].x = x;
+                    localVertices[i].y = -y;
                 }
             }
         }
-        else if (hasFFD) {
-            let vertices = this._meshData.vertices;
-            for (i = 0, l = this._meshData.vertices.length; i < l; i += 2) {
-                iH = Math.floor(i / 2);
-                xG = vertices[i] + this._ffdVertices[i];
-                yG = vertices[i + 1] + this._ffdVertices[i + 1];
-
-                localVertices[iH].x = xG;
-                localVertices[iH].y = -yG;
-                if (boundsRect.x > xG) {
-                    boundsRect.x = xG;
-                }
-
-                if (boundsRect.width < xG) {
-                    boundsRect.width = xG;
-                }
-
-                if (boundsRect.y > -yG) {
-                    boundsRect.y = -yG;
-                }
-
-                if (boundsRect.height < -yG) {
-                    boundsRect.height = -yG;
-                }
-            }
-        }
-
-        boundsRect.width -= boundsRect.x;
-        boundsRect.height -= boundsRect.y;
 
         this._updateTransform();
     },
 
-    _updateTransform : function () {
+    _updateTransform () {
         // update the transform
         let t = this._matrix;
         let a = t.m00 = this.globalTransformMatrix.a;

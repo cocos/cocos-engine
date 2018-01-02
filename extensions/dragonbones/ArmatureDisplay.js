@@ -328,7 +328,7 @@ let ArmatureDisplay = cc.Class({
         if (!this.dragonAsset || !this.dragonAtlasAsset || !this.armatureName) return;
 
         let factory = dragonBones.CCFactory.getFactory();
-        this._armature = factory.buildArmature(this.armatureName, this._dragonBonesData.name, this);
+        this._armature = factory.buildArmatureDisplay(this.armatureName, this._dragonBonesData.name, this);
         
         if (this.animationName) {
             this.playAnimation(this.animationName, this.playTimes);
@@ -419,15 +419,6 @@ let ArmatureDisplay = cc.Class({
         setEnumAttr(this, '_defaultArmatureIndex', armatureEnum || DefaultArmaturesEnum);
     },
 
-    update (passedTime) {
-        if (CC_EDITOR) return;
-        
-        let armature = this._armature;
-        if (armature._display && armature._display.shouldAdvanced) {
-            armature.advanceTime(passedTime);
-        }
-    },
-
     /**
      * !#en
      * Play the specified animation.
@@ -511,7 +502,7 @@ let ArmatureDisplay = cc.Class({
      */
     addEventListener: function (eventType, listener, target) {
         if (!this._armature) return;
-        this._armature._display.addEvent(eventType, listener, target);
+        this._armature._display.addDBEventListener(eventType, listener, target);
     },
 
     /**
@@ -526,7 +517,7 @@ let ArmatureDisplay = cc.Class({
      */
     removeEventListener: function (eventType, listener, target) {
         if (!this._armature) return;
-        this._armature._display.removeEvent(eventType, listener, target);
+        this._armature._display.removeDBEventListener(eventType, listener, target);
     },
 
     /**
@@ -540,7 +531,7 @@ let ArmatureDisplay = cc.Class({
      * @return {dragonBones.Armature}
      */
     buildArmature: function (armatureName) {
-        return dragonBones.CCFactory.getFactory().buildArmature(armatureName, this._dragonBonesData.name, this);
+        return dragonBones.CCFactory.getFactory().buildArmatureDisplay(armatureName, this._dragonBonesData.name, this);
     },
 
     buildArmatureDisplay (armatureName, node) {

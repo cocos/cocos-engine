@@ -43,9 +43,6 @@ dragonBones.CCArmatureDisplay = cc.Class({
         this._armature = null;
     },
 
-    _dispatchEvent : function (eventObject) {
-        this.emit(eventObject.type, eventObject);
-    },
 
     _debugDraw : function () {
         if (!this._armature) {
@@ -73,22 +70,37 @@ dragonBones.CCArmatureDisplay = cc.Class({
         }
     },
 
+    dbInit (armature) {
+        this._armature = armature;
+    },
+
+    dbClear () {
+        this._armature = null;
+    },
+
+    dbUpdate () {
+    },
+
     advanceTimeBySelf : function (on) {
         this.shouldAdvanced = !!on;
     },
 
-    hasEvent : function(type) {
+    hasDBEventListener : function(type) {
         return this.hasEventListener(type, false);
     },
 
-    addEvent : function(type, listener, target) {
+    addDBEventListener : function(type, listener, target) {
         this.on(type, listener, target);
     },
 
-    removeEvent : function(type, listener, target) {
+    removeDBEventListener : function(type, listener, target) {
         this.off(type, listener, target);
     },
 
+    dispatchDBEvent : function (type, eventObject) {
+        this.emit(type, eventObject);
+    },
+    
     dispose : function() {
         if (this._armature) {
             this.advanceTimeBySelf(false);

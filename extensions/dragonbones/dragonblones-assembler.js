@@ -84,7 +84,7 @@ let assembler = {
         let slots = armature._slots;
         for (let i = 0, l = slots.length; i < l; i++) {
             let slot = slots[i];
-            if (!slot._visible || !slot.displayData) continue;
+            if (!slot._visible || !slot._displayData) continue;
 
             if (slot.childArmature) {
                 math.mat4.mul(_matrix, _worldMatrix, slot._matrix);
@@ -132,7 +132,7 @@ let assembler = {
         let slots = armature._slots;
         for (let i = 0, l = slots.length; i < l; i++) {
             let slot = slots[i];
-            if (!slot._visible || !slot.displayData) continue;
+            if (!slot._visible || !slot._displayData) continue;
 
             if (slot.childArmature) {
                 this.fillIndexBufferWithArmature(slot.childArmature);

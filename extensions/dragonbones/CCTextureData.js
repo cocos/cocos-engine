@@ -38,7 +38,7 @@ dragonBones.CCTextureAtlasData = cc.Class({
         this.texture = null;
     },
 
-    generateTextureData : function() {
+    createTexture : function() {
         return dragonBones.BaseObject.borrowObject(dragonBones.CCTextureData);
     }
 });

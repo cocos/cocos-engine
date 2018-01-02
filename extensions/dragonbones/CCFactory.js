@@ -28,23 +28,34 @@ dragonBones.CCFactory = cc.Class({
     name: 'dragonBones.CCFactory',
     extends: dragonBones.BaseFactory,
 
-    buildArmature (armatureName, dragonBonesName, comp) {
+    ctor () {
+        this.__instanceId = cc.ClassManager.getNewInstanceId();
+        this._dragoneBones = new dragonBones.DragonBones();
+
+        if (!CC_EDITOR) {
+            cc.director._scheduler.scheduleUpdate(this, cc.Scheduler.PRIORITY_SYSTEM, false);
+        }
+    },
+
+    update (dt) {
+        this._dragoneBones.advanceTime(dt);
+    },
+
+    buildArmatureDisplay (armatureName, dragonBonesName, comp) {
         this._comp = comp;
         let armature = dragonBones.BaseFactory.prototype.buildArmature.call(this, armatureName, dragonBonesName);
-        let armatureDisplay = armature ? armature._display : null;
-        if (armatureDisplay) {
-            armatureDisplay.advanceTimeBySelf(true);
-        }
+        this._dragoneBones.clock.add(armature);
         this._comp = null;
         return armature;
     },
 
-    _generateTextureAtlasData (textureAtlasData, texture) {
-        if (! textureAtlasData) {
+    _buildTextureAtlasData (textureAtlasData, textureAtlas) {
+        if (textureAtlasData) {
+            textureAtlasData.renderTexture = textureAtlas;
+        }
+        else {
             textureAtlasData = BaseObject.borrowObject(dragonBones.CCTextureAtlasData);
         }
-
-        textureAtlasData.texture = texture;
         return textureAtlasData;
     },
 
@@ -69,73 +80,39 @@ dragonBones.CCFactory = cc.Class({
         this._slots = sortedSlots;
     },
 
-    _generateArmature (dataPackage) {
+    _buildArmature (dataPackage) {
         let armature = BaseObject.borrowObject(dragonBones.Armature);
 
-        armature._armatureData = dataPackage.armature;
         armature._skinData = dataPackage.skin;
         armature._animation = BaseObject.borrowObject(dragonBones.Animation);
         armature._animation._armature = armature;
 
         armature.animation.animations = dataPackage.armature.animations;
 
-        armature._display = new dragonBones.CCArmatureDisplay();
-        armature._display.component = this._comp;
-        armature._display._armature = armature;
+        let display = new dragonBones.CCArmatureDisplay();
+        display.component = this._comp;
 
         // fixed dragonbones sort issue
-        armature._sortSlots = this._sortSlots;
+        // armature._sortSlots = this._sortSlots;
+
+        armature.init(dataPackage.armature,
+            display, display, this._dragoneBones
+        );
 
         return armature;
     },
 
-    _generateSlot (dataPackage, slotDisplayDataSet) {
+    _buildSlot (dataPackage, slotData, displays) {
         let slot = BaseObject.borrowObject(dragonBones.CCSlot);
-        let slotData = slotDisplayDataSet.slot;
         let displayList = [];
 
         slot.name = slotData.name;
-        slot._meshDisplay = slot._rawDisplay = slot;
 
-        for (let i = 0, l = slotDisplayDataSet.displays.length; i < l; ++i) {
-            let displayData = slotDisplayDataSet.displays[i];
-            switch (displayData.type) {
-                case dragonBones.DisplayType.Image:
-                case dragonBones.DisplayType.Mesh:
-                    if (!displayData.texture) {
-                        displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
-                    }
-
-                    displayList.push(slot);
-                    break;
-
-                case dragonBones.DisplayType.Armature:
-                    let childArmature = dragonBones.BaseFactory.prototype.buildArmature.call(this, displayData.name, dataPackage.dataName);
-                    if (childArmature) {
-                        if (!slot.inheritAnimation) {
-                            let actions = slotData.actions.length > 0 ? slotData.actions : childArmature.armatureData.actions;
-                            if (actions.length > 0) {
-                                for (let j = 0, n = actions.length; j < n; ++j) {
-                                    childArmature._bufferAction(actions[j]);
-                                }
-                            } else {
-                                childArmature.animation.play();
-                            }
-                        }
-
-                        displayData.armature = childArmature.armatureData; //
-                    }
-
-                    displayList.push(childArmature);
-                    break;
-
-                default:
-                    displayList.push(null);
-                    break;
-            }
-        }
-
-        slot._setDisplayList(displayList);
+        slot.init(
+            slotData, displays,
+            // rawDisplay, mesh Display
+            slot, slot
+        );
 
         return slot;
     }
