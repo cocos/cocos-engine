@@ -11,6 +11,7 @@
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
+#include "cocos/scripting/js-bindings/manual/ScriptingCore.h"
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp"
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_ui_auto.hpp"
 
@@ -341,7 +342,7 @@ static bool invokeJSMouseCallback(EventListenerMouse* listener, const char* func
     SE_PRECONDITION2(ok, false, "invokeJSMouseCallback convert arg1 failed!");
 
     if (!fromCache)
-    {
+    { // EventMouse is holded by CCGLView-desktop forever. So just root it once to make it never be garbage collected.
         arg1Val.toObject()->root();
     }
     argArr.push_back(std::move(arg1Val));
@@ -433,28 +434,20 @@ static bool invokeJSTouchOneByOneCallback(EventListenerTouchOneByOne* listener, 
     se::ValueArray argArr;
     argArr.reserve(2);
     se::Value arg1Val;
-    se::Object* arg1Obj = nullptr;
 
     do
     {
         ok = native_ptr_to_seval<Touch>(touch, &arg1Val);
         SE_PRECONDITION_ERROR_BREAK(ok, "invokeJSTouchOneByOneCallback convert arg1 failed!");
-
-        arg1Obj = arg1Val.toObject();
-
-        if (type == TOUCH_ONE_BY_ONE_ON_TOUCH_BEGAN)
-        {
-            arg1Obj->root();
-        }
-
         argArr.push_back(std::move(arg1Val));
 
+        bool fromCache = true;
         se::Value arg2Val;
-        bool eventFromCache = true;
-        ok = native_ptr_to_seval<Event>(event, &arg2Val, &eventFromCache);
+        ok = native_ptr_to_seval<Event>(event, &arg2Val, &fromCache);
         SE_PRECONDITION_ERROR_BREAK(ok, "invokeJSTouchOneByOneCallback convert arg2 failed!");
-        if (!eventFromCache)
+        if (!fromCache)
         {
+            // EventTouch is holded by CCGLView forever. So just root it once to make it never be garbage collected.
             arg2Val.toObject()->root();
         }
 
@@ -467,18 +460,6 @@ static bool invokeJSTouchOneByOneCallback(EventListenerTouchOneByOne* listener, 
         SE_PRECONDITION_ERROR_BREAK(ok, "invokeJSTouchOneByOneCallback call function failed!");
 
     } while(false);
-
-    if (type == TOUCH_ONE_BY_ONE_ON_TOUCH_BEGAN)
-    {
-        if (!(retVal->isBoolean() && retVal->toBoolean()))
-        {
-            arg1Obj->unroot();
-       }
-    }
-    else if (type == TOUCH_ONE_BY_ONE_ON_TOUCH_ENDED || type == TOUCH_ONE_BY_ONE_ON_TOUCH_CANCELLED)
-    {
-        arg1Obj->unroot();
-    }
 
     return ok;
 }
@@ -553,14 +534,16 @@ static bool invokeJSTouchAllAtOnceCallback(EventListenerTouchAllAtOnce* listener
     SE_PRECONDITION2(ok, false, "invokeJSTouchAllAtOnceCallback convert arg1 failed!");
     argArr.push_back(std::move(arg1Val));
 
+    bool fromCache = true;
     se::Value arg2Val;
-    bool eventFromCache = true;
-    ok = native_ptr_to_seval<Event>(event, &arg2Val, &eventFromCache);
+    ok = native_ptr_to_seval<Event>(event, &arg2Val, &fromCache);
     SE_PRECONDITION2(ok, false, "invokeJSTouchAllAtOnceCallback convert arg2 failed!");
-    if (!eventFromCache)
+    if (!fromCache)
     {
+        // EventTouch is holded by CCGLView forever. So just root it once to make it never be garbage collected.
         arg2Val.toObject()->root();
     }
+
     argArr.push_back(std::move(arg2Val));
 
     ok = funcVal.toObject()->call(argArr, listenerObj, retVal);
@@ -787,7 +770,7 @@ static bool js_EventListenerCustom_create(se::State& s)
         se::Value funcVal = args[1];
         assert(funcVal.isObject() && funcVal.toObject()->isFunction());
 
-        auto ret = new EventListenerCustom();
+        auto ret = new (std::nothrow) EventListenerCustom();
 
         ret->init(eventName, [ret, funcVal](EventCustom* event){
 
@@ -836,6 +819,89 @@ static bool js_EventListenerCustom_create(se::State& s)
 }
 SE_BIND_FUNC(js_EventListenerCustom_create)
 
+static void onBeforeDispatchTouchEvent(Event* event)
+{
+    if (event->getType() == Event::Type::TOUCH)
+    {
+        EventTouch* touchEvent = static_cast<EventTouch*>(event);
+        if (touchEvent->getEventCode() == EventTouch::EventCode::BEGAN)
+        {
+            bool fromCache = true;
+            const auto& touches = touchEvent->getTouches();
+            for (auto&& touch : touches)
+            {
+                se::Value touchVal;
+                native_ptr_to_seval<Touch>(touch, __jsb_cocos2d_Touch_class, &touchVal, &fromCache);
+                assert(!fromCache);
+                touchVal.toObject()->root();
+            }
+        }
+    }
+}
+
+static void onAfterDispatchTouchEvent(Event* event)
+{
+    if (event->getType() == Event::Type::TOUCH)
+    {
+        EventTouch* touchEvent = static_cast<EventTouch*>(event);
+        EventTouch::EventCode code = touchEvent->getEventCode();
+        if (code == EventTouch::EventCode::ENDED || code == EventTouch::EventCode::CANCELLED)
+        {
+            const auto& touches = touchEvent->getTouches();
+            for (auto&& touch : touches)
+            {
+                auto iter = se::NativePtrToObjectMap::find(touch);
+                assert(iter != se::NativePtrToObjectMap::end());
+                iter->second->unroot();
+            }
+        }
+    }
+}
+
+static void onTextureCreate(TextureCache* cache, Texture2D* texture)
+{
+    auto iterOwner = se::NativePtrToObjectMap::find(cache);
+    if (iterOwner == se::NativePtrToObjectMap::end())
+    {
+        assert(false);
+        return;
+    }
+
+    se::Value textureVal;
+    bool fromCache = false;
+    native_ptr_to_seval<Texture2D>(texture, __jsb_cocos2d_Texture2D_class, &textureVal, &fromCache);
+    if (!fromCache && textureVal.isObject())
+    {
+        iterOwner->second->attachObject(textureVal.toObject());
+    }
+    else
+    {
+        assert(false);
+    }
+}
+
+static void onTextureDestroy(TextureCache* cache, Texture2D* texture)
+{
+    auto iterOwner = se::NativePtrToObjectMap::find(cache);
+    if (iterOwner == se::NativePtrToObjectMap::end())
+    {
+        assert(false);
+        return;
+    }
+
+    se::Value textureVal;
+    bool fromCache = false;
+    native_ptr_to_seval<Texture2D>(texture, __jsb_cocos2d_Texture2D_class, &textureVal, &fromCache);
+    if (fromCache && textureVal.isObject())
+    {
+        iterOwner->second->detachObject(textureVal.toObject());
+    }
+    else
+    {
+        assert(false);
+    }
+}
+
 static bool register_eventlistener(se::Object* obj)
 {
     se::Value v;
@@ -866,6 +932,12 @@ static bool register_eventlistener(se::Object* obj)
     __ccObj->getProperty("EventListenerCustom", &v);
     assert(v.isObject());
     v.toObject()->defineFunction("create", _SE(js_EventListenerCustom_create));
+
+    Director::getInstance()->getEventDispatcher()->setBeforeDispatchEventHook(Event::Type::TOUCH, onBeforeDispatchTouchEvent);
+    Director::getInstance()->getEventDispatcher()->setAfterDispatchEventHook(Event::Type::TOUCH, onAfterDispatchTouchEvent);
+
+    Director::getInstance()->getTextureCache()->setTextureCreateHook(onTextureCreate);
+    Director::getInstance()->getTextureCache()->setTextureDestroyHook(onTextureDestroy);
 
     se::ScriptEngine::getInstance()->clearException();
 
