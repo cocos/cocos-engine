@@ -285,7 +285,6 @@ let ArmatureDisplay = cc.Class({
     },
 
     ctor: function () {
-        this._armatures = [];
         this._inited = false;
     },
 
@@ -423,12 +422,9 @@ let ArmatureDisplay = cc.Class({
     update (passedTime) {
         if (CC_EDITOR) return;
         
-        let armatures = this._armatures;
-        for (let i = 0, l = armatures.length; i < l; i++) {
-            let armature = armatures[i];
-            if (armature._display && armature._display.shouldAdvanced) {
-                armature.advanceTime(passedTime);
-            }
+        let armature = this._armature;
+        if (armature._display && armature._display.shouldAdvanced) {
+            armature.advanceTime(passedTime);
         }
     },
 

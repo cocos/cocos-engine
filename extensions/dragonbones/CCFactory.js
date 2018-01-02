@@ -86,8 +86,6 @@ dragonBones.CCFactory = cc.Class({
         // fixed dragonbones sort issue
         armature._sortSlots = this._sortSlots;
 
-        this._comp._armatures.push(armature);
-
         return armature;
     },
 
