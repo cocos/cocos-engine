@@ -24,10 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-function isWeChatGame () {
-    return window['wx'];
-}
-
 var __BrowserGetter = {
     init: function(){
         if (cc.sys.platform !== cc.sys.WECHAT_GAME) {
@@ -58,7 +54,7 @@ if (window.navigator.userAgent.indexOf("OS 8_1_") > -1) //this mistake like MIUI
 if (cc.sys.os === cc.sys.OS_IOS) // All browsers are WebView
     __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_SAFARI;
 
-if (isWeChatGame()) {
+if (CC_WECHATGAME) {
     __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_WECHAT_GAME;
 }
 

@@ -227,7 +227,7 @@ if (CC_DEV) {
     });
 
     function deprecateEnum (obj, oldPath, newPath, hasTypePrefixBefore) {
-        if (!cc.supportJit) {
+        if (!CC_SUPPORT_JIT) {
             return;
         }
         hasTypePrefixBefore = hasTypePrefixBefore !== false;
