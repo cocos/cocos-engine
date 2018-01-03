@@ -106,7 +106,7 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, callback) {
         bundler.ignore(file);
     });
 
-    var uglifyOption = Utils.getUglifyOptions('build', false, true);
+    var uglifyOption = Utils.getUglifyOptions('build', { debug: true });
 
     bundler = bundler.bundle();
     bundler = bundler.pipe(Source(outFile));
@@ -134,7 +134,7 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, callback, 
         bundler.ignore(file);
     });
 
-    var uglifyOption = Utils.getUglifyOptions('build', false, false);
+    var uglifyOption = Utils.getUglifyOptions('build');
 
     var Size = null;
     try {
@@ -193,7 +193,7 @@ exports.buildPreview = function (sourceFile, outputFile, callback) {
         .pipe(Source(outFile))
         .pipe(Buffer())
         .pipe(Sourcemaps.init({loadMaps: true}))
-        .pipe(Minify(Utils.getUglifyOptions('preview', false, false)))
+        .pipe(Minify(Utils.getUglifyOptions('preview')))
         .pipe(Optimizejs({
             sourceMap: false
         }))
@@ -224,7 +224,7 @@ exports.buildJsbPreview = function (sourceFile, outputFile, excludes, callback) 
         .pipe(Source(outFile))
         .pipe(Buffer())
         .pipe(FixJavaScriptCore())
-        .pipe(Minify(Utils.getUglifyOptions('preview', true, false)))
+        .pipe(Minify(Utils.getUglifyOptions('preview', { jsb: true })))
         .pipe(Optimizejs({
             sourceMap: false
         }))
@@ -250,7 +250,7 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, callback) {
         .pipe(Source(outFile))
         .pipe(Buffer())
         .pipe(FixJavaScriptCore())
-        .pipe(Minify(Utils.getUglifyOptions('build', true, true)))
+        .pipe(Minify(Utils.getUglifyOptions('build', { jsb: true, debug: true })))
         .pipe(Optimizejs({
             sourceMap: false
         }))
@@ -276,7 +276,7 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, callback) {
         .pipe(Source(outFile))
         .pipe(Buffer())
         .pipe(FixJavaScriptCore())
-        .pipe(Minify(Utils.getUglifyOptions('build', true, false)))
+        .pipe(Minify(Utils.getUglifyOptions('build', { jsb: true })))
         .pipe(Optimizejs({
             sourceMap: false
         }))

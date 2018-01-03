@@ -340,7 +340,7 @@ function compileDestruct (obj, ctor) {
     // compile code
     var skipId = obj instanceof cc._BaseNode || obj instanceof cc.Component;
 
-    if (cc.supportJit) {
+    if (CC_SUPPORT_JIT) {
         var func = '';
         for (key in propsToReset) {
             if (skipId && key === '_id') {
