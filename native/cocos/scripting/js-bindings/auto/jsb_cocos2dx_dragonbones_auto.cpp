@@ -4816,8 +4816,8 @@ static bool js_cocos2dx_dragonbones_CCFactory_parseTextureAtlasData(se::State& s
             std::string arg0;
             ok &= seval_to_std_string(args[0], &arg0);
             if (!ok) { ok = true; break; }
-            cocos2d::Texture2D* arg1 = nullptr;
-            ok &= seval_to_native_ptr(args[1], &arg1);
+            std::string arg1;
+            ok &= seval_to_std_string(args[1], &arg1);
             if (!ok) { ok = true; break; }
             dragonBones::TextureAtlasData* result = cobj->parseTextureAtlasData(arg0, arg1);
             ok &= native_ptr_to_rooted_seval<dragonBones::TextureAtlasData>((dragonBones::TextureAtlasData*)result, &s.rval());
@@ -4831,8 +4831,8 @@ static bool js_cocos2dx_dragonbones_CCFactory_parseTextureAtlasData(se::State& s
             std::string arg0;
             ok &= seval_to_std_string(args[0], &arg0);
             if (!ok) { ok = true; break; }
-            cocos2d::Texture2D* arg1 = nullptr;
-            ok &= seval_to_native_ptr(args[1], &arg1);
+            std::string arg1;
+            ok &= seval_to_std_string(args[1], &arg1);
             if (!ok) { ok = true; break; }
             std::string arg2;
             ok &= seval_to_std_string(args[2], &arg2);
@@ -4849,8 +4849,8 @@ static bool js_cocos2dx_dragonbones_CCFactory_parseTextureAtlasData(se::State& s
             std::string arg0;
             ok &= seval_to_std_string(args[0], &arg0);
             if (!ok) { ok = true; break; }
-            cocos2d::Texture2D* arg1 = nullptr;
-            ok &= seval_to_native_ptr(args[1], &arg1);
+            std::string arg1;
+            ok &= seval_to_std_string(args[1], &arg1);
             if (!ok) { ok = true; break; }
             std::string arg2;
             ok &= seval_to_std_string(args[2], &arg2);
@@ -4870,8 +4870,8 @@ static bool js_cocos2dx_dragonbones_CCFactory_parseTextureAtlasData(se::State& s
             std::string arg0;
             ok &= seval_to_std_string(args[0], &arg0);
             if (!ok) { ok = true; break; }
-            std::string arg1;
-            ok &= seval_to_std_string(args[1], &arg1);
+            cocos2d::Texture2D* arg1 = nullptr;
+            ok &= seval_to_native_ptr(args[1], &arg1);
             if (!ok) { ok = true; break; }
             dragonBones::TextureAtlasData* result = cobj->parseTextureAtlasData(arg0, arg1);
             ok &= native_ptr_to_rooted_seval<dragonBones::TextureAtlasData>((dragonBones::TextureAtlasData*)result, &s.rval());
@@ -4885,8 +4885,8 @@ static bool js_cocos2dx_dragonbones_CCFactory_parseTextureAtlasData(se::State& s
             std::string arg0;
             ok &= seval_to_std_string(args[0], &arg0);
             if (!ok) { ok = true; break; }
-            std::string arg1;
-            ok &= seval_to_std_string(args[1], &arg1);
+            cocos2d::Texture2D* arg1 = nullptr;
+            ok &= seval_to_native_ptr(args[1], &arg1);
             if (!ok) { ok = true; break; }
             std::string arg2;
             ok &= seval_to_std_string(args[2], &arg2);
@@ -4903,8 +4903,8 @@ static bool js_cocos2dx_dragonbones_CCFactory_parseTextureAtlasData(se::State& s
             std::string arg0;
             ok &= seval_to_std_string(args[0], &arg0);
             if (!ok) { ok = true; break; }
-            std::string arg1;
-            ok &= seval_to_std_string(args[1], &arg1);
+            cocos2d::Texture2D* arg1 = nullptr;
+            ok &= seval_to_native_ptr(args[1], &arg1);
             if (!ok) { ok = true; break; }
             std::string arg2;
             ok &= seval_to_std_string(args[2], &arg2);

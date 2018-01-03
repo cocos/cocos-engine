@@ -1550,14 +1550,14 @@ str
 /**
  * @method parseTextureAtlasData
 * @param {String|String} str
-* @param {cc.Texture2D|String} texture2d
+* @param {String|cc.Texture2D} str
 * @param {String|String} str
 * @param {float|float} float
 * @return {dragonBones::TextureAtlasData|dragonBones::TextureAtlasData}
 */
 parseTextureAtlasData : function(
 str,
-str,
+texture2d,
 str,
 float 
 )
