@@ -166,6 +166,11 @@ TextureAtlasData* CCFactory::loadTextureAtlasData(const std::string& filePath, c
     return textureAtlasData;
 }
 
+TextureAtlasData* CCFactory::parseTextureAtlasData(const std::string& atlasData, cocos2d::Texture2D* texture, const std::string& dragonBonesName, float scale)
+{
+    return static_cast<CCTextureAtlasData*>(BaseFactory::parseTextureAtlasData(atlasData.c_str(), texture, dragonBonesName, scale));
+}
+
 TextureAtlasData* CCFactory::parseTextureAtlasData(const std::string& atlasData, const std::string& texturePath, const std::string& dragonBonesName, float scale)
 {
     const auto textureAtlasData = static_cast<CCTextureAtlasData*>(BaseFactory::parseTextureAtlasData(atlasData.c_str(), nullptr, dragonBonesName, scale));

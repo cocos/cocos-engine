@@ -27,6 +27,7 @@ protected:
 public:
     virtual DragonBonesData* loadDragonBonesData(const std::string& filePath, const std::string& dragonBonesName = "");
     virtual TextureAtlasData* loadTextureAtlasData(const std::string& filePath, const std::string& dragonBonesName = "", float scale = 0.f);
+    virtual TextureAtlasData* parseTextureAtlasData(const std::string& atlasData, cocos2d::Texture2D* texture, const std::string& dragonBonesName = "", float scale = 0.f);
     virtual TextureAtlasData* parseTextureAtlasData(const std::string& atlasData, const std::string& texturePath, const std::string& dragonBonesName = "", float scale = 0.f);
     virtual CCArmatureDisplay* buildArmatureDisplay(const std::string& armatureName, const std::string& dragonBonesName = "", const std::string& skinName = "") const;
     virtual cocos2d::Sprite* getTextureDisplay(const std::string& textureName, const std::string& dragonBonesName = "") const;

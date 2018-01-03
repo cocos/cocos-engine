@@ -177,7 +177,7 @@ bool XMLHttpRequest::open(const std::string& method, const std::string& url)
     else if (_method == "delete" || _method == "DELETE")
         requestType = HttpRequest::Type::DELETE;
 
-    assert(requestType != HttpRequest::Type::UNKNOWN);
+    CCASSERT(requestType != HttpRequest::Type::UNKNOWN, (std::string("XMLHttpRequest.open: Unknown method: ") + method).c_str());
 
     _httpRequest->setRequestType(requestType);
     _httpRequest->setUrl(_url);
