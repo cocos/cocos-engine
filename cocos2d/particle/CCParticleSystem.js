@@ -242,11 +242,15 @@ var properties = {
      * !#en Current quantity of particles that are being simulated.
      * !#zh 当前播放的粒子数量。
      * @property {Number} particleCount
+     * @readonly
      */
     particleCount: {
-        default: 0,
         visible: false,
-        tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.particleCount'
+        get: function () {
+            // TODO
+            return 0;
+        },
+        readonly: true
     },
 
     /**
@@ -328,6 +332,7 @@ var properties = {
      */
     active: {
         get: function () {
+            // TODO: check wether it's activated (not stopped)
             return this.enabledInHierarchy;
         },
         visible: false

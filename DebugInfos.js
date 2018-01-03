@@ -51,6 +51,7 @@ if (CC_DEBUG) {
         "1403": "Sorry, cc.audioEngine.willPlayMusic is removed.", //willPlayMusicError
         "1404": "cc.spriteFrameCache is removed, please use cc.loader to load and cache sprite frames of atlas format.",
         "1405": "The '%s' will be removed in v2.0, please use '%s' instead. \uD83D\uDE30",
+        "1406": "'%s.%s' is removed", // removed
         //Scheduler: 1500
         "1500": "cc.Scheduler#schedule: Callback already scheduled. Updating interval from:%s to %s", //scheduleCallbackForTarget
         "1501": "cc.Scheduler#scheduleCallbackForTarget(): callback_fn should be non-null.", //scheduleCallbackForTarget_2

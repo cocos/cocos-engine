@@ -4,4 +4,3 @@ require('./core/CCGame');
 require('./actions');
 
 require('./core/CCConfiguration');
-// require('./render-texture/CCRenderTexture');

@@ -23,13 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const js = require('../../../platform/js');
+const assembler = require('../assembler');
 const Label = require('../../../components/CCLabel');
 const ttfAssembler = require('./ttf-assembler');
 const bmfontAssembler = require('./bmfont-assembler');
 
-var labelAssembler = {
-    useModel: false,
-
+var labelAssembler = js.addon({
     updateRenderData (comp) {
         let assembler;
         if (comp.font instanceof cc.BitmapFont) {
@@ -49,26 +49,35 @@ var labelAssembler = {
         renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
         
         assembler.update(comp);
+        
+        renderData.effect = comp.getEffect();
+        this.datas.length = 0;
+        this.datas.push(renderData);
+        return this.datas;
     },
 
-    fillVertexBuffer (comp, index, vbuf, uintbuf) {
+    fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let comp = batchData.comp,
+            vertexOffset = batchData.vertexOffset,
+            indiceOffset = batchData.indiceOffset;
+        
+        // vertex buffer
         if (comp.font instanceof cc.BitmapFont) {
-            bmfontAssembler.fillVertexBuffer(comp, index, vbuf, uintbuf);
+            bmfontAssembler.fillVertexBuffer(comp, vertexOffset, vbuf, uintbuf);
         }
         else {
-            ttfAssembler.fillVertexBuffer(comp, index, vbuf, uintbuf);
+            ttfAssembler.fillVertexBuffer(comp, vertexOffset, vbuf, uintbuf);
         }
-    },
 
-    fillIndexBuffer (comp, offset, vertexId, ibuf) {
+        // index buffer
         if (comp.font instanceof cc.BitmapFont) {
-            bmfontAssembler.fillIndexBuffer(comp, offset, vertexId, ibuf);
+            bmfontAssembler.fillIndexBuffer(comp, indiceOffset, vertexId, ibuf);
         }
         else {
-            ttfAssembler.fillIndexBuffer(comp, offset, vertexId, ibuf);
+            ttfAssembler.fillIndexBuffer(comp, indiceOffset, vertexId, ibuf);
         }
     }
-}
+}, assembler);
 
 Label._assembler = labelAssembler;
 

@@ -26,6 +26,8 @@
 const TiledLayer = require('../../../tilemap/CCTiledLayer');
 const TiledMap = require('../../../tilemap/CCTiledMap');
 
+const js = require('../../platform/js');
+const assembler = require('./assembler');
 const renderEngine = require('../render-engine');
 const RenderData = renderEngine.RenderData;
 const math = renderEngine.math;
@@ -39,9 +41,7 @@ const StaggerIndex = TiledMap.StaggerIndex;
 let _matrix = math.mat4.create();
 let _v3 = cc.v3();
 
-let assembler = {
-    useModel: false,
-
+let tmxAssembler = js.addon({
     createData (comp) {
         return RenderData.alloc();
     },
@@ -55,6 +55,11 @@ let assembler = {
         let size = comp.node._contentSize;
         let anchor = comp.node._anchorPoint;
         renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
+        // TODO update render data here
+        renderData.effect = comp.getEffect();
+        this.datas.length = 0;
+        this.datas.push(renderData);
+        return this.datas;
     },
 
     fillVertexBuffer (comp, index, vbuf, uintbuf) {
@@ -316,6 +321,6 @@ let assembler = {
             vertexId += 4;
         }
     },
-}
+}, assembler);
 
-module.exports = TiledLayer._assembler = assembler;
+module.exports = TiledLayer._assembler = tmxAssembler;

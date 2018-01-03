@@ -37,6 +37,15 @@ const MAX_VERTEX = macro.BATCH_VERTEX_COUNT;
 const MAX_INDICE = MAX_VERTEX * 2;
 
 var _queue = null;
+var _batchData = {
+    vfmt: null,
+    effect: null,
+    vertexOffset: 0,
+    indiceOffset: 0,
+    comp: null,
+    MAX_VERTEX: MAX_VERTEX,
+    MAX_INDICE: MAX_INDICE
+};
 
 var RenderComponentWalker = function (device, renderScene) {
     this._renderScene = renderScene;
@@ -134,8 +143,6 @@ RenderComponentWalker.prototype = {
     },
 
     _flush (vertexFormat, effect, vertexCount, indiceCount) {
-        let verts = this._verts,
-            indices = this._indices;
         let vertexByte = vertexCount * vertexFormat._bytes,
             byteOffset = 0,
             vertexsData = null,
@@ -144,9 +151,9 @@ RenderComponentWalker.prototype = {
         // Prepare data view for vb ib
         if (vertexCount > 0 && indiceCount > 0) {
             byteOffset = this._vOffset * vertexFormat._bytes;
-            vertexsData = new Float32Array(verts.buffer, byteOffset, vertexByte / 4);
+            vertexsData = new Float32Array(this._verts.buffer, byteOffset, vertexByte / 4);
             byteOffset = 2 * this._iOffset;
-            indicesData = new Uint16Array(indices.buffer, byteOffset, indiceCount);
+            indicesData = new Uint16Array(this._indices.buffer, byteOffset, indiceCount);
         }
 
         // Generate vb, ib, ia
@@ -205,42 +212,38 @@ RenderComponentWalker.prototype = {
         this._nextBuf++;
     },
 
-    _checkBatchBroken (vertexFormat, currEffect, vertexOffset, indiceOffset, needNewBuf) {
-        let vertexCount = vertexOffset - this._vOffset,
-            indiceCount = indiceOffset - this._iOffset;
-        if (vertexFormat && currEffect && vertexCount > 0 && indiceCount > 0) {
-            this._flush(vertexFormat, currEffect, vertexCount, indiceCount);
+    _checkBatchBroken (batchData, needNewBuf) {
+        let vertexCount = batchData.vertexOffset - this._vOffset,
+            indiceCount = batchData.indiceOffset - this._iOffset;
+        if (batchData.vfmt && batchData.effect && vertexCount > 0 && indiceCount > 0) {
+            this._flush(batchData.vfmt, batchData.effect, vertexCount, indiceCount);
             if (needNewBuf) {
                 this._switchBuffer();
+                batchData.vertexOffset = 0;
+                batchData.indiceOffset = 0;
             }
             else {
                 // update buffer
-                this._vOffset = vertexOffset;
-                this._iOffset = indiceOffset;
+                this._vOffset = batchData.vertexOffset;
+                this._iOffset = batchData.indiceOffset;
             }
-            return true;
-        }
-        else {
-            return false;
         }
     },
 
     batchQueue () {
         // reset caches for handle render components
-        let verts = this._verts,
-            uintVerts = this._uintVerts,
-            indices = this._indices,
-            currEffect = null,
-            vertexOffset = this._vOffset,
-            indiceOffset = this._iOffset,
-            vertexId = 0,
+        _batchData.vfmt = null;
+        _batchData.effect = null;
+        _batchData.vertexOffset = this._vOffset;
+        _batchData.indiceOffset = this._iOffset;
+        let vertexId = 0,
             needNewBuf = false,
-            broken = false,
             comp = this._queue[0],
-            prevComp = null,
             effect = null, 
             assembler = null, 
-            data = null;
+            datas = null,
+            data = null,
+            j = 0;
 
         for (let i = 0, len = this._queue.length; i < len; i++) {
             comp = this._queue[i];
@@ -259,48 +262,40 @@ RenderComponentWalker.prototype = {
             }
             
             // Update render data
-            assembler.updateRenderData(comp);
-            data = comp._renderData;
+            datas = assembler.updateRenderData(comp);
 
-            // Must get effect after updateRenderData, material maybe modified during updateRenderData
-            effect = comp.getEffect();
-            // breaking batch
-            needNewBuf = (vertexOffset + data.vertexCount > MAX_VERTEX) || (indiceOffset + data.indiceCount > MAX_INDICE);
-            if (prevComp && currEffect != effect || needNewBuf) {
-                broken = this._checkBatchBroken(prevComp._vertexFormat, currEffect, vertexOffset, indiceOffset, needNewBuf);
-                if (broken) {
-                    vertexOffset = this._vOffset;
-                    indiceOffset = this._iOffset;
+            _batchData.comp = comp;
+            for (id = 0; id < datas.length; id ++) {
+                data = datas[id];
+                effect = data.effect;
+                // breaking batch
+                needNewBuf = (_batchData.vertexOffset + data.vertexCount > MAX_VERTEX) || (_batchData.indiceOffset + data.indiceCount > MAX_INDICE);
+                if (_batchData.vfmt && _batchData.effect != effect || needNewBuf) {
+                    this._checkBatchBroken(_batchData, needNewBuf);
+                    this._node = this._dummyNode;
+                    _batchData.effect = effect;
                 }
-                if (needNewBuf) {
-                    verts = this._verts;
-                    uintVerts = this._uintVerts;
-                    indices = this._indices;
+                // Init effect
+                else if (!_batchData.effect) {
+                    _batchData.effect = effect;
                 }
-                this._node = this._dummyNode;
-                currEffect = effect;
-            }
-            // Init effect
-            else if (!currEffect) {
-                currEffect = effect;
-            }
 
-            // Set model
-            if (assembler.useModel) {
-                this._node = comp.node;
+                // Set model
+                if (assembler.useModel) {
+                    this._node = comp.node;
+                }
+
+                let vertexId = _batchData.vertexOffset - this._vOffset;
+                assembler.fillBuffers(_batchData, vertexId, this._verts, this._uintVerts, this._indices);
+
+                _batchData.vertexOffset += data.vertexCount;
+                _batchData.indiceOffset += data.indiceCount;
             }
-
-            vertexId = vertexOffset - this._vOffset;
-            assembler.fillVertexBuffer(comp, vertexOffset, verts, uintVerts);
-            assembler.fillIndexBuffer(comp, indiceOffset, vertexId, indices);
-
-            vertexOffset += data.vertexCount;
-            indiceOffset += data.indiceCount;
-            prevComp = comp;
+            _batchData.vfmt = comp._vertexFormat;
         }
 
         // last batch
-        this._checkBatchBroken(prevComp && prevComp._vertexFormat, currEffect, vertexOffset, indiceOffset, false);
+        this._checkBatchBroken(_batchData, false);
         this._queue.length = 0;
     },
 

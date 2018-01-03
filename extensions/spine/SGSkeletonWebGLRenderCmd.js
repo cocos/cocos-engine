@@ -22,10 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('../../cocos2d/core/CCDrawingPrimitives');
-
 var spine = sp.spine;
-
 
 sp._SGSkeleton.WebGLRenderCmd = function (renderableObject) {
     this._rootCtor(renderableObject);
