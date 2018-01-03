@@ -130,9 +130,12 @@ dragonBones.CCFactory = cc.Class({
         let slot = BaseObject.borrowObject(dragonBones.CCSlot);
         let displayList = [];
 
+        slot.name = slotData.name;
 
-        let display = new cc.Node();
-        display.name = slot.name = slotData.name;
+        // let display = new cc.Node();
+        // display.name = slot.name;
+
+        let display = slot;
         slot.init(slotData, displays, display, display);
 
         return slot;

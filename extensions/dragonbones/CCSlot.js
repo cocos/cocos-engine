@@ -72,7 +72,7 @@ dragonBones.CCSlot = cc.Class({
         }
         
         if (this._display instanceof dragonBones.ArmatureDisplay) {
-            this._display.node.parent = this._rawDisplay;
+            this._display.node.parent = this._armature.display.node;
         }
     },
 
@@ -342,10 +342,12 @@ dragonBones.CCSlot = cc.Class({
         t.m12 = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
         t.m13 = -(this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY));
 
-        let node = this._rawDisplay;
-        math.mat4.copy(node._matrix, t);
-        node._localMatDirty = false;
-        node._worldMatDirty = true;
+        if (this._display instanceof dragonBones.ArmatureDisplay) {
+            let node = this._display.node;
+            math.mat4.copy(node._matrix, t);
+            node._localMatDirty = false;
+            node._worldMatDirty = true;
+        }
 
         this._updateVertices();
     },
