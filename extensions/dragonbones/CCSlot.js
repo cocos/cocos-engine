@@ -52,7 +52,6 @@ dragonBones.CCSlot = cc.Class({
     _onUpdateDisplay () {
         if (this._childArmature) {
             this._childArmature._isChildArmature = true;
-            this._childArmature.display.node.parent = this._rawDisplay;
         }
     },
 
@@ -68,6 +67,13 @@ dragonBones.CCSlot = cc.Class({
     },
 
     _replaceDisplay (value) {
+        if (value instanceof dragonBones.ArmatureDisplay) {
+            value.node.parent = null;
+        }
+        
+        if (this._display instanceof dragonBones.ArmatureDisplay) {
+            this._display.node.parent = this._rawDisplay;
+        }
     },
 
     _removeDisplay () {
@@ -347,7 +353,6 @@ dragonBones.CCSlot = cc.Class({
     _updateVertices () {
         let t = this._matrix;
         let a = t.m00, b = t.m01, c = t.m04, d = t.m05, tx = t.m12, ty = t.m13;
-
 
         let vertices = this._vertices;
         let localVertices = this._localVertices;

@@ -112,23 +112,15 @@ let maskFrontAssembler = js.addon({
 
             // vertex buffer
             if (mask._type === Mask.Type.IMAGE_STENCIL) {
-                spriteAssembler.fillVertexBuffer(mask, vertexOffset, vbuf, uintbuf);
+                batchData.comp = mask;
+                spriteAssembler.fillBuffers(batchData, vertexId, vbuf, uintbuf, ibuf);
             }
             else {
                 // Share node for correct global matrix
                 _graphics.node = mask.node;
                 _graphics._renderData = mask._renderData;
-                graphicsAssembler.fillVertexBuffer(_graphics, vertexOffset, vbuf, uintbuf);
-            }
-
-            // index buffer
-            if (mask._type === Mask.Type.IMAGE_STENCIL) {
-                if (mask.spriteFrame) {
-                    spriteAssembler.fillIndexBuffer(mask, indiceOffset, vertexId, ibuf);
-                }
-            }
-            else {
-                graphicsAssembler.fillIndexBuffer(_graphics, indiceOffset, vertexId, ibuf);
+                batchData.comp = _graphics;
+                graphicsAssembler.fillBuffers(batchData, vertexId, vbuf, uintbuf, ibuf);
             }
         }
     }
@@ -162,23 +154,15 @@ let maskEndAssembler = js.addon({
 
             // vertex buffer
             if (mask._type === Mask.Type.IMAGE_STENCIL) {
-                spriteAssembler.fillVertexBuffer(mask, vertexOffset, vbuf, uintbuf);
+                batchData.comp = mask;
+                spriteAssembler.fillBuffers(batchData, vertexId, vbuf, uintbuf, ibuf);
             }
             else {
                 // Share node for correct global matrix
                 _graphics.node = mask.node;
                 _graphics._renderData = mask._renderData;
-                graphicsAssembler.fillVertexBuffer(_graphics, vertexOffset, vbuf, uintbuf);
-            }
-
-            // index buffer
-            if (mask._type === Mask.Type.IMAGE_STENCIL) {
-                if (mask.spriteFrame) {
-                    spriteAssembler.fillIndexBuffer(mask, indiceOffset, vertexId, ibuf);
-                }
-            }
-            else {
-                graphicsAssembler.fillIndexBuffer(_graphics, indiceOffset, vertexId, ibuf);
+                batchData.comp = _graphics;
+                graphicsAssembler.fillBuffers(batchData, vertexId, vbuf, uintbuf, ibuf);
             }
         }
     }
