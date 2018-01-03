@@ -1089,6 +1089,7 @@ CCClass.getInheritanceChain = function (klass) {
  * @param {Function} klass
  * @returns {Boolean}
  */
+// TODO - remove at 2.0 if all assets implemented in pure js
 CCClass.isInstanceOf = CC_JSB ? function (obj, klass) {
     return obj && cc.isChildClassOf(obj.constructor, klass);
 } : function (obj__skip_jsb_warning, klass) {
