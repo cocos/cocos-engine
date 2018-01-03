@@ -126,7 +126,6 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
         require('./CCFactory');
         require('./CCSlot');
         require('./CCTextureData');
-        require('./CCArmatureDisplay');
     }
 
     // require the component for dragonbones

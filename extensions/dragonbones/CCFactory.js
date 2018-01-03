@@ -42,12 +42,37 @@ dragonBones.CCFactory = cc.Class({
     },
 
     buildArmatureDisplay (armatureName, dragonBonesName, comp) {
-        this._comp = comp;
-        let armature = dragonBones.BaseFactory.prototype.buildArmature.call(this, armatureName, dragonBonesName);
-        this._dragoneBones.clock.add(armature);
-        this._comp = null;
+        this._display = comp;
+        let armature = this.buildArmature(armatureName, dragonBonesName, comp);
+        this._display = null;
         return armature;
     },
+
+    createArmatureNode (comp, armatureName, node) {
+        node = node || new cc.Node();
+        let display = node.getComponent(dragonBones.ArmatureDisplay);
+        if (!display) {
+            display = node.addComponent(dragonBones.ArmatureDisplay);
+        }
+
+        node.name = display.armatureName = armatureName;
+        display._N$dragonAsset = comp.dragonAsset;
+        display._N$dragonAtlasAsset = comp.dragonAtlasAsset;
+        display._init();
+
+        return display;
+    },
+
+    _buildChildArmature (dataPackage, slot, displayData) {
+        let temp = this._display;
+        
+        let node = new cc.Node();
+        let display = this.createArmatureNode(temp, displayData.path);
+
+        this._display = temp;
+        return display._armature;
+    },
+    
 
     _buildTextureAtlasData (textureAtlasData, textureAtlas) {
         if (textureAtlasData) {
@@ -89,16 +114,15 @@ dragonBones.CCFactory = cc.Class({
 
         armature.animation.animations = dataPackage.armature.animations;
 
-        let display = new dragonBones.CCArmatureDisplay();
-        display.component = this._comp;
-
         // fixed dragonbones sort issue
         // armature._sortSlots = this._sortSlots;
 
         armature.init(dataPackage.armature,
-            display, display, this._dragoneBones
+            this._display, this._display, this._dragoneBones
         );
 
+        this._dragoneBones.clock.add(armature);
+        
         return armature;
     },
 
@@ -106,13 +130,10 @@ dragonBones.CCFactory = cc.Class({
         let slot = BaseObject.borrowObject(dragonBones.CCSlot);
         let displayList = [];
 
-        slot.name = slotData.name;
 
-        slot.init(
-            slotData, displays,
-            // rawDisplay, mesh Display
-            slot, slot
-        );
+        let display = new cc.Node();
+        display.name = slot.name = slotData.name;
+        slot.init(slotData, displays, display, display);
 
         return slot;
     }

@@ -93,7 +93,7 @@ let ArmatureDisplay = cc.Class({
         dragonAsset: {
             default: null,
             type: dragonBones.DragonBonesAsset,
-            notify: function () {
+            notify () {
                 // parse the asset data
                 this._parseDragonAsset();
                 this._refresh();
@@ -115,7 +115,7 @@ let ArmatureDisplay = cc.Class({
         dragonAtlasAsset: {
             default: null,
             type: dragonBones.DragonBonesAtlasAsset,
-            notify: function () {
+            notify () {
                 // parse the atlas asset data
                 this._parseDragonAtlasAsset();
                 this._buildArmature();
@@ -130,10 +130,10 @@ let ArmatureDisplay = cc.Class({
          * @property {String} armatureName
          */
         armatureName: {
-            get: function () {
+            get () {
                 return this._armatureName;
             },
-            set: function (value) {
+            set (value) {
                 this._armatureName = value;
                 let animNames = this.getAnimationNames(this._armatureName);
 
@@ -158,10 +158,10 @@ let ArmatureDisplay = cc.Class({
          * @property {String} animationName
          */
         animationName: {
-            get: function () {
+            get () {
                 return this._animationName;
             },
-            set: function (value) {
+            set (value) {
                 this._animationName = value;
             },
             visible: false
@@ -172,7 +172,7 @@ let ArmatureDisplay = cc.Class({
          */
         _defaultArmatureIndex: {
             default: 0,
-            notify: function () {
+            notify () {
                 let armatureName = '';
                 if (this.dragonAsset) {
                     let armaturesEnum;
@@ -203,7 +203,7 @@ let ArmatureDisplay = cc.Class({
         // value of 0 represents no animation
         _animationIndex: {
             default: 0,
-            notify: function () {
+            notify () {
                 if (this._animationIndex === 0) {
                     this.animationName = '';
                     return;
@@ -241,7 +241,7 @@ let ArmatureDisplay = cc.Class({
          */
         timeScale: {
             default: 1,
-            notify: function () {
+            notify () {
                 if (this._sgNode) {
                     this._sgNode.animation().timeScale = this.timeScale;
                 }
@@ -274,7 +274,7 @@ let ArmatureDisplay = cc.Class({
          */
         debugBones: {
             default: false,
-            notify: function () {
+            notify () {
                 if (this._sgNode) {
                     this._sgNode.setDebugBones(this.debugBones);
                 }
@@ -284,15 +284,15 @@ let ArmatureDisplay = cc.Class({
         },
     },
 
-    ctor: function () {
+    ctor () {
         this._inited = false;
     },
 
-    __preload: function () {
+    __preload () {
         this._init();
     },
 
-    _init: function () {
+    _init () {
         if (this._inited) return;
         this._inited = true;
 
@@ -302,11 +302,11 @@ let ArmatureDisplay = cc.Class({
         this._activateMaterial();
     },
 
-    _onDestroy: function () {
+    _onDestroy () {
         this._armature.dispose();
     },
 
-    _activateMaterial: function () {
+    _activateMaterial () {
         if (this._material) return;
 
         let url = this.dragonAtlasAsset.texture;
@@ -324,7 +324,7 @@ let ArmatureDisplay = cc.Class({
         this._material = material;
     },
 
-    _buildArmature: function () {
+    _buildArmature () {
         if (!this.dragonAsset || !this.dragonAtlasAsset || !this.armatureName) return;
 
         let factory = dragonBones.CCFactory.getFactory();
@@ -335,7 +335,7 @@ let ArmatureDisplay = cc.Class({
         }
     },
 
-    _parseDragonAsset: function () {
+    _parseDragonAsset () {
         if (!this.dragonAsset) return;
         
         let factory = dragonBones.CCFactory.getFactory();
@@ -360,7 +360,7 @@ let ArmatureDisplay = cc.Class({
         this._dragonBonesData = factory.parseDragonBonesData(jsonObj);
     },
 
-    _parseDragonAtlasAsset: function () {
+    _parseDragonAtlasAsset () {
         if (!this.dragonAtlasAsset) return;
 
         let factory = dragonBones.CCFactory.getFactory();
@@ -388,7 +388,7 @@ let ArmatureDisplay = cc.Class({
         }
     },
 
-    _refresh: function () {
+    _refresh () {
         this._buildArmature();
 
         if (CC_EDITOR) {
@@ -439,7 +439,7 @@ let ArmatureDisplay = cc.Class({
      * @param {Number} playTimes
      * @return {dragonBones.AnimationState}
      */
-    playAnimation: function (animName, playTimes) {
+    playAnimation (animName, playTimes) {
         if (this._armature) {
             this.playTimes = (playTimes === undefined) ? -1 : playTimes;
             this.animationName = animName;
@@ -457,7 +457,7 @@ let ArmatureDisplay = cc.Class({
      * @method getArmatureNames
      * @returns {Array}
      */
-    getArmatureNames: function () {
+    getArmatureNames () {
         if (this._dragonBonesData) {
             return this._dragonBonesData.armatureNames;
         }
@@ -474,7 +474,7 @@ let ArmatureDisplay = cc.Class({
      * @param {String} armatureName
      * @returns {Array}
      */
-    getAnimationNames: function (armatureName) {
+    getAnimationNames (armatureName) {
         let ret = [];
         if (this._dragonBonesData) {
             let armatureData = this._dragonBonesData.getArmature(armatureName);
@@ -500,9 +500,8 @@ let ArmatureDisplay = cc.Class({
      * @param {function} listener
      * @param {Object} target
      */
-    addEventListener: function (eventType, listener, target) {
-        if (!this._armature) return;
-        this._armature._display.addDBEventListener(eventType, listener, target);
+    addEventListener (eventType, listener, target) {
+        this.addDBEventListener(eventType, listener, target);
     },
 
     /**
@@ -515,9 +514,8 @@ let ArmatureDisplay = cc.Class({
      * @param {function} listener
      * @param {Object} target
      */
-    removeEventListener: function (eventType, listener, target) {
-        if (!this._armature) return;
-        this._armature._display.removeDBEventListener(eventType, listener, target);
+    removeEventListener (eventType, listener, target) {
+        this.removeDBEventListener(eventType, listener, target);
     },
 
     /**
@@ -528,22 +526,10 @@ let ArmatureDisplay = cc.Class({
      * @method buildArmature
      * @param {String} armatureName
      * @param {Node} node
-     * @return {dragonBones.Armature}
+     * @return {dragonBones.ArmatureDisplay}
      */
-    buildArmature: function (armatureName) {
-        return dragonBones.CCFactory.getFactory().buildArmatureDisplay(armatureName, this._dragonBonesData.name, this);
-    },
-
-    buildArmatureDisplay (armatureName, node) {
-        node = node || new cc.Node();
-        let display = node.addComponent(dragonBones.ArmatureDisplay);
-        
-        display.armatureName = armatureName;
-        display._N$dragonAsset = this.dragonAsset;
-        display._N$dragonAtlasAsset = this.dragonAtlasAsset;
-        display._init();
-
-        return display;
+    buildArmature (armatureName, node) {
+        return dragonBones.CCFactory.getFactory().createArmatureNode(this, armatureName, node);
     },
 
     /**
@@ -554,9 +540,43 @@ let ArmatureDisplay = cc.Class({
      * @method armature
      * @returns {Object}
      */
-    armature: function () {
+    armature () {
         return this._armature;
-    }
+    },
+
+    ////////////////////////////////////
+    // dragonbones api
+    dbInit (armature) {
+        this._armature = armature;
+    },
+
+    dbClear () {
+        this._armature = null;
+    },
+
+    dbUpdate () {
+    },
+
+    advanceTimeBySelf  (on) {
+        this.shouldAdvanced = !!on;
+    },
+
+    hasDBEventListener (type) {
+        return this.hasEventListener(type, false);
+    },
+
+    addDBEventListener (type, listener, target) {
+        this.on(type, listener, target);
+    },
+
+    removeDBEventListener (type, listener, target) {
+        this.off(type, listener, target);
+    },
+
+    dispatchDBEvent  (type, eventObject) {
+        this.emit(type, eventObject);
+    },
+    ////////////////////////////////////
 });
 
 module.exports = dragonBones.ArmatureDisplay = ArmatureDisplay;

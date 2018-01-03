@@ -49,13 +49,10 @@ dragonBones.CCSlot = cc.Class({
         }
     },
 
-    _onClear () {
-        dragonBones.Slot.prototype._onClear.call(this);
-    },
-
     _onUpdateDisplay () {
-        if (this._display instanceof dragonBones.CCArmatureDisplay) {
-            this._display._armature._parentSlot = this;
+        if (this._childArmature) {
+            this._childArmature._isChildArmature = true;
+            this._childArmature.display.node.parent = this._rawDisplay;
         }
     },
 
@@ -64,6 +61,10 @@ dragonBones.CCSlot = cc.Class({
 
     _addDisplay () {
         this._visible = true;
+
+        if (!CC_EDITOR) {
+            this._rawDisplay.parent = this._armature.display.node;
+        }
     },
 
     _replaceDisplay (value) {
@@ -71,6 +72,10 @@ dragonBones.CCSlot = cc.Class({
 
     _removeDisplay () {
         this._visible = false;
+
+        if (!CC_EDITOR) {
+            this._rawDisplay.parent = null;
+        }
     },
 
     _disposeDisplay (object) {
@@ -118,10 +123,6 @@ dragonBones.CCSlot = cc.Class({
         let b = this._colorTransform.blueMultiplier * 255;
         let a = this._colorTransform.alphaMultiplier * 255;
         this._color = ((a<<24) >>> 0) + (b<<16) + (g<<8) + r;
-    },
-
-    _updateFilters () {
-
     },
 
     _updateFrame () {
@@ -245,60 +246,12 @@ dragonBones.CCSlot = cc.Class({
     },
 
     _updateMesh : function() {
-        let localVertices = this._localVertices;
-
-        // let iH = 0, xG = 0, yG = 0, i, l;
-        // if (this._meshData.skinned) {
-        //     let iF = 0;
-        //     for (i = 0, l = this._meshData.vertices.length; i < l; i += 2) {
-        //         iH = Math.floor(i / 2);
-        //         let boneIndices = this._meshData.boneIndices[iH];
-        //         let boneVertices = this._meshData.boneVertices[iH];
-        //         let weights = this._meshData.weights[iH];
-
-        //         xG = 0; yG = 0;
-        //         for (let iB = 0, lB = boneIndices.length; iB < lB; ++iB) {
-        //             let bone = this._meshBones[boneIndices[iB]];
-        //             let matrix = bone.globalTransformMatrix;
-        //             let weight = weights[iB];
-
-        //             let xL = 0, yL = 0;
-        //             if (hasFFD) {
-        //                 xL = boneVertices[iB * 2] + this._ffdVertices[iF];
-        //                 yL = boneVertices[iB * 2 + 1] + this._ffdVertices[iF + 1];
-        //             }
-        //             else {
-        //                 xL = boneVertices[iB * 2];
-        //                 yL = boneVertices[iB * 2 + 1];
-        //             }
-
-        //             xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight;
-        //             yG += (matrix.b * xL + matrix.d * yL + matrix.ty) * weight;
-
-        //             iF += 2;
-        //         }
-
-        //         localVertices[iH].x = xG;
-        //         localVertices[iH].y = -yG;
-        //     }
-        // }
-        // else if (hasFFD) {
-        //     let vertices = this._meshData.vertices;
-        //     for (i = 0, l = this._meshData.vertices.length; i < l; i += 2) {
-        //         iH = Math.floor(i / 2);
-        //         xG = vertices[i] + this._ffdVertices[i];
-        //         yG = vertices[i + 1] + this._ffdVertices[i + 1];
-
-        //         localVertices[iH].x = xG;
-        //         localVertices[iH].y = -yG;
-        //     }
-        // }
-
         const scale = this._armature._armatureData.scale;
         const meshData = this._meshData;
         const hasDeform = this._deformVertices.length > 0 && meshData.inheritDeform;
         const weight = meshData.weight;
 
+        let localVertices = this._localVertices;
         if (weight !== null) {
             const data = meshData.parent.parent.parent;
             const intArray = data.intArray;
@@ -371,18 +324,30 @@ dragonBones.CCSlot = cc.Class({
             }
         }
 
-        this._updateTransform();
+        this._updateVertices();
     },
 
     _updateTransform () {
-        // update the transform
         let t = this._matrix;
-        let a = t.m00 = this.globalTransformMatrix.a;
-        let b = t.m01 = -this.globalTransformMatrix.b;
-        let c = t.m04 = -this.globalTransformMatrix.c;
-        let d = t.m05 = this.globalTransformMatrix.d;
-        let tx = t.m12 = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
-        let ty = t.m13 = -(this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY));
+        t.m00 = this.globalTransformMatrix.a;
+        t.m01 = -this.globalTransformMatrix.b;
+        t.m04 = -this.globalTransformMatrix.c;
+        t.m05 = this.globalTransformMatrix.d;
+        t.m12 = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
+        t.m13 = -(this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY));
+
+        let node = this._rawDisplay;
+        math.mat4.copy(node._matrix, t);
+        node._localMatDirty = false;
+        node._worldMatDirty = true;
+
+        this._updateVertices();
+    },
+
+    _updateVertices () {
+        let t = this._matrix;
+        let a = t.m00, b = t.m01, c = t.m04, d = t.m05, tx = t.m12, ty = t.m13;
+
 
         let vertices = this._vertices;
         let localVertices = this._localVertices;

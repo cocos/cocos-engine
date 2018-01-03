@@ -59,7 +59,7 @@ let assembler = {
     },
 
     fillVertexBuffer (comp, index, vbuf, uintbuf) {
-        if (!comp._armature) return;
+        if (!comp._armature || comp._armature._isChildArmature) return;
         let node = comp.node;
         
         _vbuf = vbuf;
@@ -114,7 +114,7 @@ let assembler = {
     },
 
     fillIndexBuffer (comp, offset, vertexId, ibuf) {
-        if (!comp._armature) return;
+        if (!comp._armature || comp._armature._isChildArmature) return;
 
         _ibuf = ibuf;
         _vertexId = vertexId;
