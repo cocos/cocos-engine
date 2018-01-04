@@ -49,11 +49,12 @@ let armatureAssembler = js.addon({
     },
 
     updateRenderData (comp) {
+        this.datas.length = 0;
+        
         let armature = comp._armature;
         if (!armature || armature._isChildArmature) {
-            this.datas.length = 0;
             return this.datas;
-        };
+        }
         
         let renderData = comp._renderData;
         if (!renderData) {
@@ -70,7 +71,6 @@ let armatureAssembler = js.addon({
 
         this.calcBufferCount(renderData, armature);
         
-        this.datas.length = 0;
         this.datas.push(renderData);
 
         return this.datas;
@@ -84,6 +84,7 @@ let armatureAssembler = js.addon({
 
             if (slot.childArmature) {
                 this.calcBufferCount(renderData, slot.childArmature);
+                continue;
             }
             renderData.vertexCount += slot._vertices.length;
             renderData.indiceCount += slot._indices.length;

@@ -28,8 +28,6 @@ const math = renderEngine.math;
 const BinaryOffset = dragonBones.BinaryOffset;
 const BoneType  = dragonBones.BoneType;
 
-let _matrix = math.mat4.create();
-
 dragonBones.CCSlot = cc.Class({
     name: 'dragonBones.CCSlot',
     extends: dragonBones.Slot,
@@ -39,7 +37,14 @@ dragonBones.CCSlot = cc.Class({
         this._localVertices = [];
         this._indices = [];
         this._matrix = math.mat4.create();
-        this._worldMatrix = math.mat4.create();
+        this._visible = false;
+    },
+
+    reset () {
+        this._vertices.length = 0;
+        this._localVertices.length = 0;
+        this._indices.length = 0;
+        math.mat4.identity(this._matrix);
         this._visible = false;
     },
 

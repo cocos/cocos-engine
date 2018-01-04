@@ -302,7 +302,18 @@ let ArmatureDisplay = cc.Class({
         this._activateMaterial();
     },
 
-    _onDestroy () {
+    onEnable () {
+        this._super();
+        dragonBones.CCFactory.getFactory()._dragoneBones.clock.add(this._armature);
+    },
+
+    onDisable () {
+        this._super();
+        dragonBones.CCFactory.getFactory()._dragoneBones.clock.remove(this._armature);
+    },
+
+    onDestroy () {
+        this._super();
         this._armature.dispose();
     },
 

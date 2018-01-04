@@ -111,8 +111,9 @@ dragonBones.CCFactory = cc.Class({
         armature._skinData = dataPackage.skin;
         armature._animation = BaseObject.borrowObject(dragonBones.Animation);
         armature._animation._armature = armature;
+        armature._animation.animations = dataPackage.armature.animations;
 
-        armature.animation.animations = dataPackage.armature.animations;
+        armature._isChildArmature = false;
 
         // fixed dragonbones sort issue
         // armature._sortSlots = this._sortSlots;
@@ -120,8 +121,6 @@ dragonBones.CCFactory = cc.Class({
         armature.init(dataPackage.armature,
             this._display, this._display, this._dragoneBones
         );
-
-        this._dragoneBones.clock.add(armature);
         
         return armature;
     },
@@ -131,6 +130,7 @@ dragonBones.CCFactory = cc.Class({
         let displayList = [];
 
         slot.name = slotData.name;
+        slot.reset();
 
         // let display = new cc.Node();
         // display.name = slot.name;
