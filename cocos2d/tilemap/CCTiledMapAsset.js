@@ -40,7 +40,10 @@ var TiledMapAsset = cc.Class({
         /**
          * @property {Texture2D[]} textures
          */
-        textures: [cc.Texture2D],
+        textures: {
+            default: [],
+            type: [cc.Texture2D]
+        },
 
         /**
          * @property {String[]} textureNames

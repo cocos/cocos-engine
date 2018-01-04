@@ -296,18 +296,30 @@ var TextUtils = {
                     sText = text.substr(0, fuzzyLen);
                 }
             }
-            sText = sText.trim();
-            if (sText.length > 0) {
+
+            // The first line And do not wrap should not remove the space
+            if (wrappedWords.length === 0 && (sLine === '' && tmpText === '')) {
                 wrappedWords.push(sText);
+            }
+            else {
+                sText = sText.trim();
+                if (sText.length > 0) {
+                    wrappedWords.push(sText);
+                }
             }
             text = sLine || tmpText;
             allWidth = measureText(text);
         }
-        text = text.trim();
-        if (text.length > 0) {
+
+        if (wrappedWords.length === 0) {
             wrappedWords.push(text);
         }
-
+        else {
+            text = text.trim();
+            if (text.length > 0) {
+                wrappedWords.push(text);
+            }
+        }
         return wrappedWords;
     },
 
