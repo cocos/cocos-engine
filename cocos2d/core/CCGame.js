@@ -788,6 +788,11 @@ var game = {
             win.onfocus = function(){ onShow() };
         }
 
+        if (CC_WECHATGAME) {
+            wx.onShow = onShow;
+            wx.onHide = onHidden;
+        }
+
         if ("onpageshow" in window && "onpagehide" in window) {
             win.addEventListener("pagehide", onHidden, false);
             win.addEventListener("pageshow", onShow, false);
