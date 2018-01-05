@@ -55,23 +55,52 @@ let tmxAssembler = js.addon({
         let size = comp.node._contentSize;
         let anchor = comp.node._anchorPoint;
         renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
-        // TODO update render data here
         renderData.effect = comp.getEffect();
+        
+        this.updateVertices(comp);
+
         this.datas.length = 0;
         this.datas.push(renderData);
         return this.datas;
     },
 
-    fillVertexBuffer (comp, index, vbuf, uintbuf) {
-        let off = index * comp._vertexFormat._bytes / 4;
+    fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let comp = batchData.comp;
+        let renderData = comp._renderData;
+        let data = renderData._data;
+        
+        let vertexOffset = batchData.vertexOffset * comp._vertexFormat._bytes / 4;
+        let indiceOffset = batchData.indiceOffset;
+        
+        let z = comp.node._position.z;
+        for (let i = 0, l = renderData.vertexCount; i < l; i++) {
+            let vert = data[i];
+            vbuf[vertexOffset++] = vert.x;
+            vbuf[vertexOffset++] = vert.y;
+            vbuf[vertexOffset++] = z;
+            uintbuf[vertexOffset++] = vert.color;
+            vbuf[vertexOffset++] = vert.u;
+            vbuf[vertexOffset++] = vert.v;
+        }
+
+        for (let i = 0, l = renderData.indiceCount; i < l; i+=6) {
+            ibuf[indiceOffset++] = vertexId;
+            ibuf[indiceOffset++] = vertexId+1;
+            ibuf[indiceOffset++] = vertexId+2;
+            ibuf[indiceOffset++] = vertexId+1;
+            ibuf[indiceOffset++] = vertexId+3;
+            ibuf[indiceOffset++] = vertexId+2;
+            vertexId += 4;
+        }
+    },
+
+    updateVertices (comp) {
         let node = comp.node;
         let renderData = comp._renderData;
         let data = renderData._data;
-        let z = node._position.z;
         let color = node._color._val;
 
-        renderData.vertexCount = 0;
-        renderData.indiceCount = 0;
+        renderData.dataLength = renderData.vertexCount = renderData.indiceCount = 0;
 
         let layerOrientation = comp._layerOrientation,
         tiles = comp._tiles;
@@ -116,6 +145,7 @@ let tmxAssembler = js.addon({
         let enabledCulling = cc.macro.ENABLE_TILEDMAP_CULLING;
         
         if (enabledCulling) {
+            // TODO: support camera
             // if (this._cameraFlag > 0) {
             //     let tmpt = cc.affineTransformConcat(wt, cc.Camera.main.viewMatrix);
             //     cullingA = tmpt.a;
@@ -172,6 +202,7 @@ let tmxAssembler = js.addon({
             diffY1 = (axis === StaggerAxis.STAGGERAXIS_Y) ? ((mapth - hexSideLength)/2) : 0;
         }
 
+        let dataOffset = 0;
         let a2, b2, c2, d2, tx2, ty2, color2;
         for (let row = startRow; row < maxRow; ++row) {
             for (let col = startCol; col < maxCol; ++col) {
@@ -260,44 +291,41 @@ let tmxAssembler = js.addon({
                     flippedY = (gid & TileFlag.VERTICAL) >>> 0;
                 }
 
-                // tl
-                vbuf[off + 0] = left * a + top * c + tx;
-                vbuf[off + 1] = left * b + top * d + ty;
-                vbuf[off + 2] = z;
-                vbuf[off + 4] = flippedX ? grid.r : grid.l;
-                vbuf[off + 5] = flippedY ? grid.b : grid.t;
-                uintbuf[off + 3] = color;
-                off += 6;
-
-                // bl
-                vbuf[off + 0] = left * a + bottom * c + tx;
-                vbuf[off + 1] = left * b + bottom * d + ty;
-                vbuf[off + 2] = z;
-                vbuf[off + 4] = flippedX ? grid.r : grid.l;
-                vbuf[off + 5] = flippedY ? grid.t : grid.b;
-                uintbuf[off + 3] = color;
-                off += 6;
-
-                // tr
-                vbuf[off + 0] = right * a + top * c + tx;
-                vbuf[off + 1] = right * b + top * d + ty;
-                vbuf[off + 2] = z;
-                vbuf[off + 4] = flippedX ? grid.l : grid.r;
-                vbuf[off + 5] = flippedY ? grid.b : grid.t;
-                uintbuf[off + 3] = color;
-                off += 6;
-
-                // br
-                vbuf[off + 0] = right * a + bottom * c + tx;
-                vbuf[off + 1] = right * b + bottom * d + ty;
-                vbuf[off + 2] = z;
-                vbuf[off + 4] = flippedX ? grid.l : grid.r;
-                vbuf[off + 5] = flippedY ? grid.t : grid.b;
-                uintbuf[off + 3] = color;
-                off += 6;
-
                 renderData.vertexCount += 4;
                 renderData.indiceCount += 6;
+                renderData.dataLength = renderData.vertexCount;
+
+                // tl
+                data[dataOffset].x = left * a + top * c + tx;
+                data[dataOffset].y = left * b + top * d + ty;
+                data[dataOffset].u = flippedX ? grid.r : grid.l;
+                data[dataOffset].v = flippedY ? grid.b : grid.t;
+                data[dataOffset].color = color;
+                dataOffset++;
+
+                // bl
+                data[dataOffset].x = left * a + bottom * c + tx;
+                data[dataOffset].y = left * b + bottom * d + ty;
+                data[dataOffset].u = flippedX ? grid.r : grid.l;
+                data[dataOffset].v = flippedY ? grid.t : grid.b;
+                data[dataOffset].color = color;
+                dataOffset++;
+
+                // tr
+                data[dataOffset].x = right * a + top * c + tx;
+                data[dataOffset].y = right * b + top * d + ty;
+                data[dataOffset].u = flippedX ? grid.l : grid.r;
+                data[dataOffset].v = flippedY ? grid.b : grid.t;
+                data[dataOffset].color = color;
+                dataOffset++;
+
+                // br
+                data[dataOffset].x = right * a + bottom * c + tx;
+                data[dataOffset].y = right * b + bottom * d + ty;
+                data[dataOffset].u = flippedX ? grid.l : grid.r;
+                data[dataOffset].v = flippedY ? grid.t : grid.b;
+                data[dataOffset].color = color;
+                dataOffset++;
 
                 if (tiledTile) {
                     color = color2;
@@ -305,20 +333,6 @@ let tmxAssembler = js.addon({
                 }
             }
             colOffset += cols;
-        }
-    },
-
-    fillIndexBuffer (comp, offset, vertexId, ibuf) {
-        let renderData = comp._renderData;
-        let length = renderData.indiceCount;
-        for (let i = 0; i < length; i+=6) {
-            ibuf[offset++] = vertexId;
-            ibuf[offset++] = vertexId+1;
-            ibuf[offset++] = vertexId+2;
-            ibuf[offset++] = vertexId+1;
-            ibuf[offset++] = vertexId+3;
-            ibuf[offset++] = vertexId+2;
-            vertexId += 4;
         }
     },
 }, assembler);
