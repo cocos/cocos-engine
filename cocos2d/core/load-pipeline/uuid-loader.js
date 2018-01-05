@@ -185,7 +185,7 @@ function canDeferredLoad (asset, item, isScene) {
     var res = item.deferredLoadRaw;
     if (res) {
         // check if asset support deferred
-        if (asset instanceof cc.Asset && asset.constructor.preventDeferredLoadDependents) {
+        if (cc.Class.isInstanceOf(asset, cc.Asset) && asset.constructor.preventDeferredLoadDependents) {
             res = false;
         }
     }

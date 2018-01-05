@@ -57,7 +57,7 @@ function visitComponent (comp, excludeMap) {
             if (Array.isArray(value)) {
                 for (let j = 0; j < value.length; j++) {
                     let val = value[j];
-                    if (val instanceof cc.RawAsset) {
+                    if (cc.Class.isInstanceOf(val, cc.RawAsset)) {
                         visitAsset(val, excludeMap);
                     }
                 }
@@ -66,12 +66,12 @@ function visitComponent (comp, excludeMap) {
                 let keys = Object.getOwnPropertyNames(value);
                 for (let j = 0; j < keys.length; j++) {
                     let val = value[keys[j]];
-                    if (val instanceof cc.RawAsset) {
+                    if (cc.Class.isInstanceOf(val, cc.RawAsset)) {
                         visitAsset(val, excludeMap);
                     }
                 }
             }
-            else if (value instanceof cc.RawAsset) {
+            else if (cc.Class.isInstanceOf(value, cc.RawAsset)) {
                 visitAsset(value, excludeMap);
             }
         }
