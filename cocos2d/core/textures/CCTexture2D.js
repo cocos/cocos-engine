@@ -507,10 +507,12 @@ var Texture2D = cc.Class({
      * @param {Texture2D.WrapMode} wrapT
      */
     setWrapMode (wrapS, wrapT) {
-        var opts = _getSharedOptions();
-        opts.wrapS = wrapS;
-        opts.wrapT = wrapT;
-        this.update(opts);
+        if (this._wrapS !== wrapS || this._wrapT !== wrapT) {
+            var opts = _getSharedOptions();
+            opts.wrapS = wrapS;
+            opts.wrapT = wrapT;
+            this.update(opts);
+        }
     },
 
     /**
@@ -521,10 +523,12 @@ var Texture2D = cc.Class({
      * @param {Texture2D.Filter} magFilter
      */
     setFilters (minFilter, magFilter) {
-        var opts = _getSharedOptions();
-        opts.minFilter = minFilter;
-        opts.magFilter = magFilter;
-        this.update(opts);
+        if (this._minFilter !== minFilter || this._magFilter !== magFilter) {
+            var opts = _getSharedOptions();
+            opts.minFilter = minFilter;
+            opts.magFilter = magFilter;
+            this.update(opts);
+        }
     },
 
     /**
@@ -534,9 +538,11 @@ var Texture2D = cc.Class({
      * @param {Boolean} premultiply
      */
     setPremultiplyAlpha (premultiply) {
-        var opts = _getSharedOptions();
-        opts.premultiplyAlpha = premultiply;
-        this.update(opts);
+        if (this._premultiplyAlpha !== premultiply) {
+            var opts = _getSharedOptions();
+            opts.premultiplyAlpha = premultiply;
+            this.update(opts);
+        }
     },
     
     /**
@@ -546,9 +552,11 @@ var Texture2D = cc.Class({
      * @param {Boolean} mipmap
      */
     setMipmap (mipmap) {
-        var opts = _getSharedOptions();
-        opts.hasMipmap = mipmap;
-        this.update(opts);
+        if (this._hasMipmap !== mipmap) {
+            var opts = _getSharedOptions();
+            opts.hasMipmap = mipmap;
+            this.update(opts);
+        }
     }
 });
 
