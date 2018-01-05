@@ -1,11 +1,11 @@
 
 /*
  * engine-next.js v0.3.1
- * (c) 2017 @pandamicro
+ * (c) 2018 @pandamicro
  * Released under the MIT License.
  */
 
-module.exports = (function () {
+ module.exports = (function () {
   'use strict';
   
   const _d2r = Math.PI / 180.0;
@@ -13996,6 +13996,7 @@ module.exports = (function () {
   class RenderData {
     constructor () {
       this._data = [];
+      this._indices = [];
   
       this.effect = null;
   
@@ -14052,6 +14053,7 @@ module.exports = (function () {
           _dataPool.free(data._data[i]);
         }
         data._data.length = 0;
+        data._indices.length = 0;
         data.effect = null;
         data.uvDirty = true;
         data.vertDirty = true;
