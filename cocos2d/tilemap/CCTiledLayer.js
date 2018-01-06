@@ -81,10 +81,6 @@ var TiledLayer = cc.Class({
 
         if (sgNode && sgNode instanceof _ccsg.TMXLayer) {
             this._sgNode = sgNode;
-            if (CC_JSB) {
-                // retain the new sgNode, it will be released in _removeSgNode
-                sgNode.retain();
-            }
 
             this._initSgNode();
         } else {

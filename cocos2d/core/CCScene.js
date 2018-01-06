@@ -52,9 +52,6 @@ cc.Scene = cc.Class({
 
     ctor: function () {
         var sgNode = this._sgNode = new _ccsg.Scene();
-        if (CC_JSB) {
-            sgNode.retain();
-        }
         sgNode.setAnchorPoint(0.0, 0.0);
         this._anchorPoint.x = 0.0;
         this._anchorPoint.y = 0.0;

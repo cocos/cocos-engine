@@ -144,8 +144,6 @@ var Canvas = cc.Class({
                 eventName: "window-resize",
                 callback: this.onResized.bind(this)
             });
-
-            this._thisOnResized.retain();
         }
         else {
             this._thisOnResized = this.onResized.bind(this);
@@ -218,7 +216,6 @@ var Canvas = cc.Class({
         }
         else {
             eventManager.removeListener(this._thisOnResized);
-            this._thisOnResized.release();
         }
 
         if (Canvas.instance === this) {

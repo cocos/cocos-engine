@@ -928,7 +928,6 @@ var Node = cc.Class({
          */
         var sgNode = this._sgNode = new _ccsg.Node();
         if (CC_JSB) {
-            sgNode.retain();
             sgNode._entity = this;
             sgNode.onEnter = function () {
                 _ccsg.Node.prototype.onEnter.call(this);
@@ -962,11 +961,6 @@ var Node = cc.Class({
 
         // Mouse event listener
         this._mouseListener = null;
-
-        // Retained actions for JSB
-        if (CC_JSB) {
-            this._retainedActions = [];
-        }
     },
 
     statics: {
@@ -1045,17 +1039,12 @@ var Node = cc.Class({
         }
 
         if (CC_JSB) {
-            if (!cc.macro.ENABLE_GC_FOR_NATIVE_OBJECTS) {
-                this._releaseAllActions();
-            }
             if (this._touchListener) {
-                this._touchListener.release();
                 this._touchListener.owner = null;
                 this._touchListener.mask = null;
                 this._touchListener = null;
             }
             if (this._mouseListener) {
-                this._mouseListener.release();
                 this._mouseListener.owner = null;
                 this._mouseListener.mask = null;
                 this._mouseListener = null;
@@ -1216,9 +1205,6 @@ var Node = cc.Class({
                     onTouchMoved: _touchMoveHandler,
                     onTouchEnded: _touchEndHandler
                 });
-                if (CC_JSB) {
-                    this._touchListener.retain();
-                }
                 eventManager.addListener(this._touchListener, this);
                 newAdded = true;
             }
@@ -1235,9 +1221,6 @@ var Node = cc.Class({
                     onMouseUp: _mouseUpHandler,
                     onMouseScroll: _mouseWheelHandler,
                 });
-                if (CC_JSB) {
-                    this._mouseListener.retain();
-                }
                 eventManager.addListener(this._mouseListener, this);
                 newAdded = true;
             }
@@ -1472,10 +1455,7 @@ var Node = cc.Class({
         if (!this.active)
             return;
         cc.assertID(action, 1618);
-
-        if (!cc.macro.ENABLE_GC_FOR_NATIVE_OBJECTS) {
-            this._retainAction(action);
-        }
+        
         if (CC_JSB) {
             this._sgNode._owner = this;
         }
@@ -1587,22 +1567,6 @@ var Node = cc.Class({
         return cc.director.getActionManager().getNumberOfRunningActionsInTarget(this);
     } : function () {
         return 0;
-    },
-
-    _retainAction (action) {
-        if (CC_JSB && action instanceof cc.Action && this._retainedActions.indexOf(action) === -1) {
-            this._retainedActions.push(action);
-            action.retain();
-        }
-    },
-
-    _releaseAllActions () {
-        if (CC_JSB) {
-            for (var i = 0; i < this._retainedActions.length; ++i) {
-                this._retainedActions[i].release();
-            }
-            this._retainedActions.length = 0;
-        }
     },
 
     setTag (value) {
@@ -2568,16 +2532,12 @@ if (CC_JSB) {
             this.__sgNode = value;
             if (this._touchListener || this._mouseListener) {
                 if (this._touchListener) {
-                    this._touchListener.retain();
                     eventManager.removeListener(this._touchListener);
                     eventManager.addListener(this._touchListener, this);
-                    this._touchListener.release();
                 }
                 if (this._mouseListener) {
-                    this._mouseListener.retain();
                     eventManager.removeListener(this._mouseListener);
                     eventManager.addListener(this._mouseListener, this);
-                    this._mouseListener.release();
                 }
                 cc.director.once(cc.Director.EVENT_BEFORE_UPDATE, updateListeners, this);
             }
