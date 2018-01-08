@@ -185,8 +185,8 @@ var VideoPlayer = cc.Class({
 
         _volume: 1,
         /**
-         * !#en The volume of the video player.
-         * !#zh 视频的音量（0.0 ~ 1.0）。
+         * !#en The volume of the video.
+         * !#zh 视频的音量（0.0 ~ 1.0）
          * @property volume
          * @type {Number}
          * @default 1
@@ -201,14 +201,15 @@ var VideoPlayer = cc.Class({
                     this._syncVolume();
                 }
             },
+            range: [0, 1],
             type: cc.Float,
             tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.volume'
         },
 
         _mute: false,
         /**
-         * !#en Is the video player mute?
-         * !#zh 是否静音视频。Mute 是设置音量为 0，取消静音是恢复原来的音量。
+         * !#en Mutes the VideoPlayer. Mute sets the volume=0, Un-Mute restore the original volume.
+         * !#zh 是否静音视频。静音时设置音量为 0，取消静音是恢复原来的音量。
          * @property mute
          * @type {Boolean}
          * @default false
