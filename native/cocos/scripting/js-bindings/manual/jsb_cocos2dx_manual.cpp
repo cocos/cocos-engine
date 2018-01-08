@@ -821,6 +821,7 @@ SE_BIND_FUNC(js_EventListenerCustom_create)
 
 static void onBeforeDispatchTouchEvent(Event* event)
 {
+    se::AutoHandleScope hs;
     if (event->getType() == Event::Type::TOUCH)
     {
         EventTouch* touchEvent = static_cast<EventTouch*>(event);
@@ -841,6 +842,7 @@ static void onBeforeDispatchTouchEvent(Event* event)
 
 static void onAfterDispatchTouchEvent(Event* event)
 {
+    se::AutoHandleScope hs;
     if (event->getType() == Event::Type::TOUCH)
     {
         EventTouch* touchEvent = static_cast<EventTouch*>(event);
@@ -860,6 +862,7 @@ static void onAfterDispatchTouchEvent(Event* event)
 
 static void onTextureCreate(TextureCache* cache, Texture2D* texture)
 {
+    se::AutoHandleScope hs;
     auto iterOwner = se::NativePtrToObjectMap::find(cache);
     if (iterOwner == se::NativePtrToObjectMap::end())
     {
@@ -882,6 +885,7 @@ static void onTextureCreate(TextureCache* cache, Texture2D* texture)
 
 static void onTextureDestroy(TextureCache* cache, Texture2D* texture)
 {
+    se::AutoHandleScope hs;
     auto iterOwner = se::NativePtrToObjectMap::find(cache);
     if (iterOwner == se::NativePtrToObjectMap::end())
     {
