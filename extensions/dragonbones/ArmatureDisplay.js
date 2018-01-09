@@ -345,9 +345,17 @@ let ArmatureDisplay = cc.Class({
             material = new SpriteMaterial();
             renderer.materialUtil.register(url, material);
         }
-        let texture = cc.loader.getRes(url);
+
         // TODO: old texture in material have been released by loader
-        material.texture = texture ? texture.getImpl() : undefined;
+        let texture = cc.loader.getRes(url, cc.Texture2D);
+        if (!texture) {
+            cc.loader.load(url, (err, texture) => {
+                material.texture = texture ? texture.getImpl() : undefined;
+            });
+        }
+        else {
+            material.texture = texture.getImpl();
+        }
 
         this._material = material;
     },
