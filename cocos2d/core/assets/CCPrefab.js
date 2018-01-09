@@ -160,7 +160,7 @@ var Prefab = cc.Class({
 
     _instantiate: function () {
         var node, useJit = false;
-        if (cc.supportJit) {
+        if (CC_SUPPORT_JIT) {
             if (this.optimizationPolicy === OptimizationPolicy.SINGLE_INSTANCE) {
                 useJit = false;
             }

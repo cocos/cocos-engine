@@ -489,9 +489,6 @@ sys.BROWSER_TYPE_SOUGOU = "sogou";
  */
 sys.BROWSER_TYPE_UNKNOWN = "unknown";
 
-function isWeChatGame () {
-    return window['wx'];
-}
 
 /**
  * Is native ? This is set to be true in jsb auto.
@@ -503,7 +500,7 @@ sys.isNative = false;
  * Is web browser ?
  * @property {Boolean} isBrowser
  */
-sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !isWeChatGame();
+sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME;
 
 cc.create3DContext = function (canvas, opt_attribs, opt_contextType) {
     if (opt_contextType) {
@@ -539,7 +536,7 @@ if (CC_EDITOR && Editor.isMainProcess) {
     };
     sys.__audioSupport = {};
 }
-else if (isWeChatGame()) {
+else if (CC_WECHATGAME) {
     var env = wx.getSystemInfoSync();
     sys.isMobile = true;
     sys.platform = sys.WECHAT_GAME;
@@ -667,7 +664,7 @@ else {
         var browserTypes = typeReg1.exec(ua);
         if(!browserTypes) browserTypes = typeReg2.exec(ua);
         var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
-        if (isWeChatGame())
+        if (CC_WECHATGAME)
             browserType = sys.BROWSER_TYPE_WECHAT_GAME;
         else if (browserType === 'micromessenger')
             browserType = sys.BROWSER_TYPE_WECHAT;

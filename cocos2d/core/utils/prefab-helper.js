@@ -94,7 +94,7 @@ module.exports = {
 
         // instantiate prefab
         cc.game._isCloning = true;
-        if (cc.supportJit) {
+        if (CC_SUPPORT_JIT) {
             _prefab.asset._doInstantiate(node);
         }
         else {

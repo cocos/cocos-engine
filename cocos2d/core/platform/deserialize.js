@@ -431,7 +431,7 @@ var _Deserializer = (function () {
         }
     };
 
-    var compileObjectType = cc.supportJit ? function (sources, defaultValue, accessorToSet, propNameLiteralToSet, assumeHavePropIfIsValue, stillUseUrl) {
+    var compileObjectType = CC_SUPPORT_JIT ? function (sources, defaultValue, accessorToSet, propNameLiteralToSet, assumeHavePropIfIsValue, stillUseUrl) {
         if (defaultValue instanceof cc.ValueType) {
             // fast case
             if (!assumeHavePropIfIsValue) {
@@ -484,7 +484,7 @@ var _Deserializer = (function () {
         }
     };
 
-    var compileDeserialize = cc.supportJit ? function (self, klass) {
+    var compileDeserialize = CC_SUPPORT_JIT ? function (self, klass) {
         var EDITOR_ONLY = Attr.DELIMETER + 'editorOnly';
         var SERIALIZABLE = Attr.DELIMETER + 'serializable';
         var DEFAULT = Attr.DELIMETER + 'default';
