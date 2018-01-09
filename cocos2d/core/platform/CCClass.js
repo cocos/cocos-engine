@@ -832,7 +832,7 @@ function declareProperties (cls, className, properties, baseClass, mixins, es6) 
  * @param {String} [options.name] - The class name used for serialization.
  * @param {Function} [options.extends] - The base class.
  * @param {Function} [options.ctor] - The constructor.
- * @param {Function} [options.&#95;&#95;ctor&#95;&#95;] - The same as ctor, but less encapsulated.
+ * @param {Function} [options.__ctor__] - The same as ctor, but less encapsulated.
  * @param {Object} [options.properties] - The property definitions.
  * @param {Object} [options.statics] - The static members.
  * @param {Function[]} [options.mixins]
