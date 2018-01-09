@@ -1089,3 +1089,57 @@ cc.GLProgram.prototype.setUniformLocationWithMatrix4fv = function(){
     tempArray.push(4);
     this.setUniformLocationWithMatrixfvUnion.apply(this, tempArray);
 };
+
+// Hack for the lifecycle of JS objects
+cc.Director.prototype._jsb_getScheduler = cc.Director.prototype.getScheduler;
+cc.Director.prototype.getScheduler = function() {
+    var scheduler = this._jsb_getScheduler();
+    if (this._jsb_scheduler != scheduler)
+    {
+        this._jsb_scheduler = scheduler;
+    }
+    return scheduler;
+}
+
+cc.Director.prototype._jsb_getActionManager = cc.Director.prototype.getActionManager;
+cc.Director.prototype.getActionManager = function() {
+    var actionManager = this._jsb_getActionManager();
+    if (this._jsb_actionManager != actionManager)
+    {
+        this._jsb_actionManager = actionManager;
+    }
+    return actionManager;
+}
+
+cc.Director.prototype._jsb_getEventDispatcher = cc.Director.prototype.getEventDispatcher;
+cc.Director.prototype.getEventDispatcher = function() {
+    var eventDispatcher = this._jsb_getEventDispatcher();
+    if (this._jsb_eventDispatcher != eventDispatcher)
+    {
+        this._jsb_eventDispatcher = eventDispatcher;
+    }
+    return eventDispatcher;
+}
+
+cc.SpriteFrame.prototype._jsb_getTexture = cc.SpriteFrame.prototype.getTexture;
+cc.SpriteFrame.prototype.getTexture = function() {
+    var texture = this._jsb_getTexture();
+    if (this._jsb_texture != texture)
+    {
+        this._jsb_texture = texture;
+    }
+    return texture;
+}
+
+cc.Sprite.prototype._jsb_getTexture = cc.Sprite.prototype.getTexture;
+cc.Sprite.prototype.getTexture = function() {
+    var texture = this._jsb_getTexture();
+    if (this._jsb_texture != texture)
+    {
+        this._jsb_texture = texture;
+    }
+    return texture;
+}
+
+//
+
