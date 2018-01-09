@@ -28,6 +28,7 @@ const renderer = require('../renderer');
 const renderEngine = require('../renderer/render-engine');
 const gfx = renderEngine.gfx;
 const SpriteMaterial = renderEngine.SpriteMaterial;
+const GraySpriteMaterial = renderEngine.GraySpriteMaterial;
 const RenderData = renderEngine.RenderData;
 
 /**
@@ -134,13 +135,7 @@ var State = cc.Enum({
      * !#zh 灰色状态，所有颜色会被转换成灰度值
      * @property {Number} GRAY
      */
-    GRAY: 1,
-    /**
-     * !#en The distortion state
-     * !#zh 畸变状态
-     * @property {Number} DISTORTION
-     */
-    DISTORTION: 2
+    GRAY: 1
 });
 
 /**
@@ -457,11 +452,13 @@ var Sprite = cc.Class({
     /**
      * Change the state of sprite.
      * @see `Sprite.State`
-     * @param state {Sprite.State} NORMAL, GRAY or DISTORTION State.
+     * @param state {Sprite.State} NORMAL or GRAY State.
      */
     setState: function (state) {
         this._state = state;
         // TODO: change the state
+        this._material = null;
+        this._activateMaterial();
     },
 
     /**
@@ -486,12 +483,21 @@ var Sprite = cc.Class({
 
         // Get material
         if (!this._material) {
-            var texture = this._spriteFrame.getTexture();
-            var url = texture.url;
-            this._material = renderer.materialUtil.get(url);
+            let texture = this._spriteFrame.getTexture();
+            let url = texture.url;
+            let key = url;
+            if (this._state === State.GRAY) {
+                key = url + ':gray';
+            }
+            this._material = renderer.materialUtil.get(key);
             if (!this._material) {
-                this._material = new SpriteMaterial();
-                renderer.materialUtil.register(url, this._material);
+                if (this._state === State.GRAY) {
+                    this._material = new GraySpriteMaterial();
+                }
+                else {
+                    this._material = new SpriteMaterial();
+                }
+                renderer.materialUtil.register(key, this._material);
             }
             // TODO: old texture in material have been released by loader
             this._material.texture = texture.getImpl();
