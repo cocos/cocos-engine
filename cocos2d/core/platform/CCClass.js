@@ -565,7 +565,7 @@ function compileProps (actualClass) {
     }
 
     // Overwite __initProps__ to avoid compile again.
-    var initProps = cc.supportJit ? getInitPropsJit(attrs, propList) : getInitProps(attrs, propList);
+    var initProps = CC_SUPPORT_JIT ? getInitPropsJit(attrs, propList) : getInitProps(attrs, propList);
     actualClass.prototype.__initProps__ = initProps;
 
     // call instantiateProps immediately, no need to pass actualClass into it anymore
@@ -573,7 +573,7 @@ function compileProps (actualClass) {
     initProps.call(this);
 }
 
-var _createCtor = cc.supportJit ? function (ctors, baseClass, className, options) {
+var _createCtor = CC_SUPPORT_JIT ? function (ctors, baseClass, className, options) {
     var superCallBounded = baseClass && boundSuperCalls(baseClass, options, className);
 
     var ctorName = CC_DEV ? normalizeClassName_DEV(className) : 'CCClass';
@@ -633,8 +633,8 @@ var _createCtor = cc.supportJit ? function (ctors, baseClass, className, options
                         cs[0].apply(this, arguments);
                     }
                     else {
-                        for (var i = 0; i < ctorLen; i++) {
-                            cs[i].apply(this, arguments);;
+                        for (let i = 0; i < ctorLen; i++) {
+                            cs[i].apply(this, arguments);
                         }
                     }
                 }
@@ -647,8 +647,8 @@ var _createCtor = cc.supportJit ? function (ctors, baseClass, className, options
                     cs[0].apply(this, arguments);
                 }
                 else {
-                    for (var i = 0; i < ctorLen; i++) {
-                        cs[i].apply(this, arguments);;
+                    for (let i = 0; i < ctorLen; i++) {
+                        cs[i].apply(this, arguments);
                     }
                 }
             }

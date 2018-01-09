@@ -95,7 +95,7 @@ var Prefab = cc.Class({
 
     _instantiate: function () {
         var node;
-        if (cc.supportJit) {
+        if (CC_SUPPORT_JIT) {
             // instantiate node
             node = this._doInstantiate();
             // initialize node

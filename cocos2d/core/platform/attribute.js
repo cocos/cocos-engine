@@ -30,7 +30,7 @@ const DELIMETER = '$_$';
 
 function createAttrsSingle (owner, ownerCtor, superAttrs) {
     var AttrsCtor;
-    if (CC_DEV && cc.supportJit) {
+    if (CC_DEV && CC_SUPPORT_JIT) {
         var ctorName = ownerCtor.name;
         if (owner === ownerCtor) {
             ctorName += '_ATTRS';

@@ -63,7 +63,7 @@ exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFi
         }
 
         // remove `...args` used in CC_JSB
-        engine = engine.pipe(Minify(Utils.getUglifyOptions('test', false, false)));
+        engine = engine.pipe(Minify(Utils.getUglifyOptions('test')));
 
         if (sourcemaps) {
             engine = engine.pipe(Sourcemaps.write('./', {
