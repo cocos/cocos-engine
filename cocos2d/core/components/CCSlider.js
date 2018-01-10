@@ -191,14 +191,13 @@ var Slider = cc.Class({
 
     _updateProgress: function (touch) {
         if (!this.handle) { return; }
-        var maxRange = null, progress = 0, newPos = this.node.convertTouchToNodeSpaceAR(touch);
+        var progress = 0, newPos = this.node.convertTouchToNodeSpaceAR(touch);
+        this._setMaxRange();
         if (this.direction === Direction.Horizontal) {
-            maxRange = this.node.width / 2 - this.handle.node.width * this.handle.node.anchorX;
-            progress = cc.clamp01((newPos.x + maxRange) / (maxRange * 2), 0, 1);
+            progress = cc.clamp01((newPos.x + this._maxRange) / (this._maxRange * 2));
         }
         else if (this.direction === Direction.Vertical) {
-            maxRange = this.node.height / 2 - this.handle.node.height * this.handle.node.anchorY;
-            progress = cc.clamp01((newPos.y + maxRange) / (maxRange * 2), 0, 1);
+            progress = cc.clamp01((newPos.y + this._maxRange) / (this._maxRange * 2));
         }
         this.progress = progress;
     },
@@ -207,14 +206,23 @@ var Slider = cc.Class({
         if (!this.handle) { return; }
         var handlelocalPos;
         if (this.direction === Direction.Horizontal) {
-            handlelocalPos = cc.p(-this.node.width * this.node.anchorX + this.progress * this.node.width, 0);
+            handlelocalPos = cc.p((this.progress - this.node.anchorX) * this._maxRange * 2, 0);
         }
         else {
-            handlelocalPos = cc.p(0, -this.node.height * this.node.anchorY + this.progress * this.node.height);
+            handlelocalPos = cc.p(0, (this.progress - this.node.anchorY) * this._maxRange * 2);
         }
         var worldSpacePos = this.node.convertToWorldSpaceAR(handlelocalPos);
         this.handle.node.position = this.handle.node.parent.convertToNodeSpaceAR(worldSpacePos);
-    }
+    },
+    
+    _setMaxRange: function() {
+        if (this.direction === Direction.Horizontal) {
+            this._maxRange = this.node.width / 2 - this.handle.node.width * this.handle.node.anchorX;
+        }
+        else if (this.direction === Direction.Vertical) {
+            this._maxRange = this.node.height / 2 - this.handle.node.height * this.handle.node.anchorY;
+        }
+    },
 
 });
 
