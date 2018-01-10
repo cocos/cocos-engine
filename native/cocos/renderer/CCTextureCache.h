@@ -212,6 +212,9 @@ public:
     */
     void renameTextureWithKey(const std::string& srcName, const std::string& dstName);
 
+    using TextureLifeCycleHook = void (*)(TextureCache*, Texture2D*);
+    void setTextureCreateHook(TextureLifeCycleHook hook);
+    void setTextureDestroyHook(TextureLifeCycleHook hook);
 
 private:
     void addImageAsyncCallBack(float dt);
@@ -221,8 +224,6 @@ public:
 protected:
     struct AsyncStruct;
 
-    std::thread* _loadingThread;
-
     std::deque<AsyncStruct*> _asyncStructQueue;
     std::deque<AsyncStruct*> _requestQueue;
     std::deque<AsyncStruct*> _responseQueue;
@@ -231,12 +232,15 @@ protected:
     std::mutex _responseMutex;
 
     std::condition_variable _sleepCondition;
+    std::unordered_map<std::string, Texture2D*> _textures;
 
-    bool _needQuit;
+    std::thread* _loadingThread;
+
+    TextureLifeCycleHook _textureCreateHook;
+    TextureLifeCycleHook _textureDestroyHook;
 
     int _asyncRefCount;
-
-    std::unordered_map<std::string, Texture2D*> _textures;
+    bool _needQuit;
 };
 
 #if CC_ENABLE_CACHE_TEXTURE_DATA

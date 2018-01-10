@@ -185,6 +185,10 @@ public:
      */
     bool hasEventListener(const EventListener::ListenerID& listenerID) const;
 
+    using DispatchEventHook = void (*)(Event*);
+    void setBeforeDispatchEventHook(Event::Type type, const DispatchEventHook& hook);
+    void setAfterDispatchEventHook(Event::Type type, const DispatchEventHook& hook);
+
     /////////////////////////////////////////////
 
     /** Constructor of EventDispatcher.
@@ -328,15 +332,17 @@ protected:
     /** The nodes were associated with scene graph based priority listeners */
     std::set<Node*> _dirtyNodes;
 
+    std::set<std::string> _internalCustomListenerIDs;
+
+    static const int MAX_EVENT_TYPE = (int)Event::Type::CUSTOM + 1;
+    DispatchEventHook _beforeDispatchEventHooks[MAX_EVENT_TYPE];
+    DispatchEventHook _afterDispatchEventHooks[MAX_EVENT_TYPE];
+
     /** Whether the dispatcher is dispatching event */
     int _inDispatch;
-
+    int _nodePriorityIndex;
     /** Whether to enable dispatching event */
     bool _isEnabled;
-
-    int _nodePriorityIndex;
-
-    std::set<std::string> _internalCustomListenerIDs;
 };
 
 
