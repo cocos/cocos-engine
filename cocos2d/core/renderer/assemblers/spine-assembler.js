@@ -33,7 +33,20 @@ const gfx = renderEngine.gfx;
 const SpriteMaterial = renderEngine.SpriteMaterial;
 const RenderData = renderEngine.RenderData;
 
+const Node = require('../../CCNode');
+const Graphics = require('../../graphics/graphics');
+const graphicsAssembler = require('./graphics/graphics-assembler');
+
 let _sharedMaterials = {};
+
+let _slotColor = cc.color(0, 0, 255, 255);
+let _boneColor = cc.color(255, 0, 0, 255);
+let _originColor = cc.color(0, 255, 0, 255);
+let _graphicsNode = new Node();
+let _graphics = _graphicsNode.addComponent(Graphics);
+let _debugMaterial = new SpriteMaterial();
+_debugMaterial.useModel = true;
+_debugMaterial.useTexture = false;
 
 function _getSlotMaterial (slot, tex, premultiAlpha) {
     let src, dst;
@@ -81,20 +94,6 @@ var spineAssembler = js.addon({
     // Use model to avoid per vertex transform
     useModel: true,
 
-    _readRegionAttachmentData (comp, attachment, slot, premultipliedAlpha, data, dataOffset) {
-
-        // if (this._node._debugSlots) {
-        //     // return the quad points info if debug slot enabled
-        //     var VERTEX = spine.RegionAttachment;
-        //     return [
-        //         cc.p(vertices[VERTEX.X1], vertices[VERTEX.Y1]),
-        //         cc.p(vertices[VERTEX.X2], vertices[VERTEX.Y2]),
-        //         cc.p(vertices[VERTEX.X3], vertices[VERTEX.Y3]),
-        //         cc.p(vertices[VERTEX.X4], vertices[VERTEX.Y4])
-        //     ];
-        // }
-    },
-    
     _readAttachmentData (comp, attachment, slot, premultipliedAlpha, renderData, dataOffset) {
         // the vertices in format:
         // X1, Y1, C1R, C1G, C1B, C1A, U1, V1
@@ -124,6 +123,19 @@ var spineAssembler = js.addon({
             dataOffset++;
         }
 
+        if (comp.debugSlots && vertexCount === 4) {
+            // Debug Slot
+            let VERTEX = spine.RegionAttachment;
+            _graphics.strokeColor = _slotColor;
+            _graphics.lineWidth = 1;
+            _graphics.moveTo(vertices[VERTEX.X1], vertices[VERTEX.Y1]);
+            _graphics.lineTo(vertices[VERTEX.X2], vertices[VERTEX.Y2]);
+            _graphics.lineTo(vertices[VERTEX.X3], vertices[VERTEX.Y3]);
+            _graphics.lineTo(vertices[VERTEX.X4], vertices[VERTEX.Y4]);
+            _graphics.close();
+            _graphics.stroke();
+        }
+
         return vertexCount;
     },
 
@@ -131,9 +143,8 @@ var spineAssembler = js.addon({
         let locSkeleton = comp._skeleton;
         let premultiAlpha = comp.premultipliedAlpha;
 
-        let debugSlotsInfo = null;
-        if (comp.debugSlots) {
-            debugSlotsInfo = [];
+        if (comp.debugBones || comp.debugSlots) {
+            _graphics.clear();
         }
 
         let attachment, slot;
@@ -224,74 +235,41 @@ var spineAssembler = js.addon({
             indiceOffset += indiceCount;
             // Fill up vertex render data
             vertexOffset += this._readAttachmentData(comp, attachment, slot, premultiAlpha, data, vertexOffset);
-
-            // if (this._node._debugSlots) {
-            //     debugSlotsInfo[i] = slotDebugPoints;
-            // }
         }
 
         data.vertexCount = vertexOffset;
         data.indiceCount = indiceOffset;
         datas.length = dataId + 1;
 
-        // if (node._debugBones || node._debugSlots) {
-        //     // flush previous vertices
-        //     cc.renderer._batchRendering();
+        if (comp.debugBones) {
+            let bone;
+            _graphics.lineWidth = 2;
+            _graphics.strokeColor = _boneColor;
+            _graphics.fillColor = _slotColor; // Root bone color is same as slot color.
 
-        //     var wt = this._worldTransform, mat = this._matrix.mat;
-        //     mat[0] = wt.a;
-        //     mat[4] = wt.c;
-        //     mat[12] = wt.tx;
-        //     mat[1] = wt.b;
-        //     mat[5] = wt.d;
-        //     mat[13] = wt.ty;
+            for (let i = 0, n = locSkeleton.bones.length; i < n; i++) {
+                bone = locSkeleton.bones[i];
+                let x = bone.data.length * bone.a + bone.worldX;
+                let y = bone.data.length * bone.c + bone.worldY;
 
-        //     cc.math.glMatrixMode(cc.math.KM_GL_MODELVIEW);
-        //     //cc.math.glPushMatrixWitMat4(this._matrix);
-        //     cc.current_stack.stack.push(cc.current_stack.top);
-        //     cc.current_stack.top = this._matrix;
-        //     var drawingUtil = cc._drawingUtil;
-
-        //     if (node._debugSlots && debugSlotsInfo && debugSlotsInfo.length > 0) {
-        //         // Slots.
-        //         drawingUtil.setDrawColor(0, 0, 255, 255);
-        //         drawingUtil.setLineWidth(1);
-
-        //         for (i = 0, n = locSkeleton.slots.length; i < n; i++) {
-        //             var points = debugSlotsInfo[i];
-        //             if (points) {
-        //                 drawingUtil.drawPoly(points, 4, true);
-        //             }
-        //         }
-        //     }
-
-        //     if (node._debugBones) {
-        //         // Bone lengths.
-        //         var bone;
-        //         drawingUtil.setLineWidth(2);
-        //         drawingUtil.setDrawColor(255, 0, 0, 255);
-
-        //         for (i = 0, n = locSkeleton.bones.length; i < n; i++) {
-        //             bone = locSkeleton.bones[i];
-        //             var x = bone.data.length * bone.a + bone.worldX;
-        //             var y = bone.data.length * bone.c + bone.worldY;
-        //             drawingUtil.drawLine(cc.p(bone.worldX, bone.worldY), cc.p(x, y));
-        //         }
-
-        //         // Bone origins.
-        //         drawingUtil.setPointSize(4);
-        //         drawingUtil.setDrawColor(0, 0, 255, 255); // Root bone is blue.
-
-        //         for (i = 0, n = locSkeleton.bones.length; i < n; i++) {
-        //             bone = locSkeleton.bones[i];
-        //             drawingUtil.drawPoint(cc.p(bone.worldX, bone.worldY));
-        //             if (i == 0) {
-        //                 drawingUtil.setDrawColor(0, 255, 0, 255);
-        //             }
-        //         }
-        //     }
-        //     cc.math.glPopMatrix();
-        // }
+                // Bone lengths.
+                _graphics.moveTo(bone.worldX, bone.worldY);
+                _graphics.lineTo(x, y);
+                _graphics.stroke();
+                
+                // Bone origins.
+                _graphics.circle(bone.worldX, bone.worldY, 2);
+                _graphics.fill();
+                if (i == 0) {
+                    _graphics.fillColor = _originColor;
+                }
+            }
+        }
+        if (comp.debugBones || comp.debugSlots) {
+            let renderData = _graphics._renderData;
+            renderData.effect = _debugMaterial.effect;
+            datas.push(renderData);
+        }
     },
 
     updateRenderData (comp, batchData) {
