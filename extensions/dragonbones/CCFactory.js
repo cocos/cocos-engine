@@ -55,7 +55,9 @@ dragonBones.CCFactory = cc.Class({
             display = node.addComponent(dragonBones.ArmatureDisplay);
         }
 
-        node.name = display.armatureName = armatureName;
+        node.name = armatureName;
+        
+        display._armatureName = armatureName;
         display._N$dragonAsset = comp.dragonAsset;
         display._N$dragonAtlasAsset = comp.dragonAtlasAsset;
         display._init();
@@ -66,8 +68,13 @@ dragonBones.CCFactory = cc.Class({
     _buildChildArmature (dataPackage, slot, displayData) {
         let temp = this._display;
         
-        let node = new cc.Node();
-        let display = this.createArmatureNode(temp, displayData.path);
+        let name = 'CHILD_ARMATURE-' + displayData.path;
+        let node = this._display.node.getChildByName(name);
+        if (!node) {
+            node = new cc.Node();
+        }
+        let display = this.createArmatureNode(temp, displayData.path, node);
+        node.name = name;
 
         this._display = temp;
         return display._armature;

@@ -1,7 +1,7 @@
 
 /*
  * engine-next.js v0.3.1
- * (c) 2017 @pandamicro
+ * (c) 2018 @pandamicro
  * Released under the MIT License.
  */
 
@@ -13751,6 +13751,13 @@ module.exports = (function () {
   
   var templates = [
     {
+      name: 'gray_sprite',
+      vert: 'uniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying lowp vec4 v_fragmentColor;\nattribute vec2 a_uv0;\nvarying vec2 uv0;\nvoid main () {\n  vec4 pos = viewProj * vec4(a_position, 1);\n  v_fragmentColor = a_color;\n  uv0 = a_uv0;\n  gl_Position = pos;\n}',
+      frag: 'uniform sampler2D texture;\nvarying vec2 uv0;\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 c = v_fragmentColor * texture2D(texture, uv0);\n  float gray = 0.2126*c.r + 0.7152*c.g + 0.0722*c.b;\n  gl_FragColor = vec4(gray, gray, gray, c.a);\n}',
+      options: [
+      ],
+    },
+    {
       name: 'sprite',
       vert: 'uniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying lowp vec4 v_fragmentColor;\n#ifdef useModel\n  uniform mat4 model;\n#endif\n#ifdef useTexture\n  attribute vec2 a_uv0;\n  varying vec2 uv0;\n#endif\nvoid main () {\n  mat4 mvp;\n  #ifdef useModel\n    mvp = viewProj * model;\n  #else\n    mvp = viewProj;\n  #endif\n  vec4 pos = mvp * vec4(a_position, 1);\n  v_fragmentColor = a_color;\n  \n  #ifdef useTexture\n    uv0 = a_uv0;\n  #endif\n  gl_Position = pos;\n}',
       frag: '#ifdef useTexture\n  uniform sampler2D texture;\n  varying vec2 uv0;\n#endif\n#ifdef alphaTest\n  uniform float alphaThreshold;\n#endif\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 o = v_fragmentColor;\n  #ifdef useTexture\n    o *= texture2D(texture, uv0);\n  #endif\n  #ifdef alphaTest\n    if (o.a <= alphaThreshold)\n      discard;\n  #endif\n  gl_FragColor = o;\n}',
@@ -13996,6 +14003,7 @@ module.exports = (function () {
   class RenderData {
     constructor () {
       this._data = [];
+      this._indices = [];
   
       this.effect = null;
   
@@ -14052,6 +14060,7 @@ module.exports = (function () {
           _dataPool.free(data._data[i]);
         }
         data._data.length = 0;
+        data._indices.length = 0;
         data.effect = null;
         data.uvDirty = true;
         data.vertDirty = true;
@@ -14656,6 +14665,66 @@ module.exports = (function () {
     }
   }
   
+  class GraySpriteMaterial extends Material {
+    constructor() {
+      super(false);
+  
+      var pass = new renderer.Pass('gray_sprite');
+      pass.setDepth(false, false);
+      pass.setCullMode(gfx.CULL_NONE);
+      pass.setBlend(
+        gfx.BLEND_FUNC_ADD,
+        gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA,
+        gfx.BLEND_FUNC_ADD,
+        gfx.BLEND_SRC_ALPHA, gfx.BLEND_ONE_MINUS_SRC_ALPHA
+      );
+  
+      let mainTech = new renderer.Technique(
+        ['transparent'],
+        [
+          { name: 'texture', type: renderer.PARAM_TEXTURE_2D },
+        ],
+        [
+          pass
+        ]
+      );
+  
+      this._effect = new renderer.Effect(
+        [
+          mainTech,
+        ],
+        {},
+        []
+      );
+      
+      this._mainTech = mainTech;
+    }
+  
+    get effect () {
+      return this._effect;
+    }
+  
+    get texture () {
+      return this._effect.getValue('texture');
+    }
+  
+    set texture(val) {
+      this._effect.setValue('texture', val);
+    }
+  
+    clone () {
+      let originValues = this._effect._values,
+          values = {};
+      for (let name in originValues) {
+        let value = originValues[name];
+        values[name] = value[name];
+      }
+      let copy = new GraySpriteMaterial(values);
+      copy.texture = this.texture;
+      return copy;
+    }
+  }
+  
   class StencilMaterial extends Material {
     constructor() {
       super(false);
@@ -14905,6 +14974,7 @@ module.exports = (function () {
     
     // materials
     SpriteMaterial,
+    GraySpriteMaterial,
     StencilMaterial,
     ParticleMaterial,
   
@@ -14928,5 +14998,5 @@ module.exports = (function () {
   
   return renderEngine;
   
-  }());
+}());
   
