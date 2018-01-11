@@ -68,6 +68,10 @@ _ccsg.VideoPlayer = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
         this._renderCmd.stop();
     },
 
+    setVolume: function (volume) {
+        this._renderCmd.setVolume(volume);
+    },
+
     seekTo: function (time) {
         this._renderCmd.seekTo(time);
     },
@@ -306,12 +310,8 @@ _ccsg.VideoPlayer.EventType = {
     };
 
     proto.updateURL = function (path) {
-        if (cc.loader.md5Pipe) {
-            path = cc.loader.md5Pipe.transformURL(path);
-        }
         var source, video, extname;
         var node = this._node;
-
 
         if (this._url === path) {
             return;
@@ -499,6 +499,13 @@ _ccsg.VideoPlayer.EventType = {
             setTimeout(function () {
                 video.play();
             }, 20);
+        }
+    };
+
+    proto.setVolume = function (volume) {
+        var video = this._video;
+        if (video) {
+            video.volume = volume;
         }
     };
 
