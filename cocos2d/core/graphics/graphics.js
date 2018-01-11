@@ -72,7 +72,7 @@ Path.prototype.reset = function () {
  * @class Graphics
  * @extends Component
  */
-var Graphics = cc.Class({
+let Graphics = cc.Class({
     name: 'cc.Graphics',
     extends: RenderComponent,
 

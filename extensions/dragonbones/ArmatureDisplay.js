@@ -31,6 +31,9 @@ const SpriteMaterial = renderEngine.SpriteMaterial;
 
 let EventTarget = require('../../cocos2d/core/event/event-target');
 
+const Node = require('../../cocos2d/core/CCNode');
+const Graphics = require('../../cocos2d/core/graphics/graphics');
+
 /**
  * @module dragonBones
  */
@@ -242,9 +245,7 @@ let ArmatureDisplay = cc.Class({
         timeScale: {
             default: 1,
             notify () {
-                if (this._sgNode) {
-                    this._sgNode.animation().timeScale = this.timeScale;
-                }
+                this._armature.animation.timeScale = this.timeScale;
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.time_scale'
         },
@@ -275,11 +276,8 @@ let ArmatureDisplay = cc.Class({
         debugBones: {
             default: false,
             notify () {
-                if (this._sgNode) {
-                    this._sgNode.setDebugBones(this.debugBones);
-                }
+                this._initDebugDraw();
             },
-            editorOnly: true,
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.debug_bones'
         },
     },
@@ -317,6 +315,25 @@ let ArmatureDisplay = cc.Class({
         this._armature.dispose();
     },
 
+    _initDebugDraw () {
+        if (this.debugBones) {
+            if (!this._debugDraw) {
+                let debugDrawNode = new Node();
+                debugDrawNode.name = 'DEBUG_DRAW_NODE';
+                let debugDraw = debugDrawNode.addComponent(Graphics);
+                debugDraw.lineWidth = 1;
+                debugDraw.strokeColor = cc.color(255, 0, 0, 255);
+                
+                this._debugDraw = debugDraw;
+            }
+
+            this._debugDraw.node.parent = this.node;
+        }
+        else if (this._debugDraw) {
+            this._debugDraw.node.parent = null;
+        }
+    },
+
     _activateMaterial () {
         if (this._material) return;
 
@@ -328,9 +345,17 @@ let ArmatureDisplay = cc.Class({
             material = new SpriteMaterial();
             renderer.materialUtil.register(url, material);
         }
-        let texture = cc.loader.getRes(url);
+
         // TODO: old texture in material have been released by loader
-        material.texture = texture ? texture.getImpl() : undefined;
+        let texture = cc.loader.getRes(url, cc.Texture2D);
+        if (!texture) {
+            cc.loader.load(url, (err, texture) => {
+                material.texture = texture ? texture.getImpl() : undefined;
+            });
+        }
+        else {
+            material.texture = texture.getImpl();
+        }
 
         this._material = material;
     },
@@ -340,7 +365,8 @@ let ArmatureDisplay = cc.Class({
 
         let factory = dragonBones.CCFactory.getFactory();
         this._armature = factory.buildArmatureDisplay(this.armatureName, this._dragonBonesData.name, this);
-        
+        this._armature.animation.timeScale = this.timeScale;
+
         if (this.animationName) {
             this.playAnimation(this.animationName, this.playTimes);
         }
@@ -566,6 +592,26 @@ let ArmatureDisplay = cc.Class({
     },
 
     dbUpdate () {
+        if (!CC_DEBUG) return;
+        this._initDebugDraw();
+
+        let debugDraw = this._debugDraw;
+        if (!debugDraw) return;
+        
+        debugDraw.clear();
+        let bones = this._armature.getBones();
+        for (let i = 0, l = bones.length; i < l; i++) {
+            let bone =  bones[i];
+            let boneLength = Math.max(bone.boneData.length, 5);
+            let startX = bone.globalTransformMatrix.tx;
+            let startY = -bone.globalTransformMatrix.ty;
+            let endX = startX + bone.globalTransformMatrix.a * boneLength;
+            let endY = startY - bone.globalTransformMatrix.b * boneLength;
+
+            debugDraw.moveTo(startX, startY);
+            debugDraw.lineTo(endX, endY);
+            debugDraw.stroke();
+        }
     },
 
     advanceTimeBySelf  (on) {

@@ -56,7 +56,7 @@ dragonBones.CCSlot = cc.Class({
 
     _onUpdateDisplay () {
         if (this._childArmature) {
-            this._childArmature._isChildArmature = true;
+            this._childArmature.display._isChildArmature = true;
         }
     },
 
