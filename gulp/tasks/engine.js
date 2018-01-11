@@ -57,16 +57,8 @@ var jsbSkipModules = [
     '../../cocos2d/core/editbox/CCSGEditBox.js',
     '../../cocos2d/core/graphics/helper.js',
     '../../cocos2d/audio/CCAudio',
-    '../../extensions/spine/SGSkeleton',
-    '../../extensions/spine/SGSkeletonAnimation',
-    '../../extensions/spine/SGSkeletonCanvasRenderCmd',
-    '../../extensions/spine/SGSkeletonWebGLRenderCmd',
     '../../extensions/spine/lib/spine',
     '../../extensions/dragonbones/lib/dragonBones',
-    '../../extensions/dragonbones/CCFactory',
-    '../../extensions/dragonbones/CCArmatureDisplay',
-    '../../extensions/dragonbones/CCSlot',
-    '../../extensions/dragonbones/CCTextureData',
     '../../external/box2d/box2d.js',
 ];
 

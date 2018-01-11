@@ -89,33 +89,35 @@ const _textureFmtGL = [
  */
 
 /**
- * The texture pixel format, default value is RGBA8888
+ * The texture pixel format, default value is RGBA8888, 
+ * you should note that textures loaded by normal image files (png, jpg) can only support RGBA8888 format,
+ * other formats are supported by compressed file types or raw data.
  * @enum Texture2D.PixelFormat
  */
 const PixelFormat = cc.Enum({
     /**
-     * 16-bit texture without Alpha channel, not supported yet
+     * 16-bit texture without Alpha channel
      * @property RGB565
      * @readonly
      * @type {Number}
      */
     RGB565: gfx.TEXTURE_FMT_R5_G6_B5,
     /**
-     * 16-bit textures: RGB5A1, not supported yet
+     * 16-bit textures: RGB5A1
      * @property RGB5A1
      * @readonly
      * @type {Number}
      */
     RGB5A1: gfx.TEXTURE_FMT_R5_G5_B5_A1,
     /**
-     * 16-bit textures: RGBA4444, not supported yet
+     * 16-bit textures: RGBA4444
      * @property RGBA4444
      * @readonly
      * @type {Number}
      */
     RGBA4444: gfx.TEXTURE_FMT_R4_G4_B4_A4,
     /**
-     * 24-bit texture: RGB888, not supported yet
+     * 24-bit texture: RGB888
      * @property RGB888
      * @readonly
      * @type {Number}
@@ -129,21 +131,21 @@ const PixelFormat = cc.Enum({
      */
     RGBA8888: gfx.TEXTURE_FMT_RGBA8,
     /**
-     * 8-bit textures used as masks, not supported yet
+     * 8-bit textures used as masks
      * @property A8
      * @readonly
      * @type {Number}
      */
     A8: gfx.TEXTURE_FMT_A8,
     /**
-     * 8-bit intensity texture, not supported yet
+     * 8-bit intensity texture
      * @property I8
      * @readonly
      * @type {Number}
      */
     I8: gfx.TEXTURE_FMT_L8,
     /**
-     * 16-bit textures used as masks, not supported yet
+     * 16-bit textures used as masks
      * @property AI88
      * @readonly
      * @type {Number}
@@ -507,10 +509,12 @@ var Texture2D = cc.Class({
      * @param {Texture2D.WrapMode} wrapT
      */
     setWrapMode (wrapS, wrapT) {
-        var opts = _getSharedOptions();
-        opts.wrapS = wrapS;
-        opts.wrapT = wrapT;
-        this.update(opts);
+        if (this._wrapS !== wrapS || this._wrapT !== wrapT) {
+            var opts = _getSharedOptions();
+            opts.wrapS = wrapS;
+            opts.wrapT = wrapT;
+            this.update(opts);
+        }
     },
 
     /**
@@ -521,10 +525,12 @@ var Texture2D = cc.Class({
      * @param {Texture2D.Filter} magFilter
      */
     setFilters (minFilter, magFilter) {
-        var opts = _getSharedOptions();
-        opts.minFilter = minFilter;
-        opts.magFilter = magFilter;
-        this.update(opts);
+        if (this._minFilter !== minFilter || this._magFilter !== magFilter) {
+            var opts = _getSharedOptions();
+            opts.minFilter = minFilter;
+            opts.magFilter = magFilter;
+            this.update(opts);
+        }
     },
 
     /**
@@ -534,9 +540,11 @@ var Texture2D = cc.Class({
      * @param {Boolean} premultiply
      */
     setPremultiplyAlpha (premultiply) {
-        var opts = _getSharedOptions();
-        opts.premultiplyAlpha = premultiply;
-        this.update(opts);
+        if (this._premultiplyAlpha !== premultiply) {
+            var opts = _getSharedOptions();
+            opts.premultiplyAlpha = premultiply;
+            this.update(opts);
+        }
     },
     
     /**
@@ -546,9 +554,11 @@ var Texture2D = cc.Class({
      * @param {Boolean} mipmap
      */
     setMipmap (mipmap) {
-        var opts = _getSharedOptions();
-        opts.hasMipmap = mipmap;
-        this.update(opts);
+        if (this._hasMipmap !== mipmap) {
+            var opts = _getSharedOptions();
+            opts.hasMipmap = mipmap;
+            this.update(opts);
+        }
     }
 });
 

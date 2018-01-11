@@ -43,6 +43,7 @@ var _batchData = {
     vertexOffset: 0,
     indiceOffset: 0,
     comp: null,
+    data: null,
     MAX_VERTEX: MAX_VERTEX,
     MAX_INDICE: MAX_INDICE
 };
@@ -262,11 +263,12 @@ RenderComponentWalker.prototype = {
             }
             
             // Update render data
-            datas = assembler.updateRenderData(comp);
-
             _batchData.comp = comp;
+            datas = assembler.updateRenderData(comp, _batchData);
+
             for (id = 0; id < datas.length; id ++) {
                 data = datas[id];
+                _batchData.data = data;
                 effect = data.effect;
                 // breaking batch
                 needNewBuf = (_batchData.vertexOffset + data.vertexCount > MAX_VERTEX) || (_batchData.indiceOffset + data.indiceCount > MAX_INDICE);

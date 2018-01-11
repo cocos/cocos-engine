@@ -26,6 +26,7 @@ sp.SkeletonTexture = cc.Class({
     name: 'sp.SkeletonTexture',
     extends: sp.spine.Texture,
     _texture: null,
+    _material: null,
 
     setRealTexture: function(tex) {
         this._texture = tex;
@@ -36,29 +37,16 @@ sp.SkeletonTexture = cc.Class({
     },
 
     setFilters: function(minFilter, magFilter) {
-        if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
-            var gl = cc._renderContext;
-            this.bind();
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter);
+        if (this._texture) {
+            this._texture.setFilters(minFilter, magFilter);
         }
     },
 
     setWraps: function(uWrap, vWrap) {
-        if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
-            var gl = cc._renderContext;
-            this.bind();
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, uWrap);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, vWrap);
+        if (this._texture) {
+            this._texture.setWrapMode(uWrap, vWrap);
         }
     },
 
-    dispose: function() {
-    },
-
-    bind: function() {
-        if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
-            cc.gl.bindTexture2DN(0, this._texture);
-        }
-    }
+    dispose: function() {}
 });
