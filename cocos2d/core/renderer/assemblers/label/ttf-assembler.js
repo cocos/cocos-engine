@@ -87,8 +87,7 @@ module.exports = {
         return renderData;
     },
 
-    fillVertexBuffer (comp, index, vbuf, uintbuf) {
-        let off = index * comp._vertexFormat._bytes / 4;
+    fillVertexBuffer (comp, off, vbuf, uintbuf) {
         let node = comp.node;
         let renderData = comp._renderData;
         let data = renderData._data;
