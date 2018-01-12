@@ -24,133 +24,24 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-require('../editbox/CCSGEditBox');
-/**
- * !#en Enum for keyboard return types
- * !#zh 键盘的返回键类型
- * @readonly
- * @enum EditBox.KeyboardReturnType
- */
-/**
- * !#en TODO
- * !#zh 默认
- * @property {Number} DEFAULT
- */
-/**
- * !#en TODO
- * !#zh 完成类型
- * @property {Number} DONE
- */
-/**
- * !#en TODO
- * !#zh 发送类型
- * @property {Number} SEND
- */
-/**
- * !#en TODO
- * !#zh 搜索类型
- * @property {Number} SEARCH
- */
-/**
- * !#en TODO
- * !#zh 跳转类型
- * @property {Number} GO
- */
-var KeyboardReturnType = _ccsg.EditBox.KeyboardReturnType;
+const EditBoxImpl = require('../editbox/CCEditBoxImpl');
+const Label = require('../CCLabel');
 
-/**
- * !#en The EditBox's InputMode defines the type of text that the user is allowed to enter.
- * !#zh 输入模式
- * @readonly
- * @enum EditBox.InputMode
- */
-/**
- * !#en TODO
- * !#zh 用户可以输入任何文本，包括换行符。
- * @property {Number} ANY
- */
-/**
- * !#en The user is allowed to enter an e-mail address.
- * !#zh 允许用户输入一个电子邮件地址。
- * @property {Number} EMAIL_ADDR
- */
-/**
- * !#en The user is allowed to enter an integer value.
- * !#zh 允许用户输入一个整数值。
- * @property {Number} NUMERIC
- */
-/**
- * !#en The user is allowed to enter a phone number.
- * !#zh 允许用户输入一个电话号码。
- * @property {Number} PHONE_NUMBER
- */
-/**
- * !#en The user is allowed to enter a URL.
- * !#zh 允许用户输入一个 URL。
- * @property {Number} URL
- */
-/**
- * !#en
- * The user is allowed to enter a real number value.
- * This extends kEditBoxInputModeNumeric by allowing a decimal point.
- * !#zh
- * 允许用户输入一个实数。
- * @property {Number} DECIMAL
- */
-/**
- * !#en The user is allowed to enter any text, except for line breaks.
- * !#zh 除了换行符以外，用户可以输入任何文本。
- * @property {Number} SINGLE_LINE
- */
-var InputMode = _ccsg.EditBox.InputMode;
+const Types = require('./types');
+const InputMode = Types.InputMode;
+const InputFlag = Types.InputFlag;
+const KeyboardReturnType = Types.KeyboardReturnType;
 
-/**
- * !#en Enum for the EditBox's input flags
- * !#zh 定义了一些用于设置文本显示和文本格式化的标志位。
- * @readonly
- * @enum EditBox.InputFlag
- */
-/**
- * !#en
- * Indicates that the text entered is confidential data that should be
- * obscured whenever possible. This implies EDIT_BOX_INPUT_FLAG_SENSITIVE.
- * !#zh
- * 表明输入的文本是保密的数据，任何时候都应该隐藏起来，它隐含了 EDIT_BOX_INPUT_FLAG_SENSITIVE。
- * @property {Number} PASSWORD
- */
-/**
- * !#en
- * Indicates that the text entered is sensitive data that the
- * implementation must never store into a dictionary or table for use
- * in predictive, auto-completing, or other accelerated input schemes.
- * A credit card number is an example of sensitive data.
- * !#zh
- * 表明输入的文本是敏感数据，它禁止存储到字典或表里面，也不能用来自动补全和提示用户输入。
- * 一个信用卡号码就是一个敏感数据的例子。
- * @property {Number} SENSITIVE
- */
-/**
- * !#en
- * This flag is a hint to the implementation that during text editing,
- * the initial letter of each word should be capitalized.
- * !#zh
- *  这个标志用来指定在文本编辑的时候，是否把每一个单词的首字母大写。
- * @property {Number} INITIAL_CAPS_WORD
- */
-/**
- * !#en
- * This flag is a hint to the implementation that during text editing,
- * the initial letter of each sentence should be capitalized.
- * !#zh
- * 这个标志用来指定在文本编辑是否每个句子的首字母大写。
- * @property {Number} INITIAL_CAPS_SENTENCE
- */
-/**
- * !#en Capitalize all characters automatically.
- * !#zh 自动把输入的所有字符大写。
- * @property {Number} INITIAL_CAPS_ALL_CHARACTERS
- */
-var InputFlag = _ccsg.EditBox.InputFlag;
+const LEFT_PADDING = 2;
+
+function capitalize (string) {
+    return string.replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
+};
+
+function capitalizeFirstLetter (string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 
 /**
  * !#en cc.EditBox is a component for inputing text, you can use it to gather small amounts of text from users.
@@ -179,11 +70,16 @@ var EditBox = cc.Class({
          */
         string: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.string',
-            get: function () {
-                return this._sgNode.string;
+            get () {
+                return this._string;
             },
-            set: function(value) {
-                this._sgNode.string = this._string = value;
+            set(value) {
+                if (value.length >= this.maxLength) {
+                    value = value.slice(0, this.maxLength);
+                }
+
+                this._string = value;
+                this._updateString(value);
             }
         },
 
@@ -196,16 +92,8 @@ var EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.backgroundImage',
             default: null,
             type: cc.SpriteFrame,
-            notify: function() {
-                var sgNode = this._sgNode;
-                var backgroundSprite = sgNode.getBackgroundSprite();
-                if(this.backgroundImage) {
-                    var sprite = this._createBackgroundSprite();
-                    sprite.setContentSize(sgNode.getContentSize());
-                }
-                else {
-                    backgroundSprite.removeFromParent();
-                }
+            notify() {
+                this._createBackgroundSprite();
             }
         },
 
@@ -224,8 +112,8 @@ var EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.returnType',
             displayName: 'KeyboardReturnType',
             type: KeyboardReturnType,
-            notify: function() {
-                this._sgNode.returnType = this.returnType;
+            notify() {
+                this._impl.returnType = this.returnType;
             }
         },
 
@@ -239,8 +127,8 @@ var EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.input_flag',
             default: InputFlag.DEFAULT,
             type: InputFlag,
-            notify: function() {
-                this._sgNode.inputFlag = this.inputFlag;
+            notify() {
+                this._impl.inputFlag = this.inputFlag;
             }
         },
         /**
@@ -256,8 +144,8 @@ var EditBox = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.input_mode',
             default: InputMode.ANY,
             type: InputMode,
-            notify: function() {
-                this._sgNode.inputMode = this.inputMode;
+            notify() {
+                this._impl.setInputMode(this.inputMode);
             }
         },
 
@@ -269,8 +157,8 @@ var EditBox = cc.Class({
         fontSize: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.font_size',
             default: 20,
-            notify: function() {
-                this._sgNode.fontSize = this.fontSize;
+            notify() {
+                this._textLabel.fontSize = this.fontSize;
             }
         },
 
@@ -282,8 +170,8 @@ var EditBox = cc.Class({
         lineHeight: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.line_height',
             default: 40,
-            notify: function() {
-                this._sgNode.setLineHeight(this.lineHeight);
+            notify() {
+                this._textLabel.lineHeight = this.lineHeight;
             }
         },
 
@@ -295,8 +183,8 @@ var EditBox = cc.Class({
         fontColor: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.font_color',
             default: cc.Color.WHITE,
-            notify: function() {
-                this._sgNode.fontColor = this.fontColor;
+            notify() {
+                this._textLabel.node.color = this.fontColor;
             }
         },
 
@@ -308,8 +196,8 @@ var EditBox = cc.Class({
         placeholder: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.placeholder',
             default: 'Enter text here...',
-            notify: function() {
-                this._sgNode.placeholder = this.placeholder;
+            notify() {
+                this._placeholderLabel.string = this.placeholder;
             }
         },
 
@@ -321,8 +209,8 @@ var EditBox = cc.Class({
         placeholderFontSize: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.placeholder_font_size',
             default: 20,
-            notify: function() {
-                this._sgNode.placeholderFontSize = this.placeholderFontSize;
+            notify() {
+                this._placeholderLabel.fontSize = this.placeholderFontSize;
             }
         },
 
@@ -334,8 +222,8 @@ var EditBox = cc.Class({
         placeholderFontColor: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.placeholder_font_color',
             default: cc.Color.GRAY,
-            notify: function() {
-                this._sgNode.placeholderFontColor = this.placeholderFontColor;
+            notify() {
+                this._placeholderLabel.node.color = this.placeholderFontColor;
             }
         },
 
@@ -351,8 +239,8 @@ var EditBox = cc.Class({
         maxLength: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.max_length',
             default: 20,
-            notify: function() {
-                this._sgNode.maxLength = this.maxLength;
+            notify() {
+                this._impl.setMaxLength(this.maxLength);
             }
         },
 
@@ -365,11 +253,9 @@ var EditBox = cc.Class({
         stayOnTop: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.stay_on_top',
             default: false,
-            notify: function () {
-                if(!CC_JSB) {
-                    this._sgNode.stayOnTop(this.stayOnTop);
-                    this._sgNode.fontSize = this.fontSize;
-                    this._sgNode.fontColor = this.fontColor;
+            notify () {
+                if (!CC_JSB) {
+                    this._updateStayOnTop();
                 }
             }
         },
@@ -383,12 +269,12 @@ var EditBox = cc.Class({
          */
         tabIndex: {
             tooltip: CC_DEV && 'i18n:COMPONENT.editbox.tab_index',
-            get: function () {
+            get () {
                 return this._tabIndex;
             },
-            set: function (value) {
+            set (value) {
                 this._tabIndex = value;
-                this._sgNode.setTabIndex(value);
+                this._impl.setTabIndex(value);
             }
         },
 
@@ -440,112 +326,239 @@ var EditBox = cc.Class({
         InputMode: InputMode
     },
 
-    _applyCapInset: function (sprite) {
-        var backgroundImage = this.backgroundImage;
-        sprite.setInsetTop(backgroundImage.insetTop);
-        sprite.setInsetBottom(backgroundImage.insetBottom);
-        sprite.setInsetRight(backgroundImage.insetRight);
-        sprite.setInsetLeft(backgroundImage.insetLeft);
-    },
-
-    _createSgNode: function() {
-        return new _ccsg.EditBox(cc.size(160, 40));
-    },
-
-    _createBackgroundSprite: function() {
-        var sgNode = this._sgNode;
-        var bgSprite = new cc.Scale9Sprite();
-        bgSprite.setRenderingType(cc.Scale9Sprite.RenderingType.SLICED);
-        if (this.backgroundImage) {
-            this.backgroundImage.ensureLoadTexture();
-            bgSprite.setSpriteFrame(this.backgroundImage);
-            this._applyCapInset(bgSprite);
-        }
-        sgNode.initWithSizeAndBackgroundSprite(cc.size(160, 40), bgSprite);
-        return bgSprite;
-    },
-
-    _initSgNode: function() {
-        var sgNode = this._sgNode;
-        if(!CC_JSB) {
-            sgNode.createDomElementIfNeeded();
-        }
-
+    _init() {
         this._createBackgroundSprite();
+        this._createLabels();
 
-        if (CC_EDITOR && this._useOriginalSize) {
-            this.node.setContentSize(sgNode.getContentSize());
-            this._useOriginalSize = false;
-        } else {
-            sgNode.setContentSize(this.node.getContentSize());
-        }
+        let impl = this._impl = new EditBoxImpl();
 
-        sgNode.inputMode = this.inputMode;
-        sgNode.maxLength = this.maxLength;
+        impl.setNode(this.node);
+        impl.setInputMode(this.inputMode);
+        impl.setMaxLength(this.maxLength);
+        impl.setInputFlag(this.inputFlag);
+        impl.setReturnType(this.returnType);
+        impl.setTabIndex(this.tabIndex);
+        impl.setFontColor(this.fontColor);
+        impl.setFontSize(this.fontSize);
 
-        sgNode.string = this._string;
-        sgNode.fontSize = this.fontSize;
-        sgNode.fontColor = this.fontColor;
-        sgNode.placeholder = this.placeholder;
-        sgNode.placeholderFontSize = this.placeholderFontSize;
-        sgNode.placeholderFontColor = this.placeholderFontColor;
-        sgNode.inputFlag = this.inputFlag;
-        sgNode.returnType = this.returnType;
-        sgNode.setLineHeight(this.lineHeight);
-        sgNode.stayOnTop(this.stayOnTop);
-        sgNode.setTabIndex(this.tabIndex);
+        impl.setDelegate(this);
 
-        sgNode.setDelegate(this);
+        this._updateStayOnTop();
+        this._updateString(this.string);
+        this._syncSize();
     },
 
-    editBoxEditingDidBegan: function() {
+    _updateStayOnTop () {
+        if (this.stayOnTop) {
+            this._hideLabels();
+        }
+        else {
+            this._showLabels();
+        }
+        this._impl.stayOnTop(this.stayOnTop);
+    },
+
+    _syncSize () {
+        let size = this.node.getContentSize();
+        
+        this._background.node.setAnchorPoint(this.node.getAnchorPoint());
+        this._background.node.setContentSize(size);
+
+        this._updateLabelPosition(size);
+        this._impl.setSize(size.width, size.height);
+    },
+
+    _updateLabelPosition (size) {
+        let node = this.node;
+        let offx = -node.anchorX * node.width;
+        let offy = -node.anchorY * node.height;
+
+        let placeholderLabel = this._placeholderLabel;
+        let textLabel = this._textLabel;
+
+        textLabel.node.setContentSize(size.width - LEFT_PADDING, size.height);
+        placeholderLabel.node.setContentSize(size.width - LEFT_PADDING, size.height);
+        placeholderLabel.lineHeight = size.height;
+
+        placeholderLabel.node.setPosition(offx + LEFT_PADDING, offy + size.height);
+        textLabel.node.setPosition(offx + LEFT_PADDING, offy + size.height);
+
+        if (this.inputMode === InputMode.ANY){
+            placeholderLabel.verticalAlign = cc.VerticalTextAlignment.TOP;
+            textLabel.verticalAlign = cc.VerticalTextAlignment.TOP;
+            textLabel.enableWrapText = true;
+        }
+        else {
+            placeholderLabel.verticalAlign = cc.VerticalTextAlignment.CENTER;
+            textLabel.verticalAlign = cc.VerticalTextAlignment.CENTER;
+            textLabel.enableWrapText = false;
+        }
+    },
+
+    _createBackgroundSprite() {
+        let background = this._background;
+        if (!background) {
+            let node = this.node.getChildByName('BACKGROUND_SPRITE');
+            if (!node) {
+                node = new cc.Node('BACKGROUND_SPRITE');
+            }
+            
+            background = node.getComponent(cc.Sprite);
+            if (!background) {
+                background = node.addComponent(cc.Sprite);
+            }
+            background.type = cc.Sprite.Type.SLICED;
+
+            node.parent = this.node;
+            this._background = background;
+        }
+        background.spriteFrame = this.backgroundImage;
+    },
+
+    _createLabels () {
+        if (!this._textLabel) {
+            let node = this.node.getChildByName('TEXT_LABEL');
+            if (!node) {
+                node = new cc.Node('TEXT_LABEL');
+            }
+            node.color = this.fontColor;
+            node.parent = this.node;
+            node.setAnchorPoint(0, 1);
+
+            let textLabel = node.getComponent(Label);
+            if (!textLabel) {
+                textLabel = node.addComponent(Label);
+            }
+            textLabel.overflow = Label.Overflow.CLAMP;
+            textLabel.fontSize = this.fontSize;
+            textLabel.lineHeight = this.lineHeight;
+            this._textLabel = textLabel;
+        }
+
+        if (!this._placeholderLabel) {
+            let node = this.node.getChildByName('PLACEHOLDER_LABEL');
+            if (!node) {
+                node = new cc.Node('PLACEHOLDER_LABEL');
+            }
+            node.color = this.placeholderFontColor;
+            node.parent = this.node;
+            node.setAnchorPoint(0, 1);
+
+            let placeholderLabel = node.getComponent(Label);
+            if (!placeholderLabel) {
+                placeholderLabel = node.addComponent(Label);
+            }
+            placeholderLabel.overflow = Label.Overflow.CLAMP;
+            placeholderLabel.fontSize = this.placeholderFontSize;
+            placeholderLabel.string = this.placeholder;
+            this._placeholderLabel = placeholderLabel;
+        }
+    },
+
+    _showLabels () {
+        this._textLabel.node.active = true;
+        this._placeholderLabel.node.active = true;
+    },
+
+    _hideLabels () {
+        this._textLabel.node.active = false;
+        this._placeholderLabel.node.active = false;
+    },
+
+    _updateString (text) {
+        let placeholderLabel = this._placeholderLabel;
+        let textLabel = this._textLabel;
+
+        let displayText = text;
+        if (displayText === '') {
+            placeholderLabel.enabled = true;
+            textLabel.enabled = false;
+        }
+        else {
+            placeholderLabel.enabled = false;
+            textLabel.enabled = true;
+
+            displayText = this._updateLabelStringStyle(displayText);
+        }
+
+        textLabel.string = displayText;
+        this._impl.setString(text);
+    },
+
+    _updateLabelStringStyle (text) {
+        let inputFlag = this.inputFlag;
+        if (inputFlag === InputFlag.PASSWORD) {
+            let passwordString = '';
+            let len = text.length;
+            for (let i = 0; i < len; ++i) {
+                passwordString += '\u25CF';
+            }
+            text = passwordString;
+        } 
+        else if (inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
+            text = text.toUpperCase();
+        }
+        else if (inputFlag === InputFlag.INITIAL_CAPS_WORD) {
+            text = capitalize(text);
+        }
+        else if (inputFlag === InputFlag.INITIAL_CAPS_SENTENCE) {
+            text = capitalizeFirstLetter(text);
+        }
+
+        return text;
+    },
+
+    editBoxEditingDidBegan() {
+        this._hideLabels();
         cc.Component.EventHandler.emitEvents(this.editingDidBegan, this);
         this.node.emit('editing-did-began', this);
     },
 
-    editBoxEditingDidEnded: function() {
+    editBoxEditingDidEnded() {
+        this._showLabels();
         cc.Component.EventHandler.emitEvents(this.editingDidEnded, this);
         this.node.emit('editing-did-ended', this);
     },
 
-    editBoxTextChanged: function(editBox, text) {
+    editBoxTextChanged(text) {
+        this.string = text;
         cc.Component.EventHandler.emitEvents(this.textChanged, text, this);
         this.node.emit('text-changed', this);
     },
 
-    editBoxEditingReturn: function() {
+    editBoxEditingReturn() {
         cc.Component.EventHandler.emitEvents(this.editingReturn, this);
         this.node.emit('editing-return', this);
     },
 
-    onDestroy: function () {
-        return;
-        this._sgNode.setDelegate(null);
+    onDestroy () {
+        this._impl.setDelegate(null);
     },
 
-    __preload: function() {
+    __preload() {
         if (!CC_EDITOR) {
             this._registerEvent();
         }
+        this._init();
     },
 
-    _registerEvent: function () {
+    _registerEvent () {
         if(!CC_JSB) {
             this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
             this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
         }
     },
 
-    _onTouchBegan: function(event) {
-        if (this._sgNode) {
-            this._sgNode._onTouchBegan(event.touch);
+    _onTouchBegan(event) {
+        if (this._impl) {
+            this._impl._onTouchBegan(event.touch);
         }
         event.stopPropagation();
     },
 
-    _onTouchEnded: function(event) {
-        if (this._sgNode) {
-            this._sgNode._onTouchEnded();
+    _onTouchEnded(event) {
+        if (this._impl) {
+            this._impl._onTouchEnded();
         }
         event.stopPropagation();
     },
@@ -556,9 +569,9 @@ var EditBox = cc.Class({
      * Note: only available on Web at the moment.
      * @method setFocus
      */
-    setFocus: function() {
-        if(this._sgNode) {
-            this._sgNode.setFocus();
+    setFocus() {
+        if(this._impl) {
+            this._impl.setFocus();
         }
     },
 
@@ -568,12 +581,18 @@ var EditBox = cc.Class({
      * Note: only available on Web at the moment.
      * @method isFocused
      */
-    isFocused: function () {
+    isFocused () {
         var isFocused = false;
-        if (this._sgNode) {
-            isFocused = this._sgNode.isFocused();
+        if (this._impl) {
+            isFocused = this._impl.isFocused();
         }
         return isFocused;
+    },
+
+    update () {
+        if (this._impl) {
+            this._impl.update();
+        }
     }
 
 });

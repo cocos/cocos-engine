@@ -477,7 +477,7 @@ var Sprite = cc.Class({
 
     _activateMaterial: function () {
         // cannot be activated if texture not loaded yet
-        if (!this._spriteFrame.textureLoaded()) {
+        if (!this._spriteFrame || !this._spriteFrame.textureLoaded()) {
             return;
         }
 

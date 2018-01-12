@@ -87,7 +87,36 @@ module.exports = {
         return renderData;
     },
 
-    fillVertexBuffer: spriteAssembler.fillVertexBuffer,
+    fillVertexBuffer (comp, index, vbuf, uintbuf) {
+        let off = index * comp._vertexFormat._bytes / 4;
+        let node = comp.node;
+        let renderData = comp._renderData;
+        let data = renderData._data;
+        let z = node._position.z;
+        let color = cc.Color.WHITE._val;
+        
+        node._updateWorldMatrix();
+        let matrix = node._worldMatrix;
+        let a = matrix.m00,
+            b = matrix.m01,
+            c = matrix.m04,
+            d = matrix.m05,
+            tx = matrix.m12,
+            ty = matrix.m13;
+    
+        let vert;
+        let length = renderData.dataLength;
+        for (let i = 0; i < length; i++) {
+            vert = data[i];
+            vbuf[off + 0] = vert.x * a + vert.y * c + tx;
+            vbuf[off + 1] = vert.x * b + vert.y * d + ty;
+            vbuf[off + 2] = z;
+            vbuf[off + 4] = vert.u;
+            vbuf[off + 5] = vert.v;
+            uintbuf[off + 3] = color;
+            off += 6;
+        }
+    },
     
     fillIndexBuffer (comp, offset, vertexId, ibuf) {
         ibuf[offset + 0] = vertexId;
@@ -239,7 +268,7 @@ module.exports = {
         var lineHeight = this._getLineHeight();
         //use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
-        _context.fillStyle = 'rgb(' + _color.r + ',' + _color.g + ',' + _color.b + ')';
+        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a/255})`;
         var underlineStartPosition;
 
         //do real rendering
@@ -247,7 +276,7 @@ module.exports = {
             if (_isOutlined) {
                 var strokeColor = _outlineColor || cc.color(255,255,255,255);
                 _context.globalCompositeOperation = 'source-over';
-                _context.strokeStyle = 'rgb(' + strokeColor.r + ',' + strokeColor.g + ',' + strokeColor.b + ')';
+                _context.strokeStyle = `rgba(${strokeColor.r}, ${strokeColor.g}, ${strokeColor.b}, ${strokeColor.a/255})`;
                 _context.lineWidth = _outlineWidth * 2;
                 _context.strokeText(_splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
             }
@@ -267,7 +296,7 @@ module.exports = {
                 _context.save();
                 _context.beginPath();
                 _context.lineWidth = _fontSize / 8;
-                _context.strokeStyle = 'rgb(' + _color.r + ',' + _color.g + ',' + _color.b + ')';
+                _context.strokeStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a/255})`;
                 _context.moveTo(underlineStartPosition.x, underlineStartPosition.y + i * lineHeight - 1);
                 _context.lineTo(underlineStartPosition.x + _canvas.width, underlineStartPosition.y + i * lineHeight - 1);
                 _context.stroke();
