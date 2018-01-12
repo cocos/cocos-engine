@@ -66,10 +66,10 @@ var particleSystemAssembler = js.addon({
 
         let vfx = comp._vfx;
         // Update particle configs
-        if (comp._particleCountDirty) {
-            vfx.updateParticleCount(comp);
+        if (comp._maxParticleDirty) {
+            vfx.updateMaxParticle(comp);
             comp._updateMaterialSize();
-            comp._particleCountDirty = false;
+            comp._maxParticleDirty = false;
         }
         if (comp._sizeScaleDirty) {
             vfx.updateSizeScale(comp);
@@ -86,7 +86,12 @@ var particleSystemAssembler = js.addon({
 
         // Process to generate vertex buffer and index buffer
         // TODO: Update vfx parameters, check whether to update other material configs, z etc
+        let running = !vfx.stopped;
         vfx.step(cc.director.getDeltaTime());
+        // check finish
+        if (running && vfx.stopped) {
+            comp._finishedSimulation();
+        }
 
         renderData.vertexCount = vfx.buffers.indexes.length;
         renderData.indiceCount = renderData.vertexCount / 2 * 3;

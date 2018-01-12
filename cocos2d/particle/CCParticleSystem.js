@@ -239,16 +239,17 @@ var properties = {
     },
 
     /**
-     * !#en Current quantity of particles that are being simulated.
+     * !#en Current quantity of particles that are being simulated, 
+     * this function can be very slow currently, please don't use it frequently.
      * !#zh 当前播放的粒子数量。
+     * 当前版本该函数性能不够好，请不要频繁调用（比如每帧检查）。
      * @property {Number} particleCount
      * @readonly
      */
     particleCount: {
         visible: false,
         get: function () {
-            // TODO
-            return 0;
+            return this._vfx.particleCount;
         },
         readonly: true
     },
@@ -315,9 +316,6 @@ var properties = {
         set: function (value) {
             if (this._autoRemoveOnFinish !== value) {
                 this._autoRemoveOnFinish = value;
-                if (!CC_EDITOR || cc.engine.isPlaying) {
-                    // this._applyAutoRemove();
-                }
             }
         },
         animatable: false,
@@ -351,7 +349,7 @@ var properties = {
         },
         set (val) {
             this._totalParticles = val;
-            this._particleCountDirty = true;
+            this._maxParticleDirty = true;
         }
     },
     /**
@@ -374,7 +372,7 @@ var properties = {
         },
         set (val) {
             this._emissionRate = val;
-            this._particleCountDirty = true;
+            this._maxParticleDirty = true;
         }
     },
     /**
@@ -390,7 +388,7 @@ var properties = {
         },
         set (val) {
             this._life = val;
-            this._particleCountDirty = true;
+            this._maxParticleDirty = true;
         }
     },
     /**
@@ -406,7 +404,7 @@ var properties = {
         },
         set (val) {
             this._lifeVar = val;
-            this._particleCountDirty = true;
+            this._maxParticleDirty = true;
         }
     },
 
@@ -875,7 +873,7 @@ var ParticleSystem = cc.Class({
         this._vertexFormat = this._vfx.vertexFormat;
 
         // Config update flags, vfx constructor has updated with the current config, so not dirty
-        this._particleCountDirty = false;
+        this._maxParticleDirty = false;
         this._sizeScaleDirty = false;
         this._radiusScaleDirty = false;
         this._accelScaleDirty = false;
@@ -942,7 +940,6 @@ var ParticleSystem = cc.Class({
             if (this.playOnLoad) {
                 this.resetSystem();
             }
-            // this._applyAutoRemove();
         }
     },
 
@@ -996,14 +993,14 @@ var ParticleSystem = cc.Class({
 
     // APIS
 
-    /**
+    /*
      * !#en Add a particle to the emitter.
      * !#zh 添加一个粒子到发射器中。
      * @method addParticle
      * @return {Boolean}
      */
     addParticle: function () {
-        // return this._sgNode.addParticle();
+        // Not implemented
     },
 
     /**
@@ -1015,7 +1012,7 @@ var ParticleSystem = cc.Class({
      * myParticleSystem.stopSystem();
      */
     stopSystem: function () {
-        // this._sgNode.stopSystem();
+        this._vfx.stopSystem();
     },
 
     /**
@@ -1027,7 +1024,7 @@ var ParticleSystem = cc.Class({
      * myParticleSystem.resetSystem();
      */
     resetSystem: function () {
-        // this._sgNode.resetSystem();
+        this._vfx.resetSystem();
     },
 
     /**
@@ -1077,17 +1074,13 @@ var ParticleSystem = cc.Class({
                 else {
                     self._initWithDictionary(content);
                 }
-
-                if (!CC_EDITOR || cc.engine.isPlaying) {
-                    // self._applyAutoRemove();
-                }
             });
         }
     },
 
     _applyCustoms: function () {
         // trigger vfx config update after deserialize
-        this._particleCountDirty = true;
+        this._maxParticleDirty = true;
         this._sizeScaleDirty = true;
         this._radiusScaleDirty = true;
         this._accelScaleDirty = true;
@@ -1326,6 +1319,12 @@ var ParticleSystem = cc.Class({
             gfx.BLEND_FUNC_ADD,
             this._srcBlendFactor, this._dstBlendFactor
         );
+    },
+
+    _finishedSimulation: function () {
+        if (this._autoRemoveOnFinish && this._vfx.stopped) {
+            this.node.destroy();
+        }
     }
 });
 
