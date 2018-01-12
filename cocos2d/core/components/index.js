@@ -43,7 +43,7 @@ var components = [
     require('./CCPageView'),
     require('./CCSlider'),
     require('./CCLayout'),
-    // require('./CCEditBox'),
+    require('./editbox/CCEditBox'),
     // require('./CCVideoPlayer'),
     // require('./CCWebView'),
     require('./CCSpriteDistortion'),
