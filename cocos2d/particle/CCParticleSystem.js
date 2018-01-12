@@ -946,7 +946,6 @@ var ParticleSystem = cc.Class({
     onEnable: function () {
         this._super();
         this._updateMaterial();
-        this._updateBlendFunc();
     },
 
     onDestroy: function () {
@@ -1305,6 +1304,8 @@ var ParticleSystem = cc.Class({
         this._material.quadMap = this._vfx.textures.quads;
         this._material.z = this.node.z;
         this._updateMaterialSize();
+
+        this._updateBlendFunc();
     },
     
     _updateBlendFunc: function () {
