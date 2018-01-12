@@ -302,7 +302,7 @@ var spineAssembler = js.addon({
         let z = batchData.comp.node._position.z;
 
         // fill vertex buffer
-        let offset = batchData.vertexOffset * batchData.comp._vertexFormat._bytes / 4;
+        let offset = batchData.byteOffset / 4;
         let vert;
         for (let i = 0, l = data.dataLength; i < l; i++) {
             vert = vertexs[i];
