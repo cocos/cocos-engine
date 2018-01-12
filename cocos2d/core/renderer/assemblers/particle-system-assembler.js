@@ -98,8 +98,7 @@ var particleSystemAssembler = js.addon({
 
     fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
         let comp = batchData.comp,
-            vertexOffset = batchData.vertexOffset,
-            offset = vertexOffset * comp._vertexFormat._bytes / 4,
+            offset = batchData.byteOffset / 4,
             verts = comp._vfx.buffers.indexes;
         
         // vertex buffer

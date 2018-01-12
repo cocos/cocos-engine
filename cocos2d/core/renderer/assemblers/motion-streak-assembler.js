@@ -41,8 +41,7 @@ var motionStreakAssembler = js.addon({
 
     fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
         let comp = batchData.comp,
-            vertexOffset = batchData.vertexOffset,
-            offset = vertexOffset * comp._vertexFormat._bytes / 4,
+            offset = batchData.byteOffset / 4,
             node = comp.node,
             renderData = comp._renderData,
             data = renderData._data,

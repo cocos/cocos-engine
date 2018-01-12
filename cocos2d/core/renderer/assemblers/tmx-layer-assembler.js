@@ -69,7 +69,7 @@ let tmxAssembler = js.addon({
         let renderData = comp._renderData;
         let data = renderData._data;
         
-        let vertexOffset = batchData.vertexOffset * comp._vertexFormat._bytes / 4;
+        let vertexOffset = batchData.byteOffset / 4;
         let indiceOffset = batchData.indiceOffset;
         
         let z = comp.node._position.z;

@@ -82,8 +82,7 @@ let graphicsAssembler = js.addon({
 
     fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
         let graphics = batchData.comp,
-            vertexOffset = batchData.vertexOffset,
-            offset = vertexOffset * graphics._vertexFormat._bytes / 4,
+            offset = batchData.byteOffset / 4,
             node = graphics.node,
             renderData = graphics._renderData,
             data = renderData._data,
