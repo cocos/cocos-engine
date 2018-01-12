@@ -29,12 +29,15 @@ var EXTNAME_RE = /(\.[^\.\/\?\\]*)(\?.*)?$/;
 var NORMALIZE_RE = /[^\.\/]+\/\.\.\//;
 
 /**
+ * !#en The module provides utilities for working with file and directory paths
+ * !#zh 用于处理文件与目录的路径的模块
  * @class path
  * @static
  */
 cc.path = /** @lends cc.path# */{
     /**
-     * Join strings to be a path.
+     * !#en Join strings to be a path.
+     * !#zh 拼接字符串为 Path
      * @method join
      * @example {@link utils/api/engine/docs/cocos2d/core/utils/CCPath/join.js}
      * @returns {String}
@@ -49,7 +52,8 @@ cc.path = /** @lends cc.path# */{
     },
 
     /**
-     * Get the ext name of a path including '.', like '.png'.
+     * !#en Get the ext name of a path including '.', like '.png'.
+     * !#zh 返回 Path 的扩展名，包括 '.'，例如 '.png'。
      * @method extname
      * @example {@link utils/api/engine/docs/cocos2d/core/utils/CCPath/extname.js}
      * @param {String} pathStr
@@ -61,23 +65,25 @@ cc.path = /** @lends cc.path# */{
     },
 
     /**
-     * Get the main name of a file name
+     * !#en Get the main name of a file name
+     * !#zh 获取文件名的主名称
      * @method mainFileName
      * @param {String} fileName
      * @returns {String}
      */
-    mainFileName: function(fileName){
-        if(fileName){
-            
+    mainFileName: function (fileName) {
+        if (fileName) {
+
             var idx = fileName.lastIndexOf(".");
-            if(idx !== -1)
-                return fileName.substring(0,idx);
+            if (idx !== -1)
+                return fileName.substring(0, idx);
         }
         return fileName;
     },
 
     /**
-     * Get the file name of a file path.
+     * !#en Get the file name of a file path.
+     * !#zh 获取文件路径的文件名。
      * @method basename
      * @example {@link utils/api/engine/docs/cocos2d/core/utils/CCPath/basename.js}
      * @param {String} pathStr
@@ -97,7 +103,8 @@ cc.path = /** @lends cc.path# */{
     },
 
     /**
-     * Get dirname of a file path.
+     * !#en Get dirname of a file path.
+     * !#zh 获取文件路径的目录名。
      * @method dirname
      * @example {@link utils/api/engine/docs/cocos2d/core/utils/CCPath/dirname.js}
      * @param {String} pathStr
@@ -108,7 +115,8 @@ cc.path = /** @lends cc.path# */{
     },
 
     /**
-     * Change extname of a file path.
+     * !#en Change extname of a file path.
+     * !#zh 更改文件路径的扩展名。
      * @method changeExtname
      * @example {@link utils/api/engine/docs/cocos2d/core/utils/CCPath/changeExtname.js}
      * @param {String} pathStr
@@ -128,7 +136,8 @@ cc.path = /** @lends cc.path# */{
         return pathStr.substring(0, index) + extname + tempStr;
     },
     /**
-     * Change file name of a file path.
+     * !#en Change file name of a file path.
+     * !#zh 更改文件路径的文件名。
      * @example {@link utils/api/engine/docs/cocos2d/core/utils/CCPath/changeBasename.js}
      * @param {String} pathStr
      * @param {String} basename
@@ -149,14 +158,14 @@ cc.path = /** @lends cc.path# */{
         return pathStr.substring(0, index) + basename + ext + tempStr;
     },
     //todo make public after verification
-    _normalize: function(url){
+    _normalize: function (url) {
         var oldUrl = url = String(url);
 
         //removing all ../
         do {
             oldUrl = url;
             url = url.replace(NORMALIZE_RE, "");
-        } while(oldUrl.length !== url.length);
+        } while (oldUrl.length !== url.length);
         return url;
     },
 
