@@ -191,6 +191,11 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         this._compScheduler = new ComponentScheduler();
         this._nodeActivator = new NodeActivator();
 
+        // Event manager
+        if (cc.eventManager) {
+            cc.eventManager.setEnabled(true);
+        }
+
         // Animation manager
         if (cc.AnimationManager) {
             this._animationManager = new cc.AnimationManager();

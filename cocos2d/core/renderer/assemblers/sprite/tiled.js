@@ -124,7 +124,6 @@ module.exports = {
     },
 
     fillVertexBuffer (sprite, index, vbuf, uintbuf) {
-        let off = index * sprite._vertexFormat._bytes / 4;
         let node = sprite.node;
         let renderData = sprite._renderData;
         let data = renderData._data;
@@ -159,36 +158,36 @@ module.exports = {
                 x1 = data[xindex+1].x;
 
                 // lb
-                vbuf[off++] = x * a + y * c + tx;
-                vbuf[off++] = x * b + y * d + ty;
-                vbuf[off++] = z;
-                uintbuf[off++] = color;
-                vbuf[off++] = lastx ? data[4].u : data[0].u;
-                vbuf[off++] = lasty ? data[4].v : data[0].v;
+                vbuf[index++] = x * a + y * c + tx;
+                vbuf[index++] = x * b + y * d + ty;
+                vbuf[index++] = z;
+                uintbuf[index++] = color;
+                vbuf[index++] = lastx ? data[4].u : data[0].u;
+                vbuf[index++] = lasty ? data[4].v : data[0].v;
 
                 // rb
-                vbuf[off++] = x1 * a + y * c + tx;
-                vbuf[off++] = x1 * b + y * d + ty;
-                vbuf[off++] = z;
-                uintbuf[off++] = color;
-                vbuf[off++] = lastx ? data[5].u : data[1].u;
-                vbuf[off++] = lasty ? data[5].v : data[1].v;
+                vbuf[index++] = x1 * a + y * c + tx;
+                vbuf[index++] = x1 * b + y * d + ty;
+                vbuf[index++] = z;
+                uintbuf[index++] = color;
+                vbuf[index++] = lastx ? data[5].u : data[1].u;
+                vbuf[index++] = lasty ? data[5].v : data[1].v;
 
                 // lt
-                vbuf[off++] = x * a + y1 * c + tx;
-                vbuf[off++] = x * b + y1 * d + ty;
-                vbuf[off++] = z;
-                uintbuf[off++] = color;
-                vbuf[off++] = lastx ? data[6].u : data[2].u;
-                vbuf[off++] = lasty ? data[6].v : data[2].v;
+                vbuf[index++] = x * a + y1 * c + tx;
+                vbuf[index++] = x * b + y1 * d + ty;
+                vbuf[index++] = z;
+                uintbuf[index++] = color;
+                vbuf[index++] = lastx ? data[6].u : data[2].u;
+                vbuf[index++] = lasty ? data[6].v : data[2].v;
 
                 // rt
-                vbuf[off++] = x1 * a + y1 * c + tx;
-                vbuf[off++] = x1 * b + y1 * d + ty;
-                vbuf[off++] = z;
-                uintbuf[off++] = color;
-                vbuf[off++] = lastx ? data[7].u : data[3].u;
-                vbuf[off++] = lasty ? data[7].v : data[3].v;
+                vbuf[index++] = x1 * a + y1 * c + tx;
+                vbuf[index++] = x1 * b + y1 * d + ty;
+                vbuf[index++] = z;
+                uintbuf[index++] = color;
+                vbuf[index++] = lastx ? data[7].u : data[3].u;
+                vbuf[index++] = lasty ? data[7].v : data[3].v;
             }
         }
     },

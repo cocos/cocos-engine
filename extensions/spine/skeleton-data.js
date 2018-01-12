@@ -28,7 +28,7 @@
  */
 
 // implements a simple texture loader like sp._atlasLoader
-var TextureLoader = !CC_JSB && cc.Class({
+var TextureLoader = cc.Class({
     ctor: function () {
         // {SkeletonData}
         this.asset = arguments[0];
@@ -46,7 +46,7 @@ var TextureLoader = !CC_JSB && cc.Class({
         for (var i = 0; i < urls.length; i++) {
             var url = urls[i];
             if (url.endsWith(line)) {
-                var texture = cc.textureCache.addImage(url);
+                var texture = cc.textureUtil.loadImage(url);
                 var tex = new sp.SkeletonTexture({ width: texture.width, height: texture.height });
                 tex.setRealTexture(texture);
                 return tex;
@@ -154,11 +154,6 @@ var SkeletonData = cc.Class({
     // PUBLIC
 
     createNode: CC_EDITOR && function (callback) {
-        //var Url = require('fire-url');
-        //var node = new cc.Node(Url.basenameNoExt(info.url));
-        //var skeleton = node.addComponent(sp.Skeleton);
-        //skeleton.skeletonFile = info.url;
-
         var node = new cc.Node(this.name);
         var skeleton = node.addComponent(sp.Skeleton);
         skeleton.skeletonData = this;
@@ -192,11 +187,10 @@ var SkeletonData = cc.Class({
      * @param {Boolean} [quiet=false]
      * @return {sp.spine.SkeletonData}
      */
-    getRuntimeData: !CC_JSB && function (quiet) {
+    getRuntimeData: function (quiet) {
         if (this._skeletonCache) {
             return this._skeletonCache;
         }
-
 
         if ( !(this.textures && this.textures.length > 0) ) {
             if ( !quiet ) {
@@ -264,7 +258,7 @@ var SkeletonData = cc.Class({
      * @return {sp.spine.Atlas}
      * @private
      */
-    _getAtlas: !CC_JSB && function (quiet) {
+    _getAtlas: function (quiet) {
         if (this._atlasCache) {
             return this._atlasCache;
         }

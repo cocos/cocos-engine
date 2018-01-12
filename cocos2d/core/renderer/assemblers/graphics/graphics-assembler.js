@@ -82,13 +82,11 @@ let graphicsAssembler = js.addon({
 
     fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
         let graphics = batchData.comp,
-            vertexOffset = batchData.vertexOffset,
-            offset = vertexOffset * graphics._vertexFormat._bytes / 4,
+            offset = batchData.byteOffset / 4,
             node = graphics.node,
             renderData = graphics._renderData,
             data = renderData._data,
-            z = node._position.z,
-            color = node._color._val;
+            z = node._position.z;
         
         // vertex buffer
         node.getWorldMatrix(_matrix);
@@ -99,17 +97,16 @@ let graphicsAssembler = js.addon({
             tx = _matrix.m12,
             ty = _matrix.m13;
 
-        let colorBuffer = graphics._colorBuffer;
         for (let i = 0, l = data.length; i < l; i++) {
             vbuf[offset++] = data[i].x * a + data[i].y * c + tx;
             vbuf[offset++] = data[i].x * b + data[i].y * d + ty;
             vbuf[offset++] = z;
-            uintbuf[offset++] = colorBuffer[i];
+            uintbuf[offset++] = data[i].color;
             offset+=2;
         }
 
         // index buffer
-        let indicesBuffer = graphics._indicesBuffer;
+        let indicesBuffer = renderData._indices;
         offset = batchData.indiceOffset;
         for (let i = 0, l = indicesBuffer.length; i < l; i++) {
             ibuf[offset + i] = vertexId + indicesBuffer[i];
@@ -153,9 +150,7 @@ let graphicsAssembler = js.addon({
         let paths = graphics._paths,
             renderData = this._renderData = graphics._renderData,
             data = renderData._data,
-            indicesBuffer = graphics._indicesBuffer;
-
-        this._color = graphics._colorBuffer;
+            indicesBuffer = renderData._indices;
             
         for (var i = graphics._pathOffset, l = graphics._pathLength; i < l; i++) {
             var path = paths[i];
@@ -249,8 +244,7 @@ let graphicsAssembler = js.addon({
         let paths = graphics._paths,
             renderData = this._renderData = graphics._renderData,
             data = renderData._data,
-            indicesBuffer = graphics._indicesBuffer;
-        this._color = graphics._colorBuffer;
+            indicesBuffer = renderData._indices;
 
         for (var i = graphics._pathOffset, l = graphics._pathLength; i < l; i++) {
             var path = paths[i];
@@ -567,14 +561,13 @@ let graphicsAssembler = js.addon({
     _vset (x, y) {
         let renderData = this._renderData;
         let data = renderData._data;
-        let _color = this._color;
 
         let offset = data.length;
         renderData.dataLength = offset + 1;
 
         data[offset].x = x;
         data[offset].y = y;
-        _color[offset] = this._curColor;
+        data[offset].color = this._curColor;
     }
 }, assembler);
 

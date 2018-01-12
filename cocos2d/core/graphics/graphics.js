@@ -96,9 +96,6 @@ let Graphics = cc.Class({
         this._commandx = 0;
         this._commandy = 0;
 
-        this._indicesBuffer = [];
-        this._colorBuffer = [];
-
         this._paths = [];
         this._points = [];
     },
@@ -412,9 +409,6 @@ let Graphics = cc.Class({
         this._pathLength = 0;
         this._pathOffset = 0;
         this._pointsOffset = 0;
-
-        this._indicesBuffer.length = 0;
-        this._colorBuffer.length = 0;
         
         this._curPath = null;
     
@@ -427,6 +421,7 @@ let Graphics = cc.Class({
         }
         else if (this._renderData) {
             this._renderData.dataLength = 0;
+            this._renderData._indices.length = 0;
         }
     },
 

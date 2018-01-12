@@ -13770,7 +13770,7 @@ module.exports = (function () {
     {
       name: 'vfx_emitter',
       vert: '#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nvarying vec2 index;\nvoid main() {\n    index = (a_quad + 1.0) / 2.0;\n    gl_Position = vec4(a_quad, 0, 1);\n}\n',
-      frag: 'uniform sampler2D noise;\nuniform sampler2D state;\nuniform vec2 statesize;\nuniform vec2 noisesize;\nuniform float dt;\nuniform float mode;\nuniform float noiseId;\nuniform float emitVar;\nuniform float life;\nuniform float lifeVar;\nuniform vec2 pos;\nuniform vec2 posVar;\nuniform vec4 color;\nuniform vec4 colorVar;\nuniform vec4 endColor;\nuniform vec4 endColorVar;\nuniform float size;\nuniform float sizeVar;\nuniform float endSize;\nuniform float endSizeVar;\nuniform float rot;\nuniform float rotVar;\nuniform float endRot;\nuniform float endRotVar;\nuniform float angle;\nuniform float angleVar;\nuniform float speed;\nuniform float speedVar;\nuniform float radial;\nuniform float radialVar;\nuniform float tangent;\nuniform float tangentVar;\nuniform float radius;\nuniform float radiusVar;\nuniform float endRadius;\nuniform float endRadiusVar;\nuniform float rotatePS;\nuniform float rotatePSVar;\nuniform float sizeScale;\nuniform float accelScale;\nuniform float radiusScale;\nvarying vec2 index;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float NOISE_SCALE = 10000.0;\nconst float POSITION_SCALE = 1.0;\nconst float ROTATION_SCALE = 1.0;\nconst float COLOR_SCALE = 1.0;\nconst float LIFE_SCALE = 60.0;\nconst float START_SIZE_EQUAL_TO_END_SIZE = -1.0;\nconst float START_RADIUS_EQUAL_TO_END_RADIUS = -1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvec2 encode(float value, float scale) {\n    value = value * scale + OFFSET;\n    float x = mod(value, BASE);\n    float y = floor(value / BASE);\n    return vec2(x, y) / BASE;\n}\nfloat randomMinus1To1(vec2 randomD) {\n    float random = decode(randomD, NOISE_SCALE);\n    return (random - 0.5) * 2.0;\n}\nbool doEmit (vec4 randomD) {\n    float random1 = decode(randomD.rg, NOISE_SCALE);\n    if ((life + lifeVar) * random1 < life) {\n        return true;\n    }\n    else {\n        return false;\n    }\n}\nvec4 initLife (vec4 data, vec4 randomD) {\n    \n    if (doEmit(randomD)) {\n        float random2 = randomMinus1To1(randomD.ba);\n        float plife = life + lifeVar * random2;\n        vec2 l = encode(plife, LIFE_SCALE);\n        return vec4(l, l);\n    }\n    else {\n        return data;\n    }\n}\nvec4 initColor (float randr, float randg, float randb, float randa) {\n    vec4 random = vec4(randr, randg, randb, randa);\n    vec4 result = clamp(color + colorVar * random, 0.0, 255.0);\n    return result / 255.0;\n}\nvec4 initDeltaRG (vec2 startR, vec2 random) {\n    vec2 start = clamp(color.rg + colorVar.rg * startR, 0.0, 255.0);\n    vec2 end = clamp(endColor.rg + endColorVar.rg * random, 0.0, 255.0);\n    vec2 delta = end - start;\n    return vec4(encode(delta.x, COLOR_SCALE), encode(delta.y, COLOR_SCALE));\n}\nvec4 initDeltaBA (vec2 startR, vec2 random) {\n    vec2 start = clamp(color.ba + colorVar.ba * startR, 0.0, 255.0);\n    vec2 end = clamp(endColor.ba + endColorVar.ba * random, 0.0, 255.0);\n    vec2 delta = end - start;\n    return vec4(encode(delta.x, COLOR_SCALE), encode(delta.y, COLOR_SCALE));\n}\nvec4 initSize (float rand1, float rand2) {\n    float start = max(0.0, size + sizeVar * rand1);\n    if (endSize == START_SIZE_EQUAL_TO_END_SIZE) {\n        float delta = 0.0;\n        return vec4(encode(start, sizeScale), encode(delta, sizeScale));\n    }\n    else {\n        float end = max(0.0, endSize + endSizeVar * rand2);\n        float delta = end - start;\n        return vec4(encode(start, sizeScale), encode(delta, sizeScale));\n    }\n}\nvec4 initRotation (float rand1, float rand2) {\n    float start = rot + rotVar * rand1;\n    float end = endRot + endRotVar * rand2;\n    float delta = end - start;\n    return vec4(encode(start, ROTATION_SCALE), encode(delta, ROTATION_SCALE));\n}\nvec4 initControl1 (float rand1, float rand2) {\n    \n    if (mode == 0.0) {\n        float pAngle = angle + angleVar * rand1;\n        float dirX = cos(pAngle);\n        float dirY = sin(pAngle);\n        float pSpeed = speed + speedVar * rand2;\n        return vec4(encode(dirX * pSpeed, POSITION_SCALE), encode(dirY * pSpeed, POSITION_SCALE));\n    }\n    \n    else {\n        float pAngle = angle + angleVar * rand1;\n        float pRadius = radius + radiusVar * rand2;\n        return vec4(encode(pAngle, ROTATION_SCALE), encode(pRadius, radiusScale));\n    }\n}\nvec4 initControl2 (float startR1, float rand1, float rand2) {\n    \n    if (mode == 0.0) {\n        float pRadial = radial + radialVar * rand1;\n        float pTangent = tangent + tangentVar * rand2;\n        return vec4(encode(pRadial, accelScale), encode(pTangent, accelScale));\n    }\n    \n    else {\n        float degreesPerSecond = rotatePS + rotatePSVar * rand1;\n        float pDeltaRadius;\n        if (endRadius == START_RADIUS_EQUAL_TO_END_RADIUS) {\n            pDeltaRadius = 0.0;\n        }\n        else {\n            float pRadius = radius + radiusVar * startR1;\n            pDeltaRadius = (endRadius + endRadiusVar * rand2 - pRadius);\n        }\n        return vec4(encode(degreesPerSecond, ROTATION_SCALE), encode(pDeltaRadius, radiusScale));\n    }\n}\nvec4 initPos (float rand1, float rand2) {\n    vec2 result = pos + posVar * vec2(rand1, rand2);\n    return vec4(encode(result.x, POSITION_SCALE), encode(result.y, POSITION_SCALE));\n}\nvoid main() {\n    vec2 pixel = floor(index * statesize);\n    vec2 pindex = floor(pixel / 3.0);\n    vec2 temp = mod(pixel, vec2(3.0, 3.0));\n    float id = floor(temp.y * 3.0 + temp.x);\n    vec2 noffset = vec2(floor(noiseId / 4.0), mod(noiseId, 4.0));\n    vec2 nid = pixel + noffset;\n    vec4 randomD = texture2D(noise, nid / noisesize);\n    \n    vec4 lifeData = texture2D(state, pindex * 3.0 / statesize);\n    float rest = decode(lifeData.rg, LIFE_SCALE);\n    float life = decode(lifeData.ba, LIFE_SCALE);\n    \n    if (id == 0.0) {\n        vec4 data = texture2D(state, index);\n        if (rest <= 0.0) {\n            gl_FragColor = initLife(data, randomD);\n        }\n        else {\n            gl_FragColor = data;\n        }\n        return;\n    }\n    \n    if (rest > 0.0) {\n        vec4 data = texture2D(state, index);\n        gl_FragColor = data;\n        return;\n    }\n    vec2 lifeNid = pindex * 3.0 + noffset;\n    vec4 lifeRandomD = texture2D(noise, lifeNid / noisesize);\n    bool emitting = doEmit(lifeRandomD);\n    if (!emitting) {\n        vec4 data = texture2D(state, index);\n        gl_FragColor = data;\n        return;\n    }\n    \n    float random1 = randomMinus1To1(randomD.rg);\n    float random2 = randomMinus1To1(randomD.ba);\n    \n    if (id == 1.0) {\n        vec4 randomD3 = texture2D(noise, vec2(nid.x - 1.0, nid.y + 1.0) / noisesize);\n        float random3 = randomMinus1To1(randomD3.rg);\n        float random4 = randomMinus1To1(randomD3.ba);\n        gl_FragColor = initColor(random1, random2, random3, random4);\n        return;\n    }\n    \n    if (id == 2.0) {\n        vec4 randomD1 = texture2D(noise, vec2(nid.x - 1.0, nid.y) / noisesize);\n        float startR1 = randomMinus1To1(randomD1.rg);\n        float startR2 = randomMinus1To1(randomD1.ba);\n        vec2 startR = vec2(startR1, startR2);\n        gl_FragColor = initDeltaRG(startR, vec2(random1, random2));\n        return;\n    }\n    \n    if (id == 3.0) {\n        vec2 startR = vec2(random1, random2);\n        gl_FragColor = initDeltaBA(startR, vec2(random1, random2));\n        return;\n    }\n    \n    if (id == 4.0) {\n        gl_FragColor = initSize(random1, random2);\n        return;\n    }\n    \n    if (id == 5.0) {\n        gl_FragColor = initRotation(random1, random2);\n        return;\n    }\n    \n    if (id == 6.0) {\n        gl_FragColor = initControl1(random1, random2);\n        return;\n    }\n    \n    if (id == 7.0) {\n        vec4 randomD6 = texture2D(noise, vec2(nid.x - 1.0, nid.y) / noisesize);\n        float startR1 = randomMinus1To1(randomD6.rg);\n        gl_FragColor = initControl2(startR1, random1, random2);\n        return;\n    }\n    \n    if (id == 8.0) {\n        gl_FragColor = initPos(random1, random2);\n        return;\n    }\n}',
+      frag: 'uniform sampler2D noise;\nuniform sampler2D state;\nuniform vec2 statesize;\nuniform vec2 noisesize;\nuniform bool stopped;\nuniform float dt;\nuniform float mode;\nuniform float noiseId;\nuniform float emitVar;\nuniform float life;\nuniform float lifeVar;\nuniform vec2 pos;\nuniform vec2 posVar;\nuniform vec4 color;\nuniform vec4 colorVar;\nuniform vec4 endColor;\nuniform vec4 endColorVar;\nuniform float size;\nuniform float sizeVar;\nuniform float endSize;\nuniform float endSizeVar;\nuniform float rot;\nuniform float rotVar;\nuniform float endRot;\nuniform float endRotVar;\nuniform float angle;\nuniform float angleVar;\nuniform float speed;\nuniform float speedVar;\nuniform float radial;\nuniform float radialVar;\nuniform float tangent;\nuniform float tangentVar;\nuniform float radius;\nuniform float radiusVar;\nuniform float endRadius;\nuniform float endRadiusVar;\nuniform float rotatePS;\nuniform float rotatePSVar;\nuniform float sizeScale;\nuniform float accelScale;\nuniform float radiusScale;\nvarying vec2 index;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float NOISE_SCALE = 10000.0;\nconst float POSITION_SCALE = 1.0;\nconst float ROTATION_SCALE = 1.0;\nconst float COLOR_SCALE = 1.0;\nconst float LIFE_SCALE = 60.0;\nconst float START_SIZE_EQUAL_TO_END_SIZE = -1.0;\nconst float START_RADIUS_EQUAL_TO_END_RADIUS = -1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvec2 encode(float value, float scale) {\n    value = value * scale + OFFSET;\n    float x = mod(value, BASE);\n    float y = floor(value / BASE);\n    return vec2(x, y) / BASE;\n}\nfloat randomMinus1To1(vec2 randomD) {\n    float random = decode(randomD, NOISE_SCALE);\n    return (random - 0.5) * 2.0;\n}\nbool doEmit (vec4 randomD) {\n    float random1 = decode(randomD.rg, NOISE_SCALE);\n    if (!stopped && (life + lifeVar) * random1 < life) {\n        return true;\n    }\n    else {\n        return false;\n    }\n}\nvec4 initLife (vec4 data, vec4 randomD) {\n    \n    if (doEmit(randomD)) {\n        float random2 = randomMinus1To1(randomD.ba);\n        float plife = life + lifeVar * random2;\n        vec2 l = encode(plife, LIFE_SCALE);\n        return vec4(l, l);\n    }\n    else {\n        return data;\n    }\n}\nvec4 initColor (float randr, float randg, float randb, float randa) {\n    vec4 random = vec4(randr, randg, randb, randa);\n    vec4 result = clamp(color + colorVar * random, 0.0, 255.0);\n    return result / 255.0;\n}\nvec4 initDeltaRG (vec2 startR, vec2 random) {\n    vec2 start = clamp(color.rg + colorVar.rg * startR, 0.0, 255.0);\n    vec2 end = clamp(endColor.rg + endColorVar.rg * random, 0.0, 255.0);\n    vec2 delta = end - start;\n    return vec4(encode(delta.x, COLOR_SCALE), encode(delta.y, COLOR_SCALE));\n}\nvec4 initDeltaBA (vec2 startR, vec2 random) {\n    vec2 start = clamp(color.ba + colorVar.ba * startR, 0.0, 255.0);\n    vec2 end = clamp(endColor.ba + endColorVar.ba * random, 0.0, 255.0);\n    vec2 delta = end - start;\n    return vec4(encode(delta.x, COLOR_SCALE), encode(delta.y, COLOR_SCALE));\n}\nvec4 initSize (float rand1, float rand2) {\n    float start = max(0.0, size + sizeVar * rand1);\n    if (endSize == START_SIZE_EQUAL_TO_END_SIZE) {\n        float delta = 0.0;\n        return vec4(encode(start, sizeScale), encode(delta, sizeScale));\n    }\n    else {\n        float end = max(0.0, endSize + endSizeVar * rand2);\n        float delta = end - start;\n        return vec4(encode(start, sizeScale), encode(delta, sizeScale));\n    }\n}\nvec4 initRotation (float rand1, float rand2) {\n    float start = rot + rotVar * rand1;\n    float end = endRot + endRotVar * rand2;\n    float delta = end - start;\n    return vec4(encode(start, ROTATION_SCALE), encode(delta, ROTATION_SCALE));\n}\nvec4 initControl1 (float rand1, float rand2) {\n    \n    if (mode == 0.0) {\n        float pAngle = angle + angleVar * rand1;\n        float dirX = cos(pAngle);\n        float dirY = sin(pAngle);\n        float pSpeed = speed + speedVar * rand2;\n        return vec4(encode(dirX * pSpeed, POSITION_SCALE), encode(dirY * pSpeed, POSITION_SCALE));\n    }\n    \n    else {\n        float pAngle = angle + angleVar * rand1;\n        float pRadius = radius + radiusVar * rand2;\n        return vec4(encode(pAngle, ROTATION_SCALE), encode(pRadius, radiusScale));\n    }\n}\nvec4 initControl2 (float startR1, float rand1, float rand2) {\n    \n    if (mode == 0.0) {\n        float pRadial = radial + radialVar * rand1;\n        float pTangent = tangent + tangentVar * rand2;\n        return vec4(encode(pRadial, accelScale), encode(pTangent, accelScale));\n    }\n    \n    else {\n        float degreesPerSecond = rotatePS + rotatePSVar * rand1;\n        float pDeltaRadius;\n        if (endRadius == START_RADIUS_EQUAL_TO_END_RADIUS) {\n            pDeltaRadius = 0.0;\n        }\n        else {\n            float pRadius = radius + radiusVar * startR1;\n            pDeltaRadius = (endRadius + endRadiusVar * rand2 - pRadius);\n        }\n        return vec4(encode(degreesPerSecond, ROTATION_SCALE), encode(pDeltaRadius, radiusScale));\n    }\n}\nvec4 initPos (float rand1, float rand2) {\n    vec2 result = pos + posVar * vec2(rand1, rand2);\n    return vec4(encode(result.x, POSITION_SCALE), encode(result.y, POSITION_SCALE));\n}\nvoid main() {\n    vec2 pixel = floor(index * statesize);\n    vec2 pindex = floor(pixel / 3.0);\n    vec2 temp = mod(pixel, vec2(3.0, 3.0));\n    float id = floor(temp.y * 3.0 + temp.x);\n    vec2 noffset = vec2(floor(noiseId / 4.0), mod(noiseId, 4.0));\n    vec2 nid = pixel + noffset;\n    vec4 randomD = texture2D(noise, nid / noisesize);\n    \n    vec4 lifeData = texture2D(state, pindex * 3.0 / statesize);\n    float rest = decode(lifeData.rg, LIFE_SCALE);\n    float life = decode(lifeData.ba, LIFE_SCALE);\n    \n    if (id == 0.0) {\n        vec4 data = texture2D(state, index);\n        if (rest <= 0.0) {\n            gl_FragColor = initLife(data, randomD);\n        }\n        else {\n            gl_FragColor = data;\n        }\n        return;\n    }\n    \n    if (rest > 0.0) {\n        vec4 data = texture2D(state, index);\n        gl_FragColor = data;\n        return;\n    }\n    vec2 lifeNid = pindex * 3.0 + noffset;\n    vec4 lifeRandomD = texture2D(noise, lifeNid / noisesize);\n    bool emitting = doEmit(lifeRandomD);\n    if (!emitting) {\n        vec4 data = texture2D(state, index);\n        gl_FragColor = data;\n        return;\n    }\n    \n    float random1 = randomMinus1To1(randomD.rg);\n    float random2 = randomMinus1To1(randomD.ba);\n    \n    if (id == 1.0) {\n        vec4 randomD3 = texture2D(noise, vec2(nid.x - 1.0, nid.y + 1.0) / noisesize);\n        float random3 = randomMinus1To1(randomD3.rg);\n        float random4 = randomMinus1To1(randomD3.ba);\n        gl_FragColor = initColor(random1, random2, random3, random4);\n        return;\n    }\n    \n    if (id == 2.0) {\n        vec4 randomD1 = texture2D(noise, vec2(nid.x - 1.0, nid.y) / noisesize);\n        float startR1 = randomMinus1To1(randomD1.rg);\n        float startR2 = randomMinus1To1(randomD1.ba);\n        vec2 startR = vec2(startR1, startR2);\n        gl_FragColor = initDeltaRG(startR, vec2(random1, random2));\n        return;\n    }\n    \n    if (id == 3.0) {\n        vec2 startR = vec2(random1, random2);\n        gl_FragColor = initDeltaBA(startR, vec2(random1, random2));\n        return;\n    }\n    \n    if (id == 4.0) {\n        gl_FragColor = initSize(random1, random2);\n        return;\n    }\n    \n    if (id == 5.0) {\n        gl_FragColor = initRotation(random1, random2);\n        return;\n    }\n    \n    if (id == 6.0) {\n        gl_FragColor = initControl1(random1, random2);\n        return;\n    }\n    \n    if (id == 7.0) {\n        vec4 randomD6 = texture2D(noise, vec2(nid.x - 1.0, nid.y) / noisesize);\n        float startR1 = randomMinus1To1(randomD6.rg);\n        gl_FragColor = initControl2(startR1, random1, random2);\n        return;\n    }\n    \n    if (id == 8.0) {\n        gl_FragColor = initPos(random1, random2);\n        return;\n    }\n}',
       options: [
       ],
     },
@@ -14154,12 +14154,14 @@ module.exports = (function () {
       this.buffers = {
         updateVB: new gfx.VertexBuffer(device, _vertexFmt, gfx.USAGE_STATIC, verts, 4),
         updateIB: new gfx.IndexBuffer(device, gfx.INDEX_FMT_UINT8, gfx.USAGE_STATIC, indices, 6),
-        indexes: null
+        indexes: null,
+        particleCache: null
       };
   
       this._elapsed = 0;
+      this._stopped = false;
   
-      this.updateParticleCount(config);
+      this.updateMaxParticle(config);
       this.updateSizeScale(config);
       this.updateRadiusScale(config);
       this.updateAccelScale(config);
@@ -14179,24 +14181,44 @@ module.exports = (function () {
     }
   
     get particleCount () {
-      return this._particleCount;
+      let particleCount = 0;
+      let device = this._device;
+      device.setFrameBuffer(this.framebuffers.state0);
+      let w = this.statesize[0], h = this.statesize[1],
+          tw = this._tw, th = this._th,
+          rgba = this.buffers.particleCache;
+      device._gl.readPixels(0, 0, w, h, device._gl.RGBA, device._gl.UNSIGNED_BYTE, rgba);
+      for (let y = 0; y < th; y++) {
+        for (let x = 0; x < tw; x++) {
+          let offset = y * 3 * tw * 12 + x * 12;
+          let rest = decode(rgba, offset, LIFE_SCALE);
+          if (rest > 0) {
+            particleCount++;
+          }
+        }
+      }
+      return particleCount;
     }
   
-    updateParticleCount (config) {
+    get stopped () {
+      return this._stopped;
+    }
+  
+    updateMaxParticle (config) {
       let emissionMax = Math.floor(config.emissionRate * (config.life + config.lifeVar));
-      let particleCount;
+      let maxParticle;
       if (config.totalParticles > emissionMax) {
-        particleCount = emissionMax;
+        maxParticle = emissionMax;
         this._emitVar = config.lifeVar;
       }
       else {
-        particleCount = config.totalParticles;
+        maxParticle = config.totalParticles;
         this._emitVar = 0;
       }
-      if (particleCount !== this._particleCount) {
-        this._particleCount = particleCount;
-        this._tw = Math.ceil(Math.sqrt(particleCount));
-        this._th = Math.floor(Math.sqrt(particleCount));
+      if (maxParticle !== this._maxParticle) {
+        this._maxParticle = maxParticle;
+        this._tw = Math.ceil(Math.sqrt(maxParticle));
+        this._th = Math.floor(Math.sqrt(maxParticle));
         this.initTextures();
         this.initBuffers();
       }
@@ -14294,6 +14316,7 @@ module.exports = (function () {
         }
       }
       this.buffers.indexes = indexes;
+      this.buffers.particleCache = new Uint8Array(this.statesize[0] * this.statesize[1] * 4);
     }
   
     updateSizeScale (config) {
@@ -14323,7 +14346,12 @@ module.exports = (function () {
       this._radiusScale = clampf(scale, 1, MAX_SCALE);
     }
   
-    stopSystem (searchIndex) {
+    resetSystem () {
+      this._stopped = false;
+    }
+  
+    stopSystem () {
+      this._stopped = true;
     }
   
     getState (framebuffer) {
@@ -14466,6 +14494,7 @@ module.exports = (function () {
       device.setTexture('state', this.textures.state0, 1);
       device.setUniform('statesize', this.statesize);
       device.setUniform('noisesize', this._noisesize);
+      device.setUniform('stopped', this._stopped);
       device.setUniform('dt', dt);
       device.setUniform('mode', config.emitterMode);
       device.setUniform('noiseId', Math.floor(Math.random() * 16));
@@ -14998,5 +15027,4 @@ module.exports = (function () {
   
   return renderEngine;
   
-}());
-  
+  }());

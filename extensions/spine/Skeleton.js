@@ -23,12 +23,18 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const TrackEntryListeners = require('./track-entry-listeners');
+const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent');
+const spine = require('./lib/spine');
+const renderEngine = require('../../cocos2d/core/renderer/render-engine');
+const RenderData = renderEngine.RenderData;
+const SpriteMaterial = renderEngine.SpriteMaterial;
+
 /**
  * @module sp
  */
-
-var DefaultSkinsEnum = cc.Enum({ 'default': -1 });
-var DefaultAnimsEnum = cc.Enum({ '<None>': 0 });
+let DefaultSkinsEnum = cc.Enum({ 'default': -1 });
+let DefaultAnimsEnum = cc.Enum({ '<None>': 0 });
 
 function setEnumAttr (obj, propName, enumDef) {
     cc.Class.attr(obj, propName, {
@@ -54,12 +60,9 @@ function setEnumAttr (obj, propName, enumDef) {
  * @class Skeleton
  * @extends Component
  */
-
-// 由于 Spine 的 _sgNode 需要参数才能初始化, 所以这里的 _sgNode 不在构造函数中赋值, 每次访问前都要先判断一次是否初始化了
-
 sp.Skeleton = cc.Class({
     name: 'sp.Skeleton',
-    extends: cc.Component,
+    extends: RenderComponent,
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Spine Skeleton',
         help: 'app://docs/html/components/spine.html',
@@ -67,35 +70,6 @@ sp.Skeleton = cc.Class({
     },
 
     properties: {
-
-        /**
-         * Record the listeners.
-         */
-        _startListener: {
-            default: null,
-            serializable: false,
-        },
-        _endListener: {
-            default: null,
-            serializable: false,
-        },
-        _completeListener: {
-            default: null,
-            serializable: false,
-        },
-        _eventListener: {
-            default: null,
-            serializable: false,
-        },
-        _disposeListener: {
-            default: null,
-            serializable: false,
-        },
-        _interruptListener: {
-            default: null,
-            serializable: false,
-        },
-
         /**
          * !#en The skeletal animation is paused?
          * !#zh 该骨骼动画是否暂停。
@@ -104,23 +78,8 @@ sp.Skeleton = cc.Class({
          * @readOnly
          * @default false
          */
-        _paused: false,
         paused: {
-            get: function () {
-                return this._paused;
-            },
-            set: function (value) {
-                this._paused = value;
-                if (!this._sgNode) {
-                    return;
-                }
-                if (value) {
-                    this._sgNode.pause();
-                }
-                else {
-                    this._sgNode.resume();
-                }
-            },
+            default: false,
             visible: false
         },
 
@@ -138,10 +97,12 @@ sp.Skeleton = cc.Class({
         skeletonData: {
             default: null,
             type: sp.SkeletonData,
-            notify: function () {
+            notify () {
                 this.defaultSkin = '';
                 this.defaultAnimation = '';
-                this._refresh();
+                if (CC_EDITOR) {
+                    this._refreshInspector();
+                }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.skeleton_data'
         },
@@ -153,7 +114,7 @@ sp.Skeleton = cc.Class({
         //atlasFile: {
         //    default: '',
         //    url: cc.TextAsset,
-        //    notify: function () {
+        //    notify () {
         //        this.defaultSkin = '';
         //        this.defaultAnimation = '';
         //        this._applyAsset();
@@ -187,11 +148,11 @@ sp.Skeleton = cc.Class({
          * @property {String} animation
          */
         animation: {
-            get: function () {
+            get () {
                 var entry = this.getCurrent(0);
                 return (entry && entry.animation.name) || "";
             },
-            set: function (value) {
+            set (value) {
                 this.defaultAnimation = value;
                 if (value) {
                     this.setAnimation(0, value, this.loop);
@@ -208,7 +169,7 @@ sp.Skeleton = cc.Class({
          * @property {Number} _defaultSkinIndex
          */
         _defaultSkinIndex: {
-            get: function () {
+            get () {
                 if (this.skeletonData && this.defaultSkin) {
                     var skinsEnum = this.skeletonData.getSkinsEnum();
                     if (skinsEnum) {
@@ -220,7 +181,7 @@ sp.Skeleton = cc.Class({
                 }
                 return 0;
             },
-            set: function (value) {
+            set (value) {
                 var skinsEnum;
                 if (this.skeletonData) {
                     skinsEnum = this.skeletonData.getSkinsEnum();
@@ -233,7 +194,7 @@ sp.Skeleton = cc.Class({
                 if (skinName !== undefined) {
                     this.defaultSkin = skinName;
                     if (CC_EDITOR && !cc.engine.isPlaying) {
-                        this._refresh();
+                        this._refreshInspector();
                     }
                 }
                 else {
@@ -248,7 +209,7 @@ sp.Skeleton = cc.Class({
 
         // value of 0 represents no animation
         _animationIndex: {
-            get: function () {
+            get () {
                 var animationName = (!CC_EDITOR || cc.engine.isPlaying) ? this.animation : this.defaultAnimation;
                 if (this.skeletonData && animationName) {
                     var animsEnum = this.skeletonData.getAnimsEnum();
@@ -261,7 +222,7 @@ sp.Skeleton = cc.Class({
                 }
                 return 0;
             },
-            set: function (value) {
+            set (value) {
                 if (value === 0) {
                     this.animation = '';
                     return;
@@ -322,17 +283,8 @@ sp.Skeleton = cc.Class({
          * @property {Boolean} premultipliedAlpha
          * @default true
          */
-        _premultipliedAlpha: true,
         premultipliedAlpha: {
-            get: function () {
-                return this._premultipliedAlpha;
-            },
-            set: function (value) {
-                this._premultipliedAlpha = value;
-                if (this._sgNode) {
-                    this._sgNode.setPremultipliedAlpha(value);
-                }
-            },
+            default: true,
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.premultipliedAlpha'
         },
 
@@ -344,11 +296,6 @@ sp.Skeleton = cc.Class({
          */
         timeScale: {
             default: 1,
-            notify: function () {
-                if (this._sgNode) {
-                    this._sgNode.setTimeScale(this.timeScale);
-                }
-            },
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.time_scale'
         },
 
@@ -360,11 +307,6 @@ sp.Skeleton = cc.Class({
          */
         debugSlots: {
             default: false,
-            notify: function () {
-                if (this._sgNode) {
-                    this._sgNode.setDebugSlotsEnabled(this.debugSlots);
-                }
-            },
             editorOnly: true,
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.debug_slots'
         },
@@ -377,137 +319,103 @@ sp.Skeleton = cc.Class({
          */
         debugBones: {
             default: false,
-            notify: function () {
-                if (this._sgNode) {
-                    this._sgNode.setDebugBonesEnabled(this.debugBones);
-                }
-            },
             editorOnly: true,
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.debug_bones'
         }
     },
 
-    // IMPLEMENT
+    // CONSTRUCTOR
+    ctor () {
+        this._skeleton = null;
+        this._rootBone = null;
+        this._timeScale = 1.0;
+        this._listener = null;
+        this._boundingBox = cc.rect();
+        this._material = new SpriteMaterial();
+        this._renderDatas = [];
+    },
 
-    __preload: function () {
+    /**
+     * !#en
+     * Sets runtime skeleton data to sp.Skeleton.<br>
+     * This method is different from the `skeletonData` property. This method is passed in the raw data provided by the Spine runtime, and the skeletonData type is the asset type provided by Creator.
+     * !#zh
+     * 设置底层运行时用到的 SkeletonData。<br>
+     * 这个接口有别于 `skeletonData` 属性，这个接口传入的是 Spine runtime 提供的原始数据，而 skeletonData 的类型是 Creator 提供的资源类型。
+     * @method setSkeletonData
+     * @param {sp.spine.SkeletonData} skeletonData
+     */
+    setSkeletonData (skeletonData) {
+        if (skeletonData.width != null && skeletonData.height != null) {
+            this.node.setContentSize(skeletonData.width, skeletonData.height);
+        }
+
+        this._skeleton = new spine.Skeleton(skeletonData);
+        // this._skeleton.updateWorldTransform();
+        this._rootBone = this._skeleton.getRootBone();
+    },
+
+    /**
+     * !#en Sets animation state data.<br>
+     * The parameter type is {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.AnimationStateData.
+     * !#zh 设置动画状态数据。<br>
+     * 参数是 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.AnimationStateData。
+     * @method setAnimationStateData
+     * @param {sp.spine.AnimationStateData} stateData
+     */
+    setAnimationStateData (stateData) {
+        var state = new spine.AnimationState(stateData);
+        if (this._listener) {
+            if (this._state && this._listener) {
+                this._state.removeListener(this._listener);
+            }
+            state.addListener(this._listener);
+        }
+        this._state = state;
+    },
+
+    // IMPLEMENT
+    __preload () {
         if (CC_EDITOR) {
             var Flags = cc.Object.Flags;
             this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);
+            
+            this._refreshInspector();
         }
-        // sgNode 的尺寸不是很可靠 同时 Node 的框框也没办法和渲染匹配 只好强制尺寸为零
-        this.node.setContentSize(0, 0);
-        //
-        this._refresh();
-    },
 
-    _createSgNode: function () {
-        if (this.skeletonData/* && self.atlasFile*/) {
-            if (CC_JSB) {
-                var uuid = this.skeletonData._uuid;
-                if ( !uuid ) {
-                    cc.errorID(7504);
-                    return null;
-                }
-                var jsonFile = this.skeletonData.rawUrl;
-                var atlasFile = this.skeletonData.atlasUrl;
-                if (atlasFile) {
-                    if (typeof atlasFile !== 'string') {
-                        cc.errorID(7505);
-                        return null;
-                    }
-                    try {
-                        return new sp._SGSkeletonAnimation(jsonFile, atlasFile, this.skeletonData.scale);
-                    }
-                    catch (e) {
-                        cc._throw(e);
+        if (this.skeletonData/* && this.atlasFile*/) {
+            var data = this.skeletonData.getRuntimeData();
+            if (data) {
+                try {
+                    this.setSkeletonData(data);
+                    this.setAnimationStateData(new spine.AnimationStateData(this._skeleton.data));
+                    if (this.defaultSkin) {
+                        this._skeleton.setSkinByName(this.defaultSkin);
                     }
                 }
-            }
-            else {
-                var data = this.skeletonData.getRuntimeData();
-                if (data) {
-                    try {
-                        return new sp._SGSkeletonAnimation(data, null, this.skeletonData.scale);
-                    }
-                    catch (e) {
-                        cc._throw(e);
-                    }
+                catch (e) {
+                    cc.warn(e);
                 }
+                this.animation = this.defaultAnimation;
             }
-        }
-        return null;
-    },
-
-    _initSgNode: function () {
-        var sgNode = this._sgNode;
-        sgNode.setTimeScale(this.timeScale);
-
-        var self = this;
-        sgNode.onEnter = function () {
-            _ccsg.Node.prototype.onEnter.call(this);
-            if (self._paused) {
-                this.pause();
-            }
-        };
-
-        // using the recorded event listeners
-        this._startListener && this.setStartListener(this._startListener);
-        this._endListener && this.setEndListener(this._endListener);
-        this._completeListener && this.setCompleteListener(this._completeListener);
-        this._eventListener && this.setEventListener(this._eventListener);
-        this._interruptListener && this.setInterruptListener(this._interruptListener);
-        this._disposeListener && this.setDisposeListener(this._disposeListener);
-
-        //if (!CC_EDITOR) {
-        //    function animationCallback (ccObj, trackIndex, type, event, loopCount) {
-        //        var eventType = AnimEvents[type];3
-        //        var detail = {
-        //            trackIndex: trackIndex
-        //        };
-        //        if (type === sp.ANIMATION_EVENT_TYPE.COMPLETE) {
-        //            detail.loopCount = loopCount;
-        //        }
-        //        else if (type === sp.ANIMATION_EVENT_TYPE.EVENT) {
-        //            detail.event = event;
-        //        }
-        //        //Fire.log("[animationCallback] eventType: %s, time: '%s'", eventType, Fire.Time.time);
-        //        self.entity.emit(eventType, detail);
-        //    }
-        //    sgNode.setAnimationListener(target, animationCallback);
-        //}
-        if (this.defaultSkin) {
-            try {
-                sgNode.setSkin(this.defaultSkin);
-            }
-            catch (e) {
-                cc._throw(e);
-            }
-        }
-
-        sgNode.setPremultipliedAlpha(this._premultipliedAlpha);
-
-        this.animation = this.defaultAnimation;
-        if (CC_EDITOR) {
-            sgNode.setDebugSlotsEnabled(this.debugSlots);
-            sgNode.setDebugBonesEnabled(this.debugBones);
         }
     },
 
-    _getLocalBounds: CC_EDITOR && function (out_rect) {
-        if (this._sgNode) {
-            var rect = this._sgNode.getBoundingBox();
-            out_rect.x = rect.x;
-            out_rect.y = rect.y;
-            out_rect.width = rect.width;
-            out_rect.height = rect.height;
+    onDestroy () {
+        this._super();
+        for (let i = 0; i < this._renderDatas.length; i++) {
+            RenderData.free(this._renderDatas[i]);
         }
-        else {
-            out_rect.x = 0;
-            out_rect.y = 0;
-            out_rect.width = 0;
-            out_rect.height = 0;
-        }
+        this._renderDatas.length = 0;
     },
+
+    // _getLocalBounds: CC_EDITOR && function (out_rect) {
+    //     var rect = this._boundingBox;
+    //     out_rect.x = rect.x;
+    //     out_rect.y = rect.y;
+    //     out_rect.width = rect.width;
+    //     out_rect.height = rect.height;
+    // },
 
     // RENDERER
 
@@ -523,9 +431,9 @@ sp.Skeleton = cc.Class({
      * bone = spine.findBone('head');
      * cc.log(bone.worldX); // return -23.12;
      */
-    updateWorldTransform: function () {
-        if (this._sgNode) {
-            this._sgNode.updateWorldTransform();
+    updateWorldTransform () {
+        if (this._skeleton) {
+            this._skeleton.updateWorldTransform();
         }
     },
 
@@ -534,9 +442,9 @@ sp.Skeleton = cc.Class({
      * !#zh 还原到起始动作
      * @method setToSetupPose
      */
-    setToSetupPose: function () {
-        if (this._sgNode) {
-            this._sgNode.setToSetupPose();
+    setToSetupPose () {
+        if (this._skeleton) {
+            this._skeleton.setToSetupPose();
         }
     },
 
@@ -549,9 +457,9 @@ sp.Skeleton = cc.Class({
      * 使用 SkeletonData 中的 BoneData 列表中的值。
      * @method setBonesToSetupPose
      */
-    setBonesToSetupPose: function () {
-        if (this._sgNode) {
-            this._sgNode.setBonesToSetupPose();
+    setBonesToSetupPose () {
+        if (this._skeleton) {
+            this._skeleton.setBonesToSetupPose();
         }
     },
 
@@ -564,9 +472,9 @@ sp.Skeleton = cc.Class({
      * 使用 SkeletonData 中的 SlotData 列表中的值。
      * @method setSlotsToSetupPose
      */
-    setSlotsToSetupPose: function () {
-        if (this._sgNode) {
-            this._sgNode.setSlotsToSetupPose();
+    setSlotsToSetupPose () {
+        if (this._skeleton) {
+            this._skeleton.setSlotsToSetupPose();
         }
     },
 
@@ -584,9 +492,9 @@ sp.Skeleton = cc.Class({
      * @param {String} boneName
      * @return {sp.spine.Bone}
      */
-    findBone: function (boneName) {
-        if (this._sgNode) {
-            return this._sgNode.findBone(boneName);
+    findBone (boneName) {
+        if (this._skeleton) {
+            return this._skeleton.findBone(boneName);
         }
         return null;
     },
@@ -603,9 +511,9 @@ sp.Skeleton = cc.Class({
      * @param {String} slotName
      * @return {sp.spine.Slot}
      */
-    findSlot: function (slotName) {
-        if (this._sgNode) {
-            return this._sgNode.findSlot(slotName);
+    findSlot (slotName) {
+        if (this._skeleton) {
+            return this._skeleton.findSlot(slotName);
         }
         return null;
     },
@@ -625,9 +533,9 @@ sp.Skeleton = cc.Class({
      * @param {String} skinName
      * @return {sp.spine.Skin}
      */
-    setSkin: function (skinName) {
-        if (this._sgNode) {
-            return this._sgNode.setSkin(skinName);
+    setSkin (skinName) {
+        if (this._skeleton) {
+            return this._skeleton.setSkin(skinName);
         }
         return null;
     },
@@ -646,9 +554,9 @@ sp.Skeleton = cc.Class({
      * @param {String} attachmentName
      * @return {sp.spine.Attachment}
      */
-    getAttachment: function (slotName, attachmentName) {
-        if (this._sgNode) {
-            return this._sgNode.getAttachment(slotName, attachmentName);
+    getAttachment (slotName, attachmentName) {
+        if (this._skeleton) {
+            return this._skeleton.getAttachment(slotName, attachmentName);
         }
         return null;
     },
@@ -664,57 +572,23 @@ sp.Skeleton = cc.Class({
      * @param {String} slotName
      * @param {String} attachmentName
      */
-    setAttachment: function (slotName, attachmentName) {
-        if (this._sgNode) {
-            this._sgNode.setAttachment(slotName, attachmentName);
+    setAttachment (slotName, attachmentName) {
+        if (this._skeleton) {
+            this._skeleton.setAttachment(slotName, attachmentName);
         }
     },
 
     /**
-     * !#en
-     * Sets runtime skeleton data to sp.Skeleton.<br>
-     * This method is different from the `skeletonData` property. This method is passed in the raw data provided by the Spine runtime, and the skeletonData type is the asset type provided by Creator.
-     * !#zh
-     * 设置底层运行时用到的 SkeletonData。<br>
-     * 这个接口有别于 `skeletonData` 属性，这个接口传入的是 Spine runtime 提供的原始数据，而 skeletonData 的类型是 Creator 提供的资源类型。
-     * @method setSkeletonData
-     * @param {sp.spine.SkeletonData} skeletonData
-     * @param {sp.spine.SkeletonData} ownsSkeletonData
-     */
-    setSkeletonData: function (skeletonData, ownsSkeletonData) {
-        if (this._sgNode) {
-            this._sgNode.setSkeletonData(skeletonData, ownsSkeletonData);
-        }
+    * Return the renderer of attachment.
+    * @method getTextureAtlas
+    * @param {sp.spine.RegionAttachment|spine.BoundingBoxAttachment} regionAttachment
+    * @return {sp.spine.TextureAtlasRegion}
+    */
+    getTextureAtlas (regionAttachment) {
+        return regionAttachment.region;
     },
-
-    ///**
-    // * Return the renderer of attachment.
-    // * @method getTextureAtlas
-    // * @param {sp.spine.RegionAttachment|spine.BoundingBoxAttachment} regionAttachment
-    // * @return {_ccsg.Node}
-    // */
-    //getTextureAtlas: function (regionAttachment) {
-    //    if (this._sgNode) {
-    //        this._sgNode.getTextureAtlas(regionAttachment);
-    //    }
-    //},
 
     // ANIMATION
-
-    /**
-     * !#en Sets animation state data.<br>
-     * The parameter type is {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.AnimationStateData.
-     * !#zh 设置动画状态数据。<br>
-     * 参数是 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.AnimationStateData。
-     * @method setAnimationStateData
-     * @param {sp.spine.AnimationStateData} stateData
-     */
-    setAnimationStateData: function (stateData) {
-        if (this._sgNode) {
-            return this._sgNode.setAnimationStateData(stateData);
-        }
-    },
-
     /**
      * !#en
      * Mix applies all keyframe values,
@@ -725,9 +599,9 @@ sp.Skeleton = cc.Class({
      * @param {String} toAnimation
      * @param {Number} duration
      */
-    setMix: function (fromAnimation, toAnimation, duration) {
-        if (this._sgNode) {
-            this._sgNode.setMix(fromAnimation, toAnimation, duration);
+    setMix (fromAnimation, toAnimation, duration) {
+        if (this._state) {
+            this._state.data.setMixWith(fromAnimation, toAnimation, duration);
         }
     },
 
@@ -738,9 +612,9 @@ sp.Skeleton = cc.Class({
      * @param {Object} target
      * @param {Function} callback
      */
-    setAnimationListener: function (target, callback) {
-        if (this._sgNode) {
-            this._sgNode.setAnimationListener(target, callback);
+    setAnimationListener (target, callback) {
+        if (this._skeleton) {
+            this._skeleton.setAnimationListener(target, callback);
         }
     },
 
@@ -755,22 +629,21 @@ sp.Skeleton = cc.Class({
      * @param {Boolean} loop
      * @return {sp.spine.TrackEntry}
      */
-    setAnimation: function (trackIndex, name, loop) {
-        if (this._sgNode) {
-            var res = this._sgNode.setAnimation(trackIndex, name, loop);
+    setAnimation (trackIndex, name, loop) {
+        if (this._skeleton) {
+            var animation = this._skeleton.data.findAnimation(name);
+            if (!animation) {
+                cc.logID(7509, name);
+                return null;
+            }
+            var res = this._state.setAnimationWith(trackIndex, animation, loop);
             if (CC_EDITOR && !cc.engine.isPlaying) {
-                this._sample();
-                this.clearTrack(trackIndex);
+                this._state.update(0);
+                this._state.clearTracks();
             }
             return res;
         }
         return null;
-    },
-
-    _sample: function () {
-        if (this._sgNode) {
-            this._sgNode.update(0);
-        }
     },
 
     /**
@@ -785,9 +658,15 @@ sp.Skeleton = cc.Class({
      * @param {Number} [delay=0]
      * @return {sp.spine.TrackEntry}
      */
-    addAnimation: function (trackIndex, name, loop, delay) {
-        if (this._sgNode) {
-            return this._sgNode.addAnimation(trackIndex, name, loop, delay || 0);
+    addAnimation (trackIndex, name, loop, delay) {
+        if (this._skeleton) {
+            delay = delay || 0;
+            var animation = this._skeleton.data.findAnimation(name);
+            if (!animation) {
+                cc.logID(7510, name);
+                return null;
+            }
+            return this._state.addAnimationWith(trackIndex, animation, loop, delay);
         }
         return null;
     },
@@ -799,9 +678,9 @@ sp.Skeleton = cc.Class({
      * @param {String} name
      * @returns {sp.spine.Animation}
      */
-    findAnimation: function (name) {
-        if (this._sgNode) {
-            return this._sgNode.findAnimation(name);
+    findAnimation (name) {
+        if (this._skeleton) {
+            return this._skeleton.data.findAnimation(name);
         }
         return null;
     },
@@ -815,9 +694,9 @@ sp.Skeleton = cc.Class({
      * @param trackIndex
      * @return {sp.spine.TrackEntry}
      */
-    getCurrent: function (trackIndex) {
-        if (this._sgNode) {
-            return this._sgNode.getCurrent(trackIndex);
+    getCurrent (trackIndex) {
+        if (this._state) {
+            return this._state.getCurrent(trackIndex);
         }
         return null;
     },
@@ -827,9 +706,9 @@ sp.Skeleton = cc.Class({
      * !#zh 清除所有 track 的动画状态。
      * @method clearTracks
      */
-    clearTracks: function () {
-        if (this._sgNode) {
-            this._sgNode.clearTracks();
+    clearTracks () {
+        if (this._state) {
+            this._state.clearTracks();
         }
     },
 
@@ -839,11 +718,11 @@ sp.Skeleton = cc.Class({
      * @method clearTrack
      * @param {number} trackIndex
      */
-    clearTrack: function (trackIndex) {
-        if (this._sgNode) {
-            this._sgNode.clearTrack(trackIndex);
+    clearTrack (trackIndex) {
+        if (this._state) {
+            this._state.clearTrack(trackIndex);
             if (CC_EDITOR && !cc.engine.isPlaying) {
-                this._sample();
+                this._state.update(0);
             }
         }
     },
@@ -867,17 +746,22 @@ sp.Skeleton = cc.Class({
         setEnumAttr(this, '_defaultSkinIndex', skinEnum || DefaultSkinsEnum);
     },
 
+    _ensureListener () {
+        if (!this._listener) {
+            this._listener = new TrackEntryListeners();
+            this._state.addListener(this._listener);
+        }
+    },
+
     /**
      * !#en Set the start event listener.
      * !#zh 用来设置开始播放动画的事件监听。
      * @method setStartListener
      * @param {function} listener
      */
-    setStartListener: function (listener) {
-        this._startListener = listener;
-        if (this._sgNode) {
-            this._sgNode.setStartListener(listener);
-        }
+    setStartListener (listener) {
+        this._ensureListener();
+        this._listener.start = listener;
     },
 
     /**
@@ -886,11 +770,9 @@ sp.Skeleton = cc.Class({
      * @method setInterruptListener
      * @param {function} listener
      */
-    setInterruptListener: function (listener) {
-        this._interruptListener = listener;
-        if (this._sgNode) {
-            this._sgNode.setInterruptListener(listener);
-        }
+    setInterruptListener (listener) {
+        this._ensureListener();
+        this._listener.interrupt = listener;
     },
 
     /**
@@ -899,11 +781,9 @@ sp.Skeleton = cc.Class({
      * @method setEndListener
      * @param {function} listener
      */
-    setEndListener: function (listener) {
-        this._endListener = listener;
-        if (this._sgNode) {
-            this._sgNode.setEndListener(listener);
-        }
+    setEndListener (listener) {
+        this._ensureListener();
+        this._listener.end = listener;
     },
 
     /**
@@ -912,11 +792,9 @@ sp.Skeleton = cc.Class({
      * @method setDisposeListener
      * @param {function} listener
      */
-    setDisposeListener: function (listener) {
-        this._disposeListener = listener;
-        if (this._sgNode) {
-            this._sgNode.setDisposeListener(listener);
-        }
+    setDisposeListener (listener) {
+        this._ensureListener();
+        this._listener.dispose = listener;
     },
 
     /**
@@ -925,11 +803,9 @@ sp.Skeleton = cc.Class({
      * @method setCompleteListener
      * @param {function} listener
      */
-    setCompleteListener: function (listener) {
-        this._completeListener = listener;
-        if (this._sgNode) {
-            this._sgNode.setCompleteListener(listener);
-        }
+    setCompleteListener (listener) {
+        this._ensureListener();
+        this._listener.complete = listener;
     },
 
     /**
@@ -938,11 +814,9 @@ sp.Skeleton = cc.Class({
      * @method setEventListener
      * @param {function} listener
      */
-    setEventListener: function (listener) {
-        this._eventListener = listener;
-        if (this._sgNode) {
-            this._sgNode.setEventListener(listener);
-        }
+    setEventListener (listener) {
+        this._ensureListener();
+        this._listener.event = listener;
     },
 
     /**
@@ -952,10 +826,8 @@ sp.Skeleton = cc.Class({
      * @param {sp.spine.TrackEntry} entry
      * @param {function} listener
      */
-    setTrackStartListener: function (entry, listener) {
-        if (this._sgNode) {
-            this._sgNode.setTrackStartListener(entry, listener);
-        }
+    setTrackStartListener (entry, listener) {
+        TrackEntryListeners.getListeners(entry).start = listener;
     },
 
     /**
@@ -965,10 +837,8 @@ sp.Skeleton = cc.Class({
      * @param {sp.spine.TrackEntry} entry
      * @param {function} listener
      */
-    setTrackInterruptListener: function (entry, listener) {
-        if (this._sgNode) {
-            this._sgNode.setTrackInterruptListener(entry, listener);
-        }
+    setTrackInterruptListener (entry, listener) {
+        TrackEntryListeners.getListeners(entry).interrupt = listener;
     },
 
     /**
@@ -978,10 +848,8 @@ sp.Skeleton = cc.Class({
      * @param {sp.spine.TrackEntry} entry
      * @param {function} listener
      */
-    setTrackEndListener: function (entry, listener) {
-        if (this._sgNode) {
-            this._sgNode.setTrackEndListener(entry, listener);
-        }
+    setTrackEndListener (entry, listener) {
+        TrackEntryListeners.getListeners(entry).end = listener;
     },
 
     /**
@@ -991,10 +859,8 @@ sp.Skeleton = cc.Class({
      * @param {sp.spine.TrackEntry} entry
      * @param {function} listener
      */
-    setTrackDisposeListener: function(entry, listener){
-        if (this._sgNode) {
-            this._sgNode.setTrackDisposeListener(entry, listener);
-        }
+    setTrackDisposeListener(entry, listener){
+        TrackEntryListeners.getListeners(entry).dispose = listener;
     },
 
     /**
@@ -1003,11 +869,14 @@ sp.Skeleton = cc.Class({
      * @method setTrackCompleteListener
      * @param {sp.spine.TrackEntry} entry
      * @param {function} listener
+     * @param {sp.spine.TrackEntry} listener.entry
+     * @param {Number} listener.loopCount
      */
-    setTrackCompleteListener: function (entry, listener) {
-        if (this._sgNode) {
-            this._sgNode.setTrackCompleteListener(entry, listener);
-        }
+    setTrackCompleteListener (entry, listener) {
+        TrackEntryListeners.getListeners(entry).complete = function (trackEntry) {
+            var loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd); 
+            listener(trackEntry, loopCount);
+        };
     },
 
     /**
@@ -1017,52 +886,26 @@ sp.Skeleton = cc.Class({
      * @param {sp.spine.TrackEntry} entry
      * @param {function} listener
      */
-    setTrackEventListener: function (entry, listener) {
-        if (this._sgNode) {
-            this._sgNode.setTrackEventListener(entry, listener);
-        }
+    setTrackEventListener (entry, listener) {
+        TrackEntryListeners.getListeners(entry).event = listener;
     },
 
-    //
-
-    getState: function () {
-        if (this._sgNode) {
-            return this._sgNode.getState();
-        }
+    /**
+     * !#en Get the animation state object
+     * !#zh 获取
+     * @method setTrackEventListener
+     * @return {sp.spine.AnimationState} state
+     */
+    getState () {
+        return this._state;
     },
 
-    _refresh: function () {
-        var self = this;
-
-        // discard exists sgNode
-        if (self._sgNode) {
-            if ( self.node._sizeProvider === self._sgNode ) {
-                self.node._sizeProvider = null;
-            }
-            self._removeSgNode();
-            self._sgNode = null;
-        }
-
-        // recreate sgNode...
-        var sgNode = self._sgNode = self._createSgNode();
-        if (sgNode) {
-            if (CC_JSB) {
-                sgNode.retain();
-            }
-            if ( !self.enabledInHierarchy ) {
-                sgNode.setVisible(false);
-            }
-            sgNode.setContentSize(0, 0);    // restore content size
-            self._initSgNode();
-            self._appendSgNode(sgNode);
-            self._registSizeProvider();
-        }
-
-        if (CC_EDITOR) {
-            // update inspector
-            self._updateAnimEnum();
-            self._updateSkinEnum();
-            Editor.Utils.refreshSelectedInspector('node', this.node.uuid);
-        }
+    _refreshInspector () {
+        // update inspector
+        this._updateAnimEnum();
+        this._updateSkinEnum();
+        Editor.Utils.refreshSelectedInspector('node', this.node.uuid);
     }
 });
+
+module.exports = sp.Skeleton;

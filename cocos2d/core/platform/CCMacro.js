@@ -1656,7 +1656,7 @@ cc.macro = {
      *
      * @property {Number} FIX_ARTIFACTS_BY_STRECHING_TEXEL
      */
-    FIX_ARTIFACTS_BY_STRECHING_TEXEL: 0,
+    FIX_ARTIFACTS_BY_STRECHING_TEXEL: false,
 
     /**
      * <p>
@@ -1678,7 +1678,7 @@ cc.macro = {
      *
      * @property {Number} FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX
      */
-    FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX: 1,
+    FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX: true,
 
     /**
      * Position of the FPS (Default: 0,0 (bottom-left corner))<br/>
@@ -1710,7 +1710,7 @@ cc.macro = {
      * </p>
      * @property {Number} COCOSNODE_RENDER_SUBPIXEL
      */
-    COCOSNODE_RENDER_SUBPIXEL: 1,
+    COCOSNODE_RENDER_SUBPIXEL: true,
 
     /**
      * <p>
@@ -1722,7 +1722,7 @@ cc.macro = {
      * </p>
      * @property {Number} SPRITEBATCHNODE_RENDER_SUBPIXEL
      */
-    SPRITEBATCHNODE_RENDER_SUBPIXEL: 1,
+    SPRITEBATCHNODE_RENDER_SUBPIXEL: true,
 
     /**
      * <p>
@@ -1730,7 +1730,7 @@ cc.macro = {
      * </p>
      * @property {Number} AUTO_PREMULTIPLIED_ALPHA_FOR_PNG
      */
-    AUTO_PREMULTIPLIED_ALPHA_FOR_PNG: 0,
+    AUTO_PREMULTIPLIED_ALPHA_FOR_PNG: false,
 
     /**
      * <p>
@@ -1742,74 +1742,7 @@ cc.macro = {
      * </p>
      * @property {Number} OPTIMIZE_BLEND_FUNC_FOR_PREMULTIPLIED_ALPHA
      */
-    OPTIMIZE_BLEND_FUNC_FOR_PREMULTIPLIED_ALPHA: 0,
-
-    /**
-     * <p>
-     *  If enabled, NPOT textures will be used where available. Only 3rd gen (and newer) devices support NPOT textures.<br/>
-     *  NPOT textures have the following limitations:<br/>
-     *     - They can't have mipmaps<br/>
-     *     - They only accept GL_CLAMP_TO_EDGE in GL_TEXTURE_WRAP_{S,T}<br/>
-     *  <br/>
-     *  To enable set it to a value different than 0. Disabled by default. <br/>
-     *  <br/>
-     *  This value governs only the PNG, GIF, BMP, images.<br/>
-     *  This value DOES NOT govern the PVR (PVR.GZ, PVR.CCZ) files. If NPOT PVR is loaded, then it will create an NPOT texture ignoring this value.<br/>
-     *  To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * </p>
-     * @property TEXTURE_NPOT_SUPPORT
-     * @type {Number}
-     * @deprecated This value will be removed in 1.1 and NPOT textures will be loaded by default if the device supports it.
-     */
-    TEXTURE_NPOT_SUPPORT: 0,
-
-    /**
-     * <p>
-     *     If enabled, it will use LA88 (Luminance Alpha 16-bit textures) for CCLabelTTF objects. <br/>
-     *     If it is disabled, it will use A8 (Alpha 8-bit textures).                              <br/>
-     *     LA88 textures are 6% faster than A8 textures, but they will consume 2x memory.         <br/>
-     *                                                                                            <br/>
-     *     This feature is enabled by default.
-     * </p>
-     * @property {Number} USE_LA88_LABELS
-     */
-    USE_LA88_LABELS: 1,
-
-    /**
-     * <p>
-     *   If enabled, all subclasses of _ccsg.Sprite will draw a bounding box<br/>
-     *   Useful for debugging purposes only. It is recommend to leave it disabled.<br/>
-     *   <br/>
-     *   To enable set it to a value different than 0. Disabled by default:<br/>
-     *      0 -- disabled<br/>
-     *      1 -- draw bounding box<br/>
-     *      2 -- draw texture box
-     * </p>
-     * @property {Number} SPRITE_DEBUG_DRAW
-     */
-    SPRITE_DEBUG_DRAW: 0,
-
-    /**
-     * <p>
-     *   If enabled, all subclasses of cc.LabelBMFont will draw a bounding box <br/>
-     *   Useful for debugging purposes only. It is recommend to leave it disabled.<br/>
-     *   <br/>
-     *   To enable set it to a value different than 0. Disabled by default.<br/>
-     * </p>
-     * @property {Number} LABELBMFONT_DEBUG_DRAW
-     */
-    LABELBMFONT_DEBUG_DRAW: 0,
-
-    /**
-     * <p>
-     *    If enabled, all subclasses of cc.LabelAtlas will draw a bounding box<br/>
-     *    Useful for debugging purposes only. It is recommend to leave it disabled.<br/>
-     *    <br/>
-     *    To enable set it to a value different than 0. Disabled by default.
-     * </p>
-     * @property {Number} LABELATLAS_DEBUG_DRAW
-     */
-    LABELATLAS_DEBUG_DRAW: 0,
+    OPTIMIZE_BLEND_FUNC_FOR_PREMULTIPLIED_ALPHA: false,
 
     /**
      * <p>
@@ -1819,7 +1752,7 @@ cc.macro = {
      * </p>
      * @property {Number} ENABLE_STACKABLE_ACTIONS
      */
-    ENABLE_STACKABLE_ACTIONS: 1,
+    ENABLE_STACKABLE_ACTIONS: true,
 
     /**
      * <p>
@@ -1836,7 +1769,7 @@ cc.macro = {
      * @property {Number} ENABLE_GL_STATE_CACHE
      */
     // Editors do not need to cache fix bug for https://github.com/cocos-creator/fireball/issues/3079
-    ENABLE_GL_STATE_CACHE: CC_EDITOR ? 0 : 1,
+    ENABLE_GL_STATE_CACHE: !CC_EDITOR,
 
     /**
      * !#en 

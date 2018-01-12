@@ -154,7 +154,6 @@ module.exports = {
     },
 
     fillVertexBuffer (sprite, index, vbuf, uintbuf) {
-        let off = index * sprite._vertexFormat._bytes / 4;
         let node = sprite.node;
         let renderData = sprite._renderData;
         let data = renderData._data;
@@ -174,13 +173,13 @@ module.exports = {
         let length = renderData.dataLength;
         for (let i = 0; i < length; i++) {
             vert = data[i];
-            vbuf[off + 0] = vert.x * a + vert.y * c + tx;
-            vbuf[off + 1] = vert.x * b + vert.y * d + ty;
-            vbuf[off + 2] = z;
-            vbuf[off + 4] = vert.u;
-            vbuf[off + 5] = vert.v;
-            uintbuf[off + 3] = color;
-            off += 6;
+            vbuf[index + 0] = vert.x * a + vert.y * c + tx;
+            vbuf[index + 1] = vert.x * b + vert.y * d + ty;
+            vbuf[index + 2] = z;
+            vbuf[index + 4] = vert.u;
+            vbuf[index + 5] = vert.v;
+            uintbuf[index + 3] = color;
+            index += 6;
         }
     },
     

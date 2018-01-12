@@ -42,18 +42,6 @@
 
 sp = CC_JSB ? sp : {};
 
-// The vertex index of spine.
-sp.VERTEX_INDEX = {
-    X1: 0,
-    Y1: 1,
-    X2: 2,
-    Y2: 3,
-    X3: 4,
-    Y3: 5,
-    X4: 6,
-    Y4: 7
-};
-
 // The attachment type of spine. It contains three type: REGION(0), BOUNDING_BOX(1), MESH(2) and SKINNED_MESH.
 sp.ATTACHMENT_TYPE = {
     REGION: 0,
@@ -107,24 +95,19 @@ sp.AnimationEventType = cc.Enum({
 /**
  * @module sp
  */
-
 if (!CC_EDITOR || !Editor.isMainProcess) {
     
     if (!CC_JSB) {
         sp.spine = require('./lib/spine');
-
-        require('./SGSkeletonTexture');
-        // require('./SGSkeleton');
-        // require('./SGSkeletonCanvasRenderCmd');
-        // require('./SGSkeletonWebGLRenderCmd');
-        // require('./SGSkeletonAnimation');
     }
     
-    require('./SkeletonData');
-    require('./Skeleton');
+    require('./skeleton-texture');
+    require('./skeleton-data');
+    require('./skeleton');
+    require('../../cocos2d/core/renderer/assemblers/spine-assembler');
 }
 else {
-    require('./SkeletonData');
+    require('./skeleton-data');
 }
 
 /**
