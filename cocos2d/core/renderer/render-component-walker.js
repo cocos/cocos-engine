@@ -271,16 +271,22 @@ RenderComponentWalker.prototype = {
                 data = datas[id];
                 _batchData.data = data;
                 effect = data.effect;
+                // Nothing can be rendered without effect
+                if (!effect) {
+                    continue;
+                }
                 // breaking batch
                 needNewBuf = (_batchData.vertexOffset + data.vertexCount > MAX_VERTEX) || (_batchData.indiceOffset + data.indiceCount > MAX_INDICE);
                 if (_batchData.vfmt && (_batchData.effect != effect || needNewBuf)) {
                     this._checkBatchBroken(_batchData, needNewBuf);
                     this._node = this._dummyNode;
                     _batchData.effect = effect;
+                    _batchData.vfmt = comp._vertexFormat;
                 }
                 // Init effect
                 else if (!_batchData.effect) {
                     _batchData.effect = effect;
+                    _batchData.vfmt = comp._vertexFormat;
                 }
 
                 // Set model
@@ -295,7 +301,6 @@ RenderComponentWalker.prototype = {
                 _batchData.byteOffset += data.vertexCount * comp._vertexFormat._bytes;
                 _batchData.indiceOffset += data.indiceCount;
             }
-            _batchData.vfmt = comp._vertexFormat;
         }
 
         // last batch
