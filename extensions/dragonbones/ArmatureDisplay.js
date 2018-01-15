@@ -481,13 +481,14 @@ dragonBones.ArmatureDisplay = cc.Class({
      * !#zh
      * 添加 DragonBones 事件监听器。
      * @method addEventListener
-     * @param {dragonBones.EventObject} eventType
-     * @param {function} listener
-     * @param {Object} target
+     * @param {String} type - A string representing the event type to listen for.
+     * @param {Function} listener - The callback that will be invoked when the event is dispatched.
+     * @param {Event} listener.event event
+     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      */
-    addEventListener: function (eventType, listener, target) {
+    addEventListener: function (type, listener, target) {
         if (this._sgNode) {
-            this._sgNode.addEvent(eventType, listener, target);
+            this._sgNode.addEvent(type, listener, target);
         }
     },
 
@@ -497,9 +498,9 @@ dragonBones.ArmatureDisplay = cc.Class({
      * !#zh
      * 移除 DragonBones 事件监听器。
      * @method removeEventListener
-     * @param {dragonBones.EventObject} eventType
-     * @param {function} listener
-     * @param {Object} target
+     * @param {String} type - A string representing the event type to listen for.
+     * @param {Function} [listener]
+     * @param {Object} [target]
      */
     removeEventListener: function (eventType, listener, target) {
         if (this._sgNode) {
