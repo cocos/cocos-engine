@@ -37,6 +37,10 @@ var DragonBonesAsset = cc.Class({
     name: 'dragonBones.DragonBonesAsset',
     extends: cc.Asset,
 
+    ctor () {
+        this.reset();
+    },
+
     properties: {
         _dragonBonesJson : '',
 
@@ -68,32 +72,74 @@ var DragonBonesAsset = cc.Class({
         return callback(null, node);
     },
 
-    reset : function() {
+    reset () {
+        this._dragonBonesData = null;
         if (CC_EDITOR) {
-            this._dragonBonesDataCache = null;
             this._armaturesEnum = null;
+        }
+    },
+
+    init: function (factory) {
+        if (CC_EDITOR) {
+            factory = factory || new dragonBones.CCFactory();
+        }
+        if (this._dragonBonesData) {
+            let sameNamedDragonBonesData = factory.getDragonBonesData(this._dragonBonesData.name);
+            if (sameNamedDragonBonesData) {
+                // already added asset, see #2002
+                for (let i = 0; i < this._dragonBonesData.armatureNames.length; i++) {
+                    let armatureName = this._dragonBonesData.armatureNames[i];
+                    if (!sameNamedDragonBonesData.armatures[armatureName]) {
+                        // merge with new armature
+                        sameNamedDragonBonesData.addArmature(this._dragonBonesData.armatures[armatureName]);
+                    }
+                }
+                this._dragonBonesData = sameNamedDragonBonesData;
+            }
+            else {
+                factory.addDragonBonesData(this._dragonBonesData);
+            }
+        }
+        else {
+            if (CC_JSB) {
+                // The 'factory' create a new one every time in JSB, they can't use getDragonBonesData
+                // to get cached data, and don't need to merge armatures.
+                this._dragonBonesData = factory.parseDragonBonesData(this._dragonBonesJson);
+            }
+            else {
+                let jsonObj = JSON.parse(this._dragonBonesJson);
+                let sameNamedDragonBonesData = factory.getDragonBonesData(jsonObj.name);
+                if (sameNamedDragonBonesData) {
+                    // already added asset, see #2002
+                    let dragonBonesData;
+                    for (let i = 0; i < jsonObj.armature.length; i++) {
+                        let armatureName = jsonObj.armature[i].name;
+                        if (!sameNamedDragonBonesData.armatures[armatureName]) {
+                            // add new armature
+                            if (!dragonBonesData) {
+                                dragonBonesData = factory._dataParser.parseDragonBonesData(jsonObj);
+                            }
+                            sameNamedDragonBonesData.addArmature(dragonBonesData.armatures[armatureName]);
+                        }
+                    }
+                    this._dragonBonesData = sameNamedDragonBonesData;
+                }
+                else {
+                    this._dragonBonesData = factory.parseDragonBonesData(jsonObj);
+                }
+            }
         }
     },
 
     // EDITOR
 
-    getRuntimeData: CC_EDITOR && function () {
-        if (!this._dragonBonesDataCache) {
-            var factory = new dragonBones.CCFactory();
-            var jsonObj = JSON.parse(this._dragonBonesJson);
-            this._dragonBonesDataCache = factory.parseDragonBonesData(jsonObj);
-        }
-
-        return this._dragonBonesDataCache;
-    },
-
     getArmatureEnum: CC_EDITOR && function () {
         if (this._armaturesEnum) {
             return this._armaturesEnum;
         }
-        var data = this.getRuntimeData();
-        if (data) {
-            var armatureNames = data.armatureNames;
+        this.init();
+        if (this._dragonBonesData) {
+            var armatureNames = this._dragonBonesData.armatureNames;
             var enumDef = {};
             for (var i = 0; i < armatureNames.length; i++) {
                 var name = armatureNames[i];
@@ -105,9 +151,9 @@ var DragonBonesAsset = cc.Class({
     },
 
     getAnimsEnum: CC_EDITOR && function (armatureName) {
-        var data = this.getRuntimeData(true);
-        if (data) {
-            var armature = data.getArmature(armatureName);
+        this.init();
+        if (this._dragonBonesData) {
+            var armature = this._dragonBonesData.getArmature(armatureName);
             if (!armature) {
                 return null;
             }
@@ -124,6 +170,15 @@ var DragonBonesAsset = cc.Class({
             return cc.Enum(enumDef);
         }
         return null;
+    },
+
+    destroy () {
+        var useGlobalFactory = !CC_JSB;
+        if (useGlobalFactory && this._dragonBonesData) {
+            var factory = dragonBones.CCFactory.getFactory();
+            factory.removeDragonBonesData(this._dragonBonesData.name, true);
+        }
+        this._super();
     },
 });
 

@@ -30,7 +30,6 @@ const misc = require('../utils/misc');
 const game = require('../CCGame');
 const renderEngine = require('../renderer/render-engine');
 const renderer = require('../renderer');
-require('../platform/_CCClass');
 require('../platform/CCClass');
 
 const gfx = renderEngine.gfx;
@@ -231,9 +230,16 @@ function _getSharedOptions () {
     return _sharedOpts;
 }
 
+/**
+ * This class allows to easily create OpenGL or Canvas 2D textures from images or raw data.
+ *
+ * @class Texture2D
+ * @uses EventTarget
+ * @extends Asset
+ */
 var Texture2D = cc.Class({
     name: 'cc.Texture2D',
-    extends: require('../assets/CCRawAsset'),
+    extends: require('../assets/CCAsset'),
     mixins: [EventTarget],
 
     properties: {
@@ -255,13 +261,15 @@ var Texture2D = cc.Class({
     ctor () {
         /**
          * !#en
-         * The url of the texture, this coule be empty if the texture wasn't created via a file.
+         * The url of the texture, this could be empty if the texture wasn't created via a file.
          * !#zh
          * 贴图文件的 url，当贴图不是由文件创建时值可能为空
          * @property url
          * @type {String}
+         * @readonly
          */
-        this.url = null;
+        this.url = "";
+
         /**
          * !#en
          * Whether the texture is loaded or not
@@ -297,8 +305,38 @@ var Texture2D = cc.Class({
         return this._texture;
     },
 
+    properties: {
+        _nativeAsset: {
+            get () {
+                // maybe returned to pool in webgl
+                return this._image;
+            },
+            set (image) {
+                this.initWithElement(image);
+                this.handleLoadedTexture();
+            },
+            override: true
+        },
+        _hasMipmap: false,
+        _format: PixelFormat.RGBA8888,
+        _compressed: false,
+        _premultiplyAlpha: false,
+        _minFilter: Filter.LINEAR,
+        _magFilter: Filter.LINEAR,
+        _wrapS: WrapMode.CLAMP_TO_EDGE,
+        _wrapT: WrapMode.CLAMP_TO_EDGE
+    },
+
+    statics: {
+        WrapMode: WrapMode,
+        PixelFormat: PixelFormat,
+        Filter: Filter,
+        // predefined most common extnames
+        extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp']
+    },
+
     /**
-     * Update texture options, not available in Canvas render mode. 
+     * Update texture options, not available in Canvas render mode.
      * image, format, premultiplyAlpha can not be updated in native.
      * @method update
      * @param {Object} options
@@ -414,6 +452,24 @@ var Texture2D = cc.Class({
         return this._image;
     },
     
+    /**
+     * !#en
+     * Destory this texture and immediately release its video memory. (Inherit from cc.Object.destroy)<br>
+     * After destroy, this object is not usable any more.
+     * You can use cc.isValid(obj) to check whether the object is destroyed before accessing it.
+     * !#zh
+     * 销毁该贴图，并立即释放它对应的显存。（继承自 cc.Object.destroy）<br/>
+     * 销毁后，该对象不再可用。您可以在访问对象之前使用 cc.isValid(obj) 来检查对象是否已被销毁。
+     * @method destroy
+     */
+    destroy () {
+        this._image = null;
+        this._texture.destroy();
+        // TODO cc.textureUtil ?
+        // cc.textureCache.removeTextureForKey(this.url);  // item.rawUrl || item.url
+        this._super();
+    },
+
     /**
      * Pixel format of the texture.
      * @method getPixelFormat
@@ -558,6 +614,45 @@ var Texture2D = cc.Class({
             var opts = _getSharedOptions();
             opts.hasMipmap = mipmap;
             this.update(opts);
+        }
+    },
+
+    // SERIALIZATION
+
+    _serialize: (CC_EDITOR || CC_TEST) && function () {
+        var extId = "";
+        if (this._native) {
+            // encode extname
+            var ext = cc.path.extname(this._native);
+            if (ext) {
+                extId = Texture2D.extnames.indexOf(ext);
+                if (extId < 0) {
+                    extId = ext;
+                }
+            }
+        }
+        return "" + extId;
+    },
+
+    _deserialize: function (data, handle) {
+        var fields = data.split(',');
+        // decode extname
+        var extIdStr = fields[0];
+        if (extIdStr) {
+            const CHAR_CODE_0 = 48;    // '0'
+            var extId = extIdStr.charCodeAt(0) - CHAR_CODE_0;
+            var ext = Texture2D.extnames[extId];
+            this._setRawAsset(ext || extIdStr);
+
+            // preset uuid to get correct nativeUrl
+            var loadingItem = handle.customEnv;
+            var uuid = loadingItem && loadingItem.uuid;
+            if (uuid) {
+                this._uuid = uuid;
+                var url = this.nativeUrl;
+                this.url = url;
+                cc.textureCache.cacheImage(url, this);
+            }
         }
     }
 });

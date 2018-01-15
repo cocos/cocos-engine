@@ -25,11 +25,13 @@
 
 cc._PrefabInfo = cc.Class({
     name: 'cc.PrefabInfo',
+    // extends: require('../platform/CCObject'),
     properties: {
         // the most top node of this prefab in the scene
         root: null,
 
         // 所属的 prefab 资源对象 (cc.Prefab)
+        // In Editor, only asset._uuid is usable because asset will be changed.
         asset: null,
 
         // 用来标识别该节点在 prefab 资源中的位置，因此这个 ID 只需要保证在 Assets 里不重复就行
@@ -43,7 +45,18 @@ cc._PrefabInfo = cc.Class({
             default: false,
             serializable: false
         },
-    }
+    },
+    // _instantiate (cloned) {
+    //     if (!cloned) {
+    //         cloned = new cc._PrefabInfo();
+    //     }
+    //     cloned.root = this.root;
+    //     cloned.asset = this.asset;
+    //     cloned.fileId = this.fileId;
+    //     cloned.sync = this.sync;
+    //     cloned._synced = this._synced;
+    //     return cloned;
+    // }
 });
 
 // prefab helper function
@@ -81,7 +94,7 @@ module.exports = {
 
         // instantiate prefab
         cc.game._isCloning = true;
-        if (cc.supportJit) {
+        if (CC_SUPPORT_JIT) {
             _prefab.asset._doInstantiate(node);
         }
         else {

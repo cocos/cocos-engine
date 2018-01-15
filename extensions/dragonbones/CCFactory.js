@@ -24,7 +24,7 @@
 
 let BaseObject = dragonBones.BaseObject;
 
-dragonBones.CCFactory = cc.Class({
+var CCFactory = dragonBones.CCFactory = cc.Class({
     name: 'dragonBones.CCFactory',
     extends: dragonBones.BaseFactory,
 
@@ -148,11 +148,3 @@ dragonBones.CCFactory = cc.Class({
         return slot;
     }
 });
-
-dragonBones.CCFactory._factory = null;
-dragonBones.CCFactory.getFactory = function() {
-    if (!dragonBones.CCFactory._factory) {
-        dragonBones.CCFactory._factory = new dragonBones.CCFactory();
-    }
-    return dragonBones.CCFactory._factory;
-};

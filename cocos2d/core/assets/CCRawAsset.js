@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 var CCObject = require('../platform/CCObject');
+var JS = require('../platform/js');
 
 /**
  * !#en
@@ -81,11 +82,13 @@ cc.RawAsset = cc.Class({
  * @static
  * @private
  */
-Object.defineProperty(cc.RawAsset, 'isRawAssetType', {
-    value: function (ctor) {
-        return cc.isChildClassOf(ctor, cc.RawAsset) && !cc.isChildClassOf(ctor, cc.Asset);
-    }
-    // enumerable is false by default
+JS.value(cc.RawAsset, 'isRawAssetType', function (ctor) {
+    return cc.isChildClassOf(ctor, cc.RawAsset) && !cc.isChildClassOf(ctor, cc.Asset);
+});
+
+// TODO - DELME after 2.0
+JS.value(cc.RawAsset, 'wasRawAssetType', function (ctor) {
+    return ctor === cc.Texture2D;
 });
 
 module.exports = cc.RawAsset;

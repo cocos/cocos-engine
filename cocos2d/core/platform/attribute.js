@@ -30,7 +30,7 @@ const DELIMETER = '$_$';
 
 function createAttrsSingle (owner, ownerCtor, superAttrs) {
     var AttrsCtor;
-    if (CC_DEV && cc.supportJit) {
+    if (CC_DEV && CC_SUPPORT_JIT) {
         var ctorName = ownerCtor.name;
         if (owner === ownerCtor) {
             ctorName += '_ATTRS';
@@ -339,45 +339,6 @@ function ObjectType (typeCtor) {
     };
 }
 
-// function RawType (typename) {
-//     var NEED_EXT_TYPES = ['image', 'json', 'text', 'audio'];  // the types need to specify exact extname
-//     return {
-//         // type: 'raw',
-//         rawType: typename,
-//         serializable: false,
-//         // hideInInspector: true,
-
-//         _onAfterProp: function (constructor, mainPropName) {
-//             // check raw object
-//             var checked = !CC_DEV || (function checkRawType(constructor) {
-//                 if (! cc.isChildClassOf(constructor, cc.Asset)) {
-//                     cc.errorID(3630);
-//                     return false;
-//                 }
-//                 var attrs = getClassAttrs(constructor);
-//                 var found = false;
-//                 for (var p = 0; p < constructor.__props__.length; p++) {
-//                     var propName = constructor.__props__[p];
-//                     var rawType = attrs[propName + DELIMETER + 'rawType'];
-//                     if (rawType) {
-//                         var containsUppercase = (rawType.toLowerCase() !== rawType);
-//                         if (containsUppercase) {
-//                             cc.errorID(3631);
-//                             return false;
-//                         }
-//                         if (found) {
-//                             cc.errorID(3632);
-//                             return false;
-//                         }
-//                         found = true;
-//                     }
-//                 }
-//                 return true;
-//             })(constructor);
-//         }
-//     };
-// }
-
 module.exports = {
     attr: attr,
     getClassAttrs: getClassAttrs,
@@ -386,6 +347,5 @@ module.exports = {
     DELIMETER: DELIMETER,
     getTypeChecker: getTypeChecker,
     ObjectType: ObjectType,
-    // RawType: RawType,
     ScriptUuid: {},      // the value will be represented as a uuid string
 };

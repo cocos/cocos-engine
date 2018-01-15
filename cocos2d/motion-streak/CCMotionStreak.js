@@ -150,8 +150,8 @@ var MotionStreak = cc.Class({
          * motionStreak.texture = newTexture;
          */
         _texture: {
-            default: '',
-            url: cc.Texture2D
+            default: null,
+            type: cc.Texture2D
         },
         texture: {
             get: function () {
@@ -160,7 +160,7 @@ var MotionStreak = cc.Class({
             set: function (value) {
                 this._texture = value;
             },
-            url: cc.Texture2D,
+            type: cc.Texture2D,
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.texture'
         },

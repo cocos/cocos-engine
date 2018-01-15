@@ -232,7 +232,8 @@ var properties = {
         set: function (value) {
             cc.warnID(6017);
         },
-        url: cc.Texture2D,
+        type: cc.Texture2D,
+        tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.texture',
         readonly: true,
         visible: false,
         animatable: false
@@ -1060,7 +1061,7 @@ var ParticleSystem = cc.Class({
             var self = this;
             cc.loader.load(file, function (err, content) {
                 if (err || !content) {
-                    throw err || new Error('Unkown error');
+                    throw err || new Error(cc._getError(6029));
                 }
                 if (!self.isValid) {
                     return;

@@ -146,7 +146,12 @@ function extractActualDefaultValues (ctor) {
 }
 
 function genProperty (ctor, properties, propName, options, desc, cache) {
-    var fullOptions = options && (Preprocess.getFullFormOfProperty(options) || options);
+    var fullOptions;
+    if (options) {
+        fullOptions = CC_DEV ? Preprocess.getFullFormOfProperty(options, propName, JS.getClassName(ctor)) :
+                               Preprocess.getFullFormOfProperty(options);
+        fullOptions = fullOptions || options;
+    }
     var existsProperty = properties[propName];
     var prop = JS.mixin(existsProperty || {}, fullOptions || {});
 
@@ -214,8 +219,15 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
                 // prop.default = options.default;
             }
             else if (!isDefaultValueSpecified) {
-                cc.warnID(3654, propName);
+                cc.warnID(3654, JS.getClassName(ctor), propName);
                 // prop.default = fullOptions.hasOwnProperty('default') ? fullOptions.default : undefined;
+            }
+            if (cc.RawAsset.wasRawAssetType(prop.url) &&
+                prop._short &&
+                isDefaultValueSpecified &&
+                defaultValue == null
+            ) {
+                cc.warnID(3656, JS.getClassName(ctor), propName);
             }
         }
         prop.default = defaultValue;
@@ -356,8 +368,8 @@ var ccclass = checkCtorArgument(function (ctor, name) {
  *     &#64;property(cc.Vec2)
  *     offsets = [];
  *
- *     &#64;property(cc.Texture2D)
- *     texture = "";
+ *     &#64;property(cc.SpriteFrame)
+ *     frame = null;
  * }
  *
  * // above is equivalent to (上面的代码相当于):
@@ -397,9 +409,9 @@ var ccclass = checkCtorArgument(function (ctor, name) {
  *             type: cc.Vec2
  *         }
  *
- *         texture: {
- *             default: "",
- *             url: cc.Texture2D
+ *         frame: {
+ *             default: null,
+ *             type: cc.SpriteFrame
  *         },
  *     }
  * });

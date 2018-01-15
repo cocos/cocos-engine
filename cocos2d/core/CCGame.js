@@ -651,14 +651,14 @@ var game = {
         if (this._rendererInitialized) return;
 
         if (!cc._supportRender) {
-            throw new Error("The renderer doesn't support the renderMode " + this.config[this.CONFIG_KEY.renderMode]);
+            throw new Error(cc._getError(3820, this.config[this.CONFIG_KEY.renderMode]));
         }
 
         var el = this.config[game.CONFIG_KEY.id],
             win = window,
             localCanvas, localContainer,
-            isWeChatGame = cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME;
-        
+            isWeChatGame = cc.sys.platform === cc.sys.WECHAT_GAME;
+
         if (isWeChatGame) {
             this.container = cc.container = localContainer = document.createElement("DIV");
             this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
@@ -708,12 +708,15 @@ var game = {
 
         // WebGL context created successfully
         if (cc._renderType === game.RENDER_TYPE_WEBGL) {
-            win.gl = this._renderContext; // global variable declared in CCMacro.js
-            renderer.init(localCanvas, {
+            var opts = {
                 'stencil': true,
                 'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS
-            });
-            this._renderContext = cc._renderContext = renderer.device._gl;
+            };
+            if (isWeChatGame) {
+                opts['preserveDrawingBuffer'] = true;
+            }
+            this._renderContext = cc._renderContext = cc.webglContext
+             = cc.create3DContext(localCanvas, opts);
         }
         if (!this._renderContext) {
             cc._renderType = game.RENDER_TYPE_CANVAS;
@@ -732,58 +735,76 @@ var game = {
     },
 
     _initEvents: function () {
-        var win = window, hidden, visibilityChange, _undef = "undefined";
+        var win = window, hiddenPropName;
 
         // register system events
         if (this.config[this.CONFIG_KEY.registerSystemEvent])
             inputManager.registerSystemEvent(this.canvas);
 
         if (typeof document.hidden !== 'undefined') {
-            hidden = "hidden";
+            hiddenPropName = "hidden";
         } else if (typeof document.mozHidden !== 'undefined') {
-            hidden = "mozHidden";
+            hiddenPropName = "mozHidden";
         } else if (typeof document.msHidden !== 'undefined') {
-            hidden = "msHidden";
+            hiddenPropName = "msHidden";
         } else if (typeof document.webkitHidden !== 'undefined') {
-            hidden = "webkitHidden";
+            hiddenPropName = "webkitHidden";
         }
 
-        var changeList = [
-            "visibilitychange",
-            "mozvisibilitychange",
-            "msvisibilitychange",
-            "webkitvisibilitychange",
-            "qbrowserVisibilityChange"
-        ];
-        var onHidden = function () {
-            game.emit(game.EVENT_HIDE, game);
-        };
-        var onShow = function () {
-            game.emit(game.EVENT_SHOW, game);
-        };
+        var hidden = false;
 
-        if (hidden) {
+        function onHidden () {
+            if (!hidden) {
+                hidden = true;
+                game.emit(game.EVENT_HIDE, game);
+            }
+        }
+        function onShown () {
+            if (hidden) {
+                hidden = false;
+                game.emit(game.EVENT_SHOW, game);
+            }
+        }
+
+        if (hiddenPropName) {
+            var changeList = [
+                "visibilitychange",
+                "mozvisibilitychange",
+                "msvisibilitychange",
+                "webkitvisibilitychange",
+                "qbrowserVisibilityChange"
+            ];
             for (var i = 0; i < changeList.length; i++) {
                 document.addEventListener(changeList[i], function (event) {
-                    var visible = document[hidden];
+                    var visible = document[hiddenPropName];
                     // QQ App
                     visible = visible || event["hidden"];
-                    if (visible) onHidden();
-                    else onShow();
-                }, false);
+                    if (visible)
+                        onHidden();
+                    else
+                        onShown();
+                });
             }
         } else {
-            win.addEventListener("blur", onHidden, false);
-            win.addEventListener("focus", onShow, false);
+            win.addEventListener("blur", onHidden);
+            win.addEventListener("focus", onShown);
         }
 
         if (navigator.userAgent.indexOf("MicroMessenger") > -1) {
-            win.onfocus = function(){ onShow() };
+            win.onfocus = onShown;
+        }
+
+        if (CC_WECHATGAME) {
+            wx.onShow = onShow;
+            wx.onHide = onHidden;
         }
 
         if ("onpageshow" in window && "onpagehide" in window) {
-            win.addEventListener("pagehide", onHidden, false);
-            win.addEventListener("pageshow", onShow, false);
+            win.addEventListener("pagehide", onHidden);
+            win.addEventListener("pageshow", onShown);
+            // Taobao UIWebKit
+            document.addEventListener("pagehide", onHidden);
+            document.addEventListener("pageshow", onShown);
         }
 
         this.on(game.EVENT_HIDE, function () {

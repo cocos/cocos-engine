@@ -30,7 +30,7 @@
  * !#en Class for BitmapFont handling.
  * !#zh 位图字体资源类。
  * @class BitmapFont
- * @extends RawAsset
+ * @extends Font
  *
  */
 var BitmapFont = cc.Class({

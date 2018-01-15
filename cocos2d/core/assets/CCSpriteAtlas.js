@@ -27,7 +27,7 @@
  * !#en Class for sprite atlas handling.
  * !#zh 精灵图集资源类。
  * @class SpriteAtlas
- * @extends RawAsset
+ * @extends Asset
  *
  */
 var SpriteAtlas = cc.Class({
