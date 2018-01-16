@@ -165,6 +165,16 @@ float
 },
 
 /**
+ * @method setVolume
+ * @param {float} arg0
+ */
+setVolume : function (
+float 
+)
+{
+},
+
+/**
  * @method create
  * @return {cc.experimental::ui::VideoPlayer}
  */

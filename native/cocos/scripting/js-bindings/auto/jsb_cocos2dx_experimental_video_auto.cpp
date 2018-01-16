@@ -326,6 +326,25 @@ static bool js_cocos2dx_experimental_video_VideoPlayer_seekTo(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_experimental_video_VideoPlayer_seekTo)
 
+static bool js_cocos2dx_experimental_video_VideoPlayer_setVolume(se::State& s)
+{
+    cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_setVolume : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        float arg0 = 0;
+        ok &= seval_to_float(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_setVolume : Error processing arguments");
+        cobj->setVolume(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_experimental_video_VideoPlayer_setVolume)
+
 static bool js_cocos2dx_experimental_video_VideoPlayer_create(se::State& s)
 {
     const auto& args = s.args();
@@ -390,6 +409,7 @@ bool js_register_cocos2dx_experimental_video_VideoPlayer(se::Object* obj)
     cls->defineFunction("duration", _SE(js_cocos2dx_experimental_video_VideoPlayer_duration));
     cls->defineFunction("isPlaying", _SE(js_cocos2dx_experimental_video_VideoPlayer_isPlaying));
     cls->defineFunction("seekTo", _SE(js_cocos2dx_experimental_video_VideoPlayer_seekTo));
+    cls->defineFunction("setVolume", _SE(js_cocos2dx_experimental_video_VideoPlayer_setVolume));
     cls->defineStaticFunction("create", _SE(js_cocos2dx_experimental_video_VideoPlayer_create));
     cls->defineFinalizeFunction(_SE(js_cocos2d_experimental_ui_VideoPlayer_finalize));
     cls->install();
