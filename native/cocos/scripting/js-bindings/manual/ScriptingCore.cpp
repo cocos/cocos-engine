@@ -59,6 +59,9 @@ void ScriptingCore::retainScriptObject(Ref* owner, Ref* target)
         return;
     }
 
+    se::ScriptEngine::getInstance()->clearException();
+    se::AutoHandleScope hs;
+
     se::Value targetVal;
     se::Object* targetObj = nullptr;
     auto iterTarget = se::NativePtrToObjectMap::find(target);
@@ -78,8 +81,6 @@ void ScriptingCore::retainScriptObject(Ref* owner, Ref* target)
         targetObj = iterTarget->second;
     }
 
-    se::ScriptEngine::getInstance()->clearException();
-    se::AutoHandleScope hs;
     iterOwner->second->attachObject(targetObj);
 }
 
