@@ -8,10 +8,19 @@ if (CC_DEV) {
         cc.errorID(1404);
     });
 
-    js.obsolete(cc.textureCache, 'cc.textureCache.textureForKey', 'getTextureForKey');
+    js.get(cc, 'textureCache', function () {
+        cc.errorID(1406, 'cc', 'textureCache');
+    });
 
     // Texture
     js.obsolete(cc.Texture2D.prototype, 'texture.releaseTexture', 'texture.destroy');
+
+    js.get(cc.Texture2D.prototype, 'isLoaded', function () {
+        cc.errorID(1400, 'texture.isLoaded function', 'texture.loaded property');
+        return (function () {
+            return this.loaded;
+        });
+    });
 
     js.get(cc.SpriteFrame.prototype, '_textureLoaded', function () {
         cc.errorID(1400, 'spriteFrame._textureLoaded', 'spriteFrame.textureLoaded()');

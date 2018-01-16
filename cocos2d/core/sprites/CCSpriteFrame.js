@@ -173,7 +173,7 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @returns {boolean}
      */
     textureLoaded: function () {
-        return this._texture && this._texture.isLoaded();
+        return this._texture && this._texture.loaded;
     },
 
     /**
@@ -418,7 +418,7 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      */
     ensureLoadTexture: function () {
         if (this._texture) {
-            if (!this._texture.isLoaded()) {
+            if (!this._texture.loaded) {
                 // load exists texture
                 this._refreshTexture(this._texture);
                 this._texture.load();

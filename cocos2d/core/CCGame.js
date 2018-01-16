@@ -715,8 +715,8 @@ var game = {
             if (isWeChatGame) {
                 opts['preserveDrawingBuffer'] = true;
             }
-            this._renderContext = cc._renderContext = cc.webglContext
-             = cc.create3DContext(localCanvas, opts);
+            renderer.init(localCanvas, opts);
+            this._renderContext = cc._renderContext = renderer.device._gl;
         }
         if (!this._renderContext) {
             cc._renderType = game.RENDER_TYPE_CANVAS;

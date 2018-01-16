@@ -160,9 +160,6 @@ prototype.update = function (options) {
         this.generateMipmap();
     }
 };
-prototype.isLoaded = function () {
-    return true;
-};
 prototype.description = prototype.getDescription;
 cc.js.get(prototype, 'width', prototype.getPixelsWide);
 cc.js.get(prototype, 'height', prototype.getPixelsHigh);
@@ -223,7 +220,7 @@ prototype.initWithTexture = prototype.setTexture;
 
 prototype.ensureLoadTexture = function () {
     if (this._texture) {
-        if (!this._texture.isLoaded()) {
+        if (!this._texture.loaded) {
             // load exists texture
             this._refreshTexture(this._texture);
             this._texture.load();

@@ -651,7 +651,6 @@ var Texture2D = cc.Class({
                 this._uuid = uuid;
                 var url = this.nativeUrl;
                 this.url = url;
-                cc.textureCache.cacheImage(url, this);
             }
         }
     }

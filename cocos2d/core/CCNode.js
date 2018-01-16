@@ -29,7 +29,7 @@ const mathPools = require('./utils/math-pools');
 const renderEngine = require('./renderer/render-engine');
 const affineTrans = require('./value-types/CCAffineTransform');
 const math = renderEngine.math;
-var eventManager = require('./event-manager');
+const eventManager = require('./event-manager');
 
 const Flags = cc.Object.Flags;
 const Destroying = Flags.Destroying;
@@ -44,8 +44,8 @@ const CHILD_REORDER = 'child-reorder';
 const ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
 const ONE_DEGREE = Math.PI / 180;
 
-var Misc = require('./utils/misc');
-var Event = require('./event/event');
+const Misc = require('./utils/misc');
+const Event = require('./event/event');
 //var RegisteredInEditor = Flags.RegisteredInEditor;
 
 var ActionManagerExist = !!cc.ActionManager;
@@ -340,7 +340,7 @@ function _searchMaskInParent (node) {
 
 // function updateOrder (node) {
 //     node._parent._delaySort();
-    //cc.eventManager._setDirtyForNode(node);
+    //eventManager._setDirtyForNode(node);
 // }
 
 /**
@@ -915,7 +915,7 @@ var Node = cc.Class({
         for (; i < len; i++) {
             sibling = siblings[i];
             sibling._updateOrderOfArrival();
-            cc.eventManager._setDirtyForNode(sibling);
+            eventManager._setDirtyForNode(sibling);
         }
         parent._delaySort();
     },
@@ -943,7 +943,6 @@ var Node = cc.Class({
             this._mouseListener.mask = null;
             this._mouseListener = null;
         }
-        cc.eventManager.removeListeners(this);
 
         // Recycle math objects
         mathPools.mat4.put(this._matrix);
@@ -1023,12 +1022,6 @@ var Node = cc.Class({
 
     // the same as _onBatchCreated but untouch prefab
     _onBatchRestored () {
-        this._updateDummySgNode();
-
-        if (this._parent) {
-            this._parent._sgNode.addChild(this._sgNode);
-        }
-
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
             if (ActionManagerExist) {

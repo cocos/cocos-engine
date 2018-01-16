@@ -50,10 +50,6 @@ var jsbSkipModules = [
     '../../cocos2d/core/physics/platform/CCPhysicsRayCastCallback.js',
     '../../cocos2d/core/platform/CCInputManager.js',
     '../../cocos2d/core/platform/CCVisibleRect.js',
-    '../../cocos2d/core/camera/CCSGCameraNode.js',
-    '../../cocos2d/core/videoplayer/CCSGVideoPlayer.js',
-    '../../cocos2d/core/webview/CCSGWebView.js',
-    '../../cocos2d/core/editbox/CCSGEditBox.js',
     '../../cocos2d/core/graphics/helper.js',
     '../../cocos2d/actions/index.js',
     '../../cocos2d/audio/CCAudio',
@@ -172,7 +168,7 @@ exports.buildPreview = function (sourceFile, outputFile, callback, devMode) {
     if (!devMode) {
         bundler = bundler
             .pipe(Sourcemaps.init({loadMaps: true}))
-            .pipe(Minify(Utils.getUglifyOptions('preview', false, false)))
+            .pipe(Utils.uglify('preview'))
             .pipe(Optimizejs({
                 sourceMap: false
             }))

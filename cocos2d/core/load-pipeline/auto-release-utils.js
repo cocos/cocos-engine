@@ -42,6 +42,10 @@ function parseDepends (key, parsed) {
 }
 
 function visitAsset (asset, excludeMap) {
+    // Skip assets generated programmatically or by user (e.g. label texture)
+    if (!asset._uuid) {
+        return;
+    }
     var key = cc.loader._getReferenceKey(asset);
     if ( !excludeMap[key] ) {
         excludeMap[key] = true;

@@ -31,7 +31,7 @@ const ComponentScheduler = require('./component-scheduler');
 const NodeActivator = require('./node-activator');
 const EventListeners = require('./event/event-listeners');
 const renderer = require('./renderer');
-var eventManager = require('./event-manager');
+const eventManager = require('./event-manager');
 
 cc.g_NumberOfDraws = 0;
 
@@ -193,8 +193,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         this._nodeActivator = new NodeActivator();
 
         // Event manager
-        if (cc.eventManager) {
-            cc.eventManager.setEnabled(true);
+        if (eventManager) {
+            eventManager.setEnabled(true);
         }
 
         // Animation manager
