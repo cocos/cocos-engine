@@ -36,43 +36,11 @@ const gfx = renderEngine.gfx;
 const TextureImpl = renderEngine.Texture2D;
 const renderMode = renderEngine.renderMode;
 
-const GL_ALPHA = 6406;            // gl.ALPHA
-const GL_RGB = 6407;              // gl.RGB
-const GL_RGBA = 6408;             // gl.RGBA
-const GL_LUMINANCE = 6409;        // gl.LUMINANCE
-const GL_LUMINANCE_ALPHA = 6410;  // gl.LUMINANCE_ALPHA
-const GL_UNSIGNED_BYTE = 5121;            // gl.UNSIGNED_BYTE
-const GL_UNSIGNED_SHORT = 5123;           // gl.UNSIGNED_SHORT
-const GL_UNSIGNED_INT = 5125;             // gl.UNSIGNED_INT
-const GL_FLOAT = 5126;                    // gl.FLOAT
-const GL_UNSIGNED_SHORT_5_6_5 = 33635;    // gl.UNSIGNED_SHORT_5_6_5
-const GL_UNSIGNED_SHORT_4_4_4_4 = 32819;  // gl.UNSIGNED_SHORT_4_4_4_4
-const GL_UNSIGNED_SHORT_5_5_5_1 = 32820;  // gl.UNSIGNED_SHORT_5_5_5_1
-
 const GL_NEAREST = 9728;                // gl.NEAREST
 const GL_LINEAR = 9729;                 // gl.LINEAR
 const GL_REPEAT = 10497;                // gl.REPEAT
 const GL_CLAMP_TO_EDGE = 33071;         // gl.CLAMP_TO_EDGE
 const GL_MIRRORED_REPEAT = 33648;       // gl.MIRRORED_REPEAT
-
-const _textureFmtGL = [
-    // R5_G6_B5: 0
-    { format: GL_RGB, internalFormat: GL_RGB, pixelType: GL_UNSIGNED_SHORT_5_6_5 },
-    // R5_G5_B5_A1: 1
-    { format: GL_RGBA, internalFormat: GL_RGBA, pixelType: GL_UNSIGNED_SHORT_5_5_5_1 },
-    // R4_G4_B4_A4: 2
-    { format: GL_RGBA, internalFormat: GL_RGBA, pixelType: GL_UNSIGNED_SHORT_4_4_4_4 },
-    // RGB8: 3
-    { format: GL_RGB, internalFormat: GL_RGB, pixelType: GL_UNSIGNED_BYTE },
-    // RGBA8: 4
-    { format: GL_RGBA, internalFormat: GL_RGBA, pixelType: GL_UNSIGNED_BYTE },
-    // A8: 5
-    { format: GL_ALPHA, internalFormat: GL_ALPHA, pixelType: GL_UNSIGNED_BYTE },
-    // L8: 6
-    { format: GL_LUMINANCE, internalFormat: GL_LUMINANCE, pixelType: GL_UNSIGNED_BYTE },
-    // L8_A8: 7
-    { format: GL_LUMINANCE_ALPHA, internalFormat: GL_LUMINANCE_ALPHA, pixelType: GL_UNSIGNED_BYTE }
-];
 
 /**
  * <p>
@@ -243,6 +211,17 @@ var Texture2D = cc.Class({
     mixins: [EventTarget],
 
     properties: {
+        _nativeAsset: {
+            get () {
+                // maybe returned to pool in webgl
+                return this._image;
+            },
+            set (image) {
+                this.initWithElement(image);
+                this.handleLoadedTexture();
+            },
+            override: true
+        },
         _hasMipmap: false,
         _format: PixelFormat.RGBA8888,
         _premultiplyAlpha: false,
@@ -255,7 +234,9 @@ var Texture2D = cc.Class({
     statics: {
         PixelFormat: PixelFormat,
         WrapMode: WrapMode,
-        Filter: Filter
+        Filter: Filter,
+        // predefined most common extnames
+        extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp']
     },
 
     ctor () {
@@ -303,36 +284,6 @@ var Texture2D = cc.Class({
 
     getImpl () {
         return this._texture;
-    },
-
-    properties: {
-        _nativeAsset: {
-            get () {
-                // maybe returned to pool in webgl
-                return this._image;
-            },
-            set (image) {
-                this.initWithElement(image);
-                this.handleLoadedTexture();
-            },
-            override: true
-        },
-        _hasMipmap: false,
-        _format: PixelFormat.RGBA8888,
-        _compressed: false,
-        _premultiplyAlpha: false,
-        _minFilter: Filter.LINEAR,
-        _magFilter: Filter.LINEAR,
-        _wrapS: WrapMode.CLAMP_TO_EDGE,
-        _wrapT: WrapMode.CLAMP_TO_EDGE
-    },
-
-    statics: {
-        WrapMode: WrapMode,
-        PixelFormat: PixelFormat,
-        Filter: Filter,
-        // predefined most common extnames
-        extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp']
     },
 
     /**
@@ -549,8 +500,9 @@ var Texture2D = cc.Class({
     },
 
     /**
-     * Release texture.
+     * Release texture, please use destroy instead.
      * @method releaseTexture
+     * @deprecated
      */
     releaseTexture () {
         this._image = null;
