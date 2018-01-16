@@ -28,6 +28,16 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
     name: 'dragonBones.CCFactory',
     extends: dragonBones.BaseFactory,
 
+    statics: {
+        _factory: null,
+        getFactory () {
+            if (!CCFactory._factory) {
+                CCFactory._factory = new CCFactory();
+            }
+            return CCFactory._factory;
+        }
+    },
+
     ctor () {
         this.__instanceId = cc.ClassManager.getNewInstanceId();
         this._dragoneBones = new dragonBones.DragonBones();
@@ -46,6 +56,11 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
         let armature = this.buildArmature(armatureName, dragonBonesName, comp);
         this._display = null;
         return armature;
+    },
+
+    parseTextureAtlasData (jsonString, texture) {
+        var atlasJsonObj = JSON.parse(jsonString);
+        return this._super(atlasJsonObj, texture);
     },
 
     createArmatureNode (comp, armatureName, node) {
