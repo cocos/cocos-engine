@@ -272,7 +272,8 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         var w = texture.width, h = texture.height;
 
         if (self._rotated && cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
-            self._texture = _ccsg.Sprite.CanvasRenderCmd._createRotatedTexture(texture, self.getRect());
+            // TODO: rotate texture for canvas
+            // self._texture = _ccsg.Sprite.CanvasRenderCmd._createRotatedTexture(texture, self.getRect());
             self._rotated = false;
             w = self._texture.width;
             h = self._texture.height;
@@ -382,7 +383,8 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         // loading texture
         var texture = textureOrTextureFile;
         if (typeof texture === 'string' && texture) {
-            texture = cc.textureCache.addImage(texture);
+            this._textureFilename = texture;
+            this._loadTexture();
         }
         if (texture instanceof cc.Texture2D && this._texture !== texture) {
             this._refreshTexture(texture);
@@ -426,8 +428,7 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
         else if (this._textureFilename) {
             // load new texture
-            var texture = cc.textureCache.addImage(this._textureFilename);
-            this._refreshTexture(texture);
+            this._loadTexture();
         }
     },
 
