@@ -28,7 +28,6 @@ var sys = require('../platform/CCSys');
 var Pipeline = require('./pipeline');
 var Texture2D = require('../textures/CCTexture2D');
 var loadUuid = require('./uuid-loader');
-var misc = require('../utils/misc');
 
 function loadNothing (item, callback) {
     return null;
@@ -49,13 +48,17 @@ function loadJSON (item, callback) {
 }
 
 function loadImage (item, callback) {
-    if (sys.browserType !== sys.BROWSER_TYPE_WECHAT_GAME && !(item.content instanceof Image)) {
+    var image = item.content;
+    if (sys.platform !== sys.WECHAT_GAME && !(image instanceof Image)) {
         return new Error('Image Loader: Input item doesn\'t contain Image content');
     }
+
+    // load cc.Texture2D
     var rawUrl = item.rawUrl;
     var tex = item.texture || new Texture2D();
     tex._uuid = item.uuid;
     tex.url = rawUrl;
+    tex._nativeAsset = image;
     tex.initWithElement(item.content);
     tex.handleLoadedTexture();
     return tex;

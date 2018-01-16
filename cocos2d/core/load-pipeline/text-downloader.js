@@ -18,34 +18,7 @@ else {
 
     module.exports = function (item, callback) {
         var url = item.url;
-
         url = urlAppendTimestamp(url);
-
-        if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
-            var fs = wx.getFileSystemManager();
-            var filePath = url;
-            // var localPath = wx.env.USER_DATA_PATH + '/' + filePath;
-            // Read from package
-            fs.accessSync(filePath);
-            fs.readFile({
-                filePath: filePath,
-                encoding: 'utf8',
-                success: function (res) {
-                    if (res.data) {
-                        // console.error('read file success');
-                        callback(null, res.data);
-                    }
-                },
-                fail: function (res) {
-                    if (res.errMsg) {
-                        console.error('read file path' + filePath + ' failed!');
-                        cc.game.emit('xhr-load-error:', res.errMsg);
-                        callback({status:0, errorMessage: res.errMsg});
-                    }
-                }
-            });
-            return;
-        }
 
         var xhr = cc.loader.getXMLHttpRequest(),
             errInfo = 'Load ' + url + ' failed!',

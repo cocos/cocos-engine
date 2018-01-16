@@ -43,12 +43,11 @@ var callResetInTryCatch = CC_EDITOR && callerFunctor('resetInEditor');
 var callOnFocusInTryCatch = CC_EDITOR && callerFunctor('onFocusInEditor');
 var callOnLostFocusInTryCatch = CC_EDITOR && callerFunctor('onLostFocusInEditor');
 
-var supportJit = cc.supportJit;
-var callPreload = supportJit ? 'c.__preload();' : function (c) { c.__preload(); }
-var callOnLoad = supportJit ? ('c.onLoad();c._objFlags|=' + IsOnLoadCalled) : function (c) {
+var callPreload = CC_SUPPORT_JIT ? 'c.__preload();' : function (c) { c.__preload(); };
+var callOnLoad = CC_SUPPORT_JIT ? ('c.onLoad();c._objFlags|=' + IsOnLoadCalled) : function (c) {
     c.onLoad();
     c._objFlags |= IsOnLoadCalled;
-}
+};
 
 // for __preload: use internally, no sort
 var UnsortedInvoker = cc.Class({

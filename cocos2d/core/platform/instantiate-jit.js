@@ -404,7 +404,7 @@ proto.enumerateField = function (obj, key, value) {
         return escapeForJS(value);
     }
     else {
-        if (key === '_objFlags' && obj instanceof CCObject) {
+        if (key === '_objFlags' && cc.Class.isInstanceOf(obj, CCObject)) {
             value &= PersistentMask;
         }
         return value;
@@ -445,7 +445,7 @@ proto.instantiateObj = function (obj) {
     if (obj instanceof cc.ValueType) {
         return CCClass.getNewValueTypeCode(obj);
     }
-    if (obj instanceof cc.Asset) {
+    if (cc.Class.isInstanceOf(obj, cc.Asset)) {
         // register to asset list and just return the reference.
         return this.getObjRef(obj);
     }

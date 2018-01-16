@@ -19,6 +19,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 var Utils = require('../platform/utils');
+var eventManager = require('../event-manager');
 
 _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
 
@@ -275,8 +276,7 @@ _ccsg.WebView.EventType = {
 
     proto.resize = function (view) {
         view = view || cc.view;
-        var node = this._node,
-            eventManager = cc.eventManager;
+        var node = this._node;
         if (node._parent && node._visible)
             this.updateMatrix();
         else {

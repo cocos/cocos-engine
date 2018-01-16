@@ -77,7 +77,7 @@ function instantiate (original, internal_force) {
     }
 
     var clone;
-    if (original instanceof CCObject) {
+    if (cc.Class.isInstanceOf(original, CCObject)) {
         // Invoke _instantiate method if supplied.
         // The _instantiate callback will be called only on the root object, its associated object will not be called.
         // @callback associated
@@ -90,7 +90,7 @@ function instantiate (original, internal_force) {
             cc.game._isCloning = false;
             return clone;
         }
-        else if (original instanceof cc.Asset) {
+        else if (cc.Class.isInstanceOf(original, cc.Asset)) {
             // 不允许用通用方案实例化资源
             if (CC_DEV) {
                 cc.errorID(6903);
@@ -209,7 +209,7 @@ function enumerateObject (obj, clone, parent) {
             }
         }
     }
-    if (obj instanceof CCObject) {
+    if (cc.Class.isInstanceOf(obj, CCObject)) {
         clone._objFlags &= PersistentMask;
     }
 }
@@ -222,7 +222,7 @@ function instantiateObj (obj, parent) {
     if (obj instanceof cc.ValueType) {
         return obj.clone();
     }
-    if (obj instanceof cc.Asset) {
+    if (cc.Class.isInstanceOf(obj, cc.Asset)) {
         // 所有资源直接引用，不需要拷贝
         return obj;
     }

@@ -38,15 +38,14 @@ var callUpdateInTryCatch = CC_EDITOR && callerFunctor('update', 'dt');
 var callLateUpdateInTryCatch = CC_EDITOR && callerFunctor('lateUpdate', 'dt');
 var callOnDisableInTryCatch = CC_EDITOR && callerFunctor('onDisable');
 
-var supportJit = cc.supportJit;
-var callStart = supportJit ? 'c.start();c._objFlags|=' + IsStartCalled : function (c) {
+var callStart = CC_SUPPORT_JIT ? 'c.start();c._objFlags|=' + IsStartCalled : function (c) {
     c.start();
     c._objFlags |= IsStartCalled;
 };
-var callUpdate = supportJit ? 'c.update(dt)' : function (c, dt) {
+var callUpdate = CC_SUPPORT_JIT ? 'c.update(dt)' : function (c, dt) {
     c.update(dt);
 };
-var callLateUpdate = supportJit ? 'c.lateUpdate(dt)' : function (c, dt) {
+var callLateUpdate = CC_SUPPORT_JIT ? 'c.lateUpdate(dt)' : function (c, dt) {
     c.lateUpdate(dt);
 };
 

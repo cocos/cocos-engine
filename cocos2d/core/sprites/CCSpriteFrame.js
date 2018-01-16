@@ -51,30 +51,38 @@ var EventTarget = require("../event/event-target");
  *  node.parent = self.node
  * });
  */
-cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
+var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     name: 'cc.SpriteFrame',
     extends: require('../assets/CCAsset'),
     mixins: [EventTarget],
 
     properties: {
-        /**
-         * Use this property to set raw texture url during loading
-         * @property {String} _textureFilenameSetter
-         * @readOnly
-         * @private
-         */
-        _textureFilenameSetter: {
-            set: function (url) {
-                this._textureFilename = url;
-                if (url) {
-                    if (CC_EDITOR && url instanceof cc.Asset) {
-                        // just packing
+        // Use this property to set texture when loading dependency
+        _textureSetter: {
+            set: function (texture) {
+                if (texture) {
+                    if (CC_EDITOR && !(texture instanceof cc.Texture2D)) {
+                        // just building
+                        this._texture = texture;
                         return;
                     }
-                    this._loadTexture();
+                    if (this._texture !== texture) {
+                        this._refreshTexture(texture);
+                    }
+                    this._textureFilename = texture.url;
                 }
             }
-        }
+        },
+
+        // _textureFilename: {
+        //     get () {
+        //         return (this._texture && this._texture.url) || "";
+        //     },
+        //     set (url) {
+        //         var texture = cc.textureCache.addImage(url);
+        //         this._refreshTexture(texture);
+        //     }
+        // }
     },
 
     /**
@@ -145,7 +153,6 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
         this._texture = null;
         this._textureFilename = '';
-        this._textureLoaded = false;
 
         if (CC_EDITOR) {
             // Atlas asset uuid
@@ -166,7 +173,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @returns {boolean}
      */
     textureLoaded: function () {
-        return this._textureLoaded;
+        return this._texture && this._texture.loaded;
     },
 
     /**
@@ -255,73 +262,56 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         return this._texture;
     },
 
+    _textureLoadedCallback () {
+        var self = this;
+        var texture = this._texture;
+        if (!texture) {
+            // clearTexture called while loading texture...
+            return;
+        }
+        var w = texture.width, h = texture.height;
+
+        if (self._rotated && cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            self._texture = _ccsg.Sprite.CanvasRenderCmd._createRotatedTexture(texture, self.getRect());
+            self._rotated = false;
+            w = self._texture.width;
+            h = self._texture.height;
+            self.setRect(cc.rect(0, 0, w, h));
+        }
+
+        if (self._rect) {
+            self._checkRect(self._texture);
+        }
+        else {
+            self.setRect(cc.rect(0, 0, w, h));
+        }
+
+        if (!self._originalSize) {
+            self.setOriginalSize(cc.size(w, h));
+        }
+
+        if (!self._offset) {
+            self.setOffset(cc.v2(0, 0));
+        }
+
+        // dispatch 'load' event of cc.SpriteFrame
+        self.emit("load");
+    },
+
     /*
-     * !#en Sets the texture of the frame, the texture is retained automatically.
-     * !#zh 设置使用的纹理实例，会被 retain。
+     * !#en Sets the texture of the frame.
+     * !#zh 设置使用的纹理实例。
      * @method _refreshTexture
      * @param {Texture2D} texture
      */
     _refreshTexture: function (texture) {
-        var self = this;
-        if (self._texture !== texture) {
-            var locLoaded = texture.loaded;
-            this._textureLoaded = locLoaded;
-            this._texture = texture;
-            function textureLoadedCallback () {
-                if (!self._texture) {
-                    // clearTexture called while loading texture...
-                    return;
-                }
-                self._textureLoaded = true;
-                var w = texture.width, h = texture.height;
-
-                if (self._rotated && cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
-                    var tempElement = texture.getHtmlElementObj();
-                    tempElement = _ccsg.Sprite.CanvasRenderCmd._cutRotateImageToCanvas(tempElement, self.getRect());
-                    var tempTexture = new cc.Texture2D();
-                    tempTexture.initWithElement(tempElement);
-                    tempTexture.handleLoadedTexture();
-                    self._texture = tempTexture;
-                    self._rotated = false;
-                    w = self._texture.width;
-                    h = self._texture.height;
-                    self.setRect(cc.rect(0, 0, w, h));
-                }
-
-                if (self._rect) {
-                    self._checkRect(self._texture);
-                }
-                else {
-                    self.setRect(cc.rect(0, 0, w, h));
-                }
-
-                if (!self._originalSize) {
-                    self.setOriginalSize(cc.size(w, h));
-                }
-
-                if (!self._offset) {
-                    self.setOffset(cc.v2(0, 0));
-                }
-
-                // dispatch 'load' event of cc.SpriteFrame
-                self.emit("load");
-            }
-
-            if (locLoaded) {
-                textureLoadedCallback();
-            }
-            else {
-                texture.once("load", textureLoadedCallback);
-            }
+        this._texture = texture;
+        if (texture.loaded) {
+            this._textureLoadedCallback();
         }
-        //if (texture && texture.url && texture.isLoaded()) {
-        //    if (self._rect) {
-        //        self._checkRect(texture);
-        //    }
-        //    else {
-        //        self.setRect(cc.rect(0, 0, texture.width, texture.height));
-        //    }
-        //}
+        else {
+            texture.once('load', this._textureLoadedCallback, this);
+        }
     },
 
     /**
@@ -351,12 +341,12 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {SpriteFrame}
      */
     clone: function () {
-        return new cc.SpriteFrame(this._texture || this._textureFilename, this._rect, this._rotated, this._offset, this._originalSize);
+        return new SpriteFrame(this._texture || this._textureFilename, this._rect, this._rotated, this._offset, this._originalSize);
     },
 
     /**
-     * #en Set SpriteFrame with Texture, rect, rotated, offset and originalSize.<br/>
-     * #zh 通过 Texture，rect，rotated，offset 和 originalSize 设置 SpriteFrame
+     * !#en Set SpriteFrame with Texture, rect, rotated, offset and originalSize.<br/>
+     * !#zh 通过 Texture，rect，rotated，offset 和 originalSize 设置 SpriteFrame
      * @method setTexture
      * @param {String|Texture2D} textureOrTextureFile
      * @param {Rect} [rect=null]
@@ -391,15 +381,11 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
         // loading texture
         var texture = textureOrTextureFile;
-        if (cc.js.isString(texture)) {
-            this._textureFilename = texture;
-            this._loadTexture();
+        if (typeof texture === 'string' && texture) {
+            texture = cc.textureCache.addImage(texture);
         }
-        else if (texture instanceof cc.Texture2D) {
+        if (texture instanceof cc.Texture2D && this._texture !== texture) {
             this._refreshTexture(texture);
-        }
-        else {
-            // todo log error
         }
 
         return true;
@@ -431,8 +417,17 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * }
      */
     ensureLoadTexture: function () {
-        if (!this._texture) {
-            this._loadTexture();
+        if (this._texture) {
+            if (!this._texture.loaded) {
+                // load exists texture
+                this._refreshTexture(this._texture);
+                this._texture.load();
+            }
+        }
+        else if (this._textureFilename) {
+            // load new texture
+            var texture = cc.textureCache.addImage(this._textureFilename);
+            this._refreshTexture(texture);
         }
     },
 
@@ -450,8 +445,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * spriteFrame.ensureLoadTexture();
      */
     clearTexture: function () {
-        this._textureLoaded = false;
-        this._texture = null;
+        this._texture = null;   // TODO - release texture
     },
 
     _checkRect: function (texture) {
@@ -466,16 +460,12 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             maxY += rect.height;
         }
         if (maxX > texture.width) {
-            cc.errorID(3300, texture.url + '/' + this.name);
+            cc.errorID(3300, texture.url + '/' + this.name, maxX, texture.width);
         }
         if (maxY > texture.height) {
-            cc.errorID(3400, texture.url + '/' + this.name);
+            cc.errorID(3400, texture.url + '/' + this.name, maxY, texture.height);
         }
     },
-
-    // _instantiate () {
-    //     var clone = new cc.SpriteFrame();
-    // },
 
     // SERIALIZATION
 
@@ -484,17 +474,18 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         var offset = this._offset;
         var size = this._originalSize;
         var uuid;
-        var url = this._textureFilename;
-        if (url) {
-            if (url instanceof cc.Asset) {
-                uuid = url._uuid;
-            }
-            else {
+        var texture = this._texture;
+        if (texture) {
+            uuid = texture._uuid;
+        }
+        if (!uuid) {
+            var url = this._textureFilename;
+            if (url) {
                 uuid = Editor.Utils.UuidCache.urlToUuid(url);
             }
-            if (exporting) {
-                uuid = Editor.Utils.UuidUtils.compressUuid(uuid, true);
-            }
+        }
+        if (uuid && exporting) {
+            uuid = Editor.Utils.UuidUtils.compressUuid(uuid, true);
         }
         var capInsets;
         if (this.insetLeft !== 0 ||
@@ -539,18 +530,22 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             this._atlasUuid = data.atlas;
         }
 
-        // load texture via _textureFilenameSetter
+        // load texture via _textureSetter
         var textureUuid = data.texture;
         if (textureUuid) {
-            var dontLoadTexture = (handle.customEnv && handle.customEnv.deferredLoadRaw);
-            var receiver = dontLoadTexture ? '_textureFilename' : '_textureFilenameSetter';
-            handle.result.push(this, receiver, textureUuid);
+            handle.result.push(this, '_textureSetter', textureUuid);
         }
     }
 });
 
-var proto = cc.SpriteFrame.prototype;
+var proto = SpriteFrame.prototype;
 
 proto.copyWithZone = proto.clone;
 proto.copy = proto.clone;
 proto.initWithTexture = proto.setTexture;
+
+if (!CC_JSB) {
+    cc.SpriteFrame = SpriteFrame;
+}
+
+module.exports = SpriteFrame;

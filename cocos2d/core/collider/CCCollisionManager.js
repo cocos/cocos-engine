@@ -419,7 +419,6 @@ cc.js.getset(CollisionManager.prototype, 'enabledDebugDraw',
         if (value && !this._enabledDebugDraw) {
             if (!this._debugDrawer) {
                 this._debugDrawer = new _ccsg.GraphicsNode();
-                this._debugDrawer.retain();
             }
 
             cc.director.getScene()._sgNode.addChild(this._debugDrawer);

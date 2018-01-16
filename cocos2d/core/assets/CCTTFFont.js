@@ -30,13 +30,15 @@
  * !#en Class for TTFFont handling.
  * !#zh TTF 字体资源类。
  * @class TTFFont
- * @extends Asset
+ * @extends Font
  *
  */
 var TTFFont = cc.Class({
     name: 'cc.TTFFont',
-    extends: cc.Font
+    extends: cc.Font,
+    statics: {
+        preventPreloadNativeObject: true,
+    },
 });
 
-cc.TTFFont = TTFFont;
-module.exports = TTFFont;
+cc.TTFFont = module.exports = TTFFont;

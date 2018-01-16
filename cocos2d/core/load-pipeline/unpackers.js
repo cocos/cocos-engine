@@ -23,23 +23,24 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var Texture2D = require('../textures/CCTexture2D');
+var JS = require('../platform/js');
+
 function JsonUnpacker () {
     this.jsons = {};
-    this.state = -1;
 }
 
 /**
  * @param {String[]} indices
- * @param {String} data
+ * @param {Object[]} packedJson
  */
-JsonUnpacker.prototype.read = function (indices, data) {
-    var jsons = typeof data === 'string' ? JSON.parse(data) : data;
-    if (jsons.length !== indices.length) {
+JsonUnpacker.prototype.load = function (indices, packedJson) {
+    if (packedJson.length !== indices.length) {
         cc.errorID(4915);
     }
     for (var i = 0; i < indices.length; i++) {
         var key = indices[i];
-        var json = jsons[i];
+        var json = packedJson[i];
         this.jsons[key] = json;
     }
 };
@@ -48,8 +49,45 @@ JsonUnpacker.prototype.retrieve = function (key) {
     return this.jsons[key] || null;
 };
 
+
+function TextureUnpacker () {
+    this.contents = {};
+}
+TextureUnpacker.ID = JS._getClassId(Texture2D);
+
+/**
+ * @param {String[]} indices
+ * @param {Object[]} packedJson
+ */
+TextureUnpacker.prototype.load = function (indices, packedJson) {
+    var datas = packedJson.data.split('|');
+    if (datas.length !== indices.length) {
+        cc.errorID(4915);
+    }
+    for (var i = 0; i < indices.length; i++) {
+        this.contents[indices[i]] = datas[i];
+    }
+};
+
+TextureUnpacker.prototype.retrieve = function (key) {
+    var content = this.contents[key];
+    if (content) {
+        return {
+            __type__: TextureUnpacker.ID,
+            content: content
+        };
+    }
+    else {
+        return null;
+    }
+};
+
 if (CC_TEST) {
     cc._Test.JsonUnpacker = JsonUnpacker;
+    cc._Test.TextureUnpacker = TextureUnpacker;
 }
 
-module.exports = JsonUnpacker;
+module.exports = {
+    JsonUnpacker,
+    TextureUnpacker,
+};

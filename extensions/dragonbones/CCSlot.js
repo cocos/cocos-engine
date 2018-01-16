@@ -100,6 +100,7 @@ dragonBones.CCSlot = cc.Class({
     },
 
     _updateBlendMode () {
+        // TODO: new implementation needed
         return;
         if (this._renderDisplay instanceof cc.Scale9Sprite) {
             switch (this._blendMode) {

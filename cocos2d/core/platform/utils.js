@@ -33,13 +33,15 @@ module.exports = {
             return !!(refNode.compareDocumentPosition(otherNode) & 16);
         }else {
             var node = otherNode.parentNode;
-            do {
-                if(node === refNode){
-                    return true;
-                }else{
-                    node = node.parentNode;
-                }
-            }while(node !==null);
+            if (node) {
+                do {
+                    if (node === refNode) {
+                        return true;
+                    } else {
+                        node = node.parentNode;
+                    }
+                } while (node !==null);
+            }
             return false;
         }
     },

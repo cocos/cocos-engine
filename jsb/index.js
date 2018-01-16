@@ -25,19 +25,16 @@
 
 'use strict';
 
-// check whether support jit
-cc.supportJit = typeof Function('') === 'function';
-
 function defineMacro (name, defaultValue) {
     // if "global_defs" not preprocessed by uglify, just declare them globally,
     // this may happened in release version's preview page.
     // (use evaled code to prevent mangle by uglify)
-    if (typeof window[name] == 'undefined') {
+    if (typeof window[name] === 'undefined') {
         window[name] = defaultValue;
     }
 }
 function defined (name) {
-    return typeof window[name] == 'object';
+    return typeof window[name] === 'object';
 }
 
 defineMacro('CC_TEST', defined('tap') || defined('QUnit'));
@@ -47,6 +44,8 @@ defineMacro('CC_DEV', true);    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_
 defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
 defineMacro('CC_JSB', defined('jsb'));
 defineMacro('CC_BUILD', false);
+defineMacro('CC_WECHATGAME', false);
+defineMacro('CC_SUPPORT_JIT', !CC_WECHATGAME);
 
 
 if (!cc.ClassManager) {
@@ -76,13 +75,7 @@ require('../cocos2d/core/utils/find');
 require('../cocos2d/core/utils/mutable-forward-iterator');
 require('../cocos2d/core/event');
 require('../cocos2d/core/event-manager/CCEvent');
-require('../cocos2d/core/event-manager/CCSystemEvent');
 require('../CCDebugger');
-
-if (CC_DEBUG) {
-    //Debug Info ID map
-    require('../DebugInfos');
-}
 
 // Mark memory model
 var macro = require('../cocos2d/core/platform/CCMacro');

@@ -153,7 +153,7 @@ proto.multiply = function(quaternion) {     //cc.kmQuaternionMultiply
 proto.normalize = function(){     //=cc.kmQuaternionNormalize
     var length = this.length();
     if (Math.abs(length) <= cc.math.EPSILON)
-        throw new Error("current quaternion is an invalid value");
+        throw new Error(cc._getError(7909));
     this.scale(1.0 / length);
     return this;
 };

@@ -76,9 +76,9 @@ let ArmatureDisplay = cc.Class({
     },
     
     properties: {
-        _dragonBonesData: {
+        _factory: {
             default: null,
-            type: dragonBones.DragonBonesData,
+            type: dragonBones.CCFactory,
             serializable: false,
         },
 
@@ -122,6 +122,7 @@ let ArmatureDisplay = cc.Class({
                 // parse the atlas asset data
                 this._parseDragonAtlasAsset();
                 this._buildArmature();
+                this._activateMaterial();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.dragon_bones_atlas_asset'
         },
@@ -284,6 +285,15 @@ let ArmatureDisplay = cc.Class({
 
     ctor () {
         this._inited = false;
+        if (CC_JSB) {
+            // TODO Fix me
+            // If using the getFactory in JSB.
+            // There may be throw errors when close the application.
+            this._factory = new dragonBones.CCFactory();
+        }
+        else {
+            this._factory = dragonBones.CCFactory.getFactory();
+        }
     },
 
     __preload () {
@@ -335,10 +345,12 @@ let ArmatureDisplay = cc.Class({
     },
 
     _activateMaterial () {
-        if (this._material) return;
+        let texture = this.dragonAtlasAsset.texture;
+        if (this._material || !texture)
+            return;
 
-        let url = this.dragonAtlasAsset.texture;
-        let material = renderer.materialUtil.get(url);
+        let url = texture.url;
+        let material = renderer.materialUtil.get(texture.url);
 
         // Get material
         if (!material) {
@@ -346,17 +358,7 @@ let ArmatureDisplay = cc.Class({
             renderer.materialUtil.register(url, material);
         }
 
-        // TODO: old texture in material have been released by loader
-        let texture = cc.loader.getRes(url, cc.Texture2D);
-        if (!texture) {
-            cc.loader.load(url, (err, texture) => {
-                material.texture = texture ? texture.getImpl() : undefined;
-            });
-        }
-        else {
-            material.texture = texture.getImpl();
-        }
-
+        material.texture = texture.getImpl();
         this._material = material;
     },
 
@@ -364,7 +366,7 @@ let ArmatureDisplay = cc.Class({
         if (!this.dragonAsset || !this.dragonAtlasAsset || !this.armatureName) return;
 
         let factory = dragonBones.CCFactory.getFactory();
-        this._armature = factory.buildArmatureDisplay(this.armatureName, this._dragonBonesData.name, this);
+        this._armature = factory.buildArmatureDisplay(this.armatureName, this.dragonAsset._dragonBonesData.name, this);
         this._armature.animation.timeScale = this.timeScale;
 
         if (this.animationName) {
@@ -373,55 +375,14 @@ let ArmatureDisplay = cc.Class({
     },
 
     _parseDragonAsset () {
-        if (!this.dragonAsset) return;
-        
-        let factory = dragonBones.CCFactory.getFactory();
-        let jsonObj = JSON.parse(this.dragonAsset.dragonBonesJson);
-        let data = factory.getDragonBonesData(jsonObj.name);
-        if (data) {
-            // already added asset
-            let armature, dragonBonesData;
-            for (let i = 0, len = jsonObj.armature.length; i < len; i++) {
-                armature = jsonObj.armature[i];
-                if (!data.armatures[armature.name]) {
-                    //add new armature
-                    if (!dragonBonesData) {
-                        dragonBonesData = factory._dataParser.parseDragonBonesData(jsonObj);
-                    }
-                    data.addArmature(dragonBonesData.armatures[armature.name]);
-                }
-            }
-            this._dragonBonesData = data;
-            return;
+        if (this.dragonAsset) {
+            this.dragonAsset.init(this._factory);
         }
-        this._dragonBonesData = factory.parseDragonBonesData(jsonObj);
     },
 
     _parseDragonAtlasAsset () {
-        if (!this.dragonAtlasAsset) return;
-
-        let factory = dragonBones.CCFactory.getFactory();
-        let atlasJsonObj = JSON.parse(this.dragonAtlasAsset.atlasJson);
-        let atlasName = atlasJsonObj.name;
-        let existedAtlasData = null;
-        let atlasDataList = factory.getTextureAtlasData(atlasName);
-        let texturePath = this.dragonAtlasAsset.texture;
-        if (atlasDataList && atlasDataList.length > 0) {
-            for (let idx in atlasDataList) {
-                let data = atlasDataList[idx];
-                if (data && data.texture && data.texture.url === texturePath) {
-                    existedAtlasData = data;
-                    break;
-                }
-            }
-        }
-
-        let texture = cc.loader.getRes(texturePath);                
-        if (existedAtlasData) {
-            existedAtlasData.texture = texture;
-        }
-        else {
-            factory.parseTextureAtlasData(atlasJsonObj, texture);
+        if (this.dragonAtlasAsset) {
+            this.dragonAtlasAsset.init(this._factory);
         }
     },
 
@@ -495,11 +456,8 @@ let ArmatureDisplay = cc.Class({
      * @returns {Array}
      */
     getArmatureNames () {
-        if (this._dragonBonesData) {
-            return this._dragonBonesData.armatureNames;
-        }
-
-        return [];
+        var dragonBonesData = this.dragonAsset && this.dragonAsset._dragonBonesData;
+        return (dragonBonesData && dragonBonesData.armatureNames) || [];
     },
 
     /**
@@ -513,8 +471,8 @@ let ArmatureDisplay = cc.Class({
      */
     getAnimationNames (armatureName) {
         let ret = [];
-        if (this._dragonBonesData) {
-            let armatureData = this._dragonBonesData.getArmature(armatureName);
+        if (this.dragonAsset && this.dragonAsset._dragonBonesData) {
+            let armatureData = this.dragonAsset._dragonBonesData.getArmature(armatureName);
             if (armatureData) {
                 for (let animName in armatureData.animations) {
                     if (armatureData.animations.hasOwnProperty(animName)) {

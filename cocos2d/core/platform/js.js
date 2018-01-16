@@ -524,30 +524,32 @@ cc.js.unregisterClass to remove the id of unused class';
  * @method obsolete
  * @param {any} obj - YourObject or YourClass.prototype
  * @param {String} obsoleted - "OldParam" or "YourClass.OldParam"
- * @param {String} newPropName - "NewParam"
+ * @param {String} newExpr - "NewParam" or "YourClass.NewParam"
  * @param {Boolean} [writable=false]
  */
-js.obsolete = function (obj, obsoleted, newPropName, writable) {
-    var oldName = /([^.]+)$/.exec(obsoleted)[0];
+js.obsolete = function (obj, obsoleted, newExpr, writable) {
+    var extractPropName = /([^.]+)$/;
+    var oldProp = extractPropName.exec(obsoleted)[0];
+    var newProp = extractPropName.exec(newExpr)[0];
     function get () {
         if (CC_DEV) {
-            cc.warnID(5400, obsoleted, newPropName);
+            cc.warnID(5400, obsoleted, newExpr);
         }
-        return this[newPropName];
+        return this[newProp];
     }
     if (writable) {
-        js.getset(obj, oldName,
+        js.getset(obj, oldProp,
             get,
             function (value) {
                 if (CC_DEV) {
-                    cc.warnID(5401, obsoleted, newPropName);
+                    cc.warnID(5401, obsoleted, newExpr);
                 }
-                this[newPropName] = value;
+                this[newProp] = value;
             }
         );
     }
     else {
-        js.get(obj, oldName, get);
+        js.get(obj, oldProp, get);
     }
 };
 
@@ -619,9 +621,9 @@ js.shiftArguments = function () {
 };
 
 /**
- * #en
+ * !#en
  * A simple wrapper of `Object.create(null)` which ensures the return object have no prototype (and thus no inherited members). So we can skip `hasOwnProperty` calls on property lookups. It is a worthwhile optimization than the `{}` literal when `hasOwnProperty` calls are necessary.
- * #zh
+ * !#zh
  * 该方法是对 `Object.create(null)` 的简单封装。`Object.create(null)` 用于创建无 prototype （也就无继承）的空对象。这样我们在该对象上查找属性时，就不用进行 `hasOwnProperty` 判断。在需要频繁判断 `hasOwnProperty` 时，使用这个方法性能会比 `{}` 更高。
  *
  * @method createMap
