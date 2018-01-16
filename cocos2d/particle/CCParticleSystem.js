@@ -603,7 +603,10 @@ var properties = {
      * @property {ParticleSystem.PositionType} positionType
      * @default ParticleSystem.PositionType.FREE
      */
-    positionType: PositionType.FREE,
+    positionType: {
+        default: PositionType.FREE,
+        type: PositionType
+    },
 
     /**
      * !#en Particles emitter modes.
@@ -611,7 +614,10 @@ var properties = {
      * @property {ParticleSystem.EmitterMode} emitterMode
      * @default ParticleSystem.EmitterMode.GRAVITY
      */
-    emitterMode: EmitterMode.GRAVITY,
+    emitterMode: {
+        default: EmitterMode.GRAVITY,
+        type: EmitterMode
+    },
 
     // GRAVITY MODE
 
@@ -790,9 +796,6 @@ var properties = {
      */
     rotatePerSVar: 0
 };
-
-properties.positionType.type = PositionType;
-properties.emitterMode.type = EmitterMode;
 
 /**
  * Particle System base class. <br/>
