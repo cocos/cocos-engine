@@ -191,13 +191,13 @@ using namespace cocos2d::experimental::ui;
     MPVolumeView *volumeView = [[[MPVolumeView alloc] init] autorelease];
     self.volumeSlider = nullptr;
     for (UIView *view in [volumeView subviews]) {
-        if ([view.class.description] isEqualToString:@"MPVolumeSlider") {
+        if ([view.class.description isEqualToString:@"MPVolumeSlider"]) {
             self.volumeSlider = (UISlider *)view;
             break;
         }
     }
     [volumeView setFrame:CGRectMake(-10000, -10000, 40, 40)];
-    [volumeView setHidded:NO];
+    [volumeView setHidden:NO];
 
     auto view = cocos2d::Director::getInstance()->getOpenGLView();
     auto eaglview = (CCEAGLView *) view->getEAGLView();

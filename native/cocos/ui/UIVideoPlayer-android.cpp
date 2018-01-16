@@ -317,7 +317,7 @@ float VideoPlayer::duration() const
     return JniHelper::callStaticFloatMethod(videoHelperClassName, "getDuration", _videoPlayerIndex);
 }
 
-void VideoPlayer::setVolume(float volume) const
+void VideoPlayer::setVolume(float volume)
 {
     JniHelper::callStaticVoidMethod(videoHelperClassName, "setVolume", _videoPlayerIndex, volume);
 }
