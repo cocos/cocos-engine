@@ -271,4 +271,5 @@ cc.WebView = module.exports = WebView;
  * // when you don't need webview anymore
  * webview.node.destroy();
  * @method destroy
+ * @return {Boolean} whether it is the first time the destroy being called
  */

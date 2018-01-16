@@ -59,6 +59,8 @@ var Slider = cc.Class({
     },
 
     ctor: function () {
+        this._offset = cc.p();
+        this._touchHandle = false;
         this._dragging = false;
     },
 
@@ -153,13 +155,17 @@ var Slider = cc.Class({
 
     _onHandleDragStart: function (event) {
         this._dragging = true;
+        this._touchHandle = true;
+        this._offset = this.handle.node.convertTouchToNodeSpaceAR(event.touch);
         event.stopPropagation();
     },
 
     _onTouchBegan: function (event) {
         if (!this.handle) { return; }
         this._dragging = true;
-        this._handleSliderLogic(event.touch);
+        if (!this._touchHandle) {
+            this._handleSliderLogic(event.touch);
+        }
         event.stopPropagation();
     },
 
@@ -171,6 +177,8 @@ var Slider = cc.Class({
 
     _onTouchEnded: function (event) {
         this._dragging = false;
+        this._touchHandle = false;
+        this._offset = cc.p();
         event.stopPropagation();
     },
 
@@ -191,16 +199,13 @@ var Slider = cc.Class({
 
     _updateProgress: function (touch) {
         if (!this.handle) { return; }
-        var maxRange = null, progress = 0, newPos = this.node.convertTouchToNodeSpaceAR(touch);
+        var localTouchPos = this.node.convertTouchToNodeSpaceAR(touch);
         if (this.direction === Direction.Horizontal) {
-            maxRange = this.node.width / 2 - this.handle.node.width * this.handle.node.anchorX;
-            progress = cc.clamp01((newPos.x + maxRange) / (maxRange * 2), 0, 1);
+            this.progress = cc.clamp01(0.5 + (localTouchPos.x - this._offset.x) / this.node.width);
         }
-        else if (this.direction === Direction.Vertical) {
-            maxRange = this.node.height / 2 - this.handle.node.height * this.handle.node.anchorY;
-            progress = cc.clamp01((newPos.y + maxRange) / (maxRange * 2), 0, 1);
+        else {
+            this.progress = cc.clamp01(0.5 + (localTouchPos.y - this._offset.y) / this.node.height);
         }
-        this.progress = progress;
     },
 
     _updateHandlePosition: function () {

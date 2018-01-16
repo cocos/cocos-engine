@@ -29,6 +29,7 @@ const mathPools = require('./utils/math-pools');
 const renderEngine = require('./renderer/render-engine');
 const affineTrans = require('./value-types/CCAffineTransform');
 const math = renderEngine.math;
+const eventManager = require('./event-manager');
 
 const Flags = cc.Object.Flags;
 const Destroying = Flags.Destroying;
@@ -43,8 +44,8 @@ const CHILD_REORDER = 'child-reorder';
 const ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
 const ONE_DEGREE = Math.PI / 180;
 
-var Misc = require('./utils/misc');
-var Event = require('./event/event');
+const Misc = require('./utils/misc');
+const Event = require('./event/event');
 //var RegisteredInEditor = Flags.RegisteredInEditor;
 
 var ActionManagerExist = !!cc.ActionManager;
@@ -164,6 +165,8 @@ var _touchStartHandler = function (touch, event) {
         event.bubbles = true;
         node.dispatchEvent(event);
         if (CC_JSB) {
+            event.touch = null;
+            event._touches = null;
             Event.EventTouch.pool.put(event);
         }
         return true;
@@ -180,6 +183,8 @@ var _touchMoveHandler = function (touch, event) {
     event.bubbles = true;
     node.dispatchEvent(event);
     if (CC_JSB) {
+        event.touch = null;
+        event._touches = null;
         Event.EventTouch.pool.put(event);
     }
 };
@@ -200,6 +205,8 @@ var _touchEndHandler = function (touch, event) {
     event.bubbles = true;
     node.dispatchEvent(event);
     if (CC_JSB) {
+        event.touch = null;
+        event._touches = null;
         Event.EventTouch.pool.put(event);
     }
 };
@@ -218,7 +225,7 @@ var _mouseDownHandler = function (event) {
         event.bubbles = true;
         node.dispatchEvent(event);
         if (CC_JSB) {
-            Event.EventTouch.pool.put(event);
+            Event.EventMouse.pool.put(event);
         }
         else {
             event.stopPropagation();
@@ -230,6 +237,7 @@ var _mouseMoveHandler = function (event) {
     var node = this.owner;
     var hit = node._hitTest(pos, this);
     if (CC_JSB && (hit || this._previousIn)) {
+        // jsb event will be replaced so can be stopped immediately
         event.stopPropagation();
         event = Event.EventMouse.pool.get(event);
     }
@@ -283,7 +291,7 @@ var _mouseUpHandler = function (event) {
         event.bubbles = true;
         node.dispatchEvent(event);
         if (CC_JSB) {
-            Event.EventTouch.pool.put(event);
+            Event.EventMouse.pool.put(event);
         }
         else {
             event.stopPropagation();
@@ -305,7 +313,7 @@ var _mouseWheelHandler = function (event) {
         event.bubbles = true;
         node.dispatchEvent(event);
         if (CC_JSB) {
-            Event.EventTouch.pool.put(event);
+            Event.EventMouse.pool.put(event);
         }
         else {
             event.stopPropagation();
@@ -332,7 +340,7 @@ function _searchMaskInParent (node) {
 
 // function updateOrder (node) {
 //     node._parent._delaySort();
-    //cc.eventManager._setDirtyForNode(node);
+    //eventManager._setDirtyForNode(node);
 // }
 
 /**
@@ -907,7 +915,7 @@ var Node = cc.Class({
         for (; i < len; i++) {
             sibling = siblings[i];
             sibling._updateOrderOfArrival();
-            cc.eventManager._setDirtyForNode(sibling);
+            eventManager._setDirtyForNode(sibling);
         }
         parent._delaySort();
     },
@@ -935,7 +943,6 @@ var Node = cc.Class({
             this._mouseListener.mask = null;
             this._mouseListener = null;
         }
-        cc.eventManager.removeListeners(this);
 
         // Recycle math objects
         mathPools.mat4.put(this._matrix);
@@ -944,6 +951,8 @@ var Node = cc.Class({
         if (this._reorderChildDirty) {
             cc.director.__fastOff(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
         }
+
+        eventManager.removeListeners(this);
 
         if (!destroyByParent) {
             // simulate some destruct logic to make undo system work correctly
@@ -959,7 +968,7 @@ var Node = cc.Class({
         if (active) {
             // activate
             actionManager && actionManager.resumeTarget(this);
-            cc.eventManager.resumeTarget(this);
+            eventManager.resumeTarget(this);
             if (this._touchListener) {
                 var mask = this._touchListener.mask = _searchMaskInParent(this);
                 if (this._mouseListener) {
@@ -973,7 +982,7 @@ var Node = cc.Class({
         else {
             // deactivate
             actionManager && actionManager.pauseTarget(this);
-            cc.eventManager.pauseTarget(this);
+            eventManager.pauseTarget(this);
         }
     },
 
@@ -989,11 +998,12 @@ var Node = cc.Class({
      */
     _onBatchCreated () {
         var prefabInfo = this._prefab;
-        if (prefabInfo && prefabInfo.sync && !prefabInfo._synced) {
-            // checks to ensure no recursion, recursion will caused only on old data.
-            if (prefabInfo.root === this) {
-                PrefabHelper.syncWithPrefab(this);
+        if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
+            if (CC_DEV) {
+                // TODO - remove all usage of _synced
+                cc.assert(!prefabInfo._synced, 'prefab should not synced');
             }
+            PrefabHelper.syncWithPrefab(this);
         }
 
         if (!this._activeInHierarchy) {
@@ -1001,12 +1011,28 @@ var Node = cc.Class({
             if (ActionManagerExist) {
                 cc.director.getActionManager().pauseTarget(this);
             }
-            cc.eventManager.pauseTarget(this);
+            eventManager.pauseTarget(this);
         }
 
         var children = this._children;
         for (var i = 0, len = children.length; i < len; i++) {
             children[i]._onBatchCreated();
+        }
+    },
+
+    // the same as _onBatchCreated but untouch prefab
+    _onBatchRestored () {
+        if (!this._activeInHierarchy) {
+            // deactivate ActionManager and EventManager by default
+            if (ActionManagerExist) {
+                cc.director.getActionManager().pauseTarget(this);
+            }
+            eventManager.pauseTarget(this);
+        }
+
+        var children = this._children;
+        for (var i = 0, len = children.length; i < len; i++) {
+            children[i]._onBatchRestored();
         }
     },
 
@@ -1059,10 +1085,7 @@ var Node = cc.Class({
                     onTouchMoved: _touchMoveHandler,
                     onTouchEnded: _touchEndHandler
                 });
-                if (CC_JSB) {
-                    this._touchListener.retain();
-                }
-                cc.eventManager.addListener(this._touchListener, this);
+                eventManager.addListener(this._touchListener, this);
                 newAdded = true;
             }
         }
@@ -1078,17 +1101,14 @@ var Node = cc.Class({
                     onMouseUp: _mouseUpHandler,
                     onMouseScroll: _mouseWheelHandler,
                 });
-                if (CC_JSB) {
-                    this._mouseListener.retain();
-                }
-                cc.eventManager.addListener(this._mouseListener, this);
+                eventManager.addListener(this._mouseListener, this);
                 newAdded = true;
             }
         }
         if (newAdded && !this._activeInHierarchy) {
             cc.director.getScheduler().schedule(function () {
                 if (!this._activeInHierarchy) {
-                    cc.eventManager.pauseTarget(this);
+                    eventManager.pauseTarget(this);
                 }
             }, this, 0, 0, 0, false);
         }
@@ -1153,7 +1173,7 @@ var Node = cc.Class({
      * node.pauseSystemEvents(true);
      */
     pauseSystemEvents (recursive) {
-        cc.eventManager.pauseTarget(this, recursive);
+        eventManager.pauseTarget(this, recursive);
     },
 
     /**
@@ -1169,7 +1189,7 @@ var Node = cc.Class({
      * node.resumeSystemEvents(true);
      */
     resumeSystemEvents (recursive) {
-        cc.eventManager.resumeTarget(this, recursive);
+        eventManager.resumeTarget(this, recursive);
     },
 
     _checkTouchListeners () {
@@ -1190,7 +1210,7 @@ var Node = cc.Class({
                 }
             }
 
-            cc.eventManager.removeListener(this._touchListener);
+            eventManager.removeListener(this._touchListener);
             this._touchListener = null;
         }
     },
@@ -1216,7 +1236,7 @@ var Node = cc.Class({
                 _currentHovered = null;
             }
 
-            cc.eventManager.removeListener(this._mouseListener);
+            eventManager.removeListener(this._mouseListener);
             this._mouseListener = null;
         }
     },
@@ -1765,8 +1785,10 @@ var Node = cc.Class({
      * Returns the displayed color of Node,
      * the difference between displayed color and color is that displayed color is calculated based on color and parent node's color when cascade color enabled.
      * !#zh
-     * 获取节点的显示透明度，
-     * 显示透明度和透明度之间的不同之处在于显示透明度是基于透明度和父节点透明度启用级连透明度时计算的。
+     * 获取节点的显示颜色，
+     * 显示颜色和颜色之间的不同之处在于当启用级连颜色时，
+     * 显示颜色是基于自身颜色和父节点颜色计算的。
+     *
      * @method getDisplayedColor
      * @returns {Color}
      * @example
@@ -2259,7 +2281,7 @@ var Node = cc.Class({
         // actions
         ActionManagerExist && cc.director.getActionManager().removeAllActionsFromTarget(this);
         // event
-        cc.eventManager.removeListeners(this);
+        eventManager.removeListeners(this);
 
         // children
         var i, len = this._children.length, node;
@@ -2321,11 +2343,11 @@ var Node = cc.Class({
         var actionManager = cc.director.getActionManager();
         if (this._activeInHierarchy) {
             actionManager && actionManager.resumeTarget(this);
-            cc.eventManager.resumeTarget(this);
+            eventManager.resumeTarget(this);
         }
         else {
             actionManager && actionManager.pauseTarget(this);
-            cc.eventManager.pauseTarget(this);
+            eventManager.pauseTarget(this);
         }
     },
 

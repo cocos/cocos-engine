@@ -103,6 +103,7 @@ sp.Skeleton = cc.Class({
                 if (CC_EDITOR) {
                     this._refreshInspector();
                 }
+                this._updateSkeletonData();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.skeleton_data'
         },
@@ -383,22 +384,7 @@ sp.Skeleton = cc.Class({
             this._refreshInspector();
         }
 
-        if (this.skeletonData/* && this.atlasFile*/) {
-            var data = this.skeletonData.getRuntimeData();
-            if (data) {
-                try {
-                    this.setSkeletonData(data);
-                    this.setAnimationStateData(new spine.AnimationStateData(this._skeleton.data));
-                    if (this.defaultSkin) {
-                        this._skeleton.setSkinByName(this.defaultSkin);
-                    }
-                }
-                catch (e) {
-                    cc.warn(e);
-                }
-                this.animation = this.defaultAnimation;
-            }
-        }
+        this._updateSkeletonData();
     },
 
     onDestroy () {
@@ -727,32 +713,6 @@ sp.Skeleton = cc.Class({
         }
     },
 
-    // update animation list for editor
-    _updateAnimEnum: CC_EDITOR && function () {
-        var animEnum;
-        if (this.skeletonData) {
-            animEnum = this.skeletonData.getAnimsEnum();
-        }
-        // change enum
-        setEnumAttr(this, '_animationIndex', animEnum || DefaultAnimsEnum);
-    },
-    // update skin list for editor
-    _updateSkinEnum: CC_EDITOR && function () {
-        var skinEnum;
-        if (this.skeletonData) {
-            skinEnum = this.skeletonData.getSkinsEnum();
-        }
-        // change enum
-        setEnumAttr(this, '_defaultSkinIndex', skinEnum || DefaultSkinsEnum);
-    },
-
-    _ensureListener () {
-        if (!this._listener) {
-            this._listener = new TrackEntryListeners();
-            this._state.addListener(this._listener);
-        }
-    },
-
     /**
      * !#en Set the start event listener.
      * !#zh 用来设置开始播放动画的事件监听。
@@ -898,6 +858,51 @@ sp.Skeleton = cc.Class({
      */
     getState () {
         return this._state;
+    },
+
+    // update animation list for editor
+    _updateAnimEnum: CC_EDITOR && function () {
+        var animEnum;
+        if (this.skeletonData) {
+            animEnum = this.skeletonData.getAnimsEnum();
+        }
+        // change enum
+        setEnumAttr(this, '_animationIndex', animEnum || DefaultAnimsEnum);
+    },
+    // update skin list for editor
+    _updateSkinEnum: CC_EDITOR && function () {
+        var skinEnum;
+        if (this.skeletonData) {
+            skinEnum = this.skeletonData.getSkinsEnum();
+        }
+        // change enum
+        setEnumAttr(this, '_defaultSkinIndex', skinEnum || DefaultSkinsEnum);
+    },
+
+    _ensureListener () {
+        if (!this._listener) {
+            this._listener = new TrackEntryListeners();
+            this._state.addListener(this._listener);
+        }
+    },
+
+    _updateSkeletonData () {
+        if (this.skeletonData/* && this.atlasFile*/) {
+            let data = this.skeletonData.getRuntimeData();
+            if (data) {
+                try {
+                    this.setSkeletonData(data);
+                    this.setAnimationStateData(new spine.AnimationStateData(this._skeleton.data));
+                    if (this.defaultSkin) {
+                        this._skeleton.setSkinByName(this.defaultSkin);
+                    }
+                }
+                catch (e) {
+                    cc.warn(e);
+                }
+                this.animation = this.defaultAnimation;
+            }
+        }
     },
 
     _refreshInspector () {

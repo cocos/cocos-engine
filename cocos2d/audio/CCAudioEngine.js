@@ -321,7 +321,7 @@ var audioEngine = {
      * !#zh 恢复播放指定的音频。
      * @method resume
      * @param {Number} audioID - The return value of function play.
-     * //example
+     * @example
      * cc.audioEngine.resume(audioID);
      */
     resume: function (audioID) {
@@ -504,6 +504,254 @@ var audioEngine = {
                 audio.resume();
         }
         this._breakCache = null;
+    },
+
+    ///////////////////////////////
+    // Classification of interface
+
+    _music: {
+        id: -1,
+        loop: false,
+        volume: 1,
+    },
+
+    _effect: {
+        volume: 1,
+        pauseCache: [],
+    },
+
+    /**
+     * !#en Play background music
+     * !#zh 播放背景音乐
+     * @method playMusic
+     * @param {String} filePath - The path of the audio file without filename extension.
+     * @param {Boolean} loop - Whether the music loop or not.
+     * @return {Number} audioId
+     * @example
+     * var audioID = cc.audioEngine.playMusic(path, false);
+     */
+    playMusic: function (filePath, loop) {
+        var music = this._music;
+        this.stop(music.id);
+        music.id = this.play(filePath, loop, music.volume);
+        music.loop = loop;
+        return music.id;
+    },
+
+    /**
+     * !#en Stop background music.
+     * !#zh 停止播放背景音乐。
+     * @method stopMusic
+     * @example
+     * cc.audioEngine.stopMusic();
+     */
+    stopMusic: function () {
+        this.stop(this._music.id);
+    },
+
+    /**
+     * !#en Pause the background music.
+     * !#zh 暂停播放背景音乐。
+     * @method pauseMusic
+     * @example
+     * cc.audioEngine.pauseMusic();
+     */
+    pauseMusic: function () {
+        this.pause(this._music.id);
+        return this._music.id;
+    },
+
+    /**
+     * !#en Resume playing background music.
+     * !#zh 恢复播放背景音乐。
+     * @method resumeMusic
+     * //example
+     * cc.audioEngine.resumeMusic();
+     */
+    resumeMusic: function () {
+        this.resume(this._music.id);
+        return this._music.id;
+    },
+
+    /**
+     * !#en Get the volume(0.0 ~ 1.0).
+     * !#zh 获取音量（0.0 ~ 1.0）。
+     * @method getMusicVolume
+     * @return {Number}
+     * @example
+     * var volume = cc.audioEngine.getMusicVolume();
+     */
+    getMusicVolume: function () {
+        return this._music.volume;
+    },
+
+    /**
+     * !#en Set the background music volume.
+     * !#zh 设置背景音乐音量（0.0 ~ 1.0）。
+     * @method setMusicVolume
+     * @param {Number} volume - Volume must be in 0.0~1.0.
+     * @example
+     * cc.audioEngine.setMusicVolume(0.5);
+     */
+    setMusicVolume: function (volume) {
+        var music = this._music;
+        music.volume = volume;
+        this.setVolume(music.id, music.volume);
+        return music.volume;
+    },
+
+    /**
+     * !#en Background music playing state
+     * !#zh 背景音乐是否正在播放
+     * @method isMusicPlaying
+     * @return {Boolean}
+     * @example
+     * cc.audioEngine.isMusicPlaying();
+     */
+    isMusicPlaying: function () {
+        return this.getState(this._music.id) === this.AudioState.PLAYING;
+    },
+
+    /**
+     * !#en Play effect audio.
+     * !#zh 播放音效
+     * @method playEffect
+     * @param {String} filePath - The path of the audio file without filename extension.
+     * @param {Boolean} loop - Whether the music loop or not.
+     * @return {Number} audioId
+     * @example
+     * var audioID = cc.audioEngine.playEffect(path, false);
+     */
+    playEffect: function (filePath, loop) {
+        var effect = this._effect;
+        return this.play(filePath, loop || false, effect.volume);
+    },
+
+    /**
+     * !#en Set the volume of effect audio.
+     * !#zh 设置音效音量（0.0 ~ 1.0）。
+     * @method setEffectsVolume
+     * @param {Number} volume - Volume must be in 0.0~1.0.
+     * @example
+     * cc.audioEngine.setEffectsVolume(0.5);
+     */
+    setEffectsVolume: function (volume) {
+        this._effect.volume = volume;
+        var id2audio = audioEngine._id2audio;
+        for (var id in id2audio) {
+            if (id === musicId) continue;
+            audioEngine.setVolume(id, volume);
+        }
+    },
+
+    /**
+     * !#en The volume of the effect audio max value is 1.0,the min value is 0.0 .
+     * !#zh 获取音效音量（0.0 ~ 1.0）。
+     * @method getEffectsVolume
+     * @return {Number}
+     * @example
+     * var volume = cc.audioEngine.getEffectsVolume();
+     */
+    getEffectsVolume: function () {
+        return this._effect.volume;
+    },
+
+    /**
+     * !#en Pause effect audio.
+     * !#zh 暂停播放音效。
+     * @method pauseEffect
+     * @param {Number} audioID - audio id.
+     * @example
+     * cc.audioEngine.pauseEffect(audioID);
+     */
+    pauseEffect: function (audioID) {
+        return this.pause(audioID);
+    },
+
+    /**
+     * !#en Stop playing all the sound effects.
+     * !#zh 暂停播放所有音效。
+     * @method pauseAllEffects
+     * @example
+     * cc.audioEngine.pauseAllEffects();
+     */
+    pauseAllEffects: function () {
+        var musicId = this._music.id;
+        var effect = this._effect;
+        var id2audio = this._id2audio;
+        effect.pauseCache.length = 0;
+
+        for (var id in id2audio) {
+            if (id === musicId) continue;
+            var audio = id2audio[id];
+            var state = audio.getState();
+            if (state === this.AudioState.PLAYING) {
+                effect.pauseCache.push(id);
+                audio.pause();
+            }
+        }
+    },
+
+    /**
+     * !#en Resume effect audio.
+     * !#zh 恢复播放音效音频。
+     * @method resumeEffect
+     * @param {Number} audioID - The return value of function play.
+     * //example
+     * cc.audioEngine.resumeEffect(audioID);
+     */
+    resumeEffect: function (id) {
+        this.resume(id);
+    },
+
+    /**
+     * !#en Resume all effect audio.
+     * !#zh 恢复播放所有之前暂停的音效。
+     * @method resumeAllEffects
+     * @example
+     * cc.audioEngine.resumeAllEffects();
+     */
+    resumeAllEffects: function () {
+        var pauseIDCache = this._effect.pauseCache;
+        var id2audio = this._id2audio;
+        while (pauseIDCache.length > 0) {
+            var id = pauseIDCache.pop();
+            var audio = id2audio[id];
+            if (audio && audio.resume)
+                audio.resume();
+        }
+    },
+
+    /**
+     * !#en Stop playing the effect audio.
+     * !#zh 停止播放音效。
+     * @method stopEffect
+     * @param {Number} audioID - audio id.
+     * @example
+     * cc.audioEngine.stopEffect(id);
+     */
+    stopEffect: function (audioID) {
+        return this.stop(audioID);
+    },
+
+    /**
+     * !#en Stop playing all the effects.
+     * !#zh 停止播放所有音效。
+     * @method stopAllEffects
+     * @example
+     * cc.audioEngine.stopAllEffects();
+     */
+    stopAllEffects: function () {
+        var musicId = this._music.id;
+        var id2audio = this._id2audio;
+        for (var id in id2audio) {
+            if (id === musicId) continue;
+            var audio = id2audio[id];
+            var state = audio.getState();
+            if (state === audioEngine.AudioState.PLAYING) {
+                audio.stop();
+            }
+        }
     }
 };
 

@@ -69,7 +69,7 @@ Class.extend = function (props) {
 
     // The dummy Class constructor
     var TheClass;
-    if (cc.supportJit && cc.game && cc.game.config && cc.game.config[cc.game.CONFIG_KEY.exposeClassName]) {
+    if (CC_SUPPORT_JIT && cc.game && cc.game.config && cc.game.config[cc.game.CONFIG_KEY.exposeClassName]) {
         var ctor =
             "return (function " + (props._className || "Class") + "(arg0,arg1,arg2,arg3,arg4) {\n" +
                 "this.__instanceId = cc.ClassManager.getNewInstanceId();\n" +
@@ -174,7 +174,7 @@ cc.defineGetterSetter = function (proto, prop, getter, setter, getterName, sette
         setter && (desc.set = setter);
         Object.defineProperty(proto, prop, desc);
     } else {
-        throw new Error("browser does not support getters");
+        throw new Error(cc._getError(3658));
     }
 };
 

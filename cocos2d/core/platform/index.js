@@ -37,10 +37,9 @@ require('./requiring-frame');
 require('./CCSys');
 require('./CCMacro');
 
-if (CC_JSB || cc.sys.isBrowser) {
+if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('./CCAssetLibrary');
-}
-
-if (!CC_JSB && !(CC_EDITOR && Editor.isMainProcess)) {
-    require('./CCVisibleRect');
+    if (!CC_JSB) {
+        require('./CCVisibleRect');
+    }
 }

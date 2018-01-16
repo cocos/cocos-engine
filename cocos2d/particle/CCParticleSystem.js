@@ -232,7 +232,8 @@ var properties = {
         set: function (value) {
             cc.warnID(6017);
         },
-        url: cc.Texture2D,
+        type: cc.Texture2D,
+        tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.texture',
         readonly: true,
         visible: false,
         animatable: false
@@ -602,7 +603,10 @@ var properties = {
      * @property {ParticleSystem.PositionType} positionType
      * @default ParticleSystem.PositionType.FREE
      */
-    positionType: PositionType.FREE,
+    positionType: {
+        default: PositionType.FREE,
+        type: PositionType
+    },
 
     /**
      * !#en Particles emitter modes.
@@ -610,7 +614,10 @@ var properties = {
      * @property {ParticleSystem.EmitterMode} emitterMode
      * @default ParticleSystem.EmitterMode.GRAVITY
      */
-    emitterMode: EmitterMode.GRAVITY,
+    emitterMode: {
+        default: EmitterMode.GRAVITY,
+        type: EmitterMode
+    },
 
     // GRAVITY MODE
 
@@ -790,9 +797,6 @@ var properties = {
     rotatePerSVar: 0
 };
 
-properties.positionType.type = PositionType;
-properties.emitterMode.type = EmitterMode;
-
 /**
  * Particle System base class. <br/>
  * Attributes of a Particle System:<br/>
@@ -946,7 +950,6 @@ var ParticleSystem = cc.Class({
     onEnable: function () {
         this._super();
         this._updateMaterial();
-        this._updateBlendFunc();
     },
 
     onDestroy: function () {
@@ -1061,7 +1064,7 @@ var ParticleSystem = cc.Class({
             var self = this;
             cc.loader.load(file, function (err, content) {
                 if (err || !content) {
-                    throw err || new Error('Unkown error');
+                    throw err || new Error(cc._getError(6029));
                 }
                 if (!self.isValid) {
                     return;
@@ -1305,6 +1308,8 @@ var ParticleSystem = cc.Class({
         this._material.quadMap = this._vfx.textures.quads;
         this._material.z = this.node.z;
         this._updateMaterialSize();
+
+        this._updateBlendFunc();
     },
     
     _updateBlendFunc: function () {

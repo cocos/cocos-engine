@@ -36,7 +36,7 @@ function loadDomAudio (item, callback) {
     var dom = document.createElement('audio');
     dom.src = item.url;
 
-    if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+    if (sys.platform === sys.WECHAT_GAME) {
         item.element = dom;
         callback(null, item.url);
         return;
@@ -73,7 +73,7 @@ function loadDomAudio (item, callback) {
 }
 
 function loadWebAudio (item, callback) {
-    if (!context) callback(new Error('Audio Downloader: no web audio context.'));
+    if (!context) callback(new Error(cc._getError(4926)));
 
     var request = cc.loader.getXMLHttpRequest();
     request.open("GET", item.url, true);
@@ -100,7 +100,7 @@ function loadWebAudio (item, callback) {
 
 function downloadAudio (item, callback) {
     if (formatSupport.length === 0) {
-        return new Error('Audio Downloader: audio not supported on this browser!');
+        return new Error(cc._getError(4927));
     }
 
     item.content = item.url;

@@ -23,6 +23,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+var eventManager = require('../event-manager');
 
 const renderer = require('../renderer');
 
@@ -32,7 +33,7 @@ function isWeChatGame () {
 
 var __BrowserGetter = {
     init: function(){
-        if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME) {
+        if (cc.sys.platform !== cc.sys.WECHAT_GAME) {
             this.html = document.getElementsByTagName("html")[0];
         }
     },
@@ -60,7 +61,7 @@ if (window.navigator.userAgent.indexOf("OS 8_1_") > -1) //this mistake like MIUI
 if (cc.sys.os === cc.sys.OS_IOS) // All browsers are WebView
     __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_SAFARI;
 
-if (isWeChatGame()) {
+if (CC_WECHATGAME) {
     __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_WECHAT_GAME;
 }
 
@@ -226,7 +227,7 @@ var View = cc._Class.extend({
             view.setDesignResolutionSize(width, height, view._resolutionPolicy);
         view._resizing = false;
 
-        cc.eventManager.dispatchCustomEvent('canvas-resize');
+        eventManager.dispatchCustomEvent('canvas-resize');
         if (view._resizeCallback) {
             view._resizeCallback.call();
         }
@@ -397,7 +398,7 @@ var View = cc._Class.extend({
     },
 
     _adjustViewportMeta: function () {
-        if (this._isAdjustViewPort && cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME) {
+        if (this._isAdjustViewPort && cc.sys.platform !== cc.sys.WECHAT_GAME) {
             this._setViewportMeta(__BrowserGetter.meta, false);
             this._isAdjustViewPort = false;
         }
@@ -817,7 +818,7 @@ var View = cc._Class.extend({
      * @param {ResolutionPolicy|Number} resolutionPolicy The resolution policy desired
      */
     setRealPixelResolution: function (width, height, resolutionPolicy) {
-        if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME) {
+        if (cc.sys.platform !== cc.sys.WECHAT_GAME) {
             // Set viewport's width
             this._setViewportMeta({"width": width}, true);
 
@@ -1053,7 +1054,7 @@ cc.ContainerStrategy = cc._Class.extend(/** @lends cc.ContainerStrategy# */{
     _setupContainer: function (view, w, h) {
         var locCanvas = cc.game.canvas, locContainer = cc.game.container;
 
-        if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME) {
+        if (cc.sys.platform !== cc.sys.WECHAT_GAME) {
             if (cc.sys.os === cc.sys.OS_ANDROID) {
                 document.body.style.width = (view._isRotated ? h : w) + 'px';
                 document.body.style.height = (view._isRotated ? w : h) + 'px';
@@ -1170,6 +1171,7 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
             else {
                 containerStyle.margin = '0px';
             }
+            containerStyle.padding = "0px";
         }
     });
 
