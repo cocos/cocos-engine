@@ -133,6 +133,12 @@ namespace experimental{
             float duration() const;
 
             /**
+             * Set the current volume of video player.
+             * @param volume The value is between 0 and 1
+             */
+            void setVolume(float volume);
+
+            /**
              * Checks whether the VideoPlayer is playing.
              *
              * @return True if currently playing, false otherwise.

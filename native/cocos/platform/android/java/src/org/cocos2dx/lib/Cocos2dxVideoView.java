@@ -715,6 +715,12 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
     }
 
     public int getAudioSessionId () {
-       return mMediaPlayer.getAudioSessionId();
+        return mMediaPlayer.getAudioSessionId();
+    }
+
+    public void setVolume (float volume) {
+        if (mMediaPlayer != null) {
+            mMediaPlayer.setVolume(volume, volume);
+        }
     }
 }

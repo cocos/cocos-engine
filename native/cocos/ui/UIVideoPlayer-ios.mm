@@ -38,6 +38,7 @@ using namespace cocos2d::experimental::ui;
 @interface UIVideoViewWrapperIos : NSObject<UIGestureRecognizerDelegate>
 
 @property (strong,nonatomic) MPMoviePlayerController * moviePlayer;
+@property (strong,nonatomic) UISlider * volumeSlider;
 
 - (void) setFrame:(int) left :(int) top :(int) width :(int) height;
 - (void) setURL:(int) videoSource :(std::string&) videoUrl;
@@ -52,6 +53,7 @@ using namespace cocos2d::experimental::ui;
 - (void) setVisible:(BOOL) visible;
 - (void) setKeepRatioEnabled:(BOOL) enabled;
 - (void) setFullScreenEnabled:(BOOL) enabled;
+- (void) setVolume:(float) volume;
 - (BOOL) isFullScreenEnabled;
 - (void) cleanup;
 -(id) init:(void*) videoPlayer;
@@ -77,6 +79,7 @@ using namespace cocos2d::experimental::ui;
 {
     if (self = [super init]) {
         self.moviePlayer = nullptr;
+        self.volumeSlider = nullptr;
         _videoPlayer = (VideoPlayer*)videoPlayer;
         _keepRatioEnabled = false;
     }
@@ -92,6 +95,7 @@ using namespace cocos2d::experimental::ui;
         [self.moviePlayer stop];
         [self.moviePlayer.view removeFromSuperview];
         self.moviePlayer = nullptr;
+        self.volumeSlider = nullptr;
     }
 }
 
@@ -183,8 +187,21 @@ using namespace cocos2d::experimental::ui;
         self.moviePlayer.scalingMode = MPMovieScalingModeFill;
     }
 
+    //add MPVolumeView
+    MPVolumeView *volumeView = [[[MPVolumeView alloc] init] autorelease];
+    self.volumeSlider = nullptr;
+    for (UIView *view in [volumeView subviews]) {
+        if ([view.class.description] isEqualToString:@"MPVolumeSlider") {
+            self.volumeSlider = (UISlider *)view;
+            break;
+        }
+    }
+    [volumeView setFrame:CGRectMake(-10000, -10000, 40, 40)];
+    [volumeView setHidded:NO];
+
     auto view = cocos2d::Director::getInstance()->getOpenGLView();
     auto eaglview = (CCEAGLView *) view->getEAGLView();
+    [eaglview addSubview:volumeView];
     [eaglview addSubview:self.moviePlayer.view];
 
 
@@ -306,6 +323,13 @@ using namespace cocos2d::experimental::ui;
         if (!visible) {
             [self pause];
         }
+    }
+}
+
+-(void) setVolume:(float)volume
+{
+    if (self.volumeSlider != NULL) {
+        [self.volumeSlider setVolume:volume animated:NO];
     }
 }
 
@@ -574,6 +598,11 @@ void VideoPlayer::copySpecialProperties(Widget *widget)
         _eventCallback = videoPlayer->_eventCallback;
         _videoView = videoPlayer->_videoView;
     }
+}
+
+void VideoPlayer::setVolume(float volume)
+{
+    [((UIVideoViewWrapperIos*)_videoView) setVolume:volume];
 }
 
 #endif
