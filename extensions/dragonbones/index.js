@@ -38,7 +38,8 @@
  * http://dragonbones.com/cn/index.html
  */
 
-dragonBones = CC_JSB ? dragonBones : require('./lib/dragonBones');
+var _global = typeof window === 'undefined' ? global : window;
+_global.dragonBones = CC_JSB ? dragonBones : require('./lib/dragonBones');
 
 dragonBones.DisplayType = {
     Image : 0,

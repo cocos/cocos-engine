@@ -267,7 +267,7 @@ RenderComponentWalker.prototype = {
             _batchData.comp = comp;
             datas = assembler.updateRenderData(comp, _batchData);
 
-            for (id = 0; id < datas.length; id ++) {
+            for (let id = 0; id < datas.length; id ++) {
                 data = datas[id];
                 _batchData.data = data;
                 effect = data.effect;

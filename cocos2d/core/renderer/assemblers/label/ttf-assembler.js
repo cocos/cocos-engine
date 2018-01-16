@@ -48,6 +48,9 @@ let _lineHeight = 0;
 let _hAlign = 0;
 let _vAlign = 0;
 let _color = null;
+let _fontFamily = '';
+let _overflow = Overflow.NONE;
+let _isWrapText = false;
 
 let _isBold = false;
 let _isItalic = false;
