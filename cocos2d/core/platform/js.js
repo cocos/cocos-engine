@@ -574,7 +574,7 @@ var REGEXP_STR = /%s/;
 /**
  * A string tool to construct a string with format string.
  * @method formatStr
- * @param {String|any} msg - A JavaScript string containing zero or more substitution strings.
+ * @param {String|any} msg - A JavaScript string containing zero or more substitution strings (%s).
  * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
  * @returns {String}
  * @example
