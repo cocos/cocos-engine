@@ -80,7 +80,7 @@ let Graphics = cc.Class({
         menu: 'i18n:MAIN_MENU.component.renderers/Graphics',
     },
 
-    ctor: function () {
+    ctor () {
         // inner properties
         this._tessTol = 0.25;
         this._distTol = 0.01;
@@ -98,6 +98,8 @@ let Graphics = cc.Class({
 
         this._paths = [];
         this._points = [];
+
+        this._renderDatas = [];
     },
 
     properties: {
@@ -117,10 +119,10 @@ let Graphics = cc.Class({
          * @default 1
          */
         lineWidth: {
-            get: function () {
+            get () {
                 return this._lineWidth;
             },
-            set: function (value) {
+            set (value) {
                 this._lineWidth = value;
             }
         },
@@ -134,10 +136,10 @@ let Graphics = cc.Class({
          * @default LineJoin.MITER
          */
         lineJoin: {
-            get: function () {
+            get () {
                 return this._lineJoin;
             },
-            set: function (value) {
+            set (value) {
                 this._lineJoin = value;
             },
             type: LineJoin
@@ -152,10 +154,10 @@ let Graphics = cc.Class({
          * @default LineCap.BUTT
          */
         lineCap: {
-            get: function () {
+            get () {
                 return this._lineCap;
             },
-            set: function (value) {
+            set (value) {
                 this._lineCap = value;
             },
             type: LineCap
@@ -170,11 +172,11 @@ let Graphics = cc.Class({
          * @default Color.BLACK
          */
         strokeColor: {
-            get: function () {
+            get () {
                 return this._strokeColor;
             },
-            set: function (value) {
-                this._strokeColor = value;
+            set (value) {
+                this._strokeColor = cc.color(value);
             }
         },
 
@@ -187,11 +189,11 @@ let Graphics = cc.Class({
          * @default Color.WHITE
          */
         fillColor: {
-            get: function () {
+            get () {
                 return this._fillColor;
             },
-            set: function (value) {
-                this._fillColor = value;
+            set (value) {
+                this._fillColor = cc.color(value);
             }
         },
 
@@ -204,10 +206,10 @@ let Graphics = cc.Class({
          * @default 10
          */
         miterLimit: {
-            get: function () {
+            get () {
                 return this._miterLimit;
             },
-            set: function (value) {
+            set (value) {
                 this._miterLimit = value;
             }
         }
@@ -218,12 +220,21 @@ let Graphics = cc.Class({
         LineCap: LineCap
     },
 
-    onEnable: function () {
+    onEnable () {
         this._super();
         this._activateMaterial();
     },
 
-    _activateMaterial: function () {
+    onDestroy () {
+        this._super();
+        let datas = this._renderDatas;
+        for (let i = 0, l = datas.length; i < l; i++) {
+            RenderData.free(datas[i]);
+        }
+        datas.length = 0;
+    },
+
+    _activateMaterial () {
         if (this._material) return;
         
         let key = 'graphics-material';
@@ -242,7 +253,7 @@ let Graphics = cc.Class({
      * @param {Number} [x] The x axis of the coordinate for the end point.
      * @param {Number} [y] The y axis of the coordinate for the end point.
      */
-    moveTo: function (x, y) {
+    moveTo (x, y) {
         if (this._updatePathOffset) {
             this._pathOffset = this._pathLength;
             this._updatePathOffset = false;
@@ -262,7 +273,7 @@ let Graphics = cc.Class({
      * @param {Number} [x] The x axis of the coordinate for the end point.
      * @param {Number} [y] The y axis of the coordinate for the end point.
      */
-    lineTo: function (x, y) {
+    lineTo (x, y) {
         this._addPoint(x, y, PointFlags.PT_CORNER);
         
         this._commandx = x;
@@ -280,7 +291,7 @@ let Graphics = cc.Class({
      * @param {Number} [x] The x axis of the coordinate for the end point.
      * @param {Number} [y] The y axis of the coordinate for the end point.
      */
-    bezierCurveTo: function (c1x, c1y, c2x, c2y, x, y) {
+    bezierCurveTo (c1x, c1y, c2x, c2y, x, y) {
         var path = this._curPath;
         var last = path.points[path.points.length - 1];
     
@@ -304,7 +315,7 @@ let Graphics = cc.Class({
      * @param {Number} [x] The x axis of the coordinate for the end point.
      * @param {Number} [y] The y axis of the coordinate for the end point.
      */
-    quadraticCurveTo: function (cx, cy, x, y) {
+    quadraticCurveTo (cx, cy, x, y) {
         var x0 = this._commandx;
         var y0 = this._commandy;
         this.bezierCurveTo(x0 + 2.0 / 3.0 * (cx - x0), y0 + 2.0 / 3.0 * (cy - y0), x + 2.0 / 3.0 * (cx - x), y + 2.0 / 3.0 * (cy - y), x, y);
@@ -321,7 +332,7 @@ let Graphics = cc.Class({
      * @param {Number} [endAngle] The angle at which the arc ends, measured clockwise from the positive x axis and expressed in radians.
      * @param {Number} [counterclockwise] An optional Boolean which, if true, causes the arc to be drawn counter-clockwise between the two angles. By default it is drawn clockwise.
      */
-    arc: function (cx, cy, r, startAngle, endAngle, counterclockwise) {
+    arc (cx, cy, r, startAngle, endAngle, counterclockwise) {
         Helper.arc(this, cx, cy, r, startAngle, endAngle, counterclockwise);
     },
 
@@ -334,7 +345,7 @@ let Graphics = cc.Class({
      * @param {Number} [rx] The ellipse's x-axis radius.
      * @param {Number} [ry] The ellipse's y-axis radius.
      */
-    ellipse: function (cx, cy, rx, ry) {
+    ellipse (cx, cy, rx, ry) {
         Helper.ellipse(this, cx, cy, rx, ry);
         this._curPath.complex = false;
     },
@@ -347,7 +358,7 @@ let Graphics = cc.Class({
      * @param {Number} [cy] The y axis of the coordinate for the center point.
      * @param {Number} [r] The circle's radius.
      */
-    circle: function (cx, cy, r) {
+    circle (cx, cy, r) {
         Helper.ellipse(this, cx, cy, r, r);
         this._curPath.complex = false;
     },
@@ -361,7 +372,7 @@ let Graphics = cc.Class({
      * @param {Number} [w] The rectangle's width.
      * @param {Number} [h] The rectangle's height.
      */
-    rect: function (x, y, w, h) {
+    rect (x, y, w, h) {
         this.moveTo(x, y);
         this.lineTo(x, y + h);
         this.lineTo(x + w, y + h);
@@ -380,7 +391,7 @@ let Graphics = cc.Class({
      * @param {Number} [h] The rectangle's height.
      * @param {Number} [r] The radius of the rectangle.
      */
-    roundRect: function (x, y, w, h, r) {
+    roundRect (x, y, w, h, r) {
         Helper.roundRect(this, x, y, w, h, r);
         this._curPath.complex = false;
     },
@@ -394,7 +405,7 @@ let Graphics = cc.Class({
      * @param {Number} [w] The rectangle's width.
      * @param {Number} [h] The rectangle's height.
      */
-    fillRect: function (x, y, w, h) {
+    fillRect (x, y, w, h) {
         this.rect(x, y, w, h);
         this.fill();
     },
@@ -405,23 +416,28 @@ let Graphics = cc.Class({
      * @method clear
      * @param {Boolean} [clean] Whether to clean the graphics inner cache.
      */
-    clear: function (clean) {
+    clear (clean) {
         this._pathLength = 0;
         this._pathOffset = 0;
         this._pointsOffset = 0;
         
         this._curPath = null;
     
+        let datas = this._renderDatas;
         if (clean) {
             this._paths.length = 0;
             this._points.length = 0;
 
-            RenderData.free(this._renderData);
-            this._renderData = null;
+            for (let i = 0, l = datas.length; i < l; i++) {
+                RenderData.free(datas[i]);
+            }
+            datas.length = 0;
         }
-        else if (this._renderData) {
-            this._renderData.dataLength = 0;
-            this._renderData._indices.length = 0;
+        else {
+            for (let i = 0, l = datas.length; i < l; i++) {
+                datas[i].dataLength = 0;
+                datas[i]._indices.length = 0;
+            }
         }
     },
 
@@ -430,7 +446,7 @@ let Graphics = cc.Class({
      * !#zh 将笔点返回到当前路径起始点的。它尝试从当前点到起始点绘制一条直线。
      * @method close
      */
-    close: function () {
+    close () {
         this._curPath.closed = true;
     },
 
@@ -439,7 +455,7 @@ let Graphics = cc.Class({
      * !#zh 根据当前的画线样式，绘制当前或已经存在的路径。
      * @method stroke
      */
-    stroke: function () {
+    stroke () {
         Graphics._assembler.stroke(this);
     },
 
@@ -448,11 +464,11 @@ let Graphics = cc.Class({
      * !#zh 根据当前的画线样式，填充当前或已经存在的路径。
      * @method fill
      */
-    fill: function () {
+    fill () {
         Graphics._assembler.fill(this);
     },
 
-    _addPath: function () {
+    _addPath () {
         var offset = this._pathLength;
         var path = this._paths[offset];
     
@@ -470,7 +486,7 @@ let Graphics = cc.Class({
         return path;
     },
     
-    _addPoint: function (x, y, flags) {
+    _addPoint (x, y, flags) {
         var path = this._curPath;
         if (!path) return;
     

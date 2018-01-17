@@ -29,6 +29,10 @@ const LineJoin = Graphics.LineJoin;
 const LineCap = Graphics.LineCap;
 const Earcut = require('./earcut');
 
+const macro = require('../../../platform/CCMacro');
+const MAX_VERTEX = macro.BATCH_VERTEX_COUNT;
+const MAX_INDICE = MAX_VERTEX * 2;
+
 const js = require('../../../platform/js');
 const assembler = require('../assembler');
 const renderEngine = require('../../render-engine');
@@ -46,9 +50,11 @@ const atan2   = Math.atan2;
 const abs     = Math.abs;
 
 let _matrix = math.mat4.create();
+let _renderData = null;
+let _curColor = 0;
 
 function curveDivs (r, arc, tol) {
-    var da = acos(r / (r + tol)) * 2.0;
+    let da = acos(r / (r + tol)) * 2.0;
     return max(2, ceil(arc / da));
 }
 
@@ -64,44 +70,48 @@ function clamp (v, min, max) {
 
 let graphicsAssembler = js.addon({
     updateRenderData (graphics) {
-        // Create render data if needed
-        if (!graphics._renderData) {
-            graphics._renderData = RenderData.alloc();
+        let datas = graphics._renderDatas;
+        if (datas.length === 0) {
+            datas.push(RenderData.alloc());
+        }
+        
+        for (let i = 0, l = datas.length; i < l; i++) {
+            datas[i].effect = graphics.getEffect();
         }
 
-        let renderData = graphics._renderData;
-        let size = graphics.node._contentSize;
-        let anchor = graphics.node._anchorPoint;
-        renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
-        renderData.effect = graphics.getEffect();
-
-        this.datas.length = 0;
-        this.datas.push(renderData);
-        return this.datas;
+        return datas;
     },
 
     fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
         let graphics = batchData.comp,
             offset = batchData.byteOffset / 4,
             node = graphics.node,
-            renderData = graphics._renderData,
+            renderData = batchData.data,
             data = renderData._data,
             z = node._position.z;
         
         // vertex buffer
         node.getWorldMatrix(_matrix);
-        let a = _matrix.m00,
-            b = _matrix.m01,
-            c = _matrix.m04,
-            d = _matrix.m05,
-            tx = _matrix.m12,
-            ty = _matrix.m13;
+        let a = _matrix.m00, b = _matrix.m01, c = _matrix.m04, d = _matrix.m05,
+            tx = _matrix.m12, ty = _matrix.m13;
 
+        let nodeColor = node.color,
+            nodeR = nodeColor.r / 255,
+            nodeG = nodeColor.g / 255,
+            nodeB = nodeColor.b / 255,
+            nodeA = nodeColor.a / 255;
         for (let i = 0, l = data.length; i < l; i++) {
             vbuf[offset++] = data[i].x * a + data[i].y * c + tx;
             vbuf[offset++] = data[i].x * b + data[i].y * d + ty;
             vbuf[offset++] = z;
-            uintbuf[offset++] = data[i].color;
+
+            let color = data[i].color;
+            let cr = (color & 0x000000ff) * nodeR;
+            let cg = ((color & 0x0000ff00) >> 8) * nodeG;
+            let cb = ((color & 0x00ff0000) >> 16) * nodeB;
+            let ca = ((color & 0xff000000) >>> 24) * nodeA;
+            color = ((ca<<24) >>> 0) + (cb<<16) + (cg<<8) + cr;
+            uintbuf[offset++] = color;
             offset+=2;
         }
 
@@ -113,12 +123,23 @@ let graphicsAssembler = js.addon({
         }
     },
 
+    genRenderData (graphics, cverts) {
+        let renderDatas = graphics._renderDatas; 
+        let renderData = renderDatas[renderDatas.length - 1];
+        let maxVertsCount = renderData.dataLength + cverts;
+        if (maxVertsCount > MAX_VERTEX ||
+            maxVertsCount * 3 > MAX_INDICE) {
+            renderData = RenderData.alloc();
+        }
+        return renderData;
+    },
+
     stroke (graphics) {
-        if (!graphics._renderData) {
-            graphics._renderData = RenderData.alloc();
+        if (graphics._renderDatas.length === 0) {
+            graphics._renderDatas.push(RenderData.alloc());
         }
 
-        this._curColor = graphics._strokeColor._val;
+        _curColor = graphics._strokeColor._val;
 
         this._flattenPaths(graphics);
         this._expandStroke(graphics);
@@ -127,39 +148,59 @@ let graphicsAssembler = js.addon({
     },
 
     fill (graphics) {
-        if (!graphics._renderData) {
-            graphics._renderData = RenderData.alloc();
+        if (graphics._renderDatas.length === 0) {
+            graphics._renderDatas.push(RenderData.alloc());
         }
 
-        this._curColor = graphics._fillColor._val;
+        _curColor = graphics._fillColor._val;
 
         this._expandFill(graphics);
         this._updatePathOffset = true;
     },
 
     _expandStroke (graphics) {
-        var w = graphics.lineWidth * 0.5,
+        let w = graphics.lineWidth * 0.5,
             lineCap = graphics.lineCap,
             lineJoin = graphics.lineJoin,
             miterLimit = graphics.miterLimit;
     
-        var ncap = curveDivs(w, PI, graphics._tessTol);
+        let ncap = curveDivs(w, PI, graphics._tessTol);
     
         this._calculateJoins(graphics, w, lineJoin, miterLimit);
     
-        let paths = graphics._paths,
-            renderData = this._renderData = graphics._renderData,
+        let paths = graphics._paths;
+        
+        // Calculate max vertex usage.
+        let cverts = 0;
+        for (let i = graphics._pathOffset, l = graphics._pathLength; i < l; i++) {
+            let path = paths[i];
+            let pointsLength = path.points.length;
+
+            if (lineJoin === LineJoin.ROUND) cverts += (pointsLength + path.nbevel * (ncap + 2) + 1) * 2; // plus one for loop
+            else cverts += (pointsLength + path.nbevel * 5 + 1) * 2; // plus one for loop
+
+            if (!path.closed) {
+                // space for caps
+                if (lineCap === LineCap.ROUND) {
+                    cverts += (ncap * 2 + 2) * 2;
+                } else {
+                    cverts += (3 + 3) * 2;
+                }
+            }
+        }
+
+        let renderData = _renderData = this.genRenderData(graphics, cverts),
             data = renderData._data,
             indicesBuffer = renderData._indices;
             
-        for (var i = graphics._pathOffset, l = graphics._pathLength; i < l; i++) {
-            var path = paths[i];
-            var pts = path.points;
-            var pointsLength = pts.length;
-            var offset = data.length;
+        for (let i = graphics._pathOffset, l = graphics._pathLength; i < l; i++) {
+            let path = paths[i];
+            let pts = path.points;
+            let pointsLength = pts.length;
+            let offset = data.length;
 
-            var p0, p1;
-            var start, end, loop;
+            let p0, p1;
+            let start, end, loop;
             loop = path.closed;
             if (loop) {
                 // Looping
@@ -177,11 +218,11 @@ let graphicsAssembler = js.addon({
     
             if (!loop) {
                 // Add cap
-                var dPos = p1.sub(p0);
+                let dPos = p1.sub(p0);
                 dPos.normalizeSelf();
     
-                var dx = dPos.x;
-                var dy = dPos.y;
+                let dx = dPos.x;
+                let dy = dPos.y;
     
                 if (lineCap === LineCap.BUTT)
                     this._buttCap(p0, dx, dy, w, 0);
@@ -191,7 +232,7 @@ let graphicsAssembler = js.addon({
                     this._roundCapStart(p0, dx, dy, w, ncap);
             }
     
-            for (var j = start; j < end; ++j) {
+            for (let j = start; j < end; ++j) {
                 if (lineJoin === LineJoin.ROUND) {
                     this._roundJoin(p0, p1, w, w, ncap);
                 }
@@ -213,11 +254,11 @@ let graphicsAssembler = js.addon({
                 this._vset(data[offset+1].x, data[offset+1].y);
             } else {
                 // Add cap
-                var dPos = p1.sub(p0);
+                let dPos = p1.sub(p0);
                 dPos.normalizeSelf();
     
-                var dx = dPos.x;
-                var dy = dPos.y;
+                let dx = dPos.x;
+                let dy = dPos.y;
     
                 if (lineCap === LineCap.BUTT)
                     this._buttCap(p1, dx, dy, w, 0);
@@ -228,8 +269,8 @@ let graphicsAssembler = js.addon({
             }
 
             // stroke indices
-            var indicesOffset = indicesBuffer.length;
-            for (var start = offset+2, end = data.length; start < end; start++) {
+            let indicesOffset = indicesBuffer.length;
+            for (let start = offset+2, end = data.length; start < end; start++) {
                 indicesBuffer[indicesOffset++] = start - 2;
                 indicesBuffer[indicesOffset++] = start - 1;
                 indicesBuffer[indicesOffset++] = start;
@@ -238,52 +279,64 @@ let graphicsAssembler = js.addon({
 
         renderData.vertexCount = data.length;
         renderData.indiceCount = indicesBuffer.length;
+
+        _renderData = null;
     },
     
     _expandFill (graphics) {
-        let paths = graphics._paths,
-            renderData = this._renderData = graphics._renderData,
+        let paths = graphics._paths;
+
+        // Calculate max vertex usage.
+        let cverts = 0;
+        for (let i = graphics._pathOffset, l = graphics._pathLength; i < l; i++) {
+            let path = paths[i];
+            let pointsLength = path.points.length;
+
+            cverts += pointsLength;
+        }
+
+        let renderData = _renderData = this.genRenderData(graphics, cverts),
             data = renderData._data,
             indicesBuffer = renderData._indices;
 
-        for (var i = graphics._pathOffset, l = graphics._pathLength; i < l; i++) {
-            var path = paths[i];
-            var pts = path.points;
-            var pointsLength = pts.length;
+        for (let i = graphics._pathOffset, l = graphics._pathLength; i < l; i++) {
+            let path = paths[i];
+            let pts = path.points;
+            let pointsLength = pts.length;
     
             if (pointsLength === 0) {
                 continue;
             }
     
             // Calculate shape vertices.
-            var offset = data.length;
+            let offset = data.length;
     
-            for (var j = 0; j < pointsLength; ++j) {
+            for (let j = 0; j < pointsLength; ++j) {
                 this._vset(pts[j].x, pts[j].y);
             }
     
-            var indicesOffset = indicesBuffer.length;
+            let indicesOffset = indicesBuffer.length;
     
             if (path.complex) {
-                var earcutData = [];
-                for (var j = offset, end = data.length; j < end; j++) {
+                let earcutData = [];
+                for (let j = offset, end = data.length; j < end; j++) {
                     earcutData.push(data[j].x);
                     earcutData.push(data[j].y);
                 }
     
-                var newIndices = Earcut(earcutData, null, 2);
+                let newIndices = Earcut(earcutData, null, 2);
     
                 if (!newIndices || newIndices.length === 0) {
                     continue;
                 }
     
-                for (var j = 0, nIndices = newIndices.length; j < nIndices; j++) {
+                for (let j = 0, nIndices = newIndices.length; j < nIndices; j++) {
                     indicesBuffer[indicesOffset + j] = newIndices[j] + offset;
                 }
             }
             else {
-                var first = offset;
-                for (var start = offset+2, end = data.length; start < end; start++) {
+                let first = offset;
+                for (let start = offset+2, end = data.length; start < end; start++) {
                     indicesBuffer[indicesOffset++] = first;
                     indicesBuffer[indicesOffset++] = start - 1;
                     indicesBuffer[indicesOffset++] = start;
@@ -293,43 +346,45 @@ let graphicsAssembler = js.addon({
 
         renderData.vertexCount = data.length;
         renderData.indiceCount = indicesBuffer.length;
+
+        _renderData = null;
     },
 
     _calculateJoins (graphics, w, lineJoin, miterLimit) {
-        var iw = 0.0;
+        let iw = 0.0;
     
         if (w > 0.0) {
             iw = 1 / w;
         }
     
         // Calculate which joins needs extra vertices to append, and gather vertex count.
-        var paths = graphics._paths;
-        for (var i = graphics._pathOffset, l = graphics._pathLength; i < l; i++) {
-            var path = paths[i];
+        let paths = graphics._paths;
+        for (let i = graphics._pathOffset, l = graphics._pathLength; i < l; i++) {
+            let path = paths[i];
     
-            var pts = path.points;
-            var ptsLength = pts.length;
-            var p0 = pts[ptsLength - 1];
-            var p1 = pts[0];
-            var nleft = 0;
+            let pts = path.points;
+            let ptsLength = pts.length;
+            let p0 = pts[ptsLength - 1];
+            let p1 = pts[0];
+            let nleft = 0;
     
             path.nbevel = 0;
     
-            for (var j = 0; j < ptsLength; j++) {
-                var dmr2, cross, limit;
+            for (let j = 0; j < ptsLength; j++) {
+                let dmr2, cross, limit;
     
                 // perp normals
-                var dlx0 = p0.dy;
-                var dly0 = -p0.dx;
-                var dlx1 = p1.dy;
-                var dly1 = -p1.dx;
+                let dlx0 = p0.dy;
+                let dly0 = -p0.dx;
+                let dlx1 = p1.dy;
+                let dly1 = -p1.dx;
     
                 // Calculate extrusions
                 p1.dmx = (dlx0 + dlx1) * 0.5;
                 p1.dmy = (dly0 + dly1) * 0.5;
                 dmr2 = p1.dmx * p1.dmx + p1.dmy * p1.dmy;
                 if (dmr2 > 0.000001) {
-                    var scale = 1 / dmr2;
+                    let scale = 1 / dmr2;
                     if (scale > 600) {
                         scale = 600;
                     }
@@ -398,9 +453,9 @@ let graphicsAssembler = js.addon({
     },
 
     _chooseBevel (bevel, p0, p1, w) {
-        var x = p1.x;
-        var y = p1.y;
-        var x0, y0, x1, y1;
+        let x = p1.x;
+        let y = p1.y;
+        let x0, y0, x1, y1;
     
         if (bevel !== 0) {
             x0 = x + p0.dy * w;
@@ -416,24 +471,24 @@ let graphicsAssembler = js.addon({
     },
     
     _buttCap (p, dx, dy, w, d) {
-        var px = p.x - dx * d;
-        var py = p.y - dy * d;
-        var dlx = dy;
-        var dly = -dx;
+        let px = p.x - dx * d;
+        let py = p.y - dy * d;
+        let dlx = dy;
+        let dly = -dx;
     
         this._vset(px + dlx * w, py + dly * w);
         this._vset(px - dlx * w, py - dly * w);
     },
     
     _roundCapStart (p, dx, dy, w, ncap) {
-        var px = p.x;
-        var py = p.y;
-        var dlx = dy;
-        var dly = -dx;
+        let px = p.x;
+        let py = p.y;
+        let dlx = dy;
+        let dly = -dx;
     
-        for (var i = 0; i < ncap; i++) {
-            var a = i / (ncap - 1) * PI;
-            var ax = cos(a) * w,
+        for (let i = 0; i < ncap; i++) {
+            let a = i / (ncap - 1) * PI;
+            let ax = cos(a) * w,
                 ay = sin(a) * w;
             this._vset(px - dlx * ax - dx * ay, py - dly * ax - dy * ay);
             this._vset(px, py);
@@ -443,16 +498,16 @@ let graphicsAssembler = js.addon({
     },
     
     _roundCapEnd (p, dx, dy, w, ncap) {
-        var px = p.x;
-        var py = p.y;
-        var dlx = dy;
-        var dly = -dx;
+        let px = p.x;
+        let py = p.y;
+        let dlx = dy;
+        let dly = -dx;
     
         this._vset(px + dlx * w, py + dly * w);
         this._vset(px - dlx * w, py - dly * w);
-        for (var i = 0; i < ncap; i++) {
-            var a = i / (ncap - 1) * PI;
-            var ax = cos(a) * w,
+        for (let i = 0; i < ncap; i++) {
+            let a = i / (ncap - 1) * PI;
+            let ax = cos(a) * w,
                 ay = sin(a) * w;
             this._vset(px, py);
             this._vset(px - dlx * ax + dx * ay, py - dly * ax + dy * ay);
@@ -460,34 +515,34 @@ let graphicsAssembler = js.addon({
     },
     
     _roundJoin (p0, p1, lw, rw, ncap) {
-        var dlx0 = p0.dy;
-        var dly0 = -p0.dx;
-        var dlx1 = p1.dy;
-        var dly1 = -p1.dx;
+        let dlx0 = p0.dy;
+        let dly0 = -p0.dx;
+        let dlx1 = p1.dy;
+        let dly1 = -p1.dx;
     
-        var p1x = p1.x;
-        var p1y = p1.y;
+        let p1x = p1.x;
+        let p1y = p1.y;
     
         if ((p1.flags & PointFlags.PT_LEFT) !== 0) {
-            var out = this._chooseBevel(p1.flags & PointFlags.PT_INNERBEVEL, p0, p1, lw);
-            var lx0 = out[0];
-            var ly0 = out[1];
-            var lx1 = out[2];
-            var ly1 = out[3];
+            let out = this._chooseBevel(p1.flags & PointFlags.PT_INNERBEVEL, p0, p1, lw);
+            let lx0 = out[0];
+            let ly0 = out[1];
+            let lx1 = out[2];
+            let ly1 = out[3];
     
-            var a0 = atan2(-dly0, -dlx0);
-            var a1 = atan2(-dly1, -dlx1);
+            let a0 = atan2(-dly0, -dlx0);
+            let a1 = atan2(-dly1, -dlx1);
             if (a1 > a0) a1 -= PI * 2;
     
             this._vset(lx0, ly0);
             this._vset(p1x - dlx0 * rw, p1.y - dly0 * rw);
     
-            var n = clamp(ceil((a0 - a1) / PI) * ncap, 2, ncap);
-            for (var i = 0; i < n; i++) {
-                var u = i / (n - 1);
-                var a = a0 + u * (a1 - a0);
-                var rx = p1x + cos(a) * rw;
-                var ry = p1y + sin(a) * rw;
+            let n = clamp(ceil((a0 - a1) / PI) * ncap, 2, ncap);
+            for (let i = 0; i < n; i++) {
+                let u = i / (n - 1);
+                let a = a0 + u * (a1 - a0);
+                let rx = p1x + cos(a) * rw;
+                let ry = p1y + sin(a) * rw;
                 this._vset(p1x, p1y);
                 this._vset(rx, ry);
             }
@@ -495,25 +550,25 @@ let graphicsAssembler = js.addon({
             this._vset(lx1, ly1);
             this._vset(p1x - dlx1 * rw, p1y - dly1 * rw);
         } else {
-            var out = this._chooseBevel(p1.flags & PointFlags.PT_INNERBEVEL, p0, p1, -rw);
-            var rx0 = out[0];
-            var ry0 = out[1];
-            var rx1 = out[2];
-            var ry1 = out[3];
+            let out = this._chooseBevel(p1.flags & PointFlags.PT_INNERBEVEL, p0, p1, -rw);
+            let rx0 = out[0];
+            let ry0 = out[1];
+            let rx1 = out[2];
+            let ry1 = out[3];
     
-            var a0 = atan2(dly0, dlx0);
-            var a1 = atan2(dly1, dlx1);
+            let a0 = atan2(dly0, dlx0);
+            let a1 = atan2(dly1, dlx1);
             if (a1 < a0) a1 += PI * 2;
     
             this._vset(p1x + dlx0 * rw, p1y + dly0 * rw);
             this._vset(rx0, ry0);
     
-            var n = clamp(ceil((a1 - a0) / PI) * ncap, 2, ncap);
-            for (var i = 0; i < n; i++) {
-                var u = i / (n - 1);
-                var a = a0 + u * (a1 - a0);
-                var lx = p1x + cos(a) * lw;
-                var ly = p1y + sin(a) * lw;
+            let n = clamp(ceil((a1 - a0) / PI) * ncap, 2, ncap);
+            for (let i = 0; i < n; i++) {
+                let u = i / (n - 1);
+                let a = a0 + u * (a1 - a0);
+                let lx = p1x + cos(a) * lw;
+                let ly = p1y + sin(a) * lw;
                 this._vset(lx, ly);
                 this._vset(p1x, p1y);
             }
@@ -524,15 +579,15 @@ let graphicsAssembler = js.addon({
     },
     
     _bevelJoin (p0, p1, lw, rw) {
-        var rx0, ry0, rx1, ry1;
-        var lx0, ly0, lx1, ly1;
-        var dlx0 = p0.dy;
-        var dly0 = -p0.dx;
-        var dlx1 = p1.dy;
-        var dly1 = -p1.dx;
+        let rx0, ry0, rx1, ry1;
+        let lx0, ly0, lx1, ly1;
+        let dlx0 = p0.dy;
+        let dly0 = -p0.dx;
+        let dlx1 = p1.dy;
+        let dly1 = -p1.dx;
     
         if (p1.flags & PointFlags.PT_LEFT) {
-            var out = this._chooseBevel(p1.flags & PointFlags.PT_INNERBEVEL, p0, p1, lw);
+            let out = this._chooseBevel(p1.flags & PointFlags.PT_INNERBEVEL, p0, p1, lw);
             lx0 = out[0];
             ly0 = out[1];
             lx1 = out[2];
@@ -544,7 +599,7 @@ let graphicsAssembler = js.addon({
             this._vset(lx1, ly1);
             this._vset(p1.x - dlx1 * rw, p1.y - dly1 * rw);
         } else {
-            var out = this._chooseBevel(p1.flags & PointFlags.PT_INNERBEVEL, p0, p1, -rw);
+            let out = this._chooseBevel(p1.flags & PointFlags.PT_INNERBEVEL, p0, p1, -rw);
             rx0 = out[0];
             ry0 = out[1];
             rx1 = out[2];
@@ -559,15 +614,14 @@ let graphicsAssembler = js.addon({
     },
     
     _vset (x, y) {
-        let renderData = this._renderData;
-        let data = renderData._data;
+        let data = _renderData._data;
 
         let offset = data.length;
-        renderData.dataLength = offset + 1;
+        _renderData.dataLength = offset + 1;
 
         data[offset].x = x;
         data[offset].y = y;
-        data[offset].color = this._curColor;
+        data[offset].color = _curColor;
     }
 }, assembler);
 
