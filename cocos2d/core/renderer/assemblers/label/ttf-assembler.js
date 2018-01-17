@@ -200,7 +200,7 @@ module.exports = {
         _canvas = _comp._canvas;
         _texture = _comp._texture;
         
-        _string = _comp.string;
+        _string = _comp.string.toString();
         _fontSize = _comp._fontSize;
         _drawFontsize = _fontSize;
         _overflow = _comp.overflow;
