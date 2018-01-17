@@ -48,9 +48,9 @@ cc.NetworkType = {
 cc.Device = {
     /**
      * !#en
-     * Gets the battery level of current device
+     * Get the battery level of current device, return 1.0 if failure.
      * !#zh
-     * 获取当前设备的电池电量
+     * 获取当前设备的电池电量，如果电量无法获取，默认将返回 1
      *
      * @method getBatteryLevel
      * @return {Number} - 0.0 ~ 1.0
@@ -63,9 +63,9 @@ cc.Device = {
 
     /**
      * !#en
-     * Gets the network type of current device
+     * Get the network type of current device, return cc.NetworkType.LAN if failure.
      * !#zh
-     * 获取当前设备的网络类型
+     * 获取当前设备的网络类型, 如果网络类型无法获取，默认将返回 cc.NetworkType.LAN
      *
      * @method getNetworkType
      * @return {NetworkType}
