@@ -37,32 +37,43 @@ const graphicsAssembler = require('./graphics/graphics-assembler');
 
 let _stencilMgr = StencilManager.sharedManager;
 let _color = cc.color(255, 255, 255, 0);
-let _graphicsNode = new Node();
-let _graphics = _graphicsNode.addComponent(Graphics);
-_graphics.lineWidth = 0;
+// for nested mask, we might need multiply graphics component to avoid data conflict
+let _graphicsPool = [];
+
+function getGraphics () {
+    let graphics = _graphicsPool.pop();
+
+    if (!graphics) {
+        let graphicsNode = new Node();
+        graphics = graphicsNode.addComponent(Graphics);
+        graphics.lineWidth = 0;
+    }
+    return graphics;
+}
 
 let maskFrontAssembler = js.addon({
-    update (mask) {
+    updateGraphics (mask) {
         let renderData = mask._renderData;
+        let graphics = mask._graphics;
         if (renderData.vertDirty) {
             // Share render data with graphics content
-            _graphics._renderData = renderData;
-            _graphics.clear(false);
+            graphics.clear(false);
             let width = renderData._width;
             let height = renderData._height;
             let x = -width * renderData._pivotX;
             let y = -height * renderData._pivotY;
             if (mask._type === Mask.Type.RECT) {
-                _graphics.rect(x, y, width, height);
+                graphics.rect(x, y, width, height);
             }
             else if (mask._type === Mask.Type.ELLIPSE) {
                 let cx = x + width / 2,
                     cy = y + height / 2,
                     rx = width / 2,
                     ry = height / 2;
-                _graphics.ellipse(cx, cy, rx, ry);
+                graphics.ellipse(cx, cy, rx, ry);
             }
-            _graphics.fill();
+            graphics.fill();
+            renderData.vertDirty = false;
         }
     },
 
@@ -72,6 +83,7 @@ let maskFrontAssembler = js.addon({
                 mask._renderData = spriteAssembler.createData(mask);
             }
             else {
+                // for updateGraphics calculation
                 mask._renderData = RenderData.alloc();
             }
         }
@@ -80,24 +92,29 @@ let maskFrontAssembler = js.addon({
         let anchor = mask.node._anchorPoint;
         renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
 
+        let datas;
         mask._material = mask._frontMaterial;
         if (mask._type === Mask.Type.IMAGE_STENCIL) {
             if (mask.spriteFrame) {
+                datas = mask._renderDatas;
+                datas.length = 0;
                 renderData.dataLength = 4;
                 spriteAssembler.update(mask);
+                renderData.effect = mask.getEffect();
+                datas.push(renderData);
             }
             else {
                 mask._material = null;
             }
         }
         else {
-            this.update(mask);
+            mask._graphics = getGraphics();
+            this.updateGraphics(mask);
+            mask._graphics._material = mask._material;
+            datas = graphicsAssembler.updateRenderData(mask._graphics);
         }
 
-        renderData.effect = mask.getEffect();
-        this.datas.length = 0;
-        this.datas.push(renderData);
-        return this.datas;
+        return datas;
     },
 
     fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
@@ -118,9 +135,8 @@ let maskFrontAssembler = js.addon({
             }
             else {
                 // Share node for correct global matrix
-                _graphics.node = mask.node;
-                _graphics._renderData = mask._renderData;
-                batchData.comp = _graphics;
+                mask._graphics.node = mask.node;
+                batchData.comp = mask._graphics;
                 graphicsAssembler.fillBuffers(batchData, vertexId, vbuf, uintbuf, ibuf);
             }
         }
@@ -136,11 +152,18 @@ let maskEndAssembler = js.addon({
             mask._material = mask._endMaterial;
         }
 
-        let renderData = mask._renderData;
-        renderData.effect = mask.getEffect();
-        this.datas.length = 0;
-        this.datas.push(renderData);
-        return this.datas;
+        let datas;
+        if (mask._type === Mask.Type.IMAGE_STENCIL) {
+            datas = mask._renderDatas;
+        }
+        else {
+            datas = mask._graphics._renderDatas;
+        }
+        let effect = mask.getEffect();
+        for (let i = 0; i < datas.length; i++) {
+            datas[i].effect = effect;
+        }
+        return datas;
     },
 
     fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
@@ -161,10 +184,12 @@ let maskEndAssembler = js.addon({
             }
             else {
                 // Share node for correct global matrix
-                _graphics.node = mask.node;
-                _graphics._renderData = mask._renderData;
-                batchData.comp = _graphics;
+                mask._graphics.node = mask.node;
+                batchData.comp = mask._graphics;
                 graphicsAssembler.fillBuffers(batchData, vertexId, vbuf, uintbuf, ibuf);
+                // put back graphics to pool
+                _graphicsPool.push(mask._graphics);
+                mask._graphics = null;
             }
         }
     }
