@@ -35,6 +35,7 @@ require('./instantiate');
 require('./instantiate-jit');
 require('./requiring-frame');
 require('./CCSys');
+require('./CCDevice');
 require('./CCMacro');
 
 if (!(CC_EDITOR && Editor.isMainProcess)) {

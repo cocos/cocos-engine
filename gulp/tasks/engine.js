@@ -52,6 +52,7 @@ var jsbSkipModules = [
     '../../cocos2d/core/physics/platform/CCPhysicsContactListner.js',
     '../../cocos2d/core/physics/platform/CCPhysicsAABBQueryCallback.js',
     '../../cocos2d/core/physics/platform/CCPhysicsRayCastCallback.js',
+    '../../cocos2d/core/platform/CCDevice.js',
     '../../cocos2d/core/platform/CCInputManager.js',
     '../../cocos2d/core/platform/CCVisibleRect.js',
     '../../cocos2d/core/camera/CCSGCameraNode.js',
