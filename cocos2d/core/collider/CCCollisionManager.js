@@ -2,8 +2,9 @@ const Contact = require('./CCContact');
 const affineTrans = require('../value-types/CCAffineTransform');
 const CollisionType = Contact.CollisionType;
 
-var tempRect = cc.rect();
-var tempVec2 = cc.v2();
+const math = cc.vmath;
+
+let _vec2 = cc.v2();
 
 /**
  * !#en
@@ -17,7 +18,7 @@ var tempVec2 = cc.v2();
  * @example
  *
  * // Get the collision manager.
- * var manager = cc.director.getCollisionManager();
+ * let manager = cc.director.getCollisionManager();
  *
  * // Enabled the colider manager.
  * manager.enabled = true;
@@ -34,17 +35,17 @@ var tempVec2 = cc.v2();
  *     this.node.color = cc.Color.RED;
  *     this.touchingNumber ++;
  *
- *     // var world = self.world;
- *     // var aabb = world.aabb;
- *     // var preAabb = world.preAabb;
- *     // var t = world.transform;
+ *     // let world = self.world;
+ *     // let aabb = world.aabb;
+ *     // let preAabb = world.preAabb;
+ *     // let m = world.matrix;
  *
  *     // for circle collider
- *     // var r = world.radius;
- *     // var p = world.position;
+ *     // let r = world.radius;
+ *     // let p = world.position;
  *
  *     // for box collider and polygon collider
- *     // var ps = world.points;
+ *     // let ps = world.points;
  * },
  *   
  * onCollisionStay: function (other, self) {
@@ -58,7 +59,7 @@ var tempVec2 = cc.v2();
  *     }
  * }
  */
-var CollisionManager = cc.Class({
+let CollisionManager = cc.Class({
     mixins: [cc.EventTarget],
 
     properties: {
@@ -95,20 +96,20 @@ var CollisionManager = cc.Class({
             return;
         }
 
-        var i, l;
+        let i, l;
 
         // update collider
-        var colliders = this._colliders;
+        let colliders = this._colliders;
         for (i = 0, l = colliders.length; i < l; i++) {
             this.updateCollider(colliders[i]);
         }
 
         // do collide
-        var contacts = this._contacts;
-        var results = [];
+        let contacts = this._contacts;
+        let results = [];
         
         for (i = 0, l = contacts.length; i < l; i++) {
-            var collisionType = contacts[i].updateState();
+            let collisionType = contacts[i].updateState();
             if (collisionType === CollisionType.None) {
                 continue;
             }
@@ -118,7 +119,7 @@ var CollisionManager = cc.Class({
 
         // handle collide results, emit message
         for (i = 0, l = results.length; i < l; i++) {
-            var result = results[i];
+            let result = results[i];
             this._doCollide(result[0], result[1]);
         }
 
@@ -127,7 +128,7 @@ var CollisionManager = cc.Class({
     },
 
     _doCollide: function (collisionType, contact) {
-        var contactFunc;
+        let contactFunc;
         switch (collisionType) {
             case CollisionType.CollisionEnter:
                 contactFunc = 'onCollisionEnter';
@@ -140,13 +141,13 @@ var CollisionManager = cc.Class({
                 break;
         }
 
-        var collider1 = contact.collider1;
-        var collider2 = contact.collider2;
+        let collider1 = contact.collider1;
+        let collider2 = contact.collider2;
 
-        var comps1 = collider1.node._components;
-        var comps2 = collider2.node._components;
+        let comps1 = collider1.node._components;
+        let comps2 = collider2.node._components;
 
-        var i, l, comp;
+        let i, l, comp;
         for (i = 0, l = comps1.length; i < l; i++) {
             comp = comps1[i];
             if (comp[contactFunc]) {
@@ -163,17 +164,17 @@ var CollisionManager = cc.Class({
     }, 
 
     shouldCollide: function (c1, c2) {
-        var node1 = c1.node, node2 = c2.node;
-        var collisionMatrix = cc.game.collisionMatrix;
+        let node1 = c1.node, node2 = c2.node;
+        let collisionMatrix = cc.game.collisionMatrix;
         return node1 !== node2 && collisionMatrix[node1.groupIndex][node2.groupIndex];
     },
 
     initCollider: function (collider) {
         if (!collider.world) {
-            var world = collider.world = {};
+            let world = collider.world = {};
             world.aabb = cc.rect();
             world.preAabb = cc.rect();
-            world.transform = affineTrans.make();
+            world.matrix = math.mat4.create();
 
             world.radius = 0;
 
@@ -195,36 +196,36 @@ var CollisionManager = cc.Class({
     },
 
     updateCollider: function (collider) {
-        var offset = collider.offset;
-        var world = collider.world;
-        var aabb = world.aabb;
-        var t = collider.node.getNodeToWorldTransformAR(world.transform);
+        let offset = collider.offset;
+        let world = collider.world;
+        let aabb = world.aabb;
 
-        var preAabb = world.preAabb;
+        let m = world.matrix;
+        collider.node.getWorldMatrix(m);
+
+        let preAabb = world.preAabb;
         preAabb.x = aabb.x;
         preAabb.y = aabb.y;
         preAabb.width = aabb.width;
         preAabb.height = aabb.height;
 
         if (collider instanceof cc.BoxCollider) {
-            var size = collider.size;
+            let size = collider.size;
 
-            tempRect.x = offset.x - size.width/2;
-            tempRect.y = offset.y - size.height/2;
-            tempRect.width = size.width;
-            tempRect.height = size.height;
+            aabb.x = offset.x - size.width/2;
+            aabb.y = offset.y - size.height/2;
+            aabb.width = size.width;
+            aabb.height = size.height;
 
-            var wps = world.points;
-            var wp0 = wps[0];
-            var wp1 = wps[1];
-            var wp2 = wps[2];
-            var wp3 = wps[3];
-            cc.obbApplyAffineTransform(tempRect, t, wp0, wp1, wp2, wp3);
+            let wps = world.points;
+            let wp0 = wps[0], wp1 = wps[1],
+                wp2 = wps[2], wp3 = wps[3];
+            cc.obbApplyMatrix(aabb, m, wp0, wp1, wp2, wp3);
 
-            var minx = Math.min(wp0.x, wp1.x, wp2.x, wp3.x);
-            var miny = Math.min(wp0.y, wp1.y, wp2.y, wp3.y);
-            var maxx = Math.max(wp0.x, wp1.x, wp2.x, wp3.x);
-            var maxy = Math.max(wp0.y, wp1.y, wp2.y, wp3.y);
+            let minx = Math.min(wp0.x, wp1.x, wp2.x, wp3.x);
+            let miny = Math.min(wp0.y, wp1.y, wp2.y, wp3.y);
+            let maxx = Math.max(wp0.x, wp1.x, wp2.x, wp3.x);
+            let maxy = Math.max(wp0.y, wp1.y, wp2.y, wp3.y);
 
             aabb.x = minx;
             aabb.y = miny;
@@ -233,51 +234,58 @@ var CollisionManager = cc.Class({
         }
         else if (collider instanceof cc.CircleCollider) {
             // calculate world position
-            var p = cc.pointApplyAffineTransform(collider.offset, t);
+            math.vec2.transformMat4(_vec2, collider.offset, m);
 
-            world.position.x = p.x;
-            world.position.y = p.y;
+            world.position.x = _vec2.x;
+            world.position.y = _vec2.y;
 
             // calculate world radius
-            t.tx = t.ty = 0;
+            let tempx = m.m12, tempy = m.m13;
+            m.m12 = m.m13 = 0;
 
-            tempVec2.x = collider.radius;
-            tempVec2.y = 0;
+            _vec2.x = collider.radius;
+            _vec2.y = 0;
 
-            var tempP = cc.pointApplyAffineTransform(tempVec2, t);
-            var d = Math.sqrt(tempP.x * tempP.x + tempP.y * tempP.y);
+            math.vec2.transformMat4(_vec2, _vec2, m);
+            let d = Math.sqrt(_vec2.x * _vec2.x + _vec2.y * _vec2.y);
 
             world.radius = d;
 
-            aabb.x = p.x - d;
-            aabb.y = p.y - d;
+            aabb.x = _vec2.x - d;
+            aabb.y = _vec2.y - d;
             aabb.width = d * 2;
             aabb.height = d * 2;
+
+            m.m12 = tempx;
+            m.m13 = tempy;
         }
         else if (collider instanceof cc.PolygonCollider) {
-            var points = collider.points;
-            var worldPoints = world.points;
+            let points = collider.points;
+            let worldPoints = world.points;
 
             worldPoints.length = points.length;
 
-            var minx = 1e6, miny = 1e6, maxx = -1e6, maxy = -1e6;
-            for (var i = 0, l = points.length; i < l; i++) {
+            let minx = 1e6, miny = 1e6, maxx = -1e6, maxy = -1e6;
+            for (let i = 0, l = points.length; i < l; i++) {
                 if (!worldPoints[i]) {
                     worldPoints[i] = cc.v2();
                 }
 
-                tempVec2.x = points[i].x + offset.x;
-                tempVec2.y = points[i].y + offset.y;
+                _vec2.x = points[i].x + offset.x;
+                _vec2.y = points[i].y + offset.y;
                 
-                var p = cc.pointApplyAffineTransform(tempVec2, t);
+                math.vec2.transformMat4(_vec2, _vec2, m);
                 
-                worldPoints[i].x = p.x;
-                worldPoints[i].y = p.y;
+                let x = _vec2.x;
+                let y = _vec2.y;
 
-                if (p.x > maxx) maxx = p.x;
-                if (p.x < minx) minx = p.x;
-                if (p.y > maxy) maxy = p.y;
-                if (p.y < miny) miny = p.y;
+                worldPoints[i].x = x;
+                worldPoints[i].y = y;
+
+                if (x > maxx) maxx = x;
+                if (x < minx) minx = x;
+                if (y > maxy) maxy = y;
+                if (y < miny) miny = y;
             }
 
             aabb.x = minx;
@@ -288,13 +296,13 @@ var CollisionManager = cc.Class({
     },
 
     addCollider: function (collider) {
-        var colliders = this._colliders;
-        var index = colliders.indexOf(collider);
+        let colliders = this._colliders;
+        let index = colliders.indexOf(collider);
         if (index === -1) {
-            for (var i = 0, l = colliders.length; i < l; i++) {
-                var other = colliders[i];
+            for (let i = 0, l = colliders.length; i < l; i++) {
+                let other = colliders[i];
                 if (this.shouldCollide(collider, other)) {
-                    var contact = new Contact(collider, other);
+                    let contact = new Contact(collider, other);
                     this._contacts.push(contact);
                 }
             }
@@ -307,14 +315,14 @@ var CollisionManager = cc.Class({
     },
 
     removeCollider: function (collider) {
-        var colliders = this._colliders;
-        var index = colliders.indexOf(collider);
+        let colliders = this._colliders;
+        let index = colliders.indexOf(collider);
         if (index >= 0) {
             colliders.splice(index, 1);
 
-            var contacts = this._contacts;
-            for (var i = contacts.length - 1; i >= 0; i--) {
-                var contact = contacts[i];
+            let contacts = this._contacts;
+            for (let i = contacts.length - 1; i >= 0; i--) {
+                let contact = contacts[i];
                 if (contact.collider1 === collider || contact.collider2 === collider) {
                     if (contact.touching) {
                         this._doCollide(CollisionType.CollisionExit, contact);
@@ -332,43 +340,47 @@ var CollisionManager = cc.Class({
     },
 
     attachDebugDrawToCamera: function (camera) {
-        if (!this._debugDrawer) return;
-        camera.addTarget(this._debugDrawer);
+        // TODO: support camera debug draw
+        // if (!this._debugDrawer) return;
+        // camera.addTarget(this._debugDrawer);
     },
     detachDebugDrawFromCamera: function (camera) {
-        if (!this._debugDrawer) return;
-        camera.removeTarget(this._debugDrawer);
+        // TODO: support camera debug draw
+        // if (!this._debugDrawer) return;
+        // camera.removeTarget(this._debugDrawer);
     },
 
     onNodeGroupChanged: function (event) {
-        var node = event.currentTarget;
-        var colliders = node.getComponents(cc.Collider);
+        let node = event.currentTarget;
+        let colliders = node.getComponents(cc.Collider);
 
-        for (var i = 0, l = colliders.length; i < l; i++) {
+        for (let i = 0, l = colliders.length; i < l; i++) {
             this.removeCollider(colliders[i]);
             this.addCollider(colliders[i]);
         }
     },
 
     drawColliders: function () {
-        var debugDrawer = this._debugDrawer;
-        if (!this._enabledDebugDraw || !debugDrawer) {
+        if (!this._enabledDebugDraw) {
             return;
         }
 
+        this._checkDebugDrawValid();
+
+        let debugDrawer = this._debugDrawer;
         debugDrawer.clear();
 
-        var colliders = this._colliders;
+        let colliders = this._colliders;
 
-        for (var i = 0, l = colliders.length; i < l; i++) {
-            var collider = colliders[i];
+        for (let i = 0, l = colliders.length; i < l; i++) {
+            let collider = colliders[i];
 
             if (collider instanceof cc.BoxCollider || collider instanceof cc.PolygonCollider) {
-                var ps = collider.world.points;
+                let ps = collider.world.points;
                 if (ps.length > 0) {
                     debugDrawer.strokeColor = cc.Color.WHITE;
                     debugDrawer.moveTo(ps[0].x, ps[0].y);
-                    for (var j = 1; j < ps.length; j++) {
+                    for (let j = 1; j < ps.length; j++) {
                         debugDrawer.lineTo(ps[j].x, ps[j].y);
                     }
                     debugDrawer.close();
@@ -381,7 +393,7 @@ var CollisionManager = cc.Class({
             }
 
             if (this.enabledDrawBoundingBox) {
-                var aabb = collider.world.aabb;
+                let aabb = collider.world.aabb;
                 
                 debugDrawer.strokeColor = cc.Color.BLUE;
                 
@@ -396,10 +408,11 @@ var CollisionManager = cc.Class({
         }
     },
 
-    onSceneLaunched: function () {
-        if (this._enabledDebugDraw && this._debugDrawer) {
-            this._debugDrawer.removeFromParent();
-            cc.director.getScene()._sgNode.addChild(this._debugDrawer);
+    _checkDebugDrawValid () {
+        if (!this._debugDrawer || !this._debugDrawer.isValid) {
+            let node = new cc.Node('COLLISION_MANAGER_DEBUG_DRAW');
+            cc.game.addPersistRootNode(node);
+            this._debugDrawer = node.addComponent(cc.Graphics);
         }
     }
 });
@@ -417,17 +430,12 @@ cc.js.getset(CollisionManager.prototype, 'enabledDebugDraw',
     },
     function (value) {
         if (value && !this._enabledDebugDraw) {
-            if (!this._debugDrawer) {
-                this._debugDrawer = new _ccsg.GraphicsNode();
-            }
-
-            cc.director.getScene()._sgNode.addChild(this._debugDrawer);
-            cc.director.on(cc.Director.EVENT_AFTER_SCENE_LAUNCH, this.onSceneLaunched, this);
+            this._checkDebugDrawValid();
+            this._debugDrawer.node.active = true;
         }
         else if (!value && this._enabledDebugDraw) {
-            this._debugDrawer.clear();
-            this._debugDrawer.removeFromParent(false);
-            cc.director.off(cc.Director.EVENT_AFTER_SCENE_LAUNCH, this.onSceneLaunched, this);
+            this._debugDrawer.clear(true);
+            this._debugDrawer.node.active = false;
         }
 
         this._enabledDebugDraw = value;

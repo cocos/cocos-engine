@@ -258,6 +258,32 @@ cc.obbApplyAffineTransform = function (rect, anAffineTransform, out_bl, out_tl, 
     out_br.y = xb + yd + ty;
 };
 
+cc.obbApplyMatrix = function (rect, mat4, out_bl, out_tl, out_tr, out_br) {
+    var x = rect.x;
+    var y = rect.y;
+    var width = rect.width;
+    var height = rect.height;
+
+    var m00 = mat4.m00, m01 = mat4.m01, m04 = mat4.m04, m05 = mat4.m05;
+    var m12 = mat4.m12, m13 = mat4.m13;
+
+    var tx = m00 * x + m04 * y + m12;
+    var ty = m01 * x + m05 * y + m13;
+    var xa = m00 * width;
+    var xb = m01 * width;
+    var yc = m04 * height;
+    var yd = m05 * height;
+
+    out_tl.x = tx;
+    out_tl.y = ty;
+    out_tr.x = xa + tx;
+    out_tr.y = xb + ty;
+    out_bl.x = yc + tx;
+    out_bl.y = yd + ty;
+    out_br.x = xa + yc + tx;
+    out_br.y = xb + yd + ty;
+};
+
 /**
  * !#en
  * Concatenate a transform matrix to another and return the result:<br/>
