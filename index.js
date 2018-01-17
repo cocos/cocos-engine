@@ -144,10 +144,10 @@ defineMacro('CC_SUPPORT_JIT', !CC_WECHATGAME);
  * @module cc
  * @main cc
  */
-cc = {};
+_global.cc = {};
 
 // The namespace for original nodes rendering in scene graph.
-_ccsg = {};
+_global._ccsg = {};
 
 if (CC_DEV) {
     /**
@@ -171,8 +171,8 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
 require('./cocos2d/kazmath');
 require('./cocos2d/core/predefine');
 
-ccs = {};
-cp = {};
+_global.ccs = {};
+_global.cp = {};
 
 // LOAD COCOS2D ENGINE CODE
 

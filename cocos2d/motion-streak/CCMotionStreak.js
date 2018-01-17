@@ -218,7 +218,7 @@ var MotionStreak = cc.Class({
     _activateMaterial: function () {
         if (this._material) return;
 
-        let texture = this._texture;
+        let texture = this._texture;;
         let url = texture.url;
         let material = renderer.materialUtil.get(url);
         
@@ -237,6 +237,7 @@ var MotionStreak = cc.Class({
         this._fadeDelta = 1/60;
         this._maxPoints = (0 | (this._fadeTime * 60));
         this._numPoints = 0;
+        this.reset();
     },
 
     onFocusInEditor: CC_EDITOR && function () {
@@ -324,8 +325,8 @@ var MotionStreak = cc.Class({
         for (let i = numPoints * 2 - 1; i >= 0; i--) {
             let dest = i + seg*2;
             if (dest >= maxPoints*2) continue;
-            data[dest].x   = data[i].x;
-            data[dest].y   = data[i].y;
+            data[dest].x = data[i].x;
+            data[dest].y = data[i].y;
         }
         
         let lastx = lastPoint.x, lasty = lastPoint.y;

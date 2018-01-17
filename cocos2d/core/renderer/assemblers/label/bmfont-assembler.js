@@ -201,7 +201,7 @@ module.exports = {
             _comp._fontAtlas = _fontAtlas;
         }
 
-        _string = _comp.string;
+        _string = _comp.string.toString();
         _fontSize = _comp.fontSize;
         _originFontSize = _fntConfig.fontSize;
         _contentSize = _comp.node._contentSize;

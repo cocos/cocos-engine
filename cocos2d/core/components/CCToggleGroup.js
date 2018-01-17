@@ -135,4 +135,4 @@ cc.js.get(cc, 'ToggleGroup', function () {
     return ToggleGroup;
 });
 
-cc.ToggleGroup = module.exports = ToggleGroup;
+module.exports = ToggleGroup;
