@@ -198,6 +198,11 @@ let EditBoxImpl = cc.Class({
         }
     },
 
+    clear () {
+        this.setDelegate(null);
+        this.removeDom();
+    },
+
     _onTouchBegan (touch) {
     },
 

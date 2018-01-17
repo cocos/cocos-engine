@@ -476,6 +476,7 @@ var Label = cc.Class({
         }
 
         if (CC_EDITOR) {
+            this._activateMaterial();
             Label._assembler.updateRenderData(this);
         }
     }
