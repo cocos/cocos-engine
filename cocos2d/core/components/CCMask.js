@@ -325,11 +325,19 @@ let Mask = cc.Class({
 
     onEnable: function () {
         this._super();
+        // for graphic stencil data
+        this._renderDatas = [];
+        // for graphic stencil data
+        this._graphics = null;
         this._updateMaterial();
     },
 
     onDestroy () {
         this._super();
+        let datas = this._renderDatas;
+        for (let i = 0, l = datas.length; i < l; i++) {
+            RenderData.free(datas[i]);
+        }
         this._frontMaterial = null;
         this._endMaterial = null;
     },
