@@ -159,6 +159,8 @@ var MotionStreak = cc.Class({
             },
             set: function (value) {
                 this._texture = value;
+                this._material = null;
+                this._activateMaterial();
             },
             type: cc.Texture2D,
             animatable: false,
@@ -216,8 +218,8 @@ var MotionStreak = cc.Class({
     _activateMaterial: function () {
         if (this._material) return;
 
-        let url = this._texture;
-        let texture = cc.textureUtil.loadImage(url);
+        let texture = this._texture;
+        let url = texture.url;
         let material = renderer.materialUtil.get(url);
         
         // Get material
