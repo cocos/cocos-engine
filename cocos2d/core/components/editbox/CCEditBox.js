@@ -515,7 +515,9 @@ var EditBox = cc.Class({
     },
 
     editBoxEditingDidEnded() {
-        this._showLabels();
+        if (!this.stayOnTop) {
+            this._showLabels();
+        }
         cc.Component.EventHandler.emitEvents(this.editingDidEnded, this);
         this.node.emit('editing-did-ended', this);
     },
@@ -532,7 +534,7 @@ var EditBox = cc.Class({
     },
 
     onDestroy () {
-        this._impl.setDelegate(null);
+        this._impl.clear();
     },
 
     __preload() {
