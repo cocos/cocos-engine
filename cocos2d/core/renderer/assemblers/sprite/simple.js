@@ -55,33 +55,10 @@ module.exports = {
                 texh = texture._height;
             let frame = sprite.spriteFrame;
             let rect = frame._rect;
-            let l, b, r, t;
-      
-            if (sprite.trim) {
-                l = rect.x;
-                t = rect.y;
-                r = rect.x + rect.width;
-                b = rect.y + rect.height;
-            } else {
-                let originalSize = frame._originalSize;
-                let offset = frame._offset;
-                let ow = originalSize.width,
-                    oh = originalSize.height,
-                    rw = rect.width,
-                    rh = rect.height;
-                let ox = rect.x + (rw - ow) / 2 - offset.x;
-                let oy = rect.y + (rh - oh) / 2 - offset.y;
-        
-                l = ox;
-                t = oy;
-                r = ox + ow;
-                b = oy + oh;
-            }
-            
-            l = texw === 0 ? 0 : l / texw;
-            r = texw === 0 ? 0 : r / texw;
-            b = texh === 0 ? 0 : b / texh;
-            t = texh === 0 ? 0 : t / texh;
+            let l = texw === 0 ? 0 : rect.x / texw;
+            let r = texw === 0 ? 0 : (rect.x + rect.width) / texw;
+            let b = texh === 0 ? 0 : (rect.y + rect.height) / texh;
+            let t = texh === 0 ? 0 : rect.y / texh;
             
             if (frame._rotated) {
                 data[0].u = l;
