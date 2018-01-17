@@ -297,13 +297,12 @@ let Mask = cc.Class({
 
     _hitTest: function (point) {
         let node = this.node;
+        let size = node.getContentSize(),
+            w = size.width,
+            h = size.height;
         node.getWorldMatrix(_mat4_temp);
 
         if (this.type === MaskType.RECT || this.type === MaskType.IMAGE_STENCIL) {
-            let size = node.getContentSize(),
-                w = size.width,
-                h = size.height;
-
             _rect_temp.x = -node.anchorX * w,
             _rect_temp.y = -node.anchorX * h;
             _rect_temp.width = w; 
@@ -318,8 +317,9 @@ let Mask = cc.Class({
             return left >= 0 && right >= 0 && top >= 0 && bottom >= 0;
         }
         else if (this.type === MaskType.ELLIPSE) {
+            let rx = w / 2, ry = h / 2;
             let px = point.x - _mat4_temp.m12, py = point.y - _mat4_temp.m13;
-            return px * px / (a * a) + py * py / (b * b) < 1;
+            return px * px / (rx * rx) + py * py / (ry * ry) < 1;
         }
     },
 
