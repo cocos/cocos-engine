@@ -129,11 +129,11 @@ var Toggle = cc.Class({
         this._super();
 
         if (this.checkMark) {
-            this.checkMark._sgNode.setState(0);
+            this.checkMark.setState(0);
         }
         if (this.enableAutoGrayEffect) {
             if (this.checkMark && !this.interactable) {
-                this.checkMark._sgNode.setState(1);
+                this.checkMark.setState(1);
             }
         }
     },
