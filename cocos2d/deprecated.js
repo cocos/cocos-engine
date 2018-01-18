@@ -682,7 +682,7 @@ if (CC_DEV) {
         },
     });
 
-    if (dragonBones !== undefined) {
+    if (typeof dragonBones !== 'undefined') {
         js.obsolete(dragonBones.CCFactory, 'dragonBones.CCFactory.getFactory', 'getInstance');
     }
 
