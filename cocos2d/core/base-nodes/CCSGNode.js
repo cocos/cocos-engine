@@ -1716,7 +1716,7 @@ _ccsg.Node = cc.Class({
      * @return {cc.AffineTransform}
      */
     getWorldToNodeTransform: function () {
-        return cc.affineTransformInvert(this.getNodeToWorldTransform());
+        return cc.affineTransformInvertIn(this.getNodeToWorldTransform());
     },
 
     /**
