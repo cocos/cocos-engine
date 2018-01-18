@@ -5,7 +5,23 @@
 
 DRAGONBONES_NAMESPACE_BEGIN
 
-CCFactory CCFactory::factory;
+namespace {
+    CCFactory* __instance = nullptr;
+}
+
+CCFactory* CCFactory::getInstance()
+{
+    if (__instance == nullptr)
+        __instance = new (std::nothrow) CCFactory();
+
+    return __instance;
+}
+
+void CCFactory::destroyInstance()
+{
+    delete __instance;
+    __instance = nullptr;
+}
 
 CCFactory::CCFactory() 
 {
