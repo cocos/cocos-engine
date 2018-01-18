@@ -279,23 +279,37 @@ static bool js_register_spine_TrackEntry(se::Object* obj)
     __jsb_spine_TrackEntry_proto = cls->getProto();
 
     spTrackEntry_setDisposeCallback([](spTrackEntry* entry){
-        auto cleanup = [entry](){
+        se::Object* seObj = nullptr;
 
-            if (!se::ScriptEngine::getInstance()->isValid())
+        auto iter = se::NativePtrToObjectMap::find(entry);
+        if (iter != se::NativePtrToObjectMap::end())
+        {
+            // Save se::Object pointer for being used in cleanup method.
+            seObj = iter->second;
+            // Unmap native and js object since native object was destroyed.
+            // Otherwise, it may trigger 'assertion' in se::Object::setPrivateData later
+            // since native obj is already released and the new native object may be assigned with
+            // the same address.
+            se::NativePtrToObjectMap::erase(iter);
+        }
+        else
+        {
+            return;
+        }
+
+        auto cleanup = [seObj](){
+
+            auto se = se::ScriptEngine::getInstance();
+            if (!se->isValid() || se->isInCleanup())
                 return;
 
             se::AutoHandleScope hs;
-            se::ScriptEngine::getInstance()->clearException();
+            se->clearException();
 
-            auto iter = se::NativePtrToObjectMap::find(entry);
-            if (iter != se::NativePtrToObjectMap::end())
-            {
-                CCLOGINFO("spTrackEntry %p was recycled!", entry);
-                se::Object* seObj = iter->second;
-                seObj->clearPrivateData();
-                seObj->unroot();
-                seObj->decRef();
-            }
+            // The native <-> JS mapping was cleared in the callback above.
+            // seObj->clearPrivateData isn't needed since the JS object will be garbage collected after unroot and decRef.
+            seObj->unroot();
+            seObj->decRef();
         };
 
         if (!se::ScriptEngine::getInstance()->isGarbageCollecting())

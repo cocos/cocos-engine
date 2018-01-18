@@ -1081,29 +1081,40 @@ bool register_all_box2d_manual(se::Object* obj)
 
     b2SetObjectDestroyNotifier([](void* obj, b2ObjectType type, const char* typeName){
 
-        std::string typeNameStr = typeName;
-        auto cleanup = [obj, typeNameStr](){
+        se::Object* seObj = nullptr;
 
-            if (!se::ScriptEngine::getInstance()->isValid())
+        auto iter = se::NativePtrToObjectMap::find(obj);
+        if (iter != se::NativePtrToObjectMap::end())
+        {
+            // Save se::Object pointer for being used in cleanup method.
+            seObj = iter->second;
+            // Unmap native and js object since native object was destroyed.
+            // Otherwise, it may trigger 'assertion' in se::Object::setPrivateData later
+            // since native obj is already released and the new native object may be assigned with
+            // the same address.
+            se::NativePtrToObjectMap::erase(iter);
+        }
+        else
+        {
+//            CCLOG("Didn't find %s, %p in map", typeName, obj);
+//            assert(false);
+            return;
+        }
+
+        std::string typeNameStr = typeName;
+        auto cleanup = [seObj, typeNameStr](){
+
+            auto se = se::ScriptEngine::getInstance();
+            if (!se->isValid() || se->isInCleanup())
                 return;
 
             se::AutoHandleScope hs;
-            se::ScriptEngine::getInstance()->clearException();
+            se->clearException();
 
-            auto iter = se::NativePtrToObjectMap::find(obj);
-            if (iter != se::NativePtrToObjectMap::end())
-            {
-//                CCLOG("%s, %p was recycled!", typeNameStr.c_str(), obj);
-                se::Object* seObj = iter->second;
-                seObj->clearPrivateData();
-                seObj->unroot();
-                seObj->decRef();
-            }
-            else
-            {
-//                 CCLOG("Didn't find %s, %p in map", typeNameStr.c_str(), obj);
-//                 assert(false);
-            }
+            // The native <-> JS mapping was cleared in the callback above.
+            // seObj->clearPrivateData isn't needed since the JS object will be garbage collected after unroot and decRef.
+            seObj->unroot();
+            seObj->decRef();
         };
 
         if (!se::ScriptEngine::getInstance()->isGarbageCollecting())
