@@ -37,7 +37,7 @@ const graphicsAssembler = require('./graphics/graphics-assembler');
 
 let _stencilMgr = StencilManager.sharedManager;
 let _color = cc.color(255, 255, 255, 0);
-// for nested mask, we might need multiply graphics component to avoid data conflict
+// for nested mask, we might need multiple graphics component to avoid data conflict
 let _graphicsPool = [];
 
 function getGraphics () {

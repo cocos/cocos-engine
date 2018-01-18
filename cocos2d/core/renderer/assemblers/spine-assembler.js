@@ -266,9 +266,11 @@ var spineAssembler = js.addon({
             }
         }
         if (comp.debugBones || comp.debugSlots) {
-            let renderData = _graphics._renderData;
-            renderData.effect = _debugMaterial.effect;
-            datas.push(renderData);
+            let renderDatas = _graphics._renderDatas;
+            for (let i = 0; i < renderDatas.length; i++) {
+                renderDatas[i].effect = _debugMaterial.effect;
+                datas.push(renderDatas[i]);
+            }
         }
     },
 
