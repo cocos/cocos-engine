@@ -853,8 +853,14 @@ static void onAfterDispatchTouchEvent(Event* event)
             for (auto&& touch : touches)
             {
                 auto iter = se::NativePtrToObjectMap::find(touch);
-                assert(iter != se::NativePtrToObjectMap::end());
-                iter->second->unroot();
+                if (iter != se::NativePtrToObjectMap::end())
+                {
+                    iter->second->unroot();
+                }
+                else
+                {
+                    CCLOGWARN("Could not find touch %p, it's possible while restarting game and not all touches are released!", touch);
+                }
             }
         }
     }
