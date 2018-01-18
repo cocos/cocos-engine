@@ -682,4 +682,8 @@ if (CC_DEV) {
         },
     });
 
+    if (dragonBones !== undefined) {
+        js.obsolete(dragonBones.CCFactory, 'dragonBones.CCFactory.getFactory', 'getInstance');
+    }
+
 }

@@ -154,7 +154,7 @@ dragonBones.CCFactory = cc.Class({
 });
 
 dragonBones.CCFactory._factory = null;
-dragonBones.CCFactory.getFactory = function() {
+dragonBones.CCFactory.getInstance = function() {
     if (!dragonBones.CCFactory._factory) {
         dragonBones.CCFactory._factory = new dragonBones.CCFactory();
     }
