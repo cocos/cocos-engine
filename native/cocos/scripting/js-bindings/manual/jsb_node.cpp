@@ -1176,7 +1176,7 @@ static bool js_cocos2dx_Scheduler_schedule(se::State& s)
 #endif
 
     //
-    if (argc >= 4)
+    if (argc >= 3)
     {
         Scheduler* cobj = (Scheduler*)s.nativeThisObject();
 
@@ -1194,7 +1194,6 @@ static bool js_cocos2dx_Scheduler_schedule(se::State& s)
             jsThis = args[0];
         }
 
-
         bool isBindedObject = jsThis.toObject()->getPrivateData() != nullptr;
 //        SE_LOGD("%s, is binded object: %s\n", __FUNCTION__, isBindedObject ? "true" : "false");
 
@@ -1209,27 +1208,34 @@ static bool js_cocos2dx_Scheduler_schedule(se::State& s)
 
         ok = seval_to_float(args[2], &interval);
         SE_PRECONDITION2(ok, false, "Converting 'interval' argument failed");
-
-        if (argc == 4)
+        if (argc == 4 && args[3].isBoolean())
         {
             // callback, target, interval, paused
-            ok = seval_to_boolean(args[3], &isPaused);
-            SE_PRECONDITION2(ok, false, "Converting 'isPaused' argument failed");
+            isPaused = args[3].toBoolean();
         }
-        else if (argc >= 6)
+        else
         {
             // callback, target, interval, repeat, delay, paused
-            // repeat
-            ok = seval_to_uint32(args[3], &repeat);
-            SE_PRECONDITION2(ok, false, "Converting 'interval' argument failed");
+            if (argc >= 4)
+            {
+                // repeat
+                ok = seval_to_uint32(args[3], &repeat);
+                SE_PRECONDITION2(ok, false, "Converting 'interval' argument failed");
+            }
 
-            // delay
-            ok = seval_to_float(args[4], &delay);
-            SE_PRECONDITION2(ok, false, "Converting 'delay' argument failed");
+            if (argc >= 5)
+            {
+                // delay
+                ok = seval_to_float(args[4], &delay);
+                SE_PRECONDITION2(ok, false, "Converting 'delay' argument failed");
+            }
 
-            // isPaused
-            ok = seval_to_boolean(args[5], &isPaused);
-            SE_PRECONDITION2(ok, false, "Converting 'isPaused' argument failed");
+            if (argc >= 6)
+            {
+                // isPaused
+                ok = seval_to_boolean(args[5], &isPaused);
+                SE_PRECONDITION2(ok, false, "Converting 'isPaused' argument failed");
+            }
         }
 
         bool ret = Scheduler_scheduleCommon(cobj, jsThis, jsFunc, interval, repeat, delay, isPaused, !isBindedObject, "cc.Scheduler.schedule");
@@ -1240,7 +1246,7 @@ static bool js_cocos2dx_Scheduler_schedule(se::State& s)
         return ret;
     }
 
-    SE_REPORT_ERROR("wrong number of arguments: %d, expected: %s", argc, ">=2");
+    SE_REPORT_ERROR("wrong number of arguments: %d, expected: %s", argc, ">=3");
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_Scheduler_schedule)
