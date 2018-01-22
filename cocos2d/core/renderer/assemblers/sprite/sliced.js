@@ -50,7 +50,7 @@ module.exports = {
         let effect = sprite.getEffect();
         let renderData = sprite._renderData;
         if (effect && renderData) {
-            let texture = effect.getValue('texture');
+            let texture = effect.getProperty('texture');
             let frame = sprite.spriteFrame;
             let rect = frame._rect;
             let atlasWidth = texture._width;

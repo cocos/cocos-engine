@@ -10507,12 +10507,18 @@ module.exports = (function () {
     /**
      * @param {Array} techniques
      */
-    constructor(techniques, values = {}, opts = []) {
+    constructor(techniques, properties = {}, defines = []) {
       this._techniques = techniques;
-      this._values = values;
-      this._options = opts;
+      this._properties = properties;
+      this._defines = defines;
   
       // TODO: check if params is valid for current technique???
+    }
+  
+    clear() {
+      this._techniques.length = 0;
+      this._properties = null;
+      this._defines.length = 0;
     }
   
     getTechnique(stage) {
@@ -10527,43 +10533,43 @@ module.exports = (function () {
       return null;
     }
   
-    getValue(name) {
-      return this._values[name];
+    getProperty(name) {
+      return this._properties[name];
     }
   
-    setValue(name, value) {
+    setProperty(name, value) {
       // TODO: check if params is valid for current technique???
-      this._values[name] = value;
+      this._properties[name] = value;
     }
   
-    getOption(name) {
-      for (let i = 0; i < this._options.length; ++i) {
-        let opt = this._options[i];
-        if ( opt.name === name ) {
-          return opt.value;
+    getDefine(name) {
+      for (let i = 0; i < this._defines.length; ++i) {
+        let def = this._defines[i];
+        if ( def.name === name ) {
+          return def.value;
         }
       }
   
-      console.warn(`Failed to get option ${name}, option not found.`);
+      console.warn(`Failed to get define ${name}, define not found.`);
       return null;
     }
   
-    setOption(name, value) {
-      for (let i = 0; i < this._options.length; ++i) {
-        let opt = this._options[i];
-        if ( opt.name === name ) {
-          opt.value = value;
+    define(name, value) {
+      for (let i = 0; i < this._defines.length; ++i) {
+        let def = this._defines[i];
+        if ( def.name === name ) {
+          def.value = value;
           return;
         }
       }
   
-      console.warn(`Failed to set option ${name}, option not found.`);
+      console.warn(`Failed to set define ${name}, define not found.`);
     }
   
-    extractOptions(out = {}) {
-      for (let i = 0; i < this._options.length; ++i) {
-        let opt = this._options[i];
-        out[opt.name] = opt.value;
+    extractDefines(out = {}) {
+      for (let i = 0; i < this._defines.length; ++i) {
+        let def = this._defines[i];
+        out[def.name] = def.value;
       }
   
       return out;
@@ -11019,48 +11025,95 @@ module.exports = (function () {
       this._orthoHeight = 10;
     }
   
+    // node
+    getNode() {
+      return this._node;
+    }
     setNode(node) {
       this._node = node;
     }
   
+    // type
+    getType() {
+      return this._projection;
+    }
     setType(type) {
       this._projection = type;
     }
   
+    // orthoHeight
+    getOrthoHeight() {
+      return this._orthoHeight;
+    }
+    setOrthoHeight(val) {
+      this._orthoHeight = val;
+    }
+  
+    // fov
+    getFov() {
+      return this._fov;
+    }
     setFov(fov) {
       this._fov = fov;
     }
   
-    setNear(near) {
-      this._near = near;
-    }
+    // near
     getNear() {
       return this._near;
     }
-  
-    setFar(far) {
-      this._far = far;
+    setNear(near) {
+      this._near = near;
     }
+  
+    // far
     getFar() {
       return this._far;
     }
+    setFar(far) {
+      this._far = far;
+    }
   
+    // color
+    getColor(out) {
+      return color4.copy(out, this._color);
+    }
     setColor(r, g, b, a) {
       color4.set(this._color, r, g, b, a);
     }
   
+    // depth
+    getDepth() {
+      return this._depth;
+    }
     setDepth(depth) {
       this._depth = depth;
     }
   
+    // stencil
+    getStencil() {
+      return this._stencil;
+    }
     setStencil(stencil) {
       this._stencil = stencil;
     }
   
+    // clearFlags
+    getClearFlags() {
+      return this._clearFlags;
+    }
     setClearFlags(flags) {
       this._clearFlags = flags;
     }
   
+    // rect
+    getRect(out) {
+      out.x = this._rect.x;
+      out.y = this._rect.y;
+      out.w = this._rect.w;
+      out.h = this._rect.h;
+  
+      return out;
+    }
     /**
      * @param {Number} x - [0,1]
      * @param {Number} y - [0,1]
@@ -11074,10 +11127,18 @@ module.exports = (function () {
       this._rect.h = h;
     }
   
+    // stages
+    getStages() {
+      return this._stages;
+    }
     setStages(stages) {
       this._stages = stages;
     }
   
+    // framebuffer
+    getFramebuffer() {
+      return this._framebuffer;
+    }
     setFramebuffer(framebuffer) {
       this._framebuffer = framebuffer;
     }
@@ -11240,7 +11301,7 @@ module.exports = (function () {
       this._node = null;
       this._inputAssemblers = [];
       this._effects = [];
-      this._options = [];
+      this._defines = [];
       this._dynamicIA = false;
       this._viewID = -1;
   
@@ -11286,14 +11347,14 @@ module.exports = (function () {
       this._effects.push(effect);
   
       //
-      let opts = Object.create(null);
-      effect.extractOptions(opts);
-      this._options.push(opts);
+      let defs = Object.create(null);
+      effect.extractDefines(defs);
+      this._defines.push(defs);
     }
   
     clearEffects() {
       this._effects.length = 0;
-      this._options.length = 0;
+      this._defines.length = 0;
     }
   
     extractDrawItem(out, index) {
@@ -11302,7 +11363,7 @@ module.exports = (function () {
         out.node = this._node;
         out.ia = null;
         out.effect = this._effects[0];
-        out.options = out.effect.extractOptions(this._options[0]);
+        out.defines = out.effect.extractDefines(this._defines[0]);
   
         return;
       }
@@ -11312,7 +11373,7 @@ module.exports = (function () {
         out.node = null;
         out.ia = null;
         out.effect = null;
-        out.options = null;
+        out.defines = null;
   
         return;
       }
@@ -11321,16 +11382,16 @@ module.exports = (function () {
       out.node = this._node;
       out.ia = this._inputAssemblers[index];
   
-      let effect, options;
+      let effect, defines;
       if (index < this._effects.length) {
         effect = this._effects[index];
-        options = this._options[index];
+        defines = this._defines[index];
       } else {
         effect = this._effects[this._effects.length-1];
-        options = this._options[this._effects.length-1];
+        defines = this._defines[this._effects.length-1];
       }
       out.effect = effect;
-      out.options = effect.extractOptions(options);
+      out.defines = effect.extractDefines(defines);
     }
   }
   
@@ -12597,46 +12658,29 @@ module.exports = (function () {
     }
   }
   
-  var builtinChunks = {
-    'skinning.vert': 'attribute vec4 a_weights;\nattribute vec4 a_joints;\nuniform sampler2D u_jointsTexture;\nuniform float u_jointsTextureSize;\nmat4 getBoneMatrix(const in float i) {\n  float size = u_jointsTextureSize;\n  float j = i * 4.0;\n  float x = mod(j, size);\n  float y = floor(j / size);\n  float dx = 1.0 / size;\n  float dy = 1.0 / size;\n  y = dy * (y + 0.5);\n  vec4 v1 = texture2D(u_jointsTexture, vec2(dx * (x + 0.5), y));\n  vec4 v2 = texture2D(u_jointsTexture, vec2(dx * (x + 1.5), y));\n  vec4 v3 = texture2D(u_jointsTexture, vec2(dx * (x + 2.5), y));\n  vec4 v4 = texture2D(u_jointsTexture, vec2(dx * (x + 3.5), y));\n  return mat4(v1, v2, v3, v4);\n}\nmat4 skinMatrix() {\n  return\n    getBoneMatrix(a_joints.x) * a_weights.x +\n    getBoneMatrix(a_joints.y) * a_weights.y +\n    getBoneMatrix(a_joints.z) * a_weights.z +\n    getBoneMatrix(a_joints.w) * a_weights.w\n    ;\n}',
-    'unpack-normal.frag': 'vec3 unpackNormal(vec4 nmap) {\n  return nmap.xyz * 2.0 - 1.0;\n}',
-  };
-  
-  var builtinTemplates = [
-    {
-      name: 'simple',
-      vert: '\nattribute vec3 a_position;\nuniform mat4 model;\nuniform mat4 viewProj;\n#ifdef useTexture\n  attribute vec2 a_uv0;\n  varying vec2 uv0;\n#endif\nvoid main () {\n  vec4 pos = viewProj * model * vec4(a_position, 1);\n  #ifdef useTexture\n    uv0 = a_uv0;\n  #endif\n  gl_Position = pos;\n}',
-      frag: '\n#ifdef useTexture\n  uniform sampler2D texture;\n  varying vec2 uv0;\n#endif\n#ifdef useColor\n  uniform vec4 color;\n#endif\nvoid main () {\n  vec4 o = vec4(1, 1, 1, 1);\n  #ifdef useTexture\n    o *= texture2D(texture, uv0);\n  #endif\n  #ifdef useColor\n    o *= color;\n  #endif\n  if (!gl_FrontFacing) {\n    o.rgb *= 0.5;\n  }\n  gl_FragColor = o;\n}',
-      options: [
-        { name: 'useTexture', },
-        { name: 'useColor', },
-      ],
-    },
-  ];
-  
   let _shdID = 0;
   
-  function _generateDefines(options) {
+  function _generateDefines(defs) {
     let defines = [];
-    for (let opt in options) {
-      if (options[opt] === true) {
-        defines.push(`#define ${opt}`);
+    for (let def in defs) {
+      if (defs[def] === true) {
+        defines.push(`#define ${def}`);
       }
     }
     return defines.join('\n');
   }
   
-  function _replaceMacroNums(string, options) {
+  function _replaceMacroNums(string, defs) {
     let cache = {};
     let tmp = string;
-    for (let opt in options) {
-      if (Number.isInteger(options[opt])) {
-        cache[opt] = options[opt];
+    for (let def in defs) {
+      if (Number.isInteger(defs[def])) {
+        cache[def] = defs[def];
       }
     }
-    for (let opt in cache) {
-      let reg = new RegExp(opt, 'g');
-      tmp = tmp.replace(reg, cache[opt]);
+    for (let def in cache) {
+      let reg = new RegExp(def, 'g');
+      tmp = tmp.replace(reg, cache[def]);
     }
     return tmp;
   }
@@ -12670,18 +12714,13 @@ module.exports = (function () {
   
       // register templates
       this._templates = {};
-      for (let i = 0; i < builtinTemplates.length; ++i) {
-        let tmpl = builtinTemplates[i];
-        this.define(tmpl.name, tmpl.vert, tmpl.frag, tmpl.options);
-      }
       for (let i = 0; i < templates.length; ++i) {
         let tmpl = templates[i];
-        this.define(tmpl.name, tmpl.vert, tmpl.frag, tmpl.options);
+        this.define(tmpl.name, tmpl.vert, tmpl.frag, tmpl.defines);
       }
   
       // register chunks
       this._chunks = {};
-      Object.assign(this._chunks, builtinChunks);
       Object.assign(this._chunks, chunks);
   
       this._cache = {};
@@ -12698,7 +12737,7 @@ module.exports = (function () {
      *     { name: 'lightCount', min: 1, max: 4 }
      *   ]);
      */
-    define(name, vert, frag, options) {
+    define(name, vert, frag, defines) {
       if (this._templates[name]) {
         console.warn(`Failed to define shader ${name}: already exists.`);
         return;
@@ -12708,30 +12747,30 @@ module.exports = (function () {
   
       // calculate option mask offset
       let offset = 0;
-      for (let i = 0; i < options.length; ++i) {
-        let op = options[i];
-        op._offset = offset;
+      for (let i = 0; i < defines.length; ++i) {
+        let def = defines[i];
+        def._offset = offset;
   
         let cnt = 1;
   
-        if (op.min !== undefined && op.max !== undefined) {
-          cnt = Math.ceil((op.max - op.min) * 0.5);
+        if (def.min !== undefined && def.max !== undefined) {
+          cnt = Math.ceil((def.max - def.min) * 0.5);
   
-          op._map = function (value) {
-            return (value - this._min) << op._offset;
-          }.bind(op);
+          def._map = function (value) {
+            return (value - this._min) << def._offset;
+          }.bind(def);
         } else {
-          op._map = function (value) {
+          def._map = function (value) {
             if (value) {
-              return 1 << op._offset;
+              return 1 << def._offset;
             }
             return 0;
-          }.bind(op);
+          }.bind(def);
         }
   
         offset += cnt;
   
-        op._offset = offset;
+        def._offset = offset;
       }
   
       vert = this._precision + vert;
@@ -12743,7 +12782,7 @@ module.exports = (function () {
         name,
         vert,
         frag,
-        options
+        defines
       };
     }
   
@@ -12751,17 +12790,17 @@ module.exports = (function () {
      * @param {string} name
      * @param {Object} options
      */
-    getKey(name, options) {
+    getKey(name, defines) {
       let tmpl = this._templates[name];
       let key = 0;
-      for (let i = 0; i < tmpl.options.length; ++i) {
-        let tmplOpts = tmpl.options[i];
-        let value = options[tmplOpts.name];
+      for (let i = 0; i < tmpl.defines.length; ++i) {
+        let tmplDefs = tmpl.defines[i];
+        let value = defines[tmplDefs.name];
         if (value === undefined) {
           continue;
         }
   
-        key |= tmplOpts._map(value);
+        key |= tmplDefs._map(value);
       }
   
       return key << 8 | tmpl.id;
@@ -12771,8 +12810,8 @@ module.exports = (function () {
      * @param {string} name
      * @param {Object} options
      */
-    getProgram(name, options) {
-      let key = this.getKey(name, options);
+    getProgram(name, defines) {
+      let key = this.getKey(name, defines);
       let program = this._cache[key];
       if (program) {
         return program;
@@ -12780,10 +12819,10 @@ module.exports = (function () {
   
       // get template
       let tmpl = this._templates[name];
-      let customDef = _generateDefines(options) + '\n';
-      let vert = _replaceMacroNums(tmpl.vert, options);
+      let customDef = _generateDefines(defines) + '\n';
+      let vert = _replaceMacroNums(tmpl.vert, defines);
       vert = customDef + _unrollLoops(vert);
-      let frag = _replaceMacroNums(tmpl.frag, options);
+      let frag = _replaceMacroNums(tmpl.frag, defines);
       frag = customDef + _unrollLoops(frag);
   
       program = new gfx.Program(this._device, {
@@ -13112,7 +13151,7 @@ module.exports = (function () {
           node: null,
           ia: null,
           effect: null,
-          options: null,
+          defines: null,
         };
       }, 100);
   
@@ -13123,7 +13162,7 @@ module.exports = (function () {
             node: null,
             ia: null,
             effect: null,
-            options: null,
+            defines: null,
             technique: null,
             sortKey: -1,
           };
@@ -13237,7 +13276,7 @@ module.exports = (function () {
             stageItem.node = drawItem.node;
             stageItem.ia = drawItem.ia;
             stageItem.effect = drawItem.effect;
-            stageItem.options = drawItem.options;
+            stageItem.defines = drawItem.defines;
             stageItem.technique = tech;
             stageItem.sortKey = -1;
           }
@@ -13260,7 +13299,7 @@ module.exports = (function () {
     _draw(item) {
       const device = this._device;
       const programLib = this._programLib;
-      const { node, ia, effect, technique, options } = item;
+      const { node, ia, effect, technique, defines } = item;
   
       // reset the pool
       // NOTE: we can use drawCounter optimize this
@@ -13289,7 +13328,7 @@ module.exports = (function () {
       // set technique uniforms
       for (let i = 0; i < technique._parameters.length; ++i) {
         let prop = technique._parameters[i];
-        let param = effect.getValue(prop.name);
+        let param = effect.getProperty(prop.name);
   
         if (param === undefined) {
           param = prop.val;
@@ -13359,7 +13398,7 @@ module.exports = (function () {
         device.setPrimitiveType(ia._primitiveType);
   
         // set program
-        let program = programLib.getProgram(pass._programName, options);
+        let program = programLib.getProgram(pass._programName, defines);
         device.setProgram(program);
   
         // cull mode
@@ -13754,45 +13793,42 @@ module.exports = (function () {
       name: 'gray_sprite',
       vert: 'uniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying lowp vec4 v_fragmentColor;\nattribute vec2 a_uv0;\nvarying vec2 uv0;\nvoid main () {\n  vec4 pos = viewProj * vec4(a_position, 1);\n  v_fragmentColor = a_color;\n  uv0 = a_uv0;\n  gl_Position = pos;\n}',
       frag: 'uniform sampler2D texture;\nvarying vec2 uv0;\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 c = v_fragmentColor * texture2D(texture, uv0);\n  float gray = 0.2126*c.r + 0.7152*c.g + 0.0722*c.b;\n  gl_FragColor = vec4(gray, gray, gray, c.a);\n}',
-      options: [
+      defines: [
       ],
     },
     {
       name: 'sprite',
       vert: 'uniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying lowp vec4 v_fragmentColor;\n#ifdef useModel\n  uniform mat4 model;\n#endif\n#ifdef useTexture\n  attribute vec2 a_uv0;\n  varying vec2 uv0;\n#endif\nvoid main () {\n  mat4 mvp;\n  #ifdef useModel\n    mvp = viewProj * model;\n  #else\n    mvp = viewProj;\n  #endif\n  vec4 pos = mvp * vec4(a_position, 1);\n  v_fragmentColor = a_color;\n  \n  #ifdef useTexture\n    uv0 = a_uv0;\n  #endif\n  gl_Position = pos;\n}',
       frag: '#ifdef useTexture\n  uniform sampler2D texture;\n  varying vec2 uv0;\n#endif\n#ifdef alphaTest\n  uniform float alphaThreshold;\n#endif\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 o = v_fragmentColor;\n  #ifdef useTexture\n    o *= texture2D(texture, uv0);\n  #endif\n  #ifdef alphaTest\n    if (o.a <= alphaThreshold)\n      discard;\n  #endif\n  gl_FragColor = o;\n}',
-      options: [
-        { name: 'useTexture', },
-        { name: 'useModel', },
-        { name: 'alphaTest', },
+      defines: [
       ],
     },
     {
       name: 'vfx_emitter',
       vert: '#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nvarying vec2 index;\nvoid main() {\n    index = (a_quad + 1.0) / 2.0;\n    gl_Position = vec4(a_quad, 0, 1);\n}\n',
       frag: 'uniform sampler2D noise;\nuniform sampler2D state;\nuniform vec2 statesize;\nuniform vec2 noisesize;\nuniform bool stopped;\nuniform float dt;\nuniform float mode;\nuniform float noiseId;\nuniform float emitVar;\nuniform float life;\nuniform float lifeVar;\nuniform vec2 pos;\nuniform vec2 posVar;\nuniform vec4 color;\nuniform vec4 colorVar;\nuniform vec4 endColor;\nuniform vec4 endColorVar;\nuniform float size;\nuniform float sizeVar;\nuniform float endSize;\nuniform float endSizeVar;\nuniform float rot;\nuniform float rotVar;\nuniform float endRot;\nuniform float endRotVar;\nuniform float angle;\nuniform float angleVar;\nuniform float speed;\nuniform float speedVar;\nuniform float radial;\nuniform float radialVar;\nuniform float tangent;\nuniform float tangentVar;\nuniform float radius;\nuniform float radiusVar;\nuniform float endRadius;\nuniform float endRadiusVar;\nuniform float rotatePS;\nuniform float rotatePSVar;\nuniform float sizeScale;\nuniform float accelScale;\nuniform float radiusScale;\nvarying vec2 index;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float NOISE_SCALE = 10000.0;\nconst float POSITION_SCALE = 1.0;\nconst float ROTATION_SCALE = 1.0;\nconst float COLOR_SCALE = 1.0;\nconst float LIFE_SCALE = 60.0;\nconst float START_SIZE_EQUAL_TO_END_SIZE = -1.0;\nconst float START_RADIUS_EQUAL_TO_END_RADIUS = -1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvec2 encode(float value, float scale) {\n    value = value * scale + OFFSET;\n    float x = mod(value, BASE);\n    float y = floor(value / BASE);\n    return vec2(x, y) / BASE;\n}\nfloat randomMinus1To1(vec2 randomD) {\n    float random = decode(randomD, NOISE_SCALE);\n    return (random - 0.5) * 2.0;\n}\nbool doEmit (vec4 randomD) {\n    float random1 = decode(randomD.rg, NOISE_SCALE);\n    if (!stopped && (life + lifeVar) * random1 < life) {\n        return true;\n    }\n    else {\n        return false;\n    }\n}\nvec4 initLife (vec4 data, vec4 randomD) {\n    \n    if (doEmit(randomD)) {\n        float random2 = randomMinus1To1(randomD.ba);\n        float plife = life + lifeVar * random2;\n        vec2 l = encode(plife, LIFE_SCALE);\n        return vec4(l, l);\n    }\n    else {\n        return data;\n    }\n}\nvec4 initColor (float randr, float randg, float randb, float randa) {\n    vec4 random = vec4(randr, randg, randb, randa);\n    vec4 result = clamp(color + colorVar * random, 0.0, 255.0);\n    return result / 255.0;\n}\nvec4 initDeltaRG (vec2 startR, vec2 random) {\n    vec2 start = clamp(color.rg + colorVar.rg * startR, 0.0, 255.0);\n    vec2 end = clamp(endColor.rg + endColorVar.rg * random, 0.0, 255.0);\n    vec2 delta = end - start;\n    return vec4(encode(delta.x, COLOR_SCALE), encode(delta.y, COLOR_SCALE));\n}\nvec4 initDeltaBA (vec2 startR, vec2 random) {\n    vec2 start = clamp(color.ba + colorVar.ba * startR, 0.0, 255.0);\n    vec2 end = clamp(endColor.ba + endColorVar.ba * random, 0.0, 255.0);\n    vec2 delta = end - start;\n    return vec4(encode(delta.x, COLOR_SCALE), encode(delta.y, COLOR_SCALE));\n}\nvec4 initSize (float rand1, float rand2) {\n    float start = max(0.0, size + sizeVar * rand1);\n    if (endSize == START_SIZE_EQUAL_TO_END_SIZE) {\n        float delta = 0.0;\n        return vec4(encode(start, sizeScale), encode(delta, sizeScale));\n    }\n    else {\n        float end = max(0.0, endSize + endSizeVar * rand2);\n        float delta = end - start;\n        return vec4(encode(start, sizeScale), encode(delta, sizeScale));\n    }\n}\nvec4 initRotation (float rand1, float rand2) {\n    float start = rot + rotVar * rand1;\n    float end = endRot + endRotVar * rand2;\n    float delta = end - start;\n    return vec4(encode(start, ROTATION_SCALE), encode(delta, ROTATION_SCALE));\n}\nvec4 initControl1 (float rand1, float rand2) {\n    \n    if (mode == 0.0) {\n        float pAngle = angle + angleVar * rand1;\n        float dirX = cos(pAngle);\n        float dirY = sin(pAngle);\n        float pSpeed = speed + speedVar * rand2;\n        return vec4(encode(dirX * pSpeed, POSITION_SCALE), encode(dirY * pSpeed, POSITION_SCALE));\n    }\n    \n    else {\n        float pAngle = angle + angleVar * rand1;\n        float pRadius = radius + radiusVar * rand2;\n        return vec4(encode(pAngle, ROTATION_SCALE), encode(pRadius, radiusScale));\n    }\n}\nvec4 initControl2 (float startR1, float rand1, float rand2) {\n    \n    if (mode == 0.0) {\n        float pRadial = radial + radialVar * rand1;\n        float pTangent = tangent + tangentVar * rand2;\n        return vec4(encode(pRadial, accelScale), encode(pTangent, accelScale));\n    }\n    \n    else {\n        float degreesPerSecond = rotatePS + rotatePSVar * rand1;\n        float pDeltaRadius;\n        if (endRadius == START_RADIUS_EQUAL_TO_END_RADIUS) {\n            pDeltaRadius = 0.0;\n        }\n        else {\n            float pRadius = radius + radiusVar * startR1;\n            pDeltaRadius = (endRadius + endRadiusVar * rand2 - pRadius);\n        }\n        return vec4(encode(degreesPerSecond, ROTATION_SCALE), encode(pDeltaRadius, radiusScale));\n    }\n}\nvec4 initPos (float rand1, float rand2) {\n    vec2 result = pos + posVar * vec2(rand1, rand2);\n    return vec4(encode(result.x, POSITION_SCALE), encode(result.y, POSITION_SCALE));\n}\nvoid main() {\n    vec2 pixel = floor(index * statesize);\n    vec2 pindex = floor(pixel / 3.0);\n    vec2 temp = mod(pixel, vec2(3.0, 3.0));\n    float id = floor(temp.y * 3.0 + temp.x);\n    vec2 noffset = vec2(floor(noiseId / 4.0), mod(noiseId, 4.0));\n    vec2 nid = pixel + noffset;\n    vec4 randomD = texture2D(noise, nid / noisesize);\n    \n    vec4 lifeData = texture2D(state, pindex * 3.0 / statesize);\n    float rest = decode(lifeData.rg, LIFE_SCALE);\n    float life = decode(lifeData.ba, LIFE_SCALE);\n    \n    if (id == 0.0) {\n        vec4 data = texture2D(state, index);\n        if (rest <= 0.0) {\n            gl_FragColor = initLife(data, randomD);\n        }\n        else {\n            gl_FragColor = data;\n        }\n        return;\n    }\n    \n    if (rest > 0.0) {\n        vec4 data = texture2D(state, index);\n        gl_FragColor = data;\n        return;\n    }\n    vec2 lifeNid = pindex * 3.0 + noffset;\n    vec4 lifeRandomD = texture2D(noise, lifeNid / noisesize);\n    bool emitting = doEmit(lifeRandomD);\n    if (!emitting) {\n        vec4 data = texture2D(state, index);\n        gl_FragColor = data;\n        return;\n    }\n    \n    float random1 = randomMinus1To1(randomD.rg);\n    float random2 = randomMinus1To1(randomD.ba);\n    \n    if (id == 1.0) {\n        vec4 randomD3 = texture2D(noise, vec2(nid.x - 1.0, nid.y + 1.0) / noisesize);\n        float random3 = randomMinus1To1(randomD3.rg);\n        float random4 = randomMinus1To1(randomD3.ba);\n        gl_FragColor = initColor(random1, random2, random3, random4);\n        return;\n    }\n    \n    if (id == 2.0) {\n        vec4 randomD1 = texture2D(noise, vec2(nid.x - 1.0, nid.y) / noisesize);\n        float startR1 = randomMinus1To1(randomD1.rg);\n        float startR2 = randomMinus1To1(randomD1.ba);\n        vec2 startR = vec2(startR1, startR2);\n        gl_FragColor = initDeltaRG(startR, vec2(random1, random2));\n        return;\n    }\n    \n    if (id == 3.0) {\n        vec2 startR = vec2(random1, random2);\n        gl_FragColor = initDeltaBA(startR, vec2(random1, random2));\n        return;\n    }\n    \n    if (id == 4.0) {\n        gl_FragColor = initSize(random1, random2);\n        return;\n    }\n    \n    if (id == 5.0) {\n        gl_FragColor = initRotation(random1, random2);\n        return;\n    }\n    \n    if (id == 6.0) {\n        gl_FragColor = initControl1(random1, random2);\n        return;\n    }\n    \n    if (id == 7.0) {\n        vec4 randomD6 = texture2D(noise, vec2(nid.x - 1.0, nid.y) / noisesize);\n        float startR1 = randomMinus1To1(randomD6.rg);\n        gl_FragColor = initControl2(startR1, random1, random2);\n        return;\n    }\n    \n    if (id == 8.0) {\n        gl_FragColor = initPos(random1, random2);\n        return;\n    }\n}',
-      options: [
+      defines: [
       ],
     },
     {
       name: 'vfx_particle',
       vert: '#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nuniform mat4 model;\nuniform mat4 viewProj;\nuniform sampler2D state;\nuniform sampler2D quad;\nuniform vec2 statesize;\nuniform vec2 quadsize;\nuniform float z;\nuniform vec2 lb;\nuniform vec2 rt;\nvarying lowp vec4 v_fragmentColor;\nvarying vec2 uv0;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float LIFE_SCALE = 60.0;\nconst float POSITION_SCALE = 1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvoid main() {\n    vec2 sIndex = floor(a_quad / 2.0) * 3.0;\n    vec4 lifeData = texture2D(state, sIndex / statesize);\n    float life = decode(lifeData.rg, LIFE_SCALE);\n    if (life <= 0.0) {\n        v_fragmentColor = vec4(0.0, 0.0, 0.0, 0.0);\n        uv0 = vec2(0.0, 0.0);\n        gl_Position = vec4(0.0, 0.0, 0.0, 1.0);\n    }\n    else {\n        vec2 posIndex = a_quad / quadsize;\n        vec4 posData = texture2D(quad, posIndex);\n        vec2 pos = vec2(decode(posData.rg, POSITION_SCALE), decode(posData.ba, POSITION_SCALE));\n        vec2 cIndex = vec2(sIndex.x + 1.0, sIndex.y) / statesize;\n        vec4 color = texture2D(state, cIndex);\n        v_fragmentColor = color;\n        float u, v;\n        vec2 uvId = mod(a_quad, vec2(2.0));\n        if (uvId.x == 0.0) {\n            u = lb.x;\n        }\n        else {\n            u = rt.x;\n        }\n        if (uvId.y == 0.0) {\n            v = lb.y;\n        }\n        else {\n            v = rt.y;\n        }\n        uv0 = vec2(u, v);\n        gl_Position = viewProj * model * vec4(pos, z, 1.0);\n    }    \n}\n',
       frag: 'uniform sampler2D texture;\nvarying vec2 uv0;\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 o = v_fragmentColor;\n  o *= texture2D(texture, uv0);\n  gl_FragColor = o;\n}',
-      options: [
+      defines: [
       ],
     },
     {
       name: 'vfx_quad',
       vert: '#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nvarying vec2 index;\nvoid main() {\n    index = (a_quad + 1.0) / 2.0;\n    gl_Position = vec4(a_quad, 0, 1);\n}\n',
       frag: 'uniform sampler2D state;\nuniform vec2 quadsize;\nuniform vec2 statesize;\nuniform float sizeScale;\nvarying vec2 index;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float POSITION_SCALE = 1.0;\nconst float ROTATION_SCALE = 1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvec2 encode(float value, float scale) {\n    value = value * scale + OFFSET;\n    float x = mod(value, BASE);\n    float y = floor(value / BASE);\n    return vec2(x, y) / BASE;\n}\nvoid main() {\n    vec2 pIndex = floor(index * quadsize / 2.0) * 3.0;\n    vec2 dataIndex = (pIndex + 2.0) / statesize;\n    vec4 posData = texture2D(state, dataIndex);\n    vec2 pos = vec2(decode(posData.rg, POSITION_SCALE), decode(posData.ba, POSITION_SCALE));\n    dataIndex = (pIndex + 1.0) / statesize;\n    vec4 sizeData = texture2D(state, dataIndex);\n    float size = decode(sizeData.rg, sizeScale);\n    dataIndex.x = (pIndex.x + 2.0) / statesize.x;\n    dataIndex.y = (pIndex.y + 1.0) / statesize.y;\n    vec4 rotData = texture2D(state, dataIndex);\n    float rot = radians(floor(decode(rotData.rg, ROTATION_SCALE)));\n    float a = cos(rot);\n    float b = -sin(rot);\n    float c = -b;\n    float d = a;\n    vec2 vert = (mod(floor(index * quadsize), vec2(2.0)) - 0.5) * size;\n    float x = vert.x * a + vert.y * c + pos.x;\n    float y = vert.x * b + vert.y * d + pos.y;\n    gl_FragColor = vec4(encode(x, POSITION_SCALE), encode(y, POSITION_SCALE));\n}\n',
-      options: [
+      defines: [
       ],
     },
     {
       name: 'vfx_update',
       vert: '#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nvarying vec2 index;\nvoid main() {\n    index = (a_quad + 1.0) / 2.0;\n    gl_Position = vec4(a_quad, 0, 1);\n}\n',
       frag: 'uniform sampler2D state;\nuniform vec2 statesize;\nuniform float dt;\nuniform float mode;\nuniform vec2 gravity;\nuniform float sizeScale;\nuniform float accelScale;\nuniform float radiusScale;\nvarying vec2 index;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float MAX_VALUE = BASE * BASE;\nconst float LIFE_SCALE = 60.0;\nconst float POSITION_SCALE = 1.0;\nconst float ROTATION_SCALE = 1.0;\nconst float COLOR_SCALE = 1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvec2 encode(float value, float scale) {\n    value = value * scale + OFFSET;\n    float x = mod(value, BASE);\n    float y = floor(value / BASE);\n    return vec2(x, y) / BASE;\n}\nvec4 updateLife (vec4 data) {\n    float rest = decode(data.rg, LIFE_SCALE);\n    rest -= dt;\n    return vec4(encode(rest, LIFE_SCALE), data.ba);\n}\nvec4 updateColor (vec4 color, vec4 deltaRG, vec4 deltaBA, float life) {\n    float r = decode(deltaRG.rg, COLOR_SCALE);\n    float g = decode(deltaRG.ba, COLOR_SCALE);\n    float b = decode(deltaBA.rg, COLOR_SCALE);\n    float a = decode(deltaBA.ba, COLOR_SCALE);\n    vec4 deltaColor = vec4(r, g, b, a) / 255.0;\n    \n    color = clamp(color + deltaColor * dt / life, 0.0, 1.0);\n    return color;\n}\nvec4 updateSize (vec4 data, float life) {\n    float size = decode(data.rg, sizeScale);\n    float deltaSize = decode(data.ba, sizeScale);\n    size = clamp(size + deltaSize * dt / life, 0.0, MAX_VALUE);\n    return vec4(encode(size, sizeScale), data.ba);\n}\nvec4 updateRotation (vec4 data, float life) {\n    float rotation = decode(data.rg, ROTATION_SCALE);\n    float deltaRotation = decode(data.ba, ROTATION_SCALE);\n    rotation += deltaRotation * dt / life;\n    return vec4(encode(rotation, ROTATION_SCALE), data.ba);\n}\nvec4 updateControl (vec4 control1, vec4 control2, vec4 posData, float life) {\n    \n    if (mode == 0.0) {\n        vec2 dir = vec2(decode(control1.rg, POSITION_SCALE), decode(control1.ba, POSITION_SCALE));\n        float radialAccel = decode(control2.rg, accelScale);\n        float tangentialAccel = decode(control2.ba, accelScale);\n        vec2 pos = vec2(decode(posData.rg, POSITION_SCALE), decode(posData.ba, POSITION_SCALE));\n        vec2 radial = normalize(pos);\n        vec2 tangential = vec2(-radial.y, radial.x);\n        radial = radial * radialAccel;\n        tangential = tangential * tangentialAccel;\n        vec2 result = dir + (radial + tangentialAccel + gravity) * dt;\n        return vec4(encode(result.x, POSITION_SCALE), encode(result.y, POSITION_SCALE));\n    }\n    \n    else {\n        float angle = mod(decode(control1.rg, ROTATION_SCALE), 360.0);\n        float radius = decode(control1.ba, radiusScale);\n        float degreesPerSecond = decode(control2.rg, ROTATION_SCALE);\n        float deltaRadius = decode(control2.ba, radiusScale);\n        angle += degreesPerSecond * dt;\n        radius += deltaRadius * dt / life;\n        return vec4(encode(angle, ROTATION_SCALE), encode(radius, radiusScale));\n    }\n}\nvec4 updatePos (vec4 posData, vec4 control) {\n    vec2 result;\n    \n    if (mode == 0.0) {\n        vec2 dir = vec2(decode(control.rg, POSITION_SCALE), decode(control.ba, POSITION_SCALE));\n        vec2 pos = vec2(decode(posData.rg, POSITION_SCALE), decode(posData.ba, POSITION_SCALE));\n        result = pos + dir * dt;\n    }\n    \n    else {\n        float angle = radians(decode(control.rg, ROTATION_SCALE));\n        float radius = decode(control.ba, radiusScale);\n        result.x = -cos(angle) * radius;\n        result.y = -sin(angle) * radius;\n    }\n    return vec4(encode(result.x, POSITION_SCALE), encode(result.y, POSITION_SCALE));\n}\nvoid main() {\n    vec2 pixel = floor(index * statesize);\n    vec2 pindex = floor(pixel / 3.0);\n    vec2 temp = mod(pixel, vec2(3.0));\n    float id = floor(temp.y * 3.0 + temp.x);\n    \n    vec4 data = texture2D(state, index);\n    vec4 lifeData = texture2D(state, pindex * 3.0 / statesize);\n    float rest = decode(lifeData.rg, LIFE_SCALE);\n    if (rest <= 0.0) {\n        gl_FragColor = data;\n        return;\n    }\n    \n    if (id == 2.0 || id == 3.0 || id == 7.0) {\n        gl_FragColor = data;\n        return;\n    }\n    float life = decode(lifeData.ba, LIFE_SCALE);\n    \n    if (id == 0.0) {\n        gl_FragColor = updateLife(data);\n        return;\n    }\n    \n    if (id == 1.0) {\n        vec2 rgIndex = vec2(pixel.x + 1.0, pixel.y) / statesize;\n        vec4 deltaRG = texture2D(state, rgIndex);\n        vec2 baIndex = vec2(pixel.x - 1.0, pixel.y + 1.0) / statesize;\n        vec4 deltaBA = texture2D(state, baIndex);\n        gl_FragColor = updateColor(data, deltaRG, deltaBA, life);\n        return;\n    }\n    \n    if (id == 4.0) {\n        gl_FragColor = updateSize(data, life);\n        return;\n    }\n    \n    if (id == 5.0) {\n        gl_FragColor = updateRotation(data, life);\n        return;\n    }\n    \n    if (id == 6.0) {\n        vec2 ctrlIndex = vec2(pixel.x + 1.0, pixel.y) / statesize;\n        vec4 control2 = texture2D(state, ctrlIndex);\n        vec2 posIndex = vec2(pixel.x + 2.0, pixel.y) / statesize;\n        vec4 pos = texture2D(state, posIndex);\n        gl_FragColor = updateControl(data, control2, pos, life);\n        return;\n    }\n    \n    if (id == 8.0) {\n        vec2 ctrlIndex = vec2(pixel.x - 2.0, pixel.y) / statesize;\n        vec4 control1 = texture2D(state, ctrlIndex);\n        gl_FragColor = updatePos(data, control1);\n        return;\n    }\n}\n',
-      options: [
+      defines: [
       ],
     },
   ];
@@ -14180,6 +14216,7 @@ module.exports = (function () {
       return _vertexFmt;
     }
   
+    // TODO: it's too slow, need other approach to retrieve the real particle count
     get particleCount () {
       let particleCount = 0;
       let device = this._device;
@@ -14666,19 +14703,19 @@ module.exports = (function () {
     }
   
     set useTexture(val) {
-      this._effect.setOption('useTexture', val);
+      this._effect.define('useTexture', val);
     }
   
     set useModel(val) {
-      this._effect.setOption('useModel', val);
+      this._effect.define('useModel', val);
     }
   
     get texture () {
-      return this._effect.getValue('texture');
+      return this._effect.getProperty('texture');
     }
   
     set texture(val) {
-      this._effect.setValue('texture', val);
+      this._effect.setProperty('texture', val);
     }
   
     clone () {
@@ -14734,11 +14771,11 @@ module.exports = (function () {
     }
   
     get texture () {
-      return this._effect.getValue('texture');
+      return this._effect.getProperty('texture');
     }
   
     set texture(val) {
-      this._effect.setValue('texture', val);
+      this._effect.setProperty('texture', val);
     }
   
     clone () {
@@ -14799,27 +14836,27 @@ module.exports = (function () {
     }
     
     get useTexture () {
-      this._effect.getOption('useTexture', val);
+      this._effect.getDefine('useTexture', val);
     }
   
     set useTexture (val) {
-      this._effect.setOption('useTexture', val);
+      this._effect.define('useTexture', val);
     }
   
     get texture () {
-      return this._effect.getValue('texture');
+      return this._effect.getProperty('texture');
     }
   
     set texture (val) {
-      this._effect.setValue('texture', val);
+      this._effect.setProperty('texture', val);
     }
     
     get alphaThreshold () {
-      return this._effect.getValue('alphaThreshold');
+      return this._effect.getProperty('alphaThreshold');
     }
   
     set alphaThreshold (val) {
-      this._effect.setValue('alphaThreshold', val);
+      this._effect.setProperty('alphaThreshold', val);
     }
   
     clone () {
@@ -14886,56 +14923,56 @@ module.exports = (function () {
     }
   
     get texture () {
-      return this._effect.getValue('texture');
+      return this._effect.getProperty('texture');
     }
   
     set texture (val) {
-      this._effect.setValue('texture', val);
+      this._effect.setProperty('texture', val);
     }
   
     get stateMap () {
-      return this._effect.getValue('state');
+      return this._effect.getProperty('state');
     }
   
     set stateMap (val) {
-      this._effect.setValue('state', val);
+      this._effect.setProperty('state', val);
     }
   
     get quadMap () {
-      return this._effect.getValue('quad');
+      return this._effect.getProperty('quad');
     }
   
     set quadMap (val) {
-      this._effect.setValue('quad', val);
+      this._effect.setProperty('quad', val);
     }
   
     get stateSize () {
-      return this._effect.getValue('statesize');
+      return this._effect.getProperty('statesize');
     }
   
     set stateSize (val) {
-      this._effect.setValue('statesize', val);
+      this._effect.setProperty('statesize', val);
     }
   
     get quadSize () {
-      return this._effect.getValue('quadsize');
+      return this._effect.getProperty('quadsize');
     }
   
     set quadSize (val) {
-      this._effect.setValue('quadsize', val);
+      this._effect.setProperty('quadsize', val);
     }
   
     get z () {
-      return this._effect.getValue('z');
+      return this._effect.getProperty('z');
     }
   
     set z (val) {
-      this._effect.setValue('z', val);
+      this._effect.setProperty('z', val);
     }
   
     get uv () {
-      let lb = this._effect.getValue('lb');
-      let rt = this._effect.getValue('rt');
+      let lb = this._effect.getProperty('lb');
+      let rt = this._effect.getProperty('rt');
       return {
         l: lb.x,
         r: rt.x,
@@ -14949,8 +14986,8 @@ module.exports = (function () {
       this._lb.y = val.b;
       this._rt.x = val.r;
       this._rt.y = val.t;
-      this._effect.setValue('lb', this._lb);
-      this._effect.setValue('rt', this._rt);
+      this._effect.setProperty('lb', this._lb);
+      this._effect.setProperty('rt', this._rt);
     }
   
     clone () {
@@ -15028,3 +15065,4 @@ module.exports = (function () {
   return renderEngine;
   
   }());
+  
