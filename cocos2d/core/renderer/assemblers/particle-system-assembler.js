@@ -37,7 +37,7 @@ var particleSystemAssembler = js.addon({
         let renderData = comp._renderData;
         if (effect && renderData) {
             let data = renderData._data;
-            let texture = effect.getValue('texture');
+            let texture = effect.getProperty('texture');
             let texw = texture._width,
                 texh = texture._height;
             let frame = comp.spriteFrame;

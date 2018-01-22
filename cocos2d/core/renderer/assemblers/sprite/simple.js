@@ -50,7 +50,7 @@ module.exports = {
         let renderData = sprite._renderData;
         if (effect && renderData) {
             let data = renderData._data;
-            let texture = effect.getValue('texture');
+            let texture = effect.getProperty('texture');
             let texw = texture._width,
                 texh = texture._height;
             let frame = sprite.spriteFrame;
