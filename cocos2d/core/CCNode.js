@@ -1365,7 +1365,7 @@ var Node = cc.Class({
             pt = Camera.main.getCameraToWorldPoint(pt);
         }
         
-        var trans = this.getWorldToNodeTransform();
+        var trans = cc.affineTransformInvertIn(this._sgNode.getNodeToWorldTransform());
         pt = cc.pointApplyAffineTransform(pt, trans);
         pt.x += this._anchorPoint.x * w;
         pt.y += this._anchorPoint.y * h;
