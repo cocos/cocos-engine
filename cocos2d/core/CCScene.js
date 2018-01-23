@@ -46,7 +46,10 @@ cc.Scene = cc.Class({
          * @property {Boolean} autoReleaseAssets
          * @default false
          */
-        autoReleaseAssets: undefined,
+        autoReleaseAssets: {
+            default: undefined,
+            type: cc.Boolean
+        },
 
     },
 

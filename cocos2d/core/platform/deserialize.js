@@ -550,6 +550,7 @@ var _Deserializer = (function () {
     };
 
     var compileDeserialize = CC_SUPPORT_JIT ? function (self, klass) {
+        var TYPE = Attr.DELIMETER + 'type';
         var RAW_TYPE = Attr.DELIMETER + 'rawType';
         var EDITOR_ONLY = Attr.DELIMETER + 'editorOnly';
         var SERIALIZABLE = Attr.DELIMETER + 'serializable';
@@ -607,10 +608,21 @@ var _Deserializer = (function () {
                 // function undefined object(null) string boolean number
                 var defaultValue = CCClass.getDefault(attrs[propName + DEFAULT]);
                 if (fastMode) {
-                    var defaultType = typeof defaultValue;
-                    var isPrimitiveType = (defaultType === 'string' && !attrs[propName + SAVE_URL_AS_ASSET]) ||
-                                          defaultType === 'number' ||
-                                          defaultType === 'boolean';
+                    var isPrimitiveType;
+                    var userType = attrs[propName + TYPE];
+                    if (defaultValue === undefined && userType) {
+                        isPrimitiveType = userType === cc.String ||
+                            userType === cc.Integer ||
+                            userType === cc.Float ||
+                            userType === cc.Boolean;
+                    }
+                    else {
+                        var defaultType = typeof defaultValue;
+                        isPrimitiveType = (defaultType === 'string' && !attrs[propName + SAVE_URL_AS_ASSET]) ||
+                            defaultType === 'number' ||
+                            defaultType === 'boolean';
+                    }
+
                     if (isPrimitiveType) {
                         sources.push(`o${accessorToSet}=prop;`);
                     }
