@@ -104,7 +104,7 @@ Audio.State = {
         }
 
         // If the resource does not exist
-        if (!item) {
+        if (!item || !item.complete) {
             return cc.loader.load(src, function (error) {
                 if (!error) {
                     var item = cc.loader.getItem(src);
@@ -112,7 +112,7 @@ Audio.State = {
                     audio.emit('load');
                 }
             });
-        } else if (item.complete) {
+        } else {
             audio.mount(item.element || item.buffer);
             audio.emit('load');
         }
