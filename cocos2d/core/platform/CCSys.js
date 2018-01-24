@@ -335,12 +335,26 @@ sys.EDITOR_PAGE = 102;
  */
 sys.EDITOR_CORE = 103;
 /**
+ * @property {Number} WECHAT_GAME
+ * @readOnly
+ * @default 104
+ */
+sys.WECHAT_GAME = 104;
+
+/**
  * BROWSER_TYPE_WECHAT
  * @property {String} BROWSER_TYPE_WECHAT
  * @readOnly
  * @default "wechat"
  */
 sys.BROWSER_TYPE_WECHAT = "wechat";
+/**
+ * BROWSER_TYPE_WECHAT_GAME
+ * @property {String} BROWSER_TYPE_WECHAT_GAME
+ * @readOnly
+ * @default "wechatgame"
+ */
+sys.BROWSER_TYPE_WECHAT_GAME = "wechatgame";
 /**
  *
  * @property {String} BROWSER_TYPE_ANDROID
@@ -475,6 +489,7 @@ sys.BROWSER_TYPE_SOUGOU = "sogou";
  */
 sys.BROWSER_TYPE_UNKNOWN = "unknown";
 
+
 /**
  * Is native ? This is set to be true in jsb auto.
  * @property {Boolean} isNative
@@ -485,7 +500,24 @@ sys.isNative = false;
  * Is web browser ?
  * @property {Boolean} isBrowser
  */
-sys.isBrowser = typeof window === 'object' && typeof document === 'object';
+sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME;
+
+cc.create3DContext = function (canvas, opt_attribs, opt_contextType) {
+    if (opt_contextType) {
+        try {
+            return canvas.getContext(opt_contextType, opt_attribs);
+        } catch (e) {
+            return null;
+        }
+    }
+    else {
+        return cc.create3DContext(canvas, opt_attribs, "webgl") || 
+               cc.create3DContext(canvas, opt_attribs, "experimental-webgl") ||
+               cc.create3DContext(canvas, opt_attribs, "webkit-3d") ||
+               cc.create3DContext(canvas, opt_attribs, "moz-webgl") ||
+               null;
+    }
+};
 
 if (CC_EDITOR && Editor.isMainProcess) {
     sys.isMobile = false;
@@ -503,6 +535,46 @@ if (CC_EDITOR && Editor.isMainProcess) {
         height: 0
     };
     sys.__audioSupport = {};
+}
+else if (CC_WECHATGAME) {
+    var env = wx.getSystemInfoSync();
+    sys.isMobile = true;
+    sys.platform = sys.WECHAT_GAME;
+    sys.language = env.language.substr(0, 2);
+    if (env.platform === "android") {
+        sys.os = sys.OS_ANDROID;
+    }
+    else if (env.platform === "ios") {
+        sys.os = sys.OS_IOS;
+    }
+
+    var version = /[\d\.]+/.exec(env.system);
+    sys.osVersion = version[0];
+    sys.osMainVersion = parseInt(sys.osVersion);
+    sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME;
+    sys.browserVersion = env.version;
+
+    var w = env.windowWidth;
+    var h = env.windowHeight;
+    var ratio = env.pixelRatio || 1;
+    sys.windowPixelResolution = {
+        width: ratio * w,
+        height: ratio * h
+    };
+
+    sys.localStorage = window.localStorage;
+
+    sys.capabilities = {
+        "canvas": true,
+        "opengl": true,
+        "webp": false
+    };
+    sys.__audioSupport = { 
+        ONLY_ONE: false, 
+        WEB_AUDIO: false, 
+        DELAY_CREATE_CTX: false,
+        format: ['.mp3']
+    };
 }
 else {
     // browser or runtime
@@ -592,7 +664,9 @@ else {
         var browserTypes = typeReg1.exec(ua);
         if(!browserTypes) browserTypes = typeReg2.exec(ua);
         var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
-        if (browserType === 'micromessenger')
+        if (CC_WECHATGAME)
+            browserType = sys.BROWSER_TYPE_WECHAT_GAME;
+        else if (browserType === 'micromessenger')
             browserType = sys.BROWSER_TYPE_WECHAT;
         else if (browserType === "safari" && isAndroid)
             browserType = sys.BROWSER_TYPE_ANDROID;
@@ -639,28 +713,11 @@ else {
 
     sys._checkWebGLRenderMode = function () {
         if (cc._renderType !== cc.game.RENDER_TYPE_WEBGL)
-            throw new Error("This feature supports WebGL render mode only.");
+            throw new Error(cc._getError(5202));
     };
 
     var _tmpCanvas1 = document.createElement("canvas"),
         _tmpCanvas2 = document.createElement("canvas");
-
-    cc.create3DContext = function (canvas, opt_attribs, opt_contextType) {
-        if (opt_contextType) {
-            try {
-                return canvas.getContext(opt_contextType, opt_attribs);
-            } catch (e) {
-                return null;
-            }
-        }
-        else {
-            return cc.create3DContext(canvas, opt_attribs, "webgl") || 
-                   cc.create3DContext(canvas, opt_attribs, "experimental-webgl") ||
-                   cc.create3DContext(canvas, opt_attribs, "webkit-3d") ||
-                   cc.create3DContext(canvas, opt_attribs, "moz-webgl") ||
-                   null;
-        }
-    };
 
     //Whether or not the Canvas BlendModes are supported.
     sys._supportCanvasNewBlendModes = (function(){
@@ -847,9 +904,8 @@ else {
         cc.logID(5201);
     }
 
-    var formatSupport = [];
-
-    (function(){
+    function detectAudioFormat () {
+        var formatSupport = [];
         var audio = document.createElement('audio');
         if(audio.canPlayType) {
             var ogg = audio.canPlayType('audio/ogg; codecs="vorbis"');
@@ -863,9 +919,9 @@ else {
             var m4a = audio.canPlayType('audio/x-m4a');
             if (m4a) formatSupport.push('.m4a');
         }
-    })();
-    __audioSupport.format = formatSupport;
-
+        return formatSupport;
+    }
+    __audioSupport.format = detectAudioFormat();
     sys.__audioSupport = __audioSupport;
 }
 

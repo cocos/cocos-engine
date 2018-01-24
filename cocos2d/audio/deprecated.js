@@ -25,7 +25,6 @@
  ****************************************************************************/
 
 var js = cc.js;
-var INFO = cc._LogInfos.deprecated;
 
 exports.removed = function (audioEngine) {
 	function willPlayMusicError () {
@@ -43,14 +42,14 @@ exports.deprecated = function (audioEngine) {
 	var effectsVolume = 1;
 	var pauseIDCache = [];
 	js.get(audioEngine, 'rewindMusic', function () {
-		cc.warn(INFO, 'audioEngine.rewindMusic', 'audioEngine.setCurrentTime');
+		cc.warnID(1400, 'audioEngine.rewindMusic', 'audioEngine.setCurrentTime');
 		return function () {
 			audioEngine.setCurrentTime(musicId, 0);
 			return musicId;
 		}
 	});
 	js.get(audioEngine, 'unloadEffect', function () {
-		cc.warn(INFO, 'audioEngine.unloadEffect', 'audioEngine.stop');
+		cc.warnID(1400, 'audioEngine.unloadEffect', 'audioEngine.stop');
 		return function (id) {
 			return audioEngine.stop(id);
 		}
@@ -58,7 +57,7 @@ exports.deprecated = function (audioEngine) {
 
 	if (!CC_JSB) {
 		js.get(audioEngine, 'end', function () {
-			cc.warn(INFO, 'audioEngine.end', 'audioEngine.stopAll');
+			cc.warnID(1400, 'audioEngine.end', 'audioEngine.stopAll');
 			return function () {
 				return audioEngine.stopAll();
 			}

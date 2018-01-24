@@ -46,6 +46,21 @@ require('../videoplayer/CCSGVideoPlayer');
  * !#zh 播放结束
  * @property {Number} COMPLETED
  */
+/**
+ * !#en meta data is loaded
+ * !#zh 视频的元信息已加载完成，你可以调用 getDuration 来获取视频总时长
+ * @property {Number} META_LOADED
+ */
+/**
+ * !#en clicked by the user
+ * !#zh 视频被用户点击了
+ * @property {Number} CLICKED
+ */
+/**
+ * !#en ready to play
+ * !#zh 视频准备好了，可以开始播放了
+ * @property {Number} READY_TO_PLAY
+ */
 var EventType = _ccsg.VideoPlayer.EventType;
 
 
@@ -97,7 +112,7 @@ var VideoPlayer = cc.Class({
         resourceType: {
             tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.resourceType',
             type: ResourceType,
-            set: function ( value ) {
+            set: function (value) {
                 this._resourceType = value;
                 this._updateVideoSource();
             },
@@ -115,7 +130,7 @@ var VideoPlayer = cc.Class({
         remoteURL: {
             tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.url',
             type: cc.String,
-            set: function ( url ) {
+            set: function (url) {
                 this._remoteURL = url;
                 this._updateVideoSource();
             },
@@ -138,7 +153,7 @@ var VideoPlayer = cc.Class({
             get: function () {
                 return this._clip;
             },
-            set: function ( value ) {
+            set: function (value) {
                 if (typeof value !== 'string')
                     value = '';
                 this._clip = value;
@@ -155,17 +170,59 @@ var VideoPlayer = cc.Class({
         currentTime: {
             tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.currentTime',
             type: cc.Float,
-            set: function ( time ) {
-                if(this._sgNode) {
+            set: function (time) {
+                if (this._sgNode) {
                     this._sgNode.seekTo(time);
                 }
             },
             get: function () {
-                if(this._sgNode) {
+                if (this._sgNode) {
                     return this._sgNode.currentTime();
                 }
                 return -1;
             }
+        },
+
+        _volume: 1,
+        /**
+         * !#en The volume of the video.
+         * !#zh 视频的音量（0.0 ~ 1.0）
+         * @property volume
+         * @type {Number}
+         * @default 1
+         */
+        volume: {
+            get: function () {
+                return this._volume;
+            },
+            set: function (value) {
+                this._volume = value;
+                if (this.isPlaying() && !this._mute) {
+                    this._syncVolume();
+                }
+            },
+            range: [0, 1],
+            type: cc.Float,
+            tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.volume'
+        },
+
+        _mute: false,
+        /**
+         * !#en Mutes the VideoPlayer. Mute sets the volume=0, Un-Mute restore the original volume.
+         * !#zh 是否静音视频。静音时设置音量为 0，取消静音是恢复原来的音量。
+         * @property mute
+         * @type {Boolean}
+         * @default false
+         */
+        mute: {
+            get: function () {
+                return this._mute;
+            },
+            set: function (value) {
+                this._mute = value;
+                this._syncVolume();
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.mute',
         },
 
         /**
@@ -191,7 +248,7 @@ var VideoPlayer = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.isFullscreen',
             default: false,
             type: cc.Boolean,
-            notify: function() {
+            notify: function () {
                 this._sgNode.setFullScreenEnabled(this.isFullscreen);
             }
         },
@@ -212,16 +269,24 @@ var VideoPlayer = cc.Class({
         ResourceType: ResourceType
     },
 
-    onLoad: function() {
-        if(CC_JSB) {
+    onLoad: function () {
+        if (CC_JSB) {
             if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
                 this.enabled = false;
             }
         }
     },
 
+    _syncVolume: function () {
+        var sgNode = this._sgNode;
+        if (sgNode) {
+            var volume = this._mute ? 0 : this._volume;
+            sgNode.setVolume(volume);
+        }
+    },
+
     _createSgNode: function () {
-        if(CC_JSB) {
+        if (CC_JSB) {
             if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
                 console.log('VideoPlayer is not supported on Mac and Windows!');
                 return null;
@@ -233,16 +298,20 @@ var VideoPlayer = cc.Class({
     _updateVideoSource: function () {
         var sgNode = this._sgNode;
         if (this.resourceType === ResourceType.REMOTE) {
+            if (cc.loader.md5Pipe) {
+                this.remoteURL = cc.loader.md5Pipe.transformURL(this.remoteURL);
+            }
             sgNode.setURL(this.remoteURL);
-        } else {
+        }
+        else {
             sgNode.setURL(this._clip || '');
         }
     },
 
     _initSgNode: function () {
         var sgNode = this._sgNode;
-        if(sgNode) {
-            if(!CC_JSB) {
+        if (sgNode) {
+            if (!CC_JSB) {
                 sgNode.createDomElementIfNeeded();
             }
             this._updateVideoSource();
@@ -280,22 +349,22 @@ var VideoPlayer = cc.Class({
         this.node.emit('clicked', this);
     },
 
-    onPlaying: function(){
+    onPlaying: function () {
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PLAYING);
         this.node.emit('playing', this);
     },
 
-    onPasued: function() {
+    onPasued: function () {
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PAUSED);
         this.node.emit('paused', this);
     },
 
-    onStopped: function() {
+    onStopped: function () {
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.STOPPED);
         this.node.emit('stopped', this);
     },
 
-    onCompleted: function() {
+    onCompleted: function () {
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.COMPLETED);
         this.node.emit('completed', this);
     },
@@ -306,7 +375,8 @@ var VideoPlayer = cc.Class({
      * @method play
      */
     play: function () {
-        if(this._sgNode) {
+        if (this._sgNode) {
+            this._syncVolume();
             this._sgNode.play();
         }
     },
@@ -316,8 +386,9 @@ var VideoPlayer = cc.Class({
      * !#zh 如果一个视频播放被暂停播放了，调用这个接口可以继续播放。
      * @method resume
      */
-    resume: function() {
+    resume: function () {
         if (this._sgNode) {
+            this._syncVolume();
             this._sgNode.resume();
         }
     },
@@ -328,7 +399,7 @@ var VideoPlayer = cc.Class({
      * @method pause
      */
     pause: function () {
-        if(this._sgNode) {
+        if (this._sgNode) {
             this._sgNode.pause();
         }
     },
@@ -338,8 +409,8 @@ var VideoPlayer = cc.Class({
      * !#zh 如果一个视频正在播放，调用这个接口可以立马停止播放。
      * @method stop
      */
-    stop: function() {
-        if(this._sgNode) {
+    stop: function () {
+        if (this._sgNode) {
             this._sgNode.stop();
         }
     },
@@ -350,8 +421,8 @@ var VideoPlayer = cc.Class({
      * @method getDuration
      * @returns {Number}
      */
-    getDuration: function() {
-        if(this._sgNode) {
+    getDuration: function () {
+        if (this._sgNode) {
             return this._sgNode.duration();
         }
         return -1;
@@ -363,8 +434,8 @@ var VideoPlayer = cc.Class({
      * @method isPlaying
      * @returns {Boolean}
      */
-    isPlaying: function() {
-        if(this._sgNode) {
+    isPlaying: function () {
+        if (this._sgNode) {
             return this._sgNode.isPlaying();
         }
         return false;

@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+var js = require('../platform/js');
 
 var _EventListenerVector = cc._Class.extend({
 
@@ -84,7 +85,7 @@ var __getListenerID = function (event) {
     return "";
 };
 
-/**
+/*
  * !#en
  * <p>
  *  cc.eventManager is a singleton object which manages event listener subscriptions and event dispatching. <br/>
@@ -101,7 +102,7 @@ var __getListenerID = function (event) {
  * @static
  * @example {@link utils/api/engine/docs/cocos2d/core/event-manager/CCEventManager/addListener.js}
  */
-cc.eventManager = {
+var eventManager = {
     //Priority dirty flag
     DIRTY_NONE: 0,
     DIRTY_FIXED_PRIORITY: 1 << 0,
@@ -323,7 +324,7 @@ cc.eventManager = {
     },
 
     _sortEventListenersOfSceneGraphPriorityDes: function (l1, l2) {
-        var locNodePriorityMap = cc.eventManager._nodePriorityMap, 
+        var locNodePriorityMap = eventManager._nodePriorityMap,
             node1 = l1._getSceneGraphPriority(),
             node2 = l2._getSceneGraphPriority();
         if (!l2 || !node2 || !locNodePriorityMap[node2.__instanceId])
@@ -514,7 +515,7 @@ cc.eventManager = {
 
         // If the event was stopped, return directly.
         if (event.isStopped()) {
-            cc.eventManager._updateTouchListeners(event);
+            eventManager._updateTouchListeners(event);
             return true;
         }
 
@@ -546,9 +547,8 @@ cc.eventManager = {
         if (oneByOneListeners) {
             for (var i = 0; i < originalTouches.length; i++) {
                 event.currentTouch = originalTouches[i];
+                event._propagationStopped = event._propagationImmediateStopped = false;
                 this._dispatchEventToListeners(oneByOneListeners, this._onTouchEventCallback, oneByOneArgsObj);
-                if (event.isStopped())
-                    return;
             }
         }
 
@@ -581,7 +581,7 @@ cc.eventManager = {
 
         // If the event was stopped, return directly.
         if (event.isStopped()) {
-            cc.eventManager._updateTouchListeners(event);
+            eventManager._updateTouchListeners(event);
             return true;
         }
         return false;
@@ -818,7 +818,7 @@ cc.eventManager = {
             isFound = this._removeListenerInVector(sceneGraphPriorityListeners, listener);
             if (isFound){
                 // fixed #4160: Dirty flag need to be updated after listeners were removed.
-               this._setDirty(listener._getListenerID(), this.DIRTY_SCENE_GRAPH_PRIORITY);
+                this._setDirty(listener._getListenerID(), this.DIRTY_SCENE_GRAPH_PRIORITY);
             }else{
                 isFound = this._removeListenerInVector(fixedPriorityListeners, listener);
                 if (isFound)
@@ -1053,7 +1053,7 @@ cc.eventManager = {
         this._updateDirtyFlagForSceneGraph();
         this._inDispatch++;
         if(!event || !event.getType)
-            throw new Error("event is undefined");
+            throw new Error(cc._getError(3511));
         if (event.getType().startsWith(cc.Event.TOUCH)) {
             this._dispatchTouchEvent(event);
             this._inDispatch--;
@@ -1090,3 +1090,11 @@ cc.eventManager = {
         this.dispatchEvent(ev);
     }
 };
+
+
+js.get(cc, 'eventManager', function () {
+    cc.warnID(1405, 'cc.eventManager', 'cc.EventTarget or cc.systemEvent');
+    return eventManager;
+});
+
+module.exports = eventManager;

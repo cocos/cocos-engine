@@ -32,6 +32,7 @@ var SerializableAttrs = {
     default: {},
     serializable: {},
     editorOnly: {},
+    formerlySerializedAs: {}
 };
 
 var TYPO_TO_CORRECT_DEV = CC_DEV && {
@@ -166,11 +167,37 @@ function getBaseClassWherePropertyDefined_DEV (propName, cls) {
     }
 }
 
-exports.getFullFormOfProperty = function (options) {
-    // TODO - deprecate `variable: cc.Texture2D,` from 1.7
+exports.getFullFormOfProperty = function (options, propname_dev, classname_dev) {
     var isLiteral = options && options.constructor === Object;
     if ( !isLiteral ) {
         if (Array.isArray(options) && options.length > 0) {
+            var type = options[0];
+            if (CC_DEV && cc.RawAsset.wasRawAssetType(type)) {
+                // deprecate `myProp: [cc.Texture2D]` since 1.8
+                cc.warn('Please change the definition of property \'%s\' in class \'%s\'. Starting from v1.8,\n' +
+                        'properties in CCClass can not be abbreviated if they are of type RawAsset.\n' +
+                        'Please use the complete form.\n' +
+                        'For example, if property is Texture2D\'s url array, the previous definition is:\n' +
+                        '    %s: [cc.Texture2D]\n' +
+                        'now it should be changed to:\n' +
+                        '    %s: {\n' +
+                        '      url: cc.Texture2D,  // use \'url:\' to define a url array for Texture2D\n' +
+                        '      default: []\n' +
+                        '    }\n' +
+                        'or more preferably:\n' +
+                        '    %s: {\n' +
+                        '      type: cc.Texture2D, // use \'type:\' to define an array of Texture2D objects\n' +
+                        '      default: []\n' +
+                        '    }\n' +
+                        '(This helps us to successfully refactor all RawAssets at v2.0, ' +
+                        'sorry for the inconvenience. \uD83D\uDE30 )',
+                        propname_dev, classname_dev, propname_dev, propname_dev, propname_dev);
+                return {
+                    default: [],
+                    url: options,
+                    _short: true
+                };
+            }
             return {
                 default: [],
                 type: options,
@@ -179,20 +206,43 @@ exports.getFullFormOfProperty = function (options) {
         }
         else if (typeof options === 'function') {
             var type = options;
-            if (cc.RawAsset.isRawAssetType(type) || cc.RawAsset.wasRawAssetType(type)) {
-                return {
-                    default: '',
-                    url: type,
-                    _short: true
-                };
+            if (!cc.RawAsset.isRawAssetType(type)) {
+                if (cc.RawAsset.wasRawAssetType(type)) {
+                    // deprecate `myProp: cc.Texture2D` since 1.8
+                    if (CC_DEV) {
+                        cc.warn('Please change the definition of property \'%s\' in class \'%s\'. Starting from v1.8,\n' +
+                                'properties in CCClass can not be abbreviated if they are of type RawAsset.\n' +
+                                'Please use the complete form.\n' +
+                                'For example, if the type is Texture2D, the previous definition is:\n' +
+                                '    %s: cc.Texture2D\n' +
+                                'now it should be changed to:\n' +
+                                '    %s: {\n' +
+                                '      url: cc.Texture2D  // use \'url:\' to define url for Texture2D\n' +
+                                '      default: "",       // url\'s default value is empty string\n' +
+                                '    }\n' +
+                                'or more preferably:\n' +
+                                '    %s: {\n' +
+                                '      type: cc.Texture2D // use \'type:\' to define Texture2D object directly\n' +
+                                '      default: null,     // object\'s default value of is null\n' +
+                                '    }\n' +
+                                '(This helps us to successfully refactor all RawAssets at v2.0, ' +
+                                'sorry for the inconvenience. \uD83D\uDE30 )',
+                                propname_dev, classname_dev, propname_dev, propname_dev, propname_dev);
+                    }
+                }
+                else {
+                    return {
+                        default: cc.isChildClassOf(type, cc.ValueType) ? new type() : null,
+                        type: type,
+                        _short: true
+                    };
+                }
             }
-            else {
-                return {
-                    default: cc.isChildClassOf(type, cc.ValueType) ? new type() : null,
-                    type: type,
-                    _short: true
-                };
-            }
+            return {
+                default: '',
+                url: type,
+                _short: true
+            };
         }
         else {
             return {
@@ -207,7 +257,7 @@ exports.getFullFormOfProperty = function (options) {
 exports.preprocessAttrs = function (properties, className, cls, es6) {
     for (var propName in properties) {
         var val = properties[propName];
-        var fullForm = exports.getFullFormOfProperty(val);
+        var fullForm = exports.getFullFormOfProperty(val, propName, className);
         if (fullForm) {
             val = properties[propName] = fullForm;
         }

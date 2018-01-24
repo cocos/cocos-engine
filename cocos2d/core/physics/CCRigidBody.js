@@ -213,7 +213,7 @@ var RigidBody = cc.Class({
                 this._allowSleep = value;
 
                 if (this._b2Body) {
-                    this._b2Body.SetAllowSleeping(value);
+                    this._b2Body.SetSleepingAllowed(value);
                 }
             }
         },

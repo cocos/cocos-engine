@@ -38,9 +38,6 @@ const HandleErrors = require('../util/handleErrors');
 const Es = require('event-stream');
 
 const Sourcemaps = require('gulp-sourcemaps');
-const Composer = require('gulp-uglify/composer');
-const Uglify = require('uglify-es');
-const Minify = Composer(Uglify, console);
 
 const Utils = require('../util/utils');
 const createBundler = require('../util/create-bundler');
@@ -63,7 +60,7 @@ exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFi
         }
 
         // remove `...args` used in CC_JSB
-        engine = engine.pipe(Minify(Utils.getUglifyOptions('test', false, false)));
+        engine = engine.pipe(Utils.uglify('test'));
 
         if (sourcemaps) {
             engine = engine.pipe(Sourcemaps.write('./', {

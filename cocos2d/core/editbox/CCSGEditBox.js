@@ -33,6 +33,7 @@ var DELAY_TIME = 400;
 var FOCUS_DELAY_UC = 400;
 var FOCUS_DELAY_FIREFOX = 0;
 var Utils = require('../platform/utils');
+var sys = require('../platform/CCSys');
 
 function adjustEditBoxPosition (editBox) {
     var worldPos = editBox.convertToWorldSpace(cc.p(0,0));
@@ -283,8 +284,8 @@ _ccsg.EditBox = _ccsg.Node.extend({
     },
 
     createDomElementIfNeeded: function () {
-        if(!this._renderCmd._edTxt) {
-            this._renderCmd._createDomTextArea();
+        if (!this._renderCmd._edTxt) {
+            this._renderCmd.setInputMode(this._editBoxInputMode);
         }
     },
 
@@ -543,9 +544,9 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         zoomInvalid: false
     };
 
-    if (cc.sys.OS_ANDROID === cc.sys.os
-        && (cc.sys.browserType === cc.sys.BROWSER_TYPE_SOUGOU
-            || cc.sys.browserType === cc.sys.BROWSER_TYPE_360)) {
+    if (sys.OS_ANDROID === sys.os
+        && (sys.browserType === sys.BROWSER_TYPE_SOUGOU
+            || sys.browserType === sys.BROWSER_TYPE_360)) {
         editbox._polyfill.zoomInvalid = true;
     }
 })(_ccsg.EditBox);
@@ -693,22 +694,40 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         tmpEdTxt.style['-moz-appearance'] = 'textfield';
         tmpEdTxt.style.className = "cocosEditBox";
 
-        tmpEdTxt.addEventListener('input', function () {
+
+        function _inputValueHandle (target) {
             var editBox = thisPointer._editBox;
 
-
-            if (this.value.length > this.maxLength) {
-                this.value = this.value.slice(0, this.maxLength);
+            if (target.value.length > target.maxLength) {
+                target.value = target.value.slice(0, target.maxLength);
             }
 
             if (editBox._delegate && editBox._delegate.editBoxTextChanged) {
-                if (editBox._text !== this.value) {
-                    editBox._text = this.value;
+                if (editBox._text !== target.value) {
+                    editBox._text = target.value;
                     thisPointer._updateDomTextCases();
                     editBox._delegate.editBoxTextChanged(editBox, editBox._text);
                 }
             }
+        }
+
+        var inputLock = false;
+        tmpEdTxt.addEventListener('compositionstart', function () {
+            inputLock = true;
         });
+
+        tmpEdTxt.addEventListener('compositionend', function () {
+            inputLock = false;
+            _inputValueHandle(this);
+        });
+
+        tmpEdTxt.addEventListener('input', function () {
+            if (inputLock) {
+                return;
+            }
+            _inputValueHandle(this);
+        });
+
         tmpEdTxt.addEventListener('keypress', function (e) {
             var editBox = thisPointer._editBox;
 
@@ -737,7 +756,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             this.style.color = cc.colorToHex(editBox._textColor);
             thisPointer._hiddenLabels();
 
-            if (cc.sys.isMobile) {
+            if (sys.isMobile) {
                 thisPointer._onFocusOnMobile(editBox);
             }
 
@@ -790,19 +809,36 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         tmpEdTxt.style.left = LEFT_PADDING + "px";
         tmpEdTxt.style.className = "cocosEditBox";
 
-        tmpEdTxt.addEventListener('input', function () {
-            if (this.value.length > this.maxLength) {
-                this.value = this.value.slice(0, this.maxLength);
+        function _inputValueHandle (target) {
+            if (target.value.length > target.maxLength) {
+                target.value = target.value.slice(0, target.maxLength);
             }
 
             var editBox = thisPointer._editBox;
             if (editBox._delegate && editBox._delegate.editBoxTextChanged) {
-                if(editBox._text.toLowerCase() !== this.value.toLowerCase()) {
-                    editBox._text = this.value;
+                if(editBox._text.toLowerCase() !== target.value.toLowerCase()) {
+                    editBox._text = target.value;
                     thisPointer._updateDomTextCases();
                     editBox._delegate.editBoxTextChanged(editBox, editBox._text);
                 }
             }
+        }
+
+        var inputLock = false;
+        tmpEdTxt.addEventListener('compositionstart', function () {
+            inputLock = true;
+        });
+
+        tmpEdTxt.addEventListener('compositionend', function () {
+            inputLock = false;
+            _inputValueHandle(this);
+        });
+
+        tmpEdTxt.addEventListener('input', function () {
+            if (inputLock) {
+                return;
+            }
+            _inputValueHandle(this);
         });
 
         tmpEdTxt.addEventListener('focus', function () {
@@ -812,7 +848,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             this.style.fontSize = thisPointer._edFontSize + 'px';
             this.style.color = cc.colorToHex(editBox._textColor);
 
-            if (cc.sys.isMobile) {
+            if (sys.isMobile) {
                 thisPointer._onFocusOnMobile(editBox);
             }
 
@@ -851,6 +887,57 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
         this._addDomToGameContainer();
         return tmpEdTxt;
+    };
+
+    proto._createWXInput = function (multiline) {
+        this.removeDom();
+        var thisPointer = this;
+        var tmpEdTxt = this._edTxt = document.createElement("input");
+        tmpEdTxt.type = "text";
+
+        tmpEdTxt.focus = function() {
+            var editBox = thisPointer._editBox;
+            wx.showKeyboard({
+                defaultValue: editBox._text,
+                maxLength: 140,
+                multiple: multiline,
+                confirmHold: true,
+                confirmType: "done",
+                success: function (res) {
+                    editBox._delegate && editBox._delegate.editBoxEditingDidBegan && editBox._delegate.editBoxEditingDidBegan(editBox);
+                },
+                fail: function (res) {
+                    cc.warn(res.errMsg);
+                    thisPointer._endEditing();
+                }
+            });
+            wx.onKeyboardConfirm(function (res) {
+                editBox._text = res.value;
+                thisPointer._updateDomTextCases();
+                editBox._delegate && editBox._delegate.editBoxEditingReturn && editBox._delegate.editBoxEditingReturn(editBox);
+                wx.hideKeyboard({
+                    success: function (res) {
+                        editBox._delegate && editBox._delegate.editBoxEditingDidEnded && editBox._delegate.editBoxEditingDidEnded(editBox);
+                    },
+                    fail: function (res) {
+                        cc.warn(res.errMsg);
+                    }
+                });
+            });
+            wx.onKeyboardInput(function (res) {
+                if (editBox._delegate && editBox._delegate.editBoxTextChanged && editBox._text !== res.value) {
+                    editBox._text = res.value;
+                    thisPointer._updateDomTextCases();
+                    editBox._delegate.editBoxTextChanged(editBox, editBox._text);
+                }
+            });
+            wx.onKeyboardComplete(function () {
+                thisPointer._endEditing();
+                wx.offKeyboardConfirm();
+                wx.offKeyboardInput();
+                wx.offKeyboardComplete();
+            });
+        }
     };
 
     proto._createLabels = function () {
@@ -953,7 +1040,8 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
     proto._showLabels = function () {
         this._hiddenLabels();
-        if (this._edTxt.value === '') {
+        var text = sys.platform === sys.WECHAT_GAME ? this._editBox._text : this._edTxt.value;
+        if (text === '') {
             if(this._placeholderLabel) {
                 this._placeholderLabel.setVisible(true);
                 this._placeholderLabel.setString(this._editBox._placeholderText);
@@ -970,7 +1058,10 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
     proto._beginEditing = function () {
         var self = this;
-        if (!self._editBox._alwaysOnTop) {
+        if (sys.platform === sys.WECHAT_GAME) {
+            this._edTxt.focus();
+        }
+        else if (!self._editBox._alwaysOnTop) {
             if (self._edTxt.style.display === 'none') {
                 self._edTxt.style.display = '';
 
@@ -978,10 +1069,10 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
                     self._edTxt.focus();
                 }
 
-                if (cc.sys.browserType === cc.sys.BROWSER_TYPE_UC) {
+                if (sys.browserType === sys.BROWSER_TYPE_UC) {
                     setTimeout(startFocus, FOCUS_DELAY_UC);
                 }
-                else if (cc.sys.browserType === cc.sys.BROWSER_TYPE_FIREFOX) {
+                else if (sys.browserType === sys.BROWSER_TYPE_FIREFOX) {
                     setTimeout(startFocus, FOCUS_DELAY_FIREFOX);
                 }
                 else {
@@ -990,7 +1081,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             }
         }
 
-        if (cc.sys.isMobile && !self._editingMode) {
+        if (sys.isMobile && !self._editingMode) {
             // Pre adaptation and
             self._beginEditingOnMobile(self._editBox);
         }
@@ -1002,7 +1093,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             this._edTxt.style.display = 'none';
         }
         this._showLabels();
-        if (cc.sys.isMobile && this._editingMode) {
+        if (sys.platform !== sys.WECHAT_GAME && sys.isMobile && this._editingMode) {
             var self = this;
             // Delay end editing adaptation to ensure virtual keyboard is disapeared
             setTimeout(function () {
@@ -1086,7 +1177,6 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             }
         }
 
-
         if (this._editBox._editBoxInputFlag === InputFlag.PASSWORD) {
             this._edTxt.type = 'password';
         }
@@ -1109,7 +1199,10 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto.setInputMode = function (inputMode) {
-        if (inputMode === InputMode.ANY) {
+        if (sys.platform === sys.WECHAT_GAME) {
+            this._createWXInput(inputMode === InputMode.ANY);
+        }
+        else if (inputMode === InputMode.ANY) {
             this._createDomTextArea();
         }
         else {

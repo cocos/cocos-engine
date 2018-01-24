@@ -24,9 +24,19 @@
 
 var BaseObject = dragonBones.BaseObject;
 
-dragonBones.CCFactory = cc.Class({
+var CCFactory = dragonBones.CCFactory = cc.Class({
     name: 'dragonBones.CCFactory',
     extends: dragonBones.BaseFactory,
+
+    statics: {
+        _factory: null,
+        getFactory () {
+            if (!CCFactory._factory) {
+                CCFactory._factory = new CCFactory();
+            }
+            return CCFactory._factory;
+        }
+    },
 
     buildArmatureDisplay : function (armatureName, dragonBonesName, skinName) {
         var armature = this.buildArmature(armatureName, dragonBonesName, skinName);
@@ -36,6 +46,11 @@ dragonBones.CCFactory = cc.Class({
         }
 
         return armatureDisplay;
+    },
+
+    parseTextureAtlasData (jsonString, texture) {
+        var atlasJsonObj = JSON.parse(jsonString);
+        return this._super(atlasJsonObj, texture);
     },
 
     _generateTextureAtlasData : function (textureAtlasData, texture) {
@@ -141,7 +156,7 @@ dragonBones.CCFactory = cc.Class({
                 var offset = cc.p(0, 0);
                 var originSize = cc.size(textureData.region.width, textureData.region.height);
                 textureData.texture = new cc.SpriteFrame();
-                textureData.texture.setTexture(textureAtlasTexture, rect, textureData.rotated, offset, originSize); // TODO multiply textureAtlas
+                textureData.texture.setTexture(textureAtlasTexture, rect, textureData.rotated, offset, originSize);
             }
 
             return new cc.Scale9Sprite(textureData.texture);
@@ -150,11 +165,3 @@ dragonBones.CCFactory = cc.Class({
         return null;
     }
 });
-
-dragonBones.CCFactory._factory = null;
-dragonBones.CCFactory.getFactory = function() {
-    if (!dragonBones.CCFactory._factory) {
-        dragonBones.CCFactory._factory = new dragonBones.CCFactory();
-    }
-    return dragonBones.CCFactory._factory;
-};

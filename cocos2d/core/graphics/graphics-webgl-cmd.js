@@ -207,7 +207,6 @@ function WebGLRenderCmd (renderable) {
     // init shader
     var shader = new cc.GLProgram();
     shader.initWithVertexShaderByteArray(cc.PresetShaders.POSITION_COLOR_VERT, cc.PresetShaders.POSITION_COLOR_FRAG);
-    shader.retain();
     shader.addAttribute(cc.macro.ATTRIBUTE_NAME_POSITION, cc.macro.VERTEX_ATTRIB_POSITION);
     shader.addAttribute(cc.macro.ATTRIBUTE_NAME_COLOR, cc.macro.VERTEX_ATTRIB_COLOR);
     shader.link();

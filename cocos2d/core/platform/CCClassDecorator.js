@@ -146,7 +146,12 @@ function extractActualDefaultValues (ctor) {
 }
 
 function genProperty (ctor, properties, propName, options, desc, cache) {
-    var fullOptions = options && (Preprocess.getFullFormOfProperty(options) || options);
+    var fullOptions;
+    if (options) {
+        fullOptions = CC_DEV ? Preprocess.getFullFormOfProperty(options, propName, JS.getClassName(ctor)) :
+                               Preprocess.getFullFormOfProperty(options);
+        fullOptions = fullOptions || options;
+    }
     var existsProperty = properties[propName];
     var prop = JS.mixin(existsProperty || {}, fullOptions || {});
 

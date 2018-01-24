@@ -321,7 +321,7 @@ var audioEngine = {
      * !#zh 恢复播放指定的音频。
      * @method resume
      * @param {Number} audioID - The return value of function play.
-     * //example
+     * @example
      * cc.audioEngine.resume(audioID);
      */
     resume: function (audioID) {

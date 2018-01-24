@@ -765,13 +765,11 @@ proto.release = function (asset) {
             var removed = this.removeItem(id);
             asset = item.content;
             // TODO: AUDIO
-            if (asset instanceof cc.Asset) {
-                if (asset instanceof cc.Texture2D) {
-                    asset.destroy();
-                }
+            if (cc.Class.isInstanceOf(asset, cc.Asset)) {
                 if (asset.nativeUrl) {
                     this.release(asset.nativeUrl);
                 }
+                asset.destroy();
             }
             if (CC_DEBUG && removed) {
                 this._releasedAssetChecker_DEBUG.setReleased(item, id);

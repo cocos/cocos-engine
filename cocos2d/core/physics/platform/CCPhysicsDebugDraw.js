@@ -6,7 +6,6 @@ var PhysicsDebugDraw = cc.Class({
 
     ctor: function () {
         this._drawer = new _ccsg.GraphicsNode();
-        this._drawer.retain();
     },
 
     getDrawer: function () {

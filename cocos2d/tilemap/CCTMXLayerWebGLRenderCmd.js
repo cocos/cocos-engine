@@ -67,13 +67,14 @@ var proto = _ccsg.TMXLayer.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.W
 proto.constructor = _ccsg.TMXLayer.WebGLRenderCmd;
 
 proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
-    // enable Depth Test
-    cc.renderer.setDepthTest(true);
-
     var node = this._node,
         layerOrientation = node.layerOrientation,
         tiles = node.tiles,
         alpha = node._opacity / 255;
+
+    // enable Depth Test (fix cocos-creator/engine/issues/2046,
+    // but it's not perfect, and the follow-up needs to be improved)
+    cc.renderer.setDepthTest(node.layerOrientation === Orientation.ORTHO);
 
     if (!tiles || alpha <= 0 || !node.tileset) {
         return 0;

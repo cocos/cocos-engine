@@ -81,10 +81,6 @@ var TiledLayer = cc.Class({
 
         if (sgNode && sgNode instanceof _ccsg.TMXLayer) {
             this._sgNode = sgNode;
-            if (CC_JSB) {
-                // retain the new sgNode, it will be released in _removeSgNode
-                sgNode.retain();
-            }
 
             this._initSgNode();
         } else {
@@ -201,7 +197,7 @@ var TiledLayer = cc.Class({
     setTileGID: function(gid, posOrX, flagsOrY, flags) {
         if (this._sgNode) {
             if(posOrX === undefined)
-                throw new Error("_ccsg.TMXLayer.setTileGID(): pos should be non-null");
+                throw new Error(cc._getError(7223));
             var pos;
             if (flags !== undefined || !(posOrX instanceof cc.Vec2)) {
                 // four parameters or posOrX is not a Vec2 object

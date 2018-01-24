@@ -23,10 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-// for cc.DebugMode.INFO_FOR_WEB_PAGE
-var logList;
-
 var Enum = require('./cocos2d/core/platform/CCEnum');
+
+// the html element displays log in web page (cc.DebugMode.INFO_FOR_WEB_PAGE)
+var logList;
 
 /**
  * !#en Enum for debug modes.
@@ -93,10 +93,6 @@ cc.DebugMode = Enum({
 });
 
 /**
- * @module cc
- */
-
-/**
  * !#en Init Debug setting.
  * !#zh 设置调试模式。
  * @method _initDebugSetting
@@ -104,7 +100,7 @@ cc.DebugMode = Enum({
  */
 cc._initDebugSetting = function (mode) {
     // reset
-    cc.log = cc.logID = cc.warn = cc.warnID = cc.error = cc.errorID = cc._throw = cc.assert = cc.assertID = function () { };
+    cc.log = cc.warn = cc.error = cc._throw = cc.assert = function () { };
 
     if (mode === cc.DebugMode.NONE)
         return;
@@ -292,33 +288,15 @@ cc._initDebugSetting = function (mode) {
             cc.info = (scriptEngineType === "JavaScriptCore") ? function () {
                 (console.info || console.log).apply(console, arguments);
             } : (console.info || console.log);
-        } else {
+        }
+        else {
             cc.info = function () {
                 (console.info || console.log).apply(console, arguments);
             };
         }
-
     }
-
-    cc.warnID = genLogFunc(cc.warn, 'Warning');
-    cc.errorID = genLogFunc(cc.error, 'Error');
-    cc.logID = genLogFunc(cc.log, 'Log');
-    var assertFailed = genLogFunc(function () {
-        // actually no need to protect arguments leak here in case of an error...
-        var argsArr = [false];
-        for (var i = 0; i < arguments.length; ++i) {
-            argsArr.push(arguments[i]);
-        }
-        cc.assert.apply(null, argsArr);
-    }, 'Assert');
-    cc.assertID = function (cond) {
-        'use strict';
-        if (cond) {
-            return;
-        }
-        assertFailed.apply(null, cc.js.shiftArguments.apply(null, arguments));
-    };
 };
+
 cc._throw = CC_EDITOR ? Editor.error : function (error) {
     var stack = error.stack;
     if (stack) {
@@ -329,26 +307,56 @@ cc._throw = CC_EDITOR ? Editor.error : function (error) {
     }
 };
 
-var errorMapUrl = 'https://github.com/cocos-creator/engine/blob/master/EngineErrorMap.md';
+// define log methods to lookup message ID
 
-function genLogFunc(func, type) {
-    return function (id) {
-        'use strict';
+const debugInfos = CC_DEBUG && require('./DebugInfos');
+const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/master/EngineErrorMap.md';
+
+function getTypedFormatter (type) {
+    return function () {
+        var id = arguments[0];
+        var msg = CC_DEBUG ? (debugInfos[id] || 'unknown id') : `${type} ${id}, please go to ${ERROR_MAP_URL}#${id} to see details.`;
         if (arguments.length === 1) {
-            CC_DEBUG ? func(cc._LogInfos[id]) : func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details.');
-            return;
+            return msg;
         }
-        if (CC_DEBUG) {
-            let argsArr = cc.js.shiftArguments.apply(null, arguments);
-            func.apply(cc, [cc._LogInfos[id]].concat(argsArr));
-        } else {
-            var msg = '';
-            if (arguments.length === 2) {
-                msg = 'Arguments: ' + arguments[1];
-            } else if (arguments.length > 2) {
-                msg = 'Arguments: ' + cc.js.shiftArguments.apply(null, arguments).join(', ');
-            }
-            func(type + ' ' + id + ', please go to ' + errorMapUrl + '#' + id + ' to see details. ' + msg);
+        else if (arguments.length === 2) {
+            return CC_DEBUG ? cc.js.formatStr(msg, arguments[1]) :
+                msg + ' Arguments: ' + arguments[1];
+        }
+        else {
+            var argsArray = cc.js.shiftArguments.apply(null, arguments);
+            return CC_DEBUG ? cc.js.formatStr.apply(null, [msg].concat(argsArray)) :
+                msg + ' Arguments: ' + argsArray.join(', ');
         }
     };
 }
+
+var logFormatter = getTypedFormatter('Log');
+cc.logID = function () {
+    cc.log(logFormatter.apply(null, arguments));
+};
+
+var warnFormatter = getTypedFormatter('Warning');
+cc.warnID = function () {
+    cc.warn(warnFormatter.apply(null, arguments));
+};
+
+var errorFormatter = getTypedFormatter('Error');
+cc.errorID = function () {
+    cc.error(errorFormatter.apply(null, arguments));
+};
+
+var assertFormatter = getTypedFormatter('Assert');
+cc.assertID = function (cond) {
+    'use strict';
+    if (cond) {
+        return;
+    }
+    cc.assert(false, assertFormatter.apply(null, cc.js.shiftArguments.apply(null, arguments)));
+};
+
+cc._getError = getTypedFormatter('ERROR');
+
+// output all info by default before initialized
+
+cc._initDebugSetting(cc.DebugMode.INFO);

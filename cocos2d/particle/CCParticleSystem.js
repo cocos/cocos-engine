@@ -914,7 +914,7 @@ var ParticleSystem = cc.Class({
             var self = this;
             cc.loader.load(file, function (err, content) {
                 if (err || !content) {
-                    throw err || new Error('Unkown error');
+                    throw err || new Error(cc._getError(6029));
                 }
                 if (!self.isValid) {
                     return;
@@ -982,7 +982,9 @@ var ParticleSystem = cc.Class({
         this._blendFunc.dst = this._dstBlendFactor;
         sgNode.setBlendFunc(this._blendFunc);
 
-        sgNode.texture = this._texture;
+        if (this._texture) {
+            sgNode.texture = this._texture;
+        }
 
         // recover sgNode properties
         if (!active) {

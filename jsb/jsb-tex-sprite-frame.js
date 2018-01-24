@@ -59,6 +59,12 @@ prototype.addImage = function (url, cb, target) {
         cc.warn('textureCache.addImage(url) - The type of the url should be string, not Texture2D. You don\'t need to call addImage if you already have the texture object.');
         url = url.url;
     }
+
+    var md5Pipe = cc.loader.md5Pipe;
+    if (md5Pipe) {
+        url = md5Pipe.transformURL(url);
+    }
+
     if (typeof cb === "function") {
         return this.addImageAsync(url, cb, target);
     }

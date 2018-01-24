@@ -136,7 +136,7 @@ proto.updateClearColor = function(clearColor){ };
 proto.initWithWidthAndHeight = function(width, height, format, depthStencilFormat){
     var node = this._node;
     if(format === cc.Texture2D.PixelFormat.A8)
-        cc.log( "cc.RenderTexture._initWithWidthAndHeightForWebGL() : only RGB and RGBA formats are valid for a render texture;");
+        cc.logID(7601);
 
     var gl = cc._renderContext;
     this._fullRect = new cc.Rect(0,0, width, height);
@@ -206,7 +206,7 @@ proto.initWithWidthAndHeight = function(width, height, format, depthStencilForma
 
     // check if it worked (probably worth doing :) )
     if(gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE)
-        cc.log("Could not attach texture to the framebuffer");
+        cc.logID(7602);
 
     locTexture.setAliasTexParameters();
 

@@ -23,6 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 var JS = require('../platform/js');
+var sys = require('../platform/CCSys');
 var Path = require('../utils/CCPath');
 var misc = require('../utils/misc');
 var Pipeline = require('./pipeline');
@@ -41,6 +42,12 @@ else {
 }
 
 function downloadScript (item, callback, isAsync) {
+    if (sys.platform === sys.WECHAT_GAME) {
+        require(item.url);
+        callback(null, item.url);
+        return;
+    }
+
     var url = item.url,
         d = document,
         s = document.createElement('script');
@@ -56,7 +63,7 @@ function downloadScript (item, callback, isAsync) {
         s.parentNode.removeChild(s);
         s.removeEventListener('load', loadHandler, false);
         s.removeEventListener('error', errorHandler, false);
-        callback(new Error('Load ' + url + ' failed!'), url);
+        callback(new Error(cc._getError(4928, url)));
     }
     s.addEventListener('load', loadHandler, false);
     s.addEventListener('error', errorHandler, false);
@@ -65,7 +72,7 @@ function downloadScript (item, callback, isAsync) {
 
 function downloadWebp (item, callback, isCrossOrigin, img) {
     if (!cc.sys.capabilities.webp) {
-        return new Error('Load Webp ( ' + item.url + ' ) failed');
+        return new Error(cc._getError(4929, item.url));
     }
     return downloadImage(item, callback, isCrossOrigin, img);
 }
@@ -104,7 +111,7 @@ function downloadImage (item, callback, isCrossOrigin, img) {
                 downloadImage(item, callback, false, img);
             }
             else {
-                callback(new Error('Load image (' + url + ') failed'));
+                callback(new Error(cc._getError(4930, url)));
             }
         }
 
@@ -277,6 +284,7 @@ var Downloader = function (extMap) {
     this.extMap = JS.mixin(extMap, defaultMap);
 };
 Downloader.ID = ID;
+Downloader.PackDownloader = PackDownloader;
 
 /**
  * Add custom supported types handler or modify existing type handler.

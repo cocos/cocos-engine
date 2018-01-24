@@ -127,7 +127,13 @@ function loadDepends (pipeline, item, asset, depends, callback) {
             if (item) {
                 var thisOfLoadCallback = dep;
                 function loadCallback (item) {
-                    var value = this._stillUseUrl ? item.rawUrl : item.content;
+                    var value;
+                    if (this._stillUseUrl) {
+                        value = (item.content instanceof cc.Texture2D) ? item.content.nativeUrl : item.rawUrl
+                    }
+                    else {
+                        value = item.content;
+                    }
                     this._owner[this._ownerProp] = value;
                     if (item.uuid !== asset._uuid && dependKeys.indexOf(item.id) < 0) {
                         dependKeys.push(item.id);
@@ -179,7 +185,7 @@ function canDeferredLoad (asset, item, isScene) {
     var res = item.deferredLoadRaw;
     if (res) {
         // check if asset support deferred
-        if (asset instanceof cc.Asset && asset.constructor.preventDeferredLoadDependents) {
+        if (cc.Class.isInstanceOf(asset, cc.Asset) && asset.constructor.preventDeferredLoadDependents) {
             res = false;
         }
     }
@@ -207,14 +213,14 @@ function loadUuid (item, callback) {
             json = JSON.parse(item.content);
         }
         catch (e) {
-            return new Error('Uuid Loader: Parse asset [' + item.id + '] failed : ' + e.stack);
+            return new Error(cc._getError(4923, item.id, e.stack));
         }
     }
     else if (typeof item.content === 'object') {
         json = item.content;
     }
     else {
-        return new Error('JSON Loader: Input item doesn\'t contain string content');
+        return new Error(cc._getError(4924));
     }
 
     var classFinder;
@@ -259,7 +265,7 @@ function loadUuid (item, callback) {
     catch (e) {
         cc.deserialize.Details.pool.put(tdInfo);
         var err = CC_JSB ? (e + '\n' + e.stack) : e.stack;
-        return new Error('Uuid Loader: Deserialize asset [' + item.id + '] failed : ' + err);
+        return new Error(cc._getError(4925, item.id, err));
     }
 
     asset._uuid = item.uuid;

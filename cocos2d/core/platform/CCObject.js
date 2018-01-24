@@ -12,6 +12,7 @@ var Dirty = 1 << 5;
 var DontDestroy = 1 << 6;
 var Destroying = 1 << 7;
 var Deactivating = 1 << 8;
+var LockedInEditor = 1 << 9;
 //var HideInGame = 1 << 9;
 //var HideInEditor = 1 << 10;
 
@@ -108,6 +109,15 @@ JS.value(CCObject, 'Flags', {
      * @private
      */
     Deactivating,
+
+    /**
+     * !#en The lock node, when the node is locked, cannot be clicked in the scene.
+     * !#zh 锁定节点，锁定后场景内不能点击
+     * 
+     * @property LockedInEditor
+     * @private
+     */
+    LockedInEditor,
 
     ///**
     // * !#en
@@ -341,7 +351,7 @@ function compileDestruct (obj, ctor) {
     // compile code
     var skipId = obj instanceof cc._BaseNode || obj instanceof cc.Component;
 
-    if (cc.supportJit) {
+    if (CC_SUPPORT_JIT) {
         var func = '';
         for (key in propsToReset) {
             if (skipId && key === '_id') {

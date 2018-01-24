@@ -1,5 +1,5 @@
 if (CC_DEBUG) {
-    var logs = {
+    module.exports = {
         // Common
         "0100": "%s not yet implemented.",
         //ActionManager: 1000
@@ -24,6 +24,16 @@ if (CC_DEBUG) {
         "1018": "Grid size must be (1,1)", //ActionGrid3D.initWithSize
         "1019": "Failed to construct, Sequence construction needs two or more actions", //ActionInterval.sequence
         "1020": "Failed to construct, Spawn construction needs two or more actions", //ActionInterval.spawn
+        "1021": "cc.Speed.initWithAction(): action must be non nil", //cc.Speed.initWithAction
+        "1022": "cc.Follow.initWithAction(): followedNode must be non nil", //cc.Follow.initWithAction
+        "1023": "cc.ActionEase.initWithAction(): action must be non nil", //cc.ActionEase.initWithAction
+        "1024": "Invalid configuration. It must at least have one control point", //cc.CardinalSplineTo.initWithDuration
+        "1025": "cc.Sequence.initWithTwoActions(): arguments must all be non nil", //cc.Sequence.initWithTwoActions
+        "1026": "cc.RepeatForever.initWithAction(): action must be non null", //cc.RepeatForever.initWithAction
+        "1027": "cc.Spawn.initWithTwoActions(): arguments must all be non null", //cc.Spawn.initWithAction
+        "1028": "cc.ReverseTime.initWithAction(): action must be non null", //cc.ReverseTime.initWithAction
+        "1029": "cc.ReverseTime.initWithAction(): the action was already passed in.", //cc.ReverseTime.initWithAction
+        "1030": "cc.Animate.initWithAnimation(): animation must be non-NULL", //cc.Animate.initWithAction
         //configuration: 1100
         "1100": "Expected 'data' dict, but not found. Config file: %s", //loadConfigFile
         "1101": "Please load the resource first : %s", //loadConfigFile_2
@@ -257,6 +267,7 @@ if (CC_DEBUG) {
         "3508": "If program goes here, there should be event in dispatch.", //_updateListeners
         "3509": "_inDispatch should be 1 here.", //_updateListeners_2
         "3510": "%s's scene graph node not contains in the parent's children", //SceneGraphHelper._getChildrenOffset
+        "3511": "event is undefined",
         //Class: 3600
         "3600": "cc.Class will automatically call super constructor of %s, you should not call it manually.", //Class.callSuperCtor
         "3601": "The editor property 'playOnFocus' should be used with 'executeInEditMode' in class '%s'", //playOnFocus
@@ -339,13 +350,14 @@ if (CC_DEBUG) {
                 "    set %s (value) {\n" +
                 "      ...\n" +
                 "    }",
-        "3656": "The default value of %s.%s must be an empty string. (changed since 1.7)", //getTypeChecker_4
-        "3657": "The value assigned to %s should be Texture2D type, not url. Since 1.7,\n" +
-                "you can declare a texture directly in properties by using:\n" +
+        "3656": "The default value of %s.%s must be an empty string. (changed since 1.8)",
+        "3657": "The value assigned to %s should be Texture2D object, not url string. Since 1.8,\n" +
+                "you can declare a texture object directly in properties by using:\n" +
                 "{\n" +
                 "  default: null,\n" +
                 "  type: cc.Texture2D  // use 'type:' instead of 'url:'\n" +
                 "}",
+        "3658": "browser does not support getters",//defineGetterSetter
         //Prefab: 3700
         "3700": "internal error: _prefab is undefined", //_doInstantiate
         "3701": "Failed to load prefab asset for node '%s'", //syncWithPrefab
@@ -370,6 +382,7 @@ if (CC_DEBUG) {
         "3817": "Sorry, the component of '%s' which with an index of %s is corrupted! It has been removed.",
         "3818": "Failed to read or parse project.json", //_loadConfig
         "3819": "Warning: target element is not a DIV or CANVAS", //_initRenderer
+        "3820": "The renderer doesn't support the renderMode %s", //_initRenderer
         //Animation: 3900
         "3900": "Invalid clip to add", //addClip
         "3901": "Invalid clip to remove", //removeClip
@@ -383,6 +396,7 @@ if (CC_DEBUG) {
         "3909": "[animate] keyFrames must be non-nil", //animate
         "3910": "[animate] ratio should >= 0!", //_doAnimate
         "3911": "[animate] ratio should in the order of smallest to largest!", //_doAnimate_2
+        "3912": "already-playing", //playable play
         //Label: 4000
         "4000": "Sorry, the cc.Font has been modified from Raw Asset to Asset. Please load the font asset before using.", //font
         "4001": "_ccsg.Label._initBMFontWithString(): Impossible to create font. Please check file", //_setBMFontFile
@@ -437,6 +451,15 @@ if (CC_DEBUG) {
         "4920": "Sorry, you shouldn\'t use id as item identity any more, please use url or uuid instead, the current id is being set as url: (%s)", // load
         "4921": "Invalid pipe or invalid index provided!", //pipeline.insertPipe
         "4922": "The pipe to be inserted is already in the pipeline!", //pipeline.insertPipe
+        "4923": "Uuid Loader: Parse asset [ %s ] failed : %s", // uuid-loader
+        "4924": "JSON Loader: Input item doesn\\'t contain string content",// uuid-loader
+        "4925": "Uuid Loader: Deserialize asset [ %s ] failed : %s",// uuid-loader
+        "4926": "Audio Downloader: no web audio context.",// audio-downloader
+        "4927": "Audio Downloader: audio not supported on this browser!",// audio-downloader
+        "4928": "Load %s failed!",// downloadScript
+        "4929": "Load Webp ( %s ) failed",// downloadWebp
+        "4930": "Load image ( %s ) failed",// downloadImage
+        "4931": "Download Uuid: can not find type of raw asset[ %s ]: %s",//asset-loader
         //CCObject: 5000
         "5000": "object already destroyed", //destroy
         "5001": "object not yet destroyed", //realDestroyInEditor
@@ -445,6 +468,7 @@ if (CC_DEBUG) {
         //CCSys: 5200
         "5200": "Warning: localStorage isn't enabled. Please confirm browser cookie or privacy option", //localStorage
         "5201": "browser don't support web audio", //audio
+        "5202": "This feature supports WebGL render mode only.", //_checkWebGLRenderMode
         //Deserialize: 5300
         "5300": "Type of target to deserialize not matched with data: target is %s, data is %s", //_deserializeObject
         "5301": "Can not find script '%s'", //reportMissingClass
@@ -509,6 +533,19 @@ if (CC_DEBUG) {
         "6014": "Can't change blending functions when the particle is being batched", //_updateBlendFunc
         "6015": "_ccsg.ParticleSystem.setDisplayFrame(): QuadParticle only supports SpriteFrames with no offsets", //setDisplayFrame
         "6016": "_ccsg.ParticleSystem._allocMemory(): Memory should not be allocated when not using batchNode", //WebGLRenderCmd._allocMemory
+        "6017": "Incomplete or corrupt PNG file", //CCPNGReader
+        "6018": "Invalid filter algorithm: %s",//CCPNGReader
+        "6019": "Invalid byte order value.", //CCTIFFReader checkLittleEndian
+        "6020": "You forgot your towel!", //CCTIFFReader hasTowel
+        "6021": "Unknown Field Tag: %s", //CCTIFFReader hasTowel
+        "6022": "Too many bits requested", //CCTIFFReader getBits
+        "6023": "No bits requested", //CCTIFFReader getBits
+        "6024": "Cannot recover from missing StripByteCounts", //CCTIFFReader parseTIFF
+        "6025": "Cannot handle sub-byte bits per sample", //CCTIFFReader parseTIFF
+        "6026": "Cannot handle sub-byte bits per pixel", //CCTIFFReader parseTIFF
+        "6027": "Palette image missing color map", //CCTIFFReader parseTIFF
+        "6028": "Unknown Photometric Interpretation: %s", //CCTIFFReader parseTIFF
+        "6029": "Unkown error", //CCParticleSystem _applyFile
         //Compatible: 6100
         "6100": "Not supported file types, Please try use the ccs.load", //widgetFromJsonFile
         //CCFactory: 6200
@@ -530,6 +567,9 @@ if (CC_DEBUG) {
         "6700": "Can't init canvas '%s' because it conflicts with the existing '%s', the scene should only have one active canvas at the same time", //__preload
         "6701": "Should not add Canvas to a node which already contains a renderer component (%s).", //__preload_2
         "6702": "Should not add Canvas to a node which size is already used by its other component.", //__preload_3
+        "6703": "Can't initialise DrawingPrimitiveWebGL. context need is WebGLRenderingContext",//DrawingPrimitiveWebGL
+        "6704": "Polygon's point must greater than 2",//DrawingPrimitiveCanvas drawPoly
+        "6705": "Argument must be non-nil",//DrawingPrimitiveCanvas drawPoly
         //EventTarget: 6800
         "6800": "Callback of event must be non-nil", //on
         "6801": "The message must be provided", //emit
@@ -569,6 +609,22 @@ if (CC_DEBUG) {
         "7217": "cocos2d: TMXFomat: Unsupported orientation: %s", //parseXMLFile
         "7218": "cc.TMXMapInfo.parseXMLFile(): unsupported compression method", //_parseLayer
         "7219": "cc.TMXMapInfo.parseXMLFile(): Only base64 and/or gzip/zlib maps are supported", //_parseLayer
+        "7220": "cc.TMXMapInfo.parseXMLFile(): please load the xml resource first: %s", // parseXMLFile
+        "7221": "cc.TMXMapInfo.parseXMLFile(): Texture '%s' not found.",
+        "7222": "Parse %s failed.",// tiled-map
+        "7223": "_ccsg.TMXLayer.setTileGID(): pos should be non-null",//CCTiledLayer setTileGID
+        "7224": "_ccsg.TMXTiledMap.getLayer(): layerName should be non-null or non-empty string.",//CCSGTMXTiledMap getLayer
+        "7225": "_ccsg.TMXTiledMap.getObjectGroup(): groupName should be non-null or non-empty string.",//CCSGTMXTiledMap getObjectGroup
+        "7226": "_ccsg.TMXLayer.getTileAt(): pos should be non-null",//CCSGTMXLayer getTileAt
+        "7227": "_ccsg.TMXLayer.getTileAt(): invalid position",//CCSGTMXLayer getTileAt
+        "7228": "_ccsg.TMXLayer.getTileGIDAt(): pos should be non-null",//CCSGTMXLayer getTileGIDAt
+        "7229": "_ccsg.TMXLayer.getTileGIDAt(): invalid position",//CCSGTMXLayer getTileGIDAt
+        "7230": "_ccsg.TMXLayer.setTileGID(): pos should be non-null",//CCSGTMXLayer setTileGID
+        "7231": "_ccsg.TMXLayer.setTileGID(): invalid position",//CCSGTMXLayer setTileGID
+        "7232": "_ccsg.TMXLayer.getTileFlagsAt(): pos should be non-null",//CCSGTMXLayer getTileFlagsAt
+        "7233": "_ccsg.TMXLayer.getTileFlagsAt(): invalid position",//CCSGTMXLayer getTileFlagsAt
+        "7234": "_ccsg.TMXLayer.removeTileAt(): pos should be non-null",//CCSGTMXLayer removeTileAt
+        "7235": "_ccsg.TMXLayer.removeTileAt(): invalid position",//CCSGTMXLayer removeTileAt
         //Wrapper: 7300
         "7300": "The new selected must be number", //CheckBox.selected
         "7301": "The new bake must be boolean", //layer
@@ -590,6 +646,12 @@ if (CC_DEBUG) {
         "7510": "Spine: Animation not found: %s", //addAnimation
         //Render: 7600
         "7600": "The context of RenderTexture is invalid.", //_renderingToCacheCanvas
+        "7601": "cc.RenderTexture._initWithWidthAndHeightForWebGL() : only RGB and RGBA formats are valid for a render texture;", //CCRenderTextureWebGLRenderCmd initWithWidthAndHeight
+        "7602": "Could not attach texture to the framebuffer",//CCRenderTextureWebGLRenderCmd initWithWidthAndHeight
+        "7603": "clearDepth isn't supported on Cocos2d-Html5",//CCRenderTextureWebGLRenderCmd clearDepth
+        "7604": "saveToFile isn't supported on Cocos2d-Html5",//CCRenderTexture saveToFile
+        "7605": "newCCImage isn't supported on Cocos2d-Html5",//CCRenderTexture newCCImage
+
         //VideoPlayer: 7700
         "7700": "On the web is always keep the aspect ratio", //setKeepAspectRatioEnabled
         "7701": "Can't know status", //isFullScreenEnabled
@@ -610,6 +672,8 @@ if (CC_DEBUG) {
         "7905": "cc.math.mat4Assign(): pOut equals pIn", //mat4AssignSIMD
         "7906": "cc.mat.Matrix4.assignFrom(): mat4 equals current matrix", //assignFromSIMD
         "7907": "cc.math.Matrix4 equals: pMat1 and pMat2 are same object.", //equalsSIMD
+        "7908": "Invalid matrix mode specified", //glGetMatrix glMatrixMode
+        "7909": "current quaternion is an invalid value",// quaternion.js normalize
         //Reader: 8000
         "8000": "Can't handle this field type or size", //TIFF.getFieldValues
         "8001": "No bytes requested", //TIFF.getBytes
@@ -622,6 +686,10 @@ if (CC_DEBUG) {
         "8103": "cc.GLProgram.link(): Cannot link invalid program", //link
         "8104": "cocos2d: ERROR: Failed to link program: %s", //link
         "8105": "cocos2d: cc.shaderCache._loadDefaultShader, error shader type", //_loadDefaultShader
+        "8106": "Please load the resource firset : %s", //CCGLProgram initWithVertexShaderFilename
+        "8107": "cc.GLProgram.getUniformLocationForName(): uniform name should be non-null", //CCGLProgram getUniformLocationForName
+        "8108": "cc.GLProgram.getUniformLocationForName(): Invalid operation. Cannot get uniform location when program is not initialized", //CCGLProgram getUniformLocationForName
+        "8109": "modelView matrix is undefined.", //CCGLProgram _setUniformForMVPMatrixWithMat4
         //Physics: 8200
         "8200": "Please set node\'s active instead of rigidbody\'s enabled.", //cc.RigidBody.enabled
         //Camera: 8300
@@ -630,16 +698,4 @@ if (CC_DEBUG) {
         // AudioEngine: 8400
         "8400": "Wrong type arguments, 'filePath' must be a String.", // cc.audioEngine.play
     };
-    cc._LogInfos = logs;
 }
-
-// module.exports = false;
-
-// // Only Node.JS has a process variable that is of [[Class]] process
-// try {
-//     module.exports = Object.prototype.toString.call(global.process) === '[object process]';
-//     module.exports = logs;
-// } catch (e) {
-
-//     cc._LogInfos = logs;
-// }
