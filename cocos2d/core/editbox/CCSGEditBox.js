@@ -694,21 +694,40 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         tmpEdTxt.style['-moz-appearance'] = 'textfield';
         tmpEdTxt.style.className = "cocosEditBox";
 
-        tmpEdTxt.addEventListener('input', function () {
+
+        function _inputValueHandle (target) {
             var editBox = thisPointer._editBox;
 
-            if (this.value.length > this.maxLength) {
-                this.value = this.value.slice(0, this.maxLength);
+            if (target.value.length > target.maxLength) {
+                target.value = target.value.slice(0, target.maxLength);
             }
 
             if (editBox._delegate && editBox._delegate.editBoxTextChanged) {
-                if (editBox._text !== this.value) {
-                    editBox._text = this.value;
+                if (editBox._text !== target.value) {
+                    editBox._text = target.value;
                     thisPointer._updateDomTextCases();
                     editBox._delegate.editBoxTextChanged(editBox, editBox._text);
                 }
             }
+        }
+
+        var inputLock = false;
+        tmpEdTxt.addEventListener('compositionstart', function () {
+            inputLock = true;
         });
+
+        tmpEdTxt.addEventListener('compositionend', function () {
+            inputLock = false;
+            _inputValueHandle(this);
+        });
+
+        tmpEdTxt.addEventListener('input', function () {
+            if (inputLock) {
+                return;
+            }
+            _inputValueHandle(this);
+        });
+
         tmpEdTxt.addEventListener('keypress', function (e) {
             var editBox = thisPointer._editBox;
 
@@ -790,19 +809,36 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         tmpEdTxt.style.left = LEFT_PADDING + "px";
         tmpEdTxt.style.className = "cocosEditBox";
 
-        tmpEdTxt.addEventListener('input', function () {
-            if (this.value.length > this.maxLength) {
-                this.value = this.value.slice(0, this.maxLength);
+        function _inputValueHandle (target) {
+            if (target.value.length > target.maxLength) {
+                target.value = target.value.slice(0, target.maxLength);
             }
 
             var editBox = thisPointer._editBox;
             if (editBox._delegate && editBox._delegate.editBoxTextChanged) {
-                if(editBox._text.toLowerCase() !== this.value.toLowerCase()) {
-                    editBox._text = this.value;
+                if(editBox._text.toLowerCase() !== target.value.toLowerCase()) {
+                    editBox._text = target.value;
                     thisPointer._updateDomTextCases();
                     editBox._delegate.editBoxTextChanged(editBox, editBox._text);
                 }
             }
+        }
+
+        var inputLock = false;
+        tmpEdTxt.addEventListener('compositionstart', function () {
+            inputLock = true;
+        });
+
+        tmpEdTxt.addEventListener('compositionend', function () {
+            inputLock = false;
+            _inputValueHandle(this);
+        });
+
+        tmpEdTxt.addEventListener('input', function () {
+            if (inputLock) {
+                return;
+            }
+            _inputValueHandle(this);
         });
 
         tmpEdTxt.addEventListener('focus', function () {

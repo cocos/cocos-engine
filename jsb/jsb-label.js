@@ -113,7 +113,10 @@ jsbLabel.prototype.setLineHeight = function (height) {
         this._setLineHeight(height);
     }
     else {
-        cc.warnID(4013);
+        // Todo support setLineHeight for Native
+        if (40 !== height) {
+            cc.warnID(4013);
+        }
     }
 };
 

@@ -26,6 +26,7 @@
 
 var PrefabHelper = require('./utils/prefab-helper');
 var SgHelper = require('./utils/scene-graph-helper');
+var eventManager = require('./event-manager');
 
 var Flags = cc.Object.Flags;
 var Destroying = Flags.Destroying;
@@ -334,7 +335,7 @@ function _searchMaskInParent (node) {
 function updateOrder (node) {
     node._parent._delaySort();
     if (!CC_JSB) {
-        cc.eventManager._setDirtyForNode(node);
+        eventManager._setDirtyForNode(node);
     }
 }
 
@@ -933,7 +934,7 @@ var Node = cc.Class({
                 _ccsg.Node.prototype.onEnter.call(this);
                 if (this._entity && !this._entity._active) {
                     ActionManagerExist && cc.director.getActionManager().pauseTarget(this);
-                    cc.eventManager.pauseTarget(this);
+                    eventManager.pauseTarget(this);
                 }
             };
         }
@@ -1022,7 +1023,7 @@ var Node = cc.Class({
             for (; i < len; i++) {
                 sibling = siblings[i]._sgNode;
                 sibling._arrivalOrder = i;
-                cc.eventManager._setDirtyForNode(sibling);
+                eventManager._setDirtyForNode(sibling);
             }
             cc.renderer.childrenOrderDirty = true;
             parent._sgNode._reorderChildDirty = true;
@@ -1065,7 +1066,7 @@ var Node = cc.Class({
             cc.director.__fastOff(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
         }
 
-        cc.eventManager.removeListeners(this);
+        eventManager.removeListeners(this);
 
         if (!destroyByParent) {
             this._removeSgNode();
@@ -1086,7 +1087,7 @@ var Node = cc.Class({
         if (active) {
             // activate
             actionManager && actionManager.resumeTarget(this);
-            cc.eventManager.resumeTarget(this);
+            eventManager.resumeTarget(this);
             if (this._touchListener) {
                 var mask = this._touchListener.mask = _searchMaskInParent(this);
                 if (this._mouseListener) {
@@ -1100,7 +1101,7 @@ var Node = cc.Class({
         else {
             // deactivate
             actionManager && actionManager.pauseTarget(this);
-            cc.eventManager.pauseTarget(this);
+            eventManager.pauseTarget(this);
         }
     },
 
@@ -1134,7 +1135,7 @@ var Node = cc.Class({
             if (ActionManagerExist) {
                 cc.director.getActionManager().pauseTarget(this);
             }
-            cc.eventManager.pauseTarget(this);
+            eventManager.pauseTarget(this);
         }
 
         var children = this._children;
@@ -1195,7 +1196,7 @@ var Node = cc.Class({
                 if (CC_JSB) {
                     this._touchListener.retain();
                 }
-                cc.eventManager.addListener(this._touchListener, this);
+                eventManager.addListener(this._touchListener, this);
                 newAdded = true;
             }
         }
@@ -1214,14 +1215,14 @@ var Node = cc.Class({
                 if (CC_JSB) {
                     this._mouseListener.retain();
                 }
-                cc.eventManager.addListener(this._mouseListener, this);
+                eventManager.addListener(this._mouseListener, this);
                 newAdded = true;
             }
         }
         if (newAdded && !this._activeInHierarchy) {
             cc.director.getScheduler().schedule(function () {
                 if (!this._activeInHierarchy) {
-                    cc.eventManager.pauseTarget(this);
+                    eventManager.pauseTarget(this);
                 }
             }, this, 0, 0, 0, false);
         }
@@ -1286,7 +1287,7 @@ var Node = cc.Class({
      * node.pauseSystemEvents(true);
      */
     pauseSystemEvents (recursive) {
-        cc.eventManager.pauseTarget(this, recursive);
+        eventManager.pauseTarget(this, recursive);
     },
 
     /**
@@ -1302,7 +1303,7 @@ var Node = cc.Class({
      * node.resumeSystemEvents(true);
      */
     resumeSystemEvents (recursive) {
-        cc.eventManager.resumeTarget(this, recursive);
+        eventManager.resumeTarget(this, recursive);
     },
 
     _checkTouchListeners () {
@@ -1323,7 +1324,7 @@ var Node = cc.Class({
                 }
             }
 
-            cc.eventManager.removeListener(this._touchListener);
+            eventManager.removeListener(this._touchListener);
             this._touchListener = null;
         }
     },
@@ -1349,27 +1350,30 @@ var Node = cc.Class({
                 _currentHovered = null;
             }
 
-            cc.eventManager.removeListener(this._mouseListener);
+            eventManager.removeListener(this._mouseListener);
             this._mouseListener = null;
         }
     },
 
     _hitTest (point, listener) {
         var w = this.width,
-            h = this.height;
-        var rect = cc.rect(0, 0, w, h);
+            h = this.height,
+            pt = point;
         
         var Camera = cc.Camera;
         if (Camera && Camera.main && Camera.main.containsNode(this)) {
-            point = Camera.main.getCameraToWorldPoint(point);
+            pt = Camera.main.getCameraToWorldPoint(pt);
         }
         
-        var trans = this.getNodeToWorldTransform();
-        cc._rectApplyAffineTransformIn(rect, trans);
-        var left = point.x - rect.x,
-            right = rect.x + rect.width - point.x,
-            bottom = point.y - rect.y,
-            top = rect.y + rect.height - point.y;
+        var trans = cc.affineTransformInvertIn(this._sgNode.getNodeToWorldTransform());
+        pt = cc.pointApplyAffineTransform(pt, trans);
+        pt.x += this._anchorPoint.x * w;
+        pt.y += this._anchorPoint.y * h;
+
+        var left = pt.x,
+            right = w - pt.x,
+            bottom = pt.y,
+            top = h - pt.y;
         if (left >= 0 && right >= 0 && top >= 0 && bottom >= 0) {
             if (listener && listener.mask) {
                 var mask = listener.mask;
@@ -2378,7 +2382,7 @@ var Node = cc.Class({
         // actions
         ActionManagerExist && cc.director.getActionManager().removeAllActionsFromTarget(this);
         // event
-        cc.eventManager.removeListeners(this);
+        eventManager.removeListeners(this);
 
         // children
         var i, len = this._children.length, node;
@@ -2472,11 +2476,11 @@ var Node = cc.Class({
         var actionManager = ActionManagerExist ? cc.director.getActionManager() : null;
         if (this._activeInHierarchy) {
             actionManager && actionManager.resumeTarget(this);
-            cc.eventManager.resumeTarget(this);
+            eventManager.resumeTarget(this);
         }
         else {
             actionManager && actionManager.pauseTarget(this);
-            cc.eventManager.pauseTarget(this);
+            eventManager.pauseTarget(this);
         }
     },
 
@@ -2515,11 +2519,11 @@ var Node = cc.Class({
         var actionManager = cc.director.getActionManager();
         if (this._activeInHierarchy) {
             actionManager && actionManager.resumeTarget(this);
-            cc.eventManager.resumeTarget(this);
+            eventManager.resumeTarget(this);
         }
         else {
             actionManager && actionManager.pauseTarget(this);
-            cc.eventManager.pauseTarget(this);
+            eventManager.pauseTarget(this);
         }
     },
 
@@ -2532,7 +2536,7 @@ var Node = cc.Class({
 if (CC_JSB) {
     var updateListeners = function () {
         if (!this._activeInHierarchy) {
-            cc.eventManager.pauseTarget(this);
+            eventManager.pauseTarget(this);
         }
     };
 
@@ -2545,14 +2549,14 @@ if (CC_JSB) {
             if (this._touchListener || this._mouseListener) {
                 if (this._touchListener) {
                     this._touchListener.retain();
-                    cc.eventManager.removeListener(this._touchListener);
-                    cc.eventManager.addListener(this._touchListener, this);
+                    eventManager.removeListener(this._touchListener);
+                    eventManager.addListener(this._touchListener, this);
                     this._touchListener.release();
                 }
                 if (this._mouseListener) {
                     this._mouseListener.retain();
-                    cc.eventManager.removeListener(this._mouseListener);
-                    cc.eventManager.addListener(this._mouseListener, this);
+                    eventManager.removeListener(this._mouseListener);
+                    eventManager.addListener(this._mouseListener, this);
                     this._mouseListener.release();
                 }
                 cc.director.once(cc.Director.EVENT_BEFORE_UPDATE, updateListeners, this);

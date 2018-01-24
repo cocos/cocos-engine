@@ -26,6 +26,7 @@
 var Flags = require('../platform/CCObject').Flags;
 var Misc = require('./misc');
 var IdGenerater = require('../platform/id-generater');
+var eventManager = require('../event-manager');
 
 var JS = cc.js;
 var Destroying = Flags.Destroying;
@@ -365,7 +366,7 @@ var BaseNode = cc.Class({
 
         if (value) {
             if (!CC_JSB) {
-                cc.eventManager._setDirtyForNode(this);
+                eventManager._setDirtyForNode(this);
             }
             value._children.push(this);
             value.emit(CHILD_ADDED, this);

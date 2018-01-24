@@ -26,3 +26,4 @@
 require('./event');
 require('./event-listeners');
 require('./event-target');
+require('./system-event');
