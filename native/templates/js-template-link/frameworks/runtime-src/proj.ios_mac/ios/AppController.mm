@@ -117,7 +117,9 @@ static AppDelegate* s_sharedApplication = nullptr;
       If your application supports background execution, called instead of applicationWillTerminate: when the user quits.
     */
     cocos2d::Application::getInstance()->applicationDidEnterBackground();
-    [CAAgent onPause];
+    if (CAAgent.isInited) {
+        [CAAgent onPause];
+    }
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
@@ -129,7 +131,9 @@ static AppDelegate* s_sharedApplication = nullptr;
     if (glview == currentView) {
         cocos2d::Application::getInstance()->applicationWillEnterForeground();
     }
-    [CAAgent onResume];
+    if (CAAgent.isInited) {
+        [CAAgent onResume];
+    }
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {

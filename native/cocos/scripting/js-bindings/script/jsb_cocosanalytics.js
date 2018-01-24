@@ -36,6 +36,10 @@ if (platform === sys.ANDROID) {
         }
     };
 
+    cocosAnalytics.isInited = function() {
+        return jsb.reflection.callStaticMethod(cls_CAAgent, "isInited", "()Z");
+    };
+
     cocosAnalytics.enableDebug = function(enabled) {
         jsb.reflection.callStaticMethod(cls_CAAgent,
                 "enableDebug", "(Z)V",
@@ -326,6 +330,10 @@ if (platform === sys.ANDROID) {
         }
     };
 
+    cocosAnalytics.isInited = function() {
+        return jsb.reflection.callStaticMethod(cls_CAAgent, "isInited");
+    };
+
     cocosAnalytics.enableDebug = function(enabled) {
         jsb.reflection.callStaticMethod(cls_CAAgent,
                 "enableDebug:",
@@ -592,6 +600,10 @@ if (platform === sys.ANDROID) {
 
     cocosAnalytics.init = function(info) {
         console.log("Cocos Analytics module isn't available on this platform!");
+    };
+
+    cocosAnalytics.isInited = function() {
+        return false;
     };
 
     cocosAnalytics.enableDebug = function(enabled) {
