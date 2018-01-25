@@ -63,8 +63,7 @@ exports.getUglifyOptions = function (platform, flags) {
             output: {
                 beautify: true,         // really preserve_lines
                 indent_level: 0,        // reduce jsc file size
-            },
-            rename: false,              // workaround mishoo/UglifyJS2#2821
+            }
         };
     }
 
@@ -81,8 +80,7 @@ exports.getUglifyOptions = function (platform, flags) {
             },
             output: {
                 ascii_only: true,
-            },
-            rename: false,              // workaround mishoo/UglifyJS2#2821
+            }
         };
     }
     else {
@@ -135,7 +133,6 @@ exports.getUglifyOptions = function (platform, flags) {
                 indent_level: 2,
                 ascii_only: true,
             },
-            rename: false,            // workaround mishoo/UglifyJS2#2821
         };
     }
 };
