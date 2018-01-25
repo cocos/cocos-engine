@@ -61,8 +61,7 @@ exports.getUglifyOptions = function (platform, flags) {
             output: {
                 beautify: true,         // really preserve_lines
                 indent_level: 0,        // reduce jsc file size
-            },
-            rename: false,              // workaround mishoo/UglifyJS2#2821
+            }
         };
     }
 
@@ -75,8 +74,7 @@ exports.getUglifyOptions = function (platform, flags) {
             compress: {
                 global_defs: global_defs,
                 negate_iife: false,
-            },
-            rename: false,              // workaround mishoo/UglifyJS2#2821
+            }
         };
     }
     else {
@@ -125,7 +123,6 @@ exports.getUglifyOptions = function (platform, flags) {
                 beautify: true,
                 indent_level: 2,
             },
-            rename: false,              // workaround mishoo/UglifyJS2#2821
         };
     }
 };
