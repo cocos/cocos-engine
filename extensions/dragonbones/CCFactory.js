@@ -30,7 +30,7 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
 
     statics: {
         _factory: null,
-        getFactory () {
+        getInstance () {
             if (!CCFactory._factory) {
                 CCFactory._factory = new CCFactory();
             }

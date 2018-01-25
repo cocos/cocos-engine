@@ -48,41 +48,50 @@ exports.getUglifyOptions = function (platform, flags) {
     var optimizeForJSC = releaseMode && global_defs['CC_JSB'];
     if (optimizeForJSC) {
         return {
+            parse: {
+                bare_returns: true
+            },
+            toplevel: false,
+            compress: {
+                global_defs: global_defs,
+                negate_iife: false,
+                sequences: false,
+                keep_infinity: true,    // reduce jsc file size
+                typeofs: false,
+            },
             output: {
                 beautify: true,         // really preserve_lines
                 indent_level: 0,        // reduce jsc file size
             },
-            compress: {
-                global_defs: global_defs,
-                sequences: false,
-                keep_infinity: true,    // reduce jsc file size
-                typeofs: false,
-            }
+            rename: false,              // workaround mishoo/UglifyJS2#2821
         };
     }
 
     if (releaseMode) {
         return {
+            parse: {
+                bare_returns: true
+            },
+            toplevel: false,
             compress: {
                 global_defs: global_defs,
+                negate_iife: false,
             },
             output: {
                 ascii_only: true,
-            }
+            },
+            rename: false,              // workaround mishoo/UglifyJS2#2821
         };
     }
     else {
         return {
-            mangle: false,
-            //preserveComments: 'all',
-            output: {
-                // http://lisperator.net/uglifyjs/codegen
-                beautify: true,
-                indent_level: 2,
-                ascii_only: true,
+            parse: {
+                bare_returns: true
             },
+            toplevel: false,
             compress: {
                 global_defs: global_defs,
+                negate_iife: false,
                 sequences: false,  // join consecutive statements with the “comma operator”
                 properties: false,  // optimize property access: a["foo"] → a.foo
                 // dead_code: true,  // discard unreachable code
@@ -107,7 +116,6 @@ exports.getUglifyOptions = function (platform, flags) {
                 reduce_funcs: false,
                 reduce_vars: false, // Improve optimization on variables assigned with and used as constant values.
                 //warnings: true,
-                negate_iife: false,
                 pure_getters: false,
                 pure_funcs: null,
                 drop_console: false,
@@ -116,7 +124,16 @@ exports.getUglifyOptions = function (platform, flags) {
                 keep_fnames: true,
                 keep_infinity: true,  // Pass true to prevent Infinity from being compressed into 1/0, which may cause performance issues on Chrome.
                 side_effects: false,  // drop side-effect-free statements
-            }
+            },
+            mangle: false,
+            //preserveComments: 'all',
+            output: {
+                // http://lisperator.net/uglifyjs/codegen
+                beautify: true,
+                indent_level: 2,
+                ascii_only: true,
+            },
+            rename: false,            // workaround mishoo/UglifyJS2#2821
         };
     }
 };

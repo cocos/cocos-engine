@@ -26,6 +26,7 @@
 require('../platform/CCSys');
 
 var EXTNAME_RE = /(\.[^\.\/\?\\]*)(\?.*)?$/;
+var DIRNAME_RE = /((.*)(\/|\\|\\\\))?(.*?\..*$)?/;
 var NORMALIZE_RE = /[^\.\/]+\/\.\.\//;
 
 /**
@@ -111,7 +112,8 @@ cc.path = /** @lends cc.path# */{
      * @returns {*}
      */
     dirname: function (pathStr) {
-        return pathStr.replace(/((.*)(\/|\\|\\\\))?(.*?\..*$)?/, '$2');
+        var temp = DIRNAME_RE.exec(pathStr);
+        return temp ? temp[2] : '';
     },
 
     /**

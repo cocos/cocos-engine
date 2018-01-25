@@ -1363,20 +1363,23 @@ var Node = cc.Class({
 
     _hitTest (point, listener) {
         var w = this.width,
-            h = this.height;
-        var rect = cc.rect(0, 0, w, h);
+            h = this.height,
+            pt = point;
         
         var Camera = cc.Camera;
         if (Camera && Camera.main && Camera.main.containsNode(this)) {
-            point = Camera.main.getCameraToWorldPoint(point);
+            pt = Camera.main.getCameraToWorldPoint(pt);
         }
         
-        var trans = this.getNodeToWorldTransform();
-        cc._rectApplyAffineTransformIn(rect, trans);
-        var left = point.x - rect.x,
-            right = rect.x + rect.width - point.x,
-            bottom = point.y - rect.y,
-            top = rect.y + rect.height - point.y;
+        var trans = cc.affineTransformInvertIn(this._sgNode.getNodeToWorldTransform());
+        pt = cc.pointApplyAffineTransform(pt, trans);
+        pt.x += this._anchorPoint.x * w;
+        pt.y += this._anchorPoint.y * h;
+
+        var left = pt.x,
+            right = w - pt.x,
+            bottom = pt.y,
+            top = h - pt.y;
         if (left >= 0 && right >= 0 && top >= 0 && bottom >= 0) {
             if (listener && listener.mask) {
                 var mask = listener.mask;

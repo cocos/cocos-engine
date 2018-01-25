@@ -160,6 +160,7 @@ HashTimerEntry.put = function (entry) {
  * @extends cc.Class
  */
 function CallbackTimer () {
+    this._lock = false;
     this._scheduler = null;
     this._elapsed = -1;
     this._runForever = false;
@@ -176,6 +177,7 @@ function CallbackTimer () {
 var proto = CallbackTimer.prototype;
 
 proto.initWithCallback = function (scheduler, callback, target, seconds, repeat, delay) {
+    this._lock = false;
     this._scheduler = scheduler;
     this._target = target;
     this._callback = callback;
@@ -241,8 +243,10 @@ proto.getCallback = function(){
 };
 
 proto.trigger = function () {
-    if (this._target && this._callback){
+    if (this._target && this._callback) {
+        this._lock = true;
         this._callback.call(this._target, this._elapsed);
+        this._lock = false;
     }
 };
 
@@ -256,7 +260,7 @@ CallbackTimer.get = function () {
     return _timers.pop() || new CallbackTimer();
 };
 CallbackTimer.put = function (timer) {
-    if (_timers.length < MAX_POOL_SIZE) {
+    if (_timers.length < MAX_POOL_SIZE && !timer._lock) {
         timer._scheduler = timer._target = timer._callback = null;
         _timers.push(timer);
     }
@@ -572,6 +576,10 @@ cc.Scheduler = cc._Class.extend({
         timer = CallbackTimer.get();
         timer.initWithCallback(this, callback, target, interval, repeat, delay);
         element.timers.push(timer);
+
+        if (this._currentTarget === element && this._currentTargetSalvaged) {
+            this._currentTargetSalvaged = false;
+        }
     },
 
     /**
