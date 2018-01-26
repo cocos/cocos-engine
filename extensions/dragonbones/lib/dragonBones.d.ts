@@ -1598,55 +1598,55 @@ declare namespace dragonBones {
          * 动画开始。
          * @version DragonBones 4.5
          */
-        static START: string;
+        static START: dragonBones.EventObject;
         /**
          * @language zh_CN
          * 动画循环播放一次完成。
          * @version DragonBones 4.5
          */
-        static LOOP_COMPLETE: string;
+        static LOOP_COMPLETE: dragonBones.EventObject;
         /**
          * @language zh_CN
          * 动画播放完成。
          * @version DragonBones 4.5
          */
-        static COMPLETE: string;
+        static COMPLETE: dragonBones.EventObject;
         /**
          * @language zh_CN
          * 动画淡入开始。
          * @version DragonBones 4.5
          */
-        static FADE_IN: string;
+        static FADE_IN: dragonBones.EventObject;
         /**
          * @language zh_CN
          * 动画淡入完成。
          * @version DragonBones 4.5
          */
-        static FADE_IN_COMPLETE: string;
+        static FADE_IN_COMPLETE: dragonBones.EventObject;
         /**
          * @language zh_CN
          * 动画淡出开始。
          * @version DragonBones 4.5
          */
-        static FADE_OUT: string;
+        static FADE_OUT: dragonBones.EventObject;
         /**
          * @language zh_CN
          * 动画淡出完成。
          * @version DragonBones 4.5
          */
-        static FADE_OUT_COMPLETE: string;
+        static FADE_OUT_COMPLETE: dragonBones.EventObject;
         /**
          * @language zh_CN
          * 动画帧事件。
          * @version DragonBones 4.5
          */
-        static FRAME_EVENT: string;
+        static FRAME_EVENT: dragonBones.EventObject;
         /**
          * @language zh_CN
          * 动画声音事件。
          * @version DragonBones 4.5
          */
-        static SOUND_EVENT: string;
+        static SOUND_EVENT: dragonBones.EventObject;
         /**
          * @private
          */
