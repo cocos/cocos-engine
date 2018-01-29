@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A37E9D4200DEEF40078AF72 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A37E9D3200DEEF40078AF72 /* SystemConfiguration.framework */; };
+		1A37E9D6200DEEFB0078AF72 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A37E9D5200DEEFB0078AF72 /* SystemConfiguration.framework */; };
 		1A499EA91F0CD97F004E6AEC /* libicucore.A.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A499EA81F0CD97F004E6AEC /* libicucore.A.tbd */; };
 		1A499EB11F0CDCDD004E6AEC /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A499EB01F0CDCDD004E6AEC /* CFNetwork.framework */; };
 		1A499EB31F0CDCE9004E6AEC /* libicucore.A.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A499EB21F0CDCE9004E6AEC /* libicucore.A.tbd */; };
@@ -136,6 +138,8 @@
 
 /* Begin PBXFileReference section */
 		1A1A081B18C9DF05005C6854 /* project.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = project.json; path = ../../../project.json; sourceTree = "<group>"; };
+		1A37E9D3200DEEF40078AF72 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.2.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
+		1A37E9D5200DEEFB0078AF72 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		1A499EA81F0CD97F004E6AEC /* libicucore.A.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libicucore.A.tbd; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/usr/lib/libicucore.A.tbd; sourceTree = DEVELOPER_DIR; };
 		1A499EB01F0CDCDD004E6AEC /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		1A499EB21F0CDCE9004E6AEC /* libicucore.A.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libicucore.A.tbd; path = usr/lib/libicucore.A.tbd; sourceTree = SDKROOT; };
@@ -203,6 +207,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A37E9D6200DEEFB0078AF72 /* SystemConfiguration.framework in Frameworks */,
 				1AC62C131F4D1E7F00F43CB1 /* JavaScriptCore.framework in Frameworks */,
 				1A499EB31F0CDCE9004E6AEC /* libicucore.A.tbd in Frameworks */,
 				1A499EB11F0CDCDD004E6AEC /* CFNetwork.framework in Frameworks */,
@@ -230,6 +235,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A37E9D4200DEEF40078AF72 /* SystemConfiguration.framework in Frameworks */,
 				1AC62C111F4D1E7400F43CB1 /* JavaScriptCore.framework in Frameworks */,
 				1A499EA91F0CD97F004E6AEC /* libicucore.A.tbd in Frameworks */,
 				AB45A1031D34F7E100033ACB /* GameController.framework in Frameworks */,
@@ -318,6 +324,8 @@
 		A92275401517C094001B78AA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1A37E9D3200DEEF40078AF72 /* SystemConfiguration.framework */,
+				1A37E9D5200DEEFB0078AF72 /* SystemConfiguration.framework */,
 				1AC62C121F4D1E7F00F43CB1 /* JavaScriptCore.framework */,
 				1AC62C101F4D1E7400F43CB1 /* JavaScriptCore.framework */,
 				1A499EB21F0CDCE9004E6AEC /* libicucore.A.tbd */,

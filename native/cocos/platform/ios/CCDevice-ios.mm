@@ -33,6 +33,7 @@
 #include "base/CCEventDispatcher.h"
 #include "base/CCEventAcceleration.h"
 #include "base/CCDirector.h"
+#include "CCReachability.h"
 #import <UIKit/UIKit.h>
 
 // Accelerometer
@@ -604,6 +605,36 @@ void Device::vibrate(float duration)
 
     // automatically vibrates for approximately 0.4 seconds
     AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
+}
+
+float Device::getBatteryLevel()
+{
+    return [UIDevice currentDevice].batteryLevel;
+}
+
+Device::NetworkType Device::getNetworkType()
+{
+    static Reachability* __reachability = nullptr;
+    if (__reachability == nullptr)
+    {
+        __reachability = Reachability::createForInternetConnection();
+        __reachability->retain();
+    }
+
+    NetworkType ret = NetworkType::NONE;
+    Reachability::NetworkStatus status = __reachability->getCurrentReachabilityStatus();
+    switch (status) {
+        case Reachability::NetworkStatus::REACHABLE_VIA_WIFI:
+            ret = NetworkType::LAN;
+            break;
+        case Reachability::NetworkStatus::REACHABLE_VIA_WWAN:
+            ret = NetworkType::WWAN;
+        default:
+            ret = NetworkType::NONE;
+            break;
+    }
+
+    return ret;
 }
 
 NS_CC_END

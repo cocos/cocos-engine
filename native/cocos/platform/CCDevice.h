@@ -97,6 +97,20 @@ public:
      */
     static Data getTextureDataForText(const char * text, const FontDefinition& textDefinition, TextAlign align, int &width, int &height, bool& hasPremultipliedAlpha);
 
+    /**
+     * Gets battery level, only avaiable on iOS and Android.
+     * @return 0.0 ~ 1.0
+     */
+    static float getBatteryLevel();
+
+    enum class NetworkType
+    {
+        NONE,
+        LAN,
+        WWAN
+    };
+
+    static NetworkType getNetworkType();
 private:
     CC_DISALLOW_IMPLICIT_CONSTRUCTORS(Device);
 };

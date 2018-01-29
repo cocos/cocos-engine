@@ -181,6 +181,16 @@ void Device::vibrate(float duration)
     JniHelper::callStaticVoidMethod(helperClassName, "vibrate", duration);
 }
 
+float Device::getBatteryLevel()
+{
+    return JniHelper::callStaticFloatMethod(helperClassName, "getBatteryLevel");
+}
+
+Device::NetworkType Device::getNetworkType()
+{
+    return (Device::NetworkType)JniHelper::callStaticIntMethod(helperClassName, "getNetworkType");
+}
+
 NS_CC_END
 
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID

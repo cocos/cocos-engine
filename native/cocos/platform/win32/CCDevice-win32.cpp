@@ -555,6 +555,16 @@ void Device::vibrate(float duration)
     CC_UNUSED_PARAM(duration);
 }
 
+float Device::getBatteryLevel()
+{
+    return 1.0f;
+}
+
+Device::NetworkType Device::getNetworkType()
+{
+    return Device::NetworkType::LAN;
+}
+
 NS_CC_END
 
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_WIN32

@@ -34,16 +34,13 @@ import android.media.AudioManager;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager.OnActivityResultListener;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.view.ViewGroup;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 
 import com.cocos.analytics.CAAgent;
 
@@ -277,6 +274,8 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
 
         CAAgent.enableDebug(false);
 
+        Cocos2dxHelper.registerBatteryLevelReceiver(this);
+
         onLoadNativeLibraries();
 
         sContext = this;
@@ -354,6 +353,8 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
     protected void onDestroy() {
         Cocos2dxAudioFocusManager.unregisterAudioFocusListener(this);
         CAAgent.onDestroy();
+        Cocos2dxHelper.unregisterBatteryLevelReceiver(this);;
+
         super.onDestroy();
 
         Log.d(TAG, "Cocos2dxActivity onDestroy: " + this + ", mGLSurfaceView" + mGLSurfaceView);

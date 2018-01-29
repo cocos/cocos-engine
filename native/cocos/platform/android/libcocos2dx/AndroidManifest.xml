@@ -1,3 +1,4 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.cocos2dx.lib">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 </manifest>

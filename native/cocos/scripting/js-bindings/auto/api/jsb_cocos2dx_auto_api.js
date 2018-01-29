@@ -14484,6 +14484,16 @@ TextureCache : function (
 cc.Device = {
 
 /**
+ * @method getNetworkType
+ * @return {cc.Device::NetworkType}
+ */
+getNetworkType : function (
+)
+{
+    return 0;
+},
+
+/**
  * @method setAccelerometerEnabled
  * @param {bool} arg0
  */
@@ -14511,6 +14521,16 @@ setKeepScreenOn : function (
 bool 
 )
 {
+},
+
+/**
+ * @method getBatteryLevel
+ * @return {float}
+ */
+getBatteryLevel : function (
+)
+{
+    return 0;
 },
 
 /**

@@ -50,6 +50,8 @@ Application::~Application()
 
 int Application::run()
 {
+    // Enable monitoring battery level
+    [UIDevice currentDevice].batteryMonitoringEnabled = YES;
     if (applicationDidFinishLaunching())
     {
         [[CCDirectorCaller sharedDirectorCaller] startMainLoop];
