@@ -48,6 +48,12 @@ function downloadScript (item, callback, isAsync) {
         return;
     }
 
+    if (sys.platform === sys.BK_GAME) {
+        BK.Script.loadlib(item.url);
+        callback(null, item.url);
+        return;
+    }
+
     var url = item.url,
         d = document,
         s = document.createElement('script');
