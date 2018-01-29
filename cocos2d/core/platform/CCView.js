@@ -49,14 +49,15 @@ var __BrowserGetter = {
     adaptationType: cc.sys.browserType
 };
 
-if (window.navigator.userAgent.indexOf("OS 8_1_") > -1) //this mistake like MIUI, so use of MIUI treatment method
-    __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_MIUI;
-
 if (cc.sys.os === cc.sys.OS_IOS) // All browsers are WebView
     __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_SAFARI;
 
 if (CC_WECHATGAME) {
     __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_WECHAT_GAME;
+}
+
+if (CC_BKGAME) {
+    __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_BK_GAME;
 }
 
 switch (__BrowserGetter.adaptationType) {

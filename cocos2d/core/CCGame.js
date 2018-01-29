@@ -30,7 +30,8 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
 }
 
 require('../audio/CCAudioEngine');
-var inputManager = require('./platform/CCInputManager');
+
+var inputManager = CC_BKGAME ? require('./platform/CCBKInputManager') : require('./platform/CCInputManager');
 
 /**
  * !#en An object to boot the game.

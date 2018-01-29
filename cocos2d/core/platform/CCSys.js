@@ -590,26 +590,19 @@ else if (CC_WECHATGAME) {
     };
 }
 else if (CC_BKGAME) {
-    var env = wx.getSystemInfoSync();
     sys.isMobile = true;
     sys.platform = sys.BK_GAME;
-    sys.language = env.language.substr(0, 2);
-    if (env.platform === "android") {
-        sys.os = sys.OS_ANDROID;
-    }
-    else if (env.platform === "ios") {
-        sys.os = sys.OS_IOS;
-    }
+    sys.language = sys.LANGUAGE_UNKNOWN;
+    sys.os = sys.OS_UNKNOWN;
 
-    var version = /[\d\.]+/.exec(env.system);
-    sys.osVersion = version[0];
-    sys.osMainVersion = parseInt(sys.osVersion);
+    sys.osVersion = 0;
+    sys.osMainVersion = 0;
     sys.browserType = sys.BROWSER_TYPE_BK_GAME;
-    sys.browserVersion = env.version;
+    sys.browserVersion = 0;
 
-    var w = env.windowWidth;
-    var h = env.windowHeight;
-    var ratio = env.pixelRatio || 1;
+    var w = 960;
+    var h = 640;
+    var ratio = 1;
     sys.windowPixelResolution = {
         width: ratio * w,
         height: ratio * h
