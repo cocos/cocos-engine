@@ -40,7 +40,7 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
 
     ctor () {
         this.__instanceId = cc.ClassManager.getNewInstanceId();
-        this._dragoneBones = new dragonBones.DragonBones();
+        this._dragonBones = new dragonBones.DragonBones();
 
         if (!CC_EDITOR) {
             cc.director._scheduler.scheduleUpdate(this, cc.Scheduler.PRIORITY_SYSTEM, false);
@@ -48,7 +48,7 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
     },
 
     update (dt) {
-        this._dragoneBones.advanceTime(dt);
+        this._dragonBones.advanceTime(dt);
     },
 
     buildArmatureDisplay (armatureName, dragonBonesName, comp) {
@@ -141,7 +141,7 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
         // armature._sortSlots = this._sortSlots;
 
         armature.init(dataPackage.armature,
-            this._display, this._display, this._dragoneBones
+            this._display, this._display, this._dragonBones
         );
         
         return armature;
