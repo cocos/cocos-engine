@@ -4875,7 +4875,7 @@ static bool js_cocos2dx_dragonbones_CCFactory_getInstance(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::CCFactory* result = dragonBones::CCFactory::getInstance();
-        ok &= native_ptr_to_rooted_seval<dragonBones::CCFactory>((dragonBones::CCFactory*)result, &s.rval());
+        ok &= native_ptr_to_seval<dragonBones::CCFactory>((dragonBones::CCFactory*)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_CCFactory_getInstance : Error processing arguments");
         return true;
     }
@@ -4884,19 +4884,38 @@ static bool js_cocos2dx_dragonbones_CCFactory_getInstance(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_dragonbones_CCFactory_getInstance)
 
+SE_DECLARE_FINALIZE_FUNC(js_dragonBones_CCFactory_finalize)
+
+static bool js_cocos2dx_dragonbones_CCFactory_constructor(se::State& s)
+{
+    dragonBones::CCFactory* cobj = new (std::nothrow) dragonBones::CCFactory();
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_cocos2dx_dragonbones_CCFactory_constructor, __jsb_dragonBones_CCFactory_class, js_dragonBones_CCFactory_finalize)
+
+
 
 extern se::Object* __jsb_dragonBones_BaseFactory_proto;
 
 static bool js_dragonBones_CCFactory_finalize(se::State& s)
 {
     CCLOGINFO("jsbindings: finalizing JS object %p (dragonBones::CCFactory)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        dragonBones::CCFactory* cobj = (dragonBones::CCFactory*)s.nativeThisObject();
+        delete cobj;
+    }
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_dragonBones_CCFactory_finalize)
 
 bool js_register_cocos2dx_dragonbones_CCFactory(se::Object* obj)
 {
-    auto cls = se::Class::create("CCFactory", obj, __jsb_dragonBones_BaseFactory_proto, nullptr);
+    auto cls = se::Class::create("CCFactory", obj, __jsb_dragonBones_BaseFactory_proto, _SE(js_cocos2dx_dragonbones_CCFactory_constructor));
 
     cls->defineFunction("getTextureDisplay", _SE(js_cocos2dx_dragonbones_CCFactory_getTextureDisplay));
     cls->defineFunction("getSoundEventManater", _SE(js_cocos2dx_dragonbones_CCFactory_getSoundEventManater));

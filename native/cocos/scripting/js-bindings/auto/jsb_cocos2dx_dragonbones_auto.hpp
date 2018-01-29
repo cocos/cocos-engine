@@ -287,4 +287,5 @@ SE_DECLARE_FUNC(js_cocos2dx_dragonbones_CCFactory_buildArmatureDisplay);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_CCFactory_parseTextureAtlasData);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_CCFactory_destroyInstance);
 SE_DECLARE_FUNC(js_cocos2dx_dragonbones_CCFactory_getInstance);
+SE_DECLARE_FUNC(js_cocos2dx_dragonbones_CCFactory_CCFactory);
 
