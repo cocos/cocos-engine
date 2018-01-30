@@ -436,8 +436,9 @@ let Graphics = cc.Class({
         }
         else {
             for (let i = 0, l = datas.length; i < l; i++) {
-                datas[i].dataLength = 0;
-                datas[i]._indices.length = 0;
+                let data = datas[i];
+                data.vertexCount = data.indiceCount = data.dataLength = 0;
+                data._indices.length = 0;
             }
         }
     },

@@ -24,25 +24,6 @@
  ****************************************************************************/
 var eventManager = require('../event-manager');
 
-var designResolutionWrapper = {
-    getContentSize: function () {
-        // The canvas size will always the same with the screen,
-        // so its anchor should be (0.5, 0.5), otherwise its children will appear biased.
-        return CC_EDITOR ? cc.engine.getDesignResolutionSize() : cc.visibleRect;
-    },
-    setContentSize: function (size) {
-        // NYI
-    },
-
-    _getWidth: function () {
-        return this.getContentSize().width;
-    },
-
-    _getHeight: function () {
-        return this.getContentSize().height;
-    },
-};
-
 /**
  * !#zh: 作为 UI 根节点，为所有子节点提供视窗四边的位置信息以供对齐，另外提供屏幕适配策略接口，方便从编辑器设置。
  * 注：由于本节点的尺寸会跟随屏幕拉伸，所以 anchorPoint 只支持 (0.5, 0.5)，否则适配不同屏幕时坐标会有偏差。
@@ -184,10 +165,6 @@ var Canvas = cc.Class({
     },
 
     onDestroy: function () {
-        if (this.node._sizeProvider === designResolutionWrapper) {
-            this.node._sizeProvider = null;
-        }
-
         cc.director.off(cc.Director.EVENT_BEFORE_VISIT, this.alignWithScreen, this);
 
         if (CC_EDITOR) {
@@ -213,13 +190,13 @@ var Canvas = cc.Class({
     //
 
     alignWithScreen: function () {
-        var designSize;
+        var designSize, nodeSize;
         if (CC_EDITOR) {
-            designSize = cc.engine.getDesignResolutionSize();
+            nodeSize = designSize = cc.engine.getDesignResolutionSize();
             this.node.setPosition(designSize.width * 0.5, designSize.height * 0.5);
         }
         else {
-            var canvasSize = cc.visibleRect;
+            var canvasSize = nodeSize = cc.visibleRect;
             designSize = cc.view.getDesignResolutionSize();
             var clipTopRight = !this.fitHeight && !this.fitWidth;
             var offsetX = 0;
@@ -231,8 +208,8 @@ var Canvas = cc.Class({
             }
             this.node.setPosition(canvasSize.width * 0.5 + offsetX, canvasSize.height * 0.5 + offsetY);
         }
-        this.node.width = designSize.width;
-        this.node.height = designSize.height;
+        this.node.width = nodeSize.width;
+        this.node.height = nodeSize.height;
     },
 
     onResized: function () {

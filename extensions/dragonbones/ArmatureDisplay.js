@@ -312,12 +312,12 @@ let ArmatureDisplay = cc.Class({
 
     onEnable () {
         this._super();
-        dragonBones.CCFactory.getFactory()._dragoneBones.clock.add(this._armature);
+        dragonBones.CCFactory.getFactory()._dragonBones.clock.add(this._armature);
     },
 
     onDisable () {
         this._super();
-        dragonBones.CCFactory.getFactory()._dragoneBones.clock.remove(this._armature);
+        dragonBones.CCFactory.getFactory()._dragonBones.clock.remove(this._armature);
     },
 
     onDestroy () {

@@ -495,7 +495,7 @@ let TiledLayer = cc.Class({
             this._texGrids.length = 0;
             for (let i = 0, l = tilesets.length; i < l; ++i) {
                 let tilesetInfo = tilesets[i];
-                let tex = cc.textureUtil.loadImage(tilesetInfo.sourceImage);
+                let tex = tilesetInfo.sourceImage;
                 this._textures[i] = tex;
                 this._fillTextureGrids(tilesetInfo, i);
                 if (tileset === tilesetInfo) {

@@ -251,8 +251,8 @@ let CollisionManager = cc.Class({
 
             world.radius = d;
 
-            aabb.x = _vec2.x - d;
-            aabb.y = _vec2.y - d;
+            aabb.x = world.position.x - d;
+            aabb.y = world.position.y - d;
             aabb.width = d * 2;
             aabb.height = d * 2;
 
@@ -375,10 +375,10 @@ let CollisionManager = cc.Class({
         for (let i = 0, l = colliders.length; i < l; i++) {
             let collider = colliders[i];
 
+            debugDrawer.strokeColor = cc.Color.WHITE;
             if (collider instanceof cc.BoxCollider || collider instanceof cc.PolygonCollider) {
                 let ps = collider.world.points;
                 if (ps.length > 0) {
-                    debugDrawer.strokeColor = cc.Color.WHITE;
                     debugDrawer.moveTo(ps[0].x, ps[0].y);
                     for (let j = 1; j < ps.length; j++) {
                         debugDrawer.lineTo(ps[j].x, ps[j].y);

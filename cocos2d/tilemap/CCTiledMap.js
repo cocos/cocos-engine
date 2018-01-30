@@ -444,7 +444,14 @@ let TiledMap = cc.Class({
                 resPath = resPath.replace(/\\/g, '/');
             }
 
-            let mapInfo = new cc.TMXMapInfo(file.tmxXmlStr, resPath);
+            let texValues = file.textures;
+            let texKeys = file.textureNames;
+            let textures = {};
+            for (let i = 0; i < texValues.length; ++i) {
+                textures[texKeys[i]] = texValues[i];
+            }
+
+            let mapInfo = new cc.TMXMapInfo(file.tmxXmlStr, resPath, textures);
             let tilesets = mapInfo.getTilesets();
             if(!tilesets || tilesets.length === 0)
                 cc.logID(7213);
