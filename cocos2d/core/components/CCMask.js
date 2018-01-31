@@ -25,6 +25,7 @@
 
 const renderEngine = require('../renderer/render-engine');
 const gfx = renderEngine.gfx;
+const RenderData = renderEngine.RenderData;
 const StencilMaterial = renderEngine.StencilMaterial;
 const RenderComponent = require('./CCRenderComponent');
 

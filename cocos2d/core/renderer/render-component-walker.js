@@ -32,7 +32,6 @@ const RecyclePool = renderEngine.RecyclePool;
 const InputAssembler = renderEngine.InputAssembler;
 
 const FLOATS_PER_VERT = defaultVertexFormat._bytes / 4;
-const PER_INDEX_BYTE = 2;
 const MAX_VERTEX = macro.BATCH_VERTEX_COUNT;
 const MAX_INDICE = MAX_VERTEX * 2;
 
@@ -132,6 +131,9 @@ RenderComponentWalker.prototype = {
         // reset caches for handle render components
         _batchData.vfmt = null;
         _batchData.effect = null;
+
+        // reset stencil manager's cache
+        this._stencilMgr.reset();
     },
 
     _handleRender (node) {
@@ -185,7 +187,7 @@ RenderComponentWalker.prototype = {
         ia._count = indiceCount;
 
         // Check stencil state and modify pass
-        this._stencilMgr.handleEffect(effect);
+        effect = this._stencilMgr.handleEffect(effect);
         
         // Generate model
         let model = this._modelPool.add();
