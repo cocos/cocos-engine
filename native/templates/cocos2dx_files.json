@@ -697,6 +697,8 @@
         "cocos/platform/ios/CCGLViewImpl-ios.mm", 
         "cocos/platform/ios/CCImage-ios.mm", 
         "cocos/platform/ios/CCPlatformDefine-ios.h", 
+        "cocos/platform/ios/CCReachability.cpp", 
+        "cocos/platform/ios/CCReachability.h", 
         "cocos/platform/ios/CCStdC-ios.h", 
         "cocos/platform/ios/OpenGL_Internal-ios.h", 
         "cocos/platform/ios/cocos2d-prefix.pch", 
