@@ -525,6 +525,8 @@ namespace ns {
 
 static bool js_SomeClass_finalize(se::State& s)
 {
+    ns::SomeClass* cobj = (ns::SomeClass*)s.nativeThisObject();
+    delete cobj;
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_SomeClass_finalize)
