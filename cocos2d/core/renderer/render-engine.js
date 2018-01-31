@@ -2536,7 +2536,7 @@ module.exports = (function () {
       Math.abs(a3 - b3) <= EPSILON * Math.max(1.0, Math.abs(a3), Math.abs(b3)));
   };
   
-  let _tmp$4 = new Array(9);
+  let _tmp$3 = new Array(9);
   
   class _mat3 {
     constructor(m00, m01, m02, m03, m04, m05, m06, m07, m08) {
@@ -2552,17 +2552,17 @@ module.exports = (function () {
     }
   
     toJSON() {
-      _tmp$4[0] = this.m00;
-      _tmp$4[1] = this.m01;
-      _tmp$4[2] = this.m02;
-      _tmp$4[3] = this.m03;
-      _tmp$4[4] = this.m04;
-      _tmp$4[5] = this.m05;
-      _tmp$4[6] = this.m06;
-      _tmp$4[7] = this.m07;
-      _tmp$4[8] = this.m08;
+      _tmp$3[0] = this.m00;
+      _tmp$3[1] = this.m01;
+      _tmp$3[2] = this.m02;
+      _tmp$3[3] = this.m03;
+      _tmp$3[4] = this.m04;
+      _tmp$3[5] = this.m05;
+      _tmp$3[6] = this.m06;
+      _tmp$3[7] = this.m07;
+      _tmp$3[8] = this.m08;
   
-      return _tmp$4;
+      return _tmp$3;
     }
   }
   
@@ -3353,7 +3353,7 @@ module.exports = (function () {
     );
   };
   
-  let _tmp$3 = new Array(4);
+  let _tmp$4 = new Array(4);
   
   class _quat {
     constructor(x, y, z, w) {
@@ -3364,12 +3364,12 @@ module.exports = (function () {
     }
   
     toJSON() {
-      _tmp$3[0] = this.x;
-      _tmp$3[1] = this.y;
-      _tmp$3[2] = this.z;
-      _tmp$3[3] = this.w;
+      _tmp$4[0] = this.x;
+      _tmp$4[1] = this.y;
+      _tmp$4[2] = this.z;
+      _tmp$4[3] = this.w;
   
-      return _tmp$3;
+      return _tmp$4;
     }
   }
   
@@ -8124,7 +8124,7 @@ module.exports = (function () {
     return !(v & (v - 1)) && (!!v);
   }
   
-  class Texture2D$1 extends Texture {
+  class Texture2D extends Texture {
     /**
      * @constructor
      * @param {Device} device
@@ -9542,7 +9542,7 @@ module.exports = (function () {
    * _attach
    */
   function _attach(gl, location, attachment, face = 0) {
-    if (attachment instanceof Texture2D$1) {
+    if (attachment instanceof Texture2D) {
       gl.framebufferTexture2D(
         gl.FRAMEBUFFER,
         location,
@@ -9568,7 +9568,7 @@ module.exports = (function () {
     }
   }
   
-  class Device$1 {
+  class Device {
     /**
      * @param {HTMLElement} canvasEL
      * @param {object} opts
@@ -10284,11 +10284,11 @@ module.exports = (function () {
     VertexBuffer,
     Program,
     Texture,
-    Texture2D: Texture2D$1,
+    Texture2D,
     TextureCube,
     RenderBuffer,
     FrameBuffer,
-    Device: Device$1,
+    Device,
   
     // functions
     attrTypeBytes,
@@ -10297,7 +10297,7 @@ module.exports = (function () {
   };
   Object.assign(gfx, enums$1);
   
-  class InputAssembler$1 {
+  class InputAssembler {
     constructor(vb, ib, pt = gfx.PT_TRIANGLES) {
       this._vertexBuffer = vb;
       this._indexBuffer = ib;
@@ -10342,10 +10342,7 @@ module.exports = (function () {
       // depth
       this._depthTest = false;
       this._depthWrite = false;
-      this._depthFunc = gfx.DS_FUNC_LESS,
-  
-      // stencil
-      this._stencilTest = false;
+      this._depthFunc = gfx.DS_FUNC_LESS, this._stencilTest = false;
       // front
       this._stencilFuncFront = gfx.DS_FUNC_ALWAYS;
       this._stencilRefFront = 0;
@@ -10634,7 +10631,7 @@ module.exports = (function () {
       );
     }
   
-    return new InputAssembler$1(vb, ib);
+    return new InputAssembler(vb, ib);
   }
   
   let _m4_tmp = mat4.create();
@@ -11295,7 +11292,7 @@ module.exports = (function () {
     }
   }
   
-  class Model$1 {
+  class Model {
     constructor() {
       this._poolID = -1;
       this._node = null;
@@ -12297,7 +12294,7 @@ module.exports = (function () {
    * @param {number} hi - Last element in the range.
    * @param {function=} compare - Item comparison function. Default is alphabetical.
    */
-  var sort = function (array, lo, hi, compare) {
+  function sort (array, lo, hi, compare) {
     if (!Array.isArray(array)) {
       throw new TypeError('Can only sort arrays');
     }
@@ -12361,7 +12358,7 @@ module.exports = (function () {
   
     // Force merging of remaining runs
     ts.forceMergeRuns();
-  };
+  }
   
   class FixedArray {
     constructor(size) {
@@ -12547,7 +12544,7 @@ module.exports = (function () {
     _bufferPools[i] = [];
   }
   
-  class Scene$1 {
+  class Scene {
     constructor() {
       this._lights = new FixedArray(16);
       this._models = new FixedArray(16);
@@ -13479,13 +13476,13 @@ module.exports = (function () {
     Pass,
     Technique,
     Effect,
-    InputAssembler: InputAssembler$1,
+    InputAssembler,
     View,
   
     Light,
     Camera,
-    Model: Model$1,
-    Scene: Scene$1,
+    Model,
+    Scene,
   
     Base,
     ProgramLib,
@@ -13503,7 +13500,7 @@ module.exports = (function () {
   // Add stage to renderer
   renderer.addStage('transparent');
   
-  class ForwardRenderer$1 extends renderer.Base {
+  class ForwardRenderer extends renderer.Base {
     constructor (device, builtin) {
       super(device, builtin);
       this._registerStage('transparent', this._transparentStage.bind(this));
@@ -13540,7 +13537,7 @@ module.exports = (function () {
     }
   }
   
-  class Device$2 {
+  class Device$1 {
     /**
      * @param {HTMLElement} canvasEL
      */
@@ -13689,11 +13686,11 @@ module.exports = (function () {
     }
   }
   
-  var renderer$3 = {
+  var renderer$2 = {
     Base: Base$1
   };
   
-  class Texture2D$2 {
+  class Texture2D$1 {
   
     /**
      * @constructor
@@ -13744,14 +13741,14 @@ module.exports = (function () {
   }
   
   var canvas = {
-      Device: Device$2,
-      renderer: renderer$3,
-      Texture2D: Texture2D$2
+      Device: Device$1,
+      renderer: renderer$2,
+      Texture2D: Texture2D$1
   };
   
-  const renderer$2 = canvas.renderer;
+  const renderer$3 = canvas.renderer;
   
-  class ForwardRenderer$2 extends renderer$2.Base {
+  class ForwardRenderer$1 extends renderer$3.Base {
     constructor (device, builtin) {
       super(device, builtin);
       
@@ -13801,6 +13798,9 @@ module.exports = (function () {
       vert: 'uniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying lowp vec4 v_fragmentColor;\n#ifdef useModel\n  uniform mat4 model;\n#endif\n#ifdef useTexture\n  attribute vec2 a_uv0;\n  varying vec2 uv0;\n#endif\nvoid main () {\n  mat4 mvp;\n  #ifdef useModel\n    mvp = viewProj * model;\n  #else\n    mvp = viewProj;\n  #endif\n  vec4 pos = mvp * vec4(a_position, 1);\n  v_fragmentColor = a_color;\n  \n  #ifdef useTexture\n    uv0 = a_uv0;\n  #endif\n  gl_Position = pos;\n}',
       frag: '#ifdef useTexture\n  uniform sampler2D texture;\n  varying vec2 uv0;\n#endif\n#ifdef alphaTest\n  uniform float alphaThreshold;\n#endif\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 o = v_fragmentColor;\n  #ifdef useTexture\n    o *= texture2D(texture, uv0);\n  #endif\n  #ifdef alphaTest\n    if (o.a <= alphaThreshold)\n      discard;\n  #endif\n  gl_FragColor = o;\n}',
       defines: [
+        { name: 'useTexture', },
+        { name: 'useModel', },
+        { name: 'alphaTest', },
       ],
     },
     {
@@ -14701,9 +14701,17 @@ module.exports = (function () {
     get effect () {
       return this._effect;
     }
+    
+    get useTexture () {
+      this._effect.getDefine('useTexture', val);
+    }
   
     set useTexture(val) {
       this._effect.define('useTexture', val);
+    }
+    
+    get useModel () {
+      this._effect.getDefine('useModel', val);
     }
   
     set useModel(val) {
@@ -14719,14 +14727,10 @@ module.exports = (function () {
     }
   
     clone () {
-      let originValues = this._effect._values,
-          values = {};
-      for (let name in originValues) {
-        let value = originValues[name];
-        values[name] = value[name];
-      }
       let copy = new SpriteMaterial(values);
       copy.texture = this.texture;
+      copy.useTexture = this.useTexture;
+      copy.useModel = this.useModel;
       return copy;
     }
   }
@@ -14774,17 +14778,11 @@ module.exports = (function () {
       return this._effect.getProperty('texture');
     }
   
-    set texture(val) {
+    set texture (val) {
       this._effect.setProperty('texture', val);
     }
   
     clone () {
-      let originValues = this._effect._values,
-          values = {};
-      for (let name in originValues) {
-        let value = originValues[name];
-        values[name] = value[name];
-      }
       let copy = new GraySpriteMaterial(values);
       copy.texture = this.texture;
       return copy;
@@ -14860,12 +14858,6 @@ module.exports = (function () {
     }
   
     clone () {
-      let originValues = this._effect._values,
-          values = {};
-      for (let name in originValues) {
-        let value = originValues[name];
-        values[name] = value[name];
-      }
       let copy = new StencilMaterial(values);
       copy.useTexture = this.useTexture;
       copy.texture = this.texture;
@@ -14991,12 +14983,6 @@ module.exports = (function () {
     }
   
     clone () {
-      let originValues = this._effect._values,
-          values = {};
-      for (let name in originValues) {
-        let value = originValues[name];
-        values[name] = value[name];
-      }
       let copy = new ParticleMaterial(values);
       copy.texture = this.texture;
       copy.stateMap = this.stateMap;
@@ -15011,25 +14997,25 @@ module.exports = (function () {
   
   // intenral
   // deps
-  const Scene = renderer.Scene;
-  const ForwardRenderer = renderMode.supportWebGL ? ForwardRenderer$1 : ForwardRenderer$2;
-  const Texture2D = renderMode.supportWebGL ? gfx.Texture2D : canvas.Texture2D;
-  const Device = renderMode.supportWebGL ? gfx.Device : canvas.Device;
-  const Model = renderer.Model;
-  const InputAssembler = renderer.InputAssembler;
+  const Scene$1 = renderer.Scene;
+  const ForwardRenderer$2 = renderMode.supportWebGL ? ForwardRenderer : ForwardRenderer$1;
+  const Texture2D$2 = renderMode.supportWebGL ? gfx.Texture2D : canvas.Texture2D;
+  const Device$2 = renderMode.supportWebGL ? gfx.Device : canvas.Device;
+  const Model$1 = renderer.Model;
+  const InputAssembler$1 = renderer.InputAssembler;
   
   let renderEngine = {
     // core classes
-    Device,
-    ForwardRenderer,
-    Texture2D,
+    Device: Device$2,
+    ForwardRenderer: ForwardRenderer$2,
+    Texture2D: Texture2D$2,
   
     // render scene
-    Scene,
+    Scene: Scene$1,
     Camera: Camera$1,
-    Model,
+    Model: Model$1,
     RenderData,
-    InputAssembler,
+    InputAssembler: InputAssembler$1,
   
     // vfx
     Particles,
