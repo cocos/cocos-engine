@@ -230,7 +230,7 @@ function process () {
         this.stop();
         this.emit('finished', this);
     }
-};
+}
 
 function simpleProcess () {
     var time = this.time;
