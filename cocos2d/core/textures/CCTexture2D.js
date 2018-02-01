@@ -415,7 +415,7 @@ var Texture2D = cc.Class({
      */
     destroy () {
         this._image = null;
-        this._texture.destroy();
+        this._texture && this._texture.destroy();
         // TODO cc.textureUtil ?
         // cc.textureCache.removeTextureForKey(this.url);  // item.rawUrl || item.url
         this._super();
@@ -506,7 +506,7 @@ var Texture2D = cc.Class({
      */
     releaseTexture () {
         this._image = null;
-        this._texture.destroy();
+        this._texture && this._texture.destroy();
     },
 
     /**
