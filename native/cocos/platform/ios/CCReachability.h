@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2018 Chukong Technologies
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 

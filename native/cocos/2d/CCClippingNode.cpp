@@ -2,6 +2,7 @@
  * Copyright (c) 2012      Pierre-David Bélanger
  * Copyright (c) 2012      cocos2d-x.org
  * Copyright (c) 2013-2016 Chukong Technologies Inc.
+ * Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
  *
  * cocos2d-x: http://www.cocos2d-x.org
  *
