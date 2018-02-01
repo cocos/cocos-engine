@@ -29,6 +29,48 @@ const renderEngine = require('../core/renderer/render-engine');
 const SpriteMaterial = renderEngine.SpriteMaterial;
 const RenderData = renderEngine.RenderData;
 
+let _tangent = cc.v2();
+let _miter = cc.v2();
+let _normal = cc.v2();
+let _vec2 = cc.v2();
+
+let _lineA = cc.v2();
+let _lineB = cc.v2();
+
+function normal (out, dir) {
+    //get perpendicular
+    out.x = -dir.y;
+    out.y = dir.x;
+    return out
+}
+
+//get unit dir of two lines
+function direction (out, a, b) {
+    a.sub(b, out);
+    out.normalizeSelf();
+    return out
+}
+
+function computeMiter (tangent, miter, lineA, lineB, halfThick, maxMultiple) {
+    //get tangent line
+    lineA.add(lineB, tangent);
+    tangent.normalizeSelf();
+
+    //get miter as a unit vector
+    miter.x = -tangent.y;
+    miter.y = tangent.x;
+    _vec2.x = -lineA.y; 
+    _vec2.y = lineA.x;
+
+    //get the necessary length of our miter
+    let multiple = 1 / miter.dot(_vec2);
+    if (maxMultiple) {
+        multiple = Math.min(multiple, maxMultiple);
+    }
+    return halfThick * multiple;
+}
+
+
 /**
  * !#en
  * cc.MotionStreak manages a Ribbon based on it's motion in absolute space.                 <br/>
@@ -59,9 +101,12 @@ var MotionStreak = cc.Class({
         executeInEditMode: true
     },
 
-    ctor: function() {
-        this._root = null;
-        this._motionStreak = null;
+    ctor () {
+        this._points = [];
+
+        this._fadeDelta = 0;
+        this._maxPoints = 0;
+        this._numPoints = 0;
     },
 
     properties: {
@@ -263,6 +308,7 @@ var MotionStreak = cc.Class({
     reset: function () {
         this._numPoints = 0;
         this._lastPoint = null;
+        this._points.length = 0;
         let renderData = this._renderData;
         if (renderData) {
             renderData.dataLength = 0;
@@ -295,11 +341,14 @@ var MotionStreak = cc.Class({
             ty = matrix.m13;
 
         let stroke = this._stroke / 2;
-        let lastPoint = this._lastPoint;
-        if (!lastPoint) {
-            lastPoint = this._lastPoint = cc.v2();
-            lastPoint.x = tx;
-            lastPoint.y = ty;
+
+        let points = this._points;
+        if (points.length >= 3) {
+            points.length -= 1;    
+        }
+        points.splice(0, 0, cc.v2(tx, ty));
+
+        if (points.length === 1) {
             this._numPoints = 1;
             renderData.dataLength = 2;
             data[0].x = tx;
@@ -312,11 +361,10 @@ var MotionStreak = cc.Class({
         let maxPoints = this._maxPoints;
         let numPoints = this._numPoints;
 
-        let seg = Math.min(dt/this._fadeDelta, maxPoints) | 0;
+        let seg = Math.min(dt/this._fadeDelta, maxPoints - 1) | 0;
 
-        if (seg === 0) {
-            return;
-        }
+        // at least move one seg to ensure follow the newest position
+        seg = Math.max(seg, 1);
 
         let curLength = Math.min(numPoints + seg, maxPoints);
         renderData.dataLength = renderData.vertexCount = curLength * 2;
@@ -329,21 +377,42 @@ var MotionStreak = cc.Class({
             data[dest].y = data[i].y;
         }
         
-        let lastx = lastPoint.x, lasty = lastPoint.y;
-        let angle = Math.PI - Math.atan2(ty - lasty, tx - lastx);
-        let difx = Math.sin(angle) * stroke,
-            dify = Math.cos(angle) * stroke;
-        let lasttdx = data[seg*2].x;
-        let lastbdx = data[seg*2+1].x;
-        let lasttdy = data[seg*2].y;
-        let lastbdy = data[seg*2+1].y;
-        for (let i = 0; i < seg; i++) {
-            let cur = i*2;
+        let last = [];
+        let cur = [];
+
+        direction(_lineA, points[0], points[1]);
+        normal(_normal, _lineA);
+        
+        if (points.length === 2) {
+            last[0] = points[1].x + _normal.x * stroke;
+            last[1] = points[1].y + _normal.y * stroke;
+            last[2] = points[1].x - _normal.x * stroke;
+            last[3] = points[1].y - _normal.y * stroke;
+        }
+        else {
+            //get unit dir of next line
+            direction(_lineB, points[1], points[2]);
+
+            //stores tangent & miter
+            let miterLen = computeMiter(_tangent, _miter, _lineA, _lineB, stroke);
+            last[0] = points[1].x + _miter.x * miterLen;
+            last[1] = points[1].y + _miter.y * miterLen;
+            last[2] = points[1].x - _miter.x * miterLen;
+            last[3] = points[1].y - _miter.y * miterLen;
+        }
+
+        cur[0] = points[0].x + _normal.x * stroke;
+        cur[1] = points[0].y + _normal.y * stroke;
+        cur[2] = points[0].x - _normal.x * stroke;
+        cur[3] = points[0].y - _normal.y * stroke;
+        
+        for (let i = 0; i < seg+1; i++) {
+            let index = i*2;
             let step = 1 - 1 / seg * i;
-            data[cur].x = lasttdx + (tx + difx - lasttdx) * step;
-            data[cur].y = lasttdy + (ty + dify - lasttdy) * step;
-            data[cur+1].x = lastbdx + (tx - difx - lastbdx) * step;
-            data[cur+1].y = lastbdy + (ty - dify - lastbdy) * step;
+            data[index].x = last[0] + (cur[0] - last[0]) * step;
+            data[index].y = last[1] + (cur[1] - last[1]) * step;
+            data[index+1].x = last[2] + (cur[2] - last[2]) * step;
+            data[index+1].y = last[3] + (cur[3] - last[3]) * step;
         }
 
         let color = this._color,
@@ -353,20 +422,18 @@ var MotionStreak = cc.Class({
             ca = color.a;
 
         for (let i = 0; i < curLength; i++) {
-            let u = 1/(curLength-1)*i;
+            let v = 1/(curLength-1)*i;
             let dest = i*2;
-            data[dest].u = u;
-            data[dest].v = 0;
-            data[dest+1].u = u;
-            data[dest+1].v = 1;
+            data[dest].u = 0;
+            data[dest].v = v;
+            data[dest+1].u = 1;
+            data[dest+1].v = v;
 
             let da = (1-1/(maxPoints-1)*i)*ca;
             data[dest].color = data[dest+1].color = ((da<<24) >>> 0) + (cb<<16) + (cg<<8) + cr;
         }
 
         this._numPoints = curLength;
-        lastPoint.x = tx;
-        lastPoint.y = ty;
     }
 });
 
