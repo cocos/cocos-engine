@@ -2,6 +2,7 @@
 
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
  Copyright (c) 2012 James Chen
  Copyright (c) 2011-2012 cocos2d-x.org
 
