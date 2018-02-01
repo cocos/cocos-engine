@@ -71,12 +71,12 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
     }
     let key = tex.url + src + dst;
     let material = _sharedMaterials[key];
+    let texImpl = tex.getImpl();
     if (!material) {
         material = new SpriteMaterial();
         material.useModel = true;
         // update texture
-        let renderTex = tex.getImpl();
-        material.texture = tex.getImpl();
+        material.texture = texImpl;
         // update blend function
         let pass = material._mainTech.passes[0];
         pass.setBlend(
@@ -86,6 +86,9 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
             src, dst
         );
         _sharedMaterials[key] = material;
+    }
+    else if (material.texture !== texImpl) {
+        material.texture = texImpl;
     }
     return material;
 }
