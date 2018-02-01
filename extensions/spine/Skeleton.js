@@ -329,7 +329,6 @@ sp.Skeleton = cc.Class({
     ctor () {
         this._skeleton = null;
         this._rootBone = null;
-        this._timeScale = 1.0;
         this._listener = null;
         this._boundingBox = cc.rect();
         this._material = new SpriteMaterial();
