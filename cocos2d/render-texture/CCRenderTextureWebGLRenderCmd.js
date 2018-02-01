@@ -172,7 +172,7 @@ proto.initWithWidthAndHeight = function(width, height, format, depthStencilForma
     if (!node._texture)
         return false;
 
-    locTexture.initWithData(data, node._pixelFormat, powW, powH, cc.size(width, height));
+    locTexture.initWithData(data, node._pixelFormat, powW, powH);
     //free( data );
 
     var oldRBO = gl.getParameter(gl.RENDERBUFFER_BINDING);
@@ -181,7 +181,7 @@ proto.initWithWidthAndHeight = function(width, height, format, depthStencilForma
         this._textureCopy = new cc.Texture2D();
         if (!this._textureCopy)
             return false;
-        this._textureCopy.initWithData(data, node._pixelFormat, powW, powH, cc.size(width, height));
+        this._textureCopy.initWithData(data, node._pixelFormat, powW, powH);
     }
 
     // generate FBO
