@@ -91,6 +91,33 @@ static bool js_cocos2dx_dragonbones_Armature_getDisplay(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_dragonbones_Armature_getDisplay)
 
+static bool js_cocos2dx_dragonbones_Armature_getSlots(se::State& s)
+{
+	dragonBones::Armature* cobj = (dragonBones::Armature*)s.nativeThisObject();
+	const auto& result = cobj->getSlots();
+	se::HandleObject arr(se::Object::createArrayObject(result.size()));
+
+	uint32_t i = 0;
+	se::Value tmp;
+	bool ok = true;
+	for (const auto& slot : result)
+	{
+		if (!native_ptr_to_rooted_seval<dragonBones::Slot>(slot, &tmp))
+		{
+			ok = false;
+			break;
+		}
+		arr->setArrayElement(i, tmp);
+		++i;
+	}
+	if (ok)
+		s.rval().setObject(arr);
+
+	SE_PRECONDITION2(ok, false, "Convert getSlots to se::Value failed!");
+	return true;
+}
+SE_BIND_FUNC(js_cocos2dx_dragonbones_Armature_getSlots)
+
 static bool js_cocos2dx_dragonbones_CCArmatureDisplay_getAnimation(se::State& s)
 {
     if (s.args().size() == 0)
@@ -400,11 +427,69 @@ static bool js_cocos2dx_dragonbones_Slot_setDisplay(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_dragonbones_Slot_setDisplay)
 
+static bool js_cocos2dx_dragonbones_Slot_get_name(se::State& s)
+{
+	dragonBones::Slot* cobj = (dragonBones::Slot*)s.nativeThisObject();
+	SE_PRECONDITION2(cobj, false, "js_cocos2dx_dragonbones_Slot_get_name : Invalid Native Object");
+
+	CC_UNUSED bool ok = true;
+	se::Value jsret;
+	ok &= std_string_to_seval(cobj->name, &jsret);
+	s.rval() = jsret;
+	return true;
+}
+SE_BIND_PROP_GET(js_cocos2dx_dragonbones_Slot_get_name)
+
+static bool js_cocos2dx_dragonbones_BaseFactory_replaceSlotDisplay(se::State& s)
+{
+	dragonBones::BaseFactory* cobj = (dragonBones::BaseFactory*)s.nativeThisObject();
+	SE_PRECONDITION2(cobj, false, "js_cocos2dx_dragonbones_BaseFactory_replaceSlotDisplay : Invalid Native Object");
+	const auto& args = s.args();
+	size_t argc = args.size();
+	CC_UNUSED bool ok = true;
+	if (argc == 5) {
+		std::string arg0;
+		std::string arg1;
+		std::string arg2;
+		std::string arg3;
+		dragonBones::Slot* arg4 = nullptr;
+		ok &= seval_to_std_string(args[0], &arg0);
+		ok &= seval_to_std_string(args[1], &arg1);
+		ok &= seval_to_std_string(args[2], &arg2);
+		ok &= seval_to_std_string(args[3], &arg3);
+		ok &= seval_to_native_ptr(args[4], &arg4);
+		SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_replaceSlotDisplay : Error processing arguments");
+		cobj->replaceSlotDisplay(arg0, arg1, arg2, arg3, *arg4);
+		return true;
+	}
+	if (argc == 6) {
+		std::string arg0;
+		std::string arg1;
+		std::string arg2;
+		std::string arg3;
+		dragonBones::Slot* arg4 = nullptr;
+		int arg5 = -1;
+		ok &= seval_to_std_string(args[0], &arg0);
+		ok &= seval_to_std_string(args[1], &arg1);
+		ok &= seval_to_std_string(args[2], &arg2);
+		ok &= seval_to_std_string(args[3], &arg3);
+		ok &= seval_to_native_ptr(args[4], &arg4);
+		ok &= seval_to_int32(args[5], &arg5);
+		SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_replaceSlotDisplay : Error processing arguments");
+		cobj->replaceSlotDisplay(arg0, arg1, arg2, arg3, *arg4, arg5);
+		return true;
+	}
+	SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
+	return false;
+}
+SE_BIND_FUNC(js_cocos2dx_dragonbones_BaseFactory_replaceSlotDisplay)
+
 bool register_all_dragonbones_manual(se::Object* obj)
 {
     __jsb_dragonBones_Armature_proto->defineFunction("getAnimation", _SE(js_cocos2dx_dragonbones_Armature_getAnimation));
     __jsb_dragonBones_Armature_proto->defineFunction("getArmatureData", _SE(js_cocos2dx_dragonbones_Armature_getArmatureData));
     __jsb_dragonBones_Armature_proto->defineFunction("getDisplay", _SE(js_cocos2dx_dragonbones_Armature_getDisplay));
+    __jsb_dragonBones_Armature_proto->defineFunction("getSlots", _SE(js_cocos2dx_dragonbones_Armature_getSlots));
 
     __jsb_dragonBones_CCArmatureDisplay_proto->defineFunction("getAnimation", _SE(js_cocos2dx_dragonbones_CCArmatureDisplay_getAnimation));
     __jsb_dragonBones_AnimationState_proto->defineFunction("getAnimationData", _SE(js_cocos2dx_dragonbones_AnimationState_getAnimationData));
@@ -415,6 +500,8 @@ bool register_all_dragonbones_manual(se::Object* obj)
     __jsb_dragonBones_ArmatureData_proto->defineProperty("slots", _SE(js_cocos2dx_dragonbones_ArmatureData_get_slots), nullptr);
 
     __jsb_dragonBones_DragonBonesData_proto->defineProperty("armatureNames", _SE(js_cocos2dx_dragonbones_DragonBonesData_get_armatureNames), nullptr);
+
+    __jsb_dragonBones_BaseFactory_proto->defineFunction("replaceSlotDisplay", _SE(js_cocos2dx_dragonbones_BaseFactory_replaceSlotDisplay));
 
     se::Object* global = se::ScriptEngine::getInstance()->getGlobalObject();
     se::Value dragonBonesVal, worldClockVal;
@@ -436,6 +523,7 @@ bool register_all_dragonbones_manual(se::Object* obj)
     __jsb_dragonBones_TransformObject_proto->defineProperty("origin", _SE(js_cocos2dx_dragonbones_TransformObject_getOrigin), nullptr);
     __jsb_dragonBones_TransformObject_proto->defineProperty("offset", _SE(js_cocos2dx_dragonbones_TransformObject_getOffset), nullptr);
 
+    __jsb_dragonBones_Slot_proto->defineProperty("name", _SE(js_cocos2dx_dragonbones_Slot_get_name), nullptr);
     __jsb_dragonBones_Slot_proto->defineFunction("getRawDisplay", _SE(js_cocos2dx_dragonbones_Slot_getRawDisplay));
     __jsb_dragonBones_Slot_proto->defineFunction("getDisplay", _SE(js_cocos2dx_dragonbones_Slot_getDisplay));
     __jsb_dragonBones_Slot_proto->defineFunction("getMeshDisplay", _SE(js_cocos2dx_dragonbones_Slot_getMeshDisplay));
