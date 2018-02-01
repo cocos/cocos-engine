@@ -854,6 +854,9 @@ game.once(game.EVENT_RENDERER_INITED, function () {
         };
 
         _p.initWithData = function (data, pixelFormat, pixelsWidth, pixelsHeight, contentSize) {
+            if (contentSize) {
+                cc.warnID(3118);
+            }
             var opts = _getSharedOptions();
             opts.image = data;
             opts.format = pixelFormat;
