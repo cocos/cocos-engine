@@ -704,6 +704,7 @@ var Node = cc.Class({
             set (value) {
                 if (this._opacity !== value) {
                     this._opacity = value;
+                    this._color.a = value;
                 }
             },
             range: [0, 255]
