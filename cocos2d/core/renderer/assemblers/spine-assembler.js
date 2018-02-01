@@ -282,7 +282,7 @@ var spineAssembler = js.addon({
             skeleton.update(dt);
 
             if (state) {
-                dt *= comp._timeScale;
+                dt *= comp.timeScale;
                 state.update(dt);
                 state.apply(skeleton);
             }
