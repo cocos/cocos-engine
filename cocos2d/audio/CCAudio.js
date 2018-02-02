@@ -360,7 +360,7 @@ var WebAudioElement = function (buffer, audio) {
             var self = this;
             clearTimeout(this._currextTimer);
             this._currextTimer = setTimeout(function () {
-                if (sys.platform === sys.WECHAT_GAME && self._context.currentTime === 0) {
+                if (sys.platform !== sys.WECHAT_GAME && self._context.currentTime === 0) {
                     touchPlayList.push({
                         instance: self._audio,
                         offset: offset,
