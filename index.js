@@ -188,7 +188,7 @@ require('./extends');
 
 if (CC_EDITOR) {
     if (Editor.isMainProcess) {
-        Editor.versions['cocos2d'] = require('./package.json').version;
+        Editor.versions['cocos2d'] = require('./package').version;
     }
 }
 
