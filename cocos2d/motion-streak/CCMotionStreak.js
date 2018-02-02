@@ -29,48 +29,6 @@ const renderEngine = require('../core/renderer/render-engine');
 const SpriteMaterial = renderEngine.SpriteMaterial;
 const RenderData = renderEngine.RenderData;
 
-let _tangent = cc.v2();
-let _miter = cc.v2();
-let _normal = cc.v2();
-let _vec2 = cc.v2();
-
-let _lineA = cc.v2();
-let _lineB = cc.v2();
-
-function normal (out, dir) {
-    //get perpendicular
-    out.x = -dir.y;
-    out.y = dir.x;
-    return out
-}
-
-//get unit dir of two lines
-function direction (out, a, b) {
-    a.sub(b, out);
-    out.normalizeSelf();
-    return out
-}
-
-function computeMiter (tangent, miter, lineA, lineB, halfThick, maxMultiple) {
-    //get tangent line
-    lineA.add(lineB, tangent);
-    tangent.normalizeSelf();
-
-    //get miter as a unit vector
-    miter.x = -tangent.y;
-    miter.y = tangent.x;
-    _vec2.x = -lineA.y; 
-    _vec2.y = lineA.x;
-
-    //get the necessary length of our miter
-    let multiple = 1 / miter.dot(_vec2);
-    if (maxMultiple) {
-        multiple = Math.min(multiple, maxMultiple);
-    }
-    return halfThick * multiple;
-}
-
-
 /**
  * !#en
  * cc.MotionStreak manages a Ribbon based on it's motion in absolute space.                 <br/>
@@ -103,10 +61,6 @@ var MotionStreak = cc.Class({
 
     ctor () {
         this._points = [];
-
-        this._fadeDelta = 0;
-        this._maxPoints = 0;
-        this._numPoints = 0;
     },
 
     properties: {
@@ -140,7 +94,7 @@ var MotionStreak = cc.Class({
             },
             set: function (value) {
                 this._fadeTime = value;
-                this._applyFadeTime();
+                this.reset();
             },
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.fadeTime'
@@ -257,7 +211,7 @@ var MotionStreak = cc.Class({
     onEnable: function () {
         this._super();
         this._activateMaterial();
-        this._applyFadeTime();
+        this.reset();
     },
 
     _activateMaterial: function () {
@@ -276,13 +230,6 @@ var MotionStreak = cc.Class({
         material.texture = texture.getImpl();
 
         this._material = material;
-    },
-
-    _applyFadeTime: function () {
-        this._fadeDelta = 1/60;
-        this._maxPoints = (0 | (this._fadeTime * 60));
-        this._numPoints = 0;
-        this.reset();
     },
 
     onFocusInEditor: CC_EDITOR && function () {
@@ -306,8 +253,6 @@ var MotionStreak = cc.Class({
      * myParticleSystem.stopSystem();
      */
     reset: function () {
-        this._numPoints = 0;
-        this._lastPoint = null;
         this._points.length = 0;
         let renderData = this._renderData;
         if (renderData) {
@@ -318,122 +263,6 @@ var MotionStreak = cc.Class({
         if (CC_EDITOR) {
             cc.engine.repaintInEditMode();
         }
-    },
-
-    update: function (dt) {
-        let renderData = this._renderData;
-        if (!renderData) {
-            renderData = this._renderData = RenderData.alloc();
-        }
-
-        if (CC_EDITOR && !this.preview) return;
-        
-        let data = renderData._data;
-        
-        let node = this.node;
-        node._updateWorldMatrix();
-        let matrix = node._worldMatrix;
-        let a = matrix.m00,
-            b = matrix.m01,
-            c = matrix.m04,
-            d = matrix.m05,
-            tx = matrix.m12,
-            ty = matrix.m13;
-
-        let stroke = this._stroke / 2;
-
-        let points = this._points;
-        if (points.length >= 3) {
-            points.length -= 1;    
-        }
-        points.splice(0, 0, cc.v2(tx, ty));
-
-        if (points.length === 1) {
-            this._numPoints = 1;
-            renderData.dataLength = 2;
-            data[0].x = tx;
-            data[0].y = ty+stroke;
-            data[1].x = tx;
-            data[1].y = ty-stroke;
-            return;
-        }
-
-        let maxPoints = this._maxPoints;
-        let numPoints = this._numPoints;
-
-        let seg = Math.min(dt/this._fadeDelta, maxPoints - 1) | 0;
-
-        // at least move one seg to ensure follow the newest position
-        seg = Math.max(seg, 1);
-
-        let curLength = Math.min(numPoints + seg, maxPoints);
-        renderData.dataLength = renderData.vertexCount = curLength * 2;
-        renderData.indiceCount = (curLength - 1) * 6;
-
-        for (let i = numPoints * 2 - 1; i >= 0; i--) {
-            let dest = i + seg*2;
-            if (dest >= maxPoints*2) continue;
-            data[dest].x = data[i].x;
-            data[dest].y = data[i].y;
-        }
-        
-        let last = [];
-        let cur = [];
-
-        direction(_lineA, points[0], points[1]);
-        normal(_normal, _lineA);
-        
-        if (points.length === 2) {
-            last[0] = points[1].x + _normal.x * stroke;
-            last[1] = points[1].y + _normal.y * stroke;
-            last[2] = points[1].x - _normal.x * stroke;
-            last[3] = points[1].y - _normal.y * stroke;
-        }
-        else {
-            //get unit dir of next line
-            direction(_lineB, points[1], points[2]);
-
-            //stores tangent & miter
-            let miterLen = computeMiter(_tangent, _miter, _lineA, _lineB, stroke);
-            last[0] = points[1].x + _miter.x * miterLen;
-            last[1] = points[1].y + _miter.y * miterLen;
-            last[2] = points[1].x - _miter.x * miterLen;
-            last[3] = points[1].y - _miter.y * miterLen;
-        }
-
-        cur[0] = points[0].x + _normal.x * stroke;
-        cur[1] = points[0].y + _normal.y * stroke;
-        cur[2] = points[0].x - _normal.x * stroke;
-        cur[3] = points[0].y - _normal.y * stroke;
-        
-        for (let i = 0; i < seg+1; i++) {
-            let index = i*2;
-            let step = 1 - 1 / seg * i;
-            data[index].x = last[0] + (cur[0] - last[0]) * step;
-            data[index].y = last[1] + (cur[1] - last[1]) * step;
-            data[index+1].x = last[2] + (cur[2] - last[2]) * step;
-            data[index+1].y = last[3] + (cur[3] - last[3]) * step;
-        }
-
-        let color = this._color,
-            cr = color.r,
-            cg = color.g,
-            cb = color.b,
-            ca = color.a;
-
-        for (let i = 0; i < curLength; i++) {
-            let v = 1/(curLength-1)*i;
-            let dest = i*2;
-            data[dest].u = 0;
-            data[dest].v = v;
-            data[dest+1].u = 1;
-            data[dest+1].v = v;
-
-            let da = (1-1/(maxPoints-1)*i)*ca;
-            data[dest].color = data[dest+1].color = ((da<<24) >>> 0) + (cb<<16) + (cg<<8) + cr;
-        }
-
-        this._numPoints = curLength;
     }
 });
 
