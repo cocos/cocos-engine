@@ -785,12 +785,12 @@ var game = {
         }
 
         if (navigator.userAgent.indexOf("MicroMessenger") > -1) {
-            win.onfocus = function(){ onShow() };
+            win.onfocus = onShow;
         }
 
         if (CC_WECHATGAME) {
-            wx.onShow = onShow;
-            wx.onHide = onHidden;
+            wx.onShow(onShow);
+            wx.onHide(onHidden);
         }
 
         if ("onpageshow" in window && "onpagehide" in window) {
