@@ -183,6 +183,13 @@ cc.Integer = 'Integer';
  */
 cc.Float = 'Float';
 
+if (CC_EDITOR) {
+    JS.get(cc, 'Number', function () {
+        cc.warnID(3603);
+        return cc.Float;
+    });
+}
+
 /**
  * Indicates that the elements in array should be type boolean.
  * @property {string} Boolean
