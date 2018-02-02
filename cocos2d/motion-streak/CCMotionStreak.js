@@ -59,9 +59,8 @@ var MotionStreak = cc.Class({
         executeInEditMode: true
     },
 
-    ctor: function() {
-        this._root = null;
-        this._motionStreak = null;
+    ctor () {
+        this._points = [];
     },
 
     properties: {
@@ -95,7 +94,7 @@ var MotionStreak = cc.Class({
             },
             set: function (value) {
                 this._fadeTime = value;
-                this._applyFadeTime();
+                this.reset();
             },
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.motionStreak.fadeTime'
@@ -212,7 +211,7 @@ var MotionStreak = cc.Class({
     onEnable: function () {
         this._super();
         this._activateMaterial();
-        this._applyFadeTime();
+        this.reset();
     },
 
     _activateMaterial: function () {
@@ -231,13 +230,6 @@ var MotionStreak = cc.Class({
         material.texture = texture.getImpl();
 
         this._material = material;
-    },
-
-    _applyFadeTime: function () {
-        this._fadeDelta = 1/60;
-        this._maxPoints = (0 | (this._fadeTime * 60));
-        this._numPoints = 0;
-        this.reset();
     },
 
     onFocusInEditor: CC_EDITOR && function () {
@@ -261,8 +253,7 @@ var MotionStreak = cc.Class({
      * myParticleSystem.stopSystem();
      */
     reset: function () {
-        this._numPoints = 0;
-        this._lastPoint = null;
+        this._points.length = 0;
         let renderData = this._renderData;
         if (renderData) {
             renderData.dataLength = 0;
@@ -272,101 +263,6 @@ var MotionStreak = cc.Class({
         if (CC_EDITOR) {
             cc.engine.repaintInEditMode();
         }
-    },
-
-    update: function (dt) {
-        let renderData = this._renderData;
-        if (!renderData) {
-            renderData = this._renderData = RenderData.alloc();
-        }
-
-        if (CC_EDITOR && !this.preview) return;
-        
-        let data = renderData._data;
-        
-        let node = this.node;
-        node._updateWorldMatrix();
-        let matrix = node._worldMatrix;
-        let a = matrix.m00,
-            b = matrix.m01,
-            c = matrix.m04,
-            d = matrix.m05,
-            tx = matrix.m12,
-            ty = matrix.m13;
-
-        let stroke = this._stroke / 2;
-        let lastPoint = this._lastPoint;
-        if (!lastPoint) {
-            lastPoint = this._lastPoint = cc.v2();
-            lastPoint.x = tx;
-            lastPoint.y = ty;
-            this._numPoints = 1;
-            renderData.dataLength = 2;
-            data[0].x = tx;
-            data[0].y = ty+stroke;
-            data[1].x = tx;
-            data[1].y = ty-stroke;
-            return;
-        }
-
-        let maxPoints = this._maxPoints;
-        let numPoints = this._numPoints;
-
-        let seg = Math.min(dt/this._fadeDelta, maxPoints) | 0;
-
-        if (seg === 0) {
-            return;
-        }
-
-        let curLength = Math.min(numPoints + seg, maxPoints);
-        renderData.dataLength = renderData.vertexCount = curLength * 2;
-        renderData.indiceCount = (curLength - 1) * 6;
-
-        for (let i = numPoints * 2 - 1; i >= 0; i--) {
-            let dest = i + seg*2;
-            if (dest >= maxPoints*2) continue;
-            data[dest].x = data[i].x;
-            data[dest].y = data[i].y;
-        }
-        
-        let lastx = lastPoint.x, lasty = lastPoint.y;
-        let angle = Math.PI - Math.atan2(ty - lasty, tx - lastx);
-        let difx = Math.sin(angle) * stroke,
-            dify = Math.cos(angle) * stroke;
-        let lasttdx = data[seg*2].x;
-        let lastbdx = data[seg*2+1].x;
-        let lasttdy = data[seg*2].y;
-        let lastbdy = data[seg*2+1].y;
-        for (let i = 0; i < seg; i++) {
-            let cur = i*2;
-            let step = 1 - 1 / seg * i;
-            data[cur].x = lasttdx + (tx + difx - lasttdx) * step;
-            data[cur].y = lasttdy + (ty + dify - lasttdy) * step;
-            data[cur+1].x = lastbdx + (tx - difx - lastbdx) * step;
-            data[cur+1].y = lastbdy + (ty - dify - lastbdy) * step;
-        }
-
-        let color = this._color,
-            cr = color.r,
-            cg = color.g,
-            cb = color.b,
-            ca = color.a;
-
-        for (let i = 0; i < curLength; i++) {
-            let u = 1/(curLength-1)*i;
-            let dest = i*2;
-            data[dest].u = u;
-            data[dest].v = 0;
-            data[dest+1].u = u;
-            data[dest+1].v = 1;
-
-            let da = (1-1/(maxPoints-1)*i)*ca;
-            data[dest].color = data[dest+1].color = ((da<<24) >>> 0) + (cb<<16) + (cg<<8) + cr;
-        }
-
-        this._numPoints = curLength;
-        lastPoint.x = tx;
-        lastPoint.y = ty;
     }
 });
 
