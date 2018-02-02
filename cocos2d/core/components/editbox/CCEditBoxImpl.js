@@ -193,9 +193,10 @@ let EditBoxImpl = cc.Class({
     },
 
     update () {
-        if (this._editing) {
+        // TODO: find better way to update matrix
+        // if (this._editing) {
             this._updateMatrix();
-        }
+        // }
     },
 
     clear () {
