@@ -108,7 +108,7 @@ var PhysicsManager = cc.Class({
          * Specify the fixed time step.
          * Need enabledAccumulator to make it work.
          * !#zh
-         * 指定固定的时间步长，需要开启 enabledAccumulator 才有效。
+         * 指定固定的物理更新间隔时间，需要开启 enabledAccumulator 才有效。
          * @property {Number} FIXED_TIME_STEP
          * @default 1/60
          * @static
@@ -151,8 +151,8 @@ var PhysicsManager = cc.Class({
          * And if the update dt is bigger than the time step, then will call step function several times.
          * If disabled accumulator, then will call step function with a time step calculated with the frame rate.
          * !#zh
-         * 如果开启此选项，那么将会以固定的时间步 FIXED_TIME_STEP 来更新物理引擎，如果一个 update 的间隔时间大于这个时间步，则会对物理引擎进行多次更新。
-         * 如果关闭此选项，那么将会根据设定的 frame rate 计算出一个时间步来更新物理引擎。
+         * 如果开启此选项，那么将会以固定的间隔时间 FIXED_TIME_STEP 来更新物理引擎，如果一个 update 的间隔时间大于 FIXED_TIME_STEP，则会对物理引擎进行多次更新。
+         * 如果关闭此选项，那么将会根据设定的 frame rate 计算出一个间隔时间来更新物理引擎。
          * @property {Boolean} enabledAccumulator
          * @default false
          */
