@@ -431,16 +431,6 @@ void Texture2D::convertRGBA8888ToRGB5A1(const unsigned char* data, ssize_t dataL
 }
 // converter function end
 //////////////////////////////////////////////////////////////////////////
-static std::unordered_set<Texture2D*> s_allGLTexture2D;
-
-void Texture2D::forceDeleteALLTexture2D()
-{
-    auto copyMap = s_allGLTexture2D;
-    for (auto&& it: copyMap) {
-        delete it;
-    }
-    s_allGLTexture2D.clear();
-}
 
 Texture2D::Texture2D()
 : _pixelFormat(Texture2D::PixelFormat::DEFAULT)
@@ -457,15 +447,11 @@ Texture2D::Texture2D()
 , _valid(true)
 , _alphaTexture(nullptr)
 {
-    s_allGLTexture2D.insert(this);
     _antialiasEnabled = Director::getInstance()->getOpenGLView()->isAntiAliasEnabled();
 }
 
 Texture2D::~Texture2D()
 {
-    if (s_allGLTexture2D.find(this) != s_allGLTexture2D.end()) {
-        s_allGLTexture2D.erase(this);
-    }
 #if CC_ENABLE_CACHE_TEXTURE_DATA
     VolatileTextureMgr::removeTexture(this);
 #endif
