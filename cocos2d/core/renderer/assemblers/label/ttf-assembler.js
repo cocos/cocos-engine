@@ -180,7 +180,7 @@ module.exports = {
         if (!_comp.useSystemFont) {
             if (!_comp.font) return false;
 
-            let url = _comp.font.rawUrl;
+            let url = _comp.font.nativeUrl;
             _fontFamily = cc.CustomFontLoader._getFontFamily(url);
             let fontDescriptor = cc.CustomFontLoader._fontCache[_fontFamily];
             if (!fontDescriptor || !fontDescriptor.isLoaded()) {
