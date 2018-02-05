@@ -28,14 +28,12 @@ void BaseObject::_returnObject(BaseObject* object)
             DRAGONBONES_ASSERT(false, "The object aleady in pool.");
         }
 
+        object->_isInPool = true;
         if (_recycleOrDestroyCallback != nullptr)
             _recycleOrDestroyCallback(object, 0);
     }
     else
     {
-        if (_recycleOrDestroyCallback != nullptr)
-            _recycleOrDestroyCallback(object, 1);
-
         delete object;
     }
 }
@@ -129,8 +127,6 @@ void BaseObject::clearPool(std::size_t classTypeIndex)
     }
 }
 
-
-
 BaseObject::BaseObject()
 : hashCode(BaseObject::_hashCode++)
 , _isInPool(false)
@@ -140,6 +136,9 @@ BaseObject::BaseObject()
 
 BaseObject::~BaseObject()
 {
+    if (_recycleOrDestroyCallback != nullptr)
+        _recycleOrDestroyCallback(this, 1);
+
     auto iter = std::find(__allDragonBonesObjects.begin(), __allDragonBonesObjects.end(), this);
     if (iter != __allDragonBonesObjects.end())
     {
@@ -150,8 +149,10 @@ BaseObject::~BaseObject()
 void BaseObject::returnToPool()
 {
     _onClear();
+    // _returnObject make delete this BaseObject,
+    // so after the function invocation, any other operations of
+    // this object should not be done.
     _returnObject(this);
-    _isInPool = true;
 }
 
 std::vector<BaseObject*>& BaseObject::getAllObjects()

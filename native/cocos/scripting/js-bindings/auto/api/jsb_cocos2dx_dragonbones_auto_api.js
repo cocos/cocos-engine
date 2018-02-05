@@ -1583,4 +1583,13 @@ getInstance : function (
     return dragonBones::CCFactory;
 },
 
+/**
+ * @method CCFactory
+ * @constructor
+ */
+CCFactory : function (
+)
+{
+},
+
 };

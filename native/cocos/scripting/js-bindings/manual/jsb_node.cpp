@@ -1450,6 +1450,74 @@ static bool js_cocos2dx_Scheduler_isTargetPaused(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Scheduler_isTargetPaused)
 
+static void fillScheduleTargetArray(se::Object* ret, const std::set<void*>& targets)
+{
+    uint32_t index = 0;
+    for (void* target : targets)
+    {
+        uint32_t targetID = (uint32_t)reinterpret_cast<uintptr_t>(target);
+        auto iter = __js_target_schedulekey_map.find(targetID);
+        if (iter != __js_target_schedulekey_map.end())
+        {
+            se::Object* targetObj = iter->second.begin()->second.getTarget();
+            ret->setArrayElement(index, se::Value(targetObj));
+            ++index;
+        }
+        else
+        {
+            auto updateIter = __js_target_schedule_update_map.find(targetID);
+            if (updateIter != __js_target_schedule_update_map.end())
+            {
+                se::Object* targetObj = updateIter->second.second;
+                ret->setArrayElement(index, se::Value(targetObj));
+                ++index;
+            }
+        }
+    }
+}
+
+static bool js_cocos2dx_Scheduler_pauseAllTargets(se::State& s)
+{
+    const auto& args = s.args();
+    int argc = (int)args.size();
+    if (argc == 0)
+    {
+        Scheduler* cobj = (Scheduler*)s.nativeThisObject();
+        std::set<void*> targets = cobj->pauseAllTargets();
+        se::HandleObject ret(se::Object::createArrayObject((uint32_t)targets.size()));
+        fillScheduleTargetArray(ret.get(), targets);
+        s.rval().setObject(ret);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Scheduler_pauseAllTargets)
+
+static bool js_cocos2dx_Scheduler_pauseAllTargetsWithMinPriority(se::State& s)
+{
+    const auto& args = s.args();
+    int argc = (int)args.size();
+    if (argc == 1)
+    {
+        Scheduler* cobj = (Scheduler*)s.nativeThisObject();
+        int minPriority = 0;
+        bool ok = seval_to_int32(args[0], &minPriority);
+        SE_PRECONDITION2(ok, false, "Converting 'minPriority' argument failed");
+
+        std::set<void*> targets = cobj->pauseAllTargetsWithMinPriority(minPriority);
+        se::HandleObject ret(se::Object::createArrayObject((uint32_t)targets.size()));
+        fillScheduleTargetArray(ret.get(), targets);
+        s.rval().setObject(ret);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Scheduler_pauseAllTargetsWithMinPriority)
+
 static void resumeAllSchedulesForTarget(Node* node, se::Object* jsThis)
 {
     node->getScheduler()->resumeTarget(jsThis);
@@ -1596,6 +1664,8 @@ bool jsb_register_Node_manual(se::Object* global)
     schedulerProto->defineFunction("pauseTarget", _SE(js_cocos2dx_Scheduler_pauseTarget));
     schedulerProto->defineFunction("resumeTarget", _SE(js_cocos2dx_Scheduler_resumeTarget));
     schedulerProto->defineFunction("isTargetPaused", _SE(js_cocos2dx_Scheduler_isTargetPaused));
+    schedulerProto->defineFunction("pauseAllTargets", _SE(js_cocos2dx_Scheduler_pauseAllTargets));
+    schedulerProto->defineFunction("pauseAllTargetsWithMinPriority", _SE(js_cocos2dx_Scheduler_pauseAllTargetsWithMinPriority));
 
 #if STANDALONE_TEST
     cls->defineFunction("addChild", _SE(Node_addChild));
