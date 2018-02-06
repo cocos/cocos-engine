@@ -52,9 +52,6 @@ let _fontFamily = '';
 let _overflow = Overflow.NONE;
 let _isWrapText = false;
 
-let _isBold = false;
-let _isItalic = false;
-
 // outline
 let _isOutlined = false;
 let _outlineColor = null;
@@ -67,7 +64,8 @@ let _gradientStartColor = null;
 let _gradientEndColor = null;
 let _gradientArgs = null;
 
-// underline
+let _isBold = false;
+let _isItalic = false;
 let _isUnderline = false;
 
 module.exports = {
@@ -180,7 +178,7 @@ module.exports = {
         if (!_comp.useSystemFont) {
             if (!_comp.font) return false;
 
-            let url = _comp.font.rawUrl;
+            let url = _comp.font.nativeUrl;
             _fontFamily = cc.CustomFontLoader._getFontFamily(url);
             let fontDescriptor = cc.CustomFontLoader._fontCache[_fontFamily];
             if (!fontDescriptor || !fontDescriptor.isLoaded()) {
@@ -210,6 +208,9 @@ module.exports = {
         _hAlign = _comp.horizontalAlign;
         _vAlign = _comp.verticalAlign;
         _color = _comp.node.color;
+        _isBold = _comp._isBold;
+        _isItalic = _comp._isItalic;
+        _isUnderline = _comp._isUnderline;
 
         if (_overflow === Overflow.NONE) {
             _isWrapText = false;
@@ -230,6 +231,7 @@ module.exports = {
         }
         else {
             _isOutlined = false;
+            _margin = 0;
         }
     },
 
@@ -321,7 +323,7 @@ module.exports = {
             firstLinelabelY = _fontSize;
         }
         else if (_vAlign === cc.VerticalTextAlignment.CENTER) {
-            firstLinelabelY = _canvasSize.height / 2 - lineHeight * (lineCount - 1) / 2 + node._fontSize / 2;
+            firstLinelabelY = _canvasSize.height / 2 - lineHeight * (lineCount - 1) / 2 + _fontSize / 2;
         }
         else {
             firstLinelabelY = _canvasSize.height - lineHeight * (lineCount - 1);

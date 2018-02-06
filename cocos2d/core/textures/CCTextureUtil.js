@@ -77,6 +77,33 @@ let textureUtil = {
             cc.loader.flowOut(item);
             return tex;
         }
+    },
+
+    postLoadTexture (texture, callback) {
+        if (texture.loaded) {
+            callback && callback();
+            return;
+        }
+        if (!texture.url) {
+            callback && callback();
+            return;
+        }
+        // load image
+        cc.loader.load({
+            url: texture.url,
+            // For image, we should skip loader otherwise it will load a new texture
+            skips: ['Loader'],
+        }, function (err, image) {
+            if (image) {
+                if (CC_DEBUG && image instanceof cc.Texture2D) {
+                    return cc.error('internal error: loader handle pipe must be skipped');
+                }
+                if (!texture.loaded) {
+                    texture._nativeAsset = image;
+                }
+            }
+            callback && callback(err);
+        });
     }
 };
 

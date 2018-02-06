@@ -96,19 +96,21 @@ let spriteAssembler = js.addon({
         let anchor = sprite.node._anchorPoint;
         renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
         
-        switch (sprite.type) {
-            case SpriteType.SIMPLE:
-                simpleRenderUtil.update(sprite);
-                break;
-            case SpriteType.SLICED:
-                slicedRenderUtil.update(sprite);
-                break;
-            case SpriteType.TILED:
-                tiledRenderUtil.update(sprite);
-                break;
-            case SpriteType.FILLED:
-                filledRenderUtil.update(sprite);
-                break;
+        if (sprite.spriteFrame) {
+            switch (sprite.type) {
+                case SpriteType.SIMPLE:
+                    simpleRenderUtil.update(sprite);
+                    break;
+                case SpriteType.SLICED:
+                    slicedRenderUtil.update(sprite);
+                    break;
+                case SpriteType.TILED:
+                    tiledRenderUtil.update(sprite);
+                    break;
+                case SpriteType.FILLED:
+                    filledRenderUtil.update(sprite);
+                    break;
+            }    
         }
         renderData.effect = sprite.getEffect();
         this.datas.length = 0;
