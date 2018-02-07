@@ -13512,7 +13512,7 @@ module.exports = (function () {
       const canvas = this._device._gl.canvas;
   
       for (let i = 0; i < scene._cameras.length; ++i) {
-        let view = new renderer.View();
+        let view = this._requestView();
         scene._cameras.data[i].extractView(view, canvas.width, canvas.height);
         this._render(view, scene);
       }
@@ -13527,14 +13527,6 @@ module.exports = (function () {
       // draw it
       for (let i = 0; i < items.length; ++i) {
         let item = items.data[i];
-  
-        // Update vertex buffer and index buffer
-        let ia = item.ia;
-        let vb = ia._vertexBuffer;
-        let ib = ia._indexBuffer;
-        vb.update(0, vb._data);
-        ib.update(0, ib._data);
-  
         this._draw(item);
       }
     }
