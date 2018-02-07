@@ -445,13 +445,6 @@ var PhysicsManager = cc.Class({
         var bodies = this._bodies;
         for (var i = 0, l = bodies.length; i < l; i++) {
             var body = bodies[i];
-            if (CC_JSB) {
-                var node = body.node;
-                node._position.x = node._sgNode.getPositionX();
-                node._position.y = node._sgNode.getPositionY();
-                node._rotationX = node._rotationY = node._sgNode.getRotation();
-            }
-            
             if (body.type === BodyType.Animated) {
                 body.resetVelocity();
             }

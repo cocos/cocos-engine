@@ -87,8 +87,9 @@ module.exports = {
         var _active = node._active;
         var x = node._position.x;
         var y = node._position.y;
-        var _rotationX = node._rotationX;
-        var _rotationY = node._rotationY;
+        var _rotX = node._rot.x;
+        var _rotY = node._rot.y;
+        var _rotZ = node._rot.z;
         var _localZOrder = node._localZOrder;
         var _globalZOrder = node._globalZOrder;
 
@@ -119,8 +120,9 @@ module.exports = {
         node._active = _active;
         node._position.x = x;
         node._position.y = y;
-        node._rotationX = _rotationX;
-        node._rotationY = _rotationY;
+        node._rot.x = _rotX;
+        node._rot.y = _rotY;
+        node._rot.z = _rotZ;
         node._localZOrder = _localZOrder;
         node._globalZOrder = _globalZOrder;
     }

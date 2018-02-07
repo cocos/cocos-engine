@@ -183,7 +183,7 @@ function align (node, widget) {
             localTop *= inverseScale.y;
         }
 
-        var height, anchorY = anchor.y, scaleY = node._scaleY;
+        var height, anchorY = anchor.y, scaleY = node._scale.y;
         if (scaleY < 0) {
             anchorY = 1.0 - anchorY;
             scaleY = -scaleY;

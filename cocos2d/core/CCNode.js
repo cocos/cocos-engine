@@ -52,6 +52,8 @@ var ActionManagerExist = !!cc.ActionManager;
 var emptyFunc = function () {};
 var _mat4_temp = math.mat4.create();
 var _vec3_temp = math.vec3.create();
+// quaternion for rotation
+var _quat = math.quat.new(0, 0, 0, 1);
 var _globalOrderOfArrival = 1;
 
 /**
@@ -368,11 +370,24 @@ var Node = cc.Class({
         _contentSize: cc.Size,
         _anchorPoint: cc.v2(0.5, 0.5),
         _position: cc.Vec3,
-        _scaleX: undefined,
-        _scaleY: undefined,
+        _scaleX: {
+            default: undefined,
+            type: cc.Float
+        },
+        _scaleY: {
+            default: undefined,
+            type: cc.Float
+        },
         _scale: cc.Vec3,
-        _rotationX: 0.0,
-        _rotationY: 0.0,
+        _rotationX: {
+            default: undefined,
+            type: cc.Float
+        },
+        _rotationY: {
+            default: undefined,
+            type: cc.Float
+        },
+        _rot: cc.Vec3,
         _skewX: 0.0,
         _skewY: 0.0,
         _localZOrder: 0,
@@ -531,13 +546,13 @@ var Node = cc.Class({
          */
         rotation: {
             get () {
-                if (this._rotationX !== this._rotationY)
+                if (this._rot.x !== this._rot.y)
                     cc.logID(1602);
-                return this._rotationX;
+                return this._rot.z;
             },
             set (value) {
-                if (this._rotationX !== value || this._rotationY !== value) {
-                    this._rotationX = this._rotationY = value;
+                if (this._rot.z !== value) {
+                    this._rot.z = value;
                     this._localMatDirty = true;
 
                     var cache = this._hasListenerCache;
@@ -559,11 +574,11 @@ var Node = cc.Class({
          */
         rotationX: {
             get () {
-                return this._rotationX;
+                return this._rot.x;
             },
             set (value) {
-                if (this._rotationX !== value) {
-                    this._rotationX = value;
+                if (this._rot.x !== value) {
+                    this._rot.x = value;
                     this._localMatDirty = true;
 
                     var cache = this._hasListenerCache;
@@ -585,11 +600,11 @@ var Node = cc.Class({
          */
         rotationY: {
             get () {
-                return this._rotationY;
+                return this._rot.y;
             },
             set (value) {
-                if (this._rotationY !== value) {
-                    this._rotationY = value;
+                if (this._rot.y !== value) {
+                    this._rot.y = value;
                     this._localMatDirty = true;
 
                     var cache = this._hasListenerCache;
@@ -893,7 +908,9 @@ var Node = cc.Class({
         // Mouse event listener
         this._mouseListener = null;
 
-        // default scale z
+        // default scale
+        this._scale.x = 1;
+        this._scale.y = 1;
         this._scale.z = 1;
 
         this._matrix = mathPools.mat4.get();
@@ -1011,6 +1028,23 @@ var Node = cc.Class({
             this._scale.y = this._scaleY;
             this._scaleY = undefined;
         }
+        // Upgrade rotationX, rotationY from v1.x
+        // TODO: remove in future version, 3.0 ?
+        if (this._rotationX !== undefined) {
+            if (this._rotationX === this._rotationY) {
+                this._rot.z = this._rotationX;
+                this._rotationX = undefined;
+                this._rotationY = undefined;
+            }
+            else {
+                this._rot.x = this._rotationX;
+                this._rotationX = undefined;
+                this._rot.y = this._rotationY || 0;
+                this._rotationY = undefined;
+                this._rot.z = 0;
+            }
+        }
+        
 
         var prefabInfo = this._prefab;
         if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
@@ -1815,39 +1849,15 @@ var Node = cc.Class({
 
     _updateLocalMatrix () {
         if (this._localMatDirty) {
+            // Update quaternion from rotation
+            math.quat.fromEuler(_quat, this._rot.x, this._rot.y, this._rot.z);
             // Update transform
             let t = this._matrix;
-            let hasRotation = this._rotationX || this._rotationY;
-            let hasSkew = this._skewX || this._skewY;
-            // position
-            t.m12 = this._position.x;
-            t.m13 = this._position.y;
-
-            // rotation
-            let a = 1, b = 0, c = 0, d = 1;
-            if (hasRotation) {
-                let rotationRadiansX = this._rotationX * ONE_DEGREE;
-                c = Math.sin(rotationRadiansX);
-                d = Math.cos(rotationRadiansX);
-                if (this._rotationY === this._rotationX) {
-                    a = d;
-                    b = -c;
-                }
-                else {
-                    let rotationRadiansY = this._rotationY * ONE_DEGREE;
-                    a = Math.cos(rotationRadiansY);
-                    b = -Math.sin(rotationRadiansY);
-                }
-            }
-
-            // scale
-            t.m00 = a *= this._scale.x;
-            t.m01 = b *= this._scale.x;
-            t.m04 = c *= this._scale.y;
-            t.m05 = d *= this._scale.y;
+            math.mat4.fromRTS(t, _quat, this._position, this._scale);
 
             // skew
-            if (hasSkew) {
+            if (this._skewX || this._skewY) {
+                let a = t.m00, b = t.m01, c = t.m04, d = t.m05;
                 let skx = Math.tan(this._skewX * ONE_DEGREE);
                 let sky = Math.tan(this._skewY * ONE_DEGREE);
                 if (skx === Infinity)
