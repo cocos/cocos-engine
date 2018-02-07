@@ -79,6 +79,9 @@ module.exports = {
         this._camera = new renderEngine.Camera({
             x: 0, y: 0, w: canvas.width, h: canvas.height
         });
+        this._camera._cullingByID = true;
+        this._camera._id = -1;
+
         if (CC_EDITOR) {
             this._camera.setColor(0, 0, 0, 0);
         }
@@ -96,11 +99,18 @@ module.exports = {
             var ecScene = cc.director.getScene();
             ecScene.scaleX = ecScene.scaleY = 1;
         }
+
+        let cameras = this.scene._cameras;
+        for (let i = 0; i < cameras.length; i++) {
+            let camera = cameras._data[i];
+
+            camera._rect.w = this.canvas.width;
+            camera._rect.h = this.canvas.height;
+            camera.setViewport();
+        }
+        
         this._cameraNode.scaleX = 1 / cc.view.getScaleX();
         this._cameraNode.scaleY = 1 / cc.view.getScaleY();
-        this._camera._rect.w = this.canvas.width;
-        this._camera._rect.h = this.canvas.height;
-        this._camera.setViewport();
         this._camera.setNode(this._cameraNode);
     },
 

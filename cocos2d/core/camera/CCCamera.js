@@ -24,14 +24,19 @@
  ****************************************************************************/
 
 const affineTrans = require('../value-types/CCAffineTransform');
+const renderEngine = require('../renderer/render-engine');
+const renderer = require('../renderer/index');
 
-var cullingDirtyFlag;
-var _wt = affineTrans.make();
+const mat4 = cc.vmath.mat4;
+const vec2 = cc.vmath.vec2;
+const vec3 = cc.vmath.vec3;
 
-if (!CC_JSB) {
-    cullingDirtyFlag = _ccsg.Node._dirtyFlags.cullingDirty;
-    require('./CCSGCameraNode');
-}
+let _static_viewID = 0;
+
+let _mat4_temp = mat4.create();
+let _vec3_temp = vec3.create();
+
+let cameras = {};
 
 /**
  * !#en
@@ -47,23 +52,23 @@ let Camera = cc.Class({
     name: 'cc.Camera',
     extends: cc.Component,
     
-    ctor: function () {
-        this.viewMatrix = cc.affineTransformMake();
-        this.invertViewMatrix = cc.affineTransformMake();
+    ctor () {
+        camera = new renderEngine.Camera({
+            x: 0, y: 0, w: cc.visibleRect.width, h: cc.visibleRect.height
+        });
 
-        this._lastViewMatrix = cc.affineTransformMake();
+        camera.setStages([
+            'transparent'
+        ]);
 
-        this._sgTarges = [];
+        camera._cullingByID = true;
+        camera._id = this.viewID = _static_viewID++;
+        camera.setClearFlags(0);
 
-        this._checkedTimes = 0;
+        this._matView = camera._matView;
+        this._camera = camera;
 
-        this.visibleRect = {
-            left: cc.v2(),
-            right: cc.v2(),
-            top: cc.v2(),
-            bottom: cc.v2()
-        };
-        this.viewPort = cc.rect();
+        cameras[camera._id] = this;
     },
 
     editor: CC_EDITOR && {
@@ -97,111 +102,46 @@ let Camera = cc.Class({
          * @property {Camera} main
          * @static
          */
-        main: null
+        main: null,
+
+        cameras: cameras
     },
 
-    _createSgNode: function () {
-        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
-            cc.errorID(8301);
-            var sgNode = new _ccsg.Node();
-            sgNode.setTransform = sgNode.addTarget = sgNode.removeTarget = function () {};
-            return sgNode;
-        }
-        else {
-            return new _ccsg.CameraNode();
-        }
-    },
 
-    _initSgNode: function () {
-        // sgNode is the sizeProvider of the node so we should sync its size with the node,
-        // otherwise the node size will become zero.
-        this._sgNode.setContentSize(this.node.getContentSize(true));
-    },
-
-    _addSgTargetInSg: function (target) {
-        var sgNode;
-        if (target instanceof cc.Node) {
-            sgNode = target._sgNode;
-        }
-        else if (target instanceof _ccsg.Node) {
-            sgNode = target;
-        }
-
-        if (!sgNode || sgNode._cameraInfo) return;
-
-        sgNode._cameraInfo = {
-            touched: this._checkedTimes
-        };
-        this._sgNode.addTarget(sgNode);
-
-        this._sgTarges.push(sgNode);
-
-        if (!CC_JSB) {
-            var cmd = sgNode._renderCmd;
-            cmd.setDirtyFlag(cullingDirtyFlag);
-            cmd._cameraFlag = Camera.flags.InCamera;
-
-            cc.rendererWebGL.childrenOrderDirty = true;
-        }
-    },
-
-    _removeTargetInSg: function (target) {
-        var sgNode;
-        if (target instanceof cc.Node) {
-            sgNode = target._sgNode;
-        }
-        else if (target instanceof _ccsg.Node) {
-            sgNode = target;
-        }
-
-        if (!sgNode || !sgNode._cameraInfo) return;
-
-        this._sgNode.removeTarget(sgNode);
-        delete sgNode._cameraInfo;
-        
-        cc.js.array.remove(this._sgTarges, sgNode);
-        
-        if (!CC_JSB) {
-            var cmd = sgNode._renderCmd;
-            cmd.setDirtyFlag(cullingDirtyFlag);
-            cmd._cameraFlag = 0;
-
-            cc.rendererWebGL.childrenOrderDirty = true;
-        }
-    },
-
-    onEnable: function () {
+    onEnable () {
         if (Camera.main) {
             cc.errorID(8300);
             return;
         }
 
         Camera.main = this;
-        if (CC_JSB) {
-            this._sgNode.setEnable(true);
-        }
 
         let targets = this._targets;
         for (let i = 0, l = targets.length; i < l; i++) {
-            this._addSgTargetInSg(targets[i]);
+            targets[i]._viewID = this.viewID;
         }
+
+        let camera = this._camera;
+        camera._rect.w = renderer.canvas.width;
+        camera._rect.h = renderer.canvas.height;
+        camera.setViewport();
+
+        renderer.scene.addCamera(camera);
     },
 
-    onDisable: function () {
+    onDisable () {
         if (Camera.main !== this) {
             return;
         }
         
         Camera.main = null;
-        if (CC_JSB) {
-            this._sgNode.setEnable(false);
+
+        let targets = this._targets;
+        for (let i = 0, l = targets.length; i < l; i++) {
+            targets[i]._viewID = -1;
         }
 
-        // target sgNode may changed, so directly remove sgTargets here.
-        let sgTargets = this._sgTarges;
-        for (let i = sgTargets.length - 1; i >= 0; i--) {
-            this._removeTargetInSg(sgTargets[i]);
-        }
+        renderer.scene.removeCamera(this._camera);
     },
 
     /**
@@ -212,12 +152,12 @@ let Camera = cc.Class({
      * @method addTarget
      * @param {Node} target 
      */
-    addTarget: function (target) {
+    addTarget (target) {
         if (this._targets.indexOf(target) !== -1) {
             return;
         }
 
-        this._addSgTargetInSg(target);
+        target._viewID = this.viewID;
         this._targets.push(target);
     },
 
@@ -229,12 +169,12 @@ let Camera = cc.Class({
      * @method removeTarget
      * @param {Node} target 
      */
-    removeTarget: function (target) {
+    removeTarget (target) {
         if (this._targets.indexOf(target) === -1) {
             return;
         }
 
-        this._removeTargetInSg(target);
+        target._viewID = -1;
         cc.js.array.remove(this._targets, target);
     },
 
@@ -246,7 +186,7 @@ let Camera = cc.Class({
      * @method getTargets
      * @return {[Node]}
      */
-    getTargets: function () {
+    getTargets () {
         return this._targets;
     },
 
@@ -260,12 +200,13 @@ let Camera = cc.Class({
      * @return {AffineTransform}
      */
     getNodeToCameraTransform (node) {
-        let t = affineTrans.make();
-        node.getNodeToWorldTransform(t);
+        let out = affineTrans.makeIdentity();
+        node.getWorldMatrix(_mat4_temp);
         if (this.containsNode(node)) {
-            t = affineTrans.concatIn(t, cc.Camera.main.viewMatrix);
+            mat4.mul(_mat4_temp, _mat4_temp, this._matView);
         }
-        return t;
+        affineTrans.fromMatrix(_mat4_temp, out);
+        return out;
     },
 
     /**
@@ -274,14 +215,64 @@ let Camera = cc.Class({
      * !#zh
      * 将一个摄像机坐标系下的点转换到世界坐标系下。
      * @method getCameraToWorldPoint
-     * @param {Node} point - the point which should transform
+     * @param {Vec2} point - the point which should transform
+     * @param {Vec2} out - the point to receive the result
      * @return {Vec2}
      */
-    getCameraToWorldPoint (point) {
-        if (cc.Camera.main) {
-            point = cc.pointApplyAffineTransform(point, cc.Camera.main.invertViewMatrix);
-        }
-        return point;
+    getCameraToWorldPoint (point, out) {
+        out = out || cc.v2();
+        mat4.invert(_mat4_temp, this._matView);
+        vec2.transformMat4(out, point, _mat4_temp);
+        return out;
+    },
+
+    /**
+     * !#en
+     * Conver a world coordinates point to camera coordinates.
+     * !#zh
+     * 将一个世界坐标系下的点转换到摄像机坐标系下。
+     * @param {Vec2} point 
+     * @param {Vec2} out - the point to receive the result
+     * @return {Vec2}
+     */
+    getWorldToCameraPoint (point, out) {
+        out = out || cc.v2();
+        vec2.transformMat4(out, point, this._matView);
+        return out;
+    },
+
+    /**
+     * !#en
+     * Get the camera to world matrix
+     * !#zh
+     * 获取摄像机坐标系到世界坐标系的矩阵
+     * @param {Mat4} out - the matrix to receive the result
+     * @return {Mat4}
+     */
+    getCameraToWorldMatrix (out) {
+        let mat = this._matView;
+        mat = mat4.invert(_mat4_temp, mat);
+        mat4.copy(out, _mat4_temp);
+        return out;
+    },
+
+    /**
+     * !#en
+     * Get the world to camera matrix
+     * !#zh
+     * 获取世界坐标系到摄像机坐标系的矩阵
+     * @param {Mat4} out - the matrix to receive the result
+     * @return {Mat4}
+     */
+    getWorldToCameraMatrix (out) {
+        let mat = this._matView;
+        mat4.copy(out, mat);
+        return out;
+    },
+
+    getDefaultToCameraMatrix (out) {
+        mat4.invert(_mat4_temp, renderer._camera._matView);
+        mat4.mul(out, _mat4_temp, this._matView);
     },
 
     /**
@@ -293,77 +284,18 @@ let Camera = cc.Class({
      * @param {Node} node - the node which need to check
      * @return {Boolean}
      */
-    containsNode: function (node) {
-        if (node instanceof cc.Node) {
-            node = node._sgNode;
-        }
-        
-        let targets = this._sgTarges;
-        while (node) {
-            if (targets.indexOf(node) !== -1) {
-                return true;
-            }
-            node = node.parent;
-        }
-
-        return false;
-    },
-
-    _setSgNodesCullingDirty: function () {
-        let sgTarges = this._sgTarges;
-        for (let i = 0; i < sgTarges.length; i++) {
-            if (CC_JSB) {
-                sgTarges[i].markCullingDirty();
-            }
-            else {
-                sgTarges[i]._renderCmd.setDirtyFlag(cullingDirtyFlag);
-            }
-        }
-    },
-
-    _checkSgTargets: function () {
-        let targets = this._targets;
-        let sgTarges = this._sgTarges;
-
-        let checkedTimes = ++this._checkedTimes;
-
-        for (let i = 0, l = targets.length; i < l; i++) {
-            let target = targets[i];
-            let sgNode = target;
-
-            if (target instanceof cc.Node) {
-                sgNode = target._sgNode;
-                if (sgNode && !sgNode._cameraInfo) {
-                    this._addSgTargetInSg(sgNode);
-                }
-            }
-
-            if (sgNode) {
-                sgNode._cameraInfo.touched = checkedTimes;
-            }
-        }
-
-        for (let i = sgTarges.length - 1; i >= 0; i--) {
-            let sgTarget = sgTarges[i];
-            if (sgTarget._cameraInfo.touched !== checkedTimes) {
-                this._removeTargetInSg(sgTarget);
-            }
-        }
+    containsNode (node) {
+        return node._viewMask === this.viewID;;
     },
 
     lateUpdate: !CC_EDITOR && function () {
-        this._checkSgTargets();
-
-        let m = this.viewMatrix;
-        let im = this.invertViewMatrix;
-        let viewPort = this.viewPort;
+        let m = this._matView;
         let visibleRect = cc.visibleRect;
-        let selfVisibleRect = this.visibleRect;
         let node = this.node;
         
-        node.getNodeToWorldTransformAR(_wt);
+        node.getWorldMatrix(_mat4_temp);
 
-        let rotation = -(Math.atan2(_wt.b, _wt.a) + Math.atan2(-_wt.c, _wt.d)) * 0.5;
+        let rotation = -(Math.atan2(_mat4_temp.m01, _mat4_temp.m00) + Math.atan2(-_mat4_temp.m04, _mat4_temp.m05)) * 0.5;
         let a = 1, b = 0, c = 0, d = 1, tx = 0, ty = 0;
 
         // rotation
@@ -376,62 +308,29 @@ let Camera = cc.Class({
 
         // scale
         let zoomRatio = this.zoomRatio;
-        a *= zoomRatio;
-        b *= zoomRatio;
-        c *= zoomRatio;
-        d *= zoomRatio;
-
-        m.a = a;
-        m.b = b;
-        m.c = c;
-        m.d = d;
+        m.m00 = a = a * zoomRatio;
+        m.m01 = b = b * zoomRatio;
+        m.m04 = c = c * zoomRatio;
+        m.m05 = d = d * zoomRatio;
 
         // move camera to center
         let center = visibleRect.center;
-        m.tx = center.x - (a * _wt.tx + c * _wt.ty);
-        m.ty = center.y - (b * _wt.tx + d * _wt.ty);
+        m.m12 = center.x - (a * _mat4_temp.m12 + c * _mat4_temp.m13);
+        m.m13 = center.y - (b * _mat4_temp.m12 + d * _mat4_temp.m13);
 
-        // calculate ivert view matrix
-        cc.affineTransformInvertOut(m, im);
+        let sx = cc.view.getScaleX();
+        let sy = cc.view.getScaleY();
 
-        // calculate view port
-        viewPort.x = visibleRect.bottomLeft.x;
-        viewPort.y = visibleRect.bottomLeft.y;
-        viewPort.width = visibleRect.width;
-        viewPort.height = visibleRect.height;
-        cc._rectApplyAffineTransformIn(viewPort, im);
+        _mat4_temp.m00 = m.m00 * sx;
+        _mat4_temp.m01 = m.m01 * sx;
+        _mat4_temp.m04 = m.m04 * sy;
+        _mat4_temp.m05 = m.m05 * sy;
+        _mat4_temp.m12 = m.m12 * sx;
+        _mat4_temp.m13 = m.m13 * sy;
 
-        selfVisibleRect.left.x = viewPort.xMin;
-        selfVisibleRect.right.x = viewPort.xMax;
-        selfVisibleRect.bottom.y = viewPort.yMin;
-        selfVisibleRect.top.y = viewPort.yMax;
-
-        this._sgNode.setTransform(a, b, c, d, m.tx, m.ty);
-
-        // if view transform changed, then need recalculate whether targets need culling
-        var lvm = this._lastViewMatrix;
-        if (lvm.a !== m.a ||
-            lvm.b !== m.b ||
-            lvm.c !== m.c ||
-            lvm.d !== m.d ||
-            lvm.tx !== m.tx ||
-            lvm.ty !== m.ty
-            ) {
-            this._setSgNodesCullingDirty();
-            
-            lvm.a = m.a;
-            lvm.b = m.b;
-            lvm.c = m.c;
-            lvm.d = m.d;
-            lvm.tx = m.tx;
-            lvm.ty = m.ty;
-        }
+        let camera = this._camera;
+        mat4.mul(camera._matViewProj, camera._matProj, _mat4_temp);
     }
-});
-
-Camera.flags = cc.Enum({
-    InCamera: 1,
-    ParentInCamera: 2
 });
 
 module.exports = cc.Camera = Camera;

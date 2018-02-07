@@ -896,6 +896,9 @@ var Node = cc.Class({
         this._worldMatrix = mathPools.mat4.get();
         this._localMatDirty = true;
         this._worldMatDirty = true;
+
+        this._viewID = -1;
+        this._viewMask = -1;
     },
 
     statics: {
@@ -1247,8 +1250,8 @@ var Node = cc.Class({
         var testPt;
         
         var Camera = cc.Camera;
-        if (Camera && Camera.main && Camera.main.containsNode(this)) {
-            testPt = Camera.main.getCameraToWorldPoint(point);
+        if (this._viewMask !== -1 && Camera.cameras[this._viewMask]) {
+            testPt = Camera.cameras[this._viewMask].getCameraToWorldPoint(point);
         }
         else {
             testPt = cc.v2(point);
