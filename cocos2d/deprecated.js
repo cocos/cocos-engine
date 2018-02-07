@@ -464,6 +464,10 @@ if (CC_DEV) {
         'getWorldToNodeTransform': 'getWorldMatrix',
     });
 
+    markFunctionWarning(cc.Camera.prototype, {
+        'getNodeToCameraTransform': 'getWorldToCameraMatrix'
+    });
+
     provideClearError(cc.Node.prototype, {
         arrivalOrder: 'getSiblingIndex, setSiblingIndex',
         _visible: '_activeInHierarchy, active',
