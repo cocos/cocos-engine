@@ -30,7 +30,6 @@ const js = require('../../platform/js');
 const assembler = require('./assembler');
 const renderEngine = require('../render-engine');
 const RenderData = renderEngine.RenderData;
-const math = renderEngine.math;
 
 const Orientation = TiledMap.Orientation;
 const TileFlag = TiledMap.TileFlag;
@@ -38,8 +37,12 @@ const FLIPPED_MASK = TileFlag.FLIPPED_MASK;
 const StaggerAxis = TiledMap.StaggerAxis;
 const StaggerIndex = TiledMap.StaggerIndex;
 
-let _matrix = math.mat4.create();
-let _v3 = cc.v3();
+const math = renderEngine.math;
+const mat4 = math.mat4;
+const vec3 = math.vec3;
+
+let _mat4_temp = mat4.create();
+let _vec3_temp = vec3.create();
 
 let tmxAssembler = js.addon({
     createData (comp) {
@@ -145,23 +148,27 @@ let tmxAssembler = js.addon({
         let enabledCulling = cc.macro.ENABLE_TILEDMAP_CULLING;
         
         if (enabledCulling) {
-            // TODO: support camera
-            // if (this._cameraFlag > 0) {
-            //     let tmpt = cc.affineTransformConcat(wt, cc.Camera.main.viewMatrix);
-            //     cullingA = tmpt.a;
-            //     cullingD = tmpt.d;
-            //     cullingMapx = ox * cullingA + oy * tmpt.c + tmpt.tx;
-            //     cullingMapy = ox * tmpt.b + oy * cullingD + tmpt.ty;
-            //     cullingW = tilew * cullingA;
-            //     cullingH = tileh * cullingD;
-            // }
+            let viewMask = comp.node._viewMask;
+            if (viewMask !== -1) {
+                let camera = cc.Camera.cameras[viewMask];
+                if (camera) {
+                    mat4.mul(_mat4_temp, matrix, camera._matView);
+                    cullingA = _mat4_temp.m00;
+                    cullingD = _mat4_temp.m05;
+                    cullingMapx = ox * cullingA + oy * _mat4_temp.m04 + _mat4_temp.m12;
+                    cullingMapy = ox * _mat4_temp.m01 + oy * cullingD + _mat4_temp.m13;
+                    cullingW = tilew * cullingA;
+                    cullingH = tileh * cullingD;
+                }
+                
+            }
 
             if (layerOrientation === Orientation.ORTHO) {
-                cc.vmath.mat4.invert(_matrix, matrix);
+                cc.vmath.mat4.invert(_mat4_temp, matrix);
 
                 let rect = cc.visibleRect;
-                let a = _matrix.m00, b = _matrix.m01, c = _matrix.m04, d = _matrix.m05, 
-                    tx = _matrix.m12, ty = _matrix.m13;
+                let a = _mat4_temp.m00, b = _mat4_temp.m01, c = _mat4_temp.m04, d = _mat4_temp.m05, 
+                    tx = _mat4_temp.m12, ty = _mat4_temp.m13;
                 let v0x = rect.topLeft.x * a + rect.topLeft.y * c + tx;
                 let v0y = rect.topLeft.x * b + rect.topLeft.y * d + ty;
                 let v1x = rect.bottomLeft.x * a + rect.bottomLeft.y * c + tx;
@@ -251,12 +258,12 @@ let tmxAssembler = js.addon({
                     // transform
                     a2 = a; b2 = b; c2 = c; d2 = d; tx2 = tx; ty2 = ty;
                     tiledNode._updateLocalMatrix();
-                    cc.vmath.mat4.copy(_matrix, tiledNode._matrix);
-                    _v3.x = -left; _v3.y = -bottom; _v3.z = 0;
-                    cc.vmath.mat4.translate(_matrix, _matrix, _v3);
-                    cc.vmath.mat4.multiply(_matrix, matrix, _matrix);
-                    a = _matrix.m00; b = _matrix.m01; c = _matrix.m04; d = _matrix.m05;
-                    tx = _matrix.m12; ty = _matrix.m13;
+                    cc.vmath.mat4.copy(_mat4_temp, tiledNode._mat4_temp);
+                    _vec3_temp.x = -left; _vec3_temp.y = -bottom; _vec3_temp.z = 0;
+                    cc.vmath.mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
+                    cc.vmath.mat4.multiply(_mat4_temp, matrix, _mat4_temp);
+                    a = _mat4_temp.m00; b = _mat4_temp.m01; c = _mat4_temp.m04; d = _mat4_temp.m05;
+                    tx = _mat4_temp.m12; ty = _mat4_temp.m13;
                 }
                 
                 left -= appx;
