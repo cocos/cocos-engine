@@ -368,8 +368,9 @@ var Node = cc.Class({
         _contentSize: cc.Size,
         _anchorPoint: cc.v2(0.5, 0.5),
         _position: cc.Vec3,
-        _scaleX: 1.0,
-        _scaleY: 1.0,
+        _scaleX: undefined,
+        _scaleY: undefined,
+        _scale: cc.Vec3,
         _rotationX: 0.0,
         _rotationY: 0.0,
         _skewX: 0.0,
@@ -610,11 +611,11 @@ var Node = cc.Class({
          */
         scaleX: {
             get () {
-                return this._scaleX;
+                return this._scale.x;
             },
             set (value) {
-                if (this._scaleX !== value) {
-                    this._scaleX = value;
+                if (this._scale.x !== value) {
+                    this._scale.x = value;
                     this._localMatDirty = true;
 
                     var cache = this._hasListenerCache;
@@ -636,11 +637,11 @@ var Node = cc.Class({
          */
         scaleY: {
             get () {
-                return this._scaleY;
+                return this._scale.y;
             },
             set (value) {
-                if (this._scaleY !== value) {
-                    this._scaleY = value;
+                if (this._scale.y !== value) {
+                    this._scale.y = value;
                     this._localMatDirty = true;
 
                     var cache = this._hasListenerCache;
@@ -893,6 +894,9 @@ var Node = cc.Class({
         // Mouse event listener
         this._mouseListener = null;
 
+        // default scale z
+        this._scale.z = 1;
+
         this._matrix = mathPools.mat4.get();
         this._worldMatrix = mathPools.mat4.get();
         this._localMatDirty = true;
@@ -998,6 +1002,17 @@ var Node = cc.Class({
      * The initializer for Node which will be called before all components onLoad
      */
     _onBatchCreated () {
+        // Upgrade scaleX, scaleY from v1.x
+        // TODO: remove in future version, 3.0 ?
+        if (this._scaleX !== undefined) {
+            this._scale.x = this._scaleX;
+            this._scaleX = undefined;
+        }
+        if (this._scaleY !== undefined) {
+            this._scale.y = this._scaleY;
+            this._scaleY = undefined;
+        }
+
         var prefabInfo = this._prefab;
         if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
             if (CC_DEV) {
@@ -1534,9 +1549,9 @@ var Node = cc.Class({
      * cc.log("Node Scale: " + node.getScale());
      */
     getScale () {
-        if (this._scaleX !== this._scaleY)
+        if (this._scale.x !== this._scale.y)
             cc.logID(1603);
-        return this._scaleX;
+        return this._scale.x;
     },
 
     /**
@@ -1557,9 +1572,9 @@ var Node = cc.Class({
         else {
             scaleY = (scaleY || scaleY === 0) ? scaleY : scaleX;
         }
-        if (this._scaleX !== scaleX || this._scaleY !== scaleY) {
-            this._scaleX = scaleX;
-            this._scaleY = scaleY;
+        if (this._scale.x !== scaleX || this._scale.y !== scaleY) {
+            this._scale.x = scaleX;
+            this._scale.y = scaleY;
             this._localMatDirty = true;
 
             var cache = this._hasListenerCache;
@@ -1827,10 +1842,10 @@ var Node = cc.Class({
             }
 
             // scale
-            t.m00 = a *= this._scaleX;
-            t.m01 = b *= this._scaleX;
-            t.m04 = c *= this._scaleY;
-            t.m05 = d *= this._scaleY;
+            t.m00 = a *= this._scale.x;
+            t.m01 = b *= this._scale.x;
+            t.m04 = c *= this._scale.y;
+            t.m05 = d *= this._scale.y;
 
             // skew
             if (hasSkew) {
