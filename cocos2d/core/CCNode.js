@@ -523,7 +523,19 @@ var Node = cc.Class({
         z: {
             get () {
                 return this._position.z;
-            }
+            },
+            set (value) {
+                var localPosition = this._position;
+                if (value !== localPosition.z) {
+                    if (!CC_EDITOR || isFinite(value)) {
+                        localPosition.z = value;
+                        this._localMatDirty = true;
+                    }
+                    else {
+                        cc.error(ERR_INVALID_NUMBER, 'new z');
+                    }
+                }
+            },
         },
 
         /**
