@@ -25,7 +25,9 @@
  
 const renderEngine = require('./render-engine');
 const RenderComponentWalker = require('./render-component-walker');
-require('./RendererWebGL');
+const math = renderEngine.math;
+
+let _pos = math.vec3.create();
 
 function _initBuiltins(device) {
     let canvas = document.createElement('canvas');
@@ -76,9 +78,13 @@ module.exports = {
         this._walker = new RenderComponentWalker(this.device, this.scene);
 
         this._cameraNode = new cc.Node();
-        this._camera = new renderEngine.Camera({
-            x: 0, y: 0, w: canvas.width, h: canvas.height
-        });
+        this._camera = new renderEngine.Camera();
+        this._camera.setFov(Math.PI * 60 / 180);
+        this._camera.setNear(0.1);
+        this._camera.setFar(1024);
+        this._camera.setNode(this._cameraNode);
+        this.updateCameraViewport();
+        
         if (CC_EDITOR) {
             this._camera.setColor(0, 0, 0, 0);
         }
@@ -96,12 +102,16 @@ module.exports = {
             var ecScene = cc.director.getScene();
             ecScene.scaleX = ecScene.scaleY = 1;
         }
-        this._cameraNode.scaleX = 1 / cc.view.getScaleX();
-        this._cameraNode.scaleY = 1 / cc.view.getScaleY();
-        this._camera._rect.w = this.canvas.width;
-        this._camera._rect.h = this.canvas.height;
-        this._camera.setViewport();
-        this._camera.setNode(this._cameraNode);
+        let node = this._cameraNode;
+        let canvas = this.canvas;
+        let zeye = canvas.height / 1.1566;
+        node.x = canvas.width / 2;
+        node.y = canvas.height / 2;
+        node.z = zeye;
+        _pos.x = canvas.width / 2;
+        _pos.y = canvas.height / 2;
+        _pos.z = 0;
+        node.lookAt(_pos);
     },
 
     render () {
