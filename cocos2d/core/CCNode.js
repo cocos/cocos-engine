@@ -52,6 +52,7 @@ var ActionManagerExist = !!cc.ActionManager;
 var emptyFunc = function () {};
 var _mat4_temp = math.mat4.create();
 var _vec3_temp = math.vec3.create();
+var _quat_temp = math.quat.create();
 var _globalOrderOfArrival = 1;
 
 /**
@@ -1626,7 +1627,80 @@ var Node = cc.Class({
             }
         }
     },
+    
+    getWorldPos (out) {
+        math.vec3.copy(out, this._position);
+        let curr = this._parent;
+        while (curr) {
+          // out = parent_scale * pos
+          math.vec3.mul(out, out, curr._scale);
+          // out = parent_quat * out
+          math.vec3.transformQuat(out, out, curr._quat);
+          // out = out + pos
+          math.vec3.add(out, out, curr._position);
+          curr = curr._parent;
+        }
+        return out;
+    },
 
+    getWorldRot (out) {
+        math.quat.copy(out, this._quat);
+        let curr = this._parent;
+        while (curr) {
+            math.quat.mul(out, curr._quat, out);
+            curr = curr._parent;
+        }
+        return out;
+    },
+
+    setWorldRot (quat) {
+        if (this._parent) {
+            this._parent.getWorldRot(this._quat);
+            math.quat.conjugate(this._quat, this._quat);
+            math.quat.mul(this._quat, this._quat, quat);
+            return;
+        }
+        math.quat.copy(this._quat, quat);
+    },
+
+    getWorldRT (out) {
+        let opos = _vec3_temp;
+        let orot = _quat_temp;
+        math.vec3.copy(opos, this._position);
+        math.quat.copy(orot, this._quat);
+
+        let curr = this._parent;
+        while (curr) {
+            // opos = parent_lscale * lpos
+            math.vec3.mul(opos, opos, curr._scale);
+            // opos = parent_lrot * opos
+            math.vec3.transformQuat(opos, opos, curr._quat);
+            // opos = opos + lpos
+            math.vec3.add(opos, opos, curr._position);
+            // orot = lrot * orot
+            math.quat.mul(orot, curr._quat, orot);
+            curr = curr._parent;
+        }
+        math.mat4.fromRT(out, orot, opos);
+        return out;
+    },
+
+    /**
+     * !#en Set rotation by lookAt target point, normally used by Camera Node
+     * !#zh 通过观察目标来设置 rotation，一般用于 Camera Node 上
+     * @method lookAt
+     * @param {vec3} pos
+     * @param {vec3} [up] - default is (0,1,0)
+     */
+    lookAt (pos, up) {
+        this.getWorldPos(_vec3_temp);
+        math.vec3.sub(_vec3_temp, _vec3_temp, pos); // NOTE: we use -z for view-dir
+        math.vec3.normalize(_vec3_temp, _vec3_temp);
+        math.quat.fromViewUp(_quat_temp, _vec3_temp, up);
+    
+        this.setWorldRot(_quat_temp);
+    },
+ 
     /**
      * !#en
      * Returns a copy the untransformed size of the node. <br/>
