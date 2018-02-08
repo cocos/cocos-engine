@@ -1071,7 +1071,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
     proto._showLabels = function () {
         this._hiddenLabels();
-        var text = sys.platform === sys.WECHAT_GAME || sys.platform === sys.QQ_PLAY ? this._editBox._text : this._edTxt.value;
+        var text = CC_WECHATGAME || CC_QQPLAY ? this._editBox._text : this._edTxt.value;
         if (text === '') {
             if(this._placeholderLabel) {
                 this._placeholderLabel.setVisible(true);
