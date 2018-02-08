@@ -247,10 +247,6 @@ _ccsg.VideoPlayer.EventType = {
         video._polyfill.zoomInvalid = true;
     }
 
-    if (sys.platform === sys.BK_GAME) {
-        return;
-    }
-
     var style = document.createElement("style");
     style.innerHTML = ".cocosVideo:-moz-full-screen{transform:matrix(1,0,0,1,0,0) !important;}" +
         ".cocosVideo:full-screen{transform:matrix(1,0,0,1,0,0) !important;}" +
