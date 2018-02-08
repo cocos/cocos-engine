@@ -45,7 +45,7 @@
     "multipipe": "0.3.0",
     "persistify": "^1.1.1",
     "require-dir": "0.3.0",
-    "uglify-es": "^3.0.26",
+    "uglify-es": "~3.2.2",
     "vinyl": "1.1.0",
     "vinyl-buffer": "1.0.0",
     "vinyl-source-stream": "1.0.0",

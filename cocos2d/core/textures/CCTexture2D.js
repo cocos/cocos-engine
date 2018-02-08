@@ -352,7 +352,7 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
      * @param {Number} pixelFormat
      * @param {Number} pixelsWidth
      * @param {Number} pixelsHeight
-     * @param {Size} contentSize
+     * @param {Size} contentSize contentSize is deprecated and ignored
      * @return {Boolean}
      */
     initWithData: function (data, pixelFormat, pixelsWidth, pixelsHeight, contentSize) {
@@ -854,14 +854,17 @@ game.once(game.EVENT_RENDERER_INITED, function () {
         };
 
         _p.initWithData = function (data, pixelFormat, pixelsWidth, pixelsHeight, contentSize) {
+            if (contentSize) {
+                cc.warnID(3118);
+            }
             var opts = _getSharedOptions();
             opts.image = data;
             opts.format = pixelFormat;
             opts.width = pixelsWidth;
             opts.height = pixelsHeight;
             this.update(opts);
-            this.width = contentSize.width;
-            this.height = contentSize.height;
+            this.width = pixelsWidth;
+            this.height = pixelsHeight;
             this.loaded = true;
             this.emit("load");
             return true;
