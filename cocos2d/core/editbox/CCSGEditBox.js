@@ -334,7 +334,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
         var bb = cc.rect(0,0, this._contentSize.width, this._contentSize.height);
         var hitted = cc.rectContainsPoint(bb, this.convertToNodeSpace(touchPoint));
         if(hitted) {
-            if (sys.platform === sys.QQ_PLAY) {
+            if (CC_QQPLAY) {
                 this._renderCmd._showBKKeyboard();
             }
             return true;
@@ -892,31 +892,33 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         return tmpEdTxt;
     };
 
-    proto._onBKBtnClick = function (text) {
-        var editBox = this._editBox;
-        editBox._text = text;
-        this._updateDomTextCases();
-        this._endEditing();
-        editBox._delegate && editBox._delegate.editBoxEditingReturn && editBox._delegate.editBoxEditingReturn(editBox);
-        editBox._delegate && editBox._delegate.editBoxEditingDidEnded && editBox._delegate.editBoxEditingDidEnded(editBox);
-    };
-
-    proto._onBKTextChange = function (text) {
-        var editBox = this._editBox;
-        if (editBox._delegate && editBox._delegate.editBoxTextChanged && editBox._text !== text) {
+    if (CC_QQPLAY) {
+        proto._onBKBtnClick = function (text) {
+            var editBox = this._editBox;
             editBox._text = text;
             this._updateDomTextCases();
-            editBox._delegate.editBoxTextChanged(editBox, editBox._text);
-        }
-    };
-    proto._createBKInput = function (multiline) {
-        this._edTxt = document.createElement("input");
-    };
-    proto._showBKKeyboard = function () {
-        BK.Editor.showKeyBoard(this._onBKBtnClick.bind(this), this._onBKTextChange.bind(this));
-        var editBox = this._editBox;
-        editBox._delegate && editBox._delegate.editBoxEditingDidBegan && editBox._delegate.editBoxEditingDidBegan(editBox);
-    };
+            this._endEditing();
+            editBox._delegate && editBox._delegate.editBoxEditingReturn && editBox._delegate.editBoxEditingReturn(editBox);
+            editBox._delegate && editBox._delegate.editBoxEditingDidEnded && editBox._delegate.editBoxEditingDidEnded(editBox);
+        };
+
+        proto._onBKTextChange = function (text) {
+            var editBox = this._editBox;
+            if (editBox._delegate && editBox._delegate.editBoxTextChanged && editBox._text !== text) {
+                editBox._text = text;
+                this._updateDomTextCases();
+                editBox._delegate.editBoxTextChanged(editBox, editBox._text);
+            }
+        };
+        proto._createBKInput = function (multiline) {
+            this._edTxt = document.createElement("input");
+        };
+        proto._showBKKeyboard = function () {
+            BK.Editor.showKeyBoard(this._onBKBtnClick.bind(this), this._onBKTextChange.bind(this));
+            var editBox = this._editBox;
+            editBox._delegate && editBox._delegate.editBoxEditingDidBegan && editBox._delegate.editBoxEditingDidBegan(editBox);
+        };
+    }
 
     proto._createWXInput = function (multiline) {
         this.removeDom();
@@ -1235,7 +1237,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         if (sys.platform === sys.WECHAT_GAME) {
             this._createWXInput(inputMode === InputMode.ANY);
         }
-        else if (sys.platform === sys.QQ_PLAY) {
+        else if (CC_QQPLAY) {
             this._createBKInput(inputMode === InputMode.ANY);
         }
         else if (inputMode === InputMode.ANY) {
