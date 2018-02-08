@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var math = require("../renderer").renderEngine.math;
+
 cc._PrefabInfo = cc.Class({
     name: 'cc.PrefabInfo',
     // extends: require('../platform/CCObject'),
@@ -87,9 +89,7 @@ module.exports = {
         var _active = node._active;
         var x = node._position.x;
         var y = node._position.y;
-        var _rotX = node._rot.x;
-        var _rotY = node._rot.y;
-        var _rotZ = node._rot.z;
+        var _quat = node._quat;
         var _localZOrder = node._localZOrder;
         var _globalZOrder = node._globalZOrder;
 
@@ -120,9 +120,7 @@ module.exports = {
         node._active = _active;
         node._position.x = x;
         node._position.y = y;
-        node._rot.x = _rotX;
-        node._rot.y = _rotY;
-        node._rot.z = _rotZ;
+        math.quat.copy(node._quat, _quat);
         node._localZOrder = _localZOrder;
         node._globalZOrder = _globalZOrder;
     }

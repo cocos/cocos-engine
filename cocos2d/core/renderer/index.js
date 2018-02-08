@@ -86,7 +86,6 @@ module.exports = {
         this._camera.setNode(this._cameraNode);
         this._camera._cullingByID = true;
         this._camera._id = -1;
-        this.updateCameraViewport();
         
         if (CC_EDITOR) {
             this._camera.setColor(0, 0, 0, 0);
@@ -101,25 +100,25 @@ module.exports = {
     },
 
     updateCameraViewport () {
-        if (!CC_EDITOR) {
+        // TODO: remove HACK
+        if (!CC_EDITOR && cc.director) {
             var ecScene = cc.director.getScene();
             ecScene.scaleX = ecScene.scaleY = 1;
         }
 
         let node = this._cameraNode;
         let canvas = this.canvas;
-        let zeye = canvas.height / 1.1566;
-        node.x = canvas.width / 2;
-        node.y = canvas.height / 2;
+        let scaleX = cc.view.getScaleX();
+        let scaleY = cc.view.getScaleY();
+        let zeye = canvas.height / scaleY / 1.1566;
+        _pos.x = node.x = canvas.width / scaleX / 2;
+        _pos.y = node.y = canvas.height / scaleY / 2;
         node.z = zeye;
-        _pos.x = canvas.width / 2;
-        _pos.y = canvas.height / 2;
         _pos.z = 0;
         node.lookAt(_pos);
     },
 
-    render () {
-        var ecScene = cc.director.getScene();
+    render (ecScene) {
         if (ecScene) {
             // walk entity component scene to generate models
             this._walker.visit(ecScene);
