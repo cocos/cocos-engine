@@ -60,6 +60,7 @@ function _initBuiltins(device) {
 }
 
 module.exports = {
+    renderEngine: renderEngine,
     canvas: null,
     device: null,
     scene: null,
