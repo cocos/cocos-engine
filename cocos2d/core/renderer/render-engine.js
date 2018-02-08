@@ -2536,7 +2536,7 @@ module.exports = (function () {
       Math.abs(a3 - b3) <= EPSILON * Math.max(1.0, Math.abs(a3), Math.abs(b3)));
   };
   
-  let _tmp$3 = new Array(9);
+  let _tmp$4 = new Array(9);
   
   class _mat3 {
     constructor(m00, m01, m02, m03, m04, m05, m06, m07, m08) {
@@ -2552,17 +2552,17 @@ module.exports = (function () {
     }
   
     toJSON() {
-      _tmp$3[0] = this.m00;
-      _tmp$3[1] = this.m01;
-      _tmp$3[2] = this.m02;
-      _tmp$3[3] = this.m03;
-      _tmp$3[4] = this.m04;
-      _tmp$3[5] = this.m05;
-      _tmp$3[6] = this.m06;
-      _tmp$3[7] = this.m07;
-      _tmp$3[8] = this.m08;
+      _tmp$4[0] = this.m00;
+      _tmp$4[1] = this.m01;
+      _tmp$4[2] = this.m02;
+      _tmp$4[3] = this.m03;
+      _tmp$4[4] = this.m04;
+      _tmp$4[5] = this.m05;
+      _tmp$4[6] = this.m06;
+      _tmp$4[7] = this.m07;
+      _tmp$4[8] = this.m08;
   
-      return _tmp$3;
+      return _tmp$4;
     }
   }
   
@@ -3353,7 +3353,7 @@ module.exports = (function () {
     );
   };
   
-  let _tmp$4 = new Array(4);
+  let _tmp$3 = new Array(4);
   
   class _quat {
     constructor(x, y, z, w) {
@@ -3364,12 +3364,12 @@ module.exports = (function () {
     }
   
     toJSON() {
-      _tmp$4[0] = this.x;
-      _tmp$4[1] = this.y;
-      _tmp$4[2] = this.z;
-      _tmp$4[3] = this.w;
+      _tmp$3[0] = this.x;
+      _tmp$3[1] = this.y;
+      _tmp$3[2] = this.z;
+      _tmp$3[3] = this.w;
   
-      return _tmp$4;
+      return _tmp$3;
     }
   }
   
@@ -8124,7 +8124,7 @@ module.exports = (function () {
     return !(v & (v - 1)) && (!!v);
   }
   
-  class Texture2D extends Texture {
+  class Texture2D$1 extends Texture {
     /**
      * @constructor
      * @param {Device} device
@@ -9542,7 +9542,7 @@ module.exports = (function () {
    * _attach
    */
   function _attach(gl, location, attachment, face = 0) {
-    if (attachment instanceof Texture2D) {
+    if (attachment instanceof Texture2D$1) {
       gl.framebufferTexture2D(
         gl.FRAMEBUFFER,
         location,
@@ -9568,7 +9568,7 @@ module.exports = (function () {
     }
   }
   
-  class Device {
+  class Device$1 {
     /**
      * @param {HTMLElement} canvasEL
      * @param {object} opts
@@ -10284,11 +10284,11 @@ module.exports = (function () {
     VertexBuffer,
     Program,
     Texture,
-    Texture2D,
+    Texture2D: Texture2D$1,
     TextureCube,
     RenderBuffer,
     FrameBuffer,
-    Device,
+    Device: Device$1,
   
     // functions
     attrTypeBytes,
@@ -10297,7 +10297,7 @@ module.exports = (function () {
   };
   Object.assign(gfx, enums$1);
   
-  class InputAssembler {
+  class InputAssembler$1 {
     constructor(vb, ib, pt = gfx.PT_TRIANGLES) {
       this._vertexBuffer = vb;
       this._indexBuffer = ib;
@@ -10342,7 +10342,10 @@ module.exports = (function () {
       // depth
       this._depthTest = false;
       this._depthWrite = false;
-      this._depthFunc = gfx.DS_FUNC_LESS, this._stencilTest = false;
+      this._depthFunc = gfx.DS_FUNC_LESS,
+  
+      // stencil
+      this._stencilTest = false;
       // front
       this._stencilFuncFront = gfx.DS_FUNC_ALWAYS;
       this._stencilRefFront = 0;
@@ -10631,13 +10634,13 @@ module.exports = (function () {
       );
     }
   
-    return new InputAssembler(vb, ib);
+    return new InputAssembler$1(vb, ib);
   }
   
   let _m4_tmp = mat4.create();
   let _genID$2 = 0;
   
-  class View {
+  class View$1 {
     constructor() {
       this._id = _genID$2++;
   
@@ -10665,7 +10668,7 @@ module.exports = (function () {
   
       // stages & framebuffer
       this._stages = [];
-      this._cullingByID = false;
+      this._cullingMask = 1;
       this._framebuffer = null;
   
       this._shadowLight = null; // TODO: should not refer light in view.
@@ -10991,7 +10994,7 @@ module.exports = (function () {
   let _matInvViewProj = mat4.create();
   let _tmp_v3 = vec3.create();
   
-  class Camera {
+  class Camera$1 {
     constructor() {
       this._poolID = -1;
       this._node = null;
@@ -11004,6 +11007,9 @@ module.exports = (function () {
       this._depth = 1;
       this._stencil = 1;
       this._clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;
+  
+      // culling mask
+      this._cullingMask = 1;
   
       // stages & framebuffer
       this._stages = [];
@@ -11020,6 +11026,15 @@ module.exports = (function () {
   
       // ortho properties
       this._orthoHeight = 10;
+    }
+  
+    // culling mask
+    get cullingMask() {
+      return this._cullingMask;
+    }
+  
+    set cullingMask(mask) {
+      this._cullingMask = mask;
     }
   
     // node
@@ -11152,6 +11167,9 @@ module.exports = (function () {
       out._depth = this._depth;
       out._stencil = this._stencil;
       out._clearFlags = this._clearFlags;
+  
+      // culling mask
+      out._cullingMask = this._cullingMask;
   
       // stages & framebuffer
       out._stages = this._stages;
@@ -11292,7 +11310,7 @@ module.exports = (function () {
     }
   }
   
-  class Model {
+  class Model$1 {
     constructor() {
       this._poolID = -1;
       this._node = null;
@@ -11300,7 +11318,7 @@ module.exports = (function () {
       this._effects = [];
       this._defines = [];
       this._dynamicIA = false;
-      this._viewID = -1;
+      this._cullingMask = -1;
   
       // TODO: we calculate aabb based on vertices
       // this._aabb
@@ -11316,6 +11334,14 @@ module.exports = (function () {
   
     get drawItemCount() {
       return this._dynamicIA ? 1 : this._inputAssemblers.length;
+    }
+  
+    get cullingMask() {
+      return this._cullingMask;
+    }
+  
+    set cullingMask(mask) {
+      this._cullingMask = mask;
     }
   
     setNode(node) {
@@ -12294,7 +12320,7 @@ module.exports = (function () {
    * @param {number} hi - Last element in the range.
    * @param {function=} compare - Item comparison function. Default is alphabetical.
    */
-  function sort (array, lo, hi, compare) {
+  var sort = function (array, lo, hi, compare) {
     if (!Array.isArray(array)) {
       throw new TypeError('Can only sort arrays');
     }
@@ -12358,7 +12384,7 @@ module.exports = (function () {
   
     // Force merging of remaining runs
     ts.forceMergeRuns();
-  }
+  };
   
   class FixedArray {
     constructor(size) {
@@ -12544,7 +12570,7 @@ module.exports = (function () {
     _bufferPools[i] = [];
   }
   
-  class Scene {
+  class Scene$1 {
     constructor() {
       this._lights = new FixedArray(16);
       this._models = new FixedArray(16);
@@ -12577,7 +12603,7 @@ module.exports = (function () {
     reset() {
       for (let i = 0; i < this._models.length; ++i) {
         let model = this._models.data[i];
-        model._viewID = -1;
+        model._cullingMask = -1;
       }
     }
   
@@ -13139,7 +13165,7 @@ module.exports = (function () {
       this._usedTextureUnits = 0;
   
       this._viewPools = new RecyclePool(() => {
-        return new View();
+        return new View$1();
       }, 8);
   
       this._drawItemsPools = new RecyclePool(() => {
@@ -13234,15 +13260,9 @@ module.exports = (function () {
       for (let i = 0; i < scene._models.length; ++i) {
         let model = scene._models.data[i];
   
-        // TODO: HACK: filter model by view
-        if (view._cullingByID) {
-          if (model._viewID !== view._id) {
-            continue;
-          }
-        } else {
-          if (model._viewID !== -1) {
-            continue;
-          }
+        // filter model by view
+        if (model._cullingMask & view._cullingMask === 0) {
+          continue;
         }
   
         for (let m = 0; m < model.drawItemCount; ++m) {
@@ -13476,22 +13496,18 @@ module.exports = (function () {
     Pass,
     Technique,
     Effect,
-    InputAssembler,
-    View,
+    InputAssembler: InputAssembler$1,
+    View: View$1,
   
     Light,
-    Camera,
-    Model,
-    Scene,
+    Camera: Camera$1,
+    Model: Model$1,
+    Scene: Scene$1,
   
     Base,
     ProgramLib,
   };
   Object.assign(renderer, enums);
-  
-  let _camPos = vec3.create();
-  let _camFwd = vec3.create();
-  let _v3_tmp1 = vec3.create();
   
   let _a16_view = new Float32Array(16);
   let _a16_proj = new Float32Array(16);
@@ -13500,10 +13516,14 @@ module.exports = (function () {
   // Add stage to renderer
   renderer.addStage('transparent');
   
-  class ForwardRenderer extends renderer.Base {
+  class ForwardRenderer$1 extends renderer.Base {
     constructor (device, builtin) {
       super(device, builtin);
       this._registerStage('transparent', this._transparentStage.bind(this));
+    }
+  
+    reset () {
+      this._reset();
     }
   
     render (scene) {
@@ -13512,8 +13532,16 @@ module.exports = (function () {
       const canvas = this._device._gl.canvas;
   
       for (let i = 0; i < scene._cameras.length; ++i) {
-        let view = this._requestView();
-        scene._cameras.data[i].extractView(view, canvas.width, canvas.height);
+        let camera = scene._cameras.data[i];
+        let view = camera.view;
+        let dirty = camera.dirty;
+        if (!view) {
+          view = this._requestView();
+          dirty = true;
+        }
+        if (dirty) {
+          camera.extractView(view, canvas.width, canvas.height);
+        }
         this._render(view, scene);
       }
     }
@@ -13532,7 +13560,7 @@ module.exports = (function () {
     }
   }
   
-  class Device$1 {
+  class Device$2 {
     /**
      * @param {HTMLElement} canvasEL
      */
@@ -13681,11 +13709,11 @@ module.exports = (function () {
     }
   }
   
-  var renderer$2 = {
+  var renderer$3 = {
     Base: Base$1
   };
   
-  class Texture2D$1 {
+  class Texture2D$2 {
   
     /**
      * @constructor
@@ -13736,14 +13764,14 @@ module.exports = (function () {
   }
   
   var canvas = {
-      Device: Device$1,
-      renderer: renderer$2,
-      Texture2D: Texture2D$1
+      Device: Device$2,
+      renderer: renderer$3,
+      Texture2D: Texture2D$2
   };
   
-  const renderer$3 = canvas.renderer;
+  const renderer$2 = canvas.renderer;
   
-  class ForwardRenderer$1 extends renderer$3.Base {
+  class ForwardRenderer$2 extends renderer$2.Base {
     constructor (device, builtin) {
       super(device, builtin);
       
@@ -14873,28 +14901,28 @@ module.exports = (function () {
   
   // intenral
   // deps
-  const Scene$1 = renderer.Scene;
-  const Camera$1 = renderer.Camera;
-  const View$1 = renderer.View;
-  const ForwardRenderer$2 = renderMode.supportWebGL ? ForwardRenderer : ForwardRenderer$1;
-  const Texture2D$2 = renderMode.supportWebGL ? gfx.Texture2D : canvas.Texture2D;
-  const Device$2 = renderMode.supportWebGL ? gfx.Device : canvas.Device;
-  const Model$1 = renderer.Model;
-  const InputAssembler$1 = renderer.InputAssembler;
+  const Scene = renderer.Scene;
+  const Camera = renderer.Camera;
+  const View = renderer.View;
+  const ForwardRenderer = renderMode.supportWebGL ? ForwardRenderer$1 : ForwardRenderer$2;
+  const Texture2D = renderMode.supportWebGL ? gfx.Texture2D : canvas.Texture2D;
+  const Device = renderMode.supportWebGL ? gfx.Device : canvas.Device;
+  const Model = renderer.Model;
+  const InputAssembler = renderer.InputAssembler;
   
   let renderEngine = {
     // core classes
-    Device: Device$2,
-    ForwardRenderer: ForwardRenderer$2,
-    Texture2D: Texture2D$2,
+    Device,
+    ForwardRenderer,
+    Texture2D,
   
     // render scene
-    Scene: Scene$1,
-    Camera: Camera$1,
-    View: View$1,
-    Model: Model$1,
+    Scene,
+    Camera,
+    View,
+    Model,
     RenderData,
-    InputAssembler: InputAssembler$1,
+    InputAssembler,
   
     // vfx
     Particles,
