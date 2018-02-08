@@ -30,7 +30,6 @@ THE SOFTWARE.
 
 #include "base/CCData.h"
 #include "base/ccMacros.h"
-#include "base/CCDirector.h"
 #include "platform/CCSAXParser.h"
 
 #include "tinyxml2/tinyxml2.h"

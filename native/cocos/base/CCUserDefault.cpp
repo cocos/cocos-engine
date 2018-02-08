@@ -24,7 +24,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 #include "base/CCUserDefault.h"
-#include "platform/CCCommon.h"
 #include "platform/CCFileUtils.h"
 #include "tinyxml2/tinyxml2.h"
 #include "base/base64.h"

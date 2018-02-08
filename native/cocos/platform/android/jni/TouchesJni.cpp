@@ -23,25 +23,23 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#include "base/CCDirector.h"
 #include "base/CCEventKeyboard.h"
-#include "base/CCEventDispatcher.h"
-#include "platform/android/CCGLViewImpl-android.h"
 
 #include <android/log.h>
 #include <jni.h>
+#include <unordered_map>
 
 using namespace cocos2d;
 
 extern "C" {
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeTouchesBegin(JNIEnv * env, jobject thiz, jint id, jfloat x, jfloat y) {
         intptr_t idlong = id;
-        cocos2d::Director::getInstance()->getOpenGLView()->handleTouchesBegin(1, &idlong, &x, &y);
+        // cocos2d::Director::getInstance()->getOpenGLView()->handleTouchesBegin(1, &idlong, &x, &y);
     }
 
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeTouchesEnd(JNIEnv * env, jobject thiz, jint id, jfloat x, jfloat y) {
         intptr_t idlong = id;
-        cocos2d::Director::getInstance()->getOpenGLView()->handleTouchesEnd(1, &idlong, &x, &y);
+        // cocos2d::Director::getInstance()->getOpenGLView()->handleTouchesEnd(1, &idlong, &x, &y);
     }
 
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeTouchesMove(JNIEnv * env, jobject thiz, jintArray ids, jfloatArray xs, jfloatArray ys) {
@@ -58,7 +56,7 @@ extern "C" {
         for(int i = 0; i < size; i++)
             idlong[i] = id[i];
 
-        cocos2d::Director::getInstance()->getOpenGLView()->handleTouchesMove(size, idlong, x, y);
+        // cocos2d::Director::getInstance()->getOpenGLView()->handleTouchesMove(size, idlong, x, y);
     }
 
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeTouchesCancel(JNIEnv * env, jobject thiz, jintArray ids, jfloatArray xs, jfloatArray ys) {
@@ -75,7 +73,7 @@ extern "C" {
         for(int i = 0; i < size; i++)
             idlong[i] = id[i];
 
-        cocos2d::Director::getInstance()->getOpenGLView()->handleTouchesCancel(size, idlong, x, y);
+        // cocos2d::Director::getInstance()->getOpenGLView()->handleTouchesCancel(size, idlong, x, y);
     }
 
 #define KEYCODE_BACK 0x04
@@ -103,17 +101,17 @@ extern "C" {
     };
 
     JNIEXPORT jboolean JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeKeyEvent(JNIEnv * env, jobject thiz, jint keyCode, jboolean isPressed) {
-        Director* pDirector = Director::getInstance();
+        // Director* pDirector = Director::getInstance();
 
-        auto iterKeyCode = g_keyCodeMap.find(keyCode);
-        if (iterKeyCode == g_keyCodeMap.end()) {
-            return JNI_FALSE;
-        }
+        // auto iterKeyCode = g_keyCodeMap.find(keyCode);
+        // if (iterKeyCode == g_keyCodeMap.end()) {
+        //     return JNI_FALSE;
+        // }
 
-        cocos2d::EventKeyboard::KeyCode cocos2dKey = g_keyCodeMap.at(keyCode);
-        cocos2d::EventKeyboard* event = new (std::nothrow) cocos2d::EventKeyboard(cocos2dKey, isPressed);
-        cocos2d::Director::getInstance()->getEventDispatcher()->dispatchEvent(event);
-        event->release();
+        // cocos2d::EventKeyboard::KeyCode cocos2dKey = g_keyCodeMap.at(keyCode);
+        // cocos2d::EventKeyboard* event = new (std::nothrow) cocos2d::EventKeyboard(cocos2dKey, isPressed);
+        // cocos2d::Director::getInstance()->getEventDispatcher()->dispatchEvent(event);
+        // event->release();
         return JNI_TRUE;
 
     }}

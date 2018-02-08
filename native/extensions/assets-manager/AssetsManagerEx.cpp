@@ -26,7 +26,6 @@
 #include "AssetsManagerEx.h"
 #include "CCEventListenerAssetsManagerEx.h"
 #include "base/ccUTF8.h"
-#include "base/CCDirector.h"
 
 #include <stdio.h>
 
@@ -35,7 +34,6 @@
 #else // from our embedded sources
 #include "unzip/unzip.h"
 #endif
-#include "base/CCAsyncTaskPool.h"
 
 NS_CC_EXT_BEGIN
 
@@ -116,7 +114,7 @@ AssetsManagerEx::AssetsManagerEx(const std::string& manifestUrl, const std::stri
 void AssetsManagerEx::init(const std::string& manifestUrl, const std::string& storagePath)
 {
     // Init variables
-    _eventDispatcher = Director::getInstance()->getEventDispatcher();
+//    _eventDispatcher = Director::getInstance()->getEventDispatcher();
     std::string pointer = StringUtils::format("%p", this);
     _eventName = EventListenerAssetsManagerEx::LISTENER_ID + pointer;
     _fileUtils = FileUtils::getInstance();
@@ -652,14 +650,14 @@ void AssetsManagerEx::decompressDownloadedZip(const std::string &customId, const
         }
         delete dataInner;
     };
-    AsyncTaskPool::getInstance()->enqueue(AsyncTaskPool::TaskType::TASK_OTHER, decompressFinished, (void*)asyncData, [this, asyncData]() {
-        // Decompress all compressed files
-        if (decompress(asyncData->zipFile))
-        {
-            asyncData->succeed = true;
-        }
-        _fileUtils->removeFile(asyncData->zipFile);
-    });
+//    AsyncTaskPool::getInstance()->enqueue(AsyncTaskPool::TaskType::TASK_OTHER, decompressFinished, (void*)asyncData, [this, asyncData]() {
+//        // Decompress all compressed files
+//        if (decompress(asyncData->zipFile))
+//        {
+//            asyncData->succeed = true;
+//        }
+//        _fileUtils->removeFile(asyncData->zipFile);
+//    });
 }
 
 void AssetsManagerEx::dispatchUpdateEvent(EventAssetsManagerEx::EventCode code, const std::string &assetId/* = ""*/, const std::string &message/* = ""*/, int curle_code/* = CURLE_OK*/, int curlm_code/* = CURLM_OK*/)
@@ -691,7 +689,7 @@ void AssetsManagerEx::dispatchUpdateEvent(EventAssetsManagerEx::EventCode code, 
     }
 
     EventAssetsManagerEx* event = new (std::nothrow) EventAssetsManagerEx(_eventName, this, code, assetId, message, curle_code, curlm_code);
-    _eventDispatcher->dispatchEvent(event);
+//    _eventDispatcher->dispatchEvent(event);
     event->release();
 }
 

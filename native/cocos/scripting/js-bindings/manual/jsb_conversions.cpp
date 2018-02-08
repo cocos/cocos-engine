@@ -1,28 +1,3 @@
-/****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
-
- http://www.cocos.com
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
-
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
- ****************************************************************************/
-
 //
 //  jsb_conversions.cpp
 //  cocos2d_js_bindings
@@ -32,6 +7,7 @@
 //
 
 #include "jsb_conversions.hpp"
+#include <sstream>
 
 // seval to native
 
@@ -240,6 +216,18 @@ bool seval_to_ssize(const se::Value& v, ssize_t* ret)
     return false;
 }
 
+bool seval_to_size(const se::Value& v, size_t* ret)
+{
+    assert(ret != nullptr);
+    if (v.isNumber())
+    {
+        *ret = (size_t)v.toLong();
+        return true;
+    }
+    *ret = 0;
+    return false;
+}
+
 bool seval_to_std_string(const se::Value& v, std::string* ret)
 {
     assert(ret != nullptr);
@@ -308,41 +296,77 @@ bool seval_to_Vec4(const se::Value& v, cocos2d::Vec4* pt)
 bool seval_to_Mat4(const se::Value& v, cocos2d::Mat4* mat)
 {
     assert(v.isObject() && mat != nullptr);
-
-    SE_PRECONDITION3(v.toObject()->isArray(), false, *mat = cocos2d::Mat4::IDENTITY;);
-
     se::Object* obj = v.toObject();
 
-    bool ok = false;
-    uint32_t len = 0;
-    ok = obj->getArrayLength(&len);
-    SE_PRECONDITION3(ok, false, *mat = cocos2d::Mat4::IDENTITY);
-
-    if (len != 16)
+    if (obj->isArray())
     {
-        SE_REPORT_ERROR("Array length error: %d, was expecting 16", len);
-        *mat = cocos2d::Mat4::IDENTITY;
-        return false;
-    }
-
-    se::Value tmp;
-    for (uint32_t i = 0; i < len; ++i)
-    {
-        ok = obj->getArrayElement(i, &tmp);
+        bool ok = false;
+        uint32_t len = 0;
+        ok = obj->getArrayLength(&len);
         SE_PRECONDITION3(ok, false, *mat = cocos2d::Mat4::IDENTITY);
 
-        if (tmp.isNumber())
+        if (len != 16)
         {
-            mat->m[i] = tmp.toFloat();
-        }
-        else
-        {
-            SE_REPORT_ERROR("%u, not supported type in matrix", i);
+            SE_REPORT_ERROR("Array length error: %d, was expecting 16", len);
             *mat = cocos2d::Mat4::IDENTITY;
             return false;
         }
 
-        tmp.setUndefined();
+        se::Value tmp;
+        for (uint32_t i = 0; i < len; ++i)
+        {
+            ok = obj->getArrayElement(i, &tmp);
+            SE_PRECONDITION3(ok, false, *mat = cocos2d::Mat4::IDENTITY);
+
+            if (tmp.isNumber())
+            {
+                mat->m[i] = tmp.toFloat();
+            }
+            else
+            {
+                SE_REPORT_ERROR("%u, not supported type in matrix", i);
+                *mat = cocos2d::Mat4::IDENTITY;
+                return false;
+            }
+
+            tmp.setUndefined();
+        }
+    }
+    else
+    {
+        se::Value tmp;
+        obj->getProperty("m00", &tmp);
+        mat->m[0] = tmp.toFloat();
+        obj->getProperty("m01", &tmp);
+        mat->m[1] = tmp.toFloat();
+        obj->getProperty("m02", &tmp);
+        mat->m[2] = tmp.toFloat();
+        obj->getProperty("m03", &tmp);
+        mat->m[3] = tmp.toFloat();
+        obj->getProperty("m04", &tmp);
+        mat->m[4] = tmp.toFloat();
+        obj->getProperty("m05", &tmp);
+        mat->m[5] = tmp.toFloat();
+        obj->getProperty("m06", &tmp);
+        mat->m[6] = tmp.toFloat();
+        obj->getProperty("m07", &tmp);
+        mat->m[7] = tmp.toFloat();
+        obj->getProperty("m08", &tmp);
+        mat->m[8] = tmp.toFloat();
+        obj->getProperty("m09", &tmp);
+        mat->m[9] = tmp.toFloat();
+        obj->getProperty("m10", &tmp);
+        mat->m[10] = tmp.toFloat();
+        obj->getProperty("m11", &tmp);
+        mat->m[11] = tmp.toFloat();
+        obj->getProperty("m12", &tmp);
+        mat->m[12] = tmp.toFloat();
+        obj->getProperty("m13", &tmp);
+        mat->m[13] = tmp.toFloat();
+        obj->getProperty("m14", &tmp);
+        mat->m[14] = tmp.toFloat();
+        obj->getProperty("m15", &tmp);
+        mat->m[15] = tmp.toFloat();
     }
 
     return true;
@@ -364,7 +388,32 @@ bool seval_to_Size(const se::Value& v, cocos2d::Size* size)
     return true;
 }
 
-bool seval_to_Rect(const se::Value& v, cocos2d::Rect* rect)
+//bool seval_to_Rect(const se::Value& v, cocos2d::Rect* rect)
+//{
+//    assert(v.isObject() && rect != nullptr);
+//    se::Object* obj = v.toObject();
+//    se::Value x;
+//    se::Value y;
+//    se::Value width;
+//    se::Value height;
+//
+//    bool ok = obj->getProperty("x", &x);
+//    SE_PRECONDITION3(ok && x.isNumber(), false, *rect = cocos2d::Rect::ZERO);
+//    ok = obj->getProperty("y", &y);
+//    SE_PRECONDITION3(ok && y.isNumber(), false, *rect = cocos2d::Rect::ZERO);
+//    ok = obj->getProperty("width", &width);
+//    SE_PRECONDITION3(ok && width.isNumber(), false, *rect = cocos2d::Rect::ZERO);
+//    ok = obj->getProperty("height", &height);
+//    SE_PRECONDITION3(ok && height.isNumber(), false, *rect = cocos2d::Rect::ZERO);
+//    rect->origin.x = x.toFloat();
+//    rect->origin.y = y.toFloat();
+//    rect->size.width = width.toFloat();
+//    rect->size.height = height.toFloat();
+//
+//    return true;
+//}
+
+bool seval_to_Rect(const se::Value& v, cocos2d::renderer::Rect* rect)
 {
     assert(v.isObject() && rect != nullptr);
     se::Object* obj = v.toObject();
@@ -374,17 +423,17 @@ bool seval_to_Rect(const se::Value& v, cocos2d::Rect* rect)
     se::Value height;
 
     bool ok = obj->getProperty("x", &x);
-    SE_PRECONDITION3(ok && x.isNumber(), false, *rect = cocos2d::Rect::ZERO);
+    SE_PRECONDITION3(ok && x.isNumber(), false, *rect = cocos2d::renderer::Rect::ZERO);
     ok = obj->getProperty("y", &y);
-    SE_PRECONDITION3(ok && y.isNumber(), false, *rect = cocos2d::Rect::ZERO);
-    ok = obj->getProperty("width", &width);
-    SE_PRECONDITION3(ok && width.isNumber(), false, *rect = cocos2d::Rect::ZERO);
-    ok = obj->getProperty("height", &height);
-    SE_PRECONDITION3(ok && height.isNumber(), false, *rect = cocos2d::Rect::ZERO);
-    rect->origin.x = x.toFloat();
-    rect->origin.y = y.toFloat();
-    rect->size.width = width.toFloat();
-    rect->size.height = height.toFloat();
+    SE_PRECONDITION3(ok && y.isNumber(), false, *rect = cocos2d::renderer::Rect::ZERO);
+    ok = obj->getProperty("w", &width);
+    SE_PRECONDITION3(ok && width.isNumber(), false, *rect = cocos2d::renderer::Rect::ZERO);
+    ok = obj->getProperty("h", &height);
+    SE_PRECONDITION3(ok && height.isNumber(), false, *rect = cocos2d::renderer::Rect::ZERO);
+    rect->x = x.toFloat();
+    rect->y = y.toFloat();
+    rect->w = width.toFloat();
+    rect->h = height.toFloat();
 
     return true;
 }
@@ -451,6 +500,25 @@ bool seval_to_Color4F(const se::Value& v, cocos2d::Color4F* color)
     color->g = g.toFloat() / 255.0f;
     color->b = b.toFloat() / 255.0f;
     color->a = a.toFloat() / 255.0f;
+    return true;
+}
+
+bool seval_to_Color3F(const se::Value& v, cocos2d::Color3F* color)
+{
+    assert(v.isObject() && color != nullptr);
+    se::Object* obj = v.toObject();
+    se::Value r;
+    se::Value g;
+    se::Value b;
+    bool ok = obj->getProperty("r", &r);
+    SE_PRECONDITION3(ok && r.isNumber(), false, *color = cocos2d::Color3F::BLACK);
+    ok = obj->getProperty("g", &g);
+    SE_PRECONDITION3(ok && g.isNumber(), false, *color = cocos2d::Color3F::BLACK);
+    ok = obj->getProperty("b", &b);
+    SE_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color3F::BLACK);
+    color->r = r.toFloat();
+    color->g = g.toFloat();
+    color->b = b.toFloat();
     return true;
 }
 
@@ -576,7 +644,7 @@ bool seval_to_ccvaluemapintkey(const se::Value& v, cocos2d::ValueMapIntKey* ret)
 
         if (!isNumberString(key))
         {
-            CCLOGWARN("seval_to_ccvaluemapintkey, found not numeric key: %s", key.c_str());
+            SE_LOGD("seval_to_ccvaluemapintkey, found not numeric key: %s", key.c_str());
             continue;
         }
 
@@ -678,18 +746,71 @@ bool seval_to_std_vector_int(const se::Value& v, std::vector<int>* ret)
     assert(ret != nullptr);
     assert(v.isObject());
     se::Object* obj = v.toObject();
-    assert(obj->isArray());
-    uint32_t len = 0;
-    if (obj->getArrayLength(&len))
+
+    if (obj->isArray())
     {
-        se::Value value;
-        for (uint32_t i = 0; i < len; ++i)
+        uint32_t len = 0;
+        if (obj->getArrayLength(&len))
         {
-            SE_PRECONDITION3(obj->getArrayElement(i, &value), false, ret->clear());
-            assert(value.isNumber());
-            ret->push_back(value.toInt32());
+            se::Value value;
+            for (uint32_t i = 0; i < len; ++i)
+            {
+                SE_PRECONDITION3(obj->getArrayElement(i, &value), false, ret->clear());
+                assert(value.isNumber());
+                ret->push_back(value.toInt32());
+            }
+            return true;
         }
+    }
+    else if (obj->isTypedArray())
+    {
+        size_t bytesPerElements = 0;
+        uint8_t* data = nullptr;
+        size_t dataBytes = 0;
+        se::Object::TypedArrayType type = obj->getTypedArrayType();
+
+#define SE_UINT8_PTR_TO_INT(ptr)  (*((uint8_t*)(ptr)))
+#define SE_UINT16_PTR_TO_INT(ptr) (*((uint16_t*)(ptr)))
+#define SE_UINT32_PTR_TO_INT(ptr) (*((uint32_t*)(ptr)))
+
+        if (obj->getTypedArrayData(&data, &dataBytes))
+        {
+            for (size_t i = 0; i < dataBytes; i += bytesPerElements)
+            {
+                switch (type) {
+                    case se::Object::TypedArrayType::INT8:
+                    case se::Object::TypedArrayType::UINT8:
+                    case se::Object::TypedArrayType::UINT8_CLAMPED:
+                        ret->push_back(SE_UINT8_PTR_TO_INT(data + i));
+                        bytesPerElements = 1;
+                        break;
+                    case se::Object::TypedArrayType::INT16:
+                    case se::Object::TypedArrayType::UINT16:
+                        ret->push_back(SE_UINT16_PTR_TO_INT(data + i));
+                        bytesPerElements = 2;
+                        break;
+                    case se::Object::TypedArrayType::INT32:
+                    case se::Object::TypedArrayType::UINT32:
+                        ret->push_back(SE_UINT32_PTR_TO_INT(data + i));
+                        bytesPerElements = 4;
+                        break;
+                    default:
+                        SE_LOGE("Unsupported typed array: %d\n", (int)type);
+                        assert(false);
+                        break;
+                }
+            }
+        }
+
+#undef SE_UINT8_PTR_TO_INT
+#undef SE_UINT16_PTR_TO_INT
+#undef SE_UINT32_PTR_TO_INT
+
         return true;
+    }
+    else
+    {
+        assert(false);
     }
 
     ret->clear();
@@ -742,30 +863,30 @@ bool seval_to_std_vector_Vec2(const se::Value& v, std::vector<cocos2d::Vec2>* re
     return false;
 }
 
-bool seval_to_std_vector_Touch(const se::Value& v, std::vector<cocos2d::Touch*>* ret)
-{
-    assert(ret != nullptr);
-    assert(v.isObject());
-    se::Object* obj = v.toObject();
-    assert(obj->isArray());
-    uint32_t len = 0;
-    if (obj->getArrayLength(&len))
-    {
-        se::Value value;
-        cocos2d::Touch* touch = nullptr;
-        for (uint32_t i = 0; i < len; ++i)
-        {
-            SE_PRECONDITION3(obj->getArrayElement(i, &value), false, ret->clear());
-            assert(value.isObject());
-            touch = (cocos2d::Touch*)value.toObject()->getPrivateData();
-            ret->push_back(touch);
-        }
-        return true;
-    }
-
-    ret->clear();
-    return false;
-}
+//bool seval_to_std_vector_Touch(const se::Value& v, std::vector<cocos2d::Touch*>* ret)
+//{
+//    assert(ret != nullptr);
+//    assert(v.isObject());
+//    se::Object* obj = v.toObject();
+//    assert(obj->isArray());
+//    uint32_t len = 0;
+//    if (obj->getArrayLength(&len))
+//    {
+//        se::Value value;
+//        cocos2d::Touch* touch = nullptr;
+//        for (uint32_t i = 0; i < len; ++i)
+//        {
+//            SE_PRECONDITION3(obj->getArrayElement(i, &value), false, ret->clear());
+//            assert(value.isObject());
+//            touch = (cocos2d::Touch*)value.toObject()->getPrivateData();
+//            ret->push_back(touch);
+//        }
+//        return true;
+//    }
+//
+//    ret->clear();
+//    return false;
+//}
 
 bool seval_to_std_map_string_string(const se::Value& v, std::map<std::string, std::string>* ret)
 {
@@ -948,97 +1069,97 @@ bool seval_to_FontDefinition(const se::Value& v, cocos2d::FontDefinition* ret)
 
     return true;
 }
-
-bool seval_to_Acceleration(const se::Value& v, cocos2d::Acceleration* ret)
-{
-    assert(ret != nullptr);
-    assert(v.isObject());
-    se::Object* obj = v.toObject();
-    bool ok = false;
-    se::Value tmp;
-
-    ok = obj->getProperty("x", &tmp);
-    SE_PRECONDITION3(ok && tmp.isNumber(), false, ret->x = ret->y = ret->z = ret->timestamp = 0.0);
-    ret->x = tmp.toNumber();
-
-    ok = obj->getProperty("y", &tmp);
-    SE_PRECONDITION3(ok && tmp.isNumber(), false, ret->x = ret->y = ret->z = ret->timestamp = 0.0);
-    ret->y = tmp.toNumber();
-
-    ok = obj->getProperty("z", &tmp);
-    SE_PRECONDITION3(ok && tmp.isNumber(), false, ret->x = ret->y = ret->z = ret->timestamp = 0.0);
-    ret->z = tmp.toNumber();
-
-    ok = obj->getProperty("timestamp", &tmp);
-    SE_PRECONDITION3(ok && tmp.isNumber(), false, ret->x = ret->y = ret->z = ret->timestamp = 0.0);
-    ret->timestamp = tmp.toNumber();
-
-    return true;
-}
-
-bool seval_to_Quaternion(const se::Value& v, cocos2d::Quaternion* ret)
-{
-    assert(ret != nullptr);
-    assert(v.isObject());
-    se::Object* obj = v.toObject();
-    bool ok = false;
-    se::Value tmp;
-
-    ok = obj->getProperty("x", &tmp);
-    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = cocos2d::Quaternion::ZERO);
-    ret->x = tmp.toFloat();
-
-    ok = obj->getProperty("y", &tmp);
-    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = cocos2d::Quaternion::ZERO);
-    ret->y = tmp.toFloat();
-
-    ok = obj->getProperty("z", &tmp);
-    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = cocos2d::Quaternion::ZERO);
-    ret->z = tmp.toFloat();
-
-    ok = obj->getProperty("w", &tmp);
-    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = cocos2d::Quaternion::ZERO);
-    ret->w = tmp.toFloat();
-
-    return true;
-}
-
-bool seval_to_AffineTransform(const se::Value& v, cocos2d::AffineTransform* ret)
-{
-    static cocos2d::AffineTransform ZERO = {0, 0, 0, 0, 0, 0};
-
-    assert(ret != nullptr);
-    assert(v.isObject());
-    se::Value tmp;
-    se::Object* obj = v.toObject();
-    bool ok = false;
-
-    ok = obj->getProperty("a", &tmp);
-    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
-    ret->a = tmp.toFloat();
-
-    ok = obj->getProperty("b", &tmp);
-    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
-    ret->b = tmp.toFloat();
-
-    ok = obj->getProperty("c", &tmp);
-    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
-    ret->c = tmp.toFloat();
-
-    ok = obj->getProperty("d", &tmp);
-    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
-    ret->d = tmp.toFloat();
-
-    ok = obj->getProperty("tx", &tmp);
-    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
-    ret->tx = tmp.toFloat();
-
-    ok = obj->getProperty("ty", &tmp);
-    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
-    ret->ty = tmp.toFloat();
-
-    return true;
-}
+//
+//bool seval_to_Acceleration(const se::Value& v, cocos2d::Acceleration* ret)
+//{
+//    assert(ret != nullptr);
+//    assert(v.isObject());
+//    se::Object* obj = v.toObject();
+//    bool ok = false;
+//    se::Value tmp;
+//
+//    ok = obj->getProperty("x", &tmp);
+//    SE_PRECONDITION3(ok && tmp.isNumber(), false, ret->x = ret->y = ret->z = ret->timestamp = 0.0);
+//    ret->x = tmp.toNumber();
+//
+//    ok = obj->getProperty("y", &tmp);
+//    SE_PRECONDITION3(ok && tmp.isNumber(), false, ret->x = ret->y = ret->z = ret->timestamp = 0.0);
+//    ret->y = tmp.toNumber();
+//
+//    ok = obj->getProperty("z", &tmp);
+//    SE_PRECONDITION3(ok && tmp.isNumber(), false, ret->x = ret->y = ret->z = ret->timestamp = 0.0);
+//    ret->z = tmp.toNumber();
+//
+//    ok = obj->getProperty("timestamp", &tmp);
+//    SE_PRECONDITION3(ok && tmp.isNumber(), false, ret->x = ret->y = ret->z = ret->timestamp = 0.0);
+//    ret->timestamp = tmp.toNumber();
+//
+//    return true;
+//}
+//
+//bool seval_to_Quaternion(const se::Value& v, cocos2d::Quaternion* ret)
+//{
+//    assert(ret != nullptr);
+//    assert(v.isObject());
+//    se::Object* obj = v.toObject();
+//    bool ok = false;
+//    se::Value tmp;
+//
+//    ok = obj->getProperty("x", &tmp);
+//    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = cocos2d::Quaternion::ZERO);
+//    ret->x = tmp.toFloat();
+//
+//    ok = obj->getProperty("y", &tmp);
+//    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = cocos2d::Quaternion::ZERO);
+//    ret->y = tmp.toFloat();
+//
+//    ok = obj->getProperty("z", &tmp);
+//    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = cocos2d::Quaternion::ZERO);
+//    ret->z = tmp.toFloat();
+//
+//    ok = obj->getProperty("w", &tmp);
+//    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = cocos2d::Quaternion::ZERO);
+//    ret->w = tmp.toFloat();
+//
+//    return true;
+//}
+//
+//bool seval_to_AffineTransform(const se::Value& v, cocos2d::AffineTransform* ret)
+//{
+//    static cocos2d::AffineTransform ZERO = {0, 0, 0, 0, 0, 0};
+//
+//    assert(ret != nullptr);
+//    assert(v.isObject());
+//    se::Value tmp;
+//    se::Object* obj = v.toObject();
+//    bool ok = false;
+//
+//    ok = obj->getProperty("a", &tmp);
+//    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+//    ret->a = tmp.toFloat();
+//
+//    ok = obj->getProperty("b", &tmp);
+//    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+//    ret->b = tmp.toFloat();
+//
+//    ok = obj->getProperty("c", &tmp);
+//    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+//    ret->c = tmp.toFloat();
+//
+//    ok = obj->getProperty("d", &tmp);
+//    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+//    ret->d = tmp.toFloat();
+//
+//    ok = obj->getProperty("tx", &tmp);
+//    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+//    ret->tx = tmp.toFloat();
+//
+//    ok = obj->getProperty("ty", &tmp);
+//    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+//    ret->ty = tmp.toFloat();
+//
+//    return true;
+//}
 
 //bool seval_to_Viewport(const se::Value& v, cocos2d::experimental::Viewport* ret)
 //{
@@ -1088,129 +1209,753 @@ bool seval_to_Data(const se::Value& v, cocos2d::Data* ret)
     return ok;
 }
 
-bool seval_to_DownloaderHints(const se::Value& v, cocos2d::network::DownloaderHints* ret)
+//bool seval_to_DownloaderHints(const se::Value& v, cocos2d::network::DownloaderHints* ret)
+//{
+//    static cocos2d::network::DownloaderHints ZERO = {0, 0, ""};
+//    assert(ret != nullptr);
+//    assert(v.isObject());
+//    se::Value tmp;
+//    se::Object* obj = v.toObject();
+//    bool ok = false;
+//
+//    ok = obj->getProperty("countOfMaxProcessingTasks", &tmp);
+//    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+//    ret->countOfMaxProcessingTasks = tmp.toUint32();
+//
+//    ok = obj->getProperty("timeoutInSeconds", &tmp);
+//    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+//    ret->timeoutInSeconds = tmp.toUint32();
+//
+//    ok = obj->getProperty("tempFileNameSuffix", &tmp);
+//    SE_PRECONDITION3(ok && tmp.isString(), false, *ret = ZERO);
+//    ret->tempFileNameSuffix = tmp.toString();
+//
+//    return ok;
+//}
+//
+//bool seval_to_TTFConfig(const se::Value& v, cocos2d::TTFConfig* ret)
+//{
+//    se::Value js_fontFilePath;
+//    se::Value js_fontSize;
+//    se::Value js_outlineSize;
+//    se::Value js_glyphs;
+//    se::Value js_customGlyphs;
+//    se::Value js_distanceFieldEnable;
+//
+//    std::string fontFilePath,customGlyphs;
+//
+//    bool ok = v.isObject();
+//    if (ok)
+//    {
+//        se::Object* obj = v.toObject();
+//        if (obj->getProperty("fontFilePath", &js_fontFilePath) && js_fontFilePath.isString())
+//        {
+//            ok &= seval_to_std_string(js_fontFilePath, &ret->fontFilePath);
+//        }
+//
+//        if (obj->getProperty("fontSize", &js_fontSize) && js_fontSize.isNumber())
+//        {
+//            ret->fontSize = (float)js_fontSize.toNumber();
+//        }
+//
+//        if (obj->getProperty("outlineSize", &js_outlineSize) && js_outlineSize.isNumber())
+//        {
+//            ret->outlineSize = (int)js_outlineSize.toNumber();
+//        }
+//
+//        if (obj->getProperty("glyphs", &js_glyphs) && js_glyphs.isNumber())
+//        {
+//            ret->glyphs = (cocos2d::GlyphCollection)(js_glyphs.toInt32());
+//        }
+//
+//        if (obj->getProperty("customGlyphs", &js_customGlyphs) && js_customGlyphs.isString())
+//        {
+//            ok &= seval_to_std_string(js_customGlyphs,&customGlyphs);
+//        }
+//        if(ret->glyphs == cocos2d::GlyphCollection::CUSTOM && !customGlyphs.empty())
+//            ret->customGlyphs = customGlyphs.c_str();
+//        else
+//            ret->customGlyphs = "";
+//
+//        if (obj->getProperty("distanceFieldEnable", &js_distanceFieldEnable) && js_distanceFieldEnable.isBoolean())
+//        {
+//            ret->distanceFieldEnabled = js_distanceFieldEnable.toBoolean();
+//        }
+//    }
+//
+//    SE_PRECONDITION2(ok, false, "Error processing arguments");
+//
+//    return true;
+//}
+//
+//bool seval_to_b2Vec2(const se::Value& v, b2Vec2* ret)
+//{
+//    static b2Vec2 ZERO(0.0f, 0.0f);
+//    assert(v.isObject() && ret != nullptr);
+//    se::Object* obj = v.toObject();
+//    se::Value x;
+//    se::Value y;
+//    bool ok = obj->getProperty("x", &x);
+//    SE_PRECONDITION3(ok && x.isNumber(), false, *ret = ZERO);
+//    ok = obj->getProperty("y", &y);
+//    SE_PRECONDITION3(ok && y.isNumber(), false, *ret = ZERO);
+//    ret->x = x.toFloat();
+//    ret->y = y.toFloat();
+//    return true;
+//}
+//
+//bool seval_to_b2AABB(const se::Value& v, b2AABB* ret)
+//{
+//    static b2AABB ZERO;
+//    static bool __isFirst = true;
+//    if (__isFirst)
+//    {
+//        ZERO.lowerBound.x = ZERO.lowerBound.y = 0;
+//        ZERO.upperBound.x = ZERO.upperBound.y = 0;
+//        __isFirst = false;
+//    }
+//
+//    assert(v.isObject() && ret != nullptr);
+//    se::Object* obj = v.toObject();
+//
+//    bool ok = false;
+//    se::Value tmp;
+//    ok = obj->getProperty("lowerBound", &tmp);
+//    SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+//    ok = seval_to_b2Vec2(tmp, &ret->lowerBound);
+//    SE_PRECONDITION3(ok, false, *ret = ZERO);
+//
+//    ok = obj->getProperty("upperBound", &tmp);
+//    SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
+//    ok = seval_to_b2Vec2(tmp, &ret->upperBound);
+//    SE_PRECONDITION3(ok, false, *ret = ZERO);
+//
+//    return true;
+//}
+
+bool seval_to_std_vector_Texture(const se::Value& v, std::vector<cocos2d::renderer::Texture*>* ret)
 {
-    static cocos2d::network::DownloaderHints ZERO = {0, 0, ""};
     assert(ret != nullptr);
     assert(v.isObject());
-    se::Value tmp;
+    assert(v.toObject()->isArray());
+
     se::Object* obj = v.toObject();
-    bool ok = false;
 
-    ok = obj->getProperty("countOfMaxProcessingTasks", &tmp);
-    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
-    ret->countOfMaxProcessingTasks = tmp.toUint32();
-
-    ok = obj->getProperty("timeoutInSeconds", &tmp);
-    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
-    ret->timeoutInSeconds = tmp.toUint32();
-
-    ok = obj->getProperty("tempFileNameSuffix", &tmp);
-    SE_PRECONDITION3(ok && tmp.isString(), false, *ret = ZERO);
-    ret->tempFileNameSuffix = tmp.toString();
-
-    return ok;
-}
-
-bool seval_to_TTFConfig(const se::Value& v, cocos2d::TTFConfig* ret)
-{
-    se::Value js_fontFilePath;
-    se::Value js_fontSize;
-    se::Value js_outlineSize;
-    se::Value js_glyphs;
-    se::Value js_customGlyphs;
-    se::Value js_distanceFieldEnable;
-
-    std::string fontFilePath,customGlyphs;
-
-    bool ok = v.isObject();
-    if (ok)
+    uint32_t len = 0;
+    if (obj->getArrayLength(&len) && len > 0)
     {
-        se::Object* obj = v.toObject();
-        if (obj->getProperty("fontFilePath", &js_fontFilePath) && js_fontFilePath.isString())
+        for (uint32_t i = 0; i < len; ++i)
         {
-            ok &= seval_to_std_string(js_fontFilePath, &ret->fontFilePath);
-        }
-
-        if (obj->getProperty("fontSize", &js_fontSize) && js_fontSize.isNumber())
-        {
-            ret->fontSize = (float)js_fontSize.toNumber();
-        }
-
-        if (obj->getProperty("outlineSize", &js_outlineSize) && js_outlineSize.isNumber())
-        {
-            ret->outlineSize = (int)js_outlineSize.toNumber();
-        }
-
-        if (obj->getProperty("glyphs", &js_glyphs) && js_glyphs.isNumber())
-        {
-            ret->glyphs = (cocos2d::GlyphCollection)(js_glyphs.toInt32());
-        }
-
-        if (obj->getProperty("customGlyphs", &js_customGlyphs) && js_customGlyphs.isString())
-        {
-            ok &= seval_to_std_string(js_customGlyphs,&customGlyphs);
-        }
-        if(ret->glyphs == cocos2d::GlyphCollection::CUSTOM && !customGlyphs.empty())
-            ret->customGlyphs = customGlyphs.c_str();
-        else
-            ret->customGlyphs = "";
-
-        if (obj->getProperty("distanceFieldEnable", &js_distanceFieldEnable) && js_distanceFieldEnable.isBoolean())
-        {
-            ret->distanceFieldEnabled = js_distanceFieldEnable.toBoolean();
+            se::Value textureVal;
+            if (obj->getArrayElement(i, &textureVal) && textureVal.isObject())
+            {
+                cocos2d::renderer::Texture* texture = nullptr;
+                seval_to_native_ptr(textureVal, &texture);
+                ret->push_back(texture);
+            }
         }
     }
 
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-
     return true;
 }
 
-bool seval_to_b2Vec2(const se::Value& v, b2Vec2* ret)
+bool seval_to_std_vector_RenderTarget(const se::Value& v, std::vector<cocos2d::renderer::RenderTarget*>* ret)
 {
-    static b2Vec2 ZERO(0.0f, 0.0f);
-    assert(v.isObject() && ret != nullptr);
+    assert(false);
+    return true;
+}
+
+bool seval_to_TextureOptions(const se::Value& v, cocos2d::renderer::Texture::Options* ret)
+{
+    assert(ret != nullptr);
+    assert(v.isObject());
     se::Object* obj = v.toObject();
-    se::Value x;
-    se::Value y;
-    bool ok = obj->getProperty("x", &x);
-    SE_PRECONDITION3(ok && x.isNumber(), false, *ret = ZERO);
-    ok = obj->getProperty("y", &y);
-    SE_PRECONDITION3(ok && y.isNumber(), false, *ret = ZERO);
-    ret->x = x.toFloat();
-    ret->y = y.toFloat();
+    se::Value images;
+    if (obj->getProperty("images", &images) && images.isObject() && images.toObject()->isArray())
+    {
+        uint32_t len = 0;
+        se::Object* arr = images.toObject();
+        if (arr->getArrayLength(&len))
+        {
+            se::Value imageVal;
+            for (uint32_t i = 0; i < len; ++i)
+            {
+                if (arr->getArrayElement(i, &imageVal))
+                {
+                    if (imageVal.isObject() && imageVal.toObject()->isTypedArray())
+                    {
+                        uint8_t* data = nullptr;
+                        size_t bytes = 0;
+                        cocos2d::Data imgData;
+                        imageVal.toObject()->getTypedArrayData(&data, &bytes);
+                        imgData.copy((unsigned char*)data, bytes);
+                        ret->images.push_back(std::move(imgData));
+                    }
+                    else
+                    {
+                        SE_LOGE("Texture image isn't a typed array object!");
+                        assert(false);
+                    }
+                }
+            }
+        }
+    }
+
+    se::Value tmp;
+    if (obj->getProperty("mipmap", &tmp))
+    {
+        seval_to_boolean(tmp, &ret->hasMipmap);
+    }
+
+    if (obj->getProperty("width", &tmp))
+    {
+        seval_to_uint16(tmp, &ret->width);
+    }
+
+    if (obj->getProperty("height", &tmp))
+    {
+        seval_to_uint16(tmp, &ret->height);
+    }
+
+    if (obj->getProperty("format", &tmp))
+    {
+        seval_to_uint8(tmp, (uint8_t*)&ret->format);
+    }
+
+    if (obj->getProperty("anisotropy", &tmp))
+    {
+        seval_to_int32(tmp, &ret->anisotropy);
+    }
+
+    if (obj->getProperty("minFilter", &tmp))
+    {
+        seval_to_int8(tmp, (int8_t*)&ret->minFilter);
+    }
+
+    if (obj->getProperty("magFilter", &tmp))
+    {
+        seval_to_int8(tmp, (int8_t*)&ret->magFilter);
+    }
+
+    if (obj->getProperty("mipFilter", &tmp))
+    {
+        seval_to_int8(tmp, (int8_t*)&ret->mipFilter);
+    }
+
+    if (obj->getProperty("wrapS", &tmp))
+    {
+        seval_to_uint16(tmp, (uint16_t*)&ret->wrapS);
+    }
+
+    if (obj->getProperty("wrapT", &tmp))
+    {
+        seval_to_uint16(tmp, (uint16_t*)&ret->wrapT);
+    }
+
+    if (obj->getProperty("flipY", &tmp))
+    {
+        seval_to_boolean(tmp, &ret->flipY);
+    }
+
+    if (obj->getProperty("premultiplyAlpha", &tmp))
+    {
+        seval_to_boolean(tmp, &ret->premultiplyAlpha);
+    }
+
     return true;
 }
 
-bool seval_to_b2AABB(const se::Value& v, b2AABB* ret)
+bool seval_to_TextureSubImageOption(const se::Value& v, cocos2d::renderer::Texture::SubImageOption* ret)
 {
-    static b2AABB ZERO;
-    static bool __isFirst = true;
-    if (__isFirst)
+    assert(ret != nullptr);
+    assert(v.isObject());
+    se::Object* obj = v.toObject();
+    se::Value imageVal;
+    if (obj->getProperty("image", &imageVal) && imageVal.isObject() && imageVal.toObject()->isTypedArray())
     {
-        ZERO.lowerBound.x = ZERO.lowerBound.y = 0;
-        ZERO.upperBound.x = ZERO.upperBound.y = 0;
-        __isFirst = false;
+        uint8_t* imgData = nullptr;
+        size_t imgDataLen = 0;
+        imageVal.toObject()->getTypedArrayData(&imgData, &imgDataLen);
+        ret->image.copy(imgData, imgDataLen);
+    }
+
+    se::Value tmp;
+    if (obj->getProperty("mipmap", &tmp))
+    {
+        seval_to_boolean(tmp, &ret->hasMipmap);
+    }
+
+    if (obj->getProperty("x", &tmp))
+    {
+        seval_to_uint16(tmp, &ret->x);
+    }
+
+    if (obj->getProperty("y", &tmp))
+    {
+        seval_to_uint16(tmp, &ret->y);
+    }
+
+    if (obj->getProperty("width", &tmp))
+    {
+        seval_to_uint16(tmp, &ret->width);
+    }
+
+    if (obj->getProperty("level", &tmp))
+    {
+        seval_to_int32(tmp, &ret->level);
     }
     
-    assert(v.isObject() && ret != nullptr);
+    if (obj->getProperty("height", &tmp))
+    {
+        seval_to_uint16(tmp, &ret->height);
+    }
+
+    if (obj->getProperty("format", &tmp))
+    {
+        seval_to_uint8(tmp, (uint8_t*)&ret->format);
+    }
+
+    if (obj->getProperty("anisotropy", &tmp))
+    {
+        seval_to_int32(tmp, &ret->anisotropy);
+    }
+
+    if (obj->getProperty("minFilter", &tmp))
+    {
+        seval_to_int8(tmp, (int8_t*)&ret->minFilter);
+    }
+
+    if (obj->getProperty("magFilter", &tmp))
+    {
+        seval_to_int8(tmp, (int8_t*)&ret->magFilter);
+    }
+
+    if (obj->getProperty("mipFilter", &tmp))
+    {
+        seval_to_int8(tmp, (int8_t*)&ret->mipFilter);
+    }
+
+    if (obj->getProperty("wrapS", &tmp))
+    {
+        seval_to_uint16(tmp, (uint16_t*)&ret->wrapS);
+    }
+
+    if (obj->getProperty("wrapT", &tmp))
+    {
+        seval_to_uint16(tmp, (uint16_t*)&ret->wrapT);
+    }
+
+    if (obj->getProperty("flipY", &tmp))
+    {
+        seval_to_boolean(tmp, &ret->flipY);
+    }
+
+    if (obj->getProperty("premultiplyAlpha", &tmp))
+    {
+        seval_to_boolean(tmp, &ret->premultiplyAlpha);
+    }
+
+    return true;
+}
+
+bool seval_to_TextureImageOption(const se::Value& v, cocos2d::renderer::Texture::ImageOption* ret)
+{
+    assert(ret != nullptr);
+    assert(v.isObject());
+    se::Object* obj = v.toObject();
+    se::Value imageVal;
+    if (obj->getProperty("image", &imageVal) && imageVal.isObject() && imageVal.toObject()->isTypedArray())
+    {
+        uint8_t* imgData = nullptr;
+        size_t imgDataLen = 0;
+        imageVal.toObject()->getTypedArrayData(&imgData, &imgDataLen);
+        ret->image.copy(imgData, imgDataLen);
+    }
+
+    se::Value tmp;
+    if (obj->getProperty("mipmap", &tmp))
+    {
+        seval_to_boolean(tmp, &ret->hasMipmap);
+    }
+
+    if (obj->getProperty("width", &tmp))
+    {
+        seval_to_uint16(tmp, &ret->width);
+    }
+
+    if (obj->getProperty("level", &tmp))
+    {
+        seval_to_int32(tmp, &ret->level);
+    }
+
+    if (obj->getProperty("height", &tmp))
+    {
+        seval_to_uint16(tmp, &ret->height);
+    }
+
+    if (obj->getProperty("format", &tmp))
+    {
+        seval_to_uint8(tmp, (uint8_t*)&ret->format);
+    }
+
+    if (obj->getProperty("anisotropy", &tmp))
+    {
+        seval_to_int32(tmp, &ret->anisotropy);
+    }
+
+    if (obj->getProperty("minFilter", &tmp))
+    {
+        seval_to_int8(tmp, (int8_t*)&ret->minFilter);
+    }
+
+    if (obj->getProperty("magFilter", &tmp))
+    {
+        seval_to_int8(tmp, (int8_t*)&ret->magFilter);
+    }
+
+    if (obj->getProperty("mipFilter", &tmp))
+    {
+        seval_to_int8(tmp, (int8_t*)&ret->mipFilter);
+    }
+
+    if (obj->getProperty("wrapS", &tmp))
+    {
+        seval_to_uint16(tmp, (uint16_t*)&ret->wrapS);
+    }
+
+    if (obj->getProperty("wrapT", &tmp))
+    {
+        seval_to_uint16(tmp, (uint16_t*)&ret->wrapT);
+    }
+
+    if (obj->getProperty("flipY", &tmp))
+    {
+        seval_to_boolean(tmp, &ret->flipY);
+    }
+
+    if (obj->getProperty("premultiplyAlpha", &tmp))
+    {
+        seval_to_boolean(tmp, &ret->premultiplyAlpha);
+    }
+
+    return true;
+}
+
+bool seval_to_EffectProperty(const se::Value& v, std::unordered_map<std::string, cocos2d::renderer::Effect::Property>* ret)
+{
+    assert(ret != nullptr);
+    assert(v.isObject());
+
+    se::Object* obj = v.toObject();
+    std::vector<std::string> keys;
+    obj->getAllKeys(&keys);
+
+    for (const auto& key : keys)
+    {
+        se::Value value;
+        cocos2d::renderer::Effect::Property property;
+        if (obj->getProperty(key.c_str(), &value) && value.isObject())
+        {
+            if (seval_to_TechniqueParameter(value, &property))
+            {
+                ret->emplace(key, std::move(property));
+            }
+        }
+    }
+
+    return true;
+}
+
+bool seval_to_EffectDefineTemplate(const se::Value& v, std::vector<cocos2d::ValueMap>* ret)
+{
+    assert(ret != nullptr);
+    assert(v.isObject() && v.toObject()->isArray());
+
+    se::Object* obj = v.toObject();
+    uint32_t len = 0;
+    obj->getArrayLength(&len);
+    for (uint32_t i = 0; i < len; ++i)
+    {
+        se::Value value;
+        cocos2d::ValueMap valMap;
+        if (obj->getArrayElement(i, &value) && value.isObject())
+        {
+            if (seval_to_ccvaluemap(value, &valMap))
+            {
+                ret->push_back(std::move(valMap));
+            }
+        }
+    }
+
+    return true;
+}
+
+bool seval_to_TechniqueParameter(const se::Value& v, cocos2d::renderer::Technique::Parameter* ret)
+{
+    assert(ret != nullptr);
+    assert(v.isObject());
+    se::Object* obj = v.toObject();
+    se::Value tmp;
+    std::string name;
+    uint8_t size = 0;
+    double number = 0.0;
+    void* value = nullptr;
+    cocos2d::renderer::Technique::Parameter::Type type = cocos2d::renderer::Technique::Parameter::Type::UNKNOWN;
+    std::vector<cocos2d::renderer::Texture*> textures;
+    cocos2d::renderer::Texture* texture = nullptr;
+
+    std::vector<std::string> keys;
+    obj->getAllKeys(&keys);
+    for (auto& key: keys)
+    {
+        SE_LOGD("key: %s\n", key.c_str());
+    }
+
+    bool ok = false;
+
+    if (obj->getProperty("updateSubImage", &tmp))
+    {
+        //FIXME: perhaps it could be cube.
+        type = cocos2d::renderer::Technique::Parameter::Type::TEXTURE_2D;
+        size = 1;
+        seval_to_native_ptr(v, &texture);
+    }
+    else
+    {
+        if (obj->getProperty("name", &tmp))
+        {
+            ok = seval_to_std_string(tmp, &name);
+            SE_PRECONDITION2(ok, false, "Convert Parameter name failed!");
+        }
+
+        if (obj->getProperty("type", &tmp))
+        {
+            uint8_t v = 0;
+            ok = seval_to_uint8(tmp, &v);
+            SE_PRECONDITION2(ok, false, "Convert Parameter type failed!");
+            type = (cocos2d::renderer::Technique::Parameter::Type)v;
+        }
+
+        if (obj->getProperty("size", &tmp))
+        {
+            ok = seval_to_uint8(tmp, &size);
+            SE_PRECONDITION2(ok, false, "Convert Parameter size failed!");
+        }
+
+        if (obj->getProperty("val", &tmp))
+        {
+            if (tmp.isNumber())
+            {
+                number = tmp.toNumber();
+            }
+            else if (tmp.isObject())
+            {
+                se::Object* valObj = tmp.toObject();
+                if (valObj->isArray())
+                {
+                    assert(type == cocos2d::renderer::Technique::Parameter::Type::TEXTURE_2D ||
+                           type == cocos2d::renderer::Technique::Parameter::Type::TEXTURE_CUBE);
+
+                    uint32_t arrLen = 0;
+                    valObj->getArrayLength(&arrLen);
+                    for (uint32_t i = 0; i < arrLen; ++i)
+                    {
+                        se::Value texVal;
+                        valObj->getArrayElement(i, &texVal);
+                        cocos2d::renderer::Texture* tmpTex = nullptr;
+                        seval_to_native_ptr(texVal, &tmpTex);
+                        textures.push_back(tmpTex);
+                    }
+                }
+                else if (valObj->isTypedArray())
+                {
+                    uint8_t* data = nullptr;
+                    size_t len = 0;
+                    if (valObj->getTypedArrayData(&data, &len))
+                    {
+                        value = data;
+                    }
+                }
+                else if (valObj->isArrayBuffer())
+                {
+                    uint8_t* data = nullptr;
+                    size_t len = 0;
+                    if (valObj->getArrayBufferData(&data, &len))
+                    {
+                        value = data;
+                    }
+                }
+                else
+                {
+                    assert(type == cocos2d::renderer::Technique::Parameter::Type::TEXTURE_2D ||
+                           type == cocos2d::renderer::Technique::Parameter::Type::TEXTURE_CUBE);
+
+                    seval_to_native_ptr(tmp, &texture);
+                }
+            }
+            else
+            {
+                assert(false);
+            }
+        }
+    }
+
+    switch (type) {
+        case cocos2d::renderer::Technique::Parameter::Type::INT:
+        case cocos2d::renderer::Technique::Parameter::Type::INT2:
+        case cocos2d::renderer::Technique::Parameter::Type::INT3:
+        case cocos2d::renderer::Technique::Parameter::Type::INT4:
+        {
+            if (size == 1)
+            {
+                int intVal = (int)number;
+                cocos2d::renderer::Technique::Parameter param(name, type, &intVal, 1);
+                *ret = std::move(param);
+            }
+            else
+            {
+                cocos2d::renderer::Technique::Parameter param(name, type, (int*)value, size);
+                *ret = std::move(param);
+            }
+            break;
+        }
+        case cocos2d::renderer::Technique::Parameter::Type::FLOAT:
+        case cocos2d::renderer::Technique::Parameter::Type::FLOAT2:
+        case cocos2d::renderer::Technique::Parameter::Type::FLOAT3:
+        case cocos2d::renderer::Technique::Parameter::Type::FLOAT4:
+        case cocos2d::renderer::Technique::Parameter::Type::COLOR3:
+        case cocos2d::renderer::Technique::Parameter::Type::COLOR4:
+        case cocos2d::renderer::Technique::Parameter::Type::MAT2:
+        case cocos2d::renderer::Technique::Parameter::Type::MAT3:
+        case cocos2d::renderer::Technique::Parameter::Type::MAT4:
+        {
+            if (size == 1)
+            {
+                float floatVal = (float)number;
+                cocos2d::renderer::Technique::Parameter param(name, type, &floatVal, 1);
+                *ret = std::move(param);
+            }
+            else
+            {
+                cocos2d::renderer::Technique::Parameter param(name, type, (float*)value, size);
+                *ret = std::move(param);
+            }
+            break;
+        }
+
+        case cocos2d::renderer::Technique::Parameter::Type::TEXTURE_2D:
+        case cocos2d::renderer::Technique::Parameter::Type::TEXTURE_CUBE:
+        {
+            if (size == 1)
+            {
+                cocos2d::renderer::Technique::Parameter param(name, type, texture);
+                *ret = std::move(param);
+            }
+            else
+            {
+                cocos2d::renderer::Technique::Parameter param(name, type, textures);
+                *ret = std::move(param);
+            }
+            break;
+        }
+        default:
+            assert(false);
+            break;
+    }
+
+    return true;
+}
+
+bool seval_to_std_vector_TechniqueParameter(const se::Value& v, std::vector<cocos2d::renderer::Technique::Parameter>* ret)
+{
+    assert(ret != nullptr);
+    assert(v.isObject());
+
+    se::Object* obj = v.toObject();
+    uint32_t len = 0;
+    obj->getArrayLength(&len);
+    ret->reserve(len);
+    for (uint32_t i = 0; i < len; ++i)
+    {
+        se::Value data;
+        if (obj->getArrayElement(i, &data))
+        {
+            cocos2d::renderer::Technique::Parameter parameter;
+            seval_to_TechniqueParameter(data, &parameter);
+            ret->push_back(std::move(parameter));
+        }
+    }
+
+    return true;
+}
+
+bool seval_to_ProgramLib_Template(const se::Value& v, cocos2d::renderer::ProgramLib::Template* ret)
+{
+    assert(ret != nullptr);
+    assert(v.isObject());
     se::Object* obj = v.toObject();
 
     bool ok = false;
     se::Value tmp;
-    ok = obj->getProperty("lowerBound", &tmp);
-    SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
-    ok = seval_to_b2Vec2(tmp, &ret->lowerBound);
-    SE_PRECONDITION3(ok, false, *ret = ZERO);
 
-    ok = obj->getProperty("upperBound", &tmp);
-    SE_PRECONDITION3(ok && tmp.isObject(), false, *ret = ZERO);
-    ok = seval_to_b2Vec2(tmp, &ret->upperBound);
-    SE_PRECONDITION3(ok, false, *ret = ZERO);
+    if (obj->getProperty("id", &tmp))
+    {
+        ok = seval_to_uint32(tmp, &ret->id);
+        SE_PRECONDITION2(ok, false, "Convert id failed!");
+    }
+
+    if (obj->getProperty("name", &tmp))
+    {
+        ok = seval_to_std_string(tmp, &ret->name);
+        SE_PRECONDITION2(ok, false, "Convert name failed!");
+    }
+
+    if (obj->getProperty("vert", &tmp))
+    {
+        ok = seval_to_std_string(tmp, &ret->vert);
+        SE_PRECONDITION2(ok, false, "Convert vert failed!");
+    }
+
+    if (obj->getProperty("frag", &tmp))
+    {
+        ok = seval_to_std_string(tmp, &ret->frag);
+        SE_PRECONDITION2(ok, false, "Convert frag failed!");
+    }
+
+    if (obj->getProperty("defines", &tmp))
+    {
+        ok = seval_to_ccvaluevector(tmp, &ret->defines);
+        SE_PRECONDITION2(ok, false, "Convert defines failed!");
+    }
 
     return true;
 }
+
+bool seval_to_std_vector_ProgramLib_Template(const se::Value& v, std::vector<cocos2d::renderer::ProgramLib::Template>* ret)
+{
+    assert(ret != nullptr);
+    assert(v.isObject());
+
+    se::Object* obj = v.toObject();
+    uint32_t len = 0;
+    obj->getArrayLength(&len);
+    ret->reserve(len);
+    for (uint32_t i = 0; i < len; ++i)
+    {
+        se::Value data;
+        if (obj->getArrayElement(i, &data))
+        {
+            cocos2d::renderer::ProgramLib::Template parameter;
+            if (seval_to_ProgramLib_Template(data, &parameter))
+            {
+                ret->push_back(std::move(parameter));
+            }
+        }
+    }
+
+    return true;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////
 // native to seval
@@ -1359,14 +2104,27 @@ bool Size_to_seval(const cocos2d::Size& v, se::Value* ret)
     return true;
 }
 
-bool Rect_to_seval(const cocos2d::Rect& v, se::Value* ret)
+//bool Rect_to_seval(const cocos2d::Rect& v, se::Value* ret)
+//{
+//    assert(ret != nullptr);
+//    se::HandleObject obj(se::Object::createPlainObject());
+//    obj->setProperty("x", se::Value(v.origin.x));
+//    obj->setProperty("y", se::Value(v.origin.y));
+//    obj->setProperty("width", se::Value(v.size.width));
+//    obj->setProperty("height", se::Value(v.size.height));
+//    ret->setObject(obj);
+//
+//    return true;
+//}
+
+bool Rect_to_seval(const cocos2d::renderer::Rect& v, se::Value* ret)
 {
     assert(ret != nullptr);
     se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("x", se::Value(v.origin.x));
-    obj->setProperty("y", se::Value(v.origin.y));
-    obj->setProperty("width", se::Value(v.size.width));
-    obj->setProperty("height", se::Value(v.size.height));
+    obj->setProperty("x", se::Value(v.x));
+    obj->setProperty("y", se::Value(v.y));
+    obj->setProperty("w", se::Value(v.w));
+    obj->setProperty("h", se::Value(v.h));
     ret->setObject(obj);
 
     return true;
@@ -1408,6 +2166,17 @@ bool Color4F_to_seval(const cocos2d::Color4F& v, se::Value* ret)
     obj->setProperty("a", se::Value(v.a));
     ret->setObject(obj);
 
+    return true;
+}
+
+bool Color3F_to_seval(const cocos2d::Color3F& v, se::Value* ret)
+{
+    assert(ret != nullptr);
+    se::HandleObject obj(se::Object::createPlainObject());
+    obj->setProperty("r", se::Value(v.r));
+    obj->setProperty("g", se::Value(v.g));
+    obj->setProperty("b", se::Value(v.b));
+    ret->setObject(obj);
     return true;
 }
 
@@ -1597,31 +2366,31 @@ bool std_vector_float_to_seval(const std::vector<float>& v, se::Value* ret)
     return std_vector_T_to_seval(v, ret);
 }
 
-bool std_vector_Touch_to_seval(const std::vector<cocos2d::Touch*>& v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    se::HandleObject arr(se::Object::createArrayObject(v.size()));
-
-    uint32_t i = 0;
-    se::Value tmp;
-    bool ok = true;
-    for (const auto& touch : v)
-    {
-        if (!native_ptr_to_seval<cocos2d::Touch>(touch, &tmp))
-        {
-            ok = false;
-            break;
-        }
-        arr->setArrayElement(i, tmp);
-        ++i;
-    }
-    if (ok)
-        ret->setObject(arr);
-    else
-        ret->setUndefined();
-
-    return ok;
-}
+//bool std_vector_Touch_to_seval(const std::vector<cocos2d::Touch*>& v, se::Value* ret)
+//{
+//    assert(ret != nullptr);
+//    se::HandleObject arr(se::Object::createArrayObject(v.size()));
+//
+//    uint32_t i = 0;
+//    se::Value tmp;
+//    bool ok = true;
+//    for (const auto& touch : v)
+//    {
+//        if (!native_ptr_to_seval<cocos2d::Touch>(touch, &tmp))
+//        {
+//            ok = false;
+//            break;
+//        }
+//        arr->setArrayElement(i, tmp);
+//        ++i;
+//    }
+//    if (ok)
+//        ret->setObject(arr);
+//    else
+//        ret->setUndefined();
+//
+//    return ok;
+//}
 
 bool std_map_string_string_to_seval(const std::map<std::string, std::string>& v, se::Value* ret)
 {
@@ -1655,120 +2424,120 @@ bool std_map_string_string_to_seval(const std::map<std::string, std::string>& v,
 }
 
 //FIXME: why v has to be a pointer?
-bool uniform_to_seval(const cocos2d::Uniform* v, se::Value* ret)
-{
-    assert(v != nullptr && ret != nullptr);
-    se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("location", se::Value(v->location));
-    obj->setProperty("size", se::Value(v->size));
-    obj->setProperty("type", se::Value(v->type));
-    obj->setProperty("name", se::Value(v->name));
-    ret->setObject(obj);
-
-    return true;
-}
-
-bool FontDefinition_to_seval(const cocos2d::FontDefinition& v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    se::Value tmp;
-
-    se::HandleObject obj(se::Object::createPlainObject());
-    bool ok = true;
-    do
-    {
-        obj->setProperty("fontName", se::Value(v._fontName));
-        obj->setProperty("fontSize", se::Value(v._fontSize));
-        obj->setProperty("textAlign", se::Value((int32_t)v._alignment));
-        obj->setProperty("verticalAlign", se::Value((int32_t)v._vertAlignment));
-
-        if (!Color3B_to_seval(v._fontFillColor, &tmp))
-        {
-            ok = false;
-            break;
-        }
-        obj->setProperty("fillStyle", tmp);
-        obj->setProperty("boundingWidth", se::Value(v._dimensions.width));
-        obj->setProperty("boundingHeight", se::Value(v._dimensions.height));
-
-        obj->setProperty("shadowEnabled", se::Value(v._shadow._shadowEnabled));
-        obj->setProperty("shadowOffsetX", se::Value(v._shadow._shadowOffset.width));
-        obj->setProperty("shadowOffsetY", se::Value(v._shadow._shadowOffset.height));
-        obj->setProperty("shadowBlur", se::Value(v._shadow._shadowBlur));
-        obj->setProperty("shadowOpacity", se::Value(v._shadow._shadowOpacity));
-
-        obj->setProperty("strokeEnabled", se::Value(v._stroke._strokeEnabled));
-        if (!Color3B_to_seval(v._stroke._strokeColor, &tmp))
-        {
-            ok = false;
-            break;
-        }
-
-        obj->setProperty("strokeStyle", tmp);
-        obj->setProperty("lineWidth", se::Value(v._stroke._strokeSize));
-        obj->setProperty("strokeAlpha", se::Value(v._stroke._strokeAlpha));
-    } while (false);
-
-    ret->setObject(obj);
-
-    return ok;
-}
-
-//FIXME: why v has to be a pointer?
-bool Acceleration_to_seval(const cocos2d::Acceleration* v, se::Value* ret)
-{
-    assert(v != nullptr && ret != nullptr);
-    se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("x", se::Value(v->x));
-    obj->setProperty("y", se::Value(v->y));
-    obj->setProperty("z", se::Value(v->z));
-    obj->setProperty("timestamp", se::Value(v->timestamp));
-    ret->setObject(obj);
-
-    return true;
-}
-
-bool Quaternion_to_seval(const cocos2d::Quaternion& v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("x", se::Value(v.x));
-    obj->setProperty("y", se::Value(v.y));
-    obj->setProperty("z", se::Value(v.z));
-    obj->setProperty("w", se::Value(v.w));
-    ret->setObject(obj);
-
-    return true;
-}
-
-bool ManifestAsset_to_seval(const cocos2d::extension::ManifestAsset& v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("md5", se::Value(v.md5));
-    obj->setProperty("path", se::Value(v.path));
-    obj->setProperty("compressed", se::Value(v.compressed));
-    obj->setProperty("size", se::Value(v.size));
-    obj->setProperty("downloadState", se::Value(v.downloadState));
-    ret->setObject(obj);
-
-    return true;
-}
-
-bool AffineTransform_to_seval(const cocos2d::AffineTransform& v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("a", se::Value(v.a));
-    obj->setProperty("b", se::Value(v.b));
-    obj->setProperty("c", se::Value(v.c));
-    obj->setProperty("d", se::Value(v.d));
-    obj->setProperty("tx", se::Value(v.tx));
-    obj->setProperty("ty", se::Value(v.ty));
-    ret->setObject(obj);
-
-    return true;
-}
+//bool uniform_to_seval(const cocos2d::Uniform* v, se::Value* ret)
+//{
+//    assert(v != nullptr && ret != nullptr);
+//    se::HandleObject obj(se::Object::createPlainObject());
+//    obj->setProperty("location", se::Value(v->location));
+//    obj->setProperty("size", se::Value(v->size));
+//    obj->setProperty("type", se::Value(v->type));
+//    obj->setProperty("name", se::Value(v->name));
+//    ret->setObject(obj);
+//
+//    return true;
+//}
+//
+//bool FontDefinition_to_seval(const cocos2d::FontDefinition& v, se::Value* ret)
+//{
+//    assert(ret != nullptr);
+//    se::Value tmp;
+//
+//    se::HandleObject obj(se::Object::createPlainObject());
+//    bool ok = true;
+//    do
+//    {
+//        obj->setProperty("fontName", se::Value(v._fontName));
+//        obj->setProperty("fontSize", se::Value(v._fontSize));
+//        obj->setProperty("textAlign", se::Value((int32_t)v._alignment));
+//        obj->setProperty("verticalAlign", se::Value((int32_t)v._vertAlignment));
+//
+//        if (!Color3B_to_seval(v._fontFillColor, &tmp))
+//        {
+//            ok = false;
+//            break;
+//        }
+//        obj->setProperty("fillStyle", tmp);
+//        obj->setProperty("boundingWidth", se::Value(v._dimensions.width));
+//        obj->setProperty("boundingHeight", se::Value(v._dimensions.height));
+//
+//        obj->setProperty("shadowEnabled", se::Value(v._shadow._shadowEnabled));
+//        obj->setProperty("shadowOffsetX", se::Value(v._shadow._shadowOffset.width));
+//        obj->setProperty("shadowOffsetY", se::Value(v._shadow._shadowOffset.height));
+//        obj->setProperty("shadowBlur", se::Value(v._shadow._shadowBlur));
+//        obj->setProperty("shadowOpacity", se::Value(v._shadow._shadowOpacity));
+//
+//        obj->setProperty("strokeEnabled", se::Value(v._stroke._strokeEnabled));
+//        if (!Color3B_to_seval(v._stroke._strokeColor, &tmp))
+//        {
+//            ok = false;
+//            break;
+//        }
+//
+//        obj->setProperty("strokeStyle", tmp);
+//        obj->setProperty("lineWidth", se::Value(v._stroke._strokeSize));
+//        obj->setProperty("strokeAlpha", se::Value(v._stroke._strokeAlpha));
+//    } while (false);
+//
+//    ret->setObject(obj);
+//
+//    return ok;
+//}
+//
+////FIXME: why v has to be a pointer?
+//bool Acceleration_to_seval(const cocos2d::Acceleration* v, se::Value* ret)
+//{
+//    assert(v != nullptr && ret != nullptr);
+//    se::HandleObject obj(se::Object::createPlainObject());
+//    obj->setProperty("x", se::Value(v->x));
+//    obj->setProperty("y", se::Value(v->y));
+//    obj->setProperty("z", se::Value(v->z));
+//    obj->setProperty("timestamp", se::Value(v->timestamp));
+//    ret->setObject(obj);
+//
+//    return true;
+//}
+//
+//bool Quaternion_to_seval(const cocos2d::Quaternion& v, se::Value* ret)
+//{
+//    assert(ret != nullptr);
+//    se::HandleObject obj(se::Object::createPlainObject());
+//    obj->setProperty("x", se::Value(v.x));
+//    obj->setProperty("y", se::Value(v.y));
+//    obj->setProperty("z", se::Value(v.z));
+//    obj->setProperty("w", se::Value(v.w));
+//    ret->setObject(obj);
+//
+//    return true;
+//}
+//
+//bool ManifestAsset_to_seval(const cocos2d::extension::ManifestAsset& v, se::Value* ret)
+//{
+//    assert(ret != nullptr);
+//    se::HandleObject obj(se::Object::createPlainObject());
+//    obj->setProperty("md5", se::Value(v.md5));
+//    obj->setProperty("path", se::Value(v.path));
+//    obj->setProperty("compressed", se::Value(v.compressed));
+//    obj->setProperty("size", se::Value(v.size));
+//    obj->setProperty("downloadState", se::Value(v.downloadState));
+//    ret->setObject(obj);
+//
+//    return true;
+//}
+//
+//bool AffineTransform_to_seval(const cocos2d::AffineTransform& v, se::Value* ret)
+//{
+//    assert(ret != nullptr);
+//    se::HandleObject obj(se::Object::createPlainObject());
+//    obj->setProperty("a", se::Value(v.a));
+//    obj->setProperty("b", se::Value(v.b));
+//    obj->setProperty("c", se::Value(v.c));
+//    obj->setProperty("d", se::Value(v.d));
+//    obj->setProperty("tx", se::Value(v.tx));
+//    obj->setProperty("ty", se::Value(v.ty));
+//    ret->setObject(obj);
+//
+//    return true;
+//}
 
 //bool Viewport_to_seval(const cocos2d::experimental::Viewport& v, se::Value* ret)
 //{
@@ -1792,385 +2561,470 @@ bool Data_to_seval(const cocos2d::Data& v, se::Value* ret)
     return true;
 }
 
-bool DownloadTask_to_seval(const cocos2d::network::DownloadTask& v, se::Value* ret)
-{
-    assert(ret != nullptr);
-
-    se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("identifier", se::Value(v.identifier));
-    obj->setProperty("requestURL", se::Value(v.requestURL));
-    obj->setProperty("storagePath", se::Value(v.storagePath));
-    ret->setObject(obj);
-
-    return true;
-}
-
-// Spine conversions
-bool speventdata_to_seval(const spEventData* v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    if (v == nullptr)
-    {
-        ret->setNull();
-        return true;
-    }
-
-    se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("name", se::Value(v->name));
-    obj->setProperty("intValue", se::Value(v->intValue));
-    obj->setProperty("floatValue", se::Value(v->floatValue));
-    obj->setProperty("stringValue", se::Value(v->stringValue));
-    ret->setObject(obj);
-
-    return true;
-}
-
-bool spevent_to_seval(const spEvent* v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    if (v == nullptr)
-    {
-        ret->setNull();
-        return true;
-    }
-
-    se::HandleObject obj(se::Object::createPlainObject());
-
-    se::Value dataVal;
-    SE_PRECONDITION3(speventdata_to_seval(v->data, &dataVal), false, ret->setUndefined());
-    obj->setProperty("data", dataVal);
-    obj->setProperty("time", se::Value(v->time));
-    obj->setProperty("intValue", se::Value(v->intValue));
-    obj->setProperty("floatValue", se::Value(v->floatValue));
-    obj->setProperty("stringValue", se::Value(v->stringValue));
-    ret->setObject(obj);
-
-    return true;
-}
-
-bool spbonedata_to_seval(const spBoneData* v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    if (v == nullptr)
-    {
-        ret->setNull();
-        return true;
-    }
-
-    se::HandleObject obj(se::Object::createPlainObject());
-
-    // root haven't parent
-    se::Value parentVal;
-    if (0 != strcmp(v->name, "root") && v->parent)
-    {
-        SE_PRECONDITION3(spbonedata_to_seval(v->parent, &parentVal), false, ret->setUndefined());
-    }
-
-    obj->setProperty("index", se::Value(v->index));
-    obj->setProperty("name", se::Value(v->name));
-    obj->setProperty("parent", parentVal);
-    obj->setProperty("length", se::Value(v->length));
-    obj->setProperty("x", se::Value(v->x));
-    obj->setProperty("y", se::Value(v->y));
-    obj->setProperty("rotation", se::Value(v->rotation));
-    obj->setProperty("scaleX", se::Value(v->scaleX));
-    obj->setProperty("scaleY", se::Value(v->scaleY));
-    obj->setProperty("shearX", se::Value(v->shearX));
-    obj->setProperty("shearY", se::Value(v->shearY));
-    obj->setProperty("transformMode", se::Value(v->transformMode));
-
-    ret->setObject(obj);
-
-    return true;
-}
-
-bool spbone_to_seval(const spBone* v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    if (v == nullptr)
-    {
-        ret->setNull();
-        return true;
-    }
-
-    se::HandleObject obj(se::Object::createPlainObject());
-
-    // root haven't parent
-    se::Value parentVal;
-    if (0 != strcmp(v->data->name, "root") && v->parent)
-    {
-        SE_PRECONDITION3(spbone_to_seval(v->parent, &parentVal), false, ret->setUndefined());
-    }
-
-    se::Value data;
-    SE_PRECONDITION3(spbonedata_to_seval(v->data, &data), false, ret->setUndefined());
-
-    obj->setProperty("data", data);
-    obj->setProperty("parent", parentVal);
-    obj->setProperty("x", se::Value(v->x));
-    obj->setProperty("y", se::Value(v->y));
-    obj->setProperty("rotation", se::Value(v->rotation));
-    obj->setProperty("scaleX", se::Value(v->scaleX));
-    obj->setProperty("scaleY", se::Value(v->scaleY));
-    obj->setProperty("shearX", se::Value(v->shearX));
-    obj->setProperty("shearY", se::Value(v->shearY));
-    obj->setProperty("m00", se::Value(v->a));
-    obj->setProperty("m01", se::Value(v->b));
-    obj->setProperty("m10", se::Value(v->c));
-    obj->setProperty("m11", se::Value(v->d));
-    obj->setProperty("worldX", se::Value(v->worldX));
-    obj->setProperty("worldY", se::Value(v->worldY));
-
-    ret->setObject(obj);
-
-    return true;
-}
-
-bool spskeleton_to_seval(const spSkeleton* v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    if (v == nullptr)
-    {
-        ret->setNull();
-        return true;
-    }
-
-    se::HandleObject obj(se::Object::createPlainObject());
-
-    obj->setProperty("x", se::Value(v->x));
-    obj->setProperty("y", se::Value(v->y));
-    obj->setProperty("flipX", se::Value(v->flipX));
-    obj->setProperty("flipY", se::Value(v->flipY));
-    obj->setProperty("time", se::Value(v->time));
-    obj->setProperty("boneCount", se::Value(v->bonesCount));
-    obj->setProperty("slotCount", se::Value(v->slotsCount));
-
-    ret->setObject(obj);
-    return true;
-}
-
-bool spattachment_to_seval(const spAttachment* v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    if (v == nullptr)
-    {
-        ret->setNull();
-        return true;
-    }
-
-    se::HandleObject obj(se::Object::createPlainObject());
-
-    obj->setProperty("name", se::Value(v->name));
-    obj->setProperty("type", se::Value((int32_t)v->type));
-
-    ret->setObject(obj);
-    return true;
-}
-
-bool spslotdata_to_seval(const spSlotData* v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    if (v == nullptr)
-    {
-        ret->setNull();
-        return true;
-    }
-
-    se::HandleObject obj(se::Object::createPlainObject());
-
-    se::Value boneData;
-    SE_PRECONDITION3(spbonedata_to_seval(v->boneData, &boneData), false, ret->setUndefined());
-
-    obj->setProperty("name", se::Value(v->name));
-    obj->setProperty("attachmentName", se::Value(v->attachmentName));
-    obj->setProperty("r", se::Value(v->r));
-    obj->setProperty("g", se::Value(v->g));
-    obj->setProperty("b", se::Value(v->b));
-    obj->setProperty("a", se::Value(v->a));
-    obj->setProperty("blendMode", se::Value((int32_t)v->blendMode));
-    obj->setProperty("boneData", boneData);
-
-    ret->setObject(obj);
-    return true;
-}
-
-bool spslot_to_seval(const spSlot* v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    if (v == nullptr)
-    {
-        ret->setNull();
-        return true;
-    }
-
-    se::HandleObject obj(se::Object::createPlainObject());
-
-    se::Value bone;
-    SE_PRECONDITION3(spbone_to_seval(v->bone, &bone), false, ret->setUndefined());
-
-    se::Value attachment;
-    SE_PRECONDITION3(spattachment_to_seval(v->attachment, &attachment), false, ret->setUndefined());
-
-    se::Value data;
-    SE_PRECONDITION3(spslotdata_to_seval(v->data, &data), false, ret->setUndefined());
-
-    obj->setProperty("r", se::Value(v->r));
-    obj->setProperty("g", se::Value(v->g));
-    obj->setProperty("b", se::Value(v->b));
-    obj->setProperty("a", se::Value(v->a));
-    obj->setProperty("bone", bone);
-    obj->setProperty("attachment", attachment);
-    obj->setProperty("data", data);
-
-    ret->setObject(obj);
-
-    return true;
-}
-
-bool sptimeline_to_seval(const spTimeline* v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    if (v == nullptr)
-    {
-        ret->setNull();
-        return true;
-    }
-
-    se::HandleObject obj(se::Object::createPlainObject());
-
-    obj->setProperty("type", se::Value((int32_t)v->type));
-
-    ret->setObject(obj);
-    return true;
-}
-
-bool spanimationstate_to_seval(const spAnimationState* v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    if (v == nullptr)
-    {
-        ret->setNull();
-        return true;
-    }
-
-    se::HandleObject obj(se::Object::createPlainObject());
-
-    obj->setProperty("timeScale", se::Value(v->timeScale));
-    obj->setProperty("trackCount", se::Value(v->tracksCount));
-
-    ret->setObject(obj);
-    return true;
-}
-
-bool spanimation_to_seval(const spAnimation* v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    if (v == nullptr)
-    {
-        ret->setNull();
-        return true;
-    }
-
-    se::HandleObject obj(se::Object::createPlainObject());
-
-    se::Value timelines;
-    SE_PRECONDITION3(sptimeline_to_seval(*v->timelines, &timelines), false, ret->setUndefined());
-
-    obj->setProperty("name", se::Value(v->name));
-    obj->setProperty("duration", se::Value(v->duration));
-    obj->setProperty("timelineCount", se::Value(v->timelinesCount));
-    obj->setProperty("timelines", timelines);
-
-    ret->setObject(obj);
-    return true;
-}
-
-bool sptrackentry_to_seval(const spTrackEntry* v, se::Value* ret)
-{
-    return native_ptr_to_rooted_seval<spTrackEntry>((spTrackEntry*)v, ret);
-}
+//bool DownloadTask_to_seval(const cocos2d::network::DownloadTask& v, se::Value* ret)
+//{
+//    assert(ret != nullptr);
+//
+//    se::HandleObject obj(se::Object::createPlainObject());
+//    obj->setProperty("identifier", se::Value(v.identifier));
+//    obj->setProperty("requestURL", se::Value(v.requestURL));
+//    obj->setProperty("storagePath", se::Value(v.storagePath));
+//    ret->setObject(obj);
+//
+//    return true;
+//}
+//
+//// Spine conversions
+//bool speventdata_to_seval(const spEventData* v, se::Value* ret)
+//{
+//    assert(ret != nullptr);
+//    if (v == nullptr)
+//    {
+//        ret->setNull();
+//        return true;
+//    }
+//
+//    se::HandleObject obj(se::Object::createPlainObject());
+//    obj->setProperty("name", se::Value(v->name));
+//    obj->setProperty("intValue", se::Value(v->intValue));
+//    obj->setProperty("floatValue", se::Value(v->floatValue));
+//    obj->setProperty("stringValue", se::Value(v->stringValue));
+//    ret->setObject(obj);
+//
+//    return true;
+//}
+//
+//bool spevent_to_seval(const spEvent* v, se::Value* ret)
+//{
+//    assert(ret != nullptr);
+//    if (v == nullptr)
+//    {
+//        ret->setNull();
+//        return true;
+//    }
+//
+//    se::HandleObject obj(se::Object::createPlainObject());
+//
+//    se::Value dataVal;
+//    SE_PRECONDITION3(speventdata_to_seval(v->data, &dataVal), false, ret->setUndefined());
+//    obj->setProperty("data", dataVal);
+//    obj->setProperty("time", se::Value(v->time));
+//    obj->setProperty("intValue", se::Value(v->intValue));
+//    obj->setProperty("floatValue", se::Value(v->floatValue));
+//    obj->setProperty("stringValue", se::Value(v->stringValue));
+//    ret->setObject(obj);
+//
+//    return true;
+//}
+//
+//bool spbonedata_to_seval(const spBoneData* v, se::Value* ret)
+//{
+//    assert(ret != nullptr);
+//    if (v == nullptr)
+//    {
+//        ret->setNull();
+//        return true;
+//    }
+//
+//    se::HandleObject obj(se::Object::createPlainObject());
+//
+//    // root haven't parent
+//    se::Value parentVal;
+//    if (0 != strcmp(v->name, "root") && v->parent)
+//    {
+//        SE_PRECONDITION3(spbonedata_to_seval(v->parent, &parentVal), false, ret->setUndefined());
+//    }
+//
+//    obj->setProperty("index", se::Value(v->index));
+//    obj->setProperty("name", se::Value(v->name));
+//    obj->setProperty("parent", parentVal);
+//    obj->setProperty("length", se::Value(v->length));
+//    obj->setProperty("x", se::Value(v->x));
+//    obj->setProperty("y", se::Value(v->y));
+//    obj->setProperty("rotation", se::Value(v->rotation));
+//    obj->setProperty("scaleX", se::Value(v->scaleX));
+//    obj->setProperty("scaleY", se::Value(v->scaleY));
+//    obj->setProperty("shearX", se::Value(v->shearX));
+//    obj->setProperty("shearY", se::Value(v->shearY));
+//    obj->setProperty("transformMode", se::Value(v->transformMode));
+//
+//    ret->setObject(obj);
+//
+//    return true;
+//}
+//
+//bool spbone_to_seval(const spBone* v, se::Value* ret)
+//{
+//    assert(ret != nullptr);
+//    if (v == nullptr)
+//    {
+//        ret->setNull();
+//        return true;
+//    }
+//
+//    se::HandleObject obj(se::Object::createPlainObject());
+//
+//    // root haven't parent
+//    se::Value parentVal;
+//    if (0 != strcmp(v->data->name, "root") && v->parent)
+//    {
+//        SE_PRECONDITION3(spbone_to_seval(v->parent, &parentVal), false, ret->setUndefined());
+//    }
+//
+//    se::Value data;
+//    SE_PRECONDITION3(spbonedata_to_seval(v->data, &data), false, ret->setUndefined());
+//
+//    obj->setProperty("data", data);
+//    obj->setProperty("parent", parentVal);
+//    obj->setProperty("x", se::Value(v->x));
+//    obj->setProperty("y", se::Value(v->y));
+//    obj->setProperty("rotation", se::Value(v->rotation));
+//    obj->setProperty("scaleX", se::Value(v->scaleX));
+//    obj->setProperty("scaleY", se::Value(v->scaleY));
+//    obj->setProperty("shearX", se::Value(v->shearX));
+//    obj->setProperty("shearY", se::Value(v->shearY));
+//    obj->setProperty("m00", se::Value(v->a));
+//    obj->setProperty("m01", se::Value(v->b));
+//    obj->setProperty("m10", se::Value(v->c));
+//    obj->setProperty("m11", se::Value(v->d));
+//    obj->setProperty("worldX", se::Value(v->worldX));
+//    obj->setProperty("worldY", se::Value(v->worldY));
+//
+//    ret->setObject(obj);
+//
+//    return true;
+//}
+//
+//bool spskeleton_to_seval(const spSkeleton* v, se::Value* ret)
+//{
+//    assert(ret != nullptr);
+//    if (v == nullptr)
+//    {
+//        ret->setNull();
+//        return true;
+//    }
+//
+//    se::HandleObject obj(se::Object::createPlainObject());
+//
+//    obj->setProperty("x", se::Value(v->x));
+//    obj->setProperty("y", se::Value(v->y));
+//    obj->setProperty("flipX", se::Value(v->flipX));
+//    obj->setProperty("flipY", se::Value(v->flipY));
+//    obj->setProperty("time", se::Value(v->time));
+//    obj->setProperty("boneCount", se::Value(v->bonesCount));
+//    obj->setProperty("slotCount", se::Value(v->slotsCount));
+//
+//    ret->setObject(obj);
+//    return true;
+//}
+//
+//bool spattachment_to_seval(const spAttachment* v, se::Value* ret)
+//{
+//    assert(ret != nullptr);
+//    if (v == nullptr)
+//    {
+//        ret->setNull();
+//        return true;
+//    }
+//
+//    se::HandleObject obj(se::Object::createPlainObject());
+//
+//    obj->setProperty("name", se::Value(v->name));
+//    obj->setProperty("type", se::Value((int32_t)v->type));
+//
+//    ret->setObject(obj);
+//    return true;
+//}
+//
+//bool spslotdata_to_seval(const spSlotData* v, se::Value* ret)
+//{
+//    assert(ret != nullptr);
+//    if (v == nullptr)
+//    {
+//        ret->setNull();
+//        return true;
+//    }
+//
+//    se::HandleObject obj(se::Object::createPlainObject());
+//
+//    se::Value boneData;
+//    SE_PRECONDITION3(spbonedata_to_seval(v->boneData, &boneData), false, ret->setUndefined());
+//
+//    obj->setProperty("name", se::Value(v->name));
+//    obj->setProperty("attachmentName", se::Value(v->attachmentName));
+//    obj->setProperty("r", se::Value(v->r));
+//    obj->setProperty("g", se::Value(v->g));
+//    obj->setProperty("b", se::Value(v->b));
+//    obj->setProperty("a", se::Value(v->a));
+//    obj->setProperty("blendMode", se::Value((int32_t)v->blendMode));
+//    obj->setProperty("boneData", boneData);
+//
+//    ret->setObject(obj);
+//    return true;
+//}
+//
+//bool spslot_to_seval(const spSlot* v, se::Value* ret)
+//{
+//    assert(ret != nullptr);
+//    if (v == nullptr)
+//    {
+//        ret->setNull();
+//        return true;
+//    }
+//
+//    se::HandleObject obj(se::Object::createPlainObject());
+//
+//    se::Value bone;
+//    SE_PRECONDITION3(spbone_to_seval(v->bone, &bone), false, ret->setUndefined());
+//
+//    se::Value attachment;
+//    SE_PRECONDITION3(spattachment_to_seval(v->attachment, &attachment), false, ret->setUndefined());
+//
+//    se::Value data;
+//    SE_PRECONDITION3(spslotdata_to_seval(v->data, &data), false, ret->setUndefined());
+//
+//    obj->setProperty("r", se::Value(v->r));
+//    obj->setProperty("g", se::Value(v->g));
+//    obj->setProperty("b", se::Value(v->b));
+//    obj->setProperty("a", se::Value(v->a));
+//    obj->setProperty("bone", bone);
+//    obj->setProperty("attachment", attachment);
+//    obj->setProperty("data", data);
+//
+//    ret->setObject(obj);
+//
+//    return true;
+//}
+//
+//bool sptimeline_to_seval(const spTimeline* v, se::Value* ret)
+//{
+//    assert(ret != nullptr);
+//    if (v == nullptr)
+//    {
+//        ret->setNull();
+//        return true;
+//    }
+//
+//    se::HandleObject obj(se::Object::createPlainObject());
+//
+//    obj->setProperty("type", se::Value((int32_t)v->type));
+//
+//    ret->setObject(obj);
+//    return true;
+//}
+//
+//bool spanimationstate_to_seval(const spAnimationState* v, se::Value* ret)
+//{
+//    assert(ret != nullptr);
+//    if (v == nullptr)
+//    {
+//        ret->setNull();
+//        return true;
+//    }
+//
+//    se::HandleObject obj(se::Object::createPlainObject());
+//
+//    obj->setProperty("timeScale", se::Value(v->timeScale));
+//    obj->setProperty("trackCount", se::Value(v->tracksCount));
+//
+//    ret->setObject(obj);
+//    return true;
+//}
+//
+//bool spanimation_to_seval(const spAnimation* v, se::Value* ret)
+//{
+//    assert(ret != nullptr);
+//    if (v == nullptr)
+//    {
+//        ret->setNull();
+//        return true;
+//    }
+//
+//    se::HandleObject obj(se::Object::createPlainObject());
+//
+//    se::Value timelines;
+//    SE_PRECONDITION3(sptimeline_to_seval(*v->timelines, &timelines), false, ret->setUndefined());
+//
+//    obj->setProperty("name", se::Value(v->name));
+//    obj->setProperty("duration", se::Value(v->duration));
+//    obj->setProperty("timelineCount", se::Value(v->timelinesCount));
+//    obj->setProperty("timelines", timelines);
+//
+//    ret->setObject(obj);
+//    return true;
+//}
+//
+//bool sptrackentry_to_seval(const spTrackEntry* v, se::Value* ret)
+//{
+//    return native_ptr_to_rooted_seval<spTrackEntry>((spTrackEntry*)v, ret);
+//}
 
 // Box2d
-bool b2Vec2_to_seval(const b2Vec2& v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("x", se::Value(v.x));
-    obj->setProperty("y", se::Value(v.y));
-    ret->setObject(obj);
+//bool b2Vec2_to_seval(const b2Vec2& v, se::Value* ret)
+//{
+//    assert(ret != nullptr);
+//    se::HandleObject obj(se::Object::createPlainObject());
+//    obj->setProperty("x", se::Value(v.x));
+//    obj->setProperty("y", se::Value(v.y));
+//    ret->setObject(obj);
+//
+//    return true;
+//}
+//
+//bool b2Manifold_to_seval(const b2Manifold* v, se::Value* ret)
+//{
+//    assert(v != nullptr);
+//    assert(ret != nullptr);
+//    bool ok = false;
+//    se::HandleObject obj(se::Object::createPlainObject());
+//
+//    do
+//    {
+//        se::Value tmp;
+//        ok = b2Vec2_to_seval(v->localPoint, &tmp);
+//        if (!ok) break;
+//        obj->setProperty("localPoint", tmp);
+//
+//        ok = b2Vec2_to_seval(v->localNormal, &tmp);
+//        if (!ok) break;
+//        obj->setProperty("localNormal", tmp);
+//
+//        obj->setProperty("pointCount", se::Value(v->pointCount));
+//        obj->setProperty("type", se::Value((int32_t)v->type));
+//
+//        se::HandleObject arr(se::Object::createArrayObject(v->pointCount));
+//
+//        for (int32 i = 0; i < v->pointCount; ++i)
+//        {
+//            const b2ManifoldPoint& p = v->points[i];
+//
+//            se::HandleObject arrElement(se::Object::createPlainObject());
+//
+//            arrElement->setProperty("normalImpulse", se::Value(p.normalImpulse));
+//            arrElement->setProperty("tangentImpulse", se::Value(p.tangentImpulse));
+//            se::Value localPointVal;
+//            ok = b2Vec2_to_seval(p.localPoint, &localPointVal);
+//            if (!ok) break;
+//            arrElement->setProperty("localPoint", localPointVal);
+//
+//            arr->setArrayElement(i, se::Value(arrElement));
+//        }
+//
+//        if (ok)
+//            obj->setProperty("points", se::Value(arr));
+//
+//    } while(false);
+//
+//    if (ok)
+//        ret->setObject(obj);
+//    else
+//        ret->setNull();
+//    return false;
+//}
+//
+//bool b2AABB_to_seval(const b2AABB& v, se::Value* ret)
+//{
+//    assert(ret != nullptr);
+//    se::HandleObject obj(se::Object::createPlainObject());
+//
+//    se::HandleObject lowerBound(se::Object::createPlainObject());
+//    lowerBound->setProperty("x", se::Value(v.lowerBound.x));
+//    lowerBound->setProperty("y", se::Value(v.lowerBound.y));
+//
+//    obj->setProperty("lowerBound", se::Value(lowerBound));
+//
+//    se::HandleObject upperBound(se::Object::createPlainObject());
+//    upperBound->setProperty("x", se::Value(v.upperBound.x));
+//    upperBound->setProperty("y", se::Value(v.upperBound.y));
+//
+//    obj->setProperty("upperBound", se::Value(upperBound));
+//
+//    ret->setObject(obj);
+//
+//    return true;
+//}
 
+bool VertexFormat_to_seval(const cocos2d::renderer::VertexFormat& v, se::Value* ret)
+{
+    assert(false);
     return true;
 }
 
-bool b2Manifold_to_seval(const b2Manifold* v, se::Value* ret)
+bool TechniqueParameter_to_seval(const cocos2d::renderer::Technique::Parameter& v, se::Value* ret)
 {
-    assert(v != nullptr);
     assert(ret != nullptr);
-    bool ok = false;
-    se::HandleObject obj(se::Object::createPlainObject());
+//    se::HandleObject obj(se::Object::createPlainObject());
+//    obj->setProperty("name", se::Value(v.getName()));
+//    obj->setProperty("type", se::Value((uint8_t)v.getType()));
+//    obj->setProperty("size", se::Value(v.getCount()));
 
-    do
+    auto type = v.getType();
+    if (type == cocos2d::renderer::Technique::Parameter::Type::TEXTURE_2D || type == cocos2d::renderer::Technique::Parameter::Type::TEXTURE_CUBE)
     {
-        se::Value tmp;
-        ok = b2Vec2_to_seval(v->localPoint, &tmp);
-        if (!ok) break;
-        obj->setProperty("localPoint", tmp);
-
-        ok = b2Vec2_to_seval(v->localNormal, &tmp);
-        if (!ok) break;
-        obj->setProperty("localNormal", tmp);
-
-        obj->setProperty("pointCount", se::Value(v->pointCount));
-        obj->setProperty("type", se::Value((int32_t)v->type));
-
-        se::HandleObject arr(se::Object::createArrayObject(v->pointCount));
-
-        for (int32 i = 0; i < v->pointCount; ++i)
+        auto count = v.getCount();
+        if (count > 1)
         {
-            const b2ManifoldPoint& p = v->points[i];
-
-            se::HandleObject arrElement(se::Object::createPlainObject());
-
-            arrElement->setProperty("normalImpulse", se::Value(p.normalImpulse));
-            arrElement->setProperty("tangentImpulse", se::Value(p.tangentImpulse));
-            se::Value localPointVal;
-            ok = b2Vec2_to_seval(p.localPoint, &localPointVal);
-            if (!ok) break;
-            arrElement->setProperty("localPoint", localPointVal);
-
-            arr->setArrayElement(i, se::Value(arrElement));
+            auto texArray = v.getTextureArray();
+            se::HandleObject arr(se::Object::createArrayObject(count));
+            for (uint8_t i = 0; i < count; ++i)
+            {
+                se::Value val;
+                native_ptr_to_seval<cocos2d::renderer::Texture>(texArray[0], &val);
+                arr->setArrayElement(i, val);
+            }
+//            obj->setProperty("val", se::Value(arr));
+            ret->setObject(arr);
         }
-
-        if (ok)
-            obj->setProperty("points", se::Value(arr));
-
-    } while(false);
-
-    if (ok)
-        ret->setObject(obj);
+        else
+        {
+            se::Value val;
+            native_ptr_to_seval<cocos2d::renderer::Texture>(v.getTexture(), &val);
+//            obj->setProperty("val", val);
+            *ret = val;
+        }
+    }
     else
-        ret->setNull();
-    return false;
-}
+    {
+        void* data = v.getValue();
+        auto bytes = v.getBytes();
 
-bool b2AABB_to_seval(const b2AABB& v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    se::HandleObject obj(se::Object::createPlainObject());
+        if (type == cocos2d::renderer::Technique::Parameter::Type::INT
+            || type == cocos2d::renderer::Technique::Parameter::Type::INT2
+            || type == cocos2d::renderer::Technique::Parameter::Type::INT3
+            || type == cocos2d::renderer::Technique::Parameter::Type::INT4)
+        {
+            se::HandleObject typedArr(se::Object::createTypedArray(se::Object::TypedArrayType::INT32, data, bytes));
+//            obj->setProperty("val", se::Value(typedArr));
+            ret->setObject(typedArr);
+        }
+    }
 
-    se::HandleObject lowerBound(se::Object::createPlainObject());
-    lowerBound->setProperty("x", se::Value(v.lowerBound.x));
-    lowerBound->setProperty("y", se::Value(v.lowerBound.y));
-
-    obj->setProperty("lowerBound", se::Value(lowerBound));
-
-    se::HandleObject upperBound(se::Object::createPlainObject());
-    upperBound->setProperty("x", se::Value(v.upperBound.x));
-    upperBound->setProperty("y", se::Value(v.upperBound.y));
-
-    obj->setProperty("upperBound", se::Value(upperBound));
-
-    ret->setObject(obj);
-
+//    ret->setObject(obj);
     return true;
 }
+
+bool std_vector_TechniqueParameter_to_seval(const std::vector<cocos2d::renderer::Technique::Parameter>& v, se::Value* ret)
+{
+    assert(ret != nullptr);
+    se::HandleObject arr(se::Object::createArrayObject(v.size()));
+    ret->setObject(arr);
+
+    uint32_t i = 0;
+    for (const auto& param : v)
+    {
+        se::Value out;
+        if (TechniqueParameter_to_seval(param, &out))
+        {
+            arr->setArrayElement(i, out);
+            ++i;
+        }
+    }
+    return true;
+}
+
+bool std_vector_RenderTarget_to_seval(const std::vector<cocos2d::renderer::RenderTarget*>& v, se::Value* ret)
+{
+    assert(false);
+    return true;
+}
+

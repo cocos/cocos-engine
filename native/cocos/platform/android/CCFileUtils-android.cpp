@@ -28,7 +28,6 @@ THE SOFTWARE.
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
 
 #include "platform/android/CCFileUtils-android.h"
-#include "platform/CCCommon.h"
 #include "platform/android/jni/JniHelper.h"
 #include "platform/android/jni/Java_org_cocos2dx_lib_Cocos2dxHelper.h"
 #include "android/asset_manager.h"

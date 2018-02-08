@@ -1,7 +1,6 @@
 /****************************************************************************
 Copyright (c) 2010-2012 cocos2d-x.org
 Copyright (c) 2013-2016 Chukong Technologies Inc.
-Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 http://www.cocos2d-x.org
 
@@ -29,7 +28,10 @@ THE SOFTWARE.
 /// @cond DO_NOT_SHOW
 
 #include "base/CCRef.h"
-#include "renderer/CCTexture2D.h"
+#include "platform/CCGL.h"
+
+#include <string>
+#include <map>
 
 // premultiply alpha, or the effect will wrong when want to use other pixel format in Texture2D,
 // such as RGB888, RGB5A1
@@ -53,10 +55,10 @@ typedef struct _MipmapInfo
 {
     unsigned char* address;
     int len;
-    _MipmapInfo():address(NULL),len(0){}
+    _MipmapInfo():address(nullptr),len(0){}
 }MipmapInfo;
 
-class CC_DLL Image : public Ref
+class Image : public Ref
 {
 public:
     /**
@@ -90,6 +92,80 @@ public:
         //! Unknown format
         UNKNOWN
     };
+
+    /** @typedef Texture2D::PixelFormat
+     Possible texture pixel formats
+     */
+    enum class PixelFormat
+    {
+        //! auto detect the type
+        AUTO,
+        //! 32-bit texture: BGRA8888
+        BGRA8888,
+        //! 32-bit texture: RGBA8888
+        RGBA8888,
+        //! 24-bit texture: RGBA888
+        RGB888,
+        //! 16-bit texture without Alpha channel
+        RGB565,
+        //! 8-bit textures used as masks
+        A8,
+        //! 8-bit intensity texture
+        I8,
+        //! 16-bit textures used as masks
+        AI88,
+        //! 16-bit textures: RGBA4444
+        RGBA4444,
+        //! 16-bit textures: RGB5A1
+        RGB5A1,
+        //! 4-bit PVRTC-compressed texture: PVRTC4
+        PVRTC4,
+        //! 4-bit PVRTC-compressed texture: PVRTC4 (has alpha channel)
+        PVRTC4A,
+        //! 2-bit PVRTC-compressed texture: PVRTC2
+        PVRTC2,
+        //! 2-bit PVRTC-compressed texture: PVRTC2 (has alpha channel)
+        PVRTC2A,
+        //! ETC-compressed texture: ETC
+        ETC,
+        //! S3TC-compressed texture: S3TC_Dxt1
+        S3TC_DXT1,
+        //! S3TC-compressed texture: S3TC_Dxt3
+        S3TC_DXT3,
+        //! S3TC-compressed texture: S3TC_Dxt5
+        S3TC_DXT5,
+        //! ATITC-compressed texture: ATC_RGB
+        ATC_RGB,
+        //! ATITC-compressed texture: ATC_EXPLICIT_ALPHA
+        ATC_EXPLICIT_ALPHA,
+        //! ATITC-compressed texture: ATC_INTERPOLATED_ALPHA
+        ATC_INTERPOLATED_ALPHA,
+        //! Default texture format: AUTO
+        DEFAULT = AUTO,
+
+        NONE = -1
+    };
+
+    struct PixelFormatInfo {
+
+        PixelFormatInfo(GLenum anInternalFormat, GLenum aFormat, GLenum aType, int aBpp, bool aCompressed, bool anAlpha)
+        : internalFormat(anInternalFormat)
+        , format(aFormat)
+        , type(aType)
+        , bpp(aBpp)
+        , compressed(aCompressed)
+        , alpha(anAlpha)
+        {}
+
+        GLenum internalFormat;
+        GLenum format;
+        GLenum type;
+        int bpp;
+        bool compressed;
+        bool alpha;
+    };
+
+    typedef std::map<PixelFormat, const PixelFormatInfo> PixelFormatInfoMap;
 
     /**
      * Enables or disables premultiplied alpha for PNG files.
@@ -130,7 +206,7 @@ public:
     inline unsigned char *   getData()               { return _data; }
     inline ssize_t           getDataLen()            { return _dataLen; }
     inline Format            getFileType()           {return _fileType; }
-    inline Texture2D::PixelFormat getRenderFormat()  { return _renderFormat; }
+    inline PixelFormat getRenderFormat()  { return _renderFormat; }
     inline int               getWidth()              { return _width; }
     inline int               getHeight()             { return _height; }
     inline int               getNumberOfMipmaps()    { return _numberOfMipmaps; }
@@ -144,7 +220,7 @@ public:
 
     /**
      @brief    Save Image data to the specified file, with specified format.
-     @param    filePath        the file's absolute path, including file suffix.
+     @param    filename        the file's absolute path, including file suffix.
      @param    isToRGB        whether the image is saved as RGB format.
      */
     bool saveToFile(const std::string &filename, bool isToRGB = true);
@@ -183,7 +259,7 @@ protected:
     int _height;
     bool _unpack;
     Format _fileType;
-    Texture2D::PixelFormat _renderFormat;
+    PixelFormat _renderFormat;
     MipmapInfo _mipmaps[MIPMAP_MAX];   // pointer to mipmap images
     int _numberOfMipmaps;
     // false if we can't auto detect the image is premultiplied or not.

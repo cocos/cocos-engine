@@ -36,9 +36,17 @@ THE SOFTWARE.
 #define glBindVertexArray           glBindVertexArrayOES
 #define glMapBuffer                 glMapBufferOES
 #define glUnmapBuffer               glUnmapBufferOES
+#define glTexImage3D				glTexImage3DOES
+#define glCompressedTexImage3D		glCompressedTexImage3DOES
+#define glCompressedTexSubImage3D	glCompressedTexSubImage3DOES
+#define glTexSubImage3D             glTexSubImage3DOES
+#define glDepthRange				glDepthRangef
+#define glSubImage3D				glSubImage3DOES
 
 #define GL_DEPTH24_STENCIL8         GL_DEPTH24_STENCIL8_OES
 #define GL_WRITE_ONLY               GL_WRITE_ONLY_OES
+
+#define GL_MAX_TEXTURE_UNITS        GL_MAX_TEXTURE_IMAGE_UNITS
 
 // GL_GLEXT_PROTOTYPES isn't defined in glplatform.h on android ndk r7
 // we manually define it here

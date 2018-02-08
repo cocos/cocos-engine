@@ -149,6 +149,14 @@ struct CC_DLL Color4F
     {
         return (*this == other);
     }
+    
+    void set(float _r, float _g, float _b, float _a)
+    {
+        r = _r;
+        g = _g;
+        b = _b;
+        a = _a;
+    }
 
     GLfloat r;
     GLfloat g;
@@ -164,6 +172,25 @@ struct CC_DLL Color4F
     static const Color4F BLACK;
     static const Color4F ORANGE;
     static const Color4F GRAY;
+};
+
+struct CC_DLL Color3F
+{
+    Color3F();
+    Color3F(float _r, float _g, float _b);
+    
+    void set(float _r, float _g, float _b)
+    {
+        r = _r;
+        g = _g;
+        b = _b;
+    }
+    
+    GLfloat r;
+    GLfloat g;
+    GLfloat b;
+    
+    static const Color3F BLACK;
 };
 
 /** A vertex composed of 2 floats: x, y

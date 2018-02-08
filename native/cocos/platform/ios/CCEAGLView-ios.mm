@@ -68,10 +68,8 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 #import <QuartzCore/QuartzCore.h>
 
-#import "base/CCDirector.h"
-#import "base/CCTouch.h"
+//#import "base/CCTouch.h"
 #import "base/CCIMEDispatcher.h"
-#import "platform/ios/CCGLViewImpl-ios.h"
 #import "platform/ios/CCES2Renderer-ios.h"
 #import "platform/ios/OpenGL_Internal-ios.h"
 
@@ -252,10 +250,6 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 - (void) layoutSubviews
 {
-    if (!cocos2d::Director::getInstance()->isValid())
-    {
-        return;
-    }
     [EAGLContext setCurrentContext:context_];
     [renderer_ resizeFromLayer:(CAEAGLLayer*)self.layer];
     size_ = [renderer_ backingSize];
@@ -264,7 +258,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
     //[director performSelectorOnMainThread:@selector(drawScene) withObject:nil waitUntilDone:YES];
     if ([NSThread isMainThread])
     {
-        cocos2d::Director::getInstance()->drawScene();
+//        cocos2d::Director::getInstance()->drawScene();
     }
 }
 
@@ -389,11 +383,6 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 #pragma mark CCEAGLView - Touch Delegate
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    cocos2d::Director *director = cocos2d::Director::getInstance();
-    if (director == nullptr) {
-        return;
-    }
-
     if (isKeyboardShown_)
     {
         [self handleTouchesAfterKeyboardShow];
@@ -411,9 +400,9 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
         ys[i] = [touch locationInView: [touch view]].y * self.contentScaleFactor;;
         ++i;
     }
-
-    auto glview = cocos2d::Director::getInstance()->getOpenGLView();
-    glview->handleTouchesBegin(i, (intptr_t*)ids, xs, ys);
+//
+//    auto glview = cocos2d::Director::getInstance()->getOpenGLView();
+//    glview->handleTouchesBegin(i, (intptr_t*)ids, xs, ys);
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
@@ -439,8 +428,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
         ++i;
     }
 
-    auto glview = cocos2d::Director::getInstance()->getOpenGLView();
-    glview->handleTouchesMove(i, (intptr_t*)ids, xs, ys, fs, ms);
+//    glview->handleTouchesMove(i, (intptr_t*)ids, xs, ys, fs, ms);
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
@@ -457,8 +445,8 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
         ++i;
     }
 
-    auto glview = cocos2d::Director::getInstance()->getOpenGLView();
-    glview->handleTouchesEnd(i, (intptr_t*)ids, xs, ys);
+//    auto glview = cocos2d::Director::getInstance()->getOpenGLView();
+//    glview->handleTouchesEnd(i, (intptr_t*)ids, xs, ys);
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
@@ -475,8 +463,8 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
         ++i;
     }
 
-    auto glview = cocos2d::Director::getInstance()->getOpenGLView();
-    glview->handleTouchesCancel(i, (intptr_t*)ids, xs, ys);
+//    auto glview = cocos2d::Director::getInstance()->getOpenGLView();
+//    glview->handleTouchesCancel(i, (intptr_t*)ids, xs, ys);
 }
 
 #pragma mark - UIView - Responder
@@ -728,10 +716,6 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 - (void)onUIKeyboardNotification:(NSNotification *)notif;
 {
-    cocos2d::Director *director = cocos2d::Director::getInstance();
-    if(director == nullptr)
-        return;
-
     NSString * type = notif.name;
 
     NSDictionary* info = [notif userInfo];
@@ -795,26 +779,26 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
     }
 #endif
 
-    auto glview = director->getOpenGLView();
-    float scaleX = glview->getScaleX();
-    float scaleY = glview->getScaleY();
+//    auto glview = director->getOpenGLView();
+//    float scaleX = glview->getScaleX();
+//    float scaleY = glview->getScaleY();
 
     // Convert to pixel coordinate
     begin = CGRectApplyAffineTransform(begin, CGAffineTransformScale(CGAffineTransformIdentity, self.contentScaleFactor, self.contentScaleFactor));
     end = CGRectApplyAffineTransform(end, CGAffineTransformScale(CGAffineTransformIdentity, self.contentScaleFactor, self.contentScaleFactor));
 
-    float offestY = glview->getViewPortRect().origin.y;
-    CCLOG("offestY = %f", offestY);
-    if (offestY < 0.0f)
-    {
-        begin.origin.y += offestY;
-        begin.size.height -= offestY;
-        end.size.height -= offestY;
-    }
+//    float offestY = glview->getViewPortRect().origin.y;
+//    CCLOG("offestY = %f", offestY);
+//    if (offestY < 0.0f)
+//    {
+//        begin.origin.y += offestY;
+//        begin.size.height -= offestY;
+//        end.size.height -= offestY;
+//    }
 
     // Convert to design coordinate
-    begin = CGRectApplyAffineTransform(begin, CGAffineTransformScale(CGAffineTransformIdentity, 1.0f/scaleX, 1.0f/scaleY));
-    end = CGRectApplyAffineTransform(end, CGAffineTransformScale(CGAffineTransformIdentity, 1.0f/scaleX, 1.0f/scaleY));
+//    begin = CGRectApplyAffineTransform(begin, CGAffineTransformScale(CGAffineTransformIdentity, 1.0f/scaleX, 1.0f/scaleY));
+//    end = CGRectApplyAffineTransform(end, CGAffineTransformScale(CGAffineTransformIdentity, 1.0f/scaleX, 1.0f/scaleY));
 
 
     cocos2d::IMEKeyboardNotificationInfo notiInfo;
@@ -884,8 +868,8 @@ UIInterfaceOrientation getFixedOrientation(UIInterfaceOrientation statusBarOrien
 
     if (dis < 0.0f) dis = 0.0f;
 
-    auto glview = cocos2d::Director::getInstance()->getOpenGLView();
-    dis *= glview->getScaleY();
+//    auto glview = cocos2d::Director::getInstance()->getOpenGLView();
+//    dis *= glview->getScaleY();
 
     dis /= self.contentScaleFactor;
 

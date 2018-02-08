@@ -28,7 +28,6 @@ THE SOFTWARE.
 #if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
 
 #import "platform/CCImage.h"
-#import "platform/CCCommon.h"
 #import <string>
 
 #import <Foundation/Foundation.h>

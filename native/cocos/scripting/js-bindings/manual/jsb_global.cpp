@@ -1,28 +1,3 @@
-/****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
-
- http://www.cocos.com
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
-
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
- ****************************************************************************/
-
 //
 // Created by James Chen on 4/28/17.
 //
@@ -184,8 +159,8 @@ bool jsb_enable_debugger(const std::string& debuggerServerAddr, uint32_t port)
             se::ScriptEngine::getInstance()->mainLoopUpdate();
         }
     };
-    static SimpleRunLoop runLoop;
-    Director::getInstance()->getScheduler()->scheduleUpdate(&runLoop, 0, false);
+//    static SimpleRunLoop runLoop;
+    //cjh FIXME:    Director::getInstance()->getScheduler()->scheduleUpdate(&runLoop, 0, false);
     return true;
 }
 
@@ -216,10 +191,10 @@ bool jsb_set_extend_property(const char* ns, const char* clsName)
     return false;
 }
 
-bool jsb_run_script(const std::string& filePath)
+bool jsb_run_script(const std::string& filePath, se::Value* rval/* = nullptr */)
 {
     se::AutoHandleScope hs;
-    return se::ScriptEngine::getInstance()->runScript(filePath);
+    return se::ScriptEngine::getInstance()->runScript(filePath, rval);
 }
 
 namespace {
@@ -231,7 +206,7 @@ namespace {
         assert(argc >= 1);
         assert(args[0].isString());
 
-        return jsb_run_script(args[0].toString());
+        return jsb_run_script(args[0].toString(), &s.rval());
     }
     SE_BIND_FUNC(require)
 
@@ -705,9 +680,9 @@ static bool JSBCore_platform(se::State& s)
         return false;
     }
 
-    Application::Platform platform;
-    platform = Application::getInstance()->getTargetPlatform();
-    s.rval().setInt32((int32_t)platform);
+//cjh    Application::Platform platform;
+//    platform = Application::getInstance()->getTargetPlatform();
+//    s.rval().setInt32((int32_t)platform);
     return true;
 }
 SE_BIND_FUNC(JSBCore_platform)
@@ -720,10 +695,10 @@ static bool JSBCore_version(se::State& s)
         return false;
     }
 
-    char version[256];
-    snprintf(version, sizeof(version)-1, "%s", cocos2dVersion());
-
-    s.rval().setString(version);
+//cjh    char version[256];
+//    snprintf(version, sizeof(version)-1, "%s", cocos2dVersion());
+//
+//    s.rval().setString(version);
     return true;
 }
 SE_BIND_FUNC(JSBCore_version)
@@ -775,24 +750,24 @@ SE_BIND_FUNC(JSB_cleanScript)
 
 static bool JSB_core_restartVM(se::State& s)
 {
-    Director::getInstance()->restart();
+//cjh    Director::getInstance()->restart();
     return true;
 }
 SE_BIND_FUNC(JSB_core_restartVM)
 
 static bool JSB_closeWindow(se::State& s)
 {
-    EventListenerCustom* _event = Director::getInstance()->getEventDispatcher()->addCustomEventListener(Director::EVENT_AFTER_DRAW, [&](EventCustom *event) {
-        Director::getInstance()->getEventDispatcher()->removeEventListener(_event);
-        CC_SAFE_RELEASE(_event);
-
-        se::ScriptEngine::getInstance()->cleanup();
-    });
-    _event->retain();
-    Director::getInstance()->end();
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-    exit(0);
-#endif
+//cjh    EventListenerCustom* _event = Director::getInstance()->getEventDispatcher()->addCustomEventListener(Director::EVENT_AFTER_DRAW, [&](EventCustom *event) {
+//        Director::getInstance()->getEventDispatcher()->removeEventListener(_event);
+//        CC_SAFE_RELEASE(_event);
+//
+//        se::ScriptEngine::getInstance()->cleanup();
+//    });
+//    _event->retain();
+//    Director::getInstance()->end();
+//#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+//    exit(0);
+//#endif
     return true;
 }
 SE_BIND_FUNC(JSB_closeWindow)

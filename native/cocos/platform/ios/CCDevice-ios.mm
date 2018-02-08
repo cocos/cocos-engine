@@ -31,9 +31,7 @@
 #include "platform/CCDevice.h"
 #include "base/ccTypes.h"
 #include "platform/apple/CCDevice-apple.h"
-#include "base/CCEventDispatcher.h"
 #include "base/CCEventAcceleration.h"
-#include "base/CCDirector.h"
 #include "CCReachability.h"
 #import <UIKit/UIKit.h>
 
@@ -265,10 +263,10 @@ static CCAccelerometerDispatcher* s_pAccelerometerDispatcher;
             NSAssert(false, @"unknown orientation");
     }
 
-    cocos2d::EventAcceleration* event = new (std::nothrow) cocos2d::EventAcceleration(*_acceleration);
-    auto dispatcher = cocos2d::Director::getInstance()->getEventDispatcher();
-    dispatcher->dispatchEvent(event);
-    event->release();
+//    cocos2d::EventAcceleration* event = new (std::nothrow) cocos2d::EventAcceleration(*_acceleration);
+//    auto dispatcher = cocos2d::Director::getInstance()->getEventDispatcher();
+//    dispatcher->dispatchEvent(event);
+//    event->release();
 }
 @end
 #endif // !defined(CC_TARGET_OS_TVOS)

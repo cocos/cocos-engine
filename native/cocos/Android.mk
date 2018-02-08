@@ -17,78 +17,9 @@ endif
 
 LOCAL_SRC_FILES := \
 cocos2d.cpp \
-2d/CCAction.cpp \
-2d/CCActionCamera.cpp \
-2d/CCActionCatmullRom.cpp \
-2d/CCActionEase.cpp \
-2d/CCActionGrid.cpp \
-2d/CCActionGrid3D.cpp \
-2d/CCActionInstant.cpp \
-2d/CCActionInterval.cpp \
-2d/CCActionManager.cpp \
-2d/CCActionPageTurn3D.cpp \
-2d/CCActionProgressTimer.cpp \
-2d/CCActionTiledGrid.cpp \
-2d/CCActionTween.cpp \
-2d/CCAnimation.cpp \
-2d/CCAnimationCache.cpp \
-2d/CCAtlasNode.cpp \
-2d/CCClippingNode.cpp \
-2d/CCClippingRectangleNode.cpp \
-2d/CCComponent.cpp \
-2d/CCComponentContainer.cpp \
-2d/CCDrawNode.cpp \
-2d/CCDrawingPrimitives.cpp \
-2d/CCFastTMXLayer.cpp \
-2d/CCFastTMXTiledMap.cpp \
-2d/CCFont.cpp \
-2d/CCFontAtlas.cpp \
-2d/CCFontAtlasCache.cpp \
-2d/CCFontCharMap.cpp \
-2d/CCFontFNT.cpp \
-2d/CCFontFreeType.cpp \
-2d/CCGLBufferedNode.cpp \
-2d/CCGrabber.cpp \
-2d/CCGrid.cpp \
-2d/CCLabel.cpp \
-2d/CCLabelTTF.cpp \
-2d/CCLabelAtlas.cpp \
-2d/CCLabelTextFormatter.cpp \
-2d/CCLayer.cpp \
-2d/CCMenu.cpp \
-2d/CCMenuItem.cpp \
-2d/CCMotionStreak.cpp \
-2d/CCNode.cpp \
-2d/CCNodeGrid.cpp \
-2d/CCParallaxNode.cpp \
-2d/CCParticleBatchNode.cpp \
-2d/CCParticleExamples.cpp \
-2d/CCParticleSystem.cpp \
-2d/CCParticleSystemQuad.cpp \
-2d/CCProgressTimer.cpp \
-2d/CCProtectedNode.cpp \
-2d/CCRenderTexture.cpp \
-2d/CCScene.cpp \
-2d/CCSprite.cpp \
-2d/CCSpriteBatchNode.cpp \
-2d/CCSpriteFrame.cpp \
-2d/CCSpriteFrameCache.cpp \
-2d/CCTMXLayer.cpp \
-2d/CCTMXObjectGroup.cpp \
-2d/CCTMXTiledMap.cpp \
-2d/CCTMXXMLParser.cpp \
-2d/CCTextFieldTTF.cpp \
-2d/CCTileMapAtlas.cpp \
-2d/CCTransition.cpp \
-2d/CCTransitionPageTurn.cpp \
-2d/CCTransitionProgress.cpp \
-2d/CCTweenFunction.cpp \
-2d/CCAutoPolygon.cpp \
 platform/CCFileUtils.cpp \
-platform/CCGLView.cpp \
 platform/CCImage.cpp \
 platform/CCSAXParser.cpp \
-platform/CCThread.cpp \
 $(MATHNEONFILE) \
 math/CCAffineTransform.cpp \
 math/CCGeometry.cpp \
@@ -99,37 +30,12 @@ math/TransformUtils.cpp \
 math/Vec2.cpp \
 math/Vec3.cpp \
 math/Vec4.cpp \
-base/CCNinePatchImageParser.cpp \
-base/CCStencilStateManager.cpp \
-base/CCAsyncTaskPool.cpp \
 base/CCAutoreleasePool.cpp \
 base/CCConfiguration.cpp \
-base/CCConsole.cpp \
 base/CCData.cpp \
-base/CCDirector.cpp \
-base/CCEvent.cpp \
-base/CCEventAcceleration.cpp \
-base/CCEventCustom.cpp \
-base/CCEventDispatcher.cpp \
-base/CCEventFocus.cpp \
-base/CCEventKeyboard.cpp \
-base/CCEventListener.cpp \
-base/CCEventListenerAcceleration.cpp \
-base/CCEventListenerCustom.cpp \
-base/CCEventListenerFocus.cpp \
-base/CCEventListenerKeyboard.cpp \
-base/CCEventListenerMouse.cpp \
-base/CCEventListenerTouch.cpp \
-base/CCEventMouse.cpp \
-base/CCEventTouch.cpp \
-base/CCIMEDispatcher.cpp \
 base/CCNS.cpp \
 base/CCProfiling.cpp \
 base/CCRef.cpp \
-base/CCScheduler.cpp \
-base/CCScriptSupport.cpp \
-base/CCThreadPool.cpp \
-base/CCTouch.cpp \
 base/CCUserDefault-android.cpp \
 base/CCUserDefault.cpp \
 base/CCValue.cpp \
@@ -145,115 +51,131 @@ base/ccUTF8.cpp \
 base/ccUtils.cpp \
 base/etc1.cpp \
 base/pvr.cpp \
-renderer/CCBatchCommand.cpp \
-renderer/CCCustomCommand.cpp \
-renderer/CCGLProgram.cpp \
-renderer/CCGLProgramCache.cpp \
-renderer/CCGLProgramState.cpp \
-renderer/CCGLProgramStateCache.cpp \
-renderer/CCGroupCommand.cpp \
-renderer/CCPrimitive.cpp \
-renderer/CCPrimitiveCommand.cpp \
-renderer/CCQuadCommand.cpp \
-renderer/CCRenderCommand.cpp \
-renderer/CCRenderer.cpp \
-renderer/CCTexture2D.cpp \
-renderer/CCTextureAtlas.cpp \
-renderer/CCTextureCache.cpp \
-renderer/CCTrianglesCommand.cpp \
-renderer/CCVertexIndexBuffer.cpp \
-renderer/CCVertexIndexData.cpp \
-renderer/ccGLStateCache.cpp \
-renderer/ccShaders.cpp \
-storage/local-storage/LocalStorage-android.cpp \
-../external/sources/ConvertUTF/ConvertUTFWrapper.cpp \
-../external/sources/ConvertUTF/ConvertUTF.c \
+renderer/Types.cpp \
+renderer/gfx/DeviceGraphics.cpp \
+renderer/gfx/FrameBuffer.cpp \
+renderer/gfx/GFX.cpp \
+renderer/gfx/GFXUtils.cpp \
+renderer/gfx/GraphicsHandle.cpp \
+renderer/gfx/IndexBuffer.cpp \
+renderer/gfx/Program.cpp \
+renderer/gfx/RenderBuffer.cpp \
+renderer/gfx/RenderTarget.cpp \
+renderer/gfx/State.cpp \
+renderer/gfx/Texture.cpp \
+renderer/gfx/Texture2D.cpp \
+renderer/gfx/VertexBuffer.cpp \
+renderer/gfx/VertexFormat.cpp \
+renderer/renderer/BaseRenderer.cpp \
+renderer/renderer/Camera.cpp \
+renderer/renderer/Config.cpp \
+renderer/renderer/Effect.cpp \
+renderer/renderer/InputAssembler.cpp \
+renderer/renderer/Light.cpp \
+renderer/renderer/Model.cpp \
+renderer/renderer/Pass.cpp \
+renderer/renderer/ProgramLib.cpp \
+renderer/renderer//Scene.cpp \
+renderer/renderer/Technique.cpp \
+renderer/renderer/View.cpp \
+renderer/renderer/ForwardRenderer.cpp \
+../external/sources/firefox/WebGLFormats.cpp \
+../external/sources/firefox/WebGLTexelConversions.cpp \
+../external/sources/firefox/mozilla/Assertions.cpp \
+../external/sources/xxtea/xxtea.cpp \
 ../external/sources/tinyxml2/tinyxml2.cpp \
 ../external/sources/unzip/ioapi_mem.cpp \
 ../external/sources/unzip/ioapi.cpp \
 ../external/sources/unzip/unzip.cpp \
-../external/sources/edtaa3func/edtaa3func.cpp \
-../external/sources/xxhash/xxhash.c \
-../external/sources/poly2tri/common/shapes.cc \
-../external/sources/poly2tri/sweep/advancing_front.cc \
-../external/sources/poly2tri/sweep/cdt.cc \
-../external/sources/poly2tri/sweep/sweep_context.cc \
-../external/sources/poly2tri/sweep/sweep.cc \
-../external/sources/clipper/clipper.cpp \
-../external/sources/Box2D/Collision/Shapes/b2ChainShape.cpp \
-../external/sources/Box2D/Collision/Shapes/b2CircleShape.cpp \
-../external/sources/Box2D/Collision/Shapes/b2EdgeShape.cpp \
-../external/sources/Box2D/Collision/Shapes/b2PolygonShape.cpp \
-../external/sources/Box2D/Collision/b2BroadPhase.cpp \
-../external/sources/Box2D/Collision/b2CollideCircle.cpp \
-../external/sources/Box2D/Collision/b2CollideEdge.cpp \
-../external/sources/Box2D/Collision/b2CollidePolygon.cpp \
-../external/sources/Box2D/Collision/b2Collision.cpp \
-../external/sources/Box2D/Collision/b2Distance.cpp \
-../external/sources/Box2D/Collision/b2DynamicTree.cpp \
-../external/sources/Box2D/Collision/b2TimeOfImpact.cpp \
-../external/sources/Box2D/Common/b2BlockAllocator.cpp \
-../external/sources/Box2D/Common/b2Draw.cpp \
-../external/sources/Box2D/Common/b2Math.cpp \
-../external/sources/Box2D/Common/b2Settings.cpp \
-../external/sources/Box2D/Common/b2StackAllocator.cpp \
-../external/sources/Box2D/Common/b2Timer.cpp \
-../external/sources/Box2D/Dynamics/Contacts/b2ChainAndCircleContact.cpp \
-../external/sources/Box2D/Dynamics/Contacts/b2ChainAndPolygonContact.cpp \
-../external/sources/Box2D/Dynamics/Contacts/b2CircleContact.cpp \
-../external/sources/Box2D/Dynamics/Contacts/b2Contact.cpp \
-../external/sources/Box2D/Dynamics/Contacts/b2ContactSolver.cpp \
-../external/sources/Box2D/Dynamics/Contacts/b2EdgeAndCircleContact.cpp \
-../external/sources/Box2D/Dynamics/Contacts/b2EdgeAndPolygonContact.cpp \
-../external/sources/Box2D/Dynamics/Contacts/b2PolygonAndCircleContact.cpp \
-../external/sources/Box2D/Dynamics/Contacts/b2PolygonContact.cpp \
-../external/sources/Box2D/Dynamics/Joints/b2DistanceJoint.cpp \
-../external/sources/Box2D/Dynamics/Joints/b2FrictionJoint.cpp \
-../external/sources/Box2D/Dynamics/Joints/b2GearJoint.cpp \
-../external/sources/Box2D/Dynamics/Joints/b2Joint.cpp \
-../external/sources/Box2D/Dynamics/Joints/b2MotorJoint.cpp \
-../external/sources/Box2D/Dynamics/Joints/b2MouseJoint.cpp \
-../external/sources/Box2D/Dynamics/Joints/b2PrismaticJoint.cpp \
-../external/sources/Box2D/Dynamics/Joints/b2PulleyJoint.cpp \
-../external/sources/Box2D/Dynamics/Joints/b2RevoluteJoint.cpp \
-../external/sources/Box2D/Dynamics/Joints/b2RopeJoint.cpp \
-../external/sources/Box2D/Dynamics/Joints/b2WeldJoint.cpp \
-../external/sources/Box2D/Dynamics/Joints/b2WheelJoint.cpp \
-../external/sources/Box2D/Dynamics/b2Body.cpp \
-../external/sources/Box2D/Dynamics/b2ContactManager.cpp \
-../external/sources/Box2D/Dynamics/b2Fixture.cpp \
-../external/sources/Box2D/Dynamics/b2Island.cpp \
-../external/sources/Box2D/Dynamics/b2World.cpp \
-../external/sources/Box2D/Dynamics/b2WorldCallbacks.cpp \
-../external/sources/Box2D/Rope/b2Rope.cpp \
-../external/sources/Box2D/b2ObjectDestroyNotifier.cpp \
-../external/sources/xxtea/xxtea.cpp \
+../external/sources/ConvertUTF/ConvertUTFWrapper.cpp \
+../external/sources/ConvertUTF/ConvertUTF.c
+
+# storage/local-storage/LocalStorage-android.cpp \
+# ../external/sources/edtaa3func/edtaa3func.cpp \
+# ../external/sources/xxhash/xxhash.c \
+# ../external/sources/poly2tri/common/shapes.cc \
+# ../external/sources/poly2tri/sweep/advancing_front.cc \
+# ../external/sources/poly2tri/sweep/cdt.cc \
+# ../external/sources/poly2tri/sweep/sweep_context.cc \
+# ../external/sources/poly2tri/sweep/sweep.cc \
+# ../external/sources/clipper/clipper.cpp \
+# ../external/sources/Box2D/Collision/Shapes/b2ChainShape.cpp \
+# ../external/sources/Box2D/Collision/Shapes/b2CircleShape.cpp \
+# ../external/sources/Box2D/Collision/Shapes/b2EdgeShape.cpp \
+# ../external/sources/Box2D/Collision/Shapes/b2PolygonShape.cpp \
+# ../external/sources/Box2D/Collision/b2BroadPhase.cpp \
+# ../external/sources/Box2D/Collision/b2CollideCircle.cpp \
+# ../external/sources/Box2D/Collision/b2CollideEdge.cpp \
+# ../external/sources/Box2D/Collision/b2CollidePolygon.cpp \
+# ../external/sources/Box2D/Collision/b2Collision.cpp \
+# ../external/sources/Box2D/Collision/b2Distance.cpp \
+# ../external/sources/Box2D/Collision/b2DynamicTree.cpp \
+# ../external/sources/Box2D/Collision/b2TimeOfImpact.cpp \
+# ../external/sources/Box2D/Common/b2BlockAllocator.cpp \
+# ../external/sources/Box2D/Common/b2Draw.cpp \
+# ../external/sources/Box2D/Common/b2Math.cpp \
+# ../external/sources/Box2D/Common/b2Settings.cpp \
+# ../external/sources/Box2D/Common/b2StackAllocator.cpp \
+# ../external/sources/Box2D/Common/b2Timer.cpp \
+# ../external/sources/Box2D/Dynamics/Contacts/b2ChainAndCircleContact.cpp \
+# ../external/sources/Box2D/Dynamics/Contacts/b2ChainAndPolygonContact.cpp \
+# ../external/sources/Box2D/Dynamics/Contacts/b2CircleContact.cpp \
+# ../external/sources/Box2D/Dynamics/Contacts/b2Contact.cpp \
+# ../external/sources/Box2D/Dynamics/Contacts/b2ContactSolver.cpp \
+# ../external/sources/Box2D/Dynamics/Contacts/b2EdgeAndCircleContact.cpp \
+# ../external/sources/Box2D/Dynamics/Contacts/b2EdgeAndPolygonContact.cpp \
+# ../external/sources/Box2D/Dynamics/Contacts/b2PolygonAndCircleContact.cpp \
+# ../external/sources/Box2D/Dynamics/Contacts/b2PolygonContact.cpp \
+# ../external/sources/Box2D/Dynamics/Joints/b2DistanceJoint.cpp \
+# ../external/sources/Box2D/Dynamics/Joints/b2FrictionJoint.cpp \
+# ../external/sources/Box2D/Dynamics/Joints/b2GearJoint.cpp \
+# ../external/sources/Box2D/Dynamics/Joints/b2Joint.cpp \
+# ../external/sources/Box2D/Dynamics/Joints/b2MotorJoint.cpp \
+# ../external/sources/Box2D/Dynamics/Joints/b2MouseJoint.cpp \
+# ../external/sources/Box2D/Dynamics/Joints/b2PrismaticJoint.cpp \
+# ../external/sources/Box2D/Dynamics/Joints/b2PulleyJoint.cpp \
+# ../external/sources/Box2D/Dynamics/Joints/b2RevoluteJoint.cpp \
+# ../external/sources/Box2D/Dynamics/Joints/b2RopeJoint.cpp \
+# ../external/sources/Box2D/Dynamics/Joints/b2WeldJoint.cpp \
+# ../external/sources/Box2D/Dynamics/Joints/b2WheelJoint.cpp \
+# ../external/sources/Box2D/Dynamics/b2Body.cpp \
+# ../external/sources/Box2D/Dynamics/b2ContactManager.cpp \
+# ../external/sources/Box2D/Dynamics/b2Fixture.cpp \
+# ../external/sources/Box2D/Dynamics/b2Island.cpp \
+# ../external/sources/Box2D/Dynamics/b2World.cpp \
+# ../external/sources/Box2D/Dynamics/b2WorldCallbacks.cpp \
+# ../external/sources/Box2D/Rope/b2Rope.cpp \
+# ../external/sources/Box2D/b2ObjectDestroyNotifier.cpp \
+
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH) \
                     $(LOCAL_PATH)/platform \
                     $(LOCAL_PATH)/editor-support \
                     $(LOCAL_PATH)/../external/android/$(TARGET_ARCH_ABI)/include \
-                    $(LOCAL_PATH)/../external/sources
+                    $(LOCAL_PATH)/../external/sources \
+                    $(LOCAL_PATH)/../external/sources/firefox \
+                    $(LOCAL_PATH)/renderer
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH) \
                     $(LOCAL_PATH)/.. \
                     $(LOCAL_PATH)/platform \
                     $(LOCAL_PATH)/base \
                     $(LOCAL_PATH)/../external/android/$(TARGET_ARCH_ABI)/include \
-                    $(LOCAL_PATH)/../external/sources 
+                    $(LOCAL_PATH)/../external/sources \
+                    $(LOCAL_PATH)/renderer
 
 LOCAL_EXPORT_LDLIBS := -lGLESv2 \
                        -llog \
                        -landroid
 
 LOCAL_STATIC_LIBRARIES := cocos_freetype2_static
-LOCAL_STATIC_LIBRARIES += spine_static
-LOCAL_STATIC_LIBRARIES += creator_static
+# LOCAL_STATIC_LIBRARIES += spine_static
+# LOCAL_STATIC_LIBRARIES += creator_static
 LOCAL_STATIC_LIBRARIES += cocos_png_static
 LOCAL_STATIC_LIBRARIES += cocos_jpeg_static
 LOCAL_STATIC_LIBRARIES += cocos_tiff_static
 LOCAL_STATIC_LIBRARIES += cocos_webp_static
-LOCAL_STATIC_LIBRARIES += cocos_chipmunk_static
+# LOCAL_STATIC_LIBRARIES += cocos_chipmunk_static
 LOCAL_STATIC_LIBRARIES += cocos_zlib_static
 
 LOCAL_WHOLE_STATIC_LIBRARIES := cocos2dxandroid_static
@@ -279,13 +201,13 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := cocos2dx_static
 LOCAL_MODULE_FILENAME := libcocos2d
 
-LOCAL_STATIC_LIBRARIES := audioengine_static
-LOCAL_STATIC_LIBRARIES += cocos_network_static
-LOCAL_STATIC_LIBRARIES += cocos_ui_static
-LOCAL_STATIC_LIBRARIES += spine_static
-LOCAL_STATIC_LIBRARIES += dragonbones_static
-LOCAL_STATIC_LIBRARIES += creator_static
-LOCAL_STATIC_LIBRARIES += cis
+# LOCAL_STATIC_LIBRARIES := audioengine_static
+# LOCAL_STATIC_LIBRARIES += cocos_network_static
+# LOCAL_STATIC_LIBRARIES += cocos_ui_static
+# LOCAL_STATIC_LIBRARIES += spine_static
+# LOCAL_STATIC_LIBRARIES += dragonbones_static
+# LOCAL_STATIC_LIBRARIES += creator_static
+LOCAL_STATIC_LIBRARIES := cis
 
 include $(BUILD_STATIC_LIBRARY)
 
@@ -294,12 +216,12 @@ include $(BUILD_STATIC_LIBRARY)
 $(call import-module,android)
 # $(call import-module,editor-support/cocostudio)
 # $(call import-module,editor-support/cocosbuilder)
-$(call import-module,editor-support/dragonbones/proj.android)
-$(call import-module,editor-support/spine)
-$(call import-module,editor-support/creator)
+# $(call import-module,editor-support/dragonbones/proj.android)
+# $(call import-module,editor-support/spine)
+# $(call import-module,editor-support/creator)
 $(call import-module,platform/android)
-$(call import-module,audio/android)
-$(call import-module,network)
-$(call import-module,ui)
+# $(call import-module,audio/android)
+# $(call import-module,network)
+# $(call import-module,ui)
 $(call import-module,extensions)
 $(call import-module,android/cpufeatures)

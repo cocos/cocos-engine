@@ -1,7 +1,6 @@
 /****************************************************************************
 Copyright (c) 2010-2012 cocos2d-x.org
 Copyright (c) 2013-2016 Chukong Technologies Inc.
-Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 http://www.cocos2d-x.org
 
@@ -25,7 +24,7 @@ THE SOFTWARE.
 ****************************************************************************/
 
 
-#include "platform/CCImage.h"
+#include "CCImage.h"
 
 #include <string>
 #include <ctype.h>
@@ -69,7 +68,6 @@ extern "C"
 #endif // CC_USE_JPEG
 
 #include "base/etc1.h"
-
 }
 
 #if CC_USE_WEBP
@@ -80,15 +78,17 @@ extern "C"
 #include "base/TGAlib.h"
 
 #include "base/ccMacros.h"
-#include "platform/CCCommon.h"
+//cjh #include "platform/CCCommon.h"
 #include "platform/CCStdC.h"
 #include "platform/CCFileUtils.h"
 #include "base/CCConfiguration.h"
-#include "base/ccUtils.h"
+//cjh #include "base/ccUtils.h"
 #include "base/ZipUtils.h"
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 #include "platform/android/CCFileUtils-android.h"
 #endif
+
+#include <map>
 
 #define CC_GL_ATC_RGB_AMD                                          0x8C92
 #define CC_GL_ATC_RGBA_EXPLICIT_ALPHA_AMD                          0x8C93
@@ -101,6 +101,69 @@ NS_CC_BEGIN
 
 namespace
 {
+    typedef Image::PixelFormatInfoMap::value_type PixelFormatInfoMapValue;
+    static const PixelFormatInfoMapValue TexturePixelFormatInfoTablesValue[] =
+    {
+        PixelFormatInfoMapValue(Image::PixelFormat::BGRA8888, Image::PixelFormatInfo(GL_BGRA, GL_BGRA, GL_UNSIGNED_BYTE, 32, false, true)),
+        PixelFormatInfoMapValue(Image::PixelFormat::RGBA8888, Image::PixelFormatInfo(GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, 32, false, true)),
+        PixelFormatInfoMapValue(Image::PixelFormat::RGBA4444, Image::PixelFormatInfo(GL_RGBA, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, 16, false, true)),
+        PixelFormatInfoMapValue(Image::PixelFormat::RGB5A1, Image::PixelFormatInfo(GL_RGBA, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, 16, false, true)),
+        PixelFormatInfoMapValue(Image::PixelFormat::RGB565, Image::PixelFormatInfo(GL_RGB, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, 16, false, false)),
+        PixelFormatInfoMapValue(Image::PixelFormat::RGB888, Image::PixelFormatInfo(GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, 24, false, false)),
+        PixelFormatInfoMapValue(Image::PixelFormat::A8, Image::PixelFormatInfo(GL_ALPHA, GL_ALPHA, GL_UNSIGNED_BYTE, 8, false, false)),
+        PixelFormatInfoMapValue(Image::PixelFormat::I8, Image::PixelFormatInfo(GL_LUMINANCE, GL_LUMINANCE, GL_UNSIGNED_BYTE, 8, false, false)),
+        PixelFormatInfoMapValue(Image::PixelFormat::AI88, Image::PixelFormatInfo(GL_LUMINANCE_ALPHA, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, 16, false, true)),
+
+#ifdef GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG
+        PixelFormatInfoMapValue(Image::PixelFormat::PVRTC2, Image::PixelFormatInfo(GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG, 0xFFFFFFFF, 0xFFFFFFFF, 2, true, false)),
+        PixelFormatInfoMapValue(Image::PixelFormat::PVRTC2A, Image::PixelFormatInfo(GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG, 0xFFFFFFFF, 0xFFFFFFFF, 2, true, true)),
+        PixelFormatInfoMapValue(Image::PixelFormat::PVRTC4, Image::PixelFormatInfo(GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, 0xFFFFFFFF, 0xFFFFFFFF, 4, true, false)),
+        PixelFormatInfoMapValue(Image::PixelFormat::PVRTC4A, Image::PixelFormatInfo(GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, 0xFFFFFFFF, 0xFFFFFFFF, 4, true, true)),
+#endif
+
+#ifdef GL_ETC1_RGB8_OES
+        PixelFormatInfoMapValue(Image::PixelFormat::ETC, Image::PixelFormatInfo(GL_ETC1_RGB8_OES, 0xFFFFFFFF, 0xFFFFFFFF, 4, true, false)),
+#endif
+
+#ifdef GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
+        PixelFormatInfoMapValue(Image::PixelFormat::S3TC_DXT1, Image::PixelFormatInfo(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, 0xFFFFFFFF, 0xFFFFFFFF, 4, true, false)),
+#endif
+
+#ifdef GL_COMPRESSED_RGBA_S3TC_DXT3_EXT
+        PixelFormatInfoMapValue(Image::PixelFormat::S3TC_DXT3, Image::PixelFormatInfo(GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, 0xFFFFFFFF, 0xFFFFFFFF, 8, true, false)),
+#endif
+
+#ifdef GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
+        PixelFormatInfoMapValue(Image::PixelFormat::S3TC_DXT5, Image::PixelFormatInfo(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, 0xFFFFFFFF, 0xFFFFFFFF, 8, true, false)),
+#endif
+
+#ifdef GL_ATC_RGB_AMD
+        PixelFormatInfoMapValue(Image::PixelFormat::ATC_RGB, Image::PixelFormatInfo(GL_ATC_RGB_AMD,
+                                                                                            0xFFFFFFFF, 0xFFFFFFFF, 4, true, false)),
+#endif
+
+#ifdef GL_ATC_RGBA_EXPLICIT_ALPHA_AMD
+        PixelFormatInfoMapValue(Image::PixelFormat::ATC_EXPLICIT_ALPHA, Image::PixelFormatInfo(GL_ATC_RGBA_EXPLICIT_ALPHA_AMD,
+                                                                                                       0xFFFFFFFF, 0xFFFFFFFF, 8, true, false)),
+#endif
+
+#ifdef GL_ATC_RGBA_INTERPOLATED_ALPHA_AMD
+        PixelFormatInfoMapValue(Image::PixelFormat::ATC_INTERPOLATED_ALPHA, Image::PixelFormatInfo(GL_ATC_RGBA_INTERPOLATED_ALPHA_AMD,
+                                                                                                           0xFFFFFFFF, 0xFFFFFFFF, 8, true, false)),
+#endif
+    };
+
+    //CLASS IMPLEMENTATIONS:
+
+    //The PixpelFormat corresponding information
+    const Image::PixelFormatInfoMap _pixelFormatInfoTables(TexturePixelFormatInfoTablesValue,
+                                                                          TexturePixelFormatInfoTablesValue + sizeof(TexturePixelFormatInfoTablesValue) / sizeof(TexturePixelFormatInfoTablesValue[0]));
+
+    const Image::PixelFormatInfoMap& getPixelFormatInfoMap()
+    {
+        return _pixelFormatInfoTables;
+    }
+
     static const int PVR_TEXTURE_FLAG_TYPE_MASK = 0xff;
 
     static bool _PVRHaveAlphaPremultiplied = false;
@@ -192,47 +255,47 @@ namespace
 
 
     // v2
-    typedef const std::map<PVR2TexturePixelFormat, Texture2D::PixelFormat> _pixel2_formathash;
+    typedef const std::map<PVR2TexturePixelFormat, Image::PixelFormat> _pixel2_formathash;
 
     static const _pixel2_formathash::value_type v2_pixel_formathash_value[] =
     {
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::BGRA8888,        Texture2D::PixelFormat::BGRA8888),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGBA8888,        Texture2D::PixelFormat::RGBA8888),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGBA4444,        Texture2D::PixelFormat::RGBA4444),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGBA5551,        Texture2D::PixelFormat::RGB5A1),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGB565,      Texture2D::PixelFormat::RGB565),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGB888,      Texture2D::PixelFormat::RGB888),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::A8,          Texture2D::PixelFormat::A8),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::I8,          Texture2D::PixelFormat::I8),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::AI88,            Texture2D::PixelFormat::AI88),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::BGRA8888,        Image::PixelFormat::BGRA8888),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGBA8888,        Image::PixelFormat::RGBA8888),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGBA4444,        Image::PixelFormat::RGBA4444),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGBA5551,        Image::PixelFormat::RGB5A1),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGB565,      Image::PixelFormat::RGB565),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGB888,      Image::PixelFormat::RGB888),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::A8,          Image::PixelFormat::A8),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::I8,          Image::PixelFormat::I8),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::AI88,            Image::PixelFormat::AI88),
 
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::PVRTC2BPP_RGBA,      Texture2D::PixelFormat::PVRTC2A),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::PVRTC4BPP_RGBA,      Texture2D::PixelFormat::PVRTC4A),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::PVRTC2BPP_RGBA,      Image::PixelFormat::PVRTC2A),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::PVRTC4BPP_RGBA,      Image::PixelFormat::PVRTC4A),
     };
 
     static const int PVR2_MAX_TABLE_ELEMENTS = sizeof(v2_pixel_formathash_value) / sizeof(v2_pixel_formathash_value[0]);
     static const _pixel2_formathash v2_pixel_formathash(v2_pixel_formathash_value, v2_pixel_formathash_value + PVR2_MAX_TABLE_ELEMENTS);
 
     // v3
-    typedef const std::map<PVR3TexturePixelFormat, Texture2D::PixelFormat> _pixel3_formathash;
+    typedef const std::map<PVR3TexturePixelFormat, Image::PixelFormat> _pixel3_formathash;
     static _pixel3_formathash::value_type v3_pixel_formathash_value[] =
     {
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::BGRA8888,    Texture2D::PixelFormat::BGRA8888),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGBA8888,    Texture2D::PixelFormat::RGBA8888),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGBA4444,    Texture2D::PixelFormat::RGBA4444),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGBA5551,    Texture2D::PixelFormat::RGB5A1),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGB565,      Texture2D::PixelFormat::RGB565),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGB888,      Texture2D::PixelFormat::RGB888),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::A8,          Texture2D::PixelFormat::A8),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::L8,          Texture2D::PixelFormat::I8),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::LA88,        Texture2D::PixelFormat::AI88),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::BGRA8888,    Image::PixelFormat::BGRA8888),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGBA8888,    Image::PixelFormat::RGBA8888),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGBA4444,    Image::PixelFormat::RGBA4444),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGBA5551,    Image::PixelFormat::RGB5A1),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGB565,      Image::PixelFormat::RGB565),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGB888,      Image::PixelFormat::RGB888),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::A8,          Image::PixelFormat::A8),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::L8,          Image::PixelFormat::I8),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::LA88,        Image::PixelFormat::AI88),
 
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC2BPP_RGB,       Texture2D::PixelFormat::PVRTC2),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC2BPP_RGBA,      Texture2D::PixelFormat::PVRTC2A),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC4BPP_RGB,       Texture2D::PixelFormat::PVRTC4),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC4BPP_RGBA,      Texture2D::PixelFormat::PVRTC4A),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC2BPP_RGB,       Image::PixelFormat::PVRTC2),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC2BPP_RGBA,      Image::PixelFormat::PVRTC2A),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC4BPP_RGB,       Image::PixelFormat::PVRTC4),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC4BPP_RGBA,      Image::PixelFormat::PVRTC4A),
 
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::ETC1,        Texture2D::PixelFormat::ETC),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::ETC1,        Image::PixelFormat::ETC),
     };
 
     static const int PVR3_MAX_TABLE_ELEMENTS = sizeof(v3_pixel_formathash_value) / sizeof(v3_pixel_formathash_value[0]);
@@ -309,22 +372,22 @@ namespace
 #endif //CC_USE_PNG
 }
 
-Texture2D::PixelFormat getDevicePixelFormat(Texture2D::PixelFormat format)
+Image::PixelFormat getDevicePixelFormat(Image::PixelFormat format)
 {
     switch (format) {
-        case Texture2D::PixelFormat::PVRTC4:
-        case Texture2D::PixelFormat::PVRTC4A:
-        case Texture2D::PixelFormat::PVRTC2:
-        case Texture2D::PixelFormat::PVRTC2A:
+        case Image::PixelFormat::PVRTC4:
+        case Image::PixelFormat::PVRTC4A:
+        case Image::PixelFormat::PVRTC2:
+        case Image::PixelFormat::PVRTC2A:
             if(Configuration::getInstance()->supportsPVRTC())
                 return format;
             else
-                return Texture2D::PixelFormat::RGBA8888;
-        case Texture2D::PixelFormat::ETC:
+                return Image::PixelFormat::RGBA8888;
+        case Image::PixelFormat::ETC:
             if(Configuration::getInstance()->supportsETC())
                 return format;
             else
-                return Texture2D::PixelFormat::RGB888;
+                return Image::PixelFormat::RGB888;
         default:
             return format;
     }
@@ -342,7 +405,7 @@ Image::Image()
 , _height(0)
 , _unpack(false)
 , _fileType(Format::UNKNOWN)
-, _renderFormat(Texture2D::PixelFormat::NONE)
+, _renderFormat(Image::PixelFormat::NONE)
 , _numberOfMipmaps(0)
 , _hasPremultipliedAlpha(true)
 {
@@ -555,17 +618,17 @@ Image::Format Image::detectFormat(const unsigned char * data, ssize_t dataLen)
 
 int Image::getBitPerPixel()
 {
-    return Texture2D::getPixelFormatInfoMap().at(_renderFormat).bpp;
+    return getPixelFormatInfoMap().at(_renderFormat).bpp;
 }
 
 bool Image::hasAlpha()
 {
-    return Texture2D::getPixelFormatInfoMap().at(_renderFormat).alpha;
+    return getPixelFormatInfoMap().at(_renderFormat).alpha;
 }
 
 bool Image::isCompressed()
 {
-    return Texture2D::getPixelFormatInfoMap().at(_renderFormat).compressed;
+    return getPixelFormatInfoMap().at(_renderFormat).compressed;
 }
 
 namespace
@@ -677,11 +740,11 @@ bool Image::initWithJpgData(const unsigned char * data, ssize_t dataLen)
         // we only support RGB or grayscale
         if (cinfo.jpeg_color_space == JCS_GRAYSCALE)
         {
-            _renderFormat = Texture2D::PixelFormat::I8;
+            _renderFormat = Image::PixelFormat::I8;
         }else
         {
             cinfo.out_color_space = JCS_RGB;
-            _renderFormat = Texture2D::PixelFormat::RGB888;
+            _renderFormat = Image::PixelFormat::RGB888;
         }
 
         /* Start decompression jpeg here */
@@ -811,16 +874,16 @@ bool Image::initWithPngData(const unsigned char * data, ssize_t dataLen)
         switch (color_type)
         {
             case PNG_COLOR_TYPE_GRAY:
-                _renderFormat = Texture2D::PixelFormat::I8;
+                _renderFormat = Image::PixelFormat::I8;
                 break;
             case PNG_COLOR_TYPE_GRAY_ALPHA:
-                _renderFormat = Texture2D::PixelFormat::AI88;
+                _renderFormat = Image::PixelFormat::AI88;
                 break;
             case PNG_COLOR_TYPE_RGB:
-                _renderFormat = Texture2D::PixelFormat::RGB888;
+                _renderFormat = Image::PixelFormat::RGB888;
                 break;
             case PNG_COLOR_TYPE_RGB_ALPHA:
-                _renderFormat = Texture2D::PixelFormat::RGBA8888;
+                _renderFormat = Image::PixelFormat::RGBA8888;
                 break;
             default:
                 break;
@@ -854,7 +917,7 @@ bool Image::initWithPngData(const unsigned char * data, ssize_t dataLen)
         // premultiplied alpha for RGBA8888
         if (PNG_PREMULTIPLIED_ALPHA_ENABLED && color_type == PNG_COLOR_TYPE_RGB_ALPHA)
         {
-            premultipliedAlpha();
+            //premultipliedAlpha();
         }
         else
         {
@@ -1026,7 +1089,7 @@ bool Image::initWithTiffData(const unsigned char * data, ssize_t dataLen)
 
         npixels = w * h;
 
-        _renderFormat = Texture2D::PixelFormat::RGBA8888;
+        _renderFormat = Image::PixelFormat::RGBA8888;
         _width = w;
         _height = h;
 
@@ -1143,9 +1206,9 @@ bool Image::initWithPVRv2Data(const unsigned char * data, ssize_t dataLen)
         return false;
     }
 
-    auto it = Texture2D::getPixelFormatInfoMap().find(getDevicePixelFormat(v2_pixel_formathash.at(formatFlags)));
+    auto it = getPixelFormatInfoMap().find(getDevicePixelFormat(v2_pixel_formathash.at(formatFlags)));
 
-    if (it == Texture2D::getPixelFormatInfoMap().end())
+    if (it == getPixelFormatInfoMap().end())
     {
         CCLOG("cocos2d: WARNING: Unsupported PVR Pixel Format: 0x%02X. Re-encode it with a OpenGL pixel format variant", (int)formatFlags);
         return false;
@@ -1286,9 +1349,9 @@ bool Image::initWithPVRv3Data(const unsigned char * data, ssize_t dataLen)
         return false;
     }
 
-    auto it = Texture2D::getPixelFormatInfoMap().find(getDevicePixelFormat(v3_pixel_formathash.at(pixelFormat)));
+    auto it = getPixelFormatInfoMap().find(getDevicePixelFormat(v3_pixel_formathash.at(pixelFormat)));
 
-    if (it == Texture2D::getPixelFormatInfoMap().end())
+    if (it == getPixelFormatInfoMap().end())
     {
         CCLOG("cocos2d: WARNING: Unsupported PVR Pixel Format: 0x%016llX. Re-encode it with a OpenGL pixel format variant",
               static_cast<unsigned long long>(pixelFormat));
@@ -1450,7 +1513,7 @@ bool Image::initWithETCData(const unsigned char * data, ssize_t dataLen)
     {
         //old opengl version has no define for GL_ETC1_RGB8_OES, add macro to make compiler happy.
 #ifdef GL_ETC1_RGB8_OES
-        _renderFormat = Texture2D::PixelFormat::ETC;
+        _renderFormat = Image::PixelFormat::ETC;
         _dataLen = dataLen - ETC_PKM_HEADER_SIZE;
         _data = static_cast<unsigned char*>(malloc(_dataLen * sizeof(unsigned char)));
         memcpy(_data, static_cast<const unsigned char*>(data) + ETC_PKM_HEADER_SIZE, _dataLen);
@@ -1464,7 +1527,7 @@ bool Image::initWithETCData(const unsigned char * data, ssize_t dataLen)
          //if it is not gles or device do not support ETC, decode texture by software
         int bytePerPixel = 3;
         unsigned int stride = _width * bytePerPixel;
-        _renderFormat = Texture2D::PixelFormat::RGB888;
+        _renderFormat = Image::PixelFormat::RGB888;
 
         _dataLen =  _width * _height * bytePerPixel;
         _data = static_cast<unsigned char*>(malloc(_dataLen * sizeof(unsigned char)));
@@ -1499,15 +1562,15 @@ bool Image::initWithTGAData(tImageTGA* tgaData)
             // unsupported RGB555
             if (tgaData->pixelDepth == 16)
             {
-                _renderFormat = Texture2D::PixelFormat::RGB5A1;
+                _renderFormat = Image::PixelFormat::RGB5A1;
             }
             else if(tgaData->pixelDepth == 24)
             {
-                _renderFormat = Texture2D::PixelFormat::RGB888;
+                _renderFormat = Image::PixelFormat::RGB888;
             }
             else if(tgaData->pixelDepth == 32)
             {
-                _renderFormat = Texture2D::PixelFormat::RGBA8888;
+                _renderFormat = Image::PixelFormat::RGBA8888;
             }
             else
             {
@@ -1520,7 +1583,7 @@ bool Image::initWithTGAData(tImageTGA* tgaData)
             // gray
             if (8 == tgaData->pixelDepth)
             {
-                _renderFormat = Texture2D::PixelFormat::I8;
+                _renderFormat = Image::PixelFormat::I8;
             }
             else
             {
@@ -1581,7 +1644,7 @@ bool Image::initWithWebpData(const unsigned char * data, ssize_t dataLen)
         if (config.input.width == 0 || config.input.height == 0) break;
         
         config.output.colorspace = config.input.has_alpha?MODE_rgbA:MODE_RGB;
-        _renderFormat = config.input.has_alpha?Texture2D::PixelFormat::RGBA8888:Texture2D::PixelFormat::RGB888;
+        _renderFormat = config.input.has_alpha?Image::PixelFormat::RGBA8888:Image::PixelFormat::RGB888;
         _width    = config.input.width;
         _height   = config.input.height;
         
@@ -1623,7 +1686,7 @@ bool Image::initWithRawData(const unsigned char * data, ssize_t dataLen, int wid
         _height   = height;
         _width    = width;
         _hasPremultipliedAlpha = preMulti;
-        _renderFormat = Texture2D::PixelFormat::RGBA8888;
+        _renderFormat = Image::PixelFormat::RGBA8888;
 
         // only RGBA8888 supported
         int bytesPerComponent = 4;
@@ -1642,10 +1705,10 @@ bool Image::initWithRawData(const unsigned char * data, ssize_t dataLen, int wid
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_IOS)
 bool Image::saveToFile(const std::string& filename, bool isToRGB)
 {
-    //only support for Texture2D::PixelFormat::RGB888 or Texture2D::PixelFormat::RGBA8888 uncompressed data
-    if (isCompressed() || (_renderFormat != Texture2D::PixelFormat::RGB888 && _renderFormat != Texture2D::PixelFormat::RGBA8888))
+    //only support for Image::PixelFormat::RGB888 or Image::PixelFormat::RGBA8888 uncompressed data
+    if (isCompressed() || (_renderFormat != Image::PixelFormat::RGB888 && _renderFormat != Image::PixelFormat::RGBA8888))
     {
-        CCLOG("cocos2d: Image: saveToFile is only support for Texture2D::PixelFormat::RGB888 or Texture2D::PixelFormat::RGBA8888 uncompressed data for now");
+        CCLOG("cocos2d: Image: saveToFile is only support for Image::PixelFormat::RGB888 or Image::PixelFormat::RGBA8888 uncompressed data for now");
         return false;
     }
 
@@ -1909,7 +1972,7 @@ bool Image::saveImageToJPG(const std::string& filePath)
 
 void Image::premultipliedAlpha()
 {
-    if (PNG_PREMULTIPLIED_ALPHA_ENABLED && _renderFormat == Texture2D::PixelFormat::RGBA8888)
+    if (PNG_PREMULTIPLIED_ALPHA_ENABLED && _renderFormat == Image::PixelFormat::RGBA8888)
     {
         unsigned int* fourBytes = (unsigned int*)_data;
         for(int i = 0; i < _width * _height; i++)

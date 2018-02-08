@@ -215,6 +215,22 @@ bool Color4F::operator!=(const Color4B& right) const
     return !(*this == right);
 }
 
+// Color3F
+
+Color3F::Color3F()
+: r(0.0f)
+, g(0.0f)
+, b(0.0f)
+{}
+
+Color3F::Color3F(float _r, float _g, float _b)
+: r(_r)
+, g(_g)
+, b(_b)
+{}
+
+const Color3F Color3F::BLACK = {0, 0, 0};
+
 /**
  * Color constants
  */

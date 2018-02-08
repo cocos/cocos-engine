@@ -147,75 +147,65 @@ bool jsb_register_all_modules()
 
     se->addRegisterCallback(run_prepare_script);
 
-    se->addRegisterCallback(register_all_cocos2dx);
-    se->addRegisterCallback(jsb_register_Node_manual);
-    se->addRegisterCallback(register_all_cocos2dx_manual);
-    se->addRegisterCallback(JSB_register_opengl);
+    // se->addRegisterCallback(register_all_cocos2dx);
+    // se->addRegisterCallback(jsb_register_Node_manual);
+    // se->addRegisterCallback(register_all_cocos2dx_manual);
+    // se->addRegisterCallback(JSB_register_opengl);
 
 #if USE_AUDIO
-    se->addRegisterCallback(register_all_cocos2dx_audioengine);
+    // se->addRegisterCallback(register_all_cocos2dx_audioengine);
 #endif
 
 #if USE_VIDEO || USE_WEBVIEW || USE_EDIT_BOX
-    se->addRegisterCallback(register_all_cocos2dx_ui);
-    se->addRegisterCallback(register_ui_manual);
+    // se->addRegisterCallback(register_all_cocos2dx_ui);
+    // se->addRegisterCallback(register_ui_manual);
 #endif
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && !defined(CC_TARGET_OS_TVOS)
 #if USE_VIDEO
-    se->addRegisterCallback(register_all_cocos2dx_experimental_video);
+    // se->addRegisterCallback(register_all_cocos2dx_experimental_video);
 #endif
     
 #if USE_WEBVIEW
-    se->addRegisterCallback(register_all_cocos2dx_experimental_webView);
+    // se->addRegisterCallback(register_all_cocos2dx_experimental_webView);
 #endif
 #endif
 
 #if USE_SPINE
-    se->addRegisterCallback(register_all_cocos2dx_spine);
-    se->addRegisterCallback(register_all_spine_manual);
+    // se->addRegisterCallback(register_all_cocos2dx_spine);
+    // se->addRegisterCallback(register_all_spine_manual);
 #endif
     
 #if USE_DRAGON_BONES
-    se->addRegisterCallback(register_all_cocos2dx_dragonbones);
-    se->addRegisterCallback(register_all_dragonbones_manual);
+    // se->addRegisterCallback(register_all_cocos2dx_dragonbones);
+    // se->addRegisterCallback(register_all_dragonbones_manual);
 #endif
 
 #if USE_CREATOR_PHYSICS
-    se->addRegisterCallback(register_all_box2dclasses);
-    se->addRegisterCallback(register_all_box2d_manual);
+    // se->addRegisterCallback(register_all_box2dclasses);
+    // se->addRegisterCallback(register_all_box2d_manual);
     
-    se->addRegisterCallback(register_all_creator_physics);
-    se->addRegisterCallback(register_all_creator_physics_manual);
-#endif
-    
-#if USE_CREATOR_CAMERA
-    se->addRegisterCallback(register_all_creator_camera);
-#endif
-    
-#if USE_CREATOR_GRAPHICS
-    se->addRegisterCallback(register_all_creator_graphics);
+    // se->addRegisterCallback(register_all_creator_physics);
+    // se->addRegisterCallback(register_all_creator_physics_manual);
 #endif
 
 #if USE_NET_WORK
-    se->addRegisterCallback(register_all_cocos2dx_network);
-    se->addRegisterCallback(register_all_xmlhttprequest);
-    se->addRegisterCallback(register_all_websocket);
-    se->addRegisterCallback(register_all_socketio);
+    // se->addRegisterCallback(register_all_cocos2dx_network);
+    // se->addRegisterCallback(register_all_xmlhttprequest);
+    // se->addRegisterCallback(register_all_websocket);
+    // se->addRegisterCallback(register_all_socketio);
 #endif
     
-    se->addRegisterCallback(register_all_creator);
-    se->addRegisterCallback(register_all_creator_manual);
 
-    se->addRegisterCallback(register_all_cocos2dx_extension);
-    se->addRegisterCallback(register_all_cocos2dx_extension_manual);
+    // se->addRegisterCallback(register_all_cocos2dx_extension);
+    // se->addRegisterCallback(register_all_cocos2dx_extension_manual);
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
-    se->addRegisterCallback(register_javascript_objc_bridge);
+    // se->addRegisterCallback(register_javascript_objc_bridge);
 #endif
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-    se->addRegisterCallback(register_javascript_java_bridge);
+    // se->addRegisterCallback(register_javascript_java_bridge);
 #endif
 
     // run_boot_script has to be at last.

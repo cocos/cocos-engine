@@ -32,7 +32,6 @@
 #import <Foundation/Foundation.h>
 #import <OpenGLES/EAGL.h>
 
-#import "base/CCDirector.h"
 #import "platform/ios/CCEAGLView-ios.h"
 
 static id s_sharedDirectorCaller;
@@ -130,14 +129,14 @@ static id s_sharedDirectorCaller;
 
 -(void) doCaller: (id) sender
 {
-    cocos2d::Director* director = cocos2d::Director::getInstance();
-    if (isAppActive && director) {
-        //引擎是在下一帧才做结束的清理，而runtime版本在下一帧时EAGLView已经从superview移除
-        if (!director->isPurgeDirectorInNextLoop() && director->getOpenGLView()) {
-            [EAGLContext setCurrentContext: [(CCEAGLView*)director->getOpenGLView()->getEAGLView() context]];
-        }
-        director->mainLoop();
-    }
+//    cocos2d::Director* director = cocos2d::Director::getInstance();
+//    if (isAppActive && director) {
+//        //引擎是在下一帧才做结束的清理，而runtime版本在下一帧时EAGLView已经从superview移除
+//        if (!director->isPurgeDirectorInNextLoop() && director->getOpenGLView()) {
+//            [EAGLContext setCurrentContext: [(CCEAGLView*)director->getOpenGLView()->getEAGLView() context]];
+//        }
+//        director->mainLoop();
+//    }
 }
 
 @end

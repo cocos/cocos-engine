@@ -24,26 +24,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef __PLATFORM_IOS_CCGL_H__
-#define __PLATFORM_IOS_CCGL_H__
+#pragma once
 
 #include "platform/CCPlatformConfig.h"
 #if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
 
+#include <OpenGLES/ES3/gl.h>
+#include <OpenGLES/ES3/glext.h>
+
 #define glClearDepth                glClearDepthf
-#define glDeleteVertexArrays        glDeleteVertexArraysOES
-#define glGenVertexArrays           glGenVertexArraysOES
-#define glBindVertexArray           glBindVertexArrayOES
-#define glMapBuffer                 glMapBufferOES
-#define glUnmapBuffer               glUnmapBufferOES
+#define glDepthRange                glDepthRangef
+//#define glDeleteVertexArrays        glDeleteVertexArraysOES
+//#define glGenVertexArrays           glGenVertexArraysOES
+//#define glBindVertexArray           glBindVertexArrayOES
+//#define glMapBuffer                 glMapBufferOES
+//#define glUnmapBuffer               glUnmapBufferOES
+//
+//#define GL_DEPTH24_STENCIL8         GL_DEPTH24_STENCIL8_OES
+//#define GL_DEPTH_STENCIL            GL_DEPTH_STENCIL_OES
+//#define GL_WRITE_ONLY               GL_WRITE_ONLY_OES
 
-#define GL_DEPTH24_STENCIL8         GL_DEPTH24_STENCIL8_OES
-#define GL_WRITE_ONLY               GL_WRITE_ONLY_OES
-
-#include <OpenGLES/ES2/gl.h>
-#include <OpenGLES/ES2/glext.h>
+#define GL_MAX_TEXTURE_UNITS    GL_MAX_TEXTURE_IMAGE_UNITS
+#define GL_MAX_SAMPLES_APPLE    GL_MAX_SAMPLES
 
 #endif // CC_PLATFORM_IOS
-
-#endif // __PLATFORM_IOS_CCGL_H__
-
