@@ -13261,7 +13261,7 @@ module.exports = (function () {
         let model = scene._models.data[i];
   
         // filter model by view
-        if (model._cullingMask & view._cullingMask === 0) {
+        if ((model._cullingMask & view._cullingMask) === 0) {
           continue;
         }
   
