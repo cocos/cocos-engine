@@ -30,7 +30,7 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
 }
 
 require('../audio/CCAudioEngine');
-var inputManager = CC_BKGAME ? require('./platform/BKInputManager') : require('./platform/CCInputManager');
+var inputManager = CC_QQPLAY ? require('./platform/BKInputManager') : require('./platform/CCInputManager');
 
 /**
  * !#en An object to boot the game.
@@ -657,14 +657,14 @@ var game = {
             win = window,
             localCanvas, localContainer,
             isWeChatGame = cc.sys.platform === cc.sys.WECHAT_GAME,
-            isBKGame = cc.sys.platform === cc.sys.BK_GAME;
+            isQQPlay = cc.sys.platform === cc.sys.QQ_PLAY;
 
         if (isWeChatGame) {
             this.container = cc.container = localContainer = document.createElement("DIV");
             this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
             this.canvas = cc._canvas = localCanvas = canvas;
         }
-        else if (isBKGame) {
+        else if (isQQPlay) {
             this.container = cc.container = document.createElement("DIV");
             this.frame = document.documentElement;
             this.canvas = cc._canvas = localCanvas = canvas;

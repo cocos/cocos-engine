@@ -147,7 +147,7 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
         _t._openGLView = openGLView || cc.view;
 
         // Configuration. Gather GPU info
-        if (cc.sys.platform !== cc.sys.BK_GAME) {
+        if (!CC_QQPLAY) {
             var conf = cc.configuration;
             conf.gatherGPUInfo();
         }

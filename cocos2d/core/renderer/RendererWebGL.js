@@ -458,7 +458,7 @@ cc.rendererWebGL = {
                 gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, _indexData, gl.DYNAMIC_DRAW);
             }
             else {
-                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(_indexData.buffer, 0, _indexSize), gl.DYNAMIC_DRAW);
+                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, _indexData.subarray(0, _indexSize), gl.DYNAMIC_DRAW);
             }
         }
         gl.drawElements(gl.TRIANGLES, _indexSize, gl.UNSIGNED_SHORT, 0);
@@ -504,9 +504,6 @@ cc.rendererWebGL = {
             }
         }
         this._batchRendering();
-        if (CC_BKGAME) {
-            gl.glCommit();
-        }
         _batchedInfo.texture = null;
     }
 };

@@ -34,12 +34,9 @@ var TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
  *  This class manages all events of input. include: touch, mouse, accelerometer, keyboard
  */
 var bkInputManager = {
-    _mousePressed: false,
-
     _isRegisterEvent: false,
 
     _preTouchPoint: cc.p(0,0),
-    _prevMousePoint: cc.p(0,0),
 
     _preTouchPool: [],
     _preTouchPoolPointer: 0,
@@ -49,13 +46,6 @@ var bkInputManager = {
 
     _indexBitsUsed: 0,
     _maxTouches: 5,
-
-    _accelEnabled: false,
-    _accelInterval: 1/30,
-    _accelMinus: 1,
-    _accelCurTime: 0,
-    _acceleration: null,
-    _accelDeviceEvent: null,
 
     _getUnUsedIndex: function () {
         var temp = this._indexBitsUsed;
@@ -323,24 +313,6 @@ var bkInputManager = {
     },
 
     /**
-     * @method getTouchByXY
-     * @param {Vec2} location
-     * @param {Vec2} pos
-     * @param {Number} eventType
-     * @returns {Event.EventMouse}
-     */
-    getMouseEvent: function(location, pos, eventType){
-        var locPreMouse = this._prevMousePoint;
-        var mouseEvent = new cc.Event.EventMouse(eventType);
-        mouseEvent._setPrevCursor(locPreMouse.x, locPreMouse.y);
-        locPreMouse.x = location.x;
-        locPreMouse.y = location.y;
-        this._glView._convertMouseToLocationInView(locPreMouse, pos);
-        mouseEvent.setLocation(locPreMouse.x, locPreMouse.y);
-        return mouseEvent;
-    },
-
-    /**
      * @method getPointByEvent
      * @param {Touch} event
      * @param {Vec2} pos
@@ -453,18 +425,8 @@ var bkInputManager = {
     _registerKeyboardEvent: function(){},
 
     _registerAccelerometerEvent: function(){},
-
-    /**
-     * @method update
-     * @param {Number} dt
-     */
-    update:function(dt){
-        if(this._accelCurTime > this._accelInterval){
-            this._accelCurTime -= this._accelInterval;
-            eventManager.dispatchEvent(new cc.Event.EventAcceleration(this._acceleration));
-        }
-        this._accelCurTime += dt;
-    }
 };
 
-module.exports = BK.inputManager = bkInputManager;
+if (CC_QQPLAY) {
+    module.exports = BK.inputManager = bkInputManager;
+}

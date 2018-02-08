@@ -804,7 +804,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha);
             if (
                 sys.platform === sys.WECHAT_GAME ||
-                sys.platform === sys.BK_GAME ||
+                sys.platform === sys.QQ_PLAY ||
                 img instanceof HTMLCanvasElement ||
                 img instanceof HTMLImageElement ||
                 img instanceof HTMLVideoElement

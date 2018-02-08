@@ -334,7 +334,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
         var bb = cc.rect(0,0, this._contentSize.width, this._contentSize.height);
         var hitted = cc.rectContainsPoint(bb, this.convertToNodeSpace(touchPoint));
         if(hitted) {
-            if (sys.platform === sys.BK_GAME) {
+            if (sys.platform === sys.QQ_PLAY) {
                 this._renderCmd._showBKKeyboard();
             }
             return true;
@@ -1069,7 +1069,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
     proto._showLabels = function () {
         this._hiddenLabels();
-        var text = sys.platform === sys.WECHAT_GAME || sys.platform === sys.BK_GAME ? this._editBox._text : this._edTxt.value;
+        var text = sys.platform === sys.WECHAT_GAME || sys.platform === sys.QQ_PLAY ? this._editBox._text : this._edTxt.value;
         if (text === '') {
             if(this._placeholderLabel) {
                 this._placeholderLabel.setVisible(true);
@@ -1090,7 +1090,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         if (sys.platform === sys.WECHAT_GAME) {
             this._edTxt.focus();
         }
-        else if (!self._editBox._alwaysOnTop && sys.platform !== sys.BK_GAME) {
+        else if (!self._editBox._alwaysOnTop && sys.platform !== sys.QQ_PLAY) {
             if (self._edTxt.style.display === 'none') {
                 self._edTxt.style.display = '';
 
@@ -1110,7 +1110,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             }
         }
 
-        if (sys.isMobile && !self._editingMode && sys.platform !== sys.BK_GAME) {
+        if (sys.isMobile && !self._editingMode && sys.platform !== sys.QQ_PLAY) {
             // Pre adaptation and
             self._beginEditingOnMobile(self._editBox);
         }
@@ -1118,12 +1118,12 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto._endEditing = function() {
-        if (!this._editBox._alwaysOnTop && sys.platform !== sys.BK_GAME) {
+        if (!this._editBox._alwaysOnTop && sys.platform !== sys.QQ_PLAY) {
             this._edTxt.style.display = 'none';
         }
         this._showLabels();
         if (sys.platform !== sys.WECHAT_GAME &&
-            sys.platform !== sys.BK_GAME && sys.isMobile && this._editingMode) {
+            sys.platform !== sys.QQ_PLAY && sys.isMobile && this._editingMode) {
             var self = this;
             // Delay end editing adaptation to ensure virtual keyboard is disapeared
             setTimeout(function () {
@@ -1235,7 +1235,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         if (sys.platform === sys.WECHAT_GAME) {
             this._createWXInput(inputMode === InputMode.ANY);
         }
-        else if (sys.platform === sys.BK_GAME) {
+        else if (sys.platform === sys.QQ_PLAY) {
             this._createBKInput(inputMode === InputMode.ANY);
         }
         else if (inputMode === InputMode.ANY) {

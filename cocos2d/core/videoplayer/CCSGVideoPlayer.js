@@ -222,7 +222,7 @@ _ccsg.VideoPlayer.EventType = {
          * so it is best to provide mp4 and webm or ogv file
          */
         var dom = document.createElement("video");
-        if (sys.platform !== sys.WECHAT_GAME && sys.platform !== sys.BK_GAME) {
+        if (sys.platform !== sys.WECHAT_GAME && sys.platform !== sys.QQ_PLAY) {
             if(dom.canPlayType("video/ogg")){
                 video._polyfill.canPlayType.push(".ogg");
                 video._polyfill.canPlayType.push(".ogv");

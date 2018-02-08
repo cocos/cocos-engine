@@ -1,7 +1,7 @@
 
 if (!CC_JSB) {
     window.b2 = require('../../../external/box2d/box2d');
-    if (CC_BKGAME) {
+    if (CC_QQPLAY) {
         b2 = window.b2;
     }
 }
