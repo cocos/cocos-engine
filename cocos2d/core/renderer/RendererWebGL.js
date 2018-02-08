@@ -441,7 +441,7 @@ cc.rendererWebGL = {
             gl.bufferData(gl.ARRAY_BUFFER, _vertexDataF32, gl.DYNAMIC_DRAW);
         }
         else {
-            var view = new Float32Array(_vertexDataF32.buffer, 0, _batchingSize * _sizePerVertex);
+            var view = _vertexDataF32.subarray(0, _batchingSize * _sizePerVertex);
             gl.bufferData(gl.ARRAY_BUFFER, view, gl.DYNAMIC_DRAW);
         }
 
