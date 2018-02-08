@@ -31,12 +31,13 @@ const mat4 = cc.vmath.mat4;
 const vec2 = cc.vmath.vec2;
 const vec3 = cc.vmath.vec3;
 
-let _static_viewID = 0;
+let _static_culling_mask = 1;
 
 let _mat4_temp = mat4.create();
-let _vec3_temp = vec3.create();
+let _vec3_temp_1 = vec3.create();
+let _vec3_temp_2 = vec3.create();
 
-let cameras = {};
+let _cameras = [];
 
 /**
  * !#en
@@ -53,22 +54,27 @@ let Camera = cc.Class({
     extends: cc.Component,
     
     ctor () {
-        camera = new renderEngine.Camera({
-            x: 0, y: 0, w: cc.visibleRect.width, h: cc.visibleRect.height
-        });
+        let camera = new renderEngine.Camera();
 
         camera.setStages([
             'transparent'
         ]);
 
-        camera._cullingByID = true;
-        camera._id = this.viewID = _static_viewID++;
         camera.setClearFlags(0);
 
-        this._matView = camera._matView;
-        this._camera = camera;
+        this._fov = Math.PI * 60 / 180;
+        camera.setFov(this._fov);
+        camera.setNear(0.1);
+        camera.setFar(1024);
 
-        cameras[camera._id] = this;
+        let view = new renderEngine.View();
+        camera.view = view;
+        camera.dirty = true;
+
+        this.cullingMask = 1 << _static_culling_mask++;
+        camera._cullingMask = view._cullingMask = this.cullingMask;
+
+        this._camera = camera;
     },
 
     editor: CC_EDITOR && {
@@ -104,44 +110,39 @@ let Camera = cc.Class({
          */
         main: null,
 
-        cameras: cameras
+        cameras: _cameras
     },
 
+    onLoad () {
+        this._camera.setNode(this.node);
+    },
 
     onEnable () {
-        if (Camera.main) {
-            cc.errorID(8300);
-            return;
+        if (!Camera.main) {
+            Camera.main = this;
         }
-
-        Camera.main = this;
 
         let targets = this._targets;
         for (let i = 0, l = targets.length; i < l; i++) {
-            targets[i]._viewID = this.viewID;
+            targets[i]._viewID = this.cullingMask;
         }
 
-        let camera = this._camera;
-        camera._rect.w = renderer.canvas.width;
-        camera._rect.h = renderer.canvas.height;
-        camera.setViewport();
-
-        renderer.scene.addCamera(camera);
+        renderer.scene.addCamera(this._camera);
+        _cameras.push(this);
     },
 
     onDisable () {
-        if (Camera.main !== this) {
-            return;
+        if (Camera.main === this) {
+            Camera.main = null;
         }
         
-        Camera.main = null;
-
         let targets = this._targets;
         for (let i = 0, l = targets.length; i < l; i++) {
-            targets[i]._viewID = -1;
+            targets[i]._viewID = 1;
         }
 
         renderer.scene.removeCamera(this._camera);
+        cc.js.array.remove(_cameras, this);
     },
 
     /**
@@ -221,8 +222,12 @@ let Camera = cc.Class({
      */
     getCameraToWorldPoint (point, out) {
         out = out || cc.v2();
-        mat4.invert(_mat4_temp, this._matView);
-        vec2.transformMat4(out, point, _mat4_temp);
+        _vec3_temp_2.x = point.x;
+        _vec3_temp_2.y = point.y;
+        _vec3_temp_2.z = 0;
+        this._camera.screenToWorld(_vec3_temp_1, _vec3_temp_2, renderer.canvas.width, renderer.canvas.height);
+        out.x = _vec3_temp_1.x;
+        out.y = _vec3_temp_1.y;
         return out;
     },
 
@@ -270,11 +275,6 @@ let Camera = cc.Class({
         return out;
     },
 
-    getDefaultToCameraMatrix (out) {
-        mat4.invert(_mat4_temp, renderer._camera._matView);
-        mat4.mul(out, _mat4_temp, this._matView);
-    },
-
     /**
      * !#en
      * Check whether the node is in the camera.
@@ -285,51 +285,25 @@ let Camera = cc.Class({
      * @return {Boolean}
      */
     containsNode (node) {
-        return node._viewMask === this.viewID;;
+        return node._viewMask === this.viewID;
     },
 
     lateUpdate: !CC_EDITOR && function () {
         let m = this._matView;
         let visibleRect = cc.visibleRect;
         let node = this.node;
-        
+
+        this._camera.setFov(this._fov / this.zoomRatio);
+
+        node.z = renderer.canvas.height / cc.view.getScaleY() / 1.1566;
         node.getWorldMatrix(_mat4_temp);
 
-        let rotation = -(Math.atan2(_mat4_temp.m01, _mat4_temp.m00) + Math.atan2(-_mat4_temp.m04, _mat4_temp.m05)) * 0.5;
-        let a = 1, b = 0, c = 0, d = 1, tx = 0, ty = 0;
+        _vec3_temp_1.x = _mat4_temp.m12;
+        _vec3_temp_1.y = _mat4_temp.m13;
+        _vec3_temp_1.z = 0;
+        node.lookAt(_vec3_temp_1);
 
-        // rotation
-        if (rotation) {
-            c = Math.sin(rotation);
-            d = Math.cos(rotation);
-            a = d;
-            b = -c;
-        }
-
-        // scale
-        let zoomRatio = this.zoomRatio;
-        m.m00 = a = a * zoomRatio;
-        m.m01 = b = b * zoomRatio;
-        m.m04 = c = c * zoomRatio;
-        m.m05 = d = d * zoomRatio;
-
-        // move camera to center
-        let center = visibleRect.center;
-        m.m12 = center.x - (a * _mat4_temp.m12 + c * _mat4_temp.m13);
-        m.m13 = center.y - (b * _mat4_temp.m12 + d * _mat4_temp.m13);
-
-        let sx = cc.view.getScaleX();
-        let sy = cc.view.getScaleY();
-
-        _mat4_temp.m00 = m.m00 * sx;
-        _mat4_temp.m01 = m.m01 * sx;
-        _mat4_temp.m04 = m.m04 * sy;
-        _mat4_temp.m05 = m.m05 * sy;
-        _mat4_temp.m12 = m.m12 * sx;
-        _mat4_temp.m13 = m.m13 * sy;
-
-        let camera = this._camera;
-        mat4.mul(camera._matViewProj, camera._matProj, _mat4_temp);
+        this._camera.dirty = true;
     }
 });
 

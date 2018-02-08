@@ -136,7 +136,7 @@ RenderComponentWalker.prototype = {
     },
 
     _handleRender (node) {
-        if (node._viewID !== -1) {
+        if (node._viewID !== 1) {
             this._curCameraNode = node;
         }
 
@@ -144,7 +144,7 @@ RenderComponentWalker.prototype = {
             node._viewMask = this._curCameraNode._viewID;
         }
         else {
-            node._viewMask = -1;
+            node._viewMask = 1;
         }
 
         let comp = node._renderComponent;
@@ -164,7 +164,7 @@ RenderComponentWalker.prototype = {
         }
     },
 
-    _flush (vertexFormat, effect, lastByte, vertexCount, indiceCount, viewID) {
+    _flush (vertexFormat, effect, lastByte, vertexCount, indiceCount, cullingMask) {
         let vertexByte = vertexCount * vertexFormat._bytes,
             byteOffset = lastByte - vertexByte,
             vertexsData = null,
@@ -207,7 +207,7 @@ RenderComponentWalker.prototype = {
         let model = this._modelPool.add();
         this._batchedModels.push(model);
         model.sortKey = this._sortKey++;
-        model._viewID = CC_EDITOR ? -1 : viewID;
+        model._cullingMask = CC_EDITOR ? 1 : cullingMask;
         model.setNode(this._node);
         model.addEffect(effect);
         model.addInputAssembler(ia);
@@ -235,14 +235,14 @@ RenderComponentWalker.prototype = {
         _batchData.vertexOffset = 0;
         _batchData.byteOffset = 0;
         _batchData.indiceOffset = 0;
-        _batchData.viewID = -1;
+        _batchData.cullingMask = 1;
     },
 
     _checkBatchBroken (batchData, needNewBuf) {
         let vertexCount = batchData.vertexOffset - this._vOffset,
             indiceCount = batchData.indiceOffset - this._iOffset;
         if (batchData.vfmt && batchData.effect && vertexCount > 0 && indiceCount > 0) {
-            this._flush(batchData.vfmt, batchData.effect, batchData.byteOffset, vertexCount, indiceCount, batchData.viewID);
+            this._flush(batchData.vfmt, batchData.effect, batchData.byteOffset, vertexCount, indiceCount, batchData.cullingMask);
             if (needNewBuf) {
                 this._switchBuffer();
             }
@@ -296,12 +296,12 @@ RenderComponentWalker.prototype = {
                 }
                 // breaking batch
                 needNewBuf = (_batchData.vertexOffset + data.vertexCount > MAX_VERTEX) || (_batchData.indiceOffset + data.indiceCount > MAX_INDICE);
-                if (_batchData.vfmt && (_batchData.effect != effect || _batchData.viewID !== viewMask || needNewBuf)) {
+                if (_batchData.vfmt && (_batchData.effect != effect || _batchData.cullingMask !== viewMask || needNewBuf)) {
                     this._checkBatchBroken(_batchData, needNewBuf);
                     this._node = this._dummyNode;
                     _batchData.effect = effect;
                     _batchData.vfmt = comp._vertexFormat;
-                    _batchData.viewID = viewMask;
+                    _batchData.cullingMask = viewMask;
                 }
                 // Init effect
                 else if (!_batchData.effect) {
