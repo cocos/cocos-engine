@@ -25,16 +25,6 @@
  ****************************************************************************/
 
 /**
- * The current version of Cocos2d being used.<br/>
- * Please DO NOT remove this String, it is an important flag for bug tracking.<br/>
- * If you post a bug to forum, please attach this flag.
- * @property {String} ENGINE_VERSION
- */
-var engineVersion;
-engineVersion = '1.6.0';
-window['CocosEngine'] = cc.ENGINE_VERSION = engineVersion;
-
-/**
  * @property {CanvasRenderingContext2D|WebGLRenderingContext} _renderContext - main Canvas 2D/3D Context of game engine
  * @private
  */
@@ -97,12 +87,7 @@ function _determineRenderType(config) {
 
 function _afterEngineLoaded() {
     cc._engineLoaded = true;
-    if (CC_EDITOR) {
-        Editor.log(cc.ENGINE_VERSION);
-    }
-    else {
-        console.log(cc.ENGINE_VERSION);
-    }
+    console.log('Cocos Creator v' + cc.ENGINE_VERSION);
     if (_engineLoadedCallback) _engineLoadedCallback();
 }
 
