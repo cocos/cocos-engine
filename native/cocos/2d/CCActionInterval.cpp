@@ -263,6 +263,11 @@ bool Sequence::init(const Vector<FiniteTimeAction*>& arrayOfActions)
     {
         FiniteTimeAction *action = arrayOfActions.at(i);
         prev = createWithTwoActions(prev, action);
+
+        // The owner 'prev' is a pure C++ object, 'createWithTwoActions' in the previous line
+        // will not be able to find a relevant JS object associated with 'prev' object.
+        // So 'retainScriptObject' in 'initWithTwoActions' will fail to hold 'prev' object.
+        // The workaround is that we need to associate 'action' to Sequence object like the following code.
 #if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
         auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
         if (sEngine)
@@ -757,6 +762,11 @@ bool Spawn::init(const Vector<FiniteTimeAction*>& arrayOfActions)
     {
         FiniteTimeAction* action = arrayOfActions.at(i);
         prev = createWithTwoActions(prev, action);
+
+        // The owner 'prev' is a pure C++ object, 'createWithTwoActions' in the previous line
+        // will not be able to find a relevant JS object associated with 'prev' object.
+        // So 'retainScriptObject' in 'initWithTwoActions' will fail to hold 'prev' object.
+        // The workaround is that we need to associate 'action' to Spawn object like the following code.
 #if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
         auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
         if (sEngine)
@@ -800,13 +810,17 @@ bool Spawn::initWithTwoActions(FiniteTimeAction *action1, FiniteTimeAction *acti
 
         _one->retain();
         _two->retain();
-        
+
+        // NOTE: We should retainScriptObject for action1 and action2 rather than _one and _two.
+        // It's because _one & _two actions are pure C++ objects and Sequence::initWithTwoActions
+        // can't retainScriptObject for action1 and action2. action1 or action2 will be hung up
+        // and they may be garbage collected whenever, which may cause crash bug that really hard to find.
 #if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
         auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
         if (sEngine)
         {
-            sEngine->retainScriptObject(this, _one);
-            sEngine->retainScriptObject(this, _two);
+            sEngine->retainScriptObject(this, action1);
+            sEngine->retainScriptObject(this, action2);
         }
 #endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
 
