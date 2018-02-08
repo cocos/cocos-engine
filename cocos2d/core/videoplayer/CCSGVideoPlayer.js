@@ -222,7 +222,7 @@ _ccsg.VideoPlayer.EventType = {
          * so it is best to provide mp4 and webm or ogv file
          */
         var dom = document.createElement("video");
-        if (sys.platform !== sys.WECHAT_GAME) {
+        if (sys.platform !== sys.WECHAT_GAME && sys.platform !== sys.BK_GAME) {
             if(dom.canPlayType("video/ogg")){
                 video._polyfill.canPlayType.push(".ogg");
                 video._polyfill.canPlayType.push(".ogv");
@@ -245,6 +245,10 @@ _ccsg.VideoPlayer.EventType = {
     )
     ) {
         video._polyfill.zoomInvalid = true;
+    }
+
+    if (sys.platform === sys.BK_GAME) {
+        return;
     }
 
     var style = document.createElement("style");

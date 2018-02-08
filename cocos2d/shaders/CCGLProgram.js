@@ -92,6 +92,10 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
         this._glContext.compileShader(shader);
         var status = this._glContext.getShaderParameter(shader, this._glContext.COMPILE_STATUS);
 
+        if (CC_BKGAME) {
+            status = status === 1;
+        }
+
         if (!status) {
             cc.logID(8100, this._glContext.getShaderSource(shader));
             if (type === this._glContext.VERTEX_SHADER)

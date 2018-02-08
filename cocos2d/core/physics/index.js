@@ -1,6 +1,9 @@
 
 if (!CC_JSB) {
     window.b2 = require('../../../external/box2d/box2d');
+    if（CC_BKGAME）{
+        b2 = window.b2;
+    }
 }
 
 require('./CCPhysicsManager');
