@@ -44,7 +44,7 @@ PhysicsUtils.prototype.syncNode = function () {
         sgNode.setPosition(position);
 
         // sync rotation
-        node._rotationX = node._rotationY = angle;
+        node._rot.x = node._rot.y = angle;
         sgNode.rotation = angle;
     }
 };

@@ -37,7 +37,7 @@ const graphicsAssembler = require('./graphics/graphics-assembler');
 
 let _stencilMgr = StencilManager.sharedManager;
 let _color = cc.color(255, 255, 255, 0);
-// for nested mask, we might need multiply graphics component to avoid data conflict
+// for nested mask, we might need multiple graphics component to avoid data conflict
 let _graphicsPool = [];
 
 function getGraphics () {
@@ -55,26 +55,23 @@ let maskFrontAssembler = js.addon({
     updateGraphics (mask) {
         let renderData = mask._renderData;
         let graphics = mask._graphics;
-        if (renderData.vertDirty) {
-            // Share render data with graphics content
-            graphics.clear(false);
-            let width = renderData._width;
-            let height = renderData._height;
-            let x = -width * renderData._pivotX;
-            let y = -height * renderData._pivotY;
-            if (mask._type === Mask.Type.RECT) {
-                graphics.rect(x, y, width, height);
-            }
-            else if (mask._type === Mask.Type.ELLIPSE) {
-                let cx = x + width / 2,
-                    cy = y + height / 2,
-                    rx = width / 2,
-                    ry = height / 2;
-                graphics.ellipse(cx, cy, rx, ry);
-            }
-            graphics.fill();
-            renderData.vertDirty = false;
+        // Share render data with graphics content
+        graphics.clear(false);
+        let width = renderData._width;
+        let height = renderData._height;
+        let x = -width * renderData._pivotX;
+        let y = -height * renderData._pivotY;
+        if (mask._type === Mask.Type.RECT) {
+            graphics.rect(x, y, width, height);
         }
+        else if (mask._type === Mask.Type.ELLIPSE) {
+            let cx = x + width / 2,
+                cy = y + height / 2,
+                rx = width / 2,
+                ry = height / 2;
+            graphics.ellipse(cx, cy, rx, ry);
+        }
+        graphics.fill();
     },
 
     updateRenderData (mask) {

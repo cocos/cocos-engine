@@ -33,46 +33,35 @@ var MAX_POOL_SIZE = 20;
 /*
  * A list double-linked list used for "updates with priority"
  * @class ListEntry
- * @param {ListEntry} prev
- * @param {ListEntry} next
- * @param {function} callback
  * @param {Object} target not retained (retained by hashUpdateEntry)
  * @param {Number} priority
  * @param {Boolean} paused
  * @param {Boolean} markedForDeletion selector will no longer be called and entry will be removed at end of the next tick
  */
-var ListEntry = function (prev, next, callback, target, priority, paused, markedForDeletion) {
-    this.prev = prev;
-    this.next = next;
-    this.callback = callback;
+var ListEntry = function (target, priority, paused, markedForDeletion) {
     this.target = target;
     this.priority = priority;
     this.paused = paused;
     this.markedForDeletion = markedForDeletion;
-    this.isUpdate = !callback;
 };
 
 var _listEntries = [];
-ListEntry.get = function (prev, next, callback, target, priority, paused, markedForDeletion) {
+ListEntry.get = function (target, priority, paused, markedForDeletion) {
     var result = _listEntries.pop();
     if (result) {
-        result.prev = prev;
-        result.next = next;
-        result.callback = callback;
         result.target = target;
         result.priority = priority;
         result.paused = paused;
         result.markedForDeletion = markedForDeletion;
-        result.isUpdate = !callback;
     }
     else {
-        result = new ListEntry(prev, next, callback, target, priority, paused, markedForDeletion);
+        result = new ListEntry(target, priority, paused, markedForDeletion);
     }
     return result;
 };
 ListEntry.put = function (entry) {
     if (_listEntries.length < MAX_POOL_SIZE) {
-        entry.prev = entry.next = entry.callback = entry.target = null;
+        entry.target = null;
         _listEntries.push(entry);
     }
 };
@@ -402,19 +391,19 @@ cc.Scheduler = cc._Class.extend({
         for(i=0,list=this._updatesNegList, len = list.length; i<len; i++){
             entry = list[i];
             if (!entry.paused && !entry.markedForDeletion)
-                entry.isUpdate ? entry.target.update(dt) : entry.callback.call(entry.target, dt);
+                entry.target.update(dt);
         }
 
         for(i=0, list=this._updates0List, len=list.length; i<len; i++){
             entry = list[i];
             if (!entry.paused && !entry.markedForDeletion)
-                entry.isUpdate ? entry.target.update(dt) : entry.callback.call(entry.target, dt);
+                entry.target.update(dt);
         }
 
         for(i=0, list=this._updatesPosList, len=list.length; i<len; i++){
             entry = list[i];
             if (!entry.paused && !entry.markedForDeletion)
-                entry.isUpdate ? entry.target.update(dt) : entry.callback.call(entry.target, dt);
+                entry.target.update(dt);
         }
 
         // Iterate over all the custom selectors
@@ -434,10 +423,6 @@ cc.Scheduler = cc._Class.extend({
                     elt.currentTimer = null;
                 }
             }
-
-            // elt, at this moment, is still valid
-            // so it is safe to ask this here (issue #490)
-            //elt = elt.hh.next;
 
             // only delete currentTarget if no actions were scheduled during the cycle (issue #481)
             if (this._currentTargetSalvaged && this._currentTarget.timers.length === 0) {
@@ -585,17 +570,17 @@ cc.Scheduler = cc._Class.extend({
     /**
      * !#en
      * Schedules the update callback for a given target,
-     * the callback will be invoked every frame after schedule started.
+     * During every frame after schedule started, the "update" function of target will be invoked.
      * !#zh
      * 使用指定的优先级为指定的对象设置 update 定时器。
-     * update 定时器每一帧都会被触发。优先级的值越低，定时器被触发的越早。
+     * update 定时器每一帧都会被触发，触发时自动调用指定对象的 "update" 函数。
+     * 优先级的值越低，定时器被触发的越早。
      * @method scheduleUpdate
      * @param {Object} target
      * @param {Number} priority
      * @param {Boolean} paused
-     * @param {Function} updateFunc
      */
-    scheduleUpdate: function(target, priority, paused, updateFunc) {
+    scheduleUpdate: function(target, priority, paused) {
         var targetId = getTargetId(target);
         cc.assertID(targetId, 1510);
         var hashElement = this._hashForUpdates[targetId];
@@ -618,7 +603,7 @@ cc.Scheduler = cc._Class.extend({
             }
         }
 
-        var listElement = ListEntry.get(null, null, updateFunc, target, priority, paused, false);
+        var listElement = ListEntry.get(target, priority, paused, false);
         var ppList;
 
         // most of the updates are going to be 0, that's way there

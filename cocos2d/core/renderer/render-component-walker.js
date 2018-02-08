@@ -32,7 +32,6 @@ const RecyclePool = renderEngine.RecyclePool;
 const InputAssembler = renderEngine.InputAssembler;
 
 const FLOATS_PER_VERT = defaultVertexFormat._bytes / 4;
-const PER_INDEX_BYTE = 2;
 const MAX_VERTEX = macro.BATCH_VERTEX_COUNT;
 const MAX_INDICE = MAX_VERTEX * 2;
 
@@ -74,7 +73,6 @@ var RenderComponentWalker = function (device, renderScene) {
             null,
             0
         );
-        vb._data = null;
         return vb;
     }, 16);
     this._ibPool = new RecyclePool(function () {
@@ -85,7 +83,6 @@ var RenderComponentWalker = function (device, renderScene) {
             null,
             0
         );
-        ib._data = null;
         return ib;
     }, 16);
     this._iaPool = new RecyclePool(function () {
@@ -133,6 +130,9 @@ RenderComponentWalker.prototype = {
         // reset caches for handle render components
         _batchData.vfmt = null;
         _batchData.effect = null;
+
+        // reset stencil manager's cache
+        this._stencilMgr.reset();
     },
 
     _handleRender (node) {
@@ -184,14 +184,14 @@ RenderComponentWalker.prototype = {
         vb._format = vertexFormat;
         vb._numVertices = vertexCount;
         vb._bytes = vertexByte;
-        vb._data = vertexsData;
+        vb.update(0, vertexsData);
         device._stats.vb += vb._bytes;
     
         let ib = this._ibPool.add();
         device._stats.ib -= ib._bytes;
         ib._numIndices = indiceCount;
         ib._bytes = 2 * indiceCount;
-        ib._data = indicesData;
+        ib.update(0, indicesData);
         device._stats.ib += ib._bytes;
     
         let ia = this._iaPool.add();
@@ -201,7 +201,7 @@ RenderComponentWalker.prototype = {
         ia._count = indiceCount;
 
         // Check stencil state and modify pass
-        this._stencilMgr.handleEffect(effect);
+        effect = this._stencilMgr.handleEffect(effect);
         
         // Generate model
         let model = this._modelPool.add();

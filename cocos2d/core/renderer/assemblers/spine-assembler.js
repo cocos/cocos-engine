@@ -71,12 +71,12 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
     }
     let key = tex.url + src + dst;
     let material = _sharedMaterials[key];
+    let texImpl = tex.getImpl();
     if (!material) {
         material = new SpriteMaterial();
         material.useModel = true;
         // update texture
-        let renderTex = tex.getImpl();
-        material.texture = tex.getImpl();
+        material.texture = texImpl;
         // update blend function
         let pass = material._mainTech.passes[0];
         pass.setBlend(
@@ -86,6 +86,9 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
             src, dst
         );
         _sharedMaterials[key] = material;
+    }
+    else if (material.texture !== texImpl) {
+        material.texture = texImpl;
     }
     return material;
 }
@@ -266,9 +269,11 @@ var spineAssembler = js.addon({
             }
         }
         if (comp.debugBones || comp.debugSlots) {
-            let renderData = _graphics._renderData;
-            renderData.effect = _debugMaterial.effect;
-            datas.push(renderData);
+            let renderDatas = _graphics._renderDatas;
+            for (let i = 0; i < renderDatas.length; i++) {
+                renderDatas[i].effect = _debugMaterial.effect;
+                datas.push(renderDatas[i]);
+            }
         }
     },
 
@@ -280,7 +285,7 @@ var spineAssembler = js.addon({
             skeleton.update(dt);
 
             if (state) {
-                dt *= comp._timeScale;
+                dt *= comp.timeScale;
                 state.update(dt);
                 state.apply(skeleton);
             }

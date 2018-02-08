@@ -38,7 +38,7 @@ module.exports = {
         let effect = sprite.getEffect();
         if (!effect || !renderData) return;
 
-        let texture = effect.getValue('texture');
+        let texture = effect.getProperty('texture');
         let texw = texture._width,
             texh = texture._height;
         let frame = sprite.spriteFrame;
