@@ -340,6 +340,12 @@ sys.EDITOR_CORE = 103;
  * @default 104
  */
 sys.WECHAT_GAME = 104;
+/**
+ * @property {Number} QQ_PLAY
+ * @readOnly
+ * @default 105
+ */
+sys.QQ_PLAY = 105;
 
 /**
  * BROWSER_TYPE_WECHAT
@@ -355,6 +361,13 @@ sys.BROWSER_TYPE_WECHAT = "wechat";
  * @default "wechatgame"
  */
 sys.BROWSER_TYPE_WECHAT_GAME = "wechatgame";
+/**
+ * BROWSER_TYPE_QQ_PLAY
+ * @property {String} BROWSER_TYPE_QQ_PLAY
+ * @readOnly
+ * @default "qqplay"
+ */
+sys.BROWSER_TYPE_QQ_PLAY = "qqplay";
 /**
  *
  * @property {String} BROWSER_TYPE_ANDROID
@@ -500,7 +513,7 @@ sys.isNative = false;
  * Is web browser ?
  * @property {Boolean} isBrowser
  */
-sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME;
+sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY;
 
 cc.create3DContext = function (canvas, opt_attribs, opt_contextType) {
     if (opt_contextType) {
@@ -572,6 +585,40 @@ else if (CC_WECHATGAME) {
     sys.__audioSupport = { 
         ONLY_ONE: false, 
         WEB_AUDIO: false, 
+        DELAY_CREATE_CTX: false,
+        format: ['.mp3']
+    };
+}
+else if (CC_QQPLAY) {
+    sys.isMobile = true;
+    sys.platform = sys.QQ_PLAY;
+    sys.language = sys.LANGUAGE_UNKNOWN;
+    sys.os = sys.OS_UNKNOWN;
+
+    sys.osVersion = 0;
+    sys.osMainVersion = 0;
+    sys.browserType = sys.BROWSER_TYPE_QQ_PLAY;
+    sys.browserVersion = 0;
+
+    var w = 960;
+    var h = 640;
+    var ratio = 1;
+
+    sys.windowPixelResolution = {
+        width: ratio * w,
+        height: ratio * h
+    };
+
+    sys.localStorage = window.localStorage;
+
+    sys.capabilities = {
+        "canvas": false,
+        "opengl": true,
+        "webp": false
+    };
+    sys.__audioSupport = {
+        ONLY_ONE: false,
+        WEB_AUDIO: false,
         DELAY_CREATE_CTX: false,
         format: ['.mp3']
     };
@@ -667,6 +714,8 @@ else {
         var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
         if (CC_WECHATGAME)
             browserType = sys.BROWSER_TYPE_WECHAT_GAME;
+        else if (CC_QQPLAY)
+            browserType = sys.BROWSER_TYPE_QQ_PLAY;
         else if (browserType === 'micromessenger')
             browserType = sys.BROWSER_TYPE_WECHAT;
         else if (browserType === "safari" && isAndroid)

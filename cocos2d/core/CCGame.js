@@ -30,7 +30,7 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
 }
 
 require('../audio/CCAudioEngine');
-var inputManager = require('./platform/CCInputManager');
+var inputManager = CC_QQPLAY ? require('./platform/BKInputManager') : require('./platform/CCInputManager');
 
 /**
  * !#en An object to boot the game.
@@ -656,11 +656,17 @@ var game = {
         var el = this.config[game.CONFIG_KEY.id],
             win = window,
             localCanvas, localContainer,
-            isWeChatGame = cc.sys.platform === cc.sys.WECHAT_GAME;
+            isWeChatGame = cc.sys.platform === cc.sys.WECHAT_GAME,
+            isQQPlay = cc.sys.platform === cc.sys.QQ_PLAY;
 
         if (isWeChatGame) {
             this.container = cc.container = localContainer = document.createElement("DIV");
             this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
+            this.canvas = cc._canvas = localCanvas = canvas;
+        }
+        else if (isQQPlay) {
+            this.container = cc.container = document.createElement("DIV");
+            this.frame = document.documentElement;
             this.canvas = cc._canvas = localCanvas = canvas;
         }
         else {
