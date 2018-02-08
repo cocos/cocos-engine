@@ -83,6 +83,9 @@ module.exports = {
         this._camera.setNear(0.1);
         this._camera.setFar(1024);
         this._camera.setNode(this._cameraNode);
+        let view = new renderEngine.View();
+        this._camera.view = view;
+        this._camera.dirty = true;
         
         if (CC_EDITOR) {
             this._camera.setColor(0, 0, 0, 0);
@@ -112,6 +115,7 @@ module.exports = {
         node.z = zeye;
         _pos.z = 0;
         node.lookAt(_pos);
+        this._camera.dirty = true;
     },
 
     render (ecScene) {
