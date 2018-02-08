@@ -98,7 +98,8 @@ module.exports = {
     },
 
     updateCameraViewport () {
-        if (!CC_EDITOR) {
+        // TODO: remove HACK
+        if (!CC_EDITOR && cc.director) {
             var ecScene = cc.director.getScene();
             ecScene.scaleX = ecScene.scaleY = 1;
         }
@@ -114,8 +115,7 @@ module.exports = {
         node.lookAt(_pos);
     },
 
-    render () {
-        var ecScene = cc.director.getScene();
+    render (ecScene) {
         if (ecScene) {
             // walk entity component scene to generate models
             this._walker.visit(ecScene);

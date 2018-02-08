@@ -461,8 +461,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             // this._runningScene.performRecursive(_ccsg.Node.performType.onExitTransitionDidStart);
             // this._runningScene.performRecursive(_ccsg.Node.performType.onExit);
             // this._runningScene.performRecursive(_ccsg.Node.performType.cleanup);
-
-            cc.rendererWebGL.clearRenderCommands();
         }
 
         this._runningScene = null;
@@ -947,7 +945,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         // }
 
         this._runningScene = this._nextScene;
-        cc.rendererWebGL.childrenOrderDirty = true;
 
         this._nextScene = null;
         // if ((!runningIsTransition) && (this._runningScene !== null)) {
@@ -1461,7 +1458,7 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
         cc.g_NumberOfDraws = 0;
         // cc.rendererWebGL.clear();
         // cc.rendererWebGL.rendering(cc._renderContext);
-        renderer.render();
+        renderer.render(this._scene);
         this._totalFrames++;
 
         this.emit(cc.Director.EVENT_AFTER_DRAW);
@@ -1506,7 +1503,7 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
             cc.g_NumberOfDraws = 0;
             // cc.rendererWebGL.clear();
             // cc.rendererWebGL.rendering(cc._renderContext);
-            renderer.render();
+            renderer.render(this._scene);
             this._totalFrames++;
 
             this.emit(cc.Director.EVENT_AFTER_DRAW);
