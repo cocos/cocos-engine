@@ -31,4 +31,9 @@ void EventDispatch::dispatchTouchEvent(const struct TouchEvent& touch)
 {
 }
     
+void EventDispatch::dispatchTicket()
+{
+    
+}
+    
 } // end of namespace cocos2d

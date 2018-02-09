@@ -56,6 +56,7 @@ class EventDispatch
 {
 public:
     static void dispatchTouchEvent(const struct TouchEvent& touch);
+    static void dispatchTicket();
 };
     
 } // end of namespace cocos2d

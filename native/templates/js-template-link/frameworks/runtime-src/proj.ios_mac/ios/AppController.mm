@@ -25,72 +25,43 @@
 ****************************************************************************/
 
 #import "AppController.h"
-#import "cocos2d.h"
-#import "AppDelegate.h"
 #import "RootViewController.h"
-#import "platform/ios/CCEAGLView-ios.h"
-
-#import "cocos-analytics/CAAgent.h"
+#import "AppDelegate.h"
+//#import "cocos-analytics/CAAgent.h"
 
 using namespace cocos2d;
 
 @implementation AppController
 
+Application* app = nullptr;
 @synthesize window;
 
 #pragma mark -
 #pragma mark Application lifecycle
 
 // cocos2d application instance
-static AppDelegate* s_sharedApplication = nullptr;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
-    [CAAgent enableDebug:NO];
+//    [CAAgent enableDebug:NO];
 
-    if (s_sharedApplication == nullptr)
-    {
-        s_sharedApplication = new (std::nothrow) AppDelegate();
-    }
-    cocos2d::Application *app = cocos2d::Application::getInstance();
 
-    // Initialize the GLView attributes
-    app->initGLContextAttrs();
-    cocos2d::GLViewImpl::convertAttrs();
-
-    // Override point for customization after application launch.
-
-    // Add the view controller's view to the window and display.
     window = [[UIWindow alloc] initWithFrame: [[UIScreen mainScreen] bounds]];
+    
+    app = new AppDelegate();
 
-    // Use RootViewController to manage CCEAGLView
     _viewController = [[RootViewController alloc]init];
-    _viewController.wantsFullScreenLayout = YES;
-
+    _viewController.view = (UIView*)app->getView();
 
     // Set RootViewController to window
-    if ( [[UIDevice currentDevice].systemVersion floatValue] < 6.0)
-    {
-        // warning: addSubView doesn't work on iOS6
-        [window addSubview: _viewController.view];
-    }
-    else
-    {
-        // use this method on ios6
-        [window setRootViewController:_viewController];
-    }
+    [window setRootViewController:_viewController];
 
     [window makeKeyAndVisible];
 
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
-
-    // IMPORTANT: Setting the GLView should be done after creating the RootViewController
-    cocos2d::GLView *glview = cocos2d::GLViewImpl::createWithEAGLView((__bridge void *)_viewController.view);
-    cocos2d::Director::getInstance()->setOpenGLView(glview);
-
-    //run the cocos2d-x game scene
-    app->run();
-
+    
+    app->start();
+    
     return YES;
 }
 
@@ -117,33 +88,25 @@ static AppDelegate* s_sharedApplication = nullptr;
       Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
       If your application supports background execution, called instead of applicationWillTerminate: when the user quits.
     */
-    cocos2d::Application::getInstance()->applicationDidEnterBackground();
-    [CAAgent onPause];
+//    [CAAgent onPause];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
     /*
       Called as part of  transition from the background to the inactive state: here you can undo many of the changes made on entering the background.
     */
-    auto glview = (__bridge CCEAGLView*)(Director::getInstance()->getOpenGLView()->getEAGLView());
-    auto currentView = [[[[UIApplication sharedApplication] keyWindow] subviews] lastObject];
-    if (glview == currentView) {
-        cocos2d::Application::getInstance()->applicationWillEnterForeground();
-    }
-    [CAAgent onResume];
+//    auto glview = (__bridge CCEAGLView*)(Director::getInstance()->getOpenGLView()->getEAGLView());
+//    auto currentView = [[[[UIApplication sharedApplication] keyWindow] subviews] lastObject];
+//    [CAAgent onResume];
 }
 
-- (void)applicationWillTerminate:(UIApplication *)application {
-    /*
-      Called when the application is about to terminate.
-      See also applicationDidEnterBackground:.
-    */
-    if (s_sharedApplication != nullptr)
-    {
-        delete s_sharedApplication;
-        s_sharedApplication = nullptr;
-    }
-    [CAAgent onDestroy];
+- (void)applicationWillTerminate:(UIApplication *)application
+{
+    
+    delete app;
+    app = nil;
+
+//    [CAAgent onDestroy];
 }
 
 
@@ -155,16 +118,5 @@ static AppDelegate* s_sharedApplication = nullptr;
       Free up as much memory as possible by purging cached data objects that can be recreated (or reloaded from disk) later.
     */
 }
-
-
-#if __has_feature(objc_arc)
-#else
-- (void)dealloc {
-    [window release];
-    [_viewController release];
-    [super dealloc];
-}
-#endif
-
 
 @end
