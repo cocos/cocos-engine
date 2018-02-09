@@ -33,8 +33,6 @@ const EventListeners = require('./event/event-listeners');
 const renderer = require('./renderer');
 const eventManager = require('./event-manager');
 
-cc.g_NumberOfDraws = 0;
-
 //----------------------------------------------------------------------------------------------------------------------
 
 /**
@@ -110,38 +108,23 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         var self = this;
         EventTarget.call(self);
 
-        self._landscape = false;
-        self._nextDeltaTimeZero = false;
         // paused?
         self._paused = false;
         // purge?
         self._purgeDirectorInNextLoop = false;
-        self._sendCleanupToScene = false;
         self._animationInterval = 0.0;
         self._oldAnimationInterval = 0.0;
-        self._projection = 0;
-        // projection delegate if "Custom" projection is used
-        self._projectionDelegate = null;
-        self._contentScaleFactor = 1.0;
 
         self._winSizeInPoints = null;
 
-        self._openGLView = null;
         // scenes
-        self._scenesStack = null;
-        self._nextScene = null;
         self._loadingScene = '';
-        self._runningScene = null;    // The root of rendering scene graph
-
-        // The entity-component scene
         self._scene = null;
 
         // FPS
         self._totalFrames = 0;
         self._lastUpdate = Date.now();
         self._deltaTime = 0.0;
-
-        self._dirtyRegion = null;
 
         // Scheduler for user registration update
         self._scheduler = null;
@@ -159,18 +142,12 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
     init: function () {
         this._oldAnimationInterval = this._animationInterval = 1.0 / cc.defaultFPS;
-        this._scenesStack = [];
-        // Set default projection (3D)
-        this._projection = cc.Director.PROJECTION_DEFAULT;
 
-        this._projectionDelegate = null;
         this._totalFrames = 0;
         this._lastUpdate = Date.now();
         this._paused = false;
         this._purgeDirectorInNextLoop = false;
         this._winSizeInPoints = cc.size(0, 0);
-        this._openGLView = null;
-        this._contentScaleFactor = 1.0;
         this._scheduler = new cc.Scheduler();
 
         if (cc.ActionManager) {
@@ -238,19 +215,14 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     calculateDeltaTime: function () {
         var now = Date.now();
 
-        if (this._nextDeltaTimeZero) {
-            this._deltaTime = 0;
-            this._nextDeltaTimeZero = false;
-        } else {
-            this._deltaTime = (now - this._lastUpdate) / 1000;
-            if ((cc.game.config[cc.game.CONFIG_KEY.debugMode] > 0) && (this._deltaTime > 1))
-                this._deltaTime = 1 / 60.0;
-        }
+        this._deltaTime = (now - this._lastUpdate) / 1000;
+        if ((cc.game.config[cc.game.CONFIG_KEY.debugMode] > 0) && (this._deltaTime > 1))
+            this._deltaTime = 1 / 60.0;
 
         this._lastUpdate = now;
     },
 
-    /*
+    /**
      * !#en
      * Converts a view coordinate to an WebGL coordinate<br/>
      * Useful to convert (multi) touches coordinates to the current layout (portrait or landscape)<br/>
@@ -259,6 +231,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * @method convertToGL
      * @param {Vec2} uiPoint
      * @return {Vec2}
+     * @deprecated
      */
     convertToGL: function (uiPoint) {
         var container = cc.game.container;
@@ -280,6 +253,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * @method convertToUI
      * @param {Vec2} glPoint
      * @return {Vec2}
+     * @deprecated
      */
     convertToUI: function (glPoint) {
         var container = cc.game.container;
@@ -299,41 +273,12 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         return uiPoint;
     },
 
-    _visitScene: function () {
-        if (this._runningScene) {
-            var renderer = cc.rendererWebGL;
-            if (renderer.childrenOrderDirty) {
-                // update the whole scene
-                renderer.clearRenderCommands();
-                cc.rendererWebGL.assignedZ = 0;
-                this._runningScene._renderCmd._curLevel = 0; //level start from 0;
-                this._runningScene.visit();
-                renderer.resetFlag();
-            }
-            else if (renderer.transformDirty()) {
-                // only need to update transformPool
-                renderer.transform();
-            }
-        }
-    },
-
     /**
      * End the life of director in the next frame
+     * @method end
      */
     end: function () {
         this._purgeDirectorInNextLoop = true;
-    },
-
-    /*
-     * !#en
-     * Returns the size in pixels of the surface. It could be different than the screen size.<br/>
-     * High-res devices might have a higher surface size than the screen size.
-     * !#zh 获取内容缩放比例。
-     * @method getContentScaleFactor
-     * @return {Number}
-     */
-    getContentScaleFactor: function () {
-        return this._contentScaleFactor;
     },
 
     /**
@@ -362,19 +307,16 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * @deprecated
      */
     getWinSizeInPixels: function () {
-        return cc.size(this._winSizeInPoints.width * this._contentScaleFactor, this._winSizeInPoints.height * this._contentScaleFactor);
+        return cc.size(this._winSizeInPoints.width, this._winSizeInPoints.height);
     },
-
-    /**
-     * getVisibleSize/getVisibleOrigin move to CCDirectorWebGL/CCDirectorCanvas
-     * getZEye move to CCDirectorWebGL
-     */
 
     /**
      * !#en Returns the visible size of the running scene.
      * !#zh 获取运行场景的可见大小。
      * @method getVisibleSize
+     * @see cc.visibleRect
      * @return {Size}
+     * @deprecated
      */
     getVisibleSize: null,
 
@@ -382,17 +324,11 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * !#en Returns the visible origin of the running scene.
      * !#zh 获取视图在游戏内容中的坐标原点。
      * @method getVisibleOrigin
+     * @see cc.visibleRect
      * @return {Vec2}
+     * @deprecated
      */
     getVisibleOrigin: null,
-
-    /*
-     * !#en Returns the z eye, only available in WebGL mode.
-     * !#zh 获取 Z eye，只有在WebGL的模式下可用。
-     * @method getZEye
-     * @return {Number}
-     */
-    getZEye: null,
 
     /**
      * !#en Pause the director's ticker, only involve the game logic execution.
@@ -414,27 +350,54 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /*
+     * !#en
+     * Suspends the execution of the running scene, pushing it on the stack of suspended scenes.<br/>
+     * The new scene will be executed.<br/>
+     * Try to avoid big stacks of pushed scenes to reduce memory allocation.<br/>
+     * ONLY call it if there is a running scene.
+     * !#zh
+     * 暂停当前运行的场景，压入到暂停的场景栈中。<br/>
+     * 新场景将被执行。 <br/>
+     * 尽量避免压入大场景，以减少内存分配。 <br/>
+     * 只能在有运行场景时调用它。
+     * @method pushScene
+     * @param {Scene} scene
+     * @deprecated
+     */
+    pushScene: function (scene) {
+    },
+
+    /*
      * Pops out a scene from the queue.<br/>
      * This scene will replace the running one.<br/>
      * The running scene will be deleted. If there are no more scenes in the stack the execution is terminated.<br/>
      * ONLY call it if there is a running scene.
+     * @deprecated
      */
     popScene: function () {
-        cc.assertID(this._runningScene, 1204);
-
-        this._scenesStack.pop();
-        var c = this._scenesStack.length;
-
-        if (c === 0)
-            this.end();
-        else {
-            this._sendCleanupToScene = true;
-            this._nextScene = this._scenesStack[c - 1];
-        }
     },
 
     /**
+     * Pops out all scenes from the queue until the root scene in the queue. <br/>
+     * This scene will replace the running one.  <br/>
+     * Internally it will call "popToSceneStackLevel(1)".
+     * @deprecated
+     */
+    popToRootScene: function () {},
+
+    /**
+     * Pops out all scenes from the queue until it reaches "level".                             <br/>
+     * If level is 0, it will end the director.                                                 <br/>
+     * If level is 1, it will pop all scenes until it reaches to root scene.                    <br/>
+     * If level is <= than the current stack level, it won't do anything.
+     * @param {Number} level
+     * @deprecated
+     */
+    popToSceneStackLevel: function (level) {},
+
+    /**
      * Removes cached all cocos2d cached data.
+     * @deprecated
      */
     purgeCachedData: function () {
         cc.loader.releaseAll();
@@ -454,21 +417,9 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         if (eventManager)
             eventManager.setEnabled(false);
 
-        // don't release the event handlers
-        // They are needed in case the director is run again
+        cc.renderer.clear();
 
-        if (this._runningScene) {
-            // this._runningScene.performRecursive(_ccsg.Node.performType.onExitTransitionDidStart);
-            // this._runningScene.performRecursive(_ccsg.Node.performType.onExit);
-            // this._runningScene.performRecursive(_ccsg.Node.performType.cleanup);
-        }
-
-        this._runningScene = null;
-        this._nextScene = null;
-
-        // remove all objects, but don't release it.
-        // runScene might be executed after 'end'.
-        this._scenesStack.length = 0;
+        this._scene = null;
 
         this.stopAnimation();
 
@@ -511,30 +462,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         this.startAnimation();
     },
 
-    /*
-     * !#en
-     * Suspends the execution of the running scene, pushing it on the stack of suspended scenes.<br/>
-     * The new scene will be executed.<br/>
-     * Try to avoid big stacks of pushed scenes to reduce memory allocation.<br/>
-     * ONLY call it if there is a running scene.
-     * !#zh
-     * 暂停当前运行的场景，压入到暂停的场景栈中。<br/>
-     * 新场景将被执行。 <br/>
-     * 尽量避免压入大场景，以减少内存分配。 <br/>
-     * 只能在有运行场景时调用它。
-     * @method pushScene
-     * @param {Scene} scene
-     */
-    pushScene: function (scene) {
-
-        cc.assertID(scene, 1205);
-
-        this._sendCleanupToScene = false;
-
-        this._scenesStack.push(scene);
-        this._nextScene = scene;
-    },
-
     /**
      * !#en
      * Run a scene. Replaces the running scene with a new one or enter the first scene.<br/>
@@ -546,11 +473,11 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * @param {Function} [onLaunched] - The function invoked at the scene after launch.
      */
     runSceneImmediate: function (scene, onBeforeLoadScene, onLaunched) {
-        if (scene instanceof cc.Scene) {
-            CC_BUILD && CC_DEBUG && console.time('InitScene');
-            scene._load();  // ensure scene initialized
-            CC_BUILD && CC_DEBUG && console.timeEnd('InitScene');
-        }
+        cc.assertID(scene instanceof cc.Scene, 1216);
+
+        CC_BUILD && CC_DEBUG && console.time('InitScene');
+        scene._load();  // ensure scene initialized
+        CC_BUILD && CC_DEBUG && console.timeEnd('InitScene');
 
         // detach persist nodes
         var game = cc.game;
@@ -592,52 +519,34 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         this.emit(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
 
         // Run an Entity Scene
-        if (scene instanceof cc.Scene) {
-            this._scene = scene;
+        this._scene = scene;
 
-            // Re-attach or replace persist nodes
-            CC_BUILD && CC_DEBUG && console.time('AttachPersist');
-            for (let i = 0; i < persistNodeList.length; i++) {
-                let node = persistNodeList[i];
-                var existNode = scene.getChildByUuid(node.uuid);
-                if (existNode) {
-                    // scene also contains the persist node, select the old one
-                    var index = existNode.getSiblingIndex();
-                    existNode._destroyImmediate();
-                    scene.insertChild(node, index);
-                }
-                else {
-                    node.parent = scene;
-                }
+        // Re-attach or replace persist nodes
+        CC_BUILD && CC_DEBUG && console.time('AttachPersist');
+        for (let i = 0; i < persistNodeList.length; i++) {
+            let node = persistNodeList[i];
+            var existNode = scene.getChildByUuid(node.uuid);
+            if (existNode) {
+                // scene also contains the persist node, select the old one
+                var index = existNode.getSiblingIndex();
+                existNode._destroyImmediate();
+                scene.insertChild(node, index);
             }
-            CC_BUILD && CC_DEBUG && console.timeEnd('AttachPersist');
-            CC_BUILD && CC_DEBUG && console.time('Activate');
-            scene._activate();
-            CC_BUILD && CC_DEBUG && console.timeEnd('Activate');
+            else {
+                node.parent = scene;
+            }
         }
+        CC_BUILD && CC_DEBUG && console.timeEnd('AttachPersist');
+        CC_BUILD && CC_DEBUG && console.time('Activate');
+        scene._activate();
+        CC_BUILD && CC_DEBUG && console.timeEnd('Activate');
 
-        // Run or replace rendering scene
-        if ( !this._runningScene ) {
-            //start scene
-            this.pushScene(scene);
-            this.startAnimation();
-        }
-        else {
-            //replace scene
-            var i = this._scenesStack.length;
-            this._scenesStack[Math.max(i - 1, 0)] = scene;
-            this._sendCleanupToScene = true;
-            this._nextScene = scene;
-        }
-
-        if (this._nextScene) {
-            this.setNextScene();
-        }
+        //start scene
+        this.startAnimation();
 
         if (onLaunched) {
             onLaunched(null, scene);
         }
-        //cc.renderer.clear();
         this.emit(cc.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
     },
 
@@ -654,10 +563,10 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      */
     runScene: function (scene, onBeforeLoadScene, onLaunched) {
         cc.assertID(scene, 1205);
-        if (scene instanceof cc.Scene) {
-            // ensure scene initialized
-            scene._load();
-        }
+        cc.assertID(scene instanceof cc.Scene, 1216);
+
+        // ensure scene initialized
+        scene._load();
 
         // Delay run / replace scene to the end of the frame
         this.once(cc.Director.EVENT_AFTER_UPDATE, function () {
@@ -865,17 +774,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * The size in pixels of the surface. It could be different than the screen size.<br/>
-     * High-res devices might have a higher surface size than the screen size.
-     * @param {Number} scaleFactor
-     */
-    setContentScaleFactor: function (scaleFactor) {
-        if (scaleFactor !== this._contentScaleFactor) {
-            this._contentScaleFactor = scaleFactor;
-        }
-    },
-
-    /**
      * !#en
      * Enables or disables WebGL depth test.<br/>
      * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js
@@ -884,7 +782,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * @param {Boolean} on
      * @deprecated
      */
-    setDepthTest: null,
+    setDepthTest: function () {},
 
     /**
      * !#en
@@ -905,79 +803,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             clearColor.a / 255
         );
     },
-    /**
-     * Sets the default values based on the CCConfiguration info
-     */
-    setDefaultValues: function () {
-
-    },
-
-    /**
-     * Sets whether next delta time equals to zero
-     * @param {Boolean} nextDeltaTimeZero
-     */
-    setNextDeltaTimeZero: function (nextDeltaTimeZero) {
-        this._nextDeltaTimeZero = nextDeltaTimeZero;
-    },
-
-    /**
-     * Starts the registered next scene
-     */
-    setNextScene: function () {
-        // var runningIsTransition = false, newIsTransition = false;
-        // if (cc.TransitionScene) {
-        //     runningIsTransition = this._runningScene ? this._runningScene instanceof cc.TransitionScene : false;
-        //     newIsTransition = this._nextScene ? this._nextScene instanceof cc.TransitionScene : false;
-        // }
-
-        // // If it is not a transition, call onExit/cleanup
-        // if (!newIsTransition) {
-        //     var locRunningScene = this._runningScene;
-        //     if (locRunningScene) {
-        //         locRunningScene.performRecursive(_ccsg.Node.performType.onExitTransitionDidStart);
-        //         locRunningScene.performRecursive(_ccsg.Node.performType.onExit);
-        //     }
-
-        //     // issue #709. the root node (scene) should receive the cleanup message too
-        //     // otherwise it might be leaked.
-        //     if (this._sendCleanupToScene && locRunningScene)
-        //         locRunningScene.performRecursive(_ccsg.Node.performType.cleanup);
-        // }
-
-        this._runningScene = this._nextScene;
-
-        this._nextScene = null;
-        // if ((!runningIsTransition) && (this._runningScene !== null)) {
-        //     this._runningScene.performRecursive(_ccsg.Node.performType.onEnter);
-        //     this._runningScene.performRecursive(_ccsg.Node.performType.onEnterTransitionDidFinish);
-        // }
-    },
-
-    /**
-     * Returns the cc.director delegate.
-     * @return {cc.DirectorDelegate}
-     */
-    getDelegate: function () {
-        return this._projectionDelegate;
-    },
-
-    /**
-     * Sets the cc.director delegate. It shall implement the CCDirectorDelegate protocol
-     * @return {cc.DirectorDelegate}
-     */
-    setDelegate: function (delegate) {
-        this._projectionDelegate = delegate;
-    },
-
-    /*
-     * !#en
-     * Sets the view, where everything is rendered, do not call this function.<br/>
-     * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js.
-     * !#zh 设置 GLView。
-     * @method setOpenGLView
-     * @param {View} openGLView
-     */
-    setOpenGLView: null,
 
     /**
      * !#en
@@ -985,65 +810,20 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js.
      * !#zh 设置 OpenGL 投影。
      * @method setProjection
-     * @param {Number} projection
+     * @param {Number}
+     * @deprecated
      */
-    setProjection: null,
+    setProjection: function () {},
 
     /**
      * !#en
-     * Update the view port.<br/>
-     * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js.
-     * !#zh 设置视窗（请不要主动调用这个接口，除非你知道你在做什么）。
-     * @method setViewport
-     */
-    setViewport: null,
-
-    /*
-     * !#en
-     * Get the View, where everything is rendered.<br/>
-     * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js.
-     * !#zh
-     * 获取 GLView。
-     * @method getOpenGLView
-     * @return {View}
-     */
-    getOpenGLView: null,
-
-    /**
-     * !#en
-     * Sets an OpenGL projection.<br/>
-     * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js.
+     * Gets an OpenGL projection.
      * !#zh 获取 OpenGL 投影。
      * @method getProjection
      * @return {Number}
+     * @deprecated
      */
-    getProjection: null,
-
-    /**
-     * !#en
-     * Enables/disables OpenGL alpha blending.<br/>
-     * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js.
-     * !#zh 启用/禁用 透明度融合。
-     * @method setAlphaBlending
-     * @param {Boolean} on
-     */
-    setAlphaBlending: null,
-
-    /**
-     * !#en
-     * Returns whether or not the replaced scene will receive the cleanup message.<br/>
-     * If the new scene is pushed, then the old scene won't receive the "cleanup" message.<br/>
-     * If the new scene replaces the old one, the it will receive the "cleanup" message.
-     * !#zh
-     * 更换场景时是否接收清理消息。<br>
-     * 如果新场景是采用 push 方式进入的，那么旧的场景将不会接收到 “cleanup” 消息。<br/>
-     * 如果新场景取代旧的场景，它将会接收到 “cleanup” 消息。</br>
-     * @method isSendCleanupToScene
-     * @return {Boolean}
-     */
-    isSendCleanupToScene: function () {
-        return this._sendCleanupToScene;
-    },
+    getProjection: function () {},
 
     /**
      * !#en
@@ -1053,9 +833,10 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * @method getRunningScene
      * @private
      * @return {Scene}
+     * @deprecated
      */
     getRunningScene: function () {
-        return this._runningScene;
+        return null;
     },
 
     /**
@@ -1082,6 +863,26 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
+     * !#en Returns the delta time since last frame.
+     * !#zh 获取上一帧的 “delta time”。
+     * @method getDeltaTime
+     * @return {Number}
+     */
+    getDeltaTime: function () {
+        return this._deltaTime;
+    },
+
+    /**
+     * !#en Returns how many frames were called since the director started.
+     * !#zh 获取 director 启动以来游戏运行的总帧数。
+     * @method getTotalFrames
+     * @return {Number}
+     */
+    getTotalFrames: function () {
+        return this._totalFrames;
+    },
+
+    /**
      * !#en Returns whether or not to display the FPS informations.
      * !#zh 获取是否显示 FPS 信息。
      * @method isDisplayStats
@@ -1105,16 +906,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * !#en Returns whether next delta time equals to zero.
-     * !#zh 返回下一个 “delta time” 是否等于零。
-     * @method isNextDeltaTimeZero
-     * @return {Boolean}
-     */
-    isNextDeltaTimeZero: function () {
-        return this._nextDeltaTimeZero;
-    },
-
-    /**
      * !#en Returns whether or not the Director is paused.
      * !#zh 是否处于暂停状态。
      * @method isPaused
@@ -1122,60 +913,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      */
     isPaused: function () {
         return this._paused;
-    },
-
-    /**
-     * !#en Returns how many frames were called since the director started.
-     * !#zh 获取 director 启动以来游戏运行的总帧数。
-     * @method getTotalFrames
-     * @return {Number}
-     */
-    getTotalFrames: function () {
-        return this._totalFrames;
-    },
-
-    /**
-     * Pops out all scenes from the queue until the root scene in the queue. <br/>
-     * This scene will replace the running one.  <br/>
-     * Internally it will call "popToSceneStackLevel(1)".
-     */
-    popToRootScene: function () {
-        this.popToSceneStackLevel(1);
-    },
-
-    /**
-     * Pops out all scenes from the queue until it reaches "level".                             <br/>
-     * If level is 0, it will end the director.                                                 <br/>
-     * If level is 1, it will pop all scenes until it reaches to root scene.                    <br/>
-     * If level is <= than the current stack level, it won't do anything.
-     * @param {Number} level
-     */
-    popToSceneStackLevel: function (level) {
-        cc.assertID(this._runningScene, 1203);
-
-        var locScenesStack = this._scenesStack;
-        var c = locScenesStack.length;
-
-        if (c === 0) {
-            this.end();
-            return;
-        }
-        // current level or lower -> nothing
-        if (level > c)
-            return;
-
-        // pop stack until reaching desired level
-        while (c > level) {
-            var current = locScenesStack.pop();
-            // if (current.running) {
-            //     current.performRecursive(_ccsg.Node.performType.onExitTransitionDidStart);
-            //     current.performRecursive(_ccsg.Node.performType.onExit);
-            // }
-            // current.performRecursive(_ccsg.Node.performType.cleanup);
-            c--;
-        }
-        this._nextScene = locScenesStack[locScenesStack.length - 1];
-        this._sendCleanupToScene = true;
     },
 
     /**
@@ -1252,16 +989,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     getPhysicsManager: function () {
         return this._physicsManager;
     },
-
-    /**
-     * !#en Returns the delta time since last frame.
-     * !#zh 获取上一帧的 “delta time”。
-     * @method getDeltaTime
-     * @return {Number}
-     */
-    getDeltaTime: function () {
-        return this._deltaTime;
-    },
 });
 
 // Event target
@@ -1270,19 +997,10 @@ cc.js.addon(cc.Director.prototype, EventTarget.prototype);
 /**
  * !#en The event projection changed of cc.Director.
  * !#zh cc.Director 投影变化的事件。
- * @event cc.Director.EVENT_PROJECTION_CHANGED
- * @param {Event.EventCustom} event
- * @example
- *   cc.director.on(cc.Director.EVENT_PROJECTION_CHANGED, function(event) {
- *      cc.log("Projection changed.");
- *   });
- */
-/**
- * !#en The event projection changed of cc.Director.
- * !#zh cc.Director 投影变化的事件。
  * @property {String} EVENT_PROJECTION_CHANGED
  * @readonly
  * @static
+ * @deprecated
  */
 cc.Director.EVENT_PROJECTION_CHANGED = "director_projection_changed";
 
@@ -1426,8 +1144,8 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
      * Starts Animation
      */
     startAnimation: function () {
-        this._nextDeltaTimeZero = true;
         this.invalid = false;
+        this._lastUpdate = Date.now();
     },
 
     /**
@@ -1451,13 +1169,9 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
 
         this.emit(cc.Director.EVENT_BEFORE_VISIT);
         // update the scene
-        // this._visitScene();
         this.emit(cc.Director.EVENT_AFTER_VISIT);
 
         // Render
-        cc.g_NumberOfDraws = 0;
-        // cc.rendererWebGL.clear();
-        // cc.rendererWebGL.rendering(cc._renderContext);
         renderer.render(this._scene);
         this._totalFrames++;
 
@@ -1487,22 +1201,11 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
                 // Destroy entities that have been removed recently
                 cc.Object._deferredDestroy();
             }
-
-            /* to avoid flickr, nextScene MUST be here: after tick and before draw.
-             XXX: Which bug is this one. It seems that it can't be reproduced with v0.9 */
-            if (this._nextScene) {
-                this.setNextScene();
-            }
-
             this.emit(cc.Director.EVENT_BEFORE_VISIT);
             // update the scene
-            // this._visitScene();
             this.emit(cc.Director.EVENT_AFTER_VISIT);
 
             // Render
-            cc.g_NumberOfDraws = 0;
-            // cc.rendererWebGL.clear();
-            // cc.rendererWebGL.rendering(cc._renderContext);
             renderer.render(this._scene);
             this._totalFrames++;
 
@@ -1561,12 +1264,6 @@ cc.Director._getInstance = function () {
     return cc.Director.sharedDirector;
 };
 
-/**
- * Default fps is 60
- * @type {Number}
- */
-cc.defaultFPS = 60;
-
 //Possible OpenGL projections used by director
 
 /**
@@ -1575,6 +1272,7 @@ cc.defaultFPS = 60;
  * @default 0
  * @readonly
  * @static
+ * @deprecated
  */
 cc.Director.PROJECTION_2D = 0;
 
@@ -1584,6 +1282,7 @@ cc.Director.PROJECTION_2D = 0;
  * @default 1
  * @readonly
  * @static
+ * @deprecated
  */
 cc.Director.PROJECTION_3D = 1;
 
@@ -1593,6 +1292,7 @@ cc.Director.PROJECTION_3D = 1;
  * @default 3
  * @readonly
  * @static
+ * @deprecated
  */
 cc.Director.PROJECTION_CUSTOM = 3;
 
@@ -1602,5 +1302,6 @@ cc.Director.PROJECTION_CUSTOM = 3;
  * @default cc.Director.PROJECTION_2D
  * @readonly
  * @static
+ * @deprecated
  */
 cc.Director.PROJECTION_DEFAULT = cc.Director.PROJECTION_2D;

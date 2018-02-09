@@ -2017,18 +2017,6 @@ cc.nodeDrawSetup = function (node) {
 // };
 
 /**
- * <p>
- *  Increments the GL Draws counts by one.<br/>
- *  The number of calls per frame are displayed on the screen when the CCDirector's stats are enabled.<br/>
- * </p>
- * @param {Number} addNumber
- * @method incrementGLDraws
- */
-cc.incrementGLDraws = function (addNumber) {
-    cc.g_NumberOfDraws += addNumber;
-};
-
-/**
  * Check webgl error.Error will be shown in console if exists.
  * @method checkGLErrorDebug
  */

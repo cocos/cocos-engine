@@ -25,6 +25,7 @@
 
 var PStats = require('../../../external/pstats/pstats');
 var macro = require('../platform/CCMacro');
+var renderer = require('../renderer');
 
 var _fps = document.createElement('div');
 _fps.id = 'fps';
@@ -50,7 +51,7 @@ function afterVisit () {
 
 function afterDraw () {
     stats('render').end();
-    stats('draws').value = cc.g_NumberOfDraws;
+    stats('draws').value = renderer.drawCalls;
     stats('frame').end();
     stats('fps').frame();
     stats().tick();

@@ -54,6 +54,7 @@ if (CC_DEBUG) {
         "1213": "loadScene: Failed to load scene '%s' because '%s' is already loading", //loadScene
         "1214": "loadScene: Can not load the scene '%s' because it was not in the build settings before playing.", //loadScene
         "1215": "Failed to preload '%s', %s", //preloadScene
+        "1216": "Director.runSceneImmediate: scene is not valid",
         //Array: 1300
         "1300": "element type is wrong!", //verifyType
         //deprecated: 1400

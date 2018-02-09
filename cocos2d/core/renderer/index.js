@@ -65,6 +65,7 @@ module.exports = {
     device: null,
     scene: null,
     materialUtil: null,
+    drawCalls: 0,
     _walker: null,
     _cameraNode: null,
     _camera: null,
@@ -120,11 +121,18 @@ module.exports = {
     },
 
     render (ecScene) {
+        this.drawCalls = 0;
         if (ecScene) {
             // walk entity component scene to generate models
             this._walker.visit(ecScene);
+            this.drawCalls = this.scene.getModelCount();
             // Render models in renderer scene
             this._forward.render(this.scene);
         }
+    },
+
+    clear () {
+        this._walker.reset();
+        this._forward._reset();
     }
 };
