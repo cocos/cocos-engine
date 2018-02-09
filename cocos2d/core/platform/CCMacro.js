@@ -1949,7 +1949,7 @@ cc.defineGetterSetter(cc.macro, 'ENABLE_CULLING',
             cc.renderer.childrenOrderDirty = true;
         }
     }
-)
+);
 
 /**
  * !#en

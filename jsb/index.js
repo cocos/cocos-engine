@@ -26,39 +26,10 @@
 
 'use strict';
 
-function defineMacro (name, defaultValue) {
-    // if "global_defs" not preprocessed by uglify, just declare them globally,
-    // this may happened in release version's preview page.
-    // (use evaled code to prevent mangle by uglify)
-    if (typeof window[name] === 'undefined') {
-        window[name] = defaultValue;
-    }
-}
-function defined (name) {
-    return typeof window[name] === 'object';
-}
-
-defineMacro('CC_TEST', defined('tap') || defined('QUnit'));
-defineMacro('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
-defineMacro('CC_PREVIEW', !CC_EDITOR);
-defineMacro('CC_DEV', true);    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
-defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
-defineMacro('CC_JSB', defined('jsb'));
-defineMacro('CC_BUILD', false);
-defineMacro('CC_WECHATGAME', false);
-defineMacro('CC_SUPPORT_JIT', !CC_WECHATGAME);
-
+require('../predefine');
 
 if (!cc.ClassManager) {
     cc.ClassManager = window.ClassManager;
-}
-
-if (CC_DEV) {
-    /**
-     * contains internal apis for unit tests
-     * @expose
-     */
-    cc._Test = {};
 }
 
 // polyfills
