@@ -25,19 +25,23 @@
 require('../label/CCHtmlTextParser');
 require('../label/CCTextUtils');
 
+var JS = require("../platform/js");
+
 var HorizontalAlign = cc.TextAlignment;
 var VerticalAlign = cc.VerticalTextAlignment;
+var RichTextChildName = "RICHTEXT_CHILD"
+var RichTextChildZIndex = - 1000000;
 
 
 // Returns a function, that, as long as it continues to be invoked, will not
 // be triggered. The function will be called after it stops being called for
 // N milliseconds. If `immediate` is passed, trigger the function on the
 // leading edge, instead of the trailing.
-function debounce (func, wait, immediate) {
+function debounce(func, wait, immediate) {
     var timeout;
     return function () {
         var context = this;
-        var later = function() {
+        var later = function () {
             timeout = null;
             if (!immediate) func.apply(context, arguments);
         };
@@ -47,6 +51,61 @@ function debounce (func, wait, immediate) {
         if (callNow) func.apply(context, arguments);
     };
 }
+
+/**
+ * RichText pool
+ */
+var pool = new JS.Pool(function (node) {
+    if (CC_EDITOR) {
+        return false;
+    }
+    if (CC_DEV) {
+        cc.assert(!node._parent, 'Recycling node\'s parent should be null!');
+    }
+    if (node.getComponent(cc.LabelOutline)) {
+        return false;
+    }
+    return true;
+}, 20);
+
+pool.get = function (string, fontAsset, fontSize) {
+    var labelNode = this._get();
+    if (!labelNode) {
+        labelNode = new cc.Node(RichTextChildName);
+    }
+    var labelComponent = labelNode.getComponent(cc.Label);
+    if (!labelComponent) {
+        labelComponent = labelNode.addComponent(cc.Label);
+    }
+
+    labelNode.setLocalZOrder(RichTextChildZIndex);
+    labelNode.setPosition(0, 0);
+    labelNode.setAnchorPoint(0.5, 0.5);
+    labelNode.setContentSize(128, 128);
+    labelNode.setSkewX(0);
+
+    if (typeof string !== 'string') {
+        string = '' + string;
+    }
+    var isAsset = fontAsset instanceof cc.Font;
+    if (isAsset) {
+        labelComponent.font = fontAsset;
+    } else {
+        labelComponent.fontFamily = "Arial";
+    }
+    labelComponent.string = string;
+    labelComponent.horizontalAlign = HorizontalAlign.LEFT;
+    labelComponent.verticalAlign = VerticalAlign.TOP;
+    labelComponent.fontSize = 40;
+    labelComponent.overflow = 0;
+    labelComponent.enableWrapText = true;
+    labelComponent.lineHeight = 40;
+    labelComponent._enableBold(false);
+    labelComponent._enableItalics(false);
+    labelComponent._enableUnderline(false);
+
+    return labelNode;
+};
 
 /**
  * !#en The RichText Component.
@@ -64,8 +123,6 @@ var RichText = cc.Class({
         this._labelSegmentsCache = [];
         this._linesWidth = [];
 
-        this._resetState();
-
         if (CC_EDITOR) {
             this._updateRichTextStatus = debounce(this._updateRichText, 200);
         }
@@ -77,6 +134,7 @@ var RichText = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/RichText',
         help: 'i18n:COMPONENT.help_url.richtext',
+        executeInEditMode: true
     },
 
 
@@ -228,11 +286,19 @@ var RichText = cc.Class({
         if (this.handleTouchEvent) {
             this._addEventListeners();
         }
+        this._updateRichText();
     },
 
     onDisable: function () {
         if (this.handleTouchEvent) {
             this._removeEventListeners();
+        }
+        this._resetState();
+    },
+
+    start: function () {
+        if (!CC_JSB) {
+            this._onTTFLoaded();
         }
     },
 
@@ -244,36 +310,14 @@ var RichText = cc.Class({
         this.node.off(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
     },
 
-    _createSgNode: function () {
-        var sgNode = new _ccsg.Node();
-
-        sgNode.setCascadeOpacityEnabled(true);
-
-        var self = this;
-        sgNode.setColor = function () {
-            self._updateLabelSegmentTextAttributes();
-        };
-
-        sgNode._setContentSize = sgNode.setContentSize;
-        sgNode.setContentSize = function () {};
-        return sgNode;
-    },
-
     _updateLabelSegmentTextAttributes: function () {
         this._labelSegments.forEach(function (item) {
             this._applyTextAttribute(item);
         }.bind(this));
     },
 
-    _initSgNode: function () {
-        this._updateRichText();
-        if (!CC_JSB) {
-            this._onTTFLoaded();
-        }
-    },
-
     _createFontLabel: function (string) {
-        return _ccsg.Label.pool.get(string, this.font, null, this.fontSize);
+        return pool.get(string, this.font, this.fontSize);
     },
 
     _getFontRawUrl: function () {
@@ -306,7 +350,7 @@ var RichText = cc.Class({
             }
             else {
                 label = self._labelSegmentsCache[0];
-                label.setString(string);
+                label.getComponent(cc.Label).string = string;
             }
             label._styleIndex = styleIndex;
             self._applyTextAttribute(label);
@@ -320,7 +364,6 @@ var RichText = cc.Class({
             return func;
         }
     },
-
 
     _onTouchEnded: function (event) {
         var components = this.node.getComponents(cc.Component);
@@ -345,9 +388,12 @@ var RichText = cc.Class({
     },
 
     _resetState: function () {
-        var sgNode = this._sgNode;
-        if (sgNode) {
-            sgNode.removeAllChildren();
+        for (let i = this.node.children.length - 1; i >= 0 ; i--) {
+            let child = this.node.children[i];
+            if (child.name === RichTextChildName) {
+                child.parent = null;
+                pool.put(child);
+            }
         }
 
         this._labelSegments.length = 0;
@@ -367,7 +413,7 @@ var RichText = cc.Class({
         }
         else {
             labelSegment = this._labelSegmentsCache.pop();
-            labelSegment.setString(stringToken);
+            labelSegment.getComponent(cc.Label).string = stringToken;
         }
         labelSegment._styleIndex = styleIndex;
         labelSegment._lineCount = this._lineCount;
@@ -375,7 +421,7 @@ var RichText = cc.Class({
         this._applyTextAttribute(labelSegment);
 
         labelSegment.setAnchorPoint(0, 0);
-        this._sgNode.addChild(labelSegment);
+        this.node.addChild(labelSegment);
         this._labelSegments.push(labelSegment);
 
         //when lineHeight is less than the content size of labelSize
@@ -383,9 +429,10 @@ var RichText = cc.Class({
         //so we need to set the overflow to clamp in JSB
         //FIXME: label in jsb should be refactored to keep the behavior the same as web platform.
         if (CC_JSB) {
-            labelSegment.setOverflow(1);
+            let labelComponent = labelSegment.getComponent(cc.Label);
+            labelComponent.overflow = 1;
             var size = labelSegment.getContentSize();
-            labelSegment.enableWrap(false);
+            labelComponent.enableWrapText = false;
             labelSegment.setDimensions(size.width, this.lineHeight);
         }
 
@@ -414,9 +461,7 @@ var RichText = cc.Class({
 
                     if (checkStartIndex > 0) {
                         var remainingString = labelString.substr(0, checkStartIndex);
-
                         this._addLabelSegment(remainingString, styleIndex);
-
                         labelString = labelString.substr(checkStartIndex, labelString.length);
                         fragmentWidth = this._measureText(styleIndex, labelString);
                     }
@@ -432,13 +477,9 @@ var RichText = cc.Class({
                 this._measureText(styleIndex));
             for (var k = 0; k < fragments.length; ++k) {
                 var splitString = fragments[k];
-
                 labelSegment = this._addLabelSegment(splitString, styleIndex);
-
                 var labelSize = labelSegment.getContentSize();
-
                 this._lineOffsetX += labelSize.width;
-
                 if (fragments.length > 1 && k < fragments.length - 1) {
                     this._updateLineInfo();
                 }
@@ -446,7 +487,6 @@ var RichText = cc.Class({
         }
         else {
             this._lineOffsetX += fragmentWidth;
-
             this._addLabelSegment(labelString, styleIndex);
         }
     },
@@ -479,6 +519,9 @@ var RichText = cc.Class({
             else {
                 if (oldItem.style) {
                     if (newItem.style) {
+                        if (!!newItem.style.outline !== !!oldItem.style.outline) {
+                            return true;
+                        }
                         if (oldItem.style.size !== newItem.style.size
                             || oldItem.style.italic !== newItem.style.italic
                             || oldItem.style.isImage !== newItem.style.isImage) {
@@ -491,14 +534,14 @@ var RichText = cc.Class({
                         }
                     }
                     else {
-                        if (oldItem.style.size || oldItem.style.italic || oldItem.style.isImage) {
+                        if (oldItem.style.size || oldItem.style.italic || oldItem.style.isImage || oldItem.style.outline) {
                             return true;
                         }
                     }
                 }
                 else {
                     if (newItem.style) {
-                        if (newItem.style.size || newItem.style.italic || newItem.style.isImage) {
+                        if (newItem.style.size || newItem.style.italic || newItem.style.isImage || newItem.style.outline) {
                             return true;
                         }
                     }
@@ -508,39 +551,18 @@ var RichText = cc.Class({
         return false;
     },
 
-    _onSpriteFrameLoaded: function (event, spriteFrame) {
-        var newSpriteFrame;
-        if (spriteFrame) {
-            newSpriteFrame = spriteFrame;
-        }
-        else {
-            newSpriteFrame = event.target;
-        }
-        var sprite = newSpriteFrame.__sprite;
-        sprite.setSpriteFrame(newSpriteFrame);
-    },
-
-    _applySpriteFrame: function (spriteFrame) {
-        if (spriteFrame) {
-            if (spriteFrame.textureLoaded()) {
-                this._onSpriteFrameLoaded(null, spriteFrame);
-            }
-            else {
-                spriteFrame.once('load', this._onSpriteFrameLoaded, this);
-                spriteFrame.ensureLoadTexture();
-            }
-        }
-    },
-
     _addRichTextImageElement: function (richTextElement) {
         var spriteFrameName = richTextElement.style.src;
         var spriteFrame = this.imageAtlas.getSpriteFrame(spriteFrameName);
         if (spriteFrame) {
-            var sprite = new cc.Scale9Sprite();
-            sprite.setAnchorPoint(0, 0);
-            spriteFrame.__sprite = sprite;
-            this._sgNode.addChild(sprite);
-            this._labelSegments.push(sprite);
+            var spriteNode = new cc.Node(RichTextChildName);
+            var spriteComponent = spriteNode.addComponent(cc.Sprite);
+            spriteNode.setLocalZOrder(RichTextChildZIndex);
+            spriteNode.setAnchorPoint(0, 0);
+            spriteComponent.type = cc.Sprite.Type.SLICED;
+            spriteComponent.sizeMode = cc.Sprite.SizeMode.CUSTOM;
+            this.node.addChild(spriteNode);
+            this._labelSegments.push(spriteNode);
 
             var spriteRect = spriteFrame.getRect();
             var scaleFactor = 1;
@@ -576,13 +598,13 @@ var RichText = cc.Class({
                     this._labelWidth = this._lineOffsetX;
                 }
             }
-            this._applySpriteFrame(spriteFrame);
-            sprite.setContentSize(spriteWidth, spriteHeight);
-            sprite._lineCount = this._lineCount;
+            spriteComponent.spriteFrame = spriteFrame;
+            spriteNode.setContentSize(spriteWidth, spriteHeight);
+            spriteNode._lineCount = this._lineCount;
 
             if (richTextElement.style.event) {
                 if (richTextElement.style.event.click) {
-                    sprite._clickHandler = richTextElement.style.event.click;
+                    spriteNode._clickHandler = richTextElement.style.event.click;
                 }
             }
         }
@@ -672,13 +694,10 @@ var RichText = cc.Class({
 
         // trigger "size-changed" event
         this.node.setContentSize(this._labelWidth, this._labelHeight);
-        // use _setContentSize because sgNode.setContentSize is banned.
-        this._sgNode._setContentSize(this._labelWidth, this._labelHeight);
 
         this._updateRichTextPosition();
         this._layoutDirty = false;
     },
-
 
     _getFirstWordLen: function (text, startIndex, textLen) {
         var character = text.charAt(startIndex);
@@ -701,7 +720,6 @@ var RichText = cc.Class({
     },
 
     _updateRichTextPosition: function () {
-
         var nextTokenX = 0;
         var nextLineIndex = 1;
         var totalLineCount = this._lineCount;
@@ -713,15 +731,16 @@ var RichText = cc.Class({
                 nextLineIndex = lineCount;
             }
             var lineOffsetX = 0;
+            // var nodeAnchorXOffset = (0.5 - this.node.anchorX) * this._labelWidth; 
             switch (this.horizontalAlign) {
                 case cc.TextAlignment.LEFT:
-                    lineOffsetX = 0;
+                    lineOffsetX = - this._labelWidth / 2;
                     break;
                 case cc.TextAlignment.CENTER:
-                    lineOffsetX = (this._labelWidth - this._linesWidth[lineCount - 1]) / 2;
+                    lineOffsetX = - this._linesWidth[lineCount - 1] / 2;
                     break;
                 case cc.TextAlignment.RIGHT:
-                    lineOffsetX = this._labelWidth - this._linesWidth[lineCount - 1];
+                    lineOffsetX = this._labelWidth / 2 - this._linesWidth[lineCount - 1];
                     break;
                 default:
                     break;
@@ -730,18 +749,13 @@ var RichText = cc.Class({
 
             var labelSize = label.getContentSize();
 
-            var positionY = (totalLineCount - lineCount) * this.lineHeight;
-
-            if (label instanceof cc.Scale9Sprite) {
-                positionY += (this.lineHeight - label.getContentSize().height) / 2;
-            }
+            var positionY = this.lineHeight * (totalLineCount - lineCount) - this._labelHeight / 2;
 
             label.setPositionY(positionY);
 
             if (lineCount === nextLineIndex) {
                 nextTokenX += labelSize.width;
             }
-
         }
     },
 
@@ -755,77 +769,69 @@ var RichText = cc.Class({
         }
     },
 
-    _applyTextAttribute: function (label) {
-        if (label instanceof cc.Scale9Sprite) return;
+    _applyTextAttribute: function (labelNode) {
+        var labelComponent = labelNode.getComponent(cc.Label);
+        if (!labelComponent) {
+            return;
+        }
 
-        var index = label._styleIndex;
-        label.setLineHeight(this.lineHeight);
-        label.setVerticalAlign(VerticalAlign.CENTER);
+        var index = labelNode._styleIndex;
+        labelComponent.lineHeight = this.lineHeight;
+        labelComponent.horizontalAlign = HorizontalAlign.LEFT;
+        labelComponent.verticalAlign = VerticalAlign.CENTER;
 
         var textStyle = null;
         if (this._textArray[index]) {
             textStyle = this._textArray[index].style;
         }
+
         if (textStyle && textStyle.color) {
-            label.setColor(this._convertLiteralColorValue(textStyle.color));
-        }
-        else {
-            label.setColor(this.node.color);
-        }
-
-        if (textStyle && textStyle.bold) {
-            label.enableBold(true);
-        }
-        else {
-            label.enableBold(false);
+            labelNode.color = this._convertLiteralColorValue(textStyle.color);
+        }else {
+            labelNode.color = this._convertLiteralColorValue("white");
         }
 
+        labelComponent._enableBold(textStyle && textStyle.bold);
+
+        labelComponent._enableItalics(textStyle && textStyle.italic);
+        //TODO: temporary implementation, the italic effect should be implemented in the internal of label-assembler.
         if (textStyle && textStyle.italic) {
-            label.enableItalics(true);
-        }
-        else {
-            label.enableItalics(false);
+            labelNode.setSkewX(12);
         }
 
-        if (textStyle && textStyle.underline) {
-            label.enableUnderline(true);
-        }
-        else {
-            label.enableUnderline(false);
-        }
+        labelComponent._enableUnderline(textStyle && textStyle.underline);
 
         if (textStyle && textStyle.outline) {
-            label.setOutlined(true);
-            label.setOutlineColor(this._convertLiteralColorValue(textStyle.outline.color));
-            label.setOutlineWidth(textStyle.outline.width);
-            label.setMargin(textStyle.outline.width);
-        }
-        else {
-            label.setOutlined(false);
-            label.setMargin(0);
+            var labelOutlineComponent = labelNode.getComponent(cc.LabelOutline);
+            if (!labelOutlineComponent) {
+                labelOutlineComponent = labelNode.addComponent(cc.LabelOutline);
+            }
+            labelOutlineComponent.color = this._convertLiteralColorValue(textStyle.outline.color);
+            labelOutlineComponent.width = textStyle.outline.width;
         }
 
         if (textStyle && textStyle.size) {
-            label.setFontSize(textStyle.size);
+            labelComponent.fontSize = textStyle.size;
         }
         else {
-            label.setFontSize(this.fontSize);
+            labelComponent.fontSize = this.fontSize;
         }
+
+        labelComponent._updateRenderData(true);
 
         if (textStyle && textStyle.event) {
             if (textStyle.event.click) {
-                label._clickHandler = textStyle.event.click;
+                labelNode._clickHandler = textStyle.event.click;
             }
         }
     },
 
     onDestroy: function () {
         for (var i = 0; i < this._labelSegments.length; ++i) {
-            this._labelSegments[i].removeFromParent(true);
-            _ccsg.Label.pool.put(this._labelSegments[i]);
+            this._labelSegments[i].removeFromParent();
+            pool.put(this._labelSegments[i]);
         }
-        this._resetState();
-    }
+    },
 });
 
- cc.RichText = module.exports = RichText;
+cc.RichText = module.exports = RichText;

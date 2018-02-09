@@ -417,8 +417,20 @@ var Label = cc.Class({
                 this._spacingX = value;
                 this._updateRenderData();
             }
-        }
+        },
 
+        _isBold: {
+            default: false,
+            serializable: false,
+        },
+        _isItalic: {
+            default: false,
+            serializable: false,
+        },
+        _isUnderline: {
+            default: false,
+            serializable: false,
+        },
     },
 
     statics: {
@@ -468,18 +480,30 @@ var Label = cc.Class({
         this._material = material;
     },
 
-    _updateRenderData: function () {
+    _updateRenderData: function (force) {
         let renderData = this._renderData;
         if (renderData) {
             renderData.vertDirty = true;
             renderData.uvDirty = true;
         }
 
-        if (CC_EDITOR) {
+        if (CC_EDITOR || force) {
             this._activateMaterial();
             Label._assembler.updateRenderData(this);
         }
-    }
+    },
+
+    _enableBold: function (enabled) {
+        this._isBold = !!enabled;
+    },
+
+    _enableItalics: function (enabled) {
+        this._isItalic = !!enabled;
+    },
+
+    _enableUnderline: function (enabled) {
+        this._isUnderline = !!enabled;
+    },
  });
 
  cc.Label = module.exports = Label;
