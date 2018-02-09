@@ -102,6 +102,8 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
     CGRect                  originalRect_;
     NSNotification*         keyboardShowNotification_;
     BOOL                    isKeyboardShown_;
+    unsigned int            touchesIds_;
+    UITouch*                touches_[10];
 }
 
 @property(nonatomic, readonly) UITextPosition *beginningOfDocument;

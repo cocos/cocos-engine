@@ -64,6 +64,8 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 #include "platform/CCPlatformConfig.h"
 #if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
 
+#include "scripting/js-bindings/event/EventDispatch.h"
+
 #import "platform/ios/CCEAGLView-ios.h"
 
 #import <QuartzCore/QuartzCore.h>
@@ -149,6 +151,10 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
         {
             self.contentScaleFactor = [[UIScreen mainScreen] scale];
         }
+        
+        touchesIds_ = 0;
+        for (int i = 0; i < 10; ++i)
+            touches_[i] = nil;
     }
 
     return self;
@@ -381,6 +387,46 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 // Pass the touches to the superview
 #pragma mark CCEAGLView - Touch Delegate
+
+namespace
+{
+    int getUnusedID(unsigned int& touchesIDs)
+    {
+        int i;
+        unsigned int temp = touchesIDs;
+        
+        for (i = 0; i < 10; i++) {
+            if (! (temp & 0x00000001))
+            {
+                touchesIDs |= (1 <<  i);
+                return i;
+            }
+            
+            temp >>= 1;
+        }
+        
+        // all bits are used
+        return -1;
+    }
+    
+    void resetTouchID(unsigned int& touchesIDs, int index)
+    {
+        touchesIDs &= ((1 << index) ^ 0xffffffff);
+    }
+    
+    cocos2d::TouchInfo createTouchInfo(int index, UITouch* touch, float contentScaleFactor)
+    {
+        cocos2d::TouchInfo touchInfo;
+        touchInfo.index = index;
+        touchInfo.x = [touch locationInView: [touch view]].x * contentScaleFactor;
+        touchInfo.y = [touch locationInView: [touch view]].y * contentScaleFactor;
+        
+        return touchInfo;
+    }
+}
+
+
+
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     if (isKeyboardShown_)
@@ -389,82 +435,81 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
         return;
     }
 
-    UITouch* ids[IOS_MAX_TOUCHES_COUNT] = {0};
-    float xs[IOS_MAX_TOUCHES_COUNT] = {0.0f};
-    float ys[IOS_MAX_TOUCHES_COUNT] = {0.0f};
-
-    int i = 0;
+    cocos2d::TouchEvent touchEvent;
+    touchEvent.type = cocos2d::TouchEvent::Type::BEGAN;
     for (UITouch *touch in touches) {
-        ids[i] = touch;
-        xs[i] = [touch locationInView: [touch view]].x * self.contentScaleFactor;;
-        ys[i] = [touch locationInView: [touch view]].y * self.contentScaleFactor;;
-        ++i;
+        int index = getUnusedID(touchesIds_);
+        if (-1 == index)
+            return;
+        
+        touches_[index] = touch;
+
+        touchEvent.touches.push_back(createTouchInfo(index, touch, self.contentScaleFactor));
     }
-//
-//    auto glview = cocos2d::Director::getInstance()->getOpenGLView();
-//    glview->handleTouchesBegin(i, (intptr_t*)ids, xs, ys);
+    
+    if (!touchEvent.touches.empty())
+        cocos2d::EventDispatch::dispatchTouchEvent(touchEvent);
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    UITouch* ids[IOS_MAX_TOUCHES_COUNT] = {0};
-    float xs[IOS_MAX_TOUCHES_COUNT] = {0.0f};
-    float ys[IOS_MAX_TOUCHES_COUNT] = {0.0f};
-    float fs[IOS_MAX_TOUCHES_COUNT] = {0.0f};
-    float ms[IOS_MAX_TOUCHES_COUNT] = {0.0f};
-
-    int i = 0;
-    for (UITouch *touch in touches) {
-        ids[i] = touch;
-        xs[i] = [touch locationInView: [touch view]].x * self.contentScaleFactor;;
-        ys[i] = [touch locationInView: [touch view]].y * self.contentScaleFactor;;
-#if defined(__IPHONE_9_0) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_9_0)
-        // running on iOS 9.0 or higher version
-        if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 9.0f) {
-            fs[i] = touch.force;
-            ms[i] = touch.maximumPossibleForce;
+    cocos2d::TouchEvent touchEvent;
+    touchEvent.type = cocos2d::TouchEvent::Type::MOVED;
+    for (UITouch *touch in touches)
+    {
+        for (int i = 0; i < 10; ++i)
+        {
+            if (touch == touches_[i])
+                touchEvent.touches.push_back(createTouchInfo(i, touch, self.contentScaleFactor));
         }
-#endif
-        ++i;
     }
-
-//    glview->handleTouchesMove(i, (intptr_t*)ids, xs, ys, fs, ms);
+    
+    if (!touchEvent.touches.empty())
+        cocos2d::EventDispatch::dispatchTouchEvent(touchEvent);
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    UITouch* ids[IOS_MAX_TOUCHES_COUNT] = {0};
-    float xs[IOS_MAX_TOUCHES_COUNT] = {0.0f};
-    float ys[IOS_MAX_TOUCHES_COUNT] = {0.0f};
-
-    int i = 0;
-    for (UITouch *touch in touches) {
-        ids[i] = touch;
-        xs[i] = [touch locationInView: [touch view]].x * self.contentScaleFactor;;
-        ys[i] = [touch locationInView: [touch view]].y * self.contentScaleFactor;;
-        ++i;
+    cocos2d::TouchEvent touchEvent;
+    touchEvent.type = cocos2d::TouchEvent::Type::ENDED;
+    for (UITouch *touch in touches)
+    {
+        for (int i = 0; i < 10; ++i)
+        {
+            if (touch == touches_[i])
+            {
+                touches_[i] = nil;
+                resetTouchID(touchesIds_, i);
+                
+                touchEvent.touches.push_back(createTouchInfo(i, touch, self.contentScaleFactor));
+            }
+        }
     }
 
-//    auto glview = cocos2d::Director::getInstance()->getOpenGLView();
-//    glview->handleTouchesEnd(i, (intptr_t*)ids, xs, ys);
+    if (!touchEvent.touches.empty())
+        cocos2d::EventDispatch::dispatchTouchEvent(touchEvent);
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    UITouch* ids[IOS_MAX_TOUCHES_COUNT] = {0};
-    float xs[IOS_MAX_TOUCHES_COUNT] = {0.0f};
-    float ys[IOS_MAX_TOUCHES_COUNT] = {0.0f};
-
-    int i = 0;
-    for (UITouch *touch in touches) {
-        ids[i] = touch;
-        xs[i] = [touch locationInView: [touch view]].x * self.contentScaleFactor;;
-        ys[i] = [touch locationInView: [touch view]].y * self.contentScaleFactor;;
-        ++i;
+    cocos2d::TouchEvent touchEvent;
+    touchEvent.type = cocos2d::TouchEvent::Type::CANCELLED;
+    for (UITouch *touch in touches)
+    {
+        for (int i = 0; i < 10; ++i)
+        {
+            if (touch == touches_[i])
+            {
+                touches_[i] = nil;
+                resetTouchID(touchesIds_, i);
+                
+                touchEvent.touches.push_back(createTouchInfo(i, touch, self.contentScaleFactor));
+            }
+        }
     }
-
-//    auto glview = cocos2d::Director::getInstance()->getOpenGLView();
-//    glview->handleTouchesCancel(i, (intptr_t*)ids, xs, ys);
+    
+    if (!touchEvent.touches.empty())
+        cocos2d::EventDispatch::dispatchTouchEvent(touchEvent);
 }
 
 #pragma mark - UIView - Responder

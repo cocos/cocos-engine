@@ -248,8 +248,6 @@
 		46FDDB70202ADDCE00931238 /* ZipUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDAFC202ADDCE00931238 /* ZipUtils.cpp */; };
 		46FDDB71202ADDCE00931238 /* base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDAFD202ADDCE00931238 /* base64.cpp */; };
 		46FDDB72202ADDCE00931238 /* base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDAFD202ADDCE00931238 /* base64.cpp */; };
-		46FDDB79202ADDCE00931238 /* CCGameController.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDB01202ADDCE00931238 /* CCGameController.h */; };
-		46FDDB7A202ADDCE00931238 /* CCGameController.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDB01202ADDCE00931238 /* CCGameController.h */; };
 		46FDDB7B202ADDCE00931238 /* CCRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDB02202ADDCE00931238 /* CCRef.cpp */; };
 		46FDDB7C202ADDCE00931238 /* CCRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDB02202ADDCE00931238 /* CCRef.cpp */; };
 		46FDDB81202ADDCE00931238 /* ccTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDB05202ADDCE00931238 /* ccTypes.h */; };
@@ -858,7 +856,6 @@
 		46FDDAFB202ADDCE00931238 /* etc1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = etc1.h; sourceTree = "<group>"; };
 		46FDDAFC202ADDCE00931238 /* ZipUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ZipUtils.cpp; sourceTree = "<group>"; };
 		46FDDAFD202ADDCE00931238 /* base64.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = base64.cpp; sourceTree = "<group>"; };
-		46FDDB01202ADDCE00931238 /* CCGameController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCGameController.h; sourceTree = "<group>"; };
 		46FDDB02202ADDCE00931238 /* CCRef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCRef.cpp; sourceTree = "<group>"; };
 		46FDDB05202ADDCE00931238 /* ccTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ccTypes.h; sourceTree = "<group>"; };
 		46FDDB06202ADDCE00931238 /* ccRandom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ccRandom.h; sourceTree = "<group>"; };
@@ -1490,7 +1487,6 @@
 				46FDDAFB202ADDCE00931238 /* etc1.h */,
 				46FDDAFC202ADDCE00931238 /* ZipUtils.cpp */,
 				46FDDAFD202ADDCE00931238 /* base64.cpp */,
-				46FDDB01202ADDCE00931238 /* CCGameController.h */,
 				46FDDB02202ADDCE00931238 /* CCRef.cpp */,
 				46FDDB05202ADDCE00931238 /* ccTypes.h */,
 				46FDDB06202ADDCE00931238 /* ccRandom.h */,
@@ -2152,7 +2148,6 @@
 				1A28FF711F20AFAB007A1D9D /* SRHash.h in Headers */,
 				50ABC0171926664800A911A9 /* CCImage.h in Headers */,
 				ED30577F1BEC76C90083C3ED /* ioapi_mem.h in Headers */,
-				46FDDB79202ADDCE00931238 /* CCGameController.h in Headers */,
 				4DED48281DFFA4AF0070C5C4 /* b2Island.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2203,7 +2198,6 @@
 				4DED48191DFFA4AF0070C5C4 /* b2Timer.h in Headers */,
 				4DED487B1DFFA4AF0070C5C4 /* b2RevoluteJoint.h in Headers */,
 				46FDDC44202AEAC500931238 /* Pair.h in Headers */,
-				46FDDB7A202ADDCE00931238 /* CCGameController.h in Headers */,
 				BA68D7941D62F4A500B7A3F9 /* sweep_context.h in Headers */,
 				46FDDA82202ACC6A00931238 /* RendererUtils.h in Headers */,
 				503DD8E41926736A00CD74DD /* CCDirectorCaller-ios.h in Headers */,

@@ -60,20 +60,6 @@ THE SOFTWARE.
 #include "base/ccUTF8.h"
 #include "base/ccUtils.h"
 
-// EventDispatcher
-#include "base/CCEventAcceleration.h"
-#include "base/CCEventCustom.h"
-#include "base/CCEventFocus.h"
-#include "base/CCEventKeyboard.h"
-#include "base/CCEventListenerAcceleration.h"
-#include "base/CCEventListenerCustom.h"
-#include "base/CCEventListenerFocus.h"
-#include "base/CCEventListenerKeyboard.h"
-#include "base/CCEventListenerMouse.h"
-#include "base/CCEventListenerTouch.h"
-#include "base/CCEventMouse.h"
-#include "base/CCEventTouch.h"
-#include "base/CCEventType.h"
 
 // math
 #include "math/CCAffineTransform.h"

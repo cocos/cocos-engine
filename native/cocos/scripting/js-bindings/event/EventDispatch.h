@@ -1,19 +1,18 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
-
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+ 
  http://www.cocos2d-x.org
-
+ 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
-
+ 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
-
+ 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,53 +20,42 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-
  ****************************************************************************/
 
-#ifndef __cocos2d_libs__CCKeyboardEventListener__
-#define __cocos2d_libs__CCKeyboardEventListener__
+#pragma once
 
-#include "base/CCEventListener.h"
-#include "base/CCEventKeyboard.h"
+#include <vector>
 
-/**
- * @addtogroup base
- * @{
- */
-
-NS_CC_BEGIN
-
-class Event;
-
-/** @class EventListenerKeyboard
- * @brief Keyboard event listener.
- * @js cc._EventListenerKeyboard
- */
-class CC_DLL EventListenerKeyboard : public EventListener
+namespace cocos2d
 {
-public:
-    static const std::string LISTENER_ID;
     
-    /** Create a keyboard event listener.
-     *
-     * @return An autoreleased EventListenerKeyboard object.
-     */
-    static EventListenerKeyboard* create();
-
-    /// Overrides
-    virtual EventListenerKeyboard* clone() override;
-    virtual bool checkAvailable() override;
-
-    std::function<void(EventKeyboard::KeyCode, Event*)> onKeyPressed;
-    std::function<void(EventKeyboard::KeyCode, Event*)> onKeyReleased;
-CC_CONSTRUCTOR_ACCESS:
-    EventListenerKeyboard();
-    bool init();
+// Touch event related
+    
+struct TouchInfo
+{
+    float x = 0;
+    float y = 0;
+    int index = 0;
 };
 
-NS_CC_END
+struct TouchEvent
+{
+    enum class Type
+    {
+        BEGAN,
+        MOVED,
+        ENDED,
+        CANCELLED
+    };
+    
+    std::vector<TouchInfo> touches;
+    Type type = Type::BEGAN;
+};
 
-// end of base group
-/// @}
-
-#endif /* defined(__cocos2d_libs__CCKeyboardEventListener__) */
+class EventDispatch
+{
+public:
+    static void dispatchTouchEvent(const struct TouchEvent& touch);
+};
+    
+} // end of namespace cocos2d

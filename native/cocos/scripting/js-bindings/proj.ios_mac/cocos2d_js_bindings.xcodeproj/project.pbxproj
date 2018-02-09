@@ -169,6 +169,10 @@
 		1AFD36DB1EF116190097DBB1 /* jsb_global.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AFD36AE1EF116190097DBB1 /* jsb_global.cpp */; };
 		1AFD36DC1EF116190097DBB1 /* jsb_global.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFD36AF1EF116190097DBB1 /* jsb_global.h */; };
 		1AFD36DD1EF116190097DBB1 /* jsb_global.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFD36AF1EF116190097DBB1 /* jsb_global.h */; };
+		46FDDC5C202C29BD00931238 /* EventDispatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDC5A202C29BD00931238 /* EventDispatch.cpp */; };
+		46FDDC5D202C29BD00931238 /* EventDispatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDC5A202C29BD00931238 /* EventDispatch.cpp */; };
+		46FDDC5E202C29BD00931238 /* EventDispatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC5B202C29BD00931238 /* EventDispatch.h */; };
+		46FDDC5F202C29BD00931238 /* EventDispatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC5B202C29BD00931238 /* EventDispatch.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -271,6 +275,8 @@
 		1AFD36AB1EF116190097DBB1 /* jsb_conversions.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_conversions.hpp; sourceTree = "<group>"; };
 		1AFD36AE1EF116190097DBB1 /* jsb_global.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_global.cpp; sourceTree = "<group>"; };
 		1AFD36AF1EF116190097DBB1 /* jsb_global.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jsb_global.h; sourceTree = "<group>"; };
+		46FDDC5A202C29BD00931238 /* EventDispatch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EventDispatch.cpp; sourceTree = "<group>"; };
+		46FDDC5B202C29BD00931238 /* EventDispatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EventDispatch.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -294,6 +300,7 @@
 		1551A334158F2AB200E66CFE = {
 			isa = PBXGroup;
 			children = (
+				46FDDC59202C295200931238 /* event */,
 				1AFD35F81EF115100097DBB1 /* jswrapper */,
 				1A119E2E18BDF19200352BAA /* auto */,
 				1A5410A518B785A10016A3AF /* libjscocos2d iOS.a */,
@@ -463,6 +470,16 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		46FDDC59202C295200931238 /* event */ = {
+			isa = PBXGroup;
+			children = (
+				46FDDC5A202C29BD00931238 /* EventDispatch.cpp */,
+				46FDDC5B202C29BD00931238 /* EventDispatch.h */,
+			);
+			name = event;
+			path = ../event;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -521,6 +538,7 @@
 				1AFD368E1EF115100097DBB1 /* Object.hpp in Headers */,
 				1AFD363E1EF115100097DBB1 /* Object.hpp in Headers */,
 				1AFD36341EF115100097DBB1 /* Base.h in Headers */,
+				46FDDC5E202C29BD00931238 /* EventDispatch.h in Headers */,
 				1AFD36621EF115100097DBB1 /* Object.hpp in Headers */,
 				1AFD36821EF115100097DBB1 /* State.hpp in Headers */,
 				1A7759E31F3410A20012A210 /* http_parser.h in Headers */,
@@ -560,6 +578,7 @@
 				1AFD365D1EF115100097DBB1 /* SeApi.h in Headers */,
 				1AFD364B1EF115100097DBB1 /* config.hpp in Headers */,
 				1AFD368B1EF115100097DBB1 /* HelperMacros.h in Headers */,
+				46FDDC5F202C29BD00931238 /* EventDispatch.h in Headers */,
 				1A9F0FA01F30235C00A499E1 /* jsb_helper.hpp in Headers */,
 				1AF82D461F2EE1C40002C5A0 /* HandleObject.hpp in Headers */,
 				1AFD36511EF115100097DBB1 /* Class.hpp in Headers */,
@@ -680,6 +699,7 @@
 				1AFD36761EF115100097DBB1 /* ScriptEngine.cpp in Sources */,
 				1A7759DB1F34105B0012A210 /* node_debug_options.cc in Sources */,
 				1AFD36461EF115100097DBB1 /* Utils.cpp in Sources */,
+				46FDDC5C202C29BD00931238 /* EventDispatch.cpp in Sources */,
 				1A210D941F456821006CCBAE /* MappingUtils.cpp in Sources */,
 				1A7759F01F341D6E0012A210 /* env.cc in Sources */,
 				1A7759D51F340FB10012A210 /* inspector_socket.cc in Sources */,
@@ -708,6 +728,7 @@
 				1AFD36951EF115100097DBB1 /* ScriptEngine.cpp in Sources */,
 				1AFD36D31EF116190097DBB1 /* jsb_conversions.cpp in Sources */,
 				1AFD36871EF115100097DBB1 /* Class.cpp in Sources */,
+				46FDDC5D202C29BD00931238 /* EventDispatch.cpp in Sources */,
 				1AFD369F1EF115100097DBB1 /* Value.cpp in Sources */,
 				1AF82D441F2EE1C40002C5A0 /* HandleObject.cpp in Sources */,
 				1AFD365F1EF115100097DBB1 /* Utils.cpp in Sources */,
