@@ -335,10 +335,7 @@ let Mask = cc.Class({
 
     onDestroy () {
         this._super();
-        let datas = this._renderDatas;
-        for (let i = 0, l = datas.length; i < l; i++) {
-            RenderData.free(datas[i]);
-        }
+        this._renderDatas.length = 0;
         this._frontMaterial = null;
         this._endMaterial = null;
     },
