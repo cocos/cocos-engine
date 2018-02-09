@@ -41,7 +41,7 @@ NS_CC_BEGIN
 /** @class ActionInstant
 * @brief Instant actions are immediate actions. They don't have a duration like the IntervalAction actions.
 **/
-class CC_DLL ActionInstant : public FiniteTimeAction //<NSCopying>
+class CC_DLL ActionInstant : public FiniteTimeAction
 {
 public:
     //
@@ -315,7 +315,7 @@ private:
 /** @class CallFunc
 * @brief Calls a 'callback'.
 */
-class CC_DLL CallFunc : public ActionInstant //<NSCopying>
+class CC_DLL CallFunc : public ActionInstant
 {
 public:
     /** Creates the action with the callback of type std::function<void()>.
@@ -334,28 +334,6 @@ public:
      */
     virtual void execute();
 
-    /** Get the selector target.
-     *
-     * @return The selector target.
-     */
-    inline Ref* getTargetCallback()
-    {
-        return _selectorTarget;
-    }
-
-    /** Set the selector target.
-     *
-     * @param sel The selector target.
-     */
-    inline void setTargetCallback(Ref* sel)
-    {
-        if (sel != _selectorTarget)
-        {
-            CC_SAFE_RETAIN(sel);
-            CC_SAFE_RELEASE(_selectorTarget);
-            _selectorTarget = sel;
-        }
-    }
     //
     // Overrides
     //
@@ -368,9 +346,7 @@ public:
 
 CC_CONSTRUCTOR_ACCESS:
     CallFunc()
-    : _selectorTarget(nullptr)
-    , _callFunc(nullptr)
-    , _function(nullptr)
+    : _function(nullptr)
     {
     }
     virtual ~CallFunc();
@@ -381,14 +357,6 @@ CC_CONSTRUCTOR_ACCESS:
     bool initWithFunction(const std::function<void()>& func);
 
 protected:
-    /** Target that will be called */
-    Ref*   _selectorTarget;
-
-    union
-    {
-        SEL_CallFunc    _callFunc;
-        SEL_CallFuncN    _callFuncN;
-    };
 
     /** function that will be called */
     std::function<void()> _function;
