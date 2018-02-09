@@ -177,7 +177,6 @@ _global.cp = {};
 // LOAD COCOS2D ENGINE CODE
 
 if (!(CC_EDITOR && Editor.isMainProcess)) {
-    require('./cocos2d/shaders');
     require('./CCBoot');
     require('./cocos2d');
 }
