@@ -80,11 +80,13 @@ module.exports = {
         this._walker = new RenderComponentWalker(this.device, this.scene);
 
         this._cameraNode = new cc.Node();
+
         this._camera = new renderEngine.Camera();
         this._camera.setFov(Math.PI * 60 / 180);
         this._camera.setNear(0.1);
         this._camera.setFar(1024);
         this._camera.setNode(this._cameraNode);
+
         let view = new renderEngine.View();
         this._camera.view = view;
         this._camera.dirty = true;
@@ -107,6 +109,7 @@ module.exports = {
             var ecScene = cc.director.getScene();
             ecScene.scaleX = ecScene.scaleY = 1;
         }
+
         let node = this._cameraNode;
         let canvas = this.canvas;
         let scaleX = cc.view.getScaleX();

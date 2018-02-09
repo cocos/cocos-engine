@@ -340,14 +340,12 @@ let CollisionManager = cc.Class({
     },
 
     attachDebugDrawToCamera: function (camera) {
-        // TODO: support camera debug draw
-        // if (!this._debugDrawer) return;
-        // camera.addTarget(this._debugDrawer);
+        if (!this._debugDrawer) return;
+        camera.addTarget(this._debugDrawer);
     },
     detachDebugDrawFromCamera: function (camera) {
-        // TODO: support camera debug draw
-        // if (!this._debugDrawer) return;
-        // camera.removeTarget(this._debugDrawer);
+        if (!this._debugDrawer) return;
+        camera.removeTarget(this._debugDrawer);
     },
 
     onNodeGroupChanged: function (event) {
