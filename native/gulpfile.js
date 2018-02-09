@@ -34,18 +34,20 @@ var spawn = require('child_process').spawn;
 var Path = require('path');
 var fs = require('fs-extra');
 
+var program = require('commander');
+program
+    .option('-b, --bump [version]', 'bump to a new version, or +1')
+    .parse(process.argv);
+
 gulp.task('make-cocos2d-x', gulpSequence('gen-cocos2d-x', 'upload-cocos2d-x'));
 gulp.task('make-prebuilt', gulpSequence('gen-libs', 'collect-prebuilt-mk', 'archive-prebuilt-mk', 'archive-prebuilt', 'upload-prebuilt', 'upload-prebuilt-mk'));
 gulp.task('make-simulator', gulpSequence('gen-simulator', 'update-simulator-config', 'update-simulator-dll', 'archive-simulator', 'upload-simulator'));
 
-gulp.task('publish-source', gulpSequence('init', 'make-cocos2d-x'));
-gulp.task('publish-prebuilt', gulpSequence('init', 'make-simulator', 'make-prebuilt'));
-
 if (process.platform === 'darwin') {
-    gulp.task('publish', gulpSequence('init', 'make-cocos2d-x', 'make-simulator', 'make-prebuilt'));
+    gulp.task('publish', gulpSequence('init', 'bump-version', 'make-cocos2d-x', 'make-simulator', 'make-prebuilt', 'push-tag'));
 }
 else {
-    gulp.task('publish', gulpSequence('publish-prebuilt'));
+    gulp.task('publish', gulpSequence('init', 'bump-version', 'make-simulator', 'make-prebuilt'));
 }
 
 function execSync(cmd, workPath) {
@@ -300,4 +302,50 @@ gulp.task('upload-cocos2d-x', function(cb) {
 gulp.task('upload-simulator', function(cb) {
     var zipFileName = 'simulator_' + process.platform + '.zip';
     uploadZipFile(zipFileName, '.', cb);
+});
+
+gulp.task('bump-version', function (cb) {
+    let ver;
+    if (!program.bump) {
+        return cb();
+    }
+    let pjson = require('./package.json');
+    if (typeof program.bump === 'string') {
+        // new version
+        ver = program.bump;
+        if (!/^\d/.test(ver)) {
+            return cb(`New version must starts with a digit`);
+        }
+    }
+    else {
+        // version +1
+        ver = pjson.version.replace(/\d+$/, m => parseInt(m) + 1);
+    }
+    // update package.json
+    console.log(`Bump version from ${pjson.version} to ${ver}`);
+    pjson.version = ver;
+    fs.writeFileSync('package.json', JSON.stringify(pjson, null, 2), 'utf8');
+
+    // update cocos/cocos2d.cpp
+    let filePath = Path.join('cocos', 'cocos2d.cpp');
+    let content = fs.readFileSync(filePath, 'utf8');
+    let re = /(cocos2dVersion(?:.|\n)*return\s+").+(";)/;
+    content = content.replace(re, `$1${ver}$2`);
+    fs.writeFileSync(filePath, content, 'utf8');
+
+    cb();
+});
+
+gulp.task('push-tag', function () {
+    if (process.platform === 'darwin') {
+        if (process.env.COCOS_WORKFLOW_ROOT) {
+            execSync('npm run tag -- --path ' + process.cwd(), process.env.COCOS_WORKFLOW_ROOT);
+        }
+        else {
+            console.warn(Chalk.cyan('COCOS_WORKFLOW_ROOT is undefined in the environment, skip push-tag'));
+        }
+    }
+    else {
+        console.log('skip push-tag on Windows');
+    }
 });

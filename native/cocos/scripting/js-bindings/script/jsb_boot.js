@@ -44,7 +44,7 @@ cc.view.convertToLocationInView = function (tx, ty, relatedPos) {
 cc.view.enableRetina = function(enabled) {};
 cc.view.isRetinaEnabled = function() {
     var sys = cc.sys;
-    return (sys.os === sys.OS_IOS || sys.os === sys.OS_OSX) ? true : false;
+    return (sys.os === sys.OS_IOS || sys.os === sys.OS_OSX);
 };
 cc.view.adjustViewPort = function() {};
 cc.view.resizeWithBrowserSize = function () {return;};
@@ -552,7 +552,7 @@ var _initSys = function () {
                     platform === sys.IPHONE || 
                     platform === sys.WP8 || 
                     platform === sys.TIZEN ||
-                    platform === sys.BLACKBERRY) ? true : false;
+                    platform === sys.BLACKBERRY);
     
     sys._application = cc.Application.getInstance();
 
@@ -785,9 +785,5 @@ _initSys();
 jsb.urlRegExp = new RegExp("^(?:https?|ftp)://\\S*$", "i");
 
 cc._engineLoaded = false;
-
-(function (config) {
-    require("script/jsb.js");
-    cc._engineLoaded = true;
-    console.log(cc.ENGINE_VERSION);
-})();
+require("script/jsb.js");
+cc._engineLoaded = true;
