@@ -148,21 +148,18 @@ let tmxAssembler = js.addon({
         let enabledCulling = cc.macro.ENABLE_TILEDMAP_CULLING;
         
         if (enabledCulling) {
-            let viewMask = comp.node._viewMask;
-            if (viewMask !== -1) {
-                let camera = cc.Camera.cameras[viewMask];
-                if (camera) {
-                    mat4.mul(_mat4_temp, matrix, camera._matView);
-                    cullingA = _mat4_temp.m00;
-                    cullingD = _mat4_temp.m05;
-                    cullingMapx = ox * cullingA + oy * _mat4_temp.m04 + _mat4_temp.m12;
-                    cullingMapy = ox * _mat4_temp.m01 + oy * cullingD + _mat4_temp.m13;
-                    cullingW = tilew * cullingA;
-                    cullingH = tileh * cullingD;
-                }
-                
+            let camera = cc.Camera.findCamera(comp.node);
+            if (camera) {
+                camera.getWorldToCameraMatrix(_mat4_temp);
+                mat4.mul(_mat4_temp, matrix, _mat4_temp);
+                cullingA = _mat4_temp.m00;
+                cullingD = _mat4_temp.m05;
+                cullingMapx = ox * cullingA + oy * _mat4_temp.m04 + _mat4_temp.m12;
+                cullingMapy = ox * _mat4_temp.m01 + oy * cullingD + _mat4_temp.m13;
+                cullingW = tilew * cullingA;
+                cullingH = tileh * cullingD;
             }
-
+                
             if (layerOrientation === Orientation.ORTHO) {
                 cc.vmath.mat4.invert(_mat4_temp, matrix);
 

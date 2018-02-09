@@ -35,6 +35,7 @@ const FLOATS_PER_VERT = defaultVertexFormat._bytes / 4;
 const MAX_VERTEX = macro.BATCH_VERTEX_COUNT;
 const MAX_INDICE = MAX_VERTEX * 2;
 
+
 var _queue = null;
 var _batchData = {
     vfmt: null,
@@ -44,7 +45,7 @@ var _batchData = {
     indiceOffset: 0,
     comp: null,
     data: null,
-    viewID: -1,
+    cullingMask: 1,
     MAX_VERTEX: MAX_VERTEX,
     MAX_INDICE: MAX_INDICE
 };
@@ -136,15 +137,15 @@ RenderComponentWalker.prototype = {
     },
 
     _handleRender (node) {
-        if (node._viewID !== 1) {
+        if (node._cullingMask !== 1) {
             this._curCameraNode = node;
         }
 
         if (this._curCameraNode) {
-            node._viewMask = this._curCameraNode._viewID;
+            node._inheritMask = this._curCameraNode._cullingMask;
         }
         else {
-            node._viewMask = 1;
+            node._inheritMask = 1;
         }
 
         let comp = node._renderComponent;
@@ -284,7 +285,7 @@ RenderComponentWalker.prototype = {
             _batchData.comp = comp;
             datas = assembler.updateRenderData(comp, _batchData);
 
-            let viewMask = comp.node._viewMask;
+            let cullingMask = comp.node._inheritMask;
 
             for (let id = 0; id < datas.length; id ++) {
                 data = datas[id];
@@ -296,12 +297,12 @@ RenderComponentWalker.prototype = {
                 }
                 // breaking batch
                 needNewBuf = (_batchData.vertexOffset + data.vertexCount > MAX_VERTEX) || (_batchData.indiceOffset + data.indiceCount > MAX_INDICE);
-                if (_batchData.vfmt && (_batchData.effect != effect || _batchData.cullingMask !== viewMask || needNewBuf)) {
+                if (_batchData.vfmt && (_batchData.effect != effect || _batchData.cullingMask !== cullingMask || needNewBuf)) {
                     this._checkBatchBroken(_batchData, needNewBuf);
                     this._node = this._dummyNode;
                     _batchData.effect = effect;
                     _batchData.vfmt = comp._vertexFormat;
-                    _batchData.cullingMask = viewMask;
+                    _batchData.cullingMask = cullingMask;
                 }
                 // Init effect
                 else if (!_batchData.effect) {

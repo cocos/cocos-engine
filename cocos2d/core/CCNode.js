@@ -941,8 +941,8 @@ var Node = cc.Class({
         this._localMatDirty = true;
         this._worldMatDirty = true;
 
-        this._viewID = 1;
-        this._viewMask = 1;
+        this._cullingMask = 1;
+        this._inheritMask = 1;
     },
 
     statics: {
@@ -1309,9 +1309,9 @@ var Node = cc.Class({
             h = this.height;
         var testPt;
         
-        var Camera = cc.Camera;
-        if (this._viewMask !== 1 && Camera.cameras[this._viewMask]) {
-            testPt = Camera.cameras[this._viewMask].getCameraToWorldPoint(point);
+        let camera = cc.Camera.findCamera(this);
+        if (camera) {
+            testPt = camera.getCameraToWorldPoint(point);
         }
         else {
             testPt = cc.v2(point);

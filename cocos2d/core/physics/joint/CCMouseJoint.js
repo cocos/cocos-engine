@@ -263,8 +263,9 @@ var MouseJoint = cc.Class({
             return;
         }
 
-        if (cc.Camera && cc.Camera.main) {
-            this.target = cc.Camera.main.getCameraToWorldPoint(this._pressPoint);
+        var camera = cc.Camera.find(this.node);
+        if (camera) {
+            this.target = camera.getCameraToWorldPoint(this._pressPoint);
         }
         else {
             this.target = this._pressPoint;

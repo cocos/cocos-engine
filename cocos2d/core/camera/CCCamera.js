@@ -33,7 +33,8 @@ const vec3 = cc.vmath.vec3;
 
 let _static_culling_mask = 1;
 
-let _mat4_temp = mat4.create();
+let _mat4_temp_1 = mat4.create();
+let _mat4_temp_2 = mat4.create();
 let _vec3_temp_1 = vec3.create();
 let _vec3_temp_2 = vec3.create();
 
@@ -110,7 +111,18 @@ let Camera = cc.Class({
          */
         main: null,
 
-        cameras: _cameras
+        cameras: _cameras,
+
+        findCamera (node) {
+            for (let i = 0, l = _cameras.length; i < l; i++) {
+                let camera = _cameras[i];
+                if (camera.containsNode(node)) {
+                    return camera;
+                }
+            }
+
+            return null;
+        }
     },
 
     onLoad () {
@@ -124,7 +136,7 @@ let Camera = cc.Class({
 
         let targets = this._targets;
         for (let i = 0, l = targets.length; i < l; i++) {
-            targets[i]._viewID = this.cullingMask;
+            targets[i]._cullingMask = this.cullingMask;
         }
 
         renderer.scene.addCamera(this._camera);
@@ -138,7 +150,7 @@ let Camera = cc.Class({
         
         let targets = this._targets;
         for (let i = 0, l = targets.length; i < l; i++) {
-            targets[i]._viewID = 1;
+            targets[i]._cullingMask = 1;
         }
 
         renderer.scene.removeCamera(this._camera);
@@ -158,7 +170,7 @@ let Camera = cc.Class({
             return;
         }
 
-        target._viewID = this.viewID;
+        target._cullingMask = this.cullingMask;
         this._targets.push(target);
     },
 
@@ -175,7 +187,7 @@ let Camera = cc.Class({
             return;
         }
 
-        target._viewID = -1;
+        target._cullingMask = 1;
         cc.js.array.remove(this._targets, target);
     },
 
@@ -202,11 +214,12 @@ let Camera = cc.Class({
      */
     getNodeToCameraTransform (node) {
         let out = affineTrans.makeIdentity();
-        node.getWorldMatrix(_mat4_temp);
+        node.getWorldMatrix(_mat4_temp_2);
         if (this.containsNode(node)) {
-            mat4.mul(_mat4_temp, _mat4_temp, this._matView);
+            this.getWorldToCameraMatrix(_mat4_temp_1);
+            mat4.mul(_mat4_temp_2, _mat4_temp_2, _mat4_temp_1);
         }
-        affineTrans.fromMatrix(_mat4_temp, out);
+        affineTrans.fromMatrix(_mat4_temp_2, out);
         return out;
     },
 
@@ -222,12 +235,8 @@ let Camera = cc.Class({
      */
     getCameraToWorldPoint (point, out) {
         out = out || cc.v2();
-        _vec3_temp_2.x = point.x;
-        _vec3_temp_2.y = point.y;
-        _vec3_temp_2.z = 0;
-        this._camera.screenToWorld(_vec3_temp_1, _vec3_temp_2, renderer.canvas.width, renderer.canvas.height);
-        out.x = _vec3_temp_1.x;
-        out.y = _vec3_temp_1.y;
+        this.getCameraToWorldMatrix(_mat4_temp_1);
+        vec2.transformMat4(out, point, _mat4_temp_1);
         return out;
     },
 
@@ -242,7 +251,8 @@ let Camera = cc.Class({
      */
     getWorldToCameraPoint (point, out) {
         out = out || cc.v2();
-        vec2.transformMat4(out, point, this._matView);
+        this.getWorldToCameraMatrix(_mat4_temp_1);
+        vec2.transformMat4(out, point, _mat4_temp_1);
         return out;
     },
 
@@ -255,11 +265,11 @@ let Camera = cc.Class({
      * @return {Mat4}
      */
     getCameraToWorldMatrix (out) {
-        let mat = this._matView;
-        mat = mat4.invert(_mat4_temp, mat);
-        mat4.copy(out, _mat4_temp);
+        this.getWorldToCameraMatrix(out);
+        mat4.invert(out, out);
         return out;
     },
+
 
     /**
      * !#en
@@ -270,8 +280,24 @@ let Camera = cc.Class({
      * @return {Mat4}
      */
     getWorldToCameraMatrix (out) {
-        let mat = this._matView;
-        mat4.copy(out, mat);
+        this.node.getWorldRT(_mat4_temp_1);
+
+        let zoomRatio = this.zoomRatio;
+        _mat4_temp_1.m00 *= zoomRatio;
+        _mat4_temp_1.m01 *= zoomRatio;
+        _mat4_temp_1.m04 *= zoomRatio;
+        _mat4_temp_1.m05 *= zoomRatio;
+
+        let m12 = _mat4_temp_1.m12;
+        let m13 = _mat4_temp_1.m13;
+
+        let center = cc.visibleRect.center;
+        _mat4_temp_1.m12 = center.x - (_mat4_temp_1.m00 * m12 + _mat4_temp_1.m04 * m13);
+        _mat4_temp_1.m13 = center.y - (_mat4_temp_1.m01 * m12 + _mat4_temp_1.m05 * m13);
+
+        if (out !== _mat4_temp_1) {
+            mat4.copy(out, _mat4_temp_1);
+        }
         return out;
     },
 
@@ -285,21 +311,21 @@ let Camera = cc.Class({
      * @return {Boolean}
      */
     containsNode (node) {
-        return node._viewMask === this.viewID;
+        return node._inheritMask === this.cullingMask;
     },
 
     lateUpdate: !CC_EDITOR && function () {
-        let m = this._matView;
-        let visibleRect = cc.visibleRect;
         let node = this.node;
 
-        this._camera.setFov(this._fov / this.zoomRatio);
+        let zoomRatio = this.zoomRatio;
+        let min = -(zoomRatio/2-0.5);
+        this._camera.setRect(min,min,zoomRatio,zoomRatio);
 
         node.z = renderer.canvas.height / cc.view.getScaleY() / 1.1566;
-        node.getWorldMatrix(_mat4_temp);
+        node.getWorldMatrix(_mat4_temp_1);
 
-        _vec3_temp_1.x = _mat4_temp.m12;
-        _vec3_temp_1.y = _mat4_temp.m13;
+        _vec3_temp_1.x = _mat4_temp_1.m12;
+        _vec3_temp_1.y = _mat4_temp_1.m13;
         _vec3_temp_1.z = 0;
         node.lookAt(_vec3_temp_1);
 
