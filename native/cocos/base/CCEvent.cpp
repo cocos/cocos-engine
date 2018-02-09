@@ -37,5 +37,10 @@ Event::~Event()
 {
 }
 
+void Event::reset()
+{
+    _isStopped = false;
+    _currentTarget = nullptr;
+}
 
 NS_CC_END

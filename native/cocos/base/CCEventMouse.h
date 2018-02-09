@@ -172,6 +172,7 @@ public:
      */
     Vec2 getStartLocationInView() const;
 
+    virtual void reset() override;
 
 private:
     virtual ~EventMouse() {}
