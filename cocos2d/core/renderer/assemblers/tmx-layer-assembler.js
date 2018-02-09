@@ -119,8 +119,8 @@ let tmxAssembler = js.addon({
 
         let maptw = comp._mapTileSize.width,
             mapth = comp._mapTileSize.height,
-            tilew = comp._tileset._tileSize.width / cc.director._contentScaleFactor,
-            tileh = comp._tileset._tileSize.height / cc.director._contentScaleFactor,
+            tilew = comp._tileset._tileSize.width,
+            tileh = comp._tileset._tileSize.height,
             extw = tilew - maptw,
             exth = tileh - mapth,
             winw = cc.winSize.width,

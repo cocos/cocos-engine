@@ -387,8 +387,7 @@ var game = {
              * @type {Director}
              */
             cc.director = cc.Director._getInstance();
-            if (cc.director.setOpenGLView)
-                cc.director.setOpenGLView(cc.view);
+            
             /**
              * !#en cc.winSize is the alias object for the size of the current game window.
              * !#zh cc.winSize 为当前的游戏窗口的大小。
