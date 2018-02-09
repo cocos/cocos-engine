@@ -64,6 +64,7 @@ if (CC_DEBUG) {
         "1509": "Argument target must be non-nullptr", //isScheduled
         "1510": "cc.Scheduler: Illegal target which doesn't have uuid or instanceId",
         "1511": "cc.Scheduler: pause state of the scheduled task doesn't match the element pause state in Scheduler, the given paused state will be ignored",
+        "1512": "cc.Scheduler: updateFunc parameter is deprecated in scheduleUpdate function, and will be removed in v2.0",
         //Node: 1600
         "1600": "getZOrder is deprecated. Please use getLocalZOrder instead.", //getZOrder
         "1601": "setZOrder is deprecated. Please use setLocalZOrder instead.", //setZOrder
@@ -239,6 +240,7 @@ if (CC_DEBUG) {
         "3115": "Frame Grabber: could not attach texture to framebuffer", //CCGrabber.grab
         "3116": "WebGLRenderingContext.CLAMP_TO_EDGE should be used in NPOT textures", //setTexParameters
         "3117": "Mimpap texture only works in POT textures", //generateMipmap
+        "3118": "contentSize parameter is deprecated and ignored for cc.Texture2D initWithData function", // initWithData
         //RectWidth: 3300
         "3300": "Rect width exceeds maximum margin: %s", //RectWidth
         //RectHeight: 3400
