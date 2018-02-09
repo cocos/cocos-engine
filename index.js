@@ -36,8 +36,6 @@
  */
 cc = {};
 _ccsg = {};
-ccs = {};
-cp = {};
 
 require('./predefine');
 require('./CCDebugger');
