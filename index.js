@@ -109,6 +109,9 @@
 /**
  * @property {Boolean} CC_WECHATGAME - Running in the Wechat's mini game.
  */
+/**
+ * @property {Boolean} CC_QQPLAY - Running in the bricks.
+ */
 
 // window may be undefined when first load engine from editor
 var _global = typeof window === 'undefined' ? global : window;
@@ -132,6 +135,7 @@ defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
 defineMacro('CC_JSB', defined('jsb'));
 defineMacro('CC_BUILD', false);
 defineMacro('CC_WECHATGAME', false);
+defineMacro('CC_QQPLAY', false);
 defineMacro('CC_SUPPORT_JIT', !CC_WECHATGAME);
 
 // PREDEFINE
