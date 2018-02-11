@@ -217,20 +217,27 @@ namespace se {
         }
     }
 
-    void forceConvertJsValueToStdString(JSContextRef cx, JSValueRef jsval, std::string* ret)
+    void forceConvertJsValueToStdString(JSContextRef cx, JSValueRef jsval, std::string* ret, bool ignoreException/* = false */)
     {
         JSValueRef exception = nullptr;
         JSStringRef jsstr = JSValueToStringCopy(cx, jsval, &exception);
         if (exception != nullptr)
         {
-            ScriptEngine::getInstance()->_clearException(exception);
+            // NOTE: ignoreException is true in ScriptEngine::_formatException because it's already in the _clearException process.
+            // Adds this flag to avoid infinite loop of _clearException -> _formatException -> forceConvertJsValueToStdString -> _clearException -> ...
+            if (!ignoreException)
+            {
+                ScriptEngine::getInstance()->_clearException(exception);
+            }
             ret->clear();
         }
         else
         {
             jsStringToStdString(cx, jsstr, ret);
         }
-        JSStringRelease(jsstr);
+
+        if (jsstr != nullptr)
+            JSStringRelease(jsstr);
     }
 
     void jsStringToStdString(JSContextRef cx, JSStringRef jsStr, std::string* ret)
