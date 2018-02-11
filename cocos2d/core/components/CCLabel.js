@@ -471,7 +471,10 @@ var Label = cc.Class({
             material = new SpriteMaterial();
             this._texture = new cc.Texture2D();
             this._canvas = document.createElement("canvas");
+            // create canvas with size so that the default texture impl can be created and don't need activate material again
+            this._canvas.width = this._canvas.height = 1;
             this._texture.initWithElement(this._canvas);
+            this._texture.handleLoadedTexture();
             this._context = this._canvas.getContext("2d");
 
             material.texture = this._texture.getImpl();

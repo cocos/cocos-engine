@@ -31,28 +31,30 @@ const bmfontAssembler = require('./bmfont-assembler');
 
 var labelAssembler = js.addon({
     updateRenderData (comp) {
-        let assembler;
-        if (comp.font instanceof cc.BitmapFont) {
-            assembler = bmfontAssembler;
-        }
-        else {
-            assembler = ttfAssembler;
-        }
-
-        let renderData = comp._renderData;
-        if (!renderData) {
-            renderData = comp._renderData = assembler.createData(comp);
-        }
-
-        let size = comp.node._contentSize;
-        let anchor = comp.node._anchorPoint;
-        renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
-        
-        assembler.update(comp);
-        
-        renderData.effect = comp.getEffect();
         this.datas.length = 0;
-        this.datas.push(renderData);
+        if (comp.string) {
+            let assembler;
+            if (comp.font instanceof cc.BitmapFont) {
+                assembler = bmfontAssembler;
+            }
+            else {
+                assembler = ttfAssembler;
+            }
+
+            let renderData = comp._renderData;
+            if (!renderData) {
+                renderData = comp._renderData = assembler.createData(comp);
+            }
+
+            let size = comp.node._contentSize;
+            let anchor = comp.node._anchorPoint;
+            renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
+            
+            assembler.update(comp);
+            
+            renderData.effect = comp.getEffect();
+            this.datas.push(renderData);
+        }
         return this.datas;
     },
 
