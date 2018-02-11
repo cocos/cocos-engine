@@ -175,6 +175,12 @@ Audio.State = {
         });
     };
 
+    proto.destroy = function () {
+        if (CC_WECHATGAME) {
+            this._element.destroy();
+        }
+    };
+
     proto.pause = function () {
         if (!this._element) return;
         this._unbindEnded();
