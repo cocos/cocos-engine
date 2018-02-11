@@ -75,8 +75,12 @@ public:
         BULGARIAN
     };
     
-    Application();
+    Application(const std::string& name);
     virtual ~Application();
+    
+    virtual bool applicationDidFinishLaunching();
+    virtual void applicationDidEnterBackground();
+    virtual void applicationWillEnterForeground();
     
     inline void* getView() const { return _view; }
     
@@ -125,17 +129,16 @@ public:
     bool openURL(const std::string &url);
     
 protected:
-    virtual bool applicationDidFinishLaunching();
-    virtual void applicationDidEnterBackground();
-    virtual void applicationWillEnterForeground();
-    virtual void onCreateView(int& x, int& y, int& width, int& height, int& rBits, int& gBits, int& bBits, int& aBits, int& depthBits, int& stencilBits);
+    virtual void onCreateView(int& x, int& y, int& width, int& height, 
+                              int& rBits, int& gBits, int& bBits, int& aBits, int& depthBits, int& stencilBits, int& multisamplingCount);
     
 private:
-    void createView();
+    void createView(const std::string& name);
     
     void* _view = nullptr;
     bool _multiTouch = false;
     void* _delegate = nullptr;
+    float _animationInterval = 1.0 / 60;
 };
 
 // end of platform group

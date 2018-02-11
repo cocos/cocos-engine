@@ -41,7 +41,7 @@ using namespace anysdk::framework;
 
 USING_NS_CC;
 
-AppDelegate::AppDelegate()
+AppDelegate::AppDelegate() : Application("Creator game")
 {
 }
 

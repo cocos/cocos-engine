@@ -125,9 +125,9 @@
 
 NS_CC_BEGIN
 
-Application::Application()
+Application::Application(const std::string& name)
 {
-    createView();
+    createView(name);
     
     renderer::DeviceGraphics::getInstance();
     se::ScriptEngine::getInstance();
@@ -247,7 +247,7 @@ void Application::setMultitouch(bool value)
     }
 }
 
-void Application::onCreateView(int&x, int& y, int& width, int& height, int& rBits, int& gBits, int& bBits, int& aBits, int& depthBits, int& stencilBits)
+void Application::onCreateView(int&x, int& y, int& width, int& height, int& rBits, int& gBits, int& bBits, int& aBits, int& depthBits, int& stencilBits, int& multisamplingCount)
 {
     CGRect bounds = [UIScreen mainScreen].bounds;
     x = bounds.origin.x;
@@ -261,9 +261,10 @@ void Application::onCreateView(int&x, int& y, int& width, int& height, int& rBit
     aBits = 0;
     depthBits = 24;
     stencilBits = 8;
+    multisamplingCount = 0;
 }
 
-void Application::createView()
+void Application::createView(const std::string& /*name*/)
 {
     int x = 0;
     int y = 0;
@@ -275,12 +276,13 @@ void Application::createView()
     int a = 0;
     int depth = 0;
     int stencil = 0;
+    int multisamplingCount = 0;
     
     onCreateView(x,
                  y,
                  width,
                  height,
-                 r, g, b, a, depth, stencil);
+                 r, g, b, a, depth, stencil, multisamplingCount);
     
     CGRect bounds;
     bounds.origin.x = x;
@@ -288,17 +290,17 @@ void Application::createView()
     bounds.size.width = width;
     bounds.size.height = height;
     
-    //TODO: pixel format, depth format and multi sample
+    //TODO: pixel format, depth format
     // create view
     CCEAGLView *eaglView = [CCEAGLView viewWithFrame: bounds
                                          pixelFormat: kEAGLColorFormatRGB565
                                          depthFormat: GL_DEPTH_COMPONENT24_OES
                                   preserveBackbuffer: NO
                                           sharegroup: nil
-                                       multiSampling: NO
-                                     numberOfSamples: 0];
+                                       multiSampling: multisamplingCount != 0
+                                     numberOfSamples: multisamplingCount];
     
-    eaglView.backgroundColor = [UIColor redColor];
+    eaglView.backgroundColor = [UIColor redColor]; // TODO: remove it
     [eaglView setMultipleTouchEnabled:_multiTouch];
     
     [eaglView retain];

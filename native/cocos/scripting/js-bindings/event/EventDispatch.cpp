@@ -27,7 +27,11 @@
 namespace cocos2d
 {
 
-void EventDispatch::dispatchTouchEvent(const struct TouchEvent& touch)
+void EventDispatch::dispatchTouchEvent(const struct TouchEvent& touchEvent)
+{
+}
+
+void EventDispatch::dispatchKeyEvent(int key, int action)
 {
 }
     
