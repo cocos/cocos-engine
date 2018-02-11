@@ -558,7 +558,7 @@ var Node = cc.Class({
                 if (this._rotationX !== value || this._rotationY !== value) {
                     this._rotationX = this._rotationY = value;
                     // Update quaternion from rotation
-                    math.quat.fromEuler(this._quat, 0, 0, this._rotationX);
+                    math.quat.fromEuler(this._quat, 0, 0, -this._rotationX);
                     this._localMatDirty = true;
 
                     var cache = this._hasListenerCache;
@@ -587,7 +587,7 @@ var Node = cc.Class({
                     this._rotationX = value;
                     // Update quaternion from rotation
                     if (this._rotationX === this._rotationY) {
-                        math.quat.fromEuler(this._quat, 0, 0, this._rotationX);
+                        math.quat.fromEuler(this._quat, 0, 0, -this._rotationX);
                     }
                     else {
                         math.quat.fromEuler(this._quat, this._rotationX, this._rotationY, 0);
@@ -620,7 +620,7 @@ var Node = cc.Class({
                     this._rotationY = value;
                     // Update quaternion from rotation
                     if (this._rotationX === this._rotationY) {
-                        math.quat.fromEuler(this._quat, 0, 0, this._rotationX);
+                        math.quat.fromEuler(this._quat, 0, 0, -this._rotationX);
                     }
                     else {
                         math.quat.fromEuler(this._quat, this._rotationX, this._rotationY, 0);
