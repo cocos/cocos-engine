@@ -354,7 +354,9 @@ namespace se {
     ScriptEngine::ExceptionInfo ScriptEngine::_formatException(JSValueRef exception)
     {
         ExceptionInfo ret;
-        internal::forceConvertJsValueToStdString(_cx, exception, &ret.message);
+
+        // Ignore Exception in forceConvertJsValueToStdString invocation to avoid infinite loop.
+        internal::forceConvertJsValueToStdString(_cx, exception, &ret.message, true);
 
         JSType type = JSValueGetType(_cx, exception);
 

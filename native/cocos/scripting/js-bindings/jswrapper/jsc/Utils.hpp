@@ -50,7 +50,7 @@ namespace se {
         void jsToSeValue(JSContextRef cx, JSValueRef jsval, Value* v);
         void seToJsValue(JSContextRef cx, const Value& v, JSValueRef* jsval);
 
-        void forceConvertJsValueToStdString(JSContextRef cx, JSValueRef jsval, std::string* ret);
+        void forceConvertJsValueToStdString(JSContextRef cx, JSValueRef jsval, std::string* ret, bool ignoreException = false);
         void jsStringToStdString(JSContextRef cx, JSStringRef jsStr, std::string* ret);
 
         bool hasPrivate(JSObjectRef obj);

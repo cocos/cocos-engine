@@ -87,6 +87,8 @@ public:
      */
     inline Node* getCurrentTarget() { return _currentTarget; };
 
+    virtual void reset();
+
 protected:
     /** Sets current target */
     inline void setCurrentTarget(Node* target) { _currentTarget = target; };

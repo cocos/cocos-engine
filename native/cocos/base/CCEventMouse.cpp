@@ -81,4 +81,16 @@ Vec2 EventMouse::getDelta() const
 {
     return getLocation() - getPreviousLocation();
 }
+
+void EventMouse::reset()
+{
+    Event::reset();
+    _mouseButton = -1;
+    _x = 0.0f;
+    _y = 0.0f;
+    _scrollX = 0.0f;
+    _scrollY = 0.0f;
+    _startPointCaptured = false;
+}
+
 NS_CC_END

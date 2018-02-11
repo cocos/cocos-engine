@@ -29,12 +29,15 @@ NS_CC_BEGIN
 
 EventTouch::EventTouch()
 : Event(Type::TOUCH)
+, _eventCode(EventCode::INVALID)
 {
     _touches.reserve(MAX_TOUCHES);
 }
 
 void EventTouch::reset()
 {
+    Event::reset();
+    _eventCode = EventCode::INVALID;
     _touches.clear();
 }
 
