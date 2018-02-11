@@ -1468,14 +1468,21 @@ static bool js_cocos2dx_CallFunc_create(se::State& s)
         CallFuncN* ret = new (std::nothrow) CallFuncN;
         se::Object* jsobj = se::Object::createObjectWithClass(__jsb_cocos2d_CallFuncN_class);
         jsobj->setPrivateData(ret);
+        // Assign jsobj to s.rval() to avoid jsobj be swept by GC immediately.
+        // Because there is "jsobj->attachObject(funcVal.toObject());" in "js_cocos2dx_CallFunc_init" function.
+        // attachObject will do a function invocation which may mark 'jsobj' into an invalid state but without
+        // invoking CallFuncN's finalize callback immediately.
+        // AddressSanitizer in Xcode will prompt: heap-use-after-free on address.
+        s.rval().setObject(jsobj);
 
-        if (js_cocos2dx_CallFunc_init(ret, jsobj, args))
+        if (!js_cocos2dx_CallFunc_init(ret, jsobj, args))
         {
-            s.rval().setObject(jsobj);
-            return true;
+            s.rval().setUndefined();
+            SE_REPORT_ERROR("js_cocos2dx_CallFunc_create: initWithFunction failed!");
+            return false;
         }
-        SE_REPORT_ERROR("js_cocos2dx_CallFunc_create: initWithFunction failed!");
-        return false;
+
+        return true;
     }
     SE_REPORT_ERROR("js_cocos2dx_CallFunc_create: Invalid number of arguments");
     return false;
