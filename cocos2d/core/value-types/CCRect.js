@@ -346,8 +346,8 @@ proto.contains = function (point) {
  * @param {Rect} rect
  * @type {Boolean}
  * @example
- * var a = new cc.Rect(0, 0, 10, 10);
- * var b = new cc.Rect(0, 0, 20, 20);
+ * var a = new cc.Rect(0, 0, 20, 20);
+ * var b = new cc.Rect(0, 0, 10, 10);
  * a.containsRect(b);// true
  */
 proto.containsRect = function (rect) {
