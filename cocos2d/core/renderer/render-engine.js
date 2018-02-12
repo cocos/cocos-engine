@@ -13516,7 +13516,7 @@ module.exports = (function () {
   // Add stage to renderer
   renderer.addStage('transparent');
   
-  class ForwardRenderer$1 extends renderer.Base {
+  class ForwardRenderer extends renderer.Base {
     constructor (device, builtin) {
       super(device, builtin);
       this._registerStage('transparent', this._transparentStage.bind(this));
@@ -13554,251 +13554,6 @@ module.exports = (function () {
   
       // draw it
       for (let i = 0; i < items.length; ++i) {
-        let item = items.data[i];
-        this._draw(item);
-      }
-    }
-  }
-  
-  class Device$2 {
-    /**
-     * @param {HTMLElement} canvasEL
-     */
-    constructor(canvasEL) {
-      let ctx;
-  
-      try {
-        ctx = canvasEL.getContext('2d');
-      } catch (err) {
-        console.error(err);
-        return;
-      }
-  
-      // statics
-      this._canvas = canvasEL;
-      this._ctx = ctx;
-      this._caps = {}; // capability
-      this._stats = {
-        drawcalls: 0,
-      };
-  
-      // runtime
-      this._vx = this._vy = this._vw = this._vh = 0;
-      this._sx = this._sy = this._sw = this._sh = 0;
-    }
-  
-    _restoreTexture (unit) {
-    }
-  
-    // ===============================
-    // Immediate Settings
-    // ===============================
-  
-    /**
-     * @method setViewport
-     * @param {Number} x
-     * @param {Number} y
-     * @param {Number} w
-     * @param {Number} h
-     */
-    setViewport(x, y, w, h) {
-      if (
-        this._vx !== x ||
-        this._vy !== y ||
-        this._vw !== w ||
-        this._vh !== h
-      ) {
-        this._vx = x;
-        this._vy = y;
-        this._vw = w;
-        this._vh = h;
-      }
-    }
-  
-    /**
-     * @method setScissor
-     * @param {Number} x
-     * @param {Number} y
-     * @param {Number} w
-     * @param {Number} h
-     */
-    setScissor(x, y, w, h) {
-      if (
-        this._sx !== x ||
-        this._sy !== y ||
-        this._sw !== w ||
-        this._sh !== h
-      ) {
-        this._sx = x;
-        this._sy = y;
-        this._sw = w;
-        this._sh = h;
-      }
-    }
-  
-    clear(color) {
-      let ctx = this._ctx;
-      ctx.clearRect(this._vx, this._vy, this._vw, this._vh);
-      if (color && (color[0] !== 0 || color[1] !== 0 || color[2] !== 0)) {
-        ctx.fillStyle = 'rgb(' + color[0] + ',' + color[1] + ',' + color[2] +')';
-        ctx.globalAlpha = color[3];
-        ctx.fillRect(this._vx, this._vy, this._vw, this._vh);
-      }
-    }
-  }
-  
-  const _clearColor = [0, 0, 0, 1];
-  
-  class Base$1 {
-    /**
-     * @param {gfx.Device} device
-     * @param {Object} opts
-     */
-    constructor(device, opts) {
-      this._device = device;
-      this._opts = opts;
-      this._stage2fn = {};
-  
-      this._drawItemsPools = new RecyclePool(() => {
-        return {
-          model: null,
-          node: null,
-        };
-      }, 100);
-    }
-  
-    _registerStage(name, fn) {
-      this._stage2fn[name] = fn;
-    }
-  
-    _reset() {
-      this._drawItemsPools.reset();
-    }
-  
-    _render(view, scene) {
-      const device = this._device;
-      let stage = view._stages[0];
-  
-      // reset transform to camera
-      let ctx = device._ctx;
-      let mat = camera._viewProj;
-      ctx.setTransform(mat.m00, mat.m01, mat.m04, mat.m05, mat.m12, mat.m13);
-      device.setViewport(0, 0, camera._rect.w, camera._rect.h);
-      device.clear(_clearColor);
-  
-      // get all draw items
-      let allDrawItems = this._drawItemsPools.alloc();
-      allDrawItems.reset();
-  
-      for (let i = 0; i < scene._models.length; ++i) {
-        let model = scene._models.data[i];
-        let drawItem = allDrawItems.add();
-        model.extractDrawItem(drawItem);
-      }
-  
-      // render only the default stage
-      let fn = this._stage2fn[stages[0]];
-      fn(view, allDrawItems);
-    }
-  
-    _draw(item) {
-      const device = this._device;
-      const ctx = device._ctx;
-  
-      item.model.draw(ctx);
-    }
-  }
-  
-  var renderer$3 = {
-    Base: Base$1
-  };
-  
-  class Texture2D$2 {
-  
-    /**
-     * @constructor
-     * @param {Device} device
-     * @param {Object} options
-     * @param {Array} options.images
-     * @param {Number} options.width
-     * @param {Number} options.height
-     */
-    constructor(device, options) {
-      this._device = device;
-      
-      this._width = 4;
-      this._height = 4;
-  
-      this._image = null;
-  
-      if (options) {
-        if (options.width !== undefined) {
-          this._width = options.width;
-        }
-        if (options.height !== undefined) {
-          this._height = options.height;
-        }
-  
-        if (options.images && options.images[0]) {
-          let ops = {
-            image: options.images[0]
-          };
-          this.updateImage(ops);
-        }
-      }
-    }
-  
-    update (options) {
-      this.updateImage(options);
-    }
-  
-    updateImage(options) {
-      if (options.image && options.image !== this._image) {
-        this._image = options.image;
-      }
-    }
-  
-    destroy () {
-      this._image = null;
-    }
-  }
-  
-  var canvas = {
-      Device: Device$2,
-      renderer: renderer$3,
-      Texture2D: Texture2D$2
-  };
-  
-  const renderer$2 = canvas.renderer;
-  
-  class ForwardRenderer$2 extends renderer$2.Base {
-    constructor (device, builtin) {
-      super(device, builtin);
-      
-      this._registerStage('transparent', this._transparentStage.bind(this));
-    }
-  
-    reset () {
-      // Reset renderer internal datas
-      this._reset();
-    }
-  
-    render (camera, scene) {
-      this.reset();
-  
-      // visit logic node tree to get zorders
-      // scene.visit();
-  
-      this._render(camera, scene);
-    }
-  
-    _transparentStage (camera, items) {
-      let ctx = this._device._ctx;
-      let mat = camera._viewProj;
-  
-      // Culling and draw items
-      for (let i = 0, l = items.length; i < l; ++i) {
-        ctx.setTransform(mat.m00, mat.m01, mat.m04, mat.m05, mat.m12, mat.m13);
         let item = items.data[i];
         this._draw(item);
       }
@@ -14831,82 +14586,15 @@ module.exports = (function () {
     }
   }
   
-  function create3DContext (canvas, opt_attribs) {
-    try {
-      return canvas.getContext('webgl', opt_attribs) || canvas.getContext('experimental-webgl', opt_attribs);
-    } catch (e) {
-      return null;
-    }
-  }
-  
-  let supportWebGL = false;
-  
-  // In editor main process
-  if (typeof window === 'undefined') {
-    supportWebGL = true;
-  }
-  else {
-    const sys = window.cc && window.cc.sys;
-    let canvas = document.createElement("canvas");
-    
-    if (window.WebGLRenderingContext) {
-      // if (create3DContext(canvas)) {
-        supportWebGL = true;
-      // }
-      if (supportWebGL && sys && sys.os === sys.OS_ANDROID) {
-        var browserVer = parseFloat(sys.browserVersion);
-        switch (sys.browserType) {
-        case sys.BROWSER_TYPE_MOBILE_QQ:
-        case sys.BROWSER_TYPE_BAIDU:
-        case sys.BROWSER_TYPE_BAIDU_APP:
-          // QQ & Baidu Brwoser 6.2+ (using blink kernel)
-          if (browserVer >= 6.2) {
-              supportWebGL = true;
-          }
-          else {
-              supportWebGL = false;
-          }
-          break;
-        case sys.BROWSER_TYPE_ANDROID:
-          // Android 5+ default browser
-          if (sys.osMainVersion && sys.osMainVersion >= 5) {
-              supportWebGL = true;
-          }
-          break;
-        case sys.BROWSER_TYPE_CHROME:
-          // Chrome on android supports WebGL from v. 30
-          if (browserVer >= 30.0) {
-              supportWebGL = true;
-          } else {
-              supportWebGL = false;
-          }
-          break;
-        case sys.BROWSER_TYPE_UC:
-          if (browserVer > 11.0) {
-              supportWebGL = true;
-          } else {
-              supportWebGL = false;
-          }
-        case sys.BROWSER_TYPE_360:
-          supportWebGL = false;
-        }
-      }
-    }  
-  }
-  
-  var renderMode = {
-    supportWebGL,
-    create3DContext
-  };
-  
   // intenral
   // deps
+  // import canvas from './lib/canvas';
+  
   const Scene = renderer.Scene;
   const Camera = renderer.Camera;
   const View = renderer.View;
-  const ForwardRenderer = renderMode.supportWebGL ? ForwardRenderer$1 : ForwardRenderer$2;
-  const Texture2D = renderMode.supportWebGL ? gfx.Texture2D : canvas.Texture2D;
-  const Device = renderMode.supportWebGL ? gfx.Device : canvas.Device;
+  const Texture2D = gfx.Texture2D;
+  const Device = gfx.Device;
   const Model = renderer.Model;
   const InputAssembler = renderer.InputAssembler;
   
@@ -14941,7 +14629,6 @@ module.exports = (function () {
     shaders,
   
     // utils
-    renderMode,
     MaterialUtil,
   
     // memop
@@ -14952,7 +14639,7 @@ module.exports = (function () {
     math,
     renderer,
     gfx,
-    canvas
+    // canvas
   };
   
   return renderEngine;
