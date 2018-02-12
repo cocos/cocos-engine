@@ -122,10 +122,10 @@ if (CC_DEBUG) {
         "1702": "cocos2d: Could not initialize cc.AtlasNode. Invalid Texture.", //_initWithTexture
         "1703": "The new text must be String", //TextAtlas.text
         //_checkEventListenerAvailable: 1800
-        "1800": "cc._EventListenerKeyboard.checkAvailable(): Invalid EventListenerKeyboard!", //keyboard
-        "1801": "cc._EventListenerTouchOneByOne.checkAvailable(): Invalid EventListenerTouchOneByOne!", //touchOneByOne
-        "1802": "cc._EventListenerTouchAllAtOnce.checkAvailable(): Invalid EventListenerTouchAllAtOnce!", //touchAllAtOnce
-        "1803": "cc._EventListenerAcceleration.checkAvailable(): _onAccelerationEvent must be non-nil", //acceleration
+        "1800": "Keyboard EventListener checkAvailable(): Invalid EventListenerKeyboard!", //keyboard
+        "1801": "TouchOneByOne EventListener checkAvailable(): Invalid EventListenerTouchOneByOne!", //touchOneByOne
+        "1802": "TouchAllAtOnce EventListener checkAvailable(): Invalid EventListenerTouchAllAtOnce!", //touchAllAtOnce
+        "1803": "Acceleration EventListener checkAvailable(): _onAccelerationEvent must be non-nil", //acceleration
         //EventListener: 1900
         "1900": "Invalid parameter.", //create
         //__getListenerID: 2000

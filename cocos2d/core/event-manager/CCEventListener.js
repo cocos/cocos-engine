@@ -22,6 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
+var js = require('../platform/js');
+
 /**
  * !#en
  * <p>
@@ -45,26 +48,21 @@
  * @param {Number} listenerID
  * @param {Number} callback
  */
-cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
-    /*
-     * Initializes event with type and callback function.
-     * @param {Number} type
-     * @param {String} listenerID
-     * @param {Function} callback
-     */
-    ctor: function (type, listenerID, callback) {
-        this._onEvent = callback;   // Event callback function
-        this._type = type || 0;     // Event listener type
-        this._listenerID = listenerID || "";    // Event listener ID
-        this._registered = false;   // Whether the listener has been added to dispatcher.
+cc.EventListener = function (type, listenerID, callback) {
+    this._onEvent = callback;   // Event callback function
+    this._type = type || 0;     // Event listener type
+    this._listenerID = listenerID || "";    // Event listener ID
+    this._registered = false;   // Whether the listener has been added to dispatcher.
 
-        this._fixedPriority = 0;    // The higher the number, the higher the priority, 0 is for scene graph base priority.
-        this._node = null;          // scene graph based priority
-        this._target = null;
-        this._paused = true;        // Whether the listener is paused
-        this._isEnabled = true;     // Whether the listener is enabled
-    },
+    this._fixedPriority = 0;    // The higher the number, the higher the priority, 0 is for scene graph base priority.
+    this._node = null;          // scene graph based priority
+    this._target = null;
+    this._paused = true;        // Whether the listener is paused
+    this._isEnabled = true;     // Whether the listener is enabled
+};
 
+cc.EventListener.prototype = {
+    constructor: cc.EventListener,
     /*
      * <p>
      *     Sets paused state for the listener
@@ -243,7 +241,7 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
      */
     release:function () {
     }
-});
+};
 
 // event listener type
 /**
@@ -303,13 +301,22 @@ cc.EventListener.ACCELERATION = 6;
  */
 cc.EventListener.CUSTOM = 8;
 
-cc._EventListenerCustom = cc.EventListener.extend({
-    _onCustomEvent: null,
-    ctor: function (listenerId, callback) {
-        this._onCustomEvent = callback;
-        cc.EventListener.prototype.ctor.call(this, cc.EventListener.CUSTOM, listenerId, this._callback);
-    },
+var ListenerID = cc.EventListener.ListenerID = {
+    MOUSE: '__cc_mouse',
+    TOUCH_ONE_BY_ONE: '__cc_touch_one_by_one',
+    TOUCH_ALL_AT_ONCE: '__cc_touch_all_at_once',
+    KEYBOARD: '__cc_keyboard',
+    ACCELERATION: '__cc_acceleration',
+};
 
+var Custom = function (listenerId, callback) {
+    this._onCustomEvent = callback;
+    cc.EventListener.prototype.ctor.call(this, cc.EventListener.CUSTOM, listenerId, this._callback);
+};
+js.extend(Custom, cc.EventListener);
+js.addon(Custom.prototype, {
+    _onCustomEvent: null,
+    
     _callback: function (event) {
         if (this._onCustomEvent !== null)
             this._onCustomEvent(event);
@@ -320,19 +327,19 @@ cc._EventListenerCustom = cc.EventListener.extend({
     },
 
     clone: function () {
-        return new cc._EventListenerCustom(this._listenerID, this._onCustomEvent);
+        return new Custom(this._listenerID, this._onCustomEvent);
     }
 });
 
-cc._EventListenerMouse = cc.EventListener.extend({
+var Mouse = function () {
+    cc.EventListener.prototype.ctor.call(this, cc.EventListener.MOUSE, ListenerID.MOUSE, this._callback);
+};
+js.extend(Mouse, cc.EventListener);
+js.addon(Mouse.prototype, {
     onMouseDown: null,
     onMouseUp: null,
     onMouseMove: null,
     onMouseScroll: null,
-
-    ctor: function () {
-        cc.EventListener.prototype.ctor.call(this, cc.EventListener.MOUSE, cc._EventListenerMouse.LISTENER_ID, this._callback);
-    },
 
     _callback: function (event) {
         var eventType = cc.Event.EventMouse;
@@ -359,7 +366,7 @@ cc._EventListenerMouse = cc.EventListener.extend({
     },
 
     clone: function () {
-        var eventListener = new cc._EventListenerMouse();
+        var eventListener = new Mouse();
         eventListener.onMouseDown = this.onMouseDown;
         eventListener.onMouseUp = this.onMouseUp;
         eventListener.onMouseMove = this.onMouseMove;
@@ -372,20 +379,19 @@ cc._EventListenerMouse = cc.EventListener.extend({
     }
 });
 
-cc._EventListenerMouse.LISTENER_ID = "__cc_mouse";
-
-cc._EventListenerTouchOneByOne = cc.EventListener.extend({
+var TouchOneByOne = function () {
+    cc.EventListener.prototype.ctor.call(this, cc.EventListener.TOUCH_ONE_BY_ONE, ListenerID.TOUCH_ONE_BY_ONE, null);
+    this._claimedTouches = [];
+};
+js.extend(TouchOneByOne, cc.EventListener);
+js.addon(TouchOneByOne.prototype, {
+    constructor: TouchOneByOne,
     _claimedTouches: null,
     swallowTouches: false,
     onTouchBegan: null,
     onTouchMoved: null,
     onTouchEnded: null,
     onTouchCancelled: null,
-
-    ctor: function () {
-        cc.EventListener.prototype.ctor.call(this, cc.EventListener.TOUCH_ONE_BY_ONE, cc._EventListenerTouchOneByOne.LISTENER_ID, null);
-        this._claimedTouches = [];
-    },
 
     setSwallowTouches: function (needSwallow) {
         this.swallowTouches = needSwallow;
@@ -396,7 +402,7 @@ cc._EventListenerTouchOneByOne = cc.EventListener.extend({
     },
 
     clone: function () {
-        var eventListener = new cc._EventListenerTouchOneByOne();
+        var eventListener = new TouchOneByOne();
         eventListener.onTouchBegan = this.onTouchBegan;
         eventListener.onTouchMoved = this.onTouchMoved;
         eventListener.onTouchEnded = this.onTouchEnded;
@@ -414,20 +420,19 @@ cc._EventListenerTouchOneByOne = cc.EventListener.extend({
     }
 });
 
-cc._EventListenerTouchOneByOne.LISTENER_ID = "__cc_touch_one_by_one";
-
-cc._EventListenerTouchAllAtOnce = cc.EventListener.extend({
+var TouchAllAtOnce = function () {
+    cc.EventListener.prototype.ctor.call(this, cc.EventListener.TOUCH_ALL_AT_ONCE, ListenerID.TOUCH_ALL_AT_ONCE, null);
+};
+js.extend(TouchAllAtOnce, cc.EventListener);
+js.addon(TouchAllAtOnce.prototype, {
+    constructor: TouchAllAtOnce,
     onTouchesBegan: null,
     onTouchesMoved: null,
     onTouchesEnded: null,
     onTouchesCancelled: null,
 
-    ctor: function(){
-       cc.EventListener.prototype.ctor.call(this, cc.EventListener.TOUCH_ALL_AT_ONCE, cc._EventListenerTouchAllAtOnce.LISTENER_ID, null);
-    },
-
     clone: function(){
-        var eventListener = new cc._EventListenerTouchAllAtOnce();
+        var eventListener = new TouchAllAtOnce();
         eventListener.onTouchesBegan = this.onTouchesBegan;
         eventListener.onTouchesMoved = this.onTouchesMoved;
         eventListener.onTouchesEnded = this.onTouchesEnded;
@@ -445,61 +450,15 @@ cc._EventListenerTouchAllAtOnce = cc.EventListener.extend({
     }
 });
 
-cc._EventListenerTouchAllAtOnce.LISTENER_ID = "__cc_touch_all_at_once";
-
-/**
- * !#en
- * Create a EventListener object with configuration including the event type, handlers and other parameters.
- * In handlers, this refer to the event listener object itself.
- * You can also pass custom parameters in the configuration object,
- * all custom parameters will be polyfilled into the event listener object and can be accessed in handlers.
- * !#zh 通过指定不同的 Event 对象来设置想要创建的事件监听器。
- * @method create
- * @param {Object} argObj a json object
- * @returns {EventListener}
- * @static
- * @example {@link utils/api/engine/docs/cocos2d/core/event-manager/CCEventListener/create.js}
- */
-cc.EventListener.create = function(argObj){
-
-    cc.assertID(argObj&&argObj.event, 1900);
-
-    var listenerType = argObj.event;
-    delete argObj.event;
-
-    var listener = null;
-    if(listenerType === cc.EventListener.TOUCH_ONE_BY_ONE)
-        listener = new cc._EventListenerTouchOneByOne();
-    else if(listenerType === cc.EventListener.TOUCH_ALL_AT_ONCE)
-        listener = new cc._EventListenerTouchAllAtOnce();
-    else if(listenerType === cc.EventListener.MOUSE)
-        listener = new cc._EventListenerMouse();
-    else if(listenerType === cc.EventListener.CUSTOM){
-        listener = new cc._EventListenerCustom(argObj.eventName, argObj.callback);
-        delete argObj.eventName;
-        delete argObj.callback;
-    } else if(listenerType === cc.EventListener.KEYBOARD)
-        listener = new cc._EventListenerKeyboard();
-    else if(listenerType === cc.EventListener.ACCELERATION){
-        listener = new cc._EventListenerAcceleration(argObj.callback);
-        delete argObj.callback;
-    }
-
-    for(var key in argObj) {
-        listener[key] = argObj[key];
-    }
-
-    return listener;
-};
-
 //Acceleration
-cc._EventListenerAcceleration = cc.EventListener.extend({
+var Acceleration = function (callback) {
+    this._onAccelerationEvent = callback;
+    cc.EventListener.prototype.ctor.call(this, cc.EventListener.ACCELERATION, ListenerID.ACCELERATION, this._callback);
+};
+js.extend(Acceleration, cc.EventListener);
+js.addon(Acceleration.prototype, {
+    constructor: Acceleration,
     _onAccelerationEvent: null,
-
-    ctor: function (callback) {
-        this._onAccelerationEvent = callback;
-        cc.EventListener.prototype.ctor.call(this, cc.EventListener.ACCELERATION, cc._EventListenerAcceleration.LISTENER_ID, this._callback);
-    },
 
     _callback: function (event) {
         this._onAccelerationEvent(event.acc, event);
@@ -512,21 +471,20 @@ cc._EventListenerAcceleration = cc.EventListener.extend({
     },
 
     clone: function () {
-        return new cc._EventListenerAcceleration(this._onAccelerationEvent);
+        return new Acceleration(this._onAccelerationEvent);
     }
 });
 
-cc._EventListenerAcceleration.LISTENER_ID = "__cc_acceleration";
-
 
 //Keyboard
-cc._EventListenerKeyboard = cc.EventListener.extend({
+var Keyboard = function () {
+    cc.EventListener.prototype.ctor.call(this, cc.EventListener.KEYBOARD, ListenerID.KEYBOARD, this._callback);
+};
+js.extend(Keyboard, cc.EventListener);
+js.addon(Keyboard.prototype, {
+    constructor: Keyboard,
     onKeyPressed: null,
     onKeyReleased: null,
-
-    ctor: function () {
-        cc.EventListener.prototype.ctor.call(this, cc.EventListener.KEYBOARD, cc._EventListenerKeyboard.LISTENER_ID, this._callback);
-    },
 
     _callback: function (event) {
         if (event.isPressed) {
@@ -539,7 +497,7 @@ cc._EventListenerKeyboard = cc.EventListener.extend({
     },
 
     clone: function () {
-        var eventListener = new cc._EventListenerKeyboard();
+        var eventListener = new Keyboard();
         eventListener.onKeyPressed = this.onKeyPressed;
         eventListener.onKeyReleased = this.onKeyReleased;
         return eventListener;
@@ -554,4 +512,47 @@ cc._EventListenerKeyboard = cc.EventListener.extend({
     }
 });
 
-cc._EventListenerKeyboard.LISTENER_ID = "__cc_keyboard";
+/**
+ * !#en
+ * Create a EventListener object with configuration including the event type, handlers and other parameters.
+ * In handlers, this refer to the event listener object itself.
+ * You can also pass custom parameters in the configuration object,
+ * all custom parameters will be polyfilled into the event listener object and can be accessed in handlers.
+ * !#zh 通过指定不同的 Event 对象来设置想要创建的事件监听器。
+ * @method create
+ * @param {Object} argObj a json object
+ * @returns {EventListener}
+ * @static
+ * @example {@link utils/api/engine/docs/cocos2d/core/event-manager/CCEventListener/create.js}
+ */
+cc.EventListener.create = function (argObj) {
+    cc.assertID(argObj&&argObj.event, 1900);
+
+    var listenerType = argObj.event;
+    delete argObj.event;
+
+    var listener = null;
+    if(listenerType === cc.EventListener.TOUCH_ONE_BY_ONE)
+        listener = new TouchOneByOne();
+    else if(listenerType === cc.EventListener.TOUCH_ALL_AT_ONCE)
+        listener = new TouchAllAtOnce();
+    else if(listenerType === cc.EventListener.MOUSE)
+        listener = new Mouse();
+    else if(listenerType === cc.EventListener.CUSTOM){
+        listener = new Custom(argObj.eventName, argObj.callback);
+        delete argObj.eventName;
+        delete argObj.callback;
+    } else if(listenerType === cc.EventListener.KEYBOARD)
+        listener = new Keyboard();
+    else if(listenerType === cc.EventListener.ACCELERATION){
+        listener = new Acceleration(argObj.callback);
+        delete argObj.callback;
+    }
+
+    for(var key in argObj) {
+        listener[key] = argObj[key];
+    }
+    return listener;
+};
+
+module.exports = cc.EventListener;
