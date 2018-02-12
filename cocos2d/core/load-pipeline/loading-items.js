@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 var CallbacksInvoker = require('../platform/callbacks-invoker');
-var Path = require('../utils/CCPath');
+require('../utils/CCPath');
 var JS = require('../platform/js');
 
 var _qid = (0|(Math.random()*998));
@@ -86,7 +86,7 @@ function createItem (id, queueId) {
     }
     result.rawUrl = result.url;
     if (url && !result.type) {
-        result.type = Path.extname(url).toLowerCase().substr(1);
+        result.type = cc.path.extname(url).toLowerCase().substr(1);
     }
     return result;
 }

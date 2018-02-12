@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Path = require('../utils/CCPath');
 var sys = require('../platform/CCSys');
 var Pipeline = require('./pipeline');
 var audioEngine = require('../../audio/CCAudioEngine');
