@@ -174,7 +174,7 @@ const FilterIndex = {
 };
 
 let _emptyOpts = {};
-
+let _images = [];
 let _sharedOpts = {
     width: undefined,
     height: undefined,
@@ -193,6 +193,8 @@ function _getSharedOptions () {
     for (var key in _sharedOpts) {
         _sharedOpts[key] = undefined;
     }
+    _images.length = 0;
+    _sharedOpts.images = _images;
     _sharedOpts.flipY = false;
     return _sharedOpts;
 }
@@ -224,6 +226,7 @@ var Texture2D = cc.Class({
         _hasMipmap: false,
         _format: PixelFormat.RGBA8888,
         _premultiplyAlpha: false,
+        _flipY: false,
         _minFilter: Filter.LINEAR,
         _magFilter: Filter.LINEAR,
         _wrapS: WrapMode.CLAMP_TO_EDGE,
@@ -301,6 +304,7 @@ var Texture2D = cc.Class({
      */
     update (options) {
         if (options) {
+            let updateImg = false;
             if (options.width !== undefined) {
                 this.width = options.width;
             }
@@ -324,20 +328,36 @@ var Texture2D = cc.Class({
             if (options.format !== undefined) {
                 this._format = options.format;
             }
+            if (options.flipY !== undefined) {
+                this._flipY = options.flipY;
+                updateImg = true;
+            }
             if (options.premultiplyAlpha !== undefined) {
                 this._premultiplyAlpha = options.premultiplyAlpha;
-            }
-            if (options.image !== undefined) {
-                this._image = options.image;
-                // webgl texture 2d uses images
-                options.images = [options.image];
+                updateImg = true;
             }
             if (options.mipmap !== undefined) {
                 this._hasMipmap = options.mipmap;
             }
+
+            if (updateImg && this._image) {
+                options.image = this._image;
+            }
+            if (options.images && options.images.length > 0) {
+                this._image = options.images[0];
+            }
+            else if (options.image !== undefined) {
+                this._image = options.image;
+                if (!options.images) {
+                    _images.length = 0;
+                    options.images = _images;
+                }
+                // webgl texture 2d uses images
+                options.images.push(options.image);
+            }
+
+            this._texture.update(options);
         }
-        
-        this._texture.update(options);
     },
 
     /**
@@ -460,16 +480,14 @@ var Texture2D = cc.Class({
         this.height = this._image.height;
         let opts = _getSharedOptions();
         opts.image = this._image;
-        if (renderMode.supportWebGL) {
-            // webgl texture 2d uses images
-            opts.images = [opts.image];
-        }
-        opts.flipY = false;
+        // webgl texture 2d uses images
+        opts.images = [opts.image];
         opts.width = this.width;
         opts.height = this.height;
         opts.hasMipmap = this._hasMipmap;
         opts.format = this._format;
         opts.premultiplyAlpha = this._premultiplyAlpha;
+        opts.flipY = this._flipY;
         opts.minFilter = FilterIndex[this._minFilter];
         opts.magFilter = FilterIndex[this._magFilter];
         opts.wrapS = this._wrapS;
@@ -534,6 +552,20 @@ var Texture2D = cc.Class({
             var opts = _getSharedOptions();
             opts.minFilter = minFilter;
             opts.magFilter = magFilter;
+            this.update(opts);
+        }
+    },
+
+    /**
+     * Sets the flipY options
+     * supported only in native or WebGl rendering mode
+     * @method setFlipY
+     * @param {Boolean} flipY
+     */
+    setFlipY (flipY) {
+        if (this._flipY !== flipY) {
+            var opts = _getSharedOptions();
+            opts.flipY = flipY;
             this.update(opts);
         }
     },
