@@ -603,6 +603,11 @@ if (CC_DEV) {
     // cc
     markAsRemovedInObject(cc, ['Scale9Sprite'], 'cc');
 
+    js.get(cc, 'Pool', function () {
+        cc.warnID();
+        return js.Pool
+    });
+
     if (cc.ActionManager) {
         js.obsoletes(cc.ActionManager.prototype, 'cc.ActionManager', {
             'numberOfRunningActionsInTarget' : 'getNumberOfRunningActionsInTarget'
