@@ -26,14 +26,13 @@ var js = require('../platform/js');
 require('./CCEventListener');
 var ListenerID = cc.EventListener.ListenerID;
 
-var _EventListenerVector = cc._Class.extend({
-
-    ctor: function () {
-        this._fixedListeners = [];
-        this._sceneGraphListeners = [];
-        this.gt0Index = 0;
-    },
-
+var _EventListenerVector = function () {
+    this._fixedListeners = [];
+    this._sceneGraphListeners = [];
+    this.gt0Index = 0;
+};
+_EventListenerVector.prototype = {
+    constructor: _EventListenerVector,
     size: function () {
         return this._fixedListeners.length + this._sceneGraphListeners.length;
     },
@@ -69,7 +68,7 @@ var _EventListenerVector = cc._Class.extend({
     getSceneGraphPriorityListeners: function () {
         return this._sceneGraphListeners;
     }
-});
+};
 
 var __getListenerID = function (event) {
     var eventType = cc.Event, type = event.type;

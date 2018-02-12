@@ -32,13 +32,12 @@
  * @param {Number} y
  * @param {Number} id
  */
-cc.Touch = cc._Class.extend(/** @lends cc.Touch# */{
-
-    ctor:function (x, y, id) {
-        this._lastModified = 0;
-        this.setTouchInfo(id, x, y);
-    },
-
+cc.Touch = function (x, y, id) {
+    this._lastModified = 0;
+    this.setTouchInfo(id, x, y);
+};
+cc.Touch.prototype = {
+    constructor: cc.Touch,
     /**
      * !#en Returns the current touch location in OpenGL coordinates.、
      * !#zh 获取当前触点位置。
@@ -180,4 +179,4 @@ cc.Touch = cc._Class.extend(/** @lends cc.Touch# */{
         else
             this._prevPoint = cc.p(x || 0, y || 0);
     }
-});
+};
