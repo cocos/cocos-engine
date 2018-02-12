@@ -280,23 +280,23 @@ var getTargetId = function (target) {
  *
  * @class Scheduler
  */
-cc.Scheduler = cc._Class.extend({
+cc.Scheduler = function () {
+    this._timeScale = 1.0;
+    this._updatesNegList = [];  // list of priority < 0
+    this._updates0List = [];    // list of priority == 0
+    this._updatesPosList = [];  // list of priority > 0
+    this._hashForUpdates = {};  // hash used to fetch quickly the list entries for pause, delete, etc
+    this._hashForTimers = {};   // Used for "selectors with interval"
+    this._currentTarget = null;
+    this._currentTargetSalvaged = false;
+    this._updateHashLocked = false; // If true unschedule will not remove anything from a hash. Elements will only be marked for deletion.
 
-    ctor: function () {
-        this._timeScale = 1.0;
-        this._updatesNegList = [];  // list of priority < 0
-        this._updates0List = [];    // list of priority == 0
-        this._updatesPosList = [];  // list of priority > 0
-        this._hashForUpdates = {};  // hash used to fetch quickly the list entries for pause, delete, etc
-        this._hashForTimers = {};   // Used for "selectors with interval"
-        this._currentTarget = null;
-        this._currentTargetSalvaged = false;
-        this._updateHashLocked = false; // If true unschedule will not remove anything from a hash. Elements will only be marked for deletion.
+    this._arrayForTimers = [];  // Speed up indexing
+    //this._arrayForUpdates = [];   // Speed up indexing
+};
 
-        this._arrayForTimers = [];  // Speed up indexing
-        //this._arrayForUpdates = [];   // Speed up indexing
-    },
-
+cc.Scheduler.prototype = {
+    constructor: cc.Scheduler,
     //-----------------------private method----------------------
 
     _removeHashElement: function (element) {
@@ -1113,7 +1113,7 @@ cc.Scheduler = cc._Class.extend({
         //cc.log("unscheduleAllCallbacksWithMinPriority is deprecated. Please use unscheduleAllWithMinPriority.");
         this.unscheduleAllWithMinPriority(minPriority);
     }
-});
+};
 
 /**
  * !#en Priority level reserved for system services.
