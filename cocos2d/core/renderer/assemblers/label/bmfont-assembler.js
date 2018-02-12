@@ -29,6 +29,8 @@ const RenderData = renderEngine.RenderData;
 const Label = require('../../../components/CCLabel');
 const Overflow = Label.Overflow;
 
+const TextUtils = require('../../../utils/text-utils').TextUtils;
+
 const spriteAssembler = require('../sprite/simple');
 
 let FontLetterDefinition = function() {
@@ -315,7 +317,7 @@ module.exports = {
                     && _maxLineWidth > 0
                     && nextTokenX > 0
                     && letterX + letterDef._width * _bmfontScale > _maxLineWidth
-                    && !cc.TextUtils.isUnicodeSpace(character)) {
+                    && !TextUtils.isUnicodeSpace(character)) {
                     _linesWidth.push(letterRight);
                     letterRight = 0;
                     lineIndex++;
@@ -401,9 +403,9 @@ module.exports = {
 
     _getFirstWordLen: function(text, startIndex, textLen) {
         let character = text.charAt(startIndex);
-        if (cc.TextUtils.isUnicodeCJK(character)
+        if (TextUtils.isUnicodeCJK(character)
             || character === "\n"
-            || cc.TextUtils.isUnicodeSpace(character)) {
+            || TextUtils.isUnicodeSpace(character)) {
             return 1;
         }
 
@@ -424,14 +426,14 @@ module.exports = {
             letterX = nextLetterX + letterDef._offsetX * _bmfontScale;
 
             if(letterX + letterDef._width * _bmfontScale > _maxLineWidth
-               && !cc.TextUtils.isUnicodeSpace(character)
+               && !TextUtils.isUnicodeSpace(character)
                && _maxLineWidth > 0) {
                 return len;
             }
             nextLetterX += letterDef._xAdvance * _bmfontScale + _spacingX;
             if (character === "\n"
-                || cc.TextUtils.isUnicodeSpace(character)
-                || cc.TextUtils.isUnicodeCJK(character)) {
+                || TextUtils.isUnicodeSpace(character)
+                || TextUtils.isUnicodeCJK(character)) {
                 break;
             }
             len++;

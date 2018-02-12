@@ -29,6 +29,9 @@ const RenderData = renderEngine.RenderData;
 const Label = require('../../../components/CCLabel');
 const LabelOutline = require('../../../components/CCLabelOutline');
 const Overflow = Label.Overflow;
+const utils = require('../../../utils/text-utils');
+const TextUtils = utils.TextUtils;
+const CustomFontLoader = utils.CustomFontLoader;
 
 const spriteAssembler = require('../sprite/simple');
 
@@ -179,10 +182,10 @@ module.exports = {
             if (!_comp.font) return false;
 
             let url = _comp.font.nativeUrl;
-            _fontFamily = cc.CustomFontLoader._getFontFamily(url);
-            let fontDescriptor = cc.CustomFontLoader._fontCache[_fontFamily];
+            _fontFamily = CustomFontLoader._getFontFamily(url);
+            let fontDescriptor = CustomFontLoader._fontCache[_fontFamily];
             if (!fontDescriptor || !fontDescriptor.isLoaded()) {
-                cc.CustomFontLoader.loadTTF(url);
+                CustomFontLoader.loadTTF(url);
                 return false;
             }
         }
@@ -398,10 +401,10 @@ module.exports = {
             var canvasWidthNoMargin = _canvasSize.width - 2 * _margin;
             for (i = 0; i < paragraphedStrings.length; ++i) {
                 var allWidth = _context.measureText(paragraphedStrings[i]).width;
-                var textFragment = cc.TextUtils.fragmentText(paragraphedStrings[i],
-                                                             allWidth,
-                                                             canvasWidthNoMargin,
-                                                             this._measureText(_context));
+                var textFragment = TextUtils.fragmentText(paragraphedStrings[i],
+                                                        allWidth,
+                                                        canvasWidthNoMargin,
+                                                        this._measureText(_context));
                 _splitedStrings = _splitedStrings.concat(textFragment);
             }
         }
@@ -498,10 +501,10 @@ module.exports = {
                     for (i = 0; i < paragraphedStrings.length; ++i) {
                         var j = 0;
                         var allWidth = _context.measureText(paragraphedStrings[i]).width;
-                        textFragment = cc.TextUtils.fragmentText(paragraphedStrings[i],
-                                                                 allWidth,
-                                                                 canvasWidthNoMargin,
-                                                                 this._measureText(_context));
+                        textFragment = TextUtils.fragmentText(paragraphedStrings[i],
+                                                            allWidth,
+                                                            canvasWidthNoMargin,
+                                                            this._measureText(_context));
                         while (j < textFragment.length) {
                             var measureWidth = _context.measureText(textFragment[j]).width;
                             maxLength = measureWidth;

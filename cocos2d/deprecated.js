@@ -609,7 +609,7 @@ if (CC_DEV) {
         });
     }
 
-    cc.js.get(cc.Texture2D.prototype, 'getName', function () {
+    js.get(cc.Texture2D.prototype, 'getName', function () {
         cc.warnID(1400, 'texture.getName()', 'texture._glID');
         return function () {
             return this._glID || null;

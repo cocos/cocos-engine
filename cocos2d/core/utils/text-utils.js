@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var HtmlTextParser = require('./html-text-parser');
+
 var CustomFontDescriptor = function() {
     this._status =  'unloaded';
     //when font is loaded, it will notify each observer in the observers array
@@ -323,8 +325,10 @@ var TextUtils = {
         }
         return wrappedWords;
     },
-
 };
 
-cc.TextUtils = module.exports = TextUtils;
-cc.CustomFontLoader = module.exports = CustomFontLoader;
+module.exports = {
+    HtmlTextParser: HtmlTextParser,
+    TextUtils: TextUtils,
+    CustomFontLoader: CustomFontLoader
+}

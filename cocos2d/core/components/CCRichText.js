@@ -22,8 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-require('../label/CCHtmlTextParser');
-require('../label/CCTextUtils');
+
+var utils = require('../utils/text-utils');
+var HtmlTextParser = utils.HtmlTextParser;
+var TextUtils = utils.TextUtils;
+var CustomFontLoader = utils.CustomFontLoader;
 
 var JS = require("../platform/js");
 
@@ -31,7 +34,7 @@ var HorizontalAlign = cc.TextAlignment;
 var VerticalAlign = cc.VerticalTextAlignment;
 var RichTextChildName = "RICHTEXT_CHILD"
 var RichTextChildZIndex = - 1000000;
-
+var _htmlTextParser = new HtmlTextParser();
 
 // Returns a function, that, as long as it continues to be invoked, will not
 // be triggered. The function will be called after it stops being called for
@@ -337,7 +340,7 @@ var RichText = cc.Class({
             self._updateRichText();
         };
 
-        cc.CustomFontLoader.loadTTF(rawUrl, callback);
+        CustomFontLoader.loadTTF(rawUrl, callback);
     },
 
     _measureText: function (styleIndex, string) {
@@ -471,7 +474,7 @@ var RichText = cc.Class({
             }
         }
         if (fragmentWidth > this.maxWidth) {
-            var fragments = cc.TextUtils.fragmentText(labelString,
+            var fragments = TextUtils.fragmentText(labelString,
                 fragmentWidth,
                 this.maxWidth,
                 this._measureText(styleIndex));
@@ -616,7 +619,7 @@ var RichText = cc.Class({
     _updateRichText: function () {
         if (!this.enabled) return;
 
-        var newTextArray = cc.htmlTextParser.parse(this.string);
+        var newTextArray = _htmlTextParser.parse(this.string);
         if (!this._needsUpdateTextLayout(newTextArray)) {
             this._textArray = newTextArray;
             this._updateLabelSegmentTextAttributes();
@@ -701,16 +704,16 @@ var RichText = cc.Class({
 
     _getFirstWordLen: function (text, startIndex, textLen) {
         var character = text.charAt(startIndex);
-        if (cc.TextUtils.isUnicodeCJK(character)
-            || cc.TextUtils.isUnicodeSpace(character)) {
+        if (TextUtils.isUnicodeCJK(character)
+            || TextUtils.isUnicodeSpace(character)) {
             return 1;
         }
 
         var len = 1;
         for (var index = startIndex + 1; index < textLen; ++index) {
             character = text.charAt(index);
-            if (cc.TextUtils.isUnicodeSpace(character)
-                || cc.TextUtils.isUnicodeCJK(character)) {
+            if (TextUtils.isUnicodeSpace(character)
+                || TextUtils.isUnicodeCJK(character)) {
                 break;
             }
             len++;
