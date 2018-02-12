@@ -794,8 +794,8 @@ var game = {
         }
 
         if (CC_WECHATGAME) {
-            wx.onShow = onShow;
-            wx.onHide = onHidden;
+            wx.onShow(onShown);
+            wx.onHide(onHidden);
         }
 
         if ("onpageshow" in window && "onpagehide" in window) {

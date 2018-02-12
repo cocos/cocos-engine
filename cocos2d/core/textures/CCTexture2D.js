@@ -34,7 +34,6 @@ require('../platform/CCClass');
 
 const gfx = renderEngine.gfx;
 const TextureImpl = renderEngine.Texture2D;
-const renderMode = renderEngine.renderMode;
 
 const GL_NEAREST = 9728;                // gl.NEAREST
 const GL_LINEAR = 9729;                 // gl.LINEAR
@@ -330,10 +329,8 @@ var Texture2D = cc.Class({
             }
             if (options.image !== undefined) {
                 this._image = options.image;
-                if (renderMode.supportWebGL) {
-                    // webgl texture 2d uses images
-                    options.images = [options.image];
-                }
+                // webgl texture 2d uses images
+                options.images = [options.image];
             }
             if (options.mipmap !== undefined) {
                 this._hasMipmap = options.mipmap;
