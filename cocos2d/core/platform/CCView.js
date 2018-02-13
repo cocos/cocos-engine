@@ -23,9 +23,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-var eventManager = require('../event-manager');
 
+const eventManager = require('../event-manager');
+const js = require('../platform/js');
 const renderer = require('../renderer');
+require('../platform/CCClass');
 
 function isWeChatGame () {
     return window['wx'];
@@ -112,70 +114,68 @@ var _scissorRect = null;
  *
  * @class View
  */
-var View = cc._Class.extend({
-    /**
-     * Constructor of View
-     */
-    ctor: function () {
-        var _t = this, _strategyer = cc.ContainerStrategy, _strategy = cc.ContentStrategy;
+var View = function () {
+    var _t = this, _strategyer = cc.ContainerStrategy, _strategy = cc.ContentStrategy;
 
-        __BrowserGetter.init(this);
+    __BrowserGetter.init(this);
 
-        // Size of parent node that contains cc.container and cc.game.canvas
-        _t._frameSize = cc.size(0, 0);
-        _t._initFrameSize();
+    // Size of parent node that contains cc.container and cc.game.canvas
+    _t._frameSize = cc.size(0, 0);
+    _t._initFrameSize();
 
-        var w = cc.game.canvas.width, h = cc.game.canvas.height;
-        // resolution size, it is the size appropriate for the app resources.
-        _t._designResolutionSize = cc.size(w, h);
-        _t._originalDesignResolutionSize = cc.size(w, h);
-        // Viewport is the container's rect related to content's coordinates in pixel
-        _t._viewPortRect = cc.rect(0, 0, w, h);
-        // The visible rect in content's coordinate in point
-        _t._visibleRect = cc.rect(0, 0, w, h);
-        _t._contentTranslateLeftTop = {left: 0, top: 0};
-        _t._autoFullScreen = false;
-        // The device's pixel ratio (for retina displays)
-        _t._devicePixelRatio = 1;
-        // the view name
-        _t._viewName = "Cocos2dHTML5";
-        // Custom callback for resize event
-        _t._resizeCallback = null;
-        _t._orientationChanging = true;
-        _t._resizing = false;
+    var w = cc.game.canvas.width, h = cc.game.canvas.height;
+    // resolution size, it is the size appropriate for the app resources.
+    _t._designResolutionSize = cc.size(w, h);
+    _t._originalDesignResolutionSize = cc.size(w, h);
+    // Viewport is the container's rect related to content's coordinates in pixel
+    _t._viewPortRect = cc.rect(0, 0, w, h);
+    // The visible rect in content's coordinate in point
+    _t._visibleRect = cc.rect(0, 0, w, h);
+    _t._contentTranslateLeftTop = {left: 0, top: 0};
+    _t._autoFullScreen = false;
+    // The device's pixel ratio (for retina displays)
+    _t._devicePixelRatio = 1;
+    // the view name
+    _t._viewName = "Cocos2dHTML5";
+    // Custom callback for resize event
+    _t._resizeCallback = null;
+    _t._orientationChanging = true;
+    _t._resizing = false;
 
-        _t._scaleX = 1;
-        _t._originalScaleX = 1;
-        _t._scaleY = 1;
-        _t._originalScaleY = 1;
+    _t._scaleX = 1;
+    _t._originalScaleX = 1;
+    _t._scaleY = 1;
+    _t._originalScaleY = 1;
 
-        _t._isRotated = false;
-        _t._orientation = 3;
+    _t._isRotated = false;
+    _t._orientation = 3;
 
-        var sys = cc.sys;
-        _t.enableRetina(sys.os === sys.OS_IOS || sys.os === sys.OS_OSX);
-        cc.visibleRect && cc.visibleRect.init(_t._visibleRect);
+    var sys = cc.sys;
+    _t.enableRetina(sys.os === sys.OS_IOS || sys.os === sys.OS_OSX);
+    cc.visibleRect && cc.visibleRect.init(_t._visibleRect);
 
-        // Setup system default resolution policies
-        _t._resolutionPolicy = null;
-        _t._rpExactFit = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.EXACT_FIT);
-        _t._rpShowAll = new cc.ResolutionPolicy(_strategyer.PROPORTION_TO_FRAME, _strategy.SHOW_ALL);
-        _t._rpNoBorder = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.NO_BORDER);
-        _t._rpFixedHeight = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_HEIGHT);
-        _t._rpFixedWidth = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_WIDTH);
+    // Setup system default resolution policies
+    _t._resolutionPolicy = null;
+    _t._rpExactFit = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.EXACT_FIT);
+    _t._rpShowAll = new cc.ResolutionPolicy(_strategyer.PROPORTION_TO_FRAME, _strategy.SHOW_ALL);
+    _t._rpNoBorder = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.NO_BORDER);
+    _t._rpFixedHeight = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_HEIGHT);
+    _t._rpFixedWidth = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_WIDTH);
 
-        _t._initialized = false;
+    _t._initialized = false;
 
-        _t._contentTranslateLeftTop = null;
+    _t._contentTranslateLeftTop = null;
 
-        _t._frameZoomFactor = 1.0;
-        _t.__resizeWithBrowserSize = false;
-        _t._isAdjustViewPort = true;
+    _t._frameZoomFactor = 1.0;
+    _t.__resizeWithBrowserSize = false;
+    _t._isAdjustViewPort = true;
 
-        _t._targetDensityDPI = cc.macro.DENSITYDPI_HIGH;
-        _t.enableAntiAlias(true);
-    },
+    _t._targetDensityDPI = cc.macro.DENSITYDPI_HIGH;
+    _t.enableAntiAlias(true);
+};
 
+View.prototype = {
+    constructor: View,
     // Resize helper functions
     _resizeEvent: function () {
         var view;
@@ -986,7 +986,7 @@ var View = cc._Class.extend({
             selPrePoint.y = (selPrePoint.y - viewport.y) / scaleY;
         }
     }
-});
+};
 
 /**
  * @method _getInstance
@@ -1007,7 +1007,8 @@ View._getInstance = function () {
  *
  * @class ContainerStrategy
  */
-cc.ContainerStrategy = cc._Class.extend(/** @lends cc.ContainerStrategy# */{
+cc.ContainerStrategy = cc.Class({
+    name: "ContainerStrategy",
     /**
      * Manipulation before appling the strategy
      * @method preApply
@@ -1079,11 +1080,14 @@ cc.ContainerStrategy = cc._Class.extend(/** @lends cc.ContainerStrategy# */{
  *
  * @class ContentStrategy
  */
-cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
+cc.ContentStrategy = cc.Class({
+    name: "ContentStrategy",
 
-    _result: {
-        scale: [1, 1],
-        viewport: null
+    ctor: function () {
+        this._result = {
+            scale: [1, 1],
+            viewport: null
+        };
     },
 
     _buildResult: function (containerW, containerH, contentW, contentH, scaleX, scaleY) {
@@ -1143,7 +1147,9 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
      * @class EqualToFrame
      * @extends ContainerStrategy
      */
-    var EqualToFrame = cc.ContainerStrategy.extend({
+    var EqualToFrame = cc.Class({
+        name: "EqualToFrame",
+        extends: cc.ContainerStrategy,
         apply: function (view) {
             var frameH = view._frameSize.height, containerStyle = cc.container.style;
             this._setupContainer(view, view._frameSize.width, view._frameSize.height);
@@ -1162,7 +1168,9 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
      * @class ProportionalToFrame
      * @extends ContainerStrategy
      */
-    var ProportionalToFrame = cc.ContainerStrategy.extend({
+    var ProportionalToFrame = cc.Class({
+        name: "ProportionalToFrame",
+        extends: cc.ContainerStrategy,
         apply: function (view, designedResolution) {
             var frameW = view._frameSize.width, frameH = view._frameSize.height, containerStyle = cc.container.style,
                 designW = designedResolution.width, designH = designedResolution.height,
@@ -1198,7 +1206,9 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
      * @class EqualToWindow
      * @extends EqualToFrame
      */
-    var EqualToWindow = EqualToFrame.extend({
+    var EqualToWindow = cc.Class({
+        name: "EqualToWindow",
+        extends: EqualToFrame,
         preApply: function (view) {
             this._super(view);
             cc.game.frame = document.documentElement;
@@ -1214,7 +1224,9 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
      * @class ProportionalToWindow
      * @extends ProportionalToFrame
      */
-    var ProportionalToWindow = ProportionalToFrame.extend({
+    var ProportionalToWindow = cc.Class({
+        name: "ProportionalToWindow",
+        extends: ProportionalToFrame,
         preApply: function (view) {
             this._super(view);
             cc.game.frame = document.documentElement;
@@ -1230,7 +1242,9 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
      * @class OriginalContainer
      * @extends ContainerStrategy
      */
-    var OriginalContainer = cc.ContainerStrategy.extend({
+    var OriginalContainer = cc.Class({
+        name: "OriginalContainer",
+        extends: cc.ContainerStrategy,
         apply: function (view) {
             this._setupContainer(view, cc.game.canvas.width, cc.game.canvas.height);
         }
@@ -1248,7 +1262,9 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
     cc.ContainerStrategy.ORIGINAL_CONTAINER = new OriginalContainer();
 
 // Content scale strategys
-    var ExactFit = cc.ContentStrategy.extend({
+    var ExactFit = cc.Class({
+        name: "ExactFit",
+        extends: cc.ContentStrategy,
         apply: function (view, designedResolution) {
             var containerW = cc.game.canvas.width, containerH = cc.game.canvas.height,
                 scaleX = containerW / designedResolution.width, scaleY = containerH / designedResolution.height;
@@ -1257,7 +1273,9 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
         }
     });
 
-    var ShowAll = cc.ContentStrategy.extend({
+    var ShowAll = cc.Class({
+        name: "ShowAll",
+        extends: cc.ContentStrategy,
         apply: function (view, designedResolution) {
             var containerW = cc.game.canvas.width, containerH = cc.game.canvas.height,
                 designW = designedResolution.width, designH = designedResolution.height,
@@ -1271,7 +1289,9 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
         }
     });
 
-    var NoBorder = cc.ContentStrategy.extend({
+    var NoBorder = cc.Class({
+        name: "NoBorder",
+        extends: cc.ContentStrategy,
         apply: function (view, designedResolution) {
             var containerW = cc.game.canvas.width, containerH = cc.game.canvas.height,
                 designW = designedResolution.width, designH = designedResolution.height,
@@ -1285,7 +1305,9 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
         }
     });
 
-    var FixedHeight = cc.ContentStrategy.extend({
+    var FixedHeight = cc.Class({
+        name: "FixedHeight",
+        extends: cc.ContentStrategy,
         apply: function (view, designedResolution) {
             var containerW = cc.game.canvas.width, containerH = cc.game.canvas.height,
                 designH = designedResolution.height, scale = containerH / designH,
@@ -1299,7 +1321,9 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
         }
     });
 
-    var FixedWidth = cc.ContentStrategy.extend({
+    var FixedWidth = cc.Class({
+        name: "FixedWidth",
+        extends: cc.ContentStrategy,
         apply: function (view, designedResolution) {
             var containerW = cc.game.canvas.width, containerH = cc.game.canvas.height,
                 designW = designedResolution.width, scale = containerW / designW,
@@ -1337,16 +1361,16 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
  * @param {ContainerStrategy} containerStg The container strategy
  * @param {ContentStrategy} contentStg The content strategy
  */
-cc.ResolutionPolicy = cc._Class.extend(/** @lends cc.ResolutionPolicy# */{
-    _containerStrategy: null,
-    _contentStrategy: null,
-
+cc.ResolutionPolicy = cc.Class({
+    name: "cc.ResolutionPolicy",
     /**
      * Constructor of cc.ResolutionPolicy
      * @param {ContainerStrategy} containerStg
      * @param {ContentStrategy} contentStg
      */
     ctor: function (containerStg, contentStg) {
+        this._containerStrategy = null;
+        this._contentStrategy = null;
         this.setContainerStrategy(containerStg);
         this.setContentStrategy(contentStg);
     },
@@ -1406,7 +1430,7 @@ cc.ResolutionPolicy = cc._Class.extend(/** @lends cc.ResolutionPolicy# */{
     }
 });
 
-cc.js.get(cc.ResolutionPolicy.prototype, "canvasSize", function () {
+js.get(cc.ResolutionPolicy.prototype, "canvasSize", function () {
     return cc.v2(cc.game.canvas.width, cc.game.canvas.height);
 });
 
