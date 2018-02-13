@@ -73,7 +73,7 @@ cc.SAXParser.prototype = {
  */
 cc.PlistParser = function () {};
 js.extend(cc.PlistParser, cc.SAXParser);
-js.addon(cc.PlistParser.prototype, {
+js.mixin(cc.PlistParser.prototype, {
     /**
      * parse a xml string as plist object.
      * @param {String} xmlTxt - plist xml contents

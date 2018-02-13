@@ -314,7 +314,7 @@ var Custom = function (listenerId, callback) {
     cc.EventListener.call(this, cc.EventListener.CUSTOM, listenerId, this._callback);
 };
 js.extend(Custom, cc.EventListener);
-js.addon(Custom.prototype, {
+js.mixin(Custom.prototype, {
     _onCustomEvent: null,
     
     _callback: function (event) {
@@ -335,7 +335,7 @@ var Mouse = function () {
     cc.EventListener.call(this, cc.EventListener.MOUSE, ListenerID.MOUSE, this._callback);
 };
 js.extend(Mouse, cc.EventListener);
-js.addon(Mouse.prototype, {
+js.mixin(Mouse.prototype, {
     onMouseDown: null,
     onMouseUp: null,
     onMouseMove: null,
@@ -384,7 +384,7 @@ var TouchOneByOne = function () {
     this._claimedTouches = [];
 };
 js.extend(TouchOneByOne, cc.EventListener);
-js.addon(TouchOneByOne.prototype, {
+js.mixin(TouchOneByOne.prototype, {
     constructor: TouchOneByOne,
     _claimedTouches: null,
     swallowTouches: false,
@@ -424,7 +424,7 @@ var TouchAllAtOnce = function () {
     cc.EventListener.call(this, cc.EventListener.TOUCH_ALL_AT_ONCE, ListenerID.TOUCH_ALL_AT_ONCE, null);
 };
 js.extend(TouchAllAtOnce, cc.EventListener);
-js.addon(TouchAllAtOnce.prototype, {
+js.mixin(TouchAllAtOnce.prototype, {
     constructor: TouchAllAtOnce,
     onTouchesBegan: null,
     onTouchesMoved: null,
@@ -456,7 +456,7 @@ var Acceleration = function (callback) {
     cc.EventListener.call(this, cc.EventListener.ACCELERATION, ListenerID.ACCELERATION, this._callback);
 };
 js.extend(Acceleration, cc.EventListener);
-js.addon(Acceleration.prototype, {
+js.mixin(Acceleration.prototype, {
     constructor: Acceleration,
     _onAccelerationEvent: null,
 
@@ -481,7 +481,7 @@ var Keyboard = function () {
     cc.EventListener.call(this, cc.EventListener.KEYBOARD, ListenerID.KEYBOARD, this._callback);
 };
 js.extend(Keyboard, cc.EventListener);
-js.addon(Keyboard.prototype, {
+js.mixin(Keyboard.prototype, {
     constructor: Keyboard,
     onKeyPressed: null,
     onKeyReleased: null,
