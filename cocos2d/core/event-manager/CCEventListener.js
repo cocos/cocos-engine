@@ -311,7 +311,7 @@ var ListenerID = cc.EventListener.ListenerID = {
 
 var Custom = function (listenerId, callback) {
     this._onCustomEvent = callback;
-    cc.EventListener.prototype.ctor.call(this, cc.EventListener.CUSTOM, listenerId, this._callback);
+    cc.EventListener.call(this, cc.EventListener.CUSTOM, listenerId, this._callback);
 };
 js.extend(Custom, cc.EventListener);
 js.addon(Custom.prototype, {
@@ -332,7 +332,7 @@ js.addon(Custom.prototype, {
 });
 
 var Mouse = function () {
-    cc.EventListener.prototype.ctor.call(this, cc.EventListener.MOUSE, ListenerID.MOUSE, this._callback);
+    cc.EventListener.call(this, cc.EventListener.MOUSE, ListenerID.MOUSE, this._callback);
 };
 js.extend(Mouse, cc.EventListener);
 js.addon(Mouse.prototype, {
@@ -380,7 +380,7 @@ js.addon(Mouse.prototype, {
 });
 
 var TouchOneByOne = function () {
-    cc.EventListener.prototype.ctor.call(this, cc.EventListener.TOUCH_ONE_BY_ONE, ListenerID.TOUCH_ONE_BY_ONE, null);
+    cc.EventListener.call(this, cc.EventListener.TOUCH_ONE_BY_ONE, ListenerID.TOUCH_ONE_BY_ONE, null);
     this._claimedTouches = [];
 };
 js.extend(TouchOneByOne, cc.EventListener);
@@ -421,7 +421,7 @@ js.addon(TouchOneByOne.prototype, {
 });
 
 var TouchAllAtOnce = function () {
-    cc.EventListener.prototype.ctor.call(this, cc.EventListener.TOUCH_ALL_AT_ONCE, ListenerID.TOUCH_ALL_AT_ONCE, null);
+    cc.EventListener.call(this, cc.EventListener.TOUCH_ALL_AT_ONCE, ListenerID.TOUCH_ALL_AT_ONCE, null);
 };
 js.extend(TouchAllAtOnce, cc.EventListener);
 js.addon(TouchAllAtOnce.prototype, {
@@ -453,7 +453,7 @@ js.addon(TouchAllAtOnce.prototype, {
 //Acceleration
 var Acceleration = function (callback) {
     this._onAccelerationEvent = callback;
-    cc.EventListener.prototype.ctor.call(this, cc.EventListener.ACCELERATION, ListenerID.ACCELERATION, this._callback);
+    cc.EventListener.call(this, cc.EventListener.ACCELERATION, ListenerID.ACCELERATION, this._callback);
 };
 js.extend(Acceleration, cc.EventListener);
 js.addon(Acceleration.prototype, {
@@ -478,7 +478,7 @@ js.addon(Acceleration.prototype, {
 
 //Keyboard
 var Keyboard = function () {
-    cc.EventListener.prototype.ctor.call(this, cc.EventListener.KEYBOARD, ListenerID.KEYBOARD, this._callback);
+    cc.EventListener.call(this, cc.EventListener.KEYBOARD, ListenerID.KEYBOARD, this._callback);
 };
 js.extend(Keyboard, cc.EventListener);
 js.addon(Keyboard.prototype, {
