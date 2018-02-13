@@ -603,9 +603,9 @@ if (CC_DEV) {
     // cc
     markAsRemovedInObject(cc, ['Scale9Sprite'], 'cc');
 
-    js.get(cc, 'Pool', function () {
-        cc.warnID();
-        return js.Pool
+    js.get(cc, 'pool', function () {
+        cc.warnID(1407);
+        return js.Pool;
     });
 
     if (cc.ActionManager) {

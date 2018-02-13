@@ -1617,22 +1617,6 @@ cc.jumpTo = function (duration, position, y, height, jumps) {
     return new cc.JumpTo(duration, position, y, height, jumps);
 };
 
-/*
- * @method bezierAt
- * @param {Number} a
- * @param {Number} b
- * @param {Number} c
- * @param {Number} d
- * @param {Number} t
- * @return {Number}
- */
-cc.bezierAt = function (a, b, c, d, t) {
-    return (Math.pow(1 - t, 3) * a +
-        3 * t * (Math.pow(1 - t, 2)) * b +
-        3 * Math.pow(t, 2) * (1 - t) * c +
-        Math.pow(t, 3) * d );
-};
-
 /* An action that moves the target with a cubic Bezier curve by a certain distance.
  * Relative to its movement.
  * @class BezierBy
@@ -1643,6 +1627,12 @@ cc.bezierAt = function (a, b, c, d, t) {
  * var bezier = [cc.p(0, windowSize.height / 2), cc.p(300, -windowSize.height / 2), cc.p(300, 100)];
  * var bezierForward = new cc.BezierBy(3, bezier);
  */
+function bezierAt (a, b, c, d, t) {
+    return (Math.pow(1 - t, 3) * a +
+        3 * t * (Math.pow(1 - t, 2)) * b +
+        3 * Math.pow(t, 2) * (1 - t) * c +
+        Math.pow(t, 3) * d );
+};
 cc.BezierBy = cc.Class({
     name: 'cc.BezierBy',
     extends: cc.ActionInterval,
@@ -1704,8 +1694,8 @@ cc.BezierBy = cc.Class({
             var yc = locConfig[1].y;
             var yd = locConfig[2].y;
 
-            var x = cc.bezierAt(xa, xb, xc, xd, dt);
-            var y = cc.bezierAt(ya, yb, yc, yd, dt);
+            var x = bezierAt(xa, xb, xc, xd, dt);
+            var y = bezierAt(ya, yb, yc, yd, dt);
 
             var locStartPosition = this._startPosition;
             if (cc.macro.ENABLE_STACKABLE_ACTIONS) {

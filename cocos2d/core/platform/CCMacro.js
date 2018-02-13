@@ -1144,19 +1144,6 @@ cc.getImageFormatByData = function (imgData) {
  */
 cc.macro = {
     /**
-     * @property INVALID_INDEX
-     * @type {Number}
-     */
-    INVALID_INDEX: -1,
-
-    /**
-     * Default Node tag
-     * @property NODE_TAG_INVALID
-     * @type {Number}
-     */
-    NODE_TAG_INVALID: -1,
-
-    /**
      * PI is the ratio of a circle's circumference to its diameter.
      * @property PI
      * @type {Number}
@@ -1296,21 +1283,6 @@ cc.macro = {
      */
     ONE_MINUS_CONSTANT_COLOR: 0x8002,
 
-    /**
-     * the constant variable equals gl.LINEAR for texture
-     * @property LINEAR
-     * @type {Number}
-     */
-    LINEAR: 0x2601,
-
-    /**
-     * default gl blend dst function. Compatible with premultiplied alpha images.
-     * @property BLEND_DST
-     * @type {Number}
-     */
-    BLEND_DST: 0x0303,
-
-
     //Possible device orientations
 
     /**
@@ -1362,51 +1334,10 @@ cc.macro = {
      */
     ORIENTATION_AUTO: 3,
 
-
     DENSITYDPI_DEVICE: 'device-dpi',
     DENSITYDPI_HIGH: 'high-dpi',
     DENSITYDPI_MEDIUM: 'medium-dpi',
     DENSITYDPI_LOW: 'low-dpi',
-
-    /**
-     * default size for font size
-     * @property ITEM_SIZE
-     * @type {Number}
-     */
-    ITEM_SIZE: 32,
-
-    /**
-     * default tag for current item
-     * @property CURRENT_ITEM
-     * @type {Number}
-     */
-    CURRENT_ITEM: 0xc0c05001,
-    /**
-     * default tag for zoom action tag
-     * @property ZOOM_ACTION_TAG
-     * @type {Number}
-     */
-    ZOOM_ACTION_TAG: 0xc0c05002,
-    /**
-     * default tag for normal
-     * @property NORMAL_TAG
-     * @type {Number}
-     */
-    NORMAL_TAG: 8801,
-
-    /**
-     * default selected tag
-     * @property SELECTED_TAG
-     * @type {Number}
-     */
-    SELECTED_TAG: 8802,
-
-    /**
-     * default disabled tag
-     * @property DISABLE_TAG
-     * @type {Number}
-     */
-    DISABLE_TAG: 8803,
 
     // General configurations
     /**
@@ -1459,62 +1390,6 @@ cc.macro = {
      * @property {Vec2} DIRECTOR_STATS_POSITION
      */
     DIRECTOR_STATS_POSITION: cc.p(0, 0),
-
-    /**
-     * <p>
-     *   Seconds between FPS updates.<br/>
-     *   0.5 seconds, means that the FPS number will be updated every 0.5 seconds.<br/>
-     *   Having a bigger number means a more reliable FPS<br/>
-     *   <br/>
-     *   Default value: 0.1f<br/>
-     *   To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * </p>
-     * @property {Number} DIRECTOR_FPS_INTERVAL
-     */
-    DIRECTOR_FPS_INTERVAL: 0.5,
-
-    /**
-     * <p>
-     *    If enabled, the ccsg.Node objects (_ccsg.Sprite, _ccsg.Label,etc) will be able to render in subpixels.<br/>
-     *    If disabled, integer pixels will be used.<br/>
-     *    <br/>
-     *    To enable set it to 1. Enabled by default.<br/>
-     *    To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * </p>
-     * @property {Number} COCOSNODE_RENDER_SUBPIXEL
-     */
-    COCOSNODE_RENDER_SUBPIXEL: true,
-
-    /**
-     * <p>
-     *   If enabled, the _ccsg.Sprite objects rendered with cc.SpriteBatchNode will be able to render in subpixels.<br/>
-     *   If disabled, integer pixels will be used.<br/>
-     *   <br/>
-     *   To enable set it to 1. Enabled by default.<br/>
-     *   To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * </p>
-     * @property {Number} SPRITEBATCHNODE_RENDER_SUBPIXEL
-     */
-    SPRITEBATCHNODE_RENDER_SUBPIXEL: true,
-
-    /**
-     * Automatically premultiply alpha for remote PNG resources.
-     * @property {Boolean} AUTO_PREMULTIPLIED_ALPHA_FOR_PNG
-     * @default false
-     */
-    AUTO_PREMULTIPLIED_ALPHA_FOR_PNG: false,
-
-    /**
-     * <p>
-     *     If most of your images have pre-multiplied alpha, set it to 1 (if you are going to use .PNG/.JPG file images).<br/>
-     *     Only set to 0 if ALL your images by-pass Apple UIImage loading system (eg: if you use libpng or PVR images)<br/>
-     *     <br/>
-     *     To enable set it to a value different than 0. Enabled by default.<br/>
-     *     To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * </p>
-     * @property {Number} OPTIMIZE_BLEND_FUNC_FOR_PREMULTIPLIED_ALPHA
-     */
-    OPTIMIZE_BLEND_FUNC_FOR_PREMULTIPLIED_ALPHA: false,
 
     /**
      * <p>
@@ -1657,24 +1532,6 @@ js.getset(cc.macro, 'ENABLE_CULLING',
 )
 
 /**
- * !#en
- * default gl blend src function. Compatible with premultiplied alpha images.
- * !#zh
- * 默认的混合源模式
- * @property BLEND_SRC
- * @type {Number}
- */
-js.getset(cc.macro, "BLEND_SRC", function (){
-    if (cc._renderType === cc.game.RENDER_TYPE_WEBGL
-         && cc.macro.OPTIMIZE_BLEND_FUNC_FOR_PREMULTIPLIED_ALPHA) {
-        return cc.macro.ONE;
-    }
-    else {
-        return cc.macro.SRC_ALPHA;
-    }
-});
-
-/**
  * @module cc
  */
 
@@ -1735,71 +1592,6 @@ cc.degreesToRadians = function (angle) {
  */
 cc.radiansToDegrees = function (angle) {
     return angle * cc.macro.DEG;
-};
-
-/**
- * Helpful macro that setups the GL server state, the correct GL program and sets the Model View Projection matrix
- * @param {Node} node setup node
- * @method nodeDrawSetup
- */
-cc.nodeDrawSetup = function (node) {
-    //cc.gl.enable(node._glServerState);
-    if (node._shaderProgram) {
-        //cc._renderContext.useProgram(node._shaderProgram._programObj);
-        node._shaderProgram.use();
-        node._shaderProgram.setUniformForModelViewAndProjectionMatrixWithMat4();
-    }
-};
-
-/*
- * <p>
- *     GL states that are enabled:<br/>
- *       - GL_TEXTURE_2D<br/>
- *       - GL_VERTEX_ARRAY<br/>
- *       - GL_TEXTURE_COORD_ARRAY<br/>
- *       - GL_COLOR_ARRAY<br/>
- * </p>
- * @method enableDefaultGLStates
- */
-// cc.enableDefaultGLStates = function () {
-    //TODO OPENGL STUFF
-    /*
-     glEnableClientState(GL_VERTEX_ARRAY);
-     glEnableClientState(GL_COLOR_ARRAY);
-     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-     glEnable(GL_TEXTURE_2D);*/
-// };
-
-/*
- * <p>
- *   Disable default GL states:<br/>
- *     - GL_TEXTURE_2D<br/>
- *     - GL_TEXTURE_COORD_ARRAY<br/>
- *     - GL_COLOR_ARRAY<br/>
- * </p>
- * @method disableDefaultGLStates
- */
-// cc.disableDefaultGLStates = function () {
-    //TODO OPENGL
-    /*
-     glDisable(GL_TEXTURE_2D);
-     glDisableClientState(GL_COLOR_ARRAY);
-     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-     glDisableClientState(GL_VERTEX_ARRAY);
-     */
-// };
-
-/**
- * Check webgl error.Error will be shown in console if exists.
- * @method checkGLErrorDebug
- */
-cc.checkGLErrorDebug = function () {
-    if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
-        var _error = cc._renderContext.getError();
-        if (_error) {
-            cc.logID(2400, _error);
-        }
-    }
 };
 
 module.exports = cc.macro;
