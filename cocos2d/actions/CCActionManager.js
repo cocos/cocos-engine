@@ -24,6 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+require('../core/platform/CCClass');
+
 /*
  * @class HashElement
  * @constructor
@@ -61,6 +63,7 @@ cc.ActionManager = function () {
     this._hashTargets = {};
     this._arrayTargets = [];
     this._currentTarget = null;
+    this.__instanceId = cc.ClassManager.getNewInstanceId();
 };
 cc.ActionManager.prototype = {
     constructor: cc.ActionManager,

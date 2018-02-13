@@ -34,7 +34,9 @@
  * @class ActionInstant
  * @extends FiniteTimeAction
  */
-cc.ActionInstant = cc.FiniteTimeAction.extend({
+cc.ActionInstant = cc.Class({
+    name: 'cc.ActionInstant',
+    extends: cc.FiniteTimeAction,
     isDone:function () {
         return true;
     },
@@ -72,7 +74,9 @@ cc.ActionInstant = cc.FiniteTimeAction.extend({
  * @class Show
  * @extends ActionInstant
  */
-cc.Show = cc.ActionInstant.extend({
+cc.Show = cc.Class({
+    name: 'cc.Show',
+    extends: cc.ActionInstant,
 
     update:function (dt) {
         var _renderComps = this.target.getComponentsInChildren(cc._SGComponent);
@@ -109,7 +113,9 @@ cc.show = function () {
  * @class Hide
  * @extends ActionInstant
  */
-cc.Hide = cc.ActionInstant.extend({
+cc.Hide = cc.Class({
+    name: 'cc.Hide',
+    extends: cc.ActionInstant,
 
     update:function (dt) {
         var _renderComps = this.target.getComponentsInChildren(cc._SGComponent);
@@ -146,7 +152,9 @@ cc.hide = function () {
  * @class ToggleVisibility
  * @extends ActionInstant
  */
-cc.ToggleVisibility = cc.ActionInstant.extend({
+cc.ToggleVisibility = cc.Class({
+    name: 'cc.ToggleVisibility',
+    extends: cc.ActionInstant,
 
     update:function (dt) {
         var _renderComps = this.target.getComponentsInChildren(cc._SGComponent);
@@ -188,12 +196,12 @@ cc.toggleVisibility = function () {
  * // example
  * var removeSelfAction = new cc.RemoveSelf(false);
  */
-cc.RemoveSelf = cc.ActionInstant.extend({
-     _isNeedCleanUp: true,
+cc.RemoveSelf = cc.Class({
+    name: 'cc.RemoveSelf',
+    extends: cc.ActionInstant,
 
     ctor:function(isNeedCleanUp){
-        cc.FiniteTimeAction.prototype.ctor.call(this);
-
+        this._isNeedCleanUp = true;
 	    isNeedCleanUp !== undefined && this.init(isNeedCleanUp);
     },
 
@@ -239,11 +247,11 @@ cc.removeSelf = function(isNeedCleanUp){
  * @example
  * var flipXAction = new cc.FlipX(true);
  */
-cc.FlipX = cc.ActionInstant.extend({
-    _flippedX:false,
+cc.FlipX = cc.Class({
+    name: 'cc.FlipX',
+    extends: cc.ActionInstant,
 
     ctor:function(flip){
-        cc.FiniteTimeAction.prototype.ctor.call(this);
         this._flippedX = false;
 		flip !== undefined && this.initWithFlipX(flip);
     },
@@ -294,13 +302,12 @@ cc.flipX = function (flip) {
  * @example
  * var flipYAction = new cc.FlipY(true);
  */
-cc.FlipY = cc.ActionInstant.extend({
-    _flippedY:false,
+cc.FlipY = cc.Class({
+    name: 'cc.FlipY',
+    extends: cc.ActionInstant,
 
     ctor: function(flip){
-        cc.FiniteTimeAction.prototype.ctor.call(this);
         this._flippedY = false;
-
 		flip !== undefined && this.initWithFlipY(flip);
     },
 
@@ -352,12 +359,11 @@ cc.flipY = function (flip) {
  * var placeAction = new cc.Place(cc.p(200, 200));
  * var placeAction = new cc.Place(200, 200);
  */
-cc.Place = cc.ActionInstant.extend({
-    _x: 0,
-	_y: 0,
+cc.Place = cc.Class({
+    name: 'cc.Place',
+    extends: cc.ActionInstant,
 
     ctor:function(pos, y){
-        cc.FiniteTimeAction.prototype.ctor.call(this);
         this._x = 0;
 	    this._y = 0;
 
@@ -425,10 +431,9 @@ cc.place = function (pos, y) {
  * // CallFunc with data
  * var finish = new cc.CallFunc(this.removeFromParentAndCleanup, this,  true);
  */
-cc.CallFunc = cc.ActionInstant.extend({
-    _selectorTarget:null,
-    _function:null,
-    _data:null,
+cc.CallFunc = cc.Class({
+    name: 'cc.CallFunc',
+    extends: cc.ActionInstant,
 
     /*
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
@@ -438,8 +443,9 @@ cc.CallFunc = cc.ActionInstant.extend({
 	 * @param {*} [data=null] data for function, it accepts all data types.
 	 */
     ctor:function(selector, selectorTarget, data){
-        cc.FiniteTimeAction.prototype.ctor.call(this);
-
+        this._selectorTarget = null;
+        this._function = null;
+        this._data = null;
         this.initWithFunction(selector, selectorTarget, data);
     },
 
