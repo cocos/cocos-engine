@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 if (!cc.ClassManager) {
-    require("./_CCClass");
+    require("./CCClass");
 }
 
 var eventManager = require('../event-manager');

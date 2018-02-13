@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./_CCClass');
+const js = require('./js');
 
 /**
  * !#en Key map for keyboard event
@@ -1635,7 +1635,7 @@ cc.macro = {
  * @default true
  */
 var ENABLE_CULLING = true;
-cc.defineGetterSetter(cc.macro, 'ENABLE_CULLING', 
+js.getset(cc.macro, 'ENABLE_CULLING', 
     function () {
         return ENABLE_CULLING;
     },
@@ -1664,7 +1664,7 @@ cc.defineGetterSetter(cc.macro, 'ENABLE_CULLING',
  * @property BLEND_SRC
  * @type {Number}
  */
-cc.defineGetterSetter(cc.macro, "BLEND_SRC", function (){
+js.getset(cc.macro, "BLEND_SRC", function (){
     if (cc._renderType === cc.game.RENDER_TYPE_WEBGL
          && cc.macro.OPTIMIZE_BLEND_FUNC_FOR_PREMULTIPLIED_ALPHA) {
         return cc.macro.ONE;
