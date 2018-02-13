@@ -27,7 +27,7 @@ var imageAttrReg = /(\s)*src(\s)*=|(\s)*height(\s)*=|(\s)*width(\s)*=|(\s)*click
 /**
  * A utils class for parsing HTML texts. The parsed results will be an object array.
  */
-cc.HtmlTextParser = function() {
+var HtmlTextParser = function() {
     this._parsedObject = {};
     this._specialSymbolArray = [];
     this._specialSymbolArray.push([/&lt;/g, '<']);
@@ -37,8 +37,8 @@ cc.HtmlTextParser = function() {
     this._specialSymbolArray.push([/&apos;/g, '\'']);
 };
 
-cc.HtmlTextParser.prototype = {
-    constructor: cc.HtmlTextParser,
+HtmlTextParser.prototype = {
+    constructor: HtmlTextParser,
     parse: function(htmlString) {
         this._resultObjectArray = [];
         this._stack = [];
@@ -325,5 +325,8 @@ cc.HtmlTextParser.prototype = {
     }
 };
 
+if (CC_TEST) {
+    cc._Test.HtmlTextParser = HtmlTextParser;
+}
 
-cc.htmlTextParser = new cc.HtmlTextParser();
+module.exports = HtmlTextParser;

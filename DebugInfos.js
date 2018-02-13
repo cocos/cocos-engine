@@ -65,6 +65,7 @@ if (CC_DEBUG) {
         "1404": "cc.spriteFrameCache is removed, please use cc.loader to load and cache sprite frames of atlas format.",
         "1405": "The '%s' will be removed in v2.0, please use '%s' instead. \uD83D\uDE30",
         "1406": "'%s.%s' is removed", // removed
+        "1407": "cc.pool is being removed from v2.0, you are getting cc.js.Pool instead",
         //Scheduler: 1500
         "1500": "cc.Scheduler#schedule: Callback already scheduled. Updating interval from:%s to %s", //scheduleCallbackForTarget
         "1501": "cc.Scheduler#scheduleCallbackForTarget(): callback_fn should be non-null.", //scheduleCallbackForTarget_2
@@ -121,10 +122,10 @@ if (CC_DEBUG) {
         "1702": "cocos2d: Could not initialize cc.AtlasNode. Invalid Texture.", //_initWithTexture
         "1703": "The new text must be String", //TextAtlas.text
         //_checkEventListenerAvailable: 1800
-        "1800": "cc._EventListenerKeyboard.checkAvailable(): Invalid EventListenerKeyboard!", //keyboard
-        "1801": "cc._EventListenerTouchOneByOne.checkAvailable(): Invalid EventListenerTouchOneByOne!", //touchOneByOne
-        "1802": "cc._EventListenerTouchAllAtOnce.checkAvailable(): Invalid EventListenerTouchAllAtOnce!", //touchAllAtOnce
-        "1803": "cc._EventListenerAcceleration.checkAvailable(): _onAccelerationEvent must be non-nil", //acceleration
+        "1800": "Keyboard EventListener checkAvailable(): Invalid EventListenerKeyboard!", //keyboard
+        "1801": "TouchOneByOne EventListener checkAvailable(): Invalid EventListenerTouchOneByOne!", //touchOneByOne
+        "1802": "TouchAllAtOnce EventListener checkAvailable(): Invalid EventListenerTouchAllAtOnce!", //touchAllAtOnce
+        "1803": "Acceleration EventListener checkAvailable(): _onAccelerationEvent must be non-nil", //acceleration
         //EventListener: 1900
         "1900": "Invalid parameter.", //create
         //__getListenerID: 2000

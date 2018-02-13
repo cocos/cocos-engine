@@ -23,15 +23,16 @@
  THE SOFTWARE.
  ****************************************************************************/
 var js = require('../platform/js');
+require('./CCEventListener');
+var ListenerID = cc.EventListener.ListenerID;
 
-var _EventListenerVector = cc._Class.extend({
-
-    ctor: function () {
-        this._fixedListeners = [];
-        this._sceneGraphListeners = [];
-        this.gt0Index = 0;
-    },
-
+var _EventListenerVector = function () {
+    this._fixedListeners = [];
+    this._sceneGraphListeners = [];
+    this.gt0Index = 0;
+};
+_EventListenerVector.prototype = {
+    constructor: _EventListenerVector,
     size: function () {
         return this._fixedListeners.length + this._sceneGraphListeners.length;
     },
@@ -67,16 +68,16 @@ var _EventListenerVector = cc._Class.extend({
     getSceneGraphPriorityListeners: function () {
         return this._sceneGraphListeners;
     }
-});
+};
 
 var __getListenerID = function (event) {
     var eventType = cc.Event, type = event.type;
     if (type === eventType.ACCELERATION)
-        return cc._EventListenerAcceleration.LISTENER_ID;
+        return ListenerID.ACCELERATION;
     if (type === eventType.KEYBOARD)
-        return cc._EventListenerKeyboard.LISTENER_ID;
+        return ListenerID.KEYBOARD;
     if (type.startsWith(eventType.MOUSE))
-        return cc._EventListenerMouse.LISTENER_ID;
+        return ListenerID.MOUSE;
     if (type.startsWith(eventType.TOUCH)){
         // Touch listener is very special, it contains two kinds of listeners, EventListenerTouchOneByOne and EventListenerTouchAllAtOnce.
         // return UNKNOWN instead.
@@ -428,11 +429,11 @@ var eventManager = {
             return;
 
         var listeners;
-        listeners = this._listenersMap[cc._EventListenerTouchOneByOne.LISTENER_ID];
+        listeners = this._listenersMap[ListenerID.TOUCH_ONE_BY_ONE];
         if (listeners) {
             this._onUpdateListeners(listeners);
         }
-        listeners = this._listenersMap[cc._EventListenerTouchAllAtOnce.LISTENER_ID];
+        listeners = this._listenersMap[ListenerID.TOUCH_ALL_AT_ONCE];
         if (listeners) {
             this._onUpdateListeners(listeners);
         }
@@ -528,11 +529,11 @@ var eventManager = {
     },
 
     _dispatchTouchEvent: function (event) {
-        this._sortEventListeners(cc._EventListenerTouchOneByOne.LISTENER_ID);
-        this._sortEventListeners(cc._EventListenerTouchAllAtOnce.LISTENER_ID);
+        this._sortEventListeners(ListenerID.TOUCH_ONE_BY_ONE);
+        this._sortEventListeners(ListenerID.TOUCH_ALL_AT_ONCE);
 
-        var oneByOneListeners = this._getListeners(cc._EventListenerTouchOneByOne.LISTENER_ID);
-        var allAtOnceListeners = this._getListeners(cc._EventListenerTouchAllAtOnce.LISTENER_ID);
+        var oneByOneListeners = this._getListeners(ListenerID.TOUCH_ONE_BY_ONE);
+        var allAtOnceListeners = this._getListeners(ListenerID.TOUCH_ALL_AT_ONCE);
 
         // If there aren't any touch listeners, return directly.
         if (null === oneByOneListeners && null === allAtOnceListeners)
@@ -785,7 +786,11 @@ var eventManager = {
      * @return {EventListener} the generated event. Needed in order to remove the event from the dispatcher
      */
     addCustomListener: function (eventName, callback) {
-        var listener = new cc._EventListenerCustom(eventName, callback);
+        var listener = new cc.EventListener.create({
+            event: cc.EventListener.CUSTOM,
+            eventName: eventName, 
+            callback: callback
+        });
         this.addListener(listener, 1);
         return listener;
     },
@@ -944,15 +949,15 @@ var eventManager = {
             }
         } else {
             if (listenerType === cc.EventListener.TOUCH_ONE_BY_ONE)
-                _t._removeListenersForListenerID(cc._EventListenerTouchOneByOne.LISTENER_ID);
+                _t._removeListenersForListenerID(ListenerID.TOUCH_ONE_BY_ONE);
             else if (listenerType === cc.EventListener.TOUCH_ALL_AT_ONCE)
-                _t._removeListenersForListenerID(cc._EventListenerTouchAllAtOnce.LISTENER_ID);
+                _t._removeListenersForListenerID(ListenerID.TOUCH_ALL_AT_ONCE);
             else if (listenerType === cc.EventListener.MOUSE)
-                _t._removeListenersForListenerID(cc._EventListenerMouse.LISTENER_ID);
+                _t._removeListenersForListenerID(ListenerID.MOUSE);
             else if (listenerType === cc.EventListener.ACCELERATION)
-                _t._removeListenersForListenerID(cc._EventListenerAcceleration.LISTENER_ID);
+                _t._removeListenersForListenerID(ListenerID.ACCELERATION);
             else if (listenerType === cc.EventListener.KEYBOARD)
-                _t._removeListenersForListenerID(cc._EventListenerKeyboard.LISTENER_ID);
+                _t._removeListenersForListenerID(ListenerID.KEYBOARD);
             else
                 cc.logID(3501);
         }

@@ -603,13 +603,18 @@ if (CC_DEV) {
     // cc
     markAsRemovedInObject(cc, ['Scale9Sprite'], 'cc');
 
+    js.get(cc, 'pool', function () {
+        cc.warnID(1407);
+        return js.Pool;
+    });
+
     if (cc.ActionManager) {
         js.obsoletes(cc.ActionManager.prototype, 'cc.ActionManager', {
             'numberOfRunningActionsInTarget' : 'getNumberOfRunningActionsInTarget'
         });
     }
 
-    cc.js.get(cc.Texture2D.prototype, 'getName', function () {
+    js.get(cc.Texture2D.prototype, 'getName', function () {
         cc.warnID(1400, 'texture.getName()', 'texture._glID');
         return function () {
             return this._glID || null;

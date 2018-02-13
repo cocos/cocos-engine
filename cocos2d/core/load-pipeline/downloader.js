@@ -24,7 +24,7 @@
  ****************************************************************************/
 var JS = require('../platform/js');
 var sys = require('../platform/CCSys');
-var Path = require('../utils/CCPath');
+require('../utils/CCPath');
 var Pipeline = require('./pipeline');
 var PackDownloader = require('./pack-downloader');
 // var downloadBinary = require('./binary-downloader');
@@ -143,7 +143,7 @@ function _loadFont (name, srcs, type){
     if (srcs instanceof Array) {
         for (var i = 0, li = srcs.length; i < li; i++) {
             var src = srcs[i];
-            type = Path.extname(src).toLowerCase();
+            type = cc.path.extname(src).toLowerCase();
             fontStr += 'url(\'' + srcs[i] + '\') format(\'' + FONT_TYPE[type] + '\')';
             fontStr += (i === li - 1) ? ';' : ',';
         }
@@ -174,8 +174,8 @@ function downloadFont (item, callback) {
         }
         _loadFont(name, srcs);
     } else {
-        type = Path.extname(url);
-        name = Path.basename(url, type);
+        type = cc.path.extname(url);
+        name = cc.path.basename(url, type);
         _loadFont(name, url, type);
     }
     if (document.fonts) {

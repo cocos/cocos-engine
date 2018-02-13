@@ -25,7 +25,6 @@
  ****************************************************************************/
 
 const EventTarget = require('./event/event-target');
-const Class = require('./platform/_CCClass');
 const AutoReleaseUtils = require('./load-pipeline/auto-release-utils');
 const ComponentScheduler = require('./component-scheduler');
 const NodeActivator = require('./node-activator');
@@ -103,43 +102,45 @@ const eventManager = require('./event-manager');
  * @class Director
  * @extends EventTarget
  */
-cc.Director = Class.extend(/** @lends cc.Director# */{
-    ctor: function () {
-        var self = this;
-        EventTarget.call(self);
+cc.Director = function () {
+    EventTarget.call(this);
 
-        // paused?
-        self._paused = false;
-        // purge?
-        self._purgeDirectorInNextLoop = false;
-        self._animationInterval = 0.0;
-        self._oldAnimationInterval = 0.0;
+    this.invalid = false;
+    // paused?
+    this._paused = false;
+    // purge?
+    this._purgeDirectorInNextLoop = false;
+    this._animationInterval = 0.0;
+    this._oldAnimationInterval = 0.0;
 
-        self._winSizeInPoints = null;
+    this._winSizeInPoints = null;
 
-        // scenes
-        self._loadingScene = '';
-        self._scene = null;
+    // scenes
+    this._loadingScene = '';
+    this._scene = null;
 
-        // FPS
-        self._totalFrames = 0;
+    // FPS
+    this._totalFrames = 0;
+    this._lastUpdate = Date.now();
+    this._deltaTime = 0.0;
+
+    // Scheduler for user registration update
+    this._scheduler = null;
+    // Scheduler for life-cycle methods in component
+    this._compScheduler = null;
+    // Node activator
+    this._nodeActivator = null;
+    // Action manager
+    this._actionManager = null;
+
+    var self = this;
+    cc.game.on(cc.game.EVENT_SHOW, function () {
         self._lastUpdate = Date.now();
-        self._deltaTime = 0.0;
+    });
+};
 
-        // Scheduler for user registration update
-        self._scheduler = null;
-        // Scheduler for life-cycle methods in component
-        self._compScheduler = null;
-        // Node activator
-        self._nodeActivator = null;
-        // Action manager
-        self._actionManager = null;
-
-        cc.game.on(cc.game.EVENT_SHOW, function () {
-            self._lastUpdate = Date.now();
-        });
-    },
-
+cc.Director.prototype = {
+    constructor: cc.Director,
     init: function () {
         this._oldAnimationInterval = this._animationInterval = 1.0 / cc.defaultFPS;
 
@@ -161,7 +162,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         return true;
     },
 
-    /**
+    /*
      * Manage all init process shared between the web engine and jsb engine.
      * All platform independent init process should be occupied here.
      */
@@ -836,7 +837,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * @deprecated
      */
     getRunningScene: function () {
-        return null;
+        return this._scene;
     },
 
     /**
@@ -989,7 +990,120 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     getPhysicsManager: function () {
         return this._physicsManager;
     },
-});
+
+    // Loop management
+    /*
+     * Starts Animation
+     */
+    startAnimation: function () {
+        this.invalid = false;
+        this._lastUpdate = Date.now();
+    },
+
+    /*
+     * Stops animation
+     */
+    stopAnimation: function () {
+        this.invalid = true;
+    },
+
+    /*
+     * Run main loop of director
+     */
+    mainLoop: CC_EDITOR ? function (deltaTime, updateAnimate) {
+        if (!this._paused) {
+            this.emit(cc.Director.EVENT_BEFORE_UPDATE);
+
+            this._compScheduler.startPhase();
+            this._compScheduler.updatePhase(deltaTime);
+
+            if (updateAnimate) {
+                this._scheduler.update(deltaTime);
+            }
+
+            this._compScheduler.lateUpdatePhase(deltaTime);
+
+            this.emit(cc.Director.EVENT_AFTER_UPDATE);
+        }
+
+        this.emit(cc.Director.EVENT_BEFORE_VISIT);
+        // update the scene
+        this.emit(cc.Director.EVENT_AFTER_VISIT);
+
+        // Render
+        renderer.render(this._scene);
+        this._totalFrames++;
+
+        this.emit(cc.Director.EVENT_AFTER_DRAW);
+
+    } : function () {
+        if (this._purgeDirectorInNextLoop) {
+            this._purgeDirectorInNextLoop = false;
+            this.purgeDirector();
+        }
+        else if (!this.invalid) {
+            // calculate "global" dt
+            this.calculateDeltaTime();
+
+            if (!this._paused) {
+                this.emit(cc.Director.EVENT_BEFORE_UPDATE);
+                // Call start for new added components
+                this._compScheduler.startPhase();
+                // Update for components
+                this._compScheduler.updatePhase(this._deltaTime);
+                // Engine update with scheduler
+                this._scheduler.update(this._deltaTime);
+                // Late update for components
+                this._compScheduler.lateUpdatePhase(this._deltaTime);
+                // User can use this event to do things after update
+                this.emit(cc.Director.EVENT_AFTER_UPDATE);
+                // Destroy entities that have been removed recently
+                cc.Object._deferredDestroy();
+            }
+            this.emit(cc.Director.EVENT_BEFORE_VISIT);
+            // update the scene
+            this.emit(cc.Director.EVENT_AFTER_VISIT);
+
+            // Render
+            renderer.render(this._scene);
+            this._totalFrames++;
+
+            this.emit(cc.Director.EVENT_AFTER_DRAW);
+            eventManager.frameUpdateListeners();
+        }
+    },
+
+    /**
+     * Sets animation interval, this doesn't control the main loop.
+     * To control the game's frame rate overall, please use {{#crossLink "Game.setFrameRate"}}cc.game.setFrameRate{{/crossLink}}
+     * @method setAnimationInterval
+     * @param {Number} value - The animation interval desired.
+     */
+    setAnimationInterval: function (value) {
+        this._animationInterval = value;
+        if (!this.invalid) {
+            this.stopAnimation();
+            this.startAnimation();
+        }
+    },
+
+    __fastOn: function (type, callback, target) {
+        var listeners = this._bubblingListeners;
+        if (!listeners) {
+            listeners = this._bubblingListeners = new EventListeners();
+        }
+        listeners.add(type, callback, target);
+        this._addEventFlag(type, listeners, false);
+    },
+
+    __fastOff: function (type, callback, target) {
+        var listeners = this._bubblingListeners;
+        if (listeners) {
+            listeners.remove(type, callback, target);
+            this._purgeEventFlag(type, listeners, false);
+        }
+    },
+};
 
 // Event target
 cc.js.addon(cc.Director.prototype, EventTarget.prototype);
@@ -1133,132 +1247,13 @@ cc.Director.EVENT_AFTER_VISIT = "director_after_visit";
  */
 cc.Director.EVENT_AFTER_DRAW = "director_after_draw";
 
-/***************************************************
- * implementation of DisplayLinkDirector
- **************************************************/
-
-cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
-    invalid: false,
-
-    /**
-     * Starts Animation
-     */
-    startAnimation: function () {
-        this.invalid = false;
-        this._lastUpdate = Date.now();
-    },
-
-    /**
-     * Run main loop of director
-     */
-    mainLoop: CC_EDITOR ? function (deltaTime, updateAnimate) {
-        if (!this._paused) {
-            this.emit(cc.Director.EVENT_BEFORE_UPDATE);
-
-            this._compScheduler.startPhase();
-            this._compScheduler.updatePhase(deltaTime);
-
-            if (updateAnimate) {
-                this._scheduler.update(deltaTime);
-            }
-
-            this._compScheduler.lateUpdatePhase(deltaTime);
-
-            this.emit(cc.Director.EVENT_AFTER_UPDATE);
-        }
-
-        this.emit(cc.Director.EVENT_BEFORE_VISIT);
-        // update the scene
-        this.emit(cc.Director.EVENT_AFTER_VISIT);
-
-        // Render
-        renderer.render(this._scene);
-        this._totalFrames++;
-
-        this.emit(cc.Director.EVENT_AFTER_DRAW);
-
-    } : function () {
-        if (this._purgeDirectorInNextLoop) {
-            this._purgeDirectorInNextLoop = false;
-            this.purgeDirector();
-        }
-        else if (!this.invalid) {
-            // calculate "global" dt
-            this.calculateDeltaTime();
-
-            if (!this._paused) {
-                this.emit(cc.Director.EVENT_BEFORE_UPDATE);
-                // Call start for new added components
-                this._compScheduler.startPhase();
-                // Update for components
-                this._compScheduler.updatePhase(this._deltaTime);
-                // Engine update with scheduler
-                this._scheduler.update(this._deltaTime);
-                // Late update for components
-                this._compScheduler.lateUpdatePhase(this._deltaTime);
-                // User can use this event to do things after update
-                this.emit(cc.Director.EVENT_AFTER_UPDATE);
-                // Destroy entities that have been removed recently
-                cc.Object._deferredDestroy();
-            }
-            this.emit(cc.Director.EVENT_BEFORE_VISIT);
-            // update the scene
-            this.emit(cc.Director.EVENT_AFTER_VISIT);
-
-            // Render
-            renderer.render(this._scene);
-            this._totalFrames++;
-
-            this.emit(cc.Director.EVENT_AFTER_DRAW);
-            eventManager.frameUpdateListeners();
-        }
-    },
-
-    /**
-     * Stops animation
-     */
-    stopAnimation: function () {
-        this.invalid = true;
-    },
-
-    /**
-     * Sets animation interval, this doesn't control the main loop.
-     * To control the game's frame rate overall, please use {{#crossLink "Game.setFrameRate"}}cc.game.setFrameRate{{/crossLink}}
-     * @param {Number} value - The animation interval desired.
-     */
-    setAnimationInterval: function (value) {
-        this._animationInterval = value;
-        if (!this.invalid) {
-            this.stopAnimation();
-            this.startAnimation();
-        }
-    },
-
-    __fastOn: function (type, callback, target) {
-        var listeners = this._bubblingListeners;
-        if (!listeners) {
-            listeners = this._bubblingListeners = new EventListeners();
-        }
-        listeners.add(type, callback, target);
-        this._addEventFlag(type, listeners, false);
-    },
-
-    __fastOff: function (type, callback, target) {
-        var listeners = this._bubblingListeners;
-        if (listeners) {
-            listeners.remove(type, callback, target);
-            this._purgeEventFlag(type, listeners, false);
-        }
-    },
-});
-
 cc.Director.sharedDirector = null;
 cc.Director.firstUseDirector = true;
 
 cc.Director._getInstance = function () {
     if (cc.Director.firstUseDirector) {
         cc.Director.firstUseDirector = false;
-        cc.Director.sharedDirector = new cc.DisplayLinkDirector();
+        cc.Director.sharedDirector = new cc.Director();
         cc.Director.sharedDirector.init();
     }
     return cc.Director.sharedDirector;

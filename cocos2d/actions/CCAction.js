@@ -24,6 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+require('../core/platform/CCClass');
+
 /**
  * @module cc
  */
@@ -33,7 +35,8 @@
  * !#zh Action 类是所有动作类型的基类。
  * @class Action
  */
-cc.Action = cc._Class.extend({
+cc.Action = cc.Class({
+    name: 'cc.Action',
 
     //**************Public Functions***********
 
@@ -185,12 +188,12 @@ cc.Action.TAG_INVALID = -1;
  * @class FiniteTimeAction
  * @extends Action
  */
-cc.FiniteTimeAction = cc.Action.extend({
-    //! duration in seconds
-    _duration:0,
+cc.FiniteTimeAction = cc.Class({
+    name: 'cc.FiniteTimeAction',
+    extends: cc.Action,
 
     ctor:function () {
-        cc.Action.prototype.ctor.call(this);
+        //! duration in seconds
         this._duration = 0;
     },
 
@@ -259,12 +262,11 @@ cc.FiniteTimeAction = cc.Action.extend({
  * @param {ActionInterval} action
  * @param {Number} speed
  */
-cc.Speed = cc.Action.extend({
-    _speed:0.0,
-    _innerAction:null,
+cc.Speed = cc.Class({
+    name: 'cc.Speed',
+    extends: cc.Action,
 
     ctor:function (action, speed) {
-        cc.Action.prototype.ctor.call(this);
         this._speed = 0;
         this._innerAction = null;
 
@@ -410,22 +412,9 @@ cc.speed = function (action, speed) {
  * @class
  * @extends Action
  */
-cc.Follow = cc.Action.extend({
-    // node to follow
-    _followedNode:null,
-    // whether camera should be limited to certain area
-    _boundarySet:false,
-    // if screen size is bigger than the boundary - update not needed
-    _boundaryFullyCovered:false,
-    // fast access to the screen dimensions
-    _halfScreenSize:null,
-    _fullScreenSize:null,
-    _worldRect:null,
-
-    leftBoundary:0.0,
-    rightBoundary:0.0,
-    topBoundary:0.0,
-    bottomBoundary:0.0,
+cc.Follow = cc.Class({
+    name: 'cc.Follow',
+    extends: cc.Action,
 
 	/*
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
@@ -435,11 +424,13 @@ cc.Follow = cc.Action.extend({
      * @param {Rect} rect
 	 */
     ctor:function (followedNode, rect) {
-        cc.Action.prototype.ctor.call(this);
+        // node to follow
         this._followedNode = null;
+        // whether camera should be limited to certain area
         this._boundarySet = false;
-
+        // if screen size is bigger than the boundary - update not needed
         this._boundaryFullyCovered = false;
+        // fast access to the screen dimensions
         this._halfScreenSize = null;
         this._fullScreenSize = null;
 

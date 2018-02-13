@@ -26,6 +26,7 @@
 
 var codec = require('../compression/ZipUtils');
 var Zlib = require('../compression/zlib.min');
+var js = require('../core/platform/js');
 
 function uint8ArrayToUint32Array (uint8Arr) {
     if(uint8Arr.length % 4 !== 0)
@@ -50,26 +51,25 @@ function uint8ArrayToUint32Array (uint8Arr) {
  * - Whether the layer is visible (if it's not visible, then the CocosNode won't be created) <br />
  *  <br />
  * This information is obtained from the TMX file.</p>
- * @class
- * @extends cc._Class
+ * @class TMXLayerInfo
  *
  * @property {Array}    properties  - Properties of the layer info.
  */
-cc.TMXLayerInfo = cc._Class.extend(/** @lends cc.TMXLayerInfo# */{
+cc.TMXLayerInfo = function () {
+    this.properties = {};
+    this.name = "";
+    this._layerSize = null;
+    this._tiles = [];
+    this.visible = true;
+    this._opacity = 0;
+    this.ownTiles = true;
+    this._minGID = 100000;
+    this._maxGID = 0;
+    this.offset = cc.p(0,0);
+};
 
-    ctor () {
-        this.properties = {};
-        this.name = "";
-        this._layerSize = null;
-        this._tiles = [];
-        this.visible = true;
-        this._opacity = 0;
-        this.ownTiles = true;
-        this._minGID = 100000;
-        this._maxGID = 0;
-        this.offset = cc.p(0,0);
-    },
-
+cc.TMXLayerInfo.prototype = {
+    constructor: cc.TMXLayerInfo,
     /**
      * Gets the Properties.
      * @return {Array}
@@ -85,7 +85,7 @@ cc.TMXLayerInfo = cc._Class.extend(/** @lends cc.TMXLayerInfo# */{
     setProperties (value) {
         this.properties = value;
     }
-});
+};
 
 /**
  * <p>cc.TMXObjectGroupInfo contains the information about the object group like: <br />
@@ -95,24 +95,23 @@ cc.TMXLayerInfo = cc._Class.extend(/** @lends cc.TMXLayerInfo# */{
  * - Whether the group is visible <br />
  *  <br />
  * This information is obtained from the TMX file.</p>
- * @class
- * @extends cc._Class
+ * @class TMXObjectGroupInfo
  *
  * @property {Array}    properties  - Properties of the ObjectGroup info.
  */
-cc.TMXObjectGroupInfo = cc._Class.extend(/** @lends cc.TMXObjectGroupInfo# */{
+cc.TMXObjectGroupInfo = function () {
+    this.properties = {};
+    this.name = "";
+    this._objects = [];
+    this.visible = true;
+    this._opacity = 0;
+    this._color = new cc.Color(255, 255, 255, 255);
+    this.offset = cc.p(0,0);
+    this._draworder = 'topdown';
+};
 
-    ctor () {
-        this.properties = {};
-        this.name = "";
-        this._objects = [];
-        this.visible = true;
-        this._opacity = 0;
-        this._color = new cc.Color(255, 255, 255, 255);
-        this.offset = cc.p(0,0);
-        this._draworder = 'topdown';
-    },
-
+cc.TMXObjectGroupInfo.prototype = {
+    constructor: cc.TMXObjectGroupInfo,
     /**
      * Gets the Properties.
      * @return {Array}
@@ -128,7 +127,7 @@ cc.TMXObjectGroupInfo = cc._Class.extend(/** @lends cc.TMXObjectGroupInfo# */{
     setProperties (value) {
         this.properties = value;
     }
-});
+};
 
 /**
  * <p>cc.TMXTilesetInfo contains the information about the tilesets like: <br />
@@ -140,8 +139,7 @@ cc.TMXObjectGroupInfo = cc._Class.extend(/** @lends cc.TMXObjectGroupInfo# */{
  * - Image size<br />
  *
  * This information is obtained from the TMX file. </p>
- * @class
- * @extends cc._Class
+ * @class TMXTilesetInfo
  *
  * @property {string} name - Tileset name
  * @property {number} firstGid - First grid
@@ -150,27 +148,26 @@ cc.TMXObjectGroupInfo = cc._Class.extend(/** @lends cc.TMXObjectGroupInfo# */{
  * @property {null} sourceImage - Texture containing the tiles (should be sprite sheet / texture atlas)
  * @property {cc.Size} imageSize - Size in pixels of the image
  */
-cc.TMXTilesetInfo = cc._Class.extend(/** @lends cc.TMXTilesetInfo# */{
+cc.TMXTilesetInfo = function () {
+    // Tileset name
+    this.name = "";
+    // First grid
+    this.firstGid = 0;
+    // Spacing
+    this.spacing = 0;
+    // Margin
+    this.margin = 0;
+    // Texture containing the tiles (should be sprite sheet / texture atlas)
+    this.sourceImage = null;
+    // Size in pixels of the image
+    this.imageSize = cc.size(0, 0);
 
-    ctor () {
-        // Tileset name
-        this.name = "";
-        // First grid
-        this.firstGid = 0;
-        // Spacing
-        this.spacing = 0;
-        // Margin
-        this.margin = 0;
-        // Texture containing the tiles (should be sprite sheet / texture atlas)
-        this.sourceImage = null;
-        // Size in pixels of the image
-        this.imageSize = cc.size(0, 0);
+    this.tileOffset = cc.p(0, 0);
 
-        this.tileOffset = cc.p(0, 0);
-
-        this._tileSize = cc.size(0, 0);
-    },
-
+    this._tileSize = cc.size(0, 0);
+};
+cc.TMXTilesetInfo.prototype = {
+    constructor: cc.TMXTilesetInfo,
     /**
      * Return rect
      * @param {Number} gid
@@ -187,7 +184,7 @@ cc.TMXTilesetInfo = cc._Class.extend(/** @lends cc.TMXTilesetInfo# */{
         rect.y = parseInt(parseInt(gid / max_x, 10) * (this._tileSize.height + this.spacing) + this.margin, 10);
         return rect;
     }
-});
+};
 
 function getPropertyList (node) {
     let res = [];
@@ -241,53 +238,46 @@ function getPropertyList (node) {
  * let xmlStr = cc.loader.getRes(filePath);
  * let tmxMapInfo = new cc.TMXMapInfo(xmlStr, resources);
  */
-cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
-	properties:null,
-    orientation:null,
-	parentElement:null,
-	parentGID:null,
-	layerAttrs:0,
-	storingCharacters:false,
-	currentString:null,
 
-	_objectGroups:null,
-    _allChildren: null,
-    _mapSize:null,
-    _tileSize:null,
-    _layers:null,
-    _tilesets:null,
-    // tile properties
-    _tileProperties:null,
-    _resources: "",  // used to load relative tsx
+/**
+ * Creates a TMX Format with a tmx file or content string                           <br/>
+ * Constructor of cc.TMXMapInfo
+ * @method constructor
+ * @param {String} tmxFile content string
+ * @param {String} resourcePath
+ * @param {Object} textures
+ */
+cc.TMXMapInfo = function (tmxFile, resourcePath, textures) {
+    this.properties = [];
+    this.orientation = null;
+    this.parentElement = null;
+    this.parentGID = null;
+    this.layerAttrs = 0;
+    this.storingCharacters = false;
+    this.currentString = null;
+
+    this._parser = new cc.SAXParser();
+    this._objectGroups = [];
+    this._allChildren = [];
+    this._mapSize = cc.size(0, 0);
+    this._tileSize = cc.size(0, 0);
+    this._layers = [];
+    this._tilesets = [];
+    this._tileProperties = {};
+    this._resources = "";
 
     // map of textures indexed by name
-    _textures: null,
+    this._textures = null;
 
     // hex map values
-    _staggerAxis: null,
-    _staggerIndex: null,
-    _hexSideLength: 0,
+    this._staggerAxis = null;
+    this._staggerIndex = null;
+    this._hexSideLength = 0;
 
-    /**
-     * Creates a TMX Format with a tmx file or content string                           <br/>
-     * Constructor of cc.TMXMapInfo
-     * @param {String} tmxFile content string
-     * @param {String} resourcePath
-     * @param {Object} textures
-     */
-    ctor (tmxFile, resourcePath, textures) {
-        cc.SAXParser.prototype.ctor.apply(this);
-        this._mapSize = cc.size(0, 0);
-        this._tileSize = cc.size(0, 0);
-        this._layers = [];
-        this._tilesets = [];
-        this._objectGroups = [];
-        this._allChildren = [];
-        this.properties = [];
-        this._tileProperties = {};
-
-        this.initWithXML(tmxFile, resourcePath, textures);
-    },
+    this.initWithXML(tmxFile, resourcePath, textures);
+};
+cc.TMXMapInfo.prototype = {
+    constructor: cc.TMXMapInfo,
     /**
      * Gets Map orientation.
      * @return {Number}
@@ -588,7 +578,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
             cc.errorID(7220, tmxFile);
         }
 
-        let mapXML = this._parseXML(xmlStr);
+        let mapXML = this._parser._parseXML(xmlStr);
         let i, j;
 
         // PARSE <map>
@@ -993,23 +983,15 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
     setCurrentString (currentString) {
         this.currentString = currentString;
     }
-});
+};
 
 let _p = cc.TMXMapInfo.prototype;
 
 // Extended properties
-/** @expose */
-_p.mapWidth;
-cc.defineGetterSetter(_p, "mapWidth", _p._getMapWidth, _p._setMapWidth);
-/** @expose */
-_p.mapHeight;
-cc.defineGetterSetter(_p, "mapHeight", _p._getMapHeight, _p._setMapHeight);
-/** @expose */
-_p.tileWidth;
-cc.defineGetterSetter(_p, "tileWidth", _p._getTileWidth, _p._setTileWidth);
-/** @expose */
-_p.tileHeight;
-cc.defineGetterSetter(_p, "tileHeight", _p._getTileHeight, _p._setTileHeight);
+js.getset(_p, "mapWidth", _p._getMapWidth, _p._setMapWidth);
+js.getset(_p, "mapHeight", _p._getMapHeight, _p._setMapHeight);
+js.getset(_p, "tileWidth", _p._getTileWidth, _p._setTileWidth);
+js.getset(_p, "tileHeight", _p._getTileHeight, _p._setTileHeight);
 
 
 /**

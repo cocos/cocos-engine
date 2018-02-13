@@ -24,6 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+require('../core/platform/CCClass');
+
 /*
  * @class HashElement
  * @constructor
@@ -57,8 +59,14 @@ var HashElement = function () {
  * @class ActionManager
  * @example {@link utils/api/engine/docs/cocos2d/core/CCActionManager/ActionManager.js}
  */
-cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
-
+cc.ActionManager = function () {
+    this._hashTargets = {};
+    this._arrayTargets = [];
+    this._currentTarget = null;
+    this.__instanceId = cc.ClassManager.getNewInstanceId();
+};
+cc.ActionManager.prototype = {
+    constructor: cc.ActionManager,
     _elementPool: [],
 
     _searchElementByTarget:function (arr, target) {
@@ -67,12 +75,6 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
                 return arr[k];
         }
         return null;
-    },
-
-    ctor:function () {
-        this._hashTargets = {};
-        this._arrayTargets = [];
-        this._currentTarget = null;
     },
 
     _getElement: function (target, paused) {
@@ -436,7 +438,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
             }
         }
     }
-});
+};
 
 if (CC_TEST) {
     cc.ActionManager.prototype.isTargetPaused_TEST = function (target) {

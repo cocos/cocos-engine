@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Path = require('../utils/CCPath');
+require('../utils/CCPath');
 var Pipeline = require('./pipeline');
 var LoadingItems = require('./loading-items');
 
@@ -52,7 +52,7 @@ AssetLoader.prototype.handle = function (item, callback) {
             item.url = item.rawUrl = url;
             item.isRawAsset = isRawAsset;
             if (isRawAsset) {
-                var ext = Path.extname(url).toLowerCase();
+                var ext = cc.path.extname(url).toLowerCase();
                 if (!ext) {
                     callback(new Error(cc._getError(4931, uuid, url)));
                     return;
