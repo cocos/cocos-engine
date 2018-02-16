@@ -53,7 +53,7 @@ var PhysicsChainCollider = cc.Class({
          * !#en Chain points
          * !#zh 链条顶点数组
          * @property points
-         * @type {[Vec2]}
+         * @type {Vec2[]}
          */
         points: {
             default: function () {

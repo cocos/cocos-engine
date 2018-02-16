@@ -59,7 +59,7 @@ cc.Collider.Polygon = cc.Class({
          * !#en Polygon points
          * !#zh 多边形顶点数组
          * @property points
-         * @type {[Vec2]}
+         * @type {Vec2[]}
          */
         points: {
             tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.points',
