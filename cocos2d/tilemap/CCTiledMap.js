@@ -430,7 +430,6 @@ let TiledMap = cc.Class({
     },
 
     _applyFile () {
-        let sgNode = this._sgNode;
         let file = this._tmxFile;
         let self = this;
         if (file) {

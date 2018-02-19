@@ -442,6 +442,8 @@ if (CC_DEV) {
         'setGLServerState',
         '_initRendererCmd',
         '_createRenderCmd',
+        'getDisplayedOpacity',
+        'getDisplayedColor',
         'updateDisplayedOpacity',
         'updateDisplayedColor',
         'userData',

@@ -157,9 +157,6 @@
         strictEqual(reloadedParent.active, false, 'root active should be kept');
         strictEqual(reloadedParent.children.length, 1, 'children should be synced');
 
-        // test parent sgNode
-        strictEqual(reloadedParent._sgNode.parent === scene._sgNode, true, 'parent of parent _sgNode should be synced');
-
         // test child
         var syncedChild = reloadedParent.children[0];
         strictEqual(syncedChild.active, child.active, 'child active should be synced');
@@ -167,9 +164,6 @@
         strictEqual(syncedChild.y, child.y, 'child position should be synced');
         strictEqual(syncedChild.scaleY, child.scaleY, 'child scale should be synced');
         strictEqual(syncedChild.parent, reloadedParent, 'prefab reference should redirect to scene node');
-
-        // test child sgNode
-        strictEqual(syncedChild._sgNode.parent === reloadedParent._sgNode, true, 'parent of child _sgNode should be synced');
     });
 
 })();

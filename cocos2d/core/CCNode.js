@@ -1909,12 +1909,10 @@ var Node = cc.Class({
      *
      * @method getDisplayedOpacity
      * @returns {number} displayed opacity
+     * @deprecated please use opacity property, cascade opacity is removed
      * @example
      * var displayOpacity = node.getDisplayedOpacity();
      */
-    getDisplayedOpacity () {
-        return this._sgNode.getDisplayedOpacity();
-    },
 
     /**
      * !#en
@@ -1927,12 +1925,10 @@ var Node = cc.Class({
      *
      * @method getDisplayedColor
      * @returns {Color}
+     * @deprecated please use color property, cascade color is not supported
      * @example
      * var displayColor = node.getDisplayedColor();
      */
-    getDisplayedColor () {
-        return this._sgNode.getDisplayedColor();
-    },
 
     _updateLocalMatrix () {
         if (this._localMatDirty) {

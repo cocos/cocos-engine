@@ -2,7 +2,7 @@ largeModule('Component Scheduler', {
     setup: SetupEngine.setup,
     teardown: function () {
         cc.director._scene = new cc.Scene();
-        cc.director._runningScene = cc.director._scene._sgNode;
+        cc.director._runningScene = cc.director._scene;
         SetupEngine.teardown();
     }
 });

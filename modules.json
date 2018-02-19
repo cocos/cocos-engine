@@ -31,12 +31,6 @@
     ]
   },
   {
-    "name": "CCSpriteDistortion",
-    "entries": [
-      "./cocos2d/core/components/CCSpriteDistortion.js"
-    ]
-  },
-  {
     "name": "LabelOutline",
     "entries": [
       "./cocos2d/core/components/CCLabelOutline.js"

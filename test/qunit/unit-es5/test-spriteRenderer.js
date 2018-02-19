@@ -9,7 +9,7 @@ test('basic test', function () {
     node.color = Color.RED;
     var render = node.addComponent(cc.Sprite);
 
-    deepEqual(render._sgNode.color, Color.RED, 'color set success');
+    deepEqual(node.color, Color.RED, 'color set success');
 
     var newSprite = new cc.SpriteFrame();
     var texture = cc.textureUtil.loadImage(url);
