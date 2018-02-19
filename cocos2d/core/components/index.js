@@ -46,7 +46,6 @@ var components = [
     require('./editbox/CCEditBox'),
     // require('./CCVideoPlayer'),
     // require('./CCWebView'),
-    require('./CCSpriteDistortion'),
     require('./CCLabelOutline'),
     require('./CCRichText'),
     require('./CCToggleContainer'),
