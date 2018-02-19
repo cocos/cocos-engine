@@ -33,17 +33,11 @@ const gfx = renderEngine.gfx;
 const SpriteMaterial = renderEngine.SpriteMaterial;
 const RenderData = renderEngine.RenderData;
 
-const Node = require('../../CCNode');
-const Graphics = require('../../graphics/graphics');
-const graphicsAssembler = require('./graphics/graphics-assembler');
-
 let _sharedMaterials = {};
 
 let _slotColor = cc.color(0, 0, 255, 255);
 let _boneColor = cc.color(255, 0, 0, 255);
 let _originColor = cc.color(0, 255, 0, 255);
-let _graphicsNode = new Node();
-let _graphics = _graphicsNode.addComponent(Graphics);
 let _debugMaterial = new SpriteMaterial();
 _debugMaterial.useModel = true;
 _debugMaterial.useTexture = false;
@@ -103,6 +97,7 @@ var spineAssembler = js.addon({
         // get the vertex data
         let vertices = attachment.updateWorldVertices(slot, premultipliedAlpha);
         let vertexCount = vertices.length / 8;
+        let graphics = comp._debugRenderer;
         // augment render data size to ensure capacity
         renderData.dataLength += vertexCount;
         let data = renderData._data;
@@ -129,14 +124,14 @@ var spineAssembler = js.addon({
         if (comp.debugSlots && vertexCount === 4) {
             // Debug Slot
             let VERTEX = spine.RegionAttachment;
-            _graphics.strokeColor = _slotColor;
-            _graphics.lineWidth = 1;
-            _graphics.moveTo(vertices[VERTEX.X1], vertices[VERTEX.Y1]);
-            _graphics.lineTo(vertices[VERTEX.X2], vertices[VERTEX.Y2]);
-            _graphics.lineTo(vertices[VERTEX.X3], vertices[VERTEX.Y3]);
-            _graphics.lineTo(vertices[VERTEX.X4], vertices[VERTEX.Y4]);
-            _graphics.close();
-            _graphics.stroke();
+            graphics.strokeColor = _slotColor;
+            graphics.lineWidth = 1;
+            graphics.moveTo(vertices[VERTEX.X1], vertices[VERTEX.Y1]);
+            graphics.lineTo(vertices[VERTEX.X2], vertices[VERTEX.Y2]);
+            graphics.lineTo(vertices[VERTEX.X3], vertices[VERTEX.Y3]);
+            graphics.lineTo(vertices[VERTEX.X4], vertices[VERTEX.Y4]);
+            graphics.close();
+            graphics.stroke();
         }
 
         return vertexCount;
@@ -145,9 +140,10 @@ var spineAssembler = js.addon({
     genRenderDatas (comp, batchData) {
         let locSkeleton = comp._skeleton;
         let premultiAlpha = comp.premultipliedAlpha;
+        let graphics = comp._debugRenderer;
 
         if (comp.debugBones || comp.debugSlots) {
-            _graphics.clear();
+            graphics.clear();
         }
 
         let attachment, slot;
@@ -246,9 +242,9 @@ var spineAssembler = js.addon({
 
         if (comp.debugBones) {
             let bone;
-            _graphics.lineWidth = 2;
-            _graphics.strokeColor = _boneColor;
-            _graphics.fillColor = _slotColor; // Root bone color is same as slot color.
+            graphics.lineWidth = 2;
+            graphics.strokeColor = _boneColor;
+            graphics.fillColor = _slotColor; // Root bone color is same as slot color.
 
             for (let i = 0, n = locSkeleton.bones.length; i < n; i++) {
                 bone = locSkeleton.bones[i];
@@ -256,20 +252,20 @@ var spineAssembler = js.addon({
                 let y = bone.data.length * bone.c + bone.worldY;
 
                 // Bone lengths.
-                _graphics.moveTo(bone.worldX, bone.worldY);
-                _graphics.lineTo(x, y);
-                _graphics.stroke();
+                graphics.moveTo(bone.worldX, bone.worldY);
+                graphics.lineTo(x, y);
+                graphics.stroke();
                 
                 // Bone origins.
-                _graphics.circle(bone.worldX, bone.worldY, 2);
-                _graphics.fill();
+                graphics.circle(bone.worldX, bone.worldY, 2);
+                graphics.fill();
                 if (i == 0) {
-                    _graphics.fillColor = _originColor;
+                    graphics.fillColor = _originColor;
                 }
             }
         }
         if (comp.debugBones || comp.debugSlots) {
-            let renderDatas = _graphics._renderDatas;
+            let renderDatas = graphics._renderDatas;
             for (let i = 0; i < renderDatas.length; i++) {
                 renderDatas[i].effect = _debugMaterial.effect;
                 datas.push(renderDatas[i]);

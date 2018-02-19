@@ -29,6 +29,8 @@ const spine = require('./lib/spine');
 const renderEngine = require('../../cocos2d/core/renderer/render-engine');
 const RenderData = renderEngine.RenderData;
 const SpriteMaterial = renderEngine.SpriteMaterial;
+const Node = require('../../cocos2d/core/CCNode');
+const Graphics = require('../../cocos2d/core/graphics/graphics');
 
 /**
  * @module sp
@@ -333,6 +335,8 @@ sp.Skeleton = cc.Class({
         this._boundingBox = cc.rect();
         this._material = new SpriteMaterial();
         this._renderDatas = [];
+        this._debugNode = new Node();
+        this._debugRenderer = this._debugNode.addComponent(Graphics);
     },
 
     /**
@@ -388,6 +392,9 @@ sp.Skeleton = cc.Class({
 
     onDestroy () {
         this._super();
+        // TODO: avoid free twice render data shared between debug renderer and skeleton
+        // this._debugNode.destroy();
+        this._debugRenderer.clear();
         for (let i = 0; i < this._renderDatas.length; i++) {
             RenderData.free(this._renderDatas[i]);
         }
