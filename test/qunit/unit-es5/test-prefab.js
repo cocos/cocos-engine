@@ -209,7 +209,6 @@
 
             strictEqual(testNode.childrenCount, 2, 'Should create removed node');
             var created = testNode.children[1];
-            ok(created._sgNode, 'Checking created node');
 
             var comp = created.getComponent(MyComponent);
             comp.resetExpect(CallbackTester.OnLoad, 'call onLoad while attaching to node');
