@@ -1913,9 +1913,6 @@ var Node = cc.Class({
      * @example
      * var displayOpacity = node.getDisplayedOpacity();
      */
-    getDisplayedOpacity () {
-        return this.opacity;
-    },
 
     /**
      * !#en
@@ -1932,9 +1929,6 @@ var Node = cc.Class({
      * @example
      * var displayColor = node.getDisplayedColor();
      */
-    getDisplayedColor () {
-        return this.color;
-    },
 
     _updateLocalMatrix () {
         if (this._localMatDirty) {
