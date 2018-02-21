@@ -426,9 +426,6 @@ cc.Director.prototype = {
 
         // Clear all caches
         this.purgeCachedData();
-
-        if (CC_DEV)
-            cc.checkGLErrorDebug();
     },
 
     /**
