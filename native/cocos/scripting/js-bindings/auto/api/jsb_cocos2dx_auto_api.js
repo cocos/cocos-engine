@@ -14228,6 +14228,14 @@ GLProgram : function (
 cc.ShaderCache = {
 
 /**
+ * @method notifyAllGLProgramsCreated
+ */
+notifyAllGLProgramsCreated : function (
+)
+{
+},
+
+/**
  * @method loadDefaultGLPrograms
  */
 loadDefaultGLPrograms : function (

@@ -74,6 +74,13 @@ cc.view.getTargetDensityDPI = function() {return cc.macro.DENSITYDPI_DEVICE;};
 
 cc.eventManager = cc.director.getEventDispatcher();
 
+cc.EventDispatcher.prototype._addCustomListener = cc.EventDispatcher.prototype.addCustomListener;
+cc.EventDispatcher.prototype.addCustomListener = function(eventName, callback) {
+    var ret = this._addCustomListener(eventName, callback);
+    jsb.registerNativeRef(cc.eventManager, ret);
+    return ret;
+};
+
 cc.eventManager._resizeListener = cc.eventManager.addCustomListener('window-resize', function () {
     cc.winSize = cc.director.getWinSize();
     cc.visibleRect.init();
@@ -82,6 +89,9 @@ cc.eventManager._resizeListener = cc.eventManager.addCustomListener('window-resi
 cc.configuration = cc.Configuration.getInstance();
 cc.textureCache = cc.director.getTextureCache();
 cc.shaderCache = cc.ShaderCache.getInstance();
+// The first time we invoke cc.ShaderCache.getInstance, notifyAllGLProgramsCreated needs to be called.
+// It should be invoked only once.
+cc.shaderCache.notifyAllGLProgramsCreated();
 cc.plistParser = cc.PlistParser.getInstance();
 
 // File utils (Temporary, won't be accessible)

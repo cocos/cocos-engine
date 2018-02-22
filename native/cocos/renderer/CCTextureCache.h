@@ -213,8 +213,8 @@ public:
     void renameTextureWithKey(const std::string& srcName, const std::string& dstName);
 
     using TextureLifeCycleHook = void (*)(TextureCache*, Texture2D*);
-    void setTextureCreateHook(TextureLifeCycleHook hook);
-    void setTextureDestroyHook(TextureLifeCycleHook hook);
+    static void setTextureCreateHook(TextureLifeCycleHook hook);
+    static void setTextureDestroyHook(TextureLifeCycleHook hook);
 
 private:
     void addImageAsyncCallBack(float dt);
@@ -235,9 +235,6 @@ protected:
     std::unordered_map<std::string, Texture2D*> _textures;
 
     std::thread* _loadingThread;
-
-    TextureLifeCycleHook _textureCreateHook;
-    TextureLifeCycleHook _textureDestroyHook;
 
     int _asyncRefCount;
     bool _needQuit;

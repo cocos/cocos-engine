@@ -290,6 +290,9 @@ bool Sequence::initWithTwoActions(FiniteTimeAction *actionOne, FiniteTimeAction 
         return false;
     }
 
+    CCASSERT(actionOne != this, "actionOne should not be sequence self!");
+    CCASSERT(actionTwo != this, "actionOne should not be sequence self!");
+
     float d = actionOne->getDuration() + actionTwo->getDuration();
     ActionInterval::initWithDuration(d);
 

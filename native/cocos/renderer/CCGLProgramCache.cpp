@@ -37,6 +37,11 @@ THE SOFTWARE.
 
 NS_CC_BEGIN
 
+namespace {
+    GLProgramCache::GLProgramLifeCycleHook __glProgramCreateHook = nullptr;
+    GLProgramCache::GLProgramLifeCycleHook __glProgramDestroyHook = nullptr;
+}
+
 enum {
     kShaderType_PositionTextureColor,
     kShaderType_PositionTextureColor_noMVP,
@@ -76,6 +81,8 @@ GLProgramCache* GLProgramCache::getInstance()
 
 void GLProgramCache::destroyInstance()
 {
+    if (_sharedGLProgramCache != nullptr)
+        _sharedGLProgramCache->cleanup();
     CC_SAFE_RELEASE_NULL(_sharedGLProgramCache);
 }
 
@@ -87,11 +94,8 @@ GLProgramCache::GLProgramCache()
 
 GLProgramCache::~GLProgramCache()
 {
-    for( auto it = _programs.begin(); it != _programs.end(); ++it ) {
-        (it->second)->release();
-    }
-
     CCLOGINFO("deallocing GLProgramCache: %p", this);
+    cleanup();
 }
 
 bool GLProgramCache::init()
@@ -105,6 +109,18 @@ bool GLProgramCache::init()
     Director::getInstance()->getEventDispatcher()->addEventListenerWithFixedPriority(listener, -1);
 
     return true;
+}
+
+void GLProgramCache::cleanup()
+{
+    for(auto& e : _programs)
+    {
+        if (__glProgramDestroyHook != nullptr)
+            __glProgramDestroyHook(this, e.second);
+
+        e.second->release();
+    }
+    _programs.clear();
 }
 
 void GLProgramCache::loadDefaultGLPrograms()
@@ -408,11 +424,18 @@ void GLProgramCache::addGLProgram(GLProgram* program, const std::string &key)
     if( prev == program )
         return;
 
+    if (__glProgramDestroyHook != nullptr)
+        __glProgramDestroyHook(this, prev);
+
     _programs.erase(key);
     CC_SAFE_RELEASE_NULL(prev);
 
     if (program)
         program->retain();
+
+    if (__glProgramCreateHook != nullptr)
+        __glProgramCreateHook(this, program);
+
     _programs[key] = program;
 }
 
@@ -428,6 +451,27 @@ std::string GLProgramCache::getShaderMacrosForLight() const
              conf->getMaxSupportPointLightInShader(),
              conf->getMaxSupportSpotLightInShader());
     return std::string(def);
+}
+
+/* static */
+void GLProgramCache::setGLProgramCreateHook(GLProgramLifeCycleHook hook)
+{
+    __glProgramCreateHook = hook;
+}
+
+/* static */
+void GLProgramCache::setGLProgramDestroyHook(GLProgramLifeCycleHook hook)
+{
+    __glProgramDestroyHook = hook;
+}
+
+void GLProgramCache::notifyAllGLProgramsCreated()
+{
+    if (__glProgramCreateHook != nullptr)
+    {
+        for (const auto& e : _programs)
+            __glProgramCreateHook(this, e.second);
+    }
 }
 
 NS_CC_END
