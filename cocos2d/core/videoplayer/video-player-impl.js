@@ -390,15 +390,22 @@ let VideoPlayerImpl = cc.Class({
 
         var offsetX = container && container.style.paddingLeft && parseInt(container.style.paddingLeft);
         var offsetY = container && container.style.paddingBottom && parseInt(container.style.paddingBottom);
-        var appx = this._w * node._anchorPoint.x;
-        var appy = this._h - this._h * node._anchorPoint.y;
-        var tx = (mat.m12 - appx) * scaleX + offsetX, ty = (mat.m13 - appy) * scaleY + offsetY;
-
+        var w, h;
         if (VideoPlayerImpl._polyfill.zoomInvalid) {
             this._updateSize(this._w * a, this._h * d);
             a = 1;
             d = 1;
+            w = this._w * scaleX;
+            h = this._h * scaleY;
         }
+        else {
+            w = this._video.clientWidth / scaleX;
+            h = this._video.clientHeight / scaleY;
+        }
+
+        var appx = w * node._anchorPoint.x;
+        var appy = h - h * node._anchorPoint.y;
+        var tx = mat.m12 * scaleX - appx + offsetX, ty = mat.m13 * scaleY - appy + offsetY;
 
         var matrix = "matrix(" + a + "," + -b + "," + -c + "," + d + "," + tx + "," + -ty + ")";
         this._video.style['transform'] = matrix;
