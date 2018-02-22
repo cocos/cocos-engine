@@ -99,7 +99,6 @@ var jsbSkipModules = [
     '../../extensions/dragonbones/CCTextureData',
     '../../extensions/dragonbones/CCArmatureDisplay',
     '../../external/box2d/box2d.js',
-    '../../external/chipmunk/chipmunk.js',
 ];
 
 exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlags, callback) {
