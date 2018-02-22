@@ -226,12 +226,6 @@
     ]
   },
   {
-    "name": "Chipmunk",
-    "entries": [
-      "./external/chipmunk/chipmunk.js"
-    ]
-  },
-  {
     "name": "Camera",
     "entries": [
       "./cocos2d/core/camera/CCCamera.js"
