@@ -37,6 +37,8 @@ var ReleasedAssetChecker = CC_DEBUG && require('./released-asset-checker');
 
 var resources = new AssetTable();
 
+var AUDIO_TYPES = ['mp3', 'ogg', 'wav', 'm4a'];
+
 function getXMLHttpRequest () {
     return window.XMLHttpRequest ? new window.XMLHttpRequest() : new ActiveXObject('MSXML2.XMLHTTP');
 }
@@ -764,7 +766,6 @@ proto.release = function (asset) {
         if (item) {
             var removed = this.removeItem(id);
             asset = item.content;
-            // TODO: AUDIO
             if (asset instanceof cc.Asset) {
                 if (CC_JSB && asset instanceof cc.SpriteFrame && removed) {
                     // for the "Temporary solution" in deserialize.js
@@ -777,6 +778,9 @@ proto.release = function (asset) {
             }
             else if (asset instanceof cc.Texture2D) {
                 cc.textureCache.removeTextureForKey(item.rawUrl || item.url);
+            }
+            else if (AUDIO_TYPES.indexOf(item.type) !== -1) {
+                cc.audioEngine.uncache(item.rawUrl || item.url);
             }
             if (CC_DEBUG && removed) {
                 this._releasedAssetChecker_DEBUG.setReleased(item, id);
