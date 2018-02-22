@@ -44,7 +44,7 @@ var components = [
     require('./CCSlider'),
     require('./CCLayout'),
     require('./editbox/CCEditBox'),
-    // require('./CCVideoPlayer'),
+    require('./CCVideoPlayer'),
     // require('./CCWebView'),
     require('./CCLabelOutline'),
     require('./CCRichText'),

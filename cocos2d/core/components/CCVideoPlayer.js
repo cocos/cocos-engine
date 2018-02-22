@@ -1,5 +1,3 @@
-/*global _ccsg */
-
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  http://www.cocos.com
@@ -20,7 +18,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-require('../videoplayer/CCSGVideoPlayer');
+
+let VideoPlayerImpl = require('../videoplayer/video-player-impl');
+
 /**
  * !#en Video event type
  * !#zh 视频事件类型
@@ -61,7 +61,7 @@ require('../videoplayer/CCSGVideoPlayer');
  * !#zh 视频准备好了，可以开始播放了
  * @property {Number} READY_TO_PLAY
  */
-var EventType = _ccsg.VideoPlayer.EventType;
+var EventType = VideoPlayerImpl.EventType;
 
 
 /**
@@ -171,13 +171,13 @@ var VideoPlayer = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.currentTime',
             type: cc.Float,
             set: function (time) {
-                if (this._sgNode) {
-                    this._sgNode.seekTo(time);
+                if (this._impl) {
+                    this._impl.seekTo(time);
                 }
             },
             get: function () {
-                if (this._sgNode) {
-                    return this._sgNode.currentTime();
+                if (this._impl) {
+                    return this._impl.currentTime();
                 }
                 return -1;
             }
@@ -235,7 +235,7 @@ var VideoPlayer = cc.Class({
             default: true,
             type: cc.Boolean,
             notify: function () {
-                this._sgNode.setKeepAspectRatioEnabled(this.keepAspectRatio);
+                this._impl.setKeepAspectRatioEnabled(this.keepAspectRatio);
             }
         },
 
@@ -249,7 +249,7 @@ var VideoPlayer = cc.Class({
             default: false,
             type: cc.Boolean,
             notify: function () {
-                this._sgNode.setFullScreenEnabled(this.isFullscreen);
+                this._impl.setFullScreenEnabled(this.isFullscreen);
             }
         },
 
@@ -269,102 +269,110 @@ var VideoPlayer = cc.Class({
         ResourceType: ResourceType
     },
 
-    onLoad: function () {
-        if (CC_JSB) {
-            if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
-                this.enabled = false;
-            }
-        }
+    ctor () {
+        this._impl = new VideoPlayerImpl();
     },
 
-    _syncVolume: function () {
-        var sgNode = this._sgNode;
-        if (sgNode) {
+    _syncVolume () {
+        var impl = this._impl;
+        if (impl) {
             var volume = this._mute ? 0 : this._volume;
-            sgNode.setVolume(volume);
+            impl.setVolume(volume);
         }
     },
 
-    _createSgNode: function () {
-        if (CC_JSB) {
-            if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
-                console.log('VideoPlayer is not supported on Mac and Windows!');
-                return null;
-            }
-        }
-        return new _ccsg.VideoPlayer();
-    },
-
-    _updateVideoSource: function () {
-        var sgNode = this._sgNode;
+    _updateVideoSource () {
+        var impl = this._impl;
         if (this.resourceType === ResourceType.REMOTE) {
             if (cc.loader.md5Pipe) {
                 this.remoteURL = cc.loader.md5Pipe.transformURL(this.remoteURL);
             }
-            sgNode.setURL(this.remoteURL);
+            impl.setURL(this.remoteURL);
         }
         else {
-            sgNode.setURL(this._clip || '');
+            impl.setURL(this._clip || '');
         }
     },
 
-    _initSgNode: function () {
-        var sgNode = this._sgNode;
-        if (sgNode) {
-            if (!CC_JSB) {
-                sgNode.createDomElementIfNeeded();
-            }
+    onLoad () {
+        var impl = this._impl;
+        if (impl) {
+            impl.createDomElementIfNeeded();
             this._updateVideoSource();
 
-            sgNode.seekTo(this.currentTime);
-            sgNode.setKeepAspectRatioEnabled(this.keepAspectRatio);
-            sgNode.setFullScreenEnabled(this.isFullscreen);
-            sgNode.setContentSize(this.node.getContentSize());
+            impl.seekTo(this.currentTime);
+            impl.setKeepAspectRatioEnabled(this.keepAspectRatio);
+            impl.setFullScreenEnabled(this.isFullscreen);
             this.pause();
 
             if (!CC_EDITOR) {
-                sgNode.setEventListener(EventType.PLAYING, this.onPlaying.bind(this));
-                sgNode.setEventListener(EventType.PAUSED, this.onPasued.bind(this));
-                sgNode.setEventListener(EventType.STOPPED, this.onStopped.bind(this));
-                sgNode.setEventListener(EventType.COMPLETED, this.onCompleted.bind(this));
-                sgNode.setEventListener(EventType.META_LOADED, this.onMetaLoaded.bind(this));
-                sgNode.setEventListener(EventType.CLICKED, this.onClicked.bind(this));
-                sgNode.setEventListener(EventType.READY_TO_PLAY, this.onReadyToPlay.bind(this));
+                impl.setEventListener(EventType.PLAYING, this.onPlaying.bind(this));
+                impl.setEventListener(EventType.PAUSED, this.onPasued.bind(this));
+                impl.setEventListener(EventType.STOPPED, this.onStopped.bind(this));
+                impl.setEventListener(EventType.COMPLETED, this.onCompleted.bind(this));
+                impl.setEventListener(EventType.META_LOADED, this.onMetaLoaded.bind(this));
+                impl.setEventListener(EventType.CLICKED, this.onClicked.bind(this));
+                impl.setEventListener(EventType.READY_TO_PLAY, this.onReadyToPlay.bind(this));
             }
         }
     },
 
-    onReadyToPlay: function () {
+    onEnable () {
+        if (this._impl) {
+            this._impl.enable();
+        }
+    },
+
+    onDisable () {
+        if (this._impl) {
+            this._impl.disable();
+        }
+    },
+
+    onDestroy () {
+        if (this._impl) {
+            this._impl.destroy();
+            this._impl = null;
+        }
+    },
+
+    update (dt) {
+        if (this._impl) {
+            this._impl.updateMatrix(this.node);
+        }
+    },
+
+    onReadyToPlay () {
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.READY_TO_PLAY);
         this.node.emit('ready-to-play', this);
     },
 
-    onMetaLoaded: function () {
+    onMetaLoaded () {
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.META_LOADED);
         this.node.emit('meta-loaded', this);
     },
 
-    onClicked: function () {
+    onClicked () {
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.CLICKED);
         this.node.emit('clicked', this);
     },
 
-    onPlaying: function () {
+    onPlaying () {
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PLAYING);
         this.node.emit('playing', this);
     },
 
-    onPasued: function () {
+    onPasued () {
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PAUSED);
         this.node.emit('paused', this);
     },
 
-    onStopped: function () {
+    onStopped () {
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.STOPPED);
         this.node.emit('stopped', this);
     },
 
-    onCompleted: function () {
+    onCompleted () {
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.COMPLETED);
         this.node.emit('completed', this);
     },
@@ -374,10 +382,10 @@ var VideoPlayer = cc.Class({
      * !#zh 如果视频被暂停播放了，调用这个接口可以继续播放。如果视频被停止播放了，调用这个接口可以从头开始播放。
      * @method play
      */
-    play: function () {
-        if (this._sgNode) {
+    play () {
+        if (this._impl) {
             this._syncVolume();
-            this._sgNode.play();
+            this._impl.play();
         }
     },
 
@@ -386,10 +394,10 @@ var VideoPlayer = cc.Class({
      * !#zh 如果一个视频播放被暂停播放了，调用这个接口可以继续播放。
      * @method resume
      */
-    resume: function () {
-        if (this._sgNode) {
+    resume () {
+        if (this._impl) {
             this._syncVolume();
-            this._sgNode.resume();
+            this._impl.resume();
         }
     },
 
@@ -398,9 +406,9 @@ var VideoPlayer = cc.Class({
      * !#zh 如果一个视频正在播放，调用这个接口可以暂停播放。
      * @method pause
      */
-    pause: function () {
-        if (this._sgNode) {
-            this._sgNode.pause();
+    pause () {
+        if (this._impl) {
+            this._impl.pause();
         }
     },
 
@@ -409,9 +417,9 @@ var VideoPlayer = cc.Class({
      * !#zh 如果一个视频正在播放，调用这个接口可以立马停止播放。
      * @method stop
      */
-    stop: function () {
-        if (this._sgNode) {
-            this._sgNode.stop();
+    stop () {
+        if (this._impl) {
+            this._impl.stop();
         }
     },
 
@@ -421,9 +429,9 @@ var VideoPlayer = cc.Class({
      * @method getDuration
      * @returns {Number}
      */
-    getDuration: function () {
-        if (this._sgNode) {
-            return this._sgNode.duration();
+    getDuration () {
+        if (this._impl) {
+            return this._impl.duration();
         }
         return -1;
     },
@@ -434,9 +442,9 @@ var VideoPlayer = cc.Class({
      * @method isPlaying
      * @returns {Boolean}
      */
-    isPlaying: function () {
-        if (this._sgNode) {
-            return this._sgNode.isPlaying();
+    isPlaying () {
+        if (this._impl) {
+            return this._impl.isPlaying();
         }
         return false;
     }
