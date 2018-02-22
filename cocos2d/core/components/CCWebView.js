@@ -20,13 +20,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-require('../webview/CCSGWebView');
+
+var WebViewImpl = require('../webview/webview-impl');
+
 /**
  * !#en WebView event type
  * !#zh 网页视图事件类型
  * @enum WebView.EventType
  */
-var EventType = _ccsg.WebView.EventType;
+var EventType = WebViewImpl.EventType;
 
 
 /**
@@ -81,9 +83,9 @@ var WebView = cc.Class({
             },
             set: function (url) {
                 this._url = url;
-                var sgNode = this._sgNode;
-                if (sgNode) {
-                    sgNode.loadURL(url);
+                var impl = this._impl;
+                if (impl) {
+                    impl.loadURL(url);
                 }
             }
         },
@@ -103,71 +105,57 @@ var WebView = cc.Class({
         EventType: EventType,
     },
 
-    onLoad: CC_JSB && function () {
-        if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
-            this.enabled = false;
-        }
+    ctor () {
+        this._impl = new WebViewImpl();
     },
 
-    _createSgNode: function () {
-        if (CC_JSB) {
-            if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
-                console.log('WebView is not supported on Mac and Windows!');
-                return null;
-            }
-        }
-        return new _ccsg.WebView();
-    },
-
-    _initSgNode: function () {
-        var sgNode = this._sgNode;
-        if (!sgNode) return;
-
-        if (!CC_JSB) {
-            sgNode.createDomElementIfNeeded();
-        }
-
-        sgNode.loadURL(this._url);
-
-        if (CC_EDITOR && this._useOriginalSize) {
-            this.node.setContentSize(sgNode.getContentSize());
-            this._useOriginalSize = false;
-        }
-        else {
-            sgNode.setContentSize(this.node.getContentSize());
-        }
-    },
-
-    onEnable: function () {
+    onEnable () {
         if (!CC_EDITOR) {
-            var sgNode = this._sgNode;
-            sgNode.setEventListener(EventType.LOADED, this._onWebViewLoaded.bind(this));
-            sgNode.setEventListener(EventType.LOADING, this._onWebViewLoading.bind(this));
-            sgNode.setEventListener(EventType.ERROR, this._onWebViewLoadError.bind(this));
+            var impl = this._impl;
+            this._impl.createDomElementIfNeeded(this.node.width, this.node.height);
+            this._impl.loadURL(this._url);
+            this._impl.setVisible(true);
+            impl.setEventListener(EventType.LOADED, this._onWebViewLoaded.bind(this));
+            impl.setEventListener(EventType.LOADING, this._onWebViewLoading.bind(this));
+            impl.setEventListener(EventType.ERROR, this._onWebViewLoadError.bind(this));
         }
     },
 
-    onDisable: function () {
+    onDisable () {
         if (!CC_EDITOR) {
-            var sgNode = this._sgNode;
-            sgNode.setEventListener(EventType.LOADED, emptyCallback);
-            sgNode.setEventListener(EventType.LOADING, emptyCallback);
-            sgNode.setEventListener(EventType.ERROR, emptyCallback);
+            var impl = this._impl;
+            this._impl.setVisible(false);
+            impl.setEventListener(EventType.LOADED, emptyCallback);
+            impl.setEventListener(EventType.LOADING, emptyCallback);
+            impl.setEventListener(EventType.ERROR, emptyCallback);
         }
     },
 
-    _onWebViewLoaded: function () {
+    onDestroy () {
+        if (this._impl) {
+            this._impl.destroy();
+            this._impl = null;
+        }
+    },
+
+    update (dt) {
+        if (this._impl) {
+            this._impl.updateMatrix(this.node);
+        }
+    },
+
+    _onWebViewLoaded () {
         cc.Component.EventHandler.emitEvents(this.webviewEvents, this, EventType.LOADED);
         this.node.emit('loaded', this);
     },
 
-    _onWebViewLoading: function () {
+    _onWebViewLoading () {
         cc.Component.EventHandler.emitEvents(this.webviewEvents, this, EventType.LOADING);
         this.node.emit('loading', this);
         return true;
     },
 
-    _onWebViewLoadError: function () {
+    _onWebViewLoadError () {
         cc.Component.EventHandler.emitEvents(this.webviewEvents, this, EventType.ERROR);
         this.node.emit('error', this);
     },
@@ -184,9 +172,9 @@ var WebView = cc.Class({
      * @method setJavascriptInterfaceScheme
      * @param {String} scheme
      */
-    setJavascriptInterfaceScheme: function (scheme) {
-        if (this._sgNode) {
-            this._sgNode.setJavascriptInterfaceScheme(scheme);
+    setJavascriptInterfaceScheme (scheme) {
+        if (this._impl) {
+            this._impl.setJavascriptInterfaceScheme(scheme);
         }
     },
 
@@ -203,9 +191,9 @@ var WebView = cc.Class({
      * @method setOnJSCallback
      * @param {Function} callback
      */
-    setOnJSCallback: function (callback) {
-        if (this._sgNode) {
-            this._sgNode.setOnJSCallback(callback);
+    setOnJSCallback (callback) {
+        if (this._impl) {
+            this._impl.setOnJSCallback(callback);
         }
     },
 
@@ -220,9 +208,9 @@ var WebView = cc.Class({
      * @method evaluateJS
      * @param {String} str
      */
-    evaluateJS: function (str) {
-        if (this._sgNode) {
-            this._sgNode.evaluateJS(str);
+    evaluateJS (str) {
+        if (this._impl) {
+            this._impl.evaluateJS(str);
         }
     },
 
