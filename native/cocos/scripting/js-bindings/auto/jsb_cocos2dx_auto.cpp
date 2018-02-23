@@ -32612,6 +32612,21 @@ bool js_register_cocos2dx_GLProgram(se::Object* obj)
 se::Object* __jsb_cocos2d_GLProgramCache_proto = nullptr;
 se::Class* __jsb_cocos2d_GLProgramCache_class = nullptr;
 
+static bool js_cocos2dx_GLProgramCache_notifyAllGLProgramsCreated(se::State& s)
+{
+    cocos2d::GLProgramCache* cobj = (cocos2d::GLProgramCache*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_GLProgramCache_notifyAllGLProgramsCreated : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->notifyAllGLProgramsCreated();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_GLProgramCache_notifyAllGLProgramsCreated)
+
 static bool js_cocos2dx_GLProgramCache_loadDefaultGLPrograms(se::State& s)
 {
     cocos2d::GLProgramCache* cobj = (cocos2d::GLProgramCache*)s.nativeThisObject();
@@ -32759,6 +32774,7 @@ bool js_register_cocos2dx_GLProgramCache(se::Object* obj)
 {
     auto cls = se::Class::create("ShaderCache", obj, nullptr, _SE(js_cocos2dx_GLProgramCache_constructor));
 
+    cls->defineFunction("notifyAllGLProgramsCreated", _SE(js_cocos2dx_GLProgramCache_notifyAllGLProgramsCreated));
     cls->defineFunction("loadDefaultShaders", _SE(js_cocos2dx_GLProgramCache_loadDefaultGLPrograms));
     cls->defineFunction("reloadDefaultGLProgramsRelativeToLights", _SE(js_cocos2dx_GLProgramCache_reloadDefaultGLProgramsRelativeToLights));
     cls->defineFunction("addProgram", _SE(js_cocos2dx_GLProgramCache_addGLProgram));

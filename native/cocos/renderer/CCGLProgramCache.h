@@ -84,12 +84,20 @@ public:
     /** reload default programs these are relative to light */
     void reloadDefaultGLProgramsRelativeToLights();
 
+    using GLProgramLifeCycleHook = void (*)(GLProgramCache*, GLProgram*);
+    static void setGLProgramCreateHook(GLProgramLifeCycleHook hook);
+    static void setGLProgramDestroyHook(GLProgramLifeCycleHook hook);
+
+    void notifyAllGLProgramsCreated();
+
 private:
     /**
     @{
         Init and load predefined shaders.
     */
     bool init();
+    void cleanup();
+
     void loadDefaultGLProgram(GLProgram *program, int type);
     /**
     @}

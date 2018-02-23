@@ -85,6 +85,11 @@
     void funcName##Registry(void* nativeThisObject);
 
 
+// NOTE: se::Object::createObjectWithClass(cls) will return a se::Object pointer which is watched by garbage collector.
+// If there is a '_ctor' function of current class, '_property.toObject->call(...)' will be invoked which is an operation that may
+// make garbage collector to mark the created JS object as a garbage and set it to an invalid state.
+// If this happens, crash will be triggered. So please take care of the value returned from se::Object::createObjectWithClass.
+// HOW TO FIX: Use a rooted se::Value to save the se::Object poiner returned by se::Object::createObjectWithClass.
 #define SE_BIND_CTOR(funcName, cls, finalizeCb) \
     JsValueRef funcName##Registry(JsValueRef _callee, bool _isConstructCall, JsValueRef* _argv, unsigned short argc, void* _callbackState) \
     { \
@@ -93,7 +98,8 @@
         bool ret = true; \
         se::ValueArray args; \
         se::internal::jsToSeArgs(argc, _argv+1, &args); \
-        se::Object* thisObject = se::Object::createObjectWithClass(cls); \
+        se::Value thisVal(se::Object::createObjectWithClass(cls), true); \
+        se::Object* thisObject = thisVal.toObject(); \
         JsValueRef _jsRet = thisObject->_getJSObject(); \
         se::State state(thisObject, args); \
         ret = funcName(state); \

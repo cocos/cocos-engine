@@ -2128,6 +2128,7 @@ extern se::Class* __jsb_cocos2d_GLProgramCache_class;
 
 bool js_register_cocos2d_GLProgramCache(se::Object* obj);
 bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_GLProgramCache_notifyAllGLProgramsCreated);
 SE_DECLARE_FUNC(js_cocos2dx_GLProgramCache_loadDefaultGLPrograms);
 SE_DECLARE_FUNC(js_cocos2dx_GLProgramCache_reloadDefaultGLProgramsRelativeToLights);
 SE_DECLARE_FUNC(js_cocos2dx_GLProgramCache_addGLProgram);
