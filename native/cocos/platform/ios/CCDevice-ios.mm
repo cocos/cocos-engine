@@ -24,10 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-
-#include "platform/CCPlatformConfig.h"
-#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
-
 #include "platform/CCDevice.h"
 #include "base/ccTypes.h"
 #include "platform/apple/CCDevice-apple.h"
@@ -36,9 +32,7 @@
 #import <UIKit/UIKit.h>
 
 // Accelerometer
-#if !defined(CC_TARGET_OS_TVOS)
 #import<CoreMotion/CoreMotion.h>
-#endif
 #import<CoreFoundation/CoreFoundation.h>
 #import <CoreText/CoreText.h>
 // Vibrate
@@ -167,7 +161,6 @@ static CGSize _calculateShrinkedSizeForString(NSAttributedString **str, id font,
 
 #define SENSOR_DELAY_GAME 0.02
 
-#if !defined(CC_TARGET_OS_TVOS)
 @interface CCAccelerometerDispatcher : NSObject<UIAccelerometerDelegate>
 {
     cocos2d::Acceleration *_acceleration;
@@ -269,8 +262,6 @@ static CCAccelerometerDispatcher* s_pAccelerometerDispatcher;
 //    event->release();
 }
 @end
-#endif // !defined(CC_TARGET_OS_TVOS)
-
 
 //
 
@@ -637,6 +628,3 @@ Device::NetworkType Device::getNetworkType()
 }
 
 NS_CC_END
-
-#endif // CC_PLATFORM_IOS
-

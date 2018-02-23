@@ -75,6 +75,24 @@ public:
         BULGARIAN
     };
     
+    enum class PixelFormat
+    {
+        RGB8,
+        RGB565,
+        RGBA8
+    };
+    
+    enum class DepthFormat
+    {
+        NONE,                   // no depth and no stencil
+        DEPTH_COMPONENT16,
+        DEPTH_COMPONENT24,
+        DEPTH_COMPONENT32F,
+        DEPTH24_STENCIL8,
+        DEPTH32F_STENCIL8,
+        STENCIL_INDEX8
+    };
+    
     Application(const std::string& name);
     virtual ~Application();
     
@@ -130,7 +148,7 @@ public:
     
 protected:
     virtual void onCreateView(int& x, int& y, int& width, int& height, 
-                              int& rBits, int& gBits, int& bBits, int& aBits, int& depthBits, int& stencilBits, int& multisamplingCount);
+                              PixelFormat& pixelformat, DepthFormat& depthFormat, int& multisamplingCount);
     
 private:
     void createView(const std::string& name);

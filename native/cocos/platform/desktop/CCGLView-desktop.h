@@ -30,6 +30,7 @@ THE SOFTWARE.
 #include "glfw3/glfw3native.h"
 
 #include "platform/CCPlatformMacros.h"
+#include "platform/CCApplication.h"
 
 #ifndef GLFW_EXPOSE_NATIVE_WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32
@@ -41,12 +42,11 @@ THE SOFTWARE.
 
 NS_CC_BEGIN
 
-class Application;
-
 class CC_DLL GLView final
 {
 public:
-    GLView(Application *application, const std::string& name, int x, int y, int width, int height, int r, int g, int b, int a, int depth, int stencil, int multiSampleCount);
+    GLView(Application *application, const std::string& name, int x, int y, int width, int height,
+           Application::PixelFormat pixelformat, Application::DepthFormat depthFormat, int multiSampleCount);
     ~GLView();
 
     bool windowShouldClose() const;

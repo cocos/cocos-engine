@@ -61,8 +61,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 */
 
-#include "platform/CCPlatformConfig.h"
-#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
+#pragma once
 
 #import <UIKit/UIKit.h>
 #import <OpenGLES/EAGL.h>
@@ -70,8 +69,6 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
 #import <CoreFoundation/CoreFoundation.h>
-
-#import "platform/ios/CCESRenderer-ios.h"
 
 //CLASS INTERFACE:
 
@@ -82,28 +79,35 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
  */
 @interface CCEAGLView : UIView <UIKeyInput, UITextInput>
 {
-    id                        <CCESRenderer> renderer_;
-    EAGLContext                *context_; // weak ref
-
-    NSString                *pixelformat_;
-    GLuint                    depthFormat_;
-    BOOL                    preserveBackbuffer_;
-
-    CGSize                    size_;
-    BOOL                    discardFramebufferSupported_;
-
+    EAGLContext             *_context;
+    GLuint                  _defaultFramebuffer;
+    GLuint                  _defaultColorBuffer;
+    GLuint                  _defaultDepthBuffer;
+    
     //fsaa addition
-    BOOL                    multisampling_;
-    unsigned int               requestedSamples_;
-    BOOL                    isUseUITextField;
+    BOOL                    _multisampling;
+    int                     _requestedSamples;
+    GLuint                  _msaaFramebuffer;
+    GLuint                  _msaaColorBuffer;
+    GLuint                  _msaaDepthBuffer;
+
+    NSString                *_pixelformatString;
+    GLenum                  _pixelformat;
+    GLuint                  _depthFormat;
+    BOOL                    _preserveBackbuffer;
+    BOOL                    _discardFramebufferSupported;
+    EAGLSharegroup*         _sharegroup;
+    
+    BOOL                    _isUseUITextField;
+    
 @private
-    NSString *              markedText_;
-    CGRect                  caretRect_;
-    CGRect                  originalRect_;
-    NSNotification*         keyboardShowNotification_;
-    BOOL                    isKeyboardShown_;
-    unsigned int            touchesIds_;
-    UITouch*                touches_[10];
+    NSString *              _markedText;
+    CGRect                  _caretRect;
+    CGRect                  _originalRect;
+    NSNotification*         _keyboardShowNotification;
+    BOOL                    _isKeyboardShown;
+    unsigned int            _touchesIds;
+    UITouch*                _touches[10];
 }
 
 @property(nonatomic, readonly) UITextPosition *beginningOfDocument;
@@ -115,35 +119,11 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 @property(nonatomic, readonly) id<UITextInputTokenizer> tokenizer;
 @property(nonatomic, readonly, getter = isKeyboardShown) BOOL isKeyboardShown;
 @property(nonatomic, copy) NSNotification* keyboardShowNotification;
-/** creates an initializes an CCEAGLView with a frame and 0-bit depth buffer, and a RGB565 color buffer */
-+ (id) viewWithFrame:(CGRect)frame;
-/** creates an initializes an CCEAGLView with a frame, a color buffer format, and 0-bit depth buffer */
-+ (id) viewWithFrame:(CGRect)frame pixelFormat:(NSString*)format;
-/** creates an initializes an CCEAGLView with a frame, a color buffer format, and a depth buffer format */
-+ (id) viewWithFrame:(CGRect)frame pixelFormat:(NSString*)format depthFormat:(GLuint)depth;
 /** creates an initializes an CCEAGLView with a frame, a color buffer format, a depth buffer format, a sharegroup, and multisampling */
 + (id) viewWithFrame:(CGRect)frame pixelFormat:(NSString*)format depthFormat:(GLuint)depth preserveBackbuffer:(BOOL)retained sharegroup:(EAGLSharegroup*)sharegroup multiSampling:(BOOL)multisampling numberOfSamples:(unsigned int)samples;
 
-/** Initializes an CCEAGLView with a frame and 0-bit depth buffer, and a RGB565 color buffer */
-- (id) initWithFrame:(CGRect)frame; //These also set the current context
-/** Initializes an CCEAGLView with a frame, a color buffer format, and 0-bit depth buffer */
-- (id) initWithFrame:(CGRect)frame pixelFormat:(NSString*)format;
 /** Initializes an CCEAGLView with a frame, a color buffer format, a depth buffer format, a sharegroup and multisampling support */
 - (id) initWithFrame:(CGRect)frame pixelFormat:(NSString*)format depthFormat:(GLuint)depth preserveBackbuffer:(BOOL)retained sharegroup:(EAGLSharegroup*)sharegroup multiSampling:(BOOL)sampling numberOfSamples:(unsigned int)nSamples;
-
-/** pixel format: it could be RGBA8 (32-bit) or RGB565 (16-bit) */
-@property(nonatomic,readonly) NSString* pixelFormat;
-/** depth format of the render buffer: 0, 16 or 24 bits*/
-@property(nonatomic,readonly) GLuint depthFormat;
-
-/** returns surface size in pixels */
-@property(nonatomic,readonly) CGSize surfaceSize;
-
-/** OpenGL context */
-@property(nonatomic,readonly) EAGLContext *context;
-
-@property(nonatomic,readwrite) BOOL multiSampling;
-
 
 /** CCEAGLView uses double-buffer. This method swaps the buffers */
 -(void) swapBuffers;
@@ -157,5 +137,3 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 -(void) doAnimationWhenKeyboardMoveWithDuration:(float) duration distance:(float) dis;
 -(void) doAnimationWhenAnotherEditBeClicked;
 @end
-
-#endif // CC_PLATFORM_IOS

@@ -567,9 +567,6 @@
 		503DD8E31926736A00CD74DD /* CCDevice-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 503DD8D11926736A00CD74DD /* CCDevice-ios.mm */; };
 		503DD8E61926736A00CD74DD /* CCEAGLView-ios.h in Headers */ = {isa = PBXBuildFile; fileRef = 503DD8D41926736A00CD74DD /* CCEAGLView-ios.h */; };
 		503DD8E71926736A00CD74DD /* CCEAGLView-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 503DD8D51926736A00CD74DD /* CCEAGLView-ios.mm */; };
-		503DD8E81926736A00CD74DD /* CCES2Renderer-ios.h in Headers */ = {isa = PBXBuildFile; fileRef = 503DD8D61926736A00CD74DD /* CCES2Renderer-ios.h */; };
-		503DD8E91926736A00CD74DD /* CCES2Renderer-ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 503DD8D71926736A00CD74DD /* CCES2Renderer-ios.m */; };
-		503DD8EA1926736A00CD74DD /* CCESRenderer-ios.h in Headers */ = {isa = PBXBuildFile; fileRef = 503DD8D81926736A00CD74DD /* CCESRenderer-ios.h */; };
 		503DD8EB1926736A00CD74DD /* CCGL-ios.h in Headers */ = {isa = PBXBuildFile; fileRef = 503DD8D91926736A00CD74DD /* CCGL-ios.h */; };
 		503DD8EE1926736A00CD74DD /* CCImage-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 503DD8DC1926736A00CD74DD /* CCImage-ios.mm */; };
 		503DD8EF1926736A00CD74DD /* CCPlatformDefine-ios.h in Headers */ = {isa = PBXBuildFile; fileRef = 503DD8DD1926736A00CD74DD /* CCPlatformDefine-ios.h */; };
@@ -1029,9 +1026,6 @@
 		503DD8D11926736A00CD74DD /* CCDevice-ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCDevice-ios.mm"; sourceTree = "<group>"; };
 		503DD8D41926736A00CD74DD /* CCEAGLView-ios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CCEAGLView-ios.h"; sourceTree = "<group>"; };
 		503DD8D51926736A00CD74DD /* CCEAGLView-ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCEAGLView-ios.mm"; sourceTree = "<group>"; };
-		503DD8D61926736A00CD74DD /* CCES2Renderer-ios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CCES2Renderer-ios.h"; sourceTree = "<group>"; };
-		503DD8D71926736A00CD74DD /* CCES2Renderer-ios.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CCES2Renderer-ios.m"; sourceTree = "<group>"; };
-		503DD8D81926736A00CD74DD /* CCESRenderer-ios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CCESRenderer-ios.h"; sourceTree = "<group>"; };
 		503DD8D91926736A00CD74DD /* CCGL-ios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CCGL-ios.h"; sourceTree = "<group>"; };
 		503DD8DC1926736A00CD74DD /* CCImage-ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCImage-ios.mm"; sourceTree = "<group>"; };
 		503DD8DD1926736A00CD74DD /* CCPlatformDefine-ios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CCPlatformDefine-ios.h"; sourceTree = "<group>"; };
@@ -1757,9 +1751,6 @@
 				503DD8D11926736A00CD74DD /* CCDevice-ios.mm */,
 				503DD8D41926736A00CD74DD /* CCEAGLView-ios.h */,
 				503DD8D51926736A00CD74DD /* CCEAGLView-ios.mm */,
-				503DD8D61926736A00CD74DD /* CCES2Renderer-ios.h */,
-				503DD8D71926736A00CD74DD /* CCES2Renderer-ios.m */,
-				503DD8D81926736A00CD74DD /* CCESRenderer-ios.h */,
 				503DD8D91926736A00CD74DD /* CCGL-ios.h */,
 				503DD8DC1926736A00CD74DD /* CCImage-ios.mm */,
 				503DD8DD1926736A00CD74DD /* CCPlatformDefine-ios.h */,
@@ -2315,7 +2306,6 @@
 				50ABBD4B1925AB0000A911A9 /* Mat4.h in Headers */,
 				46FDDC28202AEAC500931238 /* WebGLTypes.h in Headers */,
 				50ABBD531925AB0000A911A9 /* Quaternion.h in Headers */,
-				503DD8E81926736A00CD74DD /* CCES2Renderer-ios.h in Headers */,
 				46FDDBE8202ADDCE00931238 /* CCNS.h in Headers */,
 				4DED484B1DFFA4AF0070C5C4 /* b2EdgeAndCircleContact.h in Headers */,
 				50ABC0181926664800A911A9 /* CCImage.h in Headers */,
@@ -2354,7 +2344,6 @@
 				4DED48771DFFA4AF0070C5C4 /* b2PulleyJoint.h in Headers */,
 				4DED483F1DFFA4AF0070C5C4 /* b2CircleContact.h in Headers */,
 				4DED48531DFFA4AF0070C5C4 /* b2PolygonAndCircleContact.h in Headers */,
-				503DD8EA1926736A00CD74DD /* CCESRenderer-ios.h in Headers */,
 				46FDDBC4202ADDCE00931238 /* ccConfig.h in Headers */,
 				4DED488B1DFFA4AF0070C5C4 /* b2Rope.h in Headers */,
 				4DED482B1DFFA4AF0070C5C4 /* b2TimeStep.h in Headers */,
@@ -2708,7 +2697,6 @@
 				1A28FF8C1F20AFAB007A1D9D /* SRURLUtilities.m in Sources */,
 				1A28FF541F20AFAB007A1D9D /* SRIOConsumer.m in Sources */,
 				46FDDAAA202ACC6A00931238 /* Types.cpp in Sources */,
-				503DD8E91926736A00CD74DD /* CCES2Renderer-ios.m in Sources */,
 				5027253D190BF1B900AAF4ED /* cocos2d.cpp in Sources */,
 				1A28FF781F20AFAB007A1D9D /* SRHTTPConnectMessage.m in Sources */,
 				1A28FF881F20AFAB007A1D9D /* SRSIMDHelpers.m in Sources */,

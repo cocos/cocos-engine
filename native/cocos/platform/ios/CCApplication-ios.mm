@@ -32,9 +32,10 @@
 
 @interface MainLoop : NSObject
 {
-    id displayLink;
-    int interval;
-    BOOL isAppActive;
+    id _displayLink;
+    int _interval;
+    BOOL _isAppActive;
+    cocos2d::Application* _application;
 }
 @property (readwrite) int interval;
 -(void) startMainLoop;
@@ -56,15 +57,17 @@
 
 -(void) alloc
 {
-    interval = 1;
+    _interval = 1;
 }
 
-- (instancetype)init
+- (instancetype)initWithApplication:(cocos2d::Application*) application
 {
     self = [super init];
     if (self)
     {
-        isAppActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive;
+        _application = application;
+        
+        _isAppActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive;
         NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
         [nc addObserver:self selector:@selector(appDidBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
         [nc addObserver:self selector:@selector(appDidBecomeInactive) name:UIApplicationWillResignActiveNotification object:nil];
@@ -75,33 +78,33 @@
 -(void) dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [displayLink release];
+    [_displayLink release];
     [super dealloc];
 }
 
 - (void)appDidBecomeActive
 {
-    isAppActive = YES;
+    _isAppActive = YES;
 }
 
 - (void)appDidBecomeInactive
 {
-    isAppActive = NO;
+    _isAppActive = NO;
 }
 
 -(void) startMainLoop
 {
     [self stopMainLoop];
     
-    displayLink = [NSClassFromString(@"CADisplayLink") displayLinkWithTarget:self selector:@selector(doCaller:)];
-    [displayLink setFrameInterval: self.interval];
-    [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    _displayLink = [NSClassFromString(@"CADisplayLink") displayLinkWithTarget:self selector:@selector(doCaller:)];
+    [_displayLink setFrameInterval: self.interval];
+    [_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 }
 
 -(void) stopMainLoop
 {
-    [displayLink invalidate];
-    displayLink = nil;
+    [_displayLink invalidate];
+    _displayLink = nil;
 }
 
 -(void) setAnimationInterval:(double)intervalNew
@@ -111,14 +114,15 @@
     
     self.interval = 60.0 * intervalNew;
     
-    displayLink = [NSClassFromString(@"CADisplayLink") displayLinkWithTarget:self selector:@selector(doCaller:)];
-    [displayLink setFrameInterval: self.interval];
-    [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    _displayLink = [NSClassFromString(@"CADisplayLink") displayLinkWithTarget:self selector:@selector(doCaller:)];
+    [_displayLink setFrameInterval: self.interval];
+    [_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 }
 
 -(void) doCaller: (id) sender
 {
     cocos2d::EventDispatch::dispatchTicket();
+    [(CCEAGLView*)(_application->getView()) swapBuffers];
 }
 
 @end
@@ -132,7 +136,7 @@ Application::Application(const std::string& name)
     renderer::DeviceGraphics::getInstance();
     se::ScriptEngine::getInstance();
     
-    _delegate = [[MainLoop alloc] init];
+    _delegate = [[MainLoop alloc] initWithApplication:this];
 }
 
 Application::~Application()
@@ -247,7 +251,7 @@ void Application::setMultitouch(bool value)
     }
 }
 
-void Application::onCreateView(int&x, int& y, int& width, int& height, int& rBits, int& gBits, int& bBits, int& aBits, int& depthBits, int& stencilBits, int& multisamplingCount)
+void Application::onCreateView(int&x, int& y, int& width, int& height, PixelFormat& pixelformat, DepthFormat& depthFormat, int& multisamplingCount)
 {
     CGRect bounds = [UIScreen mainScreen].bounds;
     x = bounds.origin.x;
@@ -255,13 +259,29 @@ void Application::onCreateView(int&x, int& y, int& width, int& height, int& rBit
     width = bounds.size.width;
     height = bounds.size.height;
     
-    rBits = 5;
-    gBits = 6;
-    bBits = 5;
-    aBits = 0;
-    depthBits = 24;
-    stencilBits = 8;
+    pixelformat = PixelFormat::RGB565;
+    depthFormat = DepthFormat::DEPTH24_STENCIL8;
+
     multisamplingCount = 0;
+}
+
+namespace
+{
+    GLenum depthFormatMap[] =
+    {
+        0,                        // NONE: no depth and no stencil
+        GL_DEPTH_COMPONENT24_OES, // DEPTH_COMPONENT16: unsupport, convert to GL_DEPTH_COMPONENT24_OES
+        GL_DEPTH_COMPONENT24_OES, // DEPTH_COMPONENT24
+        GL_DEPTH_COMPONENT24_OES, // DEPTH_COMPONENT32F: unsupport, convert to GL_DEPTH_COMPONENT24_OES
+        GL_DEPTH24_STENCIL8_OES,  // DEPTH24_STENCIL8
+        GL_DEPTH24_STENCIL8_OES,  // DEPTH32F_STENCIL8: unsupport, convert to GL_DEPTH24_STENCIL8_OES
+        GL_DEPTH_STENCIL_OES      // STENCIL_INDEX8
+    };
+    
+    GLenum depthFormat2GLDepthFormat(cocos2d::Application::DepthFormat depthFormat)
+    {
+        return depthFormatMap[(int)depthFormat];
+    }
 }
 
 void Application::createView(const std::string& /*name*/)
@@ -270,19 +290,17 @@ void Application::createView(const std::string& /*name*/)
     int y = 0;
     int width = 0;
     int height = 0;
-    int r = 0;
-    int g = 0;
-    int b = 0;
-    int a = 0;
-    int depth = 0;
-    int stencil = 0;
+    PixelFormat pixelFormat = PixelFormat::RGB565;
+    DepthFormat depthFormat = DepthFormat::DEPTH24_STENCIL8;
     int multisamplingCount = 0;
     
     onCreateView(x,
                  y,
                  width,
                  height,
-                 r, g, b, a, depth, stencil, multisamplingCount);
+                 pixelFormat,
+                 depthFormat,
+                 multisamplingCount);
     
     CGRect bounds;
     bounds.origin.x = x;
@@ -290,11 +308,20 @@ void Application::createView(const std::string& /*name*/)
     bounds.size.width = width;
     bounds.size.height = height;
     
-    //TODO: pixel format, depth format
+    //FIXME: iOS only support these pixel format?
+    // - RGB565
+    // - RGBA8
+    NSString *pixelString = kEAGLColorFormatRGB565;
+    if (PixelFormat::RGB565 == pixelFormat ||
+        PixelFormat::RGBA8 == pixelFormat)
+        NSLog(@"Unsupported pixel format is set, iOS only support RGB565 or RGBA8. Change to use RGB565");
+    else if (PixelFormat::RGBA8 == pixelFormat)
+        pixelString = kEAGLColorFormatRGBA8;
+    
     // create view
     CCEAGLView *eaglView = [CCEAGLView viewWithFrame: bounds
-                                         pixelFormat: kEAGLColorFormatRGB565
-                                         depthFormat: GL_DEPTH_COMPONENT24_OES
+                                         pixelFormat: pixelString
+                                         depthFormat: depthFormat2GLDepthFormat(depthFormat)
                                   preserveBackbuffer: NO
                                           sharegroup: nil
                                        multiSampling: multisamplingCount != 0

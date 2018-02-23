@@ -31,19 +31,88 @@ THE SOFTWARE.
 
 #include "scripting/js-bindings/event/EventDispatch.h"
 #include "ccMacros.h"
-#include "platform/CCApplication.h"
-
 
 NS_CC_BEGIN
 
 GLView* GLFWEventHandler::_view = nullptr;
+
+namespace
+{
+    struct RGBA
+    {
+        int r = 0;
+        int g = 0;
+        int b = 0;
+        int a = 0;
+    };
+    
+    struct DepthInfo
+    {
+        int depth = 0;
+        int stencil = 0;
+    };
+
+    struct RGBA pixelformat2RGBA(Application::PixelFormat pixelformat)
+    {
+        struct RGBA ret;
+        if (Application::PixelFormat::RGBA8 == pixelformat)
+            ret.r = ret.g = ret.b = ret. a = 8;
+            
+        if (Application::PixelFormat::RGB565 == pixelformat)
+        {
+            ret.r = 5;
+            ret.g = 6;
+            ret.b = 5;
+        }
+        
+        if (Application::PixelFormat::RGB8 == pixelformat)
+            ret.r = ret.g = ret.b = 8;
+            
+        return ret;
+    }
+    
+    struct DepthInfo depthformat2DepthInfo(Application::DepthFormat depthFormat)
+    {
+        struct DepthInfo ret;
+        switch (depthFormat)
+        {
+            case Application::DepthFormat::NONE:
+                break;
+            case Application::DepthFormat::DEPTH_COMPONENT16:
+                ret.depth = 16;
+                break;
+            case Application::DepthFormat::DEPTH_COMPONENT24:
+                ret.depth = 24;
+                break;
+            case Application::DepthFormat::DEPTH_COMPONENT32F:
+                ret.depth = 32;
+                break;
+            case Application::DepthFormat::DEPTH24_STENCIL8:
+                ret.depth = 24;
+                ret.stencil = 8;
+                break;
+            case Application::DepthFormat::DEPTH32F_STENCIL8:
+                ret.depth = 32;
+                ret.stencil = 8;
+                break;
+            case Application::DepthFormat::STENCIL_INDEX8:
+                ret.stencil = 8;
+                break;
+            default:
+                break;
+        }
+        
+        return ret;
+    }
+}
 
 
 //////////////////////////////////////////////////////////////////////////
 // implement GLView
 //////////////////////////////////////////////////////////////////////////
 
-GLView::GLView(Application* application, const std::string& name, int x, int y, int width, int height, int r, int g, int b, int a, int depth, int stencil, int multisamplingCount)
+GLView::GLView(Application* application, const std::string& name, int x, int y, int width, int height,
+               Application::PixelFormat pixelformat, Application::DepthFormat depthFormat, int multisamplingCount)
 : _application(application)
 , _captured(false)
 , _mainWindow(nullptr)
@@ -54,13 +123,16 @@ GLView::GLView(Application* application, const std::string& name, int x, int y, 
     GLFWEventHandler::setGLView(this);
     glfwSetErrorCallback(GLFWEventHandler::onGLFWError);
     glfwInit();
+    
+    struct RGBA rgba = pixelformat2RGBA(pixelformat);
+    struct DepthInfo depthInfo = depthformat2DepthInfo(depthFormat);
 
-    glfwWindowHint(GLFW_RED_BITS, r);
-    glfwWindowHint(GLFW_GREEN_BITS, g);
-    glfwWindowHint(GLFW_BLUE_BITS, b);
-    glfwWindowHint(GLFW_ALPHA_BITS, a);
-    glfwWindowHint(GLFW_DEPTH_BITS, depth);
-    glfwWindowHint(GLFW_STENCIL_BITS, stencil);
+    glfwWindowHint(GLFW_RED_BITS, rgba.r);
+    glfwWindowHint(GLFW_GREEN_BITS, rgba.g);
+    glfwWindowHint(GLFW_BLUE_BITS, rgba.b);
+    glfwWindowHint(GLFW_ALPHA_BITS, rgba.a);
+    glfwWindowHint(GLFW_DEPTH_BITS, depthInfo.depth);
+    glfwWindowHint(GLFW_STENCIL_BITS, depthInfo.stencil);
     glfwWindowHint(GLFW_SAMPLES, multisamplingCount);
     _mainWindow = glfwCreateWindow(width, height, name.c_str(), _monitor, nullptr);
 

@@ -178,19 +178,16 @@ void Application::setMultitouch(bool)
 {
 }
 
-void Application::onCreateView(int&x, int& y, int& width, int& height, int& rBits, int& gBits, int& bBits, int& aBits, int& depthBits, int& stencilBits, int& multisamplingCount)
+void Application::onCreateView(int&x, int& y, int& width, int& height, PixelFormat& pixelformat, DepthFormat& depthFormat, int& multisamplingCount)
 {
     x = 0;
     y = 0;
     width = 960;
     height = 640;
     
-    rBits = 8;
-    gBits = 8;
-    bBits = 8;
-    aBits = 8;
-    depthBits = 16;
-    stencilBits = 8;
+    pixelformat = PixelFormat::RGBA8;
+    depthFormat = DepthFormat::DEPTH24_STENCIL8;
+
     multisamplingCount = 0;
 }
 
@@ -200,21 +197,19 @@ void Application::createView(const std::string& name)
     int y = 0;
     int width = 0;
     int height = 0;
-    int r = 0;
-    int g = 0;
-    int b = 0;
-    int a = 0;
-    int depth = 0;
-    int stencil = 0;
     int multisamplingCount = 0;
+    PixelFormat pixelformat;
+    DepthFormat depthFormat;
     
     onCreateView(x,
                  y,
                  width,
                  height,
-                 r, g, b, a, depth, stencil, multisamplingCount);
+                 pixelformat,
+                 depthFormat,
+                 multisamplingCount);
 
-    _view = new GLView(this, name, x, y, width, height, r, g, b, a, depth, stencil, multisamplingCount);
+    _view = new GLView(this, name, x, y, width, height, pixelformat, depthFormat, multisamplingCount);
 }
 
 NS_CC_END
