@@ -884,6 +884,15 @@ public:
             std_map.erase(iter);
         }
     }
+
+    static void purge()
+    {
+        for (auto& e : std_map)
+        {
+            delete e.second;
+        }
+        std_map.clear();
+    }
 private:
     se::Value _jsThis;
     se::Value _jsFunc;
@@ -1613,6 +1622,16 @@ bool register_all_anysdk_manual(se::Object* obj)
     //ProtocolREC
     __jsb_anysdk_framework_ProtocolREC_proto->defineFunction("setResultListener", _SE(jsb_anysdk_framework_ProtocolREC_setResultListener));
     __jsb_anysdk_framework_ProtocolREC_proto->defineFunction("removeListener", _SE(jsb_anysdk_framework_ProtocolREC_removeListener));
+
+    se::ScriptEngine::getInstance()->addBeforeCleanupHook([](){
+        ProtocolAdsResultListener::purge();
+        ProtocolYAPResultListener::purge();
+        ProtocolPushActionListener::purge();
+        ProtocolUserActionListener::purge();
+        ProtocolSocialListener::purge();
+        ProtocolRECListener::purge();
+        ProtocolCustomListener::purge();
+    });
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
