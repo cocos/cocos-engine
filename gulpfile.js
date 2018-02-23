@@ -130,12 +130,13 @@ gulp.task('test-no-build', function (done) {
 
 // fast build, only for develop
 gulp.task('build-dev', ['build-html5-preview', 'build-jsb-preview'], function (done) {
-    Del(['./bin/jsb_polyfill.js', './bin/jsb_polyfill.dev.js', './bin/.cache'], done);
+    Del(['./bin/jsb_polyfill.js', './bin/jsb_polyfill.dev.js', 
+         './bin/.cache/**/*', '!./bin/.cache/dev', '!./bin/.cache/dev/**/*'], done);
 });
 
 // only build preview for html5 since it will built by editor
 gulp.task('build', ['build-html5-preview', 'build-jsb'], function (done) {
-    Del(['./bin/.cache'], done);
+    Del(['./bin/.cache/**/*', '!./bin/.cache/dev', '!./bin/.cache/dev/**/*'], done);
 });
 
 // default task
