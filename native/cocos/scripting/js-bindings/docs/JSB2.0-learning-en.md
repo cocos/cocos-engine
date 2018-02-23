@@ -178,33 +178,45 @@ Under normal circumstances, if CPP object is not a subclass of `cocos2d :: Ref`,
 
 ```c++
 spTrackEntry_setDisposeCallback([](spTrackEntry* entry){
-        // The callback of spTrackEntry destruction
-        auto cleanup = [entry](){
+        se::Object* seObj = nullptr;
 
-            if (!se::ScriptEngine::getInstance()->isValid())
+        auto iter = se::NativePtrToObjectMap::find(entry);
+        if (iter != se::NativePtrToObjectMap::end())
+        {
+            // Save se::Object pointer for being used in cleanup method.
+            seObj = iter->second;
+            // Unmap native and js object since native object was destroyed.
+            // Otherwise, it may trigger 'assertion' in se::Object::setPrivateData later
+            // since native obj is already released and the new native object may be assigned with
+            // the same address.
+            se::NativePtrToObjectMap::erase(iter);
+        }
+        else
+        {
+            return;
+        }
+
+        auto cleanup = [seObj](){
+
+            auto se = se::ScriptEngine::getInstance();
+            if (!se->isValid() || se->isInCleanup())
                 return;
 
             se::AutoHandleScope hs;
-            se::ScriptEngine::getInstance()->clearException();
+            se->clearException();
 
-            auto iter = se::NativePtrToObjectMap::find(entry);
-            if (iter != se::NativePtrToObjectMap::end())
-            {
-                CCLOG("spTrackEntry %p was recycled!", entry);
-                se::Object* seObj = iter->second;
-                seObj->clearPrivateData(); // Remove the mapping
-                seObj->unroot(); // unroot，make JS objects controlled by garbage collector
-                seObj->decRef(); // Decrease the reference of se::Object
-            }
+            // The native <-> JS mapping was cleared in the callback above.
+            // seObj->clearPrivateData isn't needed since the JS object will be garbage collected after unroot and decRef.
+            seObj->unroot();
+            seObj->decRef();
         };
 
-        // Make sure not to touch JS engine API while garbage collecting.
         if (!se::ScriptEngine::getInstance()->isGarbageCollecting())
         {
             cleanup();
         }
         else
-        { // Put the cleanning task at the end of current game frame if it's in garbage collection.
+        {
             CleanupTask::pushTaskToAutoReleasePool(cleanup);
         }
     });
@@ -221,7 +233,7 @@ In addition, `se::Object` currently supports the manual creation of the followin
 
 * Plain Object: Created by `se::Object::createPlainObject`, similar to `var a = {};` in JS
 * Array Object: Created by `se::Object::createArrayObject`, similar to `var a = [];` in JS
-* Uint8 Typed Array Object: Created by `se::Object::createUint8TypedArray`, like `var a = new Uint8Array(buffer);` in JS
+* Uint8 Typed Array Object: Created by `se::Object::createTypedArray`, like `var a = new Uint8Array(buffer);` in JS
 * Array Buffer Object: Created by `se::Object::createArrayBufferObject` similar to `var a = new ArrayBuffer(len);` in JS
 
 __The Release of The Objects Created Manually__
@@ -513,6 +525,8 @@ namespace ns {
 
 static bool js_SomeClass_finalize(se::State& s)
 {
+    ns::SomeClass* cobj = (ns::SomeClass*)s.nativeThisObject();
+    delete cobj;
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_SomeClass_finalize)

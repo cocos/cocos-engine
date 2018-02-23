@@ -4924,6 +4924,35 @@ static bool js_cocos2dx_dragonbones_CCFactory_parseTextureAtlasData(se::State& s
 }
 SE_BIND_FUNC(js_cocos2dx_dragonbones_CCFactory_parseTextureAtlasData)
 
+static bool js_cocos2dx_dragonbones_CCFactory_destroyInstance(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        dragonBones::CCFactory::destroyInstance();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_dragonbones_CCFactory_destroyInstance)
+
+static bool js_cocos2dx_dragonbones_CCFactory_getInstance(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        dragonBones::CCFactory* result = dragonBones::CCFactory::getInstance();
+        ok &= native_ptr_to_seval<dragonBones::CCFactory>((dragonBones::CCFactory*)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_CCFactory_getInstance : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_dragonbones_CCFactory_getInstance)
+
 SE_DECLARE_FINALIZE_FUNC(js_dragonBones_CCFactory_finalize)
 
 static bool js_cocos2dx_dragonbones_CCFactory_constructor(se::State& s)
@@ -4961,6 +4990,8 @@ bool js_register_cocos2dx_dragonbones_CCFactory(se::Object* obj)
     cls->defineFunction("getSoundEventManater", _SE(js_cocos2dx_dragonbones_CCFactory_getSoundEventManater));
     cls->defineFunction("buildArmatureDisplay", _SE(js_cocos2dx_dragonbones_CCFactory_buildArmatureDisplay));
     cls->defineFunction("parseTextureAtlasData", _SE(js_cocos2dx_dragonbones_CCFactory_parseTextureAtlasData));
+    cls->defineStaticFunction("destroyInstance", _SE(js_cocos2dx_dragonbones_CCFactory_destroyInstance));
+    cls->defineStaticFunction("getInstance", _SE(js_cocos2dx_dragonbones_CCFactory_getInstance));
     cls->defineFinalizeFunction(_SE(js_dragonBones_CCFactory_finalize));
     cls->install();
     JSBClassType::registerClass<dragonBones::CCFactory>(cls);

@@ -1566,6 +1566,24 @@ float
 },
 
 /**
+ * @method destroyInstance
+ */
+destroyInstance : function (
+)
+{
+},
+
+/**
+ * @method getInstance
+ * @return {dragonBones::CCFactory}
+ */
+getInstance : function (
+)
+{
+    return dragonBones::CCFactory;
+},
+
+/**
  * @method CCFactory
  * @constructor
  */

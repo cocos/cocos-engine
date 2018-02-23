@@ -43,6 +43,8 @@
 #include "storage/local-storage/LocalStorage.h"
 #include "cocos2d.h"
 
+#include "renderer/CCGLProgramStateCache.h"
+
 using namespace cocos2d;
 
 static bool jsb_cocos2dx_empty_func(se::State& s)
@@ -878,8 +880,14 @@ static void onAfterDispatchTouchEvent(Event* event)
             for (auto&& touch : touches)
             {
                 auto iter = se::NativePtrToObjectMap::find(touch);
-                assert(iter != se::NativePtrToObjectMap::end());
-                iter->second->unroot();
+                if (iter != se::NativePtrToObjectMap::end())
+                {
+                    iter->second->unroot();
+                }
+                else
+                {
+                    CCLOGWARN("Could not find touch %p, it's possible while restarting game and not all touches are released!", touch);
+                }
             }
         }
     }
@@ -931,6 +939,89 @@ static void onTextureDestroy(TextureCache* cache, Texture2D* texture)
     }
 }
 
+static void onGLProgramCreate(GLProgramCache* cache, GLProgram* program)
+{
+    se::AutoHandleScope hs;
+    auto iterOwner = se::NativePtrToObjectMap::find(cache);
+    if (iterOwner == se::NativePtrToObjectMap::end())
+    {
+        assert(false);
+        return;
+    }
+
+    se::Value val;
+    bool fromCache = false;
+    native_ptr_to_seval<GLProgram>(program, __jsb_cocos2d_GLProgram_class, &val, &fromCache);
+    if (!fromCache && val.isObject())
+    {
+        iterOwner->second->attachObject(val.toObject());
+    }
+    else
+    {
+        assert(false);
+    }
+}
+
+static void onGLProgramDestroy(GLProgramCache* cache, GLProgram* program)
+{
+    se::AutoHandleScope hs;
+    auto iterOwner = se::NativePtrToObjectMap::find(cache);
+    if (iterOwner == se::NativePtrToObjectMap::end())
+    {
+        assert(false);
+        return;
+    }
+
+    se::Value val;
+    bool fromCache = false;
+    native_ptr_to_seval<GLProgram>(program, __jsb_cocos2d_GLProgram_class, &val, &fromCache);
+    if (fromCache && val.isObject())
+    {
+        iterOwner->second->detachObject(val.toObject());
+    }
+    else
+    {
+        assert(false);
+    }
+}
+
+static void onGLProgramStateCreate(GLProgramStateCache* cache, GLProgramState* state)
+{
+    se::AutoHandleScope hs;
+    // NOTE: GLProgramStateCache is a private class in cocos2dx, it isn't included in cocos2d.h and also didn't expose to JS
+    // Since it's a singleton class, we could attach 'state' argument to global object instead.
+    se::Object* global = se::ScriptEngine::getInstance()->getGlobalObject();
+    se::Value val;
+    bool fromCache = false;
+    native_ptr_to_seval<GLProgramState>(state, __jsb_cocos2d_GLProgramState_class, &val, &fromCache);
+    if (!fromCache && val.isObject())
+    {
+        global->attachObject(val.toObject());
+    }
+    else
+    {
+        assert(false);
+    }
+}
+
+static void onGLProgramStateDestroy(GLProgramStateCache* cache, GLProgramState* state)
+{
+    se::AutoHandleScope hs;
+    // NOTE: 'state' argument is attached to global object, therefore we need to detach it from global object.
+    se::Object* global = se::ScriptEngine::getInstance()->getGlobalObject();
+    se::Value val;
+    bool fromCache = false;
+    native_ptr_to_seval<GLProgramState>(state, __jsb_cocos2d_GLProgramState_class, &val, &fromCache);
+    if (fromCache && val.isObject())
+    {
+        global->detachObject(val.toObject());
+    }
+    else
+    {
+        assert(false);
+    }
+}
+
 static bool register_eventlistener(se::Object* obj)
 {
     se::Value v;
@@ -961,12 +1052,6 @@ static bool register_eventlistener(se::Object* obj)
     __ccObj->getProperty("EventListenerCustom", &v);
     assert(v.isObject());
     v.toObject()->defineFunction("create", _SE(js_EventListenerCustom_create));
-
-    Director::getInstance()->getEventDispatcher()->setBeforeDispatchEventHook(Event::Type::TOUCH, onBeforeDispatchTouchEvent);
-    Director::getInstance()->getEventDispatcher()->setAfterDispatchEventHook(Event::Type::TOUCH, onAfterDispatchTouchEvent);
-
-    Director::getInstance()->getTextureCache()->setTextureCreateHook(onTextureCreate);
-    Director::getInstance()->getTextureCache()->setTextureDestroyHook(onTextureDestroy);
 
     se::ScriptEngine::getInstance()->clearException();
 
@@ -1488,11 +1573,20 @@ static bool js_cocos2dx_CallFunc_create(se::State& s)
         se::Object* jsobj = se::Object::createObjectWithClass(__jsb_cocos2d_CallFuncN_class);
         jsobj->setPrivateData(ret);
 
+        // Assign jsobj to jsVal and auto root it to avoid jsobj be swept by GC immediately.
+        // Because there is "jsobj->attachObject(funcVal.toObject());" in "js_cocos2dx_CallFunc_init" function.
+        // attachObject will do a function invocation which may mark 'jsobj' into an invalid state but without
+        // invoking CallFuncN's finalize callback immediately.
+        // AddressSanitizer in Xcode will prompt: heap-use-after-free on address.
+        se::Value jsVal;
+        jsVal.setObject(jsobj, true); // Pass true to indicate auto root / unroot by jsVal
+
         if (js_cocos2dx_CallFunc_init(ret, jsobj, args))
         {
-            s.rval().setObject(jsobj);
+            s.rval() = std::move(jsVal);
             return true;
         }
+
         SE_REPORT_ERROR("js_cocos2dx_CallFunc_create: initWithFunction failed!");
         return false;
     }
@@ -2011,6 +2105,19 @@ bool register_all_cocos2dx_manual(se::Object* obj)
     register_empty_retain_release(obj);
     register_texture2d_manual(obj);
     register_tilemap_manual(obj);
+
+    Director::getInstance()->getEventDispatcher()->setBeforeDispatchEventHook(Event::Type::TOUCH, onBeforeDispatchTouchEvent);
+    Director::getInstance()->getEventDispatcher()->setAfterDispatchEventHook(Event::Type::TOUCH, onAfterDispatchTouchEvent);
+
+    TextureCache::setTextureCreateHook(onTextureCreate);
+    TextureCache::setTextureDestroyHook(onTextureDestroy);
+
+    GLProgramCache::setGLProgramCreateHook(onGLProgramCreate);
+    GLProgramCache::setGLProgramDestroyHook(onGLProgramDestroy);
+
+    GLProgramStateCache::setGLProgramStateCreateHook(onGLProgramStateCreate);
+    GLProgramStateCache::setGLProgramStateDestroyHook(onGLProgramStateDestroy);
+
     return true;
 }
 

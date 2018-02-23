@@ -1,4 +1,4 @@
-﻿#ifndef DRAGONBONES_BASE_OBJECT_H
+#ifndef DRAGONBONES_BASE_OBJECT_H
 #define DRAGONBONES_BASE_OBJECT_H
 
 #include "DragonBones.h"
@@ -47,13 +47,15 @@ public:
             {
                 const auto object = dynamic_cast<T*>(pool.back());
                 pool.pop_back();
-
+                object->_isInPool = false;
                 return object;
             }
         }
 
         return new (std::nothrow) T();
     }
+
+    static std::vector<dragonBones::BaseObject*>& getAllObjects();
 
 public:
     const std::size_t hashCode;
@@ -72,6 +74,10 @@ public:
     virtual std::size_t getClassTypeIndex() const = 0;
     
     void returnToPool();
+    inline bool isInPool() const { return _isInPool; }
+private:
+    static std::vector<dragonBones::BaseObject*> __allDragonBonesObjects;
+    bool _isInPool;
 };
 
 DRAGONBONES_NAMESPACE_END

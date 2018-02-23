@@ -51,10 +51,11 @@ public:
     /** EventCode Touch event code.*/
     enum class EventCode
     {
-        BEGAN,
+        BEGAN = 0,
         MOVED,
         ENDED,
-        CANCELLED
+        CANCELLED,
+        INVALID = -1,
     };
 
     /**
@@ -75,6 +76,8 @@ public:
      */
     inline const std::vector<Touch*>& getTouches() const { return _touches; };
 
+    virtual void reset() override;
+
 #if TOUCH_PERF_DEBUG
     /** Set the event code.
      *
@@ -90,8 +93,6 @@ public:
 
 private:
     virtual ~EventTouch() {}
-
-    void reset();
 
     EventCode _eventCode;
     std::vector<Touch*> _touches;

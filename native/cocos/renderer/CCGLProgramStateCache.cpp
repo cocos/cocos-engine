@@ -28,8 +28,12 @@ THE SOFTWARE.
 #include "renderer/CCGLProgramState.h"
 #include "renderer/CCGLProgram.h"
 
-
 NS_CC_BEGIN
+
+namespace {
+    GLProgramStateCache::GLProgramStateLifeCycleHook __glProgramStateCreateHook = nullptr;
+    GLProgramStateCache::GLProgramStateLifeCycleHook __glProgramStateDestroyHook = nullptr;
+}
 
 GLProgramStateCache* GLProgramStateCache::s_instance = nullptr;
 
@@ -39,7 +43,7 @@ GLProgramStateCache::GLProgramStateCache()
 
 GLProgramStateCache::~GLProgramStateCache()
 {
-    _glProgramStates.clear();
+    removeAllGLProgramState();
 }
 
 GLProgramStateCache* GLProgramStateCache::getInstance()
@@ -66,6 +70,10 @@ GLProgramState* GLProgramStateCache::getGLProgramState(GLProgram* glprogram)
     auto ret = new (std::nothrow) GLProgramState;
     if(ret && ret->init(glprogram)) {
         _glProgramStates.insert(glprogram, ret);
+
+        if (__glProgramStateCreateHook != nullptr)
+            __glProgramStateCreateHook(this, ret);
+
         ret->release();
         return ret;
     }
@@ -81,6 +89,8 @@ void GLProgramStateCache::removeUnusedGLProgramState()
         if( value->getReferenceCount() == 1 ) {
             CCLOG("cocos2d: GLProgramStateCache: removing unused GLProgramState");
 
+            if (__glProgramStateDestroyHook != nullptr)
+                __glProgramStateDestroyHook(this, value);
             //value->release();
             it = _glProgramStates.erase(it);
         } else {
@@ -91,7 +101,25 @@ void GLProgramStateCache::removeUnusedGLProgramState()
 
 void GLProgramStateCache::removeAllGLProgramState()
 {
+    if (__glProgramStateDestroyHook != nullptr)
+    {
+        for (const auto& e : _glProgramStates)
+            __glProgramStateDestroyHook(this, e.second);
+    }
+
     _glProgramStates.clear();
+}
+
+/* static */
+void GLProgramStateCache::setGLProgramStateCreateHook(GLProgramStateLifeCycleHook hook)
+{
+    __glProgramStateCreateHook = hook;
+}
+
+/* static */
+void GLProgramStateCache::setGLProgramStateDestroyHook(GLProgramStateLifeCycleHook hook)
+{
+    __glProgramStateDestroyHook = hook;
 }
 
 NS_CC_END

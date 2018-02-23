@@ -349,7 +349,6 @@ bool CallFunc::initWithFunction(const std::function<void()> &func)
 
 CallFunc::~CallFunc()
 {
-    CC_SAFE_RELEASE(_selectorTarget);
 }
 
 CallFunc* CallFunc::clone() const

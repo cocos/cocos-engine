@@ -63,6 +63,10 @@ public:
     /**Remove unused GLProgramState.*/
     void removeUnusedGLProgramState();
 
+    using GLProgramStateLifeCycleHook = void (*)(GLProgramStateCache*, GLProgramState*);
+    static void setGLProgramStateCreateHook(GLProgramStateLifeCycleHook hook);
+    static void setGLProgramStateDestroyHook(GLProgramStateLifeCycleHook hook);
+
 protected:
     GLProgramStateCache();
     ~GLProgramStateCache();
