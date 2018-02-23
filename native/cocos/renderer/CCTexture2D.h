@@ -180,8 +180,6 @@ public:
      */
     static Texture2D::PixelFormat getDefaultAlphaPixelFormat();
     
-    static void forceDeleteALLTexture2D();
-
 public:
     /**
      * @js ctor

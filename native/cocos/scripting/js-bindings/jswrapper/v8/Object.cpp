@@ -604,67 +604,6 @@ namespace se {
         return ret.IsJust() && ret.FromJust();
     }
 
-//    void Object::getAsFloat32Array(float **ptr, unsigned int *length) {
-//        float *pt;
-//        unsigned int len;
-//
-//        v8::Local<v8::Value> value = _obj.handle(__isolate);
-//
-//        v8::Local<v8::Float32Array> myarr = _obj.handle(__isolate).As<v8::Float32Array>();
-//        len = myarr->Length();
-//        pt = (float *) ((char *) myarr->Buffer()->GetContents().Data() + myarr->ByteOffset());
-//
-//        *length = len;
-//        *ptr = pt;
-//    }
-//
-//    void Object::getAsUint8Array(unsigned char **ptr, unsigned int *length) {
-//        unsigned char *pt;
-//        unsigned int len;
-//
-//        v8::Local<v8::Value> value = _obj.handle(__isolate);
-//
-//        v8::Local<v8::Uint8Array> myarr = _obj.handle(__isolate).As<v8::Uint8Array>();
-//
-//        len = myarr->Length();
-//        pt = (unsigned char *) myarr->Buffer()->GetContents().Data() + myarr->ByteOffset();
-//
-//        *length = len;
-//        *ptr = pt;
-//    }
-//
-//    void Object::getAsUint16Array(unsigned short **ptr, unsigned int *length) {
-//        unsigned short *pt;
-//        unsigned int len;
-//
-//        v8::Local<v8::Value> value = _obj.handle(__isolate);
-//
-//        v8::Local<v8::Uint16Array> myarr = _obj.handle(__isolate).As<v8::Uint16Array>();
-//
-//        len = myarr->Length();
-//        pt = (unsigned short *) myarr->Buffer()->GetContents().Data();
-//
-//        *length = len;
-//        *ptr = pt;
-//    }
-//
-//    void Object::getAsUint32Array(unsigned int **ptr, unsigned int *length) {
-//        unsigned int *pt;
-//        unsigned int len;
-//
-//        v8::Local<v8::Value> value = _obj.handle(__isolate);
-//
-//        v8::Local<v8::Uint32Array> myarr = _obj.handle(__isolate).As<v8::Uint32Array>();
-//
-//        len = myarr->Length();
-//
-//        //ArrayBuffer::Contents float_c=pt=myarr->Buffer()->GetContents();
-//        pt = (unsigned int *) myarr->Buffer()->GetContents().Data();
-//
-//        *length = len;
-//        *ptr = pt;
-//    }
-
     bool Object::getAllKeys(std::vector<std::string>* allKeys) const
     {
         assert(allKeys != nullptr);

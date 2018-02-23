@@ -239,9 +239,7 @@ void ActionManager::removeAllActionsFromTarget(Node *target)
             element->currentAction->retain();
             element->currentActionSalvaged = true;
         }
-        
-        ccArrayRemoveAllObjects(element->actions);
-        
+
 #if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
         auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
         if (sEngine)
@@ -257,6 +255,8 @@ void ActionManager::removeAllActionsFromTarget(Node *target)
             }
         }
 #endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+
+        ccArrayRemoveAllObjects(element->actions);
         
         if (_currentTarget == element)
         {

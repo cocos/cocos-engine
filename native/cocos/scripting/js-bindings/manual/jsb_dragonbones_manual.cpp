@@ -35,7 +35,6 @@
 
 using namespace cocos2d;
 
-
 static bool js_cocos2dx_dragonbones_Armature_getAnimation(se::State& s)
 {
     if (s.args().size() == 0)
@@ -321,8 +320,8 @@ static bool js_cocos2dx_dragonbones_CCFactory_getFactory(se::State& s)
 {
     if (s.args().size() == 0)
     {
-        const dragonBones::CCFactory& ret = dragonBones::CCFactory::factory;
-        bool ok = native_ptr_to_rooted_seval<dragonBones::CCFactory>((dragonBones::CCFactory*)&ret, __jsb_dragonBones_CCFactory_class, &s.rval());
+        auto ret = dragonBones::CCFactory::getInstance();
+        bool ok = native_ptr_to_rooted_seval<dragonBones::CCFactory>(ret, __jsb_dragonBones_CCFactory_class, &s.rval());
         SE_PRECONDITION2(ok, false, "Convert dragonBones::CCFactory to se::Value failed!");
         return true;
     }
@@ -531,28 +530,42 @@ bool register_all_dragonbones_manual(se::Object* obj)
 
     dragonBones::BaseObject::setObjectRecycleOrDestroyCallback([](dragonBones::BaseObject* obj, int type){
 
-//        std::string typeName = typeid(*obj).name();
-        auto cleanup = [=](){
-            if (!se::ScriptEngine::getInstance()->isValid())
+        std::string typeName = typeid(*obj).name();
+
+        se::Object* seObj = nullptr;
+
+        auto iter = se::NativePtrToObjectMap::find(obj);
+        if (iter != se::NativePtrToObjectMap::end())
+        {
+            // Save se::Object pointer for being used in cleanup method.
+            seObj = iter->second;
+            // Unmap native and js object since native object was destroyed.
+            // Otherwise, it may trigger 'assertion' in se::Object::setPrivateData later
+            // since native obj is already released and the new native object may be assigned with
+            // the same address.
+            se::NativePtrToObjectMap::erase(iter);
+        }
+        else
+        {
+            // CCLOG("Didn't find %s, %p in map", typeName, obj);
+            // assert(false);
+            return;
+        }
+
+        std::string typeNameStr = typeName;
+        auto cleanup = [seObj, typeNameStr](){
+
+            auto se = se::ScriptEngine::getInstance();
+            if (!se->isValid() || se->isInCleanup())
                 return;
 
             se::AutoHandleScope hs;
-            se::ScriptEngine::getInstance()->clearException();
+            se->clearException();
 
-            auto iter = se::NativePtrToObjectMap::find(obj);
-            if (iter != se::NativePtrToObjectMap::end())
-            {
-//                CCLOG("%s: %p was recycled!", typeName.c_str(), obj);
-                se::Object* seObj = iter->second;
-                seObj->clearPrivateData();
-                seObj->unroot();
-                seObj->decRef();
-            }
-            else
-            {
-//                CCLOG("Didn't find %s, %p in map", typeName.c_str(), obj);
-    //            assert(false);
-            }
+            // The native <-> JS mapping was cleared in the callback above.
+            // seObj->clearPrivateData isn't needed since the JS object will be garbage collected after unroot and decRef.
+            seObj->unroot();
+            seObj->decRef();
         };
 
         if (!se::ScriptEngine::getInstance()->isGarbageCollecting())
@@ -563,6 +576,65 @@ bool register_all_dragonbones_manual(se::Object* obj)
         {
             CleanupTask::pushTaskToAutoReleasePool(cleanup);
         }
+    });
+
+    se::ScriptEngine::getInstance()->addAfterCleanupHook([](){
+
+        // Destroy CCFactory singlton.
+        dragonBones::CCFactory::destroyInstance();
+
+        // World clock is a static variable and needs to be cleared and reset.
+        dragonBones::WorldClock::clock.clear();
+        dragonBones::WorldClock::clock.time = 0.0f;
+        dragonBones::WorldClock::clock.timeScale = 1.0f;
+
+        // Copy the dragonbones object vector since vector element will be deleted in BaseObject destructor.
+        std::vector<dragonBones::BaseObject*> allDragonBonesObjects = dragonBones::BaseObject::getAllObjects();
+        SE_LOGD("Starting to cleanup dragonbones object, count: %d\n", (int)allDragonBonesObjects.size());
+        // Clear dragonBones::Armature objects those are not in the pool because
+        // dragonBones::Armature controls life cycle for lots of other objects,
+        // so it needs to be disposed first.
+        for (auto dbObj : allDragonBonesObjects)
+        {
+            if (dynamic_cast<dragonBones::Armature*>(dbObj) != nullptr && !dbObj->isInPool())
+            {
+//                SE_LOGD("1. Force delete not in pool DragonBones Armature object: %s, %p\n", typeid(*dbObj).name(), dbObj);
+                delete dbObj;
+            }
+        }
+
+        // After disposing dragonBones::Armature objects, there will be lots of other kinds of objects returned to pool.
+        // Therefore, we clean object pool here.
+        dragonBones::BaseObject::clearPool(0);
+
+        // Copy the dragonbones object vector again.
+        allDragonBonesObjects = dragonBones::BaseObject::getAllObjects();
+        SE_LOGD("After first cleanup, dragonbones object remained count: %d\n", (int)allDragonBonesObjects.size());
+        // Check again whether there are some objects still in pool since the releationship of dragonbones objects is really complex.
+        for (auto dbObj : allDragonBonesObjects)
+        {
+            if (!dbObj->isInPool())
+            {
+//                SE_LOGD("2. Force delete not in pool DragonBones object: %s, %p\n", typeid(*dbObj).name(), dbObj);
+                delete dbObj;
+            }
+        }
+
+        // Clear pool again.
+        dragonBones::BaseObject::clearPool(0);
+
+        // Don't need to use copy operator since we only print leak object below.
+        auto& refAllDragonBonesObjects = dragonBones::BaseObject::getAllObjects();
+        SE_LOGD("After second cleanup, dragonbones object remained count: %d\n", (int)refAllDragonBonesObjects.size());
+
+        // Print leak objects
+        for (auto dbObj : refAllDragonBonesObjects)
+        {
+            SE_LOGD("Leak dragonbones object: %s, %p\n", typeid(*dbObj).name(), dbObj);
+        }
+
+        // If there're leak objects, clear vector should be done for restarting game.
+        refAllDragonBonesObjects.clear();
     });
 
     se::ScriptEngine::getInstance()->clearException();

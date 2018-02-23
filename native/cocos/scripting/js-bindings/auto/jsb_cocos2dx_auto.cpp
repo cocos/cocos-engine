@@ -1197,23 +1197,38 @@ bool js_register_cocos2dx_Touch(se::Object* obj)
 se::Object* __jsb_cocos2d_Event_proto = nullptr;
 se::Class* __jsb_cocos2d_Event_class = nullptr;
 
-static bool js_cocos2dx_Event_isStopped(se::State& s)
+static bool js_cocos2dx_Event_reset(se::State& s)
 {
     cocos2d::Event* cobj = (cocos2d::Event*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Event_isStopped : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Event_reset : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    CC_UNUSED bool ok = true;
     if (argc == 0) {
-        bool result = cobj->isStopped();
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_Event_isStopped : Error processing arguments");
+        cobj->reset();
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_cocos2dx_Event_isStopped)
+SE_BIND_FUNC(js_cocos2dx_Event_reset)
+
+static bool js_cocos2dx_Event_getCurrentTarget(se::State& s)
+{
+    cocos2d::Event* cobj = (cocos2d::Event*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Event_getCurrentTarget : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cocos2d::Node* result = cobj->getCurrentTarget();
+        ok &= native_ptr_to_seval<cocos2d::Node>((cocos2d::Node*)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_Event_getCurrentTarget : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Event_getCurrentTarget)
 
 static bool js_cocos2dx_Event_getType(se::State& s)
 {
@@ -1233,23 +1248,23 @@ static bool js_cocos2dx_Event_getType(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Event_getType)
 
-static bool js_cocos2dx_Event_getCurrentTarget(se::State& s)
+static bool js_cocos2dx_Event_isStopped(se::State& s)
 {
     cocos2d::Event* cobj = (cocos2d::Event*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Event_getCurrentTarget : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_Event_isStopped : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::Node* result = cobj->getCurrentTarget();
-        ok &= native_ptr_to_seval<cocos2d::Node>((cocos2d::Node*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_Event_getCurrentTarget : Error processing arguments");
+        bool result = cobj->isStopped();
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_Event_isStopped : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_cocos2dx_Event_getCurrentTarget)
+SE_BIND_FUNC(js_cocos2dx_Event_isStopped)
 
 static bool js_cocos2dx_Event_stopPropagation(se::State& s)
 {
@@ -1300,9 +1315,10 @@ bool js_register_cocos2dx_Event(se::Object* obj)
 {
     auto cls = se::Class::create("Event", obj, nullptr, _SE(js_cocos2dx_Event_constructor));
 
-    cls->defineFunction("isStopped", _SE(js_cocos2dx_Event_isStopped));
-    cls->defineFunction("getType", _SE(js_cocos2dx_Event_getType));
+    cls->defineFunction("reset", _SE(js_cocos2dx_Event_reset));
     cls->defineFunction("getCurrentTarget", _SE(js_cocos2dx_Event_getCurrentTarget));
+    cls->defineFunction("getType", _SE(js_cocos2dx_Event_getType));
+    cls->defineFunction("isStopped", _SE(js_cocos2dx_Event_isStopped));
     cls->defineFunction("stopPropagation", _SE(js_cocos2dx_Event_stopPropagation));
     cls->defineFinalizeFunction(_SE(js_cocos2d_Event_finalize));
     cls->install();
@@ -32596,6 +32612,21 @@ bool js_register_cocos2dx_GLProgram(se::Object* obj)
 se::Object* __jsb_cocos2d_GLProgramCache_proto = nullptr;
 se::Class* __jsb_cocos2d_GLProgramCache_class = nullptr;
 
+static bool js_cocos2dx_GLProgramCache_notifyAllGLProgramsCreated(se::State& s)
+{
+    cocos2d::GLProgramCache* cobj = (cocos2d::GLProgramCache*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_GLProgramCache_notifyAllGLProgramsCreated : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->notifyAllGLProgramsCreated();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_GLProgramCache_notifyAllGLProgramsCreated)
+
 static bool js_cocos2dx_GLProgramCache_loadDefaultGLPrograms(se::State& s)
 {
     cocos2d::GLProgramCache* cobj = (cocos2d::GLProgramCache*)s.nativeThisObject();
@@ -32743,6 +32774,7 @@ bool js_register_cocos2dx_GLProgramCache(se::Object* obj)
 {
     auto cls = se::Class::create("ShaderCache", obj, nullptr, _SE(js_cocos2dx_GLProgramCache_constructor));
 
+    cls->defineFunction("notifyAllGLProgramsCreated", _SE(js_cocos2dx_GLProgramCache_notifyAllGLProgramsCreated));
     cls->defineFunction("loadDefaultShaders", _SE(js_cocos2dx_GLProgramCache_loadDefaultGLPrograms));
     cls->defineFunction("reloadDefaultGLProgramsRelativeToLights", _SE(js_cocos2dx_GLProgramCache_reloadDefaultGLProgramsRelativeToLights));
     cls->defineFunction("addProgram", _SE(js_cocos2dx_GLProgramCache_addGLProgram));

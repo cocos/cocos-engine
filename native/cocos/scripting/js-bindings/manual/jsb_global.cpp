@@ -843,6 +843,22 @@ static bool js_performance_now(se::State& s)
 }
 SE_BIND_FUNC(js_performance_now)
 
+static bool JSB_getJSBindingObjectCount(se::State& s)
+{
+    size_t size = se::NativePtrToObjectMap::size();
+    s.rval().setUlong(size);
+    return true;
+}
+SE_BIND_FUNC(JSB_getJSBindingObjectCount)
+
+static bool JSB_getJSBindingObjectCountNonRefAndCreatedInJS(se::State& s)
+{
+    size_t size = se::NonRefNativePtrCreatedByCtorMap::size();
+    s.rval().setUlong(size);
+    return true;
+}
+SE_BIND_FUNC(JSB_getJSBindingObjectCountNonRefAndCreatedInJS)
+
 bool jsb_register_global_variables(se::Object* global)
 {
     global->defineFunction("require", _SE(require));
@@ -857,6 +873,8 @@ bool jsb_register_global_variables(se::Object* global)
 
     __jscObj->defineFunction("garbageCollect", _SE(jsc_garbageCollect));
     __jscObj->defineFunction("dumpNativePtrToSeObjectMap", _SE(jsc_dumpNativePtrToSeObjectMap));
+    __jscObj->defineFunction("getJSBindingObjectCount", _SE(JSB_getJSBindingObjectCount));
+    __jscObj->defineFunction("getJSBindingObjectCountNonRefCreatedInJS", _SE(JSB_getJSBindingObjectCountNonRefAndCreatedInJS));
 
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));
     global->defineFunction("__getOS", _SE(JSBCore_os));

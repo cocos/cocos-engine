@@ -679,6 +679,7 @@ void GLViewImpl::onGLFWMouseCallBack(GLFWwindow* window, int button, int action,
     if(GLFW_PRESS == action)
     {
         EventMouse* event = __mouseDownEvent;
+        event->reset();
         event->setCursorPosition(cursorX, cursorY);
         event->setMouseButton(button);
         Director::getInstance()->getEventDispatcher()->dispatchEvent(event);
@@ -686,6 +687,7 @@ void GLViewImpl::onGLFWMouseCallBack(GLFWwindow* window, int button, int action,
     else if(GLFW_RELEASE == action)
     {
         EventMouse* event = __mouseUpEvent;
+        event->reset();
         event->setCursorPosition(cursorX, cursorY);
         event->setMouseButton(button);
         Director::getInstance()->getEventDispatcher()->dispatchEvent(event);
@@ -720,6 +722,7 @@ void GLViewImpl::onGLFWMouseMoveCallBack(GLFWwindow* window, double x, double y)
     float cursorY = (_viewPortRect.origin.y + _viewPortRect.size.height - _mouseY) / _scaleY;
 
     EventMouse* event = __mouseMoveEvent;
+    event->reset();
     // Set current button
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
     {
@@ -740,6 +743,7 @@ void GLViewImpl::onGLFWMouseMoveCallBack(GLFWwindow* window, double x, double y)
 void GLViewImpl::onGLFWMouseScrollCallback(GLFWwindow* window, double x, double y)
 {
     EventMouse* event = __mouseScrollEvent;
+    event->reset();
     //Because OpenGL and cocos2d-x uses different Y axis, we need to convert the coordinate here
     float cursorX = (_mouseX - _viewPortRect.origin.x) / _scaleX;
     float cursorY = (_viewPortRect.origin.y + _viewPortRect.size.height - _mouseY) / _scaleY;

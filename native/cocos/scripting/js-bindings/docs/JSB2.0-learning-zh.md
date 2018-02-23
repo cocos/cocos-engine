@@ -178,23 +178,38 @@ se::Object 中提供了 root/unroot 方法供开发者调用，root 会把 JS �
 ```c++
 spTrackEntry_setDisposeCallback([](spTrackEntry* entry){
         // spTrackEntry 的销毁回调
-        auto cleanup = [entry](){
+        se::Object* seObj = nullptr;
 
-            if (!se::ScriptEngine::getInstance()->isValid())
+        auto iter = se::NativePtrToObjectMap::find(entry);
+        if (iter != se::NativePtrToObjectMap::end())
+        {
+            // 保存 se::Object 指针，用于在下面的 cleanup 函数中释放其内存
+            seObj = iter->second;
+            // Native 对象 entry 的内存已经被释放，因此需要立马解除 Native 对象与 JS 对象的关联。
+            // 如果解除引用关系放在下面的 cleanup 函数中处理，有可能触发 se::Object::setPrivateData 中
+            // 的断言，因为新生成的 Native 对象的地址可能与当前对象相同，而 cleanup 可能被延迟到帧结束前执行。
+            se::NativePtrToObjectMap::erase(iter);
+        }
+        else
+        {
+            return;
+        }
+
+        auto cleanup = [seObj](){
+
+            auto se = se::ScriptEngine::getInstance();
+            if (!se->isValid() || se->isInCleanup())
                 return;
 
             se::AutoHandleScope hs;
-            se::ScriptEngine::getInstance()->clearException();
-
-            auto iter = se::NativePtrToObjectMap::find(entry);
-            if (iter != se::NativePtrToObjectMap::end())
-            {
-                CCLOG("spTrackEntry %p was recycled!", entry);
-                se::Object* seObj = iter->second;
-                seObj->clearPrivateData(); // 解除 mapping 关系
-                seObj->unroot(); // unroot，使 JS 对象受 GC 管理
-                seObj->decRef(); // 释放 se::Object
-            }
+            se->clearException();
+            
+            // 没必要调用 seObj->clearPrivateData ，因为 Native 对象与 JS 对象的引用关系已经在上面被解除。
+            // 如果调用，反而会导致把新生成的 Native 对象的引用关系错误解除掉。
+            // 设置 seObj 的 privateData 为 nullptr 也无意义，因为在执行 unroot 和 decRef 后，
+            // 当前 JS 对象即将被回收。
+            seObj->unroot(); // unroot，使 JS 对象受 GC 管理
+            seObj->decRef(); // 释放 se::Object
         };
 
         // 确保不再垃圾回收中去操作 JS 引擎的 API
@@ -218,7 +233,7 @@ __对象类型__
 
 * Plain Object : 通过 se::Object::createPlainObject 创建，类似 JS 中的 `var a = {};`
 * Array Object : 通过 se::Object::createArrayObject 创建，类似 JS 中的 `var a = [];`
-* Uint8 Typed Array Object : 通过 se::Object::createUint8TypedArray 创建，类似 JS 中的 `var a = new Uint8Array(buffer);`
+* Uint8 Typed Array Object : 通过 se::Object::createTypedArray 创建，类似 JS 中的 `var a = new Uint8Array(buffer);`
 * Array Buffer Object : 通过 se::Object::createArrayBufferObject，类似 JS 中的 `var a = new ArrayBuffer(len);`
 
 __手动创建对象的释放__
@@ -504,6 +519,8 @@ namespace ns {
 
 static bool js_SomeClass_finalize(se::State& s)
 {
+    ns::SomeClass* cobj = (ns::SomeClass*)s.nativeThisObject();
+    delete cobj;
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_SomeClass_finalize)

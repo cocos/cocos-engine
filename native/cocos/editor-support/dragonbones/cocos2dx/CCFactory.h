@@ -10,14 +10,11 @@ DRAGONBONES_NAMESPACE_BEGIN
 class CCFactory : public BaseFactory
 {
 public:
-    static CCFactory factory;
+    static CCFactory* getInstance();
+    static void destroyInstance();
 
-public:
     CCFactory();
     ~CCFactory();
-
-private:
-    DRAGONBONES_DISALLOW_COPY_AND_ASSIGN(CCFactory);
 
 protected:
     virtual TextureAtlasData* _generateTextureAtlasData(TextureAtlasData* textureAtlasData, void* textureAtlas) const override;
@@ -35,6 +32,8 @@ public:
 
 private:
     void _initTextureAtlasData(TextureAtlasData* atlasData);
+
+    DRAGONBONES_DISALLOW_COPY_AND_ASSIGN(CCFactory);
 };
 
 DRAGONBONES_NAMESPACE_END

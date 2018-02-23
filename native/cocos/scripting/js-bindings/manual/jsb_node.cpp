@@ -201,6 +201,38 @@ static const char* SCHEDULE_FUNC_ID_KEY = "__seScheFuncId";
 static std::unordered_map<uint32_t/*targetId*/, std::unordered_map<uint32_t/*funcId*/, ScheduleElement>> __js_target_schedulekey_map;
 static std::unordered_map<uint32_t/*targetId*/, std::pair<int/*priority*/, se::Object*>> __js_target_schedule_update_map;
 
+#if COCOS2D_DEBUG > 1
+static void printElementsInTargetSchedulerMap()
+{
+    SE_LOGD("--------------------------\nschedule target count: %d\n", (int)__js_target_schedulekey_map.size());
+    for (const auto& e1 : __js_target_schedulekey_map)
+    {
+        uint32_t targetID = e1.first;
+        const auto& functions = e1.second;
+        std::string functionIDStr;
+        if (!functions.empty())
+            functionIDStr.append("[");
+
+        for (const auto& fn : functions)
+        {
+            assert(fn.second.getFuncId() == fn.first);
+            assert(fn.second.getTargetId() == targetID);
+            char idStr[20] = {0};
+            snprintf(idStr, sizeof(idStr), "%u", fn.first);
+            functionIDStr.append(idStr);
+            functionIDStr.append(",");
+        }
+        if (!functions.empty())
+        {
+            functionIDStr = functionIDStr.substr(0, functionIDStr.size()-1);
+            functionIDStr.append("]");
+        }
+        SE_LOGD("schedule target: %u, functions: %s\n", e1.first, functionIDStr.c_str());
+    }
+    SE_LOGD("-------------------------- \n");
+}
+#endif
+
 static bool isScheduleExist(uint32_t jsFuncId, uint32_t jsTargetId, const ScheduleElement** outElement)
 {
     bool found = false;
@@ -260,7 +292,7 @@ static bool isScheduleExist(const std::string& key, uint32_t jsTargetId, const S
     return found;
 }
 
-static void removeSchedule(uint32_t jsFuncId, uint32_t jsTargetId, bool needDetachChild)
+static void removeSchedule(const std::string& key, uint32_t jsFuncId, uint32_t jsTargetId, bool needDetachChild)
 {
     auto funcObjKeyMapIter = __js_target_schedulekey_map.find(jsTargetId);
     if (funcObjKeyMapIter != __js_target_schedulekey_map.end())
@@ -270,17 +302,20 @@ static void removeSchedule(uint32_t jsFuncId, uint32_t jsTargetId, bool needDeta
         auto iter = funcMap.find(jsFuncId);
         if (iter != funcMap.end())
         {
-            se::Object* target = iter->second.getTarget();
-            se::Object* func = iter->second.getFunc();
-            if (needDetachChild)
+            if (iter->second.getKey() == key)
             {
-                target->detachObject(func);
+                se::Object* target = iter->second.getTarget();
+                se::Object* func = iter->second.getFunc();
+                if (needDetachChild)
+                {
+                    target->detachObject(func);
+                }
+
+                func->decRef();
+                target->decRef();
+
+                funcMap.erase(iter);
             }
-
-            func->decRef();
-            target->decRef();
-
-            funcMap.erase(iter);
         }
 
         if (funcMap.empty())
@@ -445,22 +480,25 @@ static bool isTargetExistInScheduler(uint32_t targetId)
 class UnscheduleNotifier
 {
 public:
-    UnscheduleNotifier(uint32_t funcId, uint32_t targetId)
-    : _funcId(funcId)
+    UnscheduleNotifier(const std::string& key, uint32_t funcId, uint32_t targetId)
+    : _key(key)
+    , _funcId(funcId)
     , _targetId(targetId)
     {
     }
     ~UnscheduleNotifier()
     {
-//        SE_LOGD("~UnscheduleNotifier, targetId: %u, funcId: %u\n", _targetId, _funcId);
-
+#if COCOS2D_DEBUG > 1
+        SE_LOGD("~UnscheduleNotifier, key: %s, targetId: %u, funcId: %u\n", _key.c_str(), _targetId, _funcId);
+#endif
         se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
 
-        removeSchedule(_funcId, _targetId, false);
+        removeSchedule(_key, _funcId, _targetId, false);
     }
 
 private:
+    std::string _key;
     uint32_t _funcId;
     uint32_t _targetId;
 };
@@ -501,7 +539,7 @@ static bool Scheduler_scheduleCommon(Scheduler* scheduler, const se::Value& jsTh
 
         if (found && !key.empty())
         {
-            removeSchedule(funcId, targetId, true);
+            removeSchedule(key, funcId, targetId, true);
             scheduler->unschedule(key, reinterpret_cast<void*>(targetId));
         }
     }
@@ -534,7 +572,7 @@ static bool Scheduler_scheduleCommon(Scheduler* scheduler, const se::Value& jsTh
 
     se::Object* target = jsThis.toObject();
     insertSchedule(funcId, targetId, ScheduleElement(target, jsFunc.toObject(), key, targetId, funcId));
-    std::shared_ptr<UnscheduleNotifier> unscheduleNotifier = std::make_shared<UnscheduleNotifier>(funcId, targetId);
+    std::shared_ptr<UnscheduleNotifier> unscheduleNotifier = std::make_shared<UnscheduleNotifier>(key, funcId, targetId);
 
     if (toRootTarget)
     {
@@ -840,7 +878,7 @@ static bool Scheduler_unscheduleCommon(Scheduler* scheduler, const se::Value& js
 
     if (found && !key.empty())
     {
-        removeSchedule(funcId, targetId, true);
+        removeSchedule(key, funcId, targetId, true);
         scheduler->unschedule(key, reinterpret_cast<void*>(targetId));
     }
     else
@@ -1157,17 +1195,13 @@ static bool js_cocos2dx_Scheduler_schedule(se::State& s)
 {
     const auto& args = s.args();
     int argc = (int)args.size();
-#if 0//COCOS2D_DEBUG > 0
-    SE_LOGD("--------------------------\nschedule target count: %d\n", (int)__js_target_schedulekey_map.size());
-    for (const auto& e1 : __js_target_schedulekey_map)
-    {
-        SE_LOGD("schedule target: %p, functions: %d\n", e1.first, (int)e1.second.size());
-    }
-    SE_LOGD("-------------------------- \n");
+#if COCOS2D_DEBUG > 1
+    SE_LOGD("js_cocos2dx_Scheduler_schedule begin ...\n");
+    printElementsInTargetSchedulerMap();
 #endif
 
     //
-    if (argc >= 4)
+    if (argc >= 3)
     {
         Scheduler* cobj = (Scheduler*)s.nativeThisObject();
 
@@ -1185,7 +1219,6 @@ static bool js_cocos2dx_Scheduler_schedule(se::State& s)
             jsThis = args[0];
         }
 
-
         bool isBindedObject = jsThis.toObject()->getPrivateData() != nullptr;
 //        SE_LOGD("%s, is binded object: %s\n", __FUNCTION__, isBindedObject ? "true" : "false");
 
@@ -1200,33 +1233,45 @@ static bool js_cocos2dx_Scheduler_schedule(se::State& s)
 
         ok = seval_to_float(args[2], &interval);
         SE_PRECONDITION2(ok, false, "Converting 'interval' argument failed");
-
-        if (argc == 4)
+        if (argc == 4 && args[3].isBoolean())
         {
             // callback, target, interval, paused
-            ok = seval_to_boolean(args[3], &isPaused);
-            SE_PRECONDITION2(ok, false, "Converting 'isPaused' argument failed");
+            isPaused = args[3].toBoolean();
         }
-        else if (argc >= 6)
+        else
         {
             // callback, target, interval, repeat, delay, paused
-            // repeat
-            ok = seval_to_uint32(args[3], &repeat);
-            SE_PRECONDITION2(ok, false, "Converting 'interval' argument failed");
+            if (argc >= 4)
+            {
+                // repeat
+                ok = seval_to_uint32(args[3], &repeat);
+                SE_PRECONDITION2(ok, false, "Converting 'interval' argument failed");
+            }
 
-            // delay
-            ok = seval_to_float(args[4], &delay);
-            SE_PRECONDITION2(ok, false, "Converting 'delay' argument failed");
+            if (argc >= 5)
+            {
+                // delay
+                ok = seval_to_float(args[4], &delay);
+                SE_PRECONDITION2(ok, false, "Converting 'delay' argument failed");
+            }
 
-            // isPaused
-            ok = seval_to_boolean(args[5], &isPaused);
-            SE_PRECONDITION2(ok, false, "Converting 'isPaused' argument failed");
+            if (argc >= 6)
+            {
+                // isPaused
+                ok = seval_to_boolean(args[5], &isPaused);
+                SE_PRECONDITION2(ok, false, "Converting 'isPaused' argument failed");
+            }
         }
 
-        return Scheduler_scheduleCommon(cobj, jsThis, jsFunc, interval, repeat, delay, isPaused, !isBindedObject, "cc.Scheduler.schedule");
+        bool ret = Scheduler_scheduleCommon(cobj, jsThis, jsFunc, interval, repeat, delay, isPaused, !isBindedObject, "cc.Scheduler.schedule");
+#if COCOS2D_DEBUG > 1
+        SE_LOGD("js_cocos2dx_Scheduler_schedule end ...\n");
+        printElementsInTargetSchedulerMap();
+#endif
+        return ret;
     }
 
-    SE_REPORT_ERROR("wrong number of arguments: %d, expected: %s", argc, ">=2");
+    SE_REPORT_ERROR("wrong number of arguments: %d, expected: %s", argc, ">=3");
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_Scheduler_schedule)
@@ -1234,6 +1279,10 @@ SE_BIND_FUNC(js_cocos2dx_Scheduler_schedule)
 
 static bool js_cocos2dx_Scheduler_unschedule(se::State& s)
 {
+#if COCOS2D_DEBUG > 1
+    SE_LOGD("js_cocos2dx_Scheduler_unschedule begin ...\n");
+    printElementsInTargetSchedulerMap();
+#endif
     const auto& args = s.args();
     int argc = (int)args.size();
 
@@ -1252,7 +1301,12 @@ static bool js_cocos2dx_Scheduler_unschedule(se::State& s)
             jsTarget = args[0];
         }
         Scheduler* cobj = (Scheduler*)s.nativeThisObject();
-        return Scheduler_unscheduleCommon(cobj, jsTarget, jsFuncOrKey);
+        bool ret = Scheduler_unscheduleCommon(cobj, jsTarget, jsFuncOrKey);
+#if COCOS2D_DEBUG > 1
+        SE_LOGD("js_cocos2dx_Scheduler_unschedule end ...\n");
+        printElementsInTargetSchedulerMap();
+#endif
+        return ret;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, expected: %s", argc, ">=2");
     return false;
@@ -1421,6 +1475,74 @@ static bool js_cocos2dx_Scheduler_isTargetPaused(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_Scheduler_isTargetPaused)
 
+static void fillScheduleTargetArray(se::Object* ret, const std::set<void*>& targets)
+{
+    uint32_t index = 0;
+    for (void* target : targets)
+    {
+        uint32_t targetID = (uint32_t)reinterpret_cast<uintptr_t>(target);
+        auto iter = __js_target_schedulekey_map.find(targetID);
+        if (iter != __js_target_schedulekey_map.end())
+        {
+            se::Object* targetObj = iter->second.begin()->second.getTarget();
+            ret->setArrayElement(index, se::Value(targetObj));
+            ++index;
+        }
+        else
+        {
+            auto updateIter = __js_target_schedule_update_map.find(targetID);
+            if (updateIter != __js_target_schedule_update_map.end())
+            {
+                se::Object* targetObj = updateIter->second.second;
+                ret->setArrayElement(index, se::Value(targetObj));
+                ++index;
+            }
+        }
+    }
+}
+
+static bool js_cocos2dx_Scheduler_pauseAllTargets(se::State& s)
+{
+    const auto& args = s.args();
+    int argc = (int)args.size();
+    if (argc == 0)
+    {
+        Scheduler* cobj = (Scheduler*)s.nativeThisObject();
+        std::set<void*> targets = cobj->pauseAllTargets();
+        se::HandleObject ret(se::Object::createArrayObject((uint32_t)targets.size()));
+        fillScheduleTargetArray(ret.get(), targets);
+        s.rval().setObject(ret);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Scheduler_pauseAllTargets)
+
+static bool js_cocos2dx_Scheduler_pauseAllTargetsWithMinPriority(se::State& s)
+{
+    const auto& args = s.args();
+    int argc = (int)args.size();
+    if (argc == 1)
+    {
+        Scheduler* cobj = (Scheduler*)s.nativeThisObject();
+        int minPriority = 0;
+        bool ok = seval_to_int32(args[0], &minPriority);
+        SE_PRECONDITION2(ok, false, "Converting 'minPriority' argument failed");
+
+        std::set<void*> targets = cobj->pauseAllTargetsWithMinPriority(minPriority);
+        se::HandleObject ret(se::Object::createArrayObject((uint32_t)targets.size()));
+        fillScheduleTargetArray(ret.get(), targets);
+        s.rval().setObject(ret);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_Scheduler_pauseAllTargetsWithMinPriority)
+
 static void resumeAllSchedulesForTarget(Node* node, se::Object* jsThis)
 {
     node->getScheduler()->resumeTarget(jsThis);
@@ -1567,6 +1689,8 @@ bool jsb_register_Node_manual(se::Object* global)
     schedulerProto->defineFunction("pauseTarget", _SE(js_cocos2dx_Scheduler_pauseTarget));
     schedulerProto->defineFunction("resumeTarget", _SE(js_cocos2dx_Scheduler_resumeTarget));
     schedulerProto->defineFunction("isTargetPaused", _SE(js_cocos2dx_Scheduler_isTargetPaused));
+    schedulerProto->defineFunction("pauseAllTargets", _SE(js_cocos2dx_Scheduler_pauseAllTargets));
+    schedulerProto->defineFunction("pauseAllTargetsWithMinPriority", _SE(js_cocos2dx_Scheduler_pauseAllTargetsWithMinPriority));
 
 #if STANDALONE_TEST
     cls->defineFunction("addChild", _SE(Node_addChild));

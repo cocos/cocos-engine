@@ -60,14 +60,28 @@ void ScriptingCore::retainScriptObject(Ref* owner, Ref* target)
         return;
     }
 
+    // NOTE: If target isn't created from JS, we should return directly here.
+    // When JS invokes getter method, we should hack the getter method to invoke jsb.registerNativeRef.
+    // For example, you could refer to jsb_cocos2d.js, there are some code like:
+    /*
+         cc.TMXLayer.prototype._getTileAt = cc.TMXLayer.prototype.getTileAt;
+         cc.TMXLayer.prototype.getTileAt = function(x, y){
+            var pos = y !== undefined ? cc.p(x, y) : x;
+            var ret = this._getTileAt(pos);
+            jsb.registerNativeRef(this, ret); // Re-attach the target since ret is created in C++ and retainScriptObject failed.
+            return ret;
+         };
+     */
     auto iterTarget = se::NativePtrToObjectMap::find(target);
     if (iterTarget == se::NativePtrToObjectMap::end())
     {
         return;
     }
 
+    assert(!se::ScriptEngine::getInstance()->isGarbageCollecting());
     se::ScriptEngine::getInstance()->clearException();
     se::AutoHandleScope hs;
+
     iterOwner->second->attachObject(iterTarget->second);
 }
 
