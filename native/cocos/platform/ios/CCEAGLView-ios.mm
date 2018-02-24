@@ -63,7 +63,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 #import "platform/ios/CCEAGLView-ios.h"
 
-#import "scripting/js-bindings/event/EventDispatch.h"
+#import "scripting/js-bindings/event/EventDispatcher.h"
 #import <QuartzCore/QuartzCore.h>
 
 //#import "base/CCTouch.h"
@@ -488,7 +488,7 @@ namespace
     }
     
     if (!touchEvent.touches.empty())
-        cocos2d::EventDispatch::dispatchTouchEvent(touchEvent);
+        cocos2d::EventDispatcher::dispatchTouchEvent(touchEvent);
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
@@ -505,7 +505,7 @@ namespace
     }
     
     if (!touchEvent.touches.empty())
-        cocos2d::EventDispatch::dispatchTouchEvent(touchEvent);
+        cocos2d::EventDispatcher::dispatchTouchEvent(touchEvent);
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
@@ -527,7 +527,7 @@ namespace
     }
 
     if (!touchEvent.touches.empty())
-        cocos2d::EventDispatch::dispatchTouchEvent(touchEvent);
+        cocos2d::EventDispatcher::dispatchTouchEvent(touchEvent);
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
@@ -549,7 +549,7 @@ namespace
     }
     
     if (!touchEvent.touches.empty())
-        cocos2d::EventDispatch::dispatchTouchEvent(touchEvent);
+        cocos2d::EventDispatcher::dispatchTouchEvent(touchEvent);
 }
 
 #pragma mark - UIView - Responder

@@ -29,7 +29,7 @@ THE SOFTWARE.
 #include <cmath>
 #include <unordered_map>
 
-#include "scripting/js-bindings/event/EventDispatch.h"
+#include "scripting/js-bindings/event/EventDispatcher.h"
 #include "ccMacros.h"
 
 NS_CC_BEGIN
@@ -218,7 +218,7 @@ namespace
         touchEvent.type = type;
         touchEvent.touches.push_back(touchInfo);
 
-        cocos2d::EventDispatch::dispatchTouchEvent(touchEvent);
+        cocos2d::EventDispatcher::dispatchTouchEvent(touchEvent);
     }
 }
 
@@ -250,7 +250,7 @@ void GLView::onGLFWMouseMoveCallBack(GLFWwindow* window, double x, double y)
 
 void GLView::onGLFWKeyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mods*/)
 {
-    EventDispatch::dispatchKeyEvent(key, action);
+    EventDispatcher::dispatchKeyEvent(key, action);
 }
 
 void GLView::onGLFWCharCallback(GLFWwindow* /*window*/, unsigned int character)

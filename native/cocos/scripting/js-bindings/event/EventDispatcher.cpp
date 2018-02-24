@@ -22,22 +22,44 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "EventDispatch.h"
+#include "EventDispatcher.h"
+#include <mutex>
+
+#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
 namespace cocos2d
 {
 
-void EventDispatch::dispatchTouchEvent(const struct TouchEvent& touchEvent)
+void EventDispatcher::dispatchTouchEvent(const struct TouchEvent& touchEvent)
 {
 }
 
-void EventDispatch::dispatchKeyEvent(int key, int action)
+void EventDispatcher::dispatchKeyEvent(int key, int action)
 {
 }
     
-void EventDispatch::dispatchTicket()
+void EventDispatcher::dispatchTickEvent()
 {
+    auto se = se::ScriptEngine::getInstance();
+    static se::Value tickVal;
+    static std::chrono::steady_clock::time_point prevTime;
+    static std::chrono::steady_clock::time_point now;
+    static bool firstTime = true;
+    float dt = 0.f;
+    if (firstTime)
+    {
+        se->runScript("src/basic.js", &tickVal);
+        firstTime = false;
+    }
     
+    prevTime = std::chrono::steady_clock::now();
+    
+    se::ValueArray args;
+    args.push_back(se::Value(dt));
+    tickVal.toObject()->call(args, nullptr);
+
+    now = std::chrono::steady_clock::now();
+    dt = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count() / 1000000.f;
 }
     
 } // end of namespace cocos2d

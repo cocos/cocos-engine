@@ -169,10 +169,26 @@
 		1AFD36DB1EF116190097DBB1 /* jsb_global.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AFD36AE1EF116190097DBB1 /* jsb_global.cpp */; };
 		1AFD36DC1EF116190097DBB1 /* jsb_global.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFD36AF1EF116190097DBB1 /* jsb_global.h */; };
 		1AFD36DD1EF116190097DBB1 /* jsb_global.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFD36AF1EF116190097DBB1 /* jsb_global.h */; };
-		46FDDC5C202C29BD00931238 /* EventDispatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDC5A202C29BD00931238 /* EventDispatch.cpp */; };
-		46FDDC5D202C29BD00931238 /* EventDispatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDC5A202C29BD00931238 /* EventDispatch.cpp */; };
-		46FDDC5E202C29BD00931238 /* EventDispatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC5B202C29BD00931238 /* EventDispatch.h */; };
-		46FDDC5F202C29BD00931238 /* EventDispatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC5B202C29BD00931238 /* EventDispatch.h */; };
+		469301BD203FC1DD004A3D6C /* jsb_gfx_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 469301BB203FC1DD004A3D6C /* jsb_gfx_manual.cpp */; };
+		469301BE203FC1DD004A3D6C /* jsb_gfx_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 469301BB203FC1DD004A3D6C /* jsb_gfx_manual.cpp */; };
+		469301BF203FC1DD004A3D6C /* jsb_gfx_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 469301BC203FC1DD004A3D6C /* jsb_gfx_manual.hpp */; };
+		469301C0203FC1DD004A3D6C /* jsb_gfx_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 469301BC203FC1DD004A3D6C /* jsb_gfx_manual.hpp */; };
+		469301C5203FC1EE004A3D6C /* jsb_renderer_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 469301C1203FC1EE004A3D6C /* jsb_renderer_auto.cpp */; };
+		469301C6203FC1EE004A3D6C /* jsb_renderer_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 469301C1203FC1EE004A3D6C /* jsb_renderer_auto.cpp */; };
+		469301C7203FC1EE004A3D6C /* jsb_renderer_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 469301C2203FC1EE004A3D6C /* jsb_renderer_auto.hpp */; };
+		469301C8203FC1EE004A3D6C /* jsb_renderer_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 469301C2203FC1EE004A3D6C /* jsb_renderer_auto.hpp */; };
+		469301C9203FC1EE004A3D6C /* jsb_gfx_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 469301C3203FC1EE004A3D6C /* jsb_gfx_auto.hpp */; };
+		469301CA203FC1EE004A3D6C /* jsb_gfx_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 469301C3203FC1EE004A3D6C /* jsb_gfx_auto.hpp */; };
+		469301CB203FC1EE004A3D6C /* jsb_gfx_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 469301C4203FC1EE004A3D6C /* jsb_gfx_auto.cpp */; };
+		469301CC203FC1EE004A3D6C /* jsb_gfx_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 469301C4203FC1EE004A3D6C /* jsb_gfx_auto.cpp */; };
+		469301D5203FC6D9004A3D6C /* jsb_renderer_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 469301D3203FC6D9004A3D6C /* jsb_renderer_manual.cpp */; };
+		469301D6203FC6D9004A3D6C /* jsb_renderer_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 469301D3203FC6D9004A3D6C /* jsb_renderer_manual.cpp */; };
+		469301D7203FC6D9004A3D6C /* jsb_renderer_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 469301D4203FC6D9004A3D6C /* jsb_renderer_manual.hpp */; };
+		469301D8203FC6D9004A3D6C /* jsb_renderer_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 469301D4203FC6D9004A3D6C /* jsb_renderer_manual.hpp */; };
+		46FDDC5C202C29BD00931238 /* EventDispatcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDC5A202C29BD00931238 /* EventDispatcher.cpp */; };
+		46FDDC5D202C29BD00931238 /* EventDispatcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDC5A202C29BD00931238 /* EventDispatcher.cpp */; };
+		46FDDC5E202C29BD00931238 /* EventDispatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC5B202C29BD00931238 /* EventDispatcher.h */; };
+		46FDDC5F202C29BD00931238 /* EventDispatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDC5B202C29BD00931238 /* EventDispatcher.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -275,8 +291,16 @@
 		1AFD36AB1EF116190097DBB1 /* jsb_conversions.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_conversions.hpp; sourceTree = "<group>"; };
 		1AFD36AE1EF116190097DBB1 /* jsb_global.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_global.cpp; sourceTree = "<group>"; };
 		1AFD36AF1EF116190097DBB1 /* jsb_global.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jsb_global.h; sourceTree = "<group>"; };
-		46FDDC5A202C29BD00931238 /* EventDispatch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EventDispatch.cpp; sourceTree = "<group>"; };
-		46FDDC5B202C29BD00931238 /* EventDispatch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EventDispatch.h; sourceTree = "<group>"; };
+		469301BB203FC1DD004A3D6C /* jsb_gfx_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_gfx_manual.cpp; sourceTree = "<group>"; };
+		469301BC203FC1DD004A3D6C /* jsb_gfx_manual.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_gfx_manual.hpp; sourceTree = "<group>"; };
+		469301C1203FC1EE004A3D6C /* jsb_renderer_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_renderer_auto.cpp; sourceTree = "<group>"; };
+		469301C2203FC1EE004A3D6C /* jsb_renderer_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_renderer_auto.hpp; sourceTree = "<group>"; };
+		469301C3203FC1EE004A3D6C /* jsb_gfx_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_gfx_auto.hpp; sourceTree = "<group>"; };
+		469301C4203FC1EE004A3D6C /* jsb_gfx_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_gfx_auto.cpp; sourceTree = "<group>"; };
+		469301D3203FC6D9004A3D6C /* jsb_renderer_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_renderer_manual.cpp; sourceTree = "<group>"; };
+		469301D4203FC6D9004A3D6C /* jsb_renderer_manual.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_renderer_manual.hpp; sourceTree = "<group>"; };
+		46FDDC5A202C29BD00931238 /* EventDispatcher.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EventDispatcher.cpp; sourceTree = "<group>"; };
+		46FDDC5B202C29BD00931238 /* EventDispatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EventDispatcher.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -313,6 +337,10 @@
 		1A119E2E18BDF19200352BAA /* auto */ = {
 			isa = PBXGroup;
 			children = (
+				469301C4203FC1EE004A3D6C /* jsb_gfx_auto.cpp */,
+				469301C3203FC1EE004A3D6C /* jsb_gfx_auto.hpp */,
+				469301C1203FC1EE004A3D6C /* jsb_renderer_auto.cpp */,
+				469301C2203FC1EE004A3D6C /* jsb_renderer_auto.hpp */,
 			);
 			name = auto;
 			path = ../auto;
@@ -321,6 +349,10 @@
 		1A119E4118BDF19200352BAA /* manual */ = {
 			isa = PBXGroup;
 			children = (
+				469301D3203FC6D9004A3D6C /* jsb_renderer_manual.cpp */,
+				469301D4203FC6D9004A3D6C /* jsb_renderer_manual.hpp */,
+				469301BB203FC1DD004A3D6C /* jsb_gfx_manual.cpp */,
+				469301BC203FC1DD004A3D6C /* jsb_gfx_manual.hpp */,
 				1AFD36A41EF116190097DBB1 /* jsb_classtype.cpp */,
 				1AFD36A51EF116190097DBB1 /* jsb_classtype.hpp */,
 				1AFD36AA1EF116190097DBB1 /* jsb_conversions.cpp */,
@@ -473,8 +505,8 @@
 		46FDDC59202C295200931238 /* event */ = {
 			isa = PBXGroup;
 			children = (
-				46FDDC5A202C29BD00931238 /* EventDispatch.cpp */,
-				46FDDC5B202C29BD00931238 /* EventDispatch.h */,
+				46FDDC5A202C29BD00931238 /* EventDispatcher.cpp */,
+				46FDDC5B202C29BD00931238 /* EventDispatcher.h */,
 			);
 			name = event;
 			path = ../event;
@@ -511,10 +543,12 @@
 				1A7759D71F340FB10012A210 /* inspector_socket.h in Headers */,
 				1AFD367E1EF115100097DBB1 /* Utils.hpp in Headers */,
 				1A7759FB1F3460BB0012A210 /* node_mutex.h in Headers */,
+				469301BF203FC1DD004A3D6C /* jsb_gfx_manual.hpp in Headers */,
 				1AFD365A1EF115100097DBB1 /* ScriptEngine.hpp in Headers */,
 				1AFD366E1EF115100097DBB1 /* Class.hpp in Headers */,
 				1AFD36601EF115100097DBB1 /* Utils.hpp in Headers */,
 				1AFD36DC1EF116190097DBB1 /* jsb_global.h in Headers */,
+				469301C9203FC1EE004A3D6C /* jsb_gfx_auto.hpp in Headers */,
 				1AFD36781EF115100097DBB1 /* ScriptEngine.hpp in Headers */,
 				1AF82D451F2EE1C40002C5A0 /* HandleObject.hpp in Headers */,
 				1AFD36521EF115100097DBB1 /* HelperMacros.h in Headers */,
@@ -538,10 +572,12 @@
 				1AFD368E1EF115100097DBB1 /* Object.hpp in Headers */,
 				1AFD363E1EF115100097DBB1 /* Object.hpp in Headers */,
 				1AFD36341EF115100097DBB1 /* Base.h in Headers */,
-				46FDDC5E202C29BD00931238 /* EventDispatch.h in Headers */,
+				46FDDC5E202C29BD00931238 /* EventDispatcher.h in Headers */,
 				1AFD36621EF115100097DBB1 /* Object.hpp in Headers */,
 				1AFD36821EF115100097DBB1 /* State.hpp in Headers */,
+				469301D7203FC6D9004A3D6C /* jsb_renderer_manual.hpp in Headers */,
 				1A7759E31F3410A20012A210 /* http_parser.h in Headers */,
+				469301C7203FC1EE004A3D6C /* jsb_renderer_auto.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -557,6 +593,7 @@
 				1AFD36831EF115100097DBB1 /* State.hpp in Headers */,
 				1AFD367B1EF115100097DBB1 /* SeApi.h in Headers */,
 				1AFD36D51EF116190097DBB1 /* jsb_conversions.hpp in Headers */,
+				469301C8203FC1EE004A3D6C /* jsb_renderer_auto.hpp in Headers */,
 				1AFD36C91EF116190097DBB1 /* jsb_classtype.hpp in Headers */,
 				1AFD36351EF115100097DBB1 /* Base.h in Headers */,
 				1A210D971F456821006CCBAE /* MappingUtils.hpp in Headers */,
@@ -578,7 +615,8 @@
 				1AFD365D1EF115100097DBB1 /* SeApi.h in Headers */,
 				1AFD364B1EF115100097DBB1 /* config.hpp in Headers */,
 				1AFD368B1EF115100097DBB1 /* HelperMacros.h in Headers */,
-				46FDDC5F202C29BD00931238 /* EventDispatch.h in Headers */,
+				46FDDC5F202C29BD00931238 /* EventDispatcher.h in Headers */,
+				469301CA203FC1EE004A3D6C /* jsb_gfx_auto.hpp in Headers */,
 				1A9F0FA01F30235C00A499E1 /* jsb_helper.hpp in Headers */,
 				1AF82D461F2EE1C40002C5A0 /* HandleObject.hpp in Headers */,
 				1AFD36511EF115100097DBB1 /* Class.hpp in Headers */,
@@ -592,7 +630,9 @@
 				1AFD364D1EF115100097DBB1 /* Base.h in Headers */,
 				1AFD36791EF115100097DBB1 /* ScriptEngine.hpp in Headers */,
 				1AFD36971EF115100097DBB1 /* ScriptEngine.hpp in Headers */,
+				469301C0203FC1DD004A3D6C /* jsb_gfx_manual.hpp in Headers */,
 				1A8FB5121F99F05E00BED3CF /* PlatformUtils.h in Headers */,
+				469301D8203FC6D9004A3D6C /* jsb_renderer_manual.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -683,23 +723,27 @@
 				1AFD366C1EF115100097DBB1 /* Class.cpp in Sources */,
 				1AFD36941EF115100097DBB1 /* ScriptEngine.cpp in Sources */,
 				1AFD36801EF115100097DBB1 /* State.cpp in Sources */,
+				469301CB203FC1EE004A3D6C /* jsb_gfx_auto.cpp in Sources */,
 				1AFD369E1EF115100097DBB1 /* Value.cpp in Sources */,
 				1A8FB50E1F99F04600BED3CF /* PlatformUtils.mm in Sources */,
 				1AFD36861EF115100097DBB1 /* Class.cpp in Sources */,
+				469301BD203FC1DD004A3D6C /* jsb_gfx_manual.cpp in Sources */,
 				1AFD363C1EF115100097DBB1 /* Object.cpp in Sources */,
 				1A6B8FB31F3BF7E800BC83DC /* SHA1.cpp in Sources */,
 				1AFD36721EF115100097DBB1 /* Object.cpp in Sources */,
 				1AFD36DA1EF116190097DBB1 /* jsb_global.cpp in Sources */,
 				1A7759F61F3421B90012A210 /* node.cc in Sources */,
+				469301C5203FC1EE004A3D6C /* jsb_renderer_auto.cpp in Sources */,
 				1AFD367C1EF115100097DBB1 /* Utils.cpp in Sources */,
 				1AFD369A1EF115100097DBB1 /* Utils.cpp in Sources */,
 				1AFD368C1EF115100097DBB1 /* Object.cpp in Sources */,
+				469301D5203FC6D9004A3D6C /* jsb_renderer_manual.cpp in Sources */,
 				1AFD36D21EF116190097DBB1 /* jsb_conversions.cpp in Sources */,
 				1A7759CD1F340FB10012A210 /* inspector_io.cc in Sources */,
 				1AFD36761EF115100097DBB1 /* ScriptEngine.cpp in Sources */,
 				1A7759DB1F34105B0012A210 /* node_debug_options.cc in Sources */,
 				1AFD36461EF115100097DBB1 /* Utils.cpp in Sources */,
-				46FDDC5C202C29BD00931238 /* EventDispatch.cpp in Sources */,
+				46FDDC5C202C29BD00931238 /* EventDispatcher.cpp in Sources */,
 				1A210D941F456821006CCBAE /* MappingUtils.cpp in Sources */,
 				1A7759F01F341D6E0012A210 /* env.cc in Sources */,
 				1A7759D51F340FB10012A210 /* inspector_socket.cc in Sources */,
@@ -713,11 +757,13 @@
 				1AFD36551EF115100097DBB1 /* Object.cpp in Sources */,
 				1AFD36411EF115100097DBB1 /* ScriptEngine.cpp in Sources */,
 				1AFD364F1EF115100097DBB1 /* Class.cpp in Sources */,
+				469301BE203FC1DD004A3D6C /* jsb_gfx_manual.cpp in Sources */,
 				1AFD363D1EF115100097DBB1 /* Object.cpp in Sources */,
 				1AFD367D1EF115100097DBB1 /* Utils.cpp in Sources */,
 				1AFD36371EF115100097DBB1 /* Class.cpp in Sources */,
 				1AFD36811EF115100097DBB1 /* State.cpp in Sources */,
 				1A6821401FAC206300C18C60 /* jsb_platfrom_ios.m in Sources */,
+				469301C6203FC1EE004A3D6C /* jsb_renderer_auto.cpp in Sources */,
 				1AFD36471EF115100097DBB1 /* Utils.cpp in Sources */,
 				1AFD36731EF115100097DBB1 /* Object.cpp in Sources */,
 				1AFD36771EF115100097DBB1 /* ScriptEngine.cpp in Sources */,
@@ -725,10 +771,11 @@
 				1AFD36651EF115100097DBB1 /* RefCounter.cpp in Sources */,
 				1A210D951F456821006CCBAE /* MappingUtils.cpp in Sources */,
 				1AFD36C71EF116190097DBB1 /* jsb_classtype.cpp in Sources */,
+				469301D6203FC6D9004A3D6C /* jsb_renderer_manual.cpp in Sources */,
 				1AFD36951EF115100097DBB1 /* ScriptEngine.cpp in Sources */,
 				1AFD36D31EF116190097DBB1 /* jsb_conversions.cpp in Sources */,
 				1AFD36871EF115100097DBB1 /* Class.cpp in Sources */,
-				46FDDC5D202C29BD00931238 /* EventDispatch.cpp in Sources */,
+				46FDDC5D202C29BD00931238 /* EventDispatcher.cpp in Sources */,
 				1AFD369F1EF115100097DBB1 /* Value.cpp in Sources */,
 				1AF82D441F2EE1C40002C5A0 /* HandleObject.cpp in Sources */,
 				1AFD365F1EF115100097DBB1 /* Utils.cpp in Sources */,
@@ -736,6 +783,7 @@
 				1AFD36591EF115100097DBB1 /* ScriptEngine.cpp in Sources */,
 				1AFD369B1EF115100097DBB1 /* Utils.cpp in Sources */,
 				1A8FB50F1F99F04600BED3CF /* PlatformUtils.mm in Sources */,
+				469301CC203FC1EE004A3D6C /* jsb_gfx_auto.cpp in Sources */,
 				1AFD36DB1EF116190097DBB1 /* jsb_global.cpp in Sources */,
 				1A9F0F9E1F30235C00A499E1 /* jsb_helper.cpp in Sources */,
 				1AFD36911EF115100097DBB1 /* ObjectWrap.cpp in Sources */,
@@ -859,7 +907,7 @@
 					"\"$(SRCROOT)/../../../../../JavaScriptCore/build-osx/lib\"",
 				);
 				SYSTEM_HEADER_SEARCH_PATHS = "";
-				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../../../external/mac/include $(SRCROOT)/../../../../external/sources $(SRCROOT)/../../../../cocos/platform/mac $(SRCROOT)/../../../../external/mac/include/spidermonkey $(SRCROOT)/../../../../external/mac/include/v8 $(SRCROOT)/../../../../external/mac/include/chakracore $(SRCROOT)/../../../../external/mac/include/uv \"$(SRCROOT)/../../../../../ChakraCore/out/Debug/include\"";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../../../external/mac/include $(SRCROOT)/../../../../external/sources $(SRCROOT)/../../../../cocos/platform/mac $(SRCROOT)/../../../../external/mac/include/spidermonkey $(SRCROOT)/../../../../external/mac/include/v8 $(SRCROOT)/../../../../external/mac/include/chakracore $(SRCROOT)/../../../../external/mac/include/uv \"$(SRCROOT)/../../../../../ChakraCore/out/Debug/include\" $(SRCROOT)/../../../../cocos/renderer/gfx";
 			};
 			name = Debug;
 		};
@@ -883,7 +931,7 @@
 					"\"$(SRCROOT)/../../../../../JavaScriptCore/build-osx/lib\"",
 				);
 				SYSTEM_HEADER_SEARCH_PATHS = "";
-				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../../../external/mac/include $(SRCROOT)/../../../../external/sources $(SRCROOT)/../../../../cocos/platform/mac $(SRCROOT)/../../../../external/mac/include/spidermonkey $(SRCROOT)/../../../../external/mac/include/v8 $(SRCROOT)/../../../../external/mac/include/chakracore $(SRCROOT)/../../../../external/mac/include/uv \"$(SRCROOT)/../../../../../ChakraCore/out/Debug/include\"";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../../../external/mac/include $(SRCROOT)/../../../../external/sources $(SRCROOT)/../../../../cocos/platform/mac $(SRCROOT)/../../../../external/mac/include/spidermonkey $(SRCROOT)/../../../../external/mac/include/v8 $(SRCROOT)/../../../../external/mac/include/chakracore $(SRCROOT)/../../../../external/mac/include/uv \"$(SRCROOT)/../../../../../ChakraCore/out/Debug/include\" $(SRCROOT)/../../../../cocos/renderer/gfx";
 			};
 			name = Release;
 		};
@@ -905,7 +953,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../../../external/sources $(SRCROOT)/../../../../external/ios/include $(SRCROOT)/../../../../external/ios/include/spidermonkey $(SRCROOT)/../../../../cocos/platform/ios";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../../../external/sources $(SRCROOT)/../../../../external/ios/include $(SRCROOT)/../../../../external/ios/include/spidermonkey $(SRCROOT)/../../../../cocos/platform/ios $(SRCROOT)/../../../../cocos/renderer/gfx";
 				VALID_ARCHS = "arm64 armv7";
 			};
 			name = Debug;
@@ -931,7 +979,7 @@
 				OTHER_CFLAGS = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../../../external/sources $(SRCROOT)/../../../../external/ios/include $(SRCROOT)/../../../../external/ios/include/spidermonkey $(SRCROOT)/../../../../cocos/platform/ios";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../../../external/sources $(SRCROOT)/../../../../external/ios/include $(SRCROOT)/../../../../external/ios/include/spidermonkey $(SRCROOT)/../../../../cocos/platform/ios $(SRCROOT)/../../../../cocos/renderer/gfx";
 				VALID_ARCHS = "arm64 armv7";
 			};
 			name = Release;

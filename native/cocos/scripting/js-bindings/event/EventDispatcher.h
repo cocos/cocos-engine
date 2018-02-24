@@ -52,12 +52,12 @@ struct TouchEvent
     Type type = Type::BEGAN;
 };
 
-class EventDispatch
+class EventDispatcher
 {
 public:
     static void dispatchTouchEvent(const struct TouchEvent& touchEvent);
     static void dispatchKeyEvent(int key, int action);
-    static void dispatchTicket();
+    static void dispatchTickEvent();
 };
     
 } // end of namespace cocos2d

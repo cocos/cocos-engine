@@ -28,7 +28,7 @@
 #import "CCEAGLView-ios.h"
 #import "renderer/gfx/DeviceGraphics.h"
 #import "scripting/js-bindings/jswrapper/jsc/ScriptEngine.hpp"
-#import "scripting/js-bindings/event/EventDispatch.h"
+#import "scripting/js-bindings/event/EventDispatcher.h"
 
 @interface MainLoop : NSObject
 {
@@ -121,7 +121,7 @@
 
 -(void) doCaller: (id) sender
 {
-    cocos2d::EventDispatch::dispatchTicket();
+    cocos2d::EventDispatcher::dispatchTickEvent();
     [(CCEAGLView*)(_application->getView()) swapBuffers];
 }
 

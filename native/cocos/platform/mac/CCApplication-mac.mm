@@ -29,7 +29,7 @@ THE SOFTWARE.
 
 #import "platform/CCApplication.h"
 #import "platform/desktop/CCGLView-desktop.h"
-#import "scripting/js-bindings/event/EventDispatch.h"
+#import "scripting/js-bindings/event/EventDispatcher.h"
 #import "renderer/gfx/DeviceGraphics.h"
 #import "scripting/js-bindings/jswrapper/jsc/ScriptEngine.hpp"
 
@@ -91,7 +91,7 @@ void Application::start()
         if (curTime - lastTime < _animationInterval)
             usleep(static_cast<useconds_t>((_animationInterval - curTime + lastTime) * 1000));
 
-        EventDispatch::dispatchTicket();
+        EventDispatcher::dispatchTickEvent();
     }
 }
 
