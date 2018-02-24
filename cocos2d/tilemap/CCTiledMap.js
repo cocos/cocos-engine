@@ -490,7 +490,7 @@ let TiledMap = cc.Class({
                 if (!child) {
                     child = new cc.Node();
                     child.name = name;
-                    child.setAnchorPoint(0,0);
+                    child.setAnchorPoint(0.5, 0.5);
                     
                     node.addChild(child);
                 }
