@@ -855,7 +855,6 @@ cc.TMXMapInfo.prototype = {
         }
 
         var objects = selGroup.getElementsByTagName('object');
-        var getContentScaleFactor = cc.director.getContentScaleFactor();
         if (objects) {
             for (let j = 0; j < objects.length; j++) {
                 let selObj = objects[j];
@@ -873,8 +872,8 @@ cc.TMXMapInfo.prototype = {
                 objectProp["width"] = parseFloat(selObj.getAttribute('width')) || 0;
                 objectProp["height"] = parseFloat(selObj.getAttribute('height')) || 0;
 
-                objectProp["x"] = (selObj.getAttribute('x') || 0) / getContentScaleFactor;
-                objectProp["y"] = (selObj.getAttribute('y') || 0) / getContentScaleFactor;
+                objectProp["x"] = (selObj.getAttribute('x') || 0);
+                objectProp["y"] = (selObj.getAttribute('y') || 0);
 
                 objectProp["rotation"] = parseFloat(selObj.getAttribute('rotation')) || 0;
 
