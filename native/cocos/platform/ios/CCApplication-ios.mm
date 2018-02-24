@@ -156,6 +156,9 @@ Application::~Application()
 
 void Application::start()
 {
+    if(!applicationDidFinishLaunching())
+        return;
+    
     if (_delegate)
         [(MainLoop*)_delegate startMainLoop];
 }
