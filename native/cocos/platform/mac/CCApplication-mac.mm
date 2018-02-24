@@ -46,6 +46,20 @@ namespace
         lLastTime = stCurrentTime.tv_sec * 1000+stCurrentTime.tv_usec * 0.001; // milliseconds
         return lLastTime;
     }
+    
+    int g_width = 0;
+    int g_height = 0;
+    bool setCanvasCallback(se::Object* global)
+    {
+        se::ScriptEngine* se = se::ScriptEngine::getInstance();
+        char commandBuf[200] = {0};
+        sprintf(commandBuf, "window.canvas = { width: %d, height: %d };",
+                g_width,
+                g_height);
+        se->evalString(commandBuf);
+        
+        return true;
+    }
 }
 
 #define CAST_VIEW(view)    ((GLView*)view)
@@ -54,10 +68,8 @@ Application::Application(const std::string& name)
 {
     createView(name);
     
-    renderer::DeviceGraphics::getInstance();
+    renderer::DeviceGraphics::getInstance()->setScaleFactor(CAST_VIEW(_view)->getScaleFactor());
     se::ScriptEngine::getInstance();
-    
-    applicationDidFinishLaunching();
 }
 
 Application::~Application()
@@ -72,6 +84,9 @@ Application::~Application()
 
 void Application::start()
 {
+    se::ScriptEngine* se = se::ScriptEngine::getInstance();
+    se->addRegisterCallback(setCanvasCallback);
+    
     if(!applicationDidFinishLaunching())
         return;
     
@@ -211,6 +226,9 @@ void Application::createView(const std::string& name)
                  multisamplingCount);
 
     _view = new GLView(this, name, x, y, width, height, pixelformat, depthFormat, multisamplingCount);
+    
+    g_width = width;
+    g_height = height;
 }
 
 NS_CC_END

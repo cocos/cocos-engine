@@ -202,6 +202,17 @@ void GLView::swapBuffers()
     glfwSwapBuffers(_mainWindow);
 }
 
+float GLView::getScaleFactor() const
+{
+    int widthInPixel = 0;
+    glfwGetFramebufferSize(_mainWindow, &widthInPixel, nullptr);
+    
+    int width = 0;
+    glfwGetWindowSize(_mainWindow, &width, nullptr);
+    
+    return float(widthInPixel) / width;
+}
+
 void GLView::onGLFWError(int errorID, const char* errorDesc)
 {
     if (_mainWindow)

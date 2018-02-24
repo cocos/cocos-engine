@@ -63,6 +63,11 @@ DeviceGraphics* DeviceGraphics::getInstance()
     return __instance;
 }
 
+void DeviceGraphics::setScaleFactor(float value)
+{
+    _scaleFactor = value;
+}
+
 bool DeviceGraphics::supportGLExtension(const std::string& extension) const
 {
     return  (_glExtensions && strstr(_glExtensions, extension.c_str() ) ) ? true : false;
@@ -129,7 +134,10 @@ void DeviceGraphics::setViewport(int x, int y, int w, int h)
         _vy = y;
         _vw = w;
         _vh = h;
-        GL_CHECK(glViewport(_vx, _vy, _vw, _vh));
+        GL_CHECK(glViewport(_vx * _scaleFactor,
+                            _vy * _scaleFactor,
+                            _vw * _scaleFactor,
+                            _vh * _scaleFactor));
     }
 }
 
@@ -144,7 +152,10 @@ void DeviceGraphics::setScissor(int x, int y, int w, int h)
         _sy = y;
         _sw = w;
         _sh = h;
-        glScissor(_sx, _sy, _sw, _sh);
+        glScissor(_sx * _scaleFactor,
+                  _sy * _scaleFactor,
+                  _sw * _scaleFactor,
+                  _sh * _scaleFactor);
     }
 }
 
