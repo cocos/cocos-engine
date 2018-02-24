@@ -693,7 +693,7 @@ function initSys () {
         };
 
         sys._checkWebGLRenderMode = function () {
-            if (cc._renderType !== cc.game.RENDER_TYPE_WEBGL)
+            if (cc.game.renderType !== cc.game.RENDER_TYPE_WEBGL)
                 throw new Error("This feature supports WebGL render mode only.");
         };
 
@@ -989,7 +989,7 @@ function initSys () {
         str += "os : " + self.os + "\r\n";
         str += "osVersion : " + self.osVersion + "\r\n";
         str += "platform : " + self.platform + "\r\n";
-        str += "Using " + (cc._renderType === cc.game.RENDER_TYPE_WEBGL ? "WEBGL" : "CANVAS") + " renderer." + "\r\n";
+        str += "Using " + (cc.game.renderType === cc.game.RENDER_TYPE_WEBGL ? "WEBGL" : "CANVAS") + " renderer." + "\r\n";
         cc.log(str);
     };
 

@@ -119,7 +119,7 @@ var View = function () {
 
     __BrowserGetter.init(this);
 
-    // Size of parent node that contains cc.container and cc.game.canvas
+    // Size of parent node that contains cc.game.container and cc.game.canvas
     _t._frameSize = cc.size(0, 0);
     _t._initFrameSize();
 
@@ -316,17 +316,17 @@ View.prototype = {
             (!isLandscape && this._orientation & cc.macro.ORIENTATION_PORTRAIT)) {
             locFrameSize.width = w;
             locFrameSize.height = h;
-            cc.container.style['-webkit-transform'] = 'rotate(0deg)';
-            cc.container.style.transform = 'rotate(0deg)';
+            cc.game.container.style['-webkit-transform'] = 'rotate(0deg)';
+            cc.game.container.style.transform = 'rotate(0deg)';
             this._isRotated = false;
         }
         else {
             locFrameSize.width = h;
             locFrameSize.height = w;
-            cc.container.style['-webkit-transform'] = 'rotate(90deg)';
-            cc.container.style.transform = 'rotate(90deg)';
-            cc.container.style['-webkit-transform-origin'] = '0px 0px 0px';
-            cc.container.style.transformOrigin = '0px 0px 0px';
+            cc.game.container.style['-webkit-transform'] = 'rotate(90deg)';
+            cc.game.container.style.transform = 'rotate(90deg)';
+            cc.game.container.style['-webkit-transform-origin'] = '0px 0px 0px';
+            cc.game.container.style.transformOrigin = '0px 0px 0px';
             this._isRotated = true;
         }
         if (this._orientationChanging) {
@@ -445,7 +445,7 @@ View.prototype = {
             return;
         }
         this._antiAliasEnabled = enabled;
-        if(cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
+        if(cc.game.renderType === cc.game.RENDER_TYPE_WEBGL) {
             var cache = cc.loader._cache;
             for (var key in cache) {
                 var item = cache[key];
@@ -460,8 +460,8 @@ View.prototype = {
                 }
             }
         }
-        else if(cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
-            var ctx = cc._canvas.getContext('2d');
+        else if(cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+            var ctx = cc.game.canvas.getContext('2d');
             ctx.imageSmoothingEnabled = enabled;
             ctx.mozImageSmoothingEnabled = enabled;
         }
@@ -514,7 +514,7 @@ View.prototype = {
      * @return {Boolean}
      */
     isViewReady: function () {
-        return cc.game.canvas && cc._renderContext;
+        return cc.game.canvas && cc.game._renderContext;
     },
 
     /*
@@ -648,11 +648,10 @@ View.prototype = {
     /**
      * Returns whether developer can set content's scale factor.
      * @method canSetContentScaleFactor
+     * @deprecated
      * @return {Boolean}
      */
-    canSetContentScaleFactor: function () {
-        return true;
-    },
+    canSetContentScaleFactor: function () {},
 
     /**
      * Returns the current resolution policy
@@ -757,7 +756,7 @@ View.prototype = {
             vb.y = -vp.y / this._scaleY;
             vb.width = cc.game.canvas.width / this._scaleX;
             vb.height = cc.game.canvas.height / this._scaleY;
-            cc._renderContext.setOffset && cc._renderContext.setOffset(vp.x, -vp.y);
+            cc.game._renderContext.setOffset && cc.game._renderContext.setOffset(vp.x, -vp.y);
         }
 
         // reset director's member variables to fit visible rect
@@ -826,7 +825,7 @@ View.prototype = {
      */
     setViewPortInPoints: function (x, y, w, h) {
         var locFrameZoomFactor = this._frameZoomFactor, locScaleX = this._scaleX, locScaleY = this._scaleY;
-        cc._renderContext.viewport((x * locScaleX * locFrameZoomFactor + this._viewPortRect.x * locFrameZoomFactor),
+        cc.game._renderContext.viewport((x * locScaleX * locFrameZoomFactor + this._viewPortRect.x * locFrameZoomFactor),
             (y * locScaleY * locFrameZoomFactor + this._viewPortRect.y * locFrameZoomFactor),
             (w * locScaleX * locFrameZoomFactor),
             (h * locScaleY * locFrameZoomFactor));
@@ -835,6 +834,7 @@ View.prototype = {
     /**
      * Sets Scissor rectangle with points.
      * @method setScissorInPoints
+     * @deprecated
      * @param {Number} x
      * @param {Number} y
      * @param {Number} w
@@ -857,22 +857,24 @@ View.prototype = {
             _scissorRect.y = sy;
             _scissorRect.width = sw;
             _scissorRect.height = sh;
-            cc._renderContext.scissor(sx, sy, sw, sh);
+            cc.game._renderContext.scissor(sx, sy, sw, sh);
         }
     },
 
     /**
      * Returns whether GL_SCISSOR_TEST is enable
      * @method isScissorEnabled
+     * @deprecated
      * @return {Boolean}
      */
     isScissorEnabled: function () {
-        return cc._renderContext.isEnabled(gl.SCISSOR_TEST);
+        return cc.game._renderContext.isEnabled(gl.SCISSOR_TEST);
     },
 
     /**
      * Returns the current scissor rectangle
      * @method getScissorRect
+     * @deprecated
      * @return {Rect}
      */
     getScissorRect: function () {
@@ -893,6 +895,7 @@ View.prototype = {
     /**
      * Sets the name of the view
      * @method setViewName
+     * @deprecated
      * @param {String} viewName
      */
     setViewName: function (viewName) {
@@ -904,6 +907,7 @@ View.prototype = {
     /**
      * Returns the name of the view
      * @method getViewName
+     * @deprecated
      * @return {String}
      */
     getViewName: function () {
@@ -1002,8 +1006,8 @@ View._getInstance = function () {
 };
 
 /**
- * <p>cc.ContainerStrategy class is the root strategy class of container's scale strategy,
- * it controls the behavior of how to scale the cc.container and cc.game.canvas object</p>
+ * <p>cc.game.containerStrategy class is the root strategy class of container's scale strategy,
+ * it controls the behavior of how to scale the cc.game.container and cc.game.canvas object</p>
  *
  * @class ContainerStrategy
  */
@@ -1054,19 +1058,18 @@ cc.ContainerStrategy = cc.Class({
         // Setup canvas
         locCanvas.width = w * devicePixelRatio;
         locCanvas.height = h * devicePixelRatio;
-        cc._renderContext.resetCache && cc._renderContext.resetCache();
     },
 
     _fixContainer: function () {
         // Add container to document body
-        document.body.insertBefore(cc.container, document.body.firstChild);
+        document.body.insertBefore(cc.game.container, document.body.firstChild);
         // Set body's width height to window's size, and forbid overflow, so that game will be centered
         var bs = document.body.style;
         bs.width = window.innerWidth + "px";
         bs.height = window.innerHeight + "px";
         bs.overflow = "hidden";
         // Body size solution doesn't work on all mobile browser so this is the aleternative: fixed container
-        var contStyle = cc.container.style;
+        var contStyle = cc.game.container.style;
         contStyle.position = "fixed";
         contStyle.left = contStyle.top = "0px";
         // Reposition body
@@ -1100,9 +1103,9 @@ cc.ContentStrategy = cc.Class({
                                contentW, contentH);
 
         // Translate the content
-        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS){
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS){
             //TODO: modify something for setTransform
-            //cc._renderContext.translate(viewport.x, viewport.y + contentH);
+            //cc.game._renderContext.translate(viewport.x, viewport.y + contentH);
         }
 
         this._result.scale = [scaleX, scaleY];
@@ -1151,7 +1154,7 @@ cc.ContentStrategy = cc.Class({
         name: "EqualToFrame",
         extends: cc.ContainerStrategy,
         apply: function (view) {
-            var frameH = view._frameSize.height, containerStyle = cc.container.style;
+            var frameH = view._frameSize.height, containerStyle = cc.game.container.style;
             this._setupContainer(view, view._frameSize.width, view._frameSize.height);
             // Setup container's margin and padding
             if (view._isRotated) {
@@ -1172,7 +1175,7 @@ cc.ContentStrategy = cc.Class({
         name: "ProportionalToFrame",
         extends: cc.ContainerStrategy,
         apply: function (view, designedResolution) {
-            var frameW = view._frameSize.width, frameH = view._frameSize.height, containerStyle = cc.container.style,
+            var frameW = view._frameSize.width, frameH = view._frameSize.height, containerStyle = cc.game.container.style,
                 designW = designedResolution.width, designH = designedResolution.height,
                 scaleX = frameW / designW, scaleY = frameH / designH,
                 containerW, containerH;

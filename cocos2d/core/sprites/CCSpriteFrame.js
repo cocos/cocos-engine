@@ -271,7 +271,7 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
         var w = texture.width, h = texture.height;
 
-        if (self._rotated && cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+        if (self._rotated && cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
             // TODO: rotate texture for canvas
             // self._texture = _ccsg.Sprite.CanvasRenderCmd._createRotatedTexture(texture, self.getRect());
             self._rotated = false;

@@ -84,7 +84,7 @@ cc.profiler = module.exports = {
                         draws: { desc: 'Draw call' },
                         logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: 500, color: '#080' },
                         render: { desc: 'Renderer (ms)', min: 0, max: 50, average: 500, color: '#f90' },
-                        mode: { desc: cc._renderType === cc.game.RENDER_TYPE_WEBGL ? 'WebGL' : 'Canvas', min: 1 }
+                        mode: { desc: cc.game.renderType === cc.game.RENDER_TYPE_WEBGL ? 'WebGL' : 'Canvas', min: 1 }
                     },
                     css: '.pstats {left: ' + macro.DIRECTOR_STATS_POSITION.x + 'px; bottom: ' + macro.DIRECTOR_STATS_POSITION.y + 'px;}'
                 });

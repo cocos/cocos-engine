@@ -66,6 +66,7 @@ var game = {
      * 请注意，在 WEB 平台，这个事件不一定会 100% 触发，这完全取决于浏览器的回调行为。
      * 在原生平台，它对应的是应用被切换到前台事件。
      * @property EVENT_SHOW
+     * @constant
      * @type {String}
      */
     EVENT_SHOW: "game_on_show",
@@ -73,6 +74,7 @@ var game = {
     /**
      * Event triggered after game inited, at this point all engine objects and game scripts are loaded
      * @property EVENT_GAME_INITED
+     * @constant
      * @type {String}
      */
     EVENT_GAME_INITED: "game_inited",
@@ -80,12 +82,31 @@ var game = {
     /**
      * Event triggered after renderer inited, at this point you will be able to use the render context
      * @property EVENT_RENDERER_INITED
+     * @constant
      * @type {String}
      */
     EVENT_RENDERER_INITED: "renderer_inited",
 
+    /**
+     * Web Canvas 2d API as renderer backend
+     * @property RENDER_TYPE_CANVAS
+     * @constant
+     * @type {Number}
+     */
     RENDER_TYPE_CANVAS: 0,
+    /**
+     * WebGL API as renderer backend
+     * @property RENDER_TYPE_WEBGL
+     * @constant
+     * @type {Number}
+     */
     RENDER_TYPE_WEBGL: 1,
+    /**
+     * OpenGL API as renderer backend
+     * @property RENDER_TYPE_OPENGL
+     * @constant
+     * @type {Number}
+     */
     RENDER_TYPE_OPENGL: 2,
 
     _persistRootNodes: {},
@@ -130,26 +151,34 @@ var game = {
     _sceneInfos: [],
 
     /**
-     * !#en The outer frame of the game canvas, parent of cc.container.
-     * !#zh 游戏画布的外框，cc.container 的父类。
+     * !#en The outer frame of the game canvas, parent of game container.
+     * !#zh 游戏画布的外框，container 的父容器。
      * @property frame
      * @type {Object}
      */
     frame: null,
     /**
-     * !#en The container of game canvas, equals to cc.container.
+     * !#en The container of game canvas.
      * !#zh 游戏画布的容器。
      * @property container
      * @type {HTMLDivElement}
      */
     container: null,
     /**
-     * !#en The canvas of the game, equals to cc._canvas.
+     * !#en The canvas of the game.
      * !#zh 游戏的画布。
      * @property canvas
      * @type {HTMLCanvasElement}
      */
     canvas: null,
+
+    /**
+     * !#en The renderer backend of the game.
+     * !#zh 游戏的渲染器类型。
+     * @property renderType
+     * @type {Number}
+     */
+    renderType: -1,
 
     /**
      * !#en
@@ -649,19 +678,15 @@ var game = {
         // Avoid setup to be called twice.
         if (this._rendererInitialized) return;
 
-        if (!cc._supportRender) {
-            throw new Error(cc._getError(3820, this.config[this.CONFIG_KEY.renderMode]));
-        }
-
         var el = this.config[game.CONFIG_KEY.id],
             win = window,
             localCanvas, localContainer,
             isWeChatGame = cc.sys.platform === cc.sys.WECHAT_GAME;
 
         if (isWeChatGame) {
-            this.container = cc.container = localContainer = document.createElement("DIV");
+            this.container = localContainer = document.createElement("DIV");
             this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
-            this.canvas = cc._canvas = localCanvas = canvas;
+            this.canvas = localCanvas = canvas;
         }
         else {
             var element = (el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el));
@@ -671,8 +696,8 @@ var game = {
                 height = height || element.height;
 
                 //it is already a canvas, we wrap it around with a div
-                this.canvas = cc._canvas = localCanvas = element;
-                this.container = cc.container = localContainer = document.createElement("DIV");
+                this.canvas = localCanvas = element;
+                this.container = localContainer = document.createElement("DIV");
                 if (localCanvas.parentNode)
                     localCanvas.parentNode.insertBefore(localContainer, localCanvas);
             } else {
@@ -682,8 +707,8 @@ var game = {
                 }
                 width = width || element.clientWidth;
                 height = height || element.clientHeight;
-                this.canvas = cc._canvas = localCanvas = document.createElement("CANVAS");
-                this.container = cc.container = localContainer = document.createElement("DIV");
+                this.canvas = localCanvas = document.createElement("CANVAS");
+                this.container = localContainer = document.createElement("DIV");
                 element.appendChild(localContainer);
             }
             localContainer.setAttribute('id', 'Cocos2dGameContainer');
@@ -706,7 +731,7 @@ var game = {
         }
 
         // WebGL context created successfully
-        if (cc._renderType === game.RENDER_TYPE_WEBGL) {
+        if (cc.game.renderType === game.RENDER_TYPE_WEBGL) {
             var opts = {
                 'stencil': true,
                 'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS
@@ -715,12 +740,12 @@ var game = {
                 opts['preserveDrawingBuffer'] = true;
             }
             renderer.init(localCanvas, opts);
-            this._renderContext = cc._renderContext = renderer.device._gl;
+            this._renderContext = renderer.device._gl;
         }
         if (!this._renderContext) {
-            cc._renderType = game.RENDER_TYPE_CANVAS;
+            cc.game.renderType = game.RENDER_TYPE_CANVAS;
             renderer.init(localCanvas);
-            this._renderContext = cc._renderContext = renderer.device._ctx;
+            this._renderContext = renderer.device._ctx;
         }
         cc.renderer = renderer;
 

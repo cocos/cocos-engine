@@ -157,7 +157,7 @@ cc.game = {
         this._prepareCalled = true;
 
         // Additional step in JSB
-        cc._renderType = cc.game.RENDER_TYPE_OPENGL;
+        cc.game.renderType = cc.game.RENDER_TYPE_OPENGL;
         cc.director.sharedInit();
 
         // Load game scripts

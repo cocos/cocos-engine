@@ -170,7 +170,7 @@ let Mask = cc.Class({
             slide: true,
             tooltip: CC_DEV && 'i18n:COMPONENT.mask.alphaThreshold',
             notify: function () {
-                if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+                if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
                     cc.warnID(4201);
                     return;
                 }
@@ -192,7 +192,7 @@ let Mask = cc.Class({
             type: cc.Boolean,
             tooltip: CC_DEV && 'i18n:COMPONENT.mask.inverted',
             notify: function () {
-                if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+                if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
                     cc.warnID(4202);
                     return;
                 }

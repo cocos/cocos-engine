@@ -377,8 +377,8 @@ _p._beginEditingOnMobile = function () {
 // Called after keyboard disappeared to readapte the game view
 _p._endEditingOnMobile = function () {
     if (this.__rotateScreen) {
-        cc.container.style['-webkit-transform'] = 'rotate(90deg)';
-        cc.container.style.transform = 'rotate(90deg)';
+        cc.game.container.style['-webkit-transform'] = 'rotate(90deg)';
+        cc.game.container.style.transform = 'rotate(90deg)';
 
         let view = cc.view;
         let width = view._originalDesignResolutionSize.width;
@@ -403,8 +403,8 @@ _p._endEditingOnMobile = function () {
 // Called after editbox focus to readapte the game view
 _p._onFocusOnMobile = function (editBox) {
     if (cc.view._isRotated) {
-        cc.container.style['-webkit-transform'] = 'rotate(0deg)';
-        cc.container.style.transform = 'rotate(0deg)';
+        cc.game.container.style['-webkit-transform'] = 'rotate(0deg)';
+        cc.game.container.style.transform = 'rotate(0deg)';
         cc.view._isRotated = false;
         let policy = cc.view.getResolutionPolicy();
         policy.apply(cc.view, cc.view.getDesignResolutionSize());
@@ -465,7 +465,7 @@ _p._createDomInput = function () {
             if (self._delegate && self._delegate.editBoxEditingReturn) {
                 self._delegate.editBoxEditingReturn();
             }
-            cc._canvas.focus();
+            cc.game.canvas.focus();
         }
     });
 
