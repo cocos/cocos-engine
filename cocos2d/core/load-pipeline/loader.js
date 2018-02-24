@@ -50,7 +50,7 @@ function loadJSON (item, callback) {
 
 function loadImage (item, callback) {
     var image = item.content;
-    if (sys.platform !== sys.WECHAT_GAME && !(image instanceof Image)) {
+    if (sys.platform !== sys.WECHAT_GAME && sys.platform !== sys.QQ_PLAY && !(image instanceof Image)) {
         return new Error('Image Loader: Input item doesn\'t contain Image content');
     }
 

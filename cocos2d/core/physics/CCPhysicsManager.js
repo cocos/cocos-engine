@@ -36,9 +36,6 @@ var tempB2AABB = new b2.AABB();
 var tempB2Vec21 = new b2.Vec2();
 var tempB2Vec22 = new b2.Vec2();
 
-var FIXED_TIME_STEP = 1/60;
-var MAX_ACCUMULATOR = 1/5;
-
 /**
  * !#en
  * Physics manager uses box2d as the inner physics system, and hide most box2d implement details(creating rigidbody, synchronize rigidbody info to node).
@@ -105,7 +102,31 @@ var PhysicsManager = cc.Class({
          * @default 10
          * @static
          */
-        POSITION_ITERATIONS: 10
+        POSITION_ITERATIONS: 10,
+
+        /**
+         * !#en
+         * Specify the fixed time step.
+         * Need enabledAccumulator to make it work.
+         * !#zh
+         * 指定固定的物理更新间隔时间，需要开启 enabledAccumulator 才有效。
+         * @property {Number} FIXED_TIME_STEP
+         * @default 1/60
+         * @static
+         */
+        FIXED_TIME_STEP: 1/60,
+
+        /**
+         * !#en
+         * Specify the max accumulator time.
+         * Need enabledAccumulator to make it work.
+         * !#zh
+         * 每次可用于更新物理系统的最大时间，需要开启 enabledAccumulator 才有效。
+         * @property {Number} MAX_ACCUMULATOR
+         * @default 1/5
+         * @static
+         */
+        MAX_ACCUMULATOR: 1/5
     },
 
     ctor: function () {
@@ -127,12 +148,12 @@ var PhysicsManager = cc.Class({
 
         /**
          * !#en
-         * If enabled accumulator, then will call step function with a fixed time step. 
+         * If enabled accumulator, then will call step function with the fixed time step FIXED_TIME_STEP. 
          * And if the update dt is bigger than the time step, then will call step function several times.
          * If disabled accumulator, then will call step function with a time step calculated with the frame rate.
          * !#zh
-         * 如果开启此选项，那么将会以一个固定的时间步来更新物理引擎，如果一个 update 的间隔时间大于这个时间步，则会对物理引擎进行多次更新。
-         * 如果关闭此选项，那么将会根据设定的 frame rate 计算出一个时间步来更新物理引擎。
+         * 如果开启此选项，那么将会以固定的间隔时间 FIXED_TIME_STEP 来更新物理引擎，如果一个 update 的间隔时间大于 FIXED_TIME_STEP，则会对物理引擎进行多次更新。
+         * 如果关闭此选项，那么将会根据设定的 frame rate 计算出一个间隔时间来更新物理引擎。
          * @property {Boolean} enabledAccumulator
          * @default false
          */
@@ -166,7 +187,10 @@ var PhysicsManager = cc.Class({
 
         if (this.enabledAccumulator) {
             this._accumulator += dt;
-        
+
+            var FIXED_TIME_STEP = PhysicsManager.FIXED_TIME_STEP;
+            var MAX_ACCUMULATOR = PhysicsManager.MAX_ACCUMULATOR;
+
             // max accumulator time to avoid spiral of death
             if (this._accumulator > MAX_ACCUMULATOR) {
                 this._accumulator = MAX_ACCUMULATOR;

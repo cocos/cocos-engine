@@ -245,7 +245,7 @@ cc.configuration = /** @lends cc.configuration# */{
         this._supportsPVRTC = this.checkForGLExtension("GL_IMG_texture_compression_pvrtc");
         locValueDict["gl.supports_PVRTC"] = this._supportsPVRTC;
 
-        this._supportsNPOT = false; //true;
+        this._supportsNPOT = true;
         locValueDict["gl.supports_NPOT"] = this._supportsNPOT;
 
         this._supportsBGRA8888 = this.checkForGLExtension("GL_IMG_texture_format_BGRA888");

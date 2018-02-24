@@ -105,7 +105,7 @@ Audio.State = {
         }
 
         // If the resource does not exist
-        if (!item) {
+        if (!item || !item.complete) {
             return cc.loader.load(src, function (error) {
                 if (!error) {
                     var item = cc.loader.getItem(src);
@@ -113,7 +113,7 @@ Audio.State = {
                     audio.emit('load');
                 }
             });
-        } else if (item.complete) {
+        } else {
             audio.mount(item.element || item.buffer);
             audio.emit('load');
         }
@@ -174,6 +174,12 @@ Audio.State = {
                 item.audio.play(item.offset);
             }
         });
+    };
+
+    proto.destroy = function () {
+        if (CC_WECHATGAME) {
+            this._element.destroy();
+        }
     };
 
     proto.pause = function () {
@@ -283,9 +289,17 @@ var WebAudioElement = function (buffer, audio) {
     this._audio = audio;
     this._context = sys.__audioSupport.context;
     this._buffer = buffer;
-    this._volume = this._context['createGain']();
-    this._volume['gain'].value = 1;
-    this._volume['connect'](this._context['destination']);
+
+    this._gainObj = this._context['createGain']();
+    this._volume = 1;
+    // https://www.chromestatus.com/features/5287995770929152
+    if (this._gainObj['gain'].setTargetAtTime) {
+        this._gainObj['gain'].setTargetAtTime(this._volume, this._context.currentTime, 0.01);
+    } else {
+        this._gainObj['gain'].value = 1;
+    }
+    this._gainObj['connect'](this._context['destination']);
+
     this._loop = false;
     // The time stamp on the audio time axis when the recording begins to play.
     this._startTime = -1;
@@ -314,7 +328,7 @@ var WebAudioElement = function (buffer, audio) {
 
         var audio = this._context["createBufferSource"]();
         audio.buffer = this._buffer;
-        audio["connect"](this._volume);
+        audio["connect"](this._gainObj);
         audio.loop = this._loop;
 
         this._startTime = this._context.currentTime;
@@ -353,7 +367,7 @@ var WebAudioElement = function (buffer, audio) {
             var self = this;
             clearTimeout(this._currextTimer);
             this._currextTimer = setTimeout(function () {
-                if (sys.platform === sys.WECHAT_GAME && self._context.currentTime === 0) {
+                if (sys.platform !== sys.WECHAT_GAME && self._context.currentTime === 0) {
                     touchPlayList.push({
                         instance: self._audio,
                         offset: offset,
@@ -399,9 +413,16 @@ var WebAudioElement = function (buffer, audio) {
         return this._loop = bool;
     });
 
-    proto.__defineGetter__('volume', function () { return this._volume['gain'].value; });
+    proto.__defineGetter__('volume', function () {
+        return this._volume;
+    });
     proto.__defineSetter__('volume', function (num) {
-        this._volume['gain'].value = num;
+        this._volume = num;
+        if (this._gainObj['gain'].setTargetAtTime) {
+            this._gainObj['gain'].setTargetAtTime(this._volume, this._context.currentTime, 0.01);
+        } else {
+            this._volume['gain'].value = num;
+        }
         if (sys.os === sys.OS_IOS && !this.paused && this._currentSource) {
             // IOS must be stop webAudio
             this._currentSource.onended = null;

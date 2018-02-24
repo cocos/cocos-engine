@@ -426,6 +426,7 @@ var audioEngine = {
             var audio = id2audio[id];
             if (audio) {
                 audio.stop();
+                audio.destroy();
                 delete id2audio[id];
             }
         }
@@ -440,6 +441,12 @@ var audioEngine = {
      */
     uncacheAll: function () {
         this.stopAll();
+        for (var id in id2audio) {
+            var audio = id2audio[id];
+            if (audio) {
+                audio.destroy();
+            }
+        }
         id2audio = {};
         url2id = {};
     },

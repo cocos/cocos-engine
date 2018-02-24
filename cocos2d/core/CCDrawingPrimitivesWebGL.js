@@ -44,7 +44,7 @@ var DrawingPrimitiveWebGL = cc._Class.extend({
      * @param ctx rendercontext
      */
     ctor:function (ctx) {
-        if (cc.sys.platform !== cc.sys.WECHAT_GAME && !ctx instanceof WebGLRenderingContext)
+        if (!CC_WECHATGAME && !CC_QQPLAY && !ctx instanceof WebGLRenderingContext)
             throw new Error(cc._getError(6703));
 
         this._renderContext = ctx;

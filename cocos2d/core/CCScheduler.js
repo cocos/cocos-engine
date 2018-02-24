@@ -619,6 +619,10 @@ cc.Scheduler = cc._Class.extend({
             }
         }
 
+        if (updateFunc) {
+            cc.warnID(1512);
+        }
+
         var listElement = ListEntry.get(null, null, updateFunc, target, priority, paused, false);
         var ppList;
 

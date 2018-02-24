@@ -85,15 +85,15 @@ function loadWebAudio (item, callback) {
         context["decodeAudioData"](request.response, function(buffer){
             //success
             item.buffer = buffer;
-            callback(null, item.url);
+            callback(null, item.id);
         }, function(){
             //error
-            callback('decode error - ' + item.url, null);
+            callback('decode error - ' + item.id, null);
         });
     };
 
     request.onerror = function(){
-        callback('request error - ' + item.url, null);
+        callback('request error - ' + item.id, null);
     };
 
     request.send();

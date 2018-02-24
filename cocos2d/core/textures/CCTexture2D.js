@@ -376,7 +376,7 @@ var Texture2D = cc.Class({
      * @param {Number} pixelFormat
      * @param {Number} pixelsWidth
      * @param {Number} pixelsHeight
-     * @param {Size} contentSize
+     * @param {Size} contentSize contentSize is deprecated and ignored
      * @return {Boolean}
      */
     initWithData: function (data, pixelFormat, pixelsWidth, pixelsHeight, contentSize) {
@@ -903,6 +903,7 @@ JS.get(_p, "pixelHeight", _p.getPixelHeight);
             gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha);
             if (
                 sys.platform === sys.WECHAT_GAME ||
+                sys.platform === sys.QQ_PLAY ||
                 img instanceof HTMLCanvasElement ||
                 img instanceof HTMLImageElement ||
                 img instanceof HTMLVideoElement
@@ -953,14 +954,17 @@ JS.get(_p, "pixelHeight", _p.getPixelHeight);
         };
 
         _p.initWithData = function (data, pixelFormat, pixelsWidth, pixelsHeight, contentSize) {
+            if (contentSize) {
+                cc.warnID(3118);
+            }
             var opts = _getSharedOptions();
             opts.image = data;
             opts.format = pixelFormat;
             opts.width = pixelsWidth;
             opts.height = pixelsHeight;
             this.update(opts);
-            this.width = contentSize.width;
-            this.height = contentSize.height;
+            this.width = pixelsWidth;
+            this.height = pixelsHeight;
             this.loaded = true;
             this.emit("load");
             return true;

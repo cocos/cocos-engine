@@ -38,6 +38,8 @@ var ReleasedAssetChecker = CC_DEBUG && require('./released-asset-checker');
 
 var resources = new AssetTable();
 
+var AUDIO_TYPES = ['mp3', 'ogg', 'wav', 'm4a'];
+
 function getXMLHttpRequest () {
     return window.XMLHttpRequest ? new window.XMLHttpRequest() : new ActiveXObject('MSXML2.XMLHTTP');
 }
@@ -765,12 +767,15 @@ proto.release = function (asset) {
         if (item) {
             var removed = this.removeItem(id);
             asset = item.content;
-            // TODO: AUDIO
             if (cc.Class.isInstanceOf(asset, cc.Asset)) {
                 if (asset.nativeUrl) {
                     this.release(asset.nativeUrl);
                 }
                 asset.destroy();
+            }
+            else if (AUDIO_TYPES.indexOf(item.type) !== -1) {
+                // TODO: use asset.destroy
+                cc.audioEngine.uncache(item.rawUrl || item.url);
             }
             if (CC_DEBUG && removed) {
                 this._releasedAssetChecker_DEBUG.setReleased(item, id);
