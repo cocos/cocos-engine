@@ -27,65 +27,94 @@
 
 #include "cocos2d.h"
 
-#include "cocos/scripting/js-bindings/manual/ScriptingCore.h"
-#include "cocos/scripting/js-bindings/manual/jsb_module_register.hpp"
-#include "cocos/scripting/js-bindings/manual/jsb_global.h"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
+#include "cocos/scripting/js-bindings/auto/jsb_gfx_auto.hpp"
+#include "cocos/scripting/js-bindings/auto/jsb_renderer_auto.hpp"
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && PACKAGE_AS
-#include "SDKManager.h"
-#include "jsb_anysdk_protocols_auto.hpp"
-#include "manualanysdkbindings.hpp"
-using namespace anysdk::framework;
-#endif
+#include "cocos/scripting/js-bindings/manual/jsb_global.h"
+#include "cocos/scripting/js-bindings/manual/jsb_classtype.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_gfx_manual.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_renderer_manual.hpp"
+
+//#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && PACKAGE_AS
+//#include "SDKManager.h"
+//#include "jsb_anysdk_protocols_auto.hpp"
+//#include "manualanysdkbindings.hpp"
+//using namespace anysdk::framework;
+//#endif
 
 USING_NS_CC;
 
-AppDelegate::AppDelegate() : Application("Creator game")
+AppDelegate::AppDelegate() : Application("js-test")
 {
 }
 
 AppDelegate::~AppDelegate()
 {
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && PACKAGE_AS
-    SDKManager::getInstance()->purge();
-#endif
+//#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && PACKAGE_AS
+//    SDKManager::getInstance()->purge();
+//#endif
 }
 
 bool AppDelegate::applicationDidFinishLaunching()
 {
-#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS && PACKAGE_AS
-    SDKManager::getInstance()->loadAllPlugins();
-#endif
+//#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS && PACKAGE_AS
+//    SDKManager::getInstance()->loadAllPlugins();
+//#endif
+    
+    
     
     // set FPS. the default value is 1.0/60 if you don't call this
     setAnimationInterval(1.0 / 60);
 
     se::ScriptEngine* se = se::ScriptEngine::getInstance();
+    
+    se->addRegisterCallback(jsb_register_global_variables);
+    se->addRegisterCallback(register_all_gfx);
+    se->addRegisterCallback(jsb_register_gfx_manual);
+    se->addRegisterCallback(register_all_renderer);
+    se->addRegisterCallback(jsb_register_renderer_manual);
 
-    jsb_set_xxtea_key("");
+//    jsb_set_xxtea_key("");
     jsb_init_file_operation_delegate();
 
 #if defined(COCOS2D_DEBUG) && (COCOS2D_DEBUG > 0)
     // Enable debugger here
     jsb_enable_debugger("0.0.0.0", 5086);
 #endif
+    
+    se->addBeforeInitHook([](){
+        JSBClassType::init();
+    });
 
     se->setExceptionCallback([](const char* location, const char* message, const char* stack){
         // Send exception information to server like Tencent Bugly.
 
     });
+    
+    FileUtils::getInstance()->addSearchPath("res");
 
-    jsb_register_all_modules();
+//    jsb_register_all_modules();
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && PACKAGE_AS
-    se->addRegisterCallback(register_all_anysdk_framework);
-    se->addRegisterCallback(register_all_anysdk_manual);
-#endif
+//#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && PACKAGE_AS
+//    se->addRegisterCallback(register_all_anysdk_framework);
+//    se->addRegisterCallback(register_all_anysdk_manual);
+//#endif
 
     se->start();
 
-    jsb_run_script("main.js");
+//    jsb_run_script("main.js");
+    
+    se::AutoHandleScope hs;
+    
+    char commandBuf[200] = {0};
+    sprintf(commandBuf, "window.canvas = { width: %d, height: %d };", 960, 640);
+    se->evalString(commandBuf);
+    se->runScript("src/renderer-test/main-jsb.js");
+    
+    se->addAfterCleanupHook([](){
+        JSBClassType::destroy();
+    });
 
     return true;
 }
