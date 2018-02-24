@@ -86,6 +86,7 @@ void Application::start()
         lastTime = getCurrentMillSecond();
         
         CAST_VIEW(_view)->pollEvents();
+        CAST_VIEW(_view)->swapBuffers();
 
         curTime = getCurrentMillSecond();
         if (curTime - lastTime < _animationInterval)

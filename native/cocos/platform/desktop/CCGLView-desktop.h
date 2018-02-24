@@ -51,6 +51,7 @@ public:
 
     bool windowShouldClose() const;
     void pollEvents();
+    void swapBuffers();
     
 private:  
     bool initGlew();

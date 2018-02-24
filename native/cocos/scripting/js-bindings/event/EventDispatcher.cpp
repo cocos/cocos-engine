@@ -48,7 +48,7 @@ void EventDispatcher::dispatchTickEvent()
     float dt = 0.f;
     if (firstTime)
     {
-        se->runScript("src/basic.js", &tickVal);
+        se->runScript("src/renderer-test/src/basic.js", &tickVal);
         firstTime = false;
     }
     

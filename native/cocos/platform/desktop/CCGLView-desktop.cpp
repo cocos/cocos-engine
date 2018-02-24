@@ -197,6 +197,11 @@ void GLView::pollEvents()
     glfwPollEvents();
 }
 
+void GLView::swapBuffers()
+{
+    glfwSwapBuffers(_mainWindow);
+}
+
 void GLView::onGLFWError(int errorID, const char* errorDesc)
 {
     if (_mainWindow)
