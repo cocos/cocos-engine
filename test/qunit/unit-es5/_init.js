@@ -174,14 +174,14 @@ function _resetGame (w, h) {
     else {
         var view = cc.view;
 
-        cc._canvas.width = w * view.getDevicePixelRatio();
-        cc._canvas.height = h * view.getDevicePixelRatio();
+        cc.game.canvas.width = w * view.getDevicePixelRatio();
+        cc.game.canvas.height = h * view.getDevicePixelRatio();
 
-        cc._canvas.style.width = w;
-        cc._canvas.style.height = h;
+        cc.game.canvas.style.width = w;
+        cc.game.canvas.style.height = h;
 
         // reset container style
-        var style = cc.container.style;
+        var style = cc.game.container.style;
         style.paddingTop = "0px";
         style.paddingRight = "0px";
         style.paddingBottom = "0px";
@@ -195,8 +195,8 @@ function _resetGame (w, h) {
         style.marginBottom = "0px";
         style.marginLeft = "0px";
 
-        cc.container.style.width = w;
-        cc.container.style.height = h;
+        cc.game.container.style.width = w;
+        cc.game.container.style.height = h;
 
         var size = view.getDesignResolutionSize();
         view.setDesignResolutionSize(size.width, size.height, cc.ResolutionPolicy.SHOW_ALL);

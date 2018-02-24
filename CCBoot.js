@@ -33,24 +33,6 @@ var engineVersion;
 engineVersion = '1.6.0';
 window['CocosEngine'] = cc.ENGINE_VERSION = engineVersion;
 
-/**
- * @property {CanvasRenderingContext2D|WebGLRenderingContext} _renderContext - main Canvas 2D/3D Context of game engine
- * @private
- */
-cc._renderContext = null;
-cc._supportRender = false;
-
-/**
- * @property {HTMLCanvasElement} _canvas - Main canvas of game engine
- * @private
- */
-cc._canvas = null;
-
-/**
- * @property {HTMLDivElement} container - The element contains the game canvas
- */
-cc.container = null;
-
 require('./cocos2d/core/utils');
 require('./cocos2d/core/platform/CCSys');
 
@@ -70,26 +52,30 @@ function _determineRenderType(config) {
         config[CONFIG_KEY.renderMode] = 0;
 
     // Determine RenderType
-    cc._renderType = cc.game.RENDER_TYPE_CANVAS;
-    cc._supportRender = false;
+    cc.game.renderType = cc.game.RENDER_TYPE_CANVAS;
+    var supportRender = false;
 
     if (userRenderMode === 0) {
         if (cc.sys.capabilities['opengl']) {
-            cc._renderType = cc.game.RENDER_TYPE_WEBGL;
-            cc._supportRender = true;
+            cc.game.renderType = cc.game.RENDER_TYPE_WEBGL;
+            supportRender = true;
         }
         else if (cc.sys.capabilities['canvas']) {
-            cc._renderType = cc.game.RENDER_TYPE_CANVAS;
-            cc._supportRender = true;
+            cc.game.renderType = cc.game.RENDER_TYPE_CANVAS;
+            supportRender = true;
         }
     }
     else if (userRenderMode === 1 && cc.sys.capabilities['canvas']) {
-        cc._renderType = cc.game.RENDER_TYPE_CANVAS;
-        cc._supportRender = true;
+        cc.game.renderType = cc.game.RENDER_TYPE_CANVAS;
+        supportRender = true;
     }
     else if (userRenderMode === 2 && cc.sys.capabilities['opengl']) {
-        cc._renderType = cc.game.RENDER_TYPE_WEBGL;
-        cc._supportRender = true;
+        cc.game.renderType = cc.game.RENDER_TYPE_WEBGL;
+        supportRender = true;
+    }
+
+    if (!supportRender) {
+        throw new Error(cc._getError(3820, userRenderMode));
     }
 }
 

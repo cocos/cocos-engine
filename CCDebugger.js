@@ -109,14 +109,14 @@ cc._initDebugSetting = function (mode) {
         //log to web page
 
         function logToWebPage (msg) {
-            if (!cc._canvas)
+            if (!cc.game.canvas)
                 return;
 
             if (!logList) {
                 var logDiv = document.createElement("Div");
                 logDiv.setAttribute("id", "logInfoDiv");
                 logDiv.setAttribute("width", "200");
-                logDiv.setAttribute("height", cc._canvas.height);
+                logDiv.setAttribute("height", cc.game.canvas.height);
                 var logDivStyle = logDiv.style;
                 logDivStyle.zIndex = "99999";
                 logDivStyle.position = "absolute";
@@ -135,7 +135,7 @@ cc._initDebugSetting = function (mode) {
                 logListStyle.margin = 0;
 
                 logDiv.appendChild(logList);
-                cc._canvas.parentNode.appendChild(logDiv);
+                cc.game.canvas.parentNode.appendChild(logDiv);
             }
 
             logList.value = logList.value + msg + "\r\n";
