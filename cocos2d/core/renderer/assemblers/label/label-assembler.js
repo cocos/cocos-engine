@@ -32,12 +32,7 @@ const bmfontAssembler = require('./bmfont-assembler');
 var labelAssembler = js.addon({
     updateRenderData (comp) {
         this.datas.length = 0;
-        if (typeof (comp.string) === "undefined" || comp.string === null) {
-            comp.string = "";
-        }else {
-            comp.string = comp.string.toString();
-        }
-        if (comp.string !== "") {
+        if (comp.string !== undefined && comp.string !== null && comp.string !== "") {
             let assembler;
             if (comp.font instanceof cc.BitmapFont) {
                 assembler = bmfontAssembler;
