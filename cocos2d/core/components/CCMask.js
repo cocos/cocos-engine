@@ -257,7 +257,7 @@ let Mask = cc.Class({
         }
         let spriteFrame = this._spriteFrame;
         if (spriteFrame) {
-            if (spriteFrame.textureLoaded) {
+            if (spriteFrame.textureLoaded()) {
                 this._onTextureLoaded(null);
             }
             else {
