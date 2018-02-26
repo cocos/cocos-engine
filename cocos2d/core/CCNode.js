@@ -2178,8 +2178,8 @@ var Node = cc.Class({
         math.mat4.invert(_mat4_temp, this._worldMatrix);
         let out = new cc.Vec2();
         math.vec2.transformMat4(out, worldPoint, _mat4_temp);
-        out.x -= this._anchorPoint.x * this._contentSize.width;
-        out.y -= this._anchorPoint.y * this._contentSize.height;
+        out.x += this._anchorPoint.x * this._contentSize.width;
+        out.y += this._anchorPoint.y * this._contentSize.height;
         return out;
     },
 
