@@ -179,7 +179,7 @@ var Label = cc.Class({
          * @property {String} string
          */
         string: {
-            default: 'Label',
+            default: '',
             multiline: true,
             tooltip: CC_DEV && 'i18n:COMPONENT.label.string',
             notify: function () {
