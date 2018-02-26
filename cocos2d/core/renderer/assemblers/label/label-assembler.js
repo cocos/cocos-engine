@@ -32,7 +32,12 @@ const bmfontAssembler = require('./bmfont-assembler');
 var labelAssembler = js.addon({
     updateRenderData (comp) {
         this.datas.length = 0;
-        if (comp.string) {
+        if (typeof (comp.string) === "undefined" || comp.string === null) {
+            comp.string = "";
+        }else {
+            comp.string = comp.string.toString();
+        }
+        if (comp.string !== "") {
             let assembler;
             if (comp.font instanceof cc.BitmapFont) {
                 assembler = bmfontAssembler;
@@ -49,9 +54,9 @@ var labelAssembler = js.addon({
             let size = comp.node._contentSize;
             let anchor = comp.node._anchorPoint;
             renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
-            
+
             assembler.update(comp);
-            
+
             renderData.effect = comp.getEffect();
             this.datas.push(renderData);
         }
