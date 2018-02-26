@@ -82,6 +82,7 @@ module.exports = {
         this._cameraNode = new cc.Node();
 
         this._camera = new renderEngine.Camera();
+        this._camera.setColor(0, 0, 0, 1);
         this._camera.setFov(Math.PI * 60 / 180);
         this._camera.setNear(0.1);
         this._camera.setFar(1024);
