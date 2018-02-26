@@ -60,7 +60,7 @@ cc.ActionInterval = cc.Class({
         this._repeatForever = false;
         this._repeatMethod = false;//Compatible with repeat class, Discard after can be deleted
         this._speedMethod = false;//Compatible with repeat class, Discard after can be deleted
-		d !== undefined && this.initWithDuration(d);
+        d !== undefined && this.initWithDuration(d);
     },
 
     /*
@@ -1068,7 +1068,7 @@ cc.MoveBy = cc.Class({
         this._startPosition = cc.p(0, 0);
         this._previousPosition = cc.p(0, 0);
 
-		deltaPos !== undefined && this.initWithDuration(duration, deltaPos, deltaY);
+        deltaPos !== undefined && this.initWithDuration(duration, deltaPos, deltaY);	
     },
 
     /*
