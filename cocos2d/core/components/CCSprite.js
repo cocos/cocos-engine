@@ -573,7 +573,7 @@ var Sprite = cc.Class({
 
         var spriteFrame = this._spriteFrame;
         if (spriteFrame) {
-            if (spriteFrame.textureLoaded) {
+            if (spriteFrame.textureLoaded()) {
                 this._onTextureLoaded(null);
             }
             else {
