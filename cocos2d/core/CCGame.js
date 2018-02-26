@@ -734,6 +734,7 @@ var game = {
         if (cc.game.renderType === game.RENDER_TYPE_WEBGL) {
             var opts = {
                 'stencil': true,
+                'antialias': false,
                 'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS
             };
             if (isWeChatGame) {
