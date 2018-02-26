@@ -451,11 +451,12 @@ View.prototype = {
                 var item = cache[key];
                 var tex = item && item.content instanceof cc.Texture2D ? item.content : null;
                 if (tex) {
+                    var Filter = cc.Texture2D.Filter;
                     if (enabled) {
-                        tex.setAntiAliasTexParameters();
+                        tex.setFilters(Filter.LINEAR, Filter.LINEAR);
                     }
                     else {
-                        tex.setAliasTexParameters();
+                        tex.setFilters(Filter.NEAREST, Filter.NEAREST);
                     }
                 }
             }
