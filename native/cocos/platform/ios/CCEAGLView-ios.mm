@@ -62,10 +62,10 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 */
 
 #import "platform/ios/CCEAGLView-ios.h"
-
-#import "scripting/js-bindings/event/EventDispatcher.h"
 #import <QuartzCore/QuartzCore.h>
 
+#import "scripting/js-bindings/event/EventDispatcher.h"
+#import "platform/ios/OpenGL_Internal-ios.h"
 //#import "base/CCTouch.h"
 #import "base/CCIMEDispatcher.h"
 
@@ -74,10 +74,12 @@ namespace
     GLenum pixelformat2glenum(NSString* str)
     {
         if ([str isEqualToString:kEAGLColorFormatRGB565])
-            return GL_UNSIGNED_SHORT_5_6_5;
+            return GL_RGB565;
         else
-            return GL_UNSIGNED_BYTE;
+            return GL_RGBA8_OES;
     }
+    
+    bool isReady = false;
 }
 
 //CLASS IMPLEMENTATIONS:
@@ -114,6 +116,7 @@ namespace
         _preserveBackbuffer = retained;
         _markedText = nil;
         _sharegroup = sharegroup;
+        _isReady = FALSE;
         
 #if GL_EXT_discard_framebuffer == 1
         _discardFramebufferSupported = YES;
@@ -130,6 +133,8 @@ namespace
         _touchesIds = 0;
         for (int i = 0; i < 10; ++i)
             _touches[i] = nil;
+        
+        [self setupGLContext];
     }
 
     return self;
@@ -208,7 +213,55 @@ namespace
 
 - (void) layoutSubviews
 {
-    [self setupGLContext];
+    if (_defaultColorBuffer)
+    {
+        glBindRenderbuffer(GL_RENDERBUFFER, _defaultColorBuffer);
+        if(! [_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)self.layer])
+        {
+            NSLog(@"failed to call context");
+            return;
+        }
+    }
+    
+    int backingWidth = 0;
+    int backingHeight = 0;
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &backingWidth);
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &backingHeight);
+    
+    if (_defaultDepthBuffer)
+    {
+        glBindRenderbuffer(GL_RENDERBUFFER, _defaultDepthBuffer);
+        glRenderbufferStorage(GL_RENDERBUFFER, _depthFormat, backingWidth, backingHeight);
+    }
+    
+    if (_multisampling)
+    {
+        if (_msaaColorBuffer)
+        {
+            glBindRenderbuffer(GL_RENDERBUFFER, _msaaColorBuffer);
+            glRenderbufferStorageMultisampleAPPLE(GL_RENDERBUFFER, _requestedSamples, _pixelformat, backingWidth, backingHeight);
+        }
+        
+        if (_msaaDepthBuffer)
+        {
+            glBindRenderbuffer(GL_RENDERBUFFER, _msaaDepthBuffer);
+            glRenderbufferStorageMultisampleAPPLE(GL_RENDERBUFFER, _requestedSamples, _depthFormat, backingWidth, backingHeight);
+        }
+    }
+    
+    glBindRenderbuffer(GL_RENDERBUFFER, _defaultColorBuffer);
+    CHECK_GL_ERROR();
+    
+    GLenum error;
+    if( (error=glCheckFramebufferStatus(GL_FRAMEBUFFER)) != GL_FRAMEBUFFER_COMPLETE)
+        NSLog(@"Failed to make complete framebuffer object 0x%X", error);
+    
+    _isReady = TRUE;
+}
+
+- (BOOL) isReady
+{
+    return _isReady;
 }
 
 - (void) setupGLContext
@@ -237,8 +290,6 @@ namespace
         return;
     
     [self createAndAttachDepthBuffer];
-    
-//    CHECK_GL_ERROR();
 }
 
 - (BOOL) createFrameBuffer
@@ -270,21 +321,18 @@ namespace
 {
     if (0 == _defaultFramebuffer)
         return FALSE;
-    
+
     glBindFramebuffer(GL_FRAMEBUFFER, _defaultFramebuffer);
     glGenRenderbuffers(1, &_defaultColorBuffer);
     if (0 == _defaultColorBuffer)
     {
-        NSLog(@"Can not create default color buffer, so delete default frame buffer.");
-        glDeleteFramebuffers(1, &_defaultFramebuffer);
-        _defaultFramebuffer = 0;
+        NSLog(@"Can not create default color buffer.");
         return FALSE;
     }
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _defaultColorBuffer);
     
-    float width = _originalRect.size.width - _originalRect.origin.x;
-    float height = _originalRect.size.height - _originalRect.origin.y;
-    glRenderbufferStorage(GL_RENDERBUFFER, _pixelformat, width, height);
+    glBindRenderbuffer(GL_RENDERBUFFER, _defaultColorBuffer);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _defaultColorBuffer);
+    CHECK_GL_ERROR();
     
     if (!_multisampling || (0 == _msaaFramebuffer))
         return TRUE;
@@ -293,17 +341,15 @@ namespace
     glGenRenderbuffers(1, &_msaaColorBuffer);
     if (0 == _msaaColorBuffer)
     {
-        NSLog(@"Can not create multi sampling color buffer, so delete multi sampling frame buffer.");
-        glDeleteFramebuffers(1, &_msaaFramebuffer);
-        _msaaFramebuffer = 0;
-        _multisampling = false;
-        
+        NSLog(@"Can not create multi sampling color buffer.");
+    
         // App can work without multi sampleing.
         return TRUE;
     }
+    glBindRenderbuffer(GL_RENDERBUFFER, _msaaColorBuffer);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _msaaColorBuffer);
-    glRenderbufferStorageMultisampleAPPLE(GL_RENDERBUFFER, _requestedSamples, _pixelformat, width, height);
     
+    CHECK_GL_ERROR();
     return TRUE;
 }
 
@@ -319,16 +365,16 @@ namespace
         NSLog(@"Can not create default depth buffer.");
         return FALSE;
     }
-    
-    float width = _originalRect.size.width - _originalRect.origin.x;
-    float height = _originalRect.size.height - _originalRect.origin.y;
-    glRenderbufferStorage(GL_RENDERBUFFER, _pixelformat, width, height);
-    glRenderbufferStorage(GL_RENDERBUFFER, _depthFormat, width, height);
+
+    glBindRenderbuffer(GL_RENDERBUFFER, _defaultDepthBuffer);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _defaultDepthBuffer);
+    CHECK_GL_ERROR();
     
     if (GL_DEPTH24_STENCIL8_OES == _depthFormat ||
         GL_DEPTH_STENCIL_OES == _depthFormat)
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _defaultDepthBuffer);
+    
+    CHECK_GL_ERROR();
     
     if (!_multisampling || (0 == _msaaFramebuffer))
         return TRUE;
@@ -340,12 +386,15 @@ namespace
         NSLog(@"Can not create multi sampling depth buffer.");
         return TRUE;
     }
-    glRenderbufferStorageMultisampleAPPLE(GL_RENDERBUFFER, _requestedSamples, _depthFormat, width, height);
+    glBindRenderbuffer(GL_RENDERBUFFER, _msaaDepthBuffer);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _msaaDepthBuffer);
+    CHECK_GL_ERROR();
     
     if (GL_DEPTH24_STENCIL8_OES == _depthFormat ||
         GL_DEPTH_STENCIL_OES == _depthFormat)
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _msaaDepthBuffer);
+    
+    CHECK_GL_ERROR();
     
     return TRUE;
 }
@@ -356,7 +405,7 @@ namespace
     // - preconditions
     //    -> context_ MUST be the OpenGL context
     //    -> renderbuffer_ must be the RENDER BUFFER
-    
+        
     if (_multisampling)
     {
         /* Resolve from msaaFramebuffer to resolveFramebuffer */
@@ -365,6 +414,8 @@ namespace
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER_APPLE, _msaaFramebuffer);
         glResolveMultisampleFramebufferAPPLE();
     }
+    
+    CHECK_GL_ERROR();
     
     if(_discardFramebufferSupported)
     {    
@@ -382,21 +433,22 @@ namespace
             }
             
             glBindRenderbuffer(GL_RENDERBUFFER, _msaaColorBuffer);
-        }    
-        
-        // not MSAA
+        }
         else if (_depthFormat)
         {
+            // not MSAA
             GLenum attachments[] = { GL_DEPTH_ATTACHMENT};
             glDiscardFramebufferEXT(GL_FRAMEBUFFER, 1, attachments);
         }
+        
+        CHECK_GL_ERROR();
     }
         
     if(![_context presentRenderbuffer:GL_RENDERBUFFER])
          NSLog(@"cocos2d: Failed to swap renderbuffer in %s\n", __FUNCTION__);
 
 #if COCOS2D_DEBUG
-//    CHECK_GL_ERROR();
+    CHECK_GL_ERROR();
 #endif
     
     // We can safely re-bind the framebuffer here, since this will be the

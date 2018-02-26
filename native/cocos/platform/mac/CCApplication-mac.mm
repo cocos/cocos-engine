@@ -89,25 +89,16 @@ void Application::start()
     
     if(!applicationDidFinishLaunching())
         return;
-    
-    long lastTime = 0L;
-    long curTime = 0L;
 
     if (!_view)
         return;
     
     while (!CAST_VIEW(_view)->windowShouldClose())
-    {
-        lastTime = getCurrentMillSecond();
-        
+    {        
         CAST_VIEW(_view)->pollEvents();
-        CAST_VIEW(_view)->swapBuffers();
-
-        curTime = getCurrentMillSecond();
-        if (curTime - lastTime < _animationInterval)
-            usleep(static_cast<useconds_t>((_animationInterval - curTime + lastTime) * 1000));
-
         EventDispatcher::dispatchTickEvent();
+
+        CAST_VIEW(_view)->swapBuffers();
     }
 }
 
