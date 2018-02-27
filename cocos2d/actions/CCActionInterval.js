@@ -60,7 +60,7 @@ cc.ActionInterval = cc.Class({
         this._repeatForever = false;
         this._repeatMethod = false;//Compatible with repeat class, Discard after can be deleted
         this._speedMethod = false;//Compatible with repeat class, Discard after can be deleted
-        d !== undefined && this.initWithDuration(d);
+        d !== undefined && cc.ActionInterval.prototype.initWithDuration.call(this, d);
     },
 
     /*
@@ -1068,7 +1068,7 @@ cc.MoveBy = cc.Class({
         this._startPosition = cc.p(0, 0);
         this._previousPosition = cc.p(0, 0);
 
-        deltaPos !== undefined && this.initWithDuration(duration, deltaPos, deltaY);	
+        deltaPos !== undefined && cc.MoveBy.prototype.initWithDuration.call(this, duration, deltaPos, deltaY);	
     },
 
     /*
@@ -1260,7 +1260,7 @@ cc.SkewTo = cc.Class({
         this._endSkewY = 0;
         this._deltaX = 0;
         this._deltaY = 0;
-		sy !== undefined && this.initWithDuration(t, sx, sy);
+        sy !== undefined && cc.SkewTo.prototype.initWithDuration.call(this, t, sx, sy);
     },
 
     /*
@@ -1431,7 +1431,7 @@ cc.JumpBy = cc.Class({
         this._height = 0;
         this._jumps = 0;
 
-		height !== undefined && this.initWithDuration(duration, position, y, height, jumps);
+        height !== undefined && cc.JumpBy.prototype.initWithDuration.call(this, duration, position, y, height, jumps);
     },
     /*
      * Initializes the action.
@@ -1641,7 +1641,7 @@ cc.BezierBy = cc.Class({
         this._config = [];
         this._startPosition = cc.p(0, 0);
         this._previousPosition = cc.p(0, 0);
-		c && this.initWithDuration(t, c);
+        c && cc.BezierBy.prototype.initWithDuration.call(this, t, c);
     },
 
     /*
@@ -1842,7 +1842,7 @@ cc.ScaleTo = cc.Class({
         this._endScaleY = 0;
         this._deltaX = 0;
         this._deltaY = 0;
-		sx !== undefined && this.initWithDuration(duration, sx, sy);
+        sx !== undefined && cc.ScaleTo.prototype.initWithDuration.call(this, duration, sx, sy);
     },
 
     /*
@@ -2051,7 +2051,7 @@ cc.FadeTo = cc.Class({
     ctor:function (duration, opacity) {
         this._toOpacity = 0;
         this._fromOpacity = 0;
-		opacity !== undefined && this.initWithDuration(duration, opacity);
+        opacity !== undefined && cc.FadeTo.prototype.initWithDuration.call(this, duration, opacity);
     },
 
     /*
