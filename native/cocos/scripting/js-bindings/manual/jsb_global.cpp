@@ -6,6 +6,8 @@
 #include "jsb_conversions.hpp"
 #include "xxtea/xxtea.h"
 
+#include <regex>
+
 using namespace cocos2d;
 
 se::Object* __jscObj = nullptr;
@@ -191,12 +193,6 @@ bool jsb_set_extend_property(const char* ns, const char* clsName)
     return false;
 }
 
-bool jsb_run_script(const std::string& filePath, se::Value* rval/* = nullptr */)
-{
-    se::AutoHandleScope hs;
-    return se::ScriptEngine::getInstance()->runScript(filePath, rval);
-}
-
 namespace {
 
     static bool require(se::State& s)
@@ -209,6 +205,115 @@ namespace {
         return jsb_run_script(args[0].toString(), &s.rval());
     }
     SE_BIND_FUNC(require)
+
+    static std::string getFileDir(const std::string& path)
+    {
+        std::string ret;
+        size_t pos = path.rfind("/");
+        if (pos != std::string::npos)
+        {
+            ret = path.substr(0, pos);
+        }
+
+        // Normalize: remove . and ..
+        ret = std::regex_replace(ret, std::regex("/\\./"), "/");
+
+//        std::string test("/Users/james/Library/Developer/Xcode/DerivedData/hello_world-dhljtvtfwnnoljcvznahecomrhnx/Build/Products/Debug/hello_world-desktop.app/Contents/Resources/jsb/./../../aaa/bbb");
+//        test = std::regex_replace(test, std::regex("/\\./"), "/");
+
+
+        return ret;
+    }
+
+    static bool doModuleRequire(const std::string& path, se::Value* ret, const std::string& prevScriptFileDir)
+    {
+        se::AutoHandleScope hs;
+        assert(!path.empty());
+
+        const auto& fileOperationDelegate = se::ScriptEngine::getInstance()->getFileOperationDelegate();
+        assert(fileOperationDelegate.isValid());
+
+        std::string fullPath;
+        std::string scriptBuffer = fileOperationDelegate.onGetStringFromFile(path);
+
+        if (scriptBuffer.empty() && !prevScriptFileDir.empty())
+        {
+            std::string secondPath = prevScriptFileDir;
+            if (secondPath[secondPath.length()-1] != '/')
+                secondPath += "/";
+
+            secondPath += path;
+
+            if (FileUtils::getInstance()->isDirectoryExist(secondPath))
+            {
+                printf("dir\n");
+                if (secondPath[secondPath.length()-1] != '/')
+                    secondPath += "/";
+                secondPath += "index.js";
+            }
+            else
+            {
+                if (path.rfind(".js") != (path.length() - 3))
+                    secondPath += ".js";
+            }
+
+            printf("secondPath: %s\n", secondPath.c_str());
+
+            fullPath = fileOperationDelegate.onGetFullPath(secondPath);
+            scriptBuffer = fileOperationDelegate.onGetStringFromFile(fullPath);
+        }
+        else
+        {
+            fullPath = fileOperationDelegate.onGetFullPath(path);
+        }
+
+        if (!scriptBuffer.empty())
+        {
+            std::string currentScriptFileDir = getFileDir(fullPath);
+
+            // Add closure for evalutate the script
+            char prefix[] = "(function(currentScriptDir){\n\twindow.module = window.module || {};\n\twindow.exports = window.module.exports;\n";
+            char suffix[512] = {0};
+            snprintf(suffix, sizeof(suffix), "\n})('%s');\n", currentScriptFileDir.c_str());
+
+            // Add current script path to require function invocation
+//            std::string requireTest = "xxx, require('../aaa/bbb/ccc'); haha require('../aaa/bbb/ccc'); haha\nrequire('../aaa/bbb/ccc'); haha\n";
+//            std::string requireTest = "require(\"./jsb_prepare\")";
+//            requireTest = std::regex_replace(requireTest, std::regex("([^A-Za-z0-9]|^)require\\((.*?)\\)"), "$1require($2, currentScriptDir)");
+
+            scriptBuffer = prefix + std::regex_replace(scriptBuffer, std::regex("([^A-Za-z0-9]|^)require\\((.*?)\\)"), "$1require($2, currentScriptDir)") + suffix;
+
+            FILE* fp = fopen("/Users/james/Downloads/test.txt", "wb");
+            fwrite(scriptBuffer.c_str(), scriptBuffer.length(), 1, fp);
+            fclose(fp);
+
+            auto se = se::ScriptEngine::getInstance();
+            bool succeed = se->evalString(scriptBuffer.c_str(), scriptBuffer.length(), nullptr, path.c_str());
+            se::Value moduleVal;
+            if (se->getGlobalObject()->getProperty("module", &moduleVal) && moduleVal.isObject())
+            {
+                moduleVal.toObject()->getProperty("exports", ret);
+            }
+            assert(succeed);
+            return succeed;
+        }
+
+        SE_LOGE("doModuleRequire %s, buffer is empty!\n", path.c_str());
+        assert(false);
+        return false;
+    }
+
+    static bool moduleRequire(se::State& s)
+    {
+        const auto& args = s.args();
+        int argc = (int)args.size();
+        assert(argc >= 2);
+        assert(args[0].isString());
+        assert(args[1].isString());
+
+        return doModuleRequire(args[0].toString(), &s.rval(), args[1].toString());
+    }
+    SE_BIND_FUNC(moduleRequire)
 
     static bool ccpAdd(se::State& s)
     {
@@ -614,6 +719,11 @@ namespace {
     }
 }
 
+bool jsb_run_script(const std::string& filePath, se::Value* rval/* = nullptr */)
+{
+    return doModuleRequire(filePath, rval, "");
+}
+
 static bool jsc_garbageCollect(se::State& s)
 {
     se::ScriptEngine::getInstance()->garbageCollect();
@@ -820,7 +930,7 @@ SE_BIND_FUNC(js_performance_now)
 
 bool jsb_register_global_variables(se::Object* global)
 {
-    global->defineFunction("require", _SE(require));
+    global->defineFunction("require", _SE(moduleRequire));
 
     getOrCreatePlainObject_r("cc", global, &__ccObj);
 
