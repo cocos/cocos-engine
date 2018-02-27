@@ -204,23 +204,14 @@ function process () {
     var cache = this._hasListenerCache;
     if (cache && cache['lastframe']) {
         var lastInfo;
-        if (!lastInfo) {
+        if (!this._lastWrappedInfo) {
             lastInfo = this._lastWrappedInfo = new WrappedInfo(info);
+        } else {
+            lastInfo = this._lastWrappedInfo;
         }
 
-        if (this.repeatCount > 1 && 
-            ((info.iterations | 0) > (lastInfo.iterations | 0)) // another iterations
-            ) {
-            if ((this.wrapMode & WrapModeMask.Reverse) === WrapModeMask.Reverse) {
-                if (lastInfo.direction < 0) {
-                    this.emit('lastframe', this);
-                }
-            }
-            else {
-                if (lastInfo.direction > 0) {
-                    this.emit('lastframe', this);
-                }
-            }
+        if (this.repeatCount > 1 && ((info.iterations | 0) > (lastInfo.iterations | 0))) {
+            this.emit('lastframe', this);
         }
 
         lastInfo.set(info);
@@ -230,7 +221,7 @@ function process () {
         this.stop();
         this.emit('finished', this);
     }
-};
+}
 
 function simpleProcess () {
     var time = this.time;
@@ -242,7 +233,7 @@ function simpleProcess () {
     }
     else if (time < 0) {
         time = time % duration;
-        if (time !== 0 ) time += duration;
+        if (time !== 0) time += duration;
     }
 
     var ratio = time / duration;
@@ -255,18 +246,15 @@ function simpleProcess () {
 
     var cache = this._hasListenerCache;
     if (cache && cache['lastframe']) {
-        var currentIterations = time > 0 ? (time / duration) : -(time / duration);
-        
-        var lastIterations = this._lastIterations;
-        if (lastIterations === undefined) {
-            lastIterations = this._lastIterations = currentIterations;
+        if (this._lastIterations === undefined) {
+            this._lastIterations = ratio;
         }
 
-        if ((currentIterations | 0) > (lastIterations | 0)) {
+        if ((this.time > 0 && this._lastIterations > ratio) || (this.time < 0 && this._lastIterations < ratio)) {
             this.emit('lastframe', this);
         }
 
-        this._lastIterations = currentIterations;
+        this._lastIterations = ratio;
     }
 }
 
