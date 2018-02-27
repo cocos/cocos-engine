@@ -44,7 +44,7 @@ var Audio = function (src) {
     this._state = Audio.State.INITIALZING;
     this._loaded = false;
 
-    this._preloadSrc = null;
+    this._isLoading = false;
 
     this._onended = function () {
         this.emit('ended');
@@ -91,10 +91,10 @@ Audio.State = {
     proto.preload = function () {
         var src = this._src, audio = this;
 
-        if (this._preloadSrc === src) {
+        if (this._isLoading) {
             return;
         }
-        this._preloadSrc = src;
+        this._isLoading = true;
 
         if (!src) {
             this._src = '';
@@ -280,6 +280,9 @@ Audio.State = {
         return this._src;
     });
     proto.__defineSetter__('src', function (string) {
+        if (string !== this._src) {
+            this._isLoading = false;
+        }
         return this._src = string;
     });
 
