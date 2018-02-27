@@ -44,6 +44,8 @@ var Audio = function (src) {
     this._state = Audio.State.INITIALZING;
     this._loaded = false;
 
+    this._preloadSrc = null;
+
     this._onended = function () {
         this.emit('ended');
     }.bind(this);
@@ -88,6 +90,11 @@ Audio.State = {
 
     proto.preload = function () {
         var src = this._src, audio = this;
+
+        if (this._preloadSrc === src) {
+            return;
+        }
+        this._preloadSrc = src;
 
         if (!src) {
             this._src = '';
