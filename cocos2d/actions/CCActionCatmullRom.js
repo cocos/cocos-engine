@@ -123,7 +123,7 @@ cc.CardinalSplineTo = cc.Class({
         this._tension = 0;
         this._previousPosition = null;
         this._accumulatedDiff = null;
-        tension !== undefined && this.initWithDuration(duration, points, tension);
+        tension !== undefined && cc.CardinalSplineTo.prototype.initWithDuration.call(this, duration, points, tension);
     },
 
     initWithDuration:function (duration, points, tension) {
