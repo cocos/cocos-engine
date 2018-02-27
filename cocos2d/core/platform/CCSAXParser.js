@@ -71,7 +71,9 @@ cc.SAXParser.prototype = {
  * @class plistParser
  * @extends SAXParser
  */
-cc.PlistParser = function () {};
+cc.PlistParser = function () {
+    cc.SAXParser.call(this);
+};
 js.extend(cc.PlistParser, cc.SAXParser);
 js.mixin(cc.PlistParser.prototype, {
     /**
