@@ -44,6 +44,8 @@ var Audio = function (src) {
     this._state = Audio.State.INITIALZING;
     this._loaded = false;
 
+    this._isLoading = false;
+
     this._onended = function () {
         this.emit('ended');
     }.bind(this);
@@ -89,6 +91,11 @@ Audio.State = {
     proto.preload = function () {
         var src = this._src, audio = this;
 
+        if (this._isLoading) {
+            return;
+        }
+        this._isLoading = true;
+
         if (!src) {
             this._src = '';
             this._audioType = Audio.Type.UNKNOWN;
@@ -107,7 +114,7 @@ Audio.State = {
         // If the resource does not exist
         if (!item || !item.complete) {
             return cc.loader.load(src, function (error) {
-                if (!error) {
+                if (!error && src === audio._src) {
                     var item = cc.loader.getItem(src);
                     audio.mount(item.element || item.buffer);
                     audio.emit('load');
@@ -273,6 +280,9 @@ Audio.State = {
         return this._src;
     });
     proto.__defineSetter__('src', function (string) {
+        if (string !== this._src) {
+            this._isLoading = false;
+        }
         return this._src = string;
     });
 
