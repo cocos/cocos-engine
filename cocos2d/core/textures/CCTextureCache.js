@@ -141,7 +141,7 @@ var textureCache = /** @lends cc.textureCache# */{
             if (locTextures[selKey])
                 locTextures[selKey].releaseTexture();
         }
-        this._textures = {};
+        this._textures = cc.js.createMap();
     },
 
     /**
@@ -248,8 +248,8 @@ var textureCache = /** @lends cc.textureCache# */{
     },
 
     _clear: function () {
-        this._textures = {};
-        this._textureColorsCache = {};
+        this._textures = cc.js.createMap();
+        this._textureColorsCache = cc.js.createMap();
         this._textureKeySeq = (0 | Math.random() * 1000);
     }
 };

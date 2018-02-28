@@ -829,7 +829,7 @@ var _Deserializer = (function () {
  * @return {object} the main data(asset)
  */
 cc.deserialize = function (data, details, options) {
-    options = options || {};
+    options = options || cc.js.createMap(true);
     var classFinder = options.classFinder || JS._getClassById;
     // 启用 createAssetRefs 后，如果有 url 属性则会被统一强制设置为 { uuid: 'xxx' }，必须后面再特殊处理
     var createAssetRefs = options.createAssetRefs || cc.sys.platform === cc.sys.EDITOR_CORE;

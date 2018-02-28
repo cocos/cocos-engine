@@ -42,7 +42,7 @@ var MD5Pipe = require('../load-pipeline/md5-pipe');
 
 var _libraryBase = '';
 var _rawAssetsBase = '';     // The base dir for raw assets in runtime
-var _uuidToRawAsset = {};
+var _uuidToRawAsset = cc.js.createMap(true);
 
 function isScene (asset) {
     return asset && (asset.constructor === cc.SceneAsset || asset instanceof cc.Scene);

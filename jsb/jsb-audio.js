@@ -29,7 +29,7 @@ cc.Audio = function (src) {
     this.loop = false;
 
     this.id = -1;
-    this._eventList = {};
+    this._eventList = cc.js.createMap(true);
 
     this.type = cc.Audio.Type.NATIVE;
 };
