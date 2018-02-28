@@ -19,6 +19,12 @@
     ]
   },
   {
+    "name": "Canvas Renderer",
+    "entries": [
+      "./cocos2d/core/renderer/canvas/index.js"
+    ]
+  },
+  {
     "name": "Label",
     "entries": [
       "./cocos2d/core/components/CCLabel.js"

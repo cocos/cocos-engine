@@ -61,6 +61,8 @@ function _initBuiltins(device) {
 
 module.exports = {
     renderEngine: renderEngine,
+    Texture2D: null,
+
     canvas: null,
     device: null,
     scene: null,
@@ -71,7 +73,9 @@ module.exports = {
     _camera: null,
     _forward: null,
 
-    init (canvas, opts) {
+    initWebGL (canvas, opts) {
+        this.Texture2D = renderEngine.Texture2D;
+
         this.canvas = canvas;
         this.device = new renderEngine.Device(canvas, opts);
         this.scene = new renderEngine.Scene();
@@ -104,24 +108,46 @@ module.exports = {
         this._forward = new renderEngine.ForwardRenderer(this.device, builtins);
     },
 
+    initCanvas (canvas, canvasRenderer) {
+        this.Texture2D = renderEngine.canvas.Texture2D;
+
+        this.canvas = canvas;
+        this.device = new renderEngine.canvas.Device(canvas);
+        this._camera = {
+            a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0
+        };
+        this._walker = new canvasRenderer.RenderComponentWalker(this.device, this._camera);
+        this._forward = new canvasRenderer.ForwardRenderer();
+    },
+
     updateCameraViewport () {
         // TODO: remove HACK
         if (!CC_EDITOR && cc.director) {
-            var ecScene = cc.director.getScene();
+            let ecScene = cc.director.getScene();
             ecScene.scaleX = ecScene.scaleY = 1;
         }
 
-        let node = this._cameraNode;
-        let canvas = this.canvas;
-        let scaleX = cc.view.getScaleX();
-        let scaleY = cc.view.getScaleY();
-        let zeye = canvas.height / scaleY / 1.1566;
-        _pos.x = node.x = canvas.width / scaleX / 2;
-        _pos.y = node.y = canvas.height / scaleY / 2;
-        node.z = zeye;
-        _pos.z = 0;
-        node.lookAt(_pos);
-        this._camera.dirty = true;
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+            let vp = cc.view.getViewPortRect();
+            this.device.setViewport(vp.x, vp.y, vp.width, vp.height);
+            this._camera.a = cc.view.getScaleX();
+            this._camera.d = -cc.view.getScaleY();
+            this._camera.tx = vp.x;
+            this._camera.ty = vp.y + vp.height;
+        }
+        else {
+            let node = this._cameraNode;
+            let canvas = this.canvas;
+            let scaleX = cc.view.getScaleX();
+            let scaleY = cc.view.getScaleY();
+            let zeye = canvas.height / scaleY / 1.1566;
+            _pos.x = node.x = canvas.width / scaleX / 2;
+            _pos.y = node.y = canvas.height / scaleY / 2;
+            node.z = zeye;
+            _pos.z = 0;
+            node.lookAt(_pos);
+            this._camera.dirty = true;
+        }
     },
 
     render (ecScene) {
@@ -129,7 +155,7 @@ module.exports = {
         if (ecScene) {
             // walk entity component scene to generate models
             this._walker.visit(ecScene);
-            this.drawCalls = this.scene.getModelCount();
+            this.drawCalls = this.device._stats.drawcalls;
             // Render models in renderer scene
             this._forward.render(this.scene);
         }
