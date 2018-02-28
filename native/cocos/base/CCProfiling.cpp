@@ -161,8 +161,8 @@ void ProfilingEndTimingBlock(const char *timerName)
     timer->totalTime += duration;
     timer->_averageTime1 = (timer->_averageTime1 + duration) / 2.0f;
     timer->_averageTime2 = timer->totalTime / timer->numberOfCalls;
-    timer->maxTime = MAX( timer->maxTime, duration);
-    timer->minTime = MIN( timer->minTime, duration);
+    timer->maxTime = std::max( timer->maxTime, duration);
+    timer->minTime = std::min( timer->minTime, duration);
 }
 
 void ProfilingResetTimingBlock(const char *timerName)

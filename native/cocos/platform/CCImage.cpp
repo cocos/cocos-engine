@@ -1302,8 +1302,8 @@ bool Image::initWithPVRv2Data(const unsigned char * data, ssize_t dataLen)
         dataOffset += packetLength;
 
         //Update width and height to the next lower power of two
-        width = MAX(width >> 1, 1);
-        height = MAX(height >> 1, 1);
+        width = std::max(width >> 1, 1);
+        height = std::max(height >> 1, 1);
     }
 
     if(_unpack)
@@ -1478,8 +1478,8 @@ bool Image::initWithPVRv3Data(const unsigned char * data, ssize_t dataLen)
         CCASSERT(dataOffset <= _dataLen, "Image: Invalid length");
         
         
-        width = MAX(width >> 1, 1);
-        height = MAX(height >> 1, 1);
+        width = std::max(width >> 1, 1);
+        height = std::max(height >> 1, 1);
     }
 
     if (_unpack)
