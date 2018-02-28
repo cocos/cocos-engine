@@ -70,3 +70,5 @@ RenderComponentWalker.prototype = {
         scene.walk(this._handleRender, this._postHandleRender);
     }
 }
+
+module.exports = RenderComponentWalker;
