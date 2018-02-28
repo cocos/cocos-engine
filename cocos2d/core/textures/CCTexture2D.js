@@ -33,7 +33,6 @@ const renderer = require('../renderer');
 require('../platform/CCClass');
 
 const gfx = renderEngine.gfx;
-const TextureImpl = renderEngine.Texture2D;
 
 const GL_NEAREST = 9728;                // gl.NEAREST
 const GL_LINEAR = 9729;                 // gl.LINEAR
@@ -494,7 +493,7 @@ var Texture2D = cc.Class({
         opts.wrapT = this._wrapT;
         
         if (!this._texture) {
-            this._texture = new TextureImpl(renderer.device, opts);
+            this._texture = new renderer.Texture2D(renderer.device, opts);
         }
         else {
             this._texture.update(opts);

@@ -731,7 +731,7 @@ var game = {
         }
 
         // WebGL context created successfully
-        if (cc.game.renderType === game.RENDER_TYPE_WEBGL) {
+        if (game.renderType === game.RENDER_TYPE_WEBGL) {
             var opts = {
                 'stencil': true,
                 'antialias': false,
@@ -740,12 +740,14 @@ var game = {
             if (isWeChatGame) {
                 opts['preserveDrawingBuffer'] = true;
             }
-            renderer.init(localCanvas, opts);
+            renderer.initWebGL(localCanvas, opts);
             this._renderContext = renderer.device._gl;
         }
         if (!this._renderContext) {
-            cc.game.renderType = game.RENDER_TYPE_CANVAS;
-            renderer.init(localCanvas);
+            game.renderType = game.RENDER_TYPE_CANVAS;
+            // Could be ignored by module settings
+            var canvasRenderer = require('./renderer/canvas');
+            renderer.initCanvas(localCanvas, canvasRenderer);
             this._renderContext = renderer.device._ctx;
         }
         cc.renderer = renderer;

@@ -768,11 +768,11 @@ View.prototype = {
         cc.winSize.width = director._winSizeInPoints.width;
         cc.winSize.height = director._winSizeInPoints.height;
 
-        renderer.updateCameraViewport();
-
         this._originalScaleX = this._scaleX;
         this._originalScaleY = this._scaleY;
         cc.visibleRect && cc.visibleRect.init(this._visibleRect);
+
+        renderer.updateCameraViewport();
     },
 
     /**
