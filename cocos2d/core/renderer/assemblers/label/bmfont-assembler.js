@@ -124,8 +124,16 @@ let _lineSpacing = 0;
 let _string = '';
 let _fontSize = 0;
 let _originFontSize = 0;
-let _overflow = 0;
 let _contentSize = cc.size();
+let _hAlign = 0;
+let _vAlign = 0;
+let _spacingX = 0;
+let _lineHeight = 0;
+let _overflow = 0;
+let _isWrapText = false;
+let _labelWidth = 0;
+let _labelHeight = 0;
+let _maxLineWidth = 0;
 
 module.exports = {
     createData (comp) {
