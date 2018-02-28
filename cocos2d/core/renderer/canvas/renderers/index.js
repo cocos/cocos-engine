@@ -31,7 +31,6 @@ let Mask = require('../../../components/CCMask');
 let RichText = require('../../../components/CCRichText');
 // the following should be placed into their own module folder
 // let Graphics = require('../../../graphics/graphics');
-// let MotionStreak = require('../../../../motion-streak/CCMotionStreak');
 // let ParticleSystem = require('../../../../particle/CCParticleSystem');
 // let TiledLayer = require('../../../../tilemap/CCTiledLayer');
 // let Skeleton = require('../../../../../extensions/spine/Skeleton');
