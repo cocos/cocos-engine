@@ -79,7 +79,7 @@ cc.screen = /** @lends cc.screen# */{
      * @method init
      */
     init: function () {
-        this._fn = {};
+        this._fn = cc.js.createMap(true);
         var i, l, val, map = this._fnMap, valL;
         for (i = 0, l = map.length; i < l; i++) {
             val = map[i];

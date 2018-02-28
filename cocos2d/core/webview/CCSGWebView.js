@@ -26,7 +26,7 @@ _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
     ctor: function () {
         _ccsg.Node.prototype.ctor.call(this);
         this.setContentSize(cc.size(300, 200));
-        this._EventList = {};
+        this._EventList = cc.js.createMap(true);
     },
 
     createDomElementIfNeeded: function () {

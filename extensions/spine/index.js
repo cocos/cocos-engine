@@ -40,7 +40,7 @@
  * http://en.esotericsoftware.com/spine-using-runtimes
  */
 
-sp = CC_JSB ? sp : {};
+sp = CC_JSB ? sp : cc.js.createMap();
 
 // The vertex index of spine.
 sp.VERTEX_INDEX = {

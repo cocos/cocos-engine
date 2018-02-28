@@ -11,7 +11,7 @@ exports.getMacros = function (platform, flags) {
     if (PLATFORM_MACROS.indexOf(platformMacro) === -1) {
         throw new Error('Unknown platform: ' + platform);
     }
-    var res = {};
+    var res = cc.js.createMap();
     for (let i = 0; i < PLATFORM_MACROS.length; i++) {
         let macro = PLATFORM_MACROS[i];
         res[macro] = (macro === platformMacro);

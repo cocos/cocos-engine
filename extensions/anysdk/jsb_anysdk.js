@@ -32,7 +32,7 @@
  * @module anysdk
  * @main anysdk
  */
-var anysdk = anysdk || {};
+var anysdk = anysdk || cc.js.createMap();
 /**
  * !#en
  * agent manager of plugin

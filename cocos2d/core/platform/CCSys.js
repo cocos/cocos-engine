@@ -30,7 +30,7 @@ if (cc.sys) return;
  * @class sys
  * @static
  */
-cc.sys = {};
+cc.sys = cc.js.createMap();
 var sys = cc.sys;
 
 /**

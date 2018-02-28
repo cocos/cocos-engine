@@ -910,7 +910,7 @@ function declareProperties (cls, className, properties, baseClass, mixins, es6) 
  obj.load();
  */
 function CCClass (options) {
-    options = options || {};
+    options = options || cc.js.createMap(true);
 
     var name = options.name;
     var base = options.extends/* || CCObject*/;
