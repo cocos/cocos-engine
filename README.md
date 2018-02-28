@@ -12,7 +12,7 @@ The framework is naturally integrated with Cocos Creator, so it's not designed t
 
 ### Prerequisite
 
-- Install [node.js v4.2.1+](https://nodejs.org/)
+- Install [node.js v8.0+](https://nodejs.org/)
 - Install [gulp-cli v3.9.0+](https://github.com/gulpjs/gulp/blob/master/docs/getting-started.md)
 
 ### Install
