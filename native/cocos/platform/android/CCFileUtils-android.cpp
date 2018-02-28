@@ -29,7 +29,7 @@ THE SOFTWARE.
 
 #include "platform/android/CCFileUtils-android.h"
 #include "platform/android/jni/JniHelper.h"
-#include "platform/android/jni/Java_org_cocos2dx_lib_Cocos2dxHelper.h"
+#include "platform/android/jni/JniImp.h"
 #include "android/asset_manager.h"
 #include "android/asset_manager_jni.h"
 #include "base/ZipUtils.h"
@@ -90,7 +90,7 @@ bool FileUtilsAndroid::init()
 {
     _defaultResRootPath = ASSETS_FOLDER_NAME;
     
-    std::string assetsPath(getApkPath());
+    std::string assetsPath(getApkPathJNI());
     if (assetsPath.find("/obb/") != std::string::npos)
     {
         obbfile = new ZipFile(assetsPath);

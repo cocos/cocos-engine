@@ -40,6 +40,7 @@ void EventDispatcher::dispatchKeyEvent(int key, int action)
     
 void EventDispatcher::dispatchTickEvent()
 {
+    se::AutoHandleScope scope;
     auto se = se::ScriptEngine::getInstance();
     static se::Value tickVal;
     static std::chrono::steady_clock::time_point prevTime;

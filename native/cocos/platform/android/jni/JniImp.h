@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,25 +22,23 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+#pragma once
 
-#include "platform/android/jni/JniHelper.h"
-#include <jni.h>
-#include "base/CCEventAcceleration.h"
+#include <string>
 
-#define TG3_GRAVITY_EARTH                    (9.80665f)
+typedef void (*EditTextCallback)(const std::string& text, void* ctx);
 
-using namespace cocos2d;
+extern std::string getApkPathJNI();
+extern std::string getPackageNameJNI();
+extern int getObbAssetFileDescriptorJNI(const std::string& path, long* startOffset, long* size);
+extern void convertEncodingJNI(const std::string& src, int byteSize, const std::string& fromCharset, std::string& dst, const std::string& newCharset);
 
-extern "C" {
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxAccelerometer_onSensorChanged(JNIEnv*  env, jobject thiz, jfloat x, jfloat y, jfloat z, jlong timeStamp) {
-        // Acceleration a;
-        // a.x = -((double)x / TG3_GRAVITY_EARTH);
-        // a.y = -((double)y / TG3_GRAVITY_EARTH);
-        // a.z = -((double)z / TG3_GRAVITY_EARTH);
-        // a.timestamp = (double)timeStamp;
+extern int getDeviceSampleRateJNI();
+extern int getDeviceAudioBufferSizeInFramesJNI();
 
-        // EventAcceleration* event = new (std::nothrow) EventAcceleration(a);
-        // Director::getInstance()->getEventDispatcher()->dispatchEvent(event);
-        // event->release();
-    }
-}
+extern int getFontSizeAccordingHeightJNI(int height);
+extern std::string getStringWithEllipsisJNI(const std::string& text, float width, float fontSize);
+
+extern std::string getCurrentLanguageJNI();
+extern bool openURLJNI(const std::string& url);
+extern void setAnimationIntervalJNI(float interval);

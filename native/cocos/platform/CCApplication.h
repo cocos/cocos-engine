@@ -47,7 +47,7 @@ public:
         WINDOWS,     /**< Windows */
         LINUX,       /**< Linux */
         MAC,         /**< Mac OS X*/
-        ANDROID,     /**< Android */
+        ANDROIDOS,   /**< Android, because ANDROID is a macro, so use ANDROIDOS instead */
         IPHONE,      /**< iPhone */
         IPAD,        /**< iPad */
     };
