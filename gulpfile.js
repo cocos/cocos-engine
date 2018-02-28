@@ -34,9 +34,15 @@ const Engine = require('./gulp/tasks/engine');
 const Test = require('./gulp/tasks/test');
 const Watch = require('./gulp/tasks/watch');
 
+const buildEgnine = require('./utils/quick-compile/build-engine')
+
 /////////////
 // engine //
 /////////////
+
+gulp.task('build-preview', function (done) {
+    buildEgnine({}, done);
+});
 
 gulp.task('build-html5-dev', function (done) {
     Engine.buildCocosJs('./index.js', './bin/cocos2d-js.js', [],  done);
@@ -46,15 +52,15 @@ gulp.task('build-html5-min', function (done) {
     Engine.buildCocosJsMin('./index.js', './bin/cocos2d-js-min.js', [], done);
 });
 
-gulp.task('build-html5-preview',  function (done) {
-    Engine.buildPreview('./index.js', './bin/cocos2d-js-for-preview.js', done);
-});
+// gulp.task('build-html5-preview',  function (done) {
+//     Engine.buildPreview('./index.js', './bin/cocos2d-js-for-preview.js', done);
+// });
 
-gulp.task('build-html5-preview-dev', function (done) {
-    Engine.buildPreview('./index.js', './bin/cocos2d-js-for-preview.js', done, true);
-});
+// gulp.task('build-html5-preview-dev', function (done) {
+//     Engine.buildPreview('./index.js', './bin/cocos2d-js-for-preview.js', done, true);
+// });
 
-gulp.task('build-html5', ['build-html5-preview', 'build-html5-dev', 'build-html5-min']);
+gulp.task('build-html5', [/*'build-html5-preview', */'build-html5-dev', 'build-html5-min']);
 
 gulp.task('build-jsb-dev', function (done) {
     Engine.buildJsb([
@@ -68,13 +74,13 @@ gulp.task('build-jsb-min', function (done) {
     ], './bin/jsb_polyfill.js', [], done);
 });
 
-gulp.task('build-jsb-preview',  function (done) {
-    Engine.buildJsbPreview([
-        './jsb/index.js',
-    ], './bin/jsb_polyfill-for-preview.js', [], done);
-});
+// gulp.task('build-jsb-preview',  function (done) {
+//     Engine.buildJsbPreview([
+//         './jsb/index.js',
+//     ], './bin/jsb_polyfill-for-preview.js', [], done);
+// });
 
-gulp.task('build-jsb', ['build-jsb-preview', 'build-jsb-dev', 'build-jsb-min']);
+gulp.task('build-jsb', [/*'build-jsb-preview', */'build-jsb-dev', 'build-jsb-min']);
 
 /////////
 // test //
@@ -135,7 +141,7 @@ gulp.task('build-dev', ['build-html5-preview', 'build-jsb-preview'], function (d
 });
 
 // only build preview for html5 since it will built by editor
-gulp.task('build', ['build-html5-preview', 'build-jsb'], function (done) {
+gulp.task('build', ['build-html5-preview', 'build-jsb', 'build-preview'], function (done) {
     Del(['./bin/.cache/**/*', '!./bin/.cache/dev', '!./bin/.cache/dev/**/*'], done);
 });
 
