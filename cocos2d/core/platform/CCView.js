@@ -819,6 +819,7 @@ View.prototype = {
     /**
      * Sets view port rectangle with points.
      * @method setViewPortInPoints
+     * @deprecated
      * @param {Number} x
      * @param {Number} y
      * @param {Number} w width

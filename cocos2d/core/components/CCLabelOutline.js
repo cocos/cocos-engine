@@ -37,7 +37,8 @@
  */
 
 var LabelOutline = cc.Class({
-    name: 'cc.LabelOutline', extends: require('./CCComponent'),
+    name: 'cc.LabelOutline',
+    extends: require('./CCComponent'),
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/LabelOutline',
         executeInEditMode: true,

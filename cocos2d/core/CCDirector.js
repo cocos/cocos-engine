@@ -110,8 +110,6 @@ cc.Director = function () {
     this._paused = false;
     // purge?
     this._purgeDirectorInNextLoop = false;
-    this._animationInterval = 0.0;
-    this._oldAnimationInterval = 0.0;
 
     this._winSizeInPoints = null;
 
@@ -142,8 +140,6 @@ cc.Director = function () {
 cc.Director.prototype = {
     constructor: cc.Director,
     init: function () {
-        this._oldAnimationInterval = this._animationInterval = 1.0 / cc.defaultFPS;
-
         this._totalFrames = 0;
         this._lastUpdate = Date.now();
         this._paused = false;
@@ -343,10 +339,6 @@ cc.Director.prototype = {
     pause: function () {
         if (this._paused)
             return;
-
-        this._oldAnimationInterval = this._animationInterval;
-        // when paused, don't consume CPU
-        this.setAnimationInterval(1 / 4.0);
         this._paused = true;
     },
 
@@ -761,7 +753,6 @@ cc.Director.prototype = {
             return;
         }
 
-        this.setAnimationInterval(this._oldAnimationInterval);
         this._lastUpdate = Date.now();
         if (!this._lastUpdate) {
             cc.logID(1200);
@@ -851,13 +842,28 @@ cc.Director.prototype = {
     },
 
     /**
-     * !#en Returns the FPS value.
-     * !#zh 获取单位帧执行时间。
+     * !#en Returns the FPS value. Please use {{#crossLink "Game.setFrameRate"}}cc.game.setFrameRate{{/crossLink}} to control animation interval.
+     * !#zh 获取单位帧执行时间。请使用 {{#crossLink "Game.setFrameRate"}}cc.game.setFrameRate{{/crossLink}} 来控制游戏帧率。
      * @method getAnimationInterval
+     * @deprecated
      * @return {Number}
      */
     getAnimationInterval: function () {
-        return this._animationInterval;
+        return cc.game._frameTime;
+    },
+
+    /**
+     * Sets animation interval, this doesn't control the main loop.
+     * To control the game's frame rate overall, please use {{#crossLink "Game.setFrameRate"}}cc.game.setFrameRate{{/crossLink}}
+     * @method setAnimationInterval
+     * @deprecated
+     * @param {Number} value - The animation interval desired.
+     */
+    setAnimationInterval: function (value) {
+        if (!this.invalid) {
+            this.stopAnimation();
+            this.startAnimation();
+        }
     },
 
     /**
@@ -1067,20 +1073,6 @@ cc.Director.prototype = {
 
             this.emit(cc.Director.EVENT_AFTER_DRAW);
             eventManager.frameUpdateListeners();
-        }
-    },
-
-    /**
-     * Sets animation interval, this doesn't control the main loop.
-     * To control the game's frame rate overall, please use {{#crossLink "Game.setFrameRate"}}cc.game.setFrameRate{{/crossLink}}
-     * @method setAnimationInterval
-     * @param {Number} value - The animation interval desired.
-     */
-    setAnimationInterval: function (value) {
-        this._animationInterval = value;
-        if (!this.invalid) {
-            this.stopAnimation();
-            this.startAnimation();
         }
     },
 
