@@ -599,7 +599,7 @@ var BaseNode = cc.Class({
 
         stack.length = 0;
         stack[0] = this;
-        parent = null;
+        var parent = null;
         afterChildren = false;
         while (index) {
             index--;

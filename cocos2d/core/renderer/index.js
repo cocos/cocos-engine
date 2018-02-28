@@ -151,13 +151,13 @@ module.exports = {
     },
 
     render (ecScene) {
-        this.drawCalls = 0;
+        this.device._stats.drawcalls = 0;
         if (ecScene) {
             // walk entity component scene to generate models
             this._walker.visit(ecScene);
-            this.drawCalls = this.device._stats.drawcalls;
             // Render models in renderer scene
             this._forward.render(this.scene);
+            this.drawCalls = this.device._stats.drawcalls;
         }
     },
 

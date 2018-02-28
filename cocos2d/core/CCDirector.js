@@ -412,7 +412,12 @@ cc.Director.prototype = {
 
         cc.renderer.clear();
 
-        this._scene = null;
+        if (!CC_EDITOR) {
+            if (cc.isValid(this._scene)) {
+                this._scene.destroy();
+            }
+            this._scene = null;
+        }
 
         this.stopAnimation();
 
