@@ -140,11 +140,12 @@ namespace
     bool setCanvasCallback(se::Object* global)
     {
         CGRect bounds = [UIScreen mainScreen].bounds;
+        float scale = [[UIScreen mainScreen] scale];
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         char commandBuf[200] = {0};
         sprintf(commandBuf, "window.canvas = { width: %d, height: %d };",
-                (int)bounds.size.width,
-                (int)bounds.size.height);
+                (int)(bounds.size.width * scale),
+                (int)(bounds.size.height * scale));
         se->evalString(commandBuf);
         
         return true;
@@ -157,7 +158,8 @@ Application::Application(const std::string& name)
 {
     createView(name);
     
-    renderer::DeviceGraphics::getInstance()->setScaleFactor([[UIScreen mainScreen] scale]);
+    renderer::DeviceGraphics::getInstance();
+
     se::ScriptEngine::getInstance();
     
     _delegate = [[MainLoop alloc] initWithApplication:this];

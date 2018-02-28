@@ -37,16 +37,6 @@ NS_CC_BEGIN
 
 namespace
 {
-    long getCurrentMillSecond()
-    {
-        long lLastTime = 0;
-        struct timeval stCurrentTime;
-        
-        gettimeofday(&stCurrentTime, nullptr);
-        lLastTime = stCurrentTime.tv_sec * 1000+stCurrentTime.tv_usec * 0.001; // milliseconds
-        return lLastTime;
-    }
-    
     int g_width = 0;
     int g_height = 0;
     bool setCanvasCallback(se::Object* global)
