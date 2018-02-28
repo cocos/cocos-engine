@@ -93,8 +93,8 @@ let VideoPlayerImpl = cc.Class({
         var video = this._video;
         if (!video) return;
 
-        video.style['width'] = width + 'px';
-        video.style['height'] = height + 'px';
+        video.style.width = width + 'px';
+        video.style.height = height + 'px';
     },
 
     _createDom () {
@@ -362,6 +362,7 @@ let VideoPlayerImpl = cc.Class({
     updateMatrix (node) {
         if (!this._video || !this._visible) return;
 
+        node._updateWorldMatrix();
         var mat = node._worldMatrix;
         if (!this._forceUpdate &&
             this._m00 === mat.m00 && this._m01 === mat.m01 && this._m04 === mat.m04 && this._m05 === mat.m05 && this._m12 === mat.m12 && this._m13 === mat.m13 &&
@@ -399,8 +400,9 @@ let VideoPlayerImpl = cc.Class({
             h = this._h * scaleY;
         }
         else {
-            w = this._video.clientWidth / scaleX;
-            h = this._video.clientHeight / scaleY;
+            this._updateSize(this._w, this._h);
+            w = this._w * scaleX;
+            h = this._h * scaleY;
         }
 
         var appx = w * node._anchorPoint.x;

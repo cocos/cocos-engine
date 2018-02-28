@@ -62,8 +62,8 @@ var WebViewImpl = cc.Class({
     _updateSize (w, h) {
         var div = this._div;
         if (div) {
-            div.style["width"] = w + "px";
-            div.style["height"] = h + "px";
+            div.style.width = w + "px";
+            div.style.height = h + "px";
         }
     },
 
@@ -294,6 +294,7 @@ var WebViewImpl = cc.Class({
     updateMatrix (node) {
         if (!this._div || !this._visible) return;
 
+        node._updateWorldMatrix();
         var mat = node._worldMatrix;
         if (!this._forceUpdate &&
             this._m00 === mat.m00 && this._m01 === mat.m01 && this._m04 === mat.m04 && this._m05 === mat.m05 && this._m12 === mat.m12 && this._m13 === mat.m13 &&
@@ -322,9 +323,9 @@ var WebViewImpl = cc.Class({
 
         var offsetX = container && container.style.paddingLeft && parseInt(container.style.paddingLeft);
         var offsetY = container && container.style.paddingBottom && parseInt(container.style.paddingBottom);
-        this._updateSize(this._w * a, this._h * d);
-        var w = this._div.clientWidth / scaleX;
-        var h = this._div.clientHeight / scaleY;
+        this._updateSize(this._w, this._h);
+        var w = this._div.clientWidth * scaleX;
+        var h = this._div.clientHeight * scaleY;
         var appx = w * node._anchorPoint.x;
         var appy = h - h * node._anchorPoint.y;
         var tx = mat.m12 * scaleX - appx + offsetX, ty = mat.m13 * scaleY - appy + offsetY;
