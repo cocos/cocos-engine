@@ -62,11 +62,11 @@ RenderComponentWalker.prototype = {
         let cam = this._camera;
         ctx.setTransform(cam.a, cam.b, cam.c, cam.d, cam.tx, cam.ty);
         let drawCall = renderer(ctx, comp);
-        this.device._stats.drawcalls += drawCall;
+        this._device._stats.drawcalls += drawCall;
     },
 
     visit (scene) {
-        this.device._stats.drawcalls = 0;
+        this._device._stats.drawcalls = 0;
         scene.walk(this._handleRender, this._postHandleRender);
     }
 }
