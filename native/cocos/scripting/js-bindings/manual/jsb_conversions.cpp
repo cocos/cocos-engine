@@ -1644,6 +1644,12 @@ bool seval_to_TextureImageOption(const se::Value& v, cocos2d::renderer::Texture:
 bool seval_to_EffectProperty(const se::Value& v, std::unordered_map<std::string, cocos2d::renderer::Effect::Property>* ret)
 {
     assert(ret != nullptr);
+    if (v.isNullOrUndefined())
+    {
+        ret->clear();
+        return true;
+    }
+
     assert(v.isObject());
 
     se::Object* obj = v.toObject();
@@ -1869,6 +1875,11 @@ bool seval_to_TechniqueParameter(const se::Value& v, cocos2d::renderer::Techniqu
 bool seval_to_std_vector_TechniqueParameter(const se::Value& v, std::vector<cocos2d::renderer::Technique::Parameter>* ret)
 {
     assert(ret != nullptr);
+    if (v.isNullOrUndefined())
+    {
+        ret->clear();
+        return true;
+    }
     assert(v.isObject());
 
     se::Object* obj = v.toObject();
