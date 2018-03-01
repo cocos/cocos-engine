@@ -1276,7 +1276,7 @@ bool js_register_renderer_Effect(se::Object* obj)
     cls->defineFunction("getDefineValue", _SE(js_renderer_Effect_getDefineValue));
     cls->defineFunction("getProperty", _SE(js_renderer_Effect_getProperty));
     cls->defineFunction("clear", _SE(js_renderer_Effect_clear));
-    cls->defineFunction("setDefineValue", _SE(js_renderer_Effect_setDefineValue));
+    cls->defineFunction("define", _SE(js_renderer_Effect_setDefineValue));
     cls->defineFunction("setProperty", _SE(js_renderer_Effect_setProperty));
     cls->defineFunction("getTechnique", _SE(js_renderer_Effect_getTechnique));
     cls->defineFinalizeFunction(_SE(js_cocos2d_gfx_Effect_finalize));
