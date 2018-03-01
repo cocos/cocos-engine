@@ -195,6 +195,8 @@ bool jsb_set_extend_property(const char* ns, const char* clsName)
 
 namespace {
 
+    std::unordered_map<std::string, se::Value> __moduleCache;
+
     static bool require(se::State& s)
     {
         const auto& args = s.args();
@@ -206,6 +208,28 @@ namespace {
     }
     SE_BIND_FUNC(require)
 
+    static void normalizePath(std::string& path)
+    {
+//        printf("before normalize: %s\n", path.c_str());
+        // Normalize: remove . and ..
+        path = std::regex_replace(path, std::regex("/\\./"), "/");
+        path = std::regex_replace(path, std::regex("/\\.$"), "");
+
+        //        std::string test("/Users/james/Library/Developer/Xcode/DerivedData/hello_world-dhljtvtfwnnoljcvznahecomrhnx/Build/Products/Debug/hello_world-desktop.app/Contents/Resources/jsb/./../../aaa/bbb");
+        //        test = std::regex_replace(test, std::regex("/\\./"), "/");
+
+        size_t pos;
+        while ((pos = path.find("..")) != std::string::npos)
+        {
+            size_t prevSlash = path.rfind("/", pos-2);
+            if (prevSlash == std::string::npos)
+                break;
+
+            path = path.replace(prevSlash, pos - prevSlash + 2 , "");
+        }
+//        printf("after normalize: %s\n", path.c_str());
+    }
+
     static std::string getFileDir(const std::string& path)
     {
         std::string ret;
@@ -215,12 +239,7 @@ namespace {
             ret = path.substr(0, pos);
         }
 
-        // Normalize: remove . and ..
-        ret = std::regex_replace(ret, std::regex("/\\./"), "/");
-
-//        std::string test("/Users/james/Library/Developer/Xcode/DerivedData/hello_world-dhljtvtfwnnoljcvznahecomrhnx/Build/Products/Debug/hello_world-desktop.app/Contents/Resources/jsb/./../../aaa/bbb");
-//        test = std::regex_replace(test, std::regex("/\\./"), "/");
-
+        normalizePath(ret);
 
         return ret;
     }
@@ -246,7 +265,6 @@ namespace {
 
             if (FileUtils::getInstance()->isDirectoryExist(secondPath))
             {
-                printf("dir\n");
                 if (secondPath[secondPath.length()-1] != '/')
                     secondPath += "/";
                 secondPath += "index.js";
@@ -257,7 +275,7 @@ namespace {
                     secondPath += ".js";
             }
 
-            printf("secondPath: %s\n", secondPath.c_str());
+//            printf("secondPath: %s\n", secondPath.c_str());
 
             fullPath = fileOperationDelegate.onGetFullPath(secondPath);
             scriptBuffer = fileOperationDelegate.onGetStringFromFile(fullPath);
@@ -267,14 +285,22 @@ namespace {
             fullPath = fileOperationDelegate.onGetFullPath(path);
         }
 
+        normalizePath(fullPath);
+
         if (!scriptBuffer.empty())
         {
+            const auto& iter = __moduleCache.find(fullPath);
+            if (iter != __moduleCache.end())
+            {
+                *ret = iter->second;
+                return true;
+            }
             std::string currentScriptFileDir = getFileDir(fullPath);
 
             // Add closure for evalutate the script
-            char prefix[] = "(function(currentScriptDir){\n\twindow.module = window.module || {};\n\twindow.exports = window.module.exports;\n";
+            char prefix[] = "(function(currentScriptDir){ window.module = window.module || {}; var exports = window.module.exports; ";
             char suffix[512] = {0};
-            snprintf(suffix, sizeof(suffix), "\n})('%s');\n", currentScriptFileDir.c_str());
+            snprintf(suffix, sizeof(suffix), "\n})('%s'); ", currentScriptFileDir.c_str());
 
             // Add current script path to require function invocation
 //            std::string requireTest = "xxx, require('../aaa/bbb/ccc'); haha require('../aaa/bbb/ccc'); haha\nrequire('../aaa/bbb/ccc'); haha\n";
@@ -288,11 +314,18 @@ namespace {
             fclose(fp);
 
             auto se = se::ScriptEngine::getInstance();
+            printf("evaluate: %s\n", fullPath.c_str());
             bool succeed = se->evalString(scriptBuffer.c_str(), scriptBuffer.length(), nullptr, path.c_str());
-            se::Value moduleVal;
-            if (se->getGlobalObject()->getProperty("module", &moduleVal) && moduleVal.isObject())
+            if (ret != nullptr)
             {
-                moduleVal.toObject()->getProperty("exports", ret);
+                se::Value moduleVal;
+                if (se->getGlobalObject()->getProperty("module", &moduleVal) && moduleVal.isObject())
+                {
+                    if (moduleVal.toObject()->getProperty("exports", ret))
+                    {
+                        __moduleCache[fullPath] = *ret;
+                    }
+                }
             }
             assert(succeed);
             return succeed;
@@ -958,6 +991,9 @@ bool jsb_register_global_variables(se::Object* global)
     se::ScriptEngine::getInstance()->clearException();
 
     se::ScriptEngine::getInstance()->addAfterCleanupHook([](){
+
+        __moduleCache.clear();
+
         __ccObj->decRef();
         __jsbObj->decRef();
         __jscObj->decRef();
