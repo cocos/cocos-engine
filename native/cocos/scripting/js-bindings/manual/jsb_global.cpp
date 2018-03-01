@@ -197,26 +197,22 @@ namespace {
 
     std::unordered_map<std::string, se::Value> __moduleCache;
 
-    static bool require(se::State& s)
-    {
-        const auto& args = s.args();
-        int argc = (int)args.size();
-        assert(argc >= 1);
-        assert(args[0].isString());
-
-        return jsb_run_script(args[0].toString(), &s.rval());
-    }
-    SE_BIND_FUNC(require)
+//    static bool require(se::State& s)
+//    {
+//        const auto& args = s.args();
+//        int argc = (int)args.size();
+//        assert(argc >= 1);
+//        assert(args[0].isString());
+//
+//        return jsb_run_script(args[0].toString(), &s.rval());
+//    }
+//    SE_BIND_FUNC(require)
 
     static void normalizePath(std::string& path)
     {
-//        printf("before normalize: %s\n", path.c_str());
         // Normalize: remove . and ..
         path = std::regex_replace(path, std::regex("/\\./"), "/");
         path = std::regex_replace(path, std::regex("/\\.$"), "");
-
-        //        std::string test("/Users/james/Library/Developer/Xcode/DerivedData/hello_world-dhljtvtfwnnoljcvznahecomrhnx/Build/Products/Debug/hello_world-desktop.app/Contents/Resources/jsb/./../../aaa/bbb");
-        //        test = std::regex_replace(test, std::regex("/\\./"), "/");
 
         size_t pos;
         while ((pos = path.find("..")) != std::string::npos)
@@ -227,7 +223,6 @@ namespace {
 
             path = path.replace(prevSlash, pos - prevSlash + 2 , "");
         }
-//        printf("after normalize: %s\n", path.c_str());
     }
 
     static std::string getFileDir(const std::string& path)
@@ -275,8 +270,6 @@ namespace {
                     secondPath += ".js";
             }
 
-//            printf("secondPath: %s\n", secondPath.c_str());
-
             fullPath = fileOperationDelegate.onGetFullPath(secondPath);
             scriptBuffer = fileOperationDelegate.onGetStringFromFile(fullPath);
         }
@@ -303,19 +296,20 @@ namespace {
             snprintf(suffix, sizeof(suffix), "\n})('%s'); ", currentScriptFileDir.c_str());
 
             // Add current script path to require function invocation
-//            std::string requireTest = "xxx, require('../aaa/bbb/ccc'); haha require('../aaa/bbb/ccc'); haha\nrequire('../aaa/bbb/ccc'); haha\n";
-//            std::string requireTest = "require(\"./jsb_prepare\")";
-//            requireTest = std::regex_replace(requireTest, std::regex("([^A-Za-z0-9]|^)require\\((.*?)\\)"), "$1require($2, currentScriptDir)");
-
             scriptBuffer = prefix + std::regex_replace(scriptBuffer, std::regex("([^A-Za-z0-9]|^)require\\((.*?)\\)"), "$1require($2, currentScriptDir)") + suffix;
 
-            FILE* fp = fopen("/Users/james/Downloads/test.txt", "wb");
-            fwrite(scriptBuffer.c_str(), scriptBuffer.length(), 1, fp);
-            fclose(fp);
+            std::string reletivePath = fullPath;
+            const std::string reletivePathKey = "/Contents/Resources";
+            size_t pos = reletivePath.find(reletivePathKey);
+            if (pos != std::string::npos)
+            {
+                reletivePath = reletivePath.substr(pos + reletivePathKey.length() + 1);
+            }
+
+            printf("Evaluate: %s\n", reletivePath.c_str());
 
             auto se = se::ScriptEngine::getInstance();
-            printf("evaluate: %s\n", fullPath.c_str());
-            bool succeed = se->evalString(scriptBuffer.c_str(), scriptBuffer.length(), nullptr, path.c_str());
+            bool succeed = se->evalString(scriptBuffer.c_str(), scriptBuffer.length(), nullptr, reletivePath.c_str());
             if (ret != nullptr)
             {
                 se::Value moduleVal;
