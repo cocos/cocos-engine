@@ -361,22 +361,22 @@ var BaseNode = cc.Class({
                 return;
             }
         }
-        //
         var oldParent = this._parent;
+        if (CC_DEBUG && oldParent && (oldParent._objFlags & Deactivating)) {
+            cc.errorID(3821);
+        }
+        //
         this._parent = value || null;
 
         this._onSetParent(value);
 
-        if (CC_DEBUG && (this._objFlags & Deactivating)) { 
-            cc.errorID(3821); 
-        } 
         if (value) {
+            if (CC_DEBUG && (value._objFlags & Deactivating)) {
+                cc.errorID(3821);
+            }
             if (!CC_JSB) {
                 eventManager._setDirtyForNode(this);
             }
-            if (CC_DEBUG && (value._objFlags & Deactivating)) { 
-                cc.errorID(3821); 
-            } 
             value._children.push(this);
             value.emit(CHILD_ADDED, this);
         }
@@ -558,7 +558,7 @@ var BaseNode = cc.Class({
         if (!this._parent) {
             return;
         }
-        if ((this._parent._objFlags & Deactivating)) {
+        if (this._parent._objFlags & Deactivating) {
             cc.errorID(3821);
             return;
         }
