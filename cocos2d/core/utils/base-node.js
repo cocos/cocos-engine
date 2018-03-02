@@ -33,6 +33,7 @@ var eventManager = require('../event-manager');
 var JS = cc.js;
 var Destroying = Flags.Destroying;
 var DontDestroy = Flags.DontDestroy;
+var Deactivating = Flags.Deactivating; 
 
 var CHILD_ADDED = 'child-added';
 var CHILD_REMOVED = 'child-removed';
@@ -366,10 +367,16 @@ var BaseNode = cc.Class({
 
         this._onSetParent(value);
 
+        if (CC_DEBUG && (this._objFlags & Deactivating)) { 
+            cc.errorID(3821); 
+        } 
         if (value) {
             if (!CC_JSB) {
                 eventManager._setDirtyForNode(this);
             }
+            if (CC_DEBUG && (value._objFlags & Deactivating)) { 
+                cc.errorID(3821); 
+            } 
             value._children.push(this);
             value.emit(CHILD_ADDED, this);
         }
@@ -549,6 +556,10 @@ var BaseNode = cc.Class({
      */
     setSiblingIndex (index) {
         if (!this._parent) {
+            return;
+        }
+        if ((this._parent._objFlags & Deactivating)) {
+            cc.errorID(3821);
             return;
         }
         var siblings = this._parent._children;

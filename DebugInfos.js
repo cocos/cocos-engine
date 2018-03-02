@@ -410,6 +410,7 @@ if (CC_DEBUG) {
         "3818": "Failed to read or parse project.json", //_loadConfig
         "3819": "Warning: target element is not a DIV or CANVAS", //_initRenderer
         "3820": "The renderer doesn't support the renderMode %s", //_initRenderer
+        "3821": "Cannot change hierarchy while activating or deactivating nodes.", 
         //Animation: 3900
         "3900": "Invalid clip to add", //addClip
         "3901": "Invalid clip to remove", //removeClip
