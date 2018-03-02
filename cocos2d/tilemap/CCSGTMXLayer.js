@@ -102,7 +102,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
 
         this._layerSize = cc.size(0, 0);
         this._mapTileSize = cc.size(0, 0);
-        this._spriteTiles = {};
+        this._spriteTiles = cc.js.createMap(true);
         this._staggerAxis = cc.TiledMap.StaggerAxis.STAGGERAXIS_Y;
         this._staggerIndex = cc.TiledMap.StaggerIndex.STAGGERINDEX_EVEN;
 

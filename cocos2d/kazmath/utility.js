@@ -34,7 +34,7 @@
  * @namespace
  * @name cc.math
  */
-cc.math = cc.math || {};
+cc.math = cc.math || cc.js.createMap();
 
 //cc.kmPIOver180 = 0.017453;       please use cc.macro.RAD
 

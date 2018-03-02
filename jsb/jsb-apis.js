@@ -35,7 +35,7 @@
  *     cc.log(cc.fileUtils.fullPathForFilename("test.js"));
  * }
  */
-var jsb = jsb || {};
+var jsb = jsb || cc.js.createMap();
 
 /**
  * ATTENTION: USE jsb.fileUtils INSTEAD OF jsb.FileUtils.<br/>

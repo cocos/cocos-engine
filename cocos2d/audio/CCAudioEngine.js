@@ -28,8 +28,8 @@
 var Audio = require('./CCAudio');
 
 var instanceId = 0;
-var id2audio = {};
-var url2id = {};
+var id2audio = cc.js.createMap(true);
+var url2id = cc.js.createMap(true);
 
 var getAudioFromPath = function (path) {
     var id = instanceId++;
@@ -447,8 +447,8 @@ var audioEngine = {
                 audio.destroy();
             }
         }
-        id2audio = {};
-        url2id = {};
+        id2audio = cc.js.createMap(true);
+        url2id = cc.js.createMap(true);
     },
 
     /**

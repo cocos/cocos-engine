@@ -77,7 +77,7 @@ var Animation = cc.Class({
         // The actual implement for Animation
         this._animator = null;
 
-        this._nameToState = {};
+        this._nameToState = cc.js.createMap(true);
         this._didInit = false;
 
         this._currentClip = null;
@@ -592,7 +592,7 @@ var Animation = cc.Class({
     },
 
     _createStates: function() {
-        this._nameToState = {};
+        this._nameToState = cc.js.createMap(true);
         
         // create animation states
         var state = null;

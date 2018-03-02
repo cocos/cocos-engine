@@ -71,7 +71,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
     },
 
     ctor:function () {
-        this._hashTargets = {};
+        this._hashTargets = cc.js.createMap(true);
         this._arrayTargets = [];
         this._currentTarget = null;
     },

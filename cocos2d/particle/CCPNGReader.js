@@ -40,9 +40,9 @@ var PNGReader = cc._Class.extend({
         this.pos = 8;
         this.palette = [];
         this.imgData = [];
-        this.transparency = {};
+        this.transparency = cc.js.createMap(true);
         this.animation = null;
-        this.text = {};
+        this.text = cc.js.createMap(true);
         frame = null;
         while (true) {
             chunkSize = this.readUInt32();

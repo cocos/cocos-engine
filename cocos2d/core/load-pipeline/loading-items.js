@@ -29,7 +29,7 @@ var Path = require('../utils/CCPath');
 var JS = require('../platform/js');
 
 var _qid = (0|(Math.random()*998));
-var _queues = {};
+var _queues = cc.js.createMap(true);
 var _pool = [];
 var _POOL_MAX_LENGTH = 10;
 
@@ -39,7 +39,7 @@ var ItemState = {
     ERROR: 3
 };
 
-var _queueDeps = {};
+var _queueDeps = cc.js.createMap(true);
 
 function isIdValid (id) {
     var realId = id.url || id;
@@ -212,7 +212,7 @@ var LoadingItems = function (pipeline, urlList, onProgress, onComplete) {
      * @property map
      * @type {Object}
      */
-    this.map = {};
+    this.map = cc.js.createMap(true);
 
     /**
      * !#en The map of completed items.
@@ -731,7 +731,7 @@ proto.destroy = function () {
     this.onProgress = null;
     this.onComplete = null;
 
-    this.map = {};
+    this.map = cc.js.createMap(true);
     this.completed = {};
 
     this.totalCount = 0;

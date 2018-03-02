@@ -148,7 +148,7 @@ cc.rendererWebGL = {
     },
 
     _initExtensions: function (extensions) {
-        this._extensions = this._extensions || {};
+        this._extensions = this._extensions || cc.js.createMap();
         for (var i = 0; i < extensions.length; ++i) {
             var name = extensions[i];
       

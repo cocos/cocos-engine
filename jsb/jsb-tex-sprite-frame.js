@@ -81,7 +81,7 @@ prototype.addImage = function (url, cb, target) {
 
 // cc.textureCache
 
-cc.textureCache._textures = {};
+cc.textureCache._textures = cc.js.createMap();
 cc.textureCache.cacheImage = function (key, texture) {
     if (texture instanceof cc.Texture2D) {
         this._textures[key] = texture;

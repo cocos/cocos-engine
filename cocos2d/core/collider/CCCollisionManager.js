@@ -194,7 +194,7 @@ var CollisionManager = cc.Class({
 
     initCollider: function (collider) {
         if (!collider.world) {
-            var world = collider.world = {};
+            var world = collider.world = cc.js.createMap();
             world.aabb = cc.rect();
             world.preAabb = cc.rect();
 

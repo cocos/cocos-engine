@@ -145,6 +145,6 @@ cc.pool = /** @lends cc.pool# */{
                 }
             }
         }
-        this._pool = {};
+        this._pool = cc.js.createMap(true);
     }
 };

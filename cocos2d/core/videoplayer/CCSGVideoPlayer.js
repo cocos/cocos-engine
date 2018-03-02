@@ -38,7 +38,7 @@ _ccsg.VideoPlayer = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
     ctor: function () {
         _ccsg.Node.prototype.ctor.call(this);
         // 播放结束等事件处理的队列
-        this._EventList = {};
+        this._EventList = cc.js.createMap(true);
     },
 
     _createRenderCmd: function(){
