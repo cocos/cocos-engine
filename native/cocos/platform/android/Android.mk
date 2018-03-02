@@ -9,13 +9,9 @@ LOCAL_MODULE_FILENAME := libcocos2dandroid
 LOCAL_SRC_FILES := \
 CCDevice-android.cpp \
 CCFileUtils-android.cpp \
-javaactivity-android.cpp \
-jni/Java_org_cocos2dx_lib_Cocos2dxAccelerometer.cpp \
-jni/Java_org_cocos2dx_lib_Cocos2dxBitmap.cpp \
-jni/Java_org_cocos2dx_lib_Cocos2dxHelper.cpp \
-jni/Java_org_cocos2dx_lib_Cocos2dxRenderer.cpp \
+CCApplication-android.cpp \
+jni/JniImp.cpp \
 jni/JniHelper.cpp \
-jni/TouchesJni.cpp
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)
 
@@ -28,5 +24,7 @@ LOCAL_EXPORT_LDLIBS := -lGLESv1_CM \
                        -lEGL \
                        -llog \
                        -landroid
+
+LOCAL_STATIC_LIBRARIES := v8_static
 
 include $(BUILD_STATIC_LIBRARY)

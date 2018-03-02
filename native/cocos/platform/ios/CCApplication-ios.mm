@@ -42,6 +42,7 @@
 -(void) stopMainLoop;
 -(void) doCaller: (id) sender;
 -(void) setAnimationInterval:(double)interval;
+-(void) firstStart:(id) view;
 @end
 
 @interface NSObject(CADisplayLink)
@@ -92,6 +93,14 @@
     _isAppActive = NO;
 }
 
+-(void) firstStart:(id) view
+{
+    if ([view isReady])
+        [self startMainLoop];
+    else
+        [self performSelector:@selector(firstStart:) withObject:view afterDelay:0];
+}
+
 -(void) startMainLoop
 {
     [self stopMainLoop];
@@ -109,7 +118,6 @@
 
 -(void) setAnimationInterval:(double)intervalNew
 {
-    // Director::setAnimationInterval() is called, we should invalidate it first
     [self stopMainLoop];
     
     self.interval = 60.0 * intervalNew;
@@ -127,6 +135,23 @@
 
 @end
 
+namespace
+{
+    bool setCanvasCallback(se::Object* global)
+    {
+        CGRect bounds = [UIScreen mainScreen].bounds;
+        float scale = [[UIScreen mainScreen] scale];
+        se::ScriptEngine* se = se::ScriptEngine::getInstance();
+        char commandBuf[200] = {0};
+        sprintf(commandBuf, "window.canvas = { width: %d, height: %d };",
+                (int)(bounds.size.width * scale),
+                (int)(bounds.size.height * scale));
+        se->evalString(commandBuf);
+        
+        return true;
+    }
+}
+
 NS_CC_BEGIN
 
 Application::Application(const std::string& name)
@@ -134,6 +159,7 @@ Application::Application(const std::string& name)
     createView(name);
     
     renderer::DeviceGraphics::getInstance();
+
     se::ScriptEngine::getInstance();
     
     _delegate = [[MainLoop alloc] initWithApplication:this];
@@ -156,11 +182,14 @@ Application::~Application()
 
 void Application::start()
 {
+    se::ScriptEngine* se = se::ScriptEngine::getInstance();
+    se->addRegisterCallback(setCanvasCallback);
+    
     if(!applicationDidFinishLaunching())
         return;
     
     if (_delegate)
-        [(MainLoop*)_delegate startMainLoop];
+        [(MainLoop*)_delegate performSelector:@selector(firstStart:) withObject:(CCEAGLView*)_view afterDelay:0];
 }
 
 void Application::setAnimationInterval(float interval)
@@ -315,8 +344,8 @@ void Application::createView(const std::string& /*name*/)
     // - RGB565
     // - RGBA8
     NSString *pixelString = kEAGLColorFormatRGB565;
-    if (PixelFormat::RGB565 == pixelFormat ||
-        PixelFormat::RGBA8 == pixelFormat)
+    if (PixelFormat::RGB565 != pixelFormat &&
+        PixelFormat::RGBA8 != pixelFormat)
         NSLog(@"Unsupported pixel format is set, iOS only support RGB565 or RGBA8. Change to use RGB565");
     else if (PixelFormat::RGBA8 == pixelFormat)
         pixelString = kEAGLColorFormatRGBA8;

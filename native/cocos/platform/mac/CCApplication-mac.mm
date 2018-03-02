@@ -37,14 +37,18 @@ NS_CC_BEGIN
 
 namespace
 {
-    long getCurrentMillSecond()
+    int g_width = 0;
+    int g_height = 0;
+    bool setCanvasCallback(se::Object* global)
     {
-        long lLastTime = 0;
-        struct timeval stCurrentTime;
+        se::ScriptEngine* se = se::ScriptEngine::getInstance();
+        char commandBuf[200] = {0};
+        sprintf(commandBuf, "window.canvas = { width: %d, height: %d };",
+                g_width,
+                g_height);
+        se->evalString(commandBuf);
         
-        gettimeofday(&stCurrentTime, nullptr);
-        lLastTime = stCurrentTime.tv_sec * 1000+stCurrentTime.tv_usec * 0.001; // milliseconds
-        return lLastTime;
+        return true;
     }
 }
 
@@ -54,10 +58,8 @@ Application::Application(const std::string& name)
 {
     createView(name);
     
-    renderer::DeviceGraphics::getInstance();
+    renderer::DeviceGraphics::getInstance()->setScaleFactor(CAST_VIEW(_view)->getScaleFactor());
     se::ScriptEngine::getInstance();
-    
-    applicationDidFinishLaunching();
 }
 
 Application::~Application()
@@ -72,27 +74,21 @@ Application::~Application()
 
 void Application::start()
 {
+    se::ScriptEngine* se = se::ScriptEngine::getInstance();
+    se->addRegisterCallback(setCanvasCallback);
+    
     if(!applicationDidFinishLaunching())
         return;
-    
-    long lastTime = 0L;
-    long curTime = 0L;
 
     if (!_view)
         return;
     
     while (!CAST_VIEW(_view)->windowShouldClose())
-    {
-        lastTime = getCurrentMillSecond();
-        
+    {        
         CAST_VIEW(_view)->pollEvents();
-        CAST_VIEW(_view)->swapBuffers();
-
-        curTime = getCurrentMillSecond();
-        if (curTime - lastTime < _animationInterval)
-            usleep(static_cast<useconds_t>((_animationInterval - curTime + lastTime) * 1000));
-
         EventDispatcher::dispatchTickEvent();
+
+        CAST_VIEW(_view)->swapBuffers();
     }
 }
 
@@ -211,6 +207,9 @@ void Application::createView(const std::string& name)
                  multisamplingCount);
 
     _view = new GLView(this, name, x, y, width, height, pixelformat, depthFormat, multisamplingCount);
+    
+    g_width = width;
+    g_height = height;
 }
 
 NS_CC_END

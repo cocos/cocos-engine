@@ -2,10 +2,8 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-# cis is short name for cocos2dx_internal_static
-# Shorter name could avoid compilation errors on Windows system which has a limitation of 260 bytes for build path.
-LOCAL_MODULE := cis
-LOCAL_MODULE_FILENAME := libcocos2dxinternal
+LOCAL_MODULE := cocos2dx_static
+LOCAL_MODULE_FILENAME := libcocos2d
 
 LOCAL_ARM_MODE := arm
 
@@ -79,6 +77,35 @@ renderer/renderer//Scene.cpp \
 renderer/renderer/Technique.cpp \
 renderer/renderer/View.cpp \
 renderer/renderer/ForwardRenderer.cpp \
+scripting/js-bindings/auto/jsb_gfx_auto.cpp \
+scripting/js-bindings/manual/jsb_classtype.cpp \
+scripting/js-bindings/manual/jsb_conversions.cpp \
+scripting/js-bindings/manual/jsb_gfx_manual.cpp \
+scripting/js-bindings/manual/jsb_global.cpp \
+scripting/js-bindings/manual/jsb_renderer_manual.cpp \
+scripting/js-bindings/auto/jsb_renderer_auto.cpp \
+scripting/js-bindings/jswrapper/config.cpp \
+scripting/js-bindings/jswrapper/HandleObject.cpp \
+scripting/js-bindings/jswrapper/MappingUtils.cpp \
+scripting/js-bindings/jswrapper/RefCounter.cpp \
+scripting/js-bindings/jswrapper/Value.cpp \
+scripting/js-bindings/jswrapper/State.cpp \
+scripting/js-bindings/jswrapper/v8/Class.cpp \
+scripting/js-bindings/jswrapper/v8/Object.cpp \
+scripting/js-bindings/jswrapper/v8/ObjectWrap.cpp \
+scripting/js-bindings/jswrapper/v8/SHA1.cpp \
+scripting/js-bindings/jswrapper/v8/ScriptEngine.cpp \
+scripting/js-bindings/jswrapper/v8/Utils.cpp \
+scripting/js-bindings/jswrapper/v8/env.cc \
+scripting/js-bindings/jswrapper/v8/inspector_agent.cc \
+scripting/js-bindings/jswrapper/v8/inspector_io.cc \
+scripting/js-bindings/jswrapper/v8/inspector_socket.cc \
+scripting/js-bindings/jswrapper/v8/inspector_socket_server.cc \
+scripting/js-bindings/jswrapper/v8/node.cc \
+scripting/js-bindings/jswrapper/v8/node_debug_options.cc \
+scripting/js-bindings/jswrapper/v8/util.cc \
+scripting/js-bindings/jswrapper/v8/http_parser.c \
+scripting/js-bindings/event/EventDispatcher.cpp \
 ../external/sources/firefox/WebGLFormats.cpp \
 ../external/sources/firefox/WebGLTexelConversions.cpp \
 ../external/sources/firefox/mozilla/Assertions.cpp \
@@ -149,12 +176,17 @@ renderer/renderer/ForwardRenderer.cpp \
 
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH) \
+                    $(LOCAL_PATH)/.. \
                     $(LOCAL_PATH)/platform \
                     $(LOCAL_PATH)/editor-support \
                     $(LOCAL_PATH)/../external/android/$(TARGET_ARCH_ABI)/include \
                     $(LOCAL_PATH)/../external/sources \
                     $(LOCAL_PATH)/../external/sources/firefox \
-                    $(LOCAL_PATH)/renderer
+                    $(LOCAL_PATH)/renderer \
+                    $(LOCAL_PATH)/scripting/js-bindings/manual \
+                    $(LOCAL_PATH)/scripting/js-bindings/manual/platform/android \
+                    $(LOCAL_PATH)/scripting/js-bindings/auto \
+                    $(LOCAL_PATH)/renderer/gfx
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH) \
                     $(LOCAL_PATH)/.. \
@@ -169,20 +201,21 @@ LOCAL_EXPORT_LDLIBS := -lGLESv2 \
                        -landroid
 
 LOCAL_STATIC_LIBRARIES := cocos_freetype2_static
-# LOCAL_STATIC_LIBRARIES += spine_static
-# LOCAL_STATIC_LIBRARIES += creator_static
 LOCAL_STATIC_LIBRARIES += cocos_png_static
 LOCAL_STATIC_LIBRARIES += cocos_jpeg_static
 LOCAL_STATIC_LIBRARIES += cocos_tiff_static
 LOCAL_STATIC_LIBRARIES += cocos_webp_static
-# LOCAL_STATIC_LIBRARIES += cocos_chipmunk_static
 LOCAL_STATIC_LIBRARIES += cocos_zlib_static
+LOCAL_STATIC_LIBRARIES += uv_static
+LOCAL_STATIC_LIBRARIES += v8_static
+# LOCAL_STATIC_LIBRARIES += audioengine_static
+# LOCAL_STATIC_LIBRARIES += cocos_network_static
 
 LOCAL_WHOLE_STATIC_LIBRARIES := cocos2dxandroid_static
 LOCAL_WHOLE_STATIC_LIBRARIES += cpufeatures
 
 # define the macro to compile through support/zip_support/ioapi.c
-LOCAL_CFLAGS := -DUSE_FILE32API -fexceptions
+LOCAL_CFLAGS := -DUSE_FILE32API -fexceptions -DHAVE_INSPECTOR
 
 # Issues #9968
 #ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
@@ -195,33 +228,12 @@ LOCAL_EXPORT_CPPFLAGS := -Wno-deprecated-declarations
 
 include $(BUILD_STATIC_LIBRARY)
 
-#==============================================================
-include $(CLEAR_VARS)
-
-LOCAL_MODULE := cocos2dx_static
-LOCAL_MODULE_FILENAME := libcocos2d
-
-# LOCAL_STATIC_LIBRARIES := audioengine_static
-# LOCAL_STATIC_LIBRARIES += cocos_network_static
-# LOCAL_STATIC_LIBRARIES += cocos_ui_static
-# LOCAL_STATIC_LIBRARIES += spine_static
-# LOCAL_STATIC_LIBRARIES += dragonbones_static
-# LOCAL_STATIC_LIBRARIES += creator_static
-LOCAL_STATIC_LIBRARIES := cis
-
-include $(BUILD_STATIC_LIBRARY)
 
 #==============================================================
 #$(call import-module,.)
 $(call import-module,android)
-# $(call import-module,editor-support/cocostudio)
-# $(call import-module,editor-support/cocosbuilder)
-# $(call import-module,editor-support/dragonbones/proj.android)
-# $(call import-module,editor-support/spine)
-# $(call import-module,editor-support/creator)
 $(call import-module,platform/android)
 # $(call import-module,audio/android)
 # $(call import-module,network)
-# $(call import-module,ui)
 $(call import-module,extensions)
 $(call import-module,android/cpufeatures)

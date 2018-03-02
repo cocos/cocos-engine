@@ -52,6 +52,7 @@ public:
     bool windowShouldClose() const;
     void pollEvents();
     void swapBuffers();
+    float getScaleFactor() const;
     
 private:  
     bool initGlew();

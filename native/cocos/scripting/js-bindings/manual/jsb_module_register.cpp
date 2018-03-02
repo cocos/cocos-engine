@@ -46,17 +46,13 @@
 #include "cocos/scripting/js-bindings/manual/jsb_module_register.hpp"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
-#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp"
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.hpp"
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.hpp"
-#include "cocos/scripting/js-bindings/auto/jsb_creator_auto.hpp"
 
 #include "cocos/scripting/js-bindings/manual/jsb_opengl_registration.hpp"
-#include "cocos/scripting/js-bindings/manual/jsb_creator_manual.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_extension_manual.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 #include "cocos/scripting/js-bindings/manual/jsb_node.hpp"
-#include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_manual.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_xmlhttprequest.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_websocket.hpp"
@@ -70,37 +66,13 @@
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_experimental_webView_auto.hpp"
 #endif
 
-#if USE_VIDEO || USE_WEBVIEW || USE_EDIT_BOX
-#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_ui_auto.hpp"
-#endif
-
 #if USE_CREATOR_PHYSICS
-#include "cocos/scripting/js-bindings/auto/jsb_creator_physics_auto.hpp"
-#include "cocos/scripting/js-bindings/manual/jsb_creator_physics_manual.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_box2d_manual.hpp"
 #include "cocos/scripting/js-bindings/auto/jsb_box2d_auto.hpp"
 #endif
 
-#if USE_CREATOR_CAMERA
-#include "cocos/scripting/js-bindings/auto/jsb_creator_camera_auto.hpp"
-#endif
-
-#if USE_CREATOR_GRAPHICS
-#include "cocos/scripting/js-bindings/auto/jsb_creator_graphics_auto.hpp"
-#endif
-
 #if USE_AUDIO
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.hpp"
-#endif
-
-#if USE_DRAGON_BONES
-#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_dragonbones_auto.hpp"
-#include "cocos/scripting/js-bindings/manual/jsb_dragonbones_manual.hpp"
-#endif
-
-#if USE_SPINE
-#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_spine_auto.hpp"
-#include "cocos/scripting/js-bindings/manual/jsb_spine_manual.hpp"
 #endif
 
 

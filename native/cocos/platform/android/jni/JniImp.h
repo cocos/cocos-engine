@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,12 +22,23 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
 #pragma once
 
-namespace se {
-    class Object;
-}
+#include <string>
 
-bool register_all_dragonbones_manual(se::Object* obj);
+typedef void (*EditTextCallback)(const std::string& text, void* ctx);
 
+extern std::string getApkPathJNI();
+extern std::string getPackageNameJNI();
+extern int getObbAssetFileDescriptorJNI(const std::string& path, long* startOffset, long* size);
+extern void convertEncodingJNI(const std::string& src, int byteSize, const std::string& fromCharset, std::string& dst, const std::string& newCharset);
+
+extern int getDeviceSampleRateJNI();
+extern int getDeviceAudioBufferSizeInFramesJNI();
+
+extern int getFontSizeAccordingHeightJNI(int height);
+extern std::string getStringWithEllipsisJNI(const std::string& text, float width, float fontSize);
+
+extern std::string getCurrentLanguageJNI();
+extern bool openURLJNI(const std::string& url);
+extern void setAnimationIntervalJNI(float interval);

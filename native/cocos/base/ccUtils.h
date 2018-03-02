@@ -29,6 +29,7 @@ THE SOFTWARE.
 #include <vector>
 #include <string>
 #include "base/ccMacros.h"
+#include "platform/CCPlatformMacros.h"
 
 /** @file ccUtils.h
 Misc free functions

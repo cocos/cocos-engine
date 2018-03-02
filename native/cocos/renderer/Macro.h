@@ -177,7 +177,7 @@ static clsName* create(arg0Type arg0, arg1Type arg1, arg2Type arg2, arg3Type arg
                     _call; \
                     GLenum gl_err = glGetError(); \
                     if (0 != gl_err) \
-                        RENDERER_LOGE(#_call "; GL error 0x%x: %s", gl_err, glEnumName(gl_err)); \
+                        RENDERER_LOGE(#_call "; GL error 0x%x: %s:%s", gl_err, glEnumName(gl_err), __FUNCTION__); \
                 } while(false)
 
 

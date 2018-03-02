@@ -108,6 +108,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
     BOOL                    _isKeyboardShown;
     unsigned int            _touchesIds;
     UITouch*                _touches[10];
+    BOOL                    _isReady;
 }
 
 @property(nonatomic, readonly) UITextPosition *beginningOfDocument;
@@ -131,8 +132,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 - (CGRect) convertRectFromViewToSurface:(CGRect)rect;
 - (CGPoint) convertPointFromViewToSurface:(CGPoint)point;
 
--(int) getWidth;
--(int) getHeight;
+- (BOOL) isReady;
 
 -(void) doAnimationWhenKeyboardMoveWithDuration:(float) duration distance:(float) dis;
 -(void) doAnimationWhenAnotherEditBeClicked;

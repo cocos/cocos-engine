@@ -41,6 +41,8 @@ void EventDispatcher::dispatchKeyEvent(int key, int action)
     
 void EventDispatcher::dispatchTickEvent()
 {
+    se::AutoHandleScope scope;
+
     static se::Value tickVal;
     static std::chrono::steady_clock::time_point prevTime;
     static std::chrono::steady_clock::time_point now;
