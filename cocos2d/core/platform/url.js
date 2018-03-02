@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 // mount point of actual urls for raw asset (only used in editor)
-var _mounts = {};
+var _mounts = cc.js.createMap(true);
 
 /**
  * @class url

@@ -131,7 +131,7 @@ function flow (pipe, item) {
  */
 var Pipeline = function (pipes) {
     this._pipes = pipes;
-    this._cache = {};
+    this._cache = cc.js.createMap(true);
 
     for (var i = 0; i < pipes.length; ++i) {
         var pipe = pipes[i];

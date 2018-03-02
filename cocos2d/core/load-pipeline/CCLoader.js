@@ -124,7 +124,7 @@ function CCLoader () {
     this.onProgress = null;
 
     // assets to release automatically
-    this._autoReleaseSetting = {};
+    this._autoReleaseSetting = cc.js.createMap(true);
 
     if (CC_DEBUG) {
         this._releasedAssetChecker_DEBUG = new ReleasedAssetChecker();

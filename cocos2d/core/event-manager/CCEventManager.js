@@ -315,7 +315,7 @@ var eventManager = {
 
         // Reset priority index
         this._nodePriorityIndex = 0;
-        this._nodePriorityMap = {};
+        this._nodePriorityMap = cc.js.createMap();
 
         this._visitTarget(rootNode, true);
 

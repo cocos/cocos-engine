@@ -109,8 +109,8 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
      * @returns {cc.GLProgram}
      */
     ctor: function (vShaderFileName, fShaderFileName, glContext) {
-        this._uniforms = {};
-        this._hashForUniforms = {};
+        this._uniforms = cc.js.createMap(true);
+        this._hashForUniforms = cc.js.createMap(true);
         this._glContext = glContext || cc._renderContext;
         this._programObj = null;
         this._vertShader = null;

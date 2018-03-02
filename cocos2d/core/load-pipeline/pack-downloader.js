@@ -29,14 +29,14 @@ var pushToMap = require('../utils/misc').pushToMap;
 // {assetUuid: packUuid|[packUuid]}
 // If value is array of packUuid, then the first one will be prioritized for download,
 // so the smallest pack must be at the beginning of the array.
-var uuidToPack = {};
+var uuidToPack = cc.js.createMap(true);
 
 // {packUuid: assetIndices}
-var packIndices = {};
+var packIndices = cc.js.createMap(true);
 
 // {packUuid: JsonUnpacker}
 // We have to cache all packs in global because for now there's no operation context in loader.
-var globalUnpackers = {};
+var globalUnpackers = cc.js.createMap(true);
 
 // when more than one package contains the required asset,
 // choose to load from the package with the largest state value.
@@ -161,8 +161,8 @@ module.exports = {
 if (CC_TEST) {
     cc._Test.PackDownloader = module.exports;
     cc._Test.PackDownloader.reset = function () {
-        uuidToPack = {};
-        packIndices = {};
-        globalUnpackers = {};
+        uuidToPack = cc.js.createMap(true);
+        packIndices = cc.js.createMap(true);
+        globalUnpackers = cc.js.createMap(true);
     };
 }

@@ -350,8 +350,8 @@ function isTempClassId (id) {
 
 // id 注册
 (function () {
-    var _idToClass = {};
-    var _nameToClass = {};
+    var _idToClass = cc.js.createMap();
+    var _nameToClass = cc.js.createMap();
 
     function getRegister (key, table) {
         return function (id, constructor) {
