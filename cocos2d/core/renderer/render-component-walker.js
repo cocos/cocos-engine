@@ -34,7 +34,7 @@ const InputAssembler = renderEngine.InputAssembler;
 const FLOATS_PER_VERT = defaultVertexFormat._bytes / 4;
 const MAX_VERTEX = macro.BATCH_VERTEX_COUNT;
 const MAX_INDICE = MAX_VERTEX * 2;
-
+const BYTE_PER_INDEX = 2;
 
 var _queue = null;
 var _batchData = {
@@ -56,14 +56,9 @@ var RenderComponentWalker = function (device, renderScene) {
     this._stencilMgr = StencilManager.sharedManager;
 
     // Buffers
-    let verts = new Float32Array(MAX_VERTEX * FLOATS_PER_VERT);
-    this._bufs = [{
-        verts: verts,
-        uintVerts: new Uint32Array(verts.buffer),
-        indices: new Uint16Array(MAX_INDICE)
-    }];
-    this._nextBuf = 0;
-    this._switchBuffer();
+    this._vData = new Float32Array(MAX_VERTEX * FLOATS_PER_VERT);
+    this._uintVData = new Uint32Array(this._vData.buffer);
+    this._iData = new Uint16Array(MAX_INDICE);
     
     let defaultFormat = new gfx.VertexFormat([]);
     this._vbPool = new RecyclePool(function () {
@@ -124,13 +119,13 @@ RenderComponentWalker.prototype = {
         this._node = this._dummyNode;
         this._sortKey = 0;
 
-        // Reset buffer
-        this._nextBuf = 0;
-        this._switchBuffer();
-
         // reset caches for handle render components
         _batchData.vfmt = null;
         _batchData.effect = null;
+        _batchData.vertexOffset = 0;
+        _batchData.byteOffset = 0;
+        _batchData.indiceOffset = 0;
+        _batchData.cullingMask = 1;
 
         // reset stencil manager's cache
         this._stencilMgr.reset();
@@ -165,24 +160,30 @@ RenderComponentWalker.prototype = {
         }
     },
 
-    _flush (vertexFormat, effect, lastByte, vertexCount, indiceCount, cullingMask) {
-        let vertexByte = vertexCount * vertexFormat._bytes,
-            byteOffset = lastByte - vertexByte,
+    _flush (batchData) {
+        let vfmt = batchData.vfmt,
+            effect = batchData.effect,
+            vertexByte = batchData.byteOffset,
+            cullingMask = batchData.cullingMask,
+            vertexCount = batchData.vertexOffset,
+            indiceCount = batchData.indiceOffset,
             vertexsData = null,
             indicesData = null;
             
         // Prepare data view for vb ib
         if (vertexCount > 0 && indiceCount > 0) {
-            vertexsData = new Float32Array(this._verts.buffer, byteOffset, vertexByte / 4);
-            byteOffset = 2 * this._iOffset;
-            indicesData = new Uint16Array(this._indices.buffer, byteOffset, indiceCount);
+            vertexsData = new Float32Array(this._vData.buffer, 0, vertexByte / 4);
+            indicesData = new Uint16Array(this._iData.buffer, 0, indiceCount);
+        }
+        else {
+            return;
         }
 
         // Generate vb, ib, ia
         let device = this._device;
         let vb = this._vbPool.add();
         device._stats.vb -= vb._bytes;
-        vb._format = vertexFormat;
+        vb._format = vfmt;
         vb._numVertices = vertexCount;
         vb._bytes = vertexByte;
         vb.update(0, vertexsData);
@@ -191,7 +192,7 @@ RenderComponentWalker.prototype = {
         let ib = this._ibPool.add();
         device._stats.ib -= ib._bytes;
         ib._numIndices = indiceCount;
-        ib._bytes = 2 * indiceCount;
+        ib._bytes = BYTE_PER_INDEX * indiceCount;
         ib.update(0, indicesData);
         device._stats.ib += ib._bytes;
     
@@ -215,45 +216,6 @@ RenderComponentWalker.prototype = {
         
         this._renderScene.addModel(model);
     },
-    
-    _switchBuffer () {
-        if (this._nextBuf === this._bufs.length) {
-            let verts = new Float32Array(MAX_VERTEX * FLOATS_PER_VERT);
-            this._bufs.push({
-                verts: verts,
-                uintVerts: new Uint32Array(verts.buffer),
-                indices: new Uint16Array(MAX_INDICE)
-            });
-        }
-        let buf = this._bufs[this._nextBuf];
-        this._verts = buf.verts;
-        this._uintVerts = buf.uintVerts;
-        this._indices = buf.indices;
-        this._vOffset = 0;
-        this._iOffset = 0;
-        this._nextBuf++;
-
-        _batchData.vertexOffset = 0;
-        _batchData.byteOffset = 0;
-        _batchData.indiceOffset = 0;
-        _batchData.cullingMask = 1;
-    },
-
-    _checkBatchBroken (batchData, needNewBuf) {
-        let vertexCount = batchData.vertexOffset - this._vOffset,
-            indiceCount = batchData.indiceOffset - this._iOffset;
-        if (batchData.vfmt && batchData.effect && vertexCount > 0 && indiceCount > 0) {
-            this._flush(batchData.vfmt, batchData.effect, batchData.byteOffset, vertexCount, indiceCount, batchData.cullingMask);
-            if (needNewBuf) {
-                this._switchBuffer();
-            }
-            else {
-                // update buffer
-                this._vOffset = batchData.vertexOffset;
-                this._iOffset = batchData.indiceOffset;
-            }
-        }
-    },
 
     batchQueue () {
         let vertexId = 0,
@@ -262,8 +224,8 @@ RenderComponentWalker.prototype = {
             effect = null, 
             assembler = null, 
             datas = null,
-            data = null,
-            j = 0;
+            data = null
+            cullingMask = 1;
 
         for (let i = 0, len = this._queue.length; i < len; i++) {
             comp = this._queue[i];
@@ -285,7 +247,14 @@ RenderComponentWalker.prototype = {
             _batchData.comp = comp;
             datas = assembler.updateRenderData(comp, _batchData);
 
-            let cullingMask = comp.node._inheritMask;
+            // Set model
+            if (assembler.useModel) {
+                this._node = comp.node;
+            }
+            else {
+                this._node = this._dummyNode;
+            }
+            cullingMask = comp.node._inheritMask;
 
             for (let id = 0; id < datas.length; id ++) {
                 data = datas[id];
@@ -298,26 +267,22 @@ RenderComponentWalker.prototype = {
                 // breaking batch
                 needNewBuf = (_batchData.vertexOffset + data.vertexCount > MAX_VERTEX) || (_batchData.indiceOffset + data.indiceCount > MAX_INDICE);
                 if (_batchData.vfmt && (_batchData.effect != effect || _batchData.cullingMask !== cullingMask || needNewBuf)) {
-                    this._checkBatchBroken(_batchData, needNewBuf);
-                    this._node = this._dummyNode;
+                    this._flush(_batchData);
                     _batchData.effect = effect;
                     _batchData.vfmt = comp._vertexFormat;
+                    _batchData.vertexOffset = 0;
+                    _batchData.byteOffset = 0;
+                    _batchData.indiceOffset = 0;
                     _batchData.cullingMask = cullingMask;
                 }
                 // Init effect
                 else if (!_batchData.effect) {
                     _batchData.effect = effect;
                     _batchData.vfmt = comp._vertexFormat;
+                    _batchData.cullingMask = cullingMask;
                 }
 
-                // Set model
-                if (assembler.useModel) {
-                    this._node = comp.node;
-                }
-
-                let vertexId = _batchData.vertexOffset - this._vOffset;
-                assembler.fillBuffers(_batchData, vertexId, this._verts, this._uintVerts, this._indices);
-
+                assembler.fillBuffers(_batchData, _batchData.vertexOffset, this._vData, this._uintVData, this._iData);
                 _batchData.vertexOffset += data.vertexCount;
                 _batchData.byteOffset += data.vertexCount * comp._vertexFormat._bytes;
                 _batchData.indiceOffset += data.indiceCount;
@@ -325,7 +290,7 @@ RenderComponentWalker.prototype = {
         }
 
         // last batch
-        this._checkBatchBroken(_batchData, false);
+        this._flush(_batchData);
         this._queue.length = 0;
     },
 
