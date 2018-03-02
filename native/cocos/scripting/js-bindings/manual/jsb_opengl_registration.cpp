@@ -28,13 +28,10 @@
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 #include "scripting/js-bindings/manual/jsb_opengl_functions.hpp"
-#include "scripting/js-bindings/manual/jsb_opengl_node.hpp"
 #include "scripting/js-bindings/manual/jsb_opengl_manual.hpp"
 
 bool JSB_register_opengl(se::Object* obj)
 {
-    js_register_cocos2dx_GLNode(__ccObj);
-
     // New WebGL functions, not present on OpenGL ES 2.0
     __glObj->defineFunction("getSupportedExtensions", _SE(JSB_glGetSupportedExtensions));
     __glObj->defineFunction("activeTexture", _SE(JSB_glActiveTexture));
@@ -54,7 +51,7 @@ bool JSB_register_opengl(se::Object* obj)
     __glObj->defineFunction("checkFramebufferStatus", _SE(JSB_glCheckFramebufferStatus));
     __glObj->defineFunction("clear", _SE(JSB_glClear));
     __glObj->defineFunction("clearColor", _SE(JSB_glClearColor));
-    __glObj->defineFunction("clearDepthf", _SE(JSB_glClearDepthf));
+    __glObj->defineFunction("clearDepth", _SE(JSB_glClearDepthf));
     __glObj->defineFunction("clearStencil", _SE(JSB_glClearStencil));
     __glObj->defineFunction("colorMask", _SE(JSB_glColorMask));
     __glObj->defineFunction("_compileShader", _SE(JSB_glCompileShader));

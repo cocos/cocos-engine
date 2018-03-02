@@ -27,6 +27,7 @@
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
+#include "cocos/scripting/js-bindings/manual/jsb_opengl_utils.hpp"
 
 namespace {
 
@@ -158,7 +159,7 @@ bool JSB_glActiveTexture(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glActiveTexture((GLenum)arg0  );
+    JSB_GL_CHECK(glActiveTexture((GLenum)arg0));
     s.rval().setUndefined();
     return true;
 }
@@ -177,7 +178,7 @@ bool JSB_glAttachShader(se::State& s) {
     ok &= seval_to_uint32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glAttachShader((GLuint)arg0 , (GLuint)arg1  );
+    JSB_GL_CHECK(glAttachShader((GLuint)arg0 , (GLuint)arg1  ));
 
     s.rval().setUndefined();
     return true;
@@ -198,7 +199,7 @@ bool JSB_glBindAttribLocation(se::State& s) {
     ok &= seval_to_std_string(args[2], &arg2 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glBindAttribLocation((GLuint)arg0 , (GLuint)arg1 , arg2.c_str()  );
+    JSB_GL_CHECK(glBindAttribLocation((GLuint)arg0 , (GLuint)arg1 , arg2.c_str()  ));
     s.rval().setUndefined();
     return true;
 }
@@ -217,7 +218,7 @@ bool JSB_glBindBuffer(se::State& s) {
     ok &= seval_to_uint32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glBindBuffer((GLenum)arg0 , (GLuint)arg1  );
+    JSB_GL_CHECK(glBindBuffer((GLenum)arg0 , (GLuint)arg1  ));
     s.rval().setUndefined();
     return true;
 }
@@ -236,7 +237,7 @@ bool JSB_glBindFramebuffer(se::State& s) {
     ok &= seval_to_uint32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glBindFramebuffer((GLenum)arg0 , (GLuint)arg1  );
+    JSB_GL_CHECK(glBindFramebuffer((GLenum)arg0 , (GLuint)arg1  ));
     s.rval().setUndefined();
     return true;
 }
@@ -255,7 +256,7 @@ bool JSB_glBindRenderbuffer(se::State& s) {
     ok &= seval_to_uint32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glBindRenderbuffer((GLenum)arg0 , (GLuint)arg1  );
+    JSB_GL_CHECK(glBindRenderbuffer((GLenum)arg0 , (GLuint)arg1  ));
     s.rval().setUndefined();
     return true;
 }
@@ -274,7 +275,7 @@ bool JSB_glBindTexture(se::State& s) {
     ok &= seval_to_uint32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glBindTexture((GLenum)arg0 , (GLuint)arg1  );
+    JSB_GL_CHECK(glBindTexture((GLenum)arg0 , (GLuint)arg1  ));
     s.rval().setUndefined();
     return true;
 }
@@ -295,7 +296,7 @@ bool JSB_glBlendColor(se::State& s) {
     ok &= seval_to_int32(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glBlendColor((GLclampf)arg0 , (GLclampf)arg1 , (GLclampf)arg2 , (GLclampf)arg3  );
+    JSB_GL_CHECK(glBlendColor((GLclampf)arg0 , (GLclampf)arg1 , (GLclampf)arg2 , (GLclampf)arg3  ));
     s.rval().setUndefined();
     return true;
 }
@@ -313,7 +314,7 @@ bool JSB_glBlendEquation(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glBlendEquation((GLenum)arg0  );
+    JSB_GL_CHECK(glBlendEquation((GLenum)arg0  ));
     s.rval().setUndefined();
     return true;
 }
@@ -332,7 +333,7 @@ bool JSB_glBlendEquationSeparate(se::State& s) {
     ok &= seval_to_uint32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glBlendEquationSeparate((GLenum)arg0 , (GLenum)arg1  );
+    JSB_GL_CHECK(glBlendEquationSeparate((GLenum)arg0 , (GLenum)arg1  ));
     s.rval().setUndefined();
     return true;
 }
@@ -351,7 +352,7 @@ bool JSB_glBlendFunc(se::State& s) {
     ok &= seval_to_uint32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glBlendFunc((GLenum)arg0 , (GLenum)arg1  );
+    JSB_GL_CHECK(glBlendFunc((GLenum)arg0 , (GLenum)arg1  ));
     s.rval().setUndefined();
     return true;
 }
@@ -372,7 +373,7 @@ bool JSB_glBlendFuncSeparate(se::State& s) {
     ok &= seval_to_uint32(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glBlendFuncSeparate((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2 , (GLenum)arg3  );
+    JSB_GL_CHECK(glBlendFuncSeparate((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2 , (GLenum)arg3  ));
     s.rval().setUndefined();
     return true;
 }
@@ -393,7 +394,7 @@ bool JSB_glBufferData(se::State& s) {
     ok &= seval_to_uint32(args[2], &arg2 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glBufferData((GLenum)arg0 , count, (GLvoid*)arg1 , (GLenum)arg2  );
+    JSB_GL_CHECK(glBufferData((GLenum)arg0 , count, (GLvoid*)arg1 , (GLenum)arg2  ));
     s.rval().setUndefined();
     return true;
 }
@@ -414,7 +415,7 @@ bool JSB_glBufferSubData(se::State& s) {
     ok &= JSB_get_arraybufferview_dataptr(args[2], &count, &arg2);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glBufferSubData((GLenum)arg0 , (GLintptr)arg1 , count, (GLvoid*)arg2  );
+    JSB_GL_CHECK(glBufferSubData((GLenum)arg0 , (GLintptr)arg1 , count, (GLvoid*)arg2  ));
     s.rval().setUndefined();
     return true;
 }
@@ -433,7 +434,7 @@ bool JSB_glCheckFramebufferStatus(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLenum ret_val;
 
-    ret_val = glCheckFramebufferStatus((GLenum)arg0  );
+    ret_val = glCheckFramebufferStatus((GLenum)arg0);
     s.rval().setUint32((uint32_t)ret_val);
     return true;
 }
@@ -451,7 +452,7 @@ bool JSB_glClear(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glClear((GLbitfield)arg0  );
+    JSB_GL_CHECK(glClear((GLbitfield)arg0  ));
     s.rval().setUndefined();
     return true;
 }
@@ -472,7 +473,7 @@ bool JSB_glClearColor(se::State& s) {
     ok &= seval_to_int32(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glClearColor((GLclampf)arg0 , (GLclampf)arg1 , (GLclampf)arg2 , (GLclampf)arg3  );
+    JSB_GL_CHECK(glClearColor((GLclampf)arg0 , (GLclampf)arg1 , (GLclampf)arg2 , (GLclampf)arg3  ));
     s.rval().setUndefined();
     return true;
 }
@@ -490,7 +491,7 @@ bool JSB_glClearDepthf(se::State& s) {
     ok &= seval_to_int32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glClearDepthf((GLclampf)arg0  );
+    JSB_GL_CHECK(glClearDepthf((GLclampf)arg0  ));
     s.rval().setUndefined();
     return true;
 }
@@ -508,7 +509,7 @@ bool JSB_glClearStencil(se::State& s) {
     ok &= seval_to_int32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glClearStencil((GLint)arg0  );
+    JSB_GL_CHECK(glClearStencil((GLint)arg0  ));
     s.rval().setUndefined();
     return true;
 }
@@ -529,7 +530,7 @@ bool JSB_glColorMask(se::State& s) {
     ok &= seval_to_uint16(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glColorMask((GLboolean)arg0 , (GLboolean)arg1 , (GLboolean)arg2 , (GLboolean)arg3  );
+    JSB_GL_CHECK(glColorMask((GLboolean)arg0 , (GLboolean)arg1 , (GLboolean)arg2 , (GLboolean)arg3  ));
     s.rval().setUndefined();
     return true;
 }
@@ -547,7 +548,7 @@ bool JSB_glCompileShader(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glCompileShader((GLuint)arg0  );
+    JSB_GL_CHECK(glCompileShader((GLuint)arg0  ));
     s.rval().setUndefined();
     return true;
 }
@@ -573,7 +574,7 @@ bool JSB_glCompressedTexImage2D(se::State& s) {
     ok &= JSB_get_arraybufferview_dataptr(args[7], &count, &arg7);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glCompressedTexImage2D((GLenum)arg0 , (GLint)arg1 , (GLenum)arg2 , (GLsizei)arg3 , (GLsizei)arg4 , (GLint)arg5 , (GLsizei)arg6 , (GLvoid*)arg7  );
+    JSB_GL_CHECK(glCompressedTexImage2D((GLenum)arg0 , (GLint)arg1 , (GLenum)arg2 , (GLsizei)arg3 , (GLsizei)arg4 , (GLint)arg5 , (GLsizei)arg6 , (GLvoid*)arg7  ));
     s.rval().setUndefined();
     return true;
 }
@@ -600,7 +601,7 @@ bool JSB_glCompressedTexSubImage2D(se::State& s) {
     ok &= JSB_get_arraybufferview_dataptr(args[8], &count, &arg8);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glCompressedTexSubImage2D((GLenum)arg0 , (GLint)arg1 , (GLint)arg2 , (GLint)arg3 , (GLsizei)arg4 , (GLsizei)arg5 , (GLenum)arg6 , (GLsizei)arg7 , (GLvoid*)arg8  );
+    JSB_GL_CHECK(glCompressedTexSubImage2D((GLenum)arg0 , (GLint)arg1 , (GLint)arg2 , (GLint)arg3 , (GLsizei)arg4 , (GLsizei)arg5 , (GLenum)arg6 , (GLsizei)arg7 , (GLvoid*)arg8  ));
     s.rval().setUndefined();
     return true;
 }
@@ -625,7 +626,7 @@ bool JSB_glCopyTexImage2D(se::State& s) {
     ok &= seval_to_int32(args[7], &arg7 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glCopyTexImage2D((GLenum)arg0 , (GLint)arg1 , (GLenum)arg2 , (GLint)arg3 , (GLint)arg4 , (GLsizei)arg5 , (GLsizei)arg6 , (GLint)arg7  );
+    JSB_GL_CHECK(glCopyTexImage2D((GLenum)arg0 , (GLint)arg1 , (GLenum)arg2 , (GLint)arg3 , (GLint)arg4 , (GLsizei)arg5 , (GLsizei)arg6 , (GLint)arg7  ));
     s.rval().setUndefined();
     return true;
 }
@@ -650,7 +651,7 @@ bool JSB_glCopyTexSubImage2D(se::State& s) {
     ok &= seval_to_int32(args[7], &arg7 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glCopyTexSubImage2D((GLenum)arg0 , (GLint)arg1 , (GLint)arg2 , (GLint)arg3 , (GLint)arg4 , (GLint)arg5 , (GLsizei)arg6 , (GLsizei)arg7  );
+    JSB_GL_CHECK(glCopyTexSubImage2D((GLenum)arg0 , (GLint)arg1 , (GLint)arg2 , (GLint)arg3 , (GLint)arg4 , (GLint)arg5 , (GLsizei)arg6 , (GLsizei)arg7  ));
     s.rval().setUndefined();
     return true;
 }
@@ -664,7 +665,7 @@ bool JSB_glCreateProgram(se::State& s) {
     SE_PRECONDITION2( argc == 0, false, "Invalid number of arguments" );
     GLuint ret_val;
 
-    ret_val = glCreateProgram( );
+    ret_val = glCreateProgram();
     s.rval().setUint32((uint32_t)ret_val);
     return true;
 }
@@ -683,7 +684,7 @@ bool JSB_glCreateShader(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLuint ret_val;
 
-    ret_val = glCreateShader((GLenum)arg0  );
+    ret_val = glCreateShader((GLenum)arg0);
     s.rval().setUint32((uint32_t)ret_val);
     return true;
 }
@@ -701,7 +702,7 @@ bool JSB_glCullFace(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glCullFace((GLenum)arg0  );
+    JSB_GL_CHECK(glCullFace((GLenum)arg0  ));
     s.rval().setUndefined();
     return true;
 }
@@ -719,7 +720,7 @@ bool JSB_glDeleteProgram(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glDeleteProgram((GLuint)arg0  );
+    JSB_GL_CHECK(glDeleteProgram((GLuint)arg0  ));
     s.rval().setUndefined();
     return true;
 }
@@ -737,7 +738,7 @@ bool JSB_glDeleteShader(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glDeleteShader((GLuint)arg0  );
+    JSB_GL_CHECK(glDeleteShader((GLuint)arg0  ));
     s.rval().setUndefined();
     return true;
 }
@@ -755,7 +756,7 @@ bool JSB_glDepthFunc(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glDepthFunc((GLenum)arg0  );
+    JSB_GL_CHECK(glDepthFunc((GLenum)arg0  ));
     s.rval().setUndefined();
     return true;
 }
@@ -773,7 +774,7 @@ bool JSB_glDepthMask(se::State& s) {
     ok &= seval_to_uint16(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glDepthMask((GLboolean)arg0  );
+    JSB_GL_CHECK(glDepthMask((GLboolean)arg0  ));
     s.rval().setUndefined();
     return true;
 }
@@ -792,7 +793,7 @@ bool JSB_glDepthRangef(se::State& s) {
     ok &= seval_to_int32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glDepthRangef((GLclampf)arg0 , (GLclampf)arg1  );
+    JSB_GL_CHECK(glDepthRangef((GLclampf)arg0 , (GLclampf)arg1  ));
     s.rval().setUndefined();
     return true;
 }
@@ -811,7 +812,7 @@ bool JSB_glDetachShader(se::State& s) {
     ok &= seval_to_uint32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glDetachShader((GLuint)arg0 , (GLuint)arg1  );
+    JSB_GL_CHECK(glDetachShader((GLuint)arg0 , (GLuint)arg1  ));
     s.rval().setUndefined();
     return true;
 }
@@ -829,7 +830,7 @@ bool JSB_glDisable(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glDisable((GLenum)arg0  );
+    JSB_GL_CHECK(glDisable((GLenum)arg0  ));
     s.rval().setUndefined();
     return true;
 }
@@ -847,7 +848,7 @@ bool JSB_glDisableVertexAttribArray(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glDisableVertexAttribArray((GLuint)arg0  );
+    JSB_GL_CHECK(glDisableVertexAttribArray((GLuint)arg0  ));
     s.rval().setUndefined();
     return true;
 }
@@ -867,7 +868,7 @@ bool JSB_glDrawArrays(se::State& s) {
     ok &= seval_to_int32(args[2], &arg2 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glDrawArrays((GLenum)arg0 , (GLint)arg1 , (GLsizei)arg2  );
+    JSB_GL_CHECK(glDrawArrays((GLenum)arg0 , (GLint)arg1 , (GLsizei)arg2  ));
     s.rval().setUndefined();
     return true;
 }
@@ -889,7 +890,7 @@ bool JSB_glDrawElements(se::State& s) {
     ok &= JSB_get_arraybufferview_dataptr(args[3], &count, &arg3);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glDrawElements((GLenum)arg0 , (GLsizei)arg1 , (GLenum)arg2 , (GLvoid*)arg3  );
+    JSB_GL_CHECK(glDrawElements((GLenum)arg0 , (GLsizei)arg1 , (GLenum)arg2 , (GLvoid*)arg3  ));
     s.rval().setUndefined();
     return true;
 }
@@ -907,7 +908,7 @@ bool JSB_glEnable(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glEnable((GLenum)arg0  );
+    JSB_GL_CHECK(glEnable((GLenum)arg0  ));
     s.rval().setUndefined();
     return true;
 }
@@ -925,7 +926,7 @@ bool JSB_glEnableVertexAttribArray(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glEnableVertexAttribArray((GLuint)arg0  );
+    JSB_GL_CHECK(glEnableVertexAttribArray((GLuint)arg0  ));
     s.rval().setUndefined();
     return true;
 }
@@ -937,7 +938,7 @@ bool JSB_glFinish(se::State& s) {
     const auto& args = s.args();
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 0, false, "Invalid number of arguments" );
-    glFinish( );
+    JSB_GL_CHECK(glFinish( ));
     s.rval().setUndefined();
     return true;
 }
@@ -949,7 +950,7 @@ bool JSB_glFlush(se::State& s) {
     const auto& args = s.args();
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 0, false, "Invalid number of arguments" );
-    glFlush( );
+    JSB_GL_CHECK(glFlush( ));
     s.rval().setUndefined();
     return true;
 }
@@ -970,7 +971,7 @@ bool JSB_glFramebufferRenderbuffer(se::State& s) {
     ok &= seval_to_uint32(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glFramebufferRenderbuffer((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2 , (GLuint)arg3  );
+    JSB_GL_CHECK(glFramebufferRenderbuffer((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2 , (GLuint)arg3  ));
     s.rval().setUndefined();
     return true;
 }
@@ -992,7 +993,7 @@ bool JSB_glFramebufferTexture2D(se::State& s) {
     ok &= seval_to_int32(args[4], &arg4 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glFramebufferTexture2D((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2 , (GLuint)arg3 , (GLint)arg4  );
+    JSB_GL_CHECK(glFramebufferTexture2D((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2 , (GLuint)arg3 , (GLint)arg4  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1010,7 +1011,7 @@ bool JSB_glFrontFace(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glFrontFace((GLenum)arg0  );
+    JSB_GL_CHECK(glFrontFace((GLenum)arg0  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1028,7 +1029,7 @@ bool JSB_glGenerateMipmap(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glGenerateMipmap((GLenum)arg0  );
+    JSB_GL_CHECK(glGenerateMipmap((GLenum)arg0  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1048,7 +1049,8 @@ bool JSB_glGetAttribLocation(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     int ret_val;
 
-    ret_val = glGetAttribLocation((GLuint)arg0 , arg1.c_str()  );
+    ret_val = glGetAttribLocation((GLuint)arg0 , arg1.c_str());
+    JSB_GL_CHECK_ERROR();
     s.rval().setInt32(ret_val);
     return true;
 }
@@ -1062,7 +1064,7 @@ bool JSB_glGetError(se::State& s) {
     SE_PRECONDITION2( argc == 0, false, "Invalid number of arguments" );
     GLenum ret_val;
 
-    ret_val = glGetError( );
+    ret_val = glGetError();
     s.rval().setUint32((uint32_t)ret_val);
     return true;
 }
@@ -1083,7 +1085,8 @@ bool JSB_glGetUniformLocation(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     int ret_val;
 
-    ret_val = glGetUniformLocation((GLuint)arg0 , arg1.c_str()  );
+    ret_val = glGetUniformLocation((GLuint)arg0 , arg1.c_str());
+    JSB_GL_CHECK_ERROR();
     s.rval().setInt32(ret_val);
     return true;
 }
@@ -1102,7 +1105,7 @@ bool JSB_glHint(se::State& s) {
     ok &= seval_to_uint32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glHint((GLenum)arg0 , (GLenum)arg1  );
+    JSB_GL_CHECK(glHint((GLenum)arg0 , (GLenum)arg1  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1121,7 +1124,7 @@ bool JSB_glIsBuffer(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLboolean ret_val;
 
-    ret_val = glIsBuffer((GLuint)arg0  );
+    ret_val = glIsBuffer((GLuint)arg0);
     s.rval().setInt32((int32_t)ret_val);
     return true;
 }
@@ -1140,7 +1143,7 @@ bool JSB_glIsEnabled(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLboolean ret_val;
 
-    ret_val = glIsEnabled((GLenum)arg0  );
+    ret_val = glIsEnabled((GLenum)arg0);
     s.rval().setInt32((int32_t)ret_val);
     return true;
 }
@@ -1159,7 +1162,7 @@ bool JSB_glIsFramebuffer(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLboolean ret_val;
 
-    ret_val = glIsFramebuffer((GLuint)arg0  );
+    ret_val = glIsFramebuffer((GLuint)arg0);
     s.rval().setInt32((int32_t)ret_val);
     return true;
 }
@@ -1178,7 +1181,7 @@ bool JSB_glIsProgram(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLboolean ret_val;
 
-    ret_val = glIsProgram((GLuint)arg0  );
+    ret_val = glIsProgram((GLuint)arg0);
     s.rval().setInt32((int32_t)ret_val);
     return true;
 }
@@ -1197,7 +1200,7 @@ bool JSB_glIsRenderbuffer(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLboolean ret_val;
 
-    ret_val = glIsRenderbuffer((GLuint)arg0  );
+    ret_val = glIsRenderbuffer((GLuint)arg0);
     s.rval().setInt32((int32_t)ret_val);
     return true;
 }
@@ -1216,7 +1219,7 @@ bool JSB_glIsShader(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLboolean ret_val;
 
-    ret_val = glIsShader((GLuint)arg0  );
+    ret_val = glIsShader((GLuint)arg0);
     s.rval().setInt32((int32_t)ret_val);
     return true;
 }
@@ -1235,7 +1238,7 @@ bool JSB_glIsTexture(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     GLboolean ret_val;
 
-    ret_val = glIsTexture((GLuint)arg0  );
+    ret_val = glIsTexture((GLuint)arg0);
     s.rval().setInt32((int32_t)ret_val);
     return true;
 }
@@ -1253,7 +1256,7 @@ bool JSB_glLineWidth(se::State& s) {
     ok &= seval_to_int32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glLineWidth((GLfloat)arg0  );
+    JSB_GL_CHECK(glLineWidth((GLfloat)arg0  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1271,7 +1274,7 @@ bool JSB_glLinkProgram(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glLinkProgram((GLuint)arg0  );
+    JSB_GL_CHECK(glLinkProgram((GLuint)arg0  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1290,7 +1293,7 @@ bool JSB_glPixelStorei(se::State& s) {
     ok &= seval_to_int32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glPixelStorei((GLenum)arg0 , (GLint)arg1  );
+    JSB_GL_CHECK(glPixelStorei((GLenum)arg0 , (GLint)arg1  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1309,7 +1312,7 @@ bool JSB_glPolygonOffset(se::State& s) {
     ok &= seval_to_int32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glPolygonOffset((GLfloat)arg0 , (GLfloat)arg1  );
+    JSB_GL_CHECK(glPolygonOffset((GLfloat)arg0 , (GLfloat)arg1  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1334,7 +1337,7 @@ bool JSB_glReadPixels(se::State& s) {
     ok &= JSB_get_arraybufferview_dataptr(args[6], &count, &arg6);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glReadPixels((GLint)arg0 , (GLint)arg1 , (GLsizei)arg2 , (GLsizei)arg3 , (GLenum)arg4 , (GLenum)arg5 , (GLvoid*)arg6  );
+    JSB_GL_CHECK(glReadPixels((GLint)arg0 , (GLint)arg1 , (GLsizei)arg2 , (GLsizei)arg3 , (GLenum)arg4 , (GLenum)arg5 , (GLvoid*)arg6  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1346,7 +1349,7 @@ bool JSB_glReleaseShaderCompiler(se::State& s) {
     const auto& args = s.args();
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 0, false, "Invalid number of arguments" );
-    glReleaseShaderCompiler( );
+    JSB_GL_CHECK(glReleaseShaderCompiler( ));
     s.rval().setUndefined();
     return true;
 }
@@ -1367,7 +1370,7 @@ bool JSB_glRenderbufferStorage(se::State& s) {
     ok &= seval_to_int32(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glRenderbufferStorage((GLenum)arg0 , (GLenum)arg1 , (GLsizei)arg2 , (GLsizei)arg3  );
+    JSB_GL_CHECK(glRenderbufferStorage((GLenum)arg0 , (GLenum)arg1 , (GLsizei)arg2 , (GLsizei)arg3  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1386,7 +1389,7 @@ bool JSB_glSampleCoverage(se::State& s) {
     ok &= seval_to_uint16(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glSampleCoverage((GLclampf)arg0 , (GLboolean)arg1  );
+    JSB_GL_CHECK(glSampleCoverage((GLclampf)arg0 , (GLboolean)arg1  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1407,7 +1410,7 @@ bool JSB_glScissor(se::State& s) {
     ok &= seval_to_int32(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glScissor((GLint)arg0 , (GLint)arg1 , (GLsizei)arg2 , (GLsizei)arg3  );
+    JSB_GL_CHECK(glScissor((GLint)arg0 , (GLint)arg1 , (GLsizei)arg2 , (GLsizei)arg3  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1427,7 +1430,7 @@ bool JSB_glStencilFunc(se::State& s) {
     ok &= seval_to_uint32(args[2], &arg2 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glStencilFunc((GLenum)arg0 , (GLint)arg1 , (GLuint)arg2  );
+    JSB_GL_CHECK(glStencilFunc((GLenum)arg0 , (GLint)arg1 , (GLuint)arg2  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1448,7 +1451,7 @@ bool JSB_glStencilFuncSeparate(se::State& s) {
     ok &= seval_to_uint32(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glStencilFuncSeparate((GLenum)arg0 , (GLenum)arg1 , (GLint)arg2 , (GLuint)arg3  );
+    JSB_GL_CHECK(glStencilFuncSeparate((GLenum)arg0 , (GLenum)arg1 , (GLint)arg2 , (GLuint)arg3  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1466,7 +1469,7 @@ bool JSB_glStencilMask(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glStencilMask((GLuint)arg0  );
+    JSB_GL_CHECK(glStencilMask((GLuint)arg0  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1485,7 +1488,7 @@ bool JSB_glStencilMaskSeparate(se::State& s) {
     ok &= seval_to_uint32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glStencilMaskSeparate((GLenum)arg0 , (GLuint)arg1  );
+    JSB_GL_CHECK(glStencilMaskSeparate((GLenum)arg0 , (GLuint)arg1  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1505,7 +1508,7 @@ bool JSB_glStencilOp(se::State& s) {
     ok &= seval_to_uint32(args[2], &arg2 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glStencilOp((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2  );
+    JSB_GL_CHECK(glStencilOp((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1526,7 +1529,7 @@ bool JSB_glStencilOpSeparate(se::State& s) {
     ok &= seval_to_uint32(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glStencilOpSeparate((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2 , (GLenum)arg3  );
+    JSB_GL_CHECK(glStencilOpSeparate((GLenum)arg0 , (GLenum)arg1 , (GLenum)arg2 , (GLenum)arg3  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1553,7 +1556,7 @@ bool JSB_glTexImage2D(se::State& s) {
     ok &= JSB_get_arraybufferview_dataptr(args[8], &count, &arg8);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glTexImage2D((GLenum)arg0 , (GLint)arg1 , (GLint)arg2 , (GLsizei)arg3 , (GLsizei)arg4 , (GLint)arg5 , (GLenum)arg6 , (GLenum)arg7 , (GLvoid*)arg8  );
+    JSB_GL_CHECK(glTexImage2D((GLenum)arg0 , (GLint)arg1 , (GLint)arg2 , (GLsizei)arg3 , (GLsizei)arg4 , (GLint)arg5 , (GLenum)arg6 , (GLenum)arg7 , (GLvoid*)arg8  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1573,7 +1576,7 @@ bool JSB_glTexParameterf(se::State& s) {
     ok &= seval_to_int32(args[2], &arg2 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glTexParameterf((GLenum)arg0 , (GLenum)arg1 , (GLfloat)arg2  );
+    JSB_GL_CHECK(glTexParameterf((GLenum)arg0 , (GLenum)arg1 , (GLfloat)arg2  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1593,7 +1596,7 @@ bool JSB_glTexParameteri(se::State& s) {
     ok &= seval_to_int32(args[2], &arg2 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glTexParameteri((GLenum)arg0 , (GLenum)arg1 , (GLint)arg2  );
+    JSB_GL_CHECK(glTexParameteri((GLenum)arg0 , (GLenum)arg1 , (GLint)arg2  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1620,7 +1623,7 @@ bool JSB_glTexSubImage2D(se::State& s) {
     ok &= JSB_get_arraybufferview_dataptr(args[8], &count, &arg8);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glTexSubImage2D((GLenum)arg0 , (GLint)arg1 , (GLint)arg2 , (GLint)arg3 , (GLsizei)arg4 , (GLsizei)arg5 , (GLenum)arg6 , (GLenum)arg7 , (GLvoid*)arg8  );
+    JSB_GL_CHECK(glTexSubImage2D((GLenum)arg0 , (GLint)arg1 , (GLint)arg2 , (GLint)arg3 , (GLsizei)arg4 , (GLsizei)arg5 , (GLenum)arg6 , (GLenum)arg7 , (GLvoid*)arg8  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1639,7 +1642,7 @@ bool JSB_glUniform1f(se::State& s) {
     ok &= seval_to_int32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glUniform1f((GLint)arg0 , (GLfloat)arg1  );
+    JSB_GL_CHECK(glUniform1f((GLint)arg0 , (GLfloat)arg1  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1659,7 +1662,7 @@ bool JSB_glUniform1fv(se::State& s) {
     ok &= JSB_jsval_typedarray_to_data<float>(args[1], data);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glUniform1fv((GLint)arg0 , (GLsizei)data.count() , (GLfloat*)data.data());
+    JSB_GL_CHECK(glUniform1fv((GLint)arg0 , (GLsizei)data.count() , (GLfloat*)data.data()));
     s.rval().setUndefined();
     return true;
 }
@@ -1678,7 +1681,7 @@ bool JSB_glUniform1i(se::State& s) {
     ok &= seval_to_int32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glUniform1i((GLint)arg0 , (GLint)arg1  );
+    JSB_GL_CHECK(glUniform1i((GLint)arg0 , (GLint)arg1  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1698,7 +1701,7 @@ bool JSB_glUniform1iv(se::State& s) {
     ok &= JSB_jsval_typedarray_to_data<int32_t>(args[1], data);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glUniform1iv((GLint)arg0 , (GLsizei)data.count() , (GLint*)data.data());
+    JSB_GL_CHECK(glUniform1iv((GLint)arg0 , (GLsizei)data.count() , (GLint*)data.data()));
     s.rval().setUndefined();
     return true;
 }
@@ -1718,7 +1721,7 @@ bool JSB_glUniform2f(se::State& s) {
     ok &= seval_to_int32(args[2], &arg2 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glUniform2f((GLint)arg0 , (GLfloat)arg1 , (GLfloat)arg2  );
+    JSB_GL_CHECK(glUniform2f((GLint)arg0 , (GLfloat)arg1 , (GLfloat)arg2  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1738,7 +1741,7 @@ bool JSB_glUniform2fv(se::State& s) {
     ok &= JSB_jsval_typedarray_to_data<float>(args[1], data);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glUniform2fv((GLint)arg0 , (GLsizei)(data.count()/2) , (GLfloat*)data.data() );
+    JSB_GL_CHECK(glUniform2fv((GLint)arg0 , (GLsizei)(data.count()/2) , (GLfloat*)data.data() ));
     s.rval().setUndefined();
     return true;
 }
@@ -1758,7 +1761,7 @@ bool JSB_glUniform2i(se::State& s) {
     ok &= seval_to_int32(args[2], &arg2 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glUniform2i((GLint)arg0 , (GLint)arg1 , (GLint)arg2  );
+    JSB_GL_CHECK(glUniform2i((GLint)arg0 , (GLint)arg1 , (GLint)arg2  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1778,7 +1781,7 @@ bool JSB_glUniform2iv(se::State& s) {
     ok &= JSB_jsval_typedarray_to_data<int32_t>(args[1], data);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glUniform2iv((GLint)arg0 , (GLsizei)(data.count()/2) , (GLint*)data.data());
+    JSB_GL_CHECK(glUniform2iv((GLint)arg0 , (GLsizei)(data.count()/2) , (GLint*)data.data()));
     s.rval().setUndefined();
     return true;
 }
@@ -1799,7 +1802,7 @@ bool JSB_glUniform3f(se::State& s) {
     ok &= seval_to_int32(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glUniform3f((GLint)arg0 , (GLfloat)arg1 , (GLfloat)arg2 , (GLfloat)arg3  );
+    JSB_GL_CHECK(glUniform3f((GLint)arg0 , (GLfloat)arg1 , (GLfloat)arg2 , (GLfloat)arg3  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1819,7 +1822,7 @@ bool JSB_glUniform3fv(se::State& s) {
     ok &= JSB_jsval_typedarray_to_data<float>(args[1], data);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glUniform3fv((GLint)arg0 , (GLsizei)(data.count()/3) , (GLfloat*)data.data());
+    JSB_GL_CHECK(glUniform3fv((GLint)arg0 , (GLsizei)(data.count()/3) , (GLfloat*)data.data()));
     s.rval().setUndefined();
     return true;
 }
@@ -1840,7 +1843,7 @@ bool JSB_glUniform3i(se::State& s) {
     ok &= seval_to_int32(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glUniform3i((GLint)arg0 , (GLint)arg1 , (GLint)arg2 , (GLint)arg3  );
+    JSB_GL_CHECK(glUniform3i((GLint)arg0 , (GLint)arg1 , (GLint)arg2 , (GLint)arg3  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1860,7 +1863,7 @@ bool JSB_glUniform3iv(se::State& s) {
     ok &= JSB_jsval_typedarray_to_data<int32_t>(args[1], data);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glUniform3iv((GLint)arg0 , (GLsizei)(data.count()/3) , (GLint*)data.data());
+    JSB_GL_CHECK(glUniform3iv((GLint)arg0 , (GLsizei)(data.count()/3) , (GLint*)data.data()));
     s.rval().setUndefined();
     return true;
 }
@@ -1882,7 +1885,7 @@ bool JSB_glUniform4f(se::State& s) {
     ok &= seval_to_int32(args[4], &arg4 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glUniform4f((GLint)arg0 , (GLfloat)arg1 , (GLfloat)arg2 , (GLfloat)arg3 , (GLfloat)arg4  );
+    JSB_GL_CHECK(glUniform4f((GLint)arg0 , (GLfloat)arg1 , (GLfloat)arg2 , (GLfloat)arg3 , (GLfloat)arg4  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1902,7 +1905,7 @@ bool JSB_glUniform4fv(se::State& s) {
     ok &= JSB_jsval_typedarray_to_data<float>(args[1], data);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glUniform4fv((GLint)arg0 , (GLsizei)(data.count()/4) , (GLfloat*)data.data());
+    JSB_GL_CHECK(glUniform4fv((GLint)arg0 , (GLsizei)(data.count()/4) , (GLfloat*)data.data()));
     s.rval().setUndefined();
     return true;
 }
@@ -1924,7 +1927,7 @@ bool JSB_glUniform4i(se::State& s) {
     ok &= seval_to_int32(args[4], &arg4 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glUniform4i((GLint)arg0 , (GLint)arg1 , (GLint)arg2 , (GLint)arg3 , (GLint)arg4  );
+    JSB_GL_CHECK(glUniform4i((GLint)arg0 , (GLint)arg1 , (GLint)arg2 , (GLint)arg3 , (GLint)arg4  ));
     s.rval().setUndefined();
     return true;
 }
@@ -1944,7 +1947,7 @@ bool JSB_glUniform4iv(se::State& s) {
     ok &= JSB_jsval_typedarray_to_data<int32_t>(args[1], data);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glUniform4iv((GLint)arg0 , (GLsizei)(data.count()/4) , (GLint*)data.data());
+    JSB_GL_CHECK(glUniform4iv((GLint)arg0 , (GLsizei)(data.count()/4) , (GLint*)data.data()));
     s.rval().setUndefined();
     return true;
 }
@@ -1965,7 +1968,7 @@ bool JSB_glUniformMatrix2fv(se::State& s) {
     ok &= JSB_jsval_typedarray_to_data<float>(args[2], data);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glUniformMatrix2fv(arg0, (GLsizei)(data.count()/4), (GLboolean)arg1 , (GLfloat*)data.data());
+    JSB_GL_CHECK(glUniformMatrix2fv(arg0, (GLsizei)(data.count()/4), (GLboolean)arg1 , (GLfloat*)data.data()));
     s.rval().setUndefined();
     return true;
 }
@@ -1986,7 +1989,7 @@ bool JSB_glUniformMatrix3fv(se::State& s) {
     ok &= JSB_jsval_typedarray_to_data<float>(args[2], data);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glUniformMatrix3fv(arg0, (GLsizei)(data.count()/9), (GLboolean)arg1 , (GLfloat*)data.data());
+    JSB_GL_CHECK(glUniformMatrix3fv(arg0, (GLsizei)(data.count()/9), (GLboolean)arg1 , (GLfloat*)data.data()));
     s.rval().setUndefined();
     return true;
 }
@@ -2007,7 +2010,7 @@ bool JSB_glUniformMatrix4fv(se::State& s) {
     ok &= JSB_jsval_typedarray_to_data<float>(args[2], data);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glUniformMatrix4fv(arg0, (GLsizei)(data.count()/16), (GLboolean)arg1 , (GLfloat*)data.data());
+    JSB_GL_CHECK(glUniformMatrix4fv(arg0, (GLsizei)(data.count()/16), (GLboolean)arg1 , (GLfloat*)data.data()));
     s.rval().setUndefined();
     return true;
 }
@@ -2025,7 +2028,7 @@ bool JSB_glUseProgram(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glUseProgram((GLuint)arg0  );
+    JSB_GL_CHECK(glUseProgram((GLuint)arg0  ));
     s.rval().setUndefined();
     return true;
 }
@@ -2043,7 +2046,7 @@ bool JSB_glValidateProgram(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glValidateProgram((GLuint)arg0  );
+    JSB_GL_CHECK(glValidateProgram((GLuint)arg0  ));
     s.rval().setUndefined();
     return true;
 }
@@ -2062,7 +2065,7 @@ bool JSB_glVertexAttrib1f(se::State& s) {
     ok &= seval_to_int32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glVertexAttrib1f((GLuint)arg0 , (GLfloat)arg1  );
+    JSB_GL_CHECK(glVertexAttrib1f((GLuint)arg0 , (GLfloat)arg1  ));
     s.rval().setUndefined();
     return true;
 }
@@ -2082,7 +2085,7 @@ bool JSB_glVertexAttrib1fv(se::State& s) {
     ok &= JSB_jsval_typedarray_to_data<float>(args[1], data);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glVertexAttrib1fv((GLuint)arg0 , (GLfloat*)data.data());
+    JSB_GL_CHECK(glVertexAttrib1fv((GLuint)arg0 , (GLfloat*)data.data()));
     s.rval().setUndefined();
     return true;
 }
@@ -2102,7 +2105,7 @@ bool JSB_glVertexAttrib2f(se::State& s) {
     ok &= seval_to_int32(args[2], &arg2 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glVertexAttrib2f((GLuint)arg0 , (GLfloat)arg1 , (GLfloat)arg2  );
+    JSB_GL_CHECK(glVertexAttrib2f((GLuint)arg0 , (GLfloat)arg1 , (GLfloat)arg2  ));
     s.rval().setUndefined();
     return true;
 }
@@ -2122,7 +2125,7 @@ bool JSB_glVertexAttrib2fv(se::State& s) {
     ok &= JSB_jsval_typedarray_to_data<float>(args[1], data);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glVertexAttrib2fv((GLuint)arg0 , (GLfloat*)data.data()  );
+    JSB_GL_CHECK(glVertexAttrib2fv((GLuint)arg0 , (GLfloat*)data.data()  ));
     s.rval().setUndefined();
     return true;
 }
@@ -2143,7 +2146,7 @@ bool JSB_glVertexAttrib3f(se::State& s) {
     ok &= seval_to_int32(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glVertexAttrib3f((GLuint)arg0 , (GLfloat)arg1 , (GLfloat)arg2 , (GLfloat)arg3  );
+    JSB_GL_CHECK(glVertexAttrib3f((GLuint)arg0 , (GLfloat)arg1 , (GLfloat)arg2 , (GLfloat)arg3  ));
     s.rval().setUndefined();
     return true;
 }
@@ -2163,7 +2166,7 @@ bool JSB_glVertexAttrib3fv(se::State& s) {
     ok &= JSB_jsval_typedarray_to_data<float>(args[1], data);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glVertexAttrib3fv((GLuint)arg0 , (GLfloat*)data.data());
+    JSB_GL_CHECK(glVertexAttrib3fv((GLuint)arg0 , (GLfloat*)data.data()));
     s.rval().setUndefined();
     return true;
 }
@@ -2185,7 +2188,7 @@ bool JSB_glVertexAttrib4f(se::State& s) {
     ok &= seval_to_int32(args[4], &arg4 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glVertexAttrib4f((GLuint)arg0 , (GLfloat)arg1 , (GLfloat)arg2 , (GLfloat)arg3 , (GLfloat)arg4  );
+    JSB_GL_CHECK(glVertexAttrib4f((GLuint)arg0 , (GLfloat)arg1 , (GLfloat)arg2 , (GLfloat)arg3 , (GLfloat)arg4  ));
     s.rval().setUndefined();
     return true;
 }
@@ -2205,7 +2208,7 @@ bool JSB_glVertexAttrib4fv(se::State& s) {
     ok &= JSB_jsval_typedarray_to_data<float>(args[1], data);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glVertexAttrib4fv((GLuint)arg0 , (GLfloat*)data.data());
+    JSB_GL_CHECK(glVertexAttrib4fv((GLuint)arg0 , (GLfloat*)data.data()));
     s.rval().setUndefined();
     return true;
 }
@@ -2228,7 +2231,7 @@ bool JSB_glVertexAttribPointer(se::State& s) {
     ok &= seval_to_int32(args[5], &arg5 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glVertexAttribPointer((GLuint)arg0 , (GLint)arg1 , (GLenum)arg2 , (GLboolean)arg3 , (GLsizei)arg4 , (GLvoid*)arg5  );
+    JSB_GL_CHECK(glVertexAttribPointer((GLuint)arg0 , (GLint)arg1 , (GLenum)arg2 , (GLboolean)arg3 , (GLsizei)arg4 , (GLvoid*)arg5  ));
     s.rval().setUndefined();
     return true;
 }
@@ -2249,7 +2252,7 @@ bool JSB_glViewport(se::State& s) {
     ok &= seval_to_int32(args[3], &arg3 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glViewport((GLint)arg0 , (GLint)arg1 , (GLsizei)arg2 , (GLsizei)arg3  );
+    JSB_GL_CHECK(glViewport((GLint)arg0 , (GLint)arg1 , (GLsizei)arg2 , (GLsizei)arg3  ));
     s.rval().setUndefined();
     return true;
 }

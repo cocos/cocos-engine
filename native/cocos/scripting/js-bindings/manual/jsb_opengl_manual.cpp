@@ -26,6 +26,7 @@
 #include "scripting/js-bindings/manual/jsb_opengl_manual.hpp"
 #include "scripting/js-bindings/manual/jsb_opengl_functions.hpp"
 #include "scripting/js-bindings/manual/jsb_conversions.hpp"
+#include "cocos/scripting/js-bindings/manual/jsb_opengl_utils.hpp"
 #include "platform/CCGL.h"
 
 // Helper functions that link "glGenXXXs" (OpenGL ES 2.0 spec), with "gl.createXXX" (WebGL spec)
@@ -35,7 +36,7 @@ bool JSB_glGenTextures(se::State& s) {
     SE_PRECONDITION2(argc == 0, false, "Invalid number of arguments" );
 
     GLuint texture;
-    glGenTextures(1, &texture);
+    JSB_GL_CHECK(glGenTextures(1, &texture));
 
     s.rval().setUint32(texture);
     return true;
@@ -48,7 +49,7 @@ bool JSB_glGenBuffers(se::State& s) {
     SE_PRECONDITION2(argc == 0, false, "Invalid number of arguments" );
 
     GLuint buffer;
-    glGenBuffers(1, &buffer);
+    JSB_GL_CHECK(glGenBuffers(1, &buffer));
     s.rval().setUint32(buffer);
     return true;
 }
@@ -60,7 +61,7 @@ bool JSB_glGenRenderbuffers(se::State& s) {
     SE_PRECONDITION2(argc == 0, false, "Invalid number of arguments" );
 
     GLuint renderbuffers;
-    glGenRenderbuffers(1, &renderbuffers);
+    JSB_GL_CHECK(glGenRenderbuffers(1, &renderbuffers));
     s.rval().setUint32(renderbuffers);
     return true;
 }
@@ -72,7 +73,7 @@ bool JSB_glGenFramebuffers(se::State& s) {
     SE_PRECONDITION2(argc == 0, false, "Invalid number of arguments" );
 
     GLuint framebuffers;
-    glGenFramebuffers(1, &framebuffers);
+    JSB_GL_CHECK(glGenFramebuffers(1, &framebuffers));
     s.rval().setUint32(framebuffers);
     return true;
 }
@@ -89,7 +90,7 @@ bool JSB_glDeleteTextures(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glDeleteTextures(1, &arg0);
+    JSB_GL_CHECK(glDeleteTextures(1, &arg0));
 
     return true;
 }
@@ -106,7 +107,7 @@ bool JSB_glDeleteBuffers(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glDeleteBuffers(1, &arg0);
+    JSB_GL_CHECK(glDeleteBuffers(1, &arg0));
 
     return true;
 }
@@ -123,7 +124,7 @@ bool JSB_glDeleteRenderbuffers(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glDeleteRenderbuffers(1, &arg0);
+    JSB_GL_CHECK(glDeleteRenderbuffers(1, &arg0));
 
     return true;
 }
@@ -140,7 +141,7 @@ bool JSB_glDeleteFramebuffers(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    glDeleteFramebuffers(1, &arg0);
+    JSB_GL_CHECK(glDeleteFramebuffers(1, &arg0));
 
     return true;
 }
@@ -159,7 +160,7 @@ bool JSB_glShaderSource(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     const GLchar* sources[] = { arg1.c_str() };
-    glShaderSource(arg0, 1, sources, nullptr);
+    JSB_GL_CHECK(glShaderSource(arg0, 1, sources, nullptr));
 
     return true;
 }
@@ -178,7 +179,7 @@ bool JSB_glGetShaderiv(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     GLint ret;
-    glGetShaderiv(arg0, arg1, &ret);
+    JSB_GL_CHECK(glGetShaderiv(arg0, arg1, &ret));
     s.rval().setInt32(ret);
     return true;
 }
@@ -197,7 +198,7 @@ bool JSB_glGetProgramiv(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     GLint ret;
-    glGetProgramiv(arg0, arg1, &ret);
+    JSB_GL_CHECK(glGetProgramiv(arg0, arg1, &ret));
     s.rval().setInt32(ret);
     return true;
 }
@@ -215,9 +216,9 @@ bool JSB_glGetProgramInfoLog(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     GLsizei length;
-    glGetProgramiv(arg0, GL_INFO_LOG_LENGTH, &length);
+    JSB_GL_CHECK(glGetProgramiv(arg0, GL_INFO_LOG_LENGTH, &length));
     GLchar* src = new (std::nothrow) GLchar[length];
-    glGetProgramInfoLog(arg0, length, NULL, src);
+    JSB_GL_CHECK(glGetProgramInfoLog(arg0, length, NULL, src));
     
     s.rval().setString(src);
     CC_SAFE_DELETE_ARRAY(src);
@@ -238,9 +239,9 @@ bool JSB_glGetShaderInfoLog(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     GLsizei length;
-    glGetShaderiv(arg0, GL_INFO_LOG_LENGTH, &length);
+    JSB_GL_CHECK(glGetShaderiv(arg0, GL_INFO_LOG_LENGTH, &length));
     GLchar* src = new (std::nothrow) GLchar[length];
-    glGetShaderInfoLog(arg0, length, NULL, src);
+    JSB_GL_CHECK(glGetShaderInfoLog(arg0, length, NULL, src));
     
     s.rval().setString(src);
     CC_SAFE_DELETE_ARRAY(src);
@@ -261,9 +262,9 @@ bool JSB_glGetShaderSource(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     GLsizei length;
-    glGetShaderiv(arg0, GL_SHADER_SOURCE_LENGTH, &length);
+    JSB_GL_CHECK(glGetShaderiv(arg0, GL_SHADER_SOURCE_LENGTH, &length));
     GLchar* src = new (std::nothrow) GLchar[length];
-    glGetShaderSource(arg0, length, NULL, src);
+    JSB_GL_CHECK(glGetShaderSource(arg0, length, NULL, src));
 
     s.rval().setString(src);
     CC_SAFE_DELETE_ARRAY(src);
@@ -289,12 +290,12 @@ bool JSB_glGetActiveAttrib(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     GLsizei length;
-    glGetProgramiv(arg0, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &length);
+    JSB_GL_CHECK(glGetProgramiv(arg0, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &length));
     GLchar* buffer = new (std::nothrow) GLchar[length];
     GLint size = -1;
     GLenum type = -1;
 
-    glGetActiveAttrib(arg0, arg1, length, NULL, &size, &type, buffer);
+    JSB_GL_CHECK(glGetActiveAttrib(arg0, arg1, length, NULL, &size, &type, buffer));
 
     se::HandleObject object(se::Object::createPlainObject());
     object->setProperty("size", se::Value((int32_t)size));
@@ -328,12 +329,12 @@ bool JSB_glGetActiveUniform(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     GLsizei length;
-    glGetProgramiv(arg0, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &length);
+    JSB_GL_CHECK(glGetProgramiv(arg0, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &length));
     GLchar* buffer = new (std::nothrow) GLchar[length];
     GLint size = -1;
     GLenum type = -1;
 
-    glGetActiveUniform(arg0, arg1, length, NULL, &size, &type, buffer);
+    JSB_GL_CHECK(glGetActiveUniform(arg0, arg1, length, NULL, &size, &type, buffer));
 
     se::HandleObject object(se::Object::createPlainObject());
     object->setProperty("size", se::Value((int32_t)size));
@@ -359,12 +360,12 @@ bool JSB_glGetAttachedShaders(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     GLsizei length;
-    glGetProgramiv(arg0, GL_ATTACHED_SHADERS, &length);
+    JSB_GL_CHECK(glGetProgramiv(arg0, GL_ATTACHED_SHADERS, &length));
     GLuint* buffer = new (std::nothrow) GLuint[length];
     memset(buffer, 0, length * sizeof(GLuint));
     //Fix bug 2448, it seems that glGetAttachedShaders will crash if we send NULL to the third parameter (eg Windows), same as in lua binding
     GLsizei realShaderCount = 0;
-    glGetAttachedShaders(arg0, length, &realShaderCount, buffer);
+    JSB_GL_CHECK(glGetAttachedShaders(arg0, length, &realShaderCount, buffer));
 
     se::HandleObject jsobj(se::Object::createArrayObject(length));
     for( int i=0; i<length; i++)
@@ -431,7 +432,7 @@ bool JSB_glGetTexParameterfv(se::State& s) {
     SE_PRECONDITION2(ok, false, "JSB_glGetTexParameterfv: Error processing arguments");
 
     GLfloat param;
-    glGetTexParameterfv(arg0, arg1, &param);
+    JSB_GL_CHECK(glGetTexParameterfv(arg0, arg1, &param));
 
     s.rval().setFloat(param);
     return true;
@@ -453,10 +454,10 @@ bool JSB_glGetUniformfv(se::State& s) {
     SE_PRECONDITION2(ok, false, "JSB_glGetUniformfv: Error processing arguments");
 
     GLint activeUniforms;
-    glGetProgramiv(arg0, GL_ACTIVE_UNIFORMS, &activeUniforms);
+    JSB_GL_CHECK(glGetProgramiv(arg0, GL_ACTIVE_UNIFORMS, &activeUniforms));
     
     GLsizei length;
-    glGetProgramiv(arg0, GL_ACTIVE_UNIFORM_MAX_LENGTH, &length);
+    JSB_GL_CHECK(glGetProgramiv(arg0, GL_ACTIVE_UNIFORM_MAX_LENGTH, &length));
     GLchar* namebuffer = new (std::nothrow) GLchar[length+1];
     GLint size = -1;
     GLenum type = -1;
@@ -464,7 +465,7 @@ bool JSB_glGetUniformfv(se::State& s) {
     bool isLocationFound = false;
     for (int i = 0; i  <  activeUniforms; ++i)
     {
-        glGetActiveUniform(arg0, i, length, NULL, &size, &type, namebuffer);
+        JSB_GL_CHECK(glGetActiveUniform(arg0, i, length, NULL, &size, &type, namebuffer));
         if(arg1 == glGetUniformLocation(arg0, namebuffer))
         {
             isLocationFound = true;
@@ -532,14 +533,14 @@ bool JSB_glGetUniformfv(se::State& s) {
             break;
 
         default:
-            SE_REPORT_ERROR("JSB_glGetUniformfv: Uniform Type (%d) not supported", (int)type);
+            SE_REPORT_ERROR("glGetUniformfv: Uniform Type (%d) not supported", (int)type);
             return false;
     }
 
     if( utype == GL_FLOAT)
     {
         GLfloat* param = new (std::nothrow) GLfloat[usize];
-        glGetUniformfv(arg0, arg1, param);
+        JSB_GL_CHECK(glGetUniformfv(arg0, arg1, param));
 
         se::HandleObject obj(se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, param, usize * sizeof(GLfloat)));
         s.rval().setObject(obj);
@@ -549,7 +550,7 @@ bool JSB_glGetUniformfv(se::State& s) {
     else if( utype == GL_INT )
     {
         GLint* param = new (std::nothrow) GLint[usize];
-        glGetUniformiv(arg0, arg1, param);
+        JSB_GL_CHECK(glGetUniformiv(arg0, arg1, param));
 
         se::HandleObject obj(se::Object::createTypedArray(se::Object::TypedArrayType::INT32, param, usize * sizeof(GLint)));
         s.rval().setObject(obj);

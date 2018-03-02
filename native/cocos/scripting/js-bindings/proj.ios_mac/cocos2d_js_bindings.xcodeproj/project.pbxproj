@@ -11,6 +11,22 @@
 		1A210D951F456821006CCBAE /* MappingUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A210D921F456821006CCBAE /* MappingUtils.cpp */; };
 		1A210D961F456821006CCBAE /* MappingUtils.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A210D931F456821006CCBAE /* MappingUtils.hpp */; };
 		1A210D971F456821006CCBAE /* MappingUtils.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A210D931F456821006CCBAE /* MappingUtils.hpp */; };
+		1A47AF822048E0E600BAD790 /* jsb_opengl_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A47AF792048E0E600BAD790 /* jsb_opengl_manual.cpp */; };
+		1A47AF832048E0E600BAD790 /* jsb_opengl_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A47AF792048E0E600BAD790 /* jsb_opengl_manual.cpp */; };
+		1A47AF862048E0E600BAD790 /* jsb_opengl_registration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A47AF7B2048E0E600BAD790 /* jsb_opengl_registration.cpp */; };
+		1A47AF872048E0E600BAD790 /* jsb_opengl_registration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A47AF7B2048E0E600BAD790 /* jsb_opengl_registration.cpp */; };
+		1A47AF882048E0E600BAD790 /* jsb_opengl_functions.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A47AF7C2048E0E600BAD790 /* jsb_opengl_functions.hpp */; };
+		1A47AF892048E0E600BAD790 /* jsb_opengl_functions.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A47AF7C2048E0E600BAD790 /* jsb_opengl_functions.hpp */; };
+		1A47AF8A2048E0E600BAD790 /* jsb_opengl_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A47AF7D2048E0E600BAD790 /* jsb_opengl_manual.hpp */; };
+		1A47AF8B2048E0E600BAD790 /* jsb_opengl_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A47AF7D2048E0E600BAD790 /* jsb_opengl_manual.hpp */; };
+		1A47AF8C2048E0E600BAD790 /* jsb_opengl_registration.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A47AF7E2048E0E600BAD790 /* jsb_opengl_registration.hpp */; };
+		1A47AF8D2048E0E600BAD790 /* jsb_opengl_registration.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A47AF7E2048E0E600BAD790 /* jsb_opengl_registration.hpp */; };
+		1A47AF8E2048E0E600BAD790 /* jsb_opengl_functions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A47AF7F2048E0E600BAD790 /* jsb_opengl_functions.cpp */; };
+		1A47AF8F2048E0E600BAD790 /* jsb_opengl_functions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A47AF7F2048E0E600BAD790 /* jsb_opengl_functions.cpp */; };
+		1A47AF982048F17100BAD790 /* jsb_opengl_utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A47AF962048F17100BAD790 /* jsb_opengl_utils.cpp */; };
+		1A47AF992048F17100BAD790 /* jsb_opengl_utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A47AF962048F17100BAD790 /* jsb_opengl_utils.cpp */; };
+		1A47AF9A2048F17100BAD790 /* jsb_opengl_utils.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A47AF972048F17100BAD790 /* jsb_opengl_utils.hpp */; };
+		1A47AF9B2048F17100BAD790 /* jsb_opengl_utils.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A47AF972048F17100BAD790 /* jsb_opengl_utils.hpp */; };
 		1A6821401FAC206300C18C60 /* jsb_platfrom_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A68213F1FAC206300C18C60 /* jsb_platfrom_ios.m */; };
 		1A6821421FAC20B300C18C60 /* jsb_platform_ios.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A6821411FAC20B300C18C60 /* jsb_platform_ios.h */; };
 		1A6B8FB31F3BF7E800BC83DC /* SHA1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A6B8FB11F3BF7E800BC83DC /* SHA1.cpp */; };
@@ -198,6 +214,14 @@
 		1A210DDF1F46C2D3006CCBAE /* libmozglue.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmozglue.a; path = ../../../../external/ios/libs/libmozglue.a; sourceTree = "<group>"; };
 		1A210DE21F46C2DF006CCBAE /* libjs_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjs_static.a; path = ../../../../external/mac/libs/libjs_static.a; sourceTree = "<group>"; };
 		1A210DE31F46C2DF006CCBAE /* libmozglue.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmozglue.a; path = ../../../../external/mac/libs/libmozglue.a; sourceTree = "<group>"; };
+		1A47AF792048E0E600BAD790 /* jsb_opengl_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_opengl_manual.cpp; sourceTree = "<group>"; };
+		1A47AF7B2048E0E600BAD790 /* jsb_opengl_registration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_opengl_registration.cpp; sourceTree = "<group>"; };
+		1A47AF7C2048E0E600BAD790 /* jsb_opengl_functions.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_opengl_functions.hpp; sourceTree = "<group>"; };
+		1A47AF7D2048E0E600BAD790 /* jsb_opengl_manual.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_opengl_manual.hpp; sourceTree = "<group>"; };
+		1A47AF7E2048E0E600BAD790 /* jsb_opengl_registration.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_opengl_registration.hpp; sourceTree = "<group>"; };
+		1A47AF7F2048E0E600BAD790 /* jsb_opengl_functions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_opengl_functions.cpp; sourceTree = "<group>"; };
+		1A47AF962048F17100BAD790 /* jsb_opengl_utils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_opengl_utils.cpp; sourceTree = "<group>"; };
+		1A47AF972048F17100BAD790 /* jsb_opengl_utils.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = jsb_opengl_utils.hpp; sourceTree = "<group>"; };
 		1A5410A418B785A10016A3AF /* libjscocos2d Mac.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libjscocos2d Mac.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A5410A518B785A10016A3AF /* libjscocos2d iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libjscocos2d iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A68213F1FAC206300C18C60 /* jsb_platfrom_ios.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = jsb_platfrom_ios.m; sourceTree = "<group>"; };
@@ -349,6 +373,12 @@
 		1A119E4118BDF19200352BAA /* manual */ = {
 			isa = PBXGroup;
 			children = (
+				1A47AF7F2048E0E600BAD790 /* jsb_opengl_functions.cpp */,
+				1A47AF7C2048E0E600BAD790 /* jsb_opengl_functions.hpp */,
+				1A47AF792048E0E600BAD790 /* jsb_opengl_manual.cpp */,
+				1A47AF7D2048E0E600BAD790 /* jsb_opengl_manual.hpp */,
+				1A47AF7B2048E0E600BAD790 /* jsb_opengl_registration.cpp */,
+				1A47AF7E2048E0E600BAD790 /* jsb_opengl_registration.hpp */,
 				469301D3203FC6D9004A3D6C /* jsb_renderer_manual.cpp */,
 				469301D4203FC6D9004A3D6C /* jsb_renderer_manual.hpp */,
 				469301BB203FC1DD004A3D6C /* jsb_gfx_manual.cpp */,
@@ -363,6 +393,8 @@
 				1A9F0F9C1F30235C00A499E1 /* jsb_helper.hpp */,
 				1A68213F1FAC206300C18C60 /* jsb_platfrom_ios.m */,
 				1A6821411FAC20B300C18C60 /* jsb_platform_ios.h */,
+				1A47AF962048F17100BAD790 /* jsb_opengl_utils.cpp */,
+				1A47AF972048F17100BAD790 /* jsb_opengl_utils.hpp */,
 			);
 			name = manual;
 			path = ../manual;
@@ -524,6 +556,7 @@
 				1A210D961F456821006CCBAE /* MappingUtils.hpp in Headers */,
 				1AFD36C81EF116190097DBB1 /* jsb_classtype.hpp in Headers */,
 				1AFD36881EF115100097DBB1 /* Class.hpp in Headers */,
+				1A47AF8C2048E0E600BAD790 /* jsb_opengl_registration.hpp in Headers */,
 				1AFD36441EF115100097DBB1 /* SeApi.h in Headers */,
 				1AFD369C1EF115100097DBB1 /* Utils.hpp in Headers */,
 				1A6B8FB41F3BF7E800BC83DC /* SHA1.h in Headers */,
@@ -541,6 +574,7 @@
 				1AFD368A1EF115100097DBB1 /* HelperMacros.h in Headers */,
 				1AFD366A1EF115100097DBB1 /* Base.h in Headers */,
 				1A7759D71F340FB10012A210 /* inspector_socket.h in Headers */,
+				1A47AF9A2048F17100BAD790 /* jsb_opengl_utils.hpp in Headers */,
 				1AFD367E1EF115100097DBB1 /* Utils.hpp in Headers */,
 				1A7759FB1F3460BB0012A210 /* node_mutex.h in Headers */,
 				469301BF203FC1DD004A3D6C /* jsb_gfx_manual.hpp in Headers */,
@@ -573,11 +607,13 @@
 				1AFD363E1EF115100097DBB1 /* Object.hpp in Headers */,
 				1AFD36341EF115100097DBB1 /* Base.h in Headers */,
 				46FDDC5E202C29BD00931238 /* EventDispatcher.h in Headers */,
+				1A47AF882048E0E600BAD790 /* jsb_opengl_functions.hpp in Headers */,
 				1AFD36621EF115100097DBB1 /* Object.hpp in Headers */,
 				1AFD36821EF115100097DBB1 /* State.hpp in Headers */,
 				469301D7203FC6D9004A3D6C /* jsb_renderer_manual.hpp in Headers */,
 				1A7759E31F3410A20012A210 /* http_parser.h in Headers */,
 				469301C7203FC1EE004A3D6C /* jsb_renderer_auto.hpp in Headers */,
+				1A47AF8A2048E0E600BAD790 /* jsb_opengl_manual.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -596,6 +632,7 @@
 				469301C8203FC1EE004A3D6C /* jsb_renderer_auto.hpp in Headers */,
 				1AFD36C91EF116190097DBB1 /* jsb_classtype.hpp in Headers */,
 				1AFD36351EF115100097DBB1 /* Base.h in Headers */,
+				1A47AF892048E0E600BAD790 /* jsb_opengl_functions.hpp in Headers */,
 				1A210D971F456821006CCBAE /* MappingUtils.hpp in Headers */,
 				1AFD36931EF115100097DBB1 /* ObjectWrap.h in Headers */,
 				1AFD36711EF115100097DBB1 /* HelperMacros.h in Headers */,
@@ -607,6 +644,7 @@
 				1AFD36891EF115100097DBB1 /* Class.hpp in Headers */,
 				1AFD365B1EF115100097DBB1 /* ScriptEngine.hpp in Headers */,
 				1AFD36851EF115100097DBB1 /* Base.h in Headers */,
+				1A47AF8B2048E0E600BAD790 /* jsb_opengl_manual.hpp in Headers */,
 				1AFD36DD1EF116190097DBB1 /* jsb_global.h in Headers */,
 				1AFD36751EF115100097DBB1 /* Object.hpp in Headers */,
 				1AFD36631EF115100097DBB1 /* Object.hpp in Headers */,
@@ -616,6 +654,7 @@
 				1AFD364B1EF115100097DBB1 /* config.hpp in Headers */,
 				1AFD368B1EF115100097DBB1 /* HelperMacros.h in Headers */,
 				46FDDC5F202C29BD00931238 /* EventDispatcher.h in Headers */,
+				1A47AF8D2048E0E600BAD790 /* jsb_opengl_registration.hpp in Headers */,
 				469301CA203FC1EE004A3D6C /* jsb_gfx_auto.hpp in Headers */,
 				1A9F0FA01F30235C00A499E1 /* jsb_helper.hpp in Headers */,
 				1AF82D461F2EE1C40002C5A0 /* HandleObject.hpp in Headers */,
@@ -627,6 +666,7 @@
 				1AFD36391EF115100097DBB1 /* Class.hpp in Headers */,
 				1AFD368F1EF115100097DBB1 /* Object.hpp in Headers */,
 				1AFD363B1EF115100097DBB1 /* HelperMacros.h in Headers */,
+				1A47AF9B2048F17100BAD790 /* jsb_opengl_utils.hpp in Headers */,
 				1AFD364D1EF115100097DBB1 /* Base.h in Headers */,
 				1AFD36791EF115100097DBB1 /* ScriptEngine.hpp in Headers */,
 				1AFD36971EF115100097DBB1 /* ScriptEngine.hpp in Headers */,
@@ -721,6 +761,7 @@
 				1AFD36361EF115100097DBB1 /* Class.cpp in Sources */,
 				1A7759EA1F3411050012A210 /* util.cc in Sources */,
 				1AFD366C1EF115100097DBB1 /* Class.cpp in Sources */,
+				1A47AF982048F17100BAD790 /* jsb_opengl_utils.cpp in Sources */,
 				1AFD36941EF115100097DBB1 /* ScriptEngine.cpp in Sources */,
 				1AFD36801EF115100097DBB1 /* State.cpp in Sources */,
 				469301CB203FC1EE004A3D6C /* jsb_gfx_auto.cpp in Sources */,
@@ -728,11 +769,13 @@
 				1A8FB50E1F99F04600BED3CF /* PlatformUtils.mm in Sources */,
 				1AFD36861EF115100097DBB1 /* Class.cpp in Sources */,
 				469301BD203FC1DD004A3D6C /* jsb_gfx_manual.cpp in Sources */,
+				1A47AF862048E0E600BAD790 /* jsb_opengl_registration.cpp in Sources */,
 				1AFD363C1EF115100097DBB1 /* Object.cpp in Sources */,
 				1A6B8FB31F3BF7E800BC83DC /* SHA1.cpp in Sources */,
 				1AFD36721EF115100097DBB1 /* Object.cpp in Sources */,
 				1AFD36DA1EF116190097DBB1 /* jsb_global.cpp in Sources */,
 				1A7759F61F3421B90012A210 /* node.cc in Sources */,
+				1A47AF8E2048E0E600BAD790 /* jsb_opengl_functions.cpp in Sources */,
 				469301C5203FC1EE004A3D6C /* jsb_renderer_auto.cpp in Sources */,
 				1AFD367C1EF115100097DBB1 /* Utils.cpp in Sources */,
 				1AFD369A1EF115100097DBB1 /* Utils.cpp in Sources */,
@@ -741,6 +784,7 @@
 				1AFD36D21EF116190097DBB1 /* jsb_conversions.cpp in Sources */,
 				1A7759CD1F340FB10012A210 /* inspector_io.cc in Sources */,
 				1AFD36761EF115100097DBB1 /* ScriptEngine.cpp in Sources */,
+				1A47AF822048E0E600BAD790 /* jsb_opengl_manual.cpp in Sources */,
 				1A7759DB1F34105B0012A210 /* node_debug_options.cc in Sources */,
 				1AFD36461EF115100097DBB1 /* Utils.cpp in Sources */,
 				46FDDC5C202C29BD00931238 /* EventDispatcher.cpp in Sources */,
@@ -759,11 +803,15 @@
 				1AFD364F1EF115100097DBB1 /* Class.cpp in Sources */,
 				469301BE203FC1DD004A3D6C /* jsb_gfx_manual.cpp in Sources */,
 				1AFD363D1EF115100097DBB1 /* Object.cpp in Sources */,
+				1A47AF872048E0E600BAD790 /* jsb_opengl_registration.cpp in Sources */,
 				1AFD367D1EF115100097DBB1 /* Utils.cpp in Sources */,
 				1AFD36371EF115100097DBB1 /* Class.cpp in Sources */,
+				1A47AF8F2048E0E600BAD790 /* jsb_opengl_functions.cpp in Sources */,
+				1A47AF992048F17100BAD790 /* jsb_opengl_utils.cpp in Sources */,
 				1AFD36811EF115100097DBB1 /* State.cpp in Sources */,
 				1A6821401FAC206300C18C60 /* jsb_platfrom_ios.m in Sources */,
 				469301C6203FC1EE004A3D6C /* jsb_renderer_auto.cpp in Sources */,
+				1A47AF832048E0E600BAD790 /* jsb_opengl_manual.cpp in Sources */,
 				1AFD36471EF115100097DBB1 /* Utils.cpp in Sources */,
 				1AFD36731EF115100097DBB1 /* Object.cpp in Sources */,
 				1AFD36771EF115100097DBB1 /* ScriptEngine.cpp in Sources */,

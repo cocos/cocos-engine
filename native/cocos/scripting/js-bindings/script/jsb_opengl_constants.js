@@ -29,7 +29,8 @@
 * Script version: v0.6
 */
 
-var gl = gl || {};
+window.gl = window.gl || {};
+
 gl.GCCSO_SHADER_BINARY_FJ	= 0x9260;
 gl._3DC_XY_AMD	= 0x87fa;
 gl._3DC_X_AMD	= 0x87f9;

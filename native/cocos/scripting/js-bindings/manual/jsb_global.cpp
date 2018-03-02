@@ -248,7 +248,11 @@ namespace {
         assert(fileOperationDelegate.isValid());
 
         std::string fullPath;
-        std::string scriptBuffer = fileOperationDelegate.onGetStringFromFile(path);
+
+        std::string pathWithSuffix = path;
+        if (pathWithSuffix.rfind(".js") != (pathWithSuffix.length() - 3))
+            pathWithSuffix += ".js";
+        std::string scriptBuffer = fileOperationDelegate.onGetStringFromFile(pathWithSuffix);
 
         if (scriptBuffer.empty() && !prevScriptFileDir.empty())
         {
@@ -275,7 +279,7 @@ namespace {
         }
         else
         {
-            fullPath = fileOperationDelegate.onGetFullPath(path);
+            fullPath = fileOperationDelegate.onGetFullPath(pathWithSuffix);
         }
 
         normalizePath(fullPath);
@@ -297,6 +301,10 @@ namespace {
 
             // Add current script path to require function invocation
             scriptBuffer = prefix + std::regex_replace(scriptBuffer, std::regex("([^A-Za-z0-9]|^)require\\((.*?)\\)"), "$1require($2, currentScriptDir)") + suffix;
+
+            FILE* fp = fopen("/Users/james/Downloads/test.txt", "wb");
+            fwrite(scriptBuffer.c_str(), scriptBuffer.length(), 1, fp);
+            fclose(fp);
 
             std::string reletivePath = fullPath;
             const std::string reletivePathKey = "/Contents/Resources";

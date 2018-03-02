@@ -27,7 +27,13 @@
  * THE SOFTWARE.
  */
 
-var gl = gl || {};
+require('./jsb_opengl_constants');
+window.gl = window.gl || {};
+
+gl.canvas = {
+    clientWidth: canvas.width,
+    clientHeight: canvas.height
+};
 
 //
 // Create functions
