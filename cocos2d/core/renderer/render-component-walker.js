@@ -30,11 +30,14 @@ const StencilManager = require('./stencil-manager');
 const gfx = renderEngine.gfx;
 const RecyclePool = renderEngine.RecyclePool;
 const InputAssembler = renderEngine.InputAssembler;
+const bits = renderEngine.math.bits;
 
 const FLOATS_PER_VERT = defaultVertexFormat._bytes / 4;
-const MAX_VERTEX = macro.BATCH_VERTEX_COUNT;
-const MAX_INDICE = MAX_VERTEX * 2;
 const BYTE_PER_INDEX = 2;
+const MAX_VERTEX = macro.BATCH_VERTEX_COUNT;
+const MAX_VERTEX_BYTES = MAX_VERTEX * defaultVertexFormat._bytes;
+const MAX_INDICE = MAX_VERTEX * BYTE_PER_INDEX;
+const MAX_INDICE_BYTES = MAX_INDICE * 2;
 
 var _queue = null;
 var _batchData = {
@@ -167,12 +170,13 @@ RenderComponentWalker.prototype = {
             cullingMask = batchData.cullingMask,
             vertexCount = batchData.vertexOffset,
             indiceCount = batchData.indiceOffset,
+            vDataSize = Math.min(bits.nextPow2(vertexByte), MAX_VERTEX_BYTES),
             vertexsData = null,
             indicesData = null;
             
         // Prepare data view for vb ib
         if (vertexCount > 0 && indiceCount > 0) {
-            vertexsData = new Float32Array(this._vData.buffer, 0, vertexByte / 4);
+            vertexsData = new Float32Array(this._vData.buffer, 0, vDataSize / 4);
             indicesData = new Uint16Array(this._iData.buffer, 0, indiceCount);
         }
         else {
@@ -185,7 +189,7 @@ RenderComponentWalker.prototype = {
         device._stats.vb -= vb._bytes;
         vb._format = vfmt;
         vb._numVertices = vertexCount;
-        vb._bytes = vertexByte;
+        vb._bytes = vDataSize;
         vb.update(0, vertexsData);
         device._stats.vb += vb._bytes;
     
