@@ -130,6 +130,8 @@ let Camera = cc.Class({
     },
 
     onEnable () {
+        if (CC_EDITOR) return;
+
         if (!Camera.main) {
             Camera.main = this;
         }
@@ -144,6 +146,8 @@ let Camera = cc.Class({
     },
 
     onDisable () {
+        if (CC_EDITOR) return;
+        
         if (Camera.main === this) {
             Camera.main = null;
         }

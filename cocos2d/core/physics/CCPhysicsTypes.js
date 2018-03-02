@@ -96,10 +96,14 @@ var RayCastType = cc.Enum({
 });
 cc.RayCastType = RayCastType;
 
+var DrawBits = b2.Draw;
+
 module.exports = {
     BodyType: BodyType,
     ContactType: ContactType,
     RayCastType: RayCastType,
+    
+    DrawBits: DrawBits,
 
     PTM_RATIO: 32,
     ANGLE_TO_PHYSICS_ANGLE: -Math.PI / 180,
