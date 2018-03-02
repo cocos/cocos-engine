@@ -308,6 +308,7 @@ RenderComponentWalker.prototype = {
                 else if (!_batchData.effect) {
                     _batchData.effect = effect;
                     _batchData.vfmt = comp._vertexFormat;
+                    _batchData.cullingMask = cullingMask;
                 }
 
                 // Set model
