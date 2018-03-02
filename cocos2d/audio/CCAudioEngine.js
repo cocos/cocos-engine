@@ -23,8 +23,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-var JS = require('../core/platform/js');
 
+var JS = require('../core/platform/js');
 var Audio = require('./CCAudio');
 
 var instanceId = 0;

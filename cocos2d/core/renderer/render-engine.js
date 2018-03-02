@@ -5,6 +5,8 @@
  * Released under the MIT License.
  */
 
+ var JS = cc.js;
+
 module.exports = (function () {
   'use strict';
   
@@ -7696,7 +7698,7 @@ module.exports = (function () {
      * ])
      */
     constructor(infos) {
-      this._attr2el = {};
+      this._attr2el = JS.createMap(true);
       this._elements = [];
       this._bytes = 0;
   
@@ -12736,7 +12738,7 @@ module.exports = (function () {
       this._precision = `precision highp float;\n`;
   
       // register templates
-      this._templates = {};
+      this._templates = JS.createMap();
       for (let i = 0; i < templates.length; ++i) {
         let tmpl = templates[i];
         this.define(tmpl.name, tmpl.vert, tmpl.frag, tmpl.defines);
@@ -12746,7 +12748,7 @@ module.exports = (function () {
       this._chunks = {};
       Object.assign(this._chunks, chunks);
   
-      this._cache = {};
+      this._cache = JS.createMap(true);
     }
   
     /**
@@ -14224,7 +14226,7 @@ module.exports = (function () {
   
   class MaterialUtil {
     constructor () {
-        this._cache = {};
+        this._cache = JS.createMap(true);
     }
   
     get (key) {
