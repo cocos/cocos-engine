@@ -1055,10 +1055,14 @@ var Node = cc.Class({
             this._scale.y = this._scaleY;
             this._scaleY = undefined;
         }
-        // Upgrade rotationX, rotationY from v1.x
-        // TODO: remove in future version, 3.0 ?
-        
-        
+        // TODO: remove _rotationX & _rotationY in future version, 3.0 ?
+        // Update quaternion from rotation
+        if (this._rotationX === this._rotationY) {
+            math.quat.fromEuler(this._quat, 0, 0, -this._rotationX);
+        }
+        else {
+            math.quat.fromEuler(this._quat, this._rotationX, this._rotationY, 0);
+        }
 
         var prefabInfo = this._prefab;
         if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
