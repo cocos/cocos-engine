@@ -25,6 +25,7 @@
 
 var AnimationAnimator = require('../../animation/animation-animator');
 var AnimationClip = require('../../animation/animation-clip');
+var JS = require('../platform/js');
 
 function equalClips (clip1, clip2) {
     if (clip1 === clip2) {
@@ -76,7 +77,7 @@ var Animation = cc.Class({
         // The actual implement for Animation
         this._animator = null;
 
-        this._nameToState = {};
+        this._nameToState = JS.createMap(true);
         this._didInit = false;
 
         this._currentClip = null;
@@ -591,7 +592,7 @@ var Animation = cc.Class({
     },
 
     _createStates: function() {
-        this._nameToState = {};
+        this._nameToState = JS.createMap(true);
         
         // create animation states
         var state = null;

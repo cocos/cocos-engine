@@ -25,6 +25,7 @@
 
 var Unpackers = require('./unpackers');
 var pushToMap = require('../utils/misc').pushToMap;
+var JS = require('../platform/js');
 
 // when more than one package contains the required asset,
 // choose to load from the package with the largest state value.
@@ -43,14 +44,14 @@ function UnpackerData () {
 // {assetUuid: packUuid|[packUuid]}
 // If value is array of packUuid, then the first one will be prioritized for download,
 // so the smallest pack must be at the beginning of the array.
-var uuidToPack = {};
+var uuidToPack = JS.createMap(true);
 
 // {packUuid: assetIndices}
-var packIndices = {};
+var packIndices = JS.createMap(true);
 
 // {packUuid: UnpackerData}
 // We have to cache all packs in global because for now there's no operation context in loader.
-var globalUnpackers = {};
+var globalUnpackers = JS.createMap(true);
 
 
 function error (uuid, packUuid) {
@@ -177,8 +178,8 @@ module.exports = {
 if (CC_TEST) {
     cc._Test.PackDownloader = module.exports;
     cc._Test.PackDownloader.reset = function () {
-        uuidToPack = {};
-        packIndices = {};
-        globalUnpackers = {};
+        uuidToPack = JS.createMap(true);
+        packIndices = JS.createMap(true);
+        globalUnpackers = JS.createMap(true);
     };
 }
