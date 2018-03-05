@@ -29,6 +29,7 @@ require('../cocos2d/core/platform/CCClass');
 require('../cocos2d/core/assets/CCAsset');
 var WebTexture = require('../cocos2d/core/textures/CCTexture2D');
 var WebSpriteFrame = require('../cocos2d/core/sprites/CCSpriteFrame');
+var JS = cc.js;
 
 cc.js.unregisterClass(WebTexture, WebSpriteFrame);
 
@@ -80,7 +81,7 @@ prototype.addImage = function (url, cb, target) {
 
 // cc.textureCache
 
-cc.textureCache._textures = {};
+cc.textureCache._textures = JS.createMap(true);
 cc.textureCache.cacheImage = function (key, texture) {
     if (texture instanceof cc.Texture2D) {
         this._textures[key] = texture;

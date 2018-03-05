@@ -33,7 +33,7 @@ const gfx = renderEngine.gfx;
 const SpriteMaterial = renderEngine.SpriteMaterial;
 const RenderData = renderEngine.RenderData;
 
-let _sharedMaterials = {};
+let _sharedMaterials = js.createMap();
 
 let _slotColor = cc.color(0, 0, 255, 255);
 let _boneColor = cc.color(255, 0, 0, 255);

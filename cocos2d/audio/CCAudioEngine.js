@@ -24,11 +24,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var JS = require('../core/platform/js');
 var Audio = require('./CCAudio');
 
 var instanceId = 0;
-var id2audio = {};
-var url2id = {};
+var id2audio = JS.createMap(true);
+var url2id = JS.createMap(true);
 
 var getAudioFromPath = function (path) {
     var id = instanceId++;
@@ -439,8 +440,8 @@ var audioEngine = {
      */
     uncacheAll: function () {
         this.stopAll();
-        id2audio = {};
-        url2id = {};
+        id2audio = JS.createMap(true);
+        url2id = JS.createMap(true);
     },
 
     /**
