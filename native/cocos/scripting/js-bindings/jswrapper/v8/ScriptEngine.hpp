@@ -199,6 +199,12 @@ namespace se {
         void setFileOperationDelegate(const FileOperationDelegate& delegate);
 
         /**
+         *  @brief Gets the delegate for file operation.
+         *  @return The delegate for file operation
+         */
+        const FileOperationDelegate& getFileOperationDelegate() const;
+
+        /**
          *  @brief Executes a file which contains JavaScript code.
          *  @param[in] path Script file path.
          *  @param[in] rval The se::Value that results from evaluating script. Passing nullptr if you don't care about the result.

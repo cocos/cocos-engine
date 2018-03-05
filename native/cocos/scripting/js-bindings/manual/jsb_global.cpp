@@ -290,12 +290,13 @@ namespace {
             if (iter != __moduleCache.end())
             {
                 *ret = iter->second;
+//                printf("Found cache: %s, value: %d\n", fullPath.c_str(), (int)ret->getType());
                 return true;
             }
             std::string currentScriptFileDir = getFileDir(fullPath);
 
             // Add closure for evalutate the script
-            char prefix[] = "(function(currentScriptDir){ window.module = window.module || {}; var exports = window.module.exports; ";
+            char prefix[] = "(function(currentScriptDir){ window.module = window.module || {}; var exports = window.module.exports = window.module.exports || {}; ";
             char suffix[512] = {0};
             snprintf(suffix, sizeof(suffix), "\n})('%s'); ", currentScriptFileDir.c_str());
 

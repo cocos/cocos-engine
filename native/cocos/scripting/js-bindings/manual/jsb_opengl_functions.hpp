@@ -153,3 +153,4 @@ SE_DECLARE_FUNC(JSB_glVertexAttrib4f);
 SE_DECLARE_FUNC(JSB_glVertexAttrib4fv);
 SE_DECLARE_FUNC(JSB_glVertexAttribPointer);
 SE_DECLARE_FUNC(JSB_glViewport);
+SE_DECLARE_FUNC(JSB_glGetParameter);

@@ -672,6 +672,11 @@ namespace se {
         _fileOperationDelegate = delegate;
     }
 
+    const ScriptEngine::FileOperationDelegate& ScriptEngine::getFileOperationDelegate() const
+    {
+        return _fileOperationDelegate;
+    }
+
     bool ScriptEngine::runScript(const std::string& path, Value* ret/* = nullptr */)
     {
         assert(!path.empty());

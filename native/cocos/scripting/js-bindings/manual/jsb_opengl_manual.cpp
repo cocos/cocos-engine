@@ -29,6 +29,14 @@
 #include "cocos/scripting/js-bindings/manual/jsb_opengl_utils.hpp"
 #include "platform/CCGL.h"
 
+#define GL_UNPACK_FLIP_Y_WEBGL 0x9240
+#define GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL 0x9241
+#define GL_CONTEXT_LOST_WEBGL 0x9242
+#define GL_UNPACK_COLORSPACE_CONVERSION_WEBGL 0x9243
+#define GL_BROWSER_DEFAULT_WEBGL 0x9244
+
+#define GL_DEPTH_STENCIL_ATTACHMENT 0x821A
+
 // Helper functions that link "glGenXXXs" (OpenGL ES 2.0 spec), with "gl.createXXX" (WebGL spec)
 bool JSB_glGenTextures(se::State& s) {
     const auto& args = s.args();
@@ -562,4 +570,162 @@ bool JSB_glGetUniformfv(se::State& s) {
     return false;
 }
 SE_BIND_FUNC(JSB_glGetUniformfv)
+
+static bool JSB_glGetParameter(se::State& s)
+{
+    const auto& args = s.args();
+    int argc = (int)args.size();
+    if (argc < 1)
+    {
+        SE_REPORT_ERROR("Wrong argument count passed to gl.getParameter");
+        return false;
+    }
+
+    int pname = args[0].toInt8();
+
+    int intbuffer[4];
+    float floatvalue;
+
+    auto& ret = s.rval();
+
+    switch( pname ) {
+        // Float32Array (with 0 elements)
+        case GL_COMPRESSED_TEXTURE_FORMATS:
+        ret.setObject(se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, nullptr, 0), true);
+        break;
+
+        // Float32Array (with 2 elements)
+        case GL_ALIASED_LINE_WIDTH_RANGE:
+        case GL_ALIASED_POINT_SIZE_RANGE:
+        case GL_DEPTH_RANGE:
+        {
+            GLfloat params[2];
+            glGetFloatv(pname, params);
+            ret.setObject(se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, params, sizeof(params)), true);
+        }
+        break;
+
+        // Float32Array (with 4 values)
+        case GL_BLEND_COLOR:
+        case GL_COLOR_CLEAR_VALUE:
+        {
+            GLfloat params[4];
+            glGetFloatv(pname, params);
+            ret.setObject(se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, params, sizeof(params)), true);
+        }
+        break;
+
+        // Int32Array (with 2 values)
+        case GL_MAX_VIEWPORT_DIMS:
+        {
+            GLfloat params[2];
+            glGetFloatv(pname, params);
+            int intParams[2] = {(int)params[0], (int)params[1]};
+            ret.setObject(se::Object::createTypedArray(se::Object::TypedArrayType::INT32, intParams, sizeof(intParams)), true);
+        }
+        break;
+
+        // Int32Array (with 4 values)
+        case GL_SCISSOR_BOX:
+        case GL_VIEWPORT:
+        {
+            GLfloat params[4];
+            glGetFloatv(pname, params);
+            int intParams[4] = {(int)params[0], (int)params[1], (int)params[2], (int)params[3]};
+            ret.setObject(se::Object::createTypedArray(se::Object::TypedArrayType::INT32, intParams, sizeof(intParams)), true);
+        }
+        break;
+
+        // boolean[] (with 4 values)
+        case GL_COLOR_WRITEMASK:
+        {
+            glGetIntegerv(pname, intbuffer);
+            se::HandleObject arr(se::Object::createArrayObject(4));
+            for(int i = 0; i < 4; i++ ) {
+                arr->setArrayElement(i, se::Value(intbuffer[i]));
+            }
+            ret.setObject(arr, true);
+        }
+        break;
+
+        // WebGLBuffer
+        case GL_ARRAY_BUFFER_BINDING:
+        case GL_ELEMENT_ARRAY_BUFFER_BINDING:
+//        glGetIntegerv(pname, intbuffer);
+//        ret = [buffers[@(intbuffer[0])] pointerValue];
+        break;
+
+        // WebGLProgram
+        case GL_CURRENT_PROGRAM:
+//        glGetIntegerv(pname, intbuffer);
+//        ret = [programs[@(intbuffer[0])] pointerValue];
+        break;
+
+        // WebGLFramebuffer
+        case GL_FRAMEBUFFER_BINDING:
+//        glGetIntegerv(pname, intbuffer);
+//        ret = [framebuffers[@(intbuffer[0])] pointerValue];
+        break;
+
+        // WebGLRenderbuffer
+        case GL_RENDERBUFFER_BINDING:
+//        glGetIntegerv(pname, intbuffer);
+//        ret = [renderbuffers[@(intbuffer[0])] pointerValue];
+        break;
+
+        // WebGLTexture
+        case GL_TEXTURE_BINDING_2D:
+        case GL_TEXTURE_BINDING_CUBE_MAP:
+//        glGetIntegerv(pname, intbuffer);
+//        ret = [textures[@(intbuffer[0])] pointerValue];
+        break;
+
+        // Ejecta/WebGL specific
+        case GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS:
+        // device may support more, but we only map 8 here
+//        ret = JSValueMakeNumber(ctx, EJ_CANVAS_MAX_TEXTURE_UNITS);
+        break;
+
+        case GL_UNPACK_FLIP_Y_WEBGL:
+//        ret = JSValueMakeBoolean(ctx, unpackFlipY);
+        break;
+
+        case GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL:
+//        ret = JSValueMakeBoolean(ctx, premultiplyAlpha);
+        break;
+
+        case GL_UNPACK_COLORSPACE_CONVERSION_WEBGL:
+//        ret = JSValueMakeBoolean(ctx, false);
+        break;
+
+        // string
+        case GL_RENDERER:
+        case GL_SHADING_LANGUAGE_VERSION:
+        case GL_VENDOR:
+        case GL_VERSION:
+        ret.setString((char *)glGetString(pname));
+        break;
+
+        // single float
+        case GL_DEPTH_CLEAR_VALUE:
+        case GL_LINE_WIDTH:
+        case GL_POLYGON_OFFSET_FACTOR:
+        case GL_POLYGON_OFFSET_UNITS:
+        case GL_SAMPLE_COVERAGE_VALUE:
+        glGetFloatv(pname, &floatvalue);
+        ret.setFloat(floatvalue);
+        break;
+
+        // single int/long/bool - everything else
+        default:
+        glGetIntegerv(pname, intbuffer);
+        ret.setInt32(intbuffer[0]);
+        break;
+    }
+
+    // That was fun!
+    return true;
+}
+
+SE_BIND_FUNC(JSB_glGetParameter)
 

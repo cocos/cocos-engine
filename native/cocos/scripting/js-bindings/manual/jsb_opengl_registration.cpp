@@ -160,6 +160,7 @@ bool JSB_register_opengl(se::Object* obj)
     __glObj->defineFunction("vertexAttrib4fv", _SE(JSB_glVertexAttrib4fv));
     __glObj->defineFunction("vertexAttribPointer", _SE(JSB_glVertexAttribPointer));
     __glObj->defineFunction("viewport", _SE(JSB_glViewport));
+    __glObj->defineFunction("getParameter", _SE(JSB_glGetParameter));
 
     return true;
     
