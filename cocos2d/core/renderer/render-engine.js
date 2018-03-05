@@ -7698,7 +7698,7 @@ module.exports = (function () {
      * ])
      */
     constructor(infos) {
-      this._attr2el = JS.createMap(true);
+      this._attr2el = {};
       this._elements = [];
       this._bytes = 0;
   
