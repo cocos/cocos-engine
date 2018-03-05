@@ -165,6 +165,7 @@ var PhysicsCollider = cc.Class({
 
         var node = body.node;
         var scale = getWorldScale(node);
+        this._scale = scale;
 
         var shapes = scale.x === 0 && scale.y === 0 ? [] : this._createShape(scale);
 

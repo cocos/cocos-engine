@@ -24,8 +24,6 @@ require('./joint/CCWheelJoint');
 require('./joint/CCRopeJoint');
 
 if (!CC_JSB) {
-    require('./platform/CCPhysicsDebugDraw');
-    require('./platform/CCPhysicsUtils');
     require('./platform/CCPhysicsContactListner');
     require('./platform/CCPhysicsAABBQueryCallback');
     require('./platform/CCPhysicsRayCastCallback');
