@@ -26,7 +26,7 @@
 /**
  * @module cc
  */
-var JS = require('./platform/js');
+var js = require('./platform/js');
 var MAX_POOL_SIZE = 20;
 
 //data structures
@@ -285,8 +285,8 @@ cc.Scheduler = function () {
     this._updatesNegList = [];  // list of priority < 0
     this._updates0List = [];    // list of priority == 0
     this._updatesPosList = [];  // list of priority > 0
-    this._hashForUpdates = JS.createMap(true);  // hash used to fetch quickly the list entries for pause, delete, etc
-    this._hashForTimers = JS.createMap(true);   // Used for "selectors with interval"
+    this._hashForUpdates = js.createMap(true);  // hash used to fetch quickly the list entries for pause, delete, etc
+    this._hashForTimers = js.createMap(true);   // Used for "selectors with interval"
     this._currentTarget = null;
     this._currentTargetSalvaged = false;
     this._updateHashLocked = false; // If true unschedule will not remove anything from a hash. Elements will only be marked for deletion.

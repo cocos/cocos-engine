@@ -25,13 +25,13 @@
 
 if (CC_DEBUG) {
 
-var JS = require('../platform/js');
+var js = require('../platform/js');
 
 // checks if asset was releasable
 
 function ReleasedAssetChecker () {
     // { dependKey: true }
-    this._releasedKeys = JS.createMap(true);
+    this._releasedKeys = js.createMap(true);
     this._dirty = false;
 }
 
@@ -49,7 +49,7 @@ function getItemDesc (item) {
         }
         if (cc.loader._resources._getInfo_DEBUG(item.uuid, tmpInfo)) {
             tmpInfo.path = 'resources/' + tmpInfo.path;
-            return `"${tmpInfo.path}" (type: ${JS.getClassName(tmpInfo.type)}, uuid: ${item.uuid})`;
+            return `"${tmpInfo.path}" (type: ${js.getClassName(tmpInfo.type)}, uuid: ${item.uuid})`;
         }
         else {
             return `"${item.rawUrl}" (${item.uuid})`;
@@ -105,7 +105,7 @@ ReleasedAssetChecker.prototype.checkCouldRelease = function (caches) {
     // }
 
     // clear released
-    JS.clear(released);
+    js.clear(released);
 };
 
 module.exports = ReleasedAssetChecker;

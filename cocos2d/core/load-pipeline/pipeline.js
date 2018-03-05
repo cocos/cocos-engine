@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = require('../platform/js');
+var js = require('../platform/js');
 var LoadingItems = require('./loading-items');
 var ItemState = LoadingItems.ItemState;
 
@@ -131,7 +131,7 @@ function flow (pipe, item) {
  */
 var Pipeline = function (pipes) {
     this._pipes = pipes;
-    this._cache = JS.createMap(true);
+    this._cache = js.createMap(true);
 
     for (var i = 0; i < pipes.length; ++i) {
         var pipe = pipes[i];

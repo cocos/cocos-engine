@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-var JS = require('../platform/js');
+var js = require('../platform/js');
 require('./CCEventListener');
 var ListenerID = cc.EventListener.ListenerID;
 
@@ -113,7 +113,7 @@ var eventManager = {
     _listenersMap: {},
     _priorityDirtyFlagMap: {},
     _nodeListenersMap: {},
-    _nodePriorityMap: JS.createMap(true),
+    _nodePriorityMap: js.createMap(true),
     _globalZOrderNodeMap: [],
     _toAddedListeners: [],
     _toRemovedListeners: [],
@@ -316,7 +316,7 @@ var eventManager = {
 
         // Reset priority index
         this._nodePriorityIndex = 0;
-        this._nodePriorityMap = JS.createMap(true);
+        this._nodePriorityMap = js.createMap(true);
 
         this._visitTarget(rootNode, true);
 
@@ -1088,7 +1088,7 @@ var eventManager = {
 };
 
 
-JS.get(cc, 'eventManager', function () {
+js.get(cc, 'eventManager', function () {
     cc.warnID(1405, 'cc.eventManager', 'cc.EventTarget or cc.systemEvent');
     return eventManager;
 });

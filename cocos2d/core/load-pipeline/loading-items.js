@@ -25,10 +25,10 @@
 
 var CallbacksInvoker = require('../platform/callbacks-invoker');
 require('../utils/CCPath');
-var JS = require('../platform/js');
+var js = require('../platform/js');
 
 var _qid = (0|(Math.random()*998));
-var _queues = JS.createMap(true);
+var _queues = js.createMap(true);
 var _pool = [];
 var _POOL_MAX_LENGTH = 10;
 
@@ -38,7 +38,7 @@ var ItemState = {
     ERROR: 3
 };
 
-var _queueDeps = JS.createMap(true);
+var _queueDeps = js.createMap(true);
 
 function isIdValid (id) {
     var realId = id.url || id;
@@ -76,7 +76,7 @@ function createItem (id, queueId) {
     };
 
     if (typeof id === 'object') {
-        JS.mixin(result, id);
+        js.mixin(result, id);
         if (id.skips) {
             for (var i = 0; i < id.skips.length; i++) {
                 var skip = id.skips[i];
@@ -211,7 +211,7 @@ var LoadingItems = function (pipeline, urlList, onProgress, onComplete) {
      * @property map
      * @type {Object}
      */
-    this.map = JS.createMap(true);
+    this.map = js.createMap(true);
 
     /**
      * !#en The map of completed items.
@@ -430,7 +430,7 @@ LoadingItems.finishDep = function (depId) {
 };
 
 var proto = LoadingItems.prototype;
-JS.mixin(proto, CallbacksInvoker.prototype);
+js.mixin(proto, CallbacksInvoker.prototype);
 
 /**
  * !#en Add urls to the LoadingItems queue.
@@ -730,7 +730,7 @@ proto.destroy = function () {
     this.onProgress = null;
     this.onComplete = null;
 
-    this.map = JS.createMap(true);
+    this.map = js.createMap(true);
     this.completed = {};
 
     this.totalCount = 0;
