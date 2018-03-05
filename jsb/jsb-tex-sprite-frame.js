@@ -29,6 +29,7 @@ require('../cocos2d/core/platform/CCClass');
 require('../cocos2d/core/assets/CCAsset');
 var WebTexture = require('../cocos2d/core/textures/CCTexture2D');
 var WebSpriteFrame = require('../cocos2d/core/sprites/CCSpriteFrame');
+var JS = cc.js;
 
 cc.js.unregisterClass(WebTexture, WebSpriteFrame);
 
