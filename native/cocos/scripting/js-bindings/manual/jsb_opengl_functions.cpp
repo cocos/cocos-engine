@@ -881,15 +881,27 @@ bool JSB_glDrawElements(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 4, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0; int32_t arg1; uint32_t arg2; void* arg3; 
+    uint32_t arg0; int32_t arg1; uint32_t arg2; void* arg3 = nullptr;
 
     ok &= seval_to_uint32(args[0], &arg0 );
     ok &= seval_to_int32(args[1], &arg1 );
     ok &= seval_to_uint32(args[2], &arg2 );
-    GLsizei count;
-    ok &= JSB_get_arraybufferview_dataptr(args[3], &count, &arg3);
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
 
+    const se::Value& offsetVal = args[3];
+
+    if (offsetVal.isNumber())
+    {
+        int offset = 0;
+        ok &= seval_to_int32(offsetVal, &offset);
+        arg3 = (void*)(intptr_t)offset;
+    }
+    else if (offsetVal.isObject())
+    {
+        GLsizei count;
+        ok &= JSB_get_arraybufferview_dataptr(args[3], &count, &arg3);
+    }
+
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
     JSB_GL_CHECK(glDrawElements((GLenum)arg0 , (GLsizei)arg1 , (GLenum)arg2 , (GLvoid*)arg3  ));
     s.rval().setUndefined();
     return true;
@@ -1047,9 +1059,7 @@ bool JSB_glGetAttribLocation(se::State& s) {
     ok &= seval_to_uint32(args[0], &arg0 );
     ok &= seval_to_std_string(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    int ret_val;
-
-    ret_val = glGetAttribLocation((GLuint)arg0 , arg1.c_str());
+    int ret_val = glGetAttribLocation((GLuint)arg0 , arg1.c_str());
     JSB_GL_CHECK_ERROR();
     s.rval().setInt32(ret_val);
     return true;

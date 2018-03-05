@@ -50,14 +50,17 @@ void EventDispatcher::dispatchTickEvent()
     float dt = 0.f;
     if (firstTime)
     {
-        jsb_run_script("webgl-tests/main.js", &tickVal);
+        jsb_run_script("webgl-tests/jsb.js", &tickVal);
         firstTime = false;
     }
 
     prevTime = std::chrono::steady_clock::now();
 
     se::ValueArray args;
-    args.push_back(se::Value(dt));
+//    args.push_back(se::Value(dt));
+    long long microSeconds = std::chrono::duration_cast<std::chrono::microseconds>(prevTime - se::ScriptEngine::getInstance()->getStartTime()).count();
+    args.push_back(se::Value((float)(microSeconds * 0.001f)));
+
     tickVal.toObject()->call(args, nullptr);
 
     now = std::chrono::steady_clock::now();

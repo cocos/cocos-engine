@@ -141,13 +141,16 @@ namespace
     {
         CGRect bounds = [UIScreen mainScreen].bounds;
         float scale = [[UIScreen mainScreen] scale];
+        float width = bounds.size.width * scale;
+        float height = bounds.size.height * scale;
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         char commandBuf[200] = {0};
         sprintf(commandBuf, "window.canvas = { width: %d, height: %d };",
-                (int)(bounds.size.width * scale),
-                (int)(bounds.size.height * scale));
+                (int)(width),
+                (int)(height));
         se->evalString(commandBuf);
-        
+        glViewport(0, 0, width, height);
+        glDepthMask(GL_TRUE);
         return true;
     }
 }

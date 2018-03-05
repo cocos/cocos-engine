@@ -23,8 +23,6 @@
 
 // Prepare JSB environment
 
-var window = window || this;
-
 // Hack JavaScriptCore begin
 
 
@@ -70,12 +68,12 @@ if (window.scriptEngineType == "JavaScriptCore") {
 
 // Hack JavaScriptCore end
 
-var cc = cc || {};
+window.cc = window.cc || {};
 /**
  * @namespace jsb
  * @name jsb
  */
-var jsb = jsb || {};
+window.jsb = window.jsb || {};
 
 /**
  * Common getter setter configuration function

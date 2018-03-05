@@ -302,9 +302,9 @@ namespace {
             // Add current script path to require function invocation
             scriptBuffer = prefix + std::regex_replace(scriptBuffer, std::regex("([^A-Za-z0-9]|^)require\\((.*?)\\)"), "$1require($2, currentScriptDir)") + suffix;
 
-            FILE* fp = fopen("/Users/james/Downloads/test.txt", "wb");
-            fwrite(scriptBuffer.c_str(), scriptBuffer.length(), 1, fp);
-            fclose(fp);
+//            FILE* fp = fopen("/Users/james/Downloads/test.txt", "wb");
+//            fwrite(scriptBuffer.c_str(), scriptBuffer.length(), 1, fp);
+//            fclose(fp);
 
             std::string reletivePath = fullPath;
             const std::string reletivePathKey = "/Contents/Resources";
@@ -314,7 +314,7 @@ namespace {
                 reletivePath = reletivePath.substr(pos + reletivePathKey.length() + 1);
             }
 
-            printf("Evaluate: %s\n", reletivePath.c_str());
+            RENDERER_LOGD("Evaluate: %s", reletivePath.c_str());
 
             auto se = se::ScriptEngine::getInstance();
             bool succeed = se->evalString(scriptBuffer.c_str(), scriptBuffer.length(), nullptr, reletivePath.c_str());
@@ -327,7 +327,13 @@ namespace {
                     {
                         __moduleCache[fullPath] = *ret;
                     }
+                    // clear module.exports
+                    moduleVal.toObject()->setProperty("exports", se::Value::Undefined);
                 }
+            }
+            else
+            {
+                __moduleCache[fullPath] = se::Value::Null;
             }
             assert(succeed);
             return succeed;
