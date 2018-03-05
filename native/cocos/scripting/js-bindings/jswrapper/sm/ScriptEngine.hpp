@@ -154,7 +154,7 @@ namespace se {
             , onGetFullPath(nullptr)
             {}
 
-            bool isValid() {
+            bool isValid() const {
                 return onGetDataFromFile != nullptr
                     && onGetStringFromFile != nullptr
                     && onCheckFileExist != nullptr

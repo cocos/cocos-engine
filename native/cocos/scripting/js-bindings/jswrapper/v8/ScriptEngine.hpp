@@ -176,7 +176,7 @@ namespace se {
             /**
              *  @brief Tests whether delegate is valid.
              */
-            bool isValid() {
+            bool isValid() const {
                 return onGetDataFromFile != nullptr
                 && onGetStringFromFile != nullptr
                 && onCheckFileExist != nullptr
