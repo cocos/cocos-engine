@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 var ValueType = require('./CCValueType');
-var JS = require('../platform/js');
+var js = require('../platform/js');
 
 /**
  * !#en A 2D rectangle defined by x, y position and width, height.
@@ -57,7 +57,7 @@ function Rect (x, y, w, h) {
     this.width = w || 0;
     this.height = h || 0;
 }
-JS.extend(Rect, ValueType);
+js.extend(Rect, ValueType);
 require('../platform/CCClass').fastDefine('cc.Rect', Rect, { x: 0, y: 0, width: 0, height: 0 });
 
 /**
@@ -251,7 +251,7 @@ proto.toString = function () {
  * @property xMin
  * @type {Number}
  */
-JS.getset(proto, 'xMin',
+js.getset(proto, 'xMin',
     function () { return this.x; },
     function (value) {
         this.width += this.x - value;
@@ -265,7 +265,7 @@ JS.getset(proto, 'xMin',
  * @property yMin
  * @type {Number}
  */
-JS.getset(proto, 'yMin',
+js.getset(proto, 'yMin',
     function () { return this.y; },
     function (value) {
         this.height += this.y - value;
@@ -279,7 +279,7 @@ JS.getset(proto, 'yMin',
  * @property xMax
  * @type {Number}
  */
-JS.getset(proto, 'xMax',
+js.getset(proto, 'xMax',
     function () { return this.x + this.width; },
     function (value) { this.width = value - this.x; }
 );
@@ -290,7 +290,7 @@ JS.getset(proto, 'xMax',
  * @property yMax
  * @type {Number}
  */
-JS.getset(proto, 'yMax',
+js.getset(proto, 'yMax',
     function () { return this.y + this.height; },
     function (value) { this.height = value - this.y; }
 );
@@ -300,7 +300,7 @@ JS.getset(proto, 'yMax',
  * !#zh 矩形的中心点。
  * @property {Vec2} center
  */
-JS.getset(proto, 'center',
+js.getset(proto, 'center',
     function () {
         return new cc.Vec2(this.x + this.width * 0.5,
             this.y + this.height * 0.5);
@@ -316,7 +316,7 @@ JS.getset(proto, 'center',
  * !#zh 矩形的 x 和 y 坐标。
  * @property {Vec2} origin
  */
-JS.getset(proto, 'origin',
+js.getset(proto, 'origin',
     function () {
         return new cc.Vec2(this.x, this.y);
     },
@@ -331,7 +331,7 @@ JS.getset(proto, 'origin',
  * !#zh 矩形的大小。
  * @property {Size} size
  */
-JS.getset(proto, 'size',
+js.getset(proto, 'size',
     function () {
         return new cc.Size(this.width, this.height);
     },

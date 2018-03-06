@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = cc.js;
+var js = cc.js;
 var BUILTIN_CLASSID_RE = require('../utils/misc').BUILTIN_CLASSID_RE;
 
 /*
@@ -99,7 +99,7 @@ var MissingScript = cc.Class({
          * @return {function} constructor
          */
         safeFindClass: function (id, data) {
-            var cls = JS._getClassById(id);
+            var cls = js._getClassById(id);
             if (cls) {
                 return cls;
             }

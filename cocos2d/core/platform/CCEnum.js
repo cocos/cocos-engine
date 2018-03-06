@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = require('./js');
+var js = require('./js');
 
 // enum
 
@@ -47,7 +47,7 @@ function Enum (obj) {
     if ('__enums__' in obj) {
         return obj;
     }
-    JS.value(obj, '__enums__', null, true);
+    js.value(obj, '__enums__', null, true);
 
     var lastIndex = -1;
     var keys = Object.keys(obj);
@@ -73,7 +73,7 @@ function Enum (obj) {
                 cc.errorID(7100, reverseKey);
                 continue;
             }
-            JS.value(obj, reverseKey, key);
+            js.value(obj, reverseKey, key);
         }
     }
     return obj;

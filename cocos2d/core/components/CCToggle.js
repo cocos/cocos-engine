@@ -219,9 +219,9 @@ var Toggle = cc.Class({
 cc.Toggle = module.exports = Toggle;
 
 
-var JS = require('../platform/js');
+var js = require('../platform/js');
 
-JS.get(Toggle.prototype, '_toggleContainer',
+js.get(Toggle.prototype, '_toggleContainer',
     function () {
         var parent = this.node.parent;
         if (cc.Node.isNode(parent)) {

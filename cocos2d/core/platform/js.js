@@ -822,7 +822,7 @@ js.array = {
  *Details.prototype.reset = function () {
  *    this.uuidList.length = 0;
  *};
- *Details.pool = new JS.Pool(function (obj) {
+ *Details.pool = new js.Pool(function (obj) {
  *    obj.reset();
  *}, 5);
  *Details.pool.get = function () {

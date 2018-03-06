@@ -1,4 +1,4 @@
-var JS = require('./js');
+var js = require('./js');
 var CCClass = require('./CCClass');
 
 // definitions for CCObject.Flags
@@ -67,7 +67,7 @@ CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0 });
  * @static
  * @private
  */
-JS.value(CCObject, 'Flags', {
+js.value(CCObject, 'Flags', {
 
     Destroyed,
     //ToDestroy: ToDestroy,
@@ -193,10 +193,10 @@ function deferredDestroy () {
     }
 }
 
-JS.value(CCObject, '_deferredDestroy', deferredDestroy);
+js.value(CCObject, '_deferredDestroy', deferredDestroy);
 
 if (CC_EDITOR) {
-    JS.value(CCObject, '_clearDeferredDestroyTimer', function () {
+    js.value(CCObject, '_clearDeferredDestroyTimer', function () {
         if (deferredDestroyTimer !== null) {
             clearImmediate(deferredDestroyTimer);
             deferredDestroyTimer = null;
@@ -220,7 +220,7 @@ var prototype = CCObject.prototype;
  * @example
  * obj.name = "New Obj";
  */
-JS.getset(prototype, 'name',
+js.getset(prototype, 'name',
     function () {
         return this._name;
     },
@@ -239,12 +239,12 @@ JS.getset(prototype, 'name',
  * @example
  * cc.log(obj.isValid);
  */
-JS.get(prototype, 'isValid', function () {
+js.get(prototype, 'isValid', function () {
     return !(this._objFlags & Destroyed);
 }, true);
 
 if (CC_EDITOR || CC_TEST) {
-    JS.get(prototype, 'isRealValid', function () {
+    js.get(prototype, 'isRealValid', function () {
         return !(this._objFlags & RealDestroyed);
     });
 }
@@ -412,7 +412,7 @@ prototype._destruct = function () {
     var destruct = ctor.__destruct__;
     if (!destruct) {
         destruct = compileDestruct(this, ctor);
-        JS.value(ctor, '__destruct__', destruct, true);
+        js.value(ctor, '__destruct__', destruct, true);
     }
     destruct(this);
 };
@@ -484,12 +484,12 @@ cc.isValid = function (value) {
 };
 
 if (CC_EDITOR || CC_TEST) {
-    JS.value(CCObject, '_willDestroy', function (obj) {
+    js.value(CCObject, '_willDestroy', function (obj) {
         return !(obj._objFlags & Destroyed) && (obj._objFlags & ToDestroy) > 0;
     });
-    JS.value(CCObject, '_cancelDestroy', function (obj) {
+    js.value(CCObject, '_cancelDestroy', function (obj) {
         obj._objFlags &= ~ToDestroy;
-        JS.array.fastRemove(objectsToDestroy, obj);
+        js.array.fastRemove(objectsToDestroy, obj);
     });
 }
 

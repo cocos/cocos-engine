@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = cc.js;
+var js = cc.js;
 
 require('../event/event');
 
@@ -48,7 +48,7 @@ var EventMouse = function (eventType, bubbles) {
     this._scrollY = 0;
 };
 
-JS.extend(EventMouse, cc.Event);
+js.extend(EventMouse, cc.Event);
 var proto = EventMouse.prototype;
 
 /**
@@ -342,7 +342,7 @@ var EventTouch = function (touchArr, bubbles) {
     this.currentTouch = null;
 };
 
-JS.extend(EventTouch, cc.Event);
+js.extend(EventTouch, cc.Event);
 proto = EventTouch.prototype;
 
 /**
@@ -534,7 +534,7 @@ var EventAcceleration = function (acc, bubbles) {
     cc.Event.call(this, cc.Event.ACCELERATION, bubbles);
     this.acc = acc;
 };
-JS.extend(EventAcceleration, cc.Event);
+js.extend(EventAcceleration, cc.Event);
 
 /**
  * !#en The keyboard event
@@ -551,7 +551,7 @@ var EventKeyboard = function (keyCode, isPressed, bubbles) {
     this.keyCode = keyCode;
     this.isPressed = isPressed;
 };
-JS.extend(EventKeyboard, cc.Event);
+js.extend(EventKeyboard, cc.Event);
 
 cc.Event.EventMouse = EventMouse;
 cc.Event.EventTouch = EventTouch;

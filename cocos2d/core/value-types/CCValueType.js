@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = require('../platform/js');
+var js = require('../platform/js');
 
 /**
  * !#en The base class of all value types.
@@ -32,7 +32,7 @@ var JS = require('../platform/js');
  *
  */
 function ValueType () {}
-JS.setClassName('cc.ValueType', ValueType);
+js.setClassName('cc.ValueType', ValueType);
 
 var proto = ValueType.prototype;
 
@@ -44,7 +44,7 @@ if (CC_EDITOR) {
      * @return {ValueType}
      */
     proto.clone = function () {
-        cc.errorID('0100', JS.getClassName(this) + '.clone');
+        cc.errorID('0100', js.getClassName(this) + '.clone');
         return null;
     };
 
@@ -56,7 +56,7 @@ if (CC_EDITOR) {
      * @return {Boolean}
      */
     proto.equals = function (other) {
-        cc.errorID('0100', JS.getClassName(this) + '.equals');
+        cc.errorID('0100', js.getClassName(this) + '.equals');
         return false;
     };
 
@@ -73,7 +73,7 @@ if (CC_EDITOR) {
      * @return {ValueType}
      */
     proto.lerp = function (to, ratio) {
-        cc.errorID('0100', JS.getClassName(this) + '.lerp');
+        cc.errorID('0100', js.getClassName(this) + '.lerp');
         return this.clone();
     };
 }

@@ -23,14 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = cc.js;
+var js = cc.js;
 var CallbacksHandler = require('../platform/callbacks-invoker').CallbacksHandler;
 
 // Extends CallbacksHandler to handle and invoke event callbacks.
 function EventListeners () {
     CallbacksHandler.call(this);
 }
-JS.extend(EventListeners, CallbacksHandler);
+js.extend(EventListeners, CallbacksHandler);
 
 EventListeners.prototype.invoke = function (event, captureListeners) {
     var key = event.type;
