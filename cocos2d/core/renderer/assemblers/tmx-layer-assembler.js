@@ -145,7 +145,7 @@ let tmxAssembler = js.addon({
         let cullingA = a, cullingD = d, 
             cullingMapx = mapx, cullingMapy = mapy,
             cullingW = w, cullingH = h;
-        let enabledCulling = cc.macro.ENABLE_TILEDMAP_CULLING;
+        let enabledCulling = cc.macro.ENABLE_TILEDMAP_CULLING && cc.macro.ENABLE_CULLING;
         
         if (enabledCulling) {
             let camera = cc.Camera.findCamera(comp.node);

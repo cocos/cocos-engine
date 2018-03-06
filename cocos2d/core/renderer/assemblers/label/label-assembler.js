@@ -29,6 +29,8 @@ const Label = require('../../../components/CCLabel');
 const ttfAssembler = require('./ttf-assembler');
 const bmfontAssembler = require('./bmfont-assembler');
 
+const cullingNode = require('../culling').cullingNode;
+
 var labelAssembler = js.addon({
     updateRenderData (comp) {
         this.datas.length = 0;
@@ -51,6 +53,10 @@ var labelAssembler = js.addon({
             renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
 
             assembler.update(comp);
+
+            if (cc.macro.ENABLE_CULLING && cullingNode(comp.node)) {
+                return this.datas;
+            }
 
             renderData.effect = comp.getEffect();
             this.datas.push(renderData);
