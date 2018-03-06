@@ -207,10 +207,12 @@ _ccsg.WebView.EventType = {
 
     var polyfill = _ccsg.WebView._polyfill = {
         devicePixelRatio: false,
-        enableDiv: false
+        enableDiv: false,
+        enableBG: false,
+        closeHistory: true
     };
 
-    if (cc.sys.os === cc.sys.OS_IOS)
+    if (cc.sys.os === cc.sys.OS_IOS || cc.sys.browserType === cc.sys.BROWSER_TYPE_SAFARI)
         polyfill.enableDiv = true;
 
     if (cc.sys.isMobile) {
@@ -312,8 +314,8 @@ _ccsg.WebView.EventType = {
     };
 
     proto.initStyle = function () {
-        if (!this._div) return;
         var div = this._div;
+        if (!div) return;
         div.style.position = "absolute";
         div.style.bottom = "0px";
         div.style.left = "0px";
@@ -383,14 +385,13 @@ _ccsg.WebView.EventType = {
     };
 
     proto.updateVisibility = function () {
-        var node = this._node;
-        if (!this._div) return;
         var div = this._div;
-        if (node.visible) {
-            div.style.visibility = 'visible';
-        }
-        else {
-            div.style.visibility = 'hidden';
+        if (!div) return;
+        var visible = this._node.visible;
+        div.style.visibility = visible ? '' : 'hidden';
+        if (div !== this._iframe) {
+            // fix visibility on iOS 9/10 Safari
+            this._iframe.style.display = visible ? '' : 'none';
         }
     };
 

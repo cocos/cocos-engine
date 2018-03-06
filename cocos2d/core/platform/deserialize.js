@@ -551,7 +551,7 @@ var _Deserializer = (function () {
                 }
                 else {
                     var defaultType = typeof defaultValue;
-                    isPrimitiveType = (defaultType === 'string' && !attrs[propName + SAVE_URL_AS_ASSET]) ||
+                    isPrimitiveType = (defaultType === 'string' && !stillUseUrl) ||
                                       defaultType === 'number' ||
                                       defaultType === 'boolean';
                 }
