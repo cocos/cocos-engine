@@ -296,7 +296,7 @@ namespace {
             std::string currentScriptFileDir = getFileDir(fullPath);
 
             // Add closure for evalutate the script
-            char prefix[] = "(function(currentScriptDir){ window.module = window.module || {}; var exports = window.module.exports = window.module.exports || {}; ";
+            char prefix[] = "(function(currentScriptDir){ window.module = window.module || {}; var exports = window.module.exports = {}; ";
             char suffix[512] = {0};
             snprintf(suffix, sizeof(suffix), "\n})('%s'); ", currentScriptFileDir.c_str());
 
@@ -319,22 +319,27 @@ namespace {
 
             auto se = se::ScriptEngine::getInstance();
             bool succeed = se->evalString(scriptBuffer.c_str(), scriptBuffer.length(), nullptr, reletivePath.c_str());
-            if (ret != nullptr)
+            se::Value moduleVal;
+            if (se->getGlobalObject()->getProperty("module", &moduleVal) && moduleVal.isObject())
             {
-                se::Value moduleVal;
-                if (se->getGlobalObject()->getProperty("module", &moduleVal) && moduleVal.isObject())
+                se::Value exportsVal;
+                if (moduleVal.toObject()->getProperty("exports", &exportsVal))
                 {
-                    if (moduleVal.toObject()->getProperty("exports", ret))
-                    {
-                        __moduleCache[fullPath] = *ret;
-                    }
-                    // clear module.exports
-                    moduleVal.toObject()->setProperty("exports", se::Value::Undefined);
+                    if (ret != nullptr)
+                        *ret = exportsVal;
+
+                    __moduleCache[fullPath] = std::move(exportsVal);
                 }
+                else
+                {
+                    __moduleCache[fullPath] = se::Value::Undefined;
+                }
+                // clear module.exports
+                moduleVal.toObject()->setProperty("exports", se::Value::Undefined);
             }
             else
             {
-                __moduleCache[fullPath] = se::Value::Null;
+                __moduleCache[fullPath] = se::Value::Undefined;
             }
             assert(succeed);
             return succeed;
