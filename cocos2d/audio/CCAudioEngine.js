@@ -25,9 +25,10 @@
  ****************************************************************************/
 
 var Audio = require('./CCAudio');
+var js = cc.js;
 
 var instanceId = 0;
-var id2audio = {};
+var id2audio = js.createMap(true);
 var url2id = {};
 
 var getAudioFromPath = function (path) {
@@ -439,7 +440,7 @@ var audioEngine = {
      */
     uncacheAll: function () {
         this.stopAll();
-        id2audio = {};
+        id2audio = js.createMap(true);
         url2id = {};
     },
 
