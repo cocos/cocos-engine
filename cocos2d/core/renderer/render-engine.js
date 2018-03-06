@@ -1,8 +1,8 @@
 
 /*
  * engine-next.js v0.3.1
- * (c) 2018 @pandamicro
- * Released under the MIT License.
+ * Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+ * Released under the Private License.  
  */
 
  var JS = cc.js;
@@ -7306,6 +7306,8 @@ module.exports = (function () {
     nextPow2: nextPow2
   });
   
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd. 
+  
   var enums = {
     // projection
     PROJ_PERSPECTIVE: 0,
@@ -10299,6 +10301,8 @@ module.exports = (function () {
   };
   Object.assign(gfx, enums$1);
   
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd. 
+  
   class InputAssembler$1 {
     constructor(vb, ib, pt = gfx.PT_TRIANGLES) {
       this._vertexBuffer = vb;
@@ -10323,6 +10327,8 @@ module.exports = (function () {
       return this._vertexBuffer.count;
     }
   }
+  
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd. 
   
   class Pass {
     constructor(name) {
@@ -10438,6 +10444,8 @@ module.exports = (function () {
     }
   }
   
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd. 
+  
   let _stageOffset = 0;
   let _name2stageID = {};
   
@@ -10474,6 +10482,8 @@ module.exports = (function () {
     }
   };
   
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd. 
+  
   let _genID$1 = 0;
   
   class Technique {
@@ -10504,6 +10514,8 @@ module.exports = (function () {
       return this._stageIDs;
     }
   }
+  
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd. 
   
   class Effect {
     /**
@@ -10578,6 +10590,8 @@ module.exports = (function () {
     }
   }
   
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd. 
+  
   /**
    * @param {object} json
    */
@@ -10639,6 +10653,8 @@ module.exports = (function () {
     return new InputAssembler$1(vb, ib);
   }
   
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd. 
+  
   let _m4_tmp = mat4.create();
   let _genID$2 = 0;
   
@@ -10690,6 +10706,8 @@ module.exports = (function () {
       return mat4.getTranslation(out, _m4_tmp);
     }
   }
+  
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd. 
   
   const _forward = vec3.new(0, 0, -1);
   
@@ -10989,6 +11007,8 @@ module.exports = (function () {
   
     }
   }
+  
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd. 
   
   let _matView = mat4.create();
   let _matProj = mat4.create();
@@ -11311,6 +11331,8 @@ module.exports = (function () {
       return out;
     }
   }
+  
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd. 
   
   class Model$1 {
     constructor() {
@@ -12572,6 +12594,8 @@ module.exports = (function () {
     _bufferPools[i] = [];
   }
   
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd. 
+  
   class Scene$1 {
     constructor() {
       this._lights = new FixedArray(16);
@@ -12682,6 +12706,8 @@ module.exports = (function () {
       }
     }
   }
+  
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd. 
   
   let _shdID = 0;
   
@@ -12860,6 +12886,8 @@ module.exports = (function () {
       return program;
     }
   }
+  
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd. 
   
   let _m3_tmp$1 = mat3.create();
   let _m4_tmp$2 = mat4.create();
@@ -13511,6 +13539,8 @@ module.exports = (function () {
   };
   Object.assign(renderer, enums);
   
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+   
   let _a16_view = new Float32Array(16);
   let _a16_proj = new Float32Array(16);
   let _a16_viewProj = new Float32Array(16);
@@ -13568,15 +13598,15 @@ module.exports = (function () {
   var templates = [
     {
       name: 'gray_sprite',
-      vert: 'uniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying lowp vec4 v_fragmentColor;\nattribute vec2 a_uv0;\nvarying vec2 uv0;\nvoid main () {\n  vec4 pos = viewProj * vec4(a_position, 1);\n  v_fragmentColor = a_color;\n  uv0 = a_uv0;\n  gl_Position = pos;\n}',
-      frag: 'uniform sampler2D texture;\nvarying vec2 uv0;\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 c = v_fragmentColor * texture2D(texture, uv0);\n  float gray = 0.2126*c.r + 0.7152*c.g + 0.0722*c.b;\n  gl_FragColor = vec4(gray, gray, gray, c.a);\n}',
+      vert: '\n \nuniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying lowp vec4 v_fragmentColor;\nattribute vec2 a_uv0;\nvarying vec2 uv0;\nvoid main () {\n  vec4 pos = viewProj * vec4(a_position, 1);\n  v_fragmentColor = a_color;\n  uv0 = a_uv0;\n  gl_Position = pos;\n}',
+      frag: '\n \nuniform sampler2D texture;\nvarying vec2 uv0;\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 c = v_fragmentColor * texture2D(texture, uv0);\n  float gray = 0.2126*c.r + 0.7152*c.g + 0.0722*c.b;\n  gl_FragColor = vec4(gray, gray, gray, c.a);\n}',
       defines: [
       ],
     },
     {
       name: 'sprite',
-      vert: 'uniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying lowp vec4 v_fragmentColor;\n#ifdef useModel\n  uniform mat4 model;\n#endif\n#ifdef useTexture\n  attribute vec2 a_uv0;\n  varying vec2 uv0;\n#endif\nvoid main () {\n  mat4 mvp;\n  #ifdef useModel\n    mvp = viewProj * model;\n  #else\n    mvp = viewProj;\n  #endif\n  vec4 pos = mvp * vec4(a_position, 1);\n  v_fragmentColor = a_color;\n  \n  #ifdef useTexture\n    uv0 = a_uv0;\n  #endif\n  gl_Position = pos;\n}',
-      frag: '#ifdef useTexture\n  uniform sampler2D texture;\n  varying vec2 uv0;\n#endif\n#ifdef alphaTest\n  uniform float alphaThreshold;\n#endif\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 o = v_fragmentColor;\n  #ifdef useTexture\n    o *= texture2D(texture, uv0);\n  #endif\n  #ifdef alphaTest\n    if (o.a <= alphaThreshold)\n      discard;\n  #endif\n  gl_FragColor = o;\n}',
+      vert: '\n \nuniform mat4 viewProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying lowp vec4 v_fragmentColor;\n#ifdef useModel\n  uniform mat4 model;\n#endif\n#ifdef useTexture\n  attribute vec2 a_uv0;\n  varying vec2 uv0;\n#endif\nvoid main () {\n  mat4 mvp;\n  #ifdef useModel\n    mvp = viewProj * model;\n  #else\n    mvp = viewProj;\n  #endif\n  vec4 pos = mvp * vec4(a_position, 1);\n  v_fragmentColor = a_color;\n  \n  #ifdef useTexture\n    uv0 = a_uv0;\n  #endif\n  gl_Position = pos;\n}',
+      frag: '\n \n#ifdef useTexture\n  uniform sampler2D texture;\n  varying vec2 uv0;\n#endif\n#ifdef alphaTest\n  uniform float alphaThreshold;\n#endif\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 o = v_fragmentColor;\n  #ifdef useTexture\n    o *= texture2D(texture, uv0);\n  #endif\n  #ifdef alphaTest\n    if (o.a <= alphaThreshold)\n      discard;\n  #endif\n  gl_FragColor = o;\n}',
       defines: [
         { name: 'useTexture', },
         { name: 'useModel', },
@@ -13585,29 +13615,29 @@ module.exports = (function () {
     },
     {
       name: 'vfx_emitter',
-      vert: '#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nvarying vec2 index;\nvoid main() {\n    index = (a_quad + 1.0) / 2.0;\n    gl_Position = vec4(a_quad, 0, 1);\n}\n',
-      frag: '#ifdef GL_ES\nprecision highp float;\n#endif\nuniform sampler2D noise;\nuniform sampler2D state;\nuniform vec2 statesize;\nuniform vec2 noisesize;\nuniform bool stopped;\nuniform float dt;\nuniform float mode;\nuniform float noiseId;\nuniform float emitVar;\nuniform float life;\nuniform float lifeVar;\nuniform vec2 pos;\nuniform vec2 posVar;\nuniform vec4 color;\nuniform vec4 colorVar;\nuniform vec4 endColor;\nuniform vec4 endColorVar;\nuniform float size;\nuniform float sizeVar;\nuniform float endSize;\nuniform float endSizeVar;\nuniform float rot;\nuniform float rotVar;\nuniform float endRot;\nuniform float endRotVar;\nuniform float angle;\nuniform float angleVar;\nuniform float speed;\nuniform float speedVar;\nuniform float radial;\nuniform float radialVar;\nuniform float tangent;\nuniform float tangentVar;\nuniform float radius;\nuniform float radiusVar;\nuniform float endRadius;\nuniform float endRadiusVar;\nuniform float rotatePS;\nuniform float rotatePSVar;\nuniform float sizeScale;\nuniform float accelScale;\nuniform float radiusScale;\nvarying vec2 index;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float NOISE_SCALE = 10000.0;\nconst float POSITION_SCALE = 1.0;\nconst float ROTATION_SCALE = 1.0;\nconst float COLOR_SCALE = 1.0;\nconst float LIFE_SCALE = 100.0;\nconst float START_SIZE_EQUAL_TO_END_SIZE = -1.0;\nconst float START_RADIUS_EQUAL_TO_END_RADIUS = -1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvec2 encode(float value, float scale) {\n    value = value * scale + OFFSET;\n    float x = mod(value, BASE);\n    float y = floor(value / BASE);\n    return vec2(x, y) / BASE;\n}\nfloat randomMinus1To1(vec2 randomD) {\n    float random = decode(randomD, NOISE_SCALE);\n    return (random - 0.5) * 2.0;\n}\nbool doEmit (vec4 randomD) {\n    float random1 = decode(randomD.rg, NOISE_SCALE);\n    if (!stopped && (life + lifeVar) * random1 < life) {\n        return true;\n    }\n    else {\n        return false;\n    }\n}\nvec4 initLife (vec4 data, vec4 randomD) {\n    \n    if (doEmit(randomD)) {\n        float random2 = decode(randomD.ba, NOISE_SCALE);\n        float plife = life + lifeVar * random2;\n        vec2 l = encode(plife, LIFE_SCALE);\n        return vec4(l, l);\n    }\n    else {\n        return data;\n    }\n}\nvec4 initColor (float randr, float randg, float randb, float randa) {\n    vec4 random = vec4(randr, randg, randb, randa);\n    vec4 result = clamp(color + colorVar * random, 0.0, 255.0);\n    return result / 255.0;\n}\nvec4 initDeltaRG (vec2 startR, vec2 random) {\n    vec2 start = clamp(color.rg + colorVar.rg * startR, 0.0, 255.0);\n    vec2 end = clamp(endColor.rg + endColorVar.rg * random, 0.0, 255.0);\n    vec2 delta = end - start;\n    return vec4(encode(delta.x, COLOR_SCALE), encode(delta.y, COLOR_SCALE));\n}\nvec4 initDeltaBA (vec2 startR, vec2 random) {\n    vec2 start = clamp(color.ba + colorVar.ba * startR, 0.0, 255.0);\n    vec2 end = clamp(endColor.ba + endColorVar.ba * random, 0.0, 255.0);\n    vec2 delta = end - start;\n    return vec4(encode(delta.x, COLOR_SCALE), encode(delta.y, COLOR_SCALE));\n}\nvec4 initSize (float rand1, float rand2) {\n    float start = max(0.0, size + sizeVar * rand1);\n    if (endSize == START_SIZE_EQUAL_TO_END_SIZE) {\n        float delta = 0.0;\n        return vec4(encode(start, sizeScale), encode(delta, sizeScale));\n    }\n    else {\n        float end = max(0.0, endSize + endSizeVar * rand2);\n        float delta = end - start;\n        return vec4(encode(start, sizeScale), encode(delta, sizeScale));\n    }\n}\nvec4 initRotation (float rand1, float rand2) {\n    float start = rot + rotVar * rand1;\n    float end = endRot + endRotVar * rand2;\n    float delta = end - start;\n    return vec4(encode(start, ROTATION_SCALE), encode(delta, ROTATION_SCALE));\n}\nvec4 initControl1 (float rand1, float rand2) {\n    \n    if (mode == 0.0) {\n        float pAngle = angle + angleVar * rand1;\n        float dirX = cos(pAngle);\n        float dirY = sin(pAngle);\n        float pSpeed = speed + speedVar * rand2;\n        return vec4(encode(dirX * pSpeed, POSITION_SCALE), encode(dirY * pSpeed, POSITION_SCALE));\n    }\n    \n    else {\n        float pAngle = angle + angleVar * rand1;\n        float pRadius = radius + radiusVar * rand2;\n        return vec4(encode(pAngle, ROTATION_SCALE), encode(pRadius, radiusScale));\n    }\n}\nvec4 initControl2 (float startR1, float rand1, float rand2) {\n    \n    if (mode == 0.0) {\n        float pRadial = radial + radialVar * rand1;\n        float pTangent = tangent + tangentVar * rand2;\n        return vec4(encode(pRadial, accelScale), encode(pTangent, accelScale));\n    }\n    \n    else {\n        float degreesPerSecond = rotatePS + rotatePSVar * rand1;\n        float pDeltaRadius;\n        if (endRadius == START_RADIUS_EQUAL_TO_END_RADIUS) {\n            pDeltaRadius = 0.0;\n        }\n        else {\n            float pRadius = radius + radiusVar * startR1;\n            pDeltaRadius = (endRadius + endRadiusVar * rand2 - pRadius);\n        }\n        return vec4(encode(degreesPerSecond, ROTATION_SCALE), encode(pDeltaRadius, radiusScale));\n    }\n}\nvec4 initPos (float rand1, float rand2) {\n    vec2 result = pos + posVar * vec2(rand1, rand2);\n    return vec4(encode(result.x, POSITION_SCALE), encode(result.y, POSITION_SCALE));\n}\nvoid main() {\n    vec2 pixel = floor(index * statesize);\n    vec2 pindex = floor(pixel / 3.0);\n    vec2 temp = mod(pixel, vec2(3.0, 3.0));\n    float id = floor(temp.y * 3.0 + temp.x);\n    vec2 noffset = vec2(floor(noiseId / 4.0), mod(noiseId, 4.0));\n    vec2 nid = pixel + noffset;\n    vec4 randomD = texture2D(noise, nid / noisesize);\n    \n    vec4 lifeData = texture2D(state, pindex * 3.0 / statesize);\n    float rest = decode(lifeData.rg, LIFE_SCALE);\n    float life = decode(lifeData.ba, LIFE_SCALE);\n    \n    if (id == 0.0) {\n        vec4 data = texture2D(state, index);\n        if (rest <= 0.0) {\n            gl_FragColor = initLife(data, randomD);\n        }\n        else {\n            gl_FragColor = data;\n        }\n        return;\n    }\n    \n    if (rest > 0.0) {\n        vec4 data = texture2D(state, index);\n        gl_FragColor = data;\n        return;\n    }\n    vec2 lifeNid = pindex * 3.0 + noffset;\n    vec4 lifeRandomD = texture2D(noise, lifeNid / noisesize);\n    bool emitting = doEmit(lifeRandomD);\n    if (!emitting) {\n        vec4 data = texture2D(state, index);\n        gl_FragColor = data;\n        return;\n    }\n    \n    float random1 = randomMinus1To1(randomD.rg);\n    float random2 = randomMinus1To1(randomD.ba);\n    \n    if (id == 1.0) {\n        vec4 randomD3 = texture2D(noise, vec2(nid.x - 1.0, nid.y + 1.0) / noisesize);\n        float random3 = randomMinus1To1(randomD3.rg);\n        float random4 = randomMinus1To1(randomD3.ba);\n        gl_FragColor = initColor(random1, random2, random3, random4);\n        return;\n    }\n    \n    if (id == 2.0) {\n        vec4 randomD1 = texture2D(noise, vec2(nid.x - 1.0, nid.y) / noisesize);\n        float startR1 = randomMinus1To1(randomD1.rg);\n        float startR2 = randomMinus1To1(randomD1.ba);\n        vec2 startR = vec2(startR1, startR2);\n        gl_FragColor = initDeltaRG(startR, vec2(random1, random2));\n        return;\n    }\n    \n    if (id == 3.0) {\n        vec2 startR = vec2(random1, random2);\n        gl_FragColor = initDeltaBA(startR, vec2(random1, random2));\n        return;\n    }\n    \n    if (id == 4.0) {\n        gl_FragColor = initSize(random1, random2);\n        return;\n    }\n    \n    if (id == 5.0) {\n        gl_FragColor = initRotation(random1, random2);\n        return;\n    }\n    \n    if (id == 6.0) {\n        gl_FragColor = initControl1(random1, random2);\n        return;\n    }\n    \n    if (id == 7.0) {\n        vec4 randomD6 = texture2D(noise, vec2(nid.x - 1.0, nid.y) / noisesize);\n        float startR1 = randomMinus1To1(randomD6.rg);\n        gl_FragColor = initControl2(startR1, random1, random2);\n        return;\n    }\n    \n    if (id == 8.0) {\n        gl_FragColor = initPos(random1, random2);\n        return;\n    }\n}',
+      vert: '\n \n#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nvarying vec2 index;\nvoid main() {\n    index = (a_quad + 1.0) / 2.0;\n    gl_Position = vec4(a_quad, 0, 1);\n}\n',
+      frag: '#ifdef GL_ES\nprecision highp float;\n#endif\nuniform sampler2D noise;\nuniform sampler2D state;\nuniform vec2 statesize;\nuniform vec2 noisesize;\nuniform bool stopped;\nuniform float dt;\nuniform float mode;\nuniform float noiseId;\nuniform float emitVar;\nuniform float life;\nuniform float lifeVar;\nuniform vec2 pos;\nuniform vec2 posVar;\nuniform vec4 color;\nuniform vec4 colorVar;\n \nuniform vec4 endColor;\nuniform vec4 endColorVar;\nuniform float size;\nuniform float sizeVar;\nuniform float endSize;\nuniform float endSizeVar;\nuniform float rot;\nuniform float rotVar;\nuniform float endRot;\nuniform float endRotVar;\nuniform float angle;\nuniform float angleVar;\nuniform float speed;\nuniform float speedVar;\nuniform float radial;\nuniform float radialVar;\nuniform float tangent;\nuniform float tangentVar;\nuniform float radius;\nuniform float radiusVar;\nuniform float endRadius;\nuniform float endRadiusVar;\nuniform float rotatePS;\nuniform float rotatePSVar;\nuniform float sizeScale;\nuniform float accelScale;\nuniform float radiusScale;\nvarying vec2 index;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float NOISE_SCALE = 10000.0;\nconst float POSITION_SCALE = 1.0;\nconst float ROTATION_SCALE = 1.0;\nconst float COLOR_SCALE = 1.0;\nconst float LIFE_SCALE = 100.0;\nconst float START_SIZE_EQUAL_TO_END_SIZE = -1.0;\nconst float START_RADIUS_EQUAL_TO_END_RADIUS = -1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvec2 encode(float value, float scale) {\n    value = value * scale + OFFSET;\n    float x = mod(value, BASE);\n    float y = floor(value / BASE);\n    return vec2(x, y) / BASE;\n}\nfloat randomMinus1To1(vec2 randomD) {\n    float random = decode(randomD, NOISE_SCALE);\n    return (random - 0.5) * 2.0;\n}\nbool doEmit (vec4 randomD) {\n    float random1 = decode(randomD.rg, NOISE_SCALE);\n    if (!stopped && (life + lifeVar) * random1 < life) {\n        return true;\n    }\n    else {\n        return false;\n    }\n}\nvec4 initLife (vec4 data, vec4 randomD) {\n    \n    if (doEmit(randomD)) {\n        float random2 = decode(randomD.ba, NOISE_SCALE);\n        float plife = life + lifeVar * random2;\n        vec2 l = encode(plife, LIFE_SCALE);\n        return vec4(l, l);\n    }\n    else {\n        return data;\n    }\n}\nvec4 initColor (float randr, float randg, float randb, float randa) {\n    vec4 random = vec4(randr, randg, randb, randa);\n    vec4 result = clamp(color + colorVar * random, 0.0, 255.0);\n    return result / 255.0;\n}\nvec4 initDeltaRG (vec2 startR, vec2 random) {\n    vec2 start = clamp(color.rg + colorVar.rg * startR, 0.0, 255.0);\n    vec2 end = clamp(endColor.rg + endColorVar.rg * random, 0.0, 255.0);\n    vec2 delta = end - start;\n    return vec4(encode(delta.x, COLOR_SCALE), encode(delta.y, COLOR_SCALE));\n}\nvec4 initDeltaBA (vec2 startR, vec2 random) {\n    vec2 start = clamp(color.ba + colorVar.ba * startR, 0.0, 255.0);\n    vec2 end = clamp(endColor.ba + endColorVar.ba * random, 0.0, 255.0);\n    vec2 delta = end - start;\n    return vec4(encode(delta.x, COLOR_SCALE), encode(delta.y, COLOR_SCALE));\n}\nvec4 initSize (float rand1, float rand2) {\n    float start = max(0.0, size + sizeVar * rand1);\n    if (endSize == START_SIZE_EQUAL_TO_END_SIZE) {\n        float delta = 0.0;\n        return vec4(encode(start, sizeScale), encode(delta, sizeScale));\n    }\n    else {\n        float end = max(0.0, endSize + endSizeVar * rand2);\n        float delta = end - start;\n        return vec4(encode(start, sizeScale), encode(delta, sizeScale));\n    }\n}\nvec4 initRotation (float rand1, float rand2) {\n    float start = rot + rotVar * rand1;\n    float end = endRot + endRotVar * rand2;\n    float delta = end - start;\n    return vec4(encode(start, ROTATION_SCALE), encode(delta, ROTATION_SCALE));\n}\nvec4 initControl1 (float rand1, float rand2) {\n    \n    if (mode == 0.0) {\n        float pAngle = angle + angleVar * rand1;\n        float dirX = cos(pAngle);\n        float dirY = sin(pAngle);\n        float pSpeed = speed + speedVar * rand2;\n        return vec4(encode(dirX * pSpeed, POSITION_SCALE), encode(dirY * pSpeed, POSITION_SCALE));\n    }\n    \n    else {\n        float pAngle = angle + angleVar * rand1;\n        float pRadius = radius + radiusVar * rand2;\n        return vec4(encode(pAngle, ROTATION_SCALE), encode(pRadius, radiusScale));\n    }\n}\nvec4 initControl2 (float startR1, float rand1, float rand2) {\n    \n    if (mode == 0.0) {\n        float pRadial = radial + radialVar * rand1;\n        float pTangent = tangent + tangentVar * rand2;\n        return vec4(encode(pRadial, accelScale), encode(pTangent, accelScale));\n    }\n    \n    else {\n        float degreesPerSecond = rotatePS + rotatePSVar * rand1;\n        float pDeltaRadius;\n        if (endRadius == START_RADIUS_EQUAL_TO_END_RADIUS) {\n            pDeltaRadius = 0.0;\n        }\n        else {\n            float pRadius = radius + radiusVar * startR1;\n            pDeltaRadius = (endRadius + endRadiusVar * rand2 - pRadius);\n        }\n        return vec4(encode(degreesPerSecond, ROTATION_SCALE), encode(pDeltaRadius, radiusScale));\n    }\n}\nvec4 initPos (float rand1, float rand2) {\n    vec2 result = pos + posVar * vec2(rand1, rand2);\n    return vec4(encode(result.x, POSITION_SCALE), encode(result.y, POSITION_SCALE));\n}\nvoid main() {\n    vec2 pixel = floor(index * statesize);\n    vec2 pindex = floor(pixel / 3.0);\n    vec2 temp = mod(pixel, vec2(3.0, 3.0));\n    float id = floor(temp.y * 3.0 + temp.x);\n    vec2 noffset = vec2(floor(noiseId / 4.0), mod(noiseId, 4.0));\n    vec2 nid = pixel + noffset;\n    vec4 randomD = texture2D(noise, nid / noisesize);\n    \n    vec4 lifeData = texture2D(state, pindex * 3.0 / statesize);\n    float rest = decode(lifeData.rg, LIFE_SCALE);\n    float life = decode(lifeData.ba, LIFE_SCALE);\n    \n    if (id == 0.0) {\n        vec4 data = texture2D(state, index);\n        if (rest <= 0.0) {\n            gl_FragColor = initLife(data, randomD);\n        }\n        else {\n            gl_FragColor = data;\n        }\n        return;\n    }\n    \n    if (rest > 0.0) {\n        vec4 data = texture2D(state, index);\n        gl_FragColor = data;\n        return;\n    }\n    vec2 lifeNid = pindex * 3.0 + noffset;\n    vec4 lifeRandomD = texture2D(noise, lifeNid / noisesize);\n    bool emitting = doEmit(lifeRandomD);\n    if (!emitting) {\n        vec4 data = texture2D(state, index);\n        gl_FragColor = data;\n        return;\n    }\n    \n    float random1 = randomMinus1To1(randomD.rg);\n    float random2 = randomMinus1To1(randomD.ba);\n    \n    if (id == 1.0) {\n        vec4 randomD3 = texture2D(noise, vec2(nid.x - 1.0, nid.y + 1.0) / noisesize);\n        float random3 = randomMinus1To1(randomD3.rg);\n        float random4 = randomMinus1To1(randomD3.ba);\n        gl_FragColor = initColor(random1, random2, random3, random4);\n        return;\n    }\n    \n    if (id == 2.0) {\n        vec4 randomD1 = texture2D(noise, vec2(nid.x - 1.0, nid.y) / noisesize);\n        float startR1 = randomMinus1To1(randomD1.rg);\n        float startR2 = randomMinus1To1(randomD1.ba);\n        vec2 startR = vec2(startR1, startR2);\n        gl_FragColor = initDeltaRG(startR, vec2(random1, random2));\n        return;\n    }\n    \n    if (id == 3.0) {\n        vec2 startR = vec2(random1, random2);\n        gl_FragColor = initDeltaBA(startR, vec2(random1, random2));\n        return;\n    }\n    \n    if (id == 4.0) {\n        gl_FragColor = initSize(random1, random2);\n        return;\n    }\n    \n    if (id == 5.0) {\n        gl_FragColor = initRotation(random1, random2);\n        return;\n    }\n    \n    if (id == 6.0) {\n        gl_FragColor = initControl1(random1, random2);\n        return;\n    }\n    \n    if (id == 7.0) {\n        vec4 randomD6 = texture2D(noise, vec2(nid.x - 1.0, nid.y) / noisesize);\n        float startR1 = randomMinus1To1(randomD6.rg);\n        gl_FragColor = initControl2(startR1, random1, random2);\n        return;\n    }\n    \n    if (id == 8.0) {\n        gl_FragColor = initPos(random1, random2);\n        return;\n    }\n}',
       defines: [
       ],
     },
     {
       name: 'vfx_particle',
-      vert: '#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nuniform mat4 model;\nuniform mat4 viewProj;\nuniform sampler2D state;\nuniform sampler2D quad;\nuniform vec2 statesize;\nuniform vec2 quadsize;\nuniform float z;\nuniform vec2 lb;\nuniform vec2 rt;\nvarying lowp vec4 v_fragmentColor;\nvarying vec2 uv0;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float LIFE_SCALE = 100.0;\nconst float POSITION_SCALE = 1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvoid main() {\n    vec2 sIndex = floor(a_quad / 2.0) * 3.0;\n    vec4 lifeData = texture2D(state, sIndex / statesize);\n    float life = decode(lifeData.rg, LIFE_SCALE);\n    if (life <= 0.0) {\n        v_fragmentColor = vec4(0.0, 0.0, 0.0, 0.0);\n        uv0 = vec2(0.0, 0.0);\n        gl_Position = vec4(0.0, 0.0, 0.0, 1.0);\n    }\n    else {\n        vec2 posIndex = a_quad / quadsize;\n        vec4 posData = texture2D(quad, posIndex);\n        vec2 pos = vec2(decode(posData.rg, POSITION_SCALE), decode(posData.ba, POSITION_SCALE));\n        vec2 cIndex = vec2(sIndex.x + 1.0, sIndex.y) / statesize;\n        vec4 color = texture2D(state, cIndex);\n        v_fragmentColor = color;\n        float u, v;\n        vec2 uvId = mod(a_quad, vec2(2.0));\n        if (uvId.x == 0.0) {\n            u = lb.x;\n        }\n        else {\n            u = rt.x;\n        }\n        if (uvId.y == 0.0) {\n            v = lb.y;\n        }\n        else {\n            v = rt.y;\n        }\n        uv0 = vec2(u, v);\n        gl_Position = viewProj * model * vec4(pos, z, 1.0);\n    }    \n}\n',
-      frag: '#ifdef GL_ES\nprecision highp float;\n#endif\nuniform sampler2D texture;\nvarying vec2 uv0;\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 o = v_fragmentColor;\n  o *= texture2D(texture, uv0);\n  gl_FragColor = o;\n}',
+      vert: '\n \n#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nuniform mat4 model;\nuniform mat4 viewProj;\nuniform sampler2D state;\nuniform sampler2D quad;\nuniform vec2 statesize;\nuniform vec2 quadsize;\nuniform float z;\nuniform vec2 lb;\nuniform vec2 rt;\nvarying lowp vec4 v_fragmentColor;\nvarying vec2 uv0;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float LIFE_SCALE = 100.0;\nconst float POSITION_SCALE = 1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvoid main() {\n    vec2 sIndex = floor(a_quad / 2.0) * 3.0;\n    vec4 lifeData = texture2D(state, sIndex / statesize);\n    float life = decode(lifeData.rg, LIFE_SCALE);\n    if (life <= 0.0) {\n        v_fragmentColor = vec4(0.0, 0.0, 0.0, 0.0);\n        uv0 = vec2(0.0, 0.0);\n        gl_Position = vec4(0.0, 0.0, 0.0, 1.0);\n    }\n    else {\n        vec2 posIndex = a_quad / quadsize;\n        vec4 posData = texture2D(quad, posIndex);\n        vec2 pos = vec2(decode(posData.rg, POSITION_SCALE), decode(posData.ba, POSITION_SCALE));\n        vec2 cIndex = vec2(sIndex.x + 1.0, sIndex.y) / statesize;\n        vec4 color = texture2D(state, cIndex);\n        v_fragmentColor = color;\n        float u, v;\n        vec2 uvId = mod(a_quad, vec2(2.0));\n        if (uvId.x == 0.0) {\n            u = lb.x;\n        }\n        else {\n            u = rt.x;\n        }\n        if (uvId.y == 0.0) {\n            v = lb.y;\n        }\n        else {\n            v = rt.y;\n        }\n        uv0 = vec2(u, v);\n        gl_Position = viewProj * model * vec4(pos, z, 1.0);\n    }    \n}\n',
+      frag: '\n \n#ifdef GL_ES\nprecision highp float;\n#endif\nuniform sampler2D texture;\nvarying vec2 uv0;\nvarying vec4 v_fragmentColor;\nvoid main () {\n  vec4 o = v_fragmentColor;\n  o *= texture2D(texture, uv0);\n  gl_FragColor = o;\n}',
       defines: [
       ],
     },
     {
       name: 'vfx_quad',
-      vert: '#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nvarying vec2 index;\nvoid main() {\n    index = (a_quad + 1.0) / 2.0;\n    gl_Position = vec4(a_quad, 0, 1);\n}\n',
-      frag: '#ifdef GL_ES\nprecision highp float;\n#endif\nuniform sampler2D state;\nuniform vec2 quadsize;\nuniform vec2 statesize;\nuniform float sizeScale;\nvarying vec2 index;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float LIFE_SCALE = 100.0;\nconst float POSITION_SCALE = 1.0;\nconst float ROTATION_SCALE = 1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvec2 encode(float value, float scale) {\n    value = value * scale + OFFSET;\n    float x = mod(value, BASE);\n    float y = floor(value / BASE);\n    return vec2(x, y) / BASE;\n}\nvoid main() {\n    vec2 pixel = floor(index * quadsize);\n    vec2 pIndex = floor(pixel / 2.0) * 3.0;\n    vec4 lifeData = texture2D(state, pIndex / statesize);\n    float rest = decode(lifeData.rg, LIFE_SCALE);\n    if (rest <= 0.0) {\n        gl_FragColor = vec4(encode(0.0, POSITION_SCALE), encode(0.0, POSITION_SCALE));\n        return;\n    }\n    vec2 dataIndex = (pIndex + 2.0) / statesize;\n    vec4 posData = texture2D(state, dataIndex);\n    float x = decode(posData.rg, POSITION_SCALE);\n    float y = decode(posData.ba, POSITION_SCALE);\n    vec2 pos = vec2(x, y);\n    dataIndex = (pIndex + 1.0) / statesize;\n    vec4 sizeData = texture2D(state, dataIndex);\n    float size = decode(sizeData.rg, sizeScale);\n    dataIndex.x = (pIndex.x + 2.0) / statesize.x;\n    dataIndex.y = (pIndex.y + 1.0) / statesize.y;\n    vec4 rotData = texture2D(state, dataIndex);\n    float rot = radians(mod(decode(rotData.rg, ROTATION_SCALE), 180.0));\n    float a = cos(rot);\n    float b = -sin(rot);\n    float c = -b;\n    float d = a;\n    vec2 vert = (mod(pixel, vec2(2.0)) - 0.5) * size;\n    x = vert.x * a + vert.y * c + pos.x;\n    y = vert.x * b + vert.y * d + pos.y;\n    gl_FragColor = vec4(encode(x, POSITION_SCALE), encode(y, POSITION_SCALE));\n}\n',
+      vert: '\n \n#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nvarying vec2 index;\nvoid main() {\n    index = (a_quad + 1.0) / 2.0;\n    gl_Position = vec4(a_quad, 0, 1);\n}\n',
+      frag: '\n \n#ifdef GL_ES\nprecision highp float;\n#endif\nuniform sampler2D state;\nuniform vec2 quadsize;\nuniform vec2 statesize;\nuniform float sizeScale;\nvarying vec2 index;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float LIFE_SCALE = 100.0;\nconst float POSITION_SCALE = 1.0;\nconst float ROTATION_SCALE = 1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvec2 encode(float value, float scale) {\n    value = value * scale + OFFSET;\n    float x = mod(value, BASE);\n    float y = floor(value / BASE);\n    return vec2(x, y) / BASE;\n}\nvoid main() {\n    vec2 pixel = floor(index * quadsize);\n    vec2 pIndex = floor(pixel / 2.0) * 3.0;\n    vec4 lifeData = texture2D(state, pIndex / statesize);\n    float rest = decode(lifeData.rg, LIFE_SCALE);\n    if (rest <= 0.0) {\n        gl_FragColor = vec4(encode(0.0, POSITION_SCALE), encode(0.0, POSITION_SCALE));\n        return;\n    }\n    vec2 dataIndex = (pIndex + 2.0) / statesize;\n    vec4 posData = texture2D(state, dataIndex);\n    float x = decode(posData.rg, POSITION_SCALE);\n    float y = decode(posData.ba, POSITION_SCALE);\n    vec2 pos = vec2(x, y);\n    dataIndex = (pIndex + 1.0) / statesize;\n    vec4 sizeData = texture2D(state, dataIndex);\n    float size = decode(sizeData.rg, sizeScale);\n    dataIndex.x = (pIndex.x + 2.0) / statesize.x;\n    dataIndex.y = (pIndex.y + 1.0) / statesize.y;\n    vec4 rotData = texture2D(state, dataIndex);\n    float rot = radians(mod(decode(rotData.rg, ROTATION_SCALE), 180.0));\n    float a = cos(rot);\n    float b = -sin(rot);\n    float c = -b;\n    float d = a;\n    vec2 vert = (mod(pixel, vec2(2.0)) - 0.5) * size;\n    x = vert.x * a + vert.y * c + pos.x;\n    y = vert.x * b + vert.y * d + pos.y;\n    gl_FragColor = vec4(encode(x, POSITION_SCALE), encode(y, POSITION_SCALE));\n}\n',
       defines: [
       ],
     },
     {
       name: 'vfx_update',
-      vert: '#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nvarying vec2 index;\nvoid main() {\n    index = (a_quad + 1.0) / 2.0;\n    gl_Position = vec4(a_quad, 0, 1);\n}\n',
-      frag: '#ifdef GL_ES\nprecision highp float;\n#endif\nuniform sampler2D state;\nuniform vec2 statesize;\nuniform float dt;\nuniform float mode;\nuniform vec2 gravity;\nuniform float sizeScale;\nuniform float accelScale;\nuniform float radiusScale;\nvarying vec2 index;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float MAX_VALUE = BASE * BASE;\nconst float LIFE_SCALE = 100.0;\nconst float POSITION_SCALE = 1.0;\nconst float ROTATION_SCALE = 1.0;\nconst float COLOR_SCALE = 1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvec2 encode(float value, float scale) {\n    value = value * scale + OFFSET;\n    float x = mod(value, BASE);\n    float y = floor(value / BASE);\n    return vec2(x, y) / BASE;\n}\nvec4 updateLife (vec4 data) {\n    float rest = decode(data.rg, LIFE_SCALE);\n    rest -= dt;\n    return vec4(encode(rest, LIFE_SCALE), data.ba);\n}\nvec4 updateColor (vec4 color, vec4 deltaRG, vec4 deltaBA, float life) {\n    float r = decode(deltaRG.rg, COLOR_SCALE);\n    float g = decode(deltaRG.ba, COLOR_SCALE);\n    float b = decode(deltaBA.rg, COLOR_SCALE);\n    float a = decode(deltaBA.ba, COLOR_SCALE);\n    vec4 deltaColor = vec4(r, g, b, a) / 255.0;\n    \n    color = clamp(color + deltaColor * dt / life, 0.0, 1.0);\n    return color;\n}\nvec4 updateSize (vec4 data, float life) {\n    float size = decode(data.rg, sizeScale);\n    float deltaSize = decode(data.ba, sizeScale);\n    size = clamp(size + deltaSize * dt / life, 0.0, MAX_VALUE);\n    return vec4(encode(size, sizeScale), data.ba);\n}\nvec4 updateRotation (vec4 data, float life) {\n    float rotation = decode(data.rg, ROTATION_SCALE);\n    float deltaRotation = decode(data.ba, ROTATION_SCALE);\n    rotation = mod(rotation + deltaRotation * dt / life, 180.0);\n    return vec4(encode(rotation, ROTATION_SCALE), data.ba);\n}\nvec4 updateControl (vec4 control1, vec4 control2, vec4 posData, float life) {\n    \n    if (mode == 0.0) {\n        vec2 dir = vec2(decode(control1.rg, POSITION_SCALE), decode(control1.ba, POSITION_SCALE));\n        float radialAccel = decode(control2.rg, accelScale);\n        float tangentialAccel = decode(control2.ba, accelScale);\n        vec2 pos = vec2(decode(posData.rg, POSITION_SCALE), decode(posData.ba, POSITION_SCALE));\n        vec2 radial = normalize(pos);\n        vec2 tangential = vec2(-radial.y, radial.x);\n        radial = radial * radialAccel;\n        tangential = tangential * tangentialAccel;\n        vec2 result = dir + (radial + tangentialAccel + gravity) * dt;\n        return vec4(encode(result.x, POSITION_SCALE), encode(result.y, POSITION_SCALE));\n    }\n    \n    else {\n        float angle = mod(decode(control1.rg, ROTATION_SCALE), 180.0);\n        float radius = decode(control1.ba, radiusScale);\n        float degreesPerSecond = decode(control2.rg, ROTATION_SCALE);\n        float deltaRadius = decode(control2.ba, radiusScale);\n        angle += degreesPerSecond * dt;\n        radius += deltaRadius * dt / life;\n        return vec4(encode(angle, ROTATION_SCALE), encode(radius, radiusScale));\n    }\n}\nvec4 updatePos (vec4 posData, vec4 control) {\n    vec2 result;\n    \n    if (mode == 0.0) {\n        vec2 dir = vec2(decode(control.rg, POSITION_SCALE), decode(control.ba, POSITION_SCALE));\n        vec2 pos = vec2(decode(posData.rg, POSITION_SCALE), decode(posData.ba, POSITION_SCALE));\n        result = pos + dir * dt;\n    }\n    \n    else {\n        float angle = radians(mod(decode(control.rg, ROTATION_SCALE), 180.0));\n        float radius = decode(control.ba, radiusScale);\n        result.x = -cos(angle) * radius;\n        result.y = -sin(angle) * radius;\n    }\n    return vec4(encode(result.x, POSITION_SCALE), encode(result.y, POSITION_SCALE));\n}\nvoid main() {\n    vec2 pixel = floor(index * statesize);\n    vec2 pindex = floor(pixel / 3.0);\n    vec2 temp = mod(pixel, vec2(3.0));\n    float id = floor(temp.y * 3.0 + temp.x);\n    \n    vec4 data = texture2D(state, index);\n    vec4 lifeData = texture2D(state, pindex * 3.0 / statesize);\n    float rest = decode(lifeData.rg, LIFE_SCALE);\n    if (rest <= 0.0) {\n        gl_FragColor = data;\n        return;\n    }\n    \n    if (id == 2.0 || id == 3.0 || id == 7.0) {\n        gl_FragColor = data;\n        return;\n    }\n    float life = decode(lifeData.ba, LIFE_SCALE);\n    \n    if (id == 0.0) {\n        gl_FragColor = updateLife(data);\n        return;\n    }\n    \n    if (id == 1.0) {\n        vec2 rgIndex = vec2(pixel.x + 1.0, pixel.y) / statesize;\n        vec4 deltaRG = texture2D(state, rgIndex);\n        vec2 baIndex = vec2(pixel.x - 1.0, pixel.y + 1.0) / statesize;\n        vec4 deltaBA = texture2D(state, baIndex);\n        gl_FragColor = updateColor(data, deltaRG, deltaBA, life);\n        return;\n    }\n    \n    if (id == 4.0) {\n        gl_FragColor = updateSize(data, life);\n        return;\n    }\n    \n    if (id == 5.0) {\n        gl_FragColor = updateRotation(data, life);\n        return;\n    }\n    \n    if (id == 6.0) {\n        vec2 ctrlIndex = vec2(pixel.x + 1.0, pixel.y) / statesize;\n        vec4 control2 = texture2D(state, ctrlIndex);\n        vec2 posIndex = vec2(pixel.x + 2.0, pixel.y) / statesize;\n        vec4 pos = texture2D(state, posIndex);\n        gl_FragColor = updateControl(data, control2, pos, life);\n        return;\n    }\n    \n    if (id == 8.0) {\n        vec2 ctrlIndex = vec2(pixel.x - 2.0, pixel.y) / statesize;\n        vec4 control1 = texture2D(state, ctrlIndex);\n        gl_FragColor = updatePos(data, control1);\n        return;\n    }\n}\n',
+      vert: '\n \n#ifdef GL_ES\nprecision highp float;\n#endif\nattribute vec2 a_quad;\nvarying vec2 index;\nvoid main() {\n    index = (a_quad + 1.0) / 2.0;\n    gl_Position = vec4(a_quad, 0, 1);\n}\n',
+      frag: '\n \n#ifdef GL_ES\nprecision highp float;\n#endif\nuniform sampler2D state;\nuniform vec2 statesize;\nuniform float dt;\nuniform float mode;\nuniform vec2 gravity;\nuniform float sizeScale;\nuniform float accelScale;\nuniform float radiusScale;\nvarying vec2 index;\nconst float BASE = 255.0;\nconst float OFFSET = BASE * BASE / 2.0;\nconst float MAX_VALUE = BASE * BASE;\nconst float LIFE_SCALE = 100.0;\nconst float POSITION_SCALE = 1.0;\nconst float ROTATION_SCALE = 1.0;\nconst float COLOR_SCALE = 1.0;\nfloat decode(vec2 channels, float scale) {\n    return (dot(channels, vec2(BASE, BASE * BASE)) - OFFSET) / scale;\n}\nvec2 encode(float value, float scale) {\n    value = value * scale + OFFSET;\n    float x = mod(value, BASE);\n    float y = floor(value / BASE);\n    return vec2(x, y) / BASE;\n}\nvec4 updateLife (vec4 data) {\n    float rest = decode(data.rg, LIFE_SCALE);\n    rest -= dt;\n    return vec4(encode(rest, LIFE_SCALE), data.ba);\n}\nvec4 updateColor (vec4 color, vec4 deltaRG, vec4 deltaBA, float life) {\n    float r = decode(deltaRG.rg, COLOR_SCALE);\n    float g = decode(deltaRG.ba, COLOR_SCALE);\n    float b = decode(deltaBA.rg, COLOR_SCALE);\n    float a = decode(deltaBA.ba, COLOR_SCALE);\n    vec4 deltaColor = vec4(r, g, b, a) / 255.0;\n    \n    color = clamp(color + deltaColor * dt / life, 0.0, 1.0);\n    return color;\n}\nvec4 updateSize (vec4 data, float life) {\n    float size = decode(data.rg, sizeScale);\n    float deltaSize = decode(data.ba, sizeScale);\n    size = clamp(size + deltaSize * dt / life, 0.0, MAX_VALUE);\n    return vec4(encode(size, sizeScale), data.ba);\n}\nvec4 updateRotation (vec4 data, float life) {\n    float rotation = decode(data.rg, ROTATION_SCALE);\n    float deltaRotation = decode(data.ba, ROTATION_SCALE);\n    rotation = mod(rotation + deltaRotation * dt / life, 180.0);\n    return vec4(encode(rotation, ROTATION_SCALE), data.ba);\n}\nvec4 updateControl (vec4 control1, vec4 control2, vec4 posData, float life) {\n    \n    if (mode == 0.0) {\n        vec2 dir = vec2(decode(control1.rg, POSITION_SCALE), decode(control1.ba, POSITION_SCALE));\n        float radialAccel = decode(control2.rg, accelScale);\n        float tangentialAccel = decode(control2.ba, accelScale);\n        vec2 pos = vec2(decode(posData.rg, POSITION_SCALE), decode(posData.ba, POSITION_SCALE));\n        vec2 radial = normalize(pos);\n        vec2 tangential = vec2(-radial.y, radial.x);\n        radial = radial * radialAccel;\n        tangential = tangential * tangentialAccel;\n        vec2 result = dir + (radial + tangentialAccel + gravity) * dt;\n        return vec4(encode(result.x, POSITION_SCALE), encode(result.y, POSITION_SCALE));\n    }\n    \n    else {\n        float angle = mod(decode(control1.rg, ROTATION_SCALE), 180.0);\n        float radius = decode(control1.ba, radiusScale);\n        float degreesPerSecond = decode(control2.rg, ROTATION_SCALE);\n        float deltaRadius = decode(control2.ba, radiusScale);\n        angle += degreesPerSecond * dt;\n        radius += deltaRadius * dt / life;\n        return vec4(encode(angle, ROTATION_SCALE), encode(radius, radiusScale));\n    }\n}\nvec4 updatePos (vec4 posData, vec4 control) {\n    vec2 result;\n    \n    if (mode == 0.0) {\n        vec2 dir = vec2(decode(control.rg, POSITION_SCALE), decode(control.ba, POSITION_SCALE));\n        vec2 pos = vec2(decode(posData.rg, POSITION_SCALE), decode(posData.ba, POSITION_SCALE));\n        result = pos + dir * dt;\n    }\n    \n    else {\n        float angle = radians(mod(decode(control.rg, ROTATION_SCALE), 180.0));\n        float radius = decode(control.ba, radiusScale);\n        result.x = -cos(angle) * radius;\n        result.y = -sin(angle) * radius;\n    }\n    return vec4(encode(result.x, POSITION_SCALE), encode(result.y, POSITION_SCALE));\n}\nvoid main() {\n    vec2 pixel = floor(index * statesize);\n    vec2 pindex = floor(pixel / 3.0);\n    vec2 temp = mod(pixel, vec2(3.0));\n    float id = floor(temp.y * 3.0 + temp.x);\n    \n    vec4 data = texture2D(state, index);\n    vec4 lifeData = texture2D(state, pindex * 3.0 / statesize);\n    float rest = decode(lifeData.rg, LIFE_SCALE);\n    if (rest <= 0.0) {\n        gl_FragColor = data;\n        return;\n    }\n    \n    if (id == 2.0 || id == 3.0 || id == 7.0) {\n        gl_FragColor = data;\n        return;\n    }\n    float life = decode(lifeData.ba, LIFE_SCALE);\n    \n    if (id == 0.0) {\n        gl_FragColor = updateLife(data);\n        return;\n    }\n    \n    if (id == 1.0) {\n        vec2 rgIndex = vec2(pixel.x + 1.0, pixel.y) / statesize;\n        vec4 deltaRG = texture2D(state, rgIndex);\n        vec2 baIndex = vec2(pixel.x - 1.0, pixel.y + 1.0) / statesize;\n        vec4 deltaBA = texture2D(state, baIndex);\n        gl_FragColor = updateColor(data, deltaRG, deltaBA, life);\n        return;\n    }\n    \n    if (id == 4.0) {\n        gl_FragColor = updateSize(data, life);\n        return;\n    }\n    \n    if (id == 5.0) {\n        gl_FragColor = updateRotation(data, life);\n        return;\n    }\n    \n    if (id == 6.0) {\n        vec2 ctrlIndex = vec2(pixel.x + 1.0, pixel.y) / statesize;\n        vec4 control2 = texture2D(state, ctrlIndex);\n        vec2 posIndex = vec2(pixel.x + 2.0, pixel.y) / statesize;\n        vec4 pos = texture2D(state, posIndex);\n        gl_FragColor = updateControl(data, control2, pos, life);\n        return;\n    }\n    \n    if (id == 8.0) {\n        vec2 ctrlIndex = vec2(pixel.x - 2.0, pixel.y) / statesize;\n        vec4 control1 = texture2D(state, ctrlIndex);\n        gl_FragColor = updatePos(data, control1);\n        return;\n    }\n}\n',
       defines: [
       ],
     },
@@ -13618,6 +13648,23 @@ module.exports = (function () {
       templates
   };
   
+  // Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.  
+  
+  /**
+   * BaseRenderData is a core data abstraction for renderer, this is a abstract class.
+   * An inherited render data type should define raw vertex datas.
+   * User should also define the effect, vertex count and index count.
+   */
+  class BaseRenderData {
+      constructor () {
+          this.effect = null;
+          this.vertexCount = 0;
+          this.indiceCount = 0;
+      }
+  }
+  
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+   
   var _pool;
   var _dataPool = new Pool(() => {
     return {
@@ -13629,23 +13676,30 @@ module.exports = (function () {
     };
   }, 128);
   
-  class RenderData {
+  /**
+   * RenderData is most widely used render data type.
+   * It describes raw vertex data with a fixed data layout.
+   * Each vertex is described by five property: x, y, u, v, color. The data layout might be extended in the future.
+   * Vertex data objects are managed automatically by RenderData, user only need to set the dataLength property.
+   * User can also define rendering index orders for the vertex list.
+   */
+  class RenderData extends BaseRenderData {
     constructor () {
+      super();
       this._data = [];
       this._indices = [];
-  
-      this.effect = null;
   
       this._pivotX = 0;
       this._pivotY = 0;
       this._width = 0;
       this._height = 0;
   
-      this.vertexCount = 0;
-      this.indiceCount = 0;
-  
       this.uvDirty = true;
       this.vertDirty = true;
+    }
+  
+    get type () {
+      return RenderData.type;
     }
   
     get dataLength () {
@@ -13700,10 +13754,34 @@ module.exports = (function () {
     }
   }
   
+  RenderData.type = 'RenderData';
+  
   _pool = new Pool(() => {
     return new RenderData();
   }, 32);
   
+  // Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.  
+   
+  /**
+   * IARenderData is user customized render data type, user should provide the entier input assembler.
+   * IARenderData just defines a property `ia` for accessing the input assembler.
+   * It doesn't manage memory so users should manage the memory of input assembler by themselves.
+   */
+  class IARenderData extends BaseRenderData {
+      constructor () {
+          super();
+          this.ia = null;
+      }
+  
+      get type () {
+          return IARenderData.type;
+      }
+  }
+  
+  IARenderData.type = 'IARenderData';
+  
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+   
   const BASE = 255;
   const NOISE_SCALE = 10000;
   const POS_SCALE = 1;
@@ -14201,6 +14279,8 @@ module.exports = (function () {
     }
   }
   
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+   
   class Asset {
     constructor(persist = true) {
       this._loaded = false;
@@ -14216,6 +14296,8 @@ module.exports = (function () {
     }
   }
   
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+   
   class Material extends Asset {
     constructor(persist = false) {
       super(persist);
@@ -14224,6 +14306,8 @@ module.exports = (function () {
     }
   }
   
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+   
   class MaterialUtil {
     constructor () {
         this._cache = JS.createMap(true);
@@ -14252,6 +14336,8 @@ module.exports = (function () {
     }
   }
   
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+   
   class SpriteMaterial extends Material {
     constructor() {
       super(false);
@@ -14328,6 +14414,8 @@ module.exports = (function () {
     }
   }
   
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+   
   class GraySpriteMaterial extends Material {
     constructor() {
       super(false);
@@ -14382,6 +14470,8 @@ module.exports = (function () {
     }
   }
   
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+   
   class StencilMaterial extends Material {
     constructor() {
       super(false);
@@ -14459,6 +14549,8 @@ module.exports = (function () {
     }
   }
   
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+   
   class ParticleMaterial extends Material {
     constructor() {
       super(false);
@@ -14588,6 +14680,8 @@ module.exports = (function () {
     }
   }
   
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+   
   class Device$2 {
     /**
      * @param {HTMLElement} canvasEL
@@ -14675,6 +14769,8 @@ module.exports = (function () {
     }
   }
   
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+   
   class Texture2D$2 {
   
     /**
@@ -14753,6 +14849,7 @@ module.exports = (function () {
     View,
     Model,
     RenderData,
+    IARenderData,
     InputAssembler,
   
     // vfx
@@ -14782,10 +14879,8 @@ module.exports = (function () {
     math,
     renderer,
     gfx,
-    // canvas
   };
   
   return renderEngine;
   
   }());
-  
