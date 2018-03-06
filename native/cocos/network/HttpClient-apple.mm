@@ -35,7 +35,7 @@
 
 #import "network/HttpAsynConnection-apple.h"
 #include "network/HttpCookie.h"
-#include "base/CCDirector.h"
+//#include "base/CCDirector.h"
 #include "platform/CCFileUtils.h"
 
 NS_CC_BEGIN
@@ -80,10 +80,10 @@ void HttpClient::networkThread()
         _responseQueueMutex.unlock();
         
         _schedulerMutex.lock();
-        if (nullptr != _scheduler)
-        {
-            _scheduler->performFunctionInCocosThread(CC_CALLBACK_0(HttpClient::dispatchResponseCallbacks, this));
-        }
+//        if (nullptr != _scheduler)
+//        {
+//            _scheduler->performFunctionInCocosThread(CC_CALLBACK_0(HttpClient::dispatchResponseCallbacks, this));
+//        }
         _schedulerMutex.unlock();
     }
     
@@ -108,21 +108,21 @@ void HttpClient::networkThreadAlone(HttpRequest* request, HttpResponse* response
     processResponse(response, responseMessage);
     
     _schedulerMutex.lock();
-    if (nullptr != _scheduler)
-    {
-        _scheduler->performFunctionInCocosThread([this, response, request]{
-            const ccHttpRequestCallback& callback = request->getResponseCallback();
-
-            if (callback != nullptr)
-            {
-                callback(this, response);
-            }
-
-            response->release();
-            // do not release in other thread
-            request->release();
-        });
-    }
+//    if (nullptr != _scheduler)
+//    {
+//        _scheduler->performFunctionInCocosThread([this, response, request]{
+//            const ccHttpRequestCallback& callback = request->getResponseCallback();
+//
+//            if (callback != nullptr)
+//            {
+//                callback(this, response);
+//            }
+//
+//            response->release();
+//            // do not release in other thread
+//            request->release();
+//        });
+//    }
     _schedulerMutex.unlock();
     decreaseThreadCountAndMayDeleteThis();
 }
@@ -316,9 +316,9 @@ void HttpClient::destroyInstance()
     auto thiz = _httpClient;
     _httpClient = nullptr;
     
-    thiz->_scheduler->unscheduleAllForTarget(thiz);
+//    thiz->_scheduler->unscheduleAllForTarget(thiz);
     thiz->_schedulerMutex.lock();
-    thiz->_scheduler = nullptr;
+//    thiz->_scheduler = nullptr;
     thiz->_schedulerMutex.unlock();
     
     thiz->_requestQueueMutex.lock();
@@ -369,7 +369,7 @@ HttpClient::HttpClient()
 {
     CCLOG("In the constructor of HttpClient!");
     memset(_responseMessage, 0, sizeof(char) * RESPONSE_BUFFER_SIZE);
-    _scheduler = Director::getInstance()->getScheduler();
+//    _scheduler = Director::getInstance()->getScheduler();
     increaseThreadCount();
 }
 

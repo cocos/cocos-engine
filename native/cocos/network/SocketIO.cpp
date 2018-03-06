@@ -34,8 +34,8 @@
 #include <sstream>
 #include <iterator>
 #include "base/ccUTF8.h"
-#include "base/CCDirector.h"
-#include "base/CCScheduler.h"
+//#include "base/CCDirector.h"
+//#include "base/CCScheduler.h"
 #include "network/WebSocket.h"
 #include "network/HttpClient.h"
 
@@ -621,7 +621,7 @@ void SIOClientImpl::disconnect()
         _ws->send(s);
     }
 
-    Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
+//    Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
 
     _connected = false;
 
@@ -749,7 +749,7 @@ void SIOClientImpl::onOpen(WebSocket* /*ws*/)
         _ws->send(s.data());
     }
 
-    Director::getInstance()->getScheduler()->schedule(CC_SCHEDULE_SELECTOR(SIOClientImpl::heartbeat), this, (_heartbeat * .9f), false);
+//    Director::getInstance()->getScheduler()->schedule(CC_SCHEDULE_SELECTOR(SIOClientImpl::heartbeat), this, (_heartbeat * .9f), false);
 
     for (auto& client : _clients)
     {
@@ -1002,9 +1002,9 @@ void SIOClientImpl::onClose(WebSocket* /*ws*/)
         }
         // discard this client
         _connected = false;
-        if (Director::getInstance())
-            Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
-        
+//        if (Director::getInstance())
+//            Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
+
         SocketIO::getInstance()->removeSocket(_uri.getAuthority());
         _clients.clear();
     }
