@@ -31,7 +31,9 @@
 
 #include "cocos/network/WebSocket.h"
 #include "base/ccUTF8.h"
-#include "base/CCDirector.h"
+//#include "base/CCDirector.h"
+
+#include <stdint.h>
 
 using namespace cocos2d;
 using namespace cocos2d::network;
@@ -84,9 +86,6 @@ public:
         se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
 
-        if (cocos2d::Director::getInstance() == nullptr || cocos2d::ScriptEngineManager::getInstance() == nullptr)
-            return;
-
         auto iter = se::NativePtrToObjectMap::find(ws);
         if (iter == se::NativePtrToObjectMap::end())
             return;
@@ -118,9 +117,6 @@ public:
     {
         se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
-
-        if (cocos2d::Director::getInstance() == nullptr || cocos2d::ScriptEngineManager::getInstance() == nullptr)
-            return;
 
         auto iter = se::NativePtrToObjectMap::find(ws);
         if (iter == se::NativePtrToObjectMap::end())
@@ -181,9 +177,6 @@ public:
         se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
 
-        if (cocos2d::Director::getInstance() == nullptr || cocos2d::ScriptEngineManager::getInstance() == nullptr)
-            return;
-
         auto iter = se::NativePtrToObjectMap::find(ws);
         do
         {
@@ -223,9 +216,6 @@ public:
     {
         se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
-
-        if (cocos2d::Director::getInstance() == nullptr || cocos2d::ScriptEngineManager::getInstance() == nullptr)
-            return;
 
         auto iter = se::NativePtrToObjectMap::find(ws);
         if (iter == se::NativePtrToObjectMap::end())
@@ -415,7 +405,7 @@ static bool WebSocket_send(se::State& s)
         else if (args[0].isObject())
         {
             se::Object* dataObj = args[0].toObject();
-            uint8* ptr = nullptr;
+            uint8_t* ptr = nullptr;
             size_t length = 0;
             if (dataObj->isArrayBuffer())
             {

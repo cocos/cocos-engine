@@ -778,13 +778,17 @@ static bool js_gfx_getImageInfo(se::State& s)
             ok &= Data_to_seval(data, &dataVal);
             SE_PRECONDITION2(ok, false, "js_gfx_getImageInfo : Error processing arguments");
             retObj->setProperty("data", dataVal);
+            retObj->setProperty("width", se::Value(img->getWidth()));
+            retObj->setProperty("height", se::Value(img->getHeight()));
+            retObj->setProperty("premultiplyAlpha", se::Value(img->hasPremultipliedAlpha()));
+            retObj->setProperty("bpp", se::Value(img->getBitPerPixel()));
+            retObj->setProperty("hasAlpha", se::Value(img->hasAlpha()));
+            retObj->setProperty("compressed", se::Value(img->isCompressed()));
         }
-        retObj->setProperty("width", se::Value(img->getWidth()));
-        retObj->setProperty("height", se::Value(img->getHeight()));
-        retObj->setProperty("premultiplyAlpha", se::Value(img->hasPremultipliedAlpha()));
-        retObj->setProperty("bpp", se::Value(img->getBitPerPixel()));
-        retObj->setProperty("hasAlpha", se::Value(img->hasAlpha()));
-        retObj->setProperty("compressed", se::Value(img->isCompressed()));
+        else
+        {
+            assert(false);
+        }
 
         img->release();
 

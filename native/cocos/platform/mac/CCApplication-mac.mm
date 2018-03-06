@@ -31,7 +31,7 @@ THE SOFTWARE.
 #import "platform/desktop/CCGLView-desktop.h"
 #import "scripting/js-bindings/event/EventDispatcher.h"
 #import "renderer/gfx/DeviceGraphics.h"
-#import "scripting/js-bindings/jswrapper/jsc/ScriptEngine.hpp"
+#import "scripting/js-bindings/jswrapper/SeApi.h"
 
 NS_CC_BEGIN
 

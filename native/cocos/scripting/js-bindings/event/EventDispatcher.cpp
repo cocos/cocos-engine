@@ -50,7 +50,7 @@ void EventDispatcher::dispatchTickEvent()
     float dt = 0.f;
     if (firstTime)
     {
-        jsb_run_script("webgl-tests/jsb.js", &tickVal);
+        jsb_run_script("jsb/index.js", &tickVal);
         firstTime = false;
     }
 

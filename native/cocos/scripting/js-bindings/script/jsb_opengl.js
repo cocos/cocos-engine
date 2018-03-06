@@ -31,8 +31,8 @@ require('./jsb_opengl_constants');
 window.gl = window.gl || {};
 
 gl.canvas = {
-    clientWidth: canvas.width,
-    clientHeight: canvas.height
+    clientWidth: window.innerWidth,
+    clientHeight: window.innerHeight
 };
 
 //

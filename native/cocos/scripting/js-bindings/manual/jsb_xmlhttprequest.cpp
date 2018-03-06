@@ -36,8 +36,8 @@
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "cocos/network/HttpClient.h"
 #include "cocos/base/CCData.h"
-#include "cocos/base/CCEventDispatcher.h"
-#include "cocos/base/CCEventListenerCustom.h"
+//#include "cocos/base/CCEventDispatcher.h"
+//#include "cocos/base/CCEventListenerCustom.h"
 
 #include <unordered_map>
 #include <string>
@@ -129,7 +129,7 @@ private:
     cocos2d::Data _responseData;
 
     cocos2d::network::HttpRequest*  _httpRequest;
-    cocos2d::EventListenerCustom* _resetDirectorListener;
+//    cocos2d::EventListenerCustom* _resetDirectorListener;
 
     unsigned long _timeoutInMilliseconds;
     uint16_t _status;
@@ -165,20 +165,20 @@ XMLHttpRequest::XMLHttpRequest()
 , _isLoadEnd(false)
 , _isDiscardedByReset(false)
 {
-    _resetDirectorListener = cocos2d::Director::getInstance()->getEventDispatcher()->addCustomEventListener(cocos2d::Director::EVENT_RESET, [this](cocos2d::EventCustom*){
-        _isDiscardedByReset = true;
-        if (!_isLoadEnd)
-        {
-            SE_LOGD("XMLHttpRequest (%p) receives DIRECTOR::EVENT_RESET, retain self.\n", this);
-            retain();
-        }
-    });
+//    _resetDirectorListener = cocos2d::Director::getInstance()->getEventDispatcher()->addCustomEventListener(cocos2d::Director::EVENT_RESET, [this](cocos2d::EventCustom*){
+//        _isDiscardedByReset = true;
+//        if (!_isLoadEnd)
+//        {
+//            SE_LOGD("XMLHttpRequest (%p) receives DIRECTOR::EVENT_RESET, retain self.\n", this);
+//            retain();
+//        }
+//    });
 }
 
 XMLHttpRequest::~XMLHttpRequest()
 {
-    Director::getInstance()->getEventDispatcher()->removeEventListener(_resetDirectorListener);
-    Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
+//    Director::getInstance()->getEventDispatcher()->removeEventListener(_resetDirectorListener);
+//    Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
 
     CC_SAFE_RELEASE(_httpRequest);
 }
@@ -352,7 +352,7 @@ void XMLHttpRequest::getHeader(const std::string& header)
 
 void XMLHttpRequest::onResponse(HttpClient* client, HttpResponse* response)
 {
-    Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
+//    Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
 
     if (_isAborted || _readyState == ReadyState::UNSENT)
     {
@@ -439,17 +439,17 @@ void XMLHttpRequest::sendRequest()
 {
     if (_timeoutInMilliseconds > 0)
     {
-        Director::getInstance()->getScheduler()->schedule([this](float dt){
-            if (ontimeout != nullptr)
-                ontimeout();
-
-            _readyState = ReadyState::UNSENT;
-
-            _isLoadEnd = true;
-            if (onloadend != nullptr)
-                onloadend();
-
-        }, this, _timeoutInMilliseconds / 1000.0f, 0, 0.0f, false, "XMLHttpRequest");
+//cjh        Director::getInstance()->getScheduler()->schedule([this](float dt){
+//            if (ontimeout != nullptr)
+//                ontimeout();
+//
+//            _readyState = ReadyState::UNSENT;
+//
+//            _isLoadEnd = true;
+//            if (onloadend != nullptr)
+//                onloadend();
+//
+//        }, this, _timeoutInMilliseconds / 1000.0f, 0, 0.0f, false, "XMLHttpRequest");
     }
     setHttpRequestHeader();
 
