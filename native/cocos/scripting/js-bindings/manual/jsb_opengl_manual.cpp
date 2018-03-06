@@ -581,7 +581,7 @@ static bool JSB_glGetParameter(se::State& s)
         return false;
     }
 
-    int pname = args[0].toInt8();
+    int pname = args[0].toInt32();
 
     int intbuffer[4];
     float floatvalue;
@@ -600,7 +600,7 @@ static bool JSB_glGetParameter(se::State& s)
         case GL_DEPTH_RANGE:
         {
             GLfloat params[2];
-            glGetFloatv(pname, params);
+            JSB_GL_CHECK(glGetFloatv(pname, params));
             ret.setObject(se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, params, sizeof(params)), true);
         }
         break;
@@ -610,7 +610,7 @@ static bool JSB_glGetParameter(se::State& s)
         case GL_COLOR_CLEAR_VALUE:
         {
             GLfloat params[4];
-            glGetFloatv(pname, params);
+            JSB_GL_CHECK(glGetFloatv(pname, params));
             ret.setObject(se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, params, sizeof(params)), true);
         }
         break;
@@ -619,7 +619,7 @@ static bool JSB_glGetParameter(se::State& s)
         case GL_MAX_VIEWPORT_DIMS:
         {
             GLfloat params[2];
-            glGetFloatv(pname, params);
+            JSB_GL_CHECK(glGetFloatv(pname, params));
             int intParams[2] = {(int)params[0], (int)params[1]};
             ret.setObject(se::Object::createTypedArray(se::Object::TypedArrayType::INT32, intParams, sizeof(intParams)), true);
         }
@@ -630,7 +630,7 @@ static bool JSB_glGetParameter(se::State& s)
         case GL_VIEWPORT:
         {
             GLfloat params[4];
-            glGetFloatv(pname, params);
+            JSB_GL_CHECK(glGetFloatv(pname, params));
             int intParams[4] = {(int)params[0], (int)params[1], (int)params[2], (int)params[3]};
             ret.setObject(se::Object::createTypedArray(se::Object::TypedArrayType::INT32, intParams, sizeof(intParams)), true);
         }
@@ -639,7 +639,7 @@ static bool JSB_glGetParameter(se::State& s)
         // boolean[] (with 4 values)
         case GL_COLOR_WRITEMASK:
         {
-            glGetIntegerv(pname, intbuffer);
+            JSB_GL_CHECK(glGetIntegerv(pname, intbuffer));
             se::HandleObject arr(se::Object::createArrayObject(4));
             for(int i = 0; i < 4; i++ ) {
                 arr->setArrayElement(i, se::Value(intbuffer[i]));
@@ -651,7 +651,7 @@ static bool JSB_glGetParameter(se::State& s)
         // WebGLBuffer
         case GL_ARRAY_BUFFER_BINDING:
         case GL_ELEMENT_ARRAY_BUFFER_BINDING:
-//        glGetIntegerv(pname, intbuffer);
+//        JSB_GL_CHECK(glGetIntegerv(pname, intbuffer));
 //        ret = [buffers[@(intbuffer[0])] pointerValue];
         break;
 
@@ -712,13 +712,14 @@ static bool JSB_glGetParameter(se::State& s)
         case GL_POLYGON_OFFSET_FACTOR:
         case GL_POLYGON_OFFSET_UNITS:
         case GL_SAMPLE_COVERAGE_VALUE:
-        glGetFloatv(pname, &floatvalue);
+        JSB_GL_CHECK(glGetFloatv(pname, &floatvalue));
         ret.setFloat(floatvalue);
         break;
 
         // single int/long/bool - everything else
         default:
-        glGetIntegerv(pname, intbuffer);
+        printf("pname:0x%x\n", pname);
+        JSB_GL_CHECK(glGetIntegerv(pname, intbuffer));
         ret.setInt32(intbuffer[0]);
         break;
     }
