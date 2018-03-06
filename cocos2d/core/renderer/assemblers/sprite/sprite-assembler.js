@@ -37,6 +37,8 @@ const tiledRenderUtil = require('./tiled');
 const radialFilledRenderUtil = require('./radial-filled');
 const barFilledRenderUtil = require('./bar-filled');
 
+const cullingNode = require('../culling').cullingNode;
+
 let filledRenderUtil = {
     createData (sprite) {
         if (sprite._fillType === FillType.RADIAL) {
@@ -91,10 +93,17 @@ let spriteAssembler = js.addon({
             }
         }
 
+        let node = sprite.node;
         let renderData = sprite._renderData;
-        let size = sprite.node._contentSize;
-        let anchor = sprite.node._anchorPoint;
+        let size = node._contentSize;
+        let anchor = node._anchorPoint;
         renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
+
+        this.datas.length = 0;
+        
+        if (cc.macro.ENABLE_CULLING && cullingNode(node)) {
+            return this.datas;
+        }
         
         if (sprite.spriteFrame) {
             switch (sprite.type) {
@@ -113,7 +122,6 @@ let spriteAssembler = js.addon({
             }    
         }
         renderData.effect = sprite.getEffect();
-        this.datas.length = 0;
         this.datas.push(renderData);
         return this.datas;
     },

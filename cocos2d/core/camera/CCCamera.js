@@ -75,6 +75,9 @@ let Camera = cc.Class({
         this.cullingMask = 1 << _static_culling_mask++;
         camera._cullingMask = view._cullingMask = this.cullingMask;
 
+        this.viewMatrix = mat4.create();
+        this.viewPort = cc.rect();
+
         this._camera = camera;
     },
 
@@ -147,7 +150,7 @@ let Camera = cc.Class({
 
     onDisable () {
         if (CC_EDITOR) return;
-        
+
         if (Camera.main === this) {
             Camera.main = null;
         }
@@ -229,7 +232,7 @@ let Camera = cc.Class({
 
     /**
      * !#en
-     * Conver a camera coordinates point to world coordinates.
+     * Convert a camera coordinates point to world coordinates.
      * !#zh
      * 将一个摄像机坐标系下的点转换到世界坐标系下。
      * @method getCameraToWorldPoint
@@ -246,7 +249,7 @@ let Camera = cc.Class({
 
     /**
      * !#en
-     * Conver a world coordinates point to camera coordinates.
+     * Convert a world coordinates point to camera coordinates.
      * !#zh
      * 将一个世界坐标系下的点转换到摄像机坐标系下。
      * @param {Vec2} point 
@@ -284,24 +287,7 @@ let Camera = cc.Class({
      * @return {Mat4}
      */
     getWorldToCameraMatrix (out) {
-        this.node.getWorldRT(_mat4_temp_1);
-
-        let zoomRatio = this.zoomRatio;
-        _mat4_temp_1.m00 *= zoomRatio;
-        _mat4_temp_1.m01 *= zoomRatio;
-        _mat4_temp_1.m04 *= zoomRatio;
-        _mat4_temp_1.m05 *= zoomRatio;
-
-        let m12 = _mat4_temp_1.m12;
-        let m13 = _mat4_temp_1.m13;
-
-        let center = cc.visibleRect.center;
-        _mat4_temp_1.m12 = center.x - (_mat4_temp_1.m00 * m12 + _mat4_temp_1.m04 * m13);
-        _mat4_temp_1.m13 = center.y - (_mat4_temp_1.m01 * m12 + _mat4_temp_1.m05 * m13);
-
-        if (out !== _mat4_temp_1) {
-            mat4.copy(out, _mat4_temp_1);
-        }
+        mat4.copy(out, this.viewMatrix);
         return out;
     },
 
@@ -332,6 +318,32 @@ let Camera = cc.Class({
         _vec3_temp_1.y = _mat4_temp_1.m13;
         _vec3_temp_1.z = 0;
         node.lookAt(_vec3_temp_1);
+
+        // calculate view matrix
+        let viewMatrix = this.viewMatrix;
+        this.node.getWorldRT(viewMatrix);
+
+        viewMatrix.m00 *= zoomRatio;
+        viewMatrix.m01 *= zoomRatio;
+        viewMatrix.m04 *= zoomRatio;
+        viewMatrix.m05 *= zoomRatio;
+
+        let m12 = viewMatrix.m12;
+        let m13 = viewMatrix.m13;
+
+        let visibleRect = cc.visibleRect;
+        let center = cc.visibleRect.center;
+        viewMatrix.m12 = center.x - (viewMatrix.m00 * m12 + viewMatrix.m04 * m13);
+        viewMatrix.m13 = center.y - (viewMatrix.m01 * m12 + viewMatrix.m05 * m13);
+
+        mat4.invert(_mat4_temp_1, viewMatrix);
+
+        let viewPort = this.viewPort;
+        viewPort.x = visibleRect.bottomLeft.x;
+        viewPort.y = visibleRect.bottomLeft.y;
+        viewPort.width = visibleRect.width;
+        viewPort.height = visibleRect.height;
+        cc.Rect.transformMat4(viewPort, viewPort, _mat4_temp_1);
 
         this._camera.dirty = true;
     }
