@@ -30,6 +30,7 @@ const StencilManager = require('./stencil-manager');
 const gfx = renderEngine.gfx;
 const RecyclePool = renderEngine.RecyclePool;
 const InputAssembler = renderEngine.InputAssembler;
+const IARenderData = renderEngine.IARenderData;
 const bits = renderEngine.math.bits;
 
 const FLOATS_PER_VERT = defaultVertexFormat._bytes / 4;
@@ -173,7 +174,7 @@ RenderComponentWalker.prototype = {
             vDataSize = Math.min(bits.nextPow2(vertexByte), MAX_VERTEX_BYTES),
             vertexsData = null,
             indicesData = null;
-            
+
         // Prepare data view for vb ib
         if (vertexCount > 0 && indiceCount > 0) {
             vertexsData = new Float32Array(this._vData.buffer, 0, vDataSize / 4);
@@ -221,15 +222,40 @@ RenderComponentWalker.prototype = {
         this._renderScene.addModel(model);
     },
 
+    _flushIA (batchData) {
+        let effect = batchData.effect,
+            cullingMask = batchData.cullingMask,
+            iaRenderData = batchData.data;
+
+        if (!iaRenderData.ia) {
+            return;
+        }
+
+        // Check stencil state and modify pass
+        effect = this._stencilMgr.handleEffect(effect);
+        
+        // Generate model
+        let model = this._modelPool.add();
+        this._batchedModels.push(model);
+        model.sortKey = this._sortKey++;
+        model._cullingMask = CC_EDITOR ? 1 : cullingMask;
+        model.setNode(this._node);
+        model.addEffect(effect);
+        model.addInputAssembler(iaRenderData.ia);
+        
+        this._renderScene.addModel(model);
+    },
+
     batchQueue () {
         let vertexId = 0,
-            needNewBuf = false,
             comp = this._queue[0],
             effect = null, 
             assembler = null, 
             datas = null,
             data = null
-            cullingMask = 1;
+            cullingMask = 1,
+            needNewBuf = false,
+            iaData = false;
 
         for (let i = 0, len = this._queue.length; i < len; i++) {
             comp = this._queue[i];
@@ -268,9 +294,13 @@ RenderComponentWalker.prototype = {
                 if (!effect) {
                     continue;
                 }
+
+                // Check ia data, each ia data should be packed into a separated model
+                iaData = data.type === IARenderData.type;
+
                 // breaking batch
                 needNewBuf = (_batchData.vertexOffset + data.vertexCount > MAX_VERTEX) || (_batchData.indiceOffset + data.indiceCount > MAX_INDICE);
-                if (_batchData.vfmt && (_batchData.effect != effect || _batchData.cullingMask !== cullingMask || needNewBuf)) {
+                if (_batchData.vfmt && (_batchData.effect != effect || _batchData.cullingMask !== cullingMask || iaData || needNewBuf)) {
                     this._flush(_batchData);
                     _batchData.effect = effect;
                     _batchData.vfmt = comp._vertexFormat;
@@ -286,10 +316,15 @@ RenderComponentWalker.prototype = {
                     _batchData.cullingMask = cullingMask;
                 }
 
-                assembler.fillBuffers(_batchData, _batchData.vertexOffset, this._vData, this._uintVData, this._iData);
-                _batchData.vertexOffset += data.vertexCount;
-                _batchData.byteOffset += data.vertexCount * comp._vertexFormat._bytes;
-                _batchData.indiceOffset += data.indiceCount;
+                if (iaData) {
+                    this._flushIA(_batchData);
+                }
+                else {
+                    assembler.fillBuffers(_batchData, _batchData.vertexOffset, this._vData, this._uintVData, this._iData);
+                    _batchData.vertexOffset += data.vertexCount;
+                    _batchData.byteOffset += data.vertexCount * comp._vertexFormat._bytes;
+                    _batchData.indiceOffset += data.indiceCount;
+                }
             }
         }
 
