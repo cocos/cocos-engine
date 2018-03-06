@@ -396,6 +396,7 @@ namespace se {
 
         _globalObj = Object::_createJSObject(nullptr, _context.Get(_isolate)->Global());
         _globalObj->root();
+        _globalObj->setProperty("window", Value(_globalObj));
 
         se::Value consoleVal;
         if (_globalObj->getProperty("console", &consoleVal) && consoleVal.isObject())

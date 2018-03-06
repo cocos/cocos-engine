@@ -220,6 +220,7 @@ namespace se {
 
         _globalObj = Object::_createJSObject(nullptr, globalObj);
         _globalObj->root();
+        _globalObj->setProperty("window", Value(_globalObj));
 
         // ChakraCore isn't shipped with a console variable. Make a fake one.
         Value consoleVal;
@@ -493,6 +494,11 @@ namespace se {
     void ScriptEngine::setFileOperationDelegate(const FileOperationDelegate& delegate)
     {
         _fileOperationDelegate = delegate;
+    }
+
+    const ScriptEngine::FileOperationDelegate& ScriptEngine::getFileOperationDelegate() const
+    {
+        return _fileOperationDelegate;
     }
 
     bool ScriptEngine::runScript(const std::string& path, Value* ret/* = nullptr */)
