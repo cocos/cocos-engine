@@ -135,7 +135,7 @@ module.exports = {
             this._camera.tx = vp.x;
             this._camera.ty = vp.y + vp.height;
         }
-        else {
+        else if (this.canvas) {
             let node = this._cameraNode;
             let canvas = this.canvas;
             let scaleX = cc.view.getScaleX();
