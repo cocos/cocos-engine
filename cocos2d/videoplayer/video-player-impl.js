@@ -19,8 +19,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Utils = require('../platform/utils');
-const sys = require('../platform/CCSys');
+var Utils = require('../core/platform/utils');
+var sys = require('../core/platform/CCSys');
 
 let VideoPlayerImpl = cc.Class({
     name: 'VideoPlayerImpl',

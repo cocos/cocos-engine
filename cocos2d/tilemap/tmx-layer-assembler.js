@@ -23,12 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const TiledLayer = require('../../../tilemap/CCTiledLayer');
-const TiledMap = require('../../../tilemap/CCTiledMap');
+const TiledLayer = require('./CCTiledLayer');
+const TiledMap = require('./CCTiledMap');
 
-const js = require('../../platform/js');
-const assembler = require('./assembler');
-const renderEngine = require('../render-engine');
+const js = require('../core/platform/js');
+const assembler = require('../core/renderer/assemblers/assembler');
+const renderEngine = require('../core/renderer/render-engine');
 
 const Orientation = TiledMap.Orientation;
 const TileFlag = TiledMap.TileFlag;

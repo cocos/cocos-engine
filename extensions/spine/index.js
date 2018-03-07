@@ -105,7 +105,7 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
     require('./skeleton-texture');
     require('./skeleton-data');
     require('./skeleton');
-    require('../../cocos2d/core/renderer/assemblers/spine-assembler');
+    require('./spine-assembler');
 }
 else {
     require('./skeleton-data');

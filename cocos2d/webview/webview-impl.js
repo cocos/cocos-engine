@@ -18,9 +18,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-var Utils = require('../platform/utils');
-var eventManager = require('../event-manager');
-var sys = require('../platform/CCSys');
+
+var Utils = require('../core/platform/');
+var eventManager = require('../core/event-manager');
+var sys = require('../core/platform/CCSys');
 
 var WebViewImpl = cc.Class({
     name: "WebViewImpl",

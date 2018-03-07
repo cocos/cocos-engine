@@ -23,12 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../platform/js');
-const assembler = require('./assembler');
-const Skeleton = require('../../../../extensions/spine/skeleton');
-const spine = require('../../../../extensions/spine/lib/spine');
-const renderer = require('../');
-const renderEngine = require('../render-engine');
+const js = require('../../cocos2d/core/platform/js');
+const assembler = require('../../cocos2d/core/renderer/assemblers/assembler');
+const Skeleton = require('./skeleton');
+const spine = require('./lib/spine');
+const renderer = require('../../cocos2d/core/renderer');
+const renderEngine = renderer.renderEngine;
 const gfx = renderEngine.gfx;
 const SpriteMaterial = renderEngine.SpriteMaterial;
 

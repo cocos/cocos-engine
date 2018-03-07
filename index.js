@@ -146,9 +146,6 @@ defineMacro('CC_SUPPORT_JIT', !CC_WECHATGAME);
  */
 _global.cc = {};
 
-// The namespace for original nodes rendering in scene graph.
-_global._ccsg = {};
-
 if (CC_DEV) {
     /**
      * contains internal apis for unit tests
@@ -169,9 +166,6 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
 }
 
 require('./cocos2d/core/predefine');
-
-_global.ccs = {};
-_global.cp = {};
 
 // LOAD COCOS2D ENGINE CODE
 

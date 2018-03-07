@@ -15,7 +15,8 @@
     "name": "Sprite",
     "locked": true,
     "entries": [
-      "./cocos2d/core/components/CCSprite.js"
+      "./cocos2d/core/components/CCSprite.js",
+      "./cocos2d/core/renderer/assemblers/sprite/sprite-assembler.js"
     ]
   },
   {
@@ -27,13 +28,15 @@
   {
     "name": "Label",
     "entries": [
-      "./cocos2d/core/components/CCLabel.js"
+      "./cocos2d/core/components/CCLabel.js",
+      "./cocos2d/core/renderer/assemblers/label/label-assembler.js"
     ]
   },
   {
     "name": "Mask",
     "entries": [
-      "./cocos2d/core/components/CCMask.js"
+      "./cocos2d/core/components/CCMask.js",
+      "./cocos2d/core/renderer/assemblers/mask-assembler.js"
     ]
   },
   {
@@ -45,14 +48,14 @@
   {
     "name": "ParticleSystem",
     "entries": [
-      "./cocos2d/particle/CCParticleSystem.js",
+      "./cocos2d/particle/index.js",
       "./cocos2d/particle/CCParticleAsset.js"
     ]
   },
   {
     "name": "TiledMap",
     "entries": [
-      "./cocos2d/tilemap/CCTiledMap.js",
+      "./cocos2d/tilemap/index.js",
       "./cocos2d/tilemap/CCTiledMapAsset.js"
     ]
   },
@@ -126,7 +129,7 @@
     ]
   },
   {
-    "name": "EditorBox",
+    "name": "EditBox",
     "entries": [
       "./cocos2d/core/components/CCEditBox.js",
       "./jsb/jsb-editbox.js"
@@ -135,14 +138,14 @@
   {
     "name": "VideoPlayer",
     "entries": [
-      "./cocos2d/core/components/CCVideoPlayer.js",
+      "./cocos2d/videoplayer/CCVideoPlayer.js",
       "./jsb/jsb-videoplayer.js"
     ]
   },
   {
     "name": "WebView",
     "entries": [
-      "./cocos2d/core/components/CCWebView.js",
+      "./cocos2d/webview/CCWebView.js",
       "./jsb/jsb-webview.js"
     ]
   },
@@ -169,7 +172,7 @@
   {
     "name": "MotionStreak",
     "entries": [
-      "./cocos2d/motion-streak/CCMotionStreak.js"
+      "./cocos2d/motion-streak/index.js"
     ]
   },
   {
@@ -215,20 +218,6 @@
     "name": "StudioComponent",
     "entries": [
       "./cocos2d/core/components/CCStudioComponent.js"
-    ]
-  },
-  {
-    "name": "RenderTexture",
-    "entries": [
-      "./cocos2d/render-texture/CCRenderTexture.js",
-      "./cocos2d/render-texture/CCRenderTextureCanvasRenderCmd.js",
-      "./cocos2d/render-texture/CCRenderTextureWebGLRenderCmd.js"
-    ]
-  },
-  {
-    "name": "Chipmunk",
-    "entries": [
-      "./external/chipmunk/chipmunk.js"
     ]
   },
   {
