@@ -48,7 +48,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
     // create the application instance
     AppDelegate app;
-    int ret = Application::getInstance()->run();
+    app.run();
 
 #ifdef USE_WIN32_CONSOLE
     FreeConsole();
