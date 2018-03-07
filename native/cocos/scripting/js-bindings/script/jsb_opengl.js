@@ -251,6 +251,11 @@ gl.getShaderInfoLog = function(shader) {
     return gl._getShaderInfoLog(shader.shader_id);
 };
 
+// DOMString gl.getShaderSource(shader);
+gl.getShaderSource = function(shader) {
+    return gl._getShaderSource(shader.shader_id);
+};
+
 //
 // program related
 //
@@ -274,6 +279,14 @@ gl.linkProgram = function(program) {
     gl._linkProgram(program_id);
 };
 
+gl.bindAttribLocation = function(program, index, name) {
+    var program_id = program.program_id;
+    // Accept numbers too. eg: gl.linkProgram(17)
+    if( typeof program === 'number' )
+        program_id = program;
+
+    gl._bindAttribLocation(program_id, index, name);
+};
 
 // any getProgramParameter(WebGLProgram? program, GLenum pname);
 gl.getProgramParameter = function(program, e) {
@@ -283,6 +296,15 @@ gl.getProgramParameter = function(program, e) {
         program_id = program;
 
     return gl._getProgramParameter(program_id, e);
+};
+
+gl.getProgramInfoLog = function(program) {
+    var program_id = program.program_id;
+    // Accept numbers too. eg: gl.getProgramParameter(17)
+    if( typeof program === 'number' )
+        program_id = program;
+
+    return gl._getProgramInfoLog(program_id);
 };
 
 // void useProgram(WebGLProgram? program);
