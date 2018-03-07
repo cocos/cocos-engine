@@ -22,14 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
-#ifndef __CCMAP_H__
-#define __CCMAP_H__
+#pragma once
 
 #define USE_STD_UNORDERED_MAP 1
 
-#include "base/ccMacros.h"
-#include "base/CCRef.h"
 #include <vector>
 
 #if USE_STD_UNORDERED_MAP
@@ -38,6 +34,9 @@
 #include <map>
 #endif
 
+#include "base/ccMacros.h"
+#include "base/ccRandom.h"
+#include "base/CCRef.h"
 
 /**
  * @addtogroup base
@@ -421,5 +420,3 @@ protected:
 NS_CC_END
 // end group
 /// @}
-
-#endif /* __CCMAP_H__ */

@@ -66,8 +66,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 #import "scripting/js-bindings/event/EventDispatcher.h"
 #import "platform/ios/OpenGL_Internal-ios.h"
-//#import "base/CCTouch.h"
-#import "base/CCIMEDispatcher.h"
+#import "base/ccMacros.h"
 
 namespace
 {
@@ -647,7 +646,7 @@ namespace
         _markedText = nil;
     }
     const char * pszText = [text cStringUsingEncoding:NSUTF8StringEncoding];
-    cocos2d::IMEDispatcher::sharedDispatcher()->dispatchInsertText(pszText, strlen(pszText));
+//    cocos2d::IMEDispatcher::sharedDispatcher()->dispatchInsertText(pszText, strlen(pszText));
 }
 
 - (void)deleteBackward
@@ -657,7 +656,7 @@ namespace
         [_markedText release];
         _markedText = nil;
     }
-    cocos2d::IMEDispatcher::sharedDispatcher()->dispatchDeleteBackward();
+//    cocos2d::IMEDispatcher::sharedDispatcher()->dispatchDeleteBackward();
 }
 
 #pragma mark - UITextInputTrait protocol
@@ -754,7 +753,7 @@ namespace
         return;
     }
     const char * pszText = [_markedText cStringUsingEncoding:NSUTF8StringEncoding];
-    cocos2d::IMEDispatcher::sharedDispatcher()->dispatchInsertText(pszText, strlen(pszText));
+//    cocos2d::IMEDispatcher::sharedDispatcher()->dispatchInsertText(pszText, strlen(pszText));
     [_markedText release];
     _markedText = nil;
 }
@@ -933,44 +932,44 @@ namespace
 //    end = CGRectApplyAffineTransform(end, CGAffineTransformScale(CGAffineTransformIdentity, 1.0f/scaleX, 1.0f/scaleY));
 
 
-    cocos2d::IMEKeyboardNotificationInfo notiInfo;
-    notiInfo.begin = cocos2d::Rect(begin.origin.x,
-                                     begin.origin.y,
-                                     begin.size.width,
-                                     begin.size.height);
-    notiInfo.end = cocos2d::Rect(end.origin.x,
-                                   end.origin.y,
-                                   end.size.width,
-                                   end.size.height);
-    notiInfo.duration = (float)aniDuration;
-
-    cocos2d::IMEDispatcher* dispatcher = cocos2d::IMEDispatcher::sharedDispatcher();
-    if (UIKeyboardWillShowNotification == type)
-    {
-        self.keyboardShowNotification = notif; // implicit copy
-        dispatcher->dispatchKeyboardWillShow(notiInfo);
-    }
-    else if (UIKeyboardDidShowNotification == type)
-    {
-        //CGSize screenSize = self.window.screen.bounds.size;
-        dispatcher->dispatchKeyboardDidShow(notiInfo);
-        _caretRect = end;
-
-        int fontSize = [UIFont smallSystemFontSize];
-        _caretRect.origin.y = viewSize.height - (_caretRect.origin.y + _caretRect.size.height + fontSize);
-        _caretRect.size.height = 0;
-        _isKeyboardShown = YES;
-    }
-    else if (UIKeyboardWillHideNotification == type)
-    {
-        dispatcher->dispatchKeyboardWillHide(notiInfo);
-    }
-    else if (UIKeyboardDidHideNotification == type)
-    {
-        _caretRect = CGRectZero;
-        dispatcher->dispatchKeyboardDidHide(notiInfo);
-        _isKeyboardShown = NO;
-    }
+//    cocos2d::IMEKeyboardNotificationInfo notiInfo;
+//    notiInfo.begin = cocos2d::Rect(begin.origin.x,
+//                                     begin.origin.y,
+//                                     begin.size.width,
+//                                     begin.size.height);
+//    notiInfo.end = cocos2d::Rect(end.origin.x,
+//                                   end.origin.y,
+//                                   end.size.width,
+//                                   end.size.height);
+//    notiInfo.duration = (float)aniDuration;
+//
+//    cocos2d::IMEDispatcher* dispatcher = cocos2d::IMEDispatcher::sharedDispatcher();
+//    if (UIKeyboardWillShowNotification == type)
+//    {
+//        self.keyboardShowNotification = notif; // implicit copy
+//        dispatcher->dispatchKeyboardWillShow(notiInfo);
+//    }
+//    else if (UIKeyboardDidShowNotification == type)
+//    {
+//        //CGSize screenSize = self.window.screen.bounds.size;
+//        dispatcher->dispatchKeyboardDidShow(notiInfo);
+//        _caretRect = end;
+//
+//        int fontSize = [UIFont smallSystemFontSize];
+//        _caretRect.origin.y = viewSize.height - (_caretRect.origin.y + _caretRect.size.height + fontSize);
+//        _caretRect.size.height = 0;
+//        _isKeyboardShown = YES;
+//    }
+//    else if (UIKeyboardWillHideNotification == type)
+//    {
+//        dispatcher->dispatchKeyboardWillHide(notiInfo);
+//    }
+//    else if (UIKeyboardDidHideNotification == type)
+//    {
+//        _caretRect = CGRectZero;
+//        dispatcher->dispatchKeyboardDidHide(notiInfo);
+//        _isKeyboardShown = NO;
+//    }
 }
 
 UIInterfaceOrientation getFixedOrientation(UIInterfaceOrientation statusBarOrientation)

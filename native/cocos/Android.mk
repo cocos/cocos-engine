@@ -49,6 +49,7 @@ base/ccUTF8.cpp \
 base/ccUtils.cpp \
 base/etc1.cpp \
 base/pvr.cpp \
+base/CCLog.cpp \
 renderer/Types.cpp \
 renderer/gfx/DeviceGraphics.cpp \
 renderer/gfx/FrameBuffer.cpp \
