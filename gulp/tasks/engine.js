@@ -43,20 +43,11 @@ var jsbSkipModules = [
     // '../../cocos2d/core/textures/CCTexture2D',
     // '../../cocos2d/core/sprites/CCSpriteFrame',
     '../../cocos2d/core/load-pipeline/audio-downloader',
-    '../../cocos2d/core/physics/platform/CCPhysicsDebugDraw.js',
-    '../../cocos2d/core/physics/platform/CCPhysicsUtils.js',
-    '../../cocos2d/core/physics/platform/CCPhysicsContactListner.js',
-    '../../cocos2d/core/physics/platform/CCPhysicsAABBQueryCallback.js',
-    '../../cocos2d/core/physics/platform/CCPhysicsRayCastCallback.js',
     '../../cocos2d/core/platform/CCInputManager.js',
     '../../cocos2d/core/platform/CCVisibleRect.js',
     '../../cocos2d/core/graphics/helper.js',
-    '../../cocos2d/actions/index.js',
     '../../cocos2d/audio/CCAudio',
-    '../../extensions/spine/lib/spine',
-    '../../extensions/dragonbones/lib/dragonBones',
     '../../external/box2d/box2d.js',
-    '../../external/chipmunk/chipmunk.js',
 ];
 
 exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlags, callback) {

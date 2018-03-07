@@ -19,7 +19,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-let VideoPlayerImpl = require('../videoplayer/video-player-impl');
+let VideoPlayerImpl = require('./video-player-impl');
 
 /**
  * !#en Video event type

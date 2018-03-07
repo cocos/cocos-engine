@@ -23,10 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../platform/js');
-const assembler = require('./assembler');
-const ParticleSystem = require('../../../particle/CCParticleSystem');
-const renderEngine = require('../render-engine');
+const js = require('../core/platform/js');
+const assembler = require('../core/renderer/assemblers/assembler');
+const ParticleSystem = require('./CCParticleSystem');
+const renderEngine = require('../core/renderer/render-engine');
 
 var particleSystemAssembler = js.addon({
     useModel: true,
