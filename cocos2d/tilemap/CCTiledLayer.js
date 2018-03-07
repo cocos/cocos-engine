@@ -26,7 +26,6 @@ const RenderComponent = require('../core/components/CCRenderComponent');
 const renderer = require('../core/renderer');
 const renderEngine = require('../core/renderer/render-engine');
 const SpriteMaterial = renderEngine.SpriteMaterial;
-const RenderData = renderEngine.RenderData;
 
 /**
  * !#en Render the TMX layer.

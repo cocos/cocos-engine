@@ -29,7 +29,6 @@ const Sprite = require('../../../components/CCSprite');
 const renderEngine = require('../../render-engine');
 const SpriteType = Sprite.Type;
 const FillType = Sprite.FillType;
-const RenderData = renderEngine.RenderData;
 
 const simpleRenderUtil = require('./simple');
 const slicedRenderUtil = require('./sliced');

@@ -27,7 +27,6 @@ const StencilManager = require('../stencil-manager');
 const Node = require('../../CCNode');
 const Mask = require('../../components/CCMask');
 const renderEngine = require('../render-engine');
-const RenderData = renderEngine.RenderData;
 
 const js = require('../../platform/js');
 const assembler = require('./assembler');
@@ -81,7 +80,7 @@ let maskFrontAssembler = js.addon({
             }
             else {
                 // for updateGraphics calculation
-                mask._renderData = RenderData.alloc();
+                mask._renderData = mask.requestRenderData();
             }
         }
         let renderData = mask._renderData;

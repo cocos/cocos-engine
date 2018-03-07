@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 const renderEngine = require('../../render-engine');
-const RenderData = renderEngine.RenderData;
 
 const Label = require('../../../components/CCLabel');
 const Overflow = Label.Overflow;
@@ -137,7 +136,7 @@ let _maxLineWidth = 0;
 
 module.exports = {
     createData (comp) {
-        return RenderData.alloc();
+        return comp.requestRenderData();
     },
 
     update (comp) {

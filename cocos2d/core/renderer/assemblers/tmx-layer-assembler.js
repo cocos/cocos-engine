@@ -29,7 +29,6 @@ const TiledMap = require('../../../tilemap/CCTiledMap');
 const js = require('../../platform/js');
 const assembler = require('./assembler');
 const renderEngine = require('../render-engine');
-const RenderData = renderEngine.RenderData;
 
 const Orientation = TiledMap.Orientation;
 const TileFlag = TiledMap.TileFlag;
@@ -45,14 +44,10 @@ let _mat4_temp = mat4.create();
 let _vec3_temp = vec3.create();
 
 let tmxAssembler = js.addon({
-    createData (comp) {
-        return RenderData.alloc();
-    },
-
     updateRenderData (comp) {
         let renderData = comp._renderData;
         if (!renderData) {
-            renderData = comp._renderData = this.createData(comp);
+            renderData = comp._renderData = comp.requestRenderData();
         }
 
         let size = comp.node._contentSize;

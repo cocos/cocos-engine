@@ -27,7 +27,6 @@ const js = require('../../platform/js');
 const assembler = require('./assembler');
 const ParticleSystem = require('../../../particle/CCParticleSystem');
 const renderEngine = require('../render-engine');
-const RenderData = renderEngine.RenderData;
 
 var particleSystemAssembler = js.addon({
     useModel: true,
@@ -55,7 +54,7 @@ var particleSystemAssembler = js.addon({
 
     updateRenderData (comp) {
         if (!comp._renderData) {
-            comp._renderData = RenderData.alloc();
+            comp._renderData = comp.requestRenderData();
             comp._renderData.dataLength = 0;
         }
 

@@ -31,7 +31,6 @@ const renderer = require('../');
 const renderEngine = require('../render-engine');
 const gfx = renderEngine.gfx;
 const SpriteMaterial = renderEngine.SpriteMaterial;
-const RenderData = renderEngine.RenderData;
 
 let _sharedMaterials = {};
 
@@ -149,7 +148,7 @@ var spineAssembler = js.addon({
         let attachment, slot;
         let dataId = 0, datas = comp._renderDatas, data = datas[dataId], newData = false;
         if (!data) {
-            data = datas[dataId] = RenderData.alloc();
+            data = datas[dataId] = comp.requestRenderData();
         }
         data.dataLength = 0;
         let indices;
@@ -204,7 +203,7 @@ var spineAssembler = js.addon({
                 // gen new data
                 dataId++;
                 if (!datas[dataId]) {
-                    data = datas[dataId] = RenderData.alloc();
+                    data = datas[dataId] = comp.requestRenderData();
                 }
                 data.dataLength = vertexCount;
                 data.effect = currEffect;

@@ -27,7 +27,6 @@ const TrackEntryListeners = require('./track-entry-listeners');
 const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent');
 const spine = require('./lib/spine');
 const renderEngine = require('../../cocos2d/core/renderer/render-engine');
-const RenderData = renderEngine.RenderData;
 const SpriteMaterial = renderEngine.SpriteMaterial;
 const Node = require('../../cocos2d/core/CCNode');
 const Graphics = require('../../cocos2d/core/graphics/graphics');
@@ -392,12 +391,9 @@ sp.Skeleton = cc.Class({
 
     onDestroy () {
         this._super();
-        // TODO: avoid free twice render data shared between debug renderer and skeleton
-        // this._debugNode.destroy();
+        this._debugNode.destroy();
         this._debugRenderer.clear();
-        for (let i = 0; i < this._renderDatas.length; i++) {
-            RenderData.free(this._renderDatas[i]);
-        }
+        // Render datas will be destroyed automatically by RenderComponent.onDestroy
         this._renderDatas.length = 0;
     },
 
