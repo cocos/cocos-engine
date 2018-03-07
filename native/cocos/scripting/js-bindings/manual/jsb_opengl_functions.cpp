@@ -1303,6 +1303,18 @@ bool JSB_glPixelStorei(se::State& s) {
     ok &= seval_to_int32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
+    if (arg0 == GL_UNPACK_FLIP_Y_WEBGL)
+    {
+        SE_LOGE("cjh FIXME: support GL_UNPACK_FLIP_Y_WEBGL\n");
+        return true;
+    }
+
+    if (arg0 == GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL)
+    {
+        SE_LOGE("cjh FIXME: support GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL\n");
+        return true;
+    }
+
     JSB_GL_CHECK(glPixelStorei((GLenum)arg0 , (GLint)arg1  ));
     s.rval().setUndefined();
     return true;
