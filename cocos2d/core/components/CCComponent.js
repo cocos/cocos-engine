@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 var CCObject = require('../platform/CCObject');
-var JS = require('../platform/js');
+var js = require('../platform/js');
 var idGenerater = new (require('../platform/id-generater'))('Comp');
 
 var IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
@@ -634,8 +634,8 @@ if (CC_EDITOR || CC_TEST) {
     // NON-INHERITED STATIC MEMBERS
     // (TypeScript 2.3 will still inherit them, so always check hasOwnProperty before using)
 
-    JS.value(Component, '_inspector', '', true);
-    JS.value(Component, '_icon', '', true);
+    js.value(Component, '_inspector', '', true);
+    js.value(Component, '_icon', '', true);
 
     // COMPONENT HELPERS
 
@@ -651,7 +651,7 @@ if (CC_EDITOR || CC_TEST) {
 }
 
 // we make this non-enumerable, to prevent inherited by sub classes.
-JS.value(Component, '_registerEditorProps', function (cls, props) {
+js.value(Component, '_registerEditorProps', function (cls, props) {
     var reqComp = props.requireComponent;
     if (reqComp) {
         cls._requireComponent = reqComp;
@@ -682,11 +682,11 @@ JS.value(Component, '_registerEditorProps', function (cls, props) {
                     break;
 
                 case 'inspector':
-                    JS.value(cls, '_inspector', val, true);
+                    js.value(cls, '_inspector', val, true);
                     break;
 
                 case 'icon':
-                    JS.value(cls, '_icon', val, true);
+                    js.value(cls, '_icon', val, true);
                     break;
 
                 case 'menu':

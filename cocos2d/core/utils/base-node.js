@@ -29,7 +29,7 @@ var Misc = require('./misc');
 var IdGenerater = require('../platform/id-generater');
 var eventManager = require('../event-manager');
 
-var JS = cc.js;
+var js = cc.js;
 var Destroying = Flags.Destroying;
 var DontDestroy = Flags.DontDestroy;
 
@@ -45,7 +45,7 @@ function getConstructor(typeOrClassName) {
         return null;
     }
     if (typeof typeOrClassName === 'string') {
-        return JS.getClassByName(typeOrClassName);
+        return js.getClassByName(typeOrClassName);
     }
 
     return typeOrClassName;
@@ -416,7 +416,7 @@ var BaseNode = cc.Class({
      * node.attr(attrs);
      */
     attr (attrs) {
-        JS.mixin(this, attrs);
+        js.mixin(this, attrs);
     },
 
     // composition: GET
@@ -911,10 +911,10 @@ var BaseNode = cc.Class({
         var existing = this.getComponent(ctor._disallowMultiple);
         if (existing) {
             if (existing.constructor === ctor) {
-                cc.errorID(3805, JS.getClassName(ctor), this._name);
+                cc.errorID(3805, js.getClassName(ctor), this._name);
             }
             else {
-                cc.errorID(3806, JS.getClassName(ctor), this._name, JS.getClassName(existing));
+                cc.errorID(3806, js.getClassName(ctor), this._name, js.getClassName(existing));
             }
             return false;
         }
@@ -945,7 +945,7 @@ var BaseNode = cc.Class({
 
         var constructor;
         if (typeof typeOrClassName === 'string') {
-            constructor = JS.getClassByName(typeOrClassName);
+            constructor = js.getClassByName(typeOrClassName);
             if (!constructor) {
                 cc.errorID(3807, typeOrClassName);
                 if (cc._RFpeek()) {
@@ -1372,7 +1372,7 @@ Misc.propertyDefine(BaseNode, SameNameGetSets, {});
 
 if (CC_DEV) {
     // promote debug info
-    JS.get(BaseNode.prototype, ' INFO ', function () {
+    js.get(BaseNode.prototype, ' INFO ', function () {
         var path = '';
         var node = this;
         while (node && !(node instanceof cc.Scene)) {

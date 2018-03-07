@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 var ValueType = require('./CCValueType');
-var JS = require('../platform/js');
+var js = require('../platform/js');
 
 /**
  * !#en
@@ -54,7 +54,7 @@ function Size (width, height) {
     this.width = width || 0;
     this.height = height || 0;
 }
-JS.extend(Size, ValueType);
+js.extend(Size, ValueType);
 require('../platform/CCClass').fastDefine('cc.Size', Size, { width: 0, height: 0});
 
 /**
@@ -72,7 +72,7 @@ require('../platform/CCClass').fastDefine('cc.Size', Size, { width: 0, height: 0
  * @default new Size(0, 0)
  * @static
  */
-JS.get(Size, 'ZERO', function () {
+js.get(Size, 'ZERO', function () {
     return new Size(0.0, 0.0);
 });
 

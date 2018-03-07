@@ -25,7 +25,7 @@
 
 var CompScheduler = require('./component-scheduler');
 var Flags = require('./platform/CCObject').Flags;
-var JS = require('./platform/js');
+var js = require('./platform/js');
 var callerFunctor = CC_EDITOR && require('./utils/misc').tryCatchFunctor_EDITOR;
 
 var MAX_POOL_SIZE = 4;
@@ -74,7 +74,7 @@ var invokeOnLoad = CompScheduler.createInvokeImpl(
     CC_EDITOR ? callOnLoadInTryCatch : callOnLoad
 );
 
-var activateTasksPool = new JS.Pool(MAX_POOL_SIZE);
+var activateTasksPool = new js.Pool(MAX_POOL_SIZE);
 activateTasksPool.get = function getActivateTask () {
     var task = this._get() || {
         preload: new UnsortedInvoker(invokePreload),
@@ -105,7 +105,7 @@ function _componentCorrupted (node, comp, index) {
         node._removeComponent(comp);
     }
     else {
-        JS.array.removeAt(node._components, index);
+        js.array.removeAt(node._components, index);
     }
 }
 

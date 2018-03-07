@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 var ValueType = require('./CCValueType');
-var JS = require('../platform/js');
+var js = require('../platform/js');
 
 var Color = (function () {
 
@@ -66,7 +66,7 @@ var Color = (function () {
         a = typeof a === 'number' ? a : 255;
         this._val = ((a<<24) >>> 0) + (b<<16) + (g<<8) + r;
     }
-    JS.extend(Color, ValueType);
+    js.extend(Color, ValueType);
     require('../platform/CCClass').fastDefine('cc.Color', Color, {r: 0, g: 0, b: 0, a: 255});
 
     var DefaultColors = {
@@ -161,7 +161,7 @@ var Color = (function () {
         MAGENTA:    [255, 0, 255]
     };
     for (var colorName in DefaultColors) {
-        JS.get(Color, colorName, (function (rgba) {
+        js.get(Color, colorName, (function (rgba) {
             return function () {
                 return new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
             };
@@ -335,10 +335,10 @@ var Color = (function () {
         return this;
     };
 
-    JS.getset(proto, 'r', proto.getR, proto.setR, true);
-    JS.getset(proto, 'g', proto.getG, proto.setG, true);
-    JS.getset(proto, 'b', proto.getB, proto.setB, true);
-    JS.getset(proto, 'a', proto.getA, proto.setA, true);
+    js.getset(proto, 'r', proto.getR, proto.setR, true);
+    js.getset(proto, 'g', proto.getG, proto.setG, true);
+    js.getset(proto, 'b', proto.getB, proto.setB, true);
+    js.getset(proto, 'a', proto.getA, proto.setA, true);
 
     /**
      * !#en Convert color to css format.

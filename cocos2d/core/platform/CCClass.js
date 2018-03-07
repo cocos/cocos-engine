@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = require('./js');
+var js = require('./js');
 var Enum = require('./CCEnum');
 var Utils = require('./utils');
 var _isPlainEmptyObj_DEV = Utils.isPlainEmptyObj_DEV;
@@ -76,7 +76,7 @@ var deferredInitializer = {
                 if (typeof properties === 'function') {
                     properties = properties();
                 }
-                var name = JS.getClassName(cls);
+                var name = js.getClassName(cls);
                 if (properties) {
                     declareProperties(cls, name, properties, cls.$super, data.mixins);
                 }
@@ -193,7 +193,7 @@ function defineGetSet (cls, name, propName, val, es6) {
         }
 
         if (!es6) {
-            JS.get(proto, propName, getter, setterUndefined, setterUndefined);
+            js.get(proto, propName, getter, setterUndefined, setterUndefined);
         }
 
         if (CC_EDITOR || CC_DEV) {
@@ -206,7 +206,7 @@ function defineGetSet (cls, name, propName, val, es6) {
             if (CC_DEV && d && d.set) {
                 return cc.errorID(3640, name, propName);
             }
-            JS.set(proto, propName, setter, setterUndefined, setterUndefined);
+            js.set(proto, propName, setter, setterUndefined, setterUndefined);
         }
         if (CC_EDITOR || CC_DEV) {
             Attr.setClassAttr(cls, propName, 'hasSetter', true); // 方便 editor 做判断
@@ -235,7 +235,7 @@ function getDefault (defaultVal) {
 function mixinWithInherited (dest, src, filter) {
     for (var prop in src) {
         if (!dest.hasOwnProperty(prop) && (!filter || filter(prop))) {
-            Object.defineProperty(dest, prop, JS.getPropertyDescriptor(src, prop));
+            Object.defineProperty(dest, prop, js.getPropertyDescriptor(src, prop));
         }
     }
 }
@@ -289,19 +289,19 @@ function doDefine (className, baseClass, mixins, options) {
         fireClass = _createCtor(ctors, baseClass, className, options);
 
         // extend - Create a new Class that inherits from this Class
-        JS.value(fireClass, 'extend', function (options) {
+        js.value(fireClass, 'extend', function (options) {
             options.extends = this;
             return CCClass(options);
         }, true);
     }
 
-    JS.value(fireClass, '__ctors__', ctors.length > 0 ? ctors : null, true);
+    js.value(fireClass, '__ctors__', ctors.length > 0 ? ctors : null, true);
 
 
     var prototype = fireClass.prototype;
     if (baseClass) {
         if (!__es6__) {
-            JS.extend(fireClass, baseClass);        // 这里会把父类的 __props__ 复制给子类
+            js.extend(fireClass, baseClass);        // 这里会把父类的 __props__ 复制给子类
             prototype = fireClass.prototype;        // get extended prototype
         }
         fireClass.$super = baseClass;
@@ -336,7 +336,7 @@ function doDefine (className, baseClass, mixins, options) {
         prototype.__initProps__ = compileProps;
     }
 
-    JS.setClassName(className, fireClass);
+    js.setClassName(className, fireClass);
     return fireClass;
 }
 
@@ -361,7 +361,7 @@ function define (className, baseClass, mixins, options) {
         if (cc.isChildClassOf(baseClass, Component)) {
             var uuid = frame.uuid;
             if (uuid) {
-                JS._setClassId(uuid, cls);
+                js._setClassId(uuid, cls);
                 if (CC_EDITOR) {
                     Component._addMenuItem(cls, 'i18n:MAIN_MENU.component.scripts/' + className, -1);
                     cls.prototype.__scriptUuid = Editor.Utils.UuidUtils.decompressUuid(uuid);
@@ -393,7 +393,7 @@ function normalizeClassName_DEV (className) {
 }
 
 function getNewValueTypeCode (value) {
-    var clsName = JS.getClassName(value);
+    var clsName = js.getClassName(value);
     var type = value.constructor;
     var res = 'new ' + clsName + '(';
     for (var i = 0; i < type.__props__.length; i++) {
@@ -412,7 +412,7 @@ function getNewValueTypeCode (value) {
 }
 
 function getNewValueType (value) {
-    var clsName = JS.getClassName(value);
+    var clsName = js.getClassName(value);
     var type = value.constructor;
     var res = new type();
     for (var i = 0; i < type.__props__.length; i++) {
@@ -750,7 +750,7 @@ function boundSuperCalls (baseClass, options, className) {
         if (typeof func !== 'function') {
             continue;
         }
-        var pd = JS.getPropertyDescriptor(baseClass.prototype, funcName);
+        var pd = js.getPropertyDescriptor(baseClass.prototype, funcName);
         if (pd) {
             var superFunc = pd.value;
             // ignore pd.get, assume that function defined by getter is just for warnings
@@ -971,7 +971,7 @@ function CCClass (options) {
             continue;
         }
         // use value to redefine some super method defined as getter
-        JS.value(cls.prototype, funcName, func, true, true);
+        js.value(cls.prototype, funcName, func, true, true);
     }
 
 
@@ -1011,7 +1011,7 @@ CCClass._isCCClass = function (constructor) {
 // @private
 //
 CCClass._fastDefine = function (className, constructor, serializableFields) {
-    JS.setClassName(className, constructor);
+    js.setClassName(className, constructor);
     //constructor.__ctors__ = constructor.__ctors__ || null;
     var props = constructor.__props__ = Object.keys(serializableFields);
     var attrProtos = Attr.getClassAttrsProto(constructor);
@@ -1048,7 +1048,7 @@ cc.isChildClassOf = function (subclass, superclass) {
             return true;
         }
         for (;;) {
-            subclass = JS.getSuper(subclass);
+            subclass = js.getSuper(subclass);
             if (!subclass) {
                 return false;
             }
@@ -1069,7 +1069,7 @@ cc.isChildClassOf = function (subclass, superclass) {
 CCClass.getInheritanceChain = function (klass) {
     var chain = [];
     for (;;) {
-        klass = JS.getSuper(klass);
+        klass = js.getSuper(klass);
         if (!klass) {
             break;
         }
@@ -1293,5 +1293,5 @@ module.exports = {
 };
 
 if (CC_TEST) {
-    JS.mixin(CCClass, module.exports);
+    js.mixin(CCClass, module.exports);
 }

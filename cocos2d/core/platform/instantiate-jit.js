@@ -29,7 +29,7 @@ var CCObject = require('./CCObject');
 var Destroyed = CCObject.Flags.Destroyed;
 var PersistentMask = CCObject.Flags.PersistentMask;
 var Attr = require('./attribute');
-var JS = require('./js');
+var js = require('./js');
 var CCClass = require('./CCClass');
 var Compiler = require('./compiler');
 
@@ -129,7 +129,7 @@ Assignments.prototype.writeCode = function (codeArray) {
     }
 };
 
-Assignments.pool = new JS.Pool(function (obj) {
+Assignments.pool = new js.Pool(function (obj) {
                                 obj._exps.length = 0;
                                 obj._targetExp = null;
                             }, 1);
@@ -198,8 +198,8 @@ function Parser (obj, parent) {
     this.objs = [];
     this.funcs = [];
 
-    this.funcModuleCache = JS.createMap();
-    JS.mixin(this.funcModuleCache, DEFAULT_MODULE_CACHE);
+    this.funcModuleCache = js.createMap();
+    js.mixin(this.funcModuleCache, DEFAULT_MODULE_CACHE);
 
     // {String[]} - variable names for circular references,
     //              not really global, just local variables shared between sub functions
@@ -253,7 +253,7 @@ function Parser (obj, parent) {
 var proto = Parser.prototype;
 
 proto.getFuncModule = function (func, usedInNew) {
-    var clsName = JS.getClassName(func);
+    var clsName = js.getClassName(func);
     if (clsName) {
         var cache = this.funcModuleCache[clsName];
         if (cache) {

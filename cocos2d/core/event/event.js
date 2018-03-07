@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = require("../platform/js");
+var js = require("../platform/js");
 
 /**
  * !#en Base class of all kinds of events.
@@ -293,7 +293,7 @@ var EventCustom = function (type, bubbles) {
     this.detail = null;
 };
 
-JS.extend(EventCustom, cc.Event);
+js.extend(EventCustom, cc.Event);
 
 EventCustom.prototype.reset = EventCustom;
 
@@ -327,7 +327,7 @@ EventCustom.prototype.getEventName = cc.Event.prototype.getType;
 
 
 var MAX_POOL_SIZE = 10;
-var _eventPool = new JS.Pool(MAX_POOL_SIZE);
+var _eventPool = new js.Pool(MAX_POOL_SIZE);
 EventCustom.put = function (event) {
     _eventPool.put(event);
 };

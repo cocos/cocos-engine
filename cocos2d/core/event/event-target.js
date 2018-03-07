@@ -24,8 +24,8 @@
  ****************************************************************************/
 var EventListeners = require('./event-listeners');
 require('./event');
-var JS = cc.js;
-var fastRemove = JS.array.fastRemove;
+var js = cc.js;
+var fastRemove = js.array.fastRemove;
 
 var cachedArray = new Array(16);
 cachedArray.length = 0;

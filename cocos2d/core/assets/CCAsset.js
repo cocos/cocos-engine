@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 var RawAsset = require('./CCRawAsset');
+var js = cc.js;
 
 /**
  * !#en
@@ -107,13 +108,13 @@ cc.Asset = cc.Class({
         _nativeAsset: {
             get () {
                 if (CC_EDITOR) {
-                    cc.errorID('0100', 'getter of ' + JS.getClassName(this) + '._nativeAsset');
+                    cc.errorID('0100', 'getter of ' + js.getClassName(this) + '._nativeAsset');
                 }
                 // return this.__nativeAsset;
             },
             set (obj) {
                 if (CC_EDITOR) {
-                    cc.errorID('0100', 'setter of ' + JS.getClassName(this) + '._nativeAsset');
+                    cc.errorID('0100', 'setter of ' + js.getClassName(this) + '._nativeAsset');
                 }
                 // this.__nativeAsset = obj;
             }

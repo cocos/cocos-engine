@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 var pushToMap = require('../utils/misc').pushToMap;
-var JS = require('../platform/js');
+var js = require('../platform/js');
 
 function Entry (uuid, type) {
     this.uuid = uuid;
@@ -39,7 +39,7 @@ function Entry (uuid, type) {
  */
 
 function AssetTable () {
-    this._pathToUuid = JS.createMap(true);
+    this._pathToUuid = js.createMap(true);
 }
 
 function isMatchByWord (path, test) {
@@ -165,7 +165,7 @@ proto._getInfo_DEBUG = CC_DEBUG && function (uuid, out_info) {
 };
 
 proto.reset = function () {
-    this._pathToUuid = JS.createMap(true);
+    this._pathToUuid = js.createMap(true);
 };
 
 
