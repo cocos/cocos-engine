@@ -91,9 +91,8 @@ let armatureAssembler = js.addon({
         }
     },
 
-    fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let comp = batchData.comp,
-            armature = batchData.comp._armature;
+    fillBuffers (comp, batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let armature = comp._armature;
         if (!armature || comp._isChildArmature) return;
 
         _vertexOffset = batchData.byteOffset / 4;

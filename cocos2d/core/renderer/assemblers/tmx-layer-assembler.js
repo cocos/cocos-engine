@@ -67,8 +67,7 @@ let tmxAssembler = js.addon({
         return this.datas;
     },
 
-    fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let comp = batchData.comp;
+    fillBuffers (comp, batchData, vertexId, vbuf, uintbuf, ibuf) {
         let renderData = comp._renderData;
         let data = renderData._data;
         

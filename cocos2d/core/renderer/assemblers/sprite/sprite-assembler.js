@@ -118,9 +118,8 @@ let spriteAssembler = js.addon({
         return this.datas;
     },
 
-    fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let sprite = batchData.comp,
-            vertexOffset = batchData.byteOffset / 4,
+    fillBuffers (sprite, batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let vertexOffset = batchData.byteOffset / 4,
             indiceOffset = batchData.indiceOffset;
 
         // vertex buffer

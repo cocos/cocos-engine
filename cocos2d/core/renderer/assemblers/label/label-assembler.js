@@ -58,9 +58,8 @@ var labelAssembler = js.addon({
         return this.datas;
     },
 
-    fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let comp = batchData.comp,
-            vertexOffset = batchData.byteOffset / 4,
+    fillBuffers (comp, batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let vertexOffset = batchData.byteOffset / 4,
             indiceOffset = batchData.indiceOffset;
         
         // vertex buffer
