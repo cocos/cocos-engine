@@ -313,10 +313,73 @@ static bool register_sys_localStorage(se::Object* obj)
     return true;
 }
 
+#define BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(cls, property, type, convertFunc, returnFunc) \
+static bool js_cocos2dx_##cls_set_##property(se::State& s) \
+{ \
+    cocos2d::cls* cobj = (cocos2d::cls*)s.nativeThisObject(); \
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_#cls_set_#property : Invalid Native Object"); \
+    const auto& args = s.args(); \
+    size_t argc = args.size(); \
+    CC_UNUSED bool ok = true; \
+    if (argc == 1) { \
+        type arg0; \
+        ok &= convertFunc(args[0], &arg0); \
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_#cls_set_#property : Error processing arguments"); \
+        cobj->set_##property(arg0); \
+        return true; \
+    } \
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1); \
+    return false; \
+} \
+SE_BIND_PROP_SET(js_cocos2dx_##cls_set_##property) \
+\
+static bool js_cocos2dx_##cls_get_##property(se::State& s) \
+{ \
+    cocos2d::cls* cobj = (cocos2d::cls*)s.nativeThisObject(); \
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_#cls_get_#property : Invalid Native Object"); \
+    s.rval().returnFunc(cobj->_##property); \
+    return true; \
+} \
+SE_BIND_PROP_GET(js_cocos2dx_##cls_get_##property)
+
+BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, _width, float, seval_to_float, setFloat)
+BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, _height, float, seval_to_float, setFloat)
+BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, lineWidth, float, seval_to_float, setFloat)
+BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, lineJoin, std::string, seval_to_std_string, setString)
+BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, font, std::string, seval_to_std_string, setString)
+BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, textAlign, std::string, seval_to_std_string, setString)
+BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, textBaseline, std::string, seval_to_std_string, setString)
+BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, fillStyle, std::string, seval_to_std_string, setString)
+BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, strokeStyle, std::string, seval_to_std_string, setString)
+BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, globalCompositeOperation, std::string, seval_to_std_string, setString)
+
+
+#define _SE_DEFINE_PROP(cls, property) \
+    __jsb_cocos2d_##cls##_proto->defineProperty(#property, _SE(js_cocos2dx_##cls_get_##property), _SE(js_cocos2dx_##cls_set_##property));
+
+static bool register_canvas_context2d(se::Object* obj)
+{
+    _SE_DEFINE_PROP(CanvasRenderingContext2D, _width)
+    _SE_DEFINE_PROP(CanvasRenderingContext2D, _height)
+    _SE_DEFINE_PROP(CanvasRenderingContext2D, lineWidth)
+    _SE_DEFINE_PROP(CanvasRenderingContext2D, lineJoin)
+    _SE_DEFINE_PROP(CanvasRenderingContext2D, font)
+    _SE_DEFINE_PROP(CanvasRenderingContext2D, textAlign)
+    _SE_DEFINE_PROP(CanvasRenderingContext2D, textBaseline)
+    _SE_DEFINE_PROP(CanvasRenderingContext2D, fillStyle)
+    _SE_DEFINE_PROP(CanvasRenderingContext2D, strokeStyle)
+    _SE_DEFINE_PROP(CanvasRenderingContext2D, globalCompositeOperation)
+
+    se::ScriptEngine::getInstance()->clearException();
+
+    return true;
+}
+
 bool register_all_cocos2dx_manual(se::Object* obj)
 {
     register_plist_parser(obj);
     register_sys_localStorage(obj);
+    register_canvas_context2d(obj);
     return true;
 }
 

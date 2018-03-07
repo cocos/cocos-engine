@@ -55,3 +55,31 @@ bool js_register_cocos2d_SAXParser(se::Object* obj);
 bool register_all_cocos2dx(se::Object* obj);
 SE_DECLARE_FUNC(js_cocos2dx_SAXParser_init);
 
+extern se::Object* __jsb_cocos2d_CanvasGradient_proto;
+extern se::Class* __jsb_cocos2d_CanvasGradient_class;
+
+bool js_register_cocos2d_CanvasGradient(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_CanvasGradient_addColorStop);
+SE_DECLARE_FUNC(js_cocos2dx_CanvasGradient_CanvasGradient);
+
+extern se::Object* __jsb_cocos2d_CanvasRenderingContext2D_proto;
+extern se::Class* __jsb_cocos2d_CanvasRenderingContext2D_class;
+
+bool js_register_cocos2d_CanvasRenderingContext2D(se::Object* obj);
+bool register_all_cocos2dx(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_CanvasRenderingContext2D_restore);
+SE_DECLARE_FUNC(js_cocos2dx_CanvasRenderingContext2D_moveTo);
+SE_DECLARE_FUNC(js_cocos2dx_CanvasRenderingContext2D_beginPath);
+SE_DECLARE_FUNC(js_cocos2dx_CanvasRenderingContext2D_lineTo);
+SE_DECLARE_FUNC(js_cocos2dx_CanvasRenderingContext2D_getImageData);
+SE_DECLARE_FUNC(js_cocos2dx_CanvasRenderingContext2D_createLinearGradient);
+SE_DECLARE_FUNC(js_cocos2dx_CanvasRenderingContext2D_fillText);
+SE_DECLARE_FUNC(js_cocos2dx_CanvasRenderingContext2D_stroke);
+SE_DECLARE_FUNC(js_cocos2dx_CanvasRenderingContext2D_strokeText);
+SE_DECLARE_FUNC(js_cocos2dx_CanvasRenderingContext2D_measureText);
+SE_DECLARE_FUNC(js_cocos2dx_CanvasRenderingContext2D_closePath);
+SE_DECLARE_FUNC(js_cocos2dx_CanvasRenderingContext2D_save);
+SE_DECLARE_FUNC(js_cocos2dx_CanvasRenderingContext2D_clearRect);
+SE_DECLARE_FUNC(js_cocos2dx_CanvasRenderingContext2D_CanvasRenderingContext2D);
+

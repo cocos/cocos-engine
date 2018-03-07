@@ -486,3 +486,211 @@ char
 },
 
 };
+
+/**
+ * @class CanvasGradient
+ */
+cc.CanvasGradient = {
+
+/**
+ * @method addColorStop
+ * @param {float} arg0
+ * @param {String} arg1
+ */
+addColorStop : function (
+float, 
+str 
+)
+{
+},
+
+/**
+ * @method CanvasGradient
+ * @constructor
+ */
+CanvasGradient : function (
+)
+{
+},
+
+};
+
+/**
+ * @class CanvasRenderingContext2D
+ */
+cc.CanvasRenderingContext2D = {
+
+/**
+ * @method restore
+ */
+restore : function (
+)
+{
+},
+
+/**
+ * @method moveTo
+ * @param {float} arg0
+ * @param {float} arg1
+ */
+moveTo : function (
+float, 
+float 
+)
+{
+},
+
+/**
+ * @method beginPath
+ */
+beginPath : function (
+)
+{
+},
+
+/**
+ * @method lineTo
+ * @param {float} arg0
+ * @param {float} arg1
+ */
+lineTo : function (
+float, 
+float 
+)
+{
+},
+
+/**
+ * @method getImageData
+ * @param {float} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ * @param {float} arg3
+ * @return {cc.Data}
+ */
+getImageData : function (
+float, 
+float, 
+float, 
+float 
+)
+{
+    return cc.Data;
+},
+
+/**
+ * @method createLinearGradient
+ * @param {float} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ * @param {float} arg3
+ * @return {cc.CanvasGradient}
+ */
+createLinearGradient : function (
+float, 
+float, 
+float, 
+float 
+)
+{
+    return cc.CanvasGradient;
+},
+
+/**
+ * @method fillText
+ * @param {String} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ * @param {float} arg3
+ */
+fillText : function (
+str, 
+float, 
+float, 
+float 
+)
+{
+},
+
+/**
+ * @method stroke
+ */
+stroke : function (
+)
+{
+},
+
+/**
+ * @method strokeText
+ * @param {String} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ * @param {float} arg3
+ */
+strokeText : function (
+str, 
+float, 
+float, 
+float 
+)
+{
+},
+
+/**
+ * @method measureText
+ * @param {String} arg0
+ * @return {size_object}
+ */
+measureText : function (
+str 
+)
+{
+    return cc.Size;
+},
+
+/**
+ * @method closePath
+ */
+closePath : function (
+)
+{
+},
+
+/**
+ * @method save
+ */
+save : function (
+)
+{
+},
+
+/**
+ * @method clearRect
+ * @param {float} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ * @param {float} arg3
+ */
+clearRect : function (
+float, 
+float, 
+float, 
+float 
+)
+{
+},
+
+/**
+ * @method CanvasRenderingContext2D
+ * @constructor
+ * @param {float} arg0
+ * @param {float} arg1
+ */
+CanvasRenderingContext2D : function (
+float, 
+float 
+)
+{
+},
+
+};

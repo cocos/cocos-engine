@@ -263,6 +263,9 @@
 		1A2F2139204E462200723184 /* LocalStorage-android.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A2F2134204E462100723184 /* LocalStorage-android.cpp */; };
 		1A2F213A204E462200723184 /* LocalStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A2F2135204E462100723184 /* LocalStorage.h */; };
 		1A2F213B204E462200723184 /* LocalStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A2F2135204E462100723184 /* LocalStorage.h */; };
+		1A2F2152204FBCF700723184 /* CCCanvasRenderingContext2D.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A2F2151204FBCF700723184 /* CCCanvasRenderingContext2D.h */; };
+		1A2F2153204FBCF700723184 /* CCCanvasRenderingContext2D.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A2F2151204FBCF700723184 /* CCCanvasRenderingContext2D.h */; };
+		1A2F2155204FBD0F00723184 /* CCCanvasRenderingContext2D-mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A2F2154204FBD0F00723184 /* CCCanvasRenderingContext2D-mac.mm */; };
 		1A37E9C5200DD0680078AF72 /* CCReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A37E9C3200DD0680078AF72 /* CCReachability.h */; };
 		1A37E9C6200DD0680078AF72 /* CCReachability.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A37E9C4200DD0680078AF72 /* CCReachability.cpp */; };
 		1A37E9C7200DDFC70078AF72 /* CCReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A37E9C3200DD0680078AF72 /* CCReachability.h */; };
@@ -1146,6 +1149,8 @@
 		1A2F2133204E462100723184 /* LocalStorage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LocalStorage.cpp; sourceTree = "<group>"; };
 		1A2F2134204E462100723184 /* LocalStorage-android.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "LocalStorage-android.cpp"; sourceTree = "<group>"; };
 		1A2F2135204E462100723184 /* LocalStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalStorage.h; sourceTree = "<group>"; };
+		1A2F2151204FBCF700723184 /* CCCanvasRenderingContext2D.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CCCanvasRenderingContext2D.h; sourceTree = "<group>"; };
+		1A2F2154204FBD0F00723184 /* CCCanvasRenderingContext2D-mac.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCCanvasRenderingContext2D-mac.mm"; sourceTree = "<group>"; };
 		1A37E9C3200DD0680078AF72 /* CCReachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCReachability.h; sourceTree = "<group>"; };
 		1A37E9C4200DD0680078AF72 /* CCReachability.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCReachability.cpp; sourceTree = "<group>"; };
 		1A47AFA02048F7FD00BAD790 /* jsb_opengl_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_opengl_manual.cpp; sourceTree = "<group>"; };
@@ -2411,14 +2416,14 @@
 			isa = PBXGroup;
 			children = (
 				46FDDC68202D733700931238 /* CCApplication-ios.mm */,
-				1A37E9C3200DD0680078AF72 /* CCReachability.h */,
-				1A37E9C4200DD0680078AF72 /* CCReachability.cpp */,
 				503DD8D11926736A00CD74DD /* CCDevice-ios.mm */,
 				503DD8D41926736A00CD74DD /* CCEAGLView-ios.h */,
 				503DD8D51926736A00CD74DD /* CCEAGLView-ios.mm */,
 				503DD8D91926736A00CD74DD /* CCGL-ios.h */,
 				503DD8DC1926736A00CD74DD /* CCImage-ios.mm */,
 				503DD8DD1926736A00CD74DD /* CCPlatformDefine-ios.h */,
+				1A37E9C4200DD0680078AF72 /* CCReachability.cpp */,
+				1A37E9C3200DD0680078AF72 /* CCReachability.h */,
 				503DD8DF1926736A00CD74DD /* OpenGL_Internal-ios.h */,
 			);
 			path = ios;
@@ -2443,6 +2448,7 @@
 				50ABBF281926664700A911A9 /* CCImage.h */,
 				50ABBF291926664700A911A9 /* CCSAXParser.cpp */,
 				50ABBF2A1926664700A911A9 /* CCSAXParser.h */,
+				1A2F2151204FBCF700723184 /* CCCanvasRenderingContext2D.h */,
 			);
 			name = platform;
 			path = ../cocos/platform;
@@ -2471,6 +2477,7 @@
 				50ABBF521926664700A911A9 /* CCDevice-mac.mm */,
 				50ABBF531926664700A911A9 /* CCGL-mac.h */,
 				50ABBF541926664700A911A9 /* CCPlatformDefine-mac.h */,
+				1A2F2154204FBD0F00723184 /* CCCanvasRenderingContext2D-mac.mm */,
 			);
 			path = mac;
 			sourceTree = "<group>";
@@ -2790,6 +2797,7 @@
 				469303862046AE05004A3D6C /* Object.hpp in Headers */,
 				4DED48021DFFA4AF0070C5C4 /* b2BlockAllocator.h in Headers */,
 				1A2F207A204E27E300723184 /* Utils.hpp in Headers */,
+				1A2F2152204FBCF700723184 /* CCCanvasRenderingContext2D.h in Headers */,
 				4DED48761DFFA4AF0070C5C4 /* b2PulleyJoint.h in Headers */,
 				4DED47D61DFFA4AF0070C5C4 /* b2BroadPhase.h in Headers */,
 				1A2F20C6204E27E300723184 /* Base.h in Headers */,
@@ -3080,6 +3088,7 @@
 				4693038B2046AE05004A3D6C /* State.hpp in Headers */,
 				46FDDADC202ACC6A00931238 /* State.h in Headers */,
 				46FDDB9E202ADDCE00931238 /* ObjectFactory.h in Headers */,
+				1A2F2153204FBCF700723184 /* CCCanvasRenderingContext2D.h in Headers */,
 				46FDDC42202AEAC500931238 /* Atomics.h in Headers */,
 				46FDDB8A202ADDCE00931238 /* CCRef.h in Headers */,
 				4DED47D71DFFA4AF0070C5C4 /* b2BroadPhase.h in Headers */,
@@ -3303,6 +3312,7 @@
 				4DED47EE1DFFA4AF0070C5C4 /* b2ChainShape.cpp in Sources */,
 				4DC57D211F7A58B5005B6546 /* xxtea.cpp in Sources */,
 				4DED482C1DFFA4AF0070C5C4 /* b2World.cpp in Sources */,
+				1A2F2155204FBD0F00723184 /* CCCanvasRenderingContext2D-mac.mm in Sources */,
 				4DED47D81DFFA4AF0070C5C4 /* b2CollideCircle.cpp in Sources */,
 				46FDDB71202ADDCE00931238 /* base64.cpp in Sources */,
 				46FDDA8D202ACC6A00931238 /* Config.cpp in Sources */,

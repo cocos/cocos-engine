@@ -143,6 +143,10 @@ bool JSB_get_arraybufferview_dataptr(const se::Value& v, GLsizei *count, GLvoid 
                 return true;
             }
         }
+        else
+        {
+            SE_LOGE("JSB_get_arraybufferview_dataptr: isn't a typed array!\n");
+        }
     }
     return false;
 }
