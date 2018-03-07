@@ -25,13 +25,12 @@
 
 const Sprite = require('../../../components/CCSprite');
 const FillType = Sprite.FillType;
-const RenderData = require('../../render-engine').RenderData;
 
 const simpleRenderUtil = require('./simple');
 
 module.exports = {
     createData (sprite) {
-        let renderData = RenderData.alloc();
+        let renderData = sprite.requestRenderData();
         renderData.dataLength = 4;
         renderData.vertexCount = 4;
         renderData.indiceCount = 6;

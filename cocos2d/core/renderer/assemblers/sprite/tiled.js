@@ -24,11 +24,10 @@
  ****************************************************************************/
 
 const Sprite = require('../../../components/CCSprite');
-const RenderData = require('../../render-engine').RenderData;
 
 module.exports = {
     createData (sprite) {
-        return RenderData.alloc();
+        return sprite.requestRenderData();
     },
 
     update (sprite) {

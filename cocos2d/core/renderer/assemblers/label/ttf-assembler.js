@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 const renderEngine = require('../../render-engine');
-const RenderData = renderEngine.RenderData;
 
 const Label = require('../../../components/CCLabel');
 const LabelOutline = require('../../../components/CCLabelOutline');
@@ -73,7 +72,7 @@ let _isUnderline = false;
 
 module.exports = {
     createData (comp) {
-        let renderData = RenderData.alloc();
+        let renderData = comp.requestRenderData();
 
         renderData.dataLength = 4;
         renderData.vertexCount = 4;

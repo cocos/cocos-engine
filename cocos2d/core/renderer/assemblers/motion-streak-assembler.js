@@ -27,7 +27,6 @@ const js = require('../../platform/js');
 const assembler = require('./assembler');
 const MotionStreak = require('../../../motion-streak/CCMotionStreak');
 const renderEngine = require('../render-engine');
-const RenderData = renderEngine.RenderData;
 
 function Point (point, dir) {
     this.point = point || cc.v2();
@@ -96,7 +95,7 @@ var motionStreakAssembler = js.addon({
     update (comp, dt) {
         let renderData = comp._renderData;
         if (!renderData) {
-            renderData = comp._renderData = RenderData.alloc();
+            renderData = comp._renderData = comp.requestRenderData();
         }
 
         if (CC_EDITOR && !comp.preview) return;

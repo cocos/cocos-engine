@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 const Sprite = require('../../../components/CCSprite');
-const RenderData = require('../../render-engine').RenderData;
 
 const simpleRenderUtil = require('./simple');
 
@@ -40,7 +39,7 @@ module.exports = {
     _triangles: [],
 
     createData (sprite) {
-        return RenderData.alloc();
+        return sprite.requestRenderData();
     },
 
     update (sprite) {
