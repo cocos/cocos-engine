@@ -145,7 +145,7 @@ namespace
         float height = bounds.size.height * scale;
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         char commandBuf[200] = {0};
-        sprintf(commandBuf, "window.canvas = { width: %d, height: %d };",
+        sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d;",
                 (int)(width),
                 (int)(height));
         se->evalString(commandBuf);
