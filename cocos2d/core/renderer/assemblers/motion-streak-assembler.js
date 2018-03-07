@@ -196,9 +196,8 @@ var motionStreakAssembler = js.addon({
         renderData.indiceCount = (renderData.vertexCount - 2)*3;
     },
 
-    fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let comp = batchData.comp,
-            offset = batchData.byteOffset / 4,
+    fillBuffers (comp, batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let offset = batchData.byteOffset / 4,
             node = comp.node,
             renderData = comp._renderData,
             data = renderData._data,

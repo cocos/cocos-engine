@@ -114,9 +114,8 @@ let maskFrontAssembler = js.addon({
         return datas;
     },
 
-    fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let mask = batchData.comp,
-            vertexOffset = batchData.vertexOffset,
+    fillBuffers (mask, batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let vertexOffset = batchData.vertexOffset,
             indiceOffset = batchData.indiceOffset;
         
         // Invalid state
@@ -126,15 +125,13 @@ let maskFrontAssembler = js.addon({
 
             // vertex buffer
             if (mask._type === Mask.Type.IMAGE_STENCIL) {
-                batchData.comp = mask;
                 spriteAssembler.fillVertexBuffer(mask, batchData.byteOffset / 4, vbuf, uintbuf);
                 spriteAssembler.fillIndexBuffer(mask, batchData.indiceOffset, vertexId, ibuf);
             }
             else {
                 // Share node for correct global matrix
                 mask._graphics.node = mask.node;
-                batchData.comp = mask._graphics;
-                graphicsAssembler.fillBuffers(batchData, vertexId, vbuf, uintbuf, ibuf);
+                graphicsAssembler.fillBuffers(mask._graphics, batchData, vertexId, vbuf, uintbuf, ibuf);
             }
         }
     }
@@ -163,9 +160,8 @@ let maskEndAssembler = js.addon({
         return datas;
     },
 
-    fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let mask = batchData.comp,
-            vertexOffset = batchData.vertexOffset,
+    fillBuffers (mask, batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let vertexOffset = batchData.vertexOffset,
             indiceOffset = batchData.indiceOffset;
         
         // Invalid state
@@ -175,15 +171,13 @@ let maskEndAssembler = js.addon({
 
             // vertex buffer
             if (mask._type === Mask.Type.IMAGE_STENCIL) {
-                batchData.comp = mask;
                 spriteAssembler.fillVertexBuffer(mask, batchData.byteOffset / 4, vbuf, uintbuf);
                 spriteAssembler.fillIndexBuffer(mask, batchData.indiceOffset, vertexId, ibuf);
             }
             else {
                 // Share node for correct global matrix
                 mask._graphics.node = mask.node;
-                batchData.comp = mask._graphics;
-                graphicsAssembler.fillBuffers(batchData, vertexId, vbuf, uintbuf, ibuf);
+                graphicsAssembler.fillBuffers(mask._graphics, batchData, vertexId, vbuf, uintbuf, ibuf);
                 // put back graphics to pool
                 _graphicsPool.push(mask._graphics);
                 mask._graphics = null;

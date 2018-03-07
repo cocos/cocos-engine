@@ -296,11 +296,11 @@ var spineAssembler = js.addon({
         return comp._renderDatas;
     },
 
-    fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
+    fillBuffers (comp, batchData, vertexId, vbuf, uintbuf, ibuf) {
         let data = batchData.data;
         let vertexs = data._data;
         let indices = data._indices;
-        let z = batchData.comp.node._position.z;
+        let z = comp.node._position.z;
 
         // fill vertex buffer
         let offset = batchData.byteOffset / 4;
