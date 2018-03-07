@@ -367,21 +367,21 @@ SE_BIND_FUNC(js_renderer_Model_setNode)
 bool jsb_register_renderer_manual(se::Object* global)
 {
     // Camera
-    __jsb_cocos2d_gfx_Camera_proto->defineFunction("getColor", _SE(js_renderer_Camera_getColor));
-    __jsb_cocos2d_gfx_Camera_proto->defineFunction("getRect", _SE(js_renderer_Camera_getRect));
-    __jsb_cocos2d_gfx_Camera_proto->defineFunction("extractView", _SE(js_renderer_Camera_extractView));
-    __jsb_cocos2d_gfx_Camera_proto->defineFunction("screenToWorld", _SE(js_renderer_Camera_screenToWorld));
-    __jsb_cocos2d_gfx_Camera_proto->defineFunction("worldToScreen", _SE(js_renderer_Camera_worldToScreen));
+    __jsb_cocos2d_renderer_Camera_proto->defineFunction("getColor", _SE(js_renderer_Camera_getColor));
+    __jsb_cocos2d_renderer_Camera_proto->defineFunction("getRect", _SE(js_renderer_Camera_getRect));
+    __jsb_cocos2d_renderer_Camera_proto->defineFunction("extractView", _SE(js_renderer_Camera_extractView));
+    __jsb_cocos2d_renderer_Camera_proto->defineFunction("screenToWorld", _SE(js_renderer_Camera_screenToWorld));
+    __jsb_cocos2d_renderer_Camera_proto->defineFunction("worldToScreen", _SE(js_renderer_Camera_worldToScreen));
 
     // Effect
-    __jsb_cocos2d_gfx_Effect_proto->defineFunction("extractDefines", _SE(js_renderer_Effect_extractDefines));
+    __jsb_cocos2d_renderer_Effect_proto->defineFunction("extractDefines", _SE(js_renderer_Effect_extractDefines));
 
     // Light
-    __jsb_cocos2d_gfx_Light_proto->defineFunction("extractView", _SE(js_renderer_Light_extractView));
+    __jsb_cocos2d_renderer_Light_proto->defineFunction("extractView", _SE(js_renderer_Light_extractView));
 
     // View
-    __jsb_cocos2d_gfx_View_proto->defineFunction("getForward", _SE(js_renderer_View_getForward));
-    __jsb_cocos2d_gfx_View_proto->defineFunction("getPosition", _SE(js_renderer_View_getPosition));
+    __jsb_cocos2d_renderer_View_proto->defineFunction("getForward", _SE(js_renderer_View_getForward));
+    __jsb_cocos2d_renderer_View_proto->defineFunction("getPosition", _SE(js_renderer_View_getPosition));
 
     // Config
     se::Value rendererVal;
@@ -389,10 +389,10 @@ bool jsb_register_renderer_manual(se::Object* global)
     rendererVal.toObject()->defineFunction("addStage", _SE(js_renderer_addStage));
 
     // Camera
-    __jsb_cocos2d_gfx_Camera_proto->defineFunction("setNode", _SE(js_renderer_Camera_setNode));
+    __jsb_cocos2d_renderer_Camera_proto->defineFunction("setNode", _SE(js_renderer_Camera_setNode));
 
     // Model
-    __jsb_cocos2d_gfx_Model_proto->defineFunction("setNode", _SE(js_renderer_Model_setNode));
+    __jsb_cocos2d_renderer_Model_proto->defineFunction("setNode", _SE(js_renderer_Model_setNode));
 
     return true;
 }
