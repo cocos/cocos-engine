@@ -308,12 +308,20 @@ namespace {
 //            fclose(fp);
 
             std::string reletivePath = fullPath;
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_IOS
+    #if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
             const std::string reletivePathKey = "/Contents/Resources";
+    #else
+            const std::string reletivePathKey = ".app";
+    #endif
+
             size_t pos = reletivePath.find(reletivePathKey);
             if (pos != std::string::npos)
             {
                 reletivePath = reletivePath.substr(pos + reletivePathKey.length() + 1);
             }
+#endif
+
 
             RENDERER_LOGD("Evaluate: %s", reletivePath.c_str());
 
