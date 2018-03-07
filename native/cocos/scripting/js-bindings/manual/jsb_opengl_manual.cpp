@@ -29,13 +29,7 @@
 #include "cocos/scripting/js-bindings/manual/jsb_opengl_utils.hpp"
 #include "platform/CCGL.h"
 
-#define GL_UNPACK_FLIP_Y_WEBGL 0x9240
-#define GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL 0x9241
-#define GL_CONTEXT_LOST_WEBGL 0x9242
-#define GL_UNPACK_COLORSPACE_CONVERSION_WEBGL 0x9243
-#define GL_BROWSER_DEFAULT_WEBGL 0x9244
-
-#define GL_DEPTH_STENCIL_ATTACHMENT 0x821A
+#include <regex>
 
 // Helper functions that link "glGenXXXs" (OpenGL ES 2.0 spec), with "gl.createXXX" (WebGL spec)
 bool JSB_glGenTextures(se::State& s) {
@@ -161,13 +155,18 @@ bool JSB_glShaderSource(se::State& s) {
     SE_PRECONDITION2(argc == 2, false, "Invalid number of arguments" );
 
     bool ok = true;
-    uint32_t arg0; std::string arg1;
+    uint32_t arg0; std::string shaderSource;
 
     ok &= seval_to_uint32(args[0], &arg0 );
-    ok &= seval_to_std_string(args[1], &arg1);
+    ok &= seval_to_std_string(args[1], &shaderSource);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    const GLchar* sources[] = { arg1.c_str() };
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+    shaderSource = std::regex_replace(shaderSource, std::regex("precision\\s+(lowp|mediump|highp)\\s+float\\s*?;"), "");
+    shaderSource = std::regex_replace(shaderSource, std::regex("\\s(lowp|mediump|highp)\\s"), " ");
+#endif
+
+    const GLchar* sources[] = { shaderSource.c_str() };
     JSB_GL_CHECK(glShaderSource(arg0, 1, sources, nullptr));
 
     return true;
@@ -186,9 +185,17 @@ bool JSB_glGetShaderiv(se::State& s) {
     ok &= seval_to_uint32(args[1], &arg1 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    GLint ret;
+    GLint ret = 0;
     JSB_GL_CHECK(glGetShaderiv(arg0, arg1, &ret));
-    s.rval().setInt32(ret);
+
+    if (arg1 == GL_DELETE_STATUS || arg1 == GL_COMPILE_STATUS)
+    {
+        s.rval().setBoolean(ret != 0);
+    }
+    else
+    {
+        s.rval().setInt32(ret);
+    }
     return true;
 }
 SE_BIND_FUNC(JSB_glGetShaderiv)
@@ -577,7 +584,7 @@ static bool JSB_glGetParameter(se::State& s)
     int argc = (int)args.size();
     if (argc < 1)
     {
-        SE_REPORT_ERROR("Wrong argument count passed to gl.getParameter");
+        SE_REPORT_ERROR("Wrong argument count passed to gl.getParameter, expected: %d, get: %d", 1, argc);
         return false;
     }
 
@@ -729,4 +736,62 @@ static bool JSB_glGetParameter(se::State& s)
 }
 
 SE_BIND_FUNC(JSB_glGetParameter)
+
+static bool JSB_glGetShaderPrecisionFormat(se::State& s)
+{
+    const auto& args = s.args();
+    int argc = (int)args.size();
+    if (argc < 2)
+    {
+        SE_REPORT_ERROR("Wrong argument count passed to gl.getParameter, expected: %d, get: %d", 1, argc);
+        return false;
+    }
+
+    uint32_t shadertype;
+    uint32_t precisiontype;
+
+    bool ok = seval_to_uint32(args[0], &shadertype);
+    SE_PRECONDITION2(ok, false, "Convert shadertype failed!");
+    ok = seval_to_uint32(args[1], &precisiontype);
+    SE_PRECONDITION2(ok, false, "Convert precisiontype failed!");
+
+    if( shadertype != GL_VERTEX_SHADER && shadertype != GL_FRAGMENT_SHADER ) {
+        SE_REPORT_ERROR("Unsupported shadertype: %u", shadertype);
+        return false;
+    }
+
+    GLint rangeMin = 0, rangeMax = 0, precision = 0;
+#if CC_TARGET_PLATFORM != CC_PLATFORM_MAC && CC_TARGET_PLATFORM != CC_PLATFORM_WIN32
+    switch( precisiontype ) {
+        case GL_LOW_INT:
+        case GL_MEDIUM_INT:
+        case GL_HIGH_INT:
+            // These values are for a 32-bit twos-complement integer format.
+            rangeMin = 31;
+            rangeMax = 30;
+            precision = 0;
+        break;
+        case GL_LOW_FLOAT:
+        case GL_MEDIUM_FLOAT:
+        case GL_HIGH_FLOAT:
+            // These values are for an IEEE single-precision floating-point format.
+            rangeMin = 127;
+            rangeMax = 127;
+            precision = 23;
+        break;
+        default:
+        SE_REPORT_ERROR("Unsupported precisiontype: %u", precisiontype);
+            return false;
+    }
+#endif
+
+    se::HandleObject obj(se::Object::createPlainObject());
+    obj->setProperty("rangeMin", se::Value(rangeMin));
+    obj->setProperty("rangeMax", se::Value(rangeMax));
+    obj->setProperty("precision", se::Value(precision));
+    s.rval().setObject(obj);
+    return true;
+}
+SE_BIND_FUNC(JSB_glGetShaderPrecisionFormat)
+
 

@@ -161,6 +161,7 @@ bool JSB_register_opengl(se::Object* obj)
     __glObj->defineFunction("vertexAttribPointer", _SE(JSB_glVertexAttribPointer));
     __glObj->defineFunction("viewport", _SE(JSB_glViewport));
     __glObj->defineFunction("getParameter", _SE(JSB_glGetParameter));
+    __glObj->defineFunction("getShaderPrecisionFormat", _SE(JSB_glGetShaderPrecisionFormat));
 
     return true;
     
