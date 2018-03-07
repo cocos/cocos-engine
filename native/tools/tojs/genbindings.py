@@ -55,18 +55,6 @@ def _run_cmd(command):
         message = "Error running command"
         raise CmdError(message)
 
-def _replace_file_content(file_path, old_str, new_str):
-    # Read in the file
-    with open(file_path, 'r') as file :
-      filedata = file.read()
-
-    # Replace the target string
-    filedata = filedata.replace(old_str, new_str)
-
-    # Write the file out again
-    with open(file_path, 'w') as file:
-      file.write(filedata)
-
 def main():
 
     cur_platform= '??'
@@ -87,66 +75,53 @@ def main():
         print 'Your platform is not supported!'
         sys.exit(1)
 
-    if platform == 'win32':
-        x86_llvm_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/llvm-3.6/prebuilt', '%s' % cur_platform))
-        if not os.path.exists(x86_llvm_path):
-            x86_llvm_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/llvm-3.5/prebuilt', '%s' % cur_platform))
-        if not os.path.exists(x86_llvm_path):
-            x86_llvm_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/llvm/prebuilt', '%s' % cur_platform))
-    else:
-        x86_llvm_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/llvm-3.6/prebuilt', '%s-%s' % (cur_platform, 'x86')))
-        if not os.path.exists(x86_llvm_path):
-            x86_llvm_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/llvm-3.5/prebuilt', '%s-%s' % (cur_platform, 'x86')))
-        if not os.path.exists(x86_llvm_path):
-            x86_llvm_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/llvm/prebuilt', '%s-%s' % (cur_platform, 'x86')))
 
-    x64_llvm_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/llvm-3.6/prebuilt', '%s-%s' % (cur_platform, 'x86_64')))
+    x86_llvm_path = ""
+    x64_llvm_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/llvm/prebuilt', '%s-%s' % (cur_platform, 'x86_64')))
     if not os.path.exists(x64_llvm_path):
-        x64_llvm_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/llvm-3.5/prebuilt', '%s-%s' % (cur_platform, 'x86_64')))
-    if not os.path.exists(x64_llvm_path):
-        x64_llvm_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/llvm/prebuilt', '%s-%s' % (cur_platform, 'x86_64')))
+        x86_llvm_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/llvm/prebuilt', '%s' % (cur_platform)))
+    if not os.path.exists(x86_llvm_path):
+        x86_llvm_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/llvm/prebuilt', '%s-%s' % (cur_platform, 'x86')))
 
-    if os.path.isdir(x86_llvm_path):
-        llvm_path = x86_llvm_path
-    elif os.path.isdir(x64_llvm_path):
+    if os.path.isdir(x64_llvm_path):
         llvm_path = x64_llvm_path
+    elif os.path.isdir(x86_llvm_path):
+        llvm_path = x86_llvm_path
     else:
         print 'llvm toolchain not found!'
         print 'path: %s or path: %s are not valid! ' % (x86_llvm_path, x64_llvm_path)
         sys.exit(1)
 
+    x86_gcc_toolchain_path = ""
+    x64_gcc_toolchain_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/arm-linux-androideabi-4.9/prebuilt', '%s-%s' % (cur_platform, 'x86_64')))
+    if not os.path.exists(x64_gcc_toolchain_path):
+        x86_gcc_toolchain_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/arm-linux-androideabi-4.9/prebuilt', '%s' % (cur_platform)))
+    if not os.path.exists(x86_gcc_toolchain_path):
+        x86_gcc_toolchain_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/arm-linux-androideabi-4.9/prebuilt', '%s-%s' % (cur_platform, 'x86')))
+
+    if os.path.isdir(x64_gcc_toolchain_path):
+        gcc_toolchain_path = x64_gcc_toolchain_path
+    elif os.path.isdir(x86_gcc_toolchain_path):
+        gcc_toolchain_path = x86_gcc_toolchain_path
+    else:
+        print 'gcc toolchain not found!'
+        print 'path: %s or path: %s are not valid! ' % (x64_gcc_toolchain_path, x86_gcc_toolchain_path)
+        sys.exit(1)
+
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
     cocos_root = os.path.abspath(project_root)
-    creator_root = os.path.abspath(os.path.join(cocos_root, 'cocos/editor-support/creator'))
-    jsb_root = os.path.abspath(os.path.join(project_root, 'cocos/scripting/js-bindings'))
+    jsb_root = os.path.abspath(os.path.join(project_root, 'js-bindings'))
     cxx_generator_root = os.path.abspath(os.path.join(project_root, 'tools/bindings-generator'))
-    anysdk_common_dir = os.path.abspath(os.path.join(project_root, 'external/ios/include/anysdk/common'))
-    anysdk_appstore_dir = os.path.abspath(os.path.join(project_root, 'external/ios/include/anysdk/appstore'))
 
     # save config to file
     config = ConfigParser.ConfigParser()
     config.set('DEFAULT', 'androidndkdir', ndk_root)
     config.set('DEFAULT', 'clangllvmdir', llvm_path)
-    config.set('DEFAULT', 'creatordir', creator_root)
+    config.set('DEFAULT', 'gcc_toolchain_dir', gcc_toolchain_path)
     config.set('DEFAULT', 'cocosdir', cocos_root)
-    config.set('DEFAULT', 'anysdk_common_dir', anysdk_common_dir)
-    config.set('DEFAULT', 'anysdk_appstore_dir', anysdk_appstore_dir)
-    config.set('DEFAULT', 'jsbdir', jsb_root)
     config.set('DEFAULT', 'cxxgeneratordir', cxx_generator_root)
     config.set('DEFAULT', 'extra_flags', '')
     
-    if '3.' in llvm_path:
-        if '3.6' in llvm_path:
-            config.set('DEFAULT', 'clang_include', 'lib/clang/3.6/include')
-        else:
-            config.set('DEFAULT', 'clang_include', 'lib/clang/3.5/include')
-    else:
-        config.set('DEFAULT', 'clang_include', 'lib64/clang/3.8/include')
-
-    # To fix parse error on windows, we must difine __WCHAR_MAX__ and undefine __MINGW32__ .
-    if platform == 'win32':
-        config.set('DEFAULT', 'extra_flags', '-D__WCHAR_MAX__=0x7fffffff -U__MINGW32__')
-
     conf_ini_file = os.path.abspath(os.path.join(os.path.dirname(__file__), 'userconf.ini'))
 
     print 'generating userconf.ini...'
@@ -162,66 +137,27 @@ def main():
         path_env = os.environ['PATH']
         os.putenv('PATH', r'%s;%s\libclang;%s\tools\win32;' % (path_env, cxx_generator_root, cxx_generator_root))
 
+
     try:
+
         tojs_root = '%s/tools/tojs' % project_root
         output_dir = '%s/cocos/scripting/js-bindings/auto' % project_root
 
         cmd_args = {
-                    'cocos2dx.ini' : ('cocos2d-x', 'jsb_cocos2dx_auto'), \
-                    'cocos2dx_audioengine.ini' : ('cocos2dx_audioengine', 'jsb_cocos2dx_audioengine_auto'), \
-                    'cocos2dx_network.ini' : ('cocos2dx_network', 'jsb_cocos2dx_network_auto'), \
-                    'cocos2dx_extension.ini' : ('cocos2dx_extension', 'jsb_cocos2dx_extension_auto'), \
-                    'cocos2dx_ui.ini' : ('cocos2dx_ui', 'jsb_cocos2dx_ui_auto'), \
-                    'cocos2dx_spine.ini' : ('cocos2dx_spine', 'jsb_cocos2dx_spine_auto'), \
-                    'cocos2dx_dragonbones.ini' : ('cocos2dx_dragonbones', 'jsb_cocos2dx_dragonbones_auto'), \
-                    'cocos2dx_experimental_webView.ini' : ('cocos2dx_experimental_webView', 'jsb_cocos2dx_experimental_webView_auto'), \
-                    'cocos2dx_experimental_video.ini' : ('cocos2dx_experimental_video', 'jsb_cocos2dx_experimental_video_auto'), \
-                    'creator.ini': ('creator', 'jsb_creator_auto'),
-                    'creator_camera.ini': ('creator', 'jsb_creator_camera_auto'),
-                    'creator_graphics.ini': ('creator', 'jsb_creator_graphics_auto'),
-                    'creator_physics.ini': ('creator', 'jsb_creator_physics_auto'),
-                    'box2d.ini' : ('box2d', 'jsb_box2d_auto'),
-                    'anysdk-common.ini': ('protocols', 'jsb_anysdk_protocols_auto'),
-                    'anysdk-appstore.ini': ('protocols', 'jsb_anysdk_protocols_auto'),
+                    'cocos2dx.ini' : ('cocos2d-x', 'jsb_cocos2dx_auto'),
+                    'gfx.ini': ('gfx', 'jsb_gfx_auto'),
+                    'renderer.ini': ('renderer', 'jsb_renderer_auto'),
                     }
         target = 'spidermonkey'
         generator_py = '%s/generator.py' % cxx_generator_root
         for key in cmd_args.keys():
-            if key == 'anysdk-common.ini':
-                new_output_dir = '%s/extensions/anysdk/js-bindings' % project_root
-            elif key == 'anysdk-appstore.ini':
-                new_output_dir = '%s/extensions/anysdk/platform/ios/appstore/js-bindings' % project_root
-            else:
-                new_output_dir = output_dir
-
             args = cmd_args[key]
             cfg = '%s/%s' % (tojs_root, key)
             print 'Generating bindings for %s...' % (key[:-4])
-            command = '%s %s %s -s %s -t %s -o %s -n %s' % (python_bin, generator_py, cfg, args[0], target, new_output_dir, args[1])
+            command = '%s %s %s -s %s -t %s -o %s -n %s' % (python_bin, generator_py, cfg, args[0], target, output_dir, args[1])
+            print(command)
             _run_cmd(command)
 
-            if key.startswith('anysdk-'):
-                anysdk_auto_filepath = os.path.join(new_output_dir, 'jsb_anysdk_protocols_auto.cpp')
-                if os.path.exists(anysdk_auto_filepath):
-                    _replace_file_content(anysdk_auto_filepath, "scripting/js-bindings/auto/", "")
-
-        # if platform == 'win32':
-        #     with _pushd(output_dir):
-        #         _run_cmd('dos2unix *')
-
-
-        custom_cmd_args = {}
-        if len(custom_cmd_args) > 0:
-            output_dir = '%s/frameworks/custom/auto' % project_root
-            for key in custom_cmd_args.keys():
-                args = custom_cmd_args[key]
-                cfg = '%s/%s' % (tojs_root, key)
-                print 'Generating bindings for %s...' % (key[:-4])
-                command = '%s %s %s -s %s -t %s -o %s -n %s' % (python_bin, generator_py, cfg, args[0], target, output_dir, args[1])
-                _run_cmd(command)
-            # if platform == 'win32':
-            #     with _pushd(output_dir):
-            #         _run_cmd('dos2unix *')
 
         print '----------------------------------------'
         print 'Generating javascript bindings succeeds.'

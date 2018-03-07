@@ -91,7 +91,7 @@ bool seval_to_FontDefinition(const se::Value& v, cocos2d::FontDefinition* ret);
 //bool seval_to_Quaternion(const se::Value& v, cocos2d::Quaternion* ret);
 //bool seval_to_AffineTransform(const se::Value& v, cocos2d::AffineTransform* ret);
 ////bool seval_to_Viewport(const se::Value& v, cocos2d::experimental::Viewport* ret);
-//bool seval_to_Data(const se::Value& v, cocos2d::Data* ret);
+bool seval_to_Data(const se::Value& v, cocos2d::Data* ret);
 //bool seval_to_DownloaderHints(const se::Value& v, cocos2d::network::DownloaderHints* ret);
 //bool seval_to_TTFConfig(const se::Value& v, cocos2d::TTFConfig* ret);
 
