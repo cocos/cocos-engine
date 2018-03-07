@@ -209,7 +209,7 @@ _ccsg.WebView.EventType = {
         devicePixelRatio: false,
         enableDiv: false,
         enableBG: false,
-        closeHistory: true
+        closeHistory: false
     };
 
     if (cc.sys.os === cc.sys.OS_IOS || cc.sys.browserType === cc.sys.BROWSER_TYPE_SAFARI)
