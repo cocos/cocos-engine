@@ -23,13 +23,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#ifndef __SUPPORT_CC_UTILS_H__
-#define __SUPPORT_CC_UTILS_H__
+#pragma once
 
 #include <vector>
 #include <string>
 #include "base/ccMacros.h"
-#include "platform/CCPlatformMacros.h"
 
 /** @file ccUtils.h
 Misc free functions
@@ -37,7 +35,7 @@ Misc free functions
 
 NS_CC_BEGIN
 /*
-ccNextPOT function is licensed under the same license that is used in Texture2D.m.
+utils::nextPOT function is licensed under the same license that is used in Texture2D.m.
 */
 
 /** Returns the Next Power of Two value.
@@ -51,14 +49,11 @@ Examples:
 @since v0.99.5
 */
 
-int ccNextPOT(int value);
-
-void log(const char * format, ...);
-
 class Image;
 
 namespace utils
 {
+	CC_DLL int nextPOT(int x);
     /** Same to ::atof, but strip the string, remain 7 numbers after '.' before call atof.
      * Why we need this? Because in android c++_static, atof ( and std::atof ) is unsupported for numbers have long decimal part and contain
      * several numbers can approximate to 1 ( like 90.099998474121094 ), it will return inf. This function is used to fix this bug.
@@ -82,4 +77,3 @@ namespace utils
 
 NS_CC_END
 
-#endif // __SUPPORT_CC_UTILS_H__

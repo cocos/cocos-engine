@@ -27,7 +27,7 @@ THE SOFTWARE.
 #ifndef __BASE_CCREF_H__
 #define __BASE_CCREF_H__
 
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
 #include "base/ccConfig.h"
 
 #define CC_REF_LEAK_DETECTION 0

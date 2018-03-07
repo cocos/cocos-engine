@@ -30,7 +30,7 @@ THE SOFTWARE.
 #include <random>
 #include <cstdlib>
 
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
 
 /**
 * @addtogroup base

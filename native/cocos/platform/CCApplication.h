@@ -22,11 +22,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-
 #pragma once
 
 #include <string>
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
+#include "platform/CCPlatformConfig.h"
+#include "platform/CCPlatformDefine.h"
 
 NS_CC_BEGIN
 
@@ -156,7 +157,7 @@ private:
     void* _view = nullptr;
     bool _multiTouch = false;
     void* _delegate = nullptr;
-    float _animationInterval = 1.0 / 60;
+    float _animationInterval = 1.0f / 60;
 };
 
 // end of platform group

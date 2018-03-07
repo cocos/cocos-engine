@@ -26,19 +26,12 @@ THE SOFTWARE.
 
 #pragma once
 
+#include "platform/CCGL.h"
 #include "glfw3/glfw3.h"
 #include "glfw3/glfw3native.h"
 
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
 #include "platform/CCApplication.h"
-
-#ifndef GLFW_EXPOSE_NATIVE_WIN32
-#define GLFW_EXPOSE_NATIVE_WIN32
-#endif
-
-#ifndef GLFW_EXPOSE_NATIVE_WGL
-#define GLFW_EXPOSE_NATIVE_WGL
-#endif
 
 NS_CC_BEGIN
 

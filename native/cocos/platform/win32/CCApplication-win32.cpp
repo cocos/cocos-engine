@@ -23,45 +23,105 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-
-#include "platform/CCPlatformConfig.h"
-#if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
-
 #include "platform/CCApplication.h"
-#include "base/CCDirector.h"
+#include "platform/CCStdC.h" // need it to include Windows.h
 #include <algorithm>
-#include "platform/CCFileUtils.h"
 #include <shellapi.h>
-#include <WinVer.h>
-/**
-@brief    This function change the PVRFrame show/hide setting in register.
-@param  bEnable If true show the PVRFrame window, otherwise hide.
-*/
-static void PVRFrameEnableControlWindow(bool bEnable);
+#include <MMSystem.h>
+#include "platform/CCFileUtils.h"
+#include "platform/desktop/CCGLView-desktop.h"
+#include "renderer/gfx/DeviceGraphics.h"
+#include "scripting/js-bindings/jswrapper/v8/ScriptEngine.hpp"
+#include "scripting/js-bindings/event/EventDispatcher.h"
+
+#define CAST_VIEW(view)    ((GLView*)view)
+
+namespace
+{
+    /**
+    @brief  This function changes the PVRFrame show/hide setting in register.
+    @param  bEnable If true show the PVRFrame window, otherwise hide.
+    */
+    void PVRFrameEnableControlWindow(bool bEnable)
+    {
+        HKEY hKey = 0;
+
+        // Open PVRFrame control key, if not exist create it.
+        if(ERROR_SUCCESS != RegCreateKeyExW(HKEY_CURRENT_USER,
+            L"Software\\Imagination Technologies\\PVRVFRame\\STARTUP\\",
+            0,
+            0,
+            REG_OPTION_NON_VOLATILE,
+            KEY_ALL_ACCESS,
+            0,
+            &hKey,
+            nullptr))
+        {
+            return;
+        }
+
+        const WCHAR* wszValue = L"hide_gui";
+        const WCHAR* wszNewData = (bEnable) ? L"NO" : L"YES";
+        WCHAR wszOldData[256] = {0};
+        DWORD   dwSize = sizeof(wszOldData);
+        LSTATUS status = RegQueryValueExW(hKey, wszValue, 0, nullptr, (LPBYTE)wszOldData, &dwSize);
+        if (ERROR_FILE_NOT_FOUND == status              // the key not exist
+            || (ERROR_SUCCESS == status                 // or the hide_gui value is exist
+            && 0 != wcscmp(wszNewData, wszOldData)))    // but new data and old data not equal
+        {
+            dwSize = sizeof(WCHAR) * (wcslen(wszNewData) + 1);
+            RegSetValueEx(hKey, wszValue, 0, REG_SZ, (const BYTE *)wszNewData, dwSize);
+        }
+
+        RegCloseKey(hKey);
+    }
+
+    int g_width = 0;
+    int g_height = 0;
+    bool setCanvasCallback(se::Object* global)
+    {
+        se::ScriptEngine* se = se::ScriptEngine::getInstance();
+        char commandBuf[200] = {0};
+		sprintf(commandBuf, "var window = window || this; window.canvas = { width: %d, height: %d };",
+                g_width,
+                g_height);
+        se->evalString(commandBuf);
+        
+        return true;
+    }
+}
 
 NS_CC_BEGIN
 
-// sharedApplication pointer
-Application * Application::sm_pSharedApplication = nullptr;
-
-Application::Application()
-: _instance(nullptr)
-, _accelTable(nullptr)
+Application::Application(const std::string& name)
 {
-    _instance    = GetModuleHandle(nullptr);
-    _animationInterval.QuadPart = 0;
-    CC_ASSERT(! sm_pSharedApplication);
-    sm_pSharedApplication = this;
+    createView(name);
+    
+    renderer::DeviceGraphics::getInstance();
+    se::ScriptEngine::getInstance();
 }
 
 Application::~Application()
 {
-    CC_ASSERT(this == sm_pSharedApplication);
-    sm_pSharedApplication = nullptr;
+    // TODO: destroy DeviceGraphics
+    
+    se::ScriptEngine::destroyInstance();
+    
+    delete CAST_VIEW(_view);
+    _view = nullptr;
 }
 
-int Application::run()
+void Application::start()
 {
+    se::ScriptEngine* se = se::ScriptEngine::getInstance();
+    se->addRegisterCallback(setCanvasCallback);
+    
+    if(!applicationDidFinishLaunching())
+        return;
+
+    if (!_view)
+        return;
+
     PVRFrameEnableControlWindow(false);
 
     ///////////////////////////////////////////////////////////////////////////
@@ -82,35 +142,24 @@ int Application::run()
 
     QueryPerformanceCounter(&nLast);
 
-    initGLContextAttrs();
-
-    // Initialize instance and cocos2d.
-    if (!applicationDidFinishLaunching())
-    {
-        return 1;
-    }
-
-    auto director = Director::getInstance();
-    auto glview = director->getOpenGLView();
-
-    // Retain glview to avoid glview being released in the while loop
-    glview->retain();
-
     LONGLONG interval = 0LL;
     LONG waitMS = 0L;
 
     LARGE_INTEGER freq;
     QueryPerformanceFrequency(&freq);
+    
+    while (!CAST_VIEW(_view)->windowShouldClose())
+    {       
 
-    while (!glview->windowShouldClose())
-    {
         QueryPerformanceCounter(&nNow);
         interval = nNow.QuadPart - nLast.QuadPart;
-        if (interval >= _animationInterval.QuadPart)
+        if (interval >= _animationInterval)
         {
             nLast.QuadPart = nNow.QuadPart;
-            director->mainLoop();
-            glview->pollEvents();
+            
+            CAST_VIEW(_view)->pollEvents();
+            EventDispatcher::dispatchTickEvent();
+            CAST_VIEW(_view)->swapBuffers();
         }
         else
         {
@@ -119,57 +168,24 @@ int Application::run()
             // Sleep(3) may make a sleep of 2ms or 4ms. Therefore, we subtract 1ms here to make Sleep time shorter.
             // If 'waitMS' is equal or less than 1ms, don't sleep and run into next loop to
             // boost CPU to next frame accurately.
-            waitMS = (_animationInterval.QuadPart - interval) * 1000LL / freq.QuadPart - 1L;
+            waitMS = (_animationInterval - interval) * 1000LL / freq.QuadPart - 1L;
             if (waitMS > 1L)
                 Sleep(waitMS);
-        }
+        } 
     }
 
-    // Director should still do a cleanup if the window was closed manually.
-    if (glview->isOpenGLReady())
-    {
-        director->end();
-        director->mainLoop();
-        director = nullptr;
-    }
-    glview->release();
-
-    ///////////////////////////////////////////////////////////////////////////
-    /////////////// restoring timer resolution
-    ///////////////////////////////////////////////////////////////////////////
     if (wTimerRes != 0)
-    {
         timeEndPeriod(wTimerRes);
-    }
-    return 0;
 }
 
 void Application::setAnimationInterval(float interval)
 {
     LARGE_INTEGER nFreq;
     QueryPerformanceFrequency(&nFreq);
-    _animationInterval.QuadPart = (LONGLONG)(interval * nFreq.QuadPart);
+    _animationInterval = (LONGLONG)(interval * nFreq.QuadPart);
 }
 
-//////////////////////////////////////////////////////////////////////////
-// static member function
-//////////////////////////////////////////////////////////////////////////
-Application* Application::getInstance()
-{
-    CC_ASSERT(sm_pSharedApplication);
-    return sm_pSharedApplication;
-}
-
-void Application::destroyInstance()
-{
-    if (sm_pSharedApplication) {
-        delete  sm_pSharedApplication;
-    }
-
-    sm_pSharedApplication = nullptr;
-}
-
-LanguageType Application::getCurrentLanguage()
+Application::LanguageType Application::getCurrentLanguage() const
 {
     LanguageType ret = LanguageType::ENGLISH;
 
@@ -240,7 +256,7 @@ LanguageType Application::getCurrentLanguage()
     return ret;
 }
 
-const char * Application::getCurrentLanguageCode()
+std::string Application::getCurrentLanguageCode() const
 {
     LANGID lid = GetUserDefaultUILanguage();
     const LCID locale_id = MAKELCID(lid, SORT_DEFAULT);
@@ -250,50 +266,9 @@ const char * Application::getCurrentLanguageCode()
     return code;
 }
 
-Application::Platform Application::getTargetPlatform()
+Application::Platform Application::getPlatform() const
 {
-    return Platform::OS_WINDOWS;
-}
-
-std::string Application::getVersion()
-{
-    char verString[256] = { 0 };
-    TCHAR szVersionFile[MAX_PATH];
-    GetModuleFileName(NULL, szVersionFile, MAX_PATH);
-    DWORD  verHandle = NULL;
-    UINT   size = 0;
-    LPBYTE lpBuffer = NULL;
-    DWORD  verSize = GetFileVersionInfoSize(szVersionFile, &verHandle);
-    
-    if (verSize != NULL)
-    {
-        LPSTR verData = new char[verSize];
-        
-        if (GetFileVersionInfo(szVersionFile, verHandle, verSize, verData))
-        {
-            if (VerQueryValue(verData, L"\\", (VOID FAR* FAR*)&lpBuffer, &size))
-            {
-                if (size)
-                {
-                    VS_FIXEDFILEINFO *verInfo = (VS_FIXEDFILEINFO *)lpBuffer;
-                    if (verInfo->dwSignature == 0xfeef04bd)
-                    {
-                        
-                        // Doesn't matter if you are on 32 bit or 64 bit,
-                        // DWORD is always 32 bits, so first two revision numbers
-                        // come from dwFileVersionMS, last two come from dwFileVersionLS
-                        sprintf(verString, "%d.%d.%d.%d", (verInfo->dwFileVersionMS >> 16) & 0xffff,
-                                (verInfo->dwFileVersionMS >> 0) & 0xffff,
-                                (verInfo->dwFileVersionLS >> 16) & 0xffff,
-                                (verInfo->dwFileVersionLS >> 0) & 0xffff
-                                );
-                    }
-                }
-            }
-        }
-        delete[] verData;
-    }
-    return verString;
+    return Platform::WINDOWS;
 }
 
 bool Application::openURL(const std::string &url)
@@ -305,49 +280,58 @@ bool Application::openURL(const std::string &url)
     return (size_t)r>32;
 }
 
-void Application::setStartupScriptFilename(const std::string& startupScriptFile)
+bool Application::applicationDidFinishLaunching()
 {
-    _startupScriptFilename = startupScriptFile;
-    std::replace(_startupScriptFilename.begin(), _startupScriptFilename.end(), '\\', '/');
+    return true;
+}
+
+void Application::applicationDidEnterBackground()
+{
+}
+
+void Application::applicationWillEnterForeground()
+{
+}
+
+void Application::setMultitouch(bool)
+{
+}
+
+void Application::onCreateView(int&x, int& y, int& width, int& height, PixelFormat& pixelformat, DepthFormat& depthFormat, int& multisamplingCount)
+{
+    x = 0;
+    y = 0;
+    width = 960;
+    height = 640;
+    
+    pixelformat = PixelFormat::RGBA8;
+    depthFormat = DepthFormat::DEPTH24_STENCIL8;
+
+    multisamplingCount = 0;
+}
+
+void Application::createView(const std::string& name)
+{
+    int x = 0;
+    int y = 0;
+    int width = 0;
+    int height = 0;
+    int multisamplingCount = 0;
+    PixelFormat pixelformat;
+    DepthFormat depthFormat;
+    
+    onCreateView(x,
+                 y,
+                 width,
+                 height,
+                 pixelformat,
+                 depthFormat,
+                 multisamplingCount);
+
+    _view = new GLView(this, name, x, y, width, height, pixelformat, depthFormat, multisamplingCount);
+    
+    g_width = width;
+    g_height = height;
 }
 
 NS_CC_END
-
-//////////////////////////////////////////////////////////////////////////
-// Local function
-//////////////////////////////////////////////////////////////////////////
-static void PVRFrameEnableControlWindow(bool bEnable)
-{
-    HKEY hKey = 0;
-
-    // Open PVRFrame control key, if not exist create it.
-    if(ERROR_SUCCESS != RegCreateKeyExW(HKEY_CURRENT_USER,
-        L"Software\\Imagination Technologies\\PVRVFRame\\STARTUP\\",
-        0,
-        0,
-        REG_OPTION_NON_VOLATILE,
-        KEY_ALL_ACCESS,
-        0,
-        &hKey,
-        nullptr))
-    {
-        return;
-    }
-
-    const WCHAR* wszValue = L"hide_gui";
-    const WCHAR* wszNewData = (bEnable) ? L"NO" : L"YES";
-    WCHAR wszOldData[256] = {0};
-    DWORD   dwSize = sizeof(wszOldData);
-    LSTATUS status = RegQueryValueExW(hKey, wszValue, 0, nullptr, (LPBYTE)wszOldData, &dwSize);
-    if (ERROR_FILE_NOT_FOUND == status              // the key not exist
-        || (ERROR_SUCCESS == status                 // or the hide_gui value is exist
-        && 0 != wcscmp(wszNewData, wszOldData)))    // but new data and old data not equal
-    {
-        dwSize = sizeof(WCHAR) * (wcslen(wszNewData) + 1);
-        RegSetValueEx(hKey, wszValue, 0, REG_SZ, (const BYTE *)wszNewData, dwSize);
-    }
-
-    RegCloseKey(hKey);
-}
-
-#endif // CC_TARGET_PLATFORM == CC_PLATFORM_WIN32

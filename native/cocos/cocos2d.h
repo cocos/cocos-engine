@@ -40,13 +40,9 @@ THE SOFTWARE.
 
 // base
 #include "base/CCAutoreleasePool.h"
-#include "base/CCConsole.h"
 #include "base/CCData.h"
-#include "base/CCIMEDelegate.h"
-#include "base/CCIMEDispatcher.h"
 #include "base/CCMap.h"
 #include "base/CCNS.h"
-#include "base/CCProfiling.h"
 #include "base/CCRef.h"
 #include "base/CCRefPtr.h"
 #include "base/CCUserDefault.h"
@@ -83,7 +79,7 @@ THE SOFTWARE.
 #include "platform/CCFileUtils.h"
 #include "platform/CCImage.h"
 #include "platform/CCPlatformConfig.h"
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
 #include "platform/CCSAXParser.h"
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)

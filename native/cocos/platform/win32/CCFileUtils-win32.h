@@ -30,7 +30,7 @@ THE SOFTWARE.
 #if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
 
 #include "platform/CCFileUtils.h"
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
 #include "base/ccTypes.h"
 #include <string>
 #include <vector>

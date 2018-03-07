@@ -1,0 +1,437 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\cocos\base\base64.cpp" />
+    <ClCompile Include="..\cocos\base\CCAutoreleasePool.cpp" />
+    <ClCompile Include="..\cocos\base\ccCArray.cpp" />
+    <ClCompile Include="..\cocos\base\CCConfiguration.cpp" />
+    <ClCompile Include="..\cocos\base\CCData.cpp" />
+    <ClCompile Include="..\cocos\base\ccFPSImages.c" />
+    <ClCompile Include="..\cocos\base\CCLog.cpp" />
+    <ClCompile Include="..\cocos\base\CCNS.cpp" />
+    <ClCompile Include="..\cocos\base\ccRandom.cpp" />
+    <ClCompile Include="..\cocos\base\CCRef.cpp" />
+    <ClCompile Include="..\cocos\base\ccTypes.cpp" />
+    <ClCompile Include="..\cocos\base\CCUserDefault.cpp" />
+    <ClCompile Include="..\cocos\base\ccUTF8.cpp" />
+    <ClCompile Include="..\cocos\base\ccUtils.cpp" />
+    <ClCompile Include="..\cocos\base\CCValue.cpp" />
+    <ClCompile Include="..\cocos\base\etc1.cpp" />
+    <ClCompile Include="..\cocos\base\ObjectFactory.cpp" />
+    <ClCompile Include="..\cocos\base\pvr.cpp" />
+    <ClCompile Include="..\cocos\base\TGAlib.cpp" />
+    <ClCompile Include="..\cocos\base\ZipUtils.cpp" />
+    <ClCompile Include="..\cocos\cocos2d.cpp" />
+    <ClCompile Include="..\cocos\math\CCAffineTransform.cpp" />
+    <ClCompile Include="..\cocos\math\CCGeometry.cpp" />
+    <ClCompile Include="..\cocos\math\CCVertex.cpp" />
+    <ClCompile Include="..\cocos\math\Mat4.cpp" />
+    <ClCompile Include="..\cocos\math\MathUtil.cpp" />
+    <ClCompile Include="..\cocos\math\Quaternion.cpp" />
+    <ClCompile Include="..\cocos\math\TransformUtils.cpp" />
+    <ClCompile Include="..\cocos\math\Vec2.cpp" />
+    <ClCompile Include="..\cocos\math\Vec3.cpp" />
+    <ClCompile Include="..\cocos\math\Vec4.cpp" />
+    <ClCompile Include="..\cocos\platform\CCFileUtils.cpp" />
+    <ClCompile Include="..\cocos\platform\CCImage.cpp" />
+    <ClCompile Include="..\cocos\platform\CCSAXParser.cpp" />
+    <ClCompile Include="..\cocos\platform\desktop\CCGLView-desktop.cpp" />
+    <ClCompile Include="..\cocos\platform\win32\CCApplication-win32.cpp" />
+    <ClCompile Include="..\cocos\platform\win32\CCDevice-win32.cpp" />
+    <ClCompile Include="..\cocos\platform\win32\CCFileUtils-win32.cpp" />
+    <ClCompile Include="..\cocos\platform\win32\CCUtils-win32.cpp" />
+    <ClCompile Include="..\cocos\renderer\gfx\DeviceGraphics.cpp" />
+    <ClCompile Include="..\cocos\renderer\gfx\FrameBuffer.cpp" />
+    <ClCompile Include="..\cocos\renderer\gfx\GFX.cpp" />
+    <ClCompile Include="..\cocos\renderer\gfx\GFXUtils.cpp" />
+    <ClCompile Include="..\cocos\renderer\gfx\GraphicsHandle.cpp" />
+    <ClCompile Include="..\cocos\renderer\gfx\IndexBuffer.cpp" />
+    <ClCompile Include="..\cocos\renderer\gfx\Program.cpp" />
+    <ClCompile Include="..\cocos\renderer\gfx\RenderBuffer.cpp" />
+    <ClCompile Include="..\cocos\renderer\gfx\RenderTarget.cpp" />
+    <ClCompile Include="..\cocos\renderer\gfx\State.cpp" />
+    <ClCompile Include="..\cocos\renderer\gfx\Texture.cpp" />
+    <ClCompile Include="..\cocos\renderer\gfx\Texture2D.cpp" />
+    <ClCompile Include="..\cocos\renderer\gfx\VertexBuffer.cpp" />
+    <ClCompile Include="..\cocos\renderer\gfx\VertexFormat.cpp" />
+    <ClCompile Include="..\cocos\renderer\renderer\BaseRenderer.cpp" />
+    <ClCompile Include="..\cocos\renderer\renderer\Camera.cpp" />
+    <ClCompile Include="..\cocos\renderer\renderer\Config.cpp" />
+    <ClCompile Include="..\cocos\renderer\renderer\Effect.cpp" />
+    <ClCompile Include="..\cocos\renderer\renderer\ForwardRenderer.cpp" />
+    <ClCompile Include="..\cocos\renderer\renderer\InputAssembler.cpp" />
+    <ClCompile Include="..\cocos\renderer\renderer\Light.cpp" />
+    <ClCompile Include="..\cocos\renderer\renderer\Model.cpp" />
+    <ClCompile Include="..\cocos\renderer\renderer\Pass.cpp" />
+    <ClCompile Include="..\cocos\renderer\renderer\ProgramLib.cpp" />
+    <ClCompile Include="..\cocos\renderer\renderer\RendererUtils.cpp" />
+    <ClCompile Include="..\cocos\renderer\renderer\Scene.cpp" />
+    <ClCompile Include="..\cocos\renderer\renderer\Technique.cpp" />
+    <ClCompile Include="..\cocos\renderer\renderer\View.cpp" />
+    <ClCompile Include="..\cocos\renderer\Types.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_gfx_auto.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_renderer_auto.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\event\EventDispatcher.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\config.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\HandleObject.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\MappingUtils.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\RefCounter.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\State.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\Class.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\env.cc" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\http_parser.c" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_agent.cc" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_io.cc" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_socket.cc" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_socket_server.cc" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\node.cc" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\node_debug_options.cc" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\Object.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\ObjectWrap.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\ScriptEngine.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\SHA1.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\util.cc" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\Utils.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\Value.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_classtype.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_conversions.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_gfx_manual.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_global.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_helper.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_renderer_manual.cpp" />
+    <ClCompile Include="..\external\sources\ConvertUTF\ConvertUTF.c" />
+    <ClCompile Include="..\external\sources\ConvertUTF\ConvertUTFWrapper.cpp" />
+    <ClCompile Include="..\external\sources\firefox\mozilla\Assertions.cpp" />
+    <ClCompile Include="..\external\sources\firefox\WebGLFormats.cpp" />
+    <ClCompile Include="..\external\sources\firefox\WebGLTexelConversions.cpp" />
+    <ClCompile Include="..\external\sources\tinyxml2\tinyxml2.cpp" />
+    <ClCompile Include="..\external\sources\unzip\ioapi.cpp" />
+    <ClCompile Include="..\external\sources\unzip\ioapi_mem.cpp" />
+    <ClCompile Include="..\external\sources\unzip\unzip.cpp" />
+    <ClCompile Include="..\external\sources\xxtea\xxtea.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\cocos\base\base64.h" />
+    <ClInclude Include="..\cocos\base\CCAutoreleasePool.h" />
+    <ClInclude Include="..\cocos\base\ccCArray.h" />
+    <ClInclude Include="..\cocos\base\ccConfig.h" />
+    <ClInclude Include="..\cocos\base\CCConfiguration.h" />
+    <ClInclude Include="..\cocos\base\CCData.h" />
+    <ClInclude Include="..\cocos\base\ccFPSImages.h" />
+    <ClInclude Include="..\cocos\base\CCLog.h" />
+    <ClInclude Include="..\cocos\base\ccMacros.h" />
+    <ClInclude Include="..\cocos\base\CCMap.h" />
+    <ClInclude Include="..\cocos\base\CCNS.h" />
+    <ClInclude Include="..\cocos\base\ccRandom.h" />
+    <ClInclude Include="..\cocos\base\CCRef.h" />
+    <ClInclude Include="..\cocos\base\CCRefPtr.h" />
+    <ClInclude Include="..\cocos\base\ccTypes.h" />
+    <ClInclude Include="..\cocos\base\CCUserDefault.h" />
+    <ClInclude Include="..\cocos\base\ccUTF8.h" />
+    <ClInclude Include="..\cocos\base\ccUtils.h" />
+    <ClInclude Include="..\cocos\base\CCValue.h" />
+    <ClInclude Include="..\cocos\base\CCVector.h" />
+    <ClInclude Include="..\cocos\base\etc1.h" />
+    <ClInclude Include="..\cocos\base\firePngData.h" />
+    <ClInclude Include="..\cocos\base\ObjectFactory.h" />
+    <ClInclude Include="..\cocos\base\pvr.h" />
+    <ClInclude Include="..\cocos\base\TGAlib.h" />
+    <ClInclude Include="..\cocos\base\uthash.h" />
+    <ClInclude Include="..\cocos\base\utlist.h" />
+    <ClInclude Include="..\cocos\base\ZipUtils.h" />
+    <ClInclude Include="..\cocos\cocos2d.h" />
+    <ClInclude Include="..\cocos\math\CCAffineTransform.h" />
+    <ClInclude Include="..\cocos\math\CCGeometry.h" />
+    <ClInclude Include="..\cocos\math\CCMath.h" />
+    <ClInclude Include="..\cocos\math\CCMathBase.h" />
+    <ClInclude Include="..\cocos\math\CCVertex.h" />
+    <ClInclude Include="..\cocos\math\Mat4.h" />
+    <ClInclude Include="..\cocos\math\MathUtil.h" />
+    <ClInclude Include="..\cocos\math\Quaternion.h" />
+    <ClInclude Include="..\cocos\math\TransformUtils.h" />
+    <ClInclude Include="..\cocos\math\Vec2.h" />
+    <ClInclude Include="..\cocos\math\Vec3.h" />
+    <ClInclude Include="..\cocos\math\Vec4.h" />
+    <ClInclude Include="..\cocos\platform\CCApplication.h" />
+    <ClInclude Include="..\cocos\platform\CCDevice.h" />
+    <ClInclude Include="..\cocos\platform\CCFileUtils.h" />
+    <ClInclude Include="..\cocos\platform\CCGL.h" />
+    <ClInclude Include="..\cocos\platform\CCImage.h" />
+    <ClInclude Include="..\cocos\platform\CCPlatformConfig.h" />
+    <ClInclude Include="..\cocos\platform\CCPlatformDefine.h" />
+    <ClInclude Include="..\cocos\platform\CCSAXParser.h" />
+    <ClInclude Include="..\cocos\platform\CCStdC.h" />
+    <ClInclude Include="..\cocos\platform\desktop\CCGLView-desktop.h" />
+    <ClInclude Include="..\cocos\platform\win32\CCFileUtils-win32.h" />
+    <ClInclude Include="..\cocos\platform\win32\CCGL-win32.h" />
+    <ClInclude Include="..\cocos\platform\win32\CCPlatformDefine-win32.h" />
+    <ClInclude Include="..\cocos\platform\win32\CCUtils-win32.h" />
+    <ClInclude Include="..\cocos\platform\win32\compat\stdint.h" />
+    <ClInclude Include="..\cocos\renderer\gfx\DeviceGraphics.h" />
+    <ClInclude Include="..\cocos\renderer\gfx\FrameBuffer.h" />
+    <ClInclude Include="..\cocos\renderer\gfx\GFX.h" />
+    <ClInclude Include="..\cocos\renderer\gfx\GFXUtils.h" />
+    <ClInclude Include="..\cocos\renderer\gfx\GraphicsHandle.h" />
+    <ClInclude Include="..\cocos\renderer\gfx\IndexBuffer.h" />
+    <ClInclude Include="..\cocos\renderer\gfx\Program.h" />
+    <ClInclude Include="..\cocos\renderer\gfx\RenderBuffer.h" />
+    <ClInclude Include="..\cocos\renderer\gfx\RenderTarget.h" />
+    <ClInclude Include="..\cocos\renderer\gfx\State.h" />
+    <ClInclude Include="..\cocos\renderer\gfx\Texture.h" />
+    <ClInclude Include="..\cocos\renderer\gfx\Texture2D.h" />
+    <ClInclude Include="..\cocos\renderer\gfx\VertexBuffer.h" />
+    <ClInclude Include="..\cocos\renderer\gfx\VertexFormat.h" />
+    <ClInclude Include="..\cocos\renderer\Macro.h" />
+    <ClInclude Include="..\cocos\renderer\renderer\BaseRenderer.h" />
+    <ClInclude Include="..\cocos\renderer\renderer\Camera.h" />
+    <ClInclude Include="..\cocos\renderer\renderer\Config.h" />
+    <ClInclude Include="..\cocos\renderer\renderer\Effect.h" />
+    <ClInclude Include="..\cocos\renderer\renderer\ForwardRenderer.h" />
+    <ClInclude Include="..\cocos\renderer\renderer\INode.h" />
+    <ClInclude Include="..\cocos\renderer\renderer\InputAssembler.h" />
+    <ClInclude Include="..\cocos\renderer\renderer\Light.h" />
+    <ClInclude Include="..\cocos\renderer\renderer\Model.h" />
+    <ClInclude Include="..\cocos\renderer\renderer\Pass.h" />
+    <ClInclude Include="..\cocos\renderer\renderer\ProgramLib.h" />
+    <ClInclude Include="..\cocos\renderer\renderer\Renderer.h" />
+    <ClInclude Include="..\cocos\renderer\renderer\RendererUtils.h" />
+    <ClInclude Include="..\cocos\renderer\renderer\Scene.h" />
+    <ClInclude Include="..\cocos\renderer\renderer\Technique.h" />
+    <ClInclude Include="..\cocos\renderer\renderer\View.h" />
+    <ClInclude Include="..\cocos\renderer\Types.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_gfx_auto.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_renderer_auto.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\event\EventDispatcher.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\config.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\HandleObject.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\MappingUtils.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\Object.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\RefCounter.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\SeApi.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\State.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\Base.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\base64.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\Class.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\env.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\HelperMacros.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\http_parser.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_agent.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_io.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_socket.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_socket_server.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\node.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\node_debug_options.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\node_mutex.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\Object.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\ObjectWrap.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\ScriptEngine.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\SeApi.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\SHA1.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\util-inl.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\util.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\Utils.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\v8_inspector_protocol_json.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\Value.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_classtype.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_conversions.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_gfx_manual.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_global.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_helper.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_renderer_manual.hpp" />
+    <ClInclude Include="..\external\sources\ConvertUTF\ConvertUTF.h" />
+    <ClInclude Include="..\external\sources\firefox\GLConsts.h" />
+    <ClInclude Include="..\external\sources\firefox\mozilla\Assertions.h" />
+    <ClInclude Include="..\external\sources\firefox\mozilla\Atomics.h" />
+    <ClInclude Include="..\external\sources\firefox\mozilla\Attributes.h" />
+    <ClInclude Include="..\external\sources\firefox\mozilla\Casting.h" />
+    <ClInclude Include="..\external\sources\firefox\mozilla\CheckedInt.h" />
+    <ClInclude Include="..\external\sources\firefox\mozilla\Compiler.h" />
+    <ClInclude Include="..\external\sources\firefox\mozilla\IntegerTypeTraits.h" />
+    <ClInclude Include="..\external\sources\firefox\mozilla\Likely.h" />
+    <ClInclude Include="..\external\sources\firefox\mozilla\MacroArgs.h" />
+    <ClInclude Include="..\external\sources\firefox\mozilla\Move.h" />
+    <ClInclude Include="..\external\sources\firefox\mozilla\Pair.h" />
+    <ClInclude Include="..\external\sources\firefox\mozilla\StaticAnalysisFunctions.h" />
+    <ClInclude Include="..\external\sources\firefox\mozilla\Types.h" />
+    <ClInclude Include="..\external\sources\firefox\mozilla\TypeTraits.h" />
+    <ClInclude Include="..\external\sources\firefox\mozilla\UniquePtr.h" />
+    <ClInclude Include="..\external\sources\firefox\WebGLFormats.h" />
+    <ClInclude Include="..\external\sources\firefox\WebGLTexelConversions.h" />
+    <ClInclude Include="..\external\sources\firefox\WebGLTypes.h" />
+    <ClInclude Include="..\external\sources\tinyxml2\tinyxml2.h" />
+    <ClInclude Include="..\external\sources\unzip\crypt.h" />
+    <ClInclude Include="..\external\sources\unzip\ioapi.h" />
+    <ClInclude Include="..\external\sources\unzip\ioapi_mem.h" />
+    <ClInclude Include="..\external\sources\unzip\unzip.h" />
+    <ClInclude Include="..\external\sources\xxtea\xxtea.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\cocos\math\Mat4.inl" />
+    <None Include="..\cocos\math\MathUtil.inl" />
+    <None Include="..\cocos\math\MathUtilNeon.inl" />
+    <None Include="..\cocos\math\MathUtilNeon64.inl" />
+    <None Include="..\cocos\math\MathUtilSSE.inl" />
+    <None Include="..\cocos\math\Quaternion.inl" />
+    <None Include="..\cocos\math\Vec2.inl" />
+    <None Include="..\cocos\math\Vec3.inl" />
+    <None Include="..\cocos\math\Vec4.inl" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>libcocos2d</ProjectName>
+    <ProjectGuid>{98A51BA8-FC3A-415B-AC8F-8C7BD464E93E}</ProjectGuid>
+    <RootNamespace>cocos2d-x.win32</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0' and exists('$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A')">v120_xp</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0' and exists('$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A')">v140_xp</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v140</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0' and exists('$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A')">v140_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0' and exists('$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A')">v120_xp</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0' and exists('$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A')">v140_xp</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v140</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0' and exists('$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A')">v140_xp</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration).win32\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration).win32\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration).win32\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration).win32\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LibraryPath>$(EngineRoot)external\win32\libs;$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\lib;$(LibraryPath)</LibraryPath>
+    <TargetName>$(ProjectName)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LibraryPath>../../external/sqlite3/libraries/win32;$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\lib;$(LibraryPath)</LibraryPath>
+    <TargetName>$(ProjectName)</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\cocos;$(ProjectDir)..\external\sources;$(ProjectDir)..\cocos\renderer\gfx;$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\external\win32\include\zlib;$(ProjectDir)..\external\win32\include\v8;$(ProjectDir)..\external\sources\firefox;$(projectDir)..;$(ProjectDir)..\external\win32\include;$(ProjectDir)..\external\win32\include\uv;$(ProjectDir)..\external\win32\include\uv</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_USRDLL;USING_V8_SHARED;_LIB;COCOS2D_DEBUG=1;JS_HAVE____INTN;JS_INTPTR_TYPE=int;COCOS2D_JAVASCRIPT=1;XP_WIN;_CRT_SECURE_NO_WARNINGS;_USRJSSTATIC;GLFW_EXPOSE_NATIVE_WIN32;GLFW_EXPOSE_NATIVE_WGL;HAVE_INSPECTOR;_WINDOWS;_WIN32;__MWERKS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <DisableSpecificWarnings>4267;4251;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ObjectFileName>$(IntDir)/%(RelativeDir)</ObjectFileName>
+    </ClCompile>
+    <PreLinkEvent>
+      <Command>if not exist "$(OutDir)" mkdir "$(OutDir)"
+xcopy /Y /Q "$(ProjectDir)..\external\win32\libs\*.*" "$(OutDir)"
+xcopy /Y /Q "$(ProjectDir)..\external\win32\libs\Debug\*.*" "$(OutDir)"</Command>
+    </PreLinkEvent>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcmtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(TargetDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalDependencies>sqlite3.lib;libcrypto.lib;libssl.lib;libcurl.lib;websockets.lib;libmpg123.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;OpenAL32.lib;version.lib;libwebp.lib;libuv.lib;v8_libplatform.dll.lib;v8_libbase.dll.lib;opengl32.lib;glew32.lib;libzlib.lib;Psapi.lib;Iphlpapi.lib;userenv.lib;ws2_32.lib;libiconv.lib;v8.dll.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\cocos;$(ProjectDir)..\external\sources;$(ProjectDir)..\cocos\renderer\gfx;$(ProjectDir)..\cocos\renderer;$(ProjectDir)..\external\win32\include\zlib;$(ProjectDir)..\external\win32\include\v8;$(ProjectDir)..\external\sources\firefox;$(projectDir)..;$(ProjectDir)..\external\win32\include;$(ProjectDir)..\external\win32\include\uv;</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_USRDLL;USING_V8_SHARED;GLFW_EXPOSE_NATIVE_WIN32;GLFW_EXPOSE_NATIVE_WGL;HAVE_INSPECTOR;_WINDOWS;_WIN32;__MWERKS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <DisableSpecificWarnings>4267;4251;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <Optimization>MinSpace</Optimization>
+      <ObjectFileName>$(IntDir)/%(RelativeDir)</ObjectFileName>
+    </ClCompile>
+    <PreLinkEvent>
+      <Command>if not exist "$(OutDir)" mkdir "$(OutDir)"
+xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
+</Command>
+    </PreLinkEvent>
+    <Link>
+      <AdditionalDependencies>sqlite3.lib;libcrypto.lib;libssl.lib;libcurl.lib;websockets.lib;libmpg123.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;OpenAL32.lib;version.lib;libwebp.lib;libuv.lib;v8_libplatform.dll.lib;v8_libbase.dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>LIBCMTD.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ImportLibrary>$(TargetDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

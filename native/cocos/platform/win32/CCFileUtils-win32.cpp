@@ -29,7 +29,6 @@ THE SOFTWARE.
 
 #include "platform/win32/CCFileUtils-win32.h"
 #include "platform/win32/CCUtils-win32.h"
-#include "platform/CCCommon.h"
 #include <Shlobj.h>
 #include <cstdlib>
 #include <regex>

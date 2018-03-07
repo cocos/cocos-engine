@@ -27,7 +27,7 @@ THE SOFTWARE.
 #ifndef __CC_UTILS_WIN32_H__
 #define __CC_UTILS_WIN32_H__
 
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
 
 #include <string>
 

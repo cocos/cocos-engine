@@ -26,9 +26,7 @@ THE SOFTWARE.
 
 #include "base/CCConfiguration.h"
 #include "platform/CCFileUtils.h"
-//cjh #include "base/CCEventCustom.h"
-//cjh #include "base/CCDirector.h"
-//cjh #include "base/CCEventDispatcher.h"
+#include "base/CCLog.h"
 
 NS_CC_BEGIN
 

@@ -26,7 +26,7 @@ THE SOFTWARE.
 #ifndef __SUPPORT_CCUSERDEFAULT_H__
 #define __SUPPORT_CCUSERDEFAULT_H__
 
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
 #include <string>
 #include "base/CCData.h"
 

@@ -23,12 +23,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-
-#ifndef __CC_STD_C_H__
-#define __CC_STD_C_H__
-
-#include "platform/CCPlatformConfig.h"
-#if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+#pragma once
 
 #include <BaseTsd.h>
 #ifndef __SSIZE_T
@@ -36,8 +31,9 @@ THE SOFTWARE.
 typedef SSIZE_T ssize_t;
 #endif // __SSIZE_T
 
-#include "platform/CCPlatformMacros.h"
 #include <float.h>
+
+
 
 // for math.h on win32 platform
 #ifndef __MINGW32__
@@ -74,17 +70,6 @@ typedef SSIZE_T ssize_t;
   #define M_PI_2    1.57079632679
 #endif
 // for MIN MAX and sys/time.h on win32 platform
-#ifdef __MINGW32__
-#include <sys/time.h>
-#endif // __MINGW32__
-
-#ifndef MIN
-#define MIN(x,y) (((x) > (y)) ? (y) : (x))
-#endif  // MIN
-
-#ifndef MAX
-#define MAX(x,y) (((x) < (y)) ? (y) : (x))
-#endif  // MAX
 
 
 #if _MSC_VER >= 1600 || defined(__MINGW32__)
@@ -93,56 +78,6 @@ typedef SSIZE_T ssize_t;
     #include "platform/win32/compat/stdint.h"
 #endif
 
-#define _WINSOCKAPI_
-#ifndef NOMINMAX
-  #define NOMINMAX
-#endif
-// Structure timeval has define in winsock.h, include windows.h for it.
-#include <Windows.h>
-
-#ifndef __MINGW32__
-
-#include <WinSock2.h>
-
-NS_CC_BEGIN
-
-struct timezone
-{
-    int tz_minuteswest;
-    int tz_dsttime;
-};
-
-int CC_DLL gettimeofday(struct timeval *, struct timezone *);
-
-NS_CC_END
-
-#else
-
-#undef _WINSOCKAPI_
-#include <winsock2.h>
-
-// Conflicted with math.h isnan
-#include <cmath>
-using std::isnan;
-
-inline int vsnprintf_s(char *buffer, size_t sizeOfBuffer, size_t count,
-                 const char *format, va_list argptr) {
-  return vsnprintf(buffer, sizeOfBuffer, format, argptr);
-}
-
-#ifndef __clang__
-inline errno_t strcpy_s(char *strDestination, size_t numberOfElements,
-        const char *strSource) {
-    strcpy(strDestination, strSource);
-    return 0;
-}
-#endif
-#endif // __MINGW32__
-
-// Conflicted with cocos2d::MessageBox, so we need to undef it.
-#ifdef MessageBox
-#undef MessageBox
-#endif
 
 // Conflicted with ParticleSystem::PositionType::RELATIVE, so we need to undef it.
 #ifdef RELATIVE
@@ -161,8 +96,3 @@ inline errno_t strcpy_s(char *strDestination, size_t numberOfElements,
 
 #undef min
 #undef max
-
-#endif // CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
-
-#endif  // __CC_STD_C_H__
-

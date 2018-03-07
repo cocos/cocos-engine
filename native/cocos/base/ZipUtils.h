@@ -30,7 +30,7 @@ THE SOFTWARE.
 
 #include <string>
 #include "platform/CCPlatformConfig.h"
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
 #include "platform/CCPlatformDefine.h"
 #include "platform/CCFileUtils.h"
 

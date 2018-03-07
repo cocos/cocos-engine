@@ -31,7 +31,7 @@ THE SOFTWARE.
 #include <unordered_map>
 #include <type_traits>
 
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
 #include "base/ccTypes.h"
 #include "base/CCValue.h"
 #include "base/CCData.h"

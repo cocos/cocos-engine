@@ -31,7 +31,7 @@
  */
 
 #include "storage/local-storage/LocalStorage.h"
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 

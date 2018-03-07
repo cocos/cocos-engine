@@ -30,7 +30,7 @@ THE SOFTWARE.
 #include <unordered_map>
 
 #include "scripting/js-bindings/event/EventDispatcher.h"
-#include "ccMacros.h"
+#include "base/ccUtils.h"
 
 NS_CC_BEGIN
 

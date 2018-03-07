@@ -28,7 +28,7 @@
 
 #include <memory>
 #include <string.h>
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
 /**
  * @addtogroup base
  * @{

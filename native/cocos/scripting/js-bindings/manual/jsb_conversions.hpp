@@ -6,9 +6,7 @@
 #include "cocos2d.h"
 #include "gfx/GFX.h"
 #include "renderer/Renderer.h"
-//#include "cocos/ui/CocosGUI.h"
 //#include "extensions/cocos-ext.h"
-//#include "cocos/editor-support/spine/spine.h"
 //#include "Box2D/Box2D.h"
 
 #define SE_PRECONDITION2_VOID(condition, ...) \

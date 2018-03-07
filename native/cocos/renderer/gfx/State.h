@@ -37,9 +37,7 @@ class Program;
 class Texture;
 
 struct State final
-{
-    // TODO: adjust memeber position to reduce size??
-    
+{    
     State();
     State(const State&);
     State(State &&);

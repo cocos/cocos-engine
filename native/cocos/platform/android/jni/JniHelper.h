@@ -31,7 +31,7 @@ THE SOFTWARE.
 #include <vector>
 #include <unordered_map>
 #include <functional>
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
 #include "math/Vec3.h"
 
 NS_CC_BEGIN

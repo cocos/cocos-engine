@@ -28,7 +28,7 @@
 /// @cond DO_NOT_SHOW
 
 #include "platform/CCPlatformConfig.h"
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
 #include <string>
 
 NS_CC_BEGIN

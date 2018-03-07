@@ -28,7 +28,7 @@
 #include "platform/CCPlatformConfig.h"
 #if CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC
 
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
 #include "audio/apple/AudioMacros.h"
 
 #include <condition_variable>

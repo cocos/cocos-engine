@@ -24,8 +24,7 @@
  ****************************************************************************/
 
 #include "AppDelegate.h"
-
-#include "cocos2d.h"
+ #include "platform/CCFileUtils.h"
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/auto/jsb_gfx_auto.hpp"
@@ -107,9 +106,6 @@ bool AppDelegate::applicationDidFinishLaunching()
     
     se::AutoHandleScope hs;
     
-    char commandBuf[200] = {0};
-    sprintf(commandBuf, "window.canvas = { width: %d, height: %d };", 960, 640);
-    se->evalString(commandBuf);
     se->runScript("src/renderer-test/main-jsb.js");
     
     se->addAfterCleanupHook([](){
