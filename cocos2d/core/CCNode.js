@@ -26,7 +26,7 @@
 
 const PrefabHelper = require('./utils/prefab-helper');
 const mathPools = require('./utils/math-pools');
-const renderEngine = require('./renderer/render-engine');
+const renderEngine = require('engine-next');
 const affineTrans = require('./value-types/CCAffineTransform');
 const math = renderEngine.math;
 const eventManager = require('./event-manager');

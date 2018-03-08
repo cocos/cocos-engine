@@ -1,6 +1,6 @@
 
 const js = require('../platform/js');
-const renderEngine = require('../renderer/render-engine');
+const renderEngine = require('engine-next');
 const Vec2 = require('../value-types/CCVec2');
 const Vec3 = require('../value-types/CCVec3');
 const math = renderEngine.math;

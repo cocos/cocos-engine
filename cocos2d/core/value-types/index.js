@@ -34,4 +34,4 @@ require('./CCTypes');
 require('./CCAffineTransform');
 require('./CCTypesWebGL');
 
-cc.vmath = require('../renderer/render-engine').math;
+cc.vmath = require('engine-next').math;

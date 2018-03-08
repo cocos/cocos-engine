@@ -25,7 +25,7 @@
 
 const Component = require('./CCComponent');
 const defaultVertexFormat = require('../renderer/vertex-format');
-const renderEngine = require('../renderer/render-engine');
+const renderEngine = require('engine-next');
 const RenderData = renderEngine.RenderData;
 
 /**

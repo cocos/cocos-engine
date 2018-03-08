@@ -10,6 +10,9 @@
   "scripts": {
     "test": "gulp test"
   },
+  "dependencies": {
+    "engine-next": "git+ssh://git@github.com:pandamicro/engine-next.git#1.0.0"
+  },
   "devDependencies": {
     "async": "1.5.2",
     "babel-plugin-parser-opts": "1.0.1",

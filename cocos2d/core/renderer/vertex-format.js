@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const renderEngine = require('./render-engine');
+const renderEngine = require('engine-next');
 const gfx = renderEngine.gfx;
 
 var defaultVertexFormat = new gfx.VertexFormat([

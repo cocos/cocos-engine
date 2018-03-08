@@ -26,7 +26,7 @@
 const js = require('../core/platform/js');
 const assembler = require('../core/renderer/assemblers/assembler');
 const ParticleSystem = require('./CCParticleSystem');
-const renderEngine = require('../core/renderer/render-engine');
+const renderEngine = require('engine-next');
 
 var particleSystemAssembler = js.addon({
     useModel: true,

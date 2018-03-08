@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const renderEngine = require('../../render-engine');
+const renderEngine = require('engine-next');
 
 const Label = require('../../../components/CCLabel');
 const Overflow = Label.Overflow;
