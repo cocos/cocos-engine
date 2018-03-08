@@ -25,6 +25,29 @@
  ****************************************************************************/
 
 var WidgetManager = require('../base-ui/CCWidgetManager');
+
+/**
+ * !en Enum for align mode.
+ * !zh AlignMode 类型
+ * @enum Widget.AlignMode
+ */
+/**
+ * !en Only align once when component is enabled, then immediately disable it.
+ * !zh 仅在 onEnable 的当帧结束时对齐一次，然后立刻禁用当前组件。
+ * @property {Number} ONCE
+ */
+/**
+ * !en Align when window is resized
+ * !zh 在窗口 resize 时对齐。
+ * @property {Number} ON_WINDOW_RESIZED
+ */
+/**
+ * !en Keep aligning all the way.
+ * !zh 一直保持对齐。
+ * @property {Number} ALWAYS
+ */
+var AlignMode = WidgetManager.AlignMode;
+
 var AlignFlags = WidgetManager._AlignFlags;
 var TOP     = AlignFlags.TOP;
 var MID     = AlignFlags.MID;
@@ -486,11 +509,40 @@ var Widget = cc.Class({
          * @property isAlignOnce
          * @type {Boolean}
          * @default false
+         * @deprecated
          */
         isAlignOnce: {
-            default: true,
-            tooltip: CC_DEV && 'i18n:COMPONENT.widget.align_once',
-            displayName: "AlignOnce"
+            get: function () {
+                if (CC_DEV) {
+                    cc.warn('cc.Widget.isAlignOnce is deprecated, use alignMode instead please.');
+                }
+                return this.alignMode === AlignMode.ONCE;
+            },
+            set: function (value) {
+                if (CC_DEV) {
+                    cc.warn('cc.Widget.isAlignOnce is deprecated, use alignMode instead please.');
+                }
+                this.alignMode = value ? AlignMode.ONCE : AlignMode.ALWAYS;
+            },
+            visible: false,
+        },
+        _wasAlignOnce: {
+            default: undefined,
+            formerlySerializedAs: 'isAlignOnce',
+        },
+
+        /**
+         * !#en specify the align mode
+         * !#zh 指定对齐模式
+         * @property alignMode
+         * @type {Widget.AlignMode}
+         * @example
+         * widget.alignMode = cc.Widget.AlignMode.ON_WINDOW_RESIZED
+         */
+        alignMode: {
+           default: AlignMode.ON_WINDOW_RESIZED,
+           type: AlignMode,
+           tooltip: CC_DEV && 'i18n:COMPONENT.widget.align_mode',
         },
 
         //
@@ -525,6 +577,20 @@ var Widget = cc.Class({
         _originalHeight: 0
     },
 
+    statics: {
+        AlignMode: AlignMode,
+    },
+
+    onLoad: function () {
+        if (this._wasAlignOnce !== undefined){
+            if (this._wasAlignOnce === true){
+                this.alignMode = AlignMode.ONCE;
+            }else if (this._wasAlignOnce === false){
+                this.alignMode = AlignMode.ALWAYS;
+            }
+            this._wasAlignOnce = undefined;
+        }
+    },
     onEnable: function () {
         WidgetManager.add(this);
     },
