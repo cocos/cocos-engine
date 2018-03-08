@@ -541,14 +541,6 @@ float
 },
 
 /**
- * @method beginPath
- */
-beginPath : function (
-)
-{
-},
-
-/**
  * @method lineTo
  * @param {float} arg0
  * @param {float} arg1
@@ -561,39 +553,39 @@ float
 },
 
 /**
- * @method getImageData
- * @param {float} arg0
- * @param {float} arg1
- * @param {float} arg2
- * @param {float} arg3
- * @return {cc.Data}
+ * @method stroke
  */
-getImageData : function (
-float, 
-float, 
-float, 
-float 
+stroke : function (
 )
 {
-    return cc.Data;
 },
 
 /**
- * @method createLinearGradient
+ * @method measureText
+ * @param {String} arg0
+ * @return {size_object}
+ */
+measureText : function (
+str 
+)
+{
+    return cc.Size;
+},
+
+/**
+ * @method clearRect
  * @param {float} arg0
  * @param {float} arg1
  * @param {float} arg2
  * @param {float} arg3
- * @return {cc.CanvasGradient}
  */
-createLinearGradient : function (
+clearRect : function (
 float, 
 float, 
 float, 
 float 
 )
 {
-    return cc.CanvasGradient;
 },
 
 /**
@@ -608,14 +600,6 @@ str,
 float, 
 float, 
 float 
-)
-{
-},
-
-/**
- * @method stroke
- */
-stroke : function (
 )
 {
 },
@@ -637,26 +621,6 @@ float
 },
 
 /**
- * @method measureText
- * @param {String} arg0
- * @return {size_object}
- */
-measureText : function (
-str 
-)
-{
-    return cc.Size;
-},
-
-/**
- * @method closePath
- */
-closePath : function (
-)
-{
-},
-
-/**
  * @method save
  */
 save : function (
@@ -665,17 +629,35 @@ save : function (
 },
 
 /**
- * @method clearRect
+ * @method beginPath
+ */
+beginPath : function (
+)
+{
+},
+
+/**
+ * @method createLinearGradient
  * @param {float} arg0
  * @param {float} arg1
  * @param {float} arg2
  * @param {float} arg3
+ * @return {cc.CanvasGradient}
  */
-clearRect : function (
+createLinearGradient : function (
 float, 
 float, 
 float, 
 float 
+)
+{
+    return cc.CanvasGradient;
+},
+
+/**
+ * @method closePath
+ */
+closePath : function (
 )
 {
 },

@@ -7,16 +7,35 @@
 
 #include <regex>
 
+enum class CanvasTextAlign {
+    LEFT,
+    CENTER,
+    RIGHT
+};
+
+enum class CanvasTextBaseline {
+    TOP,
+    MIDDLE,
+    BOTTOM
+};
+
 @interface CanvasRenderingContext2DImpl : NSObject {
     NSFont* _font;
     NSMutableDictionary* _tokenAttributesDict;
     NSString* _fontName;
     CGFloat _fontSize;
+    NSImage* _image;
+    cocos2d::Data _imageData;
+    CanvasTextAlign _textAlign;
+    CanvasTextBaseline _textBaseLine;
 }
 
 @property (nonatomic, strong) NSFont* font;
 @property (nonatomic, strong) NSMutableDictionary* tokenAttributesDict;
 @property (nonatomic, strong) NSString* fontName;
+@property (nonatomic, strong) NSImage* image;
+@property (nonatomic, assign) CanvasTextAlign textAlign;;
+@property (nonatomic, assign) CanvasTextBaseline textBaseLine;;
 
 @end
 
@@ -25,9 +44,14 @@
 @synthesize font = _font;
 @synthesize tokenAttributesDict = _tokenAttributesDict;
 @synthesize fontName = _fontName;
+@synthesize image = _image;
+@synthesize textAlign = _textAlign;
+@synthesize textBaseLine = _textBaseLine;
 
 -(id) init {
     if ([super init]) {
+        _textAlign = CanvasTextAlign::LEFT;
+        _textBaseLine = CanvasTextBaseline::BOTTOM;
         [self updateFontWithName:@"Arial" fontSize:30];
     }
 
@@ -38,6 +62,7 @@
     self.font = nil;
     self.tokenAttributesDict = nil;
     self.fontName = nil;
+    self.image = nil;
 
     [super dealloc];
 }
@@ -69,6 +94,7 @@
 
     NSMutableParagraphStyle* paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
     paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
+    [paragraphStyle setAlignment:NSTextAlignmentCenter];
 
     // color
     NSColor* foregroundColor = [NSColor colorWithRed:1.0f
@@ -83,8 +109,8 @@
                                                 paragraphStyle, NSParagraphStyleAttributeName, nil];
 }
 
--(void) updateTextAlignment:(NSTextAlignment) alignment {
-
+-(void) recreateBufferWithWidth:(NSInteger) width height:(NSInteger) height {
+    self.image = [[NSImage alloc] initWithSize:NSMakeSize(width, height)];
 }
 
 -(NSSize) measureText:(NSString*) text {
@@ -114,43 +140,67 @@
     return dim;
 }
 
--(void) fillText:(NSString*) text x:(NSInteger) x y:(NSInteger) y width:(NSInteger) width height:(NSInteger) height {
-//    CGFloat xPadding = 0;
-//    CGFloat yPadding = 0;
-//
-//    NSInteger POTWide = width;
-//    NSInteger POTHigh = height;
-//    NSRect textRect = NSMakeRect(0, 0,
-//                                 width, height);
-//
-//
-//    [[NSGraphicsContext currentContext] setShouldAntialias:NO];
-//
-//    NSImage *image = [[NSImage alloc] initWithSize:NSMakeSize(POTWide, POTHigh)];
-//    [image lockFocus];
-//    // patch for mac retina display and lableTTF
-//    [[NSAffineTransform transform] set];
-//    NSAttributedString *stringWithAttributes =[[[NSAttributedString alloc] initWithString:text
-//                                                                               attributes:_tokenAttributesDict] autorelease];
-//    [stringWithAttributes drawInRect:textRect];
-//    NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithFocusedViewRect:NSMakeRect (0.0f, 0.0f, POTWide, POTHigh)];
-//    [image unlockFocus];
-//
-//    auto data = (unsigned char*) [bitmap bitmapData];  //Use the same buffer to improve the performance.
-//
-//    NSUInteger textureSize = POTWide * POTHigh * 4;
-//    auto dataNew = (unsigned char*)malloc(sizeof(unsigned char) * textureSize);
-//    if (dataNew) {
-//        memcpy(dataNew, data, textureSize);
-//        // output params
-//        info->width = static_cast<int>(POTWide);
-//        info->height = static_cast<int>(POTHigh);
-//        info->data = dataNew;
-//        info->isPremultipliedAlpha = true;
-//        ret = true;
-//    }
-//    [bitmap release];
-//    [image release];
+-(NSPoint) convertDrawPoint:(NSPoint) point text:(NSString*) text {
+    NSSize textSize = [self measureText:text];
+    NSLog(@"textSize: %f, %f", textSize.width, textSize.height);
+
+    if (_textAlign == CanvasTextAlign::CENTER)
+    {
+        point.x -= textSize.width / 2;
+    }
+    else if (_textAlign == CanvasTextAlign::RIGHT)
+    {
+        point.x -= textSize.width;
+    }
+
+    if (_textBaseLine == CanvasTextBaseline::TOP)
+    {
+        point.y += textSize.height;
+    }
+    else if (_textBaseLine == CanvasTextBaseline::MIDDLE)
+    {
+        point.y += textSize.height / 2;
+    }
+
+    return point;
+}
+
+-(void) fillText:(NSString*) text x:(CGFloat) x y:(CGFloat) y maxWidth:(CGFloat) maxWidth {
+
+    NSPoint drawPoint = [self convertDrawPoint:NSMakePoint(x, y) text:text];
+
+    NSMutableParagraphStyle* paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
+    paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
+
+    [_tokenAttributesDict setObject:paragraphStyle forKey:NSParagraphStyleAttributeName];
+
+    [[NSGraphicsContext currentContext] setShouldAntialias:NO];
+
+    [_image lockFocus];
+    // patch for mac retina display and lableTTF
+    [[NSAffineTransform transform] set];
+    NSAttributedString *stringWithAttributes =[[[NSAttributedString alloc] initWithString:text
+                                                                               attributes:_tokenAttributesDict] autorelease];
+
+    drawPoint.y = _image.size.height - drawPoint.y;
+    [stringWithAttributes drawAtPoint:drawPoint];
+
+    NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithFocusedViewRect:NSMakeRect (0.0f, 0.0f, _image.size.width, _image.size.height)];
+    [_image unlockFocus];
+
+    unsigned char* data = [bitmap bitmapData];  //Use the same buffer to improve the performance.
+
+    NSUInteger textureSize = _image.size.width * _image.size.height * 4;
+    uint8_t* buffer = (uint8_t*)malloc(sizeof(uint8_t) * textureSize);
+    if (buffer) {
+        memcpy(buffer, data, textureSize);
+        _imageData.fastSet(buffer, textureSize);
+    }
+    [bitmap release];
+}
+
+-(const cocos2d::Data&) getDataRef {
+    return _imageData;
 }
 
 @end
@@ -185,11 +235,13 @@ CanvasRenderingContext2D::CanvasRenderingContext2D(float width, float height)
 CanvasRenderingContext2D::~CanvasRenderingContext2D()
 {
     SE_LOGD("CanvasGradient destructor: %p\n", this);
+    [_impl release];
 }
 
 void CanvasRenderingContext2D::recreateBuffer()
 {
     _isBufferSizeDirty = false;
+    [_impl recreateBufferWithWidth: __width height:__height];
 }
 
 void CanvasRenderingContext2D::clearRect(float x, float y, float width, float height)
@@ -197,17 +249,23 @@ void CanvasRenderingContext2D::clearRect(float x, float y, float width, float he
     SE_LOGD("CanvasGradient::clearRect: %p, %f, %f, %f, %f\n", this, x, y, width, height);
 }
 
-Data CanvasRenderingContext2D::getImageData(float sx, float sy, float sw, float sh)
-{
-    SE_LOGD("CanvasGradient::getImageData: %p, %f, %f, %f, %f\n", this, sx, sy, sw, sh);
-    return Data();
-}
+//Data CanvasRenderingContext2D::getImageData(float sx, float sy, float sw, float sh)
+//{
+//    SE_LOGD("CanvasGradient::getImageData: %p, %f, %f, %f, %f\n", this, sx, sy, sw, sh);
+//    assert(sx == 0 && sy == 0 && sw == __width && sh == __height); // TODO: cjh
+//
+//    return [_impl getImageData];
+//}
 
 void CanvasRenderingContext2D::fillText(const std::string& text, float x, float y, float maxWidth)
 {
     SE_LOGD("CanvasRenderingContext2D::fillText: %s, %f, %f, %f\n", text.c_str(), x, y, maxWidth);
     if (_isBufferSizeDirty)
         recreateBuffer();
+
+    [_impl fillText:[NSString stringWithUTF8String:text.c_str()] x:x y:y maxWidth:maxWidth];
+    if (_canvasBufferUpdatedCB != nullptr)
+        _canvasBufferUpdatedCB([_impl getDataRef]);
 }
 
 void CanvasRenderingContext2D::strokeText(const std::string& text, float x, float y, float maxWidth)
@@ -215,6 +273,9 @@ void CanvasRenderingContext2D::strokeText(const std::string& text, float x, floa
     SE_LOGD("CanvasRenderingContext2D::strokeText: %s, %f, %f, %f\n", text.c_str(), x, y, maxWidth);
     if (_isBufferSizeDirty)
         recreateBuffer();
+
+    if (_canvasBufferUpdatedCB != nullptr)
+        _canvasBufferUpdatedCB([_impl getDataRef]);
 }
 
 cocos2d::Size CanvasRenderingContext2D::measureText(const std::string& text)
@@ -264,6 +325,11 @@ void CanvasRenderingContext2D::restore()
 
 }
 
+void CanvasRenderingContext2D::setCanvasBufferUpdatedCallback(const CanvasBufferUpdatedCallback& cb)
+{
+    _canvasBufferUpdatedCB = cb;
+}
+
 void CanvasRenderingContext2D::set__width(float width)
 {
     SE_LOGD("CanvasRenderingContext2D::set__width: %f\n", width);
@@ -294,15 +360,18 @@ void CanvasRenderingContext2D::set_font(const std::string& font)
     {
         _font = font;
 
+        // TODO: cjh implements bold
+        std::string bold;
         std::string fontName = "Arial";
         std::string fontSizeStr = "30";
 
-        std::regex re("(\\d+)px\\s+(\\w+)");
+        std::regex re("(bold)?\\s*(\\d+)px\\s+(\\w+)");
         std::match_results<std::string::const_iterator> results;
         if (std::regex_search(_font.cbegin(), _font.cend(), results, re))
         {
-            fontName = results[2].str();
-            fontSizeStr = results[1].str();
+            bold = results[1].str();
+            fontSizeStr = results[2].str();
+            fontName = results[3].str();
         }
 
         CGFloat fontSize = atof(fontSizeStr.c_str());
@@ -313,11 +382,43 @@ void CanvasRenderingContext2D::set_font(const std::string& font)
 void CanvasRenderingContext2D::set_textAlign(const std::string& textAlign)
 {
     SE_LOGD("CanvasRenderingContext2D::set_textAlign: %s\n", textAlign.c_str());
+    if (textAlign == "left")
+    {
+        _impl.textAlign = CanvasTextAlign::LEFT;
+    }
+    else if (textAlign == "center")
+    {
+        _impl.textAlign = CanvasTextAlign::CENTER;
+    }
+    else if (textAlign == "right")
+    {
+        _impl.textAlign = CanvasTextAlign::RIGHT;
+    }
+    else
+    {
+        assert(false);
+    }
 }
 
 void CanvasRenderingContext2D::set_textBaseline(const std::string& textBaseline)
 {
     SE_LOGD("CanvasRenderingContext2D::set_textBaseline: %s\n", textBaseline.c_str());
+    if (textBaseline == "top")
+    {
+        _impl.textBaseLine = CanvasTextBaseline::TOP;
+    }
+    else if (textBaseline == "middle")
+    {
+        _impl.textBaseLine = CanvasTextBaseline::MIDDLE;
+    }
+    else if (textBaseline == "bottom")
+    {
+        _impl.textBaseLine = CanvasTextBaseline::BOTTOM;
+    }
+    else
+    {
+        assert(false);
+    }
 }
 
 void CanvasRenderingContext2D::set_fillStyle(const std::string& fillStyle)

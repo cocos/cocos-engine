@@ -57,7 +57,7 @@ public:
     ~CanvasRenderingContext2D();
 
     void clearRect(float x, float y, float width, float height);
-    Data getImageData(float sx, float sy, float sw, float sh);
+//    Data getImageData(float sx, float sy, float sw, float sh);
     void fillText(const std::string& text, float x, float y, float maxWidth = -1.0f);
     void strokeText(const std::string& text, float x, float y, float maxWidth = -1.0f);
     Size measureText(const std::string& text);
@@ -70,6 +70,10 @@ public:
     void lineTo(float x, float y);
     void stroke();
     void restore();
+
+    // callback
+    using CanvasBufferUpdatedCallback = std::function<void(const Data&)>;
+    void setCanvasBufferUpdatedCallback(const CanvasBufferUpdatedCallback& cb);
 
     // functions for properties
     void set__width(float width);
@@ -109,6 +113,7 @@ public:
 
 private:
 
+    CanvasBufferUpdatedCallback _canvasBufferUpdatedCB = nullptr;
     CanvasRenderingContext2DImpl* _impl = nullptr;
 
     bool _isBufferSizeDirty = true;
