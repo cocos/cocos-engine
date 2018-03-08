@@ -896,13 +896,11 @@ var Node = cc.Class({
          */
         zIndex: {
             get () {
-                // high bits for zIndex, 1 bit for 
-                return (this._localZOrder & 0xffff0000) >> 16;
+                return this._localZOrder;
             },
             set (value) {
-                var zIndex = (this._localZOrder & 0xffff0000) >> 16;
-                if (zIndex !== value) {
-                    this._localZOrder = (this._localZOrder & 0x0000ffff) | (value << 16);
+                if (this._localZOrder !== value) {
+                    this._localZOrder = value;
 
                     if (this._parent) {
                         this._parent._delaySort();
