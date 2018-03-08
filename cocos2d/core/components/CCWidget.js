@@ -27,23 +27,29 @@
 var WidgetManager = require('../base-ui/CCWidgetManager');
 
 /**
- * !en Enum for align mode.
- * !zh AlignMode 类型
+ * !#en Enum for Widget's alignment mode, indicating when the widget should refresh.
+ * !#zh Widget 的对齐模式，表示 Widget 应该何时刷新。
  * @enum Widget.AlignMode
  */
 /**
- * !en Only align once when component is enabled, then immediately disable it.
- * !zh 仅在 onEnable 的当帧结束时对齐一次，然后立刻禁用当前组件。
+ * !#en
+ * Only align once when the Widget is enabled for the first time.
+ * This will allow the script or animation to continue controlling the current node.
+ * It will only be aligned once before the end of frame when onEnable is called,
+ * then immediately disables the Widget.
+ * !#zh
+ * 仅在 Widget 第一次激活时对齐一次，便于脚本或动画继续控制当前节点。
+ * 开启后会在 onEnable 时所在的那一帧结束前对齐一次，然后立刻禁用该 Widget。
  * @property {Number} ONCE
  */
 /**
- * !en Align when window is resized
- * !zh 在窗口 resize 时对齐。
+ * !#en Align first from the beginning as ONCE, and then realign it every time the window is resized.
+ * !#zh 一开始会像 ONCE 一样对齐一次，之后每当窗口大小改变时还会重新对齐。
  * @property {Number} ON_WINDOW_RESIZED
  */
 /**
- * !en Keep aligning all the way.
- * !zh 一直保持对齐。
+ * !#en Keep aligning all the way.
+ * !#zh 始终保持对齐。
  * @property {Number} ALWAYS
  */
 var AlignMode = WidgetManager.AlignMode;
@@ -501,7 +507,11 @@ var Widget = cc.Class({
         },
 
         /**
-         * !#en TODO
+         * !#en
+         * When turned on, it will only be aligned once at the end of the onEnable frame,
+         * then immediately disables the current component.
+         * This will allow the script or animation to continue controlling the current node.
+         * Note: It will still be aligned at the frame when onEnable is called.
          * !#zh
          * 开启后仅会在 onEnable 的当帧结束时对齐一次，然后立刻禁用当前组件。
          * 这样便于脚本或动画继续控制当前节点。
@@ -532,12 +542,11 @@ var Widget = cc.Class({
         },
 
         /**
-         * !#en specify the align mode
-         * !#zh 指定对齐模式
-         * @property alignMode
-         * @type {Widget.AlignMode}
+         * !#en Specifies the alignment mode of the Widget, which determines when the widget should refresh.
+         * !#zh 指定 Widget 的对齐模式，用于决定 Widget 应该何时刷新。
+         * @property {Widget.AlignMode} alignMode
          * @example
-         * widget.alignMode = cc.Widget.AlignMode.ON_WINDOW_RESIZED
+         * widget.alignMode = cc.Widget.AlignMode.ON_WINDOW_RESIZED;
          */
         alignMode: {
            default: AlignMode.ON_WINDOW_RESIZED,
@@ -582,15 +591,13 @@ var Widget = cc.Class({
     },
 
     onLoad: function () {
-        if (this._wasAlignOnce !== undefined){
-            if (this._wasAlignOnce === true){
-                this.alignMode = AlignMode.ONCE;
-            }else if (this._wasAlignOnce === false){
-                this.alignMode = AlignMode.ALWAYS;
-            }
+        if (this._wasAlignOnce !== undefined) {
+            // migrate for old version
+            this.alignMode = this._wasAlignOnce ? AlignMode.ONCE : AlignMode.ALWAYS;
             this._wasAlignOnce = undefined;
         }
     },
+
     onEnable: function () {
         WidgetManager.add(this);
     },
