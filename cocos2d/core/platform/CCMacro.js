@@ -1204,6 +1204,20 @@ cc.macro = {
      */
     FLT_EPSILON: 0.0000001192092896,
 
+    /**
+     * Minimum z index value for node
+     * @property MIN_ZINDEX
+     * @type {Number}
+     */
+    MIN_ZINDEX: -Math.pow(2, 15),
+
+    /**
+     * Maximum z index value for node
+     * @property MAX_ZINDEX
+     * @type {Number}
+     */
+    MAX_ZINDEX: Math.pow(2, 15) - 1,
+
     //some gl constant variable
     /**
      * @property ONE
