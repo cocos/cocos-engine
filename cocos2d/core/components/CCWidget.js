@@ -25,7 +25,29 @@
  ****************************************************************************/
 
 var WidgetManager = require('../base-ui/CCWidgetManager');
+
+/**
+ * !en Enum for align mode.
+ * !zh AlignMode 类型
+ * @enum Widget.AlignMode
+ */
+/**
+ * !en Only align once when component is enabled, then immediately disable it.
+ * !zh 仅在 onEnable 的当帧结束时对齐一次，然后立刻禁用当前组件。
+ * @property {Number} ONCE
+ */
+/**
+ * !en Align when window is resized
+ * !zh 在窗口 resize 时对齐。
+ * @property {Number} ON_WINDOW_RESIZED
+ */
+/**
+ * !en Keep aligning all the way.
+ * !zh 一直保持对齐。
+ * @property {Number} ALWAYS
+ */
 var AlignMode = WidgetManager.AlignMode;
+
 var AlignFlags = WidgetManager._AlignFlags;
 var TOP     = AlignFlags.TOP;
 var MID     = AlignFlags.MID;
@@ -487,6 +509,7 @@ var Widget = cc.Class({
          * @property isAlignOnce
          * @type {Boolean}
          * @default false
+         * @deprecated
          */
         isAlignOnce: {
             get: function () {
@@ -548,7 +571,6 @@ var Widget = cc.Class({
         _isAbsBottom: true,
         _isAbsHorizontalCenter: true,
         _isAbsVerticalCenter: true,
-        _isUserDisable: true,
 
         // original size before align
         _originalWidth: 0,
@@ -559,7 +581,7 @@ var Widget = cc.Class({
         AlignMode: AlignMode,
     },
 
-    onLoad: function() {
+    onLoad: function () {
         if (this._wasAlignOnce !== undefined){
             if (this._wasAlignOnce === true){
                 this.alignMode = AlignMode.ONCE;

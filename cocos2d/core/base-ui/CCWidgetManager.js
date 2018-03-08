@@ -242,7 +242,6 @@ function visitNode (node) {
         align(node, widget);
         if ((!CC_EDITOR || animationState.animatedSinceLastFrame) && widget.alignMode !== AlignMode.ALWAYS) {
             widget.enabled = false;
-            widget._isUserDisable = false;
         }
         else {
             activeWidgets.push(widget);
@@ -303,7 +302,6 @@ function refreshScene () {
                     if (widget.isAlignOnce && animationState.animatedSinceLastFrame && node.isChildOf(editingNode)) {
                         // widget contains in activeWidgets should aligned at least once
                         widget.enabled = false;
-                        widget._isUserDisable = false;
                     }
                     else {
                         align(node, widget);
@@ -475,22 +473,20 @@ var widgetManager = cc._widgetManager = module.exports = {
             widget.node.off('size-changed', adjustWidgetToAllowResizingInEditor, widget);
         }
     },
-    onResized() {
+    onResized () {
         var scene = cc.director.getScene();
         if (scene) {
             this.refreshWidgetOnResized(scene);
         }
     },
-    refreshWidgetOnResized(node){
+    refreshWidgetOnResized (node) {
         var widget = cc.Node.isNode(node) && node.getComponent(cc.Widget);
         if (widget) {
             if (widget.alignMode === AlignMode.ON_WINDOW_RESIZED) {
-                if (widget._isUserDisable === false){
-                    widget.enabled = true;
-                    widget._isUserDisable = true;
-                }
+                widget.enabled = true;
             }
         }
+
         var children = node._children;
         for (var i = 0; i < children.length; i++) {
             var child = children[i];
