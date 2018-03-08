@@ -114,6 +114,7 @@ void Data::copy(const unsigned char* bytes, const ssize_t size)
 
 void Data::fastSet(unsigned char* bytes, const ssize_t size)
 {
+    clear();
     _bytes = bytes;
     _size = size;
 }
