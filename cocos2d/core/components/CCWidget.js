@@ -45,7 +45,7 @@ var WidgetManager = require('../base-ui/CCWidgetManager');
 /**
  * !#en Align first from the beginning as ONCE, and then realign it every time the window is resized.
  * !#zh 一开始会像 ONCE 一样对齐一次，之后每当窗口大小改变时还会重新对齐。
- * @property {Number} ON_WINDOW_RESIZED
+ * @property {Number} ON_WINDOW_RESIZE
  */
 /**
  * !#en Keep aligning all the way.
@@ -511,10 +511,10 @@ var Widget = cc.Class({
          * !#zh 指定 Widget 的对齐模式，用于决定 Widget 应该何时刷新。
          * @property {Widget.AlignMode} alignMode
          * @example
-         * widget.alignMode = cc.Widget.AlignMode.ON_WINDOW_RESIZED;
+         * widget.alignMode = cc.Widget.AlignMode.ON_WINDOW_RESIZE;
          */
         alignMode: {
-           default: AlignMode.ON_WINDOW_RESIZED,
+           default: AlignMode.ON_WINDOW_RESIZE,
            type: AlignMode,
            tooltip: CC_DEV && 'i18n:COMPONENT.widget.align_mode',
         },
