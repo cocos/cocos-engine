@@ -33,6 +33,12 @@ var RIGHT   = 1 << 5;
 var HORIZONTAL = LEFT | CENTER | RIGHT;
 var VERTICAL = TOP | MID | BOT;
 
+var AlignMode = cc.Enum({
+    ONCE: 0,
+    ON_WINDOW_RESIZED: 1,
+    ALWAYS: 2,
+});
+
 // returns a readonly size of the node
 function getReadonlyNodeSize (parent) {
     if (parent instanceof cc.Scene) {
@@ -234,7 +240,7 @@ function visitNode (node) {
             }
         }
         align(node, widget);
-        if ((!CC_EDITOR || animationState.animatedSinceLastFrame) && widget.isAlignOnce) {
+        if ((!CC_EDITOR || animationState.animatedSinceLastFrame) && widget.alignMode !== AlignMode.ALWAYS) {
             widget.enabled = false;
         }
         else {
@@ -435,6 +441,21 @@ var widgetManager = cc._widgetManager = module.exports = {
 
     init: function (director) {
         director.on(cc.Director.EVENT_BEFORE_VISIT, refreshScene);
+
+        if (CC_EDITOR) {
+            cc.engine.on('design-resolution-changed', this.onResized.bind(this));
+        }
+        else if (!CC_JSB) {
+            if (cc.sys.isMobile) {
+                window.addEventListener('resize', this.onResized.bind(this));
+            }
+            else {
+                cc.eventManager.addCustomListener('canvas-resize', this.onResized.bind(this));
+            }
+        }
+        else {
+            cc.eventManager.addListener(this.onResized.bind(this), 1);
+        }
     },
     add: function (widget) {
         widget.node._widget = widget;
@@ -452,7 +473,27 @@ var widgetManager = cc._widgetManager = module.exports = {
             widget.node.off('size-changed', adjustWidgetToAllowResizingInEditor, widget);
         }
     },
-    updateAlignment: updateAlignment
+    onResized() {
+        var scene = cc.director.getScene();
+        if (scene) {
+            this.refreshWidgetOnResized(scene);
+        }
+    },
+    refreshWidgetOnResized(node){
+        var widget = cc.Node.isNode(node) && node.getComponent(cc.Widget);
+        if (widget) {
+            if (widget.alignMode === AlignMode.ON_WINDOW_RESIZED) {
+                widget.enabled = true;
+            }
+        }
+        var children = node._children;
+        for (var i = 0; i < children.length; i++) {
+            var child = children[i];
+            this.refreshWidgetOnResized(child);
+        }
+    },
+    updateAlignment: updateAlignment,
+    AlignMode: AlignMode,
 };
 
 if (CC_EDITOR) {

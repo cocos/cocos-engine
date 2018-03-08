@@ -488,9 +488,27 @@ var Widget = cc.Class({
          * @default false
          */
         isAlignOnce: {
-            default: true,
-            tooltip: CC_DEV && 'i18n:COMPONENT.widget.align_once',
-            displayName: "AlignOnce"
+            get: function () {
+                return this.alignMode === WidgetManager.AlignMode.ONCE;
+            },
+            set: function (value) {
+                this.alignMode = value ? WidgetManager.AlignMode.ONCE : WidgetManager.AlignMode.ALWAYS;
+            },
+            visible: false,
+        },
+
+        /**
+         * !#en specify the align mode
+         * !#zh 指定对齐模式
+         * @property alignMode
+         * @type {Widget.AlignMode}
+         * @example
+         * widget.alignMode = cc.Widget.AlignMode.ON_WINDOW_RESIZED
+         */
+        alignMode: {
+           default: WidgetManager.AlignMode.ON_WINDOW_RESIZED,
+           type: WidgetManager.AlignMode,
+           tooltip: CC_DEV && 'i18n:COMPONENT.widget.align_mode',
         },
 
         //
@@ -523,6 +541,10 @@ var Widget = cc.Class({
         // original size before align
         _originalWidth: 0,
         _originalHeight: 0
+    },
+
+    statics: {
+        AlignMode: WidgetManager.AlignMode,
     },
 
     onEnable: function () {
