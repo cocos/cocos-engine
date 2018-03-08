@@ -551,7 +551,7 @@ var _Deserializer = (function () {
                 }
                 else {
                     var defaultType = typeof defaultValue;
-                    isPrimitiveType = (defaultType === 'string' && !attrs[propName + SAVE_URL_AS_ASSET]) ||
+                    isPrimitiveType = (defaultType === 'string' && !stillUseUrl) ||
                                       defaultType === 'number' ||
                                       defaultType === 'boolean';
                 }
@@ -580,6 +580,7 @@ var _Deserializer = (function () {
         }
         return Function('s', 'o', 'd', 'k', 't', sources.join(''));
     } : function (self, klass) {
+        var TYPE = Attr.DELIMETER + 'type';
         var EDITOR_ONLY = Attr.DELIMETER + 'editorOnly';
         var SERIALIZABLE = Attr.DELIMETER + 'serializable';
         var DEFAULT = Attr.DELIMETER + 'default';
@@ -616,10 +617,21 @@ var _Deserializer = (function () {
                     // function undefined object(null) string boolean number
                     var defaultValue = CCClass.getDefault(attrs[propName + DEFAULT]);
                     if (fastMode) {
-                        var defaultType = typeof defaultValue;
-                        var isPrimitiveType = (defaultType === 'string' && !stillUseUrl) ||
-                                                defaultType === 'number' ||
-                                                defaultType === 'boolean';
+                        var isPrimitiveType;
+                        var userType = attrs[propName + TYPE];
+                        if (defaultValue === undefined && userType) {
+                            isPrimitiveType = userType === cc.String ||
+                                            userType === cc.Integer ||
+                                            userType === cc.Float ||
+                                            userType === cc.Boolean;
+                        }
+                        else {
+                            var defaultType = typeof defaultValue;
+                            isPrimitiveType = (defaultType === 'string' && !stillUseUrl) ||
+                                            defaultType === 'number' ||
+                                            defaultType === 'boolean';
+                        }
+
                         if (isPrimitiveType) {
                             o[propName] = prop;
                         }
