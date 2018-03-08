@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 var WidgetManager = require('../base-ui/CCWidgetManager');
+var AlignMode = WidgetManager.AlignMode;
 var AlignFlags = WidgetManager._AlignFlags;
 var TOP     = AlignFlags.TOP;
 var MID     = AlignFlags.MID;
@@ -489,12 +490,22 @@ var Widget = cc.Class({
          */
         isAlignOnce: {
             get: function () {
-                return this.alignMode === WidgetManager.AlignMode.ONCE;
+                if (CC_DEV) {
+                    cc.warn('cc.Widget.isAlignOnce is deprecated, use alignMode instead please.');
+                }
+                return this.alignMode === AlignMode.ONCE;
             },
             set: function (value) {
-                this.alignMode = value ? WidgetManager.AlignMode.ONCE : WidgetManager.AlignMode.ALWAYS;
+                if (CC_DEV) {
+                    cc.warn('cc.Widget.isAlignOnce is deprecated, use alignMode instead please.');
+                }
+                this.alignMode = value ? AlignMode.ONCE : AlignMode.ALWAYS;
             },
             visible: false,
+        },
+        _wasAlignOnce: {
+            default: undefined,
+            formerlySerializedAs: 'isAlignOnce',
         },
 
         /**
@@ -506,8 +517,8 @@ var Widget = cc.Class({
          * widget.alignMode = cc.Widget.AlignMode.ON_WINDOW_RESIZED
          */
         alignMode: {
-           default: WidgetManager.AlignMode.ON_WINDOW_RESIZED,
-           type: WidgetManager.AlignMode,
+           default: AlignMode.ON_WINDOW_RESIZED,
+           type: AlignMode,
            tooltip: CC_DEV && 'i18n:COMPONENT.widget.align_mode',
         },
 
@@ -537,6 +548,7 @@ var Widget = cc.Class({
         _isAbsBottom: true,
         _isAbsHorizontalCenter: true,
         _isAbsVerticalCenter: true,
+        _isUserDisable: true,
 
         // original size before align
         _originalWidth: 0,
@@ -544,9 +556,19 @@ var Widget = cc.Class({
     },
 
     statics: {
-        AlignMode: WidgetManager.AlignMode,
+        AlignMode: AlignMode,
     },
 
+    onLoad: function() {
+        if (this._wasAlignOnce !== undefined){
+            if (this._wasAlignOnce === true){
+                this.alignMode = AlignMode.ONCE;
+            }else if (this._wasAlignOnce === false){
+                this.alignMode = AlignMode.ALWAYS;
+            }
+            this._wasAlignOnce = undefined;
+        }
+    },
     onEnable: function () {
         WidgetManager.add(this);
     },
