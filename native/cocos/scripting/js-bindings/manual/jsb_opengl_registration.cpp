@@ -125,10 +125,10 @@ bool JSB_register_opengl(se::Object* obj)
     __glObj->defineFunction("stencilMaskSeparate", _SE(JSB_glStencilMaskSeparate));
     __glObj->defineFunction("stencilOp", _SE(JSB_glStencilOp));
     __glObj->defineFunction("stencilOpSeparate", _SE(JSB_glStencilOpSeparate));
-    __glObj->defineFunction("_texImage2D", _SE(JSB_glTexImage2D));
+    __glObj->defineFunction("texImage2D", _SE(JSB_glTexImage2D));
     __glObj->defineFunction("texParameterf", _SE(JSB_glTexParameterf));
     __glObj->defineFunction("texParameteri", _SE(JSB_glTexParameteri));
-    __glObj->defineFunction("_texSubImage2D", _SE(JSB_glTexSubImage2D));
+    __glObj->defineFunction("texSubImage2D", _SE(JSB_glTexSubImage2D));
     __glObj->defineFunction("uniform1f", _SE(JSB_glUniform1f));
     __glObj->defineFunction("uniform1fv", _SE(JSB_glUniform1fv));
     __glObj->defineFunction("uniform1i", _SE(JSB_glUniform1i));

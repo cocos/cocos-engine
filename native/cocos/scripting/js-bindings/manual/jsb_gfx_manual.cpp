@@ -746,6 +746,7 @@ static bool js_gfx_getImageInfo(se::State& s)
             retObj->setProperty("bpp", se::Value(img->getBitPerPixel()));
             retObj->setProperty("hasAlpha", se::Value(img->hasAlpha()));
             retObj->setProperty("compressed", se::Value(img->isCompressed()));
+            retObj->setProperty("numberOfMipmaps", se::Value(img->getNumberOfMipmaps()));
 
             const auto& pixelFormatInfo = img->getPixelFormatInfo();
             retObj->setProperty("glFormat", se::Value(pixelFormatInfo.format));
