@@ -631,6 +631,11 @@ bool Image::isCompressed()
     return getPixelFormatInfoMap().at(_renderFormat).compressed;
 }
 
+const Image::PixelFormatInfo& Image::getPixelFormatInfo() const
+{
+    return getPixelFormatInfoMap().at(_renderFormat);
+}
+
 namespace
 {
     /*

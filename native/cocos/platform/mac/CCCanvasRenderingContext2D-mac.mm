@@ -7,16 +7,24 @@
 
 #include <regex>
 
-@interface CanvasRenderingContext2DImpl : NSObject
-
-@end
-
-@implementation CanvasRenderingContext2DImpl {
+@interface CanvasRenderingContext2DImpl : NSObject {
     NSFont* _font;
     NSMutableDictionary* _tokenAttributesDict;
     NSString* _fontName;
     CGFloat _fontSize;
 }
+
+@property (nonatomic, strong) NSFont* font;
+@property (nonatomic, strong) NSMutableDictionary* tokenAttributesDict;
+@property (nonatomic, strong) NSString* fontName;
+
+@end
+
+@implementation CanvasRenderingContext2DImpl
+
+@synthesize font = _font;
+@synthesize tokenAttributesDict = _tokenAttributesDict;
+@synthesize fontName = _fontName;
 
 -(id) init {
     if ([super init]) {
@@ -26,13 +34,38 @@
     return self;
 }
 
--(void) updateFontWithName: (NSString*)fontName fontSize: (CGFloat)fontSize {
-    _fontName = fontName;
-    _fontSize = fontSize;
-    if (_font) {
-        [_font release];
+-(void) dealloc {
+    self.font = nil;
+    self.tokenAttributesDict = nil;
+    self.fontName = nil;
+
+    [super dealloc];
+}
+
+-(NSFont*) _createSystemFont {
+    NSString* fntName = [[_fontName lastPathComponent] stringByDeletingPathExtension];
+    NSFontTraitMask mask = NSUnboldFontMask | NSUnitalicFontMask;
+
+    NSFont *font = [[NSFontManager sharedFontManager]
+                    fontWithFamily:fntName
+                    traits:mask
+                    weight:0
+                    size:_fontSize];
+
+    if (font == nil) {
+        font = [[NSFontManager sharedFontManager]
+                fontWithFamily:@"Arial"
+                traits: mask
+                weight:0
+                size:_fontSize];
     }
-    _font = [self _createSystemFont];
+    return font;
+}
+
+-(void) updateFontWithName: (NSString*)fontName fontSize: (CGFloat)fontSize {
+    self.fontName = fontName;
+    _fontSize = fontSize;
+    self.font = [self _createSystemFont];
 
     NSMutableParagraphStyle* paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
     paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
@@ -44,12 +77,10 @@
                                                alpha:1.0f];
 
     // attribute
-    _tokenAttributesDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+    self.tokenAttributesDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                                 foregroundColor, NSForegroundColorAttributeName,
                                                 _font, NSFontAttributeName,
                                                 paragraphStyle, NSParagraphStyleAttributeName, nil];
-
-
 }
 
 -(void) updateTextAlignment:(NSTextAlignment) alignment {
@@ -83,28 +114,43 @@
     return dim;
 }
 
--(void) dealloc {
-    [super dealloc];
-}
-
--(NSFont*) _createSystemFont {
-    NSString* fntName = [[_fontName lastPathComponent] stringByDeletingPathExtension];
-    NSFontTraitMask mask = NSUnboldFontMask | NSUnitalicFontMask;
-
-    NSFont *font = [[NSFontManager sharedFontManager]
-                    fontWithFamily:fntName
-                    traits:mask
-                    weight:0
-                    size:_fontSize];
-
-    if (font == nil) {
-        font = [[NSFontManager sharedFontManager]
-                fontWithFamily:@"Arial"
-                traits: mask
-                weight:0
-                size:_fontSize];
-    }
-    return font;
+-(void) fillText:(NSString*) text x:(NSInteger) x y:(NSInteger) y width:(NSInteger) width height:(NSInteger) height {
+//    CGFloat xPadding = 0;
+//    CGFloat yPadding = 0;
+//
+//    NSInteger POTWide = width;
+//    NSInteger POTHigh = height;
+//    NSRect textRect = NSMakeRect(0, 0,
+//                                 width, height);
+//
+//
+//    [[NSGraphicsContext currentContext] setShouldAntialias:NO];
+//
+//    NSImage *image = [[NSImage alloc] initWithSize:NSMakeSize(POTWide, POTHigh)];
+//    [image lockFocus];
+//    // patch for mac retina display and lableTTF
+//    [[NSAffineTransform transform] set];
+//    NSAttributedString *stringWithAttributes =[[[NSAttributedString alloc] initWithString:text
+//                                                                               attributes:_tokenAttributesDict] autorelease];
+//    [stringWithAttributes drawInRect:textRect];
+//    NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithFocusedViewRect:NSMakeRect (0.0f, 0.0f, POTWide, POTHigh)];
+//    [image unlockFocus];
+//
+//    auto data = (unsigned char*) [bitmap bitmapData];  //Use the same buffer to improve the performance.
+//
+//    NSUInteger textureSize = POTWide * POTHigh * 4;
+//    auto dataNew = (unsigned char*)malloc(sizeof(unsigned char) * textureSize);
+//    if (dataNew) {
+//        memcpy(dataNew, data, textureSize);
+//        // output params
+//        info->width = static_cast<int>(POTWide);
+//        info->height = static_cast<int>(POTHigh);
+//        info->data = dataNew;
+//        info->isPremultipliedAlpha = true;
+//        ret = true;
+//    }
+//    [bitmap release];
+//    [image release];
 }
 
 @end
@@ -266,12 +312,12 @@ void CanvasRenderingContext2D::set_font(const std::string& font)
 
 void CanvasRenderingContext2D::set_textAlign(const std::string& textAlign)
 {
-
+    SE_LOGD("CanvasRenderingContext2D::set_textAlign: %s\n", textAlign.c_str());
 }
 
 void CanvasRenderingContext2D::set_textBaseline(const std::string& textBaseline)
 {
-
+    SE_LOGD("CanvasRenderingContext2D::set_textBaseline: %s\n", textBaseline.c_str());
 }
 
 void CanvasRenderingContext2D::set_fillStyle(const std::string& fillStyle)
