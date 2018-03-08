@@ -507,41 +507,6 @@ var Widget = cc.Class({
         },
 
         /**
-         * !#en
-         * When turned on, it will only be aligned once at the end of the onEnable frame,
-         * then immediately disables the current component.
-         * This will allow the script or animation to continue controlling the current node.
-         * Note: It will still be aligned at the frame when onEnable is called.
-         * !#zh
-         * 开启后仅会在 onEnable 的当帧结束时对齐一次，然后立刻禁用当前组件。
-         * 这样便于脚本或动画继续控制当前节点。
-         * 注意：onEnable 时所在的那一帧仍然会进行对齐。
-         * @property isAlignOnce
-         * @type {Boolean}
-         * @default false
-         * @deprecated
-         */
-        isAlignOnce: {
-            get: function () {
-                if (CC_DEV) {
-                    cc.warn('cc.Widget.isAlignOnce is deprecated, use alignMode instead please.');
-                }
-                return this.alignMode === AlignMode.ONCE;
-            },
-            set: function (value) {
-                if (CC_DEV) {
-                    cc.warn('cc.Widget.isAlignOnce is deprecated, use alignMode instead please.');
-                }
-                this.alignMode = value ? AlignMode.ONCE : AlignMode.ALWAYS;
-            },
-            visible: false,
-        },
-        _wasAlignOnce: {
-            default: undefined,
-            formerlySerializedAs: 'isAlignOnce',
-        },
-
-        /**
          * !#en Specifies the alignment mode of the Widget, which determines when the widget should refresh.
          * !#zh 指定 Widget 的对齐模式，用于决定 Widget 应该何时刷新。
          * @property {Widget.AlignMode} alignMode
@@ -555,6 +520,11 @@ var Widget = cc.Class({
         },
 
         //
+
+        _wasAlignOnce: {
+            default: undefined,
+            formerlySerializedAs: 'isAlignOnce',
+        },
 
         _target: null,
 
@@ -680,6 +650,35 @@ var Widget = cc.Class({
     updateAlignment: function () {
         WidgetManager.updateAlignment(this.node);
     },
+});
+
+/**
+ * !#en
+ * When turned on, it will only be aligned once at the end of the onEnable frame,
+ * then immediately disables the current component.
+ * This will allow the script or animation to continue controlling the current node.
+ * Note: It will still be aligned at the frame when onEnable is called.
+ * !#zh
+ * 开启后仅会在 onEnable 的当帧结束时对齐一次，然后立刻禁用当前组件。
+ * 这样便于脚本或动画继续控制当前节点。
+ * 注意：onEnable 时所在的那一帧仍然会进行对齐。
+ * @property {Boolean} isAlignOnce
+ * @default false
+ * @deprecated
+ */
+Object.defineProperty(Widget.prototype, 'isAlignOnce', {
+    get () {
+        if (CC_DEBUG) {
+            cc.warn('`widget.isAlignOnce` is deprecated, use `widget.alignMode === cc.Widget.AlignMode.ONCE` instead please.');
+        }
+        return this.alignMode === AlignMode.ONCE;
+    },
+    set (value) {
+        if (CC_DEBUG) {
+            cc.warn('`widget.isAlignOnce` is deprecated, use `widget.alignMode = cc.Widget.AlignMode.*` instead please.');
+        }
+        this.alignMode = value ? AlignMode.ONCE : AlignMode.ALWAYS;
+    }
 });
 
 

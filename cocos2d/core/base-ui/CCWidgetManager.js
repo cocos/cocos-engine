@@ -299,7 +299,10 @@ function refreshScene () {
                 for (i = activeWidgets.length - 1; i >= 0; i--) {
                     widget = activeWidgets[i];
                     var node = widget.node;
-                    if (widget.isAlignOnce && animationState.animatedSinceLastFrame && node.isChildOf(editingNode)) {
+                    if (widget.alignMode !== AlignMode.ALWAYS &&
+                        animationState.animatedSinceLastFrame &&
+                        node.isChildOf(editingNode)
+                    ) {
                         // widget contains in activeWidgets should aligned at least once
                         widget.enabled = false;
                     }
