@@ -89,6 +89,10 @@
 		1A28FF9C1F20AFAB007A1D9D /* SRWebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A28FF4B1F20AFAB007A1D9D /* SRWebSocket.h */; };
 		1A28FF9D1F20AFAB007A1D9D /* SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF4C1F20AFAB007A1D9D /* SRWebSocket.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		1A28FF9E1F20AFAB007A1D9D /* SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A28FF4C1F20AFAB007A1D9D /* SRWebSocket.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		1A29D75E20513EBD00168D9A /* csscolorparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A29D75C20513EBC00168D9A /* csscolorparser.cpp */; };
+		1A29D75F20513EBD00168D9A /* csscolorparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A29D75C20513EBC00168D9A /* csscolorparser.cpp */; };
+		1A29D76020513EBD00168D9A /* csscolorparser.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A29D75D20513EBC00168D9A /* csscolorparser.hpp */; };
+		1A29D76120513EBD00168D9A /* csscolorparser.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A29D75D20513EBC00168D9A /* csscolorparser.hpp */; };
 		1A2F1FCD204D519E00723184 /* jsb_xmlhttprequest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A2F1FC7204D519C00723184 /* jsb_xmlhttprequest.cpp */; };
 		1A2F1FCE204D519E00723184 /* jsb_xmlhttprequest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A2F1FC7204D519C00723184 /* jsb_xmlhttprequest.cpp */; };
 		1A2F1FCF204D519E00723184 /* jsb_websocket.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A2F1FC8204D519D00723184 /* jsb_websocket.hpp */; };
@@ -1061,6 +1065,8 @@
 		1A28FF4A1F20AFAB007A1D9D /* SRSecurityPolicy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRSecurityPolicy.m; sourceTree = "<group>"; };
 		1A28FF4B1F20AFAB007A1D9D /* SRWebSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRWebSocket.h; sourceTree = "<group>"; };
 		1A28FF4C1F20AFAB007A1D9D /* SRWebSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRWebSocket.m; sourceTree = "<group>"; };
+		1A29D75C20513EBC00168D9A /* csscolorparser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = csscolorparser.cpp; sourceTree = "<group>"; };
+		1A29D75D20513EBC00168D9A /* csscolorparser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = csscolorparser.hpp; sourceTree = "<group>"; };
 		1A2F1FC7204D519C00723184 /* jsb_xmlhttprequest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_xmlhttprequest.cpp; sourceTree = "<group>"; };
 		1A2F1FC8204D519D00723184 /* jsb_websocket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_websocket.hpp; sourceTree = "<group>"; };
 		1A2F1FC9204D519D00723184 /* jsb_socketio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_socketio.cpp; sourceTree = "<group>"; };
@@ -2148,6 +2154,8 @@
 		46FDDAE9202ADDCE00931238 /* base */ = {
 			isa = PBXGroup;
 			children = (
+				1A29D75C20513EBC00168D9A /* csscolorparser.cpp */,
+				1A29D75D20513EBC00168D9A /* csscolorparser.hpp */,
 				469301CE203FC695004A3D6C /* CCConfiguration.cpp */,
 				469301CD203FC695004A3D6C /* CCConfiguration.h */,
 				46FDDAEA202ADDCE00931238 /* ccFPSImages.c */,
@@ -2790,6 +2798,7 @@
 				469304142046AE06004A3D6C /* jsb_renderer_manual.hpp in Headers */,
 				46FDDAD1202ACC6A00931238 /* Texture.h in Headers */,
 				4DED48421DFFA4AF0070C5C4 /* b2Contact.h in Headers */,
+				1A29D76020513EBD00168D9A /* csscolorparser.hpp in Headers */,
 				1A28FF971F20AFAB007A1D9D /* SRSecurityPolicy.h in Headers */,
 				1A2F20A2204E27E300723184 /* node.h in Headers */,
 				5027253A190BF1B900AAF4ED /* cocos2d.h in Headers */,
@@ -3087,6 +3096,7 @@
 				4DED47FD1DFFA4AF0070C5C4 /* b2PolygonShape.h in Headers */,
 				4693038B2046AE05004A3D6C /* State.hpp in Headers */,
 				46FDDADC202ACC6A00931238 /* State.h in Headers */,
+				1A29D76120513EBD00168D9A /* csscolorparser.hpp in Headers */,
 				46FDDB9E202ADDCE00931238 /* ObjectFactory.h in Headers */,
 				1A2F2153204FBCF700723184 /* CCCanvasRenderingContext2D.h in Headers */,
 				46FDDC42202AEAC500931238 /* Atomics.h in Headers */,
@@ -3369,6 +3379,7 @@
 				4DED485C1DFFA4AF0070C5C4 /* b2FrictionJoint.cpp in Sources */,
 				4DED47DC1DFFA4AF0070C5C4 /* b2CollidePolygon.cpp in Sources */,
 				4DED48041DFFA4AF0070C5C4 /* b2Draw.cpp in Sources */,
+				1A29D75E20513EBD00168D9A /* csscolorparser.cpp in Sources */,
 				4DED487C1DFFA4AF0070C5C4 /* b2RopeJoint.cpp in Sources */,
 				46FDDBFB202ADDCE00931238 /* ccCArray.cpp in Sources */,
 				1A2F206C204E27E300723184 /* Utils.cpp in Sources */,
@@ -3592,6 +3603,7 @@
 				469303672046AE05004A3D6C /* HandleObject.cpp in Sources */,
 				46FDDACA202ACC6A00931238 /* RenderBuffer.cpp in Sources */,
 				4DED484D1DFFA4AF0070C5C4 /* b2EdgeAndPolygonContact.cpp in Sources */,
+				1A29D75F20513EBD00168D9A /* csscolorparser.cpp in Sources */,
 				1A2F2099204E27E300723184 /* Object.cpp in Sources */,
 				46FDDC26202AEAC500931238 /* WebGLTexelConversions.cpp in Sources */,
 				46FDDB4C202ADDCE00931238 /* ccFPSImages.c in Sources */,

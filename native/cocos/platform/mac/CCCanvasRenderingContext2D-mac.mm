@@ -1,4 +1,6 @@
 #include "platform/CCCanvasRenderingContext2D.h"
+#include "base/ccTypes.h"
+#include "base/csscolorparser.hpp"
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
@@ -28,14 +30,15 @@ enum class CanvasTextBaseline {
     cocos2d::Data _imageData;
     CanvasTextAlign _textAlign;
     CanvasTextBaseline _textBaseLine;
+    cocos2d::Color4F _fillStyle;
 }
 
 @property (nonatomic, strong) NSFont* font;
 @property (nonatomic, strong) NSMutableDictionary* tokenAttributesDict;
 @property (nonatomic, strong) NSString* fontName;
 @property (nonatomic, strong) NSImage* image;
-@property (nonatomic, assign) CanvasTextAlign textAlign;;
-@property (nonatomic, assign) CanvasTextBaseline textBaseLine;;
+@property (nonatomic, assign) CanvasTextAlign textAlign;
+@property (nonatomic, assign) CanvasTextBaseline textBaseLine;
 
 @end
 
@@ -173,6 +176,8 @@ enum class CanvasTextBaseline {
     paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
 
     [_tokenAttributesDict setObject:paragraphStyle forKey:NSParagraphStyleAttributeName];
+    [_tokenAttributesDict setObject:[NSColor colorWithRed:_fillStyle.r green:_fillStyle.g blue:_fillStyle.b alpha:_fillStyle.a]
+                             forKey:NSForegroundColorAttributeName];
 
     [[NSGraphicsContext currentContext] setShouldAntialias:NO];
 
@@ -197,6 +202,13 @@ enum class CanvasTextBaseline {
         _imageData.fastSet(buffer, textureSize);
     }
     [bitmap release];
+}
+
+-(void) setFillStyleWithRed:(CGFloat) r green:(CGFloat) g blue:(CGFloat) b alpha:(CGFloat) a {
+    _fillStyle.r = r;
+    _fillStyle.g = g;
+    _fillStyle.b = b;
+    _fillStyle.a = a;
 }
 
 -(const cocos2d::Data&) getDataRef {
@@ -423,7 +435,9 @@ void CanvasRenderingContext2D::set_textBaseline(const std::string& textBaseline)
 
 void CanvasRenderingContext2D::set_fillStyle(const std::string& fillStyle)
 {
-
+    CSSColorParser::Color color = CSSColorParser::parse(fillStyle);
+    [_impl setFillStyleWithRed:color.r/255.0f green:color.g/255.0f blue:color.b/255.0f alpha:color.a];
+    SE_LOGD("CanvasRenderingContext2D::set_fillStyle: %s, (%d, %d, %d, %f)\n", fillStyle.c_str(), color.r, color.g, color.b, color.a);
 }
 
 void CanvasRenderingContext2D::set_strokeStyle(const std::string& strokeStyle)
