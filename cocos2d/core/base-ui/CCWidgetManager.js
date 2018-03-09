@@ -35,7 +35,7 @@ var VERTICAL = TOP | MID | BOT;
 
 var AlignMode = cc.Enum({
     ONCE: 0,
-    ON_WINDOW_RESIZED: 1,
+    ON_WINDOW_RESIZE: 1,
     ALWAYS: 2,
 });
 
@@ -299,7 +299,10 @@ function refreshScene () {
                 for (i = activeWidgets.length - 1; i >= 0; i--) {
                     widget = activeWidgets[i];
                     var node = widget.node;
-                    if (widget.isAlignOnce && animationState.animatedSinceLastFrame && node.isChildOf(editingNode)) {
+                    if (widget.alignMode !== AlignMode.ALWAYS &&
+                        animationState.animatedSinceLastFrame &&
+                        node.isChildOf(editingNode)
+                    ) {
                         // widget contains in activeWidgets should aligned at least once
                         widget.enabled = false;
                     }
@@ -482,7 +485,7 @@ var widgetManager = cc._widgetManager = module.exports = {
     refreshWidgetOnResized (node) {
         var widget = cc.Node.isNode(node) && node.getComponent(cc.Widget);
         if (widget) {
-            if (widget.alignMode === AlignMode.ON_WINDOW_RESIZED) {
+            if (widget.alignMode === AlignMode.ON_WINDOW_RESIZE) {
                 widget.enabled = true;
             }
         }
