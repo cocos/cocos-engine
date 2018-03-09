@@ -1062,6 +1062,8 @@ var Node = cc.Class({
             math.quat.fromEuler(this._quat, this._rotationX, this._rotationY, 0);
         }
 
+        this._updateOrderOfArrival();
+
         var prefabInfo = this._prefab;
         if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
             if (CC_DEV) {
@@ -1897,6 +1899,7 @@ var Node = cc.Class({
             locAnchorPoint.x = point;
             locAnchorPoint.y = y;
         }
+        this._localMatDirty = true;
         this.emit(ANCHOR_CHANGED);
     },
 
