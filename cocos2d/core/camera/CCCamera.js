@@ -31,14 +31,23 @@ const mat4 = cc.vmath.mat4;
 const vec2 = cc.vmath.vec2;
 const vec3 = cc.vmath.vec3;
 
-let _static_culling_mask = 1;
-
 let _mat4_temp_1 = mat4.create();
 let _mat4_temp_2 = mat4.create();
 let _vec3_temp_1 = vec3.create();
 let _vec3_temp_2 = vec3.create();
 
 let _cameras = [];
+
+/**
+ * !#en Values for Camera.clearFlags, determining what to clear when rendering a Camera.
+ * !#zh 摄像机清除标记位，决定摄像机渲染时会清除哪些状态
+ * @enum Camera.ClearFlags
+ */
+let ClearFlags = cc.Enum({
+    COLOR: 1,
+    DEPTH: 2,
+    STENCIL: 4,
+});
 
 /**
  * !#en
@@ -61,8 +70,6 @@ let Camera = cc.Class({
             'transparent'
         ]);
 
-        camera.setClearFlags(0);
-
         this._fov = Math.PI * 60 / 180;
         camera.setFov(this._fov);
         camera.setNear(0.1);
@@ -72,23 +79,23 @@ let Camera = cc.Class({
         camera.view = view;
         camera.dirty = true;
 
-        this.cullingMask = 1 << _static_culling_mask++;
-        camera._cullingMask = view._cullingMask = this.cullingMask;
+        this._matrixDirty = true;
 
         this._camera = camera;
     },
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.others/Camera',
+        inspector: 'packages://inspector/inspectors/comps/camera.js',
         executeInEditMode: false
     },
 
     properties: {
-        _targets: {
-            default: [],
-            type: cc.Node,
-            visible: true
-        },
+        _cullingMask: 0xffffffff,
+        _clearFlags: 0,
+        _backgroundColor: cc.color(51, 77, 120, 255),
+        _depth: 0,
+        _zoomRatio: 1,
 
         /**
          * !#en
@@ -97,22 +104,116 @@ let Camera = cc.Class({
          * 摄像机缩放比率
          * @property {Number} zoomRatio
          */
-        zoomRatio: 1,
+        zoomRatio: {
+            get () {
+                return this._zoomRatio;
+            },
+            set (value) {
+                this._zoomRatio = value;
+                this._matrixDirty = true;
+            }
+        },
+
+        /**
+         * !#en
+         * This is used to render parts of the scene selectively.
+         * !#zh
+         * 决定摄像机会渲染场景的哪一部分。
+         * @property {Number} cullingMask
+         */
+        cullingMask: {
+            get () {
+                return this._cullingMask;
+            },
+            set (value) {
+                this._cullingMask = value;
+                this._updateCameraMask();
+            }
+        },
+
+        /**
+         * !#en
+         * Determining what to clear when camera rendering.
+         * !#zh
+         * 决定摄像机渲染时会清除哪些状态。
+         * @property {Number} clearFlags
+         */
+        clearFlags: {
+            get () {
+                return this._clearFlags;
+            },
+            set (value) {
+                this._clearFlags = value;
+                this._camera.setClearFlags(value);
+            }
+        },
+
+        /**
+         * !#en
+         * The color with which the screen will be cleared.
+         * !#zh
+         * 摄像机用于清除屏幕的背景色。
+         */
+        backgroundColor: {
+            get () {
+                return this._backgroundColor;
+            },
+            set (value) {
+                this._backgroundColor = value;
+                this._updateBackgroundColor();
+            }
+        },
+
+        /**
+         * !#en
+         * Camera's depth in the camera rendering order.
+         * !#zh
+         * 摄像机深度，用于决定摄像机的渲染顺序。
+         */
+        depth: {
+            get () {
+                return this._depth;
+            },
+            set (value) {
+                this._depth = value;
+                this._camera.setDepth(value);
+            }
+        }
     },
 
     statics: {
         /**
          * !#en
-         * Current active camera, the scene should only have one active camera at the same time.
+         * The first enabled camera.
          * !#zh
-         * 当前激活的摄像机，场景中在同一时间内只能有一个激活的摄像机。
+         * 第一个被激活的摄像机。
          * @property {Camera} main
          * @static
          */
         main: null,
 
+        /**
+         * !#en
+         * All enabled cameras.
+         * !#zh
+         * 激活的所有摄像机。
+         * @property {[Camera]} cameras
+         * @static
+         */
         cameras: _cameras,
 
+        ClearFlags: ClearFlags,
+
+        /**
+         * !#en
+         * Get the first camera which the node belong to.
+         * !#zh
+         * 获取节点所在的第一个摄像机。
+         * @method findCamera
+         * @param {Node} node 
+         * @return {Camera}
+         * @static
+         */
         findCamera (node) {
             for (let i = 0, l = _cameras.length; i < l; i++) {
                 let camera = _cameras[i];
@@ -125,86 +226,46 @@ let Camera = cc.Class({
         }
     },
 
+    _updateCameraMask () {
+        this._camera._cullingMask = this._cullingMask;
+        this._camera.view._cullingMask = this._cullingMask;
+    },
+
+    _updateBackgroundColor () {
+        let color = this._backgroundColor;
+        this._camera.setColor(
+            color.r / 255,
+            color.g / 255,
+            color.b / 255,
+            color.a / 255,
+        );
+    },
+
+    _onMatrixDirty () {
+        this._matrixDirty = true;
+    },
+
     onLoad () {
         this._camera.setNode(this.node);
+        this._camera.setClearFlags(this._clearFlags);
+        this._camera.setDepth(this._depth);
+        this._updateBackgroundColor();
+        this._updateCameraMask();
     },
 
     onEnable () {
-        if (CC_EDITOR) return;
+        this.node.on('world-matrix-changed', this._onMatrixDirty, this);
 
-        if (!Camera.main) {
-            Camera.main = this;
-        }
-
-        let targets = this._targets;
-        for (let i = 0, l = targets.length; i < l; i++) {
-            targets[i]._cullingMask = this.cullingMask;
-        }
-
+        this._matrixDirty = true;
         renderer.scene.addCamera(this._camera);
         _cameras.push(this);
     },
 
     onDisable () {
-        if (CC_EDITOR) return;
-        
-        if (Camera.main === this) {
-            Camera.main = null;
-        }
-        
-        let targets = this._targets;
-        for (let i = 0, l = targets.length; i < l; i++) {
-            targets[i]._cullingMask = 1;
-        }
+        this.node.off('world-matrix-changed', this._onMatrixDirty, this);
 
         renderer.scene.removeCamera(this._camera);
         cc.js.array.remove(_cameras, this);
-    },
-
-    /**
-     * !#en
-     * Add the specified target to camera.
-     * !#zh
-     * 将指定的节点添加到摄像机中。
-     * @method addTarget
-     * @param {Node} target 
-     */
-    addTarget (target) {
-        if (this._targets.indexOf(target) !== -1) {
-            return;
-        }
-
-        target._cullingMask = this.cullingMask;
-        this._targets.push(target);
-    },
-
-    /**
-     * !#en
-     * Remove the specified target from camera.
-     * !#zh
-     * 将指定的节点从摄像机中移除。
-     * @method removeTarget
-     * @param {Node} target 
-     */
-    removeTarget (target) {
-        if (this._targets.indexOf(target) === -1) {
-            return;
-        }
-
-        target._cullingMask = 1;
-        cc.js.array.remove(this._targets, target);
-    },
-
-    /**
-     * !#en
-     * Get all camera targets.
-     * !#zh
-     * 获取所有摄像机目标节点。
-     * @method getTargets
-     * @return {[Node]}
-     */
-    getTargets () {
-        return this._targets;
     },
 
     /**
@@ -315,25 +376,28 @@ let Camera = cc.Class({
      * @return {Boolean}
      */
     containsNode (node) {
-        return node._inheritMask === this.cullingMask;
+        return node._cullingMask === this.cullingMask;
     },
 
     lateUpdate: !CC_EDITOR && function () {
         let node = this.node;
-
-        let zoomRatio = this.zoomRatio;
-        let min = -(zoomRatio/2-0.5);
-        this._camera.setRect(min,min,zoomRatio,zoomRatio);
-
-        node.z = renderer.canvas.height / cc.view.getScaleY() / 1.1566;
         node.getWorldMatrix(_mat4_temp_1);
+        
+        if (!this._matrixDirty) return;
+        
+        let camera = this._camera;
+        let fov = Math.atan(Math.tan(this._fov/2) / this.zoomRatio)*2;
+        camera.setFov(fov);
 
         _vec3_temp_1.x = _mat4_temp_1.m12;
         _vec3_temp_1.y = _mat4_temp_1.m13;
         _vec3_temp_1.z = 0;
+
+        node.z = cc.visibleRect.height / 1.1566;
         node.lookAt(_vec3_temp_1);
 
-        this._camera.dirty = true;
+        this._matrixDirty = false;
+        camera.dirty = true;
     }
 });
 

@@ -38,6 +38,7 @@ const POSITION_CHANGED = 'position-changed';
 const SIZE_CHANGED = 'size-changed';
 const ANCHOR_CHANGED = 'anchor-changed';
 const ROTATION_CHANGED = 'rotation-changed';
+const WORLD_MATRIX_CHANGED = 'world-matrix-changed';
 const SCALE_CHANGED = 'scale-changed';
 const CHILD_REORDER = 'child-reorder';
 
@@ -941,8 +942,7 @@ var Node = cc.Class({
         this._localMatDirty = true;
         this._worldMatDirty = true;
 
-        this._cullingMask = 1;
-        this._inheritMask = 1;
+        this._cullingMask = 1 << this.group;
     },
 
     statics: {
@@ -1973,6 +1973,7 @@ var Node = cc.Class({
         else {
             math.mat4.copy(this._worldMatrix, this._matrix);
         }
+        this.emit(WORLD_MATRIX_CHANGED);
         this._worldMatDirty = false;
 
         for (let i = 0, len = this._children.length; i < len; ++i) {

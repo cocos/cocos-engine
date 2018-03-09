@@ -457,6 +457,12 @@ if (CC_DEV) {
         'ignoreAnchorPointForPosition',
     ]);
 
+    markAsRemoved(cc.Camera, [
+        'addTarget',
+        'removeTarget',
+        'getTargets'
+    ]);
+
     markFunctionWarning(cc.Node.prototype, {
         'getNodeToParentTransform': 'getLocalMatrix',
         'getNodeToParentTransformAR': 'getLocalMatrix',
