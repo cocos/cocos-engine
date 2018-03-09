@@ -27,16 +27,7 @@
 (http://libwebsockets.org)"
 
  ****************************************************************************/
-
-#include "network/WebSocket.h"
-#include "network/Uri.h"
-#include "base/CCDirector.h"
-#include "base/CCScheduler.h"
-#include "base/CCEventDispatcher.h"
-#include "base/CCEventListenerCustom.h"
-#include "platform/CCFileUtils.h"
-#include "platform/CCStdC.h"
-
+#include "websockets/libwebsockets.h"
 #include <string>
 #include <vector>
 #include <mutex>
@@ -49,8 +40,12 @@
 #include <list>
 #include <signal.h>
 #include <errno.h>
-
-#include "websockets/libwebsockets.h"
+#include "network/WebSocket.h"
+#include "network/Uri.h"
+#include "base/CCScheduler.h"
+#include "platform/CCFileUtils.h"
+#include "platform/CCStdC.h"
+#include "platform/CCApplication.h"
 
 #define NS_NETWORK_BEGIN namespace cocos2d { namespace network {
 #define NS_NETWORK_END }}
@@ -243,8 +238,6 @@ private:
     CloseState _closeState;
 
     std::string _caFilePath;
-
-    cocos2d::EventListenerCustom* _resetDirectorListener;
 
     friend class WsThreadHelper;
     friend class WebSocketCallbackWrapper;
@@ -508,7 +501,7 @@ void WsThreadHelper::wsThreadEntryFunc()
 
 void WsThreadHelper::sendMessageToCocosThread(const std::function<void()>& cb)
 {
-    cocos2d::Director::getInstance()->getScheduler()->performFunctionInCocosThread(cb);
+    cocos2d::Application::getInstance()->getScheduler()->performFunctionInCocosThread(cb);
 }
 
 void WsThreadHelper::sendMessageToWebSocketThread(WsMessage *msg)

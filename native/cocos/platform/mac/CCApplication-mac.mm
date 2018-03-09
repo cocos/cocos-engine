@@ -25,8 +25,10 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #import <Cocoa/Cocoa.h>
-#include <algorithm>
+#import <algorithm>
+#import <mutex>
 
+#import "base/CCScheduler.h"
 #import "platform/CCApplication.h"
 #import "platform/desktop/CCGLView-desktop.h"
 #import "scripting/js-bindings/event/EventDispatcher.h"
@@ -52,10 +54,16 @@ namespace
     }
 }
 
+Application* Application::_instance = nullptr;
+
 #define CAST_VIEW(view)    ((GLView*)view)
 
 Application::Application(const std::string& name)
 {
+    Application::_instance = this;
+    
+    _scheduler = new Scheduler();
+    
     createView(name);
     
     renderer::DeviceGraphics::getInstance()->setScaleFactor(CAST_VIEW(_view)->getScaleFactor());
@@ -70,6 +78,11 @@ Application::~Application()
     
     delete CAST_VIEW(_view);
     _view = nullptr;
+    
+    delete _scheduler;
+    _scheduler = nullptr;
+    
+    Application::_instance = nullptr;
 }
 
 void Application::start()
@@ -82,13 +95,23 @@ void Application::start()
 
     if (!_view)
         return;
+
+    std::chrono::steady_clock::time_point prevTime;
+    std::chrono::steady_clock::time_point now;
+    float dt = 0.f;
     
     while (!CAST_VIEW(_view)->windowShouldClose())
-    {        
+    {
+        prevTime = std::chrono::steady_clock::now();
+        
         CAST_VIEW(_view)->pollEvents();
-        EventDispatcher::dispatchTickEvent();
+        _scheduler->update(dt);
+        EventDispatcher::dispatchTickEvent(dt);
 
         CAST_VIEW(_view)->swapBuffers();
+        
+        now = std::chrono::steady_clock::now();
+        dt = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count() / 1000000.f;
     }
 }
 

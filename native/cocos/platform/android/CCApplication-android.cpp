@@ -28,6 +28,7 @@ THE SOFTWARE.
 #include <jni.h>
 #include <cstring>
 #include "platform/android/jni/JniImp.h"
+#include "base/CCScheduler.h"
 
 #define  LOG_TAG    "CCApplication_android Debug"
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
@@ -43,13 +44,20 @@ extern "C" size_t __ctype_get_mb_cur_max(void)
 
 NS_CC_BEGIN
 
+Application* Application::_instance = nullptr;
+
 Application::Application(const std::string& name)
 {
+    Application::_instance = this;
+    _scheduler = new Scheduler();
 }
 
 Application::~Application()
 {
-    
+    delete _scheduler;
+    _scheduler = nullptr;
+
+    Application::_instance = nullptr;
 }
 
 void Application::start()

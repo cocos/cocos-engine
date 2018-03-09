@@ -31,6 +31,7 @@
 
 #include "cocos/network/SocketIO.h"
 #include "base/ccUTF8.h"
+#include "platform/CCApplication.h"
 
 using namespace cocos2d;
 using namespace cocos2d::network;
@@ -87,7 +88,7 @@ public:
         se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
 
-        if (cocos2d::ScriptEngineManager::getInstance() == nullptr)
+        if (cocos2d::Application::getInstance() == nullptr)
             return;
 
         auto iter = se::NativePtrToObjectMap::find(client); //FIXME: client probably be a new value with the same address as the old one, it may cause undefined result.

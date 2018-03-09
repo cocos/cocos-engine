@@ -323,6 +323,42 @@
     <ClCompile Include="..\external\sources\xxtea\xxtea.cpp">
       <Filter>external\xxtea</Filter>
     </ClCompile>
+    <ClCompile Include="..\cocos\network\CCDownloader-curl.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\network\CCDownloader.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\network\HttpClient.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\network\HttpCookie.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\network\SocketIO.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\network\Uri.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\network\WebSocket-libwebsockets.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_network_auto.cpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_socketio.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_websocket.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_xmlhttprequest.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\CCScheduler.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\cocos\base\base64.h">
@@ -782,6 +818,51 @@
     <ClInclude Include="..\external\sources\xxtea\xxtea.h">
       <Filter>external\xxtea</Filter>
     </ClInclude>
+    <ClInclude Include="..\cocos\network\CCDownloader-curl.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\network\CCDownloader.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\network\CCIDownloaderImpl.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\network\HttpClient.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\network\HttpCookie.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\network\HttpRequest.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\network\HttpResponse.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\network\SocketIO.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\network\Uri.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\network\WebSocket.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_network_auto.hpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_socketio.hpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_websocket.hpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_xmlhttprequest.hpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\CCScheduler.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="base">
@@ -843,6 +924,9 @@
     </Filter>
     <Filter Include="external\xxtea">
       <UniqueIdentifier>{9198c362-43e7-4445-affb-225d0257dea7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="network">
+      <UniqueIdentifier>{8553d9e7-36b8-413a-bef4-e21d498ffeca}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

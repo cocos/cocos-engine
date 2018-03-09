@@ -33,6 +33,7 @@ THE SOFTWARE.
 #include "renderer/gfx/DeviceGraphics.h"
 #include "scripting/js-bindings/jswrapper/v8/ScriptEngine.hpp"
 #include "scripting/js-bindings/event/EventDispatcher.h"
+#include "base/CCScheduler.h"
 
 #define CAST_VIEW(view)    ((GLView*)view)
 
@@ -93,8 +94,13 @@ namespace
 
 NS_CC_BEGIN
 
+Application* Application::_instance = nullptr;
+
 Application::Application(const std::string& name)
 {
+	Application::_instance = this;
+	_scheduler = new Scheduler();
+
     createView(name);
     
     renderer::DeviceGraphics::getInstance();
@@ -105,10 +111,15 @@ Application::~Application()
 {
     // TODO: destroy DeviceGraphics
     
+	delete _scheduler;
+	_scheduler = nullptr;
+
     se::ScriptEngine::destroyInstance();
     
     delete CAST_VIEW(_view);
     _view = nullptr;
+
+	Application::_instance = nullptr;
 }
 
 void Application::start()
@@ -150,7 +161,6 @@ void Application::start()
     
     while (!CAST_VIEW(_view)->windowShouldClose())
     {       
-
         QueryPerformanceCounter(&nNow);
         interval = nNow.QuadPart - nLast.QuadPart;
         if (interval >= _animationInterval)
@@ -158,7 +168,7 @@ void Application::start()
             nLast.QuadPart = nNow.QuadPart;
             
             CAST_VIEW(_view)->pollEvents();
-            EventDispatcher::dispatchTickEvent();
+            EventDispatcher::dispatchTickEvent((float)interval / freq.QuadPart);
             CAST_VIEW(_view)->swapBuffers();
         }
         else

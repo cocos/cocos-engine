@@ -21,6 +21,7 @@
     <ClCompile Include="..\cocos\base\CCNS.cpp" />
     <ClCompile Include="..\cocos\base\ccRandom.cpp" />
     <ClCompile Include="..\cocos\base\CCRef.cpp" />
+    <ClCompile Include="..\cocos\base\CCScheduler.cpp" />
     <ClCompile Include="..\cocos\base\ccTypes.cpp" />
     <ClCompile Include="..\cocos\base\CCUserDefault.cpp" />
     <ClCompile Include="..\cocos\base\ccUTF8.cpp" />
@@ -42,6 +43,13 @@
     <ClCompile Include="..\cocos\math\Vec2.cpp" />
     <ClCompile Include="..\cocos\math\Vec3.cpp" />
     <ClCompile Include="..\cocos\math\Vec4.cpp" />
+    <ClCompile Include="..\cocos\network\CCDownloader-curl.cpp" />
+    <ClCompile Include="..\cocos\network\CCDownloader.cpp" />
+    <ClCompile Include="..\cocos\network\HttpClient.cpp" />
+    <ClCompile Include="..\cocos\network\HttpCookie.cpp" />
+    <ClCompile Include="..\cocos\network\SocketIO.cpp" />
+    <ClCompile Include="..\cocos\network\Uri.cpp" />
+    <ClCompile Include="..\cocos\network\WebSocket-libwebsockets.cpp" />
     <ClCompile Include="..\cocos\platform\CCFileUtils.cpp" />
     <ClCompile Include="..\cocos\platform\CCImage.cpp" />
     <ClCompile Include="..\cocos\platform\CCSAXParser.cpp" />
@@ -79,6 +87,7 @@
     <ClCompile Include="..\cocos\renderer\renderer\Technique.cpp" />
     <ClCompile Include="..\cocos\renderer\renderer\View.cpp" />
     <ClCompile Include="..\cocos\renderer\Types.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_network_auto.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_gfx_auto.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_renderer_auto.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\event\EventDispatcher.cpp" />
@@ -109,6 +118,9 @@
     <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_global.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_helper.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_renderer_manual.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_socketio.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_websocket.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_xmlhttprequest.cpp" />
     <ClCompile Include="..\external\sources\ConvertUTF\ConvertUTF.c" />
     <ClCompile Include="..\external\sources\ConvertUTF\ConvertUTFWrapper.cpp" />
     <ClCompile Include="..\external\sources\firefox\mozilla\Assertions.cpp" />
@@ -135,6 +147,7 @@
     <ClInclude Include="..\cocos\base\ccRandom.h" />
     <ClInclude Include="..\cocos\base\CCRef.h" />
     <ClInclude Include="..\cocos\base\CCRefPtr.h" />
+    <ClInclude Include="..\cocos\base\CCScheduler.h" />
     <ClInclude Include="..\cocos\base\ccTypes.h" />
     <ClInclude Include="..\cocos\base\CCUserDefault.h" />
     <ClInclude Include="..\cocos\base\ccUTF8.h" />
@@ -162,6 +175,16 @@
     <ClInclude Include="..\cocos\math\Vec2.h" />
     <ClInclude Include="..\cocos\math\Vec3.h" />
     <ClInclude Include="..\cocos\math\Vec4.h" />
+    <ClInclude Include="..\cocos\network\CCDownloader-curl.h" />
+    <ClInclude Include="..\cocos\network\CCDownloader.h" />
+    <ClInclude Include="..\cocos\network\CCIDownloaderImpl.h" />
+    <ClInclude Include="..\cocos\network\HttpClient.h" />
+    <ClInclude Include="..\cocos\network\HttpCookie.h" />
+    <ClInclude Include="..\cocos\network\HttpRequest.h" />
+    <ClInclude Include="..\cocos\network\HttpResponse.h" />
+    <ClInclude Include="..\cocos\network\SocketIO.h" />
+    <ClInclude Include="..\cocos\network\Uri.h" />
+    <ClInclude Include="..\cocos\network\WebSocket.h" />
     <ClInclude Include="..\cocos\platform\CCApplication.h" />
     <ClInclude Include="..\cocos\platform\CCDevice.h" />
     <ClInclude Include="..\cocos\platform\CCFileUtils.h" />
@@ -209,6 +232,7 @@
     <ClInclude Include="..\cocos\renderer\renderer\Technique.h" />
     <ClInclude Include="..\cocos\renderer\renderer\View.h" />
     <ClInclude Include="..\cocos\renderer\Types.h" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_network_auto.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_gfx_auto.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_renderer_auto.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\event\EventDispatcher.h" />
@@ -248,6 +272,9 @@
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_global.h" />
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_helper.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_renderer_manual.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_socketio.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_websocket.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_xmlhttprequest.hpp" />
     <ClInclude Include="..\external\sources\ConvertUTF\ConvertUTF.h" />
     <ClInclude Include="..\external\sources\firefox\GLConsts.h" />
     <ClInclude Include="..\external\sources\firefox\mozilla\Assertions.h" />

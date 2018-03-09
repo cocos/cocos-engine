@@ -29,8 +29,8 @@
 #include <queue>
 #include <errno.h>
 #include <curl/curl.h>
-#include "base/CCDirector.h"
 #include "platform/CCFileUtils.h"
+#include "platform/CCApplication.h"
 
 NS_CC_BEGIN
 
@@ -400,7 +400,7 @@ HttpClient::HttpClient()
 {
     CCLOG("In the constructor of HttpClient!");
     memset(_responseMessage, 0, RESPONSE_BUFFER_SIZE * sizeof(char));
-    _scheduler = Director::getInstance()->getScheduler();
+    _scheduler = Application::getInstance()->getScheduler();
     increaseThreadCount();
 }
 

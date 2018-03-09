@@ -31,6 +31,8 @@ THE SOFTWARE.
 
 NS_CC_BEGIN
 
+class Scheduler;
+
 /**
  * @addtogroup platform
  * @{
@@ -94,6 +96,9 @@ public:
         STENCIL_INDEX8
     };
     
+    // This class is useful for internal usage.
+    static Application* getInstance() { return _instance; }
+    
     Application(const std::string& name);
     virtual ~Application();
     
@@ -102,6 +107,9 @@ public:
     virtual void applicationWillEnterForeground();
     
     inline void* getView() const { return _view; }
+    inline Scheduler* getScheduler() const { return _scheduler; }
+    
+    void runOnMainThread();
     
     void start();
     
@@ -154,10 +162,13 @@ protected:
 private:
     void createView(const std::string& name);
     
+    static Application* _instance;
+    
     void* _view = nullptr;
     bool _multiTouch = false;
     void* _delegate = nullptr;
     float _animationInterval = 1.0f / 60;
+    Scheduler* _scheduler = nullptr;
 };
 
 // end of platform group

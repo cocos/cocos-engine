@@ -1209,29 +1209,29 @@ bool seval_to_Data(const se::Value& v, cocos2d::Data* ret)
     return ok;
 }
 
-//bool seval_to_DownloaderHints(const se::Value& v, cocos2d::network::DownloaderHints* ret)
-//{
-//    static cocos2d::network::DownloaderHints ZERO = {0, 0, ""};
-//    assert(ret != nullptr);
-//    assert(v.isObject());
-//    se::Value tmp;
-//    se::Object* obj = v.toObject();
-//    bool ok = false;
-//
-//    ok = obj->getProperty("countOfMaxProcessingTasks", &tmp);
-//    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
-//    ret->countOfMaxProcessingTasks = tmp.toUint32();
-//
-//    ok = obj->getProperty("timeoutInSeconds", &tmp);
-//    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
-//    ret->timeoutInSeconds = tmp.toUint32();
-//
-//    ok = obj->getProperty("tempFileNameSuffix", &tmp);
-//    SE_PRECONDITION3(ok && tmp.isString(), false, *ret = ZERO);
-//    ret->tempFileNameSuffix = tmp.toString();
-//
-//    return ok;
-//}
+bool seval_to_DownloaderHints(const se::Value& v, cocos2d::network::DownloaderHints* ret)
+{
+    static cocos2d::network::DownloaderHints ZERO = {0, 0, ""};
+    assert(ret != nullptr);
+    assert(v.isObject());
+    se::Value tmp;
+    se::Object* obj = v.toObject();
+    bool ok = false;
+
+    ok = obj->getProperty("countOfMaxProcessingTasks", &tmp);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+    ret->countOfMaxProcessingTasks = tmp.toUint32();
+
+    ok = obj->getProperty("timeoutInSeconds", &tmp);
+    SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
+    ret->timeoutInSeconds = tmp.toUint32();
+
+    ok = obj->getProperty("tempFileNameSuffix", &tmp);
+    SE_PRECONDITION3(ok && tmp.isString(), false, *ret = ZERO);
+    ret->tempFileNameSuffix = tmp.toString();
+
+    return ok;
+}
 //
 //bool seval_to_TTFConfig(const se::Value& v, cocos2d::TTFConfig* ret)
 //{
@@ -2561,18 +2561,18 @@ bool Data_to_seval(const cocos2d::Data& v, se::Value* ret)
     return true;
 }
 
-//bool DownloadTask_to_seval(const cocos2d::network::DownloadTask& v, se::Value* ret)
-//{
-//    assert(ret != nullptr);
-//
-//    se::HandleObject obj(se::Object::createPlainObject());
-//    obj->setProperty("identifier", se::Value(v.identifier));
-//    obj->setProperty("requestURL", se::Value(v.requestURL));
-//    obj->setProperty("storagePath", se::Value(v.storagePath));
-//    ret->setObject(obj);
-//
-//    return true;
-//}
+bool DownloadTask_to_seval(const cocos2d::network::DownloadTask& v, se::Value* ret)
+{
+    assert(ret != nullptr);
+
+    se::HandleObject obj(se::Object::createPlainObject());
+    obj->setProperty("identifier", se::Value(v.identifier));
+    obj->setProperty("requestURL", se::Value(v.requestURL));
+    obj->setProperty("storagePath", se::Value(v.storagePath));
+    ret->setObject(obj);
+
+    return true;
+}
 //
 //// Spine conversions
 //bool speventdata_to_seval(const spEventData* v, se::Value* ret)

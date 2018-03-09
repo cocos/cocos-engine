@@ -25,6 +25,7 @@
 
 #import "CCApplication.h"
 #import <UIKit/UIKit.h>
+#import "base/CCScheduler.h"
 #import "CCEAGLView-ios.h"
 #import "renderer/gfx/DeviceGraphics.h"
 #import "scripting/js-bindings/jswrapper/jsc/ScriptEngine.hpp"
@@ -36,6 +37,7 @@
     int _interval;
     BOOL _isAppActive;
     cocos2d::Application* _application;
+    cocos2d::Scheduler* _scheduler;
 }
 @property (readwrite) int interval;
 -(void) startMainLoop;
@@ -56,17 +58,15 @@
 
 @synthesize interval;
 
--(void) alloc
-{
-    _interval = 1;
-}
-
 - (instancetype)initWithApplication:(cocos2d::Application*) application
 {
     self = [super init];
     if (self)
     {
+        _interval = 1;
+    
         _application = application;
+        _scheduler = _application->getScheduler();
         
         _isAppActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive;
         NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
@@ -80,6 +80,7 @@
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [_displayLink release];
+    
     [super dealloc];
 }
 
@@ -129,8 +130,17 @@
 
 -(void) doCaller: (id) sender
 {
-    cocos2d::EventDispatcher::dispatchTickEvent();
+    static std::chrono::steady_clock::time_point prevTime;
+    static std::chrono::steady_clock::time_point now;
+    float dt = 0.f;
+    
+    _scheduler->update(dt);
+    cocos2d::EventDispatcher::dispatchTickEvent(dt);
+    
     [(CCEAGLView*)(_application->getView()) swapBuffers];
+    
+    now = std::chrono::steady_clock::now();
+    dt = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count() / 1000000.f;
 }
 
 @end
@@ -154,8 +164,13 @@ namespace
 
 NS_CC_BEGIN
 
+Application* Application::_instance = nullptr;
+
 Application::Application(const std::string& name)
 {
+    Application::_instance = this;
+    _scheduler = new Scheduler();
+
     createView(name);
     
     renderer::DeviceGraphics::getInstance();
@@ -169,6 +184,9 @@ Application::~Application()
 {
     [(CCEAGLView*)_view release];
     _view = nullptr;
+
+    delete _scheduler;
+    _scheduler = nullptr;
     
     // TODO: destroy DeviceGraphics
     
@@ -178,6 +196,8 @@ Application::~Application()
     [(MainLoop*)_delegate stopMainLoop];
     [(MainLoop*)_delegate release];
     _delegate = nullptr;
+
+    Application::_instance = nullptr;
 }
 
 void Application::start()
@@ -359,7 +379,6 @@ void Application::createView(const std::string& /*name*/)
                                        multiSampling: multisamplingCount != 0
                                      numberOfSamples: multisamplingCount];
     
-    eaglView.backgroundColor = [UIColor redColor]; // TODO: remove it
     [eaglView setMultipleTouchEnabled:_multiTouch];
     
     [eaglView retain];

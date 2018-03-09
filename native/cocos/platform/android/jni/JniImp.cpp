@@ -27,11 +27,13 @@
 #include <android/log.h>
 #include <android/asset_manager_jni.h>
 #include <jni.h>
+#include <mutex>
 #include "JniHelper.h"
 #include "platform/CCApplication.h"
 #include "scripting/js-bindings/jswrapper/v8/ScriptEngine.hpp"
 #include "scripting/js-bindings/event/EventDispatcher.h"
 #include "platform/android/CCFileUtils-android.h"
+#include "base/CCScheduler.h"
 
 #define  JNI_IMP_LOG_TAG    "JniImp"
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,JNI_IMP_LOG_TAG,__VA_ARGS__)
@@ -133,7 +135,15 @@ extern "C"
 
 	JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeRender(JNIEnv* env)
 	{
-        EventDispatcher::dispatchTickEvent();
+        static std::chrono::steady_clock::time_point prevTime;
+        static std::chrono::steady_clock::time_point now;
+        float dt = 0.f;
+        
+        g_app->getScheduler()->update(dt);
+        EventDispatcher::dispatchTickEvent(dt);
+
+        now = std::chrono::steady_clock::now();
+        dt = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count() / 1000000.f;
     }
 
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeOnPause()

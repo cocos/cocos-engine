@@ -23,15 +23,16 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "network/CCDownloader-apple.h"
+#include "network/CCDownloaderImpl-apple.h"
+#include <queue>
+#import <Foundation/Foundation.h>
 
 #include "network/CCDownloader.h"
 #include "base/ccUTF8.h"
-#include <queue>
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //  OC Classes Declaration
-#import <Foundation/Foundation.h>
 
 // this wrapper used to wrap C++ class DownloadTask into NSMutableDictionary
 @interface DownloadTaskWrapper : NSObject

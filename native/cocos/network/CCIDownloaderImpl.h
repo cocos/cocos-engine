@@ -28,8 +28,10 @@ THE SOFTWARE.
 #include <string>
 #include <unordered_map>
 #include <memory>
+#include <vector>
+#include <functional>
 
-#include "base/CCConsole.h"
+#include "base/ccMacros.h"
 
 //#define CC_DOWNLOADER_DEBUG
 #ifdef  CC_DOWNLOADER_DEBUG
