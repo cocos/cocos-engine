@@ -277,14 +277,6 @@ RenderComponentWalker.prototype = {
             // Update render data
             datas = assembler.updateRenderData(comp, _batchData);
 
-            // Set model
-            if (assembler.useModel) {
-                this._node = comp.node;
-            }
-            else {
-                this._node = this._dummyNode;
-            }
-
             cullingMask = comp.node._cullingMask;
 
             for (let id = 0; id < datas.length; id ++) {
