@@ -55,6 +55,9 @@ struct TouchEvent
 class EventDispatcher
 {
 public:
+    static void init();
+    static void destroy();
+
     static void dispatchTouchEvent(const struct TouchEvent& touchEvent);
     static void dispatchKeyEvent(int key, int action);
     static void dispatchTickEvent();

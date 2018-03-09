@@ -93,6 +93,7 @@
 		1A29D75F20513EBD00168D9A /* csscolorparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A29D75C20513EBC00168D9A /* csscolorparser.cpp */; };
 		1A29D76020513EBD00168D9A /* csscolorparser.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A29D75D20513EBC00168D9A /* csscolorparser.hpp */; };
 		1A29D76120513EBD00168D9A /* csscolorparser.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A29D75D20513EBC00168D9A /* csscolorparser.hpp */; };
+		1A29D763205230F000168D9A /* CCCanvasRenderingContext2D-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A29D762205230EF00168D9A /* CCCanvasRenderingContext2D-ios.mm */; };
 		1A2F1FCD204D519E00723184 /* jsb_xmlhttprequest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A2F1FC7204D519C00723184 /* jsb_xmlhttprequest.cpp */; };
 		1A2F1FCE204D519E00723184 /* jsb_xmlhttprequest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A2F1FC7204D519C00723184 /* jsb_xmlhttprequest.cpp */; };
 		1A2F1FCF204D519E00723184 /* jsb_websocket.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A2F1FC8204D519D00723184 /* jsb_websocket.hpp */; };
@@ -1067,6 +1068,7 @@
 		1A28FF4C1F20AFAB007A1D9D /* SRWebSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRWebSocket.m; sourceTree = "<group>"; };
 		1A29D75C20513EBC00168D9A /* csscolorparser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = csscolorparser.cpp; sourceTree = "<group>"; };
 		1A29D75D20513EBC00168D9A /* csscolorparser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = csscolorparser.hpp; sourceTree = "<group>"; };
+		1A29D762205230EF00168D9A /* CCCanvasRenderingContext2D-ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCCanvasRenderingContext2D-ios.mm"; sourceTree = "<group>"; };
 		1A2F1FC7204D519C00723184 /* jsb_xmlhttprequest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_xmlhttprequest.cpp; sourceTree = "<group>"; };
 		1A2F1FC8204D519D00723184 /* jsb_websocket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_websocket.hpp; sourceTree = "<group>"; };
 		1A2F1FC9204D519D00723184 /* jsb_socketio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_socketio.cpp; sourceTree = "<group>"; };
@@ -2423,6 +2425,7 @@
 		503DD8CD1926736A00CD74DD /* ios */ = {
 			isa = PBXGroup;
 			children = (
+				1A29D762205230EF00168D9A /* CCCanvasRenderingContext2D-ios.mm */,
 				46FDDC68202D733700931238 /* CCApplication-ios.mm */,
 				503DD8D11926736A00CD74DD /* CCDevice-ios.mm */,
 				503DD8D41926736A00CD74DD /* CCEAGLView-ios.h */,
@@ -3525,6 +3528,7 @@
 				ED3057C21BEC78A80083C3ED /* xxhash.c in Sources */,
 				ED30578C1BEC77510083C3ED /* ioapi.cpp in Sources */,
 				4DED48411DFFA4AF0070C5C4 /* b2Contact.cpp in Sources */,
+				1A29D763205230F000168D9A /* CCCanvasRenderingContext2D-ios.mm in Sources */,
 				4DED48791DFFA4AF0070C5C4 /* b2RevoluteJoint.cpp in Sources */,
 				4DED47D91DFFA4AF0070C5C4 /* b2CollideCircle.cpp in Sources */,
 				46FDDAE4202ACC6B00931238 /* GFX.cpp in Sources */,

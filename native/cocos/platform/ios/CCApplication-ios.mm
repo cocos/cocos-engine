@@ -164,6 +164,7 @@ Application::Application(const std::string& name)
     renderer::DeviceGraphics::getInstance();
 
     se::ScriptEngine::getInstance();
+    EventDispatcher::init();
     
     _delegate = [[MainLoop alloc] initWithApplication:this];
 }
@@ -174,7 +175,7 @@ Application::~Application()
     _view = nullptr;
     
     // TODO: destroy DeviceGraphics
-    
+    EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
     
     // stop main loop
