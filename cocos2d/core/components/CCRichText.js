@@ -28,7 +28,7 @@ var HtmlTextParser = utils.HtmlTextParser;
 var TextUtils = utils.TextUtils;
 var CustomFontLoader = utils.CustomFontLoader;
 
-var JS = require("../platform/js");
+var js = require("../platform/js");
 
 var HorizontalAlign = cc.TextAlignment;
 var VerticalAlign = cc.VerticalTextAlignment;
@@ -58,7 +58,7 @@ function debounce(func, wait, immediate) {
 /**
  * RichText pool
  */
-var pool = new JS.Pool(function (node) {
+var pool = new js.Pool(function (node) {
     if (CC_EDITOR) {
         return false;
     }

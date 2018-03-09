@@ -25,7 +25,6 @@
 
 const renderEngine = require('../renderer/render-engine');
 const gfx = renderEngine.gfx;
-const RenderData = renderEngine.RenderData;
 const StencilMaterial = renderEngine.StencilMaterial;
 const RenderComponent = require('./CCRenderComponent');
 
@@ -104,8 +103,8 @@ let Mask = cc.Class({
                     this.alphaThreshold = 0;
                 }
                 if (this._renderData) {
-                    this._renderData.uvDirty = true;
-                    this._renderData.vertDirty = true;
+                    this.destroyRenderData(this._renderData);
+                    this._renderData = null;
                 }
                 this._updateMaterial();
             },

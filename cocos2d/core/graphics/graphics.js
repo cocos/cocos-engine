@@ -27,7 +27,6 @@ const RenderComponent = require('../components/CCRenderComponent');
 const renderer = require('../renderer');
 const renderEngine = require('../renderer/render-engine');
 const SpriteMaterial = renderEngine.SpriteMaterial;
-const RenderData = renderEngine.RenderData;
 
 const Helper = require('./helper');
 const Types = require('./types');
@@ -228,11 +227,8 @@ let Graphics = cc.Class({
 
     onDestroy () {
         this._super();
-        let datas = this._renderDatas;
-        for (let i = 0, l = datas.length; i < l; i++) {
-            RenderData.free(datas[i]);
-        }
-        datas.length = 0;
+        // all requested render data will be destroyed by RenderComponent
+        this._renderDatas.length = 0;
     },
 
     _activateMaterial () {
@@ -428,9 +424,9 @@ let Graphics = cc.Class({
         if (clean) {
             this._paths.length = 0;
             this._points.length = 0;
-
+            // manually destroy render datas
             for (let i = 0, l = datas.length; i < l; i++) {
-                RenderData.free(datas[i]);
+                this.destroyRenderData(datas[i]);
             }
             datas.length = 0;
         }

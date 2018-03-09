@@ -23,13 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const TiledLayer = require('../../../tilemap/CCTiledLayer');
-const TiledMap = require('../../../tilemap/CCTiledMap');
+const TiledLayer = require('./CCTiledLayer');
+const TiledMap = require('./CCTiledMap');
 
-const js = require('../../platform/js');
-const assembler = require('./assembler');
-const renderEngine = require('../render-engine');
-const RenderData = renderEngine.RenderData;
+const js = require('../core/platform/js');
+const assembler = require('../core/renderer/assemblers/assembler');
+const renderEngine = require('../core/renderer/render-engine');
 
 const Orientation = TiledMap.Orientation;
 const TileFlag = TiledMap.TileFlag;
@@ -45,14 +44,10 @@ let _mat4_temp = mat4.create();
 let _vec3_temp = vec3.create();
 
 let tmxAssembler = js.addon({
-    createData (comp) {
-        return RenderData.alloc();
-    },
-
     updateRenderData (comp) {
         let renderData = comp._renderData;
         if (!renderData) {
-            renderData = comp._renderData = this.createData(comp);
+            renderData = comp._renderData = comp.requestRenderData();
         }
 
         let size = comp.node._contentSize;
@@ -67,8 +62,7 @@ let tmxAssembler = js.addon({
         return this.datas;
     },
 
-    fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let comp = batchData.comp;
+    fillBuffers (comp, batchData, vertexId, vbuf, uintbuf, ibuf) {
         let renderData = comp._renderData;
         let data = renderData._data;
         

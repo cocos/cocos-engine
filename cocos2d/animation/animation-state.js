@@ -1,5 +1,5 @@
 
-var JS = cc.js;
+var js = cc.js;
 var Playable = require('./playable');
 
 var Types = require('./types');
@@ -137,7 +137,7 @@ function AnimationState (clip, name) {
         cc.director.getAnimationManager().pushDelayEvent(this, '_emit', args);
     };
 }
-JS.extend(AnimationState, Playable);
+js.extend(AnimationState, Playable);
 
 var proto = AnimationState.prototype;
 
@@ -387,7 +387,7 @@ proto.sample = function () {
  * @type {AnimationClip}
  * @final
  */
-JS.get(proto, 'clip', function () {
+js.get(proto, 'clip', function () {
     return this._clip;
 });
 
@@ -398,13 +398,13 @@ JS.get(proto, 'clip', function () {
  * @type {String}
  * @readOnly
  */
-JS.get(proto, 'name', function () {
+js.get(proto, 'name', function () {
     return this._name;
 });
 
-JS.obsolete(proto, 'AnimationState.length', 'duration');
+js.obsolete(proto, 'AnimationState.length', 'duration');
 
-JS.getset(proto, 'curveLoaded',
+js.getset(proto, 'curveLoaded',
     function () {
         return this.curves.length > 0;
     },
@@ -414,7 +414,7 @@ JS.getset(proto, 'curveLoaded',
 );
 
 
-JS.getset(proto, 'wrapMode',
+js.getset(proto, 'wrapMode',
     function () {
         return this._wrapMode;
     },
@@ -436,7 +436,7 @@ JS.getset(proto, 'wrapMode',
     }
 );
 
-JS.getset(proto, 'repeatCount',
+js.getset(proto, 'repeatCount',
     function () {
         return this._repeatCount;
     },
@@ -454,7 +454,7 @@ JS.getset(proto, 'repeatCount',
     }
 );
 
-JS.getset(proto, 'delay', 
+js.getset(proto, 'delay', 
     function () {
         return this._delay;
     },

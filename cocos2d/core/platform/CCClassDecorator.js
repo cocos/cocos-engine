@@ -39,7 +39,7 @@
 
 require('./CCClass');
 const Preprocess = require('./preprocess-class');
-const JS = require('./js');
+const js = require('./js');
 const isPlainEmptyObj_DEV = CC_DEV && require('./utils').isPlainEmptyObj_DEV;
 
 // caches for class construction
@@ -104,7 +104,7 @@ var checkNumberArgument = _argumentChecker('number');
 
 function getClassCache (ctor, decoratorName) {
     if (CC_DEV && cc.Class._isCCClass(ctor)) {
-        cc.error('`@%s` should be used after @ccclass for class "%s"', decoratorName, JS.getClassName(ctor));
+        cc.error('`@%s` should be used after @ccclass for class "%s"', decoratorName, js.getClassName(ctor));
         return null;
     }
     return getSubDict(ctor, CACHE_KEY);
@@ -138,7 +138,7 @@ function extractActualDefaultValues (ctor) {
     }
     catch (e) {
         if (CC_DEV) {
-            cc.warnID(3652, JS.getClassName(ctor), e);
+            cc.warnID(3652, js.getClassName(ctor), e);
         }
         return {};
     }
@@ -148,12 +148,12 @@ function extractActualDefaultValues (ctor) {
 function genProperty (ctor, properties, propName, options, desc, cache) {
     var fullOptions;
     if (options) {
-        fullOptions = CC_DEV ? Preprocess.getFullFormOfProperty(options, propName, JS.getClassName(ctor)) :
+        fullOptions = CC_DEV ? Preprocess.getFullFormOfProperty(options, propName, js.getClassName(ctor)) :
                                Preprocess.getFullFormOfProperty(options);
         fullOptions = fullOptions || options;
     }
     var existsProperty = properties[propName];
-    var prop = JS.mixin(existsProperty || {}, fullOptions || {});
+    var prop = js.mixin(existsProperty || {}, fullOptions || {});
 
     var isGetset = desc && (desc.get || desc.set);
     if (isGetset) {
@@ -162,7 +162,7 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
             var errorProps = getSubDict(cache, 'errorProps');
             if (!errorProps[propName]) {
                 errorProps[propName] = true;
-                cc.warnID(3655, propName, JS.getClassName(ctor), propName, propName);
+                cc.warnID(3655, propName, js.getClassName(ctor), propName, propName);
             }
         }
         if (desc.get) {
@@ -179,7 +179,7 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
             //     set (...) { ... },
             // })
             // value;
-            cc.errorID(3655, propName, JS.getClassName(ctor), propName, propName);
+            cc.errorID(3655, propName, js.getClassName(ctor), propName, propName);
             return;
         }
         // member variables
@@ -215,11 +215,11 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
 
         if (CC_DEV) {
             if (options && options.hasOwnProperty('default')) {
-                cc.warnID(3653, propName, JS.getClassName(ctor));
+                cc.warnID(3653, propName, js.getClassName(ctor));
                 // prop.default = options.default;
             }
             else if (!isDefaultValueSpecified) {
-                cc.warnID(3654, JS.getClassName(ctor), propName);
+                cc.warnID(3654, js.getClassName(ctor), propName);
                 // prop.default = fullOptions.hasOwnProperty('default') ? fullOptions.default : undefined;
             }
             if (cc.RawAsset.wasRawAssetType(prop.url) &&
@@ -227,7 +227,7 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
                 isDefaultValueSpecified &&
                 defaultValue == null
             ) {
-                cc.warnID(3656, JS.getClassName(ctor), propName);
+                cc.warnID(3656, js.getClassName(ctor), propName);
             }
         }
         prop.default = defaultValue;
@@ -267,7 +267,7 @@ var ccclass = checkCtorArgument(function (ctor, name) {
     // if (FIX_BABEL6) {
     //     eval('if(typeof _classCallCheck==="function"){_classCallCheck=function(){};}');
     // }
-    var base = JS.getSuper(ctor);
+    var base = js.getSuper(ctor);
     if (base === Object) {
         base = null;
     }
@@ -283,7 +283,7 @@ var ccclass = checkCtorArgument(function (ctor, name) {
         var decoratedProto = cache.proto;
         if (decoratedProto) {
             // decoratedProto.properties = createProperties(ctor, decoratedProto.properties);
-            JS.mixin(proto, decoratedProto);
+            js.mixin(proto, decoratedProto);
         }
         ctor[CACHE_KEY] = undefined;
     }
@@ -299,7 +299,7 @@ var ccclass = checkCtorArgument(function (ctor, name) {
                 var desc = Object.getOwnPropertyDescriptor(ctor.prototype, prop);
                 var func = desc && desc.value;
                 if (typeof func === 'function') {
-                    Preprocess.doValidateMethodWithProps_DEV(func, prop, JS.getClassName(ctor), ctor, base);
+                    Preprocess.doValidateMethodWithProps_DEV(func, prop, js.getClassName(ctor), ctor, base);
                 }
             }
         }

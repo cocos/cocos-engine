@@ -1,10 +1,10 @@
-var JS = cc.js;
+var js = cc.js;
 
 var AnimationManager = cc.Class({
     ctor: function () {
         this.__instanceId = cc.ClassManager.getNewInstanceId();
 
-        this._anims = new JS.array.MutableForwardIterator([]);
+        this._anims = new js.array.MutableForwardIterator([]);
 
         this._delayEvents = [];
     },

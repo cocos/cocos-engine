@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = require('../platform/js');
+var js = require('../platform/js');
 
 function parseDepends (key, parsed) {
     var item = cc.loader.getItem(key);
@@ -95,7 +95,7 @@ module.exports = {
     // do auto release
     autoRelease: function (oldSceneAssets, nextSceneAssets, persistNodes) {
         var releaseSettings = cc.loader._autoReleaseSetting;
-        var excludeMap = JS.createMap();
+        var excludeMap = js.createMap();
 
         // collect next scene assets
         if (nextSceneAssets) {

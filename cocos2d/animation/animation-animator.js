@@ -1,4 +1,4 @@
-var JS = cc.js;
+var js = cc.js;
 var Playable = require('./playable');
 var DynamicAnimCurve = require('./animation-curves').DynamicAnimCurve;
 var quickFindIndex = require('./animation-curves').quickFindIndex;
@@ -15,9 +15,9 @@ function AnimationAnimator (target, animation) {
     this.target = target;
     this.animation = animation;
 
-    this._anims = new JS.array.MutableForwardIterator([]);
+    this._anims = new js.array.MutableForwardIterator([]);
 }
-JS.extend(AnimationAnimator, Playable);
+js.extend(AnimationAnimator, Playable);
 var p = AnimationAnimator.prototype;
 
 p.playState = function (state, startTime) {

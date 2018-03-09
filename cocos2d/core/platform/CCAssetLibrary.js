@@ -30,7 +30,7 @@ var PackDownloader = require('../load-pipeline/pack-downloader');
 var AutoReleaseUtils = require('../load-pipeline/auto-release-utils');
 var decodeUuid = require('../utils/decode-uuid');
 var MD5Pipe = require('../load-pipeline/md5-pipe');
-var JS = require('./js');
+var js = require('./js');
 
 /**
  * The asset library which managing loading/unloading assets in project.
@@ -43,7 +43,7 @@ var JS = require('./js');
 
 var _libraryBase = '';
 var _rawAssetsBase = '';     // The base dir for raw assets in runtime
-var _uuidToRawAsset = JS.createMap(true);
+var _uuidToRawAsset = js.createMap(true);
 
 function isScene (asset) {
     return asset && (asset.constructor === cc.SceneAsset || asset instanceof cc.Scene);

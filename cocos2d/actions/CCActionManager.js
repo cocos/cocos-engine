@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 require('../core/platform/CCClass');
-var JS = require('../core/platform/js');
+var js = require('../core/platform/js');
 
 /*
  * @class HashElement
@@ -61,7 +61,7 @@ var HashElement = function () {
  * @example {@link utils/api/engine/docs/cocos2d/core/CCActionManager/ActionManager.js}
  */
 cc.ActionManager = function () {
-    this._hashTargets = JS.createMap(true);
+    this._hashTargets = js.createMap(true);
     this._arrayTargets = [];
     this._currentTarget = null;
     this.__instanceId = cc.ClassManager.getNewInstanceId();

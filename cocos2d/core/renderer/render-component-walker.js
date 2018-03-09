@@ -42,13 +42,13 @@ const MAX_INDICE_BYTES = MAX_INDICE * 2;
 
 var _queue = null;
 var _batchData = {
+    node: null,
     vfmt: null,
     effect: null,
+    data: null,
     vertexOffset: 0,
     byteOffset: 0,
     indiceOffset: 0,
-    comp: null,
-    data: null,
     cullingMask: 1,
     MAX_VERTEX: MAX_VERTEX,
     MAX_INDICE: MAX_INDICE
@@ -96,7 +96,6 @@ var RenderComponentWalker = function (device, renderScene) {
     this._queue = [];
     this._batchedModels = [];
     this._dummyNode = new cc.Node();
-    this._node = this._dummyNode;
     this._sortKey = 0;
 
     this._curCameraNode = null;
@@ -125,12 +124,13 @@ RenderComponentWalker.prototype = {
         }
         this._modelPool.reset();
         models.length = 0;
-        this._node = this._dummyNode;
         this._sortKey = 0;
 
         // reset caches for handle render components
+        _batchData.node = null;
         _batchData.vfmt = null;
         _batchData.effect = null;
+        _batchData.data = null;
         _batchData.vertexOffset = 0;
         _batchData.byteOffset = 0;
         _batchData.indiceOffset = 0;
@@ -216,7 +216,7 @@ RenderComponentWalker.prototype = {
         this._batchedModels.push(model);
         model.sortKey = this._sortKey++;
         model._cullingMask = CC_EDITOR ? 1 : cullingMask;
-        model.setNode(this._node);
+        model.setNode(batchData.node);
         model.addEffect(effect);
         model.addInputAssembler(ia);
         
@@ -240,7 +240,7 @@ RenderComponentWalker.prototype = {
         this._batchedModels.push(model);
         model.sortKey = this._sortKey++;
         model._cullingMask = CC_EDITOR ? 1 : cullingMask;
-        model.setNode(this._node);
+        model.setNode(batchData.node);
         model.addEffect(effect);
         model.addInputAssembler(iaRenderData.ia);
         
@@ -275,7 +275,6 @@ RenderComponentWalker.prototype = {
             }
             
             // Update render data
-            _batchData.comp = comp;
             datas = assembler.updateRenderData(comp, _batchData);
 
             // Set model
@@ -285,11 +284,11 @@ RenderComponentWalker.prototype = {
             else {
                 this._node = this._dummyNode;
             }
+
             cullingMask = comp.node._cullingMask;
 
             for (let id = 0; id < datas.length; id ++) {
                 data = datas[id];
-                _batchData.data = data;
                 effect = data.effect;
                 // Nothing can be rendered without effect
                 if (!effect) {
@@ -301,8 +300,9 @@ RenderComponentWalker.prototype = {
 
                 // breaking batch
                 needNewBuf = (_batchData.vertexOffset + data.vertexCount > MAX_VERTEX) || (_batchData.indiceOffset + data.indiceCount > MAX_INDICE);
-                if (_batchData.vfmt && (_batchData.effect != effect || _batchData.cullingMask !== cullingMask || iaData || needNewBuf)) {
+                if (_batchData.effect != effect || _batchData.cullingMask !== cullingMask || iaData || needNewBuf) {
                     this._flush(_batchData);
+                    _batchData.node = assembler.useModel ? comp.node : this._dummyNode;
                     _batchData.effect = effect;
                     _batchData.vfmt = comp._vertexFormat;
                     _batchData.vertexOffset = 0;
@@ -310,18 +310,13 @@ RenderComponentWalker.prototype = {
                     _batchData.indiceOffset = 0;
                     _batchData.cullingMask = cullingMask;
                 }
-                // Init effect
-                else if (!_batchData.effect) {
-                    _batchData.effect = effect;
-                    _batchData.vfmt = comp._vertexFormat;
-                    _batchData.cullingMask = cullingMask;
-                }
 
+                _batchData.data = data;
                 if (iaData) {
                     this._flushIA(_batchData);
                 }
                 else {
-                    assembler.fillBuffers(_batchData, _batchData.vertexOffset, this._vData, this._uintVData, this._iData);
+                    assembler.fillBuffers(comp, _batchData, _batchData.vertexOffset, this._vData, this._uintVData, this._iData);
                     _batchData.vertexOffset += data.vertexCount;
                     _batchData.byteOffset += data.vertexCount * comp._vertexFormat._bytes;
                     _batchData.indiceOffset += data.indiceCount;

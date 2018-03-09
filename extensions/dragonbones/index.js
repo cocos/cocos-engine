@@ -134,9 +134,7 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
     require('./DragonBonesAtlasAsset');
     require('./ArmatureDisplay')
 
-    if (!CC_JSB) {
-        require('./dragonblones-assembler');
-    }
+    require('./dragonbones-assembler');
 } else {
     require('./DragonBonesAsset');
     require('./DragonBonesAtlasAsset');

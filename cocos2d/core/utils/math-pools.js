@@ -1,11 +1,11 @@
 
-const JS = require('../platform/js');
+const js = require('../platform/js');
 const renderEngine = require('../renderer/render-engine');
 const Vec2 = require('../value-types/CCVec2');
 const Vec3 = require('../value-types/CCVec3');
 const math = renderEngine.math;
 
-var mat4Pool = new JS.Pool(128);
+var mat4Pool = new js.Pool(128);
 mat4Pool.get = function () {
     var matrix = this._get();
     if (matrix) {
@@ -17,7 +17,7 @@ mat4Pool.get = function () {
     return matrix;
 };
 
-// var vec2Pool = new JS.Pool(128);
+// var vec2Pool = new js.Pool(128);
 // vec2Pool.get = function () {
 //     var vec2 = this._get();
 //     if (vec2) {
@@ -29,7 +29,7 @@ mat4Pool.get = function () {
 //     return vec2;
 // };
 
-// var vec3Pool = new JS.Pool(128);
+// var vec3Pool = new js.Pool(128);
 // vec3Pool.get = function () {
 //     var vec3 = this._get();
 //     if (vec3) {
@@ -41,7 +41,7 @@ mat4Pool.get = function () {
 //     return vec3;
 // };
 
-var quatPool = new JS.Pool(64);
+var quatPool = new js.Pool(64);
 quatPool.get = function () {
     var quat = this._get();
     if (quat) {

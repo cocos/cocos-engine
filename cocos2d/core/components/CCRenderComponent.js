@@ -49,6 +49,7 @@ var RenderComponent = cc.Class({
         this._material = null;
         this._customMaterial = false;
         this._renderData = null;
+        this.__allocedDatas = [];
         this._vertexFormat = defaultVertexFormat;
         this._toPostHandle = false;
     },
@@ -62,9 +63,23 @@ var RenderComponent = cc.Class({
     },
 
     onDestroy () {
-        if (this._renderData) {
-            RenderData.free(this._renderData);
-            this._renderData = null;
+        for (let i = 0, l = this.__allocedDatas.length; i < l; i++) {
+            RenderData.free(this.__allocedDatas[i]);
+        }
+        this.__allocedDatas.length = 0;
+    },
+
+    requestRenderData () {
+        let data = RenderData.alloc();
+        this.__allocedDatas.push(data);
+        return data;
+    },
+
+    destroyRenderData (data) {
+        let index = this.__allocedDatas.indexOf(data);
+        if (index !== -1) {
+            this.__allocedDatas.splice(index, 1);
+            RenderData.free(data);
         }
     },
 

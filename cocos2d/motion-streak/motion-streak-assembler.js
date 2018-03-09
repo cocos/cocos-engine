@@ -23,11 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../platform/js');
-const assembler = require('./assembler');
-const MotionStreak = require('../../../motion-streak/CCMotionStreak');
-const renderEngine = require('../render-engine');
-const RenderData = renderEngine.RenderData;
+const js = require('../core/platform/js');
+const assembler = require('../core/renderer/assemblers/assembler');
+const MotionStreak = require('./CCMotionStreak');
+const renderEngine = require('../core/renderer/render-engine');
 
 function Point (point, dir) {
     this.point = point || cc.v2();
@@ -96,7 +95,7 @@ var motionStreakAssembler = js.addon({
     update (comp, dt) {
         let renderData = comp._renderData;
         if (!renderData) {
-            renderData = comp._renderData = RenderData.alloc();
+            renderData = comp._renderData = comp.requestRenderData();
         }
 
         if (CC_EDITOR && !comp.preview) return;
@@ -196,9 +195,8 @@ var motionStreakAssembler = js.addon({
         renderData.indiceCount = (renderData.vertexCount - 2)*3;
     },
 
-    fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let comp = batchData.comp,
-            offset = batchData.byteOffset / 4,
+    fillBuffers (comp, batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let offset = batchData.byteOffset / 4,
             node = comp.node,
             renderData = comp._renderData,
             data = renderData._data,

@@ -23,11 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../platform/js');
-const assembler = require('./assembler');
-const ParticleSystem = require('../../../particle/CCParticleSystem');
-const renderEngine = require('../render-engine');
-const RenderData = renderEngine.RenderData;
+const js = require('../core/platform/js');
+const assembler = require('../core/renderer/assemblers/assembler');
+const ParticleSystem = require('./CCParticleSystem');
+const renderEngine = require('../core/renderer/render-engine');
 
 var particleSystemAssembler = js.addon({
     useModel: true,
@@ -55,7 +54,7 @@ var particleSystemAssembler = js.addon({
 
     updateRenderData (comp) {
         if (!comp._renderData) {
-            comp._renderData = RenderData.alloc();
+            comp._renderData = comp.requestRenderData();
             comp._renderData.dataLength = 0;
         }
 
@@ -101,9 +100,8 @@ var particleSystemAssembler = js.addon({
         return this.datas;
     },
 
-    fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let comp = batchData.comp,
-            offset = batchData.byteOffset / 4,
+    fillBuffers (comp, batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let offset = batchData.byteOffset / 4,
             verts = comp._vfx.buffers.indexes;
         
         // vertex buffer

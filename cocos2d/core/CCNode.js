@@ -45,6 +45,7 @@ const CHILD_REORDER = 'child-reorder';
 const ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
 const ONE_DEGREE = Math.PI / 180;
 
+const macro = require('./platform/CCMacro');
 const Misc = require('./utils/misc');
 const Event = require('./event/event');
 //var RegisteredInEditor = Flags.RegisteredInEditor;
@@ -897,10 +898,19 @@ var Node = cc.Class({
          */
         zIndex: {
             get () {
-                // high bits for zIndex, 1 bit for 
+                // high bits for zIndex, lower bits for arrival order
                 return (this._localZOrder & 0xffff0000) >> 16;
             },
             set (value) {
+                if (value > macro.MAX_ZINDEX) {
+                    cc.warnID(1636);
+                    value = macro.MAX_ZINDEX;
+                }
+                else if (value < macro.MIN_ZINDEX) {
+                    cc.warnID(1637);
+                    value = macro.MIN_ZINDEX;
+                }
+
                 var zIndex = (this._localZOrder & 0xffff0000) >> 16;
                 if (zIndex !== value) {
                     this._localZOrder = (this._localZOrder & 0x0000ffff) | (value << 16);

@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 var Texture2D = require('../textures/CCTexture2D');
-var JS = require('../platform/js');
+var js = require('../platform/js');
 
 function JsonUnpacker () {
     this.jsons = {};
@@ -53,7 +53,7 @@ JsonUnpacker.prototype.retrieve = function (key) {
 function TextureUnpacker () {
     this.contents = {};
 }
-TextureUnpacker.ID = JS._getClassId(Texture2D);
+TextureUnpacker.ID = js._getClassId(Texture2D);
 
 /**
  * @param {String[]} indices

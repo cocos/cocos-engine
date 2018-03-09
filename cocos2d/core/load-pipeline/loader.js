@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = require('../platform/js');
+var js = require('../platform/js');
 var sys = require('../platform/CCSys');
 var Pipeline = require('./pipeline');
 var Texture2D = require('../textures/CCTexture2D');
@@ -136,7 +136,7 @@ var Loader = function (extMap) {
     this.async = true;
     this.pipeline = null;
 
-    this.extMap = JS.mixin(extMap, defaultMap);
+    this.extMap = js.mixin(extMap, defaultMap);
 };
 Loader.ID = ID;
 
@@ -146,7 +146,7 @@ Loader.ID = ID;
  * @param {Object} extMap Custom supported types with corresponded handler
  */
 Loader.prototype.addHandlers = function (extMap) {
-    this.extMap = JS.mixin(this.extMap, extMap);
+    this.extMap = js.mixin(this.extMap, extMap);
 };
 
 Loader.prototype.handle = function (item, callback) {

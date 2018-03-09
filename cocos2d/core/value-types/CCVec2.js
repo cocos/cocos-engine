@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 var ValueType = require('./CCValueType');
-var JS = require('../platform/js');
+var js = require('../platform/js');
 var CCClass = require('../platform/CCClass');
 
 /**
@@ -53,7 +53,7 @@ function Vec2 (x, y) {
     this.x = x || 0;
     this.y = y || 0;
 }
-JS.extend(Vec2, ValueType);
+js.extend(Vec2, ValueType);
 CCClass.fastDefine('cc.Vec2', Vec2, { x: 0, y: 0 });
 
 /**
@@ -542,7 +542,7 @@ proto.rotateSelf = function (radians) {
  * @type Vec2
  * @static
  */
-JS.get(Vec2, 'ONE', function () {
+js.get(Vec2, 'ONE', function () {
     return new Vec2(1.0, 1.0);
 });
 
@@ -553,7 +553,7 @@ JS.get(Vec2, 'ONE', function () {
  * @type Vec2
  * @static
  */
-JS.get(Vec2, 'ZERO', function () {
+js.get(Vec2, 'ZERO', function () {
     return new Vec2(0.0, 0.0);
 });
 
@@ -564,7 +564,7 @@ JS.get(Vec2, 'ZERO', function () {
  * @type Vec2
  * @static
  */
-JS.get(Vec2, 'UP', function () {
+js.get(Vec2, 'UP', function () {
     return new Vec2(0.0, 1.0);
 });
 
@@ -575,7 +575,7 @@ JS.get(Vec2, 'UP', function () {
  * @type Vec2
  * @static
  */
-JS.get(Vec2, 'RIGHT', function () {
+js.get(Vec2, 'RIGHT', function () {
     return new Vec2(1.0, 0.0);
 });
 

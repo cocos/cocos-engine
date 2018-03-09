@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = require('../platform/js');
+var js = require('../platform/js');
 require('../platform/deserialize');
 var LoadingItems = require('./loading-items');
 
@@ -243,7 +243,7 @@ function loadUuid (item, callback) {
     }
     else {
         classFinder = function (id) {
-            var cls = JS._getClassById(id);
+            var cls = js._getClassById(id);
             if (cls) {
                 return cls;
             }

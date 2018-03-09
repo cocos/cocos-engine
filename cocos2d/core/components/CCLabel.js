@@ -26,7 +26,6 @@
  const RenderComponent = require('./CCRenderComponent');
  const renderer = require('../renderer');
  const renderEngine = require('../renderer/render-engine');
- const RenderData = renderEngine.RenderData;
  const SpriteMaterial = renderEngine.SpriteMaterial;
 
 /**
@@ -351,7 +350,7 @@ var Label = cc.Class({
                 }
 
                 if (this._renderData) {
-                    RenderData.free(this._renderData);
+                    this.destroyRenderData(this._renderData);
                     this._renderData = null;    
                 }
                 this._fontAtlas = null;
@@ -378,7 +377,7 @@ var Label = cc.Class({
             set: function(value) {
                 if (this._isSystemFontUsed === value) return;
                 
-                RenderData.free(this._renderData);
+                this.destroyRenderData(this._renderData);
                 this._renderData = null;
 
                 if (CC_EDITOR) {

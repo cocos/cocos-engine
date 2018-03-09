@@ -109,8 +109,8 @@ var ToggleContainer = cc.Class({
  * !#zh 只读属性，返回 ToggleContainer 管理的 toggle 数组引用
  * @property {Toggle[]} toggleItems
  */
-var JS = require('../platform/js');
-JS.get(ToggleContainer.prototype, 'toggleItems',
+var js = require('../platform/js');
+js.get(ToggleContainer.prototype, 'toggleItems',
     function () {
         return this.node.getComponentsInChildren(cc.Toggle);
     }

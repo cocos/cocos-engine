@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = require('../platform/js');
+var js = require('../platform/js');
 var Pipeline = require('./pipeline');
 var LoadingItems = require('./loading-items');
 var AssetLoader = require('./asset-loader');
@@ -122,13 +122,13 @@ function CCLoader () {
     this.onProgress = null;
 
     // assets to release automatically
-    this._autoReleaseSetting = JS.createMap(true);
+    this._autoReleaseSetting = js.createMap(true);
 
     if (CC_DEBUG) {
         this._releasedAssetChecker_DEBUG = new ReleasedAssetChecker();
     }
 }
-JS.extend(CCLoader, Pipeline);
+js.extend(CCLoader, Pipeline);
 var proto = CCLoader.prototype;
 
 proto.init = function (director) {
@@ -352,7 +352,7 @@ proto._getReferenceKey = function (assetOrUrlOrUuid) {
 proto._urlNotFound = function (url, type, completeCallback) {
     callInNextTick(function () {
         url = cc.url.normalize(url);
-        var info = `${type ? JS.getClassName(type) : 'Asset'} in "resources/${url}" does not exist.`;
+        var info = `${type ? js.getClassName(type) : 'Asset'} in "resources/${url}" does not exist.`;
         if (completeCallback) {
             completeCallback(new Error(info), []);
         }

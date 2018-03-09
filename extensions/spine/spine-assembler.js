@@ -23,15 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../platform/js');
-const assembler = require('./assembler');
-const Skeleton = require('../../../../extensions/spine/skeleton');
-const spine = require('../../../../extensions/spine/lib/spine');
-const renderer = require('../');
-const renderEngine = require('../render-engine');
+const js = require('../../cocos2d/core/platform/js');
+const assembler = require('../../cocos2d/core/renderer/assemblers/assembler');
+const Skeleton = require('./skeleton');
+const spine = require('./lib/spine');
+const renderer = require('../../cocos2d/core/renderer');
+const renderEngine = renderer.renderEngine;
 const gfx = renderEngine.gfx;
 const SpriteMaterial = renderEngine.SpriteMaterial;
-const RenderData = renderEngine.RenderData;
 
 let _sharedMaterials = {};
 
@@ -149,7 +148,7 @@ var spineAssembler = js.addon({
         let attachment, slot;
         let dataId = 0, datas = comp._renderDatas, data = datas[dataId], newData = false;
         if (!data) {
-            data = datas[dataId] = RenderData.alloc();
+            data = datas[dataId] = comp.requestRenderData();
         }
         data.dataLength = 0;
         let indices;
@@ -204,7 +203,7 @@ var spineAssembler = js.addon({
                 // gen new data
                 dataId++;
                 if (!datas[dataId]) {
-                    data = datas[dataId] = RenderData.alloc();
+                    data = datas[dataId] = comp.requestRenderData();
                 }
                 data.dataLength = vertexCount;
                 data.effect = currEffect;
@@ -296,11 +295,11 @@ var spineAssembler = js.addon({
         return comp._renderDatas;
     },
 
-    fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
+    fillBuffers (comp, batchData, vertexId, vbuf, uintbuf, ibuf) {
         let data = batchData.data;
         let vertexs = data._data;
         let indices = data._indices;
-        let z = batchData.comp.node._position.z;
+        let z = comp.node._position.z;
 
         // fill vertex buffer
         let offset = batchData.byteOffset / 4;

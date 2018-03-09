@@ -29,7 +29,6 @@ const Sprite = require('../../../components/CCSprite');
 const renderEngine = require('../../render-engine');
 const SpriteType = Sprite.Type;
 const FillType = Sprite.FillType;
-const RenderData = renderEngine.RenderData;
 
 const simpleRenderUtil = require('./simple');
 const slicedRenderUtil = require('./sliced');
@@ -118,9 +117,8 @@ let spriteAssembler = js.addon({
         return this.datas;
     },
 
-    fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let sprite = batchData.comp,
-            vertexOffset = batchData.byteOffset / 4,
+    fillBuffers (sprite, batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let vertexOffset = batchData.byteOffset / 4,
             indiceOffset = batchData.indiceOffset;
 
         // vertex buffer

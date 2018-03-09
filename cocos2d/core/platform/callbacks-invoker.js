@@ -23,8 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const JS = require('./js');
-const fastRemoveAt = JS.array.fastRemoveAt;
+const js = require('./js');
+const fastRemoveAt = js.array.fastRemoveAt;
 
 function CallbackList () {
     this.callbacks = [];
@@ -68,7 +68,7 @@ proto.purgeCanceled = function () {
 
 
 const MAX_SIZE = 16;
-const callbackListPool = new JS.Pool(function (list) {
+const callbackListPool = new js.Pool(function (list) {
     list.callbacks.length = 0;
     list.targets.length = 0;
     list.isInvoking = false;
@@ -86,7 +86,7 @@ callbackListPool.get = function () {
  * @private
  */
 function CallbacksHandler () {
-    this._callbackTable = JS.createMap(true);
+    this._callbackTable = js.createMap(true);
 }
 proto = CallbacksHandler.prototype;
 
@@ -217,7 +217,7 @@ proto.remove = function (key, callback, target) {
 var CallbacksInvoker = function () {
     CallbacksHandler.call(this);
 };
-JS.extend(CallbacksInvoker, CallbacksHandler);
+js.extend(CallbacksInvoker, CallbacksHandler);
 
 if (CC_TEST) {
     cc._Test.CallbacksInvoker = CallbacksInvoker;

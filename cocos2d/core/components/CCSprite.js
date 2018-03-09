@@ -235,7 +235,7 @@ var Sprite = cc.Class({
             },
             set: function (value) {
                 if (this._type !== value) {
-                    RenderData.free(this._renderData);
+                    this.destroyRenderData(this._renderData);
                     this._renderData = null;
                     this._type = value;
                 }
@@ -262,7 +262,7 @@ var Sprite = cc.Class({
             set: function(value) {
                 if (value !== this._fillType) {
                     if (value === FillType.RADIAL || this._fillType === FillType.RADIAL) {
-                        RenderData.free(this._renderData);
+                        this.destroyRenderData(this._renderData);
                         this._renderData = null;
                     }
                     else if (this._renderData) {

@@ -26,7 +26,6 @@
 const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent');
 const renderer = require('../../cocos2d/core/renderer');
 const renderEngine = require('../../cocos2d/core/renderer/render-engine');
-const RenderData = renderEngine.RenderData;
 const SpriteMaterial = renderEngine.SpriteMaterial;
 
 let EventTarget = require('../../cocos2d/core/event/event-target');

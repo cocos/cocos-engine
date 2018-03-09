@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-var JS = require('../platform/js');
+var js = require('../platform/js');
 var sys = require('../platform/CCSys');
 require('../utils/CCPath');
 var Pipeline = require('./pipeline');
@@ -280,7 +280,7 @@ var Downloader = function (extMap) {
     this._curConcurrent = 0;
     this._loadQueue = [];
 
-    this.extMap = JS.mixin(extMap, defaultMap);
+    this.extMap = js.mixin(extMap, defaultMap);
 };
 Downloader.ID = ID;
 Downloader.PackDownloader = PackDownloader;
@@ -291,7 +291,7 @@ Downloader.PackDownloader = PackDownloader;
  * @param {Object} extMap Custom supported types with corresponded handler
  */
 Downloader.prototype.addHandlers = function (extMap) {
-    JS.mixin(this.extMap, extMap);
+    js.mixin(this.extMap, extMap);
 };
 
 Downloader.prototype._handleLoadQueue = function () {

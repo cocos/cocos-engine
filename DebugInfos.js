@@ -116,6 +116,8 @@ if (CC_DEBUG) {
         "1633": "Internal error, should not remove unknown node from parent.", //parent
         "1634": "addChild: The child to add must be instance of cc.Node, not %s.", //addChild
         "1635": "reorderChild: this child is not in children list", // reorderChild
+        "1636": "Node's zIndex value can't be greater than cc.macro.MAX_ZINDEX, setting to the maximum value", // zIndex
+        "1637": "Node's zIndex value can't be smaller than cc.macro.MIN_ZINDEX, setting to the minimum value", // zIndex
         //AtlasNode: 1700
         "1700": "cc.AtlasNode.updateAtlasValues(): Shall be overridden in subclasses", //_updateAtlasValues
         "1701": "", //_initWithTileFile

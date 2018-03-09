@@ -36,7 +36,6 @@ const MAX_INDICE = MAX_VERTEX * 2;
 const js = require('../../../platform/js');
 const assembler = require('../assembler');
 const renderEngine = require('../../render-engine');
-const RenderData = renderEngine.RenderData;
 const math = renderEngine.math;
 
 const PI      = Math.PI;
@@ -72,7 +71,7 @@ let graphicsAssembler = js.addon({
     updateRenderData (graphics) {
         let datas = graphics._renderDatas;
         if (datas.length === 0) {
-            datas.push(RenderData.alloc());
+            datas.push(graphics.requestRenderData());
         }
         
         for (let i = 0, l = datas.length; i < l; i++) {
@@ -82,9 +81,8 @@ let graphicsAssembler = js.addon({
         return datas;
     },
 
-    fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let graphics = batchData.comp,
-            offset = batchData.byteOffset / 4,
+    fillBuffers (graphics, batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let offset = batchData.byteOffset / 4,
             node = graphics.node,
             renderData = batchData.data,
             data = renderData._data,
@@ -129,14 +127,14 @@ let graphicsAssembler = js.addon({
         let maxVertsCount = renderData.dataLength + cverts;
         if (maxVertsCount > MAX_VERTEX ||
             maxVertsCount * 3 > MAX_INDICE) {
-            renderData = RenderData.alloc();
+            renderData = graphics.requestRenderData();
         }
         return renderData;
     },
 
     stroke (graphics) {
         if (graphics._renderDatas.length === 0) {
-            graphics._renderDatas.push(RenderData.alloc());
+            graphics._renderDatas.push(graphics.requestRenderData());
         }
 
         _curColor = graphics._strokeColor._val;
@@ -149,7 +147,7 @@ let graphicsAssembler = js.addon({
 
     fill (graphics) {
         if (graphics._renderDatas.length === 0) {
-            graphics._renderDatas.push(RenderData.alloc());
+            graphics._renderDatas.push(graphics.requestRenderData());
         }
 
         _curColor = graphics._fillColor._val;

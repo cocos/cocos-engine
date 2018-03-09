@@ -26,7 +26,6 @@
 const Armature = require('./ArmatureDisplay');
 
 const renderEngine = require('../../cocos2d/core/renderer/render-engine');
-const RenderData = renderEngine.RenderData;
 const math = renderEngine.math;
 
 const js = require('../../cocos2d/core/platform/js');
@@ -43,11 +42,6 @@ let _vbuf, _uintbuf,
     _worldMatrix;
 
 let armatureAssembler = js.addon({
-
-    createData (comp) {
-        return RenderData.alloc();
-    },
-
     updateRenderData (comp) {
         this.datas.length = 0;
         
@@ -58,7 +52,7 @@ let armatureAssembler = js.addon({
         
         let renderData = comp._renderData;
         if (!renderData) {
-            renderData = comp._renderData = this.createData(comp);
+            renderData = comp._renderData = comp.requestRenderData();
         }
 
         let size = comp.node._contentSize;
@@ -91,9 +85,8 @@ let armatureAssembler = js.addon({
         }
     },
 
-    fillBuffers (batchData, vertexId, vbuf, uintbuf, ibuf) {
-        let comp = batchData.comp,
-            armature = batchData.comp._armature;
+    fillBuffers (comp, batchData, vertexId, vbuf, uintbuf, ibuf) {
+        let armature = comp._armature;
         if (!armature || comp._isChildArmature) return;
 
         _vertexOffset = batchData.byteOffset / 4;
