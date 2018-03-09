@@ -531,10 +531,6 @@ var Component = cc.Class({
 
 // Scheduler
 
-    isRunning () {
-        return this.enabledInHierarchy;
-    },
-
     /**
      * !#en
      * Schedules a custom selector.<br/>

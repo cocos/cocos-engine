@@ -537,7 +537,7 @@ cc.Follow = cc.Class({
     },
 
     isDone:function () {
-        return ( !this._followedNode.isRunning() );
+        return ( !this._followedNode.activeInHierarchy );
     },
 
     stop:function () {

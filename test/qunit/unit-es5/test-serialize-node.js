@@ -35,7 +35,6 @@ if (TestEditorExtends) {
         '_opacity',
         '_color',
         '_active',
-        '_cascadeOpacityEnabled',
         '__type__'
     ];
 
@@ -57,7 +56,6 @@ if (TestEditorExtends) {
             '_name' : nodeName,
             '_opacity' : getSpecRandomInt(0, 256),
             '_color' : cc.color(getSpecRandomInt(0, 256), getSpecRandomInt(0, 256), getSpecRandomInt(0, 256), getSpecRandomInt(0, 256)),
-            '_cascadeOpacityEnabled' : getRandomBool(),
             '__type__' : 'cc.Node'
         };
     }
@@ -81,7 +79,6 @@ if (TestEditorExtends) {
         ret._name = nodeName;
         ret._opacity = getSpecRandomInt(0, 256);
         ret._color = cc.color(getSpecRandomInt(0, 256), getSpecRandomInt(0, 256), getSpecRandomInt(0, 256), getSpecRandomInt(0, 256));
-        ret._cascadeOpacityEnabled = getRandomBool();
         ret.__type__ = 'cc.Node';
 
         return ret;
