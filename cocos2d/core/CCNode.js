@@ -1734,6 +1734,33 @@ var Node = cc.Class({
         }
         this.emit(ANCHOR_CHANGED);
     },
+
+    /*
+     * Transforms position from world space to local space.
+     * @method _invTransformPoint
+     * @param {vmath.Vec3} out
+     * @param {vmath.Vec3} vec3
+     */
+    _invTransformPoint (out, pos) {
+        if (this._parent) {
+            this._parent._invTransformPoint(out, pos);
+        } else {
+            math.vec3.copy(out, pos);
+        }
+
+        // out = parent_inv_pos - pos
+        math.vec3.sub(out, out, this._position);
+
+        // out = inv(rot) * out
+        math.quat.conjugate(_quat_temp, this._quat);
+        math.vec3.transformQuat(out, out, _quat_temp);
+
+        // out = (1/scale) * out
+        math.vec3.inverseSafe(_vec3_temp, this._scale);
+        math.vec3.mul(out, out, _vec3_temp);
+
+        return out;
+    },
     
     /*
      * Calculate and return world position.
@@ -1755,6 +1782,36 @@ var Node = cc.Class({
             curr = curr._parent;
         }
         return out;
+    },
+
+    /*
+     * Set world position.
+     * This is not a public API yet, its usage could be updated
+     * @method setWorldPos
+     * @param {vec3} pos
+     */
+    setWorldPos (pos) {
+        // NOTE: this is faster than invert world matrix and transform the point
+        if (this._parent) {
+            this._parent._invTransformPoint(this._position, pos);
+        }
+        else {
+            math.vec3.copy(this._position, pos);
+        }
+
+        this._localMatDirty = true;
+
+        // fast check event
+        var cache = this._hasListenerCache;
+        if (cache && cache[POSITION_CHANGED]) {
+            // send event
+            if (CC_EDITOR) {
+                this.emit(POSITION_CHANGED, oldPosition);
+            }
+            else {
+                this.emit(POSITION_CHANGED);
+            }
+        }
     },
 
     /*
