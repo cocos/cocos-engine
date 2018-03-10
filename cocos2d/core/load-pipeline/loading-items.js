@@ -297,7 +297,7 @@ LoadingItems.ItemState = new cc.Enum(ItemState);
  * @param {Array} urlList The items array.
  * @param {Function} onProgress The progression callback, refer to {{#crossLink "LoadingItems.onProgress"}}{{/crossLink}}
  * @param {Function} onComplete The completion callback, refer to {{#crossLink "LoadingItems.onComplete"}}{{/crossLink}}
- * @return {LoadingItems} The LoadingItems queue obejct
+ * @return {LoadingItems} The LoadingItems queue object
  * @example
  *  LoadingItems.create(cc.loader, ['a.png', 'b.plist'], function (completedCount, totalCount, item) {
  *      var progress = (100 * completedCount / totalCount).toFixed(2);
@@ -359,7 +359,7 @@ LoadingItems.create = function (pipeline, urlList, onProgress, onComplete) {
  * @method getQueue
  * @static
  * @param {Object} item The item to query
- * @return {LoadingItems} The LoadingItems queue obejct
+ * @return {LoadingItems} The LoadingItems queue object
  */
 LoadingItems.getQueue = function (item) {
     return item.queueId ? _queues[item.queueId] : null;
