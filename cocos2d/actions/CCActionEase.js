@@ -784,7 +784,7 @@ cc._easeElasticInObj = {
 
 /**
  * !#en
- * Creates the action easing obejct with the period in radians (default is 0.3). <br />
+ * Creates the action easing object with the period in radians (default is 0.3). <br />
  * Reference easeInElastic: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
  * !#zh
