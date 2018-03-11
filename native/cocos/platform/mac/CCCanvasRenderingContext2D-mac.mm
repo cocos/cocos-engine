@@ -170,6 +170,9 @@ enum class CanvasTextBaseline {
 
 -(void) fillText:(NSString*) text x:(CGFloat) x y:(CGFloat) y maxWidth:(CGFloat) maxWidth {
 
+    if (text.length == 0)
+        return;
+
     NSPoint drawPoint = [self convertDrawPoint:NSMakePoint(x, y) text:text];
 
     NSMutableParagraphStyle* paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
@@ -213,6 +216,32 @@ enum class CanvasTextBaseline {
 
 -(const cocos2d::Data&) getDataRef {
     return _imageData;
+}
+
+-(void) clearRect:(CGRect) rect {
+    if (_image == nil)
+        return;
+
+    rect.origin.x = floor(rect.origin.x);
+    rect.origin.y = floor(rect.origin.y);
+    rect.size.width = floor(rect.size.width);
+    rect.size.height = floor(rect.size.height);
+
+    if (rect.origin.x < 0) rect.origin.x = 0;
+    if (rect.origin.y < 0) rect.origin.y = 0;
+
+    if (rect.size.width < 1 || rect.size.height < 1)
+        return;
+    //TODO:
+    assert(rect.origin.x == 0 && rect.origin.y == 0);
+    NSLog(@"clearRect, image:%f, %f", _image.size.width, _image.size.height);
+    assert(rect.size.width <= _image.size.width && rect.size.height <= _image.size.height);
+
+    [_image lockFocus];
+    [[NSColor clearColor] set];
+    NSRectFill(rect);
+    [_image unlockFocus];
+
 }
 
 @end
@@ -259,6 +288,7 @@ void CanvasRenderingContext2D::recreateBuffer()
 void CanvasRenderingContext2D::clearRect(float x, float y, float width, float height)
 {
     SE_LOGD("CanvasGradient::clearRect: %p, %f, %f, %f, %f\n", this, x, y, width, height);
+    [_impl clearRect:CGRectMake(x, y, width, height)];
 }
 
 //Data CanvasRenderingContext2D::getImageData(float sx, float sy, float sw, float sh)
@@ -272,6 +302,8 @@ void CanvasRenderingContext2D::clearRect(float x, float y, float width, float he
 void CanvasRenderingContext2D::fillText(const std::string& text, float x, float y, float maxWidth)
 {
     SE_LOGD("CanvasRenderingContext2D::fillText: %s, %f, %f, %f\n", text.c_str(), x, y, maxWidth);
+    if (text.empty())
+        return;
     if (_isBufferSizeDirty)
         recreateBuffer();
 
@@ -283,11 +315,13 @@ void CanvasRenderingContext2D::fillText(const std::string& text, float x, float 
 void CanvasRenderingContext2D::strokeText(const std::string& text, float x, float y, float maxWidth)
 {
     SE_LOGD("CanvasRenderingContext2D::strokeText: %s, %f, %f, %f\n", text.c_str(), x, y, maxWidth);
+    if (text.empty())
+        return;
     if (_isBufferSizeDirty)
         recreateBuffer();
 
-    if (_canvasBufferUpdatedCB != nullptr)
-        _canvasBufferUpdatedCB([_impl getDataRef]);
+//    if (_canvasBufferUpdatedCB != nullptr)
+//        _canvasBufferUpdatedCB([_impl getDataRef]);
 }
 
 cocos2d::Size CanvasRenderingContext2D::measureText(const std::string& text)
@@ -347,6 +381,7 @@ void CanvasRenderingContext2D::set__width(float width)
     SE_LOGD("CanvasRenderingContext2D::set__width: %f\n", width);
     __width = width;
     _isBufferSizeDirty = true;
+    recreateBuffer();
 }
 
 void CanvasRenderingContext2D::set__height(float height)
@@ -354,6 +389,7 @@ void CanvasRenderingContext2D::set__height(float height)
     SE_LOGD("CanvasRenderingContext2D::set__height: %f\n", height);
     __height = height;
     _isBufferSizeDirty = true;
+    recreateBuffer();
 }
 
 void CanvasRenderingContext2D::set_lineWidth(float lineWidth)

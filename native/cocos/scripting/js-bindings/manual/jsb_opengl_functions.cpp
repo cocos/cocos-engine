@@ -131,12 +131,21 @@ bool JSB_get_arraybufferview_dataptr(const se::Value& v, GLsizei *count, GLvoid 
 
     if (v.isObject())
     {
+        uint8_t* ptr = nullptr;
+        size_t length = 0;
         se::Object* obj = v.toObject();
         if (obj->isTypedArray())
         {
-            uint8_t* ptr = nullptr;
-            size_t length = 0;
             if (obj->getTypedArrayData(&ptr, &length) && ptr != nullptr && length > 0)
+            {
+                *data = ptr;
+                *count = (GLsizei)length;
+                return true;
+            }
+        }
+        else if (obj->isArrayBuffer())
+        {
+            if (obj->getArrayBufferData(&ptr, &length) && ptr != nullptr && length > 0)
             {
                 *data = ptr;
                 *count = (GLsizei)length;
