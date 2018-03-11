@@ -298,7 +298,7 @@ namespace {
             // Add closure for evalutate the script
             char prefix[] = "(function(currentScriptDir){ window.module = window.module || {}; var exports = window.module.exports = {}; ";
             char suffix[512] = {0};
-            snprintf(suffix, sizeof(suffix), "\n})('%s'); ", currentScriptFileDir.c_str());
+            snprintf(suffix, sizeof(suffix), "\nwindow.module.exports = window.module.exports || exports;\n})('%s'); ", currentScriptFileDir.c_str());
 
             // Add current script path to require function invocation
             scriptBuffer = prefix + std::regex_replace(scriptBuffer, std::regex("([^A-Za-z0-9]|^)require\\((.*?)\\)"), "$1require($2, currentScriptDir)") + suffix;
