@@ -186,6 +186,7 @@ proto.onPause = function () {
 };
 
 proto.setTime = function (time) {
+    this._firstFramePlayed = false;
     this.time = time || 0;
 
     var curves = this.curves;
