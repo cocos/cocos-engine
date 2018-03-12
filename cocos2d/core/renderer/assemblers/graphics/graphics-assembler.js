@@ -35,7 +35,7 @@ const MAX_INDICE = MAX_VERTEX * 2;
 
 const js = require('../../../platform/js');
 const assembler = require('../assembler');
-const renderEngine = require('../../render-engine');
+const renderEngine = require('render-engine');
 const math = renderEngine.math;
 
 const PI      = Math.PI;

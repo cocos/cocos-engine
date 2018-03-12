@@ -25,7 +25,7 @@
 
 const Armature = require('./ArmatureDisplay');
 
-const renderEngine = require('../../cocos2d/core/renderer/render-engine');
+const renderEngine = require('render-engine');
 const math = renderEngine.math;
 
 const js = require('../../cocos2d/core/platform/js');

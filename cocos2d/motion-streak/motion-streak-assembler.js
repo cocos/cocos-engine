@@ -26,7 +26,7 @@
 const js = require('../core/platform/js');
 const assembler = require('../core/renderer/assemblers/assembler');
 const MotionStreak = require('./CCMotionStreak');
-const renderEngine = require('../core/renderer/render-engine');
+const renderEngine = require('render-engine');
 
 function Point (point, dir) {
     this.point = point || cc.v2();

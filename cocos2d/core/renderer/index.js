@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
  
-const renderEngine = require('./render-engine');
+const renderEngine = require('render-engine');
 const RenderComponentWalker = require('./render-component-walker');
 const math = renderEngine.math;
 

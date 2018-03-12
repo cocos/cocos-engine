@@ -23,12 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const renderEngine = require('../renderer/render-engine');
+const renderEngine = require('render-engine');
 const gfx = renderEngine.gfx;
+const math = renderEngine.math;
 const StencilMaterial = renderEngine.StencilMaterial;
 const RenderComponent = require('./CCRenderComponent');
 
-const math = require('../renderer/render-engine').math;
 let _mat4_temp = math.mat4.create();
 let _rect_temp = cc.rect();
 
