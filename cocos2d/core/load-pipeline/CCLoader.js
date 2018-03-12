@@ -370,7 +370,7 @@ proto._urlNotFound = function (url, type, completeCallback) {
  */
 proto._parseLoadResArgs = function (type, onProgress, onComplete) {
     if (onComplete === undefined) {
-        var isValidType = cc.isChildClassOf(type, cc.RawAsset);
+        var isValidType = js.isChildClassOf(type, cc.RawAsset);
         if (onProgress) {
             onComplete = onProgress;
             if (isValidType) {

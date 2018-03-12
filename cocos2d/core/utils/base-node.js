@@ -26,10 +26,10 @@
 var PrefabHelper = require('./prefab-helper');
 var Flags = require('../platform/CCObject').Flags;
 var Misc = require('./misc');
+var js = require('../platform/js');
 var IdGenerater = require('../platform/id-generater');
 var eventManager = require('../event-manager');
 
-var js = cc.js;
 var Destroying = Flags.Destroying;
 var DontDestroy = Flags.DontDestroy;
 
@@ -888,7 +888,7 @@ var BaseNode = cc.Class({
             cc.errorID(3809);
             return null;
         }
-        if (!cc.isChildClassOf(constructor, cc.Component)) {
+        if (!js.isChildClassOf(constructor, cc.Component)) {
             cc.errorID(3810);
             return null;
         }

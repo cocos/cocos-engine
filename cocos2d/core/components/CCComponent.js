@@ -135,7 +135,7 @@ var Component = cc.Class({
             //        if (value && Editor.Utils.UuidUtils.isUuid(value._uuid)) {
             //            var classId = Editor.Utils.UuidUtils.compressUuid(value._uuid);
             //            var NewComp = cc.js._getClassById(classId);
-            //            if (cc.isChildClassOf(NewComp, cc.Component)) {
+            //            if (js.isChildClassOf(NewComp, cc.Component)) {
             //                cc.warn('Sorry, replacing component script is not yet implemented.');
             //                //Editor.Ipc.sendToWins('reload:window-scripts', Editor._Sandbox.compiled);
             //            }

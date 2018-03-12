@@ -287,7 +287,7 @@ function getTypeChecker (type, attrName) {
             }
             else if (defaultType !== 'function') {
                 if (type === cc.String && defaultVal == null) {
-                    if (!cc.isChildClassOf(mainPropAttrs.ctor, cc.RawAsset)) {
+                    if (!js.isChildClassOf(mainPropAttrs.ctor, cc.RawAsset)) {
                         cc.warnID(3607, propInfo);
                     }
                 }
@@ -324,7 +324,7 @@ function ObjectType (typeCtor) {
             // check ValueType
             var defaultDef = getClassAttrs(classCtor)[mainPropName + DELIMETER + 'default'];
             var defaultVal = require('./CCClass').getDefault(defaultDef);
-            if (!Array.isArray(defaultVal) && cc.isChildClassOf(typeCtor, cc.ValueType)) {
+            if (!Array.isArray(defaultVal) && js.isChildClassOf(typeCtor, cc.ValueType)) {
                 var typename = js.getClassName(typeCtor);
                 var info = cc.js.formatStr('No need to specify the "type" of "%s.%s" because %s is a child class of ValueType.',
                     js.getClassName(classCtor), mainPropName, typename);

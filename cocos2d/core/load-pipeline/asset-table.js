@@ -60,7 +60,7 @@ proto.getUuid = function (path, type) {
             if (type) {
                 for (var i = 0; i < item.length; i++) {
                     var entry = item[i];
-                    if (cc.isChildClassOf(entry.type, type)) {
+                    if (js.isChildClassOf(entry.type, type)) {
                         return entry.uuid;
                     }
                 }
@@ -69,7 +69,7 @@ proto.getUuid = function (path, type) {
                 return item[0].uuid;
             }
         }
-        else if (!type || cc.isChildClassOf(item.type, type)) {
+        else if (!type || js.isChildClassOf(item.type, type)) {
             return item.uuid;
         }
     }
@@ -83,7 +83,7 @@ proto.getUuidArray = function (path, type, out_urls) {
     }
     var path2uuid = this._pathToUuid;
     var uuids = [];
-    var isChildClassOf = cc.isChildClassOf;
+    var isChildClassOf = js.isChildClassOf;
     for (var p in path2uuid) {
         if ((p.startsWith(path) && isMatchByWord(p, path)) || !path) {
             var item = path2uuid[p];
