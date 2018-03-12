@@ -28,7 +28,9 @@ function AnimationState (clip, name) {
     Playable.call(this);
     cc.EventTarget.call(this);
     
-    this._firstFramePlayed = false;
+    // Mark whether the current frame is played.
+    // When set new time to animation state, we should ensure the frame at the specified time being played at next update.
+    this._currentFramePlayed = false;
     
     this._delay = 0;
     this._delayTime = 0;
@@ -186,7 +188,7 @@ proto.onPause = function () {
 };
 
 proto.setTime = function (time) {
-    this._firstFramePlayed = false;
+    this._currentFramePlayed = false;
     this.time = time || 0;
 
     var curves = this.curves;
@@ -273,11 +275,11 @@ proto.update = function (delta) {
     // make first frame perfect
 
     //var playPerfectFirstFrame = (this.time === 0);
-    if (this._firstFramePlayed) {
+    if (this._currentFramePlayed) {
         this.time += (delta * this.speed);
     }
     else {
-        this._firstFramePlayed = true;
+        this._currentFramePlayed = true;
     }
 
     this._process();
