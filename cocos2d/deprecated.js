@@ -472,18 +472,14 @@ if (CC_DEV) {
     ]);
 
     markFunctionWarning(cc.Node.prototype, {
-        'getNodeToParentTransform': 'getLocalMatrix',
-        'getNodeToParentTransformAR': 'getLocalMatrix',
-        'getNodeToWorldTransform': 'getWorldMatrix',
-        'getNodeToWorldTransformAR': 'getWorldMatrix',
-        'getParentToNodeTransform': 'getLocalMatrix',
-        'getWorldToNodeTransform': 'getWorldMatrix',
-        'convertTouchToNodeSpace': 'convertToNodeSpace',
-        'convertTouchToNodeSpaceAR': 'convertToNodeSpaceAR',
-    });
-
-    markFunctionWarning(cc.Camera.prototype, {
-        'getNodeToCameraTransform': 'getWorldToCameraMatrix'
+        getNodeToParentTransform: 'getLocalMatrix',
+        getNodeToParentTransformAR: 'getLocalMatrix',
+        getNodeToWorldTransform: 'getWorldMatrix',
+        getNodeToWorldTransformAR: 'getWorldMatrix',
+        getParentToNodeTransform: 'getLocalMatrix',
+        getWorldToNodeTransform: 'getWorldMatrix',
+        convertTouchToNodeSpace: 'convertToNodeSpace',
+        convertTouchToNodeSpaceAR: 'convertToNodeSpaceAR',
     });
 
     provideClearError(cc.Node.prototype, {
@@ -491,13 +487,24 @@ if (CC_DEV) {
         _visible: '_activeInHierarchy, active',
         _running: '_activeInHierarchy, active',
         running: 'activeInHierarchy, active',
-        _realOpacity: '_opacity, _opacity',
-        _realColor: '_color, _color',
-        _insertChild: 'addChild',
-        _addChildHelper: 'addChild',
-        _detachChild: 'removeChild',
-        getZOrder: 'getLocalZOrder',
-        setZOrder: 'setLocalZOrder',
+        getRotationX: 'rotationX',
+        setRotationX: 'rotationX',
+        getRotationY: 'rotationY',
+        setRotationY: 'rotationY',
+        getPositionX: 'x',
+        setPositionX: 'x',
+        getPositionY: 'y',
+        setPositionY: 'y',
+        getSkewX: 'skewX',
+        setSkewX: 'skewX',
+        getSkewY: 'skewY',
+        setSkewY: 'skewY',
+        getOpacity: 'opacity',
+        setOpacity: 'opacity',
+        getColor: 'color',
+        setColor: 'color',
+        getLocalZOrder: 'zIndex',
+        setLocalZOrder: 'zIndex',
         boundingBox: 'getBoundingBox',
         removeFromParentAndCleanup: 'removeFromParent',
         removeAllChildrenWithCleanup: 'removeAllChildren',
@@ -513,6 +520,11 @@ if (CC_DEV) {
     markAsRemoved(cc.Component, [
         'isRunning',
     ]);
+
+    // cc.Camera
+    markFunctionWarning(cc.Camera.prototype, {
+        getNodeToCameraTransform: 'getWorldToCameraMatrix'
+    });
 
     // cc.Sprite
 
