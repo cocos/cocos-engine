@@ -30,7 +30,7 @@ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
 
 #include "platform/CCFileUtils.h"
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
 #include "base/ccTypes.h"
 #include <string>
 #include <vector>

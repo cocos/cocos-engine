@@ -23,7 +23,6 @@
  ****************************************************************************/
 
 #include "EventDispatcher.h"
-#include <mutex>
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
@@ -144,7 +143,7 @@ void EventDispatcher::dispatchKeyEvent(int key, int action)
 {
 }
     
-void EventDispatcher::dispatchTickEvent()
+void EventDispatcher::dispatchTickEvent(float dt)
 {
     se::AutoHandleScope scope;
 

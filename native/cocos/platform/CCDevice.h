@@ -27,7 +27,7 @@ THE SOFTWARE.
 #ifndef __CCDEVICE_H__
 #define __CCDEVICE_H__
 
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
 #include "base/ccMacros.h"
 #include "base/CCData.h"
 
@@ -113,7 +113,8 @@ public:
 
     static NetworkType getNetworkType();
 private:
-    CC_DISALLOW_IMPLICIT_CONSTRUCTORS(Device);
+	Device();
+	CC_DISALLOW_COPY_AND_ASSIGN(Device);
 };
 
 // end group

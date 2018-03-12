@@ -6,9 +6,8 @@
 #include "cocos2d.h"
 #include "gfx/GFX.h"
 #include "renderer/Renderer.h"
-//#include "cocos/ui/CocosGUI.h"
+#include "network/CCDownloader.h"
 //#include "extensions/cocos-ext.h"
-//#include "cocos/editor-support/spine/spine.h"
 //#include "Box2D/Box2D.h"
 
 #define SE_PRECONDITION2_VOID(condition, ...) \
@@ -92,7 +91,7 @@ bool seval_to_FontDefinition(const se::Value& v, cocos2d::FontDefinition* ret);
 //bool seval_to_AffineTransform(const se::Value& v, cocos2d::AffineTransform* ret);
 ////bool seval_to_Viewport(const se::Value& v, cocos2d::experimental::Viewport* ret);
 bool seval_to_Data(const se::Value& v, cocos2d::Data* ret);
-//bool seval_to_DownloaderHints(const se::Value& v, cocos2d::network::DownloaderHints* ret);
+bool seval_to_DownloaderHints(const se::Value& v, cocos2d::network::DownloaderHints* ret);
 //bool seval_to_TTFConfig(const se::Value& v, cocos2d::TTFConfig* ret);
 
 //box2d seval to native convertion
@@ -255,7 +254,7 @@ bool std_map_string_string_to_seval(const std::map<std::string, std::string>& v,
 //bool AffineTransform_to_seval(const cocos2d::AffineTransform& v, se::Value* ret);
 ////bool Viewport_to_seval(const cocos2d::experimental::Viewport& v, se::Value* ret);
 bool Data_to_seval(const cocos2d::Data& v, se::Value* ret);
-//bool DownloadTask_to_seval(const cocos2d::network::DownloadTask& v, se::Value* ret);
+bool DownloadTask_to_seval(const cocos2d::network::DownloadTask& v, se::Value* ret);
 
 bool VertexFormat_to_seval(const cocos2d::renderer::VertexFormat& v, se::Value* ret);
 bool TechniqueParameter_to_seval(const cocos2d::renderer::Technique::Parameter& v, se::Value* ret);

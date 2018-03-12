@@ -27,7 +27,7 @@ THE SOFTWARE.
 #ifndef __PLATFORM_IPHONE_PLATFORM_CCLOCK_H__
 #define __PLATFORM_IPHONE_PLATFORM_CCLOCK_H__
 
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
 
 NS_CC_BEGIN
 

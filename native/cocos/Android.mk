@@ -32,7 +32,6 @@ base/CCAutoreleasePool.cpp \
 base/CCConfiguration.cpp \
 base/CCData.cpp \
 base/CCNS.cpp \
-base/CCProfiling.cpp \
 base/CCRef.cpp \
 base/CCUserDefault-android.cpp \
 base/CCUserDefault.cpp \
@@ -49,6 +48,8 @@ base/ccUTF8.cpp \
 base/ccUtils.cpp \
 base/etc1.cpp \
 base/pvr.cpp \
+base/CCLog.cpp \
+base/CCScheduler.cpp \
 renderer/Types.cpp \
 renderer/gfx/DeviceGraphics.cpp \
 renderer/gfx/FrameBuffer.cpp \
@@ -78,11 +79,16 @@ renderer/renderer/Technique.cpp \
 renderer/renderer/View.cpp \
 renderer/renderer/ForwardRenderer.cpp \
 scripting/js-bindings/auto/jsb_gfx_auto.cpp \
+scripting/js-bindings/auto/jsb_cocos2dx_network_auto.cpp \
+scripting/js-bindings/auto/jsb_renderer_auto.cpp \
 scripting/js-bindings/manual/jsb_classtype.cpp \
 scripting/js-bindings/manual/jsb_conversions.cpp \
 scripting/js-bindings/manual/jsb_gfx_manual.cpp \
 scripting/js-bindings/manual/jsb_global.cpp \
 scripting/js-bindings/manual/jsb_renderer_manual.cpp \
+scripting/js-bindings/manual/jsb_socketio.cpp \
+scripting/js-bindings/manual/jsb_websocket.cpp \
+scripting/js-bindings/manual/jsb_xmlhttprequest.cpp \
 scripting/js-bindings/auto/jsb_renderer_auto.cpp \
 scripting/js-bindings/jswrapper/config.cpp \
 scripting/js-bindings/jswrapper/HandleObject.cpp \
@@ -116,63 +122,6 @@ scripting/js-bindings/event/EventDispatcher.cpp \
 ../external/sources/unzip/unzip.cpp \
 ../external/sources/ConvertUTF/ConvertUTFWrapper.cpp \
 ../external/sources/ConvertUTF/ConvertUTF.c
-
-# storage/local-storage/LocalStorage-android.cpp \
-# ../external/sources/edtaa3func/edtaa3func.cpp \
-# ../external/sources/xxhash/xxhash.c \
-# ../external/sources/poly2tri/common/shapes.cc \
-# ../external/sources/poly2tri/sweep/advancing_front.cc \
-# ../external/sources/poly2tri/sweep/cdt.cc \
-# ../external/sources/poly2tri/sweep/sweep_context.cc \
-# ../external/sources/poly2tri/sweep/sweep.cc \
-# ../external/sources/clipper/clipper.cpp \
-# ../external/sources/Box2D/Collision/Shapes/b2ChainShape.cpp \
-# ../external/sources/Box2D/Collision/Shapes/b2CircleShape.cpp \
-# ../external/sources/Box2D/Collision/Shapes/b2EdgeShape.cpp \
-# ../external/sources/Box2D/Collision/Shapes/b2PolygonShape.cpp \
-# ../external/sources/Box2D/Collision/b2BroadPhase.cpp \
-# ../external/sources/Box2D/Collision/b2CollideCircle.cpp \
-# ../external/sources/Box2D/Collision/b2CollideEdge.cpp \
-# ../external/sources/Box2D/Collision/b2CollidePolygon.cpp \
-# ../external/sources/Box2D/Collision/b2Collision.cpp \
-# ../external/sources/Box2D/Collision/b2Distance.cpp \
-# ../external/sources/Box2D/Collision/b2DynamicTree.cpp \
-# ../external/sources/Box2D/Collision/b2TimeOfImpact.cpp \
-# ../external/sources/Box2D/Common/b2BlockAllocator.cpp \
-# ../external/sources/Box2D/Common/b2Draw.cpp \
-# ../external/sources/Box2D/Common/b2Math.cpp \
-# ../external/sources/Box2D/Common/b2Settings.cpp \
-# ../external/sources/Box2D/Common/b2StackAllocator.cpp \
-# ../external/sources/Box2D/Common/b2Timer.cpp \
-# ../external/sources/Box2D/Dynamics/Contacts/b2ChainAndCircleContact.cpp \
-# ../external/sources/Box2D/Dynamics/Contacts/b2ChainAndPolygonContact.cpp \
-# ../external/sources/Box2D/Dynamics/Contacts/b2CircleContact.cpp \
-# ../external/sources/Box2D/Dynamics/Contacts/b2Contact.cpp \
-# ../external/sources/Box2D/Dynamics/Contacts/b2ContactSolver.cpp \
-# ../external/sources/Box2D/Dynamics/Contacts/b2EdgeAndCircleContact.cpp \
-# ../external/sources/Box2D/Dynamics/Contacts/b2EdgeAndPolygonContact.cpp \
-# ../external/sources/Box2D/Dynamics/Contacts/b2PolygonAndCircleContact.cpp \
-# ../external/sources/Box2D/Dynamics/Contacts/b2PolygonContact.cpp \
-# ../external/sources/Box2D/Dynamics/Joints/b2DistanceJoint.cpp \
-# ../external/sources/Box2D/Dynamics/Joints/b2FrictionJoint.cpp \
-# ../external/sources/Box2D/Dynamics/Joints/b2GearJoint.cpp \
-# ../external/sources/Box2D/Dynamics/Joints/b2Joint.cpp \
-# ../external/sources/Box2D/Dynamics/Joints/b2MotorJoint.cpp \
-# ../external/sources/Box2D/Dynamics/Joints/b2MouseJoint.cpp \
-# ../external/sources/Box2D/Dynamics/Joints/b2PrismaticJoint.cpp \
-# ../external/sources/Box2D/Dynamics/Joints/b2PulleyJoint.cpp \
-# ../external/sources/Box2D/Dynamics/Joints/b2RevoluteJoint.cpp \
-# ../external/sources/Box2D/Dynamics/Joints/b2RopeJoint.cpp \
-# ../external/sources/Box2D/Dynamics/Joints/b2WeldJoint.cpp \
-# ../external/sources/Box2D/Dynamics/Joints/b2WheelJoint.cpp \
-# ../external/sources/Box2D/Dynamics/b2Body.cpp \
-# ../external/sources/Box2D/Dynamics/b2ContactManager.cpp \
-# ../external/sources/Box2D/Dynamics/b2Fixture.cpp \
-# ../external/sources/Box2D/Dynamics/b2Island.cpp \
-# ../external/sources/Box2D/Dynamics/b2World.cpp \
-# ../external/sources/Box2D/Dynamics/b2WorldCallbacks.cpp \
-# ../external/sources/Box2D/Rope/b2Rope.cpp \
-# ../external/sources/Box2D/b2ObjectDestroyNotifier.cpp \
 
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH) \
@@ -209,7 +158,7 @@ LOCAL_STATIC_LIBRARIES += cocos_zlib_static
 LOCAL_STATIC_LIBRARIES += uv_static
 LOCAL_STATIC_LIBRARIES += v8_static
 # LOCAL_STATIC_LIBRARIES += audioengine_static
-# LOCAL_STATIC_LIBRARIES += cocos_network_static
+LOCAL_STATIC_LIBRARIES += cocos_network_static
 
 LOCAL_WHOLE_STATIC_LIBRARIES := cocos2dxandroid_static
 LOCAL_WHOLE_STATIC_LIBRARIES += cpufeatures
@@ -234,6 +183,6 @@ include $(BUILD_STATIC_LIBRARY)
 $(call import-module,android)
 $(call import-module,platform/android)
 # $(call import-module,audio/android)
-# $(call import-module,network)
+$(call import-module,network)
 $(call import-module,extensions)
 $(call import-module,android/cpufeatures)

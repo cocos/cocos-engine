@@ -32,18 +32,16 @@
 //
 
 #include "jsb_xmlhttprequest.hpp"
-#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
-#include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
-#include "cocos/network/HttpClient.h"
-#include "cocos/base/CCData.h"
-//#include "cocos/base/CCEventDispatcher.h"
-//#include "cocos/base/CCEventListenerCustom.h"
-
 #include <unordered_map>
 #include <string>
 #include <functional>
 #include <algorithm>
 #include <sstream>
+#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
+#include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
+#include "cocos/network/HttpClient.h"
+#include "cocos/base/CCData.h"
+#include "platform/CCApplication.h"
 
 using namespace cocos2d;
 using namespace cocos2d::network;
@@ -165,20 +163,11 @@ XMLHttpRequest::XMLHttpRequest()
 , _isLoadEnd(false)
 , _isDiscardedByReset(false)
 {
-//    _resetDirectorListener = cocos2d::Director::getInstance()->getEventDispatcher()->addCustomEventListener(cocos2d::Director::EVENT_RESET, [this](cocos2d::EventCustom*){
-//        _isDiscardedByReset = true;
-//        if (!_isLoadEnd)
-//        {
-//            SE_LOGD("XMLHttpRequest (%p) receives DIRECTOR::EVENT_RESET, retain self.\n", this);
-//            retain();
-//        }
-//    });
 }
 
 XMLHttpRequest::~XMLHttpRequest()
 {
-//    Director::getInstance()->getEventDispatcher()->removeEventListener(_resetDirectorListener);
-//    Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
+    Application::getInstance()->getScheduler()->unscheduleAllForTarget(this);
 
     CC_SAFE_RELEASE(_httpRequest);
 }
@@ -352,7 +341,7 @@ void XMLHttpRequest::getHeader(const std::string& header)
 
 void XMLHttpRequest::onResponse(HttpClient* client, HttpResponse* response)
 {
-//    Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
+    Application::getInstance()->getScheduler()->unscheduleAllForTarget(this);
 
     if (_isAborted || _readyState == ReadyState::UNSENT)
     {
@@ -439,17 +428,17 @@ void XMLHttpRequest::sendRequest()
 {
     if (_timeoutInMilliseconds > 0)
     {
-//cjh        Director::getInstance()->getScheduler()->schedule([this](float dt){
-//            if (ontimeout != nullptr)
-//                ontimeout();
-//
-//            _readyState = ReadyState::UNSENT;
-//
-//            _isLoadEnd = true;
-//            if (onloadend != nullptr)
-//                onloadend();
-//
-//        }, this, _timeoutInMilliseconds / 1000.0f, 0, 0.0f, false, "XMLHttpRequest");
+        Application::getInstance()->getScheduler()->schedule([this](float dt){
+            if (ontimeout != nullptr)
+                ontimeout();
+
+            _readyState = ReadyState::UNSENT;
+
+            _isLoadEnd = true;
+            if (onloadend != nullptr)
+                onloadend();
+
+        }, this, _timeoutInMilliseconds / 1000.0f, 0, 0.0f, false, "XMLHttpRequest");
     }
     setHttpRequestHeader();
 

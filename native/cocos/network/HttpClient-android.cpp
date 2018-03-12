@@ -35,7 +35,7 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "base/CCDirector.h"
+#include "platform/CCApplication.h"
 #include "platform/CCFileUtils.h"
 #include "platform/android/jni/JniHelper.h"
 
@@ -950,7 +950,7 @@ HttpClient::HttpClient()
 {
     CCLOG("In the constructor of HttpClient!");
     increaseThreadCount();
-    _scheduler = Director::getInstance()->getScheduler();
+    _scheduler = Application::getInstance()->getScheduler();
 }
 
 HttpClient::~HttpClient()

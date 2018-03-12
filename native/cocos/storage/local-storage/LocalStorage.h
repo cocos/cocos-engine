@@ -28,7 +28,7 @@ THE SOFTWARE.
 #define __JSB_LOCALSTORAGE_H
 
 #include <string>
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
 
 /**
  * @addtogroup storage

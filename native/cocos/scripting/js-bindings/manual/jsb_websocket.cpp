@@ -31,9 +31,7 @@
 
 #include "cocos/network/WebSocket.h"
 #include "base/ccUTF8.h"
-//#include "base/CCDirector.h"
-
-#include <stdint.h>
+#include "platform/CCApplication.h"
 
 using namespace cocos2d;
 using namespace cocos2d::network;
@@ -86,6 +84,9 @@ public:
         se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
 
+        if (cocos2d::Application::getInstance() == nullptr)
+            return;
+
         auto iter = se::NativePtrToObjectMap::find(ws);
         if (iter == se::NativePtrToObjectMap::end())
             return;
@@ -117,6 +118,9 @@ public:
     {
         se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
+
+        if (cocos2d::Application::getInstance() == nullptr)
+            return;
 
         auto iter = se::NativePtrToObjectMap::find(ws);
         if (iter == se::NativePtrToObjectMap::end())
@@ -177,6 +181,9 @@ public:
         se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
 
+        if (cocos2d::Application::getInstance() == nullptr)
+            return;
+
         auto iter = se::NativePtrToObjectMap::find(ws);
         do
         {
@@ -216,6 +223,9 @@ public:
     {
         se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
+
+        if (cocos2d::Application::getInstance() == nullptr)
+            return;
 
         auto iter = se::NativePtrToObjectMap::find(ws);
         if (iter == se::NativePtrToObjectMap::end())

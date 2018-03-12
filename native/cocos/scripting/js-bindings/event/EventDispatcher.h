@@ -60,7 +60,7 @@ public:
 
     static void dispatchTouchEvent(const struct TouchEvent& touchEvent);
     static void dispatchKeyEvent(int key, int action);
-    static void dispatchTickEvent();
+    static void dispatchTickEvent(float dt);
 };
     
 } // end of namespace cocos2d

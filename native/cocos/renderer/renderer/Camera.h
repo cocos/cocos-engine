@@ -33,6 +33,14 @@
 #include "../Types.h"
 #include "View.h"
 
+#ifdef  near
+#undef near
+#endif
+
+#ifdef  far
+#undef far
+#endif
+
 RENDERER_BEGIN
 
 class FrameBuffer;

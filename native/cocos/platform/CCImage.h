@@ -29,6 +29,7 @@ THE SOFTWARE.
 
 #include "base/CCRef.h"
 #include "platform/CCGL.h"
+#include "platform/CCStdC.h"
 
 #include <string>
 #include <map>

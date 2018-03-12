@@ -1,0 +1,961 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\cocos\base\base64.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\CCAutoreleasePool.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\ccCArray.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\CCConfiguration.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\CCData.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\ccFPSImages.c">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\CCNS.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\ccRandom.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\CCRef.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\ccTypes.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\CCUserDefault.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\ccUTF8.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\ccUtils.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\CCValue.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\etc1.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\ObjectFactory.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\pvr.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\TGAlib.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\ZipUtils.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\math\CCAffineTransform.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\math\CCGeometry.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\math\CCVertex.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\math\Mat4.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\math\MathUtil.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\math\Quaternion.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\math\TransformUtils.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\math\Vec2.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\math\Vec3.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\math\Vec4.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx\DeviceGraphics.cpp">
+      <Filter>renderer\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx\FrameBuffer.cpp">
+      <Filter>renderer\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx\GFX.cpp">
+      <Filter>renderer\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx\GFXUtils.cpp">
+      <Filter>renderer\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx\GraphicsHandle.cpp">
+      <Filter>renderer\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx\IndexBuffer.cpp">
+      <Filter>renderer\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx\Program.cpp">
+      <Filter>renderer\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx\RenderBuffer.cpp">
+      <Filter>renderer\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx\RenderTarget.cpp">
+      <Filter>renderer\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx\State.cpp">
+      <Filter>renderer\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx\Texture.cpp">
+      <Filter>renderer\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx\Texture2D.cpp">
+      <Filter>renderer\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx\VertexBuffer.cpp">
+      <Filter>renderer\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx\VertexFormat.cpp">
+      <Filter>renderer\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\renderer\BaseRenderer.cpp">
+      <Filter>renderer\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\renderer\Camera.cpp">
+      <Filter>renderer\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\renderer\Config.cpp">
+      <Filter>renderer\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\renderer\Effect.cpp">
+      <Filter>renderer\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\renderer\ForwardRenderer.cpp">
+      <Filter>renderer\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\renderer\InputAssembler.cpp">
+      <Filter>renderer\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\renderer\Light.cpp">
+      <Filter>renderer\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\renderer\Model.cpp">
+      <Filter>renderer\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\renderer\Pass.cpp">
+      <Filter>renderer\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\renderer\ProgramLib.cpp">
+      <Filter>renderer\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\renderer\RendererUtils.cpp">
+      <Filter>renderer\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\renderer\Scene.cpp">
+      <Filter>renderer\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\renderer\Technique.cpp">
+      <Filter>renderer\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\renderer\View.cpp">
+      <Filter>renderer\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\Types.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_gfx_auto.cpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_renderer_auto.cpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_classtype.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_conversions.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_gfx_manual.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_global.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_helper.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_renderer_manual.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\event\EventDispatcher.cpp">
+      <Filter>js-bindings\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\config.cpp">
+      <Filter>js-bindings\jswrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\HandleObject.cpp">
+      <Filter>js-bindings\jswrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\MappingUtils.cpp">
+      <Filter>js-bindings\jswrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\RefCounter.cpp">
+      <Filter>js-bindings\jswrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\State.cpp">
+      <Filter>js-bindings\jswrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\Value.cpp">
+      <Filter>js-bindings\jswrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\Class.cpp">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\env.cc">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\http_parser.c">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_agent.cc">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_io.cc">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_socket.cc">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_socket_server.cc">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\node.cc">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\node_debug_options.cc">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\Object.cpp">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\ObjectWrap.cpp">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\ScriptEngine.cpp">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\SHA1.cpp">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\util.cc">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\jswrapper\v8\Utils.cpp">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\cocos2d.cpp" />
+    <ClCompile Include="..\cocos\platform\CCFileUtils.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\platform\CCImage.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\platform\CCSAXParser.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\platform\win32\CCDevice-win32.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\platform\win32\CCFileUtils-win32.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\platform\win32\CCUtils-win32.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\platform\win32\CCApplication-win32.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\sources\unzip\ioapi.cpp">
+      <Filter>external\unzip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\sources\unzip\ioapi_mem.cpp">
+      <Filter>external\unzip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\sources\unzip\unzip.cpp">
+      <Filter>external\unzip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\sources\tinyxml2\tinyxml2.cpp">
+      <Filter>external\tinyxml2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\sources\firefox\mozilla\Assertions.cpp">
+      <Filter>external\firefox</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\sources\firefox\WebGLFormats.cpp">
+      <Filter>external\firefox</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\sources\firefox\WebGLTexelConversions.cpp">
+      <Filter>external\firefox</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\sources\ConvertUTF\ConvertUTF.c">
+      <Filter>external\ConvertUTF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\sources\ConvertUTF\ConvertUTFWrapper.cpp">
+      <Filter>external\ConvertUTF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\CCLog.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\platform\desktop\CCGLView-desktop.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\sources\xxtea\xxtea.cpp">
+      <Filter>external\xxtea</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\network\CCDownloader-curl.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\network\CCDownloader.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\network\HttpClient.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\network\HttpCookie.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\network\SocketIO.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\network\Uri.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\network\WebSocket-libwebsockets.cpp">
+      <Filter>network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_network_auto.cpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_socketio.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_websocket.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_xmlhttprequest.cpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\CCScheduler.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\cocos\base\base64.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\CCAutoreleasePool.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\ccCArray.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\ccConfig.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\CCConfiguration.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\CCData.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\ccFPSImages.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\ccMacros.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\CCMap.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\CCNS.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\ccRandom.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\CCRef.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\CCRefPtr.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\ccTypes.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\CCUserDefault.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\ccUTF8.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\ccUtils.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\CCValue.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\CCVector.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\etc1.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\firePngData.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\ObjectFactory.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\pvr.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\TGAlib.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\uthash.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\utlist.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\ZipUtils.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\math\CCAffineTransform.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\math\CCGeometry.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\math\CCMath.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\math\CCMathBase.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\math\CCVertex.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\math\Mat4.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\math\MathUtil.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\math\Quaternion.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\math\TransformUtils.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\math\Vec2.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\math\Vec3.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\math\Vec4.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx\DeviceGraphics.h">
+      <Filter>renderer\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx\FrameBuffer.h">
+      <Filter>renderer\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx\GFX.h">
+      <Filter>renderer\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx\GFXUtils.h">
+      <Filter>renderer\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx\GraphicsHandle.h">
+      <Filter>renderer\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx\IndexBuffer.h">
+      <Filter>renderer\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx\Program.h">
+      <Filter>renderer\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx\RenderBuffer.h">
+      <Filter>renderer\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx\RenderTarget.h">
+      <Filter>renderer\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx\State.h">
+      <Filter>renderer\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx\Texture.h">
+      <Filter>renderer\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx\Texture2D.h">
+      <Filter>renderer\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx\VertexBuffer.h">
+      <Filter>renderer\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx\VertexFormat.h">
+      <Filter>renderer\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\renderer\BaseRenderer.h">
+      <Filter>renderer\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\renderer\Camera.h">
+      <Filter>renderer\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\renderer\Config.h">
+      <Filter>renderer\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\renderer\Effect.h">
+      <Filter>renderer\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\renderer\ForwardRenderer.h">
+      <Filter>renderer\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\renderer\INode.h">
+      <Filter>renderer\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\renderer\InputAssembler.h">
+      <Filter>renderer\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\renderer\Light.h">
+      <Filter>renderer\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\renderer\Model.h">
+      <Filter>renderer\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\renderer\Pass.h">
+      <Filter>renderer\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\renderer\ProgramLib.h">
+      <Filter>renderer\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\renderer\Renderer.h">
+      <Filter>renderer\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\renderer\RendererUtils.h">
+      <Filter>renderer\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\renderer\Scene.h">
+      <Filter>renderer\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\renderer\Technique.h">
+      <Filter>renderer\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\renderer\View.h">
+      <Filter>renderer\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\Macro.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\Types.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_gfx_auto.hpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_renderer_auto.hpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_classtype.hpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_conversions.hpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_gfx_manual.hpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_global.h">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_helper.hpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_renderer_manual.hpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\event\EventDispatcher.h">
+      <Filter>js-bindings\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\config.hpp">
+      <Filter>js-bindings\jswrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\HandleObject.hpp">
+      <Filter>js-bindings\jswrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\MappingUtils.hpp">
+      <Filter>js-bindings\jswrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\Object.hpp">
+      <Filter>js-bindings\jswrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\RefCounter.hpp">
+      <Filter>js-bindings\jswrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\SeApi.h">
+      <Filter>js-bindings\jswrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\State.hpp">
+      <Filter>js-bindings\jswrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\Value.hpp">
+      <Filter>js-bindings\jswrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\Base.h">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\base64.h">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\Class.hpp">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\env.h">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\HelperMacros.h">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\http_parser.h">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_agent.h">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_io.h">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_socket.h">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\inspector_socket_server.h">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\node.h">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\node_debug_options.h">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\node_mutex.h">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\Object.hpp">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\ObjectWrap.h">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\ScriptEngine.hpp">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\SeApi.h">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\SHA1.h">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\util-inl.h">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\util.h">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\Utils.hpp">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\jswrapper\v8\v8_inspector_protocol_json.h">
+      <Filter>js-bindings\jswrapper\v8</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\cocos2d.h" />
+    <ClInclude Include="..\cocos\platform\CCApplication.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\platform\CCDevice.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\platform\CCFileUtils.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\platform\CCGL.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\platform\CCImage.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\platform\CCPlatformConfig.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\platform\CCPlatformDefine.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\platform\CCSAXParser.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\platform\CCStdC.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\platform\win32\CCFileUtils-win32.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\platform\win32\CCGL-win32.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\platform\win32\CCPlatformDefine-win32.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\platform\win32\CCUtils-win32.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\platform\win32\compat\stdint.h">
+      <Filter>platform\compat</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\unzip\crypt.h">
+      <Filter>external\unzip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\unzip\ioapi.h">
+      <Filter>external\unzip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\unzip\ioapi_mem.h">
+      <Filter>external\unzip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\unzip\unzip.h">
+      <Filter>external\unzip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\tinyxml2\tinyxml2.h">
+      <Filter>external\tinyxml2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\firefox\GLConsts.h">
+      <Filter>external\firefox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\firefox\mozilla\Assertions.h">
+      <Filter>external\firefox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\firefox\mozilla\Atomics.h">
+      <Filter>external\firefox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\firefox\mozilla\Attributes.h">
+      <Filter>external\firefox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\firefox\mozilla\Casting.h">
+      <Filter>external\firefox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\firefox\mozilla\CheckedInt.h">
+      <Filter>external\firefox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\firefox\mozilla\Compiler.h">
+      <Filter>external\firefox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\firefox\mozilla\IntegerTypeTraits.h">
+      <Filter>external\firefox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\firefox\mozilla\Likely.h">
+      <Filter>external\firefox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\firefox\mozilla\MacroArgs.h">
+      <Filter>external\firefox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\firefox\mozilla\Move.h">
+      <Filter>external\firefox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\firefox\mozilla\Pair.h">
+      <Filter>external\firefox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\firefox\mozilla\StaticAnalysisFunctions.h">
+      <Filter>external\firefox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\firefox\mozilla\Types.h">
+      <Filter>external\firefox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\firefox\mozilla\TypeTraits.h">
+      <Filter>external\firefox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\firefox\mozilla\UniquePtr.h">
+      <Filter>external\firefox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\firefox\WebGLFormats.h">
+      <Filter>external\firefox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\firefox\WebGLTexelConversions.h">
+      <Filter>external\firefox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\firefox\WebGLTypes.h">
+      <Filter>external\firefox</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\ConvertUTF\ConvertUTF.h">
+      <Filter>external\ConvertUTF</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\CCLog.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\platform\desktop\CCGLView-desktop.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\sources\xxtea\xxtea.h">
+      <Filter>external\xxtea</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\network\CCDownloader-curl.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\network\CCDownloader.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\network\CCIDownloaderImpl.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\network\HttpClient.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\network\HttpCookie.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\network\HttpRequest.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\network\HttpResponse.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\network\SocketIO.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\network\Uri.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\network\WebSocket.h">
+      <Filter>network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_network_auto.hpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_socketio.hpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_websocket.hpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_xmlhttprequest.hpp">
+      <Filter>js-bindings\manual</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\CCScheduler.h">
+      <Filter>base</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="base">
+      <UniqueIdentifier>{6a5f69d8-d02d-47cc-8131-8db6fe039a50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math">
+      <UniqueIdentifier>{e46822d9-b9c5-478a-bc5c-58f05596ae33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer">
+      <UniqueIdentifier>{f1074b9e-05d1-449e-a4fe-231be0b0f471}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\gfx">
+      <UniqueIdentifier>{f777a81c-1489-45b5-b779-1863c8c1ca24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\renderer">
+      <UniqueIdentifier>{584857a2-7316-45cd-855e-c978b7ba49f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="js-bindings">
+      <UniqueIdentifier>{b1ea90ed-adb4-4b5c-8909-d47a94d4cd69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="js-bindings\auto">
+      <UniqueIdentifier>{c7fe8b88-0a77-47a2-a6f6-1ba6c0780e3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="js-bindings\manual">
+      <UniqueIdentifier>{766b04cb-29df-45b0-9cf6-0cf34e0a8946}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="js-bindings\event">
+      <UniqueIdentifier>{2fb73413-4163-4cb7-84f9-04999528a918}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="js-bindings\jswrapper">
+      <UniqueIdentifier>{99e2f021-bb2f-4066-b5d3-f325c4d58780}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="js-bindings\jswrapper\v8">
+      <UniqueIdentifier>{7979edde-e9e2-4380-9b85-1c4e179007ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform">
+      <UniqueIdentifier>{01e3df91-f31a-4667-9168-4243137023c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform\win32">
+      <UniqueIdentifier>{72a6823d-4c79-4918-b029-f0a82c6eb46a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform\compat">
+      <UniqueIdentifier>{f88e61be-1179-4b36-955d-abf72181fa9e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external">
+      <UniqueIdentifier>{aaf34557-236c-4e37-b157-1b20593e359f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\firefox">
+      <UniqueIdentifier>{a2211f5f-b9f5-4991-bae9-daa3f5473a78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\unzip">
+      <UniqueIdentifier>{bb37b797-0707-4912-8e2f-c2b090878e88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\tinyxml2">
+      <UniqueIdentifier>{08f33107-f626-45a4-a2e6-af4a7875808d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\ConvertUTF">
+      <UniqueIdentifier>{cd4028d4-9f5d-4b3a-85f1-e2f8c3b7885d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\xxtea">
+      <UniqueIdentifier>{9198c362-43e7-4445-affb-225d0257dea7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="network">
+      <UniqueIdentifier>{8553d9e7-36b8-413a-bef4-e21d498ffeca}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\cocos\math\Mat4.inl">
+      <Filter>math</Filter>
+    </None>
+    <None Include="..\cocos\math\MathUtil.inl">
+      <Filter>math</Filter>
+    </None>
+    <None Include="..\cocos\math\MathUtilNeon.inl">
+      <Filter>math</Filter>
+    </None>
+    <None Include="..\cocos\math\MathUtilNeon64.inl">
+      <Filter>math</Filter>
+    </None>
+    <None Include="..\cocos\math\MathUtilSSE.inl">
+      <Filter>math</Filter>
+    </None>
+    <None Include="..\cocos\math\Quaternion.inl">
+      <Filter>math</Filter>
+    </None>
+    <None Include="..\cocos\math\Vec2.inl">
+      <Filter>math</Filter>
+    </None>
+    <None Include="..\cocos\math\Vec3.inl">
+      <Filter>math</Filter>
+    </None>
+    <None Include="..\cocos\math\Vec4.inl">
+      <Filter>math</Filter>
+    </None>
+  </ItemGroup>
+</Project>

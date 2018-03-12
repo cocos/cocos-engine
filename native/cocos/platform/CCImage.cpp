@@ -31,6 +31,7 @@ THE SOFTWARE.
 
 #include "base/CCData.h"
 #include "base/ccConfig.h" // CC_USE_JPEG, CC_USE_TIFF, CC_USE_WEBP
+#include "base/ccUtils.h"
 
 extern "C"
 {
@@ -1192,8 +1193,8 @@ bool Image::initWithPVRv2Data(const unsigned char * data, ssize_t dataLen)
     }
 
     if (! configuration->supportsNPOT() &&
-        (static_cast<int>(header->width) != ccNextPOT(header->width)
-            || static_cast<int>(header->height) != ccNextPOT(header->height)))
+        (static_cast<int>(header->width) != utils::nextPOT(header->width)
+            || static_cast<int>(header->height) != utils::nextPOT(header->height)))
     {
         CCLOG("cocos2d: ERROR: Loading an NPOT texture (%dx%d) but is not supported on this device", header->width, header->height);
         return false;

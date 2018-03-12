@@ -34,20 +34,25 @@ THE SOFTWARE.
 
 NS_CC_BEGIN
 
-void log(const char * format, ...)
+namespace
 {
-    
-}
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+#include "platform/CCStdC.h"
+#include <WinSock2.h>
 
-int ccNextPOT(int x)
-{
-    x = x - 1;
-    x = x | (x >> 1);
-    x = x | (x >> 2);
-    x = x | (x >> 4);
-    x = x | (x >> 8);
-    x = x | (x >>16);
-    return x + 1;
+	int gettimeofday(struct timeval * val, void *)
+	{
+		if (val)
+		{
+			LARGE_INTEGER liTime, liFreq;
+			QueryPerformanceFrequency(&liFreq);
+			QueryPerformanceCounter(&liTime);
+			val->tv_sec = (long)(liTime.QuadPart / liFreq.QuadPart);
+			val->tv_usec = (long)(liTime.QuadPart * 1000000.0 / liFreq.QuadPart - val->tv_sec * 1000000.0);
+		}
+		return 0;
+	}
+#endif
 }
 
 namespace utils
@@ -87,6 +92,17 @@ long long getTimeInMilliseconds()
     struct timeval tv;
     gettimeofday (&tv, nullptr);
     return (long long)tv.tv_sec * 1000 + tv.tv_usec / 1000;
+}
+
+int nextPOT(int x)
+{
+	x = x - 1;
+	x = x | (x >> 1);
+	x = x | (x >> 2);
+	x = x | (x >> 4);
+	x = x | (x >> 8);
+	x = x | (x >> 16);
+	return x + 1;
 }
 
 }

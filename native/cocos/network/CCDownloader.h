@@ -31,7 +31,7 @@
 #include <memory>
 #include <vector>
 
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
 
 namespace cocos2d { namespace network {
 

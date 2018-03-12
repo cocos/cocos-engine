@@ -31,10 +31,10 @@
 #include <thread>
 #include <condition_variable>
 #include "base/CCVector.h"
-//#include "base/CCScheduler.h"
 #include "network/HttpRequest.h"
 #include "network/HttpResponse.h"
 #include "network/HttpCookie.h"
+#include "base/CCScheduler.h"
 
 /**
  * @addtogroup network
@@ -185,7 +185,7 @@ private:
     int  _threadCount;
     std::mutex _threadCountMutex;
 
-//    Scheduler* _scheduler;
+    Scheduler* _scheduler;
     std::mutex _schedulerMutex;
 
     Vector<HttpRequest*>  _requestQueue;

@@ -25,18 +25,16 @@
  ****************************************************************************/
 
 #include "platform/CCDevice.h"
-#include "base/ccTypes.h"
-#include "platform/apple/CCDevice-apple.h"
-#include "base/CCEventAcceleration.h"
-#include "CCReachability.h"
 #import <UIKit/UIKit.h>
-
 // Accelerometer
 #import<CoreMotion/CoreMotion.h>
 #import<CoreFoundation/CoreFoundation.h>
 #import <CoreText/CoreText.h>
 // Vibrate
 #import <AudioToolbox/AudioToolbox.h>
+#include "base/ccTypes.h"
+#include "platform/apple/CCDevice-apple.h"
+#include "CCReachability.h"
 
 using FontUtils::tImageInfo;
 const float MAX_MEASURE_HEIGHT = 10000;

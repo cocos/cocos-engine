@@ -17,7 +17,7 @@
  */
 
 #include "network/Uri.h"
-#include "base/CCConsole.h" // For CCLOGERROR macro
+#include "base/ccMacros.h" // For CCLOGERROR macro
 
 #include <regex>
 #include <sstream>

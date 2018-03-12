@@ -22,17 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
-//
-//  WebSocket-apple.m
-//  cocos2d_libs
-//
-//  Created by James Chen on 7/3/17.
-//
-//
-
 #include "network/WebSocket.h"
 #include "base/CCData.h"
+
 #import "SocketRocket/SocketRocket.h"
 
 #if !__has_feature(objc_arc)
@@ -45,9 +37,6 @@ static std::vector<cocos2d::network::WebSocket*>* __websocketInstances = nullptr
 {
 
 }
-
-//@property (nonatomic, assign) cocos2d::EventListenerCustom* resetDirectorListener;
-
 @end
 
 //
@@ -75,7 +64,6 @@ static std::vector<cocos2d::network::WebSocket*>* __websocketInstances = nullptr
         _ws.delegate = self;
         [_ws open];
         _isDestroyed = false;
-//        self.resetDirectorListener = nullptr;
     }
     return self;
 }
@@ -273,11 +261,6 @@ WebSocket::~WebSocket()
             NSLog(@"ERROR: WebSocket instance wasn't added to the container which saves websocket instances!");
         }
     }
-
-    if (_impl != nil)
-    {
-//        cocos2d::Director::getInstance()->getEventDispatcher()->removeEventListener(_impl.resetDirectorListener);
-    }
 }
 
 
@@ -298,13 +281,6 @@ bool WebSocket::init(const Delegate& delegate,
         }
     }
     _impl = [[WebSocketImpl alloc] initWithURL: url protocols:nsProtocols allowsUntrustedSSLCertificates:NO ws: this delegate:delegate];
-
-    if (_impl != nil)
-    {
-//cjh        _impl.resetDirectorListener = cocos2d::Director::getInstance()->getEventDispatcher()->addCustomEventListener(cocos2d::Director::EVENT_RESET, [this](cocos2d::EventCustom*){
-//            close();
-//        });
-    }
 
     return _impl != nil;
 }

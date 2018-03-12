@@ -26,7 +26,7 @@
 #pragma once
 
 #include "platform/CCPlatformConfig.h"
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
 #include "audio/include/Export.h"
 
 #include <functional>

@@ -447,8 +447,18 @@ public:
         return nRet;
     }
 
-    CC_SYNTHESIZE_READONLY(HDC, _DC, DC);
-    CC_SYNTHESIZE_READONLY(HBITMAP, _bmp, Bitmap);
+	HDC getDC() const
+	{
+		return _DC;
+	}
+
+	HBITMAP getBitmap() const
+	{
+		return _bmp;
+	}
+
+	HDC _DC;
+	HBITMAP _bmp;
 private:
 
     friend class Image;

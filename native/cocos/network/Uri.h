@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
 
 #include <string>
 #include <vector>

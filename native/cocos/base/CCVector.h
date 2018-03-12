@@ -24,14 +24,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#ifndef __CCVECTOR_H__
-#define __CCVECTOR_H__
+#pragma once
 
-#include "base/ccMacros.h"
-#include "base/CCRef.h"
 #include <vector>
 #include <functional>
 #include <algorithm> // for std::find
+
+#include "base/ccMacros.h"
+#include "base/ccRandom.h"
+#include "base/CCRef.h"
 
 /**
  * @addtogroup base
@@ -516,5 +517,3 @@ protected:
 /** @} */
 
 NS_CC_END
-
-#endif // __CCVECTOR_H__

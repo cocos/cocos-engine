@@ -30,7 +30,7 @@ THE SOFTWARE.
 #include <unordered_map>
 #include <functional>
 #include "base/CCRef.h"
-#include "platform/CCPlatformMacros.h"
+#include "base/ccMacros.h"
 
 NS_CC_BEGIN
 
