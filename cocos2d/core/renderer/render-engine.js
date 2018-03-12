@@ -1,6 +1,6 @@
 
 /*
- * engine-next.js v0.3.1
+ * render-engine v1.0.1
  * Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
  * Released under the Private License.  
  */
@@ -13567,6 +13567,12 @@ module.exports = (function () {
         else return 0;
       });
   
+      scene._cameras.sort((a, b) => {
+        if (a._depth > b._depth) return 1;
+        else if (a._depth < b._depth) return -1;
+        else return 0;
+      });
+  
       for (let i = 0; i < scene._cameras.length; ++i) {
         let camera = scene._cameras.data[i];
         let view = camera.view;
@@ -13712,15 +13718,17 @@ module.exports = (function () {
   
     set dataLength (length) {
       let data = this._data;
-      // Free extra data
-      for (let i = length; i < data.length; i++) {
-        _dataPool.free(data[i]);
+      if (data.length !== length) {
+        // Free extra data
+        for (let i = length; i < data.length; i++) {
+          _dataPool.free(data[i]);
+        }
+        // Alloc needed data
+        for (let i = data.length; i < length; i++) {
+          data[i] = _dataPool.alloc();
+        }
+        data.length = length;
       }
-      // Alloc needed data
-      for (let i = data.length; i < length; i++) {
-        data[i] = _dataPool.alloc();
-      }
-      data.length = length;
     }
   
     updateSizeNPivot (width, height, pivotX, pivotY) {
@@ -14888,3 +14896,4 @@ module.exports = (function () {
   return renderEngine;
   
   }());
+  
