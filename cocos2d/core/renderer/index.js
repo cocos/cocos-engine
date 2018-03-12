@@ -147,7 +147,7 @@ module.exports = {
             _pos.y = node.y = canvas.height / scaleY / 2;
             _pos.z = 0;
 
-            node.z = this.canvas.height / cc.view.getScaleY() / 1.1566;
+            node.z = canvas.height / scaleY / 1.1566;
             node.lookAt(_pos);
             this._camera.dirty = true;
         }
