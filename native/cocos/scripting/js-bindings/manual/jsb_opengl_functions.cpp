@@ -157,6 +157,19 @@ bool JSB_get_arraybufferview_dataptr(const se::Value& v, GLsizei *count, GLvoid 
             SE_LOGE("JSB_get_arraybufferview_dataptr: isn't a typed array!\n");
         }
     }
+    else if (v.isNullOrUndefined()
+             || (v.isNumber() && v.toInt32() == 0)
+             || (v.isBoolean() && !v.toBoolean())
+             )
+    {
+        *data = nullptr;
+        *count = 0;
+        return true;
+    }
+    else
+    {
+        assert(false);
+    }
     return false;
 }
 

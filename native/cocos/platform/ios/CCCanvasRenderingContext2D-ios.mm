@@ -271,6 +271,10 @@ enum class CanvasTextBaseline {
     memset((void*)_imageData.getBytes(), 0x00, _imageData.getSize());
 }
 
+-(void) fillRect:(CGRect) rect {
+
+}
+
 @end
 
 NS_CC_BEGIN

@@ -14,8 +14,8 @@
 #define SE_PRECONDITION2_VOID(condition, ...) \
     do { \
         if ( ! (condition) ) { \
-            cocos2d::log("jsb: ERROR: File %s: Line: %d, Function: %s", __FILE__, __LINE__, __FUNCTION__ ); \
-            cocos2d::log(__VA_ARGS__); \
+            SE_LOGE("jsb: ERROR: File %s: Line: %d, Function: %s\n", __FILE__, __LINE__, __FUNCTION__ ); \
+            SE_LOGE(__VA_ARGS__); \
             return; \
         } \
     } while(0)
@@ -23,8 +23,8 @@
 #define SE_PRECONDITION2(condition, ret_value, ...) \
     do { \
         if ( ! (condition) ) { \
-            cocos2d::log("jsb: ERROR: File %s: Line: %d, Function: %s", __FILE__, __LINE__, __FUNCTION__ ); \
-            cocos2d::log(__VA_ARGS__); \
+            SE_LOGE("jsb: ERROR: File %s: Line: %d, Function: %s\n", __FILE__, __LINE__, __FUNCTION__ ); \
+            SE_LOGE(__VA_ARGS__); \
             return (ret_value); \
         } \
     } while(0)
@@ -41,8 +41,8 @@
 
 #define SE_PRECONDITION_ERROR_BREAK(condition, ...) \
     if ( ! (condition) ) { \
-        cocos2d::log("jsb: ERROR: File %s: Line: %d, Function: %s", __FILE__, __LINE__, __FUNCTION__ ); \
-        cocos2d::log(__VA_ARGS__); \
+        SE_LOGE("jsb: ERROR: File %s: Line: %d, Function: %s\n", __FILE__, __LINE__, __FUNCTION__ ); \
+        SE_LOGE(__VA_ARGS__); \
         break; \
     }
 

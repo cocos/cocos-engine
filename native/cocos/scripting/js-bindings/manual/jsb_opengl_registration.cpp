@@ -70,7 +70,7 @@ bool JSB_register_opengl(se::Object* obj)
     __glObj->defineFunction("_deleteTexture", _SE(JSB_glDeleteTextures));
     __glObj->defineFunction("depthFunc", _SE(JSB_glDepthFunc));
     __glObj->defineFunction("depthMask", _SE(JSB_glDepthMask));
-    __glObj->defineFunction("depthRangef", _SE(JSB_glDepthRangef));
+    __glObj->defineFunction("depthRange", _SE(JSB_glDepthRangef));
     __glObj->defineFunction("detachShader", _SE(JSB_glDetachShader));
     __glObj->defineFunction("disable", _SE(JSB_glDisable));
     __glObj->defineFunction("disableVertexAttribArray", _SE(JSB_glDisableVertexAttribArray));

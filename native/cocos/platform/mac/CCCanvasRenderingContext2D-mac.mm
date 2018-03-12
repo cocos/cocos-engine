@@ -21,6 +21,28 @@ enum class CanvasTextBaseline {
     BOTTOM
 };
 
+namespace {
+    void fillRectWithColor(uint8_t* buf, uint32_t totalWidth, uint32_t totalHeight, uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint8_t r, uint8_t g, uint8_t b)
+    {
+        assert(x + width <= totalWidth);
+        assert(y + height <=  totalHeight);
+
+        uint32_t y0 = totalHeight - (y + height);
+        uint32_t y1 = totalHeight - y;
+        uint8_t* p;
+        for (uint32_t offsetY = y0; offsetY < y1; ++offsetY)
+        {
+            for (uint32_t offsetX = x; offsetX < (x + width); ++offsetX)
+            {
+                p = buf + (totalWidth * offsetY + offsetX) * 3;
+                *p++ = r;
+                *p++ = g;
+                *p++ = b;
+            }
+        }
+    }
+}
+
 @interface CanvasRenderingContext2DImpl : NSObject {
     NSFont* _font;
     NSMutableDictionary* _tokenAttributesDict;
@@ -113,7 +135,7 @@ enum class CanvasTextBaseline {
 }
 
 -(void) recreateBufferWithWidth:(NSInteger) width height:(NSInteger) height {
-    self.image = [[NSImage alloc] initWithSize:NSMakeSize(width, height)];
+    self.image = [[[NSImage alloc] initWithSize:NSMakeSize(width, height)] autorelease];
 }
 
 -(NSSize) measureText:(NSString*) text {
@@ -243,6 +265,24 @@ enum class CanvasTextBaseline {
     [_image unlockFocus];
 }
 
+-(void) fillRect:(CGRect) rect {
+    NSUInteger textureSize = _image.size.width * _image.size.height * 4;
+    uint8_t* buffer = nullptr;
+    if (_imageData.isNull())
+    {
+        buffer = (uint8_t*)malloc(sizeof(uint8_t) * textureSize);
+        _imageData.fastSet(buffer, textureSize);
+    }
+
+    if (buffer)
+    {
+        uint8_t r = _fillStyle.r * 255.0f;
+        uint8_t g = _fillStyle.g * 255.0f;
+        uint8_t b = _fillStyle.b * 255.0f;
+        fillRectWithColor(buffer, (uint32_t)_image.size.width, (uint32_t)_image.size.height, (uint32_t)rect.origin.x, (uint32_t)rect.origin.y, (uint32_t)rect.size.width, (uint32_t)rect.size.height, r, g, b);
+    }
+}
+
 @end
 
 NS_CC_BEGIN
@@ -288,6 +328,16 @@ void CanvasRenderingContext2D::clearRect(float x, float y, float width, float he
 {
     SE_LOGD("CanvasGradient::clearRect: %p, %f, %f, %f, %f\n", this, x, y, width, height);
     [_impl clearRect:CGRectMake(x, y, width, height)];
+}
+
+void CanvasRenderingContext2D::fillRect(float x, float y, float width, float height)
+{
+    [_impl fillRect:CGRectMake(x, y, width, height)];
+
+    if (_canvasBufferUpdatedCB != nullptr)
+    {
+        _canvasBufferUpdatedCB([_impl getDataRef]);
+    }
 }
 
 void CanvasRenderingContext2D::fillText(const std::string& text, float x, float y, float maxWidth)

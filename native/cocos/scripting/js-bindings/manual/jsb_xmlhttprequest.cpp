@@ -811,7 +811,7 @@ SE_BIND_FUNC(XMLHttpRequest_getResonpseHeader)
 
 static bool XMLHttpRequest_overrideMimeType(se::State& s)
 {
-    SE_LOGD("XMLHttpRequest.overrideMimeType isn't implemented on JSB!");
+    SE_LOGD("XMLHttpRequest.overrideMimeType isn't implemented on JSB!\n");
     return true;
 }
 SE_BIND_FUNC(XMLHttpRequest_overrideMimeType)

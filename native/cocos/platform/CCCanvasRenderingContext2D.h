@@ -56,8 +56,10 @@ public:
     CanvasRenderingContext2D(float width, float height);
     ~CanvasRenderingContext2D();
 
+    // Rect
     void clearRect(float x, float y, float width, float height);
-//    Data getImageData(float sx, float sy, float sw, float sh);
+    void fillRect(float x, float y, float width, float height);
+
     void fillText(const std::string& text, float x, float y, float maxWidth = -1.0f);
     void strokeText(const std::string& text, float x, float y, float maxWidth = -1.0f);
     Size measureText(const std::string& text);

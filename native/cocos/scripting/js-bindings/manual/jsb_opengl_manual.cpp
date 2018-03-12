@@ -578,6 +578,10 @@ bool JSB_glGetUniformfv(se::State& s) {
 }
 SE_BIND_FUNC(JSB_glGetUniformfv)
 
+#ifndef GL_MAX_FRAGMENT_UNIFORM_VECTORS
+#define GL_MAX_FRAGMENT_UNIFORM_VECTORS 0x8dfd
+#endif
+
 static bool JSB_glGetParameter(se::State& s)
 {
     const auto& args = s.args();
@@ -596,6 +600,21 @@ static bool JSB_glGetParameter(se::State& s)
     auto& ret = s.rval();
 
     switch( pname ) {
+        // Need to emulate MAX_FRAGMENT/VERTEX_UNIFORM_VECTORS and MAX_VARYING_VECTORS
+        // because desktop GL's corresponding queries return the number of components
+        // whereas GLES2 return the number of vectors (each vector has 4 components).
+        // Therefore, the value returned by desktop GL needs to be divided by 4.
+        case GL_MAX_FRAGMENT_UNIFORM_VECTORS:
+        {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+            GL_CHECK(glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, intbuffer));
+            s.rval().setInt32(intbuffer[0] / 4);
+#else
+            GL_CHECK(glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, intbuffer));
+            s.rval().setInt32(intbuffer[0]);
+#endif
+        }
+            break;
         // Float32Array (with 0 elements)
         case GL_COMPRESSED_TEXTURE_FORMATS:
         ret.setObject(se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, nullptr, 0), true);
@@ -725,16 +744,15 @@ static bool JSB_glGetParameter(se::State& s)
 
         // single int/long/bool - everything else
         default:
-        printf("pname:0x%x\n", pname);
-        JSB_GL_CHECK(glGetIntegerv(pname, intbuffer));
-        ret.setInt32(intbuffer[0]);
+            printf("pname:0x%x\n", pname);
+            JSB_GL_CHECK(glGetIntegerv(pname, intbuffer));
+            ret.setInt32(intbuffer[0]);
         break;
     }
 
     // That was fun!
     return true;
 }
-
 SE_BIND_FUNC(JSB_glGetParameter)
 
 static bool JSB_glGetShaderPrecisionFormat(se::State& s)

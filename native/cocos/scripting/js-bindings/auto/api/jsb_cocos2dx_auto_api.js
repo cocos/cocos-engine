@@ -629,6 +629,22 @@ save : function (
 },
 
 /**
+ * @method fillRect
+ * @param {float} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ * @param {float} arg3
+ */
+fillRect : function (
+float, 
+float, 
+float, 
+float 
+)
+{
+},
+
+/**
  * @method beginPath
  */
 beginPath : function (
