@@ -952,7 +952,7 @@ var Node = cc.Class({
         this._localMatDirty = true;
         this._worldMatDirty = true;
 
-        this._cullingMask = 1 << this.group;
+        this._cullingMask = 1 << this.groupIndex;
     },
 
     statics: {
