@@ -83,7 +83,7 @@ pool.get = function (string, fontAsset, fontSize) {
     labelNode.setPosition(0, 0);
     labelNode.setAnchorPoint(0.5, 0.5);
     labelNode.setContentSize(128, 128);
-    labelNode.setSkewX(0);
+    labelNode.skewX = 0;
 
     if (typeof string !== 'string') {
         string = '' + string;
@@ -745,13 +745,13 @@ var RichText = cc.Class({
                 default:
                     break;
             }
-            label.setPositionX(nextTokenX + lineOffsetX);
+            label.x = nextTokenX + lineOffsetX;
 
             var labelSize = label.getContentSize();
 
             var positionY = this.lineHeight * (totalLineCount - lineCount) - this._labelHeight / 2;
 
-            label.setPositionY(positionY);
+            label.y = positionY;
 
             if (lineCount === nextLineIndex) {
                 nextTokenX += labelSize.width;
@@ -796,7 +796,7 @@ var RichText = cc.Class({
         labelComponent._enableItalics(textStyle && textStyle.italic);
         //TODO: temporary implementation, the italic effect should be implemented in the internal of label-assembler.
         if (textStyle && textStyle.italic) {
-            labelNode.setSkewX(12);
+            labelNode.skewX = 12;
         }
 
         labelComponent._enableUnderline(textStyle && textStyle.underline);
