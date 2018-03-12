@@ -10,9 +10,6 @@
   "scripts": {
     "test": "gulp test"
   },
-  "dependencies": {
-    "render-engine": "git+ssh://git@github.com:pandamicro/engine-next.git#1.0.1"
-  },
   "devDependencies": {
     "async": "1.5.2",
     "babel-plugin-parser-opts": "1.0.1",
@@ -47,6 +44,7 @@
     "jshint-stylish": "2.1.0",
     "multipipe": "0.3.0",
     "persistify": "^1.1.1",
+    "render-engine": "git+ssh://git@github.com:pandamicro/engine-next.git#1.0.1",
     "uglify-es": "~3.3.3",
     "vinyl": "1.1.0",
     "vinyl-buffer": "1.0.0",
