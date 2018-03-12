@@ -347,33 +347,6 @@ var PhysicsManager = cc.Class({
         }
     },    
 
-    /**
-     * !#en
-     * Attach physics debug draw to camera
-     * !#zh
-     * 将物理的调试绘制信息附加到指定摄像机上
-     * @method attachDebugDrawToCamera
-     * @param {Camera} camera
-     */
-    attachDebugDrawToCamera: function (camera) {
-        if (!this.debugDrawFlags) return;
-        this._checkDebugDrawValid();
-        camera.addTarget(this._debugDrawer.node);
-    },
-    /**
-     * !#en
-     * Detach physics debug draw to camera
-     * !#zh
-     * 将物理的调试绘制信息从指定摄像机上移除
-     * @method detachDebugDrawFromCamera
-     * @param {Camera} camera
-     */
-    detachDebugDrawFromCamera: function (camera) {
-        if (!this.debugDrawFlags) return;
-        this._checkDebugDrawValid();
-        camera.removeTarget(this._debugDrawer.node);
-    },
-
     _registerContactFixture: function (fixture) {
         this._contactListener.registerContactFixture(fixture);
     },

@@ -790,12 +790,11 @@ cc.Director.prototype = {
      * @deprecated
      */
     setClearColor: function (clearColor) {
-        renderer._camera.setColor(
-            clearColor.r / 255,
-            clearColor.g / 255,
-            clearColor.b / 255,
-            clearColor.a / 255
-        );
+        if (!cc.Camera.main) {
+            return;
+        }
+        
+        cc.Camera.main.backgroundColor = clearColor;
     },
 
     /**

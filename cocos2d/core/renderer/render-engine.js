@@ -13560,6 +13560,12 @@ module.exports = (function () {
       this._reset();
   
       const canvas = this._device._gl.canvas;
+
+      scene._cameras.sort((a, b) => {
+        if (a._depth > b._depth) return 1;
+        else if (a._depth < b._depth) return -1;
+        else return 0;
+      });
   
       for (let i = 0; i < scene._cameras.length; ++i) {
         let camera = scene._cameras.data[i];

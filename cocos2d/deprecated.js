@@ -471,6 +471,22 @@ if (CC_DEV) {
         'isRunning',
     ]);
 
+    markAsRemoved(cc.Camera, [
+        'addTarget',
+        'removeTarget',
+        'getTargets'
+    ]);
+
+    markAsRemoved(cc.PhysicsManager, [
+        'attachDebugDrawToCamera',
+        'detachDebugDrawFromCamera',
+    ]);
+
+    markAsRemoved(cc.CollisionManager, [
+        'attachDebugDrawToCamera',
+        'detachDebugDrawFromCamera',
+    ]);
+
     markFunctionWarning(cc.Node.prototype, {
         getNodeToParentTransform: 'getLocalMatrix',
         getNodeToParentTransformAR: 'getLocalMatrix',

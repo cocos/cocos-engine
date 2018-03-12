@@ -162,6 +162,22 @@ var Canvas = cc.Class({
 
         this.applySettings();
         this.onResized();
+
+        let cameraNode = cc.find('Main Camera', this.node);
+        if (!cameraNode) {
+            cameraNode = new cc.Node('Main Camera');
+            cameraNode.parent = this.node;
+            cameraNode.setSiblingIndex(0);
+        }
+        let camera = cameraNode.getComponent(cc.Camera);
+        if (!camera) {
+            camera = cameraNode.addComponent(cc.Camera);
+            
+            let ClearFlags = cc.Camera.ClearFlags;
+            camera.clearFlags = ClearFlags.COLOR | ClearFlags.DEPTH;
+            camera.depth = -1;
+        }
+        cc.Camera.main = camera;
     },
 
     onDestroy: function () {
