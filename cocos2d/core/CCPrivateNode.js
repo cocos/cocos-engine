@@ -21,7 +21,7 @@
 'use strict';
 
 const Node = require('./CCNode');
-const renderEngine = require('./renderer/render-engine');
+const renderEngine = require('render-engine');
 const math = renderEngine.math;
 
 const ANCHOR_CHANGED = 'anchor-changed';
