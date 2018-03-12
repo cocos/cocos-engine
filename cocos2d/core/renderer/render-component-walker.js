@@ -97,6 +97,11 @@ var RenderComponentWalker = function (device, renderScene) {
     this._batchedModels = [];
     this._dummyNode = new cc.Node();
     this._sortKey = 0;
+
+    this._curCameraNode = null;
+
+    this._handleRender = this._handleRender.bind(this);
+    this._postHandleRender = this._postHandleRender.bind(this);
 };
 
 RenderComponentWalker.prototype = {
@@ -136,16 +141,12 @@ RenderComponentWalker.prototype = {
     },
 
     _handleRender (node) {
-        if (node._cullingMask !== 1) {
+        if (node.groupIndex !== 0) {
             this._curCameraNode = node;
         }
 
-        if (this._curCameraNode) {
-            node._inheritMask = this._curCameraNode._cullingMask;
-        }
-        else {
-            node._inheritMask = 1;
-        }
+        let group = this._curCameraNode ? this._curCameraNode.groupIndex : node.groupIndex;
+        node._cullingMask = 1 << group;
 
         let comp = node._renderComponent;
         if (comp) {
@@ -275,7 +276,8 @@ RenderComponentWalker.prototype = {
             
             // Update render data
             datas = assembler.updateRenderData(comp, _batchData);
-            cullingMask = comp.node._inheritMask;
+
+            cullingMask = comp.node._cullingMask;
 
             for (let id = 0; id < datas.length; id ++) {
                 data = datas[id];

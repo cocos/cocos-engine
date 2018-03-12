@@ -40,7 +40,7 @@ test('simple spriteQuad trimmed', function () {
         var isTrimmed = true;
         var s9Sprite = new cc.Scale9Sprite(spriteFrame);
         s9Sprite.setContentSize(contentSize);
-        s9Sprite.setColor(color);
+        s9Sprite.color = color;
         s9Sprite.enableTrimmedContentSize(isTrimmed);
         s9Sprite.setRenderingType(cc.Scale9Sprite.RenderingType.SIMPLE);
         s9Sprite._rebuildQuads();
@@ -73,7 +73,7 @@ test('simple spriteQuad no trimmed', function () {
         var isTrimmed = false;
         var s9Sprite = new cc.Scale9Sprite(spriteFrame);
         s9Sprite.setContentSize(contentSize);
-        s9Sprite.setColor(color);
+        s9Sprite.color = color;
         s9Sprite.enableTrimmedContentSize(isTrimmed);
         s9Sprite.setRenderingType(cc.Scale9Sprite.RenderingType.SIMPLE);
         s9Sprite._rebuildQuads();
@@ -112,7 +112,7 @@ test('scale9 spriteQuad trimmed', function () {
         s9Sprite.setInsetTop(8);
 
         s9Sprite.setContentSize(contentSize);
-        s9Sprite.setColor(color);
+        s9Sprite.color = color;
         s9Sprite.enableTrimmedContentSize(isTrimmed);
         s9Sprite.setRenderingType(cc.Scale9Sprite.RenderingType.SLICED);
         s9Sprite._rebuildQuads();
@@ -151,7 +151,7 @@ test('tiled spriteQuad trimmed', function () {
         var isTrimmed = true;
         var s9Sprite = new cc.Scale9Sprite(spriteFrame);
         s9Sprite.setContentSize(contentSize);
-        s9Sprite.setColor(color);
+        s9Sprite.color = color;
         s9Sprite.enableTrimmedContentSize(isTrimmed);
         s9Sprite.setRenderingType(cc.Scale9Sprite.RenderingType.TILED);
         s9Sprite._rebuildQuads();
@@ -191,7 +191,7 @@ test('filled-bar-horizontal spriteQuad trimmed', function () {
         var isTrimmed = true;
         var s9Sprite = new cc.Scale9Sprite(spriteFrame);
         s9Sprite.setContentSize(contentSize);
-        s9Sprite.setColor(color);
+        s9Sprite.color = color;
         s9Sprite.enableTrimmedContentSize(isTrimmed);
         s9Sprite.setRenderingType(cc.Scale9Sprite.RenderingType.FILLED);
         s9Sprite.setFillType(cc.Scale9Sprite.FillType.HORIZONTAL);
@@ -241,7 +241,7 @@ test('filled-bar-vertical spriteQuad trimmed', function () {
         var isTrimmed = true;
         var s9Sprite = new cc.Scale9Sprite(spriteFrame);
         s9Sprite.setContentSize(contentSize);
-        s9Sprite.setColor(color);
+        s9Sprite.color = color;
         s9Sprite.enableTrimmedContentSize(isTrimmed);
         s9Sprite.setRenderingType(cc.Scale9Sprite.RenderingType.FILLED);
         s9Sprite.setFillType(cc.Scale9Sprite.FillType.VERTICAL);
@@ -291,7 +291,7 @@ test('filled-bar-radial spriteQuad trimmed', function () {
         var isTrimmed = true;
         var s9Sprite = new cc.Scale9Sprite(spriteFrame);
         s9Sprite.setContentSize(contentSize);
-        s9Sprite.setColor(color);
+        s9Sprite.color = color;
         s9Sprite.enableTrimmedContentSize(isTrimmed);
         s9Sprite.setRenderingType(cc.Scale9Sprite.RenderingType.FILLED);
         s9Sprite.setFillType(cc.Scale9Sprite.FillType.RADIAL);

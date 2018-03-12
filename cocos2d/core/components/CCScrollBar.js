@@ -138,8 +138,8 @@ var Scrollbar = cc.Class({
 
     _setOpacity: function(opacity) {
         if (this.handle) {
-            this.node.setOpacity(opacity);
-            this.handle.node.setOpacity(opacity);
+            this.node.opacity = opacity;
+            this.handle.node.opacity = opacity;
         }
     },
 

@@ -83,26 +83,28 @@ module.exports = {
 
         this._walker = new RenderComponentWalker(this.device, this.scene);
 
-        this._cameraNode = new cc.Node();
-
-        this._camera = new renderEngine.Camera();
-        this._camera.setColor(0, 0, 0, 1);
-        this._camera.setFov(Math.PI * 60 / 180);
-        this._camera.setNear(0.1);
-        this._camera.setFar(1024);
-        this._camera.setNode(this._cameraNode);
-
-        let view = new renderEngine.View();
-        this._camera.view = view;
-        this._camera.dirty = true;
-        
         if (CC_EDITOR) {
-            this._camera.setColor(0, 0, 0, 0);
+            this._cameraNode = new cc.Node();
+
+            this._camera = new renderEngine.Camera();
+            this._camera.setColor(0, 0, 0, 1);
+            this._camera.setFov(Math.PI * 60 / 180);
+            this._camera.setNear(0.1);
+            this._camera.setFar(1024);
+            this._camera.setNode(this._cameraNode);
+
+            let view = new renderEngine.View();
+            this._camera.view = view;
+            this._camera.dirty = true;
+            
+            if (CC_EDITOR) {
+                this._camera.setColor(0, 0, 0, 0);
+            }
+            this._camera.setStages([
+                'transparent'
+            ]);
+            this.scene.addCamera(this._camera);
         }
-        this._camera.setStages([
-            'transparent'
-        ]);
-        this.scene.addCamera(this._camera);
 
         let builtins = _initBuiltins(this.device);
         this._forward = new renderEngine.ForwardRenderer(this.device, builtins);
@@ -135,16 +137,17 @@ module.exports = {
             this._camera.tx = vp.x;
             this._camera.ty = vp.y + vp.height;
         }
-        else if (this.canvas) {
-            let node = this._cameraNode;
+        else if (CC_EDITOR && this.canvas) {
             let canvas = this.canvas;
             let scaleX = cc.view.getScaleX();
             let scaleY = cc.view.getScaleY();
-            let zeye = canvas.height / scaleY / 1.1566;
+
+            let node = this._cameraNode;
             _pos.x = node.x = canvas.width / scaleX / 2;
             _pos.y = node.y = canvas.height / scaleY / 2;
-            node.z = zeye;
             _pos.z = 0;
+
+            node.z = canvas.height / scaleY / 1.1566;
             node.lookAt(_pos);
             this._camera.dirty = true;
         }

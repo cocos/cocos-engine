@@ -148,7 +148,7 @@ cc.CardinalSplineTo = cc.Class({
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
         // Issue #1441 from cocos2d-iphone
         this._deltaT = 1 / (this._points.length - 1);
-        this._previousPosition = cc.p(this.target.getPositionX(), this.target.getPositionY());
+        this._previousPosition = cc.p(this.target.x, this.target.y);
         this._accumulatedDiff = cc.p(0, 0);
     },
 
@@ -178,8 +178,8 @@ cc.CardinalSplineTo = cc.Class({
 
         if (cc.macro.ENABLE_STACKABLE_ACTIONS) {
             var tempX, tempY;
-            tempX = this.target.getPositionX() - this._previousPosition.x;
-            tempY = this.target.getPositionY() - this._previousPosition.y;
+            tempX = this.target.x - this._previousPosition.x;
+            tempY = this.target.y - this._previousPosition.y;
             if (tempX !== 0 || tempY !== 0) {
                 var locAccDiff = this._accumulatedDiff;
                 tempX = locAccDiff.x + tempX;
@@ -270,8 +270,8 @@ cc.CardinalSplineBy = cc.Class({
 
     startWithTarget:function (target) {
         cc.CardinalSplineTo.prototype.startWithTarget.call(this, target);
-        this._startPosition.x = target.getPositionX();
-        this._startPosition.y = target.getPositionY();
+        this._startPosition.x = target.x;
+        this._startPosition.y = target.y;
     },
 
     reverse:function () {
