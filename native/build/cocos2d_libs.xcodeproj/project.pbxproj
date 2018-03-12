@@ -123,6 +123,8 @@
 		1A29D79F205666F500168D9A /* jsb_opengl_registration.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A29D790205666F500168D9A /* jsb_opengl_registration.hpp */; };
 		1A29D7A0205666F500168D9A /* jsb_opengl_functions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A29D791205666F500168D9A /* jsb_opengl_functions.cpp */; };
 		1A29D7A1205666F500168D9A /* jsb_opengl_functions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A29D791205666F500168D9A /* jsb_opengl_functions.cpp */; };
+		1A29D7A320566CAC00168D9A /* CCCanvasRenderingContext2D.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A29D7A220566CAB00168D9A /* CCCanvasRenderingContext2D.h */; };
+		1A29D7A420566CAC00168D9A /* CCCanvasRenderingContext2D.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A29D7A220566CAB00168D9A /* CCCanvasRenderingContext2D.h */; };
 		1A37E9C5200DD0680078AF72 /* CCReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A37E9C3200DD0680078AF72 /* CCReachability.h */; };
 		1A37E9C6200DD0680078AF72 /* CCReachability.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A37E9C4200DD0680078AF72 /* CCReachability.cpp */; };
 		1A37E9C7200DDFC70078AF72 /* CCReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A37E9C3200DD0680078AF72 /* CCReachability.h */; };
@@ -972,6 +974,7 @@
 		1A29D78F205666F200168D9A /* jsb_opengl_manual.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_opengl_manual.hpp; sourceTree = "<group>"; };
 		1A29D790205666F500168D9A /* jsb_opengl_registration.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_opengl_registration.hpp; sourceTree = "<group>"; };
 		1A29D791205666F500168D9A /* jsb_opengl_functions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_opengl_functions.cpp; sourceTree = "<group>"; };
+		1A29D7A220566CAB00168D9A /* CCCanvasRenderingContext2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCCanvasRenderingContext2D.h; sourceTree = "<group>"; };
 		1A37E9C3200DD0680078AF72 /* CCReachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCReachability.h; sourceTree = "<group>"; };
 		1A37E9C4200DD0680078AF72 /* CCReachability.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCReachability.cpp; sourceTree = "<group>"; };
 		1A97ABFC1A1D962A0076D9CC /* MathUtilNeon64.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MathUtilNeon64.inl; sourceTree = "<group>"; };
@@ -2327,21 +2330,22 @@
 		50ABBEDB1926664700A911A9 /* platform */ = {
 			isa = PBXGroup;
 			children = (
+				50ABBF1A1926664700A911A9 /* apple */,
 				503DD8CD1926736A00CD74DD /* ios */,
 				50ABBF4E1926664700A911A9 /* mac */,
-				50ABBF1A1926664700A911A9 /* apple */,
-				50643BE019BFCF1800EF68ED /* CCPlatformConfig.h */,
 				46FDDC65202D504D00931238 /* CCApplication.h */,
-				5091A7A219BFABA800AC8789 /* CCPlatformDefine.h */,
-				50643BD319BFAECF00EF68ED /* CCGL.h */,
-				50643BD819BFAF4400EF68ED /* CCStdC.h */,
+				1A29D7A220566CAB00168D9A /* CCCanvasRenderingContext2D.h */,
 				50ABBF221926664700A911A9 /* CCDevice.h */,
 				50ABBF231926664700A911A9 /* CCFileUtils.cpp */,
 				50ABBF241926664700A911A9 /* CCFileUtils.h */,
+				50643BD319BFAECF00EF68ED /* CCGL.h */,
 				50ABBF271926664700A911A9 /* CCImage.cpp */,
 				50ABBF281926664700A911A9 /* CCImage.h */,
+				50643BE019BFCF1800EF68ED /* CCPlatformConfig.h */,
+				5091A7A219BFABA800AC8789 /* CCPlatformDefine.h */,
 				50ABBF291926664700A911A9 /* CCSAXParser.cpp */,
 				50ABBF2A1926664700A911A9 /* CCSAXParser.h */,
+				50643BD819BFAF4400EF68ED /* CCStdC.h */,
 			);
 			name = platform;
 			path = ../cocos/platform;
@@ -2551,6 +2555,7 @@
 				469303822046AE05004A3D6C /* Value.hpp in Headers */,
 				46FDDAC3202ACC6A00931238 /* FrameBuffer.h in Headers */,
 				4617863D20522469008256E1 /* HttpResponse.h in Headers */,
+				1A29D7A320566CAC00168D9A /* CCCanvasRenderingContext2D.h in Headers */,
 				1A29D77D2056667800168D9A /* csscolorparser.hpp in Headers */,
 				46FDDC2B202AEAC500931238 /* UniquePtr.h in Headers */,
 				BA68D7831D62F4A500B7A3F9 /* poly2tri.h in Headers */,
@@ -2928,6 +2933,7 @@
 				469303D32046AE05004A3D6C /* jsb_gfx_auto.hpp in Headers */,
 				4DED47F51DFFA4AF0070C5C4 /* b2CircleShape.h in Headers */,
 				46FDDA78202ACC6A00931238 /* Light.h in Headers */,
+				1A29D7A420566CAC00168D9A /* CCCanvasRenderingContext2D.h in Headers */,
 				4DED48671DFFA4AF0070C5C4 /* b2Joint.h in Headers */,
 				469303A92046AE05004A3D6C /* SeApi.h in Headers */,
 				46FDDAAE202ACC6A00931238 /* Macro.h in Headers */,
