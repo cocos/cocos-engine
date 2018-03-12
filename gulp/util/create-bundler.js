@@ -60,7 +60,7 @@ module.exports = function createBundler(entryFiles, options) {
         entries: [].concat(entryFiles),
         debug: (options && 'sourcemaps' in options) ? options.sourcemaps : true,
         detectGlobals: false,    // dont insert `process`, `global`, `__filename`, and `__dirname`
-        bundleExternal: false,   // dont bundle external modules
+        // bundleExternal: false,   // dont bundle external modules
         //standalone: 'engine-framework',
         //basedir: tempScriptDir
 
