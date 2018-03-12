@@ -25,7 +25,7 @@
 
 const RenderComponent = require('../components/CCRenderComponent');
 const renderer = require('../renderer');
-const renderEngine = require('engine-next');
+const renderEngine = require('render-engine');
 const SpriteMaterial = renderEngine.SpriteMaterial;
 
 const Helper = require('./helper');

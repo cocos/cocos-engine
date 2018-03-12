@@ -26,7 +26,7 @@
 const js = require('../../../platform/js');
 const assembler = require('../assembler');
 const Sprite = require('../../../components/CCSprite');
-const renderEngine = require('engine-next');
+const renderEngine = require('render-engine');
 const SpriteType = Sprite.Type;
 const FillType = Sprite.FillType;
 

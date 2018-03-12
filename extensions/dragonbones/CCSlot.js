@@ -22,7 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const renderEngine = require('engine-next');
+const renderEngine = require('render-engine');
 const math = renderEngine.math;
 
 const BinaryOffset = dragonBones.BinaryOffset;

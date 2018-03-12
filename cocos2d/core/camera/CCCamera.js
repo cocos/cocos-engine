@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 const affineTrans = require('../value-types/CCAffineTransform');
-const renderEngine = require('engine-next');
+const renderEngine = require('render-engine');
 const renderer = require('../renderer/index');
 
 const mat4 = cc.vmath.mat4;

@@ -28,7 +28,7 @@ const TiledMap = require('./CCTiledMap');
 
 const js = require('../core/platform/js');
 const assembler = require('../core/renderer/assemblers/assembler');
-const renderEngine = require('engine-next');
+const renderEngine = require('render-engine');
 
 const Orientation = TiledMap.Orientation;
 const TileFlag = TiledMap.TileFlag;

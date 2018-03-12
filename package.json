@@ -11,7 +11,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "engine-next": "git+ssh://git@github.com:pandamicro/engine-next.git#1.0.0"
+    "render-engine": "git+ssh://git@github.com:pandamicro/engine-next.git#1.0.1"
   },
   "devDependencies": {
     "async": "1.5.2",

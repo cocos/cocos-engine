@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 const macro = require('../platform/CCMacro');
-const renderEngine = require('engine-next');
+const renderEngine = require('render-engine');
 const defaultVertexFormat = require('./vertex-format');
 const StencilManager = require('./stencil-manager');
 const gfx = renderEngine.gfx;

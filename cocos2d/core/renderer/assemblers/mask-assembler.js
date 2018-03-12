@@ -26,7 +26,7 @@
 const StencilManager = require('../stencil-manager');
 const Node = require('../../CCNode');
 const Mask = require('../../components/CCMask');
-const renderEngine = require('engine-next');
+const renderEngine = require('render-engine');
 
 const js = require('../../platform/js');
 const assembler = require('./assembler');

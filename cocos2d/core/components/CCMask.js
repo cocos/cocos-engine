@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const renderEngine = require('engine-next');
+const renderEngine = require('render-engine');
 const gfx = renderEngine.gfx;
 const math = renderEngine.math;
 const StencilMaterial = renderEngine.StencilMaterial;

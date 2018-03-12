@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const renderEngine = require('engine-next');
+const renderEngine = require('render-engine');
 
 const Label = require('../../../components/CCLabel');
 const LabelOutline = require('../../../components/CCLabelOutline');
