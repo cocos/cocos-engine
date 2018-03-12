@@ -28,13 +28,10 @@
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 #include "scripting/js-bindings/manual/jsb_opengl_functions.hpp"
-#include "scripting/js-bindings/manual/jsb_opengl_node.hpp"
 #include "scripting/js-bindings/manual/jsb_opengl_manual.hpp"
 
 bool JSB_register_opengl(se::Object* obj)
 {
-    js_register_cocos2dx_GLNode(__ccObj);
-
     // New WebGL functions, not present on OpenGL ES 2.0
     __glObj->defineFunction("getSupportedExtensions", _SE(JSB_glGetSupportedExtensions));
     __glObj->defineFunction("activeTexture", _SE(JSB_glActiveTexture));
@@ -54,7 +51,7 @@ bool JSB_register_opengl(se::Object* obj)
     __glObj->defineFunction("checkFramebufferStatus", _SE(JSB_glCheckFramebufferStatus));
     __glObj->defineFunction("clear", _SE(JSB_glClear));
     __glObj->defineFunction("clearColor", _SE(JSB_glClearColor));
-    __glObj->defineFunction("clearDepthf", _SE(JSB_glClearDepthf));
+    __glObj->defineFunction("clearDepth", _SE(JSB_glClearDepthf));
     __glObj->defineFunction("clearStencil", _SE(JSB_glClearStencil));
     __glObj->defineFunction("colorMask", _SE(JSB_glColorMask));
     __glObj->defineFunction("_compileShader", _SE(JSB_glCompileShader));
@@ -73,7 +70,7 @@ bool JSB_register_opengl(se::Object* obj)
     __glObj->defineFunction("_deleteTexture", _SE(JSB_glDeleteTextures));
     __glObj->defineFunction("depthFunc", _SE(JSB_glDepthFunc));
     __glObj->defineFunction("depthMask", _SE(JSB_glDepthMask));
-    __glObj->defineFunction("depthRangef", _SE(JSB_glDepthRangef));
+    __glObj->defineFunction("depthRange", _SE(JSB_glDepthRangef));
     __glObj->defineFunction("detachShader", _SE(JSB_glDetachShader));
     __glObj->defineFunction("disable", _SE(JSB_glDisable));
     __glObj->defineFunction("disableVertexAttribArray", _SE(JSB_glDisableVertexAttribArray));
@@ -128,10 +125,10 @@ bool JSB_register_opengl(se::Object* obj)
     __glObj->defineFunction("stencilMaskSeparate", _SE(JSB_glStencilMaskSeparate));
     __glObj->defineFunction("stencilOp", _SE(JSB_glStencilOp));
     __glObj->defineFunction("stencilOpSeparate", _SE(JSB_glStencilOpSeparate));
-    __glObj->defineFunction("_texImage2D", _SE(JSB_glTexImage2D));
+    __glObj->defineFunction("texImage2D", _SE(JSB_glTexImage2D));
     __glObj->defineFunction("texParameterf", _SE(JSB_glTexParameterf));
     __glObj->defineFunction("texParameteri", _SE(JSB_glTexParameteri));
-    __glObj->defineFunction("_texSubImage2D", _SE(JSB_glTexSubImage2D));
+    __glObj->defineFunction("texSubImage2D", _SE(JSB_glTexSubImage2D));
     __glObj->defineFunction("uniform1f", _SE(JSB_glUniform1f));
     __glObj->defineFunction("uniform1fv", _SE(JSB_glUniform1fv));
     __glObj->defineFunction("uniform1i", _SE(JSB_glUniform1i));
@@ -163,6 +160,8 @@ bool JSB_register_opengl(se::Object* obj)
     __glObj->defineFunction("vertexAttrib4fv", _SE(JSB_glVertexAttrib4fv));
     __glObj->defineFunction("vertexAttribPointer", _SE(JSB_glVertexAttribPointer));
     __glObj->defineFunction("viewport", _SE(JSB_glViewport));
+    __glObj->defineFunction("getParameter", _SE(JSB_glGetParameter));
+    __glObj->defineFunction("getShaderPrecisionFormat", _SE(JSB_glGetShaderPrecisionFormat));
 
     return true;
     

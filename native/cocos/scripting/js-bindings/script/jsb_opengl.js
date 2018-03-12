@@ -27,7 +27,13 @@
  * THE SOFTWARE.
  */
 
-var gl = gl || {};
+require('./jsb_opengl_constants');
+window.gl = window.gl || {};
+
+gl.canvas = {
+    clientWidth: window.innerWidth,
+    clientHeight: window.innerHeight
+};
 
 //
 // Create functions
@@ -245,6 +251,11 @@ gl.getShaderInfoLog = function(shader) {
     return gl._getShaderInfoLog(shader.shader_id);
 };
 
+// DOMString gl.getShaderSource(shader);
+gl.getShaderSource = function(shader) {
+    return gl._getShaderSource(shader.shader_id);
+};
+
 //
 // program related
 //
@@ -268,6 +279,14 @@ gl.linkProgram = function(program) {
     gl._linkProgram(program_id);
 };
 
+gl.bindAttribLocation = function(program, index, name) {
+    var program_id = program.program_id;
+    // Accept numbers too. eg: gl.linkProgram(17)
+    if( typeof program === 'number' )
+        program_id = program;
+
+    gl._bindAttribLocation(program_id, index, name);
+};
 
 // any getProgramParameter(WebGLProgram? program, GLenum pname);
 gl.getProgramParameter = function(program, e) {
@@ -277,6 +296,15 @@ gl.getProgramParameter = function(program, e) {
         program_id = program;
 
     return gl._getProgramParameter(program_id, e);
+};
+
+gl.getProgramInfoLog = function(program) {
+    var program_id = program.program_id;
+    // Accept numbers too. eg: gl.getProgramParameter(17)
+    if( typeof program === 'number' )
+        program_id = program;
+
+    return gl._getProgramInfoLog(program_id);
 };
 
 // void useProgram(WebGLProgram? program);
@@ -342,36 +370,6 @@ gl.getAttachedShaders = function(program) {
         program_id = program;
 
     return gl._getAttachedShaders(program_id);
-};
-
-//
-// Texture functions
-//
-
-// XXX: Currently only the 1st one is supported
-// void texImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, ArrayBufferView? pixels);
-// void texImage2D(GLenum target, GLint level, GLenum internalformat, GLenum format, GLenum type, ImageData? pixels);
-// void texImage2D(GLenum target, GLint level, GLenum internalformat, GLenum format, GLenum type, HTMLImageElement image); // May throw DOMException
-// void texImage2D(GLenum target, GLint level, GLenum internalformat, GLenum format, GLenum type, HTMLCanvasElement canvas); // May throw DOMException
-// void texImage2D(GLenum target, GLint level, GLenum internalformat, GLenum format, GLenum type, HTMLVideoElement video); // May throw DOMException
-gl.texImage2D = function() {
-    if( arguments.length < 9)
-        throw "texImage2D: Unsupported number of parameters:" + arguments.length;
-
-    gl._texImage2D.apply(this, arguments);
-};
-
-// XXX: Currently only the 1st one is supported
-// void texSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, ArrayBufferView? pixels);
-// void texSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLenum format, GLenum type, ImageData? pixels);
-// void texSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLenum format, GLenum type, HTMLImageElement image); // May throw DOMException
-// void texSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLenum format, GLenum type, HTMLCanvasElement canvas); // May throw DOMException
-// void texSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLenum format, GLenum type, HTMLVideoElement video); // May throw DOMException
-gl.texSubImage2D = function() {
-    if( arguments.length < 9)
-        throw "texSubImage2D: Unsupported number of parameters:" + arguments.length;
-
-    gl._texSubImage2D.apply(this, arguments);
 };
 
 //

@@ -73,7 +73,6 @@ THE SOFTWARE.
 
 // renderer
 
-
 // platform
 #include "platform/CCDevice.h"
 #include "platform/CCFileUtils.h"
@@ -81,6 +80,7 @@ THE SOFTWARE.
 #include "platform/CCPlatformConfig.h"
 #include "base/ccMacros.h"
 #include "platform/CCSAXParser.h"
+#include "platform/CCCanvasRenderingContext2D.h"
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
     #include "platform/ios/CCGL-ios.h"

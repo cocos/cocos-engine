@@ -23,13 +23,120 @@
  ****************************************************************************/
 
 #include "EventDispatcher.h"
+
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
+#include "cocos/scripting/js-bindings/manual/jsb_global.h"
+
+namespace {
+    se::Value _tickVal;
+    std::vector<se::Object*> _jsTouchObjPool;
+    se::Object* _jsTouchObjArray = nullptr;
+    se::Object* _jsbNameSpaceObj = nullptr;
+    bool _inited = false;
+}
 
 namespace cocos2d
 {
+    void EventDispatcher::init()
+    {
+        _inited = true;
+    }
+
+    void EventDispatcher::destroy()
+    {
+        for (auto touchObj : _jsTouchObjPool)
+        {
+            touchObj->unroot();
+            touchObj->decRef();
+        }
+        _jsTouchObjPool.clear();
+
+        if (_jsTouchObjArray != nullptr)
+        {
+            _jsTouchObjArray->unroot();
+            _jsTouchObjArray->decRef();
+            _jsTouchObjArray = nullptr;
+        }
+
+        if (_jsbNameSpaceObj != nullptr)
+        {
+            _jsbNameSpaceObj->unroot();
+            _jsbNameSpaceObj->decRef();
+            _jsbNameSpaceObj = nullptr;
+        }
+        _inited = false;
+        _tickVal.setUndefined();
+    }
 
 void EventDispatcher::dispatchTouchEvent(const struct TouchEvent& touchEvent)
 {
+    assert(_inited);
+    if (_jsbNameSpaceObj == nullptr)
+    {
+        auto global = se::ScriptEngine::getInstance()->getGlobalObject();
+        se::Value jsbVal;
+        if (global->getProperty("jsb", &jsbVal) && jsbVal.isObject())
+        {
+            _jsbNameSpaceObj = jsbVal.toObject();
+            _jsbNameSpaceObj->incRef();
+            _jsbNameSpaceObj->root();
+        }
+    }
+
+    if (_jsTouchObjArray == nullptr)
+    {
+        _jsTouchObjArray = se::Object::createArrayObject(0);
+        _jsTouchObjArray->root();
+    }
+
+    _jsTouchObjArray->setProperty("length", se::Value(touchEvent.touches.size()));
+
+    if (_jsTouchObjPool.size() < touchEvent.touches.size())
+    {
+        se::Object* touchObj = se::Object::createPlainObject();
+        touchObj->root();
+        _jsTouchObjPool.push_back(touchObj);
+    }
+
+    uint32_t touchIndex = 0;
+    int poolIndex = 0;
+    for (const auto& touch : touchEvent.touches)
+    {
+        se::Object* jsTouch = _jsTouchObjPool.at(poolIndex++);
+        jsTouch->setProperty("identifier", se::Value(touch.index));
+        jsTouch->setProperty("clientX", se::Value(touch.x));
+        jsTouch->setProperty("clientY", se::Value(touch.y));
+
+        _jsTouchObjArray->setArrayElement(touchIndex, se::Value(jsTouch));
+        ++touchIndex;
+    }
+
+    const char* eventName = nullptr;
+    switch (touchEvent.type) {
+        case TouchEvent::Type::BEGAN:
+            eventName = "onTouchStart";
+            break;
+        case TouchEvent::Type::MOVED:
+            eventName = "onTouchMove";
+            break;
+        case TouchEvent::Type::ENDED:
+            eventName = "onTouchEnd";
+            break;
+        case TouchEvent::Type::CANCELLED:
+            eventName = "onTouchCancel";
+            break;
+        default:
+            assert(false);
+            break;
+    }
+
+    se::Value callbackVal;
+    if (_jsbNameSpaceObj->getProperty(eventName, &callbackVal))
+    {
+        se::ValueArray args;
+        args.push_back(se::Value(_jsTouchObjArray));
+        callbackVal.toObject()->call(args, nullptr);
+    }
 }
 
 void EventDispatcher::dispatchKeyEvent(int key, int action)
@@ -39,20 +146,26 @@ void EventDispatcher::dispatchKeyEvent(int key, int action)
 void EventDispatcher::dispatchTickEvent(float dt)
 {
     se::AutoHandleScope scope;
-    auto se = se::ScriptEngine::getInstance();
-    static se::Value tickVal;
-    static bool firstTime = true;
-    if (firstTime)
+
+    static std::chrono::steady_clock::time_point prevTime;
+    static std::chrono::steady_clock::time_point now;
+
+    if (_tickVal.isUndefined())
     {
-        se->runScript("src/renderer-test/src/basic.js", &tickVal);
-        firstTime = false;
+        jsb_run_script("jsb/index.js", &_tickVal);
     }
 
-    printf("interval is %f\n", dt);
-    
+    prevTime = std::chrono::steady_clock::now();
+
     se::ValueArray args;
-    args.push_back(se::Value(dt));
-    tickVal.toObject()->call(args, nullptr);
+//    args.push_back(se::Value(dt));
+    long long microSeconds = std::chrono::duration_cast<std::chrono::microseconds>(prevTime - se::ScriptEngine::getInstance()->getStartTime()).count();
+    args.push_back(se::Value((float)(microSeconds * 0.001f)));
+
+    _tickVal.toObject()->call(args, nullptr);
+
+    now = std::chrono::steady_clock::now();
+    dt = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count() / 1000000.f;
 }
     
 } // end of namespace cocos2d

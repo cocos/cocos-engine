@@ -490,6 +490,8 @@ namespace se {
         _oldCompartment = JS_EnterCompartment(_cx, rootedGlobalObj);
         JS_InitStandardClasses(_cx, rootedGlobalObj) ;
 
+        _globalObj->setProperty("window", Value(_globalObj));
+
         // SpiderMonkey isn't shipped with a console variable. Make a fake one.
         Value consoleVal;
         bool hasConsole = _globalObj->getProperty("console", &consoleVal) && consoleVal.isObject();
@@ -1097,6 +1099,11 @@ namespace se {
     void ScriptEngine::setFileOperationDelegate(const FileOperationDelegate& delegate)
     {
         _fileOperationDelegate = delegate;
+    }
+
+    const ScriptEngine::FileOperationDelegate& ScriptEngine::getFileOperationDelegate() const
+    {
+        return _fileOperationDelegate;
     }
 
     bool ScriptEngine::runScript(const std::string& path, Value* ret/* = nullptr */)

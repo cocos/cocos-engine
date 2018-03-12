@@ -33,7 +33,7 @@ THE SOFTWARE.
 #import "platform/desktop/CCGLView-desktop.h"
 #import "scripting/js-bindings/event/EventDispatcher.h"
 #import "renderer/gfx/DeviceGraphics.h"
-#import "scripting/js-bindings/jswrapper/jsc/ScriptEngine.hpp"
+#import "scripting/js-bindings/jswrapper/SeApi.h"
 
 NS_CC_BEGIN
 
@@ -45,11 +45,12 @@ namespace
     {
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         char commandBuf[200] = {0};
-        sprintf(commandBuf, "window.canvas = { width: %d, height: %d };",
+        sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d;",
                 g_width,
                 g_height);
         se->evalString(commandBuf);
-        
+        glViewport(0, 0, g_width, g_height);
+        glDepthMask(GL_TRUE);
         return true;
     }
 }
@@ -67,13 +68,14 @@ Application::Application(const std::string& name)
     createView(name);
     
     renderer::DeviceGraphics::getInstance()->setScaleFactor(CAST_VIEW(_view)->getScaleFactor());
+    EventDispatcher::init();
     se::ScriptEngine::getInstance();
 }
 
 Application::~Application()
 {
     // TODO: destroy DeviceGraphics
-    
+    EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
     
     delete CAST_VIEW(_view);

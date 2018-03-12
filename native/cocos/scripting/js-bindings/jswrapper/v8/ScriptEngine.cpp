@@ -396,6 +396,7 @@ namespace se {
 
         _globalObj = Object::_createJSObject(nullptr, _context.Get(_isolate)->Global());
         _globalObj->root();
+        _globalObj->setProperty("window", Value(_globalObj));
 
         se::Value consoleVal;
         if (_globalObj->getProperty("console", &consoleVal) && consoleVal.isObject())
@@ -670,6 +671,11 @@ namespace se {
     void ScriptEngine::setFileOperationDelegate(const FileOperationDelegate& delegate)
     {
         _fileOperationDelegate = delegate;
+    }
+
+    const ScriptEngine::FileOperationDelegate& ScriptEngine::getFileOperationDelegate() const
+    {
+        return _fileOperationDelegate;
     }
 
     bool ScriptEngine::runScript(const std::string& path, Value* ret/* = nullptr */)

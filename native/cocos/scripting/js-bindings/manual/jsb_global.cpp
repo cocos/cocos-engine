@@ -6,6 +6,8 @@
 #include "jsb_conversions.hpp"
 #include "xxtea/xxtea.h"
 
+#include <regex>
+
 using namespace cocos2d;
 
 se::Object* __jscObj = nullptr;
@@ -191,24 +193,182 @@ bool jsb_set_extend_property(const char* ns, const char* clsName)
     return false;
 }
 
-bool jsb_run_script(const std::string& filePath, se::Value* rval/* = nullptr */)
-{
-    se::AutoHandleScope hs;
-    return se::ScriptEngine::getInstance()->runScript(filePath, rval);
-}
-
 namespace {
 
-    static bool require(se::State& s)
+    std::unordered_map<std::string, se::Value> __moduleCache;
+
+//    static bool require(se::State& s)
+//    {
+//        const auto& args = s.args();
+//        int argc = (int)args.size();
+//        assert(argc >= 1);
+//        assert(args[0].isString());
+//
+//        return jsb_run_script(args[0].toString(), &s.rval());
+//    }
+//    SE_BIND_FUNC(require)
+
+    static void normalizePath(std::string& path)
+    {
+        // Normalize: remove . and ..
+        path = std::regex_replace(path, std::regex("/\\./"), "/");
+        path = std::regex_replace(path, std::regex("/\\.$"), "");
+
+        size_t pos;
+        while ((pos = path.find("..")) != std::string::npos)
+        {
+            size_t prevSlash = path.rfind("/", pos-2);
+            if (prevSlash == std::string::npos)
+                break;
+
+            path = path.replace(prevSlash, pos - prevSlash + 2 , "");
+        }
+    }
+
+    static std::string getFileDir(const std::string& path)
+    {
+        std::string ret;
+        size_t pos = path.rfind("/");
+        if (pos != std::string::npos)
+        {
+            ret = path.substr(0, pos);
+        }
+
+        normalizePath(ret);
+
+        return ret;
+    }
+
+    static bool doModuleRequire(const std::string& path, se::Value* ret, const std::string& prevScriptFileDir)
+    {
+        se::AutoHandleScope hs;
+        assert(!path.empty());
+
+        const auto& fileOperationDelegate = se::ScriptEngine::getInstance()->getFileOperationDelegate();
+        assert(fileOperationDelegate.isValid());
+
+        std::string fullPath;
+
+        std::string pathWithSuffix = path;
+        if (pathWithSuffix.rfind(".js") != (pathWithSuffix.length() - 3))
+            pathWithSuffix += ".js";
+        std::string scriptBuffer = fileOperationDelegate.onGetStringFromFile(pathWithSuffix);
+
+        if (scriptBuffer.empty() && !prevScriptFileDir.empty())
+        {
+            std::string secondPath = prevScriptFileDir;
+            if (secondPath[secondPath.length()-1] != '/')
+                secondPath += "/";
+
+            secondPath += path;
+
+            if (FileUtils::getInstance()->isDirectoryExist(secondPath))
+            {
+                if (secondPath[secondPath.length()-1] != '/')
+                    secondPath += "/";
+                secondPath += "index.js";
+            }
+            else
+            {
+                if (path.rfind(".js") != (path.length() - 3))
+                    secondPath += ".js";
+            }
+
+            fullPath = fileOperationDelegate.onGetFullPath(secondPath);
+            scriptBuffer = fileOperationDelegate.onGetStringFromFile(fullPath);
+        }
+        else
+        {
+            fullPath = fileOperationDelegate.onGetFullPath(pathWithSuffix);
+        }
+
+        normalizePath(fullPath);
+
+        if (!scriptBuffer.empty())
+        {
+            const auto& iter = __moduleCache.find(fullPath);
+            if (iter != __moduleCache.end())
+            {
+                *ret = iter->second;
+//                printf("Found cache: %s, value: %d\n", fullPath.c_str(), (int)ret->getType());
+                return true;
+            }
+            std::string currentScriptFileDir = getFileDir(fullPath);
+
+            // Add closure for evalutate the script
+            char prefix[] = "(function(currentScriptDir){ window.module = window.module || {}; var exports = window.module.exports = {}; ";
+            char suffix[512] = {0};
+            snprintf(suffix, sizeof(suffix), "\nwindow.module.exports = window.module.exports || exports;\n})('%s'); ", currentScriptFileDir.c_str());
+
+            // Add current script path to require function invocation
+            scriptBuffer = prefix + std::regex_replace(scriptBuffer, std::regex("([^A-Za-z0-9]|^)require\\((.*?)\\)"), "$1require($2, currentScriptDir)") + suffix;
+
+//            FILE* fp = fopen("/Users/james/Downloads/test.txt", "wb");
+//            fwrite(scriptBuffer.c_str(), scriptBuffer.length(), 1, fp);
+//            fclose(fp);
+
+            std::string reletivePath = fullPath;
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_IOS
+    #if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+            const std::string reletivePathKey = "/Contents/Resources";
+    #else
+            const std::string reletivePathKey = ".app";
+    #endif
+
+            size_t pos = reletivePath.find(reletivePathKey);
+            if (pos != std::string::npos)
+            {
+                reletivePath = reletivePath.substr(pos + reletivePathKey.length() + 1);
+            }
+#endif
+
+
+            RENDERER_LOGD("Evaluate: %s", reletivePath.c_str());
+
+            auto se = se::ScriptEngine::getInstance();
+            bool succeed = se->evalString(scriptBuffer.c_str(), scriptBuffer.length(), nullptr, reletivePath.c_str());
+            se::Value moduleVal;
+            if (se->getGlobalObject()->getProperty("module", &moduleVal) && moduleVal.isObject())
+            {
+                se::Value exportsVal;
+                if (moduleVal.toObject()->getProperty("exports", &exportsVal))
+                {
+                    if (ret != nullptr)
+                        *ret = exportsVal;
+
+                    __moduleCache[fullPath] = std::move(exportsVal);
+                }
+                else
+                {
+                    __moduleCache[fullPath] = se::Value::Undefined;
+                }
+                // clear module.exports
+                moduleVal.toObject()->setProperty("exports", se::Value::Undefined);
+            }
+            else
+            {
+                __moduleCache[fullPath] = se::Value::Undefined;
+            }
+            assert(succeed);
+            return succeed;
+        }
+
+        SE_LOGE("doModuleRequire %s, buffer is empty!\n", path.c_str());
+        assert(false);
+        return false;
+    }
+
+    static bool moduleRequire(se::State& s)
     {
         const auto& args = s.args();
         int argc = (int)args.size();
-        assert(argc >= 1);
+        assert(argc >= 2);
         assert(args[0].isString());
+        assert(args[1].isString());
 
-        return jsb_run_script(args[0].toString(), &s.rval());
+        return doModuleRequire(args[0].toString(), &s.rval(), args[1].toString());
     }
-    SE_BIND_FUNC(require)
+    SE_BIND_FUNC(moduleRequire)
 
     static bool ccpAdd(se::State& s)
     {
@@ -614,6 +774,11 @@ namespace {
     }
 }
 
+bool jsb_run_script(const std::string& filePath, se::Value* rval/* = nullptr */)
+{
+    return doModuleRequire(filePath, rval, "");
+}
+
 static bool jsc_garbageCollect(se::State& s)
 {
     se::ScriptEngine::getInstance()->garbageCollect();
@@ -820,7 +985,7 @@ SE_BIND_FUNC(js_performance_now)
 
 bool jsb_register_global_variables(se::Object* global)
 {
-    global->defineFunction("require", _SE(require));
+    global->defineFunction("require", _SE(moduleRequire));
 
     getOrCreatePlainObject_r("cc", global, &__ccObj);
 
@@ -848,6 +1013,9 @@ bool jsb_register_global_variables(se::Object* global)
     se::ScriptEngine::getInstance()->clearException();
 
     se::ScriptEngine::getInstance()->addAfterCleanupHook([](){
+
+        __moduleCache.clear();
+
         __ccObj->decRef();
         __jsbObj->decRef();
         __jscObj->decRef();

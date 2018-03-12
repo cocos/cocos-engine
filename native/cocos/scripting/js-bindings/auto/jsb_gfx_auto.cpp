@@ -1,10 +1,10 @@
 #include "scripting/js-bindings/auto/jsb_gfx_auto.hpp"
 #include "scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "scripting/js-bindings/manual/jsb_global.h"
-#include "GFX.h"
+#include "renderer/gfx/GFX.h"
 
-se::Object* __jsb_cocos2d_gfx_GraphicsHandle_proto = nullptr;
-se::Class* __jsb_cocos2d_gfx_GraphicsHandle_class = nullptr;
+se::Object* __jsb_cocos2d_renderer_GraphicsHandle_proto = nullptr;
+se::Class* __jsb_cocos2d_renderer_GraphicsHandle_class = nullptr;
 
 static bool js_gfx_GraphicsHandle_getHandle(se::State& s)
 {
@@ -24,7 +24,7 @@ static bool js_gfx_GraphicsHandle_getHandle(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GraphicsHandle_getHandle)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_gfx_GraphicsHandle_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_GraphicsHandle_finalize)
 
 static bool js_gfx_GraphicsHandle_constructor(se::State& s)
 {
@@ -32,12 +32,12 @@ static bool js_gfx_GraphicsHandle_constructor(se::State& s)
     s.thisObject()->setPrivateData(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_GraphicsHandle_constructor, __jsb_cocos2d_gfx_GraphicsHandle_class, js_cocos2d_gfx_GraphicsHandle_finalize)
+SE_BIND_CTOR(js_gfx_GraphicsHandle_constructor, __jsb_cocos2d_renderer_GraphicsHandle_class, js_cocos2d_renderer_GraphicsHandle_finalize)
 
 
 
 
-static bool js_cocos2d_gfx_GraphicsHandle_finalize(se::State& s)
+static bool js_cocos2d_renderer_GraphicsHandle_finalize(se::State& s)
 {
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::GraphicsHandle)", s.nativeThisObject());
     cocos2d::renderer::GraphicsHandle* cobj = (cocos2d::renderer::GraphicsHandle*)s.nativeThisObject();
@@ -47,26 +47,26 @@ static bool js_cocos2d_gfx_GraphicsHandle_finalize(se::State& s)
         cobj->release();
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_gfx_GraphicsHandle_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_GraphicsHandle_finalize)
 
 bool js_register_gfx_GraphicsHandle(se::Object* obj)
 {
     auto cls = se::Class::create("GraphicsHandle", obj, nullptr, _SE(js_gfx_GraphicsHandle_constructor));
 
     cls->defineFunction("getHandle", _SE(js_gfx_GraphicsHandle_getHandle));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_gfx_GraphicsHandle_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_GraphicsHandle_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::GraphicsHandle>(cls);
 
-    __jsb_cocos2d_gfx_GraphicsHandle_proto = cls->getProto();
-    __jsb_cocos2d_gfx_GraphicsHandle_class = cls;
+    __jsb_cocos2d_renderer_GraphicsHandle_proto = cls->getProto();
+    __jsb_cocos2d_renderer_GraphicsHandle_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_gfx_IndexBuffer_proto = nullptr;
-se::Class* __jsb_cocos2d_gfx_IndexBuffer_class = nullptr;
+se::Object* __jsb_cocos2d_renderer_IndexBuffer_proto = nullptr;
+se::Class* __jsb_cocos2d_renderer_IndexBuffer_class = nullptr;
 
 static bool js_gfx_IndexBuffer_setBytes(se::State& s)
 {
@@ -217,7 +217,7 @@ static bool js_gfx_IndexBuffer_getBytes(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_IndexBuffer_getBytes)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_gfx_IndexBuffer_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_IndexBuffer_finalize)
 
 static bool js_gfx_IndexBuffer_constructor(se::State& s)
 {
@@ -225,13 +225,13 @@ static bool js_gfx_IndexBuffer_constructor(se::State& s)
     s.thisObject()->setPrivateData(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_IndexBuffer_constructor, __jsb_cocos2d_gfx_IndexBuffer_class, js_cocos2d_gfx_IndexBuffer_finalize)
+SE_BIND_CTOR(js_gfx_IndexBuffer_constructor, __jsb_cocos2d_renderer_IndexBuffer_class, js_cocos2d_renderer_IndexBuffer_finalize)
 
 
 
-extern se::Object* __jsb_cocos2d_gfx_GraphicsHandle_proto;
+extern se::Object* __jsb_cocos2d_renderer_GraphicsHandle_proto;
 
-static bool js_cocos2d_gfx_IndexBuffer_finalize(se::State& s)
+static bool js_cocos2d_renderer_IndexBuffer_finalize(se::State& s)
 {
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::IndexBuffer)", s.nativeThisObject());
     cocos2d::renderer::IndexBuffer* cobj = (cocos2d::renderer::IndexBuffer*)s.nativeThisObject();
@@ -241,11 +241,11 @@ static bool js_cocos2d_gfx_IndexBuffer_finalize(se::State& s)
         cobj->release();
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_gfx_IndexBuffer_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_IndexBuffer_finalize)
 
 bool js_register_gfx_IndexBuffer(se::Object* obj)
 {
-    auto cls = se::Class::create("IndexBuffer", obj, __jsb_cocos2d_gfx_GraphicsHandle_proto, _SE(js_gfx_IndexBuffer_constructor));
+    auto cls = se::Class::create("IndexBuffer", obj, __jsb_cocos2d_renderer_GraphicsHandle_proto, _SE(js_gfx_IndexBuffer_constructor));
 
     cls->defineFunction("setBytes", _SE(js_gfx_IndexBuffer_setBytes));
     cls->defineFunction("getUsage", _SE(js_gfx_IndexBuffer_getUsage));
@@ -255,19 +255,19 @@ bool js_register_gfx_IndexBuffer(se::Object* obj)
     cls->defineFunction("getCount", _SE(js_gfx_IndexBuffer_getCount));
     cls->defineFunction("setBytesPerIndex", _SE(js_gfx_IndexBuffer_setBytesPerIndex));
     cls->defineFunction("getBytes", _SE(js_gfx_IndexBuffer_getBytes));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_gfx_IndexBuffer_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_IndexBuffer_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::IndexBuffer>(cls);
 
-    __jsb_cocos2d_gfx_IndexBuffer_proto = cls->getProto();
-    __jsb_cocos2d_gfx_IndexBuffer_class = cls;
+    __jsb_cocos2d_renderer_IndexBuffer_proto = cls->getProto();
+    __jsb_cocos2d_renderer_IndexBuffer_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_gfx_VertexBuffer_proto = nullptr;
-se::Class* __jsb_cocos2d_gfx_VertexBuffer_class = nullptr;
+se::Object* __jsb_cocos2d_renderer_VertexBuffer_proto = nullptr;
+se::Class* __jsb_cocos2d_renderer_VertexBuffer_class = nullptr;
 
 static bool js_gfx_VertexBuffer_setBytes(se::State& s)
 {
@@ -380,7 +380,7 @@ static bool js_gfx_VertexBuffer_getBytes(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_VertexBuffer_getBytes)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_gfx_VertexBuffer_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_VertexBuffer_finalize)
 
 static bool js_gfx_VertexBuffer_constructor(se::State& s)
 {
@@ -388,13 +388,13 @@ static bool js_gfx_VertexBuffer_constructor(se::State& s)
     s.thisObject()->setPrivateData(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_VertexBuffer_constructor, __jsb_cocos2d_gfx_VertexBuffer_class, js_cocos2d_gfx_VertexBuffer_finalize)
+SE_BIND_CTOR(js_gfx_VertexBuffer_constructor, __jsb_cocos2d_renderer_VertexBuffer_class, js_cocos2d_renderer_VertexBuffer_finalize)
 
 
 
-extern se::Object* __jsb_cocos2d_gfx_GraphicsHandle_proto;
+extern se::Object* __jsb_cocos2d_renderer_GraphicsHandle_proto;
 
-static bool js_cocos2d_gfx_VertexBuffer_finalize(se::State& s)
+static bool js_cocos2d_renderer_VertexBuffer_finalize(se::State& s)
 {
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::VertexBuffer)", s.nativeThisObject());
     cocos2d::renderer::VertexBuffer* cobj = (cocos2d::renderer::VertexBuffer*)s.nativeThisObject();
@@ -404,11 +404,11 @@ static bool js_cocos2d_gfx_VertexBuffer_finalize(se::State& s)
         cobj->release();
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_gfx_VertexBuffer_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_VertexBuffer_finalize)
 
 bool js_register_gfx_VertexBuffer(se::Object* obj)
 {
-    auto cls = se::Class::create("VertexBuffer", obj, __jsb_cocos2d_gfx_GraphicsHandle_proto, _SE(js_gfx_VertexBuffer_constructor));
+    auto cls = se::Class::create("VertexBuffer", obj, __jsb_cocos2d_renderer_GraphicsHandle_proto, _SE(js_gfx_VertexBuffer_constructor));
 
     cls->defineFunction("setBytes", _SE(js_gfx_VertexBuffer_setBytes));
     cls->defineFunction("getUsage", _SE(js_gfx_VertexBuffer_getUsage));
@@ -416,19 +416,19 @@ bool js_register_gfx_VertexBuffer(se::Object* obj)
     cls->defineFunction("setUsage", _SE(js_gfx_VertexBuffer_setUsage));
     cls->defineFunction("getCount", _SE(js_gfx_VertexBuffer_getCount));
     cls->defineFunction("getBytes", _SE(js_gfx_VertexBuffer_getBytes));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_gfx_VertexBuffer_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_VertexBuffer_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::VertexBuffer>(cls);
 
-    __jsb_cocos2d_gfx_VertexBuffer_proto = cls->getProto();
-    __jsb_cocos2d_gfx_VertexBuffer_class = cls;
+    __jsb_cocos2d_renderer_VertexBuffer_proto = cls->getProto();
+    __jsb_cocos2d_renderer_VertexBuffer_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_gfx_DeviceGraphics_proto = nullptr;
-se::Class* __jsb_cocos2d_gfx_DeviceGraphics_class = nullptr;
+se::Object* __jsb_cocos2d_renderer_DeviceGraphics_proto = nullptr;
+se::Class* __jsb_cocos2d_renderer_DeviceGraphics_class = nullptr;
 
 static bool js_gfx_DeviceGraphics_setTexture(se::State& s)
 {
@@ -1063,6 +1063,25 @@ static bool js_gfx_DeviceGraphics_enableStencilTest(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_DeviceGraphics_enableStencilTest)
 
+static bool js_gfx_DeviceGraphics_setScaleFactor(se::State& s)
+{
+    cocos2d::renderer::DeviceGraphics* cobj = (cocos2d::renderer::DeviceGraphics*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_DeviceGraphics_setScaleFactor : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        float arg0 = 0;
+        ok &= seval_to_float(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_gfx_DeviceGraphics_setScaleFactor : Error processing arguments");
+        cobj->setScaleFactor(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_DeviceGraphics_setScaleFactor)
+
 static bool js_gfx_DeviceGraphics_getInstance(se::State& s)
 {
     const auto& args = s.args();
@@ -1071,7 +1090,7 @@ static bool js_gfx_DeviceGraphics_getInstance(se::State& s)
     if (argc == 0) {
         auto result = cocos2d::renderer::DeviceGraphics::getInstance();
         se::Value instanceVal;
-        native_ptr_to_seval<cocos2d::renderer::DeviceGraphics>(result, __jsb_cocos2d_gfx_DeviceGraphics_class, &instanceVal);
+        native_ptr_to_seval<cocos2d::renderer::DeviceGraphics>(result, __jsb_cocos2d_renderer_DeviceGraphics_class, &instanceVal);
         instanceVal.toObject()->root();
         s.rval() = instanceVal;
         return true;
@@ -1117,21 +1136,22 @@ bool js_register_gfx_DeviceGraphics(se::Object* obj)
     cls->defineFunction("supportGLExtension", _SE(js_gfx_DeviceGraphics_supportGLExtension));
     cls->defineFunction("setStencilOp", _SE(js_gfx_DeviceGraphics_setStencilOp));
     cls->defineFunction("enableStencilTest", _SE(js_gfx_DeviceGraphics_enableStencilTest));
+    cls->defineFunction("setScaleFactor", _SE(js_gfx_DeviceGraphics_setScaleFactor));
     cls->defineStaticFunction("getInstance", _SE(js_gfx_DeviceGraphics_getInstance));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::DeviceGraphics>(cls);
 
-    __jsb_cocos2d_gfx_DeviceGraphics_proto = cls->getProto();
-    __jsb_cocos2d_gfx_DeviceGraphics_class = cls;
+    __jsb_cocos2d_renderer_DeviceGraphics_proto = cls->getProto();
+    __jsb_cocos2d_renderer_DeviceGraphics_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_gfx_FrameBuffer_proto = nullptr;
-se::Class* __jsb_cocos2d_gfx_FrameBuffer_class = nullptr;
+se::Object* __jsb_cocos2d_renderer_FrameBuffer_proto = nullptr;
+se::Class* __jsb_cocos2d_renderer_FrameBuffer_class = nullptr;
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_gfx_FrameBuffer_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_FrameBuffer_finalize)
 
 static bool js_gfx_FrameBuffer_constructor(se::State& s)
 {
@@ -1139,13 +1159,13 @@ static bool js_gfx_FrameBuffer_constructor(se::State& s)
     s.thisObject()->setPrivateData(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_FrameBuffer_constructor, __jsb_cocos2d_gfx_FrameBuffer_class, js_cocos2d_gfx_FrameBuffer_finalize)
+SE_BIND_CTOR(js_gfx_FrameBuffer_constructor, __jsb_cocos2d_renderer_FrameBuffer_class, js_cocos2d_renderer_FrameBuffer_finalize)
 
 
 
-extern se::Object* __jsb_cocos2d_gfx_GraphicsHandle_proto;
+extern se::Object* __jsb_cocos2d_renderer_GraphicsHandle_proto;
 
-static bool js_cocos2d_gfx_FrameBuffer_finalize(se::State& s)
+static bool js_cocos2d_renderer_FrameBuffer_finalize(se::State& s)
 {
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::FrameBuffer)", s.nativeThisObject());
     cocos2d::renderer::FrameBuffer* cobj = (cocos2d::renderer::FrameBuffer*)s.nativeThisObject();
@@ -1155,30 +1175,30 @@ static bool js_cocos2d_gfx_FrameBuffer_finalize(se::State& s)
         cobj->release();
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_gfx_FrameBuffer_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_FrameBuffer_finalize)
 
 bool js_register_gfx_FrameBuffer(se::Object* obj)
 {
-    auto cls = se::Class::create("FrameBuffer", obj, __jsb_cocos2d_gfx_GraphicsHandle_proto, _SE(js_gfx_FrameBuffer_constructor));
+    auto cls = se::Class::create("FrameBuffer", obj, __jsb_cocos2d_renderer_GraphicsHandle_proto, _SE(js_gfx_FrameBuffer_constructor));
 
-    cls->defineFinalizeFunction(_SE(js_cocos2d_gfx_FrameBuffer_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_FrameBuffer_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::FrameBuffer>(cls);
 
-    __jsb_cocos2d_gfx_FrameBuffer_proto = cls->getProto();
-    __jsb_cocos2d_gfx_FrameBuffer_class = cls;
+    __jsb_cocos2d_renderer_FrameBuffer_proto = cls->getProto();
+    __jsb_cocos2d_renderer_FrameBuffer_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_gfx_RenderTarget_proto = nullptr;
-se::Class* __jsb_cocos2d_gfx_RenderTarget_class = nullptr;
+se::Object* __jsb_cocos2d_renderer_RenderTarget_proto = nullptr;
+se::Class* __jsb_cocos2d_renderer_RenderTarget_class = nullptr;
 
 
-extern se::Object* __jsb_cocos2d_gfx_GraphicsHandle_proto;
+extern se::Object* __jsb_cocos2d_renderer_GraphicsHandle_proto;
 
-static bool js_cocos2d_gfx_RenderTarget_finalize(se::State& s)
+static bool js_cocos2d_renderer_RenderTarget_finalize(se::State& s)
 {
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::RenderTarget)", s.nativeThisObject());
     cocos2d::renderer::RenderTarget* cobj = (cocos2d::renderer::RenderTarget*)s.nativeThisObject();
@@ -1188,25 +1208,25 @@ static bool js_cocos2d_gfx_RenderTarget_finalize(se::State& s)
         cobj->release();
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_gfx_RenderTarget_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_RenderTarget_finalize)
 
 bool js_register_gfx_RenderTarget(se::Object* obj)
 {
-    auto cls = se::Class::create("RenderTarget", obj, __jsb_cocos2d_gfx_GraphicsHandle_proto, nullptr);
+    auto cls = se::Class::create("RenderTarget", obj, __jsb_cocos2d_renderer_GraphicsHandle_proto, nullptr);
 
-    cls->defineFinalizeFunction(_SE(js_cocos2d_gfx_RenderTarget_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_RenderTarget_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::RenderTarget>(cls);
 
-    __jsb_cocos2d_gfx_RenderTarget_proto = cls->getProto();
-    __jsb_cocos2d_gfx_RenderTarget_class = cls;
+    __jsb_cocos2d_renderer_RenderTarget_proto = cls->getProto();
+    __jsb_cocos2d_renderer_RenderTarget_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_gfx_RenderBuffer_proto = nullptr;
-se::Class* __jsb_cocos2d_gfx_RenderBuffer_class = nullptr;
+se::Object* __jsb_cocos2d_renderer_RenderBuffer_proto = nullptr;
+se::Class* __jsb_cocos2d_renderer_RenderBuffer_class = nullptr;
 
 static bool js_gfx_RenderBuffer_init(se::State& s)
 {
@@ -1252,7 +1272,7 @@ static bool js_gfx_RenderBuffer_create(se::State& s)
         SE_PRECONDITION2(ok, false, "js_gfx_RenderBuffer_create : Error processing arguments");
         auto result = cocos2d::renderer::RenderBuffer::create(arg0, arg1, arg2, arg3);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_gfx_RenderBuffer_class);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_renderer_RenderBuffer_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -1262,7 +1282,7 @@ static bool js_gfx_RenderBuffer_create(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_RenderBuffer_create)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_gfx_RenderBuffer_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_RenderBuffer_finalize)
 
 static bool js_gfx_RenderBuffer_constructor(se::State& s)
 {
@@ -1270,13 +1290,13 @@ static bool js_gfx_RenderBuffer_constructor(se::State& s)
     s.thisObject()->setPrivateData(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_RenderBuffer_constructor, __jsb_cocos2d_gfx_RenderBuffer_class, js_cocos2d_gfx_RenderBuffer_finalize)
+SE_BIND_CTOR(js_gfx_RenderBuffer_constructor, __jsb_cocos2d_renderer_RenderBuffer_class, js_cocos2d_renderer_RenderBuffer_finalize)
 
 
 
-extern se::Object* __jsb_cocos2d_gfx_RenderTarget_proto;
+extern se::Object* __jsb_cocos2d_renderer_RenderTarget_proto;
 
-static bool js_cocos2d_gfx_RenderBuffer_finalize(se::State& s)
+static bool js_cocos2d_renderer_RenderBuffer_finalize(se::State& s)
 {
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::RenderBuffer)", s.nativeThisObject());
     cocos2d::renderer::RenderBuffer* cobj = (cocos2d::renderer::RenderBuffer*)s.nativeThisObject();
@@ -1286,27 +1306,27 @@ static bool js_cocos2d_gfx_RenderBuffer_finalize(se::State& s)
         cobj->release();
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_gfx_RenderBuffer_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_RenderBuffer_finalize)
 
 bool js_register_gfx_RenderBuffer(se::Object* obj)
 {
-    auto cls = se::Class::create("RenderBuffer", obj, __jsb_cocos2d_gfx_RenderTarget_proto, _SE(js_gfx_RenderBuffer_constructor));
+    auto cls = se::Class::create("RenderBuffer", obj, __jsb_cocos2d_renderer_RenderTarget_proto, _SE(js_gfx_RenderBuffer_constructor));
 
     cls->defineFunction("init", _SE(js_gfx_RenderBuffer_init));
     cls->defineStaticFunction("create", _SE(js_gfx_RenderBuffer_create));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_gfx_RenderBuffer_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_RenderBuffer_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::RenderBuffer>(cls);
 
-    __jsb_cocos2d_gfx_RenderBuffer_proto = cls->getProto();
-    __jsb_cocos2d_gfx_RenderBuffer_class = cls;
+    __jsb_cocos2d_renderer_RenderBuffer_proto = cls->getProto();
+    __jsb_cocos2d_renderer_RenderBuffer_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_gfx_Texture_proto = nullptr;
-se::Class* __jsb_cocos2d_gfx_Texture_class = nullptr;
+se::Object* __jsb_cocos2d_renderer_Texture_proto = nullptr;
+se::Class* __jsb_cocos2d_renderer_Texture_class = nullptr;
 
 static bool js_gfx_Texture_getWidth(se::State& s)
 {
@@ -1363,9 +1383,9 @@ static bool js_gfx_Texture_getTarget(se::State& s)
 SE_BIND_FUNC(js_gfx_Texture_getTarget)
 
 
-extern se::Object* __jsb_cocos2d_gfx_RenderTarget_proto;
+extern se::Object* __jsb_cocos2d_renderer_RenderTarget_proto;
 
-static bool js_cocos2d_gfx_Texture_finalize(se::State& s)
+static bool js_cocos2d_renderer_Texture_finalize(se::State& s)
 {
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::Texture)", s.nativeThisObject());
     cocos2d::renderer::Texture* cobj = (cocos2d::renderer::Texture*)s.nativeThisObject();
@@ -1375,28 +1395,28 @@ static bool js_cocos2d_gfx_Texture_finalize(se::State& s)
         cobj->release();
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_gfx_Texture_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_Texture_finalize)
 
 bool js_register_gfx_Texture(se::Object* obj)
 {
-    auto cls = se::Class::create("Texture", obj, __jsb_cocos2d_gfx_RenderTarget_proto, nullptr);
+    auto cls = se::Class::create("Texture", obj, __jsb_cocos2d_renderer_RenderTarget_proto, nullptr);
 
     cls->defineFunction("getWidth", _SE(js_gfx_Texture_getWidth));
     cls->defineFunction("getHeight", _SE(js_gfx_Texture_getHeight));
     cls->defineFunction("getTarget", _SE(js_gfx_Texture_getTarget));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_gfx_Texture_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_Texture_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::Texture>(cls);
 
-    __jsb_cocos2d_gfx_Texture_proto = cls->getProto();
-    __jsb_cocos2d_gfx_Texture_class = cls;
+    __jsb_cocos2d_renderer_Texture_proto = cls->getProto();
+    __jsb_cocos2d_renderer_Texture_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_gfx_Texture2D_proto = nullptr;
-se::Class* __jsb_cocos2d_gfx_Texture2D_class = nullptr;
+se::Object* __jsb_cocos2d_renderer_Texture2D_proto = nullptr;
+se::Class* __jsb_cocos2d_renderer_Texture2D_class = nullptr;
 
 static bool js_gfx_Texture2D_updateImage(se::State& s)
 {
@@ -1491,7 +1511,7 @@ static bool js_gfx_Texture2D_create(se::State& s)
         SE_PRECONDITION2(ok, false, "js_gfx_Texture2D_create : Error processing arguments");
         auto result = cocos2d::renderer::Texture2D::create(arg0, arg1);
         result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_gfx_Texture2D_class);
+        auto obj = se::Object::createObjectWithClass(__jsb_cocos2d_renderer_Texture2D_class);
         obj->setPrivateData(result);
         s.rval().setObject(obj);
         return true;
@@ -1501,7 +1521,7 @@ static bool js_gfx_Texture2D_create(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_Texture2D_create)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_gfx_Texture2D_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_Texture2D_finalize)
 
 static bool js_gfx_Texture2D_constructor(se::State& s)
 {
@@ -1509,13 +1529,13 @@ static bool js_gfx_Texture2D_constructor(se::State& s)
     s.thisObject()->setPrivateData(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_Texture2D_constructor, __jsb_cocos2d_gfx_Texture2D_class, js_cocos2d_gfx_Texture2D_finalize)
+SE_BIND_CTOR(js_gfx_Texture2D_constructor, __jsb_cocos2d_renderer_Texture2D_class, js_cocos2d_renderer_Texture2D_finalize)
 
 
 
-extern se::Object* __jsb_cocos2d_gfx_Texture_proto;
+extern se::Object* __jsb_cocos2d_renderer_Texture_proto;
 
-static bool js_cocos2d_gfx_Texture2D_finalize(se::State& s)
+static bool js_cocos2d_renderer_Texture2D_finalize(se::State& s)
 {
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::Texture2D)", s.nativeThisObject());
     cocos2d::renderer::Texture2D* cobj = (cocos2d::renderer::Texture2D*)s.nativeThisObject();
@@ -1525,30 +1545,30 @@ static bool js_cocos2d_gfx_Texture2D_finalize(se::State& s)
         cobj->release();
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_gfx_Texture2D_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_Texture2D_finalize)
 
 bool js_register_gfx_Texture2D(se::Object* obj)
 {
-    auto cls = se::Class::create("Texture2D", obj, __jsb_cocos2d_gfx_Texture_proto, _SE(js_gfx_Texture2D_constructor));
+    auto cls = se::Class::create("Texture2D", obj, __jsb_cocos2d_renderer_Texture_proto, _SE(js_gfx_Texture2D_constructor));
 
     cls->defineFunction("updateImage", _SE(js_gfx_Texture2D_updateImage));
     cls->defineFunction("init", _SE(js_gfx_Texture2D_init));
     cls->defineFunction("updateSubImage", _SE(js_gfx_Texture2D_updateSubImage));
     cls->defineFunction("update", _SE(js_gfx_Texture2D_update));
     cls->defineStaticFunction("create", _SE(js_gfx_Texture2D_create));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_gfx_Texture2D_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_Texture2D_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::Texture2D>(cls);
 
-    __jsb_cocos2d_gfx_Texture2D_proto = cls->getProto();
-    __jsb_cocos2d_gfx_Texture2D_class = cls;
+    __jsb_cocos2d_renderer_Texture2D_proto = cls->getProto();
+    __jsb_cocos2d_renderer_Texture2D_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_gfx_Program_proto = nullptr;
-se::Class* __jsb_cocos2d_gfx_Program_class = nullptr;
+se::Object* __jsb_cocos2d_renderer_Program_proto = nullptr;
+se::Class* __jsb_cocos2d_renderer_Program_class = nullptr;
 
 static bool js_gfx_Program_getID(se::State& s)
 {
@@ -1608,7 +1628,7 @@ static bool js_gfx_Program_link(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_Program_link)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_gfx_Program_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_Program_finalize)
 
 static bool js_gfx_Program_constructor(se::State& s)
 {
@@ -1616,13 +1636,13 @@ static bool js_gfx_Program_constructor(se::State& s)
     s.thisObject()->setPrivateData(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_Program_constructor, __jsb_cocos2d_gfx_Program_class, js_cocos2d_gfx_Program_finalize)
+SE_BIND_CTOR(js_gfx_Program_constructor, __jsb_cocos2d_renderer_Program_class, js_cocos2d_renderer_Program_finalize)
 
 
 
-extern se::Object* __jsb_cocos2d_gfx_GraphicsHandle_proto;
+extern se::Object* __jsb_cocos2d_renderer_GraphicsHandle_proto;
 
-static bool js_cocos2d_gfx_Program_finalize(se::State& s)
+static bool js_cocos2d_renderer_Program_finalize(se::State& s)
 {
     CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::Program)", s.nativeThisObject());
     cocos2d::renderer::Program* cobj = (cocos2d::renderer::Program*)s.nativeThisObject();
@@ -1632,21 +1652,21 @@ static bool js_cocos2d_gfx_Program_finalize(se::State& s)
         cobj->release();
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_gfx_Program_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_Program_finalize)
 
 bool js_register_gfx_Program(se::Object* obj)
 {
-    auto cls = se::Class::create("Program", obj, __jsb_cocos2d_gfx_GraphicsHandle_proto, _SE(js_gfx_Program_constructor));
+    auto cls = se::Class::create("Program", obj, __jsb_cocos2d_renderer_GraphicsHandle_proto, _SE(js_gfx_Program_constructor));
 
     cls->defineFunction("getID", _SE(js_gfx_Program_getID));
     cls->defineFunction("init", _SE(js_gfx_Program_init));
     cls->defineFunction("link", _SE(js_gfx_Program_link));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_gfx_Program_finalize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_Program_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::Program>(cls);
 
-    __jsb_cocos2d_gfx_Program_proto = cls->getProto();
-    __jsb_cocos2d_gfx_Program_class = cls;
+    __jsb_cocos2d_renderer_Program_proto = cls->getProto();
+    __jsb_cocos2d_renderer_Program_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;

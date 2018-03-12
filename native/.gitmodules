@@ -3,4 +3,4 @@
 	url = https://github.com/cocos-creator/cocos2d-console.git
 [submodule "tools/bindings-generator"]
 	path = tools/bindings-generator
-	url = https://github.com/cocos-creator/bindings-generator.git
+	url = https://github.com/dumganhar/bindings-generator-runtime.git

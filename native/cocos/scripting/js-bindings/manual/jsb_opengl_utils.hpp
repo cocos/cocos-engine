@@ -1,18 +1,19 @@
+
 /****************************************************************************
  Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,43 +25,30 @@
 
 #pragma once
 
-#include <vector>
+#include "cocos/renderer/gfx/GFXUtils.h"
 
-namespace cocos2d
-{
-    
-// Touch event related
-    
-struct TouchInfo
-{
-    float x = 0;
-    float y = 0;
-    int index = 0;
-};
+#define _JSB_GL_CHECK(_call) \
+                do { \
+                    _call; \
+                    GLenum gl_err = glGetError(); \
+                    if (0 != gl_err) { \
+                        SE_REPORT_ERROR(#_call "; GL error 0x%x: %s", gl_err, glEnumName(gl_err)); \
+                        return false; \
+                    } \
+                } while(false)
 
-struct TouchEvent
-{
-    enum class Type
-    {
-        BEGAN,
-        MOVED,
-        ENDED,
-        CANCELLED
-    };
-    
-    std::vector<TouchInfo> touches;
-    Type type = Type::BEGAN;
-};
 
-class EventDispatcher
-{
-public:
-    static void init();
-    static void destroy();
-
-    static void dispatchTouchEvent(const struct TouchEvent& touchEvent);
-    static void dispatchKeyEvent(int key, int action);
-    static void dispatchTickEvent(float dt);
-};
-    
-} // end of namespace cocos2d
+#if COCOS2D_DEBUG > 0
+#   define JSB_GL_CHECK(_call)   _JSB_GL_CHECK(_call)
+#   define JSB_GL_CHECK_ERROR() \
+                do { \
+                    GLenum gl_err = glGetError(); \
+                    if (0 != gl_err) { \
+                        SE_REPORT_ERROR("line: %d: GL error 0x%x: %s", __LINE__, gl_err, glEnumName(gl_err)); \
+                        return false; \
+                    } \
+                } while(false)
+#else
+#   define JSB_GL_CHECK(_call)   _call
+#   define JSB_GL_CHECK_ERROR() 
+#endif // BRENDERER_CONFIG_DEBUG

@@ -176,7 +176,7 @@ namespace se {
             /**
              *  @brief Tests whether delegate is valid.
              */
-            bool isValid() {
+            bool isValid() const {
                 return onGetDataFromFile != nullptr
                 && onGetStringFromFile != nullptr
                 && onCheckFileExist != nullptr
@@ -197,6 +197,12 @@ namespace se {
          *  @param delegate[in] The delegate instance for file operation.
          */
         void setFileOperationDelegate(const FileOperationDelegate& delegate);
+
+        /**
+         *  @brief Gets the delegate for file operation.
+         *  @return The delegate for file operation
+         */
+        const FileOperationDelegate& getFileOperationDelegate() const;
 
         /**
          *  @brief Executes a file which contains JavaScript code.
