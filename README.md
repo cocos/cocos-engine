@@ -84,7 +84,7 @@ npm test
 
 * [Official site](http://cocos2d-x.org/creator)
 * [Download](http://cocos2d-x.org/download)
-* [Documentation](http://cocos2d-x.org/docs/editors_and_tools/creator/index.html)
-* [API References](http://cocos2d-x.org/docs/api-ref/creator/v1.0/)
+* [Documentation](http://www.cocos2d-x.org/docs/creator/manual/en/)
+* [API References](http://www.cocos2d-x.org/docs/creator/api/en/)
 * [Forum](http://discuss.cocos2d-x.org/c/editors-and-tools/cocos-creator)
-* [Road Map](http://discuss.cocos2d-x.org/t/cocos-creator-roadmap)
+* [Road Map](https://trello.com/b/JWVRRxMG/cocos-creator-roadmap)
