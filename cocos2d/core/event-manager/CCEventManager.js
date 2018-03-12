@@ -662,22 +662,13 @@ var eventManager = {
         var childrenCount = children.length, locGlobalZOrderNodeMap = this._globalZOrderNodeMap, locNodeListenersMap = this._nodeListenersMap;
 
         if (childrenCount > 0) {
-            var child;
-            // visit children zOrder < 0
-            for (; i < childrenCount; i++) {
-                child = children[i];
-                if (child && child.getLocalZOrder() < 0)
-                    this._visitTarget(child, false);
-                else
-                    break;
-            }
-
             if (locNodeListenersMap[node.__instanceId] !== undefined) {
                 if (!locGlobalZOrderNodeMap)
                     locGlobalZOrderNodeMap = [];
                 locGlobalZOrderNodeMap.push(node.__instanceId);
             }
 
+            var child;
             for (; i < childrenCount; i++) {
                 child = children[i];
                 if (child)

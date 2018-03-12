@@ -1086,6 +1086,8 @@ var Node = cc.Class({
             math.quat.fromEuler(this._quat, this._rotationX, this._rotationY, 0);
         }
 
+        this._updateOrderOfArrival();
+
         var prefabInfo = this._prefab;
         if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
             if (CC_DEV) {
@@ -1616,7 +1618,21 @@ var Node = cc.Class({
             }
         }
     },
- 
+
+    /**
+     * !#en Set rotation of node (along z axi).
+     * !#zh 设置该节点以局部坐标系 Z 轴为轴进行旋转的角度。
+     * @method setRotation
+     * @param {Number} rotation Degree rotation value
+     */
+
+    /**
+     * !#en Get rotation of node (along z axi).
+     * !#zh 获取该节点以局部坐标系 Z 轴为轴进行旋转的角度。
+     * @method getRotation
+     * @param {Number} rotation Degree rotation value
+     */
+
     /**
      * !#en
      * Returns a copy the untransformed size of the node. <br/>
@@ -1732,6 +1748,7 @@ var Node = cc.Class({
             locAnchorPoint.x = point;
             locAnchorPoint.y = y;
         }
+        this._localMatDirty = true;
         this.emit(ANCHOR_CHANGED);
     },
 
@@ -2536,7 +2553,7 @@ var Node = cc.Class({
  * @return {Boolean}
  */
 
-var SameNameGetSets = ['parent', 'position', 'scale'];
+var SameNameGetSets = ['parent', 'position', 'scale', 'rotation'];
 
 Misc.propertyDefine(Node, SameNameGetSets);
 

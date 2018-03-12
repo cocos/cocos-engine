@@ -21,38 +21,29 @@ else {
         url = urlAppendTimestamp(url);
 
         var xhr = cc.loader.getXMLHttpRequest(),
-            errInfo = 'Load ' + url + ' failed!',
+            errInfo = 'Load text file failed: ' + url,
             navigator = window.navigator;
         xhr.open('GET', url, true);
-        if (/msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent)) {
-            // IE-specific logic here
-            xhr.setRequestHeader('Accept-Charset', 'utf-8');
-            xhr.onreadystatechange = function () {
-                if(xhr.readyState === 4) {
-                    if (xhr.status === 200 || xhr.status === 0) {
-                        callback(null, xhr.responseText);
-                    }
-                    else {
-                        callback({status:xhr.status, errorMessage:errInfo});
-                    }
+        if (xhr.overrideMimeType) xhr.overrideMimeType('text\/plain; charset=utf-8');
+        xhr.onload = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200 || xhr.status === 0) {
+                    callback(null, xhr.responseText);
                 }
-            };
-        } else {
-            if (xhr.overrideMimeType) xhr.overrideMimeType('text\/plain; charset=utf-8');
-            xhr.onload = function () {
-                if(xhr.readyState === 4) {
-                    if (xhr.status === 200 || xhr.status === 0) {
-                        callback(null, xhr.responseText);
-                    }
-                    else {
-                        callback({status:xhr.status, errorMessage:errInfo});
-                    }
+                else {
+                    callback({status:xhr.status, errorMessage:errInfo + '(wrong status)'});
                 }
-            };
-            xhr.onerror = function(){
-                callback({status:xhr.status, errorMessage:errInfo});
-            };
-        }
+            }
+            else {
+                callback({status:xhr.status, errorMessage:errInfo + '(wrong readyState)'});
+            }
+        };
+        xhr.onerror = function(){
+            callback({status:xhr.status, errorMessage:errInfo + '(error)'});
+        };
+        xhr.ontimeout = function(){
+            callback({status:xhr.status, errorMessage:errInfo + '(time out)'});
+        };
         xhr.send(null);
     };
 }
