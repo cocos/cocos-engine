@@ -130,6 +130,7 @@ defineMacro('CC_PREVIEW', !CC_EDITOR);
 defineMacro('CC_DEV', true);    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
 defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
 defineMacro('CC_JSB', defined('jsb'));
+defineMacro('CC_RUNTIME', false);
 defineMacro('CC_BUILD', false);
 defineMacro('CC_WECHATGAME', false);
 if (CC_RUNTIME) {
