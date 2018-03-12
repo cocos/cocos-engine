@@ -163,9 +163,9 @@ var Canvas = cc.Class({
         this.applySettings();
         this.onResized();
 
-        let cameraNode = cc.find('MAIN_CAMERA', this.node);
+        let cameraNode = cc.find('Main Camera', this.node);
         if (!cameraNode) {
-            cameraNode = new cc.Node('MAIN_CAMERA');
+            cameraNode = new cc.Node('Main Camera');
             cameraNode.parent = this.node;
             cameraNode.setSiblingIndex(0);
         }
