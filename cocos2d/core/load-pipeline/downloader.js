@@ -27,7 +27,7 @@ var sys = require('../platform/CCSys');
 require('../utils/CCPath');
 var Pipeline = require('./pipeline');
 var PackDownloader = require('./pack-downloader');
-// var downloadBinary = require('./binary-downloader');
+var downloadBinary = require('./binary-downloader');
 var downloadText = require('./text-downloader');
 
 var urlAppendTimestamp = require('./utils').urlAppendTimestamp;
@@ -245,6 +245,9 @@ var defaultMap = {
 
     // Deserializer
     'uuid' : downloadUuid,
+
+    // Binary
+    'binary' : downloadBinary,
 
     'default' : downloadText
 };
