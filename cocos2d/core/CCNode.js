@@ -1618,7 +1618,21 @@ var Node = cc.Class({
             }
         }
     },
- 
+
+    /**
+     * !#en Set rotation of node (along z axi).
+     * !#zh 设置该节点以局部坐标系 Z 轴为轴进行旋转的角度。
+     * @method setRotation
+     * @param {Number} rotation Degree rotation value
+     */
+
+    /**
+     * !#en Get rotation of node (along z axi).
+     * !#zh 获取该节点以局部坐标系 Z 轴为轴进行旋转的角度。
+     * @method getRotation
+     * @param {Number} rotation Degree rotation value
+     */
+
     /**
      * !#en
      * Returns a copy the untransformed size of the node. <br/>
@@ -2539,7 +2553,7 @@ var Node = cc.Class({
  * @return {Boolean}
  */
 
-var SameNameGetSets = ['parent', 'position', 'scale'];
+var SameNameGetSets = ['parent', 'position', 'scale', 'rotation'];
 
 Misc.propertyDefine(Node, SameNameGetSets);
 
