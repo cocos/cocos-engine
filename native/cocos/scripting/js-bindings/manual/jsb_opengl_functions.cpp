@@ -157,13 +157,10 @@ bool JSB_get_arraybufferview_dataptr(const se::Value& v, GLsizei *count, GLvoid 
             SE_LOGE("JSB_get_arraybufferview_dataptr: isn't a typed array!\n");
         }
     }
-    else if (v.isNullOrUndefined()
-             || (v.isNumber() && v.toInt32() == 0)
-             || (v.isBoolean() && !v.toBoolean())
-             )
+    else if (v.isNullOrUndefined())
     {
-        *data = nullptr;
         *count = 0;
+        *data = nullptr;
         return true;
     }
     else
@@ -412,11 +409,19 @@ bool JSB_glBufferData(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 3, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0; void* arg1; uint32_t arg2; 
-
+    uint32_t arg0 = 0;
+    void* arg1 = nullptr;
+    uint32_t arg2 = 0;
+    GLsizei count = 0;
     ok &= seval_to_uint32(args[0], &arg0 );
-    GLsizei count;
-    ok &= JSB_get_arraybufferview_dataptr(args[1], &count, &arg1);
+    if (args[1].isNumber())
+    {
+        count = args[1].toUint32();
+    }
+    else
+    {
+        ok &= JSB_get_arraybufferview_dataptr(args[1], &count, &arg1);
+    }
     ok &= seval_to_uint32(args[2], &arg2 );
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
@@ -433,12 +438,22 @@ bool JSB_glBufferSubData(se::State& s) {
     int argc = (int)args.size();
     SE_PRECONDITION2( argc == 3, false, "Invalid number of arguments" );
     bool ok = true;
-    uint32_t arg0; int32_t arg1; void* arg2; 
+    uint32_t arg0 = 0;
+    int32_t arg1 = 0;
+    void* arg2 = nullptr;
+    GLsizei count = 0;
 
     ok &= seval_to_uint32(args[0], &arg0 );
     ok &= seval_to_int32(args[1], &arg1 );
-    GLsizei count;
-    ok &= JSB_get_arraybufferview_dataptr(args[2], &count, &arg2);
+    if (args[2].isNumber())
+    {
+        count = args[2].toUint32();
+    }
+    else
+    {
+        ok &= JSB_get_arraybufferview_dataptr(args[2], &count, &arg2);
+    }
+
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     JSB_GL_CHECK(glBufferSubData((GLenum)arg0 , (GLintptr)arg1 , count, (GLvoid*)arg2  ));
