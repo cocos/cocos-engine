@@ -241,7 +241,6 @@ enum class CanvasTextBaseline {
     [[NSColor clearColor] set];
     NSRectFill(rect);
     [_image unlockFocus];
-
 }
 
 @end
@@ -290,14 +289,6 @@ void CanvasRenderingContext2D::clearRect(float x, float y, float width, float he
     SE_LOGD("CanvasGradient::clearRect: %p, %f, %f, %f, %f\n", this, x, y, width, height);
     [_impl clearRect:CGRectMake(x, y, width, height)];
 }
-
-//Data CanvasRenderingContext2D::getImageData(float sx, float sy, float sw, float sh)
-//{
-//    SE_LOGD("CanvasGradient::getImageData: %p, %f, %f, %f, %f\n", this, sx, sy, sw, sh);
-//    assert(sx == 0 && sy == 0 && sw == __width && sh == __height); // TODO: cjh
-//
-//    return [_impl getImageData];
-//}
 
 void CanvasRenderingContext2D::fillText(const std::string& text, float x, float y, float maxWidth)
 {
