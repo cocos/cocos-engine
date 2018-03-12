@@ -24,9 +24,9 @@
 
 #pragma once
 
-#include "platform/CCPlatformMacros.h"
-#include "math/CCGeometry.h"
+#include "base/ccMacros.h"
 #include "base/CCData.h"
+#include "math/CCGeometry.h"
 
 #include <string>
 

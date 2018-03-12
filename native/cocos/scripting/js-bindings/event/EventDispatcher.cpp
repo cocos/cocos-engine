@@ -150,7 +150,6 @@ void EventDispatcher::dispatchTickEvent(float dt)
     static std::chrono::steady_clock::time_point prevTime;
     static std::chrono::steady_clock::time_point now;
 
-    float dt = 0.f;
     if (_tickVal.isUndefined())
     {
         jsb_run_script("jsb/index.js", &_tickVal);
