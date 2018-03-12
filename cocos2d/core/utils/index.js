@@ -24,7 +24,7 @@
  ****************************************************************************/
  
 require('./CCPath');
-if (!CC_EDITOR && !CC_JSB) {
+if (!CC_EDITOR && !CC_JSB && !CC_RUNTIME) {
     require('./CCProfiler');
 }
 require('./find');

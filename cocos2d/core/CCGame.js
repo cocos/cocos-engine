@@ -683,7 +683,7 @@ var game = {
             localCanvas, localContainer,
             isWeChatGame = cc.sys.platform === cc.sys.WECHAT_GAME;
 
-        if (isWeChatGame) {
+        if (isWeChatGame || CC_RUNTIME) {
             this.container = localContainer = document.createElement("DIV");
             this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
             this.canvas = localCanvas = canvas;

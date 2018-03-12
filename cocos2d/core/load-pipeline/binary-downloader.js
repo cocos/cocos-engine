@@ -23,6 +23,21 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+if (CC_JSB || CC_RUNTIME) {
+    module.exports = function (item, callback) {
+        var url = item.url;
+
+        var result = jsb.fileUtils.getDataFromFile(url);
+        if (result) {
+            return result;
+        }
+        else {
+            return new Error('Download binary file failed: ' + url);
+        }
+    };
+}
+else {
+
 function _str2Uint8Array (strData) {
     if (!strData)
         return null;
@@ -115,3 +130,4 @@ function downloadBinary (url, callback) {
 }
 
 module.exports = downloadBinary;
+}

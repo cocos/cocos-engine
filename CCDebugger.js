@@ -100,7 +100,7 @@ cc.DebugMode = Enum({
  */
 cc._initDebugSetting = function (mode) {
     // reset
-    cc.log = cc.warn = cc.error = cc._throw = cc.assert = function () { };
+    cc.log = cc.warn = cc.error = cc.assert = function () { };
 
     if (mode === cc.DebugMode.NONE)
         return;
@@ -300,7 +300,7 @@ cc._initDebugSetting = function (mode) {
 cc._throw = CC_EDITOR ? Editor.error : function (error) {
     var stack = error.stack;
     if (stack) {
-        cc.error(CC_JSB ? (error + '\n' + stack) : stack);
+        cc.error((CC_JSB || CC_RUNTIME) ? (error + '\n' + stack) : stack);
     }
     else {
         cc.error(error);

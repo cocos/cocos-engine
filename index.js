@@ -132,7 +132,12 @@ defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
 defineMacro('CC_JSB', defined('jsb'));
 defineMacro('CC_BUILD', false);
 defineMacro('CC_WECHATGAME', false);
-defineMacro('CC_SUPPORT_JIT', !CC_WECHATGAME);
+if (CC_RUNTIME) {
+    defineMacro('CC_SUPPORT_JIT', true); //FIXME: cjh close it since safety issues.
+} else {
+    defineMacro('CC_SUPPORT_JIT', !CC_WECHATGAME);
+}
+
 
 // PREDEFINE
 
