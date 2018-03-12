@@ -181,6 +181,41 @@ var js = {
     },
 
     /**
+     * Checks whether subclass is child of superclass or equals to superclass
+     *
+     * @method isChildClassOf
+     * @param {Function} subclass
+     * @param {Function} superclass
+     * @return {Boolean}
+     */
+    isChildClassOf (subclass, superclass) {
+        if (subclass && superclass) {
+            if (typeof subclass !== 'function') {
+                return false;
+            }
+            if (typeof superclass !== 'function') {
+                if (CC_DEV) {
+                    cc.warnID(3625, superclass);
+                }
+                return false;
+            }
+            if (subclass === superclass) {
+                return true;
+            }
+            for (;;) {
+                subclass = js.getSuper(subclass);
+                if (!subclass) {
+                    return false;
+                }
+                if (subclass === superclass) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    },
+
+    /**
      * Removes all enumerable properties from object
      * @method clear
      * @param {any} obj

@@ -504,7 +504,7 @@ var _Deserializer = (function () {
         for (var p = 0; p < props.length; p++) {
             var propName = props[p];
             if ((CC_PREVIEW || (CC_EDITOR && self._ignoreEditorOnly)) && attrs[propName + EDITOR_ONLY]) {
-                var mayUsedInPersistRoot = (propName === '_id' && cc.isChildClassOf(klass, cc.Node));
+                var mayUsedInPersistRoot = (propName === '_id' && js.isChildClassOf(klass, cc.Node));
                 if (!mayUsedInPersistRoot) {
                     continue;   // skip editor only if in preview
                 }
@@ -596,7 +596,7 @@ var _Deserializer = (function () {
             for (var p = 0; p < props.length; p++) {
                 var propName = props[p];
                 if ((CC_PREVIEW || (CC_EDITOR && self._ignoreEditorOnly)) && attrs[propName + EDITOR_ONLY]) {
-                    var mayUsedInPersistRoot = (propName === '_id' && cc.isChildClassOf(klass, cc.Node));
+                    var mayUsedInPersistRoot = (propName === '_id' && js.isChildClassOf(klass, cc.Node));
                     if (!mayUsedInPersistRoot) {
                         continue;   // skip editor only if in preview
                     }

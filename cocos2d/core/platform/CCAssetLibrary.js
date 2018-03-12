@@ -127,7 +127,7 @@ var AssetLibrary = {
                     Editor.Utils.UuidCache.cache(info.url, uuid);
                     var ctor = Editor.assets[info.type];
                     if (ctor) {
-                        var isRawAsset = !cc.isChildClassOf(ctor, Asset);
+                        var isRawAsset = !js.isChildClassOf(ctor, Asset);
                         callback(null, info.url, isRawAsset, ctor);
                     }
                     else {
@@ -146,7 +146,7 @@ var AssetLibrary = {
     _getAssetInfoInRuntime: function (uuid, result) {
         result = result || {url: null, raw: false};
         var info = _uuidToRawAsset[uuid];
-        if (info && !cc.isChildClassOf(info.type, cc.Asset)) {
+        if (info && !js.isChildClassOf(info.type, cc.Asset)) {
             result.url = _rawAssetsBase + info.url;
             result.raw = true;
         }
@@ -313,7 +313,7 @@ var AssetLibrary = {
                     _uuidToRawAsset[uuid] = new RawAssetEntry(mountPoint + '/' + url, type);
                     // init resources
                     if (mountPoint === 'assets' && url.startsWith(RES_DIR)) {
-                        if (cc.isChildClassOf(type, Asset)) {
+                        if (js.isChildClassOf(type, Asset)) {
                             var ext = cc.path.extname(url);
                             if (ext) {
                                 // trim base dir and extname

@@ -83,7 +83,7 @@ cc.RawAsset = cc.Class({
  * @private
  */
 js.value(cc.RawAsset, 'isRawAssetType', function (ctor) {
-    return cc.isChildClassOf(ctor, cc.RawAsset) && !cc.isChildClassOf(ctor, cc.Asset);
+    return js.isChildClassOf(ctor, cc.RawAsset) && !js.isChildClassOf(ctor, cc.Asset);
 });
 
 // TODO - DELME after 2.0

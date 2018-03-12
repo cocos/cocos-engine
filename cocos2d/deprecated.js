@@ -2,6 +2,11 @@
 var js = cc.js;
 
 if (CC_DEV) {
+    // cc.isChildClassOf
+    js.get(cc, 'isChildClassOf', function () {
+        cc.errorID(1400, 'cc.isChildClassOf', 'cc.js.isChildClassOf');
+        return cc.js.isChildClassOf;
+    });
 
     // cc.spriteFrameCache
     js.get(cc, "spriteFrameCache", function () {
