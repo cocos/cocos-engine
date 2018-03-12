@@ -123,35 +123,35 @@ function checkCircleReference(owner, item, recursiveCall) {
 
 /**
  * !#en
- * LoadingItems is the queue of items which can flow them into the loading pipeline.</br>
- * Please don't construct it directly, use {{#crossLink "LoadingItems.create"}}LoadingItems.create{{/crossLink}} instead, because we use an internal pool to recycle the queues.</br>
- * It hold a map of items, each entry in the map is a url to object key value pair.</br>
- * Each item always contains the following property:</br>
- * - id: The identification of the item, usually it's identical to url</br>
- * - url: The url </br>
- * - type: The type, it's the extension name of the url by default, could be specified manually too.</br>
- * - error: The error happened in pipeline will be stored in this property.</br>
- * - content: The content processed by the pipeline, the final result will also be stored in this property.</br>
- * - complete: The flag indicate whether the item is completed by the pipeline.</br>
- * - states: An object stores the states of each pipe the item go through, the state can be: Pipeline.ItemState.WORKING | Pipeline.ItemState.ERROR | Pipeline.ItemState.COMPLETE</br>
- * </br>
- * Item can hold other custom properties.</br>
- * Each LoadingItems object will be destroyed for recycle after onComplete callback</br>
+ * LoadingItems is the queue of items which can flow them into the loading pipeline.
+ * Please don't construct it directly, use {{#crossLink "LoadingItems.create"}}LoadingItems.create{{/crossLink}} instead, because we use an internal pool to recycle the queues.
+ * It hold a map of items, each entry in the map is a url to object key value pair.
+ * Each item always contains the following property:
+ * - id: The identification of the item, usually it's identical to url
+ * - url: The url 
+ * - type: The type, it's the extension name of the url by default, could be specified manually too.
+ * - error: The error happened in pipeline will be stored in this property.
+ * - content: The content processed by the pipeline, the final result will also be stored in this property.
+ * - complete: The flag indicate whether the item is completed by the pipeline.
+ * - states: An object stores the states of each pipe the item go through, the state can be: Pipeline.ItemState.WORKING | Pipeline.ItemState.ERROR | Pipeline.ItemState.COMPLETE
+ * 
+ * Item can hold other custom properties.
+ * Each LoadingItems object will be destroyed for recycle after onComplete callback
  * So please don't hold its reference for later usage, you can copy properties in it though.
  * !#zh
- * LoadingItems 是一个加载对象队列，可以用来输送加载对象到加载管线中。</br>
+ * LoadingItems 是一个加载对象队列，可以用来输送加载对象到加载管线中。
  * 请不要直接使用 new 构造这个类的对象，你可以使用 {{#crossLink "LoadingItems.create"}}LoadingItems.create{{/crossLink}} 来创建一个新的加载队列，这样可以允许我们的内部对象池回收并重利用加载队列。
- * 它有一个 map 属性用来存放加载项，在 map 对象中已 url 为 key 值。</br>
- * 每个对象都会包含下列属性：</br>
- * - id：该对象的标识，通常与 url 相同。</br>
- * - url：路径 </br>
- * - type: 类型，它这是默认的 URL 的扩展名，可以手动指定赋值。</br>
- * - error：pipeline 中发生的错误将被保存在这个属性中。</br>
- * - content: pipeline 中处理的临时结果，最终的结果也将被存储在这个属性中。</br>
- * - complete：该标志表明该对象是否通过 pipeline 完成。</br>
- * - states：该对象存储每个管道中对象经历的状态，状态可以是 Pipeline.ItemState.WORKING | Pipeline.ItemState.ERROR | Pipeline.ItemState.COMPLETE</br>
- * </br>
- * 对象可容纳其他自定义属性。</br>
+ * 它有一个 map 属性用来存放加载项，在 map 对象中已 url 为 key 值。
+ * 每个对象都会包含下列属性：
+ * - id：该对象的标识，通常与 url 相同。
+ * - url：路径 
+ * - type: 类型，它这是默认的 URL 的扩展名，可以手动指定赋值。
+ * - error：pipeline 中发生的错误将被保存在这个属性中。
+ * - content: pipeline 中处理的临时结果，最终的结果也将被存储在这个属性中。
+ * - complete：该标志表明该对象是否通过 pipeline 完成。
+ * - states：该对象存储每个管道中对象经历的状态，状态可以是 Pipeline.ItemState.WORKING | Pipeline.ItemState.ERROR | Pipeline.ItemState.COMPLETE
+ * 
+ * 对象可容纳其他自定义属性。
  * 每个 LoadingItems 对象都会在 onComplete 回调之后被销毁，所以请不要持有它的引用并在结束回调之后依赖它的内容执行任何逻辑，有这种需求的话你可以提前复制它的内容。
  *
  * @class LoadingItems
@@ -616,10 +616,10 @@ proto.addListener = CallbacksInvoker.prototype.add;
 
 /**
  * !#en
- * Check if the specified key has any registered callback. </br>
+ * Check if the specified key has any registered callback. 
  * If a callback is also specified, it will only return true if the callback is registered.
  * !#zh
- * 检查指定的加载项是否有完成事件监听器。</br>
+ * 检查指定的加载项是否有完成事件监听器。
  * 如果同时还指定了一个回调方法，并且回调有注册，它只会返回 true。
  * @method hasListener
  * @param {String} key
@@ -631,10 +631,10 @@ proto.hasListener = CallbacksInvoker.prototype.has;
 
 /**
  * !#en
- * Removes a listener. </br>
+ * Removes a listener. 
  * It will only remove when key, callback, target all match correctly.
  * !#zh
- * 移除指定加载项已经注册的完成事件监听器。</br>
+ * 移除指定加载项已经注册的完成事件监听器。
  * 只会删除 key, callback, target 均匹配的监听器。
  * @method remove
  * @param {String} key

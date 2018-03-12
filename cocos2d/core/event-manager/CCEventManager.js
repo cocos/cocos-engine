@@ -209,7 +209,7 @@ var eventManager = {
                 cc.logID(3507);
 
             this._associateNodeAndEventListener(node, listener);
-            if (node.isRunning())
+            if (node.activeInHierarchy)
                 this.resumeTarget(node);
         } else
             this._setDirty(listenerID, this.DIRTY_FIXED_PRIORITY);
@@ -662,22 +662,13 @@ var eventManager = {
         var childrenCount = children.length, locGlobalZOrderNodeMap = this._globalZOrderNodeMap, locNodeListenersMap = this._nodeListenersMap;
 
         if (childrenCount > 0) {
-            var child;
-            // visit children zOrder < 0
-            for (; i < childrenCount; i++) {
-                child = children[i];
-                if (child && child.getLocalZOrder() < 0)
-                    this._visitTarget(child, false);
-                else
-                    break;
-            }
-
             if (locNodeListenersMap[node.__instanceId] !== undefined) {
                 if (!locGlobalZOrderNodeMap)
                     locGlobalZOrderNodeMap = [];
                 locGlobalZOrderNodeMap.push(node.__instanceId);
             }
 
+            var child;
             for (; i < childrenCount; i++) {
                 child = children[i];
                 if (child)

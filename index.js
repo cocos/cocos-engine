@@ -164,10 +164,6 @@ require('./polyfill/array');
 if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('./polyfill/typescript');
 }
-// empty polyfill HTMLVideoElement
-if (CC_WECHATGAME) {
-    _global.HTMLVideoElement = function () {};
-}
 
 require('./cocos2d/core/predefine');
 

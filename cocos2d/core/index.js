@@ -28,6 +28,7 @@ require('./assets');
 
 if (!CC_EDITOR || !Editor.isMainProcess) {
     require('./CCNode');
+    require('./CCPrivateNode');
     require('./CCScene');
 
     require('./components');

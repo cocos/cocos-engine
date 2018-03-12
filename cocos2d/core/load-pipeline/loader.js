@@ -77,6 +77,15 @@ function loadPlist (item, callback) {
     }
 }
 
+function loadBinary (item, callback) {
+    // Invoke custom handle
+    if (item.load) {
+        return item.load(item.content);
+    }
+    else {
+        return null;
+    }
+}
 
 var defaultMap = {
     // Images
@@ -90,18 +99,21 @@ var defaultMap = {
     'webp' : loadImage,
     'image' : loadImage,
 
+    // json
     'json' : loadJSON,
     'ExportJson' : loadJSON,
 
+    // plist
     'plist' : loadPlist,
 
-    // we embed fnt data inside the asset json file
-    // 'fnt' : loadFnt,
-
+    // asset
     'uuid' : loadUuid,
     'prefab' : loadUuid,
     'fire' : loadUuid,
     'scene' : loadUuid,
+
+    // binary
+    'binary' : loadBinary,
 
     'default' : loadNothing
 };

@@ -24,12 +24,16 @@
 
 'use strict';
 
+const BaseNode = require('./utils/base-node');
 const PrefabHelper = require('./utils/prefab-helper');
 const mathPools = require('./utils/math-pools');
 const renderEngine = require('render-engine');
 const affineTrans = require('./value-types/CCAffineTransform');
 const math = renderEngine.math;
 const eventManager = require('./event-manager');
+const macro = require('./platform/CCMacro');
+const Misc = require('./utils/misc');
+const Event = require('./event/event');
 
 const Flags = cc.Object.Flags;
 const Destroying = Flags.Destroying;
@@ -44,11 +48,6 @@ const CHILD_REORDER = 'child-reorder';
 const ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
 const ONE_DEGREE = Math.PI / 180;
 
-const macro = require('./platform/CCMacro');
-const Misc = require('./utils/misc');
-const Event = require('./event/event');
-//var RegisteredInEditor = Flags.RegisteredInEditor;
-
 var ActionManagerExist = !!cc.ActionManager;
 var emptyFunc = function () {};
 var _mat4_temp = math.mat4.create();
@@ -60,6 +59,8 @@ var _globalOrderOfArrival = 1;
  * !#en The event type supported by Node
  * !#zh Node 支持的事件类型
  * @class Node.EventType
+ * @constructor	
+ * @param {String} name
  * @static
  * @namespace Node
  */
@@ -73,7 +74,7 @@ var EventType = cc.Enum({
     TOUCH_START: 'touchstart',
     /**
      * !#en The event type for touch move event, you can use its value directly: 'touchmove'
-     * !#zh 当手指在屏幕上目标节点区域内移动时。
+     * !#zh 当手指在屏幕上移动时。
      * @property {String} TOUCH_MOVE
      * @static
      */
@@ -340,10 +341,27 @@ function _searchMaskInParent (node) {
     return null;
 }
 
-// function updateOrder (node) {
-//     node._parent._delaySort();
-    //eventManager._setDirtyForNode(node);
-// }
+function _checkListeners (node, events) {
+    if (!(node._objFlags & Destroying)) {
+        var i = 0;
+        if (node._bubblingListeners) {
+            for (; i < events.length; ++i) {
+                if (node._bubblingListeners.has(events[i])) {
+                    return true;
+                }
+            }
+        }
+        if (node._capturingListeners) {
+            for (; i < events.length; ++i) {
+                if (node._capturingListeners.has(events[i])) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    return true;
+}
 
 /**
  * !#en
@@ -354,19 +372,16 @@ function _searchMaskInParent (node) {
  * Cocos Creator 场景中的所有节点类。节点也继承了 {{#crossLink "EventTarget"}}EventTarget{{/crossLink}}，它允许节点发送事件。<br/>
  * 支持的节点事件，请参阅 {{#crossLink "Node.EventType"}}{{/crossLink}}。
  * @class Node
- * @constructor
- * @param {String} name
  * @extends _BaseNode
  */
 var Node = cc.Class({
     name: 'cc.Node',
-    extends: require('./utils/base-node'),
+    extends: BaseNode,
 
     properties: {
         // SERIALIZABLE
         _opacity: 255,
         _color: cc.Color.WHITE,
-        _cascadeOpacityEnabled: true,
         _contentSize: cc.Size,
         _anchorPoint: cc.v2(0.5, 0.5),
         _position: cc.Vec3,
@@ -384,8 +399,6 @@ var Node = cc.Class({
         _skewX: 0.0,
         _skewY: 0.0,
         _localZOrder: 0,
-        // _globalZOrder: 0,
-        _opacityModifyRGB: false,
 
         // internal properties
 
@@ -637,6 +650,15 @@ var Node = cc.Class({
         },
 
         /**
+         * !#en The local scale relative to the parent.
+         * !#zh 节点相对父节点的缩放。
+         * @property scale
+         * @type {Number}
+         * @example
+         * node.scale = 1;
+         */
+
+        /**
          * !#en Scale on x axis.
          * !#zh 节点 X 轴缩放。
          * @property scaleX
@@ -745,25 +767,6 @@ var Node = cc.Class({
                 }
             },
             range: [0, 255]
-        },
-
-        /**
-         * !#en Indicate whether node's opacity value affect its child nodes, default value is true.
-         * !#zh 节点的不透明度值是否影响其子节点，默认值为 true。
-         * @property cascadeOpacity
-         * @type {Boolean}
-         * @example
-         * cc.log("CascadeOpacity: " + node.cascadeOpacity);
-         */
-        cascadeOpacity: {
-            get () {
-                return this._cascadeOpacityEnabled;
-            },
-            set (value) {
-                if (this._cascadeOpacityEnabled !== value) {
-                    this._cascadeOpacityEnabled = value;
-                }
-            },
         },
 
         /**
@@ -887,8 +890,18 @@ var Node = cc.Class({
         },
 
         /**
-         * !#en Z order in depth which stands for the drawing order.
-         * !#zh 该节点渲染排序的 Z 轴深度。
+         * !#en zIndex is the 'key' used to sort the node relative to its siblings.
+         * The Node's parent will sort all its children based on the zIndex value and the arrival order.                                   <br/>
+         * Nodes with greater zIndex will be sorted after nodes with smaller zIndex.
+         * If two nodes have the same zIndex, then the node that was added first to the children's array              <br/>
+         * will be in front of the other node in the array.
+         * 
+         * Node's order in children list will affect its rendering order.
+         * !#zh zIndex 是用来对节点进行排序的关键属性，它决定一个节点在兄弟节点之间的位置。
+         * 父节点主要根据节点的 zIndex 和添加次序来排序，拥有更高 zIndex 的节点将被排在后面，
+         * 如果两个节点的 zIndex 一致，先添加的节点会稳定排在另一个节点之前。
+         * 
+         * 节点在 children 中的顺序决定了其渲染顺序。
          * @property zIndex
          * @type {Number}
          * @example
@@ -920,8 +933,6 @@ var Node = cc.Class({
                 }
             }
         },
-
-        //properties moved from base node end
     },
 
     /**
@@ -933,6 +944,7 @@ var Node = cc.Class({
         
         // cache component
         this._widget = null;
+        // fast render component access
         this._renderComponent = null;
         // Touch event listener
         this._touchListener = null;
@@ -1073,6 +1085,8 @@ var Node = cc.Class({
         else {
             math.quat.fromEuler(this._quat, this._rotationX, this._rotationY, 0);
         }
+
+        this._updateOrderOfArrival();
 
         var prefabInfo = this._prefab;
         if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
@@ -1215,10 +1229,16 @@ var Node = cc.Class({
         this._EventTargetOff(type, callback, target, useCapture);
 
         if (_touchEvents.indexOf(type) !== -1) {
-            this._checkTouchListeners();
+            if (this._touchListener && !_checkListeners(this, _touchEvents)) {
+                eventManager.removeListener(this._touchListener);
+                this._touchListener = null;
+            }
         }
         else if (_mouseEvents.indexOf(type) !== -1) {
-            this._checkMouseListeners();
+            if (this._mouseListener && !_checkListeners(this, _mouseEvents)) {
+                eventManager.removeListener(this._mouseListener);
+                this._mouseListener = null;
+            }
         }
     },
 
@@ -1233,8 +1253,14 @@ var Node = cc.Class({
     targetOff (target) {
         this._EventTargetTargetOff(target);
 
-        this._checkTouchListeners();
-        this._checkMouseListeners();
+        if (this._touchListener && !_checkListeners(this, _touchEvents)) {
+            eventManager.removeListener(this._touchListener);
+            this._touchListener = null;
+        }
+        if (this._mouseListener && !_checkListeners(this, _mouseEvents)) {
+            eventManager.removeListener(this._mouseListener);
+            this._mouseListener = null;
+        }
     },
 
     /**
@@ -1267,55 +1293,6 @@ var Node = cc.Class({
      */
     resumeSystemEvents (recursive) {
         eventManager.resumeTarget(this, recursive);
-    },
-
-    _checkTouchListeners () {
-        if (!(this._objFlags & Destroying) && this._touchListener) {
-            var i = 0;
-            if (this._bubblingListeners) {
-                for (; i < _touchEvents.length; ++i) {
-                    if (this._bubblingListeners.has(_touchEvents[i])) {
-                        return;
-                    }
-                }
-            }
-            if (this._capturingListeners) {
-                for (; i < _touchEvents.length; ++i) {
-                    if (this._capturingListeners.has(_touchEvents[i])) {
-                        return;
-                    }
-                }
-            }
-
-            eventManager.removeListener(this._touchListener);
-            this._touchListener = null;
-        }
-    },
-    _checkMouseListeners () {
-        if (!(this._objFlags & Destroying) && this._mouseListener) {
-            var i = 0;
-            if (this._bubblingListeners) {
-                for (; i < _mouseEvents.length; ++i) {
-                    if (this._bubblingListeners.has(_mouseEvents[i])) {
-                        return;
-                    }
-                }
-            }
-            if (this._capturingListeners) {
-                for (; i < _mouseEvents.length; ++i) {
-                    if (this._capturingListeners.has(_mouseEvents[i])) {
-                        return;
-                    }
-                }
-            }
-
-            if (_currentHovered === this) {
-                _currentHovered = null;
-            }
-
-            eventManager.removeListener(this._mouseListener);
-            this._mouseListener = null;
-        }
     },
 
     _hitTest (point, listener) {
@@ -1383,11 +1360,6 @@ var Node = cc.Class({
             }
             parent = parent.parent;
         }
-    },
-
-    // for event manager
-    isRunning () {
-        return this._activeInHierarchy;
     },
 
 // ACTIONS
@@ -1526,6 +1498,8 @@ var Node = cc.Class({
         return 0;
     },
 
+
+// TRANSFORM RELATED
     /**
      * !#en Returns a copy of the position (x, y) of the node in its parent's coordinates.
      * !#zh 获取节点在父节点坐标系中的位置（x, y）。
@@ -1644,80 +1618,21 @@ var Node = cc.Class({
             }
         }
     },
-    
-    getWorldPos (out) {
-        math.vec3.copy(out, this._position);
-        let curr = this._parent;
-        while (curr) {
-          // out = parent_scale * pos
-          math.vec3.mul(out, out, curr._scale);
-          // out = parent_quat * out
-          math.vec3.transformQuat(out, out, curr._quat);
-          // out = out + pos
-          math.vec3.add(out, out, curr._position);
-          curr = curr._parent;
-        }
-        return out;
-    },
-
-    getWorldRot (out) {
-        math.quat.copy(out, this._quat);
-        let curr = this._parent;
-        while (curr) {
-            math.quat.mul(out, curr._quat, out);
-            curr = curr._parent;
-        }
-        return out;
-    },
-
-    setWorldRot (quat) {
-        if (this._parent) {
-            this._parent.getWorldRot(this._quat);
-            math.quat.conjugate(this._quat, this._quat);
-            math.quat.mul(this._quat, this._quat, quat);
-            return;
-        }
-        math.quat.copy(this._quat, quat);
-    },
-
-    getWorldRT (out) {
-        let opos = _vec3_temp;
-        let orot = _quat_temp;
-        math.vec3.copy(opos, this._position);
-        math.quat.copy(orot, this._quat);
-
-        let curr = this._parent;
-        while (curr) {
-            // opos = parent_lscale * lpos
-            math.vec3.mul(opos, opos, curr._scale);
-            // opos = parent_lrot * opos
-            math.vec3.transformQuat(opos, opos, curr._quat);
-            // opos = opos + lpos
-            math.vec3.add(opos, opos, curr._position);
-            // orot = lrot * orot
-            math.quat.mul(orot, curr._quat, orot);
-            curr = curr._parent;
-        }
-        math.mat4.fromRT(out, orot, opos);
-        return out;
-    },
 
     /**
-     * !#en Set rotation by lookAt target point, normally used by Camera Node
-     * !#zh 通过观察目标来设置 rotation，一般用于 Camera Node 上
-     * @method lookAt
-     * @param {vec3} pos
-     * @param {vec3} [up] - default is (0,1,0)
+     * !#en Set rotation of node (along z axi).
+     * !#zh 设置该节点以局部坐标系 Z 轴为轴进行旋转的角度。
+     * @method setRotation
+     * @param {Number} rotation Degree rotation value
      */
-    lookAt (pos, up) {
-        this.getWorldPos(_vec3_temp);
-        math.vec3.sub(_vec3_temp, _vec3_temp, pos); // NOTE: we use -z for view-dir
-        math.vec3.normalize(_vec3_temp, _vec3_temp);
-        math.quat.fromViewUp(_quat_temp, _vec3_temp, up);
-    
-        this.setWorldRot(_quat_temp);
-    },
- 
+
+    /**
+     * !#en Get rotation of node (along z axi).
+     * !#zh 获取该节点以局部坐标系 Z 轴为轴进行旋转的角度。
+     * @method getRotation
+     * @param {Number} rotation Degree rotation value
+     */
+
     /**
      * !#en
      * Returns a copy the untransformed size of the node. <br/>
@@ -1773,82 +1688,6 @@ var Node = cc.Class({
             this.emit(SIZE_CHANGED);
         }
     },
-
-    /**
-     * !#en
-     * Set whether color should be changed with the opacity value,
-     * useless in ccsg.Node, but this function is override in some class to have such behavior.
-     * !#zh 设置更改透明度时是否修改RGB值，
-     * @method setOpacityModifyRGB
-     * @param {Boolean} opacityValue
-     * @example
-     * node.setOpacityModifyRGB(true);
-     */
-    setOpacityModifyRGB (opacityValue) {
-        if (this._opacityModifyRGB !== opacityValue) {
-            this._opacityModifyRGB = opacityValue;
-        }
-    },
-
-    /**
-     * !#en Get whether color should be changed with the opacity value.
-     * !#zh 更改透明度时是否修改RGB值。
-     * @method isOpacityModifyRGB
-     * @return {Boolean}
-     * @example
-     * var hasChange = node.isOpacityModifyRGB();
-     */
-    isOpacityModifyRGB () {
-        return this._opacityModifyRGB;
-    },
-
-    /*
-     * !#en
-     * Defines the oder in which the nodes are renderer.
-     * Nodes that have a Global Z Order lower, are renderer first.
-     * <br/>
-     * In case two or more nodes have the same Global Z Order, the oder is not guaranteed.
-     * The only exception if the Nodes have a Global Z Order == 0. In that case, the Scene Graph order is used.
-     * <br/>
-     * By default, all nodes have a Global Z Order = 0. That means that by default, the Scene Graph order is used to render the nodes.
-     * <br/>
-     * Global Z Order is useful when you need to render nodes in an order different than the Scene Graph order.
-     * <br/>
-     * Limitations: Global Z Order can't be used used by Nodes that have SpriteBatchNode as one of their ancestors.
-     * And if ClippingNode is one of the ancestors, then "global Z order" will be relative to the ClippingNode.
-     * !#zh
-     * 定义节点的渲染顺序。
-     * 节点具有全局 Z 顺序，顺序越小的节点，最先渲染。
-     * </br>
-     * 假设两个或者更多的节点拥有相同的全局 Z 顺序，那么渲染顺序无法保证。
-     * 唯一的例外是如果节点的全局 Z 顺序为零，那么场景中的顺序是可以使用默认的。
-     * </br>
-     * 所有的节点全局 Z 顺序都是零。这就是说，默认使用场景中的顺序来渲染节点。
-     * </br>
-     * 全局 Z 顺序是非常有用的当你需要渲染节点按照不同的顺序而不是场景顺序。
-     * </br>
-     * 局限性: 全局 Z 顺序不能够被拥有继承 “SpriteBatchNode” 的节点使用。
-     * 并且如果 “ClippingNode” 是其中之一的上代，那么 “global Z order” 将会和 “ClippingNode” 有关。
-     * @method setGlobalZOrder
-     * @param {Number} globalZOrder
-     * @example
-     * node.setGlobalZOrder(0);
-     */
-    // setGlobalZOrder (globalZOrder) {
-    //     this._globalZOrder = globalZOrder;
-    // },
-
-    /*
-     * !#en Return the Node's Global Z Order.
-     * !#zh 获取节点的全局 Z 顺序。
-     * @method getGlobalZOrder
-     * @returns {number} The node's global Z order
-     * @example
-     * cc.log("Global Z Order: " + node.getGlobalZOrder());
-     */
-    // getGlobalZOrder () {
-    //     return this._globalZOrder;
-    // },
 
     /**
      * !#en
@@ -1909,40 +1748,159 @@ var Node = cc.Class({
             locAnchorPoint.x = point;
             locAnchorPoint.y = y;
         }
+        this._localMatDirty = true;
         this.emit(ANCHOR_CHANGED);
     },
 
-    /**
-     * !#en
-     * Returns the displayed opacity of Node,
-     * the difference between displayed opacity and opacity is that displayed opacity is calculated based on opacity and parent node's opacity when cascade opacity enabled.
-     * !#zh
-     * 获取节点显示透明度，
-     * 显示透明度和透明度之间的不同之处在于当启用级连透明度时，
-     * 显示透明度是基于自身透明度和父节点透明度计算的。
-     *
-     * @method getDisplayedOpacity
-     * @returns {number} displayed opacity
-     * @deprecated please use opacity property, cascade opacity is removed
-     * @example
-     * var displayOpacity = node.getDisplayedOpacity();
+    /*
+     * Transforms position from world space to local space.
+     * @method _invTransformPoint
+     * @param {vmath.Vec3} out
+     * @param {vmath.Vec3} vec3
      */
+    _invTransformPoint (out, pos) {
+        if (this._parent) {
+            this._parent._invTransformPoint(out, pos);
+        } else {
+            math.vec3.copy(out, pos);
+        }
+
+        // out = parent_inv_pos - pos
+        math.vec3.sub(out, out, this._position);
+
+        // out = inv(rot) * out
+        math.quat.conjugate(_quat_temp, this._quat);
+        math.vec3.transformQuat(out, out, _quat_temp);
+
+        // out = (1/scale) * out
+        math.vec3.inverseSafe(_vec3_temp, this._scale);
+        math.vec3.mul(out, out, _vec3_temp);
+
+        return out;
+    },
+    
+    /*
+     * Calculate and return world position.
+     * This is not a public API yet, its usage could be updated
+     * @method getWorldPos
+     * @param {Vec3} out
+     * @return {Vec3}
+     */
+    getWorldPos (out) {
+        math.vec3.copy(out, this._position);
+        let curr = this._parent;
+        while (curr) {
+            // out = parent_scale * pos
+            math.vec3.mul(out, out, curr._scale);
+            // out = parent_quat * out
+            math.vec3.transformQuat(out, out, curr._quat);
+            // out = out + pos
+            math.vec3.add(out, out, curr._position);
+            curr = curr._parent;
+        }
+        return out;
+    },
+
+    /*
+     * Set world position.
+     * This is not a public API yet, its usage could be updated
+     * @method setWorldPos
+     * @param {vec3} pos
+     */
+    setWorldPos (pos) {
+        // NOTE: this is faster than invert world matrix and transform the point
+        if (this._parent) {
+            this._parent._invTransformPoint(this._position, pos);
+        }
+        else {
+            math.vec3.copy(this._position, pos);
+        }
+
+        this._localMatDirty = true;
+
+        // fast check event
+        var cache = this._hasListenerCache;
+        if (cache && cache[POSITION_CHANGED]) {
+            // send event
+            if (CC_EDITOR) {
+                this.emit(POSITION_CHANGED, oldPosition);
+            }
+            else {
+                this.emit(POSITION_CHANGED);
+            }
+        }
+    },
+
+    /*
+     * Calculate and return world rotation
+     * This is not a public API yet, its usage could be updated
+     * @method getWorldRot
+     * @param {vmath.Quat} out
+     * @return {vmath.Quat}
+     */
+    getWorldRot (out) {
+        math.quat.copy(out, this._quat);
+        let curr = this._parent;
+        while (curr) {
+            math.quat.mul(out, curr._quat, out);
+            curr = curr._parent;
+        }
+        return out;
+    },
+
+    /*
+     * Set world rotation with quaternion
+     * This is not a public API yet, its usage could be updated
+     * @method setWorldRot
+     * @param {vmath.Quat} rot
+     */
+    setWorldRot (quat) {
+        if (this._parent) {
+            this._parent.getWorldRot(this._quat);
+            math.quat.conjugate(this._quat, this._quat);
+            math.quat.mul(this._quat, this._quat, quat);
+            return;
+        }
+        math.quat.copy(this._quat, quat);
+    },
+
+    getWorldRT (out) {
+        let opos = _vec3_temp;
+        let orot = _quat_temp;
+        math.vec3.copy(opos, this._position);
+        math.quat.copy(orot, this._quat);
+
+        let curr = this._parent;
+        while (curr) {
+            // opos = parent_lscale * lpos
+            math.vec3.mul(opos, opos, curr._scale);
+            // opos = parent_lrot * opos
+            math.vec3.transformQuat(opos, opos, curr._quat);
+            // opos = opos + lpos
+            math.vec3.add(opos, opos, curr._position);
+            // orot = lrot * orot
+            math.quat.mul(orot, curr._quat, orot);
+            curr = curr._parent;
+        }
+        math.mat4.fromRT(out, orot, opos);
+        return out;
+    },
 
     /**
-     * !#en
-     * Returns the displayed color of Node,
-     * the difference between displayed color and color is that displayed color is calculated based on color and parent node's color when cascade color enabled.
-     * !#zh
-     * 获取节点的显示颜色，
-     * 显示颜色和颜色之间的不同之处在于当启用级连颜色时，
-     * 显示颜色是基于自身颜色和父节点颜色计算的。
-     *
-     * @method getDisplayedColor
-     * @returns {Color}
-     * @deprecated please use color property, cascade color is not supported
-     * @example
-     * var displayColor = node.getDisplayedColor();
+     * !#en Set rotation by lookAt target point, normally used by Camera Node
+     * !#zh 通过观察目标来设置 rotation，一般用于 Camera Node 上
+     * @method lookAt
+     * @param {Vec3} pos
+     * @param {Vec3} [up] - default is (0,1,0)
      */
+    lookAt (pos, up) {
+        this.getWorldPos(_vec3_temp);
+        math.vec3.sub(_vec3_temp, _vec3_temp, pos); // NOTE: we use -z for view-dir
+        math.vec3.normalize(_vec3_temp, _vec3_temp);
+        math.quat.fromViewUp(_quat_temp, _vec3_temp, up);
+    
+        this.setWorldRot(_quat_temp);
+    },
 
     _updateLocalMatrix () {
         if (this._localMatDirty) {
@@ -2010,8 +1968,8 @@ var Node = cc.Class({
      * Get the local transform matrix (4x4), based on parent node coordinates
      * !#zh 返回局部空间坐标系的矩阵，基于父节点坐标系。
      * @method getLocalMatrix
-     * @param {vmath.mat4} out The matrix object to be filled with data
-     * @return {vmath.mat4} Same as the out matrix object
+     * @param {vmath.Mat4} out The matrix object to be filled with data
+     * @return {vmath.Mat4} Same as the out matrix object
      * @example
      * let mat4 = vmath.mat4.create();
      * node.getLocalMatrix(mat4);
@@ -2026,8 +1984,8 @@ var Node = cc.Class({
      * Get the local transform matrix (4x4), based on parent node coordinates
      * !#zh 返回局部空间坐标系的矩阵，基于父节点坐标系。
      * @method getLocalMatrix
-     * @param {vmath.mat4} out The matrix object to be filled with data
-     * @return {vmath.mat4} Same as the out matrix object
+     * @param {vmath.Mat4} out The matrix object to be filled with data
+     * @return {vmath.Mat4} Same as the out matrix object
      * @example
      * let mat4 = vmath.mat4.create();
      * node.getLocalMatrix(mat4);
@@ -2035,147 +1993,6 @@ var Node = cc.Class({
     getWorldMatrix (out) {
         this._updateWorldMatrix();
         math.mat4.copy(out, this._worldMatrix);
-    },
-    
-    /**
-     * !#en
-     * Returns the matrix that transform the node's (local) space coordinates into the parent's space coordinates.<br/>
-     * The matrix is in Pixels.
-     * !#zh 返回这个将节点（局部）的空间坐标系转换成父节点的空间坐标系的矩阵。这个矩阵以像素为单位。
-     * @method getNodeToParentTransform
-     * @param {AffineTransform} out The affine transform object to be filled with data
-     * @return {AffineTransform} Same as the out affine transform object
-     * @example
-     * let affineTransform = cc.affineTransformMake();
-     * node.getNodeToParentTransform(affineTransform);
-     */
-    getNodeToParentTransform (out) {
-        if (!out) {
-            out = affineTrans.makeIdentity();
-        }
-        this._updateLocalMatrix();
-               
-        var contentSize = this._contentSize;
-        _vec3_temp.x = -this._anchorPoint.x * contentSize.width;
-        _vec3_temp.y = -this._anchorPoint.y * contentSize.height;
-
-        math.mat4.copy(_mat4_temp, this._matrix);
-        math.mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
-        return affineTrans.fromMatrix(_mat4_temp, out);
-    },
-
-    /**
-     * !#en
-     * Returns the matrix that transform the node's (local) space coordinates into the parent's space coordinates.<br/>
-     * The matrix is in Pixels.<br/>
-     * This method is AR (Anchor Relative).
-     * !#zh
-     * 返回这个将节点（局部）的空间坐标系转换成父节点的空间坐标系的矩阵。<br/>
-     * 这个矩阵以像素为单位。<br/>
-     * 该方法基于节点坐标。
-     * @method getNodeToParentTransformAR
-     * @param {AffineTransform} out The affine transform object to be filled with data
-     * @return {AffineTransform} Same as the out affine transform object
-     * @example
-     * let affineTransform = cc.affineTransformMake();
-     * node.getNodeToParentTransformAR(affineTransform);
-     */
-    getNodeToParentTransformAR (out) {
-        if (!out) {
-            out = affineTrans.makeIdentity();
-        }
-        this._updateLocalMatrix();
-        return affineTrans.fromMatrix(this._matrix, out);
-    },
-
-    /**
-     * !#en Returns the world affine transform matrix. The matrix is in Pixels.
-     * !#zh 返回节点到世界坐标系的仿射变换矩阵。矩阵单位是像素。
-     * @method getNodeToWorldTransform
-     * @param {AffineTransform} out The affine transform object to be filled with data
-     * @return {AffineTransform} Same as the out affine transform object
-     * @example
-     * let affineTransform = cc.affineTransformMake();
-     * node.getNodeToWorldTransform(affineTransform);
-     */
-    getNodeToWorldTransform (out) {
-        if (!out) {
-            out = affineTrans.makeIdentity();
-        }
-        this._updateWorldMatrix();
-        
-        var contentSize = this._contentSize;
-        _vec3_temp.x = -this._anchorPoint.x * contentSize.width;
-        _vec3_temp.y = -this._anchorPoint.y * contentSize.height;
-
-        math.mat4.copy(_mat4_temp, this._worldMatrix);
-        math.mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
-
-        return affineTrans.fromMatrix(_mat4_temp, out);
-    },
-
-    /**
-     * !#en
-     * Returns the world affine transform matrix. The matrix is in Pixels.<br/>
-     * This method is AR (Anchor Relative).
-     * !#zh
-     * 返回节点到世界坐标仿射变换矩阵。矩阵单位是像素。<br/>
-     * 该方法基于节点坐标。
-     * @method getNodeToWorldTransformAR
-     * @param {AffineTransform} out The affine transform object to be filled with data
-     * @return {AffineTransform} Same as the out affine transform object
-     * @example
-     * let affineTransform = cc.affineTransformMake();
-     * node.getNodeToWorldTransformAR(affineTransform);
-     */
-    getNodeToWorldTransformAR (out) {
-        if (!out) {
-            out = affineTrans.makeIdentity();
-        }
-        this._updateWorldMatrix();
-        return affineTrans.fromMatrix(this._matrix, out);
-    },
-
-    /**
-     * !#en
-     * Returns the matrix that transform parent's space coordinates to the node's (local) space coordinates.<br/>
-     * The matrix is in Pixels. The returned transform is readonly and cannot be changed.
-     * !#zh
-     * 返回将父节点的坐标系转换成节点（局部）的空间坐标系的矩阵。<br/>
-     * 该矩阵以像素为单位。返回的矩阵是只读的，不能更改。
-     * @method getParentToNodeTransform
-     * @param {AffineTransform} out The affine transform object to be filled with data
-     * @return {AffineTransform} Same as the out affine transform object
-     * @example
-     * let affineTransform = cc.affineTransformMake();
-     * node.getParentToNodeTransform(affineTransform);
-     */
-    getParentToNodeTransform (out) {
-        if (!out) {
-            out = affineTrans.makeIdentity();
-        }
-        this._updateLocalMatrix();
-        math.mat4.invert(_mat4_temp, this._matrix);
-        return affineTrans.fromMatrix(_mat4_temp, out);
-    },
-
-    /**
-     * !#en Returns the inverse world affine transform matrix. The matrix is in Pixels.
-     * !#en 返回世界坐标系到节点坐标系的逆矩阵。
-     * @method getWorldToNodeTransform
-     * @param {AffineTransform} out The affine transform object to be filled with data
-     * @return {AffineTransform} Same as the out affine transform object
-     * @example
-     * let affineTransform = cc.affineTransformMake();
-     * node.getWorldToNodeTransform(affineTransform);
-     */
-    getWorldToNodeTransform (out) {
-        if (!out) {
-            out = affineTrans.makeIdentity();
-        }
-        this._updateWorldMatrix();
-        math.mat4.invert(_mat4_temp, this._worldMatrix);
-        return affineTrans.fromMatrix(_mat4_temp, out);
     },
 
     /**
@@ -2254,10 +2071,159 @@ var Node = cc.Class({
         return math.vec2.transformMat4(out, nodePoint, this._worldMatrix);
     },
 
+// OLD TRANSFORM ACCESS APIs
+    /**
+     * !#en
+     * Returns the matrix that transform the node's (local) space coordinates into the parent's space coordinates.<br/>
+     * The matrix is in Pixels.
+     * !#zh 返回这个将节点（局部）的空间坐标系转换成父节点的空间坐标系的矩阵。这个矩阵以像素为单位。
+     * @method getNodeToParentTransform
+     * @deprecated since v2.0
+     * @param {AffineTransform} out The affine transform object to be filled with data
+     * @return {AffineTransform} Same as the out affine transform object
+     * @example
+     * let affineTransform = cc.affineTransformMake();
+     * node.getNodeToParentTransform(affineTransform);
+     */
+    getNodeToParentTransform (out) {
+        if (!out) {
+            out = affineTrans.makeIdentity();
+        }
+        this._updateLocalMatrix();
+               
+        var contentSize = this._contentSize;
+        _vec3_temp.x = -this._anchorPoint.x * contentSize.width;
+        _vec3_temp.y = -this._anchorPoint.y * contentSize.height;
+
+        math.mat4.copy(_mat4_temp, this._matrix);
+        math.mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
+        return affineTrans.fromMatrix(_mat4_temp, out);
+    },
+
+    /**
+     * !#en
+     * Returns the matrix that transform the node's (local) space coordinates into the parent's space coordinates.<br/>
+     * The matrix is in Pixels.<br/>
+     * This method is AR (Anchor Relative).
+     * !#zh
+     * 返回这个将节点（局部）的空间坐标系转换成父节点的空间坐标系的矩阵。<br/>
+     * 这个矩阵以像素为单位。<br/>
+     * 该方法基于节点坐标。
+     * @method getNodeToParentTransformAR
+     * @deprecated since v2.0
+     * @param {AffineTransform} out The affine transform object to be filled with data
+     * @return {AffineTransform} Same as the out affine transform object
+     * @example
+     * let affineTransform = cc.affineTransformMake();
+     * node.getNodeToParentTransformAR(affineTransform);
+     */
+    getNodeToParentTransformAR (out) {
+        if (!out) {
+            out = affineTrans.makeIdentity();
+        }
+        this._updateLocalMatrix();
+        return affineTrans.fromMatrix(this._matrix, out);
+    },
+
+    /**
+     * !#en Returns the world affine transform matrix. The matrix is in Pixels.
+     * !#zh 返回节点到世界坐标系的仿射变换矩阵。矩阵单位是像素。
+     * @method getNodeToWorldTransform
+     * @deprecated since v2.0
+     * @param {AffineTransform} out The affine transform object to be filled with data
+     * @return {AffineTransform} Same as the out affine transform object
+     * @example
+     * let affineTransform = cc.affineTransformMake();
+     * node.getNodeToWorldTransform(affineTransform);
+     */
+    getNodeToWorldTransform (out) {
+        if (!out) {
+            out = affineTrans.makeIdentity();
+        }
+        this._updateWorldMatrix();
+        
+        var contentSize = this._contentSize;
+        _vec3_temp.x = -this._anchorPoint.x * contentSize.width;
+        _vec3_temp.y = -this._anchorPoint.y * contentSize.height;
+
+        math.mat4.copy(_mat4_temp, this._worldMatrix);
+        math.mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
+
+        return affineTrans.fromMatrix(_mat4_temp, out);
+    },
+
+    /**
+     * !#en
+     * Returns the world affine transform matrix. The matrix is in Pixels.<br/>
+     * This method is AR (Anchor Relative).
+     * !#zh
+     * 返回节点到世界坐标仿射变换矩阵。矩阵单位是像素。<br/>
+     * 该方法基于节点坐标。
+     * @method getNodeToWorldTransformAR
+     * @deprecated since v2.0
+     * @param {AffineTransform} out The affine transform object to be filled with data
+     * @return {AffineTransform} Same as the out affine transform object
+     * @example
+     * let affineTransform = cc.affineTransformMake();
+     * node.getNodeToWorldTransformAR(affineTransform);
+     */
+    getNodeToWorldTransformAR (out) {
+        if (!out) {
+            out = affineTrans.makeIdentity();
+        }
+        this._updateWorldMatrix();
+        return affineTrans.fromMatrix(this._matrix, out);
+    },
+
+    /**
+     * !#en
+     * Returns the matrix that transform parent's space coordinates to the node's (local) space coordinates.<br/>
+     * The matrix is in Pixels. The returned transform is readonly and cannot be changed.
+     * !#zh
+     * 返回将父节点的坐标系转换成节点（局部）的空间坐标系的矩阵。<br/>
+     * 该矩阵以像素为单位。返回的矩阵是只读的，不能更改。
+     * @method getParentToNodeTransform
+     * @deprecated since v2.0
+     * @param {AffineTransform} out The affine transform object to be filled with data
+     * @return {AffineTransform} Same as the out affine transform object
+     * @example
+     * let affineTransform = cc.affineTransformMake();
+     * node.getParentToNodeTransform(affineTransform);
+     */
+    getParentToNodeTransform (out) {
+        if (!out) {
+            out = affineTrans.makeIdentity();
+        }
+        this._updateLocalMatrix();
+        math.mat4.invert(_mat4_temp, this._matrix);
+        return affineTrans.fromMatrix(_mat4_temp, out);
+    },
+
+    /**
+     * !#en Returns the inverse world affine transform matrix. The matrix is in Pixels.
+     * !#en 返回世界坐标系到节点坐标系的逆矩阵。
+     * @method getWorldToNodeTransform
+     * @deprecated since v2.0
+     * @param {AffineTransform} out The affine transform object to be filled with data
+     * @return {AffineTransform} Same as the out affine transform object
+     * @example
+     * let affineTransform = cc.affineTransformMake();
+     * node.getWorldToNodeTransform(affineTransform);
+     */
+    getWorldToNodeTransform (out) {
+        if (!out) {
+            out = affineTrans.makeIdentity();
+        }
+        this._updateWorldMatrix();
+        math.mat4.invert(_mat4_temp, this._worldMatrix);
+        return affineTrans.fromMatrix(_mat4_temp, out);
+    },
+
     /**
      * !#en convenience methods which take a cc.Touch instead of cc.Vec2.
      * !#zh 将触摸点转换成本地坐标系中位置。
      * @method convertTouchToNodeSpace
+     * @deprecated since v2.0
      * @param {Touch} touch - The touch object
      * @return {Vec2}
      * @example
@@ -2271,6 +2237,7 @@ var Node = cc.Class({
      * !#en converts a cc.Touch (world coordinates) into a local coordinate. This method is AR (Anchor Relative).
      * !#zh 转换一个 cc.Touch（世界坐标）到一个局部坐标，该方法基于节点坐标。
      * @method convertTouchToNodeSpaceAR
+     * @deprecated since v2.0
      * @param {Touch} touch - The touch object
      * @return {Vec2}
      * @example
@@ -2470,9 +2437,6 @@ var Node = cc.Class({
             eventManager.pauseTarget(this);
         }
     },
-
-    //functions moved from base node end
-
 });
 
 /**
@@ -2508,119 +2472,90 @@ var Node = cc.Class({
  * @param {Event.EventCustom} event
  */
 
+// Deprecated APIs
+
 /**
+ * !#en
+ * Returns the displayed opacity of Node,
+ * the difference between displayed opacity and opacity is that displayed opacity is calculated based on opacity and parent node's opacity when cascade opacity enabled.
+ * !#zh
+ * 获取节点显示透明度，
+ * 显示透明度和透明度之间的不同之处在于当启用级连透明度时，
+ * 显示透明度是基于自身透明度和父节点透明度计算的。
  *
- * @event touchstart
- *
- */
-
-/**
- * !#en The local scale relative to the parent.
- * !#zh 节点相对父节点的缩放。
- * @property scale
- * @type {Number}
- * @example
- * node.scale = 1;
- */
-
-/**
- * !#en Returns the x axis position of the node in cocos2d coordinates.
- * !#zh 获取节点 X 轴坐标。
- * @method getPositionX
- * @return {Number} x - The new position in x axis
- * @example
- * var posX = node.getPositionX();
- */
-
-/**
- * !#en Sets the x axis position of the node in cocos2d coordinates.
- * !#zh 设置节点 X 轴坐标。
- * @method setPositionX
- * @param {Number} x
- * @example
- * node.setPositionX(1);
- */
-
-/**
- * !#en Returns the y axis position of the node in cocos2d coordinates.
- * !#zh 获取节点 Y 轴坐标。
- * @method getPositionY
- * @return {Number}
- * @example
- * var posY = node.getPositionY();
- */
-
-/**
- * !#en Sets the y axis position of the node in cocos2d coordinates.
- * !#zh 设置节点 Y 轴坐标。
- * @method setPositionY
- * @param {Number} y - The new position in y axis
- * @example
- * node.setPositionY(100);
- */
-
-/**
- * !#en Returns the local Z order of this node.
- * !#zh 获取节点局部 Z 轴顺序。
- * @method getLocalZOrder
- * @returns {Number} The local (relative to its siblings) Z order.
- * @example
- * var localZorder = node.getLocalZOrder();
+ * @method getDisplayedOpacity
+ * @returns {number} displayed opacity
+ * @deprecated please use opacity property, cascade opacity is removed
  */
 
 /**
  * !#en
- * LocalZOrder is the 'key' used to sort the node relative to its siblings.                                        <br/>
- *                                                                                                                 <br/>
- * The Node's parent will sort all its children based ont the LocalZOrder value.                                   <br/>
- * If two nodes have the same LocalZOrder, then the node that was added first to the children's array              <br/>
- * will be in front of the other node in the array.                                                                <br/>
- * Also, the Scene Graph is traversed using the "In-Order" tree traversal algorithm ( http://en.wikipedia.org/wiki/Tree_traversal#In-order ) <br/>
- * And Nodes that have LocalZOder values smaller than 0 are the "left" subtree <br/>
- * While Nodes with LocalZOder greater than 0 are the "right" subtree.
+ * Returns the displayed color of Node,
+ * the difference between displayed color and color is that displayed color is calculated based on color and parent node's color when cascade color enabled.
  * !#zh
- * LocalZOrder 是 “key” (关键)来分辨节点和它兄弟节点的相关性。
- * 父节点将会通过 LocalZOrder 的值来分辨所有的子节点。
- * 如果两个节点有同样的 LocalZOrder，那么先加入子节点数组的节点将会显示在后加入的节点的前面。
- * 同样的，场景图使用 “In-Order（按顺序）” 遍历数算法来遍历
- * ( http://en.wikipedia.org/wiki/Tree_traversal#In-order ) 并且拥有小于 0 的 LocalZOrder 的值的节点是 “ left ” 子树（左子树）
- * 所以拥有大于 0 的 LocalZOrder 的值得节点是 “ right ”子树（右子树）。
- * @method setLocalZOrder
- * @param {Number} localZOrder
- * @example
- * node.setLocalZOrder(1);
+ * 获取节点的显示颜色，
+ * 显示颜色和颜色之间的不同之处在于当启用级连颜色时，
+ * 显示颜色是基于自身颜色和父节点颜色计算的。
+ *
+ * @method getDisplayedColor
+ * @returns {Color}
+ * @deprecated please use color property, cascade color is removed
  */
 
 /**
- * !#en Returns whether node's opacity value affect its child nodes.
- * !#zh 返回节点的不透明度值是否影响其子节点。
+ * !#en Cascade opacity is removed from v2.0
+ * Indicate whether node's opacity value affect its child nodes, default value is true.
+ * !#zh 透明度级联功能从 v2.0 开始已移除
+ * 节点的不透明度值是否影响其子节点，默认值为 true。
+ * @property cascadeOpacity
+ * @deprecated since v2.0
+ * @type {Boolean}
+ */
+
+/**
+ * !#en Cascade opacity is removed from v2.0
+ * Returns whether node's opacity value affect its child nodes.
+ * !#zh 透明度级联功能从 v2.0 开始已移除
+ * 返回节点的不透明度值是否影响其子节点。
  * @method isCascadeOpacityEnabled
+ * @deprecated since v2.0
  * @returns {Boolean}
- * @example
- * cc.log(node.isCascadeOpacityEnabled());
  */
 
 /**
- * !#en Enable or disable cascade opacity, if cascade enabled, child nodes' opacity will be the multiplication of parent opacity and its own opacity.
- * !#zh 启用或禁用级连不透明度，如果级连启用，子节点的不透明度将是父不透明度乘上它自己的不透明度。
+ * !#en Cascade opacity is removed from v2.0
+ * Enable or disable cascade opacity, if cascade enabled, child nodes' opacity will be the multiplication of parent opacity and its own opacity.
+ * !#zh 透明度级联功能从 v2.0 开始已移除
+ * 启用或禁用级连不透明度，如果级连启用，子节点的不透明度将是父不透明度乘上它自己的不透明度。
  * @method setCascadeOpacityEnabled
+ * @deprecated since v2.0
  * @param {Boolean} cascadeOpacityEnabled
- * @example
- * node.setCascadeOpacityEnabled(true);
  */
 
-var SameNameGetSets = ['parent', 'tag', 'skewX', 'skewY', 'position', 'rotation', 'rotationX', 'rotationY',
-    'scale', 'scaleX', 'scaleY', 'opacity', 'color',];
+/**
+ * !#en Opacity modify RGB have been removed since v2.0
+ * Set whether color should be changed with the opacity value,
+ * useless in ccsg.Node, but this function is override in some class to have such behavior.
+ * !#zh 透明度影响颜色配置已经被废弃
+ * 设置更改透明度时是否修改RGB值，
+ * @method setOpacityModifyRGB
+ * @deprecated since v2.0
+ * @param {Boolean} opacityValue
+ */
 
-var DiffNameGetSets = {
-    x: ['getPositionX', 'setPositionX'],
-    y: ['getPositionY', 'setPositionY'],
-    zIndex: ['getLocalZOrder', 'setLocalZOrder'],
-    opacityModifyRGB: ['isOpacityModifyRGB', 'setOpacityModifyRGB'],
-    cascadeOpacity: ['isCascadeOpacityEnabled', 'setCascadeOpacityEnabled'],
-};
+/**
+ * !#en Opacity modify RGB have been removed since v2.0
+ * Get whether color should be changed with the opacity value.
+ * !#zh 透明度影响颜色配置已经被废弃
+ * 获取更改透明度时是否修改RGB值。
+ * @method isOpacityModifyRGB
+ * @deprecated since v2.0
+ * @return {Boolean}
+ */
 
-Misc.propertyDefine(Node, SameNameGetSets, DiffNameGetSets);
+var SameNameGetSets = ['parent', 'position', 'scale', 'rotation'];
+
+Misc.propertyDefine(Node, SameNameGetSets);
 
 Node.EventType = EventType;
 
