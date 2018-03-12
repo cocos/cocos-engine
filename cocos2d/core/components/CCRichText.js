@@ -33,7 +33,6 @@ var js = require("../platform/js");
 var HorizontalAlign = cc.TextAlignment;
 var VerticalAlign = cc.VerticalTextAlignment;
 var RichTextChildName = "RICHTEXT_CHILD"
-var RichTextChildZIndex = - 1000000;
 var _htmlTextParser = new HtmlTextParser();
 
 // Returns a function, that, as long as it continues to be invoked, will not
@@ -74,14 +73,13 @@ var pool = new js.Pool(function (node) {
 pool.get = function (string, fontAsset, fontSize) {
     var labelNode = this._get();
     if (!labelNode) {
-        labelNode = new cc.Node(RichTextChildName);
+        labelNode = new cc.PrivateNode(RichTextChildName);
     }
     var labelComponent = labelNode.getComponent(cc.Label);
     if (!labelComponent) {
         labelComponent = labelNode.addComponent(cc.Label);
     }
 
-    labelNode.setLocalZOrder(RichTextChildZIndex);
     labelNode.setPosition(0, 0);
     labelNode.setAnchorPoint(0.5, 0.5);
     labelNode.setContentSize(128, 128);
@@ -558,9 +556,8 @@ var RichText = cc.Class({
         var spriteFrameName = richTextElement.style.src;
         var spriteFrame = this.imageAtlas.getSpriteFrame(spriteFrameName);
         if (spriteFrame) {
-            var spriteNode = new cc.Node(RichTextChildName);
+            var spriteNode = new cc.PrivateNode(RichTextChildName);
             var spriteComponent = spriteNode.addComponent(cc.Sprite);
-            spriteNode.setLocalZOrder(RichTextChildZIndex);
             spriteNode.setAnchorPoint(0, 0);
             spriteComponent.type = cc.Sprite.Type.SLICED;
             spriteComponent.sizeMode = cc.Sprite.SizeMode.CUSTOM;
