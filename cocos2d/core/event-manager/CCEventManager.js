@@ -209,7 +209,7 @@ var eventManager = {
                 cc.logID(3507);
 
             this._associateNodeAndEventListener(node, listener);
-            if (node.isRunning())
+            if (node.activeInHierarchy)
                 this.resumeTarget(node);
         } else
             this._setDirty(listenerID, this.DIRTY_FIXED_PRIORITY);

@@ -383,6 +383,12 @@ if (CC_DEV) {
     }, 'cc.loader');
 
     // cc.Node
+    
+    markAsRemoved(cc._BaseNode, [
+        'tag',
+        'getChildByTag',
+        'removeChildByTag'
+    ]);
 
     markAsRemoved(cc.Node, [
         '_componentContainer',
@@ -452,9 +458,17 @@ if (CC_DEV) {
         'cascadeColor',
         'isCascadeColorEnabled',
         'setCascadeColorEnabled',
+        '_cascadeOpacityEnabled',
+        'cascadeOpacity',
+        'isCascadeOpacityEnabled',
+        'setCascadeOpacityEnabled',
+        'opacityModifyRGB',
+        'isOpacityModifyRGB',
+        'setOpacityModifyRGB',
         'ignoreAnchor',
         'isIgnoreAnchorPointForPosition',
         'ignoreAnchorPointForPosition',
+        'isRunning',
     ]);
 
     markFunctionWarning(cc.Node.prototype, {
@@ -464,6 +478,8 @@ if (CC_DEV) {
         'getNodeToWorldTransformAR': 'getWorldMatrix',
         'getParentToNodeTransform': 'getLocalMatrix',
         'getWorldToNodeTransform': 'getWorldMatrix',
+        'convertTouchToNodeSpace': 'convertToNodeSpace',
+        'convertTouchToNodeSpaceAR': 'convertToNodeSpaceAR',
     });
 
     markFunctionWarning(cc.Camera.prototype, {
@@ -493,6 +509,10 @@ if (CC_DEV) {
         getNodeToParentAffineTransform: 'getNodeToParentTransform'
     });
 
+    // cc.Component
+    markAsRemoved(cc.Component, [
+        'isRunning',
+    ]);
 
     // cc.Sprite
 

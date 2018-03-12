@@ -124,8 +124,6 @@ var BaseNode = cc.Class({
         _parent: null,
         _children: [],
 
-        _tag: cc.macro.NODE_TAG_INVALID,
-
         _active: true,
 
         /**
@@ -296,16 +294,6 @@ var BaseNode = cc.Class({
                 return this._activeInHierarchy;
             }
         },
-
-        /**
-         * !#en Tag of node.
-         * !#zh 节点标签。
-         * @property tag
-         * @type {Number}
-         * @example
-         * node.tag = 1001;
-         */
-
     },
 
     /**
@@ -327,14 +315,6 @@ var BaseNode = cc.Class({
          * @private
          */
         this.__eventTargets = [];
-    },
-
-    getTag () {
-        return this._tag;
-    },
-
-    setTag (tag) {
-        this._tag = tag;
     },
 
     /**
@@ -388,19 +368,7 @@ var BaseNode = cc.Class({
         }
     },
 
-
     // ABSTRACT INTERFACES
-
-
-    /*
-     * Initializes the instance of cc.Node
-     * @method init
-     * @returns {Boolean} Whether the initialization was successful.
-     * @deprecated, no need anymore
-     */
-    init () {
-        return true;
-    },
 
     /**
      * !#en
@@ -420,27 +388,6 @@ var BaseNode = cc.Class({
     },
 
     // composition: GET
-
-    /**
-     * !#en Returns a child from the container given its tag.
-     * !#zh 通过标签获取节点的子节点。
-     * @method getChildByTag
-     * @param {Number} aTag - An identifier to find the child node.
-     * @return {Node} a CCNode object whose tag equals to the input parameter
-     * @example
-     * var child = node.getChildByTag(1001);
-     */
-    getChildByTag (aTag) {
-        var children = this._children;
-        if (children !== null) {
-            for (var i = 0; i < children.length; i++) {
-                var node = children[i];
-                if (node && node._tag === aTag)
-                    return node;
-            }
-        }
-        return null;
-    },
 
     /**
      * !#en Returns a child from the container given its uuid.
@@ -733,32 +680,6 @@ var BaseNode = cc.Class({
 
     /**
      * !#en
-     * Removes a child from the container by tag value. It will also cleanup all running actions depending on the cleanup parameter.
-     * If the cleanup parameter is not passed, it will force a cleanup. <br/>
-     * !#zh
-     * 通过标签移除节点中指定的子节点，是否需要清理所有正在运行的行为取决于 cleanup 参数。<br/>
-     * 如果 cleanup 参数不传入，默认为 true 表示清理。
-     * @method removeChildByTag
-     * @param {Number} tag - An integer number that identifies a child node
-     * @param {Boolean} [cleanup=true] - true if all running actions and callbacks on the child node will be cleanup, false otherwise.
-     * @see cc.Node#removeChildByTag
-     * @example
-     * node.removeChildByTag(1001);
-     * node.removeChildByTag(1001, false);
-     */
-    removeChildByTag (tag, cleanup) {
-        if (tag === cc.macro.NODE_TAG_INVALID)
-            cc.logID(1609);
-
-        var child = this.getChildByTag(tag);
-        if (!child)
-            cc.logID(1610, tag);
-        else
-            this.removeChild(child, cleanup);
-    },
-
-    /**
-     * !#en
      * Removes all children from the container and do a cleanup all running actions depending on the cleanup parameter. <br/>
      * If the cleanup parameter is not passed, it will force a cleanup.
      * !#zh
@@ -935,7 +856,6 @@ var BaseNode = cc.Class({
      * addComponent(className: string): any
      */
     addComponent (typeOrClassName) {
-
         if (CC_EDITOR && (this._objFlags & Destroying)) {
             cc.error('isDestroying');
             return null;
