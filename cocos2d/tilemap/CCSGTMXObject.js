@@ -79,6 +79,7 @@ _ccsg.TMXObject = cc.Class({
      * !#en Get the property of object
      * !#zh 获取对象的属性
      * @method getProperty
+     * @param {String} propertyName
      * @return {Object}
      */
     getProperty: function (propName) {

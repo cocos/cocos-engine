@@ -104,7 +104,7 @@ cc.DebugMode = Enum({
  */
 cc._initDebugSetting = function (mode) {
     // reset
-    cc.log = cc.logID = cc.warn = cc.warnID = cc.error = cc.errorID = cc._throw = cc.assert = cc.assertID = function () { };
+    cc.log = cc.logID = cc.warn = cc.warnID = cc.error = cc.errorID = cc.assert = cc.assertID = function () { };
 
     if (mode === cc.DebugMode.NONE)
         return;
