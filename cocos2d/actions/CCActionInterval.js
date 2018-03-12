@@ -1101,8 +1101,8 @@ cc.MoveBy = cc.Class({
 
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
-        var locPosX = target.getPositionX();
-        var locPosY = target.getPositionY();
+        var locPosX = target.x;
+        var locPosY = target.y;
         this._previousPosition.x = locPosX;
         this._previousPosition.y = locPosY;
         this._startPosition.x = locPosX;
@@ -1116,8 +1116,8 @@ cc.MoveBy = cc.Class({
             var y = this._positionDelta.y * dt;
             var locStartPosition = this._startPosition;
             if (cc.macro.ENABLE_STACKABLE_ACTIONS) {
-                var targetX = this.target.getPositionX();
-                var targetY = this.target.getPositionY();
+                var targetX = this.target.x;
+                var targetY = this.target.y;
                 var locPreviousPosition = this._previousPosition;
 
                 locStartPosition.x = locStartPosition.x + targetX - locPreviousPosition.x;
@@ -1213,8 +1213,8 @@ cc.MoveTo = cc.Class({
 
     startWithTarget:function (target) {
         cc.MoveBy.prototype.startWithTarget.call(this, target);
-        this._positionDelta.x = this._endPosition.x - target.getPositionX();
-        this._positionDelta.y = this._endPosition.y - target.getPositionY();
+        this._positionDelta.x = this._endPosition.x - target.x;
+        this._positionDelta.y = this._endPosition.y - target.y;
     }
 });
 
@@ -1471,8 +1471,8 @@ cc.JumpBy = cc.Class({
 
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
-        var locPosX = target.getPositionX();
-        var locPosY = target.getPositionY();
+        var locPosX = target.x;
+        var locPosY = target.y;
         this._previousPosition.x = locPosX;
         this._previousPosition.y = locPosY;
         this._startPosition.x = locPosX;
@@ -1489,8 +1489,8 @@ cc.JumpBy = cc.Class({
             var x = this._delta.x * dt;
             var locStartPosition = this._startPosition;
             if (cc.macro.ENABLE_STACKABLE_ACTIONS) {
-                var targetX = this.target.getPositionX();
-                var targetY = this.target.getPositionY();
+                var targetX = this.target.x;
+                var targetY = this.target.y;
                 var locPreviousPosition = this._previousPosition;
 
                 locStartPosition.x = locStartPosition.x + targetX - locPreviousPosition.x;
@@ -1672,8 +1672,8 @@ cc.BezierBy = cc.Class({
 
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
-        var locPosX = target.getPositionX();
-        var locPosY = target.getPositionY();
+        var locPosX = target.x;
+        var locPosY = target.y;
         this._previousPosition.x = locPosX;
         this._previousPosition.y = locPosY;
         this._startPosition.x = locPosX;
@@ -1699,8 +1699,8 @@ cc.BezierBy = cc.Class({
 
             var locStartPosition = this._startPosition;
             if (cc.macro.ENABLE_STACKABLE_ACTIONS) {
-                var targetX = this.target.getPositionX();
-                var targetY = this.target.getPositionY();
+                var targetX = this.target.x;
+                var targetY = this.target.y;
                 var locPreviousPosition = this._previousPosition;
 
                 locStartPosition.x = locStartPosition.x + targetX - locPreviousPosition.x;
@@ -2268,12 +2268,10 @@ cc.TintTo = cc.Class({
         dt = this._computeEaseTime(dt);
         var locFrom = this._from, locTo = this._to;
         if (locFrom) {
-            this.target.setColor(
-                cc.color(
+            this.target.color = cc.color(
                     locFrom.r + (locTo.r - locFrom.r) * dt,
                     locFrom.g + (locTo.g - locFrom.g) * dt,
-                    locFrom.b + (locTo.b - locFrom.b) * dt)
-            );
+                    locFrom.b + (locTo.b - locFrom.b) * dt);
         }
     }
 });
