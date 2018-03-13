@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-
 function getWorldRotation (node) {
     var rot = node.rotationX;
     var parent = node.parent;
