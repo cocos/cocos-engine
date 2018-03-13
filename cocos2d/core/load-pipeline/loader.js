@@ -27,7 +27,7 @@
 var js = require('../platform/js');
 var sys = require('../platform/CCSys');
 var Pipeline = require('./pipeline');
-var Texture2D = require('../textures/CCTexture2D');
+var Texture2D = require('../assets/CCTexture2D');
 var loadUuid = require('./uuid-loader');
 
 function loadNothing (item, callback) {

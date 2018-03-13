@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Texture2D = require('./CCTexture2D');
+const Texture2D = require('../assets/CCTexture2D');
 
 /**
  * cc.textureUtil is a singleton object, it can load cc.Texture2D asynchronously

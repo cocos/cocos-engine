@@ -29,6 +29,7 @@ const RenderComponent = require('../core/components/CCRenderComponent');
 const codec = require('../compression/ZipUtils');
 const PNGReader = require('./CCPNGReader');
 const tiffReader = require('./CCTIFFReader');
+const textureUtil = require('../core/utils/texture-util');
 const renderEngine = require('../core/renderer/render-engine');
 const gfx = renderEngine.gfx;
 const ParticleMaterial = renderEngine.ParticleMaterial;
@@ -1100,7 +1101,7 @@ var ParticleSystem = cc.Class({
         // texture
         if (dict["textureFileName"]) {
             // Try to get the texture from the cache
-            var tex = cc.textureUtil.loadImage(imgPath);
+            var tex = textureUtil.loadImage(imgPath);
             // TODO: Use cc.loader to load asynchronously the SpriteFrame object, avoid using textureUtil
             this.spriteFrame = new cc.SpriteFrame(tex);
         } else if (dict["textureImageData"]) {
@@ -1127,7 +1128,7 @@ var ParticleSystem = cc.Class({
                     tiffReader.parseTIFF(buffer,canvasObj);
                 }
 
-                var tex = cc.textureUtil.cacheImage(imgPath, canvasObj);
+                var tex = textureUtil.cacheImage(imgPath, canvasObj);
                 if (!tex)
                     cc.logID(6012);
                 // TODO: Use cc.loader to load asynchronously the SpriteFrame object, avoid using textureUtil

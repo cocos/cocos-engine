@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Texture2D = require('../textures/CCTexture2D');
+var Texture2D = require('../assets/CCTexture2D');
 var js = require('../platform/js');
 
 function JsonUnpacker () {
