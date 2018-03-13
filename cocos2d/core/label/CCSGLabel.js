@@ -1174,16 +1174,16 @@ _ccsg.Label = _ccsg.Node.extend({
 
             var tempRect = locFontDict[fontDef].rect;
 
-            letterDefinition._offsetX = locFontDict[fontDef].xOffset;
-            letterDefinition._offsetY = locFontDict[fontDef].yOffset;
-            letterDefinition._width = tempRect.width;
-            letterDefinition._height = tempRect.height;
-            letterDefinition._u = tempRect.x + this._imageOffset.x;
-            letterDefinition._v = tempRect.y + this._imageOffset.y;
+            letterDefinition._offsetX = parseInt(locFontDict[fontDef].xOffset);
+            letterDefinition._offsetY = parseInt(locFontDict[fontDef].yOffset);
+            letterDefinition._width = parseInt(tempRect.width);
+            letterDefinition._height = parseInt(tempRect.height);
+            letterDefinition._u = parseInt(tempRect.x) + this._imageOffset.x;
+            letterDefinition._v = parseInt(tempRect.y) + this._imageOffset.y;
             //FIXME: only one texture supported for now
             letterDefinition._textureID = 0;
             letterDefinition._validDefinition = true;
-            letterDefinition._xAdvance = locFontDict[fontDef].xAdvance;
+            letterDefinition._xAdvance = parseInt(locFontDict[fontDef].xAdvance);
 
             this._fontAtlas.addLetterDefinitions(fontDef, letterDefinition);
         }

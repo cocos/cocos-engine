@@ -1035,7 +1035,7 @@ var Node = cc.Class({
             for (; i < len; i++) {
                 sibling = siblings[i]._sgNode;
                 sibling._arrivalOrder = i;
-                eventManager._setDirtyForNode(sibling);
+                eventManager._setDirtyForNode(siblings[i]);
             }
             cc.renderer.childrenOrderDirty = true;
             parent._sgNode._reorderChildDirty = true;
