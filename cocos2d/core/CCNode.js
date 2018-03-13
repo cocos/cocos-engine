@@ -1,5 +1,6 @@
 /****************************************************************************
- Copyright (c) 2013-2017 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -205,6 +206,23 @@ var _touchEndHandler = function (touch, event) {
     else {
         event.type = EventType.TOUCH_CANCEL;
     }
+    event.touch = touch;
+    event.bubbles = true;
+    node.dispatchEvent(event);
+    if (CC_JSB) {
+        event.touch = null;
+        event._touches = null;
+        Event.EventTouch.pool.put(event);
+    }
+};
+var _touchCancelHandler = function (touch, event) {
+    if (CC_JSB) {
+        event = Event.EventTouch.pool.get(event);
+    }
+    var pos = touch.getLocation();
+    var node = this.owner;
+
+    event.type = EventType.TOUCH_CANCEL;
     event.touch = touch;
     event.bubbles = true;
     node.dispatchEvent(event);
@@ -1174,7 +1192,8 @@ var Node = cc.Class({
                     mask: _searchMaskInParent(this),
                     onTouchBegan: _touchStartHandler,
                     onTouchMoved: _touchMoveHandler,
-                    onTouchEnded: _touchEndHandler
+                    onTouchEnded: _touchEndHandler,
+                    onTouchCancelled: _touchCancelHandler
                 });
                 eventManager.addListener(this._touchListener, this);
                 newAdded = true;
