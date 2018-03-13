@@ -2486,7 +2486,7 @@ var Node = cc.Class({
  *
  * @method getDisplayedOpacity
  * @returns {number} displayed opacity
- * @deprecated please use opacity property, cascade opacity is removed
+ * @deprecated since v2.0, please use opacity property, cascade opacity is removed
  */
 
 /**
@@ -2500,7 +2500,7 @@ var Node = cc.Class({
  *
  * @method getDisplayedColor
  * @returns {Color}
- * @deprecated please use color property, cascade color is removed
+ * @deprecated since v2.0, please use color property, cascade color is removed
  */
 
 /**
