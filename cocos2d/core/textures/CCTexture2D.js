@@ -382,7 +382,7 @@ var Texture2D = cc.Class({
                 self.handleLoadedTexture();
             });
             element.addEventListener('error', function (err) {
-                cc.warnID(3118, err.message);
+                cc.warnID(3119, err.message);
             });
         }
     },
