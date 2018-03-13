@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -271,7 +272,7 @@ cc.easeSineInOut = function(){
 
 /**
  * !#en
- * Creates the action easing obejct with the period in radians (default is 0.3). <br />
+ * Creates the action easing object with the period in radians (default is 0.3). <br />
  * Reference easeInElastic: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
  * !#zh

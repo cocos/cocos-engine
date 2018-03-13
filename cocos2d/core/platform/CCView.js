@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -35,7 +36,7 @@ function isWeChatGame () {
 
 var __BrowserGetter = {
     init: function(){
-        if (cc.sys.platform !== cc.sys.WECHAT_GAME) {
+        if (!CC_WECHATGAME && !CC_QQPLAY) {
             this.html = document.getElementsByTagName("html")[0];
         }
     },
@@ -62,6 +63,10 @@ if (cc.sys.os === cc.sys.OS_IOS) // All browsers are WebView
 
 if (CC_WECHATGAME) {
     __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_WECHAT_GAME;
+}
+
+if (CC_QQPLAY) {
+    __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_QQ_PLAY;
 }
 
 switch (__BrowserGetter.adaptationType) {
@@ -381,7 +386,7 @@ View.prototype = {
     },
 
     _adjustViewportMeta: function () {
-        if (this._isAdjustViewPort && cc.sys.platform !== cc.sys.WECHAT_GAME) {
+        if (this._isAdjustViewPort && !CC_WECHATGAME && !CC_QQPLAY) {
             this._setViewportMeta(__BrowserGetter.meta, false);
             this._isAdjustViewPort = false;
         }
@@ -801,7 +806,7 @@ View.prototype = {
      * @param {ResolutionPolicy|Number} resolutionPolicy The resolution policy desired
      */
     setRealPixelResolution: function (width, height, resolutionPolicy) {
-        if (cc.sys.platform !== cc.sys.WECHAT_GAME) {
+        if (!CC_WECHATGAME && !CC_QQPLAY) {
             // Set viewport's width
             this._setViewportMeta({"width": width}, true);
 

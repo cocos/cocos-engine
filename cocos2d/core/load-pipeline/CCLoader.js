@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -36,6 +37,8 @@ var AutoReleaseUtils = require('./auto-release-utils');
 var ReleasedAssetChecker = CC_DEBUG && require('./released-asset-checker');
 
 var resources = new AssetTable();
+
+var AUDIO_TYPES = ['mp3', 'ogg', 'wav', 'm4a'];
 
 function getXMLHttpRequest () {
     return window.XMLHttpRequest ? new window.XMLHttpRequest() : new ActiveXObject('MSXML2.XMLHTTP');
@@ -764,12 +767,15 @@ proto.release = function (asset) {
         if (item) {
             var removed = this.removeItem(id);
             asset = item.content;
-            // TODO: AUDIO
             if (cc.Class.isInstanceOf(asset, cc.Asset)) {
                 if (asset.nativeUrl) {
                     this.release(asset.nativeUrl);
                 }
                 asset.destroy();
+            }
+            else if (AUDIO_TYPES.indexOf(item.type) !== -1) {
+                // TODO: use asset.destroy
+                cc.audioEngine.uncache(item.rawUrl || item.url);
             }
             if (CC_DEBUG && removed) {
                 this._releasedAssetChecker_DEBUG.setReleased(item, id);

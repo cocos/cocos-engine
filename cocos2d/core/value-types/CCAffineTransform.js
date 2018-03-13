@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -340,6 +341,19 @@ cc.affineTransformInvert = function (t) {
     var determinant = 1 / (t.a * t.d - t.b * t.c);
     return {a: determinant * t.d, b: -determinant * t.b, c: -determinant * t.c, d: determinant * t.a,
         tx: determinant * (t.c * t.ty - t.d * t.tx), ty: determinant * (t.b * t.tx - t.a * t.ty)};
+};
+
+cc.affineTransformInvertIn = function (t) {
+    var a = t.a, b = t.b, c = t.c, d = t.d;
+    var determinant = 1 / (a * d - b * c);
+    var tx = t.tx, ty = t.ty;
+    t.a = determinant * d;
+    t.b = -determinant * b;
+    t.c = -determinant * c;
+    t.d = determinant * a;
+    t.tx = determinant * (c * ty - d * tx);
+    t.ty = determinant * (b * tx - a * ty);
+    return t;
 };
 
 /**
