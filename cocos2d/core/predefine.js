@@ -34,7 +34,6 @@ require('./event');
 require('./platform/CCSys');
 require('./platform/CCMacro');
 require('./load-pipeline');
-require('./textures');
 require('./CCDirector');
 require('./renderer');
 
