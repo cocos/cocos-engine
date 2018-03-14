@@ -765,8 +765,3 @@ var audioEngine = {
 };
 
 module.exports = cc.audioEngine = audioEngine;
-
-// deprecated
-var Module = require('./deprecated');
-Module.removed(audioEngine);
-Module.deprecated(audioEngine);
