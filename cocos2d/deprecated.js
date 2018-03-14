@@ -44,7 +44,7 @@ if (CC_DEV) {
 
     // cc.pool
     js.get(cc, 'pool', function () {
-        cc.warnID(1407);
+        cc.errorID(1407);
         return js.Pool;
     });
 
@@ -185,6 +185,13 @@ if (CC_DEV) {
             })();
         }
     }
+
+    // cc.Director
+    provideClearError(cc.Director, {
+        EVENT_PROJECTION_CHANGED: '',
+        EVENT_BEFORE_VISIT: 'EVENT_BEFORE_DRAW',
+        EVENT_AFTER_VISIT: 'EVENT_BEFORE_DRAW',
+    });
 
     // cc.PhysicsManager
     markAsRemoved(cc.PhysicsManager, [
