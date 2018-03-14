@@ -68,6 +68,75 @@ public:
     static std::function<void()> classloaderCallback;
 
     template <typename... Ts>
+    static jobject newObject(const std::string& className, Ts... xs)
+    {
+        jobject ret = nullptr;
+        static const char* methodName = "<init>";
+        cocos2d::JniMethodInfo t;
+        std::string signature = "(" + std::string(getJNISignature(xs...)) + ")V";
+        if (cocos2d::JniHelper::getMethodInfo(t, className.c_str(), methodName, signature.c_str())) {
+            ret = t.env->NewObject(t.classID, t.methodID, convert(t, xs)...);
+            t.env->DeleteLocalRef(t.classID);
+            deleteLocalRefs(t.env);
+        } else {
+            reportError(className, methodName, signature);
+        }
+        return ret;
+    }
+
+    template <typename... Ts>
+    static void callObjectVoidMethod(jobject object,
+                                     const std::string& className, 
+                                     const std::string& methodName, 
+                                     Ts... xs) {
+        cocos2d::JniMethodInfo t;
+        std::string signature = "(" + std::string(getJNISignature(xs...)) + ")V";
+        if (cocos2d::JniHelper::getMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
+            t.env->CallVoidMethod(object, t.methodID, convert(t, xs)...);
+            t.env->DeleteLocalRef(t.classID);
+            deleteLocalRefs(t.env);
+        } else {
+            reportError(className, methodName, signature);
+        }
+    }
+
+    template <typename... Ts>
+    static float callObjectFloatMethod(jobject object,
+                                     const std::string& className, 
+                                     const std::string& methodName, 
+                                     Ts... xs) {
+        float ret = 0.0f;
+        cocos2d::JniMethodInfo t;
+        std::string signature = "(" + std::string(getJNISignature(xs...)) + ")F";
+        if (cocos2d::JniHelper::getMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
+            ret = t.env->CallFloatMethod(object, t.methodID, convert(t, xs)...);
+            t.env->DeleteLocalRef(t.classID);
+            deleteLocalRefs(t.env);
+        } else {
+            reportError(className, methodName, signature);
+        }
+        return ret;
+    }
+
+    template <typename... Ts>
+    static jbyteArray callObjectByteArrayMethod(jobject object,
+                                     const std::string& className, 
+                                     const std::string& methodName, 
+                                     Ts... xs) {
+        jbyteArray ret = nullptr;
+        cocos2d::JniMethodInfo t;
+        std::string signature = "(" + std::string(getJNISignature(xs...)) + ")[B";
+        if (cocos2d::JniHelper::getMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
+            ret = (jbyteArray)t.env->CallObjectMethod(object, t.methodID, convert(t, xs)...);
+            t.env->DeleteLocalRef(t.classID);
+            deleteLocalRefs(t.env);
+        } else {
+            reportError(className, methodName, signature);
+        }
+        return ret;
+    }
+
+    template <typename... Ts>
     static void callStaticVoidMethod(const std::string& className, 
                                      const std::string& methodName, 
                                      Ts... xs) {

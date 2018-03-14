@@ -83,10 +83,12 @@ namespace
         se::AutoHandleScope scope;
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         char commandBuf[200] = {0};
-        sprintf(commandBuf, "var window = window || this; window.canvas = { width: %d, height: %d };",
+        sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d;",
                 g_width,
                 g_height);
         se->evalString(commandBuf);
+        glViewport(0, 0, g_width, g_height);
+        glDepthMask(GL_TRUE);
         
         return true;
     }
@@ -129,6 +131,8 @@ extern "C"
         g_height = h;
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         se->addRegisterCallback(setCanvasCallback);
+
+        EventDispatcher::init();
 
         g_app->start();
     }

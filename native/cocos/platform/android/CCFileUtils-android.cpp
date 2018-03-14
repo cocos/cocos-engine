@@ -39,10 +39,7 @@ THE SOFTWARE.
 #define  LOG_TAG    "CCFileUtils-android.cpp"
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
 
-#define  ASSETS_FOLDER_NAME          "assets/"
-#define  ASSETS_FOLDER_NAME_LENGTH   7
-
-using namespace std;
+#define  ASSETS_FOLDER_NAME          "@assets/"
 
 NS_CC_BEGIN
 
@@ -225,9 +222,9 @@ bool FileUtilsAndroid::isDirectoryExistInternal(const std::string& dirPath_) con
         // Found "assets/" at the beginning of the path and we don't want it
         CCLOG("find in apk dirPath(%s)", dirPath.c_str());
         const char* s = dirPath.c_str();
-        if (dirPath.find(ASSETS_FOLDER_NAME) == 0)
+        if (dirPath.find(_defaultResRootPath) == 0)
         {
-            s += ASSETS_FOLDER_NAME_LENGTH;
+            s += _defaultResRootPath.length();
         }
         if (FileUtilsAndroid::assetmanager)
         {
@@ -258,22 +255,21 @@ bool FileUtilsAndroid::isAbsolutePath(const std::string& strPath) const
 
 FileUtils::Status FileUtilsAndroid::getContents(const std::string& filename, ResizableBuffer* buffer)
 {
-    static const std::string apkprefix("assets/");
     if (filename.empty())
         return FileUtils::Status::NotExists;
 
-    string fullPath = fullPathForFilename(filename);
+    std::string fullPath = fullPathForFilename(filename);
     if (fullPath.empty())
         return FileUtils::Status::NotExists;
 
     if (fullPath[0] == '/')
         return FileUtils::getContents(fullPath, buffer);
 
-    string relativePath = string();
-    size_t position = fullPath.find(apkprefix);
+    std::string relativePath;
+    size_t position = fullPath.find(_defaultResRootPath);
     if (0 == position) {
         // "assets/" is at the beginning of the path and we don't want it
-        relativePath += fullPath.substr(apkprefix.size());
+        relativePath += fullPath.substr(_defaultResRootPath.length());
     } else {
         relativePath = fullPath;
     }
@@ -310,12 +306,12 @@ FileUtils::Status FileUtilsAndroid::getContents(const std::string& filename, Res
     return FileUtils::Status::OK;
 }
 
-string FileUtilsAndroid::getWritablePath() const
+std::string FileUtilsAndroid::getWritablePath() const
 {
     // Fix for Nexus 10 (Android 4.2 multi-user environment)
     // the path is retrieved through Java Context.getCacheDir() method
-    string dir("");
-    string tmp = JniHelper::callStaticStringMethod("org/cocos2dx/lib/Cocos2dxHelper", "getCocos2dxWritablePath");
+    std::string dir("");
+    std::string tmp = JniHelper::callStaticStringMethod("org/cocos2dx/lib/Cocos2dxHelper", "getCocos2dxWritablePath");
 
     if (tmp.length() > 0)
     {

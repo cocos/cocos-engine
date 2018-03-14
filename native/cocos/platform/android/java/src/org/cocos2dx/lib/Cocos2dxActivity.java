@@ -283,6 +283,7 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
         this.mHandler = new Cocos2dxHandler(this);
         
         Cocos2dxHelper.init(this);
+        CanvasRenderingContext2DImpl.init(this);
         
         this.mGLContextAttrs = getGLContextAttrs();
         this.init();
@@ -355,6 +356,7 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
         Cocos2dxAudioFocusManager.unregisterAudioFocusListener(this);
         CAAgent.onDestroy();
         Cocos2dxHelper.unregisterBatteryLevelReceiver(this);;
+        CanvasRenderingContext2DImpl.destroy();
 
         super.onDestroy();
 
