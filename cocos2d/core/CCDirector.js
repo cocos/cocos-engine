@@ -804,10 +804,10 @@ cc.Director.prototype = {
      * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js.
      * !#zh 设置 OpenGL 投影。
      * @method setProjection
-     * @param {Number}
+     * @param {Number} projection
      * @deprecated
      */
-    setProjection: function () {},
+    setProjection: function (projection) {},
 
     /**
      * !#en
@@ -1034,14 +1034,10 @@ cc.Director.prototype = {
             this.emit(cc.Director.EVENT_AFTER_UPDATE);
         }
 
-        this.emit(cc.Director.EVENT_BEFORE_VISIT);
-        // update the scene
-        this.emit(cc.Director.EVENT_AFTER_VISIT);
-
+        this.emit(cc.Director.EVENT_BEFORE_DRAW);
         // Render
         renderer.render(this._scene);
         this._totalFrames++;
-
         this.emit(cc.Director.EVENT_AFTER_DRAW);
 
     } : function () {
@@ -1068,15 +1064,12 @@ cc.Director.prototype = {
                 // Destroy entities that have been removed recently
                 cc.Object._deferredDestroy();
             }
-            this.emit(cc.Director.EVENT_BEFORE_VISIT);
-            // update the scene
-            this.emit(cc.Director.EVENT_AFTER_VISIT);
-
+            this.emit(cc.Director.EVENT_BEFORE_DRAW);
             // Render
             renderer.render(this._scene);
             this._totalFrames++;
-
             this.emit(cc.Director.EVENT_AFTER_DRAW);
+            
             eventManager.frameUpdateListeners();
         }
     },
@@ -1103,12 +1096,12 @@ cc.Director.prototype = {
 cc.js.addon(cc.Director.prototype, EventTarget.prototype);
 
 /**
- * !#en The event projection changed of cc.Director.
- * !#zh cc.Director 投影变化的事件。
+ * !#en The event projection changed of cc.Director. This event will not get triggered since v2.0
+ * !#zh cc.Director 投影变化的事件。从 v2.0 开始这个事件不会再被触发
  * @property {String} EVENT_PROJECTION_CHANGED
  * @readonly
  * @static
- * @deprecated
+ * @deprecated since v2.0
  */
 cc.Director.EVENT_PROJECTION_CHANGED = "director_projection_changed";
 
@@ -1191,40 +1184,39 @@ cc.Director.EVENT_BEFORE_UPDATE = "director_before_update";
 cc.Director.EVENT_AFTER_UPDATE = "director_after_update";
 
 /**
- * !#en The event which will be triggered before visiting the rendering scene graph.
- * !#zh 访问渲染场景树之前所触发的事件。
- * @event cc.Director.EVENT_BEFORE_VISIT
- * @param {Event.EventCustom} event
- */
-/**
- * !#en The event which will be triggered before visiting the rendering scene graph.
- * !#zh 访问渲染场景树之前所触发的事件。
+ * !#en The event is deprecated since v2.0, please use cc.Director.EVENT_BEFORE_DRAW instead
+ * !#zh 这个事件从 v2.0 开始被废弃，请直接使用 cc.Director.EVENT_BEFORE_DRAW
  * @property {String} EVENT_BEFORE_VISIT
  * @readonly
+ * @deprecated since v2.0
  * @static
  */
-cc.Director.EVENT_BEFORE_VISIT = "director_before_visit";
+cc.Director.EVENT_BEFORE_VISIT = "director_before_draw";
 
 /**
- * !#en
- * The event which will be triggered after visiting the rendering scene graph,
- * the render queue is ready but not rendered at this point.
- * !#zh
- * 访问渲染场景图之后所触发的事件，渲染队列已准备就绪，但在这一时刻还没有呈现在画布上。
- * @event cc.Director.EVENT_AFTER_VISIT
+ * !#en The event is deprecated since v2.0, please use cc.Director.EVENT_BEFORE_DRAW instead
+ * !#zh 这个事件从 v2.0 开始被废弃，请直接使用 cc.Director.EVENT_BEFORE_DRAW
+ * @property {String} EVENT_AFTER_VISIT
+ * @readonly
+ * @deprecated since v2.0
+ * @static
+ */
+cc.Director.EVENT_AFTER_VISIT = "director_before_draw";
+
+/**
+ * !#en The event which will be triggered before the rendering process.
+ * !#zh 渲染过程之前所触发的事件。
+ * @event cc.Director.EVENT_BEFORE_DRAW
  * @param {Event.EventCustom} event
  */
 /**
- * !#en
- * The event which will be triggered after visiting the rendering scene graph,
- * the render queue is ready but not rendered at this point.
- * !#zh
- * 访问渲染场景图之后所触发的事件，渲染队列已准备就绪，但在这一时刻还没有呈现在画布上。
- * @property {String} EVENT_AFTER_VISIT
+ * !#en The event which will be triggered before the rendering process.
+ * !#zh 渲染过程之前所触发的事件。
+ * @property {String} EVENT_BEFORE_DRAW
  * @readonly
  * @static
  */
-cc.Director.EVENT_AFTER_VISIT = "director_after_visit";
+cc.Director.EVENT_BEFORE_DRAW = "director_before_draw";
 
 /**
  * !#en The event which will be triggered after the rendering process.
