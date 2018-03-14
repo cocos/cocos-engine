@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var PStats = require('../../../external/pstats/pstats');
+var pstats = require('../../../external/pstats/pstats');
 var macro = require('../platform/CCMacro');
 
 var _fps = document.createElement('div');
@@ -77,7 +77,7 @@ cc.profiler = module.exports = {
     showStats () {
         if (!_showFPS) {
             if (!stats) {
-                stats = PStats.new(_fps, {
+                stats = pstats.new(_fps, {
                     showGraph: false,
                     values: {
                         frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: 500 },

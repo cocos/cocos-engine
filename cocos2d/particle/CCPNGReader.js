@@ -27,7 +27,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Zlib = require('../compression/zlib.min');
+var zlib = require('../compression/zlib.min');
 
 /**
  * A png file reader
@@ -197,7 +197,7 @@ PNGReader.prototype = {
         if (data.length === 0) {
             return new Uint8Array(0);
         }
-        var inflate = new Zlib.Inflate(data,{index:0, verify:false});
+        var inflate = new zlib.Inflate(data,{index:0, verify:false});
         data = inflate.decompress();
 
         pixelBytes = this.pixelBitlength / 8;

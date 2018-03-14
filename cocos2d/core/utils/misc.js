@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = require('../platform/js');
+var js = require('../platform/js');
 var sys = require('../platform/CCSys');
 
 var misc = exports;
@@ -39,13 +39,13 @@ misc.propertyDefine = function (ctor, sameNameGetSets, diffNameGetSets) {
         else {
             var getterFunc = np[getter];
             if (CC_DEV && !getterFunc) {
-                var clsName = (cc.Class._isCCClass(ctor) && cc.js.getClassName(ctor)) ||
+                var clsName = (cc.Class._isCCClass(ctor) && js.getClassName(ctor)) ||
                               ctor.name ||
                               '(anonymous class)';
                 cc.warnID(5700, propName, getter, clsName);
             }
             else {
-                cc.js.getset(np, propName, getterFunc, np[setter]);
+                js.getset(np, propName, getterFunc, np[setter]);
             }
         }
     }

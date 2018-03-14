@@ -26,7 +26,7 @@
  ****************************************************************************/
 
 var codec = require('../compression/ZipUtils');
-var Zlib = require('../compression/zlib.min');
+var zlib = require('../compression/zlib.min');
 var js = require('../core/platform/js');
 
 function uint8ArrayToUint32Array (uint8Arr) {
@@ -780,7 +780,7 @@ cc.TMXMapInfo.prototype = {
                 tiles = codec.unzipBase64AsArray(nodeValue, 4);
                 break;
             case 'zlib':
-                var inflator = new Zlib.Inflate(codec.Base64.decodeAsArray(nodeValue, 1));
+                var inflator = new zlib.Inflate(codec.Base64.decodeAsArray(nodeValue, 1));
                 tiles = uint8ArrayToUint32Array(inflator.decompress());
                 break;
             case null:
