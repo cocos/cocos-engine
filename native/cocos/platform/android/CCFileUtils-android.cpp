@@ -196,21 +196,25 @@ bool FileUtilsAndroid::isFileExistInternal(const std::string& strFilePath) const
     return bFound;
 }
 
-bool FileUtilsAndroid::isDirectoryExistInternal(const std::string& dirPath) const
+bool FileUtilsAndroid::isDirectoryExistInternal(const std::string& dirPath_) const
 {
-    if (dirPath.empty())
+    if (dirPath_.empty())
     {
         return false;
     }
 
-    const char* s = dirPath.c_str();
-    
-    // find absolute path in flash memory
-    if (s[0] == '/')
+    std::string dirPath = dirPath_;
+    if (dirPath[dirPath.length() - 1] == '/')
     {
-        CCLOG("find in flash memory dirPath(%s)", s);
+        dirPath[dirPath.length() - 1] = '\0';
+    }
+
+    // find absolute path in flash memory
+    if (dirPath[0] == '/')
+    {
+        CCLOG("find in flash memory dirPath(%s)", dirPath.c_str());
         struct stat st;
-        if (stat(s, &st) == 0)
+        if (stat(dirPath.c_str(), &st) == 0)
         {
             return S_ISDIR(st.st_mode);
         }
@@ -219,7 +223,8 @@ bool FileUtilsAndroid::isDirectoryExistInternal(const std::string& dirPath) cons
     {
         // find it in apk's assets dir
         // Found "assets/" at the beginning of the path and we don't want it
-        CCLOG("find in apk dirPath(%s)", s);
+        CCLOG("find in apk dirPath(%s)", dirPath.c_str());
+        const char* s = dirPath.c_str();
         if (dirPath.find(ASSETS_FOLDER_NAME) == 0)
         {
             s += ASSETS_FOLDER_NAME_LENGTH;
@@ -258,6 +263,8 @@ FileUtils::Status FileUtilsAndroid::getContents(const std::string& filename, Res
         return FileUtils::Status::NotExists;
 
     string fullPath = fullPathForFilename(filename);
+    if (fullPath.empty())
+        return FileUtils::Status::NotExists;
 
     if (fullPath[0] == '/')
         return FileUtils::getContents(fullPath, buffer);
@@ -284,7 +291,7 @@ FileUtils::Status FileUtilsAndroid::getContents(const std::string& filename, Res
 
     AAsset* asset = AAssetManager_open(assetmanager, relativePath.data(), AASSET_MODE_UNKNOWN);
     if (nullptr == asset) {
-        LOGD("asset is nullptr");
+        LOGD("asset (%s) is nullptr", filename.c_str());
         return FileUtils::Status::OpenFailed;
     }
 

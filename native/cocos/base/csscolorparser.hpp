@@ -26,6 +26,7 @@
 #define CSS_COLOR_PARSER_CPP
 
 #include <string>
+#include <math.h>
 
 namespace CSSColorParser {
 

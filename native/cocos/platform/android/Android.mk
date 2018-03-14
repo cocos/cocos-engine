@@ -10,6 +10,7 @@ LOCAL_SRC_FILES := \
 CCDevice-android.cpp \
 CCFileUtils-android.cpp \
 CCApplication-android.cpp \
+CCCanvasRenderingContext2D-android.cpp \
 jni/JniImp.cpp \
 jni/JniHelper.cpp \
 
@@ -18,9 +19,9 @@ LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)
 LOCAL_C_INCLUDES := $(LOCAL_PATH) \
                     $(LOCAL_PATH)/.. \
                     $(LOCAL_PATH)/../.. \
+                    $(LOCAL_PATH)/../../..
 
-LOCAL_EXPORT_LDLIBS := -lGLESv1_CM \
-                       -lGLESv2 \
+LOCAL_EXPORT_LDLIBS := -lGLESv2 \
                        -lEGL \
                        -llog \
                        -landroid

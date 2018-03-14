@@ -25,8 +25,10 @@
  ****************************************************************************/
 
 #include "base/ccUTF8.h"
-#include <stdarg.h>
 #include "ConvertUTF/ConvertUTF.h"
+
+#include <stdarg.h>
+#include <stdlib.h>
 
 NS_CC_BEGIN
 

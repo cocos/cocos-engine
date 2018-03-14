@@ -41,6 +41,7 @@ THE SOFTWARE.
 #include "unzip/unzip.h"
 #endif
 #include <sys/stat.h>
+#include <regex>
 
 NS_CC_BEGIN
 
@@ -778,7 +779,7 @@ std::string FileUtils::fullPathForFilename(const std::string &filename) const
 
     if (isAbsolutePath(filename))
     {
-        return filename;
+        return normalizePath(filename);
     }
 
     // Already Cached ?
@@ -968,6 +969,7 @@ std::string FileUtils::getFullPathForDirectoryAndFilename(const std::string& dir
         ret += '/';
     }
     ret += filename;
+    ret = normalizePath(ret);
 
     // if the file doesn't exist, return an empty string
     if (!isFileExistInternal(ret)) {
@@ -980,7 +982,7 @@ bool FileUtils::isFileExist(const std::string& filename) const
 {
     if (isAbsolutePath(filename))
     {
-        return isFileExistInternal(filename);
+        return isFileExistInternal(normalizePath(filename));
     }
     else
     {
@@ -1003,7 +1005,7 @@ bool FileUtils::isDirectoryExist(const std::string& dirPath) const
 
     if (isAbsolutePath(dirPath))
     {
-        return isDirectoryExistInternal(dirPath);
+        return isDirectoryExistInternal(normalizePath(dirPath));
     }
 
     // Already Cached ?
@@ -1430,6 +1432,39 @@ void FileUtils::valueMapCompact(ValueMap &valueMap)
 
 void FileUtils::valueVectorCompact(ValueVector &valueVector)
 {
+}
+
+std::string FileUtils::getFileDir(const std::string& path) const
+{
+    std::string ret;
+    size_t pos = path.rfind("/");
+    if (pos != std::string::npos)
+    {
+        ret = path.substr(0, pos);
+    }
+
+    normalizePath(ret);
+
+    return ret;
+}
+
+std::string FileUtils::normalizePath(const std::string& path) const
+{
+    std::string ret;
+    // Normalize: remove . and ..
+    ret = std::regex_replace(path, std::regex("/\\./"), "/");
+    ret = std::regex_replace(ret, std::regex("/\\.$"), "");
+
+    size_t pos;
+    while ((pos = ret.find("..")) != std::string::npos)
+    {
+        size_t prevSlash = ret.rfind("/", pos-2);
+        if (prevSlash == std::string::npos)
+            break;
+
+        ret = ret.replace(prevSlash, pos - prevSlash + 2 , "");
+    }
+    return ret;
 }
 
 NS_CC_END

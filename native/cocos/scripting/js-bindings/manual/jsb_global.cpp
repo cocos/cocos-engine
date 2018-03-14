@@ -208,37 +208,6 @@ namespace {
 //    }
 //    SE_BIND_FUNC(require)
 
-    static void normalizePath(std::string& path)
-    {
-        // Normalize: remove . and ..
-        path = std::regex_replace(path, std::regex("/\\./"), "/");
-        path = std::regex_replace(path, std::regex("/\\.$"), "");
-
-        size_t pos;
-        while ((pos = path.find("..")) != std::string::npos)
-        {
-            size_t prevSlash = path.rfind("/", pos-2);
-            if (prevSlash == std::string::npos)
-                break;
-
-            path = path.replace(prevSlash, pos - prevSlash + 2 , "");
-        }
-    }
-
-    static std::string getFileDir(const std::string& path)
-    {
-        std::string ret;
-        size_t pos = path.rfind("/");
-        if (pos != std::string::npos)
-        {
-            ret = path.substr(0, pos);
-        }
-
-        normalizePath(ret);
-
-        return ret;
-    }
-
     static bool doModuleRequire(const std::string& path, se::Value* ret, const std::string& prevScriptFileDir)
     {
         se::AutoHandleScope hs;
@@ -282,7 +251,6 @@ namespace {
             fullPath = fileOperationDelegate.onGetFullPath(pathWithSuffix);
         }
 
-        normalizePath(fullPath);
 
         if (!scriptBuffer.empty())
         {
@@ -293,7 +261,7 @@ namespace {
 //                printf("Found cache: %s, value: %d\n", fullPath.c_str(), (int)ret->getType());
                 return true;
             }
-            std::string currentScriptFileDir = getFileDir(fullPath);
+            std::string currentScriptFileDir = FileUtils::getInstance()->getFileDir(fullPath);
 
             // Add closure for evalutate the script
             char prefix[] = "(function(currentScriptDir){ window.module = window.module || {}; var exports = window.module.exports = {}; ";

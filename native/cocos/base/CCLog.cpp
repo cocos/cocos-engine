@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <new>
 #include <algorithm>
+#include <string.h>
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
 #include <io.h>

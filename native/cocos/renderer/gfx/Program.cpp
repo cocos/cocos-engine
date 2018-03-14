@@ -27,6 +27,7 @@
 
 #include <unordered_map>
 #include <stdlib.h>
+#include <string.h>
 
 namespace {
 

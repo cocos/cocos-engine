@@ -639,6 +639,9 @@ public:
     /** Returns the full path cache. */
     const std::unordered_map<std::string, std::string>& getFullPathCache() const { return _fullPathCache; }
 
+    std::string normalizePath(const std::string& path) const;
+    std::string getFileDir(const std::string& path) const;
+
 protected:
     /**
      *  The default constructor.
