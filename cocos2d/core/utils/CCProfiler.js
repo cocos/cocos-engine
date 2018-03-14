@@ -39,7 +39,7 @@ function beforeUpdate () {
     stats('logic').start();
 }
 
-function afterVisit () {
+function afterUpdate () {
     if (cc.director.isPaused()) {
         stats('frame').start();
     }
@@ -68,7 +68,7 @@ cc.profiler = module.exports = {
                 document.body.removeChild(_fps);
             }
             cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, beforeUpdate);
-            cc.director.off(cc.Director.EVENT_AFTER_VISIT, afterVisit);
+            cc.director.off(cc.Director.EVENT_AFTER_UPDATE, afterUpdate);
             cc.director.off(cc.Director.EVENT_AFTER_DRAW, afterDraw);
             _showFPS = false;
         }
@@ -95,7 +95,7 @@ cc.profiler = module.exports = {
                 document.body.appendChild(_fps);
             }
             cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, beforeUpdate);
-            cc.director.on(cc.Director.EVENT_AFTER_VISIT, afterVisit);
+            cc.director.on(cc.Director.EVENT_AFTER_UPDATE, afterUpdate);
             cc.director.on(cc.Director.EVENT_AFTER_DRAW, afterDraw);
             _showFPS = true;
         }

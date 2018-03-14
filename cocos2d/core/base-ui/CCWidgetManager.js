@@ -443,7 +443,7 @@ var widgetManager = cc._widgetManager = module.exports = {
     _activeWidgetsIterator: new cc.js.array.MutableForwardIterator(activeWidgets),
 
     init: function (director) {
-        director.on(cc.Director.EVENT_BEFORE_VISIT, refreshScene);
+        director.on(cc.Director.EVENT_AFTER_UPDATE, refreshScene);
 
         if (CC_EDITOR && cc.engine) {
             cc.engine.on('design-resolution-changed', this.onResized.bind(this));

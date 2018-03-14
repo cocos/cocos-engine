@@ -189,7 +189,7 @@ if (CC_DEV) {
     // cc.Director
     provideClearError(cc.Director, {
         EVENT_PROJECTION_CHANGED: '',
-        EVENT_BEFORE_VISIT: 'EVENT_BEFORE_DRAW',
+        EVENT_BEFORE_VISIT: 'EVENT_AFTER_UPDATE',
         EVENT_AFTER_VISIT: 'EVENT_BEFORE_DRAW',
     });
 

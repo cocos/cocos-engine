@@ -144,7 +144,7 @@ var Canvas = cc.Class({
         }
         Canvas.instance = this;
 
-        cc.director.on(cc.Director.EVENT_BEFORE_VISIT, this.alignWithScreen, this);
+        cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
 
         if (CC_EDITOR) {
             cc.engine.on('design-resolution-changed', this._thisOnResized);
@@ -182,7 +182,7 @@ var Canvas = cc.Class({
     },
 
     onDestroy: function () {
-        cc.director.off(cc.Director.EVENT_BEFORE_VISIT, this.alignWithScreen, this);
+        cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
 
         if (CC_EDITOR) {
             cc.engine.off('design-resolution-changed', this._thisOnResized);
