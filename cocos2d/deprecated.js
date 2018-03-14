@@ -186,6 +186,20 @@ if (CC_DEV) {
         }
     }
 
+    // cc.macro
+    markAsRemovedInObject(cc.macro, [
+        'ENABLE_GL_STATE_CACHE',
+        'FIX_ARTIFACTS_BY_STRECHING_TEXEL',
+    ]);
+
+    provideClearError(cc.macro, {
+        PI: 'Math.PI',
+        PI2: 'Math.PI*2',
+        FLT_MAX: 'Number.MAX_VALUE',
+        FLT_MIN: 'Number.MIN_VALUE',
+        UINT_MAX: 'Number.MAX_SAFE_INTEGER'
+    });
+
     // cc.Director
     provideClearError(cc.Director, {
         EVENT_PROJECTION_CHANGED: '',

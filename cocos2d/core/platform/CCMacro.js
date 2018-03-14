@@ -1145,34 +1145,6 @@ cc.getImageFormatByData = function (imgData) {
  */
 cc.macro = {
     /**
-     * PI is the ratio of a circle's circumference to its diameter.
-     * @property PI
-     * @type {Number}
-     */
-    PI: Math.PI,
-
-    /**
-     * PI * 2
-     * @property PI2
-     * @type {Number}
-     */
-    PI2: Math.PI * 2,
-
-    /**
-     * Maximum float value
-     * @property FLT_MAX
-     * @type {Number}
-     */
-    FLT_MAX: parseFloat('3.402823466e+38F'),
-
-    /**
-     * Minimum float value
-     * @property FLT_MIN
-     * @type {Number}
-     */
-    FLT_MIN: parseFloat("1.175494351e-38F"),
-
-    /**
      * PI / 180
      * @property RAD
      * @type {Number}
@@ -1185,13 +1157,6 @@ cc.macro = {
      * @type {Number}
      */
     DEG: 180 / Math.PI,
-
-    /**
-     * Maximum unsigned int value
-     * @property UINT_MAX
-     * @type {Number}
-     */
-    UINT_MAX: 0xffffffff,
 
     /**
      * @property REPEAT_FOREVER
@@ -1299,35 +1264,6 @@ cc.macro = {
     ONE_MINUS_CONSTANT_COLOR: 0x8002,
 
     //Possible device orientations
-
-    /**
-     * Device oriented vertically, home button on the bottom (UIDeviceOrientationPortrait)
-     * @property WEB_ORIENTATION_PORTRAIT
-     * @type {Number}
-     */
-    WEB_ORIENTATION_PORTRAIT: 0,
-
-    /**
-     * Device oriented horizontally, home button on the right (UIDeviceOrientationLandscapeLeft)
-     * @property WEB_ORIENTATION_LANDSCAPE_LEFT
-     * @type {Number}
-     */
-    WEB_ORIENTATION_LANDSCAPE_LEFT: -90,
-
-    /**
-     * Device oriented vertically, home button on the top (UIDeviceOrientationPortraitUpsideDown)
-     * @property WEB_ORIENTATION_PORTRAIT_UPSIDE_DOWN
-     * @type {Number}
-     */
-    WEB_ORIENTATION_PORTRAIT_UPSIDE_DOWN: 180,
-
-    /**
-     * Device oriented horizontally, home button on the left (UIDeviceOrientationLandscapeRight)
-     * @property WEB_ORIENTATION_LANDSCAPE_RIGHT
-     * @type {Number}
-     */
-    WEB_ORIENTATION_LANDSCAPE_RIGHT: 90,
-
     /**
      * Oriented vertically
      * @property ORIENTATION_PORTRAIT
@@ -1355,27 +1291,6 @@ cc.macro = {
     DENSITYDPI_LOW: 'low-dpi',
 
     // General configurations
-    /**
-     * <p>
-     *   If enabled, the texture coordinates will be calculated by using this formula: <br/>
-     *      - texCoord.left = (rect.x*2+1) / (texture.wide*2);                  <br/>
-     *      - texCoord.right = texCoord.left + (rect.width*2-2)/(texture.wide*2); <br/>
-     *                                                                                 <br/>
-     *  The same for bottom and top.                                                   <br/>
-     *                                                                                 <br/>
-     *  This formula prevents artifacts by using 99% of the texture.                   <br/>
-     *  The "correct" way to prevent artifacts is by expand the texture's border with the same color by 1 pixel<br/>
-     *                                                                                  <br/>
-     *  Affected nodes:                                                                 <br/>
-     *      - _ccsg.Sprite                                                              <br/>
-     *                                                                                  <br/>
-     *  Disabled by default. To enabled set it to 1. <br/>
-     *  To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * </p>
-     *
-     * @property {Number} FIX_ARTIFACTS_BY_STRECHING_TEXEL
-     */
-    FIX_ARTIFACTS_BY_STRECHING_TEXEL: false,
 
     /**
      * <p>
@@ -1415,23 +1330,6 @@ cc.macro = {
      * @property {Number} ENABLE_STACKABLE_ACTIONS
      */
     ENABLE_STACKABLE_ACTIONS: true,
-
-    /**
-     * <p>
-     *      If enabled, cocos2d will maintain an OpenGL state cache internally to avoid unnecessary switches.                                     <br/>
-     *      In order to use them, you have to use the following functions, instead of the the GL ones:                                             <br/>
-     *          - cc.gl.useProgram() instead of glUseProgram()                                                                                      <br/>
-     *          - cc.gl.deleteProgram() instead of glDeleteProgram()                                                                                <br/>
-     *          - cc.gl.blendFunc() instead of glBlendFunc()                                                                                        <br/>
-     *                                                                                                                                            <br/>
-     *      If this functionality is disabled, then cc.gl.useProgram(), cc.gl.deleteProgram(), cc.gl.blendFunc() will call the GL ones, without using the cache.              <br/>
-     *      It is recommend to enable whenever possible to improve speed.                                                                        <br/>
-     *      If you are migrating your code from GL ES 1.1, then keep it disabled. Once all your code works as expected, turn it on.
-     * </p>
-     * @property {Number} ENABLE_GL_STATE_CACHE
-     */
-    // Editors do not need to cache fix bug for https://github.com/cocos-creator/fireball/issues/3079
-    ENABLE_GL_STATE_CACHE: !CC_EDITOR,
 
     /**
      * !#en 
@@ -1513,17 +1411,20 @@ cc.macro = {
 
     /**
      * !#en
+     * This feature have been removed in v2.0 new renderer due to overall performance consumption.
+     * We have no plan currently to re-enable auto culling.
      * Whether or not enable auto culling.
      * If your game have more dynamic objects, we suggest to disable auto culling.
      * If your game have more static objects, we suggest to enable auto culling.
      * !#zh
+     * 这个功能在 v2.0 的新渲染器中被移除了，因为它在绝大多数游戏中所带来的损耗要高于性能的提升，目前我们没有计划重新支持自动裁剪。
      * 是否开启自动裁减功能，开启裁减功能将会把在屏幕外的物体从渲染队列中去除掉。
      * 如果游戏中的动态物体比较多的话，建议将此选项关闭。
      * 如果游戏中的静态物体比较多的话，建议将此选项打开。
      * @property {Boolean} ENABLE_CULLING
-     * @default true
+     * @default false
      */
-    ENABLE_CULLING: true,
+    ENABLE_CULLING: false,
 };
 
 /**
