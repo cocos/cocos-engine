@@ -435,7 +435,7 @@ var Layout = cc.Class({
     },
 
     _addEventListeners: function () {
-        cc.director.on(cc.Director.EVENT_BEFORE_VISIT, this.updateLayout, this);
+        cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.updateLayout, this);
         this.node.on('size-changed', this._resized, this);
         this.node.on('anchor-changed', this._doLayoutDirty, this);
         this.node.on('child-added', this._childAdded, this);
@@ -445,7 +445,7 @@ var Layout = cc.Class({
     },
 
     _removeEventListeners: function () {
-        cc.director.off(cc.Director.EVENT_BEFORE_VISIT, this.updateLayout, this);
+        cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.updateLayout, this);
         this.node.off('size-changed', this._resized, this);
         this.node.off('anchor-changed', this._doLayoutDirty, this);
         this.node.off('child-added', this._childAdded, this);
