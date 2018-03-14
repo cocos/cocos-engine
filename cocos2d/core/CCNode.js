@@ -33,7 +33,7 @@ const affineTrans = require('./value-types/CCAffineTransform');
 const math = renderEngine.math;
 const eventManager = require('./event-manager');
 const macro = require('./platform/CCMacro');
-const Misc = require('./utils/misc');
+const misc = require('./utils/misc');
 const Event = require('./event/event');
 
 const Flags = cc.Object.Flags;
@@ -2574,8 +2574,7 @@ var Node = cc.Class({
  */
 
 var SameNameGetSets = ['parent', 'position', 'scale', 'rotation'];
-
-Misc.propertyDefine(Node, SameNameGetSets);
+misc.propertyDefine(Node, SameNameGetSets);
 
 Node.EventType = EventType;
 

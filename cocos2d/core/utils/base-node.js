@@ -26,7 +26,7 @@
 
 var PrefabHelper = require('./prefab-helper');
 var Flags = require('../platform/CCObject').Flags;
-var Misc = require('./misc');
+var misc = require('./misc');
 var js = require('../platform/js');
 var IdGenerater = require('../platform/id-generater');
 var eventManager = require('../event-manager');
@@ -1299,7 +1299,7 @@ if(CC_EDITOR) {
 
 // Define public getter and setter methods to ensure api compatibility.
 var SameNameGetSets = ['name', 'children', 'childrenCount',];
-Misc.propertyDefine(BaseNode, SameNameGetSets, {});
+misc.propertyDefine(BaseNode, SameNameGetSets, {});
 
 if (CC_DEV) {
     // promote debug info

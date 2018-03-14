@@ -26,9 +26,9 @@
 
 var js = require('./js');
 var Enum = require('./CCEnum');
-var Utils = require('./utils');
-var _isPlainEmptyObj_DEV = Utils.isPlainEmptyObj_DEV;
-var _cloneable_DEV = Utils.cloneable_DEV;
+var utils = require('./utils');
+var _isPlainEmptyObj_DEV = utils.isPlainEmptyObj_DEV;
+var _cloneable_DEV = utils.cloneable_DEV;
 var Attr = require('./attribute');
 var DELIMETER = Attr.DELIMETER;
 var getTypeChecker = Attr.getTypeChecker;

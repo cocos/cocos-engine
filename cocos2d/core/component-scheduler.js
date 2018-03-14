@@ -26,7 +26,7 @@
 
 require('./platform/CCClass');
 var Flags = require('./platform/CCObject').Flags;
-var JsArray = require('./platform/js').array;
+var jsArray = require('./platform/js').array;
 
 var IsStartCalled = Flags.IsStartCalled;
 var IsOnEnableCalled = Flags.IsOnEnableCalled;
@@ -102,7 +102,7 @@ function stableRemoveInactive (iterator, flagToClear) {
 // This class contains some queues used to invoke life-cycle methods by script execution order
 var LifeCycleInvoker = cc.Class({
     __ctor__ (invokeFunc) {
-        var Iterator = JsArray.MutableForwardIterator;
+        var Iterator = jsArray.MutableForwardIterator;
         // components which priority === 0 (default)
         this._zero = new Iterator([]);
         // components which priority < 0
@@ -334,7 +334,7 @@ var ComponentScheduler = cc.Class({
         // cancel schedule task
         var index = this.scheduleInNextFrame.indexOf(comp);
         if (index >= 0) {
-            JsArray.fastRemoveAt(this.scheduleInNextFrame, index);
+            jsArray.fastRemoveAt(this.scheduleInNextFrame, index);
             return;
         }
 
