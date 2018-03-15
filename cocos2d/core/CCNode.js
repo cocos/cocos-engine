@@ -413,6 +413,8 @@ var Node = cc.Class({
             type: cc.Float
         },
         _scale: cc.Vec3,
+        _rotationX: 0.0,
+        _rotationY: 0.0,
         _quat: cc.Quat,
         _skewX: 0.0,
         _skewY: 0.0,
@@ -974,10 +976,6 @@ var Node = cc.Class({
         this._scale.x = 1;
         this._scale.y = 1;
         this._scale.z = 1;
-        // rotation
-        this._rotationX = 0.0;
-        this._rotationY = 0.0;
-        math.quat.identity(this._quat);
 
         this._matrix = mathPools.mat4.get();
         this._worldMatrix = mathPools.mat4.get();
