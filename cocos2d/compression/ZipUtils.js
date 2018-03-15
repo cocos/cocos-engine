@@ -74,4 +74,4 @@ codec.unzipAsArray = function (input, bytes) {
     return ar;
 };
 
-module.exports = codec;
+cc.codec = module.exports = codec;

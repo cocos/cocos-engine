@@ -316,7 +316,7 @@ var inputManager = {
     getTouchByXY: function(tx, ty, pos){
         var locPreTouch = this._preTouchPoint;
         var location = this._glView.convertToLocationInView(tx, ty, pos);
-        var touch = new cc.Touch(location.x,  location.y);
+        var touch = new cc.Touch(location.x,  location.y, 0);
         touch._setPrevPoint(locPreTouch.x, locPreTouch.y);
         locPreTouch.x = location.x;
         locPreTouch.y = location.y;
