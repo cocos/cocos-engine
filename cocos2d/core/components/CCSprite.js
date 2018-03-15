@@ -490,15 +490,11 @@ var Sprite = cc.Class({
             if (this._state === State.GRAY) {
                 key = url + ':gray';
             }
-            this._material = renderer.materialUtil.get(key);
-            if (!this._material) {
-                if (this._state === State.GRAY) {
-                    this._material = new GraySpriteMaterial();
-                }
-                else {
-                    this._material = new SpriteMaterial();
-                }
-                renderer.materialUtil.register(key, this._material);
+            if (this._state === State.GRAY) {
+                this._material = new GraySpriteMaterial();
+            }
+            else {
+                this._material = new SpriteMaterial();
             }
             // TODO: old texture in material have been released by loader
             this._material.texture = texture.getImpl();

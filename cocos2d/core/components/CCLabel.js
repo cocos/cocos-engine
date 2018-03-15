@@ -457,14 +457,9 @@ var Label = cc.Class({
                 return;
             }
             let texture = spriteFrame.getTexture();
-            let url = texture.url;
-            material = renderer.materialUtil.get(url);
     
             // Get material
-            if (!material) {
-                material = new SpriteMaterial();
-                renderer.materialUtil.register(url, material);
-            }
+            material = new SpriteMaterial();
             // TODO: old texture in material have been released by loader
             material.texture = texture.getImpl();
         }

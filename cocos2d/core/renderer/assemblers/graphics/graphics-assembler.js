@@ -76,6 +76,7 @@ let graphicsAssembler = js.addon({
         
         for (let i = 0, l = datas.length; i < l; i++) {
             datas[i].material = graphics.getMaterial();
+            datas[i].effectHash = graphics.getEffectHash();
         }
 
         return datas;

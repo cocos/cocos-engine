@@ -615,13 +615,9 @@ let TiledLayer = cc.Class({
         
         let texture = this._texture;
         let url = texture.url;
-        let material = renderer.materialUtil.get(url);
         
         // Get material
-        if (!material) {
-            material = new SpriteMaterial();
-            renderer.materialUtil.register(url, material);
-        }
+        material = new SpriteMaterial();
         // TODO: old texture in material have been released by loader
         material.texture = texture.getImpl();
         

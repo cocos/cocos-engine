@@ -97,6 +97,7 @@ let maskFrontAssembler = js.addon({
                 renderData.dataLength = 4;
                 spriteAssembler.update(mask);
                 renderData.material = mask.getMaterial();
+                renderData.effectHash = comp.getEffectHash();
                 datas.push(renderData);
             }
             else {

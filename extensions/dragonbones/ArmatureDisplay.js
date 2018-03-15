@@ -349,13 +349,9 @@ let ArmatureDisplay = cc.Class({
             return;
 
         let url = texture.url;
-        let material = renderer.materialUtil.get(texture.url);
 
         // Get material
-        if (!material) {
-            material = new SpriteMaterial();
-            renderer.materialUtil.register(url, material);
-        }
+        material = new SpriteMaterial();
 
         material.texture = texture.getImpl();
         this._material = material;

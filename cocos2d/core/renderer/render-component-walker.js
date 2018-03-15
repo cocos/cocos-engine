@@ -130,6 +130,7 @@ RenderComponentWalker.prototype = {
         _batchData.node = null;
         _batchData.vfmt = null;
         _batchData.material = null;
+        _batchData.effectHash = "";
         _batchData.data = null;
         _batchData.vertexOffset = 0;
         _batchData.byteOffset = 0;
@@ -253,6 +254,7 @@ RenderComponentWalker.prototype = {
         let vertexId = 0,
             comp = this._queue[0],
             material = null, 
+            effectHash = "",
             assembler = null, 
             datas = null,
             data = null
@@ -284,6 +286,7 @@ RenderComponentWalker.prototype = {
             for (let id = 0; id < datas.length; id ++) {
                 data = datas[id];
                 material = data.material;
+                effectHash = data.effectHash;
                 // Nothing can be rendered without material
                 if (!material) {
                     continue;
@@ -294,10 +297,11 @@ RenderComponentWalker.prototype = {
 
                 // breaking batch
                 needNewBuf = (_batchData.vertexOffset + data.vertexCount > MAX_VERTEX) || (_batchData.indiceOffset + data.indiceCount > MAX_INDICE);
-                if (!_batchData.material || _batchData.material.effect != material.effect || _batchData.cullingMask !== cullingMask || iaData || needNewBuf) {
+                if (_batchData.effectHash != effectHash || _batchData.cullingMask !== cullingMask || iaData || needNewBuf) {
                     this._flush(_batchData);
                     _batchData.node = assembler.useModel ? comp.node : this._dummyNode;
                     _batchData.material = material;
+                    _batchData.effectHash = effectHash;
                     _batchData.vfmt = comp._vertexFormat;
                     _batchData.vertexOffset = 0;
                     _batchData.byteOffset = 0;
