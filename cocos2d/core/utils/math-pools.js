@@ -27,6 +27,7 @@ const js = require('../platform/js');
 const renderEngine = require('../renderer/render-engine');
 const Vec2 = require('../value-types/CCVec2');
 const Vec3 = require('../value-types/CCVec3');
+const Quat = require('../value-types/quat');
 const math = renderEngine.math;
 
 var mat4Pool = new js.Pool(128);
@@ -69,7 +70,8 @@ var quatPool = new js.Pool(64);
 quatPool.get = function () {
     var quat = this._get();
     if (quat) {
-        math.quat.identity(quat);
+        quat.x = quat.y = quat.z = 0;
+        quat.w = 1;
     }
     else {
         quat = math.quat.create();
