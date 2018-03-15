@@ -741,9 +741,8 @@ var game = {
         if (game.renderType === game.RENDER_TYPE_WEBGL) {
             var opts = {
                 'stencil': true,
-                // MSAA is causing serious performance dropdown on some browsers,
-                // it's temporarily desactivated until we found correct way to let user customize it.
-                'antialias': false,
+                // MSAA is causing serious performance dropdown on some browsers.
+                'antialias': cc.macro.ENABLE_WEBGL_ANTIALIAS,
                 'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS
             };
             if (isWeChatGame) {
