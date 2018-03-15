@@ -8316,6 +8316,7 @@ module.exports = (function () {
       let img = options.image;
   
       if (
+        CC_QQPLAY ||
         img instanceof HTMLCanvasElement ||
         img instanceof HTMLImageElement ||
         img instanceof HTMLVideoElement
@@ -8379,6 +8380,7 @@ module.exports = (function () {
       let img = options.image;
   
       if (
+        CC_QQPLAY || 
         img instanceof HTMLCanvasElement ||
         img instanceof HTMLImageElement ||
         img instanceof HTMLVideoElement
@@ -8683,6 +8685,7 @@ module.exports = (function () {
       }
   
       if (
+        CC_QQPLAY ||
         img instanceof HTMLCanvasElement ||
         img instanceof HTMLImageElement ||
         img instanceof HTMLVideoElement
@@ -8734,6 +8737,7 @@ module.exports = (function () {
         gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha);
       }
       if (
+        CC_QQPLAY ||
         img instanceof HTMLCanvasElement ||
         img instanceof HTMLImageElement ||
         img instanceof HTMLVideoElement
