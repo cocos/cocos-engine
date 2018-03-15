@@ -31,7 +31,7 @@ var CCClass = require('../platform/CCClass');
  * !#en Representation of 2D vectors and points.
  * !#zh 表示 2D 向量和坐标
  *
- * @class Vec2
+ * @class Quat
  * @extends ValueType
  */
 
@@ -45,6 +45,7 @@ var CCClass = require('../platform/CCClass');
  * @param {number} [x=0]
  * @param {number} [y=0]
  * @param {number} [z=0]
+ * @param {number} [w=1]
  */
 function Quat (x, y, z, w) {
     if (x && typeof x === 'object') {
@@ -66,6 +67,12 @@ CCClass.fastDefine('cc.Quat', Quat, { x: 0, y: 0, z: 0, w: 1 });
  */
 /**
  * @property {Number} y
+ */
+/**
+ * @property {Number} z
+ */
+/**
+ * @property {Number} w
  */
 
 var proto = Quat.prototype;
@@ -98,10 +105,10 @@ proto.set = function (newValue) {
 };
 
 /**
- * !#en TODO
- * !#zh 当前的向量是否与指定的向量相等。
+ * !#en Check whether current quaternion equals another
+ * !#zh 当前的四元数是否与指定的四元数相等。
  * @method equals
- * @param {Vec2} other
+ * @param {Quat} other
  * @return {Boolean}
  */
 proto.equals = function (other) {

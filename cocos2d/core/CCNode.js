@@ -414,14 +414,6 @@ var Node = cc.Class({
         },
         _scale: cc.Vec3,
         _quat: cc.Quat,
-        _rotationX: {
-            default: undefined,
-            type: cc.Float
-        },
-        _rotationY: {
-            default: undefined,
-            type: cc.Float
-        },
         _skewX: 0.0,
         _skewY: 0.0,
         _localZOrder: 0,
@@ -590,16 +582,14 @@ var Node = cc.Class({
          */
         rotation: {
             get () {
-                let rotx = this._quat.getRoll();
-                let roty = this._quat.getPitch();
-                if (rotx !== roty) {
+                if (this._rotationX !== this._rotationY) {
                     cc.logID(1602);
                 }
-                return -this._quat.getYaw();
+                return this._rotationX;
             },
             set (value) {
-                let rotz = -this._quat.getYaw();
-                if (rotz !== value) {
+                if (this._rotationX !== value || this._rotationY !== value) {
+                    this._rotationX = this._rotationY = value;
                     // Update quaternion from rotation
                     math.quat.fromEuler(this._quat, 0, 0, -value);
                     this._localMatDirty = true;
@@ -623,19 +613,17 @@ var Node = cc.Class({
          */
         rotationX: {
             get () {
-                let rotx = this._quat.getRoll();
-                return rotx || -this._quat.getYaw();
+                return this._rotationX;
             },
             set (value) {
-                let rotz = -this._quat.getYaw();
-                if (rotz !== value) {
-                    let roty = this._quat.getPitch();
+                if (this._rotationX !== value) {
+                    this._rotationX = value;
                     // Update quaternion from rotation
-                    if (value === roty) {
+                    if (this._rotationX === this._rotationY) {
                         math.quat.fromEuler(this._quat, 0, 0, -value);
                     }
                     else {
-                        math.quat.fromEuler(this._quat, value, roty, 0);
+                        math.quat.fromEuler(this._quat, value, this._rotationY, 0);
                     }
                     this._localMatDirty = true;
 
@@ -658,19 +646,17 @@ var Node = cc.Class({
          */
         rotationY: {
             get () {
-                let roty = this._quat.getPitch();
-                return roty || -this._quat.getYaw();
+                return this._rotationY;
             },
             set (value) {
-                let rotz = -this._quat.getYaw();
-                if (rotz !== value) {
-                    let rotx = this._quat.getRoll();
+                if (this._rotationY !== value) {
+                    this._rotationY = value;
                     // Update quaternion from rotation
-                    if (value === rotx) {
+                    if (this._rotationX === this._rotationY) {
                         math.quat.fromEuler(this._quat, 0, 0, -value);
                     }
                     else {
-                        math.quat.fromEuler(this._quat, rotx, value, 0);
+                        math.quat.fromEuler(this._quat, this._rotationX, value, 0);
                     }
                     this._localMatDirty = true;
 
@@ -988,7 +974,9 @@ var Node = cc.Class({
         this._scale.x = 1;
         this._scale.y = 1;
         this._scale.z = 1;
-        // Quaternion for rotation
+        // rotation
+        this._rotationX = 0.0;
+        this._rotationY = 0.0;
         math.quat.identity(this._quat);
 
         this._matrix = mathPools.mat4.get();
@@ -1109,20 +1097,32 @@ var Node = cc.Class({
             this._scaleY = undefined;
         }
         // TODO: remove _rotationX & _rotationY in future version, 3.0 ?
-        // Update quaternion from rotation
-        if (this._rotationX !== undefined || this._rotationY !== undefined) {
+        // Update quaternion from rotation, when upgrade from 1.x to 2.0
+        // If rotation x & y is 0 in old version, then update rotation from default quaternion is ok too
+        if (this._rotationX !== 0 || this._rotationY !== 0) {
             if (this._rotationX === this._rotationY) {
                 math.quat.fromEuler(this._quat, 0, 0, -this._rotationX);
             }
             else {
                 math.quat.fromEuler(this._quat, this._rotationX, this._rotationY, 0);
             }
-            this._rotationX = this._rotationY = undefined;
+        }
+        // Update rotation from quaternion
+        else {
+            let rotx = this._quat.getRoll();
+            let roty = this._quat.getPitch();
+            if (rotx === 0 && roty === 0) {
+                this._rotationX = this._rotationY = -this._quat.getYaw();
+            }
+            else {
+                this._rotationX = rotx;
+                this._rotationY = roty;
+            }
         }
 
         this._updateOrderOfArrival();
 
-        var prefabInfo = this._prefab;
+        let prefabInfo = this._prefab;
         if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
             if (CC_DEV) {
                 // TODO - remove all usage of _synced
@@ -1139,8 +1139,8 @@ var Node = cc.Class({
             eventManager.pauseTarget(this);
         }
 
-        var children = this._children;
-        for (var i = 0, len = children.length; i < len; i++) {
+        let children = this._children;
+        for (let i = 0, len = children.length; i < len; i++) {
             children[i]._onBatchCreated();
         }
     },
