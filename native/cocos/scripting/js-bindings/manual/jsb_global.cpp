@@ -197,16 +197,16 @@ namespace {
 
     std::unordered_map<std::string, se::Value> __moduleCache;
 
-//    static bool require(se::State& s)
-//    {
-//        const auto& args = s.args();
-//        int argc = (int)args.size();
-//        assert(argc >= 1);
-//        assert(args[0].isString());
-//
-//        return jsb_run_script(args[0].toString(), &s.rval());
-//    }
-//    SE_BIND_FUNC(require)
+    static bool require(se::State& s)
+    {
+        const auto& args = s.args();
+        int argc = (int)args.size();
+        assert(argc >= 1);
+        assert(args[0].isString());
+
+        return jsb_run_script(args[0].toString(), &s.rval());
+    }
+    SE_BIND_FUNC(require)
 
     static bool doModuleRequire(const std::string& path, se::Value* ret, const std::string& prevScriptFileDir)
     {
@@ -269,7 +269,7 @@ namespace {
             snprintf(suffix, sizeof(suffix), "\nwindow.module.exports = window.module.exports || exports;\n})('%s'); ", currentScriptFileDir.c_str());
 
             // Add current script path to require function invocation
-            scriptBuffer = prefix + std::regex_replace(scriptBuffer, std::regex("([^A-Za-z0-9]|^)require\\((.*?)\\)"), "$1require($2, currentScriptDir)") + suffix;
+            scriptBuffer = prefix + std::regex_replace(scriptBuffer, std::regex("([^A-Za-z0-9]|^)requireModule\\((.*?)\\)"), "$1requireModule($2, currentScriptDir)") + suffix;
 
 //            FILE* fp = fopen("/Users/james/Downloads/test.txt", "wb");
 //            fwrite(scriptBuffer.c_str(), scriptBuffer.length(), 1, fp);
@@ -296,7 +296,7 @@ namespace {
             auto se = se::ScriptEngine::getInstance();
             bool succeed = se->evalString(scriptBuffer.c_str(), scriptBuffer.length(), nullptr, reletivePath.c_str());
             se::Value moduleVal;
-            if (se->getGlobalObject()->getProperty("module", &moduleVal) && moduleVal.isObject())
+            if (succeed && se->getGlobalObject()->getProperty("module", &moduleVal) && moduleVal.isObject())
             {
                 se::Value exportsVal;
                 if (moduleVal.toObject()->getProperty("exports", &exportsVal))
@@ -744,6 +744,12 @@ namespace {
 
 bool jsb_run_script(const std::string& filePath, se::Value* rval/* = nullptr */)
 {
+    se::AutoHandleScope hs;
+    return se::ScriptEngine::getInstance()->runScript(filePath, rval);
+}
+
+bool jsb_run_script_module(const std::string& filePath, se::Value* rval/* = nullptr */)
+{
     return doModuleRequire(filePath, rval, "");
 }
 
@@ -953,7 +959,8 @@ SE_BIND_FUNC(js_performance_now)
 
 bool jsb_register_global_variables(se::Object* global)
 {
-    global->defineFunction("require", _SE(moduleRequire));
+    global->defineFunction("require", _SE(require));
+    global->defineFunction("requireModule", _SE(moduleRequire));
 
     getOrCreatePlainObject_r("cc", global, &__ccObj);
 

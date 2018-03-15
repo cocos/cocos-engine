@@ -27,8 +27,8 @@ public:
 
     CanvasRenderingContext2DImpl()
     {
-        _obj = JniHelper::newObject("org/cocos2dx/lib/CanvasRenderingContext2DImpl");
-        JniHelper::getEnv()->NewGlobalRef(_obj);
+        jobject obj = JniHelper::newObject("org/cocos2dx/lib/CanvasRenderingContext2DImpl");
+        _obj = JniHelper::getEnv()->NewGlobalRef(obj);
     }
 
     ~CanvasRenderingContext2DImpl()
@@ -38,6 +38,8 @@ public:
 
     void recreateBuffer(float w, float h)
     {
+        if (w < 1.0f || h < 1.0f)
+            return;
         JniHelper::callObjectVoidMethod(_obj, _className, "recreateBuffer", w, h);
     }
 
@@ -55,18 +57,24 @@ public:
 
     void fillText(const std::string& text, float x, float y, float maxWidth)
     {
+        if (text.empty())
+            return;
         JniHelper::callObjectVoidMethod(_obj, _className, "fillText", text, x, y, maxWidth);
         fillData();
     }
 
     void strokeText(const std::string& text, float x, float y, float maxWidth)
     {
+        if (text.empty())
+            return;
         JniHelper::callObjectVoidMethod(_obj, _className, "strokeText", text, x, y, maxWidth);
         fillData();
     }
 
     float measureText(const std::string& text)
     {
+        if (text.empty())
+            return 0.0f;
         return JniHelper::callObjectFloatMethod(_obj, _className, "measureText", text);
     }
 

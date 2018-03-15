@@ -516,8 +516,6 @@ namespace
     }
 }
 
-
-
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     if (_isKeyboardShown)
