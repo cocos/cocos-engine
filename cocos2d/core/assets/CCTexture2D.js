@@ -373,7 +373,7 @@ var Texture2D = cc.Class({
         if (!element)
             return;
         this._image = element;
-        if (element.complete || element instanceof HTMLCanvasElement) {
+        if (CC_WECHATGAME || CC_QQPLAY || element.complete || element instanceof HTMLCanvasElement) {
             this.handleLoadedTexture();
         }
         else {

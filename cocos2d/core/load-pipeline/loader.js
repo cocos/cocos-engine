@@ -61,7 +61,6 @@ function loadImage (item, callback) {
     tex.url = rawUrl;
     tex._nativeAsset = image;
     tex.initWithElement(item.content);
-    tex.handleLoadedTexture();
     return tex;
 }
 
