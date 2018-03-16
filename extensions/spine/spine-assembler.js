@@ -69,7 +69,7 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
         material = new SpriteMaterial();
         material.useModel = true;
         // update texture
-        material.texture = texImpl;
+        material.texture = tex;
         // update blend function
         let pass = material._mainTech.passes[0];
         pass.setBlend(
@@ -80,8 +80,8 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
         );
         _sharedMaterials[key] = material;
     }
-    else if (material.texture !== texImpl) {
-        material.texture = texImpl;
+    else if (material.texture !== tex) {
+        material.texture = tex;
     }
     return material;
 }

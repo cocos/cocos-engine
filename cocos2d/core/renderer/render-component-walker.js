@@ -294,7 +294,7 @@ RenderComponentWalker.prototype = {
 
                 // breaking batch
                 needNewBuf = (_batchData.vertexOffset + data.vertexCount > MAX_VERTEX) || (_batchData.indiceOffset + data.indiceCount > MAX_INDICE);
-                if (!_batchData.material || _batchData.material.effect != material.effect || _batchData.cullingMask !== cullingMask || iaData || needNewBuf) {
+                if (!_batchData.material || _batchData.material.hash != material.hash || _batchData.cullingMask !== cullingMask || iaData || needNewBuf) {
                     this._flush(_batchData);
                     _batchData.node = assembler.useModel ? comp.node : this._dummyNode;
                     _batchData.material = material;

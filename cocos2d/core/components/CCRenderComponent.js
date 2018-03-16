@@ -86,6 +86,7 @@ var RenderComponent = cc.Class({
     getMaterial () {
         return this._material;
     },
+    
 });
 RenderComponent._assembler = null;
 RenderComponent._postAssembler = null;

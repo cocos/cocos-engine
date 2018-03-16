@@ -456,16 +456,11 @@ var Label = cc.Class({
                 return;
             }
             let texture = spriteFrame.getTexture();
-            let url = texture.url;
-            material = renderer.materialUtil.get(url);
     
             // Get material
-            if (!material) {
-                material = new SpriteMaterial();
-                renderer.materialUtil.register(url, material);
-            }
+            material = new SpriteMaterial();
             // TODO: old texture in material have been released by loader
-            material.texture = texture.getImpl();
+            material.texture = texture;
         }
         else {
             material = new SpriteMaterial();
@@ -477,7 +472,7 @@ var Label = cc.Class({
             this._texture.handleLoadedTexture();
             this._context = this._canvas.getContext("2d");
 
-            material.texture = this._texture.getImpl();
+            material.texture = this._texture;
         }
 
         this._material = material;
