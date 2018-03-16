@@ -32,11 +32,11 @@ var particleSystemAssembler = js.addon({
     useModel: true,
 
     updateUVs (comp) {
-        let effect = comp.getEffect();
+        let material = comp.getMaterial();
         let renderData = comp._renderData;
-        if (effect && renderData) {
+        if (material && renderData) {
             let data = renderData._data;
-            let texture = effect.getProperty('texture');
+            let texture = material.effect.getProperty('texture');
             let texw = texture._width,
                 texh = texture._height;
             let frame = comp.spriteFrame;
@@ -94,7 +94,7 @@ var particleSystemAssembler = js.addon({
 
         renderData.vertexCount = vfx.buffers.indexes.length;
         renderData.indiceCount = renderData.vertexCount / 2 * 3;
-        renderData.effect = comp.getEffect();
+        renderData.material = comp.getMaterial();
         this.datas.length = 0;
         this.datas.push(renderData);
         return this.datas;

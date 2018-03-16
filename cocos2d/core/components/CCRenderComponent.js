@@ -83,13 +83,8 @@ var RenderComponent = cc.Class({
         }
     },
 
-    getEffect () {
-        if (this._material) {
-            return this._material.effect;
-        }
-        else {
-            return null;
-        }
+    getMaterial () {
+        return this._material;
     },
 });
 RenderComponent._assembler = null;

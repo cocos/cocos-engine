@@ -13689,7 +13689,7 @@ module.exports = (function () {
    */
   class BaseRenderData {
       constructor () {
-          this.effect = null;
+          this.material = null;
           this.vertexCount = 0;
           this.indiceCount = 0;
       }
@@ -13778,7 +13778,7 @@ module.exports = (function () {
         }
         data._data.length = 0;
         data._indices.length = 0;
-        data.effect = null;
+        data.material = null;
         data.uvDirty = true;
         data.vertDirty = true;
         data.vertexCount = 0;

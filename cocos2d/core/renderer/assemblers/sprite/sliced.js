@@ -46,10 +46,10 @@ module.exports = {
     },
 
     updateUVs (sprite) {
-        let effect = sprite.getEffect();
+        let material = sprite.getMaterial();
         let renderData = sprite._renderData;
-        if (effect && renderData) {
-            let texture = effect.getProperty('texture');
+        if (material && renderData) {
+            let texture = material.effect.getProperty('texture');
             let frame = sprite.spriteFrame;
             let rect = frame._rect;
             let atlasWidth = texture._width;

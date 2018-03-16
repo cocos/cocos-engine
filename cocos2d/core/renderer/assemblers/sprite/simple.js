@@ -45,11 +45,11 @@ module.exports = {
     },
 
     updateUVs (sprite) {
-        let effect = sprite.getEffect();
+        let material = sprite.getMaterial();
         let renderData = sprite._renderData;
-        if (effect && renderData) {
+        if (material && renderData) {
             let data = renderData._data;
-            let texture = effect.getProperty('texture');
+            let texture = material.effect.getProperty('texture');
             let texw = texture._width,
                 texh = texture._height;
             let frame = sprite.spriteFrame;
