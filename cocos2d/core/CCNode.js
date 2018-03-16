@@ -266,7 +266,7 @@ var _mouseMoveHandler = function (event) {
     if (hit) {
         if (!this._previousIn) {
             // Fix issue when hover node switched, previous hovered node won't get MOUSE_LEAVE notification
-            if (_currentHovered) {
+            if (_currentHovered && _currentHovered._mouseListener) {
                 event.type = EventType.MOUSE_LEAVE;
                 _currentHovered.dispatchEvent(event);
                 _currentHovered._mouseListener._previousIn = false;

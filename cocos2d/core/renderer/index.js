@@ -37,7 +37,7 @@ function _initBuiltins(device) {
         wrapS: renderEngine.gfx.WRAP_REPEAT,
         wrapT: renderEngine.gfx.WRAP_REPEAT,
         format: renderEngine.gfx.TEXTURE_FMT_RGB8,
-        mipmap: true,
+        mipmap: false,
     });
   
     return {
