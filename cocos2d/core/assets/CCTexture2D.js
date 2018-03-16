@@ -33,6 +33,7 @@ const renderEngine = require('../renderer/render-engine');
 const renderer = require('../renderer');
 require('../platform/CCClass');
 
+const TextureAsset = renderEngine.TextureAsset;
 const gfx = renderEngine.gfx;
 
 const GL_NEAREST = 9728;                // gl.NEAREST
@@ -209,7 +210,7 @@ function _getSharedOptions () {
 var Texture2D = cc.Class({
     name: 'cc.Texture2D',
     extends: require('../assets/CCAsset'),
-    mixins: [EventTarget],
+    mixins: [EventTarget, TextureAsset],
 
     properties: {
         _nativeAsset: {
@@ -284,8 +285,14 @@ var Texture2D = cc.Class({
         this._texture = null;
     },
 
-    getImpl () {
-        return this._texture;
+    /**
+     * Get renderer texture implementation object
+     * extended from renderEngine.TextureAsset
+     * @method getImpl
+     */
+
+    getId () {
+        return this.__instanceId;
     },
 
     /**
