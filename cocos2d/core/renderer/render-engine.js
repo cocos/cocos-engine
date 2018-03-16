@@ -14332,6 +14332,26 @@ module.exports = (function () {
   
   // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
    
+  class Texture$1 extends Asset {
+    constructor(persist = true) {
+      super(persist);
+  
+      this._texture = null;
+    }
+  
+    getImpl () {
+      return this._texture;
+    }
+  
+    getId () {}
+  
+    destroy () {
+      this._texture && this._texture.destroy();
+    }
+  }
+  
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+   
   class Material extends Asset {
     constructor(persist = false) {
       super(persist);
@@ -14891,6 +14911,7 @@ module.exports = (function () {
     
     // assets
     Asset,
+    TextureAsset: Texture$1,
     Material,
     
     // materials
