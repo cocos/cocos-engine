@@ -31,7 +31,7 @@
  * @property {String} ENGINE_VERSION
  */
 var engineVersion;
-engineVersion = '1.6.0';
+engineVersion = '2.0.0 alpha5';
 window['CocosEngine'] = cc.ENGINE_VERSION = engineVersion;
 
 require('./cocos2d/core/utils');
