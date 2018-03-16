@@ -210,7 +210,7 @@ function _getSharedOptions () {
 var Texture2D = cc.Class({
     name: 'cc.Texture2D',
     extends: require('../assets/CCAsset'),
-    mixins: [EventTarget, TextureAsset],
+    mixins: [EventTarget],
 
     properties: {
         _nativeAsset: {
@@ -290,6 +290,9 @@ var Texture2D = cc.Class({
      * extended from renderEngine.TextureAsset
      * @method getImpl
      */
+    getImpl () {
+        return this._texture;
+    },
 
     getId () {
         return this.__instanceId;
