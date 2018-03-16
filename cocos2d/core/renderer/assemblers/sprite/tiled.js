@@ -34,10 +34,10 @@ module.exports = {
         let renderData = sprite._renderData;
         if (!renderData.uvDirty && !renderData.vertDirty) return;
 
-        let effect = sprite.getEffect();
-        if (!effect || !renderData) return;
+        let material = sprite.getMaterial();
+        if (!material || !renderData) return;
 
-        let texture = effect.getProperty('texture');
+        let texture = material.effect.getProperty('texture');
         let texw = texture._width,
             texh = texture._height;
         let frame = sprite.spriteFrame;

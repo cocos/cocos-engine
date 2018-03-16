@@ -96,7 +96,7 @@ let maskFrontAssembler = js.addon({
                 datas.length = 0;
                 renderData.dataLength = 4;
                 spriteAssembler.update(mask);
-                renderData.effect = mask.getEffect();
+                renderData.material = mask.getMaterial();
                 datas.push(renderData);
             }
             else {
@@ -152,9 +152,9 @@ let maskEndAssembler = js.addon({
         else {
             datas = mask._graphics._renderDatas;
         }
-        let effect = mask.getEffect();
+        let material = mask.getMaterial();
         for (let i = 0; i < datas.length; i++) {
-            datas[i].effect = effect;
+            datas[i].material = material;
         }
         return datas;
     },
