@@ -26,7 +26,7 @@ test('misc', function(){
     var vector = v2(7, 11);
     var vec1 = new cc.Vec2(11, -42);
     strictEqual(vec1.dot(vector), -385, 'vec1 test');
-    strictEqual(vec1.cross(vector), -415, 'corss test');
+    strictEqual(vec1.cross(vector), 415, 'corss test');
     strictEqual(vec1.magSqr(vector), 1885, 'magSqr test');
 
     var normalizeSelf = vec1.normalizeSelf();
