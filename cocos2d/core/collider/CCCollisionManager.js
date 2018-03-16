@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 const Contact = require('./CCContact');
-const affineTrans = require('../value-types/CCAffineTransform');
 const CollisionType = Contact.CollisionType;
 
 const math = cc.vmath;

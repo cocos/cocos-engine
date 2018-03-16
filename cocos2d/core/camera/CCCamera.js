@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const affineTrans = require('../value-types/CCAffineTransform');
+const affineTrans = require('../value-types/affine-transform');
 const renderEngine = require('../renderer/render-engine');
 const renderer = require('../renderer/index');
 

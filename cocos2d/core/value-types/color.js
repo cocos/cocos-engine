@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var ValueType = require('./CCValueType');
+var ValueType = require('./value-type');
 var js = require('../platform/js');
 
 var Color = (function () {
@@ -647,12 +647,12 @@ cc.color = function color (r, g, b, a) {
 // Functional style API, for backward compatibility
 
 /**
- * !#en returns true if both ccColor3B are equal. Otherwise it returns false.
+ * !#en returns true if both Color are equal. Otherwise it returns false.
  * !#zh 判断两个颜色对象的 RGB 部分是否相等，不比较透明度。
  * @method colorEqual
  * @param {Color} color1
  * @param {Color} color2
- * @return {Boolean} true if both ccColor3B are equal. Otherwise it returns false.
+ * @return {Boolean} true if both Color are equal. Otherwise it returns false.
  * @example
  * cc.log(cc.colorEqual(cc.Color.RED, new cc.Color(255, 0, 0))); // true
  */

@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var ValueType = require('./CCValueType');
+var ValueType = require('./value-type');
 var js = require('../platform/js');
 
 /**
