@@ -28,18 +28,17 @@
 /**
  * !#en
  * cc.AffineTransform class represent an affine transform matrix. It's composed basically by translation, rotation, scale transformations.<br/>
- * Please do not use its constructor directly, use cc.affineTransformMake alias function instead.
  * !#zh
  * cc.AffineTransform 类代表一个仿射变换矩阵。它基本上是由平移旋转，缩放转变所组成。<br/>
- * 请不要直接使用它的构造，请使用 cc.affineTransformMake 函数代替。
  * @class AffineTransform
+ * @constructor
  * @param {Number} a
  * @param {Number} b
  * @param {Number} c
  * @param {Number} d
  * @param {Number} tx
  * @param {Number} ty
- * @see cc.affineTransformMake
+ * @see cc.AffineTransform.create
  */
 cc.AffineTransform = function (a, b, c, d, tx, ty) {
     this.a = a;
@@ -53,7 +52,8 @@ cc.AffineTransform = function (a, b, c, d, tx, ty) {
 /**
  * !#en Create a cc.AffineTransform object with all contents in the matrix.
  * !#zh 用在矩阵中的所有内容创建一个 cc.AffineTransform 对象。
- * @method affineTransformMake
+ * @method create
+ * @static
  * @param {Number} a
  * @param {Number} b
  * @param {Number} c
@@ -62,7 +62,7 @@ cc.AffineTransform = function (a, b, c, d, tx, ty) {
  * @param {Number} ty
  * @return {AffineTransform}
  */
-cc.affineTransformMake = function (a, b, c, d, tx, ty) {
+cc.AffineTransform.create = function (a, b, c, d, tx, ty) {
     return {a: a, b: b, c: c, d: d, tx: tx, ty: ty};
 };
 
@@ -76,34 +76,109 @@ cc.affineTransformMake = function (a, b, c, d, tx, ty) {
  * [ 1, 0, 0, <br/>
  *   0, 1, 0 ]
  *
- * @method affineTransformMakeIdentity
+ * @method identity
+ * @static
  * @return {AffineTransform}
  */
-cc.affineTransformMakeIdentity = function () {
+cc.AffineTransform.identity = function () {
     return {a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 0.0, ty: 0.0};
 };
 
 /**
  * !#en Clone a cc.AffineTransform object from the specified transform.
  * !#zh 克隆指定的 cc.AffineTransform 对象。
- * @method affineTransformClone
+ * @method clone
+ * @static
  * @param {AffineTransform} t
  * @return {AffineTransform}
  */
-cc.affineTransformClone = function (t) {
+cc.AffineTransform.clone = function (t) {
     return {a: t.a, b: t.b, c: t.c, d: t.d, tx: t.tx, ty: t.ty};
 };
 
 /**
+ * !#en
+ * Concatenate a transform matrix to another
+ * The results are reflected in the out affine transform
+ * out = t1 * t2
+ * This function is memory free, you should create the output affine transform by yourself and manage its memory.
+ * !#zh
+ * 拼接两个矩阵，将结果保存到 out 矩阵。这个函数不创建任何内存，你需要先创建 AffineTransform 对象用来存储结果，并作为第一个参数传入函数。
+ * out = t1 * t2
+ * @method concat
+ * @static
+ * @param {AffineTransform} out Out object to store the concat result
+ * @param {AffineTransform} t1 The first transform object.
+ * @param {AffineTransform} t2 The transform object to concatenate.
+ * @return {AffineTransform} Out object with the result of concatenation.
+ */
+cc.AffineTransform.concat = function (out, t1, t2) {
+    var a = t1.a, b = t1.b, c = t1.c, d = t1.d, tx = t1.tx, ty = t1.ty;
+    out.a = a * t2.a + b * t2.c;
+    out.b = a * t2.b + b * t2.d;
+    out.c = c * t2.a + d * t2.c;
+    out.d = c * t2.b + d * t2.d;
+    out.tx = tx * t2.a + ty * t2.c + t2.tx;
+    out.ty = tx * t2.b + ty * t2.d + t2.ty;
+    return out;
+};
+
+/**
+ * !#en Get the invert transform of an AffineTransform object.
+ * This function is memory free, you should create the output affine transform by yourself and manage its memory.
+ * !#zh 求逆矩阵。这个函数不创建任何内存，你需要先创建 AffineTransform 对象用来存储结果，并作为第一个参数传入函数。
+ * @method invert
+ * @static
+ * @param {AffineTransform} out
+ * @param {AffineTransform} t
+ * @return {AffineTransform} Out object with inverted result.
+ */
+cc.AffineTransform.invert = function (out, t) {
+    var a = t.a, b = t.b, c = t.c, d = t.d;
+    var determinant = 1 / (a * d - b * c);
+    var tx = t.tx, ty = t.ty;
+    out.a = determinant * d;
+    out.b = -determinant * b;
+    out.c = -determinant * c;
+    out.d = determinant * a;
+    out.tx = determinant * (c * ty - d * tx);
+    out.ty = determinant * (b * tx - a * ty);
+    return out;
+};
+
+/**
+ * !#en Get the invert transform of an AffineTransform object.
+ * This function is memory free, you should create the output affine transform by yourself and manage its memory.
+ * !#zh 求逆矩阵。这个函数不创建任何内存，你需要先创建 AffineTransform 对象用来存储结果，并作为第一个参数传入函数。
+ * @method invert
+ * @static
+ * @param {AffineTransform} out
+ * @param {AffineTransform} t
+ * @return {AffineTransform} Out object with inverted result.
+ */
+cc.AffineTransform.fromMat4 = function (out, mat) {
+    out.a = mat.m00;
+    out.b = mat.m01;
+    out.c = mat.m04;
+    out.d = mat.m05;
+    out.tx = mat.m12;
+    out.ty = mat.m13;
+    return out;
+};
+
+/**
  * !#en Apply the affine transformation on a point.
- * !#zh 对一个点应用矩阵变换。
- * @method pointApplyAffineTransform
- * @param {Vec2|Number} point - or x.
- * @param {AffineTransform|Number} transOrY - transform matrix or y.
- * @param {AffineTransform} t - transform matrix or y.
+ * This function is memory free, you should create the output Vec2 by yourself and manage its memory.
+ * !#zh 对一个点应用矩阵变换。这个函数不创建任何内存，你需要先创建一个 Vec2 对象用来存储结果，并作为第一个参数传入函数。
+ * @method transformVec2
+ * @static
+ * @param {Vec2} out The output point to store the result
+ * @param {Vec2|Number} point Point to apply transform or x.
+ * @param {AffineTransform|Number} transOrY transform matrix or y.
+ * @param {AffineTransform} [t] transform matrix.
  * @return {Vec2}
  */
-cc.pointApplyAffineTransform = function (point, transOrY, t) {
+cc.AffineTransform.transformVec2 = function (out, point, transOrY, t) {
     var x, y;
     if (t === undefined) {
         t = transOrY;
@@ -113,46 +188,40 @@ cc.pointApplyAffineTransform = function (point, transOrY, t) {
         x = point;
         y = transOrY;
     }
-    return {x: t.a * x + t.c * y + t.tx, y: t.b * x + t.d * y + t.ty};
-};
-
-cc._pointApplyAffineTransformOut = function (point, transOrY, transOrOut, out) {
-    var x, y, t;
-    if (out === undefined) {
-        t = transOrY;
-        x = point.x;
-        y = point.y;
-        out = transOrOut;
-    } else {
-        x = point;
-        y = transOrY;
-        t = transOrOut;
-    }
     out.x = t.a * x + t.c * y + t.tx;
     out.y = t.b * x + t.d * y + t.ty;
+    return out;
 };
 
 /**
  * !#en Apply the affine transformation on a size.
- * !#zh 应用 Size 到仿射变换矩阵上。
- * @method sizeApplyAffineTransform
+ * This function is memory free, you should create the output Size by yourself and manage its memory.
+ * !#zh 应用仿射变换矩阵到 Size 上。这个函数不创建任何内存，你需要先创建一个 Size 对象用来存储结果，并作为第一个参数传入函数。
+ * @method transformSize
+ * @static
+ * @param {Size} out The output point to store the result
  * @param {Size} size
  * @param {AffineTransform} t
  * @return {Size}
  */
-cc.sizeApplyAffineTransform = function (size, t) {
-    return {width: t.a * size.width + t.c * size.height, height: t.b * size.width + t.d * size.height};
+cc.AffineTransform.transformSize = function (out, size, t) {
+    out.width = t.a * size.width + t.c * size.height;
+    out.height = t.b * size.width + t.d * size.height;
+    return out;
 };
 
 /**
  * !#en Apply the affine transformation on a rect.
- * !#zh 应用 Rect 到仿射变换矩阵上。
- * @method rectApplyAffineTransform
+ * This function is memory free, you should create the output Rect by yourself and manage its memory.
+ * !#zh 应用仿射变换矩阵到 Rect 上。这个函数不创建任何内存，你需要先创建一个 Rect 对象用来存储结果，并作为第一个参数传入函数。
+ * @method transformRecta
+ * @static
+ * @param {Rect} out
  * @param {Rect} rect
  * @param {AffineTransform} anAffineTransform
  * @return {Rect}
  */
-cc.rectApplyAffineTransform = function (rect, t) {
+cc.AffineTransform.transformRect = function(out, rect, t){
     var ol = rect.x;
     var ob = rect.y;
     var or = ol + rect.width;
@@ -165,27 +234,6 @@ cc.rectApplyAffineTransform = function (rect, t) {
     var lty = t.b * ol + t.d * ot + t.ty;
     var rtx = t.a * or + t.c * ot + t.tx;
     var rty = t.b * or + t.d * ot + t.ty;
-
-    var minX = Math.min(lbx, rbx, ltx, rtx);
-    var maxX = Math.max(lbx, rbx, ltx, rtx);
-    var minY = Math.min(lby, rby, lty, rty);
-    var maxY = Math.max(lby, rby, lty, rty);
-    return cc.rect(minX, minY, (maxX - minX), (maxY - minY));
-};
-
-function rectApplyMat4Out (rect, mat, out){
-    var ol = rect.x;
-    var ob = rect.y;
-    var or = ol + rect.width;
-    var ot = ob + rect.height;
-    var lbx = mat.m00 * ol + mat.m04 * ob + mat.m12;
-    var lby = mat.m01 * ol + mat.m05 * ob + mat.m13;
-    var rbx = mat.m00 * or + mat.m04 * ob + mat.m12;
-    var rby = mat.m01 * or + mat.m05 * ob + mat.m13;
-    var ltx = mat.m00 * ol + mat.m04 * ot + mat.m12;
-    var lty = mat.m01 * ol + mat.m05 * ot + mat.m13;
-    var rtx = mat.m00 * or + mat.m04 * ot + mat.m12;
-    var rty = mat.m01 * or + mat.m05 * ot + mat.m13;
 
     var minX = Math.min(lbx, rbx, ltx, rtx);
     var maxX = Math.max(lbx, rbx, ltx, rtx);
@@ -199,44 +247,20 @@ function rectApplyMat4Out (rect, mat, out){
     return out;
 };
 
-cc._rectApplyAffineTransformIn = function(rect, t){
-    var ol = rect.x;
-    var ob = rect.y;
-    var or = ol + rect.width;
-    var ot = ob + rect.height;
-    var lbx = t.a * ol + t.c * ob + t.tx;
-    var lby = t.b * ol + t.d * ob + t.ty;
-    var rbx = t.a * or + t.c * ob + t.tx;
-    var rby = t.b * or + t.d * ob + t.ty;
-    var ltx = t.a * ol + t.c * ot + t.tx;
-    var lty = t.b * ol + t.d * ot + t.ty;
-    var rtx = t.a * or + t.c * ot + t.tx;
-    var rty = t.b * or + t.d * ot + t.ty;
-
-    var minX = Math.min(lbx, rbx, ltx, rtx);
-    var maxX = Math.max(lbx, rbx, ltx, rtx);
-    var minY = Math.min(lby, rby, lty, rty);
-    var maxY = Math.max(lby, rby, lty, rty);
-
-    rect.x = minX;
-    rect.y = minY;
-    rect.width = maxX - minX;
-    rect.height = maxY - minY;
-    return rect;
-};
-
 /**
  * !#en Apply the affine transformation on a rect, and truns to an Oriented Bounding Box.
- * !#zh 应用 Rect 到仿射变换矩阵上, 并转换为有向包围盒
- * @method obbApplyAffineTransform
- * @param {Rect} rect
- * @param {AffineTransform} anAffineTransform
+ * This function is memory free, you should create the output vectors by yourself and manage their memory.
+ * !#zh 应用仿射变换矩阵到 Rect 上, 并转换为有向包围盒。这个函数不创建任何内存，你需要先创建包围盒的四个 Vector 对象用来存储结果，并作为前四个参数传入函数。
+ * @method transformObb
+ * @static
  * @param {Vec2} out_bl
  * @param {Vec2} out_tl
  * @param {Vec2} out_tr
  * @param {Vec2} out_br
+ * @param {Rect} rect
+ * @param {AffineTransform} anAffineTransform
  */
-cc.obbApplyAffineTransform = function (rect, anAffineTransform, out_bl, out_tl, out_tr, out_br) {
+cc.AffineTransform.transformObb = function (out_bl, out_tl, out_tr, out_br, rect, anAffineTransform) {
     var x = rect.x;
     var y = rect.y;
     var width = rect.width;
@@ -259,141 +283,4 @@ cc.obbApplyAffineTransform = function (rect, anAffineTransform, out_bl, out_tl, 
     out_br.y = xb + yd + ty;
 };
 
-cc.obbApplyMatrix = function (rect, mat4, out_bl, out_tl, out_tr, out_br) {
-    var x = rect.x;
-    var y = rect.y;
-    var width = rect.width;
-    var height = rect.height;
-
-    var m00 = mat4.m00, m01 = mat4.m01, m04 = mat4.m04, m05 = mat4.m05;
-    var m12 = mat4.m12, m13 = mat4.m13;
-
-    var tx = m00 * x + m04 * y + m12;
-    var ty = m01 * x + m05 * y + m13;
-    var xa = m00 * width;
-    var xb = m01 * width;
-    var yc = m04 * height;
-    var yd = m05 * height;
-
-    out_tl.x = tx;
-    out_tl.y = ty;
-    out_tr.x = xa + tx;
-    out_tr.y = xb + ty;
-    out_bl.x = yc + tx;
-    out_bl.y = yd + ty;
-    out_br.x = xa + yc + tx;
-    out_br.y = xb + yd + ty;
-};
-
-/**
- * !#en
- * Concatenate a transform matrix to another and return the result:<br/>
- * t' = t1 * t2
- * !#zh 拼接两个矩阵，并返回结果：<br/>
- * t' = t1 * t2
- *
- * @method affineTransformConcat
- * @param {AffineTransform} t1 - The first transform object.
- * @param {AffineTransform} t2 - The transform object to concatenate.
- * @return {AffineTransform} The result of concatenation.
- */
-cc.affineTransformConcat = function (t1, t2) {
-    return {a: t1.a * t2.a + t1.b * t2.c,                          //a
-        b: t1.a * t2.b + t1.b * t2.d,                               //b
-        c: t1.c * t2.a + t1.d * t2.c,                               //c
-        d: t1.c * t2.b + t1.d * t2.d,                               //d
-        tx: t1.tx * t2.a + t1.ty * t2.c + t2.tx,                    //tx
-        ty: t1.tx * t2.b + t1.ty * t2.d + t2.ty};				    //ty
-};
-
-/**
- * !#en
- * Concatenate a transform matrix to another<br/>
- * The results are reflected in the first matrix.<br/>
- * t' = t1 * t2
- * !#zh
- * 拼接两个矩阵，将结果保存到第一个矩阵。<br/>
- * t' = t1 * t2
- * @method affineTransformConcatIn
- * @param {AffineTransform} t1 - The first transform object.
- * @param {AffineTransform} t2 - The transform object to concatenate.
- * @return {AffineTransform} The result of concatenation.
- */
-cc.affineTransformConcatIn = function (t1, t2) {
-    var a = t1.a, b = t1.b, c = t1.c, d = t1.d, tx = t1.tx, ty = t1.ty;
-    t1.a = a * t2.a + b * t2.c;
-    t1.b = a * t2.b + b * t2.d;
-    t1.c = c * t2.a + d * t2.c;
-    t1.d = c * t2.b + d * t2.d;
-    t1.tx = tx * t2.a + ty * t2.c + t2.tx;
-    t1.ty = tx * t2.b + ty * t2.d + t2.ty;
-    return t1;
-};
-
-/**
- * !#en Get the invert transform of an AffineTransform object.
- * !#zh 求逆矩阵。
- * @method affineTransformInvert
- * @param {AffineTransform} t
- * @return {AffineTransform} The inverted transform object.
- */
-cc.affineTransformInvert = function (t) {
-    var determinant = 1 / (t.a * t.d - t.b * t.c);
-    return {a: determinant * t.d, b: -determinant * t.b, c: -determinant * t.c, d: determinant * t.a,
-        tx: determinant * (t.c * t.ty - t.d * t.tx), ty: determinant * (t.b * t.tx - t.a * t.ty)};
-};
-
-cc.affineTransformInvertIn = function (t) {
-    var a = t.a, b = t.b, c = t.c, d = t.d;
-    var determinant = 1 / (a * d - b * c);
-    var tx = t.tx, ty = t.ty;
-    t.a = determinant * d;
-    t.b = -determinant * b;
-    t.c = -determinant * c;
-    t.d = determinant * a;
-    t.tx = determinant * (c * ty - d * tx);
-    t.ty = determinant * (b * tx - a * ty);
-    return t;
-};
-
-/**
- * !#en Put the invert transform of an AffineTransform object into the out AffineTransform object.
- * !#zh 求逆矩阵并存入用户传入的矩阵对象参数。
- * @method affineTransformInvert
- * @param {AffineTransform} t
- * @param {AffineTransform} out
- */
-cc.affineTransformInvertOut = function (t, out) {
-    var a = t.a, b = t.b, c = t.c, d = t.d, tx = t.tx, ty = t.ty;
-    var determinant = 1 / (a * d - b * c);
-    out.a = determinant * d;
-    out.b = -determinant * b;
-    out.c = -determinant * c;
-    out.d = determinant * a;
-    out.tx = determinant * (c * ty - d * tx);
-    out.ty = determinant * (b * tx - a * ty);
-};
-
-function affineTransformFromMatrixOut (mat, out) {
-    out.a = mat.m00;
-    out.b = mat.m01;
-    out.c = mat.m04;
-    out.d = mat.m05;
-    out.tx = mat.m12;
-    out.ty = mat.m13;
-    return out;
-};
-
-module.exports = {
-    make: cc.affineTransformMake,
-    makeIdentity: cc.affineTransformMakeIdentity,
-    fromMatrix: affineTransformFromMatrixOut,
-    clone: cc.affineTransformClone,
-    pointApply: cc._pointApplyAffineTransformOut,
-    sizeApply: cc.sizeApplyAffineTransform,
-    rectApplyIn: cc._rectApplyAffineTransformIn,
-    rectApplyMat4: rectApplyMat4Out,
-    concatIn: cc.affineTransformConcatIn,
-    equal: cc.affineTransformEqualToTransform,
-    invert: cc.affineTransformInvertOut,
-};
+module.exports = cc.AffineTransform;

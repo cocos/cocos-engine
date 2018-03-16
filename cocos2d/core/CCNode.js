@@ -29,7 +29,7 @@ const BaseNode = require('./utils/base-node');
 const PrefabHelper = require('./utils/prefab-helper');
 const mathPools = require('./utils/math-pools');
 const renderEngine = require('./renderer/render-engine');
-const affineTrans = require('./value-types/affine-transform');
+const AffineTrans = require('./value-types/affine-transform');
 const math = renderEngine.math;
 const eventManager = require('./event-manager');
 const macro = require('./platform/CCMacro');
@@ -2010,7 +2010,7 @@ var Node = cc.Class({
      */
     getLocalMatrix (out) {
         this._updateLocalMatrix();
-        math.mat4.copy(out, this._matrix);
+        return math.mat4.copy(out, this._matrix);
     },
     
     /**
@@ -2026,7 +2026,7 @@ var Node = cc.Class({
      */
     getWorldMatrix (out) {
         this._updateWorldMatrix();
-        math.mat4.copy(out, this._worldMatrix);
+        return math.mat4.copy(out, this._worldMatrix);
     },
 
     /**
@@ -2116,12 +2116,12 @@ var Node = cc.Class({
      * @param {AffineTransform} out The affine transform object to be filled with data
      * @return {AffineTransform} Same as the out affine transform object
      * @example
-     * let affineTransform = cc.affineTransformMake();
+     * let affineTransform = cc.AffineTransform.create();
      * node.getNodeToParentTransform(affineTransform);
      */
     getNodeToParentTransform (out) {
         if (!out) {
-            out = affineTrans.makeIdentity();
+            out = AffineTrans.identity();
         }
         this._updateLocalMatrix();
                
@@ -2131,7 +2131,7 @@ var Node = cc.Class({
 
         math.mat4.copy(_mat4_temp, this._matrix);
         math.mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
-        return affineTrans.fromMatrix(_mat4_temp, out);
+        return AffineTrans.fromMat4(out, _mat4_temp);
     },
 
     /**
@@ -2148,15 +2148,15 @@ var Node = cc.Class({
      * @param {AffineTransform} out The affine transform object to be filled with data
      * @return {AffineTransform} Same as the out affine transform object
      * @example
-     * let affineTransform = cc.affineTransformMake();
+     * let affineTransform = cc.AffineTransform.create();
      * node.getNodeToParentTransformAR(affineTransform);
      */
     getNodeToParentTransformAR (out) {
         if (!out) {
-            out = affineTrans.makeIdentity();
+            out = AffineTrans.identity();
         }
         this._updateLocalMatrix();
-        return affineTrans.fromMatrix(this._matrix, out);
+        return AffineTrans.fromMat4(out, this._matrix);
     },
 
     /**
@@ -2167,12 +2167,12 @@ var Node = cc.Class({
      * @param {AffineTransform} out The affine transform object to be filled with data
      * @return {AffineTransform} Same as the out affine transform object
      * @example
-     * let affineTransform = cc.affineTransformMake();
+     * let affineTransform = cc.AffineTransform.create();
      * node.getNodeToWorldTransform(affineTransform);
      */
     getNodeToWorldTransform (out) {
         if (!out) {
-            out = affineTrans.makeIdentity();
+            out = AffineTrans.identity();
         }
         this._updateWorldMatrix();
         
@@ -2183,7 +2183,7 @@ var Node = cc.Class({
         math.mat4.copy(_mat4_temp, this._worldMatrix);
         math.mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
 
-        return affineTrans.fromMatrix(_mat4_temp, out);
+        return AffineTrans.fromMat4(out, _mat4_temp);
     },
 
     /**
@@ -2198,15 +2198,15 @@ var Node = cc.Class({
      * @param {AffineTransform} out The affine transform object to be filled with data
      * @return {AffineTransform} Same as the out affine transform object
      * @example
-     * let affineTransform = cc.affineTransformMake();
+     * let affineTransform = cc.AffineTransform.create();
      * node.getNodeToWorldTransformAR(affineTransform);
      */
     getNodeToWorldTransformAR (out) {
         if (!out) {
-            out = affineTrans.makeIdentity();
+            out = AffineTrans.identity();
         }
         this._updateWorldMatrix();
-        return affineTrans.fromMatrix(this._matrix, out);
+        return AffineTrans.fromMat4(out, this._matrix);
     },
 
     /**
@@ -2221,16 +2221,16 @@ var Node = cc.Class({
      * @param {AffineTransform} out The affine transform object to be filled with data
      * @return {AffineTransform} Same as the out affine transform object
      * @example
-     * let affineTransform = cc.affineTransformMake();
+     * let affineTransform = cc.AffineTransform.create();
      * node.getParentToNodeTransform(affineTransform);
      */
     getParentToNodeTransform (out) {
         if (!out) {
-            out = affineTrans.makeIdentity();
+            out = AffineTrans.identity();
         }
         this._updateLocalMatrix();
         math.mat4.invert(_mat4_temp, this._matrix);
-        return affineTrans.fromMatrix(_mat4_temp, out);
+        return AffineTrans.fromMat4(out, _mat4_temp);
     },
 
     /**
@@ -2241,16 +2241,16 @@ var Node = cc.Class({
      * @param {AffineTransform} out The affine transform object to be filled with data
      * @return {AffineTransform} Same as the out affine transform object
      * @example
-     * let affineTransform = cc.affineTransformMake();
+     * let affineTransform = cc.AffineTransform.create();
      * node.getWorldToNodeTransform(affineTransform);
      */
     getWorldToNodeTransform (out) {
         if (!out) {
-            out = affineTrans.makeIdentity();
+            out = AffineTrans.identity();
         }
         this._updateWorldMatrix();
         math.mat4.invert(_mat4_temp, this._worldMatrix);
-        return affineTrans.fromMatrix(_mat4_temp, out);
+        return AffineTrans.fromMat4(out, _mat4_temp);
     },
 
     /**
@@ -2300,7 +2300,7 @@ var Node = cc.Class({
             -this._anchorPoint.y * height, 
             width, 
             height);
-        return affineTrans.rectApplyMat4(rect, this._matrix, rect);
+        return cc.Rect.transformMat4(rect, rect, this._matrix);
     },
 
     /**
@@ -2336,7 +2336,7 @@ var Node = cc.Class({
             height);
 
         var parentMat = math.mat4.mul(this._worldMatrix, parentMat, this._matrix);
-        affineTrans.rectApplyMat4(rect, parentMat, rect);
+        cc.Rect.transformMat4(rect, rect, parentMat);
 
         //query child's BoundingBox
         if (!this._children)

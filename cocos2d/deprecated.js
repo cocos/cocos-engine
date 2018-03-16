@@ -27,49 +27,6 @@
 var js = cc.js;
 
 if (CC_DEV) {
-    // cc.isChildClassOf
-    js.get(cc, 'isChildClassOf', function () {
-        cc.errorID(1400, 'cc.isChildClassOf', 'cc.js.isChildClassOf');
-        return cc.js.isChildClassOf;
-    });
-
-    // cc.spriteFrameCache
-    js.get(cc, "spriteFrameCache", function () {
-        cc.errorID(1404);
-    });
-
-    js.get(cc, 'textureCache', function () {
-        cc.errorID(1406, 'cc', 'textureCache');
-    });
-
-    // cc.pool
-    js.get(cc, 'pool', function () {
-        cc.errorID(1407);
-        return js.Pool;
-    });
-
-    // Texture
-    js.obsolete(cc.Texture2D.prototype, 'texture.releaseTexture', 'texture.destroy');
-
-    js.get(cc.Texture2D.prototype, 'getName', function () {
-        cc.warnID(1400, 'texture.getName()', 'texture._glID');
-        return function () {
-            return this._glID || null;
-        };
-    });
-
-    js.get(cc.Texture2D.prototype, 'isLoaded', function () {
-        cc.errorID(1400, 'texture.isLoaded function', 'texture.loaded property');
-        return (function () {
-            return this.loaded;
-        });
-    });
-
-    // SpriteFrame
-    js.get(cc.SpriteFrame.prototype, '_textureLoaded', function () {
-        cc.errorID(1400, 'spriteFrame._textureLoaded', 'spriteFrame.textureLoaded()');
-        return this.textureLoaded();
-    });
 
     function deprecateEnum (obj, oldPath, newPath, hasTypePrefixBefore) {
         if (!CC_SUPPORT_JIT) {
@@ -185,6 +142,39 @@ if (CC_DEV) {
             })();
         }
     }
+
+    // cc.spriteFrameCache
+    js.get(cc, "spriteFrameCache", function () {
+        cc.errorID(1404);
+    });
+
+    // SpriteFrame
+    js.get(cc.SpriteFrame.prototype, '_textureLoaded', function () {
+        cc.errorID(1400, 'spriteFrame._textureLoaded', 'spriteFrame.textureLoaded()');
+        return this.textureLoaded();
+    });
+
+    // cc.textureCache
+    js.get(cc, 'textureCache', function () {
+        cc.errorID(1406, 'cc', 'textureCache');
+    });
+
+    // Texture
+    js.obsolete(cc.Texture2D.prototype, 'texture.releaseTexture', 'texture.destroy');
+
+    js.get(cc.Texture2D.prototype, 'getName', function () {
+        cc.warnID(1400, 'texture.getName()', 'texture._glID');
+        return function () {
+            return this._glID || null;
+        };
+    });
+
+    js.get(cc.Texture2D.prototype, 'isLoaded', function () {
+        cc.errorID(1400, 'texture.isLoaded function', 'texture.loaded property');
+        return (function () {
+            return this.loaded;
+        });
+    });
 
     // cc.macro
     markAsRemovedInObject(cc.macro, [
@@ -326,6 +316,35 @@ if (CC_DEV) {
                 };
             }
         },
+    });
+
+    // Value types
+    provideClearError(cc, {
+        affineTransformMake: 'cc.AffineTransform.create',
+        affineTransformMakeIdentity: 'cc.AffineTransform.identity',
+        affineTransformClone: 'cc.AffineTransform.clone',
+        affineTransformConcat: 'cc.AffineTransform.concat',
+        affineTransformConcatIn: 'cc.AffineTransform.concat',
+        affineTransformInvert: 'cc.AffineTransform.invert',
+        affineTransformInvertIn: 'cc.AffineTransform.invert',
+        affineTransformInvertOut: 'cc.AffineTransform.invert',
+        affineTransformEqualToTransform: 'cc.AffineTransform.equal',
+        pointApplyAffineTransform: 'cc.AffineTransform.transformVec2',
+        sizeApplyAffineTransform: 'cc.AffineTransform.transformSize',
+        rectApplyAffineTransform: 'cc.AffineTransform.transformRect',
+        obbApplyAffineTransform: 'cc.AffineTransform.transformObb',
+    });
+
+    // cc.pool
+    js.get(cc, 'pool', function () {
+        cc.errorID(1407);
+        return js.Pool;
+    });
+    
+    // cc.isChildClassOf
+    js.get(cc, 'isChildClassOf', function () {
+        cc.errorID(1400, 'cc.isChildClassOf', 'cc.js.isChildClassOf');
+        return cc.js.isChildClassOf;
     });
 
     // dragon bones
