@@ -33,6 +33,7 @@ const renderEngine = require('../renderer/render-engine');
 const renderer = require('../renderer');
 require('../platform/CCClass');
 
+const TextureAsset = renderEngine.TextureAsset;
 const gfx = renderEngine.gfx;
 
 const GL_NEAREST = 9728;                // gl.NEAREST
@@ -286,8 +287,17 @@ var Texture2D = cc.Class({
         this._texture = null;
     },
 
+    /**
+     * Get renderer texture implementation object
+     * extended from renderEngine.TextureAsset
+     * @method getImpl
+     */
     getImpl () {
         return this._texture;
+    },
+
+    getId () {
+        return this.__instanceId;
     },
 
     /**
@@ -375,7 +385,7 @@ var Texture2D = cc.Class({
         if (!element)
             return;
         this._image = element;
-        if (element.complete || element instanceof HTMLCanvasElement) {
+        if (CC_WECHATGAME || CC_QQPLAY || element.complete || element instanceof HTMLCanvasElement) {
             this.handleLoadedTexture();
         }
         else {

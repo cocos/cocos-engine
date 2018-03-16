@@ -28,11 +28,11 @@ require('./CCValueType');
 require('./CCVec2');
 require('./CCVec3');
 require('./CCPointExtension');
+require('./quat');
 require('./CCSize');
 require('./CCRect');
 require('./CCColor');
 require('./CCTypes');
 require('./CCAffineTransform');
-require('./CCTypesWebGL');
 
 cc.vmath = require('../renderer/render-engine').math;

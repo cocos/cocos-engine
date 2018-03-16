@@ -377,7 +377,7 @@ proto.dot = function (vector) {
  * v.cross(cc.v2(5, 5)); // return 0;
  */
 proto.cross = function (vector) {
-    return this.y * vector.x - this.x * vector.y;
+    return this.x * vector.y - this.y * vector.x;
 };
 
 /**

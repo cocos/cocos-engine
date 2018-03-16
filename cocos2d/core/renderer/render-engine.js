@@ -8316,6 +8316,7 @@ module.exports = (function () {
       let img = options.image;
   
       if (
+        CC_QQPLAY ||
         img instanceof HTMLCanvasElement ||
         img instanceof HTMLImageElement ||
         img instanceof HTMLVideoElement
@@ -8379,6 +8380,7 @@ module.exports = (function () {
       let img = options.image;
   
       if (
+        CC_QQPLAY || 
         img instanceof HTMLCanvasElement ||
         img instanceof HTMLImageElement ||
         img instanceof HTMLVideoElement
@@ -8683,6 +8685,7 @@ module.exports = (function () {
       }
   
       if (
+        CC_QQPLAY ||
         img instanceof HTMLCanvasElement ||
         img instanceof HTMLImageElement ||
         img instanceof HTMLVideoElement
@@ -8734,6 +8737,7 @@ module.exports = (function () {
         gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha);
       }
       if (
+        CC_QQPLAY ||
         img instanceof HTMLCanvasElement ||
         img instanceof HTMLImageElement ||
         img instanceof HTMLVideoElement
@@ -13689,7 +13693,7 @@ module.exports = (function () {
    */
   class BaseRenderData {
       constructor () {
-          this.effect = null;
+          this.material = null;
           this.vertexCount = 0;
           this.indiceCount = 0;
       }
@@ -13778,7 +13782,7 @@ module.exports = (function () {
         }
         data._data.length = 0;
         data._indices.length = 0;
-        data.effect = null;
+        data.material = null;
         data.uvDirty = true;
         data.vertDirty = true;
         data.vertexCount = 0;
@@ -14327,6 +14331,26 @@ module.exports = (function () {
   
     reload() {
       // TODO
+    }
+  }
+  
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+   
+  class Texture$1 extends Asset {
+    constructor(persist = true) {
+      super(persist);
+  
+      this._texture = null;
+    }
+  
+    getImpl () {
+      return this._texture;
+    }
+  
+    getId () {}
+  
+    destroy () {
+      this._texture && this._texture.destroy();
     }
   }
   
@@ -14891,6 +14915,7 @@ module.exports = (function () {
     
     // assets
     Asset,
+    TextureAsset: Texture$1,
     Material,
     
     // materials

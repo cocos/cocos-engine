@@ -60,7 +60,7 @@ let PrivateNode = cc.Class({
         this.zIndex = cc.macro.MIN_ZINDEX;
     },
 
-    _anchorChangedHandler () {
+    _onAnchorChangedHandler () {
         this._localMatDirty = true;
     },
 
@@ -98,10 +98,10 @@ let PrivateNode = cc.Class({
         this._super(value);
         if (oldParent !== value) {
             if (oldParent) {
-                oldParent.off(ANCHOR_CHANGED, this._anchorChangedHandler, this);
+                oldParent.off(ANCHOR_CHANGED, this._onAnchorChangedHandler, this);
             }
             if (value) {
-                value.on(ANCHOR_CHANGED, this._anchorChangedHandler, this);
+                value.on(ANCHOR_CHANGED, this._onAnchorChangedHandler, this);
             }
         }
     },

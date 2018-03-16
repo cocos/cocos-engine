@@ -23,7 +23,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
 var eventManager = require('../event-manager');
+var Camera = require('../camera/CCCamera');
+var Component = require('./CCComponent');
 
 /**
  * !#zh: 作为 UI 根节点，为所有子节点提供视窗四边的位置信息以供对齐，另外提供屏幕适配策略接口，方便从编辑器设置。
@@ -33,7 +36,8 @@ var eventManager = require('../event-manager');
  * @extends Component
  */
 var Canvas = cc.Class({
-    name: 'cc.Canvas', extends: require('./CCComponent'),
+    name: 'cc.Canvas',
+    extends: Component,
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/Canvas',
@@ -144,7 +148,7 @@ var Canvas = cc.Class({
         }
         Canvas.instance = this;
 
-        cc.director.on(cc.Director.EVENT_BEFORE_VISIT, this.alignWithScreen, this);
+        cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
 
         if (CC_EDITOR) {
             cc.engine.on('design-resolution-changed', this._thisOnResized);
@@ -170,19 +174,19 @@ var Canvas = cc.Class({
             cameraNode.parent = this.node;
             cameraNode.setSiblingIndex(0);
         }
-        let camera = cameraNode.getComponent(cc.Camera);
+        let camera = cameraNode.getComponent(Camera);
         if (!camera) {
-            camera = cameraNode.addComponent(cc.Camera);
+            camera = cameraNode.addComponent(Camera);
             
-            let ClearFlags = cc.Camera.ClearFlags;
+            let ClearFlags = Camera.ClearFlags;
             camera.clearFlags = ClearFlags.COLOR | ClearFlags.DEPTH;
             camera.depth = -1;
         }
-        cc.Camera.main = camera;
+        Camera.main = camera;
     },
 
     onDestroy: function () {
-        cc.director.off(cc.Director.EVENT_BEFORE_VISIT, this.alignWithScreen, this);
+        cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
 
         if (CC_EDITOR) {
             cc.engine.off('design-resolution-changed', this._thisOnResized);

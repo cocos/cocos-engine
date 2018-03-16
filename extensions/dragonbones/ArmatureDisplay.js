@@ -311,12 +311,12 @@ let ArmatureDisplay = cc.Class({
 
     onEnable () {
         this._super();
-        dragonBones.CCFactory.getFactory()._dragonBones.clock.add(this._armature);
+        dragonBones.CCFactory.getInstance()._dragonBones.clock.add(this._armature);
     },
 
     onDisable () {
         this._super();
-        dragonBones.CCFactory.getFactory()._dragonBones.clock.remove(this._armature);
+        dragonBones.CCFactory.getInstance()._dragonBones.clock.remove(this._armature);
     },
 
     onDestroy () {
@@ -364,7 +364,7 @@ let ArmatureDisplay = cc.Class({
     _buildArmature () {
         if (!this.dragonAsset || !this.dragonAtlasAsset || !this.armatureName) return;
 
-        let factory = dragonBones.CCFactory.getFactory();
+        let factory = dragonBones.CCFactory.getInstance();
         this._armature = factory.buildArmatureDisplay(this.armatureName, this.dragonAsset._dragonBonesData.name, this);
         this._armature.animation.timeScale = this.timeScale;
 
@@ -524,7 +524,7 @@ let ArmatureDisplay = cc.Class({
      * @return {dragonBones.ArmatureDisplay}
      */
     buildArmature (armatureName, node) {
-        return dragonBones.CCFactory.getFactory().createArmatureNode(this, armatureName, node);
+        return dragonBones.CCFactory.getInstance().createArmatureNode(this, armatureName, node);
     },
 
     /**

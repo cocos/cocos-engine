@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Utils = require('../core/platform/utils');
+var utils = require('../core/platform/utils');
 var sys = require('../core/platform/CCSys');
 
 let VideoPlayerImpl = cc.Class({
@@ -123,7 +123,7 @@ let VideoPlayerImpl = cc.Class({
     removeDom () {
         var video = this._video;
         if (video) {
-            var hasChild = Utils.contains(cc.game.container, video);
+            var hasChild = utils.contains(cc.game.container, video);
             if (hasChild)
                 cc.game.container.removeChild(video);
         }

@@ -86,7 +86,7 @@ var motionStreakAssembler = js.addon({
         let size = comp.node._contentSize;
         let anchor = comp.node._anchorPoint;
         renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
-        renderData.effect = comp.getEffect();
+        renderData.material = comp.getMaterial();
         this.datas.length = 0;
         this.datas.push(renderData);
         return this.datas;

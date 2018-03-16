@@ -111,7 +111,7 @@ let spriteAssembler = js.addon({
                     break;
             }    
         }
-        renderData.effect = sprite.getEffect();
+        renderData.material = sprite.getMaterial();
         this.datas.length = 0;
         this.datas.push(renderData);
         return this.datas;

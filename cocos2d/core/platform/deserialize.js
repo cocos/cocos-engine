@@ -28,7 +28,7 @@ var js = require('./js');
 var CCObject = require('./CCObject');
 var Attr = require('./attribute');
 var CCClass = require('./CCClass');
-var Misc = require('../utils/misc');
+var misc = require('../utils/misc');
 
 // HELPERS
 
@@ -499,7 +499,7 @@ var _Deserializer = (function () {
         var sources = [
             'var prop;'
         ];
-        var fastMode = Misc.BUILTIN_CLASSID_RE.test(js._getClassId(klass));
+        var fastMode = misc.BUILTIN_CLASSID_RE.test(js._getClassId(klass));
         // sources.push('var vb,vn,vs,vo,vu,vf;');    // boolean, number, string, object, undefined, function
         for (var p = 0; p < props.length; p++) {
             var propName = props[p];
@@ -589,7 +589,7 @@ var _Deserializer = (function () {
         var attrs = Attr.getClassAttrs(klass);
 
         var props = klass.__props__;
-        var fastMode = Misc.BUILTIN_CLASSID_RE.test(js._getClassId(klass));
+        var fastMode = misc.BUILTIN_CLASSID_RE.test(js._getClassId(klass));
 
         return function (s, o, d, k, t) {
             var prop;

@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Utils = require('../core/platform/');
+var utils = require('../core/platform/utils');
 var eventManager = require('../core/event-manager');
 var sys = require('../core/platform/CCSys');
 
@@ -134,7 +134,7 @@ var WebViewImpl = cc.Class({
     removeDom () {
         var div = this._div;
         if (div) {
-            var hasChild = Utils.contains(cc.game.container, div);
+            var hasChild = utils.contains(cc.game.container, div);
             if (hasChild)
                 cc.game.container.removeChild(div);
         }

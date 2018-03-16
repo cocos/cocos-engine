@@ -137,7 +137,7 @@ var proto = CCLoader.prototype;
 proto.init = function (director) {
     if (CC_DEBUG) {
         var self = this;
-        director.on(cc.Director.EVENT_BEFORE_VISIT, function () {
+        director.on(cc.Director.EVENT_AFTER_UPDATE, function () {
             self._releasedAssetChecker_DEBUG.checkCouldRelease(self._cache);
         });
     }

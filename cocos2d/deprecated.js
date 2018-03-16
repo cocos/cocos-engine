@@ -44,7 +44,7 @@ if (CC_DEV) {
 
     // cc.pool
     js.get(cc, 'pool', function () {
-        cc.warnID(1407);
+        cc.errorID(1407);
         return js.Pool;
     });
 
@@ -186,6 +186,27 @@ if (CC_DEV) {
         }
     }
 
+    // cc.macro
+    markAsRemovedInObject(cc.macro, [
+        'ENABLE_GL_STATE_CACHE',
+        'FIX_ARTIFACTS_BY_STRECHING_TEXEL',
+    ]);
+
+    provideClearError(cc.macro, {
+        PI: 'Math.PI',
+        PI2: 'Math.PI*2',
+        FLT_MAX: 'Number.MAX_VALUE',
+        FLT_MIN: 'Number.MIN_VALUE',
+        UINT_MAX: 'Number.MAX_SAFE_INTEGER'
+    });
+
+    // cc.Director
+    provideClearError(cc.Director, {
+        EVENT_PROJECTION_CHANGED: '',
+        EVENT_BEFORE_VISIT: 'EVENT_AFTER_UPDATE',
+        EVENT_AFTER_VISIT: 'EVENT_BEFORE_DRAW',
+    });
+
     // cc.PhysicsManager
     markAsRemoved(cc.PhysicsManager, [
         'attachDebugDrawToCamera',
@@ -306,4 +327,9 @@ if (CC_DEV) {
             }
         },
     });
+
+    // dragon bones
+    if (typeof dragonBones !== 'undefined') {
+        js.obsolete(dragonBones.CCFactory, 'dragonBones.CCFactory.getFactory', 'getInstance');
+    }
 }

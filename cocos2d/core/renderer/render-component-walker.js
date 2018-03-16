@@ -44,7 +44,7 @@ var _queue = null;
 var _batchData = {
     node: null,
     vfmt: null,
-    effect: null,
+    material: null,
     data: null,
     vertexOffset: 0,
     byteOffset: 0,
@@ -129,7 +129,7 @@ RenderComponentWalker.prototype = {
         // reset caches for handle render components
         _batchData.node = null;
         _batchData.vfmt = null;
-        _batchData.effect = null;
+        _batchData.material = null;
         _batchData.data = null;
         _batchData.vertexOffset = 0;
         _batchData.byteOffset = 0;
@@ -167,7 +167,7 @@ RenderComponentWalker.prototype = {
 
     _flush (batchData) {
         let vfmt = batchData.vfmt,
-            effect = batchData.effect,
+            material = batchData.material,
             vertexByte = batchData.byteOffset,
             cullingMask = batchData.cullingMask,
             vertexCount = batchData.vertexOffset,
@@ -177,13 +177,15 @@ RenderComponentWalker.prototype = {
             indicesData = null;
 
         // Prepare data view for vb ib
-        if (vertexCount > 0 && indiceCount > 0) {
+        if (material && vertexCount > 0 && indiceCount > 0) {
             vertexsData = new Float32Array(this._vData.buffer, 0, vDataSize / 4);
             indicesData = new Uint16Array(this._iData.buffer, 0, indiceCount);
         }
         else {
             return;
         }
+
+        let effect = material.effect;
 
         // Generate vb, ib, ia
         let device = this._device;
@@ -224,7 +226,7 @@ RenderComponentWalker.prototype = {
     },
 
     _flushIA (batchData) {
-        let effect = batchData.effect,
+        let material = batchData.material,
             cullingMask = batchData.cullingMask,
             iaRenderData = batchData.data;
 
@@ -233,7 +235,7 @@ RenderComponentWalker.prototype = {
         }
 
         // Check stencil state and modify pass
-        effect = this._stencilMgr.handleEffect(effect);
+        let effect = this._stencilMgr.handleEffect(material.effect);
         
         // Generate model
         let model = this._modelPool.add();
@@ -250,7 +252,7 @@ RenderComponentWalker.prototype = {
     batchQueue () {
         let vertexId = 0,
             comp = this._queue[0],
-            effect = null, 
+            material = null, 
             assembler = null, 
             datas = null,
             data = null
@@ -281,9 +283,9 @@ RenderComponentWalker.prototype = {
 
             for (let id = 0; id < datas.length; id ++) {
                 data = datas[id];
-                effect = data.effect;
-                // Nothing can be rendered without effect
-                if (!effect) {
+                material = data.material;
+                // Nothing can be rendered without material
+                if (!material) {
                     continue;
                 }
 
@@ -292,10 +294,10 @@ RenderComponentWalker.prototype = {
 
                 // breaking batch
                 needNewBuf = (_batchData.vertexOffset + data.vertexCount > MAX_VERTEX) || (_batchData.indiceOffset + data.indiceCount > MAX_INDICE);
-                if (_batchData.effect != effect || _batchData.cullingMask !== cullingMask || iaData || needNewBuf) {
+                if (!_batchData.material || _batchData.material.effect != material.effect || _batchData.cullingMask !== cullingMask || iaData || needNewBuf) {
                     this._flush(_batchData);
                     _batchData.node = assembler.useModel ? comp.node : this._dummyNode;
-                    _batchData.effect = effect;
+                    _batchData.material = material;
                     _batchData.vfmt = comp._vertexFormat;
                     _batchData.vertexOffset = 0;
                     _batchData.byteOffset = 0;

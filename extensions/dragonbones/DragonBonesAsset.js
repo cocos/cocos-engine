@@ -176,7 +176,7 @@ var DragonBonesAsset = cc.Class({
     destroy () {
         var useGlobalFactory = !CC_JSB;
         if (useGlobalFactory && this._dragonBonesData) {
-            var factory = dragonBones.CCFactory.getFactory();
+            var factory = dragonBones.CCFactory.getInstance();
             factory.removeDragonBonesData(this._dragonBonesData.name, true);
         }
         this._super();

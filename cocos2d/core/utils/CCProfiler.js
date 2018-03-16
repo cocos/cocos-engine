@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var PStats = require('../../../external/pstats/pstats');
+var pstats = require('../../../external/pstats/pstats');
 var macro = require('../platform/CCMacro');
 
 var _fps = document.createElement('div');
@@ -39,7 +39,7 @@ function beforeUpdate () {
     stats('logic').start();
 }
 
-function afterVisit () {
+function afterUpdate () {
     if (cc.director.isPaused()) {
         stats('frame').start();
     }
@@ -68,7 +68,7 @@ cc.profiler = module.exports = {
                 document.body.removeChild(_fps);
             }
             cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, beforeUpdate);
-            cc.director.off(cc.Director.EVENT_AFTER_VISIT, afterVisit);
+            cc.director.off(cc.Director.EVENT_AFTER_UPDATE, afterUpdate);
             cc.director.off(cc.Director.EVENT_AFTER_DRAW, afterDraw);
             _showFPS = false;
         }
@@ -77,7 +77,7 @@ cc.profiler = module.exports = {
     showStats () {
         if (!_showFPS) {
             if (!stats) {
-                stats = PStats.new(_fps, {
+                stats = pstats.new(_fps, {
                     showGraph: false,
                     values: {
                         frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: 500 },
@@ -95,7 +95,7 @@ cc.profiler = module.exports = {
                 document.body.appendChild(_fps);
             }
             cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, beforeUpdate);
-            cc.director.on(cc.Director.EVENT_AFTER_VISIT, afterVisit);
+            cc.director.on(cc.Director.EVENT_AFTER_UPDATE, afterUpdate);
             cc.director.on(cc.Director.EVENT_AFTER_DRAW, afterDraw);
             _showFPS = true;
         }
