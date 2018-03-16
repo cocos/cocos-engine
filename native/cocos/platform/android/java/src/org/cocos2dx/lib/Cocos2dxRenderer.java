@@ -47,6 +47,7 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
     private int mScreenWidth;
     private int mScreenHeight;
     private boolean mNativeInitCompleted = false;
+    private String mDefaultResourcePath = "";
 
     // ===========================================================
     // Constructors
@@ -65,13 +66,19 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
         this.mScreenHeight = surfaceHeight;
     }
 
+    public void setDefaultResourcePath(String path) {
+        if (path == null)
+            return;
+        mDefaultResourcePath = path;
+    }
+
     // ===========================================================
     // Methods for/from SuperClass/Interfaces
     // ===========================================================
 
     @Override
     public void onSurfaceCreated(final GL10 GL10, final EGLConfig EGLConfig) {
-        Cocos2dxRenderer.nativeInit(this.mScreenWidth, this.mScreenHeight);
+        Cocos2dxRenderer.nativeInit(this.mScreenWidth, this.mScreenHeight, mDefaultResourcePath);
         this.mLastTickInNanoSeconds = System.nanoTime();
         mNativeInitCompleted = true;
     }
@@ -117,7 +124,7 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
     private static native void nativeTouchesCancel(final int[] ids, final float[] xs, final float[] ys);
     private static native boolean nativeKeyEvent(final int keyCode,boolean isPressed);
     private static native void nativeRender();
-    private static native void nativeInit(final int width, final int height);
+    private static native void nativeInit(final int width, final int height, final String resourcePath);
     private static native void nativeOnSurfaceChanged(final int width, final int height);
     private static native void nativeOnPause();
     private static native void nativeOnResume();
