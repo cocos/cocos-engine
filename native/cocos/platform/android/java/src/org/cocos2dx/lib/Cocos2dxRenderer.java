@@ -72,6 +72,16 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
         mDefaultResourcePath = path;
     }
 
+    public interface OnGameEngineInitializedListener {
+        void onGameEngineInitialized();
+    }
+
+    private OnGameEngineInitializedListener mGameEngineInitializedListener;
+
+    public void setOnGameEngineInitializedListener(OnGameEngineInitializedListener listener) {
+        mGameEngineInitializedListener = listener;
+    }
+
     // ===========================================================
     // Methods for/from SuperClass/Interfaces
     // ===========================================================
@@ -81,6 +91,14 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
         Cocos2dxRenderer.nativeInit(this.mScreenWidth, this.mScreenHeight, mDefaultResourcePath);
         this.mLastTickInNanoSeconds = System.nanoTime();
         mNativeInitCompleted = true;
+        if (mGameEngineInitializedListener != null) {
+            Cocos2dxHelper.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mGameEngineInitializedListener.onGameEngineInitialized();
+                }
+            });
+        }
     }
 
     @Override
