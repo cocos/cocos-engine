@@ -5,6 +5,7 @@
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
 #import <Foundation/Foundation.h>
+#import <CoreText/CoreText.h>
 
 #include <regex>
 
@@ -74,7 +75,7 @@ namespace {
 @synthesize textBaseLine = _textBaseLine;
 
 -(id) init {
-    if ([super init]) {
+    if (self = [super init]) {
         _width = _height = 0;
         _context = nil;
         _colorSpace = nil;
@@ -98,18 +99,37 @@ namespace {
     [super dealloc];
 }
 
+- (void) dynamicLoadFontWithURL:(NSURL*) url {
+//    //字体文件所在路径
+//    NSString *URL_FONT = @"http://192.168.1.12:8888/static/MFDingDing.otf";
+//
+//    //字体名
+//    NSString *fontName = @"MFDingDing_Noncommercial-Regular";
+
+    //下载字体
+    NSData *dynamicFontData = [NSData dataWithContentsOfURL:url];
+    if (!dynamicFontData)
+        return;
+    CFErrorRef error;
+    CGDataProviderRef providerRef = CGDataProviderCreateWithCFData((CFDataRef)dynamicFontData);
+    CGFontRef font = CGFontCreateWithDataProvider(providerRef);
+    if (!CTFontManagerRegisterGraphicsFont(font, &error))
+    {
+        //如果注册失败，则不使用
+        CFStringRef errorDescription = CFErrorCopyDescription(error);
+        NSLog(@"Failed to load font: %@", errorDescription);
+        CFRelease(errorDescription);
+    }
+
+    CFRelease(font);
+    CFRelease(providerRef);
+}
+
 -(UIFont*) _createSystemFont {
     NSString * fntName = [NSString stringWithString:_fontName];
     NSString* pathExtension = [fntName pathExtension];
     id font = NULL;
     if ([pathExtension length] > 0) {
-        // On iOS custom fonts must be listed beforehand in the App info.plist (in order to be usable) and referenced only the by the font family name itself when
-        // calling [UIFont fontWithName]. Therefore even if the developer adds 'SomeFont.ttf' or 'fonts/SomeFont.ttf' to the App .plist, the font must
-        // be referenced as 'SomeFont' when calling [UIFont fontWithName]. Hence we strip out the folder path components and the extension here in order to get just
-        // the font family name itself. This stripping step is required especially for references to user fonts stored in CCB files; CCB files appear to store
-        // the '.ttf' extensions when referring to custom fonts.
-        fntName = [[fntName lastPathComponent] stringByDeletingPathExtension];
-
         // create the font
         font = [UIFont fontWithName:fntName size:_fontSize];
     }
@@ -125,7 +145,7 @@ namespace {
     return font;
 }
 
--(void) updateFontWithName: (NSString*)fontName fontSize: (CGFloat)fontSize {
+-(void) updateFontWithName:(NSString*) fontName fontSize:(CGFloat) fontSize {
     self.fontName = fontName;
     _fontSize = fontSize;
     self.font = [self _createSystemFont];

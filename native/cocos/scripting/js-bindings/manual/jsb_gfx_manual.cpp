@@ -719,103 +719,6 @@ static bool js_gfx_IndexBuffer_prop_getBytes(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_IndexBuffer_prop_getBytes)
 
-static bool js_gfx_getImageInfo(se::State& s)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        std::string arg0;
-        ok &= seval_to_std_string(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_gfx_getImageInfo : Error processing arguments");
-
-        se::HandleObject retObj(se::Object::createPlainObject());
-
-        Data data;
-        Image* img = new (std::nothrow) Image();
-        if (img->initWithImageFile(arg0))
-        {
-            data.copy(img->getData(), img->getDataLen());
-            se::Value dataVal;
-            ok &= Data_to_seval(data, &dataVal);
-            SE_PRECONDITION2(ok, false, "js_gfx_getImageInfo : Error processing arguments");
-            retObj->setProperty("data", dataVal);
-            retObj->setProperty("width", se::Value(img->getWidth()));
-            retObj->setProperty("height", se::Value(img->getHeight()));
-            retObj->setProperty("premultiplyAlpha", se::Value(img->hasPremultipliedAlpha()));
-            retObj->setProperty("bpp", se::Value(img->getBitPerPixel()));
-            retObj->setProperty("hasAlpha", se::Value(img->hasAlpha()));
-            retObj->setProperty("compressed", se::Value(img->isCompressed()));
-            retObj->setProperty("numberOfMipmaps", se::Value(img->getNumberOfMipmaps()));
-
-            const auto& pixelFormatInfo = img->getPixelFormatInfo();
-            retObj->setProperty("glFormat", se::Value(pixelFormatInfo.format));
-            retObj->setProperty("glInternalFormat", se::Value(pixelFormatInfo.internalFormat));
-            retObj->setProperty("glType", se::Value(pixelFormatInfo.type));
-        }
-        else
-        {
-            SE_REPORT_ERROR("initWithImageFile: %s failed!", arg0.c_str());
-            assert(false);
-        }
-
-        img->release();
-
-        s.rval().setObject(retObj);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_getImageInfo)
-
-static bool js_gfx_getTextTextureInfo(se::State& s)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 3) {
-
-        /*
-         const char * text,
-         const FontDefinition& textDefinition,
-         TextAlign align,
-         int &width,
-         int &height,
-         bool& hasPremultipliedAlpha
-         */
-
-        std::string text;
-        ok = seval_to_std_string(args[0], &text);
-        SE_PRECONDITION2(ok, false, "Convert arg0 text failed!");
-        FontDefinition fontDef;
-        ok = seval_to_FontDefinition(args[1], &fontDef);
-        SE_PRECONDITION2(ok, false, "Convert arg1 fontDef failed!");
-        int32_t align;
-        ok = seval_to_int32(args[2], &align);
-        Device::TextAlign textAlign = (Device::TextAlign)align;
-        int width = 0;
-        int height = 0;
-        bool hasPremultipliedAlpha = false;
-        Data data = Device::getTextureDataForText(text.c_str(), fontDef, textAlign, width, height, hasPremultipliedAlpha);
-
-        se::HandleObject retObj(se::Object::createPlainObject());
-        se::Value dataVal;
-        if (Data_to_seval(data, &dataVal))
-            retObj->setProperty("data", dataVal);
-
-        retObj->setProperty("width", se::Value(width));
-        retObj->setProperty("height", se::Value(height));
-        retObj->setProperty("hasPremultipliedAlpha", se::Value(hasPremultipliedAlpha));
-
-        s.rval().setObject(retObj);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_getTextTextureInfo)
-
 static bool js_gfx_FrameBuffer_init(se::State& s)
 {
     cocos2d::renderer::FrameBuffer* cobj = (cocos2d::renderer::FrameBuffer*)s.nativeThisObject();
@@ -912,9 +815,6 @@ bool jsb_register_gfx_manual(se::Object* global)
 
     __jsb_cocos2d_renderer_Texture2D_proto->defineFunction("init", _SE(js_gfx_Texture2D_init));
     __jsb_cocos2d_renderer_FrameBuffer_proto->defineFunction("init", _SE(js_gfx_FrameBuffer_init));
-
-    global->defineFunction("getImageInfo", _SE(js_gfx_getImageInfo));
-    global->defineFunction("getTextTextureInfo", _SE(js_gfx_getTextTextureInfo));
 
     se::ScriptEngine::getInstance()->clearException();
     return true;

@@ -36,7 +36,7 @@ base/CCRef.cpp \
 base/CCUserDefault-android.cpp \
 base/CCUserDefault.cpp \
 base/CCValue.cpp \
-base/ObjectFactory.cpp \
+base/CCThreadPool.cpp \
 base/TGAlib.cpp \
 base/ZipUtils.cpp \
 base/base64.cpp \

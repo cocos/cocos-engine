@@ -74,7 +74,7 @@ namespace {
 @synthesize textBaseLine = _textBaseLine;
 
 -(id) init {
-    if ([super init]) {
+    if (self = [super init]) {
         _textAlign = CanvasTextAlign::LEFT;
         _textBaseLine = CanvasTextBaseline::BOTTOM;
         [self updateFontWithName:@"Arial" fontSize:30];
