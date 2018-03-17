@@ -179,6 +179,45 @@ static bool js_cocos2dx_FileUtils_renameFile(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_FileUtils_renameFile)
 
+static bool js_cocos2dx_FileUtils_normalizePath(se::State& s)
+{
+    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_FileUtils_normalizePath : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        std::string arg0;
+        ok &= seval_to_std_string(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_FileUtils_normalizePath : Error processing arguments");
+        std::string result = cobj->normalizePath(arg0);
+        ok &= std_string_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_FileUtils_normalizePath : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_FileUtils_normalizePath)
+
+static bool js_cocos2dx_FileUtils_getDefaultResourceRootPath(se::State& s)
+{
+    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_FileUtils_getDefaultResourceRootPath : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::string& result = cobj->getDefaultResourceRootPath();
+        ok &= std_string_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_FileUtils_getDefaultResourceRootPath : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_FileUtils_getDefaultResourceRootPath)
+
 static bool js_cocos2dx_FileUtils_loadFilenameLookupDictionaryFromFile(se::State& s)
 {
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
@@ -255,6 +294,27 @@ static bool js_cocos2dx_FileUtils_getSearchPaths(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_FileUtils_getSearchPaths)
 
+static bool js_cocos2dx_FileUtils_getFileDir(se::State& s)
+{
+    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_FileUtils_getFileDir : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        std::string arg0;
+        ok &= seval_to_std_string(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_FileUtils_getFileDir : Error processing arguments");
+        std::string result = cobj->getFileDir(arg0);
+        ok &= std_string_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_FileUtils_getFileDir : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_FileUtils_getFileDir)
+
 static bool js_cocos2dx_FileUtils_writeToFile(se::State& s)
 {
     cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
@@ -277,6 +337,24 @@ static bool js_cocos2dx_FileUtils_writeToFile(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_FileUtils_writeToFile)
+
+static bool js_cocos2dx_FileUtils_getOriginalSearchPaths(se::State& s)
+{
+    cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_FileUtils_getOriginalSearchPaths : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::vector<std::string>& result = cobj->getOriginalSearchPaths();
+        ok &= std_vector_string_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_FileUtils_getOriginalSearchPaths : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_FileUtils_getOriginalSearchPaths)
 
 static bool js_cocos2dx_FileUtils_listFiles(se::State& s)
 {
@@ -865,11 +943,15 @@ bool js_register_cocos2dx_FileUtils(se::Object* obj)
     cls->defineFunction("getDataFromFile", _SE(js_cocos2dx_FileUtils_getDataFromFile));
     cls->defineFunction("isAbsolutePath", _SE(js_cocos2dx_FileUtils_isAbsolutePath));
     cls->defineFunction("renameFile", _SE(js_cocos2dx_FileUtils_renameFile));
+    cls->defineFunction("normalizePath", _SE(js_cocos2dx_FileUtils_normalizePath));
+    cls->defineFunction("getDefaultResourceRootPath", _SE(js_cocos2dx_FileUtils_getDefaultResourceRootPath));
     cls->defineFunction("loadFilenameLookup", _SE(js_cocos2dx_FileUtils_loadFilenameLookupDictionaryFromFile));
     cls->defineFunction("isPopupNotify", _SE(js_cocos2dx_FileUtils_isPopupNotify));
     cls->defineFunction("getValueVectorFromFile", _SE(js_cocos2dx_FileUtils_getValueVectorFromFile));
     cls->defineFunction("getSearchPaths", _SE(js_cocos2dx_FileUtils_getSearchPaths));
+    cls->defineFunction("getFileDir", _SE(js_cocos2dx_FileUtils_getFileDir));
     cls->defineFunction("writeToFile", _SE(js_cocos2dx_FileUtils_writeToFile));
+    cls->defineFunction("getOriginalSearchPaths", _SE(js_cocos2dx_FileUtils_getOriginalSearchPaths));
     cls->defineFunction("listFiles", _SE(js_cocos2dx_FileUtils_listFiles));
     cls->defineFunction("getValueMapFromFile", _SE(js_cocos2dx_FileUtils_getValueMapFromFile));
     cls->defineFunction("getFileSize", _SE(js_cocos2dx_FileUtils_getFileSize));

@@ -228,7 +228,7 @@ typedef struct unz_file_info_s unz_file_info;
         *
         * @param zipFile Zip file name
         * @param filter The first part of file names, which should be accessible.
-        *               For example, "assets/". Other files will be missed.
+        *               For example, "@assets/". Other files will be missed.
         *
         * @since v2.0.5
         */

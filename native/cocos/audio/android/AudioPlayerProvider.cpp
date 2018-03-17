@@ -358,12 +358,12 @@ AudioPlayerProvider::AudioFileInfo AudioPlayerProvider::getFileInfo(
     if (audioFilePath[0] != '/')
     {
         std::string relativePath;
-        size_t position = audioFilePath.find("assets/");
+        size_t position = audioFilePath.find("@assets/");
 
         if (0 == position)
         {
-            // "assets/" is at the beginning of the path and we don't want it
-            relativePath = audioFilePath.substr(strlen("assets/"));
+            // "@assets/" is at the beginning of the path and we don't want it
+            relativePath = audioFilePath.substr(strlen("@assets/"));
         }
         else
         {

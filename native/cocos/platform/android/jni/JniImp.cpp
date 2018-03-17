@@ -373,12 +373,12 @@ int getObbAssetFileDescriptorJNI(const std::string& path, long* startOffset, lon
     return fd;
 }
 
-int getDeviceSampleRate()
+int getDeviceSampleRateJNI()
 {
     return g_deviceSampleRate;
 }
 
-int getDeviceAudioBufferSizeInFrames()
+int getDeviceAudioBufferSizeInFramesJNI()
 {
     return g_deviceAudioBufferSizeInFrames;
 }

@@ -84,6 +84,7 @@ scripting/js-bindings/auto/jsb_gfx_auto.cpp \
 scripting/js-bindings/auto/jsb_cocos2dx_network_auto.cpp \
 scripting/js-bindings/auto/jsb_renderer_auto.cpp \
 scripting/js-bindings/auto/jsb_cocos2dx_auto.cpp \
+scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.cpp \
 scripting/js-bindings/manual/JavaScriptJavaBridge.cpp \
 scripting/js-bindings/manual/jsb_opengl_functions.cpp \
 scripting/js-bindings/manual/jsb_opengl_manual.cpp \
@@ -165,7 +166,7 @@ LOCAL_STATIC_LIBRARIES += cocos_webp_static
 LOCAL_STATIC_LIBRARIES += cocos_zlib_static
 LOCAL_STATIC_LIBRARIES += uv_static
 LOCAL_STATIC_LIBRARIES += v8_static
-# LOCAL_STATIC_LIBRARIES += audioengine_static
+LOCAL_STATIC_LIBRARIES += audioengine_static
 LOCAL_STATIC_LIBRARIES += cocos_network_static
 
 LOCAL_WHOLE_STATIC_LIBRARIES := cocos2dxandroid_static
@@ -190,7 +191,7 @@ include $(BUILD_STATIC_LIBRARY)
 #$(call import-module,.)
 $(call import-module,android)
 $(call import-module,platform/android)
-# $(call import-module,audio/android)
+$(call import-module,audio/android)
 $(call import-module,network)
 $(call import-module,extensions)
 $(call import-module,android/cpufeatures)

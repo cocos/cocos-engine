@@ -164,7 +164,7 @@ static bool js_cocos2dx_audioengine_AudioEngine_setCurrentTime(se::State& s)
     if (argc == 2) {
         int arg0 = 0;
         float arg1 = 0;
-        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
         ok &= seval_to_float(args[1], &arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_audioengine_AudioEngine_setCurrentTime : Error processing arguments");
         bool result = cocos2d::experimental::AudioEngine::setCurrentTime(arg0, arg1);
@@ -184,7 +184,7 @@ static bool js_cocos2dx_audioengine_AudioEngine_getVolume(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_audioengine_AudioEngine_getVolume : Error processing arguments");
         float result = cocos2d::experimental::AudioEngine::getVolume(arg0);
         ok &= float_to_seval(result, &s.rval());
@@ -246,7 +246,7 @@ static bool js_cocos2dx_audioengine_AudioEngine_pause(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_audioengine_AudioEngine_pause : Error processing arguments");
         cocos2d::experimental::AudioEngine::pause(arg0);
         return true;
@@ -308,7 +308,7 @@ static bool js_cocos2dx_audioengine_AudioEngine_getCurrentTime(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_audioengine_AudioEngine_getCurrentTime : Error processing arguments");
         float result = cocos2d::experimental::AudioEngine::getCurrentTime(arg0);
         ok &= float_to_seval(result, &s.rval());
@@ -327,7 +327,7 @@ static bool js_cocos2dx_audioengine_AudioEngine_setMaxAudioInstance(se::State& s
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_audioengine_AudioEngine_setMaxAudioInstance : Error processing arguments");
         bool result = cocos2d::experimental::AudioEngine::setMaxAudioInstance(arg0);
         ok &= boolean_to_seval(result, &s.rval());
@@ -346,7 +346,7 @@ static bool js_cocos2dx_audioengine_AudioEngine_isLoop(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_audioengine_AudioEngine_isLoop : Error processing arguments");
         bool result = cocos2d::experimental::AudioEngine::isLoop(arg0);
         ok &= boolean_to_seval(result, &s.rval());
@@ -392,7 +392,7 @@ static bool js_cocos2dx_audioengine_AudioEngine_setVolume(se::State& s)
     if (argc == 2) {
         int arg0 = 0;
         float arg1 = 0;
-        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
         ok &= seval_to_float(args[1], &arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_audioengine_AudioEngine_setVolume : Error processing arguments");
         cocos2d::experimental::AudioEngine::setVolume(arg0, arg1);
@@ -545,7 +545,7 @@ static bool js_cocos2dx_audioengine_AudioEngine_getState(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_audioengine_AudioEngine_getState : Error processing arguments");
         int result = (int)cocos2d::experimental::AudioEngine::getState(arg0);
         ok &= int32_to_seval(result, &s.rval());
@@ -564,7 +564,7 @@ static bool js_cocos2dx_audioengine_AudioEngine_resume(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_audioengine_AudioEngine_resume : Error processing arguments");
         cocos2d::experimental::AudioEngine::resume(arg0);
         return true;
@@ -581,7 +581,7 @@ static bool js_cocos2dx_audioengine_AudioEngine_stop(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_audioengine_AudioEngine_stop : Error processing arguments");
         cocos2d::experimental::AudioEngine::stop(arg0);
         return true;
@@ -598,7 +598,7 @@ static bool js_cocos2dx_audioengine_AudioEngine_getDuration(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         int arg0 = 0;
-        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_audioengine_AudioEngine_getDuration : Error processing arguments");
         float result = cocos2d::experimental::AudioEngine::getDuration(arg0);
         ok &= float_to_seval(result, &s.rval());
@@ -618,7 +618,7 @@ static bool js_cocos2dx_audioengine_AudioEngine_setLoop(se::State& s)
     if (argc == 2) {
         int arg0 = 0;
         bool arg1;
-        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
         ok &= seval_to_boolean(args[1], &arg1);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_audioengine_AudioEngine_setLoop : Error processing arguments");
         cocos2d::experimental::AudioEngine::setLoop(arg0, arg1);
@@ -652,15 +652,15 @@ static bool js_cocos2dx_audioengine_AudioEngine_setFinishCallback(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 2) {
         int arg0 = 0;
-        std::function<void (int, const std::basic_string<char> &)> arg1;
-        ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+        std::function<void (int, const std::string&)> arg1;
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
         do {
             if (args[1].isObject() && args[1].toObject()->isFunction())
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[1]);
                 jsFunc.toObject()->root();
-                auto lambda = [=](int larg0, const std::basic_string<char> & larg1) -> void {
+                auto lambda = [=](int larg0, const std::string& larg1) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
         
@@ -713,7 +713,7 @@ static bool js_cocos2dx_audioengine_AudioEngine_getProfile(se::State& s)
     do {
         if (argc == 1) {
             int arg0 = 0;
-            ok &= seval_to_int32(args[0], (int32_t*)&arg0);
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
             if (!ok) { ok = true; break; }
             cocos2d::experimental::AudioProfile* result = cocos2d::experimental::AudioEngine::getProfile(arg0);
             ok &= native_ptr_to_seval<cocos2d::experimental::AudioProfile>((cocos2d::experimental::AudioProfile*)result, &s.rval());

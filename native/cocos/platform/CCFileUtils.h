@@ -405,9 +405,9 @@ public:
      *  @note This method could access relative path and absolute path.
      *        If the relative path was passed to the vector, FileUtils will add the default resource directory before the relative path.
      *        For instance:
-     *            On Android, the default resource root path is "assets/".
+     *            On Android, the default resource root path is "@assets/".
      *            If "/mnt/sdcard/" and "resources-large" were set to the search paths vector,
-     *            "resources-large" will be converted to "assets/resources-large" since it was a relative path.
+     *            "resources-large" will be converted to "@assets/resources-large" since it was a relative path.
      *
      *  @param searchPaths The array contains search paths.
      *  @see fullPathForFilename(const char*)
@@ -566,7 +566,7 @@ public:
     /**
      *  Checks whether the path is an absolute path.
      *
-     *  @note On Android, if the parameter passed in is relative to "assets/", this method will treat it as an absolute path.
+     *  @note On Android, if the parameter passed in is relative to "@assets/", this method will treat it as an absolute path.
      *        Also on Blackberry, path starts with "app/native/Resources/" is treated as an absolute path.
      *
      *  @param path The path that needs to be checked.
@@ -747,7 +747,7 @@ protected:
      *  The default root path of resources.
      *  If the default root path of resources needs to be changed, do it in the `init` method of FileUtils's subclass.
      *  For instance:
-     *  On Android, the default root path of resources will be assigned with "assets/" in FileUtilsAndroid::init().
+     *  On Android, the default root path of resources will be assigned with "@assets/" in FileUtilsAndroid::init().
      *  Similarly on Blackberry, we assign "app/native/Resources/" to this variable in FileUtilsBlackberry::init().
      */
     std::string _defaultResRootPath;

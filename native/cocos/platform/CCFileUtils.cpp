@@ -1486,7 +1486,7 @@ std::string FileUtils::normalizePath(const std::string& path) const
     ret = std::regex_replace(ret, std::regex("/\\.$"), "");
 
     size_t pos;
-    while ((pos = ret.find("..")) != std::string::npos)
+    while ((pos = ret.find("..")) != std::string::npos && pos > 2)
     {
         size_t prevSlash = ret.rfind("/", pos-2);
         if (prevSlash == std::string::npos)

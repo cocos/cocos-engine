@@ -29,6 +29,8 @@ THE SOFTWARE.
 #include "audio/android/tinysndfile.h"
 #include "platform/CCFileUtils.h"
 
+#include <assert.h>
+
 namespace cocos2d { namespace experimental {
 
 AudioDecoderWav::AudioDecoderWav()

@@ -26,10 +26,13 @@
 #include "platform/CCPlatformConfig.h"
 
 #include "audio/include/AudioEngine.h"
-#include <condition_variable>
-#include <queue>
 #include "platform/CCFileUtils.h"
 #include "base/ccUtils.h"
+
+#include <condition_variable>
+#include <queue>
+#include <thread>
+#include <mutex>
 
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
 #include "audio/android/AudioEngine-inl.h"

@@ -99,6 +99,28 @@ str
 },
 
 /**
+ * @method normalizePath
+ * @param {String} arg0
+ * @return {String}
+ */
+normalizePath : function (
+str 
+)
+{
+    return ;
+},
+
+/**
+ * @method getDefaultResourceRootPath
+ * @return {String}
+ */
+getDefaultResourceRootPath : function (
+)
+{
+    return ;
+},
+
+/**
  * @method loadFilenameLookupDictionaryFromFile
  * @param {String} arg0
  */
@@ -141,6 +163,18 @@ getSearchPaths : function (
 },
 
 /**
+ * @method getFileDir
+ * @param {String} arg0
+ * @return {String}
+ */
+getFileDir : function (
+str 
+)
+{
+    return ;
+},
+
+/**
  * @method writeToFile
  * @param {map_object} arg0
  * @param {String} arg1
@@ -152,6 +186,16 @@ str
 )
 {
     return false;
+},
+
+/**
+ * @method getOriginalSearchPaths
+ * @return {Array}
+ */
+getOriginalSearchPaths : function (
+)
+{
+    return new Array();
 },
 
 /**

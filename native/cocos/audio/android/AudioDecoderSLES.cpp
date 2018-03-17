@@ -28,6 +28,9 @@ THE SOFTWARE.
 #include "audio/android/AudioDecoderSLES.h"
 #include "platform/CCFileUtils.h"
 
+#include <thread>
+#include <mutex>
+
 namespace cocos2d { namespace experimental {
 
 /* Explicitly requesting SL_IID_ANDROIDSIMPLEBUFFERQUEUE and SL_IID_PREFETCHSTATUS
@@ -194,12 +197,12 @@ bool AudioDecoderSLES::decodeToPcm()
     {
         off_t start = 0, length = 0;
         std::string relativePath;
-        size_t position = _url.find("assets/");
+        size_t position = _url.find("@assets/");
 
         if (0 == position)
         {
-            // "assets/" is at the beginning of the path and we don't want it
-            relativePath = _url.substr(strlen("assets/"));
+            // "@assets/" is at the beginning of the path and we don't want it
+            relativePath = _url.substr(strlen("@assets/"));
         } else
         {
             relativePath = _url;
