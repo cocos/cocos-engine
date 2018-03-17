@@ -54,6 +54,9 @@ if (cc.sys.os === cc.sys.OS_IOS) // All browsers are WebView
 
 if (CC_WECHATGAME) {
     __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_WECHAT_GAME;
+    if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+        __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB;
+    }
 }
 
 if (CC_QQPLAY) {
@@ -104,6 +107,15 @@ switch (__BrowserGetter.adaptationType) {
         };
         __BrowserGetter.availHeight = function(){
             return window.innerHeight;
+        };
+        break;
+    case cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB:
+        var sharedCanvas = wx.getSharedCanvas();
+        __BrowserGetter.availWidth = function(){
+            return sharedCanvas.width;
+        };
+        __BrowserGetter.availHeight = function(){
+            return sharedCanvas.height;
         };
         break;
 }
@@ -186,6 +198,15 @@ var View = cc._Class.extend({
 
         _t._targetDensityDPI = cc.macro.DENSITYDPI_HIGH;
         _t.enableAntiAlias(true);
+
+        //
+        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+            wx.onMessage(function(data) {
+                if (data.message === 'changedShareCanvasSize') {
+                    cc.view._resizeEvent();
+                }
+            });
+        }
     },
 
     // Resize helper functions
@@ -225,6 +246,17 @@ var View = cc._Class.extend({
         eventManager.dispatchCustomEvent('canvas-resize');
         if (view._resizeCallback) {
             view._resizeCallback.call();
+        }
+
+        // set sharedCanvas size
+        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME) {
+            var openDataContext = wx.getOpenDataContext();
+            var sharedCanvas = openDataContext.canvas;
+            sharedCanvas.width = width;
+            sharedCanvas.height = height;
+            wx.postMessage({
+                message: "changedShareCanvasSize"
+            });
         }
     },
 
