@@ -722,9 +722,6 @@ else {
         var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
         if (CC_WECHATGAME) {
             browserType = sys.BROWSER_TYPE_WECHAT_GAME;
-            if ((typeof wx !== undefined) && wx.getGroupCloudStorage && wx.getFriendCloudStorage) {
-                browserType = sys.BROWSER_TYPE_WECHAT_GAME_SUB;
-            }
         }
         else if (CC_QQPLAY)
             browserType = sys.BROWSER_TYPE_QQ_PLAY;

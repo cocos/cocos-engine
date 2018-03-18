@@ -538,16 +538,15 @@ var inputManager = {
                 }
             };
 
+            var registerTouchEvent;
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-                var _wxSubdomainEventsMap = {
+                _touchEventsMap = {
                     onTouchStart: _touchEventsMap.touchstart,
                     onTouchMove: _touchEventsMap.touchmove,
                     onTouchEnd: _touchEventsMap.touchend,
                     onTouchCancel: _touchEventsMap.touchcancel,
                 };
-
-                var _wxSubdomainLoop2 = function(eventName) {
-                    var handler = _wxSubdomainEventsMap[eventName];
+                registerTouchEvent = function(eventName) {
                     wx[eventName](function(event) {
                         if (!event.changedTouches) return;
                         var pos = selfPointer.getHTMLElementPosition(element);
@@ -557,10 +556,9 @@ var inputManager = {
                         handler(selfPointer.getTouchesByEvent(event, pos));
                     });
                 };
-                for (var wxEventName in _wxSubdomainEventsMap) _wxSubdomainLoop2(wxEventName);
             }
             else {
-                var _loop2 = function(eventName) {
+                registerTouchEvent = function(eventName) {
                     var handler = _touchEventsMap[eventName];
                     element.addEventListener(eventName, (function(event) {
                         if (!event.changedTouches) return;
@@ -573,7 +571,9 @@ var inputManager = {
                         event.preventDefault();
                     }), false);
                 };
-                for (var eventName in _touchEventsMap) _loop2(eventName);
+            }
+            for (var eventName in _touchEventsMap) {
+                registerTouchEvent(eventName);
             }
         }
 
