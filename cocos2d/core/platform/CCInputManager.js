@@ -547,6 +547,7 @@ var inputManager = {
                     onTouchCancel: _touchEventsMap.touchcancel,
                 };
                 registerTouchEvent = function(eventName) {
+                    var handler = _touchEventsMap[eventName];
                     wx[eventName](function(event) {
                         if (!event.changedTouches) return;
                         var pos = selfPointer.getHTMLElementPosition(element);
