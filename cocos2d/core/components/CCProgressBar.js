@@ -24,6 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const misc = require('../utils/misc');
+const Component = require('./CCComponent');
 
 /**
  * !#en Enum for ProgressBar mode
@@ -76,7 +78,7 @@ var Mode = cc.Enum({
  */
 var ProgressBar = cc.Class({
     name: 'cc.ProgressBar',
-    extends: require('./CCComponent'),
+    extends: Component,
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/ProgressBar',
@@ -131,7 +133,7 @@ var ProgressBar = cc.Class({
             var entityPosition = entity.getPosition();
 
             var anchorPoint = cc.v2(0, 0.5);
-            var progress = cc.clamp01(this.progress);
+            var progress = misc.clamp01(this.progress);
             var actualLenth = this.totalLength * progress;
             var finalContentSize;
             var totalWidth;
@@ -174,7 +176,7 @@ var ProgressBar = cc.Class({
                     var anchorOffsetY = anchorPoint.y - entityAnchorPoint.y;
                     var finalPosition = cc.v2(totalWidth * anchorOffsetX, totalHeight * anchorOffsetY);
 
-                    entity.setPosition(cc.pAdd(entityPosition, finalPosition));
+                    entity.setPosition(entityPosition.x + finalPosition.x, entityPosition.y + finalPosition.y);
 
                     entity.setAnchorPoint(anchorPoint);
                     entity.setContentSize(finalContentSize);
@@ -245,7 +247,7 @@ var ProgressBar = cc.Class({
             },
             set: function(value) {
                 if (this.mode === Mode.FILLED) {
-                    value = cc.clamp01(value);
+                    value = misc.clamp01(value);
                 }
                 this._N$totalLength = value;
                 this._updateBarStatus();

@@ -24,6 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const misc = require('../utils/misc');
 const RenderComponent = require('./CCRenderComponent');
 const renderer = require('../renderer');
 const renderEngine = require('../renderer/render-engine');
@@ -316,7 +317,7 @@ var Sprite = cc.Class({
                 return this._fillStart;
             },
             set: function(value) {
-                this._fillStart = cc.clampf(value, -1, 1);
+                this._fillStart = misc.clampf(value, -1, 1);
                 if (this._type === SpriteType.FILLED && this._renderData) {
                     this._renderData.uvDirty = true;
                     this._renderData.vertDirty = true;
@@ -341,7 +342,7 @@ var Sprite = cc.Class({
                 return this._fillRange;
             },
             set: function(value) {
-                this._fillRange = cc.clampf(value, -1, 1);
+                this._fillRange = misc.clampf(value, -1, 1);
                 if (this._type === SpriteType.FILLED && this._renderData) {
                     this._renderData.uvDirty = true;
                     this._renderData.vertDirty = true;

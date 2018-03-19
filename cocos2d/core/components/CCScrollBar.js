@@ -23,6 +23,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
+const misc = require('../utils/misc');
+const Component = require('./CCComponent');
+
 var GETTINGSHORTERFACTOR = 20;
 
 /**
@@ -197,7 +201,7 @@ var Scrollbar = cc.Class({
         if (this.handle) {
             var oldPosition = this._fixupHandlerPosition();
 
-            this.handle.node.setPosition(cc.pAdd(position, oldPosition));
+            this.handle.node.setPosition(position.x + oldPosition.x, position.y + oldPosition.y);
         }
     },
 
@@ -212,9 +216,9 @@ var Scrollbar = cc.Class({
         var fixupPosition = handleParent.convertToNodeSpaceAR(leftBottomWorldPosition);
 
         if (this.direction === Direction.HORIZONTAL) {
-            fixupPosition = cc.pAdd(fixupPosition, cc.v2(0, (barSize.height - handleSize.height) / 2));
+            fixupPosition = cc.v2(fixupPosition.x, fixupPosition.y + (barSize.height - handleSize.height) / 2);
         } else if (this.direction === Direction.VERTICAL) {
-            fixupPosition = cc.pAdd(fixupPosition, cc.v2((barSize.width - handleSize.width) / 2, 0));
+            fixupPosition = cc.v2(fixupPosition.x + (barSize.width - handleSize.width) / 2, fixupPosition.y);
         }
 
         this.handle.node.setPosition(fixupPosition);
@@ -288,7 +292,7 @@ var Scrollbar = cc.Class({
         var positionRatio = 0;
         if (denominatorValue) {
             positionRatio = contentPosition / denominatorValue;
-            positionRatio = cc.clamp01(positionRatio);
+            positionRatio = misc.clamp01(positionRatio);
         }
 
         var position = (handleNodeMeasure - actualLenth) * positionRatio;

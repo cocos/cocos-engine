@@ -554,7 +554,7 @@ var PageView = cc.Class({
 
     _handleReleaseLogic: function(touch) {
         var bounceBackStarted = this._startBounceBackIfNeeded();
-        var moveOffset = cc.pSub(this._touchBeganPosition, this._touchEndPosition);
+        var moveOffset = this._touchBeganPosition.sub(this._touchEndPosition);
         if (bounceBackStarted) {
             var dragDirection = this._getDragDirection(moveOffset);
             if (dragDirection === 0) {

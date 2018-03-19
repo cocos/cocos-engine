@@ -24,6 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const misc = require('../utils/misc');
 const renderEngine = require('../renderer/render-engine');
 const gfx = renderEngine.gfx;
 const math = renderEngine.math;
@@ -213,7 +214,7 @@ let Mask = cc.Class({
                 return this._segments;
             },
             set: function (value) {
-                this._segments = cc.clampf(value, SEGEMENTS_MIN, SEGEMENTS_MAX);
+                this._segments = misc.clampf(value, SEGEMENTS_MIN, SEGEMENTS_MAX);
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.mask.segements',
         },

@@ -1719,10 +1719,13 @@ cc.BezierBy = cc.Class({
 
     reverse:function () {
         var locConfig = this._config;
+        var x0 = locConfig[0].x, y0 = locConfig[0].y;
+        var x1 = locConfig[1].x, y1 = locConfig[1].y;
+        var x2 = locConfig[2].x, y2 = locConfig[2].y;
         var r = [
-            cc.pAdd(locConfig[1], cc.pNeg(locConfig[2])),
-            cc.pAdd(locConfig[0], cc.pNeg(locConfig[2])),
-            cc.pNeg(locConfig[2]) ];
+            cc.v2(x1 - x2, y1 - y2),
+            cc.v2(x0 - x2, y0 - y2),
+            cc.v2(-x2, -y2) ];
         var action = new cc.BezierBy(this._duration, r);
         this._cloneDecoration(action);
         this._reverseEaseList(action);
@@ -1794,9 +1797,9 @@ cc.BezierTo = cc.Class({
         var locToConfig = this._toConfig;
         var locConfig = this._config;
 
-        locConfig[0] = cc.pSub(locToConfig[0], locStartPos);
-        locConfig[1] = cc.pSub(locToConfig[1], locStartPos);
-        locConfig[2] = cc.pSub(locToConfig[2], locStartPos);
+        locConfig[0] = locToConfig[0].sub(locStartPos);
+        locConfig[1] = locToConfig[1].sub(locStartPos);
+        locConfig[2] = locToConfig[2].sub(locStartPos);
     }
 });
 /**

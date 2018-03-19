@@ -27,7 +27,6 @@
 require('./value-type');
 require('./vec2');
 require('./vec3');
-require('./CCPointExtension');
 require('./quat');
 require('./size');
 require('./rect');

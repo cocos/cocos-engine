@@ -180,7 +180,7 @@ if (CC_DEV) {
     markAsRemovedInObject(cc.macro, [
         'ENABLE_GL_STATE_CACHE',
         'FIX_ARTIFACTS_BY_STRECHING_TEXEL',
-    ]);
+    ], 'cc.macro');
 
     provideClearError(cc.macro, {
         PI: 'Math.PI',
@@ -360,7 +360,50 @@ if (CC_DEV) {
         colorEqual: 'colorA.equals(colorB)',
         hexToColor: 'color.fromHEX(hexColor)',
         colorToHex: 'color.toHEX()',
+
+        // Point Extensions
+        pNeg: 'p.neg()',
+        pAdd: 'p1.add(p2)',
+        pSub: 'p1.sub(p2)',
+        pMult: 'p.mul(factor)',
+        pMidpoint: 'p1.add(p2).mul(0.5)',
+        pDot: 'p1.dot(p2)',
+        pCross: 'p1.cross(p2)',
+        pPerp: 'p.rotate(-90 * Math.PI / 180)',
+        pRPerp: 'p.rotate(90 * Math.PI / 180)',
+        pProject: 'p1.project(p2)',
+        pLengthSQ: 'p.magSqr()',
+        pDistanceSQ: 'p1.sub(p2).magSqr()',
+        pLength: 'p.mag()',
+        pDistance: 'p1.sub(p2).mag()',
+        pNormalize: 'p.normalize()',
+        pForAngle: 'cc.v2(Math.cos(a), Math.sin(a))',
+        pToAngle: 'Math.atan2(v.y, v.x)',
+        pZeroIn: 'p.x = p.y = 0',
+        pIn: 'p1.set(p2)',
+        pMultIn: 'p.mulSelf(factor)',
+        pSubIn: 'p1.subSelf(p2)',
+        pAddIn: 'p1.addSelf(p2)',
+        pNormalizeIn: 'p.normalizeSelf()',
+        pSameAs: 'p1.equals(p2)',
+        pAngle: 'v1.angle(v2)',
+        pAngleSigned: 'v1.signAngle(v2)',
+        pRotateByAngle: 'p.rotate(radians)',
+        pCompMult: 'v1.dot(v2)',
+        pFuzzyEqual: 'v1.fuzzyEquals(v2, tolerance)',
+        pLerp: 'p.lerp(endPoint, ratio)',
+        pClamp: 'p.clampf(min_inclusive, max_inclusive)',
+
+        clampf: 'cc.misc.clampf',
+        clamp01: 'cc.misc.clamp01',
     }, 'cc');
+    markAsRemovedInObject(cc, [
+        'pFromSize',
+        'pCompOp',
+        'pIntersectPoint',
+        'pSegmentIntersect',
+        'pLineIntersect'
+    ], 'cc');
     markFunctionWarning(cc, {
         // cc.p
         p: 'cc.v2'

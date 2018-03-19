@@ -24,6 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const misc = require('../utils/misc');
+const Component = require('./CCComponent');
+
 /**
  * !#en Audio Source.
  * !#zh 音频源组件，能对音频剪辑。
@@ -34,7 +37,7 @@
 
 var AudioSource = cc.Class({
     name: 'cc.AudioSource',
-    extends: require('./CCComponent'),
+    extends: Component,
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.others/AudioSource',
@@ -118,7 +121,7 @@ var AudioSource = cc.Class({
                 return this._volume;
             },
             set: function (value) {
-                value = cc.clamp01(value);
+                value = misc.clamp01(value);
                 this._volume = value;
                 var audio = this.audio;
                 if (audio && !this._mute) {

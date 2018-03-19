@@ -284,7 +284,7 @@ cc.CardinalSplineBy = cc.Class({
         var p = copyConfig[0];
         for (var i = 1; i < copyConfig.length; ++i) {
             current = copyConfig[i];
-            copyConfig[i] = cc.pSub(current, p);
+            copyConfig[i] = current.sub(p);
             p = current;
         }
 

@@ -24,6 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const misc = require('../utils/misc');
+const Component = require('./CCComponent');
+
 /**
  * !#en The Slider Direction
  * !#zh 滑动器方向
@@ -202,10 +205,10 @@ var Slider = cc.Class({
         if (!this.handle) { return; }
         var localTouchPos = this.node.convertTouchToNodeSpaceAR(touch);
         if (this.direction === Direction.Horizontal) {
-            this.progress = cc.clamp01(0.5 + (localTouchPos.x - this._offset.x) / this.node.width);
+            this.progress = misc.clamp01(0.5 + (localTouchPos.x - this._offset.x) / this.node.width);
         }
         else {
-            this.progress = cc.clamp01(0.5 + (localTouchPos.y - this._offset.y) / this.node.height);
+            this.progress = misc.clamp01(0.5 + (localTouchPos.y - this._offset.y) / this.node.height);
         }
     },
 

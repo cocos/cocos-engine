@@ -26,6 +26,7 @@
  ****************************************************************************/
 
 require('../core/platform/CCClass');
+const misc = require('../core/utils/misc');
 
 /**
  * @module cc
@@ -494,7 +495,7 @@ cc.Follow = cc.Class({
 
         var winSize = cc.director.getWinSize();
         _this._fullScreenSize = cc.v2(winSize.width, winSize.height);
-        _this._halfScreenSize = cc.pMult(_this._fullScreenSize, 0.5);
+        _this._halfScreenSize = _this._fullScreenSize.mul(0.5);
 
         if (_this._boundarySet) {
             _this.leftBoundary = -((rect.x + rect.width) - _this._fullScreenSize.x);
@@ -523,15 +524,15 @@ cc.Follow = cc.Class({
         var targetWorldPos = this.target.convertToWorldSpaceAR(cc.Vec2.ZERO);
         var followedWorldPos = this._followedNode.convertToWorldSpaceAR(cc.Vec2.ZERO);
         // compute the offset between followed and target node
-        var delta = cc.pSub(targetWorldPos, followedWorldPos);
-        var tempPos = this.target.parent.convertToNodeSpaceAR(cc.pAdd(delta, this._halfScreenSize));
+        var delta = targetWorldPos.sub(followedWorldPos);
+        var tempPos = this.target.parent.convertToNodeSpaceAR(delta.add(this._halfScreenSize));
 
         if (this._boundarySet) {
             // whole map fits inside a single screen, no need to modify the position - unless map boundaries are increased
             if (this._boundaryFullyCovered)
                 return;
 
-	        this.target.setPosition(cc.clampf(tempPos.x, this.leftBoundary, this.rightBoundary), cc.clampf(tempPos.y, this.bottomBoundary, this.topBoundary));
+	        this.target.setPosition(misc.clampf(tempPos.x, this.leftBoundary, this.rightBoundary), misc.clampf(tempPos.y, this.bottomBoundary, this.topBoundary));
         } else {
             this.target.setPosition(tempPos.x, tempPos.y);
         }
