@@ -76,7 +76,7 @@ var Scrollbar = cc.Class({
             type: cc.Sprite,
             tooltip: CC_DEV && 'i18n:COMPONENT.scrollbar.handle',
             notify: function() {
-                this._onScroll(cc.p(0, 0));
+                this._onScroll(cc.v2(0, 0));
             },
             animatable: false
         },
@@ -91,7 +91,7 @@ var Scrollbar = cc.Class({
             type: Direction,
             tooltip: CC_DEV && 'i18n:COMPONENT.scrollbar.direction',
             notify: function() {
-                this._onScroll(cc.p(0, 0));
+                this._onScroll(cc.v2(0, 0));
             },
             animatable: false
         },
@@ -132,7 +132,7 @@ var Scrollbar = cc.Class({
     },
 
     _convertToScrollViewSpace: function(content) {
-        var worldSpacePos = content.convertToWorldSpace(cc.p(0, 0));
+        var worldSpacePos = content.convertToWorldSpace(cc.v2(0, 0));
         var scrollViewSpacePos = this._scrollView.node.convertToNodeSpace(worldSpacePos);
         return scrollViewSpacePos;
     },
@@ -208,13 +208,13 @@ var Scrollbar = cc.Class({
 
         var handleParent = this.handle.node.parent;
 
-        var leftBottomWorldPosition = this.node.convertToWorldSpaceAR(cc.p(-barSize.width * barAnchor.x, -barSize.height * barAnchor.y));
+        var leftBottomWorldPosition = this.node.convertToWorldSpaceAR(cc.v2(-barSize.width * barAnchor.x, -barSize.height * barAnchor.y));
         var fixupPosition = handleParent.convertToNodeSpaceAR(leftBottomWorldPosition);
 
         if (this.direction === Direction.HORIZONTAL) {
-            fixupPosition = cc.pAdd(fixupPosition, cc.p(0, (barSize.height - handleSize.height) / 2));
+            fixupPosition = cc.pAdd(fixupPosition, cc.v2(0, (barSize.height - handleSize.height) / 2));
         } else if (this.direction === Direction.VERTICAL) {
-            fixupPosition = cc.pAdd(fixupPosition, cc.p((barSize.width - handleSize.width) / 2, 0));
+            fixupPosition = cc.pAdd(fixupPosition, cc.v2((barSize.width - handleSize.width) / 2, 0));
         }
 
         this.handle.node.setPosition(fixupPosition);
@@ -293,9 +293,9 @@ var Scrollbar = cc.Class({
 
         var position = (handleNodeMeasure - actualLenth) * positionRatio;
         if (this.direction === Direction.VERTICAL) {
-            return cc.p(0, position);
+            return cc.v2(0, position);
         } else {
-            return cc.p(position, 0);
+            return cc.v2(position, 0);
         }
     },
 
@@ -303,7 +303,7 @@ var Scrollbar = cc.Class({
         if (this.handle) {
             var handleNode = this.handle.node;
             var handleNodeSize = handleNode.getContentSize();
-            handleNode.setAnchorPoint(cc.p(0, 0));
+            handleNode.setAnchorPoint(cc.v2(0, 0));
             if (this.direction === Direction.HORIZONTAL) {
                 handleNode.setContentSize(length, handleNodeSize.height);
             } else {

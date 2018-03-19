@@ -520,7 +520,7 @@ var PageView = cc.Class({
 
     // 通过 idx 获取偏移值数值
     _moveOffsetValue: function (idx) {
-        var offset = cc.p(0, 0);
+        var offset = cc.v2(0, 0);
         if (this.sizeMode === SizeMode.Free) {
             if (this.direction === Direction.Horizontal) {
                 offset.x = this._scrollCenterOffsetX[idx];

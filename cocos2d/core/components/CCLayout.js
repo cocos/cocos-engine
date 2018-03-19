@@ -583,7 +583,7 @@ var Layout = cc.Class({
             var finalPositionY = fnPositionY(child, rowMaxHeight, row);
             if(baseWidth >= (child.width + this.paddingLeft + this.paddingRight)) {
                 if (applyChildren) {
-                    child.setPosition(cc.p(nextX, finalPositionY));
+                    child.setPosition(cc.v2(nextX, finalPositionY));
                 }
             }
 
@@ -716,7 +716,7 @@ var Layout = cc.Class({
             var finalPositionX = fnPositionX(child, columnMaxWidth, column);
             if (baseHeight >= (child.height + (this.paddingTop + this.paddingBottom))) {
                 if (applyChildren) {
-                    child.setPosition(cc.p(finalPositionX, nextY));
+                    child.setPosition(cc.v2(finalPositionX, nextY));
                 }
             }
 
@@ -766,12 +766,12 @@ var Layout = cc.Class({
         });
 
         if (allChildrenBoundingBox) {
-            var leftBottomInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x, allChildrenBoundingBox.y));
-            leftBottomInParentSpace = cc.pAdd(leftBottomInParentSpace, cc.p(-this.paddingLeft, -this.paddingBottom));
+            var leftBottomInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.v2(allChildrenBoundingBox.x, allChildrenBoundingBox.y));
+            leftBottomInParentSpace = cc.pAdd(leftBottomInParentSpace, cc.v2(-this.paddingLeft, -this.paddingBottom));
 
-            var rightTopInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x + allChildrenBoundingBox.width,
+            var rightTopInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.v2(allChildrenBoundingBox.x + allChildrenBoundingBox.width,
                                                                                    allChildrenBoundingBox.y + allChildrenBoundingBox.height));
-            rightTopInParentSpace = cc.pAdd(rightTopInParentSpace, cc.p(this.paddingRight, this.paddingTop));
+            rightTopInParentSpace = cc.pAdd(rightTopInParentSpace, cc.v2(this.paddingRight, this.paddingTop));
 
             var newSize = cc.size(parseFloat((rightTopInParentSpace.x - leftBottomInParentSpace.x).toFixed(2)),
                                   parseFloat((rightTopInParentSpace.y - leftBottomInParentSpace.y).toFixed(2)));
@@ -779,7 +779,7 @@ var Layout = cc.Class({
             var layoutPosition = this.node.getPosition();
             var newAnchorX = (layoutPosition.x - leftBottomInParentSpace.x) / newSize.width;
             var newAnchorY = (layoutPosition.y - leftBottomInParentSpace.y) / newSize.height;
-            var newAnchor = cc.p(parseFloat(newAnchorX.toFixed(2)), parseFloat(newAnchorY.toFixed(2)));
+            var newAnchor = cc.v2(parseFloat(newAnchorX.toFixed(2)), parseFloat(newAnchorY.toFixed(2)));
 
             this.node.setAnchorPoint(newAnchor);
             this.node.setContentSize(newSize);

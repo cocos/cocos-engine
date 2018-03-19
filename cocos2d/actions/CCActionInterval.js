@@ -828,7 +828,7 @@ cc.Spawn = cc.Class({
  * @return {FiniteTimeAction}
  * @example
  * // example
- * var action = cc.spawn(cc.jumpBy(2, cc.p(300, 0), 50, 4), cc.rotateBy(2, 720));
+ * var action = cc.spawn(cc.jumpBy(2, cc.v2(300, 0), 50, 4), cc.rotateBy(2, 720));
  * todo:It should be the direct use new
  */
 cc.spawn = function (/*Multiple Arguments*/tempArray) {
@@ -1058,16 +1058,16 @@ cc.rotateBy = function (duration, deltaAngleX, deltaAngleY) {
  * @param {Vec2|Number} deltaPos
  * @param {Number} [deltaY]
  * @example
- * var actionTo = cc.moveBy(2, cc.p(windowSize.width - 40, windowSize.height - 40));
+ * var actionTo = cc.moveBy(2, cc.v2(windowSize.width - 40, windowSize.height - 40));
  */
 cc.MoveBy = cc.Class({
     name: 'cc.MoveBy',
     extends: cc.ActionInterval,
 
     ctor:function (duration, deltaPos, deltaY) {
-        this._positionDelta = cc.p(0, 0);
-        this._startPosition = cc.p(0, 0);
-        this._previousPosition = cc.p(0, 0);
+        this._positionDelta = cc.v2(0, 0);
+        this._startPosition = cc.v2(0, 0);
+        this._previousPosition = cc.v2(0, 0);
 
         deltaPos !== undefined && cc.MoveBy.prototype.initWithDuration.call(this, duration, deltaPos, deltaY);	
     },
@@ -1135,7 +1135,7 @@ cc.MoveBy = cc.Class({
     },
 
     reverse:function () {
-        var action = new cc.MoveBy(this._duration, cc.p(-this._positionDelta.x, -this._positionDelta.y));
+        var action = new cc.MoveBy(this._duration, cc.v2(-this._positionDelta.x, -this._positionDelta.y));
         this._cloneDecoration(action);
         this._reverseEaseList(action);
         return action;
@@ -1156,7 +1156,7 @@ cc.MoveBy = cc.Class({
  * @return {ActionInterval}
  * @example
  * // example
- * var actionTo = cc.moveBy(2, cc.p(windowSize.width - 40, windowSize.height - 40));
+ * var actionTo = cc.moveBy(2, cc.v2(windowSize.width - 40, windowSize.height - 40));
  */
 cc.moveBy = function (duration, deltaPos, deltaY) {
     return new cc.MoveBy(duration, deltaPos, deltaY);
@@ -1173,14 +1173,14 @@ cc.moveBy = function (duration, deltaPos, deltaY) {
  * @param {Vec2|Number} position
  * @param {Number} [y]
  * @example
- * var actionBy = new cc.MoveTo(2, cc.p(80, 80));
+ * var actionBy = new cc.MoveTo(2, cc.v2(80, 80));
  */
 cc.MoveTo = cc.Class({
     name: 'cc.MoveTo',
     extends: cc.MoveBy,
 
     ctor:function (duration, position, y) {
-        this._endPosition = cc.p(0, 0);
+        this._endPosition = cc.v2(0, 0);
 		position !== undefined && this.initWithDuration(duration, position, y);
     },
 
@@ -1232,7 +1232,7 @@ cc.MoveTo = cc.Class({
  * @return {ActionInterval}
  * @example
  * // example
- * var actionBy = cc.moveTo(2, cc.p(80, 80));
+ * var actionBy = cc.moveTo(2, cc.v2(80, 80));
  */
 cc.moveTo = function (duration, position, y) {
     return new cc.MoveTo(duration, position, y);
@@ -1418,7 +1418,7 @@ cc.skewBy = function (t, sx, sy) {
  * @param {Number} height
  * @param {Number} jumps
  * @example
- * var actionBy = new cc.JumpBy(2, cc.p(300, 0), 50, 4);
+ * var actionBy = new cc.JumpBy(2, cc.v2(300, 0), 50, 4);
  * var actionBy = new cc.JumpBy(2, 300, 0, 50, 4);
  */
 cc.JumpBy = cc.Class({
@@ -1426,9 +1426,9 @@ cc.JumpBy = cc.Class({
     extends: cc.ActionInterval,
 
     ctor:function (duration, position, y, height, jumps) {
-        this._startPosition = cc.p(0, 0);
-        this._previousPosition = cc.p(0, 0);
-        this._delta = cc.p(0, 0);
+        this._startPosition = cc.v2(0, 0);
+        this._previousPosition = cc.v2(0, 0);
+        this._delta = cc.v2(0, 0);
         this._height = 0;
         this._jumps = 0;
 
@@ -1443,7 +1443,7 @@ cc.JumpBy = cc.Class({
      * @param {Number} jumps
      * @return {Boolean}
      * @example
-     * actionBy.initWithDuration(2, cc.p(300, 0), 50, 4);
+     * actionBy.initWithDuration(2, cc.v2(300, 0), 50, 4);
      * actionBy.initWithDuration(2, 300, 0, 50, 4);
      */
     initWithDuration:function (duration, position, y, height, jumps) {
@@ -1508,7 +1508,7 @@ cc.JumpBy = cc.Class({
     },
 
     reverse:function () {
-        var action = new cc.JumpBy(this._duration, cc.p(-this._delta.x, -this._delta.y), this._height, this._jumps);
+        var action = new cc.JumpBy(this._duration, cc.v2(-this._delta.x, -this._delta.y), this._height, this._jumps);
         this._cloneDecoration(action);
         this._reverseEaseList(action);
         return action;
@@ -1529,7 +1529,7 @@ cc.JumpBy = cc.Class({
  * @return {ActionInterval}
  * @example
  * // example
- * var actionBy = cc.jumpBy(2, cc.p(300, 0), 50, 4);
+ * var actionBy = cc.jumpBy(2, cc.v2(300, 0), 50, 4);
  * var actionBy = cc.jumpBy(2, 300, 0, 50, 4);
  */
 cc.jumpBy = function (duration, position, y, height, jumps) {
@@ -1547,7 +1547,7 @@ cc.jumpBy = function (duration, position, y, height, jumps) {
  * @param {Number} [height]
  * @param {Number} [jumps]
  * @example
- * var actionTo = new cc.JumpTo(2, cc.p(300, 0), 50, 4);
+ * var actionTo = new cc.JumpTo(2, cc.v2(300, 0), 50, 4);
  * var actionTo = new cc.JumpTo(2, 300, 0, 50, 4);
  */
 cc.JumpTo = cc.Class({
@@ -1555,7 +1555,7 @@ cc.JumpTo = cc.Class({
     extends: cc.JumpBy,
 
     ctor:function (duration, position, y, height, jumps) {
-        this._endPosition = cc.p(0, 0);
+        this._endPosition = cc.v2(0, 0);
         height !== undefined && this.initWithDuration(duration, position, y, height, jumps);
     },
     /*
@@ -1567,7 +1567,7 @@ cc.JumpTo = cc.Class({
      * @param {Number} jumps
      * @return {Boolean}
      * @example
-     * actionTo.initWithDuration(2, cc.p(300, 0), 50, 4);
+     * actionTo.initWithDuration(2, cc.v2(300, 0), 50, 4);
      * actionTo.initWithDuration(2, 300, 0, 50, 4);
      */
     initWithDuration:function (duration, position, y, height, jumps) {
@@ -1611,7 +1611,7 @@ cc.JumpTo = cc.Class({
  * @return {ActionInterval}
  * @example
  * // example
- * var actionTo = cc.jumpTo(2, cc.p(300, 300), 50, 4);
+ * var actionTo = cc.jumpTo(2, cc.v2(300, 300), 50, 4);
  * var actionTo = cc.jumpTo(2, 300, 300, 50, 4);
  */
 cc.jumpTo = function (duration, position, y, height, jumps) {
@@ -1625,7 +1625,7 @@ cc.jumpTo = function (duration, position, y, height, jumps) {
  * @param {Number} t - time in seconds
  * @param {Vec2[]} c - Array of points
  * @example
- * var bezier = [cc.p(0, windowSize.height / 2), cc.p(300, -windowSize.height / 2), cc.p(300, 100)];
+ * var bezier = [cc.v2(0, windowSize.height / 2), cc.v2(300, -windowSize.height / 2), cc.v2(300, 100)];
  * var bezierForward = new cc.BezierBy(3, bezier);
  */
 function bezierAt (a, b, c, d, t) {
@@ -1640,8 +1640,8 @@ cc.BezierBy = cc.Class({
 
     ctor:function (t, c) {
         this._config = [];
-        this._startPosition = cc.p(0, 0);
-        this._previousPosition = cc.p(0, 0);
+        this._startPosition = cc.v2(0, 0);
+        this._previousPosition = cc.v2(0, 0);
         c && cc.BezierBy.prototype.initWithDuration.call(this, t, c);
     },
 
@@ -1665,7 +1665,7 @@ cc.BezierBy = cc.Class({
         var newConfigs = [];
         for (var i = 0; i < this._config.length; i++) {
             var selConf = this._config[i];
-            newConfigs.push(cc.p(selConf.x, selConf.y));
+            newConfigs.push(cc.v2(selConf.x, selConf.y));
         }
         action.initWithDuration(this._duration, newConfigs);
         return action;
@@ -1741,7 +1741,7 @@ cc.BezierBy = cc.Class({
  * @return {ActionInterval}
  * @example
  * // example
- * var bezier = [cc.p(0, windowSize.height / 2), cc.p(300, -windowSize.height / 2), cc.p(300, 100)];
+ * var bezier = [cc.v2(0, windowSize.height / 2), cc.v2(300, -windowSize.height / 2), cc.v2(300, 100)];
  * var bezierForward = cc.bezierBy(3, bezier);
  */
 cc.bezierBy = function (t, c) {
@@ -1755,7 +1755,7 @@ cc.bezierBy = function (t, c) {
  * @param {Number} t
  * @param {Vec2[]} c - Array of points
  * @example
- * var bezier = [cc.p(0, windowSize.height / 2), cc.p(300, -windowSize.height / 2), cc.p(300, 100)];
+ * var bezier = [cc.v2(0, windowSize.height / 2), cc.v2(300, -windowSize.height / 2), cc.v2(300, 100)];
  * var bezierTo = new cc.BezierTo(2, bezier);
  */
 cc.BezierTo = cc.Class({
@@ -1808,7 +1808,7 @@ cc.BezierTo = cc.Class({
  * @return {ActionInterval}
  * @example
  * // example
- * var bezier = [cc.p(0, windowSize.height / 2), cc.p(300, -windowSize.height / 2), cc.p(300, 100)];
+ * var bezier = [cc.v2(0, windowSize.height / 2), cc.v2(300, -windowSize.height / 2), cc.v2(300, 100)];
  * var bezierTo = cc.bezierTo(2, bezier);
  */
 cc.bezierTo = function (t, c) {

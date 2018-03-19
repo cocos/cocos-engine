@@ -175,15 +175,15 @@ var ScrollView = cc.Class({
 
         this._autoScrolling = false;
         this._autoScrollAttenuate = false;
-        this._autoScrollStartPosition = cc.p(0, 0);
-        this._autoScrollTargetDelta = cc.p(0, 0);
+        this._autoScrollStartPosition = cc.v2(0, 0);
+        this._autoScrollTargetDelta = cc.v2(0, 0);
         this._autoScrollTotalTime = 0;
         this._autoScrollAccumulatedTime = 0;
         this._autoScrollCurrentlyOutOfBoundary = false;
         this._autoScrollBraking = false;
-        this._autoScrollBrakingStartPosition = cc.p(0, 0);
+        this._autoScrollBrakingStartPosition = cc.v2(0, 0);
 
-        this._outOfBoundaryAmount = cc.p(0, 0);
+        this._outOfBoundaryAmount = cc.v2(0, 0);
         this._outOfBoundaryAmountDirty = true;
         this._stopMouseWheel = false;
         this._mouseWheelEventElapsedTime = 0.0;
@@ -353,7 +353,7 @@ var ScrollView = cc.Class({
      */
     scrollToBottom: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
-            anchor: cc.p(0, 0),
+            anchor: cc.v2(0, 0),
             applyToHorizontal: false,
             applyToVertical: true,
         });
@@ -378,7 +378,7 @@ var ScrollView = cc.Class({
      */
     scrollToTop: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
-            anchor: cc.p(0, 1),
+            anchor: cc.v2(0, 1),
             applyToHorizontal: false,
             applyToVertical: true,
         });
@@ -403,7 +403,7 @@ var ScrollView = cc.Class({
      */
     scrollToLeft: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
-            anchor: cc.p(0, 0),
+            anchor: cc.v2(0, 0),
             applyToHorizontal: true,
             applyToVertical: false,
         });
@@ -428,7 +428,7 @@ var ScrollView = cc.Class({
      */
     scrollToRight: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
-            anchor: cc.p(1, 0),
+            anchor: cc.v2(1, 0),
             applyToHorizontal: true,
             applyToVertical: false,
         });
@@ -453,7 +453,7 @@ var ScrollView = cc.Class({
      */
     scrollToTopLeft: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
-            anchor: cc.p(0, 1),
+            anchor: cc.v2(0, 1),
             applyToHorizontal: true,
             applyToVertical: true,
         });
@@ -478,7 +478,7 @@ var ScrollView = cc.Class({
      */
     scrollToTopRight: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
-            anchor: cc.p(1, 1),
+            anchor: cc.v2(1, 1),
             applyToHorizontal: true,
             applyToVertical: true,
         });
@@ -503,7 +503,7 @@ var ScrollView = cc.Class({
      */
     scrollToBottomLeft: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
-            anchor: cc.p(0, 0),
+            anchor: cc.v2(0, 0),
             applyToHorizontal: true,
             applyToVertical: true,
         });
@@ -528,7 +528,7 @@ var ScrollView = cc.Class({
      */
     scrollToBottomRight: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
-            anchor: cc.p(1, 0),
+            anchor: cc.v2(1, 0),
             applyToHorizontal: true,
             applyToVertical: true,
         });
@@ -553,12 +553,12 @@ var ScrollView = cc.Class({
      * @example
      * // Scroll to middle position in 0.1 second in x-axis
      * var maxScrollOffset = this.getMaxScrollOffset();
-     * scrollView.scrollToOffset(cc.p(maxScrollOffset.x / 2, 0), 0.1);
+     * scrollView.scrollToOffset(cc.v2(maxScrollOffset.x / 2, 0), 0.1);
      */
     scrollToOffset: function(offset, timeInSecond, attenuated) {
         var maxScrollOffset = this.getMaxScrollOffset();
 
-        var anchor = cc.p(0, 0);
+        var anchor = cc.v2(0, 0);
         //if maxScrollOffset is 0, then always align the content's top left origin to the top left corner of its parent
         if (maxScrollOffset.x === 0) {
             anchor.x = 0;
@@ -585,7 +585,7 @@ var ScrollView = cc.Class({
         var topDelta =  this._getContentTopBoundary() - this._topBoundary;
         var leftDeta = this._getContentLeftBoundary() - this._leftBoundary;
 
-        return cc.p(leftDeta, topDelta);
+        return cc.v2(leftDeta, topDelta);
     },
 
     /**
@@ -602,7 +602,7 @@ var ScrollView = cc.Class({
         horizontalMaximizeOffset = horizontalMaximizeOffset >= 0 ? horizontalMaximizeOffset : 0;
         verticalMaximizeOffset = verticalMaximizeOffset >=0 ? verticalMaximizeOffset : 0;
 
-        return cc.p(horizontalMaximizeOffset, verticalMaximizeOffset);
+        return cc.v2(horizontalMaximizeOffset, verticalMaximizeOffset);
     },
 
     /**
@@ -619,7 +619,7 @@ var ScrollView = cc.Class({
      */
     scrollToPercentHorizontal: function(percent, timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
-            anchor: cc.p(percent, 0),
+            anchor: cc.v2(percent, 0),
             applyToHorizontal: true,
             applyToVertical: false,
         });
@@ -635,16 +635,16 @@ var ScrollView = cc.Class({
      * !#en Scroll the content to the percent position of ScrollView in any direction.
      * !#zh 视图内容在规定时间内进行垂直方向和水平方向的滚动，并且滚动到指定百分比位置上。
      * @method scrollTo
-     * @param {Vec2} anchor - A point which will be clamp between cc.p(0,0) and cc.p(1,1).
+     * @param {Vec2} anchor - A point which will be clamp between cc.v2(0,0) and cc.v2(1,1).
      * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the percent position of ScrollView immediately.
      * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
      * @example
      * // Vertical scroll to the bottom of the view.
-     * scrollView.scrollTo(cc.p(0, 1), 0.1);
+     * scrollView.scrollTo(cc.v2(0, 1), 0.1);
      *
      * // Horizontal scroll to view right.
-     * scrollView.scrollTo(cc.p(1, 0), 0.1);
+     * scrollView.scrollTo(cc.v2(1, 0), 0.1);
      */
     scrollTo: function(anchor, timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
@@ -673,7 +673,7 @@ var ScrollView = cc.Class({
      */
     scrollToPercentVertical: function(percent, timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
-            anchor: cc.p(0, percent),
+            anchor: cc.v2(0, percent),
             applyToHorizontal: false,
             applyToVertical: true,
         });
@@ -761,16 +761,16 @@ var ScrollView = cc.Class({
         if (!this.enabledInHierarchy) return;
         if (this._hasNestedViewGroup(event, captureListeners)) return;
 
-        var deltaMove = cc.p(0, 0);
+        var deltaMove = cc.v2(0, 0);
         var wheelPrecision = -0.1;
         if(CC_JSB) {
             wheelPrecision = -7;
         }
         if(this.vertical) {
-            deltaMove = cc.p(0, event.getScrollY() * wheelPrecision);
+            deltaMove = cc.v2(0, event.getScrollY() * wheelPrecision);
         }
         else if(this.horizontal) {
-            deltaMove = cc.p(event.getScrollY() * wheelPrecision, 0);
+            deltaMove = cc.v2(event.getScrollY() * wheelPrecision, 0);
         }
 
         this._mouseWheelEventElapsedTime = 0;
@@ -789,7 +789,7 @@ var ScrollView = cc.Class({
         var currentOutOfBoundary = this._getHowMuchOutOfBoundary();
         var maxElapsedTime = 0.1;
 
-        if (!cc.pFuzzyEqual(currentOutOfBoundary, cc.p(0, 0), EPSILON)) {
+        if (!cc.pFuzzyEqual(currentOutOfBoundary, cc.v2(0, 0), EPSILON)) {
             this._processInertiaScroll();
             this.unschedule(this._checkMouseWheel);
             this._stopMouseWheel = false;
@@ -813,7 +813,7 @@ var ScrollView = cc.Class({
         var applyToVertical = options.applyToVertical;
         this._calculateBoundary();
 
-        anchor = cc.pClamp(anchor, cc.p(0, 0), cc.p(1, 1));
+        anchor = cc.pClamp(anchor, cc.v2(0, 0), cc.v2(1, 1));
 
         var scrollSize = this.node.getContentSize();
         var contentSize = this.content.getContentSize();
@@ -823,7 +823,7 @@ var ScrollView = cc.Class({
         var leftDeta = this._getContentLeftBoundary() - this._leftBoundary;
         leftDeta = -leftDeta;
 
-        var moveDelta = cc.p(0, 0);
+        var moveDelta = cc.v2(0, 0);
         var totalScrollDelta = 0;
         if (applyToHorizontal) {
             totalScrollDelta = contentSize.width - scrollSize.width;
@@ -843,7 +843,7 @@ var ScrollView = cc.Class({
 
         var bottomDeta = this._getContentBottomBoundary() - this._bottomBoundary;
         bottomDeta = -bottomDeta;
-        var moveDelta = cc.p(0, 0);
+        var moveDelta = cc.v2(0, 0);
         var totalScrollDelta = 0;
 
         var leftDeta = this._getContentLeftBoundary() - this._leftBoundary;
@@ -889,11 +889,11 @@ var ScrollView = cc.Class({
             }
             var scrollViewSize = this.node.getContentSize();
 
-            var leftBottomPosition = this._convertToContentParentSpace(cc.p(0, 0));
+            var leftBottomPosition = this._convertToContentParentSpace(cc.v2(0, 0));
             this._leftBoundary = leftBottomPosition.x;
             this._bottomBoundary = leftBottomPosition.y;
 
-            var topRightPosition = this._convertToContentParentSpace(cc.p(scrollViewSize.width, scrollViewSize.height));
+            var topRightPosition = this._convertToContentParentSpace(cc.v2(scrollViewSize.width, scrollViewSize.height));
             this._rightBoundary = topRightPosition.x;
             this._topBoundary = topRightPosition.y;
 
@@ -1135,7 +1135,7 @@ var ScrollView = cc.Class({
         var bounceBackAmount = this._getHowMuchOutOfBoundary();
         bounceBackAmount = this._clampDelta(bounceBackAmount);
 
-        if (cc.pFuzzyEqual(bounceBackAmount, cc.p(0, 0), EPSILON)) {
+        if (cc.pFuzzyEqual(bounceBackAmount, cc.v2(0, 0), EPSILON)) {
             return false;
         }
 
@@ -1157,7 +1157,7 @@ var ScrollView = cc.Class({
         var bounceBackStarted = this._startBounceBackIfNeeded();
         if (!bounceBackStarted && this.inertia) {
             var touchMoveVelocity = this._calculateTouchMoveVelocity();
-            if (!cc.pFuzzyEqual(touchMoveVelocity, cc.p(0, 0), EPSILON) && this.brake < 1) {
+            if (!cc.pFuzzyEqual(touchMoveVelocity, cc.v2(0, 0), EPSILON) && this.brake < 1) {
                 this._startInertiaScroll(touchMoveVelocity);
             }
         }
@@ -1180,7 +1180,7 @@ var ScrollView = cc.Class({
 
     _isOutOfBoundary: function() {
         var outOfBoundary = this._getHowMuchOutOfBoundary();
-        return !cc.pFuzzyEqual(outOfBoundary, cc.p(0, 0), EPSILON);
+        return !cc.pFuzzyEqual(outOfBoundary, cc.v2(0, 0), EPSILON);
     },
 
     _isNecessaryAutoScrollBrake: function() {
@@ -1236,7 +1236,7 @@ var ScrollView = cc.Class({
         } else {
             var moveDelta = cc.pSub(newPosition, this.getContentPosition());
             var outOfBoundary = this._getHowMuchOutOfBoundary(moveDelta);
-            if (!cc.pFuzzyEqual(outOfBoundary, cc.p(0, 0), EPSILON)) {
+            if (!cc.pFuzzyEqual(outOfBoundary, cc.v2(0, 0), EPSILON)) {
                 newPosition = cc.pAdd(newPosition, outOfBoundary);
                 reachedEnd = true;
             }
@@ -1285,7 +1285,7 @@ var ScrollView = cc.Class({
         var attenuatedFactorX = this._calculateAttenuatedFactor(totalMoveWidth);
         var attenuatedFactorY = this._calculateAttenuatedFactor(totalMoveHeight);
 
-        targetDelta = cc.p(targetDelta.x * totalMoveWidth * (1 - this.brake) * attenuatedFactorX, targetDelta.y * totalMoveHeight * attenuatedFactorY * (1 - this.brake));
+        targetDelta = cc.v2(targetDelta.x * totalMoveWidth * (1 - this.brake) * attenuatedFactorX, targetDelta.y * totalMoveHeight * attenuatedFactorY * (1 - this.brake));
 
         var originalMoveLength = cc.pLength(deltaMove);
         var factor = cc.pLength(targetDelta) / originalMoveLength;
@@ -1324,10 +1324,10 @@ var ScrollView = cc.Class({
         this._autoScrollAccumulatedTime = 0;
         this._autoScrollBraking = false;
         this._isScrollEndedWithThresholdEventFired = false;
-        this._autoScrollBrakingStartPosition = cc.p(0, 0);
+        this._autoScrollBrakingStartPosition = cc.v2(0, 0);
 
         var currentOutOfBoundary = this._getHowMuchOutOfBoundary();
-        if (!cc.pFuzzyEqual(currentOutOfBoundary, cc.p(0, 0), EPSILON)) {
+        if (!cc.pFuzzyEqual(currentOutOfBoundary, cc.v2(0, 0), EPSILON)) {
             this._autoScrollCurrentlyOutOfBoundary = true;
             var afterOutOfBoundary = this._getHowMuchOutOfBoundary(adjustedDeltaMove);
             if (currentOutOfBoundary.x * afterOutOfBoundary.x > 0 ||
@@ -1345,15 +1345,15 @@ var ScrollView = cc.Class({
         }, totalTime);
 
         if (totalTime <= 0 || totalTime >= 0.5) {
-            return cc.p(0, 0);
+            return cc.v2(0, 0);
         }
 
-        var totalMovement = cc.p(0, 0);
+        var totalMovement = cc.v2(0, 0);
         totalMovement = this._touchMoveDisplacements.reduce(function(a, b) {
             return cc.pAdd(a, b);
         }, totalMovement);
 
-        return cc.p(totalMovement.x * (1 - this.brake) / totalTime,
+        return cc.v2(totalMovement.x * (1 - this.brake) / totalTime,
                     totalMovement.y * (1 - this.brake) / totalTime);
     },
 
@@ -1404,12 +1404,12 @@ var ScrollView = cc.Class({
     },
 
     _getHowMuchOutOfBoundary: function(addition) {
-        addition = addition || cc.p(0, 0);
-        if (cc.pFuzzyEqual(addition, cc.p(0, 0), EPSILON) && !this._outOfBoundaryAmountDirty) {
+        addition = addition || cc.v2(0, 0);
+        if (cc.pFuzzyEqual(addition, cc.v2(0, 0), EPSILON) && !this._outOfBoundaryAmountDirty) {
             return this._outOfBoundaryAmount;
         }
 
-        var outOfBoundaryAmount = cc.p(0, 0);
+        var outOfBoundaryAmount = cc.v2(0, 0);
         if (this._getContentLeftBoundary() + addition.x > this._leftBoundary) {
             outOfBoundaryAmount.x = this._leftBoundary - (this._getContentLeftBoundary() + addition.x);
         } else if (this._getContentRightBoundary() + addition.x < this._rightBoundary) {
@@ -1422,7 +1422,7 @@ var ScrollView = cc.Class({
             outOfBoundaryAmount.y = this._bottomBoundary - (this._getContentBottomBoundary() + addition.y);
         }
 
-        if (cc.pFuzzyEqual(addition, cc.p(0, 0), EPSILON)) {
+        if (cc.pFuzzyEqual(addition, cc.v2(0, 0), EPSILON)) {
             this._outOfBoundaryAmount = outOfBoundaryAmount;
             this._outOfBoundaryAmountDirty = false;
         }
@@ -1486,7 +1486,7 @@ var ScrollView = cc.Class({
     _adjustContentOutOfBoundary: function () {
         this._outOfBoundaryAmountDirty = true;
         if(this._isOutOfBoundary()) {
-            var outOfBoundary = this._getHowMuchOutOfBoundary(cc.p(0, 0));
+            var outOfBoundary = this._getHowMuchOutOfBoundary(cc.v2(0, 0));
             var newPosition = cc.pAdd(this.getContentPosition(), outOfBoundary);
             if(this.content) {
                 this.content.setPosition(newPosition);

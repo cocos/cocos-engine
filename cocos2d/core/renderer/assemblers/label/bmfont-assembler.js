@@ -278,7 +278,7 @@ module.exports = {
         let highestY = 0;
         let lowestY = 0;
         let letterDef = null;
-        let letterPosition = cc.p(0, 0);
+        let letterPosition = cc.v2(0, 0);
 
         this._updateFontScale();
 

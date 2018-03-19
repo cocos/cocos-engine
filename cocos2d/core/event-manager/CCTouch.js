@@ -155,10 +155,10 @@ cc.Touch.prototype = {
      */
     setTouchInfo:function (id, x, y) {
         this._prevPoint = this._point;
-        this._point = cc.p(x || 0, y || 0);
+        this._point = cc.v2(x || 0, y || 0);
         this._id = id;
         if(!this._startPointCaptured){
-            this._startPoint = cc.p(this._point);
+            this._startPoint = cc.v2(this._point);
             cc.view._convertPointWithScale(this._startPoint);
             this._startPointCaptured = true;
         }
@@ -176,8 +176,8 @@ cc.Touch.prototype = {
 
     _setPrevPoint:function (x, y) {
         if(y === undefined)
-            this._prevPoint = cc.p(x.x, x.y);
+            this._prevPoint = cc.v2(x.x, x.y);
         else
-            this._prevPoint = cc.p(x || 0, y || 0);
+            this._prevPoint = cc.v2(x || 0, y || 0);
     }
 };

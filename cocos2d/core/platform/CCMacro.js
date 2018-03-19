@@ -1319,7 +1319,7 @@ cc.macro = {
      * To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
      * @property {Vec2} DIRECTOR_STATS_POSITION
      */
-    DIRECTOR_STATS_POSITION: cc.p(0, 0),
+    DIRECTOR_STATS_POSITION: cc.v2(0, 0),
 
     /**
      * <p>

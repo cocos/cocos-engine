@@ -160,7 +160,7 @@ dragonBones.CCSlot = cc.Class({
             // Create and cache texture
             let rect = cc.rect(currentTextureData.region.x, currentTextureData.region.y,
                                 currentTextureData.region.width, currentTextureData.region.height);
-            let offset = cc.p(0, 0);
+            let offset = cc.v2(0, 0);
             let size = cc.size(currentTextureData.region.width, currentTextureData.region.height);
 
             currentTextureData.spriteFrame = new cc.SpriteFrame();

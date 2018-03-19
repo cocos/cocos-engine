@@ -331,7 +331,7 @@ module.exports = {
             firstLinelabelY = _canvasSize.height - lineHeight * (lineCount - 1);
         }
 
-        return cc.p(labelX, firstLinelabelY);
+        return cc.v2(labelX, firstLinelabelY);
     },
 
     _updateLabelDimensions () {

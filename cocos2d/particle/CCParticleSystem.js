@@ -589,7 +589,7 @@ var properties = {
      * @property {Vec2} sourcePos
      * @default cc.Vec2.ZERO
      */
-    sourcePos: cc.p(0, 0),
+    sourcePos: cc.v2(0, 0),
 
     /**
      * !#en Variation of source position.
@@ -597,7 +597,7 @@ var properties = {
      * @property {Vec2} posVar
      * @default cc.Vec2.ZERO
      */
-    posVar: cc.p(0, 0),
+    posVar: cc.v2(0, 0),
 
     /**
      * !#en Particles movement type.
@@ -629,7 +629,7 @@ var properties = {
      * @property {Vec2} gravity
      * @default cc.Vec2.ZERO
      */
-    gravity: cc.p(0, 0),
+    gravity: cc.v2(0, 0),
     /**
      * !#en Speed of the emitter.
      * !#zh 速度。

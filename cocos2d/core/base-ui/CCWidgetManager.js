@@ -380,7 +380,7 @@ var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (event) {
     }
     var oldSize = event.detail;
     var newSize = this.node.getContentSize();
-    var delta = cc.p(newSize.width - oldSize.width, newSize.height - oldSize.height);
+    var delta = cc.v2(newSize.width - oldSize.width, newSize.height - oldSize.height);
 
     var target = this.node._parent;
     var inverseScale = cc.Vec2.ONE;

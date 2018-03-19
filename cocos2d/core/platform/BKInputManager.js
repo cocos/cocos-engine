@@ -38,7 +38,7 @@ if (CC_QQPLAY) {
     var bkInputManager = {
         _isRegisterEvent: false,
 
-        _preTouchPoint: cc.p(0, 0),
+        _preTouchPoint: cc.v2(0, 0),
 
         _preTouchPool: [],
         _preTouchPoolPointer: 0,

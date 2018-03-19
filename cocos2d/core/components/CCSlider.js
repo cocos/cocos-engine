@@ -60,7 +60,7 @@ var Slider = cc.Class({
     },
 
     ctor: function () {
-        this._offset = cc.p();
+        this._offset = cc.v2();
         this._touchHandle = false;
         this._dragging = false;
     },
@@ -179,7 +179,7 @@ var Slider = cc.Class({
     _onTouchEnded: function (event) {
         this._dragging = false;
         this._touchHandle = false;
-        this._offset = cc.p();
+        this._offset = cc.v2();
         event.stopPropagation();
     },
 
@@ -213,10 +213,10 @@ var Slider = cc.Class({
         if (!this.handle) { return; }
         var handlelocalPos;
         if (this.direction === Direction.Horizontal) {
-            handlelocalPos = cc.p(-this.node.width * this.node.anchorX + this.progress * this.node.width, 0);
+            handlelocalPos = cc.v2(-this.node.width * this.node.anchorX + this.progress * this.node.width, 0);
         }
         else {
-            handlelocalPos = cc.p(0, -this.node.height * this.node.anchorY + this.progress * this.node.height);
+            handlelocalPos = cc.v2(0, -this.node.height * this.node.anchorY + this.progress * this.node.height);
         }
         var worldSpacePos = this.node.convertToWorldSpaceAR(handlelocalPos);
         this.handle.node.position = this.handle.node.parent.convertToNodeSpaceAR(worldSpacePos);
