@@ -240,17 +240,6 @@ var View = cc._Class.extend({
         if (view._resizeCallback) {
             view._resizeCallback.call();
         }
-
-        // set sharedCanvas size
-        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME) {
-            var openDataContext = wx.getOpenDataContext();
-            var sharedCanvas = openDataContext.canvas;
-            sharedCanvas.width = width;
-            sharedCanvas.height = height;
-            wx.postMessage({
-                message: "changedShareCanvasSize"
-            });
-        }
     },
 
     _orientationChange: function () {
