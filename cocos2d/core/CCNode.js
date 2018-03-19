@@ -2300,7 +2300,7 @@ var Node = cc.Class({
             -this._anchorPoint.y * height, 
             width, 
             height);
-        return cc.Rect.transformMat4(rect, rect, this._matrix);
+        return rect.transformMat4(rect, this._matrix);
     },
 
     /**
@@ -2336,7 +2336,7 @@ var Node = cc.Class({
             height);
 
         var parentMat = math.mat4.mul(this._worldMatrix, parentMat, this._matrix);
-        cc.Rect.transformMat4(rect, rect, parentMat);
+        rect.transformMat4(rect, parentMat);
 
         //query child's BoundingBox
         if (!this._children)
@@ -2348,7 +2348,7 @@ var Node = cc.Class({
             if (child && child.active) {
                 var childRect = child._getBoundingBoxTo(parentMat);
                 if (childRect)
-                    rect = rect.union(childRect);
+                    rect.union(rect, childRect);
             }
         }
         return rect;

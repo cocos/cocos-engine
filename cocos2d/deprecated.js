@@ -409,7 +409,9 @@ if (CC_DEV) {
         'pCompOp',
         'pIntersectPoint',
         'pSegmentIntersect',
-        'pLineIntersect'
+        'pLineIntersect',
+
+        'obbApplyMatrix'
     ], 'cc');
     markFunctionWarning(cc, {
         // cc.p

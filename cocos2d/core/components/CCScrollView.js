@@ -813,7 +813,7 @@ var ScrollView = cc.Class({
         var applyToVertical = options.applyToVertical;
         this._calculateBoundary();
 
-        anchor = cc.pClamp(anchor, cc.v2(0, 0), cc.v2(1, 1));
+        anchor = anchor.clampf(cc.v2(0, 0), cc.v2(1, 1));
 
         var scrollSize = this.node.getContentSize();
         var contentSize = this.content.getContentSize();

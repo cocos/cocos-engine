@@ -170,8 +170,10 @@ proto.lerp = function (to, ratio, out) {
  * var v2 = cc.v2(0, 0).clamp(min_inclusive, max_inclusive);   // Vec2 {x: 0, y: 0};
  * var v3 = cc.v2(10, 10).clamp(min_inclusive, max_inclusive); // Vec2 {x: 10, y: 10};
  */
-proto.clampf = function (p, min_inclusive, max_inclusive) {
-    return cc.v2(misc.clampf(p.x, min_inclusive.x, max_inclusive.x), misc.clampf(p.y, min_inclusive.y, max_inclusive.y));
+proto.clampf = function (min_inclusive, max_inclusive) {
+    this.x = misc.clampf(this.x, min_inclusive.x, max_inclusive.x);
+    this.y = misc.clampf(this.y, min_inclusive.y, max_inclusive.y);
+    return this;
 };
 
 /**

@@ -396,10 +396,11 @@ var Color = (function () {
      * color.fromHEX("#FFFF33"); // Color {r: 255, g: 255, b: 51, a: 255};
      */
     proto.fromHEX = function (hexString) {
+        hexString = (hexString.indexOf('#') === 0) ? hexString.substring(1) : hexString;
         if (hexString.length < 8) {
-            hexString += 'FF';
+            hexString = 'FF' + hexString;
         }
-        var hex = parseInt(((hexString.indexOf('#') > -1) ? hexString.substring(1) : hexString), 16);
+        var hex = parseInt(hexString, 16);
         this._val = ((this._val & 0x00000000) | hex) >>> 0;
         return this;
     };

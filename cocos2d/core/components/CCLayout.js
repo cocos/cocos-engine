@@ -415,7 +415,7 @@ var Layout = cc.Class({
     onEnable: function() {
         this._addEventListeners();
 
-        if(cc.sizeEqualToSize(this.node.getContentSize(), cc.size(0, 0))) {
+        if(this.node.getContentSize().equals(cc.size(0, 0))) {
             this.node.setContentSize(this._layoutSize);
         }
 
@@ -761,7 +761,7 @@ var Layout = cc.Class({
             if(!allChildrenBoundingBox){
                 allChildrenBoundingBox = child.getBoundingBoxToWorld();
             } else {
-                allChildrenBoundingBox = cc.rectUnion(allChildrenBoundingBox, child.getBoundingBoxToWorld());
+                allChildrenBoundingBox.union(allChildrenBoundingBox, child.getBoundingBoxToWorld());
             }
         });
 

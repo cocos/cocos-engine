@@ -309,7 +309,7 @@ let Mask = cc.Class({
             _rect_temp.y = -node.anchorX * h;
             _rect_temp.width = w; 
             _rect_temp.height = h;
-            cc.Rect.transformMat4(_rect_temp, _rect_temp, _mat4_temp);
+            _rect_temp.transformMat4(_rect_temp, _mat4_temp);
 
             let left = point.x - _rect_temp.x,
                 right = _rect_temp.x + _rect_temp.width - point.x,

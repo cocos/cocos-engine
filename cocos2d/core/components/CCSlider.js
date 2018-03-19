@@ -160,7 +160,7 @@ var Slider = cc.Class({
     _onHandleDragStart: function (event) {
         this._dragging = true;
         this._touchHandle = true;
-        this._offset = this.handle.node.convertTouchToNodeSpaceAR(event.touch);
+        this._offset = this.handle.node.convertToNodeSpaceAR(event.touch.getLocation());
         event.stopPropagation();
     },
 
@@ -203,7 +203,7 @@ var Slider = cc.Class({
 
     _updateProgress: function (touch) {
         if (!this.handle) { return; }
-        var localTouchPos = this.node.convertTouchToNodeSpaceAR(touch);
+        var localTouchPos = this.node.convertToNodeSpaceAR(touch.getLocation());
         if (this.direction === Direction.Horizontal) {
             this.progress = misc.clamp01(0.5 + (localTouchPos.x - this._offset.x) / this.node.width);
         }
