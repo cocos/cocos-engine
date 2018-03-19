@@ -398,8 +398,8 @@ if (CC_DEV) {
         pLerp: 'p.lerp(endPoint, ratio)',
         pClamp: 'p.clampf(min_inclusive, max_inclusive)',
 
-        clampf: 'cc.misc.clampf',
-        clamp01: 'cc.misc.clamp01',
+        rand: 'Math.random() * 0xffffff',
+        randomMinus1To1: '(Math.random() - 0.5) * 2',
     }, 'cc');
     markAsRemovedInObject(cc, [
         'BlendFunc',
@@ -411,7 +411,9 @@ if (CC_DEV) {
         'pSegmentIntersect',
         'pLineIntersect',
 
-        'obbApplyMatrix'
+        'obbApplyMatrix',
+
+        'getImageFormatByData',
     ], 'cc');
     markFunctionWarning(cc, {
         // cc.p
@@ -426,6 +428,40 @@ if (CC_DEV) {
     provideClearError(cc.Color, {
         rgb2hsv: 'color.toHSV()',
         hsv2rgb: 'color.fromHSV(h, s, v)'
+    });
+
+    // macro functions
+    js.get(cc, 'lerp', function () {
+        cc.warnID(1400, 'cc.lerp', 'cc.misc.lerp');
+        return cc.misc.lerp;
+    });
+    js.get(cc, 'random0To1', function () {
+        cc.warnID(1400, 'cc.random0To1', 'Math.random');
+        return Math.random;
+    });
+    js.get(cc, 'degreesToRadians', function () {
+        cc.warnID(1400, 'cc.degreesToRadians', 'cc.misc.degreesToRadians');
+        return cc.misc.degreesToRadians;
+    });
+    js.get(cc, 'radiansToDegrees', function () {
+        cc.warnID(1400, 'cc.radiansToDegrees', 'cc.misc.radiansToDegrees');
+        return cc.misc.radiansToDegrees;
+    });
+    js.get(cc, 'clampf', function () {
+        cc.warnID(1400, 'cc.clampf', 'cc.misc.clampf');
+        return cc.misc.clampf;
+    });
+    js.get(cc, 'clamp01', function () {
+        cc.warnID(1400, 'cc.clamp01', 'cc.misc.clamp01');
+        return cc.misc.clamp01;
+    });
+    js.get(cc, 'ImageFormat', function () {
+        cc.warnID(1400, 'cc.ImageFormat', 'cc.macro.ImageFormat');
+        return cc.macro.ImageFormat;
+    });
+    js.get(cc, 'KEY', function () {
+        cc.warnID(1400, 'cc.KEY', 'cc.macro.KEY');
+        return cc.macro.KEY;
     });
 
     // cc.pool

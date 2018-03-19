@@ -26,8 +26,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Utils = require('../../platform/utils');
-
+const utils = require('../../platform/utils');
+const macro = require('../../platform/CCMacro');
 const Types = require('./types');
 const InputMode = Types.InputMode;
 const InputFlag = Types.InputFlag;
@@ -455,7 +455,7 @@ _p._createDomInput = function () {
         }
     });
     tmpEdTxt.addEventListener('keypress', function (e) {
-        if (e.keyCode === cc.KEY.enter) {
+        if (e.keyCode === macro.KEY.enter) {
             e.stopPropagation();
             e.preventDefault();
 
@@ -548,7 +548,7 @@ _p._createDomTextArea = function () {
 
     });
     tmpEdTxt.addEventListener('keypress', function (e) {
-        if (e.keyCode === cc.KEY.enter) {
+        if (e.keyCode === macro.KEY.enter) {
             e.stopPropagation();
 
             if (self._delegate && self._delegate.editBoxEditingReturn) {
@@ -577,7 +577,7 @@ _p._addDomToGameContainer = function () {
 _p.removeDom = function () {
     let edTxt = this._edTxt;
     if (edTxt) {
-        let hasChild = Utils.contains(cc.game.container, edTxt);
+        let hasChild = utils.contains(cc.game.container, edTxt);
         if (hasChild) {
             cc.game.container.removeChild(edTxt);
         }

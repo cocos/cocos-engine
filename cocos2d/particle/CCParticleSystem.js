@@ -37,6 +37,29 @@ const ParticleMaterial = renderEngine.ParticleMaterial;
 const Particles = renderEngine.Particles;
 
 var BlendFactor = macro.BlendFactor;
+
+function getImageFormatByData (imgData) {
+    // if it is a png file buffer.
+    if (imgData.length > 8 && imgData[0] === 0x89
+        && imgData[1] === 0x50
+        && imgData[2] === 0x4E
+        && imgData[3] === 0x47
+        && imgData[4] === 0x0D
+        && imgData[5] === 0x0A
+        && imgData[6] === 0x1A
+        && imgData[7] === 0x0A) {
+        return macro.ImageFormat.PNG;
+    }
+
+    // if it is a tiff file buffer.
+    if (imgData.length > 2 && ((imgData[0] === 0x49 && imgData[1] === 0x49)
+        || (imgData[0] === 0x4d && imgData[1] === 0x4d)
+        || (imgData[0] === 0xff && imgData[1] === 0xd8))) {
+        return macro.ImageFormat.TIFF;
+    }
+    return macro.ImageFormat.UNKNOWN;
+}
+
 /**
  * !#en Enum for emitter modes
  * !#zh 发射模式
@@ -1115,14 +1138,14 @@ var ParticleSystem = cc.Class({
                     return false;
                 }
 
-                var imageFormat = cc.getImageFormatByData(buffer);
-                if (imageFormat !== cc.ImageFormat.TIFF && imageFormat !== cc.ImageFormat.PNG) {
+                var imageFormat = getImageFormatByData(buffer);
+                if (imageFormat !== macro.ImageFormat.TIFF && imageFormat !== macro.ImageFormat.PNG) {
                     cc.logID(6011);
                     return false;
                 }
 
                 var canvasObj = document.createElement("canvas");
-                if(imageFormat === cc.ImageFormat.PNG){
+                if(imageFormat === macro.ImageFormat.PNG){
                     var myPngObj = new PNGReader(buffer);
                     myPngObj.render(canvasObj);
                 } else {

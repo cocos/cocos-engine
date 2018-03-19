@@ -188,4 +188,36 @@ misc.clamp01 = function (value) {
     return value < 0 ? 0 : value < 1 ? value : 1;
 };
 
+/**
+ * Linear interpolation between 2 numbers, the ratio sets how much it is biased to each end
+ * @method lerp
+ * @param {Number} a number A
+ * @param {Number} b number B
+ * @param {Number} r ratio between 0 and 1
+ * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCMacro/lerp.js}
+ */
+misc.lerp = function (a, b, r) {
+    return a + (b - a) * r;
+};
+
+/**
+ * converts degrees to radians
+ * @param {Number} angle
+ * @return {Number}
+ * @method degreesToRadians
+ */
+misc.degreesToRadians = function (angle) {
+    return angle * cc.macro.RAD;
+};
+
+/**
+ * converts radians to degrees
+ * @param {Number} angle
+ * @return {Number}
+ * @method radiansToDegrees
+ */
+misc.radiansToDegrees = function (angle) {
+    return angle * cc.macro.DEG;
+};
+
 cc.misc = module.exports = misc;
