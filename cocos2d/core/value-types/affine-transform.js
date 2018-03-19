@@ -27,9 +27,9 @@
 
 /**
  * !#en
- * cc.AffineTransform class represent an affine transform matrix. It's composed basically by translation, rotation, scale transformations.<br/>
+ * AffineTransform class represent an affine transform matrix. It's composed basically by translation, rotation, scale transformations.<br/>
  * !#zh
- * cc.AffineTransform 类代表一个仿射变换矩阵。它基本上是由平移旋转，缩放转变所组成。<br/>
+ * AffineTransform 类代表一个仿射变换矩阵。它基本上是由平移旋转，缩放转变所组成。<br/>
  * @class AffineTransform
  * @constructor
  * @param {Number} a
@@ -38,9 +38,9 @@
  * @param {Number} d
  * @param {Number} tx
  * @param {Number} ty
- * @see cc.AffineTransform.create
+ * @see AffineTransform.create
  */
-cc.AffineTransform = function (a, b, c, d, tx, ty) {
+var AffineTransform = function (a, b, c, d, tx, ty) {
     this.a = a;
     this.b = b;
     this.c = c;
@@ -50,8 +50,8 @@ cc.AffineTransform = function (a, b, c, d, tx, ty) {
 };
 
 /**
- * !#en Create a cc.AffineTransform object with all contents in the matrix.
- * !#zh 用在矩阵中的所有内容创建一个 cc.AffineTransform 对象。
+ * !#en Create a AffineTransform object with all contents in the matrix.
+ * !#zh 用在矩阵中的所有内容创建一个 AffineTransform 对象。
  * @method create
  * @static
  * @param {Number} a
@@ -62,7 +62,7 @@ cc.AffineTransform = function (a, b, c, d, tx, ty) {
  * @param {Number} ty
  * @return {AffineTransform}
  */
-cc.AffineTransform.create = function (a, b, c, d, tx, ty) {
+AffineTransform.create = function (a, b, c, d, tx, ty) {
     return {a: a, b: b, c: c, d: d, tx: tx, ty: ty};
 };
 
@@ -80,19 +80,19 @@ cc.AffineTransform.create = function (a, b, c, d, tx, ty) {
  * @static
  * @return {AffineTransform}
  */
-cc.AffineTransform.identity = function () {
+AffineTransform.identity = function () {
     return {a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 0.0, ty: 0.0};
 };
 
 /**
- * !#en Clone a cc.AffineTransform object from the specified transform.
- * !#zh 克隆指定的 cc.AffineTransform 对象。
+ * !#en Clone a AffineTransform object from the specified transform.
+ * !#zh 克隆指定的 AffineTransform 对象。
  * @method clone
  * @static
  * @param {AffineTransform} t
  * @return {AffineTransform}
  */
-cc.AffineTransform.clone = function (t) {
+AffineTransform.clone = function (t) {
     return {a: t.a, b: t.b, c: t.c, d: t.d, tx: t.tx, ty: t.ty};
 };
 
@@ -112,7 +112,7 @@ cc.AffineTransform.clone = function (t) {
  * @param {AffineTransform} t2 The transform object to concatenate.
  * @return {AffineTransform} Out object with the result of concatenation.
  */
-cc.AffineTransform.concat = function (out, t1, t2) {
+AffineTransform.concat = function (out, t1, t2) {
     var a = t1.a, b = t1.b, c = t1.c, d = t1.d, tx = t1.tx, ty = t1.ty;
     out.a = a * t2.a + b * t2.c;
     out.b = a * t2.b + b * t2.d;
@@ -133,7 +133,7 @@ cc.AffineTransform.concat = function (out, t1, t2) {
  * @param {AffineTransform} t
  * @return {AffineTransform} Out object with inverted result.
  */
-cc.AffineTransform.invert = function (out, t) {
+AffineTransform.invert = function (out, t) {
     var a = t.a, b = t.b, c = t.c, d = t.d;
     var determinant = 1 / (a * d - b * c);
     var tx = t.tx, ty = t.ty;
@@ -156,7 +156,7 @@ cc.AffineTransform.invert = function (out, t) {
  * @param {AffineTransform} t
  * @return {AffineTransform} Out object with inverted result.
  */
-cc.AffineTransform.fromMat4 = function (out, mat) {
+AffineTransform.fromMat4 = function (out, mat) {
     out.a = mat.m00;
     out.b = mat.m01;
     out.c = mat.m04;
@@ -178,7 +178,7 @@ cc.AffineTransform.fromMat4 = function (out, mat) {
  * @param {AffineTransform} [t] transform matrix.
  * @return {Vec2}
  */
-cc.AffineTransform.transformVec2 = function (out, point, transOrY, t) {
+AffineTransform.transformVec2 = function (out, point, transOrY, t) {
     var x, y;
     if (t === undefined) {
         t = transOrY;
@@ -204,7 +204,7 @@ cc.AffineTransform.transformVec2 = function (out, point, transOrY, t) {
  * @param {AffineTransform} t
  * @return {Size}
  */
-cc.AffineTransform.transformSize = function (out, size, t) {
+AffineTransform.transformSize = function (out, size, t) {
     out.width = t.a * size.width + t.c * size.height;
     out.height = t.b * size.width + t.d * size.height;
     return out;
@@ -221,7 +221,7 @@ cc.AffineTransform.transformSize = function (out, size, t) {
  * @param {AffineTransform} anAffineTransform
  * @return {Rect}
  */
-cc.AffineTransform.transformRect = function(out, rect, t){
+AffineTransform.transformRect = function(out, rect, t){
     var ol = rect.x;
     var ob = rect.y;
     var or = ol + rect.width;
@@ -260,7 +260,7 @@ cc.AffineTransform.transformRect = function(out, rect, t){
  * @param {Rect} rect
  * @param {AffineTransform} anAffineTransform
  */
-cc.AffineTransform.transformObb = function (out_bl, out_tl, out_tr, out_br, rect, anAffineTransform) {
+AffineTransform.transformObb = function (out_bl, out_tl, out_tr, out_br, rect, anAffineTransform) {
     var x = rect.x;
     var y = rect.y;
     var width = rect.width;
@@ -283,4 +283,4 @@ cc.AffineTransform.transformObb = function (out_bl, out_tl, out_tr, out_br, rect
     out_br.y = xb + yd + ty;
 };
 
-module.exports = cc.AffineTransform;
+cc.AffineTransform = module.exports = AffineTransform;
