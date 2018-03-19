@@ -361,6 +361,8 @@ sys.BROWSER_TYPE_WECHAT = "wechat";
  * @default "wechatgame"
  */
 sys.BROWSER_TYPE_WECHAT_GAME = "wechatgame";
+sys.BROWSER_TYPE_WECHAT_GAME_SUB = "wechatgamesub";
+
 /**
  * BROWSER_TYPE_QQ_PLAY
  * @property {String} BROWSER_TYPE_QQ_PLAY
@@ -564,7 +566,13 @@ else if (CC_WECHATGAME) {
     var version = /[\d\.]+/.exec(env.system);
     sys.osVersion = version[0];
     sys.osMainVersion = parseInt(sys.osVersion);
-    sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME;
+    // wechagame subdomain
+    if (wx.getGroupCloudStorage && wx.getFriendCloudStorage) {
+        sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME_SUB;
+    }
+    else {
+        sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME;
+    }
     sys.browserVersion = env.version;
 
     var w = env.windowWidth;
@@ -712,8 +720,9 @@ else {
         var browserTypes = typeReg1.exec(ua);
         if(!browserTypes) browserTypes = typeReg2.exec(ua);
         var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
-        if (CC_WECHATGAME)
+        if (CC_WECHATGAME) {
             browserType = sys.BROWSER_TYPE_WECHAT_GAME;
+        }
         else if (CC_QQPLAY)
             browserType = sys.BROWSER_TYPE_QQ_PLAY;
         else if (browserType === 'micromessenger')

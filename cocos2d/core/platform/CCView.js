@@ -53,7 +53,12 @@ if (cc.sys.os === cc.sys.OS_IOS) // All browsers are WebView
     __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_SAFARI;
 
 if (CC_WECHATGAME) {
-    __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_WECHAT_GAME;
+    if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+        __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB;
+    }
+    else {
+        __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_WECHAT_GAME;
+    }
 }
 
 if (CC_QQPLAY) {
@@ -104,6 +109,15 @@ switch (__BrowserGetter.adaptationType) {
         };
         __BrowserGetter.availHeight = function(){
             return window.innerHeight;
+        };
+        break;
+    case cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB:
+        var sharedCanvas = wx.getSharedCanvas();
+        __BrowserGetter.availWidth = function(){
+            return sharedCanvas.width;
+        };
+        __BrowserGetter.availHeight = function(){
+            return sharedCanvas.height;
         };
         break;
 }
@@ -1078,6 +1092,17 @@ cc.ContainerStrategy = cc._Class.extend(/** @lends cc.ContainerStrategy# */{
         // Setup canvas
         locCanvas.width = w * devicePixelRatio;
         locCanvas.height = h * devicePixelRatio;
+
+        // set sharedCanvas size
+        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME) {
+            var openDataContext = wx.getOpenDataContext();
+            var sharedCanvas = openDataContext.canvas;
+            if (sharedCanvas) {
+                sharedCanvas.width = locCanvas.width;
+                sharedCanvas.height = locCanvas.height;
+            }
+        }
+
         cc._renderContext.resetCache && cc._renderContext.resetCache();
     },
 

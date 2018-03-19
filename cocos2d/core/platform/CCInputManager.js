@@ -538,29 +538,53 @@ var inputManager = {
                 }
             };
 
-            for (let eventName in _touchEventsMap) {
-                let handler = _touchEventsMap[eventName];
-                element.addEventListener(eventName, function (event) {
-                    if (!event.changedTouches) return;
-
-                    var pos = selfPointer.getHTMLElementPosition(element);
-                    var body = document.body;
-                    pos.left -= body.scrollLeft || 0;
-                    pos.top -= body.scrollTop || 0;
-
-                    handler(selfPointer.getTouchesByEvent(event, pos));
-
-                    event.stopPropagation();
-                    event.preventDefault();
-                }, false);
+            var registerTouchEvent;
+            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+                _touchEventsMap = {
+                    onTouchStart: _touchEventsMap.touchstart,
+                    onTouchMove: _touchEventsMap.touchmove,
+                    onTouchEnd: _touchEventsMap.touchend,
+                    onTouchCancel: _touchEventsMap.touchcancel,
+                };
+                registerTouchEvent = function(eventName) {
+                    var handler = _touchEventsMap[eventName];
+                    wx[eventName](function(event) {
+                        if (!event.changedTouches) return;
+                        var pos = selfPointer.getHTMLElementPosition(element);
+                        var body = document.body;
+                        pos.left -= body.scrollLeft || 0;
+                        pos.top -= body.scrollTop || 0;
+                        handler(selfPointer.getTouchesByEvent(event, pos));
+                    });
+                };
+            }
+            else {
+                registerTouchEvent = function(eventName) {
+                    var handler = _touchEventsMap[eventName];
+                    element.addEventListener(eventName, (function(event) {
+                        if (!event.changedTouches) return;
+                        var pos = selfPointer.getHTMLElementPosition(element);
+                        var body = document.body;
+                        pos.left -= body.scrollLeft || 0;
+                        pos.top -= body.scrollTop || 0;
+                        handler(selfPointer.getTouchesByEvent(event, pos));
+                        event.stopPropagation();
+                        event.preventDefault();
+                    }), false);
+                };
+            }
+            for (var eventName in _touchEventsMap) {
+                registerTouchEvent(eventName);
             }
         }
 
-        //register keyboard event
-        this._registerKeyboardEvent();
+        if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+            //register keyboard event
+            this._registerKeyboardEvent();
 
-        //register Accelerometer event
-        this._registerAccelerometerEvent();
+            //register Accelerometer event
+            this._registerAccelerometerEvent();
+        }
 
         this._isRegisterEvent = true;
     },
