@@ -291,8 +291,8 @@ module.exports = {
                 var gradientStartColor = _gradientStartColor || cc.color(255, 255, 255, 255);
                 var gradientEndColor = _gradientEndColor || cc.color(255, 255, 255, 255);
                 var gradient = _context.createLinearGradient(_gradientArgs.left, _gradientArgs.top, _gradientArgs.right, _gradientArgs.bottom);
-                gradient.addColorStop(0, cc.colorToHex(gradientStartColor));
-                gradient.addColorStop(1, cc.colorToHex(gradientEndColor));
+                gradient.addColorStop(0, gradientStartColor.toHEX());
+                gradient.addColorStop(1, gradientEndColor.toHEX());
                 _context.fillStyle = gradient;
             }
             _context.fillText(_splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);

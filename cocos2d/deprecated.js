@@ -349,11 +349,21 @@ if (CC_DEV) {
         rectGetMaxY: 'rect.yMax',
         rectGetMidY: 'rect.center.y',
         rectGetMinY: 'rect.yMin',
+
+        // Color
+        colorEqual: 'colorA.equals(colorB)',
+        hexToColor: 'color.fromHEX(hexColor)',
+        colorToHex: 'color.toHEX()',
     });
     // cc.Rect
     provideClearError(cc.Rect, {
         contain: 'rectA.contains(rectB)',
         transformMat4: 'rect.transformMat4(out, mat4)'
+    });
+    // cc.Color
+    provideClearError(cc.Color, {
+        rgb2hsv: 'color.toHSV()',
+        hsv2rgb: 'color.fromHSV(h, s, v)'
     });
 
     // cc.pool

@@ -179,7 +179,7 @@ let EditBoxImpl = cc.Class({
     
     setFontColor (color) {
         this._textColor = color;
-        this._edTxt.style.color = cc.colorToHex(color);
+        this._edTxt.style.color = color.toHEX();
     },
     
     setSize (width, height) {
@@ -471,7 +471,7 @@ _p._createDomInput = function () {
 
     tmpEdTxt.addEventListener('focus', function () {
         this.style.fontSize = self._edFontSize + 'px';
-        this.style.color = cc.colorToHex(self._textColor);
+        this.style.color = self._textColor.toHEX();
 
         if (cc.sys.isMobile) {
             self._onFocusOnMobile();
@@ -536,7 +536,7 @@ _p._createDomTextArea = function () {
 
     tmpEdTxt.addEventListener('focus', function () {
         this.style.fontSize = self._edFontSize + 'px';
-        this.style.color = cc.colorToHex(self._textColor);
+        this.style.color = self._textColor.toHEX();
 
         if (cc.sys.isMobile) {
             self._onFocusOnMobile();

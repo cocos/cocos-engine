@@ -766,7 +766,8 @@ var RichText = cc.Class({
             return cc.Color[colorValue];
         }
         else {
-            return cc.hexToColor(color);
+            var out = cc.color();
+            return out.fromHEX(color);
         }
     },
 
