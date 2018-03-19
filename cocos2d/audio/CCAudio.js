@@ -199,9 +199,17 @@ Audio.State = {
 
     proto.stop = function () {
         if (!this._element) return;
-        try {
-            this._element.currentTime = 0;
-        } catch (error) {}
+        if (CC_WECHATGAME) {
+            setTimeout(function () {
+                try {
+                    this._element.currentTime = 0;
+                } catch (error) {}
+            }.bind(this), 0);
+        } else {
+            try {
+                this._element.currentTime = 0;
+            } catch (error) {}
+        }
         this._element.pause();
         // remove touchPlayList
         for (var i=0; i<touchPlayList.length; i++) {
