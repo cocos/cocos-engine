@@ -188,14 +188,14 @@ if (CC_DEV) {
         FLT_MAX: 'Number.MAX_VALUE',
         FLT_MIN: 'Number.MIN_VALUE',
         UINT_MAX: 'Number.MAX_SAFE_INTEGER'
-    });
+    }, 'cc.macro');
 
     // cc.Director
     provideClearError(cc.Director, {
         EVENT_PROJECTION_CHANGED: '',
         EVENT_BEFORE_VISIT: 'EVENT_AFTER_UPDATE',
         EVENT_AFTER_VISIT: 'EVENT_BEFORE_DRAW',
-    });
+    }, 'cc.Director');
 
     // cc.PhysicsManager
     markAsRemoved(cc.PhysicsManager, [
@@ -336,7 +336,6 @@ if (CC_DEV) {
         obbApplyAffineTransform: 'cc.AffineTransform.transformObb',
 
         // Vec2
-        p: 'cc.v2',
         pointEqualToPoint: 'cc.Vec2 equals',
         
         // Size
@@ -361,7 +360,11 @@ if (CC_DEV) {
         colorEqual: 'colorA.equals(colorB)',
         hexToColor: 'color.fromHEX(hexColor)',
         colorToHex: 'color.toHEX()',
-    });
+    }, 'cc');
+    markFunctionWarning(cc, {
+        // cc.p
+        p: 'cc.v2'
+    }, 'cc');
     // cc.Rect
     provideClearError(cc.Rect, {
         contain: 'rectA.contains(rectB)',

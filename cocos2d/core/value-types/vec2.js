@@ -604,4 +604,15 @@ cc.v2 = function v2 (x, y) {
     return new Vec2(x, y);
 };
 
+/** 
+ * !#en This function is deprecated since v2.0, please use {{#crossLink "v2"}}cc.v2{{/crossLink}}. 
+ * !#zh 这个函数从 v2.0 开始被废弃，请使用 {{#crossLink "v2"}}cc.v2{{/crossLink}}。 
+ * @method p 
+ * @deprecated
+ * @param {Number|Object} [x=0] a Number or a size object 
+ * @param {Number} [y=0] 
+ * @return {Vec2}
+ */ 
+cc.p = cc.v2;
+
 module.exports = cc.Vec2;

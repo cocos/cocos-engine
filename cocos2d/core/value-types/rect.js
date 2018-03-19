@@ -269,10 +269,10 @@ proto.union = function (out, rectB) {
  * @param mat {vmath.mat4} The matrix4
  */
 proto.transformMat4 = function (out, mat) {
-    let ol = rect.x;
-    let ob = rect.y;
-    let or = ol + rect.width;
-    let ot = ob + rect.height;
+    let ol = this.x;
+    let ob = this.y;
+    let or = ol + this.width;
+    let ot = ob + this.height;
     let lbx = mat.m00 * ol + mat.m04 * ob + mat.m12;
     let lby = mat.m01 * ol + mat.m05 * ob + mat.m13;
     let rbx = mat.m00 * or + mat.m04 * ob + mat.m12;
