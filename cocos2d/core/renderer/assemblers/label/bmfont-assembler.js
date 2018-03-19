@@ -23,6 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const macro = require('../../../platform/CCMacro');
 const renderEngine = require('../../render-engine');
 
 const Label = require('../../../components/CCLabel');
@@ -753,17 +754,17 @@ module.exports = {
         _linesOffsetX.length = 0;
         
         switch (_hAlign) {
-            case cc.TextAlignment.LEFT:
+            case macro.TextAlignment.LEFT:
                 for (let i = 0; i < _numberOfLines; ++i) {
                     _linesOffsetX.push(0);
                 }
                 break;
-            case cc.TextAlignment.CENTER:
+            case macro.TextAlignment.CENTER:
                 for (let i = 0, l = _linesWidth.length; i < l; i++) {
                     _linesOffsetX.push((_contentSize.width - _linesWidth[i]) / 2);
                 }
                 break;
-            case cc.TextAlignment.RIGHT:
+            case macro.TextAlignment.RIGHT:
                 for (let i = 0, l = _linesWidth.length; i < l; i++) {
                     _linesOffsetX.push(_contentSize.width - _linesWidth[i]);
                 }
@@ -773,13 +774,13 @@ module.exports = {
         }
 
         switch (_vAlign) {
-            case cc.VerticalTextAlignment.TOP:
+            case macro.VerticalTextAlignment.TOP:
                 _letterOffsetY = _contentSize.height;
                 break;
-            case cc.VerticalTextAlignment.CENTER:
+            case macro.VerticalTextAlignment.CENTER:
                 _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2;
                 break;
-            case cc.VerticalTextAlignment.BOTTOM:
+            case macro.VerticalTextAlignment.BOTTOM:
                 _letterOffsetY = _textDesiredHeight;
                 break;
             default:

@@ -25,6 +25,7 @@
  ****************************************************************************/
 
 const misc = require('../utils/misc');
+const BlendFactor = require('../platform/CCMacro').BlendFactor;
 const RenderComponent = require('./CCRenderComponent');
 const renderer = require('../renderer');
 const renderEngine = require('../renderer/render-engine');
@@ -96,8 +97,6 @@ var FillType = cc.Enum({
      */
     RADIAL:2,
 });
-
-var BlendFactor = cc.BlendFunc.BlendFactor;
 
 /**
  * !#en Sprite Size can track trimmed size, raw size or none.
@@ -378,9 +377,9 @@ var Sprite = cc.Class({
          * !#en specify the source Blend Factor, this will generate a custom material object, please pay attention to the memory cost.
          * !#zh 指定原图的混合模式，这会克隆一个新的材质对象，注意这带来的
          * @property srcBlendFactor
-         * @type {BlendFactor}
+         * @type {macro.BlendFactor}
          * @example
-         * sprite.srcBlendFactor = cc.BlendFunc.BlendFactor.ONE;
+         * sprite.srcBlendFactor = cc.macro.BlendFactor.ONE;
          */
         srcBlendFactor: {
             get: function() {
@@ -399,9 +398,9 @@ var Sprite = cc.Class({
          * !#en specify the destination Blend Factor.
          * !#zh 指定目标的混合模式
          * @property dstBlendFactor
-         * @type {BlendFactor}
+         * @type {macro.BlendFactor}
          * @example
-         * sprite.dstBlendFactor = cc.BlendFunc.BlendFactor.ONE;
+         * sprite.dstBlendFactor = cc.macro.BlendFactor.ONE;
          */
         dstBlendFactor: {
             get: function() {

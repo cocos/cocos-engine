@@ -31,6 +31,5 @@ require('./quat');
 require('./size');
 require('./rect');
 require('./color');
-require('./CCTypes');
 
 cc.vmath = require('../renderer/render-engine').math;

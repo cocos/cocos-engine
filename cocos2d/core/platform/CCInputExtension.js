@@ -36,6 +36,23 @@ const LANDSCAPE_LEFT = -90;
 const PORTRAIT_UPSIDE_DOWN = 180;
 const LANDSCAPE_RIGHT = 90;
 
+/**
+ * !#en the device accelerometer reports values for each axis in units of g-force.
+ * !#zh 设备重力传感器传递的各个轴的数据。
+ * @class Acceleration
+ * @method constructor
+ * @param {Number} x
+ * @param {Number} y
+ * @param {Number} z
+ * @param {Number} timestamp
+ */
+cc.Acceleration = function (x, y, z, timestamp) {
+    this.x = x || 0;
+    this.y = y || 0;
+    this.z = z || 0;
+    this.timestamp = timestamp || 0;
+};
+
 inputManager.__instanceId = cc.ClassManager.getNewInstanceId();
 
 /**

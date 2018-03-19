@@ -24,6 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const macro = require('../core/platform/CCMacro');
 const ParticleAsset = require('./CCParticleAsset');
 const RenderComponent = require('../core/components/CCRenderComponent');
 const codec = require('../compression/ZipUtils');
@@ -35,7 +36,7 @@ const gfx = renderEngine.gfx;
 const ParticleMaterial = renderEngine.ParticleMaterial;
 const Particles = renderEngine.Particles;
 
-var BlendFactor = cc.BlendFunc.BlendFactor;
+var BlendFactor = macro.BlendFactor;
 /**
  * !#en Enum for emitter modes
  * !#zh 发射模式
@@ -261,7 +262,7 @@ var properties = {
      * !#en Specify the source Blend Factor.
      * !#zh 指定原图混合模式。
      * @property srcBlendFactor
-     * @type {BlendFactor}
+     * @type {macro.BlendFactor}
      */
     _srcBlendFactor : BlendFactor.SRC_ALPHA,
     srcBlendFactor: {
@@ -281,7 +282,7 @@ var properties = {
      * !#en Specify the destination Blend Factor.
      * !#zh 指定目标的混合模式。
      * @property dstBlendFactor
-     * @type {BlendFactor}
+     * @type {macro.BlendFactor}
      */
     _dstBlendFactor : BlendFactor.ONE_MINUS_SRC_ALPHA,
     dstBlendFactor: {
@@ -1156,8 +1157,8 @@ var ParticleSystem = cc.Class({
         this.duration = parseFloat(dict["duration"] || 0);
 
         // blend function
-        this.srcBlendFactor = parseInt(dict["blendFuncSource"] || cc.macro.SRC_ALPHA);
-        this.dstBlendFactor = parseInt(dict["blendFuncDestination"] || cc.macro.ONE_MINUS_SRC_ALPHA);
+        this.srcBlendFactor = parseInt(dict["blendFuncSource"] || macro.SRC_ALPHA);
+        this.dstBlendFactor = parseInt(dict["blendFuncDestination"] || macro.ONE_MINUS_SRC_ALPHA);
 
         // color
         var locStartColor = this.startColor;

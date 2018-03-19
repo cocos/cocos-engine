@@ -361,6 +361,10 @@ if (CC_DEV) {
         hexToColor: 'color.fromHEX(hexColor)',
         colorToHex: 'color.toHEX()',
 
+        // Enums
+        TextAlignment: 'cc.macro.TextAlignment',
+        VerticalTextAlignment: 'cc.macro.VerticalTextAlignment',
+
         // Point Extensions
         pNeg: 'p.neg()',
         pAdd: 'p1.add(p2)',
@@ -398,6 +402,9 @@ if (CC_DEV) {
         clamp01: 'cc.misc.clamp01',
     }, 'cc');
     markAsRemovedInObject(cc, [
+        'BlendFunc',
+        'blendFuncDisable',
+
         'pFromSize',
         'pCompOp',
         'pIntersectPoint',

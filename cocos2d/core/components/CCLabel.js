@@ -24,10 +24,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
- const RenderComponent = require('./CCRenderComponent');
- const renderer = require('../renderer');
- const renderEngine = require('../renderer/render-engine');
- const SpriteMaterial = renderEngine.SpriteMaterial;
+const macro = require('../platform/CCMacro');
+const RenderComponent = require('./CCRenderComponent');
+const renderer = require('../renderer');
+const renderEngine = require('../renderer/render-engine');
+const SpriteMaterial = renderEngine.SpriteMaterial;
 
 /**
  * !#en Enum for text alignment.
@@ -49,7 +50,7 @@
  * !#zh 文本内容右边对齐。
  * @property {Number} RIGHT
  */
-var HorizontalAlign = cc.TextAlignment;
+var HorizontalAlign = macro.TextAlignment;
 
 /**
  * !#en Enum for vertical text alignment.
@@ -71,7 +72,7 @@ var HorizontalAlign = cc.TextAlignment;
  * !#zh 文本底部对齐。
  * @property {Number} BOTTOM
  */
-var VerticalAlign = cc.VerticalTextAlignment;
+var VerticalAlign = macro.VerticalTextAlignment;
 
 /**
  * !#en Enum for Overflow.
