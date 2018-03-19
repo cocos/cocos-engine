@@ -33,6 +33,5 @@ require('./size');
 require('./rect');
 require('./color');
 require('./CCTypes');
-require('./affine-transform');
 
 cc.vmath = require('../renderer/render-engine').math;
