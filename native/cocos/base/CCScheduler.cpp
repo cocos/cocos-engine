@@ -444,9 +444,7 @@ void Scheduler::resumeTargets(const std::set<void*>& targetsToResume)
 void Scheduler::performFunctionInCocosThread(const std::function<void ()> &function)
 {
     _performMutex.lock();
-
     _functionsToPerform.push_back(function);
-
     _performMutex.unlock();
 }
 

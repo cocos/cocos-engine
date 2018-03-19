@@ -567,22 +567,32 @@ static bool js_getImageInfo(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
-        std::string arg0;
-        ok &= seval_to_std_string(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_gfx_getImageInfo : Error processing arguments");
+        std::string path;
+        ok &= seval_to_std_string(args[0], &path);
+        SE_PRECONDITION2(ok, false, "js_getImageInfo : Error processing arguments");
 
         se::Value callbackVal = args[1];
         assert(callbackVal.isObject());
         assert(callbackVal.toObject()->isFunction());
 
+        std::string fullPath = FileUtils::getInstance()->fullPathForFilename(path);
+        if (fullPath.empty())
+        {
+            SE_REPORT_ERROR("File (%s) doesn't exist!", path.c_str());
+            return false;
+        }
+
         Image* img = new (std::nothrow) Image();
 
         __threadPool->pushTask([=](int tid){
-            bool loadSucceed = img->initWithImageFile(arg0);
+            // NOTE: FileUtils::getInstance()->fullPathForFilename isn't a threadsafe method,
+            // Image::initWithImageFile will call fullPathForFilename internally which may
+            // cause thread race issues. Therefore, we get the full path of file before
+            // going into task callback.
+            // Be careful of invoking any Cocos2d-x interface in a sub-thread.
+            bool loadSucceed = img->initWithImageFile(fullPath);
 
             Application::getInstance()->getScheduler()->performFunctionInCocosThread([=](){
-
-                printf("cjh loadSucceed: %d\n", loadSucceed);
                 if (loadSucceed)
                 {
                     se::AutoHandleScope hs;
@@ -590,8 +600,7 @@ static bool js_getImageInfo(se::State& s)
                     Data data;
                     data.copy(img->getData(), img->getDataLen());
                     se::Value dataVal;
-                    bool succeed = Data_to_seval(data, &dataVal);
-                    SE_PRECONDITION2(succeed, false, "js_gfx_getImageInfo : Error processing arguments");
+                    Data_to_seval(data, &dataVal);
                     retObj->setProperty("data", dataVal);
                     retObj->setProperty("width", se::Value(img->getWidth()));
                     retObj->setProperty("height", se::Value(img->getHeight()));
@@ -606,13 +615,13 @@ static bool js_getImageInfo(se::State& s)
                     retObj->setProperty("glInternalFormat", se::Value(pixelFormatInfo.internalFormat));
                     retObj->setProperty("glType", se::Value(pixelFormatInfo.type));
 
-                    se::ValueArray args;
-                    args.push_back(se::Value(retObj));
-                    callbackVal.toObject()->call(args, nullptr);
+                    se::ValueArray seArgs;
+                    seArgs.push_back(se::Value(retObj));
+                    callbackVal.toObject()->call(seArgs, nullptr);
                 }
                 else
                 {
-                    SE_REPORT_ERROR("initWithImageFile: %s failed!", arg0.c_str());
+                    SE_REPORT_ERROR("initWithImageFile: %s failed!", path.c_str());
                     assert(false);
                 }
 
