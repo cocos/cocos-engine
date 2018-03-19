@@ -169,22 +169,4 @@ cc.size = function (w, h) {
     return new Size(w, h);
 };
 
-/**
- * !#en Check whether a point's value equals to another.
- * !#zh 检查 Size 对象是否等于另一个。
- * @method sizeEqualToSize
- * @param {Size} size1
- * @param {Size} size2
- * @return {Boolean}
- * @example
- * var a = new cc.size(10, 10);
- * var b = new cc.size(10, 10);
- * cc.sizeEqualToSize(a, b);// return true;
- * var b = new cc.size(5, 10);
- * cc.sizeEqualToSize(a, b);// return false;
- */
-cc.sizeEqualToSize = function (size1, size2) {
-    return (size1 && size2 && (size1.width === size2.width) && (size1.height === size2.height));
-};
-
 cc.Size = module.exports = Size;

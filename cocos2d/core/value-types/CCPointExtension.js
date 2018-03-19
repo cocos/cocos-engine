@@ -51,7 +51,7 @@ var POINT_EPSILON = parseFloat('1.192092896e-07F');
  * cc.pNeg(cc.v2(10, 10));// Vec2 {x: -10, y: -10};
  */
 cc.pNeg = function (point) {
-    return cc.p(-point.x, -point.y);
+    return cc.v2(-point.x, -point.y);
 };
 
 /**
@@ -65,7 +65,7 @@ cc.pNeg = function (point) {
  * cc.pAdd(cc.v2(1, 1), cc.v2(2, 2));// Vec2 {x: 3, y: 3};
  */
 cc.pAdd = function (v1, v2) {
-    return cc.p(v1.x + v2.x, v1.y + v2.y);
+    return cc.v2(v1.x + v2.x, v1.y + v2.y);
 };
 
 /**
@@ -79,7 +79,7 @@ cc.pAdd = function (v1, v2) {
  * cc.pSub(cc.v2(20, 20), cc.v2(5, 5)); // Vec2 {x: 15, y: 15};
  */
 cc.pSub = function (v1, v2) {
-    return cc.p(v1.x - v2.x, v1.y - v2.y);
+    return cc.v2(v1.x - v2.x, v1.y - v2.y);
 };
 
 /**
@@ -93,7 +93,7 @@ cc.pSub = function (v1, v2) {
  * cc.pMult(cc.v2(5, 5), 4); // Vec2 {x: 20, y: 20};
  */
 cc.pMult = function (point, floatVar) {
-    return cc.p(point.x * floatVar, point.y * floatVar);
+    return cc.v2(point.x * floatVar, point.y * floatVar);
 };
 
 /**
@@ -148,7 +148,7 @@ cc.pCross = function (v1, v2) {
  * cc.pPerp(cc.v2(20, 20)); // Vec2 {x: -20, y: 20};
  */
 cc.pPerp = function (point) {
-    return cc.p(-point.y, point.x);
+    return cc.v2(-point.y, point.x);
 };
 
 /**
@@ -161,7 +161,7 @@ cc.pPerp = function (point) {
  * cc.pRPerp(cc.v2(20, 20)); // Vec2 {x: 20, y: -20};
  */
 cc.pRPerp = function (point) {
-    return cc.p(point.y, -point.x);
+    return cc.v2(point.y, -point.x);
 };
 
 /**
@@ -249,7 +249,7 @@ cc.pDistance = function (v1, v2) {
  */
 cc.pNormalize = function (v) {
     var n = cc.pLength(v);
-    return n === 0 ? cc.p(v) : cc.pMult(v, 1.0 / n);
+    return n === 0 ? cc.v2(v) : cc.pMult(v, 1.0 / n);
 };
 
 /**
@@ -262,7 +262,7 @@ cc.pNormalize = function (v) {
  * cc.pForAngle(20); // Vec2 {x: 0.40808206181339196, y: 0.9129452507276277};
  */
 cc.pForAngle = function (a) {
-    return cc.p(Math.cos(a), Math.sin(a));
+    return cc.v2(Math.cos(a), Math.sin(a));
 };
 
 /**
@@ -339,7 +339,7 @@ cc.clamp01 = function (value) {
  * var v3 = cc.pClamp(cc.v2(10, 10), min_inclusive, max_inclusive); // Vec2 {x: 10, y: 10};
  */
 cc.pClamp = function (p, min_inclusive, max_inclusive) {
-    return cc.p(cc.clampf(p.x, min_inclusive.x, max_inclusive.x), cc.clampf(p.y, min_inclusive.y, max_inclusive.y));
+    return cc.v2(cc.clampf(p.x, min_inclusive.x, max_inclusive.x), cc.clampf(p.y, min_inclusive.y, max_inclusive.y));
 };
 
 /**
@@ -352,7 +352,7 @@ cc.pClamp = function (p, min_inclusive, max_inclusive) {
  * cc.pFromSize(new cc.size(20, 20)); // Vec2 {x: 20, y: 20};
  */
 cc.pFromSize = function (s) {
-    return cc.p(s.width, s.height);
+    return cc.v2(s.width, s.height);
 };
 
 /**
@@ -365,10 +365,10 @@ cc.pFromSize = function (s) {
  * @param {Function} opFunc
  * @return {Vec2}
  * @example
- * cc.pCompOp(cc.p(-10, -10), Math.abs); // Vec2 {x: 10, y: 10};
+ * cc.pCompOp(cc.v2(-10, -10), Math.abs); // Vec2 {x: 10, y: 10};
  */
 cc.pCompOp = function (p, opFunc) {
-    return cc.p(opFunc(p.x), opFunc(p.y));
+    return cc.v2(opFunc(p.x), opFunc(p.y));
 };
 
 /**
@@ -429,7 +429,7 @@ cc.pFuzzyEqual = function (a, b, variance) {
  * cc.pCompMult(acc.v2(20, 20), cc.v2(5, 5)); // Vec2 {x: 100, y: 100};
  */
 cc.pCompMult = function (a, b) {
-    return cc.p(a.x * b.x, a.y * b.y);
+    return cc.v2(a.x * b.x, a.y * b.y);
 };
 
 /**
@@ -543,7 +543,7 @@ cc.pLineIntersect = function (A, B, C, D, retP) {
  * @return {Boolean}
  */
 cc.pSegmentIntersect = function (A, B, C, D) {
-    var retP = cc.p(0, 0);
+    var retP = cc.v2(0, 0);
     if (cc.pLineIntersect(A, B, C, D, retP))
         if (retP.x >= 0.0 && retP.x <= 1.0 && retP.y >= 0.0 && retP.y <= 1.0)
             return true;
@@ -561,17 +561,17 @@ cc.pSegmentIntersect = function (A, B, C, D) {
  * @return {Vec2}
  */
 cc.pIntersectPoint = function (A, B, C, D) {
-    var retP = cc.p(0, 0);
+    var retP = cc.v2(0, 0);
 
     if (cc.pLineIntersect(A, B, C, D, retP)) {
         // Point of intersection
-        var P = cc.p(0, 0);
+        var P = cc.v2(0, 0);
         P.x = A.x + retP.x * (B.x - A.x);
         P.y = A.y + retP.x * (B.y - A.y);
         return P;
     }
 
-    return cc.p(0,0);
+    return cc.v2(0,0);
 };
 
 /**

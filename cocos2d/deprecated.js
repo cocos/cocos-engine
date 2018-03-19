@@ -335,6 +335,13 @@ if (CC_DEV) {
         rectApplyAffineTransform: 'cc.AffineTransform.transformRect',
         obbApplyAffineTransform: 'cc.AffineTransform.transformObb',
 
+        // Vec2
+        p: 'cc.v2',
+        pointEqualToPoint: 'cc.Vec2 equals',
+        
+        // Size
+        sizeEqualToSize: 'cc.Size equals',
+
         // Rect
         rectEqualToRect: 'rectA.equals(rectB)',
         rectContainsRect: 'rectA.containsRect(rectB)',

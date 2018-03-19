@@ -604,34 +604,4 @@ cc.v2 = function v2 (x, y) {
     return new Vec2(x, y);
 };
 
-/**
- * !#en The convenience method to creates a new {{#crossLink "Vec2"}}cc.Vec2{{/crossLink}}.
- * !#zh 通过该简便的函数进行创建 {{#crossLink "Vec2"}}cc.Vec2{{/crossLink}} 对象。
- * @method p
- * @param {Number|Object} [x=0] a Number or a size object
- * @param {Number} [y=0]
- * @return {Vec2}
- * @example
- * var point1 = cc.p();
- * var point2 = cc.p(100, 100);
- * var point3 = cc.p(point2);
- * var point4 = cc.p({x: 100, y: 100});
- */
-cc.p = cc.v2;
-
-
-// Functional style API, for backward compatibility
-
-/**
- * !#en Check whether a point's value equals to another.
- * !#zh 判断两个向量是否相等。
- * @method pointEqualToPoint
- * @param {Vec2} point1
- * @param {Vec2} point2
- * @return {Boolean}
- */
-cc.pointEqualToPoint = function (point1, point2) {
-    return point1 && point2 && (point1.x === point2.x) && (point1.y === point2.y);
-};
-
 module.exports = cc.Vec2;

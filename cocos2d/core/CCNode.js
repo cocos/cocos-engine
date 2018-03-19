@@ -1743,7 +1743,7 @@ var Node = cc.Class({
      * cc.log("Node AnchorPoint: " + node.getAnchorPoint());
      */
     getAnchorPoint () {
-        return cc.p(this._anchorPoint);
+        return cc.v2(this._anchorPoint);
     },
 
     /**
