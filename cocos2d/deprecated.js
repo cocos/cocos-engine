@@ -320,6 +320,7 @@ if (CC_DEV) {
 
     // Value types
     provideClearError(cc, {
+        // AffineTransform
         affineTransformMake: 'cc.AffineTransform.create',
         affineTransformMakeIdentity: 'cc.AffineTransform.identity',
         affineTransformClone: 'cc.AffineTransform.clone',
@@ -333,6 +334,26 @@ if (CC_DEV) {
         sizeApplyAffineTransform: 'cc.AffineTransform.transformSize',
         rectApplyAffineTransform: 'cc.AffineTransform.transformRect',
         obbApplyAffineTransform: 'cc.AffineTransform.transformObb',
+
+        // Rect
+        rectEqualToRect: 'rectA.equals(rectB)',
+        rectContainsRect: 'rectA.containsRect(rectB)',
+        rectContainsPoint: 'rect.contains(vec2)',
+        rectOverlapsRect: 'rectA.intersects(rectB)',
+        rectIntersectsRect: 'rectA.intersects(rectB)',
+        rectIntersection: 'rectA.intersection(intersection, rectB)',
+        rectUnion: 'rectA.union(union, rectB)',
+        rectGetMaxX: 'rect.xMax',
+        rectGetMidX: 'rect.center.x',
+        rectGetMinX: 'rect.xMin',
+        rectGetMaxY: 'rect.yMax',
+        rectGetMidY: 'rect.center.y',
+        rectGetMinY: 'rect.yMin',
+    });
+    // cc.Rect
+    provideClearError(cc.Rect, {
+        contain: 'rectA.contains(rectB)',
+        transformMat4: 'rect.transformMat4(out, mat4)'
     });
 
     // cc.pool

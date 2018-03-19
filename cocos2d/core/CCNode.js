@@ -2348,7 +2348,7 @@ var Node = cc.Class({
             if (child && child.active) {
                 var childRect = child._getBoundingBoxTo(parentMat);
                 if (childRect)
-                    rect = cc.rectUnion(rect, childRect);
+                    rect = rect.union(childRect);
             }
         }
         return rect;
