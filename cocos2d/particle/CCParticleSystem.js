@@ -1329,7 +1329,7 @@ var ParticleSystem = cc.Class({
         }
 
         let vfx = this._vfx;
-        this._material.texture = this._texture.getImpl();
+        this._material.texture = this._texture;
         this._material.stateMap = this._vfx.textures.state0;
         this._material.quadMap = this._vfx.textures.quads;
         this._material.z = this.node.z;

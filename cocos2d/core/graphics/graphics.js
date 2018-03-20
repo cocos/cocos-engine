@@ -236,12 +236,8 @@ let Graphics = cc.Class({
         if (this._material) return;
         
         let key = 'graphics-material';
-        this._material = renderer.materialUtil.get(key);
-        if (!this._material) {
-            this._material = new SpriteMaterial();
-            this._material.useTexture = false;
-            renderer.materialUtil.register(key, this._material);
-        }
+        this._material = new SpriteMaterial();
+        this._material.useTexture = false;
     },
 
     /**
