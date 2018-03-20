@@ -25,8 +25,8 @@
 
 const js = require('../platform/js');
 const renderEngine = require('../renderer/render-engine');
-const Vec2 = require('../value-types/CCVec2');
-const Vec3 = require('../value-types/CCVec3');
+// const Vec2 = require('../value-types/vec2');
+// const Vec3 = require('../value-types/vec3');
 const Quat = require('../value-types/quat');
 const math = renderEngine.math;
 

@@ -50,7 +50,7 @@ if (TestEditorExtends) {
             '_skewX' : getRandomDouble(),
             '_skewY' : getRandomDouble(),
             '_active' : getRandomBool(),
-            '_anchorPoint' : cc.p(getRandomDouble(), getRandomDouble()),
+            '_anchorPoint' : cc.v2(getRandomDouble(), getRandomDouble()),
             '_contentSize' : cc.size(getRandomDouble(), getRandomDouble()),
             'tag' : getRandomInt(),
             '_name' : nodeName,
@@ -69,11 +69,11 @@ if (TestEditorExtends) {
         ret._rotationY = getRandomDouble();
         ret._scale.x = 1.5;
         ret._scale.y = 1.5;
-        ret._position = cc.p(getRandomDouble(), getRandomDouble());
+        ret._position = cc.v2(getRandomDouble(), getRandomDouble());
         ret._skewX = getRandomDouble();
         ret._skewY = getRandomDouble();
         ret._active = getRandomBool();
-        ret._anchorPoint = cc.p(getRandomDouble(), getRandomDouble());
+        ret._anchorPoint = cc.v2(getRandomDouble(), getRandomDouble());
         ret._contentSize = cc.size(getRandomDouble(), getRandomDouble());
         ret.tag = getRandomInt();
         ret._name = nodeName;

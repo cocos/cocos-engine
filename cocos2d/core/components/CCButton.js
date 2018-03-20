@@ -23,6 +23,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
+const Component = require('./CCComponent');
+const misc = require('../utils/misc');
+
 /**
  * !#en Enum for transition type.
  * !#zh 过渡类型
@@ -114,7 +118,7 @@ var Transition = cc.Enum({
  */
 var Button = cc.Class({
     name: 'cc.Button',
-    extends: require('./CCComponent'),
+    extends: Component,
 
     ctor: function () {
         this._resetState();
@@ -442,7 +446,7 @@ var Button = cc.Class({
         if(this.transition === Transition.COLOR) {
             target.color = this._fromColor.lerp(this._toColor, ratio);
         } else if (this.transition === Transition.SCALE) {
-            target.scale = cc.lerp(this._fromScale, this._toScale, ratio);
+            target.scale = misc.lerp(this._fromScale, this._toScale, ratio);
         }
 
     },

@@ -67,7 +67,7 @@ function cardinalSplineAt (p0, p1, p2, p3, tension, t) {
 
     var x = (p0.x * b1 + p1.x * b2 + p2.x * b3 + p3.x * b4);
     var y = (p0.y * b1 + p1.y * b2 + p2.y * b3 + p3.y * b4);
-    return cc.p(x, y);
+    return cc.v2(x, y);
 };
 
 /*
@@ -85,7 +85,7 @@ function getControlPointAt (controlPoints, pos) {
 function reverseControlPoints (controlPoints) {
     var newArray = [];
     for (var i = controlPoints.length - 1; i >= 0; i--) {
-        newArray.push(cc.p(controlPoints[i].x, controlPoints[i].y));
+        newArray.push(cc.v2(controlPoints[i].x, controlPoints[i].y));
     }
     return newArray;
 }
@@ -93,7 +93,7 @@ function reverseControlPoints (controlPoints) {
 function cloneControlPoints (controlPoints) {
     var newArray = [];
     for (var i = 0; i < controlPoints.length; i++)
-        newArray.push(cc.p(controlPoints[i].x, controlPoints[i].y));
+        newArray.push(cc.v2(controlPoints[i].x, controlPoints[i].y));
     return newArray;
 }
 
@@ -149,8 +149,8 @@ cc.CardinalSplineTo = cc.Class({
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
         // Issue #1441 from cocos2d-iphone
         this._deltaT = 1 / (this._points.length - 1);
-        this._previousPosition = cc.p(this.target.x, this.target.y);
-        this._accumulatedDiff = cc.p(0, 0);
+        this._previousPosition = cc.v2(this.target.x, this.target.y);
+        this._accumulatedDiff = cc.v2(0, 0);
     },
 
     update:function (dt) {
@@ -265,7 +265,7 @@ cc.CardinalSplineBy = cc.Class({
     extends: cc.CardinalSplineTo,
 
     ctor:function (duration, points, tension) {
-        this._startPosition = cc.p(0, 0);
+        this._startPosition = cc.v2(0, 0);
         tension !== undefined && this.initWithDuration(duration, points, tension);
     },
 
@@ -284,7 +284,7 @@ cc.CardinalSplineBy = cc.Class({
         var p = copyConfig[0];
         for (var i = 1; i < copyConfig.length; ++i) {
             current = copyConfig[i];
-            copyConfig[i] = cc.pSub(current, p);
+            copyConfig[i] = current.sub(p);
             p = current;
         }
 

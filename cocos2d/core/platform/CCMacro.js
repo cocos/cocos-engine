@@ -28,12 +28,324 @@
 const js = require('./js');
 
 /**
+ * Predefined constants
+ * @enum macro
+ * @type {Object}
+ */
+cc.macro = {
+    /**
+     * PI / 180
+     * @property RAD
+     * @type {Number}
+     */
+    RAD: Math.PI / 180,
+
+    /**
+     * One degree
+     * @property DEG
+     * @type {Number}
+     */
+    DEG: 180 / Math.PI,
+
+    /**
+     * @property REPEAT_FOREVER
+     * @type {Number}
+     */
+    REPEAT_FOREVER: CC_JSB ? 0xffffffff : (Number.MAX_VALUE - 1),
+
+    /**
+     * @property FLT_EPSILON
+     * @type {Number}
+     */
+    FLT_EPSILON: 0.0000001192092896,
+
+    /**
+     * Minimum z index value for node
+     * @property MIN_ZINDEX
+     * @type {Number}
+     */
+    MIN_ZINDEX: -Math.pow(2, 15),
+
+    /**
+     * Maximum z index value for node
+     * @property MAX_ZINDEX
+     * @type {Number}
+     */
+    MAX_ZINDEX: Math.pow(2, 15) - 1,
+
+    //some gl constant variable
+    /**
+     * @property ONE
+     * @type {Number}
+     */
+    ONE: 1,
+
+    /**
+     * @property ZERO
+     * @type {Number}
+     */
+    ZERO: 0,
+
+    /**
+     * @property SRC_ALPHA
+     * @type {Number}
+     */
+    SRC_ALPHA: 0x0302,
+
+    /**
+     * @property SRC_ALPHA_SATURATE
+     * @type {Number}
+     */
+    SRC_ALPHA_SATURATE: 0x308,
+
+    /**
+     * @property SRC_COLOR
+     * @type {Number}
+     */
+    SRC_COLOR: 0x300,
+
+    /**
+     * @property DST_ALPHA
+     * @type {Number}
+     */
+    DST_ALPHA: 0x304,
+
+    /**
+     * @property DST_COLOR
+     * @type {Number}
+     */
+    DST_COLOR: 0x306,
+
+    /**
+     * @property ONE_MINUS_SRC_ALPHA
+     * @type {Number}
+     */
+    ONE_MINUS_SRC_ALPHA: 0x0303,
+
+    /**
+     * @property ONE_MINUS_SRC_COLOR
+     * @type {Number}
+     */
+    ONE_MINUS_SRC_COLOR: 0x301,
+
+    /**
+     * @property ONE_MINUS_DST_ALPHA
+     * @type {Number}
+     */
+    ONE_MINUS_DST_ALPHA: 0x305,
+
+    /**
+     * @property ONE_MINUS_DST_COLOR
+     * @type {Number}
+     */
+    ONE_MINUS_DST_COLOR: 0x0307,
+
+    /**
+     * @property ONE_MINUS_CONSTANT_ALPHA
+     * @type {Number}
+     */
+    ONE_MINUS_CONSTANT_ALPHA: 0x8004,
+
+    /**
+     * @property ONE_MINUS_CONSTANT_COLOR
+     * @type {Number}
+     */
+    ONE_MINUS_CONSTANT_COLOR: 0x8002,
+
+    //Possible device orientations
+    /**
+     * Oriented vertically
+     * @property ORIENTATION_PORTRAIT
+     * @type {Number}
+     */
+    ORIENTATION_PORTRAIT: 1,
+
+    /**
+     * Oriented horizontally
+     * @property ORIENTATION_LANDSCAPE
+     * @type {Number}
+     */
+    ORIENTATION_LANDSCAPE: 2,
+
+    /**
+     * Oriented automatically
+     * @property ORIENTATION_AUTO
+     * @type {Number}
+     */
+    ORIENTATION_AUTO: 3,
+
+    DENSITYDPI_DEVICE: 'device-dpi',
+    DENSITYDPI_HIGH: 'high-dpi',
+    DENSITYDPI_MEDIUM: 'medium-dpi',
+    DENSITYDPI_LOW: 'low-dpi',
+
+    // General configurations
+
+    /**
+     * <p>
+     *   If enabled, the texture coordinates will be calculated by using this formula: <br/>
+     *      - texCoord.left = (rect.x*2+1) / (texture.wide*2);                  <br/>
+     *      - texCoord.right = texCoord.left + (rect.width*2-2)/(texture.wide*2); <br/>
+     *                                                                                 <br/>
+     *  The same for bottom and top.                                                   <br/>
+     *                                                                                 <br/>
+     *  This formula prevents artifacts by using 99% of the texture.                   <br/>
+     *  The "correct" way to prevent artifacts is by expand the texture's border with the same color by 1 pixel<br/>
+     *                                                                                  <br/>
+     *  Affected nodes:                                                                 <br/>
+     *      - _ccsg.TMXLayer                                                       <br/>
+     *                                                                                  <br/>
+     *  Enabled by default. To disabled set it to 0. <br/>
+     *  To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
+     * </p>
+     *
+     * @property {Number} FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX
+     */
+    FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX: true,
+
+    /**
+     * Position of the FPS (Default: 0,0 (bottom-left corner))<br/>
+     * To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
+     * @property {Vec2} DIRECTOR_STATS_POSITION
+     */
+    DIRECTOR_STATS_POSITION: cc.v2(0, 0),
+
+    /**
+     * <p>
+     *    If enabled, actions that alter the position property (eg: CCMoveBy, CCJumpBy, CCBezierBy, etc..) will be stacked.                  <br/>
+     *    If you run 2 or more 'position' actions at the same time on a node, then end position will be the sum of all the positions.        <br/>
+     *    If disabled, only the last run action will take effect.
+     * </p>
+     * @property {Number} ENABLE_STACKABLE_ACTIONS
+     */
+    ENABLE_STACKABLE_ACTIONS: true,
+
+    /**
+     * !#en 
+     * The timeout to determine whether a touch is no longer active and should be removed.
+     * The reason to add this timeout is due to an issue in X5 browser core, 
+     * when X5 is presented in wechat on Android, if a touch is glissed from the bottom up, and leave the page area,
+     * no touch cancel event is triggered, and the touch will be considered active forever. 
+     * After multiple times of this action, our maximum touches number will be reached and all new touches will be ignored.
+     * So this new mechanism can remove the touch that should be inactive if it's not updated during the last 5000 milliseconds.
+     * Though it might remove a real touch if it's just not moving for the last 5 seconds which is not easy with the sensibility of mobile touch screen.
+     * You can modify this value to have a better behavior if you find it's not enough.
+     * !#zh
+     * 用于甄别一个触点对象是否已经失效，并且可以被移除的延时时长
+     * 添加这个时长的原因是 X5 内核在微信浏览器中出现的一个 bug。
+     * 在这个环境下，如果用户将一个触点从底向上移出页面区域，将不会触发任何 touch cancel 或 touch end 事件，而这个触点会被永远当作停留在页面上的有效触点。
+     * 重复这样操作几次之后，屏幕上的触点数量将达到我们的事件系统所支持的最高触点数量，之后所有的触摸事件都将被忽略。
+     * 所以这个新的机制可以在触点在一定时间内没有任何更新的情况下视为失效触点并从事件系统中移除。
+     * 当然，这也可能移除一个真实的触点，如果用户的触点真的在一定时间段内完全没有移动（这在当前手机屏幕的灵敏度下会很难）。
+     * 你可以修改这个值来获得你需要的效果，默认值是 5000 毫秒。
+     * @property {Number} TOUCH_TIMEOUT
+     */
+    TOUCH_TIMEOUT: 5000,
+
+    /**
+     * !#en 
+     * The maximum vertex count for a single batched draw call.
+     * !#zh
+     * 最大可以被单次批处理渲染的顶点数量。
+     * @property {Number} BATCH_VERTEX_COUNT
+     */
+    BATCH_VERTEX_COUNT: 20000,
+
+    /**
+     * !#en 
+     * JSB only, using JS object life cycle to control C++ object or inversely, 
+     * it indicates two different memory model controled by the native macro CC_ENABLE_GC_FOR_NATIVE_OBJECTS.
+     * Modify the JS macro value won't have any effect.
+     * !#zh
+     * 仅限 JSB 有意义，使用 JS 对象生命周期来控制 C++ 对象，或是相反，这标示了两种不同的内存模型，
+     * 它的值被 native 宏 CC_ENABLE_GC_FOR_NATIVE_OBJECTS 所控制，修改 JS 宏的值不会产生任何效果。
+     * @property {Number} ENABLE_GC_FOR_NATIVE_OBJECTS
+     */
+    ENABLE_GC_FOR_NATIVE_OBJECTS: true,
+
+    /**
+     * !#en 
+     * Whether or not enabled tiled map auto culling. If you set the TiledMap skew or rotation, then need to manually disable this, otherwise, the rendering will be wrong.
+     * !#zh
+     * 是否开启瓦片地图的自动裁减功能。瓦片地图如果设置了 skew, rotation 的话，需要手动关闭，否则渲染会出错。
+     * @property {Boolean} ENABLE_TILEDMAP_CULLING
+     * @default true
+     */
+    ENABLE_TILEDMAP_CULLING: true,
+
+    /**
+     * !#en 
+     * The max concurrent task number for the downloader
+     * !#zh
+     * 下载任务的最大并发数限制，在安卓平台部分机型或版本上可能需要限制在较低的水平
+     * @property {Number} DOWNLOAD_MAX_CONCURRENT
+     * @default 64
+     */
+    DOWNLOAD_MAX_CONCURRENT: 64,
+
+    /**
+     * !#en 
+     * Boolean that indicates if the canvas contains an alpha channel, default sets to false for better performance.
+     * Though if you want to make your canvas background transparent and show other dom elements at the background, 
+     * you can set it to true before `cc.game.run`.
+     * Web only.
+     * !#zh
+     * 用于设置 Canvas 背景是否支持 alpha 通道，默认为 false，这样可以有更高的性能表现。
+     * 如果你希望 Canvas 背景是透明的，并显示背后的其他 DOM 元素，你可以在 `cc.game.run` 之前将这个值设为 true。
+     * 仅支持 Web
+     * @property {Boolean} ENABLE_TRANSPARENT_CANVAS
+     * @default false
+     */
+    ENABLE_TRANSPARENT_CANVAS: false,
+
+    /**
+     * !#en
+     * Boolean that indicates if the WebGL context is created with `antialias` option turned on, default value is false.
+     * Set it to true could make your game graphics slightly smoother, like texture hard edges when rotated.
+     * Whether to use this really depend on your game design and targeted platform, 
+     * device with retina display usually have good detail on graphics with or without this option, 
+     * you probably don't want antialias if your game style is pixel art based.
+     * Also, it could have great performance impact with some browser / device using software MSAA.
+     * You can set it to true before `cc.game.run`.
+     * Web only.
+     * !#zh
+     * 用于设置在创建 WebGL Context 时是否开启 `antialias` 选项，默认值是 false。
+     * 将这个选项设置为 true 会让你的游戏画面稍稍平滑一些，比如旋转硬边贴图时的锯齿。是否开启这个选项很大程度上取决于你的游戏和面向的平台。
+     * 在大多数拥有 retina 级别屏幕的设备上用户往往无法区分这个选项带来的变化；如果你的游戏选择像素艺术风格，你也多半不会想开启这个选项。
+     * 同时，在少部分使用软件级别抗锯齿算法的设备或浏览器上，这个选项会对性能产生比较大的影响。
+     * 你可以在 `cc.game.run` 之前设置这个值，否则它不会生效。
+     * 仅支持 Web
+     * @property {Boolean} ENABLE_WEBGL_ANTIALIAS
+     * @default false
+     */
+    ENABLE_WEBGL_ANTIALIAS: false,
+
+    /**
+     * !#en
+     * This feature have been removed in v2.0 new renderer due to overall performance consumption.
+     * We have no plan currently to re-enable auto culling.
+     * Whether or not enable auto culling.
+     * If your game have more dynamic objects, we suggest to disable auto culling.
+     * If your game have more static objects, we suggest to enable auto culling.
+     * !#zh
+     * 这个功能在 v2.0 的新渲染器中被移除了，因为它在绝大多数游戏中所带来的损耗要高于性能的提升，目前我们没有计划重新支持自动裁剪。
+     * 是否开启自动裁减功能，开启裁减功能将会把在屏幕外的物体从渲染队列中去除掉。
+     * 如果游戏中的动态物体比较多的话，建议将此选项关闭。
+     * 如果游戏中的静态物体比较多的话，建议将此选项打开。
+     * @property {Boolean} ENABLE_CULLING
+     * @deprecated
+     * @default false
+     */
+    ENABLE_CULLING: false,
+};
+
+/**
  * !#en Key map for keyboard event
  * !#zh 键盘事件的按键值
  * @enum KEY
  * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCCommon/KEY.js}
  */
-cc.KEY = {
+cc.macro.KEY = {
     /**
      * !#en None
      * !#zh 没有分配
@@ -1040,8 +1352,7 @@ cc.KEY = {
  * Image formats
  * @enum ImageFormat
  */
-
-cc.ImageFormat = cc.Enum({
+cc.macro.ImageFormat = cc.Enum({
     /**
      * Image Format:JPG
      * @property JPG
@@ -1111,406 +1422,111 @@ cc.ImageFormat = cc.Enum({
 });
 
 /**
- * get image format by image data
- * @method getImageFormatByData
- * @param {Array} imgData
- * @returns {Number}
+ * !#en
+ * Enum for blend factor
+ * Refer to: http://www.andersriggelsen.dk/glblendfunc.php
+ * !#zh
+ * 混合因子
+ * 可参考: http://www.andersriggelsen.dk/glblendfunc.php
+ * @enum BlendFactor
  */
-cc.getImageFormatByData = function (imgData) {
-    // if it is a png file buffer.
-    if (imgData.length > 8 && imgData[0] === 0x89
-        && imgData[1] === 0x50
-        && imgData[2] === 0x4E
-        && imgData[3] === 0x47
-        && imgData[4] === 0x0D
-        && imgData[5] === 0x0A
-        && imgData[6] === 0x1A
-        && imgData[7] === 0x0A) {
-        return cc.ImageFormat.PNG;
-    }
-
-    // if it is a tiff file buffer.
-    if (imgData.length > 2 && ((imgData[0] === 0x49 && imgData[1] === 0x49)
-        || (imgData[0] === 0x4d && imgData[1] === 0x4d)
-        || (imgData[0] === 0xff && imgData[1] === 0xd8))) {
-        return cc.ImageFormat.TIFF;
-    }
-    return cc.ImageFormat.UNKNOWN;
-};
+cc.macro.BlendFactor = cc.Enum({
+    /**
+     * !#en All use
+     * !#zh 全部使用
+     * @property {Number} ONE
+     */
+    ONE:                    1,  //cc.macro.ONE
+    /**
+     * !#en Not all
+     * !#zh 全部不用
+     * @property {Number} ZERO
+     */
+    ZERO:                   0,      //cc.ZERO
+    /**
+     * !#en Using the source alpha
+     * !#zh 使用源颜色的透明度
+     * @property {Number} SRC_ALPHA
+     */
+    SRC_ALPHA:              0x302,  //cc.SRC_ALPHA
+    /**
+     * !#en Using the source color
+     * !#zh 使用源颜色
+     * @property {Number} SRC_COLOR
+     */
+    SRC_COLOR:              0x300,  //cc.SRC_COLOR
+    /**
+     * !#en Using the target alpha
+     * !#zh 使用目标颜色的透明度
+     * @property {Number} DST_ALPHA
+     */
+    DST_ALPHA:              0x304,  //cc.DST_ALPHA
+    /**
+     * !#en Using the target color
+     * !#zh 使用目标颜色
+     * @property {Number} DST_COLOR
+     */
+    DST_COLOR:              0x306,  //cc.DST_COLOR
+    /**
+     * !#en Minus the source alpha
+     * !#zh 减去源颜色的透明度
+     * @property {Number} ONE_MINUS_SRC_ALPHA
+     */
+    ONE_MINUS_SRC_ALPHA:    0x303,  //cc.ONE_MINUS_SRC_ALPHA
+    /**
+     * !#en Minus the source color
+     * !#zh 减去源颜色
+     * @property {Number} ONE_MINUS_SRC_COLOR
+     */
+    ONE_MINUS_SRC_COLOR:    0x301,  //cc.ONE_MINUS_SRC_COLOR
+    /**
+     * !#en Minus the target alpha
+     * !#zh 减去目标颜色的透明度
+     * @property {Number} ONE_MINUS_DST_ALPHA
+     */
+    ONE_MINUS_DST_ALPHA:    0x305,  //cc.ONE_MINUS_DST_ALPHA
+    /**
+     * !#en Minus the target color
+     * !#zh 减去目标颜色
+     * @property {Number} ONE_MINUS_DST_COLOR
+     */
+    ONE_MINUS_DST_COLOR:    0x307,  //cc.ONE_MINUS_DST_COLOR
+});
 
 /**
- * Predefined constants
- * @enum macro
- * @type {Object}
+ * @enum TextAlignment
  */
-cc.macro = {
+cc.macro.TextAlignment = cc.Enum({
     /**
-     * PI / 180
-     * @property RAD
-     * @type {Number}
+     * @property {Number} LEFT
      */
-    RAD: Math.PI / 180,
-
+    LEFT: 0,
     /**
-     * One degree
-     * @property DEG
-     * @type {Number}
+     * @property {Number} CENTER
      */
-    DEG: 180 / Math.PI,
-
+    CENTER: 1,
     /**
-     * @property REPEAT_FOREVER
-     * @type {Number}
+     * @property {Number} RIGHT
      */
-    REPEAT_FOREVER: CC_JSB ? 0xffffffff : (Number.MAX_VALUE - 1),
-
-    /**
-     * @property FLT_EPSILON
-     * @type {Number}
-     */
-    FLT_EPSILON: 0.0000001192092896,
-
-    /**
-     * Minimum z index value for node
-     * @property MIN_ZINDEX
-     * @type {Number}
-     */
-    MIN_ZINDEX: -Math.pow(2, 15),
-
-    /**
-     * Maximum z index value for node
-     * @property MAX_ZINDEX
-     * @type {Number}
-     */
-    MAX_ZINDEX: Math.pow(2, 15) - 1,
-
-    //some gl constant variable
-    /**
-     * @property ONE
-     * @type {Number}
-     */
-    ONE: 1,
-
-    /**
-     * @property ZERO
-     * @type {Number}
-     */
-    ZERO: 0,
-
-    /**
-     * @property SRC_ALPHA
-     * @type {Number}
-     */
-    SRC_ALPHA: 0x0302,
-
-    /**
-     * @property SRC_ALPHA_SATURATE
-     * @type {Number}
-     */
-    SRC_ALPHA_SATURATE: 0x308,
-
-    /**
-     * @property SRC_COLOR
-     * @type {Number}
-     */
-    SRC_COLOR: 0x300,
-
-    /**
-     * @property DST_ALPHA
-     * @type {Number}
-     */
-    DST_ALPHA: 0x304,
-
-    /**
-     * @property DST_COLOR
-     * @type {Number}
-     */
-    DST_COLOR: 0x306,
-
-    /**
-     * @property ONE_MINUS_SRC_ALPHA
-     * @type {Number}
-     */
-    ONE_MINUS_SRC_ALPHA: 0x0303,
-
-    /**
-     * @property ONE_MINUS_SRC_COLOR
-     * @type {Number}
-     */
-    ONE_MINUS_SRC_COLOR: 0x301,
-
-    /**
-     * @property ONE_MINUS_DST_ALPHA
-     * @type {Number}
-     */
-    ONE_MINUS_DST_ALPHA: 0x305,
-
-    /**
-     * @property ONE_MINUS_DST_COLOR
-     * @type {Number}
-     */
-    ONE_MINUS_DST_COLOR: 0x0307,
-
-    /**
-     * @property ONE_MINUS_CONSTANT_ALPHA
-     * @type {Number}
-     */
-    ONE_MINUS_CONSTANT_ALPHA: 0x8004,
-
-    /**
-     * @property ONE_MINUS_CONSTANT_COLOR
-     * @type {Number}
-     */
-    ONE_MINUS_CONSTANT_COLOR: 0x8002,
-
-    //Possible device orientations
-    /**
-     * Oriented vertically
-     * @property ORIENTATION_PORTRAIT
-     * @type {Number}
-     */
-    ORIENTATION_PORTRAIT: 1,
-
-    /**
-     * Oriented horizontally
-     * @property ORIENTATION_LANDSCAPE
-     * @type {Number}
-     */
-    ORIENTATION_LANDSCAPE: 2,
-
-    /**
-     * Oriented automatically
-     * @property ORIENTATION_AUTO
-     * @type {Number}
-     */
-    ORIENTATION_AUTO: 3,
-
-    DENSITYDPI_DEVICE: 'device-dpi',
-    DENSITYDPI_HIGH: 'high-dpi',
-    DENSITYDPI_MEDIUM: 'medium-dpi',
-    DENSITYDPI_LOW: 'low-dpi',
-
-    // General configurations
-
-    /**
-     * <p>
-     *   If enabled, the texture coordinates will be calculated by using this formula: <br/>
-     *      - texCoord.left = (rect.x*2+1) / (texture.wide*2);                  <br/>
-     *      - texCoord.right = texCoord.left + (rect.width*2-2)/(texture.wide*2); <br/>
-     *                                                                                 <br/>
-     *  The same for bottom and top.                                                   <br/>
-     *                                                                                 <br/>
-     *  This formula prevents artifacts by using 99% of the texture.                   <br/>
-     *  The "correct" way to prevent artifacts is by expand the texture's border with the same color by 1 pixel<br/>
-     *                                                                                  <br/>
-     *  Affected nodes:                                                                 <br/>
-     *      - _ccsg.TMXLayer                                                       <br/>
-     *                                                                                  <br/>
-     *  Enabled by default. To disabled set it to 0. <br/>
-     *  To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * </p>
-     *
-     * @property {Number} FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX
-     */
-    FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX: true,
-
-    /**
-     * Position of the FPS (Default: 0,0 (bottom-left corner))<br/>
-     * To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * @property {Vec2} DIRECTOR_STATS_POSITION
-     */
-    DIRECTOR_STATS_POSITION: cc.p(0, 0),
-
-    /**
-     * <p>
-     *    If enabled, actions that alter the position property (eg: CCMoveBy, CCJumpBy, CCBezierBy, etc..) will be stacked.                  <br/>
-     *    If you run 2 or more 'position' actions at the same time on a node, then end position will be the sum of all the positions.        <br/>
-     *    If disabled, only the last run action will take effect.
-     * </p>
-     * @property {Number} ENABLE_STACKABLE_ACTIONS
-     */
-    ENABLE_STACKABLE_ACTIONS: true,
-
-    /**
-     * !#en 
-     * The timeout to determine whether a touch is no longer active and should be removed.
-     * The reason to add this timeout is due to an issue in X5 browser core, 
-     * when X5 is presented in wechat on Android, if a touch is glissed from the bottom up, and leave the page area,
-     * no touch cancel event is triggered, and the touch will be considered active forever. 
-     * After multiple times of this action, our maximum touches number will be reached and all new touches will be ignored.
-     * So this new mechanism can remove the touch that should be inactive if it's not updated during the last 5000 milliseconds.
-     * Though it might remove a real touch if it's just not moving for the last 5 seconds which is not easy with the sensibility of mobile touch screen.
-     * You can modify this value to have a better behavior if you find it's not enough.
-     * !#zh
-     * 用于甄别一个触点对象是否已经失效，并且可以被移除的延时时长
-     * 添加这个时长的原因是 X5 内核在微信浏览器中出现的一个 bug。
-     * 在这个环境下，如果用户将一个触点从底向上移出页面区域，将不会触发任何 touch cancel 或 touch end 事件，而这个触点会被永远当作停留在页面上的有效触点。
-     * 重复这样操作几次之后，屏幕上的触点数量将达到我们的事件系统所支持的最高触点数量，之后所有的触摸事件都将被忽略。
-     * 所以这个新的机制可以在触点在一定时间内没有任何更新的情况下视为失效触点并从事件系统中移除。
-     * 当然，这也可能移除一个真实的触点，如果用户的触点真的在一定时间段内完全没有移动（这在当前手机屏幕的灵敏度下会很难）。
-     * 你可以修改这个值来获得你需要的效果，默认值是 5000 毫秒。
-     * @property {Number} TOUCH_TIMEOUT
-     */
-    TOUCH_TIMEOUT: 5000,
-
-    /**
-     * !#en 
-     * The maximum vertex count for a single batched draw call.
-     * !#zh
-     * 最大可以被单次批处理渲染的顶点数量。
-     * @property {Number} BATCH_VERTEX_COUNT
-     */
-    BATCH_VERTEX_COUNT: 20000,
-
-    /**
-     * !#en 
-     * JSB only, using JS object life cycle to control C++ object or inversely, 
-     * it indicates two different memory model controled by the native macro CC_ENABLE_GC_FOR_NATIVE_OBJECTS.
-     * Modify the JS macro value won't have any effect.
-     * !#zh
-     * 仅限 JSB 有意义，使用 JS 对象生命周期来控制 C++ 对象，或是相反，这标示了两种不同的内存模型，
-     * 它的值被 native 宏 CC_ENABLE_GC_FOR_NATIVE_OBJECTS 所控制，修改 JS 宏的值不会产生任何效果。
-     * @property {Number} ENABLE_GC_FOR_NATIVE_OBJECTS
-     */
-    ENABLE_GC_FOR_NATIVE_OBJECTS: true,
-
-    /**
-     * !#en 
-     * Whether or not enabled tiled map auto culling. If you set the TiledMap skew or rotation, then need to manually disable this, otherwise, the rendering will be wrong.
-     * !#zh
-     * 是否开启瓦片地图的自动裁减功能。瓦片地图如果设置了 skew, rotation 的话，需要手动关闭，否则渲染会出错。
-     * @property {Boolean} ENABLE_TILEDMAP_CULLING
-     * @default true
-     */
-    ENABLE_TILEDMAP_CULLING: true,
-
-    /**
-     * !#en 
-     * The max concurrent task number for the downloader
-     * !#zh
-     * 下载任务的最大并发数限制，在安卓平台部分机型或版本上可能需要限制在较低的水平
-     * @property {Number} DOWNLOAD_MAX_CONCURRENT
-     * @default 64
-     */
-    DOWNLOAD_MAX_CONCURRENT: 64,
-
-    /**
-     * !#en 
-     * Boolean that indicates if the canvas contains an alpha channel, default sets to false for better performance.
-     * Though if you want to make your canvas background transparent and show other dom elements at the background, 
-     * you can set it to true before `cc.game.run`.
-     * Web only.
-     * !#zh
-     * 用于设置 Canvas 背景是否支持 alpha 通道，默认为 false，这样可以有更高的性能表现。
-     * 如果你希望 Canvas 背景是透明的，并显示背后的其他 DOM 元素，你可以在 `cc.game.run` 之前将这个值设为 true。
-     * 仅支持 Web
-     * @property {Boolean} ENABLE_TRANSPARENT_CANVAS
-     * @default false
-     */
-    ENABLE_TRANSPARENT_CANVAS: false,
-
-    /**
-     * !#en
-     * Boolean that indicates if the WebGL context is created with `antialias` option turned on, default value is false.
-     * Set it to true could make your game graphics slightly smoother, like texture hard edges when rotated.
-     * Whether to use this really depend on your game design and targeted platform, 
-     * device with retina display usually have good detail on graphics with or without this option, 
-     * you probably don't want antialias if your game style is pixel art based.
-     * Also, it could have great performance impact with some browser / device using software MSAA.
-     * You can set it to true before `cc.game.run`.
-     * Web only.
-     * !#zh
-     * 用于设置在创建 WebGL Context 时是否开启 `antialias` 选项，默认值是 false。
-     * 将这个选项设置为 true 会让你的游戏画面稍稍平滑一些，比如旋转硬边贴图时的锯齿。是否开启这个选项很大程度上取决于你的游戏和面向的平台。
-     * 在大多数拥有 retina 级别屏幕的设备上用户往往无法区分这个选项带来的变化；如果你的游戏选择像素艺术风格，你也多半不会想开启这个选项。
-     * 同时，在少部分使用软件级别抗锯齿算法的设备或浏览器上，这个选项会对性能产生比较大的影响。
-     * 你可以在 `cc.game.run` 之前设置这个值，否则它不会生效。
-     * 仅支持 Web
-     * @property {Boolean} ENABLE_WEBGL_ANTIALIAS
-     * @default false
-     */
-    ENABLE_WEBGL_ANTIALIAS: false,
-
-    /**
-     * !#en
-     * This feature have been removed in v2.0 new renderer due to overall performance consumption.
-     * We have no plan currently to re-enable auto culling.
-     * Whether or not enable auto culling.
-     * If your game have more dynamic objects, we suggest to disable auto culling.
-     * If your game have more static objects, we suggest to enable auto culling.
-     * !#zh
-     * 这个功能在 v2.0 的新渲染器中被移除了，因为它在绝大多数游戏中所带来的损耗要高于性能的提升，目前我们没有计划重新支持自动裁剪。
-     * 是否开启自动裁减功能，开启裁减功能将会把在屏幕外的物体从渲染队列中去除掉。
-     * 如果游戏中的动态物体比较多的话，建议将此选项关闭。
-     * 如果游戏中的静态物体比较多的话，建议将此选项打开。
-     * @property {Boolean} ENABLE_CULLING
-     * @deprecated
-     * @default false
-     */
-    ENABLE_CULLING: false,
-};
+    RIGHT: 2
+});
 
 /**
- * @module cc
+ * @enum VerticalTextAlignment
  */
-
-/**
- * <p>
- *     Linear interpolation between 2 numbers, the ratio sets how much it is biased to each end
- * </p>
- * @method lerp
- * @param {Number} a number A
- * @param {Number} b number B
- * @param {Number} r ratio between 0 and 1
- * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCMacro/lerp.js}
- */
-cc.lerp = function (a, b, r) {
-    return a + (b - a) * r;
-};
-
-/**
- * get a random number from 0 to 0xffffff
- * @method rand
- * @returns {Number}
- */
-cc.rand = function () {
-	return Math.random() * 0xffffff;
-};
-
-/**
- * returns a random float between -1 and 1
- * @return {Number}
- * @method randomMinus1To1
- */
-cc.randomMinus1To1 = function () {
-    return (Math.random() - 0.5) * 2;
-};
-
-/**
- * returns a random float between 0 and 1, use Math.random directly
- * @return {Number}
- * @method random0To1
- */
-cc.random0To1 = Math.random;
-
-/**
- * converts degrees to radians
- * @param {Number} angle
- * @return {Number}
- * @method degreesToRadians
- */
-cc.degreesToRadians = function (angle) {
-    return angle * cc.macro.RAD;
-};
-
-/**
- * converts radians to degrees
- * @param {Number} angle
- * @return {Number}
- * @method radiansToDegrees
- */
-cc.radiansToDegrees = function (angle) {
-    return angle * cc.macro.DEG;
-};
+cc.macro.VerticalTextAlignment = cc.Enum({
+    /**
+     * @property {Number} TOP
+     */
+    TOP: 0,
+    /**
+     * @property {Number} CENTER
+     */
+    CENTER: 1,
+    /**
+     * @property {Number} BOTTOM
+     */
+    BOTTOM: 2
+});
 
 module.exports = cc.macro;

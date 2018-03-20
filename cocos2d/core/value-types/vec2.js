@@ -24,9 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var ValueType = require('./CCValueType');
+var ValueType = require('./value-type');
 var js = require('../platform/js');
 var CCClass = require('../platform/CCClass');
+var misc = require('../utils/misc');
 
 /**
  * !#en Representation of 2D vectors and points.
@@ -92,7 +93,7 @@ proto.set = function (newValue) {
 };
 
 /**
- * !#en TODO
+ * !#en Check whether two vector equal
  * !#zh 当前的向量是否与指定的向量相等。
  * @method equals
  * @param {Vec2} other
@@ -103,7 +104,25 @@ proto.equals = function (other) {
 };
 
 /**
- * !#en TODO
+ * !#en Check whether two vector equal with some degree of variance.
+ * !#zh
+ * 近似判断两个点是否相等。<br/>
+ * 判断 2 个向量是否在指定数值的范围之内，如果在则返回 true，反之则返回 false。
+ * @method pFuzzyEqual
+ * @param {Vec2} other
+ * @param {Number} variance
+ * @return {Boolean}
+ */
+proto.fuzzyEquals = function (other, variance) {
+    if (this.x - variance <= other.x && other.x <= this.x + variance) {
+        if (this.y - variance <= other.y && other.y <= this.y + variance)
+            return true;
+    }
+    return false;
+};
+
+/**
+ * !#en Transform to string with vector informations
  * !#zh 转换为方便阅读的字符串。
  * @method toString
  * @return {string}
@@ -116,7 +135,7 @@ proto.toString = function () {
 };
 
 /**
- * !#en TODO
+ * !#en Calculate linear interpolation result between this vector and another one with given ratio
  * !#zh 线性插值。
  * @method lerp
  * @param {Vec2} to
@@ -131,6 +150,30 @@ proto.lerp = function (to, ratio, out) {
     out.x = x + (to.x - x) * ratio;
     out.y = y + (to.y - y) * ratio;
     return out;
+};
+
+/**
+ * !#en Clamp the vector between from float and to float.
+ * !#zh
+ * 返回指定限制区域后的向量。<br/>
+ * 向量大于 max_inclusive 则返回 max_inclusive。<br/>
+ * 向量小于 min_inclusive 则返回 min_inclusive。<br/>
+ * 否则返回自身。
+ * @method clampf
+ * @param {Vec2} min_inclusive
+ * @param {Vec2} max_inclusive
+ * @return {Vec2}
+ * @example
+ * var min_inclusive = cc.v2(0, 0);
+ * var max_inclusive = cc.v2(20, 20);
+ * var v1 = cc.v2(20, 20).clamp(min_inclusive, max_inclusive); // Vec2 {x: 20, y: 20};
+ * var v2 = cc.v2(0, 0).clamp(min_inclusive, max_inclusive);   // Vec2 {x: 0, y: 0};
+ * var v3 = cc.v2(10, 10).clamp(min_inclusive, max_inclusive); // Vec2 {x: 10, y: 10};
+ */
+proto.clampf = function (min_inclusive, max_inclusive) {
+    this.x = misc.clampf(this.x, min_inclusive.x, max_inclusive.x);
+    this.y = misc.clampf(this.y, min_inclusive.y, max_inclusive.y);
+    return this;
 };
 
 /**
@@ -474,7 +517,7 @@ proto.angle = function (vector) {
 
     var dot = this.dot(vector);
     var theta = dot / (Math.sqrt(magSqr1 * magSqr2));
-    theta = cc.clampf(theta, -1.0, 1.0);
+    theta = misc.clampf(theta, -1.0, 1.0);
     return Math.acos(theta);
 };
 
@@ -524,6 +567,21 @@ proto.rotateSelf = function (radians) {
     this.x = cos * x - sin * this.y;
     this.y = sin * x + cos * this.y;
     return this;
+};
+
+/**
+ * !#en Calculates the projection of the current vector over the given vector.
+ * !#zh 返回当前向量在指定 vector 向量上的投影向量。
+ * @method project
+ * @param {Vec2} vector
+ * @return {Vec2}
+ * @example
+ * var v1 = cc.v2(20, 20);
+ * var v2 = cc.v2(5, 5);
+ * v1.project(v2); // Vec2 {x: 20, y: 20};
+ */
+proto.project = function (vector) {
+    return vector.mul(this.dot(vector) / vector.dot(vector));
 };
 
 //_serialize: function () {
@@ -604,34 +662,15 @@ cc.v2 = function v2 (x, y) {
     return new Vec2(x, y);
 };
 
-/**
- * !#en The convenience method to creates a new {{#crossLink "Vec2"}}cc.Vec2{{/crossLink}}.
- * !#zh 通过该简便的函数进行创建 {{#crossLink "Vec2"}}cc.Vec2{{/crossLink}} 对象。
- * @method p
- * @param {Number|Object} [x=0] a Number or a size object
- * @param {Number} [y=0]
+/** 
+ * !#en This function is deprecated since v2.0, please use {{#crossLink "v2"}}cc.v2{{/crossLink}}. 
+ * !#zh 这个函数从 v2.0 开始被废弃，请使用 {{#crossLink "v2"}}cc.v2{{/crossLink}}。 
+ * @method p 
+ * @deprecated
+ * @param {Number|Object} [x=0] a Number or a size object 
+ * @param {Number} [y=0] 
  * @return {Vec2}
- * @example
- * var point1 = cc.p();
- * var point2 = cc.p(100, 100);
- * var point3 = cc.p(point2);
- * var point4 = cc.p({x: 100, y: 100});
- */
+ */ 
 cc.p = cc.v2;
-
-
-// Functional style API, for backward compatibility
-
-/**
- * !#en Check whether a point's value equals to another.
- * !#zh 判断两个向量是否相等。
- * @method pointEqualToPoint
- * @param {Vec2} point1
- * @param {Vec2} point2
- * @return {Boolean}
- */
-cc.pointEqualToPoint = function (point1, point2) {
-    return point1 && point2 && (point1.x === point2.x) && (point1.y === point2.y);
-};
 
 module.exports = cc.Vec2;

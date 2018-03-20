@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var ValueType = require('./CCValueType');
+var ValueType = require('./value-type');
 var js = require('../platform/js');
 
 var Color = (function () {
@@ -396,16 +396,18 @@ var Color = (function () {
      * color.fromHEX("#FFFF33"); // Color {r: 255, g: 255, b: 51, a: 255};
      */
     proto.fromHEX = function (hexString) {
+        hexString = (hexString.indexOf('#') === 0) ? hexString.substring(1) : hexString;
         if (hexString.length < 8) {
-            hexString += 'FF';
+            hexString = 'FF' + hexString;
         }
-        var hex = parseInt(((hexString.indexOf('#') > -1) ? hexString.substring(1) : hexString), 16);
+        var hex = parseInt(hexString, 16);
         this._val = ((this._val & 0x00000000) | hex) >>> 0;
         return this;
     };
 
     /**
-     * !#en TODO
+     * !#en convert Color to HEX color string.
+     * e.g.  cc.color(255,6,255)  to : "#ff06ff"
      * !#zh 转换为 16 进制。
      * @method toHEX
      * @param {String} fmt - "#rgb" or "#rrggbb".
@@ -453,7 +455,7 @@ var Color = (function () {
     };
 
     /**
-     * !#en TODO
+     * !#en Read HSV model color and convert to RGB color
      * !#zh 读取 HSV（色彩模型）格式。
      * @method fromHSV
      * @param {Number} h
@@ -466,13 +468,72 @@ var Color = (function () {
      * color.fromHSV(0, 0, 1); // Color {r: 255, g: 255, b: 255, a: 255};
      */
     proto.fromHSV = function ( h, s, v ) {
-        var rgb = Color.hsv2rgb( h, s, v );
-        this._val = ((rgb.r << 24) >>> 0) + (rgb.g << 16) + (rgb.b << 8) + this.a;
+        var r, g, b;
+        if (s === 0) {
+            r = g = b = v;
+        }
+        else {
+            if (v === 0) {
+                r = g = b = 0;
+            }
+            else {
+                if (h === 1) h = 0;
+                h *= 6;
+                s = s;
+                v = v;
+                var i = Math.floor(h);
+                var f = h - i;
+                var p = v * (1 - s);
+                var q = v * (1 - (s * f));
+                var t = v * (1 - (s * (1 - f)));
+                switch (i) {
+                    case 0:
+                        r = v;
+                        g = t;
+                        b = p;
+                        break;
+
+                    case 1:
+                        r = q;
+                        g = v;
+                        b = p;
+                        break;
+
+                    case 2:
+                        r = p;
+                        g = v;
+                        b = t;
+                        break;
+
+                    case 3:
+                        r = p;
+                        g = q;
+                        b = v;
+                        break;
+
+                    case 4:
+                        r = t;
+                        g = p;
+                        b = v;
+                        break;
+
+                    case 5:
+                        r = v;
+                        g = p;
+                        b = q;
+                        break;
+                }
+            }
+        }
+        r *= 255;
+        g *= 255;
+        b *= 255;
+        this._val = ((r << 24) >>> 0) + (g << 16) + (b << 8) + this.a;
         return this;
     };
 
     /**
-     * !#en TODO
+     * !#en Transform to HSV model color
      * !#zh 转换为 HSV（色彩模型）格式。
      * @method toHSV
      * @return {Object} - {h: number, s: number, v: number}.
@@ -481,7 +542,25 @@ var Color = (function () {
      * color.toHSV(); // Object {h: 0.1533864541832669, s: 0.9843137254901961, v: 1};
      */
     proto.toHSV = function () {
-        return Color.rgb2hsv( this.r, this.g, this.b );
+        var r = this.r / 255;
+        var g = this.g / 255;
+        var b = this.b / 255;
+        var hsv = { h: 0, s: 0, v: 0 };
+        var max = Math.max(r,g,b);
+        var min = Math.min(r,g,b);
+        var delta = 0;
+        hsv.v = max;
+        hsv.s = max ? (max - min) / max : 0;
+        if (!hsv.s) hsv.h = 0;
+        else {
+            delta = max - min;
+            if (r === max) hsv.h = (g - b) / delta;
+            else if (g === max) hsv.h = 2 + (b - r) / delta;
+            else hsv.h = 4 + (r - g) / delta;
+            hsv.h /= 6;
+            if (hsv.h < 0) hsv.h += 1.0;
+        }
+        return hsv;
     };
 
     proto.fromColor = function (color) {
@@ -498,116 +577,6 @@ var Color = (function () {
 
     return Color;
 })();
-
-/**
- * !#en TODO
- * !#zh RGB 转换为 HSV。
- * @method rgb2hsv
- * @param {Number} r - red, must be [0, 255].
- * @param {Number} g - red, must be [0, 255].
- * @param {Number} b - red, must be [0, 255].
- * @return {Object} - {h: number, s: number, v: number}.
- * @static
- * @example
- * cc.Color.rgb2hsv(255, 255, 255); // Object {h: 0, s: 0, v: 1};
- */
-Color.rgb2hsv = function ( r, g, b ) {
-    r = r / 255;
-    g = g / 255;
-    b = b / 255;
-    var hsv = { h: 0, s: 0, v: 0 };
-    var max = Math.max(r,g,b);
-    var min = Math.min(r,g,b);
-    var delta = 0;
-    hsv.v = max;
-    hsv.s = max ? (max - min) / max : 0;
-    if (!hsv.s) hsv.h = 0;
-    else {
-        delta = max - min;
-        if (r === max) hsv.h = (g - b) / delta;
-        else if (g === max) hsv.h = 2 + (b - r) / delta;
-        else hsv.h = 4 + (r - g) / delta;
-        hsv.h /= 6;
-        if (hsv.h < 0) hsv.h += 1.0;
-    }
-    return hsv;
-};
-
-/**
- * !#en TODO
- * !#zh HSV 转换为 RGB。
- * @method hsv2rgb
- * @param {Number} h
- * @param {Number} s
- * @param {Number} v
- * @return {Object} - {r: number, g: number, b: number}}, rgb will be in [0, 255].
- * @static
- * @example
- * cc.Color.hsv2rgb(0, 0, 1); // Object {r: 255, g: 255, b: 255};
- */
-Color.hsv2rgb = function ( h, s, v ) {
-    var rgb = { r: 0, g: 0, b: 0 };
-    if (s === 0) {
-        rgb.r = rgb.g = rgb.b = v;
-    }
-    else {
-        if (v === 0) {
-            rgb.r = rgb.g = rgb.b = 0;
-        }
-        else {
-            if (h === 1) h = 0;
-            h *= 6;
-            s = s;
-            v = v;
-            var i = Math.floor(h);
-            var f = h - i;
-            var p = v * (1 - s);
-            var q = v * (1 - (s * f));
-            var t = v * (1 - (s * (1 - f)));
-            switch (i) {
-                case 0:
-                    rgb.r = v;
-                    rgb.g = t;
-                    rgb.b = p;
-                    break;
-
-                case 1:
-                    rgb.r = q;
-                    rgb.g = v;
-                    rgb.b = p;
-                    break;
-
-                case 2:
-                    rgb.r = p;
-                    rgb.g = v;
-                    rgb.b = t;
-                    break;
-
-                case 3:
-                    rgb.r = p;
-                    rgb.g = q;
-                    rgb.b = v;
-                    break;
-
-                case 4:
-                    rgb.r = t;
-                    rgb.g = p;
-                    rgb.b = v;
-                    break;
-
-                case 5:
-                    rgb.r = v;
-                    rgb.g = p;
-                    rgb.b = q;
-                    break;
-            }
-        }
-    }
-    rgb.r *= 255;
-    rgb.g *= 255;
-    rgb.b *= 255;
-    return rgb;
-};
 
 cc.Color = Color;
 
@@ -641,65 +610,6 @@ cc.color = function color (r, g, b, a) {
         return new cc.Color(r.r, r.g, r.b, r.a);
     }
     return  new cc.Color(r, g, b, a);
-};
-
-
-// Functional style API, for backward compatibility
-
-/**
- * !#en returns true if both ccColor3B are equal. Otherwise it returns false.
- * !#zh 判断两个颜色对象的 RGB 部分是否相等，不比较透明度。
- * @method colorEqual
- * @param {Color} color1
- * @param {Color} color2
- * @return {Boolean} true if both ccColor3B are equal. Otherwise it returns false.
- * @example
- * cc.log(cc.colorEqual(cc.Color.RED, new cc.Color(255, 0, 0))); // true
- */
-cc.colorEqual = function (color1, color2) {
-    if (color1._val !== undefined && color2._val !== undefined) {
-        return color1._val === color2._val;
-    }
-    else {
-        return color1.r === color2.r && color1.g === color2.g && color1.b === color2.b;
-    }
-};
-
-/**
- * !#en
- * convert a string of color for style to Color.
- * e.g. "#ff06ff"  to : cc.color(255,6,255)。
- * !#zh 16 进制转换为 Color
- * @method hexToColor
- * @param {String} hex
- * @return {Color}
- * @example
- * cc.hexToColor("#FFFF33"); // Color {r: 255, g: 255, b: 51, a: 255};
- */
-cc.hexToColor = function (hex) {
-    hex = hex.replace(/^#?/, "0x");
-    var c = parseInt(hex);
-    var r = (c >> 16);
-    var g = ((c & 0x00FF00) >> 8);
-    var b = ((c & 0x0000FF));
-    return cc.color(r, g, b);
-};
-
-/**
- * !#en
- * convert Color to a string of color for style.
- * e.g.  cc.color(255,6,255)  to : "#ff06ff"
- * !#zh Color 转换为 16进制。
- * @method colorToHex
- * @param {Color} color
- * @return {String}
- * @example
- * var color = new cc.Color(255, 6, 255)
- * cc.colorToHex(color); // #ff06ff;
- */
-cc.colorToHex = function (color) {
-    var hR = color.r.toString(16), hG = color.g.toString(16), hB = color.b.toString(16);
-    return "#" + (color.r < 16 ? ("0" + hR) : hR) + (color.g < 16 ? ("0" + hG) : hG) + (color.b < 16 ? ("0" + hB) : hB);
 };
 
 module.exports = cc.Color;

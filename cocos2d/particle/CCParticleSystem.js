@@ -24,6 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const macro = require('../core/platform/CCMacro');
 const ParticleAsset = require('./CCParticleAsset');
 const RenderComponent = require('../core/components/CCRenderComponent');
 const codec = require('../compression/ZipUtils');
@@ -35,7 +36,30 @@ const gfx = renderEngine.gfx;
 const ParticleMaterial = renderEngine.ParticleMaterial;
 const Particles = renderEngine.Particles;
 
-var BlendFactor = cc.BlendFunc.BlendFactor;
+var BlendFactor = macro.BlendFactor;
+
+function getImageFormatByData (imgData) {
+    // if it is a png file buffer.
+    if (imgData.length > 8 && imgData[0] === 0x89
+        && imgData[1] === 0x50
+        && imgData[2] === 0x4E
+        && imgData[3] === 0x47
+        && imgData[4] === 0x0D
+        && imgData[5] === 0x0A
+        && imgData[6] === 0x1A
+        && imgData[7] === 0x0A) {
+        return macro.ImageFormat.PNG;
+    }
+
+    // if it is a tiff file buffer.
+    if (imgData.length > 2 && ((imgData[0] === 0x49 && imgData[1] === 0x49)
+        || (imgData[0] === 0x4d && imgData[1] === 0x4d)
+        || (imgData[0] === 0xff && imgData[1] === 0xd8))) {
+        return macro.ImageFormat.TIFF;
+    }
+    return macro.ImageFormat.UNKNOWN;
+}
+
 /**
  * !#en Enum for emitter modes
  * !#zh 发射模式
@@ -261,7 +285,7 @@ var properties = {
      * !#en Specify the source Blend Factor.
      * !#zh 指定原图混合模式。
      * @property srcBlendFactor
-     * @type {BlendFactor}
+     * @type {macro.BlendFactor}
      */
     _srcBlendFactor : BlendFactor.SRC_ALPHA,
     srcBlendFactor: {
@@ -281,7 +305,7 @@ var properties = {
      * !#en Specify the destination Blend Factor.
      * !#zh 指定目标的混合模式。
      * @property dstBlendFactor
-     * @type {BlendFactor}
+     * @type {macro.BlendFactor}
      */
     _dstBlendFactor : BlendFactor.ONE_MINUS_SRC_ALPHA,
     dstBlendFactor: {
@@ -589,7 +613,7 @@ var properties = {
      * @property {Vec2} sourcePos
      * @default cc.Vec2.ZERO
      */
-    sourcePos: cc.p(0, 0),
+    sourcePos: cc.v2(0, 0),
 
     /**
      * !#en Variation of source position.
@@ -597,7 +621,7 @@ var properties = {
      * @property {Vec2} posVar
      * @default cc.Vec2.ZERO
      */
-    posVar: cc.p(0, 0),
+    posVar: cc.v2(0, 0),
 
     /**
      * !#en Particles movement type.
@@ -629,7 +653,7 @@ var properties = {
      * @property {Vec2} gravity
      * @default cc.Vec2.ZERO
      */
-    gravity: cc.p(0, 0),
+    gravity: cc.v2(0, 0),
     /**
      * !#en Speed of the emitter.
      * !#zh 速度。
@@ -1114,14 +1138,14 @@ var ParticleSystem = cc.Class({
                     return false;
                 }
 
-                var imageFormat = cc.getImageFormatByData(buffer);
-                if (imageFormat !== cc.ImageFormat.TIFF && imageFormat !== cc.ImageFormat.PNG) {
+                var imageFormat = getImageFormatByData(buffer);
+                if (imageFormat !== macro.ImageFormat.TIFF && imageFormat !== macro.ImageFormat.PNG) {
                     cc.logID(6011);
                     return false;
                 }
 
                 var canvasObj = document.createElement("canvas");
-                if(imageFormat === cc.ImageFormat.PNG){
+                if(imageFormat === macro.ImageFormat.PNG){
                     var myPngObj = new PNGReader(buffer);
                     myPngObj.render(canvasObj);
                 } else {
@@ -1156,8 +1180,8 @@ var ParticleSystem = cc.Class({
         this.duration = parseFloat(dict["duration"] || 0);
 
         // blend function
-        this.srcBlendFactor = parseInt(dict["blendFuncSource"] || cc.macro.SRC_ALPHA);
-        this.dstBlendFactor = parseInt(dict["blendFuncDestination"] || cc.macro.ONE_MINUS_SRC_ALPHA);
+        this.srcBlendFactor = parseInt(dict["blendFuncSource"] || macro.SRC_ALPHA);
+        this.dstBlendFactor = parseInt(dict["blendFuncDestination"] || macro.ONE_MINUS_SRC_ALPHA);
 
         // color
         var locStartColor = this.startColor;

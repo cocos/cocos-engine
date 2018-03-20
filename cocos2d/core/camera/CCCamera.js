@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const affineTrans = require('../value-types/CCAffineTransform');
+const AffineTrans = require('../utils/affine-transform');
 const renderEngine = require('../renderer/render-engine');
 const renderer = require('../renderer/index');
 
@@ -279,13 +279,13 @@ let Camera = cc.Class({
      * @return {AffineTransform}
      */
     getNodeToCameraTransform (node) {
-        let out = affineTrans.makeIdentity();
+        let out = AffineTrans.identity();
         node.getWorldMatrix(_mat4_temp_2);
         if (this.containsNode(node)) {
             this.getWorldToCameraMatrix(_mat4_temp_1);
             mat4.mul(_mat4_temp_2, _mat4_temp_2, _mat4_temp_1);
         }
-        affineTrans.fromMatrix(_mat4_temp_2, out);
+        AffineTrans.fromMat4(out, _mat4_temp_2);
         return out;
     },
 

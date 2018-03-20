@@ -27,49 +27,6 @@
 var js = cc.js;
 
 if (CC_DEV) {
-    // cc.isChildClassOf
-    js.get(cc, 'isChildClassOf', function () {
-        cc.errorID(1400, 'cc.isChildClassOf', 'cc.js.isChildClassOf');
-        return cc.js.isChildClassOf;
-    });
-
-    // cc.spriteFrameCache
-    js.get(cc, "spriteFrameCache", function () {
-        cc.errorID(1404);
-    });
-
-    js.get(cc, 'textureCache', function () {
-        cc.errorID(1406, 'cc', 'textureCache');
-    });
-
-    // cc.pool
-    js.get(cc, 'pool', function () {
-        cc.errorID(1407);
-        return js.Pool;
-    });
-
-    // Texture
-    js.obsolete(cc.Texture2D.prototype, 'texture.releaseTexture', 'texture.destroy');
-
-    js.get(cc.Texture2D.prototype, 'getName', function () {
-        cc.warnID(1400, 'texture.getName()', 'texture._glID');
-        return function () {
-            return this._glID || null;
-        };
-    });
-
-    js.get(cc.Texture2D.prototype, 'isLoaded', function () {
-        cc.errorID(1400, 'texture.isLoaded function', 'texture.loaded property');
-        return (function () {
-            return this.loaded;
-        });
-    });
-
-    // SpriteFrame
-    js.get(cc.SpriteFrame.prototype, '_textureLoaded', function () {
-        cc.errorID(1400, 'spriteFrame._textureLoaded', 'spriteFrame.textureLoaded()');
-        return this.textureLoaded();
-    });
 
     function deprecateEnum (obj, oldPath, newPath, hasTypePrefixBefore) {
         if (!CC_SUPPORT_JIT) {
@@ -186,11 +143,44 @@ if (CC_DEV) {
         }
     }
 
+    // cc.spriteFrameCache
+    js.get(cc, "spriteFrameCache", function () {
+        cc.errorID(1404);
+    });
+
+    // SpriteFrame
+    js.get(cc.SpriteFrame.prototype, '_textureLoaded', function () {
+        cc.errorID(1400, 'spriteFrame._textureLoaded', 'spriteFrame.textureLoaded()');
+        return this.textureLoaded();
+    });
+
+    // cc.textureCache
+    js.get(cc, 'textureCache', function () {
+        cc.errorID(1406, 'cc', 'textureCache');
+    });
+
+    // Texture
+    js.obsolete(cc.Texture2D.prototype, 'texture.releaseTexture', 'texture.destroy');
+
+    js.get(cc.Texture2D.prototype, 'getName', function () {
+        cc.warnID(1400, 'texture.getName()', 'texture._glID');
+        return function () {
+            return this._glID || null;
+        };
+    });
+
+    js.get(cc.Texture2D.prototype, 'isLoaded', function () {
+        cc.errorID(1400, 'texture.isLoaded function', 'texture.loaded property');
+        return (function () {
+            return this.loaded;
+        });
+    });
+
     // cc.macro
     markAsRemovedInObject(cc.macro, [
         'ENABLE_GL_STATE_CACHE',
         'FIX_ARTIFACTS_BY_STRECHING_TEXEL',
-    ]);
+    ], 'cc.macro');
 
     provideClearError(cc.macro, {
         PI: 'Math.PI',
@@ -198,14 +188,14 @@ if (CC_DEV) {
         FLT_MAX: 'Number.MAX_VALUE',
         FLT_MIN: 'Number.MIN_VALUE',
         UINT_MAX: 'Number.MAX_SAFE_INTEGER'
-    });
+    }, 'cc.macro');
 
     // cc.Director
     provideClearError(cc.Director, {
         EVENT_PROJECTION_CHANGED: '',
         EVENT_BEFORE_VISIT: 'EVENT_AFTER_UPDATE',
         EVENT_AFTER_VISIT: 'EVENT_BEFORE_DRAW',
-    });
+    }, 'cc.Director');
 
     // cc.PhysicsManager
     markAsRemoved(cc.PhysicsManager, [
@@ -326,6 +316,164 @@ if (CC_DEV) {
                 };
             }
         },
+    });
+
+    // Value types
+    provideClearError(cc, {
+        // AffineTransform
+        affineTransformMake: 'cc.AffineTransform.create',
+        affineTransformMakeIdentity: 'cc.AffineTransform.identity',
+        affineTransformClone: 'cc.AffineTransform.clone',
+        affineTransformConcat: 'cc.AffineTransform.concat',
+        affineTransformConcatIn: 'cc.AffineTransform.concat',
+        affineTransformInvert: 'cc.AffineTransform.invert',
+        affineTransformInvertIn: 'cc.AffineTransform.invert',
+        affineTransformInvertOut: 'cc.AffineTransform.invert',
+        affineTransformEqualToTransform: 'cc.AffineTransform.equal',
+        pointApplyAffineTransform: 'cc.AffineTransform.transformVec2',
+        sizeApplyAffineTransform: 'cc.AffineTransform.transformSize',
+        rectApplyAffineTransform: 'cc.AffineTransform.transformRect',
+        obbApplyAffineTransform: 'cc.AffineTransform.transformObb',
+
+        // Vec2
+        pointEqualToPoint: 'cc.Vec2 equals',
+        
+        // Size
+        sizeEqualToSize: 'cc.Size equals',
+
+        // Rect
+        rectEqualToRect: 'rectA.equals(rectB)',
+        rectContainsRect: 'rectA.containsRect(rectB)',
+        rectContainsPoint: 'rect.contains(vec2)',
+        rectOverlapsRect: 'rectA.intersects(rectB)',
+        rectIntersectsRect: 'rectA.intersects(rectB)',
+        rectIntersection: 'rectA.intersection(intersection, rectB)',
+        rectUnion: 'rectA.union(union, rectB)',
+        rectGetMaxX: 'rect.xMax',
+        rectGetMidX: 'rect.center.x',
+        rectGetMinX: 'rect.xMin',
+        rectGetMaxY: 'rect.yMax',
+        rectGetMidY: 'rect.center.y',
+        rectGetMinY: 'rect.yMin',
+
+        // Color
+        colorEqual: 'colorA.equals(colorB)',
+        hexToColor: 'color.fromHEX(hexColor)',
+        colorToHex: 'color.toHEX()',
+
+        // Enums
+        TextAlignment: 'cc.macro.TextAlignment',
+        VerticalTextAlignment: 'cc.macro.VerticalTextAlignment',
+
+        // Point Extensions
+        pNeg: 'p.neg()',
+        pAdd: 'p1.add(p2)',
+        pSub: 'p1.sub(p2)',
+        pMult: 'p.mul(factor)',
+        pMidpoint: 'p1.add(p2).mul(0.5)',
+        pDot: 'p1.dot(p2)',
+        pCross: 'p1.cross(p2)',
+        pPerp: 'p.rotate(-90 * Math.PI / 180)',
+        pRPerp: 'p.rotate(90 * Math.PI / 180)',
+        pProject: 'p1.project(p2)',
+        pLengthSQ: 'p.magSqr()',
+        pDistanceSQ: 'p1.sub(p2).magSqr()',
+        pLength: 'p.mag()',
+        pDistance: 'p1.sub(p2).mag()',
+        pNormalize: 'p.normalize()',
+        pForAngle: 'cc.v2(Math.cos(a), Math.sin(a))',
+        pToAngle: 'Math.atan2(v.y, v.x)',
+        pZeroIn: 'p.x = p.y = 0',
+        pIn: 'p1.set(p2)',
+        pMultIn: 'p.mulSelf(factor)',
+        pSubIn: 'p1.subSelf(p2)',
+        pAddIn: 'p1.addSelf(p2)',
+        pNormalizeIn: 'p.normalizeSelf()',
+        pSameAs: 'p1.equals(p2)',
+        pAngle: 'v1.angle(v2)',
+        pAngleSigned: 'v1.signAngle(v2)',
+        pRotateByAngle: 'p.rotate(radians)',
+        pCompMult: 'v1.dot(v2)',
+        pFuzzyEqual: 'v1.fuzzyEquals(v2, tolerance)',
+        pLerp: 'p.lerp(endPoint, ratio)',
+        pClamp: 'p.clampf(min_inclusive, max_inclusive)',
+
+        rand: 'Math.random() * 0xffffff',
+        randomMinus1To1: '(Math.random() - 0.5) * 2',
+    }, 'cc');
+    markAsRemovedInObject(cc, [
+        'BlendFunc',
+        'blendFuncDisable',
+
+        'pFromSize',
+        'pCompOp',
+        'pIntersectPoint',
+        'pSegmentIntersect',
+        'pLineIntersect',
+
+        'obbApplyMatrix',
+
+        'getImageFormatByData',
+    ], 'cc');
+    markFunctionWarning(cc, {
+        // cc.p
+        p: 'cc.v2'
+    }, 'cc');
+    // cc.Rect
+    provideClearError(cc.Rect, {
+        contain: 'rectA.contains(rectB)',
+        transformMat4: 'rect.transformMat4(out, mat4)'
+    });
+    // cc.Color
+    provideClearError(cc.Color, {
+        rgb2hsv: 'color.toHSV()',
+        hsv2rgb: 'color.fromHSV(h, s, v)'
+    });
+
+    // macro functions
+    js.get(cc, 'lerp', function () {
+        cc.warnID(1400, 'cc.lerp', 'cc.misc.lerp');
+        return cc.misc.lerp;
+    });
+    js.get(cc, 'random0To1', function () {
+        cc.warnID(1400, 'cc.random0To1', 'Math.random');
+        return Math.random;
+    });
+    js.get(cc, 'degreesToRadians', function () {
+        cc.warnID(1400, 'cc.degreesToRadians', 'cc.misc.degreesToRadians');
+        return cc.misc.degreesToRadians;
+    });
+    js.get(cc, 'radiansToDegrees', function () {
+        cc.warnID(1400, 'cc.radiansToDegrees', 'cc.misc.radiansToDegrees');
+        return cc.misc.radiansToDegrees;
+    });
+    js.get(cc, 'clampf', function () {
+        cc.warnID(1400, 'cc.clampf', 'cc.misc.clampf');
+        return cc.misc.clampf;
+    });
+    js.get(cc, 'clamp01', function () {
+        cc.warnID(1400, 'cc.clamp01', 'cc.misc.clamp01');
+        return cc.misc.clamp01;
+    });
+    js.get(cc, 'ImageFormat', function () {
+        cc.warnID(1400, 'cc.ImageFormat', 'cc.macro.ImageFormat');
+        return cc.macro.ImageFormat;
+    });
+    js.get(cc, 'KEY', function () {
+        cc.warnID(1400, 'cc.KEY', 'cc.macro.KEY');
+        return cc.macro.KEY;
+    });
+
+    // cc.pool
+    js.get(cc, 'pool', function () {
+        cc.errorID(1407);
+        return js.Pool;
+    });
+    
+    // cc.isChildClassOf
+    js.get(cc, 'isChildClassOf', function () {
+        cc.errorID(1400, 'cc.isChildClassOf', 'cc.js.isChildClassOf');
+        return cc.js.isChildClassOf;
     });
 
     // dragon bones

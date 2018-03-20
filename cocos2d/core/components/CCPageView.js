@@ -520,7 +520,7 @@ var PageView = cc.Class({
 
     // 通过 idx 获取偏移值数值
     _moveOffsetValue: function (idx) {
-        var offset = cc.p(0, 0);
+        var offset = cc.v2(0, 0);
         if (this.sizeMode === SizeMode.Free) {
             if (this.direction === Direction.Horizontal) {
                 offset.x = this._scrollCenterOffsetX[idx];
@@ -554,7 +554,7 @@ var PageView = cc.Class({
 
     _handleReleaseLogic: function(touch) {
         var bounceBackStarted = this._startBounceBackIfNeeded();
-        var moveOffset = cc.pSub(this._touchBeganPosition, this._touchEndPosition);
+        var moveOffset = this._touchBeganPosition.sub(this._touchEndPosition);
         if (bounceBackStarted) {
             var dragDirection = this._getDragDirection(moveOffset);
             if (dragDirection === 0) {

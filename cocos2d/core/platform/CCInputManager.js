@@ -39,8 +39,8 @@ var inputManager = {
 
     _isRegisterEvent: false,
 
-    _preTouchPoint: cc.p(0,0),
-    _prevMousePoint: cc.p(0,0),
+    _preTouchPoint: cc.v2(0,0),
+    _prevMousePoint: cc.v2(0,0),
 
     _preTouchPool: [],
     _preTouchPoolPointer: 0,
@@ -441,7 +441,7 @@ var inputManager = {
 
                     var pos = selfPointer.getHTMLElementPosition(element);
                     var location = selfPointer.getPointByEvent(event, pos);
-                    if (!cc.rectContainsPoint(new cc.Rect(pos.left, pos.top, pos.width, pos.height), location)){
+                    if (!cc.rect(pos.left, pos.top, pos.width, pos.height).contains(location)){
                         selfPointer.handleTouchesEnd([selfPointer.getTouchByXY(location.x, location.y, pos)]);
 
                         var mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.UP);

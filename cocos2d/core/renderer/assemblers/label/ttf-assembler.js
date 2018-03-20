@@ -23,12 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const macro = require('../../../platform/CCMacro');
+const utils = require('../../../utils/text-utils');
 const renderEngine = require('../../render-engine');
 
 const Label = require('../../../components/CCLabel');
 const LabelOutline = require('../../../components/CCLabelOutline');
 const Overflow = Label.Overflow;
-const utils = require('../../../utils/text-utils');
 const TextUtils = utils.TextUtils;
 const CustomFontLoader = utils.CustomFontLoader;
 
@@ -243,20 +244,20 @@ module.exports = {
         var labelX;
         var firstLinelabelY;
 
-        if (_hAlign === cc.TextAlignment.RIGHT) {
+        if (_hAlign === macro.TextAlignment.RIGHT) {
             labelX = _canvasSize.width - _margin;
         }
-        else if (_hAlign === cc.TextAlignment.CENTER) {
+        else if (_hAlign === macro.TextAlignment.CENTER) {
             labelX = _canvasSize.width / 2;
         }
         else {
             labelX = 0 + _margin;
         }
 
-        if (_vAlign === cc.VerticalTextAlignment.TOP) {
+        if (_vAlign === macro.VerticalTextAlignment.TOP) {
             firstLinelabelY = 0;
         }
-        else if (_vAlign === cc.VerticalTextAlignment.CENTER) {
+        else if (_vAlign === macro.VerticalTextAlignment.CENTER) {
             firstLinelabelY = _canvasSize.height / 2 - lineHeight * (lineCount - 1) / 2;
         }
         else {
@@ -291,8 +292,8 @@ module.exports = {
                 var gradientStartColor = _gradientStartColor || cc.color(255, 255, 255, 255);
                 var gradientEndColor = _gradientEndColor || cc.color(255, 255, 255, 255);
                 var gradient = _context.createLinearGradient(_gradientArgs.left, _gradientArgs.top, _gradientArgs.right, _gradientArgs.bottom);
-                gradient.addColorStop(0, cc.colorToHex(gradientStartColor));
-                gradient.addColorStop(1, cc.colorToHex(gradientEndColor));
+                gradient.addColorStop(0, gradientStartColor.toHEX());
+                gradient.addColorStop(1, gradientEndColor.toHEX());
                 _context.fillStyle = gradient;
             }
             _context.fillText(_splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
@@ -321,17 +322,17 @@ module.exports = {
 
         labelX = 0 + _margin;
 
-        if (_vAlign === cc.VerticalTextAlignment.TOP) {
+        if (_vAlign === macro.VerticalTextAlignment.TOP) {
             firstLinelabelY = _fontSize;
         }
-        else if (_vAlign === cc.VerticalTextAlignment.CENTER) {
+        else if (_vAlign === macro.VerticalTextAlignment.CENTER) {
             firstLinelabelY = _canvasSize.height / 2 - lineHeight * (lineCount - 1) / 2 + _fontSize / 2;
         }
         else {
             firstLinelabelY = _canvasSize.height - lineHeight * (lineCount - 1);
         }
 
-        return cc.p(labelX, firstLinelabelY);
+        return cc.v2(labelX, firstLinelabelY);
     },
 
     _updateLabelDimensions () {
@@ -368,10 +369,10 @@ module.exports = {
         var hAlign;
         var vAlign;
 
-        if (_hAlign === cc.TextAlignment.RIGHT) {
+        if (_hAlign === macro.TextAlignment.RIGHT) {
             hAlign = 'right';
         }
-        else if (_hAlign === cc.TextAlignment.CENTER) {
+        else if (_hAlign === macro.TextAlignment.CENTER) {
             hAlign = 'center';
         }
         else {
@@ -379,10 +380,10 @@ module.exports = {
         }
         _context.textAlign = hAlign;
 
-        if (_vAlign === cc.VerticalTextAlignment.TOP) {
+        if (_vAlign === macro.VerticalTextAlignment.TOP) {
             vAlign = 'top';
         }
-        else if (_vAlign === cc.VerticalTextAlignment.CENTER) {
+        else if (_vAlign === macro.VerticalTextAlignment.CENTER) {
             vAlign = 'middle';
         }
         else {

@@ -23,9 +23,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
+const macro = require('../../platform/CCMacro');
 const EditBoxImpl = require('../editbox/CCEditBoxImpl');
 const Label = require('../CCLabel');
-
 const Types = require('./types');
 const InputMode = Types.InputMode;
 const InputFlag = Types.InputFlag;
@@ -383,13 +384,13 @@ var EditBox = cc.Class({
         textLabel.node.setPosition(offx + LEFT_PADDING, offy + size.height);
 
         if (this.inputMode === InputMode.ANY){
-            placeholderLabel.verticalAlign = cc.VerticalTextAlignment.TOP;
-            textLabel.verticalAlign = cc.VerticalTextAlignment.TOP;
+            placeholderLabel.verticalAlign = macro.VerticalTextAlignment.TOP;
+            textLabel.verticalAlign = macro.VerticalTextAlignment.TOP;
             textLabel.enableWrapText = true;
         }
         else {
-            placeholderLabel.verticalAlign = cc.VerticalTextAlignment.CENTER;
-            textLabel.verticalAlign = cc.VerticalTextAlignment.CENTER;
+            placeholderLabel.verticalAlign = macro.VerticalTextAlignment.CENTER;
+            textLabel.verticalAlign = macro.VerticalTextAlignment.CENTER;
             textLabel.enableWrapText = false;
         }
     },

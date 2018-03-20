@@ -118,7 +118,7 @@ Bezier.prototype.getLengths = function ( divisions ) {
     }
 
     var cache = [];
-    var current, last = this.getPoint( 0 );
+    var current, last = this.getPoint( 0 ), vector = v2();
     var p, sum = 0;
 
     cache.push( 0 );
@@ -126,7 +126,9 @@ Bezier.prototype.getLengths = function ( divisions ) {
     for ( p = 1; p <= divisions; p ++ ) {
 
         current = this.getPoint ( p / divisions );
-        sum += cc.pDistance(current, last);
+        vector.x = last.x - current.x;
+        vector.y = last.y - current.y;
+        sum += vector.mag();
         cache.push( sum );
         last = current;
 
