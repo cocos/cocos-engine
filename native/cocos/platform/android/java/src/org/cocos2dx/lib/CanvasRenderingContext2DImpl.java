@@ -36,6 +36,7 @@ import android.util.Log;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.HashMap;
 
 public class CanvasRenderingContext2DImpl {
 
@@ -102,31 +103,54 @@ public class CanvasRenderingContext2DImpl {
         sContext = null;
     }
 
+    private static HashMap<String, Typeface> sTypefaceCache = new HashMap<>();
+
+    // url is a full path started with '@assets/'
+    private static void loadTypeface(String familyName, String url) {
+        if (!sTypefaceCache.containsKey(familyName)) {
+            try {
+                Typeface typeface = null;
+                if (url.startsWith("/")) {
+                    typeface = Typeface.createFromFile(url);
+                } else if (sContext.get() != null) {
+                    final String prefix = "@assets/";
+                    if (url.startsWith(prefix)) {
+                        url = url.substring(prefix.length());
+                    }
+                    typeface = Typeface.createFromAsset(sContext.get().getAssets(), url);
+                }
+
+                if (typeface != null) {
+                    sTypefaceCache.put(familyName, typeface);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    // TODO:cjh: native should clear font cache before exiting game.
+    private static void clearTypefaceCache() {
+        sTypefaceCache.clear();
+    }
+
     private static TextPaint newPaint(final String fontName, final int fontSize, final boolean enableBold) {
         final TextPaint paint = new TextPaint();
         paint.setTextSize(fontSize);
         paint.setAntiAlias(true);
 
-        // Set type face for paint, now it support .ttf file.
-        if (fontName.endsWith(".ttf")) {
-            try {
-                final Typeface typeFace = Cocos2dxTypefaces.get(sContext.get(), fontName);
-                paint.setTypeface(typeFace);
-            } catch (final Exception e) {
-                Log.e("Cocos2dxBitmap", "error to create ttf type face: "
-                        + fontName);
-
-                // The file may not find, use system font.
-                paint.setTypeface(Typeface.create(fontName, Typeface.NORMAL));
-            }
-        } else {
-            if(enableBold) {
-                paint.setTypeface(Typeface.create(fontName, Typeface.BOLD));
+        Typeface typeFace;
+        if (sTypefaceCache.containsKey(fontName)) {
+            typeFace = sTypefaceCache.get(fontName);
+         } else {
+            if (enableBold) {
+                typeFace = Typeface.create(fontName, Typeface.BOLD);
             } else {
-                paint.setTypeface(Typeface.create(fontName, Typeface.NORMAL));
+                typeFace = Typeface.create(fontName, Typeface.NORMAL);
             }
         }
 
+        paint.setTypeface(typeFace);
         return paint;
     }
 
