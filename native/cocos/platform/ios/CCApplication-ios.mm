@@ -141,7 +141,7 @@
     cocos2d::EventDispatcher::dispatchTickEvent(dt);
     
     [(CCEAGLView*)(_application->getView()) swapBuffers];
-    PoolManager::getInstance()->getCurrentPool()->clear();
+    cocos2d::PoolManager::getInstance()->getCurrentPool()->clear();
     
     now = std::chrono::steady_clock::now();
     dt = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count() / 1000000.f;

@@ -3,6 +3,7 @@
 #include "base/csscolorparser.hpp"
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
+#include "cocos/scripting/js-bindings/manual/jsb_platform.h"
 
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
@@ -93,21 +94,31 @@ namespace {
 }
 
 -(NSFont*) _createSystemFont {
-    NSString* fntName = [[_fontName lastPathComponent] stringByDeletingPathExtension];
     NSFontTraitMask mask = NSUnboldFontMask | NSUnitalicFontMask;
-
-    NSFont *font = [[NSFontManager sharedFontManager]
-                    fontWithFamily:fntName
+    NSFont* font = [[NSFontManager sharedFontManager]
+                    fontWithFamily:_fontName
                     traits:mask
                     weight:0
                     size:_fontSize];
 
     if (font == nil) {
+        const auto& familyMap = getFontFamilyNameMap();
+        auto iter = familyMap.find([_fontName UTF8String]);
+        if (iter != familyMap.end()) {
+            font = [[NSFontManager sharedFontManager]
+               fontWithFamily: [NSString stringWithUTF8String:iter->second.c_str()]
+               traits: mask
+               weight: 0
+               size: _fontSize];
+        }
+    }
+
+    if (font == nil) {
         font = [[NSFontManager sharedFontManager]
-                fontWithFamily:@"Arial"
+                fontWithFamily: @"Arial"
                 traits: mask
-                weight:0
-                size:_fontSize];
+                weight: 0
+                size: _fontSize];
     }
     return font;
 }
@@ -221,6 +232,16 @@ namespace {
     unsigned char* data = [bitmap bitmapData];  //Use the same buffer to improve the performance.
 
     NSUInteger textureSize = _image.size.width * _image.size.height * 4;
+
+    // For text debugging ...
+//    for (int i = 0; i < textureSize; i += 4) {
+//        if (data[i+3] == 0)
+//        {
+//            data[i+3] = 255;
+//        }
+//    }
+    //
+
     uint8_t* buffer = (uint8_t*)malloc(sizeof(uint8_t) * textureSize);
     if (buffer) {
         memcpy(buffer, data, textureSize);

@@ -203,6 +203,11 @@
 		1A52DB7C205BCDD000350EE3 /* SeApi.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A52DB5A205BCDC700350EE3 /* SeApi.h */; };
 		1A52DB7D205BCDD000350EE3 /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A52DB55205BCDC700350EE3 /* Utils.cpp */; };
 		1A52DB7E205BCDD000350EE3 /* Utils.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 1A52DB5C205BCDC700350EE3 /* Utils.hpp */; };
+		1A52DB882060B11800350EE3 /* jsb_platfrom_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A52DB862060B11800350EE3 /* jsb_platfrom_apple.mm */; };
+		1A52DB892060B11800350EE3 /* jsb_platform.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A52DB872060B11800350EE3 /* jsb_platform.h */; };
+		1A52DB8C2060B12600350EE3 /* jsb_platform_ios.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A52DB8A2060B12500350EE3 /* jsb_platform_ios.h */; };
+		1A52DB8D2060B12600350EE3 /* jsb_platfrom_ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A52DB8B2060B12600350EE3 /* jsb_platfrom_ios.mm */; };
+		1A52DB8E2060DEF500350EE3 /* jsb_platfrom_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A52DB862060B11800350EE3 /* jsb_platfrom_apple.mm */; };
 		1A9A4C6E1F98B1C000C14552 /* libcocosanalytics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A9A4C6D1F98B1C000C14552 /* libcocosanalytics.a */; };
 		1A9F0F971F301DE200A499E1 /* b2ObjectDestroyNotifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A9F0F951F301DE200A499E1 /* b2ObjectDestroyNotifier.cpp */; };
 		1A9F0F981F301DE200A499E1 /* b2ObjectDestroyNotifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A9F0F951F301DE200A499E1 /* b2ObjectDestroyNotifier.cpp */; };
@@ -381,8 +386,6 @@
 		469304132046AE06004A3D6C /* jsb_classtype.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 469302D02046AE05004A3D6C /* jsb_classtype.cpp */; };
 		469304142046AE06004A3D6C /* jsb_renderer_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 469302D12046AE05004A3D6C /* jsb_renderer_manual.hpp */; };
 		469304152046AE06004A3D6C /* jsb_renderer_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 469302D12046AE05004A3D6C /* jsb_renderer_manual.hpp */; };
-		469304162046AE06004A3D6C /* jsb_platfrom_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 469302D22046AE05004A3D6C /* jsb_platfrom_ios.m */; };
-		469304172046AE06004A3D6C /* jsb_platfrom_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 469302D22046AE05004A3D6C /* jsb_platfrom_ios.m */; };
 		469304202046AE06004A3D6C /* jsb_gfx_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 469302D72046AE05004A3D6C /* jsb_gfx_manual.hpp */; };
 		469304212046AE06004A3D6C /* jsb_gfx_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 469302D72046AE05004A3D6C /* jsb_gfx_manual.hpp */; };
 		469304262046AE06004A3D6C /* jsb_conversions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 469302DA2046AE05004A3D6C /* jsb_conversions.cpp */; };
@@ -1136,6 +1139,10 @@
 		1A52DB5B205BCDC700350EE3 /* Class.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Class.cpp; sourceTree = "<group>"; };
 		1A52DB5C205BCDC700350EE3 /* Utils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Utils.hpp; sourceTree = "<group>"; };
 		1A52DB5D205BCDC700350EE3 /* Base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Base.h; sourceTree = "<group>"; };
+		1A52DB862060B11800350EE3 /* jsb_platfrom_apple.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = jsb_platfrom_apple.mm; sourceTree = "<group>"; };
+		1A52DB872060B11800350EE3 /* jsb_platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jsb_platform.h; sourceTree = "<group>"; };
+		1A52DB8A2060B12500350EE3 /* jsb_platform_ios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jsb_platform_ios.h; sourceTree = "<group>"; };
+		1A52DB8B2060B12600350EE3 /* jsb_platfrom_ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = jsb_platfrom_ios.mm; sourceTree = "<group>"; };
 		1A97ABFC1A1D962A0076D9CC /* MathUtilNeon64.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MathUtilNeon64.inl; sourceTree = "<group>"; };
 		1A97ABFD1A1D962A0076D9CC /* MathUtilSSE.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MathUtilSSE.inl; sourceTree = "<group>"; };
 		1A9A4C6D1F98B1C000C14552 /* libcocosanalytics.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcocosanalytics.a; path = ../external/ios/libs/libcocosanalytics.a; sourceTree = "<group>"; };
@@ -1230,7 +1237,6 @@
 		469302CF2046AE05004A3D6C /* jsb_helper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_helper.hpp; sourceTree = "<group>"; };
 		469302D02046AE05004A3D6C /* jsb_classtype.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_classtype.cpp; sourceTree = "<group>"; };
 		469302D12046AE05004A3D6C /* jsb_renderer_manual.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_renderer_manual.hpp; sourceTree = "<group>"; };
-		469302D22046AE05004A3D6C /* jsb_platfrom_ios.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = jsb_platfrom_ios.m; sourceTree = "<group>"; };
 		469302D72046AE05004A3D6C /* jsb_gfx_manual.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_gfx_manual.hpp; sourceTree = "<group>"; };
 		469302DA2046AE05004A3D6C /* jsb_conversions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_conversions.cpp; sourceTree = "<group>"; };
 		469302DD2046AE05004A3D6C /* jsb_renderer_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_renderer_manual.cpp; sourceTree = "<group>"; };
@@ -2036,6 +2042,10 @@
 		469302BE2046AE05004A3D6C /* manual */ = {
 			isa = PBXGroup;
 			children = (
+				1A52DB8A2060B12500350EE3 /* jsb_platform_ios.h */,
+				1A52DB8B2060B12600350EE3 /* jsb_platfrom_ios.mm */,
+				1A52DB872060B11800350EE3 /* jsb_platform.h */,
+				1A52DB862060B11800350EE3 /* jsb_platfrom_apple.mm */,
 				469302D02046AE05004A3D6C /* jsb_classtype.cpp */,
 				469302DF2046AE05004A3D6C /* jsb_classtype.hpp */,
 				1A29D76D205665D100168D9A /* jsb_cocos2dx_manual.cpp */,
@@ -2056,7 +2066,6 @@
 				1A29D790205666F500168D9A /* jsb_opengl_registration.hpp */,
 				1A29D78C205666F200168D9A /* jsb_opengl_utils.cpp */,
 				1A29D78E205666F200168D9A /* jsb_opengl_utils.hpp */,
-				469302D22046AE05004A3D6C /* jsb_platfrom_ios.m */,
 				469302DD2046AE05004A3D6C /* jsb_renderer_manual.cpp */,
 				469302D12046AE05004A3D6C /* jsb_renderer_manual.hpp */,
 				461786592052607E008256E1 /* jsb_socketio.cpp */,
@@ -2750,6 +2759,7 @@
 				50ABBD4A1925AB0000A911A9 /* Mat4.h in Headers */,
 				46FDDC3B202AEAC500931238 /* MacroArgs.h in Headers */,
 				1A52DB38205BCD9200350EE3 /* ScriptEngine.hpp in Headers */,
+				1A52DB892060B11800350EE3 /* jsb_platform.h in Headers */,
 				1A52DB64205BCDC700350EE3 /* ScriptEngine.hpp in Headers */,
 				46FDDA83202ACC6A00931238 /* Technique.h in Headers */,
 				46FDDC43202AEAC500931238 /* Pair.h in Headers */,
@@ -3026,6 +3036,7 @@
 				1AAAC8E0205CB6E9005321B9 /* AudioDecoder.h in Headers */,
 				1A28FF821F20AFAB007A1D9D /* SRRandom.h in Headers */,
 				1A52DB79205BCDD000350EE3 /* Object.hpp in Headers */,
+				1A52DB8C2060B12600350EE3 /* jsb_platform_ios.h in Headers */,
 				50643BD619BFAEDA00EF68ED /* CCPlatformDefine.h in Headers */,
 				4DED48871DFFA4AF0070C5C4 /* b2WheelJoint.h in Headers */,
 				4DED47F91DFFA4AF0070C5C4 /* b2EdgeShape.h in Headers */,
@@ -3336,7 +3347,6 @@
 				4DED48581DFFA4AF0070C5C4 /* b2DistanceJoint.cpp in Sources */,
 				46FDDC25202AEAC500931238 /* WebGLTexelConversions.cpp in Sources */,
 				1AAAC8EB205CB6E9005321B9 /* AudioCache.mm in Sources */,
-				469304162046AE06004A3D6C /* jsb_platfrom_ios.m in Sources */,
 				1A52DB61205BCDC700350EE3 /* Object.cpp in Sources */,
 				1A52DB44205BCD9200350EE3 /* env.cc in Sources */,
 				50ABBD501925AB0000A911A9 /* Quaternion.cpp in Sources */,
@@ -3490,6 +3500,7 @@
 				469303682046AE05004A3D6C /* State.cpp in Sources */,
 				4693039A2046AE05004A3D6C /* Utils.cpp in Sources */,
 				4DED47FA1DFFA4AF0070C5C4 /* b2PolygonShape.cpp in Sources */,
+				1A52DB882060B11800350EE3 /* jsb_platfrom_apple.mm in Sources */,
 				4617864720522469008256E1 /* CCDownloaderImpl-apple.mm in Sources */,
 				4DED48841DFFA4AF0070C5C4 /* b2WheelJoint.cpp in Sources */,
 				1A52DB24205BCD9200350EE3 /* ObjectWrap.cpp in Sources */,
@@ -3656,7 +3667,6 @@
 				46FDDA8C202ACC6A00931238 /* ForwardRenderer.cpp in Sources */,
 				ED30579D1BEC77B90083C3ED /* ConvertUTF.c in Sources */,
 				4DED483D1DFFA4AF0070C5C4 /* b2CircleContact.cpp in Sources */,
-				469304172046AE06004A3D6C /* jsb_platfrom_ios.m in Sources */,
 				4617864D205224CC008256E1 /* WebSocket-apple.mm in Sources */,
 				1AAAC8E2205CB6E9005321B9 /* AudioPlayer.mm in Sources */,
 				469304132046AE06004A3D6C /* jsb_classtype.cpp in Sources */,
@@ -3702,6 +3712,7 @@
 				50ABBD391925AB0000A911A9 /* CCAffineTransform.cpp in Sources */,
 				4DED480F1DFFA4AF0070C5C4 /* b2Settings.cpp in Sources */,
 				46FDDC38202AEAC500931238 /* Assertions.cpp in Sources */,
+				1A52DB8E2060DEF500350EE3 /* jsb_platfrom_apple.mm in Sources */,
 				503DD8E71926736A00CD74DD /* CCEAGLView-ios.mm in Sources */,
 				1A29D785205666B200168D9A /* LocalStorage.cpp in Sources */,
 				4DED48811DFFA4AF0070C5C4 /* b2WeldJoint.cpp in Sources */,
@@ -3746,6 +3757,7 @@
 				1A28FF501F20AFAB007A1D9D /* SRDelegateController.m in Sources */,
 				46FDDAC0202ACC6A00931238 /* State.cpp in Sources */,
 				4DED48051DFFA4AF0070C5C4 /* b2Draw.cpp in Sources */,
+				1A52DB8D2060B12600350EE3 /* jsb_platfrom_ios.mm in Sources */,
 				4DED47EF1DFFA4AF0070C5C4 /* b2ChainShape.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

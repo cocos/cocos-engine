@@ -3,6 +3,7 @@
 #include "base/csscolorparser.hpp"
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
+#include "cocos/scripting/js-bindings/manual/jsb_platform.h"
 
 #import <Foundation/Foundation.h>
 #import <CoreText/CoreText.h>
@@ -99,43 +100,18 @@ namespace {
     [super dealloc];
 }
 
-- (void) dynamicLoadFontWithURL:(NSURL*) url {
-//    //字体文件所在路径
-//    NSString *URL_FONT = @"http://192.168.1.12:8888/static/MFDingDing.otf";
-//
-//    //字体名
-//    NSString *fontName = @"MFDingDing_Noncommercial-Regular";
-
-    //下载字体
-    NSData *dynamicFontData = [NSData dataWithContentsOfURL:url];
-    if (!dynamicFontData)
-        return;
-    CFErrorRef error;
-    CGDataProviderRef providerRef = CGDataProviderCreateWithCFData((CFDataRef)dynamicFontData);
-    CGFontRef font = CGFontCreateWithDataProvider(providerRef);
-    if (!CTFontManagerRegisterGraphicsFont(font, &error))
-    {
-        //如果注册失败，则不使用
-        CFStringRef errorDescription = CFErrorCopyDescription(error);
-        NSLog(@"Failed to load font: %@", errorDescription);
-        CFRelease(errorDescription);
-    }
-
-    CFRelease(font);
-    CFRelease(providerRef);
-}
-
 -(UIFont*) _createSystemFont {
-    NSString * fntName = [NSString stringWithString:_fontName];
-    NSString* pathExtension = [fntName pathExtension];
-    id font = NULL;
-    if ([pathExtension length] > 0) {
-        // create the font
-        font = [UIFont fontWithName:fntName size:_fontSize];
+    UIFont* font = [UIFont fontWithName:_fontName size:_fontSize];
+
+    if (font == nil) {
+        const auto& familyMap = getFontFamilyNameMap();
+        auto iter = familyMap.find([_fontName UTF8String]);
+        if (iter != familyMap.end()) {
+            font = [UIFont fontWithName:[NSString stringWithUTF8String:iter->second.c_str()] size:_fontSize];
+        }
     }
 
-    if (!font)
-    {
+    if (font == nil) {
         if (false) { //TODO: enableBold) {
             font = [UIFont boldSystemFontOfSize:_fontSize];
         } else {

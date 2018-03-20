@@ -155,10 +155,10 @@ void AudioEngineInterruptionListenerCallback(void* user_data, UInt32 interruptio
                 NSError *error = nil;
                 [[AVAudioSession sharedInstance] setActive:YES error:&error];
                 alcMakeContextCurrent(s_ALContext);
-                if (Director::getInstance()->isPaused())
+                //FIXME:cjh                if (Director::getInstance()->isPaused())
                 {
                     ALOGD("AVAudioSessionInterruptionTypeEnded, director was paused, try to resume it.");
-                    Director::getInstance()->resume();
+//FIXME:cjh                    Director::getInstance()->resume();
                 }
             }
             else
@@ -197,7 +197,7 @@ void AudioEngineInterruptionListenerCallback(void* user_data, UInt32 interruptio
         else if (isAudioSessionInterrupted)
         {
             ALOGD("Audio session is still interrupted, pause director!");
-            Director::getInstance()->pause();
+            //FIXME:cjh Director::getInstance()->pause();
         }
     }
 }
