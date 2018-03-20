@@ -38,6 +38,11 @@ test('cc.isValid', function () {
     strictEqual(cc.isValid(), false, 'undefined return false 1');
     strictEqual(cc.isValid(obj), false, 'undefined return false 2');
     strictEqual(cc.isValid(null), false, 'null return false');
+
+    var obj2 = new CCObject();
+    obj2.destroy();
+    strictEqual(cc.isValid(obj2), true, 'still valid in this frame');
+    strictEqual(cc.isValid(obj2, true), false, 'indicates whether it will be destroyed');
 });
 
 test('deferred destroy', function () {
