@@ -211,7 +211,7 @@ RenderComponentWalker.prototype = {
         ia._count = indiceCount;
 
         // Check stencil state and modify pass
-        effect = this._stencilMgr.handleEffect(effect);
+        this._stencilMgr.handleEffect(effect);
         
         // Generate model
         let model = this._modelPool.add();
