@@ -13581,14 +13581,6 @@ module.exports = (function () {
     render (scene) {
       this._reset();
   
-      const canvas = this._device._gl.canvas;
-
-      scene._cameras.sort((a, b) => {
-        if (a._depth > b._depth) return 1;
-        else if (a._depth < b._depth) return -1;
-        else return 0;
-      });
-  
       scene._cameras.sort((a, b) => {
         if (a._depth > b._depth) return 1;
         else if (a._depth < b._depth) return -1;
@@ -13597,17 +13589,29 @@ module.exports = (function () {
   
       for (let i = 0; i < scene._cameras.length; ++i) {
         let camera = scene._cameras.data[i];
-        let view = camera.view;
-        let dirty = camera.dirty;
-        if (!view) {
-          view = this._requestView();
-          dirty = true;
-        }
-        if (dirty) {
-          camera.extractView(view, canvas.width, canvas.height);
-        }
-        this._render(view, scene);
+        this.renderCamera(camera, scene);
       }
+    }
+  
+    renderCamera (camera, scene) {
+      const canvas = this._device._gl.canvas;
+  
+      let view = camera.view;
+      let dirty = camera.dirty;
+      if (!view) {
+        view = this._requestView();
+        dirty = true;
+      }
+      if (dirty) {
+        let width = canvas.width;
+        let height = canvas.height;
+        if (camera._framebuffer) {
+          width = camera._framebuffer._width;
+          height = camera._framebuffer._height;
+        }
+        camera.extractView(view, width, height);
+      }
+      this._render(view, scene);
     }
   
     _transparentStage (view, items) {

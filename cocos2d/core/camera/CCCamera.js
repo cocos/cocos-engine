@@ -81,7 +81,7 @@ let Camera = cc.Class({
         camera.dirty = true;
 
         this._matrixDirty = true;
-
+        this._inited = false;
         this._camera = camera;
     },
 
@@ -97,6 +97,7 @@ let Camera = cc.Class({
         _backgroundColor: cc.color(51, 77, 120, 255),
         _depth: 0,
         _zoomRatio: 1,
+        _targetTexture: null,
 
         /**
          * !#en
@@ -154,6 +155,7 @@ let Camera = cc.Class({
          * The color with which the screen will be cleared.
          * !#zh
          * 摄像机用于清除屏幕的背景色。
+         * @property {Color} backgroundColor
          */
         backgroundColor: {
             get () {
@@ -170,6 +172,7 @@ let Camera = cc.Class({
          * Camera's depth in the camera rendering order.
          * !#zh
          * 摄像机深度，用于决定摄像机的渲染顺序。
+         * @property {Number} depth
          */
         depth: {
             get () {
@@ -178,6 +181,25 @@ let Camera = cc.Class({
             set (value) {
                 this._depth = value;
                 this._camera.setDepth(value);
+            }
+        },
+
+        /**
+         * !#en
+         * Destination render texture.
+         * Usually cameras render directly to screen, but for some effects it is useful to make a camera render into a texture.
+         * !#zh
+         * 摄像机渲染的目标 RenderTexture。
+         * 一般摄像机会直接渲染到屏幕上，但是有一些效果可以使用摄像机渲染到 RenderTexture 上再对 RenderTexture 进行处理来实现。
+         * @property {RenderTexture} targetTexture
+         */
+        targetTexture: {
+            get () {
+                return this._targetTexture;
+            },
+            set (value) {
+                this._targetTexture = value;
+                this._updateTargetTexture();
             }
         }
     },
@@ -242,16 +264,29 @@ let Camera = cc.Class({
         );
     },
 
+    _updateTargetTexture () {
+        let texture = this._targetTexture;
+        this._camera._framebuffer = texture ? texture._framebuffer : null;
+    },
+
     _onMatrixDirty () {
         this._matrixDirty = true;
     },
 
-    onLoad () {
+    _init () {
+        if (this._inited) return;
+        this._inited = true;
+
         this._camera.setNode(this.node);
         this._camera.setClearFlags(this._clearFlags);
         this._camera.setDepth(this._depth);
         this._updateBackgroundColor();
         this._updateCameraMask();
+        this._updateTargetTexture();
+    },
+
+    onLoad () {
+        this._init();
     },
 
     onEnable () {
@@ -380,6 +415,23 @@ let Camera = cc.Class({
         return node._cullingMask === this.cullingMask;
     },
 
+    /**
+     * !#en
+     * Render the camera manually.
+     * !#zh
+     * 手动渲染摄像机。
+     * @method render
+     * @param {Node} root 
+     */
+    render (root) {
+        root = root || cc.director.getScene();
+        if (!root) return null;
+
+        this.lateUpdate();
+        renderer._walker.visit(root);
+        renderer._forward.renderCamera(this._camera, renderer.scene);
+    },
+
     lateUpdate: !CC_EDITOR && function () {
         let node = this.node;
         node.getWorldMatrix(_mat4_temp_1);
@@ -390,11 +442,18 @@ let Camera = cc.Class({
         let fov = Math.atan(Math.tan(this._fov/2) / this.zoomRatio)*2;
         camera.setFov(fov);
 
+        let height = cc.visibleRect.height;
+
+        let targetTexture = this._targetTexture;
+        if (targetTexture) {
+            height = targetTexture.height;
+        }
+
         _vec3_temp_1.x = _mat4_temp_1.m12;
         _vec3_temp_1.y = _mat4_temp_1.m13;
         _vec3_temp_1.z = 0;
 
-        node.z = cc.visibleRect.height / 1.1566;
+        node.z = height / 1.1566;
         node.lookAt(_vec3_temp_1);
 
         this._matrixDirty = false;
