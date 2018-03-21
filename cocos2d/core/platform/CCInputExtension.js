@@ -1,6 +1,7 @@
 /****************************************************************************
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -29,6 +30,28 @@ if (!cc.ClassManager) {
 
 var eventManager = require('../event-manager');
 var inputManager = require("./CCInputManager");
+
+const PORTRAIT = 0;
+const LANDSCAPE_LEFT = -90;
+const PORTRAIT_UPSIDE_DOWN = 180;
+const LANDSCAPE_RIGHT = 90;
+
+/**
+ * !#en the device accelerometer reports values for each axis in units of g-force.
+ * !#zh 设备重力传感器传递的各个轴的数据。
+ * @class Acceleration
+ * @method constructor
+ * @param {Number} x
+ * @param {Number} y
+ * @param {Number} z
+ * @param {Number} timestamp
+ */
+cc.Acceleration = function (x, y, z, timestamp) {
+    this.x = x || 0;
+    this.y = y || 0;
+    this.z = z || 0;
+    this.timestamp = timestamp || 0;
+};
 
 inputManager.__instanceId = cc.ClassManager.getNewInstanceId();
 
@@ -122,13 +145,13 @@ inputManager.didAccelerate = function (eventData) {
     mAcceleration.timestamp = eventData.timeStamp || Date.now();
 
     var tmpX = mAcceleration.x;
-    if(w.orientation === cc.macro.WEB_ORIENTATION_LANDSCAPE_RIGHT){
+    if(w.orientation === LANDSCAPE_RIGHT){
         mAcceleration.x = -mAcceleration.y;
         mAcceleration.y = tmpX;
-    }else if(w.orientation === cc.macro.WEB_ORIENTATION_LANDSCAPE_LEFT){
+    }else if(w.orientation === LANDSCAPE_LEFT){
         mAcceleration.x = mAcceleration.y;
         mAcceleration.y = -tmpX;
-    }else if(w.orientation === cc.macro.WEB_ORIENTATION_PORTRAIT_UPSIDE_DOWN){
+    }else if(w.orientation === PORTRAIT_UPSIDE_DOWN){
         mAcceleration.x = -mAcceleration.x;
         mAcceleration.y = -mAcceleration.y;
     }

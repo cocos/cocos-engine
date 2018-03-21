@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -356,7 +357,7 @@ cc.flipY = function (flip) {
  * @param {Vec2|Number} pos
  * @param {Number} [y]
  * @example
- * var placeAction = new cc.Place(cc.p(200, 200));
+ * var placeAction = new cc.Place(cc.v2(200, 200));
  * var placeAction = new cc.Place(200, 200);
  */
 cc.Place = cc.Class({
@@ -408,7 +409,7 @@ cc.Place = cc.Class({
  * @return {ActionInstant}
  * @example
  * // example
- * var placeAction = cc.place(cc.p(200, 200));
+ * var placeAction = cc.place(cc.v2(200, 200));
  * var placeAction = cc.place(200, 200);
  */
 cc.place = function (pos, y) {

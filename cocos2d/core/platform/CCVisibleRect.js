@@ -1,6 +1,7 @@
 /****************************************************************************
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -31,15 +32,15 @@
  * @class visibleRect
  */
 cc.visibleRect = {
-    topLeft:cc.p(0,0),
-    topRight:cc.p(0,0),
-    top:cc.p(0,0),
-    bottomLeft:cc.p(0,0),
-    bottomRight:cc.p(0,0),
-    bottom:cc.p(0,0),
-    center:cc.p(0,0),
-    left:cc.p(0,0),
-    right:cc.p(0,0),
+    topLeft:cc.v2(0,0),
+    topRight:cc.v2(0,0),
+    top:cc.v2(0,0),
+    bottomLeft:cc.v2(0,0),
+    bottomRight:cc.v2(0,0),
+    bottom:cc.v2(0,0),
+    center:cc.v2(0,0),
+    left:cc.v2(0,0),
+    right:cc.v2(0,0),
     width:0,
     height:0,
 

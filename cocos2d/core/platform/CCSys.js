@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -340,6 +341,12 @@ function initSys () {
      */
     sys.WECHAT_GAME = 104;
     /**
+     * @property {Number} QQ_PLAY
+     * @readOnly
+     * @default 105
+     */
+    sys.QQ_PLAY = 105;
+    /**
      * BROWSER_TYPE_WECHAT
      * @property {String} BROWSER_TYPE_WECHAT
      * @readOnly
@@ -353,6 +360,13 @@ function initSys () {
      * @default "wechatgame"
      */
     sys.BROWSER_TYPE_WECHAT_GAME = "wechatgame";
+    /**
+     * BROWSER_TYPE_QQ_PLAY
+     * @property {String} BROWSER_TYPE_QQ_PLAY
+     * @readOnly
+     * @default "qqplay"
+     */
+    sys.BROWSER_TYPE_QQ_PLAY = "qqplay";
     /**
      *
      * @property {String} BROWSER_TYPE_ANDROID
@@ -497,7 +511,7 @@ function initSys () {
      * Is web browser ?
      * @property {Boolean} isBrowser
      */
-    sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME;
+    sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY;
 
     if (CC_EDITOR && Editor.isMainProcess) {
         sys.isMobile = false;
@@ -600,7 +614,41 @@ function initSys () {
             WEB_AUDIO: false, 
             DELAY_CREATE_CTX: false,
             format: ['.mp3']
-        };    
+        };
+    }
+    else if (CC_QQPLAY) {
+        sys.isMobile = true;
+        sys.platform = sys.QQ_PLAY;
+        sys.language = sys.LANGUAGE_UNKNOWN;
+        sys.os = sys.OS_UNKNOWN;
+    
+        sys.osVersion = 0;
+        sys.osMainVersion = 0;
+        sys.browserType = sys.BROWSER_TYPE_QQ_PLAY;
+        sys.browserVersion = 0;
+    
+        var w = 960;
+        var h = 640;
+        var ratio = 1;
+    
+        sys.windowPixelResolution = {
+            width: ratio * w,
+            height: ratio * h
+        };
+    
+        sys.localStorage = window.localStorage;
+    
+        sys.capabilities = {
+            "canvas": false,
+            "opengl": true,
+            "webp": false
+        };
+        sys.__audioSupport = {
+            ONLY_ONE: false,
+            WEB_AUDIO: false,
+            DELAY_CREATE_CTX: false,
+            format: ['.mp3']
+        };
     }
     else {
         // browser or runtime
@@ -693,6 +741,8 @@ function initSys () {
             var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
             if (CC_WECHATGAME)
                 browserType = sys.BROWSER_TYPE_WECHAT_GAME;
+            else if (CC_QQPLAY)
+                browserType = sys.BROWSER_TYPE_QQ_PLAY;
             else if (browserType === 'micromessenger')
                 browserType = sys.BROWSER_TYPE_WECHAT;
             else if (browserType === "safari" && isAndroid)
@@ -975,11 +1025,77 @@ function initSys () {
     }
 
     /**
+     * !#en
+     * Network type enumeration
+     * !#zh
+     * 网络类型枚举
+     *
+     * @enum NetworkType
+     */
+    sys.NetworkType = {
+        /**
+         * !#en
+         * Network is unreachable.
+         * !#zh
+         * 网络不通
+         *
+         * @property {Number} NONE
+         */
+        NONE: 0,
+        /**
+         * !#en
+         * Network is reachable via WiFi or cable.
+         * !#zh
+         * 通过无线或者有线本地网络连接因特网
+         *
+         * @property {Number} LAN
+         */
+        LAN: 1,
+        /**
+         * !#en
+         * Network is reachable via Wireless Wide Area Network
+         * !#zh
+         * 通过蜂窝移动网络连接因特网
+         *
+         * @property {Number} WWAN
+         */
+        WWAN: 2
+    };
+    
+    /**
+     * !#en
+     * Get the network type of current device, return cc.sys.NetworkType.LAN if failure.
+     * !#zh
+     * 获取当前设备的网络类型, 如果网络类型无法获取，默认将返回 cc.sys.NetworkType.LAN
+     *
+     * @method getNetworkType
+     * @return {NetworkType}
+     */
+    sys.getNetworkType = function() {
+        // TODO: need to implement this for mobile phones.
+        return sys.NetworkType.LAN;
+    };
+
+    /**
+     * !#en
+     * Get the battery level of current device, return 1.0 if failure.
+     * !#zh
+     * 获取当前设备的电池电量，如果电量无法获取，默认将返回 1
+     *
+     * @method getBatteryLevel
+     * @return {Number} - 0.0 ~ 1.0
+     */
+    sys.getBatteryLevel = function() {
+        // TODO: need to implement this for mobile phones.
+        return 1.0;
+    };
+
+    /**
      * Forces the garbage collection, only available in JSB
      * @method garbageCollect
      */
     sys.garbageCollect = function () {
-        // N/A in cocos2d-html5
+        // N/A in web
     };
 
     /**
@@ -987,7 +1103,7 @@ function initSys () {
      * @method dumpRoot
      */
     sys.dumpRoot = function () {
-        // N/A in cocos2d-html5
+        // N/A in web
     };
 
     /**
@@ -995,7 +1111,7 @@ function initSys () {
      * @method restartVM
      */
     sys.restartVM = function () {
-        // N/A in cocos2d-html5
+        // N/A in web
     };
 
     /**
@@ -1004,7 +1120,7 @@ function initSys () {
      * @param {String} jsfile
      */
     sys.cleanScript = function (jsfile) {
-        // N/A in cocos2d-html5
+        // N/A in web
     };
 
     /**

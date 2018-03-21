@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -296,7 +297,7 @@ LoadingItems.ItemState = new cc.Enum(ItemState);
  * @param {Array} urlList The items array.
  * @param {Function} onProgress The progression callback, refer to {{#crossLink "LoadingItems.onProgress"}}{{/crossLink}}
  * @param {Function} onComplete The completion callback, refer to {{#crossLink "LoadingItems.onComplete"}}{{/crossLink}}
- * @return {LoadingItems} The LoadingItems queue obejct
+ * @return {LoadingItems} The LoadingItems queue object
  * @example
  *  LoadingItems.create(cc.loader, ['a.png', 'b.plist'], function (completedCount, totalCount, item) {
  *      var progress = (100 * completedCount / totalCount).toFixed(2);
@@ -358,7 +359,7 @@ LoadingItems.create = function (pipeline, urlList, onProgress, onComplete) {
  * @method getQueue
  * @static
  * @param {Object} item The item to query
- * @return {LoadingItems} The LoadingItems queue obejct
+ * @return {LoadingItems} The LoadingItems queue object
  */
 LoadingItems.getQueue = function (item) {
     return item.queueId ? _queues[item.queueId] : null;

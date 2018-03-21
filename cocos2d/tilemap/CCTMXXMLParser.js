@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -25,7 +26,7 @@
  ****************************************************************************/
 
 var codec = require('../compression/ZipUtils');
-var Zlib = require('../compression/zlib.min');
+var zlib = require('../compression/zlib.min');
 var js = require('../core/platform/js');
 
 function uint8ArrayToUint32Array (uint8Arr) {
@@ -65,7 +66,7 @@ cc.TMXLayerInfo = function () {
     this.ownTiles = true;
     this._minGID = 100000;
     this._maxGID = 0;
-    this.offset = cc.p(0,0);
+    this.offset = cc.v2(0,0);
 };
 
 cc.TMXLayerInfo.prototype = {
@@ -106,7 +107,7 @@ cc.TMXObjectGroupInfo = function () {
     this.visible = true;
     this._opacity = 0;
     this._color = new cc.Color(255, 255, 255, 255);
-    this.offset = cc.p(0,0);
+    this.offset = cc.v2(0,0);
     this._draworder = 'topdown';
 };
 
@@ -162,7 +163,7 @@ cc.TMXTilesetInfo = function () {
     // Size in pixels of the image
     this.imageSize = cc.size(0, 0);
 
-    this.tileOffset = cc.p(0, 0);
+    this.tileOffset = cc.v2(0, 0);
 
     this._tileSize = cc.size(0, 0);
 };
@@ -688,7 +689,7 @@ cc.TMXMapInfo.prototype = {
                 if (offset) {
                     let offsetX = parseFloat(offset.getAttribute('x'));
                     let offsetY = parseFloat(offset.getAttribute('y'));
-                    tileset.tileOffset = cc.p(offsetX, offsetY);
+                    tileset.tileOffset = cc.v2(offsetX, offsetY);
                 }
 
                 // PARSE  <tile>
@@ -758,7 +759,7 @@ cc.TMXMapInfo.prototype = {
             layer._opacity = parseInt(255 * parseFloat(opacity));
         else
             layer._opacity = 255;
-        layer.offset = cc.p(parseFloat(selLayer.getAttribute('x')) || 0, parseFloat(selLayer.getAttribute('y')) || 0);
+        layer.offset = cc.v2(parseFloat(selLayer.getAttribute('x')) || 0, parseFloat(selLayer.getAttribute('y')) || 0);
 
         let nodeValue = '';
         for (let j = 0; j < data.childNodes.length; j++) {
@@ -779,7 +780,7 @@ cc.TMXMapInfo.prototype = {
                 tiles = codec.unzipBase64AsArray(nodeValue, 4);
                 break;
             case 'zlib':
-                var inflator = new Zlib.Inflate(codec.Base64.decodeAsArray(nodeValue, 1));
+                var inflator = new zlib.Inflate(codec.Base64.decodeAsArray(nodeValue, 1));
                 tiles = uint8ArrayToUint32Array(inflator.decompress());
                 break;
             case null:
@@ -824,7 +825,7 @@ cc.TMXMapInfo.prototype = {
     _parseObjectGroup (selGroup) {
         let objectGroup = new cc.TMXObjectGroupInfo();
         objectGroup.name = selGroup.getAttribute('name') || '';
-        objectGroup.offset = cc.p(parseFloat(selGroup.getAttribute('offsetx')), parseFloat(selGroup.getAttribute('offsety')));
+        objectGroup.offset = cc.v2(parseFloat(selGroup.getAttribute('offsetx')), parseFloat(selGroup.getAttribute('offsety')));
 
         let opacity = selGroup.getAttribute('opacity') || 1;
         if (opacity)

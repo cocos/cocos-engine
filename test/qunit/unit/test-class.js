@@ -46,7 +46,7 @@ largeModule('Class ES6');
         @ccclass('cc.Dog')
         class Dog extends Animal {}
 
-        strictEqual(cc.isChildClassOf(Dog, Animal), true, 'extends should be supported');
+        strictEqual(cc.js.isChildClassOf(Dog, Animal), true, 'extends should be supported');
         strictEqual(cc.js.getClassName(Dog), 'cc.Dog', 'child class name should be registered');
 
         cc.js.unregisterClass(Animal, Dog);
@@ -396,25 +396,25 @@ largeModule('Class ES6');
 
         // constructor
 
-        strictEqual(cc.isChildClassOf(null, null) ||
-                    cc.isChildClassOf(Object, null) ||
-                    cc.isChildClassOf(null, Object),  false, 'nil');
+        strictEqual(cc.js.isChildClassOf(null, null) ||
+                    cc.js.isChildClassOf(Object, null) ||
+                    cc.js.isChildClassOf(null, Object),  false, 'nil');
 
-        //strictEqual(cc.isChildClassOf(123, Object), false, 'can ignore wrong type');
-        //strictEqual(cc.isChildClassOf(Object, 123), false, 'can ignore wrong type 2');
+        //strictEqual(cc.js.isChildClassOf(123, Object), false, 'can ignore wrong type');
+        //strictEqual(cc.js.isChildClassOf(Object, 123), false, 'can ignore wrong type 2');
 
-        strictEqual(cc.isChildClassOf(Object, Object), true, 'any obj is child of itself');
+        strictEqual(cc.js.isChildClassOf(Object, Object), true, 'any obj is child of itself');
 
         var Base = function () {};
 
-        strictEqual(cc.isChildClassOf(Base, Object) &&
-                    ! cc.isChildClassOf(Object, Base), true, 'any type is child of Object');
+        strictEqual(cc.js.isChildClassOf(Base, Object) &&
+                    ! cc.js.isChildClassOf(Object, Base), true, 'any type is child of Object');
 
         var Sub = function () {};
 
         cc.js.extend(Sub, Base);
-        strictEqual(cc.isChildClassOf(Sub, Base) &&
-                    !cc.isChildClassOf(Base, Sub), true, 'Sub is child of Base');
+        strictEqual(cc.js.isChildClassOf(Sub, Base) &&
+                    !cc.js.isChildClassOf(Base, Sub), true, 'Sub is child of Base');
 
         // cc.Class
 
@@ -449,25 +449,25 @@ largeModule('Class ES6');
             }
         });
 
-        strictEqual(cc.isChildClassOf(Husky, Husky), true, 'Husky is child of itself');
-        strictEqual(cc.isChildClassOf(Dog, Animal), true, 'Animal is parent of Dog');
-        strictEqual(cc.isChildClassOf(Husky, Animal) &&
-                    ! cc.isChildClassOf(Animal, Husky), true, 'Animal is parent of Husky');
-        strictEqual(cc.isChildClassOf(Dog, Husky), false, 'Dog is not child of Husky');
-        strictEqual(cc.isChildClassOf(Labrador, Dog), true, 'Labrador is child of Dog');
-        strictEqual(cc.isChildClassOf(Labrador, Animal), true, 'Labrador is child of Animal');
+        strictEqual(cc.js.isChildClassOf(Husky, Husky), true, 'Husky is child of itself');
+        strictEqual(cc.js.isChildClassOf(Dog, Animal), true, 'Animal is parent of Dog');
+        strictEqual(cc.js.isChildClassOf(Husky, Animal) &&
+                    ! cc.js.isChildClassOf(Animal, Husky), true, 'Animal is parent of Husky');
+        strictEqual(cc.js.isChildClassOf(Dog, Husky), false, 'Dog is not child of Husky');
+        strictEqual(cc.js.isChildClassOf(Labrador, Dog), true, 'Labrador is child of Dog');
+        strictEqual(cc.js.isChildClassOf(Labrador, Animal), true, 'Labrador is child of Animal');
 
-        strictEqual(cc.isChildClassOf(Animal, Sub), true, 'Animal is child of Sub');
-        strictEqual(cc.isChildClassOf(Animal, Base), true, 'Animal is child of Base');
-        strictEqual(cc.isChildClassOf(Dog, Base),  true, 'Dog is child of Base');
+        strictEqual(cc.js.isChildClassOf(Animal, Sub), true, 'Animal is child of Sub');
+        strictEqual(cc.js.isChildClassOf(Animal, Base), true, 'Animal is child of Base');
+        strictEqual(cc.js.isChildClassOf(Dog, Base),  true, 'Dog is child of Base');
 
         // ES6 Classes
 
         @ccclass
         class Foo extends Labrador {}
 
-        strictEqual(cc.isChildClassOf(Foo, Labrador),  true, 'Foo is child of Labrador');
-        strictEqual(cc.isChildClassOf(Foo, Labrador),  true, 'Foo is child of Dog');
+        strictEqual(cc.js.isChildClassOf(Foo, Labrador),  true, 'Foo is child of Labrador');
+        strictEqual(cc.js.isChildClassOf(Foo, Labrador),  true, 'Foo is child of Dog');
 
         cc.js.unregisterClass(Animal, Dog, Husky, Labrador);
     });

@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -289,9 +290,8 @@ let ArmatureDisplay = cc.Class({
             // If using the getFactory in JSB.
             // There may be throw errors when close the application.
             this._factory = new dragonBones.CCFactory();
-        }
-        else {
-            this._factory = dragonBones.CCFactory.getFactory();
+        } else {
+            this._factory = dragonBones.CCFactory.getInstance();
         }
     },
 
@@ -311,12 +311,12 @@ let ArmatureDisplay = cc.Class({
 
     onEnable () {
         this._super();
-        dragonBones.CCFactory.getFactory()._dragonBones.clock.add(this._armature);
+        dragonBones.CCFactory.getInstance()._dragonBones.clock.add(this._armature);
     },
 
     onDisable () {
         this._super();
-        dragonBones.CCFactory.getFactory()._dragonBones.clock.remove(this._armature);
+        dragonBones.CCFactory.getInstance()._dragonBones.clock.remove(this._armature);
     },
 
     onDestroy () {
@@ -364,7 +364,7 @@ let ArmatureDisplay = cc.Class({
     _buildArmature () {
         if (!this.dragonAsset || !this.dragonAtlasAsset || !this.armatureName) return;
 
-        let factory = dragonBones.CCFactory.getFactory();
+        let factory = dragonBones.CCFactory.getInstance();
         this._armature = factory.buildArmatureDisplay(this.armatureName, this.dragonAsset._dragonBonesData.name, this);
         this._armature.animation.timeScale = this.timeScale;
 
@@ -490,9 +490,10 @@ let ArmatureDisplay = cc.Class({
      * !#zh
      * 添加 DragonBones 事件监听器。
      * @method addEventListener
-     * @param {dragonBones.EventObject} eventType
-     * @param {function} listener
-     * @param {Object} target
+     * @param {String} type - A string representing the event type to listen for.
+     * @param {Function} listener - The callback that will be invoked when the event is dispatched.
+     * @param {Event} listener.event event
+     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      */
     addEventListener (eventType, listener, target) {
         this.addDBEventListener(eventType, listener, target);
@@ -504,9 +505,9 @@ let ArmatureDisplay = cc.Class({
      * !#zh
      * 移除 DragonBones 事件监听器。
      * @method removeEventListener
-     * @param {dragonBones.EventObject} eventType
-     * @param {function} listener
-     * @param {Object} target
+     * @param {String} type - A string representing the event type to listen for.
+     * @param {Function} [listener]
+     * @param {Object} [target]
      */
     removeEventListener (eventType, listener, target) {
         this.removeDBEventListener(eventType, listener, target);
@@ -523,7 +524,7 @@ let ArmatureDisplay = cc.Class({
      * @return {dragonBones.ArmatureDisplay}
      */
     buildArmature (armatureName, node) {
-        return dragonBones.CCFactory.getFactory().createArmatureNode(this, armatureName, node);
+        return dragonBones.CCFactory.getInstance().createArmatureNode(this, armatureName, node);
     },
 
     /**

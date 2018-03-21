@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const affineTrans = require('../value-types/CCAffineTransform');
+const AffineTrans = require('../utils/affine-transform');
 const renderEngine = require('../renderer/render-engine');
 const renderer = require('../renderer/index');
 
@@ -278,13 +279,13 @@ let Camera = cc.Class({
      * @return {AffineTransform}
      */
     getNodeToCameraTransform (node) {
-        let out = affineTrans.makeIdentity();
+        let out = AffineTrans.identity();
         node.getWorldMatrix(_mat4_temp_2);
         if (this.containsNode(node)) {
             this.getWorldToCameraMatrix(_mat4_temp_1);
             mat4.mul(_mat4_temp_2, _mat4_temp_2, _mat4_temp_1);
         }
-        affineTrans.fromMatrix(_mat4_temp_2, out);
+        AffineTrans.fromMat4(out, _mat4_temp_2);
         return out;
     },
 

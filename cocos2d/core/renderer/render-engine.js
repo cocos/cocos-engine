@@ -1,9 +1,27 @@
+/****************************************************************************
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-/*
- * engine-next.js v0.3.1
- * Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
- * Released under the Private License.  
- */
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
 
 module.exports = (function () {
   'use strict';
@@ -8298,6 +8316,7 @@ module.exports = (function () {
       let img = options.image;
   
       if (
+        CC_QQPLAY ||
         img instanceof HTMLCanvasElement ||
         img instanceof HTMLImageElement ||
         img instanceof HTMLVideoElement
@@ -8361,6 +8380,7 @@ module.exports = (function () {
       let img = options.image;
   
       if (
+        CC_QQPLAY || 
         img instanceof HTMLCanvasElement ||
         img instanceof HTMLImageElement ||
         img instanceof HTMLVideoElement
@@ -8665,6 +8685,7 @@ module.exports = (function () {
       }
   
       if (
+        CC_QQPLAY ||
         img instanceof HTMLCanvasElement ||
         img instanceof HTMLImageElement ||
         img instanceof HTMLVideoElement
@@ -8716,6 +8737,7 @@ module.exports = (function () {
         gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha);
       }
       if (
+        CC_QQPLAY ||
         img instanceof HTMLCanvasElement ||
         img instanceof HTMLImageElement ||
         img instanceof HTMLVideoElement
@@ -13567,6 +13589,12 @@ module.exports = (function () {
         else return 0;
       });
   
+      scene._cameras.sort((a, b) => {
+        if (a._depth > b._depth) return 1;
+        else if (a._depth < b._depth) return -1;
+        else return 0;
+      });
+  
       for (let i = 0; i < scene._cameras.length; ++i) {
         let camera = scene._cameras.data[i];
         let view = camera.view;
@@ -13661,7 +13689,7 @@ module.exports = (function () {
    */
   class BaseRenderData {
       constructor () {
-          this.effect = null;
+          this.material = null;
           this.vertexCount = 0;
           this.indiceCount = 0;
       }
@@ -13712,15 +13740,17 @@ module.exports = (function () {
   
     set dataLength (length) {
       let data = this._data;
-      // Free extra data
-      for (let i = length; i < data.length; i++) {
-        _dataPool.free(data[i]);
+      if (data.length !== length) {
+        // Free extra data
+        for (let i = length; i < data.length; i++) {
+          _dataPool.free(data[i]);
+        }
+        // Alloc needed data
+        for (let i = data.length; i < length; i++) {
+          data[i] = _dataPool.alloc();
+        }
+        data.length = length;
       }
-      // Alloc needed data
-      for (let i = data.length; i < length; i++) {
-        data[i] = _dataPool.alloc();
-      }
-      data.length = length;
     }
   
     updateSizeNPivot (width, height, pivotX, pivotY) {
@@ -13748,7 +13778,7 @@ module.exports = (function () {
         }
         data._data.length = 0;
         data._indices.length = 0;
-        data.effect = null;
+        data.material = null;
         data.uvDirty = true;
         data.vertDirty = true;
         data.vertexCount = 0;
@@ -14297,6 +14327,26 @@ module.exports = (function () {
   
     reload() {
       // TODO
+    }
+  }
+  
+  // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+   
+  class Texture$1 extends Asset {
+    constructor(persist = true) {
+      super(persist);
+  
+      this._texture = null;
+    }
+  
+    getImpl () {
+      return this._texture;
+    }
+  
+    getId () {}
+  
+    destroy () {
+      this._texture && this._texture.destroy();
     }
   }
   
@@ -14861,6 +14911,7 @@ module.exports = (function () {
     
     // assets
     Asset,
+    TextureAsset: Texture$1,
     Material,
     
     // materials
@@ -14888,3 +14939,4 @@ module.exports = (function () {
   return renderEngine;
   
   }());
+  

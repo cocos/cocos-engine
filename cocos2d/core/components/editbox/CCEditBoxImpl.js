@@ -1,21 +1,21 @@
-/*global _ccsg */
-
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2012 James Chen
  Copyright (c) 2011-2012 cocos2d-x.org
+ Copyright (c) 2012 James Chen
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos2d-x.org
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -26,8 +26,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Utils = require('../../platform/utils');
-
+const utils = require('../../platform/utils');
+const macro = require('../../platform/CCMacro');
 const Types = require('./types');
 const InputMode = Types.InputMode;
 const InputFlag = Types.InputFlag;
@@ -179,7 +179,7 @@ let EditBoxImpl = cc.Class({
     
     setFontColor (color) {
         this._textColor = color;
-        this._edTxt.style.color = cc.colorToHex(color);
+        this._edTxt.style.color = color.toHEX();
     },
     
     setSize (width, height) {
@@ -455,7 +455,7 @@ _p._createDomInput = function () {
         }
     });
     tmpEdTxt.addEventListener('keypress', function (e) {
-        if (e.keyCode === cc.KEY.enter) {
+        if (e.keyCode === macro.KEY.enter) {
             e.stopPropagation();
             e.preventDefault();
 
@@ -471,7 +471,7 @@ _p._createDomInput = function () {
 
     tmpEdTxt.addEventListener('focus', function () {
         this.style.fontSize = self._edFontSize + 'px';
-        this.style.color = cc.colorToHex(self._textColor);
+        this.style.color = self._textColor.toHEX();
 
         if (cc.sys.isMobile) {
             self._onFocusOnMobile();
@@ -536,7 +536,7 @@ _p._createDomTextArea = function () {
 
     tmpEdTxt.addEventListener('focus', function () {
         this.style.fontSize = self._edFontSize + 'px';
-        this.style.color = cc.colorToHex(self._textColor);
+        this.style.color = self._textColor.toHEX();
 
         if (cc.sys.isMobile) {
             self._onFocusOnMobile();
@@ -548,7 +548,7 @@ _p._createDomTextArea = function () {
 
     });
     tmpEdTxt.addEventListener('keypress', function (e) {
-        if (e.keyCode === cc.KEY.enter) {
+        if (e.keyCode === macro.KEY.enter) {
             e.stopPropagation();
 
             if (self._delegate && self._delegate.editBoxEditingReturn) {
@@ -577,7 +577,7 @@ _p._addDomToGameContainer = function () {
 _p.removeDom = function () {
     let edTxt = this._edTxt;
     if (edTxt) {
-        let hasChild = Utils.contains(cc.game.container, edTxt);
+        let hasChild = utils.contains(cc.game.container, edTxt);
         if (hasChild) {
             cc.game.container.removeChild(edTxt);
         }

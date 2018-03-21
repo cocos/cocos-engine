@@ -1,18 +1,19 @@
 ﻿/****************************************************************************
- Copyright (c) 2013-2017 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,9 +26,9 @@
 
 var js = require('./js');
 var Enum = require('./CCEnum');
-var Utils = require('./utils');
-var _isPlainEmptyObj_DEV = Utils.isPlainEmptyObj_DEV;
-var _cloneable_DEV = Utils.cloneable_DEV;
+var utils = require('./utils');
+var _isPlainEmptyObj_DEV = utils.isPlainEmptyObj_DEV;
+var _cloneable_DEV = utils.cloneable_DEV;
 var Attr = require('./attribute');
 var DELIMETER = Attr.DELIMETER;
 var getTypeChecker = Attr.getTypeChecker;
@@ -343,9 +344,9 @@ function doDefine (className, baseClass, mixins, options) {
 function define (className, baseClass, mixins, options) {
     var Component = cc.Component;
     var frame = cc._RF.peek();
-    if (frame && cc.isChildClassOf(baseClass, Component)) {
+    if (frame && js.isChildClassOf(baseClass, Component)) {
         // project component
-        if (cc.isChildClassOf(frame.cls, Component)) {
+        if (js.isChildClassOf(frame.cls, Component)) {
             cc.errorID(3615);
             return null;
         }
@@ -358,7 +359,7 @@ function define (className, baseClass, mixins, options) {
     var cls = doDefine(className, baseClass, mixins, options);
 
     if (frame) {
-        if (cc.isChildClassOf(baseClass, Component)) {
+        if (js.isChildClassOf(baseClass, Component)) {
             var uuid = frame.uuid;
             if (uuid) {
                 js._setClassId(uuid, cls);
@@ -369,7 +370,7 @@ function define (className, baseClass, mixins, options) {
             }
             frame.cls = cls;
         }
-        else if (!cc.isChildClassOf(frame.cls, Component)) {
+        else if (!js.isChildClassOf(frame.cls, Component)) {
             frame.cls = cls;
         }
     }
@@ -977,7 +978,7 @@ function CCClass (options) {
 
     var editor = options.editor;
     if (editor) {
-        if (cc.isChildClassOf(base, cc.Component)) {
+        if (js.isChildClassOf(base, cc.Component)) {
             cc.Component._registerEditorProps(cls, editor);
         }
         else if (CC_DEV) {
@@ -1025,41 +1026,6 @@ CCClass._fastDefine = function (className, constructor, serializableFields) {
 CCClass.Attr = Attr;
 CCClass.attr = Attr.attr;
 
-/**
- * Checks whether subclass is child of superclass or equals to superclass
- *
- * @method isChildClassOf
- * @param {Function} subclass
- * @param {Function} superclass
- * @return {Boolean}
- */
-cc.isChildClassOf = function (subclass, superclass) {
-    if (subclass && superclass) {
-        if (typeof subclass !== 'function') {
-            return false;
-        }
-        if (typeof superclass !== 'function') {
-            if (CC_DEV) {
-                cc.warnID(3625, superclass);
-            }
-            return false;
-        }
-        if (subclass === superclass) {
-            return true;
-        }
-        for (;;) {
-            subclass = js.getSuper(subclass);
-            if (!subclass) {
-                return false;
-            }
-            if (subclass === superclass) {
-                return true;
-            }
-        }
-    }
-    return false;
-};
-
 /*
  * Return all super classes
  * @method getInheritanceChain
@@ -1091,7 +1057,7 @@ CCClass.getInheritanceChain = function (klass) {
  */
 // TODO - remove at 2.0 if all assets implemented in pure js
 CCClass.isInstanceOf = CC_JSB ? function (obj, klass) {
-    return obj && cc.isChildClassOf(obj.constructor, klass);
+    return obj && js.isChildClassOf(obj.constructor, klass);
 } : function (obj__skip_jsb_warning, klass) {
     return obj__skip_jsb_warning instanceof klass;
 };

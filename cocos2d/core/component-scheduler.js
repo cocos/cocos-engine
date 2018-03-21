@@ -1,18 +1,19 @@
 /****************************************************************************
- Copyright (c) 2013-2017 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,7 +26,7 @@
 
 require('./platform/CCClass');
 var Flags = require('./platform/CCObject').Flags;
-var JsArray = require('./platform/js').array;
+var jsArray = require('./platform/js').array;
 
 var IsStartCalled = Flags.IsStartCalled;
 var IsOnEnableCalled = Flags.IsOnEnableCalled;
@@ -101,7 +102,7 @@ function stableRemoveInactive (iterator, flagToClear) {
 // This class contains some queues used to invoke life-cycle methods by script execution order
 var LifeCycleInvoker = cc.Class({
     __ctor__ (invokeFunc) {
-        var Iterator = JsArray.MutableForwardIterator;
+        var Iterator = jsArray.MutableForwardIterator;
         // components which priority === 0 (default)
         this._zero = new Iterator([]);
         // components which priority < 0
@@ -333,7 +334,7 @@ var ComponentScheduler = cc.Class({
         // cancel schedule task
         var index = this.scheduleInNextFrame.indexOf(comp);
         if (index >= 0) {
-            JsArray.fastRemoveAt(this.scheduleInNextFrame, index);
+            jsArray.fastRemoveAt(this.scheduleInNextFrame, index);
             return;
         }
 

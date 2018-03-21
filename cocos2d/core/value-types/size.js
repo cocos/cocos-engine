@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var ValueType = require('./CCValueType');
+var ValueType = require('./value-type');
 var js = require('../platform/js');
 
 /**
@@ -166,24 +167,6 @@ proto.toString = function () {
  */
 cc.size = function (w, h) {
     return new Size(w, h);
-};
-
-/**
- * !#en Check whether a point's value equals to another.
- * !#zh 检查 Size 对象是否等于另一个。
- * @method sizeEqualToSize
- * @param {Size} size1
- * @param {Size} size2
- * @return {Boolean}
- * @example
- * var a = new cc.size(10, 10);
- * var b = new cc.size(10, 10);
- * cc.sizeEqualToSize(a, b);// return true;
- * var b = new cc.size(5, 10);
- * cc.sizeEqualToSize(a, b);// return false;
- */
-cc.sizeEqualToSize = function (size1, size2) {
-    return (size1 && size2 && (size1.width === size2.width) && (size1.height === size2.height));
 };
 
 cc.Size = module.exports = Size;

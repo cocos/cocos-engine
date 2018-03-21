@@ -1,5 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -25,6 +26,7 @@
 const renderEngine = require('../../cocos2d/core/renderer/render-engine');
 const math = renderEngine.math;
 
+const BlendFactor = require('../../cocos2d/core/platform/CCMacro');
 const BinaryOffset = dragonBones.BinaryOffset;
 const BoneType  = dragonBones.BoneType;
 
@@ -109,10 +111,10 @@ dragonBones.CCSlot = cc.Class({
             case 1: // BlendMode Add
                 let texture = this._renderDisplay._spriteFrame.getTexture();
                 if (texture && texture.hasPremultipliedAlpha()) {
-                    this._renderDisplay.setBlendFunc(cc.BlendFunc.BlendFactor.ONE, cc.BlendFunc.BlendFactor.ONE);
+                    this._renderDisplay.setBlendFunc(BlendFactor.ONE, BlendFactor.ONE);
                 }
                 else {
-                    this._renderDisplay.setBlendFunc(cc.BlendFunc.BlendFactor.SRC_ALPHA, cc.BlendFunc.BlendFactor.ONE);
+                    this._renderDisplay.setBlendFunc(BlendFactor.SRC_ALPHA, BlendFactor.ONE);
                 }
                 break;
             default:
@@ -159,7 +161,7 @@ dragonBones.CCSlot = cc.Class({
             // Create and cache texture
             let rect = cc.rect(currentTextureData.region.x, currentTextureData.region.y,
                                 currentTextureData.region.width, currentTextureData.region.height);
-            let offset = cc.p(0, 0);
+            let offset = cc.v2(0, 0);
             let size = cc.size(currentTextureData.region.width, currentTextureData.region.height);
 
             currentTextureData.spriteFrame = new cc.SpriteFrame();

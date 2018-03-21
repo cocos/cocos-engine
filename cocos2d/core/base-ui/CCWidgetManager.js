@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -31,6 +32,12 @@ var CENTER  = 1 << 4;   // horizontal center
 var RIGHT   = 1 << 5;
 var HORIZONTAL = LEFT | CENTER | RIGHT;
 var VERTICAL = TOP | MID | BOT;
+
+var AlignMode = cc.Enum({
+    ONCE: 0,
+    ON_WINDOW_RESIZE: 1,
+    ALWAYS: 2,
+});
 
 // returns a readonly size of the node
 function getReadonlyNodeSize (parent) {
@@ -233,7 +240,7 @@ function visitNode (node) {
             }
         }
         align(node, widget);
-        if ((!CC_EDITOR || animationState.animatedSinceLastFrame) && widget.isAlignOnce) {
+        if ((!CC_EDITOR || animationState.animatedSinceLastFrame) && widget.alignMode !== AlignMode.ALWAYS) {
             widget.enabled = false;
         }
         else {
@@ -292,7 +299,10 @@ function refreshScene () {
                 for (i = activeWidgets.length - 1; i >= 0; i--) {
                     widget = activeWidgets[i];
                     var node = widget.node;
-                    if (widget.isAlignOnce && animationState.animatedSinceLastFrame && node.isChildOf(editingNode)) {
+                    if (widget.alignMode !== AlignMode.ALWAYS &&
+                        animationState.animatedSinceLastFrame &&
+                        node.isChildOf(editingNode)
+                    ) {
                         // widget contains in activeWidgets should aligned at least once
                         widget.enabled = false;
                     }
@@ -370,7 +380,7 @@ var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (event) {
     }
     var oldSize = event.detail;
     var newSize = this.node.getContentSize();
-    var delta = cc.p(newSize.width - oldSize.width, newSize.height - oldSize.height);
+    var delta = cc.v2(newSize.width - oldSize.width, newSize.height - oldSize.height);
 
     var target = this.node._parent;
     var inverseScale = cc.Vec2.ONE;
@@ -433,7 +443,22 @@ var widgetManager = cc._widgetManager = module.exports = {
     _activeWidgetsIterator: new cc.js.array.MutableForwardIterator(activeWidgets),
 
     init: function (director) {
-        director.on(cc.Director.EVENT_BEFORE_VISIT, refreshScene);
+        director.on(cc.Director.EVENT_AFTER_UPDATE, refreshScene);
+
+        if (CC_EDITOR && cc.engine) {
+            cc.engine.on('design-resolution-changed', this.onResized.bind(this));
+        }
+        else if (!CC_JSB) {
+            if (cc.sys.isMobile) {
+                window.addEventListener('resize', this.onResized.bind(this));
+            }
+            else {
+                cc.eventManager.addCustomListener('canvas-resize', this.onResized.bind(this));
+            }
+        }
+        else {
+            cc.eventManager.addListener(this.onResized.bind(this), 1);
+        }
     },
     add: function (widget) {
         widget.node._widget = widget;
@@ -451,7 +476,28 @@ var widgetManager = cc._widgetManager = module.exports = {
             widget.node.off('size-changed', adjustWidgetToAllowResizingInEditor, widget);
         }
     },
-    updateAlignment: updateAlignment
+    onResized () {
+        var scene = cc.director.getScene();
+        if (scene) {
+            this.refreshWidgetOnResized(scene);
+        }
+    },
+    refreshWidgetOnResized (node) {
+        var widget = cc.Node.isNode(node) && node.getComponent(cc.Widget);
+        if (widget) {
+            if (widget.alignMode === AlignMode.ON_WINDOW_RESIZE) {
+                widget.enabled = true;
+            }
+        }
+
+        var children = node._children;
+        for (var i = 0; i < children.length; i++) {
+            var child = children[i];
+            this.refreshWidgetOnResized(child);
+        }
+    },
+    updateAlignment: updateAlignment,
+    AlignMode: AlignMode,
 };
 
 if (CC_EDITOR) {

@@ -1,3 +1,28 @@
+/****************************************************************************
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
+
 if (CC_DEBUG) {
     module.exports = {
         // Common
@@ -79,6 +104,7 @@ if (CC_DEBUG) {
         "1509": "Argument target must be non-nullptr", //isScheduled
         "1510": "cc.Scheduler: Illegal target which doesn't have uuid or instanceId",
         "1511": "cc.Scheduler: pause state of the scheduled task doesn't match the element pause state in Scheduler, the given paused state will be ignored",
+        "1512": "cc.Scheduler: updateFunc parameter is deprecated in scheduleUpdate function, and will be removed in v2.0",
         //Node: 1600
         "1600": "getZOrder is deprecated. Please use getLocalZOrder instead.", //getZOrder
         "1601": "setZOrder is deprecated. Please use setLocalZOrder instead.", //setZOrder
@@ -256,7 +282,8 @@ if (CC_DEBUG) {
         "3115": "Frame Grabber: could not attach texture to framebuffer", //CCGrabber.grab
         "3116": "WebGLRenderingContext.CLAMP_TO_EDGE should be used in NPOT textures", //setTexParameters
         "3117": "Mimpap texture only works in POT textures", //generateMipmap
-        "3118": "Lazy init texture with image element failed due to image loading failure: %s",
+        "3118": "contentSize parameter is deprecated and ignored for cc.Texture2D initWithData function", // initWithData
+        "3119": "Lazy init texture with image element failed due to image loading failure: %s",
         //RectWidth: 3300
         "3300": "Rect width exceeds maximum margin: %s, max x: %s, texture width: %s", //RectWidth
         //RectHeight: 3400
@@ -389,6 +416,7 @@ if (CC_DEBUG) {
         "3818": "Failed to read or parse project.json", //_loadConfig
         "3819": "Warning: target element is not a DIV or CANVAS", //_initRenderer
         "3820": "The renderer doesn't support the renderMode %s", //_initRenderer
+        "3821": "Cannot change hierarchy while activating or deactivating the parent.",
         //Animation: 3900
         "3900": "Invalid clip to add", //addClip
         "3901": "Invalid clip to remove", //removeClip

@@ -1,18 +1,18 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -152,7 +152,7 @@ var spineAssembler = js.addon({
         }
         data.dataLength = 0;
         let indices;
-        let material = null, currEffect = null, effect = null;
+        let material = null, currMaterial = null;
         let vertexCount = 0, vertexOffset = 0, maxVertex = batchData.MAX_VERTEX - batchData.vertexOffset;
         let indiceCount = 0, indiceOffset = 0, maxIndice = batchData.MAX_INDICE - batchData.indiceOffset;
         for (let i = 0, n = locSkeleton.drawOrder.length; i < n; i++) {
@@ -182,16 +182,15 @@ var spineAssembler = js.addon({
 
             newData = false;
             material = _getSlotMaterial(slot, attachment.region.texture._texture, premultiAlpha);
-            effect = material.effect;
             // Check break
-            if (currEffect !== effect) {
-                if (currEffect) {
+            if (currMaterial !== material) {
+                if (currMaterial) {
                     newData = true;
                 }
-                data.effect = currEffect = effect;
+                data.material = currMaterial = material;
             }
             if (vertexOffset + vertexCount > maxVertex || indiceOffset + vertexCount > maxIndice) {
-                currEffect = null;
+                currMaterial = null;
                 newData = true;
             }
 
@@ -206,7 +205,7 @@ var spineAssembler = js.addon({
                     data = datas[dataId] = comp.requestRenderData();
                 }
                 data.dataLength = vertexCount;
-                data.effect = currEffect;
+                data.material = currMaterial;
                 // reset offset
                 vertexOffset = 0;
                 indiceOffset = 0;
@@ -266,7 +265,7 @@ var spineAssembler = js.addon({
         if (comp.debugBones || comp.debugSlots) {
             let renderDatas = graphics._renderDatas;
             for (let i = 0; i < renderDatas.length; i++) {
-                renderDatas[i].effect = _debugMaterial.effect;
+                renderDatas[i].material = _debugMaterial;
                 datas.push(renderDatas[i]);
             }
         }

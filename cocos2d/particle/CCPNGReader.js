@@ -2,7 +2,8 @@
  Copyright (c) 2011 Devon Govett
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -26,7 +27,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Zlib = require('../compression/zlib.min');
+var zlib = require('../compression/zlib.min');
 
 /**
  * A png file reader
@@ -196,7 +197,7 @@ PNGReader.prototype = {
         if (data.length === 0) {
             return new Uint8Array(0);
         }
-        var inflate = new Zlib.Inflate(data,{index:0, verify:false});
+        var inflate = new zlib.Inflate(data,{index:0, verify:false});
         data = inflate.decompress();
 
         pixelBytes = this.pixelBitlength / 8;

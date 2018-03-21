@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -426,6 +427,7 @@ var audioEngine = {
             var audio = id2audio[id];
             if (audio) {
                 audio.stop();
+                audio.destroy();
                 delete id2audio[id];
             }
         }
@@ -440,6 +442,12 @@ var audioEngine = {
      */
     uncacheAll: function () {
         this.stopAll();
+        for (var id in id2audio) {
+            var audio = id2audio[id];
+            if (audio) {
+                audio.destroy();
+            }
+        }
         id2audio = js.createMap(true);
         url2id = {};
     },
@@ -757,8 +765,3 @@ var audioEngine = {
 };
 
 module.exports = cc.audioEngine = audioEngine;
-
-// deprecated
-var Module = require('./deprecated');
-Module.removed(audioEngine);
-Module.deprecated(audioEngine);

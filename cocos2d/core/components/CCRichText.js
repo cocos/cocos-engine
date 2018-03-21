@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,15 +24,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var js = require('../platform/js');
+var macro = require('../platform/CCMacro');
 var utils = require('../utils/text-utils');
 var HtmlTextParser = utils.HtmlTextParser;
 var TextUtils = utils.TextUtils;
 var CustomFontLoader = utils.CustomFontLoader;
 
-var js = require("../platform/js");
-
-var HorizontalAlign = cc.TextAlignment;
-var VerticalAlign = cc.VerticalTextAlignment;
+var HorizontalAlign = macro.TextAlignment;
+var VerticalAlign = macro.VerticalTextAlignment;
 var RichTextChildName = "RICHTEXT_CHILD"
 var _htmlTextParser = new HtmlTextParser();
 
@@ -157,7 +158,7 @@ var RichText = cc.Class({
         /**
          * !#en Horizontal Alignment of each line in RichText.
          * !#zh 文本内容的水平对齐方式。
-         * @property {TextAlignment} horizontalAlign
+         * @property {macro.TextAlignment} horizontalAlign
          */
         horizontalAlign: {
             default: HorizontalAlign.LEFT,
@@ -385,7 +386,7 @@ var RichText = cc.Class({
 
     _containsTouchLocation: function (label, point) {
         var myRect = label.getBoundingBoxToWorld();
-        return cc.rectContainsPoint(myRect, point);
+        return myRect.contains(point);
     },
 
     _resetState: function () {
@@ -733,13 +734,13 @@ var RichText = cc.Class({
             var lineOffsetX = 0;
             // var nodeAnchorXOffset = (0.5 - this.node.anchorX) * this._labelWidth; 
             switch (this.horizontalAlign) {
-                case cc.TextAlignment.LEFT:
+                case HorizontalAlign.LEFT:
                     lineOffsetX = - this._labelWidth / 2;
                     break;
-                case cc.TextAlignment.CENTER:
+                case HorizontalAlign.CENTER:
                     lineOffsetX = - this._linesWidth[lineCount - 1] / 2;
                     break;
-                case cc.TextAlignment.RIGHT:
+                case HorizontalAlign.RIGHT:
                     lineOffsetX = this._labelWidth / 2 - this._linesWidth[lineCount - 1];
                     break;
                 default:
@@ -765,7 +766,8 @@ var RichText = cc.Class({
             return cc.Color[colorValue];
         }
         else {
-            return cc.hexToColor(color);
+            var out = cc.color();
+            return out.fromHEX(color);
         }
     },
 

@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,10 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = require('../platform/js');
+var js = require('../platform/js');
 var sys = require('../platform/CCSys');
 
-var misc = exports;
+var misc = {};
 
 misc.propertyDefine = function (ctor, sameNameGetSets, diffNameGetSets) {
     function define (np, propName, getter, setter) {
@@ -38,13 +39,13 @@ misc.propertyDefine = function (ctor, sameNameGetSets, diffNameGetSets) {
         else {
             var getterFunc = np[getter];
             if (CC_DEV && !getterFunc) {
-                var clsName = (cc.Class._isCCClass(ctor) && cc.js.getClassName(ctor)) ||
+                var clsName = (cc.Class._isCCClass(ctor) && js.getClassName(ctor)) ||
                               ctor.name ||
                               '(anonymous class)';
                 cc.warnID(5700, propName, getter, clsName);
             }
             else {
-                cc.js.getset(np, propName, getterFunc, np[setter]);
+                js.getset(np, propName, getterFunc, np[setter]);
             }
         }
     }
@@ -145,3 +146,78 @@ misc.pushToMap = function (map, key, value, pushFront) {
         map[key] = value;
     }
 };
+
+/**
+ * !#en Clamp a value between from and to.
+ * !#zh
+ * 限定浮点数的最大最小值。<br/>
+ * 数值大于 max_inclusive 则返回 max_inclusive。<br/>
+ * 数值小于 min_inclusive 则返回 min_inclusive。<br/>
+ * 否则返回自身。
+ * @method clampf
+ * @param {Number} value
+ * @param {Number} min_inclusive
+ * @param {Number} max_inclusive
+ * @return {Number}
+ * @example
+ * var v1 = cc.misc.clampf(20, 0, 20); // 20;
+ * var v2 = cc.misc.clampf(-1, 0, 20); //  0;
+ * var v3 = cc.misc.clampf(10, 0, 20); // 10;
+ */
+misc.clampf = function (value, min_inclusive, max_inclusive) {
+    if (min_inclusive > max_inclusive) {
+        var temp = min_inclusive;
+        min_inclusive = max_inclusive;
+        max_inclusive = temp;
+    }
+    return value < min_inclusive ? min_inclusive : value < max_inclusive ? value : max_inclusive;
+};
+
+/**
+ * !#en Clamp a value between 0 and 1.
+ * !#zh 限定浮点数的取值范围为 0 ~ 1 之间。
+ * @method clamp01
+ * @param {Number} value
+ * @return {Number}
+ * @example
+ * var v1 = cc.misc.clamp01(20);  // 1;
+ * var v2 = cc.misc.clamp01(-1);  // 0;
+ * var v3 = cc.misc.clamp01(0.5); // 0.5;
+ */
+misc.clamp01 = function (value) {
+    return value < 0 ? 0 : value < 1 ? value : 1;
+};
+
+/**
+ * Linear interpolation between 2 numbers, the ratio sets how much it is biased to each end
+ * @method lerp
+ * @param {Number} a number A
+ * @param {Number} b number B
+ * @param {Number} r ratio between 0 and 1
+ * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCMacro/lerp.js}
+ */
+misc.lerp = function (a, b, r) {
+    return a + (b - a) * r;
+};
+
+/**
+ * converts degrees to radians
+ * @param {Number} angle
+ * @return {Number}
+ * @method degreesToRadians
+ */
+misc.degreesToRadians = function (angle) {
+    return angle * cc.macro.RAD;
+};
+
+/**
+ * converts radians to degrees
+ * @param {Number} angle
+ * @return {Number}
+ * @method radiansToDegrees
+ */
+misc.radiansToDegrees = function (angle) {
+    return angle * cc.macro.DEG;
+};
+
+cc.misc = module.exports = misc;

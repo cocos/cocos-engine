@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -178,6 +179,41 @@ var js = {
             var dunderProto = proto && Object.getPrototypeOf(proto);
             return dunderProto && dunderProto.constructor;
         }
+    },
+
+    /**
+     * Checks whether subclass is child of superclass or equals to superclass
+     *
+     * @method isChildClassOf
+     * @param {Function} subclass
+     * @param {Function} superclass
+     * @return {Boolean}
+     */
+    isChildClassOf (subclass, superclass) {
+        if (subclass && superclass) {
+            if (typeof subclass !== 'function') {
+                return false;
+            }
+            if (typeof superclass !== 'function') {
+                if (CC_DEV) {
+                    cc.warnID(3625, superclass);
+                }
+                return false;
+            }
+            if (subclass === superclass) {
+                return true;
+            }
+            for (;;) {
+                subclass = js.getSuper(subclass);
+                if (!subclass) {
+                    return false;
+                }
+                if (subclass === superclass) {
+                    return true;
+                }
+            }
+        }
+        return false;
     },
 
     /**
@@ -574,7 +610,7 @@ var REGEXP_STR = /%s/;
 /**
  * A string tool to construct a string with format string.
  * @method formatStr
- * @param {String|any} msg - A JavaScript string containing zero or more substitution strings.
+ * @param {String|any} msg - A JavaScript string containing zero or more substitution strings (%s).
  * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
  * @returns {String}
  * @example

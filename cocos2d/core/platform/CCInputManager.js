@@ -1,6 +1,7 @@
 /****************************************************************************
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -38,8 +39,8 @@ var inputManager = {
 
     _isRegisterEvent: false,
 
-    _preTouchPoint: cc.p(0,0),
-    _prevMousePoint: cc.p(0,0),
+    _preTouchPoint: cc.v2(0,0),
+    _prevMousePoint: cc.v2(0,0),
 
     _preTouchPool: [],
     _preTouchPoolPointer: 0,
@@ -315,7 +316,7 @@ var inputManager = {
     getTouchByXY: function(tx, ty, pos){
         var locPreTouch = this._preTouchPoint;
         var location = this._glView.convertToLocationInView(tx, ty, pos);
-        var touch = new cc.Touch(location.x,  location.y);
+        var touch = new cc.Touch(location.x,  location.y, 0);
         touch._setPrevPoint(locPreTouch.x, locPreTouch.y);
         locPreTouch.x = location.x;
         locPreTouch.y = location.y;
@@ -440,7 +441,7 @@ var inputManager = {
 
                     var pos = selfPointer.getHTMLElementPosition(element);
                     var location = selfPointer.getPointByEvent(event, pos);
-                    if (!cc.rectContainsPoint(new cc.Rect(pos.left, pos.top, pos.width, pos.height), location)){
+                    if (!cc.rect(pos.left, pos.top, pos.width, pos.height).contains(location)){
                         selfPointer.handleTouchesEnd([selfPointer.getTouchByXY(location.x, location.y, pos)]);
 
                         var mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.UP);

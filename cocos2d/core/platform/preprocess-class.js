@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,6 +23,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
+const js = require('./js');
 
 // 增加预处理属性这个步骤的目的是降低 CCClass 的实现难度，将比较稳定的通用逻辑和一些需求比较灵活的属性需求分隔开。
 
@@ -95,11 +98,11 @@ function checkUrl (val, className, propName, url) {
         if (url == null) {
             return cc.warnID(5503, className, propName);
         }
-        if (typeof url !== 'function' || !cc.isChildClassOf(url, cc.RawAsset)) {
+        if (typeof url !== 'function' || !js.isChildClassOf(url, cc.RawAsset)) {
             return cc.errorID(5504, className, propName);
         }
-        if (cc.isChildClassOf(url, cc.Asset) && !cc.RawAsset.wasRawAssetType(url)) {
-            return cc.errorID(5505, className, propName, cc.js.getClassName(url));
+        if (js.isChildClassOf(url, cc.Asset) && !cc.RawAsset.wasRawAssetType(url)) {
+            return cc.errorID(5505, className, propName, js.getClassName(url));
         }
         if (val.type) {
             return cc.warnID(5506, className, propName);
@@ -134,7 +137,7 @@ function parseType (val, type, className, propName) {
         if (typeof type === 'function') {
             if (cc.RawAsset.isRawAssetType(type)) {
                 cc.warnID(5509, className, propName,
-                    cc.js.getClassName(type));
+                    js.getClassName(type));
             }
         }
         else if (type === 'Number') {
@@ -148,7 +151,7 @@ function parseType (val, type, className, propName) {
 
 function postCheckType (val, type, className, propName) {
     if (CC_EDITOR && typeof type === 'function') {
-        if (cc.Class._isCCClass(type) && val.serializable !== false && !cc.js._getClassId(type, false)) {
+        if (cc.Class._isCCClass(type) && val.serializable !== false && !js._getClassId(type, false)) {
             cc.warnID(5512, className, propName, className, propName);
         }
     }
@@ -232,7 +235,7 @@ exports.getFullFormOfProperty = function (options, propname_dev, classname_dev) 
                 }
                 else {
                     return {
-                        default: cc.isChildClassOf(type, cc.ValueType) ? new type() : null,
+                        default: js.isChildClassOf(type, cc.ValueType) ? new type() : null,
                         type: type,
                         _short: true
                     };
@@ -284,7 +287,7 @@ exports.preprocessAttrs = function (properties, className, cls, es6) {
             }
             if (CC_DEV && !val.override && cls.__props__.indexOf(propName) !== -1) {
                 // check override
-                var baseClass = cc.js.getClassName(getBaseClassWherePropertyDefined_DEV(propName, cls));
+                var baseClass = js.getClassName(getBaseClassWherePropertyDefined_DEV(propName, cls));
                 cc.warnID(5517, className, propName, baseClass, propName);
             }
             var notify = val.notify;
@@ -317,12 +320,12 @@ if (CC_DEV) {
     exports.doValidateMethodWithProps_DEV = function (func, funcName, className, cls, base) {
         if (cls.__props__ && cls.__props__.indexOf(funcName) >= 0) {
             // find class that defines this method as a property
-            var baseClassName = cc.js.getClassName(getBaseClassWherePropertyDefined_DEV(funcName, cls));
+            var baseClassName = js.getClassName(getBaseClassWherePropertyDefined_DEV(funcName, cls));
             cc.errorID(3648, className, funcName, baseClassName);
             return false;
         }
         if (funcName === 'destroy' &&
-            cc.isChildClassOf(base, cc.Component) &&
+            js.isChildClassOf(base, cc.Component) &&
             !CALL_SUPER_DESTROY_REG_DEV.test(func)
         ) {
             cc.error(`Overwriting '${funcName}' function in '${className}' class without calling super is not allowed. Call the super function in '${funcName}' please.`);
@@ -346,7 +349,7 @@ exports.validateMethodWithProps = function (func, funcName, className, cls, base
                 // check override
                 var overrided = base.prototype[funcName];
                 if (typeof overrided === 'function') {
-                    var baseFuc = cc.js.getClassName(base) + '.' + funcName;
+                    var baseFuc = js.getClassName(base) + '.' + funcName;
                     var subFuc = className + '.' + funcName;
                     cc.warnID(3624, subFuc, baseFuc, subFuc, subFuc);
                 }

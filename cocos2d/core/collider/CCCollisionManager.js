@@ -1,10 +1,60 @@
+/****************************************************************************
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
+
 const Contact = require('./CCContact');
-const affineTrans = require('../value-types/CCAffineTransform');
 const CollisionType = Contact.CollisionType;
 
 const math = cc.vmath;
 
 let _vec2 = cc.v2();
+
+function obbApplyMatrix (rect, mat4, out_bl, out_tl, out_tr, out_br) {
+    var x = rect.x;
+    var y = rect.y;
+    var width = rect.width;
+    var height = rect.height;
+
+    var m00 = mat4.m00, m01 = mat4.m01, m04 = mat4.m04, m05 = mat4.m05;
+    var m12 = mat4.m12, m13 = mat4.m13;
+
+    var tx = m00 * x + m04 * y + m12;
+    var ty = m01 * x + m05 * y + m13;
+    var xa = m00 * width;
+    var xb = m01 * width;
+    var yc = m04 * height;
+    var yd = m05 * height;
+
+    out_tl.x = tx;
+    out_tl.y = ty;
+    out_tr.x = xa + tx;
+    out_tr.y = xb + ty;
+    out_bl.x = yc + tx;
+    out_bl.y = yd + ty;
+    out_br.x = xa + yc + tx;
+    out_br.y = xb + yd + ty;
+};
 
 /**
  * !#en
@@ -220,7 +270,7 @@ let CollisionManager = cc.Class({
             let wps = world.points;
             let wp0 = wps[0], wp1 = wps[1],
                 wp2 = wps[2], wp3 = wps[3];
-            cc.obbApplyMatrix(aabb, m, wp0, wp1, wp2, wp3);
+            obbApplyMatrix(aabb, m, wp0, wp1, wp2, wp3);
 
             let minx = Math.min(wp0.x, wp1.x, wp2.x, wp3.x);
             let miny = Math.min(wp0.y, wp1.y, wp2.y, wp3.y);

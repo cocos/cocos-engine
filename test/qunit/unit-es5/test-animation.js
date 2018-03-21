@@ -532,6 +532,7 @@ test('EventAnimCurve', function () {
     animation.play('test');
     state.wrapMode = cc.WrapMode.Loop;
     state.repeatCount = Infinity;
+    manager.update(0);
     manager.update(1.7);
     calls = [];
     manager.update(0.3);
@@ -551,6 +552,7 @@ test('EventAnimCurve', function () {
     animation.play('test');
     state.wrapMode = cc.WrapMode.Loop;
     state.repeatCount = Infinity;
+    manager.update(0);
     manager.update(1.7);
     calls = [];
     manager.update(0.5);
@@ -570,6 +572,7 @@ test('EventAnimCurve', function () {
     animation.play('test');
     state.wrapMode = cc.WrapMode.Reverse;
     state.repeatCount = 1;
+    manager.update(0);
     calls = [];
     manager.update(0.1);
     deepEqual(calls, [], 'should triggered no events if wrapMode is Reverse');
@@ -626,6 +629,7 @@ test('EventAnimCurve', function () {
     animation.play('test');
     state.wrapMode = cc.WrapMode.PingPong;
     state.repeatCount = Infinity;
+    manager.update(0);
     manager.update(1.7);
     calls = [];
     manager.update(0.5);
@@ -653,6 +657,7 @@ test('EventAnimCurve', function () {
     animation.play('test');
     state.wrapMode = cc.WrapMode.PingPongReverse;
     state.repeatCount = Infinity;
+    manager.update(0);
     manager.update(1.7);
     calls = [];
     manager.update(0.5);
@@ -668,6 +673,7 @@ test('EventAnimCurve', function () {
     state.speed = -1;
     state.wrapMode = cc.WrapMode.Normal;
     state.repeatCount = Infinity;
+    manager.update(0);
     calls = [];
     manager.update(0.5);
     deepEqual(calls, [
@@ -684,6 +690,7 @@ test('EventAnimCurve', function () {
     state.speed = -1;
     state.wrapMode = cc.WrapMode.PingPongReverse;
     state.repeatCount = Infinity;
+    manager.update(0);
     manager.update(1.7);
     calls = [];
     manager.update(0.5);
@@ -773,6 +780,7 @@ test('EventAnimCurve', function () {
     animation.play('test');
     state.wrapMode = cc.WrapMode.PingPong;
     state.setTime(0);
+    manager.update(0);
     calls = [];
     manager.update(1);
     manager.update(2);
@@ -794,6 +802,7 @@ test('EventAnimCurve', function () {
     state.wrapMode = cc.WrapMode.LoopReverse;
     state.setTime(0);
     calls = [];
+    manager.update(0);
     manager.update(2);
     deepEqual(calls, [
         {

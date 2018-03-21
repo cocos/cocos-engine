@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,13 +26,14 @@
 
 var PrefabHelper = require('./prefab-helper');
 var Flags = require('../platform/CCObject').Flags;
-var Misc = require('./misc');
+var misc = require('./misc');
+var js = require('../platform/js');
 var IdGenerater = require('../platform/id-generater');
 var eventManager = require('../event-manager');
 
-var js = cc.js;
 var Destroying = Flags.Destroying;
 var DontDestroy = Flags.DontDestroy;
+var Deactivating = Flags.Deactivating; 
 
 var CHILD_ADDED = 'child-added';
 var CHILD_REMOVED = 'child-removed';
@@ -339,13 +341,18 @@ var BaseNode = cc.Class({
                 return;
             }
         }
-        //
         var oldParent = this._parent;
+        if (CC_DEBUG && oldParent && (oldParent._objFlags & Deactivating)) {
+            cc.errorID(3821);
+        }
         this._parent = value || null;
 
         this._onSetParent(value);
 
         if (value) {
+            if (CC_DEBUG && (value._objFlags & Deactivating)) {
+                cc.errorID(3821);
+            }
             if (!CC_JSB) {
                 eventManager._setDirtyForNode(this);
             }
@@ -495,6 +502,10 @@ var BaseNode = cc.Class({
      */
     setSiblingIndex (index) {
         if (!this._parent) {
+            return;
+        }
+        if (this._parent._objFlags & Deactivating) {
+            cc.errorID(3821);
             return;
         }
         var siblings = this._parent._children;
@@ -888,7 +899,7 @@ var BaseNode = cc.Class({
             cc.errorID(3809);
             return null;
         }
-        if (!cc.isChildClassOf(constructor, cc.Component)) {
+        if (!js.isChildClassOf(constructor, cc.Component)) {
             cc.errorID(3810);
             return null;
         }
@@ -1288,7 +1299,7 @@ if(CC_EDITOR) {
 
 // Define public getter and setter methods to ensure api compatibility.
 var SameNameGetSets = ['name', 'children', 'childrenCount',];
-Misc.propertyDefine(BaseNode, SameNameGetSets, {});
+misc.propertyDefine(BaseNode, SameNameGetSets, {});
 
 if (CC_DEV) {
     // promote debug info

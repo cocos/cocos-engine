@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -132,14 +133,14 @@ let TiledLayer = cc.Class({
     },
 
     _positionForIsoAt (x, y) {
-        return cc.p(
+        return cc.v2(
             this._mapTileSize.width / 2 * ( this._layerSize.width + x - y - 1),
             this._mapTileSize.height / 2 * (( this._layerSize.height * 2 - x - y) - 2)
         );
     },
 
     _positionForOrthoAt (x, y) {
-        return cc.p(
+        return cc.v2(
             x * this._mapTileSize.width,
             (this._layerSize.height - y - 1) * this._mapTileSize.height
         );
@@ -157,7 +158,7 @@ let TiledLayer = cc.Class({
                 {
                     diffX = this._mapTileSize.width/2 * odd_even;
                 }
-                xy = cc.p(x * this._mapTileSize.width+diffX+offset.x,
+                xy = cc.v2(x * this._mapTileSize.width+diffX+offset.x,
                     (this._layerSize.height - y - 1) * (this._mapTileSize.height-(this._mapTileSize.height-this._hexSideLength)/2)-offset.y);
                 break;
             case cc.TiledMap.StaggerAxis.STAGGERAXIS_X:
@@ -167,11 +168,11 @@ let TiledLayer = cc.Class({
                     diffY = this._mapTileSize.height/2 * -odd_even;
                 }
 
-                xy = cc.p(x * (this._mapTileSize.width-(this._mapTileSize.width-this._hexSideLength)/2)+offset.x,
+                xy = cc.v2(x * (this._mapTileSize.width-(this._mapTileSize.width-this._hexSideLength)/2)+offset.x,
                     (this._layerSize.height - y - 1) * this._mapTileSize.height + diffY-offset.y);
                 break;
             default: 
-                xy = cc.p(0, 0);
+                xy = cc.v2(0, 0);
                 break;
         }
         return xy;
@@ -201,7 +202,7 @@ let TiledLayer = cc.Class({
         let pos;
         if (flags !== undefined || !(posOrX instanceof cc.Vec2)) {
             // four parameters or posOrX is not a Vec2 object
-            pos = cc.p(posOrX, flagsOrY);
+            pos = cc.v2(posOrX, flagsOrY);
         } else {
             pos = posOrX;
             flags = flagsOrY;
@@ -284,7 +285,7 @@ let TiledLayer = cc.Class({
         if(!pos)
             throw new Error("_ccsg.TMXLayer.getTileFlagsAt(): pos should be non-null");
         if(y !== undefined)
-            pos = cc.p(pos, y);
+            pos = cc.v2(pos, y);
         if(pos.x >= this._layerSize.width || pos.y >= this._layerSize.height || pos.x < 0 || pos.y < 0)
             throw new Error("_ccsg.TMXLayer.getTileFlagsAt(): invalid position");
         if(!this._tiles){
@@ -525,26 +526,26 @@ let TiledLayer = cc.Class({
     },
 
     _calculateLayerOffset (pos) {
-        let ret = cc.p(0,0);
+        let ret = cc.v2(0,0);
         switch (this.layerOrientation) {
             case cc.TiledMap.Orientation.ORTHO:
-                ret = cc.p(pos.x * this._mapTileSize.width, -pos.y * this._mapTileSize.height);
+                ret = cc.v2(pos.x * this._mapTileSize.width, -pos.y * this._mapTileSize.height);
                 break;
             case cc.TiledMap.Orientation.ISO:
-                ret = cc.p((this._mapTileSize.width / 2) * (pos.x - pos.y),
+                ret = cc.v2((this._mapTileSize.width / 2) * (pos.x - pos.y),
                     (this._mapTileSize.height / 2 ) * (-pos.x - pos.y));
                 break;
             case cc.TiledMap.Orientation.HEX:
                 if(this._staggerAxis === cc.TiledMap.StaggerAxis.STAGGERAXIS_Y)
                 {
                     let diffX = (this._staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_EVEN) ? this._mapTileSize.width/2 : 0;
-                    ret = cc.p(pos.x * this._mapTileSize.width + diffX,
+                    ret = cc.v2(pos.x * this._mapTileSize.width + diffX,
                                -pos.y * (this._mapTileSize.height - (this._mapTileSize.width - this._hexSideLength) / 2));
                 }
                 else if(this._staggerAxis === cc.TiledMap.StaggerAxis.STAGGERAXIS_X)
                 {
                     let diffY = (this._staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD) ? this._mapTileSize.height/2 : 0;
-                    ret = cc.p(pos.x * (this._mapTileSize.width - (this._mapTileSize.width - this._hexSideLength) / 2),
+                    ret = cc.v2(pos.x * (this._mapTileSize.width - (this._mapTileSize.width - this._hexSideLength) / 2),
                                -pos.y * this._mapTileSize.height + diffY);
                 }
                 break;

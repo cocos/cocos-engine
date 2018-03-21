@@ -12,7 +12,7 @@ The framework is naturally integrated with Cocos Creator, so it's not designed t
 
 ### Prerequisite
 
-- Install [node.js v4.2.1+](https://nodejs.org/)
+- Install [node.js v8.0.0+](https://nodejs.org/)
 - Install [gulp-cli v3.9.0+](https://github.com/gulpjs/gulp/blob/master/docs/getting-started.md)
 
 ### Install
@@ -38,7 +38,7 @@ gulp build
 #### Prerequisite
 
  - Install [express](http://expressjs.com/): `npm install express`
- - Install gulp-qunit: `npm install gulp-qunit@1.3.0`
+ - Install gulp-qunit: `npm install gulp-qunit`
 
 #### Unit Test
 
@@ -84,7 +84,7 @@ npm test
 
 * [Official site](http://cocos2d-x.org/creator)
 * [Download](http://cocos2d-x.org/download)
-* [Documentation](http://cocos2d-x.org/docs/editors_and_tools/creator/index.html)
-* [API References](http://cocos2d-x.org/docs/api-ref/creator/v1.0/)
+* [Documentation](http://www.cocos2d-x.org/docs/creator/manual/en/)
+* [API References](http://www.cocos2d-x.org/docs/creator/api/en/)
 * [Forum](http://discuss.cocos2d-x.org/c/editors-and-tools/cocos-creator)
-* [Road Map](http://discuss.cocos2d-x.org/t/cocos-creator-roadmap)
+* [Road Map](https://trello.com/b/JWVRRxMG/cocos-creator-roadmap)

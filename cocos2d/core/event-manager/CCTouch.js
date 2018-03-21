@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -45,9 +46,7 @@ cc.Touch.prototype = {
      * @return {Vec2}
      */
     getLocation:function () {
-        //TODO
-        //return cc.director.convertToGL(this._point);
-        return {x: this._point.x, y: this._point.y};
+        return cc.v2(this._point.x, this._point.y);
     },
 
 	/**
@@ -77,9 +76,7 @@ cc.Touch.prototype = {
      * @return {Vec2}
      */
     getPreviousLocation:function () {
-        //TODO
-        //return cc.director.convertToGL(this._prevPoint);
-        return {x: this._prevPoint.x, y: this._prevPoint.y};
+        return cc.v2(this._prevPoint.x, this._prevPoint.y);
     },
 
     /**
@@ -89,9 +86,7 @@ cc.Touch.prototype = {
      * @returns {Vec2}
      */
     getStartLocation: function() {
-        //TODO
-        //return cc.director.convertToGL(this._startPoint);
-        return {x: this._startPoint.x, y: this._startPoint.y};
+        return cc.v2(this._startPoint.x, this._startPoint.y);
     },
 
     /**
@@ -101,7 +96,7 @@ cc.Touch.prototype = {
      * @return {Vec2}
      */
     getDelta:function () {
-        return cc.pSub(this._point, this._prevPoint);
+        return this._point.sub(this._prevPoint);
     },
 
     /**
@@ -111,7 +106,7 @@ cc.Touch.prototype = {
      * @return {Vec2}
      */
     getLocationInView: function() {
-        return {x: this._point.x, y: cc.view._designResolutionSize.height - this._point.y};
+        return cc.v2(this._point.x, cc.view._designResolutionSize.height - this._point.y);
     },
 
     /**
@@ -121,7 +116,7 @@ cc.Touch.prototype = {
      * @return {Vec2}
      */
     getPreviousLocationInView: function(){
-        return {x: this._prevPoint.x, y: cc.view._designResolutionSize.height - this._prevPoint.y};
+        return cc.v2(this._prevPoint.x, cc.view._designResolutionSize.height - this._prevPoint.y);
     },
 
     /**
@@ -131,7 +126,7 @@ cc.Touch.prototype = {
      * @return {Vec2}
      */
     getStartLocationInView: function(){
-        return {x: this._startPoint.x, y: cc.view._designResolutionSize.height - this._startPoint.y};
+        return cc.v2(this._startPoint.x, cc.view._designResolutionSize.height - this._startPoint.y);
     },
 
     /**
@@ -154,10 +149,10 @@ cc.Touch.prototype = {
      */
     setTouchInfo:function (id, x, y) {
         this._prevPoint = this._point;
-        this._point = cc.p(x || 0, y || 0);
+        this._point = cc.v2(x || 0, y || 0);
         this._id = id;
         if(!this._startPointCaptured){
-            this._startPoint = cc.p(this._point);
+            this._startPoint = cc.v2(this._point);
             cc.view._convertPointWithScale(this._startPoint);
             this._startPointCaptured = true;
         }
@@ -175,8 +170,8 @@ cc.Touch.prototype = {
 
     _setPrevPoint:function (x, y) {
         if(y === undefined)
-            this._prevPoint = cc.p(x.x, x.y);
+            this._prevPoint = cc.v2(x.x, x.y);
         else
-            this._prevPoint = cc.p(x || 0, y || 0);
+            this._prevPoint = cc.v2(x || 0, y || 0);
     }
 };

@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -414,7 +415,7 @@ var Layout = cc.Class({
     onEnable: function() {
         this._addEventListeners();
 
-        if(cc.sizeEqualToSize(this.node.getContentSize(), cc.size(0, 0))) {
+        if(this.node.getContentSize().equals(cc.size(0, 0))) {
             this.node.setContentSize(this._layoutSize);
         }
 
@@ -434,7 +435,7 @@ var Layout = cc.Class({
     },
 
     _addEventListeners: function () {
-        cc.director.on(cc.Director.EVENT_BEFORE_VISIT, this.updateLayout, this);
+        cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.updateLayout, this);
         this.node.on('size-changed', this._resized, this);
         this.node.on('anchor-changed', this._doLayoutDirty, this);
         this.node.on('child-added', this._childAdded, this);
@@ -444,7 +445,7 @@ var Layout = cc.Class({
     },
 
     _removeEventListeners: function () {
-        cc.director.off(cc.Director.EVENT_BEFORE_VISIT, this.updateLayout, this);
+        cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.updateLayout, this);
         this.node.off('size-changed', this._resized, this);
         this.node.off('anchor-changed', this._doLayoutDirty, this);
         this.node.off('child-added', this._childAdded, this);
@@ -582,7 +583,7 @@ var Layout = cc.Class({
             var finalPositionY = fnPositionY(child, rowMaxHeight, row);
             if(baseWidth >= (child.width + this.paddingLeft + this.paddingRight)) {
                 if (applyChildren) {
-                    child.setPosition(cc.p(nextX, finalPositionY));
+                    child.setPosition(cc.v2(nextX, finalPositionY));
                 }
             }
 
@@ -715,7 +716,7 @@ var Layout = cc.Class({
             var finalPositionX = fnPositionX(child, columnMaxWidth, column);
             if (baseHeight >= (child.height + (this.paddingTop + this.paddingBottom))) {
                 if (applyChildren) {
-                    child.setPosition(cc.p(finalPositionX, nextY));
+                    child.setPosition(cc.v2(finalPositionX, nextY));
                 }
             }
 
@@ -760,17 +761,17 @@ var Layout = cc.Class({
             if(!allChildrenBoundingBox){
                 allChildrenBoundingBox = child.getBoundingBoxToWorld();
             } else {
-                allChildrenBoundingBox = cc.rectUnion(allChildrenBoundingBox, child.getBoundingBoxToWorld());
+                allChildrenBoundingBox.union(allChildrenBoundingBox, child.getBoundingBoxToWorld());
             }
         });
 
         if (allChildrenBoundingBox) {
-            var leftBottomInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x, allChildrenBoundingBox.y));
-            leftBottomInParentSpace = cc.pAdd(leftBottomInParentSpace, cc.p(-this.paddingLeft, -this.paddingBottom));
+            var leftBottomInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.v2(allChildrenBoundingBox.x, allChildrenBoundingBox.y));
+            leftBottomInParentSpace = cc.v2(leftBottomInParentSpace.x - this.paddingLeft, leftBottomInParentSpace.y - this.paddingBottom);
 
-            var rightTopInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x + allChildrenBoundingBox.width,
+            var rightTopInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.v2(allChildrenBoundingBox.x + allChildrenBoundingBox.width,
                                                                                    allChildrenBoundingBox.y + allChildrenBoundingBox.height));
-            rightTopInParentSpace = cc.pAdd(rightTopInParentSpace, cc.p(this.paddingRight, this.paddingTop));
+            rightTopInParentSpace = cc.v2(rightTopInParentSpace.x + this.paddingRight, rightTopInParentSpace.y + this.paddingTop);
 
             var newSize = cc.size(parseFloat((rightTopInParentSpace.x - leftBottomInParentSpace.x).toFixed(2)),
                                   parseFloat((rightTopInParentSpace.y - leftBottomInParentSpace.y).toFixed(2)));
@@ -778,7 +779,7 @@ var Layout = cc.Class({
             var layoutPosition = this.node.getPosition();
             var newAnchorX = (layoutPosition.x - leftBottomInParentSpace.x) / newSize.width;
             var newAnchorY = (layoutPosition.y - leftBottomInParentSpace.y) / newSize.height;
-            var newAnchor = cc.p(parseFloat(newAnchorX.toFixed(2)), parseFloat(newAnchorY.toFixed(2)));
+            var newAnchor = cc.v2(parseFloat(newAnchorX.toFixed(2)), parseFloat(newAnchorY.toFixed(2)));
 
             this.node.setAnchorPoint(newAnchor);
             this.node.setContentSize(newSize);

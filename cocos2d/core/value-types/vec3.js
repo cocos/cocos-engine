@@ -1,18 +1,19 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
- Chukong Aipu reserves all rights not expressly granted to you.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,15 +24,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var ValueType = require('./CCValueType');
+var ValueType = require('./value-type');
 var js = require('../platform/js');
 var CCClass = require('../platform/CCClass');
 
 /**
- * !#en Representation of 2D vectors and points.
- * !#zh 表示 2D 向量和坐标
+ * !#en Representation of 3D vectors and points.
+ * !#zh 表示 3D 向量和坐标
  *
- * @class Vec2
+ * @class Vec3
  * @extends ValueType
  */
 
@@ -65,6 +66,9 @@ CCClass.fastDefine('cc.Vec3', Vec3, { x: 0, y: 0, z: 0 });
 /**
  * @property {Number} y
  */
+/**
+ * @property {Number} z
+ */
 
 var proto = Vec3.prototype;
 
@@ -80,8 +84,8 @@ proto.clone = function () {
 };
 
 /**
- * !#en TODO
- * !#zh 设置向量值。
+ * !#en Set the current vector value with the given vector.
+ * !#zh 用另一个向量设置当前的向量对象值。
  * @method set
  * @param {Vec3} newValue - !#en new value to set. !#zh 要设置的新值
  * @return {Vec3} returns this
@@ -95,10 +99,10 @@ proto.set = function (newValue) {
 };
 
 /**
- * !#en TODO
+ * !#en Check whether the vector equals another one
  * !#zh 当前的向量是否与指定的向量相等。
  * @method equals
- * @param {Vec2} other
+ * @param {Vec3} other
  * @return {Boolean}
  */
 proto.equals = function (other) {

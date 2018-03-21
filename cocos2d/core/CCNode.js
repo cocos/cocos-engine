@@ -1,5 +1,6 @@
 /****************************************************************************
- Copyright (c) 2013-2017 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -28,11 +29,11 @@ const BaseNode = require('./utils/base-node');
 const PrefabHelper = require('./utils/prefab-helper');
 const mathPools = require('./utils/math-pools');
 const renderEngine = require('./renderer/render-engine');
-const affineTrans = require('./value-types/CCAffineTransform');
+const AffineTrans = require('./utils/affine-transform');
 const math = renderEngine.math;
 const eventManager = require('./event-manager');
 const macro = require('./platform/CCMacro');
-const Misc = require('./utils/misc');
+const misc = require('./utils/misc');
 const Event = require('./event/event');
 
 const Flags = cc.Object.Flags;
@@ -214,6 +215,23 @@ var _touchEndHandler = function (touch, event) {
         Event.EventTouch.pool.put(event);
     }
 };
+var _touchCancelHandler = function (touch, event) {
+    if (CC_JSB) {
+        event = Event.EventTouch.pool.get(event);
+    }
+    var pos = touch.getLocation();
+    var node = this.owner;
+
+    event.type = EventType.TOUCH_CANCEL;
+    event.touch = touch;
+    event.bubbles = true;
+    node.dispatchEvent(event);
+    if (CC_JSB) {
+        event.touch = null;
+        event._touches = null;
+        Event.EventTouch.pool.put(event);
+    }
+};
 
 var _mouseDownHandler = function (event) {
     var pos = event.getLocation();
@@ -248,7 +266,7 @@ var _mouseMoveHandler = function (event) {
     if (hit) {
         if (!this._previousIn) {
             // Fix issue when hover node switched, previous hovered node won't get MOUSE_LEAVE notification
-            if (_currentHovered) {
+            if (_currentHovered && _currentHovered._mouseListener) {
                 event.type = EventType.MOUSE_LEAVE;
                 _currentHovered.dispatchEvent(event);
                 _currentHovered._mouseListener._previousIn = false;
@@ -397,6 +415,7 @@ var Node = cc.Class({
         _scale: cc.Vec3,
         _rotationX: 0.0,
         _rotationY: 0.0,
+        _quat: cc.Quat,
         _skewX: 0.0,
         _skewY: 0.0,
         _localZOrder: 0,
@@ -565,15 +584,16 @@ var Node = cc.Class({
          */
         rotation: {
             get () {
-                if (this._rotationX !== this._rotationY) 
+                if (this._rotationX !== this._rotationY) {
                     cc.logID(1602);
+                }
                 return this._rotationX;
             },
             set (value) {
                 if (this._rotationX !== value || this._rotationY !== value) {
                     this._rotationX = this._rotationY = value;
                     // Update quaternion from rotation
-                    math.quat.fromEuler(this._quat, 0, 0, -this._rotationX);
+                    math.quat.fromEuler(this._quat, 0, 0, -value);
                     this._localMatDirty = true;
 
                     var cache = this._hasListenerCache;
@@ -602,10 +622,10 @@ var Node = cc.Class({
                     this._rotationX = value;
                     // Update quaternion from rotation
                     if (this._rotationX === this._rotationY) {
-                        math.quat.fromEuler(this._quat, 0, 0, -this._rotationX);
+                        math.quat.fromEuler(this._quat, 0, 0, -value);
                     }
                     else {
-                        math.quat.fromEuler(this._quat, this._rotationX, this._rotationY, 0);
+                        math.quat.fromEuler(this._quat, value, this._rotationY, 0);
                     }
                     this._localMatDirty = true;
 
@@ -635,10 +655,10 @@ var Node = cc.Class({
                     this._rotationY = value;
                     // Update quaternion from rotation
                     if (this._rotationX === this._rotationY) {
-                        math.quat.fromEuler(this._quat, 0, 0, -this._rotationX);
+                        math.quat.fromEuler(this._quat, 0, 0, -value);
                     }
                     else {
-                        math.quat.fromEuler(this._quat, this._rotationX, this._rotationY, 0);
+                        math.quat.fromEuler(this._quat, this._rotationX, value, 0);
                     }
                     this._localMatDirty = true;
 
@@ -956,8 +976,6 @@ var Node = cc.Class({
         this._scale.x = 1;
         this._scale.y = 1;
         this._scale.z = 1;
-        // Quaternion for rotation
-        this._quat = mathPools.quat.get();
 
         this._matrix = mathPools.mat4.get();
         this._worldMatrix = mathPools.mat4.get();
@@ -1014,7 +1032,6 @@ var Node = cc.Class({
         }
 
         // Recycle math objects
-        mathPools.quat.put(this._quat);
         mathPools.mat4.put(this._matrix);
         mathPools.mat4.put(this._worldMatrix);
 
@@ -1078,17 +1095,32 @@ var Node = cc.Class({
             this._scaleY = undefined;
         }
         // TODO: remove _rotationX & _rotationY in future version, 3.0 ?
-        // Update quaternion from rotation
-        if (this._rotationX === this._rotationY) {
-            math.quat.fromEuler(this._quat, 0, 0, -this._rotationX);
+        // Update quaternion from rotation, when upgrade from 1.x to 2.0
+        // If rotation x & y is 0 in old version, then update rotation from default quaternion is ok too
+        if (this._rotationX !== 0 || this._rotationY !== 0) {
+            if (this._rotationX === this._rotationY) {
+                math.quat.fromEuler(this._quat, 0, 0, -this._rotationX);
+            }
+            else {
+                math.quat.fromEuler(this._quat, this._rotationX, this._rotationY, 0);
+            }
         }
+        // Update rotation from quaternion
         else {
-            math.quat.fromEuler(this._quat, this._rotationX, this._rotationY, 0);
+            let rotx = this._quat.getRoll();
+            let roty = this._quat.getPitch();
+            if (rotx === 0 && roty === 0) {
+                this._rotationX = this._rotationY = -this._quat.getYaw();
+            }
+            else {
+                this._rotationX = rotx;
+                this._rotationY = roty;
+            }
         }
 
         this._updateOrderOfArrival();
 
-        var prefabInfo = this._prefab;
+        let prefabInfo = this._prefab;
         if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
             if (CC_DEV) {
                 // TODO - remove all usage of _synced
@@ -1105,8 +1137,8 @@ var Node = cc.Class({
             eventManager.pauseTarget(this);
         }
 
-        var children = this._children;
-        for (var i = 0, len = children.length; i < len; i++) {
+        let children = this._children;
+        for (let i = 0, len = children.length; i < len; i++) {
             children[i]._onBatchCreated();
         }
     },
@@ -1174,7 +1206,8 @@ var Node = cc.Class({
                     mask: _searchMaskInParent(this),
                     onTouchBegan: _touchStartHandler,
                     onTouchMoved: _touchMoveHandler,
-                    onTouchEnded: _touchEndHandler
+                    onTouchEnded: _touchEndHandler,
+                    onTouchCancelled: _touchCancelHandler
                 });
                 eventManager.addListener(this._touchListener, this);
                 newAdded = true;
@@ -1710,7 +1743,7 @@ var Node = cc.Class({
      * cc.log("Node AnchorPoint: " + node.getAnchorPoint());
      */
     getAnchorPoint () {
-        return cc.p(this._anchorPoint);
+        return cc.v2(this._anchorPoint);
     },
 
     /**
@@ -1977,7 +2010,7 @@ var Node = cc.Class({
      */
     getLocalMatrix (out) {
         this._updateLocalMatrix();
-        math.mat4.copy(out, this._matrix);
+        return math.mat4.copy(out, this._matrix);
     },
     
     /**
@@ -1993,7 +2026,7 @@ var Node = cc.Class({
      */
     getWorldMatrix (out) {
         this._updateWorldMatrix();
-        math.mat4.copy(out, this._worldMatrix);
+        return math.mat4.copy(out, this._worldMatrix);
     },
 
     /**
@@ -2083,12 +2116,12 @@ var Node = cc.Class({
      * @param {AffineTransform} out The affine transform object to be filled with data
      * @return {AffineTransform} Same as the out affine transform object
      * @example
-     * let affineTransform = cc.affineTransformMake();
+     * let affineTransform = cc.AffineTransform.create();
      * node.getNodeToParentTransform(affineTransform);
      */
     getNodeToParentTransform (out) {
         if (!out) {
-            out = affineTrans.makeIdentity();
+            out = AffineTrans.identity();
         }
         this._updateLocalMatrix();
                
@@ -2098,7 +2131,7 @@ var Node = cc.Class({
 
         math.mat4.copy(_mat4_temp, this._matrix);
         math.mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
-        return affineTrans.fromMatrix(_mat4_temp, out);
+        return AffineTrans.fromMat4(out, _mat4_temp);
     },
 
     /**
@@ -2115,15 +2148,15 @@ var Node = cc.Class({
      * @param {AffineTransform} out The affine transform object to be filled with data
      * @return {AffineTransform} Same as the out affine transform object
      * @example
-     * let affineTransform = cc.affineTransformMake();
+     * let affineTransform = cc.AffineTransform.create();
      * node.getNodeToParentTransformAR(affineTransform);
      */
     getNodeToParentTransformAR (out) {
         if (!out) {
-            out = affineTrans.makeIdentity();
+            out = AffineTrans.identity();
         }
         this._updateLocalMatrix();
-        return affineTrans.fromMatrix(this._matrix, out);
+        return AffineTrans.fromMat4(out, this._matrix);
     },
 
     /**
@@ -2134,12 +2167,12 @@ var Node = cc.Class({
      * @param {AffineTransform} out The affine transform object to be filled with data
      * @return {AffineTransform} Same as the out affine transform object
      * @example
-     * let affineTransform = cc.affineTransformMake();
+     * let affineTransform = cc.AffineTransform.create();
      * node.getNodeToWorldTransform(affineTransform);
      */
     getNodeToWorldTransform (out) {
         if (!out) {
-            out = affineTrans.makeIdentity();
+            out = AffineTrans.identity();
         }
         this._updateWorldMatrix();
         
@@ -2150,7 +2183,7 @@ var Node = cc.Class({
         math.mat4.copy(_mat4_temp, this._worldMatrix);
         math.mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
 
-        return affineTrans.fromMatrix(_mat4_temp, out);
+        return AffineTrans.fromMat4(out, _mat4_temp);
     },
 
     /**
@@ -2165,15 +2198,15 @@ var Node = cc.Class({
      * @param {AffineTransform} out The affine transform object to be filled with data
      * @return {AffineTransform} Same as the out affine transform object
      * @example
-     * let affineTransform = cc.affineTransformMake();
+     * let affineTransform = cc.AffineTransform.create();
      * node.getNodeToWorldTransformAR(affineTransform);
      */
     getNodeToWorldTransformAR (out) {
         if (!out) {
-            out = affineTrans.makeIdentity();
+            out = AffineTrans.identity();
         }
         this._updateWorldMatrix();
-        return affineTrans.fromMatrix(this._matrix, out);
+        return AffineTrans.fromMat4(out, this._matrix);
     },
 
     /**
@@ -2188,16 +2221,16 @@ var Node = cc.Class({
      * @param {AffineTransform} out The affine transform object to be filled with data
      * @return {AffineTransform} Same as the out affine transform object
      * @example
-     * let affineTransform = cc.affineTransformMake();
+     * let affineTransform = cc.AffineTransform.create();
      * node.getParentToNodeTransform(affineTransform);
      */
     getParentToNodeTransform (out) {
         if (!out) {
-            out = affineTrans.makeIdentity();
+            out = AffineTrans.identity();
         }
         this._updateLocalMatrix();
         math.mat4.invert(_mat4_temp, this._matrix);
-        return affineTrans.fromMatrix(_mat4_temp, out);
+        return AffineTrans.fromMat4(out, _mat4_temp);
     },
 
     /**
@@ -2208,16 +2241,16 @@ var Node = cc.Class({
      * @param {AffineTransform} out The affine transform object to be filled with data
      * @return {AffineTransform} Same as the out affine transform object
      * @example
-     * let affineTransform = cc.affineTransformMake();
+     * let affineTransform = cc.AffineTransform.create();
      * node.getWorldToNodeTransform(affineTransform);
      */
     getWorldToNodeTransform (out) {
         if (!out) {
-            out = affineTrans.makeIdentity();
+            out = AffineTrans.identity();
         }
         this._updateWorldMatrix();
         math.mat4.invert(_mat4_temp, this._worldMatrix);
-        return affineTrans.fromMatrix(_mat4_temp, out);
+        return AffineTrans.fromMat4(out, _mat4_temp);
     },
 
     /**
@@ -2267,7 +2300,7 @@ var Node = cc.Class({
             -this._anchorPoint.y * height, 
             width, 
             height);
-        return affineTrans.rectApplyMat4(rect, this._matrix, rect);
+        return rect.transformMat4(rect, this._matrix);
     },
 
     /**
@@ -2303,7 +2336,7 @@ var Node = cc.Class({
             height);
 
         var parentMat = math.mat4.mul(this._worldMatrix, parentMat, this._matrix);
-        affineTrans.rectApplyMat4(rect, parentMat, rect);
+        rect.transformMat4(rect, parentMat);
 
         //query child's BoundingBox
         if (!this._children)
@@ -2315,7 +2348,7 @@ var Node = cc.Class({
             if (child && child.active) {
                 var childRect = child._getBoundingBoxTo(parentMat);
                 if (childRect)
-                    rect = cc.rectUnion(rect, childRect);
+                    rect.union(rect, childRect);
             }
         }
         return rect;
@@ -2486,7 +2519,7 @@ var Node = cc.Class({
  *
  * @method getDisplayedOpacity
  * @returns {number} displayed opacity
- * @deprecated please use opacity property, cascade opacity is removed
+ * @deprecated since v2.0, please use opacity property, cascade opacity is removed
  */
 
 /**
@@ -2500,7 +2533,7 @@ var Node = cc.Class({
  *
  * @method getDisplayedColor
  * @returns {Color}
- * @deprecated please use color property, cascade color is removed
+ * @deprecated since v2.0, please use color property, cascade color is removed
  */
 
 /**
@@ -2555,8 +2588,7 @@ var Node = cc.Class({
  */
 
 var SameNameGetSets = ['parent', 'position', 'scale', 'rotation'];
-
-Misc.propertyDefine(Node, SameNameGetSets);
+misc.propertyDefine(Node, SameNameGetSets);
 
 Node.EventType = EventType;
 

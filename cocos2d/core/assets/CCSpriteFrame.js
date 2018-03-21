@@ -1,7 +1,8 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2015 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -25,6 +26,7 @@
  ****************************************************************************/
 
 var EventTarget = require("../event/event-target");
+var textureUtil = require('../utils/texture-util');
 
 /**
  * !#en
@@ -395,7 +397,7 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
     _loadTexture: function () {
         if (this._textureFilename) {
-            var texture = cc.textureUtil.loadImage(this._textureFilename);
+            var texture = textureUtil.loadImage(this._textureFilename);
             this._refreshTexture(texture);
         }
     },
@@ -423,7 +425,7 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             if (!this._texture.loaded) {
                 // load exists texture
                 this._refreshTexture(this._texture);
-                cc.textureUtil.postLoadTexture(this._texture);
+                textureUtil.postLoadTexture(this._texture);
             }
         }
         else if (this._textureFilename) {

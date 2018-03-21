@@ -1,5 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -30,7 +31,7 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
 
     statics: {
         _factory: null,
-        getFactory () {
+        getInstance () {
             if (!CCFactory._factory) {
                 CCFactory._factory = new CCFactory();
             }
