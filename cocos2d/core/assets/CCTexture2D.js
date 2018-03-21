@@ -239,9 +239,7 @@ var Texture2D = cc.Class({
         WrapMode: WrapMode,
         Filter: Filter,
         // predefined most common extnames
-        extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp'],
-
-        _getSharedOptions: _getSharedOptions
+        extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp']
     },
 
     ctor () {

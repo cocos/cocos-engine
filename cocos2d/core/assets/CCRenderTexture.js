@@ -28,7 +28,7 @@ let RenderTexture = cc.Class({
         this.width = Math.floor(width || cc.visibleRect.width);
         this.height = Math.floor(height || cc.visibleRect.height);
 
-        let opts = Texture2D._getSharedOptions();
+        let opts = {};
         opts.format = this._format;
         opts.width = width;
         opts.height = height;
