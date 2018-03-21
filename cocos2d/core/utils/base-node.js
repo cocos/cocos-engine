@@ -51,20 +51,40 @@ function getConstructor(typeOrClassName) {
 }
 
 function findComponent(node, constructor) {
-    for (var i = 0; i < node._components.length; ++i) {
-        var comp = node._components[i];
-        if (comp instanceof constructor) {
-            return comp;
+    if (constructor._sealed) {
+        for (let i = 0; i < node._components.length; ++i) {
+            let comp = node._components[i];
+            if (comp.constructor === constructor) {
+                return comp;
+            }
+        }
+    }
+    else {
+        for (let i = 0; i < node._components.length; ++i) {
+            let comp = node._components[i];
+            if (comp instanceof constructor) {
+                return comp;
+            }
         }
     }
     return null;
 }
 
 function findComponents(node, constructor, components) {
-    for (var i = 0; i < node._components.length; ++i) {
-        var comp = node._components[i];
-        if (comp instanceof constructor) {
-            components.push(comp);
+    if (constructor._sealed) {
+        for (let i = 0; i < node._components.length; ++i) {
+            let comp = node._components[i];
+            if (comp.constructor === constructor) {
+                components.push(comp);
+            }
+        }
+    }
+    else {
+        for (let i = 0; i < node._components.length; ++i) {
+            let comp = node._components[i];
+            if (comp instanceof constructor) {
+                components.push(comp);
+            }
         }
     }
 }
