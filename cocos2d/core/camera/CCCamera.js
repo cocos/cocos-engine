@@ -442,7 +442,6 @@ let Camera = cc.Class({
         let fov = Math.atan(Math.tan(this._fov/2) / this.zoomRatio)*2;
         camera.setFov(fov);
 
-        let width = cc.visibleRect.width;
         let height = cc.visibleRect.height;
 
         let targetTexture = this._targetTexture;

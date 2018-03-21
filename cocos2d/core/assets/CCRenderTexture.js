@@ -46,6 +46,10 @@ let RenderTexture = cc.Class({
         opts = {
             colors: [ this._texture ]
         };
+
+        if (this._framebuffer) {
+            this._framebuffer.destroy();
+        }
         this._framebuffer = new renderEngine.gfx.FrameBuffer(renderer.device, width, height, opts);
 
         this.loaded = true;
@@ -54,9 +58,14 @@ let RenderTexture = cc.Class({
 
     /**
      * !#en
-     * Get pixels from render texture
+     * Get pixels from render texture, the pixels data stores in a RGBA Uint8Array.
+     * It will return a new (width * height * 4) length Uint8Array by default。
+     * You can specify a data to store the pixels to reuse the data, 
+     * you and can specify other params to specify the texture region to read.
      * !#zh
-     * 从 render texture 读取像素数据
+     * 从 render texture 读取像素数据，数据类型为 RGBA 格式的 Uint8Array 数组。
+     * 默认每次调用此函数会生成一个大小为 （长 x 高 x 4） 的 Uint8Array。
+     * 你可以通过传入 data 来接收像素数据，也可以通过传参来指定需要读取的区域的像素。
      * @method readPixels
      * @param {Uint8Array} [data]
      * @param {Number} [x] 
@@ -82,6 +91,13 @@ let RenderTexture = cc.Class({
         gl.bindFramebuffer(gl.FRAMEBUFFER, oldFBO);
 
         return data;
+    },
+
+    destroy () {
+        this._super();
+        if (this._framebuffer) {
+            this._framebuffer.destroy();
+        }
     }
 });
 
