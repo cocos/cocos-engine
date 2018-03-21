@@ -235,9 +235,9 @@ let Graphics = cc.Class({
     _activateMaterial () {
         if (this._material) return;
         
-        let key = 'graphics-material';
-        this._material = new SpriteMaterial();
-        this._material.useTexture = false;
+        let material = new SpriteMaterial();
+        material.useTexture = false;
+        this.setMaterial(material);
     },
 
     /**

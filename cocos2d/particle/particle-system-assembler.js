@@ -95,7 +95,6 @@ var particleSystemAssembler = js.addon({
         renderData.vertexCount = vfx.buffers.indexes.length;
         renderData.indiceCount = renderData.vertexCount / 2 * 3;
         renderData.material = comp.getMaterial();
-        renderData.effectHash = comp.getEffectHash();
         this.datas.length = 0;
         this.datas.push(renderData);
         return this.datas;

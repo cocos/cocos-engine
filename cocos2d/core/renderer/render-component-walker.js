@@ -130,7 +130,6 @@ RenderComponentWalker.prototype = {
         _batchData.node = null;
         _batchData.vfmt = null;
         _batchData.material = null;
-        _batchData.effectHash = "";
         _batchData.data = null;
         _batchData.vertexOffset = 0;
         _batchData.byteOffset = 0;
@@ -253,13 +252,12 @@ RenderComponentWalker.prototype = {
     batchQueue () {
         let vertexId = 0,
             comp = this._queue[0],
-            material = null, 
-            effectHash = "",
-            assembler = null, 
+            material = null,
+            assembler = null,
             datas = null,
-            data = null
+            data = null,
             cullingMask = 1,
-            needNewBuf = false,
+            broken = false,
             iaData = false;
 
         for (let i = 0, len = this._queue.length; i < len; i++) {
@@ -286,7 +284,6 @@ RenderComponentWalker.prototype = {
             for (let id = 0; id < datas.length; id ++) {
                 data = datas[id];
                 material = data.material;
-                effectHash = data.effectHash;
                 // Nothing can be rendered without material
                 if (!material) {
                     continue;
@@ -296,12 +293,15 @@ RenderComponentWalker.prototype = {
                 iaData = data.type === IARenderData.type;
 
                 // breaking batch
-                needNewBuf = (_batchData.vertexOffset + data.vertexCount > MAX_VERTEX) || (_batchData.indiceOffset + data.indiceCount > MAX_INDICE);
-                if (_batchData.effectHash != effectHash || _batchData.cullingMask !== cullingMask || iaData || needNewBuf) {
+                broken = iaData || 
+                         !_batchData.material || _batchData.material._hash != material._hash || 
+                         _batchData.cullingMask !== cullingMask ||
+                         (_batchData.vertexOffset + data.vertexCount > MAX_VERTEX) || 
+                         (_batchData.indiceOffset + data.indiceCount > MAX_INDICE);
+                if (broken) {
                     this._flush(_batchData);
                     _batchData.node = assembler.useModel ? comp.node : this._dummyNode;
                     _batchData.material = material;
-                    _batchData.effectHash = effectHash;
                     _batchData.vfmt = comp._vertexFormat;
                     _batchData.vertexOffset = 0;
                     _batchData.byteOffset = 0;

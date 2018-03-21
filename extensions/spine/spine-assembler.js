@@ -40,6 +40,7 @@ let _originColor = cc.color(0, 255, 0, 255);
 let _debugMaterial = new SpriteMaterial();
 _debugMaterial.useModel = true;
 _debugMaterial.useTexture = false;
+_debugMaterial.updateHash();
 
 function _getSlotMaterial (slot, tex, premultiAlpha) {
     let src, dst;
@@ -64,12 +65,11 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
     }
     let key = tex.url + src + dst;
     let material = _sharedMaterials[key];
-    let texImpl = tex.getImpl();
     if (!material) {
         material = new SpriteMaterial();
         material.useModel = true;
         // update texture
-        material.texture = texImpl;
+        material.texture = tex;
         // update blend function
         let pass = material._mainTech.passes[0];
         pass.setBlend(
@@ -79,9 +79,11 @@ function _getSlotMaterial (slot, tex, premultiAlpha) {
             src, dst
         );
         _sharedMaterials[key] = material;
+        material.updateHash();
     }
-    else if (material.texture !== texImpl) {
-        material.texture = texImpl;
+    else if (material.texture !== tex) {
+        material.texture = tex;
+        material.updateHash();
     }
     return material;
 }

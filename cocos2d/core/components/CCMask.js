@@ -177,6 +177,7 @@ let Mask = cc.Class({
                 }
                 if (this._frontMaterial) {
                     this._frontMaterial.alphaThreshold = this.alphaThreshold;
+                    this._frontMaterial.updateHash();
                 }
             }
         },
@@ -285,16 +286,18 @@ let Mask = cc.Class({
         if (this._type === MaskType.IMAGE_STENCIL) {
             let texture = this.spriteFrame.getTexture();
             this._frontMaterial.useTexture = true;
-            this._frontMaterial.texture = texture.getImpl();
+            this._frontMaterial.texture = texture;
             this._frontMaterial.alphaThreshold = this.alphaThreshold;
             this._endMaterial.useTexture = true;
-            this._endMaterial.texture = texture.getImpl();
+            this._endMaterial.texture = texture;
             this._endMaterial.alphaThreshold = this.alphaThreshold;
         }
         else {
             this._frontMaterial.useTexture = false;
             this._endMaterial.useTexture = false;
         }
+        this._frontMaterial.updateHash();
+        this._endMaterial.updateHash();
     },
 
     _hitTest: function (point) {

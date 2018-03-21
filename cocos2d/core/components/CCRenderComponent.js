@@ -47,7 +47,6 @@ var RenderComponent = cc.Class({
     
     ctor () {
         this._material = null;
-        this._customMaterial = false;
         this._renderData = null;
         this.__allocedDatas = [];
         this._vertexFormat = defaultVertexFormat;
@@ -87,13 +86,9 @@ var RenderComponent = cc.Class({
         return this._material;
     },
 
-    getEffectHash () {
-        if (this._material) {
-            return this._material.hash;
-        }
-        else {
-            return "";
-        }
+    setMaterial (material) {
+        material.updateHash();
+        this._material = material;
     }
 });
 RenderComponent._assembler = null;

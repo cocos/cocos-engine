@@ -59,7 +59,6 @@ let armatureAssembler = js.addon({
         let anchor = comp.node._anchorPoint;
         renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
         renderData.material = comp.getMaterial();
-        renderData.effectHash = comp.getEffectHash();
 
         renderData.vertexCount = 0;
         renderData.indiceCount = 0;

@@ -216,16 +216,12 @@ var MotionStreak = cc.Class({
 
     _activateMaterial: function () {
         if (this._material) return;
-
-        let texture = this._texture;;
-        let url = texture.url;
         
-        // Get material
-        material = new SpriteMaterial();
+        let material = new SpriteMaterial();
         // TODO: old texture in material have been released by loader
-        material.texture = texture.getImpl();
+        material.texture = this._texture;
 
-        this._material = material;
+        this.setMaterial(material);
     },
 
     onFocusInEditor: CC_EDITOR && function () {
