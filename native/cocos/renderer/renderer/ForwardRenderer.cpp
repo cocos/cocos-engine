@@ -43,9 +43,9 @@ ForwardRenderer::ForwardRenderer()
 {
 }
 
-bool ForwardRenderer::init(DeviceGraphics* device, std::vector<ProgramLib::Template>& programTemplates, int width, int height)
+bool ForwardRenderer::init(DeviceGraphics* device, std::vector<ProgramLib::Template>& programTemplates, Texture2D* defaultTexture, int width, int height)
 {
-    BaseRenderer::init(device, programTemplates);
+    BaseRenderer::init(device, programTemplates, defaultTexture);
     _width = width;
     _height = height;
     registerStage("transparent", std::bind(&ForwardRenderer::transparentStage, this, std::placeholders::_1, std::placeholders::_2));
@@ -78,23 +78,23 @@ void ForwardRenderer::transparentStage(const View* view, const std::vector<Stage
     for (const auto& item : items)
     {
         // Update vertex buffer and index buffer
-        InputAssembler* ia = item.ia;
-        VertexBuffer* vb = ia->getVertexBuffer();
-        size_t vertexDataBytes = 0;
-        uint8_t* vertexData = vb->invokeFetchDataCallback(&vertexDataBytes);
-        assert(vertexData != nullptr);
-        assert(vertexDataBytes > 0);
-//        RENDERER_LOGD("vertexBuffer size: %d", (int)vertexDataBytes);
-
-        IndexBuffer* ib = ia->getIndexBuffer();
-        size_t indexDataBytes = 0;
-        uint8_t* indexData = ib->invokeFetchDataCallback(&indexDataBytes);
-        assert(indexData != nullptr);
-        assert(indexDataBytes > 0);
-//        RENDERER_LOGD("indexBuffer size: %d", (int)indexDataBytes);
-
-        vb->update(0, vertexData, vertexDataBytes);
-        ib->update(0, indexData, indexDataBytes);
+//        InputAssembler* ia = item.ia;
+//        VertexBuffer* vb = ia->getVertexBuffer();
+//        size_t vertexDataBytes = 0;
+//        uint8_t* vertexData = vb->invokeFetchDataCallback(&vertexDataBytes);
+//        assert(vertexData != nullptr);
+//        assert(vertexDataBytes > 0);
+////        RENDERER_LOGD("vertexBuffer size: %d", (int)vertexDataBytes);
+//
+//        IndexBuffer* ib = ia->getIndexBuffer();
+//        size_t indexDataBytes = 0;
+//        uint8_t* indexData = ib->invokeFetchDataCallback(&indexDataBytes);
+//        assert(indexData != nullptr);
+//        assert(indexDataBytes > 0);
+////        RENDERER_LOGD("indexBuffer size: %d", (int)indexDataBytes);
+//
+//        vb->update(0, vertexData, vertexDataBytes);
+//        ib->update(0, indexData, indexDataBytes);
         draw(item);
     }
 }

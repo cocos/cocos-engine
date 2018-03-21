@@ -34,12 +34,12 @@ Effect::Effect(const Vector<Technique*>& techniques,
 , _properties(properties)
 , _defineTemplates(defineTemplates)
 {
-    RENDERER_LOGD("Effect construction: %p", this);
+//    RENDERER_LOGD("Effect construction: %p", this);
 }
 
 Effect::~Effect()
 {
-    RENDERER_LOGD("Effect destruction: %p", this);
+//    RENDERER_LOGD("Effect destruction: %p", this);
 }
 
 void Effect::clear()

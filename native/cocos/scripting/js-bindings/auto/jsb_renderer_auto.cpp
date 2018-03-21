@@ -372,22 +372,24 @@ static bool js_renderer_ForwardRenderer_init(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 4) {
+    if (argc == 5) {
         cocos2d::renderer::DeviceGraphics* arg0 = nullptr;
         std::vector<cocos2d::renderer::ProgramLib::Template> arg1;
-        int arg2 = 0;
+        cocos2d::renderer::Texture2D* arg2 = nullptr;
         int arg3 = 0;
+        int arg4 = 0;
         ok &= seval_to_native_ptr(args[0], &arg0);
         ok &= seval_to_std_vector_ProgramLib_Template(args[1], &arg1);
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (int)tmp; } while(false);
+        ok &= seval_to_native_ptr(args[2], &arg2);
         do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (int)tmp; } while(false);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (int)tmp; } while(false);
         SE_PRECONDITION2(ok, false, "js_renderer_ForwardRenderer_init : Error processing arguments");
-        bool result = cobj->init(arg0, arg1, arg2, arg3);
+        bool result = cobj->init(arg0, arg1, arg2, arg3, arg4);
         ok &= boolean_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_renderer_ForwardRenderer_init : Error processing arguments");
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 5);
     return false;
 }
 SE_BIND_FUNC(js_renderer_ForwardRenderer_init)

@@ -367,12 +367,12 @@ Technique::Technique(const std::vector<std::string>& stages,
 , _passes(passes)
 , _layer(layer)
 {
-    RENDERER_LOGD("Technique construction: %p", this);
+//    RENDERER_LOGD("Technique construction: %p", this);
 }
 
 Technique::~Technique()
 {
-    RENDERER_LOGD("Technique destruction: %p", this);
+//    RENDERER_LOGD("Technique destruction: %p", this);
 }
 
 void Technique::setStages(const std::vector<std::string>& stages)

@@ -3,6 +3,7 @@
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
 // #include "Renderer.h"
 #include "renderer/INode.h"
+#include "jsb_conversions.hpp"
 
 using namespace cocos2d;
 using namespace cocos2d::renderer;
@@ -285,7 +286,7 @@ public:
             se::HandleObject obj(se::Object::createPlainObject());
             args.push_back(se::Value(obj));
             func.toObject()->call(args, _jsNode.toObject(), &ret);
-            seval_to_Mat4(ret, &worldMatrix);
+            seval_to_Mat4(se::Value(obj), &worldMatrix);
         }
         return worldMatrix;
     }
@@ -364,6 +365,53 @@ static bool js_renderer_Model_setNode(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_Model_setNode)
 
+static bool js_renderer_Technique_prop_getPasses(se::State& s)
+{
+    cocos2d::renderer::Technique* cobj = (cocos2d::renderer::Technique*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Technique_getPasses: Invalid Native Object.");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0)
+    {
+        const auto& passes = cobj->getPasses();
+        Vector_to_seval<cocos2d::renderer::Pass>(passes, &s.rval());
+        return true;
+    }
+    
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_renderer_Technique_prop_getPasses);
+
+static bool js_renderer_Config_addStage(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 1)
+    {
+        std::string arg0;
+        bool ok = seval_to_std_string(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_renderer_Scene_addCamera : Error processing arguments");
+        cocos2d::renderer::Config::addStage(arg0);
+        return true;
+    }
+    
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_Config_addStage);
+
+static bool js_register_renderer_Config(se::Object* obj)
+{
+    auto cls = se::Class::create("Config", obj, nullptr, nullptr);
+    cls->defineStaticFunction("addStage", _SE(js_renderer_Config_addStage));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::renderer::Config>(cls);
+    
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
 bool jsb_register_renderer_manual(se::Object* global)
 {
     // Camera
@@ -393,6 +441,23 @@ bool jsb_register_renderer_manual(se::Object* global)
 
     // Model
     __jsb_cocos2d_renderer_Model_proto->defineFunction("setNode", _SE(js_renderer_Model_setNode));
+    
+    // Technique
+    __jsb_cocos2d_renderer_Technique_proto->defineProperty("_passes", _SE(js_renderer_Technique_prop_getPasses), nullptr);
+    
+    // Config
+    
+    // Get the ns
+    se::Value nsVal;
+    if (!global->getProperty("renderer", &nsVal))
+    {
+        se::HandleObject jsobj(se::Object::createPlainObject());
+        nsVal.setObject(jsobj);
+        global->setProperty("renderer", nsVal);
+    }
+    se::Object* ns = nsVal.toObject();
+    
+    js_register_renderer_Config(ns);
 
     return true;
 }

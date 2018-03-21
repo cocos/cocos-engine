@@ -1391,9 +1391,13 @@ bool seval_to_TextureOptions(const se::Value& v, cocos2d::renderer::Texture::Opt
                         imgData.copy((unsigned char*)data, bytes);
                         ret->images.push_back(std::move(imgData));
                     }
+                    else if (imageVal.isNull())
+                    {
+//                        ret->images.push_back(cocos2d::Data());
+                    }
                     else
                     {
-                        SE_LOGE("Texture image isn't a typed array object!");
+                        SE_LOGE("Texture image isn't a typed array object or null!");
                         assert(false);
                     }
                 }
@@ -1714,7 +1718,7 @@ bool seval_to_TechniqueParameter(const se::Value& v, cocos2d::renderer::Techniqu
     obj->getAllKeys(&keys);
     for (auto& key: keys)
     {
-        SE_LOGD("key: %s\n", key.c_str());
+//        SE_LOGD("key: %s\n", key.c_str());
     }
 
     bool ok = false;
