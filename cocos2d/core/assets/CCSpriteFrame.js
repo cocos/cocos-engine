@@ -179,7 +179,8 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Add a event listener for texture loaded event.
+     * !#en Add a event listener for texture loaded event.
+     * !#zh 添加纹理读取事件监听事件
      * @method addLoadedEventListener
      * @param {Function} callback
      * @param {Object} target
@@ -349,7 +350,7 @@ var SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
     /**
      * !#en Set SpriteFrame with Texture, rect, rotated, offset and originalSize.<br/>
-     * !#zh 通过 Texture，rect，rotated，offset 和 originalSize 设置 SpriteFrame
+     * !#zh 通过 Texture，rect，rotated，offset 和 originalSize 设置 SpriteFrame。
      * @method setTexture
      * @param {String|Texture2D} textureOrTextureFile
      * @param {Rect} [rect=null]
