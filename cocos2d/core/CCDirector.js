@@ -873,7 +873,7 @@ cc.Director.prototype = {
 
     /**
      * !#en Returns the delta time since last frame.
-     * !#zh 获取上一帧的 “delta time”。
+     * !#zh 获取上一帧的增量时间。
      * @method getDeltaTime
      * @return {Number}
      */
@@ -893,7 +893,7 @@ cc.Director.prototype = {
 
     /**
      * !#en Returns whether or not to display the FPS informations.
-     * !#zh 获取是否显示 FPS 信息。
+     * !#zh 是否显示 FPS 信息。
      * @method isDisplayStats
      * @return {Boolean}
      */
@@ -971,7 +971,7 @@ cc.Director.prototype = {
         }
     },
 
-    /*
+    /* 
      * !#en Returns the cc.AnimationManager associated with this director.
      * !#zh 获取和 director 相关联的 cc.AnimationManager（动画管理器）。
      * @method getAnimationManager
@@ -982,7 +982,8 @@ cc.Director.prototype = {
     },
 
     /**
-     * Returns the cc.CollisionManager associated with this director.
+     * !#en Returns the cc.CollisionManager associated with this director.
+     * !#zh 获取和 director 相关联的 cc.CollisionManager （碰撞管理器）。
      * @method getCollisionManager
      * @return {CollisionManager}
      */
@@ -991,7 +992,8 @@ cc.Director.prototype = {
     },
 
     /**
-     * Returns the cc.PhysicsManager associated with this director.
+     * !#en Returns the cc.PhysicsManager associated with this director.
+     * !#zh 返回与 director 相关联的 cc.PhysicsManager （物理管理器）。
      * @method getPhysicsManager
      * @return {PhysicsManager}
      */
